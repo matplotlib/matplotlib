@@ -60,8 +60,12 @@ basedir = {
 }
 
 import sys, os, stat
+import commands
+from sets import Set
+from textwrap import fill
 from distutils.core import Extension
 import glob
+import ConfigParser
 
 major, minor1, minor2, s, tmp = sys.version_info
 if major<2 or (major==2 and minor1<3):
@@ -81,7 +85,7 @@ BUILT_WXAGG     = False
 BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
 BUILT_NXUTILS   = False
-BUILT_ENTHOUGHT   = False
+BUILT_ENTHOUGHT = False
 BUILT_CONTOUR   = False
 BUILT_GDK       = False
 
@@ -90,6 +94,42 @@ AGG_VERSION = 'agg23'
 # for nonstandard installation/build with --prefix variable
 numpy_inc_dirs = []
 
+# Based on the contents of setup.cfg, determine if the status block
+# should be displayed
+display_status = True
+if os.path.exists("setup.cfg"):
+    config = ConfigParser.SafeConfigParser()
+    config.read("setup.cfg")
+    try:
+        if config.get("status", "suppress"):
+            display_status = False
+    except:
+        pass
+
+if display_status:
+    def print_line(char='='):
+        print char * 76
+
+    def print_status(package, status):
+        initial_indent = "%22s: " % package
+        indent = ' ' * 24
+        print fill(status, width=76,
+                   initial_indent=initial_indent,
+                   subsequent_indent=indent)
+
+    def print_message(message):
+        indent = ' ' * 24 + "* "
+        print fill(message, width=76,
+                   initial_indent=indent,
+                   subsequent_indent=indent)
+
+    def print_raw(section):
+        print section
+else:
+    def print_line(*args, **kwargs):
+        pass
+    print_status = print_message = print_raw = print_line
+        
 class CleanUpFile:
     """CleanUpFile deletes the specified filename when self is destroyed."""
     def __init__(self, name):
@@ -123,8 +163,99 @@ if sys.platform == 'win32' and win32_compiler == 'msvc':
 else:
     std_libs = ['stdc++', 'm']
 
-def add_base_flags(module):
+def has_pkgconfig():
+    if has_pkgconfig.cache is not None:
+        return has_pkgconfig.cache
+    if sys.platform == 'win32':
+        has_pkgconfig.cache = False
+    else:
+        status, output = commands.getstatusoutput("pkg-config --help")
+        has_pkgconfig.cache = (status == 0)
+    return has_pkgconfig.cache
+has_pkgconfig.cache = None
+    
+def get_pkgconfig(module,
+                  packages,
+                  flags="--libs --cflags",
+                  pkg_config_exec='pkg-config'):
+    """Loosely based on an article in the Python Cookbook:
+    http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/502261"""
+    if not has_pkgconfig():
+        return False
 
+    _flags = {'-I': 'include_dirs',
+              '-L': 'library_dirs',
+              '-l': 'libraries',
+              '-D': 'define_macros',
+              '-U': 'undef_macros'}
+    
+    status, output = commands.getstatusoutput(
+        "%s %s %s" % (pkg_config_exec, flags, packages))
+    if status == 0:
+        for token in output.split():
+            attr = _flags.get(token[:2], None)
+            if attr is not None:
+                set = getattr(module, attr)
+                if token[2:] not in set:
+                    set.append(token[2:])
+            else:
+                if token not in module.extra_link_args:
+                    module.extra_link_args.append(token)
+        return True
+    return False
+
+def get_pkgconfig_version(package):
+    default = "unknown (no pkg-config)"
+    if not has_pkgconfig():
+        return default
+
+    status, output = commands.getstatusoutput(
+        "pkg-config %s --modversion" % (package))
+    if status == 0:
+        return output
+    return default
+
+def try_pkgconfig(module, package, fallback):
+    if not get_pkgconfig(module, package):
+        module.libraries.append(fallback)
+
+def find_include_file(include_dirs, filename):
+    for d in include_dirs:
+        if os.path.exists(os.path.join(d, filename)):
+            return True
+    return False
+
+def check_for_freetype():
+    module = Extension('test', [])
+    add_base_flags(module)
+    if not get_pkgconfig(module, 'freetype2'):
+        basedirs = module.include_dirs[:]  # copy the list to avoid inf loop!
+        for d in basedirs:
+            module.include_dirs.append(os.path.join(d, 'freetype2'))
+
+    if not find_include_file(module.include_dirs, 'ft2build.h'):
+        print_message(
+            "Could not find 'freetype2' headers in any of %s" %
+            ", ".join(["'%s'" % x for x in module.include_dirs]))
+        return False
+
+    print_status("freetype2", get_pkgconfig_version('freetype2'))
+    return True
+    
+def check_for_libpng():
+    module = Extension("test", [])
+    get_pkgconfig(module, 'libpng')
+    add_base_flags(module)
+    if not find_include_file(module.include_dirs, 'png.h'):
+        print_message(
+            ", ".join("Could not find 'libpng' headers in any of %s" %
+            ["'%s'" % x for x in module.include_dirs]))
+        return False
+
+    print_status("libpng", get_pkgconfig_version('libpng'))
+    return True
+        
+def add_base_flags(module):
     incdirs = filter(os.path.exists,
                      [os.path.join(p, 'include') for p in basedir[sys.platform] ])
     libdirs = filter(os.path.exists,
@@ -141,6 +272,57 @@ def getoutput(s):
     ret =  os.popen(s).read().strip()
     return ret
 
+def check_for_qt():
+    try:
+        import pyqtconfig
+    except ImportError:
+        print_status("Qt", "no")
+        return False
+    else:
+        print_status("Qt", "Qt: %s, pyqt: %s" %
+                     (pyqtconfig.Configuration().pyqt_version_str,
+                      pyqtconfig.Configuration().qt_version))
+        return True
+
+def check_for_qt4():
+    try:
+        import PyQt4.pyqtconfig
+    except ImportError:
+        print_status("Qt4", "no")
+        return False
+    else:
+        print_status("Qt4", "Qt: %s, pyqt: %s" %
+                     (PyQt4.pyqtconfig.Configuration().pyqt_version_str,
+                      PyQt4.pyqtconfig.Configuration().qt_version))
+        return True
+
+def check_for_cairo():
+    try:
+        import cairo
+    except ImportError:
+        print_status("Cairo", "no")
+        return False
+    else:
+        print_status("Cairo", cairo.version)
+    
+def check_for_numpy():
+    gotit = False
+    try:
+        import numpy
+    except ImportError:
+        print_status("numpy", "no")
+        print_message("You must install numpy to build matplotlib.")
+        return False
+    module = Extension('test', [])
+    add_numpy_flags(module)
+    add_base_flags(module)
+    if not find_include_file(module.include_dirs, os.path.join("numpy", "arrayobject.h")):
+        print_status("numpy", "no")
+        print_message("Could not find the headers for numpy.  You may need to install the development package.")
+        return False
+    print_status("numpy", numpy.__version__)
+    return True
+
 def add_numpy_flags(module):
     "Add the modules flags to build extensions which use numpy"
     import numpy
@@ -154,12 +336,10 @@ def add_agg_flags(module):
     'Add the module flags to build extensions which use agg'
 
     # before adding the freetype flags since -z comes later
-    module.libraries.append('png')
+    try_pkgconfig(module, 'libpng', 'png')
     module.libraries.append('z')
     add_base_flags(module)
     module.include_dirs.extend(['src','swig', '%s/include'%AGG_VERSION, '.'])
-
-
 
     # put these later for correct link order
     module.libraries.extend(std_libs)
@@ -168,24 +348,26 @@ def add_gd_flags(module):
     'Add the module flags to build extensions which use gd'
     module.libraries.append('gd')
 
-
 def add_ft2font_flags(module):
-    'Add the module flags to build extensions which use gd'
-    module.libraries.extend(['freetype', 'z' ])
+    'Add the module flags to ft2font extension'
+    module.libraries.append('z')
     add_base_flags(module)
 
-    basedirs = module.include_dirs[:]  # copy the list to avoid inf loop!
-    for d in basedirs:
-        module.include_dirs.append(os.path.join(d, 'freetype2'))
-        p = os.path.join(d, 'lib/freetype2/include')
-        if os.path.exists(p): module.include_dirs.append(p)
-        p = os.path.join(d, 'lib/freetype2/include/freetype2')
-        if os.path.exists(p): module.include_dirs.append(p)
+    if not get_pkgconfig(module, 'freetype2'):
+        module.libraries.append('freetype')
+        
+        basedirs = module.include_dirs[:]  # copy the list to avoid inf loop!
+        for d in basedirs:
+            module.include_dirs.append(os.path.join(d, 'freetype2'))
+            p = os.path.join(d, 'lib/freetype2/include')
+            if os.path.exists(p): module.include_dirs.append(p)
+            p = os.path.join(d, 'lib/freetype2/include/freetype2')
+            if os.path.exists(p): module.include_dirs.append(p)
 
-    basedirs = module.library_dirs[:]  # copy the list to avoid inf loop!
-    for d in basedirs:
-        p = os.path.join(d, 'freetype2/lib')
-        if os.path.exists(p): module.library_dirs.append(p)
+        basedirs = module.library_dirs[:]  # copy the list to avoid inf loop!
+        for d in basedirs:
+            p = os.path.join(d, 'freetype2/lib')
+            if os.path.exists(p): module.library_dirs.append(p)
 
     if sys.platform == 'win32' and win32_compiler == 'mingw32':
         module.libraries.append('gw32c')
@@ -193,7 +375,47 @@ def add_ft2font_flags(module):
     # put this last for library link order
     module.libraries.extend(std_libs)
 
+def check_for_gtk():
+    'check for the presence of pygtk'
+    gotit = False
+    explanation = None
+    try:
+        import gtk
+    except ImportError:
+        explanation = 'Building for Gtk+ requires pygtk; you must be able to "import gtk" in your build/install environment'
+    except RuntimeError:
+        explanation = 'pygtk present but import failed'
+    else:
+        version = (2,2,0)
+        if gtk.pygtk_version < version:
+            explanation = "Error: GTK backend requires PyGTK %d.%d.%d (or later), " \
+                  "%d.%d.%d was detected." % (
+                version + gtk.pygtk_version)
+        else:
+            gotit = True
 
+    if gotit:
+        module = Extension('test', [])
+        add_pygtk_flags(module)
+        if not find_include_file(module.include_dirs, os.path.join("gtk", "gtk.h")):
+            explanation = (
+                "Could not find Gtk+ headers in any of %s" %
+                ", ".join(["'%s'" % x for x in module.include_dirs]))
+            gotit = False
+
+    def ver2str(tup):
+        return ".".join([str(x) for x in tup])
+    
+    if gotit:
+        import gobject
+        print_status("Gtk+", "gtk+: %s, glib: %s, pygtk: %s, pygobject: %s" %
+                     (ver2str(gtk.gtk_version), ver2str(gobject.glib_version),
+                      ver2str(gtk.pygtk_version), ver2str(gobject.pygobject_version)))
+    else:
+        print_status("Gtk+", "no")
+        print_message(explanation)
+            
+    return gotit
 
 def add_pygtk_flags(module):
     'Add the module flags to build extensions which use gtk'
@@ -220,36 +442,61 @@ def add_pygtk_flags(module):
 
     add_base_flags(module)
 
-    # set for msvc compiler if not present
-    if not os.environ.has_key('PKG_CONFIG_PATH'):
-        os.environ['PKG_CONFIG_PATH'] = 'C:\GTK\lib\pkgconfig'
-
-    pygtkIncludes = getoutput('pkg-config --cflags-only-I pygtk-2.0').split()
-    gtkIncludes = getoutput('pkg-config --cflags-only-I gtk+-2.0').split()
-    includes = pygtkIncludes + gtkIncludes
-    module.include_dirs.extend([include[2:] for include in includes])
-
-    pygtkLinker = getoutput('pkg-config --libs pygtk-2.0').split()
-    gtkLinker =  getoutput('pkg-config --libs gtk+-2.0').split()
-    linkerFlags = pygtkLinker + gtkLinker
-
-    module.libraries.extend(
-        [flag[2:] for flag in linkerFlags if flag.startswith('-l')])
-
-
-    module.library_dirs.extend(
-        [flag[2:] for flag in linkerFlags if flag.startswith('-L')])
-
-
-    module.extra_link_args.extend(
-        [flag for flag in linkerFlags if not
-         (flag.startswith('-l') or flag.startswith('-L'))])
+    if sys.platform != 'win32':
+        # If Gtk+ is installed, pkg-config is required to be installed
+        get_pkgconfig(module, 'pygtk-2.0 gtk+-2.0')
 
     # visual studio doesn't need the math library
     if sys.platform == 'win32' and win32_compiler == 'msvc' and 'm' in module.libraries:
         module.libraries.remove('m')
 
 
+def check_for_wx():
+    gotit = False
+    explanation = None
+    try:
+        import wx
+    except ImportError:
+        explanation = 'wxPython not found'
+    else:
+        if sys.platform == 'win32' and win32_compiler == 'mingw32':
+            explanation = "The wxAgg extension can not be built using the mingw32 compiler on Windows, since the default wxPython binary is built using MS Visual Studio"
+        else:
+            wxconfig = find_wx_config()
+            if wxconfig is None:
+                explanation = """
+WXAgg's accelerator requires `wx-config'.
+
+The `wx-config\' executable could not be located in any directory of the
+PATH environment variable. If you want to build WXAgg, and wx-config is
+in some other location or has some other name, set the WX_CONFIG
+environment variable to the full path of the executable like so:
+
+export WX_CONFIG=/usr/lib/wxPython-2.6.1.0-gtk2-unicode/bin/wx-config
+"""
+            elif not check_wxpython_broken_macosx104_version(wxconfig):
+                explanation = 'WXAgg\'s accelerator not building because a broken wxPython (installed by Apple\'s Mac OS X) was found.'
+            else:
+                gotit = True
+
+    if gotit:
+        module = Extension("test", [])
+        add_wx_flags(module, wxconfig)
+        if not find_include_file(
+            module.include_dirs,
+            os.path.join("wx", "wxPython", "wxPython.h")):
+            explanation = ("Could not find wxPython headers in any of %s" %
+                           ", ".join(["'%s'" % x for x in module.include_dirs]))
+            gotit = False
+
+    if gotit:
+        print_status("wxPython", wx.__version__)
+    else:
+        print_status("wxPython", "no")
+    if explanation is not None:
+        print_message(explanation)
+    return gotit
+                
 def find_wx_config():
     """If the WX_CONFIG environment variable has been set, returns it value.
     Otherwise, search for `wx-config' in the PATH directories and return the
@@ -267,24 +514,6 @@ def find_wx_config():
             return wxconfig
 
     return None
-
-
-def check_wxpython_headers(wxconfig):
-    """Determines if wxPython.h can be found in one of the wxWidgets include
-    directories.
-    """
-
-    flags = getoutput(wxconfig + ' --cppflags').split()
-    incdirs = [os.path.join(p, 'include') for p in basedir[sys.platform]
-               if os.path.exists(p)]
-
-    incdirs += [x[2:] for x in flags if x.startswith('-I')]
-    header = os.path.join('wx', 'wxPython', 'wxPython.h')
-
-    for d in incdirs:
-        if os.path.exists(os.path.join(d, header)):
-            return True
-    return False
 
 def check_wxpython_broken_macosx104_version(wxconfig):
     """Determines if we're using a broken wxPython installed by Mac OS X 10.4"""
@@ -308,30 +537,7 @@ def add_wx_flags(module, wxconfig):
         module.libraries.extend(wxlibs)
         return
 
-    def getWX(fmt, *args):
-        return getoutput(wxconfig + ' ' + (fmt % args)).split()
-
-    wxFlags = getWX('--cppflags')
-    wxLibs = getWX('--libs')
-
-
-    add_base_flags(module)
-    module.include_dirs.extend(
-        [x[2:] for x in wxFlags if x.startswith('-I')])
-
-
-    module.define_macros.extend(
-        [(x[2:], None) for x in wxFlags if x.startswith('-D')])
-    module.undef_macros.extend(
-        [x[2:] for x in wxFlags if x.startswith('-U')])
-
-    module.libraries.extend(
-        [x[2:] for x in wxLibs if x.startswith('-l')])
-    module.library_dirs.extend(
-        [x[2:] for x in wxLibs if x.startswith('-L')])
-    module.extra_link_args.extend(
-        [x for x in wxLibs if not (x.startswith('-l') or x.startswith('-L'))])
-
+    get_pkgconfig(module, '', flags='--cppflags --libs', pkg_config_exec='wx-config')
 
 # Make sure you use the Tk version given by Tkinter.TkVersion
 # or else you'll build for a wrong version of the Tcl
@@ -342,21 +548,12 @@ class FoundTclTk:
 
 def find_tcltk():
     """Finds Tcl/Tk includes/libraries/version by interrogating Tkinter."""
-    try:
-        import Tkinter
-    except:
-        print "Tkinter not properly installed\n"
-        sys.exit(1)
-    if Tkinter.TkVersion < 8.3:
-        print "Tcl/Tk v8.3 or later required\n"
-        sys.exit(1)
+    # By this point, we already know that Tkinter imports correctly
+    import Tkinter
     o = FoundTclTk()
     try:
         tk=Tkinter.Tk()
     except Tkinter.TclError:
-        print "Using default library and include directories for Tcl and Tk because a"
-        print "Tk window failed to open.  You may need to define DISPLAY for Tk to work"
-        print "so that setup can determine where your libraries are located."
         o.tcl_lib = "/usr/local/lib"
         o.tcl_inc = "/usr/local/include"
         o.tk_lib = "/usr/local/lib"
@@ -389,24 +586,60 @@ def find_tcltk():
                 os.path.exists('/usr/include/tk.h')):
                 o.tcl_inc = '/usr/include/'
                 o.tk_inc = '/usr/include/'
-
-        if not os.path.exists(o.tcl_inc):
-            print 'cannot find tcl/tk headers. giving up.'
-            sys.exit()
     return o
 
+def check_for_tk():
+    gotit = False
+    explanation = None
+    try:
+        import Tkinter
+    except ImportError:
+        explanation = 'TKAgg requires Tkinter'
+    except RuntimeError:
+        explanation = 'Tkinter present but import failed'
+    else:
+        if Tkinter.TkVersion < 8.3:
+            explanation = "Tcl/Tk v8.3 or later required\n"
+            sys.exit(1)
+        else:
+            try:
+                tk = Tkinter.Tk()
+                tk.withdraw()
+            except Tkinter.TclError:
+                explanation = """\
+Using default library and include directories for Tcl and Tk because a
+Tk window failed to open.  You may need to define DISPLAY for Tk to work
+so that setup can determine where your libraries are located."""
+            gotit = True
+
+    if gotit:
+        module = Extension('test', [])
+        try:
+            add_tk_flags(module)
+        except RuntimeError, e:
+            explanation = str(e)
+            gotit = False
+        if not find_include_file(module.include_dirs, "tk.h"):
+            explanation = 'Tkinter present, but header files are not installed.  You may need to install development packages.'
+            gotit = False
+
+    if gotit:
+        print_status("Tkinter", "Tkinter: %s, Tk: %s, Tcl: %s" %
+                     (Tkinter.__version__.split()[-2], Tkinter.TkVersion, Tkinter.TclVersion))
+    else:
+        print_status("Tkinter", "no")
+    if explanation is not None:
+        print_message(explanation)
+    return gotit
 
 def add_tk_flags(module):
     'Add the module flags to build extensions which use tk'
     if sys.platform=='win32':
         major, minor1, minor2, s, tmp = sys.version_info
-        print 'building tkagg', major, minor1
         if major==2 and minor1 in [3, 4, 5]:
-            print '\tBuilding for python2%d'%minor1
             module.include_dirs.extend(['win32_static/include/tcl84'])
             module.libraries.extend(['tk84', 'tcl84'])
         elif major==2 and minor1==2:
-            print '\tBuilding for python22'
             module.include_dirs.extend(['win32_static/include/tcl83'])
             module.libraries.extend(['tk83', 'tcl83'])
         else:
@@ -503,7 +736,10 @@ def build_ft2font(ext_modules, packages):
 def build_ttconv(ext_modules, packages):
     global BUILT_TTCONV
     if BUILT_TTCONV: return # only build it if you you haven't already
-    deps = ['src/_ttconv.cpp', 'ttconv/pprdrv_tt.cpp', 'ttconv/pprdrv_tt2.cpp', 'ttconv/ttutil.cpp']
+    deps = ['src/_ttconv.cpp',
+            'ttconv/pprdrv_tt.cpp',
+            'ttconv/pprdrv_tt2.cpp',
+            'ttconv/ttutil.cpp']
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
@@ -523,10 +759,8 @@ def build_gtkagg(ext_modules, packages):
                        deps,
                        )
 
-
     # add agg flags before pygtk because agg only supports freetype1
     # and pygtk includes freetype2.  This is a bit fragile.
-
 
     add_agg_flags(module)
     add_ft2font_flags(module)
@@ -557,61 +791,10 @@ def build_tkagg(ext_modules, packages):
     BUILT_TKAGG = True
 
 
-def build_wxagg(ext_modules, packages, abortOnFailure):
+def build_wxagg(ext_modules, packages):
      global BUILT_WXAGG
      if BUILT_WXAGG:
          return
-
-     wxconfig = find_wx_config()
-
-     # Avoid aborting the whole build process if `wx-config' can't be found and
-     # BUILD_WXAGG in setup.py is set to "auto"
-     if sys.platform == 'win32':
-         # mingw32 cannot link against distributed wx libs
-         # since they are built with VisualStudio
-         if win32_compiler == 'mingw32':
-             return
-         else:
-             pass
-
-     elif wxconfig is None:
-         print """
-WXAgg's accelerator requires `wx-config'.
-
-The `wx-config\' executable could not be located in any directory of the
-PATH environment variable. If you want to build WXAgg, and wx-config is
-in some other location or has some other name, set the WX_CONFIG
-environment variable to the full path of the executable like so:
-
-export WX_CONFIG=/usr/lib/wxPython-2.6.1.0-gtk2-unicode/bin/wx-config
-"""
-         if not abortOnFailure:
-             print """Building MPL without wxAgg"""
-             BUILT_WXAGG = True
-             return
-         else:
-             sys.exit(1)
-     elif not check_wxpython_headers(wxconfig):
-         print 'WXAgg\'s accelerator requires the wxPython headers.'
-
-         if not abortOnFailure:
-             BUILT_WXAGG = True
-             return
-         else:
-             print """
-The wxPython header files could not be located in any of the standard
-include
-directories or include directories reported by `wx-config --cppflags'."""
-             sys.exit(1)
-     elif not check_wxpython_broken_macosx104_version(wxconfig):
-         print 'WXAgg\'s accelerator not building because a broken wxPython (installed by Apple\'s Mac OS X) was found.'
-         if not abortOnFailure:
-             BUILT_WXAGG = True
-             return
-         else:
-             print """
-The wxPython installation is the broken version installed with Mac OS X 10.4."""
-             sys.exit(1)
 
      deps = ['src/_wxagg.cpp', 'src/mplutils.cpp']
      deps.extend(glob.glob('CXX/*.cxx'))
@@ -625,8 +808,6 @@ The wxPython installation is the broken version installed with Mac OS X 10.4."""
 
      ext_modules.append(module)
      BUILT_WXAGG = True
-
-
 
 
 def build_agg(ext_modules, packages):
