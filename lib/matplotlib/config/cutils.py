@@ -172,7 +172,7 @@ def get_config_file(tconfig=False):
                 return fname
 
     fname = os.path.join(get_configdir(), filename)
-    if os.path.exists(fname) or tconfig: return fname
+    if os.path.exists(fname): return fname
 
 
     path =  get_data_path() # guaranteed to exist or raise
