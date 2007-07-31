@@ -11,7 +11,7 @@ import enthought.traits.api as T
 import mpltraits as mplT
 import cutils
 import checkdep
-from tconfig import TConfig, TConfigManager
+from tconfig import TConfig, TConfigManager, tconf2File
 import pytz
 
 # Code begins
@@ -503,9 +503,9 @@ def rcdefaults():
     rcParams = RcParamsWrapper(mplConfig)
 
 ##############################################################################
-# Simple testing
+# Auto-generate the mpl-data/matplotlib.conf
 ##############################################################################
 if __name__ == "__main__":
     mplConfig = MPLConfig()
-    mplConfig.backend.pdf.compression = 1.1
-    print mplConfig
+    tconf2File(mplConfig, '../mpl-data/matplotlib.conf', force=True)
+    print 'Default matplotlib.conf created in ../mpl-data'
