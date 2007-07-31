@@ -15,6 +15,7 @@ from tconfig import TConfig, TConfigManager
 import pytz
 
 # Code begins
+DEBUG = False
 
 ##############################################################################
 # Main Config class follows
@@ -172,7 +173,7 @@ class MPLConfig(TConfig):
         facecolor = T.Trait('white', mplT.ColorHandler())
         edgecolor = T.Trait('black', mplT.ColorHandler())
         linewidth = T.Float(1.0)
-        grid = T.Trait(True, mplT.BoolHandler())
+        grid = T.Trait(False, mplT.BoolHandler())
         polargrid = T.Trait(True, mplT.BoolHandler())
         titlesize = T.Trait('large', 'xx-small', 'x-small', 'small', 'medium',
                             'large', 'x-large', 'xx-large', T.Float)
@@ -466,6 +467,8 @@ if os.path.exists(old_config_file) and not os.path.exists(config_file):
 else:
     config_file = cutils.get_config_file(tconfig=True)
     CONVERT = False
+
+if DEBUG: print 'loading', config_file
 
 configManager = TConfigManager(MPLConfig,
                                config_file,
