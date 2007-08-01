@@ -238,7 +238,7 @@ explanation = None
 if check_for_wx() and BUILD_WXAGG:
     BUILD_AGG = 1
     import wx
-    if wx.__version__ < (2.8):
+    if getattr(wx, '__version__', '0.0')[0:3] < '2.8':
         build_wxagg(ext_modules, packages)
         wxagg_backend_status = "yes"
     else:
