@@ -810,6 +810,7 @@ def build_wxagg(ext_modules, packages):
 
      add_agg_flags(module)
      add_ft2font_flags(module)
+     wxconfig = find_wx_config()
      add_wx_flags(module, wxconfig)
 
      ext_modules.append(module)
