@@ -358,7 +358,8 @@ def add_gd_flags(module):
 def add_ft2font_flags(module):
     'Add the module flags to ft2font extension'
     if not get_pkgconfig(module, 'freetype2'):
-        module.libraries.append('freetype')
+        module.libraries.extend(['freetype', 'z'])
+        add_base_flags(module)
         
         basedirs = module.include_dirs[:]  # copy the list to avoid inf loop!
         for d in basedirs:
@@ -372,9 +373,8 @@ def add_ft2font_flags(module):
         for d in basedirs:
             p = os.path.join(d, 'freetype2/lib')
             if os.path.exists(p): module.library_dirs.append(p)
-
-        module.libraries.append('z')
-    add_base_flags(module)
+    else:
+        add_base_flags(module)
             
     if sys.platform == 'win32' and win32_compiler == 'mingw32':
         module.libraries.append('gw32c')
@@ -451,10 +451,38 @@ def add_pygtk_flags(module):
              'C:/GTK/include/gtk',
              ])
 
-    add_base_flags(module)
+        add_base_flags(module)
+        
+        if not os.environ.has_key('PKG_CONFIG_PATH'):
+            # If Gtk+ is installed, pkg-config is required to be installed
+            os.environ['PKG_CONFIG_PATH'] = 'C:\GTK\lib\pkgconfig'
+	  	 
+        pygtkIncludes = getoutput('pkg-config --cflags-only-I pygtk-2.0').split() 	 
+        gtkIncludes = getoutput('pkg-config --cflags-only-I gtk+-2.0').split() 	 
+        includes = pygtkIncludes + gtkIncludes 	 
+        module.include_dirs.extend([include[2:] for include in includes]) 	 
+	  	 
+        pygtkLinker = getoutput('pkg-config --libs pygtk-2.0').split() 	 
+        gtkLinker =  getoutput('pkg-config --libs gtk+-2.0').split() 	 
+        linkerFlags = pygtkLinker + gtkLinker
+        
+        module.libraries.extend(
+            [flag[2:] for flag in linkerFlags if flag.startswith('-l')])
+        
+        module.library_dirs.extend(
+            [flag[2:] for flag in linkerFlags if flag.startswith('-L')])
+        
+        module.extra_link_args.extend(
+            [flag for flag in linkerFlags if not
+             (flag.startswith('-l') or flag.startswith('-L'))])
+
+        # visual studio doesn't need the math library
+        if sys.platform == 'win32' and win32_compiler == 'msvc' and 'm' in module.libraries:
+            module.libraries.remove('m')
 
     if sys.platform != 'win32':
         # If Gtk+ is installed, pkg-config is required to be installed
+        add_base_flags(module)
         get_pkgconfig(module, 'pygtk-2.0 gtk+-2.0')
 
     # visual studio doesn't need the math library
