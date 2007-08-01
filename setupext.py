@@ -114,13 +114,13 @@ if display_status:
     def print_status(package, status):
         initial_indent = "%22s: " % package
         indent = ' ' * 24
-        print fill(status, width=76,
+        print fill(str(status), width=76,
                    initial_indent=initial_indent,
                    subsequent_indent=indent)
 
     def print_message(message):
         indent = ' ' * 24 + "* "
-        print fill(message, width=76,
+        print fill(str(message), width=76,
                    initial_indent=indent,
                    subsequent_indent=indent)
 
