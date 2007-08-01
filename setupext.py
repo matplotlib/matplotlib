@@ -357,9 +357,6 @@ def add_gd_flags(module):
 
 def add_ft2font_flags(module):
     'Add the module flags to ft2font extension'
-    module.libraries.append('z')
-    add_base_flags(module)
-
     if not get_pkgconfig(module, 'freetype2'):
         module.libraries.append('freetype')
         
@@ -376,6 +373,9 @@ def add_ft2font_flags(module):
             p = os.path.join(d, 'freetype2/lib')
             if os.path.exists(p): module.library_dirs.append(p)
 
+    module.libraries.append('z')
+    add_base_flags(module)
+            
     if sys.platform == 'win32' and win32_compiler == 'mingw32':
         module.libraries.append('gw32c')
 
