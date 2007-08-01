@@ -193,12 +193,19 @@ def get_pkgconfig(module,
     status, output = commands.getstatusoutput(
         "%s %s %s" % (pkg_config_exec, flags, packages))
     if status == 0:
+        output += ' -UFOO'
         for token in output.split():
             attr = _flags.get(token[:2], None)
             if attr is not None:
+                if token[:2] == '-D':
+                    value = tuple(token[2:].split('='))
+                    if len(value) == 1:
+                        value = (value[0], None)
+                else:
+                    value = token[2:]
                 set = getattr(module, attr)
-                if token[2:] not in set:
-                    set.append(token[2:])
+                if value not in set:
+                    set.append(value)
             else:
                 if token not in module.extra_link_args:
                     module.extra_link_args.append(token)
