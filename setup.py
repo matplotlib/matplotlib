@@ -116,6 +116,7 @@ for line in file('lib/matplotlib/__init__.py').readlines():
 print_line()
 print_raw("BUILDING MATPLOTLIB")
 print_status('matplotlib', '%s (r%s)' % (__version__, __revision__.split()[-2]))
+print_status('python', sys.version)
 print_status('platform', sys.platform)
 if sys.platform == 'win32':
     print_status('Windows version', sys.getwindowsversion())
