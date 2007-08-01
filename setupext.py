@@ -60,7 +60,8 @@ basedir = {
 }
 
 import sys, os, stat
-import commands
+if sys.platform != 'win32':
+    import commands
 from sets import Set
 from textwrap import fill
 from distutils.core import Extension
