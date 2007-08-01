@@ -850,30 +850,26 @@ NUM_SIZE_LEVELS = 4
 # Percentage of x-height of additional horiz. space after sub/superscripts
 SCRIPT_SPACE    = 0.3
 # Percentage of x-height that sub/superscripts drop below the baseline
-SUBDROP         = 0.4
+SUBDROP         = 0.3
 # Percentage of x-height that superscripts drop below the baseline
 SUP1            = 0.7
 # Percentage of x-height that subscripts drop below the baseline
 SUB1            = 0.0
 # Percentage of x-height that superscripts are offset relative to the subscript
-DELTA           = 0.1
+DELTA           = 0.25
     
 class MathTextWarning(Warning):
     pass
     
 class Node(object):
-    """A node in a linked list.
+    """A node in the TeX box model
     @133
     """
     def __init__(self):
-        self.link = None
         self.size = 0
         
     def __repr__(self):
-        s = self.__internal_repr__()
-        if self.link:
-            s += ' ' + self.link.__repr__()
-        return s
+        return self.__internal_repr__()
 
     def __internal_repr__(self):
         return self.__class__.__name__
@@ -881,21 +877,14 @@ class Node(object):
     def get_kerning(self, next):
         return 0.0
 
-    def set_link(self, other):
-        self.link = other
-
     def shrink(self):
         """Shrinks one level smaller.  There are only three levels of sizes,
         after which things will no longer get smaller."""
-        if self.link:
-            self.link.shrink()
         self.size += 1
 
     def grow(self):
         """Grows one level larger.  There is no limit to how big something
         can get."""
-        if self.link:
-            self.link.grow()
         self.size -= 1
         
     def render(self, x, y):
@@ -1027,29 +1016,17 @@ class List(Box):
     def __init__(self, elements):
         Box.__init__(self, 0., 0., 0.)
         self.shift_amount = 0.   # An arbitrary offset
-        self.list_head    = None # The head of a linked list of Nodes in this box
+        self.children     = elements # The child nodes of this list
         # The following parameters are set in the vpack and hpack functions
         self.glue_set     = 0.   # The glue setting of this list
         self.glue_sign    = 0    # 0: normal, -1: shrinking, 1: stretching
         self.glue_order   = 0    # The order of infinity (0 - 3) for the glue
-        
-        # Convert the Python list to a linked list
-        if len(elements):
-            elem = self.list_head = elements[0]
-            for next in elements[1:]:
-                elem.set_link(next)
-                elem = next
 
     def __repr__(self):
-        s = '[%s <%d %d %d %d> ' % (self.__internal_repr__(),
-                                    self.width, self.height,
-                                    self.depth, self.shift_amount)
-        if self.list_head:
-            s += ' ' + self.list_head.__repr__()
-        s += ']'
-        if self.link:
-            s += ' ' + self.link.__repr__()
-        return s
+        return '[%s <%d %d %d %d> %s]' % (self.__internal_repr__(),
+                                          self.width, self.height,
+                                          self.depth, self.shift_amount,
+                                          ' '.join(self.children))
 
     def _determine_order(self, totals):
         """A helper function to determine the highest order of glue
@@ -1071,21 +1048,21 @@ class List(Box):
             self.glue_sign = 0
             self.glue_ratio = 0.
         if o == 0:
-            if self.list_head is not None:
+            if len(self.children):
                 warn("%s %s: %r" % (error_type, self.__class__.__name__, self),
                      MathTextWarning)
 
     def shrink(self):
-        if self.list_head:
-            self.list_head.shrink()
+        for child in self.children:
+            child.shrink()
         Box.shrink(self)
         if self.size < NUM_SIZE_LEVELS:
             self.shift_amount *= SHRINK_FACTOR
             self.glue_set     *= SHRINK_FACTOR
 
     def grow(self):
-        if self.list_head:
-            self.list_head.grow()
+        for child in self.children:
+            child.grow()
         Box.grow(self)
         self.shift_amount *= INV_SHRINK_FACTOR
         self.glue_set     *= INV_SHRINK_FACTOR
@@ -1103,15 +1080,21 @@ class Hlist(List):
         Chars themselves determine the amount of kerning they need
         (in get_kerning), and this function just creates the linked
         list in the correct way."""
-        elem = self.list_head
-        while elem is not None:
-            next = elem.link
+        new_children = []
+        num_children = len(self.children)
+        for i in range(num_children):
+            elem = self.children[i]
+            if i < num_children - 1:
+                next = self.children[i + 1]
+            else:
+                next = None
+
+            new_children.append(elem)
             kerning_distance = elem.get_kerning(next)
             if kerning_distance != 0.:
                 kern = Kern(kerning_distance)
-                elem.link = kern
-                kern.link = next
-            elem = next
+                new_children.append(kern)
+        self.children = new_children
 
     def hpack(self, w=0., m='additional'):
         """The main duty of hpack is to compute the dimensions of the
@@ -1136,18 +1119,12 @@ class Hlist(List):
         x = 0.
         total_stretch = [0.] * 4
         total_shrink = [0.] * 4
-        p = self.list_head
-        while p is not None:
-            # Layout characters in a tight inner loop (common case)
-            while isinstance(p, Char):
+        for p in self.children:
+            if isinstance(p, Char):
                 x += p.width
                 h = max(h, p.height)
                 d = max(d, p.depth)
-                p = p.link # Go to next node in list
-            if p is None:
-                break
-            
-            if isinstance(p, Box):
+            elif isinstance(p, Box):
                 x += p.width
                 if p.height is not None and p.depth is not None:
                     s = getattr(p, 'shift_amount', 0.)
@@ -1160,7 +1137,6 @@ class Hlist(List):
                 total_shrink[glue_spec.shrink_order] += glue_spec.shrink
             elif isinstance(p, Kern):
                 x += p.width
-            p = p.link # Go to next node in list
         self.height = h
         self.depth = d
 
@@ -1207,11 +1183,8 @@ class Vlist(List):
         x = 0.
         total_stretch = [0.] * 4
         total_shrink = [0.] * 4
-        p = self.list_head
-        while p is not None:
-            if isinstance(p, Char):
-                raise RuntimeError("Internal mathtext error: Char node found in Vlist.")
-            elif isinstance(p, Box):
+        for p in self.children:
+            if isinstance(p, Box):
                 x += d + p.height
                 d = p.depth
                 if p.width is not None:
@@ -1227,8 +1200,9 @@ class Vlist(List):
             elif isinstance(p, Kern):
                 x += d + p.width
                 d = 0.
-            p = p.link
-
+            elif isinstance(p, Char):
+                raise RuntimeError("Internal mathtext error: Char node found in Vlist.")
+                
         self.width = w
         if d > l:
             x += d - l
@@ -1482,23 +1456,18 @@ class Ship(object):
         cur_glue      = 0.
         glue_order    = box.glue_order
         glue_sign     = box.glue_sign
-        p             = box.list_head
         base_line     = self.cur_v
         left_edge     = self.cur_h
         self.cur_s    += 1
         self.max_push = max(self.cur_s, self.max_push)
 
-        while p:
-            while isinstance(p, Char):
+        for p in box.children:
+            if isinstance(p, Char):
                 p.render(self.cur_h + self.off_h, self.cur_v + self.off_v)
                 self.cur_h += p.width
-                p = p.link
-            if p is None:
-                break
-                
-            if isinstance(p, List):
+            elif isinstance(p, List):
                 # @623
-                if p.list_head is None:
+                if len(p.children) == 0:
                     self.cur_h += p.width
                 else:
                     edge = self.cur_h
@@ -1542,7 +1511,6 @@ class Ship(object):
                 self.cur_h += rule_width
             elif isinstance(p, Kern):
                 self.cur_h += p.width
-            p = p.link
         self.cur_s -= 1
 
     def vlist_out(self, box):
@@ -1550,18 +1518,15 @@ class Ship(object):
         cur_glue      = 0.
         glue_order    = box.glue_order
         glue_sign     = box.glue_sign
-        p             = box.list_head
         self.cur_s    += 1
         self.max_push = max(self.max_push, self.cur_s)
         left_edge     = self.cur_h
         self.cur_v    -= box.height
         top_edge      = self.cur_v
 
-        while p:
-            if isinstance(p, Char):
-                raise RuntimeError("Internal mathtext error: Char node found in vlist")
-            elif isinstance(p, List):
-                if p.list_head is None:
+        for p in box.children:
+            if isinstance(p, List):
+                if len(p.children) == 0:
                     self.cur_v += p.height + p.depth
                 else:
                     self.cur_v += p.height
@@ -1601,8 +1566,8 @@ class Ship(object):
                 self.cur_v += rule_height
             elif isinstance(p, Kern):
                 self.cur_v += p.width
-                            
-            p = p.link
+            elif isinstance(p, Char):
+                raise RuntimeError("Internal mathtext error: Char node found in vlist")
         self.cur_s -= 1
         
 ship = Ship()
@@ -1657,7 +1622,7 @@ class Parser(object):
     _punctuation_symbols = Set(r', ; . ! \ldotp \cdotp'.split())
 
     _overunder_symbols = Set(r'''
-       \sum \prod \int \coprod \oint \bigcap \bigcup \bigsqcup \bigvee
+       \sum \prod \coprod \bigcap \bigcup \bigsqcup \bigvee
        \bigwedge \bigodot \bigotimes \bigoplus \biguplus
        '''.split()
     )
@@ -1665,6 +1630,8 @@ class Parser(object):
     _overunder_functions = Set(
         r"lim liminf limsup sup max min".split()
     )
+
+    _dropsub_symbols = Set(r'''\int \oint'''.split())
     
     def __init__(self):
         # All forward declarations are here
@@ -1843,6 +1810,7 @@ class Parser(object):
     def clear(self):
         self._expr = None
         self._state_stack = None
+        self._em_width_cache = {}
         
     def parse(self, s, fonts_object, fontsize, dpi):
         self._state_stack = [self.State(fonts_object, 'default', fontsize, dpi)]
@@ -1898,10 +1866,14 @@ class Parser(object):
     def _make_space(self, percentage):
         # All spaces are relative to em width
         state = self.get_state()
-        metrics = state.font_output.get_metrics(
-            state.font, 'm', state.fontsize, state.dpi)
-        em = metrics.advance
-        return Kern(em * percentage)
+        key = (state.font, state.fontsize, state.dpi)
+        width = self._em_width_cache.get(key)
+        if width is None:
+            metrics = state.font_output.get_metrics(
+                state.font, 'm', state.fontsize, state.dpi)
+            width = metrics.advance
+            self._em_width_cache[key] = width
+        return Kern(width * percentage)
 
     _space_widths = { r'\ '      : 0.3,
                       r'\,'      : 0.4,
@@ -1919,17 +1891,19 @@ class Parser(object):
     def symbol(self, s, loc, toks):
         # print "symbol", toks
         c = toks[0]
-        if c in self._spaced_symbols:
-            return [Hlist( [self._make_space(0.2),
-                            Char(c, self.get_state()),
-                            self._make_space(0.2)] )]
-        elif c in self._punctuation_symbols:
-            return [Hlist( [Char(c, self.get_state()),
-                            self._make_space(0.2)] )]
         try:
-            return [Char(toks[0], self.get_state())]
+            char = Char(c, self.get_state())
         except ValueError:
             raise ParseFatalException("Unknown symbol: %s" % c)
+
+        if c in self._spaced_symbols:
+            return [Hlist( [self._make_space(0.2),
+                            char,
+                            self._make_space(0.2)] )]
+        elif c in self._punctuation_symbols:
+            return [Hlist( [char,
+                            self._make_space(0.2)] )]
+        return [char]
 
     _accent_map = {
         r'\hat'   : r'\circumflexaccent',
@@ -2003,6 +1977,11 @@ class Parser(object):
             return nucleus.c in self._overunder_symbols
         elif isinstance(nucleus, Hlist) and hasattr(nucleus, 'function_name'):
             return nucleus.function_name in self._overunder_functions
+        return False
+
+    def is_dropsub(self, nucleus):
+        if isinstance(nucleus, Char):
+            return nucleus.c in self._dropsub_symbols
         return False
     
     def subsuperscript(self, s, loc, toks):
@@ -2079,7 +2058,10 @@ class Parser(object):
             return [result]
 
         shift_up = nucleus.height - SUBDROP * xHeight
-        shift_down = SUBDROP * xHeight
+        if self.is_dropsub(nucleus):
+            shift_down = nucleus.depth + SUBDROP * xHeight
+        else:
+            shift_down = SUBDROP * xHeight
         if super is None:
             # @757
             sub.shrink()
@@ -2091,8 +2073,8 @@ class Parser(object):
             x.shift_amount = shift_down
         else:
             super.shrink()
-            x = Hlist([super])
-            x.width += SCRIPT_SPACE * xHeight
+            x = Hlist([super, Kern(SCRIPT_SPACE * xHeight)])
+            # x.width += SCRIPT_SPACE * xHeight
             clr = SUP1 * xHeight
             shift_up = max(shift_up, clr)
             clr = x.depth + (abs(xHeight) / 4.0)
@@ -2104,11 +2086,11 @@ class Parser(object):
                 y = Hlist([sub])
                 y.width += SCRIPT_SPACE * xHeight
                 shift_down = max(shift_down, SUB1 * xHeight)
-                clr = 4.0 * rule_thickness - ((shift_up - x.depth) - (y.height - shift_down))
+                clr = 2.0 * rule_thickness - ((shift_up - x.depth) - (y.height - shift_down))
                 if clr > 0.:
                     shift_up += clr
                     shift_down += clr
-                x.shift_amount = DELTA * xHeight
+                x.shift_amount = DELTA * (shift_up + shift_down)
                 x = Vlist([x,
                            Kern((shift_up - x.depth) - (y.height - shift_down)),
                            y])
