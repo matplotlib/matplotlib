@@ -485,14 +485,15 @@ export WX_CONFIG=/usr/lib/wxPython-2.6.1.0-gtk2-unicode/bin/wx-config
                 gotit = True
 
     if gotit:
-        module = Extension("test", [])
-        add_wx_flags(module, wxconfig)
-        if not find_include_file(
-            module.include_dirs,
-            os.path.join("wx", "wxPython", "wxPython.h")):
-            explanation = ("Could not find wxPython headers in any of %s" %
-                           ", ".join(["'%s'" % x for x in module.include_dirs]))
-            gotit = False
+        if getattr(wx, '__version__', '0.0')[0:3] < '2.8':
+            module = Extension("test", [])
+            add_wx_flags(module, wxconfig)
+            if not find_include_file(
+                module.include_dirs,
+                os.path.join("wx", "wxPython", "wxPython.h")):
+                explanation = ("Could not find wxPython headers in any of %s" %
+                               ", ".join(["'%s'" % x for x in module.include_dirs]))
+                gotit = False
 
     if gotit:
         print_status("wxPython", wx.__version__)
