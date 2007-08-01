@@ -373,7 +373,7 @@ def add_ft2font_flags(module):
             p = os.path.join(d, 'freetype2/lib')
             if os.path.exists(p): module.library_dirs.append(p)
 
-    module.libraries.append('z')
+        module.libraries.append('z')
     add_base_flags(module)
             
     if sys.platform == 'win32' and win32_compiler == 'mingw32':
@@ -470,7 +470,10 @@ def check_for_wx():
     except ImportError:
         explanation = 'wxPython not found'
     else:
-        if sys.platform == 'win32' and win32_compiler == 'mingw32':
+        if getattr(wx, '__version__', '0.0')[0:3] >= '2.8':
+            print_status("wxPython", wx.__version__)
+            return True
+        elif sys.platform == 'win32' and win32_compiler == 'mingw32':
             explanation = "The wxAgg extension can not be built using the mingw32 compiler on Windows, since the default wxPython binary is built using MS Visual Studio"
         else:
             wxconfig = find_wx_config()
@@ -491,15 +494,14 @@ export WX_CONFIG=/usr/lib/wxPython-2.6.1.0-gtk2-unicode/bin/wx-config
                 gotit = True
 
     if gotit:
-        if getattr(wx, '__version__', '0.0')[0:3] < '2.8':
-            module = Extension("test", [])
-            add_wx_flags(module, wxconfig)
-            if not find_include_file(
-                module.include_dirs,
-                os.path.join("wx", "wxPython", "wxPython.h")):
-                explanation = ("Could not find wxPython headers in any of %s" %
+        module = Extension("test", [])
+        add_wx_flags(module, wxconfig)
+        if not find_include_file(
+            module.include_dirs,
+            os.path.join("wx", "wxPython", "wxPython.h")):
+            explanation = ("Could not find wxPython headers in any of %s" %
                                ", ".join(["'%s'" % x for x in module.include_dirs]))
-                gotit = False
+            gotit = False
 
     if gotit:
         print_status("wxPython", wx.__version__)
