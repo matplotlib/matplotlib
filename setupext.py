@@ -212,7 +212,7 @@ def get_pkgconfig(module,
     return False
 
 def get_pkgconfig_version(package):
-    default = "unknown (no pkg-config)"
+    default = "found, but unknown version (no pkg-config)"
     if not has_pkgconfig():
         return default
 
