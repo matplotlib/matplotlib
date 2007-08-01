@@ -193,7 +193,6 @@ def get_pkgconfig(module,
     status, output = commands.getstatusoutput(
         "%s %s %s" % (pkg_config_exec, flags, packages))
     if status == 0:
-        output += ' -UFOO'
         for token in output.split():
             attr = _flags.get(token[:2], None)
             if attr is not None:
