@@ -409,9 +409,13 @@ def check_for_gtk():
     
     if gotit:
         import gobject
+        if hasattr(gobject, 'pygobject_version'):
+            pygobject_version = ver2str(gobject.pygobject_version)
+        else:
+            pygobject_version = '[pre-pygobject]'
         print_status("Gtk+", "gtk+: %s, glib: %s, pygtk: %s, pygobject: %s" %
                      (ver2str(gtk.gtk_version), ver2str(gobject.glib_version),
-                      ver2str(gtk.pygtk_version), ver2str(gobject.pygobject_version)))
+                      ver2str(gtk.pygtk_version), pygobject_version))
     else:
         print_status("Gtk+", "no")
         print_message(explanation)
