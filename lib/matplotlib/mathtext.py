@@ -135,6 +135,7 @@ from math import floor, ceil
 from sets import Set
 from unicodedata import category
 from warnings import warn
+import numpy
 
 from matplotlib import verbose
 from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
@@ -607,7 +608,11 @@ class BakomaFonts(TruetypeFonts):
         r'\backslash': [('cal', '\x6e'), ('ex', '\xb2'), ('ex', '\x2f'),
                         ('ex', '\xc2'), ('ex', '\x2d')],
         r'/'         : [('rm', '/'), ('ex', '\xb1'), ('ex', '\x2e'),
-                        ('ex', '\xcb'), ('ex', '\x2c')]
+                        ('ex', '\xcb'), ('ex', '\x2c')],
+        r'\widehat'  : [('rm', '\x5e'), ('ex', '\x62'), ('ex', '\x63'),
+                        ('ex', '\x64')],
+        r'\widetilde': [('rm', '\x7e'), ('ex', '\x65'), ('ex', '\x66'),
+                        ('ex', '\x67')]
         }
 
     for alias, target in [('\leftparen', '('),
@@ -1162,7 +1167,7 @@ class Vlist(List):
         List.__init__(self, elements)
         self.vpack()
 
-    def vpack(self, h=0., m='additional', l=float('inf')):
+    def vpack(self, h=0., m='additional', l=float(numpy.inf)):
         """The main duty of vpack is to compute the dimensions of the
         resulting boxes, and to adjust the glue if one of those dimensions is
         pre-specified.
@@ -1395,7 +1400,7 @@ class SubSuperCluster(Hlist):
         self.super = None
         Hlist.__init__(self, [])
 
-class AutoSizedDelim(Hlist):
+class AutoHeightChar(Hlist):
     """A class that will create a character as close to the given height
     and depth as possible.  When using a font with multiple height versions
     of some characters (such as the BaKoMa fonts), the correct glyph will
@@ -1425,6 +1430,34 @@ class AutoSizedDelim(Hlist):
         shift = (depth - char.depth)
         Hlist.__init__(self, [char])
         self.shift_amount = shift
+
+class AutoWidthChar(Hlist):
+    """A class that will create a character as close to the given width
+    as possible.  When using a font with multiple width versions
+    of some characters (such as the BaKoMa fonts), the correct glyph will
+    be selected, otherwise this will always just return a scaled version
+    of the glyph."""
+    def __init__(self, c, width, state, always=False):
+        alternatives = state.font_output.get_sized_alternatives_for_symbol(
+            state.font, c)
+
+        state = state.copy()
+        big_enough = False
+        for fontname, sym in alternatives:
+            state.font = fontname
+            char = Char(sym, state)
+            if char.width > width:
+                big_enough = True
+                break
+
+        # If the largest option is still not big enough, just do
+        # simple scale on it.
+        if not big_enough:
+            factor = width / char.width
+            state.fontsize *= factor
+            char = Char(sym, state)
+            
+        Hlist.__init__(self, [char])
         
 class Ship(object):
     """Once the boxes have been set up, this sends them to output.
@@ -1653,7 +1686,7 @@ class Parser(object):
         bslash       = Literal('\\')
 
         accent       = oneOf("hat check dot breve acute ddot grave tilde bar "
-                             "vec \" ` ' ~ . ^")
+                             "vec \" ` ' ~ . ^ widehat widetilde")
 
         function     = oneOf("arccos csc ker min arcsin deg lg Pr arctan det "
                              "lim sec arg dim liminf sin cos exp limsup sinh "
@@ -1920,8 +1953,10 @@ class Parser(object):
         r"\'"     : r'\combiningacuteaccent',
         r'\~'     : r'\combiningtilde',
         r'\.'     : r'\combiningdotabove',
-        r'\^'     : r'\circumflexaccent',
+        r'\^'     : r'\circumflexaccent'
         }
+
+    _wide_accents = Set(r"\widehat \widetilde".split())
     
     def accent(self, s, loc, toks):
         assert(len(toks)==1)
@@ -1931,7 +1966,10 @@ class Parser(object):
         if len(toks[0]) != 2:
             raise ParseFatalException("Error parsing accent")
         accent, sym = toks[0]
-        accent = Accent(self._accent_map[accent], self.get_state())
+        if accent in self._wide_accents:
+            accent = AutoWidthChar(accent, sym.width, state)
+        else:
+            accent = Accent(self._accent_map[accent], state)
         centered = HCentered([accent])
         centered.hpack(sym.width, 'exactly')
         centered.shift_amount = accent._metrics.xmin
@@ -2154,7 +2192,7 @@ class Parser(object):
         # the height so it doesn't seem cramped
         height = body.height - body.shift_amount + thickness * 5.0
         depth = body.depth + body.shift_amount
-        check = AutoSizedDelim(r'\sqrt', height, depth, state, always=True)
+        check = AutoHeightChar(r'\sqrt', height, depth, state, always=True)
         height = check.height - check.shift_amount
         depth = check.depth + check.shift_amount
 
@@ -2190,10 +2228,10 @@ class Parser(object):
         parts = []
         # \left. and \right. aren't supposed to produce any symbols
         if front != '.':
-            parts.append(AutoSizedDelim(front, height, depth, state))
+            parts.append(AutoHeightChar(front, height, depth, state))
         parts.extend(middle.asList())
         if back != '.':
-            parts.append(AutoSizedDelim(back, height, depth, state))
+            parts.append(AutoHeightChar(back, height, depth, state))
         hlist = Hlist(parts)
         return hlist
     
