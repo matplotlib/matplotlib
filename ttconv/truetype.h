@@ -51,13 +51,13 @@ struct TTFONT
     font_type_enum  target_type;	/* 42 or 3 for PS, or -3 for PDF */
 
     ULONG numTables;			/* number of tables present */
-    char *PostName;			/* Font's PostScript name */
-    char *FullName;			/* Font's full name */
-    char *FamilyName;			/* Font's family name */
-    char *Style;			/* Font's style string */
-    char *Copyright;			/* Font's copyright string */
-    char *Version;			/* Font's version string */
-    char *Trademark;			/* Font's trademark string */
+    const char *PostName;		/* Font's PostScript name */
+    const char *FullName;		/* Font's full name */
+    const char *FamilyName;		/* Font's family name */
+    const char *Style;			/* Font's style string */
+    const char *Copyright;		/* Font's copyright string */
+    const char *Version;		/* Font's version string */
+    const char *Trademark;		/* Font's trademark string */
     int llx,lly,urx,ury;		/* bounding box */
 
     Fixed TTVersion;			/* Truetype version number from offset table */
@@ -98,7 +98,7 @@ Fixed getFixed(BYTE *p);
 
 /* This is the one routine in pprdrv_tt.c that is */
 /* called from pprdrv_tt.c. */
-char *ttfont_CharStrings_getname(struct TTFONT *font, int charindex);
+const char *ttfont_CharStrings_getname(struct TTFONT *font, int charindex);
 
 void tt_type3_charproc(TTStreamWriter& stream, struct TTFONT *font, int charindex);
 
