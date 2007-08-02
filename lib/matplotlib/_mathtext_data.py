@@ -39,6 +39,8 @@ latex_to_bakoma = {
     r'\}'                   : ('cmex10', 130),
     r'\leftangle'           : ('cmex10',  97),
     r'\rightangle'          : ('cmex10',  64),
+    r'\widehat'             : ('cmex10',  15),
+    r'\widetilde'           : ('cmex10',  52),
 
     r'\omega'               : ('cmmi10',  29),
     r'\varepsilon'          : ('cmmi10',  20),

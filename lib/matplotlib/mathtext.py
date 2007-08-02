@@ -1437,7 +1437,7 @@ class AutoWidthChar(Hlist):
     of some characters (such as the BaKoMa fonts), the correct glyph will
     be selected, otherwise this will always just return a scaled version
     of the glyph."""
-    def __init__(self, c, width, state, always=False):
+    def __init__(self, c, width, state, always=False, char_class=Char):
         alternatives = state.font_output.get_sized_alternatives_for_symbol(
             state.font, c)
 
@@ -1445,7 +1445,7 @@ class AutoWidthChar(Hlist):
         big_enough = False
         for fontname, sym in alternatives:
             state.font = fontname
-            char = Char(sym, state)
+            char = char_class(sym, state)
             if char.width > width:
                 big_enough = True
                 break
@@ -1455,7 +1455,7 @@ class AutoWidthChar(Hlist):
         if not big_enough:
             factor = width / char.width
             state.fontsize *= factor
-            char = Char(sym, state)
+            char = char_class(sym, state)
             
         Hlist.__init__(self, [char])
         
@@ -1969,12 +1969,15 @@ class Parser(object):
             raise ParseFatalException("Error parsing accent")
         accent, sym = toks[0]
         if accent in self._wide_accents:
-            accent = AutoWidthChar(accent, sym.width, state)
+            accent = AutoWidthChar(
+                accent, sym.width, state, char_class=Accent)
+            shift_amount = 0.
         else:
             accent = Accent(self._accent_map[accent], state)
+            shift_amount = accent._metrics.xmin
         centered = HCentered([accent])
         centered.hpack(sym.width, 'exactly')
-        centered.shift_amount = accent._metrics.xmin
+        centered.shift_amount = shift_amount
         return Vlist([
                 centered,
                 Vbox(0., thickness * 2.0),
