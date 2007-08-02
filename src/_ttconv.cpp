@@ -8,6 +8,10 @@
 #include "ttconv/pprdrv.h"
 #include <vector>
 
+class PythonExceptionOccurred {
+
+};
+
 /**
  * An implementation of TTStreamWriter that writes to a Python
  * file-like object.
@@ -35,33 +39,40 @@ public:
 
   virtual void write(const char* a) {
     if (_write_method)
-      PyObject_CallFunction(_write_method, "s", a);
+      if (! PyObject_CallFunction(_write_method, "s", a))
+	throw PythonExceptionOccurred();
   }
 };
 
 int fileobject_to_PythonFileWriter(PyObject* object, void* address) {
   PythonFileWriter* file_writer = (PythonFileWriter*)address;
+
   PyObject* write_method = PyObject_GetAttrString(object, "write");
   if (write_method == NULL || ! PyCallable_Check(write_method)) {
     PyErr_SetString(PyExc_TypeError, "Expected a file-like object with a write method.");
     return 0;
   }
+
   file_writer->set(write_method);
+
   return 1;
 }
 
 int pyiterable_to_vector_int(PyObject* object, void* address) {
   std::vector<int>* result = (std::vector<int>*)address;
+
   PyObject* iterator = PyObject_GetIter(object);
   if (! iterator)
     return 0;
+
   PyObject* item;
-  while (item = PyIter_Next(iterator)) {
+  while ( (item = PyIter_Next(iterator)) ) {
     long value = PyInt_AsLong(item);
     if (value == -1 && PyErr_Occurred())
       return 0;
     result->push_back(value);
   }
+
   return 1;
 }
 
@@ -96,6 +107,8 @@ convert_ttf_to_ps(PyObject* self, PyObject* args, PyObject* kwds) {
   } catch (TTException& e) {
     PyErr_SetString(PyExc_RuntimeError, e.getMessage());
     return NULL;
+  } catch (PythonExceptionOccurred& e) {
+    return NULL;
   } catch (...) {
     PyErr_SetString(PyExc_RuntimeError, "Unknown C++ exception");
     return NULL;
@@ -116,7 +129,8 @@ public:
   virtual void add_pair(const char* a, const char* b) {
     PyObject* value = PyString_FromString(b);
     if (value)
-      PyDict_SetItemString(_dict, a, value);
+      if (PyDict_SetItemString(_dict, a, value))
+	throw PythonExceptionOccurred();
   }
 };
 
@@ -145,6 +159,8 @@ py_get_pdf_charprocs(PyObject* self, PyObject* args, PyObject* kwds) {
     ::get_pdf_charprocs( filename, glyph_ids, dict );
   } catch (TTException& e) {
     PyErr_SetString(PyExc_RuntimeError, e.getMessage());
+    return NULL;
+  } catch (PythonExceptionOccurred& e) {
     return NULL;
   } catch (...) {
     PyErr_SetString(PyExc_RuntimeError, "Unknown C++ exception");
