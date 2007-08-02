@@ -1031,7 +1031,7 @@ class List(Box):
         return '[%s <%d %d %d %d> %s]' % (self.__internal_repr__(),
                                           self.width, self.height,
                                           self.depth, self.shift_amount,
-                                          ' '.join(self.children))
+                                          ' '.join([repr(x) for x in self.children]))
 
     def _determine_order(self, totals):
         """A helper function to determine the highest order of glue
@@ -2104,7 +2104,7 @@ class Parser(object):
             # @757
             sub.shrink()
             x = Hlist([sub])
-            x.width += SCRIPT_SPACE * xHeight
+            # x.width += SCRIPT_SPACE * xHeight
             shift_down = max(shift_down, SUB1)
             clr = x.height - (abs(xHeight * 4.0) / 5.0)
             shift_down = max(shift_down, clr)
@@ -2122,7 +2122,7 @@ class Parser(object):
             else: # Both sub and superscript
                 sub.shrink()
                 y = Hlist([sub])
-                y.width += SCRIPT_SPACE * xHeight
+                # y.width += SCRIPT_SPACE * xHeight
                 shift_down = max(shift_down, SUB1 * xHeight)
                 clr = 2.0 * rule_thickness - ((shift_up - x.depth) - (y.height - shift_down))
                 if clr > 0.:
