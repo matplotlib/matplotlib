@@ -107,7 +107,7 @@ Fixed getFixed(BYTE *s)
 ** is always 4 characters, though the last characters may be 
 ** padding spaces.
 -----------------------------------------------------------------------*/
-BYTE *GetTable(struct TTFONT *font, const char *name)
+BYTE *GetTable(struct TTFONT *font, char *name)
     {
     BYTE *ptr;
     ULONG x;
@@ -654,7 +654,7 @@ void sfnts_glyf_table(TTStreamWriter& stream, struct TTFONT *font, ULONG oldoffs
 */
 void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
     {
-    const char *table_names[]=	/* The names of all tables */
+    char *table_names[]=	/* The names of all tables */
     	{			/* which it is worth while */
     	"cvt ",			/* to include in a Type 42 */
     	"fpgm",			/* PostScript font. */
@@ -828,7 +828,7 @@ void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
 ** this array will instead convert PostScript character names
 ** to executable proceedures.
 --------------------------------------------------------------*/
-const char *Apple_CharStrings[]={ 
+char *Apple_CharStrings[]={ 
 ".notdef",".null","nonmarkingreturn","space","exclam","quotedbl","numbersign", 
 "dollar","percent","ampersand","quotesingle","parenleft","parenright", 
 "asterisk","plus", "comma","hyphen","period","slash","zero","one","two",
@@ -871,7 +871,7 @@ const char *Apple_CharStrings[]={
 ** This routine is called by the one below.
 ** It is also called from pprdrv_tt2.c
 */
-const char *ttfont_CharStrings_getname(struct TTFONT *font, int charindex)
+char *ttfont_CharStrings_getname(struct TTFONT *font, int charindex)
     {
     int GlyphIndex;
     static char temp[80];
@@ -1227,7 +1227,7 @@ void get_pdf_charprocs(const char *filename, std::vector<int>& glyph_ids, TTDict
 	 i != glyph_ids.end(); ++i) {
 	StringStreamWriter writer;
 	tt_type3_charproc(writer, &font, *i);
-	const char* name = ttfont_CharStrings_getname(&font, *i);
+	char* name = ttfont_CharStrings_getname(&font, *i);
 	dict.add_pair(name, writer.str().c_str());
     }
 }
