@@ -52,7 +52,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
     min_text_size = size
     label_text_size = size*2.5
     text_params={'ha':'center', 'va':'center', 'family':'sans-serif',\
-        'fontweight':'bold'}
+        'fontweight':'bold', 'markup': 'tex'}
     r2 = sqrt(2)
 
     deltas = {\
@@ -211,7 +211,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
         label = '$%s_{_{\mathrm{%s}}}$' % (orig_label[0], orig_label[1:])
 
         text(x, y, label, size=label_text_size, ha='center', va='center', \
-            color=labelcolor or fc)
+            color=labelcolor or fc, markup='tex')
 
     for p in positions.keys():
         draw_arrow(p)

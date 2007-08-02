@@ -198,6 +198,11 @@ def validate_fontsize(s):
     except ValueError:
         raise ValueError('not a valid font size')
 
+validate_markup = ValidateInStrings(
+    'markup', 
+    ['plain', 'tex'],
+    ignorecase=True)
+
 validate_verbose = ValidateInStrings('verbose',[
     'silent', 'helpful', 'debug', 'debug-annoying',
     ])
@@ -350,7 +355,7 @@ defaultParams = {
     'text.fontvariant'    : ['normal', str],
     'text.fontweight'     : ['normal', str],
     'text.fontsize'       : ['medium', validate_fontsize],
-
+    'text.markup'         : ['plain', validate_markup],
 
     'image.aspect'        : ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation' : ['bilinear', str],

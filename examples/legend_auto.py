@@ -51,9 +51,9 @@ def fig_6():
 def fig_7():
     figure(7)
     xx = x - (N/2.0)
-    plot(xx, (xx*xx)-1225, 'bo', label='$y=x^2$')
-    plot(xx, 25*xx, 'go', label='$y=25x$')
-    plot(xx, -25*xx, 'mo', label='$y=-25x$')
+    plot(xx, (xx*xx)-1225, 'bo', label='$y=x^2$', markup='tex')
+    plot(xx, 25*xx, 'go', label='$y=25x$', markup='tex')
+    plot(xx, -25*xx, 'mo', label='$y=-25x$', markup='tex')
     legend()
 
 def fig_8():

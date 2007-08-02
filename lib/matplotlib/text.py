@@ -146,6 +146,7 @@ class Text(Artist):
                  fontproperties=None, # defaults to FontProperties()
                  rotation=None,
                  linespacing=None,
+                 markup=None,
                  **kwargs
                  ):
         """
@@ -174,6 +175,7 @@ class Text(Artist):
         if linespacing is None:
             linespacing = 1.2   # Maybe use rcParam later.
         self._linespacing = linespacing
+        self.set_markup(markup)
         self.update(kwargs)
         #self.set_bbox(dict(pad=0))
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
@@ -222,6 +224,7 @@ class Text(Artist):
         self._rotation = other._rotation
         self._picker = other._picker
         self._linespacing = other._linespacing
+        self._markup = other._markup
 
     def _get_layout(self, renderer):
 
@@ -752,11 +755,11 @@ class Text(Artist):
         self._substrings = []           # ignore embedded mathtext for now
 
     def is_math_text(self):
-        if rcParams['text.usetex']: return 'TeX'
-        if not matplotlib._havemath: return False
-        if len(self._text)<2: return False
-        dollar_signs = self._text.count('$') - self._text.count('\\$')
-        return dollar_signs > 0 and dollar_signs % 2 == 0
+        if rcParams['text.usetex']: return 'TeX'        
+        if self._markup.lower() == 'tex':
+            if not matplotlib._havemath: return False
+            return True
+        return False
 
     def set_fontproperties(self, fp):
         """
@@ -766,8 +769,19 @@ class Text(Artist):
         """
         self._fontproperties = fp
 
+    def set_markup(self, markup):
+        """
+        Set the type of markup used for this text.
 
-
+        ACCEPTS: 'plain' for plain text, 'tex' for TeX-like markup
+                 None to use the default text.markup value.
+        """
+        if markup is None:
+            self._markup = rcParams['text.markup']
+        elif markup.lower() in ('plain', 'tex'):
+            self._markup = markup.lower()
+        else:
+            raise ValueError("Markup type must be 'plain' or 'tex'")
 
     def _get_layout_super(self, renderer, m):
         """

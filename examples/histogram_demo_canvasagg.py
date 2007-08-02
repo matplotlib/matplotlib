@@ -33,7 +33,7 @@ line.set_linewidth(1)
 
 ax.set_xlabel('Smarts')
 ax.set_ylabel('Probability')
-ax.set_title(r'$\rm{Histogram of IQ: }\mu=100, \sigma=15$')
+ax.set_title(r'$\mathrm{Histogram of IQ: }\mu=100, \sigma=15$', markup='tex')
 
 ax.set_xlim( (40, 160))
 ax.set_ylim( (0, 0.03))

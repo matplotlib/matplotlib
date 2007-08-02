@@ -29,14 +29,14 @@ pylab.plot((-delta / 2, -delta / 2 + offset * 2), (height, height - offset), 'k'
 pylab.plot((-delta / 2, -delta / 2 + offset * 2), (height, height + offset), 'k', linewidth = 2)
 pylab.plot((delta / 2, delta / 2 - offset * 2), (height, height - offset), 'k', linewidth = 2)
 pylab.plot((delta / 2, delta / 2 - offset * 2), (height, height + offset), 'k', linewidth = 2)
-pylab.text(-0.06, height - 0.06, r'$\delta$', {'color' : 'k', 'fontsize' : 24})
+pylab.text(-0.06, height - 0.06, r'$\delta$', {'color' : 'k', 'fontsize' : 24}, markup = 'tex')
 
 ## X-axis label
 pylab.xticks((-1, 0,  1), ('-1', '0',  '1'), color = 'k', size = 20)
 
 ## Left Y-axis labels
 pylab.ylabel(r'\bf{phase field} $\phi$', {'color'    : 'b',
-                                   'fontsize'   : 20 })
+                                   'fontsize'   : 20 }, markup='tex')
 pylab.yticks((0, 0.5, 1), ('0', '.5', '1'), color = 'k', size = 20)
 
 ## Right Y-axis labels
@@ -44,16 +44,17 @@ pylab.text(1.05, 0.5, r"\bf{level set} $\phi$", {'color' : 'g', 'fontsize' : 20}
            horizontalalignment = 'left',
            verticalalignment = 'center',
            rotation = 90,
-           clip_on = False)
+           clip_on = False,
+           markup = 'tex')
 pylab.text(1.01, -0.02, "-1", {'color' : 'k', 'fontsize' : 20})
 pylab.text(1.01, 0.98, "1", {'color' : 'k', 'fontsize' : 20})
 pylab.text(1.01, 0.48, "0", {'color' : 'k', 'fontsize' : 20})
 
 ## level set equations
-pylab.text(0.1, 0.85, r'$|\nabla\phi| = 1,$ \newline $ \frac{\partial \phi}{\partial t} + U|\nabla \phi| = 0$', {'color' : 'g', 'fontsize' : 20})
+pylab.text(0.1, 0.85, r'$|\nabla\phi| = 1,$ \newline $ \frac{\partial \phi}{\partial t} + U|\nabla \phi| = 0$', {'color' : 'g', 'fontsize' : 20}, markup='tex')
 
 ## phase field equations
-pylab.text(0.2, 0.15, r'$\mathcal{F} = \int f\left( \phi, c \right) dV,$ \newline $ \frac{ \partial \phi } { \partial t } = -M_{ \phi } \frac{ \delta \mathcal{F} } { \delta \phi }$', {'color' : 'b', 'fontsize' : 20})
+pylab.text(0.2, 0.15, r'$\mathcal{F} = \int f\left( \phi, c \right) dV,$ \newline $ \frac{ \partial \phi } { \partial t } = -M_{ \phi } \frac{ \delta \mathcal{F} } { \delta \phi }$', {'color' : 'b', 'fontsize' : 20}, markup='tex')
 
 pylab.savefig('pfm-lsm.png')
 pylab.show()
