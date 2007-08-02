@@ -36,7 +36,8 @@ stests = [
     r'$\frac{x_2888}{y}$',
     r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
     r"$\sqrt[3]{x}=5$",
-    r'$\frac{X}{\frac{X}{Y}}$'
+    r'$\frac{X}{\frac{X}{Y}}$',
+    r'$\widehat{abc}\widetilde{def}$'
     ]
 
 from pylab import *
