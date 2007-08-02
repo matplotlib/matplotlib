@@ -1412,20 +1412,15 @@ class AutoHeightChar(Hlist):
 
         state = state.copy()
         target_total = height + depth
-        big_enough = False
         for fontname, sym in alternatives:
             state.font = fontname
             char = Char(sym, state)
-            if char.height + char.depth > target_total:
-                big_enough = True
+            if char.height + char.depth >= target_total:
                 break
 
-        # If the largest option is still not big enough, just do
-        # simple scale on it.
-        if not big_enough:
-            factor = target_total / (char.height + char.depth)
-            state.fontsize *= factor
-            char = Char(sym, state)
+        factor = target_total / (char.height + char.depth)
+        state.fontsize *= factor
+        char = Char(sym, state)
             
         shift = (depth - char.depth)
         Hlist.__init__(self, [char])
@@ -1442,20 +1437,15 @@ class AutoWidthChar(Hlist):
             state.font, c)
 
         state = state.copy()
-        big_enough = False
         for fontname, sym in alternatives:
             state.font = fontname
             char = char_class(sym, state)
-            if char.width > width:
-                big_enough = True
+            if char.width >= width:
                 break
 
-        # If the largest option is still not big enough, just do
-        # simple scale on it.
-        if not big_enough:
-            factor = width / char.width
-            state.fontsize *= factor
-            char = char_class(sym, state)
+        factor = width / char.width
+        state.fontsize *= factor
+        char = char_class(sym, state)
             
         Hlist.__init__(self, [char])
         
