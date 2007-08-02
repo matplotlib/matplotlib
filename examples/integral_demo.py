@@ -22,8 +22,8 @@ poly = Polygon(verts, facecolor='0.8', edgecolor='k')
 ax.add_patch(poly)
 
 text(0.5 * (a + b), 30,
-     r"$\int_a^b f(x)\rm{d}x$", horizontalalignment='center',
-     fontsize=20)
+     r"$\int_a^b f(x)\mathrm{d}x$", horizontalalignment='center',
+     fontsize=20, markup='tex')
 
 axis([0,10, 0, 180])
 figtext(0.9, 0.05, 'x')

@@ -62,7 +62,7 @@ else:
         x = arange(0.0, 3.0, 0.1)
 
         grid(True)
-        text(1, 1.6, s, fontsize=20)
+        text(1, 1.6, s, fontsize=20, markup="tex")
 
         savefig('mathtext_example%02d' % i)
         figure()

@@ -1840,6 +1840,8 @@ class Parser(object):
                          )
                        )
 
+        self.clear()
+
     def clear(self):
         self._expr = None
         self._state_stack = None

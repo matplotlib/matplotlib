@@ -17,7 +17,7 @@ ax.set_xlabel(r'$\Delta_i^j$', fontsize=20)
 ax.set_ylabel(r'$\Delta_{i+1}^j$', fontsize=20)
 tex = r'$\mathcal{R}\prod_{i=\alpha_{i+1}}^\infty a_i\sin(2 \pi f x_i)$'
 
-ax.text(1, 1.6, tex, fontsize=20, va='bottom')
+ax.text(1, 1.6, tex, fontsize=20, va='bottom', markup="tex")
 
 #title(r'$\Delta_i^j \hspace{0.4} \rm{versus} \hspace{0.4} \Delta_{i+1}^j$', fontsize=20)
 fig.savefig('mathtext_demo')

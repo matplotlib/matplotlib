@@ -13,9 +13,9 @@ from pylab import *
 
 plot(range(10))
 
-title(r'$\ddot{o}\acute{e}\grave{e}\hat{O}\breve{i}\bar{A}\tilde{n}\vec{q}$', fontsize=20)
+title(r'$\ddot{o}\acute{e}\grave{e}\hat{O}\breve{i}\bar{A}\tilde{n}\vec{q}$', fontsize=20, markup="tex")
 # shorthand is also supported and curly's are optional
-xlabel(r"""$\"o\ddot o \'e\`e\~n\.x\^y$""", fontsize=20)
+xlabel(r"""$\"o\ddot o \'e\`e\~n\.x\^y$""", fontsize=20, markup="tex")
 
 
 show()
