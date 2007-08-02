@@ -83,10 +83,10 @@ convert_ttf_to_ps(PyObject* self, PyObject* args, PyObject* kwds) {
   int			fonttype;
   std::vector<int>	glyph_ids;
 
-  static char *kwlist[] = { "filename", "output", "fonttype", "glyph_ids", NULL };
+  static const char *kwlist[] = { "filename", "output", "fonttype", "glyph_ids", NULL };
   if (! PyArg_ParseTupleAndKeywords
       (args, kwds, 
-       "sO&i|O&:convert_ttf_to_ps", kwlist,
+       "sO&i|O&:convert_ttf_to_ps", (char **)kwlist,
        &filename,
        fileobject_to_PythonFileWriter,
        &output,
@@ -140,10 +140,10 @@ py_get_pdf_charprocs(PyObject* self, PyObject* args, PyObject* kwds) {
   std::vector<int>	glyph_ids;
   PyObject*             result;
 
-  static char *kwlist[] = { "filename", "glyph_ids", NULL };
+  static const char *kwlist[] = { "filename", "glyph_ids", NULL };
   if (! PyArg_ParseTupleAndKeywords
       (args, kwds, 
-       "s|O&:convert_ttf_to_ps", kwlist,
+       "s|O&:convert_ttf_to_ps", (char **)kwlist,
        &filename,
        pyiterable_to_vector_int,
        &glyph_ids))
