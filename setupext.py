@@ -240,26 +240,25 @@ def check_for_freetype():
         for d in basedirs:
             module.include_dirs.append(os.path.join(d, 'freetype2'))
 
+    print_status("freetype2", get_pkgconfig_version('freetype2'))
     if not find_include_file(module.include_dirs, 'ft2build.h'):
         print_message(
-            "Could not find 'freetype2' headers in any of %s" %
+            "WARNING: Could not find 'freetype2' headers in any of %s." %
             ", ".join(["'%s'" % x for x in module.include_dirs]))
-        return False
 
-    print_status("freetype2", get_pkgconfig_version('freetype2'))
     return True
     
 def check_for_libpng():
     module = Extension("test", [])
     get_pkgconfig(module, 'libpng')
     add_base_flags(module)
-    if not find_include_file(module.include_dirs, 'png.h'):
-        print_message(
-            ", ".join("Could not find 'libpng' headers in any of %s" %
-            ["'%s'" % x for x in module.include_dirs]))
-        return False
 
     print_status("libpng", get_pkgconfig_version('libpng'))
+    if not find_include_file(module.include_dirs, 'png.h'):
+        print_message(
+            "Could not find 'libpng' headers in any of %s" %
+            ", ".join(["'%s'" % x for x in module.include_dirs]))
+
     return True
         
 def add_base_flags(module):
@@ -323,11 +322,10 @@ def check_for_numpy():
     module = Extension('test', [])
     add_numpy_flags(module)
     add_base_flags(module)
-    if not find_include_file(module.include_dirs, os.path.join("numpy", "arrayobject.h")):
-        print_status("numpy", "no")
-        print_message("Could not find the headers for numpy.  You may need to install the development package.")
-        return False
+
     print_status("numpy", numpy.__version__)
+    if not find_include_file(module.include_dirs, os.path.join("numpy", "arrayobject.h")):
+        print_message("Could not find the headers for numpy.  You may need to install the development package.")
     return True
 
 def add_numpy_flags(module):
@@ -408,7 +406,6 @@ def check_for_gtk():
             explanation = (
                 "Could not find Gtk+ headers in any of %s" %
                 ", ".join(["'%s'" % x for x in module.include_dirs]))
-            gotit = False
 
     def ver2str(tup):
         return ".".join([str(x) for x in tup])
@@ -424,8 +421,10 @@ def check_for_gtk():
                       ver2str(gtk.pygtk_version), pygobject_version))
     else:
         print_status("Gtk+", "no")
+
+    if explanation is not None:
         print_message(explanation)
-            
+        
     return gotit
 
 def add_pygtk_flags(module):
@@ -529,7 +528,6 @@ export WX_CONFIG=/usr/lib/wxPython-2.6.1.0-gtk2-unicode/bin/wx-config
             os.path.join("wx", "wxPython", "wxPython.h")):
             explanation = ("Could not find wxPython headers in any of %s" %
                                ", ".join(["'%s'" % x for x in module.include_dirs]))
-            gotit = False
 
     if gotit:
         print_status("wxPython", wx.__version__)
@@ -663,7 +661,6 @@ so that setup can determine where your libraries are located."""
             gotit = False
         if not find_include_file(module.include_dirs, "tk.h"):
             explanation = 'Tkinter present, but header files are not installed.  You may need to install development packages.'
-            gotit = False
 
     if gotit:
         print_status("Tkinter", "Tkinter: %s, Tk: %s, Tcl: %s" %
