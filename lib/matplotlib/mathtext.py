@@ -482,7 +482,7 @@ class TruetypeFonts(Fonts):
         if bunch is not None:
             return bunch
 
-        cached_font, num, symbol_name, fontsize = \
+        cached_font, num, symbol_name, fontsize, slanted = \
             self._get_glyph(fontname, sym, fontsize)
 
         font = cached_font.font
@@ -500,7 +500,8 @@ class TruetypeFonts(Fonts):
             ymin    = ymin+offset,
             ymax    = ymax+offset,
             # iceberg is the equivalent of TeX's "height"
-            iceberg = glyph.horiBearingY/64.0 + offset
+            iceberg = glyph.horiBearingY/64.0 + offset,
+            slanted = slanted
             )
 
         self.glyphd[key] = Bunch(
@@ -558,13 +559,17 @@ class BakomaFonts(TruetypeFonts):
             return glyph.height/64.0/2.0 + 256.0/64.0 * dpi/72.0
         return 0.
 
+    _slanted_symbols = Set(r"\int \oint".split())
+    
     def _get_glyph(self, fontname, sym, fontsize):
         if fontname in self.fontmap and latex_to_bakoma.has_key(sym):
             basename, num = latex_to_bakoma[sym]
+            slanted = basename == "cmmi10" or sym in self._slanted_symbols
             cached_font = self._get_font(basename)
             symbol_name = cached_font.font.get_glyph_name(num)
             num = cached_font.glyphmap[num]
         elif len(sym) == 1:
+            slanted = (fontname == "it")
             cached_font = self._get_font(fontname)
             num = ord(sym)
             symbol_name = cached_font.font.get_glyph_name(
@@ -572,7 +577,7 @@ class BakomaFonts(TruetypeFonts):
         else:
             raise ValueError('unrecognized symbol "%s"' % sym)
 
-        return cached_font, num, symbol_name, fontsize
+        return cached_font, num, symbol_name, fontsize, slanted
 
     # The Bakoma fonts contain many pre-sized alternatives for the
     # delimiters.  The AutoSizedChar class will use these alternatives
@@ -666,6 +671,8 @@ class UnicodeFonts(TruetypeFonts):
             and not category(unichr(uniindex)).startswith("L")):
             fontname = 'rm'
 
+        slanted = (fontname == 'it')
+            
         cached_font = self._get_font(fontname)
         if found_symbol:
             try:
@@ -681,7 +688,7 @@ class UnicodeFonts(TruetypeFonts):
             glyphindex = cached_font.charmap[uniindex]
             
         symbol_name = cached_font.font.get_glyph_name(glyphindex)
-        return cached_font, uniindex, symbol_name, fontsize
+        return cached_font, uniindex, symbol_name, fontsize, slanted
     
 class StandardPsFonts(Fonts):
     """
@@ -759,6 +766,8 @@ class StandardPsFonts(Fonts):
         else:
             warn("No TeX to built-in Postscript mapping for '%s'" % sym,
                  MathTextWarning)
+
+        slanted = (fontname == 'it')
         font = self._get_font(fontname)    
 
         if found_symbol:
@@ -772,7 +781,8 @@ class StandardPsFonts(Fonts):
 
         if not found_symbol:
             glyph = sym = '?'
-            symbol_name = font.get_char_name(glyph)
+            num = ord(glyph)
+            symbol_name = font.get_name_char(glyph)
                 
         offset = 0
 
@@ -789,7 +799,8 @@ class StandardPsFonts(Fonts):
             ymin = ymin+offset,
             ymax = ymax+offset,
             # iceberg is the equivalent of TeX's "height"
-            iceberg = ymax + offset
+            iceberg = ymax + offset,
+            slanted = slanted
             )
 
         self.glyphd[key] = Bunch(
@@ -963,6 +974,9 @@ class Char(Node):
             self.width = metrics.width
         self.height = metrics.iceberg
         self.depth = -(metrics.iceberg - metrics.height)
+
+    def is_slanted(self):
+        return self._metrics.slanted
         
     def get_kerning(self, next):
         """Return the amount of kerning between this and the given
@@ -2019,6 +2033,11 @@ class Parser(object):
         if isinstance(nucleus, Char):
             return nucleus.c in self._dropsub_symbols
         return False
+
+    def is_slanted(self, nucleus):
+        if isinstance(nucleus, Char):
+            return nucleus.is_slanted()
+        return False
     
     def subsuperscript(self, s, loc, toks):
         assert(len(toks)==1)
@@ -2126,7 +2145,8 @@ class Parser(object):
                 if clr > 0.:
                     shift_up += clr
                     shift_down += clr
-                x.shift_amount = DELTA * (shift_up + shift_down)
+                if self.is_slanted(nucleus):
+                    x.shift_amount = DELTA * (shift_up + shift_down)
                 x = Vlist([x,
                            Kern((shift_up - x.depth) - (y.height - shift_down)),
                            y])
@@ -2296,11 +2316,7 @@ class math_parse_s_ft2font_common:
         font_output.mathtext_backend.fonts_object = None
         return self.cache[cacheKey]
             
-if rcParams["mathtext.mathtext2"]:
-    from matplotlib.mathtext2 import math_parse_s_ft2font
-    from matplotlib.mathtext2 import math_parse_s_ft2font_svg
-else:
-    math_parse_s_ft2font = math_parse_s_ft2font_common('Agg')
-    math_parse_s_ft2font_svg = math_parse_s_ft2font_common('SVG')
+math_parse_s_ft2font = math_parse_s_ft2font_common('Agg')
+math_parse_s_ft2font_svg = math_parse_s_ft2font_common('SVG')
 math_parse_s_ps = math_parse_s_ft2font_common('PS')
 math_parse_s_pdf = math_parse_s_ft2font_common('PDF')
