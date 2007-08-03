@@ -9,6 +9,7 @@ stests = [
     r'$100\%y\ x*y\ x/y x\$y$',
     r'$x\leftarrow y\ x\forall y\ x-y$',
     r'$x \sf x \bf x {\cal X} \rm x$',
+    r'$x\ x\,x\;x\quad x\qquad x\!x$',
     r'$\{ \rm braces \}$',
     r'$\left[\left\lfloor\frac{5}{\frac{\left(3\right)}{4}} y\right)\right]$',
     r'$\left(x\right)$',
@@ -35,12 +36,28 @@ stests = [
     r"$f'$",
     r'$\frac{x_2888}{y}$',
     r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
+    r"$\sqrt[5x\pi]{\prod^\frac{x}{2\pi^2}_\infty}$",
     r"$\sqrt[3]{x}=5$",
     r'$\frac{X}{\frac{X}{Y}}$',
+    # From UTR #25
+    r"$W^{3\beta}_{\delta_1 \rho_1 \sigma_2} = U^{3\beta}_{\delta_1 \rho_1} + \frac{1}{8 \pi 2} \int^{\alpha_2}_{\alpha_2} d \alpha^\prime_2 \left[\frac{ U^{2\beta}_{\delta_1 \rho_1} - \alpha^\prime_2U^{1\beta}_{\rho_1 \sigma_2} }{U^{0\beta}_{\rho_1 \sigma_2}}\right]$",
+    r'$\mathcal{H} = \int d \tau (\epsilon E^2 + \mu H^2)$',
     r'$\widehat{abc}\widetilde{def}$'
     ]
 
 from pylab import *
+
+def doall():
+    for i, s in enumerate(stests):
+        print "%02d: %s" % (i, s)
+        plot([0,0,3], 'r')
+        x = arange(0.0, 3.0, 0.1)
+
+        grid(True)
+        text(0.1, 1.6, s, fontsize=20, markup="tex")
+
+        savefig('mathtext_example%02d' % i)
+        figure()
 
 if '--latex' in sys.argv:
     fd = open("mathtext_examples.ltx", "w")
@@ -57,14 +74,4 @@ if '--latex' in sys.argv:
 
     os.system("pdflatex mathtext_examples.ltx")
 else:
-    for i, s in enumerate(stests):
-        print "%02d: %s" % (i, s)
-        plot([1,2,3], 'r')
-        x = arange(0.0, 3.0, 0.1)
-
-        grid(True)
-        text(1, 1.6, s, fontsize=20, markup="tex")
-
-        savefig('mathtext_example%02d' % i)
-        figure()
-
+    doall()
