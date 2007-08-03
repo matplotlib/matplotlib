@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys
+import os, sys, re
 
 stests = [
     r'Kerning: AVA $AVA$',
@@ -66,6 +66,7 @@ if '--latex' in sys.argv:
     fd.write("\\begin{enumerate}\n")
 
     for i, s in enumerate(stests):
+        s = re.sub(r"(?<!\\)\$", "$$", s)
         fd.write("\\item %s\n" % s)
 
     fd.write("\\end{enumerate}\n")
