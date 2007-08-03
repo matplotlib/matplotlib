@@ -135,7 +135,8 @@ from math import floor, ceil
 from sets import Set
 from unicodedata import category
 from warnings import warn
-import numpy
+
+from numpy import inf, isinf
 
 from matplotlib import verbose
 from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
@@ -554,7 +555,7 @@ class BakomaFonts(TruetypeFonts):
         
     def _get_offset(self, cached_font, glyph, fontsize, dpi):
         if cached_font.font.postscript_name == 'Cmex10':
-            return glyph.height/64.0/2 + 256.0/64.0 * dpi/72.0
+            return glyph.height/64.0/2.0 + 256.0/64.0 * dpi/72.0
         return 0.
 
     def _get_glyph(self, fontname, sym, fontsize):
@@ -654,7 +655,7 @@ class UnicodeFonts(TruetypeFonts):
             # This is a total hack, but it works for now
             if sym.startswith('\\big'):
                 uniindex = get_unicode_index(sym[4:])
-                fontsize *= INV_SHRINK_FACTOR
+                fontsize *= GROW_FACTOR
             else:
                 warn("No TeX to unicode mapping for '%s'" % sym,
                      MathTextWarning)
@@ -848,7 +849,7 @@ class StandardPsFonts(Fonts):
 
 # How much text shrinks when going to the next-smallest level
 SHRINK_FACTOR   = 0.7
-INV_SHRINK_FACTOR = 1.0 / SHRINK_FACTOR
+GROW_FACTOR     = 1.0 / SHRINK_FACTOR
 # The number of different sizes of chars to use, beyond which they will not
 # get any smaller
 NUM_SIZE_LEVELS = 4
@@ -900,28 +901,22 @@ class Box(Node):
     @135"""
     def __init__(self, width, height, depth):
         Node.__init__(self)
-        self.width        = width
-        self.height       = height
-        self.depth        = depth
+        self.width  = width
+        self.height = height
+        self.depth  = depth
 
     def shrink(self):
         Node.shrink(self)
         if self.size < NUM_SIZE_LEVELS:
-            if self.width is not None:
-                self.width        *= SHRINK_FACTOR
-            if self.height is not None:
-                self.height       *= SHRINK_FACTOR
-            if self.depth is not None:
-                self.depth        *= SHRINK_FACTOR
+            self.width  *= SHRINK_FACTOR
+            self.height *= SHRINK_FACTOR
+            self.depth  *= SHRINK_FACTOR
 
     def grow(self):
         Node.grow(self)
-        if self.width is not None:
-            self.width        *= INV_SHRINK_FACTOR
-        if self.height is not None:
-            self.height       *= INV_SHRINK_FACTOR
-        if self.depth is not None:
-            self.depth        *= INV_SHRINK_FACTOR
+        self.width  *= GROW_FACTOR
+        self.height *= GROW_FACTOR
+        self.depth  *= GROW_FACTOR
                 
     def render(self, x1, y1, x2, y2):
         pass
@@ -992,12 +987,16 @@ class Char(Node):
         Node.shrink(self)
         if self.size < NUM_SIZE_LEVELS:
             self.fontsize *= SHRINK_FACTOR
-            self._update_metrics()
+            self.width    *= SHRINK_FACTOR
+            self.height   *= SHRINK_FACTOR
+            self.depth    *= SHRINK_FACTOR
 
     def grow(self):
         Node.grow(self)
-        self.fontsize *= INV_SHRINK_FACTOR
-        self._update_metrics()
+        self.fontsize *= GROW_FACTOR
+        self.width    *= GROW_FACTOR
+        self.height   *= GROW_FACTOR
+        self.depth    *= GROW_FACTOR
             
 class Accent(Char):
     """The font metrics need to be dealt with differently for accents, since they
@@ -1028,10 +1027,11 @@ class List(Box):
         self.glue_order   = 0    # The order of infinity (0 - 3) for the glue
 
     def __repr__(self):
-        return '[%s <%d %d %d %d> %s]' % (self.__internal_repr__(),
-                                          self.width, self.height,
-                                          self.depth, self.shift_amount,
-                                          ' '.join([repr(x) for x in self.children]))
+        return '[%s <%.02f %.02f %.02f %.02f> %s]' % (
+            self.__internal_repr__(),
+            self.width, self.height,
+            self.depth, self.shift_amount,
+            ' '.join([repr(x) for x in self.children]))
 
     def _determine_order(self, totals):
         """A helper function to determine the highest order of glue
@@ -1069,8 +1069,8 @@ class List(Box):
         for child in self.children:
             child.grow()
         Box.grow(self)
-        self.shift_amount *= INV_SHRINK_FACTOR
-        self.glue_set     *= INV_SHRINK_FACTOR
+        self.shift_amount *= GROW_FACTOR
+        self.glue_set     *= GROW_FACTOR
             
 class Hlist(List):
     """A horizontal list of boxes.
@@ -1131,7 +1131,7 @@ class Hlist(List):
                 d = max(d, p.depth)
             elif isinstance(p, Box):
                 x += p.width
-                if p.height is not None and p.depth is not None:
+                if not isinf(p.height) and not isinf(p.depth):
                     s = getattr(p, 'shift_amount', 0.)
                     h = max(h, p.height - s)
                     d = max(d, p.depth + s)
@@ -1167,7 +1167,7 @@ class Vlist(List):
         List.__init__(self, elements)
         self.vpack()
 
-    def vpack(self, h=0., m='additional', l=float(numpy.inf)):
+    def vpack(self, h=0., m='additional', l=float(inf)):
         """The main duty of vpack is to compute the dimensions of the
         resulting boxes, and to adjust the glue if one of those dimensions is
         pre-specified.
@@ -1192,7 +1192,7 @@ class Vlist(List):
             if isinstance(p, Box):
                 x += d + p.height
                 d = p.depth
-                if p.width is not None:
+                if not isinf(p.width):
                     s = getattr(p, 'shift_amount', 0.)
                     w = max(w, p.width + s)
             elif isinstance(p, Glue):
@@ -1234,7 +1234,7 @@ class Vlist(List):
 class Rule(Box):
     """A Rule node stands for a solid black rectangle; it has width,
     depth, and height fields just as in an Hlist. However, if any of these
-    dimensions is None, the actual value will be determined by running the
+    dimensions is inf, the actual value will be determined by running the
     rule up to the boundary of the innermost enclosing box. This is called
     a "running dimension." The width is never running in an Hlist; the
     height and depth are never running in a Vlist.
@@ -1252,14 +1252,14 @@ class Hrule(Rule):
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
         height = depth = thickness * 0.5
-        Rule.__init__(self, None, height, depth, state)
+        Rule.__init__(self, inf, height, depth, state)
 
 class Vrule(Rule):
     """Convenience class to create a vertical rule."""
     def __init__(self, state):
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
-        Rule.__init__(self, thickness, None, None, state)
+        Rule.__init__(self, thickness, inf, inf, state)
         
 class Glue(Node):
     """Most of the information in this object is stored in the underlying
@@ -1291,7 +1291,7 @@ class Glue(Node):
         Node.grow(self)
         if self.glue_spec.width != 0.:
             self.glue_spec = self.glue_spec.copy()
-            self.glue_spec.width *= INV_SHRINK_FACTOR
+            self.glue_spec.width *= GROW_FACTOR
                 
 class GlueSpec(object):
     """@150, @151"""
@@ -1379,6 +1379,9 @@ class Kern(Node):
         Node.__init__(self)
         self.width = width
 
+    def __repr__(self):
+        return "k%.02f" % self.width
+        
     def shrink(self):
         Node.shrink(self)
         if self.size < NUM_SIZE_LEVELS:
@@ -1386,7 +1389,7 @@ class Kern(Node):
 
     def grow(self):
         Node.grow(self)
-        self.width *= INV_SHRINK_FACTOR
+        self.width *= GROW_FACTOR
         
 class SubSuperCluster(Hlist):
     """This class is a sort of hack to get around that fact that this
@@ -1507,9 +1510,9 @@ class Ship(object):
                 rule_height = p.height
                 rule_depth  = p.depth
                 rule_width  = p.width
-                if rule_height is None:
+                if isinf(rule_height):
                     rule_height = box.height
-                if rule_depth is None:
+                if isinf(rule_depth):
                     rule_depth = box.depth
                 if rule_height > 0 and rule_width > 0:
                     self.cur_v = baseline + rule_depth
@@ -1566,7 +1569,7 @@ class Ship(object):
                 rule_height = p.height
                 rule_depth = p.depth
                 rule_width = p.width
-                if rule_width is None:
+                if isinf(rule_width):
                     rule_width = box.width
                 rule_height += rule_depth
                 if rule_height > 0 and rule_depth > 0:
@@ -1822,7 +1825,7 @@ class Parser(object):
 
         self._expression <<(
                          non_math
-                       + OneOrMore(
+                       + ZeroOrMore(
                            Suppress(math_delim)
                          + math
                          + Suppress(math_delim)
@@ -2178,7 +2181,8 @@ class Parser(object):
         else:
             if not isinstance(root, ParseResults):
                 raise ParseFatalException(
-                    "Can not parse root of radical.  Only simple symbols are allowed.")
+                    "Can not parse root of radical. "
+                    "Only simple symbols are allowed in the root.")
             root = Hlist(root.asList())
             root.shrink()
             root.shrink()
