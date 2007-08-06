@@ -133,7 +133,7 @@ import os, sys
 from cStringIO import StringIO
 from math import floor, ceil
 from sets import Set
-from unicodedata import category
+import unicodedata
 from warnings import warn
 
 from numpy import inf, isinf
@@ -462,7 +462,7 @@ class TruetypeFonts(Fonts):
 
         cached_font = self.fonts.get(basename)
         if cached_font is None:
-            font = FT2Font(os.path.join(self.basepath, basename + ".ttf"))
+            font = FT2Font(basename)
             cached_font = self.CachedFont(font)
             self.fonts[basename] = cached_font
             self.fonts[font.postscript_name] = cached_font
@@ -545,15 +545,24 @@ class BakomaFonts(TruetypeFonts):
     """
     Use the Bakoma true type fonts for rendering
     """
-    fontmap = { 'cal' : 'cmsy10',
-                'rm'  : 'cmr10',
-                'tt'  : 'cmtt10',
-                'it'  : 'cmmi10',
-                'bf'  : 'cmb10',
-                'sf'  : 'cmss10',
-                'ex'  : 'cmex10'
-                }
-        
+    _fontmap = { 'cal' : 'cmsy10',
+                 'rm'  : 'cmr10',
+                 'tt'  : 'cmtt10',
+                 'it'  : 'cmmi10',
+                 'bf'  : 'cmb10',
+                 'sf'  : 'cmss10',
+                 'ex'  : 'cmex10'
+                 }
+    fontmap = {}
+    
+    def __init__(self, *args, **kwargs):
+        TruetypeFonts.__init__(self, *args, **kwargs)
+        if not len(self.fontmap):
+            for key, val in self._fontmap.items():
+                fullpath = os.path.join(self.basepath, val + ".ttf")
+                self.fontmap[key] = fullpath
+                self.fontmap[val] = fullpath
+    
     def _get_offset(self, cached_font, glyph, fontsize, dpi):
         if cached_font.font.postscript_name == 'Cmex10':
             return glyph.height/64.0/2.0 + 256.0/64.0 * dpi/72.0
@@ -564,7 +573,7 @@ class BakomaFonts(TruetypeFonts):
     def _get_glyph(self, fontname, sym, fontsize):
         if fontname in self.fontmap and latex_to_bakoma.has_key(sym):
             basename, num = latex_to_bakoma[sym]
-            slanted = basename == "cmmi10" or sym in self._slanted_symbols
+            slanted = (basename == "cmmi10") or sym in self._slanted_symbols
             cached_font = self._get_font(basename)
             symbol_name = cached_font.font.get_glyph_name(num)
             num = cached_font.glyphmap[num]
@@ -638,15 +647,24 @@ class BakomaFonts(TruetypeFonts):
 class UnicodeFonts(TruetypeFonts):
     """An abstract base class for handling Unicode fonts.
     """
-    fontmap = { 'cal' : 'cmsy10',
-                'rm'  : 'DejaVuSerif',
-                'tt'  : 'DejaVuSansMono',
-                'it'  : 'DejaVuSerif-Italic',
-                'bf'  : 'DejaVuSerif-Bold',
-                'sf'  : 'DejaVuSans',
-                None  : 'DejaVuSerif-Italic'
-                }
 
+    fontmap = {}
+    
+    def __init__(self, *args, **kwargs):
+        # This must come first so the backend's owner is set correctly
+        if rcParams['mathtext.fallback_to_cm']:
+            self.cm_fallback = BakomaFonts(*args, **kwargs)
+        else:
+            self.cm_fallback = None
+        TruetypeFonts.__init__(self, *args, **kwargs)
+        if not len(self.fontmap):
+            for texfont in "cal rm tt it bf sf".split():
+                setting = rcParams['mathtext.' + texfont]
+                family, weight, style = setting
+                prop = FontProperties(family=family, weight=weight, style=style)
+                font = fontManager.findfont(prop)
+                self.fontmap[texfont] = font
+    
     def _get_offset(self, cached_font, glyph, fontsize, dpi):
         return 0.
 
@@ -662,33 +680,65 @@ class UnicodeFonts(TruetypeFonts):
                 uniindex = get_unicode_index(sym[4:])
                 fontsize *= GROW_FACTOR
             else:
-                warn("No TeX to unicode mapping for '%s'" % sym,
+                uniindex = ord('?')
+                warn("No TeX to unicode mapping for '%s'" % sym.encode('ascii', 'replace'),
                      MathTextWarning)
 
         # Only characters in the "Letter" class should be italicized in 'it'
-        # mode.  This class includes greek letters, of course.
-        if (fontname == 'it'
-            and not category(unichr(uniindex)).startswith("L")):
-            fontname = 'rm'
-
-        slanted = (fontname == 'it')
-            
-        cached_font = self._get_font(fontname)
+        # mode.  Greek capital letters should be Roman.
         if found_symbol:
+            new_fontname = fontname
+
+            if fontname == 'it':
+                unistring = unichr(uniindex)
+                if (not unicodedata.category(unistring).startswith("L")
+                    or unicodedata.name(unistring).startswith("GREEK CAPITAL")):
+                    new_fontname = 'rm'
+
+            slanted = (new_fontname == 'it')
+            cached_font = self._get_font(new_fontname)
             try:
                 glyphindex = cached_font.charmap[uniindex]
             except KeyError:
                 warn("Font '%s' does not have a glyph for '%s'" %
-                     (cached_font.font.postscript_name, sym),
+                     (cached_font.font.postscript_name, sym.encode('ascii', 'replace')),
                      MathTextWarning)
                 found_symbol = False
 
         if not found_symbol:
-            uniindex = 0xA4 # currency character, for lack of anything better
-            glyphindex = cached_font.charmap[uniindex]
+            if self.cm_fallback:
+                warn("Substituting with a symbol from the Computer Modern family.",
+                     MathTextWarning)
+                return self.cm_fallback._get_glyph(fontname, sym, fontsize)
+            else:
+                new_fontname = fontname
+                cached_font = self._get_font(fontname)
+                uniindex = 0xA4 # currency character, for lack of anything better
+                glyphindex = cached_font.charmap[uniindex]
+                slanted = False
             
         symbol_name = cached_font.font.get_glyph_name(glyphindex)
         return cached_font, uniindex, symbol_name, fontsize, slanted
+
+    def set_canvas_size(self, w, h):
+        'Dimension the drawing canvas; may be a noop'
+        TruetypeFonts.set_canvas_size(self, w, h)
+        if self.cm_fallback:
+            self.cm_fallback.set_canvas_size(w, h)
+    
+    def get_used_characters(self):
+        used_characters = dict(self.used_characters)
+        if self.cm_fallback:
+            fallback_characters = self.cm_fallback.get_used_characters()
+            for key, val in fallback_characters:
+                used_characters.setdefault(key, Set()).update(val)
+        return used_characters
+
+    def get_fonts(self):
+        fonts = [x.font for x in self.fonts.values()]
+        if self.cm_fallback:
+            fonts.extend(self.cm_fallback.get_fonts())
+        return list(set(fonts))
     
 class StandardPsFonts(Fonts):
     """
@@ -750,7 +800,7 @@ class StandardPsFonts(Fonts):
         # This class includes greek letters, so we're ok
         if (fontname == 'it' and
             (len(sym) > 1 or
-             not category(unicode(sym)).startswith("L"))):
+             not unicodedata.category(unicode(sym)).startswith("L"))):
             fontname = 'rm'
 
         found_symbol = False
@@ -2302,10 +2352,10 @@ class math_parse_s_ft2font_common:
             font_output = StandardPsFonts(prop)
         else:
             backend = self._backend_mapping[self.output]()
-            font_output = BakomaFonts(prop, backend)
-            # When we have a decent Unicode font, we should test and
-            # then make this available as an option
-            #~ font_output = UnicodeFonts(prop, backend)
+            if rcParams['mathtext.use_cm']:
+                font_output = BakomaFonts(prop, backend)
+            else:
+                font_output = UnicodeFonts(prop, backend)
 
         fontsize = prop.get_size_in_points()
         if self._parser is None:

@@ -159,6 +159,22 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 				# In that case, all text will be sent to TeX for 
 				# processing.
 
+# The following settings allow you to select the fonts in math mode.
+# They map from a TeX font name to a 3-tuple of the form:
+#    (family, weight, style)
+# These settings are only used if mathtext.use_cm is False, otherwise, the
+# Bakoma TeX Computer Modern fonts are used.
+#mathtext.cal : (['cursive'], 'normal', 'normal')
+#mathtext.rm  : (['serif'], 'normal', 'normal')
+#mathtext.tt  : (['monospace'], 'normal', 'normal')
+#mathtext.it  : (['serif'], 'normal', 'oblique')
+#mathtext.bf  : (['serif'], 'bold', 'normal')
+#mathtext.sf  : (['sans-serif'], 'normal', 'normal')
+#mathtext.use_cm : True
+#mathtext.fallback_to_cm : True  # When True, use symbols from the Computer Modern
+			         # fonts when a symbol can not be found in one of 
+				 # the user-specified math fonts.
+
 ### AXES
 # default face and edge color, default tick sizes,
 # default fontsizes for ticklabels, and so on.  See

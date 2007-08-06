@@ -198,6 +198,12 @@ def validate_fontsize(s):
     except ValueError:
         raise ValueError('not a valid font size')
 
+def validate_mathtext_font(s):
+    s = eval(s)
+    if type(s) in (list, tuple) and len(s) == 3:
+        return s
+    raise ValueError('Mathtext font specifier must be a 3-tuple of (family, weight, style)')
+    
 validate_markup = ValidateInStrings(
     'markup', 
     ['plain', 'tex'],
@@ -357,6 +363,15 @@ defaultParams = {
     'text.fontsize'       : ['medium', validate_fontsize],
     'text.markup'         : ['plain', validate_markup],
 
+    'mathtext.cal'        : [(['cursive'], 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.rm'         : [(['serif'], 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.tt'         : [(['monospace'], 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.it'         : [(['serif'], 'normal', 'oblique'), validate_mathtext_font],
+    'mathtext.bf'         : [(['serif'], 'bold', 'normal'), validate_mathtext_font],
+    'mathtext.sf'         : [(['sans-serif'], 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.use_cm'     : [True, validate_bool],
+    'mathtext.fallback_to_cm' : [True, validate_bool],
+    
     'image.aspect'        : ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation' : ['bilinear', str],
     'image.cmap'          : ['jet', str],        # one of gray, jet, etc
