@@ -11,6 +11,8 @@ from matplotlib.font_manager import fontManager, FontProperties
 from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
 from matplotlib.mathtext import math_parse_s_ft2font_svg
 
+from xml.sax.saxutils import escape as escape_xml_text
+
 backend_version = __version__
 
 def new_figure_manager(num, *args, **kwargs):
@@ -239,7 +241,7 @@ class RendererSVG(RendererBase):
 
         font = self._get_font(prop)
 
-        thetext = '%s' % s
+        thetext = escape_xml_text(s)
         fontfamily = font.family_name
         fontstyle = font.style_name
         fontsize = prop.get_size_in_points()
@@ -369,10 +371,7 @@ class RendererSVG(RendererBase):
             curr_x,curr_y = 0.0,0.0
 
             for font, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
-                if rcParams["mathtext.mathtext2"]:
-                    new_y = new_y_mtc - height
-                else:
-                    new_y = - new_y_mtc
+                new_y = - new_y_mtc
 
                 svg.append('<tspan style="font-size: %f; font-family: %s"' % 
                            (fontsize, font.family_name))
@@ -387,6 +386,8 @@ class RendererSVG(RendererBase):
                 if dy != 0.0:
                     svg.append(' dy="%f"' % dy)
 
+                thetext = escape_xml_text(thetext)
+                    
                 svg.append('>%s</tspan>\n' % thetext)
 
                 curr_x = new_x + xadvance
