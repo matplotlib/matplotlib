@@ -153,20 +153,12 @@ class MPLConfig(TConfig):
     class text(TConfig):
         color = T.Trait('black',mplT.ColorHandler())
         usetex = T.false
+        markup = T.Trait('plain', 'tex')
         
         class latex(TConfig):
             unicode = T.false
             preamble = T.ListStr([])
             dvipnghack = T.false
-
-        class math(TConfig):
-                mathtext2 = T.false
-                rm = T.Trait('cmr10.ttf')
-                it = T.Trait('cmmi10.ttf')
-                tt = T.Trait('cmtt10.ttf')
-                mit = T.Trait('cmmi10.ttf')
-                cal = T.Trait('cmsy10.ttf')
-                nonascii = T.Trait('cmex10.ttf')
 
     class axes(TConfig):
         hold = T.Trait(True, mplT.BoolHandler())
@@ -336,6 +328,7 @@ class RcParamsWrapper(dict):
         'text.latex.unicode' : (self.tconfig.text.latex, 'unicode'),
         'text.latex.preamble' : (self.tconfig.text.latex, 'preamble'),
         'text.dvipnghack' : (self.tconfig.text.latex, 'dvipnghack'),
+        'text.markup' : (self.tconfig.text.markup, 'markup'),
 
         'image.aspect' : (self.tconfig.image, 'aspect'),
         'image.interpolation' : (self.tconfig.image, 'interpolation'),
@@ -429,14 +422,6 @@ class RcParamsWrapper(dict):
         'svg.image_noscale' : (self.tconfig.backend.svg, 'image_noscale'),
         'svg.embed_char_paths' : (self.tconfig.backend.svg, 'embed_chars'),
 
-        # mathtext settings
-        'mathtext.mathtext2' : (self.tconfig.text.math, 'mathtext2'),
-        'mathtext.rm' : (self.tconfig.text.math, 'rm'),
-        'mathtext.it' : (self.tconfig.text.math, 'it'),
-        'mathtext.tt' : (self.tconfig.text.math, 'tt'),
-        'mathtext.mit' : (self.tconfig.text.math, 'mit'),
-        'mathtext.cal' : (self.tconfig.text.math, 'cal'),
-        'mathtext.nonascii' : (self.tconfig.text.math, 'nonascii'),
         }
 
     def __setitem__(self, key, val):

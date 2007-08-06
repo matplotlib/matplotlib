@@ -1,3 +1,17 @@
+2007-08-06 Removed mathtext2
+
+2007-07-31 Refactoring of distutils scripts.  
+	   - Will not fail on the entire build if an optional Python
+             package (e.g. Tkinter) is installed but its development
+             headers are not (e.g. tk-devel).  Instead, it will
+             continue to build all other extensions.
+	   - Provide an overview at the top of the output to display
+	     what dependencies and their versions were found, and (by
+             extension) what will be built.
+           - Use pkg-config, when available, to find freetype2, since
+             this was broken on Mac OS-X when using MacPorts in a non-
+             standard location.
+
 2007-07-30 Reorganized configuration code to work with traited config
            objects. The new config system is located in the 
            matplotlib.config package, but it is disabled by default.
