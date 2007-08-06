@@ -1103,7 +1103,7 @@ class RendererPdf(RendererBase):
         oldx, oldy = 0, 0
         for record in pswriter:
             if record[0] == 'glyph':
-                rec_type, ox, oy, fontname, fontsize, glyph = record
+                rec_type, ox, oy, fontname, fontsize, num = record
                 a = angle / 180.0 * pi
                 newx = x + cos(a)*ox - sin(a)*oy
                 newy = y + sin(a)*ox + cos(a)*oy
@@ -1114,7 +1114,10 @@ class RendererPdf(RendererBase):
                                      Op.selectfont)
                     prev_font = fontname, fontsize
 
-                string = chr(glyph)
+                if num < 256:
+                    string = chr(num)
+                else:
+                    string = "?"
                 self.file.output(string, Op.show)
         self.file.output(Op.end_text)
 
