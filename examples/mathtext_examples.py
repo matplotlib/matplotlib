@@ -20,8 +20,8 @@ stests = [
     r'$x_y^2$',
     r'$\prod_{i=\alpha_{i+1}}^\infty$',
     r'$x = \frac{x+\frac{5}{2}}{\frac{y+3}{8}}$',
-    r'$dz/dt \/ = \/ \gamma x^2 \/ + \/ {\rm sin}(2\pi y+\phi)$',
-    r'Foo: $\alpha_{i+1}^j \/ = \/ {\rm sin}(2\pi f_j t_i) e^{-5 t_i/\tau}$',
+    r'$dz/dt = \gamma x^2 + {\rm sin}(2\pi y+\phi)$',
+    r'Foo: $\alpha_{i+1}^j = {\rm sin}(2\pi f_j t_i) e^{-5 t_i/\tau}$',
     r'$\mathcal{R}\prod_{i=\alpha_{i+1}}^\infty a_i \sin(2 \pi f x_i)$',
 #    r'$\bigodot \bigoplus {\sf R} a_i{\rm sin}(2 \pi f x_i)$',
     r'Variable $i$ is good',
@@ -33,7 +33,7 @@ stests = [
     r"$\gamma = \frac{x=\frac{6}{8}}{y} \delta$",
     r'$\limsup_{x\to\infty}$',
     r'$\oint^\infty_0$',
-    r"$f'$",
+    r"$f^'$",
     r'$\frac{x_2888}{y}$',
     r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
     r"$\sqrt[5x\pi]{\prod^\frac{x}{2\pi^2}_\infty}$",
@@ -41,23 +41,28 @@ stests = [
     r'$\frac{X}{\frac{X}{Y}}$',
     # From UTR #25
     r"$W^{3\beta}_{\delta_1 \rho_1 \sigma_2} = U^{3\beta}_{\delta_1 \rho_1} + \frac{1}{8 \pi 2} \int^{\alpha_2}_{\alpha_2} d \alpha^\prime_2 \left[\frac{ U^{2\beta}_{\delta_1 \rho_1} - \alpha^\prime_2U^{1\beta}_{\rho_1 \sigma_2} }{U^{0\beta}_{\rho_1 \sigma_2}}\right]$",
-    r'$\mathcal{H} = \int d \tau (\epsilon E^2 + \mu H^2)$',
-    r'$\widehat{abc}\widetilde{def}$'
+    r'$\mathcal{H} = \int d \tau \left(\epsilon E^2 + \mu H^2\right)$',
+    r'$\widehat{abc}\widetilde{def}$',
+    r'$\Gamma \Delta \Theta \Lambda \Xi \Pi \Sigma \Upsilon \Phi \Psi \Omega$',
+    r'$\alpha \beta \gamma \delta \epsilon \zeta \eta \theta \iota \lambda \mu \nu \xi \pi \kappa \rho \sigma \tau \upsilon \phi \chi \psi$'
     ]
 
 from pylab import *
 
 def doall():
-    for i, s in enumerate(stests):
+    tests = stests
+    
+    figure(figsize=(8, (len(tests) * 1) + 2))
+    plot([0, 0], 'r')
+    grid(False)
+    axis([0, 3, -len(tests), 0])
+    yticks(arange(len(tests)) * -1)
+    for i, s in enumerate(tests):
         print "%02d: %s" % (i, s)
-        plot([0,0,3], 'r')
-        x = arange(0.0, 3.0, 0.1)
+        text(0.1, -i, s, fontsize=20, markup="tex")
 
-        grid(True)
-        text(0.1, 1.6, s, fontsize=20, markup="tex")
-
-        savefig('mathtext_example%02d' % i)
-        figure()
+    savefig('mathtext_example')
+    figure()
 
 if '--latex' in sys.argv:
     fd = open("mathtext_examples.ltx", "w")

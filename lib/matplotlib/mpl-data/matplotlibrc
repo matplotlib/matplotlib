@@ -26,7 +26,7 @@
 #### CONFIGURATION BEGINS HERE
 # the default backend; one of GTK GTKAgg GTKCairo FltkAgg QtAgg TkAgg
 #     Agg Cairo GD GDK Paint PS PDF SVG Template
-backend      : TkAgg
+backend      : WXAgg
 numerix      : numpy  # numpy, Numeric or numarray
 #maskedarray : False       # True to use external maskedarray module
                            # instead of numpy.ma; this is a temporary
@@ -150,6 +150,14 @@ numerix      : numpy  # numpy, Numeric or numarray
 #text.dvipnghack     : False  # some versions of dvipng don't handle
                              # alpha channel properly.  Use True to correct and flush
                              # ~/.matplotlib/tex.cache before testing
+#text.markup         : 'plain'  # Affects how text, such as titles and lables, are
+                                # interpreted by default.
+                                # 'plain': As plain, unformatted text
+				# 'tex': As TeX-like text.  Text between $'s will be
+				# formatted as a TeX math expression.
+				# This setting has no effect when text.usetex is True.
+				# In that case, all text will be sent to TeX for 
+				# processing.
 
 ### AXES
 # default face and edge color, default tick sizes,

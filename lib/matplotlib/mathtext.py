@@ -246,7 +246,7 @@ class MathtextBackendAgg(MathtextBackend):
 
     def render_glyph(self, ox, oy, info):
         info.font.draw_glyph_to_bitmap(
-            int(ox), int(oy - info.metrics.ymax), info.glyph)
+            ox, oy - info.metrics.ymax, info.glyph)
 
     def render_rect_filled(self, x1, y1, x2, y2):
         font = self.fonts_object.get_fonts()[0]
@@ -297,7 +297,7 @@ class MathtextBackendPdf(MathtextBackend):
     def render_glyph(self, ox, oy, info):
         filename = info.font.fname
         oy = self.height - oy + info.offset
-
+        
         self.pswriter.append(('glyph', ox, oy, filename, info.fontsize, info.num))
 
     def render_rect_filled(self, x1, y1, x2, y2):
@@ -865,7 +865,7 @@ GROW_FACTOR     = 1.0 / SHRINK_FACTOR
 # get any smaller
 NUM_SIZE_LEVELS = 4
 # Percentage of x-height of additional horiz. space after sub/superscripts
-SCRIPT_SPACE    = 0.3
+SCRIPT_SPACE    = 0.2
 # Percentage of x-height that sub/superscripts drop below the baseline
 SUBDROP         = 0.3
 # Percentage of x-height that superscripts drop below the baseline
@@ -873,7 +873,7 @@ SUP1            = 0.7
 # Percentage of x-height that subscripts drop below the baseline
 SUB1            = 0.0
 # Percentage of x-height that superscripts are offset relative to the subscript
-DELTA           = 0.25
+DELTA           = 0.18
     
 class MathTextWarning(Warning):
     pass
@@ -1101,19 +1101,20 @@ class Hlist(List):
         list in the correct way."""
         new_children = []
         num_children = len(self.children)
-        for i in range(num_children):
-            elem = self.children[i]
-            if i < num_children - 1:
-                next = self.children[i + 1]
-            else:
-                next = None
+        if num_children:
+            for i in range(num_children):
+                elem = self.children[i]
+                if i < num_children - 1:
+                    next = self.children[i + 1]
+                else:
+                    next = None
 
-            new_children.append(elem)
-            kerning_distance = elem.get_kerning(next)
-            if kerning_distance != 0.:
-                kern = Kern(kerning_distance)
-                new_children.append(kern)
-        self.children = new_children
+                new_children.append(elem)
+                kerning_distance = elem.get_kerning(next)
+                if kerning_distance != 0.:
+                    kern = Kern(kerning_distance)
+                    new_children.append(kern)
+            self.children = new_children
 
     def hpack(self, w=0., m='additional'):
         """The main duty of hpack is to compute the dimensions of the
@@ -1372,9 +1373,15 @@ class SsGlue(Glue):
 class HCentered(Hlist):
     """A convenience class to create an Hlist whose contents are centered
     within its enclosing box."""
-    def __init__(self, elements):
+    def __init__(self, elements, is_accent = False):
+        self.is_accent = is_accent
         Hlist.__init__(self, [SsGlue()] + elements + [SsGlue()])
 
+    def kern(self):
+        Hlist.kern(self)
+        if not self.is_accent and isinstance(self.children[-2], Kern):
+            self.children = self.children[:-2] + [SsGlue()]
+        
 class VCentered(Hlist):
     """A convenience class to create an Vlist whose contents are centered
     within its enclosing box."""
@@ -1982,7 +1989,7 @@ class Parser(object):
         else:
             accent = Accent(self._accent_map[accent], state)
             shift_amount = accent._metrics.xmin
-        centered = HCentered([accent])
+        centered = HCentered([accent], is_accent=True)
         centered.hpack(sym.width, 'exactly')
         centered.shift_amount = shift_amount
         return Vlist([
