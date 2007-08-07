@@ -148,7 +148,7 @@ from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
 from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch, get_realpath_and_stat, \
     is_string_like
-from matplotlib.ft2font import FT2Font, KERNING_UNFITTED
+from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_DEFAULT, LOAD_NO_HINTING
 from matplotlib.font_manager import fontManager, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, \
         latex_to_standard, tex2uni, type12uni, tex2type1, uni2type1
@@ -237,6 +237,9 @@ class MathtextBackend(object):
         """Return a backend specific tuple of things to return to the
         backend after all processing is done."""
         raise NotImplementedError()
+
+    def get_hinting_type(self):
+        return LOAD_NO_HINTING
     
 class MathtextBackendAgg(MathtextBackend):
     def set_canvas_size(self, w, h):
@@ -261,7 +264,10 @@ class MathtextBackendAgg(MathtextBackend):
                 self.height,
                 self.fonts_object.get_fonts(),
                 self.fonts_object.get_used_characters())
-        
+
+    def get_hinting_type(self):
+        return LOAD_DEFAULT
+    
 class MathtextBackendPs(MathtextBackend):
     def __init__(self):
         self.pswriter = StringIO()
@@ -487,7 +493,9 @@ class TruetypeFonts(Fonts):
 
         font = cached_font.font
         font.set_size(fontsize, dpi)
-        glyph = font.load_char(num)
+        glyph = font.load_char(
+            num,
+            flags=self.mathtext_backend.get_hinting_type())
 
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
         offset = self._get_offset(cached_font, glyph, fontsize, dpi)
@@ -538,7 +546,7 @@ class TruetypeFonts(Fonts):
             info1 = self._get_info(font1, sym1, fontsize1, dpi)
             info2 = self._get_info(font2, sym2, fontsize2, dpi)
             font = info1.font
-            return font.get_kerning(info1.num, info2.num, KERNING_UNFITTED) / 64.0
+            return font.get_kerning(info1.num, info2.num, KERNING_DEFAULT) / 64.0
         return 0.0
     
 class BakomaFonts(TruetypeFonts):

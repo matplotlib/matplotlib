@@ -8,7 +8,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager, FontProperties
-from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
+from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.mathtext import math_parse_s_ft2font_svg
 
 from xml.sax.saxutils import escape as escape_xml_text
@@ -266,10 +266,10 @@ class RendererSVG(RendererBase):
                 if gind is None:
                     ccode = ord('?')
                     gind = 0
-                glyph = font.load_char(ccode)
+                glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
 
                 if lastgind is not None:
-                    kern = font.get_kerning(lastgind, gind, KERNING_UNFITTED)
+                    kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
                 else:
                     kern = 0
                 lastgind = gind
@@ -305,7 +305,7 @@ class RendererSVG(RendererBase):
             return char_id
 
         path_data = []
-        glyph = font.load_char(ord(char))
+        glyph = font.load_char(ord(char), flags=LOAD_NO_HINTING)
         currx, curry = 0.0, 0.0
         for step in glyph.path:
             if step[0] == 0:   # MOVE_TO
@@ -431,7 +431,7 @@ class RendererSVG(RendererBase):
                 math_parse_s_ft2font_svg(s, 72, prop)
             return width, height
         font = self._get_font(prop)
-        font.set_text(s, 0.0)
+        font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
         h /= 64.0

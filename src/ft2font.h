@@ -56,7 +56,7 @@ public:
   Py::Object clear(const Py::Tuple & args);
   Py::Object set_size(const Py::Tuple & args);
   Py::Object set_charmap(const Py::Tuple & args);
-  Py::Object set_text(const Py::Tuple & args);
+  Py::Object set_text(const Py::Tuple & args, const Py::Dict & kwargs);
   Py::Object get_glyph(const Py::Tuple & args);
   Py::Object get_kerning(const Py::Tuple & args);
   Py::Object get_num_glyphs(const Py::Tuple & args);
@@ -91,7 +91,8 @@ private:
   std::vector<FT_Vector> pos;
   std::vector<Glyph*> gms;
   double angle;
-
+  double ptsize;
+  double dpi;
 
 
   FT_BBox compute_string_bbox();

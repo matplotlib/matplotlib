@@ -82,7 +82,7 @@ from matplotlib.backend_bases import RendererBase,\
 from matplotlib.cbook import enumerate, is_string_like, exception_to_str
 from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
-from matplotlib.ft2font import FT2Font
+from matplotlib.ft2font import FT2Font, LOAD_DEFAULT
 from matplotlib.mathtext import math_parse_s_ft2font
 from matplotlib.transforms import lbwh_to_bbox
 
@@ -203,11 +203,10 @@ class RendererAgg(RendererBase):
 
         font = self._get_agg_font(prop)
         if font is None: return None
-        if len(s)==1 and ord(s)>127:
-
-            font.load_char(ord(s))
+        if len(s) == 1 and ord(s) > 127:
+            font.load_char(ord(s), flags=LOAD_DEFAULT)
         else:
-            font.set_text(s, angle)
+            font.set_text(s, angle, flags=LOAD_DEFAULT)
         font.draw_glyphs_to_bitmap()
 
         #print x, y, int(x), int(y)
@@ -237,7 +236,7 @@ class RendererAgg(RendererBase):
                 s, self.dpi.get(), prop)
             return width, height
         font = self._get_agg_font(prop)
-        font.set_text(s, 0.0)  # the width and height of unrotated string
+        font.set_text(s, 0.0, flags=LOAD_DEFAULT)  # the width and height of unrotated string
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
         h /= 64.0
