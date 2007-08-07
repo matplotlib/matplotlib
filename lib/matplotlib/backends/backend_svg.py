@@ -276,9 +276,9 @@ class RendererSVG(RendererBase):
                 currx += kern/64.0
 
                 svg.append('<use xlink:href="#%s" transform="translate(%s)"/>\n' 
-                           % (charid, currx / (fontsize / self.FONT_SCALE)))
+                           % (charid, currx))
                 
-                currx += glyph.linearHoriAdvance / 65536.0
+                currx += (glyph.linearHoriAdvance / 65536.0)
             svg.append('</g>\n')
             svg = ''.join(svg)
         else:
