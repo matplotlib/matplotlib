@@ -19,7 +19,7 @@ from matplotlib.cbook import is_string_like, izip, get_realpath_and_stat
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import fontManager
-from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
+from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import math_parse_s_ps
 from matplotlib.text import Text
@@ -292,7 +292,7 @@ class RendererPS(RendererBase):
             return w, h
 
         font = self._get_font_ttf(prop)
-        font.set_text(s, 0.0)
+        font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
         h /= 64.0
@@ -738,7 +738,7 @@ grestore
             return self.draw_unicode(gc, x, y, s, prop, angle)
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s,0)
+            font.set_text(s, 0, flags=LOAD_NO_HINTING)
             self.track_characters(font, s)
 
             self.set_color(*gc.get_rgb())
@@ -782,10 +782,10 @@ grestore
                 gind = 0
             else:
                 name = font.get_glyph_name(gind)
-            glyph = font.load_char(ccode)
+            glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
 
             if lastgind is not None:
-                kern = font.get_kerning(lastgind, gind, KERNING_UNFITTED)
+                kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
             else:
                 kern = 0
             lastgind = gind

@@ -5,6 +5,41 @@
 #define FIXED_MAJOR(val) (*((short *) &val+1))
 #define FIXED_MINOR(val) (*((short *) &val+0))
 
+/**
+ To improve the hinting of the fonts, this code uses a hack
+ presented here:
+ 
+ http://antigrain.com/research/font_rasterization/index.html
+ 
+ The idea is to limit the effect of hinting in the x-direction, while
+ preserving hinting in the y-direction.  Since freetype does not
+ support this directly, the dpi in the x-direction is set higher than
+ in the y-direction, which affects the hinting grid.  Then, a global
+ transform is placed on the font to shrink it back to the desired
+ size.  While it is a bit surprising that the dpi setting affects
+ hinting, whereas the global transform does not, this is documented
+ behavior of freetype, and therefore hopefully unlikely to change.
+ The freetype 2 tutorial says:
+ 
+      NOTE: The transformation is applied to every glyph that is
+      loaded through FT_Load_Glyph and is completely independent of
+      any hinting process. This means that you won't get the same
+      results if you load a glyph at the size of 24 pixels, or a glyph
+      at the size at 12 pixels scaled by 2 through a transform,
+      because the hints will have been computed differently (except
+      you have disabled hints).
+
+ This hack is enabled only when VERTICAL_HINTING is defined, and will
+ only be effective when load_char and set_text are called with 'flags=
+ LOAD_DEFAULT', which is the default.
+ */
+#define VERTICAL_HINTING
+#ifdef VERTICAL_HINTING
+#define HORIZ_HINTING 8
+#else
+#define HORIZ_HINTING 1
+#endif
+
 FT_Library _ft2Library;
 
 FT2Image::FT2Image() : bRotated(false), buffer(NULL)  {}
@@ -17,12 +52,12 @@ Glyph::Glyph( const FT_Face& face, const FT_Glyph& glyph, size_t ind) :
   FT_BBox bbox;
   FT_Glyph_Get_CBox( glyph, ft_glyph_bbox_subpixels, &bbox );
 
-  setattr("width",        Py::Int( face->glyph->metrics.width) );
+  setattr("width",        Py::Int( face->glyph->metrics.width / HORIZ_HINTING) );
   setattr("height",       Py::Int( face->glyph->metrics.height) );
-  setattr("horiBearingX", Py::Int( face->glyph->metrics.horiBearingX) );
+  setattr("horiBearingX", Py::Int( face->glyph->metrics.horiBearingX / HORIZ_HINTING) );
   setattr("horiBearingY", Py::Int( face->glyph->metrics.horiBearingY) );
-  setattr("horiAdvance",  Py::Int( face->glyph->metrics.horiAdvance) );
-  setattr("linearHoriAdvance",  Py::Int( face->glyph->linearHoriAdvance) );
+  setattr("horiAdvance",  Py::Int( face->glyph->metrics.horiAdvance / HORIZ_HINTING) );
+  setattr("linearHoriAdvance",  Py::Int( face->glyph->linearHoriAdvance / HORIZ_HINTING) );
   setattr("vertBearingX", Py::Int( face->glyph->metrics.vertBearingX) );
 
   setattr("vertBearingY", Py::Int( face->glyph->metrics.vertBearingY) );
@@ -341,7 +376,13 @@ FT2Font::FT2Font(std::string facefile)
   }
 
   // set a default fontsize 12 pt at 72dpi
+#ifdef VERTICAL_HINTING  
+  error = FT_Set_Char_Size( face, 12 * 64, 0, 72 * HORIZ_HINTING, 72 );
+  static FT_Matrix transform = { 65536 / HORIZ_HINTING, 0, 0, 65536 };
+  FT_Set_Transform( face, &transform, 0 );
+#else
   error = FT_Set_Char_Size( face, 12 * 64, 0, 72, 72 );
+#endif
   //error = FT_Set_Char_Size( face, 20 * 64, 0, 80, 80 );
   if (error) {
     std::ostringstream s;
@@ -572,9 +613,17 @@ FT2Font::set_size(const Py::Tuple & args) {
   double ptsize = Py::Float(args[0]);
   double dpi = Py::Float(args[1]);
 
+#ifdef VERTICAL_HINTING
+  int error = FT_Set_Char_Size( face, (long)(ptsize * 64), 0,
+				(unsigned int)dpi * HORIZ_HINTING,
+				(unsigned int)dpi );
+  static FT_Matrix transform = { 65536 / HORIZ_HINTING, 0, 0, 65536 };
+  FT_Set_Transform( face, &transform, 0 );
+#else
   int error = FT_Set_Char_Size( face, (long)(ptsize * 64), 0,
 				(unsigned int)dpi,
 				(unsigned int)dpi );
+#endif  
   if (error)
     throw Py::RuntimeError("Could not set the fontsize");
   return Py::Object();
@@ -648,7 +697,7 @@ FT2Font::get_kerning(const Py::Tuple & args) {
   FT_Vector delta;
 
   if (!FT_Get_Kerning( face, left, right, mode, &delta )) {
-    return Py::Int(delta.x);
+    return Py::Int(delta.x / HORIZ_HINTING);
   }
   else {
     return Py::Int(0);
@@ -665,7 +714,7 @@ char FT2Font::set_text__doc__[] =
 "You must call this before draw_glyphs_to_bitmap\n"
 "A sequence of x,y positions is returned";
 Py::Object
-FT2Font::set_text(const Py::Tuple & args) {
+FT2Font::set_text(const Py::Tuple & args, const Py::Dict & kwargs) {
   _VERBOSE("FT2Font::set_text");
   args.verify_length(2);
 
@@ -687,6 +736,11 @@ FT2Font::set_text(const Py::Tuple & args) {
   angle = Py::Float(args[1]);
 
   angle = angle/360.0*2*3.14159;
+
+  long flags = FT_LOAD_DEFAULT;
+  if (kwargs.hasKey("flags"))
+    flags = Py::Long(kwargs["flags"]);
+
   //this computes width and height in subpixels so we have to divide by 64
   matrix.xx = (FT_Fixed)( cos( angle ) * 0x10000L );
   matrix.xy = (FT_Fixed)(-sin( angle ) * 0x10000L );
@@ -721,9 +775,9 @@ FT2Font::set_text(const Py::Tuple & args) {
       FT_Vector delta;
       FT_Get_Kerning( face, previous, glyph_index,
 		      FT_KERNING_DEFAULT, &delta );
-      pen.x += delta.x;
+      pen.x += delta.x / HORIZ_HINTING;
     }
-    error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT );
+    error = FT_Load_Glyph( face, glyph_index, flags );
     if ( error ) {
       std::cerr << "\tcould not load glyph for " << thischar << std::endl;
       continue;
@@ -794,7 +848,7 @@ FT2Font::get_num_glyphs(const Py::Tuple & args){
 }
 
 char FT2Font::load_char__doc__[] =
-"load_char(charcode, flags=LOAD_DEFAULT)\n"
+"load_char(charcode, flags=LOAD_LOAD_DEFAULT)\n"
 "\n"
 "Load character with charcode in current fontfile and set glyph.\n"
 "The flags argument can be a bitwise-or of the LOAD_XXX constants.\n"
@@ -881,22 +935,25 @@ FT2Font::draw_bitmap( FT_Bitmap*  bitmap,
 		      FT_Int      x,
 		      FT_Int      y) {
   _VERBOSE("FT2Font::draw_bitmap");
-  FT_Int  i, j, p, q;
-  FT_Int width = (FT_Int)image.width;
-  FT_Int height = (FT_Int)image.height;
+  FT_Int image_width = (FT_Int)image.width;
+  FT_Int image_height = (FT_Int)image.height;
+  FT_Int char_width =  bitmap->width;
+  FT_Int char_height = bitmap->rows;
 
-  FT_Int x1 = CLAMP(x, 0, width);
-  FT_Int y1 = CLAMP(y, 0, height);
-  FT_Int x2 = CLAMP(x + bitmap->width, 0, width);
-  FT_Int y2 = CLAMP(y + bitmap->rows, 0, height);
+  FT_Int x1 = CLAMP(x, 0, image_width);
+  FT_Int y1 = CLAMP(y, 0, image_height);
+  FT_Int x2 = CLAMP(x + char_width, 0, image_width);
+  FT_Int y2 = CLAMP(y + char_height, 0, image_height);
 
-  for ( i = x1, p = MAX(0, -x); i < x2; ++i, ++p )
-    {
-      for ( j = y1, q = MAX(0, -y); j < y2; ++j, ++q )
-	{
-	  image.buffer[i + j*width] |= bitmap->buffer[p + q*bitmap->pitch];
-	}
-    }
+  FT_Int x_start = MAX(0, -x);
+  FT_Int y_offset = y1 - MAX(0, -y);
+
+  for ( FT_Int i = y1; i < y2; ++i ) {
+    unsigned char* dst = image.buffer + (i * image_width + x1);
+    unsigned char* src = bitmap->buffer + (((i - y_offset) * bitmap->pitch) + x_start);
+    for ( FT_Int j = x1; j < x2; ++j, ++dst, ++src )
+      *dst |= *src;
+  }
 }
 
 char FT2Font::write_bitmap__doc__[] =
@@ -1038,23 +1095,20 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
 
   FT_BBox string_bbox = compute_string_bbox();
 
-  image.width   = (string_bbox.xMax-string_bbox.xMin) / 64+2;
-  image.height  = (string_bbox.yMax-string_bbox.yMin) / 64+2;
+  image.width   = (string_bbox.xMax-string_bbox.xMin) / 64 + 2;
+  image.height  = (string_bbox.yMax-string_bbox.yMin) / 64 + 2;
 
-  image.offsetx = (int)(string_bbox.xMin/64.0);
+  image.offsetx = (int)(string_bbox.xMin / 64.0);
   if (angle==0)
     image.offsety = -image.height;
-  else {
+  else
     image.offsety = (int)(-string_bbox.yMax/64.0);
-  }
 
   size_t numBytes = image.width*image.height;
   delete [] image.buffer;
   image.buffer = new unsigned char [numBytes];
   for (size_t n=0; n<numBytes; n++)
     image.buffer[n] = 0;
-
-
 
   for ( size_t n = 0; n < glyphs.size(); n++ )
     {
@@ -1074,11 +1128,8 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
       // now, draw to our target surface (convert position)
 
       //bitmap left and top in pixel, string bbox in subpixel
-      FT_Int x = (FT_Int)(bitmap->left-string_bbox.xMin/64.);
-      FT_Int y = (FT_Int)(string_bbox.yMax/64.-bitmap->top+1);
-      //make sure the index is non-neg
-      x = x<0?0:x;
-      y = y<0?0:y;
+      FT_Int x = (FT_Int)(bitmap->left - (string_bbox.xMin / 64.));
+      FT_Int y = (FT_Int)((string_bbox.yMax / 64.) - bitmap->top + 1);
 
       draw_bitmap( &bitmap->bitmap, x, y);
     }
@@ -1173,12 +1224,7 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args) {
 
   FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[glyph->glyphInd];
 
-  draw_bitmap( &bitmap->bitmap,
-	       //x + bitmap->left,
-	       x,
-	       //y+bitmap->top
-	       y
-	       );
+  draw_bitmap( &bitmap->bitmap, x, y);
   return Py::Object();
 }
 
@@ -1586,9 +1632,8 @@ Glyph::init_type() {
   behaviors().doc("Glyph");
   behaviors().supportGetattr();
   behaviors().supportSetattr();
-
-
 }
+
 void
 FT2Font::init_type() {
   _VERBOSE("FT2Font::init_type");
@@ -1603,7 +1648,7 @@ FT2Font::init_type() {
 		     FT2Font::load_char__doc__);
   add_varargs_method("draw_rect",&FT2Font::draw_rect,
 		     FT2Font::draw_rect__doc__);
-    add_varargs_method("draw_rect_filled",&FT2Font::draw_rect_filled,
+  add_varargs_method("draw_rect_filled",&FT2Font::draw_rect_filled,
 		     FT2Font::draw_rect_filled__doc__);
   add_varargs_method("draw_glyph_to_bitmap", &FT2Font::draw_glyph_to_bitmap,
 		     FT2Font::draw_glyph_to_bitmap__doc__);
@@ -1620,7 +1665,7 @@ FT2Font::init_type() {
 		     FT2Font::image_as_str__doc__);
   add_keyword_method("load_char", &FT2Font::load_char,
 		     FT2Font::load_char__doc__);
-  add_varargs_method("set_text", &FT2Font::set_text,
+  add_keyword_method("set_text", &FT2Font::set_text,
 		     FT2Font::set_text__doc__);
   add_varargs_method("set_size", &FT2Font::set_size,
 		     FT2Font::set_size__doc__);
@@ -1766,6 +1811,5 @@ initft2font(void)
 }
 
 ft2font_module::~ft2font_module() {
-
   FT_Done_FreeType( _ft2Library );
 }
