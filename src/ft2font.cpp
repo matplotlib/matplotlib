@@ -697,7 +697,7 @@ FT2Font::get_kerning(const Py::Tuple & args) {
   FT_Vector delta;
 
   if (!FT_Get_Kerning( face, left, right, mode, &delta )) {
-    return Py::Int(delta.x);
+    return Py::Int(delta.x / HORIZ_HINTING);
   }
   else {
     return Py::Int(0);
@@ -775,7 +775,7 @@ FT2Font::set_text(const Py::Tuple & args, const Py::Dict & kwargs) {
       FT_Vector delta;
       FT_Get_Kerning( face, previous, glyph_index,
 		      FT_KERNING_DEFAULT, &delta );
-      pen.x += delta.x;
+      pen.x += delta.x / HORIZ_HINTING;
     }
     error = FT_Load_Glyph( face, glyph_index, flags );
     if ( error ) {
