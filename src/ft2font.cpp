@@ -56,7 +56,7 @@ Glyph::Glyph( const FT_Face& face, const FT_Glyph& glyph, size_t ind) :
   setattr("height",       Py::Int( face->glyph->metrics.height) );
   setattr("horiBearingX", Py::Int( face->glyph->metrics.horiBearingX / HORIZ_HINTING) );
   setattr("horiBearingY", Py::Int( face->glyph->metrics.horiBearingY) );
-  setattr("horiAdvance",  Py::Int( face->glyph->metrics.horiAdvance / HORIZ_HINTING) );
+  setattr("horiAdvance",  Py::Int( face->glyph->metrics.horiAdvance) );
   setattr("linearHoriAdvance",  Py::Int( face->glyph->linearHoriAdvance / HORIZ_HINTING) );
   setattr("vertBearingX", Py::Int( face->glyph->metrics.vertBearingX) );
 
@@ -697,7 +697,7 @@ FT2Font::get_kerning(const Py::Tuple & args) {
   FT_Vector delta;
 
   if (!FT_Get_Kerning( face, left, right, mode, &delta )) {
-    return Py::Int(delta.x / HORIZ_HINTING);
+    return Py::Int(delta.x);
   }
   else {
     return Py::Int(0);
@@ -775,7 +775,7 @@ FT2Font::set_text(const Py::Tuple & args, const Py::Dict & kwargs) {
       FT_Vector delta;
       FT_Get_Kerning( face, previous, glyph_index,
 		      FT_KERNING_DEFAULT, &delta );
-      pen.x += delta.x / HORIZ_HINTING;
+      pen.x += delta.x;
     }
     error = FT_Load_Glyph( face, glyph_index, flags );
     if ( error ) {
