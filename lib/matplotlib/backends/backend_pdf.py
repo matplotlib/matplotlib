@@ -28,7 +28,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.afm import AFM
 from matplotlib.dviread import Dvi
-from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
+from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, LOAD_NO_HINTING
 from matplotlib.mathtext import math_parse_s_pdf
 from matplotlib.transforms import Bbox
 from matplotlib import ttconv
@@ -530,7 +530,7 @@ class PdfFile:
 
             def get_char_width(charcode):
                 unicode = decode_char(charcode)
-                width = font.load_char(unicode, flags=LOAD_NO_SCALE).horiAdvance
+                width = font.load_char(unicode, flags=LOAD_NO_SCALE|LOAD_NO_HINTING).horiAdvance
                 return cvt(width)
 
             widths = [ get_char_width(charcode) for charcode in range(firstchar, lastchar+1) ]
@@ -632,7 +632,7 @@ class PdfFile:
             for c in characters:
                 ccode = ord(c)
                 gind = cmap.get(ccode) or 0
-                glyph = font.load_char(ccode)
+                glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
                 # Why divided by 3.0 ??? Wish I knew... MGD
                 widths.append((ccode, cvt(glyph.horiAdvance) / 3.0))
                 cid_to_gid_map[ccode] = unichr(gind)
@@ -1240,7 +1240,7 @@ class RendererPdf(RendererBase):
         else:
             font = self._get_font_ttf(prop)
             self.track_characters(font, s)
-            font.set_text(s, 0.0)
+            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
             y += font.get_descent() / 64.0
 
         self.file.output(Op.begin_text,
@@ -1268,7 +1268,7 @@ class RendererPdf(RendererBase):
 
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s, 0.0)
+            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
             w, h = font.get_width_height()
             w /= 64.0
             h /= 64.0
