@@ -254,10 +254,8 @@ class MathtextBackendAgg(MathtextBackend):
     def render_rect_filled(self, x1, y1, x2, y2):
         font = self.fonts_object.get_fonts()[0]
         font.draw_rect_filled(
-            floor(max(0, x1 - 1)),
-            floor(y1),
-            ceil(max(x2 - 1, x1)),
-            ceil(max(y2 - 1, y1)))
+            int(x1 + 0.5), int(y1 + 0.5) - 1,
+            int(x2 - 0.5), int(y2 - 0.5) - 1)
 
     def get_results(self):
         return (self.width,
@@ -282,12 +280,12 @@ class MathtextBackendPs(MathtextBackend):
 %(fontsize)s scalefont
 setfont
 %(ox)f %(oy)f moveto
-/%(symbol_name)s glyphshow
+/%(symbol_name)s glyphshow\n
 """ % locals()
         self.pswriter.write(ps)
 
     def render_rect_filled(self, x1, y1, x2, y2):
-        ps = "%f %f %f %f rectfill" % (x1, self.height - y2, x2 - x1, y2 - y1)
+        ps = "%f %f %f %f rectfill\n" % (x1, self.height - y2, x2 - x1, y2 - y1)
         self.pswriter.write(ps)
 
     def get_results(self):
