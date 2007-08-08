@@ -850,13 +850,6 @@ Delete this file to have matplotlib rebuild the cache."""
                     break
             verbose.report('loaded ttfcache file %s'%ttfcache)
 
-        def flatten(d, path):
-            if isinstance(d, dict):
-                for key, val in d.items():
-                    flatten(val, path + [key])
-            elif isinstance(d, str):
-                print path, os.path.basename(d)
-        flatten(self.ttfdict, [])
         #self.ttfdict = createFontDict(self.ttffiles)
 
         #  Load AFM fonts for PostScript
@@ -935,14 +928,12 @@ Delete this file to have matplotlib rebuild the cache."""
 
             fname = None
             font = fontdict
-            print font.keys()
             if font.has_key(name):
                 font = font[name]
             else:
                 verbose.report('\tfindfont failed %(name)s'%locals(), 'debug')
                 return None
 
-            print font.keys()
             if font.has_key(style):
                 font = font[style]
             elif style == 'italic' and font.has_key('oblique'):
