@@ -477,24 +477,6 @@ def createFontDict(fontfiles, fontext='ttf'):
             except: continue
 
         add_filename(fontdict, prop, fpath)
-
-        #  !!!!  Default font algorithm needs improvement
-        if   prop.name.lower() in ['bitstream vera serif', 'times']:
-            prop.name = 'serif'
-            add_filename(fontdict, prop, fpath)
-        elif prop.name.lower() in ['bitstream vera sans', 'helvetica']:
-            prop.name = 'sans-serif'
-            add_filename(fontdict, prop, fpath)
-        elif prop.name.lower() in ['zapf chancery', 'itc zapf chancery']:
-            prop.name = 'cursive'
-            add_filename(fontdict, prop, fpath)
-        elif prop.name.lower() in ['western', 'itc avant garde gothic']:
-            prop.name = 'fantasy'
-            add_filename(fontdict, prop, fpath)
-        elif prop.name.lower() in ['bitstream vera sans mono', 'courier']:
-            prop.name = 'monospace'
-            add_filename(fontdict, prop, fpath)
-
     return fontdict
 
 def setWeights(font):
@@ -868,6 +850,13 @@ Delete this file to have matplotlib rebuild the cache."""
                     break
             verbose.report('loaded ttfcache file %s'%ttfcache)
 
+        def flatten(d, path):
+            if isinstance(d, dict):
+                for key, val in d.items():
+                    flatten(val, path + [key])
+            elif isinstance(d, str):
+                print path, os.path.basename(d)
+        flatten(self.ttfdict, [])
         #self.ttfdict = createFontDict(self.ttffiles)
 
         #  Load AFM fonts for PostScript
@@ -928,74 +917,99 @@ Delete this file to have matplotlib rebuild the cache."""
         else:
             fontdict = self.ttfdict
 
-        name    = prop.get_family()[0]
-        style   = prop.get_style()
-        variant = prop.get_variant()
-        weight  = weight_as_number(prop.get_weight())
-        stretch = prop.get_stretch()
-        size    = str(prop.get_size_in_points())
+        original_name = prop.get_family()[0]
+        style         = prop.get_style()
+        variant       = prop.get_variant()
+        weight        = weight_as_number(prop.get_weight())
+        stretch       = prop.get_stretch()
+        size          = str(prop.get_size_in_points())
 
-        try:
-            fname = fontdict[name][style][variant][weight][stretch][size]
-            verbose.report('\tfindfont cached %(name)s, %(style)s, %(variant)s, %(weight)s, %(stretch)s, %(size)s'%locals(), 'debug')
-            verbose.report('findfont returning %s'%fname, 'debug')
-            return fname
-        except KeyError:
-            pass
+        def lookup_name(name):
+            try:
+                fname = fontdict[name][style][variant][weight][stretch][size]
+                verbose.report('\tfindfont cached %(name)s, %(style)s, %(variant)s, %(weight)s, %(stretch)s, %(size)s'%locals(), 'debug')
+                verbose.report('findfont returning %s'%fname, 'debug')
+                return fname
+            except KeyError:
+                pass
 
-        for name in prop.get_family():
+            fname = None
             font = fontdict
+            print font.keys()
             if font.has_key(name):
                 font = font[name]
             else:
                 verbose.report('\tfindfont failed %(name)s'%locals(), 'debug')
-                continue
+                return None
 
+            print font.keys()
             if font.has_key(style):
                 font = font[style]
-            elif style == 'italics' and font.has_key('oblique'):
+            elif style == 'italic' and font.has_key('oblique'):
                 font = font['oblique']
+            elif style == 'oblique' and font.has_key('italic'):
+                font = font['italic']
             else:
                 verbose.report('\tfindfont failed %(name)s, %(style)s'%locals(), 'debug')
-                continue
+                return None
 
             if font.has_key(variant):
                 font = font[variant]
             else:
                 verbose.report('\tfindfont failed %(name)s, %(style)s, %(variant)s'%locals(), 'debug')
-                continue
+                return None
 
             if not font.has_key(weight):
                 setWeights(font)
             font = font[weight]
 
-            # !!!!  need improvement
             if font.has_key(stretch):
-                font = font[stretch]
-            else:
+                stretch_font = font[stretch]
+                if stretch_font.has_key('scalable'):
+                    fname = stretch_font['scalable']
+                elif stretch_font.has_key(size):
+                    fname = stretch_font[size]
+
+            if fname is None:
+                for val in font.values():
+                    if val.has_key('scalable'):
+                        fname = val['scalable']
+                        break
+
+            if fname is None:
+                for val in font.values():
+                    if val.has_key(size):
+                        fname = val[size]
+                        break
+
+            if fname is None:
                 verbose.report('\tfindfont failed %(name)s, %(style)s, %(variant)s %(weight)s, %(stretch)s'%locals(), 'debug')
-                continue
-
-            if font.has_key('scalable'):
-                fname = font['scalable']
-            elif font.has_key(size):
-                fname = font[size]
             else:
-                verbose.report('\tfindfont failed %(name)s, %(style)s, %(variant)s %(weight)s, %(stretch)s, %(size)s'%locals(), 'debug')
-                continue
-
-            fontkey = FontKey(name, style, variant, weight, stretch, size)
-            add_filename(fontdict, fontkey, fname)
-            verbose.report('\tfindfont found %(name)s, %(style)s, %(variant)s %(weight)s, %(stretch)s, %(size)s'%locals(), 'debug')
-            verbose.report('findfont returning %s'%fname, 'debug')
-
+                fontkey = FontKey(original_name, style, variant, weight, stretch, size)
+                add_filename(fontdict, fontkey, fname)
+                verbose.report('\tfindfont found %(name)s, %(style)s, %(variant)s %(weight)s, %(stretch)s, %(size)s'%locals(), 'debug')
+                verbose.report('findfont returning %s'%fname, 'debug')
             return fname
 
-        fontkey = FontKey(name, style, variant, weight, stretch, size)
-        add_filename(fontdict, fontkey, self.defaultFont)
-        verbose.report('Could not match %s, %s, %s.  Returning %s' % (name, style, variant, self.defaultFont))
+        font_family_aliases = ['serif', 'sans-serif', 'cursive', 'fantasy', 'monospace']
+        
+        for name in prop.get_family():
+            if name in font_family_aliases:
+                for name2 in rcParams['font.' + name]:
+                    fname = lookup_name(name2)
+                    if fname:
+                        break
+            else:
+                fname = lookup_name(name)
+            if fname:
+                break
 
-        return self.defaultFont
+        if not fname:
+            fontkey = FontKey(original_name, style, variant, weight, stretch, size)
+            add_filename(fontdict, fontkey, self.defaultFont)
+            verbose.report('Could not match %s, %s, %s.  Returning %s' % (name, style, variant, self.defaultFont))
+            return self.defaultFont
+        return fname
 
     def _get_afm_font_dict(self):
         cache_message = "Saving AFM font cache for PS and PDF backends to %s.\n" \

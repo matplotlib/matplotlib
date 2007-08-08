@@ -334,21 +334,24 @@ defaultParams = {
     'font.stretch'      : ['normal', str],           #
     'font.weight'       : ['normal', str],           #
     'font.size'         : [12.0, validate_float], #
-    'font.serif'        : [['Bitstream Vera Serif','New Century Schoolbook',
-                           'Century Schoolbook L','Utopia','ITC Bookman',
-                           'Bookman','Nimbus Roman No9 L','Times New Roman',
-                           'Times','Palatino','Charter','serif'],
+    'font.serif'        : [['Bitstream Vera Serif', 'DejaVu Serif',
+                            'New Century Schoolbook', 'Century Schoolbook L',
+                            'Utopia', 'ITC Bookman', 'Bookman',
+                            'Nimbus Roman No9 L','Times New Roman',
+                            'Times','Palatino','Charter','serif'],
                            validate_stringlist],
-    'font.sans-serif'   : [['Bitstream Vera Sans','Lucida Grande','Verdana',
-                           'Geneva','Lucid','Arial','Helvetica','Avant Garde',
-                           'sans-serif'], validate_stringlist],
+    'font.sans-serif'   : [['Bitstream Vera Sans', 'DejaVu Sans',
+                            'Lucida Grande', 'Verdana', 'Geneva', 'Lucid',
+                            'Arial', 'Helvetica', 'Avant Garde', 'sans-serif'],
+                           validate_stringlist],
     'font.cursive'      : [['Apple Chancery','Textile','Zapf Chancery',
                            'Sand','cursive'], validate_stringlist],
     'font.fantasy'      : [['Comic Sans MS','Chicago','Charcoal','Impact'
                            'Western','fantasy'], validate_stringlist],
-    'font.monospace'    : [['Bitstream Vera Sans Mono','Andale Mono'
-                           'Nimbus Mono L','Courier New','Courier','Fixed'
-                           'Terminal','monospace'], validate_stringlist],
+    'font.monospace'    : [['Bitstream Vera Sans Mono', 'DejaVu Sans Mono',
+                            'Andale Mono', 'Nimbus Mono L', 'Courier New',
+                            'Courier','Fixed', 'Terminal','monospace'],
+                           validate_stringlist],
 
     # text props
     'text.color'          : ['k', validate_color],     # black
@@ -363,12 +366,12 @@ defaultParams = {
     'text.fontsize'       : ['medium', validate_fontsize],
     'text.markup'         : ['plain', validate_markup],
 
-    'mathtext.cal'        : [(['cursive'], 'normal', 'normal'), validate_mathtext_font],
-    'mathtext.rm'         : [(['serif'], 'normal', 'normal'), validate_mathtext_font],
-    'mathtext.tt'         : [(['monospace'], 'normal', 'normal'), validate_mathtext_font],
-    'mathtext.it'         : [(['serif'], 'normal', 'oblique'), validate_mathtext_font],
-    'mathtext.bf'         : [(['serif'], 'bold', 'normal'), validate_mathtext_font],
-    'mathtext.sf'         : [(['sans-serif'], 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.cal'        : [('cursive', 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.rm'         : [('serif', 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.tt'         : [('monospace', 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.it'         : [('serif', 'normal', 'italic'), validate_mathtext_font],
+    'mathtext.bf'         : [('serif', 'bold', 'normal'), validate_mathtext_font],
+    'mathtext.sf'         : [('sans-serif', 'normal', 'normal'), validate_mathtext_font],
     'mathtext.use_cm'     : [True, validate_bool],
     'mathtext.fallback_to_cm' : [True, validate_bool],
     
