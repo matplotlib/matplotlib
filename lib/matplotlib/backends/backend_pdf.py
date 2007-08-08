@@ -28,7 +28,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import fontManager
 from matplotlib.afm import AFM
 from matplotlib.dviread import Dvi
-from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, LOAD_NO_HINTING
+from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE
 from matplotlib.mathtext import math_parse_s_pdf
 from matplotlib.transforms import Bbox
 from matplotlib import ttconv
@@ -491,124 +491,52 @@ class PdfFile:
             # boxes and the like
             if value < 0: return floor(value)
             else: return ceil(value)
-
-        # You are lost in a maze of TrueType tables, all different...
-        ps_name = Name(font.get_sfnt()[(1,0,0,6)])
-        pclt = font.get_sfnt_table('pclt') \
-            or { 'capHeight': 0, 'xHeight': 0 }
-        post = font.get_sfnt_table('post') \
-            or { 'italicAngle': (0,0) }
-        ff = font.face_flags
-        sf = font.style_flags
-
-        # Get widths for the 256 characters of PDF encoding "WinAnsiEncoding" (similar to
-        # Python encoding "cp1252"). According to the PDF Reference, a simple font, based on
-        # single-byte characters, can't manage more than 256 characters, contrary to a
-        # composite font, based on multi-byte characters.
-
-        from encodings import cp1252
-        # The "decoding_map" was changed to a "decoding_table" as of Python 2.5.
-        if hasattr(cp1252, 'decoding_map'):
-            def decode_char(charcode):
-                return cp1252.decoding_map[charcode] or 0
-        else:
-            def decode_char(charcode):
-                return ord(cp1252.decoding_table[charcode])
-
-        def get_char_width(charcode):
-            unicode = decode_char(charcode)
-            width = font.load_char(unicode, flags=LOAD_NO_SCALE|LOAD_NO_HINTING).horiAdvance
-            return cvt(width)
-
-        firstchar, lastchar = 0, 255
-        widths = [ get_char_width(charcode) for charcode in range(firstchar, lastchar+1) ]
-        font_bbox = [ cvt(x, nearest=False) for x in font.bbox ]
-
-        widthsObject = self.reserveObject('font widths')
-        fontdescObject = self.reserveObject('font descriptor')
-        # TODO: "WinAnsiEncoding" could become a parameter of PdfFile. The PDF encoding
-        # "WinAnsiEncoding" matches the Python enconding "cp1252" used in method
-        # RendererPdf.draw_text and RendererPdf.get_text_width_height to encode Unicode strings.
-        fontdict = { 'Type': Name('Font'),
-                     'BaseFont': ps_name,
-                     'FirstChar': firstchar,
-                     'LastChar': lastchar,
-                     'Widths': widthsObject,
-                     'FontDescriptor': fontdescObject }
-
-        if fonttype == 3:
+        
+        def embedTTFType3(font, characters, descriptor):
+            """The Type 3-specific part of embedding a Truetype font"""
+            widthsObject = self.reserveObject('font widths')
+            fontdescObject = self.reserveObject('font descriptor')
+            fontdictObject = self.reserveObject('font dictionary')
             charprocsObject = self.reserveObject('character procs')
             differencesArray = []
-            fontdict['Subtype'] = Name('Type3')
-            fontdict['Name'] = ps_name
-            fontdict['FontBBox'] = font_bbox
-            fontdict['FontMatrix'] = [ .001, 0, 0, .001, 0, 0 ]
-            fontdict['CharProcs'] = charprocsObject
-            fontdict['Encoding'] = {
-                'Type': Name('Encoding'),
-                'Differences': differencesArray}
-        elif fonttype == 42:
-            fontdict['Subtype'] = Name('TrueType')
-            fontdict['Encoding'] = Name('WinAnsiEncoding')
+            firstchar, lastchar = 0, 255
+            
+            fontdict = {
+                'Type'            : Name('Font'),
+                'BaseFont'        : ps_name,
+                'FirstChar'       : firstchar,
+                'LastChar'        : lastchar,
+                'FontDescriptor'  : fontdescObject,
+                'Subtype'         : Name('Type3'),
+                'Name'            : descriptor['FontName'],
+                'FontBBox'        : [cvt(x, nearest=False) for x in font.bbox],
+                'FontMatrix'      : [ .001, 0, 0, .001, 0, 0 ],
+                'CharProcs'       : charprocsObject,
+                'Encoding'        : {
+                    'Type'        : Name('Encoding'),
+                    'Differences' : differencesArray},
+                'Widths'          : widthsObject
+                }
 
+            # Make the "Widths" array
+            from encodings import cp1252
+            # The "decoding_map" was changed to a "decoding_table" as of Python 2.5.
+            if hasattr(cp1252, 'decoding_map'):
+                def decode_char(charcode):
+                    return cp1252.decoding_map[charcode] or 0
+            else:
+                def decode_char(charcode):
+                    return ord(cp1252.decoding_table[charcode])
 
-        flags = 0
-        symbolic = False #ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
-        if ff & FIXED_WIDTH: flags |= 1 << 0
-        if 0: flags |= 1 << 1 # TODO: serif
-        if symbolic: flags |= 1 << 2
-        else: flags |= 1 << 5
-        if sf & ITALIC: flags |= 1 << 6
-        if 0: flags |= 1 << 16 # TODO: all caps
-        if 0: flags |= 1 << 17 # TODO: small caps
-        if 0: flags |= 1 << 18 # TODO: force bold
+            def get_char_width(charcode):
+                unicode = decode_char(charcode)
+                width = font.load_char(unicode, flags=LOAD_NO_SCALE).horiAdvance
+                return cvt(width)
 
-        descriptor = {
-            'Type': Name('FontDescriptor'),
-            'FontName': ps_name,
-            'Flags': flags,
-            'FontBBox': [ cvt(x, nearest=False) for x in font.bbox ],
-            'Ascent': cvt(font.ascender, nearest=False),
-            'Descent': cvt(font.descender, nearest=False),
-            'CapHeight': cvt(pclt['capHeight'], nearest=False),
-            'XHeight': cvt(pclt['xHeight']),
-            'ItalicAngle': post['italicAngle'][1], # ???
-            'MaxWidth': max(widths),
-            'StemV': 0 # ???
-        }
+            widths = [ get_char_width(charcode) for charcode in range(firstchar, lastchar+1) ]
+            descriptor['MaxWidth'] = max(widths)
 
-        if fonttype == 42:
-            descriptor['FontFile2'] = self.reserveObject('font file')
-
-        # Other FontDescriptor keys include:
-        # /FontFamily /Times (optional)
-        # /FontStretch /Normal (optional)
-        # /FontFile (stream for type 1 font)
-        # /CharSet (used when subsetting type1 fonts)
-
-        # Make an Identity-H encoded CID font for CM fonts? (Doesn't quite work)
-        if False:
-            del fontdict['Widths'], fontdict['FontDescriptor'], \
-                fontdict['LastChar'], fontdict['FirstChar']
-
-            fontdict['Subtype'] = Name('Type0')
-            fontdict['Encoding'] = Name('Identity-H')
-            fontdict2Object = self.reserveObject('descendant font')
-            fontdict['DescendantFonts'] = [ fontdict2Object ]
-            # TODO: fontdict['ToUnicode']
-            fontdict2 = { 'Type': Name('Font'),
-                          'Subtype': Name('CIDFontType2'),
-                          'BaseFont': ps_name,
-                          'W': widthsObject,
-                          'CIDSystemInfo': { 'Registry': 'Adobe',
-                                             'Ordering': 'Identity',
-                                             'Supplement': 0 },
-                          'FontDescriptor': fontdescObject }
-            self.writeObject(fontdict2Object, fontdict2)
-
-            widths = [ firstchar, widths ]
-
-        if fonttype == 3:
+            # Make the "Differences" array
             cmap = font.get_charmap()
             glyph_ids = []
             differences = []
@@ -626,6 +554,8 @@ class PdfFile:
                 differencesArray.append(Name(name))
                 last_c = c
 
+            # Make the charprocs array (using ttconv for the
+            # actual outlines)
             rawcharprocs = ttconv.get_pdf_charprocs(filename, glyph_ids)
             charprocs = {}
             charprocsRef = {}
@@ -637,13 +567,52 @@ class PdfFile:
                 self.currentstream.write(stream)
                 self.endStream()
                 charprocs[charname] = charprocObject
+
+            # Write everything out
+            self.writeObject(fontdictObject, fontdict)
+            self.writeObject(fontdescObject, descriptor)
+            self.writeObject(widthsObject, widths)
             self.writeObject(charprocsObject, charprocs)
 
-        elif fonttype == 42:
+            return fontdictObject
+
+        def embedTTFType42(font, characters, descriptor):
+            """The Type 42-specific part of embedding a Truetype font"""
+            fontdescObject = self.reserveObject('font descriptor')
+            cidFontDictObject = self.reserveObject('CID font dictionary')
+            type0FontDictObject = self.reserveObject('Type 0 font dictionary')
+            cidToGidMapObject = self.reserveObject('CIDToGIDMap stream')
+            fontfileObject = self.reserveObject('font file stream')
+            wObject = self.reserveObject('Type 0 widths')
+
+            cidFontDict = {
+                'Type'           : Name('Font'),
+                'Subtype'        : Name('CIDFontType2'),
+                'BaseFont'       : ps_name,
+                'CIDSystemInfo'  : {
+                    'Registry'   : 'Adobe',
+                    'Ordering'   : 'Identity',
+                    'Supplement' : 0 },
+                'FontDescriptor' : fontdescObject,
+                'W'              : wObject,
+                'CIDToGIDMap'    : cidToGidMapObject
+                }
+
+            type0FontDict = {
+                'Type'            : Name('Font'),
+                'Subtype'         : Name('Type0'),
+                'BaseFont'        : ps_name,
+                'Encoding'        : Name('Identity-H'),
+                'DescendantFonts' : [cidFontDictObject]
+                }
+
+            # Make fontfile stream
+            descriptor['FontFile2'] = fontfileObject
             length1Object = self.reserveObject('decoded length of a font')
-            self.beginStream(descriptor['FontFile2'].id,
-                             self.reserveObject('length of font stream'),
-                             {'Length1': length1Object})
+            self.beginStream(
+                fontfileObject.id,
+                self.reserveObject('length of font stream'),
+                {'Length1': length1Object})
             fontfile = open(filename, 'rb')
             length1 = 0
             while True:
@@ -655,13 +624,92 @@ class PdfFile:
             self.endStream()
             self.writeObject(length1Object, length1)
 
-        fontdictObject = self.reserveObject('font dictionary')
-        self.writeObject(fontdictObject, fontdict)
-        self.writeObject(widthsObject, widths)
-        self.writeObject(fontdescObject, descriptor)
+            # Make the 'W' (Widths) array and the CidToGidMap at the same time
+            cid_to_gid_map = [u'\u0000'] * 65536
+            cmap = font.get_charmap()
+            widths = []
+            max_ccode = 0
+            for c in characters:
+                ccode = ord(c)
+                gind = cmap.get(ccode) or 0
+                glyph = font.load_char(ccode)
+                # Why divided by 3.0 ??? Wish I knew... MGD
+                widths.append((ccode, cvt(glyph.horiAdvance) / 3.0))
+                cid_to_gid_map[ccode] = unichr(gind)
+                max_ccode = max(ccode, max_ccode)
+            widths.sort()
+            cid_to_gid_map = cid_to_gid_map[:max_ccode + 1]
+            
+            last_ccode = -2
+            w = []
+            max_width = 0
+            for ccode, width in widths:
+                if ccode != last_ccode + 1:
+                    w.append(ccode)
+                    w.append([width])
+                else:
+                    w[-1].append(width)
+                max_width = max(max_width, width)
+                last_ccode = ccode
 
-        return fontdictObject
+            # CIDToGIDMap stream
+            cid_to_gid_map = "".join(cid_to_gid_map).encode("utf-16be")
+            self.beginStream(cidToGidMapObject.id,
+                             None,
+                             {'Length':  len(cid_to_gid_map)})
+            self.currentstream.write(cid_to_gid_map)
+            self.endStream()
 
+            descriptor['MaxWidth'] = max_width
+                
+            # Write everything out
+            self.writeObject(cidFontDictObject, cidFontDict)
+            self.writeObject(type0FontDictObject, type0FontDict)
+            self.writeObject(fontdescObject, descriptor)
+            self.writeObject(wObject, w)
+
+            return type0FontDictObject
+
+        # Beginning of main embedTTF function...
+        
+        # You are lost in a maze of TrueType tables, all different...
+        ps_name = Name(font.get_sfnt()[(1,0,0,6)])
+        pclt = font.get_sfnt_table('pclt') \
+            or { 'capHeight': 0, 'xHeight': 0 }
+        post = font.get_sfnt_table('post') \
+            or { 'italicAngle': (0,0) }
+        ff = font.face_flags
+        sf = font.style_flags
+
+        flags = 0
+        symbolic = False #ps_name.name in ('Cmsy10', 'Cmmi10', 'Cmex10')
+        if ff & FIXED_WIDTH: flags |= 1 << 0
+        if 0: flags |= 1 << 1 # TODO: serif
+        if symbolic: flags |= 1 << 2
+        else: flags |= 1 << 5
+        if sf & ITALIC: flags |= 1 << 6
+        if 0: flags |= 1 << 16 # TODO: all caps
+        if 0: flags |= 1 << 17 # TODO: small caps
+        if 0: flags |= 1 << 18 # TODO: force bold
+
+        descriptor = {
+            'Type'        : Name('FontDescriptor'),
+            'FontName'    : ps_name,
+            'Flags'       : flags,
+            'FontBBox'    : [ cvt(x, nearest=False) for x in font.bbox ],
+            'Ascent'      : cvt(font.ascender, nearest=False),
+            'Descent'     : cvt(font.descender, nearest=False),
+            'CapHeight'   : cvt(pclt['capHeight'], nearest=False),
+            'XHeight'     : cvt(pclt['xHeight']),
+            'ItalicAngle' : post['italicAngle'][1], # ???
+            'StemV'       : 0 # ???
+            }
+
+        if fonttype == 3:
+            return embedTTFType3(font, characters, descriptor)
+        elif fonttype == 42:
+            return embedTTFType42(font, characters, descriptor)
+    
     def alphaState(self, alpha):
         """Return name of an ExtGState that sets alpha to the given value"""
 
@@ -1113,12 +1161,7 @@ class RendererPdf(RendererBase):
                     self.file.output(self.file.fontName(fontname), fontsize,
                                      Op.selectfont)
                     prev_font = fontname, fontsize
-
-                if num < 256:
-                    string = chr(num)
-                else:
-                    string = "?"
-                self.file.output(string, Op.show)
+                self.file.output(self.encode_string(unichr(num)), Op.show)
         self.file.output(Op.end_text)
 
         for record in pswriter:
@@ -1178,11 +1221,13 @@ class RendererPdf(RendererBase):
             self.draw_polygon(boxgc, gc._rgb,
                               ((x1,y1), (x2,y2), (x3,y3), (x4,y4)))
 
+    def encode_string(self, s):
+        if rcParams['pdf.fonttype'] == 42:
+            return s.encode('utf-16be', 'replace')
+        return s.encode('cp1252', 'replace')
+            
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         # TODO: combine consecutive texts into one BT/ET delimited section
-
-        if isinstance(s, unicode):
-            s = s.encode('cp1252', 'replace')
 
         if ismath: return self.draw_mathtext(gc, x, y, s, prop, angle)
         self.check_gc(gc, gc._rgb)
@@ -1195,7 +1240,7 @@ class RendererPdf(RendererBase):
         else:
             font = self._get_font_ttf(prop)
             self.track_characters(font, s)
-            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
+            font.set_text(s, 0.0)
             y += font.get_descent() / 64.0
 
         self.file.output(Op.begin_text,
@@ -1204,7 +1249,8 @@ class RendererPdf(RendererBase):
                          Op.selectfont)
 
         self._setup_textpos(x, y, angle)
-        self.file.output(s, Op.show, Op.end_text)
+        
+        self.file.output(self.encode_string(s), Op.show, Op.end_text)
 
     def get_text_width_height(self, s, prop, ismath):
         if isinstance(s, unicode):
@@ -1222,7 +1268,7 @@ class RendererPdf(RendererBase):
 
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
+            font.set_text(s, 0.0)
             w, h = font.get_width_height()
             w /= 64.0
             h /= 64.0
