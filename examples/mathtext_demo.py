@@ -13,8 +13,8 @@ ax.plot([1,2,3], 'r')
 x = npy.arange(0.0, 3.0, 0.1)
 
 ax.grid(True)
-ax.set_xlabel(r'$\Delta_i^j$', fontsize=20)
-ax.set_ylabel(r'$\Delta_{i+1}^j$', fontsize=20)
+ax.set_xlabel(r'$\Delta_i^j$', fontsize=20, markup="tex")
+ax.set_ylabel(r'$\Delta_{i+1}^j$', fontsize=20, markup="tex")
 tex = r'$\mathcal{R}\prod_{i=\alpha_{i+1}}^\infty a_i\sin(2 \pi f x_i)$'
 
 ax.text(1, 1.6, tex, fontsize=20, va='bottom', markup="tex")
