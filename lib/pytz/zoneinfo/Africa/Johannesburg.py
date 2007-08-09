@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Johannesburg(DstTzInfo):
     '''Africa/Johannesburg timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Africa/Johannesburg'
+    zone = 'Africa/Johannesburg'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

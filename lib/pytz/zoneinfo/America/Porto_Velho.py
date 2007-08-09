@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Porto_Velho(DstTzInfo):
     '''America/Porto_Velho timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Porto_Velho'
+    zone = 'America/Porto_Velho'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

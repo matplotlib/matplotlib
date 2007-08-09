@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Curacao(DstTzInfo):
     '''America/Curacao timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Curacao'
+    zone = 'America/Curacao'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

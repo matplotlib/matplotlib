@@ -1,10 +1,10 @@
 """
-Copyright (c) 2003  Gustavo Niemeyer <niemeyer@conectiva.com>
+Copyright (c) 2003-2005  Gustavo Niemeyer <gustavo@niemeyer.net>
 
 This module offers extensions to the standard python 2.3+
 datetime module.
 """
-__author__ = "Gustavo Niemeyer <niemeyer@conectiva.com>"
+__author__ = "Gustavo Niemeyer <gustavo@niemeyer.net>"
 __license__ = "PSF License"
 
 import datetime
@@ -25,7 +25,7 @@ def easter(year, method=EASTER_WESTERN):
 
     This algorithm implements three different easter
     calculation methods:
-
+    
     1 - Original calculation in Julian calendar, valid in
         dates after 326 AD
     2 - Original method, with date converted to Gregorian
@@ -40,7 +40,7 @@ def easter(year, method=EASTER_WESTERN):
     EASTER_WESTERN  = 3
 
     The default method is method 3.
-
+    
     More about the algorithm may be found at:
 
     http://users.chariot.net.au/~gmarts/eastalg.htm

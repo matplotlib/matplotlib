@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Addis_Ababa(DstTzInfo):
     '''Africa/Addis_Ababa timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Africa/Addis_Ababa'
+    zone = 'Africa/Addis_Ababa'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Grenada(DstTzInfo):
     '''America/Grenada timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Grenada'
+    zone = 'America/Grenada'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

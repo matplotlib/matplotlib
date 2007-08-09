@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class San_Marino(DstTzInfo):
     '''Europe/San_Marino timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/San_Marino'
+    zone = 'Europe/San_Marino'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

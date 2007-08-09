@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Zagreb(DstTzInfo):
     '''Europe/Zagreb timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Zagreb'
+    zone = 'Europe/Zagreb'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -1,10 +1,10 @@
 """
-Copyright (c) 2003  Gustavo Niemeyer <niemeyer@conectiva.com>
+Copyright (c) 2003-2005  Gustavo Niemeyer <gustavo@niemeyer.net>
 
 This module offers extensions to the standard python 2.3+
 datetime module.
 """
-__author__ = "Gustavo Niemeyer <niemeyer@conectiva.com>"
+__author__ = "Gustavo Niemeyer <gustavo@niemeyer.net>"
 __license__ = "PSF License"
 
 import itertools
@@ -50,7 +50,9 @@ parser = None
 class weekday(object):
     __slots__ = ["weekday", "n"]
 
-    def __init__(self, weekday, n=0):
+    def __init__(self, weekday, n=None):
+        if n == 0:
+            raise ValueError, "Can't create weekday with n == 0"
         self.weekday = weekday
         self.n = n
 
@@ -151,6 +153,8 @@ class rrulebase:
             for i in self:
                 if i == item:
                     return True
+                elif i > item:
+                    return False
         return False
 
     # __len__() introduces a large performance penality.
@@ -253,9 +257,16 @@ class rrule(rrulebase):
         if bysetpos is None:
             self._bysetpos = None
         elif type(bysetpos) is int:
+            if bysetpos == 0 or not (-366 <= bysetpos <= 366):
+                raise ValueError("bysetpos must be between 1 and 366, "
+                                 "or between -366 and -1")
             self._bysetpos = (bysetpos,)
         else:
             self._bysetpos = tuple(bysetpos)
+            for pos in self._bysetpos:
+                if pos == 0 or not (-366 <= pos <= 366):
+                    raise ValueError("bysetpos must be between 1 and 366, "
+                                     "or between -366 and -1")
         if not (byweekno or byyearday or bymonthday or
                 byweekday is not None or byeaster is not None):
             if freq == YEARLY:
@@ -319,7 +330,7 @@ class rrule(rrulebase):
             self._byweekday = (byweekday,)
             self._bynweekday = None
         elif hasattr(byweekday, "n"):
-            if byweekday.n == 0 or freq > MONTHLY:
+            if not byweekday.n or freq > MONTHLY:
                 self._byweekday = (byweekday.weekday,)
                 self._bynweekday = None
             else:
@@ -331,7 +342,7 @@ class rrule(rrulebase):
             for wday in byweekday:
                 if type(wday) is int:
                     self._byweekday.append(wday)
-                elif wday.n == 0 or freq > MONTHLY:
+                elif not wday.n or freq > MONTHLY:
                     self._byweekday.append(wday.weekday)
                 else:
                     self._bynweekday.append((wday.weekday, wday.n))
@@ -416,7 +427,7 @@ class rrule(rrulebase):
                      HOURLY:ii.ddayset,
                      MINUTELY:ii.ddayset,
                      SECONDLY:ii.ddayset}[freq]
-
+        
         if freq < HOURLY:
             timeset = self._timeset
         else:
@@ -444,13 +455,18 @@ class rrule(rrulebase):
             for i in dayset[start:end]:
                 if ((bymonth and ii.mmask[i] not in bymonth) or
                     (byweekno and not ii.wnomask[i]) or
-                    (byyearday and (i%ii.yearlen)+1 not in byyearday) or
                     (byweekday and ii.wdaymask[i] not in byweekday) or
                     (ii.nwdaymask and not ii.nwdaymask[i]) or
                     (byeaster and not ii.eastermask[i]) or
                     ((bymonthday or bynmonthday) and
                      ii.mdaymask[i] not in bymonthday and
-                     ii.nmdaymask[i] not in bynmonthday)):
+                     ii.nmdaymask[i] not in bynmonthday) or
+                    (byyearday and
+                     ((i < ii.yearlen and i+1 not in byyearday
+                                      and -ii.yearlen+i not in byyearday) or
+                      (i >= ii.yearlen and i+1-ii.yearlen not in byyearday
+                                       and -ii.nextyearlen+i-ii.yearlen
+                                           not in byyearday)))):
                     dayset[i] = None
                     filtered = True
 
@@ -612,7 +628,7 @@ class rrule(rrulebase):
 
 class _iterinfo(object):
     __slots__ = ["rrule", "lastyear", "lastmonth",
-                 "yearlen", "yearordinal", "yearweekday",
+                 "yearlen", "nextyearlen", "yearordinal", "yearweekday",
                  "mmask", "mrange", "mdaymask", "nmdaymask",
                  "wdaymask", "wnomask", "nwdaymask", "eastermask"]
 
@@ -626,6 +642,7 @@ class _iterinfo(object):
         rr = self.rrule
         if year != self.lastyear:
             self.yearlen = 365+calendar.isleap(year)
+            self.nextyearlen = 365+calendar.isleap(year+1)
             firstyday = datetime.date(year, 1, 1)
             self.yearordinal = firstyday.toordinal()
             self.yearweekday = firstyday.weekday()
@@ -777,7 +794,7 @@ class _iterinfo(object):
 
     def ddayset(self, year, month, day):
         set = [None]*self.yearlen
-        i = datetime.date(int(year), int(month), int(day)).toordinal()-self.yearordinal
+        i = datetime.date(year, month, day).toordinal()-self.yearordinal
         set[i] = i
         return set, i, i+1
 
@@ -786,7 +803,7 @@ class _iterinfo(object):
         rr = self.rrule
         for minute in rr._byminute:
             for second in rr._bysecond:
-                set.append(datetime.time(int(hour), int(minute), int(second),
+                set.append(datetime.time(hour, minute, second,
                                          tzinfo=rr._tzinfo))
         set.sort()
         return set
@@ -834,7 +851,7 @@ class rruleset(rrulebase):
 
     def rrule(self, rrule):
         self._rrule.append(rrule)
-
+    
     def rdate(self, rdate):
         self._rdate.append(rdate)
 
@@ -926,7 +943,7 @@ class _rrulestr:
             for i in range(len(wday)):
                 if wday[i] not in '+-0123456789':
                     break
-            n = wday[:i] or 0
+            n = wday[:i] or None
             w = wday[i:]
             if n: n = int(n)
             l.append(weekdays[self._weekday_map[w]](n))
@@ -955,9 +972,9 @@ class _rrulestr:
                                                ignoretz=ignoretz,
                                                tzinfos=tzinfos)
             except AttributeError:
-                raise "unknown parameter '%s'" % name
+                raise ValueError, "unknown parameter '%s'" % name
             except (KeyError, ValueError):
-                raise "invalid '%s': %s" % (name, value)
+                raise ValueError, "invalid '%s': %s" % (name, value)
         return rrule(dtstart=dtstart, cache=cache, **rrkwargs)
 
     def _parse_rfc(self, s,

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Casey(DstTzInfo):
     '''Antarctica/Casey timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Antarctica/Casey'
+    zone = 'Antarctica/Casey'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -1,22 +1,29 @@
 """
-Copyright (c) 2003  Gustavo Niemeyer <niemeyer@conectiva.com>
+Copyright (c) 2003-2005  Gustavo Niemeyer <gustavo@niemeyer.net>
 
 This module offers extensions to the standard python 2.3+
 datetime module.
 """
-__author__ = "Gustavo Niemeyer <niemeyer@conectiva.com>"
+__author__ = "Gustavo Niemeyer <gustavo@niemeyer.net>"
 __license__ = "PSF License"
 
 import datetime
 import struct
 import time
+import sys
+import os
 
 relativedelta = None
 parser = None
 rrule = None
 
-__all__ = ["tzutc", "tzoffset", "tzlocal", "tzfile",
-           "tzrange", "tzstr", "tzical", "gettz"]
+__all__ = ["tzutc", "tzoffset", "tzlocal", "tzfile", "tzrange",
+           "tzstr", "tzical", "tzwin", "tzwinlocal", "gettz"]
+
+try:
+    from dateutil.tzwin import tzwin, tzwinlocal
+except (ImportError, OSError):
+    tzwin, tzwinlocal = None, None
 
 ZERO = datetime.timedelta(0)
 EPOCHORDINAL = datetime.datetime.utcfromtimestamp(0).toordinal()
@@ -25,7 +32,7 @@ class tzutc(datetime.tzinfo):
 
     def utcoffset(self, dt):
         return ZERO
-
+     
     def dst(self, dt):
         return ZERO
 
@@ -41,6 +48,8 @@ class tzutc(datetime.tzinfo):
 
     def __repr__(self):
         return "%s()" % self.__class__.__name__
+
+    __reduce__ = object.__reduce__
 
 class tzoffset(datetime.tzinfo):
 
@@ -69,6 +78,8 @@ class tzoffset(datetime.tzinfo):
                                `self._name`,
                                self._offset.days*86400+self._offset.seconds)
 
+    __reduce__ = object.__reduce__
+
 class tzlocal(datetime.tzinfo):
 
     _std_offset = datetime.timedelta(seconds=-time.timezone)
@@ -95,7 +106,7 @@ class tzlocal(datetime.tzinfo):
     def _isdst(self, dt):
         # We can't use mktime here. It is unstable when deciding if
         # the hour near to a change is DST or not.
-        #
+        # 
         # timestamp = time.mktime((dt.year, dt.month, dt.day, dt.hour,
         #                         dt.minute, dt.second, dt.weekday(), 0, -1))
         # return time.localtime(timestamp).tm_isdst
@@ -136,6 +147,8 @@ class tzlocal(datetime.tzinfo):
     def __repr__(self):
         return "%s()" % self.__class__.__name__
 
+    __reduce__ = object.__reduce__
+
 class _ttinfo(object):
     __slots__ = ["offset", "delta", "isdst", "abbr", "isstd", "isgmt"]
 
@@ -164,19 +177,30 @@ class _ttinfo(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __getstate__(self):
+        state = {}
+        for name in self.__slots__:
+            state[name] = getattr(self, name, None)
+        return state
+
+    def __setstate__(self, state):
+        for name in self.__slots__:
+            if name in state:
+                setattr(self, name, state[name])
+
 class tzfile(datetime.tzinfo):
 
     # http://www.twinsun.com/tz/tz-link.htm
     # ftp://elsie.nci.nih.gov/pub/tz*.tar.gz
-
+    
     def __init__(self, fileobj):
         if isinstance(fileobj, basestring):
-            self._s = fileobj
+            self._filename = fileobj
             fileobj = open(fileobj)
         elif hasattr(fileobj, "name"):
-            self._s = fileobj.name
+            self._filename = fileobj.name
         else:
-            self._s = `fileobj`
+            self._filename = `fileobj`
 
         # From tzfile(5):
         #
@@ -199,7 +223,7 @@ class tzfile(datetime.tzinfo):
 
          # The number of standard/wall indicators stored in the file.
          ttisstdcnt,
-
+         
          # The number of leap seconds for which data is
          # stored in the file.
          leapcnt,
@@ -237,13 +261,13 @@ class tzfile(datetime.tzinfo):
         # with the same-indexed transition time. These values
         # serve as indices into an array of ttinfo structures that
         # appears next in the file.
-
+        
         if timecnt:
             self._trans_idx = struct.unpack(">%dB" % timecnt,
                                             fileobj.read(timecnt))
         else:
             self._trans_idx = []
-
+        
         # Each ttinfo structure is written as a four-byte value
         # for tt_gmtoff  of  type long,  in  a  standard  byte
         # order, followed  by a one-byte value for tt_isdst
@@ -273,7 +297,7 @@ class tzfile(datetime.tzinfo):
 
         # Not used, for now
         if leapcnt:
-            leap = struct.unpack(">%dl" % leapcnt*2,
+            leap = struct.unpack(">%dl" % (leapcnt*2),
                                  fileobj.read(leapcnt*8))
 
         # Then there are tzh_ttisstdcnt standard/wall
@@ -305,11 +329,16 @@ class tzfile(datetime.tzinfo):
         # Build ttinfo list
         self._ttinfo_list = []
         for i in range(typecnt):
+            gmtoff, isdst, abbrind =  ttinfo[i]
+            # Round to full-minutes if that's not the case. Python's
+            # datetime doesn't accept sub-minute timezones. Check
+            # http://python.org/sf/1447945 for some information.
+            gmtoff = (gmtoff+30)//60*60
             tti = _ttinfo()
-            tti.offset = ttinfo[i][0]
-            tti.delta = datetime.timedelta(seconds=ttinfo[i][0])
-            tti.isdst = ttinfo[i][1]
-            tti.abbr = abbr[ttinfo[i][2]:abbr.find('\x00', ttinfo[i][2])]
+            tti.offset = gmtoff
+            tti.delta = datetime.timedelta(seconds=gmtoff)
+            tti.isdst = isdst
+            tti.abbr = abbr[abbrind:abbr.find('\x00', abbrind)]
             tti.isstd = (ttisstdcnt > i and isstd[i] != 0)
             tti.isgmt = (ttisgmtcnt > i and isgmt[i] != 0)
             self._ttinfo_list.append(tti)
@@ -418,7 +447,7 @@ class tzfile(datetime.tzinfo):
         # However, this class stores historical changes in the
         # dst offset, so I belive that this wouldn't be the right
         # way to implement this.
-
+        
     def tzname(self, dt):
         if not self._ttinfo_std:
             return None
@@ -436,7 +465,12 @@ class tzfile(datetime.tzinfo):
 
 
     def __repr__(self):
-        return "%s(%s)" % (self.__class__.__name__, `self._s`)
+        return "%s(%s)" % (self.__class__.__name__, `self._filename`)
+
+    def __reduce__(self):
+        if not os.path.isfile(self._filename):
+            raise ValueError, "Unpickable %s class" % self.__class__.__name__
+        return (self.__class__, (self._filename,))
 
 class tzrange(datetime.tzinfo):
 
@@ -515,9 +549,10 @@ class tzrange(datetime.tzinfo):
     def __repr__(self):
         return "%s(...)" % self.__class__.__name__
 
+    __reduce__ = object.__reduce__
 
 class tzstr(tzrange):
-
+    
     def __init__(self, s):
         global parser
         if not parser:
@@ -652,6 +687,8 @@ class _tzicalvtz(datetime.tzinfo):
     def __repr__(self):
         return "<tzicalvtz %s>" % `self._tzid`
 
+    __reduce__ = object.__reduce__
+
 class tzical:
     def __init__(self, fileobj):
         global rrule
@@ -677,9 +714,9 @@ class tzical:
         if tzid is None:
             keys = self._vtz.keys()
             if len(keys) == 0:
-                raise "no timezones defined"
+                raise ValueError, "no timezones defined"
             elif len(keys) > 1:
-                raise "more than one timezone available"
+                raise ValueError, "more than one timezone available"
             tzid = keys[0]
         return self._vtz.get(tzid)
 
@@ -758,10 +795,10 @@ class tzical:
                         if not founddtstart:
                             raise ValueError, \
                                   "mandatory DTSTART not found"
-                        if not tzoffsetfrom:
+                        if tzoffsetfrom is None:
                             raise ValueError, \
                                   "mandatory TZOFFSETFROM not found"
-                        if not tzoffsetto:
+                        if tzoffsetto is None:
                             raise ValueError, \
                                   "mandatory TZOFFSETFROM not found"
                         # Process component
@@ -822,10 +859,12 @@ class tzical:
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, `self._s`)
 
-TZFILES = ["/etc/localtime", "localtime"]
-TZPATHS = ["/usr/share/zoneinfo", "/usr/lib/zoneinfo", "/etc/zoneinfo"]
-
-import os
+if sys.platform != "win32":
+    TZFILES = ["/etc/localtime", "localtime"]
+    TZPATHS = ["/usr/share/zoneinfo", "/usr/lib/zoneinfo", "/etc/zoneinfo"]
+else:
+    TZFILES = []
+    TZPATHS = []
 
 def gettz(name=None):
     tz = None
@@ -834,7 +873,7 @@ def gettz(name=None):
             name = os.environ["TZ"]
         except KeyError:
             pass
-    if name is None:
+    if name is None or name == ":":
         for filepath in TZFILES:
             if not os.path.isabs(filepath):
                 filename = filepath
@@ -850,34 +889,52 @@ def gettz(name=None):
                     break
                 except (IOError, OSError, ValueError):
                     pass
-    else:
-        if name and name[0] == ":":
-            name = name[:-1]
-        for path in TZPATHS:
-            filepath = os.path.join(path, name)
-            if not os.path.isfile(filepath):
-                filepath = filepath.replace(' ','_')
-                if not os.path.isfile(filepath):
-                    continue
-            try:
-                tz = tzfile(filepath)
-                break
-            except (IOError, OSError, ValueError):
-                pass
         else:
-            for c in name:
-                # name must have at least one offset to be a tzstr
-                if c in "0123456789":
-                    try:
-                        tz = tzstr(name)
-                    except ValueError:
-                        pass
-                    break
+            tz = tzlocal()
+    else:
+        if name.startswith(":"):
+            name = name[:-1]
+        if os.path.isabs(name):
+            if os.path.isfile(name):
+                tz = tzfile(name)
             else:
-                if name in ("GMT", "UTC"):
-                    tz = tzutc()
-                elif name in time.tzname:
-                    tz = tzlocal()
+                tz = None
+        else:
+            for path in TZPATHS:
+                filepath = os.path.join(path, name)
+                if not os.path.isfile(filepath):
+                    filepath = filepath.replace(' ','_')
+                    if not os.path.isfile(filepath):
+                        continue
+                try:
+                    tz = tzfile(filepath)
+                    break
+                except (IOError, OSError, ValueError):
+                    pass
+            else:
+                tz = None
+                if tzwin:
+                    try:
+                        tz = tzwin(name)
+                    except OSError:
+                        pass
+                if not tz:
+                    from dateutil.zoneinfo import gettz
+                    tz = gettz(name)
+                if not tz:
+                    for c in name:
+                        # name must have at least one offset to be a tzstr
+                        if c in "0123456789":
+                            try:
+                                tz = tzstr(name)
+                            except ValueError:
+                                pass
+                            break
+                    else:
+                        if name in ("GMT", "UTC"):
+                            tz = tzutc()
+                        elif name in time.tzname:
+                            tz = tzlocal()
     return tz
 
 # vim:ts=4:sw=4:et

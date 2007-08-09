@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Cuba(DstTzInfo):
     '''Cuba timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Cuba'
+    zone = 'Cuba'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
@@ -102,10 +102,6 @@ d(2002,10,27,5,0,0),
 d(2003,4,6,5,0,0),
 d(2003,10,26,5,0,0),
 d(2004,4,4,5,0,0),
-d(2004,10,31,5,0,0),
-d(2005,4,3,5,0,0),
-d(2005,10,30,5,0,0),
-d(2006,4,2,5,0,0),
 d(2006,10,29,5,0,0),
 d(2007,4,1,5,0,0),
 d(2007,10,28,5,0,0),
@@ -173,10 +169,6 @@ d(2037,10,25,5,0,0),
 
     _transition_info = [
 i(-19800,0,'HMT'),
-i(-18000,0,'CST'),
-i(-14400,3600,'CDT'),
-i(-18000,0,'CST'),
-i(-14400,3600,'CDT'),
 i(-18000,0,'CST'),
 i(-14400,3600,'CDT'),
 i(-18000,0,'CST'),

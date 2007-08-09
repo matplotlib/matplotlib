@@ -1,0 +1,81 @@
+Version 1.2
+-----------
+
+- Now tzfile will round timezones to full-minutes if necessary,
+  since Python's datetime doesn't support sub-minute offsets.
+  Thanks to Ilpo Nyyssönen for reporting the issue.
+
+- Removed bare string exceptions, as reported and fixed by
+  Wilfredo Sánchez Vega.
+
+- Fix bug in leap count parsing (reported and fixed by Eugene Oden).
+
+
+Version 1.1
+-----------
+
+- Fixed rrule byyearday handling. Abramo Bagnara pointed out that
+  RFC2445 allows negative numbers.
+
+- Fixed --prefix handling in setup.py (by Sidnei da Silva).
+
+- Now tz.gettz() returns a tzlocal instance when not given any
+  arguments and no other timezone information is found.
+
+- Updating timezone information to version 2005q.
+
+
+Version 1.0
+-----------
+
+- Fixed parsing of XXhXXm formatted time after day/month/year
+  has been parsed.
+
+- Added patch by Jeffrey Harris optimizing rrule.__contains__.
+
+
+Version 0.9
+-----------
+
+- Fixed pickling of timezone types, as reported by
+  Andreas Köhler.
+
+- Implemented internal timezone information with binary
+  timezone files [1]. datautil.tz.gettz() function will now
+  try to use the system timezone files, and fallback to
+  the internal versions. It's also possible to ask for
+  the internal versions directly by using
+  dateutil.zoneinfo.gettz().
+
+- New tzwin timezone type, allowing access to Windows
+  internal timezones (contributed by Jeffrey Harris).
+
+- Fixed parsing of unicode date strings.
+
+- Accept parserinfo instances as the parser constructor
+  parameter, besides parserinfo (sub)classes.
+
+- Changed weekday to spell the not-set n value as None
+  instead of 0.
+
+- Fixed other reported bugs.
+
+[1] http://www.twinsun.com/tz/tz-link.htm
+
+
+Version 0.5
+-----------
+
+- Removed FREQ_ prefix from rrule frequency constants
+  WARNING: this breaks compatibility with previous versions.
+
+- Fixed rrule.between() for cases where "after" is achieved
+  before even starting, as reported by Andreas Köhler.
+
+- Fixed two digit zero-year parsing (such as 31-Dec-00), as
+  reported by Jim Abramson, and included test case for this.
+
+- Sort exdate and rdate before iterating over them, so that
+  it's not necessary to sort them before adding to the rruleset,
+  as reported by Nicholas Piper.
+

@@ -4,7 +4,7 @@ from pytz.tzinfo import memorized_timedelta as timedelta
 
 class Universal(StaticTzInfo):
     '''Universal timezone definition. See datetime.tzinfo for details'''
-    _zone = 'Universal'
+    zone = 'Universal'
     _utcoffset = timedelta(seconds=0)
     _tzname = 'UTC'
 

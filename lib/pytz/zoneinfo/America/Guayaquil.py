@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Guayaquil(DstTzInfo):
     '''America/Guayaquil timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Guayaquil'
+    zone = 'America/Guayaquil'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

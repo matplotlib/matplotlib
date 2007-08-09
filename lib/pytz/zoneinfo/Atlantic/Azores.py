@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Azores(DstTzInfo):
     '''Atlantic/Azores timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Atlantic/Azores'
+    zone = 'Atlantic/Azores'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

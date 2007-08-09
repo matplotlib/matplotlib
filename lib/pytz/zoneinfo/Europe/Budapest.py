@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Budapest(DstTzInfo):
     '''Europe/Budapest timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Budapest'
+    zone = 'Europe/Budapest'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

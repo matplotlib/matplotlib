@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Andorra(DstTzInfo):
     '''Europe/Andorra timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Andorra'
+    zone = 'Europe/Andorra'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

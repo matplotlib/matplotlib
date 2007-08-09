@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Faeroe(DstTzInfo):
     '''Atlantic/Faeroe timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Atlantic/Faeroe'
+    zone = 'Atlantic/Faeroe'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -4,7 +4,7 @@ from pytz.tzinfo import memorized_timedelta as timedelta
 
 class Ponape(StaticTzInfo):
     '''Pacific/Ponape timezone definition. See datetime.tzinfo for details'''
-    _zone = 'Pacific/Ponape'
+    zone = 'Pacific/Ponape'
     _utcoffset = timedelta(seconds=39600)
     _tzname = 'PONT'
 

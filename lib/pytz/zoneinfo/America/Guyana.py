@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Guyana(DstTzInfo):
     '''America/Guyana timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Guyana'
+    zone = 'America/Guyana'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

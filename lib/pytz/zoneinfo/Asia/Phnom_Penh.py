@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Phnom_Penh(DstTzInfo):
     '''Asia/Phnom_Penh timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Phnom_Penh'
+    zone = 'Asia/Phnom_Penh'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

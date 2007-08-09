@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Noumea(DstTzInfo):
     '''Pacific/Noumea timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Pacific/Noumea'
+    zone = 'Pacific/Noumea'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

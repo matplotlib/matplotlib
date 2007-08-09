@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Boa_Vista(DstTzInfo):
     '''America/Boa_Vista timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Boa_Vista'
+    zone = 'America/Boa_Vista'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

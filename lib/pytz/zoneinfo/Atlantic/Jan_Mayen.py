@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Jan_Mayen(DstTzInfo):
     '''Atlantic/Jan_Mayen timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Atlantic/Jan_Mayen'
+    zone = 'Atlantic/Jan_Mayen'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

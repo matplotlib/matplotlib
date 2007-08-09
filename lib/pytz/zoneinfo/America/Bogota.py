@@ -6,13 +6,13 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Bogota(DstTzInfo):
     '''America/Bogota timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Bogota'
+    zone = 'America/Bogota'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
 d(1914,11,23,4,56,20),
-d(1992,5,2,5,0,0),
-d(1992,12,31,4,0,0),
+d(1992,5,3,5,0,0),
+d(1993,4,4,4,0,0),
         ]
 
     _transition_info = [

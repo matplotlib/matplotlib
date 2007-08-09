@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Asmera(DstTzInfo):
     '''Africa/Asmera timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Africa/Asmera'
+    zone = 'Africa/Asmera'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

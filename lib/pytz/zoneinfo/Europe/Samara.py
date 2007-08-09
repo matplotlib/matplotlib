@@ -6,12 +6,13 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Samara(DstTzInfo):
     '''Europe/Samara timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Samara'
+    zone = 'Europe/Samara'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
 d(1919,6,30,22,39,24),
 d(1930,6,20,21,0,0),
+d(1935,1,26,20,0,0),
 d(1981,3,31,20,0,0),
 d(1981,9,30,19,0,0),
 d(1982,3,31,20,0,0),
@@ -131,7 +132,8 @@ d(2037,10,24,22,0,0),
 
     _transition_info = [
 i(12060,0,'LMT'),
-i(10800,0,'KUYT'),
+i(10800,0,'SAMT'),
+i(14400,0,'SAMT'),
 i(14400,0,'KUYT'),
 i(18000,3600,'KUYST'),
 i(14400,0,'KUYT'),

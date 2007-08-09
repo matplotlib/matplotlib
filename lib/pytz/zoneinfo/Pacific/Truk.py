@@ -4,7 +4,7 @@ from pytz.tzinfo import memorized_timedelta as timedelta
 
 class Truk(StaticTzInfo):
     '''Pacific/Truk timezone definition. See datetime.tzinfo for details'''
-    _zone = 'Pacific/Truk'
+    zone = 'Pacific/Truk'
     _utcoffset = timedelta(seconds=36000)
     _tzname = 'TRUT'
 

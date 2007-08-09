@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Barbados(DstTzInfo):
     '''America/Barbados timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Barbados'
+    zone = 'America/Barbados'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

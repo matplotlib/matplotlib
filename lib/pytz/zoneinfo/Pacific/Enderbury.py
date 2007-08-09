@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Enderbury(DstTzInfo):
     '''Pacific/Enderbury timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Pacific/Enderbury'
+    zone = 'Pacific/Enderbury'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

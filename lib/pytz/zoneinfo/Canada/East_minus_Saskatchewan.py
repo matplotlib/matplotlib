@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class East_minus_Saskatchewan(DstTzInfo):
     '''Canada/East_minus_Saskatchewan timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Canada/East_minus_Saskatchewan'
+    zone = 'Canada/East_minus_Saskatchewan'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Rio_Branco(DstTzInfo):
     '''America/Rio_Branco timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Rio_Branco'
+    zone = 'America/Rio_Branco'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

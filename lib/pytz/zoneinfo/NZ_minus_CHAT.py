@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class NZ_minus_CHAT(DstTzInfo):
     '''NZ_minus_CHAT timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'NZ_minus_CHAT'
+    zone = 'NZ_minus_CHAT'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

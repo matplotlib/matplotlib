@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Lord_Howe(DstTzInfo):
     '''Australia/Lord_Howe timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Australia/Lord_Howe'
+    zone = 'Australia/Lord_Howe'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
@@ -60,7 +60,7 @@ d(2004,3,27,15,0,0),
 d(2004,10,30,15,30,0),
 d(2005,3,26,15,0,0),
 d(2005,10,29,15,30,0),
-d(2006,3,25,15,0,0),
+d(2006,4,1,15,0,0),
 d(2006,10,28,15,30,0),
 d(2007,3,24,15,0,0),
 d(2007,10,27,15,30,0),

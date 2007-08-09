@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class West(DstTzInfo):
     '''Brazil/West timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Brazil/West'
+    zone = 'Brazil/West'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

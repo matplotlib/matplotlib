@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class DeNoronha(DstTzInfo):
     '''Brazil/DeNoronha timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Brazil/DeNoronha'
+    zone = 'Brazil/DeNoronha'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Ujung_Pandang(DstTzInfo):
     '''Asia/Ujung_Pandang timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Ujung_Pandang'
+    zone = 'Asia/Ujung_Pandang'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

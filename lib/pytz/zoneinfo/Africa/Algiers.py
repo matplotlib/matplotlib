@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Algiers(DstTzInfo):
     '''Africa/Algiers timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Africa/Algiers'
+    zone = 'Africa/Algiers'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

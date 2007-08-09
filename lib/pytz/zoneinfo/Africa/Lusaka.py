@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Lusaka(DstTzInfo):
     '''Africa/Lusaka timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Africa/Lusaka'
+    zone = 'Africa/Lusaka'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

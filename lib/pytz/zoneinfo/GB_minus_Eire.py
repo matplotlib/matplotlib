@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class GB_minus_Eire(DstTzInfo):
     '''GB_minus_Eire timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'GB_minus_Eire'
+    zone = 'GB_minus_Eire'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Ljubljana(DstTzInfo):
     '''Europe/Ljubljana timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Ljubljana'
+    zone = 'Europe/Ljubljana'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

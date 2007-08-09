@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Guam(DstTzInfo):
     '''Pacific/Guam timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Pacific/Guam'
+    zone = 'Pacific/Guam'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

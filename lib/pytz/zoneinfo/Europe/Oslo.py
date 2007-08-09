@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Oslo(DstTzInfo):
     '''Europe/Oslo timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Oslo'
+    zone = 'Europe/Oslo'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

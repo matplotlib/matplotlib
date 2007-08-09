@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Kaliningrad(DstTzInfo):
     '''Europe/Kaliningrad timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Kaliningrad'
+    zone = 'Europe/Kaliningrad'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

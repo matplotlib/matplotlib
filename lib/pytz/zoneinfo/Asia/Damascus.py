@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Damascus(DstTzInfo):
     '''Asia/Damascus timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Damascus'
+    zone = 'Asia/Damascus'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
@@ -98,7 +98,7 @@ d(2004,9,30,21,0,0),
 d(2005,3,31,22,0,0),
 d(2005,9,30,21,0,0),
 d(2006,3,31,22,0,0),
-d(2006,9,30,21,0,0),
+d(2006,9,21,21,0,0),
 d(2007,3,31,22,0,0),
 d(2007,9,30,21,0,0),
 d(2008,3,31,22,0,0),

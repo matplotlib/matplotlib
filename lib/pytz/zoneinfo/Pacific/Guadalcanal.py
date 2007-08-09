@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Guadalcanal(DstTzInfo):
     '''Pacific/Guadalcanal timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Pacific/Guadalcanal'
+    zone = 'Pacific/Guadalcanal'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

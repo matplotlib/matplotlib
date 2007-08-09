@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Istanbul(DstTzInfo):
     '''Europe/Istanbul timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Istanbul'
+    zone = 'Europe/Istanbul'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

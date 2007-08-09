@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class St_Vincent(DstTzInfo):
     '''America/St_Vincent timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/St_Vincent'
+    zone = 'America/St_Vincent'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

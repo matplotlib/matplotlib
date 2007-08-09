@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Vientiane(DstTzInfo):
     '''Asia/Vientiane timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Vientiane'
+    zone = 'Asia/Vientiane'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

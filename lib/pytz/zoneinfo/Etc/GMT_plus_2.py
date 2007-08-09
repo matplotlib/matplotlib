@@ -4,7 +4,7 @@ from pytz.tzinfo import memorized_timedelta as timedelta
 
 class GMT_plus_2(StaticTzInfo):
     '''Etc/GMT_plus_2 timezone definition. See datetime.tzinfo for details'''
-    _zone = 'Etc/GMT_plus_2'
+    zone = 'Etc/GMT_plus_2'
     _utcoffset = timedelta(seconds=-7200)
     _tzname = 'GMT+2'
 

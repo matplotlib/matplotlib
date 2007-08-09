@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Nicosia(DstTzInfo):
     '''Asia/Nicosia timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Nicosia'
+    zone = 'Asia/Nicosia'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

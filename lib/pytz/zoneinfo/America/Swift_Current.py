@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Swift_Current(DstTzInfo):
     '''America/Swift_Current timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Swift_Current'
+    zone = 'America/Swift_Current'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

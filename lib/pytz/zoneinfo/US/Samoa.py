@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Samoa(DstTzInfo):
     '''US/Samoa timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'US/Samoa'
+    zone = 'US/Samoa'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

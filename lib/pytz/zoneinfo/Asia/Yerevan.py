@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Yerevan(DstTzInfo):
     '''Asia/Yerevan timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Yerevan'
+    zone = 'Asia/Yerevan'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

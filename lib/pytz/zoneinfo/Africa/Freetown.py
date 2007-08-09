@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Freetown(DstTzInfo):
     '''Africa/Freetown timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Africa/Freetown'
+    zone = 'Africa/Freetown'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

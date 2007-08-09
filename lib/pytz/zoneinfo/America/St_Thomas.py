@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class St_Thomas(DstTzInfo):
     '''America/St_Thomas timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/St_Thomas'
+    zone = 'America/St_Thomas'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

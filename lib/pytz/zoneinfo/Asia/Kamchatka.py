@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Kamchatka(DstTzInfo):
     '''Asia/Kamchatka timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Kamchatka'
+    zone = 'Asia/Kamchatka'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

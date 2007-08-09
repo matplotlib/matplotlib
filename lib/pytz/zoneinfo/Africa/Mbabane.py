@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Mbabane(DstTzInfo):
     '''Africa/Mbabane timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Africa/Mbabane'
+    zone = 'Africa/Mbabane'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

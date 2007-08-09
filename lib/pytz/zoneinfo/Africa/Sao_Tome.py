@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Sao_Tome(DstTzInfo):
     '''Africa/Sao_Tome timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Africa/Sao_Tome'
+    zone = 'Africa/Sao_Tome'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class General(DstTzInfo):
     '''Mexico/General timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Mexico/General'
+    zone = 'Mexico/General'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

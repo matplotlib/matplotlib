@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Magadan(DstTzInfo):
     '''Asia/Magadan timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Magadan'
+    zone = 'Asia/Magadan'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

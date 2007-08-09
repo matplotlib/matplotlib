@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Vaduz(DstTzInfo):
     '''Europe/Vaduz timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Vaduz'
+    zone = 'Europe/Vaduz'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Mexico_City(DstTzInfo):
     '''America/Mexico_City timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Mexico_City'
+    zone = 'America/Mexico_City'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

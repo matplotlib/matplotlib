@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Longyearbyen(DstTzInfo):
     '''Arctic/Longyearbyen timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Arctic/Longyearbyen'
+    zone = 'Arctic/Longyearbyen'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

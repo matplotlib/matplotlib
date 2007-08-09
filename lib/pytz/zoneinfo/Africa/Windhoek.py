@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Windhoek(DstTzInfo):
     '''Africa/Windhoek timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Africa/Windhoek'
+    zone = 'Africa/Windhoek'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

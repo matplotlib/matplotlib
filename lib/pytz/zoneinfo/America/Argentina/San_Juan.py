@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class San_Juan(DstTzInfo):
     '''America/Argentina/San_Juan timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Argentina/San_Juan'
+    zone = 'America/Argentina/San_Juan'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
@@ -67,8 +67,8 @@ d(1992,10,18,3,0,0),
 d(1993,3,7,2,0,0),
 d(1999,10,3,3,0,0),
 d(2000,3,3,3,0,0),
-d(2004,6,1,3,0,0),
-d(2004,10,17,4,0,0),
+d(2004,5,31,3,0,0),
+d(2004,7,25,4,0,0),
         ]
 
     _transition_info = [

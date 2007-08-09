@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Dushanbe(DstTzInfo):
     '''Asia/Dushanbe timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Dushanbe'
+    zone = 'Asia/Dushanbe'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
