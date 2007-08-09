@@ -301,8 +301,9 @@ class MathtextBackendPdf(MathtextBackend):
     def render_glyph(self, ox, oy, info):
         filename = info.font.fname
         oy = self.height - oy + info.offset
-        
-        self.pswriter.append(('glyph', ox, oy, filename, info.fontsize, info.num))
+        self.pswriter.append(
+            ('glyph', ox, oy, filename, info.fontsize,
+             info.num, info.symbol_name))
 
     def render_rect_filled(self, x1, y1, x2, y2):
         self.pswriter.append(('rect', x1, self.height - y2, x2 - x1, y2 - y1))
