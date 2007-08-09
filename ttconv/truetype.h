@@ -98,7 +98,7 @@ Fixed getFixed(BYTE *p);
 
 /* This is the one routine in pprdrv_tt.c that is */
 /* called from pprdrv_tt.c. */
-char *ttfont_CharStrings_getname(struct TTFONT *font, int charindex);
+const char *ttfont_CharStrings_getname(struct TTFONT *font, int charindex);
 
 void tt_type3_charproc(TTStreamWriter& stream, struct TTFONT *font, int charindex);
 
