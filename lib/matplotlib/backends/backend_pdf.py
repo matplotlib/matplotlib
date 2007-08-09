@@ -30,7 +30,7 @@ from matplotlib.dviread import Dvi
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, \
     LOAD_NO_HINTING, KERNING_UNFITTED
 from matplotlib.mathtext import math_parse_s_pdf
-from matplotlib.transforms import Bbox, Affine, multiply_affines, Value
+from matplotlib.transforms import Bbox
 from matplotlib import ttconv
 
 # Overview
