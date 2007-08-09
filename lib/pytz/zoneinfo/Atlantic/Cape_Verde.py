@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Cape_Verde(DstTzInfo):
     '''Atlantic/Cape_Verde timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Atlantic/Cape_Verde'
+    zone = 'Atlantic/Cape_Verde'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

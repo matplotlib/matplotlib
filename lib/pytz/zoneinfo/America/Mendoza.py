@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Mendoza(DstTzInfo):
     '''America/Mendoza timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Mendoza'
+    zone = 'America/Mendoza'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
@@ -67,7 +67,7 @@ d(1993,3,7,2,0,0),
 d(1999,10,3,3,0,0),
 d(2000,3,3,3,0,0),
 d(2004,5,23,3,0,0),
-d(2004,10,17,4,0,0),
+d(2004,9,26,4,0,0),
         ]
 
     _transition_info = [

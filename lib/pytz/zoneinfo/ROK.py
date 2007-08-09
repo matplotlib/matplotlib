@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class ROK(DstTzInfo):
     '''ROK timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'ROK'
+    zone = 'ROK'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

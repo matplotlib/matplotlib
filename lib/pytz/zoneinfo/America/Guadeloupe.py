@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Guadeloupe(DstTzInfo):
     '''America/Guadeloupe timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Guadeloupe'
+    zone = 'America/Guadeloupe'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

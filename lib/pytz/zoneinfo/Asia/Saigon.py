@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Saigon(DstTzInfo):
     '''Asia/Saigon timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Saigon'
+    zone = 'Asia/Saigon'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Karachi(DstTzInfo):
     '''Asia/Karachi timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Karachi'
+    zone = 'Asia/Karachi'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

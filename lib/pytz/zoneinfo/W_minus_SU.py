@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class W_minus_SU(DstTzInfo):
     '''W_minus_SU timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'W_minus_SU'
+    zone = 'W_minus_SU'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

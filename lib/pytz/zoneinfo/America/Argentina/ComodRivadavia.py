@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class ComodRivadavia(DstTzInfo):
     '''America/Argentina/ComodRivadavia timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Argentina/ComodRivadavia'
+    zone = 'America/Argentina/ComodRivadavia'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

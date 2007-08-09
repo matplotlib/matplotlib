@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Vatican(DstTzInfo):
     '''Europe/Vatican timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Vatican'
+    zone = 'Europe/Vatican'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

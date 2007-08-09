@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Mariehamn(DstTzInfo):
     '''Europe/Mariehamn timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Mariehamn'
+    zone = 'Europe/Mariehamn'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

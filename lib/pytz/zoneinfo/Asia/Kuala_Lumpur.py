@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Kuala_Lumpur(DstTzInfo):
     '''Asia/Kuala_Lumpur timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Kuala_Lumpur'
+    zone = 'Asia/Kuala_Lumpur'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

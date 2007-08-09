@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Aruba(DstTzInfo):
     '''America/Aruba timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Aruba'
+    zone = 'America/Aruba'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class BajaNorte(DstTzInfo):
     '''Mexico/BajaNorte timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Mexico/BajaNorte'
+    zone = 'Mexico/BajaNorte'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
@@ -17,6 +17,7 @@ d(1930,11,15,7,0,0),
 d(1931,4,1,8,0,0),
 d(1931,9,30,7,0,0),
 d(1942,4,24,8,0,0),
+d(1945,8,14,23,0,0),
 d(1945,11,12,7,0,0),
 d(1948,4,5,8,0,0),
 d(1949,1,14,7,0,0),
@@ -169,6 +170,7 @@ i(-28800,0,'PST'),
 i(-25200,3600,'PDT'),
 i(-28800,0,'PST'),
 i(-25200,3600,'PWT'),
+i(-25200,3600,'PPT'),
 i(-28800,0,'PST'),
 i(-25200,3600,'PDT'),
 i(-28800,0,'PST'),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class St_Lucia(DstTzInfo):
     '''America/St_Lucia timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/St_Lucia'
+    zone = 'America/St_Lucia'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

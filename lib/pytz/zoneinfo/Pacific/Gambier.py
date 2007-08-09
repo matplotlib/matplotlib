@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Gambier(DstTzInfo):
     '''Pacific/Gambier timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Pacific/Gambier'
+    zone = 'Pacific/Gambier'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

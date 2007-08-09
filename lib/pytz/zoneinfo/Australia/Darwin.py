@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Darwin(DstTzInfo):
     '''Australia/Darwin timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Australia/Darwin'
+    zone = 'Australia/Darwin'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

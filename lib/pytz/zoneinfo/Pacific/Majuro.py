@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Majuro(DstTzInfo):
     '''Pacific/Majuro timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Pacific/Majuro'
+    zone = 'Pacific/Majuro'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Tashkent(DstTzInfo):
     '''Asia/Tashkent timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Tashkent'
+    zone = 'Asia/Tashkent'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
@@ -36,8 +36,6 @@ d(1991,3,30,20,0,0),
 d(1991,8,31,18,0,0),
 d(1991,9,28,21,0,0),
 d(1991,12,31,19,0,0),
-d(1992,3,28,18,0,0),
-d(1992,9,26,17,0,0),
         ]
 
     _transition_info = [
@@ -67,8 +65,6 @@ i(21600,0,'TAST'),
 i(21600,0,'TASST'),
 i(21600,0,'UZST'),
 i(18000,0,'UZT'),
-i(18000,0,'UZT'),
-i(21600,3600,'UZST'),
 i(18000,0,'UZT'),
         ]
 

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Madrid(DstTzInfo):
     '''Europe/Madrid timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Madrid'
+    zone = 'Europe/Madrid'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

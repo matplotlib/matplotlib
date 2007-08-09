@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Simferopol(DstTzInfo):
     '''Europe/Simferopol timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Simferopol'
+    zone = 'Europe/Simferopol'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

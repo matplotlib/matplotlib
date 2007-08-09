@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Catamarca(DstTzInfo):
     '''America/Argentina/Catamarca timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Argentina/Catamarca'
+    zone = 'America/Argentina/Catamarca'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

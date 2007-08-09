@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class La_Rioja(DstTzInfo):
     '''America/Argentina/La_Rioja timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Argentina/La_Rioja'
+    zone = 'America/Argentina/La_Rioja'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

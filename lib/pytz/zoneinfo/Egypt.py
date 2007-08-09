@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Egypt(DstTzInfo):
     '''Egypt timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Egypt'
+    zone = 'Egypt'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
@@ -121,7 +121,7 @@ d(2004,9,30,21,0,0),
 d(2005,4,28,22,0,0),
 d(2005,9,29,21,0,0),
 d(2006,4,27,22,0,0),
-d(2006,9,28,21,0,0),
+d(2006,9,21,21,0,0),
 d(2007,4,26,22,0,0),
 d(2007,9,27,21,0,0),
 d(2008,4,24,22,0,0),

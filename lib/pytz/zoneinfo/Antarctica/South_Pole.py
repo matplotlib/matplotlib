@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class South_Pole(DstTzInfo):
     '''Antarctica/South_Pole timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Antarctica/South_Pole'
+    zone = 'Antarctica/South_Pole'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

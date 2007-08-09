@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Dili(DstTzInfo):
     '''Asia/Dili timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Dili'
+    zone = 'Asia/Dili'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
@@ -19,11 +19,11 @@ d(2000,9,16,16,0,0),
 
     _transition_info = [
 i(30120,0,'LMT'),
-i(28800,0,'TPT'),
+i(28800,0,'TLT'),
 i(32400,0,'JST'),
-i(32400,0,'TPT'),
+i(32400,0,'TLT'),
 i(28800,0,'CIT'),
-i(32400,0,'TPT'),
+i(32400,0,'TLT'),
         ]
 
 Dili = Dili()

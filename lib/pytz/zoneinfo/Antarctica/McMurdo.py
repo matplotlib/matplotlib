@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class McMurdo(DstTzInfo):
     '''Antarctica/McMurdo timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Antarctica/McMurdo'
+    zone = 'Antarctica/McMurdo'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

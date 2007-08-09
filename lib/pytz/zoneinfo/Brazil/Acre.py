@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Acre(DstTzInfo):
     '''Brazil/Acre timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Brazil/Acre'
+    zone = 'Brazil/Acre'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

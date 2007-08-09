@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Kabul(DstTzInfo):
     '''Asia/Kabul timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Kabul'
+    zone = 'Asia/Kabul'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Lindeman(DstTzInfo):
     '''Australia/Lindeman timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Australia/Lindeman'
+    zone = 'Australia/Lindeman'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

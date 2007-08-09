@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Auckland(DstTzInfo):
     '''Pacific/Auckland timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Pacific/Auckland'
+    zone = 'Pacific/Auckland'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

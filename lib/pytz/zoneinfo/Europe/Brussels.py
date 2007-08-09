@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Brussels(DstTzInfo):
     '''Europe/Brussels timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Brussels'
+    zone = 'Europe/Brussels'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

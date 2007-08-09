@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Maceio(DstTzInfo):
     '''America/Maceio timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Maceio'
+    zone = 'America/Maceio'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Yancowinna(DstTzInfo):
     '''Australia/Yancowinna timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Australia/Yancowinna'
+    zone = 'Australia/Yancowinna'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
@@ -88,7 +88,7 @@ d(2004,3,27,16,30,0),
 d(2004,10,30,16,30,0),
 d(2005,3,26,16,30,0),
 d(2005,10,29,16,30,0),
-d(2006,3,25,16,30,0),
+d(2006,4,1,16,30,0),
 d(2006,10,28,16,30,0),
 d(2007,3,24,16,30,0),
 d(2007,10,27,16,30,0),

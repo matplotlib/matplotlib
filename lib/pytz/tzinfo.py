@@ -1,12 +1,12 @@
-#!/usr/bin/env python
-'''$Id$'''
-
-__rcs_id__  = '$Id$'
-__version__ = '$Revision$'[11:-2]
+'''Base classes and helpers for building zone specific tzinfo classes'''
 
 from datetime import datetime, timedelta, tzinfo
 from bisect import bisect_right
 from sets import Set
+
+import pytz
+
+__all__ = []
 
 _timedelta_cache = {}
 def memorized_timedelta(seconds):
@@ -44,14 +44,19 @@ def memorized_ttinfo(*args):
 
 _notime = memorized_timedelta(0)
 
+def _to_seconds(td):
+    '''Convert a timedelta to seconds'''
+    return td.seconds + td.days * 24 * 60 * 60
+
+
 class BaseTzInfo(tzinfo):
     # Overridden in subclass
     _utcoffset = None
     _tzname = None
-    _zone = None
+    zone = None
 
     def __str__(self):
-        return self._zone
+        return self.zone
 
 
 class StaticTzInfo(BaseTzInfo):
@@ -59,12 +64,11 @@ class StaticTzInfo(BaseTzInfo):
 
     These timezones are rare, as most regions have changed their
     offset from UTC at some point in their history
-
     '''
     def fromutc(self, dt):
         '''See datetime.tzinfo.fromutc'''
         return (dt + self._utcoffset).replace(tzinfo=self)
-
+    
     def utcoffset(self,dt):
         '''See datetime.tzinfo.utcoffset'''
         return self._utcoffset
@@ -90,22 +94,27 @@ class StaticTzInfo(BaseTzInfo):
         return dt.replace(tzinfo=self)
 
     def __repr__(self):
-        return '<StaticTzInfo %r>' % (self._zone,)
+        return '<StaticTzInfo %r>' % (self.zone,)
+
+    def __reduce__(self):
+        # Special pickle to zone remains a singleton and to cope with
+        # database changes. 
+        return pytz._p, (self.zone,)
 
 
 class DstTzInfo(BaseTzInfo):
     '''A timezone that has a variable offset from UTC
-
+   
     The offset might change if daylight savings time comes into effect,
-    or at a point in history when the region decides to change their
-    timezone definition.
+    or at a point in history when the region decides to change their 
+    timezone definition. 
 
     '''
     # Overridden in subclass
     _utc_transition_times = None # Sorted list of DST transition times in UTC
     _transition_info = None # [(utcoffset, dstoffset, tzname)] corresponding
                             # to _utc_transition_times entries
-    _zone = None
+    zone = None
 
     # Set in __init__
     _tzinfos = None
@@ -179,13 +188,13 @@ class DstTzInfo(BaseTzInfo):
 
     def localize(self, dt, is_dst=False):
         '''Convert naive time to local time.
-
+        
         This method should be used to construct localtimes, rather
         than passing a tzinfo argument to a datetime constructor.
 
         is_dst is used to determine the correct timezone in the ambigous
         period at the end of daylight savings time.
-
+        
         >>> from pytz import timezone
         >>> fmt = '%Y-%m-%d %H:%M:%S %Z (%z)'
         >>> amdam = timezone('Europe/Amsterdam')
@@ -214,7 +223,7 @@ class DstTzInfo(BaseTzInfo):
         AmbiguousTimeError: 2004-10-31 02:00:00
 
         is_dst defaults to False
-
+        
         >>> amdam.localize(dt) == amdam.localize(dt, False)
         True
 
@@ -269,7 +278,7 @@ class DstTzInfo(BaseTzInfo):
                     )
         filtered_possible_loc_dt.sort(mycmp)
         return filtered_possible_loc_dt[0]
-
+        
     def utcoffset(self, dt):
         '''See datetime.tzinfo.utcoffset'''
         return self._utcoffset
@@ -289,12 +298,23 @@ class DstTzInfo(BaseTzInfo):
             dst = 'STD'
         if self._utcoffset > _notime:
             return '<DstTzInfo %r %s+%s %s>' % (
-                    self._zone, self._tzname, self._utcoffset, dst
+                    self.zone, self._tzname, self._utcoffset, dst
                 )
         else:
             return '<DstTzInfo %r %s%s %s>' % (
-                    self._zone, self._tzname, self._utcoffset, dst
+                    self.zone, self._tzname, self._utcoffset, dst
                 )
+
+    def __reduce__(self):
+        # Special pickle to zone remains a singleton and to cope with
+        # database changes.
+        return pytz._p, (
+                self.zone,
+                _to_seconds(self._utcoffset),
+                _to_seconds(self._dst),
+                self._tzname
+                )
+
 
 class AmbiguousTimeError(Exception):
     '''Exception raised when attempting to create an ambiguous wallclock time.
@@ -304,7 +324,56 @@ class AmbiguousTimeError(Exception):
     possibilities may be correct, unless further information is supplied.
 
     See DstTzInfo.normalize() for more info
-
     '''
+       
 
+def unpickler(zone, utcoffset=None, dstoffset=None, tzname=None):
+    """Factory function for unpickling pytz tzinfo instances.
+    
+    This is shared for both StaticTzInfo and DstTzInfo instances, because
+    database changes could cause a zones implementation to switch between
+    these two base classes and we can't break pickles on a pytz version
+    upgrade.
+    """
+    # Raises a KeyError if zone no longer exists, which should never happen
+    # and would be a bug.
+    tz = pytz.timezone(zone)
+
+    # A StaticTzInfo - just return it
+    if utcoffset is None:
+        return tz
+
+    # This pickle was created from a DstTzInfo. We need to
+    # determine which of the list of tzinfo instances for this zone
+    # to use in order to restore the state of any datetime instances using
+    # it correctly.
+    utcoffset = memorized_timedelta(utcoffset)
+    dstoffset = memorized_timedelta(dstoffset)
+    try:
+        return tz._tzinfos[(utcoffset, dstoffset, tzname)]
+    except KeyError:
+        # The particular state requested in this timezone no longer exists.
+        # This indicates a corrupt pickle, or the timezone database has been
+        # corrected violently enough to make this particular
+        # (utcoffset,dstoffset) no longer exist in the zone, or the
+        # abbreviation has been changed.
+        pass
+
+    # See if we can find an entry differing only by tzname. Abbreviations
+    # get changed from the initial guess by the database maintainers to
+    # match reality when this information is discovered.
+    for localized_tz in tz._tzinfos.values():
+        if (localized_tz._utcoffset == utcoffset
+                and localized_tz._dst == dstoffset):
+            return localized_tz
+
+    # This (utcoffset, dstoffset) information has been removed from the
+    # zone. Add it back. This might occur when the database maintainers have
+    # corrected incorrect information. datetime instances using this
+    # incorrect information will continue to do so, exactly as they were
+    # before being pickled. This is purely an overly paranoid safety net - I
+    # doubt this will ever been needed in real life.
+    inf = (utcoffset, dstoffset, tzname)
+    tz._tzinfos[inf] = tz.__class__(inf, tz._tzinfos)
+    return tz._tzinfos[inf]
 

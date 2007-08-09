@@ -6,12 +6,12 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Belfast(DstTzInfo):
     '''Europe/Belfast timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Belfast'
+    zone = 'Europe/Belfast'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
-d(1916,5,21,2,25,21),
-d(1916,10,1,2,25,21),
+d(1916,5,21,2,0,0),
+d(1916,10,1,2,0,0),
 d(1917,4,8,2,0,0),
 d(1917,9,17,2,0,0),
 d(1918,3,24,2,0,0),
@@ -255,8 +255,8 @@ d(2037,10,25,1,0,0),
         ]
 
     _transition_info = [
-i(-1500,0,'DMT'),
-i(2100,3600,'IST'),
+i(0,0,'GMT'),
+i(3600,3600,'BST'),
 i(0,0,'GMT'),
 i(3600,3600,'BST'),
 i(0,0,'GMT'),

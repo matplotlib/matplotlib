@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Arizona(DstTzInfo):
     '''US/Arizona timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'US/Arizona'
+    zone = 'US/Arizona'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

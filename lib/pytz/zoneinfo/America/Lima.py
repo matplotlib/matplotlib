@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Lima(DstTzInfo):
     '''America/Lima timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Lima'
+    zone = 'America/Lima'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

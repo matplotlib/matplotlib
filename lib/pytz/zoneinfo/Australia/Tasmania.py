@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Tasmania(DstTzInfo):
     '''Australia/Tasmania timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Australia/Tasmania'
+    zone = 'Australia/Tasmania'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
@@ -95,7 +95,7 @@ d(2004,3,27,16,0,0),
 d(2004,10,2,16,0,0),
 d(2005,3,26,16,0,0),
 d(2005,10,1,16,0,0),
-d(2006,3,25,16,0,0),
+d(2006,4,1,16,0,0),
 d(2006,9,30,16,0,0),
 d(2007,3,24,16,0,0),
 d(2007,10,6,16,0,0),

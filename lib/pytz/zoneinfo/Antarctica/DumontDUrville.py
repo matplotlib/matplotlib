@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class DumontDUrville(DstTzInfo):
     '''Antarctica/DumontDUrville timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Antarctica/DumontDUrville'
+    zone = 'Antarctica/DumontDUrville'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

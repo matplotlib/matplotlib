@@ -1,10 +1,10 @@
 """
-Copyright (c) 2003  Gustavo Niemeyer <niemeyer@conectiva.com>
+Copyright (c) 2003-2005  Gustavo Niemeyer <gustavo@niemeyer.net>
 
 This module offers extensions to the standard python 2.3+
 datetime module.
 """
-__author__ = "Gustavo Niemeyer <niemeyer@conectiva.com>"
+__author__ = "Gustavo Niemeyer <gustavo@niemeyer.net>"
 __license__ = "PSF License"
 
 import datetime
@@ -15,7 +15,7 @@ __all__ = ["relativedelta", "MO", "TU", "WE", "TH", "FR", "SA", "SU"]
 class weekday(object):
     __slots__ = ["weekday", "n"]
 
-    def __init__(self, weekday, n=0):
+    def __init__(self, weekday, n=None):
         self.weekday = weekday
         self.n = n
 
@@ -392,7 +392,7 @@ Here is the behavior of operations with relativedelta:
             if self.weekday.weekday != other.weekday.weekday:
                 return False
             n1, n2 = self.weekday.n, other.weekday.n
-            if n1 != n2 and not (n1 in (0, 1) and n2 in (0, 1)):
+            if n1 != n2 and not ((not n1 or n1 == 1) and (not n2 or n2 == 1)):
                 return False
         return (self.years == other.years and
                 self.months == other.months and

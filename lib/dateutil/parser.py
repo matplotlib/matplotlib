@@ -1,11 +1,11 @@
 # -*- coding:iso-8859-1 -*-
 """
-Copyright (c) 2003  Gustavo Niemeyer <niemeyer@conectiva.com>
+Copyright (c) 2003-2005  Gustavo Niemeyer <gustavo@niemeyer.net>
 
 This module offers extensions to the standard python 2.3+
 datetime module.
 """
-__author__ = "Gustavo Niemeyer <niemeyer@conectiva.com>"
+__author__ = "Gustavo Niemeyer <gustavo@niemeyer.net>"
 __license__ = "PSF License"
 
 import os.path
@@ -62,6 +62,8 @@ class _timelex:
                 nextchar = self.charstack.pop(0)
             else:
                 nextchar = self.instream.read(1)
+                while nextchar == '\x00':
+                    nextchar = self.instream.read(1)
             if not nextchar:
                 self.eof = True
                 break
@@ -159,7 +161,7 @@ class parserinfo:
     # m from a.m/p.m, t from ISO T separator
     JUMP = [" ", ".", ",", ";", "-", "/", "'",
             "at", "on", "and", "ad", "m", "t", "of",
-            "st", "nd", "rd", "th"]
+            "st", "nd", "rd", "th"] 
 
     WEEKDAYS = [("Mon", "Monday"),
                 ("Tue", "Tuesday"),
@@ -281,8 +283,13 @@ class parserinfo:
 
 class parser:
 
-    def __init__(self, parserinfo=parserinfo):
-        self.info = parserinfo()
+    def __init__(self, info=parserinfo):
+        if issubclass(info, parserinfo):
+            self.info = parserinfo()
+        elif isinstance(info, parserinfo):
+            self.info = info
+        else:
+            raise TypeError, "Unsupported parserinfo type"
 
     def parse(self, timestr, default=None,
                     ignoretz=False, tzinfos=None,
@@ -361,7 +368,8 @@ class parser:
                     len_li = len(l[i])
                     i += 1
                     if (len(ymd) == 3 and len_li in (2, 4)
-                        and (i >= len_l or l[i] != ':')):
+                        and (i >= len_l or (l[i] != ':' and
+                                            info.hms(l[i]) is None))):
                         # 19990101T23[59]
                         s = l[i-1]
                         res.hour = int(s[:2])
@@ -369,7 +377,7 @@ class parser:
                             res.minute = int(s[2:])
                     elif len_li == 6 or (len_li > 6 and l[i-1].find('.') == 6):
                         # YYMMDD or HHMMSS[.ss]
-                        s = l[i-1]
+                        s = l[i-1] 
                         if not ymd and l[i-1].find('.') == -1:
                             ymd.append(info.convertyear(int(s[:2])))
                             ymd.append(int(s[2:4]))

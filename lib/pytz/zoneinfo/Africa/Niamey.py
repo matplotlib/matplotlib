@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Niamey(DstTzInfo):
     '''Africa/Niamey timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Africa/Niamey'
+    zone = 'Africa/Niamey'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

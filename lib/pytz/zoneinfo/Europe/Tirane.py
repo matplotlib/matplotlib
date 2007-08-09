@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Tirane(DstTzInfo):
     '''Europe/Tirane timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Tirane'
+    zone = 'Europe/Tirane'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

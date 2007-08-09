@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Galapagos(DstTzInfo):
     '''Pacific/Galapagos timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Pacific/Galapagos'
+    zone = 'Pacific/Galapagos'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

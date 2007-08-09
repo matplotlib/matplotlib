@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Hong_Kong(DstTzInfo):
     '''Asia/Hong_Kong timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Hong_Kong'
+    zone = 'Asia/Hong_Kong'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

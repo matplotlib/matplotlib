@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class La_Paz(DstTzInfo):
     '''America/La_Paz timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/La_Paz'
+    zone = 'America/La_Paz'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

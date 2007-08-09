@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Thimbu(DstTzInfo):
     '''Asia/Thimbu timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Thimbu'
+    zone = 'Asia/Thimbu'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

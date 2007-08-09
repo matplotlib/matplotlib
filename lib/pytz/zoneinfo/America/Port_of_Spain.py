@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Port_of_Spain(DstTzInfo):
     '''America/Port_of_Spain timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Port_of_Spain'
+    zone = 'America/Port_of_Spain'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

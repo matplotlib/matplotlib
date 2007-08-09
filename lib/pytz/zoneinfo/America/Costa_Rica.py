@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Costa_Rica(DstTzInfo):
     '''America/Costa_Rica timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Costa_Rica'
+    zone = 'America/Costa_Rica'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

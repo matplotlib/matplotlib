@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Dublin(DstTzInfo):
     '''Europe/Dublin timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Europe/Dublin'
+    zone = 'Europe/Dublin'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

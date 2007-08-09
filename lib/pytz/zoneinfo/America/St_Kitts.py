@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class St_Kitts(DstTzInfo):
     '''America/St_Kitts timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/St_Kitts'
+    zone = 'America/St_Kitts'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Hawaii(DstTzInfo):
     '''US/Hawaii timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'US/Hawaii'
+    zone = 'US/Hawaii'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

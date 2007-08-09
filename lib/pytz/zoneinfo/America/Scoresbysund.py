@@ -6,11 +6,11 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Scoresbysund(DstTzInfo):
     '''America/Scoresbysund timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Scoresbysund'
+    zone = 'America/Scoresbysund'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
-d(1916,7,28,1,29,0),
+d(1916,7,28,1,27,52),
 d(1980,4,6,4,0,0),
 d(1980,9,28,4,0,0),
 d(1981,3,29,2,0,0),
@@ -130,7 +130,7 @@ d(2037,10,25,1,0,0),
         ]
 
     _transition_info = [
-i(-5340,0,'LMT'),
+i(-5280,0,'LMT'),
 i(-7200,0,'CGT'),
 i(-3600,3600,'CGST'),
 i(-7200,0,'CGT'),

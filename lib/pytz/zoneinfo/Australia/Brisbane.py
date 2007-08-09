@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Brisbane(DstTzInfo):
     '''Australia/Brisbane timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Australia/Brisbane'
+    zone = 'Australia/Brisbane'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

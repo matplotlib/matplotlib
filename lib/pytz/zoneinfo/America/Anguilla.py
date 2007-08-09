@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Anguilla(DstTzInfo):
     '''America/Anguilla timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Anguilla'
+    zone = 'America/Anguilla'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

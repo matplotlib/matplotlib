@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Martinique(DstTzInfo):
     '''America/Martinique timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'America/Martinique'
+    zone = 'America/Martinique'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Kampala(DstTzInfo):
     '''Africa/Kampala timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Africa/Kampala'
+    zone = 'Africa/Kampala'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),

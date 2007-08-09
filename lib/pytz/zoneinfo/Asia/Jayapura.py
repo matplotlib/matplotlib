@@ -6,7 +6,7 @@ from pytz.tzinfo import memorized_ttinfo as i
 class Jayapura(DstTzInfo):
     '''Asia/Jayapura timezone definition. See datetime.tzinfo for details'''
 
-    _zone = 'Asia/Jayapura'
+    zone = 'Asia/Jayapura'
 
     _utc_transition_times = [
 d(1,1,1,0,0,0),
