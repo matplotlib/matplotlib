@@ -508,6 +508,7 @@ class PdfFile:
             charprocsObject = self.reserveObject('character procs')
             differencesArray = []
             firstchar, lastchar = 0, 255
+            bbox = [cvt(x, nearest=False) for x in font.bbox]
             
             fontdict = {
                 'Type'            : Name('Font'),
@@ -517,7 +518,7 @@ class PdfFile:
                 'FontDescriptor'  : fontdescObject,
                 'Subtype'         : Name('Type3'),
                 'Name'            : descriptor['FontName'],
-                'FontBBox'        : [cvt(x, nearest=False) for x in font.bbox],
+                'FontBBox'        : bbox,
                 'FontMatrix'      : [ .001, 0, 0, .001, 0, 0 ],
                 'CharProcs'       : charprocsObject,
                 'Encoding'        : {
@@ -575,15 +576,18 @@ class PdfFile:
             charprocs = {}
             charprocsRef = {}
             for charname, stream in rawcharprocs.items():
+                charprocDict = { 'Length': len(stream) }
+                # The 2-byte characters are used as XObjects, so they
+                # need extra info in their dictionary
+                if charname in two_byte_chars:
+                    charprocDict['Type'] = Name('XObject')
+                    charprocDict['Subtype'] = Name('Form')
+                    charprocDict['BBox'] = bbox
                 charprocObject = self.reserveObject('charProc for %s' % name)
-                self.beginStream(charprocObject.id,
-                                 None,
-                                 {'Length':  len(stream),
-                                  'Type': Name('XObject'),
-                                  'Subtype': Name('Form'),
-                                  'BBox': [cvt(x, nearest=False) for x in font.bbox]})
+                self.beginStream(charprocObject.id, None, charprocDict)
                 self.currentstream.write(stream)
                 self.endStream()
+
                 # Send the glyphs with ccode > 255 to the XObject dictionary,
                 # and the others to the font itself
                 if charname in two_byte_chars:
