@@ -474,10 +474,10 @@ namespace Py
 			: PythonExtensionBase()
 			{
 			#ifdef PyObject_INIT
-			PyObject_INIT( this, type_object() );
+			  (void)PyObject_INIT( this, type_object() );
 			#else
-			ob_refcnt = 1;
-			ob_type = type_object();
+			  ob_refcnt = 1;
+			  ob_type = type_object();
 			#endif
 			
 			// every object must support getattr
