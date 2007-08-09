@@ -1411,8 +1411,8 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
   std::string tagname = Py::String(args[0]);
 
   int tag;
-  char *tags[] = {"head", "maxp", "OS/2", "hhea",
-		  "vhea", "post", "pclt",  NULL};
+  const char *tags[] = {"head", "maxp", "OS/2", "hhea",
+			"vhea", "post", "pclt",  NULL};
 
   for (tag=0; tags[tag] != NULL; tag++)
     if (strcmp(tagname.c_str(), tags[tag]) == 0)
