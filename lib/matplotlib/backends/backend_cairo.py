@@ -36,10 +36,11 @@ del _version_required
 
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook      import enumerate, izip
-from matplotlib.figure     import Figure
-from matplotlib.mathtext   import math_parse_s_ft2font
-from matplotlib.transforms import Bbox
+from matplotlib.cbook        import enumerate, izip
+from matplotlib.figure       import Figure
+from matplotlib.mathtext     import math_parse_s_cairo
+from matplotlib.transforms   import Bbox
+from matplotlib.font_manager import ttfFontProperty
 from matplotlib import rcParams
 
 _debug = False
@@ -296,66 +297,47 @@ class RendererCairo(RendererBase):
            if angle:
               ctx.rotate (-angle * npy.pi / 180)
            ctx.set_font_size (size)
-           ctx.show_text (s)
+           ctx.show_text (s.encode("utf-8"))
            ctx.restore()
-
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         # mathtext using the gtk/gdk method
 
-        #if npy.which[0] == "numarray":
-        #   warnings.warn("_draw_mathtext() currently works for numpy, but "
-        #                 "not numarray")
-        #   return
-
-        #if not HAVE_CAIRO_NUMPY:
-        #    warnings.warn("cairo with Numeric support is required for "
-        #                  "_draw_mathtext()")
-        #    return
-
-        width, height, fonts, used_characters = math_parse_s_ft2font(
+        ctx = gc.ctx
+        width, height, glyphs, rects = math_parse_s_cairo(
             s, self.dpi.get(), prop)
 
-        if angle==90:
-            width, height = height, width
-            x -= width
-        y -= height
+        ctx.save()
+        ctx.translate(x, y)
+        if angle:
+           ctx.rotate (-angle * npy.pi / 180)
+           
+        for font, fontsize, s, ox, oy in glyphs:
+           ctx.new_path()
+           ctx.move_to(ox, oy)
+           
+           fontProp = ttfFontProperty(font)
+           ctx.save()
+           ctx.select_font_face (fontProp.name,
+                                 self.fontangles [fontProp.style],
+                                 self.fontweights[fontProp.weight])
 
-        imw, imh, s = fonts[0].image_as_str()
-        N = imw*imh
+           # size = prop.get_size_in_points() * self.dpi.get() / 96.0
+           size = fontsize * self.dpi.get() / 72.0
+           ctx.set_font_size(size)
+           ctx.show_text(s.encode("utf-8"))
+           ctx.restore()
 
-        # a numpixels by num fonts array
-        Xall = npy.zeros((N,len(fonts)), npy.uint8)
+        for ox, oy, w, h in rects:
+           ctx.new_path()
+           ctx.rectangle (ox, oy, w, h)
+           ctx.set_source_rgb (0, 0, 0)
+           ctx.fill_preserve()
 
-        for i, font in enumerate(fonts):
-            if angle == 90:
-                font.horiz_image_to_vert_image() # <-- Rotate
-            imw, imh, s = font.image_as_str()
-            Xall[:,i] = npy.fromstring(s, npy.uint8)
+        ctx.restore()
 
-        # get the max alpha at each pixel
-        Xs = npy.max (Xall,1)
-
-        # convert it to it's proper shape
-        Xs.shape = imh, imw
-
-        pa = npy.zeros((imh,imw,4), npy.uint8)
-        rgb = gc.get_rgb()
-        pa[:,:,0] = int(rgb[0]*255)
-        pa[:,:,1] = int(rgb[1]*255)
-        pa[:,:,2] = int(rgb[2]*255)
-        pa[:,:,3] = Xs
-
-        ## works for numpy pa, not a numarray pa
-        #surface = cairo.ImageSurface.create_for_array (pa)
-        surface = cairo.ImageSurface.create_for_data (pa, cairo.FORMAT_ARGB32,
-                                                      imw, imh, imw*4)
-        gc.ctx.set_source_surface (surface, x, y)
-        gc.ctx.paint()
-        #gc.ctx.show_surface (surface, imw, imh)
-
-
+        
     def flipy(self):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         return True
@@ -371,7 +353,7 @@ class RendererCairo(RendererBase):
     def get_text_width_height(self, s, prop, ismath):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         if ismath:
-            width, height, fonts, used_characters = math_parse_s_ft2font(
+            width, height, fonts, used_characters = math_parse_s_cairo(
                s, self.dpi.get(), prop)
             return width, height
 

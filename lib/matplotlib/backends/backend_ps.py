@@ -278,7 +278,7 @@ class RendererPS(RendererBase):
 
         if ismath:
             width, height, pswriter, used_characters = math_parse_s_ps(
-                s, 72, prop, 0)
+                s, 72, prop)
             return width, height
 
         if rcParams['ps.useafm']:
@@ -814,7 +814,7 @@ grestore
             self._pswriter.write("% mathtext\n")
 
         width, height, pswriter, used_characters = \
-            math_parse_s_ps(s, 72, prop, angle)
+            math_parse_s_ps(s, 72, prop)
         self.merge_used_characters(used_characters)
         self.set_color(*gc.get_rgb())
         thetext = pswriter.getvalue()

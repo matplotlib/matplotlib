@@ -1173,8 +1173,8 @@ class RendererPdf(RendererBase):
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
-        width, height, pswriter, used_characters = \
-            math_parse_s_pdf(s, 72, prop, 0)
+        width, height, glyphs, rects, used_characters = \
+            math_parse_s_pdf(s, 72, prop)
         self.merge_used_characters(used_characters)
 
         # When using Type 3 fonts, we can't use character codes higher
@@ -1192,42 +1192,35 @@ class RendererPdf(RendererBase):
         self.file.output(Op.begin_text)
         prev_font = None, None
         oldx, oldy = 0, 0
-        for record in pswriter:
-            if record[0] == 'glyph':
-                rec_type, ox, oy, fontname, fontsize, num, symbol_name = \
-                    record
-                if fonttype == 42 or num <= 255:
-                    self._setup_textpos(ox, oy, 0, oldx, oldy)
-                    oldx, oldy = ox, oy
-                    if (fontname, fontsize) != prev_font:
-                        self.file.output(self.file.fontName(fontname), fontsize,
-                                         Op.selectfont)
-                        prev_font = fontname, fontsize
-                    self.file.output(self.encode_string(unichr(num)), Op.show)
+        for ox, oy, fontname, fontsize, num, symbol_name in glyphs:
+            if fonttype == 42 or num <= 255:
+                self._setup_textpos(ox, oy, 0, oldx, oldy)
+                oldx, oldy = ox, oy
+                if (fontname, fontsize) != prev_font:
+                    self.file.output(self.file.fontName(fontname), fontsize,
+                                     Op.selectfont)
+                    prev_font = fontname, fontsize
+                self.file.output(self.encode_string(unichr(num)), Op.show)
         self.file.output(Op.end_text)
 
         # If using Type 3 fonts, render all of the two-byte characters
         # as XObjects using the 'Do' command.
         if fonttype == 3:
-            for record in pswriter:
-                if record[0] == 'glyph':
-                    rec_type, ox, oy, fontname, fontsize, num, symbol_name = \
-                        record
-                    if num > 255:
-                        self.file.output(Op.gsave,
-                                         0.001 * fontsize, 0,
-                                         0, 0.001 * fontsize,
-                                         ox, oy, Op.concat_matrix)
-                        name = self.file._get_xobject_symbol_name(
-                            fontname, symbol_name)
-                        self.file.output(Name(name), Op.use_xobject)
-                        self.file.output(Op.grestore)
+            for ox, oy, fontname, fontsize, num, symbol_name in glyphs:
+                if num > 255:
+                    self.file.output(Op.gsave,
+                                     0.001 * fontsize, 0,
+                                     0, 0.001 * fontsize,
+                                     ox, oy, Op.concat_matrix)
+                    name = self.file._get_xobject_symbol_name(
+                        fontname, symbol_name)
+                    self.file.output(Name(name), Op.use_xobject)
+                    self.file.output(Op.grestore)
 
         # Draw any horizontal lines in the math layout
-        for record in pswriter:
-            if record[0] == 'rect':
-                rec_type, ox, oy, width, height = record
-                self.file.output(Op.gsave, ox, oy, width, height, Op.rectangle, Op.fill, Op.grestore)
+        for ox, oy, width, height in rects:
+            self.file.output(Op.gsave, ox, oy, width, height,
+                             Op.rectangle, Op.fill, Op.grestore)
 
         # Pop off the global transformation
         self.file.output(Op.grestore)
@@ -1427,7 +1420,8 @@ class RendererPdf(RendererBase):
         #     s = s.encode('cp1252', 'replace')
 
         if ismath:
-            w, h, pswriter, used_characters = math_parse_s_pdf(s, 72, prop, 0)
+            w, h, glyphs, rects, used_characters = \
+                math_parse_s_pdf(s, 72, prop)
 
         elif rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
