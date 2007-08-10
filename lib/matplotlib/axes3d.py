@@ -679,8 +679,9 @@ class Axes3D:
 
     def scatter(self, xs,ys,zs=None,dir='z',*args,**kwargs):
         patches = self.wrapped.scatter(xs,ys,*args,**kwargs)
-        zs = zs or [0]*len(xs)
-        patches = art3d.wrap_patch(patches, zs=[0]*len(xs),dir=dir)
+        if zs is None:
+            zs = [0]*len(xs)
+        patches = art3d.wrap_patch(patches, zs=zs, dir=dir)
         return patches
 
     def bar(self, left, height, z=0, dir='z', *args, **kwargs):
