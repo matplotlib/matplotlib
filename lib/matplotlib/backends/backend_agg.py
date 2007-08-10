@@ -174,7 +174,7 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.draw_mathtext',
                                      'debug-annoying')
         width, height, fonts, used_characters = math_parse_s_ft2font(
-            s, self.dpi.get(), prop, angle)
+            s, self.dpi.get(), prop)
         
         if angle == 90:
             width, height = height, width
@@ -189,8 +189,6 @@ class RendererAgg(RendererBase):
                                           int(x),
                                           self.height-int(y),
                                           width, height)
-
-
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         """

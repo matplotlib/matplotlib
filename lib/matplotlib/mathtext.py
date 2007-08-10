@@ -296,22 +296,24 @@ setfont
         
 class MathtextBackendPdf(MathtextBackend):
     def __init__(self):
-        self.pswriter = []
+        self.glyphs = []
+        self.rects = []
     
     def render_glyph(self, ox, oy, info):
         filename = info.font.fname
         oy = self.height - oy + info.offset
-        self.pswriter.append(
-            ('glyph', ox, oy, filename, info.fontsize,
+        self.glyphs.append(
+            (ox, oy, filename, info.fontsize,
              info.num, info.symbol_name))
 
     def render_rect_filled(self, x1, y1, x2, y2):
-        self.pswriter.append(('rect', x1, self.height - y2, x2 - x1, y2 - y1))
+        self.rects.append((x1, self.height - y2, x2 - x1, y2 - y1))
 
     def get_results(self):
         return (self.width,
                 self.height,
-                self.pswriter,
+                self.glyphs,
+                self.rects,
                 self.fonts_object.get_used_characters())
 
 class MathtextBackendSvg(MathtextBackend):
@@ -327,7 +329,7 @@ class MathtextBackendSvg(MathtextBackend):
 
     def render_rect_filled(self, x1, y1, x2, y2):
         self.svg_rects.append(
-            (x1, self.height - y1, x2 - x1, y2 - y1))
+            (x1, self.height - y2, x2 - x1, y2 - y1))
 
     def get_results(self):
         svg_elements = Bunch(svg_glyphs = self.svg_glyphs,
@@ -336,7 +338,28 @@ class MathtextBackendSvg(MathtextBackend):
                 self.height,
                 svg_elements,
                 self.fonts_object.get_used_characters())
-        
+
+class MathtextBackendCairo(MathtextBackend):
+    def __init__(self):
+        self.glyphs = []
+        self.rects = []
+    
+    def render_glyph(self, ox, oy, info):
+        oy = oy - info.offset - self.height
+        thetext = unichr(info.num)
+        self.glyphs.append(
+            (info.font, info.fontsize, thetext, ox, oy))
+
+    def render_rect_filled(self, x1, y1, x2, y2):
+        self.rects.append(
+            (x1, y1 - self.height, x2 - x1, y2 - y1))
+
+    def get_results(self):
+        return (self.width,
+                self.height,
+                self.glyphs,
+                self.rects)
+    
 class Fonts(object):
     """
     An abstract base class for fonts that want to render mathtext
@@ -2339,21 +2362,22 @@ class math_parse_s_ft2font_common:
     _parser = None
 
     _backend_mapping = {
-        'Agg': MathtextBackendAgg,
-        'PS' : MathtextBackendPs,
-        'PDF': MathtextBackendPdf,
-        'SVG': MathtextBackendSvg
+        'Agg'   : MathtextBackendAgg,
+        'PS'    : MathtextBackendPs,
+        'PDF'   : MathtextBackendPdf,
+        'SVG'   : MathtextBackendSvg,
+        'Cairo' : MathtextBackendCairo
         }
     
     def __init__(self, output):
         self.output = output
         self.cache = {}
 
-    def __call__(self, s, dpi, prop, angle=0):
-        cacheKey = (s, dpi, hash(prop), angle)
+    def __call__(self, s, dpi, prop):
+        cacheKey = (s, dpi, hash(prop))
         if self.cache.has_key(cacheKey):
-            w, h, fontlike, used_characters = self.cache[cacheKey]
-            return w, h, fontlike, used_characters
+            result = self.cache[cacheKey]
+            return result
 
         if self.output == 'PS' and rcParams['ps.useafm']:
             font_output = StandardPsFonts(prop)
@@ -2373,14 +2397,17 @@ class math_parse_s_ft2font_common:
         h += 4
         font_output.set_canvas_size(w, h)
         ship(2, 2, box)
-        self.cache[cacheKey] = font_output.get_results()
+        result = font_output.get_results()
+        self.cache[cacheKey] = result
         # Free up the transient data structures
         self._parser.clear()
         # Remove a cyclical reference
         font_output.mathtext_backend.fonts_object = None
-        return self.cache[cacheKey]
+
+        return result
             
 math_parse_s_ft2font = math_parse_s_ft2font_common('Agg')
 math_parse_s_ft2font_svg = math_parse_s_ft2font_common('SVG')
 math_parse_s_ps = math_parse_s_ft2font_common('PS')
 math_parse_s_pdf = math_parse_s_ft2font_common('PDF')
+math_parse_s_cairo = math_parse_s_ft2font_common('Cairo')
