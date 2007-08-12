@@ -4364,7 +4364,7 @@ class Axes(martist.Artist):
         if len(args)==1:
             C = args[0]
             numRows, numCols = C.shape
-            X, Y = mlab.meshgrid(npy.arange(numCols+1), npy.arange(numRows+1) )
+            X, Y = npy.meshgrid(npy.arange(numCols+1), npy.arange(numRows+1) )
         elif len(args)==3:
             X, Y, C = args
             numRows, numCols = C.shape
@@ -4517,7 +4517,7 @@ class Axes(martist.Artist):
         if len(args)==1:
             C = args[0]
             numRows, numCols = C.shape
-            X, Y = mlab.meshgrid(npy.arange(numCols+1), npy.arange(numRows+1) )
+            X, Y = npy.meshgrid(npy.arange(numCols+1), npy.arange(numRows+1) )
         elif len(args)==3:
             X, Y, C = args
             numRows, numCols = C.shape
@@ -4630,9 +4630,8 @@ class Axes(martist.Artist):
         you can verify that with
 
           # trapezoidal integration of the probability density function
-          from matplotlib.mlab import trapz
           pdf, bins, patches = ax.hist(...)
-          print trapz(bins, pdf)
+          print npy.trapz(pdf, bins)
 
         align = 'edge' | 'center'.  Interprets bins either as edge
         or center values
@@ -4650,7 +4649,7 @@ class Axes(martist.Artist):
         %(Rectangle)s
         """
         if not self._hold: self.cla()
-        n, bins = mlab.hist(x, bins, normed)
+        n, bins = npy.histogram(x, bins, range=None, normed=normed)
         if width is None: width = 0.9*(bins[1]-bins[0])
         if orientation == 'horizontal':
             patches = self.barh(bins, n, height=width, left=bottom,
@@ -5266,7 +5265,7 @@ class PolarAxes(Axes):
         self._set_artist_props(self.title)
 
 
-        self.thetas = mlab.linspace(0, 2*math.pi, self.RESOLUTION)
+        self.thetas = npy.linspace(0, 2*math.pi, self.RESOLUTION)
 
         verts = zip(self.thetas, npy.ones(self.RESOLUTION))
         self.axesPatch = mpatches.Polygon(
@@ -5352,7 +5351,7 @@ class PolarAxes(Axes):
         for t in self.thetagridlabels:
             t.set_y(1.05*rmax)
 
-        r = mlab.linspace(0, rmax, self.RESOLUTION)
+        r = npy.linspace(0, rmax, self.RESOLUTION)
         for l in self.thetagridlines:
             l.set_ydata(r)
 
@@ -5396,7 +5395,7 @@ class PolarAxes(Axes):
         rpad = rpad * max(radii)
         cbook.popall(self.rgridlines)
 
-        theta = mlab.linspace(0., 2*math.pi, self.RESOLUTION)
+        theta = npy.linspace(0., 2*math.pi, self.RESOLUTION)
         ls = rcParams['grid.linestyle']
         color = rcParams['grid.color']
         lw = rcParams['grid.linewidth']
@@ -5462,7 +5461,7 @@ class PolarAxes(Axes):
         lw = rcParams['grid.linewidth']
 
         rmax = self.get_rmax()
-        r = mlab.linspace(0., rmax, self.RESOLUTION)
+        r = npy.linspace(0., rmax, self.RESOLUTION)
         for a in angles:
             theta = npy.ones(self.RESOLUTION)*a/180.*math.pi
             line = mlines.Line2D(
