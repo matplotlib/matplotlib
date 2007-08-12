@@ -115,7 +115,6 @@ import numpy as npy
 import matplotlib as mpl
 from matplotlib import verbose, rcParams
 from matplotlib import cbook
-from matplotlib import mlab
 from matplotlib import transforms as mtrans
 
 
@@ -780,7 +779,8 @@ class MultipleLocator(Locator):
             vmin, vmax = vmax, vmin
         vmin = self._base.ge(vmin)
         base = self._base.get_base()
-        locs =  mlab.frange(vmin, vmax+0.001*base, base)
+        n = (vmax - vmin + 0.001*base)//base
+        locs = vmin + npy.arange(n+1) * base
         return locs
 
     def autoscale(self):

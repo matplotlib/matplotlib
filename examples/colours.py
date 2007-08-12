@@ -2,14 +2,12 @@
 """
 Some simple functions to generate colours.
 """
-from matplotlib.numerix import asarray, asum
-from matplotlib.mlab import linspace
+import numpy as npy
 from matplotlib.colors import colorConverter
-from matplotlib.numerix import sum
 
 def pastel(colour, weight=2.4):
     """ Convert colour into a nice pastel shade"""
-    rgb = asarray(colorConverter.to_rgb(colour))
+    rgb = npy.asarray(colorConverter.to_rgb(colour))
     # scale colour
     maxc = max(rgb)
     if maxc < 1.0 and maxc > 0:
@@ -17,7 +15,7 @@ def pastel(colour, weight=2.4):
         scale = 1.0 / maxc
         rgb = rgb * scale
     # now decrease saturation
-    total = asum(rgb)
+    total = rgb.sum()
     slack = 0
     for x in rgb:
         slack += 1.0 - x
@@ -33,7 +31,7 @@ def pastel(colour, weight=2.4):
 
 def get_colours(n):
     """ Return n pastel colours. """
-    base = asarray([[1,0,0], [0,1,0], [0,0,1]])
+    base = npy.asarray([[1,0,0], [0,1,0], [0,0,1]])
 
     if n <= 3:
         return base[0:n]
@@ -44,7 +42,7 @@ def get_colours(n):
 
     colours = []
     for start in (0, 1):
-        for x in linspace(0, 1, needed[start]+2):
+        for x in npy.linspace(0, 1, needed[start]+2):
             colours.append((base[start] * (1.0 - x)) +
                            (base[start+1] * x))
 

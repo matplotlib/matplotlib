@@ -8,7 +8,7 @@ t = arange(0,10,dt)
 nse = randn(len(t))
 r = exp(-t/0.05)
 
-cnse = conv(nse, r)*dt
+cnse = convolve(nse, r)*dt
 cnse = cnse[:len(t)]
 s = 0.1*sin(2*pi*t) + cnse
 
