@@ -298,15 +298,16 @@ pymin, pymax = min, max
 from matplotlib.numerix.mlab import *
 min, max = pymin, pymax
 
-from matplotlib.mlab import linspace, window_hanning, window_none,\
+from matplotlib.mlab import  window_hanning, window_none,\
         conv, detrend, detrend_mean, detrend_none, detrend_linear,\
         corrcoef, polyfit, polyval, vander, entropy, normpdf,\
         levypdf, find, trapz, prepca, fix, rem, norm, orth, rank,\
-        sqrtm, prctile, center_matrix, meshgrid, rk4, exp_safe, amap,\
+        sqrtm, prctile, center_matrix, rk4, exp_safe, amap,\
         sum_flat, mean_flat, rms_flat, l1norm, l2norm, norm, frange,\
         diagonal_matrix, base_repr, binary_repr, log2, ispower2,\
         bivariate_normal, load, save, stineman_interp
 
+from numpy import meshgrid, linspace
 
 """
 problem syms

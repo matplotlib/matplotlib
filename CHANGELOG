@@ -1,24 +1,26 @@
+2007-08-11 Numpification and cleanup of mlab.py and some examples - EF
+
 2007-08-06 Removed mathtext2
 
-2007-07-31 Refactoring of distutils scripts.  
-	   - Will not fail on the entire build if an optional Python
+2007-07-31 Refactoring of distutils scripts.
+           - Will not fail on the entire build if an optional Python
              package (e.g. Tkinter) is installed but its development
              headers are not (e.g. tk-devel).  Instead, it will
              continue to build all other extensions.
-	   - Provide an overview at the top of the output to display
-	     what dependencies and their versions were found, and (by
+           - Provide an overview at the top of the output to display
+             what dependencies and their versions were found, and (by
              extension) what will be built.
            - Use pkg-config, when available, to find freetype2, since
              this was broken on Mac OS-X when using MacPorts in a non-
              standard location.
 
 2007-07-30 Reorganized configuration code to work with traited config
-           objects. The new config system is located in the 
+           objects. The new config system is located in the
            matplotlib.config package, but it is disabled by default.
            To enable it, set NEWCONFIG=True in matplotlib.__init__.py.
-           The new configuration system will still use the old 
+           The new configuration system will still use the old
            matplotlibrc files by default. To switch to the experimental,
-           traited configuration, set USE_TRAITED_CONFIG=True in 
+           traited configuration, set USE_TRAITED_CONFIG=True in
            config.__init__.py.
 
 2007-07-29 Changed default pcolor shading to flat; added aliases

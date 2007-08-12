@@ -7,19 +7,12 @@ commands with the same names.
 
     * cohere - Coherence (normalized cross spectral density)
 
-    * conv     - convolution
-
-    * corrcoef - The matrix of correlation coefficients
-
     * csd - Cross spectral density uing Welch's average periodogram
 
     * detrend -- Remove the mean or best fit line from an array
 
-    * find - Return the indices where some condition is true
-
-    * linspace -- Linear spaced array from min to max
-
-    * hist -- Histogram
+    * find - Return the indices where some condition is true;
+             numpy.nonzero is similar but more general.
 
     * polyfit - least squares best polynomial fit of x to y
 
@@ -27,21 +20,28 @@ commands with the same names.
 
     * prctile - find the percentiles of a sequence
 
-    * prepca - Principal Component's Analysis
+    * prepca - Principal Component Analysis
 
     * psd - Power spectral density uing Welch's average periodogram
 
     * rk4 - A 4th order runge kutta integrator for 1D or ND systems
 
-    * vander - the Vandermonde matrix
 
-    * trapz - trapeziodal integration
+  The following are deprecated; please import directly from numpy
+  (with care--function signatures may differ):
+    * conv     - convolution  (numpy.convolve)
+    * corrcoef - The matrix of correlation coefficients
+    * hist -- Histogram (numpy.histogram)
+    * linspace -- Linear spaced array from min to max
+    * meshgrid
+    * trapz - trapeziodal integration (trapz(x,y) -> numpy.trapz(y,x))
+    * vander - the Vandermonde matrix
 
   Functions that don't exist in matlab(TM), but are useful anyway:
 
     * cohere_pairs - Coherence over all pairs.  This is not a matlab
       function, but we compute coherence a lot in my lab, and we
-      compute it for alot of pairs.  This function is optimized to do
+      compute it for a lot of pairs.  This function is optimized to do
       this efficiently by caching the direct FFTs.
 
 Credits:
@@ -55,63 +55,54 @@ Credits:
 """
 
 from __future__ import division
-import sys, random, datetime, csv
+import sys, datetime, csv, warnings
 
 import numpy as npy
-from numpy import linspace, meshgrid
 
-from matplotlib import verbose
+from matplotlib import nxutils
+from matplotlib import cbook
 
-import numerix
-import numerix as nx
-import numerix.mlab
-from numerix import linear_algebra
-import nxutils
-
-from numerix import array, asarray, arange, divide, exp, arctan2, \
-     multiply, transpose, ravel, repeat, resize, reshape, floor, ceil,\
-     absolute, matrixmultiply, power, take, where, Float, Int, asum,\
-     dot, convolve, pi, Complex, ones, zeros, diagonal, Matrix, nonzero, \
-     log, searchsorted, concatenate, sort, ArrayType, clip, size, indices,\
-     conjugate, typecode, iscontiguous
-
-
-from numerix.mlab import hanning, cov, diff, svd, rand, std
-from numerix.fft import fft, inverse_fft
-
-from cbook import iterable, is_string_like, to_filehandle, reversed
-
+# set is a new builtin function in 2.4; delete the following when
+# support for 2.3 is dropped.
 try: set
 except NameError:
     from sets import Set as set
 
 
+def linspace(*args, **kw):
+    warnings.warn("use numpy.linspace", DeprecationWarning)
+    return npy.linspace(*args, **kw)
+
+def meshgrid(x,y):
+    warnings.warn("use numpy.meshgrid", DeprecationWarning)
+    return npy.meshgrid(x,y)
 
 def mean(x, dim=None):
-   if len(x)==0: return None
-   elif dim is None:
-      return numerix.mlab.mean(x)
-   else: return numerix.mlab.mean(x, dim)
+    warnings.warn("Use numpy.mean(x) or x.mean()", DeprecationWarning)
+    if len(x)==0: return None
+    return npy.mean(x, axis=dim)
 
 
 def logspace(xmin,xmax,N):
-    return exp(linspace(log(xmin), log(xmax),Nh))
+    return npy.exp(npy.linspace(npy.log(xmin), npy.log(xmax), N))
 
 def _norm(x):
     "return sqrt(x dot x)"
-    return numerix.mlab.sqrt(dot(x,x))
+    return npy.sqrt(npy.dot(x,x))
 
 def window_hanning(x):
     "return x times the hanning window of len(x)"
-    return hanning(len(x))*x
+    return npy.hanning(len(x))*x
 
 def window_none(x):
     "No window function; simply return x"
     return x
 
+#from numpy import convolve as conv
 def conv(x, y, mode=2):
     'convolve x with y'
-    return convolve(x,y,mode)
+    warnings.warn("Use numpy.convolve(x, y, mode='full')", DeprecationWarning)
+    return npy.convolve(x,y,mode)
 
 def detrend(x, key=None):
     if key is None or key=='constant':
@@ -119,26 +110,33 @@ def detrend(x, key=None):
     elif key=='linear':
         return detrend_linear(x)
 
+def demean(x, axis=0):
+    "Return x minus its mean along the specified axis"
+    x = npy.asarray(x)
+    if axis:
+        ind = [slice(None)] * axis
+        ind.append(npy.newaxis)
+        return x - x.mean(axis)[ind]
+    return x - x.mean(axis)
+
 def detrend_mean(x):
     "Return x minus the mean(x)"
-    return x - mean(x)
+    return x - x.mean()
 
 def detrend_none(x):
     "Return x: no detrending"
     return x
 
-def detrend_linear(x):
-    "Return x minus best fit line; 'linear' detrending "
-
-    # I'm going to regress x on xx=range(len(x)) and return x -
-    # (b*xx+a).  Now that I have polyfit working, I could convert the
-    # code here, but if it ain't broke, don't fix it!
-    xx = arange(float(len(x)))
-    X = transpose(array([xx]+[x]))
-    C = cov(X)
+def detrend_linear(y):
+    "Return y minus best fit line; 'linear' detrending "
+    # This is faster than an algorithm based on linalg.lstsq.
+    x = npy.arange(len(y), dtype=npy.float_)
+    C = npy.cov(x, y, bias=1)
     b = C[0,1]/C[0,0]
-    a = mean(x) - b*mean(xx)
-    return x-(b*xx+a)
+    a = y.mean() - b*x.mean()
+    return y - (b*x + a)
+
+
 
 def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
         window=window_hanning, noverlap=0):
@@ -148,10 +146,13 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
     is detrended by function detrend and windowed by function window.
     noperlap gives the length of the overlap between segments.  The
     absolute(fft(segment))**2 of each segment are averaged to compute Pxx,
-    with a scaling to correct for power loss due to windowing.  Fs is
-    the sampling frequency.
+    with a scaling to correct for power loss due to windowing.
 
-    -- NFFT must be a power of 2
+    Fs is the sampling frequency (samples per time unit).  It is used
+    to calculate the Fourier frequencies, freqs, in cycles per time
+    unit.
+
+    -- NFFT must be even; a power 2 is most efficient.
     -- detrend is a functions, unlike in matlab where it is a vector.
     -- window can be a function or a vector of length NFFT. To create window
        vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
@@ -166,46 +167,45 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
         Procedures, John Wiley & Sons (1986)
 
     """
-
+    # I think we could remove this condition without hurting anything.
     if NFFT % 2:
-        raise ValueError, 'NFFT must be a power of 2'
+        raise ValueError('NFFT must be even')
 
-    x = asarray(x) # make sure we're dealing with a numpy array
+    x = npy.asarray(x) # make sure we're dealing with a numpy array
 
     # zero pad x up to NFFT if it is shorter than NFFT
     if len(x)<NFFT:
         n = len(x)
-        x = resize(x, (NFFT,))
+        x = npy.resize(x, (NFFT,))    # Can't use resize method.
         x[n:] = 0
-
 
     # for real x, ignore the negative frequencies
     if npy.iscomplexobj(x): numFreqs = NFFT
     else: numFreqs = NFFT//2+1
 
-    if iterable(window):
-       assert(len(window) == NFFT)
-       windowVals = window
+    if cbook.iterable(window):
+        assert(len(window) == NFFT)
+        windowVals = window
     else:
-       windowVals = window(ones((NFFT,),typecode(x)))
+        windowVals = window(npy.ones((NFFT,),x.dtype))
     step = NFFT-noverlap
     ind = range(0,len(x)-NFFT+1,step)
     n = len(ind)
-    Pxx = zeros((numFreqs,n), float)
+    Pxx = npy.zeros((numFreqs,n), npy.float_)
     # do the ffts of the slices
     for i in range(n):
         thisX = x[ind[i]:ind[i]+NFFT]
-        thisX = windowVals*detrend(thisX)
-        fx = absolute(fft(thisX))**2
-        Pxx[:,i] = divide(fx[:numFreqs], norm(windowVals)**2)
+        thisX = windowVals * detrend(thisX)
+        fx = npy.absolute(npy.fft.fft(thisX))**2
+        Pxx[:,i] = fx[:numFreqs]
 
+    if n>1:
+        Pxx = Pxx.mean(axis=1)
     # Scale the spectrum by the norm of the window to compensate for
     # windowing loss; see Bendat & Piersol Sec 11.5.2
-    if n>1:
-       Pxx = mean(Pxx,1)
+    Pxx /= (npy.abs(windowVals)**2).sum()
 
-    freqs = Fs/NFFT*arange(numFreqs)
-    Pxx.shape = len(freqs),
+    freqs = Fs/NFFT * npy.arange(numFreqs)
 
     return Pxx, freqs
 
@@ -221,15 +221,13 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     correct for power loss due to windowing.  Fs is the sampling
     frequency.
 
-    NFFT must be a power of 2
+    NFFT must be even; a power of 2 is most efficient
 
     window can be a function or a vector of length NFFT. To create
     window vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
     scipy.signal, scipy.signal.get_window etc.
 
     Returns the tuple Pxy, freqs
-
-
 
     Refs:
       Bendat & Piersol -- Random Data: Analysis and Measurement
@@ -238,34 +236,34 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     """
 
     if NFFT % 2:
-        raise ValueError, 'NFFT must be a power of 2'
+        raise ValueError, 'NFFT must be even'
 
-    x = asarray(x) # make sure we're dealing with a numpy array
-    y = asarray(y) # make sure we're dealing with a numpy array
+    x = npy.asarray(x) # make sure we're dealing with a numpy array
+    y = npy.asarray(y) # make sure we're dealing with a numpy array
 
     # zero pad x and y up to NFFT if they are shorter than NFFT
     if len(x)<NFFT:
         n = len(x)
-        x = resize(x, (NFFT,))
+        x = npy.resize(x, (NFFT,))
         x[n:] = 0
     if len(y)<NFFT:
         n = len(y)
-        y = resize(y, (NFFT,))
+        y = npy.resize(y, (NFFT,))
         y[n:] = 0
 
     # for real x, ignore the negative frequencies
     if npy.iscomplexobj(x): numFreqs = NFFT
     else: numFreqs = NFFT//2+1
 
-    if iterable(window):
-       assert(len(window) == NFFT)
-       windowVals = window
+    if cbook.iterable(window):
+        assert(len(window) == NFFT)
+        windowVals = window
     else:
-       windowVals = window(ones((NFFT,),typecode(x)))
+        windowVals = window(npy.ones((NFFT,), x.dtype))
     step = NFFT-noverlap
     ind = range(0,len(x)-NFFT+1,step)
     n = len(ind)
-    Pxy = zeros((numFreqs,n), complex)
+    Pxy = npy.zeros((numFreqs,n), npy.complex_)
 
     # do the ffts of the slices
     for i in range(n):
@@ -273,24 +271,107 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         thisX = windowVals*detrend(thisX)
         thisY = y[ind[i]:ind[i]+NFFT]
         thisY = windowVals*detrend(thisY)
-        fx = fft(thisX)
-        fy = fft(thisY)
-        Pxy[:,i] = conjugate(fx[:numFreqs])*fy[:numFreqs]
+        fx = npy.fft.fft(thisX)
+        fy = npy.fft.fft(thisY)
+        Pxy[:,i] = npy.conjugate(fx[:numFreqs])*fy[:numFreqs]
 
 
 
     # Scale the spectrum by the norm of the window to compensate for
     # windowing loss; see Bendat & Piersol Sec 11.5.2
-    if n>1: Pxy = mean(Pxy,1)
-    Pxy = divide(Pxy, norm(windowVals)**2)
-    freqs = Fs/NFFT*arange(numFreqs)
-    Pxy.shape = len(freqs),
+    if n>1:
+        Pxy = Pxy.mean(axis=1)
+    Pxy /= (npy.abs(windowVals)**2).sum()
+    freqs = Fs/NFFT*npy.arange(numFreqs)
     return Pxy, freqs
 
+def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
+             window=window_hanning, noverlap=128):
+    """
+    Compute a spectrogram of data in x.  Data are split into NFFT
+    length segements and the PSD of each section is computed.  The
+    windowing function window is applied to each segment, and the
+    amount of overlap of each segment is specified with noverlap.
+
+    window can be a function or a vector of length NFFT. To create
+    window vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
+    scipy.signal, scipy.signal.get_window etc.
+
+    See psd for more info. (psd differs in the default overlap;
+    in returning the mean of the segment periodograms; and in not
+    returning times.)
+
+    If x is real (i.e. non-Complex) only the positive spectrum is
+    given.  If x is Complex then the complete spectrum is given.
+
+    returns:
+         Pxx -  2-D array, columns are the periodograms of
+              successive segments
+         freqs - 1-D array of frequencies corresponding to
+              the rows in Pxx
+         t - 1-D array of times corresponding to midpoints of
+              segments.
+
+    """
+    x = npy.asarray(x)
+    assert(NFFT>noverlap)
+    #if npy.log(NFFT)/npy.log(2) != int(npy.log(NFFT)/npy.log(2)):
+    #   raise ValueError, 'NFFT must be a power of 2'
+    if NFFT % 2:
+        raise ValueError('NFFT must be even')
+
+
+    # zero pad x up to NFFT if it is shorter than NFFT
+    if len(x)<NFFT:
+        n = len(x)
+        x = resize(x, (NFFT,))
+        x[n:] = 0
+
+
+    # for real x, ignore the negative frequencies
+    if npy.iscomplexobj(x):
+        numFreqs=NFFT
+    else:
+        numFreqs = NFFT//2+1
+
+    if cbook.iterable(window):
+        assert(len(window) == NFFT)
+        windowVals = npy.asarray(window)
+    else:
+        windowVals = window(npy.ones((NFFT,),x.dtype))
+    step = NFFT-noverlap
+    ind = npy.arange(0,len(x)-NFFT+1,step)
+    n = len(ind)
+    Pxx = npy.zeros((numFreqs,n), npy.float_)
+    # do the ffts of the slices
+
+    for i in range(n):
+        thisX = x[ind[i]:ind[i]+NFFT]
+        thisX = windowVals*detrend(thisX)
+        fx = npy.absolute(npy.fft.fft(thisX))**2
+        Pxx[:,i] = fx[:numFreqs]
+    # Scale the spectrum by the norm of the window to compensate for
+    # windowing loss; see Bendat & Piersol Sec 11.5.2
+    Pxx /= (npy.abs(windowVals)**2).sum()
+    t = 1/Fs*(ind+NFFT/2)
+    freqs = Fs/NFFT*npy.arange(numFreqs)
+
+    if npy.iscomplexobj(x):
+        # center the frequency range at zero
+        freqs = npy.concatenate((freqs[NFFT/2:]-Fs,freqs[:NFFT/2]))
+        Pxx   = npy.concatenate((Pxx[NFFT/2:,:],Pxx[:NFFT/2,:]),0)
+
+    return Pxx, freqs, t
+
+
+
+_coh_error = """Coherence is calculated by averaging over NFFT
+length segments.  Your signal is too short for your choice of NFFT.
+"""
 def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
            window=window_hanning, noverlap=0):
     """
-    cohere the coherence between x and y.  Coherence is the normalized
+    The coherence between x and y.  Coherence is the normalized
     cross spectral density
 
     Cxy = |Pxy|^2/(Pxx*Pyy)
@@ -305,58 +386,32 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     """
 
     if len(x)<2*NFFT:
-       raise RuntimeError('Coherence is calculated by averaging over NFFT length segments.  Your signal is too short for your choice of NFFT')
+        raise ValueError(_coh_error)
     Pxx, f = psd(x, NFFT, Fs, detrend, window, noverlap)
     Pyy, f = psd(y, NFFT, Fs, detrend, window, noverlap)
     Pxy, f = csd(x, y, NFFT, Fs, detrend, window, noverlap)
 
-    Cxy = divide(absolute(Pxy)**2, Pxx*Pyy)
-    Cxy.shape = len(f),
+    Cxy = npy.divide(npy.absolute(Pxy)**2, Pxx*Pyy)
+    Cxy.shape = (len(f),)
     return Cxy, f
 
 def corrcoef(*args):
     """
     corrcoef(X) where X is a matrix returns a matrix of correlation
-    coefficients for each numrows observations and numcols variables.
+    coefficients for the columns of X.
 
-    corrcoef(x,y) where x and y are vectors returns the matrix or
+    corrcoef(x,y) where x and y are vectors returns the matrix of
     correlation coefficients for x and y.
 
-    Numeric arrays can be real or complex
+    Numpy arrays can be real or complex
 
     The correlation matrix is defined from the covariance matrix C as
 
     r(i,j) = C[i,j] / sqrt(C[i,i]*C[j,j])
     """
-
-
-    if len(args)==2:
-        X = transpose(array([args[0]]+[args[1]]))
-    elif len(args)==1:
-        X = asarray(args[0])
-    else:
-        raise RuntimeError, 'Only expecting 1 or 2 arguments'
-
-
-    C = cov(X)
-
-    if len(args)==2:
-       d = resize(diagonal(C), (2,1))
-       denom = numerix.mlab.sqrt(matrixmultiply(d,transpose(d)))
-    else:
-       dc = diagonal(C)
-       N = len(dc)
-       shape = N,N
-       vi = resize(dc, shape)
-       denom = numerix.mlab.sqrt(vi*transpose(vi)) # element wise multiplication
-
-
-    r = divide(C,denom)
-    try: return r.real
-    except AttributeError: return r
-
-
-
+    warnings.warn("Use numpy.corrcoef", DeprecationWarning)
+    kw = dict(rowvar=False)
+    return npy.corrcoef(*args, **kw)
 
 def polyfit(x,y,N):
     """
@@ -385,6 +440,8 @@ def polyfit(x,y,N):
       p = (XT*X)^-1 * XT * y
 
     where XT is the transpose of X and -1 denotes the inverse.
+    Numerically, however, this is not a good method, so we use
+    numpy.linalg.lstsq.
 
     For more info, see
     http://mathworld.wolfram.com/LeastSquaresFittingPolynomial.html,
@@ -394,15 +451,16 @@ def polyfit(x,y,N):
     See also polyval
 
     """
-
-    x = asarray(x)+0.
-    y = asarray(y)+0.
-    y = reshape(y, (len(y),1))
-    X = Matrix(vander(x, N+1))
-    Xt = Matrix(transpose(X))
-    c = array(linear_algebra.inverse(Xt*X)*Xt*y)  # convert back to array
-    c.shape = (N+1,)
-    return c
+    x = npy.asarray(x, dtype=npy.float_)
+    #y = npy.asarray(y, dtype=npy.float_)
+    #y.shape = (len(y),1)
+    #X = npy.matrix(npy.vander(x, N+1))
+    #Xt = npy.matrix(X.transpose())
+    #c = npy.array(npy.linalg.inv(Xt*X)*Xt*y)  # convert back to array
+    #c.shape = (N+1,)
+    #return c
+    X = npy.vander(x, N+1)
+    return npy.linalg.lstsq(X, y)[0]
 
 
 
@@ -423,11 +481,11 @@ def polyval(p,x):
     See also polyfit
 
     """
-    x = asarray(x)+0.
-    p = reshape(p, (len(p),1))
-    X = vander(x,len(p))
-    y =  matrixmultiply(X,p)
-    return reshape(y, x.shape)
+    x = npy.asarray(x, dtype=npy.float_)
+    p = npy.asarray(p, dtype=npy.float_).reshape((len(p),1))
+    X = npy.vander(x,len(p))
+    y =  npy.dot(X,p)
+    return y.reshape(x.shape)
 
 
 def vander(x,N=None):
@@ -439,12 +497,8 @@ def vander(x,N=None):
     None it defaults to len(x).
 
     """
-    if N is None: N=len(x)
-    X = ones( (len(x),N), typecode(x))
-    for i in range(N-1):
-        X[:,i] = x**(N-i-1)
-    return X
-
+    warnings.warn("Use numpy.vander()", DeprecationWarning)
+    return npy.vander(x, N)
 
 
 def donothing_callback(*args):
@@ -523,7 +577,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     # zero pad if X is too short
     if numRows < NFFT:
         tmp = X
-        X = zeros( (NFFT, numCols), typecode(X))
+        X = npy.zeros( (NFFT, numCols), X.dtype)
         X[:numRows,:] = tmp
         del tmp
 
@@ -544,11 +598,11 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     # cache the FFT of every windowed, detrended NFFT length segement
     # of every channel.  If preferSpeedOverMemory, cache the conjugate
     # as well
-    if iterable(window):
-       assert(len(window) == NFFT)
-       windowVals = window
+    if cbook.iterable(window):
+        assert(len(window) == NFFT)
+        windowVals = window
     else:
-       windowVals = window(ones((NFFT,), typecode(X)))
+        windowVals = window(npy.ones((NFFT,), typecode(X)))
     ind = range(0, numRows-NFFT+1, NFFT-noverlap)
     numSlices = len(ind)
     FFTSlices = {}
@@ -558,7 +612,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     normVal = norm(windowVals)**2
     for iCol in allColumns:
         progressCallback(i/Ncols, 'Cacheing FFTs')
-        Slices = zeros( (numSlices,numFreqs), complex)
+        Slices = npy.zeros( (numSlices,numFreqs), dtype=npy.complex_)
         for iSlice in slices:
             thisSlice = X[ind[iSlice]:ind[iSlice]+NFFT, iCol]
             thisSlice = windowVals*detrend(thisSlice)
@@ -567,7 +621,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         FFTSlices[iCol] = Slices
         if preferSpeedOverMemory:
             FFTConjSlices[iCol] = conjugate(Slices)
-        Pxx[iCol] = divide(mean(absolute(Slices)**2), normVal)
+        Pxx[iCol] = npy.divide(npy.mean(absolute(Slices)**2), normVal)
     del Slices, ind, windowVals
 
     # compute the coherences and phases for all pairs using the
@@ -584,46 +638,44 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         if preferSpeedOverMemory:
             Pxy = FFTSlices[i] * FFTConjSlices[j]
         else:
-            Pxy = FFTSlices[i] * conjugate(FFTSlices[j])
-        if numSlices>1: Pxy = mean(Pxy)
-        Pxy = divide(Pxy, normVal)
-        Cxy[(i,j)] = divide(absolute(Pxy)**2, Pxx[i]*Pxx[j])
-        Phase[(i,j)] =  arctan2(Pxy.imag, Pxy.real)
+            Pxy = FFTSlices[i] * npy.conjugate(FFTSlices[j])
+        if numSlices>1: Pxy = npy.mean(Pxy)
+        Pxy = npy.divide(Pxy, normVal)
+        Cxy[(i,j)] = npy.divide(npy.absolute(Pxy)**2, Pxx[i]*Pxx[j])
+        Phase[(i,j)] =  npy.arctan2(Pxy.imag, Pxy.real)
 
-    freqs = Fs/NFFT*arange(numFreqs)
+    freqs = Fs/NFFT*npy.arange(numFreqs)
     if returnPxx:
-       return Cxy, Phase, freqs, Pxx
+        return Cxy, Phase, freqs, Pxx
     else:
-       return Cxy, Phase, freqs
+        return Cxy, Phase, freqs
 
 
 
 def entropy(y, bins):
-   """
-   Return the entropy of the data in y
+    """
+    Return the entropy of the data in y
 
-   \sum p_i log2(p_i) where p_i is the probability of observing y in
-   the ith bin of bins.  bins can be a number of bins or a range of
-   bins; see hist
+    \sum p_i log2(p_i) where p_i is the probability of observing y in
+    the ith bin of bins.  bins can be a number of bins or a range of
+    bins; see numpy.histogram
 
-   Compare S with analytic calculation for a Gaussian
-   x = mu + sigma*randn(200000)
-   Sanalytic = 0.5  * ( 1.0 + log(2*pi*sigma**2.0) )
+    Compare S with analytic calculation for a Gaussian
+    x = mu + sigma*randn(200000)
+    Sanalytic = 0.5  * ( 1.0 + log(2*pi*sigma**2.0) )
 
-   """
+    """
+    n,bins = npy.histogram(y, bins)
+    n = n.astype(npy.float_)
 
+    n = npy.take(n, npy.nonzero(n)[0])         # get the positive
 
-   n,bins = hist(y, bins)
-   n = n.astype(float)
+    p = npy.divide(n, len(y))
 
-   n = npy.take(n, npy.nonzero(n)[0])         # get the positive
-
-   p = divide(n, len(y))
-
-   delta = bins[1]-bins[0]
-   S = -1.0*asum(p*log(p)) + log(delta)
-   #S = -1.0*asum(p*log(p))
-   return S
+    delta = bins[1]-bins[0]
+    S = -1.0*npy.sum(p*log(p)) + log(delta)
+    #S = -1.0*npy.sum(p*log(p))
+    return S
 
 def hist(y, bins=10, normed=0):
     """
@@ -638,226 +690,174 @@ def hist(y, bins=10, normed=0):
     If y has rank>1, it will be raveled.  If y is masked, only
     the unmasked values will be used.
     Credits: the Numeric 22 documentation
-
-
-
     """
-    if hasattr(y, 'compressed'):
-        y = y.compressed()
-    else:
-        y = asarray(y)
-        if len(y.shape)>1: y = ravel(y)
-
-    if not iterable(bins):
-        ymin, ymax = min(y), max(y)
-        if ymin==ymax:
-            ymin -= 0.5
-            ymax += 0.5
-
-        if bins==1: bins=ymax
-        dy = (ymax-ymin)/bins
-        bins = ymin + dy*arange(bins)
-
-
-    n = searchsorted(sort(y), bins)
-    n = diff(concatenate([n, [len(y)]]))
-    if normed:
-       db = bins[1]-bins[0]
-       return 1/(len(y)*db)*n, bins
-    else:
-       return n, bins
-
+    warnings.warn("Use numpy.histogram()", DeprecationWarning)
+    return npy.histogram(y, bins=bins, range=None, normed=normed)
 
 def normpdf(x, *args):
-   "Return the normal pdf evaluated at x; args provides mu, sigma"
-   mu, sigma = args
-   return 1/(numerix.mlab.sqrt(2*pi)*sigma)*exp(-0.5 * (1/sigma*(x - mu))**2)
+    "Return the normal pdf evaluated at x; args provides mu, sigma"
+    mu, sigma = args
+    return 1/(npy.sqrt(2*npy.pi)*sigma)*npy.exp(-0.5 * (1/sigma*(x - mu))**2)
 
 
 def levypdf(x, gamma, alpha):
-   "Returm the levy pdf evaluated at x for params gamma, alpha"
+    "Returm the levy pdf evaluated at x for params gamma, alpha"
 
-   N = len(x)
+    N = len(x)
 
-   if N%2 != 0:
-      raise ValueError, 'x must be an event length array; try\n' + \
-            'x = linspace(minx, maxx, N), where N is even'
-
-
-   dx = x[1]-x[0]
+    if N%2 != 0:
+        raise ValueError, 'x must be an event length array; try\n' + \
+              'x = npy.linspace(minx, maxx, N), where N is even'
 
 
-   f = 1/(N*dx)*arange(-N/2, N/2, float)
-
-   ind = concatenate([arange(N/2, N, int),
-                      arange(0, N/2, int)])
-   df = f[1]-f[0]
-   cfl = exp(-gamma*absolute(2*pi*f)**alpha)
-
-   px = fft(take(cfl,ind)*df).astype(float)
-   return take(px, ind)
+    dx = x[1]-x[0]
 
 
+    f = 1/(N*dx)*npy.arange(-N/2, N/2, npy.float_)
 
+    ind = npy.concatenate([npy.arange(N/2, N, int),
+                           npy.arange(0, N/2, int)])
+    df = f[1]-f[0]
+    cfl = exp(-gamma*npy.absolute(2*pi*f)**alpha)
 
+    px = npy.fft.fft(npy.take(cfl,ind)*df).astype(npy.float_)
+    return npy.take(px, ind)
 
 
 def find(condition):
-   "Return the indices where condition is true"
-   res, = npy.nonzero(condition)
-   return res
-
-
+    "Return the indices where ravel(condition) is true"
+    res, = npy.nonzero(npy.ravel(condition))
+    return res
 
 def trapz(x, y):
-   if len(x)!=len(y):
-      raise ValueError, 'x and y must have the same length'
-   if len(x)<2:
-      raise ValueError, 'x and y must have > 1 element'
-   return asum(0.5*diff(x)*(y[1:]+y[:-1]))
+    """
+    Trapezoidal integral of y(x).
+    """
+    warnings.warn("Use numpy.trapz(y,x) instead of trapz(x,y)", DeprecationWarning)
+    return npy.trapz(y, x)
+    #if len(x)!=len(y):
+    #    raise ValueError, 'x and y must have the same length'
+    #if len(x)<2:
+    #    raise ValueError, 'x and y must have > 1 element'
+    #return npy.sum(0.5*npy.diff(x)*(y[1:]+y[:-1]))
 
 
 
 def longest_contiguous_ones(x):
     """
-    return the indicies of the longest stretch of contiguous ones in x,
+    return the indices of the longest stretch of contiguous ones in x,
     assuming x is a vector of zeros and ones.
+    If there are two equally long stretches, pick the first
+
     """
-    if len(x)==0: return array([])
+    x = npy.ravel(x)
+    if len(x)==0:
+        return npy.array([])
 
-    ind = find(x==0)
-    if len(ind)==0:  return arange(len(x))
-    if len(ind)==len(x): return array([])
+    ind = (x==0).nonzero()[0]
+    if len(ind)==0:
+        return npy.arange(len(x))
+    if len(ind)==len(x):
+        return npy.array([])
 
-    y = zeros( (len(x)+2,),  typecode(x))
+    y = npy.zeros( (len(x)+2,), x.dtype)
     y[1:-1] = x
-    dif = diff(y)
-    up = find(dif ==  1);
-    dn = find(dif == -1);
-    ind = find( dn-up == max(dn - up))
-    ind = arange(take(up, ind), take(dn, ind))
+    dif = npy.diff(y)
+    up = (dif ==  1).nonzero()[0];
+    dn = (dif == -1).nonzero()[0];
+    i = (dn-up == max(dn - up)).nonzero()[0][0]
+    ind = npy.arange(up[i], dn[i])
 
     return ind
-
 
 def longest_ones(x):
-    """
-    return the indicies of the longest stretch of contiguous ones in x,
-    assuming x is a vector of zeros and ones.
-
-    If there are two equally long stretches, pick the first
-    """
-    x = asarray(x)
-    if len(x)==0: return array([])
-
-    #print 'x', x
-    ind = find(x==0)
-    if len(ind)==0:  return arange(len(x))
-    if len(ind)==len(x): return array([])
-
-    y = zeros( (len(x)+2,), int)
-    y[1:-1] = x
-    d = diff(y)
-    #print 'd', d
-    up = find(d ==  1);
-    dn = find(d == -1);
-
-    #print 'dn', dn, 'up', up,
-    ind = find( dn-up == max(dn - up))
-    # pick the first
-    if iterable(ind): ind = ind[0]
-    ind = arange(up[ind], dn[ind])
-
-    return ind
+    '''alias for longest_contiguous_ones'''
+    return longest_contiguous_ones(x)
 
 def prepca(P, frac=0):
     """
     Compute the principal components of P.  P is a numVars x
-    numObservations numeric array.  frac is the minimum fraction of
-    variance that a component must contain to be included
+    numObs array.  frac is the minimum fraction of
+    variance that a component must contain to be included.
 
     Return value are
-    Pcomponents : a num components x num observations numeric array
+    Pcomponents : a numVars x numObs array
     Trans       : the weights matrix, ie, Pcomponents = Trans*P
     fracVar     : the fraction of the variance accounted for by each
                   component returned
-    """
-    U,s,v = svd(P)
-    varEach = s**2/P.shape[1]
-    totVar = asum(varEach)
-    fracVar = divide(varEach,totVar)
-    ind = int(asum(fracVar>=frac))
 
+    A similar function of the same name was in the Matlab (TM)
+    R13 Neural Network Toolbox but is not found in later versions;
+    its successor seems to be called "processpcs".
+    """
+    U,s,v = npy.linalg.svd(P)
+    varEach = s**2/P.shape[1]
+    totVar = varEach.sum()
+    fracVar = varEach/totVar
+    ind = slice((fracVar>=frac).sum())
     # select the components that are greater
-    Trans = transpose(U[:,:ind])
+    Trans = U[:,ind].transpose()
     # The transformed data
-    Pcomponents = matrixmultiply(Trans,P)
-    return Pcomponents, Trans, fracVar[:ind]
+    Pcomponents = npy.dot(Trans,P)
+    return Pcomponents, Trans, fracVar[ind]
 
 def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
     """
     Return the percentiles of x.  p can either be a sequence of
-    percentil values or a scalar.  If p is a sequence the i-th element
-    of the return sequence is the p(i)-th percentile of x
-
+    percentile values or a scalar.  If p is a sequence the i-th element
+    of the return sequence is the p(i)-th percentile of x.
+    If p is a scalar, the largest value of x less than or equal
+    to the p percentage point in the sequence is returned.
     """
-    x = sort(ravel(x))
+    x = npy.ravel(x)
+    x.sort()
     Nx = len(x)
 
-    if not iterable(p):
+    if not cbook.iterable(p):
         return x[int(p*Nx/100.0)]
 
-    p = multiply(array(p), Nx/100.0)
+    p = npy.asarray(p)* Nx/100.0
     ind = p.astype(int)
-    ind = where(ind>=Nx, Nx-1, ind)
-    return take(x, ind)
+    ind = npy.where(ind>=Nx, Nx-1, ind)
+    return x.take(ind)
 
 def prctile_rank(x, p):
-   """
-   return the for each element in x, return the rank 0..len(p) .  Eg
-   if p=(25, 50, 75), the return value will be a len(x) array with
-   values in [0,1,2,3] where 0 indicates the value is less than the
-   25th percentile, 1 indicates the value is >= the 25th and < 50th
-   percentile, ... and 3 indicates the value is above the 75th
-   percentile cutoff
+    """
+    return the for each element in x, return the rank 0..len(p) .  Eg
+    if p=(25, 50, 75), the return value will be a len(x) array with
+    values in [0,1,2,3] where 0 indicates the value is less than the
+    25th percentile, 1 indicates the value is >= the 25th and < 50th
+    percentile, ... and 3 indicates the value is above the 75th
+    percentile cutoff
 
-   p is either an array of percentiles in [0..100] or a scalar which
-   indicates how many quantiles of data you want ranked
-   """
+    p is either an array of percentiles in [0..100] or a scalar which
+    indicates how many quantiles of data you want ranked
+    """
 
-   if not iterable(p):
-      p = nx.arange(100./p, 100., 100./p)
+    if not cbook.iterable(p):
+        p = npy.arange(100.0/p, 100.0, 100.0/p)
+    else:
+        p = npy.asarray(p)
 
-   if max(p)<=1 or min(p)<0 or max(p)>100:
-      raise ValueError('percentiles should be in range 0..100, not 0..1')
+    if p.max()<=1 or p.min()<0 or p.max()>100:
+        raise ValueError('percentiles should be in range 0..100, not 0..1')
 
-   ptiles = prctile(x, p)
-   return nx.searchsorted(ptiles, x)
+    ptiles = prctile(x, p)
+    return npy.searchsorted(ptiles, x)
 
 def center_matrix(M, dim=0):
     """
     Return the matrix M with each row having zero mean and unit std
 
-    if dim=1, center columns rather than rows
+    if dim=1 operate on columns instead of rows.  (dim is opposite
+    to the numpy axis kwarg.)
     """
-    # todo: implement this w/o loop.  Allow optional arg to specify
-    # dimension to remove the mean from
-    if dim==1: M = transpose(M)
-    M = array(M, float)
-    if len(M.shape)==1 or M.shape[0]==1 or M.shape[1]==1:
-       M = M-mean(M)
-       sigma = std(M)
-       if sigma>0:
-          M = divide(M, sigma)
-       if dim==1: M=transpose(M)
-       return M
-
-    for i in range(M.shape[0]):
-        M[i] -= mean(M[i])
-        sigma = std(M[i])
-        if sigma>0:
-           M[i] = divide(M[i], sigma)
-    if dim==1: M=transpose(M)
+    M = npy.asarray(M, npy.float_)
+    if dim:
+        M = (M - M.mean(axis=0)) / M.std(axis=0)
+    else:
+        M = (M - M.mean(axis=1)[:,npy.newaxis])
+        M = M / M.std(axis=1)[:,npy.newaxis]
     return M
 
 
@@ -895,100 +895,34 @@ def rk4(derivs, y0, t):
 
 
     If you have access to scipy, you should probably be using the
-    scipy.integrate tools rather than this function
+    scipy.integrate tools rather than this function.
 
     """
 
     try: Ny = len(y0)
     except TypeError:
-        yout = zeros( (len(t),), float)
+        yout = npy.zeros( (len(t),), npy.float_)
     else:
-        yout = zeros( (len(t), Ny), float)
+        yout = npy.zeros( (len(t), Ny), npy.float_)
 
 
     yout[0] = y0
     i = 0
 
-    for i in arange(len(t)-1):
+    for i in npy.arange(len(t)-1):
 
         thist = t[i]
         dt = t[i+1] - thist
         dt2 = dt/2.0
         y0 = yout[i]
 
-        k1 = asarray(derivs(y0, thist))
-        k2 = asarray(derivs(y0 + dt2*k1, thist+dt2))
-        k3 = asarray(derivs(y0 + dt2*k2, thist+dt2))
-        k4 = asarray(derivs(y0 + dt*k3, thist+dt))
+        k1 = npy.asarray(derivs(y0, thist))
+        k2 = npy.asarray(derivs(y0 + dt2*k1, thist+dt2))
+        k3 = npy.asarray(derivs(y0 + dt2*k2, thist+dt2))
+        k4 = npy.asarray(derivs(y0 + dt*k3, thist+dt))
         yout[i+1] = y0 + dt/6.0*(k1 + 2*k2 + 2*k3 + k4)
     return yout
 
-
-
-
-def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
-             window=window_hanning, noverlap=128):
-    """
-    Compute a spectrogram of data in x.  Data are split into NFFT
-    length segements and the PSD of each section is computed.  The
-    windowing function window is applied to each segment, and the
-    amount of overlap of each segment is specified with noverlap.
-
-    window can be a function or a vector of length NFFT. To create
-    window vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
-    scipy.signal, scipy.signal.get_window etc.
-
-
-    See pdf for more info.
-
-    If x is real (i.e. non-Complex) only the positive spectrum is
-    given.  If x is Complex then the complete spectrum is given.
-
-    The returned times are the midpoints of the intervals over which
-    the ffts are calculated
-    """
-    x = asarray(x)
-    assert(NFFT>noverlap)
-    if log(NFFT)/log(2) != int(log(NFFT)/log(2)):
-       raise ValueError, 'NFFT must be a power of 2'
-
-    # zero pad x up to NFFT if it is shorter than NFFT
-    if len(x)<NFFT:
-        n = len(x)
-        x = resize(x, (NFFT,))
-        x[n:] = 0
-
-
-    # for real x, ignore the negative frequencies
-    if npy.iscomplexobj(x): numFreqs=NFFT
-    else: numFreqs = NFFT//2+1
-
-    if iterable(window):
-       assert(len(window) == NFFT)
-       windowVals = window
-    else:
-       windowVals = window(ones((NFFT,),typecode(x)))
-    step = NFFT-noverlap
-    ind = arange(0,len(x)-NFFT+1,step)
-    n = len(ind)
-    Pxx = zeros((numFreqs,n), float)
-    # do the ffts of the slices
-
-    for i in range(n):
-        thisX = x[ind[i]:ind[i]+NFFT]
-        thisX = windowVals*detrend(thisX)
-        fx = absolute(fft(thisX))**2
-        # Scale the spectrum by the norm of the window to compensate for
-        # windowing loss; see Bendat & Piersol Sec 11.5.2
-        Pxx[:,i] = divide(fx[:numFreqs], norm(windowVals)**2)
-    t = 1/Fs*(ind+NFFT/2)
-    freqs = Fs/NFFT*arange(numFreqs)
-
-    if npy.iscomplexobj(x):
-       freqs = concatenate((freqs[NFFT/2:]-Fs,freqs[:NFFT/2]))
-       Pxx   = concatenate((Pxx[NFFT/2:,:],Pxx[:NFFT/2,:]),0)
-
-    return Pxx, freqs, t
 
 def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,
                      mux=0.0, muy=0.0, sigmaxy=0.0):
@@ -1002,7 +936,8 @@ def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,
 
     rho = sigmaxy/(sigmax*sigmay)
     z = Xmu**2/sigmax**2 + Ymu**2/sigmay**2 - 2*rho*Xmu*Ymu/(sigmax*sigmay)
-    return 1.0/(2*pi*sigmax*sigmay*numerix.mlab.sqrt(1-rho**2)) * exp( -z/(2*(1-rho**2)))
+    denom = 2*npy.pi*sigmax*sigmay*npy.sqrt(1-rho**2)
+    return npy.exp( -z/(2*(1-rho**2))) / denom
 
 
 
@@ -1014,37 +949,22 @@ def get_xyz_where(Z, Cond):
     where x and y are the indices into Z and z are the values of Z at
     those indices.  x,y,z are 1D arrays
     """
-
-    M,N = Z.shape
-    z = ravel(Z)
-    ind, = npy.nonzero( ravel(Cond) )
-
-    x = arange(M); x.shape = M,1
-    X = repeat(x, N, 1)
-    x = ravel(X)
-
-    y = arange(N); y.shape = 1,N
-    Y = repeat(y, M)
-    y = ravel(Y)
-
-    x = take(x, ind)
-    y = take(y, ind)
-    z = take(z, ind)
-    return x,y,z
+    X,Y = npy.indices(z.shape)
+    return X[Cond], Y[Cond], Z[Cond]
 
 def get_sparse_matrix(M,N,frac=0.1):
     'return a MxN sparse matrix with frac elements randomly filled'
-    data = zeros((M,N))*0.
+    data = npy.zeros((M,N))*0.
     for i in range(int(M*N*frac)):
-        x = random.randint(0,M-1)
-        y = random.randint(0,N-1)
-        data[x,y] = rand()
+        x = npy.random.randint(0,M-1)
+        y = npy.random.randint(0,N-1)
+        data[x,y] = npy.random.rand()
     return data
 
 def dist(x,y):
     'return the distance between two points'
     d = x-y
-    return numerix.mlab.sqrt(dot(d,d))
+    return npy.sqrt(npy.dot(d,d))
 
 def dist_point_to_segment(p, s0, s1):
     """
@@ -1055,17 +975,17 @@ def dist_point_to_segment(p, s0, s1):
     This algorithm from
     http://softsurfer.com/Archive/algorithm_0102/algorithm_0102.htm#Distance%20to%20Ray%20or%20Segment
     """
-    p = asarray(p, float)
-    s0 = asarray(s0, float)
-    s1 = asarray(s1, float)
+    p = npy.asarray(p, npy.float_)
+    s0 = npy.asarray(s0, npy.float_)
+    s1 = npy.asarray(s1, npy.float_)
     v = s1 - s0
     w = p - s0
 
-    c1 = dot(w,v);
+    c1 = npy.dot(w,v);
     if ( c1 <= 0 ):
         return dist(p, s0);
 
-    c2 = dot(v,v)
+    c2 = npy.dot(v,v)
     if ( c2 <= c1 ):
         return dist(p, s1);
 
@@ -1076,7 +996,7 @@ def dist_point_to_segment(p, s0, s1):
 def segments_intersect(s1, s2):
     """
     Return True if s1 and s2 intersect.
-    s1 and s2 are defines as
+    s1 and s2 are defined as
 
     s1: (x1, y1), (x2, y2)
     s2: (x3, y3), (x4, y4)
@@ -1104,29 +1024,33 @@ def fftsurr(x, detrend=detrend_none, window=window_none):
     """
     Compute an FFT phase randomized surrogate of x
     """
-    if iterable(window):
-       x=window*detrend(x)
+    if cbook.iterable(window):
+        x=window*detrend(x)
     else:
-       x = window(detrend(x))
-    z = fft(x)
-    a = 2.*pi*1j
-    phase = a*rand(len(x))
-    z = z*exp(phase)
-    return inverse_fft(z).real
+        x = window(detrend(x))
+    z = npy.fft.fft(x)
+    a = 2.*npy.pi*1j
+    phase = a * npy.random.rand(len(x))
+    z = z*npy.exp(phase)
+    return npy.fft.ifft(z).real
 
 
 def liaupunov(x, fprime):
-   """
-   x is a very long trajectory from a map, and fprime returns the
-   derivative of x.  Return lambda = 1/n\sum ln|fprime(x_i)|.  See Sec
-   10.5 Strogatz (1994)"Nonlinear Dynamics and Chaos".
-   """
-   return mean(log(fprime(x)))
+    """
+    x is a very long trajectory from a map, and fprime returns the
+    derivative of x.  Return lambda = 1/n\sum ln|fprime(x_i)|.  See Sec
+    10.5 Strogatz (1994)"Nonlinear Dynamics and Chaos".
+    See also http://en.wikipedia.org/wiki/Lyapunov_exponent.
+    What the function here calculates may not be what you really want;
+    caveat emptor.
+    It also seems that this function's name is badly misspelled.
+    """
+    return npy.mean(npy.log(npy.absolute(fprime(x))))
 
 class FIFOBuffer:
     """
     A FIFO queue to hold incoming x, y data in a rotating buffer using
-    numerix arrrays under the hood.  It is assumed that you will call
+    numpy arrays under the hood.  It is assumed that you will call
     asarrays much less frequently than you add data to the queue --
     otherwise another data structure will be faster
 
@@ -1138,13 +1062,15 @@ class FIFOBuffer:
     the dataLim will be updated as new data come in
 
     TODI: add a grow method that will extend nmax
+
+    mlab seems like the wrong place for this class.
     """
     def __init__(self, nmax):
         'buffer up to nmax points'
-        self._xa = nx.zeros((nmax,), typecode=float)
-        self._ya = nx.zeros((nmax,), typecode=float)
-        self._xs = nx.zeros((nmax,), typecode=float)
-        self._ys = nx.zeros((nmax,), typecode=float)
+        self._xa = npy.zeros((nmax,), npy.float_)
+        self._ya = npy.zeros((nmax,), npy.float_)
+        self._xs = npy.zeros((nmax,), npy.float_)
+        self._ys = npy.zeros((nmax,), npy.float_)
         self._ind = 0
         self._nmax = nmax
         self.dataLim = None
@@ -1157,17 +1083,17 @@ class FIFOBuffer:
     def add(self, x, y):
         'add scalar x and y to the queue'
         if self.dataLim is not None:
-           xys = ((x,y),)
-           self.dataLim.update(xys, -1) #-1 means use the default ignore setting
+            xys = ((x,y),)
+            self.dataLim.update(xys, -1) #-1 means use the default ignore setting
         ind = self._ind % self._nmax
         #print 'adding to fifo:', ind, x, y
         self._xs[ind] = x
         self._ys[ind] = y
 
         for N,funcs in self.callbackd.items():
-           if (self._ind%N)==0:
-              for func in funcs:
-                 func(self)
+            if (self._ind%N)==0:
+                for func in funcs:
+                    func(self)
 
         self._ind += 1
 
@@ -1202,14 +1128,9 @@ class FIFOBuffer:
 
 def movavg(x,n):
     'compute the len(n) moving average of x'
-    n = int(n)
-    N = len(x)
-    assert(N>n)
-    y = zeros(N-(n-1),float)
-    for i in range(n):
-       y += x[i:N-(n-1)+i]
-    y /= float(n)
-    return y
+    w = npy.empty((n,), dtype=npy.float_)
+    w[:] = 1.0/n
+    return npy.convolve(x, w, mode='valid')
 
 def save(fname, X, fmt='%.18e',delimiter=' '):
     """
@@ -1231,7 +1152,7 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
     comma-separated values
     """
 
-    if is_string_like(fname):
+    if cbook.is_string_like(fname):
         if fname.endswith('.gz'):
             import gzip
             fh = gzip.open(fname,'wb')
@@ -1243,9 +1164,9 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
         raise ValueError('fname must be a string or file handle')
 
 
-    X = asarray(X)
+    X = npy.asarray(X)
     origShape = None
-    if len(X.shape)==1:
+    if X.ndim == 1:
         origShape = X.shape
         X.shape = len(X), 1
     for row in X:
@@ -1267,8 +1188,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     fname can be a filename or a file handle.  Support for gzipped files is
     automatic, if the filename ends in .gz
 
-    matfile data is not currently supported, but see
-    Nigel Wade's matfile ftp://ion.le.ac.uk/matfile/matfile.tar.gz
+    matfile data is not supported; use scipy.io.mio module
 
     Example usage:
 
@@ -1308,7 +1228,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     """
 
     if converters is None: converters = {}
-    fh = to_filehandle(fname)
+    fh = cbook.to_filehandle(fname)
     X = []
 
     converterseq = None
@@ -1317,20 +1237,22 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
         line = line[:line.find(comments)].strip()
         if not len(line): continue
         if converterseq is None:
-           converterseq = [converters.get(j,float) for j,val in enumerate(line.split(delimiter))]
+            converterseq = [converters.get(j,float)
+                               for j,val in enumerate(line.split(delimiter))]
         if usecols is not None:
             vals = line.split(delimiter)
             row = [converterseq[j](vals[j]) for j in usecols]
         else:
-            row = [converterseq[j](val) for j,val in enumerate(line.split(delimiter))]
+            row = [converterseq[j](val)
+                      for j,val in enumerate(line.split(delimiter))]
         thisLen = len(row)
         X.append(row)
 
-    X = array(X, float)
+    X = npy.array(X, npy.float_)
     r,c = X.shape
     if r==1 or c==1:
-        X.shape = max([r,c]),
-    if unpack: return transpose(X)
+        X.shape = max(r,c),
+    if unpack: X.transpose()
     else:  return X
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
@@ -1360,11 +1282,8 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
     converterd, if not None, is a dictionary mapping column number or
     munged column name to a converter function
 
-
     See examples/loadrec.py
     """
-
-
 
     if converterd is None:
         converterd = dict()
@@ -1372,8 +1291,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
     import dateutil.parser
     parsedate = dateutil.parser.parse
 
-
-    fh = to_filehandle(fname)
+    fh = cbook.to_filehandle(fname)
     reader = csv.reader(fh, delimiter=delimiter)
 
     def process_skiprows(reader):
@@ -1384,8 +1302,6 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
         return fh, reader
 
     process_skiprows(reader)
-
-
 
 
     def get_func(item, func):
@@ -1420,9 +1336,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
                 converters[j] = func
         return converters
 
-
     # Get header and remove invalid characters
-
     needheader = names is None
     if needheader:
         headers = reader.next()
@@ -1444,8 +1358,6 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
             else:
                 names.append(item)
             seen[item] = cnt+1
-
-
 
     # get the converter functions by inspecting checkrows
     converters = get_converters(reader)
@@ -1497,10 +1409,10 @@ def slopes(x,y):
     Icelandic Meteorological Office, March 2006 halldor at vedur.is)
     """
     # Cast key variables as float.
-    x=nx.asarray(x, float)
-    y=nx.asarray(y, float)
+    x=npy.asarray(x, npy.float_)
+    y=npy.asarray(y, npy.float_)
 
-    yp=nx.zeros(y.shape, float)
+    yp=npy.zeros(y.shape, npy.float_)
 
     dx=x[1:] - x[:-1]
     dy=y[1:] - y[:-1]
@@ -1529,7 +1441,7 @@ def stineman_interp(xi,x,y,yp=None):
     The interpolation method is described in the article A
     CONSISTENTLY WELL BEHAVED METHOD OF INTERPOLATION by Russell
     W. Stineman. The article appeared in the July 1980 issue of
-    Creative computing with a note from the editor stating that while
+    Creative Computing with a note from the editor stating that while
     they were
 
       not an academic journal but once in a while something serious
@@ -1555,18 +1467,18 @@ def stineman_interp(xi,x,y,yp=None):
     """
 
     # Cast key variables as float.
-    x=nx.asarray(x, float)
-    y=nx.asarray(y, float)
+    x=npy.asarray(x, npy.float_)
+    y=npy.asarray(y, npy.float_)
     assert x.shape == y.shape
     N=len(y)
 
     if yp is None:
         yp = slopes(x,y)
     else:
-        yp=nx.asarray(yp, float)
+        yp=npy.asarray(yp, npy.float_)
 
-    xi=nx.asarray(xi, float)
-    yi=nx.zeros(xi.shape, float)
+    xi=npy.asarray(xi, npy.float_)
+    yi=npy.zeros(xi.shape, npy.float_)
 
     # calculate linear slopes
     dx = x[1:] - x[:-1]
@@ -1575,83 +1487,39 @@ def stineman_interp(xi,x,y,yp=None):
 
     # find the segment each xi is in
     # this line actually is the key to the efficiency of this implementation
-    idx = nx.searchsorted(x[1:-1], xi)
+    idx = npy.searchsorted(x[1:-1], xi)
 
     # now we have generally: x[idx[j]] <= xi[j] <= x[idx[j]+1]
     # except at the boundaries, where it may be that xi[j] < x[0] or xi[j] > x[-1]
 
     # the y-values that would come out from a linear interpolation:
-    sidx = nx.take(s, idx)
-    xidx = nx.take(x, idx)
-    yidx = nx.take(y, idx)
-    xidxp1 = nx.take(x, idx+1)
+    sidx = s.take(idx)
+    xidx = x.take(idx)
+    yidx = y.take(idx)
+    xidxp1 = x.take(idx+1)
     yo = yidx + sidx * (xi - xidx)
 
     # the difference that comes when using the slopes given in yp
-    dy1 = (nx.take(yp, idx)- sidx) * (xi - xidx)       # using the yp slope of the left point
-    dy2 = (nx.take(yp, idx+1)-sidx) * (xi - xidxp1) # using the yp slope of the right point
+    dy1 = (yp.take(idx)- sidx) * (xi - xidx)       # using the yp slope of the left point
+    dy2 = (yp.take(idx+1)-sidx) * (xi - xidxp1) # using the yp slope of the right point
 
     dy1dy2 = dy1*dy2
     # The following is optimized for Python. The solution actually
     # does more calculations than necessary but exploiting the power
     # of numpy, this is far more efficient than coding a loop by hand
     # in Python
-    yi = yo + dy1dy2 * nx.choose(nx.array(nx.sign(dy1dy2), nx.int32)+1,
+    yi = yo + dy1dy2 * npy.choose(npy.array(npy.sign(dy1dy2), npy.int32)+1,
                                  ((2*xi-xidx-xidxp1)/((dy1-dy2)*(xidxp1-xidx)),
                                   0.0,
                                   1/(dy1+dy2),))
-
     return yi
-
-def _inside_poly_deprecated(points, verts):
-    """
-    # use nxutils.points_inside_poly instead
-    points is a sequence of x,y points
-    verts is a sequence of x,y vertices of a poygon
-
-    return value is a sequence on indices into points for the points
-    that are inside the polygon
-    """
-    xys = nx.asarray(points)
-    Nxy = xys.shape[0]
-    Nv = len(verts)
-
-    def angle(x1, y1, x2, y2):
-        twopi = 2*nx.pi
-        theta1 = nx.arctan2(y1, x1)
-        theta2 = nx.arctan2(y2, x2)
-        dtheta = theta2-theta1
-        d = dtheta%twopi
-        d = nx.where(nx.less(d, 0), twopi + d, d)
-        return nx.where(nx.greater(d,nx.pi), d-twopi, d)
-
-    angles = nx.zeros((Nxy,), float)
-    x1 = nx.zeros((Nxy,), float)
-    y1 = nx.zeros((Nxy,), float)
-    x2 = nx.zeros((Nxy,), float)
-    y2 = nx.zeros((Nxy,), float)
-    x = xys[:,0]
-    y = xys[:,1]
-    for i in range(Nv):
-        thisx, thisy = verts[i]
-        x1 = thisx - x
-        y1 = thisy - y
-        thisx, thisy = verts[(i+1)%Nv]
-        x2 = thisx - x
-        y2 = thisy - y
-
-        a = angle(x1, y1, x2, y2)
-        angles += a
-    res, = npy.nonzero(nx.greater_equal(nx.absolute(angles), nx.pi))
-    return res
-
 
 def inside_poly(points, verts):
     """
     points is a sequence of x,y points
     verts is a sequence of x,y vertices of a poygon
 
-    return value is a sequence on indices into points for the points
+    return value is a sequence of indices into points for the points
     that are inside the polygon
     """
     res, =  npy.nonzero(nxutils.points_inside_poly(points, verts))
@@ -1689,10 +1557,10 @@ def poly_between(x, ylower, yupper):
     return value is x, y arrays for use with Axes.fill
     """
     Nx = len(x)
-    if not iterable(ylower):
+    if not cbook.iterable(ylower):
         ylower = ylower*npy.ones(Nx)
 
-    if not iterable(yupper):
+    if not cbook.iterable(yupper):
         yupper = yupper*npy.ones(Nx)
 
     x = npy.concatenate( (x, x[::-1]) )
@@ -1757,12 +1625,12 @@ exp_safe_MAX = 1.7976931348623157e+308
 def exp_safe(x):
     """Compute exponentials which safely underflow to zero.
 
-    Slow but convenient to use. Note that NumArray will introduce proper
+    Slow but convenient to use. Note that numpy provides proper
     floating point exception handling with access to the underlying
     hardware."""
 
     if type(x) is npy.ndarray:
-        return exp(clip(x,exp_safe_MIN,exp_safe_MAX))
+        return exp(npy.clip(x,exp_safe_MIN,exp_safe_MAX))
     else:
         return math.exp(x)
 
@@ -1770,66 +1638,68 @@ def amap(fn,*args):
     """amap(function, sequence[, sequence, ...]) -> array.
 
     Works like map(), but it returns an array.  This is just a convenient
-    shorthand for Numeric.array(map(...))"""
-    return array(map(fn,*args))
+    shorthand for numpy.array(map(...))
+    """
+    return npy.array(map(fn,*args))
 
 
+#from numpy import zeros_like
 def zeros_like(a):
     """Return an array of zeros of the shape and typecode of a."""
+    warnings.warn("Use numpy.zeros_like(a)", DeprecationWarning)
+    return npy.zeros_like(a)
 
-    return zeros(a.shape,typecode(a))
-
+#from numpy import sum as sum_flat
 def sum_flat(a):
     """Return the sum of all the elements of a, flattened out.
 
     It uses a.flat, and if a is not contiguous, a call to ravel(a) is made."""
+    warnings.warn("Use numpy.sum(a) or a.sum()", DeprecationWarning)
+    return npy.sum(a)
 
-    if iscontiguous(a):
-        return asum(a.flat)
-    else:
-        return asum(ravel(a))
-
+#from numpy import mean as mean_flat
 def mean_flat(a):
     """Return the mean of all the elements of a, flattened out."""
-
-    return sum_flat(a)/float(size(a))
+    warnings.warn("Use numpy.mean(a) or a.mean()", DeprecationWarning)
+    return npy.mean(a)
 
 def rms_flat(a):
     """Return the root mean square of all the elements of a, flattened out."""
 
-    return numerix.mlab.sqrt(sum_flat(absolute(a)**2)/float(size(a)))
+    return npy.sqrt(npy.mean(npy.absolute(a)**2))
 
 def l1norm(a):
     """Return the l1 norm of a, flattened out.
 
     Implemented as a separate function (not a call to norm() for speed)."""
 
-    return sum_flat(absolute(a))
+    return npy.sum(npy.absolute(a))
 
 def l2norm(a):
     """Return the l2 norm of a, flattened out.
 
     Implemented as a separate function (not a call to norm() for speed)."""
 
-    return numerix.mlab.sqrt(sum_flat(absolute(a)**2))
+    return npy.sqrt(npy.sum(npy.absolute(a)**2))
 
-def norm(a,p=2):
+def norm_flat(a,p=2):
     """norm(a,p=2) -> l-p norm of a.flat
 
     Return the l-p norm of a, considered as a flat array.  This is NOT a true
     matrix norm, since arrays of arbitrary rank are always flattened.
 
     p can be a number or the string 'Infinity' to get the L-infinity norm."""
-
+    # This function was being masked by a more general norm later in
+    # the file.  We may want to simply delete it.
     if p=='Infinity':
-        return max(absolute(a).flat)
+        return npy.amax(npy.absolute(a))
     else:
-        return (sum_flat(absolute(a)**p))**(1.0/p)
+        return (npy.sum(npy.absolute(a)**p))**(1.0/p)
 
 def frange(xini,xfin=None,delta=None,**kw):
     """frange([start,] stop[, step, keywords]) -> array of floats
 
-    Return a Numeric array() containing a progression of floats. Similar to
+    Return a numpy ndarray containing a progression of floats. Similar to
     arange(), but defaults to a closed interval.
 
     frange(x0, x1) returns [x0, x0+1, x0+2, ..., x1]; start defaults to 0, and
@@ -1855,7 +1725,7 @@ def frange(xini,xfin=None,delta=None,**kw):
     >>> frange(3,closed=0)
     array([ 0.,  1.,  2.])
     >>> frange(1,6,2)
-    array([1, 3, 5])
+    array([1, 3, 5])   or 1,3,5,7, depending on floating point vagueries
     >>> frange(1,6.5,npts=5)
     array([ 1.   ,  2.375,  3.75 ,  5.125,  6.5  ])
     """
@@ -1879,19 +1749,22 @@ def frange(xini,xfin=None,delta=None,**kw):
         npts=kw['npts']
         delta=(xfin-xini)/float(npts-endpoint)
     except KeyError:
-        # round() gets npts right even with the vagaries of floating point.
-        npts=int(round((xfin-xini)/delta+endpoint))
+        npts = int(round((xfin-xini)/delta)) + endpoint
+        #npts = int(floor((xfin-xini)/delta)*(1.0+1e-10)) + endpoint
+        # round finds the nearest, so the endpoint can be up to
+        # delta/2 larger than xfin.
 
-    return arange(npts)*delta+xini
+    return npy.arange(npts)*delta+xini
 # end frange()
 
+#import numpy.diag as diagonal_matrix
 def diagonal_matrix(diag):
     """Return square diagonal matrix whose non-zero elements are given by the
     input array."""
+    warnings.warn("Use numpy.diag(d)", DeprecationWarning)
+    return npy.diag(diag)
 
-    return diag*identity(len(diag))
-
-def identity(n,rank=2,typecode='l'):
+def identity(n, rank=2, dtype='l', typecode=None):
     """identity(n,r) returns the identity matrix of shape (n,n,...,n) (rank r).
 
     For ranks higher than 2, this object is simply a multi-index Kronecker
@@ -1900,12 +1773,17 @@ def identity(n,rank=2,typecode='l'):
     id[i0,i1,...,iR] = -|
                         \  0  otherwise.
 
-    Optionally a typecode may be given (it defaults to 'l').
+    Optionally a dtype (or typecode) may be given (it defaults to 'l').
 
     Since rank defaults to 2, this function behaves in the default case (when
-    only n is given) like the Numeric identity function."""
-
-    iden = zeros((n,)*rank,typecode=typecode)
+    only n is given) like numpy.identity(n)--but surprisingly, it is
+    much faster.
+    """
+    if typecode is not None:
+        warnings.warn("Use dtype kwarg instead of typecode",
+                       DeprecationWarning)
+        dtype = typecode
+    iden = npy.zeros((n,)*rank, dtype)
     for i in range(n):
         idx = (i,)*rank
         iden[idx] = 1
@@ -1945,7 +1823,7 @@ def log2(x,ln2 = math.log(2.0)):
     """Return the log(x) in base 2.
 
     This is a _slow_ function but which is guaranteed to return the correct
-    integer value if the input is an ineger exact power of 2."""
+    integer value if the input is an integer exact power of 2."""
 
     try:
         bin_n = binary_repr(x)[1:]
@@ -1968,6 +1846,7 @@ def ispower2(n):
     else:
         return len(bin_n)
 
+#from numpy import fromfunction as fromfunction_kw
 def fromfunction_kw(function, dimensions, **kwargs):
     """Drop-in replacement for fromfunction() from Numerical Python.
 
@@ -1977,9 +1856,9 @@ def fromfunction_kw(function, dimensions, **kwargs):
     fromfunction_kw(MyFunction, dimensions, keywords)
 
     The function MyFunction() is responsible for handling the dictionary of
-    keywords it will recieve."""
-
-    return function(tuple(indices(dimensions)),**kwargs)
+    keywords it will receive."""
+    warnings.warn("Use numpy.fromfunction()", DeprecationWarning)
+    return npy.fromfunction(function, dimensions, **kwargs)
 
 ### end fperez numutils code
 
@@ -1998,53 +1877,32 @@ Rodrigo Benenson, rodrigob at elo dot utfsm dot cl
 Thomas Wendler,   thomasw at elo dot utfsm dot cl
 Look at: http://pdilib.sf.net for new releases.
 """
-
+## mlab2 functions numpified and checked 2007/08/04
 _eps_approx = 1e-13
 
+#from numpy import fix
 def fix(x):
-
     """
     Rounds towards zero.
     x_rounded = fix(x) rounds the elements of x to the nearest integers
     towards zero.
     For negative numbers is equivalent to ceil and for positive to floor.
     """
-
-    dim = numerix.shape(x)
-    if numerix.mlab.rank(x)==2:
-        y = reshape(x,(1,dim[0]*dim[1]))[0]
-        y = y.tolist()
-    elif numerix.mlab.rank(x)==1:
-        y = x
-    else:
-        y = [x]
-    for i in range(len(y)):
-        if y[i]>0:
-            y[i] = floor(y[i])
-        else:
-            y[i] = ceil(y[i])
-    if numerix.mlab.rank(x)==2:
-        x = reshape(y,dim)
-    elif numerix.mlab.rank(x)==0:
-        x = y[0]
-    return x
+    warnings.warn("Use numpy.fix()", DeprecationWarning)
+    return npy.fix(x)
 
 def rem(x,y):
     """
     Remainder after division.
     rem(x,y) is equivalent to x - y.*fix(x./y) in case y is not zero.
-    By convention, rem(x,0) returns None.
-    We keep the convention by Matlab:
-    "The input x and y must be real arrays of the same size, or real scalars."
+    By convention (but contrary to numpy), rem(x,0) returns None.
+    This also differs from numpy.remainder, which uses floor instead of
+    fix.
     """
-
-    x,y = asarray(x),asarray(y)
-    if numerix.shape(x) == numerix.shape(y) or numerix.shape(y) == ():
-        try:
-            return x - y * fix(x/y)
-        except OverflowError:
-            return None
-    raise RuntimeError('Dimension error')
+    x,y = npy.asarray(x), npy.asarray(y)
+    if npy.any(y == 0):
+        return None
+    return x - y * npy.fix(x/y)
 
 
 def norm(x,y=2):
@@ -2069,26 +1927,28 @@ def norm(x,y=2):
           NORM(V,-inf) = min(abs(V)).
     """
 
-    x = asarray(x)
-    if numerix.mlab.rank(x)==2:
+    x = npy.asarray(x)
+    if x.ndim == 2:
         if y==2:
-            return numerix.mlab.max(numerix.mlab.svd(x)[1])
+            return npy.max(npy.linalg.svd(x)[1])
         elif y==1:
-            return numerix.mlab.max(asum(absolute((x))))
+            return npy.max(npy.sum(npy.absolute((x)), axis=0))
         elif y=='inf':
-            return numerix.mlab.max(asum(absolute((transpose(x)))))
+            return npy.max(npy.sum(npy.absolute((npy.transpose(x))), axis=0))
         elif y=='fro':
-            return numerix.mlab.sqrt(asum(numerix.mlab.diag(matrixmultiply(transpose(x),x))))
+            xx = npy.dot(x.transpose(), x)
+            return npy.sqrt(asum(npy.diag(xx), axis=0))
         else:
-            raise RuntimeError('Second argument not permitted for matrices')
+            raise ValueError('Second argument not permitted for matrices')
 
     else:
+        xa = npy.absolute(x)
         if y == 'inf':
-            return numerix.mlab.max(absolute(x))
+            return npy.max(xa)
         elif y == '-inf':
-            return numerix.mlab.min(absolute(x))
+            return npy.min(xa)
         else:
-            return power(asum(power(absolute(x),y)),1/float(y))
+            return npy.power(npy.sum(npy.power(xa,y)),1/float(y))
 
 
 def orth(A):
@@ -2102,10 +1962,10 @@ def orth(A):
         rank of A.
     """
 
-    A     = array(A)
-    U,S,V = numerix.mlab.svd(A)
+    A     = npy.asarray(A)
+    U,S,V = npy.linalg.svd(A)
 
-    m,n = numerix.shape(A)
+    m,n = A.shape
     if m > 1:
         s = S
     elif m == 1:
@@ -2113,9 +1973,9 @@ def orth(A):
     else:
         s = 0
 
-    tol = numerix.mlab.max((m,n)) * numerix.mlab.max(s) * _eps_approx
-    r = asum(s > tol)
-    Q = take(U,range(r),1)
+    tol = max(m,n) * npy.max(s) * _eps_approx
+    r = npy.sum(s > tol)
+    Q = npy.take(U,range(r),1)
 
     return Q
 
@@ -2128,15 +1988,12 @@ def rank(x):
     Note that numerix.mlab.rank() is not equivalent to Matlab's rank.
     This function is!
     """
-
-    x      = asarray(x)
-    u,s,v  = numerix.mlab.svd(x)
-    # maxabs = numerix.mlab.max(numerix.absolute(s)) is also possible.
-    maxabs = norm(x)
-    maxdim = numerix.mlab.max(numerix.shape(x))
-    tol    = maxabs*maxdim*_eps_approx
-    r      = s>tol
-    return asum(r)
+    x      = npy.asarray(x)
+    s      = npy.linalg.svd(x, compute_uv=False)
+    maxabs = npy.max(npy.absolute(s))
+    maxdim = max(x.shape)
+    tol    = maxabs * maxdim * _eps_approx
+    return npy.sum(s > tol)
 
 def sqrtm(x):
     """
@@ -2144,7 +2001,7 @@ def sqrtm(x):
     This means that s=sqrtm(x) implies s*s = x.
     Note that s and x are matrices.
     """
-    return mfuncC(numerix.mlab.sqrt, x)
+    return mfuncC(npy.sqrt, x)
 
 def mfuncC(f, x):
     """
@@ -2153,13 +2010,11 @@ def mfuncC(f, x):
     This function is needed by sqrtm and allows further functions.
     """
 
-    x      = array(x)
-    (v, u) = numerix.mlab.eig(x)
-    uT     = transpose(u)
-    V      = numerix.mlab.diag(f(v+0j))
-    y      = matrixmultiply(
-              uT, matrixmultiply(
-              V, linear_algebra.inverse(uT)))
+    x      = npy.asarray(x)
+    (v, u) = npy.linalg.eig(x)
+    uT     = u.transpose()
+    V      = npy.diag(f(v+0j))
+    y      = npy.dot(uT, npy.dot(V, npy.linalg.inv(uT)))
     return approx_real(y)
 
 def approx_real(x):
@@ -2168,8 +2023,9 @@ def approx_real(x):
     approx_real(x) : returns x.real if |x.imag| < |x.real| * _eps_approx.
     This function is needed by sqrtm and allows further functions.
     """
-
-    if numerix.mlab.max(numerix.mlab.max(absolute(x.imag))) <= numerix.mlab.max(numerix.mlab.max(absolute(x.real))) * _eps_approx:
+    ai = npy.absolute(x.imag)
+    ar = npy.absolute(x.real)
+    if npy.max(ai) <= npy.max(ar) * _eps_approx:
         return x.real
     else:
         return x

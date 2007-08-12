@@ -7,7 +7,7 @@ dt = 0.001
 t = arange(0.0, 10.0, dt)
 r = exp(-t[:1000]/0.05)               # impulse response
 x = randn(len(t))
-s = conv(x,r)[:len(x)]*dt  # colored noise
+s = convolve(x,r)[:len(x)]*dt  # colored noise
 
 # the main axes is subplot(111) by default
 plot(t, s)

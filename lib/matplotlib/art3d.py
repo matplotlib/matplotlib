@@ -327,7 +327,7 @@ def image_draw(image,renderer):
     source = image._A
     w,h,p = source.shape
     X,Y = meshgrid(arange(w),arange(h))
-    Z = zeros((w,h))
+    Z = npy.zeros((w,h))
     tX,tY,tZ = proj3d.transform(X.flat,Y.flat,Z.flat,M)
     tX = reshape(tX,(w,h))
     tY = reshape(tY,(w,h))
