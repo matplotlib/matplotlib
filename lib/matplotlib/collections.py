@@ -437,8 +437,8 @@ class RegularPolyCollection(PatchCollection):
 
         Example: see examples/dynamic_collection.py for complete example
 
-        offsets = nx.mlab.rand(20,2)
-        facecolors = [cm.jet(x) for x in nx.mlab.rand(20)]
+        offsets = npy.random.rand(20,2)
+        facecolors = [cm.jet(x) for x in npy.random.rand(20)]
         black = (0,0,0,1)
 
         collection = RegularPolyCollection(
