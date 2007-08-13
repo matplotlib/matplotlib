@@ -1098,7 +1098,7 @@ class Accent(Char):
     def _update_metrics(self):
         metrics = self._metrics = self.font_output.get_metrics(
             self.font, self.c, self.fontsize, self.dpi)
-        self.width = metrics.width
+        self.width = metrics.xmax - metrics.xmin
         self.height = metrics.ymax - metrics.ymin
         self.depth = 0
 
@@ -1169,9 +1169,10 @@ class List(Box):
 class Hlist(List):
     """A horizontal list of boxes.
     @135"""
-    def __init__(self, elements, w=0., m='additional'):
+    def __init__(self, elements, w=0., m='additional', do_kern=True):
         List.__init__(self, elements)
-        self.kern()
+        if do_kern:
+            self.kern()
         self.hpack()
 
     def kern(self):
@@ -1453,14 +1454,10 @@ class SsGlue(Glue):
 class HCentered(Hlist):
     """A convenience class to create an Hlist whose contents are centered
     within its enclosing box."""
-    def __init__(self, elements, is_accent = False):
+    def __init__(self, elements):
         self.is_accent = is_accent
-        Hlist.__init__(self, [SsGlue()] + elements + [SsGlue()])
-
-    def kern(self):
-        Hlist.kern(self)
-        if not self.is_accent and isinstance(self.children[-2], Kern):
-            self.children = self.children[:-2] + [SsGlue()]
+        Hlist.__init__(self, [SsGlue()] + elements + [SsGlue()],
+                       do_kern=False)
         
 class VCentered(Hlist):
     """A convenience class to create an Vlist whose contents are centered
@@ -2028,10 +2025,12 @@ class Parser(object):
         if c in self._spaced_symbols:
             return [Hlist( [self._make_space(0.2),
                             char,
-                            self._make_space(0.2)] )]
+                            self._make_space(0.2)] ,
+                           do_kern = False)]
         elif c in self._punctuation_symbols:
             return [Hlist( [char,
-                            self._make_space(0.2)] )]
+                            self._make_space(0.2)] ,
+                           do_kern = False)]
         return [char]
 
     _accent_map = {
@@ -2065,13 +2064,10 @@ class Parser(object):
         if accent in self._wide_accents:
             accent = AutoWidthChar(
                 accent, sym.width, state, char_class=Accent)
-            shift_amount = 0.
         else:
             accent = Accent(self._accent_map[accent], state)
-            shift_amount = accent._metrics.xmin
-        centered = HCentered([accent], is_accent=True)
+        centered = HCentered([accent])
         centered.hpack(sym.width, 'exactly')
-        centered.shift_amount = shift_amount
         return Vlist([
                 centered,
                 Vbox(0., thickness * 2.0),
