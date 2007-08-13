@@ -1455,7 +1455,6 @@ class HCentered(Hlist):
     """A convenience class to create an Hlist whose contents are centered
     within its enclosing box."""
     def __init__(self, elements):
-        self.is_accent = is_accent
         Hlist.__init__(self, [SsGlue()] + elements + [SsGlue()],
                        do_kern=False)
         
