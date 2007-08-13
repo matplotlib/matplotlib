@@ -1219,7 +1219,7 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args) {
 
   FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[glyph->glyphInd];
 
-  draw_bitmap( &bitmap->bitmap, x, y);
+  draw_bitmap( &bitmap->bitmap, x + bitmap->left, y);
   return Py::Object();
 }
 

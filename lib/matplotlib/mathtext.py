@@ -253,9 +253,7 @@ class MathtextBackendAgg(MathtextBackend):
 
     def render_rect_filled(self, x1, y1, x2, y2):
         font = self.fonts_object.get_fonts()[0]
-        font.draw_rect_filled(
-            int(x1 + 0.5), int(y1 + 0.5) - 1,
-            int(x2 - 0.5), int(y2 - 0.5) - 1)
+        font.draw_rect_filled(x1, y1, x2, y2 - 1)
 
     def get_results(self):
         return (self.width,
@@ -329,7 +327,7 @@ class MathtextBackendSvg(MathtextBackend):
 
     def render_rect_filled(self, x1, y1, x2, y2):
         self.svg_rects.append(
-            (x1, self.height - y2, x2 - x1, y2 - y1))
+            (x1, self.height - y1 + 1, x2 - x1, y2 - y1))
 
     def get_results(self):
         svg_elements = Bunch(svg_glyphs = self.svg_glyphs,
@@ -559,8 +557,7 @@ class TruetypeFonts(Fonts):
 
     def get_underline_thickness(self, font, fontsize, dpi):
         cached_font = self._get_font(font)
-        cached_font.font.set_size(fontsize, dpi)
-        return max(1.0, cached_font.font.underline_thickness / 64.0)
+        return max(1.0, cached_font.font.underline_thickness / 64.0 / fontsize * 10.0)
 
     def get_kern(self, font1, sym1, fontsize1,
                  font2, sym2, fontsize2, dpi):
@@ -1102,10 +1099,18 @@ class Accent(Char):
         self.height = metrics.ymax - metrics.ymin
         self.depth = 0
 
+    def shrink(self):
+        Char.shrink(self)
+        self._update_metrics()
+        
+    def grow(self):
+        Char.grow(self)
+        self._update_metrics()
+        
     def render(self, x, y):
         """Render the character to the canvas"""
         self.font_output.render_glyph(
-            x, y + (self._metrics.ymax - self.height),
+            x - self._metrics.xmin, y + self._metrics.ymin,
             self.font, self.c, self.fontsize, self.dpi)
         
 class List(Box):
@@ -2264,8 +2269,8 @@ class Parser(object):
         metrics = state.font_output.get_metrics(
             state.font, '=', state.fontsize, state.dpi)
         shift = (cden.height -
-                 (metrics.ymax + metrics.ymin) / 2 +
-                 thickness * 2.5)
+                 ((metrics.ymax + metrics.ymin) / 2 -
+                  thickness * 3.0))
         vlist.shift_amount = shift
 
         hlist = Hlist([vlist, Hbox(thickness * 2.)])
@@ -2316,7 +2321,6 @@ class Parser(object):
                        # Negative kerning to put root over tick
                        Kern(-check.width * 0.5), 
                        check,                    # Check
-                       Kern(-thickness * 0.3),   # Push check into rule slightly
                        rightside])               # Body
         return [hlist]
     
