@@ -51,8 +51,8 @@ font_scalings = {'xx-small': 0.579, 'x-small': 0.694, 'small': 0.833,
                  'xx-large': 1.728}
 
 weight_dict = {'light': 200, 'normal': 400, 'regular': 400, 'book': 400,
-              'medium': 500, 'roman': 500, 'semibold': 600, 'demibold': 600,
-              'demi': 600, 'bold': 700, 'heavy': 800, 'extra bold': 800,
+               'medium': 500, 'roman': 500, 'semibold': 600, 'demibold': 600,
+               'demi': 600, 'bold': 700, 'heavy': 800, 'extra bold': 800,
                'black': 900}
 
 #  OS Font paths
@@ -185,16 +185,37 @@ def x11FontDirectory():
             pass
     return fontpaths
 
+def get_fontconfig_fonts(fontext='ttf'):
+    """Grab a list of all the fonts that are being tracked by fontconfig.
+    This is an easy way to grab all of the fonts the user wants to be made
+    available to applications, without knowing where all of them reside."""
+    try:
+        import commands
+    except ImportError:
+        return {}
+
+    fontfiles = {}
+    status, output = commands.getstatusoutput("fc-list file")
+    if status == 0:
+        for line in output.split('\n'):
+            fname = line.split(':')[0]
+            if (os.path.splitext(fname)[1] == "." + fontext and
+                os.path.exists(fname)):
+                fontfiles[fname] = 1
+
+    return fontfiles
+
 def findSystemFonts(fontpaths=None, fontext='ttf'):
     """
-    Search for fonts in the specified font paths, or use the system
-    paths if none given.  A list of TrueType fonts are returned by default
-    with AFM fonts as an option.
+    Search for fonts in the specified font paths.  If no paths are
+    given, will use a standard set of system paths, as well as the
+    list of fonts tracked by fontconfig if fontconfig is installed and
+    available.  A list of TrueType fonts are returned by default with
+    AFM fonts as an option.
     """
     fontfiles = {}
 
     if fontpaths is None:
-
         if sys.platform == 'win32':
             fontdir = win32FontDirectory()
 
@@ -210,7 +231,10 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
             if sys.platform == 'darwin':
                 for f in OSXInstalledFonts():
                     fontfiles[f] = 1
-
+            
+            for f in get_fontconfig_fonts(fontext):
+                fontfiles[f] = 1
+                    
     elif isinstance(fontpaths, (str, unicode)):
         fontpaths = [fontpaths]
 
@@ -447,12 +471,12 @@ def createFontDict(fontfiles, fontext='ttf'):
     seen = {}
     for fpath in fontfiles:
         verbose.report('createFontDict: %s' % (fpath), 'debug')
-        fname = fpath.split('/')[-1]
+        fname = os.path.split(fpath)[1]
         if seen.has_key(fname):  continue
         else: seen[fname] = 1
         if fontext == 'afm':
             try:
-                fh = open(fpath)
+                fh = open(fpath, 'r')
             except:
                 verbose.report("Could not open font file %s" % fpath)
                 continue
