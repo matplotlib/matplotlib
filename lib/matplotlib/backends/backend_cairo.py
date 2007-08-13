@@ -302,7 +302,6 @@ class RendererCairo(RendererBase):
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        # mathtext using the gtk/gdk method
 
         ctx = gc.ctx
         width, height, glyphs, rects = math_parse_s_cairo(
