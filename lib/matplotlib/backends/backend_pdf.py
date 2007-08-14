@@ -485,6 +485,27 @@ class PdfFile:
             os.path.splitext(os.path.basename(filename))[0],
             symbol_name)
 
+    _identityToUnicodeCMap = """/CIDInit /ProcSet findresource begin
+12 dict begin
+begincmap
+/CIDSystemInfo
+<< /Registry (Adobe)
+   /Ordering (UCS)
+   /Supplement 0
+>> def
+/CMapName /Adobe-Identity-UCS def
+/CMapType 2 def
+1 begincodespacerange
+<0000> <ffff>
+endcodespacerange
+%d beginbfrange
+%s
+endbfrange
+endcmap
+CMapName currentdict /CMap defineresource pop
+end
+end"""
+    
     def embedTTF(self, filename, characters):
         """Embed the TTF font from the named file into the document."""
 
@@ -612,6 +633,7 @@ class PdfFile:
             cidToGidMapObject = self.reserveObject('CIDToGIDMap stream')
             fontfileObject = self.reserveObject('font file stream')
             wObject = self.reserveObject('Type 0 widths')
+            toUnicodeMapObject = self.reserveObject('ToUnicode map')
 
             cidFontDict = {
                 'Type'           : Name('Font'),
@@ -631,7 +653,8 @@ class PdfFile:
                 'Subtype'         : Name('Type0'),
                 'BaseFont'        : ps_name,
                 'Encoding'        : Name('Identity-H'),
-                'DescendantFonts' : [cidFontDictObject]
+                'DescendantFonts' : [cidFontDictObject],
+                'ToUnicode'       : toUnicodeMapObject
                 }
 
             # Make fontfile stream
@@ -652,9 +675,11 @@ class PdfFile:
             self.endStream()
             self.writeObject(length1Object, length1)
 
-            # Make the 'W' (Widths) array and the CidToGidMap at the same time
+            # Make the 'W' (Widths) array, CidToGidMap and ToUnicode CMap
+            # at the same time
             cid_to_gid_map = [u'\u0000'] * 65536
             cmap = font.get_charmap()
+            unicode_mapping = []
             widths = []
             max_ccode = 0
             for c in characters:
@@ -671,15 +696,28 @@ class PdfFile:
             last_ccode = -2
             w = []
             max_width = 0
+            unicode_groups = []
             for ccode, width in widths:
                 if ccode != last_ccode + 1:
                     w.append(ccode)
                     w.append([width])
+                    unicode_groups.append([ccode, ccode])
                 else:
                     w[-1].append(width)
+                    unicode_groups[-1][1] = ccode
                 max_width = max(max_width, width)
                 last_ccode = ccode
 
+            unicode_bfrange = []
+            for start, end in unicode_groups:
+                unicode_bfrange.append(
+                    "<%04x> <%04x> [%s]" %
+                    (start, end,
+                     " ".join(["<%04x>" % x for x in range(start, end+1)])))
+            unicode_cmap = (self._identityToUnicodeCMap %
+                            (len(unicode_groups),
+                             "\n".join(unicode_bfrange)))
+                
             # CIDToGIDMap stream
             cid_to_gid_map = "".join(cid_to_gid_map).encode("utf-16be")
             self.beginStream(cidToGidMapObject.id,
@@ -688,6 +726,13 @@ class PdfFile:
             self.currentstream.write(cid_to_gid_map)
             self.endStream()
 
+            # ToUnicode CMap
+            self.beginStream(toUnicodeMapObject.id,
+                             None,
+                             {'Length': unicode_cmap})
+            self.currentstream.write(unicode_cmap)
+            self.endStream()
+            
             descriptor['MaxWidth'] = max_width
 
             # Write everything out
