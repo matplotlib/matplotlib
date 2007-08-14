@@ -4,7 +4,7 @@ Same as fonts_demo using kwargs.  If you prefer a more pythonic, OO
 style of coding, see examples/fonts_demo.py.
 
 """
-from matplotlib.font_manager import fontManager, FontProperties
+from matplotlib.font_manager import FontProperties
 from pylab import *
 
 subplot(111, axisbg='w')

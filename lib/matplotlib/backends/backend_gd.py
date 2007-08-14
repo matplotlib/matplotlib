@@ -22,7 +22,7 @@ from matplotlib.cbook import enumerate, pieces, is_string_like
 from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
-from matplotlib.font_manager import fontManager
+from matplotlib.font_manager import findfont
 # support old font names
 if (os.environ.has_key('GDFONTPATH') and not
     os.environ.has_key('TTFPATH')):
@@ -66,7 +66,7 @@ class RendererGD(RendererBase):
         """
 
         size = prop.get_size_in_points()
-        font = fontManager.findfont(prop)
+        font = findfont(prop)
 
         scale = self.get_text_scale()
         try:
@@ -176,7 +176,7 @@ class RendererGD(RendererBase):
         """
 
         size = prop.get_size_in_points()
-        font = fontManager.findfont(prop)
+        font = findfont(prop)
 
         x = int(x)
         y = int(y)

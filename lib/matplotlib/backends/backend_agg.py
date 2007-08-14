@@ -81,7 +81,7 @@ from matplotlib.backend_bases import RendererBase,\
      GraphicsContextBase, FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook import enumerate, is_string_like, exception_to_str
 from matplotlib.figure import Figure
-from matplotlib.font_manager import fontManager
+from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, LOAD_DEFAULT
 from matplotlib.mathtext import math_parse_s_ft2font
 from matplotlib.transforms import lbwh_to_bbox
@@ -175,7 +175,7 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
         width, height, fonts, used_characters = math_parse_s_ft2font(
             s, self.dpi.get(), prop)
-        
+
         if angle == 90:
             width, height = height, width
         for font in fonts:
@@ -297,7 +297,7 @@ class RendererAgg(RendererBase):
         font = _fontd.get(key)
 
         if font is None:
-            fname = fontManager.findfont(prop)
+            fname = findfont(prop)
             font = FT2Font(str(fname))
             _fontd[key] = font
 

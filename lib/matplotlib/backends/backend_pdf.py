@@ -24,7 +24,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict, get_realpath_and_stat
 from matplotlib.figure import Figure
-from matplotlib.font_manager import fontManager
+from matplotlib.font_manager import findfont
 from matplotlib.afm import AFM
 from matplotlib.dviread import Dvi
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, \
@@ -441,9 +441,9 @@ class PdfFile:
         if is_string_like(fontprop):
             filename = fontprop
         elif rcParams['pdf.use14corefonts']:
-            filename = fontManager.findfont(fontprop, fontext='afm')
+            filename = findfont(fontprop, fontext='afm')
         else:
-            filename = fontManager.findfont(fontprop)
+            filename = findfont(fontprop)
 
         Fx = self.fontNames.get(filename)
         if Fx is None:
@@ -484,7 +484,7 @@ class PdfFile:
         return "%s-%s" % (
             os.path.splitext(os.path.basename(filename))[0],
             symbol_name)
-    
+
     def embedTTF(self, filename, characters):
         """Embed the TTF font from the named file into the document."""
 
@@ -499,7 +499,7 @@ class PdfFile:
             # boxes and the like
             if value < 0: return floor(value)
             else: return ceil(value)
-        
+
         def embedTTFType3(font, characters, descriptor):
             """The Type 3-specific part of embedding a Truetype font"""
             widthsObject = self.reserveObject('font widths')
@@ -509,7 +509,7 @@ class PdfFile:
             differencesArray = []
             firstchar, lastchar = 0, 255
             bbox = [cvt(x, nearest=False) for x in font.bbox]
-            
+
             fontdict = {
                 'Type'            : Name('Font'),
                 'BaseFont'        : ps_name,
@@ -667,7 +667,7 @@ class PdfFile:
                 max_ccode = max(ccode, max_ccode)
             widths.sort()
             cid_to_gid_map = cid_to_gid_map[:max_ccode + 1]
-            
+
             last_ccode = -2
             w = []
             max_width = 0
@@ -689,7 +689,7 @@ class PdfFile:
             self.endStream()
 
             descriptor['MaxWidth'] = max_width
-                
+
             # Write everything out
             self.writeObject(cidFontDictObject, cidFontDict)
             self.writeObject(type0FontDictObject, type0FontDict)
@@ -699,7 +699,7 @@ class PdfFile:
             return type0FontDictObject
 
         # Beginning of main embedTTF function...
-        
+
         # You are lost in a maze of TrueType tables, all different...
         ps_name = Name(font.get_sfnt()[(1,0,0,6)])
         pclt = font.get_sfnt_table('pclt') \
@@ -737,7 +737,7 @@ class PdfFile:
             return embedTTFType3(font, characters, descriptor)
         elif fonttype == 42:
             return embedTTFType42(font, characters, descriptor)
-    
+
     def alphaState(self, alpha):
         """Return name of an ExtGState that sets alpha to the given value"""
 
@@ -987,7 +987,7 @@ class RendererPdf(RendererBase):
             self.encode_string = self.encode_string_type3
         else:
             self.encode_string = self.encode_string_type42
-        
+
     def finalize(self):
         self.gc.finalize()
         del self.truetype_font_cache
@@ -1020,7 +1020,7 @@ class RendererPdf(RendererBase):
             used_characters = self.used_characters.setdefault(
                 stat_key, (realpath, Set()))
             used_characters[1].update(set)
-        
+
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height,
                  angle1, angle2, rotation):
         """
@@ -1187,7 +1187,7 @@ class RendererPdf(RendererBase):
         self.file.output(Op.gsave)
         self.file.output(cos(a), sin(a), -sin(a), cos(a), x, y,
                          Op.concat_matrix)
-        
+
         self.check_gc(gc, gc._rgb)
         self.file.output(Op.begin_text)
         prev_font = None, None
@@ -1279,7 +1279,7 @@ class RendererPdf(RendererBase):
 
     def encode_string_type3(self, s):
         return s.encode('cp1252', 'replace')
-            
+
     def encode_string_type42(self, s):
         return s.encode('utf-16be', 'replace')
 
@@ -1296,7 +1296,7 @@ class RendererPdf(RendererBase):
         # use XObject command (Do).  If using Type 42 fonts, all of
         # this complication is avoided, but of course, those fonts can
         # not be subsetted.
-        
+
         if ismath: return self.draw_mathtext(gc, x, y, s, prop, angle)
         self.check_gc(gc, gc._rgb)
 
@@ -1344,7 +1344,7 @@ class RendererPdf(RendererBase):
                              Op.selectfont)
             self._setup_textpos(x, y, angle)
             self.file.output(self.encode_string(s), Op.show, Op.end_text)
-                
+
         def draw_text_woven(chunks):
             """Outputs text using the woven method, alternating
             between chunks of 1-byte characters and 2-byte characters.
@@ -1375,7 +1375,7 @@ class RendererPdf(RendererBase):
                         self._setup_textpos(newx, 0, 0, oldx, 0, 0)
                         self.file.output(self.encode_string(chunk), Op.show)
                         oldx = newx
-                        
+
                     lastgind = None
                     for c in chunk:
                         ccode = ord(c)
@@ -1413,7 +1413,7 @@ class RendererPdf(RendererBase):
             return draw_text_simple()
         else:
             return draw_text_woven(chunks)
-            
+
     def get_text_width_height(self, s, prop, ismath):
         # FT2Font can handle unicode, and so can we
         # if isinstance(s, unicode):
@@ -1443,7 +1443,7 @@ class RendererPdf(RendererBase):
         key = hash(prop)
         font = self.afm_font_cache.get(key)
         if font is None:
-            filename = fontManager.findfont(prop, fontext='afm')
+            filename = findfont(prop, fontext='afm')
             fh = file(filename)
             font = AFM(fh)
             fh.close()
@@ -1454,7 +1454,7 @@ class RendererPdf(RendererBase):
         key = hash(prop)
         font = self.truetype_font_cache.get(key)
         if font is None:
-            filename = fontManager.findfont(prop)
+            filename = findfont(prop)
             font = FT2Font(str(filename))
             self.truetype_font_cache[key] = font
         font.clear()
