@@ -15,7 +15,6 @@ from matplotlib.backend_bases import RendererBase,\
 
 from matplotlib.cbook import enumerate, is_string_like, exception_to_str
 from matplotlib.figure import Figure
-from matplotlib.font_manager import fontManager
 from matplotlib.ft2font import FT2Font
 from matplotlib.mathtext import math_parse_s_ft2font
 

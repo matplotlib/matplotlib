@@ -28,7 +28,7 @@ from matplotlib.cbook import enumerate
 from matplotlib.figure import Figure
 from matplotlib.text import Text, _process_text_args
 
-from matplotlib.font_manager import fontManager
+from matplotlib.font_manager import findfont
 
 """
 
@@ -106,7 +106,7 @@ class RendererPaint(RendererBase):
         Get the paint font for text instance t, cacheing for efficiency
         """
 
-        fname = fontManager.findfont(prop)
+        fname = findfont(prop)
         size = self.get_text_scale() * prop.get_size_in_points()
 
         props =  fname, size, angle

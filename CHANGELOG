@@ -1,3 +1,7 @@
+2007-08-13 Use pickle to cache entire fontManager; change to using
+            font_manager module-level function findfont wrapper for
+            the fontManager.findfont method - EF
+
 2007-08-11 Numpification and cleanup of mlab.py and some examples - EF
 
 2007-08-06 Removed mathtext2

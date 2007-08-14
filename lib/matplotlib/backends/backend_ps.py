@@ -18,7 +18,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
 from matplotlib.cbook import is_string_like, izip, get_realpath_and_stat
 from matplotlib.figure import Figure
 
-from matplotlib.font_manager import fontManager
+from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import math_parse_s_ps
@@ -158,7 +158,7 @@ class RendererPS(RendererBase):
             used_characters = self.used_characters.setdefault(
                 stat_key, (realpath, Set()))
             used_characters[1].update(set)
-        
+
     def set_color(self, r, g, b, store=1):
         if (r,g,b) != self.color:
             if r==g and r==b:
@@ -307,7 +307,7 @@ class RendererPS(RendererBase):
         key = hash(prop)
         font = self.afmfontd.get(key)
         if font is None:
-            font = AFM(file(fontManager.findfont(prop, fontext='afm')))
+            font = AFM(file(findfont(prop, fontext='afm')))
             self.afmfontd[key] = font
         return font
 
@@ -315,7 +315,7 @@ class RendererPS(RendererBase):
         key = hash(prop)
         font = self.fontd.get(key)
         if font is None:
-            fname = fontManager.findfont(prop)
+            fname = findfont(prop)
             font = FT2Font(str(fname))
             self.fontd[key] = font
         font.clear()

@@ -23,7 +23,7 @@ from matplotlib.cbook import enumerate
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 
-from matplotlib.font_manager import fontManager, FontProperties
+from matplotlib.font_manager import findfont, FontProperties
 from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
 
 # Font handling stuff snarfed from backend_ps, but only using TTF fonts
@@ -473,7 +473,7 @@ class RendererEMF(RendererBase):
         key = hash(prop)
         font = _fontd.get(key)
         if font is None:
-            fname = fontManager.findfont(prop)
+            fname = findfont(prop)
             if debugText: print "_get_font_ttf: name=%s" % fname
             font = FT2Font(str(fname))
             _fontd[key] = font

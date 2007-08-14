@@ -7,7 +7,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
-from matplotlib.font_manager import fontManager, FontProperties
+from matplotlib.font_manager import findfont, FontProperties
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.mathtext import math_parse_s_ft2font_svg
 
@@ -57,7 +57,7 @@ class RendererSVG(RendererBase):
         key = hash(prop)
         font = _fontd.get(key)
         if font is None:
-            fname = fontManager.findfont(prop)
+            fname = findfont(prop)
             font = FT2Font(str(fname))
             _fontd[key] = font
         font.clear()
@@ -275,9 +275,9 @@ class RendererSVG(RendererBase):
                 lastgind = gind
                 currx += kern/64.0
 
-                svg.append('<use xlink:href="#%s" transform="translate(%s)"/>\n' 
+                svg.append('<use xlink:href="#%s" transform="translate(%s)"/>\n'
                            % (charid, currx))
-                
+
                 currx += (glyph.linearHoriAdvance / 65536.0)
             svg.append('</g>\n')
             svg = ''.join(svg)
@@ -309,17 +309,17 @@ class RendererSVG(RendererBase):
         currx, curry = 0.0, 0.0
         for step in glyph.path:
             if step[0] == 0:   # MOVE_TO
-                path_data.append("m%s %s" % 
+                path_data.append("m%s %s" %
                                  (step[1] - currx, -step[2] - curry))
             elif step[0] == 1: # LINE_TO
-                path_data.append("l%s %s" % 
+                path_data.append("l%s %s" %
                                  (step[1] - currx, -step[2] - curry))
             elif step[0] == 2: # CURVE3
-                path_data.append("q%s %s %s %s" % 
+                path_data.append("q%s %s %s %s" %
                                  (step[1] - currx, -step[2] - curry,
                                   step[3] - currx, -step[4] - curry))
             elif step[0] == 3: # CURVE4
-                path_data.append("c%s %s %s %s %s %s" % 
+                path_data.append("c%s %s %s %s %s %s" %
                                  (step[1] - currx, -step[2] - curry,
                                   step[3] - currx, -step[4] - curry,
                                   step[5] - currx, -step[6] - curry))
@@ -356,8 +356,8 @@ class RendererSVG(RendererBase):
 
             for font, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
                 charid = self._add_char_def(font, thetext)
-                
-                svg.append('<use xlink:href="#%s" transform="translate(%s, %s) scale(%s)"/>\n' % 
+
+                svg.append('<use xlink:href="#%s" transform="translate(%s, %s) scale(%s)"/>\n' %
                            (charid, new_x, -new_y_mtc, fontsize / self.FONT_SCALE))
             svg.append('</g>\n')
         else: # not rcParams['svg.embed_char_paths']
@@ -373,7 +373,7 @@ class RendererSVG(RendererBase):
             for font, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
                 new_y = - new_y_mtc
 
-                svg.append('<tspan style="font-size: %f; font-family: %s"' % 
+                svg.append('<tspan style="font-size: %f; font-family: %s"' %
                            (fontsize, font.family_name))
                 xadvance = metrics.advance
                 svg.append(' textLength="%f"' % xadvance)
@@ -387,7 +387,7 @@ class RendererSVG(RendererBase):
                     svg.append(' dy="%f"' % dy)
 
                 thetext = escape_xml_text(thetext)
-                    
+
                 svg.append('>%s</tspan>\n' % thetext)
 
                 curr_x = new_x + xadvance
@@ -407,7 +407,7 @@ class RendererSVG(RendererBase):
             for x, y, width, height in svg_rects:
                 svg.append('<rect x="%s" y="%s" width="%s" height="%s" fill="black" stroke="none" />' % (x, -y + height, width, height))
             svg.append("</g>")
-                
+
         self._svgwriter.write (''.join(svg))
         self.close_group("mathtext")
 

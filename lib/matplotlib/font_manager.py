@@ -2,7 +2,7 @@
 A module for finding, managing, and using fonts across-platforms.
 
 This module provides a single FontManager that can be shared across
-backends and platforms.  The findfont() method returns the best
+backends and platforms.  The findfont() function returns the best
 TrueType (TTF) font file in the local or system font path that matches
 the specified FontProperties.  The FontManager also handles Adobe Font
 Metrics (AFM) font files for use by the PostScript backend.
@@ -231,10 +231,10 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
             if sys.platform == 'darwin':
                 for f in OSXInstalledFonts():
                     fontfiles[f] = 1
-            
+
             for f in get_fontconfig_fonts(fontext):
                 fontfiles[f] = 1
-                    
+
     elif isinstance(fontpaths, (str, unicode)):
         fontpaths = [fontpaths]
 
@@ -654,7 +654,7 @@ class FontProperties:
 
     def get_name(self):
         """Return the name of the font that best matches the font properties."""
-        return ft2font.FT2Font(str(fontManager.findfont(self))).family_name
+        return ft2font.FT2Font(str(findfont(self))).family_name
 
     def get_style(self):
         """Return the font style.  Values are: normal, italic or oblique."""
@@ -849,41 +849,22 @@ class FontManager:
             # use anything
             self.defaultFont = self.ttffiles[0]
 
-        cache_message = \
-"""Saving TTF font cache for non-PS backends to %s.
-Delete this file to have matplotlib rebuild the cache."""
+        self.ttfdict = createFontDict(self.ttffiles)
 
-        oldcache = os.path.join(get_home(), 'ttffont.cache')
-        ttfcache = os.path.join(get_configdir(), 'ttffont.cache')
-        if os.path.exists(oldcache):
-            print >> sys.stderr, 'Moving old ttfcache location "%s" to new location "%s"'%(oldcache, ttfcache)
-            shutil.move(oldcache, ttfcache)
-
-        def rebuild():
-            self.ttfdict = createFontDict(self.ttffiles)
-            pickle_dump(self.ttfdict, ttfcache)
-            verbose.report(cache_message % ttfcache)
-
-        try:
-            self.ttfdict = pickle_load(ttfcache)
-        except:
-            rebuild()
+        if rcParams['pdf.use14corefonts']:
+            # Load only the 14 PDF core fonts. These fonts do not need to be
+            # embedded; every PDF viewing application is required to have them:
+            # Helvetica, Helvetica-Bold, Helvetica-Oblique, Helvetica-BoldOblique,
+            # Courier, Courier-Bold, Courier-Oblique, Courier-BoldOblique,
+            # Times-Roman, Times-Bold, Times-Italic, Times-BoldItalic, Symbol,
+            # ZapfDingbats.
+            afmpath = os.path.join(rcParams['datapath'],'fonts','pdfcorefonts')
+            afmfiles = findSystemFonts(afmpath, fontext='afm')
+            self.afmdict = createFontDict(afmfiles, fontext='afm')
         else:
-            # verify all the cached fnames still exist; if not rebuild
-            for fname in ttfdict_to_fnames(self.ttfdict):
-                if not os.path.exists(fname):
-                    rebuild()
-                    break
-            verbose.report('loaded ttfcache file %s'%ttfcache)
-
-        #self.ttfdict = createFontDict(self.ttffiles)
-
-        #  Load AFM fonts for PostScript
-        #  Only load file names at this stage, the font dictionary will be
-        #  created when needed.
-        self.afmfiles = findSystemFonts(paths, fontext='afm') + \
-                        findSystemFonts(fontext='afm')
-        self.afmdict = {}
+            self.afmfiles = findSystemFonts(paths, fontext='afm') + \
+                            findSystemFonts(fontext='afm')
+            self.afmdict = createFontDict(self.afmfiles, fontext='afm')
 
     def get_default_weight(self):
         "Return the default font weight."
@@ -930,8 +911,6 @@ Delete this file to have matplotlib rebuild the cache."""
             return fname
 
         if fontext == 'afm':
-            if len(self.afmdict) == 0:
-                self.afmdict = self._get_afm_font_dict()
             fontdict = self.afmdict
         else:
             fontdict = self.ttfdict
@@ -1009,7 +988,7 @@ Delete this file to have matplotlib rebuild the cache."""
             return fname
 
         font_family_aliases = ['serif', 'sans-serif', 'cursive', 'fantasy', 'monospace']
-        
+
         for name in prop.get_family():
             if name in font_family_aliases:
                 for name2 in rcParams['font.' + name]:
@@ -1028,37 +1007,29 @@ Delete this file to have matplotlib rebuild the cache."""
             return self.defaultFont
         return fname
 
-    def _get_afm_font_dict(self):
-        cache_message = "Saving AFM font cache for PS and PDF backends to %s.\n" \
-                        "Delete this file to have matplotlib rebuild the cache."
 
-        if rcParams['pdf.use14corefonts']:
-            # Load only the 14 PDF core fonts. These fonts do not need to be
-            # embedded; every PDF viewing application is required to have them:
-            # Helvetica, Helvetica-Bold, Helvetica-Oblique, Helvetica-BoldOblique,
-            # Courier, Courier-Bold, Courier-Oblique, Courier-BoldOblique,
-            # Times-Roman, Times-Bold, Times-Italic, Times-BoldItalic, Symbol,
-            # ZapfDingbats.
-            afmcache = os.path.join(get_configdir(), 'pdfcorefont.cache')
-            try:
-                fontdict = pickle_load(afmcache)
-            except:
-                afmpath = os.path.join(rcParams['datapath'],'fonts','pdfcorefonts')
-                afmfiles = findSystemFonts(afmpath, fontext='afm')
-                fontdict = createFontDict(afmfiles, fontext='afm')
-                pickle_dump(fontdict, afmcache)
-                verbose.report(cache_message % afmcache)
-        else:
-            # Load all available AFM fonts
-            afmcache = os.path.join(get_configdir(), '.afmfont.cache')
-            try:
-                fontdict = pickle_load(afmcache)
-            except:
-                fontdict = createFontDict(self.afmfiles, fontext='afm')
-                pickle_dump(fontdict, afmcache)
-                verbose.report(cache_message % afmcache)
+_fmcache = os.path.join(get_configdir(), 'fontManager.cache')
 
-        return fontdict
+fontManager = None
 
+def _rebuild():
+    global fontManager
+    fontManager = FontManager()
+    pickle_dump(fontManager, _fmcache)
+    verbose.report("generated new fontManager")
 
-fontManager = FontManager()
+try:
+    fontManager = pickle_load(_fmcache)
+    verbose.report("Using fontManager instance from %s" % _fmcache)
+except:
+    _rebuild()
+
+def findfont(prop, **kw):
+    global fontManager
+    font = fontManager.findfont(prop, **kw)
+    if not os.path.exists(font):
+        verbose.report("%s returned by pickled fontManager does not exist" % font)
+        _rebuild()
+        font =  fontManager.findfont(prop, **kw)
+    return font
+

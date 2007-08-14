@@ -3,9 +3,9 @@
 Show how to set custom font properties.
 
 For interactive users, you can also use kwargs to the text command,
-which requires less typing.  See exampes/fonts_demo_kw.py
+which requires less typing.  See examples/fonts_demo_kw.py
 """
-from matplotlib.font_manager import fontManager, FontProperties
+from matplotlib.font_manager import FontProperties
 from pylab import *
 
 subplot(111, axisbg='w')
