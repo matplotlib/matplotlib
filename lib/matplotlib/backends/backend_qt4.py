@@ -405,13 +405,17 @@ class SubplotToolQt( SubplotTool, QtGui.QWidget ):
         self.sliderhspace = QtGui.QSlider(QtCore.Qt.Vertical)
 
         # constraints
-        QtCore.QObject.connect( self.sliderleft, QtCore.SIGNAL( "valueChanged(int)" ),
+        QtCore.QObject.connect( self.sliderleft,
+                                QtCore.SIGNAL( "valueChanged(int)" ),
                                 self.sliderright.setMinimum )
-        QtCore.QObject.connect( self.sliderright, QtCore.SIGNAL( "valueChanged(int)" ),
+        QtCore.QObject.connect( self.sliderright,
+                                QtCore.SIGNAL( "valueChanged(int)" ),
                                 self.sliderleft.setMaximum )
-        QtCore.QObject.connect( self.sliderbottom, QtCore.SIGNAL( "valueChanged(int)" ),
+        QtCore.QObject.connect( self.sliderbottom,
+                                QtCore.SIGNAL( "valueChanged(int)" ),
                                 self.slidertop.setMinimum )
-        QtCore.QObject.connect( self.slidertop, QtCore.SIGNAL( "valueChanged(int)" ),
+        QtCore.QObject.connect( self.slidertop,
+                                QtCore.SIGNAL( "valueChanged(int)" ),
                                 self.sliderbottom.setMaximum )
 
         sliders = (self.sliderleft, self.sliderbottom, self.sliderright,
@@ -464,38 +468,56 @@ class SubplotToolQt( SubplotTool, QtGui.QWidget ):
         self.setLayout(layout)
 
         self.sliderleft.setSliderPosition(int(targetfig.subplotpars.left*1000))
-        self.sliderbottom.setSliderPosition(int(targetfig.subplotpars.bottom*1000))
-        self.sliderright.setSliderPosition(int(targetfig.subplotpars.right*1000))
+        self.sliderbottom.setSliderPosition(\
+                                    int(targetfig.subplotpars.bottom*1000))
+        self.sliderright.setSliderPosition(\
+                                    int(targetfig.subplotpars.right*1000))
         self.slidertop.setSliderPosition(int(targetfig.subplotpars.top*1000))
-        self.sliderwspace.setSliderPosition(int(targetfig.subplotpars.wspace*1000))
-        self.sliderhspace.setSliderPosition(int(targetfig.subplotpars.hspace*1000))
+        self.sliderwspace.setSliderPosition(\
+                                    int(targetfig.subplotpars.wspace*1000))
+        self.sliderhspace.setSliderPosition(\
+                                    int(targetfig.subplotpars.hspace*1000))
 
-        QtCore.QObject.connect( self.sliderleft, QtCore.SIGNAL( "valueChanged(int)" ),
+        QtCore.QObject.connect( self.sliderleft,
+                                QtCore.SIGNAL( "valueChanged(int)" ),
                                 self.funcleft )
-        QtCore.QObject.connect( self.sliderbottom, QtCore.SIGNAL( "valueChanged(int)" ),
+        QtCore.QObject.connect( self.sliderbottom,
+                                QtCore.SIGNAL( "valueChanged(int)" ),
                                 self.funcbottom )
-        QtCore.QObject.connect( self.sliderright, QtCore.SIGNAL( "valueChanged(int)" ),
+        QtCore.QObject.connect( self.sliderright,
+                                QtCore.SIGNAL( "valueChanged(int)" ),
                                 self.funcright )
-        QtCore.QObject.connect( self.slidertop, QtCore.SIGNAL( "valueChanged(int)" ),
+        QtCore.QObject.connect( self.slidertop,
+                                QtCore.SIGNAL( "valueChanged(int)" ),
                                 self.functop )
-        QtCore.QObject.connect( self.sliderwspace, QtCore.SIGNAL( "valueChanged(int)" ),
+        QtCore.QObject.connect( self.sliderwspace,
+                                QtCore.SIGNAL( "valueChanged(int)" ),
                                 self.funcwspace )
-        QtCore.QObject.connect( self.sliderhspace, QtCore.SIGNAL( "valueChanged(int)" ),
+        QtCore.QObject.connect( self.sliderhspace,
+                                QtCore.SIGNAL( "valueChanged(int)" ),
                                 self.funchspace )
 
     def funcleft(self, val):
+        if val == self.sliderright.value():
+            val -= 1
         self.targetfig.subplots_adjust(left=val/1000.)
         if self.drawon: self.targetfig.canvas.draw()
 
     def funcright(self, val):
+        if val == self.sliderleft.value():
+            val += 1
         self.targetfig.subplots_adjust(right=val/1000.)
         if self.drawon: self.targetfig.canvas.draw()
 
     def funcbottom(self, val):
+        if val == self.slidertop.value():
+            val -= 1
         self.targetfig.subplots_adjust(bottom=val/1000.)
         if self.drawon: self.targetfig.canvas.draw()
 
     def functop(self, val):
+        if val == self.sliderbottom.value():
+            val += 1
         self.targetfig.subplots_adjust(top=val/1000.)
         if self.drawon: self.targetfig.canvas.draw()
 

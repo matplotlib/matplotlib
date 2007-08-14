@@ -1,3 +1,6 @@
+2007-08-14 Fixed a bug in pyqt4 subplots-adjust. Thanks to 
+           Xavier Gnata for the report and suggested fix - DSD
+
 2007-08-13 Use pickle to cache entire fontManager; change to using
             font_manager module-level function findfont wrapper for
             the fontManager.findfont method - EF

@@ -709,11 +709,10 @@ def rcdefaults():
 
 if NEWCONFIG:
     #print "importing from reorganized config system!"
-    from config import rcParams, rcdefaults
     try:
-        from config import mplConfig, save_config
+        from config import rcParams, rcdefaults, mplConfig, save_config
     except:
-        pass
+        from config import rcParams, rcdefaults
 
 def use(arg):
     """
