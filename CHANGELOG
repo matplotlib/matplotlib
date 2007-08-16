@@ -1,3 +1,6 @@
+2007-08-16 Added a set_extent method to AxesImage, allow data extent
+           to be modified after initial call to imshow - DSD
+
 2007-08-14 Fixed a bug in pyqt4 subplots-adjust. Thanks to 
            Xavier Gnata for the report and suggested fix - DSD
 

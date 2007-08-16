@@ -236,6 +236,18 @@ class AxesImage(Artist, cm.ScalarMappable):
         # by mistake.
 
         self.set_data(A)
+    
+    def set_extent(self, extent):
+        """extent is data axes (left, right, bottom, top) for making image plots
+        """
+        self._extent = extent
+        
+        xmin, xmax, ymin, ymax = extent
+        corners = (xmin, ymin), (xmax, ymax)
+        self.axes.update_datalim(corners)
+        if self.axes._autoscaleon:
+            self.axes.set_xlim((xmin, xmax))
+            self.axes.set_ylim((ymin, ymax))
 
     def get_interpolation(self):
         """
