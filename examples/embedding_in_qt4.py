@@ -64,13 +64,11 @@ class MyDynamicMplCanvas(MyMplCanvas):
 
     def compute_initial_figure(self):
          self.axes.plot([0, 1, 2, 3], [1, 2, 0, 4], 'r')
-         self.axes.set_yscale('log')
 
     def update_figure(self):
         # Build a list of 4 random integers between 0 and 10 (both inclusive)
         l = [ random.randint(0, 10) for i in xrange(4) ]
 
-        l[l<=0]=1
         self.axes.plot([0, 1, 2, 3], l, 'r')
         self.draw()
 
