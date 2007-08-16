@@ -328,7 +328,7 @@ class RcParamsWrapper(dict):
         'text.latex.unicode' : (self.tconfig.text.latex, 'unicode'),
         'text.latex.preamble' : (self.tconfig.text.latex, 'preamble'),
         'text.dvipnghack' : (self.tconfig.text.latex, 'dvipnghack'),
-        'text.markup' : (self.tconfig.text.markup, 'markup'),
+        'text.markup' : (self.tconfig.text, 'markup'),
 
         'image.aspect' : (self.tconfig.image, 'aspect'),
         'image.interpolation' : (self.tconfig.image, 'interpolation'),
