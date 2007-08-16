@@ -159,6 +159,16 @@ class MPLConfig(TConfig):
             unicode = T.false
             preamble = T.ListStr([])
             dvipnghack = T.false
+    
+    class mathtext(TConfig):
+        cal = T.Trait('cursive', 'cursive', 'normal', 'normal')
+        rm = T.Trait('serif', 'serif', 'normal', 'normal')
+        tt = T.Trait('monospace', 'monospace', 'normal', 'normal')
+        it = T.Trait('serif', 'serif', 'normal', 'italic')
+        bf = T.Trait('serif', 'serif', 'bold', 'normal')
+        sf = T.Trait('sans-serif', 'sans-serif', 'normal', 'normal')
+        use_cm = T.true
+        fallback_to_cm = T.true
 
     class axes(TConfig):
         hold = T.Trait(True, mplT.BoolHandler())
@@ -329,6 +339,15 @@ class RcParamsWrapper(dict):
         'text.latex.preamble' : (self.tconfig.text.latex, 'preamble'),
         'text.dvipnghack' : (self.tconfig.text.latex, 'dvipnghack'),
         'text.markup' : (self.tconfig.text, 'markup'),
+        
+        'mathtext.cal'        : (self.tconfig.mathtext, 'cal'),
+        'mathtext.rm'         : (self.tconfig.mathtext, 'rm'),
+        'mathtext.tt'         : (self.tconfig.mathtext, 'tt'),
+        'mathtext.it'         : (self.tconfig.mathtext, 'it'),
+        'mathtext.bf'         : (self.tconfig.mathtext, 'bf'),
+        'mathtext.sf'         : (self.tconfig.mathtext, 'sf'),
+        'mathtext.use_cm'     : (self.tconfig.mathtext, 'use_cm'),
+        'mathtext.fallback_to_cm' : (self.tconfig.mathtext, 'fallback_to_cm'),
 
         'image.aspect' : (self.tconfig.image, 'aspect'),
         'image.interpolation' : (self.tconfig.image, 'interpolation'),
