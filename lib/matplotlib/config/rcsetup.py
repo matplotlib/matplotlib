@@ -198,6 +198,17 @@ def validate_fontsize(s):
     except ValueError:
         raise ValueError('not a valid font size')
 
+def validate_mathtext_font(s):
+    s = eval(s)
+    if type(s) in (list, tuple) and len(s) == 3:
+        return s
+    raise ValueError('Mathtext font specifier must be a 3-tuple of (family, weight, style)')
+    
+validate_markup = ValidateInStrings(
+    'markup', 
+    ['plain', 'tex'],
+    ignorecase=True)
+
 validate_verbose = ValidateInStrings('verbose',[
     'silent', 'helpful', 'debug', 'debug-annoying',
     ])
@@ -323,21 +334,24 @@ defaultParams = {
     'font.stretch'      : ['normal', str],           #
     'font.weight'       : ['normal', str],           #
     'font.size'         : [12.0, validate_float], #
-    'font.serif'        : [['Bitstream Vera Serif','New Century Schoolbook',
-                           'Century Schoolbook L','Utopia','ITC Bookman',
-                           'Bookman','Nimbus Roman No9 L','Times New Roman',
-                           'Times','Palatino','Charter','serif'],
+    'font.serif'        : [['Bitstream Vera Serif', 'DejaVu Serif',
+                            'New Century Schoolbook', 'Century Schoolbook L',
+                            'Utopia', 'ITC Bookman', 'Bookman',
+                            'Nimbus Roman No9 L','Times New Roman',
+                            'Times','Palatino','Charter','serif'],
                            validate_stringlist],
-    'font.sans-serif'   : [['Bitstream Vera Sans','Lucida Grande','Verdana',
-                           'Geneva','Lucid','Arial','Helvetica','Avant Garde',
-                           'sans-serif'], validate_stringlist],
+    'font.sans-serif'   : [['Bitstream Vera Sans', 'DejaVu Sans',
+                            'Lucida Grande', 'Verdana', 'Geneva', 'Lucid',
+                            'Arial', 'Helvetica', 'Avant Garde', 'sans-serif'],
+                           validate_stringlist],
     'font.cursive'      : [['Apple Chancery','Textile','Zapf Chancery',
                            'Sand','cursive'], validate_stringlist],
     'font.fantasy'      : [['Comic Sans MS','Chicago','Charcoal','Impact'
                            'Western','fantasy'], validate_stringlist],
-    'font.monospace'    : [['Bitstream Vera Sans Mono','Andale Mono'
-                           'Nimbus Mono L','Courier New','Courier','Fixed'
-                           'Terminal','monospace'], validate_stringlist],
+    'font.monospace'    : [['Bitstream Vera Sans Mono', 'DejaVu Sans Mono',
+                            'Andale Mono', 'Nimbus Mono L', 'Courier New',
+                            'Courier','Fixed', 'Terminal','monospace'],
+                           validate_stringlist],
 
     # text props
     'text.color'          : ['k', validate_color],     # black
@@ -345,8 +359,22 @@ defaultParams = {
     'text.latex.unicode'  : [False, validate_bool],
     'text.latex.preamble' : [[''], validate_latex_preamble],
     'text.dvipnghack'     : [False, validate_bool],
+    'text.fontstyle'      : ['normal', str],
+    'text.fontangle'      : ['normal', str],
+    'text.fontvariant'    : ['normal', str],
+    'text.fontweight'     : ['normal', str],
+    'text.fontsize'       : ['medium', validate_fontsize],
+    'text.markup'         : ['plain', validate_markup],
 
-    # image props
+    'mathtext.cal'        : [('cursive', 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.rm'         : [('serif', 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.tt'         : [('monospace', 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.it'         : [('serif', 'normal', 'italic'), validate_mathtext_font],
+    'mathtext.bf'         : [('serif', 'bold', 'normal'), validate_mathtext_font],
+    'mathtext.sf'         : [('sans-serif', 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.use_cm'     : [True, validate_bool],
+    'mathtext.fallback_to_cm' : [True, validate_bool],
+    
     'image.aspect'        : ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation' : ['bilinear', str],
     'image.cmap'          : ['jet', str],        # one of gray, jet, etc
@@ -445,8 +473,8 @@ defaultParams = {
     'pdf.fonttype'      : [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
     'svg.image_inline'  : [True, validate_bool],    # write raster image data directly into the svg file
     'svg.image_noscale' : [False, validate_bool],  # suppress scaling of raster data embedded in SVG
-    'svg.embed_char_paths' : [False, validate_bool],  # True to save
-#all characters as paths in the SVG
+    'svg.embed_char_paths' : [False, validate_bool],  # True to save all characters as paths in the SVG
+    'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
 }
 
