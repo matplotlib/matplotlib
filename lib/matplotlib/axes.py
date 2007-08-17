@@ -2345,7 +2345,6 @@ class Axes(martist.Artist):
         respective values are constant, else the widths of the lines are
         determined by xmin and xmax
 
-
         colors is a line collections color args, either a single color
         or a len(x) list of colors
 
@@ -2370,22 +2369,17 @@ class Axes(martist.Artist):
         xmin = npy.asarray(xmin)
         xmax = npy.asarray(xmax)
 
-
         if len(xmin)!=len(y):
             raise ValueError, 'xmin and y are unequal sized sequences'
         if len(xmax)!=len(y):
             raise ValueError, 'xmax and y are unequal sized sequences'
-
-
-
 
         verts = [ ((thisxmin, thisy), (thisxmax, thisy))
                             for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
         coll = mcoll.LineCollection(verts, colors=colors,
                                     linestyle=linestyle, label=label)
         self.add_collection(coll)
-
-
+        coll.update(kwargs)
 
         minx = min(xmin.min(), xmax.min())
         maxx = max(xmin.max(), xmax.max())
@@ -2443,8 +2437,6 @@ class Axes(martist.Artist):
             ymin = ymin*npy.ones(x.shape, x.dtype)
         if len(ymax)==1:
             ymax = ymax*npy.ones(x.shape, x.dtype)
-
-
 
         if len(ymin)!=len(x):
             raise ValueError, 'ymin and x are unequal sized sequences'
