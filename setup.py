@@ -64,7 +64,7 @@ if major==2 and minor1<=3:
     try: import setuptools
     except ImportError:
         raise SystemExit("""\
-matplotlib requires setuptools for installation.  Visit:
+matplotlib requires setuptools for installation with python-2.3.  Visit:
 http://cheeseshop.python.org/pypi/setuptools
 for installation instructions for the proper version of setuptools for your
 system.  If this is your first time upgrading matplotlib with the new

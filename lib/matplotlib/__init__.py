@@ -711,6 +711,8 @@ if NEWCONFIG:
     #print "importing from reorganized config system!"
     try:
         from config import rcParams, rcdefaults, mplConfig, save_config
+        verbose.set_level(rcParams['verbose.level'])
+        verbose.set_fileo(rcParams['verbose.fileo'])
     except:
         from config import rcParams, rcdefaults
 
