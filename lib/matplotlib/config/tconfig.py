@@ -370,8 +370,6 @@ class TConfig(T.HasStrictTraits):
         if config is None:
             config = mkConfigObj(None)
 
-        
-
         # Validate the set of scalars ...
         my_scalars = set(get_scalars(self))
         cf_scalars = set(config.scalars)
@@ -603,7 +601,7 @@ class TConfigManager(object):
 
         This method, in contrast with write(), updates the .fconfCombined
         object with the *entire* .tconf instance, and then writes it out to
-        disk.  This method is thus useful for generating files that contain an
+        disk.  This method is thus useful for generating files that have a
         self-contained, non-hierarchical file.
 
         :Keywords:
@@ -615,12 +613,12 @@ class TConfigManager(object):
         if filename is not None:
             fileObj = open(filename,'w')
             self.fconfUpdate(self.fconfCombined,self.tconf)
-            out = self.fconf.write(fileObj)
+            out = self.fconfCombined.write(fileObj)
             fileObj.close()
             return out
         else:
             self.fconfUpdate(self.fconfCombined,self.tconf)
-            return self.fconf.write()
+            return self.fconfCombined.write()
 
     def tconfStr(self):
         return str(self.tconf)
