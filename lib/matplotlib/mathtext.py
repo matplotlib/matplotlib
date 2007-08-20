@@ -176,9 +176,9 @@ symbol can be a single unicode character, a TeX command (i.e. r'\pi'),
 or a Type1 symbol name (i.e. 'phi').
 
 """
-    # From UTF #25: U+2212 − minus sign is the preferred
+    # From UTF #25: U+2212 minus sign is the preferred
     # representation of the unary and binary minus sign rather than
-    # the ASCII-derived U+002D - hyphen-minus, because minus sign is
+    # the ASCII-derived U+002D hyphen-minus, because minus sign is
     # unambiguous and because it is rendered with a more desirable
     # length, usually longer than a hyphen.
     if symbol == '-':
