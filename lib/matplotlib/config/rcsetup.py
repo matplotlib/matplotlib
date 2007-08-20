@@ -198,11 +198,63 @@ def validate_fontsize(s):
     except ValueError:
         raise ValueError('not a valid font size')
 
-def validate_mathtext_font(s):
-    s = eval(s)
-    if type(s) in (list, tuple) and len(s) == 3:
-        return s
-    raise ValueError('Mathtext font specifier must be a 3-tuple of (family, weight, style)')
+class FontPropertiesProxy:
+    # In order to build a FontProperties object, various rcParams must
+    # already be known in order to set default values.  That means a
+    # FontProperties object can not be created from a config file,
+    # since it depends on other values in the same config file.  This
+    # proxy class is used as a temporary storage area for the settings
+    # in the config file, and the full FontProperties class is created
+    # only when the class is first used.  It is defined here rather than
+    # in font_manager.py to avoid a cyclical import.
+    def __init__(self,
+                 family = None,
+                 style  = None,
+                 variant= None,
+                 weight = None,
+                 stretch= None,
+                 size   = None,
+                 fname = None, # if this is set, it's a hardcoded filename to use
+                 ):
+        self.__family  = family
+        self.__style   = style
+        self.__variant = variant
+        self.__weight  = weight
+        self.__stretch = stretch
+        self.__size    = size
+        self.__fname = fname
+
+        self.__child = None
+
+    def __get_child(self):
+        if self.__child is None:
+            from font_manager import FontProperties
+            self.__child = FontProperties(
+                family  = self.__family,
+                style   = self.__style,
+                variant = self.__variant,
+                weight  = self.__weight,
+                stretch = self.__stretch,
+                size    = self.__size,
+                fname   = self.__fname)
+        return self.__child
+
+    def __getattr__(self, attr):
+        return getattr(self.__get_child(), attr)
+    
+def validate_font_properties(s):
+    parsed = False
+    try:
+        prop = eval(u'FontProperties(%s)' % s,
+                    {}, {'FontProperties': FontPropertiesProxy})
+    except:
+        pass
+    else:
+        parsed = isinstance(prop, FontPropertiesProxy)
+    if not parsed:
+        raise ValueError(
+            'Mathtext font specifier must be a set of arguments to the FontProperty constructor.')
+    return prop
     
 validate_markup = ValidateInStrings(
     'markup', 
@@ -366,12 +418,12 @@ defaultParams = {
     'text.fontsize'       : ['medium', validate_fontsize],
     'text.markup'         : ['plain', validate_markup],
 
-    'mathtext.cal'        : [('cursive', 'normal', 'normal'), validate_mathtext_font],
-    'mathtext.rm'         : [('serif', 'normal', 'normal'), validate_mathtext_font],
-    'mathtext.tt'         : [('monospace', 'normal', 'normal'), validate_mathtext_font],
-    'mathtext.it'         : [('serif', 'normal', 'italic'), validate_mathtext_font],
-    'mathtext.bf'         : [('serif', 'bold', 'normal'), validate_mathtext_font],
-    'mathtext.sf'         : [('sans-serif', 'normal', 'normal'), validate_mathtext_font],
+    'mathtext.cal'        : [FontPropertiesProxy(['cursive']), validate_font_properties],
+    'mathtext.rm'         : [FontPropertiesProxy(['serif']), validate_font_properties],
+    'mathtext.tt'         : [FontPropertiesProxy(['monospace']), validate_font_properties],
+    'mathtext.it'         : [FontPropertiesProxy(['serif'], style='oblique'), validate_font_properties],
+    'mathtext.bf'         : [FontPropertiesProxy(['serif'], weight='bold'), validate_font_properties],
+    'mathtext.sf'         : [FontPropertiesProxy(['sans-serif']), validate_font_properties],
     'mathtext.use_cm'     : [True, validate_bool],
     'mathtext.fallback_to_cm' : [True, validate_bool],
     

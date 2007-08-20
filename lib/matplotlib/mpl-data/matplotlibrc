@@ -150,7 +150,7 @@ numerix      : numpy  # numpy, Numeric or numarray
 #text.dvipnghack     : False  # some versions of dvipng don't handle
                              # alpha channel properly.  Use True to correct and flush
                              # ~/.matplotlib/tex.cache before testing
-#text.markup         : 'plain'  # Affects how text, such as titles and lables, are
+#text.markup         : 'plain'  # Affects how text, such as titles and labels, are
                                 # interpreted by default.
                                 # 'plain': As plain, unformatted text
 				# 'tex': As TeX-like text.  Text between $'s will be
@@ -160,16 +160,16 @@ numerix      : numpy  # numpy, Numeric or numarray
 				# processing.
 
 # The following settings allow you to select the fonts in math mode.
-# They map from a TeX font name to a 3-tuple of the form:
-#    (family, weight, style)
+# They map from a TeX font name to a set of arguments for the FontProperties constructor.
+# (See FontProperties for more details).
 # These settings are only used if mathtext.use_cm is False, otherwise, the
 # Bakoma TeX Computer Modern fonts are used.
-#mathtext.cal : (['cursive'], 'normal', 'normal')
-#mathtext.rm  : (['serif'], 'normal', 'normal')
-#mathtext.tt  : (['monospace'], 'normal', 'normal')
-#mathtext.it  : (['serif'], 'normal', 'oblique')
-#mathtext.bf  : (['serif'], 'bold', 'normal')
-#mathtext.sf  : (['sans-serif'], 'normal', 'normal')
+#mathtext.cal : ['cursive']
+#mathtext.rm  : ['serif']
+#mathtext.tt  : ['monospace']
+#mathtext.it  : ['serif'], style='oblique'
+#mathtext.bf  : ['serif'], weight='bold'
+#mathtext.sf  : ['sans-serif']
 #mathtext.use_cm : True
 #mathtext.fallback_to_cm : True  # When True, use symbols from the Computer Modern
 			         # fonts when a symbol can not be found in one of 

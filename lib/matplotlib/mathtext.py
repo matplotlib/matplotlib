@@ -686,9 +686,7 @@ class UnicodeFonts(TruetypeFonts):
         TruetypeFonts.__init__(self, *args, **kwargs)
         if not len(self.fontmap):
             for texfont in "cal rm tt it bf sf".split():
-                setting = rcParams['mathtext.' + texfont]
-                family, weight, style = setting
-                prop = FontProperties(family=family, weight=weight, style=style)
+                prop = rcParams['mathtext.' + texfont]
                 font = findfont(prop)
                 self.fontmap[texfont] = font
 
