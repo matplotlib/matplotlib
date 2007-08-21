@@ -30,7 +30,7 @@ class BackendHandler(T.TraitHandler):
                 'agg': 'Agg',
                 'cairo': 'Cairo',
                 'ps': 'PS',
-                'pdf': 'PDF',
+                'pdf': 'Pdf',
                 'svg': 'SVG',
                 'template': 'Template' }
 
