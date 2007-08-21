@@ -1750,12 +1750,10 @@ class Parser(object):
     _overunder_symbols = Set(r'''
        \sum \prod \coprod \bigcap \bigcup \bigsqcup \bigvee
        \bigwedge \bigodot \bigotimes \bigoplus \biguplus
-       '''.split()
-    )
+       '''.split())
 
     _overunder_functions = Set(
-        r"lim liminf limsup sup max min".split()
-    )
+        r"lim liminf limsup sup max min".split())
 
     _dropsub_symbols = Set(r'''\int \oint'''.split())
 
@@ -1769,11 +1767,13 @@ class Parser(object):
         autoDelim = Forward().setParseAction(self.auto_sized_delimiter)
         self._expression = Forward().setParseAction(self.finish).setName("finish")
 
+        float        = Regex(r"-?[0-9]+\.?[0-9]*")
+        
         lbrace       = Literal('{').suppress()
         rbrace       = Literal('}').suppress()
         start_group  = (Optional(latexfont) + lbrace)
         start_group.setParseAction(self.start_group)
-        end_group    = rbrace
+        end_group    = rbrace.copy()
         end_group.setParseAction(self.end_group)
 
         bslash       = Literal('\\')
@@ -1786,14 +1786,8 @@ class Parser(object):
                              "cosh gcd ln sup cot hom log tan coth inf max "
                              "tanh")
 
-        number       = Combine(Word(nums) + Optional(Literal('.')) + Optional( Word(nums) ))
-
         fontname     = oneOf("rm cal it tt sf bf")
         latex2efont  = oneOf("mathrm mathcal mathit mathtt mathsf mathbf")
-
-        texsym       = Combine(bslash + Word(alphanums) + NotAny("{"))
-
-        char         = Word(alphanums + ' ', exact=1).leaveWhitespace()
 
         space        =(FollowedBy(bslash)
                      +   (Literal(r'\ ')
@@ -1806,19 +1800,18 @@ class Parser(object):
                        )
                       ).setParseAction(self.space).setName('space')
 
-        symbol       = Regex("(" + ")|(".join(
-                       [
-                         r"\\(?!quad)(?!qquad)(?!left[^a-z])(?!right[^a-z])[a-zA-Z0-9]+(?!{)",
-                         r"[a-zA-Z0-9 ]",
-                         r"[+\-*/]",
-                         r"[<>=]",
-                         r"[:,.;!'@[()]",
-                         r"\\[$%{}]",
-                       ])
-                     + ")"
-                     ).setParseAction(self.symbol).leaveWhitespace()
+        customspace  =(Literal(r'\hspace')
+                     + lbrace
+                     + float
+                     + rbrace
+                     ).setParseAction(self.customspace).setName('customspace')
 
-        rightBracket = Literal("[").setParseAction(self.symbol).leaveWhitespace()
+        symbol       =(Regex(r"[a-zA-Z0-9 +\-*/<>=:,.;!'@()[\]]")
+                     ^  Combine(
+                          bslash
+                        + oneOf(tex2uni.keys())
+                        )
+                      ).setParseAction(self.symbol).leaveWhitespace()
 
         accent       = Group(
                          Combine(bslash + accent)
@@ -1873,13 +1866,13 @@ class Parser(object):
         placeable   <<(accent
                      ^ function
                      ^ symbol
-                     ^ rightBracket
                      ^ group
                      ^ frac
                      ^ sqrt
                      )
 
         simple      <<(space
+                     | customspace  
                      | font
                      | subsuper
                      )
@@ -2016,6 +2009,9 @@ class Parser(object):
         box = self._make_space(num)
         return [box]
 
+    def customspace(self, s, loc, toks):
+        return [self._make_space(float(toks[1]))]
+    
     def symbol(self, s, loc, toks):
         # print "symbol", toks
         c = toks[0]
@@ -2226,7 +2222,8 @@ class Parser(object):
                 y = Hlist([sub])
                 # y.width += SCRIPT_SPACE * xHeight
                 shift_down = max(shift_down, SUB1 * xHeight)
-                clr = 2.0 * rule_thickness - ((shift_up - x.depth) - (y.height - shift_down))
+                clr = (2.0 * rule_thickness -
+                       ((shift_up - x.depth) - (y.height - shift_down)))
                 if clr > 0.:
                     shift_up += clr
                     shift_down += clr
