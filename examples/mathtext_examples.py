@@ -9,7 +9,7 @@ stests = [
     r'$100\%y\ x*y\ x/y x\$y$',
     r'$x\leftarrow y\ x\forall y\ x-y$',
     r'$x \sf x \bf x {\cal X} \rm x$',
-    r'$x\ x\,x\;x\quad x\qquad x\!x$',
+    r'$x\ x\,x\;x\quad x\qquad x\!x\hspace{0.5}y$',
     r'$\{ \rm braces \}$',
     r'$\left[\left\lfloor\frac{5}{\frac{\left(3\right)}{4}} y\right)\right]$',
     r'$\left(x\right)$',
