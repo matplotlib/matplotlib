@@ -53,6 +53,26 @@ def _to_bool(s):
     else: return True
 
 
+def _sanity_check(fh):
+    """
+    Check if the file at least looks like AFM. 
+    If not, raise RuntimeError.
+    """
+
+    # Remember the file position in case the caller wants to
+    # do something else with the file.
+    pos = fh.tell()
+    try:
+        line = fh.readline()
+    finally:
+        fh.seek(pos, 0)
+
+    # AFM spec, Section 4: The StartFontMetrics keyword [followed by a
+    # version number] must be the first line in the file, and the
+    # EndFontMetrics keyword must be the last non-empty line in the
+    # file. We just check the first line.
+    if not line.startswith('StartFontMetrics'):
+        raise RuntimeError('Not an AFM file')
 
 def _parse_header(fh):
     """
@@ -255,6 +275,7 @@ def parse_afm(fh):
     dkernpairs : a parse_kern_pairs dict, possibly {}
     dcomposite : a parse_composites dict , possibly {}
     """
+    _sanity_check(fh)
     dhead =  _parse_header(fh)
     dcmetrics =  _parse_char_metrics(fh)
     doptional = _parse_optional(fh)
