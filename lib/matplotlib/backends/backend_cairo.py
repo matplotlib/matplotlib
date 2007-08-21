@@ -38,7 +38,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook        import enumerate, izip
 from matplotlib.figure       import Figure
-from matplotlib.mathtext     import math_parse_s_cairo
+from matplotlib.mathtext     import MathTextParser
 from matplotlib.transforms   import Bbox
 from matplotlib.font_manager import ttfFontProperty
 from matplotlib import rcParams
@@ -92,7 +92,7 @@ class RendererCairo(RendererBase):
         self.dpi = dpi
         self.text_ctx = cairo.Context (
            cairo.ImageSurface (cairo.FORMAT_ARGB32,1,1))
-
+        self.mathtext_parser = MathTextParser('Cairo')
 
     def set_ctx_from_surface (self, surface):
        self.ctx = cairo.Context (surface)
@@ -304,7 +304,7 @@ class RendererCairo(RendererBase):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
 
         ctx = gc.ctx
-        width, height, glyphs, rects = math_parse_s_cairo(
+        width, height, glyphs, rects = self.mathtext_parser.parse(
             s, self.dpi.get(), prop)
 
         ctx.save()
@@ -352,7 +352,7 @@ class RendererCairo(RendererBase):
     def get_text_width_height(self, s, prop, ismath):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         if ismath:
-            width, height, fonts, used_characters = math_parse_s_cairo(
+            width, height, fonts, used_characters = self.mathtext_parser.parse(
                s, self.dpi.get(), prop)
             return width, height
 

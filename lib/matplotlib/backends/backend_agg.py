@@ -83,7 +83,7 @@ from matplotlib.cbook import enumerate, is_string_like, exception_to_str
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, LOAD_DEFAULT
-from matplotlib.mathtext import math_parse_s_ft2font
+from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import lbwh_to_bbox
 
 from _backend_agg import RendererAgg as _RendererAgg
@@ -125,7 +125,7 @@ class RendererAgg(RendererBase):
 
         self.copy_from_bbox = self._renderer.copy_from_bbox
         self.restore_region = self._renderer.restore_region
-
+        self.mathtext_parser = MathTextParser('Agg')
 
         self.bbox = lbwh_to_bbox(0,0, self.width, self.height)
         if __debug__: verbose.report('RendererAgg.__init__ done',
@@ -173,7 +173,7 @@ class RendererAgg(RendererBase):
         """
         if __debug__: verbose.report('RendererAgg.draw_mathtext',
                                      'debug-annoying')
-        width, height, fonts, used_characters = math_parse_s_ft2font(
+        width, height, fonts, used_characters = self.mathtext_parser.parse(
             s, self.dpi.get(), prop)
 
         if angle == 90:
@@ -230,7 +230,7 @@ class RendererAgg(RendererBase):
             return n,m
 
         if ismath:
-            width, height, fonts, used_characters = math_parse_s_ft2font(
+            width, height, fonts, used_characters = self.mathtext_parser.parse(
                 s, self.dpi.get(), prop)
             return width, height
         font = self._get_agg_font(prop)

@@ -29,7 +29,7 @@ from matplotlib.afm import AFM
 from matplotlib.dviread import Dvi
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, \
     LOAD_NO_HINTING, KERNING_UNFITTED
-from matplotlib.mathtext import math_parse_s_pdf
+from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Bbox
 from matplotlib import ttconv
 
@@ -1032,6 +1032,7 @@ class RendererPdf(RendererBase):
             self.encode_string = self.encode_string_type3
         else:
             self.encode_string = self.encode_string_type42
+        self.mathtext_parser = MathTextParser("Pdf")
 
     def finalize(self):
         self.gc.finalize()
@@ -1219,7 +1220,7 @@ class RendererPdf(RendererBase):
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
         width, height, glyphs, rects, used_characters = \
-            math_parse_s_pdf(s, 72, prop)
+            self.mathtext_parser.parse(s, 72, prop)
         self.merge_used_characters(used_characters)
 
         # When using Type 3 fonts, we can't use character codes higher
@@ -1466,7 +1467,7 @@ class RendererPdf(RendererBase):
 
         if ismath:
             w, h, glyphs, rects, used_characters = \
-                math_parse_s_pdf(s, 72, prop)
+                self.mathtext_parser.parse(s, 72, prop)
 
         elif rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)

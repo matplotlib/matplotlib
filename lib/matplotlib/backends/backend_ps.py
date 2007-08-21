@@ -21,7 +21,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
-from matplotlib.mathtext import math_parse_s_ps
+from matplotlib.mathtext import MathTextParser
 from matplotlib.text import Text
 
 from matplotlib.transforms import get_vec6_scales
@@ -144,6 +144,7 @@ class RendererPS(RendererBase):
         self.fontd = {}
         self.afmfontd = {}
         self.used_characters = {}
+        self.mathtext_parser = MathTextParser("PS")
 
     def track_characters(self, font, s):
         """Keeps track of which characters are required from
@@ -277,8 +278,8 @@ class RendererPS(RendererBase):
             return w, h
 
         if ismath:
-            width, height, pswriter, used_characters = math_parse_s_ps(
-                s, 72, prop)
+            width, height, pswriter, used_characters = \
+                self.mathtext_parser.parse(s, 72, prop)
             return width, height
 
         if rcParams['ps.useafm']:
@@ -814,7 +815,7 @@ grestore
             self._pswriter.write("% mathtext\n")
 
         width, height, pswriter, used_characters = \
-            math_parse_s_ps(s, 72, prop)
+            self.mathtext_parser.parse(s, 72, prop)
         self.merge_used_characters(used_characters)
         self.set_color(*gc.get_rgb())
         thetext = pswriter.getvalue()

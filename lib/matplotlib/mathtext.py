@@ -532,7 +532,7 @@ class TruetypeFonts(Fonts):
             slanted = slanted
             )
 
-        self.glyphd[key] = Bunch(
+        result = self.glyphd[key] = Bunch(
             font            = font,
             fontsize        = fontsize,
             postscript_name = font.postscript_name,
@@ -542,7 +542,7 @@ class TruetypeFonts(Fonts):
             glyph           = glyph,
             offset          = offset
             )
-        return self.glyphd[key]
+        return result
 
     def get_xheight(self, font, fontsize, dpi):
         cached_font = self._get_font(font)
@@ -2343,7 +2343,7 @@ class Parser(object):
 ##############################################################################
 # MAIN
 
-class math_parse_s_ft2font_common:
+class MathTextParser:
     """
     Parse the math expression s, return the (bbox, fonts) tuple needed
     to render it.
@@ -2352,40 +2352,38 @@ class math_parse_s_ft2font_common:
 
     return is width, height, fonts
     """
-    major, minor1, minor2, tmp, tmp = sys.version_info
-    if major==2 and minor1==2:
-        raise SystemExit('mathtext broken on python2.2.  We hope to get this fixed soon')
-
     _parser = None
-
+    
     _backend_mapping = {
         'Agg'   : MathtextBackendAgg,
         'PS'    : MathtextBackendPs,
-        'PDF'   : MathtextBackendPdf,
+        'Pdf'   : MathtextBackendPdf,
         'SVG'   : MathtextBackendSvg,
         'Cairo' : MathtextBackendCairo
         }
 
     def __init__(self, output):
-        self.output = output
-        self.cache = {}
+        self._output = output
+        self._cache = {}
 
-    def __call__(self, s, dpi, prop):
+    def parse(self, s, dpi, prop):
         cacheKey = (s, dpi, hash(prop))
-        if self.cache.has_key(cacheKey):
-            result = self.cache[cacheKey]
+        result = self._cache.get(cacheKey)
+        if result is not None:
             return result
 
-        if self.output == 'PS' and rcParams['ps.useafm']:
+        if self._output == 'PS' and rcParams['ps.useafm']:
             font_output = StandardPsFonts(prop)
         else:
-            backend = self._backend_mapping[self.output]()
+            backend = self._backend_mapping[self._output]()
             if rcParams['mathtext.use_cm']:
                 font_output = BakomaFonts(prop, backend)
             else:
                 font_output = UnicodeFonts(prop, backend)
 
         fontsize = prop.get_size_in_points()
+        # This is a class variable so we don't rebuild the parser
+        # with each request.
         if self._parser is None:
             self.__class__._parser = Parser()
         box = self._parser.parse(s, font_output, fontsize, dpi)
@@ -2395,7 +2393,7 @@ class math_parse_s_ft2font_common:
         font_output.set_canvas_size(w, h)
         ship(2, 2, box)
         result = font_output.get_results()
-        self.cache[cacheKey] = result
+        self._cache[cacheKey] = result
         # Free up the transient data structures
         self._parser.clear()
         # Remove a cyclical reference
@@ -2403,8 +2401,8 @@ class math_parse_s_ft2font_common:
 
         return result
 
-math_parse_s_ft2font = math_parse_s_ft2font_common('Agg')
-math_parse_s_ft2font_svg = math_parse_s_ft2font_common('SVG')
-math_parse_s_ps = math_parse_s_ft2font_common('PS')
-math_parse_s_pdf = math_parse_s_ft2font_common('PDF')
-math_parse_s_cairo = math_parse_s_ft2font_common('Cairo')
+# math_parse_s_ft2font = math_parse_s_ft2font_common('Agg')
+# math_parse_s_ft2font_svg = math_parse_s_ft2font_common('SVG')
+# math_parse_s_ps = math_parse_s_ft2font_common('PS')
+# math_parse_s_pdf = math_parse_s_ft2font_common('PDF')
+# math_parse_s_cairo = math_parse_s_ft2font_common('Cairo')
