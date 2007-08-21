@@ -241,7 +241,7 @@ if check_for_wx() and BUILD_WXAGG:
         build_wxagg(ext_modules, packages)
         wxagg_backend_status = "yes"
     else:
-        print_message("WxAgg extension not required for wxPython < 2.8")
+        print_message("WxAgg extension not required for wxPython >= 2.8")
     rc['backend'] = 'WXAgg'
 
 # These are informational only.  We don't build
