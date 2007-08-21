@@ -143,7 +143,7 @@ from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
      Combine, Group, Optional, Forward, NotAny, alphas, nums, alphanums, \
      StringStart, StringEnd, ParseFatalException, FollowedBy, Regex, \
      operatorPrecedence, opAssoc, ParseResults, Or, Suppress, oneOf, \
-     ParseException, MatchFirst
+     ParseException, MatchFirst, NoMatch
 
 from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch, get_realpath_and_stat, \
@@ -1806,12 +1806,12 @@ class Parser(object):
                      + rbrace
                      ).setParseAction(self.customspace).setName('customspace')
 
-        symbol       =(Regex(r"[a-zA-Z0-9 +\-*/<>=:,.;!'@()[\]]")
-                     ^  Combine(
-                          bslash
-                        + oneOf(tex2uni.keys())
-                        )
-                      ).setParseAction(self.symbol).leaveWhitespace()
+        symbol       =(Regex(r"([a-zA-Z0-9 +\-*/<>=:,.;!'@()])|(\\[%${}\[\]])")
+                     | Combine(
+                         bslash
+                       + oneOf(tex2uni.keys())
+                       )
+                     ).setParseAction(self.symbol).leaveWhitespace()
 
         accent       = Group(
                          Combine(bslash + accent)
@@ -1823,7 +1823,7 @@ class Parser(object):
 
         group        = Group(
                          start_group
-                       + OneOrMore(
+                       + ZeroOrMore(
                            autoDelim
                          | simple)
                        + end_group
@@ -1907,7 +1907,7 @@ class Parser(object):
 
         math         = OneOrMore(
                        autoDelim
-                     | simple
+                     ^ simple
                      ).setParseAction(self.math).setName("math")
 
         math_delim   =(~bslash
@@ -1916,16 +1916,18 @@ class Parser(object):
         non_math     = Regex(r"(?:[^$]|(?:\\\$))*"
                      ).setParseAction(self.non_math).setName("non_math").leaveWhitespace()
 
-        self._expression <<(
-                         non_math
-                       + ZeroOrMore(
-                           Suppress(math_delim)
-                         + math
-                         + Suppress(math_delim)
-                         + non_math
-                         )
-                       )
+        self._expression << (
+            non_math
+          + ZeroOrMore(
+                Suppress(math_delim)
+              + math
+              + Suppress(math_delim)
+              + non_math
+            )  
+          ) + StringEnd()
 
+        self._expression.enablePackrat()
+        
         self.clear()
 
     def clear(self):
@@ -1966,6 +1968,7 @@ class Parser(object):
         self._state_stack.append(self.get_state().copy())
 
     def finish(self, s, loc, toks):
+        #~ print "finish", toks
         self._expr = Hlist(toks)
         return [self._expr]
 
