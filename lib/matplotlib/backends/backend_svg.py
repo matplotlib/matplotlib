@@ -9,7 +9,7 @@ from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, FontProperties
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
-from matplotlib.mathtext import math_parse_s_ft2font_svg
+from matplotlib.mathtext import MathTextParser
 
 from xml.sax.saxutils import escape as escape_xml_text
 
@@ -40,6 +40,7 @@ class RendererSVG(RendererBase):
             self._imaged = {}
         self._clipd = {}
         self._char_defs = {}
+        self.mathtext_parser = MathTextParser('SVG')
         svgwriter.write(svgProlog%(width,height,width,height))
 
     def _draw_svg_element(self, element, details, gc, rgbFace):
@@ -338,7 +339,7 @@ class RendererSVG(RendererBase):
         Draw math text using matplotlib.mathtext
         """
         width, height, svg_elements, used_characters = \
-            math_parse_s_ft2font_svg(s, 72, prop)
+            self.mathtext_parser.parse(s, 72, prop)
         svg_glyphs = svg_elements.svg_glyphs
         svg_rects = svg_elements.svg_rects
         color = rgb2hex(gc.get_rgb())
@@ -428,7 +429,7 @@ class RendererSVG(RendererBase):
     def get_text_width_height(self, s, prop, ismath):
         if ismath:
             width, height, trash, used_characters = \
-                math_parse_s_ft2font_svg(s, 72, prop)
+                self.mathtext_parser.parse(s, 72, prop)
             return width, height
         font = self._get_font(prop)
         font.set_text(s, 0.0, flags=LOAD_NO_HINTING)

@@ -24,7 +24,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.figure import Figure
-from matplotlib.mathtext import math_parse_s_ft2font
+from matplotlib.mathtext import MathTextParser
 
 from matplotlib.backends._backend_gdk import pixbuf_get_pixels_array
 
@@ -71,6 +71,7 @@ class RendererGDK(RendererBase):
         self.gtkDA = gtkDA
         self.dpi   = dpi
         self._cmap = gtkDA.get_colormap()
+        self.mathtext_parser = MathTextParser("Agg")
 
     def set_pixmap (self, pixmap):
         self.gdkDrawable = pixmap
@@ -198,7 +199,7 @@ class RendererGDK(RendererBase):
 
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
-        width, height, fonts, used_characters = math_parse_s_ft2font(
+        width, height, fonts, used_characters = self.mathtext_parser.parse(
             s, self.dpi.get(), prop)
 
         if angle==90:
@@ -341,7 +342,7 @@ class RendererGDK(RendererBase):
 
     def get_text_width_height(self, s, prop, ismath):
         if ismath:
-            width, height, fonts, used_characters = math_parse_s_ft2font(
+            width, height, fonts, used_characters = self.mathtext_parser.parse(
                 s, self.dpi.get(), prop)
             return width, height
 
