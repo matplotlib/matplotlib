@@ -198,7 +198,7 @@ def validate_fontsize(s):
     except ValueError:
         raise ValueError('not a valid font size')
 
-class FontPropertiesProxy:
+class FontPropertiesProxy(object):
     # In order to build a FontProperties object, various rcParams must
     # already be known in order to set default values.  That means a
     # FontProperties object can not be created from a config file,

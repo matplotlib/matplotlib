@@ -161,12 +161,14 @@ class MPLConfig(TConfig):
             dvipnghack = T.false
     
     class mathtext(TConfig):
-        cal = T.Trait("['cursive']", mplT.FontPropertiesHandler())
-        rm = T.Trait("['serif']", mplT.FontPropertiesHandler())
-        tt = T.Trait("['monospace']", mplT.FontPropertiesHandler())
-        it = T.Trait("['serif'], style='oblique'", mplT.FontPropertiesHandler())
-        bf = T.Trait("['serif'], weight='bold'", mplT.FontPropertiesHandler())
-        sf = T.Trait("['sans-serif']", mplT.FontPropertiesHandler())
+        handler = mplT.FontPropertiesHandler
+        proxy = handler.FontPropertiesProxy
+        cal = T.Trait(proxy(['cursive']), handler())
+        rm = T.Trait(proxy(['serif']), handler())
+        tt = T.Trait(proxy(['monospace']), handler())
+        it = T.Trait(proxy(['serif'], style='oblique'), handler())
+        bf = T.Trait(proxy(['serif'], weight='bold'), handler())
+        sf = T.Trait(proxy(['sans-serif']), handler())
         use_cm = T.true
         fallback_to_cm = T.true
 

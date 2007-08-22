@@ -146,7 +146,7 @@ colormaps = ['Accent', 'Accent_r', 'Blues', 'Blues_r', 'BrBG', 'BrBG_r', 'BuGn',
              'spring_r', 'summer', 'summer_r', 'winter', 'winter_r']
 
 class FontPropertiesHandler(T.TraitHandler):
-    class FontPropertiesProxy:
+    class FontPropertiesProxy(object):
         # In order to build a FontProperties object, various rcParams must
         # already be known in order to set default values.  That means a
         # FontProperties object can not be created from a config file,
@@ -192,8 +192,6 @@ class FontPropertiesHandler(T.TraitHandler):
 
     def validate(self, object, name, value):
         from matplotlib.font_manager import FontProperties
-        if isinstance(value, FontProperties):
-            return value
         if is_string_like(value):
             try:
                 proxy = eval("FontProperties(%s)" % value,
@@ -202,7 +200,9 @@ class FontPropertiesHandler(T.TraitHandler):
                 pass
             else:
                 return proxy
+        else:
+            return value
         self.error(object, name, value)
                 
     def info(self):
-        return 'Represents a set of font properties.  Must be a FontProperties object or a string containing the parameters to the FontProperties constructor.'
+        return 'a FontProperties object or a string containing the parameters to the FontProperties constructor.'
