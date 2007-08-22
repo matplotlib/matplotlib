@@ -516,9 +516,13 @@ if CONVERT:
                                 config_file)
 
 def rcdefaults():
-    global mplConfig
-    mplConfig = MPLConfig()
-    rcParams.update(rcParamsDefault)
+    """
+    Restore the default rc params - the ones that were created at
+    matplotlib load time
+    """
+    for key in rcParamsDefault.keys():
+        rcParams[key] = rcParamsDefault[key]
+
 
 ##############################################################################
 # Auto-generate the mpl-data/matplotlib.conf
