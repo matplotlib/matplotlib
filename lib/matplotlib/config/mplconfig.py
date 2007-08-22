@@ -461,6 +461,17 @@ See rcParams.keys() for a list of valid parameters.'%key)
     def has_key(self, val):
         return self.tconfig_map.has_key(val)
 
+    def update(self, arg, **kwargs):
+        try:
+            for key in arg:
+                self[key] = arg[key]
+        except AttributeError:
+            for key, val in arg:
+                self[key] = val
+        
+        for key in kwargs:
+            self[key] = kwargs[key]
+
 
 old_config_file = cutils.get_config_file(tconfig=False)
 old_config_path = os.path.split(old_config_file)[0]
@@ -503,8 +514,9 @@ if CONVERT:
                                 config_file)
 
 def rcdefaults():
+    global mplConfig
     mplConfig = MPLConfig()
-    rcParams = RcParamsWrapper(mplConfig)
+    rcParams.update(rcParamsDefault)
 
 ##############################################################################
 # Auto-generate the mpl-data/matplotlib.conf
