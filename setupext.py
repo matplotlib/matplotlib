@@ -779,8 +779,6 @@ def build_ttconv(ext_modules, packages):
             'ttconv/pprdrv_tt.cpp',
             'ttconv/pprdrv_tt2.cpp',
             'ttconv/ttutil.cpp']
-    deps.extend(glob.glob('CXX/*.cxx'))
-    deps.extend(glob.glob('CXX/*.c'))
 
     module = Extension('matplotlib.ttconv', deps)
     add_base_flags(module)
