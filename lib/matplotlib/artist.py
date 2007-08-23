@@ -588,7 +588,7 @@ class ArtistInspector:
             if self.is_alias(func): continue
             try: val = func()
             except: continue
-            if hasattr(val, 'shape') and len(val)>6:
+            if getattr(val, 'shape', ()) != () and len(val)>6:
                 s = str(val[:6]) + '...'
             else:
                 s = str(val)
