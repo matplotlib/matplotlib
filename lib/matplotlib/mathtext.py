@@ -645,7 +645,7 @@ class BakomaFonts(TruetypeFonts):
                         ('ex', '\xbf'), ('ex', '\x2a')],
         r'\rangle'   : [('cal', '\x69'), ('ex', '\xae'), ('ex', '\x45'),
                         ('ex', '\xc0'), ('ex', '\x2b')],
-        r'\sqrt'     : [('cal', '\x70'), ('ex', '\x70'), ('ex', '\x71'),
+        r'\__sqrt__' : [('cal', '\x70'), ('ex', '\x70'), ('ex', '\x71'),
                         ('ex', '\x72'), ('ex', '\x73')],
         r'\backslash': [('cal', '\x6e'), ('ex', '\xb2'), ('ex', '\x2f'),
                         ('ex', '\xc2'), ('ex', '\x2d')],
@@ -2296,7 +2296,7 @@ class Parser(object):
         # the height so it doesn't seem cramped
         height = body.height - body.shift_amount + thickness * 5.0
         depth = body.depth + body.shift_amount
-        check = AutoHeightChar(r'\sqrt', height, depth, state, always=True)
+        check = AutoHeightChar(r'\__sqrt__', height, depth, state, always=True)
         height = check.height - check.shift_amount
         depth = check.depth + check.shift_amount
 
