@@ -1021,7 +1021,7 @@ end"""
 
 class RendererPdf(RendererBase):
 
-    def __init__(self, file):
+    def __init__(self, file, dpi):
         RendererBase.__init__(self)
         self.file = file
         self.gc = self.new_gc()
@@ -1033,6 +1033,7 @@ class RendererPdf(RendererBase):
         else:
             self.encode_string = self.encode_string_type42
         self.mathtext_parser = MathTextParser("Pdf")
+        self.image_magnification = dpi/72.0
 
     def finalize(self):
         self.gc.finalize()
@@ -1120,6 +1121,9 @@ class RendererPdf(RendererBase):
 
         self.file.output(self.gc.close_and_paint())
 
+    def get_image_magnification(self):
+        return self.image_magnification
+
     def draw_image(self, x, y, im, bbox):
         #print >>sys.stderr, "draw_image called"
 
@@ -1128,6 +1132,7 @@ class RendererPdf(RendererBase):
         self.check_gc(gc)
 
         h, w = im.get_size_out()
+        h, w = h/self.image_magnification, w/self.image_magnification
         imob = self.file.imageObject(im)
         self.file.output(Op.gsave, w, 0, 0, h, x, y, Op.concat_matrix,
                          imob, Op.use_xobject, Op.grestore)
@@ -1735,7 +1740,7 @@ class FigureCanvasPdf(FigureCanvasBase):
             filename += '.pdf'
 
         file = PdfFile(width, height, filename)
-        renderer = RendererPdf(file)
+        renderer = RendererPdf(file, dpi)
         self.figure.draw(renderer)
         renderer.finalize()
         file.close()
