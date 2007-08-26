@@ -80,6 +80,7 @@ _plotcommands = (
     'specgram',
     'spy',
     'stem',
+    'step',
     'vlines',
     'quiver',
     'quiverkey',

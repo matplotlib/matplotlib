@@ -6,15 +6,15 @@ This would typically be used with gappy data, to
 break the line at the data gaps.
 '''
 
-import matplotlib.numerix.ma as M
+import matplotlib.numerix.npyma as ma
 from pylab import *
 
-x = M.arange(0, 2*pi, 0.02)
-y = M.sin(x)
+x = ma.arange(0, 2*pi, 0.02)
+y = ma.sin(x)
 y1 = sin(2*x)
 y2 = sin(3*x)
-ym1 = M.masked_where(y1 > 0.5, y1)
-ym2 = M.masked_where(y2 < -0.5, y2)
+ym1 = ma.masked_where(y1 > 0.5, y1)
+ym2 = ma.masked_where(y2 < -0.5, y2)
 
 lines = plot(x, y, 'r', x, ym1, 'g', x, ym2, 'bo')
 setp(lines[0], linewidth = 4)
