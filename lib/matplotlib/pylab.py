@@ -1555,7 +1555,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 def acorr(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1576,7 +1576,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def arrow(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1597,7 +1597,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def axhline(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1618,7 +1618,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def axhspan(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1639,7 +1639,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def axvline(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1660,7 +1660,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def axvspan(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1681,7 +1681,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def bar(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1702,7 +1702,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def barh(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1723,7 +1723,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def broken_barh(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1744,7 +1744,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def boxplot(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1765,7 +1765,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def cohere(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1786,7 +1786,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def clabel(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1807,7 +1807,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def contour(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1828,7 +1828,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def contourf(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1849,7 +1849,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def csd(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1870,7 +1870,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def errorbar(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1891,7 +1891,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def fill(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1912,7 +1912,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def hist(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1933,7 +1933,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def hlines(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1954,7 +1954,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def imshow(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1975,7 +1975,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def loglog(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -1996,7 +1996,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def pcolor(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2017,7 +2017,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def pcolormesh(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2038,7 +2038,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def pie(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2059,7 +2059,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def plot(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2080,7 +2080,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def plot_date(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2101,7 +2101,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def psd(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2122,7 +2122,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def scatter(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2143,7 +2143,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def semilogx(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2164,7 +2164,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def semilogy(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2185,7 +2185,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def specgram(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2206,7 +2206,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def spy(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2227,7 +2227,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def stem(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2245,10 +2245,31 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+def step(*args, **kwargs):
+    # allow callers to override the hold state by passing hold=True|False
+    b = ishold()
+    h = kwargs.pop('hold', None)
+    if h is not None:
+        hold(h)
+    try:
+        ret =  gca().step(*args, **kwargs)
+        draw_if_interactive()
+    except:
+        hold(b)
+        raise
+
+    hold(b)
+    return ret
+if Axes.step.__doc__ is not None:
+    step.__doc__ = dedent(Axes.step.__doc__) + """
+Addition kwargs: hold = [True|False] overrides default hold state"""
+
+# This function was autogenerated by boilerplate.py.  Do not edit as
+# changes will be lost
 def vlines(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2269,7 +2290,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def quiver(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2290,7 +2311,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def quiverkey(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2311,7 +2332,7 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 def xcorr(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
-    h = popd(kwargs, 'hold', None)
+    h = kwargs.pop('hold', None)
     if h is not None:
         hold(h)
     try:
@@ -2580,5 +2601,6 @@ def spectral():
     if im is not None:
         im.set_cmap(cm.spectral)
     draw_if_interactive()
+
 
 

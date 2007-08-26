@@ -2964,6 +2964,58 @@ class Axes(martist.Artist):
 
     #### Specialized plotting
 
+    def step(self, x, y, *args, **kwargs):
+        '''
+        step(x, y, *args, **kwargs)
+
+        x and y must be 1-D sequences, and it is assumed, but not checked,
+        that x is uniformly increasing.
+
+        Make a step plot. The args and keyword args to step are the same
+        as the args to plot. See help plot for more info.
+
+        Additional keyword args for step:
+
+        * where: can be 'pre', 'post' or 'mid'; if 'pre', the
+                    interval from x[i] to x[i+1] has level y[i];
+                    if 'post', that interval has level y[i+1];
+                    and if 'mid', the jumps in y occur half-way
+                    between the x-values.  Default is 'pre'.
+        '''
+
+        where = kwargs.pop('where', 'pre')
+
+        if not cbook.iterable(x):
+            x = ma.array([x], dtype=npy.float_)
+        if not cbook.iterable(y):
+            y = ma.array([y], dtype=npy.float_)
+
+        if where=='pre':
+            x2 = ma.zeros((2*len(x)-1,), npy.float_)
+            y2 = ma.zeros((2*len(y)-1,), npy.float_)
+
+            x2[0::2], x2[1::2] = x, x[:-1]
+            y2[0::2], y2[1:-1:2] = y, y[1:]
+
+        elif where=='post':
+            x2 = ma.zeros((2*len(x)-1,), npy.float_)
+            y2 = ma.zeros((2*len(y)-1,), npy.float_)
+
+            x2[::2], x2[1:-1:2] = x, x[1:]
+            y2[0::2], y2[1::2] = y, y[:-1]
+
+        elif where=='mid':
+            x2 = ma.zeros((2*len(x),), npy.float_)
+            y2 = ma.zeros((2*len(y),), npy.float_)
+
+            x2[1:-1:2] = 0.5*(x[:-1]+x[1:])
+            x2[2::2] = 0.5*(x[:-1]+x[1:])
+            x2[0], x2[-1] = x[0], x[-1]
+
+            y2[0::2], y2[1::2] = y, y
+
+        return self.plot(x2, y2, *args, **kwargs)
+
 
     def bar(self, left, height, width=0.8, bottom=None,
             color=None, edgecolor=None, linewidth=None,
