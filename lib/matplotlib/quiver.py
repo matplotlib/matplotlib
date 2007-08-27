@@ -173,12 +173,14 @@ class QuiverKey(artist.Artist):
         self.labelpos = kw.pop('labelpos', 'N')
         self.labelcolor = kw.pop('labelcolor', None)
         self.fontproperties = kw.pop('fontproperties', dict())
+        self.markup = kw.pop('markup', None)
         self.kw = kw
         _fp = self.fontproperties
         self.text = text.Text(text=label,
                        horizontalalignment=self.halign[self.labelpos],
                        verticalalignment=self.valign[self.labelpos],
-                       fontproperties=font_manager.FontProperties(**_fp))
+                       fontproperties=font_manager.FontProperties(**_fp),
+                       markup=self.markup)
         if self.labelcolor is not None:
             self.text.set_color(self.labelcolor)
         self._initialized = False

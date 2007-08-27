@@ -123,7 +123,8 @@ class Legend(Artist):
                  handletextsep = None, # the space between the legend line and legend text
                  axespad = None,       # the border between the axes and legend edge
 
-                 shadow= None,
+                 shadow = None,
+                 markup = None
                  ):
         """
   parent                # the artist that contains the legend
@@ -203,7 +204,7 @@ The following dimensions are in axes coords
         else:
             self._xdata = npy.linspace(left, left + self.handlelen, self.numpoints)
         textleft = left+ self.handlelen+self.handletextsep
-        self.texts = self._get_texts(labels, textleft, top)
+        self.texts = self._get_texts(labels, textleft, top, markup)
         self.legendHandles = self._get_handles(handles, self.texts)
 
 
@@ -404,7 +405,7 @@ The following dimensions are in axes coords
         'return a list of text.Text instance in the legend'
         return silent_list('Text', self.texts)
 
-    def _get_texts(self, labels, left, upper):
+    def _get_texts(self, labels, left, upper, markup):
 
         # height in axes coords
         HEIGHT = self._approx_text_height()
@@ -419,6 +420,7 @@ The following dimensions are in axes coords
                 fontproperties=self.prop,
                 verticalalignment='top',
                 horizontalalignment='left',
+                markup=markup
                 )
             self._set_artist_props(text)
             ret.append(text)

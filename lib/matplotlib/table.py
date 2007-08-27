@@ -47,6 +47,8 @@ class Cell(Rectangle):
                  fill=True,
                  text='',
                  loc=None,
+                 fontproperties=None,
+                 markup=None
                  ):
 
         # Call base
@@ -58,7 +60,8 @@ class Cell(Rectangle):
         # Create text object
         if loc is None: loc = 'right'
         self._loc = loc
-        self._text = Text(x=xy[0], y=xy[1], text=text)
+        self._text = Text(x=xy[0], y=xy[1], text=text,
+                          fontproperties=fontproperties, markup=markup)
         self._text.set_clip_on(False)
 
 
