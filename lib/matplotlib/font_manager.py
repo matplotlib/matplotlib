@@ -34,10 +34,14 @@ License   : matplotlib license (PSF compatible)
 """
 
 import os, sys, glob, shutil
+from sets import Set
 import matplotlib
 from matplotlib import afm
 from matplotlib import ft2font
 from matplotlib import rcParams, get_home, get_configdir
+from matplotlib.cbook import is_string_like
+from matplotlib.fontconfig_pattern import \
+    parse_fontconfig_pattern, generate_fontconfig_pattern
 
 try:
     import cPickle as pickle
@@ -48,7 +52,7 @@ verbose = matplotlib.verbose
 
 font_scalings = {'xx-small': 0.579, 'x-small': 0.694, 'small': 0.833,
                  'medium': 1.0, 'large': 1.200, 'x-large': 1.440,
-                 'xx-large': 1.728}
+                 'xx-large': 1.728, 'larger': 1.2, 'smaller': 0.833}
 
 weight_dict = {'light': 200, 'normal': 400, 'regular': 400, 'book': 400,
                'medium': 500, 'roman': 500, 'semibold': 600, 'demibold': 600,
@@ -552,8 +556,7 @@ def setWeights(font):
             for j in [600, 700, 800, 900]:
                 font[j] = temp[700]
 
-
-class FontProperties:
+class FontProperties(object):
     """
     A class for storing and manipulating font properties.
 
@@ -582,32 +585,37 @@ class FontProperties:
     The default font property for TrueType fonts is: sans-serif, normal,
     normal, normal, 400, scalable.
 
-    The preferred usage of font sizes is to use the absolute values, e.g.
+    The preferred usage of font sizes is to use the relative values, e.g.
     large, instead of absolute font sizes, e.g. 12.  This approach allows
     all text sizes to be made larger or smaller based on the font manager's
     default font size, i.e. by using the set_default_size() method of the
     font manager.
 
-    Examples:
+    This class will also accept a fontconfig pattern, if it is the only
+    argument provided.  fontconfig patterns are described here:
 
-      #  Load default font properties
-      >>> p = FontProperties()
-      >>> p.get_family()
-      ['Bitstream Vera Sans', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucida', 'Arial', 'Helvetica', 'sans-serif']
+      http://www.fontconfig.org/fontconfig-user.html
 
-      #  Change font family to 'fantasy'
-      >>> p.set_family('fantasy')
-      >>> p.get_family()
-      ['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact', 'Western', 'fantasy']
-
-      #  Make these fonts highest priority in font family
-      >>> p.set_name(['foo', 'fantasy', 'bar', 'baz'])
-      Font name 'fantasy' is a font family. It is being deleted from the list.
-      >>> p.get_family()
-      ['foo', 'bar', 'baz', 'Comic Sans MS', 'Chicago', 'Charcoal', 'Impact', 'Western', 'fantasy']
-
+    Note that matplotlib's internal font manager and fontconfig use a
+    different algorithm to lookup fonts, so the results of the same pattern
+    may be different in matplotlib than in other applications that use
+    fontconfig.
     """
 
+    class FontPropertiesSet(object):
+        """This class contains all of the default properties at the
+        class level, which are then overridden (only if provided) at
+        the instance level."""
+        family = rcParams['font.' + rcParams['font.family']]
+        if is_string_like(family):
+            family = [family]
+        slant = rcParams['font.style']
+        variant = rcParams['font.variant']
+        weight = rcParams['font.weight']
+        stretch = rcParams['font.stretch']
+        size = [rcParams['font.size']]
+        file = None
+        
     def __init__(self,
                  family = None,
                  style  = None,
@@ -615,42 +623,51 @@ class FontProperties:
                  weight = None,
                  stretch= None,
                  size   = None,
-                 fname = None, # if this is set, it's a hardcoded filename to use
+                 fname  = None, # if this is set, it's a hardcoded filename to use
+                 _init   = None  # used only by copy()
                  ):
 
+        self.__props = self.FontPropertiesSet()
 
-        if family is None: family = rcParams['font.'+rcParams['font.family']]
-        if style is None: style  = rcParams['font.style']
-        if variant is None: variant= rcParams['font.variant']
-        if weight is None: weight = rcParams['font.weight']
-        if stretch is None: stretch= rcParams['font.stretch']
-        if size is None: size   = rcParams['font.size']
-
+        # This is used only by copy()
+        if _init is not None:
+            self.__props.__dict__.update(_init)
+            return
+        
         if isinstance(family, str):
+            # Treat family as a fontconfig pattern if it is the only
+            # parameter provided.
+            if (style is None and
+                variant is None and
+                weight is None and
+                stretch is None and
+                size is None and
+                fname is None):
+                self.__props.__dict__ = self._parse_fontconfig_pattern(family)
+                return
             family = [family]
-        self.__family  = family
-        self.__style   = style
-        self.__variant = variant
-        self.__weight  = weight
-        self.__stretch = stretch
-        self.__size    = size
-        self.__parent_size = fontManager.get_default_size()
-        self.fname = fname
+
+        self.set_family(family)
+        self.set_style(style)
+        self.set_variant(variant)
+        self.set_weight(weight)
+        self.set_stretch(stretch)
+        self.set_file(fname)
+        self.set_size(size)
+            
+    def _parse_fontconfig_pattern(self, pattern):
+        return parse_fontconfig_pattern(pattern)
 
     def __hash__(self):
-        return hash( (
-            tuple(self.__family), self.__style, self.__variant,
-            self.__weight, self.__stretch, self.__size,
-            self.__parent_size, self.fname))
+        return hash(repr(self.__props))
 
     def __str__(self):
-        return str((self.__family, self.__style, self.__variant,
-                    self.__weight, self.__stretch, self.__size))
-
+        return self.get_fontconfig_pattern()
+                              
     def get_family(self):
         """Return a list of font names that comprise the font family.
         """
-        return self.__family
+        return self.__props.family
 
     def get_name(self):
         """Return the name of the font that best matches the font properties."""
@@ -658,120 +675,115 @@ class FontProperties:
 
     def get_style(self):
         """Return the font style.  Values are: normal, italic or oblique."""
-        return self.__style
+        return self.__props.slant
 
     def get_variant(self):
         """Return the font variant.  Values are: normal or small-caps."""
-        return self.__variant
+        return self.__props.variant
 
     def get_weight(self):
         """
         Return the font weight.  See the FontProperties class for a
         a list of possible values.
         """
-        return self.__weight
+        return self.__props.weight
 
     def get_stretch(self):
         """
         Return the font stretch or width.  Options are: normal,
         narrow, condensed, or wide.
         """
-        return self.__stretch
+        return self.__props.stretch
 
     def get_size(self):
         """Return the font size."""
-        return self.__size
+        return float(self.__props.size[0])
 
+    def get_file(self):
+        return self.__props.file
+
+    def get_fontconfig_pattern(self):
+        return generate_fontconfig_pattern(self.__props.__dict__)
+    
     def set_family(self, family):
         """
-        Change the font family.  Options are: serif, sans-serif, cursive,
-        fantasy, or monospace.
+        Change the font family.  May be either an alias (generic name
+        is CSS parlance), such as: serif, sans-serif, cursive,
+        fantasy, or monospace, or a real font name.
         """
-        try:
-            self.__family = rcParams['font.'+family]
-            if isinstance(self.__family, str):
-                self.__family = [self.__family]
-        except KeyError:
-            raise KeyError, '%s - use serif, sans-serif, cursive, fantasy, or monospace.' % family
-
-    def set_name(self, names):
-        """
-        Add one or more font names to the font family list.  If the
-    font name is already in the list, then the font is given a higher
-    priority in the font family list.  To change the font family, use the
-    set_family() method.
-    """
-
-        msg = "Font name '%s' is a font family. It is being deleted from the list."
-        font_family = ['serif', 'sans-serif', 'cursive', 'fantasy',
-                       'monospace']
-
-        if isinstance(names, str):
-            names = [names]
-
-        #  Remove family names from list of font names.
-        for name in names[:]:
-            if name.lower() in font_family:
-                verbose.report( msg % name)
-                while name in names:
-                    names.remove(name.lower())
-
-        #  Remove font names from family list.
-        for name in names:
-            while name in self.__family:
-                self.__family.remove(name)
-
-        self.__family = names + self.__family
-
+        if family is None:
+            self.__props.__dict__.pop('family', None)
+        else:
+            self.__props.family = family
+        
     def set_style(self, style):
         """Set the font style.  Values are: normal, italic or oblique."""
-        self.__style = style
+        if style is None:
+            self.__props.__dict__.pop('style', None)
+        else:
+            if style not in ('normal', 'italic', 'oblique'):
+                raise ValueError("style must be normal, italic or oblique")
+            self.__props.slant = style
 
     def set_variant(self, variant):
         """Set the font variant.  Values are: normal or small-caps."""
-        self.__variant = variant
+        if variant is None:
+            self.__props.__dict__.pop('variant', None)
+        else:
+            if variant not in ('normal', 'small-caps'):
+                raise ValueError("variant must be normal or small-caps")
+            self.__props.variant = variant
 
     def set_weight(self, weight):
         """
         Set the font weight.  See the FontProperties class for a
         a list of possible values.
         """
-        self.__weight = weight
+        if weight is None:
+            self.__props.__dict__.pop('weight', None)
+        else:
+            if (weight not in weight_dict and
+                weight not in weight_dict.keys()):
+                raise ValueError("weight is invalid")
+            self.__props.weight = weight
 
     def set_stretch(self, stretch):
         """
         Set the font stretch or width.  Options are: normal, narrow,
         condensed, or wide.
         """
-        self.__stretch = stretch
+        if stretch is None:
+            self.__props.__dict__.pop('stretch', None)
+        else:
+            self.__props.stretch = stretch
 
     def set_size(self, size):
         """Set the font size."""
-        self.__size = size
-
-    def get_size_in_points(self, parent_size=None):
-        """
-        Return the size property as a numeric value.  String values
-        are converted to their corresponding numeric value.
-        """
-        if self.__size in font_scalings.keys():
-            size = fontManager.get_default_size()*font_scalings[self.__size]
-        elif self.__size == 'larger':
-            size = self.__parent_size*1.2
-        elif self.__size == 'smaller':
-            size = self.__parent_size/1.2
+        if size is None:
+            self.__props.__dict__.pop('size', None)
         else:
-            size = self.__size
-        return float(size)
+            if is_string_like(size):
+                parent_size = fontManager.get_default_size()
+                scaling = font_scalings.get(size)
+                if scaling is not None:
+                    size = parent_size * scaling
+                else:
+                    size = parent_size
+            if isinstance(size, (int, float)):
+                size = [size]
+            self.__props.size = size
 
+    def set_file(self, file):
+        self.__props.file = file
+
+    get_size_in_points = get_size
+
+    def set_fontconfig_pattern(self, pattern):
+        self.__props.__dict__ = self._parse_fontconfig_pattern(pattern)
+    
     def copy(self):
         """Return a deep copy of self"""
-        return FontProperties(self.__family,
-                              self.__style,
-                              self.__variant,
-                              self.__weight,
-                              self.__stretch,
-                              self.__size)
+        return FontProperties(_init = self.__props.__dict__)
 
 def ttfdict_to_fnames(d):
     'flatten a ttfdict to all the filenames it contains'
@@ -905,8 +917,10 @@ class FontManager:
         documentation for a description of the font finding algorithm.
         """
         debug = False
-        if prop.fname is not None:
-            fname = prop.fname
+        if is_string_like(prop):
+            prop = FontProperties(prop)
+        fname = prop.get_file()
+        if fname is not None:
             verbose.report('findfont returning %s'%fname, 'debug')
             return fname
 
@@ -957,6 +971,8 @@ class FontManager:
 
             if not font.has_key(weight):
                 setWeights(font)
+            if not font.has_key(weight):
+                return None
             font = font[weight]
 
             if font.has_key(stretch):
@@ -981,16 +997,19 @@ class FontManager:
             if fname is None:
                 verbose.report('\tfindfont failed %(name)s, %(style)s, %(variant)s %(weight)s, %(stretch)s'%locals(), 'debug')
             else:
-                fontkey = FontKey(original_name, style, variant, weight, stretch, size)
+                fontkey = FontKey(",".join(prop.get_family()), style, variant, weight, stretch, size)
                 add_filename(fontdict, fontkey, fname)
                 verbose.report('\tfindfont found %(name)s, %(style)s, %(variant)s %(weight)s, %(stretch)s, %(size)s'%locals(), 'debug')
                 verbose.report('findfont returning %s'%fname, 'debug')
             return fname
 
-        font_family_aliases = ['serif', 'sans-serif', 'cursive', 'fantasy', 'monospace']
+        font_family_aliases = Set(['serif', 'sans-serif', 'cursive',
+                                   'fantasy', 'monospace', 'sans'])
 
         for name in prop.get_family():
             if name in font_family_aliases:
+                if name == 'sans':
+                    name = 'sans-serif'
                 for name2 in rcParams['font.' + name]:
                     fname = lookup_name(name2)
                     if fname:
@@ -1001,9 +1020,9 @@ class FontManager:
                 break
 
         if not fname:
-            fontkey = FontKey(original_name, style, variant, weight, stretch, size)
+            fontkey = FontKey(",".join(prop.get_family()), style, variant, weight, stretch, size)
             add_filename(fontdict, fontkey, self.defaultFont)
-            verbose.report('Could not match %s, %s, %s.  Returning %s' % (name, style, variant, self.defaultFont))
+            verbose.report('Could not match %s, %s, %s.  Returning %s' % (name, style, weight, self.defaultFont))
             return self.defaultFont
         return fname
 
