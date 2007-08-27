@@ -4,6 +4,9 @@ import enthought.traits.api as T
 # Matplotlib-specific imports
 import cutils
 
+# For the fontconfig pattern parser
+from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
+
 # stolen from cbook
 def is_string_like(obj):
     if hasattr(obj, 'shape'): return 0 # this is a workaround
@@ -145,64 +148,14 @@ colormaps = ['Accent', 'Accent_r', 'Blues', 'Blues_r', 'BrBG', 'BrBG_r', 'BuGn',
              'prism', 'prism_r', 'spectral', 'spectral_r', 'spring', 
              'spring_r', 'summer', 'summer_r', 'winter', 'winter_r']
 
-class FontPropertiesHandler(T.TraitHandler):
-    class FontPropertiesProxy(object):
-        # In order to build a FontProperties object, various rcParams must
-        # already be known in order to set default values.  That means a
-        # FontProperties object can not be created from a config file,
-        # since it depends on other values in the same config file.  This
-        # proxy class is used as a temporary storage area for the settings
-        # in the config file, and the full FontProperties class is created
-        # only when the class is first used.  It is defined here rather than
-        # in font_manager.py to avoid a cyclical import.
-        def __init__(self,
-                     family = None,
-                     style  = None,
-                     variant= None,
-                     weight = None,
-                     stretch= None,
-                     size   = None,
-                     fname = None, # if this is set, it's a hardcoded filename to use
-                     ):
-            self.__family  = family
-            self.__style   = style
-            self.__variant = variant
-            self.__weight  = weight
-            self.__stretch = stretch
-            self.__size    = size
-            self.__fname = fname
-
-            self.__child = None
-
-        def __get_child(self):
-            if self.__child is None:
-                from matplotlib.font_manager import FontProperties
-                self.__child = FontProperties(
-                    family  = self.__family,
-                    style   = self.__style,
-                    variant = self.__variant,
-                    weight  = self.__weight,
-                    stretch = self.__stretch,
-                    size    = self.__size,
-                    fname   = self.__fname)
-            return self.__child
-
-        def __getattr__(self, attr):
-            return getattr(self.__get_child(), attr)
-
+class FontconfigPatternHandler(T.TraitHandler):
+    """This validates a fontconfig pattern by using the FontconfigPatternParser.
+    The results are not actually used here, since we can't instantiate a
+    FontProperties object at config-parse time."""
     def validate(self, object, name, value):
-        from matplotlib.font_manager import FontProperties
-        if is_string_like(value):
-            try:
-                proxy = eval("FontProperties(%s)" % value,
-                             {}, {'FontProperties': self.FontPropertiesProxy})
-            except:
-                pass
-            else:
-                return proxy
-        else:
-            return value
-        self.error(object, name, value)
-                
+        # This will throw a ValueError if value does not parse correctly
+        parse_fontconfig_pattern(value)
+        return value
+
     def info(self):
-        return 'a FontProperties object or a string containing the parameters to the FontProperties constructor.'
+        return """A fontconfig pattern.  See the fontconfig user manual for more information."""

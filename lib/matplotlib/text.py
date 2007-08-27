@@ -162,6 +162,7 @@ class Text(Artist):
 
         if color is None: color = rcParams['text.color']
         if fontproperties is None: fontproperties=FontProperties()
+        elif is_string_like(fontproperties): fontproperties=FontProperties(fontproperties)
 
         self.set_text(text)
         self.set_color(color)
@@ -649,11 +650,11 @@ class Text(Artist):
 
         ACCEPTS: string eg, ['Sans' | 'Courier' | 'Helvetica' ...]
         """
-        self._fontproperties.set_name(fontname)
+        self._fontproperties.set_family(fontname)
 
     def set_fontname(self, fontname):
         'alias for set_name'
-        self.set_name(fontname)
+        self.set_family(fontname)
 
     def set_style(self, fontstyle):
         """
