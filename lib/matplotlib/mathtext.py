@@ -1932,7 +1932,14 @@ class Parser(object):
 
     def parse(self, s, fonts_object, fontsize, dpi):
         self._state_stack = [self.State(fonts_object, 'default', fontsize, dpi)]
-        self._expression.parseString(s)
+        try:
+            self._expression.parseString(s)
+        except ParseException, err:
+            raise ValueError("\n".join([
+                        "",
+                        err.line,
+                        " " * (err.column - 1) + "^",
+                        str(err)]))
         return self._expr
 
     # The state of the parser is maintained in a stack.  Upon
@@ -2155,7 +2162,7 @@ class Parser(object):
                 super = next1
                 sub = next2
         else:
-            raise ParseFatalException("Subscript/superscript sequence is too long.")
+            raise ParseFatalException("Subscript/superscript sequence is too long.  Use braces { } to remove ambiguity.")
 
         state = self.get_state()
         rule_thickness = state.font_output.get_underline_thickness(
@@ -2277,7 +2284,7 @@ class Parser(object):
             state.font, state.fontsize, state.dpi)
 
         if root is None:
-            root = Box()
+            root = Box(0., 0., 0.)
         else:
             if not isinstance(root, ParseResults):
                 raise ParseFatalException(
