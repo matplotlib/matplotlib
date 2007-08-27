@@ -116,11 +116,6 @@ KNOWN ISSUES:
 
   - Certainly there are some...
 
-STATUS:
-  The *Unicode* classes were incomplete when I found them, and have
-  not been refactored to support intermingling of regular text and
-  math text yet.  They are most likely broken. -- Michael Droettboom, July 2007
-
 Author    : John Hunter <jdhunter@ace.bsd.uchicago.edu>
             Michael Droettboom <mdroe@stsci.edu>
                (rewrite based on TeX box layout algorithms)
@@ -2400,9 +2395,3 @@ class MathTextParser:
         font_output.mathtext_backend.fonts_object = None
 
         return result
-
-# math_parse_s_ft2font = math_parse_s_ft2font_common('Agg')
-# math_parse_s_ft2font_svg = math_parse_s_ft2font_common('SVG')
-# math_parse_s_ps = math_parse_s_ft2font_common('PS')
-# math_parse_s_pdf = math_parse_s_ft2font_common('PDF')
-# math_parse_s_cairo = math_parse_s_ft2font_common('Cairo')
