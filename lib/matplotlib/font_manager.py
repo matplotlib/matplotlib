@@ -48,6 +48,8 @@ try:
 except ImportError:
     import pickle
 
+USE_FONTCONFIG = False
+    
 verbose = matplotlib.verbose
 
 font_scalings = {'xx-small': 0.579, 'x-small': 0.694, 'small': 0.833,
@@ -84,13 +86,14 @@ OSXFontDirectories = [
     "/System/Library/Fonts/"
 ]
 
-home = os.environ.get('HOME')
-if home is not None:
-    # user fonts on OSX
-    path = os.path.join(home, 'Library', 'Fonts')
-    OSXFontDirectories.append(path)
-    path = os.path.join(home, '.fonts')
-    X11FontDirectories.append(path)
+if not USE_FONTCONFIG:
+    home = os.environ.get('HOME')
+    if home is not None:
+        # user fonts on OSX
+        path = os.path.join(home, 'Library', 'Fonts')
+        OSXFontDirectories.append(path)
+        path = os.path.join(home, '.fonts')
+        X11FontDirectories.append(path)
 
 def win32FontDirectory():
     """Return the user-specified font directory for Win32."""
@@ -609,10 +612,10 @@ class FontProperties(object):
         family = rcParams['font.' + rcParams['font.family']]
         if is_string_like(family):
             family = [family]
-        slant = rcParams['font.style']
-        variant = rcParams['font.variant']
-        weight = rcParams['font.weight']
-        stretch = rcParams['font.stretch']
+        slant = [rcParams['font.style']]
+        variant = [rcParams['font.variant']]
+        weight = [rcParams['font.weight']]
+        stretch = [rcParams['font.stretch']]
         size = [rcParams['font.size']]
         file = None
         
@@ -675,32 +678,35 @@ class FontProperties(object):
 
     def get_style(self):
         """Return the font style.  Values are: normal, italic or oblique."""
-        return self.__props.slant
+        return self.__props.slant[0]
 
     def get_variant(self):
         """Return the font variant.  Values are: normal or small-caps."""
-        return self.__props.variant
+        return self.__props.variant[0]
 
     def get_weight(self):
         """
         Return the font weight.  See the FontProperties class for a
         a list of possible values.
         """
-        return self.__props.weight
+        return self.__props.weight[0]
 
     def get_stretch(self):
         """
         Return the font stretch or width.  Options are: normal,
         narrow, condensed, or wide.
         """
-        return self.__props.stretch
+        return self.__props.stretch[0]
 
     def get_size(self):
         """Return the font size."""
         return float(self.__props.size[0])
 
     def get_file(self):
-        return self.__props.file
+        if self.__props.file is not None:
+            return self.__props.file[0]
+        else:
+            return None
 
     def get_fontconfig_pattern(self):
         return generate_fontconfig_pattern(self.__props.__dict__)
@@ -723,7 +729,7 @@ class FontProperties(object):
         else:
             if style not in ('normal', 'italic', 'oblique'):
                 raise ValueError("style must be normal, italic or oblique")
-            self.__props.slant = style
+            self.__props.slant = [style]
 
     def set_variant(self, variant):
         """Set the font variant.  Values are: normal or small-caps."""
@@ -732,7 +738,7 @@ class FontProperties(object):
         else:
             if variant not in ('normal', 'small-caps'):
                 raise ValueError("variant must be normal or small-caps")
-            self.__props.variant = variant
+            self.__props.variant = [variant]
 
     def set_weight(self, weight):
         """
@@ -745,7 +751,7 @@ class FontProperties(object):
             if (weight not in weight_dict and
                 weight not in weight_dict.keys()):
                 raise ValueError("weight is invalid")
-            self.__props.weight = weight
+            self.__props.weight = [weight]
 
     def set_stretch(self, stretch):
         """
@@ -755,7 +761,7 @@ class FontProperties(object):
         if stretch is None:
             self.__props.__dict__.pop('stretch', None)
         else:
-            self.__props.stretch = stretch
+            self.__props.stretch = [stretch]
 
     def set_size(self, size):
         """Set the font size."""
@@ -774,13 +780,19 @@ class FontProperties(object):
             self.__props.size = size
 
     def set_file(self, file):
-        self.__props.file = file
+        if file is None:
+            self.__props.__dict__.pop('file', None)
+        else:
+            self.__props.file = [file]
 
     get_size_in_points = get_size
 
     def set_fontconfig_pattern(self, pattern):
         self.__props.__dict__ = self._parse_fontconfig_pattern(pattern)
-    
+
+    def add_property_pair(self, key, val):
+        self.__props.setdefault(key, []).append(val)
+        
     def copy(self):
         """Return a deep copy of self"""
         return FontProperties(_init = self.__props.__dict__)
@@ -1026,29 +1038,60 @@ class FontManager:
             return self.defaultFont
         return fname
 
+if USE_FONTCONFIG and sys.platform != 'win32':
+    import re
 
-_fmcache = os.path.join(get_configdir(), 'fontManager.cache')
+    def fc_match(pattern, fontext):
+        import commands
+        ext = "." + fontext
+        status, output = commands.getstatusoutput('fc-match -sv "%s"' % pattern)
+        if status == 0:
+            for match in _fc_match_regex.finditer(output):
+                file = match.group(1)
+                if os.path.splitext(file)[1] == ext:
+                    return file
+        return None
 
-fontManager = None
+    _fc_match_regex = re.compile(r'\sfile:\s+"(.*)"')
+    _fc_match_cache = {}
+    
+    def findfont(prop, fontext='ttf'):
+        if not is_string_like(prop):
+            prop = prop.get_fontconfig_pattern()
+        cached = _fc_match_cache.get(prop)
+        if cached is not None:
+            return cached
 
-def _rebuild():
-    global fontManager
-    fontManager = FontManager()
-    pickle_dump(fontManager, _fmcache)
-    verbose.report("generated new fontManager")
+        result = fc_match(prop, fontext)
+        if result is None:
+            result = fc_match(':', fontext)
 
-try:
-    fontManager = pickle_load(_fmcache)
-    verbose.report("Using fontManager instance from %s" % _fmcache)
-except:
-    _rebuild()
+        _fc_match_cache[prop] = result
+        return result
 
-def findfont(prop, **kw):
-    global fontManager
-    font = fontManager.findfont(prop, **kw)
-    if not os.path.exists(font):
-        verbose.report("%s returned by pickled fontManager does not exist" % font)
+else:
+    _fmcache = os.path.join(get_configdir(), 'fontManager.cache')
+
+    fontManager = None
+
+    def _rebuild():
+        global fontManager
+        fontManager = FontManager()
+        pickle_dump(fontManager, _fmcache)
+        verbose.report("generated new fontManager")
+
+    try:
+        fontManager = pickle_load(_fmcache)
+        verbose.report("Using fontManager instance from %s" % _fmcache)
+    except:
         _rebuild()
-        font =  fontManager.findfont(prop, **kw)
-    return font
+
+    def findfont(prop, **kw):
+        global fontManager
+        font = fontManager.findfont(prop, **kw)
+        if not os.path.exists(font):
+            verbose.report("%s returned by pickled fontManager does not exist" % font)
+            _rebuild()
+            font =  fontManager.findfont(prop, **kw)
+        return font
 

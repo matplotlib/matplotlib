@@ -19,7 +19,7 @@ License   : matplotlib license (PSF compatible)
 """
 import re
 from matplotlib.pyparsing import Literal, OneOrMore, ZeroOrMore, \
-    Optional, Regex, StringEnd, ParseException
+    Optional, Regex, StringEnd, ParseException, Suppress
 
 family_punc = r'\\\-:,'
 family_unescape = re.compile(r'\\([%s])' % family_punc).sub
@@ -89,8 +89,12 @@ class FontconfigPatternParser:
                     ).setParseAction(self._point_sizes)
 
         property    =( (name
-                      + Literal('=')
-                      + value)
+                      + Suppress(Literal('='))
+                      + value
+                      + ZeroOrMore(
+                          Suppress(Literal(','))
+                        + value)
+                      )
                      |  name
                     ).setParseAction(self._property)
 
@@ -142,9 +146,11 @@ class FontconfigPatternParser:
         if len(tokens) == 1:
             if tokens[0] in self._constants:
                 key, val = self._constants[tokens[0]]
-        elif len(tokens) == 3:
-            key, op, val = tokens
-        self._properties[key] = val
+                self._properties.setdefault(key, []).append(val)
+        else:
+            key = tokens[0]
+            val = tokens[1:]
+            self._properties.setdefault(key, []).extend(val)
         return []
 
 parse_fontconfig_pattern = FontconfigPatternParser().parse
@@ -156,14 +162,9 @@ def generate_fontconfig_pattern(d):
     families = ''
     size = ''
     for key, val in d.items():
-        if key == 'family':
-            families = [family_escape(r'\\\1', name) for name in val]
-            families = ','.join(families)
-        elif key == 'size':
-            size = '-' + ','.join([str(x) for x in val])
-        elif val is not None:
-            val = value_escape(r'\\\1', str(val))
-            props.append(":%s=%s" % (key, val))
-    props = ''.join(props)
-
-    return ''.join([families, size, props])
+        if val is not None and val != []:
+            val = [value_escape(r'\\\1', str(x)) for x in val if x is not None]
+            if val != []:
+                val = ','.join(val)
+                props.append(":%s=%s" % (key, val))
+    return ''.join(props)
