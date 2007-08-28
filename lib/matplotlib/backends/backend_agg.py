@@ -173,17 +173,21 @@ class RendererAgg(RendererBase):
         """
         if __debug__: verbose.report('RendererAgg.draw_mathtext',
                                      'debug-annoying')
-        width, height, fonts, used_characters = self.mathtext_parser.parse(
-            s, self.dpi.get(), prop)
+        ox, oy, width, height, fonts, used_characters = \
+            self.mathtext_parser.parse(s, self.dpi.get(), prop)
 
         if angle == 90:
             width, height = height, width
+            ox, oy = oy, ox
+            x = int(x) - width + ox
+            y = int(y) - height + oy
+        else:
+            x = int(x) + ox
+            y = int(y) - height + oy
         for font in fonts:
             if angle == 90:
                 font.horiz_image_to_vert_image() # <-- Rotate
-                self._renderer.draw_text( font, int(x)-width, int(y)-height, gc)
-            else:
-                self._renderer.draw_text( font, int(x), int(y)-height, gc)
+            self._renderer.draw_text( font, x, y, gc)
         if 0:
             self._renderer.draw_rectangle(gc, None,
                                           int(x),
@@ -230,8 +234,8 @@ class RendererAgg(RendererBase):
             return n,m
 
         if ismath:
-            width, height, fonts, used_characters = self.mathtext_parser.parse(
-                s, self.dpi.get(), prop)
+            ox, oy, width, height, fonts, used_characters = \
+                self.mathtext_parser.parse(s, self.dpi.get(), prop)
             return width, height
         font = self._get_agg_font(prop)
         font.set_text(s, 0.0, flags=LOAD_DEFAULT)  # the width and height of unrotated string

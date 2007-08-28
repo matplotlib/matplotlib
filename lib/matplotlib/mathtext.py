@@ -215,7 +215,7 @@ symbol can be a single unicode character, or a TeX command (i.e. r'\pi').
 
 class MathtextBackend(object):
     def __init__(self):
-        fonts_object = None
+        self.fonts_object = None
 
     def set_canvas_size(self, w, h):
         'Dimension the drawing canvas; may be a noop'
@@ -228,7 +228,7 @@ class MathtextBackend(object):
     def render_filled_rect(self, x1, y1, x2, y2):
         raise NotImplementedError()
 
-    def get_results(self):
+    def get_results(self, box):
         """Return a backend specific tuple of things to return to the
         backend after all processing is done."""
         raise NotImplementedError()
@@ -236,7 +236,54 @@ class MathtextBackend(object):
     def get_hinting_type(self):
         return LOAD_NO_HINTING
 
-class MathtextBackendAgg(MathtextBackend):
+class MathtextBackendBbox(MathtextBackend):
+    """A backend whose only purpose is to get a precise bounding box.
+    Only required for the Agg backend."""
+    
+    def __init__(self, real_backend):
+        MathtextBackend.__init__(self)
+        self.bbox = [0, 0, 0, 0]
+        self.real_backend = real_backend
+
+    def _update_bbox(self, x1, y1, x2, y2):
+        self.bbox = [min(self.bbox[0], x1),
+                     min(self.bbox[1], y1),
+                     max(self.bbox[2], x2),
+                     max(self.bbox[3], y2)]
+        
+    def render_glyph(self, ox, oy, info):
+        self._update_bbox(ox + info.metrics.xmin,
+                          oy + info.metrics.ymin,
+                          ox + info.metrics.xmax,
+                          oy + info.metrics.ymax)
+
+    def render_rect_filled(self, x1, y1, x2, y2):
+        self._update_bbox(x1, y1, x2, y2)
+
+    def get_results(self, box):
+        ship(0, 0, box)
+        bbox = self.bbox
+        bbox = [bbox[0] - 2, bbox[1] - 2, bbox[2] + 2, bbox[3] + 2]
+        self._switch_to_real_backend()
+        self.fonts_object.set_canvas_size(bbox[2] - bbox[0], bbox[3] - bbox[1])
+        ship(-bbox[0], -bbox[1], box)
+        return self.fonts_object.get_results(box)
+
+    def get_hinting_type(self):
+        return self.real_backend.get_hinting_type()
+
+    def _switch_to_real_backend(self):
+        self.fonts_object.mathtext_backend = self.real_backend
+        self.real_backend.fonts_object = self.fonts_object
+        self.real_backend.ox = self.bbox[0]
+        self.real_backend.oy = self.bbox[1]
+        
+class MathtextBackendAggRender(MathtextBackend):
+    def __init__(self):
+        self.ox = 0
+        self.oy = 0
+        MathtextBackend.__init__(self)
+    
     def set_canvas_size(self, w, h):
         MathtextBackend.set_canvas_size(self, w, h)
         for font in self.fonts_object.get_fonts():
@@ -248,10 +295,12 @@ class MathtextBackendAgg(MathtextBackend):
 
     def render_rect_filled(self, x1, y1, x2, y2):
         font = self.fonts_object.get_fonts()[0]
-        font.draw_rect_filled(x1, y1, x2, y2 - 1)
+        font.draw_rect_filled(x1, y1, x2, max(y2 - 1, y1))
 
-    def get_results(self):
-        return (self.width,
+    def get_results(self, box):
+        return (self.ox,
+                self.oy,
+                self.width,
                 self.height,
                 self.fonts_object.get_fonts(),
                 self.fonts_object.get_used_characters())
@@ -259,6 +308,9 @@ class MathtextBackendAgg(MathtextBackend):
     def get_hinting_type(self):
         return LOAD_DEFAULT
 
+def MathtextBackendAgg():
+    return MathtextBackendBbox(MathtextBackendAggRender())
+    
 class MathtextBackendPs(MathtextBackend):
     def __init__(self):
         self.pswriter = StringIO()
@@ -281,7 +333,8 @@ setfont
         ps = "%f %f %f %f rectfill\n" % (x1, self.height - y2, x2 - x1, y2 - y1)
         self.pswriter.write(ps)
 
-    def get_results(self):
+    def get_results(self, box):
+        ship(0, 0, box)
         return (self.width,
                 self.height,
                 self.pswriter,
@@ -302,7 +355,8 @@ class MathtextBackendPdf(MathtextBackend):
     def render_rect_filled(self, x1, y1, x2, y2):
         self.rects.append((x1, self.height - y2, x2 - x1, y2 - y1))
 
-    def get_results(self):
+    def get_results(self, box):
+        ship(0, 0, box)
         return (self.width,
                 self.height,
                 self.glyphs,
@@ -324,7 +378,8 @@ class MathtextBackendSvg(MathtextBackend):
         self.svg_rects.append(
             (x1, self.height - y1 + 1, x2 - x1, y2 - y1))
 
-    def get_results(self):
+    def get_results(self, box):
+        ship(0, 0, box)
         svg_elements = Bunch(svg_glyphs = self.svg_glyphs,
                              svg_rects = self.svg_rects)
         return (self.width,
@@ -347,7 +402,8 @@ class MathtextBackendCairo(MathtextBackend):
         self.rects.append(
             (x1, y1 - self.height, x2 - x1, y2 - y1))
 
-    def get_results(self):
+    def get_results(self, box):
+        ship(0, 0, box)
         return (self.width,
                 self.height,
                 self.glyphs,
@@ -434,8 +490,8 @@ class Fonts(object):
     def get_used_characters(self):
         return self.used_characters
 
-    def get_results(self):
-        return self.mathtext_backend.get_results()
+    def get_results(self, box):
+        return self.mathtext_backend.get_results(box)
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         """Override if your font provides multiple sizes of the same
@@ -2384,17 +2440,16 @@ class MathTextParser:
                 font_output = UnicodeFonts(prop, backend)
 
         fontsize = prop.get_size_in_points()
+
         # This is a class variable so we don't rebuild the parser
         # with each request.
         if self._parser is None:
             self.__class__._parser = Parser()
+            
         box = self._parser.parse(s, font_output, fontsize, dpi)
         w, h = box.width, box.height + box.depth
-        w += 4
-        h += 4
         font_output.set_canvas_size(w, h)
-        ship(2, 2, box)
-        result = font_output.get_results()
+        result = font_output.get_results(box)
         self._cache[cacheKey] = result
         # Free up the transient data structures
         self._parser.clear()
