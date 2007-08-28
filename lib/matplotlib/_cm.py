@@ -11,6 +11,7 @@ etc.) and a dictionary, 'datad', including all of these objects.
 
 import matplotlib as mpl
 import matplotlib.colors as colors
+from matplotlib.cbook import reversed
 LUTSIZE = mpl.rcParams['image.lut']
 
 _binary_data = {
@@ -5949,13 +5950,9 @@ datad['gist_yarg']=_gist_yarg_data
 
 def revcmap(data):
     data_r = {}
-    for key,val in data.iteritems():
-        val = list(val)
-        valrev = val[::-1]
-        valnew = []
-        for a,b,c in valrev:
-            valnew.append((1.-a,b,c))
-        data_r[key]=valnew
+    for key, val in data.iteritems():
+        valnew = [(1.-a, b, c) for a, b, c in reversed(val)]
+        data_r[key] = valnew
     return data_r
 
 cmapnames = datad.keys()
