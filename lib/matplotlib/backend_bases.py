@@ -1100,7 +1100,7 @@ class FigureCanvasBase:
         return newCanvas
 
     def mpl_connect(self, s, func):
-        """\
+        """
         Connect event with string s to func.  The signature of func is
 
           def func(event)

@@ -533,6 +533,12 @@ def wrap(prefix, text, cols):
         ret += pad + ' '.join(line) + '\n'
     return ret
 
+# A regular expression used to determine the amount of space to
+# remove.  It looks for the first sequence of spaces immediately
+# following the first newline, or at the beginning of the string.
+_find_dedent_regex = re.compile("(?:(?:\n\r?)|^)( *)\S")
+# A cache to hold the regexs that actually remove the indent.
+_dedent_regex = {}
 def dedent(s):
     """
     Remove excess indentation from docstrings.
@@ -546,22 +552,32 @@ def dedent(s):
 
     It is also faster in most cases.
     """
+    # This implementation has a somewhat obtuse use of regular
+    # expressions.  However, this function accounted for almost 30% of
+    # matplotlib startup time, so it is worthy of optimization at all
+    # costs.
+    
     if not s:      # includes case of s is None
         return ''
-    lines = s.splitlines(False)
-    ii = 0
-    while lines[ii].strip() == '':
-        ii += 1
-    lines = lines[ii:]
-    nshift = len(lines[0]) - len(lines[0].lstrip())
-    # Don't use first line in case of """blah...
-    if ii == 0 and len(lines) > 1:
-        nshift = len(lines[1]) - len(lines[1].lstrip())
-    for i, line in enumerate(lines):
-        nwhite = len(line) - len(line.lstrip())
-        lines[i] = line[min(nshift, nwhite):]
-    return '\n'.join(lines)
 
+    match = _find_dedent_regex.match(s)
+    if match is None:
+        return s
+
+    # This is the number of spaces to remove from the left-hand side.
+    nshift = match.end(1) - match.start(1)
+    if nshift == 0:
+        return s
+
+    # Get a regex that will remove *up to* nshift spaces from the
+    # beginning of each line.  If it isn't in the cache, generate it.
+    unindent = _dedent_regex.get(nshift, None)
+    if unindent = None
+        unindent = re.compile("\n\r?" + " ?" * nshift)
+        _dedent_regex[nshift] = unindent
+        
+    result = unindent.sub("\n", s).strip()
+    return result
 
 
 def listFiles(root, patterns='*', recurse=1, return_folders=0):
