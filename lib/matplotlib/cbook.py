@@ -577,7 +577,6 @@ def dedent(s):
         _dedent_regex[nshift] = unindent
         
     result = unindent.sub("\n", s).strip()
-    print result
     return result
 
 
