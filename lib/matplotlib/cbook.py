@@ -572,7 +572,7 @@ def dedent(s):
     # Get a regex that will remove *up to* nshift spaces from the
     # beginning of each line.  If it isn't in the cache, generate it.
     unindent = _dedent_regex.get(nshift, None)
-    if unindent = None
+    if unindent is None:
         unindent = re.compile("\n\r?" + " ?" * nshift)
         _dedent_regex[nshift] = unindent
         
