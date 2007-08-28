@@ -1,5 +1,5 @@
 from __future__ import division
-import sys
+import sys, re
 from cbook import iterable, flatten
 from transforms import identity_transform
 import matplotlib.units as units
@@ -484,6 +484,7 @@ class ArtistInspector:
             aliases[fullname[4:]] = name[4:]
         return aliases
 
+    _get_valid_values_regex = re.compile(r"\n\s*ACCEPTS:\s*(.*)\n")
     def get_valid_values(self, attr):
         """
         get the legal arguments for the setter associated with attr
@@ -505,10 +506,10 @@ class ArtistInspector:
 
         if docstring.startswith('alias for '):
             return None
-        for line in docstring.split('\n'):
-            line = line.lstrip()
-            if not line.startswith('ACCEPTS:'): continue
-            return line[8:].strip()
+
+        match = self._get_valid_values_regex.search(docstring)
+        if match is not None:
+            return match.group(1)
         return 'unknown'
 
     def get_setters(self):
