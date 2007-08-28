@@ -573,10 +573,11 @@ def dedent(s):
     # beginning of each line.  If it isn't in the cache, generate it.
     unindent = _dedent_regex.get(nshift, None)
     if unindent is None:
-        unindent = re.compile("\n\r?" + " ?" * nshift)
+        unindent = re.compile("\n\r? {0,%d}" % nshift)
         _dedent_regex[nshift] = unindent
         
     result = unindent.sub("\n", s).strip()
+    print result
     return result
 
 
