@@ -164,12 +164,12 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 # (See FontProperties for more details).
 # These settings are only used if mathtext.use_cm is False, otherwise, the
 # Bakoma TeX Computer Modern fonts are used.
-#mathtext.cal : "cursive"
-#mathtext.rm  : "serif"
-#mathtext.tt  : "monospace"
-#mathtext.it  : "serif:italic"
-#mathtext.bf  : "serif:bold"
-#mathtext.sf  : "sans"
+#mathtext.cal : cursive
+#mathtext.rm  : serif
+#mathtext.tt  : monospace
+#mathtext.it  : serif:italic
+#mathtext.bf  : serif:bold
+#mathtext.sf  : sans
 #mathtext.use_cm : True
 #mathtext.fallback_to_cm : True  # When True, use symbols from the Computer Modern
 			         # fonts when a symbol can not be found in one of 
