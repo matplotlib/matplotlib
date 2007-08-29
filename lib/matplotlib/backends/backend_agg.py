@@ -89,8 +89,6 @@ from matplotlib.transforms import lbwh_to_bbox
 from _backend_agg import RendererAgg as _RendererAgg
 
 backend_version = 'v2.2'
-_fontd = {}     # a map from fname to font instances
-
 
 class RendererAgg(RendererBase):
     """
@@ -126,7 +124,8 @@ class RendererAgg(RendererBase):
         self.copy_from_bbox = self._renderer.copy_from_bbox
         self.restore_region = self._renderer.restore_region
         self.mathtext_parser = MathTextParser('Agg')
-
+        self._fontd = {}
+        
         self.bbox = lbwh_to_bbox(0,0, self.width, self.height)
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
@@ -298,12 +297,12 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
 
         key = hash(prop)
-        font = _fontd.get(key)
+        font = self._fontd.get(key)
 
         if font is None:
             fname = findfont(prop)
             font = FT2Font(str(fname))
-            _fontd[key] = font
+            self._fontd[key] = font
 
         font.clear()
         size = prop.get_size_in_points()
