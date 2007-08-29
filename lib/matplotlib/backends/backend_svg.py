@@ -23,7 +23,6 @@ def new_figure_manager(num, *args, **kwargs):
     return manager
 
 
-_fontd = {}
 _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 class RendererSVG(RendererBase):
     FONT_SCALE = 1200.0
@@ -41,6 +40,7 @@ class RendererSVG(RendererBase):
         self._clipd = {}
         self._char_defs = {}
         self.mathtext_parser = MathTextParser('SVG')
+        self.fontd = {}
         svgwriter.write(svgProlog%(width,height,width,height))
 
     def _draw_svg_element(self, element, details, gc, rgbFace):
@@ -56,11 +56,11 @@ class RendererSVG(RendererBase):
 
     def _get_font(self, prop):
         key = hash(prop)
-        font = _fontd.get(key)
+        font = self.fontd.get(key)
         if font is None:
             fname = findfont(prop)
             font = FT2Font(str(fname))
-            _fontd[key] = font
+            self.fontd[key] = font
         font.clear()
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)

@@ -430,6 +430,11 @@ class Fonts(object):
         self.mathtext_backend.fonts_object = self
         self.used_characters = {}
 
+    def destroy(self):
+        """Fix any cyclical references before the object is about
+        to be destroyed."""
+        self.used_characters = None
+        
     def get_kern(self, font1, sym1, fontsize1,
                  font2, sym2, fontsize2, dpi):
         """
@@ -461,7 +466,7 @@ class Fonts(object):
           xmin, xmax, ymin, ymax  - the ink rectangle of the glyph
           iceberg - the distance from the baseline to the top of the glyph.
              horiBearingY in Truetype parlance, height in TeX parlance
-          """
+        """
         info = self._get_info(font, sym, fontsize, dpi)
         return info.metrics
 
@@ -494,8 +499,10 @@ class Fonts(object):
         return self.mathtext_backend.get_results(box)
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
-        """Override if your font provides multiple sizes of the same
-        symbol."""
+        """
+        Override if your font provides multiple sizes of the same
+        symbol.
+        """
         return [(fontname, sym)]
 
 class TruetypeFonts(Fonts):
@@ -503,10 +510,6 @@ class TruetypeFonts(Fonts):
     A generic base class for all font setups that use Truetype fonts
     (through ft2font)
     """
-    """
-    Use the Bakoma true type fonts for rendering
-    """
-    # allocate a new set of fonts
     basepath = os.path.join( get_data_path(), 'fonts', 'ttf' )
 
     class CachedFont:
@@ -529,6 +532,14 @@ class TruetypeFonts(Fonts):
 
         self.fonts['default'] = default_font
 
+    def destroy(self):
+        self.glyphd = None
+        for cached_font in self.fonts.values():
+            cached_font.charmap = None
+            cached_font.glyphmap = None
+            cached_font.font = None
+        Fonts.destroy(self)
+        
     def _get_font(self, font):
         """Looks up a CachedFont with its charmap and inverse charmap.
         font may be a TeX font name (cal, rm, it etc.), or postscript name."""
@@ -2401,7 +2412,7 @@ class Parser(object):
 ##############################################################################
 # MAIN
 
-class MathTextParser:
+class MathTextParser(object):
     """
     Parse the math expression s, return the (bbox, fonts) tuple needed
     to render it.
@@ -2453,7 +2464,10 @@ class MathTextParser:
         self._cache[cacheKey] = result
         # Free up the transient data structures
         self._parser.clear()
-        # Remove a cyclical reference
-        font_output.mathtext_backend.fonts_object = None
 
+        # Fix cyclical references
+        font_output.destroy()
+        font_output.mathtext_backend.fonts_object = None
+        font_output.mathtext_backend = None
+        
         return result
