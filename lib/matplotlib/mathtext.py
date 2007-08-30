@@ -315,6 +315,7 @@ def MathtextBackendAgg():
 class MathtextBackendPs(MathtextBackend):
     def __init__(self):
         self.pswriter = StringIO()
+        self.lastfont = None
 
     def render_glyph(self, ox, oy, info):
         oy = self.height - oy + info.offset
@@ -322,12 +323,15 @@ class MathtextBackendPs(MathtextBackend):
         fontsize        = info.fontsize
         symbol_name     = info.symbol_name
 
-        # TODO: Optimize out the font changes
-        
-        ps = """/%(postscript_name)s findfont
+        if (postscript_name, fontsize) != self.lastfont:
+            ps = """/%(postscript_name)s findfont
 %(fontsize)s scalefont
 setfont
-%(ox)f %(oy)f moveto
+""" % locals()
+            self.lastfont = postscript_name, fontsize
+            self.pswriter.write(ps)
+        
+        ps = """%(ox)f %(oy)f moveto
 /%(symbol_name)s glyphshow\n
 """ % locals()
         self.pswriter.write(ps)
