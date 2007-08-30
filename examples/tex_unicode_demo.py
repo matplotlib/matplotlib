@@ -17,11 +17,11 @@ t = arange(0.0, 1.0+0.01, 0.01)
 s = cos(2*2*pi*t)+2
 plot(t, s)
 
-xlabel(r'\textbf{time (s)}', markup='tex')
+xlabel(r'\textbf{time (s)}')
 s = unicode(r'\textit{Velocity (°/sec)}','latin-1')
-ylabel(unicode(r'\textit{Velocity (°/sec)}','latin-1'),fontsize=16, markup='tex')
+ylabel(unicode(r'\textit{Velocity (°/sec)}','latin-1'),fontsize=16)
 title(r"\TeX\ is Number $\displaystyle\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}$!",
-      fontsize=16, color='r', markup='tex')
+      fontsize=16, color='r')
 grid(True)
 savefig('tex_demo')
 

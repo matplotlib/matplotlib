@@ -2,14 +2,18 @@
 
 import os, sys, re
 
+import gc
+
 stests = [
     r'Kerning: AVA $AVA$',
+    r'\$100.00 $\alpha$',
+    r'$\frac{\$100.00}{y}$',
     r'$x   y$',
     r'$x+y\ x=y\ x<y\ x:y\ x,y\ x@y$',
     r'$100\%y\ x*y\ x/y x\$y$',
     r'$x\leftarrow y\ x\forall y\ x-y$',
     r'$x \sf x \bf x {\cal X} \rm x$',
-    r'$x\ x\,x\;x\quad x\qquad x\!x\hspace{0.5}y$',
+    r'$x\ x\,x\;x\quad x\qquad x\!x\hspace{ 0.5 }y$',
     r'$\{ \rm braces \}$',
     r'$\left[\left\lfloor\frac{5}{\frac{\left(3\right)}{4}} y\right)\right]$',
     r'$\left(x\right)$',
@@ -59,10 +63,10 @@ def doall():
     yticks(arange(len(tests)) * -1)
     for i, s in enumerate(tests):
         print "%02d: %s" % (i, s)
-        text(0.1, -i, s, fontsize=20, markup="tex")
+        text(0.1, -i, s, fontsize=20)
 
     savefig('mathtext_example')
-    figure()
+    close('all')
 
 if '--latex' in sys.argv:
     fd = open("mathtext_examples.ltx", "w")

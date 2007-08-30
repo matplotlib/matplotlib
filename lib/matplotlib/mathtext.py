@@ -1982,7 +1982,7 @@ class Parser(object):
         math_delim   =(~bslash
                      + Literal('$'))
 
-        non_math     = Regex(r"(?:[^$]|(?:\\\$))*"
+        non_math     = Regex(r"(?:(?:\\[$])|[^$])*"
                      ).setParseAction(self.non_math).setName("non_math").leaveWhitespace()
 
         self._expression << (
@@ -2056,7 +2056,8 @@ class Parser(object):
 
     def non_math(self, s, loc, toks):
         #~ print "non_math", toks
-        symbols = [Char(c, self.get_state()) for c in toks[0]]
+        s = toks[0].replace(r'\$', '$')
+        symbols = [Char(c, self.get_state()) for c in s]
         hlist = Hlist(symbols)
         # We're going into math now, so set font to 'it'
         self.push_state()

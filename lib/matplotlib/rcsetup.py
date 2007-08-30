@@ -203,11 +203,6 @@ def validate_font_properties(s):
     parse_fontconfig_pattern(s)
     return s
     
-validate_markup = ValidateInStrings(
-    'markup', 
-    ['plain', 'tex'],
-    ignorecase=True)
-
 validate_verbose = ValidateInStrings('verbose',[
     'silent', 'helpful', 'debug', 'debug-annoying',
     ])
@@ -363,7 +358,6 @@ defaultParams = {
     'text.fontvariant'    : ['normal', str],
     'text.fontweight'     : ['normal', str],
     'text.fontsize'       : ['medium', validate_fontsize],
-    'text.markup'         : ['plain', validate_markup],
 
     'mathtext.cal'        : ['cursive', validate_font_properties],
     'mathtext.rm'         : ['serif', validate_font_properties],

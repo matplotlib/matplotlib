@@ -153,7 +153,6 @@ class MPLConfig(TConfig):
     class text(TConfig):
         color = T.Trait('black',mplT.ColorHandler())
         usetex = T.false
-        markup = T.Trait('plain', 'plain', 'tex')
         
         class latex(TConfig):
             unicode = T.false
