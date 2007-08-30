@@ -34,8 +34,8 @@ AUTHOR:
   John D. Hunter <jdhunter@ace.bsd.uchicago.edu>
 """
 
-
 import sys, os
+from _mathtext_data import uni2type1
 
 #Convert string the a python type
 _to_int = int
@@ -152,12 +152,13 @@ def _parse_char_metrics(fh):
     all the sample afm files I have
     """
 
-    d = {}
+    ascii_d = {}
+    name_d  = {}
     while 1:
         line = fh.readline()
         if not line: break
         line = line.rstrip()
-        if line.startswith('EndCharMetrics'): return d
+        if line.startswith('EndCharMetrics'): return ascii_d, name_d
         vals = line.split(';')[:4]
         if len(vals) !=4 : raise RuntimeError('Bad char metrics line: %s' % line)
         num = _to_int(vals[0].split()[1])
@@ -169,7 +170,8 @@ def _parse_char_metrics(fh):
         if name == 'Euro':
             num = 128
         if num != -1:
-            d[num] = (wx, name, bbox)
+            ascii_d[num] = (wx, name, bbox)
+        name_d[name] = (wx, bbox)
     raise RuntimeError('Bad parse')
 
 def _parse_kern_pairs(fh):
@@ -277,9 +279,9 @@ def parse_afm(fh):
     """
     _sanity_check(fh)
     dhead =  _parse_header(fh)
-    dcmetrics =  _parse_char_metrics(fh)
+    dcmetrics_ascii, dcmetrics_name = _parse_char_metrics(fh)
     doptional = _parse_optional(fh)
-    return dhead, dcmetrics, doptional[0], doptional[1]
+    return dhead, dcmetrics_ascii, dcmetrics_name, doptional[0], doptional[1]
 
 
 class AFM:
@@ -288,10 +290,12 @@ class AFM:
         """
         Parse the AFM file in file object fh
         """
-        (dhead, dcmetrics, dkernpairs, dcomposite) = parse_afm(fh)
+        (dhead, dcmetrics_ascii, dcmetrics_name, dkernpairs, dcomposite) = \
+            parse_afm(fh)
         self._header = dhead
         self._kern = dkernpairs
-        self._metrics = dcmetrics
+        self._metrics = dcmetrics_ascii
+        self._metrics_by_name = dcmetrics_name
         self._composite = dcomposite
 
 
@@ -340,9 +344,16 @@ class AFM:
         miny = 1e9
         maxy = 0
         left = 0
+        if not isinstance(s, unicode):
+            s = s.decode()
         for c in s:
             if c == '\n': continue
-            wx, name, bbox = self._metrics[ord(c)]
+            name = uni2type1.get(ord(c), 'question')
+            try:
+                wx, bbox = self._metrics_by_name[name]
+            except KeyError:
+                name = 'question'
+                wx, bbox = self._metrics_by_name[name]
             l,b,w,h = bbox
             if l<left: left = l
             # find the width with kerning
@@ -377,6 +388,13 @@ class AFM:
         wx, name, bbox = self._metrics[c]
         return wx
 
+    def get_width_from_char_name(self, name):
+        """
+        Get the width of the character from a type1 character name
+        """
+        wx, bbox = self._metrics_by_name[name]
+        return wx
+        
     def get_height_char(self, c, isord=False):
         """
         Get the height of character c from the bounding box.  This is
@@ -392,9 +410,16 @@ class AFM:
         c2
         """
         name1, name2 = self.get_name_char(c1), self.get_name_char(c2)
+        return self.get_kern_dist_from_name(name1, name2)
+
+    def get_kern_dist_from_name(self, name1, name2):
+        """
+        Return the kerning pair distance (possibly 0) for chars c1 and
+        c2
+        """
         try: return self._kern[ (name1, name2) ]
         except: return 0
-
+        
     def get_fontname(self):
         "Return the font name, eg, Times-Roman"
         return self._header['FontName']
