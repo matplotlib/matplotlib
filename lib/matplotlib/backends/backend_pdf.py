@@ -1348,8 +1348,8 @@ class RendererPdf(RendererBase):
         # this complication is avoided, but of course, those fonts can
         # not be subsetted.
 
-        if ismath: return self.draw_mathtext(gc, x, y, s, prop, angle)
         self.check_gc(gc, gc._rgb)
+        if ismath: return self.draw_mathtext(gc, x, y, s, prop, angle)
 
         fontsize = prop.get_size_in_points()
 
