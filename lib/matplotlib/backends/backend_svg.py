@@ -232,7 +232,7 @@ class RendererSVG(RendererBase):
 
     def draw_rectangle(self, gc, rgbFace, x, y, width, height):
         details = 'width="%f" height="%f" x="%f" y="%f"' % (width, height, x,
-                                                         self.height-y-height)
+                                                            self.height-y-height)
         self._draw_svg_element('rect', details, gc, rgbFace)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
@@ -241,7 +241,9 @@ class RendererSVG(RendererBase):
             return
 
         font = self._get_font(prop)
-
+        font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
+        y -= font.get_descent() / 64.0
+        
         thetext = escape_xml_text(s)
         fontfamily = font.family_name
         fontstyle = font.style_name
@@ -277,7 +279,7 @@ class RendererSVG(RendererBase):
                 currx += kern/64.0
 
                 svg.append('<use xlink:href="#%s" transform="translate(%s)"/>\n'
-                           % (charid, currx))
+                           % (charid, currx * (self.FONT_SCALE / fontsize)))
 
                 currx += (glyph.linearHoriAdvance / 65536.0)
             svg.append('</g>\n')
@@ -338,7 +340,7 @@ class RendererSVG(RendererBase):
         """
         Draw math text using matplotlib.mathtext
         """
-        width, height, svg_elements, used_characters = \
+        width, height, descent, svg_elements, used_characters = \
             self.mathtext_parser.parse(s, 72, prop)
         svg_glyphs = svg_elements.svg_glyphs
         svg_rects = svg_elements.svg_rects
@@ -426,17 +428,19 @@ class RendererSVG(RendererBase):
     def get_canvas_width_height(self):
         return self.width, self.height
 
-    def get_text_width_height(self, s, prop, ismath):
+    def get_text_width_height_descent(self, s, prop, ismath):
         if ismath:
-            width, height, trash, used_characters = \
+            width, height, descent, trash, used_characters = \
                 self.mathtext_parser.parse(s, 72, prop)
-            return width, height
+            return width, height, descent
         font = self._get_font(prop)
         font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
         h /= 64.0
-        return w, h
+        d = font.get_descent()
+        d /= 64.0
+        return w, h, d
 
 
 class FigureCanvasSVG(FigureCanvasBase):

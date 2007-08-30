@@ -217,10 +217,11 @@ class MathtextBackend(object):
     def __init__(self):
         self.fonts_object = None
 
-    def set_canvas_size(self, w, h):
+    def set_canvas_size(self, w, h, d):
         'Dimension the drawing canvas; may be a noop'
         self.width  = w
         self.height = h
+        self.depth  = d
 
     def render_glyph(self, ox, oy, info):
         raise NotImplementedError()
@@ -261,12 +262,16 @@ class MathtextBackendBbox(MathtextBackend):
         self._update_bbox(x1, y1, x2, y2)
 
     def get_results(self, box):
+        orig_height = box.height
+        orig_depth  = box.depth
         ship(0, 0, box)
         bbox = self.bbox
-        bbox = [bbox[0] - 2, bbox[1] - 2, bbox[2] + 2, bbox[3] + 2]
+        bbox = [bbox[0] - 1, bbox[1] - 1, bbox[2] + 1, bbox[3] + 1]
         self._switch_to_real_backend()
         self.fonts_object.set_canvas_size(
-            bbox[2] - bbox[0], bbox[3] - bbox[1])
+            bbox[2] - bbox[0],
+            (bbox[3] - bbox[1]) - orig_depth,
+            (bbox[3] - bbox[1]) - orig_height)
         ship(-bbox[0], -bbox[1], box)
         return self.fonts_object.get_results(box)
 
@@ -285,10 +290,10 @@ class MathtextBackendAggRender(MathtextBackend):
         self.oy = 0
         MathtextBackend.__init__(self)
     
-    def set_canvas_size(self, w, h):
-        MathtextBackend.set_canvas_size(self, w, h)
+    def set_canvas_size(self, w, h, d):
+        MathtextBackend.set_canvas_size(self, w, h, d)
         for font in self.fonts_object.get_fonts():
-            font.set_bitmap_size(int(w), int(h))
+            font.set_bitmap_size(int(w), int(h) + int(d))
 
     def render_glyph(self, ox, oy, info):
         info.font.draw_glyph_to_bitmap(
@@ -302,7 +307,8 @@ class MathtextBackendAggRender(MathtextBackend):
         return (self.ox,
                 self.oy,
                 self.width,
-                self.height,
+                self.height + self.depth,
+                self.depth,
                 self.fonts_object.get_fonts(),
                 self.fonts_object.get_used_characters())
 
@@ -341,9 +347,11 @@ setfont
         self.pswriter.write(ps)
 
     def get_results(self, box):
-        ship(0, 0, box)
+        ship(0, -self.depth, box)
+        print self.depth
         return (self.width,
-                self.height,
+                self.height + self.depth,
+                self.depth,
                 self.pswriter,
                 self.fonts_object.get_used_characters())
 
@@ -363,9 +371,10 @@ class MathtextBackendPdf(MathtextBackend):
         self.rects.append((x1, self.height - y2, x2 - x1, y2 - y1))
 
     def get_results(self, box):
-        ship(0, 0, box)
+        ship(0, -self.depth, box)
         return (self.width,
-                self.height,
+                self.height + self.depth,
+                self.depth,
                 self.glyphs,
                 self.rects,
                 self.fonts_object.get_used_characters())
@@ -386,11 +395,12 @@ class MathtextBackendSvg(MathtextBackend):
             (x1, self.height - y1 + 1, x2 - x1, y2 - y1))
 
     def get_results(self, box):
-        ship(0, 0, box)
+        ship(0, -self.depth, box)
         svg_elements = Bunch(svg_glyphs = self.svg_glyphs,
                              svg_rects = self.svg_rects)
         return (self.width,
-                self.height,
+                self.height + self.depth,
+                self.depth,
                 svg_elements,
                 self.fonts_object.get_used_characters())
 
@@ -410,9 +420,10 @@ class MathtextBackendCairo(MathtextBackend):
             (x1, y1 - self.height, x2 - x1, y2 - y1))
 
     def get_results(self, box):
-        ship(0, 0, box)
+        ship(0, -self.depth, box)
         return (self.width,
-                self.height,
+                self.height + self.depth,
+                self.depth,
                 self.glyphs,
                 self.rects)
 
@@ -477,10 +488,10 @@ class Fonts(object):
         info = self._get_info(font, sym, fontsize, dpi)
         return info.metrics
 
-    def set_canvas_size(self, w, h):
+    def set_canvas_size(self, w, h, d):
         'Dimension the drawing canvas; may be a noop'
-        self.width, self.height = ceil(w), ceil(h)
-        self.mathtext_backend.set_canvas_size(self.width, self.height)
+        self.width, self.height, self.depth = ceil(w), ceil(h), ceil(d)
+        self.mathtext_backend.set_canvas_size(self.width, self.height, self.depth)
 
     def render_glyph(self, ox, oy, facename, sym, fontsize, dpi):
         info = self._get_info(facename, sym, fontsize, dpi)
@@ -2447,7 +2458,6 @@ class MathTextParser(object):
         cacheKey = (s, dpi, hash(prop))
         result = self._cache.get(cacheKey)
         if result is not None:
-            del self._cache[cacheKey]
             return result
 
         if self._output == 'PS' and rcParams['ps.useafm']:
@@ -2467,8 +2477,7 @@ class MathTextParser(object):
             self.__class__._parser = Parser()
             
         box = self._parser.parse(s, font_output, fontsize, dpi)
-        w, h = box.width, box.height + box.depth
-        font_output.set_canvas_size(w, h)
+        font_output.set_canvas_size(box.width, box.height, box.depth)
         result = font_output.get_results(box)
         self._cache[cacheKey] = result
         # Free up the transient data structures

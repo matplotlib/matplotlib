@@ -334,7 +334,7 @@ class AFM:
 
         return totalw, maxy-miny
 
-    def get_str_bbox(self, s):
+    def get_str_bbox_and_descent(self, s):
         """
         Return the string bounding box
         """
@@ -369,9 +369,15 @@ class AFM:
             thismin = b
             if thismin<miny: miny = thismin
 
-        return left, miny, totalw, maxy-miny
+        return left, miny, totalw, maxy-miny, -miny
 
 
+    def get_str_bbox(self, s):
+        """
+        Return the string bounding box
+        """
+        return self.get_str_bbox_and_descent(s)[:4]
+    
     def get_name_char(self, c):
         """
         Get the name of the character, ie, ';' is 'semicolon'

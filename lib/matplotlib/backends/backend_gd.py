@@ -59,7 +59,7 @@ class RendererGD(RendererBase):
         'return the canvas width and height in display coords'
         return self.width, self.height
 
-    def get_text_width_height(self, s, prop, ismath):
+    def get_text_width_height_descent(self, s, prop, ismath):
         """
         get the width and height in display coords of the string s
         with fontsize in points
@@ -78,7 +78,7 @@ class RendererGD(RendererBase):
 
         w = abs(lrx - llx)
         h = abs(lly - uly)
-        return w, h
+        return w, h, h
 
 
     def flipy(self):

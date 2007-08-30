@@ -93,8 +93,8 @@ class RendererTemplate(RendererBase):
     def get_canvas_width_height(self):
         return 100, 100
 
-    def get_text_width_height(self, s, prop, ismath):
-        return 1, 1
+    def get_text_width_height_descent(self, s, prop, ismath):
+        return 1, 1, 1
 
     def new_gc(self):
         return GraphicsContextTemplate()

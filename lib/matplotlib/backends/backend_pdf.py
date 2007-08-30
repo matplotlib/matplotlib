@@ -1224,7 +1224,7 @@ class RendererPdf(RendererBase):
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
-        width, height, glyphs, rects, used_characters = \
+        width, height, descent, glyphs, rects, used_characters = \
             self.mathtext_parser.parse(s, 72, prop)
         self.merge_used_characters(used_characters)
 
@@ -1465,30 +1465,27 @@ class RendererPdf(RendererBase):
         else:
             return draw_text_woven(chunks)
 
-    def get_text_width_height(self, s, prop, ismath):
-        # FT2Font can handle unicode, and so can we
-        # if isinstance(s, unicode):
-        #     s = s.encode('cp1252', 'replace')
-
+    def get_text_width_height_descent(self, s, prop, ismath):
         if ismath:
-            w, h, glyphs, rects, used_characters = \
+            w, h, d, glyphs, rects, used_characters = \
                 self.mathtext_parser.parse(s, 72, prop)
 
         elif rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
-            l, b, w, h = font.get_str_bbox(s)
-            fontsize = prop.get_size_in_points()
-            w *= fontsize / 1000
-            h *= fontsize / 1000
-
+            l, b, w, h, d = font.get_str_bbox_and_descent(s)
+            scale = prop.get_size_in_points() / 1000.0
+            w *= scale
+            h *= scale
+            d *= scale
         else:
             font = self._get_font_ttf(prop)
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
             w, h = font.get_width_height()
             w /= 64.0
             h /= 64.0
-
-        return w, h
+            d = font.get_descent()
+            d /= 64.0
+        return w, h, d
 
     def _get_font_afm(self, prop):
         key = hash(prop)

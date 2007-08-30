@@ -263,7 +263,7 @@ class RendererPS(RendererBase):
         'return the canvas width and height in display coords'
         return self.width, self.height
 
-    def get_text_width_height(self, s, prop, ismath):
+    def get_text_width_height_descent(self, s, prop, ismath):
         """
         get the width and height in display coords of the string s
         with FontPropertry prop
@@ -276,30 +276,36 @@ class RendererPS(RendererBase):
             w = (r-l)
             h = (t-b)
             #print s, w, h
-            return w, h
+            # TODO: We need a way to get a good baseline from
+            # text.usetex
+            return w, h, h
 
         if ismath:
-            width, height, pswriter, used_characters = \
+            width, height, descent, pswriter, used_characters = \
                 self.mathtext_parser.parse(s, 72, prop)
-            return width, height
+            return width, height, descent
 
         if rcParams['ps.useafm']:
             if ismath: s = s[1:-1]
             font = self._get_font_afm(prop)
-            l,b,w,h = font.get_str_bbox(s)
+            l,b,w,h,d = font.get_str_bbox_and_descent(s)
 
             fontsize = prop.get_size_in_points()
-            w *= 0.001*fontsize
-            h *= 0.001*fontsize
-            return w, h
+            scale = 0.001*fontsize
+            w *= scale
+            h *= scale
+            d *= scale
+            return w, h, d
 
         font = self._get_font_ttf(prop)
         font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
         h /= 64.0
+        d = font.get_descent()
+        d /= 64.0
         #print s, w, h
-        return w, h
+        return w, h, d
 
     def flipy(self):
         'return true if small y numbers are top for renderer'
@@ -661,7 +667,7 @@ grestore
         """
         draw a Text instance
         """
-        w, h = self.get_text_width_height(s, prop, ismath)
+        w, h, bl = self.get_text_width_height_baseline(s, prop, ismath)
         fontsize = prop.get_size_in_points()
         corr = 0#w/2*(fontsize-10)/10
         pos = _nums_to_str(x-corr, y)
@@ -857,7 +863,7 @@ grestore
         if debugPS:
             self._pswriter.write("% mathtext\n")
 
-        width, height, pswriter, used_characters = \
+        width, height, descent, pswriter, used_characters = \
             self.mathtext_parser.parse(s, 72, prop)
         self.merge_used_characters(used_characters)
         self.set_color(*gc.get_rgb())
