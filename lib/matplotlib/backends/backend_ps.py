@@ -22,6 +22,7 @@ from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
+from matplotlib._mathtext_data import uni2type1
 from matplotlib.text import Text
 
 from matplotlib.transforms import get_vec6_scales
@@ -700,8 +701,10 @@ grestore
         elif ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
+        elif isinstance(s, unicode):
+            return self.draw_unicode(gc, x, y, s, prop, angle)
+        
         elif rcParams['ps.useafm']:
-            if ismath: s = s[1:-1]
             font = self._get_font_afm(prop)
 
             l,b,w,h = font.get_str_bbox(s)
@@ -735,8 +738,6 @@ grestore
     """ % locals()
             self._draw_ps(ps, gc, None)
 
-        elif isinstance(s, unicode):
-            return self.draw_unicode(gc, x, y, s, prop, angle)
         else:
             font = self._get_font_ttf(prop)
             font.set_text(s, 0, flags=LOAD_NO_HINTING)
@@ -762,48 +763,90 @@ grestore
         """draw a unicode string.  ps doesn't have unicode support, so
         we have to do this the hard way
         """
+        if rcParams['ps.useafm']:
+            self.set_color(*gc.get_rgb())
 
-        font = self._get_font_ttf(prop)
+            font = self._get_font_afm(prop)
+            fontname = font.get_fontname()
+            fontsize = prop.get_size_in_points()
+            scale = 0.001*fontsize
 
-        self.set_color(*gc.get_rgb())
-        self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
-        self.track_characters(font, s)
+            thisx, thisy = 0, 0
+            last_name = None
+            lines = []
+            for c in s:
+                name = uni2type1.get(ord(c), 'question')
+                try:
+                    width = font.get_width_from_char_name(name)
+                except KeyError:
+                    name = 'question'
+                    width = font.get_width_char('?')
+                if last_name is not None:
+                    kern = font.get_kern_dist_from_name(last_name, name)
+                else:
+                    kern = 0
+                last_name = name
+                thisx += kern * scale
+                
+                lines.append('%f %f m /%s glyphshow'%(thisx, thisy, name))
 
-        cmap = font.get_charmap()
-        lastgind = None
-        #print 'text', s
-        lines = []
-        thisx, thisy = 0,0
-        for c in s:
-            ccode = ord(c)
-            gind = cmap.get(ccode)
-            if gind is None:
-                ccode = ord('?')
-                name = '.notdef'
-                gind = 0
-            else:
-                name = font.get_glyph_name(gind)
-            glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
+                thisx += width * scale
 
-            if lastgind is not None:
-                kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
-            else:
-                kern = 0
-            lastgind = gind
-            thisx += kern/64.0
-
-            lines.append('%f %f m /%s glyphshow'%(thisx, thisy, name))
-            thisx += glyph.linearHoriAdvance/65536.0
-
-
-        thetext = '\n'.join(lines)
-        ps = """gsave
+            thetext = "\n".join(lines)
+            ps = """\
+gsave
+/%(fontname)s findfont
+%(fontsize)s scalefont
+setfont
 %(x)f %(y)f translate
 %(angle)f rotate
 %(thetext)s
 grestore
-""" % locals()
-        self._pswriter.write(ps)
+    """ % locals()
+            self._pswriter.write(ps)
+            
+        else:
+            font = self._get_font_ttf(prop)
+
+            self.set_color(*gc.get_rgb())
+            self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
+            self.track_characters(font, s)
+
+            cmap = font.get_charmap()
+            lastgind = None
+            #print 'text', s
+            lines = []
+            thisx, thisy = 0,0
+            for c in s:
+                ccode = ord(c)
+                gind = cmap.get(ccode)
+                if gind is None:
+                    ccode = ord('?')
+                    name = '.notdef'
+                    gind = 0
+                else:
+                    name = font.get_glyph_name(gind)
+                glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
+
+                if lastgind is not None:
+                    kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
+                else:
+                    kern = 0
+                lastgind = gind
+                thisx += kern/64.0
+
+                lines.append('%f %f m /%s glyphshow'%(thisx, thisy, name))
+                thisx += glyph.linearHoriAdvance/65536.0
+
+
+            thetext = '\n'.join(lines)
+            ps = """gsave
+    %(x)f %(y)f translate
+    %(angle)f rotate
+    %(thetext)s
+    grestore
+    """ % locals()
+            self._pswriter.write(ps)
 
 
     def draw_mathtext(self, gc,
