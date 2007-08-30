@@ -15,7 +15,7 @@ setp(l, 'linewidth', 1)
 
 xlabel('Smarts')
 ylabel('Probability')
-title(r'$\mathrm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$', markup='tex')
+title(r'$\mathrm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$')
 axis([40, 160, 0, 0.03])
 grid(True)
 
