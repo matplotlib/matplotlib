@@ -199,7 +199,7 @@ class RendererGDK(RendererBase):
 
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
-        width, height, fonts, used_characters = self.mathtext_parser.parse(
+        width, height, descent, fonts, used_characters = self.mathtext_parser.parse(
             s, self.dpi.get(), prop)
 
         if angle==90:
@@ -340,15 +340,15 @@ class RendererGDK(RendererBase):
     def get_canvas_width_height(self):
         return self.width, self.height
 
-    def get_text_width_height(self, s, prop, ismath):
+    def get_text_width_height_descent(self, s, prop, ismath):
         if ismath:
-            width, height, fonts, used_characters = self.mathtext_parser.parse(
+            width, height, descent, fonts, used_characters = self.mathtext_parser.parse(
                 s, self.dpi.get(), prop)
-            return width, height
+            return width, height, descent
 
         layout, inkRect, logicalRect = self._get_pango_layout(s, prop)
         l, b, w, h = inkRect
-        return w, h+1
+        return w, h+1, h + 1
 
     def new_gc(self):
         return GraphicsContextGDK(renderer=self)

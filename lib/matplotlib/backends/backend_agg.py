@@ -172,7 +172,7 @@ class RendererAgg(RendererBase):
         """
         if __debug__: verbose.report('RendererAgg.draw_mathtext',
                                      'debug-annoying')
-        ox, oy, width, height, fonts, used_characters = \
+        ox, oy, width, height, descent, fonts, used_characters = \
             self.mathtext_parser.parse(s, self.dpi.get(), prop)
 
         if angle == 90:
@@ -186,7 +186,7 @@ class RendererAgg(RendererBase):
         for font in fonts:
             if angle == 90:
                 font.horiz_image_to_vert_image() # <-- Rotate
-            self._renderer.draw_text( font, x, y, gc)
+            self._renderer.draw_text( font, x, y + 1, gc)
         if 0:
             self._renderer.draw_rectangle(gc, None,
                                           int(x),
@@ -212,10 +212,10 @@ class RendererAgg(RendererBase):
 
         #print x, y, int(x), int(y)
 
-        self._renderer.draw_text(font, int(x), int(y), gc)
+        self._renderer.draw_text(font, int(x), int(y) + 1, gc)
 
 
-    def get_text_width_height(self, s, prop, ismath, rgb=(0,0,0)):
+    def get_text_width_height_descent(self, s, prop, ismath, rgb=(0,0,0)):
         """
         get the width and height in display coords of the string s
         with FontPropertry prop
@@ -233,15 +233,17 @@ class RendererAgg(RendererBase):
             return n,m
 
         if ismath:
-            ox, oy, width, height, fonts, used_characters = \
+            ox, oy, width, height, descent, fonts, used_characters = \
                 self.mathtext_parser.parse(s, self.dpi.get(), prop)
-            return width, height
+            return width, height, depth
         font = self._get_agg_font(prop)
         font.set_text(s, 0.0, flags=LOAD_DEFAULT)  # the width and height of unrotated string
         w, h = font.get_width_height()
+        d = font.get_descent()
         w /= 64.0  # convert from subpixels
         h /= 64.0
-        return w, h
+        d /= 64.0
+        return w, h, d
 
     def draw_tex(self, gc, x, y, s, prop, angle):
         # todo, handle props, angle, origins
@@ -250,7 +252,7 @@ class RendererAgg(RendererBase):
         dpi = self.dpi.get()
 
         flip = angle==90
-        w,h = self.get_text_width_height(s, prop, 'TeX', rgb)
+        w,h,d = self.get_text_width_height_descent(s, prop, 'TeX', rgb)
         if flip:
             w,h = h,w
             x -= w

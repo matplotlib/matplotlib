@@ -421,12 +421,13 @@ class RendererBase:
         """
         return transforms.lbwh_to_bbox(0,0,1,1)  # your values here
 
-    def get_text_width_height(self, s, prop, ismath):
+    def get_text_width_height_descent(self, s, prop, ismath):
         """
-        get the width and height in display coords of the string s
-        with FontPropertry prop
+        get the width and height, and the offset from the bottom to the
+        baseline (descent), in display coords of the string s with
+        FontPropertry prop
         """
-        return 1,1
+        return 1,1,1
 
     def new_gc(self):
         """

@@ -20,54 +20,6 @@ from lines import Line2D
 
 import matplotlib.nxutils as nxutils
 
-def scanner(s):
-    """
-    Split a string into mathtext and non-mathtext parts.  mathtext is
-    surrounded by $ symbols.  quoted \$ are ignored
-
-    All slash quotes dollar signs are ignored
-
-    The number of unquoted dollar signs must be even
-
-    Return value is a list of (substring, inmath) tuples
-    """
-    if not len(s): return [(s, False)]
-    #print 'testing', s, type(s)
-    inddollar, = npy.nonzero(npy.asarray(npy.equal(s,'$')))
-    quoted = dict([ (ind,1) for ind in npy.nonzero(npy.asarray(npy.equal(s,'\\')))[0]])
-    indkeep = [ind for ind in inddollar if not quoted.has_key(ind-1)]
-    if len(indkeep)==0:
-        return [(s, False)]
-    if len(indkeep)%2:
-        raise ValueError('Illegal string "%s" (must have balanced dollar signs)'%s)
-
-    Ns = len(s)
-
-    indkeep = [ind for ind in indkeep]
-    # make sure we start with the first element
-    if indkeep[0]!=0: indkeep.insert(0,0)
-    # and end with one past the end of the string
-    indkeep.append(Ns+1)
-
-    Nkeep = len(indkeep)
-    results = []
-
-    inmath = s[0] == '$'
-    for i in range(Nkeep-1):
-        i0, i1 = indkeep[i], indkeep[i+1]
-        if not inmath:
-            if i0>0: i0 +=1
-        else:
-            i1 += 1
-        if i0>=Ns: break
-
-        results.append((s[i0:i1], inmath))
-        inmath = not inmath
-
-    return results
-
-
-
 def _process_text_args(override, fontdict=None, **kwargs):
     "Return an override dict.  See 'text' docstring for info"
 
@@ -117,7 +69,7 @@ artist.kwdocd['Text'] =  """\
     text: string
     transform: a matplotlib.transform transformation instance
     variant: [ 'normal' | 'small-caps' ]
-    verticalalignment or va: [ 'center' | 'top' | 'bottom' ]
+    verticalalignment or va: [ 'center' | 'top' | 'bottom' | 'baseline' ]
     visible: [True | False]
     weight or fontweight: [ 'normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight']
     x: float
@@ -130,9 +82,6 @@ class Text(Artist):
     Handle storing and drawing of text in window or data coordinates
 
     """
-    # special case superscripting to speedup logplots
-    _rgxsuper = re.compile('\$([\-+0-9]+)\^\{(-?[0-9]+)\}\$')
-
     zorder = 3
     def __str__(self):
         return "Text(%g,%g,%s)"%(self._y,self._y,self._text)
@@ -237,21 +186,21 @@ class Text(Artist):
         height = 0
 
         xmin, ymin = thisx, thisy
-        if self.is_math_text():
-            lines = [self._text]
-        else:
-            lines = self._text.split('\n')
+        lines = self._text.split('\n')
             
         whs = []
         # Find full vertical extent of font,
         # including ascenders and descenders:
-        tmp, heightt = renderer.get_text_width_height(
+        tmp, heightt, bl = renderer.get_text_width_height_descent(
                 'lp', self._fontproperties, ismath=False)
         offsety = heightt * self._linespacing
 
+        baseline = None
         for line in lines:
-            w,h = renderer.get_text_width_height(
-                line, self._fontproperties, ismath=self.is_math_text())
+            w, h, d = renderer.get_text_width_height_descent(
+                line, self._fontproperties, ismath=self.is_math_text(line))
+            if baseline is None:
+                baseline = h - d
             whs.append( (w,h) )
             horizLayout.append((line, thisx, thisy, w, h))
             thisy -= offsety
@@ -307,6 +256,7 @@ class Text(Artist):
 
         if valign=='center': offsety = ty - (ymin + height/2.0)
         elif valign=='top': offsety  = ty - (ymin + height)
+        elif valign=='baseline': offsety = ty - (ymin + height) + baseline
         else: offsety = ty - ymin
 
         xmin += offsetx
@@ -364,49 +314,9 @@ class Text(Artist):
             bbox_artist(self, renderer, self._bbox)
         angle = self.get_rotation()
 
-        ismath = self.is_math_text()
-
-        if angle==0:
-            #print 'text', self._text
-            if ismath=='TeX': m = None
-            else: m = self._rgxsuper.match(self._text)
-            if m is not None:
-                bbox, info = self._get_layout_super(self._renderer, m)
-                base, xt, yt = info[0]
-                renderer.draw_text(gc, xt, yt, base,
-                                   self._fontproperties, angle,
-                                   ismath=False)
-
-                exponent, xt, yt, fp = info[1]
-                renderer.draw_text(gc, xt, yt, exponent,
-                                   fp, angle,
-                                   ismath=False)
-                return
-
-
-        if len(self._substrings)>1:
-            # embedded mathtext
-            thisx, thisy = self._get_xy_display()
-
-            for s,ismath in self._substrings:
-                w, h = renderer.get_text_width_height(
-                    s, self._fontproperties, ismath)
-
-                renderx, rendery = thisx, thisy
-                if renderer.flipy():
-                    canvasw, canvash = renderer.get_canvas_width_height()
-                    rendery = canvash-rendery
-
-                renderer.draw_text(gc, renderx, rendery, s,
-                                   self._fontproperties, angle,
-                                   ismath)
-                thisx += w
-
-
-            return
         bbox, info = self._get_layout(renderer)
         trans = self.get_transform()
-        if ismath=='TeX':
+        if rcParams['text.usetex']:
             canvasw, canvash = renderer.get_canvas_width_height()
             for line, wh, x, y in info:
                 x, y = trans.xy_tup((x, y))
@@ -426,7 +336,7 @@ class Text(Artist):
 
             renderer.draw_text(gc, x, y, line,
                                self._fontproperties, angle,
-                               ismath=self.is_math_text())
+                               ismath=self.is_math_text(line))
 
     def get_color(self):
         "Return the color of the text"
@@ -523,13 +433,6 @@ class Text(Artist):
             raise RuntimeError('Cannot get window extent w/o renderer')
 
         angle = self.get_rotation()
-        if angle==0:
-            ismath = self.is_math_text()
-            if ismath=='TeX': m = None
-            else: m = self._rgxsuper.match(self._text)
-            if m is not None:
-                bbox, tmp = self._get_layout_super(self._renderer, m)
-                return bbox
         bbox, info = self._get_layout(self._renderer)
         return bbox
 
@@ -734,9 +637,9 @@ class Text(Artist):
         """
         Set the vertical alignment
 
-        ACCEPTS: [ 'center' | 'top' | 'bottom' ]
+        ACCEPTS: [ 'center' | 'top' | 'bottom' | 'baseline' ]
         """
-        legal = ('top', 'bottom', 'center')
+        legal = ('top', 'bottom', 'center', 'baseline')
         if align not in legal:
             raise ValueError('Vertical alignment must be one of %s' % str(legal))
 
@@ -749,15 +652,12 @@ class Text(Artist):
         ACCEPTS: string or anything printable with '%s' conversion
         """
         self._text = '%s' % (s,)
-        #self._substrings = scanner(s)  # support embedded mathtext
-        self._substrings = []           # ignore embedded mathtext for now
 
-    def is_math_text(self):
+    def is_math_text(self, s):
         if rcParams['text.usetex']: return 'TeX'        
 
         # Did we find an even number of non-escaped dollar signs?
         # If so, treat is as math text.
-        s = self._text
         dollar_count = s.count(r'$') - s.count(r'\$')
         if dollar_count > 0 and dollar_count % 2 == 0:
             return True
@@ -771,56 +671,6 @@ class Text(Artist):
         ACCEPTS: a matplotlib.font_manager.FontProperties instance
         """
         self._fontproperties = fp
-
-    def _get_layout_super(self, renderer, m):
-        """
-        a special case optimization if a log super and angle = 0
-        Basically, mathtext is slow and we can do simple superscript layout "by hand"
-        """
-
-        key = self.get_prop_tup()
-        if self.cached.has_key(key): return self.cached[key]
-
-        base, exponent = m.group(1), m.group(2)
-        size =  self._fontproperties.get_size_in_points()
-        fpexp = self._fontproperties.copy()
-        fpexp.set_size(0.7*size)
-        wb,hb = renderer.get_text_width_height(base, self._fontproperties, False)
-        we,he = renderer.get_text_width_height(exponent, fpexp, False)
-
-        w = wb+we
-
-        xb, yb = self._get_xy_display()
-        xe = xb+1.1*wb
-        ye = yb+0.5*hb
-        h = ye+he-yb
-
-
-
-
-        if self._horizontalalignment=='center':  xo = -w/2.
-        elif self._horizontalalignment=='right':  xo = -w
-        else: xo = 0
-        if self._verticalalignment=='center':    yo = -hb/2.
-        elif self._verticalalignment=='top':  yo = -hb
-        else: yo = 0
-
-        xb += xo
-        yb += yo
-        xe += xo
-        ye += yo
-        bbox = lbwh_to_bbox(xb, yb, w, h)
-
-        if renderer.flipy():
-            canvasw, canvash = renderer.get_canvas_width_height()
-            yb = canvash-yb
-            ye = canvash-ye
-
-
-        val = ( bbox, ((base, xb, yb), (exponent, xe, ye, fpexp)))
-        self.cached[key] = val
-
-        return val
 
 artist.kwdocd['Text'] = artist.kwdoc(Text)
 

@@ -304,7 +304,7 @@ class RendererCairo(RendererBase):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
 
         ctx = gc.ctx
-        width, height, glyphs, rects = self.mathtext_parser.parse(
+        width, height, descent, glyphs, rects = self.mathtext_parser.parse(
             s, self.dpi.get(), prop)
 
         ctx.save()
@@ -349,12 +349,12 @@ class RendererCairo(RendererBase):
         return self.width, self.height
 
 
-    def get_text_width_height(self, s, prop, ismath):
+    def get_text_width_height_descent(self, s, prop, ismath):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         if ismath:
-            width, height, fonts, used_characters = self.mathtext_parser.parse(
+            width, height, descent, fonts, used_characters = self.mathtext_parser.parse(
                s, self.dpi.get(), prop)
-            return width, height
+            return width, height, descent
 
         ctx = self.text_ctx
         ctx.save()
@@ -373,10 +373,10 @@ class RendererCairo(RendererBase):
         # save/restore prevents the problem
         ctx.set_font_size (size)
 
-        w, h = ctx.text_extents (s)[2:4]
+        y_bearing, w, h = ctx.text_extents (s)[1:4]
         ctx.restore()
 
-        return w, h
+        return w, h, h + y_bearing
 
 
     def new_gc(self):

@@ -253,7 +253,7 @@ class RendererWx(RendererBase):
     def offset_text_height(self):
         return True
 
-    def get_text_width_height(self, s, prop, ismath):
+    def get_text_width_height_descent(self, s, prop, ismath):
         """
         get the width and height in display coords of the string s
         with FontPropertry prop
@@ -264,9 +264,9 @@ class RendererWx(RendererBase):
         if self.gc is None: gc = self.new_gc()
         font = self.get_wx_font(s, prop)
         self.gc.SetFont(font)
-        w, h = self.gc.GetTextExtent(s)
+        w, h, descent, leading = self.gc.GetFullTextExtent(s)
 
-        return w, h
+        return w, h, descent
 
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
@@ -376,7 +376,7 @@ class RendererWx(RendererBase):
         gc.SetFont(font)
         assert gc.Ok(), "wxMemoryDC not OK to use"
 
-        w, h = self.get_text_width_height(s, prop, ismath)
+        w, h, d = self.get_text_width_height_descent(s, prop, ismath)
         x = int(x)
         y = int(y-h)
 
