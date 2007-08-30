@@ -253,9 +253,9 @@ class MathtextBackendBbox(MathtextBackend):
         
     def render_glyph(self, ox, oy, info):
         self._update_bbox(ox + info.metrics.xmin,
-                          oy + info.metrics.ymin,
+                          oy - info.metrics.ymax,
                           ox + info.metrics.xmax,
-                          oy + info.metrics.ymax)
+                          oy - info.metrics.ymin)
 
     def render_rect_filled(self, x1, y1, x2, y2):
         self._update_bbox(x1, y1, x2, y2)
@@ -265,7 +265,8 @@ class MathtextBackendBbox(MathtextBackend):
         bbox = self.bbox
         bbox = [bbox[0] - 2, bbox[1] - 2, bbox[2] + 2, bbox[3] + 2]
         self._switch_to_real_backend()
-        self.fonts_object.set_canvas_size(bbox[2] - bbox[0], bbox[3] - bbox[1])
+        self.fonts_object.set_canvas_size(
+            bbox[2] - bbox[0], bbox[3] - bbox[1])
         ship(-bbox[0], -bbox[1], box)
         return self.fonts_object.get_results(box)
 
@@ -321,6 +322,8 @@ class MathtextBackendPs(MathtextBackend):
         fontsize        = info.fontsize
         symbol_name     = info.symbol_name
 
+        # TODO: Optimize out the font changes
+        
         ps = """/%(postscript_name)s findfont
 %(fontsize)s scalefont
 setfont
@@ -928,7 +931,7 @@ class StandardPsFonts(Fonts):
         xmin, ymin, xmax, ymax = [val * scale
                                   for val in font.get_bbox_char(glyph)]
         metrics = Bunch(
-            advance  = (xmax-xmin),
+            advance  = font.get_width_char(glyph) * scale,
             width    = font.get_width_char(glyph) * scale,
             height   = font.get_height_char(glyph) * scale,
             xmin = xmin,
@@ -2439,6 +2442,7 @@ class MathTextParser(object):
         cacheKey = (s, dpi, hash(prop))
         result = self._cache.get(cacheKey)
         if result is not None:
+            del self._cache[cacheKey]
             return result
 
         if self._output == 'PS' and rcParams['ps.useafm']:
