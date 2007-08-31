@@ -172,7 +172,7 @@ class RendererAgg(RendererBase):
         """
         if __debug__: verbose.report('RendererAgg.draw_mathtext',
                                      'debug-annoying')
-        ox, oy, width, height, descent, fonts, used_characters = \
+        ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi.get(), prop)
 
         if angle == 90:
@@ -183,10 +183,9 @@ class RendererAgg(RendererBase):
         else:
             x = int(x) + ox
             y = int(y) - height + oy
-        for font in fonts:
-            if angle == 90:
-                font.horiz_image_to_vert_image() # <-- Rotate
-            self._renderer.draw_text( font, x, y + 1, gc)
+        if angle == 90:
+            font_image.rotate() # <-- Rotate 90 deg
+        self._renderer.draw_text_image(font_image, x, y + 1, gc)
         if 0:
             self._renderer.draw_rectangle(gc, None,
                                           int(x),
@@ -212,7 +211,7 @@ class RendererAgg(RendererBase):
 
         #print x, y, int(x), int(y)
 
-        self._renderer.draw_text(font, int(x), int(y) + 1, gc)
+        self._renderer.draw_text_image(font.get_image(), int(x), int(y) + 1, gc)
 
 
     def get_text_width_height_descent(self, s, prop, ismath, rgb=(0,0,0)):
@@ -233,9 +232,9 @@ class RendererAgg(RendererBase):
             return n,m
 
         if ismath:
-            ox, oy, width, height, descent, fonts, used_characters = \
+            ox, oy, width, height, descent, font_image, used_characters = \
                 self.mathtext_parser.parse(s, self.dpi.get(), prop)
-            return width, height, depth
+            return width, height, descent
         font = self._get_agg_font(prop)
         font.set_text(s, 0.0, flags=LOAD_DEFAULT)  # the width and height of unrotated string
         w, h = font.get_width_height()
