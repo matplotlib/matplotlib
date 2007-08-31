@@ -42,8 +42,413 @@
 
 FT_Library _ft2Library;
 
-FT2Image::FT2Image() : bRotated(false), buffer(NULL)  {}
-FT2Image::~FT2Image() {delete [] buffer; buffer=NULL;}
+FT2Image::FT2Image() : 
+  offsetx(0), offsety(0),
+  _bRotated(false), 
+  _isDirty(true),
+  _buffer(NULL),
+  _width(0), _height(0),
+  _rgbCopy(NULL),
+  _rgbaCopy(NULL) {
+  _VERBOSE("FT2Image::FT2Image");
+}
+
+FT2Image::FT2Image(unsigned long width, unsigned long height) :
+  offsetx(0), offsety(0),
+  _bRotated(false), 
+  _isDirty(true),
+  _buffer(NULL), 
+  _width(0), _height(0),
+  _rgbCopy(NULL),
+  _rgbaCopy(NULL) {
+  _VERBOSE("FT2Image::FT2Image");
+  resize(width, height);
+}
+
+FT2Image::~FT2Image() { 
+  _VERBOSE("FT2Image::~FT2Image");
+  delete [] _buffer; 
+  _buffer=NULL; 
+}
+
+void FT2Image::resize(unsigned long width, unsigned long height) {
+  size_t numBytes = width*height;
+
+  if (_width != width || _height != height) {
+    _width = width;
+    _height = height;
+
+    delete [] _buffer;
+    _buffer = new unsigned char [numBytes];
+  }
+
+  for (size_t n=0; n<numBytes; n++)
+    _buffer[n] = 0;
+
+  _bRotated = false;
+  _isDirty = true;
+}
+
+char FT2Image::resize__doc__[] =
+"resize(width, height)\n"
+"\n"
+"Resize the dimensions of the image (it is cleared in the process).\n"
+;
+Py::Object
+FT2Image::py_resize(const Py::Tuple & args) {
+  _VERBOSE("FT2Image::resize");
+
+  args.verify_length(2);
+
+  long x0 = Py::Int(args[0]);
+  long y0 = Py::Int(args[1]);
+
+  resize(x0, y0);
+
+  return Py::Object();
+}
+
+void FT2Image::clear() {
+  _VERBOSE("FT2Image::clear");
+
+  _width = 0;
+  _height = 0;
+  offsetx = 0;
+  offsety = 0;
+  _isDirty = true;
+  _bRotated = false;
+  delete [] _buffer;
+  _buffer = NULL;
+  if (_rgbCopy) {
+    delete _rgbCopy;
+    _rgbCopy = NULL;
+  }
+  if (_rgbaCopy) {
+    delete _rgbaCopy;
+    _rgbaCopy = NULL;
+  }
+}
+char FT2Image::clear__doc__[] =
+"clear()\n"
+"\n"
+"Clear the contents of the image.\n"
+;
+Py::Object
+FT2Image::py_clear(const Py::Tuple & args) {
+  args.verify_length(0);
+
+  clear();
+
+  return Py::Object();
+}
+
+void FT2Image::rotate() {
+  // If we have already rotated, just return.
+  if (_bRotated)
+    return;
+
+  unsigned long width = _width;
+  unsigned long height = _height;
+
+  unsigned long newWidth  = _height;
+  unsigned long newHeight = _width;
+
+  unsigned long numBytes = _width * _height;
+
+  unsigned char * buffer = new unsigned char [numBytes];
+
+  unsigned long  i, j, k, offset, nhMinusOne;
+
+  nhMinusOne = newHeight - 1;
+
+  unsigned char * read_it = _buffer;
+
+  for (i=0; i<height; i++) {
+    offset = i*width;
+    for (j=0; j<width; j++) {
+      k = nhMinusOne - j;
+      buffer[i + k*newWidth] = *(read_it++);
+    }
+  }
+
+  delete [] _buffer;
+  _buffer = buffer;
+  _width = newWidth;
+  _height = newHeight;
+  _bRotated = true;
+  _isDirty = true;
+}
+char FT2Image::rotate__doc__[] =
+"rotate()\n"
+"\n"
+"Rotates the image 90 degrees.\n"
+;
+Py::Object
+FT2Image::py_rotate(const Py::Tuple & args) {
+  _VERBOSE("FT2Image::rotate");
+
+  args.verify_length(0);
+
+  rotate();
+
+  return Py::Object();
+}
+
+void
+FT2Image::draw_bitmap( FT_Bitmap*  bitmap,
+	 	       FT_Int      x,
+ 		       FT_Int      y) {
+  _VERBOSE("FT2Image::draw_bitmap");
+  FT_Int image_width = (FT_Int)_width;
+  FT_Int image_height = (FT_Int)_height;
+  FT_Int char_width =  bitmap->width;
+  FT_Int char_height = bitmap->rows;
+
+  FT_Int x1 = CLAMP(x, 0, image_width);
+  FT_Int y1 = CLAMP(y, 0, image_height);
+  FT_Int x2 = CLAMP(x + char_width, 0, image_width);
+  FT_Int y2 = CLAMP(y + char_height, 0, image_height);
+
+  FT_Int x_start = MAX(0, -x);
+  FT_Int y_offset = y1 - MAX(0, -y);
+
+  for ( FT_Int i = y1; i < y2; ++i ) {
+    unsigned char* dst = _buffer + (i * image_width + x1);
+    unsigned char* src = bitmap->buffer + (((i - y_offset) * bitmap->pitch) + x_start);
+    for ( FT_Int j = x1; j < x2; ++j, ++dst, ++src )
+      *dst |= *src;
+  }
+
+  _isDirty = true;
+}
+
+void FT2Image::write_bitmap(const char* filename) const {
+  FILE *fh = fopen(filename, "w");
+
+  for ( size_t i = 0; i< _height; i++) {
+    for ( size_t j = 0; j < _width; ++j) {
+      if (_buffer[j + i*_width])
+	fputc('#', fh);
+      else
+	fputc(' ', fh);
+    }
+    fputc('\n', fh);
+  }
+
+  fclose(fh);
+}
+
+char FT2Image::write_bitmap__doc__[] =
+"write_bitmap(fname)\n"
+"\n"
+"Write the bitmap to file fname\n"
+;
+Py::Object
+FT2Image::py_write_bitmap(const Py::Tuple & args) {
+  _VERBOSE("FT2Image::write_bitmap");
+
+  args.verify_length(1);
+
+  std::string filename = Py::String(args[0]);
+
+  write_bitmap(filename.c_str());
+
+  return Py::Object();
+}
+
+void
+FT2Image::draw_rect(unsigned long x0, unsigned long y0, 
+		    unsigned long x1, unsigned long y1) {
+  if ( x0<0 || y0<0 || x1<0 || y1<0 ||
+       x0>_width || x1>_width ||
+       y0>_height || y1>_height )
+    throw Py::ValueError("Rect coords outside image bounds");
+
+  size_t top = y0*_width;
+  size_t bottom = y1*_width;
+  for (size_t i=x0; i<x1+1; ++i) {
+    _buffer[i + top] = 255;
+    _buffer[i + bottom] = 255;
+  }
+
+  for (size_t j=y0+1; j<y1; ++j) {
+    _buffer[x0 + j*_width] = 255;
+    _buffer[x1 + j*_width] = 255;
+  }
+
+  _isDirty = true;
+}
+
+char FT2Image::draw_rect__doc__[] =
+"draw_rect(x0, y0, x1, y1)\n"
+"\n"
+"Draw a rect to the image.\n"
+"\n"
+;
+Py::Object
+FT2Image::py_draw_rect(const Py::Tuple & args) {
+  _VERBOSE("FT2Image::draw_rect");
+
+  args.verify_length(4);
+
+  long x0 = Py::Int(args[0]);
+  long y0 = Py::Int(args[1]);
+  long x1 = Py::Int(args[2]);
+  long y1 = Py::Int(args[3]);
+
+  draw_rect(x0, y0, x1, y1);
+
+  return Py::Object();
+}
+
+void FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0, 
+				unsigned long x1, unsigned long y1) {
+  x0 = CLAMP(x0, 0, _width);
+  y0 = CLAMP(y0, 0, _height);
+  x1 = CLAMP(x1, 0, _width);
+  y1 = CLAMP(y1, 0, _height);
+
+  for (size_t j=y0; j<y1+1; j++) {
+    for (size_t i=x0; i<x1+1; i++) {
+      _buffer[i + j*_width] = 255;
+    }
+  }
+
+  _isDirty = true;
+}  
+
+char FT2Image::draw_rect_filled__doc__[] =
+"draw_rect_filled(x0, y0, x1, y1)\n"
+"\n"
+"Draw a filled rect to the image.\n"
+"\n"
+;
+Py::Object
+FT2Image::py_draw_rect_filled(const Py::Tuple & args) {
+  _VERBOSE("FT2Image::draw_rect_filled");
+
+  args.verify_length(4);
+
+  long x0 = Py::Int(args[0]);
+  long y0 = Py::Int(args[1]);
+  long x1 = Py::Int(args[2]);
+  long y1 = Py::Int(args[3]);
+
+  draw_rect_filled(x0, y0, x1, y1);
+
+  return Py::Object();
+}
+
+char FT2Image::as_str__doc__[] =
+"width, height, s = image_as_str()\n"
+"\n"
+"Return the image buffer as a string\n"
+"\n"
+;
+Py::Object
+FT2Image::py_as_str(const Py::Tuple & args) {
+  _VERBOSE("FT2Image::as_str");
+  args.verify_length(0);
+
+  return Py::asObject(PyString_FromStringAndSize((const char *)_buffer, _width*_height));
+}
+
+void FT2Image::makeRgbCopy() {
+  if (!_isDirty)
+    return;
+
+  if (!_rgbCopy) {
+    _rgbCopy = new FT2Image(_width * 3, _height);
+  } else {
+    _rgbCopy->resize(_width * 3, _height);
+  }
+  unsigned char *src		= _buffer;
+  unsigned char *src_end	= src + (_width * _height);
+  unsigned char *dst		= _rgbCopy->_buffer;
+
+  unsigned char tmp;
+  while (src != src_end) {
+    tmp = 255 - *src++;
+    *dst++ = tmp;
+    *dst++ = tmp;
+    *dst++ = tmp;
+  }
+}
+
+char FT2Image::as_rgb_str__doc__[] =
+"width, height, s = image_as_rgb_str()\n"
+"\n"
+"Return the image buffer as a 24-bit RGB string.\n"
+"\n"
+;
+Py::Object
+FT2Image::py_as_rgb_str(const Py::Tuple & args) {
+  _VERBOSE("FT2Image::as_str_rgb");
+  args.verify_length(0);
+
+  makeRgbCopy();
+  
+  return _rgbCopy->py_as_str(args);
+}
+
+void FT2Image::makeRgbaCopy() {
+  if (!_isDirty)
+    return;
+
+  if (!_rgbaCopy) {
+    _rgbaCopy = new FT2Image(_width * 4, _height);
+  } else {
+    _rgbaCopy->resize(_width * 4, _height);
+  }
+  unsigned char *src		= _buffer;
+  unsigned char *src_end	= src + (_width * _height);
+  unsigned char *dst		= _rgbaCopy->_buffer;
+
+  // This pre-multiplies the alpha, which apparently shouldn't
+  // be necessary for wxGTK, but it sure as heck seems to be.
+  unsigned int c;
+  unsigned int tmp;
+  while (src != src_end) {
+    c = *src++;
+    tmp = ((255 - c) * c) >> 8;
+    *dst++ = tmp;
+    *dst++ = tmp;
+    *dst++ = tmp;
+    *dst++ = c;
+  }
+}
+
+char FT2Image::as_rgba_str__doc__[] =
+"width, height, s = image_as_rgb_str()\n"
+"\n"
+"Return the image buffer as a 32-bit RGBA string.\n"
+"\n"
+;
+Py::Object
+FT2Image::py_as_rgba_str(const Py::Tuple & args) {
+  _VERBOSE("FT2Image::as_str_rgba");
+  args.verify_length(0);
+
+  makeRgbaCopy();
+  
+  return _rgbaCopy->py_as_str(args);
+}
+
+Py::Object
+FT2Image::py_get_width(const Py::Tuple & args) {
+  _VERBOSE("FT2Image::get_width");
+  args.verify_length(0);
+
+  return Py::Int((long)get_width());
+}
+
+Py::Object
+FT2Image::py_get_height(const Py::Tuple & args) {
+  _VERBOSE("FT2Image::get_height");
+  args.verify_length(0);
+
+  return Py::Int((long)get_height());
+}
 
 Glyph::Glyph( const FT_Face& face, const FT_Glyph& glyph, size_t ind) :
   glyphInd(ind) {
@@ -104,7 +509,6 @@ Py::Object
 Glyph::get_path( const FT_Face& face) {
   //get the glyph as a path, a list of (COMMAND, *args) as desribed in matplotlib.path
   // this code is from agg's decompose_ft_outline with minor modifications
-
 
   enum {MOVETO, LINETO, CURVE3, CURVE4, ENDPOLY};
   FT_Outline& outline = face->glyph->outline;
@@ -345,11 +749,11 @@ Glyph::get_path( const FT_Face& face) {
 }
 
 
-FT2Font::FT2Font(std::string facefile)
+FT2Font::FT2Font(std::string facefile) :
+  image(NULL)
 {
   _VERBOSE(Printf("FT2Font::FT2Font %s", facefile.c_str()).str());
   clear(Py::Tuple(0));
-
 
   int error = FT_New_Face( _ft2Library, facefile.c_str(), 0, &face );
 
@@ -447,73 +851,18 @@ FT2Font::FT2Font(std::string facefile)
 FT2Font::~FT2Font()
 {
   _VERBOSE("FT2Font::~FT2Font");
-  FT_Done_Face    ( face );
 
-  delete [] image.buffer ;
-  image.buffer = NULL;
+  if(image)
+    Py::_XDECREF(image);
+  FT_Done_Face    ( face );
 
   for (size_t i=0; i<glyphs.size(); i++) {
     FT_Done_Glyph( glyphs[i] );
   }
+
   for (size_t i=0; i<gms.size(); i++) {
     Py_DECREF(gms[i]);
   }
-}
-
-
-char  FT2Font::horiz_image_to_vert_image__doc__[] =
-"horiz_image_to_vert_image()\n"
-"\n"
-"Copies the horizontal image (w, h) into a\n"
-"new image of size (h,w)\n"
-"This is equivalent to rotating the original image\n"
-"by 90 degrees ccw\n"
-;
-
-Py::Object
-FT2Font::horiz_image_to_vert_image(const Py::Tuple & args) {
-
-  // If we have already rotated, just return.
-
-  if (image.bRotated)
-    return Py::Object();
-
-
-  long width = image.width, height = image.height;
-
-  long newWidth  = image.height;
-  long newHeight = image.width;
-
-  long numBytes = image.width * image.height;
-
-  unsigned char * buffer = new unsigned char [numBytes];
-
-  long  i, j, k, offset, nhMinusOne;
-
-  nhMinusOne = newHeight-1;
-
-  for (i=0; i<height; i++) {
-
-    offset = i*width;
-
-    for (j=0; j<width; j++) {
-
-      k = nhMinusOne - j;
-
-      buffer[i + k*newWidth] = image.buffer[j + offset];
-
-    }
-
-  }
-
-  delete [] image.buffer;
-  image.buffer = buffer;
-  image.width = newWidth;
-  image.height = newHeight;
-  image.bRotated = true;
-
-  return Py::Object();
-
 }
 
 int
@@ -530,34 +879,6 @@ FT2Font::getattr( const char *name ) {
   else return getattr_default( name );
 }
 
-char FT2Font::set_bitmap_size__doc__[] =
-"set_bitmap_size(w, h)\n"
-"\n"
-"Manually set the bitmap size to render the glyps to.  This is useful"
-"in cases where you want to render several different glyphs to the bitmap"
-;
-
-Py::Object
-FT2Font::set_bitmap_size(const Py::Tuple & args) {
-  _VERBOSE("FT2Font::set_bitmap_size");
-  args.verify_length(2);
-
-  long width = Py::Int(args[0]);
-  long height = Py::Int(args[1]);
-
-  image.width   = (unsigned)width;
-  image.height  = (unsigned)height;
-
-  long numBytes = image.width * image.height;
-
-  delete [] image.buffer;
-  image.buffer = new unsigned char [numBytes];
-  for (long n=0; n<numBytes; n++)
-    image.buffer[n] = 0;
-
-  return Py::Object();
-}
-
 char FT2Font::clear__doc__[] =
 "clear()\n"
 "\n"
@@ -569,13 +890,8 @@ FT2Font::clear(const Py::Tuple & args) {
   _VERBOSE("FT2Font::clear");
   args.verify_length(0);
 
-  //todo: move to image method?
-  delete [] image.buffer ;
-  image.buffer  = NULL;
-  image.width   = 0;
-  image.height  = 0;
-  image.offsetx = 0;
-  image.offsety = 0;
+  if (image)
+    image->clear();
 
   angle = 0.0;
 
@@ -904,8 +1220,6 @@ FT2Font::get_width_height(const Py::Tuple & args) {
   _VERBOSE("FT2Font::get_width_height");
   args.verify_length(0);
 
-
-
   FT_BBox bbox = compute_string_bbox();
 
   Py::Tuple ret(2);
@@ -930,152 +1244,6 @@ FT2Font::get_descent(const Py::Tuple & args) {
   return Py::Int(- bbox.yMin);;
 }
 
-void
-FT2Font::draw_bitmap( FT_Bitmap*  bitmap,
-		      FT_Int      x,
-		      FT_Int      y) {
-  _VERBOSE("FT2Font::draw_bitmap");
-  FT_Int image_width = (FT_Int)image.width;
-  FT_Int image_height = (FT_Int)image.height;
-  FT_Int char_width =  bitmap->width;
-  FT_Int char_height = bitmap->rows;
-
-  FT_Int x1 = CLAMP(x, 0, image_width);
-  FT_Int y1 = CLAMP(y, 0, image_height);
-  FT_Int x2 = CLAMP(x + char_width, 0, image_width);
-  FT_Int y2 = CLAMP(y + char_height, 0, image_height);
-
-  FT_Int x_start = MAX(0, -x);
-  FT_Int y_offset = y1 - MAX(0, -y);
-
-  for ( FT_Int i = y1; i < y2; ++i ) {
-    unsigned char* dst = image.buffer + (i * image_width + x1);
-    unsigned char* src = bitmap->buffer + (((i - y_offset) * bitmap->pitch) + x_start);
-    for ( FT_Int j = x1; j < x2; ++j, ++dst, ++src )
-      *dst |= *src;
-  }
-}
-
-char FT2Font::write_bitmap__doc__[] =
-"write_bitmap(fname)\n"
-"\n"
-"Write the bitmap to file fname\n"
-;
-Py::Object
-FT2Font::write_bitmap(const Py::Tuple & args) {
-  _VERBOSE("FT2Font::write_bitmap");
-
-  args.verify_length(1);
-
-  FT_Int  i, j;
-
-  std::string filename = Py::String(args[0]);
-
-  FILE *fh = fopen(filename.c_str(), "w");
-  FT_Int width = (FT_Int)image.width;
-  FT_Int height = (FT_Int)image.height;
-
-  for ( i = 0; i< height; i++)
-    for ( j = 0; j < width; ++j)
-      fputc(image.buffer[j + i*width], fh);
-
-  fclose(fh);
-
-  return Py::Object();
-}
-
-char FT2Font::draw_rect__doc__[] =
-"draw_rect(x0, y0, x1, y1)\n"
-"\n"
-"Draw a rect to the image.  It is your responsibility to set the dimensions\n"
-"of the image, eg, with set_bitmap_size\n"
-"\n"
-;
-Py::Object
-FT2Font::draw_rect(const Py::Tuple & args) {
-  _VERBOSE("FT2Font::draw_rect");
-
-  args.verify_length(4);
-
-  long x0 = Py::Int(args[0]);
-  long y0 = Py::Int(args[1]);
-  long x1 = Py::Int(args[2]);
-  long y1 = Py::Int(args[3]);
-
-  FT_Int iwidth = (FT_Int)image.width;
-  FT_Int iheight = (FT_Int)image.height;
-
-  if ( x0<0 || y0<0 || x1<0 || y1<0 ||
-       x0>iwidth || x1>iwidth ||
-       y0>iheight || y1>iheight )
-    throw Py::ValueError("Rect coords outside image bounds");
-
-  for (long i=x0; i<x1+1; ++i) {
-    image.buffer[i + y0*iwidth] = 255;
-    image.buffer[i + y1*iwidth] = 255;
-  }
-
-  for (long j=y0+1; j<y1; ++j) {
-    image.buffer[x0 + j*iwidth] = 255;
-    image.buffer[x1 + j*iwidth] = 255;
-  }
-  return Py::Object();
-}
-
-char FT2Font::draw_rect_filled__doc__[] =
-"draw_rect_filled(x0, y0, x1, y1)\n"
-"\n"
-"Draw a filled rect to the image.  It is your responsibility to set the\n"
-"dimensions of the image, eg, with set_bitmap_size\n"
-"\n"
-;
-Py::Object
-FT2Font::draw_rect_filled(const Py::Tuple & args) {
-  _VERBOSE("FT2Font::draw_rect_filled");
-
-  args.verify_length(4);
-
-  long x0 = Py::Int(args[0]);
-  long y0 = Py::Int(args[1]);
-  long x1 = Py::Int(args[2]);
-  long y1 = Py::Int(args[3]);
-
-  FT_Int iwidth = (FT_Int)image.width;
-  FT_Int iheight = (FT_Int)image.height;
-
-  x0 = CLAMP(x0, 0, iwidth);
-  y0 = CLAMP(y0, 0, iheight);
-  x1 = CLAMP(x1, 0, iwidth);
-  y1 = CLAMP(y1, 0, iheight);
-
-  for (long j=y0; j<y1+1; j++) {
-      for (long i=x0; i<x1+1; i++) {
-        image.buffer[i + j*iwidth] = 255;
-      }
-  }
-  return Py::Object();
-}
-
-char FT2Font::image_as_str__doc__[] =
-"width, height, s = image_as_str()\n"
-"\n"
-"Return the image buffer as a string\n"
-"\n"
-;
-Py::Object
-FT2Font::image_as_str(const Py::Tuple & args) {
-  _VERBOSE("FT2Font::image_as_str");
-  args.verify_length(0);
-
-  return Py::asObject(
-		      Py_BuildValue("lls#",
-				    image.width,
-				    image.height,
-				    image.buffer,
-				    image.width*image.height)
-		      );
-}
-
 char FT2Font::draw_glyphs_to_bitmap__doc__[] =
 "draw_glyphs_to_bitmap()\n"
 "\n"
@@ -1089,21 +1257,20 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
   args.verify_length(0);
 
   FT_BBox string_bbox = compute_string_bbox();
+  size_t width = (string_bbox.xMax-string_bbox.xMin) / 64 + 2;
+  size_t height = (string_bbox.yMax-string_bbox.yMin) / 64 + 2;
 
-  image.width   = (string_bbox.xMax-string_bbox.xMin) / 64 + 2;
-  image.height  = (string_bbox.yMax-string_bbox.yMin) / 64 + 2;
+  if (!image) {
+    image = new FT2Image(width, height);
+  } else {
+    image->resize(width, height);
+  }
 
-  image.offsetx = (int)(string_bbox.xMin / 64.0);
+  image->offsetx = (int)(string_bbox.xMin / 64.0);
   if (angle==0)
-    image.offsety = -image.height;
+    image->offsety = -image->get_height();
   else
-    image.offsety = (int)(-string_bbox.yMax/64.0);
-
-  size_t numBytes = image.width*image.height;
-  delete [] image.buffer;
-  image.buffer = new unsigned char [numBytes];
-  for (size_t n=0; n<numBytes; n++)
-    image.buffer[n] = 0;
+    image->offsety = (int)(-string_bbox.yMax/64.0);
 
   for ( size_t n = 0; n < glyphs.size(); n++ )
     {
@@ -1113,8 +1280,7 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
       error = FT_Glyph_To_Bitmap(&glyphs[n],
 				 ft_render_mode_normal,
 				 0,
-				 //&pos[n],
-				 1  //destroy image;
+				 1
 				 );
       if (error)
 	throw Py::RuntimeError("Could not convert glyph to bitmap");
@@ -1126,7 +1292,7 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
       FT_Int x = (FT_Int)(bitmap->left - (string_bbox.xMin / 64.));
       FT_Int y = (FT_Int)((string_bbox.yMax / 64.) - bitmap->top + 1);
 
-      draw_bitmap( &bitmap->bitmap, x, y);
+      image->draw_bitmap( &bitmap->bitmap, x, y);
     }
 
   return Py::Object();
@@ -1156,8 +1322,7 @@ FT2Font::get_xys(const Py::Tuple & args) {
       error = FT_Glyph_To_Bitmap(&glyphs[n],
 				 ft_render_mode_normal,
 				 0,
-				 //&pos[n],
-				 1  //destroy image;
+				 1
 				 );
       if (error)
 	throw Py::RuntimeError("Could not convert glyph to bitmap");
@@ -1181,7 +1346,7 @@ FT2Font::get_xys(const Py::Tuple & args) {
 }
 
 char FT2Font::draw_glyph_to_bitmap__doc__[] =
-"draw_glyph_to_bitmap(x, y, glyph)\n"
+"draw_glyph_to_bitmap(bitmap, x, y, glyph)\n"
 "\n"
 "Draw a single glyph to the bitmap at pixel locations x,y\n"
 "Note it is your responsibility to set up the bitmap manually\n"
@@ -1195,16 +1360,17 @@ char FT2Font::draw_glyph_to_bitmap__doc__[] =
 Py::Object
 FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args) {
   _VERBOSE("FT2Font::draw_glyph_to_bitmap");
-  args.verify_length(3);
+  args.verify_length(4);
 
-  if (image.width==0 || image.height==0)
-    throw Py::RuntimeError("You must first set the size of the bitmap with set_bitmap_size");
+  if (!FT2Image::check(args[0].ptr()))
+    throw Py::TypeError("Usage: draw_glyph_to_bitmap(bitmap, x,y,glyph)");
+  FT2Image* im = static_cast<FT2Image*>(args[0].ptr());
 
-  long x = Py::Int(args[0]);
-  long y = Py::Int(args[1]);
-  if (!Glyph::check(args[2].ptr()))
-    throw Py::TypeError("Usage: draw_glyph_to_bitmap(x,y,glyph)");
-  Glyph* glyph = static_cast<Glyph*>(args[2].ptr());
+  long x = Py::Int(args[1]);
+  long y = Py::Int(args[2]);
+  if (!Glyph::check(args[3].ptr()))
+    throw Py::TypeError("Usage: draw_glyph_to_bitmap(bitmap, x,y,glyph)");
+  Glyph* glyph = static_cast<Glyph*>(args[3].ptr());
 
   if ((size_t)glyph->glyphInd >= glyphs.size())
     throw Py::ValueError("glyph num is out of range");
@@ -1219,7 +1385,7 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args) {
 
   FT_BitmapGlyph bitmap = (FT_BitmapGlyph)glyphs[glyph->glyphInd];
 
-  draw_bitmap( &bitmap->bitmap, x + bitmap->left, y);
+  im->draw_bitmap( &bitmap->bitmap, x + bitmap->left, y);
   return Py::Object();
 }
 
@@ -1611,6 +1777,27 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
   }
 }
 
+char FT2Font::get_image__doc__ [] = 
+  "get_image()\n"
+  "\n"
+  "Returns the underlying image buffer for this font object.\n";
+Py::Object
+FT2Font::get_image (const Py::Tuple &args) {
+  args.verify_length(0);
+  Py_INCREF(image);
+  return Py::asObject(image);
+}
+
+Py::Object
+ft2font_module::new_ft2image (const Py::Tuple &args) {
+  args.verify_length(2);
+
+  int width = Py::Int(args[0]);
+  int height = Py::Int(args[1]);
+
+  return Py::asObject( new FT2Image(width, height) );
+}
+
 Py::Object
 ft2font_module::new_ft2font (const Py::Tuple &args) {
   _VERBOSE("ft2font_module::new_ft2font ");
@@ -1618,6 +1805,36 @@ ft2font_module::new_ft2font (const Py::Tuple &args) {
 
   std::string facefile = Py::String(args[0]);
   return Py::asObject( new FT2Font(facefile) );
+}
+
+void
+FT2Image::init_type() {
+ _VERBOSE("FT2Image::init_type");
+ behaviors().name("FT2Image");
+ behaviors().doc("FT2Image");
+
+ add_varargs_method("clear", &FT2Image::py_clear,
+		    FT2Image::clear__doc__);
+ add_varargs_method("resize", &FT2Image::py_resize,
+		    FT2Image::resize__doc__);
+ add_varargs_method("rotate", &FT2Image::py_rotate,
+		    FT2Image::rotate__doc__);
+ add_varargs_method("write_bitmap", &FT2Image::py_write_bitmap,
+		    FT2Image::write_bitmap__doc__);
+ add_varargs_method("draw_rect", &FT2Image::py_draw_rect,
+		    FT2Image::draw_rect__doc__);
+ add_varargs_method("draw_rect_filled", &FT2Image::py_draw_rect_filled,
+		    FT2Image::draw_rect_filled__doc__);
+ add_varargs_method("as_str", &FT2Image::py_as_str,
+		    FT2Image::as_str__doc__);
+ add_varargs_method("as_rgb_str", &FT2Image::py_as_rgb_str,
+		    FT2Image::as_rgb_str__doc__);
+ add_varargs_method("as_rgba_str", &FT2Image::py_as_rgba_str,
+		    FT2Image::as_rgba_str__doc__);
+ add_varargs_method("get_width", &FT2Image::py_get_width,
+		    "Returns the width of the image");
+ add_varargs_method("get_height", &FT2Image::py_get_height,
+		    "Returns the height of the image");
 }
 
 void
@@ -1637,14 +1854,6 @@ FT2Font::init_type() {
 
   add_varargs_method("clear", &FT2Font::clear,
 		     FT2Font::clear__doc__);
-  add_varargs_method("write_bitmap", &FT2Font::write_bitmap,
-		     FT2Font::write_bitmap__doc__);
-  add_varargs_method("set_bitmap_size", &FT2Font::set_bitmap_size,
-		     FT2Font::load_char__doc__);
-  add_varargs_method("draw_rect",&FT2Font::draw_rect,
-		     FT2Font::draw_rect__doc__);
-  add_varargs_method("draw_rect_filled",&FT2Font::draw_rect_filled,
-		     FT2Font::draw_rect_filled__doc__);
   add_varargs_method("draw_glyph_to_bitmap", &FT2Font::draw_glyph_to_bitmap,
 		     FT2Font::draw_glyph_to_bitmap__doc__);
   add_varargs_method("draw_glyphs_to_bitmap", &FT2Font::draw_glyphs_to_bitmap,
@@ -1656,8 +1865,6 @@ FT2Font::init_type() {
 		     FT2Font::get_glyph__doc__);
   add_varargs_method("get_num_glyphs", &FT2Font::get_num_glyphs,
 		     FT2Font::get_num_glyphs__doc__);
-  add_varargs_method("image_as_str", &FT2Font::image_as_str,
-		     FT2Font::image_as_str__doc__);
   add_keyword_method("load_char", &FT2Font::load_char,
 		     FT2Font::load_char__doc__);
   add_keyword_method("set_text", &FT2Font::set_text,
@@ -1685,9 +1892,8 @@ FT2Font::init_type() {
 		     FT2Font::get_ps_font_info__doc__);
   add_varargs_method("get_sfnt_table", &FT2Font::get_sfnt_table,
 		     FT2Font::get_sfnt_table__doc__);
-  add_varargs_method("horiz_image_to_vert_image",
-		     &FT2Font::horiz_image_to_vert_image,
-		     FT2Font::horiz_image_to_vert_image__doc__);
+  add_varargs_method("get_image", &FT2Font::get_image,
+		     FT2Font::get_image__doc__);
 
   behaviors().supportGetattr();
   behaviors().supportSetattr();

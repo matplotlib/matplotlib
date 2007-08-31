@@ -2106,13 +2106,14 @@ RendererAgg::draw_path(const Py::Tuple& args) {
 
 
 Py::Object
-RendererAgg::draw_text(const Py::Tuple& args) {
+RendererAgg::draw_text_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_text");
   
   args.verify_length(4);
   
-  
-  FT2Font *font = static_cast<FT2Font*>(args[0].ptr());
+  FT2Image *image = static_cast<FT2Image*>(args[0].ptr());
+  if (!image->get_buffer())
+    return Py::Object();
   
   int x(0),y(0);
   try {
@@ -2151,15 +2152,16 @@ RendererAgg::draw_text(const Py::Tuple& args) {
     t = b+h;
   }
   
+  const unsigned char* const buffer = image->get_buffer();
   
-  for (size_t i=0; i<font->image.width; i++) {
-    for (size_t j=0; j<font->image.height; j++) {
-      thisx = i+x+font->image.offsetx;
-      thisy = j+y+font->image.offsety;
+  for (size_t i=0; i< image->get_width(); i++) {
+    for (size_t j=0; j< image->get_height(); j++) {
+      thisx = i+x+image->offsetx;
+      thisy = j+y+image->offsety;
       if (thisx<l || thisx>=r)  continue;
       if (thisy<height-t || thisy>=height-b) continue;
       pixFmt->blend_pixel
-	(thisx, thisy, p, font->image.buffer[i + j*font->image.width]);
+	(thisx, thisy, p, buffer[i + j*image->get_width()]);
     }
   }
   
@@ -2568,8 +2570,8 @@ void RendererAgg::init_type()
 		     "draw_markers(gc, path, x, y)\n");
   add_varargs_method("draw_path", &RendererAgg::draw_path,
 		     "draw_path(gc, rgbFace, path, transform)\n");
-  add_varargs_method("draw_text", &RendererAgg::draw_text,
-		     "draw_text(font, x, y, r, g, b, a)\n");
+  add_varargs_method("draw_text_image", &RendererAgg::draw_text_image,
+		     "draw_text_image(font_image, x, y, r, g, b, a)\n");
   add_varargs_method("draw_image", &RendererAgg::draw_image,
 		     "draw_image(x, y, im)");
   add_varargs_method("write_rgba", &RendererAgg::write_rgba,

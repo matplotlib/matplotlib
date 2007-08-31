@@ -166,7 +166,7 @@ public:
   //Py::Object _draw_markers_nocache(const Py::Tuple & args);
   //Py::Object _draw_markers_cache(const Py::Tuple & args);
   Py::Object draw_markers(const Py::Tuple & args);
-  Py::Object draw_text(const Py::Tuple & args);
+  Py::Object draw_text_image(const Py::Tuple & args);
   Py::Object draw_image(const Py::Tuple & args);
 
   Py::Object write_rgba(const Py::Tuple & args);

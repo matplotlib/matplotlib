@@ -41,7 +41,7 @@ for i in range(N):
         font.clear()
         font.set_text('hi mom', 60)
         font.set_size(12, 72)
-        o.draw_text( font, 30, 40, gc)
+        o.draw_text_image(font.get_image(), 30, 40, gc)
 
     o.write_png('aggtest%d.png'%i)
     val = report_memory(i)
