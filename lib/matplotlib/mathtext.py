@@ -143,7 +143,7 @@ from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
 from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch, get_realpath_and_stat, \
     is_string_like
-from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_DEFAULT, LOAD_NO_HINTING
+from matplotlib.ft2font import FT2Font, FT2Image, KERNING_DEFAULT, LOAD_DEFAULT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, \
         latex_to_standard, tex2uni, type12uni, tex2type1, uni2type1
@@ -288,20 +288,19 @@ class MathtextBackendAggRender(MathtextBackend):
     def __init__(self):
         self.ox = 0
         self.oy = 0
+        self.image = None
         MathtextBackend.__init__(self)
     
     def set_canvas_size(self, w, h, d):
         MathtextBackend.set_canvas_size(self, w, h, d)
-        for font in self.fonts_object.get_fonts():
-            font.set_bitmap_size(int(w), int(h) + int(d))
+        self.image = FT2Image(ceil(w), ceil(h + d))
 
     def render_glyph(self, ox, oy, info):
         info.font.draw_glyph_to_bitmap(
-            ox, oy - info.metrics.ymax, info.glyph)
+            self.image, ox, oy - info.metrics.ymax, info.glyph)
 
     def render_rect_filled(self, x1, y1, x2, y2):
-        font = self.fonts_object.get_fonts()[0]
-        font.draw_rect_filled(x1, y1, x2, max(y2 - 1, y1))
+        self.image.draw_rect_filled(x1, y1, x2, max(y2 - 1, y1))
 
     def get_results(self, box):
         return (self.ox,
@@ -309,7 +308,7 @@ class MathtextBackendAggRender(MathtextBackend):
                 self.width,
                 self.height + self.depth,
                 self.depth,
-                self.fonts_object.get_fonts(),
+                self.image,
                 self.fonts_object.get_used_characters())
 
     def get_hinting_type(self):
@@ -318,6 +317,13 @@ class MathtextBackendAggRender(MathtextBackend):
 def MathtextBackendAgg():
     return MathtextBackendBbox(MathtextBackendAggRender())
     
+class MathtextBackendBitmapRender(MathtextBackendAggRender):
+    def get_results(self, box):
+        return self.image
+    
+def MathtextBackendBitmap():
+    return MathtextBackendBbox(MathtextBackendBitmapRender())
+
 class MathtextBackendPs(MathtextBackend):
     def __init__(self):
         self.pswriter = StringIO()
@@ -2443,6 +2449,7 @@ class MathTextParser(object):
     _parser = None
     
     _backend_mapping = {
+        'Bitmap': MathtextBackendBitmap,
         'Agg'   : MathtextBackendAgg,
         'PS'    : MathtextBackendPs,
         'Pdf'   : MathtextBackendPdf,
@@ -2454,7 +2461,10 @@ class MathTextParser(object):
         self._output = output
         self._cache = {}
 
-    def parse(self, s, dpi, prop):
+    def parse(self, s, dpi = 72, prop = None):
+        if prop is None:
+            prop = FontProperties()
+        
         cacheKey = (s, dpi, hash(prop))
         result = self._cache.get(cacheKey)
         if result is not None:

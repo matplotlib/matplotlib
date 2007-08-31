@@ -215,7 +215,7 @@ class RendererGDK(RendererBase):
 
         for i, font in enumerate(fonts):
             if angle == 90:
-                font.horiz_image_to_vert_image() # <-- Rotate
+                font.get_image().rotate() # <-- Rotate
             imw, imh, image_str = font.image_as_str()
             Xall[:,i] = npy.fromstring(image_str, npy.uint8)
 
