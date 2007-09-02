@@ -1288,9 +1288,8 @@ class RendererPdf(RendererBase):
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
-        dvi = Dvi(dvifile)
-        dvi.read()
-        text, boxes = dvi.output(72)
+        dvi = Dvi(dvifile, 72)
+        text, boxes = iter(dvi).next()
         fontdir = os.path.join(get_data_path(), 'fonts', 'ttf')
 
         if angle == 0:          # avoid rounding errors in common case
