@@ -26,7 +26,8 @@ from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict, get
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
 from matplotlib.afm import AFM
-from matplotlib.dviread import Dvi
+import matplotlib.type1font as type1font
+import matplotlib.dviread as dviread
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, \
     LOAD_NO_HINTING, KERNING_UNFITTED
 from matplotlib.mathtext import MathTextParser
@@ -367,6 +368,7 @@ class PdfFile:
         # self.fontNames maps filenames to internal font names
         self.fontNames = {}
         self.nextFont = 1       # next free internal font name
+        self.fontInfo = {}      # information on fonts: metrics, encoding
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self.nextAlphaState = 1
@@ -438,6 +440,12 @@ class PdfFile:
         self.currentstream = None
 
     def fontName(self, fontprop):
+        """
+        Select a font based on fontprop and return a name suitable for
+        Op.selectfont. If fontprop is a string, it will be interpreted
+        as the filename of the font.
+        """
+
         if is_string_like(fontprop):
             filename = fontprop
         elif rcParams['pdf.use14corefonts']:
@@ -458,6 +466,9 @@ class PdfFile:
         for filename, Fx in self.fontNames.items():
             if filename.endswith('.afm'):
                 fontdictObject = self._write_afm_font(filename)
+            elif filename.endswith('.pfb') or filename.endswith('.pfa'):
+                # a Type 1 font; limited support for now
+                fontdictObject = self.embedType1(filename, self.fontInfo[Fx])
             else:
                 realpath, stat_key = get_realpath_and_stat(filename)
                 chars = self.used_characters.get(stat_key)
@@ -479,6 +490,97 @@ class PdfFile:
         fontdictObject = self.reserveObject('font dictionary')
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
+
+    def embedType1(self, filename, fontinfo):
+        fh = open(filename, 'rb')
+        try:
+            fontdata = fh.read()
+        finally:
+            fh.close()
+
+        fh = open(fontinfo.afmfile, 'rb')
+        try:
+            afmdata = AFM(fh)
+        finally:
+            fh.close()
+
+        font = FT2Font(filename)
+        font.attach_file(fontinfo.afmfile)
+
+        widthsObject, fontdescObject, fontdictObject, fontfileObject = \
+            [ self.reserveObject(n) for n in
+                ('font widths', 'font descriptor',
+                 'font dictionary', 'font file') ]
+
+        _, _, fullname, familyname, weight, italic_angle, fixed_pitch, \
+            ul_position, ul_thickness = font.get_ps_font_info()
+
+        differencesArray = [ 0 ] + [ Name(ch) for ch in  
+                                     dviread.Encoding(fontinfo.encoding) ]
+        
+        fontdict = {
+            'Type':           Name('Font'),
+            'Subtype':        Name('Type1'),
+            'BaseFont':       Name(font.postscript_name),
+            'FirstChar':      0,
+            'LastChar':       len(differencesArray) - 2,
+            'Widths':         widthsObject,
+            'FontDescriptor': fontdescObject,
+            'Encoding':       { 'Type': Name('Encoding'),
+                                'Differences': differencesArray },
+            }
+
+        flags = 0
+        if fixed_pitch:   flags |= 1 << 0  # fixed width
+        if 0:             flags |= 1 << 1  # TODO: serif
+        if 0:             flags |= 1 << 2  # TODO: symbolic
+        else:             flags |= 1 << 5  # non-symbolic
+        if italic_angle:  flags |= 1 << 6  # italic
+        if 0:             flags |= 1 << 16 # TODO: all caps
+        if 0:             flags |= 1 << 17 # TODO: small caps
+        if 0:             flags |= 1 << 18 # TODO: force bold
+
+        descriptor = {
+            'Type':        Name('FontDescriptor'),
+            'FontName':    Name(font.postscript_name),
+            'Flags':       flags,
+            'FontBBox':    font.bbox,
+            'ItalicAngle': italic_angle,
+            'Ascent':      font.ascender,
+            'Descent':     font.descender,
+            'CapHeight':   afmdata.get_capheight(),
+            'XHeight':     afmdata.get_xheight(),
+            'FontFile':    fontfileObject,
+            'FontFamily':  Name(familyname),
+            #'FontWeight': a number where 400 = Regular, 700 = Bold
+            }
+
+        # StemV is obligatory in PDF font descriptors but optional in
+        # AFM files. The collection of AFM files in my TeX Live 2007
+        # collection has values ranging from 22 to 219, with both
+        # median and mode 50, so if the AFM file is silent, I'm
+        # guessing 50. -JKS
+        StemV = afmdata.get_vertical_stem_width()
+        if StemV is None: StemV = 50
+        descriptor['StemV'] = StemV
+
+        # StemH is entirely optional:
+        StemH = afmdata.get_horizontal_stem_width()
+        if StemH is not None:
+            descriptor['StemH'] = StemH
+
+        self.writeObject(fontdictObject, fontdict)
+        self.writeObject(widthsObject, widths)
+        self.writeObject(fontdescObject, descriptor)
+
+        fontdata = type1font.Type1Font(filename)
+        len1, len2, len3 = fontdata.lenghts()
+        self.beginStream(fontfileObject.id, None,
+                         { 'Length1': len1,
+                           'Length2': len2,
+                           'Length3': len3 })
+        self.currentstream.write(fontdata.data)
+        self.endStream()
 
     def _get_xobject_symbol_name(self, filename, symbol_name):
         return "%s-%s" % (
@@ -1034,6 +1136,7 @@ class RendererPdf(RendererBase):
             self.encode_string = self.encode_string_type42
         self.mathtext_parser = MathTextParser("Pdf")
         self.image_magnification = dpi/72.0
+        self.tex_font_map = None
 
     def finalize(self):
         self.gc.finalize()
@@ -1049,6 +1152,12 @@ class RendererPdf(RendererBase):
 
         # Restore gc to avoid unwanted side effects
         gc._fillcolor = orig_fill
+
+    def tex_font_mapping(self, texfont):
+        if self.tex_font_map is None:
+            self.tex_font_map = \
+                dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
+        return self.tex_font_map[texfont]
 
     def track_characters(self, font, s):
         """Keeps track of which characters are required from
@@ -1288,9 +1397,8 @@ class RendererPdf(RendererBase):
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
-        dvi = Dvi(dvifile, 72)
+        dvi = dviread.Dvi(dvifile, 72)
         text, boxes = iter(dvi).next()
-        fontdir = os.path.join(get_data_path(), 'fonts', 'ttf')
 
         if angle == 0:          # avoid rounding errors in common case
             def mytrans(x1, y1):
@@ -1303,14 +1411,17 @@ class RendererPdf(RendererBase):
 
         self.check_gc(gc, gc._rgb)
         self.file.output(Op.begin_text)
-        oldfont, oldx, oldy = None, 0, 0
-        for x1, y1, font, glyph in text:
-            if font != oldfont:
-                fontname, fontsize = dvi.fontinfo(font)
-                fontfile = os.path.join(fontdir, fontname+'.ttf')
-                self.file.output(self.file.fontName(fontfile),
-                                 fontsize, Op.selectfont)
-                oldfont = font
+        oldfontnum, oldx, oldy = None, 0, 0
+        for x1, y1, fontnum, glyph in text:
+            if fontnum != oldfontnum:
+                texname, fontsize = dvi.fontinfo(fontnum)
+                fontinfo = self.tex_font_mapping(texname)
+                pdfname = self.file.fontName(fontinfo.filename)
+                self.file.fontInfo[pdfname] = Bunch(
+                    encodingfile=fontinfo.encoding,
+                    afmfile=fontinfo.afm)
+                self.file.output(pdfname, fontsize, Op.selectfont)
+                oldfontnum = fontnum
             x1, y1 = mytrans(x1, y1)
             self._setup_textpos(x1, y1, angle, oldx, oldy)
             self.file.output(chr(glyph), Op.show)

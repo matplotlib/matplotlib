@@ -1552,11 +1552,11 @@ FT2Font::get_ps_font_info(const Py::Tuple & args)
   }
 
   Py::Tuple info(9);
-  info[0] = Py::String(fontinfo.version);
-  info[1] = Py::String(fontinfo.notice);
-  info[2] = Py::String(fontinfo.full_name);
-  info[3] = Py::String(fontinfo.family_name);
-  info[4] = Py::String(fontinfo.weight);
+  info[0] = Py::String(fontinfo.version ? fontinfo.version : "");
+  info[1] = Py::String(fontinfo.notice ? fontinfo.notice : "");
+  info[2] = Py::String(fontinfo.full_name ? fontinfo.full_name : "");
+  info[3] = Py::String(fontinfo.family_name ? fontinfo.family_name : "");
+  info[4] = Py::String(fontinfo.weight ? fontinfo.weight : "");
   info[5] = Py::Long(fontinfo.italic_angle);
   info[6] = Py::Int(fontinfo.is_fixed_pitch);
   info[7] = Py::Int(fontinfo.underline_position);
@@ -1788,6 +1788,29 @@ FT2Font::get_image (const Py::Tuple &args) {
   return Py::asObject(image);
 }
 
+char FT2Font::attach_file__doc__ [] =
+  "attach_file(filename)\n"
+  "\n"
+  "Attach a file with extra information on the font\n"
+  "(in practice, an AFM file with the metrics of a Type 1 font).\n"
+  "Throws an exception if unsuccessful.\n";
+Py::Object
+FT2Font::attach_file (const Py::Tuple &args) {
+  args.verify_length(1);
+
+  std::string filename = Py::String(args[0]);
+  FT_Error error = 
+    FT_Attach_File(face, filename.c_str());
+
+  if (error) {
+    std::ostringstream s;
+    s << "Could not attach file " << filename
+      << " (freetype error code " << error << ")" << std::endl;
+    throw Py::RuntimeError(s.str());
+  }
+  return Py::Object();
+}
+
 Py::Object
 ft2font_module::new_ft2image (const Py::Tuple &args) {
   args.verify_length(2);
@@ -1894,6 +1917,8 @@ FT2Font::init_type() {
 		     FT2Font::get_sfnt_table__doc__);
   add_varargs_method("get_image", &FT2Font::get_image,
 		     FT2Font::get_image__doc__);
+  add_varargs_method("attach_file", &FT2Font::attach_file,
+                     FT2Font::attach_file__doc__);
 
   behaviors().supportGetattr();
   behaviors().supportSetattr();
@@ -1949,6 +1974,7 @@ char ft2font_new__doc__[] =
 "  max_advance_height     same for vertical layout\n"
 "  underline_position     vertical position of the underline bar\n"
 "  underline_thickness    vertical thickness of the underline\n"
+"  postscript_name        PostScript name of the font\n"
 ;
 
 #if defined(_MSC_VER)

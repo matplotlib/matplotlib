@@ -1,3 +1,9 @@
+2007-09-03 Created type1font.py, added features to AFM and FT2Font
+           (see API_CHANGES), started work on embedding Type 1 fonts
+           in pdf files. - JKS
+
+2007-09-02 Continued work on dviread.py. - JKS
+
 2007-08-16 Added a set_extent method to AxesImage, allow data extent
            to be modified after initial call to imshow - DSD
 
