@@ -228,7 +228,8 @@ class RendererAgg(RendererBase):
             texmanager = self.get_texmanager()
             Z = texmanager.get_rgba(s, size, self.dpi.get(), rgb)
             m,n,tmp = Z.shape
-            return n,m
+            # TODO: descent of TeX text (I am imitating backend_ps here -JKS)
+            return n, m, m
 
         if ismath:
             ox, oy, width, height, descent, fonts, used_characters = \
