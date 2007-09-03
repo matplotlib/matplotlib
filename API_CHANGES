@@ -1,3 +1,18 @@
+    The dviread.py file now has a parser for files like psfonts.map
+    and pdftex.map, to map TeX font names to external files.
+
+    The file type1font.py contains a new class for Type 1 fonts.
+    Currently it simply reads pfa and pfb format files and stores the
+    data in pfa format, which is the format for embedding Type 1 fonts
+    in postscript and pdf files. In the future the class might
+    actually parse the font to allow e.g. subsetting.
+
+    FT2Font now supports FT_Attach_File. In practice this can be used
+    to read an afm file in addition to a pfa/pfb file, to get metrics
+    and kerning information for a Type 1 font.
+
+    The AFM class now supports querying CapHeight and stem widths.
+
     Changed pcolor default to shading='flat'; but as noted now in the
     docstring, it is preferable to simply use the edgecolor kwarg.
 

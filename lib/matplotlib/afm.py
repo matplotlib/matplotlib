@@ -103,7 +103,8 @@ def _parse_header(fh):
         'Version': _to_str,
         'Notice': _to_str,
         'EncodingScheme': _to_str,
-        'CapHeight': _to_float,
+        'CapHeight': _to_float, # Is the second version a mistake, or
+        'Capheight': _to_float, # do some AFM files contain 'Capheight'? -JKS
         'XHeight': _to_float,
         'Ascender': _to_float,
         'Descender': _to_float,
@@ -112,7 +113,6 @@ def _parse_header(fh):
         'StartCharMetrics': _to_int,
         'CharacterSet': _to_str,
         'Characters': _to_int,
-        'Capheight': _to_int,
         }
 
     d = {}
@@ -446,6 +446,10 @@ class AFM:
         "Return the fontangle as float"
         return self._header['ItalicAngle']
 
+    def get_capheight(self):
+        "Return the cap height as float"
+        return self._header['CapHeight']
+
     def get_xheight(self):
         "Return the xheight as float"
         return self._header['XHeight']
@@ -453,6 +457,20 @@ class AFM:
     def get_underline_thickness(self):
         "Return the underline thickness as float"
         return self._header['UnderlineThickness']
+
+    def get_horizontal_stem_width(self):
+        """
+        Return the standard horizontal stem width as float, or None if
+        not specified in AFM file.
+        """
+        return self._header.get('StdHW', None)
+
+    def get_vertical_stem_width(self):
+        """
+        Return the standard vertical stem width as float, or None if
+        not specified in AFM file.
+        """
+        return self._header.get('StdVW', None)
     
 
 if __name__=='__main__':

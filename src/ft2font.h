@@ -122,6 +122,7 @@ public:
   Py::Object get_ps_font_info(const Py::Tuple & args);
   Py::Object get_sfnt_table(const Py::Tuple & args);
   Py::Object get_image(const Py::Tuple & args);
+  Py::Object attach_file(const Py::Tuple & args);
   int setattr( const char *_name, const Py::Object &value );
   Py::Object getattr( const char *_name );
   FT2Image* image;
@@ -163,6 +164,7 @@ private:
   static char get_ps_font_info__doc__[];
   static char get_sfnt_table__doc__[];
   static char get_image__doc__[];
+  static char attach_file__doc__[];
 };
 
 // the extension module

@@ -410,11 +410,11 @@ class PsfontsMap(object):
 
     def __getitem__(self, texname):
         result = self._font[texname]
-        if result.filename is not None \
-                and not result.filename.startswith('/'):
-            result.filename = find_tex_file(result.filename)
-        if result.encoding is not None \
-                and not result.encoding.startswith('/'):
+        fn, enc = result.filename, result.encoding
+        if fn is not None and not fn.startswith('/'):
+            result.filename = find_tex_file(fn)
+            result.afm = find_tex_file(fn[:-4] + '.afm')
+        if enc is not None and not enc.startswith('/'):
             result.encoding = find_tex_file(result.encoding)
         return result
 
@@ -472,6 +472,51 @@ class PsfontsMap(object):
         self._font[texname] = mpl_cbook.Bunch(
             texname=texname, psname=psname, effects=effects, 
             encoding=encoding, filename=filename)
+
+class Encoding(object):
+
+    def __init__(self, filename):
+        file = open(filename, 'rt')
+        try:
+            self.encoding = self._parse(file)
+        finally:
+            file.close()
+
+    def __iter__(self):
+        for name in self.encoding:
+            yield name
+
+    def _parse(self, file):
+        result = []
+
+        state = 0
+        for line in file:
+            comment_start = line.find('%')
+            if comment_start > -1:
+                line = line[:comment_start]
+            line = line.strip()
+
+            if state == 0:
+                # Expecting something like /FooEncoding [
+                if '[' in line: 
+                    state = 1
+                    line = line[line.index('[')+1].strip()
+
+            if state == 1:
+                words = line.split()
+                for w in words:
+                    if w.startswith('/'):
+                        # Allow for /abc/def/ghi
+                        subwords = w.split('/')
+                        result.extend(subwords[1:])
+                    else:
+                        raise ValueError, "Broken name in encoding file: " + w
+                        
+                # Expecting ] def
+                if ']' in line:
+                    break
+
+        return result
 
 def find_tex_file(filename, format=None):
     """
