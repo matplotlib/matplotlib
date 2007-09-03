@@ -515,20 +515,29 @@ class PdfFile:
         _, _, fullname, familyname, weight, italic_angle, fixed_pitch, \
             ul_position, ul_thickness = font.get_ps_font_info()
 
-        differencesArray = [ 0 ] + [ Name(ch) for ch in  
-                                     dviread.Encoding(fontinfo.encoding) ]
+        if fontinfo.encodingfile is not None:
+            differencesArray = [ Name(ch) for ch in  
+                                 dviread.Encoding(fontinfo.encodingfile) ]
+            differencesArray = [ 0 ] + differencesArray
+            lastchar = len(differencesArray) - 2
+        else:
+            lastchar = 255 # ?
         
         fontdict = {
             'Type':           Name('Font'),
             'Subtype':        Name('Type1'),
             'BaseFont':       Name(font.postscript_name),
             'FirstChar':      0,
-            'LastChar':       len(differencesArray) - 2,
+            'LastChar':       lastchar,
             'Widths':         widthsObject,
             'FontDescriptor': fontdescObject,
-            'Encoding':       { 'Type': Name('Encoding'),
-                                'Differences': differencesArray },
             }
+
+        if fontinfo.encodingfile is not None:
+            fontdict.update({
+                    'Encoding': { 'Type': Name('Encoding'),
+                                  'Differences': differencesArray },
+                    })
 
         flags = 0
         if fixed_pitch:   flags |= 1 << 0  # fixed width
@@ -570,11 +579,11 @@ class PdfFile:
             descriptor['StemH'] = StemH
 
         self.writeObject(fontdictObject, fontdict)
-        self.writeObject(widthsObject, widths)
+        self.writeObject(widthsObject, [ 100 for i in range(256)]) # XXX TODO
         self.writeObject(fontdescObject, descriptor)
 
         fontdata = type1font.Type1Font(filename)
-        len1, len2, len3 = fontdata.lenghts()
+        len1, len2, len3 = fontdata.lengths()
         self.beginStream(fontfileObject.id, None,
                          { 'Length1': len1,
                            'Length2': len2,
@@ -1386,14 +1395,8 @@ class RendererPdf(RendererBase):
         self.file.output(Op.grestore)
 
     def _draw_tex(self, gc, x, y, s, prop, angle):
-        # Rename to draw_tex to enable, but note the following:
-        # TODO:
-        #  - font sizes other than 10pt
-        #  - fonts other than the three ttf files included with matplotlib
-        #    (will need to support Type-1 fonts and find them with kpsewhich)
-        #  - encoding issues (e.g. \alpha doesn't work now)
-        #  - overall robustness
-        #  - ...
+        # Rename to draw_tex to enable, but it doesn't work at the moment
+
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
