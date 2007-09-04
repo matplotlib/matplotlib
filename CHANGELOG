@@ -1,3 +1,6 @@
+2007-09-03 Added ability of errorbar show limits via caret or
+           arrowhead ends on the bars; patch by Manual Metz. - EF
+
 2007-09-03 Created type1font.py, added features to AFM and FT2Font
            (see API_CHANGES), started work on embedding Type 1 fonts
            in pdf files. - JKS
@@ -7,7 +10,7 @@
 2007-08-16 Added a set_extent method to AxesImage, allow data extent
            to be modified after initial call to imshow - DSD
 
-2007-08-14 Fixed a bug in pyqt4 subplots-adjust. Thanks to 
+2007-08-14 Fixed a bug in pyqt4 subplots-adjust. Thanks to
            Xavier Gnata for the report and suggested fix - DSD
 
 2007-08-13 Use pickle to cache entire fontManager; change to using
