@@ -35,6 +35,7 @@ class Dvi(object):
         opens the file; actually reading the file happens when
         iterating through the pages of the file.
         """
+        matplotlib.verbose.report('Dvi: ' + filename, 'debug')
         self.file = open(filename, 'rb')
         self.dpi = dpi
         self.fonts = {}
@@ -57,7 +58,7 @@ class Dvi(object):
         while True:
             have_page = self._read()
             if have_page:
-                yield self.text, self.boxes
+                yield self._output()
             else:
                 break
 
