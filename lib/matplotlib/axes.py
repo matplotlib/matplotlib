@@ -3976,16 +3976,18 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
 
         syms =  { # a dict from symbol to (numsides, angle)
-            's' : (4, math.pi/4.0),  # square
-            'o' : (20, 0),           # circle
-            '^' : (3,0),             # triangle up
-            '>' : (3,math.pi/2.0),   # triangle right
-            'v' : (3,math.pi),       # triangle down
-            '<' : (3,3*math.pi/2.0), # triangle left
-            'd' : (4,0),             # diamond
-            'p' : (5,0),             # pentagram
-            'h' : (6,0),             # hexagon
-            '8' : (8,0),             # octagon
+            's' : (4,math.pi/4.0,0),   # square
+            'o' : (20,0,0),            # circle
+            '^' : (3,0,0),             # triangle up
+            '>' : (3,math.pi/2.0,0),   # triangle right
+            'v' : (3,math.pi,0),       # triangle down
+            '<' : (3,3*math.pi/2.0,0), # triangle left
+            'd' : (4,0,0),             # diamond
+            'p' : (5,0,0),             # pentagram
+            'h' : (6,0,0),             # hexagon
+            '8' : (8,0,0),             # octagon
+            '+' : (4,0,2),             # plus
+            'x' : (4,math.pi/4.0,2)    # cross
             }
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
@@ -4013,7 +4015,7 @@ class Axes(martist.Artist):
         else: edgecolors = 'None'
 
         sym = None
-        starlike = False
+        symstyle = 0
 
         # to be API compatible
         if marker is None and not (verts is None):
@@ -4025,7 +4027,7 @@ class Axes(martist.Artist):
             sym = syms.get(marker)
             if sym is None and verts is None:
                 raise ValueError('Unknown marker symbol to scatter')
-            numsides, rotation = syms[marker]
+            numsides, rotation, symstyle = syms[marker]
 
         elif iterable(marker):
             # accept marker to be:
@@ -4040,21 +4042,19 @@ class Axes(martist.Artist):
                 # (numsides, style, [angle])
 
                 if len(marker)==2:
-                    numsides, rotation = marker[0], math.pi/4.
+                    numsides, rotation = marker[0], 0.
                 elif len(marker)==3:
                     numsides, rotation = marker[0], marker[2]
                 sym = True
 
-                if marker[1]==1:
-                    # starlike symbol, everthing else is interpreted
-                    # as solid symbol
-                    starlike = True
+                if marker[1] in (1,2):
+                    symstyle = marker[1]
 
             else:
                 verts = npy.asarray(marker[0])
 
         if sym is not None:
-            if not starlike:
+            if symstyle==0:
 
                 collection = mcoll.RegularPolyCollection(
                     self.figure.dpi,
@@ -4065,8 +4065,18 @@ class Axes(martist.Artist):
                     offsets = zip(x,y),
                     transOffset = self.transData,
                     )
-            else:
+            elif symstyle==1:
                 collection = mcoll.StarPolygonCollection(
+                    self.figure.dpi,
+                    numsides, rotation, scales,
+                    facecolors = colors,
+                    edgecolors = edgecolors,
+                    linewidths = linewidths,
+                    offsets = zip(x,y),
+                    transOffset = self.transData,
+                    )
+            elif symstyle==2:
+                collection = mcoll.AsteriskPolygonCollection(
                     self.figure.dpi,
                     numsides, rotation, scales,
                     facecolors = colors,

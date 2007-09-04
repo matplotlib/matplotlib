@@ -568,7 +568,40 @@ class StarPolygonCollection(RegularPolyCollection):
         ns2 = self.numsides*2
         r = scale*npy.ones(ns2)
         r[1::2] *= 0.5
-        theta  = (2.*math.pi/(ns2))*npy.arange(ns2) + self.rotation
+        theta  = (math.pi/self.numsides)*npy.arange(ns2) + self.rotation
+        self._verts = zip( r*npy.sin(theta), r*npy.cos(theta) )
+
+class AsteriskPolygonCollection(RegularPolyCollection):
+    def __init__(self,
+                 dpi,
+                 numsides,
+                 rotation = 0 ,
+                 sizes = (1,),
+                 **kwargs):
+        """
+        Draw a regular asterisk Polygone with numsides spikes.
+
+        * dpi is the figure dpi instance, and is required to do the
+          area scaling.
+
+        * numsides: the number of spikes of the polygon
+
+        * sizes gives the area of the circle circumscribing the
+          regular polygon in points^2
+
+        * rotation is the rotation of the polygon in radians
+
+        %(PatchCollection)s
+        """
+
+        RegularPolyCollection.__init__(self, dpi, numsides, rotation, sizes, **kwargs)
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
+
+    def _update_verts(self):
+        scale = 1.0/math.sqrt(math.pi)
+        r = scale*npy.ones(self.numsides*2)
+        r[1::2] = 0
+        theta  = (math.pi/self.numsides)*npy.arange(2*self.numsides) + self.rotation
         self._verts = zip( r*npy.sin(theta), r*npy.cos(theta) )
 
 class LineCollection(Collection, cm.ScalarMappable):
