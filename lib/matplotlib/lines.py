@@ -21,7 +21,9 @@ from colors import colorConverter
 from transforms import lbwh_to_bbox, LOG10
 from matplotlib import rcParams
 
-TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN = range(4)
+# special-purpose marker identifiers:
+(TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
+    CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = range(8)
 
 def unmasked_index_ranges(mask, compressed = True):
     '''
@@ -97,7 +99,7 @@ def segment_hits(cx,cy,x,y,radius):
     point_hits = (cx - x)**2 + (cy - y)**2 <= radius**2
     #if any(point_hits): print "points",xr[candidates]
     candidates = candidates & ~point_hits[:-1] & ~point_hits[1:]
-    
+
     # For those candidates which remain, determine how far they lie away
     # from the line.
     px,py = xr+u*dx,yr+u*dy
@@ -147,6 +149,10 @@ class Line2D(Artist):
         TICKRIGHT   : '_draw_tickright',
         TICKUP      : '_draw_tickup',
         TICKDOWN    : '_draw_tickdown',
+        CARETLEFT   : '_draw_caretleft',
+        CARETRIGHT  : '_draw_caretright',
+        CARETUP     : '_draw_caretup',
+        CARETDOWN   : '_draw_caretdown',
         'None' : '_draw_nothing',
         ' ' : '_draw_nothing',
         '' : '_draw_nothing',
@@ -1200,6 +1206,62 @@ class Line2D(Artist):
                 renderer.draw_line(gc, x, y, x+offset, y)
                 renderer.draw_line(gc, x, y, x-offset2, y+offset1)
                 renderer.draw_line(gc, x, y, x-offset2, y-offset1)
+
+    def _draw_caretdown(self, renderer, gc, xt, yt):
+        offset = 0.5*renderer.points_to_pixels(self._markersize)
+        offset1 = 1.5*offset
+        if self._newstyle:
+            path = agg.path_storage()
+            path.move_to(-offset, offset1)
+            path.line_to(0, 0)
+            path.line_to(+offset, offset1)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x-offset, y+offset1, x, y)
+                renderer.draw_line(gc, x, y, x+offset, y+offset1)
+
+    def _draw_caretup(self, renderer, gc, xt, yt):
+        offset = 0.5*renderer.points_to_pixels(self._markersize)
+        offset1 = 1.5*offset
+        if self._newstyle:
+            path = agg.path_storage()
+            path.move_to(-offset, -offset1)
+            path.line_to(0, 0)
+            path.line_to(+offset, -offset1)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x-offset, y-offset1, x, y)
+                renderer.draw_line(gc, x, y, x+offset, y-offset1)
+
+    def _draw_caretleft(self, renderer, gc, xt, yt):
+        offset = 0.5*renderer.points_to_pixels(self._markersize)
+        offset1 = 1.5*offset
+        if self._newstyle:
+            path = agg.path_storage()
+            path.move_to(offset1, -offset)
+            path.line_to(0, 0)
+            path.line_to(offset1, offset)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x+offset1, y-offset, x, y)
+                renderer.draw_line(gc, x, y, x+offset1, y+offset)
+
+    def _draw_caretright(self, renderer, gc, xt, yt):
+        offset = 0.5*renderer.points_to_pixels(self._markersize)
+        offset1 = 1.5*offset
+        if self._newstyle:
+            path = agg.path_storage()
+            path.move_to(-offset1, -offset)
+            path.line_to(0, 0)
+            path.line_to(-offset1, offset)
+            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
+        else:
+            for (x,y) in zip(xt, yt):
+                renderer.draw_line(gc, x-offset1, y-offset, x, y)
+                renderer.draw_line(gc, x, y, x-offset1, y+offset)
 
     def _draw_x(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
