@@ -3522,10 +3522,13 @@ class Axes(martist.Artist):
 
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='-', ecolor=None, capsize=3,
-                 barsabove=False, **kwargs):
+                 barsabove=False, lolims=False, uplims=False,
+                 xlolims=False, xuplims=False, **kwargs):
         """
         ERRORBAR(x, y, yerr=None, xerr=None,
-                 fmt='b-', ecolor=None, capsize=3, barsabove=False)
+                 fmt='b-', ecolor=None, capsize=3, barsabove=False,
+                 lolims=False, uplims=False,
+                 xlolims=False, xuplims=False)
 
         Plot x versus y with error deltas in yerr and xerr.
         Vertical errorbars are plotted if yerr is not None
@@ -3554,6 +3557,11 @@ class Axes(martist.Artist):
             barsabove, if True, will plot the errorbars above the plot symbols
             - default is below
 
+            lolims, uplims, xlolims, xuplims: These arguments can be used
+             to indicate that a value gives only upper/lower limits. In
+             that case a caret symbol is used to indicate this. lims-arguments
+             may be of the same type as xerr and yerr.
+
             kwargs are passed on to the plot command for the markers.
               So you can add additional key=value pairs to control the
               errorbar markers.  For example, this code makes big red
@@ -3579,18 +3587,18 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
 
         # make sure all the args are iterable arrays
-        if not iterable(x): x = npy.asarray([x])
+        if not iterable(x): x = npy.array([x])
         else: x = npy.asarray(x)
 
-        if not iterable(y): y = npy.asarray([y])
+        if not iterable(y): y = npy.array([y])
         else: y = npy.asarray(y)
 
         if xerr is not None:
-            if not iterable(xerr): xerr = npy.asarray([xerr])
+            if not iterable(xerr): xerr = npy.array([xerr])
             else: xerr = npy.asarray(xerr)
 
         if yerr is not None:
-            if not iterable(yerr): yerr = npy.asarray([yerr])
+            if not iterable(yerr): yerr = npy.array([yerr])
             else: yerr = npy.asarray(yerr)
 
         l0 = None
@@ -3606,6 +3614,18 @@ class Axes(martist.Artist):
             lines_kw['linewidth']=kwargs['linewidth']
         if 'lw' in kwargs:
             lines_kw['lw']=kwargs['lw']
+
+        if not iterable(lolims): lolims = npy.array([lolims]*len(x), bool)
+        else: lolims = npy.asarray(lolims, bool)
+
+        if not iterable(uplims): uplims = npy.array([uplims]*len(x), bool)
+        else: uplims = npy.asarray(uplims, bool)
+
+        if not iterable(xlolims): xlolims = npy.array([xlolims]*len(x), bool)
+        else: xlolims = npy.asarray(xlolims, bool)
+
+        if not iterable(xuplims): xuplims = npy.array([xuplims]*len(x), bool)
+        else: xuplims = npy.asarray(xuplims, bool)
 
         if capsize > 0:
             plot_kw = {
@@ -3626,8 +3646,19 @@ class Axes(martist.Artist):
 
             barcols.append( self.hlines(y, left, right, **lines_kw ) )
             if capsize > 0:
-                caplines.extend( self.plot(left, y, 'k|', **plot_kw) )
-                caplines.extend( self.plot(right, y, 'k|', **plot_kw) )
+                if xlolims.any():
+                    caplines.extend( self.plot(left[xlolims], y[xlolims], ls='None', marker=mlines.CARETLEFT, **plot_kw) )
+                    xlolims = ~xlolims
+                    caplines.extend( self.plot(left[xlolims], y[xlolims], 'k|', **plot_kw) )
+                else:
+                    caplines.extend( self.plot(left, y, 'k|', **plot_kw) )
+
+                if xuplims.any():
+                    caplines.extend( self.plot(right[xuplims],  y[xuplims], ls='None', marker=mlines.CARETRIGHT, **plot_kw) )
+                    xuplims = ~xuplims
+                    caplines.extend( self.plot(right[xuplims],  y[xuplims], 'k|', **plot_kw) )
+                else:
+                    caplines.extend( self.plot(right, y, 'k|', **plot_kw) )
 
         if yerr is not None:
             if len(yerr.shape) == 1:
@@ -3639,8 +3670,20 @@ class Axes(martist.Artist):
 
             barcols.append( self.vlines(x, lower, upper, **lines_kw) )
             if capsize > 0:
-                caplines.extend( self.plot(x, lower, 'k_', **plot_kw) )
-                caplines.extend( self.plot(x, upper, 'k_', **plot_kw) )
+
+                if lolims.any():
+                    caplines.extend( self.plot(x[lolims], lower[lolims], ls='None', marker=mlines.CARETDOWN, **plot_kw) )
+                    lolims = ~lolims
+                    caplines.extend( self.plot(x[lolims], lower[lolims], 'k_', **plot_kw) )
+                else:
+                    caplines.extend( self.plot(x, lower, 'k_', **plot_kw) )
+
+                if uplims.any():
+                    caplines.extend( self.plot(x[uplims], upper[uplims], ls='None', marker=mlines.CARETUP, **plot_kw) )
+                    uplims = ~uplims
+                    caplines.extend( self.plot(x[uplims], upper[uplims], 'k_', **plot_kw) )
+                else:
+                    caplines.extend( self.plot(x, upper, 'k_', **plot_kw) )
 
         if not barsabove and fmt is not None:
             l0, = self.plot(x,y,fmt,**kwargs)
