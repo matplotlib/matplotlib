@@ -378,11 +378,12 @@ class AFM:
         """
         return self.get_str_bbox_and_descent(s)[:4]
     
-    def get_name_char(self, c):
+    def get_name_char(self, c, isord=False):
         """
         Get the name of the character, ie, ';' is 'semicolon'
         """
-        wx, name, bbox = self._metrics[ord(c)]
+        if not isord: c=ord(c)
+        wx, name, bbox = self._metrics[c]
         return name
 
     def get_width_char(self, c, isord=False):

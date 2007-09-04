@@ -15,7 +15,8 @@
     to read an afm file in addition to a pfa/pfb file, to get metrics
     and kerning information for a Type 1 font.
 
-    The AFM class now supports querying CapHeight and stem widths.
+    The AFM class now supports querying CapHeight and stem widths. The
+    get_name_char method now has an isord kwarg like get_width_char.
 
     Changed pcolor default to shading='flat'; but as noted now in the
     docstring, it is preferable to simply use the edgecolor kwarg.

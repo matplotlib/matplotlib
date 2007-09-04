@@ -18,6 +18,7 @@ from datetime import datetime
 from math import ceil, cos, floor, pi, sin
 from sets import Set
 
+import matplotlib
 from matplotlib import __version__, rcParams, agg, get_data_path
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -493,12 +494,16 @@ class PdfFile:
 
     def embedType1(self, filename, fontinfo):
         fh = open(filename, 'rb')
+        matplotlib.verbose.report(
+            'Embedding Type 1 font ' + filename, 'debug')
         try:
             fontdata = fh.read()
         finally:
             fh.close()
 
         fh = open(fontinfo.afmfile, 'rb')
+        matplotlib.verbose.report(
+            'Reading metrics from ' + fontinfo.afmfile, 'debug')
         try:
             afmdata = AFM(fh)
         finally:
@@ -519,9 +524,26 @@ class PdfFile:
             differencesArray = [ Name(ch) for ch in  
                                  dviread.Encoding(fontinfo.encodingfile) ]
             differencesArray = [ 0 ] + differencesArray
+            firstchar = 0
             lastchar = len(differencesArray) - 2
+            widths = [ 100 for x in range(firstchar,lastchar+1) ] # XXX TODO
         else:
-            lastchar = 255 # ?
+            widths = [ None for i in range(256) ]
+            for ch in range(256):
+                try:
+                    widths[ch] = afmdata.get_width_char(ch, isord=True)
+                except KeyError:
+                    pass
+            not_None = (ch for ch in range(256) 
+                        if widths[ch] is not None)
+            firstchar = not_None.next()
+            lastchar = max(not_None)
+            widths = widths[firstchar:lastchar+1]
+
+            differencesArray = [ firstchar ]
+            for ch in range(firstchar, lastchar+1):
+                differencesArray.append(Name(
+                        afmdata.get_name_char(ch, isord=True)))
         
         fontdict = {
             'Type':           Name('Font'),
@@ -533,16 +555,15 @@ class PdfFile:
             'FontDescriptor': fontdescObject,
             }
 
-        if fontinfo.encodingfile is not None:
-            fontdict.update({
-                    'Encoding': { 'Type': Name('Encoding'),
-                                  'Differences': differencesArray },
-                    })
+        fontdict.update({
+                'Encoding': { 'Type': Name('Encoding'),
+                              'Differences': differencesArray },
+                })
 
         flags = 0
         if fixed_pitch:   flags |= 1 << 0  # fixed width
         if 0:             flags |= 1 << 1  # TODO: serif
-        if 0:             flags |= 1 << 2  # TODO: symbolic
+        if 1:             flags |= 1 << 2  # TODO: symbolic
         else:             flags |= 1 << 5  # non-symbolic
         if italic_angle:  flags |= 1 << 6  # italic
         if 0:             flags |= 1 << 16 # TODO: all caps
@@ -557,12 +578,16 @@ class PdfFile:
             'ItalicAngle': italic_angle,
             'Ascent':      font.ascender,
             'Descent':     font.descender,
-            'CapHeight':   afmdata.get_capheight(),
+            'CapHeight':   1000, # default guess if missing from AFM file
             'XHeight':     afmdata.get_xheight(),
             'FontFile':    fontfileObject,
             'FontFamily':  Name(familyname),
             #'FontWeight': a number where 400 = Regular, 700 = Bold
             }
+        try:
+            descriptor['CapHeight'] = afmdata.get_capheight()
+        except KeyError:
+            pass
 
         # StemV is obligatory in PDF font descriptors but optional in
         # AFM files. The collection of AFM files in my TeX Live 2007
@@ -579,7 +604,7 @@ class PdfFile:
             descriptor['StemH'] = StemH
 
         self.writeObject(fontdictObject, fontdict)
-        self.writeObject(widthsObject, [ 100 for i in range(256)]) # XXX TODO
+        self.writeObject(widthsObject, widths)
         self.writeObject(fontdescObject, descriptor)
 
         fontdata = type1font.Type1Font(filename)
@@ -590,6 +615,8 @@ class PdfFile:
                            'Length3': len3 })
         self.currentstream.write(fontdata.data)
         self.endStream()
+
+        return fontdictObject
 
     def _get_xobject_symbol_name(self, filename, symbol_name):
         return "%s-%s" % (
