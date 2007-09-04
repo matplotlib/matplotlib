@@ -30,7 +30,6 @@ public:
 
   void resize(unsigned long width, unsigned long height);
   void clear();
-  void rotate();
   void draw_bitmap(FT_Bitmap* bitmap, FT_Int x, FT_Int y);
   void write_bitmap(const char* filename) const;
   void draw_rect(unsigned long x0, unsigned long y0, 
@@ -46,8 +45,6 @@ public:
   Py::Object py_clear(const Py::Tuple & args);
   static char resize__doc__ [];
   Py::Object py_resize(const Py::Tuple & args);
-  static char rotate__doc__ [];
-  Py::Object py_rotate(const Py::Tuple & args);
   static char write_bitmap__doc__ [];
   Py::Object py_write_bitmap(const Py::Tuple & args);
   static char draw_rect__doc__ [];
@@ -64,11 +61,7 @@ public:
   Py::Object py_get_width(const Py::Tuple & args);
   Py::Object py_get_height(const Py::Tuple & args);
 
-  unsigned long offsetx;
-  unsigned long offsety;
-
  private:
-  bool _bRotated;
   bool _isDirty;
   unsigned char *_buffer;
   unsigned long _width;

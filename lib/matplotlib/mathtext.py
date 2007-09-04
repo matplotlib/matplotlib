@@ -541,7 +541,7 @@ class TruetypeFonts(Fonts):
             self.font     = font
             self.charmap  = font.get_charmap()
             self.glyphmap = dict(
-                [(glyphind, ccode) for ccode, glyphind in self.charmap.items()])
+                [(glyphind, ccode) for ccode, glyphind in self.charmap.iteritems()])
 
         def __repr__(self):
             return repr(self.font)
@@ -671,7 +671,7 @@ class BakomaFonts(TruetypeFonts):
     def __init__(self, *args, **kwargs):
         TruetypeFonts.__init__(self, *args, **kwargs)
         if not len(self.fontmap):
-            for key, val in self._fontmap.items():
+            for key, val in self._fontmap.iteritems():
                 fullpath = os.path.join(self.basepath, val + ".ttf")
                 self.fontmap[key] = fullpath
                 self.fontmap[val] = fullpath

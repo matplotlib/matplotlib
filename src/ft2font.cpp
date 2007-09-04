@@ -43,8 +43,6 @@
 FT_Library _ft2Library;
 
 FT2Image::FT2Image() : 
-  offsetx(0), offsety(0),
-  _bRotated(false), 
   _isDirty(true),
   _buffer(NULL),
   _width(0), _height(0),
@@ -54,8 +52,6 @@ FT2Image::FT2Image() :
 }
 
 FT2Image::FT2Image(unsigned long width, unsigned long height) :
-  offsetx(0), offsety(0),
-  _bRotated(false), 
   _isDirty(true),
   _buffer(NULL), 
   _width(0), _height(0),
@@ -85,7 +81,6 @@ void FT2Image::resize(unsigned long width, unsigned long height) {
   for (size_t n=0; n<numBytes; n++)
     _buffer[n] = 0;
 
-  _bRotated = false;
   _isDirty = true;
 }
 
@@ -113,10 +108,7 @@ void FT2Image::clear() {
 
   _width = 0;
   _height = 0;
-  offsetx = 0;
-  offsety = 0;
   _isDirty = true;
-  _bRotated = false;
   delete [] _buffer;
   _buffer = NULL;
   if (_rgbCopy) {
@@ -138,58 +130,6 @@ FT2Image::py_clear(const Py::Tuple & args) {
   args.verify_length(0);
 
   clear();
-
-  return Py::Object();
-}
-
-void FT2Image::rotate() {
-  // If we have already rotated, just return.
-  if (_bRotated)
-    return;
-
-  unsigned long width = _width;
-  unsigned long height = _height;
-
-  unsigned long newWidth  = _height;
-  unsigned long newHeight = _width;
-
-  unsigned long numBytes = _width * _height;
-
-  unsigned char * buffer = new unsigned char [numBytes];
-
-  unsigned long  i, j, k, offset, nhMinusOne;
-
-  nhMinusOne = newHeight - 1;
-
-  unsigned char * read_it = _buffer;
-
-  for (i=0; i<height; i++) {
-    offset = i*width;
-    for (j=0; j<width; j++) {
-      k = nhMinusOne - j;
-      buffer[i + k*newWidth] = *(read_it++);
-    }
-  }
-
-  delete [] _buffer;
-  _buffer = buffer;
-  _width = newWidth;
-  _height = newHeight;
-  _bRotated = true;
-  _isDirty = true;
-}
-char FT2Image::rotate__doc__[] =
-"rotate()\n"
-"\n"
-"Rotates the image 90 degrees.\n"
-;
-Py::Object
-FT2Image::py_rotate(const Py::Tuple & args) {
-  _VERBOSE("FT2Image::rotate");
-
-  args.verify_length(0);
-
-  rotate();
 
   return Py::Object();
 }
@@ -404,17 +344,11 @@ void FT2Image::makeRgbaCopy() {
   unsigned char *src_end	= src + (_width * _height);
   unsigned char *dst		= _rgbaCopy->_buffer;
 
-  // This pre-multiplies the alpha, which apparently shouldn't
-  // be necessary for wxGTK, but it sure as heck seems to be.
-  unsigned int c;
-  unsigned int tmp;
   while (src != src_end) {
-    c = *src++;
-    tmp = ((255 - c) * c) >> 8;
-    *dst++ = tmp;
-    *dst++ = tmp;
-    *dst++ = tmp;
-    *dst++ = c;
+    *dst++ = 0;
+    *dst++ = 0;
+    *dst++ = 0;
+    *dst++ = *src++;
   }
 }
 
@@ -1266,12 +1200,6 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
     image->resize(width, height);
   }
 
-  image->offsetx = (int)(string_bbox.xMin / 64.0);
-  if (angle==0)
-    image->offsety = -image->get_height();
-  else
-    image->offsety = (int)(-string_bbox.yMax/64.0);
-
   for ( size_t n = 0; n < glyphs.size(); n++ )
     {
       FT_BBox bbox;
@@ -1840,8 +1768,6 @@ FT2Image::init_type() {
 		    FT2Image::clear__doc__);
  add_varargs_method("resize", &FT2Image::py_resize,
 		    FT2Image::resize__doc__);
- add_varargs_method("rotate", &FT2Image::py_rotate,
-		    FT2Image::rotate__doc__);
  add_varargs_method("write_bitmap", &FT2Image::py_write_bitmap,
 		    FT2Image::write_bitmap__doc__);
  add_varargs_method("draw_rect", &FT2Image::py_draw_rect,
