@@ -1,3 +1,7 @@
+    The errorbar method and function now accept additional kwargs
+    so that upper and lower limits can be indicated by capping the
+    bar with a caret instead of a straight line segment.
+
     The dviread.py file now has a parser for files like psfonts.map
     and pdftex.map, to map TeX font names to external files.
 
