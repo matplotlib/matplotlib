@@ -174,17 +174,10 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi.get(), prop)
-
-        if angle == 90:
-            width, height = height, width
-            ox, oy = oy, ox
-            x = int(x) - width + ox
-            y = int(y) - height + oy
-            font_image.rotate()
-        else:
-            x = int(x) + ox
-            y = int(y) - height + oy
-        self._renderer.draw_text_image(font_image, x, y + 1, gc)
+        
+        x = int(x) + ox
+        y = int(y) - oy
+        self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
         if 0:
             self._renderer.draw_rectangle(gc, None,
                                           int(x),
@@ -205,12 +198,14 @@ class RendererAgg(RendererBase):
         if len(s) == 1 and ord(s) > 127:
             font.load_char(ord(s), flags=LOAD_DEFAULT)
         else:
-            font.set_text(s, angle, flags=LOAD_DEFAULT)
+            font.set_text(s, 0, flags=LOAD_DEFAULT)
         font.draw_glyphs_to_bitmap()
 
         #print x, y, int(x), int(y)
 
-        self._renderer.draw_text_image(font.get_image(), int(x), int(y) + 1, gc)
+        # We pass '0' for angle here, since is has already been rotated
+        # (in vector space) in the above call to font.set_text.
+        self._renderer.draw_text_image(font.get_image(), int(x), int(y) + 1, angle, gc)
 
 
     def get_text_width_height_descent(self, s, prop, ismath, rgb=(0,0,0)):
@@ -229,7 +224,7 @@ class RendererAgg(RendererBase):
             Z = texmanager.get_rgba(s, size, self.dpi.get(), rgb)
             m,n,tmp = Z.shape
             # TODO: descent of TeX text (I am imitating backend_ps here -JKS)
-            return n, m, m
+            return n, m, 0
 
         if ismath:
             ox, oy, width, height, descent, fonts, used_characters = \

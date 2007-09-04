@@ -16,6 +16,9 @@
 #include "agg_scanline_storage_aa.h"
 #include "agg_scanline_storage_bin.h"
 #include "agg_renderer_primitives.h"
+#include "agg_span_image_filter_gray.h"
+#include "agg_span_interpolator_linear.h"
+#include "agg_span_allocator.h"
 #include "util/agg_color_conv_rgb8.h"
 
 #include "ft2font.h"
@@ -2103,13 +2106,74 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   
 }
 
+/**
+ * This is a custom span generator that converts spans in the 
+ * 8-bit inverted greyscale font buffer to rgba that agg can use.
+ */
+template<
+  class ColorT,
+  class ChildGenerator>
+class font_to_rgba :
+  public agg::span_generator<ColorT, 
+			     agg::span_allocator<ColorT> >
+{
+public:
+  typedef ChildGenerator child_type;
+  typedef ColorT color_type;
+  typedef agg::span_allocator<color_type> allocator_type;
+  typedef agg::span_generator<
+    ColorT, 
+    agg::span_allocator<ColorT> > base_type;
 
+private:
+  child_type* _gen;
+  allocator_type _alloc;
+  color_type _color;
+  
+public:
+  font_to_rgba(child_type* gen, color_type color) : 
+    base_type(_alloc),
+    _gen(gen),
+    _color(color) {
+  }
+
+  color_type* generate(int x, int y, unsigned len)
+  {
+    color_type* dst = base_type::allocator().span();
+
+    typename child_type::color_type* src = _gen->generate(x, y, len);
+
+    do {
+      *dst = _color;
+      dst->a = src->v;
+      ++src;
+      ++dst;
+    } while (--len);
+
+    return base_type::allocator().span();
+  }
+
+  void prepare(unsigned max_span_len) 
+  {
+    _alloc.allocate(max_span_len);
+    _gen->prepare(max_span_len);
+  }
+
+};
 
 Py::Object
 RendererAgg::draw_text_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_text");
+
+  typedef agg::span_interpolator_linear<> interpolator_type;
+  typedef agg::span_image_filter_gray<agg::gray8, interpolator_type> 
+    image_span_gen_type;
+  typedef font_to_rgba<pixfmt::color_type, image_span_gen_type> 
+    span_gen_type;
+  typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> 
+    renderer_type;
   
-  args.verify_length(4);
+  args.verify_length(5);
   
   FT2Image *image = static_cast<FT2Image*>(args[0].ptr());
   if (!image->get_buffer())
@@ -2125,70 +2189,48 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
     return Py::Object();
   }
   
-  GCAgg gc = GCAgg(args[3], dpi);
+  double angle = Py::Float( args[3] );
+
+  GCAgg gc = GCAgg(args[4], dpi);
   
-  set_clipbox_rasterizer( gc.cliprect);
-  
-  
-  pixfmt::color_type p;
-  p.r = int(255*gc.color.r);
-  p.b = int(255*gc.color.b);
-  p.g = int(255*gc.color.g);
-  p.a = int(255*gc.color.a);
-  
-  //y = y-font->image.height;
-  unsigned thisx, thisy;
-  
-  double l = 0;
-  double b = 0;
-  double r = width;
-  double t = height;
-  if (gc.cliprect!=NULL) {
-    l = gc.cliprect[0] ;
-    b = gc.cliprect[1] ;
-    double w = gc.cliprect[2];
-    double h = gc.cliprect[3];
-    r = l+w;
-    t = b+h;
-  }
-  
+  set_clipbox_rasterizer(gc.cliprect);
+
   const unsigned char* const buffer = image->get_buffer();
+  agg::rendering_buffer srcbuf
+    ((agg::int8u*)buffer, image->get_width(), 
+     image->get_height(), image->get_width());
+  agg::pixfmt_gray8 pixf_img(srcbuf);
   
-  for (size_t i=0; i< image->get_width(); i++) {
-    for (size_t j=0; j< image->get_height(); j++) {
-      thisx = i+x+image->offsetx;
-      thisy = j+y+image->offsety;
-      if (thisx<l || thisx>=r)  continue;
-      if (thisy<height-t || thisy>=height-b) continue;
-      pixFmt->blend_pixel
-	(thisx, thisy, p, buffer[i + j*image->get_width()]);
-    }
-  }
-  
-  /*  bbox the text for debug purposes
-      
-  agg::path_storage path;
-  
-  path.move_to(x, y);
-  path.line_to(x, y+font->image.height);
-  path.line_to(x+font->image.width, y+font->image.height);
-  path.line_to(x+font->image.width, y);
-  path.close_polygon();
-  
-  agg::rgba edgecolor(1,0,0,1);
-  
-  //now fill the edge
-  agg::conv_stroke<agg::path_storage> stroke(path);
-  stroke.width(1.0);
-  rendererAA->color(edgecolor);
-  //self->theRasterizer->gamma(agg::gamma_power(gamma));
-  theRasterizer->add_path(stroke);
-  agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-  
-  */
+  agg::trans_affine mtx;
+  mtx *= agg::trans_affine_translation(0, -(int)image->get_height());
+  mtx *= agg::trans_affine_rotation(-angle * agg::pi / 180.0);
+  mtx *= agg::trans_affine_translation(x, y);
+
+  agg::path_storage rect;
+  rect.move_to(0, 0);
+  rect.line_to(image->get_width(), 0);
+  rect.line_to(image->get_width(), image->get_height());
+  rect.line_to(0, image->get_height());
+  rect.line_to(0, 0);
+  agg::conv_transform<agg::path_storage> rect2(rect, mtx);
+
+  agg::trans_affine inv_mtx(mtx);
+  inv_mtx.invert();
+
+  agg::image_filter_lut filter;
+  filter.calculate(agg::image_filter_spline36());
+  interpolator_type interpolator(inv_mtx);
+  agg::span_allocator<agg::gray8> gray_span_allocator;
+  image_span_gen_type image_span_generator(gray_span_allocator, 
+					   srcbuf, 0, interpolator, filter);
+  span_gen_type output_span_generator(&image_span_generator, gc.color);
+  renderer_type ri(*rendererBase, output_span_generator);
+  agg::rasterizer_scanline_aa<> rasterizer;
+  agg::scanline_p8 scanline;
+  rasterizer.add_path(rect2);
+  agg::render_scanlines(rasterizer, scanline, ri);
   
   return Py::Object();
-  
 }
 
 

@@ -275,10 +275,9 @@ class RendererPS(RendererBase):
             l,b,r,t = texmanager.get_ps_bbox(s, fontsize)
             w = (r-l)
             h = (t-b)
-            #print s, w, h
             # TODO: We need a way to get a good baseline from
             # text.usetex
-            return w, h, h
+            return w, h, 0
 
         if ismath:
             width, height, descent, pswriter, used_characters = \
