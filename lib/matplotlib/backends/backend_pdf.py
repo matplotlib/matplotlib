@@ -581,7 +581,7 @@ class PdfFile:
             'CapHeight':   1000, # default guess if missing from AFM file
             'XHeight':     afmdata.get_xheight(),
             'FontFile':    fontfileObject,
-            'FontFamily':  Name(familyname),
+            'FontFamily':  familyname,
             #'FontWeight': a number where 400 = Regular, 700 = Bold
             }
         try:
@@ -1422,7 +1422,7 @@ class RendererPdf(RendererBase):
         self.file.output(Op.grestore)
 
     def _draw_tex(self, gc, x, y, s, prop, angle):
-        # Rename to draw_tex to enable, but it doesn't work at the moment
+        # Rename to draw_tex to enable
 
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
@@ -1606,6 +1606,19 @@ class RendererPdf(RendererBase):
             return draw_text_woven(chunks)
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        if rcParams['text.usetex']:
+            texmanager = self.get_texmanager()
+            fontsize = prop.get_size_in_points()
+            dvifile = texmanager.make_dvi(s, fontsize)
+            dvi = dviread.Dvi(dvifile, 72)
+            text, boxes = iter(dvi).next()
+            # TODO: better bounding box -- this is not quite right:
+            l = min(p[0] for p in text+boxes)
+            r = max(p[0] for p in text+boxes) + fontsize
+            b = min(p[1] for p in text+boxes)
+            t = max(p[1] for p in text+boxes) + fontsize
+            # (not to even mention finding the baseline)
+            return r-l, t-b, t-b
         if ismath:
             w, h, d, glyphs, rects, used_characters = \
                 self.mathtext_parser.parse(s, 72, prop)
