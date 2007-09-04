@@ -12,7 +12,7 @@ Install instructions for traits 2.0
     sudo rm -rf /usr/local/lib/python2.5/site-packages/enthought*
     sudo easy_install \
       -f http://code.enthought.com/enstaller/eggs/source/unstable \
-      "enthought.resource <3.0a" "enthought.traits < 3.0a"
+      "enthought.traits < 3.0a"
     
 """
 

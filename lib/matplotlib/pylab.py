@@ -1464,8 +1464,8 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     is either an int or a string.  if it is an int, it indicates the
     column number.  If it is a string, it indicates the column header.
     mpl will make column headers lower case, replace spaces with
-    strings, and remove all illegal characters; so 'Adj Close*' will
-    have name 'adj_close'
+    underscores, and remove all illegal characters; so 'Adj Close*'
+    will have name 'adj_close'
 
     if len(cols)==1, only that column will be plotted on the y axis.
     if len(cols)>1, the first element will be an identifier for data
@@ -1480,7 +1480,8 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     names in both.
 
     comments, skiprows, checkrows, and delimiter are all passed on to
-    matplotlib.mlab.csv2rec to load the data into a record array
+    matplotlib.mlab.csv2rec to load the data into a record array.  See
+    the help there fore more information.
 
     kwargs are passed on to plotting functions
 
