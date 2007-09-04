@@ -22,14 +22,12 @@ extern "C" {
 // the freetype string rendered into a width, height buffer
 class FT2Image : public Py::PythonExtension<FT2Image> {
 public:
-  FT2Image();
+  // FT2Image();
   FT2Image(unsigned long width, unsigned long height);
   ~FT2Image();
 
   static void init_type();
 
-  void resize(unsigned long width, unsigned long height);
-  void clear();
   void draw_bitmap(FT_Bitmap* bitmap, FT_Int x, FT_Int y);
   void write_bitmap(const char* filename) const;
   void draw_rect(unsigned long x0, unsigned long y0, 
@@ -41,10 +39,6 @@ public:
   unsigned int get_height() const { return _height; };
   const unsigned char *const get_buffer() const { return _buffer; };
 
-  static char clear__doc__ [];
-  Py::Object py_clear(const Py::Tuple & args);
-  static char resize__doc__ [];
-  Py::Object py_resize(const Py::Tuple & args);
   static char write_bitmap__doc__ [];
   Py::Object py_write_bitmap(const Py::Tuple & args);
   static char draw_rect__doc__ [];
@@ -71,6 +65,8 @@ public:
 
   void makeRgbCopy();
   void makeRgbaCopy();
+
+  void resize(unsigned long width, unsigned long height);
 };
 
 

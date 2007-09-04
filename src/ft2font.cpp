@@ -42,14 +42,14 @@
 
 FT_Library _ft2Library;
 
-FT2Image::FT2Image() : 
-  _isDirty(true),
-  _buffer(NULL),
-  _width(0), _height(0),
-  _rgbCopy(NULL),
-  _rgbaCopy(NULL) {
-  _VERBOSE("FT2Image::FT2Image");
-}
+// FT2Image::FT2Image() : 
+//   _isDirty(true),
+//   _buffer(NULL),
+//   _width(0), _height(0),
+//   _rgbCopy(NULL),
+//   _rgbaCopy(NULL) {
+//   _VERBOSE("FT2Image::FT2Image");
+// }
 
 FT2Image::FT2Image(unsigned long width, unsigned long height) :
   _isDirty(true),
@@ -65,73 +65,26 @@ FT2Image::~FT2Image() {
   _VERBOSE("FT2Image::~FT2Image");
   delete [] _buffer; 
   _buffer=NULL; 
+  delete _rgbCopy;
+  delete _rgbaCopy;
 }
 
 void FT2Image::resize(unsigned long width, unsigned long height) {
   size_t numBytes = width*height;
 
-  if (_width != width || _height != height) {
+  if (width != _width || height != _height) {
+    if (numBytes > _width*_height) {
+      delete [] _buffer;
+      _buffer = new unsigned char [numBytes];
+    }
+
     _width = width;
     _height = height;
-
-    delete [] _buffer;
-    _buffer = new unsigned char [numBytes];
   }
 
-  for (size_t n=0; n<numBytes; n++)
-    _buffer[n] = 0;
+  memset(_buffer, 0, numBytes);
 
   _isDirty = true;
-}
-
-char FT2Image::resize__doc__[] =
-"resize(width, height)\n"
-"\n"
-"Resize the dimensions of the image (it is cleared in the process).\n"
-;
-Py::Object
-FT2Image::py_resize(const Py::Tuple & args) {
-  _VERBOSE("FT2Image::resize");
-
-  args.verify_length(2);
-
-  long x0 = Py::Int(args[0]);
-  long y0 = Py::Int(args[1]);
-
-  resize(x0, y0);
-
-  return Py::Object();
-}
-
-void FT2Image::clear() {
-  _VERBOSE("FT2Image::clear");
-
-  _width = 0;
-  _height = 0;
-  _isDirty = true;
-  delete [] _buffer;
-  _buffer = NULL;
-  if (_rgbCopy) {
-    delete _rgbCopy;
-    _rgbCopy = NULL;
-  }
-  if (_rgbaCopy) {
-    delete _rgbaCopy;
-    _rgbaCopy = NULL;
-  }
-}
-char FT2Image::clear__doc__[] =
-"clear()\n"
-"\n"
-"Clear the contents of the image.\n"
-;
-Py::Object
-FT2Image::py_clear(const Py::Tuple & args) {
-  args.verify_length(0);
-
-  clear();
-
-  return Py::Object();
 }
 
 void
@@ -345,9 +298,7 @@ void FT2Image::makeRgbaCopy() {
   unsigned char *dst		= _rgbaCopy->_buffer;
 
   while (src != src_end) {
-    *dst++ = 0;
-    *dst++ = 0;
-    *dst++ = 0;
+    dst += 3;
     *dst++ = *src++;
   }
 }
@@ -824,8 +775,7 @@ FT2Font::clear(const Py::Tuple & args) {
   _VERBOSE("FT2Font::clear");
   args.verify_length(0);
 
-  if (image)
-    image->clear();
+  delete image;
 
   angle = 0.0;
 
@@ -1194,11 +1144,9 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args) {
   size_t width = (string_bbox.xMax-string_bbox.xMin) / 64 + 2;
   size_t height = (string_bbox.yMax-string_bbox.yMin) / 64 + 2;
 
-  if (!image) {
-    image = new FT2Image(width, height);
-  } else {
-    image->resize(width, height);
-  }
+  Py_XDECREF(image);
+  image = NULL;
+  image = new FT2Image(width, height);
 
   for ( size_t n = 0; n < glyphs.size(); n++ )
     {
@@ -1764,10 +1712,6 @@ FT2Image::init_type() {
  behaviors().name("FT2Image");
  behaviors().doc("FT2Image");
 
- add_varargs_method("clear", &FT2Image::py_clear,
-		    FT2Image::clear__doc__);
- add_varargs_method("resize", &FT2Image::py_resize,
-		    FT2Image::resize__doc__);
  add_varargs_method("write_bitmap", &FT2Image::py_write_bitmap,
 		    FT2Image::write_bitmap__doc__);
  add_varargs_method("draw_rect", &FT2Image::py_draw_rect,
