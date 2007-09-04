@@ -138,7 +138,7 @@ from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
      Combine, Group, Optional, Forward, NotAny, alphas, nums, alphanums, \
      StringStart, StringEnd, ParseFatalException, FollowedBy, Regex, \
      operatorPrecedence, opAssoc, ParseResults, Or, Suppress, oneOf, \
-     ParseException, MatchFirst, NoMatch
+     ParseException, MatchFirst, NoMatch, Empty
 
 from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch, get_realpath_and_stat, \
@@ -1787,6 +1787,14 @@ ship = Ship()
 ##############################################################################
 # PARSER
 
+def Error(msg):
+    def raise_error(s, loc, toks):
+        raise ParseFatalException(msg)
+
+    empty = Empty()
+    empty.setParseAction(raise_error)
+    return empty
+    
 class Parser(object):
     _binary_operators = Set(r'''
       + *
@@ -1887,9 +1895,10 @@ class Parser(object):
                       ).setParseAction(self.space).setName('space')
 
         customspace  =(Literal(r'\hspace')
-                     + lbrace
-                     + float
-                     + rbrace
+                     + (( lbrace
+                        + float
+                        + rbrace
+                       ) | Error(r"Expected \hspace{n}"))
                      ).setParseAction(self.customspace).setName('customspace')
 
         symbol       =(Regex(r"([a-zA-Z0-9 +\-*/<>=:,.;!'@()])|(\\[%${}\[\]])")
@@ -1926,8 +1935,8 @@ class Parser(object):
                          bslash
                        + Literal("frac")
                        )
-                     + group
-                     + group
+                     + ((group + group)
+                        | Error(r"Expected \frac{num}{den}"))
                      ).setParseAction(self.frac).setName("frac")
 
         sqrt         = Group(
@@ -1946,7 +1955,7 @@ class Parser(object):
                        + Suppress(Literal("]")),
                          default = None
                        )
-                     + group
+                     + (group | Error("Expected \sqrt{value}"))
                      ).setParseAction(self.sqrt).setName("sqrt")
 
         placeable   <<(accent
@@ -1955,7 +1964,7 @@ class Parser(object):
                      ^ group
                      ^ frac
                      ^ sqrt
-                     )
+                     ) | Error("Expected symbol or group")
 
         simple      <<(space
                      | customspace  
@@ -1983,12 +1992,12 @@ class Parser(object):
         leftDelim    = oneOf(r"( [ { \lfloor \langle \lceil")
         rightDelim   = oneOf(r") ] } \rfloor \rangle \rceil")
         autoDelim   <<(Suppress(Literal(r"\left"))
-                     + (leftDelim | ambiDelim)
+                     + ((leftDelim | ambiDelim) | Error("Expected a delimiter"))
                      + Group(
                          autoDelim
                        ^ OneOrMore(simple))
                      + Suppress(Literal(r"\right"))
-                     + (rightDelim | ambiDelim)
+                     + ((rightDelim | ambiDelim) | Error("Expected a delimiter"))
                      )
 
         math         = OneOrMore(
@@ -2007,7 +2016,8 @@ class Parser(object):
           + ZeroOrMore(
                 Suppress(math_delim)
               + math
-              + Suppress(math_delim)
+              + (Suppress(math_delim)
+                 | Error("Expected end of math '$'"))
               + non_math
             )  
           ) + StringEnd()
