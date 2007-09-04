@@ -1,3 +1,7 @@
+2007-09-04 Embedding Type 1 fonts in PDF, and thus usetex support
+           via dviread, sort of works. To test, enable it by 
+           renaming _draw_tex to draw_tex. - JKS
+
 2007-09-03 Added ability of errorbar show limits via caret or
            arrowhead ends on the bars; patch by Manual Metz. - EF
 

@@ -15,6 +15,8 @@ Interface:
             ...
 """
 
+# TODO: support for TeX virtual fonts (*.vf) which are a dvi-like format
+
 import matplotlib
 import matplotlib.cbook as mpl_cbook
 import os
