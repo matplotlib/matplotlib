@@ -124,6 +124,7 @@ _Matrix commands
   fliplr    - flip the rows of a matrix up/down
   flipud    - flip the columns of a matrix left/right
   linspace  - a linear spaced vector of N values from min to max inclusive
+  logspace  - a log spaced vector of N values from min to max inclusive  
   meshgrid  - repeat x and y to make regular matrices
   ones      - an array of ones
   rand      - an array from the uniform distribution [0,1]
@@ -307,7 +308,7 @@ from matplotlib.mlab import  window_hanning, window_none,\
         diagonal_matrix, base_repr, binary_repr, log2, ispower2,\
         bivariate_normal, load, save, stineman_interp
 
-from numpy import meshgrid, linspace
+from numpy import meshgrid, linspace, logspace
 
 """
 problem syms
