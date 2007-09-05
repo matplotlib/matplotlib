@@ -1446,7 +1446,10 @@ class NavigationToolbar2:
             xmin, xmax = a.get_xlim()
             ymin, ymax = a.get_ylim()
             lims.append( (xmin, xmax, ymin, ymax) )
-            pos.append( tuple( a.get_position() ) )
+            # Store both the original and modified positions
+            pos.append( (
+                    tuple( a.get_position(True) ),
+                    tuple( a.get_position() ) ) )
         self._views.push(lims)
         self._positions.push(pos)
         self.set_history_buttons()
@@ -1660,7 +1663,9 @@ class NavigationToolbar2:
             xmin, xmax, ymin, ymax = lims[i]
             a.set_xlim((xmin, xmax))
             a.set_ylim((ymin, ymax))
-            a.set_position( pos[i] )
+            # Restore both the original and modified positions
+            a.set_position( pos[i][0], 'original' )
+            a.set_position( pos[i][1], 'active' )
 
         self.draw()
 
