@@ -949,7 +949,7 @@ def get_xyz_where(Z, Cond):
     where x and y are the indices into Z and z are the values of Z at
     those indices.  x,y,z are 1D arrays
     """
-    X,Y = npy.indices(z.shape)
+    X,Y = npy.indices(Z.shape)
     return X[Cond], Y[Cond], Z[Cond]
 
 def get_sparse_matrix(M,N,frac=0.1):
