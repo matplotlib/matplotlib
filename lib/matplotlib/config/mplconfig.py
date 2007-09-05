@@ -337,7 +337,6 @@ class RcParamsWrapper(dict):
         'text.latex.unicode' : (self.tconfig.text.latex, 'unicode'),
         'text.latex.preamble' : (self.tconfig.text.latex, 'preamble'),
         'text.dvipnghack' : (self.tconfig.text.latex, 'dvipnghack'),
-        'text.markup' : (self.tconfig.text, 'markup'),
         
         'mathtext.cal'        : (self.tconfig.mathtext, 'cal'),
         'mathtext.rm'         : (self.tconfig.mathtext, 'rm'),
