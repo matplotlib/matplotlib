@@ -666,7 +666,7 @@ grestore
         """
         draw a Text instance
         """
-        w, h, bl = self.get_text_width_height_baseline(s, prop, ismath)
+        w, h, bl = self.get_text_width_height_descent(s, prop, ismath)
         fontsize = prop.get_size_in_points()
         corr = 0#w/2*(fontsize-10)/10
         pos = _nums_to_str(x-corr, y)
