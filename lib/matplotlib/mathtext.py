@@ -146,7 +146,8 @@ from matplotlib.cbook import enumerate, iterable, Bunch, get_realpath_and_stat, 
 from matplotlib.ft2font import FT2Font, FT2Image, KERNING_DEFAULT, LOAD_DEFAULT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, \
-        latex_to_standard, tex2uni, type12uni, tex2type1, uni2type1
+        latex_to_standard, tex2uni, type12uni, tex2type1, uni2type1, \
+        latex_to_cmex
 from matplotlib import get_data_path, rcParams
 
 ####################
@@ -581,10 +582,9 @@ class TruetypeFonts(Fonts):
             self.fonts[font.postscript_name.lower()] = cached_font
         return cached_font
 
-    def get_fonts(self):
-        return list(set([x.font for x in self.fonts.values()]))
-
     def _get_offset(self, cached_font, glyph, fontsize, dpi):
+        if cached_font.font.postscript_name == 'Cmex10':
+            return glyph.height/64.0/2.0 + 256.0/64.0 * dpi/72.0
         return 0.
 
     def _get_info (self, fontname, sym, fontsize, dpi, mark_as_used=True):
@@ -676,11 +676,6 @@ class BakomaFonts(TruetypeFonts):
                 self.fontmap[key] = fullpath
                 self.fontmap[val] = fullpath
 
-    def _get_offset(self, cached_font, glyph, fontsize, dpi):
-        if cached_font.font.postscript_name == 'Cmex10':
-            return glyph.height/64.0/2.0 + 256.0/64.0 * dpi/72.0
-        return 0.
-
     _slanted_symbols = Set(r"\int \oint".split())
 
     def _get_glyph(self, fontname, sym, fontsize):
@@ -719,21 +714,21 @@ class BakomaFonts(TruetypeFonts):
                         ('ex', '\x22')],
         ']'          : [('rm', ']'), ('ex', '\xa4'), ('ex', '\x69'),
                         ('ex', '\x23')],
-        r'\lfloor'   : [('cal', '\x62'), ('ex', '\xa5'), ('ex', '\x6a'),
+        r'\lfloor'   : [('ex', '\xa5'), ('ex', '\x6a'),
                         ('ex', '\xb9'), ('ex', '\x24')],
-        r'\rfloor'   : [('cal', '\x63'), ('ex', '\xa6'), ('ex', '\x6b'),
+        r'\rfloor'   : [('ex', '\xa6'), ('ex', '\x6b'),
                         ('ex', '\xba'), ('ex', '\x25')],
-        r'\lceil'    : [('cal', '\x64'), ('ex', '\xa7'), ('ex', '\x6c'),
+        r'\lceil'    : [('ex', '\xa7'), ('ex', '\x6c'),
                         ('ex', '\xbb'), ('ex', '\x26')],
-        r'\rceil'    : [('cal', '\x65'), ('ex', '\xa8'), ('ex', '\x6d'),
+        r'\rceil'    : [('ex', '\xa8'), ('ex', '\x6d'),
                         ('ex', '\xbc'), ('ex', '\x27')],
-        r'\langle'   : [('cal', '\x68'), ('ex', '\xad'), ('ex', '\x44'),
+        r'\langle'   : [('ex', '\xad'), ('ex', '\x44'),
                         ('ex', '\xbf'), ('ex', '\x2a')],
-        r'\rangle'   : [('cal', '\x69'), ('ex', '\xae'), ('ex', '\x45'),
+        r'\rangle'   : [('ex', '\xae'), ('ex', '\x45'),
                         ('ex', '\xc0'), ('ex', '\x2b')],
-        r'\__sqrt__' : [('cal', '\x70'), ('ex', '\x70'), ('ex', '\x71'),
+        r'\__sqrt__' : [('ex', '\x70'), ('ex', '\x71'),
                         ('ex', '\x72'), ('ex', '\x73')],
-        r'\backslash': [('cal', '\x6e'), ('ex', '\xb2'), ('ex', '\x2f'),
+        r'\backslash': [('ex', '\xb2'), ('ex', '\x2f'),
                         ('ex', '\xc2'), ('ex', '\x2d')],
         r'/'         : [('rm', '/'), ('ex', '\xb1'), ('ex', '\x2e'),
                         ('ex', '\xcb'), ('ex', '\x2c')],
@@ -775,24 +770,27 @@ class UnicodeFonts(TruetypeFonts):
                 prop = rcParams['mathtext.' + texfont]
                 font = findfont(prop)
                 self.fontmap[texfont] = font
+            prop = FontProperties('cmex10')
+            font = findfont(prop)
+            self.fontmap['ex'] = font
 
-    def _get_offset(self, cached_font, glyph, fontsize, dpi):
-        return 0.
-
+    _slanted_symbols = Set(r"\int \oint".split())
+            
     def _get_glyph(self, fontname, sym, fontsize):
         found_symbol = False
 
-        try:
-            uniindex = get_unicode_index(sym)
+        uniindex = latex_to_cmex.get(sym)
+        if uniindex is not None:
+            fontname = 'ex'
             found_symbol = True
-        except ValueError:
-            # This is a total hack, but it works for now
-            if sym.startswith('\\big'):
-                uniindex = get_unicode_index(sym[4:])
-                fontsize *= GROW_FACTOR
-            else:
+        else:
+            try:
+                uniindex = get_unicode_index(sym)
+                found_symbol = True
+            except ValueError:
                 uniindex = ord('?')
-                warn("No TeX to unicode mapping for '%s'" % sym.encode('ascii', 'replace'),
+                warn("No TeX to unicode mapping for '%s'" %
+                     sym.encode('ascii', 'replace'),
                      MathTextWarning)
 
         # Only characters in the "Letter" class should be italicized in 'it'
@@ -806,19 +804,20 @@ class UnicodeFonts(TruetypeFonts):
                     or unicodedata.name(unistring).startswith("GREEK CAPITAL")):
                     new_fontname = 'rm'
 
-            slanted = (new_fontname == 'it')
+            slanted = (new_fontname == 'it') or sym in self._slanted_symbols
             cached_font = self._get_font(new_fontname)
             try:
                 glyphindex = cached_font.charmap[uniindex]
             except KeyError:
                 warn("Font '%s' does not have a glyph for '%s'" %
-                     (cached_font.font.postscript_name, sym.encode('ascii', 'replace')),
+                     (cached_font.font.postscript_name,
+                      sym.encode('ascii', 'replace')),
                      MathTextWarning)
                 found_symbol = False
 
         if not found_symbol:
             if self.cm_fallback:
-                warn("Substituting with a symbol from the Computer Modern family.",
+                warn("Substituting with a symbol from Computer Modern.",
                      MathTextWarning)
                 return self.cm_fallback._get_glyph(fontname, sym, fontsize)
             else:
@@ -831,26 +830,12 @@ class UnicodeFonts(TruetypeFonts):
         symbol_name = cached_font.font.get_glyph_name(glyphindex)
         return cached_font, uniindex, symbol_name, fontsize, slanted
 
-    def set_canvas_size(self, w, h):
-        'Dimension the drawing canvas; may be a noop'
-        TruetypeFonts.set_canvas_size(self, w, h)
+    def get_sized_alternatives_for_symbol(self, fontname, sym):
         if self.cm_fallback:
-            self.cm_fallback.set_canvas_size(w, h)
-
-    def get_used_characters(self):
-        used_characters = dict(self.used_characters)
-        if self.cm_fallback:
-            fallback_characters = self.cm_fallback.get_used_characters()
-            for key, val in fallback_characters:
-                used_characters.setdefault(key, Set()).update(val)
-        return used_characters
-
-    def get_fonts(self):
-        fonts = [x.font for x in self.fonts.values()]
-        if self.cm_fallback:
-            fonts.extend(self.cm_fallback.get_fonts())
-        return list(set(fonts))
-
+            return self.cm_fallback.get_sized_alternatives_for_symbol(
+                fontname, sym)
+        return [(fontname, sym)]
+    
 class StandardPsFonts(Fonts):
     """
     Use the standard postscript fonts for rendering to backend_ps
@@ -895,9 +880,6 @@ class StandardPsFonts(Fonts):
             self.fonts[basename] = cached_font
             self.fonts[cached_font.get_fontname()] = cached_font
         return cached_font
-
-    def get_fonts(self):
-        return list(set(self.fonts.values()))
 
     def _get_info (self, fontname, sym, fontsize, dpi):
         'load the cmfont, metrics and glyph with caching'

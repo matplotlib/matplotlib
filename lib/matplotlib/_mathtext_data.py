@@ -243,6 +243,29 @@ latex_to_bakoma = {
     r'\spadesuit'           : ('cmsy10',   7),
     }
 
+latex_to_cmex = {
+    r'\__sqrt__'   : 112,
+    r'\bigcap'     : 92,
+    r'\bigcup'     : 91,
+    r'\bigodot'    : 75,
+    r'\bigoplus'   : 77,
+    r'\bigotimes'  : 79,
+    r'\biguplus'   : 93,
+    r'\bigvee'     : 95,
+    r'\bigwedge'   : 94,
+    r'\coprod'     : 97,
+    r'\int'        : 90,
+    r'\leftangle'  : 173,
+    r'\leftbrace'  : 169,
+    r'\oint'       : 73,
+    r'\prod'       : 89,
+    r'\rightangle' : 174,
+    r'\rightbrace' : 170,
+    r'\sum'        : 88,
+    r'\widehat'    : 98,
+    r'\widetilde'  : 101,
+}
+
 latex_to_standard = {
     r'\cong'            : ('psyr', 64),
     r'\Delta'           : ('psyr', 68),
