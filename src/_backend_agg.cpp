@@ -247,7 +247,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   renderingBuffer = new agg::rendering_buffer;
   renderingBuffer->attach(pixBuffer, width, height, stride);
   
-  alphaBuffer = new agg::int8u[NUMBYTES];
+  alphaBuffer = new agg::int8u[width*height];
   alphaMaskRenderingBuffer = new agg::rendering_buffer;
   alphaMaskRenderingBuffer->attach(alphaBuffer, width, height, stride);
   alphaMask = new alpha_mask_type(*alphaMaskRenderingBuffer);
