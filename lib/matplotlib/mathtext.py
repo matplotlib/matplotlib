@@ -355,7 +355,7 @@ setfont
 
     def get_results(self, box):
         ship(0, -self.depth, box)
-        print self.depth
+        #print self.depth
         return (self.width,
                 self.height + self.depth,
                 self.depth,
