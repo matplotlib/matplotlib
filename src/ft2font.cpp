@@ -75,6 +75,7 @@ void FT2Image::resize(unsigned long width, unsigned long height) {
   if (width != _width || height != _height) {
     if (numBytes > _width*_height) {
       delete [] _buffer;
+      _buffer = NULL;
       _buffer = new unsigned char [numBytes];
     }
 
@@ -781,6 +782,7 @@ FT2Font::clear(const Py::Tuple & args) {
   args.verify_length(0);
 
   delete image;
+  image = NULL;
 
   angle = 0.0;
 
