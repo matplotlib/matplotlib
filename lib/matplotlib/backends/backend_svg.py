@@ -246,7 +246,7 @@ class RendererSVG(RendererBase):
         
         thetext = escape_xml_text(s)
         fontfamily = font.family_name
-        fontstyle = font.style_name
+        fontstyle = prop.get_style()
         fontsize = prop.get_size_in_points()
         color = rgb2hex(gc.get_rgb())
 
