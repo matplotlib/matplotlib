@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 
-import matplotlib
-matplotlib.rcParams['numerix'] = 'numpy'
-import numpy as np
-from numpy import arange, cos, linspace, ones, pi, sin
-import matplotlib.numerix as nx
-from matplotlib.numerix import outerproduct
+from numpy import arange, cos, linspace, ones, pi, sin, outer
 
 import pylab
 import matplotlib.axes3d as axes3d
@@ -20,9 +15,9 @@ delta = pi / 199.0
 u = arange(0, 2*pi+(delta*2), delta*2)
 v = arange(0, pi+delta, delta)
 
-x = outerproduct(cos(u),sin(v))
-y = outerproduct(sin(u),sin(v))
-z = outerproduct(ones(u.shape), cos(v))
+x = outer(cos(u),sin(v))
+y = outer(sin(u),sin(v))
+z = outer(ones(u.shape), cos(v))
 
 #ax3d.plot_wireframe(x,y,z)
 surf = ax3d.plot_surface(x, y, z)
