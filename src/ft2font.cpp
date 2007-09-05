@@ -243,7 +243,10 @@ FT2Image::py_as_str(const Py::Tuple & args) {
   _VERBOSE("FT2Image::as_str");
   args.verify_length(0);
 
-  return Py::asObject(PyString_FromStringAndSize((const char *)_buffer, _width*_height));
+  return Py::asObject
+    (PyString_FromStringAndSize((const char *)_buffer, 
+				_width*_height)
+     );
 }
 
 void FT2Image::makeRgbCopy() {
@@ -298,6 +301,8 @@ void FT2Image::makeRgbaCopy() {
   unsigned char *dst		= _rgbaCopy->_buffer;
 
   while (src != src_end) {
+    // We know the array has already been zero'ed out in
+    // the resize method, so we just skip over the r, g and b.
     dst += 3;
     *dst++ = *src++;
   }
