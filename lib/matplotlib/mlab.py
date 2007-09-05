@@ -1252,7 +1252,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     r,c = X.shape
     if r==1 or c==1:
         X.shape = max(r,c),
-    if unpack: X.transpose()
+    if unpack: return X.transpose()
     return X
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
