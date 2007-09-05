@@ -1,3 +1,5 @@
+2007-09-05 Fixed Qt version reporting in setupext.py - DSD
+
 2007-09-04 Embedding Type 1 fonts in PDF, and thus usetex support
            via dviread, sort of works. To test, enable it by 
            renaming _draw_tex to draw_tex. - JKS

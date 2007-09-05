@@ -278,6 +278,14 @@ def getoutput(s):
     ret =  os.popen(s).read().strip()
     return ret
 
+def convert_qt_version(version):
+    version = '%x'%version
+    temp = []
+    while len(version) > 0:
+        version, chunk = version[:-2], version[-2:]
+        temp.insert(0, str(int(chunk, 16)))
+    return '.'.join(temp)
+
 def check_for_qt():
     try:
         import pyqtconfig
@@ -286,20 +294,20 @@ def check_for_qt():
         return False
     else:
         print_status("Qt", "Qt: %s, pyqt: %s" %
-                     (pyqtconfig.Configuration().pyqt_version_str,
-                      pyqtconfig.Configuration().qt_version))
+                     (convert_qt_version(pyqtconfig.Configuration().qt_version),
+                      pyqtconfig.Configuration().pyqt_version_str))
         return True
 
 def check_for_qt4():
     try:
-        import PyQt4.pyqtconfig
+        from PyQt4 import pyqtconfig
     except ImportError:
         print_status("Qt4", "no")
         return False
     else:
         print_status("Qt4", "Qt: %s, pyqt: %s" %
-                     (PyQt4.pyqtconfig.Configuration().pyqt_version_str,
-                      PyQt4.pyqtconfig.Configuration().qt_version))
+                     (convert_qt_version(pyqtconfig.Configuration().qt_version),
+                      pyqtconfig.Configuration().pyqt_version_str))
         return True
 
 def check_for_cairo():
@@ -455,14 +463,14 @@ def add_pygtk_flags(module):
         if not os.environ.has_key('PKG_CONFIG_PATH'):
             # If Gtk+ is installed, pkg-config is required to be installed
             os.environ['PKG_CONFIG_PATH'] = 'C:\GTK\lib\pkgconfig'
-	  	 
-        pygtkIncludes = getoutput('pkg-config --cflags-only-I pygtk-2.0').split() 	 
-        gtkIncludes = getoutput('pkg-config --cflags-only-I gtk+-2.0').split() 	 
-        includes = pygtkIncludes + gtkIncludes 	 
-        module.include_dirs.extend([include[2:] for include in includes]) 	 
-	  	 
-        pygtkLinker = getoutput('pkg-config --libs pygtk-2.0').split() 	 
-        gtkLinker =  getoutput('pkg-config --libs gtk+-2.0').split() 	 
+         
+        pygtkIncludes = getoutput('pkg-config --cflags-only-I pygtk-2.0').split()    
+        gtkIncludes = getoutput('pkg-config --cflags-only-I gtk+-2.0').split()   
+        includes = pygtkIncludes + gtkIncludes   
+        module.include_dirs.extend([include[2:] for include in includes])    
+         
+        pygtkLinker = getoutput('pkg-config --libs pygtk-2.0').split()   
+        gtkLinker =  getoutput('pkg-config --libs gtk+-2.0').split()     
         linkerFlags = pygtkLinker + gtkLinker
         
         module.libraries.extend(
