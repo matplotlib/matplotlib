@@ -743,8 +743,7 @@ FT2Font::~FT2Font()
 {
   _VERBOSE("FT2Font::~FT2Font");
 
-  if(image)
-    Py::_XDECREF(image);
+  Py_XDECREF(image);
   FT_Done_Face    ( face );
 
   for (size_t i=0; i<glyphs.size(); i++) {
@@ -781,7 +780,7 @@ FT2Font::clear(const Py::Tuple & args) {
   _VERBOSE("FT2Font::clear");
   args.verify_length(0);
 
-  delete image;
+  Py_XDECREF(image);
   image = NULL;
 
   angle = 0.0;
@@ -1037,7 +1036,7 @@ FT2Font::get_glyph(const Py::Tuple & args){
   if ( (size_t)num >= gms.size())
     throw Py::ValueError("Glyph index out of range");
 
-  //todo: refcount?
+  Py_INCREF(gms[num]);
   return Py::asObject(gms[num]);
 }
 
@@ -1667,8 +1666,11 @@ char FT2Font::get_image__doc__ [] =
 Py::Object
 FT2Font::get_image (const Py::Tuple &args) {
   args.verify_length(0);
-  Py_INCREF(image);
-  return Py::asObject(image);
+  if (image) {
+    Py_XINCREF(image);
+    return Py::asObject(image);
+  } 
+  throw Py::RuntimeError("You must call .set_text() before .get_image()");
 }
 
 char FT2Font::attach_file__doc__ [] =
