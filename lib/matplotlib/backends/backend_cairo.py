@@ -19,7 +19,7 @@ Naming Conventions
 """
 
 from __future__ import division
-import os, sys, warnings
+import os, sys, warnings, gzip
 
 import numpy as npy
 
@@ -36,7 +36,7 @@ del _version_required
 
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook        import enumerate, izip
+from matplotlib.cbook        import enumerate, izip, is_string_like
 from matplotlib.figure       import Figure
 from matplotlib.mathtext     import MathTextParser
 from matplotlib.transforms   import Bbox
@@ -45,10 +45,6 @@ from matplotlib import rcParams
 
 _debug = False
 #_debug = True
-
-# Image formats that this backend supports - for print_figure()
-IMAGE_FORMAT          = ['eps', 'pdf', 'png', 'ps', 'svg']
-IMAGE_FORMAT_DEFAULT  = 'png'
 
 # Image::color_conv(format) for draw_image()
 if sys.byteorder == 'little':
@@ -508,6 +504,9 @@ class FigureCanvasCairo (FigureCanvasBase):
     def print_svg(self, fobj, *args, **kwargs):
         return self._save(fobj, 'svg', *args, **kwargs)
 
+    def print_svgz(self, fobj, *args, **kwargs):
+        return self._save(fobj, 'svgz', *args, **kwargs)
+    
     def get_default_filetype(self):
         return rcParams['cairo.format']
     
@@ -534,10 +533,15 @@ class FigureCanvasCairo (FigureCanvasBase):
                 raise RuntimeError ('cairo has not been compiled with PDF '
                                     'support enabled')
             surface = cairo.PDFSurface (fo, width_in_points, height_in_points)
-        elif format == 'svg':
+        elif format in ('svg', 'svgz'):
             if not cairo.HAS_SVG_SURFACE:
                 raise RuntimeError ('cairo has not been compiled with SVG '
                                     'support enabled')
+            if format == 'svgz':
+                filename = fo
+                if is_string_like(fo):
+                    fo = open(fo, 'wb')
+                fo = gzip.GzipFile(None, 'wb', fileobj=fo)
             surface = cairo.SVGSurface (fo, width_in_points, height_in_points)
         else:
            warnings.warn ("unknown format: %s" % format)
