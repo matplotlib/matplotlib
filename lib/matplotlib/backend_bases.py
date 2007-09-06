@@ -1081,6 +1081,7 @@ class FigureCanvasBase:
         'raw': 'Raw RGBA bitmap',
         'rgb': 'Raw RGBA bitmap',
         'svg': 'Scalable Vector Graphics',
+        'svgz': 'Scalable Vector Graphics'
         }
 
     # All of these print_* functions do a lazy import because
@@ -1123,7 +1124,12 @@ class FigureCanvasBase:
         from backends.backend_svg import FigureCanvasSVG # lazy import
         svg = self.switch_backends(FigureCanvasSVG)
         return svg.print_svg(*args, **kwargs)
-
+    
+    def print_svgz(self, *args, **kwargs):
+        from backends.backend_svg import FigureCanvasSVG # lazy import
+        svg = self.switch_backends(FigureCanvasSVG)
+        return svg.print_svgz(*args, **kwargs)
+    
     def get_supported_filetypes(self):
         return self.filetypes
 

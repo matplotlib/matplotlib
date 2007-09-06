@@ -1,6 +1,6 @@
 from __future__ import division
 
-import os, codecs, base64, tempfile, urllib
+import os, codecs, base64, tempfile, urllib, gzip
 
 from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -41,6 +41,7 @@ class RendererSVG(RendererBase):
         self._char_defs = {}
         self.mathtext_parser = MathTextParser('SVG')
         self.fontd = {}
+        self._styles = {}
         svgwriter.write(svgProlog%(width,height,width,height))
 
     def _draw_svg_element(self, element, details, gc, rgbFace):
@@ -50,9 +51,10 @@ class RendererSVG(RendererBase):
         else:
             clippath = 'clip-path="url(#%s)"' % clipid
 
-        self._svgwriter.write ('%s<%s %s %s %s/>\n' % (
+        style = self._map_style(self._get_style(gc, rgbFace))
+        self._svgwriter.write ('%s<%s class="%s" %s %s/>\n' % (
             cliprect,
-            element, self._get_style(gc, rgbFace), clippath, details))
+            element, style, clippath, details))
 
     def _get_font(self, prop):
         key = hash(prop)
@@ -85,8 +87,8 @@ class RendererSVG(RendererBase):
 
         linewidth = gc.get_linewidth()
         if linewidth:
-            return 'style="fill: %s; stroke: %s; stroke-width: %f; ' \
-                'stroke-linejoin: %s; stroke-linecap: %s; %s opacity: %f"' % (
+            return 'fill: %s; stroke: %s; stroke-width: %f; ' \
+                'stroke-linejoin: %s; stroke-linecap: %s; %s opacity: %f' % (
                          fill,
                          rgb2hex(gc.get_rgb()),
                          linewidth,
@@ -96,11 +98,16 @@ class RendererSVG(RendererBase):
                          gc.get_alpha(),
                 )
         else:
-            return 'style="fill: %s; opacity: %f"' % (\
+            return 'fill: %s; opacity: %f' % (\
                          fill,
                          gc.get_alpha(),
                 )
 
+    def _map_style(self, style):
+        return self._styles.setdefault(
+            style,
+            "_%x" % len(self._styles))
+        
     def _get_gc_clip_svg(self, gc):
         cliprect = gc.get_clip_rectangle()
         if cliprect is None:
@@ -112,11 +119,12 @@ class RendererSVG(RendererBase):
                 self._clipd[key] = cliprect
                 x, y, w, h = cliprect
                 y = self.height-(y+h)
+                style = self._map_style("stroke: gray; fill: none;")
                 box = """\
 <defs>
     <clipPath id="%(key)s">
     <rect x="%(x)f" y="%(y)f" width="%(w)f" height="%(h)f"
-    style="stroke: gray; fill: none;"/>
+    class="%(style)s"/>
     </clipPath>
 </defs>
 """ % locals()
@@ -286,12 +294,13 @@ class RendererSVG(RendererBase):
             svg = ''.join(svg)
         else:
             style = 'font-size: %f; font-family: %s; font-style: %s; fill: %s;'%(fontsize, fontfamily,fontstyle, color)
+            style_number = self._map_style(style)
             if angle!=0:
                 transform = 'transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"' % (x,y,-angle,-x,-y) # Inkscape doesn't support rotate(angle x y)
             else: transform = ''
 
             svg = """\
-<text style="%(style)s" x="%(x)f" y="%(y)f" %(transform)s>%(thetext)s</text>
+<text class="%(style_number)s" x="%(x)f" y="%(y)f" %(transform)s>%(thetext)s</text>
 """ % locals()
         self._svgwriter.write (svg)
 
@@ -348,8 +357,11 @@ class RendererSVG(RendererBase):
 
         self.open_group("mathtext")
 
+        style = "fill: %s" % color
+        style_number = self._map_style(style)
+
         if rcParams['svg.embed_char_paths']:
-            svg = ['<g style="fill: %s" transform="' % color]
+            svg = ['<g class="%s" transform="' % style_number]
             if angle != 0:
                 svg.append('translate(%f,%f) rotate(%1.1f)'
                            % (x,y,-angle) )
@@ -364,7 +376,7 @@ class RendererSVG(RendererBase):
                            (charid, new_x, -new_y_mtc, fontsize / self.FONT_SCALE))
             svg.append('</g>\n')
         else: # not rcParams['svg.embed_char_paths']
-            svg = ['<text style="fill: %s" x="%f" y="%f"' % (color,x,y)]
+            svg = ['<text class="%s" x="%f" y="%f"' % (style_number, x, y)]
 
             if angle != 0:
                 svg.append(' transform="translate(%f,%f) rotate(%1.1f) translate(%f,%f)"'
@@ -375,9 +387,10 @@ class RendererSVG(RendererBase):
 
             for font, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
                 new_y = - new_y_mtc
-
-                svg.append('<tspan style="font-size: %f; font-family: %s"' %
-                           (fontsize, font.family_name))
+                style = "font-size: %f; font-family: %s" % (fontsize, font.family_name)
+                style_number = self._map_style(style)
+                
+                svg.append('<tspan class="%s"' % style_number)
                 xadvance = metrics.advance
                 svg.append(' textLength="%f"' % xadvance)
 
@@ -399,7 +412,8 @@ class RendererSVG(RendererBase):
             svg.append('</text>\n')
 
         if len(svg_rects):
-            svg.append('<g style="fill: black; stroke: none" transform="')
+            style_number = self._map_style("fill: black; stroke: none")
+            svg.append('<g class="%s" transform="' % style_number)
             if angle != 0:
                 svg.append('translate(%f,%f) rotate(%1.1f)'
                            % (x,y,-angle) )
@@ -415,12 +429,20 @@ class RendererSVG(RendererBase):
         self.close_group("mathtext")
 
     def finish(self):
+        write = self._svgwriter.write
         if len(self._char_defs):
-            self._svgwriter.write('<defs id="fontpaths">\n')
+            write('<defs id="fontpaths">\n')
             for path in self._char_defs.values():
-                self._svgwriter.write(path)
-            self._svgwriter.write('</defs>\n')
-        self._svgwriter.write('</svg>\n')
+                write(path)
+            write('</defs>\n')
+        if len(self._styles):
+            write('<style type="text/css">\n')
+            styles = self._styles.items()
+            styles.sort()
+            for style, number in styles:
+                write('.%s { %s }\n' % (number, style))
+            write('</style>\n')
+        write('</svg>\n')
 
     def flipy(self):
         return True
@@ -444,14 +466,23 @@ class RendererSVG(RendererBase):
 
 
 class FigureCanvasSVG(FigureCanvasBase):
-    filetypes = {'svg': 'Scalable Vector Graphics'}
+    filetypes = {'svg': 'Scalable Vector Graphics',
+                 'svgz': 'Scalable Vector Graphics'}
 
     def print_svg(self, filename, *args, **kwargs):
+        svgwriter = codecs.open(filename, 'w', 'utf-8')
+        return self._print_svg(filename, svgwriter)
+
+    def print_svgz(self, filename, *args, **kwargs):
+        gzipwriter = gzip.GzipFile(filename, 'w')
+        svgwriter = codecs.EncodedFile(gzipwriter, 'utf-8')
+        return self._print_svg(filename, svgwriter)
+    
+    def _print_svg(self, filename, svgwriter):
         self.figure.dpi.set(72)
         width, height = self.figure.get_size_inches()
         w, h = width*72, height*72
 
-        svgwriter = codecs.open( filename, 'w', 'utf-8' )
         renderer = RendererSVG(w, h, svgwriter, filename)
         self.figure.draw(renderer)
         renderer.finish()
