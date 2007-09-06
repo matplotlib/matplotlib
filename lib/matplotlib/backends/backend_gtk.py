@@ -36,14 +36,6 @@ _debug = False
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 96
 
-# Image formats that this backend supports - for FileChooser and print_figure()
-IMAGE_FORMAT = ['bmp', 'eps', 'jpg', 'png', 'ps', 'svg']
-# pdf not ready yet
-#IMAGE_FORMAT  = ['bmp', 'eps', 'jpg', 'png', 'pdf', 'ps', 'svg']
-IMAGE_FORMAT.sort()
-IMAGE_FORMAT_DEFAULT  = 'png'
-
-
 cursord = {
     cursors.MOVE          : gdk.Cursor(gdk.FLEUR),
     cursors.HAND          : gdk.Cursor(gdk.HAND2),
@@ -344,105 +336,44 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                                        self._pixmap, x, y, x, y, w, h)
         return False  # finish event propagation?
 
+    filetypes = FigureCanvasBase.filetypes.copy()
+    filetypes['jpg'] = 'JPEG'
+    filetypes['jpeg'] = 'JPEG'
+    filetypes['png'] = 'Portable Network Graphics'
 
-    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-        # TODO - use gdk/cairo/agg print_figure?
-        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
-        root, ext = os.path.splitext(filename)
-        ext = ext[1:]
-        if ext == '':
-            ext      = IMAGE_FORMAT_DEFAULT
-            filename = filename + '.' + ext
+    def print_jpeg(self, filename, *args, **kwargs):
+        return self._print_image(filename, 'jpeg')
+    print_jpg = print_jpeg
 
-        # save figure settings
-        origDPI       = self.figure.dpi.get()
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-        origWIn, origHIn = self.figure.get_size_inches()
+    def print_png(self, filename, *args, **kwargs):
+        return self._print_image(filename, 'png')
 
+    def _print_image(self, filename, format):
         if self.flags() & gtk.REALIZED == 0:
             # for self.window(for pixmap) and has a side effect of altering
             # figure width,height (via configure-event?)
             gtk.DrawingArea.realize(self)
-
-        self.figure.dpi.set(dpi)
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
-        ext = ext.lower()
-        if ext in ('jpg', 'png'):          # native printing
-            width, height = self.get_width_height()
-            pixmap = gdk.Pixmap (self.window, width, height)
-            self._renderer.set_pixmap (pixmap)
-            self._render_figure(pixmap, width, height)
-
-            # jpg colors don't match the display very well, png colors match
-            # better
-            pixbuf = gdk.Pixbuf(gdk.COLORSPACE_RGB, 0, 8, width, height)
-            pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
+        
+        width, height = self.get_width_height()
+        pixmap = gdk.Pixmap (self.window, width, height)
+        self._renderer.set_pixmap (pixmap)
+        self._render_figure(pixmap, width, height)
+        
+        # jpg colors don't match the display very well, png colors match
+        # better
+        pixbuf = gdk.Pixbuf(gdk.COLORSPACE_RGB, 0, 8, width, height)
+        pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
                                      0, 0, 0, 0, width, height)
 
-            # pixbuf.save() recognises 'jpeg' not 'jpg'
-            if ext == 'jpg': ext = 'jpeg'
-            try:
-                pixbuf.save(filename, ext)
-            except gobject.GError, exc:
-                error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
+        try:
+            pixbuf.save(filename, format)
+        except gobject.GError, exc:
+            error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
 
-        elif ext in ('eps', 'ps', 'svg',):
-            if ext == 'svg':
-                from backend_svg import FigureCanvasSVG as FigureCanvas
-            else:
-                from backend_ps  import FigureCanvasPS  as FigureCanvas
+    def get_default_filetype(self):
+        return 'png'
 
-            try:
-                fc = self.switch_backends(FigureCanvas)
-                fc.print_figure(filename, dpi, facecolor, edgecolor,
-                                orientation, **kwargs)
-            except IOError, exc:
-                error_msg_gtk("Save figure failure:\n%s: %s" %
-                          (exc.filename, exc.strerror), parent=self)
-            except Exception, exc:
-                error_msg_gtk("Save figure failure:\n%s" % exc, parent=self)
-
-        elif ext in ('bmp', 'raw', 'rgb',):
-            try:
-                from backend_agg import FigureCanvasAgg  as FigureCanvas
-            except:
-                error_msg_gtk('Save figure failure:\n'
-                          'Agg must be installed to save as bmp, raw and rgb',
-                          parent=self)
-            else:
-                fc = self.switch_backends(FigureCanvas)
-                fc.print_figure(filename, dpi, facecolor, edgecolor,
-                                orientation, **kwargs)
-
-        elif ext in ('pdf',):
-            try:
-                from backend_cairo import FigureCanvasCairo  as FigureCanvas
-            except:
-                error_msg_gtk('Save figure failure:\n'
-                          'Cairo must be installed to save as pdf',
-                          parent=self)
-            else:
-                fc = self.switch_backends(FigureCanvas)
-                fc.print_figure(filename, dpi, facecolor, edgecolor,
-                                orientation, **kwargs)
-
-        else:
-            error_msg_gtk('Format "%s" is not supported.\nSupported formats are %s.' %
-                      (ext, ', '.join(IMAGE_FORMAT)),
-                      parent=self)
-
-        # restore figure settings
-        self.figure.dpi.set(origDPI)
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
-        self.figure.set_size_inches(origWIn, origHIn)
-        self.figure.set_canvas(self)
-
-
+            
 class FigureManagerGTK(FigureManagerBase):
     """
     Public attributes
@@ -685,14 +616,20 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
         self.show_all()
 
-        self.fileselect = FileChooserDialog(title='Save the figure',
-                                            parent=self.win,)
+        self.fileselect = FileChooserDialog(
+            title='Save the figure',
+            parent=self.win,
+            filetypes=self.canvas.get_supported_filetypes(),
+            default_filetype=self.canvas.get_default_filetype())
 
 
     def save_figure(self, button):
-        fname = self.fileselect.get_filename_from_user()
+        fname, format = self.fileselect.get_filename_from_user()
         if fname:
-            self.canvas.print_figure(fname)
+            try:
+                self.canvas.print_figure(fname, format=format)
+            except Exception, e:
+                error_msg_gtk(str(e), parent=self)
 
     def configure_subplots(self, button):
         toolfig = Figure(figsize=(6,3))
@@ -777,8 +714,11 @@ class NavigationToolbar(gtk.Toolbar):
         if gtk.pygtk_version >= (2,4,0):
             self._create_toolitems_2_4()
             self.update = self._update_2_4
-            self.fileselect = FileChooserDialog(title='Save the figure',
-                                                parent=self.win,)
+            self.fileselect = FileChooserDialog(
+                title='Save the figure',
+                parent=self.win,
+                formats=self.canvas.get_supported_filetypes(),
+                default_type=self.canvas.get_default_filetype())
         else:
             self._create_toolitems_2_2()
             self.update = self._update_2_2
@@ -999,34 +939,12 @@ class NavigationToolbar(gtk.Toolbar):
 
 
     def save_figure(self, button):
-        fname = self.fileselect.get_filename_from_user()
+        fname, format = self.fileselect.get_filename_from_user()
         if fname:
-            self.canvas.print_figure(fname)
-
-
-class FileSelection(gtk.FileSelection):
-    """GTK+ 2.2 and lower file selector which remembers the last
-    file/directory selected
-    """
-    def __init__(self, path=None, title='Select a file', parent=None):
-        super(FileSelection, self).__init__(title)
-
-        if path: self.path = path
-        else:    self.path = os.getcwd() + os.sep
-
-        if parent: self.set_transient_for(parent)
-
-    def get_filename_from_user(self, path=None, title=None):
-        if path:  self.path = path
-        if title: self.set_title(title)
-        self.set_filename(self.path)
-
-        filename = None
-        if self.run() == gtk.RESPONSE_OK:
-            self.path = filename = self.get_filename()
-        self.hide()
-        return filename
-
+            try:
+                self.canvas.print_figure(fname, format=format)
+            except Exception, e:
+                error_msg_gtk(str(e), parent=self)
 
 if gtk.pygtk_version >= (2,4,0):
     class FileChooserDialog(gtk.FileChooserDialog):
@@ -1040,6 +958,8 @@ if gtk.pygtk_version >= (2,4,0):
                       buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
                                  gtk.STOCK_SAVE,   gtk.RESPONSE_OK),
                       path    = None,
+                      filetypes = [],
+                      default_filetype = None
                       ):
             super (FileChooserDialog, self).__init__ (title, parent, action,
                                                       buttons)
@@ -1049,10 +969,10 @@ if gtk.pygtk_version >= (2,4,0):
 
             # create an extra widget to list supported image formats
             self.set_current_folder (path)
-            self.set_current_name ('image.' + IMAGE_FORMAT_DEFAULT)
+            self.set_current_name ('image.' + default_filetype)
 
             hbox = gtk.HBox (spacing=10)
-            hbox.pack_start (gtk.Label ("Image Format:"), expand=False)
+            hbox.pack_start (gtk.Label ("File Format:"), expand=False)
 
             liststore = gtk.ListStore(gobject.TYPE_STRING)
             cbox = gtk.ComboBox(liststore)
@@ -1061,21 +981,27 @@ if gtk.pygtk_version >= (2,4,0):
             cbox.add_attribute(cell, 'text', 0)
             hbox.pack_start (cbox)
 
-            for item in IMAGE_FORMAT:
-                cbox.append_text (item)
-            cbox.set_active (IMAGE_FORMAT.index (IMAGE_FORMAT_DEFAULT))
-            self.ext = IMAGE_FORMAT_DEFAULT
+            self.filetypes = filetypes
+            self.sorted_filetypes = filetypes.items()
+            self.sorted_filetypes.sort()
+            default = 0
+            for i, (ext, name) in enumerate(self.sorted_filetypes):
+                cbox.append_text ("%s (*.%s)" % (name, ext))
+                if ext == default_filetype:
+                    default = i
+            cbox.set_active(default)
+            self.ext = default_filetype
 
             def cb_cbox_changed (cbox, data=None):
                 """File extension changed"""
                 head, filename = os.path.split(self.get_filename())
                 root, ext = os.path.splitext(filename)
                 ext = ext[1:]
-                new_ext = IMAGE_FORMAT[cbox.get_active()]
+                new_ext = self.sorted_filetypes[cbox.get_active()][0]
                 self.ext = new_ext
 
-                if ext in IMAGE_FORMAT:
-                    filename = filename.replace(ext, new_ext)
+                if ext in self.filetypes:
+                    filename = root + '.' + new_ext
                 elif ext == '':
                     filename = filename.rstrip('.') + '.' + new_ext
 
@@ -1091,24 +1017,40 @@ if gtk.pygtk_version >= (2,4,0):
                 if self.run() != gtk.RESPONSE_OK:
                     break
                 filename = self.get_filename()
-                root, ext = os.path.splitext (filename)
-                ext = ext[1:]
-                if ext == '':
-                    ext = self.ext
-                    filename += '.' + ext
-
-                if ext in IMAGE_FORMAT:
-                    self.path = filename
-                    break
-                else:
-                    error_msg_gtk ('Image format "%s" is not supported' % ext,
-                                   parent=self)
-                    self.set_current_name (os.path.split(root)[1] + '.' +
-                                           self.ext)
-
+                break
+                
             self.hide()
-            return filename
+            return filename, self.ext
+else:
+    class FileSelection(gtk.FileSelection):
+        """GTK+ 2.2 and lower file selector which remembers the last
+        file/directory selected
+        """
+        def __init__(self, path=None, title='Select a file', parent=None):
+            super(FileSelection, self).__init__(title)
 
+            if path: self.path = path
+            else:    self.path = os.getcwd() + os.sep
+
+            if parent: self.set_transient_for(parent)
+
+        def get_filename_from_user(self, path=None, title=None):
+            if path:  self.path = path
+            if title: self.set_title(title)
+            self.set_filename(self.path)
+
+            filename = None
+            if self.run() == gtk.RESPONSE_OK:
+                self.path = filename = self.get_filename()
+            self.hide()
+
+            ext = None
+            if filename is not None:
+                ext = os.path.splitext(filename)[1]
+                if ext.startswith('.'):
+                    ext = ext[1:]
+            return filename, ext
+        
 
 class DialogLineprops:
     """

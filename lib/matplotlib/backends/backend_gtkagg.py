@@ -45,7 +45,9 @@ def new_figure_manager(num, *args, **kwargs):
     if DEBUG: print 'backend_gtkagg.new_figure_manager done'
 
 class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
-
+    filetypes = FigureCanvasGTK.filetypes.copy()
+    filetypes.update(FigureCanvasAgg.filetypes)
+    
     def configure_event(self, widget, event=None):
 
         if DEBUG: print 'FigureCanvasGTKAgg.configure_event'
@@ -94,33 +96,6 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         self.window.draw_drawable (self.style.fg_gc[self.state], self._pixmap,
                                    0, 0, 0, 0, w, h)
         if DEBUG: print 'FigureCanvasGTKAgg.done'
-
-    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-        if DEBUG: print 'FigureCanvasGTKAgg.print_figure'
-        # delete the renderer to prevent improper blitting after print
-
-        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
-        root, ext = os.path.splitext(filename)
-        ext = ext.lower()[1:]
-        if ext == 'jpg':
-            FigureCanvasGTK.print_figure(self, filename, dpi, facecolor,
-                                         edgecolor, orientation, **kwargs)
-
-        else:
-            agg = self.switch_backends(FigureCanvasAgg)
-            try:
-                agg.print_figure(filename, dpi, facecolor, edgecolor,
-                                 orientation, **kwargs)
-            except IOError, msg:
-                error_msg_gtk('Failed to save\nError message: %s'%(msg,), self)
-            except:
-                self.figure.set_canvas(self)
-                raise
-
-        self.figure.set_canvas(self)
-        if DEBUG: print 'FigureCanvasGTKAgg.print_figure done'
-
 
 
 """\

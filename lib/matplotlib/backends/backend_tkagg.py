@@ -215,21 +215,6 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         """
         return self._tkcanvas
 
-    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-
-        if dpi is None: dpi = rcParams['savefig.dpi']
-        agg = self.switch_backends(FigureCanvasAgg)
-        try:
-            agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
-                             **kwargs)
-        except:
-            self.figure.set_canvas(self)
-            raise
-        else:
-            self.figure.set_canvas(self)
-
-
     def motion_notify_event(self, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
@@ -669,26 +654,37 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
     def save_figure(self):
         from tkFileDialog import asksaveasfilename
+        from tkMessageBox import showerror
+        filetypes = self.canvas.get_supported_filetypes().copy()
+        default_filetype = self.canvas.get_default_filetype()
 
+        # Tk doesn't provide a way to choose a default filetype,
+        # so we just have to put it first
+        default_filetype_name = filetypes[default_filetype]
+        del filetypes[default_filetype]
+        
+        sorted_filetypes = filetypes.items()
+        sorted_filetypes.sort()
+        sorted_filetypes.insert(0, (default_filetype, default_filetype_name))
+        
+        tk_filetypes = [
+            (name, '*.%s' % ext) for (ext, name) in sorted_filetypes]
+        
         fname = asksaveasfilename(
             master=self.window,
             title='Save the figure',
-            filetypes=[
-            ('Portable Network Graphics','*.png'),
-            ('Encapsulated Postscript File','*.eps'),
-            ('Scalable Vector Graphics','*.svg'),
-
-            ])
+            filetypes = tk_filetypes,
+            defaultextension = self.canvas.get_default_filetype()
+            )
 
         if fname == "" :
             return
         else:
-            bname, fext = os.path.splitext(fname)
-            if fext == '': # No extension provided
-                fext = '.png' # Assume png
-                fname += fext
-            if fext.lower() in ('.png', '.eps', '.svg'):
+            try:
+                # This method will handle the delegation to the correct type
                 self.canvas.print_figure(fname)
+            except Exception, e:
+                showerror("Error saving file", str(e))
 
     def set_active(self, ind):
         self._ind = ind

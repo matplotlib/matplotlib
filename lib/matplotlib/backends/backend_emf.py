@@ -599,36 +599,17 @@ class FigureCanvasEMF(FigureCanvasBase):
         """
         pass
 
-    def print_figure(self, filename, dpi=300, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-        """
-        Render the figure to hardcopy. Set the figure patch face and edge
-        colors.  This is useful because some of the GUIs have a gray figure
-        face color background and you'll probably want to override this on
-        hardcopy.
-
-        Following the style of backend_ps and backend_gd
-        """
-        basename, ext = os.path.splitext(filename)
-        if not ext:
-            ext = '.emf'
-            filename += ext
-
-        # set the DPI to this hardcoded value for now, because libEMF
-        # doesn't allow any changes to the device pixel size (1024
-        # pixels per 320 mm)
-        #dpi=1024.0/320.0*25.4
-        #dpi=300
-        self.figure.dpi.set(dpi)
+    filetypes = {'emf': 'Enhanced Metafile'}
+    
+    def print_emf(self, filename, dpi=300, **kwargs):
         width, height = self.figure.get_size_inches()
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
         renderer = RendererEMF(filename,width,height,dpi)
         self.figure.draw(renderer)
         renderer.save()
 
-
+    def get_default_filetype(self):
+        return 'emf'
+        
 class FigureManagerEMF(FigureManagerBase):
     """
     Wrap everything up into a window for the pylab interface

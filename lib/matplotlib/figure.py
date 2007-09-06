@@ -745,9 +745,11 @@ class Figure(Artist):
                 used.  and are deduced by the extension to fname.
                 Possibilities are eps, jpeg, pdf, png, ps, svg.  fname
                 can also be a file or file-like object - cairo backend
-                only.  dpi - is the resolution in dots per inch.  If
-                None it will default to the value savefig.dpi in the
-                matplotlibrc file
+                only.
+
+        dpi - is the resolution in dots per inch.  If
+              None it will default to the value savefig.dpi in the
+              matplotlibrc file
 
         facecolor and edgecolor are the colors of the figure rectangle
 
@@ -758,9 +760,7 @@ class Figure(Artist):
         through 'a10', or 'b0' through 'b10' - only supported for postscript
         output
 
-        format - one of 'pdf', 'png', 'ps', 'svg'. It is used to specify the
-                 output when fname is a file or file-like object - cairo
-                 backend only.
+        format - one of the file extensions supported by the active backend.
         """
 
         for key in ('dpi', 'facecolor', 'edgecolor'):

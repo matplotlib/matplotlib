@@ -42,7 +42,7 @@ class FigureFrameWxAgg(FigureFrameWx):
             toolbar = None
         return toolbar
 
-class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
+class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
     """
     The FigureCanvas contains the figure and does event handling.
 
@@ -95,31 +95,12 @@ class FigureCanvasWxAgg(FigureCanvasWx,FigureCanvasAgg):
         srcDC.SelectObject(wx.NullBitmap)
         self.gui_repaint()
 
-    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-        """
-        Render the figure to hardcopy
-        """
-        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
-        agg = self.switch_backends(FigureCanvasAgg)
-        try:
-            agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
-                             **kwargs)
-        except:
-            self.figure.set_canvas(self)
-            raise
-
-        self.figure.set_canvas(self)
-
-    def _get_imagesave_wildcards(self):
-        'return the wildcard string for the filesave dialog'
-        return "PS (*.ps)|*.ps|"     \
-               "EPS (*.eps)|*.eps|"  \
-               "SVG (*.svg)|*.svg|"  \
-               "BMP (*.bmp)|*.bmp|"  \
-               "PNG (*.png)|*.png"  \
-
-
+    filetypes = FigureCanvasAgg.filetypes
+        
+    def print_figure(self, filename, *args, **kwargs):
+        FigureCanvasAgg.print_figure(self, filename, *args, **kwargs)
+        self.draw()
+        
 class NavigationToolbar2WxAgg(NavigationToolbar2Wx):
     def get_canvas(self, frame, fig):
         return FigureCanvasWxAgg(frame, -1, fig)

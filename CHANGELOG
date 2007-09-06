@@ -1,3 +1,11 @@
+2007-09-06 Refactored image saving code so that all GUI backends can
+	   save most image types.  See FILETYPES for a matrix of
+	   backends and their supported file types. 
+	   Backend canvases should no longer write their own print_figure()
+	   method -- instead they should write a print_xxx method for
+	   each filetype they can output and add an entry to their
+	   class-scoped filetypes dictionary. - MGD
+
 2007-09-05 Fixed Qt version reporting in setupext.py - DSD
 
 2007-09-04 Embedding Type 1 fonts in PDF, and thus usetex support

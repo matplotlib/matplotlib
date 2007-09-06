@@ -199,25 +199,23 @@ class RendererGDK(RendererBase):
 
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
-        width, height, descent, fonts, used_characters = self.mathtext_parser.parse(
-            s, self.dpi.get(), prop)
+        ox, oy, width, height, descent, font_image, used_characters = \
+            self.mathtext_parser.parse(s, self.dpi.get(), prop)
 
         if angle==90:
             width, height = height, width
             x -= width
         y -= height
 
-        imw, imh, image_str = fonts[0].image_as_str()
-        N = imw*imh
+        imw = font_image.get_width()
+        imh = font_image.get_height()
+        N = imw * imh
 
         # a numpixels by num fonts array
-        Xall = npy.zeros((N,len(fonts)), npy.uint8)
-
-        for i, font in enumerate(fonts):
-            if angle == 90:
-                font.get_image().rotate() # <-- Rotate
-            imw, imh, image_str = font.image_as_str()
-            Xall[:,i] = npy.fromstring(image_str, npy.uint8)
+        Xall = npy.zeros((N,1), npy.uint8)
+        
+        image_str = font_image.as_str()
+        Xall[:,0] = npy.fromstring(image_str, npy.uint8)
 
         # get the max alpha at each pixel
         Xs = npy.amax(Xall,axis=1)
@@ -342,8 +340,8 @@ class RendererGDK(RendererBase):
 
     def get_text_width_height_descent(self, s, prop, ismath):
         if ismath:
-            width, height, descent, fonts, used_characters = self.mathtext_parser.parse(
-                s, self.dpi.get(), prop)
+            ox, oy, width, height, descent, font_image, used_characters = \
+                self.mathtext_parser.parse(s, self.dpi.get(), prop)
             return width, height, descent
 
         layout, inkRect, logicalRect = self._get_pango_layout(s, prop)
@@ -478,55 +476,28 @@ class FigureCanvasGDK (FigureCanvasBase):
         self._renderer.set_width_height (width, height)
         self.figure.draw (self._renderer)
 
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-        root, ext = os.path.splitext(filename)
-        ext = ext[1:]
-        if ext == '':
-            ext      = IMAGE_FORMAT_DEFAULT
-            filename = filename + '.' + ext
+    filetypes = FigureCanvasBase.filetypes.copy()
+    filetypes['jpg'] = 'JPEG'
+    filetypes['jpeg'] = 'JPEG'
 
-        self.figure.dpi.set(dpi)
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
+    def print_jpeg(self, filename, *args, **kwargs):
+        return self._print_image(filename, 'jpeg')
+    print_jpg = print_jpeg
 
-        ext = ext.lower()
-        if ext in ('jpg', 'png'):          # native printing
-            width, height = self.get_width_height()
-            pixmap = gtk.gdk.Pixmap (None, width, height, depth=24)
-            self._render_figure(pixmap, width, height)
+    def print_png(self, filename, *args, **kwargs):
+        return self._print_image(filename, 'png')
+    
+    def _print_image(self, filename, format, *args, **kwargs):
+        width, height = self.get_width_height()
+        pixmap = gtk.gdk.Pixmap (None, width, height, depth=24)
+        self._render_figure(pixmap, width, height)
 
-            # jpg colors don't match the display very well, png colors match
-            # better
-            pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
-                                    width, height)
-            pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
-                                     0, 0, 0, 0, width, height)
+        # jpg colors don't match the display very well, png colors match
+        # better
+        pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, 0, 8,
+                                width, height)
+        pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
+                                 0, 0, 0, 0, width, height)
 
-            # pixbuf.save() recognises 'jpeg' not 'jpg'
-            if ext == 'jpg': ext = 'jpeg'
-
-            pixbuf.save(filename, ext)
-
-        elif ext in ('eps', 'ps', 'svg',):
-            if ext == 'svg':
-                from backend_svg import FigureCanvasSVG as FigureCanvas
-            else:
-                from backend_ps  import FigureCanvasPS  as FigureCanvas
-
-
-            fc = self.switch_backends(FigureCanvas)
-            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation,
-                            **kwargs)
-        elif ext in ('bmp', 'raw', 'rgb',):
-
-            from backend_agg import FigureCanvasAgg  as FigureCanvas
-            fc = self.switch_backends(FigureCanvas)
-            fc.print_figure(filename, dpi, facecolor, edgecolor, orientation,
-                            **kwargs)
-
-        else:
-            raise ValueError('Format "%s" is not supported.\nSupported formats are %s.' %
-                             (ext, ', '.join(IMAGE_FORMAT)))
-
-        self.figure.set_canvas(self)
+        pixbuf.save(filename, format)
+        

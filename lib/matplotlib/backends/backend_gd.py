@@ -329,38 +329,15 @@ def new_figure_manager(num, *args, **kwargs):
 
 
 class FigureCanvasGD(FigureCanvasBase):
+    filetypes = {'PNG': 'Portable Network Graphics'}
 
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-
-        """
-        Render the figure to hardcopy using self.renderer as the
-        renderer if neccessary
-
-        filename can be a string filename or writable file instance
-
-        """
-
-        origDPI = self.figure.dpi.get()
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-
-        self.figure.dpi.set(dpi)
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
+    def print_png(self, filename, *args, **kwargs):
         im = self.draw()
-
-        if is_string_like(filename):
-            basename, ext = os.path.splitext(filename)
-            if not len(ext): filename += '.png'
-
-        im.writePng( filename )
-
-        self.figure.dpi.set(origDPI)
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
-
+        im.writePng(filename)
+        
+    def get_default_filetype(self):
+        return 'png'
+        
     def draw(self):
         """
         Draw to a gd image and return the image instance

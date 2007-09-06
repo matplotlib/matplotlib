@@ -488,41 +488,7 @@ def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
 
 
 class FigureCanvasCairo (FigureCanvasBase):
-    def print_figure(self, fo, dpi=150, facecolor='w', edgecolor='w',
-                     orientation='portrait', format=None, **kwargs):
-        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        # settings for printing
-        self.figure.dpi.set(dpi)
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
-        if format is None and isinstance (fo, basestring):
-            # get format from filename extension
-            format = os.path.splitext(fo)[1][1:]
-            if format == '':
-                format = rcParams['cairo.format']
-                fo = '%s.%s' % (fo, format)
-
-        if format is not None:
-            format = format.lower()
-
-        if format == 'png':
-            self._save_png (fo)
-        elif format in ('pdf', 'ps', 'svg'):
-            self._save (fo, format, orientation, **kwargs)
-        elif format == 'eps': # backend_ps for eps
-            warnings.warn('eps format is printed by ps backend, not cairo')
-            from backend_ps import FigureCanvasPS  as FigureCanvas
-            fc = FigureCanvas(self.figure)
-            fc.print_figure (fo, dpi, facecolor, edgecolor,
-                             orientation, **kwargs)
-        else:
-            warnings.warn('Format "%s" is not supported.\n'
-                          'Supported formats: '
-                          '%s.' % (format, ', '.join(IMAGE_FORMAT)))
-
-
-    def _save_png (self, fobj):
+    def print_png(self, fobj, *args, **kwargs):
         width, height = self.get_width_height()
 
         renderer = RendererCairo (self.figure.dpi)
@@ -532,9 +498,20 @@ class FigureCanvasCairo (FigureCanvasBase):
 
         self.figure.draw (renderer)
         surface.write_to_png (fobj)
+    
+    def print_pdf(self, fobj, *args, **kwargs):
+        return self._save(fobj, 'pdf', *args, **kwargs)
 
+    def print_ps(self, fobj, *args, **kwargs):
+        return self._save(fobj, 'ps', *args, **kwargs)
 
-    def _save (self, fo, format, orientation, **kwargs):
+    def print_svg(self, fobj, *args, **kwargs):
+        return self._save(fobj, 'svg', *args, **kwargs)
+
+    def get_default_filetype(self):
+        return rcParams['cairo.format']
+    
+    def _save (self, fo, format, **kwargs):
         # save PDF/PS/SVG
         orientation = kwargs.get('orientation', 'portrait')
 
