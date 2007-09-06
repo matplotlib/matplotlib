@@ -31,7 +31,7 @@ infrastructure as separate pieces.
 |        |     |     |     |pixbuf |     |      |pixbuf|     |     |     |     |     |     |
 |        |     |     |     |       |     |      |*     |     |     |     |     |     |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
-|GtkCairo|     |emf  |ps   |cairo +|     |cairo |cairo |cairo|agg  |svg  |svg  |     |     |
+|GtkCairo|     |emf  |ps   |cairo +|     |cairo |cairo |cairo|agg  |svg  |cairo|     |     |
 |        |     |     |     |pixbuf |     |      |*     |     |     |     |     |     |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
 |Paint   |     |     |     |       |     |      |libart|     |     |     |     |     |     |
