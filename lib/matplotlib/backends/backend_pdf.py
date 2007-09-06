@@ -1435,9 +1435,8 @@ class RendererPdf(RendererBase):
                 return x+x1, y+y1
         else:
             def mytrans(x1, y1, x=x, y=y, a=angle / 180.0 * pi):
-                x1 = x + cos(a)*x1 - sin(a)*y1
-                y1 = y + sin(a)*x1 + cos(a)*y1
-                return x1, y1
+                return x + cos(a)*x1 - sin(a)*y1, \
+                       y + sin(a)*x1 + cos(a)*y1
 
         self.check_gc(gc, gc._rgb)
         self.file.output(Op.begin_text)
