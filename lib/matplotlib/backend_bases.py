@@ -4,7 +4,7 @@ graphics contexts must implement to serve as a matplotlib backend
 """
 
 from __future__ import division
-import sys, warnings
+import os, sys, warnings
 
 import numpy as npy
 import matplotlib.numerix.npyma as ma
@@ -12,6 +12,7 @@ import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
+from matplotlib import rcParams
 
 class RendererBase:
     """An abstract base class to handle drawing/rendering operations
@@ -1071,8 +1072,70 @@ class FigureCanvasBase:
         (depending on the backend), truncated to integers"""
         return int(self.figure.bbox.width()), int(self.figure.bbox.height())
 
+    filetypes = {
+        'emf': 'Enhanced Metafile',
+        'eps': 'Encapsulated Postscript',
+        'pdf': 'Portable Document Format',
+        'png': 'Portable Network Graphics',
+        'ps' : 'Postscript',
+        'raw': 'Raw RGBA bitmap',
+        'rgb': 'Raw RGBA bitmap',
+        'svg': 'Scalable Vector Graphics',
+        }
+
+    # All of these print_* functions do a lazy import because
+    #  a) otherwise we'd have cyclical imports, since all of these
+    #     classes inherit from FigureCanvasBase
+    #  b) so we don't import a bunch of stuff the user may never use
+    
+    def print_emf(self, *args, **kwargs):
+        from backends.backend_emf import FigureCanvasEMF # lazy import
+        emf = self.switch_backends(FigureCanvasEMF)
+        return emf.print_emf(*args, **kwargs)
+
+    def print_eps(self, *args, **kwargs):
+        from backends.backend_ps import FigureCanvasPS # lazy import
+        ps = self.switch_backends(FigureCanvasPS)
+        return ps.print_eps(*args, **kwargs)
+    
+    def print_pdf(self, *args, **kwargs):
+        from backends.backend_pdf import FigureCanvasPdf # lazy import
+        pdf = self.switch_backends(FigureCanvasPdf)
+        return pdf.print_pdf(*args, **kwargs)
+
+    def print_png(self, *args, **kwargs):
+        from backends.backend_agg import FigureCanvasAgg # lazy import
+        agg = self.switch_backends(FigureCanvasAgg)
+        return agg.print_png(*args, **kwargs)
+    
+    def print_ps(self, *args, **kwargs):
+        from backends.backend_ps import FigureCanvasPS # lazy import
+        ps = self.switch_backends(FigureCanvasPS)
+        return ps.print_ps(*args, **kwargs)
+
+    def print_raw(self, *args, **kwargs):
+        from backends.backend_agg import FigureCanvasAgg # lazy import
+        agg = self.switch_backends(FigureCanvasAgg)
+        return agg.print_raw(*args, **kwargs)
+    print_bmp = print_rgb = print_raw
+
+    def print_svg(self, *args, **kwargs):
+        from backends.backend_svg import FigureCanvasSVG # lazy import
+        svg = self.switch_backends(FigureCanvasSVG)
+        return svg.print_svg(*args, **kwargs)
+
+    def get_supported_filetypes(self):
+        return self.filetypes
+
+    def get_supported_filetypes_grouped(self):
+        groupings = {}
+        for ext, name in self.filetypes.items():
+            groupings.setdefault(name, []).append(ext)
+            groupings[name].sort()
+        return groupings
+    
     def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
+                     orientation='portrait', format=None, **kwargs):
         """
         Render the figure to hardcopy. Set the figure patch face and edge
         colors.  This is useful because some of the GUIs have a gray figure
@@ -1085,9 +1148,57 @@ class FigureCanvasBase:
         facecolor - the facecolor of the figure
         edgecolor - the edgecolor of the figure
         orientation - 'landscape' | 'portrait' (not supported on all backends)
+        format - when set, forcibly set the file format to save to
         """
-        pass
+        if format is None:
+            if cbook.is_string_like(filename):
+                format = os.path.splitext(filename)[1][1:]
+            if format is None or format == '':
+                format = self.get_default_filetype()
+                if cbook.is_string_like(filename):
+                    filename = filename.rstrip('.') + '.' + format
+        format = format.lower()
 
+        method_name = 'print_%s' % format
+        if (format not in self.filetypes or
+            not hasattr(self, method_name)):
+            formats = self.filetypes.keys()
+            formats.sort()
+            raise ValueError(
+                'Format "%s" is not supported.\n'
+                'Supported formats: '
+                '%s.' % (format, ', '.join(formats)))
+
+        if dpi is None:
+            dpi = rcParams['savefig.dpi']
+            
+        origDPI = self.figure.dpi.get()
+        origfacecolor = self.figure.get_facecolor()
+        origedgecolor = self.figure.get_edgecolor()
+
+        self.figure.dpi.set(dpi)
+        self.figure.set_facecolor(facecolor)
+        self.figure.set_edgecolor(edgecolor)
+
+        try:
+            result = getattr(self, method_name)(
+                filename,
+                dpi=dpi,
+                facecolor=facecolor,
+                edgecolor=edgecolor,
+                orientation=orientation,
+                **kwargs)
+        finally:
+            self.figure.dpi.set(origDPI)
+            self.figure.set_facecolor(origfacecolor)
+            self.figure.set_edgecolor(origedgecolor)
+            self.figure.set_canvas(self)
+            
+        return result
+
+    def get_default_filetype(self):
+        raise NotImplementedError
+    
     def switch_backends(self, FigureCanvasClass):
         """
         instantiate an instance of FigureCanvasClass

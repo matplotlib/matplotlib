@@ -139,7 +139,8 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
 
         if DEBUG: print "FigureCanvasQtAgg.draw", self
         self.replot = True
-        self.update( )
+        FigureCanvasAgg.draw(self)
+        self.update()
 
     def blit(self, bbox=None):
         """
@@ -151,11 +152,6 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         l, t = bbox.ll().x().get(), bbox.ur().y().get()
         self.update(l, self.renderer.height-t, w, h)
 
-    def print_figure( self, filename, dpi=None, facecolor='w', edgecolor='w',
-                      orientation='portrait', **kwargs ):
-        if DEBUG: print 'FigureCanvasQTAgg.print_figure'
-        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
-        agg = self.switch_backends( FigureCanvasAgg )
-        agg.print_figure( filename, dpi, facecolor, edgecolor, orientation,
-                          **kwargs )
-        self.figure.set_canvas(self)
+    def print_figure(self, *args, **kwargs):
+        FigureCanvasAgg.print_figure(self, *args, **kwargs)
+        self.draw()

@@ -649,15 +649,6 @@ class GraphicsContextWx(GraphicsContextBase, wx.MemoryDC):
         b *= 255
         return wx.Colour(red=int(r), green=int(g), blue=int(b))
 
-
-# Filetypes supported for saving files
-_FILETYPES = {'.bmp': wx.BITMAP_TYPE_BMP,
-              '.jpg': wx.BITMAP_TYPE_JPEG,
-              '.png': wx.BITMAP_TYPE_PNG,
-              '.pcx': wx.BITMAP_TYPE_PCX,
-              '.tif': wx.BITMAP_TYPE_TIF,
-              '.xpm': wx.BITMAP_TYPE_XPM}
-
 class FigureCanvasWx(FigureCanvasBase, wx.Panel):
     """
     The FigureCanvas contains the figure and does event handling.
@@ -960,14 +951,22 @@ The current aspect ration will be kept."""
 
     def _get_imagesave_wildcards(self):
         'return the wildcard string for the filesave dialog'
-        return "JPEG (*.jpg)|*.jpg|" \
-               "PS (*.ps)|*.ps|"     \
-               "EPS (*.eps)|*.eps|"  \
-               "SVG (*.svg)|*.svg|"  \
-               "BMP (*.bmp)|*.bmp|"  \
-               "PCX (*.pcx)|*.pcx|"  \
-               "PNG (*.png)|*.png|"  \
-               "XPM (*.xpm)|*.xpm"
+        default_filetype = self.get_default_filetype()
+        filetypes = self.get_supported_filetypes_grouped()
+        sorted_filetypes = filetypes.items()
+        sorted_filetypes.sort()
+        wildcards = []
+        extensions = []
+        filter_index = 0
+        for i, (name, exts) in enumerate(sorted_filetypes):
+            ext_list = ';'.join(['*.%s' % ext for ext in exts])
+            extensions.append(exts[0])
+            wildcard = '%s (%s)|%s' % (name, ext_list, ext_list)
+            if default_filetype in exts:
+                filter_index = i
+            wildcards.append(wildcard)
+        wildcards = '|'.join(wildcards)
+        return wildcards, extensions, filter_index
 
     def gui_repaint(self, drawDC=None):
         """
@@ -983,103 +982,70 @@ The current aspect ration will be kept."""
         drawDC.DrawBitmap(self.bitmap, 0, 0)
         drawDC.EndDrawing()
 
-    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-        """
-        Render the figure to hardcopy
-        """
-        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
-        DEBUG_MSG("print_figure()", 1, self)
-        # Save state information, and set save DPI
+    filetypes = FigureCanvasBase.filetypes.copy()
+    filetypes['bmp'] = 'Windows bitmap'
+    filetypes['jpeg'] = 'JPEG'
+    filetypes['jpg'] = 'JPEG'
+    filetypes['pcx'] = 'PCX'
+    filetypes['png'] = 'Portable Network Graphics'
+    filetypes['tif'] = 'Tagged Image Format File'
+    filetypes['tiff'] = 'Tagged Image Format File'
+    filetypes['xpm'] = 'X pixmap'
 
-        root, ext = os.path.splitext(filename)
+    def print_bmp(self, filename, *args, **kwargs):
+        return self._print_image(filename, wx.BITMAP_TYPE_BMP, *args, **kwargs)
+    
+    def print_jpeg(self, filename, *args, **kwargs):
+        return self._print_image(filename, wx.BITMAP_TYPE_JPEG, *args, **kwargs)
+    print_jpg = print_jpeg
 
-        if ext.find('ps')>=0:
-            # enable ps save from WX backend only import this if we
-            # need it since it parse afm files on import
-            from backend_ps import FigureCanvasPS
+    def print_pcx(self, filename, *args, **kwargs):
+        return self._print_image(filename, wx.BITMAP_TYPE_PCX, *args, **kwargs)
 
-            DEBUG_MSG("print_figure() saving PS", 1, self)
-            origDPI = self.figure.dpi.get()
-            ps = self.switch_backends(FigureCanvasPS)
-            ps.figure.dpi.set(72)
+    def print_png(self, filename, *args, **kwargs):
+        return self._print_image(filename, wx.BITMAP_TYPE_PNG, *args, **kwargs)
+    
+    def print_tiff(self, filename, *args, **kwargs):
+        return self._print_image(filename, wx.BITMAP_TYPE_TIF, *args, **kwargs)
+    print_tif = print_tiff
 
-            ps.print_figure(filename, 72, facecolor, edgecolor, orientation,
-                            **kwargs)
-            self.figure.dpi.set(origDPI)
-            self.figure.set_canvas(self)
-            return
-        elif ext.find('svg')>=0:
-            # enable svg save from WX backend only import this if we
-            # need it since it parse afm files on import
-            from backend_svg import FigureCanvasSVG
-
-            DEBUG_MSG("print_figure() saving SVG", 1, self)
-            origDPI = self.figure.dpi.get()
-            svg = self.switch_backends(FigureCanvasSVG)
-            svg.figure.dpi.set(72)
-            svg.print_figure(filename, 72, facecolor, edgecolor, orientation,
-                             **kwargs)
-            self.figure.dpi.set(origDPI)
-            self.figure.set_canvas(self)
-            return
-
-        if not self._isRealized:
-            self._printQued.append((filename, dpi, facecolor, edgecolor))
-            return
-
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-        origDPI      = self.figure.dpi.get()
-
-        self.figure.dpi.set(dpi)
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
-
+    def print_xpm(self, filename, *args, **kwargs):
+        return self._print_image(filename, wx.BITMAP_TYPE_XPM, *args, **kwargs)
+    
+    def _print_image(self, filename, filetype, *args, **kwargs):
         origBitmap   = self.bitmap
 
         l,b,width,height = self.figure.bbox.get_bounds()
         width = int(math.ceil(width))
         height = int(math.ceil(height))
 
-        # Now create a bitmap and draw onto it
-        DEBUG_MSG('print_figure(): bitmap w:%d h:%d' % (width, height), 2, self)
-
         # Following performs the same function as realize(), but without
         # setting GUI attributes - so GUI draw() will render correctly
-        self.bitmap =wx.EmptyBitmap(width, height)
+        self.bitmap = wx.EmptyBitmap(width, height)
         renderer = RendererWx(self.bitmap, self.figure.dpi)
 
         gc = renderer.new_gc()
 
         self.figure.draw(renderer)
 
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
-        self.figure.dpi.set(origDPI)
-
         # Now that we have rendered into the bitmap, save it
         # to the appropriate file type and clean up
-        try:
-            filetype = _FILETYPES[os.path.splitext(filename)[1]]
-        except KeyError:
-            filetype = wx.BITMAP_TYPE_JPEG
-            filename = filename + '.jpg'
         if not self.bitmap.SaveFile(filename, filetype):
             DEBUG_MSG('print_figure() file save error', 4, self)
             # note the error must be displayed here because trapping
             # the error on a call or print_figure may not work because
             # printing can be qued and called from realize
-            error_msg_wx('Could not save figure to %s\n' % (filename))
+            raise RuntimeError('Could not save figure to %s\n' % (filename))
 
         # Restore everything to normal
         self.bitmap = origBitmap
 
-
         self.draw()
         self.Refresh()
 
+    def get_default_filetype(self):
+        return 'png'
+        
     def realize(self):
         """
         This method will be called when the system is ready to draw,
@@ -1702,14 +1668,24 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
     def save(self, evt):
         # Fetch the required filename and file type.
-        filetypes = self.canvas._get_imagesave_wildcards()
-        dlg =wx.FileDialog(self._parent, "Save to file", "", "", filetypes,
-                           wx.SAVE|wx.OVERWRITE_PROMPT|wx.CHANGE_DIR)
+        filetypes, exts, filter_index = self.canvas._get_imagesave_wildcards()
+        default_file = "image." + self.canvas.get_default_filetype()
+        dlg = wx.FileDialog(self._parent, "Save to file", "", default_file,
+                            filetypes,
+                            wx.SAVE|wx.OVERWRITE_PROMPT|wx.CHANGE_DIR)
+        dlg.SetFilterIndex(filter_index)
         if dlg.ShowModal() == wx.ID_OK:
             dirname  = dlg.GetDirectory()
             filename = dlg.GetFilename()
             DEBUG_MSG('Save file dir:%s name:%s' % (dirname, filename), 3, self)
-            self.canvas.print_figure(os.path.join(dirname, filename))
+            format = exts[dlg.GetFilterIndex()]
+            # Explicitly pass in the selected filetype to override the
+            # actual extension if necessary
+            try:
+                self.canvas.print_figure(
+                    os.path.join(dirname, filename), format=format)
+            except Exception, e:
+                error_msg_wx(str(e))
 
 
     def set_cursor(self, cursor):
@@ -1996,16 +1972,7 @@ class NavigationToolbarWx(wx.ToolBar):
     def _onRedraw(self, evt):
         self.canvas.draw()
 
-    def _onSave(self, evt):
-        # Fetch the required filename and file type.
-        filetypes = self.canvas._get_imagesave_wildcards()
-        dlg =wx.FileDialog(self._parent, "Save to file", "", "", filetypes,
-                           wx.SAVE|wx.OVERWRITE_PROMPT|wx.CHANGE_DIR)
-        if dlg.ShowModal() == wx.ID_OK:
-            dirname  = dlg.GetDirectory()
-            filename = dlg.GetFilename()
-            DEBUG_MSG('Save file dir:%s name:%s' % (dirname, filename), 3, self)
-            self.canvas.print_figure(os.path.join(dirname, filename))
+    _onSave = NavigationToolbar2Wx.save
 
     def _onClose(self, evt):
         self.GetParent().Destroy()

@@ -385,9 +385,32 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         return FigureCanvasQT(fig)
 
     def save_figure( self ):
-        fname = QtGui.QFileDialog.getSaveFileName()
+        filetypes = self.canvas.get_supported_filetypes_grouped()
+        sorted_filetypes = filetypes.items()
+        sorted_filetypes.sort()
+        default_filetype = self.canvas.get_default_filetype()
+
+        start = "image." + default_filetype
+        filters = []
+        selectedFilter = None
+        for name, exts in sorted_filetypes:
+            exts_list = " ".join(['*.%s' % ext for ext in exts])
+            filter = '%s (%s)' % (name, exts_list)
+            if default_filetype in exts:
+                selectedFilter = filter
+            filters.append(filter)
+        filters = ';;'.join(filters)
+           
+        fname = QtGui.QFileDialog.getSaveFileName(
+            self, "Choose a filename to save to", start, filters, selectedFilter)
         if fname:
-            self.canvas.print_figure( str(fname.toLatin1()) )
+            try:
+                self.canvas.print_figure( str(fname.toLatin1()) )
+            except Exception, e:
+                QtGui.QMessageBox.critical(
+                    self, "Error saving file", str(e),
+                    QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
+
 
 
 class SubplotToolQt( SubplotTool, QtGui.QWidget ):

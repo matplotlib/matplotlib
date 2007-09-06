@@ -405,95 +405,15 @@ class FigureCanvasAgg(FigureCanvasBase):
                                      'debug-annoying')
         return self.renderer.buffer_rgba(x,y)
 
-    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-        """
-        Render the figure to hardcopy.  Set the figure patch face and
-        edge colors.  This is useful because some of the GUIs have a
-        gray figure face color background and you'll probably want to
-        override this on hardcopy
+    def get_default_filetype(self):
+        return 'png'
 
-        If the extension matches PNG, write a PNG file
-
-        If the extension matches BMP or RAW, write an RGBA bitmap file
-
-        If filename is a fileobject, write png to file object (thus
-        you can, for example, write the png to stdout
-        """
-        if __debug__: verbose.report('FigureCanvasAgg.print_figure',
-                                     'debug-annoying')
-        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
-
-        # store the orig figure dpi, color and size information so we
-        # can restore them later.  For image creation alone, this is
-        # not important since after the print the figure is done.  But
-        # backend_agg may be used as a renderer for a GUI figure, and
-        # restoring figure props will be important in that case.
-        # TODO: move most of this functionality into backend_bases
-
-        origDPI = self.figure.dpi.get()
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-
-        self.figure.dpi.set(dpi)
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
-        # render the printed figure
+    def print_raw(self, filename, *args, **kwargs):
         self.draw()
-
-        printfunc = None
-        if not is_string_like(filename):
-            # assume png and write to fileobject
-            self.renderer._renderer.write_png(filename)
-            #pass
-        else:
-            # take a look at the extension and choose the print handler
-            basename, ext = os.path.splitext(filename)
-            if not len(ext):
-                ext = '.png'
-                filename += ext
-
-            ext = ext.lower()
-            if (ext.find('rgb')>=0 or
-                ext.find('raw')>=0 or
-                ext.find('bmp')>=0 ):
-                # agg doesn't handle unicode yet
-                self.renderer._renderer.write_rgba(str(filename))
-            elif ext.find('png')>=0:
-                # agg doesn't handle unicode yet
-                self.renderer._renderer.write_png(str(filename))
-                #pass
-            elif ext.find('svg')>=0:
-                from backend_svg import FigureCanvasSVG
-                svg = self.switch_backends(FigureCanvasSVG)
-                printfunc = svg.print_figure
-            elif ext.find('ps')>=0 or ext.find('ep')>=0:
-                from backend_ps import FigureCanvasPS # lazy import
-                ps = self.switch_backends(FigureCanvasPS)
-                printfunc = ps.print_figure
-            elif ext.find('pdf')>=0:
-                from backend_pdf import FigureCanvasPdf
-                pdf = self.switch_backends(FigureCanvasPdf)
-                printfunc = pdf.print_figure
-            else:
-                raise IOError('Do not know know to handle extension *%s' % ext)
-
-        if printfunc is not None:
-            try:
-                printfunc(filename, dpi, facecolor, edgecolor, orientation, **kwargs)
-            except:
-                # restore the original figure properties
-                self.figure.dpi.set(origDPI)
-                self.figure.set_facecolor(origfacecolor)
-                self.figure.set_edgecolor(origedgecolor)
-                self.figure.set_canvas(self)
-                raise
-
-        # restore the original figure properties
-        self.figure.dpi.set(origDPI)
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
-        self.figure.set_canvas(self)
-
-
+        self.get_renderer()._renderer.write_rgba(str(filename))
+    print_rgba = print_raw
+        
+    def print_png(self, filename, *args, **kwargs):
+        self.draw()
+        self.get_renderer()._renderer.write_png(str(filename))
+        

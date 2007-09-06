@@ -1869,25 +1869,15 @@ class FigureCanvasPdf(FigureCanvasBase):
     def draw(self):
         pass
 
-    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-        """
-        Render the figure to hardcopy. Set the figure patch face and edge
-        colors.  This is useful because some of the GUIs have a gray figure
-        face color background and you'll probably want to override this on
-        hardcopy.
-
-        orientation - only currently applies to PostScript printing.
-        """
-        self.figure.dpi.set(72) # ignore the dpi kwarg
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
+    filetypes = {'pdf': 'Portable Document Format'}
+    
+    def get_default_filetype(self):
+        return 'pdf'
+    
+    def print_pdf(self, filename, **kwargs):
+        dpi = kwargs.get('dpi', None)
+        self.figure.set_dpi(72) # Override the dpi kwarg
         width, height = self.figure.get_size_inches()
-
-        basename, ext = os.path.splitext(filename)
-        if ext == '':
-            filename += '.pdf'
-
         file = PdfFile(width, height, filename)
         renderer = RendererPdf(file, dpi)
         self.figure.draw(renderer)

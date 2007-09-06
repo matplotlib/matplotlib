@@ -444,33 +444,22 @@ class RendererSVG(RendererBase):
 
 
 class FigureCanvasSVG(FigureCanvasBase):
+    filetypes = {'svg': 'Scalable Vector Graphics'}
 
-    def print_figure(self, filename, dpi, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-        # save figure settings
-        origDPI       = self.figure.dpi.get()
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-
+    def print_svg(self, filename, *args, **kwargs):
         self.figure.dpi.set(72)
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
         width, height = self.figure.get_size_inches()
         w, h = width*72, height*72
 
-        basename, ext = os.path.splitext(filename)
-        if not len(ext): filename += '.svg'
         svgwriter = codecs.open( filename, 'w', 'utf-8' )
-        renderer = RendererSVG(w, h, svgwriter, basename)
+        renderer = RendererSVG(w, h, svgwriter, filename)
         self.figure.draw(renderer)
         renderer.finish()
-
-        # restore figure settings
-        self.figure.dpi.set(origDPI)
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
         svgwriter.close()
-
+        
+    def get_default_filetype(self):
+        return 'svg'
+        
 class FigureManagerSVG(FigureManagerBase):
     pass
 

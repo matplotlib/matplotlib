@@ -240,31 +240,14 @@ class FigureCanvasPaint(FigureCanvasBase):
         self.figure.draw(renderer)
         return renderer
 
-    def print_figure(self, filename, dpi=150, facecolor='w', edgecolor='w',
-                     orientation='portrait, '**kwargs):
-
-        """
-        Render the figure to hardcopy using self.renderer as the
-        renderer if neccessary
-        """
-        origDPI = self.figure.dpi.get()
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-
-        self.figure.dpi.set(dpi)
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
+    filetypes = {'png': 'Portable Network Graphics'}
+    
+    def print_png(self, filename, *args, **kwargs):
         renderer = self.draw()
-
-        basename, ext = os.path.splitext(filename)
-        if not len(ext): filename += '.png'
         renderer.image.write_png(filename)
 
-        # now restore the old figure params
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
-        self.figure.dpi.set(origDPI)
+    def get_default_filetype(self):
+        return 'png'
 
 ########################################################################
 #

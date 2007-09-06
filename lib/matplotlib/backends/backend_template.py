@@ -198,44 +198,25 @@ class FigureCanvasTemplate(FigureCanvasBase):
         renderer = RendererTemplate()
         self.figure.draw(renderer)
 
-    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
+    # You should provide a print_xxx function for every file format
+    # you can write.
+
+    # If the file type is not in the base set of filetypes,
+    # you should add it to the class-scope filetypes dictionary as follows:
+    filetypes = FigureCanvasBase.filetypes.copy()
+    filetypes['foo'] = 'My magic Foo format'
+
+    def print_foo(self, filename, *args, **kwargs):
         """
-        Render the figure to hardcopy. Set the figure patch face and edge
-        colors.  This is useful because some of the GUIs have a gray figure
-        face color background and you'll probably want to override this on
-        hardcopy.
-
-        orientation - only currently applies to PostScript printing.
-
-        A GUI backend should save and restore the original figure settings.
-        An image backend does not need to do this since after the print the
-        figure is done
+        Write out format foo.  The dpi, facecolor and edgecolor are restored
+        to their original values after this call, so you don't need to
+        save and restore them.
         """
+        pass
 
-        if dpi is None: dpi = rcParams['savefig.dpi']
-        # save the figure settings, GUI backends only
-        #origDPI = self.figure.dpi.get()
-        #origfacecolor = self.figure.get_facecolor()
-        #origedgecolor = self.figure.get_edgecolor()
-
-        # set the new parameters
-        self.figure.dpi.set(dpi)
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
-        renderer = RendererTemplate()
-        self.figure.draw(renderer)
-        # do something to save to hardcopy
-
-        # restore original figure settings, GUI backends only
-        #self.figure.dpi.set(origDPI)
-        #self.figure.set_facecolor(origfacecolor)
-        #self.figure.set_edgecolor(origedgecolor)
-        # redraw the screen if necessary
-        #self.draw()
-
-
+    def get_default_filetype(self):
+        return 'foo'
+    
 class FigureManagerTemplate(FigureManagerBase):
     """
     Wrap everything up into a window for the pylab interface

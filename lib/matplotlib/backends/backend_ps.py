@@ -960,8 +960,46 @@ class FigureCanvasPS(FigureCanvasBase):
     def draw(self):
         pass
 
-    def print_figure(self, outfile, dpi=72, facecolor='w', edgecolor='w',
-                     orientation='portrait', papertype=None):
+    filetypes = {'ps'  : 'Postscript',
+                 'eps' : 'Encapsulated Postscript'}
+    
+    def get_default_filetype(self):
+        return 'ps'
+    
+    def print_ps(self, outfile, *args, **kwargs):
+        return self._print_ps(outfile, 'ps', *args, **kwargs)
+
+    def print_eps(self, outfile, *args, **kwargs):
+        return self._print_ps(outfile, 'eps', *args, **kwargs)
+    
+    def _print_ps(self, outfile, format, *args, **kwargs):
+        papertype = kwargs.get("papertype", rcParams['ps.papersize'])
+        papertype = papertype.lower()
+        if papertype == 'auto':
+            pass
+        elif papertype not in papersize:
+            raise RuntimeError( '%s is not a valid papertype. Use one \
+                    of %s'% (papertype, ', '.join( papersize.keys() )) )
+            
+        orientation = kwargs.get("orientation", "portrait").lower()
+        if orientation == 'landscape': isLandscape = True
+        elif orientation == 'portrait': isLandscape = False
+        else: raise RuntimeError('Orientation must be "portrait" or "landscape"')
+
+        self.figure.set_dpi(72) # Override the dpi kwarg
+        dpi = kwargs.get("dpi", 72)
+        facecolor = kwargs.get("facecolor", "w")
+        edgecolor = kwargs.get("edgecolor", "w")
+        
+        if rcParams['text.usetex']:
+            self._print_figure_tex(outfile, format, dpi, facecolor, edgecolor,
+                                   orientation, isLandscape, papertype)
+        else:
+            self._print_figure(outfile, format, dpi, facecolor, edgecolor,
+                               orientation, isLandscape, papertype)
+        
+    def _print_figure(self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
+                      orientation='portrait', isLandscape=False, papertype=None):
         """
         Render the figure to hardcopy.  Set the figure patch face and
         edge colors.  This is useful because some of the GUIs have a
@@ -975,176 +1013,137 @@ class FigureCanvasPS(FigureCanvasBase):
         If outfile is a file object, a stand-alone PostScript file is
         written into this file object.
         """
-        if not papertype: papertype = rcParams['ps.papersize']
-        papertype = papertype.lower()
-        if papertype == 'auto': pass
-        elif not papersize.has_key(papertype):
-            raise RuntimeError( '%s is not a valid papertype. Use one \
-                    of %s'% (papertype, ', '.join( papersize.keys() )) )
+        isEPSF = format == 'eps'
+        title = outfile
 
-        orientation = orientation.lower()
-        if orientation == 'landscape': isLandscape = True
-        elif orientation == 'portrait': isLandscape = False
-        else: raise RuntimeError('Orientation must be "portrait" or "landscape"')
+        # write to a temp file, we'll move it to outfile when done
+        tmpfile = os.path.join(gettempdir(), md5.md5(outfile).hexdigest())
+        fh = file(tmpfile, 'w')
 
-        self.figure.dpi.set(72) # ignore the dpi kwarg
+        # find the appropriate papertype
+        width, height = self.figure.get_size_inches()
+        if papertype == 'auto':
+            if isLandscape: papertype = _get_papertype(height, width)
+            else: papertype = _get_papertype(width, height)
 
-        if rcParams['text.usetex']:
-            # Let's keep the usetex stuff seperate from the generic postscript
-            self._print_figure_tex(outfile, dpi, facecolor, edgecolor,
-                                   orientation, papertype)
-        else:
-            if  isinstance(outfile, file):
-                # assume plain PostScript and write to fileobject
-                basename = outfile.name
-                ext = '.ps'
-                title = None
-            else:
-                basename, ext = os.path.splitext(outfile)
-                if not ext:
-                    ext = '.ps'
-                    outfile += ext
-            isEPSF = ext.lower().startswith('.ep')
-            title = outfile
+        if isLandscape: paperHeight, paperWidth = papersize[papertype]
+        else: paperWidth, paperHeight = papersize[papertype]
 
-            # write to a temp file, we'll move it to outfile when done
-            tmpfile = os.path.join(gettempdir(), md5.md5(basename).hexdigest())
-            fh = file(tmpfile, 'w')
+        if rcParams['ps.usedistiller'] and not papertype == 'auto':
+            # distillers will improperly clip eps files if the pagesize is
+            # too small
+            if width>paperWidth or height>paperHeight:
+                if isLandscape:
+                    papertype = _get_papertype(height, width)
+                    paperHeight, paperWidth = papersize[papertype]
+                else:
+                    papertype = _get_papertype(width, height)
+                    paperWidth, paperHeight = papersize[papertype]
 
-            # find the appropriate papertype
-            width, height = self.figure.get_size_inches()
-            if papertype == 'auto':
-                if isLandscape: papertype = _get_papertype(height, width)
-                else: papertype = _get_papertype(width, height)
+        # center the figure on the paper
+        xo = 72*0.5*(paperWidth - width)
+        yo = 72*0.5*(paperHeight - height)
 
-            if isLandscape: paperHeight, paperWidth = papersize[papertype]
-            else: paperWidth, paperHeight = papersize[papertype]
+        l, b, w, h = self.figure.bbox.get_bounds()
+        llx = xo
+        lly = yo
+        urx = llx + w
+        ury = lly + h
+        rotation = 0
+        if isLandscape:
+            llx, lly, urx, ury = lly, llx, ury, urx
+            xo, yo = 72*paperHeight - yo, xo
+            rotation = 90
+        bbox = (llx, lly, urx, ury)
 
-            if rcParams['ps.usedistiller'] and not papertype == 'auto':
-                # distillers will improperly clip eps files if the pagesize is
-                # too small
-                if width>paperWidth or height>paperHeight:
-                    if isLandscape:
-                        papertype = _get_papertype(height, width)
-                        paperHeight, paperWidth = papersize[papertype]
-                    else:
-                        papertype = _get_papertype(width, height)
-                        paperWidth, paperHeight = papersize[papertype]
+        # generate PostScript code for the figure and store it in a string
+        origfacecolor = self.figure.get_facecolor()
+        origedgecolor = self.figure.get_edgecolor()
+        self.figure.set_facecolor(facecolor)
+        self.figure.set_edgecolor(edgecolor)
 
-            # center the figure on the paper
-            xo = 72*0.5*(paperWidth - width)
-            yo = 72*0.5*(paperHeight - height)
+        self._pswriter = StringIO()
+        renderer = RendererPS(width, height, self._pswriter, dpi=dpi)
+        self.figure.draw(renderer)
 
-            l, b, w, h = self.figure.bbox.get_bounds()
-            llx = xo
-            lly = yo
-            urx = llx + w
-            ury = lly + h
-            rotation = 0
-            if isLandscape:
-                llx, lly, urx, ury = lly, llx, ury, urx
-                xo, yo = 72*paperHeight - yo, xo
-                rotation = 90
-            bbox = (llx, lly, urx, ury)
+        self.figure.set_facecolor(origfacecolor)
+        self.figure.set_edgecolor(origedgecolor)
 
-            # generate PostScript code for the figure and store it in a string
-            origfacecolor = self.figure.get_facecolor()
-            origedgecolor = self.figure.get_edgecolor()
-            self.figure.set_facecolor(facecolor)
-            self.figure.set_edgecolor(edgecolor)
+        # write the PostScript headers
+        if isEPSF: print >>fh, "%!PS-Adobe-3.0 EPSF-3.0"
+        else: print >>fh, "%!PS-Adobe-3.0"
+        if title: print >>fh, "%%Title: "+title
+        print >>fh, ("%%Creator: matplotlib version "
+                     +__version__+", http://matplotlib.sourceforge.net/")
+        print >>fh, "%%CreationDate: "+time.ctime(time.time())
+        print >>fh, "%%Orientation: " + orientation
+        if not isEPSF: print >>fh, "%%DocumentPaperSizes: "+papertype
+        print >>fh, "%%%%BoundingBox: %d %d %d %d" % bbox
+        if not isEPSF: print >>fh, "%%Pages: 1"
+        print >>fh, "%%EndComments"
 
-            self._pswriter = StringIO()
-            renderer = RendererPS(width, height, self._pswriter, dpi=dpi)
-            self.figure.draw(renderer)
+        Ndict = len(psDefs)
+        print >>fh, "%%BeginProlog"
+        if not rcParams['ps.useafm']:
+            Ndict += len(renderer.used_characters)
+        print >>fh, "/mpldict %d dict def"%Ndict
+        print >>fh, "mpldict begin"
+        for d in psDefs:
+            d=d.strip()
+            for l in d.split('\n'):
+                print >>fh, l.strip()
+        if not rcParams['ps.useafm']:
+            for font_filename, chars in renderer.used_characters.values():
+                if len(chars):
+                    font = FT2Font(font_filename)
+                    cmap = font.get_charmap()
+                    glyph_ids = []
+                    for c in chars:
+                        gind = cmap.get(ord(c)) or 0
+                        glyph_ids.append(gind)
+                    convert_ttf_to_ps(font_filename, fh, rcParams['ps.fonttype'], glyph_ids)
+        print >>fh, "end"
+        print >>fh, "%%EndProlog"
 
-            self.figure.set_facecolor(origfacecolor)
-            self.figure.set_edgecolor(origedgecolor)
+        if not isEPSF: print >>fh, "%%Page: 1 1"
+        print >>fh, "mpldict begin"
+        #print >>fh, "gsave"
+        print >>fh, "%s translate"%_nums_to_str(xo, yo)
+        if rotation: print >>fh, "%d rotate"%rotation
+        print >>fh, "%s clipbox"%_nums_to_str(width*72, height*72, 0, 0)
 
-            # write the PostScript headers
-            if isEPSF: print >>fh, "%!PS-Adobe-3.0 EPSF-3.0"
-            else: print >>fh, "%!PS-Adobe-3.0"
-            if title: print >>fh, "%%Title: "+title
-            print >>fh, ("%%Creator: matplotlib version "
-                         +__version__+", http://matplotlib.sourceforge.net/")
-            print >>fh, "%%CreationDate: "+time.ctime(time.time())
-            print >>fh, "%%Orientation: " + orientation
-            if not isEPSF: print >>fh, "%%DocumentPaperSizes: "+papertype
-            print >>fh, "%%%%BoundingBox: %d %d %d %d" % bbox
-            if not isEPSF: print >>fh, "%%Pages: 1"
-            print >>fh, "%%EndComments"
+        # write the figure
+        print >>fh, self._pswriter.getvalue()
 
-            Ndict = len(psDefs)
-            print >>fh, "%%BeginProlog"
-            if not rcParams['ps.useafm']:
-                Ndict += len(renderer.used_characters)
-            print >>fh, "/mpldict %d dict def"%Ndict
-            print >>fh, "mpldict begin"
-            for d in psDefs:
-                d=d.strip()
-                for l in d.split('\n'):
-                    print >>fh, l.strip()
-            if not rcParams['ps.useafm']:
-                for font_filename, chars in renderer.used_characters.values():
-                    if len(chars):
-                        font = FT2Font(font_filename)
-                        cmap = font.get_charmap()
-                        glyph_ids = []
-                        for c in chars:
-                            gind = cmap.get(ord(c)) or 0
-                            glyph_ids.append(gind)
-                        convert_ttf_to_ps(font_filename, fh, rcParams['ps.fonttype'], glyph_ids)
-            print >>fh, "end"
-            print >>fh, "%%EndProlog"
+        # write the trailer
+        #print >>fh, "grestore"
+        print >>fh, "end"
+        print >>fh, "showpage"
+        if not isEPSF: print >>fh, "%%EOF"
+        fh.close()
 
-            if not isEPSF: print >>fh, "%%Page: 1 1"
-            print >>fh, "mpldict begin"
-            #print >>fh, "gsave"
-            print >>fh, "%s translate"%_nums_to_str(xo, yo)
-            if rotation: print >>fh, "%d rotate"%rotation
-            print >>fh, "%s clipbox"%_nums_to_str(width*72, height*72, 0, 0)
+        if rcParams['ps.usedistiller'] == 'ghostscript':
+            gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+        elif rcParams['ps.usedistiller'] == 'xpdf':
+            xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
 
-            # write the figure
-            print >>fh, self._pswriter.getvalue()
+        if  isinstance(outfile, file):
+            fh = file(tmpfile)
+            print >>outfile, fh.read()
+        else: shutil.move(tmpfile, outfile)
 
-            # write the trailer
-            #print >>fh, "grestore"
-            print >>fh, "end"
-            print >>fh, "showpage"
-            if not isEPSF: print >>fh, "%%EOF"
-            fh.close()
-
-            if rcParams['ps.usedistiller'] == 'ghostscript':
-                gs_distill(tmpfile, ext=='.eps', ptype=papertype, bbox=bbox)
-            elif rcParams['ps.usedistiller'] == 'xpdf':
-                xpdf_distill(tmpfile, ext=='.eps', ptype=papertype, bbox=bbox)
-
-            if  isinstance(outfile, file):
-                fh = file(tmpfile)
-                print >>outfile, fh.read()
-            else: shutil.move(tmpfile, outfile)
-
-    def _print_figure_tex(self, outfile, dpi, facecolor, edgecolor, orientation,
-                          papertype):
+    def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
+                          orientation, isLandscape, papertype):
         """
         If text.usetex is True in rc, a temporary pair of tex/eps files
         are created to allow tex to manage the text layout via the PSFrags
         package. These files are processed to yield the final ps or eps file.
         """
-
-        if  isinstance(outfile, file):
-            # assume plain PostScript and write to fileobject
-            basename = outfile.name
-            ext = '.ps'
-            title = None
-        else:
-            basename, ext = os.path.splitext(outfile)
-            if not ext:
-                ext = '.ps'
-                outfile += ext
+        isEPSF = format == 'eps'
         title = outfile
 
         # write to a temp file, we'll move it to outfile when done
-        tmpfile = os.path.join(gettempdir(), md5.md5(basename).hexdigest())
+        tmpfile = os.path.join(gettempdir(), md5.md5(outfile).hexdigest())
         fh = file(tmpfile, 'w')
 
         self.figure.dpi.set(72) # ignore the dpi kwarg
@@ -1206,7 +1205,7 @@ class FigureCanvasPS(FigureCanvasBase):
         print >>fh, "showpage"
         fh.close()
 
-        if orientation == 'landscape': # now we are ready to rotate
+        if isLandscape: # now we are ready to rotate
             isLandscape = True
             width, height = height, width
             bbox = (lly, llx, ury, urx)
@@ -1216,7 +1215,7 @@ class FigureCanvasPS(FigureCanvasBase):
             paperWidth, paperHeight = papersize[temp_papertype]
         else:
             paperWidth, paperHeight = papersize[papertype]
-            if (width>paperWidth or height>paperHeight) and ext=='.eps':
+            if (width>paperWidth or height>paperHeight) and isEPSF:
                 paperWidth, paperHeight = papersize[temp_papertype]
                 verbose.report('Your figure is too big to fit on %s paper. %s \
 paper will be used to prevent clipping.'%(papertype, temp_papertype), 'helpful')
@@ -1226,15 +1225,16 @@ paper will be used to prevent clipping.'%(papertype, temp_papertype), 'helpful')
         custom_preamble = texmanager.get_custom_preamble()
 
         convert_psfrags(tmpfile, renderer.psfrag, font_preamble,
-                        custom_preamble, paperWidth, paperHeight, orientation)
+                        custom_preamble, paperWidth, paperHeight,
+                        orientation)
 
         if rcParams['ps.usedistiller'] == 'ghostscript':
-            gs_distill(tmpfile, ext=='.eps', ptype=papertype, bbox=bbox)
+            gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
         elif rcParams['ps.usedistiller'] == 'xpdf':
-            xpdf_distill(tmpfile, ext=='.eps', ptype=papertype, bbox=bbox)
+            xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
         elif rcParams['text.usetex']:
             if False: pass # for debugging
-            else: gs_distill(tmpfile, ext=='.eps', ptype=papertype, bbox=bbox)
+            else: gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
 
         if  isinstance(outfile, file):
             fh = file(tmpfile)

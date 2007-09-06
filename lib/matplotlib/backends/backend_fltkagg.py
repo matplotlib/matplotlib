@@ -242,16 +242,7 @@ class FigureCanvasFltkAgg(FigureCanvasAgg):
     def blit(self,bbox):
         self.canvas.blit(bbox)
 
-
     show = draw
-
-    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
-        agg = self.switch_backends(FigureCanvasAgg)
-        agg.print_figure(filename, dpi, facecolor, edgecolor, orientation,
-                         **kwargs)
-        self.figure.set_canvas(self)
 
     def widget(self):
         return self.canvas
@@ -493,7 +484,23 @@ def zoom(ptr, arg):
 
 
 def save_figure(ptr,base):
+    filetypes = base.canvas.get_supported_filetypes()
+    default_filetype = base.canvas.get_default_filetype()
+    sorted_filetypes = filetypes.items()
+    sorted_filetypes.sort()
+    
+    selected_filter = 0
+    filters = []
+    for i, (ext, name) in enumerate(sorted_filetypes):
+        filter = '%s (*.%s)' % (name, ext)
+        filters.append(filter)
+        if ext == default_filetype:
+            selected_filter = i
+    filters = '\t'.join(filters)
+
     file_chooser=base._fc
+    file_chooser.filter(filters)
+    file_chooser.filter_value(selected_filter)
     file_chooser.show()
     while file_chooser.visible() :
         Fltk.Fl.wait()
@@ -507,9 +514,10 @@ def save_figure(ptr,base):
     #start from last directory
     lastDir = os.path.dirname(fname)
     file_chooser.directory(lastDir)
-
+    format = sorted_filetypes[file_chooser.filter_value()][0]
+    
     try:
-        base.canvas.print_figure(fname)
+        base.canvas.print_figure(fname, format=format)
     except IOError, msg:
         err = '\n'.join(map(str, msg))
         msg = 'Failed to save %s: Error msg was\n\n%s' % (
