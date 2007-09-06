@@ -1,9 +1,10 @@
 """
 A class representing a Type 1 font.
 
-This version merely allows reading in pfa and pfb files, and stores
-the data in pfa format (which can be embedded in PostScript or PDF
-files). A more complete class might support subsetting.
+This version merely allows reading in pfa and pfb files, stores the
+data in pfa format, and allows reading the parts of the data in a
+format suitable for embedding in pdf files. A more complete class
+might support subsetting.
 
 Usage:  font = Type1Font(filename)
         somefile.write(font.data) # writes out font in pfa format
@@ -23,9 +24,10 @@ class Type1Font(object):
     def __init__(self, filename):
         file = open(filename, 'rb')
         try:
-            self._read(file)
+            data = self._read(file)
         finally:
             file.close()
+        self.parts = self._split(data)
 
     def _read(self, file):
         rawdata = file.read()
@@ -33,7 +35,7 @@ class Type1Font(object):
             self.data = rawdata
             return
         
-        self.data = ''
+        data = ''
         while len(rawdata) > 0:
             if not rawdata.startswith(chr(128)):
                 raise RuntimeError, \
@@ -46,9 +48,9 @@ class Type1Font(object):
                 rawdata = rawdata[6+length:]
 
             if type == 1:       # ASCII text: include verbatim
-                self.data += segment
+                data += segment
             elif type == 2:     # binary data: encode in hexadecimal
-                self.data += ''.join(['%02x' % ord(char)
+                data += ''.join(['%02x' % ord(char)
                                       for char in segment])
             elif type == 3:     # end of file
                 break
@@ -56,9 +58,11 @@ class Type1Font(object):
                 raise RuntimeError, \
                     'Unknown segment type %d in pfb file' % type
 
-    def lengths(self):
+        return data
+
+    def _split(self, data):
         """
-        Compute the lengths of the three parts of a Type 1 font.
+        Split the Type 1 font into its three main parts.
 
         The three parts are: (1) the cleartext part, which ends in a
         eexec operator; (2) the encrypted part; (3) the fixed part,
@@ -66,28 +70,33 @@ class Type1Font(object):
         lines, a cleartomark operator, and possibly something else.
         """
 
-        # Cleartext part: just find the eexec and skip the eol char(s)
-        idx = self.data.index('eexec')
+        # Cleartext part: just find the eexec and skip whitespace
+        idx = data.index('eexec')
         idx += len('eexec')
-        while self.data[idx] in ('\n', '\r'):
+        while data[idx] in ' \t\r\n':
             idx += 1
         len1 = idx
 
         # Encrypted part: find the cleartomark operator and count
         # zeros backward
-        idx = self.data.rindex('cleartomark') - 1
+        idx = data.rindex('cleartomark') - 1
         zeros = 512
-        while zeros and self.data[idx] in ('0', '\n', '\r'):
-            if self.data[idx] == '0':
+        while zeros and data[idx] in ('0', '\n', '\r'):
+            if data[idx] == '0':
                 zeros -= 1
             idx -= 1
         if zeros:
             raise RuntimeError, 'Insufficiently many zeros in Type 1 font'
 
-        len2 = idx - len1
-        len3 = len(self.data) - idx
+        # Convert encrypted part to binary (if we read a pfb file, we
+        # may end up converting binary to hexadecimal to binary again;
+        # but if we read a pfa file, this part is already in hex, and
+        # I am not quite sure if even the pfb format guarantees that
+        # it will be in binary).
+        binary = ''.join([chr(int(data[i:i+2], 16))
+                          for i in range(len1, idx, 2)])
 
-        return len1, len2, len3
+        return data[:len1], binary, data[idx:]
             
 if __name__ == '__main__':
     import sys

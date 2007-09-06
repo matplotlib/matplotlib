@@ -607,13 +607,13 @@ class PdfFile:
         self.writeObject(widthsObject, widths)
         self.writeObject(fontdescObject, descriptor)
 
-        fontdata = type1font.Type1Font(filename)
-        len1, len2, len3 = fontdata.lengths()
+        t1font = type1font.Type1Font(filename)
         self.beginStream(fontfileObject.id, None,
-                         { 'Length1': len1,
-                           'Length2': len2,
-                           'Length3': len3 })
-        self.currentstream.write(fontdata.data)
+                         { 'Length1': len(t1font.parts[0]),
+                           'Length2': len(t1font.parts[1]),
+                           'Length3': 0 })
+        self.currentstream.write(t1font.parts[0])
+        self.currentstream.write(t1font.parts[1])
         self.endStream()
 
         return fontdictObject
