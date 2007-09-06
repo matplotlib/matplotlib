@@ -1,3 +1,6 @@
+2007-09-06 Fixed a bug in the embedding of Type 1 fonts in PDF.
+           Now it doesn't crash Preview.app. - JKS
+
 2007-09-06 Refactored image saving code so that all GUI backends can
 	   save most image types.  See FILETYPES for a matrix of
 	   backends and their supported file types. 
