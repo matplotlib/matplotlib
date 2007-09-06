@@ -637,7 +637,7 @@ class FontProperties(object):
             self.__props.__dict__.update(_init)
             return
         
-        if isinstance(family, str):
+        if is_string_like(family):
             # Treat family as a fontconfig pattern if it is the only
             # parameter provided.
             if (style is None and
@@ -720,8 +720,11 @@ class FontProperties(object):
         if family is None:
             self.__props.__dict__.pop('family', None)
         else:
+            if is_string_like(family):
+                family = [family]
             self.__props.family = family
-        
+    set_name = set_family
+            
     def set_style(self, style):
         """Set the font style.  Values are: normal, italic or oblique."""
         if style is None:
