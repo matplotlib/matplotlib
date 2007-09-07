@@ -1,3 +1,5 @@
+2007-09-06 .bmp file format is now longer an alias for .raw
+
 2007-09-07 Added clip path support to pdf backend. - JKS
 
 2007-09-06 Fixed a bug in the embedding of Type 1 fonts in PDF.
