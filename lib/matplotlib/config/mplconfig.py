@@ -101,7 +101,7 @@ class MPLConfig(TConfig):
         class svg(TConfig):
             image_inline = T.true
             image_noscale = T.false
-            embed_chars = T.false
+            embed_chars = T.true
     
     class lines(TConfig):
         linewidth = T.Float(1.0)
