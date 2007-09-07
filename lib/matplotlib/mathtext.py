@@ -153,13 +153,6 @@ from matplotlib import get_data_path, rcParams
 ####################
 
 
-# a character over another character
-charOverChars = {
-    # The first 2 entires in the tuple are (font, char, sizescale) for
-    # the two symbols under and over.  The third entry is the space
-    # between the two symbols in points
-    r'\angstrom' : (  ('rm', 'A', 1.0), (None, '\circ', 0.5), 0.0 ),
-    }
 
 ##############################################################################
 # FONTS
@@ -1771,7 +1764,7 @@ ship = Ship()
 
 def Error(msg):
     def raise_error(s, loc, toks):
-        raise ParseFatalException(msg)
+        raise ParseFatalException(msg + "\n" + s)
 
     empty = Empty()
     empty.setParseAction(raise_error)
@@ -1854,8 +1847,7 @@ class Parser(object):
 
         bslash       = Literal('\\')
 
-        accent       = oneOf("hat check dot breve acute ddot grave tilde bar "
-                             "vec \" ` ' ~ . ^ widehat widetilde")
+        accent       = oneOf(self._accent_map.keys() + list(self._wide_accents))
 
         function     = oneOf("arccos csc ker min arcsin deg lg Pr arctan det "
                              "lim sec arg dim liminf sin cos exp limsup sinh "
@@ -1890,8 +1882,13 @@ class Parser(object):
                        )
                      ).setParseAction(self.symbol).leaveWhitespace()
 
+        c_over_c     =(Suppress(bslash)
+                     + oneOf(self._char_over_chars.keys())
+                     ).setParseAction(self.char_over_chars)
+        
         accent       = Group(
-                         Combine(bslash + accent)
+                         Suppress(bslash)
+                       + accent
                        + placeable
                      ).setParseAction(self.accent).setName("accent")
 
@@ -1930,7 +1927,7 @@ class Parser(object):
                          Suppress(Literal("["))
                        + Group(
                            OneOrMore(
-                             symbol
+                             (c_over_c | symbol)
                            ^ font
                            )
                          )
@@ -1942,7 +1939,7 @@ class Parser(object):
 
         placeable   <<(accent
                      ^ function
-                     ^ symbol
+                     ^ (c_over_c | symbol)
                      ^ group
                      ^ frac
                      ^ sqrt
@@ -2120,25 +2117,69 @@ class Parser(object):
                            do_kern = False)]
         return [char]
 
+    _char_over_chars = {
+        # The first 2 entires in the tuple are (font, char, sizescale) for
+        # the two symbols under and over.  The third element is the space
+        # (in multiples of underline height)
+        r'AA' : (  ('rm', 'A', 1.0), (None, '\circ', 0.5), 0.0),
+    }
+    
+    def char_over_chars(self, s, loc, toks):
+        sym = toks[0]
+        state = self.get_state()
+        thickness = state.font_output.get_underline_thickness(
+            state.font, state.fontsize, state.dpi)
+
+        under_desc, over_desc, space = \
+            self._char_over_chars.get(sym, (None, None, 0.0))
+        if under_desc is None:
+            raise ParseFatalException("Error parsing symbol")
+        
+        over_state = state.copy()
+        if over_desc[0] is not None:
+            over_state.font = over_desc[0]
+        over_state.fontsize *= over_desc[2]
+        over = Accent(over_desc[1], over_state)
+
+        under_state = state.copy()
+        if under_desc[0] is not None:
+            under_state.font = under_desc[0]
+        under_state.fontsize *= under_desc[2]
+        under = Char(under_desc[1], under_state)
+
+        width = max(over.width, under.width)
+        
+        over_centered = HCentered([over])
+        over_centered.hpack(width, 'exactly')
+
+        under_centered = HCentered([under])
+        under_centered.hpack(width, 'exactly')
+        
+        return Vlist([
+                over_centered,
+                Vbox(0., thickness * space),
+                under_centered
+                ])
+        
     _accent_map = {
-        r'\hat'   : r'\circumflexaccent',
-        r'\breve' : r'\combiningbreve',
-        r'\bar'   : r'\combiningoverline',
-        r'\grave' : r'\combininggraveaccent',
-        r'\acute' : r'\combiningacuteaccent',
-        r'\ddot'  : r'\combiningdiaeresis',
-        r'\tilde' : r'\combiningtilde',
-        r'\dot'   : r'\combiningdotabove',
-        r'\vec'   : r'\combiningrightarrowabove',
-        r'\"'     : r'\combiningdiaeresis',
-        r"\`"     : r'\combininggraveaccent',
-        r"\'"     : r'\combiningacuteaccent',
-        r'\~'     : r'\combiningtilde',
-        r'\.'     : r'\combiningdotabove',
-        r'\^'     : r'\circumflexaccent'
+        r'hat'   : r'\circumflexaccent',
+        r'breve' : r'\combiningbreve',
+        r'bar'   : r'\combiningoverline',
+        r'grave' : r'\combininggraveaccent',
+        r'acute' : r'\combiningacuteaccent',
+        r'ddot'  : r'\combiningdiaeresis',
+        r'tilde' : r'\combiningtilde',
+        r'dot'   : r'\combiningdotabove',
+        r'vec'   : r'\combiningrightarrowabove',
+        r'"'     : r'\combiningdiaeresis',
+        r"`"     : r'\combininggraveaccent',
+        r"'"     : r'\combiningacuteaccent',
+        r'~'     : r'\combiningtilde',
+        r'.'     : r'\combiningdotabove',
+        r'^'     : r'\circumflexaccent'
         }
 
-    _wide_accents = Set(r"\widehat \widetilde".split())
+    _wide_accents = Set(r"widehat widetilde".split())
 
     def accent(self, s, loc, toks):
         assert(len(toks)==1)
@@ -2150,7 +2191,7 @@ class Parser(object):
         accent, sym = toks[0]
         if accent in self._wide_accents:
             accent = AutoWidthChar(
-                accent, sym.width, state, char_class=Accent)
+                '\\' + accent, sym.width, state, char_class=Accent)
         else:
             accent = Accent(self._accent_map[accent], state)
         centered = HCentered([accent])
