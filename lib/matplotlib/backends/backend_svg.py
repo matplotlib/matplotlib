@@ -317,8 +317,8 @@ class RendererSVG(RendererBase):
         currx, curry = 0.0, 0.0
         for step in glyph.path:
             if step[0] == 0:   # MOVE_TO
-                path_data.append("m%s %s" %
-                                 (step[1] - currx, -step[2] - curry))
+                path_data.append("M%s %s" %
+                                 (step[1], -step[2]))
             elif step[0] == 1: # LINE_TO
                 path_data.append("l%s %s" %
                                  (step[1] - currx, -step[2] - curry))
@@ -332,7 +332,8 @@ class RendererSVG(RendererBase):
                                   step[3] - currx, -step[4] - curry,
                                   step[5] - currx, -step[6] - curry))
             elif step[0] == 4: # ENDPOLY
-                path_data.append("Z")
+                path_data.append("z")
+                currx, curry = 0.0, 0.0
 
             if step[0] != 4:
                 currx, curry = step[-2], -step[-1]
