@@ -8,7 +8,7 @@ Interface:
     dvi = Dvi(filename, 72)
     for text, boxes in dvi:          # iterate over pages
         text, boxes = dvi.output(72)
-        for x,y,font,glyph in text:
+        for x,y,font,glyph,width in text:
             fontname, pointsize = dvi.fontinfo(font)
             ...
         for x,y,height,width in boxes:
@@ -48,7 +48,7 @@ class Dvi(object):
         Iterate through the pages of the file.
 
         Returns (text, pages) pairs, where:
-          text is a list of (x, y, fontnum, glyphnum) tuples
+          text is a list of (x, y, fontnum, glyphnum, width) tuples
           boxes is a list of (x, y, height, width) tuples
 
         The coordinates are transformed into a standard Cartesian
@@ -78,13 +78,14 @@ class Dvi(object):
         """
         t0 = self.text[0]
         minx, miny, maxx, maxy = t0[0], t0[1], t0[0], t0[1]
-        for x,y,_,_ in self.text + self.boxes:
+        for elt in self.text + self.boxes:
+            x,y = elt[:2]
             if x < minx: minx = x
             if y < miny: miny = y
             if x > maxx: maxx = x
             if y > maxy: maxy = y
         d = self.dpi / (72.27 * 2**16) # from TeX's "scaled points" to dpi units
-        text =  [ ((x-minx)*d, (maxy-y)*d, f, g) for (x,y,f,g) in self.text ]
+        text =  [ ((x-minx)*d, (maxy-y)*d, f, g, w*d) for (x,y,f,g,w) in self.text ]
         boxes = [ ((x-minx)*d, (maxy-y)*d, h*d, w*d) for (x,y,h,w) in self.boxes ]
         return text, boxes
 
@@ -219,14 +220,17 @@ class Dvi(object):
             # I think we can assume this is constant
         self.state = _dvistate.outer
 
+    def _width_of(self, char):
+        font = self.fonts[self.f]
+        width = font.tfm.width[char]
+        width = (width * font.scale) >> 20
+        return width
+
     def _set_char(self, char):
         if self.state != _dvistate.inpage:
             raise ValueError, "misplaced set_char in dvi file"
         self._put_char(char)
-        font = self.fonts[self.f]
-        width = font.tfm.width[char]
-        width = (width * font.scale) >> 20
-        self.h += width
+        self.h += self._width_of(char)
 
     def _set_rule(self, a, b):
         if self.state != _dvistate.inpage:
@@ -237,7 +241,7 @@ class Dvi(object):
     def _put_char(self, char):
         if self.state != _dvistate.inpage:
             raise ValueError, "misplaced put_char in dvi file"
-        self.text.append((self.h, self.v, self.f, char))
+        self.text.append((self.h, self.v, self.f, char, self._width_of(char)))
 
     def _put_rule(self, a, b):
         if self.state != _dvistate.inpage:
