@@ -64,11 +64,9 @@ from matplotlib import ttconv
 #
 # Some tricky points:
 #
-# 1. The clip rectangle (which could in pdf be an arbitrary path, not
-# necessarily a rectangle) can only be widened by popping from the
-# state stack.  Thus the state must be pushed onto the stack before
-# narrowing the rectangle.  This is taken care of by
-# GraphicsContextPdf.
+# 1. The clip path can only be widened by popping from the state
+# stack.  Thus the state must be pushed onto the stack before narrowing
+# the clip path.  This is taken care of by GraphicsContextPdf.
 #
 # 2. Sometimes it is necessary to refer to something (e.g. font,
 # image, or extended graphics state, which contains the alpha value)
@@ -1072,6 +1070,7 @@ end"""
             self.writePath(path, fillp)
             self.endStream()
 
+    #@staticmethod
     def pathBbox(path, lw):
         path.rewind(0)
         x, y = [], []
@@ -1086,25 +1085,32 @@ end"""
         return min(x)-lw, min(y)-lw, max(x)+lw, max(y)+lw
     pathBbox = staticmethod(pathBbox)
 
-    def writePath(self, path, fillp):
+    #@staticmethod
+    def pathOperations(path):
         path.rewind(0)
+        result = []
         while True:
-            code, xp, yp = path.vertex()
+            code, x, y = path.vertex()
             code = code & agg.path_cmd_mask
             if code == agg.path_cmd_stop:
                 break
             elif code == agg.path_cmd_move_to:
-                self.output(xp, yp, Op.moveto)
+                result += (x, y, Op.moveto)
             elif code == agg.path_cmd_line_to:
-                self.output(xp, yp, Op.lineto)
+                result += (x, y, Op.lineto)
             elif code == agg.path_cmd_curve3:
-                pass
+                pass # TODO
             elif code == agg.path_cmd_curve4:
-                pass
+                pass # TODO
             elif code == agg.path_cmd_end_poly:
-                self.output(Op.closepath)
+                result += (Op.closepath,)
             else:
-                print >>sys.stderr, "writePath", code, xp, yp
+                print >>sys.stderr, "pathOperations", code, xp, yp
+        return result
+    pathOperations = staticmethod(pathOperations)
+
+    def writePath(self, path, fillp):
+        self.output(*self.pathOperations(path))
         if fillp:
             self.output(Op.fill_stroke)
         else:
@@ -1785,49 +1791,64 @@ class GraphicsContextPdf(GraphicsContextBase):
         self.parent = self.parent.parent
         return [Op.grestore]
 
-    def cliprect_cmd(self, cliprect):
+    def clip_cmd(self, cliprect, clippath):
         """Set clip rectangle. Calls self.pop() and self.push()."""
         cmds = []
-        while self._cliprect != cliprect and self.parent is not None:
+        # Pop graphics state until we hit the right one or the stack is empty
+        while (self._cliprect, self._clippath) != (cliprect, clippath) \
+                and self.parent is not None:
             cmds.extend(self.pop())
-        if self._cliprect != cliprect:
-            cmds.extend(self.push() +
-                        [t for t in cliprect] +
-                        [Op.rectangle, Op.clip, Op.endpath])
+        # Unless we hit the right one, set the clip polygon
+        if (self._cliprect, self._clippath) != (cliprect, clippath):
+            cmds.append(self.push())
+            if self._cliprect != cliprect:
+                cmds.extend([t for t in cliprect] + 
+                            [Op.rectangle, Op.clip, Op.endpath])
+            if self._clippath != clippath:
+                cmds.extend(PdfFile.pathOperations(clippath) +
+                            [Op.clip, Op.endpath])
         return cmds
 
     commands = (
-        ('_cliprect', cliprect_cmd), # must come first since may pop
-        ('_alpha', alpha_cmd),
-        ('_capstyle', capstyle_cmd),
-        ('_fillcolor', fillcolor_cmd),
-        ('_joinstyle', joinstyle_cmd),
-        ('_linewidth', linewidth_cmd),
-        ('_dashes', dash_cmd),
-        ('_rgb', rgb_cmd),
-        ('_hatch', hatch_cmd),  # must come after fillcolor and rgb
+        (('_cliprect', '_clippath'), clip_cmd), # must come first since may pop
+        (('_alpha',), alpha_cmd),
+        (('_capstyle',), capstyle_cmd),
+        (('_fillcolor',), fillcolor_cmd),
+        (('_joinstyle',), joinstyle_cmd),
+        (('_linewidth',), linewidth_cmd),
+        (('_dashes',), dash_cmd),
+        (('_rgb',), rgb_cmd),
+        (('_hatch',), hatch_cmd),  # must come after fillcolor and rgb
         )
 
     # TODO: _linestyle
 
-    def copy_properties(self, other):
-        """Copy properties of other into self."""
-        GraphicsContextBase.copy_properties(self, other)
-        self._fillcolor = other._fillcolor
-
     def delta(self, other):
-        """Copy properties of other into self and return PDF commands
+        """
+        Copy properties of other into self and return PDF commands
         needed to transform self into other.
         """
         cmds = []
-        for param, cmd in self.commands:
-            if getattr(self, param) != getattr(other, param):
-                cmds.extend(cmd(self, getattr(other, param)))
-                setattr(self, param, getattr(other, param))
+        for params, cmd in self.commands:
+            ours = [ getattr(self, p) for p in params ] 
+            theirs = [ getattr(other, p) for p in params ]
+            if ours != theirs:
+                cmds.extend(cmd(self, *theirs))
+                for p in params:
+                    setattr(self, p, getattr(other, p))
         return cmds
 
+    def copy_properties(self, other):
+        """
+        Copy properties of other into self.
+        """
+        GraphicsContextBase.copy_properties(self, other)
+        self._fillcolor = other._fillcolor
+
     def finalize(self):
-        """Make sure every pushed graphics state is popped."""
+        """
+        Make sure every pushed graphics state is popped.
+        """
         cmds = []
         while self.parent is not None:
             cmds.extend(self.pop())
