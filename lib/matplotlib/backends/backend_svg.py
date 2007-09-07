@@ -83,7 +83,7 @@ class RendererSVG(RendererBase):
             dashes = ''
         else:
             dashes = 'stroke-dasharray: %s; stroke-dashoffset: %f;' % (
-                ' '.join(['%f'%val for val in seq]), offset)
+                ','.join(['%f'%val for val in seq]), offset)
 
         linewidth = gc.get_linewidth()
         if linewidth:
@@ -501,7 +501,7 @@ svgProlog = """\
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
-<svg width="%i" height="%i" viewBox="0 0 %i %i"
+<svg width="%ipt" height="%ipt" viewBox="0 0 %i %i"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    version="1.1"
