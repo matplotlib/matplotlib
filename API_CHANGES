@@ -1,3 +1,5 @@
+    The gd and paint backends have been deleted.
+
     The errorbar method and function now accept additional kwargs
     so that upper and lower limits can be indicated by capping the
     bar with a caret instead of a straight line segment.
