@@ -1,3 +1,12 @@
+2007-09-09 Split out the plotting part of pylab and put it in
+           pyplot.py; removed numerix from the remaining pylab.py,
+           which imports everything from pyplot.py.  The intention
+           is that apart from cleanups, the result of importing
+           from pylab is nearly unchanged, but there is the
+           new alternative of importing from pyplot to get
+           the state-engine graphics without all the numeric
+           functions. - EF
+
 2007-09-08 Eliminated gd and paint backends - EF
 
 2007-09-06 .bmp file format is now longer an alias for .raw
@@ -8,12 +17,12 @@
            Now it doesn't crash Preview.app. - JKS
 
 2007-09-06 Refactored image saving code so that all GUI backends can
-	   save most image types.  See FILETYPES for a matrix of
-	   backends and their supported file types.
-	   Backend canvases should no longer write their own print_figure()
-	   method -- instead they should write a print_xxx method for
-	   each filetype they can output and add an entry to their
-	   class-scoped filetypes dictionary. - MGD
+           save most image types.  See FILETYPES for a matrix of
+           backends and their supported file types.
+           Backend canvases should no longer write their own print_figure()
+           method -- instead they should write a print_xxx method for
+           each filetype they can output and add an entry to their
+           class-scoped filetypes dictionary. - MGD
 
 2007-09-05 Fixed Qt version reporting in setupext.py - DSD
 

@@ -530,16 +530,16 @@ _deprecated_map = {
 
 
 class RcParams(dict):
-    
+
     """A dictionary object including validation
-    
+
     validating functions are defined and associated with rc parameters in
     rcsetup.py
     """
-    
+
     validate = dict([ (key, converter) for key, (default, converter) in \
                      defaultParams.iteritems() ])
-    
+
     def __setitem__(self, key, val):
         try:
             if key in _deprecated_map.keys():
@@ -620,7 +620,7 @@ distribution""" % (key, cnt, fname)
         ret['datapath'] = get_data_path()
 
     verbose.report('loaded rc file %s'%fname)
-    
+
     return ret
 
 
