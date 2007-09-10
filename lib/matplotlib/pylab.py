@@ -234,7 +234,6 @@ from image import imread as _imread
 from lines import Line2D
 from text import Text, Annotation
 from patches import Polygon, Rectangle, Circle, Arrow
-from transforms import blend_xy_sep_transform
 from widgets import SubplotTool, Button, Slider, Widget
 
 import numerix as nx

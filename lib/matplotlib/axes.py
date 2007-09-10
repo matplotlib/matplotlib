@@ -9,6 +9,8 @@ import matplotlib
 rcParams = matplotlib.rcParams
 
 from matplotlib import artist as martist
+from matplotlib import affine as maffine
+from matplotlib import bbox as mbbox
 from matplotlib import agg
 from matplotlib import axis as maxis
 from matplotlib import cbook
@@ -23,11 +25,11 @@ from matplotlib import lines as mlines
 from matplotlib import mlab
 from matplotlib import cm
 from matplotlib import patches as mpatches
+from matplotlib import pbox as mpbox
 from matplotlib import quiver as mquiver
 from matplotlib import table as mtable
 from matplotlib import text as mtext
 from matplotlib import ticker as mticker
-from matplotlib import transforms as mtrans
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -413,13 +415,6 @@ class _process_plot_var_args:
                     yield seg
                 remaining=remaining[2:]
 
-ValueType=type(mtrans.zero())
-def makeValue(v):
-    if type(v) == ValueType:
-        return v
-    else:
-        return mtrans.Value(v)
-
 
 class Axes(martist.Artist):
     """
@@ -434,10 +429,15 @@ class Axes(martist.Artist):
 
     """
 
-    scaled = {mtrans.IDENTITY : 'linear',
-              mtrans.LOG10 : 'log',
+    # MGDTODO
+#     scaled = {mtrans.IDENTITY : 'linear',
+#               mtrans.LOG10 : 'log',
+#               }
+    scaled = {0 : 'linear',
+              1 : 'log',
               }
 
+    
     def __str__(self):
         return "Axes(%g,%g;%gx%g)"%(self._position[0].get(),self._position[1].get(),
                                     self._position[2].get(),self._position[3].get())
@@ -485,7 +485,7 @@ class Axes(martist.Artist):
 
         """
         martist.Artist.__init__(self)
-        self._position = map(makeValue, rect)
+        self._position = rect
         self._originalPosition = rect
         self.set_axes(self)
         self.set_aspect('auto')
@@ -629,12 +629,9 @@ class Axes(martist.Artist):
         self.right  =  (l+w)*figw
         self.top    =  (b+h)*figh
 
-
-        Bbox = mtrans.Bbox
-        Point = mtrans.Point
-        self.bbox = Bbox(
-            Point(self.left, self.bottom),
-            Point(self.right, self.top ),
+        self.bbox = mbbox.Bbox.from_lbrt(
+            self.left, self.bottom,
+            self.right, self.top,
             )
         #these will be updated later as data is added
         self._set_lim_and_transforms()
@@ -644,40 +641,36 @@ class Axes(martist.Artist):
         set the dataLim and viewLim BBox attributes and the
         transData and transAxes Transformation attributes
         """
-
-
-        one = mtrans.one
-        zero = mtrans.zero
-        Point = mtrans.Point
-        Bbox = mtrans.Bbox
+        Bbox = mbbox.Bbox
         if self._sharex is not None:
-            left=self._sharex.viewLim.ll().x()
-            right=self._sharex.viewLim.ur().x()
+            left = self._sharex.viewLim.xmin()
+            right = self._sharex.viewLim.xmax()
         else:
-            left=zero()
-            right=one()
+            left = 0.0
+            right = 1.0
         if self._sharey is not None:
-            bottom=self._sharey.viewLim.ll().y()
-            top=self._sharey.viewLim.ur().y()
+            bottom = self._sharey.viewLim.ymin()
+            top = self._sharey.viewLim.ymax()
         else:
-            bottom=zero()
-            top=one()
+            bottom = 0.0
+            top = 1.0
 
 
 
-        self.viewLim = Bbox(Point(left, bottom), Point(right, top))
-        self.dataLim = mtrans.unit_bbox()
+        self.viewLim = Bbox.from_lbrt(left, bottom, right, top)
+        self.dataLim = Bbox.unit()
 
-        self.transData = mtrans.get_bbox_transform(
+        self.transData = maffine.get_bbox_transform(
             self.viewLim, self.bbox)
-        self.transAxes = mtrans.get_bbox_transform(
-            mtrans.unit_bbox(), self.bbox)
+        self.transAxes = maffine.get_bbox_transform(
+            Bbox.unit(), self.bbox)
 
-        if self._sharex:
-            self.transData.set_funcx(self._sharex.transData.get_funcx())
+	# MGDTODO
+#         if self._sharex:
+#             self.transData.set_funcx(self._sharex.transData.get_funcx())
 
-        if self._sharey:
-            self.transData.set_funcy(self._sharey.transData.get_funcy())
+#         if self._sharey:
+#             self.transData.set_funcy(self._sharey.transData.get_funcy())
 
     def get_position(self, original=False):
         'Return the axes rectangle left, bottom, width, height'
@@ -861,7 +854,7 @@ class Axes(martist.Artist):
         """
         ACCEPTS: ['C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W']
         """
-        if anchor in mtrans.PBox.coefs.keys() or len(anchor) == 2:
+        if anchor in mpbox.PBox.coefs.keys() or len(anchor) == 2:
             self._anchor = anchor
         else:
             raise ValueError('argument must be among %s' %
@@ -901,7 +894,7 @@ class Axes(martist.Artist):
             if data_ratio is None:
                 data_ratio = ysize/xsize
             box_aspect = A * data_ratio
-            pb = mtrans.PBox(self._originalPosition)
+            pb = mpbox.PBox(self._originalPosition)
             pb1 = pb.shrink_to_aspect(box_aspect, fig_aspect)
             self.set_position(pb1.anchor(self._anchor), 'active')
             return
@@ -1538,11 +1531,12 @@ class Axes(martist.Artist):
         if xmin is None: xmin = old_xmin
         if xmax is None: xmax = old_xmax
 
-        if (self.transData.get_funcx().get_type()==mtrans.LOG10
-            and min(xmin, xmax)<=0):
-            raise ValueError('Cannot set nonpositive limits with log transform')
+	# MGDTODO
+#         if (self.transData.get_funcx().get_type()==mtrans.LOG10
+#             and min(xmin, xmax)<=0):
+#             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        xmin, xmax = mtrans.nonsingular(xmin, xmax, increasing=False)
+        xmin, xmax = mbbox.nonsingular(xmin, xmax, increasing=False)
         self.viewLim.intervalx().set_bounds(xmin, xmax)
         if emit: self.callbacks.process('xlim_changed', self)
 
@@ -1574,19 +1568,22 @@ class Axes(martist.Artist):
         #if subsx is None: subsx = range(2, basex)
         assert(value.lower() in ('log', 'linear', ))
         if value == 'log':
-            self.xaxis.set_major_locator(mticker.LogLocator(basex))
-            self.xaxis.set_major_formatter(mticker.LogFormatterMathtext(basex))
-            self.xaxis.set_minor_locator(mticker.LogLocator(basex,subsx))
-            self.transData.get_funcx().set_type(mtrans.LOG10)
-            minx, maxx = self.get_xlim()
-            if min(minx, maxx)<=0:
-                self.autoscale_view()
+	    # MGDTODO
+#             self.xaxis.set_major_locator(mticker.LogLocator(basex))
+#             self.xaxis.set_major_formatter(mticker.LogFormatterMathtext(basex))
+#             self.xaxis.set_minor_locator(mticker.LogLocator(basex,subsx))
+#             self.transData.get_funcx().set_type(mtrans.LOG10)
+#             minx, maxx = self.get_xlim()
+#             if min(minx, maxx)<=0:
+#                 self.autoscale_view()
+	    pass
         elif value == 'linear':
             self.xaxis.set_major_locator(mticker.AutoLocator())
             self.xaxis.set_major_formatter(mticker.ScalarFormatter())
             self.xaxis.set_minor_locator(mticker.NullLocator())
             self.xaxis.set_minor_formatter(mticker.NullFormatter())
-            self.transData.get_funcx().set_type( mtrans.IDENTITY )
+            # self.transData.get_funcx().set_type( mtrans.IDENTITY )
+	    self.transData.get_funcx().set_type( 0 ) # MGDTODO
 
     def get_xticks(self):
         'Return the x ticks as a list of locations'
@@ -1659,11 +1656,12 @@ class Axes(martist.Artist):
         if ymin is None: ymin = old_ymin
         if ymax is None: ymax = old_ymax
 
-        if (self.transData.get_funcy().get_type()==mtrans.LOG10
-            and min(ymin, ymax)<=0):
-            raise ValueError('Cannot set nonpositive limits with log transform')
+	# MGDTODO
+#         if (self.transData.get_funcy().get_type()==mtrans.LOG10
+#             and min(ymin, ymax)<=0):
+#             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        ymin, ymax = mtrans.nonsingular(ymin, ymax, increasing=False)
+        ymin, ymax = mbbox.nonsingular(ymin, ymax, increasing=False)
         self.viewLim.intervaly().set_bounds(ymin, ymax)
         if emit: self.callbacks.process('ylim_changed', self)
 
@@ -1696,21 +1694,24 @@ class Axes(martist.Artist):
         assert(value.lower() in ('log', 'linear', ))
 
         if value == 'log':
-            self.yaxis.set_major_locator(mticker.LogLocator(basey))
-            self.yaxis.set_major_formatter(mticker.LogFormatterMathtext(basey))
-            self.yaxis.set_minor_locator(mticker.LogLocator(basey,subsy))
-            self.transData.get_funcy().set_type(mtrans.LOG10)
-            miny, maxy = self.get_ylim()
-            if min(miny, maxy)<=0:
-                self.autoscale_view()
-
+	    # MGDTODO
+#             self.yaxis.set_major_locator(mticker.LogLocator(basey))
+#             self.yaxis.set_major_formatter(mticker.LogFormatterMathtext(basey))
+#             self.yaxis.set_minor_locator(mticker.LogLocator(basey,subsy))
+#             self.transData.get_funcy().set_type(mtrans.LOG10)
+#             miny, maxy = self.get_ylim()
+#             if min(miny, maxy)<=0:
+#                 self.autoscale_view()
+	    pass
+	    
         elif value == 'linear':
             self.yaxis.set_major_locator(mticker.AutoLocator())
             self.yaxis.set_major_formatter(mticker.ScalarFormatter())
             self.yaxis.set_minor_locator(mticker.NullLocator())
             self.yaxis.set_minor_formatter(mticker.NullFormatter())
-            self.transData.get_funcy().set_type( mtrans.IDENTITY )
-
+            # self.transData.get_funcy().set_type( mtrans.IDENTITY ) MGDTODO
+            self.transData.get_funcy().set_type( 0 )
+	    
     def get_yticks(self):
         'Return the y ticks as a list of locations'
         return self.yaxis.get_ticklocs()
@@ -1744,9 +1745,11 @@ class Axes(martist.Artist):
 
     def toggle_log_lineary(self):
         'toggle between log and linear on the y axis'
-        funcy = self.transData.get_funcy().get_type()
-        if funcy==mtrans.LOG10: self.set_yscale('linear')
-        elif funcy==mtrans.IDENTITY: self.set_yscale('log')
+	# MGDTODO
+#         funcy = self.transData.get_funcy().get_type()
+#         if funcy==mtrans.LOG10: self.set_yscale('linear')
+#         elif funcy==mtrans.IDENTITY: self.set_yscale('log')
+	pass
 
     def xaxis_date(self, tz=None):
         """Sets up x-axis ticks and labels that treat the x data as dates.
@@ -2172,7 +2175,7 @@ class Axes(martist.Artist):
         %(Annotation)s
         """
         a = mtext.Annotation(*args, **kwargs)
-        a.set_transform(mtrans.identity_transform())
+        a.set_transform(maffine.Affine2D.identity())
         self._set_artist_props(a)
         if kwargs.has_key('clip_on'):  a.set_clip_box(self.bbox)
         self.texts.append(a)
@@ -2211,7 +2214,7 @@ class Axes(martist.Artist):
         %(Line2D)s
         """
 
-        trans = mtrans.blend_xy_sep_transform( self.transAxes, self.transData)
+        trans = maffine.blend_xy_sep_transform( self.transAxes, self.transData)
         l, = self.plot([xmin,xmax], [y,y], transform=trans, scalex=False, **kwargs)
         return l
 
@@ -2247,7 +2250,7 @@ class Axes(martist.Artist):
         %(Line2D)s
         """
 
-        trans = mtrans.blend_xy_sep_transform( self.transData, self.transAxes )
+        trans = maffine.blend_xy_sep_transform( self.transData, self.transAxes )
         l, = self.plot([x,x], [ymin,ymax] , transform=trans, scaley=False, **kwargs)
         return l
 
@@ -2286,7 +2289,7 @@ class Axes(martist.Artist):
         %(Polygon)s
         """
         # convert y axis units
-        trans = mtrans.blend_xy_sep_transform( self.transAxes, self.transData)
+        trans = maffine.blend_xy_sep_transform( self.transAxes, self.transData)
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
@@ -2326,7 +2329,7 @@ class Axes(martist.Artist):
         %(Polygon)s
         """
         # convert x axis units
-        trans = mtrans.blend_xy_sep_transform(self.transData, self.transAxes)
+        trans = maffine.blend_xy_sep_transform(self.transData, self.transAxes)
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
@@ -4105,7 +4108,7 @@ class Axes(martist.Artist):
                 offsets = zip(x,y),
                 transOffset = self.transData,
                 )
-            collection.set_transform(mtrans.identity_transform())
+            collection.set_transform(maffine.Affine2D())
         collection.set_alpha(alpha)
         collection.update(kwargs)
 
@@ -5299,20 +5302,21 @@ class PolarAxes(Axes):
 
         # the lim are theta, r
 
-        Bbox = mtrans.Bbox
-        Value = mtrans.Value
-        Point = mtrans.Point
-        self.dataLim = Bbox( Point( Value(5/4.*math.pi), Value(math.sqrt(2))),
-                             Point( Value(1/4.*math.pi), Value(math.sqrt(2))))
-        self.viewLim = Bbox( Point( Value(5/4.*math.pi), Value(math.sqrt(2))),
-                             Point( Value(1/4.*math.pi), Value(math.sqrt(2))))
+	# MGDTODO
+#         Bbox = mtrans.Bbox
+#         Value = mtrans.Value
+#         Point = mtrans.Point
+#         self.dataLim = Bbox( Point( Value(5/4.*math.pi), Value(math.sqrt(2))),
+#                              Point( Value(1/4.*math.pi), Value(math.sqrt(2))))
+#         self.viewLim = Bbox( Point( Value(5/4.*math.pi), Value(math.sqrt(2))),
+#                              Point( Value(1/4.*math.pi), Value(math.sqrt(2))))
 
-        self.transData = mtrans.NonseparableTransformation(
-            self.viewLim, self.bbox,
-            mtrans.FuncXY(mtrans.POLAR))
-        self.transAxes = mtrans.get_bbox_transform(
-            mtrans.unit_bbox(), self.bbox)
-
+#         self.transData = mtrans.NonseparableTransformation(
+#             self.viewLim, self.bbox,
+#             mtrans.FuncXY(mtrans.POLAR))
+#         self.transAxes = mtrans.get_bbox_transform(
+#             mtrans.unit_bbox(), self.bbox)
+	pass
 
     def contains(self,mouseevent):
         """Test whether the mouse event occured in the axes.
@@ -5380,6 +5384,7 @@ class PolarAxes(Axes):
 
         # we need to set a view and data interval from 0->rmax to make
         # the formatter and locator work correctly
+	# MGDTODO
         Value = mtrans.Value
         Interval = mtrans.Interval
         self.rintv = Interval(Value(0), Value(1))

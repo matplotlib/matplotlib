@@ -18,7 +18,7 @@ from artist import Artist, setp
 from cbook import iterable, is_string_like, is_numlike
 from colors import colorConverter
 
-from transforms import lbwh_to_bbox, LOG10
+from bbox import lbwh_to_bbox
 from matplotlib import rcParams
 
 # special-purpose marker identifiers:
@@ -378,7 +378,7 @@ class Line2D(Artist):
             bottom -= ms/2
             width += ms
             height += ms
-        return lbwh_to_bbox( left, bottom, width, height)
+        return lbwh_to_bbox(left, bottom, width, height)
 
 
     def set_axes(self, ax):
@@ -447,13 +447,15 @@ class Line2D(Artist):
 
         x, y = self._x, self._y
 
-        try: logx = self.get_transform().get_funcx().get_type()==LOG10
-        except RuntimeError: logx = False  # non-separable
+	# MGDTODO: Deal with the log scale here
+	
+#         try: logx = self.get_transform().get_funcx().get_type()==LOG10
+#         except RuntimeError: logx = False  # non-separable
 
-        try: logy = self.get_transform().get_funcy().get_type()==LOG10
-        except RuntimeError: logy = False  # non-separable
+#         try: logy = self.get_transform().get_funcy().get_type()==LOG10
+#         except RuntimeError: logy = False  # non-separable
 
-        if not logx and not logy:
+        if True:
             return x, y
 
         if self._logcache is not None:

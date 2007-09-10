@@ -1,7 +1,7 @@
 from __future__ import division
 import sys, re
 from cbook import iterable, flatten
-from transforms import identity_transform
+from affine import Affine2D
 import matplotlib.units as units
 
 ## Note, matplotlib artists use the doc strings for set and get
@@ -145,7 +145,7 @@ class Artist:
     def get_transform(self):
         'return the Transformation instance used by this artist'
         if self._transform is None:
-            self._transform = identity_transform()
+            self._transform = Affine2D()
         return self._transform
 
     def hitlist(self,event):

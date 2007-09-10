@@ -15,7 +15,7 @@ from artist import Artist
 from cbook import enumerate, is_string_like, maxdict, is_numlike
 from font_manager import FontProperties
 from patches import bbox_artist, YAArrow
-from transforms import lbwh_to_bbox, bbox_all, identity_transform
+from bbox import lbwh_to_bbox, bbox_union
 from lines import Line2D
 
 import matplotlib.nxutils as nxutils

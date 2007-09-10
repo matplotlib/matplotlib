@@ -15,8 +15,8 @@ from patches import bbox_artist
 from ticker import NullFormatter, FixedFormatter, ScalarFormatter, LogFormatter
 from ticker import NullLocator, FixedLocator, LinearLocator, LogLocator, AutoLocator
 
-from transforms import Value, blend_xy_sep_transform,\
-     translation_transform, bbox_all, identity_transform
+from affine import Affine2D, blend_xy_sep_transform
+from bbox import bbox_union
 from font_manager import FontProperties
 from text import Text, TextWithDash, _process_text_args
 from patches import bbox_artist
@@ -81,16 +81,16 @@ class Tick(Artist):
         if self._tickdir == 'in':
             self._xtickmarkers = (TICKUP, TICKDOWN)
             self._ytickmarkers = (TICKRIGHT, TICKLEFT)
-            self._pad = Value(pad)
+            self._pad = pad
         else:
             self._xtickmarkers = (TICKDOWN, TICKUP)
             self._ytickmarkers = (TICKLEFT, TICKRIGHT)
-            self._pad = Value(pad + size)
+            self._pad = pad + size
 
         self._loc = loc
         self._size = size
 
-        self._padPixels = self.figure.dpi*self._pad*Value(1/72.0)
+        self._padPixels = self.figure.dpi * self._pad * (1/72.0)
 
 
         self.tick1line = self._get_tick1line(loc)
@@ -236,14 +236,11 @@ class XTick(Tick):
             xaxis=True,
             )
 
-
-        trans = blend_xy_sep_transform( self.axes.transData,
-                                        self.axes.transAxes)
+	trans = blend_xy_sep_transform(
+	    self.axes.transData, self.axes.transAxes)
         #offset the text downward with a post transformation
-        transOffset = translation_transform(
-            Value(0), Value(-1)*self._padPixels)
-        trans.set_offset( (0,0), transOffset)
-        t.set_transform( trans)
+	trans = trans + Affine2D().translated(0, -1 * self._padPixels)
+        t.set_transform(trans)
 
         self._set_artist_props(t)
         return t
@@ -264,12 +261,10 @@ class XTick(Tick):
             horizontalalignment='center',
             )
 
-        trans = blend_xy_sep_transform( self.axes.transData,
-                                        self.axes.transAxes)
+	trans = blend_xy_sep_transformation(
+	    self.axes.transData, self.axes.transAxes)
         # offset the text upward with a post transformation
-        transOffset = translation_transform(
-            Value(0), self._padPixels)
-        trans.set_offset( (0,0), transOffset)
+        trans = trans + Affine2D().translated(0, self._padPixels)
         t.set_transform( trans )
         self._set_artist_props(t)
         return t
@@ -284,8 +279,8 @@ class XTick(Tick):
                     marker = self._xtickmarkers[0],
                     markersize=self._size,
                     )
-        l.set_transform( blend_xy_sep_transform( self.axes.transData,
-                                       self.axes.transAxes) )
+        l.set_transform(blend_xy_sep_transform(
+		self.axes.transData, self.axes.transAxes) )
         self._set_artist_props(l)
         return l
 
@@ -300,8 +295,8 @@ class XTick(Tick):
                        markersize=self._size,
                        )
 
-        l.set_transform( blend_xy_sep_transform( self.axes.transData,
-                                                 self.axes.transAxes) )
+        l.set_transform(blend_xy_sep_transform(
+		self.axes.transData, self.axes.transAxes) )
         self._set_artist_props(l)
         return l
 
@@ -314,8 +309,9 @@ class XTick(Tick):
                     linewidth=rcParams['grid.linewidth'],
                     antialiased=False,
                     )
-        l.set_transform( blend_xy_sep_transform( self.axes.transData,
-                                                 self.axes.transAxes) )
+        l.set_transform(
+	    blend_xy_sep_transform(
+		self.axes.transData, self.axes.transAxes))
         l.set_clip_box(self.axes.bbox)
         self._set_artist_props(l)
 
@@ -363,13 +359,11 @@ class YTick(Tick):
             dashdirection=0,
             xaxis=False,
             )
-        trans = blend_xy_sep_transform( self.axes.transAxes,
-                                        self.axes.transData)
+        trans = blend_xy_sep_transform(
+	    self.axes.transAxes, self.axes.transData)
         # offset the text leftward with a post transformation
+	trans = trans + Affine2D().translated(-1 * self._padPixels, 0)
 
-        transOffset = translation_transform(
-            Value(-1)*self._padPixels, Value(0))
-        trans.set_offset( (0,0), transOffset)
         t.set_transform( trans )
         #t.set_transform( self.axes.transData )
         self._set_artist_props(t)
@@ -388,13 +382,10 @@ class YTick(Tick):
             xaxis=False,
             horizontalalignment='left',
             )
-        trans = blend_xy_sep_transform( self.axes.transAxes,
-                                        self.axes.transData)
+        trans = blend_xy_sep_transform(
+	    self.axes.transAxes, self.axes.transData)
         # offset the text rightward with a post transformation
-
-        transOffset = translation_transform(
-            self._padPixels, Value(0))
-        trans.set_offset( (0,0), transOffset)
+	trans = trans + Affine2D().translated(self._padPixels, 0)
         t.set_transform( trans )
         self._set_artist_props(t)
         return t
@@ -409,8 +400,9 @@ class YTick(Tick):
                     linestyle = 'None',
                     markersize=self._size,
                        )
-        l.set_transform( blend_xy_sep_transform( self.axes.transAxes,
-                                       self.axes.transData) )
+        l.set_transform(
+	    blend_xy_sep_transform(
+		self.axes.transAxes, self.axes.transData))
         self._set_artist_props(l)
         return l
 
@@ -424,8 +416,9 @@ class YTick(Tick):
                     markersize=self._size,
                     )
 
-        l.set_transform( blend_xy_sep_transform( self.axes.transAxes,
-                                                 self.axes.transData) )
+        l.set_transform(
+	    blend_xy_sep_transform(
+		self.axes.transAxes, self.axes.transData))
         self._set_artist_props(l)
         return l
 
@@ -439,8 +432,8 @@ class YTick(Tick):
                     antialiased=False,
                     )
 
-        l.set_transform( blend_xy_sep_transform( self.axes.transAxes,
-                                                 self.axes.transData) )
+        l.set_transform( blend_xy_sep_transform(
+		self.axes.transAxes, self.axes.transData) )
         l.set_clip_box(self.axes.bbox)
 
         self._set_artist_props(l)
@@ -989,8 +982,8 @@ class XAxis(Axis):
             verticalalignment='top',
             horizontalalignment='center',
             )
-        label.set_transform( blend_xy_sep_transform( self.axes.transAxes,
-                                                     identity_transform() ))
+        label.set_transform( blend_xy_sep_transform(
+		self.axes.transAxes, Affine2D() ))
 
         self._set_artist_props(label)
         self.label_position='bottom'
@@ -1004,8 +997,8 @@ class XAxis(Axis):
             verticalalignment='top',
             horizontalalignment='right',
             )
-        offsetText.set_transform( blend_xy_sep_transform( self.axes.transAxes,
-                                                     identity_transform() ))
+        offsetText.set_transform( blend_xy_sep_transform(
+		self.axes.transAxes, Affine2D() ))
         self._set_artist_props(offsetText)
         self.offset_text_position='bottom'
         return offsetText
@@ -1041,7 +1034,7 @@ class XAxis(Axis):
                 bottom = self.axes.bbox.ymin()
             else:
 
-                bbox = bbox_all(bboxes)
+                bbox = bbox_union(bboxes)
                 bottom = bbox.ymin()
 
             self.label.set_position( (x, bottom-self.LABELPAD*self.figure.dpi.get()/72.0))
@@ -1051,7 +1044,7 @@ class XAxis(Axis):
                 top = self.axes.bbox.ymax()
             else:
 
-                bbox = bbox_all(bboxes2)
+                bbox = bbox_union(bboxes2)
                 top = bbox.ymax()
 
             self.label.set_position( (x, top+self.LABELPAD*self.figure.dpi.get()/72.0))
@@ -1065,7 +1058,7 @@ class XAxis(Axis):
         if not len(bboxes):
             bottom = self.axes.bbox.ymin()
         else:
-            bbox = bbox_all(bboxes)
+            bbox = bbox_union(bboxes)
             bottom = bbox.ymin()
         self.offsetText.set_position((x, bottom-self.OFFSETTEXTPAD*self.figure.dpi.get()/72.0))
 
@@ -1179,8 +1172,8 @@ class YAxis(Axis):
             horizontalalignment='right',
             rotation='vertical',
             )
-        label.set_transform( blend_xy_sep_transform( identity_transform(),
-                                                     self.axes.transAxes) )
+        label.set_transform( blend_xy_sep_transform(
+		Affine2D(), self.axes.transAxes) )
 
         self._set_artist_props(label)
         self.label_position='left'
@@ -1194,8 +1187,8 @@ class YAxis(Axis):
             verticalalignment = 'bottom',
             horizontalalignment = 'left',
             )
-        offsetText.set_transform(blend_xy_sep_transform(self.axes.transAxes,
-                                                        identity_transform()) )
+        offsetText.set_transform(blend_xy_sep_transform(
+		self.axes.transAxes, Affine2D()) )
         self._set_artist_props(offsetText)
         self.offset_text_position='left'
         return offsetText
@@ -1231,7 +1224,7 @@ class YAxis(Axis):
                 left = self.axes.bbox.xmin()
             else:
 
-                bbox = bbox_all(bboxes)
+                bbox = bbox_union(bboxes)
                 left = bbox.xmin()
 
             self.label.set_position( (left-self.LABELPAD*self.figure.dpi.get()/72.0, y))
@@ -1241,7 +1234,7 @@ class YAxis(Axis):
                 right = self.axes.bbox.xmax()
             else:
 
-                bbox = bbox_all(bboxes2)
+                bbox = bbox_union(bboxes2)
                 right = bbox.xmax()
 
             self.label.set_position( (right+self.LABELPAD*self.figure.dpi.get()/72.0, y))

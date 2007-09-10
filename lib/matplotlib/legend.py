@@ -34,11 +34,8 @@ from mlab import segments_intersect
 from patches import Patch, Rectangle, RegularPolygon, Shadow, bbox_artist, draw_bbox
 from collections import LineCollection, RegularPolyCollection, PatchCollection
 from text import Text
-from transforms import Bbox, Point, Value, get_bbox_transform, bbox_all,\
-     unit_bbox, inverse_transform_bbox, lbwh_to_bbox
-
-
-
+from affine import get_bbox_transform
+from bbox import Bbox, bbox_union
 
 def line_cuts_bbox(line, bbox):
     """ Return True if and only if line cuts bbox. """
@@ -168,7 +165,7 @@ The following dimensions are in axes coords
         else:
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
-        self.set_transform( get_bbox_transform( unit_bbox(), parent.bbox) )
+        self.set_transform( get_bbox_transform( Bbox.unit(), parent.bbox) )
 
         if loc is None:
             loc = rcParams["legend.loc"]
@@ -263,10 +260,10 @@ The following dimensions are in axes coords
 
         bboxesAll = bboxesText
         bboxesAll.extend(bboxesHandles)
-        bbox = bbox_all(bboxesAll)
+        bbox = bbox_union(bboxesAll)
         self.save = bbox
 
-        ibox =  inverse_transform_bbox(self.get_transform(), bbox)
+        ibox = bbox.inverse_transform(self.get_transform())
         self.ibox = ibox
 
         return ibox
@@ -468,7 +465,7 @@ The following dimensions are in axes coords
 
         candidates = []
         for l, b in consider:
-            legendBox = lbwh_to_bbox(l, b, width, height)
+            legendBox = Bbox.from_lbwh(l, b, width, height)
             badness = 0
             badness = legendBox.count_contains(verts)
             ox, oy = l-tx, b-ty
