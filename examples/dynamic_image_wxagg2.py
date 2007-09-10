@@ -12,23 +12,13 @@ import sys, time, os, gc
 import matplotlib
 matplotlib.use('WXAgg')
 
-# jdh: you need to control Numeric vs numarray with numerix, otherwise
-# matplotlib may be using numeric under the hood and while you are
-# using numarray and this isn't efficient.  Also, if you use
-# numerix=numarray, it is important to compile matplotlib for numarray
-# by setting NUMERIX = 'numarray' in setup.py before building
 from matplotlib import rcParams
 import numpy as npy
 
-# jdh: you can import cm directly, you don't need to go via
-# pylab
 import matplotlib.cm as cm
 
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx
-
-# jdh: you don't need a figure manager in the GUI - this class was
-# designed for the pylab interface
 
 from matplotlib.figure import Figure
 from wx import *

@@ -1,3 +1,16 @@
+2007-09-09 Split out the plotting part of pylab and put it in
+           pyplot.py; removed numerix from the remaining pylab.py,
+           which imports everything from pyplot.py.  The intention
+           is that apart from cleanups, the result of importing
+           from pylab is nearly unchanged, but there is the
+           new alternative of importing from pyplot to get
+           the state-engine graphics without all the numeric
+           functions.
+           Numpified examples; deleted two that were obsolete;
+           modified some to use pyplot. - EF
+
+2007-09-08 Eliminated gd and paint backends - EF
+
 2007-09-06 .bmp file format is now longer an alias for .raw
 
 2007-09-07 Added clip path support to pdf backend. - JKS
@@ -6,17 +19,17 @@
            Now it doesn't crash Preview.app. - JKS
 
 2007-09-06 Refactored image saving code so that all GUI backends can
-	   save most image types.  See FILETYPES for a matrix of
-	   backends and their supported file types. 
-	   Backend canvases should no longer write their own print_figure()
-	   method -- instead they should write a print_xxx method for
-	   each filetype they can output and add an entry to their
-	   class-scoped filetypes dictionary. - MGD
+           save most image types.  See FILETYPES for a matrix of
+           backends and their supported file types.
+           Backend canvases should no longer write their own print_figure()
+           method -- instead they should write a print_xxx method for
+           each filetype they can output and add an entry to their
+           class-scoped filetypes dictionary. - MGD
 
 2007-09-05 Fixed Qt version reporting in setupext.py - DSD
 
 2007-09-04 Embedding Type 1 fonts in PDF, and thus usetex support
-           via dviread, sort of works. To test, enable it by 
+           via dviread, sort of works. To test, enable it by
            renaming _draw_tex to draw_tex. - JKS
 
 2007-09-03 Added ability of errorbar show limits via caret or

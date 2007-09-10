@@ -11,7 +11,7 @@
 import sys, os, random
 from qt import *
 
-from matplotlib.numerix import arange, sin, pi
+from numpy import arange, sin, pi
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 

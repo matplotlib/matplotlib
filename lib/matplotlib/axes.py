@@ -1867,31 +1867,6 @@ class Axes(martist.Artist):
         c =mcolors.colorConverter.to_rgba(c)
         self._cursorProps = lw, c
 
-
-    def panx(self, numsteps):
-        'Pan the x axis numsteps (plus pan right, minus pan left)'
-        self.xaxis.pan(numsteps)
-        xmin, xmax = self.viewLim.intervalx().get_bounds()
-        self._send_xlim_event()
-
-    def pany(self, numsteps):
-        'Pan the x axis numsteps (plus pan up, minus pan down)'
-        self.yaxis.pan(numsteps)
-        self._send_ylim_event()
-
-    def zoomx(self, numsteps):
-        'Zoom in on the x xaxis numsteps (plus for zoom in, minus for zoom out)'
-        self.xaxis.zoom(numsteps)
-        xmin, xmax = self.viewLim.intervalx().get_bounds()
-        self._send_xlim_event()
-
-    def zoomy(self, numsteps):
-        'Zoom in on the x xaxis numsteps (plus for zoom in, minus for zoom out)'
-        self.yaxis.zoom(numsteps)
-        self._send_ylim_event()
-
-
-
     def connect(self, s, func):
         """
         Register observers to be notified when certain events occur.  Register
@@ -1913,6 +1888,7 @@ class Axes(martist.Artist):
     def disconnect(self, cid):
         'disconnect from the Axes event.'
         raise DeprecationWarning('use the callbacks CallbackRegistry instance instead')
+
     def get_children(self):
         'return a list of child artists'
         children = []
@@ -5683,37 +5659,13 @@ class PolarAxes(Axes):
         'ylabel not implemented'
         raise NotImplementedError('ylabel not defined for polar axes (yet)')
 
+    def set_xlim(self, xmin=None, xmax=None, emit=True, **kwargs):
+        'xlim not implemented'
+        raise NotImplementedError('xlim not meaningful for polar axes')
 
-    def set_xlim(self, xmin=None, xmax=None, emit=True):
-        """
-        set the xlimits
-        ACCEPTS: len(2) sequence of floats
-        """
-        if xmax is None and iterable(xmin):
-            xmin,xmax = xmin
-
-        old_xmin,old_xmax = self.get_xlim()
-        if xmin is None: xmin = old_xmin
-        if xmax is None: xmax = old_xmax
-
-        self.viewLim.intervalx().set_bounds(xmin, xmax)
-        if emit: self._send_xlim_event()
-
-
-    def set_ylim(self, ymin=None, ymax=None, emit=True):
-        """
-        set the ylimits
-        ACCEPTS: len(2) sequence of floats
-        """
-        if ymax is None and iterable(ymin):
-            ymin,ymax = ymin
-
-        old_ymin,old_ymax = self.get_ylim()
-        if ymin is None: ymin = old_ymin
-        if ymax is None: ymax = old_ymax
-
-        self.viewLim.intervaly().set_bounds(ymin, ymax)
-        if emit: self._send_ylim_event()
+    def set_ylim(self, ymin=None, ymax=None, emit=True, **kwargs):
+        'ylim not implemented'
+        raise NotImplementedError('ylim not meaningful for polar axes')
 
     def get_xscale(self):
         'return the xaxis scale string'
@@ -5765,10 +5717,9 @@ martist.kwdocd['Axes'] = martist.kwdocd['Subplot'] = martist.kwdoc(Axes)
 """
 # this is some discarded code I was using to find the minimum positive
 # data point for some log scaling fixes.  I realized there was a
-# cleaner way to do it, but am ke
-eping this around as an example for
+# cleaner way to do it, but am keeping this around as an example for
 # how to get the data out of the axes.  Might want to make something
-# like this a method one day, or better yet make get_verts and Artist
+# like this a method one day, or better yet make get_verts an Artist
 # method
 
             minx, maxx = self.get_xlim()

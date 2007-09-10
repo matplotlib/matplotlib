@@ -12,7 +12,7 @@ your toolkits idle/timer functions.
 import gobject, gtk
 import matplotlib
 matplotlib.use('GTKAgg')
-import matplotlib.numerix as nx
+import numpy as npy
 from matplotlib.lines import Line2D
 
 
@@ -36,9 +36,9 @@ class Scope:
 
     def emitter(self, p=0.01):
         'return a random value with probability p, else 0'
-        v = nx.mlab.rand(1)
+        v = npy.random.rand(1)
         if v>p: return 0.
-        else: return nx.mlab.rand(1)
+        else: return npy.random.rand(1)
 
     def update(self, *args):
         if self.background is None: return True

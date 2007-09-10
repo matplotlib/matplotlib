@@ -5,8 +5,7 @@ matplotlib event handling to interact with objects on the canvas
 """
 from matplotlib.artist import Artist
 from matplotlib.patches import Polygon, CirclePolygon
-from matplotlib.numerix import sqrt, nonzero, equal, asarray, dot, Float
-from matplotlib.numerix.mlab import amin
+from numpy import sqrt, nonzero, equal, asarray, dot, amin
 from matplotlib.mlab import dist_point_to_segment
 
 

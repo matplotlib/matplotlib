@@ -7,7 +7,7 @@ import gtk
 
 from matplotlib.axes import Subplot
 from matplotlib.figure import Figure
-from matplotlib.numerix import arange, sin, pi
+from numpy import arange, sin, pi
 
 # uncomment to select /GTK/GTKAgg/GTKCairo
 #from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas

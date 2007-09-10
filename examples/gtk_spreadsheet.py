@@ -14,15 +14,13 @@ import matplotlib
 matplotlib.use('GTKAgg')  # or 'GTK'
 from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
 
-#from matplotlib.numerix import rand
-from matplotlib.numerix.random_array import random
+from numpy.random import random
 from matplotlib.figure import Figure
 
 
 class DataManager(gtk.Window):
     numRows, numCols = 20,10
 
-    #data = rand(numRows, numCols)
     data = random((numRows, numCols))
 
     def __init__(self):

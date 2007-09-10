@@ -1937,7 +1937,7 @@ def norm(x,y=2):
             return npy.max(npy.sum(npy.absolute((npy.transpose(x))), axis=0))
         elif y=='fro':
             xx = npy.dot(x.transpose(), x)
-            return npy.sqrt(asum(npy.diag(xx), axis=0))
+            return npy.sqrt(npy.sum(npy.diag(xx), axis=0))
         else:
             raise ValueError('Second argument not permitted for matrices')
 

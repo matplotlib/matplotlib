@@ -7,8 +7,8 @@ more information.
 from matplotlib import rcParams
 rcParams['text.usetex']=True
 rcParams['text.latex.unicode']=True
-from matplotlib.numerix import arange, cos, pi
-from pylab import figure, axes, plot, xlabel, ylabel, title, \
+from numpy import arange, cos, pi
+from matplotlib.pyplot import figure, axes, plot, xlabel, ylabel, title, \
      grid, savefig, show
 
 figure(1)

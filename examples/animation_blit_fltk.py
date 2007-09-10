@@ -3,7 +3,7 @@ import fltk
 import matplotlib
 matplotlib.use('FltkAgg')
 import pylab as p
-import matplotlib.numerix as nx
+import numpy as nx
 import time
 
 

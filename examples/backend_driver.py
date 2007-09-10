@@ -42,7 +42,6 @@ files = (
     'histogram_demo.py',
     'image_demo.py',
     'image_demo2.py',
-    'image_demo_na.py',
     'image_masked.py',
     'image_origin.py',
     'invert_axes.py',
@@ -158,7 +157,7 @@ def drive(backend, python='python', switches = []):
 
 if __name__ == '__main__':
     times = {}
-    default_backends = ['Agg', 'PS', 'SVG', 'Template']
+    default_backends = ['Agg', 'PS', 'SVG', 'PDF', 'Template']
     if sys.platform == 'win32':
         python = r'c:\Python24\python.exe'
     else:
