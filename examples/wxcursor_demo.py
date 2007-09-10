@@ -6,7 +6,7 @@ import matplotlib
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure
-from matplotlib.numerix import arange, sin, pi
+from numpy import arange, sin, pi
 
 import wx
 

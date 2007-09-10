@@ -54,7 +54,7 @@ So for your example, if a is your axes object, you can do
 
 
 from pylab import figure, close, axes, subplot, show
-from matplotlib.numerix import arange, sin, pi
+from numpy import arange, sin, pi
 
 t = arange(0.0, 1.0, 0.01)
 

@@ -39,7 +39,7 @@ class MPLConfig(TConfig):
       key = val   optional comment
 
     val should be valid python syntax, just as you would use when setting
-    properties using rcParams. This should become more obvious by inspecting 
+    properties using rcParams. This should become more obvious by inspecting
     the default values listed herein.
 
     Colors: for the color values below, you can either use
@@ -50,7 +50,7 @@ class MPLConfig(TConfig):
      - a legal html color name, eg red, blue, darkslategray
 
     Interactivity: see http://matplotlib.sourceforge.net/interactive.html.
-    
+
     ### CONFIGURATION BEGINS HERE ###
     """
 
@@ -61,15 +61,15 @@ class MPLConfig(TConfig):
     numerix = T.Trait('numpy', 'numpy', 'numeric', 'numarray')
     maskedarray = T.false
     units = T.false
-    
+
     class backend(TConfig):
         """Valid backends are: 'GTKAgg', 'GTKCairo', 'QtAgg', 'Qt4Agg',
         'TkAgg', 'Agg', 'Cairo', 'PS', 'PDF', 'SVG'"""
         use = T.Trait('TkAgg', mplT.BackendHandler())
-        
+
         class cairo(TConfig):
             format = T.Trait('png', 'png', 'ps', 'pdf', 'svg')
-        
+
         class tk(TConfig):
             """
             window_focus : Maintain shell focus for TkAgg
@@ -78,7 +78,7 @@ class MPLConfig(TConfig):
 
             window_focus = T.false
             pythoninspect = T.false
-        
+
         class ps(TConfig):
             papersize = T.Trait('letter', 'auto', 'letter', 'legal', 'ledger',
                                 'A0', 'A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'A7',
@@ -87,22 +87,22 @@ class MPLConfig(TConfig):
                                 'B8', 'B9', 'B10')
             useafm = T.false
             fonttype = T.Trait(3, 42)
-            
+
             class distiller(TConfig):
                 use = T.Trait(None, None, 'ghostscript', 'xpdf', False)
                 resolution = T.Float(6000)
-        
+
         class pdf(TConfig):
             compression = T.Range(0, 9, 6)
             fonttype = T.Trait(3, 42)
             inheritcolor = T.false
             use14corefonts = T.false
-        
+
         class svg(TConfig):
             image_inline = T.true
             image_noscale = T.false
             embed_chars = T.true
-    
+
     class lines(TConfig):
         linewidth = T.Float(1.0)
         linestyle = T.Trait('-','--','-.', ':', 'steps', '', ' ', None)
@@ -122,10 +122,10 @@ class MPLConfig(TConfig):
         linewidth = T.Float(1.0)
         facecolor = T.Trait('blue', mplT.ColorHandler())
         edgecolor = T.Trait('black', mplT.ColorHandler())
-        antialiased = T.true 
+        antialiased = T.true
 
     class font(TConfig):
-        family = T.Trait('sans-serif', 'sans-serif', 'serif', 'cursive', 
+        family = T.Trait('sans-serif', 'sans-serif', 'serif', 'cursive',
                          'fantasy', 'monospace')
         style = T.Trait('normal', 'normal', 'italic', 'oblique')
         variant = T.Trait('normal', 'normal', 'small-caps')
@@ -136,16 +136,16 @@ class MPLConfig(TConfig):
                           'expanded', 'extra-expanded', 'ultra-expanded',
                           'wider', 'narrower')
         size = T.Float(12.0)
-        serif = T.ListStr(["Bitstream Vera Serif", "New Century Schoolbook", 
-                 "Century Schoolbook L", "Utopia", "ITC Bookman", "Bookman", 
-                 "Nimbus Roman No9 L", "Times New Roman", "Times", "Palatino", 
+        serif = T.ListStr(["Bitstream Vera Serif", "New Century Schoolbook",
+                 "Century Schoolbook L", "Utopia", "ITC Bookman", "Bookman",
+                 "Nimbus Roman No9 L", "Times New Roman", "Times", "Palatino",
                  "Charter", "serif"])
-        sans_serif = T.ListStr(["Bitstream Vera Sans", "Lucida Grande", "Verdana", 
-                      "Geneva", "Lucid", "Arial", "Helvetica", "Avant Garde", 
+        sans_serif = T.ListStr(["Bitstream Vera Sans", "Lucida Grande", "Verdana",
+                      "Geneva", "Lucid", "Arial", "Helvetica", "Avant Garde",
                       "sans-serif"])
-        cursive = T.ListStr(["Apple Chancery", "Textile", "Zapf Chancery", "Sand", 
+        cursive = T.ListStr(["Apple Chancery", "Textile", "Zapf Chancery", "Sand",
                    "cursive"])
-        fantasy = T.ListStr(["Comic Sans MS", "Chicago", "Charcoal", "Impact", "Western", 
+        fantasy = T.ListStr(["Comic Sans MS", "Chicago", "Charcoal", "Impact", "Western",
                    "fantasy"])
         monospace = T.ListStr(["Bitstream Vera Sans Mono", "Andale Mono", "Nimbus Mono L",
                      "Courier New", "Courier", "Fixed", "Terminal", "monospace"])
@@ -153,12 +153,12 @@ class MPLConfig(TConfig):
     class text(TConfig):
         color = T.Trait('black',mplT.ColorHandler())
         usetex = T.false
-        
+
         class latex(TConfig):
             unicode = T.false
             preamble = T.ListStr([])
             dvipnghack = T.false
-    
+
     class mathtext(TConfig):
         cal = T.Trait('cursive'       , mplT.FontconfigPatternHandler())
         rm  = T.Trait('serif'         , mplT.FontconfigPatternHandler())
@@ -182,16 +182,16 @@ class MPLConfig(TConfig):
                             'large', 'x-large', 'xx-large', T.Float)
         labelcolor = T.Trait('black', mplT.ColorHandler())
         axisbelow = T.false
-        
+
         class formatter(TConfig):
             limits = T.List(T.Float, [-7, 7], minlen=2, maxlen=2)
-    
+
     class xticks(TConfig):
         color = T.Trait('black', mplT.ColorHandler())
         labelsize = T.Trait('small', 'xx-small', 'x-small', 'small', 'medium',
                             'large', 'x-large', 'xx-large', T.Float)
         direction = T.Trait('in', 'out')
-        
+
         class major(TConfig):
             size = T.Float(4)
             pad = T.Float(4)
@@ -205,7 +205,7 @@ class MPLConfig(TConfig):
         labelsize = T.Trait('small', 'xx-small', 'x-small', 'small', 'medium',
                             'large', 'x-large', 'xx-large', T.Float)
         direction = T.Trait('in', 'out')
-        
+
         class major(TConfig):
             size = T.Float(4)
             pad = T.Float(4)
@@ -220,8 +220,8 @@ class MPLConfig(TConfig):
         linewidth = T.Float(0.5)
 
     class legend(TConfig):
-        loc = T.Trait('upper right', 'best', 'upper right', 'upper left', 
-                      'lower left', 'lower right', 'right', 'center left', 
+        loc = T.Trait('upper right', 'best', 'upper right', 'upper left',
+                      'lower left', 'lower right', 'right', 'center left',
                       'center right', 'lower center', 'upper center', 'center')
         isaxes = T.true
         numpoints = T.Int(3)
@@ -264,26 +264,26 @@ class MPLConfig(TConfig):
 
     class contour(TConfig):
         negative_linestyle = T.Trait('dashed', 'dashed', 'solid')
-    
+
     class savefig(TConfig):
         dpi = T.Float(100)
         facecolor = T.Trait('white', mplT.ColorHandler())
         edgecolor = T.Trait('white', mplT.ColorHandler())
         orientation = T.Trait('portrait', 'portrait', 'landscape')
-    
+
     class verbose(TConfig):
         level = T.Trait('silent', 'silent', 'helpful', 'debug', 'debug-annoying')
         fileo = T.Trait('sys.stdout', 'sys.stdout', T.File)
 
 
 class RcParamsWrapper(dict):
-    
+
     """A backwards-compatible interface to a traited config object
     """
-    
+
     def __init__(self, tconfig):
         self.tconfig = tconfig
-    
+
         self.tconfig_map = {
         'backend' : (self.tconfig.backend, 'use'),
         'numerix' : (self.tconfig, 'numerix'),
@@ -337,7 +337,7 @@ class RcParamsWrapper(dict):
         'text.latex.unicode' : (self.tconfig.text.latex, 'unicode'),
         'text.latex.preamble' : (self.tconfig.text.latex, 'preamble'),
         'text.dvipnghack' : (self.tconfig.text.latex, 'dvipnghack'),
-        
+
         'mathtext.cal'        : (self.tconfig.mathtext, 'cal'),
         'mathtext.rm'         : (self.tconfig.mathtext, 'rm'),
         'mathtext.tt'         : (self.tconfig.mathtext, 'tt'),
@@ -455,7 +455,7 @@ See rcParams.keys() for a list of valid parameters.'%key)
 
     def keys(self):
         return self.tconfig_map.keys()
-    
+
     def has_key(self, val):
         return self.tconfig_map.has_key(val)
 
@@ -466,7 +466,7 @@ See rcParams.keys() for a list of valid parameters.'%key)
         except AttributeError:
             for key, val in arg:
                 self[key] = val
-        
+
         for key in kwargs:
             self[key] = kwargs[key]
 

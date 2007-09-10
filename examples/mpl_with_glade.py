@@ -8,7 +8,7 @@ from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanva
 from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
 from matplotlib.widgets import SpanSelector
 
-from matplotlib.numerix import arange, sin, pi
+from numpy import arange, sin, pi
 import gtk
 import gtk.glade
 

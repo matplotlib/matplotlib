@@ -1,11 +1,11 @@
-from pylab import figure, show
-import matplotlib.numerix as nx
+from matplotlib.pyplot import figure, show
+import numpy as npy
 from matplotlib.image import NonUniformImage
 
-x = nx.arange(-4, 4, 0.005)
-y = nx.arange(-4, 4, 0.005)
+x = npy.arange(-4, 4, 0.005)
+y = npy.arange(-4, 4, 0.005)
 print 'Size %d points' % (len(x) * len(y))
-z = nx.sqrt(x[nx.NewAxis,:]**2 + y[:,nx.NewAxis]**2)
+z = npy.sqrt(x[npy.newaxis,:]**2 + y[:,npy.newaxis]**2)
 
 fig = figure()
 ax = fig.add_subplot(111)

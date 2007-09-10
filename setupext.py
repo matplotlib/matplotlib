@@ -130,7 +130,7 @@ else:
     def print_line(*args, **kwargs):
         pass
     print_status = print_message = print_raw = print_line
-        
+
 class CleanUpFile:
     """CleanUpFile deletes the specified filename when self is destroyed."""
     def __init__(self, name):
@@ -174,7 +174,7 @@ def has_pkgconfig():
         has_pkgconfig.cache = (status == 0)
     return has_pkgconfig.cache
 has_pkgconfig.cache = None
-    
+
 def get_pkgconfig(module,
                   packages,
                   flags="--libs --cflags",
@@ -189,7 +189,7 @@ def get_pkgconfig(module,
               '-l': 'libraries',
               '-D': 'define_macros',
               '-U': 'undef_macros'}
-    
+
     status, output = commands.getstatusoutput(
         "%s %s %s" % (pkg_config_exec, flags, packages))
     if status == 0:
@@ -247,7 +247,7 @@ def check_for_freetype():
             ", ".join(["'%s'" % x for x in module.include_dirs]))
 
     return True
-    
+
 def check_for_libpng():
     module = Extension("test", [])
     get_pkgconfig(module, 'libpng')
@@ -260,7 +260,7 @@ def check_for_libpng():
             ", ".join(["'%s'" % x for x in module.include_dirs]))
 
     return True
-        
+
 def add_base_flags(module):
     incdirs = filter(os.path.exists,
                      [os.path.join(p, 'include') for p in basedir[sys.platform] ])
@@ -318,7 +318,7 @@ def check_for_cairo():
         return False
     else:
         print_status("Cairo", cairo.version)
-    
+
 def check_for_numpy():
     gotit = False
     try:
@@ -357,16 +357,12 @@ def add_agg_flags(module):
     # put these later for correct link order
     module.libraries.extend(std_libs)
 
-def add_gd_flags(module):
-    'Add the module flags to build extensions which use gd'
-    module.libraries.append('gd')
-
 def add_ft2font_flags(module):
     'Add the module flags to ft2font extension'
     if not get_pkgconfig(module, 'freetype2'):
         module.libraries.extend(['freetype', 'z'])
         add_base_flags(module)
-        
+
         basedirs = module.include_dirs[:]  # copy the list to avoid inf loop!
         for d in basedirs:
             module.include_dirs.append(os.path.join(d, 'freetype2'))
@@ -381,7 +377,7 @@ def add_ft2font_flags(module):
             if os.path.exists(p): module.library_dirs.append(p)
     else:
         add_base_flags(module)
-            
+
     if sys.platform == 'win32' and win32_compiler == 'mingw32':
         module.libraries.append('gw32c')
 
@@ -417,7 +413,7 @@ def check_for_gtk():
 
     def ver2str(tup):
         return ".".join([str(x) for x in tup])
-    
+
     if gotit:
         import gobject
         if hasattr(gobject, 'pygobject_version'):
@@ -432,7 +428,7 @@ def check_for_gtk():
 
     if explanation is not None:
         print_message(explanation)
-        
+
     return gotit
 
 def add_pygtk_flags(module):
@@ -459,26 +455,26 @@ def add_pygtk_flags(module):
              ])
 
         add_base_flags(module)
-        
+
         if not os.environ.has_key('PKG_CONFIG_PATH'):
             # If Gtk+ is installed, pkg-config is required to be installed
             os.environ['PKG_CONFIG_PATH'] = 'C:\GTK\lib\pkgconfig'
-         
-        pygtkIncludes = getoutput('pkg-config --cflags-only-I pygtk-2.0').split()    
-        gtkIncludes = getoutput('pkg-config --cflags-only-I gtk+-2.0').split()   
-        includes = pygtkIncludes + gtkIncludes   
-        module.include_dirs.extend([include[2:] for include in includes])    
-         
-        pygtkLinker = getoutput('pkg-config --libs pygtk-2.0').split()   
-        gtkLinker =  getoutput('pkg-config --libs gtk+-2.0').split()     
+
+        pygtkIncludes = getoutput('pkg-config --cflags-only-I pygtk-2.0').split()
+        gtkIncludes = getoutput('pkg-config --cflags-only-I gtk+-2.0').split()
+        includes = pygtkIncludes + gtkIncludes
+        module.include_dirs.extend([include[2:] for include in includes])
+
+        pygtkLinker = getoutput('pkg-config --libs pygtk-2.0').split()
+        gtkLinker =  getoutput('pkg-config --libs gtk+-2.0').split()
         linkerFlags = pygtkLinker + gtkLinker
-        
+
         module.libraries.extend(
             [flag[2:] for flag in linkerFlags if flag.startswith('-l')])
-        
+
         module.library_dirs.extend(
             [flag[2:] for flag in linkerFlags if flag.startswith('-L')])
-        
+
         module.extra_link_args.extend(
             [flag for flag in linkerFlags if not
              (flag.startswith('-l') or flag.startswith('-L'))])
@@ -544,7 +540,7 @@ export WX_CONFIG=/usr/lib/wxPython-2.6.1.0-gtk2-unicode/bin/wx-config
     if explanation is not None:
         print_message(explanation)
     return gotit
-                
+
 def find_wx_config():
     """If the WX_CONFIG environment variable has been set, returns it value.
     Otherwise, search for `wx-config' in the PATH directories and return the

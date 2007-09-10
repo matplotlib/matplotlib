@@ -17,10 +17,10 @@ units.  This behavior is available only for the LineCollection.
 
 '''
 
-import pylab as P
+import matplotlib.pyplot as P
 from matplotlib import collections, axes, transforms
 from matplotlib.colors import colorConverter
-import matplotlib.numerix as N
+import numpy as N
 
 nverts = 50
 npts = 100
@@ -33,8 +33,8 @@ yy = r * N.cos(theta)
 spiral = zip(xx,yy)
 
 # Make some offsets
-xo = P.randn(npts)
-yo = P.randn(npts)
+xo = N.random.randn(npts)
+yo = N.random.randn(npts)
 xyo = zip(xo, yo)
 
 # Make a list of colors cycling through the rgbcmyk series.
@@ -90,7 +90,7 @@ a.set_title('PolyCollection using offsets')
 a = fig.add_subplot(2,2,3)
 
 col = collections.RegularPolyCollection(fig.dpi, 7,
-                                        sizes = P.fabs(xx)*10, offsets=xyo,
+                                        sizes = N.fabs(xx)*10, offsets=xyo,
                                         transOffset=a.transData)
 a.add_collection(col, autolim=True)
 trans = transforms.scale_transform(fig.dpi/transforms.Value(72.),
@@ -111,12 +111,12 @@ nverts = 60
 ncurves = 20
 offs = (0.1, 0.0)
 
-yy = P.linspace(0, 2*N.pi, nverts)
-ym = P.amax(yy)
+yy = N.linspace(0, 2*N.pi, nverts)
+ym = N.amax(yy)
 xx = (0.2 + (ym-yy)/ym)**2 * N.cos(yy-0.4) * 0.5
 segs = []
 for i in range(ncurves):
-    xxx = xx + 0.02*P.randn(nverts)
+    xxx = xx + 0.02*N.random.randn(nverts)
     curve = zip(xxx, yy*100)
     segs.append(curve)
 

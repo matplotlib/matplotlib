@@ -70,8 +70,8 @@ def validate_fonttype(s):
         return fonttype
 
 validate_backend = ValidateInStrings('backend',[
-    'Agg2', 'Agg', 'Aqt', 'Cairo', 'CocoaAgg', 'EMF', 'GD', 'GDK',
-    'GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'Paint', 'Pdf', 'PS',
+    'Agg2', 'Agg', 'Aqt', 'Cairo', 'CocoaAgg', 'EMF', 'GDK',
+    'GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'Pdf', 'PS',
     'QtAgg', 'Qt4Agg', 'SVG', 'Template', 'TkAgg', 'WX', 'WXAgg',
     ], ignorecase=True)
 
@@ -143,7 +143,7 @@ def validate_color(s):
 
     if len(s)==6 and s.isalnum(): # looks like hex
         return '#' + s
-    
+
     if len(s)==7 and s.startswith('#') and s[1:].isalnum():
         return s
 
@@ -198,11 +198,11 @@ def validate_fontsize(s):
         return float(s)
     except ValueError:
         raise ValueError('not a valid font size')
-    
+
 def validate_font_properties(s):
     parse_fontconfig_pattern(s)
     return s
-    
+
 validate_verbose = ValidateInStrings('verbose',[
     'silent', 'helpful', 'debug', 'debug-annoying',
     ])
@@ -367,7 +367,7 @@ defaultParams = {
     'mathtext.sf'         : ['sans\-serif', validate_font_properties],
     'mathtext.use_cm'     : [True, validate_bool],
     'mathtext.fallback_to_cm' : [True, validate_bool],
-    
+
     'image.aspect'        : ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation' : ['bilinear', str],
     'image.cmap'          : ['jet', str],        # one of gray, jet, etc

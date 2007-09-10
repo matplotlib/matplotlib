@@ -4,7 +4,7 @@
 '''
 
 from pylab import *
-import matplotlib.numerix.ma as ma
+import matplotlib.numerix.npyma as ma
 import matplotlib.colors as colors
 
 delta = 0.025

@@ -12,26 +12,13 @@ import sys, time, os, gc
 import matplotlib
 matplotlib.use('WXAgg')
 
-# jdh: you need to control Numeric vs numarray with numerix, otherwise
-# matplotlib may be using numeric under the hood and while you are
-# using numarray and this isn't efficient.  Also, if you use
-# numerix=numarray, it is important to compile matplotlib for numarray
-# by setting NUMERIX = 'numarray' in setup.py before building
 from matplotlib import rcParams
-##rcParams['numerix'] = 'numarray'
-
-
-# jdh: you can import cm directly, you don't need to go via
-# pylab
 import matplotlib.cm as cm
 
 from matplotlib.backends.backend_wxagg import Toolbar, FigureCanvasWxAgg
 
-# jdh: you don't need a figure manager in the GUI - this class was
-# designed for the pylab interface
-
 from matplotlib.figure import Figure
-import matplotlib.numerix as numerix
+import numpy as npy
 import wx
 
 
@@ -75,12 +62,12 @@ class PlotFigure(wx.Frame):
         # jdh you can add a subplot directly from the fig rather than
         # the fig manager
         a = self.fig.add_subplot(111)
-        self.x = numerix.arange(120.0)*2*numerix.pi/120.0
+        self.x = npy.arange(120.0)*2*npy.pi/120.0
         self.x.resize((100,120))
-        self.y = numerix.arange(100.0)*2*numerix.pi/100.0
+        self.y = npy.arange(100.0)*2*npy.pi/100.0
         self.y.resize((120,100))
-        self.y = numerix.transpose(self.y)
-        z = numerix.sin(self.x) + numerix.cos(self.y)
+        self.y = npy.transpose(self.y)
+        z = npy.sin(self.x) + npy.cos(self.y)
         self.im = a.imshow( z, cmap=cm.jet)#, interpolation='nearest')
 
     def GetToolBar(self):
@@ -89,9 +76,9 @@ class PlotFigure(wx.Frame):
         return self.toolbar
 
     def onTimer(self, evt):
-        self.x += numerix.pi/15
-        self.y += numerix.pi/20
-        z = numerix.sin(self.x) + numerix.cos(self.y)
+        self.x += npy.pi/15
+        self.y += npy.pi/20
+        z = npy.sin(self.x) + npy.cos(self.y)
         self.im.set_array(z)
         self.canvas.draw()
         #self.canvas.gui_repaint()  # jdh wxagg_draw calls this already

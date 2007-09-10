@@ -10,7 +10,7 @@ from PyQt4 import QtCore, QtGui
 ITERS = 1000
 
 import pylab as p
-import matplotlib.numerix as nx
+import numpy as npy
 import time
 
 class BlitQT(QtCore.QObject):
@@ -22,8 +22,8 @@ class BlitQT(QtCore.QObject):
         self.cnt = 0
 
         # create the initial line
-        self.x = nx.arange(0,2*nx.pi,0.01)
-        self.line, = p.plot(self.x, nx.sin(self.x), animated=True, lw=2)
+        self.x = npy.arange(0,2*npy.pi,0.01)
+        self.line, = p.plot(self.x, npy.sin(self.x), animated=True, lw=2)
 
         self.background = None
 
@@ -34,7 +34,7 @@ class BlitQT(QtCore.QObject):
         # restore the clean slate background
         self.canvas.restore_region(self.background)
         # update the data
-        self.line.set_ydata(nx.sin(self.x+self.cnt/10.0))
+        self.line.set_ydata(npy.sin(self.x+self.cnt/10.0))
         # just draw the animated artist
         self.ax.draw_artist(self.line)
         # just redraw the axes rectangle

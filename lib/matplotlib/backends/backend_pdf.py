@@ -1435,6 +1435,7 @@ class RendererPdf(RendererBase):
         dvifile = texmanager.make_dvi(s, fontsize)
         dvi = dviread.Dvi(dvifile, 72)
         text, boxes = iter(dvi).next()
+        dvi.close()
 
         if angle == 0:          # avoid rounding errors in common case
             def mytrans(x1, y1):
@@ -1444,10 +1445,10 @@ class RendererPdf(RendererBase):
                 return x + cos(a)*x1 - sin(a)*y1, \
                        y + sin(a)*x1 + cos(a)*y1
 
-        self.check_gc(gc, gc._rgb)
-        self.file.output(Op.begin_text)
-        oldfontnum, oldx, oldy = None, 0, 0
-        for x1, y1, fontnum, glyph in text:
+        # Gather font information and do some setup for combining
+        # characters into strings.
+        oldfontnum, seq = None, []
+        for x1, y1, fontnum, glyph, width in text:
             if fontnum != oldfontnum:
                 texname, fontsize = dvi.fontinfo(fontnum)
                 fontinfo = self.tex_font_mapping(texname)
@@ -1455,14 +1456,50 @@ class RendererPdf(RendererBase):
                 self.file.fontInfo[pdfname] = Bunch(
                     encodingfile=fontinfo.encoding,
                     afmfile=fontinfo.afm)
-                self.file.output(pdfname, fontsize, Op.selectfont)
+                seq += [['font', pdfname, fontsize]]
                 oldfontnum = fontnum
-            x1, y1 = mytrans(x1, y1)
-            self._setup_textpos(x1, y1, angle, oldx, oldy)
-            self.file.output(chr(glyph), Op.show)
-            oldx, oldy = x1, y1
+            seq += [['text', x1, y1, [chr(glyph)], x1+width]]
+        seq += [('end',)]
+
+        # Find consecutive text strings with constant x coordinate and
+        # combine into one string (if needed kern would be less than
+        # 0.1 points) or several strings interspersed with kerns.
+        i, curx = 0, 0
+        while i < len(seq)-1:
+            elt, next = seq[i:i+2]
+            if elt[0] == next[0] == 'text' and elt[2] == next[2]:
+                offset = elt[4] - next[1]
+                if abs(offset) < 0.1:
+                    elt[3][-1] += next[3][0]
+                    elt[4] += next[4]-next[1]
+                else:
+                    elt[3] += [offset, next[3][0]]
+                    elt[4] = next[4]
+                del seq[i+1]
+                continue
+            i += 1
+
+        # Now do the actual output.
+        self.check_gc(gc, gc._rgb)
+        self.file.output(Op.begin_text)
+        curx, cury, oldx, oldy = 0, 0, 0, 0
+        for elt in seq:
+            if elt[0] == 'font':
+                self.file.output(elt[1], elt[2], Op.selectfont)
+            elif elt[0] == 'text':
+                curx, cury = mytrans(elt[1], elt[2])
+                self._setup_textpos(curx, cury, angle, oldx, oldy)
+                oldx, oldy = curx, cury
+                if len(elt[3]) == 1:
+                    self.file.output(elt[3][0], Op.show)
+                else:
+                    self.file.output(elt[3], Op.showkern)
+            else:
+                assert elt[0] == 'end'
         self.file.output(Op.end_text)
 
+        # Finally output the boxes (used for the variable-length lines
+        # in square roots and the like).
         boxgc = self.new_gc()
         boxgc.copy_properties(gc)
         boxgc.set_linewidth(0)

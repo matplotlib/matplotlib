@@ -5,7 +5,7 @@ controls on wxPython.
 
 import matplotlib
 matplotlib.use("WxAgg")
-from matplotlib.numerix import arange, sin, pi, cos, log
+from numpy import arange, sin, pi, cos, log
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure
@@ -42,14 +42,14 @@ class CanvasFrame(wx.Frame):
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
         self.change_plot(0)
-        
+
         self.canvas = FigureCanvas(self, -1, self.figure)
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
         self.add_buttonbar()
         self.sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         self.add_toolbar()  # comment this out for no toolbar
-        
+
         menuBar = wx.MenuBar()
 
         # File Menu
@@ -104,21 +104,21 @@ class CanvasFrame(wx.Frame):
 
     def OnChangePlot(self, event):
         self.change_plot(event.GetId() - 1000)
-        
+
     def change_plot(self, plot_number):
         t = arange(1.0,3.0,0.01)
         s = functions[plot_number][1](t)
         self.axes.clear()
         self.axes.plot(t, s)
         self.Refresh()
-        
+
 class MyApp(wx.App):
     def OnInit(self):
         frame = CanvasFrame(None, "wxPython mathtext demo app")
         self.SetTopWindow(frame)
         frame.Show(True)
         return True
-        
+
 app = MyApp()
 app.MainLoop()
 

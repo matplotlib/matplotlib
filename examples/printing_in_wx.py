@@ -39,7 +39,7 @@ matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 
 from matplotlib.figure import Figure
-import matplotlib.numerix as numpy
+import  numpy
 
 class PlotFrame(wx.Frame):
     help_msg="""  Menus for
