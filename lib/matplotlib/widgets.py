@@ -12,7 +12,7 @@ import numpy as npy
 from mlab import dist
 from patches import Circle, Rectangle
 from lines import Line2D
-from transforms import blend_xy_sep_transform
+from affine import BlendedTransform
 
 class LockDraw:
     """
@@ -847,10 +847,10 @@ class SpanSelector:
         self.prev = (0, 0)
 
         if self.direction == 'horizontal':
-            trans = blend_xy_sep_transform(self.ax.transData, self.ax.transAxes)
+            trans = BlendedTransform(self.ax.transData, self.ax.transAxes)
             w,h = 0,1
         else:
-            trans = blend_xy_sep_transform(self.ax.transAxes, self.ax.transData)
+            trans = BlendedTransform(self.ax.transAxes, self.ax.transData)
             w,h = 1,0
         self.rect = Rectangle( (0,0), w, h,
                                transform=trans,

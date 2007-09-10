@@ -29,9 +29,7 @@ from artist import Artist
 from patches import Rectangle
 from cbook import enumerate, is_string_like, flatten
 from text import Text
-from transforms import Bbox, inverse_transform_bbox, bbox_all, unit_bbox, \
-     get_bbox_transform
-
+from bbox import Bbox, bbox_union
 
 
 
@@ -132,7 +130,7 @@ class Cell(Rectangle):
     def get_text_bounds(self, renderer):
         """ Get text bounds in axes co-ordinates. """
         bbox = self._text.get_window_extent(renderer)
-        bboxa = inverse_transform_bbox(self.get_transform(), bbox)
+	bbox.inverse_transform(self.get_transform())
         return bboxa.get_bounds()
 
     def get_required_width(self, renderer):

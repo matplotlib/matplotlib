@@ -18,7 +18,8 @@ from patches import Rectangle, Polygon
 from text import Text, _process_text_args
 
 from legend import Legend
-from transforms import Bbox, Value, Point, get_bbox_transform, unit_bbox
+from affine import get_bbox_transform
+from bbox import Bbox
 from ticker import FormatStrFormatter
 from cm import ScalarMappable
 from contour import ContourSet
@@ -127,17 +128,14 @@ class Figure(Artist):
         if facecolor is None: facecolor = rcParams['figure.facecolor']
         if edgecolor is None: edgecolor = rcParams['figure.edgecolor']
 
-        self.dpi = Value(dpi)
-        self.figwidth = Value(figsize[0])
-        self.figheight = Value(figsize[1])
-        self.ll = Point( Value(0), Value(0) )
-        self.ur = Point( self.figwidth*self.dpi,
-                         self.figheight*self.dpi )
-        self.bbox = Bbox(self.ll, self.ur)
-
+        self.dpi = dpi
+	self.bbox = Bbox.from_lbwh(0, 0,
+				   self.figsize[0] * dpi,
+				   self.figsize[1] * dpi)
+	
         self.frameon = frameon
 
-        self.transFigure = get_bbox_transform( unit_bbox(), self.bbox)
+        self.transFigure = get_bbox_transform( Bbox.unit(), self.bbox)
 
 
 
