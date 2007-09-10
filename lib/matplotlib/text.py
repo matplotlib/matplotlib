@@ -151,7 +151,7 @@ class Text(Artist):
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x,y in display coords'
         x, y = self.get_position()
-        return self.get_transform().xy_tup((x,y))
+        return self.get_transform()([[x,y]])[0]
 
     def _get_multialignment(self):
         if self._multialignment is not None: return self._multialignment
@@ -275,7 +275,8 @@ class Text(Artist):
         ty = [float(v[1][0])+offsety for v in xys]
 
         # now inverse transform back to data coords
-        xys = [self.get_transform().inverse_xy_tup( xy ) for xy in zip(tx, ty)]
+	inverse_transform = self.get_transform().inverted()
+        xys = inverse_transform(zip(tx, ty))
 
         xs, ys = zip(*xys)
 
@@ -328,7 +329,7 @@ class Text(Artist):
             return
 
         for line, wh, x, y in info:
-            x, y = trans.xy_tup((x, y))
+            x, y = trans([[x, y]])[0]
 
             if renderer.flipy():
                 canvasw, canvash = renderer.get_canvas_width_height()
@@ -405,7 +406,7 @@ class Text(Artist):
         return (x, y, self._text, self._color,
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties), self._rotation,
-                self.get_transform().as_vec6_val(),
+                self.get_transform().to_values(),
                 )
 
     def get_text(self):

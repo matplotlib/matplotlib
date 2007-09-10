@@ -129,9 +129,10 @@ class Figure(Artist):
         if edgecolor is None: edgecolor = rcParams['figure.edgecolor']
 
         self.dpi = dpi
+	self.figsize = figsize
 	self.bbox = Bbox.from_lbwh(0, 0,
-				   self.figsize[0] * dpi,
-				   self.figsize[1] * dpi)
+				   figsize[0] * dpi,
+				   figsize[1] * dpi)
 	
         self.frameon = frameon
 
@@ -581,7 +582,8 @@ class Figure(Artist):
         #print 'figure draw'
         if not self.get_visible(): return
         renderer.open_group('figure')
-        self.transFigure.freeze()  # eval the lazy objects
+	# MGDTODO
+        # self.transFigure.freeze()  # eval the lazy objects
 
         if self.frameon: self.figurePatch.draw(renderer)
 
@@ -615,7 +617,8 @@ class Figure(Artist):
         for legend in self.legends:
             legend.draw(renderer)
 
-        self.transFigure.thaw()  # release the lazy objects
+	# MGDTODO
+	# self.transFigure.thaw()  # release the lazy objects
         renderer.close_group('figure')
 
         self._cachedRenderer = renderer

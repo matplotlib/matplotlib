@@ -224,7 +224,7 @@ The following dimensions are in axes coords
         a.set_transform(self.get_transform())
 
     def _approx_text_height(self):
-        return self.fontsize/72.0*self.figure.dpi.get()/self.parent.bbox.height()
+        return self.fontsize/72.0*self.figure.dpi/self.parent.bbox.height()
 
 
     def draw(self, renderer):
@@ -531,7 +531,7 @@ The following dimensions are in axes coords
         if not len(self.legendHandles) and not len(self.texts): return
         def get_tbounds(text):  #get text bounds in axes coords
             bbox = text.get_window_extent(renderer)
-            bboxa = inverse_transform_bbox(self.get_transform(), bbox)
+            bboxa = bbox.inverse_transform(self.get_transform())
             return bboxa.get_bounds()
 
         hpos = []
@@ -559,9 +559,11 @@ The following dimensions are in axes coords
                 handle.set_height(h/2)
 
         # Set the data for the legend patch
-        bbox = self._get_handle_text_bbox(renderer).deepcopy()
+	# MGDTODO: This copy may no longer be needed now that Bboxes are
+	# essentially immutable
+        bbox = self._get_handle_text_bbox(renderer).copy()
 
-        bbox.scale(1 + self.pad, 1 + self.pad)
+        bbox = bbox.scaled(1 + self.pad, 1 + self.pad)
         l,b,w,h = bbox.get_bounds()
         self.legendPatch.set_bounds(l,b,w,h)
 

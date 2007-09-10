@@ -22,8 +22,7 @@ from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.colors import colorConverter
 from lines import Line2D, TICKLEFT, TICKRIGHT
 from patches import Rectangle
-from matplotlib.transforms import scale_transform, Value, zero, one, \
-     scale_sep_transform, blend_xy_sep_transform
+from matplotlib.affine import Affine2D
 
 
 
@@ -335,9 +334,9 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
     offsetsClose = [ (i, close) for i, close in zip(xrange(len(closes)), closes) if close != -1 ]
 
 
-    scale = ax.figure.dpi * Value(1/72.0)
+    scale = ax.figure.dpi * (1.0/72.0)
 
-    tickTransform = scale_transform( scale, zero())
+    tickTransform = Affine2D().scaled(scale, 0.0)
 
     r,g,b = colorConverter.to_rgb(colorup)
     colorup = r,g,b,1
@@ -424,10 +423,10 @@ def candlestick2(ax, opens, closes, highs, lows, width=4,
 
     offsetsBars = [ (i, open) for i,open in zip(xrange(len(opens)), opens) if open != -1 ]
 
-    sx = ax.figure.dpi * Value(1/72.0)  # scale for points
+    sx = ax.figure.dpi * (1.0/72.0)  # scale for points
     sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y())
 
-    barTransform = scale_sep_transform(sx,sy)
+    barTransform = Affine2D().scaled(sx,sy)
 
 
 
@@ -512,10 +511,10 @@ def volume_overlay(ax, opens, closes, volumes,
 
     bars = [ ( (left, 0), (left, v), (right, v), (right, 0)) for v in volumes if v != -1 ]
 
-    sx = ax.figure.dpi * Value(1/72.0)  # scale for points
+    sx = ax.figure.dpi * (1.0/72.0)  # scale for points
     sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y())
 
-    barTransform = scale_sep_transform(sx,sy)
+    barTransform = Affine2D().scaled(sx,sy)
 
     offsetsBars = [ (i, 0) for i,v in enumerate(volumes) if v != -1 ]
 
@@ -602,10 +601,10 @@ def volume_overlay3(ax, quotes,
 
     bars = [ ( (left, 0), (left, volume), (right, volume), (right, 0)) for d, open, close, high, low, volume in quotes]
 
-    sx = ax.figure.dpi * Value(1/72.0)  # scale for points
+    sx = ax.figure.dpi * (1.0/72.0)  # scale for points
     sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y())
 
-    barTransform = scale_sep_transform(sx,sy)
+    barTransform = Affine2D().scaled(sx,sy)
 
     dates = [d for d, open, close, high, low, volume in quotes]
     offsetsBars = [(d, 0) for d in dates]
@@ -662,10 +661,10 @@ def index_bar(ax, vals,
 
     bars = [ ( (left, 0), (left, v), (right, v), (right, 0)) for v in vals if v != -1 ]
 
-    sx = ax.figure.dpi * Value(1/72.0)  # scale for points
+    sx = ax.figure.dpi * (1.0/72.0)  # scale for points
     sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y())
 
-    barTransform = scale_sep_transform(sx,sy)
+    barTransform = Affine2D().scaled(sx,sy)
 
     offsetsBars = [ (i, 0) for i,v in enumerate(vals) if v != -1 ]
 

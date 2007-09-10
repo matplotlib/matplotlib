@@ -6,9 +6,31 @@ A convenience class for handling bounding boxes
 
 import numpy as N
 
+class Interval:
+    def __init__(self, bounds):
+	self._bounds = N.array(bounds, N.float_)
+
+    def contains(self, value):
+	bounds = self._bounds
+	return value >= bounds[0] and value <= bounds[1]
+
+    def contains_open(self, value):
+	bounds = self._bounds
+	return value > bounds[0] and value < bounds[1]
+
+    def get_bounds(self):
+	return self._bounds
+
+    def set_bounds(self, lower, upper):
+	self._bounds = lower, upper
+
+    def span(self):
+	bounds = self._bounds
+	return bounds[1] - bounds[0]
+	
 class Bbox:
     def __init__(self, points):
-	self._points = N.array(points)
+	self._points = N.array(points, N.float_)
 
     #@staticmethod
     def unit():
@@ -23,7 +45,10 @@ class Bbox:
     #@staticmethod
     def from_lbrt(left, bottom, right, top):
 	return Bbox([[left, bottom], [right, top]])
-    from_lbwh = staticmethod(from_lbwh)
+    from_lbrt = staticmethod(from_lbrt)
+
+    def copy(self):
+	return Bbox(self._points.copy())
     
     # MGDTODO: Probably a more efficient ways to do this...
     def xmin(self):
@@ -45,15 +70,29 @@ class Bbox:
 	return self.ymax() - self.ymin()
 
     def transform(self, transform):
-	return Bbox(transform(points))
+	return Bbox(transform(self._points))
 
     def inverse_transform(self, transform):
-	return Bbox(transform.inverted()(points))
+	return Bbox(transform.inverted()(self._points))
 
     def get_bounds(self):
 	return (self.xmin(), self.ymin(),
 		self.xmax() - self.xmin(), self.ymax() - self.ymin())
-    
+
+    def intervalx(self):
+	return Interval(self._points[0])
+
+    def intervaly(self):
+	return Interval(self._points[1])
+
+    def scaled(self, sw, sh):
+	width = self.width()
+	height = self.height()
+	deltaw = (sw * width - width) / 2.0
+	deltah = (sh * height - height) / 2.0
+	a = N.array([[-deltaw, -deltah], [deltaw, deltah]])
+	return Bbox(self._points + a)
+	
 def lbwh_to_bbox(left, bottom, width, height):
     return Bbox([[left, bottom], [left + width, bottom + height]])
     
@@ -67,18 +106,18 @@ def bbox_union(bboxes):
 	return bboxes[0]
 
     bbox = bboxes[0]
-    xmin = bbox.xmin
-    ymin = bbox.ymin
-    xmax = bbox.xmax
-    ymax = bbox.ymax
+    xmin = bbox.xmin()
+    ymin = bbox.ymin()
+    xmax = bbox.xmax()
+    ymax = bbox.ymax()
 
     for bbox in bboxes[1:]:
-	xmin = min(xmin, bbox.xmin)
-	ymin = min(ymin, bbox.ymin)
-	xmax = max(xmax, bbox.xmax)
-	ymax = max(ymax, bbox.ymax)
+	xmin = min(xmin, bbox.xmin())
+	ymin = min(ymin, bbox.ymin())
+	xmax = max(xmax, bbox.xmax())
+	ymax = max(ymax, bbox.ymax())
 
-    return Bbox(xmin, ymin, xmax, ymax)
+    return Bbox.from_lbrt(xmin, ymin, xmax, ymax)
 
 # MGDTODO: There's probably a better place for this
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):

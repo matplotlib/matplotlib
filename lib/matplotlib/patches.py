@@ -209,8 +209,13 @@ class Patch(artist.Artist):
             gc.set_hatch(self._hatch )
 
         verts = self.get_verts()
-        tverts = self.get_transform().seq_xy_tups(verts)
+        tverts = self.get_transform()(verts)
 
+	# MGDTODO: This result is an Nx2 numpy array, which could be passed
+	# directly to renderer.draw_polygon.  However, it currently expects
+	# a list of tuples so we're converting it to that now.
+	tverts = [tuple(x) for x in tverts]
+	
         renderer.draw_polygon(gc, rgbFace, tverts)
 
 
