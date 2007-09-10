@@ -519,12 +519,13 @@ class PdfFile:
             ul_position, ul_thickness = font.get_ps_font_info()
 
         if fontinfo.encodingfile is not None:
-            differencesArray = [ Name(ch) for ch in  
-                                 dviread.Encoding(fontinfo.encodingfile) ]
+            enc = dviread.Encoding(fontinfo.encodingfile)
+            widths = [ afmdata.get_width_from_char_name(ch)
+                       for ch in enc ]
+            differencesArray = [ Name(ch) for ch in enc ]
             differencesArray = [ 0 ] + differencesArray
             firstchar = 0
             lastchar = len(differencesArray) - 2
-            widths = [ 100 for x in range(firstchar,lastchar+1) ] # XXX TODO
         else:
             widths = [ None for i in range(256) ]
             for ch in range(256):
@@ -1427,7 +1428,7 @@ class RendererPdf(RendererBase):
         # Pop off the global transformation
         self.file.output(Op.grestore)
 
-    def draw_tex(self, gc, x, y, s, prop, angle):
+    def _draw_tex(self, gc, x, y, s, prop, angle):
         # Rename to draw_tex to enable
 
         texmanager = self.get_texmanager()
