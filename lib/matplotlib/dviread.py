@@ -6,19 +6,21 @@ preprocessor.
 Interface:
 
     dvi = Dvi(filename, 72)
-    for text, boxes in dvi:          # iterate over pages
-        text, boxes = dvi.output(72)
-        for x,y,font,glyph,width in text:
+    for page in dvi:          # iterate over pages
+        w, h, d = page.width, page.height, page.descent
+        for x,y,font,glyph,width in page.text:
             fontname, pointsize = dvi.fontinfo(font)
             ...
-        for x,y,height,width in boxes:
+        for x,y,height,width in page.boxes:
             ...
 """
 
-# TODO: support for TeX virtual fonts (*.vf) which are a dvi-like format
+# TODO: support TeX virtual fonts (*.vf) which are a sort of
+#       subroutine collections for dvi files
 
 import matplotlib
 import matplotlib.cbook as mpl_cbook
+import numpy as npy
 import os
 import struct
 
@@ -74,20 +76,33 @@ class Dvi(object):
     def _output(self):
         """
         Output the text and boxes belonging to the most recent page.
-        text, boxes = dvi._output()
+        page = dvi._output()
         """
-        t0 = self.text[0]
-        minx, miny, maxx, maxy = t0[0], t0[1], t0[0], t0[1]
+        minx, miny, maxx, maxy = npy.inf, npy.inf, -npy.inf, -npy.inf
+        maxy_pure = -npy.inf
         for elt in self.text + self.boxes:
-            x,y = elt[:2]
-            if x < minx: minx = x
-            if y < miny: miny = y
-            if x > maxx: maxx = x
-            if y > maxy: maxy = y
+            if len(elt) == 4:   # box
+                x,y,h,w = elt
+                e = 0           # zero depth
+            else:               # glyph
+                x,y,f,g,w = elt
+                font = self.fonts[f]
+                h = (font.scale * font.tfm.height[g]) >> 20
+                e = (font.scale * font.tfm.depth[g]) >> 20
+            minx = min(minx, x)
+            miny = min(miny, y - h)
+            maxx = max(maxx, x + w)
+            maxy = max(maxy, y + e)
+            maxy_pure = max(maxy_pure, y)
+
         d = self.dpi / (72.27 * 2**16) # from TeX's "scaled points" to dpi units
         text =  [ ((x-minx)*d, (maxy-y)*d, f, g, w*d) for (x,y,f,g,w) in self.text ]
         boxes = [ ((x-minx)*d, (maxy-y)*d, h*d, w*d) for (x,y,h,w) in self.boxes ]
-        return text, boxes
+
+        return mpl_cbook.Bunch(text=text, boxes=boxes, 
+                               width=(maxx-minx)*d, 
+                               height=(maxy_pure-miny)*d, 
+                               descent=(maxy-maxy_pure)*d)
 
     def fontinfo(self, f):
         """
@@ -361,6 +376,7 @@ class Tfm(object):
       width[i]: width of character #i, needs to be scaled 
         by the factor specified in the dvi file
         (this is a dict because indexing may not start from 0)
+      height[i], depth[i]: height and depth of character #i
     """
 
     def __init__(self, filename):
@@ -368,21 +384,28 @@ class Tfm(object):
 
         try:
             header1 = file.read(24)
-            lh, bc, ec, nw = \
-                struct.unpack('!4H', header1[2:10])
+            lh, bc, ec, nw, nh, nd = \
+                struct.unpack('!6H', header1[2:14])
             header2 = file.read(4*lh)
             self.checksum, self.design_size = \
                 struct.unpack('!2I', header2[:8])
             # there is also encoding information etc.
             char_info = file.read(4*(ec-bc+1))
             widths = file.read(4*nw)
+            heights = file.read(4*nh)
+            depths = file.read(4*nd)
         finally:
             file.close()
 
-        widths = struct.unpack('!%dI' % nw, widths)
-        self.width = {}
+        self.width, self.height, self.depth = {}, {}, {}
+        widths, heights, depths = \
+            [ struct.unpack('!%dI' % n, x) 
+              for n,x in [(nw, widths), (nh, heights), (nd, depths)] ]
         for i in range(ec-bc):
             self.width[bc+i] = widths[ord(char_info[4*i])]
+            self.height[bc+i] = heights[ord(char_info[4*i+1]) >> 4]
+            self.depth[bc+i] = depths[ord(char_info[4*i+1]) & 0xf]
+
 
 class PsfontsMap(object):
     """
