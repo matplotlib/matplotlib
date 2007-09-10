@@ -67,7 +67,10 @@ class Affine2D(Transform):
     def from_values(a, b, c, d, e, f):
         return Affine2D(Affine2D.matrix_from_values(a, b, c, d, e, f))
     from_values = staticmethod(from_values)
-        
+
+    def to_values(self):
+	return tuple(self.mtx[:2].swapaxes(0, 1).flatten())
+    
     #@staticmethod
     def matrix_from_values(a, b, c, d, e, f):
 	affine = N.zeros((3,3), N.float_)
@@ -92,11 +95,12 @@ class Affine2D(Transform):
 
 	# This is nicer for now, however, since we can just keep a
 	# regular affine matrix around
+	# MGDTODO: Trap cases where this isn't an array and fix there
+	points = N.array(points, N.float_)
 	new_points = points.swapaxes(0, 1)
 	new_points = N.vstack((new_points, N.ones((1, points.shape[0]))))
 	result = N.dot(self.mtx, new_points)[:2]
-	result.swapaxes(0, 1)
-	return result
+	return result.swapaxes(0, 1)
     
     #@staticmethod
     def _concat(a, b):
@@ -198,10 +202,14 @@ if __name__ == '__main__':
     print transform.inverted()
 
     from bbox import Bbox
+    print "BBOX"
     boxin = Bbox([[10, 10], [320, 240]])
     boxout = Bbox([[25, 25], [640, 400]])
-    trans = bbox_transform(boxin, boxout)
+    print boxin._points, boxin.xmin(), boxin.ymin(), boxin.xmax(), boxin.ymax()
+    print boxout._points, boxout.xmin(), boxout.ymin(), boxout.xmax(), boxout.ymax()
+    trans = get_bbox_transform(boxin, boxout)
     print trans
     print trans(N.array([[10, 10], [320, 240]]))
+    print trans([[10, 10]])
     
 __all__ = ['Transform', 'Affine2D']

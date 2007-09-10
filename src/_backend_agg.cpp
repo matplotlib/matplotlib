@@ -44,6 +44,27 @@
 #define M_PI_2     1.57079632679489661923
 #endif
 
+agg::trans_affine py_sequence_to_agg_transformation_matrix(const Py::Object& obj) {
+  Py::SeqBase<Py::Float> seq;
+  try {
+    seq = obj;
+  } catch(...) {
+    throw Py::ValueError("Transformation matrix must be given as a 6-element list.");
+  }
+
+  if (seq.size() != 6) {
+    throw Py::ValueError("Transformation matrix must be given as a 6-element list.");
+  }
+
+  agg::trans_affine xytrans = agg::trans_affine
+    (Py::Float(seq[0]), 
+     Py::Float(seq[1]), 
+     Py::Float(seq[2]), 
+     Py::Float(seq[3]), 
+     Py::Float(seq[4]), 
+     Py::Float(seq[5]));
+}
+
 GCAgg::GCAgg(const Py::Object &gc, double dpi, bool snapto) :
   dpi(dpi), snapto(snapto), isaa(true), linewidth(1.0), alpha(1.0),
   cliprect(NULL), clippath(NULL), 
@@ -646,7 +667,8 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   Py::SeqBase<Py::Object> linewidths = args[4];
   Py::SeqBase<Py::Object> linestyle = args[5];
   Py::SeqBase<Py::Object> antialiaseds = args[6];
-  
+
+  // MGDTODO: Verify we don't need this offset stuff anymore
   bool usingOffsets = args[7].ptr()!=Py_None;
   Py::SeqBase<Py::Object> offsets;
   Transformation* transOffset=NULL;
@@ -1534,23 +1556,13 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
   //path_t transpath(path, xytrans);
   _process_alpha_mask(gc);
 
-  Transformation* mpltransform = static_cast<Transformation*>(args[3].ptr());
-
-  double a, b, c, d, tx, ty;
-  try {
-    mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
-  }
-  catch(...) {
-    throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_lines");
-  }
-
-  agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);
-
+  agg::trans_affine xytrans = py_sequence_to_agg_transformation_matrix(args[3]);
 
   agg::path_storage path;
 
-
-  bool needNonlinear = mpltransform->need_nonlinear_api();
+  // MGDTODO
+  bool needNonlinear = false;
+  // mpltransform->need_nonlinear_api();
 
   double thisx(0.0), thisy(0.0);
   double origdx(0.0), origdy(0.0), origdNorm2(0);
@@ -1584,7 +1596,8 @@ RendererAgg::draw_lines(const Py::Tuple& args) {
 
     if (needNonlinear)
       try {
-        mpltransform->nonlinear_only_api(&thisx, &thisy);
+	// MGDTODO
+        // mpltransform->nonlinear_only_api(&thisx, &thisy);
       }
       catch (...) {
         moveto = true;

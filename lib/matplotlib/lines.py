@@ -362,8 +362,13 @@ class Line2D(Artist):
         else:
             x, y = self._get_plottable()
 
-
-        x, y = self.get_transform().numerix_x_y(x, y)
+	# MGDTODO: Put this in a single Nx2 array, rather than these
+	# separate ones
+	#### Conversion code
+	a = npy.vstack((x, y)).swapaxes(0, 1)
+	####
+        x, y = self.get_transform()(a)
+	
         #x, y = self.get_transform().seq_x_y(x, y)
 
         left = min(x)
@@ -373,7 +378,8 @@ class Line2D(Artist):
 
         # correct for marker size, if any
         if self._marker is not None:
-            ms = self._markersize/72.0*self.figure.dpi.get()
+            ms = self._markersize/72.0*self.figure.dpi
+            # ms = self._markersize/72.0*self.figure.dpi.get() MGDTODO
             left -= ms/2
             bottom -= ms/2
             width += ms

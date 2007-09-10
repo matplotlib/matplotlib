@@ -618,10 +618,10 @@ class Axes(martist.Artist):
         martist.Artist.set_figure(self, fig)
 
         l, b, w, h = self._position
-        xmin = fig.bbox.ll().x()
-        xmax = fig.bbox.ur().x()
-        ymin = fig.bbox.ll().y()
-        ymax = fig.bbox.ur().y()
+        xmin = fig.bbox.xmin()
+        xmax = fig.bbox.xmax()
+        ymin = fig.bbox.ymin()
+        ymax = fig.bbox.ymax()
         figw = xmax-xmin
         figh = ymax-ymin
         self.left   =  l*figw
@@ -695,9 +695,11 @@ class Axes(martist.Artist):
         ACCEPTS: len(4) sequence of floats
         """
         if which in ('both', 'active'):
-            # Change values within self._position--don't replace it.
-            for num,val in zip(pos, self._position):
-                val.set(num)
+	    # MGDTODO
+#             # Change values within self._position--don't replace it.
+#             for num,val in zip(pos, self._position):
+#                 val.set(num)
+	    self._position = pos
         if which in ('both', 'original'):
             self._originalPosition = pos
 
@@ -714,7 +716,8 @@ class Axes(martist.Artist):
         self.xaxis.cla()
         self.yaxis.cla()
 
-        self.dataLim.ignore(1)
+	# MGDTODO
+        # self.dataLim.ignore(1)
         self.callbacks = cbook.CallbackRegistry(('xlim_changed', 'ylim_changed'))
 
         if self._sharex is not None:
@@ -1176,7 +1179,9 @@ class Axes(martist.Artist):
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
         #print type(x), type(y)
-        self.dataLim.update_numerix(x, y, -1)
+	# MGDTODO
+        ## self.dataLim.update_numerix(x, y, -1)
+	pass
 
     def _get_verts_in_data_coords(self, trans, xys):
         if trans == self.transData:
@@ -1273,8 +1278,9 @@ class Axes(martist.Artist):
         if not self.get_visible(): return
         renderer.open_group('axes')
         self.apply_aspect()
-        self.transData.freeze()  # eval the lazy objects
-        self.transAxes.freeze()
+	# MGDTODO
+        # self.transData.freeze()  # eval the lazy objects
+        # self.transAxes.freeze()
         if self.axison and self._frameon: self.axesPatch.draw(renderer)
         artists = []
 
@@ -1330,8 +1336,9 @@ class Axes(martist.Artist):
         for zorder, i, a in dsu:
             a.draw(renderer)
 
-        self.transData.thaw()  # release the lazy objects
-        self.transAxes.thaw()  # release the lazy objects
+	# MGDTODO
+	# self.transData.thaw()  # release the lazy objects
+        # self.transAxes.thaw()  # release the lazy objects
         renderer.close_group('axes')
         self._cachedRenderer = renderer
 

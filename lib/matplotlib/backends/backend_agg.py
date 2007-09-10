@@ -106,14 +106,17 @@ class RendererAgg(RendererBase):
         self.height = height
         if __debug__: verbose.report('RendererAgg.__init__ width=%s, \
                         height=%s'%(width, height), 'debug-annoying')
-        self._renderer = _RendererAgg(int(width), int(height), dpi.get(),
-                                    debug=False)
+	# MGDTODO
+#         self._renderer = _RendererAgg(int(width), int(height), dpi.get(),
+# 				      debug=False)
+        self._renderer = _RendererAgg(int(width), int(height), dpi,
+				      debug=False)
         if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done',
                                      'debug-annoying')
         self.draw_polygon = self._renderer.draw_polygon
         self.draw_rectangle = self._renderer.draw_rectangle
         self.draw_path = self._renderer.draw_path
-        self.draw_lines = self._renderer.draw_lines
+        # self.draw_lines = self._renderer.draw_lines
         self.draw_markers = self._renderer.draw_markers
         self.draw_image = self._renderer.draw_image
         self.draw_line_collection = self._renderer.draw_line_collection
@@ -156,6 +159,9 @@ class RendererAgg(RendererBase):
         y = npy.array([y1,y2], float)
         self._renderer.draw_lines(gc, x, y)
 
+    def draw_lines(self, gc, x, y, transform):
+	return self._renderer.draw_lines(gc, x, y, transform.to_values())
+	
 
     def draw_point(self, gc, x, y):
         """
@@ -173,7 +179,9 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.draw_mathtext',
                                      'debug-annoying')
         ox, oy, width, height, descent, font_image, used_characters = \
-            self.mathtext_parser.parse(s, self.dpi.get(), prop)
+            self.mathtext_parser.parse(s, self.dpi, prop)
+#         ox, oy, width, height, descent, font_image, used_characters = \
+#             self.mathtext_parser.parse(s, self.dpi.get(), prop) MGDTODO
         
         x = int(x) + ox
         y = int(y) - oy
@@ -228,7 +236,9 @@ class RendererAgg(RendererBase):
 
         if ismath:
             ox, oy, width, height, descent, fonts, used_characters = \
-                self.mathtext_parser.parse(s, self.dpi.get(), prop)
+                self.mathtext_parser.parse(s, self.dpi, prop)
+#             ox, oy, width, height, descent, fonts, used_characters = \
+#                 self.mathtext_parser.parse(s, self.dpi.get(), prop) MGDTODO
             return width, height, descent
         font = self._get_agg_font(prop)
         font.set_text(s, 0.0, flags=LOAD_DEFAULT)  # the width and height of unrotated string
@@ -302,7 +312,8 @@ class RendererAgg(RendererBase):
 
         font.clear()
         size = prop.get_size_in_points()
-        font.set_size(size, self.dpi.get())
+        font.set_size(size, self.dpi)
+        # font.set_size(size, self.dpi.get()) MGDTODO
 
         return font
 
@@ -380,7 +391,9 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     def get_renderer(self):
         l,b,w,h = self.figure.bbox.get_bounds()
-        key = w, h, self.figure.dpi.get()
+	# MGDTODO
+        # key = w, h, self.figure.dpi.get()
+        key = w, h, self.figure.dpi
         try: self._lastKey, self.renderer
         except AttributeError: need_new_renderer = True
         else:  need_new_renderer = (self._lastKey != key)

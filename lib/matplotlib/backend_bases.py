@@ -1178,11 +1178,13 @@ class FigureCanvasBase:
         if dpi is None:
             dpi = rcParams['savefig.dpi']
             
-        origDPI = self.figure.dpi.get()
+        origDPI = self.figure.dpi
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
 
-        self.figure.dpi.set(dpi)
+	# MGDTODO
+        # self.figure.dpi.set(dpi)
+        self.figure.dpi = dpi
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
@@ -1195,7 +1197,9 @@ class FigureCanvasBase:
                 orientation=orientation,
                 **kwargs)
         finally:
-            self.figure.dpi.set(origDPI)
+	    # MGDTODO
+            # self.figure.dpi.set(origDPI)
+            self.figure.dpi = origDPI
             self.figure.set_facecolor(origfacecolor)
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
