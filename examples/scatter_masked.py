@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from pylab import *
-import matplotlib.numerix.ma as ma
+import matplotlib.numerix.npyma as ma
 
 N = 100
 r0 = 0.6

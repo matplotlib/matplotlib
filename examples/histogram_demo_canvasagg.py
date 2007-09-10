@@ -13,7 +13,8 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 from matplotlib.axes import Subplot
 from matplotlib.mlab import normpdf
-from matplotlib.numerix.mlab import randn
+from numpy.random import randn
+import numpy
 
 fig = Figure(figsize=(5,4), dpi=100)
 ax = fig.add_subplot(111)
@@ -42,14 +43,14 @@ canvas.draw()
 
 s = canvas.tostring_rgb()  # save this and convert to bitmap as needed
 
-# get the figure dimensions for creating bitmaps or numeric arrays,
+# get the figure dimensions for creating bitmaps or numpy arrays,
 # etc.
 l,b,w,h = fig.bbox.get_bounds()
 w, h = int(w), int(h)
 
 if 0:
-    # convert to a Numeric array
-    X = fromstring(s, UInt8)
+    # convert to a numpy array
+    X = numpy.fromstring(s, numpy.uint8)
     X.shape = h, w, 3
 
 if 0:

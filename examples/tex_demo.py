@@ -11,8 +11,8 @@ time, the run may be silent, as a lot of the information is cached in
 
 """
 from matplotlib import rc
-from matplotlib.numerix import arange, cos, pi
-from pylab import figure, axes, plot, xlabel, ylabel, title, \
+from numpy import arange, cos, pi
+from matplotlib.pyplot import figure, axes, plot, xlabel, ylabel, title, \
      grid, savefig, show
 
 
