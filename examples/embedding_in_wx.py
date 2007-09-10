@@ -44,7 +44,7 @@ from matplotlib.backends.backend_wx import Toolbar, FigureCanvasWx,\
 
 from matplotlib.figure import Figure
 from matplotlib.axes import Subplot
-import matplotlib.numerix as numpy
+import  numpy
 from wx import *
 
 

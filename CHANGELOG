@@ -5,7 +5,9 @@
            from pylab is nearly unchanged, but there is the
            new alternative of importing from pyplot to get
            the state-engine graphics without all the numeric
-           functions. - EF
+           functions.
+           Numpified examples; deleted two that were obsolete;
+           modified some to use pyplot. - EF
 
 2007-09-08 Eliminated gd and paint backends - EF
 

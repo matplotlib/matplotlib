@@ -5,19 +5,20 @@ Make a set of images with a single colormap, norm, and colorbar.
 It also illustrates colorbar tick labelling with a multiplier.
 '''
 
-import pylab
+from matplotlib.pyplot import figure, show, sci
 from matplotlib import cm, colors
 from matplotlib.font_manager import FontProperties
-from matplotlib.numerix.mlab import amin, amax
+from numpy import amin, amax, ravel
+from numpy.random import rand
 
 Nr = 3
 Nc = 2
 
-fig = pylab.gcf()
+fig = figure()
 cmap = cm.cool
 
 figtitle = 'Multiple images'
-t = pylab.gcf().text(0.5, 0.95, figtitle,
+t = fig.text(0.5, 0.95, figtitle,
                horizontalalignment='center',
                fontproperties=FontProperties(size=16))
 
@@ -37,8 +38,8 @@ for i in range(Nr):
             a.set_xticklabels([])
         # Make some fake data with a range that varies
         # somewhat from one plot to the next.
-        data =((1+i+j)/10.0)*pylab.rand(10,20)*1e-6
-        dd = pylab.ravel(data)
+        data =((1+i+j)/10.0)*rand(10,20)*1e-6
+        dd = ravel(data)
         # Manually find the min and max of all colors for
         # use in setting the color scale.
         vmin = min(vmin, amin(dd))
@@ -60,9 +61,10 @@ fig.colorbar(images[0], cax, orientation='horizontal')
 
 # We need the following only if we want to run this
 # script interactively and be able to change the colormap.
-pylab.sci(images[0])
 
-pylab.show()
+sci(images[0])
+
+show()
 
 
 

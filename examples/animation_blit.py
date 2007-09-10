@@ -10,7 +10,7 @@ import gtk, gobject
 
 import matplotlib
 matplotlib.use('GTKAgg')
-import matplotlib.numerix as nx
+import numpy as npy
 import pylab as p
 
 
@@ -21,8 +21,8 @@ p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs
 p.grid() # to ensure proper background restore
 
 # create the initial line
-x = nx.arange(0,2*nx.pi,0.01)
-line, = p.plot(x, nx.sin(x), animated=True, lw=2)
+x = npy.arange(0,2*npy.pi,0.01)
+line, = p.plot(x, npy.sin(x), animated=True, lw=2)
 
 # for profiling
 tstart = time.time()
@@ -34,7 +34,7 @@ def update_line(*args):
     # restore the clean slate background
     canvas.restore_region(update_line.background)
     # update the data
-    line.set_ydata(nx.sin(x+update_line.cnt/10.0))
+    line.set_ydata(npy.sin(x+update_line.cnt/10.0))
     # just draw the animated artist
     try:
         ax.draw_artist(line)

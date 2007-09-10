@@ -21,7 +21,7 @@ from matplotlib import rc
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 from matplotlib.cbook import iterable
-import matplotlib.numerix as nx
+import numpy as npy
 
 def make_fig():
     """
@@ -40,9 +40,9 @@ def make_fig():
     line,  = ax.plot([1,2,3], 'ro--', markersize=12, markerfacecolor='g')
 
     # make a translucent scatter collection
-    x = nx.mlab.rand(100)
-    y = nx.mlab.rand(100)
-    area = nx.pi*(10 * nx.mlab.rand(100))**2 # 0 to 10 point radiuses
+    x = npy.random.rand(100)
+    y = npy.random.rand(100)
+    area = npy.pi*(10 * npy.random.rand(100))**2 # 0 to 10 point radiuses
     c = ax.scatter(x,y,area)
     c.set_alpha(0.5)
 

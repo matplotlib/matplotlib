@@ -4,7 +4,7 @@ An example of how to use wx or wxagg in an application with a custom
 toolbar
 """
 
-from matplotlib.numerix import arange, sin, pi
+from numpy import arange, sin, pi
 
 import matplotlib
 
@@ -19,7 +19,7 @@ from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg
 
 from matplotlib.backends.backend_wx import _load_bitmap
 from matplotlib.figure import Figure
-from matplotlib.numerix.mlab import rand
+from numpy.random import rand
 
 from wx import *
 
