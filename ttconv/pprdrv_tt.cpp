@@ -1088,7 +1088,7 @@ void read_font(const char *filename, font_type_enum target_type, std::vector<int
     font.filename=filename;
 
     /* Open the font file */
-    if( (font.file = fopen(filename,"r")) == (FILE*)NULL )
+    if( (font.file = fopen(filename,"rb")) == (FILE*)NULL )
     	throw TTException("Failed to open TrueType font");
 
     /* Allocate space for the unvarying part of the offset table. */
