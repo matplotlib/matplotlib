@@ -1833,7 +1833,7 @@ class GraphicsContextPdf(GraphicsContextBase):
             cmds.extend(self.pop())
         # Unless we hit the right one, set the clip polygon
         if (self._cliprect, self._clippath) != (cliprect, clippath):
-            cmds.append(self.push())
+            cmds.extend(self.push())
             if self._cliprect != cliprect:
                 cmds.extend([t for t in cliprect] + 
                             [Op.rectangle, Op.clip, Op.endpath])
