@@ -1399,6 +1399,9 @@ class FigureManagerWx(FigureManagerBase):
         #wx.GetApp().ProcessIdle()
         wx.WakeUpIdle()
 
+    def set_window_title(self, title):
+        self.window.SetTitle(title)
+
 # Identifiers for toolbar controls - images_wx contains bitmaps for the images
 # used in the controls. wxWindows does not provide any stock images, so I've
 # 'stolen' those from GTK2, and transformed them into the appropriate format.
