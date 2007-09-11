@@ -58,10 +58,8 @@ class Affine2D(Transform):
 	self.mtx = matrix
 
     def __repr__(self):
-	return repr(self.mtx)
-
-    def __str__(self):
-	return str(self.mtx)
+	return "Affine2D(%s)" % repr(self.mtx)
+    __str__ = __repr__
     
     #@staticmethod
     def from_values(a, b, c, d, e, f):
@@ -156,8 +154,8 @@ class Affine2D(Transform):
 
 class BlendedAffine2D(Affine2D):
     def __init__(self, x_transform, y_transform):
-	assert isinstance(x_transform, Affine2D)
-	assert isinstance(y_transform, Affine2D)
+#	assert isinstance(x_transform, Affine2D)
+#	assert isinstance(y_transform, Affine2D)
 	assert x_transform.is_separable()
 	assert y_transform.is_separable()
 	x_mtx = x_transform.mtx

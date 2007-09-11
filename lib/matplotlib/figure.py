@@ -105,8 +105,9 @@ class SubplotParams:
 class Figure(Artist):
 
     def __str__(self):
-        return "Figure(%gx%g)"%(self.figwidth.get(),self.figheight.get())
-
+        return "Figure(%gx%g)"%(self.figwidth, self.figheight)
+        # return "Figure(%gx%g)"%(self.figwidth.get(),self.figheight.get())
+    
     def __init__(self,
                  figsize   = None,  # defaults to rc figure.figsize
                  dpi       = None,  # defaults to rc figure.dpi
@@ -129,10 +130,9 @@ class Figure(Artist):
         if edgecolor is None: edgecolor = rcParams['figure.edgecolor']
 
         self.dpi = dpi
-	self.figsize = figsize
-	self.bbox = Bbox.from_lbwh(0, 0,
-				   figsize[0] * dpi,
-				   figsize[1] * dpi)
+	self.figwidth = figsize[0] * dpi
+	self.figheight = figsize[1] * dpi
+	self.bbox = Bbox.from_lbwh(0, 0, self.figwidth, self.figheight)
 	
         self.frameon = frameon
 
@@ -324,11 +324,16 @@ class Figure(Artist):
             w,h = args[0]
         else:
             w,h = args
-        self.figwidth.set(w)
-        self.figheight.set(h)
 
+	
+        self.figwidth = w
+        self.figheight = h
+        # self.figwidth.set(w) MGDTODO
+        # self.figheight.set(h)
+	
         if forward:
-            dpival = self.dpi.get()
+            # dpival = self.dpi.get()
+            dpival = self.dpi
             canvasw = w*dpival
             canvash = h*dpival
             manager = getattr(self.canvas, 'manager', None)
@@ -336,7 +341,8 @@ class Figure(Artist):
                 manager.resize(int(canvasw), int(canvash))
 
     def get_size_inches(self):
-        return self.figwidth.get(), self.figheight.get()
+        return self.figwidth, self.figheight
+        # return self.figwidth.get(), self.figheight.get() MGDTODO
 
     def get_edgecolor(self):
         'Get the edge color of the Figure rectangle'
@@ -348,7 +354,8 @@ class Figure(Artist):
 
     def get_figwidth(self):
         'Return the figwidth as a float'
-        return self.figwidth.get()
+	return self.figwidth
+        # return self.figwidth.get() MGDTODO
 
     def get_figheight(self):
         'Return the figheight as a float'
@@ -356,7 +363,8 @@ class Figure(Artist):
 
     def get_dpi(self):
         'Return the dpi as a float'
-        return self.dpi.get()
+        return self.dpi
+        # return self.dpi.get() MGDTODO
 
     def get_frameon(self):
         'get the boolean indicating frameon'
@@ -384,7 +392,8 @@ class Figure(Artist):
 
         ACCEPTS: float
         """
-        self.dpi.set(val)
+        # self.dpi.set(val) MGDTODO
+	self.dpi = val
 
     def set_figwidth(self, val):
         """
@@ -392,15 +401,17 @@ class Figure(Artist):
 
         ACCEPTS: float
         """
-        self.figwidth.set(val)
-
+        # self.figwidth.set(val)  MGDTODO
+        self.figwidth = val
+	
     def set_figheight(self, val):
         """
         Set the height of the figure in inches
 
         ACCEPTS: float
         """
-        self.figheight.set(val)
+	# MGDTODO (set())
+        self.figheight = val
 
     def set_frameon(self, b):
         """

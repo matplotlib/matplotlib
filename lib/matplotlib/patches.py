@@ -212,7 +212,7 @@ class Patch(artist.Artist):
         tverts = self.get_transform()(verts)
 
 	# MGDTODO: This result is an Nx2 numpy array, which could be passed
-	# directly to renderer.draw_polygon.  However, it currently expects
+	# directly to renderer.draw_polygon since it currently expects
 	# a list of tuples so we're converting it to that now.
 	tverts = [tuple(x) for x in tverts]
 	
