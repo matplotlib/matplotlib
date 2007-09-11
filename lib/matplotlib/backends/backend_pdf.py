@@ -519,12 +519,13 @@ class PdfFile:
             ul_position, ul_thickness = font.get_ps_font_info()
 
         if fontinfo.encodingfile is not None:
-            differencesArray = [ Name(ch) for ch in  
-                                 dviread.Encoding(fontinfo.encodingfile) ]
+            enc = dviread.Encoding(fontinfo.encodingfile)
+            widths = [ afmdata.get_width_from_char_name(ch)
+                       for ch in enc ]
+            differencesArray = [ Name(ch) for ch in enc ]
             differencesArray = [ 0 ] + differencesArray
             firstchar = 0
             lastchar = len(differencesArray) - 2
-            widths = [ 100 for x in range(firstchar,lastchar+1) ] # XXX TODO
         else:
             widths = [ None for i in range(256) ]
             for ch in range(256):
@@ -1434,7 +1435,7 @@ class RendererPdf(RendererBase):
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
         dvi = dviread.Dvi(dvifile, 72)
-        text, boxes = iter(dvi).next()
+        page = iter(dvi).next()
         dvi.close()
 
         if angle == 0:          # avoid rounding errors in common case
@@ -1448,7 +1449,7 @@ class RendererPdf(RendererBase):
         # Gather font information and do some setup for combining
         # characters into strings.
         oldfontnum, seq = None, []
-        for x1, y1, fontnum, glyph, width in text:
+        for x1, y1, fontnum, glyph, width in page.text:
             if fontnum != oldfontnum:
                 texname, fontsize = dvi.fontinfo(fontnum)
                 fontinfo = self.tex_font_mapping(texname)
@@ -1462,8 +1463,8 @@ class RendererPdf(RendererBase):
         seq += [('end',)]
 
         # Find consecutive text strings with constant x coordinate and
-        # combine into one string (if needed kern would be less than
-        # 0.1 points) or several strings interspersed with kerns.
+        # combine into a sequence of strings and kerns, or just one
+        # string (if any kerns would be less than 0.1 points).
         i, curx = 0, 0
         while i < len(seq)-1:
             elt, next = seq[i:i+2]
@@ -1503,7 +1504,7 @@ class RendererPdf(RendererBase):
         boxgc = self.new_gc()
         boxgc.copy_properties(gc)
         boxgc.set_linewidth(0)
-        for x1, y1, h, w in boxes:
+        for x1, y1, h, w in page.boxes:
             (x1, y1), (x2, y2), (x3, y3), (x4, y4) = \
                 mytrans(x1, y1), mytrans(x1+w, y1), \
                 mytrans(x1+w, y1+h), mytrans(x1, y1+h)
@@ -1653,14 +1654,9 @@ class RendererPdf(RendererBase):
             fontsize = prop.get_size_in_points()
             dvifile = texmanager.make_dvi(s, fontsize)
             dvi = dviread.Dvi(dvifile, 72)
-            text, boxes = iter(dvi).next()
-            # TODO: better bounding box -- this is not quite right:
-            l = min(p[0] for p in text+boxes)
-            r = max(p[0] for p in text+boxes) + fontsize
-            b = min(p[1] for p in text+boxes)
-            t = max(p[1] for p in text+boxes) + fontsize
-            # (not to even mention finding the baseline)
-            return r-l, t-b, t-b
+            page = iter(dvi).next()
+            dvi.close()
+            return page.width, page.height, page.descent
         if ismath:
             w, h, d, glyphs, rects, used_characters = \
                 self.mathtext_parser.parse(s, 72, prop)
@@ -1837,7 +1833,7 @@ class GraphicsContextPdf(GraphicsContextBase):
             cmds.extend(self.pop())
         # Unless we hit the right one, set the clip polygon
         if (self._cliprect, self._clippath) != (cliprect, clippath):
-            cmds.append(self.push())
+            cmds.extend(self.push())
             if self._cliprect != cliprect:
                 cmds.extend([t for t in cliprect] + 
                             [Op.rectangle, Op.clip, Op.endpath])
