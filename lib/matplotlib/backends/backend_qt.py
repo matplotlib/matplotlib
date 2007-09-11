@@ -247,6 +247,9 @@ class FigureManagerQT( FigureManagerBase ):
         if DEBUG: print "destroy figure manager"
         self.window.close(True)
 
+    def set_window_title(self, title):
+        self.window.setCaption(title)
+
 class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
     # list of toolitems to add to the toolbar, format is:
     # text, tooltip_text, image_file, callback(str)
