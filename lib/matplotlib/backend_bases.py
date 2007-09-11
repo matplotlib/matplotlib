@@ -752,7 +752,7 @@ class LocationEvent(Event):
         else: # Just found one hit
             self.inaxes = axes_list[0]
 
-        try: xdata, ydata = self.inaxes.transData.inverse_xy_tup((x, y))
+        try: xdata, ydata = self.inaxes.transData.inverted()([[x, y]])[0]
         except ValueError:
             self.xdata  = None
             self.ydata  = None

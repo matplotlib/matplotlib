@@ -15,7 +15,7 @@ from artist import Artist
 from cbook import enumerate, is_string_like, maxdict, is_numlike
 from font_manager import FontProperties
 from patches import bbox_artist, YAArrow
-from bbox import lbwh_to_bbox, bbox_union
+from bbox import Bbox, bbox_union
 from lines import Line2D
 
 import matplotlib.nxutils as nxutils
@@ -39,8 +39,6 @@ def get_rotation(rotation):
     else:
         angle = float(rotation)
     return angle%360
-
-_unit_box = lbwh_to_bbox(0,0,1,1)
 
 # these are not available for the object inspector until after the
 # class is build so we define an initial set here for the init
@@ -264,7 +262,7 @@ class Text(Artist):
         ymin += offsety
         ymax += offsety
 
-        bbox = lbwh_to_bbox(xmin, ymin, width, height)
+        bbox = Bbox.from_lbwh(xmin, ymin, width, height)
 
 
         # now rotate the positions around the first x,y position
@@ -423,10 +421,10 @@ class Text(Artist):
 
     def get_window_extent(self, renderer=None):
         #return _unit_box
-        if not self.get_visible(): return _unit_box
+        if not self.get_visible(): return Bbox.unit()
         if self._text == '':
             tx, ty = self._get_xy_display()
-            return lbwh_to_bbox(tx,ty,0,0)
+            return Bbox.from_lbwh(tx,ty,0,0)
 
         if renderer is not None:
             self._renderer = renderer

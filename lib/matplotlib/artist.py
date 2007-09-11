@@ -138,6 +138,7 @@ class Artist:
 
         ACCEPTS: a matplotlib.transform transformation instance
         """
+	print "set_transform", t
         self._transform = t
         self._transformSet = True
         self.pchanged()

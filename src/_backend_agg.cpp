@@ -56,7 +56,7 @@ agg::trans_affine py_sequence_to_agg_transformation_matrix(const Py::Object& obj
     throw Py::ValueError("Transformation matrix must be given as a 6-element list.");
   }
 
-  agg::trans_affine xytrans = agg::trans_affine
+  return agg::trans_affine
     (Py::Float(seq[0]), 
      Py::Float(seq[1]), 
      Py::Float(seq[2]), 
@@ -1935,17 +1935,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   if (ya==NULL)
     throw Py::TypeError("RendererAgg::_draw_markers_cache expected numerix array");
   
-  Transformation* mpltransform = static_cast<Transformation*>(args[5].ptr());
-  
-  double a, b, c, d, tx, ty;
-  try {
-    mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
-  }
-  catch(...) {
-    throw Py::ValueError("Domain error on affine_params_api in RendererAgg::_draw_markers_cache");
-  }
-  
-  agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);
+  agg::trans_affine xytrans = py_sequence_to_agg_transformation_matrix(args[5]);
   
   size_t Nx = xa->dimensions[0];
   size_t Ny = ya->dimensions[0];
@@ -2006,14 +1996,15 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   for (size_t i=0; i<Nx; i++) {
     thisx = *(double *)(xa->data + i*xa->strides[0]);
     thisy = *(double *)(ya->data + i*ya->strides[0]);
-    
-    if (mpltransform->need_nonlinear_api())
-      try {
-	mpltransform->nonlinear_only_api(&thisx, &thisy);
-      }
-      catch(...) {
-	continue;
-      }
+
+    // MGDTODO
+//     if (mpltransform->need_nonlinear_api())
+//       try {
+// 	mpltransform->nonlinear_only_api(&thisx, &thisy);
+//       }
+//       catch(...) {
+// 	continue;
+//       }
     
     xytrans.transform(&thisx, &thisy);
     

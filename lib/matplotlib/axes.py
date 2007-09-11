@@ -10,9 +10,9 @@ rcParams = matplotlib.rcParams
 
 from matplotlib import artist as martist
 from matplotlib import affine as maffine
-from matplotlib import bbox as mbbox
 from matplotlib import agg
 from matplotlib import axis as maxis
+from matplotlib import bbox as mbbox
 from matplotlib import cbook
 from matplotlib import collections as mcoll
 from matplotlib import colors as mcolors
@@ -33,7 +33,7 @@ from matplotlib import ticker as mticker
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
-
+Wrapper = cbook.Wrapper
 
 
 def delete_masked_points(*args):
@@ -437,7 +437,6 @@ class Axes(martist.Artist):
               1 : 'log',
               }
 
-    
     def __str__(self):
         return "Axes(%g,%g;%gx%g)"%(self._position[0].get(),self._position[1].get(),
                                     self._position[2].get(),self._position[3].get())
@@ -534,7 +533,6 @@ class Axes(martist.Artist):
 
         if self.yaxis is not None:
             self._ycid = self.yaxis.callbacks.connect('units finalize', self.relim)
-
 
     def get_window_extent(self, *args, **kwargs):
         'get the axes bounding box in display space; args and kwargs are empty'
@@ -655,15 +653,15 @@ class Axes(martist.Artist):
             bottom = 0.0
             top = 1.0
 
-
-
         self.viewLim = Bbox.from_lbrt(left, bottom, right, top)
-        self.dataLim = Bbox.unit()
-
+	self.dataLim = Bbox.unit()
+	
         self.transData = maffine.get_bbox_transform(
             self.viewLim, self.bbox)
         self.transAxes = maffine.get_bbox_transform(
-            Bbox.unit(), self.bbox)
+            self.dataLim, self.bbox)
+
+	print "_set_lim_and_transforms", self.viewLim, self.transData, self.dataLim, self.transAxes, self.bbox
 
 	# MGDTODO
 #         if self._sharex:
@@ -677,7 +675,8 @@ class Axes(martist.Artist):
         if original:
             return self._originalPosition[:]
         else:
-            return [val.get() for val in self._position]
+            return self._position[:]
+	    # return [val.get() for val in self._position]
 
     def set_position(self, pos, which='both'):
         """
@@ -699,10 +698,13 @@ class Axes(martist.Artist):
 #             # Change values within self._position--don't replace it.
 #             for num,val in zip(pos, self._position):
 #                 val.set(num)
+	    print "set_position", self._position, pos
 	    self._position = pos
+	    # MGDTODO: side-effects
         if which in ('both', 'original'):
             self._originalPosition = pos
-
+	    
+	    
     def _set_artist_props(self, a):
         'set the boilerplate props for artists added to axes'
         a.set_figure(self.figure)
@@ -1181,7 +1183,10 @@ class Axes(martist.Artist):
         #print type(x), type(y)
 	# MGDTODO
         ## self.dataLim.update_numerix(x, y, -1)
-	pass
+	print "update_datalim_numerix", self.dataLim,
+	self.dataLim = mbbox.Bbox.from_data(x, y)
+	print self.dataLim
+	# MGDTODO side-effects
 
     def _get_verts_in_data_coords(self, trans, xys):
         if trans == self.transData:
@@ -1190,8 +1195,8 @@ class Axes(martist.Artist):
         # display and then back to data to get it in data units
         #xys = trans.seq_xy_tups(xys)
         #return [ self.transData.inverse_xy_tup(xy) for xy in xys]
-        xys = trans.numerix_xy(npy.asarray(xys))
-        return self.transData.inverse_numerix_xy(xys)
+        xys = trans(npy.asarray(xys))
+        return self.transData.inverted()(xys)
 
     def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
         'look for unit kwargs and update the axis instances as necessary'
@@ -1242,7 +1247,8 @@ class Axes(martist.Artist):
         axis direction reversal that has already been done.
         """
         # if image data only just use the datalim
-
+	print "autoscale_view"
+	
         if not self._autoscaleon: return
         if (tight or (len(self.images)>0 and
                       len(self.lines)==0 and
@@ -1278,7 +1284,7 @@ class Axes(martist.Artist):
         if not self.get_visible(): return
         renderer.open_group('axes')
         self.apply_aspect()
-	# MGDTODO
+	# MGDTODO -- this is where we can finalize all of the transforms
         # self.transData.freeze()  # eval the lazy objects
         # self.transAxes.freeze()
         if self.axison and self._frameon: self.axesPatch.draw(renderer)
@@ -1544,9 +1550,12 @@ class Axes(martist.Artist):
 #             raise ValueError('Cannot set nonpositive limits with log transform')
 
         xmin, xmax = mbbox.nonsingular(xmin, xmax, increasing=False)
-        self.viewLim.intervalx().set_bounds(xmin, xmax)
-        if emit: self.callbacks.process('xlim_changed', self)
 
+	# MGDTODO: This is fairly cumbersome
+	# MGDTODO: side-effects on x-bounds should propagate
+	self.viewLim = mbbox.Bbox.from_lbrt(xmin, self.viewLim.ymin(), xmax, self.viewLim.ymax())
+	print 'set_xlim', self.viewLim
+	
         return xmin, xmax
 
     def get_xscale(self):
@@ -1649,7 +1658,7 @@ class Axes(martist.Artist):
         ACCEPTS: len(2) sequence of floats
         """
 
-
+	print "set_ylim", ymin, ymax, emit
         if ymax is None and iterable(ymin):
             ymin,ymax = ymin
 
@@ -1669,9 +1678,11 @@ class Axes(martist.Artist):
 #             raise ValueError('Cannot set nonpositive limits with log transform')
 
         ymin, ymax = mbbox.nonsingular(ymin, ymax, increasing=False)
-        self.viewLim.intervaly().set_bounds(ymin, ymax)
+	# MGDTODO: side-effects on y-bounds should propagate
+	self.viewLim = mbbox.Bbox.from_lbrt(self.viewLim.xmin(), ymin, self.viewLim.xmax(), ymax)
         if emit: self.callbacks.process('ylim_changed', self)
-
+	print "set_ylim", self.viewLim
+	
         return ymin, ymax
 
     def get_yscale(self):
@@ -2158,7 +2169,7 @@ class Axes(martist.Artist):
         %(Annotation)s
         """
         a = mtext.Annotation(*args, **kwargs)
-        a.set_transform(maffine.Affine2D.identity())
+        a.set_transform(maffine.Affine2D())
         self._set_artist_props(a)
         if kwargs.has_key('clip_on'):  a.set_clip_box(self.bbox)
         self.texts.append(a)
@@ -2197,7 +2208,7 @@ class Axes(martist.Artist):
         %(Line2D)s
         """
 
-        trans = maffine.blend_xy_sep_transform( self.transAxes, self.transData)
+        trans = maffine.blend_xy_sep_transform(self.transAxes, self.transData)
         l, = self.plot([xmin,xmax], [y,y], transform=trans, scalex=False, **kwargs)
         return l
 

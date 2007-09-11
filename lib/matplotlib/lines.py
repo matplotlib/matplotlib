@@ -18,7 +18,7 @@ from artist import Artist, setp
 from cbook import iterable, is_string_like, is_numlike
 from colors import colorConverter
 
-from bbox import lbwh_to_bbox
+from bbox import Bbox
 from matplotlib import rcParams
 
 # special-purpose marker identifiers:
@@ -368,6 +368,7 @@ class Line2D(Artist):
 	a = npy.vstack((x, y)).swapaxes(0, 1)
 	####
         x, y = self.get_transform()(a)
+	print "get_window_extent", self.get_transform()
 	
         #x, y = self.get_transform().seq_x_y(x, y)
 
@@ -384,10 +385,11 @@ class Line2D(Artist):
             bottom -= ms/2
             width += ms
             height += ms
-        return lbwh_to_bbox(left, bottom, width, height)
+        return Bbox.from_lbwh(left, bottom, width, height)
 
 
     def set_axes(self, ax):
+	print "set_axes"
         Artist.set_axes(self, ax)
         if ax.xaxis is not None:
             self._xcid = ax.xaxis.callbacks.connect('units', self.recache)

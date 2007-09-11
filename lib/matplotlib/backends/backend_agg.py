@@ -113,11 +113,12 @@ class RendererAgg(RendererBase):
 				      debug=False)
         if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done',
                                      'debug-annoying')
-        self.draw_polygon = self._renderer.draw_polygon
+        # self.draw_polygon = self._renderer.draw_polygon
         self.draw_rectangle = self._renderer.draw_rectangle
         self.draw_path = self._renderer.draw_path
+	# MGDTODO -- remove these lines
         # self.draw_lines = self._renderer.draw_lines
-        self.draw_markers = self._renderer.draw_markers
+        # self.draw_markers = self._renderer.draw_markers
         self.draw_image = self._renderer.draw_image
         self.draw_line_collection = self._renderer.draw_line_collection
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
@@ -161,8 +162,13 @@ class RendererAgg(RendererBase):
 
     def draw_lines(self, gc, x, y, transform):
 	return self._renderer.draw_lines(gc, x, y, transform.to_values())
-	
 
+    def draw_markers(self, gc, path, color, x, y, transform):
+	return self._renderer.draw_markers(gc, path, color, x, y, transform.to_values())
+
+    def draw_polygon(self, *args):
+	return self._renderer.draw_polygon(*args)
+    
     def draw_point(self, gc, x, y):
         """
         Draw a single point at x,y
@@ -325,8 +331,10 @@ class RendererAgg(RendererBase):
         """
         if __debug__: verbose.report('RendererAgg.points_to_pixels',
                                      'debug-annoying')
-        return points*self.dpi.get()/72.0
-
+	# MGDTODO
+        # return points*self.dpi.get()/72.0
+        return points*self.dpi/72.0
+    
     def tostring_rgb(self):
         if __debug__: verbose.report('RendererAgg.tostring_rgb',
                                      'debug-annoying')

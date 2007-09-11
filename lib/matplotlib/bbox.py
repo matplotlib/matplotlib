@@ -21,9 +21,6 @@ class Interval:
     def get_bounds(self):
 	return self._bounds
 
-    def set_bounds(self, lower, upper):
-	self._bounds = lower, upper
-
     def span(self):
 	bounds = self._bounds
 	return bounds[1] - bounds[0]
@@ -47,8 +44,23 @@ class Bbox:
 	return Bbox([[left, bottom], [right, top]])
     from_lbrt = staticmethod(from_lbrt)
 
+    #@staticmethod
+    def from_data(x, y):
+	return Bbox([[x.min(), y.min()], [x.max(), y.max()]])
+    from_data = staticmethod(from_data)
+    
     def copy(self):
 	return Bbox(self._points.copy())
+
+    def __repr__(self):
+	return 'Bbox(%s)' % repr(self._points)
+    __str__ = __repr__
+
+    def __cmp__(self, other):
+	# MGDTODO: Totally suboptimal
+	if isinstance(other, Bbox):
+	    return (self._points == other._points).all()
+	return -1
     
     # MGDTODO: Probably a more efficient ways to do this...
     def xmin(self):
@@ -79,6 +91,7 @@ class Bbox:
 	return (self.xmin(), self.ymin(),
 		self.xmax() - self.xmin(), self.ymax() - self.ymin())
 
+    # MGDTODO: This is an inefficient way to do this
     def intervalx(self):
 	return Interval(self._points[0])
 
@@ -92,10 +105,11 @@ class Bbox:
 	deltah = (sh * height - height) / 2.0
 	a = N.array([[-deltaw, -deltah], [deltaw, deltah]])
 	return Bbox(self._points + a)
-	
-def lbwh_to_bbox(left, bottom, width, height):
-    return Bbox([[left, bottom], [left + width, bottom + height]])
-    
+
+    def contains(self, x, y):
+	return (x >= self.xmin() and x <= self.xmax() and
+		y >= self.ymin() and y <= self.ymax())
+
 def bbox_union(bboxes):
     """
     Return the Bbox that bounds all bboxes
