@@ -9,14 +9,12 @@ Interface:
     for page in dvi:          # iterate over pages
         w, h, d = page.width, page.height, page.descent
         for x,y,font,glyph,width in page.text:
-            fontname, pointsize = dvi.fontinfo(font)
+            fontname = font.texname
+            pointsize = font.size
             ...
         for x,y,height,width in page.boxes:
             ...
 """
-
-# TODO: support TeX virtual fonts (*.vf) which are a sort of
-#       subroutine collections for dvi files
 
 import matplotlib
 import matplotlib.cbook as mpl_cbook
@@ -85,8 +83,7 @@ class Dvi(object):
                 x,y,h,w = elt
                 e = 0           # zero depth
             else:               # glyph
-                x,y,f,g,w = elt
-                font = self.fonts[f]
+                x,y,font,g,w = elt
                 h = (font.scale * font.tfm.height[g]) >> 20
                 e = (font.scale * font.tfm.depth[g]) >> 20
             minx = min(minx, x)
@@ -96,21 +93,14 @@ class Dvi(object):
             maxy_pure = max(maxy_pure, y)
 
         d = self.dpi / (72.27 * 2**16) # from TeX's "scaled points" to dpi units
-        text =  [ ((x-minx)*d, (maxy-y)*d, f, g, w*d) for (x,y,f,g,w) in self.text ]
+        text =  [ ((x-minx)*d, (maxy-y)*d, DviFont(f), g, w*d) 
+                  for (x,y,f,g,w) in self.text ]
         boxes = [ ((x-minx)*d, (maxy-y)*d, h*d, w*d) for (x,y,h,w) in self.boxes ]
 
         return mpl_cbook.Bunch(text=text, boxes=boxes, 
                                width=(maxx-minx)*d, 
                                height=(maxy_pure-miny)*d, 
                                descent=(maxy-maxy_pure)*d)
-
-    def fontinfo(self, f):
-        """
-        texname, pointsize = dvi.fontinfo(fontnum)
-
-        Name and size in points (Adobe points, not TeX points).
-        """
-        return self.fonts[f].name, self.fonts[f].scale * (72.0 / (72.27 * 2**16))
 
     def _read(self):
         """
@@ -235,17 +225,21 @@ class Dvi(object):
             # I think we can assume this is constant
         self.state = _dvistate.outer
 
-    def _width_of(self, char):
-        font = self.fonts[self.f]
-        width = font.tfm.width[char]
-        width = (width * font.scale) >> 20
-        return width
+    def _width_of(self, char, font):
+        width = font.tfm.width.get(char, None)
+        if width is not None:
+            return (width * font.scale) >> 20
+
+        matplotlib.verbose.report(
+            'No width for char %d in font %s' % (char, font.name),
+            'debug')
+        return 0
 
     def _set_char(self, char):
         if self.state != _dvistate.inpage:
             raise ValueError, "misplaced set_char in dvi file"
         self._put_char(char)
-        self.h += self._width_of(char)
+        self.h += self._width_of(char, self.fonts[self.f])
 
     def _set_rule(self, a, b):
         if self.state != _dvistate.inpage:
@@ -256,7 +250,15 @@ class Dvi(object):
     def _put_char(self, char):
         if self.state != _dvistate.inpage:
             raise ValueError, "misplaced put_char in dvi file"
-        self.text.append((self.h, self.v, self.f, char, self._width_of(char)))
+        font = self.fonts[self.f]
+        if font.vf is None:
+            self.text.append((self.h, self.v, font, char, 
+                              self._width_of(char, font)))
+        else:
+            self.text.extend([(self.h + x, self.v + y, f, g, w)
+                              for x, y, f, g, w in font.vf[char].text])
+            self.boxes.extend([(self.h + x, self.v + y, a, b)
+                               for x, y, a, b in font.vf[char].boxes])
 
     def _put_rule(self, a, b):
         if self.state != _dvistate.inpage:
@@ -269,8 +271,8 @@ class Dvi(object):
 
     def _bop(self, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, p):
         if self.state != _dvistate.outer:
-            print '+++', self.state
-            raise ValueError, "misplaced bop in dvi file"
+            raise ValueError, \
+                "misplaced bop in dvi file (state %d)" % self.state
         self.state = _dvistate.inpage
         self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
         self.stack = []
@@ -345,15 +347,17 @@ class Dvi(object):
             'debug')
 
     def _fnt_def(self, k, c, s, d, a, l, n):
-        filename = find_tex_file(n[-l:] + '.tfm')
-        tfm = Tfm(filename)
+        tfm = _tfmfile(n[-l:])
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError, 'tfm checksum mismatch: %s'%n
         # It seems that the assumption behind the following check is incorrect:
         #if d != tfm.design_size:
         #    raise ValueError, 'tfm design size mismatch: %d in dvi, %d in %s'%\
         #        (d, tfm.design_size, n)
-        self.fonts[k] = mpl_cbook.Bunch(scale=s, tfm=tfm, name=n)
+
+        vf = _vffile(n[-l:])
+
+        self.fonts[k] = mpl_cbook.Bunch(scale=s, tfm=tfm, name=n, vf=vf)
 
     def _post(self):
         if self.state != _dvistate.outer:
@@ -364,6 +368,121 @@ class Dvi(object):
 
     def _post_post(self):
         raise NotImplementedError
+
+class DviFont(object):
+    __slots__ = ('texname', 'size')
+
+    def __init__(self, f):
+        """
+        Object that holds a font's texname and size and supports comparison.
+
+        The size is in Adobe points (converted from TeX points).
+        """
+        # TODO: would it make more sense to have the size in dpi units?
+        self.texname = f.name
+        self.size = f.scale * (72.0 / (72.27 * 2**16))
+
+    def __eq__(self, other):
+        return self.__class__ == other.__class__ and \
+            self.texname == other.texname and self.size == other.size
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+class Vf(Dvi):
+    """
+    A virtual font (*.vf file) containing subroutines for dvi files.
+    
+    Usage:
+    vf = Vf(filename)
+    glyph = vf[code]
+    glyph.text, glyph.boxes, glyph.width
+    """
+
+    def __init__(self, filename):
+        Dvi.__init__(self, filename, 0)
+        self._first_font = None
+        self._chars = {}
+        self._packet_ends = None
+        self._read()
+        self.close()
+
+    def __getitem__(self, code):
+        return self._chars[code]
+
+    def _dispatch(self, byte):
+        # If we are in a packet, execute the dvi instructions
+        if self.state == _dvistate.inpage:
+            byte_at = self.file.tell()-1
+            if byte_at == self._packet_ends:
+                self._finalize_packet()
+                # fall through
+            elif byte_at > self._packet_ends:
+                raise ValueError, "Packet length mismatch in vf file"
+            else:
+                if byte in (139, 140) or byte >= 243:
+                    raise ValueError, "Inappropriate opcode %d in vf file" % byte
+                Dvi._dispatch(self, byte)
+                return
+
+        # We are outside a packet
+        if byte < 242:          # a short packet (length given by byte)
+            cc, tfm = self._arg(1), self._arg(3)
+            self._init_packet(byte, cc, tfm)
+        elif byte == 242:       # a long packet
+            pl, cc, tfm = [ self._arg(x) for x in (4, 4, 4) ]
+            self._init_packet(pl, cc, tfm)
+        elif 243 <= byte <= 246:
+            Dvi._dispatch(self, byte)
+        elif byte == 247:       # preamble
+            i, k = self._arg(1), self._arg(1)
+            x = self.file.read(k)
+            cs, ds = self._arg(4), self._arg(4)
+            self._pre(i, x, cs, ds)
+        elif byte == 248:       # postamble (just some number of 248s)
+            self.state = _dvistate.post_post
+        else:
+            raise ValueError, "unknown vf opcode %d" % byte
+
+    def _init_packet(self, pl, cc, tfm):
+        if self.state != _dvistate.outer:
+            raise ValueError, "Misplaced packet in vf file"
+        self.state = _dvistate.inpage
+        self._packet_ends = self.file.tell() + pl
+        self._packet_char = cc
+        self._packet_width = tfm
+        self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
+        self.stack, self.text, self.boxes = [], [], []
+        self.f = self._first_font
+
+    def _finalize_packet(self):
+        self._chars[self._packet_char] = mpl_cbook.Bunch(
+            text=self.text, boxes=self.boxes, width = self._packet_width)
+        self.state = _dvistate.outer
+
+    def _pre(self, i, x, cs, ds):
+        if self.state != _dvistate.pre:
+            raise ValueError, "pre command in middle of vf file"
+        if i != 202:
+            raise ValueError, "Unknown vf format %d" % i
+        matplotlib.verbose.report('vf file comment: ' + x, 'debug')
+        self.state = _dvistate.outer
+        # cs = checksum, ds = design size
+
+    def _fnt_def(self, k, *args):
+        Dvi._fnt_def(self, k, *args)
+        if self._first_font is None:
+            self._first_font = k
+
+def fix2comp(num):
+    """
+    Convert from two's complement to negative.
+    """
+    assert 0 <= num < 2**32
+    if num & 2**31:
+        return num - 2**32
+    else:
+        return num
 
 class Tfm(object):
     """
@@ -380,12 +499,16 @@ class Tfm(object):
     """
 
     def __init__(self, filename):
+        matplotlib.verbose.report('opening tfm file ' + filename, 'debug')
         file = open(filename, 'rb')
 
         try:
             header1 = file.read(24)
             lh, bc, ec, nw, nh, nd = \
                 struct.unpack('!6H', header1[2:14])
+            matplotlib.verbose.report(
+                'lh=%d, bc=%d, ec=%d, nw=%d, nh=%d, nd=%d' % (
+                    lh, bc, ec, nw, nh, nd), 'debug')
             header2 = file.read(4*lh)
             self.checksum, self.design_size = \
                 struct.unpack('!2I', header2[:8])
@@ -399,12 +522,12 @@ class Tfm(object):
 
         self.width, self.height, self.depth = {}, {}, {}
         widths, heights, depths = \
-            [ struct.unpack('!%dI' % n, x) 
-              for n,x in [(nw, widths), (nh, heights), (nd, depths)] ]
+            [ struct.unpack('!%dI' % (len(x)/4), x) 
+              for x in (widths, heights, depths) ]
         for i in range(ec-bc):
-            self.width[bc+i] = widths[ord(char_info[4*i])]
-            self.height[bc+i] = heights[ord(char_info[4*i+1]) >> 4]
-            self.depth[bc+i] = depths[ord(char_info[4*i+1]) & 0xf]
+            self.width[bc+i] = fix2comp(widths[ord(char_info[4*i])])
+            self.height[bc+i] = fix2comp(heights[ord(char_info[4*i+1]) >> 4])
+            self.depth[bc+i] = fix2comp(depths[ord(char_info[4*i+1]) & 0xf])
 
 
 class PsfontsMap(object):
@@ -530,9 +653,12 @@ class Encoding(object):
                 # Expecting something like /FooEncoding [
                 if '[' in line: 
                     state = 1
-                    line = line[line.index('[')+1].strip()
+                    line = line[line.index('[')+1:].strip()
 
             if state == 1:
+                if ']' in line: # ] def
+                    line = line[:line.index(']')]
+                    state = 2
                 words = line.split()
                 for w in words:
                     if w.startswith('/'):
@@ -541,10 +667,6 @@ class Encoding(object):
                         result.extend(subwords[1:])
                     else:
                         raise ValueError, "Broken name in encoding file: " + w
-                        
-                # Expecting ] def
-                if ']' in line:
-                    break
 
         return result
 
@@ -571,6 +693,32 @@ def find_tex_file(filename, format=None):
     pipe.close()
 
     return result
+
+_tfmcache = {}
+_vfcache = {}
+
+def _fontfile(texname, class_, suffix, cache):
+    try:
+        return cache[texname]
+    except KeyError:
+        pass
+
+    filename = find_tex_file(texname + suffix)
+    if filename:
+        result = class_(filename)
+    else:
+        result = None
+
+    cache[texname] = result
+    return result
+
+def _tfmfile(texname): 
+    return _fontfile(texname, Tfm, '.tfm', _tfmcache)
+
+def _vffile(texname): 
+    return _fontfile(texname, Vf, '.vf', _vfcache)
+
+
 
 if __name__ == '__main__':
     matplotlib.verbose.set_level('debug')

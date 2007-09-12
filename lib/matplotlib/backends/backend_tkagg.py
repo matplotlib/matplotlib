@@ -350,6 +350,9 @@ class FigureManagerTkAgg(FigureManagerBase):
             pass
         self.window = None
 
+    def set_window_title(self, title):
+        self.window.wm_title(title)
+
 class AxisMenu:
     def __init__(self, master, naxes):
         self._master = master

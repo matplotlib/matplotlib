@@ -460,6 +460,8 @@ class FigureManagerGTK(FigureManagerBase):
             toolbar = None
         return toolbar
 
+    def set_window_title(self, title):
+        self.window.set_title(title)
 
     def resize(self, width, height):
         'set the canvas size in pixels'
