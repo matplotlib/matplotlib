@@ -147,7 +147,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
     def __init__(self, figure, master=None, resize_callback=None):
         FigureCanvasAgg.__init__(self, figure)
         self._idle = True
-        t1,t2,w,h = self.figure.bbox.get_bounds()
+        t1,t2,w,h = self.figure.bbox.bounds
         w, h = int(w), int(h)
         self._tkcanvas = Tk.Canvas(
             master=master, width=w, height=h, borderwidth=4)
@@ -288,7 +288,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.window.wm_title("Figure %d" % num)
         self.canvas = canvas
         self._num =  num
-        t1,t2,w,h = canvas.figure.bbox.get_bounds()
+        t1,t2,w,h = canvas.figure.bbox.bounds
         w, h = int(w), int(h)
         self.window.minsize(int(w*3/4),int(h*3/4))
         if matplotlib.rcParams['toolbar']=='classic':
@@ -436,7 +436,7 @@ class NavigationToolbar(Tk.Frame):
         self.canvas = canvas
         self.window = window
 
-        xmin, xmax = canvas.figure.bbox.intervalx().get_bounds()
+        xmin, xmax = canvas.figure.bbox.intervalx
         height, width = 50, xmax-xmin
         Tk.Frame.__init__(self, master=self.window,
                           width=width, height=height,
@@ -582,7 +582,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         self.message.set(s)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        height = self.canvas.figure.bbox.height()
+        height = self.canvas.figure.bbox.height
         y0 =  height-y0
         y1 =  height-y1
         try: self.lastrect

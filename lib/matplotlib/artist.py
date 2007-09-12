@@ -337,7 +337,7 @@ class Artist:
     def _set_gc_clip(self, gc):
         'set the clip properly for the gc'
         if self.clipbox is not None:
-            gc.set_clip_rectangle(self.clipbox.get_bounds())
+            gc.set_clip_rectangle(self.clipbox.bounds)
         gc.set_clip_path(self._clippath)
 
     def draw(self, renderer, *args, **kwargs):

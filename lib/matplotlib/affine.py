@@ -8,8 +8,15 @@ import numpy as N
 from numpy.linalg import inv
 from sets import Set
 
+# MGDTODO: The name of this module is bad, since it deals with
+# non-affine transformations as well.  It should probably just be
+# "transforms", but we already had one of those... ;)
+
 # MGDTODO: This creates a ton of cyclical references.  We may want to
 # consider using weak references
+
+# MGDTODO: deep copying is probably incorrect wrt the parent/child
+# relationships
 
 class TransformNode(object):
     def __init__(self):
@@ -48,28 +55,30 @@ class Bbox(TransformNode):
 	points = N.array(args, dtype=N.float_).reshape(2, 2)
 	return Bbox(points)
     from_lbrt = staticmethod(from_lbrt)
+    
+    def __copy__(self):
+	return Bbox(self._points.copy())
 
+    def __deepcopy__(self, memo):
+	return Bbox(self._points.copy())
+    
     def __cmp__(self, other):
 	# MGDTODO: Totally suboptimal
-	if isinstance(other, Bbox):
-	    if (self._points == other._points).all():
-		return 0
+	if isinstance(other, Bbox) and (self._points == other._points).all():
+	    return 0
 	return -1
-    
-    # JDH: the update method will update the box limits from the
-    # existing limits and the new data; it appears here you are just
-    # using the new data.  We use an "ignore" flag to specify whether
-    # you want to include the existing data or not in the update
-    def update_from_data(self, x, y):
-	self._points = N.array([[x.min(), y.min()], [x.max(), y.max()]], N.float_)
-	self.invalidate()
-    
-    def copy(self):
-	return Bbox(self._points.copy())
 
     def __repr__(self):
 	return 'Bbox(%s)' % repr(self._points)
     __str__ = __repr__
+
+    # JDH: the update method will update the box limits from the
+    # existing limits and the new data; it appears here you are just
+    # using the new data.  We use an "ignore" flag to specify whether
+    # you want to include the existing data or not in the update
+    def update_from_data(self, x, y, ignore=True):
+	self._points = N.array([[x.min(), y.min()], [x.max(), y.max()]], N.float_)
+	self.invalidate()
 
     # MGDTODO: Probably a more efficient ways to do this...
     def _get_xmin(self):
@@ -136,19 +145,24 @@ class Bbox(TransformNode):
 	return self.ymax - self.ymin
     height = property(_get_height)
 
+    def _get_bounds(self):
+	return (self.xmin, self.ymin,
+		self.xmax - self.xmin, self.ymax - self.ymin)
+    def _set_bounds(self, bounds):
+	l,b,w,h = bounds
+	self._points = N.array([[l, b], [l+w, b+h]], N.float_)
+	self.invalidate()
+    bounds = property(_get_bounds, _set_bounds)
+	
     def transformed(self, transform):
 	return Bbox(transform(self._points))
 
     def inverse_transformed(self, transform):
 	return Bbox(transform.inverted()(self._points))
     
-    def get_bounds(self):
-	return (self.xmin, self.ymin,
-		self.xmax - self.xmin, self.ymax - self.ymin)
-
     def expanded(self, sw, sh):
-	width = self.width()
-	height = self.height()
+	width = self.width
+	height = self.height
 	deltaw = (sw * width - width) / 2.0
 	deltah = (sh * height - height) / 2.0
 	a = N.array([[-deltaw, -deltah], [deltaw, deltah]])
@@ -199,6 +213,9 @@ class Transform(TransformNode):
 	if isinstance(other, Transform):
 	    return composite_transform_factory(other, self)
 	raise TypeError("Can not add Transform to object of type '%s'" % type(other))
+
+    def transform_point(self, point):
+	return self.__call__([point])[0]
     
     def has_inverse(self):
 	raise NotImplementedError()
@@ -211,49 +228,27 @@ class Transform(TransformNode):
 
     def is_affine(self):
 	return False
-	
-class Affine2D(Transform):
+
+# MGDTODO: Separate out Affine2DBase / Affine2DConcrete so BlendedAffine and CompositeAffine don't have translate/scale/rotate members
+
+class Affine2DBase(Transform):
     input_dims = 2
     output_dims = 2
-    
-    def __init__(self, matrix = None):
-        """
-        Initialize an Affine transform from a 3x3 numpy float array.
 
-        a c e
-        b d f
-        0 0 1
-        """
+    def __init__(self):
 	Transform.__init__(self)
-	if matrix is None:
-	    matrix = N.identity(3)
-	else:
-	    assert matrix.shape == (3, 3)
-	self._mtx = matrix
 	self._inverted = None
 
-    def __repr__(self):
-	return "Affine2D(%s)" % repr(self._mtx)
-    __str__ = __repr__
-
-    def __cmp__(self, other):
-	# MGDTODO: We need to decide if we want deferred transforms
-	# to be equal to this one
-	if isinstance(other, Affine2D):
-	    if (self.get_matrix() == other.get_matrix()).all():
-		return 0
-	return -1
-    
     def _do_invalidation(self):
 	result = self._inverted is None
 	self._inverted = None
 	return result
-    
-    #@staticmethod
-    def from_values(a, b, c, d, e, f):
-        return Affine2D(Affine2D.matrix_from_values(a, b, c, d, e, f))
-    from_values = staticmethod(from_values)
 
+    #@staticmethod
+    def _concat(a, b):
+        return N.dot(b, a)
+    _concat = staticmethod(_concat)
+    
     def to_values(self):
 	mtx = self.get_matrix()
 	return tuple(mtx[:2].swapaxes(0, 1).flatten())
@@ -268,7 +263,7 @@ class Affine2D(Transform):
     matrix_from_values = staticmethod(matrix_from_values)
 
     def get_matrix(self):
-	return self._mtx
+	raise NotImplementedError()
     
     def __call__(self, points):
         """
@@ -278,26 +273,74 @@ class Affine2D(Transform):
 	points must be a numpy array of shape (N, 2), where N is the
 	number of points.
 	"""
-	# MGDTODO: This involves a copy.  We may need to do something like
-	# http://neuroimaging.scipy.org/svn/ni/ni/trunk/neuroimaging/core/reference/mapping.py
-	# to separate the matrix out into the translation and scale components
-	# and apply each separately (which is still sub-optimal)
-
-	# This is easier for now, however, since we can just keep a
-	# regular affine matrix around
-	# MGDTODO: Trap cases where this isn't an array and fix there
+	# MGDTODO: The major speed trap here is just converting to
+	# the points to an array in the first place.  If we can use
+	# more arrays upstream, that should help here.
 	mtx = self.get_matrix()
 	points = N.asarray(points, N.float_)
-	new_points = points.swapaxes(0, 1)
-	new_points = N.vstack((new_points, N.ones((1, points.shape[0]))))
-	result = N.dot(mtx, new_points)[:2]
-	return result.swapaxes(0, 1)
+	points = points.transpose()
+	points = N.dot(mtx[0:2, 0:2], points)
+	points = points + mtx[0:2, 2:]
+	return points.transpose()
+    
+    def inverted(self):
+	if self._inverted is None:
+	    mtx = self.get_matrix()
+	    self._inverted = Affine2D(inv(mtx))
+	return self._inverted
+    
+    def is_separable(self):
+	mtx = self.get_matrix()
+	return mtx[0, 1] == 0.0 and mtx[1, 0] == 0.0
+
+    def is_affine(self):
+	return True
+
+	
+class Affine2D(Affine2DBase):
+    input_dims = 2
+    output_dims = 2
+    
+    def __init__(self, matrix = None):
+        """
+        Initialize an Affine transform from a 3x3 numpy float array.
+
+        a c e
+        b d f
+        0 0 1
+        """
+	Affine2DBase.__init__(self)
+	if matrix is None:
+	    matrix = N.identity(3)
+	else:
+	    assert matrix.shape == (3, 3)
+	self._mtx = matrix
+	self._inverted = None
+
+    def __repr__(self):
+	return "Affine2D(%s)" % repr(self._mtx)
+    __str__ = __repr__
+
+    def __cmp__(self, other):
+	if (isinstance(other, Affine2D) and
+	    (self.get_matrix() == other.get_matrix()).all()):
+	    return 0
+	return -1
+    
+    def __copy__(self):
+	return Affine2D(self._mtx.copy())
+    
+    def __deepcopy__(self, memo):
+	return Affine2D(self._mtx.copy())
     
     #@staticmethod
-    def _concat(a, b):
-        return N.dot(b, a)
-    _concat = staticmethod(_concat)
+    def from_values(a, b, c, d, e, f):
+        return Affine2D(Affine2D.matrix_from_values(a, b, c, d, e, f))
+    from_values = staticmethod(from_values)
 
+    def get_matrix(self):
+	return self._mtx
+    
     #@staticmethod
     def concat(a, b):
 	return Affine2D(Affine2D._concat(a._mtx, b._mtx))
@@ -346,19 +389,18 @@ class Affine2D(Transform):
     def is_affine(self):
 	return True
     
-class BlendedAffine2D(Affine2D):
+class BlendedAffine2D(Affine2DBase):
     def __init__(self, x_transform, y_transform):
 	assert x_transform.is_affine()
 	assert y_transform.is_affine()
 	assert x_transform.is_separable()
 	assert y_transform.is_separable()
 
-	Transform.__init__(self)
+	Affine2DBase.__init__(self)
 	self.add_children([x_transform, y_transform])
 	self._x = x_transform
 	self._y = y_transform
 	self._mtx = None
-	self._inverted = None
 
     def __repr__(self):
 	return "BlendedAffine2D(%s,%s)" % (self._x, self._y)
@@ -367,7 +409,7 @@ class BlendedAffine2D(Affine2D):
     def _do_invalidation(self):
 	if self._mtx is not None:
 	    self._mtx = None
-	    Affine2D._do_invalidation(self)
+	    Affine2DBase._do_invalidation(self)
 	    return False
 	return True
 
@@ -376,8 +418,9 @@ class BlendedAffine2D(Affine2D):
 	    x_mtx = self._x.get_matrix()
 	    y_mtx = self._y.get_matrix()
 	    # This works because we already know the transforms are
-	    # separable
-	    self._mtx = N.vstack([x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]])
+	    # separable, though normally one would want to set b and
+	    # c to zero.
+	    self._mtx = N.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
 	
     def is_separable(self):
 	return True
@@ -397,20 +440,22 @@ class BlendedTransform(Transform):
 	self._y = y_transform
 
     def __call__(self, points):
-	# MGDTODO: Implement me
-	pass
+	x_points = self._x(points)
+	y_points = self._y(points)
+	# This works because we already know the transforms are
+	# separable
+	return N.hstack((x_points[:, 0:1], y_points[:, 1:2]))
 
-class CompositeAffine2D(Affine2D):
+class CompositeAffine2D(Affine2DBase):
     def __init__(self, a, b):
 	assert a.is_affine()
 	assert b.is_affine()
 
-	Transform.__init__(self)
+	Affine2DBase.__init__(self)
 	self.add_children([a, b])
 	self._a = a
 	self._b = b
 	self._mtx = None
-	self._inverted = None
 
     def __repr__(self):
 	return "CompositeAffine2D(%s, %s)" % (self._a, self._b)
@@ -418,7 +463,7 @@ class CompositeAffine2D(Affine2D):
 
     def _do_invalidation(self):
 	self._mtx = None
-	Affine2D._do_invalidation(self)
+	Affine2DBase._do_invalidation(self)
     
     def _make__mtx(self):
 	if self._mtx is None:
@@ -433,22 +478,23 @@ class CompositeAffine2D(Affine2D):
 class CompositeTransform(Transform):
     def __init__(self, a, b):
 	assert a.output_dims == b.input_dims
-
+	self.input_dims = a.input_dims
+	self.output_dims = b.output_dims
+	
 	Transform.__init__(self)
 	self.add_children([a, b])
 	self._a = a
 	self._b = b
 
     def __call__(self, points):
-	# MGDTODO: Optimize here by concatenating affines if possible
 	return self._b(self._a(points))
 
-class BboxTransform(Affine2D):
+class BboxTransform(Affine2DBase):
     def __init__(self, boxin, boxout):
 	assert isinstance(boxin, Bbox)
 	assert isinstance(boxout, Bbox)
 
-	Transform.__init__(self)
+	Affine2DBase.__init__(self)
 	self.add_children([boxin, boxout])
 	self._boxin = boxin
 	self._boxout = boxout
@@ -462,7 +508,7 @@ class BboxTransform(Affine2D):
     def _do_invalidation(self):
 	if self._mtx is not None:
 	    self._mtx = None
-	    Affine2D._do_invalidation(self)
+	    Affine2DBase._do_invalidation(self)
 	    return False
 	return True
 
@@ -481,14 +527,6 @@ class BboxTransform(Affine2D):
 
 	    self._mtx = affine._mtx
 	
-    def __call__(self, points):
-	self._make__mtx()
-	return Affine2D.__call__(self, points)
-
-    def inverted(self):
-	self._make__mtx()
-	return Affine2D.inverted(self)
-
     def is_separable(self):
 	return True
 
@@ -541,6 +579,9 @@ def interval_contains_open(interval, val):
     return interval[0] < val and interval[1] > val
     
 if __name__ == '__main__':
+    from random import random
+    import timeit
+
     bbox = Bbox.from_lbrt(10., 15., 20., 25.)
     assert bbox.xmin == 10
     assert bbox.ymin == 15
@@ -589,7 +630,9 @@ if __name__ == '__main__':
     scale = Affine2D().scale(10, 20)
     assert scale.to_values() == (10, 0, 0, 20, 0, 0)
     rotation = Affine2D().rotate_deg(30)
-    print rotation.to_values() == (0.86602540378443871, 0.49999999999999994, -0.49999999999999994, 0.86602540378443871, 0.0, 0.0)
+    print rotation.to_values() == (0.86602540378443871, 0.49999999999999994,
+				   -0.49999999999999994, 0.86602540378443871,
+				   0.0, 0.0)
     
     points = N.array([[1,2],[3,4],[5,6],[7,8]], N.float_)
     translated_points = translation(points)
@@ -600,11 +643,20 @@ if __name__ == '__main__':
     print rotated_points
 
     tpoints1 = rotation(translation(scale(points)))
-    trans_sum = rotation + translation + scale
+    trans_sum = scale + translation + rotation
     tpoints2 = trans_sum(points)
     print tpoints1, tpoints2
     print tpoints1 == tpoints2
     # Need to do some sort of fuzzy comparison here?
     # assert (tpoints1 == tpoints2).all()
+
+    # Here are some timing tests
+    points = [(random(), random()) for i in xrange(10000)]
+    t = timeit.Timer("trans_sum(points)", "from __main__ import trans_sum, points")
+    print "Time to transform 10000 x 10 points as tuples:", t.timeit(10)
+
+    points2 = N.asarray(points)
+    t = timeit.Timer("trans_sum(points2)", "from __main__ import trans_sum, points2")
+    print "Time to transform 10000 x 10 points as numpy array:", t.timeit(10)
     
 __all__ = ['Transform', 'Affine2D']

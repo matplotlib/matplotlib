@@ -398,7 +398,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         self.figure.draw(self.renderer)
 
     def get_renderer(self):
-        l,b,w,h = self.figure.bbox.get_bounds()
+        l,b,w,h = self.figure.bbox.bounds
 	# MGDTODO
         # key = w, h, self.figure.dpi.get()
         key = w, h, self.figure.dpi
