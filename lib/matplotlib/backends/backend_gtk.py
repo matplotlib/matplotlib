@@ -405,8 +405,8 @@ class FigureManagerGTK(FigureManagerBase):
         self.toolbar = self._get_toolbar(canvas)
 
         # calculate size for window
-        w = int (self.canvas.figure.bbox.width())
-        h = int (self.canvas.figure.bbox.height())
+        w = int (self.canvas.figure.bbox.width)
+        h = int (self.canvas.figure.bbox.height)
 
         if self.toolbar is not None:
             self.toolbar.show()
@@ -518,7 +518,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
         gc = drawable.new_gc()
 
-        height = self.canvas.figure.bbox.height()
+        height = self.canvas.figure.bbox.height
         y1 = height - y1
         y0 = height - y0
 
@@ -639,8 +639,8 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         toolfig.subplots_adjust(top=0.9)
         tool =  SubplotTool(self.canvas.figure, toolfig)
 
-        w = int (toolfig.bbox.width())
-        h = int (toolfig.bbox.height())
+        w = int (toolfig.bbox.width)
+        h = int (toolfig.bbox.height)
 
 
         window = gtk.Window()
