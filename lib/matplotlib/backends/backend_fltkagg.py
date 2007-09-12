@@ -299,6 +299,9 @@ class FigureManagerFltkAgg(FigureManagerBase):
         self.canvas.draw()
         self.window.redraw()
 
+    def set_window_title(self, title):
+        self.window_title=title
+        self.window.label(title)
 
 class AxisMenu:
     def __init__(self, toolbar):

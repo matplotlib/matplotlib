@@ -491,6 +491,7 @@ class PdfFile:
         return fontdictObject
 
     def embedType1(self, filename, fontinfo):
+        # TODO: font effects such as SlantFont
         fh = open(filename, 'rb')
         matplotlib.verbose.report(
             'Embedding Type 1 font ' + filename, 'debug')
@@ -520,8 +521,15 @@ class PdfFile:
 
         if fontinfo.encodingfile is not None:
             enc = dviread.Encoding(fontinfo.encodingfile)
-            widths = [ afmdata.get_width_from_char_name(ch)
-                       for ch in enc ]
+            widths = []
+            for ch in enc:
+                try:
+                    widths.append(afmdata.get_width_from_char_name(ch))
+                except KeyError:
+                    matplotlib.verbose.report(
+                        'No width for %s in %s' % (ch, fullname), 'debug')
+                    widths.append(0)
+
             differencesArray = [ Name(ch) for ch in enc ]
             differencesArray = [ 0 ] + differencesArray
             firstchar = 0
@@ -538,11 +546,24 @@ class PdfFile:
             firstchar = not_None.next()
             lastchar = max(not_None)
             widths = widths[firstchar:lastchar+1]
+            for i,w in enumerate(widths):
+                if w is None: widths[i] = 0
 
-            differencesArray = [ firstchar ]
+            differencesArray = [ ]
+            need_idx = True
             for ch in range(firstchar, lastchar+1):
-                differencesArray.append(Name(
-                        afmdata.get_name_char(ch, isord=True)))
+                try:
+                    name = afmdata.get_name_char(ch, isord=True)
+                    if need_idx:
+                        differencesArray.append(ch)
+                        need_idx = False
+                    differencesArray.append(Name(name))
+                except KeyError:
+                    matplotlib.verbose.report(
+                        'No name for glyph %d in %s' % (ch, fullname), 
+                        'debug')
+                    need_idx = True
+
         
         fontdict = {
             'Type':           Name('Font'),
@@ -1448,17 +1469,16 @@ class RendererPdf(RendererBase):
 
         # Gather font information and do some setup for combining
         # characters into strings.
-        oldfontnum, seq = None, []
-        for x1, y1, fontnum, glyph, width in page.text:
-            if fontnum != oldfontnum:
-                texname, fontsize = dvi.fontinfo(fontnum)
-                fontinfo = self.tex_font_mapping(texname)
+        oldfont, seq = None, []
+        for x1, y1, dvifont, glyph, width in page.text:
+            if dvifont != oldfont:
+                fontinfo = self.tex_font_mapping(dvifont.texname)
                 pdfname = self.file.fontName(fontinfo.filename)
                 self.file.fontInfo[pdfname] = Bunch(
                     encodingfile=fontinfo.encoding,
                     afmfile=fontinfo.afm)
-                seq += [['font', pdfname, fontsize]]
-                oldfontnum = fontnum
+                seq += [['font', pdfname, dvifont.size]]
+                oldfont = dvifont
             seq += [['text', x1, y1, [chr(glyph)], x1+width]]
         seq += [('end',)]
 

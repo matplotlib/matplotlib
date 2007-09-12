@@ -1209,6 +1209,14 @@ class FigureCanvasBase:
     def get_default_filetype(self):
         raise NotImplementedError
     
+    def set_window_title(self, title):
+        """
+        Set the title text of the window containing the figure.  Note that
+        this has no effect if there is no window (eg, a PS backend).
+        """
+        if hasattr(self, "manager"):
+            self.manager.set_window_title(title)
+
     def switch_backends(self, FigureCanvasClass):
         """
         instantiate an instance of FigureCanvasClass
@@ -1318,6 +1326,13 @@ class FigureManagerBase:
     def show_popup(self, msg):
         """
         Display message in a popup -- GUI only
+        """
+        pass
+
+    def set_window_title(self, title):
+        """
+        Set the title text of the window containing the figure.  Note that
+        this has no effect if there is no window (eg, a PS backend).
         """
         pass
 
