@@ -33,6 +33,9 @@ class Bbox(TransformNode):
 	self._points = N.asarray(points, N.float_)
 	self.track = False
 
+    # JDH: if you define a del method, the garbage collector won't
+    # destory cyclic references, so make sure you either manage these
+    # yourself or remove the __del__ after testing
     def __del__(self):
 	if self.track:
 	    print "Bbox::__del__"
@@ -52,6 +55,11 @@ class Bbox(TransformNode):
 	return Bbox([[left, bottom], [right, top]])
     from_lbrt = staticmethod(from_lbrt)
 
+
+    # JDH: the update method will update the box limits from the
+    # existing limits and the new data; it appears here you are just
+    # using the new data.  We use an "ignore" flag to specify whether
+    # you want to include the existing data or not in the update
     def update_from_data(self, x, y):
 	self._points = N.array([[x.min(), y.min()], [x.max(), y.max()]], N.float_)
 	self.invalidate()
