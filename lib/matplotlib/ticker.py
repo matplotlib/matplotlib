@@ -115,7 +115,7 @@ import numpy as npy
 import matplotlib as mpl
 from matplotlib import verbose, rcParams
 from matplotlib import cbook
-from matplotlib import bbox as mbbox
+from matplotlib import affine as maffine
 
 
 
@@ -148,8 +148,9 @@ class TickHelper:
         cases where the Intervals do not need to be updated
         automatically.
         '''
-        self.dataInterval = mbbox.Interval([vmin, vmax])
-        self.viewInterval = mbbox.Interval([vmin, vmax])
+	# MGDTODO: Interval no longer exists
+        self.dataInterval = maffine.Interval([vmin, vmax])
+        self.viewInterval = maffine.Interval([vmin, vmax])
 
 class Formatter(TickHelper):
     """
@@ -341,7 +342,8 @@ class ScalarFormatter(Formatter):
         self.locs = locs
         if len(self.locs) > 0:
             self.verify_intervals()
-            d = abs(self.viewInterval.span())
+	    vmin, vmax = self.viewInterval
+            d = abs(vmax - vmin)
             if self._useOffset: self._set_offset(d)
             self._set_orderOfMagnitude(d)
             self._set_format()
@@ -571,7 +573,7 @@ class Locator(TickHelper):
     def autoscale(self):
         'autoscale the view limits'
         self.verify_intervals()
-        return mbbox.nonsingular(*self.dataInterval.get_bounds())
+        return maffine.nonsingular(*self.dataInterval.get_bounds())
 
     def pan(self, numsteps):
         'Pan numticks (can be positive or negative)'
@@ -713,7 +715,7 @@ class LinearLocator(Locator):
         vmin = math.floor(scale*vmin)/scale
         vmax = math.ceil(scale*vmax)/scale
 
-        return mbbox.nonsingular(vmin, vmax)
+        return maffine.nonsingular(vmin, vmax)
 
 
 def closeto(x,y):
@@ -797,7 +799,7 @@ class MultipleLocator(Locator):
             vmin -=1
             vmax +=1
 
-        return mbbox.nonsingular(vmin, vmax)
+        return maffine.nonsingular(vmin, vmax)
 
 def scale_range(vmin, vmax, n = 1, threshold=100):
     dv = abs(vmax - vmin)
@@ -864,14 +866,14 @@ class MaxNLocator(Locator):
 
     def __call__(self):
         self.verify_intervals()
-        vmin, vmax = self.viewInterval.get_bounds()
-        vmin, vmax = mbbox.nonsingular(vmin, vmax, expander = 0.05)
+        vmin, vmax = self.viewInterval
+        vmin, vmax = maffine.nonsingular(vmin, vmax, expander = 0.05)
         return self.bin_boundaries(vmin, vmax)
 
     def autoscale(self):
         self.verify_intervals()
-        dmin, dmax = self.dataInterval.get_bounds()
-        dmin, dmax = mbbox.nonsingular(dmin, dmax, expander = 0.05)
+        dmin, dmax = self.dataInterval
+        dmin, dmax = maffine.nonsingular(dmin, dmax, expander = 0.05)
         return npy.take(self.bin_boundaries(dmin, dmax), [0,-1])
 
 
@@ -972,7 +974,7 @@ class LogLocator(Locator):
         if vmin==vmax:
             vmin = decade_down(vmin,self._base)
             vmax = decade_up(vmax,self._base)
-        return mbbox.nonsingular(vmin, vmax)
+        return maffine.nonsingular(vmin, vmax)
 
 class AutoLocator(MaxNLocator):
     def __init__(self):

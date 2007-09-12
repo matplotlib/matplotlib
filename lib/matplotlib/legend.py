@@ -34,8 +34,7 @@ from mlab import segments_intersect
 from patches import Patch, Rectangle, RegularPolygon, Shadow, bbox_artist, draw_bbox
 from collections import LineCollection, RegularPolyCollection, PatchCollection
 from text import Text
-from affine import get_bbox_transform
-from bbox import Bbox, bbox_union
+from affine import Bbox, BboxTransform
 
 def line_cuts_bbox(line, bbox):
     """ Return True if and only if line cuts bbox. """
@@ -165,7 +164,7 @@ The following dimensions are in axes coords
         else:
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
-        self.set_transform( get_bbox_transform( Bbox.unit(), parent.bbox) )
+        self.set_transform( BboxTransform( Bbox.unit(), parent.bbox) )
 
         if loc is None:
             loc = rcParams["legend.loc"]
@@ -260,10 +259,10 @@ The following dimensions are in axes coords
 
         bboxesAll = bboxesText
         bboxesAll.extend(bboxesHandles)
-        bbox = bbox_union(bboxesAll)
+        bbox = Bbox.union(bboxesAll)
         self.save = bbox
 
-        ibox = bbox.inverse_transform(self.get_transform())
+        ibox = bbox.inverse_transformed(self.get_transform())
         self.ibox = ibox
 
         return ibox
@@ -531,7 +530,7 @@ The following dimensions are in axes coords
         if not len(self.legendHandles) and not len(self.texts): return
         def get_tbounds(text):  #get text bounds in axes coords
             bbox = text.get_window_extent(renderer)
-            bboxa = bbox.inverse_transform(self.get_transform())
+            bboxa = bbox.inverse_transformed(self.get_transform())
             return bboxa.get_bounds()
 
         hpos = []

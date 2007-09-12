@@ -12,7 +12,6 @@ from matplotlib import artist as martist
 from matplotlib import affine as maffine
 from matplotlib import agg
 from matplotlib import axis as maxis
-from matplotlib import bbox as mbbox
 from matplotlib import cbook
 from matplotlib import collections as mcoll
 from matplotlib import colors as mcolors
@@ -33,7 +32,6 @@ from matplotlib import ticker as mticker
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
-Wrapper = cbook.Wrapper
 
 
 def delete_masked_points(*args):
@@ -484,8 +482,8 @@ class Axes(martist.Artist):
 
         """
         martist.Artist.__init__(self)
-        self._position = rect
-        self._originalPosition = rect
+        self._position = maffine.Bbox.from_lbwh(*rect)
+        self._originalPosition = self._position.copy()
         self.set_axes(self)
         self.set_aspect('auto')
         self.set_adjustable('box')
@@ -615,11 +613,11 @@ class Axes(martist.Artist):
         """
         martist.Artist.set_figure(self, fig)
 
-        l, b, w, h = self._position
-        xmin = fig.bbox.xmin()
-        xmax = fig.bbox.xmax()
-        ymin = fig.bbox.ymin()
-        ymax = fig.bbox.ymax()
+        l, b, w, h = self._position.get_bounds()
+        xmin = fig.bbox.xmin
+        xmax = fig.bbox.xmax
+        ymin = fig.bbox.ymin
+        ymax = fig.bbox.ymax
         figw = xmax-xmin
         figh = ymax-ymin
         self.left   =  l*figw
@@ -627,7 +625,7 @@ class Axes(martist.Artist):
         self.right  =  (l+w)*figw
         self.top    =  (b+h)*figh
 
-        self.bbox = mbbox.Bbox.from_lbrt(
+        self.bbox = maffine.Bbox.from_lbrt(
             self.left, self.bottom,
             self.right, self.top,
             )
@@ -639,7 +637,7 @@ class Axes(martist.Artist):
         set the dataLim and viewLim BBox attributes and the
         transData and transAxes Transformation attributes
         """
-        Bbox = mbbox.Bbox
+        Bbox = maffine.Bbox
         if self._sharex is not None:
             left = self._sharex.viewLim.xmin()
             right = self._sharex.viewLim.xmax()
@@ -655,11 +653,12 @@ class Axes(martist.Artist):
 
         self.viewLim = Bbox.from_lbrt(left, bottom, right, top)
 	self.dataLim = Bbox.unit()
+	self.dataLim.track = True
 	
-        self.transData = maffine.get_bbox_transform(
+        self.transData = maffine.BboxTransform(
             self.viewLim, self.bbox)
-        self.transAxes = maffine.get_bbox_transform(
-            self.dataLim, self.bbox)
+        self.transAxes = maffine.BboxTransform(
+            Bbox.unit(), self.bbox)
 
 	print "_set_lim_and_transforms", self.viewLim, self.transData, self.dataLim, self.transAxes, self.bbox
 
@@ -1184,9 +1183,8 @@ class Axes(martist.Artist):
 	# MGDTODO
         ## self.dataLim.update_numerix(x, y, -1)
 	print "update_datalim_numerix", self.dataLim,
-	self.dataLim = mbbox.Bbox.from_data(x, y)
+	self.dataLim.update_from_data(x, y)
 	print self.dataLim
-	# MGDTODO side-effects
 
     def _get_verts_in_data_coords(self, trans, xys):
         if trans == self.transData:
@@ -1247,7 +1245,7 @@ class Axes(martist.Artist):
         axis direction reversal that has already been done.
         """
         # if image data only just use the datalim
-	print "autoscale_view"
+	print "autoscale_view", self._autoscaleon, scalex, scaley
 	
         if not self._autoscaleon: return
         if (tight or (len(self.images)>0 and
@@ -1504,7 +1502,7 @@ class Axes(martist.Artist):
 
     def get_xlim(self):
         'Get the x axis range [xmin, xmax]'
-        return self.viewLim.intervalx().get_bounds()
+        return self.viewLim.intervalx
 
 
     def set_xlim(self, xmin=None, xmax=None, emit=True, **kwargs):
@@ -1549,12 +1547,10 @@ class Axes(martist.Artist):
 #             and min(xmin, xmax)<=0):
 #             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        xmin, xmax = mbbox.nonsingular(xmin, xmax, increasing=False)
+        xmin, xmax = maffine.nonsingular(xmin, xmax, increasing=False)
 
-	# MGDTODO: This is fairly cumbersome
-	# MGDTODO: side-effects on x-bounds should propagate
-	self.viewLim = mbbox.Bbox.from_lbrt(xmin, self.viewLim.ymin(), xmax, self.viewLim.ymax())
-	print 'set_xlim', self.viewLim
+	self.viewLim.intervalx = (xmin, xmax)
+	print 'set_xlim', self.viewLim, xmin, xmax
 	
         return xmin, xmax
 
@@ -1634,7 +1630,7 @@ class Axes(martist.Artist):
 
     def get_ylim(self):
         'Get the y axis range [ymin, ymax]'
-        return self.viewLim.intervaly().get_bounds()
+        return self.viewLim.intervaly
 
     def set_ylim(self, ymin=None, ymax=None, emit=True, **kwargs):
         """
@@ -1677,9 +1673,8 @@ class Axes(martist.Artist):
 #             and min(ymin, ymax)<=0):
 #             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        ymin, ymax = mbbox.nonsingular(ymin, ymax, increasing=False)
-	# MGDTODO: side-effects on y-bounds should propagate
-	self.viewLim = mbbox.Bbox.from_lbrt(self.viewLim.xmin(), ymin, self.viewLim.xmax(), ymax)
+        ymin, ymax = maffine.nonsingular(ymin, ymax, increasing=False)
+	self.viewLim.intervaly = (ymin, ymax)
         if emit: self.callbacks.process('ylim_changed', self)
 	print "set_ylim", self.viewLim
 	
