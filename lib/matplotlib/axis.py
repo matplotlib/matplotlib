@@ -855,8 +855,8 @@ class Axis(Artist):
         ACCEPTS: A Formatter instance
         """
         self.major.formatter = formatter
-        self.major.formatter.set_view_interval( self.get_view_interval() )
-        self.major.formatter.set_data_interval( self.get_data_interval() )
+        self.major.formatter.set_axis(self)
+
 
     def set_minor_formatter(self, formatter):
         """
@@ -865,8 +865,7 @@ class Axis(Artist):
         ACCEPTS: A Formatter instance
         """
         self.minor.formatter = formatter
-        self.minor.formatter.set_view_interval( self.get_view_interval() )
-        self.minor.formatter.set_data_interval( self.get_data_interval() )
+        self.minor.formatter.set_axis(self)
 
 
     def set_major_locator(self, locator):
@@ -876,8 +875,7 @@ class Axis(Artist):
         ACCEPTS: a Locator instance
         """
         self.major.locator = locator
-        self.major.locator.set_view_interval( self.get_view_interval() )
-        self.major.locator.set_data_interval( self.get_data_interval() )
+        self.major.locator.set_axis(self)
 
 
     def set_minor_locator(self, locator):
@@ -887,8 +885,7 @@ class Axis(Artist):
         ACCEPTS: a Locator instance
         """
         self.minor.locator = locator
-        self.minor.locator.set_view_interval( self.get_view_interval() )
-        self.minor.locator.set_data_interval( self.get_data_interval() )
+        self.minor.locator.set_axis(self)
 
     def set_pickradius(self, pickradius):
         """

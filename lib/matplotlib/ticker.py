@@ -99,12 +99,6 @@ See examples/major_minor_demo1.py for an example of setting major an
 minor ticks.  See the matplotlib.dates module for more information and
 examples of using date locators and formatters.
 
-DEVELOPERS NOTE
-
-If you are implementing your own class or modifying one of these, it
-is critical that you use viewlim and dataInterval READ ONLY MODE so
-multiple axes can share the same locator w/o side effects!
-
 
 """
 
@@ -121,36 +115,10 @@ from matplotlib import affine as maffine
 
 
 class TickHelper:
+    axis = None
+    def set_axis(self, axis):
+        self.axis = axis
 
-    viewInterval = None
-    dataInterval = None
-
-    def verify_intervals(self):
-        if self.dataInterval is None:
-            raise RuntimeError("You must set the data interval to use this function")
-
-        if self.viewInterval is None:
-            raise RuntimeError("You must set the view interval to use this function")
-
-
-    def set_view_interval(self, interval):
-        self.viewInterval = interval
-
-    def set_data_interval(self, interval):
-        self.dataInterval = interval
-
-    def set_bounds(self, vmin, vmax):
-        '''
-        Set dataInterval and viewInterval from numeric vmin, vmax.
-
-        This is for stand-alone use of Formatters and/or
-        Locators that require these intervals; that is, for
-        cases where the Intervals do not need to be updated
-        automatically.
-        '''
-	# MGDTODO: Interval no longer exists
-        self.dataInterval = maffine.Interval([vmin, vmax])
-        self.viewInterval = maffine.Interval([vmin, vmax])
 
 class Formatter(TickHelper):
     """
@@ -341,9 +309,8 @@ class ScalarFormatter(Formatter):
         'set the locations of the ticks'
         self.locs = locs
         if len(self.locs) > 0:
-            self.verify_intervals()
-	    vmin, vmax = self.viewInterval
-            d = abs(vmax - vmin)
+            vmin, vmax = self.axis.get_view_interval()
+            d = abs(vmax-vmin)
             if self._useOffset: self._set_offset(d)
             self._set_orderOfMagnitude(d)
             self._set_format()
@@ -865,14 +832,12 @@ class MaxNLocator(Locator):
 
 
     def __call__(self):
-        self.verify_intervals()
-        vmin, vmax = self.viewInterval
+        vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = maffine.nonsingular(vmin, vmax, expander = 0.05)
         return self.bin_boundaries(vmin, vmax)
 
     def autoscale(self):
-        self.verify_intervals()
-        dmin, dmax = self.dataInterval
+        dmin, dmax = self.axis.get_data_interval()
         dmin, dmax = maffine.nonsingular(dmin, dmax, expander = 0.05)
         return npy.take(self.bin_boundaries(dmin, dmax), [0,-1])
 
