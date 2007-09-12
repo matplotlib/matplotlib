@@ -653,14 +653,11 @@ class Axes(martist.Artist):
 
         self.viewLim = Bbox.from_lbrt(left, bottom, right, top)
 	self.dataLim = Bbox.unit()
-	self.dataLim.track = True
 	
         self.transData = maffine.BboxTransform(
             self.viewLim, self.bbox)
         self.transAxes = maffine.BboxTransform(
             Bbox.unit(), self.bbox)
-
-	print "_set_lim_and_transforms", self.viewLim, self.transData, self.dataLim, self.transAxes, self.bbox
 
 	# MGDTODO
 #         if self._sharex:
@@ -697,7 +694,6 @@ class Axes(martist.Artist):
 #             # Change values within self._position--don't replace it.
 #             for num,val in zip(pos, self._position):
 #                 val.set(num)
-	    print "set_position", self._position, pos
 	    self._position = pos
 	    # MGDTODO: side-effects
         if which in ('both', 'original'):
@@ -1182,9 +1178,7 @@ class Axes(martist.Artist):
         #print type(x), type(y)
 	# MGDTODO
         ## self.dataLim.update_numerix(x, y, -1)
-	print "update_datalim_numerix", self.dataLim,
 	self.dataLim.update_from_data(x, y)
-	print self.dataLim
 
     def _get_verts_in_data_coords(self, trans, xys):
         if trans == self.transData:
@@ -1245,8 +1239,6 @@ class Axes(martist.Artist):
         axis direction reversal that has already been done.
         """
         # if image data only just use the datalim
-	print "autoscale_view", self._autoscaleon, scalex, scaley
-	
         if not self._autoscaleon: return
         if (tight or (len(self.images)>0 and
                       len(self.lines)==0 and
@@ -1274,7 +1266,7 @@ class Axes(martist.Artist):
 
     def draw(self, renderer=None, inframe=False):
         "Draw everything (plot lines, axes, labels)"
-        if renderer is None:
+	if renderer is None:
             renderer = self._cachedRenderer
 
         if renderer is None:
@@ -1550,7 +1542,6 @@ class Axes(martist.Artist):
         xmin, xmax = maffine.nonsingular(xmin, xmax, increasing=False)
 
 	self.viewLim.intervalx = (xmin, xmax)
-	print 'set_xlim', self.viewLim, xmin, xmax
 	
         return xmin, xmax
 
@@ -1654,7 +1645,6 @@ class Axes(martist.Artist):
         ACCEPTS: len(2) sequence of floats
         """
 
-	print "set_ylim", ymin, ymax, emit
         if ymax is None and iterable(ymin):
             ymin,ymax = ymin
 
@@ -1676,7 +1666,6 @@ class Axes(martist.Artist):
         ymin, ymax = maffine.nonsingular(ymin, ymax, increasing=False)
 	self.viewLim.intervaly = (ymin, ymax)
         if emit: self.callbacks.process('ylim_changed', self)
-	print "set_ylim", self.viewLim
 	
         return ymin, ymax
 
