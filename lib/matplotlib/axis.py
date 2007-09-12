@@ -15,8 +15,8 @@ from patches import bbox_artist
 from ticker import NullFormatter, FixedFormatter, ScalarFormatter, LogFormatter
 from ticker import NullLocator, FixedLocator, LinearLocator, LogLocator, AutoLocator
 
-from affine import Affine2D, blend_xy_sep_transform
-from bbox import bbox_union
+from affine import Affine2D, Bbox, blend_xy_sep_transform, interval_contains, \
+    interval_contains_open
 from font_manager import FontProperties
 from text import Text, TextWithDash, _process_text_args
 from patches import bbox_artist
@@ -160,7 +160,7 @@ class Tick(Artist):
     def draw(self, renderer):
         if not self.get_visible(): return
         renderer.open_group(self.__name__)
-        midPoint = self.get_view_interval().contains_open( self.get_loc() )
+        midPoint = interval_contains_open(self.get_view_interval(), self.get_loc() )
 
         if midPoint:
             if self.gridOn:  self.gridline.draw(renderer)
@@ -239,7 +239,7 @@ class XTick(Tick):
 	trans = blend_xy_sep_transform(
 	    self.axes.transData, self.axes.transAxes)
         #offset the text downward with a post transformation
-	trans = trans + Affine2D().translated(0, -1 * self._padPixels)
+	trans = trans + Affine2D().translate(0, -1 * self._padPixels)
         t.set_transform(trans)
 
         self._set_artist_props(t)
@@ -264,7 +264,7 @@ class XTick(Tick):
 	trans = blend_xy_sep_transform(
 	    self.axes.transData, self.axes.transAxes)
         # offset the text upward with a post transformation
-        trans = trans + Affine2D().translated(0, self._padPixels)
+        trans = trans + Affine2D().translate(0, self._padPixels)
         t.set_transform( trans )
         self._set_artist_props(t)
         return t
@@ -331,11 +331,11 @@ class XTick(Tick):
 
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
-        return self.axes.viewLim.intervalx()
+        return self.axes.viewLim.intervalx
 
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
-        return self.axes.dataLim.intervalx()
+        return self.axes.dataLim.intervalx
 
 
 class YTick(Tick):
@@ -362,7 +362,7 @@ class YTick(Tick):
         trans = blend_xy_sep_transform(
 	    self.axes.transAxes, self.axes.transData)
         # offset the text leftward with a post transformation
-	trans = trans + Affine2D().translated(-1 * self._padPixels, 0)
+	trans = trans + Affine2D().translate(-1 * self._padPixels, 0)
 
         t.set_transform( trans )
         #t.set_transform( self.axes.transData )
@@ -385,7 +385,7 @@ class YTick(Tick):
         trans = blend_xy_sep_transform(
 	    self.axes.transAxes, self.axes.transData)
         # offset the text rightward with a post transformation
-	trans = trans + Affine2D().translated(self._padPixels, 0)
+	trans = trans + Affine2D().translate(self._padPixels, 0)
         t.set_transform( trans )
         self._set_artist_props(t)
         return t
@@ -455,11 +455,11 @@ class YTick(Tick):
 
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
-        return self.axes.viewLim.intervaly()
+        return self.axes.viewLim.intervaly
 
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
-        return self.axes.dataLim.intervaly()
+        return self.axes.dataLim.intervaly
 
 
 class Ticker:
@@ -575,7 +575,7 @@ class Axis(Artist):
         interval = self.get_view_interval()
         for tick, loc, label in zip(majorTicks, majorLocs, majorLabels):
             if tick is None: continue
-            if not interval.contains(loc): continue
+            if not interval_contains(interval, loc): continue
             seen[loc] = 1
             tick.update_position(loc)
             tick.set_label1(label)
@@ -1034,19 +1034,19 @@ class XAxis(Axis):
                 bottom = self.axes.bbox.ymin()
             else:
 
-                bbox = bbox_union(bboxes)
-                bottom = bbox.ymin()
+                bbox = Bbox.union(bboxes)
+                bottom = bbox.ymin
 
             self.label.set_position( (x, bottom-self.LABELPAD*self.figure.dpi/72.0))
 #             self.label.set_position( (x, bottom-self.LABELPAD*self.figure.dpi.get()/72.0)) MGDTODO
 
         else:
             if not len(bboxes2):
-                top = self.axes.bbox.ymax()
+                top = self.axes.bbox.ymax
             else:
 
                 bbox = bbox_union(bboxes2)
-                top = bbox.ymax()
+                top = bbox.ymax
 
             self.label.set_position( (x, top+self.LABELPAD*self.figure.dpi.get()/72.0))
 
@@ -1059,8 +1059,8 @@ class XAxis(Axis):
         if not len(bboxes):
             bottom = self.axes.bbox.ymin()
         else:
-            bbox = bbox_union(bboxes)
-            bottom = bbox.ymin()
+            bbox = Bbox.union(bboxes)
+            bottom = bbox.ymin
         self.offsetText.set_position((x, bottom-self.OFFSETTEXTPAD*self.figure.dpi/72.0))
 #         self.offsetText.set_position((x, bottom-self.OFFSETTEXTPAD*self.figure.dpi.get()/72.0)) MGDTODO
 	
@@ -1133,11 +1133,11 @@ class XAxis(Axis):
 
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
-        return self.axes.viewLim.intervalx()
+        return self.axes.viewLim.intervalx
 
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
-        return self.axes.dataLim.intervalx()
+        return self.axes.dataLim.intervalx
 
 
 class YAxis(Axis):
@@ -1223,11 +1223,11 @@ class YAxis(Axis):
         x,y = self.label.get_position()
         if self.label_position == 'left':
             if not len(bboxes):
-                left = self.axes.bbox.xmin()
+                left = self.axes.bbox.xmin
             else:
 
-                bbox = bbox_union(bboxes)
-                left = bbox.xmin()
+                bbox = Bbox.union(bboxes)
+                left = bbox.xmin
 
             self.label.set_position( (left-self.LABELPAD*self.figure.dpi/72.0, y))
 	    #             self.label.set_position( (left-self.LABELPAD*self.figure.dpi.get()/72.0, y)) MGDTODO
@@ -1248,7 +1248,7 @@ class YAxis(Axis):
         boxes of all the ticklabels
         """
         x,y = self.offsetText.get_position()
-        top = self.axes.bbox.ymax()
+        top = self.axes.bbox.ymax
         self.offsetText.set_position((x, top+self.OFFSETTEXTPAD*self.figure.dpi/72.0))
 #         self.offsetText.set_position((x, top+self.OFFSETTEXTPAD*self.figure.dpi.get()/72.0)) MGDTODO
 	
@@ -1335,11 +1335,11 @@ class YAxis(Axis):
 
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
-        return self.axes.viewLim.intervaly()
+        return self.axes.viewLim.intervaly
 
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
-        return self.axes.dataLim.intervaly()
+        return self.axes.dataLim.intervaly
 
 
 

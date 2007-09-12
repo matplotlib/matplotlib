@@ -18,8 +18,7 @@ from patches import Rectangle, Polygon
 from text import Text, _process_text_args
 
 from legend import Legend
-from affine import get_bbox_transform
-from bbox import Bbox
+from affine import Bbox, BboxTransform
 from ticker import FormatStrFormatter
 from cm import ScalarMappable
 from contour import ContourSet
@@ -105,7 +104,7 @@ class SubplotParams:
 class Figure(Artist):
 
     def __str__(self):
-        return "Figure(%gx%g)"%(self.figwidth, self.figheight)
+        return "Figure(%gx%g)"%(self.bbox.max)
         # return "Figure(%gx%g)"%(self.figwidth.get(),self.figheight.get())
     
     def __init__(self,
@@ -130,13 +129,13 @@ class Figure(Artist):
         if edgecolor is None: edgecolor = rcParams['figure.edgecolor']
 
         self.dpi = dpi
-	self.figwidth = figsize[0] * dpi
-	self.figheight = figsize[1] * dpi
-	self.bbox = Bbox.from_lbwh(0, 0, self.figwidth, self.figheight)
+	figwidth = figsize[0] * dpi
+	figheight = figsize[1] * dpi
+	self.bbox = Bbox.from_lbwh(0, 0, figwidth, figheight)
 	
         self.frameon = frameon
 
-        self.transFigure = get_bbox_transform( Bbox.unit(), self.bbox)
+        self.transFigure = BboxTransform( Bbox.unit(), self.bbox)
 
 
 
@@ -325,9 +324,9 @@ class Figure(Artist):
         else:
             w,h = args
 
-	
-        self.figwidth = w
-        self.figheight = h
+	dpival = self.dpi
+	self.bbox.max = w * dpival, h * dpival
+	print self.bbox
         # self.figwidth.set(w) MGDTODO
         # self.figheight.set(h)
 	
@@ -341,7 +340,7 @@ class Figure(Artist):
                 manager.resize(int(canvasw), int(canvash))
 
     def get_size_inches(self):
-        return self.figwidth, self.figheight
+        return self.bbox.max
         # return self.figwidth.get(), self.figheight.get() MGDTODO
 
     def get_edgecolor(self):
@@ -354,12 +353,12 @@ class Figure(Artist):
 
     def get_figwidth(self):
         'Return the figwidth as a float'
-	return self.figwidth
+	return self.bbox.xmax
         # return self.figwidth.get() MGDTODO
 
     def get_figheight(self):
         'Return the figheight as a float'
-        return self.figheight.get()
+        return self.bbox.ymax
 
     def get_dpi(self):
         'Return the dpi as a float'
@@ -402,7 +401,7 @@ class Figure(Artist):
         ACCEPTS: float
         """
         # self.figwidth.set(val)  MGDTODO
-        self.figwidth = val
+	self.bbox.xmax = val
 	
     def set_figheight(self, val):
         """
@@ -411,7 +410,7 @@ class Figure(Artist):
         ACCEPTS: float
         """
 	# MGDTODO (set())
-        self.figheight = val
+	self.bbox.ymax = val
 
     def set_frameon(self, b):
         """

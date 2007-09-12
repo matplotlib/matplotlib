@@ -219,13 +219,13 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
     def motion_notify_event(self, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.y
+        y = self.figure.bbox.height - event.y
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
 
     def button_press_event(self, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.y
+        y = self.figure.bbox.height - event.y
         num = getattr(event, 'num', None)
 
         if sys.platform=='darwin':
@@ -239,7 +239,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
     def button_release_event(self, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.y
+        y = self.figure.bbox.height - event.y
 
         num = getattr(event, 'num', None)
 
@@ -609,7 +609,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         return b
 
     def _init_toolbar(self):
-        xmin, xmax = self.canvas.figure.bbox.intervalx().get_bounds()
+        xmin, xmax = self.canvas.figure.bbox.intervalx
         height, width = 50, xmax-xmin
         Tk.Frame.__init__(self, master=self.window,
                           width=width, height=height,

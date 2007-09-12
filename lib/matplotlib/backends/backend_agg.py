@@ -84,7 +84,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, LOAD_DEFAULT
 from matplotlib.mathtext import MathTextParser
-from matplotlib.bbox import Bbox
+from matplotlib.affine import Bbox
 
 from _backend_agg import RendererAgg as _RendererAgg
 
