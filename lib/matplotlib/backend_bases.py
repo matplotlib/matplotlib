@@ -4,7 +4,7 @@ graphics contexts must implement to serve as a matplotlib backend
 """
 
 from __future__ import division
-import os, sys, warnings
+import os, sys, warnings, copy
 
 import numpy as npy
 import matplotlib.numerix.npyma as ma
@@ -1070,7 +1070,7 @@ class FigureCanvasBase:
     def get_width_height(self):
         """return the figure width and height in points or pixels
         (depending on the backend), truncated to integers"""
-        return int(self.figure.bbox.width()), int(self.figure.bbox.height())
+        return int(self.figure.bbox.width), int(self.figure.bbox.height)
 
     filetypes = {
         'emf': 'Enhanced Metafile',
@@ -1544,7 +1544,7 @@ class NavigationToolbar2:
                 xmin, xmax = a.get_xlim()
                 ymin, ymax = a.get_ylim()
                 lim = xmin, xmax, ymin, ymax
-                self._xypress.append((x, y, a, i, lim,a.transData.deepcopy()))
+                self._xypress.append((x, y, a, i, lim, copy.deepcopy(a.transData)))
                 self.canvas.mpl_disconnect(self._idDrag)
                 self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.drag_pan)
 
@@ -1571,7 +1571,7 @@ class NavigationToolbar2:
                 xmin, xmax = a.get_xlim()
                 ymin, ymax = a.get_ylim()
                 lim = xmin, xmax, ymin, ymax
-                self._xypress.append(( x, y, a, i, lim, a.transData.deepcopy() ))
+                self._xypress.append(( x, y, a, i, lim, copy.deepcopy(a.transData) ))
 
         self.press(event)
 
@@ -1637,8 +1637,9 @@ class NavigationToolbar2:
             #safer to use the recorded button at the press than current button:
             #multiple button can get pressed during motion...
             if self._button_pressed==1:
-                lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
-                x, y = trans.inverse_xy_tup( (event.x, event.y) )
+		inverse = trans.inverted()
+                lastx, lasty = inverse.transform_point((lastx, lasty))
+                x, y = inverse.transform_point( (event.x, event.y) )
                 if a.get_xscale()=='log':
                     dx=1-lastx/x
                 else:
@@ -1664,15 +1665,16 @@ class NavigationToolbar2:
                     ymax -= dy
             elif self._button_pressed==3:
                 try:
-                    dx=(lastx-event.x)/float(a.bbox.width())
-                    dy=(lasty-event.y)/float(a.bbox.height())
+                    dx=(lastx-event.x)/float(a.bbox.width)
+                    dy=(lasty-event.y)/float(a.bbox.height)
                     dx,dy=format_deltas(event,dx,dy)
                     if a.get_aspect() != 'auto':
                         dx = 0.5*(dx + dy)
                         dy = dx
                     alphax = pow(10.0,dx)
                     alphay = pow(10.0,dy)#use logscaling, avoid singularities and smother scaling...
-                    lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
+		    inverse = trans.inverted()
+                    lastx, lasty = inverse.transform_point( (lastx, lasty) )
                     if a.get_xscale()=='log':
                         xmin = lastx*(xmin/lastx)**alphax
                         xmax = lastx*(xmax/lastx)**alphax
@@ -1710,8 +1712,9 @@ class NavigationToolbar2:
             xmin, ymin, xmax, ymax = lim
 
             # zoom to rect
-            lastx, lasty = a.transData.inverse_xy_tup( (lastx, lasty) )
-            x, y = a.transData.inverse_xy_tup( (x, y) )
+	    inverse = a.transData.inverted()
+            lastx, lasty = inverse.transform_point( (lastx, lasty) )
+            x, y = inverse.transform_point( (x, y) )
             Xmin,Xmax=a.get_xlim()
             Ymin,Ymax=a.get_ylim()
 

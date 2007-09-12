@@ -1,5 +1,5 @@
 from __future__ import division, generators
-import math, sys, warnings
+import math, sys, warnings, copy
 
 import numpy as npy
 
@@ -483,7 +483,7 @@ class Axes(martist.Artist):
         """
         martist.Artist.__init__(self)
         self._position = maffine.Bbox.from_lbwh(*rect)
-        self._originalPosition = self._position.copy()
+        self._originalPosition = copy.deepcopy(self._position)
         self.set_axes(self)
         self.set_aspect('auto')
         self.set_adjustable('box')
@@ -613,7 +613,7 @@ class Axes(martist.Artist):
         """
         martist.Artist.set_figure(self, fig)
 
-        l, b, w, h = self._position.get_bounds()
+        l, b, w, h = self._position.bounds
         xmin = fig.bbox.xmin
         xmax = fig.bbox.xmax
         ymin = fig.bbox.ymin
@@ -669,9 +669,9 @@ class Axes(martist.Artist):
     def get_position(self, original=False):
         'Return the axes rectangle left, bottom, width, height'
         if original:
-            return self._originalPosition[:]
+            return self._originalPosition.bounds
         else:
-            return self._position[:]
+            return self._position.bounds
 	    # return [val.get() for val in self._position]
 
     def set_position(self, pos, which='both'):
@@ -694,10 +694,10 @@ class Axes(martist.Artist):
 #             # Change values within self._position--don't replace it.
 #             for num,val in zip(pos, self._position):
 #                 val.set(num)
-	    self._position = pos
+	    self._position.bounds = pos.bounds
 	    # MGDTODO: side-effects
         if which in ('both', 'original'):
-            self._originalPosition = pos
+            self._originalPosition.bounds = pos.bounds
 	    
 	    
     def _set_artist_props(self, a):
@@ -1547,7 +1547,9 @@ class Axes(martist.Artist):
 
     def get_xscale(self):
         'return the xaxis scale string: log or linear'
-        return self.scaled[self.transData.get_funcx().get_type()]
+	# MGDTODO
+        # return self.scaled[self.transData.get_funcx().get_type()]
+	return 'linear'
 
     def set_xscale(self, value, basex = 10, subsx=None):
         """
@@ -1671,7 +1673,8 @@ class Axes(martist.Artist):
 
     def get_yscale(self):
         'return the yaxis scale string: log or linear'
-        return self.scaled[self.transData.get_funcy().get_type()]
+        # return self.scaled[self.transData.get_funcy().get_type()]
+	return 'linear'
 
     def set_yscale(self, value, basey=10, subsy=None):
         """
