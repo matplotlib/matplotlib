@@ -1253,9 +1253,9 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     if r==1 or c==1:
         X.shape = max(r,c),
     if unpack: return X.transpose()
-    return X
+    else: return X
 
-def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
+def csv2rec(fname, comments='#', skiprows=1, checkrows=5, delimiter=',',
             converterd=None, names=None, missing=None):
     """
     Load data from comma/space/tab delimited file in fname into a

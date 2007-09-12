@@ -1198,23 +1198,27 @@ class Axes(martist.Artist):
     def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
         'look for unit kwargs and update the axis instances as necessary'
 
-        if self.xaxis is None or self.xaxis is None: return
+        if self.xaxis is None or self.yaxis is None: return
 
-
+        #print 'processing', self.get_geometry()
         if xdata is not None:
             self.xaxis.update_units(xdata)
+            #print '\tset from xdata', self.xaxis.units
 
         if ydata is not None:
             self.yaxis.update_units(ydata)
+            #print '\tset from ydata', self.yaxis.units
 
         # process kwargs 2nd since these will override default units
         if kwargs is not None:
             xunits = kwargs.pop( 'xunits', self.xaxis.units)
             if xunits!=self.xaxis.units:
+                #print '\tkw setting xunits', xunits
                 self.xaxis.set_units(xunits)
 
             yunits = kwargs.pop('yunits', self.yaxis.units)
             if yunits!=self.yaxis.units:
+                #print '\tkw setting yunits', yunits
                 self.yaxis.set_units(yunits)
 
     def in_axes(self, xwin, ywin):
@@ -3114,10 +3118,12 @@ class Axes(martist.Artist):
         else:
             raise ValueError, 'invalid orientation: %s' % orientation
 
-        left = npy.asarray(left)
-        height = npy.asarray(height)
-        width = npy.asarray(width)
-        bottom = npy.asarray(bottom)
+
+        # do not convert to array here as unit info is lost
+        #left = npy.asarray(left)
+        #height = npy.asarray(height)
+        #width = npy.asarray(width)
+        #bottom = npy.asarray(bottom)
 
         if len(linewidth) == 1: linewidth = linewidth * nbars
 
@@ -3161,14 +3167,14 @@ class Axes(martist.Artist):
         # lets do some conversions now
         if self.xaxis is not None:
             xconv = self.xaxis.converter
-            if ( xconv ):
+            if xconv is not None:
                 units = self.xaxis.get_units()
                 left = xconv.convert( left, units )
                 width = xconv.convert( width, units )
 
         if self.yaxis is not None:
             yconv = self.yaxis.converter
-            if ( yconv ):
+            if yconv is not None :
                 units = self.yaxis.get_units()
                 bottom = yconv.convert( bottom, units )
                 height = yconv.convert( height, units )
@@ -3208,12 +3214,14 @@ class Axes(martist.Artist):
 
         if xerr is not None or yerr is not None:
             if orientation == 'vertical':
-                x = left + 0.5*width
-                y = bottom + height
+                # using list comps rather than arrays to preserve unit info
+                x = [l+0.5*w for l, w in zip(left, width)]
+                y = [b+h for b,h in zip(bottom, height)]
 
             elif orientation == 'horizontal':
-                x = left + width
-                y = bottom + 0.5*height
+                # using list comps rather than arrays to preserve unit info
+                x = [l+w for l,w in zip(left, width)]
+                y = [b+0.5*h for b,h in zip(bottom, height)]
 
             self.errorbar(
                 x, y,
