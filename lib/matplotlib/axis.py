@@ -828,7 +828,7 @@ class Axis(Artist):
             return x
 
         ret =  self.converter.convert(x, self.units)
-        #print 'convert_units converting: units=%s, converter=%s, in=%s, out=%s'%(self.units, self.converter, x, ret)
+        #print 'convert_units converting: axis=%s, units=%s, converter=%s, in=%s, out=%s'%(self, self.units, self.converter, x, ret)
         return ret
 
     def set_units(self, u):
