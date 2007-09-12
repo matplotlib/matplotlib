@@ -326,7 +326,6 @@ class Figure(Artist):
 
 	dpival = self.dpi
 	self.bbox.max = w * dpival, h * dpival
-	print self.bbox
         # self.figwidth.set(w) MGDTODO
         # self.figheight.set(h)
 	

@@ -389,7 +389,6 @@ class Line2D(Artist):
 
 
     def set_axes(self, ax):
-	print "set_axes"
         Artist.set_axes(self, ax)
         if ax.xaxis is not None:
             self._xcid = ax.xaxis.callbacks.connect('units', self.recache)

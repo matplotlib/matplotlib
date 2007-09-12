@@ -33,29 +33,29 @@ class Bbox(TransformNode):
 	self._points = N.asarray(points, N.float_)
 	self.track = False
 
-    # JDH: if you define a del method, the garbage collector won't
-    # destory cyclic references, so make sure you either manage these
-    # yourself or remove the __del__ after testing
-    def __del__(self):
-	if self.track:
-	    print "Bbox::__del__"
-	
     #@staticmethod
     def unit():
-	return Bbox([[0,0], [1,1]])
+	return Bbox.from_lbrt(0., 0., 1., 1.)
     unit = staticmethod(unit)
 
     #@staticmethod
     def from_lbwh(left, bottom, width, height):
-	return Bbox([[left, bottom], [left + width, bottom + height]])
+	return Bbox.from_lbrt(left, bottom, left + width, bottom + height)
     from_lbwh = staticmethod(from_lbwh)
 
     #@staticmethod
-    def from_lbrt(left, bottom, right, top):
-	return Bbox([[left, bottom], [right, top]])
+    def from_lbrt(*args):
+	points = N.array(args, dtype=N.float_).reshape(2, 2)
+	return Bbox(points)
     from_lbrt = staticmethod(from_lbrt)
 
-
+    def __cmp__(self, other):
+	# MGDTODO: Totally suboptimal
+	if isinstance(other, Bbox):
+	    if (self._points == other._points).all():
+		return 0
+	return -1
+    
     # JDH: the update method will update the box limits from the
     # existing limits and the new data; it appears here you are just
     # using the new data.  We use an "ignore" flag to specify whether
@@ -63,31 +63,18 @@ class Bbox(TransformNode):
     def update_from_data(self, x, y):
 	self._points = N.array([[x.min(), y.min()], [x.max(), y.max()]], N.float_)
 	self.invalidate()
-	if self.track:
-	    print "Bbox::update_from_data", self._points
     
     def copy(self):
-	if self.track:
-	    print "Bbox::copy"
 	return Bbox(self._points.copy())
 
     def __repr__(self):
 	return 'Bbox(%s)' % repr(self._points)
     __str__ = __repr__
 
-    def __cmp__(self, other):
-	# MGDTODO: Totally suboptimal
-	if isinstance(other, Bbox):
-	    return (self._points == other._points).all()
-	return -1
-    
     # MGDTODO: Probably a more efficient ways to do this...
     def _get_xmin(self):
-	if self.track:
-	    print "Bbox::_get_xmin"
 	return self._points[0, 0]
     def _set_xmin(self, val):
-	print "Bbox::_set_xmin"
 	self._points[0, 0] = val
 	self.invalidate()
     xmin = property(_get_xmin, _set_xmin)
@@ -150,10 +137,10 @@ class Bbox(TransformNode):
     height = property(_get_height)
 
     def transformed(self, transform):
-	return Bbox(self.transform(self._points))
+	return Bbox(transform(self._points))
 
     def inverse_transformed(self, transform):
-	return Bbox(self.transform.inverted()(self._points))
+	return Bbox(transform.inverted()(self._points))
     
     def get_bounds(self):
 	return (self.xmin, self.ymin,
@@ -249,6 +236,14 @@ class Affine2D(Transform):
 	return "Affine2D(%s)" % repr(self._mtx)
     __str__ = __repr__
 
+    def __cmp__(self, other):
+	# MGDTODO: We need to decide if we want deferred transforms
+	# to be equal to this one
+	if isinstance(other, Affine2D):
+	    if (self.get_matrix() == other.get_matrix()).all():
+		return 0
+	return -1
+    
     def _do_invalidation(self):
 	result = self._inverted is None
 	self._inverted = None
@@ -380,10 +375,9 @@ class BlendedAffine2D(Affine2D):
 	if self._mtx is None:
 	    x_mtx = self._x.get_matrix()
 	    y_mtx = self._y.get_matrix()
+	    # This works because we already know the transforms are
+	    # separable
 	    self._mtx = N.vstack([x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]])
-# 	    self._mtx = self.matrix_from_values(
-# 		x_mtx[0,0], 0.0, 0.0, y_mtx[1,1], x_mtx[0,2], y_mtx[1,2])
-	    print "Blended", x_mtx, y_mtx, self._mtx
 	
     def is_separable(self):
 	return True
@@ -429,8 +423,8 @@ class CompositeAffine2D(Affine2D):
     def _make__mtx(self):
 	if self._mtx is None:
 	    self._mtx = self._concat(
-		self._b.get_matrix(),
-		self._a.get_matrix())
+		self._a.get_matrix(),
+		self._b.get_matrix())
 
     def get_matrix(self):
 	self._make__mtx()
@@ -547,12 +541,70 @@ def interval_contains_open(interval, val):
     return interval[0] < val and interval[1] > val
     
 if __name__ == '__main__':
+    bbox = Bbox.from_lbrt(10., 15., 20., 25.)
+    assert bbox.xmin == 10
+    assert bbox.ymin == 15
+    assert bbox.xmax == 20
+    assert bbox.ymax == 25
+
+    assert N.all(bbox.min == [10, 15])
+    assert N.all(bbox.max == [20, 25])
+    assert N.all(bbox.intervalx == (10, 20))
+    assert N.all(bbox.intervaly == (15, 25))
+
+    assert bbox.width == 10
+    assert bbox.height == 10
+
+    assert bbox.get_bounds() == (10, 15, 10, 10)
+
+    bbox.intervalx = (11, 21)
+    bbox.intervaly = (16, 26)
+    
+    assert bbox.get_bounds() == (11, 16, 10, 10)
+
+    bbox.xmin = 12
+    bbox.ymin = 17
+    bbox.xmax = 22
+    bbox.ymax = 27
+
+    assert bbox.get_bounds() == (12, 17, 10, 10)
+
+    bbox = Bbox.from_lbwh(10, 11, 12, 13)
+    assert bbox.get_bounds() == (10, 11, 12, 13)
+
+    bbox_copy = bbox.copy()
+    assert bbox == bbox_copy
+    bbox_copy.max = (14, 15)
+    assert bbox.get_bounds() == (10, 11, 12, 13)
+    assert bbox_copy.get_bounds() == (10, 11, 4, 4)
+    
     bbox1 = Bbox([[10., 15.], [20., 25.]])
     bbox2 = Bbox([[30., 35.], [40., 45.]])
     trans = BboxTransform(bbox1, bbox2)
-    print trans(bbox1._points)
+    bbox3 = bbox1.transformed(trans)
+    assert bbox3 == bbox2
 
-    bbox2.intervalx = 50, 55
-    print trans(bbox1._points)
+    translation = Affine2D().translate(10, 20)
+    assert translation.to_values() == (1, 0, 0, 1, 10, 20)
+    scale = Affine2D().scale(10, 20)
+    assert scale.to_values() == (10, 0, 0, 20, 0, 0)
+    rotation = Affine2D().rotate_deg(30)
+    print rotation.to_values() == (0.86602540378443871, 0.49999999999999994, -0.49999999999999994, 0.86602540378443871, 0.0, 0.0)
+    
+    points = N.array([[1,2],[3,4],[5,6],[7,8]], N.float_)
+    translated_points = translation(points)
+    assert (translated_points == [[11., 22.], [13., 24.], [15., 26.], [17., 28.]]).all()
+    scaled_points = scale(points)
+    print scaled_points
+    rotated_points = rotation(points)
+    print rotated_points
+
+    tpoints1 = rotation(translation(scale(points)))
+    trans_sum = rotation + translation + scale
+    tpoints2 = trans_sum(points)
+    print tpoints1, tpoints2
+    print tpoints1 == tpoints2
+    # Need to do some sort of fuzzy comparison here?
+    # assert (tpoints1 == tpoints2).all()
     
 __all__ = ['Transform', 'Affine2D']
