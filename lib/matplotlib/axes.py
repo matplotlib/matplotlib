@@ -436,8 +436,7 @@ class Axes(martist.Artist):
               }
 
     def __str__(self):
-        return "Axes(%g,%g;%gx%g)"%(self._position[0].get(),self._position[1].get(),
-                                    self._position[2].get(),self._position[3].get())
+        return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
     def __init__(self, fig, rect,
                  axisbg = None, # defaults to rc axes.facecolor
                  frameon = True,
@@ -590,13 +589,13 @@ class Axes(martist.Artist):
 
         def follow_foreign_ylim(ax):
             ymin, ymax = axforeign.get_ylim()
-            # do not emit here or we'll get a ping png effect
+            # do not emit here or we'll get a ping pong effect
             self.set_ylim(ymin, ymax, emit=False)
             self.figure.canvas.draw_idle()
 
         def follow_self_ylim(ax):
             ymin, ymax = self.get_ylim()
-            # do not emit here or we'll get a ping png effect
+            # do not emit here or we'll get a ping pong effect
             axforeign.set_ylim(ymin, ymax, emit=False)
             axforeign.figure.canvas.draw_idle()
 
@@ -613,65 +612,66 @@ class Axes(martist.Artist):
         """
         martist.Artist.set_figure(self, fig)
 
-        l, b, w, h = self._position.bounds
-        xmin = fig.bbox.xmin
-        xmax = fig.bbox.xmax
-        ymin = fig.bbox.ymin
-        ymax = fig.bbox.ymax
-        figw = xmax-xmin
-        figh = ymax-ymin
-        self.left   =  l*figw
-        self.bottom =  b*figh
-        self.right  =  (l+w)*figw
-        self.top    =  (b+h)*figh
-
-        self.bbox = maffine.Bbox.from_lbrt(
-            self.left, self.bottom,
-            self.right, self.top,
-            )
+        self.bbox = maffine.TransformedBbox(self._position, fig.transFigure)
         #these will be updated later as data is added
         self._set_lim_and_transforms()
 
+    def _shared_xlim_callback(self, ax):
+	xmin, xmax = ax.get_xlim()
+	self.set_xlim(xmin, xmax, emit=False)
+	self.figure.canvas.draw_idle()
+
+    def _shared_ylim_callback(self, ax):
+	ymin, ymax = ax.get_ylim()
+	self.set_ylim(ymin, ymax, emit=False)
+	self.figure.canvas.draw_idle()
+	
     def _set_lim_and_transforms(self):
         """
         set the dataLim and viewLim BBox attributes and the
         transData and transAxes Transformation attributes
         """
-        Bbox = maffine.Bbox
+	Bbox = maffine.Bbox
+	self.viewLim = Bbox.unit()
+	
         if self._sharex is not None:
-            left = self._sharex.viewLim.xmin()
-            right = self._sharex.viewLim.xmax()
-        else:
-            left = 0.0
-            right = 1.0
+	    # MGDTODO: This may be doing at least one too many updates
+	    # than necessary
+	    self._sharex.callbacks.connect(
+ 		'xlim_changed', self._shared_xlim_callback)
+	    self.viewLim.intervalx = self._sharex.viewLim.intervalx
         if self._sharey is not None:
-            bottom = self._sharey.viewLim.ymin()
-            top = self._sharey.viewLim.ymax()
-        else:
-            bottom = 0.0
-            top = 1.0
+ 	    self._sharey.callbacks.connect(
+ 		'ylim_changed', self._shared_ylim_callback)
+	    self.viewLim.intervaly = self._sharex.viewLim.intervaly
 
-        self.viewLim = Bbox.from_lbrt(left, bottom, right, top)
 	self.dataLim = Bbox.unit()
 	
-        self.transData = maffine.BboxTransform(
-            self.viewLim, self.bbox)
         self.transAxes = maffine.BboxTransform(
             Bbox.unit(), self.bbox)
 
-	# MGDTODO
-#         if self._sharex:
-#             self.transData.set_funcx(self._sharex.transData.get_funcx())
-
-#         if self._sharey:
-#             self.transData.set_funcy(self._sharey.transData.get_funcy())
-
+        localTransData = maffine.BboxTransform(
+            self.viewLim, self.bbox)
+	if self._sharex:
+	    transDataX = self._sharex.transData
+	else:
+	    transDataX = localTransData
+	if self._sharey:
+	    transDataY = self._sharey.transData
+	else:
+	    transDataY = localTransData
+	self.transData = localTransData # maffine.blend_xy_sep_transform(transDataX, transDataY)
+	    
+	    
     def get_position(self, original=False):
         'Return the axes rectangle left, bottom, width, height'
+	# MGDTODO: This changed from returning a list to returning a Bbox
+	# If you get any errors with the result of this function, please
+	# update the calling code
         if original:
-            return self._originalPosition.bounds
+            return copy.copy(self._originalPosition)
         else:
-            return self._position.bounds
+            return copy.copy(self._position)
 	    # return [val.get() for val in self._position]
 
     def set_position(self, pos, which='both'):
@@ -690,14 +690,9 @@ class Axes(martist.Artist):
         ACCEPTS: len(4) sequence of floats
         """
         if which in ('both', 'active'):
-	    # MGDTODO
-#             # Change values within self._position--don't replace it.
-#             for num,val in zip(pos, self._position):
-#                 val.set(num)
-	    self._position.bounds = pos.bounds
-	    # MGDTODO: side-effects
+	    self._position.set(pos)
         if which in ('both', 'original'):
-            self._originalPosition.bounds = pos.bounds
+            self._originalPosition.set(pos)
 	    
 	    
     def _set_artist_props(self, a):
@@ -1546,7 +1541,14 @@ class Axes(martist.Artist):
         xmin, xmax = maffine.nonsingular(xmin, xmax, increasing=False)
 
 	self.viewLim.intervalx = (xmin, xmax)
-	
+        if emit:
+	    self.callbacks.process('xlim_changed', self)
+	    # MGDTODO: It would be nice to do this is in the above callback list,
+	    # but it's difficult to tell how to initialize this at the
+	    # right time
+	    if self._sharex:
+		self._sharex.set_xlim(*self.viewLim.intervalx)
+	    
         return xmin, xmax
 
     def get_xscale(self):
@@ -1650,7 +1652,6 @@ class Axes(martist.Artist):
 
         ACCEPTS: len(2) sequence of floats
         """
-
         if ymax is None and iterable(ymin):
             ymin,ymax = ymin
 
@@ -1671,8 +1672,14 @@ class Axes(martist.Artist):
 
         ymin, ymax = maffine.nonsingular(ymin, ymax, increasing=False)
 	self.viewLim.intervaly = (ymin, ymax)
-        if emit: self.callbacks.process('ylim_changed', self)
-	
+        if emit:
+	    self.callbacks.process('ylim_changed', self)
+	    # MGDTODO: It would be nice to do this is in the above callback list,
+	    # but it's difficult to tell how to initialize this at the
+	    # right time
+	    if self._sharey:
+		self._sharey.set_ylim(*self.viewLim.intervaly)
+	    
         return ymin, ymax
 
     def get_yscale(self):

@@ -481,7 +481,7 @@ def subplot(*args, **kwargs):
     byebye = []
     for other in fig.axes:
         if other==a: continue
-        if bbox.overlaps(other.bbox, ignoreend=True):
+        if bbox.fully_overlaps(other.bbox):
             byebye.append(other)
     for ax in byebye: delaxes(ax)
 

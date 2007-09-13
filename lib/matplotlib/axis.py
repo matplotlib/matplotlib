@@ -1028,9 +1028,8 @@ class XAxis(Axis):
         x,y = self.label.get_position()
         if self.label_position == 'bottom':
             if not len(bboxes):
-                bottom = self.axes.bbox.ymin()
+                bottom = self.axes.bbox.ymin
             else:
-
                 bbox = Bbox.union(bboxes)
                 bottom = bbox.ymin
 
@@ -1041,7 +1040,6 @@ class XAxis(Axis):
             if not len(bboxes2):
                 top = self.axes.bbox.ymax
             else:
-
                 bbox = bbox_union(bboxes2)
                 top = bbox.ymax
 
@@ -1054,7 +1052,7 @@ class XAxis(Axis):
         """
         x,y = self.offsetText.get_position()
         if not len(bboxes):
-            bottom = self.axes.bbox.ymin()
+            bottom = self.axes.bbox.ymin
         else:
             bbox = Bbox.union(bboxes)
             bottom = bbox.ymin

@@ -21,7 +21,7 @@ import matplotlib.units as units
 # http://groups.google.com/groups?hl=en&lr=&threadm=mailman.5090.1098044946.5135.python-list%40python.org&rnum=1&prev=/groups%3Fq%3D__doc__%2Bauthor%253Ajdhunter%2540ace.bsd.uchicago.edu%26hl%3Den%26btnG%3DGoogle%2BSearch
 
 
-class Artist:
+class Artist(object):
     """
     Abstract base class for someone who renders into a FigureCanvas
     """
