@@ -4,7 +4,7 @@ A set of classes to handle transformations.
 2007 Michael Droettboom
 """
 
-import numpy as N
+import numpy as npy
 from numpy.linalg import inv
 from sets import Set
 
@@ -37,7 +37,7 @@ class TransformNode(object):
 class Bbox(TransformNode):
     def __init__(self, points):
 	TransformNode.__init__(self)
-	self._points = N.asarray(points, N.float_)
+	self._points = npy.asarray(points, npy.float_)
 	self.track = False
 
     #@staticmethod
@@ -52,7 +52,7 @@ class Bbox(TransformNode):
 
     #@staticmethod
     def from_lbrt(*args):
-	points = N.array(args, dtype=N.float_).reshape(2, 2)
+	points = npy.array(args, dtype=npy.float_).reshape(2, 2)
 	return Bbox(points)
     from_lbrt = staticmethod(from_lbrt)
     
@@ -72,12 +72,15 @@ class Bbox(TransformNode):
 	return 'Bbox(%s)' % repr(self._points)
     __str__ = __repr__
 
+    def __array__(self):
+	return self._points
+    
     # JDH: the update method will update the box limits from the
     # existing limits and the new data; it appears here you are just
     # using the new data.  We use an "ignore" flag to specify whether
     # you want to include the existing data or not in the update
     def update_from_data(self, x, y, ignore=True):
-	self._points = N.array([[x.min(), y.min()], [x.max(), y.max()]], N.float_)
+	self._points = npy.array([[x.min(), y.min()], [x.max(), y.max()]], npy.float_)
 	self.invalidate()
 
     # MGDTODO: Probably a more efficient ways to do this...
@@ -150,7 +153,7 @@ class Bbox(TransformNode):
 		self.xmax - self.xmin, self.ymax - self.ymin)
     def _set_bounds(self, bounds):
 	l,b,w,h = bounds
-	self._points = N.array([[l, b], [l+w, b+h]], N.float_)
+	self._points = npy.array([[l, b], [l+w, b+h]], npy.float_)
 	self.invalidate()
     bounds = property(_get_bounds, _set_bounds)
 	
@@ -165,7 +168,7 @@ class Bbox(TransformNode):
 	height = self.height
 	deltaw = (sw * width - width) / 2.0
 	deltah = (sh * height - height) / 2.0
-	a = N.array([[-deltaw, -deltah], [deltaw, deltah]])
+	a = npy.array([[-deltaw, -deltah], [deltaw, deltah]])
 	return Bbox(self._points + a)
 
     def contains(self, x, y):
@@ -215,7 +218,7 @@ class Transform(TransformNode):
 	raise TypeError("Can not add Transform to object of type '%s'" % type(other))
 
     def transform_point(self, point):
-	return self.__call__([point])[0]
+	return self.__call__(npy.asarray([point]))[0]
     
     def has_inverse(self):
 	raise NotImplementedError()
@@ -228,8 +231,6 @@ class Transform(TransformNode):
 
     def is_affine(self):
 	return False
-
-# MGDTODO: Separate out Affine2DBase / Affine2DConcrete so BlendedAffine and CompositeAffine don't have translate/scale/rotate members
 
 class Affine2DBase(Transform):
     input_dims = 2
@@ -246,7 +247,7 @@ class Affine2DBase(Transform):
 
     #@staticmethod
     def _concat(a, b):
-        return N.dot(b, a)
+        return npy.dot(b, a)
     _concat = staticmethod(_concat)
     
     def to_values(self):
@@ -255,7 +256,7 @@ class Affine2DBase(Transform):
     
     #@staticmethod
     def matrix_from_values(a, b, c, d, e, f):
-	affine = N.zeros((3,3), N.float_)
+	affine = npy.zeros((3,3), npy.float_)
 	affine[0,] = a, c, e
 	affine[1,] = b, d, f
 	affine[2,2] = 1
@@ -267,7 +268,7 @@ class Affine2DBase(Transform):
     
     def __call__(self, points):
         """
-        Applies the transformation to a set of 2D points and
+        Applies the transformation to an array of 2D points and
 	returns the result.
 
 	points must be a numpy array of shape (N, 2), where N is the
@@ -277,9 +278,9 @@ class Affine2DBase(Transform):
 	# the points to an array in the first place.  If we can use
 	# more arrays upstream, that should help here.
 	mtx = self.get_matrix()
-	points = N.asarray(points, N.float_)
+	points = npy.asarray(points, npy.float_)
 	points = points.transpose()
-	points = N.dot(mtx[0:2, 0:2], points)
+	points = npy.dot(mtx[0:2, 0:2], points)
 	points = points + mtx[0:2, 2:]
 	return points.transpose()
     
@@ -311,7 +312,7 @@ class Affine2D(Affine2DBase):
         """
 	Affine2DBase.__init__(self)
 	if matrix is None:
-	    matrix = N.identity(3)
+	    matrix = npy.identity(3)
 	else:
 	    assert matrix.shape == (3, 3)
 	self._mtx = matrix
@@ -348,19 +349,19 @@ class Affine2D(Affine2DBase):
     
     #@staticmethod
     def identity():
-        return Affine2D(N.identity(3))
+        return Affine2D(npy.identity(3))
     identity = staticmethod(identity)
 
     def rotate(self, theta):
-        a = N.cos(theta)
-        b = N.sin(theta)
+        a = npy.cos(theta)
+        b = npy.sin(theta)
         rotate_mtx = self.matrix_from_values(a, b, -b, a, 0, 0)
         self._mtx = self._concat(self._mtx, rotate_mtx)
 	self.invalidate()
 	return self
 
     def rotate_deg(self, degrees):
-        return self.rotate(degrees*N.pi/180.)
+        return self.rotate(degrees*npy.pi/180.)
 
     def translate(self, tx, ty):
         translate_mtx = self.matrix_from_values(1., 0., 0., 1., tx, ty)
@@ -420,7 +421,7 @@ class BlendedAffine2D(Affine2DBase):
 	    # This works because we already know the transforms are
 	    # separable, though normally one would want to set b and
 	    # c to zero.
-	    self._mtx = N.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
+	    self._mtx = npy.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
 	
     def is_separable(self):
 	return True
@@ -444,7 +445,7 @@ class BlendedTransform(Transform):
 	y_points = self._y(points)
 	# This works because we already know the transforms are
 	# separable
-	return N.hstack((x_points[:, 0:1], y_points[:, 1:2]))
+	return npy.hstack((x_points[:, 0:1], y_points[:, 1:2]))
 
 class CompositeAffine2D(Affine2DBase):
     def __init__(self, a, b):
@@ -579,6 +580,7 @@ def interval_contains_open(interval, val):
     return interval[0] < val and interval[1] > val
     
 if __name__ == '__main__':
+    import copy
     from random import random
     import timeit
 
@@ -588,36 +590,38 @@ if __name__ == '__main__':
     assert bbox.xmax == 20
     assert bbox.ymax == 25
 
-    assert N.all(bbox.min == [10, 15])
-    assert N.all(bbox.max == [20, 25])
-    assert N.all(bbox.intervalx == (10, 20))
-    assert N.all(bbox.intervaly == (15, 25))
+    assert npy.all(bbox.min == [10, 15])
+    assert npy.all(bbox.max == [20, 25])
+    assert npy.all(bbox.intervalx == (10, 20))
+    assert npy.all(bbox.intervaly == (15, 25))
 
     assert bbox.width == 10
     assert bbox.height == 10
 
-    assert bbox.get_bounds() == (10, 15, 10, 10)
+    assert bbox.bounds == (10, 15, 10, 10)
 
+    print npy.asarray(bbox)
+    
     bbox.intervalx = (11, 21)
     bbox.intervaly = (16, 26)
     
-    assert bbox.get_bounds() == (11, 16, 10, 10)
+    assert bbox.bounds == (11, 16, 10, 10)
 
     bbox.xmin = 12
     bbox.ymin = 17
     bbox.xmax = 22
     bbox.ymax = 27
 
-    assert bbox.get_bounds() == (12, 17, 10, 10)
+    assert bbox.bounds == (12, 17, 10, 10)
 
     bbox = Bbox.from_lbwh(10, 11, 12, 13)
-    assert bbox.get_bounds() == (10, 11, 12, 13)
+    assert bbox.bounds == (10, 11, 12, 13)
 
-    bbox_copy = bbox.copy()
+    bbox_copy = copy.copy(bbox)
     assert bbox == bbox_copy
     bbox_copy.max = (14, 15)
-    assert bbox.get_bounds() == (10, 11, 12, 13)
-    assert bbox_copy.get_bounds() == (10, 11, 4, 4)
+    assert bbox.bounds == (10, 11, 12, 13)
+    assert bbox_copy.bounds == (10, 11, 4, 4)
     
     bbox1 = Bbox([[10., 15.], [20., 25.]])
     bbox2 = Bbox([[30., 35.], [40., 45.]])
@@ -634,7 +638,7 @@ if __name__ == '__main__':
 				   -0.49999999999999994, 0.86602540378443871,
 				   0.0, 0.0)
     
-    points = N.array([[1,2],[3,4],[5,6],[7,8]], N.float_)
+    points = npy.array([[1,2],[3,4],[5,6],[7,8]], npy.float_)
     translated_points = translation(points)
     assert (translated_points == [[11., 22.], [13., 24.], [15., 26.], [17., 28.]]).all()
     scaled_points = scale(points)
@@ -655,7 +659,7 @@ if __name__ == '__main__':
     t = timeit.Timer("trans_sum(points)", "from __main__ import trans_sum, points")
     print "Time to transform 10000 x 10 points as tuples:", t.timeit(10)
 
-    points2 = N.asarray(points)
+    points2 = npy.asarray(points)
     t = timeit.Timer("trans_sum(points2)", "from __main__ import trans_sum, points2")
     print "Time to transform 10000 x 10 points as numpy array:", t.timeit(10)
     

@@ -149,7 +149,7 @@ class Text(Artist):
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x,y in display coords'
         x, y = self.get_position()
-        return self.get_transform()([[x,y]])[0]
+        return self.get_transform().transform_point((x,y))
 
     def _get_multialignment(self):
         if self._multialignment is not None: return self._multialignment
