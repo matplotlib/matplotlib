@@ -51,7 +51,7 @@ class Artist:
         self._remove_method = None
 
     def remove(self):
-        '''
+        """
         Remove the artist from the figure if possible.  The effect will not
         be visible until the figure is redrawn, e.g., with ax.draw_idle().
         Call ax.relim() to update the axes limits if desired.
@@ -60,7 +60,7 @@ class Artist:
         was added to axes with autolim=True.
 
         Note: there is no support for removing the artist's legend entry.
-        '''
+        """
 
         # There is no method to set the callback.  Instead the parent should set
         # the _remove_method attribute directly.  This would be a protected

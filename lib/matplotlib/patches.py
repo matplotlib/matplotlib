@@ -77,6 +77,8 @@ class Patch(artist.Artist):
         if len(kwargs): artist.setp(self, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+
+
     def contains(self, mouseevent):
         """Test whether the mouse event occurred in the patch.
 
@@ -352,7 +354,6 @@ class Rectangle(Patch):
         Return the vertices of the rectangle
         """
         x, y = self.xy
-
         left, right = self.convert_xunits((x, x + self.width))
         bottom, top = self.convert_yunits((y, y + self.height))
 

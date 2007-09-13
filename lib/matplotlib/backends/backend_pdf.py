@@ -527,7 +527,7 @@ class PdfFile:
                     widths.append(afmdata.get_width_from_char_name(ch))
                 except KeyError:
                     matplotlib.verbose.report(
-                        'No width for %s in %s' % (ch, fullname), 'debug')
+                        'No width for %s in %s' % (ch, fullname), 'debug-annoying')
                     widths.append(0)
 
             differencesArray = [ Name(ch) for ch in enc ]
@@ -561,7 +561,7 @@ class PdfFile:
                 except KeyError:
                     matplotlib.verbose.report(
                         'No name for glyph %d in %s' % (ch, fullname), 
-                        'debug')
+                        'debug-annoying')
                     need_idx = True
 
         
@@ -1449,9 +1449,7 @@ class RendererPdf(RendererBase):
         # Pop off the global transformation
         self.file.output(Op.grestore)
 
-    def _draw_tex(self, gc, x, y, s, prop, angle):
-        # Rename to draw_tex to enable
-
+    def draw_tex(self, gc, x, y, s, prop, angle):
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
@@ -1494,7 +1492,7 @@ class RendererPdf(RendererBase):
                     elt[3][-1] += next[3][0]
                     elt[4] += next[4]-next[1]
                 else:
-                    elt[3] += [offset, next[3][0]]
+                    elt[3] += [offset*1000.0/dvifont.size, next[3][0]]
                     elt[4] = next[4]
                 del seq[i+1]
                 continue

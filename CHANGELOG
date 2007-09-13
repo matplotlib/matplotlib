@@ -1,3 +1,10 @@
+2007-09-13 The usetex support in the pdf backend is more usable now,
+           so I am enabling it. - JKS
+
+2007-09-12 Fixed a Axes.bar unit bug - JDH
+
+2007-09-10 Made skiprows=1 the default on csv2rec - JDH
+
 2007-09-09 Split out the plotting part of pylab and put it in
            pyplot.py; removed numerix from the remaining pylab.py,
            which imports everything from pyplot.py.  The intention

@@ -84,16 +84,22 @@ class Dvi(object):
                 e = 0           # zero depth
             else:               # glyph
                 x,y,font,g,w = elt
-                h = (font.scale * font.tfm.height[g]) >> 20
-                e = (font.scale * font.tfm.depth[g]) >> 20
+                h = _mul2012(font._scale,  font._tfm.height[g])
+                e = _mul2012(font._scale, font._tfm.depth[g])
             minx = min(minx, x)
             miny = min(miny, y - h)
             maxx = max(maxx, x + w)
             maxy = max(maxy, y + e)
             maxy_pure = max(maxy_pure, y)
 
+        if self.dpi is None:
+            # special case for ease of debugging: output raw dvi coordinates
+            return mpl_cbook.Bunch(text=self.text, boxes=self.boxes,
+                                   width=maxx-minx, height=maxy_pure-miny,
+                                   descent=maxy-maxy_pure)
+
         d = self.dpi / (72.27 * 2**16) # from TeX's "scaled points" to dpi units
-        text =  [ ((x-minx)*d, (maxy-y)*d, DviFont(f), g, w*d) 
+        text =  [ ((x-minx)*d, (maxy-y)*d, f, g, w*d) 
                   for (x,y,f,g,w) in self.text ]
         boxes = [ ((x-minx)*d, (maxy-y)*d, h*d, w*d) for (x,y,h,w) in self.boxes ]
 
@@ -110,11 +116,11 @@ class Dvi(object):
         while True:
             byte = ord(self.file.read(1))
             self._dispatch(byte)
-            if self.state == _dvistate.inpage:
-                matplotlib.verbose.report(
-                    'Dvi._read: after %d at %f,%f' % 
-                    (byte, self.h, self.v), 
-                    'debug-annoying')
+#             if self.state == _dvistate.inpage:
+#                 matplotlib.verbose.report(
+#                     'Dvi._read: after %d at %f,%f' % 
+#                     (byte, self.h, self.v), 
+#                     'debug-annoying')
             if byte == 140: # end of page
                 return True
             if self.state == _dvistate.post_post: # end of file
@@ -225,21 +231,11 @@ class Dvi(object):
             # I think we can assume this is constant
         self.state = _dvistate.outer
 
-    def _width_of(self, char, font):
-        width = font.tfm.width.get(char, None)
-        if width is not None:
-            return (width * font.scale) >> 20
-
-        matplotlib.verbose.report(
-            'No width for char %d in font %s' % (char, font.name),
-            'debug')
-        return 0
-
     def _set_char(self, char):
         if self.state != _dvistate.inpage:
             raise ValueError, "misplaced set_char in dvi file"
         self._put_char(char)
-        self.h += self._width_of(char, self.fonts[self.f])
+        self.h += self.fonts[self.f]._width_of(char)
 
     def _set_rule(self, a, b):
         if self.state != _dvistate.inpage:
@@ -251,20 +247,33 @@ class Dvi(object):
         if self.state != _dvistate.inpage:
             raise ValueError, "misplaced put_char in dvi file"
         font = self.fonts[self.f]
-        if font.vf is None:
+        if font._vf is None:
             self.text.append((self.h, self.v, font, char, 
-                              self._width_of(char, font)))
+                              font._width_of(char)))
+#             matplotlib.verbose.report(
+#                 'Dvi._put_char: %d,%d %d' %(self.h, self.v, char), 
+#                 'debug-annoying')
         else:
-            self.text.extend([(self.h + x, self.v + y, f, g, w)
-                              for x, y, f, g, w in font.vf[char].text])
-            self.boxes.extend([(self.h + x, self.v + y, a, b)
-                               for x, y, a, b in font.vf[char].boxes])
+            scale = font._scale
+            for x, y, f, g, w in font._vf[char].text:
+                newf = DviFont(scale=_mul2012(scale, f._scale),
+                               tfm=f._tfm, texname=f.texname, vf=f._vf)
+                self.text.append((self.h + _mul2012(x, scale),
+                                  self.v + _mul2012(y, scale),
+                                  newf, g, newf._width_of(g)))
+            self.boxes.extend([(self.h + _mul2012(x, scale),
+                                self.v + _mul2012(y, scale),
+                                _mul2012(a, scale), _mul2012(b, scale))
+                               for x, y, a, b in font._vf[char].boxes])
 
     def _put_rule(self, a, b):
         if self.state != _dvistate.inpage:
             raise ValueError, "misplaced put_rule in dvi file"
         if a > 0 and b > 0:
             self.boxes.append((self.h, self.v, a, b))
+#             matplotlib.verbose.report(
+#                 'Dvi._put_rule: %d,%d %d,%d' % (self.h, self.v, a, b),
+#                 'debug-annoying')
 
     def _nop(self):
         pass
@@ -357,7 +366,7 @@ class Dvi(object):
 
         vf = _vffile(n[-l:])
 
-        self.fonts[k] = mpl_cbook.Bunch(scale=s, tfm=tfm, name=n, vf=vf)
+        self.fonts[k] = DviFont(scale=s, tfm=tfm, texname=n, vf=vf)
 
     def _post(self):
         if self.state != _dvistate.outer:
@@ -370,17 +379,20 @@ class Dvi(object):
         raise NotImplementedError
 
 class DviFont(object):
-    __slots__ = ('texname', 'size')
+    """
+    Object that holds a font's texname and size and supports comparison.
+    There are also internal attributes (for use by dviread.py) that
+    are _not_ used for comparison.
 
-    def __init__(self, f):
-        """
-        Object that holds a font's texname and size and supports comparison.
+    The size is in Adobe points (converted from TeX points).
+    """
+    __slots__ = ('texname', 'size', '_scale', '_vf', '_tfm')
 
-        The size is in Adobe points (converted from TeX points).
-        """
+    def __init__(self, scale, tfm, texname, vf):
+        self._scale, self._tfm, self.texname, self._vf = \
+            scale, tfm, texname, vf
         # TODO: would it make more sense to have the size in dpi units?
-        self.texname = f.name
-        self.size = f.scale * (72.0 / (72.27 * 2**16))
+        self.size = scale * (72.0 / (72.27 * 2**16))
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and \
@@ -388,6 +400,16 @@ class DviFont(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def _width_of(self, char):
+        width = self._tfm.width.get(char, None)
+        if width is not None:
+            return _mul2012(width, self._scale)
+
+        matplotlib.verbose.report(
+            'No width for char %d in font %s' % (char, self.texname),
+            'debug')
+        return 0
 
 class Vf(Dvi):
     """
@@ -465,7 +487,8 @@ class Vf(Dvi):
             raise ValueError, "pre command in middle of vf file"
         if i != 202:
             raise ValueError, "Unknown vf format %d" % i
-        matplotlib.verbose.report('vf file comment: ' + x, 'debug')
+        if len(x):
+            matplotlib.verbose.report('vf file comment: ' + x, 'debug')
         self.state = _dvistate.outer
         # cs = checksum, ds = design size
 
@@ -474,7 +497,7 @@ class Vf(Dvi):
         if self._first_font is None:
             self._first_font = k
 
-def fix2comp(num):
+def _fix2comp(num):
     """
     Convert from two's complement to negative.
     """
@@ -483,6 +506,13 @@ def fix2comp(num):
         return num - 2**32
     else:
         return num
+
+def _mul2012(num1, num2):
+    """
+    Multiply two numbers in 20.12 fixed point format.
+    """
+    # Separated into a function because >> has surprising precedence
+    return (num1*num2) >> 20
 
 class Tfm(object):
     """
@@ -497,6 +527,7 @@ class Tfm(object):
         (this is a dict because indexing may not start from 0)
       height[i], depth[i]: height and depth of character #i
     """
+    __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
 
     def __init__(self, filename):
         matplotlib.verbose.report('opening tfm file ' + filename, 'debug')
@@ -525,9 +556,9 @@ class Tfm(object):
             [ struct.unpack('!%dI' % (len(x)/4), x) 
               for x in (widths, heights, depths) ]
         for i in range(ec-bc):
-            self.width[bc+i] = fix2comp(widths[ord(char_info[4*i])])
-            self.height[bc+i] = fix2comp(heights[ord(char_info[4*i+1]) >> 4])
-            self.depth[bc+i] = fix2comp(depths[ord(char_info[4*i+1]) & 0xf])
+            self.width[bc+i] = _fix2comp(widths[ord(char_info[4*i])])
+            self.height[bc+i] = _fix2comp(heights[ord(char_info[4*i+1]) >> 4])
+            self.depth[bc+i] = _fix2comp(depths[ord(char_info[4*i+1]) & 0xf])
 
 
 class PsfontsMap(object):
@@ -552,6 +583,7 @@ class PsfontsMap(object):
     the pdf-related files perhaps only avoid the "Base 14" pdf fonts.
     But the user may have configured these files differently.
     """
+    __slots__ = ('_font',)
     
     def __init__(self, filename):
         self._font = {}
@@ -627,6 +659,16 @@ class PsfontsMap(object):
             encoding=encoding, filename=filename)
 
 class Encoding(object):
+    """
+    Parses a *.enc file referenced from a psfonts.map style file.
+    The format this class understands is a very limited subset of
+    PostScript.
+
+    Usage (subject to change):
+    for name in Encoding(filename): 
+        whatever(name)
+    """
+    __slots__ = ('encoding',)
 
     def __init__(self, filename):
         file = open(filename, 'rt')
@@ -694,6 +736,10 @@ def find_tex_file(filename, format=None):
 
     return result
 
+# With multiple text objects per figure (e.g. tick labels) we may end
+# up reading the same tfm and vf files many times, so we implement a
+# simple cache. TODO: is this worth making persistent?
+
 _tfmcache = {}
 _vfcache = {}
 
@@ -721,19 +767,22 @@ def _vffile(texname):
 
 
 if __name__ == '__main__':
-    matplotlib.verbose.set_level('debug')
-    dvi = Dvi('foo.dvi', 72)
+    import sys
+    matplotlib.verbose.set_level('debug-annoying')
+    fname = sys.argv[1]
+    try: dpi = float(sys.argv[2])
+    except IndexError: dpi = None
+    dvi = Dvi(fname, dpi)
     fontmap = PsfontsMap(find_tex_file('pdftex.map'))
-    for text,boxes in dvi:
+    for page in dvi:
         print '=== new page ==='
         fPrev = None
-        for x,y,f,c in text:
-            texname = dvi.fonts[f].name
-            print x,y,c,chr(c),texname
+        for x,y,f,c,w in page.text:
             if f != fPrev:
-                print 'font', texname, '=', fontmap[texname].__dict__
+                print 'font', f.texname, 'scaled', f._scale/pow(2.0,20)
                 fPrev = f
-        for x,y,w,h in boxes:
+            print x,y,c, 32 <= c < 128 and chr(c) or '.', w
+        for x,y,w,h in page.boxes:
             print x,y,'BOX',w,h
 
 
