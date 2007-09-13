@@ -356,9 +356,9 @@ class Rectangle(Patch):
         left, right = self.convert_xunits((x, x + self.width))
         bottom, top = self.convert_yunits((y, y + self.height))
 
-        return ( (left, bottom), (left, top),
-                 (right, top), (right, bottom),
-                 )
+        return npy.array([[left, bottom], [left, top],
+			  [right, top], [right, bottom]],
+			 npy.float_)
 
     def get_x(self):
         "Return the left coord of the rectangle"
