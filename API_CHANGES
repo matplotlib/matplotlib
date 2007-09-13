@@ -1,3 +1,5 @@
+    Made skiprows=1 the default on csv2rec
+
     The gd and paint backends have been deleted.
 
     The errorbar method and function now accept additional kwargs
