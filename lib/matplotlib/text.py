@@ -15,7 +15,7 @@ from artist import Artist
 from cbook import enumerate, is_string_like, maxdict, is_numlike
 from font_manager import FontProperties
 from patches import bbox_artist, YAArrow
-from affine import Bbox
+from affine import Affine2D, Bbox
 from lines import Line2D
 
 import matplotlib.nxutils as nxutils
@@ -213,30 +213,32 @@ class Text(Artist):
         M = self.get_rotation_matrix(xmin, ymin)
 
         # the corners of the unrotated bounding box
-        cornersHoriz = ( (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin) )
-        offsetLayout = []
+        cornersHoriz = npy.array(
+	    [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)],
+	    npy.float_)
+        offsetLayout = npy.zeros((len(lines), 2))
         # now offset the individual text lines within the box
         if len(lines)>1: # do the multiline aligment
             malign = self._get_multialignment()
-            for line, thisx, thisy, w, h in horizLayout:
+            for i, (line, thisx, thisy, w, h) in enumerate(horizLayout):
                 if malign=='center': offsetx = width/2.0-w/2.0
                 elif malign=='right': offsetx = width-w
                 else: offsetx = 0
                 thisx += offsetx
-                offsetLayout.append( (thisx, thisy ))
+		offsetLayout[i] = (thisx, thisy)
         else: # no additional layout needed
-            offsetLayout = [ (thisx, thisy) for line, thisx, thisy, w, h in horizLayout]
+            offsetLayout[0] = horizLayout[0][1:3]
 
         # now rotate the bbox
 
-        cornersRotated = [npy.dot(M,npy.array([[thisx],[thisy],[1]])) for thisx, thisy in cornersHoriz]
+        cornersRotated = M(cornersHoriz)
 
-        txs = [float(v[0][0]) for v in cornersRotated]
-        tys = [float(v[1][0]) for v in cornersRotated]
+        txs = cornersRotated[:, 0]
+        tys = cornersRotated[:, 1]
 
         # compute the bounds of the rotated box
-        xmin, xmax = min(txs), max(txs)
-        ymin, ymax = min(tys), max(tys)
+        xmin, xmax = txs.min(), txs.max()
+        ymin, ymax = tys.min(), tys.max()
         width  = xmax - xmin
         height = ymax - ymin
 
@@ -264,17 +266,18 @@ class Text(Artist):
 
         bbox = Bbox.from_lbwh(xmin, ymin, width, height)
 
+	
 
         # now rotate the positions around the first x,y position
-        xys = [npy.dot(M,npy.array([[thisx],[thisy],[1]])) for thisx, thisy in offsetLayout]
-
-
-        tx = [float(v[0][0])+offsetx for v in xys]
-        ty = [float(v[1][0])+offsety for v in xys]
+        xys = M(offsetLayout)
+	tx = xys[:, 0]
+	ty = xys[:, 1]
+	tx += offsetx
+	ty += offsety
 
         # now inverse transform back to data coords
 	inverse_transform = self.get_transform().inverted()
-        xys = inverse_transform(zip(tx, ty))
+        xys = inverse_transform(xys)
 
         xs, ys = zip(*xys)
 
@@ -327,7 +330,7 @@ class Text(Artist):
             return
 
         for line, wh, x, y in info:
-            x, y = trans([[x, y]])[0]
+            x, y = trans.transform_point((x, y))
 
             if renderer.flipy():
                 canvasw, canvash = renderer.get_canvas_width_height()
@@ -435,28 +438,8 @@ class Text(Artist):
         bbox, info = self._get_layout(self._renderer)
         return bbox
 
-
-
     def get_rotation_matrix(self, x0, y0):
-
-        theta = npy.pi/180.0*self.get_rotation()
-        # translate x0,y0 to origin
-        Torigin = npy.array([ [1, 0, -x0],
-                           [0, 1, -y0],
-                           [0, 0, 1  ]])
-
-        # rotate by theta
-        R = npy.array([ [npy.cos(theta),  -npy.sin(theta), 0],
-                     [npy.sin(theta), npy.cos(theta), 0],
-                     [0,           0,          1]])
-
-        # translate origin back to x0,y0
-        Tback = npy.array([ [1, 0, x0],
-                         [0, 1, y0],
-                         [0, 0, 1  ]])
-
-
-        return npy.dot(npy.dot(Tback,R), Torigin)
+	return Affine2D().rotate_deg_around(x0, y0, self.get_rotation())
 
     def set_backgroundcolor(self, color):
         """

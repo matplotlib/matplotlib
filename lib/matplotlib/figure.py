@@ -18,7 +18,7 @@ from patches import Rectangle, Polygon
 from text import Text, _process_text_args
 
 from legend import Legend
-from affine import Bbox, BboxTransform
+from affine import Affine2D, Bbox, BboxTransform, TransformedBbox
 from ticker import FormatStrFormatter
 from cm import ScalarMappable
 from contour import ContourSet
@@ -128,16 +128,14 @@ class Figure(Artist):
         if facecolor is None: facecolor = rcParams['figure.facecolor']
         if edgecolor is None: edgecolor = rcParams['figure.edgecolor']
 
+	self._dpi_scale_trans = Affine2D()
         self.dpi = dpi
-	figwidth = figsize[0] * dpi
-	figheight = figsize[1] * dpi
-	self.bbox = Bbox.from_lbwh(0, 0, figwidth, figheight)
+	self.bbox_inches = Bbox.from_lbwh(0, 0, *figsize)
+	self.bbox = TransformedBbox(self.bbox_inches, self._dpi_scale_trans)
 	
         self.frameon = frameon
 
-        self.transFigure = BboxTransform( Bbox.unit(), self.bbox)
-
-
+        self.transFigure = BboxTransform(Bbox.unit(), self.bbox)
 
         self.figurePatch = Rectangle(
             xy=(0,0), width=1, height=1,
@@ -160,6 +158,15 @@ class Figure(Artist):
 
         self._cachedRenderer = None
 
+    def _get_dpi(self):
+	return self._dpi
+    def _set_dpi(self, dpi):
+	print "setting dpi"
+	self._dpi = dpi
+	self._dpi_scale_trans.clear().scale(dpi, dpi)
+	print self._dpi_scale_trans
+    dpi = property(_get_dpi, _set_dpi)
+	
     def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right'):
         """
         A common use case is a number of subplots with shared xaxes
@@ -325,7 +332,7 @@ class Figure(Artist):
             w,h = args
 
 	dpival = self.dpi
-	self.bbox.max = w * dpival, h * dpival
+	self.bbox_inches.max = w, h
         # self.figwidth.set(w) MGDTODO
         # self.figheight.set(h)
 	
@@ -339,7 +346,7 @@ class Figure(Artist):
                 manager.resize(int(canvasw), int(canvash))
 
     def get_size_inches(self):
-        return self.bbox.max
+        return self.bbox_inches.max
         # return self.figwidth.get(), self.figheight.get() MGDTODO
 
     def get_edgecolor(self):
@@ -352,12 +359,12 @@ class Figure(Artist):
 
     def get_figwidth(self):
         'Return the figwidth as a float'
-	return self.bbox.xmax
+	return self.bbox_inches.xmax
         # return self.figwidth.get() MGDTODO
 
     def get_figheight(self):
         'Return the figheight as a float'
-        return self.bbox.ymax
+        return self.bbox_inches.ymax
 
     def get_dpi(self):
         'Return the dpi as a float'
@@ -400,7 +407,7 @@ class Figure(Artist):
         ACCEPTS: float
         """
         # self.figwidth.set(val)  MGDTODO
-	self.bbox.xmax = val
+	self.bbox_inches.xmax = val
 	
     def set_figheight(self, val):
         """
@@ -409,7 +416,7 @@ class Figure(Artist):
         ACCEPTS: float
         """
 	# MGDTODO (set())
-	self.bbox.ymax = val
+	self.bbox_inches.ymax = val
 
     def set_frameon(self, b):
         """

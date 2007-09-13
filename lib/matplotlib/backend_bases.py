@@ -752,7 +752,8 @@ class LocationEvent(Event):
         else: # Just found one hit
             self.inaxes = axes_list[0]
 
-        try: xdata, ydata = self.inaxes.transData.inverted()([[x, y]])[0]
+        try:
+	    xdata, ydata = self.inaxes.transData.inverted().transform_point((x, y))
         except ValueError:
             self.xdata  = None
             self.ydata  = None
@@ -1584,8 +1585,8 @@ class NavigationToolbar2:
             lims.append( (xmin, xmax, ymin, ymax) )
             # Store both the original and modified positions
             pos.append( (
-                    tuple( a.get_position(True) ),
-                    tuple( a.get_position() ) ) )
+		    a.get_position(True),
+                    a.get_position() ) )
         self._views.push(lims)
         self._positions.push(pos)
         self.set_history_buttons()
