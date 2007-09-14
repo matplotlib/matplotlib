@@ -11,7 +11,7 @@ import matplotlib.transforms as transforms
 import matplotlib.nxutils as nxutils
 import matplotlib.mlab as mlab
 import matplotlib.artist as artist
-
+from matplotlib.path import Path
 
 # these are not available for the object inspector until after the
 # class is build so we define an initial set here for the init
@@ -73,7 +73,7 @@ class Patch(artist.Artist):
         self._antialiased = antialiased
         self._hatch = hatch
         self.fill = fill
-
+	
         if len(kwargs): artist.setp(self, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
@@ -84,7 +84,9 @@ class Patch(artist.Artist):
 
         Returns T/F, {}
         """
-        if callable(self._contains): return self._contains(self,mouseevent)
+	# MGDTODO: This will probably need to be implemented in C++
+
+	if callable(self._contains): return self._contains(self,mouseevent)
 
         try:
             # TODO: make this consistent with patch collection algorithm
@@ -106,7 +108,6 @@ class Patch(artist.Artist):
         self.set_transform(other.get_transform())
         self.set_figure(other.get_figure())
         self.set_alpha(other.get_alpha())
-
 
     def get_antialiased(self):
         return self._antialiased
@@ -210,22 +211,16 @@ class Patch(artist.Artist):
         if self._hatch:
             gc.set_hatch(self._hatch )
 
-        verts = self.get_verts()
-        tverts = self.get_transform()(verts)
+        path = self.get_path()
+        transform = self.get_transform()
 
-	# MGDTODO: This result is an Nx2 numpy array, which could be passed
-	# directly to renderer.draw_polygon since it currently expects
-	# a list of tuples so we're converting it to that now.
-	tverts = [tuple(x) for x in tverts]
-	
-        renderer.draw_polygon(gc, rgbFace, tverts)
-
+        renderer.draw_path(gc, path, transform, rgbFace)
 
         #renderer.close_group('patch')
 
-    def get_verts(self):
+    def get_path(self):
         """
-        Return the vertices of the patch
+        Return the path of this patch
         """
         raise NotImplementedError('Derived must override')
 
@@ -286,9 +281,10 @@ class Shadow(Patch):
         %(Patch)s
         """
         Patch.__init__(self)
-        self.ox, self.oy = ox, oy
         self.patch = patch
         self.props = props
+	self.ox, self.oy = ox, oy
+	self._shadow_transform = transforms.Affine2D.translate(self.ox, self.oy)
         self._update()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
@@ -306,18 +302,13 @@ class Shadow(Patch):
 
             self.set_facecolor((r,g,b))
             self.set_edgecolor((r,g,b))
+	    
+    def get_path(self):
+        return self.patch.get_path()
 
-    def get_verts(self):
-        verts = self.patch.get_verts()
-        xs = self.convert_xunits([x+self.ox for x,y in verts])
-        ys = self.convert_yunits([y+self.oy for x,y in verts])
-        return zip(xs, ys)
-
-    def _draw(self, renderer):
-        'draw the shadow'
-        self._update()
-        Patch.draw(self, renderer)
-
+    def get_transform(self):
+	return self._transform + self._shadow_transform
+    
 class Rectangle(Patch):
     """
     Draw a rectangle with lower left at xy=(x,y) with specified
@@ -325,12 +316,16 @@ class Rectangle(Patch):
 
     """
 
+    _path = Path(
+	[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
+    
     def __str__(self):
         return str(self.__class__).split('.')[-1] \
             + "(%g,%g;%gx%g)"%(self.xy[0],self.xy[1],self.width,self.height)
 
-    def __init__(self, xy, width, height,
-                 **kwargs):
+    # MGDTODO: Perhaps pass in a Bbox here instead, then the updates will
+    # happen automatically (without needing to call set_x etc.
+    def __init__(self, xy, width, height, **kwargs):
         """
         xy is an x,y tuple lower, left
 
@@ -344,38 +339,41 @@ class Rectangle(Patch):
 
         Patch.__init__(self, **kwargs)
 
-        self.xy  = list(xy)
-        self.width, self.height = width, height
+	self._bbox = transforms.Bbox.from_lbwh(xy[0], xy[1], width, height)
+	self._rect_transform = transforms.BboxTransform(
+	    transforms.Bbox.unit(), self._bbox)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-
-    def get_verts(self):
+    def get_path(self):
         """
         Return the vertices of the rectangle
         """
-        x, y = self.xy
-        left, right = self.convert_xunits((x, x + self.width))
-        bottom, top = self.convert_yunits((y, y + self.height))
+	# This is a "class-static" variable, so all rectangles in the plot
+	# will be shared (and merely have different transforms)
+	return self._path
 
-        return npy.array([[left, bottom], [left, top],
-			  [right, top], [right, bottom]],
-			 npy.float_)
+        # MGDTODO: Convert units
+#         left, right = self.convert_xunits((x, x + self.width))
+#         bottom, top = self.convert_yunits((y, y + self.height))
 
+    def get_transform(self):
+	return self._rect_transform + self._transform
+    
     def get_x(self):
         "Return the left coord of the rectangle"
-        return self.xy[0]
+        return self._bbox.xmin
 
     def get_y(self):
         "Return the bottom coord of the rectangle"
-        return self.xy[1]
+        return self._bbox.ymin
 
     def get_width(self):
         "Return the width of the  rectangle"
-        return self.width
+        return self._bbox.width
 
     def get_height(self):
         "Return the height of the rectangle"
-        return self.height
+        return self._bbox.height
 
     def set_x(self, x):
         """
@@ -383,7 +381,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self.xy[0] = x
+        self._bbox.xmin = x
 
     def set_y(self, y):
         """
@@ -391,7 +389,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self.xy[1] = y
+        self._bbox.ymin = y
 
     def set_width(self, w):
         """
@@ -399,7 +397,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self.width = w
+        self._bbox.width = w
 
     def set_height(self, h):
         """
@@ -407,7 +405,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self.height = h
+        self._bbox.height = h
 
     def set_bounds(self, *args):
         """
@@ -419,15 +417,15 @@ class Rectangle(Patch):
             l,b,w,h = args[0]
         else:
             l,b,w,h = args
-        self.xy = [l,b]
-        self.width = w
-        self.height = h
+	self._bbox.bounds = l,b,w,h
 
 
 class RegularPolygon(Patch):
     """
     A regular polygon patch.
     """
+    _polygon_cache = {}
+    
     def __str__(self):
         return "Poly%d(%g,%g)"%(self.numVertices,self.xy[0],self.xy[1])
 
@@ -444,32 +442,27 @@ class RegularPolygon(Patch):
         """
         Patch.__init__(self, **kwargs)
 
-        self.xy = list(xy)
-        self.numVertices = numVertices
-        self.radius = radius
-        self.orientation = orientation
+	path = self._polygon_cache[numVertices]
+	if path is None:
+	    theta = 2*npy.pi/numVertices * npy.arange(numVertices)
+	    verts = npy.hstack((npy.cos(theta), npy.sin(theta)))
+	    path = Path(verts)
+	    self._polygon_cache[numVertices] = path
+
+	self._path = path
+	self._poly_transform = transforms.Affine2D() \
+	    .scale(radius) \
+	    .rotate(orientation) \
+	    .translate(*xy)
 
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+    def get_path(self):
+	return self._path
 
-
-    def get_verts(self):
-        theta = 2*npy.pi/self.numVertices*npy.arange(self.numVertices) + \
-                self.orientation
-        r = float(self.radius)
-        x, y = map(float, self.xy)
-
-        xs = x + r*npy.cos(theta)
-        ys = y + r*npy.sin(theta)
-
-        #xs = self.convert_xunits(xs)
-        #ys = self.convert_yunits(ys)
-
-
-        self.verts = zip(xs, ys)
-
-        return self.verts
-
+    def get_transform(self):
+	return self._poly_transform + self._transform
+	
 class Polygon(Patch):
     """
     A general polygon patch.
@@ -485,21 +478,19 @@ class Polygon(Patch):
         %(Patch)s
         See Patch documentation for additional kwargs
         """
-
+	# MGDTODO: This should encourage the use of numpy arrays of shape Nx2
         Patch.__init__(self, **kwargs)
         if not isinstance(xy, list):
             xy = list(xy)
-        self.xy = xy
+	self._path = Path(xy, closed=False)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-
-
     def get_verts(self):
-        xs, ys = zip(*self.xy)[:2]
+	return self._path
+
+        # MGDTODO: Convert units
         xs = self.convert_xunits(xs)
         ys = self.convert_yunits(ys)
-        return zip(xs, ys)
-
 
 class Wedge(Polygon):
     def __str__(self):
@@ -516,6 +507,7 @@ class Wedge(Polygon):
         %(Patch)s
 
         """
+	# MGDTODO: Implement me
         xc, yc = center
         rads = (math.pi/180.)*npy.arange(theta1, theta2+0.1*dtheta, dtheta)
         xs = r*npy.cos(rads)+xc
@@ -543,6 +535,7 @@ class Arrow(Polygon):
         Valid kwargs are:
         %(Patch)s
           """
+	# MGDTODO: Implement me
         arrow = npy.array( [
             [ 0.0,  0.1 ], [ 0.0, -0.1],
             [ 0.8, -0.1 ], [ 0.8, -0.3],
@@ -586,6 +579,7 @@ class FancyArrow(Polygon):
         %(Patch)s
 
         """
+	# MGDTODO: Implement me
         if head_width is None:
             head_width = 3 * width
         if head_length is None:
@@ -659,6 +653,7 @@ class YAArrow(Polygon):
         %(Patch)s
 
         """
+	# MGDTODO: Implement me
         self.dpi = dpi
         self.xytip = xytip
         self.xybase = xybase
@@ -731,6 +726,7 @@ class CirclePolygon(RegularPolygon):
         %(Patch)s
 
         """
+	# MGDTODO: Implement me
         self.center = xy
         self.radius = radius
         RegularPolygon.__init__(self, xy,
@@ -767,6 +763,7 @@ class Ellipse(Patch):
         Valid kwargs are:
         %(Patch)s
         """
+	# MGDTODO: Implement me
         Patch.__init__(self, **kwargs)
 
         # self.center  = npy.array(xy, npy.float)
@@ -833,6 +830,7 @@ class Circle(Ellipse):
         %(Patch)s
 
         """
+	# MGDTODO: Implement me
         if kwargs.has_key('resolution'):
             import warnings
             warnings.warn('Circle is now scale free.  Use CirclePolygon instead!', DeprecationWarning)

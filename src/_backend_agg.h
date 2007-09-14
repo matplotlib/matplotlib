@@ -39,6 +39,14 @@
 #include "agg_scanline_p.h"
 #include "agg_vcgen_markers_term.h"
 
+// These are copied directly from path.py, and must be kept in sync
+#define STOP 0
+#define MOVETO 1
+#define LINETO 2
+#define CURVE3 3
+#define CURVE4 4
+#define CLOSEPOLY 0x0F
+
 typedef agg::pixfmt_rgba32 pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
@@ -163,6 +171,8 @@ public:
   Py::Object draw_markers(const Py::Tuple & args);
   Py::Object draw_text_image(const Py::Tuple & args);
   Py::Object draw_image(const Py::Tuple & args);
+  Py::Object draw_path(const Py::Tuple & args);
+  Py::Object convert_to_native_path(const Py::Tuple & args);
 
   Py::Object write_rgba(const Py::Tuple & args);
   Py::Object write_png(const Py::Tuple & args);
@@ -229,6 +239,21 @@ private:
   agg::path_storage *lastclippath;
 };
 
+// A completely opaque data type used only to pass native path
+// data to/from Python.  Python can't do anything with the data
+// other than create and then use it.
+class PathAgg : 
+  public agg::path_storage, 
+  public Py::PythonExtension<PathAgg> {
+
+public:
+  PathAgg() : curvy(false) {}
+
+  static void init_type(void);
+
+  bool curvy;
+};
+
 
 // the extension module
 class _backend_agg_module : public Py::ExtensionModule<_backend_agg_module>
@@ -240,6 +265,7 @@ public:
 
     BufferRegion::init_type();
     RendererAgg::init_type();
+    PathAgg::init_type();
 
     add_keyword_method("RendererAgg", &_backend_agg_module::new_renderer,
 		       "RendererAgg(width, height, dpi)");
