@@ -18,8 +18,8 @@ from patches import Rectangle, Polygon
 from text import Text, _process_text_args
 
 from legend import Legend
-from affine import Affine2D, Bbox, BboxTransform, TransformedBbox
 from ticker import FormatStrFormatter
+from transforms import Affine2D, Bbox, BboxTransform, TransformedBbox
 from cm import ScalarMappable
 from contour import ContourSet
 import warnings

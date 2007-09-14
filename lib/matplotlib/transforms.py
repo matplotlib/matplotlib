@@ -8,10 +8,6 @@ import numpy as npy
 from numpy.linalg import inv
 from sets import Set
 
-# MGDTODO: The name of this module is bad, since it deals with
-# non-affine transformations as well.  It should probably just be
-# "transforms", but we already had one of those... ;)
-
 # MGDTODO: This creates a ton of cyclical references.  We may want to
 # consider using weak references
 
@@ -35,6 +31,8 @@ class TransformNode(object):
             getattr(self, child)._parents.add(self)
         self._children = children
 
+    # MGDTODO: decide whether we need this in-place updating and
+    # remove if not
 #     def replace_child(self, index, child):
 #         children = self._children
 #         getattr(self, children[index])._parents.remove(self)
@@ -581,8 +579,9 @@ class Affine2D(Affine2DBase):
     def is_affine(self):
         return True
     
-class BlendedTransform(Transform):
+class BlendedGenericTransform(Transform):
     def __init__(self, x_transform, y_transform):
+	# Here we ask: "Does it blend?"
         assert x_transform.is_separable()
         assert y_transform.is_separable()
 
@@ -606,14 +605,13 @@ class BlendedTransform(Transform):
 
 #     def set_y_transform(self, y_transform):
 #         self.replace_child(1, y_transform)
+
     
-class BlendedAffine2D(Affine2DBase, BlendedTransform):
+class BlendedAffine2D(Affine2DBase, BlendedGenericTransform):
     def __init__(self, x_transform, y_transform):
         assert x_transform.is_affine()
         assert y_transform.is_affine()
-        assert x_transform.is_separable()
-        assert y_transform.is_separable()
-        BlendedTransform.__init__(self, x_transform, y_transform)
+        BlendedGenericTransform.__init__(self, x_transform, y_transform)
         
         Affine2DBase.__init__(self)
         self._mtx = None
@@ -645,7 +643,12 @@ class BlendedAffine2D(Affine2DBase, BlendedTransform):
                 self._mtx = npy.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
         return self._mtx
         
-class CompositeTransform(Transform):
+def blended_transform_factory(x_transform, y_transform):
+    if x_transform.is_affine() and y_transform.is_affine():
+        return BlendedAffine2D(x_transform, y_transform)
+    return BlendedGenericTransform(x_transform, y_transform)
+
+class CompositeGenericTransform(Transform):
     def __init__(self, a, b):
         assert a.output_dims == b.input_dims
         self.input_dims = a.input_dims
@@ -685,6 +688,11 @@ class CompositeAffine2D(Affine2DBase):
                 self._b.get_matrix())
         return self._mtx
 
+def composite_transform_factory(a, b):
+    if a.is_affine() and b.is_affine():
+        return CompositeAffine2D(a, b)
+    return CompositeGenericTransform(a, b)
+    
 class BboxTransform(Affine2DBase):
     def __init__(self, boxin, boxout):
         assert isinstance(boxin, BboxBase)
@@ -727,16 +735,6 @@ class BboxTransform(Affine2DBase):
             self._mtx = affine._mtx
         return self._mtx
 
-def blend_xy_sep_transform(x_transform, y_transform):
-    if x_transform.is_affine() and y_transform.is_affine():
-        return BlendedAffine2D(x_transform, y_transform)
-    return BlendedTransform(x_transform, y_transform)
-
-def composite_transform_factory(a, b):
-    if a.is_affine() and b.is_affine():
-        return CompositeAffine2D(a, b)
-    return CompositeTransform(a, b)
-
 # MGDTODO: There's probably a better place for this
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     '''
@@ -764,7 +762,7 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
         vmin, vmax = vmax, vmin
     return vmin, vmax
 
-# MGDTODO: Optimize
+# MGDTODO: Optimize (perhaps in an extension)
 def interval_contains(interval, val):
     return interval[0] <= val and interval[1] >= val
 

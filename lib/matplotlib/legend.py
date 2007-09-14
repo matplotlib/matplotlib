@@ -34,7 +34,7 @@ from mlab import segments_intersect
 from patches import Patch, Rectangle, RegularPolygon, Shadow, bbox_artist, draw_bbox
 from collections import LineCollection, RegularPolyCollection, PatchCollection
 from text import Text
-from affine import Bbox, BboxTransform
+from transforms import Bbox, BboxTransform
 
 def line_cuts_bbox(line, bbox):
     """ Return True if and only if line cuts bbox. """

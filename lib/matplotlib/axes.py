@@ -9,7 +9,6 @@ import matplotlib
 rcParams = matplotlib.rcParams
 
 from matplotlib import artist as martist
-from matplotlib import affine as maffine
 from matplotlib import agg
 from matplotlib import axis as maxis
 from matplotlib import cbook
@@ -29,6 +28,7 @@ from matplotlib import quiver as mquiver
 from matplotlib import table as mtable
 from matplotlib import text as mtext
 from matplotlib import ticker as mticker
+from matplotlib import transforms as mtransforms
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -481,7 +481,7 @@ class Axes(martist.Artist):
 
         """
         martist.Artist.__init__(self)
-        self._position = maffine.Bbox.from_lbwh(*rect)
+        self._position = mtransforms.Bbox.from_lbwh(*rect)
         self._originalPosition = copy.deepcopy(self._position)
         self.set_axes(self)
         self.set_aspect('auto')
@@ -612,7 +612,7 @@ class Axes(martist.Artist):
         """
         martist.Artist.set_figure(self, fig)
 
-        self.bbox = maffine.TransformedBbox(self._position, fig.transFigure)
+        self.bbox = mtransforms.TransformedBbox(self._position, fig.transFigure)
         #these will be updated later as data is added
         self._set_lim_and_transforms()
 
@@ -631,7 +631,7 @@ class Axes(martist.Artist):
         set the dataLim and viewLim BBox attributes and the
         transData and transAxes Transformation attributes
         """
-	Bbox = maffine.Bbox
+	Bbox = mtransforms.Bbox
 	self.viewLim = Bbox.unit()
 	
         if self._sharex is not None:
@@ -647,20 +647,11 @@ class Axes(martist.Artist):
 
 	self.dataLim = Bbox.unit()
 	
-        self.transAxes = maffine.BboxTransform(
+        self.transAxes = mtransforms.BboxTransform(
             Bbox.unit(), self.bbox)
 
-        localTransData = maffine.BboxTransform(
+        self.transData = mtransforms.BboxTransform(
             self.viewLim, self.bbox)
-	if self._sharex:
-	    transDataX = self._sharex.transData
-	else:
-	    transDataX = localTransData
-	if self._sharey:
-	    transDataY = self._sharey.transData
-	else:
-	    transDataY = localTransData
-	self.transData = localTransData # maffine.blend_xy_sep_transform(transDataX, transDataY)
 	    
 	    
     def get_position(self, original=False):
@@ -1538,7 +1529,7 @@ class Axes(martist.Artist):
 #             and min(xmin, xmax)<=0):
 #             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        xmin, xmax = maffine.nonsingular(xmin, xmax, increasing=False)
+        xmin, xmax = mtransforms.nonsingular(xmin, xmax, increasing=False)
 
 	self.viewLim.intervalx = (xmin, xmax)
         if emit:
@@ -1670,7 +1661,7 @@ class Axes(martist.Artist):
 #             and min(ymin, ymax)<=0):
 #             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        ymin, ymax = maffine.nonsingular(ymin, ymax, increasing=False)
+        ymin, ymax = mtransforms.nonsingular(ymin, ymax, increasing=False)
 	self.viewLim.intervaly = (ymin, ymax)
         if emit:
 	    self.callbacks.process('ylim_changed', self)
@@ -2167,7 +2158,7 @@ class Axes(martist.Artist):
         %(Annotation)s
         """
         a = mtext.Annotation(*args, **kwargs)
-        a.set_transform(maffine.Affine2D())
+        a.set_transform(mtransforms.Affine2D())
         self._set_artist_props(a)
         if kwargs.has_key('clip_on'):  a.set_clip_box(self.bbox)
         self.texts.append(a)
@@ -2206,7 +2197,7 @@ class Axes(martist.Artist):
         %(Line2D)s
         """
 
-        trans = maffine.blend_xy_sep_transform(self.transAxes, self.transData)
+        trans = mtransforms.blend_xy_sep_transform(self.transAxes, self.transData)
         l, = self.plot([xmin,xmax], [y,y], transform=trans, scalex=False, **kwargs)
         return l
 
@@ -2242,7 +2233,7 @@ class Axes(martist.Artist):
         %(Line2D)s
         """
 
-        trans = maffine.blend_xy_sep_transform( self.transData, self.transAxes )
+        trans = mtransforms.blend_xy_sep_transform( self.transData, self.transAxes )
         l, = self.plot([x,x], [ymin,ymax] , transform=trans, scaley=False, **kwargs)
         return l
 
@@ -2281,7 +2272,7 @@ class Axes(martist.Artist):
         %(Polygon)s
         """
         # convert y axis units
-        trans = maffine.blend_xy_sep_transform( self.transAxes, self.transData)
+        trans = mtransforms.blend_xy_sep_transform( self.transAxes, self.transData)
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
@@ -2321,7 +2312,7 @@ class Axes(martist.Artist):
         %(Polygon)s
         """
         # convert x axis units
-        trans = maffine.blend_xy_sep_transform(self.transData, self.transAxes)
+        trans = mtransforms.blend_xy_sep_transform(self.transData, self.transAxes)
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
@@ -4104,7 +4095,7 @@ class Axes(martist.Artist):
                 offsets = zip(x,y),
                 transOffset = self.transData,
                 )
-            collection.set_transform(maffine.Affine2D())
+            collection.set_transform(mtransforms.Affine2D())
         collection.set_alpha(alpha)
         collection.update(kwargs)
 

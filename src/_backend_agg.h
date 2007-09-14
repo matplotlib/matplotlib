@@ -157,12 +157,7 @@ public:
   Py::Object draw_rectangle(const Py::Tuple & args);
   Py::Object draw_ellipse(const Py::Tuple & args);
   Py::Object draw_polygon(const Py::Tuple & args);
-  Py::Object draw_line_collection(const Py::Tuple& args);
-  Py::Object draw_quad_mesh(const Py::Tuple& args);
-  Py::Object draw_poly_collection(const Py::Tuple& args);
-  Py::Object draw_regpoly_collection(const Py::Tuple& args);
   Py::Object draw_lines(const Py::Tuple & args);
-  Py::Object draw_path(const Py::Tuple & args);
   //Py::Object _draw_markers_nocache(const Py::Tuple & args);
   //Py::Object _draw_markers_cache(const Py::Tuple & args);
   Py::Object draw_markers(const Py::Tuple & args);
@@ -212,7 +207,8 @@ public:
   const int debug;
 
 protected:
-  agg::rect bbox_to_rect( const Py::Object& o);
+  template<class T>
+  agg::rect_base<T> bbox_to_rect( const Py::Object& o);
   double points_to_pixels( const Py::Object& points);
   double points_to_pixels_snapto( const Py::Object& points);
   void DrawQuadMesh(int, int, const agg::rgba8[], const double[], const double[]);

@@ -12,7 +12,6 @@
 
 #include "agg_basics.h"
 #include "_backend_agg.h"
-#include "_transforms.h"
 
 // the extension module
 class _gtkagg_module : public Py::ExtensionModule<_gtkagg_module>
@@ -69,12 +68,27 @@ private:
     }
     else {
       //bbox is not None; copy the image in the bbox
+      // MGDTODO: Use PyArray rather than buffer interface here
 
-      Bbox* clipbox = static_cast<Bbox*>(args[2].ptr());
-      double l = clipbox->ll_api()->x_api()->val() ;
-      double b = clipbox->ll_api()->y_api()->val();
-      double r = clipbox->ur_api()->x_api()->val() ;
-      double t = clipbox->ur_api()->y_api()->val() ;
+      PyObject* clipbox = args[2].ptr();
+      const void* clipbox_buffer;
+      Py_ssize_t clipbox_buffer_len;
+      if (!PyObject_CheckReadBuffer(clipbox))
+	throw Py::TypeError
+	  ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
+
+      if (PyObject_AsReadBuffer(clipbox, &clipbox_buffer, &clipbox_buffer_len))
+	throw Py::Exception();
+
+      if (clipbox_buffer_len != sizeof(double) * 4)
+	throw Py::TypeError
+	  ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
+
+      double* clipbox_values = (double*)clipbox_buffer;
+      double l = clipbox_values[0];
+      double b = clipbox_values[1];
+      double r = clipbox_values[2];
+      double t = clipbox_values[3];
 
       //std::cout << b << " "
       //		<< t << " ";
