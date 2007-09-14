@@ -847,12 +847,8 @@ if __name__ == '__main__':
     # assert (tpoints1 == tpoints2).all()
 
     # Here are some timing tests
-    points = [(random(), random()) for i in xrange(10000)]
+    points = npy.asarray([(random(), random()) for i in xrange(10000)])
     t = timeit.Timer("trans_sum(points)", "from __main__ import trans_sum, points")
-    print "Time to transform 10000 x 10 points as tuples:", t.timeit(10)
-
-    points2 = npy.asarray(points)
-    t = timeit.Timer("trans_sum(points2)", "from __main__ import trans_sum, points2")
-    print "Time to transform 10000 x 10 points as numpy array:", t.timeit(10)
+    print "Time to transform 10000 x 10 points:", t.timeit(10)
     
 __all__ = ['Transform', 'Affine2D']
