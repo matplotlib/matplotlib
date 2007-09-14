@@ -10,14 +10,14 @@ import sys, math, warnings
 
 import numpy as npy
 
-import agg
 import numerix.ma as ma
 from matplotlib import verbose
 import artist
 from artist import Artist, setp
 from cbook import iterable, is_string_like, is_numlike
 from colors import colorConverter
-from transforms import Bbox
+from path import Path
+from transforms import Affine2D, Bbox
 
 from matplotlib import rcParams
 
@@ -284,9 +284,6 @@ class Line2D(Artist):
         self.set_data(xdata, ydata)
         self._logcache = None
 
-        # TODO: do we really need 'newstyle'
-        self._newstyle = False
-
     def contains(self, mouseevent):
         """Test whether the mouse event occurred on the line.  The pick radius determines
         the precision of the location test (usually within five points of the value).  Use
@@ -427,6 +424,7 @@ class Line2D(Artist):
         if len(x) != len(y):
             raise RuntimeError('xdata and ydata must be the same length')
 
+	# MGDTODO: Deal with segments
         mx = ma.getmask(x)
         my = ma.getmask(y)
         mask = ma.mask_or(mx, my)
@@ -439,7 +437,9 @@ class Line2D(Artist):
 
         self._x = npy.asarray(x, float)
         self._y = npy.asarray(y, float)
-
+	self._path = Path(npy.vstack((self._x, self._y)).transpose(),
+			  closed=False)
+	
         self._logcache = None
 
 
@@ -508,30 +508,19 @@ class Line2D(Artist):
         gc.set_joinstyle(join)
         gc.set_capstyle(cap)
 
-        if self._newstyle:
-            # transform in backend
-            xt = self._x
-            yt = self._y
-        else:
-            x, y = self._get_plottable()
-            if len(x)==0: return
-            xt, yt = self.get_transform().numerix_x_y(x, y)
-
-
-
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         lineFunc = getattr(self, funcname)
 
+	# MGDTODO: Deal with self._segments
         if self._segments is not None:
             for ii in self._segments:
                 lineFunc(renderer, gc, xt[ii[0]:ii[1]], yt[ii[0]:ii[1]])
 
         else:
-            lineFunc(renderer, gc, xt, yt)
-
-
-        if self._marker is not None:
-
+            lineFunc(renderer, gc, self._path)
+	    
+	# MGDTODO: Deal with markers
+        if self._marker is not None and False:
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
             gc.set_foreground(self.get_markeredgecolor())
@@ -539,7 +528,7 @@ class Line2D(Artist):
             gc.set_alpha(self._alpha)
             funcname = self._markers.get(self._marker, '_draw_nothing')
             markerFunc = getattr(self, funcname)
-            markerFunc(renderer, gc, xt, yt)
+            markerFunc(renderer, gc, self._path)
 
         #renderer.close_group('line2d')
 
@@ -720,7 +709,7 @@ class Line2D(Artist):
             self.set_linestyle('--')
         self._dashSeq = seq  # TODO: offset ignored for now
 
-    def _draw_nothing(self, renderer, gc, xt, yt):
+    def _draw_nothing(self, renderer, gc, path):
         pass
 
     def _draw_steps(self, renderer, gc, xt, yt):
@@ -737,13 +726,10 @@ class Line2D(Artist):
         else:
             renderer.draw_lines(gc, xt2, yt2)
 
-    def _draw_solid(self, renderer, gc, xt, yt):
-        if len(xt)<2: return
+    def _draw_solid(self, renderer, gc, path):
+        # if len(xt)<2: return
         gc.set_linestyle('solid')
-        if self._newstyle:
-            renderer.draw_lines(gc, xt, yt, self.get_transform())
-        else:
-            renderer.draw_lines(gc, xt, yt)
+	renderer.draw_path(gc, path, self.get_transform())
 
 
     def _draw_dashed(self, renderer, gc, xt, yt):
@@ -1103,16 +1089,12 @@ class Line2D(Artist):
             for (x,y) in zip(xt, yt):
                 renderer.draw_line(gc, x, y, x+offset, y)
 
+    _tickup_path = Path([[-0.5, 0.0], [-0.5, 1.0]])
     def _draw_tickup(self, renderer, gc, xt, yt):
         offset = renderer.points_to_pixels(self._markersize)
-        if self._newstyle:
-            path = agg.path_storage()
-            path.move_to(-0.5, 0)
-            path.line_to(-0.5, offset)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x, y, x, y+offset)
+	marker_transform = Affine2D().scale(1.0, offset)
+	renderer.draw_markers(gc, self._tickup_path, marker_transform,
+			      self._path, self.get_transform())
 
     def _draw_tickdown(self, renderer, gc, xt, yt):
         offset = renderer.points_to_pixels(self._markersize)

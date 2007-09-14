@@ -341,6 +341,7 @@ RendererAgg::_get_rgba_face(const Py::Object& rgbFace, double alpha) {
   
 }
 
+// MGDTODO: Remove this method (it has been conglomerated into draw_path
 template <class VS>
 void
 RendererAgg::_fill_and_stroke(VS& path,
@@ -1399,68 +1400,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 }
 
 
-
-
-// Py::Object
-// RendererAgg::draw_path(const Py::Tuple& args) {
-//   //draw_path(gc, rgbFace, path, transform)
-//   theRasterizer->reset_clipping();
-  
-//   _VERBOSE("RendererAgg::draw_path");
-//   args.verify_length(4);
-  
-//   GCAgg gc = GCAgg(args[0], dpi);
-//   facepair_t face = _get_rgba_face(args[1], gc.alpha);
-  
-//   agg::path_storage *path;
-//   swig_type_info * descr = SWIG_TypeQuery("agg::path_storage *");
-//   assert(descr);
-//   if (SWIG_ConvertPtr(args[2].ptr(),(void **)(&path), descr, 0) == -1)
-//     throw Py::TypeError("Could not convert path_storage");
-  
-  
-//   Transformation* mpltransform = static_cast<Transformation*>(args[3].ptr());
-  
-//   double a, b, c, d, tx, ty;
-//   try {
-//     mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
-//   }
-//   catch(...) {
-//     throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_path");
-//   }
-  
-//   agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);
-  
-//   double heightd = double(height);
-//   agg::path_storage tpath;  // the mpl transformed path
-//   bool needNonlinear = mpltransform->need_nonlinear_api();
-//   size_t Nx = path->total_vertices();
-//   double x, y;
-//   unsigned cmd;
-//   bool curvy = false;
-//   for (size_t i=0; i<Nx; i++) {
-//     cmd = path->vertex(i, &x, &y);
-//     if (cmd==agg::path_cmd_curve3 || cmd==agg::path_cmd_curve4) curvy=true;
-//     if (needNonlinear)
-//       try {
-// 	mpltransform->nonlinear_only_api(&x, &y);
-//       }
-//       catch (...) {
-// 	throw Py::ValueError("Domain error on nonlinear_only_api in RendererAgg::draw_path");
-	
-//       }
-    
-//     //use agg's transformer?
-//     xytrans.transform(&x, &y);
-//     y = heightd - y; //flipy
-//     tpath.add_vertex(x,y,cmd);
-//   }
-  
-//   _fill_and_stroke(tpath, gc, face, curvy);
-//   return Py::Object();
-  
-// }
-
 /**
  * This is a custom span generator that converts spans in the 
  * 8-bit inverted greyscale font buffer to rgba that agg can use.
@@ -1611,6 +1550,170 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   
   return Py::Object();
   
+}
+
+inline void get_next_vertex(const char* & vertex_i, const char* vertex_end, 
+			    double& x, double& y,
+			    size_t next_vertex_stride, 
+			    size_t next_axis_stride) {
+  if (vertex_i + next_axis_stride >= vertex_end)
+    throw Py::ValueError("Error parsing path.  Read past end of vertices");
+  x = *(double*)vertex_i;
+  y = *(double*)(vertex_i + next_axis_stride);
+  vertex_i += next_vertex_stride;
+}
+
+#define GET_NEXT_VERTEX(x, y) get_next_vertex(vertex_i, vertex_end, x, y, next_vertex_stride, next_axis_stride)
+
+
+
+Py::Object
+RendererAgg::convert_to_native_path(const Py::Tuple& args) {
+  _VERBOSE("RendererAgg::draw_image");
+  args.verify_length(2);
+  
+  Py::Object vertices_obj = args[0];
+  Py::Object codes_obj = args[1];
+  
+  PyArrayObject* vertices = NULL;
+  PyArrayObject* codes = NULL;
+  PathAgg* path = NULL; 
+
+  try {
+    vertices = (PyArrayObject*)PyArray_ContiguousFromObject
+      (vertices_obj.ptr(), PyArray_DOUBLE, 2, 2);
+    if (!vertices || vertices->nd != 2 || vertices->dimensions[1] != 2)
+      throw Py::ValueError("Invalid vertices array.");
+    codes = (PyArrayObject*)PyArray_ContiguousFromObject
+      (codes_obj.ptr(), PyArray_UINT8, 1, 1);
+    if (!codes) 
+      throw Py::ValueError("Invalid codes array.");
+
+    path = new PathAgg();
+
+    size_t next_vertex_stride = vertices->strides[0];
+    size_t next_axis_stride = vertices->strides[1];
+    size_t code_stride = codes->strides[0];
+
+    const char* vertex_i = vertices->data;
+    const char* code_i = codes->data;
+    const char* vertex_end = vertex_i + (vertices->dimensions[0] * vertices->strides[0]);
+
+    size_t N = codes->dimensions[0];
+    double x0, y0, x1, y1, x2, y2;
+
+    for (size_t i = 0; i < N; ++i) {
+      switch (*(unsigned char*)(code_i)) {
+      case MOVETO:
+	GET_NEXT_VERTEX(x0, y0);
+	path->move_to(x0, y0);
+	_VERBOSE("MOVETO");
+	break;
+      case LINETO:
+	GET_NEXT_VERTEX(x0, y0);
+	path->line_to(x0, y0);
+	_VERBOSE("LINETO");
+	break;
+      case CURVE3:
+	GET_NEXT_VERTEX(x0, y0);
+	GET_NEXT_VERTEX(x1, y1);
+	path->curve3(x0, y0, x1, y1);
+	path->curvy = true;
+	_VERBOSE("CURVE3");
+	break;
+      case CURVE4:
+	GET_NEXT_VERTEX(x0, y0);
+	GET_NEXT_VERTEX(x1, y1);
+	GET_NEXT_VERTEX(x2, y2);
+	path->curve4(x0, y0, x1, y1, x2, y2);
+	path->curvy = true;
+	_VERBOSE("CURVE4");
+	break;
+      case CLOSEPOLY:
+	path->close_polygon();
+	_VERBOSE("CLOSEPOLY");
+	break;
+      }
+      code_i += code_stride;
+    }
+  } catch(...) {
+    Py_XDECREF(vertices);
+    Py_XDECREF(codes);
+    delete path;
+    throw;
+  }
+
+  Py_XDECREF(vertices);
+  Py_XDECREF(codes);
+  
+  return Py::asObject(path);
+}
+
+Py::Object
+RendererAgg::draw_path(const Py::Tuple& args) {
+  typedef agg::conv_transform<agg::path_storage> transformed_path_t;
+  typedef agg::conv_curve<transformed_path_t> curve_t;
+  typedef agg::conv_stroke<curve_t> stroke_t;
+  typedef agg::conv_dash<curve_t> dash_t;
+  typedef agg::conv_stroke<dash_t> stroke_dash_t;
+  //draw_path(gc, rgbFace, path, transform)
+  theRasterizer->reset_clipping();
+  
+  _VERBOSE("RendererAgg::draw_path");
+  args.verify_length(4);
+
+  GCAgg gc = GCAgg(args[0], dpi);
+  Py::Object path_obj = args[1];
+  if (!PathAgg::check(path_obj))
+    throw Py::TypeError("Native path object is not of correct type");
+  PathAgg* path = static_cast<PathAgg*>(path_obj.ptr());
+  agg::trans_affine trans = py_sequence_to_agg_transformation_matrix(args[2]);
+  facepair_t face = _get_rgba_face(args[3], gc.alpha);
+
+  trans *= agg::trans_affine_scaling(1.0, -1.0);
+  trans *= agg::trans_affine_translation(0.0, (double)height);
+
+  transformed_path_t tpath(*path, trans);
+  // MGDTODO: See if there is any advantage to only curving if necessary
+  curve_t curve(tpath);
+
+  set_clipbox_rasterizer(gc.cliprect);
+  
+  if (face.first) {
+    rendererAA->color(face.second);
+    theRasterizer->add_path(curve);
+    agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+  }
+
+  if (gc.linewidth) {
+    if (gc.dasha == NULL) {
+      stroke_t stroke(curve);
+      stroke.width(gc.linewidth);
+      stroke.line_cap(gc.cap);
+      stroke.line_join(gc.join);
+      theRasterizer->add_path(stroke);
+    } else {
+      dash_t dash(curve);
+      for (size_t i = 0; i < (gc.Ndash / 2); ++i)
+	dash.add_dash(gc.dasha[2 * i], gc.dasha[2 * i + 1]);
+      stroke_dash_t stroke(dash);
+      stroke.line_cap(gc.cap);
+      stroke.line_join(gc.join);
+      stroke.width(gc.linewidth);
+      theRasterizer->add_path(stroke); //boyle freeze is herre
+    }
+    
+    if ( gc.isaa ) {
+      rendererAA->color(gc.color);
+      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+    }
+    else {
+      rendererBin->color(gc.color);
+      agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+    }
+  }
+  
+  return Py::Object();
 }
 
 
@@ -1949,6 +2052,10 @@ void RendererAgg::init_type()
 		     "draw_ellipse(gc, rgbFace, x, y, w, h)\n");
   add_varargs_method("draw_polygon", &RendererAgg::draw_polygon,
 		     "draw_polygon(gc, rgbFace, points)\n");
+  add_varargs_method("draw_path", &RendererAgg::draw_path,
+		     "draw_path(gc, rgbFace, native_path, transform)\n");
+  add_varargs_method("convert_to_native_path", &RendererAgg::convert_to_native_path,
+		     "convert_to_native_path(vertices, codes)\n");
   add_varargs_method("draw_lines", &RendererAgg::draw_lines,
 		     "draw_lines(gc, x, y,)\n");
   add_varargs_method("draw_markers", &RendererAgg::draw_markers,
@@ -1976,10 +2083,13 @@ void RendererAgg::init_type()
   
   add_varargs_method("restore_region", &RendererAgg::restore_region,
 		     "restore_region(region)");
-  
-  
 }
 
+void PathAgg::init_type()
+{
+  behaviors().name("PathAgg");
+  behaviors().doc("A native Agg path object");
+}
 
 extern "C"
 DL_EXPORT(void)

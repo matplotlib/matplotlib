@@ -69,7 +69,7 @@ INSTALLING
 
 """
 from __future__ import division
-import os, sys
+import os, sys, weakref
 
 import numpy as npy
 
@@ -95,7 +95,15 @@ class RendererAgg(RendererBase):
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles
     """
-
+    # MGDTODO: Renderers seem to get created and destroyed fairly
+    # often so the paths are cached at the class (not instance) level.
+    # However, this dictionary is only directly used by RendererBase,
+    # so it seems funny to define it here.  However, if we didn't, the
+    # native paths would be shared across renderers, which is
+    # obviously bad.  Seems like a good use of metaclasses, but that
+    # also seems like a heavy solution for a minor problem.
+    _native_paths = weakref.WeakKeyDictionary()
+    
     debug=1
     texd = {}  # a cache of tex image rasters
     def __init__(self, width, height, dpi):
@@ -129,6 +137,12 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
 
+    def convert_to_native_path(self, path):
+	return self._renderer.convert_to_native_path(path.vertices, path.codes)
+
+    def _draw_path(self, gc, native_path, transform, rgbFace):
+	return self._renderer.draw_path(gc, native_path, transform.to_values(), rgbFace)
+	
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2, rotation):
         """
         Draw an arc centered at x,y with width and height and angles
