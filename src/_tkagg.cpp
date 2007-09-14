@@ -14,7 +14,6 @@
 
 #include "agg_basics.h"
 #include "_backend_agg.h"
-#include "_transforms.h"
 
 extern "C" {
 #ifdef __APPLE__
@@ -46,7 +45,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
 
     // vars for blitting
     PyObject* bboxo;
-    Bbox* bbox;
+    bool has_bbox;
     agg::int8u *destbuffer;
     double l,b,r,t;
     int destx, desty, destwidth, destheight, deststride;
@@ -87,11 +86,28 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     /* check for bbox/blitting */
     bboxo = (PyObject*)atol(argv[4]);
     if (bboxo != Py_None) {
-      bbox = (Bbox*)bboxo;
-      l = bbox->ll_api()->x_api()->val();
-      b = bbox->ll_api()->y_api()->val();
-      r = bbox->ur_api()->x_api()->val();
-      t = bbox->ur_api()->y_api()->val();
+      printf("bbox passed in");
+
+      const void* bbox_buffer;
+      Py_ssize_t bbox_buffer_len;
+      if (!PyObject_CheckReadBuffer(bboxo))
+	throw Py::TypeError
+	  ("Argument 5 to PyAggImagePhoto must be a Bbox object.");
+
+      if (PyObject_AsReadBuffer(bboxo, &bbox_buffer, &bbox_buffer_len))
+	throw Py::Exception();
+
+      if (bbox_buffer_len != sizeof(double) * 4)
+	throw Py::TypeError
+	  ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
+
+      has_bbox = true;
+
+      double* bbox_values = (double*)bbox_buffer;
+      l = bbox_values[0];
+      b = bbox_values[1];
+      r = bbox_values[2];
+      t = bbox_values[3];
 
       destx = (int)l;
       desty = srcheight-(int)t;
@@ -113,7 +129,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
       destrb.copy_from(*aggRenderer->renderingBuffer, &region,
 		       -destx, -desty);
     } else {
-      bbox = NULL;
+      has_bbox = false;
       destbuffer = NULL;
       destx = desty = destwidth = destheight = deststride = 0;
     }
@@ -138,8 +154,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
         }
     }
 
-    if (bbox) {
-
+    if (has_bbox) {
       block.width  = destwidth;
       block.height = destheight;
       block.pitch = deststride;

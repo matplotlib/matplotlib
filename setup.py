@@ -77,7 +77,7 @@ if major==2 and minor1<3 or major<2:
 import glob
 from distutils.core import setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
-     build_ft2font, build_image, build_windowing, build_transforms, \
+     build_ft2font, build_image, build_windowing, \
      build_contour, build_nxutils, build_enthought, build_swigagg, build_gdk, \
      build_subprocess, build_ttconv, print_line, print_status, print_message, \
      print_raw, check_for_freetype, check_for_libpng, check_for_gtk, check_for_tk, \
@@ -216,7 +216,6 @@ if havedate: # dates require python23 datetime
             add_dateutil()
 
 build_swigagg(ext_modules, packages)
-build_transforms(ext_modules, packages)
 build_enthought(ext_modules, packages)
 
 if check_for_gtk() and (BUILD_GTK or BUILD_GTKAGG):

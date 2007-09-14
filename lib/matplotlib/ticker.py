@@ -109,7 +109,7 @@ import numpy as npy
 import matplotlib as mpl
 from matplotlib import verbose, rcParams
 from matplotlib import cbook
-from matplotlib import affine as maffine
+from matplotlib import transforms as mtransforms
 
 
 
@@ -540,7 +540,7 @@ class Locator(TickHelper):
     def autoscale(self):
         'autoscale the view limits'
         self.verify_intervals()
-        return maffine.nonsingular(*self.dataInterval.get_bounds())
+        return mtransforms.nonsingular(*self.dataInterval.get_bounds())
 
     def pan(self, numsteps):
         'Pan numticks (can be positive or negative)'
@@ -682,7 +682,7 @@ class LinearLocator(Locator):
         vmin = math.floor(scale*vmin)/scale
         vmax = math.ceil(scale*vmax)/scale
 
-        return maffine.nonsingular(vmin, vmax)
+        return mtransforms.nonsingular(vmin, vmax)
 
 
 def closeto(x,y):
@@ -766,7 +766,7 @@ class MultipleLocator(Locator):
             vmin -=1
             vmax +=1
 
-        return maffine.nonsingular(vmin, vmax)
+        return mtransforms.nonsingular(vmin, vmax)
 
 def scale_range(vmin, vmax, n = 1, threshold=100):
     dv = abs(vmax - vmin)
@@ -833,12 +833,12 @@ class MaxNLocator(Locator):
 
     def __call__(self):
         vmin, vmax = self.axis.get_view_interval()
-        vmin, vmax = maffine.nonsingular(vmin, vmax, expander = 0.05)
+        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
         return self.bin_boundaries(vmin, vmax)
 
     def autoscale(self):
         dmin, dmax = self.axis.get_data_interval()
-        dmin, dmax = maffine.nonsingular(dmin, dmax, expander = 0.05)
+        dmin, dmax = mtransforms.nonsingular(dmin, dmax, expander = 0.05)
         return npy.take(self.bin_boundaries(dmin, dmax), [0,-1])
 
 
@@ -939,7 +939,7 @@ class LogLocator(Locator):
         if vmin==vmax:
             vmin = decade_down(vmin,self._base)
             vmax = decade_up(vmax,self._base)
-        return maffine.nonsingular(vmin, vmax)
+        return mtransforms.nonsingular(vmin, vmax)
 
 class AutoLocator(MaxNLocator):
     def __init__(self):

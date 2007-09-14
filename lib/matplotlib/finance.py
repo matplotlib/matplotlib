@@ -22,7 +22,7 @@ from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.colors import colorConverter
 from lines import Line2D, TICKLEFT, TICKRIGHT
 from patches import Rectangle
-from matplotlib.affine import Affine2D
+from matplotlib.transforms import Affine2D
 
 
 

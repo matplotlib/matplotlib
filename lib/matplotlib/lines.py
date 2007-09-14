@@ -14,10 +14,10 @@ import agg
 import numerix.ma as ma
 from matplotlib import verbose
 import artist
-from affine import Bbox
 from artist import Artist, setp
 from cbook import iterable, is_string_like, is_numlike
 from colors import colorConverter
+from transforms import Bbox
 
 from matplotlib import rcParams
 

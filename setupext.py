@@ -944,22 +944,6 @@ def build_swigagg(ext_modules, packages):
     agg.libraries.extend(std_libs)
     ext_modules.append(agg)
 
-def build_transforms(ext_modules, packages):
-    cxx = glob.glob('CXX/*.cxx')
-    cxx.extend(glob.glob('CXX/*.c'))
-    temp_copy("src/_transforms.cpp","src/transforms.cpp")
-    module = Extension('matplotlib._transforms',
-                         ['src/transforms.cpp',
-                          'src/mplutils.cpp'] + cxx,
-                         libraries = std_libs,
-                         include_dirs = ['src', '.']+numpy_inc_dirs,
-                         )
-
-
-    add_numpy_flags(module)
-    add_base_flags(module)
-    ext_modules.append(module)
-
 def build_enthought(ext_modules, packages):
     global BUILT_ENTHOUGHT
     if BUILT_ENTHOUGHT: return # only build it if you you haven't already

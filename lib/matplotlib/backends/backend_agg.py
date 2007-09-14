@@ -84,7 +84,7 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, LOAD_DEFAULT
 from matplotlib.mathtext import MathTextParser
-from matplotlib.affine import Bbox
+from matplotlib.transforms import Bbox
 
 from _backend_agg import RendererAgg as _RendererAgg
 
@@ -115,15 +115,10 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
         # self.draw_polygon = self._renderer.draw_polygon
         self.draw_rectangle = self._renderer.draw_rectangle
-        self.draw_path = self._renderer.draw_path
 	# MGDTODO -- remove these lines
         # self.draw_lines = self._renderer.draw_lines
         # self.draw_markers = self._renderer.draw_markers
         self.draw_image = self._renderer.draw_image
-        self.draw_line_collection = self._renderer.draw_line_collection
-        self.draw_quad_mesh = self._renderer.draw_quad_mesh
-        self.draw_poly_collection = self._renderer.draw_poly_collection
-        self.draw_regpoly_collection = self._renderer.draw_regpoly_collection
 
         self.copy_from_bbox = self._renderer.copy_from_bbox
         self.restore_region = self._renderer.restore_region

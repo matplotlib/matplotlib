@@ -15,7 +15,7 @@ from artist import Artist
 from cbook import enumerate, is_string_like, maxdict, is_numlike
 from font_manager import FontProperties
 from patches import bbox_artist, YAArrow
-from affine import Affine2D, Bbox
+from transforms import Affine2D, Bbox
 from lines import Line2D
 
 import matplotlib.nxutils as nxutils

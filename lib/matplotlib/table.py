@@ -29,7 +29,7 @@ from artist import Artist
 from patches import Rectangle
 from cbook import enumerate, is_string_like, flatten
 from text import Text
-from affine import Bbox
+from transforms import Bbox
 
 
 
