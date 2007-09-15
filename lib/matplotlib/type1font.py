@@ -1,14 +1,14 @@
 """
 A class representing a Type 1 font.
 
-This version merely allows reading in pfa and pfb files, stores the
-data in pfa format, and allows reading the parts of the data in a
-format suitable for embedding in pdf files. A more complete class
-might support subsetting.
+This version merely reads pfa and pfb files and splits them for
+embedding in pdf files. There is no support yet for subsetting or
+anything like that.
 
-Usage:  font = Type1Font(filename)
-        somefile.write(font.data) # writes out font in pfa format
-        len1, len2, len3 = font.lengths() # needed for pdf embedding
+Usage (subject to change):
+
+   font = Type1Font(filename)
+   clear_part, encrypted_part, finale = font.parts
 
 Source: Adobe Technical Note #5040, Supporting Downloadable PostScript
 Language Fonts.
@@ -32,8 +32,7 @@ class Type1Font(object):
     def _read(self, file):
         rawdata = file.read()
         if not rawdata.startswith(chr(128)):
-            self.data = rawdata
-            return
+            return rawdata
         
         data = ''
         while len(rawdata) > 0:
@@ -101,4 +100,6 @@ class Type1Font(object):
 if __name__ == '__main__':
     import sys
     font = Type1Font(sys.argv[1])
-    sys.stdout.write(font.data)
+    parts = font.parts
+    print len(parts[0]), len(parts[1]), len(parts[2])
+
