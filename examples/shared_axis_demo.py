@@ -36,12 +36,12 @@ s1 = sin(2*pi*t)
 s2 = exp(-t)
 s3 = sin(4*pi*t)
 ax1 = subplot(311)
-plot(t,s1)
+plot(t,s1, "bH")
 setp( ax1.get_xticklabels(), fontsize=6)
 
 ## share x only
 ax2 = subplot(312, sharex=ax1)
-plot(t, s2)
+plot(t, s2, "b<")
 # make these tick labels invisible
 setp( ax2.get_xticklabels(), visible=False)
 
