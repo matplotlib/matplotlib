@@ -64,6 +64,20 @@ agg::trans_affine py_sequence_to_agg_transformation_matrix(const Py::Object& obj
      Py::Float(seq[5]));
 }
 
+// MGDTODO: Implement this as a nice iterator
+inline void get_next_vertex(const char* & vertex_i, const char* vertex_end, 
+			    double& x, double& y,
+			    size_t next_vertex_stride, 
+			    size_t next_axis_stride) {
+  if (vertex_i + next_axis_stride >= vertex_end)
+    throw Py::ValueError("Error parsing path.  Read past end of vertices");
+  x = *(double*)vertex_i;
+  y = *(double*)(vertex_i + next_axis_stride);
+  vertex_i += next_vertex_stride;
+}
+
+#define GET_NEXT_VERTEX(x, y) get_next_vertex(vertex_i, vertex_end, x, y, next_vertex_stride, next_axis_stride)
+
 GCAgg::GCAgg(const Py::Object &gc, double dpi, bool snapto) :
   dpi(dpi), snapto(snapto), isaa(true), linewidth(1.0), alpha(1.0),
   cliprect(NULL), clippath(NULL), 
@@ -1255,146 +1269,134 @@ RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
 
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
+  typedef agg::conv_transform<agg::path_storage> transformed_path_t;
+  typedef agg::conv_curve<transformed_path_t> curve_t;
+  typedef agg::conv_stroke<curve_t> stroke_t;
+  typedef agg::conv_dash<curve_t> dash_t;
+  typedef agg::conv_stroke<dash_t> stroke_dash_t;
+
   theRasterizer->reset_clipping();
   
-  _VERBOSE("RendererAgg::_draw_markers_cache");
-  args.verify_length(6);
+  args.verify_length(7);
   
-  _VERBOSE("RendererAgg::_draw_markers_cache setting gc");
   GCAgg gc = GCAgg(args[0], dpi);
+  Py::Object marker_path_obj = args[1];
+  if (!PathAgg::check(marker_path_obj))
+    throw Py::TypeError("Native path object is not of correct type");
+  PathAgg* marker_path = static_cast<PathAgg*>(marker_path_obj.ptr());
+  agg::trans_affine marker_trans = py_sequence_to_agg_transformation_matrix(args[2]);
+  Py::Object vertices_obj = args[3];
+  Py::Object codes_obj = args[4];
+  agg::trans_affine trans = py_sequence_to_agg_transformation_matrix(args[5]);
+  facepair_t face = _get_rgba_face(args[6], gc.alpha);
+
+  // Deal with the difference in y-axis direction
+  marker_trans *= agg::trans_affine_scaling(1.0, -1.0);
+  trans *= agg::trans_affine_scaling(1.0, -1.0);
+  trans *= agg::trans_affine_translation(0.0, (double)height);
   
-  
-  agg::path_storage *ppath;
-  
-  swig_type_info * descr = SWIG_TypeQuery("agg::path_storage *");
-  assert(descr);
-  if (SWIG_ConvertPtr(args[1].ptr(),(void **)(&ppath), descr, 0) == -1) {
-    throw Py::TypeError("Could not convert path_storage");
-  }
-  facepair_t face = _get_rgba_face(args[2], gc.alpha);
-  
-  Py::Object xo = args[3];
-  Py::Object yo = args[4];
-  
-  PyArrayObject *xa = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1);
-  
-  if (xa==NULL)
-    throw Py::TypeError("RendererAgg::_draw_markers_cache expected numerix array");
-  
-  
-  PyArrayObject *ya = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1);
-  
-  if (ya==NULL)
-    throw Py::TypeError("RendererAgg::_draw_markers_cache expected numerix array");
-  
-  agg::trans_affine xytrans = py_sequence_to_agg_transformation_matrix(args[5]);
-  
-  size_t Nx = xa->dimensions[0];
-  size_t Ny = ya->dimensions[0];
-  
-  if (Nx!=Ny)
-    throw Py::ValueError(Printf("x and y must be equal length arrays; found %d and %d", Nx, Ny).str());
-  
-  
-  double heightd = double(height);
-  
-  
-  ppath->rewind(0);
-  ppath->flip_y(0,0);
-  typedef agg::conv_curve<agg::path_storage> curve_t;
-  curve_t curve(*ppath);
+  marker_path->rewind(0);
+  transformed_path_t marker_path_transformed(*marker_path, marker_trans);
+  curve_t marker_path_curve(marker_path_transformed);
   
   //maxim's suggestions for cached scanlines
   agg::scanline_storage_aa8 scanlines;
   theRasterizer->reset();
   
   agg::int8u* fillCache = NULL;
-  unsigned fillSize = 0;
-  if (face.first) {
-    theRasterizer->add_path(curve);
-    agg::render_scanlines(*theRasterizer, *slineP8, scanlines);
-    fillSize = scanlines.byte_size();
-    fillCache = new agg::int8u[fillSize]; // or any container
-    scanlines.serialize(fillCache);
-  }
-  
-  agg::conv_stroke<curve_t> stroke(curve);
-  stroke.width(gc.linewidth);
-  stroke.line_cap(gc.cap);
-  stroke.line_join(gc.join);
-  theRasterizer->reset();
-  theRasterizer->add_path(stroke);
-  agg::render_scanlines(*theRasterizer, *slineP8, scanlines);
-  unsigned strokeSize = scanlines.byte_size();
-  agg::int8u* strokeCache = new agg::int8u[strokeSize]; // or any container
-  scanlines.serialize(strokeCache);
-  
-  theRasterizer->reset_clipping();
-  
-  
-  if (gc.cliprect==NULL) {
-    rendererBase->reset_clipping(true);
-  }
-  else {
-    int l = (int)(gc.cliprect[0]) ;
-    int b = (int)(gc.cliprect[1]) ;
-    int w = (int)(gc.cliprect[2]) ;
-    int h = (int)(gc.cliprect[3]) ;
-    rendererBase->clip_box(l, height-(b+h),l+w, height-b);
-  }
-  
-  
-  double thisx, thisy;
-  for (size_t i=0; i<Nx; i++) {
-    thisx = *(double *)(xa->data + i*xa->strides[0]);
-    thisy = *(double *)(ya->data + i*ya->strides[0]);
+  agg::int8u* strokeCache = NULL;
+  PyArrayObject* vertices = NULL;
+  PyArrayObject* codes = NULL;
 
-    // MGDTODO
-//     if (mpltransform->need_nonlinear_api())
-//       try {
-// 	mpltransform->nonlinear_only_api(&thisx, &thisy);
-//       }
-//       catch(...) {
-// 	continue;
-//       }
-    
-    xytrans.transform(&thisx, &thisy);
-    
-    thisy = heightd - thisy;  //flipy
-    
-    thisx = (int)thisx + 0.5;
-    thisy = (int)thisy + 0.5;
-    if (thisx<0) continue;
-    if (thisy<0) continue;
-    if (thisx>width) continue;
-    if (thisy>height) continue;
-    
-    agg::serialized_scanlines_adaptor_aa8 sa;
-    agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
-    
+  try {
+    vertices = (PyArrayObject*)PyArray_ContiguousFromObject
+      (vertices_obj.ptr(), PyArray_DOUBLE, 2, 2);
+    if (!vertices || vertices->nd != 2 || vertices->dimensions[1] != 2)
+      throw Py::ValueError("Invalid vertices array.");
+    codes = (PyArrayObject*)PyArray_ContiguousFromObject
+      (codes_obj.ptr(), PyArray_UINT8, 1, 1);
+    if (!codes) 
+      throw Py::ValueError("Invalid codes array.");
+
+    unsigned fillSize = 0;
     if (face.first) {
-      //render the fill
-      sa.init(fillCache, fillSize, thisx, thisy);
-      rendererAA->color(face.second);
-      agg::render_scanlines(sa, sl, *rendererAA);
+      theRasterizer->add_path(marker_path_curve);
+      agg::render_scanlines(*theRasterizer, *slineP8, scanlines);
+      fillSize = scanlines.byte_size();
+      fillCache = new agg::int8u[fillSize]; // or any container
+      scanlines.serialize(fillCache);
+    }
+  
+    stroke_t stroke(marker_path_curve);
+    stroke.width(gc.linewidth);
+    stroke.line_cap(gc.cap);
+    stroke.line_join(gc.join);
+    theRasterizer->reset();
+    theRasterizer->add_path(stroke);
+    agg::render_scanlines(*theRasterizer, *slineP8, scanlines);
+    unsigned strokeSize = scanlines.byte_size();
+    strokeCache = new agg::int8u[strokeSize]; // or any container
+    scanlines.serialize(strokeCache);
+  
+    theRasterizer->reset_clipping();
+    if (gc.cliprect==NULL) {
+      rendererBase->reset_clipping(true);
+    }
+    else {
+      int l = (int)(gc.cliprect[0]) ;
+      int b = (int)(gc.cliprect[1]) ;
+      int w = (int)(gc.cliprect[2]) ;
+      int h = (int)(gc.cliprect[3]) ;
+      rendererBase->clip_box(l, height-(b+h),l+w, height-b);
     }
     
-    //render the stroke
-    sa.init(strokeCache, strokeSize, thisx, thisy);
-    rendererAA->color(gc.color);
-    agg::render_scanlines(sa, sl, *rendererAA);
-    
-  } //for each marker
+    size_t next_vertex_stride = vertices->strides[0];
+    size_t next_axis_stride = vertices->strides[1];
+    size_t code_stride = codes->strides[0];
+
+    const char* vertex_i = vertices->data;
+    const char* code_i = codes->data;
+    const char* vertex_end = vertex_i + (vertices->dimensions[0] * vertices->strides[0]);
+
+    size_t N = codes->dimensions[0];
+    double x, y;
+
+    agg::serialized_scanlines_adaptor_aa8 sa;
+    agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
+
+    for (size_t i=0; i < N; i++) {
+      size_t num_vertices = NUM_VERTICES[(int)(*code_i)];
+      if (num_vertices) {
+	for (size_t j=0; j<num_vertices; ++j)
+	  GET_NEXT_VERTEX(x, y);
+	trans.transform(&x, &y);
+	
+	if (face.first) {
+	  //render the fill
+	  sa.init(fillCache, fillSize, x, y);
+	  rendererAA->color(face.second);
+	  agg::render_scanlines(sa, sl, *rendererAA);
+	}
+
+	//render the stroke
+	sa.init(strokeCache, strokeSize, x, y);
+	rendererAA->color(gc.color);
+	agg::render_scanlines(sa, sl, *rendererAA);
+      }
+      code_i += code_stride;
+    }
+  } catch(...) {
+    Py_XDECREF(vertices);
+    Py_XDECREF(codes);
+    delete[] fillCache;
+    delete[] strokeCache;
+  }
   
-  Py_XDECREF(xa);
-  Py_XDECREF(ya);
-  
-  if (face.first)
-    delete [] fillCache;
+  Py_XDECREF(vertices);
+  Py_XDECREF(codes);
+  delete [] fillCache;
   delete [] strokeCache;
 
-  //jdh
-  _VERBOSE("RendererAgg::_draw_markers_cache done");
   return Py::Object();
   
 }
@@ -1551,21 +1553,6 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   return Py::Object();
   
 }
-
-inline void get_next_vertex(const char* & vertex_i, const char* vertex_end, 
-			    double& x, double& y,
-			    size_t next_vertex_stride, 
-			    size_t next_axis_stride) {
-  if (vertex_i + next_axis_stride >= vertex_end)
-    throw Py::ValueError("Error parsing path.  Read past end of vertices");
-  x = *(double*)vertex_i;
-  y = *(double*)(vertex_i + next_axis_stride);
-  vertex_i += next_vertex_stride;
-}
-
-#define GET_NEXT_VERTEX(x, y) get_next_vertex(vertex_i, vertex_end, x, y, next_vertex_stride, next_axis_stride)
-
-
 
 Py::Object
 RendererAgg::convert_to_native_path(const Py::Tuple& args) {
@@ -2059,7 +2046,7 @@ void RendererAgg::init_type()
   add_varargs_method("draw_lines", &RendererAgg::draw_lines,
 		     "draw_lines(gc, x, y,)\n");
   add_varargs_method("draw_markers", &RendererAgg::draw_markers,
-		     "draw_markers(gc, path, x, y)\n");
+		     "draw_markers(gc, marker_path, marker_trans, vertices, codes, rgbFace)\n");
   add_varargs_method("draw_text_image", &RendererAgg::draw_text_image,
 		     "draw_text_image(font_image, x, y, r, g, b, a)\n");
   add_varargs_method("draw_image", &RendererAgg::draw_image,

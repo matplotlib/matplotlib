@@ -140,7 +140,7 @@ class RendererAgg(RendererBase):
     def convert_to_native_path(self, path):
 	return self._renderer.convert_to_native_path(path.vertices, path.codes)
 
-    def _draw_path(self, gc, native_path, transform, rgbFace):
+    def _draw_native_path(self, gc, native_path, transform, rgbFace):
 	return self._renderer.draw_path(gc, native_path, transform.to_values(), rgbFace)
 	
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2, rotation):
@@ -172,8 +172,12 @@ class RendererAgg(RendererBase):
     def draw_lines(self, gc, x, y, transform):
 	return self._renderer.draw_lines(gc, x, y, transform.to_values())
 
-    def draw_markers(self, gc, path, color, x, y, transform):
-	return self._renderer.draw_markers(gc, path, color, x, y, transform.to_values())
+    def _draw_native_markers(self, gc, native_marker_path, marker_trans, path, trans, rgbFace=None):
+	return self._renderer.draw_markers(
+	    gc,
+	    native_marker_path, marker_trans.to_values(),
+	    path.vertices, path.codes, trans.to_values(),
+	    rgbFace)
 
     def draw_polygon(self, *args):
 	return self._renderer.draw_polygon(*args)

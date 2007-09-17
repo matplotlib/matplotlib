@@ -36,21 +36,25 @@ class RendererBase:
         """
         pass
 
-    def draw_path(self, gc, path, transform, rgbFace = None):
-	"""
-	Handles the caching of the native path associated with the
-	given path and calls the underlying backend's _draw_path to
-	actually do the drawing.
-	"""
+    def _get_cached_native_path(self, path):
 	native_path = self._native_paths.get(path)
 	if native_path is None:
 	    import matplotlib.patches
 	    print "CACHE MISS", path
 	    native_path = self.convert_to_native_path(path)
 	    self._native_paths[path] = native_path
-	self._draw_path(gc, native_path, transform, rgbFace)
+	return native_path
+    
+    def draw_path(self, gc, path, transform, rgbFace = None):
+	"""
+	Handles the caching of the native path associated with the
+	given path and calls the underlying backend's _draw_path to
+	actually do the drawing.
+	"""
+	native_path = self._get_cached_native_path(path)
+	self._draw_native_path(gc, native_path, transform, rgbFace)
 
-    def _draw_path(self, gc, native_path, transform, rgbFace):
+    def _draw_native_path(self, gc, native_path, transform, rgbFace):
 	"""
 	Draw the native path object with the given GraphicsContext and
 	transform.  The transform passed in will always be affine.
@@ -107,9 +111,10 @@ class RendererBase:
         return False
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
-	pass
-    
-    def _draw_markers(self, bgc, path, rgbFace, x, y, trans):
+	native_marker_path = self._get_cached_native_path(marker_path)
+	self._draw_native_markers(gc, native_marker_path, marker_trans, path, trans, rgbFace)
+	
+    def _draw_native_markers(self, gc, native_marker_path, marker_trans, path, trans, rgbFace=None):
         """
         This method is currently underscore hidden because the
         draw_markers method is being used as a sentinel for newstyle
@@ -130,7 +135,7 @@ class RendererBase:
         vec6 = transform.as_vec6_val()
         ...backend dependent affine...
         """
-        pass
+        raise NotImplementedError
 
     def draw_line_collection(self, segments, transform, clipbox,
                              colors, linewidths, linestyle, antialiaseds,

@@ -288,7 +288,6 @@ class Shadow(Patch):
         self._update()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-
     def _update(self):
         self.update_from(self.patch)
         if self.props is not None:
@@ -316,8 +315,7 @@ class Rectangle(Patch):
 
     """
 
-    _path = Path(
-	[[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
+    _path = Path.unit_rectangle()
     
     def __str__(self):
         return str(self.__class__).split('.')[-1] \
@@ -424,8 +422,6 @@ class RegularPolygon(Patch):
     """
     A regular polygon patch.
     """
-    _polygon_cache = {}
-    
     def __str__(self):
         return "Poly%d(%g,%g)"%(self.numVertices,self.xy[0],self.xy[1])
 
@@ -442,14 +438,7 @@ class RegularPolygon(Patch):
         """
         Patch.__init__(self, **kwargs)
 
-	path = self._polygon_cache[numVertices]
-	if path is None:
-	    theta = 2*npy.pi/numVertices * npy.arange(numVertices)
-	    verts = npy.hstack((npy.cos(theta), npy.sin(theta)))
-	    path = Path(verts)
-	    self._polygon_cache[numVertices] = path
-
-	self._path = path
+	self._path = Path.unit_regular_polygon(numVertices)
 	self._poly_transform = transforms.Affine2D() \
 	    .scale(radius) \
 	    .rotate(orientation) \

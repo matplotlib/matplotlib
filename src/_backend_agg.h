@@ -45,7 +45,9 @@
 #define LINETO 2
 #define CURVE3 3
 #define CURVE4 4
-#define CLOSEPOLY 0x0F
+#define CLOSEPOLY 5
+
+const size_t NUM_VERTICES[] = { 0, 1, 1, 2, 3, 0 };
 
 typedef agg::pixfmt_rgba32 pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;
