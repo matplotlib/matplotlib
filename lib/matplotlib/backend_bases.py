@@ -18,8 +18,9 @@ class RendererBase:
     """An abstract base class to handle drawing/rendering operations
     """
     # This will cache paths across rendering instances
-    # Each subclass of RenderBase should define this -->
-    # _paths = weakref.WeakKeyDictionary()
+    # Each subclass of RenderBase should define this a weak-keyed
+    # dictionary to hold native paths
+    # _native_paths = weakref.WeakKeyDictionary()
     
     def __init__(self):
         self._texmanager = None
@@ -44,7 +45,7 @@ class RendererBase:
 	    self._native_paths[path] = native_path
 	return native_path
     
-    def draw_path(self, gc, path, transform, rgbFace = None):
+    def draw_path(self, gc, path, transform, rgbFace=None):
 	"""
 	Handles the caching of the native path associated with the
 	given path and calls the underlying backend's _draw_path to
@@ -67,17 +68,31 @@ class RendererBase:
 	passed to them in draw_path.
 	"""
 	return path
-	
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2,
-                 rotation):
-        """
-        Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
-        with width and height and angles from 0.0 to 360.0
-        0 degrees is at 3-o'clock
-        positive angles are anti-clockwise
-        draw rotated 'rotation' degrees anti-clockwise about x,y
 
-        If the color rgbFace is not None, fill the arc with it.
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+	native_marker_path = self._get_cached_native_path(marker_path)
+	self._draw_native_markers(gc, native_marker_path, marker_trans, path, trans, rgbFace)
+	
+    def _draw_native_markers(self, gc, native_marker_path, marker_trans, path, trans, rgbFace=None):
+        """
+        This method is currently underscore hidden because the
+        draw_markers method is being used as a sentinel for newstyle
+        backend drawing
+
+        path - a matplotlib.agg.path_storage instance
+
+        Draw the marker specified in path with graphics context gc at
+        each of the locations in arrays x and y.  trans is a
+        matplotlib.transforms.Transformation instance used to
+        transform x and y to display coords.  It consists of an
+        optional nonlinear component and an affine.  You can access
+        these two components as
+
+        if transform.need_nonlinear():
+          x,y = transform.nonlinear_only_numerix(x, y)
+        # the a,b,c,d,tx,ty affine which transforms x and y
+        vec6 = transform.as_vec6_val()
+        ...backend dependent affine...
         """
         raise NotImplementedError
 
@@ -109,30 +124,21 @@ class RendererBase:
         """
         return False
 
-    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
-	native_marker_path = self._get_cached_native_path(marker_path)
-	self._draw_native_markers(gc, native_marker_path, marker_trans, path, trans, rgbFace)
-	
-    def _draw_native_markers(self, gc, native_marker_path, marker_trans, path, trans, rgbFace=None):
+    ######################################################################
+    ## OLD API IS BELOW
+    ## These functions no longer need to be implemented in the backends --
+    ## they now perform all of their functions in terms of the new API.
+    
+    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2,
+                 rotation):
         """
-        This method is currently underscore hidden because the
-        draw_markers method is being used as a sentinel for newstyle
-        backend drawing
+        Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
+        with width and height and angles from 0.0 to 360.0
+        0 degrees is at 3-o'clock
+        positive angles are anti-clockwise
+        draw rotated 'rotation' degrees anti-clockwise about x,y
 
-        path - a matplotlib.agg.path_storage instance
-
-        Draw the marker specified in path with graphics context gc at
-        each of the locations in arrays x and y.  trans is a
-        matplotlib.transforms.Transformation instance used to
-        transform x and y to display coords.  It consists of an
-        optional nonlinear component and an affine.  You can access
-        these two components as
-
-        if transform.need_nonlinear():
-          x,y = transform.nonlinear_only_numerix(x, y)
-        # the a,b,c,d,tx,ty affine which transforms x and y
-        vec6 = transform.as_vec6_val()
-        ...backend dependent affine...
+        If the color rgbFace is not None, fill the arc with it.
         """
         raise NotImplementedError
 
@@ -346,8 +352,10 @@ class RendererBase:
 
         If rgbFace is not None, fill the rectangle with it.
         """
-        raise NotImplementedError
-
+	warnings.warn("draw_rectangle called", warnings.PendingDeprecationWarning)
+	transform = transforms.Affine2D().scale(width, height).translate(x, y)
+	self.draw_path(gcEdge, Path.unit_rectangle(), transform, rgbFace)
+	
     def draw_regpoly_collection(
         self, clipbox, offsets, transOffset, verts, sizes,
         facecolors, edgecolors, linewidths, antialiaseds):
@@ -1221,8 +1229,6 @@ class FigureCanvasBase:
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
 
-	# MGDTODO
-        # self.figure.dpi.set(dpi)
         self.figure.dpi = dpi
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
@@ -1236,12 +1242,12 @@ class FigureCanvasBase:
                 orientation=orientation,
                 **kwargs)
         finally:
-	    # MGDTODO
-            # self.figure.dpi.set(origDPI)
             self.figure.dpi = origDPI
             self.figure.set_facecolor(origfacecolor)
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
+
+        self.draw()
             
         return result
 
@@ -1623,8 +1629,8 @@ class NavigationToolbar2:
             lims.append( (xmin, xmax, ymin, ymax) )
             # Store both the original and modified positions
             pos.append( (
-		    a.get_position(True),
-                    a.get_position() ) )
+		    copy.copy(a.get_position(True)),
+                    copy.copy(a.get_position() )) )
         self._views.push(lims)
         self._positions.push(pos)
         self.set_history_buttons()

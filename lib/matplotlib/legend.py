@@ -21,7 +21,7 @@ Return value is a sequence of text, line instances that make
 up the legend
 """
 from __future__ import division
-import sys, warnings
+import copy, sys, warnings
 
 import numpy as npy
 
@@ -558,9 +558,7 @@ The following dimensions are in axes coords
                 handle.set_height(h/2)
 
         # Set the data for the legend patch
-	# MGDTODO: This copy may no longer be needed now that Bboxes are
-	# essentially immutable
-        bbox = self._get_handle_text_bbox(renderer).copy()
+        bbox = copy.copy(self._get_handle_text_bbox(renderer))
 
         bbox = bbox.scaled(1 + self.pad, 1 + self.pad)
         l,b,w,h = bbox.get_bounds()

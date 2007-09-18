@@ -435,6 +435,9 @@ class Axes(martist.Artist):
               1 : 'log',
               }
 
+    _shared_x_axes = cbook.Grouper()
+    _shared_y_axes = cbook.Grouper()
+    
     def __str__(self):
         return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
     def __init__(self, fig, rect,
@@ -491,6 +494,10 @@ class Axes(martist.Artist):
         # must be set before set_figure
         self._sharex = sharex
         self._sharey = sharey
+	if sharex is not None:
+	    self._shared_x_axes.join(self, sharex)
+	if sharey is not None:
+	    self._shared_y_axes.join(self, sharey)
         # Flag: True if some other Axes instance is sharing our x or y axis
         self._masterx = False
         self._mastery = False
@@ -501,7 +508,6 @@ class Axes(martist.Artist):
 
         # this call may differ for non-sep axes, eg polar
         self._init_axis()
-
 
         if axisbg is None: axisbg = rcParams['axes.facecolor']
         self._axisbg = axisbg
@@ -616,55 +622,28 @@ class Axes(martist.Artist):
         #these will be updated later as data is added
         self._set_lim_and_transforms()
 
-    def _shared_xlim_callback(self, ax):
-	xmin, xmax = ax.get_xlim()
-	self.set_xlim(xmin, xmax, emit=False)
-	self.figure.canvas.draw_idle()
-
-    def _shared_ylim_callback(self, ax):
-	ymin, ymax = ax.get_ylim()
-	self.set_ylim(ymin, ymax, emit=False)
-	self.figure.canvas.draw_idle()
-	
     def _set_lim_and_transforms(self):
         """
         set the dataLim and viewLim BBox attributes and the
         transData and transAxes Transformation attributes
         """
-	Bbox = mtransforms.Bbox
-	self.viewLim = Bbox.unit()
-	
-        if self._sharex is not None:
-	    # MGDTODO: This may be doing at least one too many updates
-	    # than necessary
-	    self._sharex.callbacks.connect(
- 		'xlim_changed', self._shared_xlim_callback)
-	    self.viewLim.intervalx = self._sharex.viewLim.intervalx
-        if self._sharey is not None:
- 	    self._sharey.callbacks.connect(
- 		'ylim_changed', self._shared_ylim_callback)
-	    self.viewLim.intervaly = self._sharex.viewLim.intervaly
-
-	self.dataLim = Bbox.unit()
+	self.viewLim = mtransforms.Bbox.unit()
+	self.dataLim = mtransforms.Bbox.unit()
 	
         self.transAxes = mtransforms.BboxTransform(
-            Bbox.unit(), self.bbox)
-
+            mtransforms.Bbox.unit(), self.bbox)
         self.transData = mtransforms.BboxTransform(
             self.viewLim, self.bbox)
 	    
 	    
     def get_position(self, original=False):
         'Return the axes rectangle left, bottom, width, height'
-	# MGDTODO: This changed from returning a list to returning a Bbox
-	# If you get any errors with the result of this function, please
-	# update the calling code
         if original:
-            return copy.copy(self._originalPosition)
+            return self._originalPosition
         else:
-            return copy.copy(self._position)
-	    # return [val.get() for val in self._position]
+            return self._position
 
+	
     def set_position(self, pos, which='both'):
         """
         Set the axes position with pos = [left, bottom, width, height]
@@ -699,8 +678,7 @@ class Axes(martist.Artist):
         self.xaxis.cla()
         self.yaxis.cla()
 
-	# MGDTODO
-        # self.dataLim.ignore(1)
+	self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry(('xlim_changed', 'ylim_changed'))
 
         if self._sharex is not None:
@@ -886,7 +864,7 @@ class Axes(martist.Artist):
             return
 
 
-        l,b,w,h = self.get_position(original=True)
+        l,b,w,h = self.get_position(original=True).bounds
         box_aspect = fig_aspect * (h/w)
         data_ratio = box_aspect / A
 
@@ -1152,7 +1130,7 @@ class Axes(martist.Artist):
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
         xys = npy.asarray(xys)
-        self.dataLim.update_numerix_xy(xys, -1)
+        self.update_datalim_numerix(xys[:, 0], xys[:, 1])
 
 
     def update_datalim_numerix(self, x, y):
@@ -1161,10 +1139,9 @@ class Axes(martist.Artist):
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
-        #print type(x), type(y)
-	# MGDTODO
         ## self.dataLim.update_numerix(x, y, -1)
-	self.dataLim.update_from_data(x, y)
+	self.dataLim.update_from_data(x, y, self.ignore_existing_data_limits)
+	self.ignore_existing_data_limits = False
 
     def _get_verts_in_data_coords(self, trans, xys):
         if trans == self.transData:
@@ -1264,9 +1241,7 @@ class Axes(martist.Artist):
         if not self.get_visible(): return
         renderer.open_group('axes')
         self.apply_aspect()
-	# MGDTODO -- this is where we can finalize all of the transforms
-        # self.transData.freeze()  # eval the lazy objects
-        # self.transAxes.freeze()
+
         if self.axison and self._frameon: self.axesPatch.draw(renderer)
         artists = []
 
@@ -1314,17 +1289,13 @@ class Axes(martist.Artist):
         if self.axison and self._frameon:
             artists.append(self.axesFrame)
 
-        # keep track of i to guarantee stable sort for python 2.2
-        dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
-                if not a.get_animated()]
+	dsu = [ (a.zorder, a) for a in artists
+		if not a.get_animated() ]
         dsu.sort()
 
-        for zorder, i, a in dsu:
+        for zorder, a in dsu:
             a.draw(renderer)
 
-	# MGDTODO
-	# self.transData.thaw()  # release the lazy objects
-        # self.transAxes.thaw()  # release the lazy objects
         renderer.close_group('axes')
         self._cachedRenderer = renderer
 
@@ -1509,7 +1480,6 @@ class Axes(martist.Artist):
 
         ACCEPTS: len(2) sequence of floats
         """
-
         if xmax is None and iterable(xmin):
             xmin,xmax = xmin
 
@@ -1534,11 +1504,10 @@ class Axes(martist.Artist):
 	self.viewLim.intervalx = (xmin, xmax)
         if emit:
 	    self.callbacks.process('xlim_changed', self)
-	    # MGDTODO: It would be nice to do this is in the above callback list,
-	    # but it's difficult to tell how to initialize this at the
-	    # right time
-	    if self._sharex:
-		self._sharex.set_xlim(*self.viewLim.intervalx)
+	    # Call all of the other x-axes that are shared with this one
+	    for other in self._shared_x_axes.get_siblings(self):
+		if other is not self:
+		    other.set_xlim(self.viewLim.xmin, self.viewLim.xmax, emit=False)
 	    
         return xmin, xmax
 
@@ -1665,11 +1634,10 @@ class Axes(martist.Artist):
 	self.viewLim.intervaly = (ymin, ymax)
         if emit:
 	    self.callbacks.process('ylim_changed', self)
-	    # MGDTODO: It would be nice to do this is in the above callback list,
-	    # but it's difficult to tell how to initialize this at the
-	    # right time
-	    if self._sharey:
-		self._sharey.set_ylim(*self.viewLim.intervaly)
+	    # Call all of the other y-axes that are shared with this one
+	    for other in self._shared_y_axes.get_siblings(self):
+		if other is not self:
+		    other.set_ylim(self.viewLim.ymin, self.viewLim.ymax, emit=False)
 	    
         return ymin, ymax
 

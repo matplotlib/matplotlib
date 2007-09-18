@@ -114,9 +114,6 @@ class RendererAgg(RendererBase):
         self.height = height
         if __debug__: verbose.report('RendererAgg.__init__ width=%s, \
                         height=%s'%(width, height), 'debug-annoying')
-	# MGDTODO
-#         self._renderer = _RendererAgg(int(width), int(height), dpi.get(),
-# 				      debug=False)
         self._renderer = _RendererAgg(int(width), int(height), dpi,
 				      debug=False)
         if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done',
@@ -136,53 +133,12 @@ class RendererAgg(RendererBase):
     def _draw_native_path(self, gc, path, transform, rgbFace):
 	return self._renderer.draw_path(gc, path, transform.get_matrix(), rgbFace)
     
-    def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2, rotation):
-        """
-        Draw an arc centered at x,y with width and height and angles
-        from 0.0 to 360.0
-
-        If rgbFace is not None, fill the rectangle with that color.  gcEdge
-        is a GraphicsContext instance
-
-        Currently, I'm only supporting ellipses, ie angle args are
-        ignored
-        """
-        if __debug__: verbose.report('RendererAgg.draw_arc', 'debug-annoying')
-        self._renderer.draw_ellipse(
-            gcEdge, rgbFace, x, y, width/2, height/2, rotation)  # ellipse takes radius
-
-
-    def draw_line(self, gc, x1, y1, x2, y2):
-        """
-        x and y are equal length arrays, draw lines connecting each
-        point in x, y
-        """
-        if __debug__: verbose.report('RendererAgg.draw_line', 'debug-annoying')
-        x = npy.array([x1,x2], float)
-        y = npy.array([y1,y2], float)
-        self._renderer.draw_lines(gc, x, y)
-
-    def draw_lines(self, gc, x, y, transform):
-	return self._renderer.draw_lines(gc, x, y, transform.to_values())
-
     def _draw_native_markers(self, gc, native_marker_path, marker_trans, path, trans, rgbFace=None):
 	return self._renderer.draw_markers(
 	    gc,
 	    native_marker_path, marker_trans.get_matrix(),
 	    path.vertices, path.codes, trans.get_matrix(),
 	    rgbFace)
-
-    def draw_polygon(self, *args):
-	return self._renderer.draw_polygon(*args)
-    
-    def draw_point(self, gc, x, y):
-        """
-        Draw a single point at x,y
-        """
-        if __debug__: verbose.report('RendererAgg.draw_point', 'debug-annoying')
-        rgbFace = gc.get_rgb()
-        self._renderer.draw_ellipse(
-            gc, rgbFace, x, y, 0.5, 0.5, 0.0)
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """
@@ -192,8 +148,6 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
-#         ox, oy, width, height, descent, font_image, used_characters = \
-#             self.mathtext_parser.parse(s, self.dpi.get(), prop) MGDTODO
         
         x = int(x) + ox
         y = int(y) - oy
@@ -227,7 +181,6 @@ class RendererAgg(RendererBase):
         # (in vector space) in the above call to font.set_text.
         self._renderer.draw_text_image(font.get_image(), int(x), int(y) + 1, angle, gc)
 
-
     def get_text_width_height_descent(self, s, prop, ismath, rgb=(0,0,0)):
         """
         get the width and height in display coords of the string s
@@ -241,7 +194,7 @@ class RendererAgg(RendererBase):
             # todo: handle props
             size = prop.get_size_in_points()
             texmanager = self.get_texmanager()
-            Z = texmanager.get_rgba(s, size, self.dpi.get(), rgb)
+            Z = texmanager.get_rgba(s, size, self.dpi, rgb)
             m,n,tmp = Z.shape
             # TODO: descent of TeX text (I am imitating backend_ps here -JKS)
             return n, m, 0
@@ -249,8 +202,6 @@ class RendererAgg(RendererBase):
         if ismath:
             ox, oy, width, height, descent, fonts, used_characters = \
                 self.mathtext_parser.parse(s, self.dpi, prop)
-#             ox, oy, width, height, descent, fonts, used_characters = \
-#                 self.mathtext_parser.parse(s, self.dpi.get(), prop) MGDTODO
             return width, height, descent
         font = self._get_agg_font(prop)
         font.set_text(s, 0.0, flags=LOAD_DEFAULT)  # the width and height of unrotated string
@@ -265,7 +216,7 @@ class RendererAgg(RendererBase):
         # todo, handle props, angle, origins
         rgb = gc.get_rgb()
         size = prop.get_size_in_points()
-        dpi = self.dpi.get()
+        dpi = self.dpi
 
         flip = angle==90
         w,h,d = self.get_text_width_height_descent(s, prop, 'TeX', rgb)
@@ -306,7 +257,6 @@ class RendererAgg(RendererBase):
         'return the canvas width and height in display coords'
         return self.width, self.height
 
-
     def _get_agg_font(self, prop):
         """
         Get the font for text instance t, cacheing for efficiency
@@ -325,10 +275,8 @@ class RendererAgg(RendererBase):
         font.clear()
         size = prop.get_size_in_points()
         font.set_size(size, self.dpi)
-        # font.set_size(size, self.dpi.get()) MGDTODO
 
         return font
-
 
     def points_to_pixels(self, points):
         """
@@ -337,8 +285,6 @@ class RendererAgg(RendererBase):
         """
         if __debug__: verbose.report('RendererAgg.points_to_pixels',
                                      'debug-annoying')
-	# MGDTODO
-        # return points*self.dpi.get()/72.0
         return points*self.dpi/72.0
     
     def tostring_rgb(self):
@@ -404,9 +350,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         self.figure.draw(self.renderer)
 
     def get_renderer(self):
-        l,b,w,h = self.figure.bbox.bounds
-	# MGDTODO
-        # key = w, h, self.figure.dpi.get()
+        l, b, w, h = self.figure.bbox.bounds
         key = w, h, self.figure.dpi
         try: self._lastKey, self.renderer
         except AttributeError: need_new_renderer = True

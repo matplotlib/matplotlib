@@ -1033,8 +1033,7 @@ class XAxis(Axis):
                 bbox = Bbox.union(bboxes)
                 bottom = bbox.ymin
 
-            self.label.set_position( (x, bottom-self.LABELPAD*self.figure.dpi/72.0))
-#             self.label.set_position( (x, bottom-self.LABELPAD*self.figure.dpi.get()/72.0)) MGDTODO
+            self.label.set_position( (x, bottom-self.LABELPAD*self.figure.dpi / 72.0))
 
         else:
             if not len(bboxes2):
@@ -1057,7 +1056,6 @@ class XAxis(Axis):
             bbox = Bbox.union(bboxes)
             bottom = bbox.ymin
         self.offsetText.set_position((x, bottom-self.OFFSETTEXTPAD*self.figure.dpi/72.0))
-#         self.offsetText.set_position((x, bottom-self.OFFSETTEXTPAD*self.figure.dpi.get()/72.0)) MGDTODO
 	
     def set_ticks_position(self, position):
         """
@@ -1225,7 +1223,6 @@ class YAxis(Axis):
                 left = bbox.xmin
 
             self.label.set_position( (left-self.LABELPAD*self.figure.dpi/72.0, y))
-	    #             self.label.set_position( (left-self.LABELPAD*self.figure.dpi.get()/72.0, y)) MGDTODO
 	    
         else:
             if not len(bboxes2):
@@ -1245,7 +1242,6 @@ class YAxis(Axis):
         x,y = self.offsetText.get_position()
         top = self.axes.bbox.ymax
         self.offsetText.set_position((x, top+self.OFFSETTEXTPAD*self.figure.dpi/72.0))
-#         self.offsetText.set_position((x, top+self.OFFSETTEXTPAD*self.figure.dpi.get()/72.0)) MGDTODO
 	
     def set_offset_position(self, position):
         assert position == 'left' or position == 'right'

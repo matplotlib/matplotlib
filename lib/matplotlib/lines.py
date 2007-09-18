@@ -352,32 +352,18 @@ class Line2D(Artist):
         self._picker = p
 
     def get_window_extent(self, renderer):
-        self._newstyle = hasattr(renderer, 'draw_markers')
-        if self._newstyle:
-            x = self._x
-            y = self._y
-        else:
-            x, y = self._get_plottable()
+        xys = self.get_transform()(self._xys)
 
-	# MGDTODO: Put this in a single Nx2 array, rather than these
-	# separate ones
-	#### Conversion code
-	a = npy.vstack((x, y)).swapaxes(0, 1)
-	####
-        x, y = self.get_transform()(a)
-	print "get_window_extent", self.get_transform()
-	
-        #x, y = self.get_transform().seq_x_y(x, y)
-
-        left = min(x)
-        bottom = min(y)
-        width = max(x) - left
-        height = max(y) - bottom
+	x = xys[:, 0]
+	y = xys[:, 1]
+        left = x.min()
+        bottom = y.min()
+        width = x.max() - left
+        height = y.max() - bottom
 
         # correct for marker size, if any
         if self._marker is not None:
-            ms = self._markersize/72.0*self.figure.dpi
-            # ms = self._markersize/72.0*self.figure.dpi.get() MGDTODO
+            ms = self._markersize / 72.0 * self.figure.dpi
             left -= ms/2
             bottom -= ms/2
             width += ms
@@ -411,6 +397,7 @@ class Line2D(Artist):
     def recache(self):
         #if self.axes is None: print 'recache no axes'
         #else: print 'recache units', self.axes.xaxis.units, self.axes.yaxis.units
+	# MGDTODO: Deal with units
         x = ma.asarray(self.convert_xunits(self._xorig), float)
         y = ma.asarray(self.convert_yunits(self._yorig), float)
 
@@ -435,13 +422,13 @@ class Line2D(Artist):
         else:
             self._segments = None
 
-        self._x = npy.asarray(x, float)
-        self._y = npy.asarray(y, float)
-	self._path = Path(npy.vstack((self._x, self._y)).transpose(),
-			  closed=False)
+	self._xy = npy.vstack((npy.asarray(x, npy.float_),
+			       npy.asarray(y, npy.float_))).transpose()
+	self._x = self._xy[:, 0]
+	self._y = self._xy[:, 1]
+	self._path = Path(self._xy, closed=False)
 	
         self._logcache = None
-
 
 
     def _is_sorted(self, x):
