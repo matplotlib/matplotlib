@@ -712,6 +712,7 @@ class Line2D(Artist):
     def _draw_nothing(self, renderer, gc, path):
         pass
 
+    
     def _draw_steps(self, renderer, gc, xt, yt):
 	# MGDTODO: This is a quirky one.  The step-plotting part
 	# should probably be moved to where the path is generated
@@ -729,6 +730,7 @@ class Line2D(Artist):
         else:
             renderer.draw_lines(gc, xt2, yt2)
 
+	    
     def _draw_solid(self, renderer, gc, path):
         gc.set_linestyle('solid')
 	renderer.draw_path(gc, path, self.get_transform())
@@ -753,8 +755,15 @@ class Line2D(Artist):
 
 	
     def _draw_point(self, renderer, gc, path):
-	self._draw_circle(renderer, gc, path, point = True)
+        w = renderer.points_to_pixels(self._markersize) * \
+	    self._point_size_reduction * 0.5
+        rgbFace = self._get_rgb_face()
+	transform = Affine2D().scale(w)
+	renderer.draw_markers(
+	    gc, Path.unit_circle(), transform, path, self.get_transform(),
+	    rgbFace)
 
+	
     def _draw_pixel(self, renderer, gc, path):
 	rgbFace = self._get_rgb_face()
 	transform = Affine2D().translate(-0.5, -0.5)
@@ -762,12 +771,8 @@ class Line2D(Artist):
 			      path, self.get_transform(), rgbFace)
 	
 	
-    def _draw_circle(self, renderer, gc, path, point=False):
-        w = renderer.points_to_pixels(self._markersize)
-        if point:
-            w *= self._point_size_reduction
-	w *= 0.5
-
+    def _draw_circle(self, renderer, gc, path):
+        w = renderer.points_to_pixels(self._markersize) * 0.5
         rgbFace = self._get_rgb_face()
 	transform = Affine2D().scale(w, w)
 	renderer.draw_markers(
@@ -826,7 +831,8 @@ class Line2D(Artist):
 	
     def _draw_thin_diamond(self, renderer, gc, path):
         offset = renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().translate(0.5, 0.5).rotate_deg(45).scale(offset * 0.8, offset)
+	transform = Affine2D().translate(0.5, 0.5) \
+	    .rotate_deg(45).scale(offset * 0.8, offset)
         rgbFace = self._get_rgb_face()
 	renderer.draw_markers(gc, Path.unit_rectangle(), transform,
 			      path, self.get_transform(), rgbFace)
@@ -840,7 +846,7 @@ class Line2D(Artist):
 			      path, self.get_transform(), rgbFace)
 
 	
-    def _draw_hexagon1(self, renderer, gc, path, point=False):
+    def _draw_hexagon1(self, renderer, gc, path):
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset)
 	rgbFace = self._get_rgb_face()
@@ -848,50 +854,44 @@ class Line2D(Artist):
 			      path, self.get_transform(), rgbFace)
 
 	
-    def _draw_hexagon2(self, renderer, gc, xt, yt):
+    def _draw_hexagon2(self, renderer, gc, path):
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset).rotate_deg(30)
 	rgbFace = self._get_rgb_face()
 	renderer.draw_markers(gc, Path.unit_regular_polygon(6), transform,
 			      path, self.get_transform(), rgbFace)
 
-	
-    def _draw_vline(self, renderer, gc, xt, yt):
-        offset = 0.5*renderer.points_to_pixels(self._markersize)
-        if self._newstyle:
-            path = agg.path_storage()
-            path.move_to(0, -offset)
-            path.line_to(0, offset)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x, y-offset, x, y+offset)
 
-		
-    def _draw_hline(self, renderer, gc, xt, yt):
+    _line_marker_path = Path([[0.0, -1.0], [0.0, 1.0]], closed=False)
+    def _draw_vline(self, renderer, gc, path):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        if self._newstyle:
-            path = agg.path_storage()
-            path.move_to(-offset, 0)
-            path.line_to(offset, 0)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x-offset, y, x+offset, y)
-
-    _tickhoriz_path = Path([[0.0, 0.5], [1.0, 0.5]])
-    def _draw_tickleft(self, renderer, gc, path):
-        offset = renderer.points_to_pixels(self._markersize)
-	marker_transform = Affine2D().scale(offset, 1.0)
-	renderer.draw_markers(gc, self._tickhoriz_path, marker_transform,
+	transform = Affine2D().scale(offset)
+	renderer.draw_markers(gc, self._line_marker_path, transform,
 			      path, self.get_transform())
 
-    def _draw_tickright(self, renderer, gc, path):
+		
+    def _draw_hline(self, renderer, gc, path):
+        offset = 0.5*renderer.points_to_pixels(self._markersize)
+	transform = Affine2D().scale(offset).rotate_deg(90)
+	renderer.draw_markers(gc, self._line_marker_path, transform,
+			      path, self.get_transform())
+
+		
+    _tickhoriz_path = Path([[0.0, 0.5], [1.0, 0.5]])
+    def _draw_tickleft(self, renderer, gc, path):
         offset = renderer.points_to_pixels(self._markersize)
 	marker_transform = Affine2D().scale(-offset, 1.0)
 	renderer.draw_markers(gc, self._tickhoriz_path, marker_transform,
 			      path, self.get_transform())
 
+	
+    def _draw_tickright(self, renderer, gc, path):
+        offset = renderer.points_to_pixels(self._markersize)
+	marker_transform = Affine2D().scale(offset, 1.0)
+	renderer.draw_markers(gc, self._tickhoriz_path, marker_transform,
+			      path, self.get_transform())
+
+	
     _tickvert_path = Path([[-0.5, 0.0], [-0.5, 1.0]])
     def _draw_tickup(self, renderer, gc, path):
         offset = renderer.points_to_pixels(self._markersize)
@@ -899,174 +899,99 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, self._tickvert_path, marker_transform,
 			      path, self.get_transform())
 
+	
     def _draw_tickdown(self, renderer, gc, path):
         offset = renderer.points_to_pixels(self._markersize)
 	marker_transform = Affine2D().scale(1.0, -offset)
 	renderer.draw_markers(gc, self._tickvert_path, marker_transform,
 			      path, self.get_transform())
 
-    def _draw_plus(self, renderer, gc, xt, yt):
+
+    _plus_path = Path([[-1.0, 0.0], [1.0, 0.0],
+		       [0.0, -1.0], [0.0, 1.0]],
+		      [Path.MOVETO, Path.LINETO,
+		       Path.MOVETO, Path.LINETO])
+    def _draw_plus(self, renderer, gc, path):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        if self._newstyle:
+	transform = Affine2D().scale(offset)
+	renderer.draw_markers(gc, self._plus_path, transform,
+			      path, self.get_transform())
 
-            path = agg.path_storage()
-            path.move_to(-offset, 0)
-            path.line_to( offset, 0)
-            path.move_to( 0, -offset)
-            path.line_to( 0, offset)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x-offset, y, x+offset, y)
-                renderer.draw_line(gc, x, y-offset, x, y+offset)
 
-    def _draw_tri_down(self, renderer, gc, xt, yt):
+    _tri_path = Path([[0.0, 0.0], [0.0, -1.0],
+		      [0.0, 0.0], [0.8, 0.5],
+		      [0.0, 0.0], [-0.8, 0.5]],
+		     [Path.MOVETO, Path.LINETO,
+		      Path.MOVETO, Path.LINETO,
+		      Path.MOVETO, Path.LINETO])
+    def _draw_tri_down(self, renderer, gc, path):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        offset1 = offset*0.8
-        offset2 = offset*0.5
-        if self._newstyle:
-            path = agg.path_storage()
-            path.move_to(0, 0)
-            path.line_to(0, -offset)
-            path.move_to(0, 0)
-            path.line_to(offset1, offset2)
-            path.move_to(0, 0)
-            path.line_to(-offset1, offset2)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x, y, x, y-offset)
-                renderer.draw_line(gc, x, y, x+offset1, y+offset2)
-                renderer.draw_line(gc, x, y, x-offset1, y+offset2)
+	transform = Affine2D().scale(offset)
+	renderer.draw_markers(gc, self._tri_path, transform,
+			      path, self.get_transform())
 
-    def _draw_tri_up(self, renderer, gc, xt, yt):
+	
+    def _draw_tri_up(self, renderer, gc, path):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        offset1 = offset*0.8
-        offset2 = offset*0.5
-        if self._newstyle:
-            path = agg.path_storage()
-            path.move_to(0, 0)
-            path.line_to(0, offset)
-            path.move_to(0, 0)
-            path.line_to(offset1, -offset2)
-            path.move_to(0, 0)
-            path.line_to(-offset1, -offset2)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x, y, x, y+offset)
-                renderer.draw_line(gc, x, y, x+offset1, y-offset2)
-                renderer.draw_line(gc, x, y, x-offset1, y-offset2)
+	transform = Affine2D().scale(offset).rotate_deg(180)
+	renderer.draw_markers(gc, self._tri_path, transform,
+			      path, self.get_transform())
 
-    def _draw_tri_left(self, renderer, gc, xt, yt):
+	
+    def _draw_tri_left(self, renderer, gc, path):
+	offset = 0.5*renderer.points_to_pixels(self._markersize)
+	transform = Affine2D().scale(offset).rotate_deg(90)
+	renderer.draw_markers(gc, self._tri_path, transform,
+			      path, self.get_transform())
+
+	
+    def _draw_tri_right(self, renderer, gc, path):
+	offset = 0.5*renderer.points_to_pixels(self._markersize)
+	transform = Affine2D().scale(offset).rotate_deg(270)
+	renderer.draw_markers(gc, self._tri_path, transform,
+			      path, self.get_transform())
+
+
+    _caret_path = Path([[-1.0, 1.5], [0.0, 0.0], [1.0, 1.5]], closed=False)
+    def _draw_caretdown(self, renderer, gc, path):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        offset1 = offset*0.8
-        offset2 = offset*0.5
-        if self._newstyle:
-            path = agg.path_storage()
-            path.move_to(0, 0)
-            path.line_to(-offset, 0)
-            path.move_to(0, 0)
-            path.line_to(offset2, offset1)
-            path.move_to(0, 0)
-            path.line_to(offset2, -offset1)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x, y, x-offset, y)
-                renderer.draw_line(gc, x, y, x+offset2, y+offset1)
-                renderer.draw_line(gc, x, y, x+offset2, y-offset1)
+	transform = Affine2D().scale(offset)
+	renderer.draw_markers(gc, self._caret_path, transform,
+			      path, self.get_transform())
 
-    def _draw_tri_right(self, renderer, gc, xt, yt):
+	
+    def _draw_caretup(self, renderer, gc, path):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        offset1 = offset*0.8
-        offset2 = offset*0.5
-        if self._newstyle:
-            path = agg.path_storage()
-            path.move_to(0, 0)
-            path.line_to(offset, 0)
-            path.move_to(0, 0)
-            path.line_to(-offset2, offset1)
-            path.move_to(0, 0)
-            path.line_to(-offset2, -offset1)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x, y, x+offset, y)
-                renderer.draw_line(gc, x, y, x-offset2, y+offset1)
-                renderer.draw_line(gc, x, y, x-offset2, y-offset1)
+	transform = Affine2D().scale(offset).rotate_deg(180)
+	renderer.draw_markers(gc, self._caret_path, transform,
+			      path, self.get_transform())
 
-    def _draw_caretdown(self, renderer, gc, xt, yt):
+	
+    def _draw_caretleft(self, renderer, gc, path):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        offset1 = 1.5*offset
-        if self._newstyle:
-            path = agg.path_storage()
-            path.move_to(-offset, offset1)
-            path.line_to(0, 0)
-            path.line_to(+offset, offset1)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x-offset, y+offset1, x, y)
-                renderer.draw_line(gc, x, y, x+offset, y+offset1)
+	transform = Affine2D().scale(offset).rotate_deg(90)
+	renderer.draw_markers(gc, self._caret_path, transform,
+			      path, self.get_transform())
 
-    def _draw_caretup(self, renderer, gc, xt, yt):
+	
+    def _draw_caretright(self, renderer, gc, path):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-        offset1 = 1.5*offset
-        if self._newstyle:
-            path = agg.path_storage()
-            path.move_to(-offset, -offset1)
-            path.line_to(0, 0)
-            path.line_to(+offset, -offset1)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x-offset, y-offset1, x, y)
-                renderer.draw_line(gc, x, y, x+offset, y-offset1)
+	transform = Affine2D().scale(offset).rotate_deg(270)
+	renderer.draw_markers(gc, self._caret_path, transform,
+			      path, self.get_transform())
 
-    def _draw_caretleft(self, renderer, gc, xt, yt):
-        offset = 0.5*renderer.points_to_pixels(self._markersize)
-        offset1 = 1.5*offset
-        if self._newstyle:
-            path = agg.path_storage()
-            path.move_to(offset1, -offset)
-            path.line_to(0, 0)
-            path.line_to(offset1, offset)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x+offset1, y-offset, x, y)
-                renderer.draw_line(gc, x, y, x+offset1, y+offset)
 
-    def _draw_caretright(self, renderer, gc, xt, yt):
-        offset = 0.5*renderer.points_to_pixels(self._markersize)
-        offset1 = 1.5*offset
-        if self._newstyle:
-            path = agg.path_storage()
-            path.move_to(-offset1, -offset)
-            path.line_to(0, 0)
-            path.line_to(-offset1, offset)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x-offset1, y-offset, x, y)
-                renderer.draw_line(gc, x, y, x-offset1, y+offset)
-
+    _x_path = Path([[-1.0, -1.0], [1.0, 1.0],
+		    [-1.0, 1.0], [1.0, -1.0]],
+		   [Path.MOVETO, Path.LINETO,
+		    Path.MOVETO, Path.LINETO])
     def _draw_x(self, renderer, gc, xt, yt):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
+	transform = Affine2D().scale(offset)
+	renderer.draw_markers(gc, self._x_path, transform,
+			      path, self.get_transform())
 
-        if self._newstyle:
-            path = agg.path_storage()
-            path.move_to(-offset, -offset)
-            path.line_to(offset, offset)
-            path.move_to(-offset, offset)
-            path.line_to(offset, -offset)
-            renderer.draw_markers(gc, path, None, xt, yt, self.get_transform())
-        else:
-            for (x,y) in zip(xt, yt):
-                renderer.draw_line(gc, x-offset, y-offset, x+offset, y+offset)
-                renderer.draw_line(gc, x-offset, y+offset, x+offset, y-offset)
-
+	
     def update_from(self, other):
         'copy properties from other to self'
         Artist.update_from(self, other)

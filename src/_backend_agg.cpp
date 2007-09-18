@@ -10,7 +10,6 @@
 #include <time.h>
 #include <algorithm>
 
-
 #include "agg_conv_transform.h"
 #include "agg_conv_curve.h"
 #include "agg_scanline_storage_aa.h"
@@ -43,28 +42,48 @@
 #define M_PI_2     1.57079632679489661923
 #endif
 
-agg::trans_affine py_sequence_to_agg_transformation_matrix(const Py::Object& obj) {
-  Py::SeqBase<Py::Float> seq;
+/** A helper function to convert from a Numpy affine transformation matrix
+ *  to an agg::trans_affine.
+ */
+agg::trans_affine py_to_agg_transformation_matrix(const Py::Object& obj) {
+  PyArrayObject* matrix = NULL;
+  
+  double a = 1.0, b = 0.0, c = 0.0, d = 1.0, e = 0.0, f = 0.0;
+
   try {
-    seq = obj;
-  } catch(...) {
-    throw Py::ValueError("Transformation matrix must be given as a 6-element list.");
+    matrix = (PyArrayObject*) PyArray_ContiguousFromObject(obj.ptr(), PyArray_DOUBLE, 2, 2);
+    if (!matrix || matrix->nd != 2 || matrix->dimensions[0] != 3 || matrix->dimensions[1] != 3) {
+      throw Py::ValueError("Invalid affine transformation matrix.");
+    }
+
+    size_t stride0 = matrix->strides[0];
+    size_t stride1 = matrix->strides[1];
+    char* row0 = matrix->data;
+    char* row1 = row0 + stride0;
+
+    a = *(double*)(row0);
+    row0 += stride1;
+    c = *(double*)(row0);
+    row0 += stride1;
+    e = *(double*)(row0);
+    
+    b = *(double*)(row1);
+    row1 += stride1;
+    d = *(double*)(row1);
+    row1 += stride1;
+    f = *(double*)(row1);
+  } catch (...) {
+    Py_XDECREF(matrix);
   }
 
-  if (seq.size() != 6) {
-    throw Py::ValueError("Transformation matrix must be given as a 6-element list.");
-  }
+  Py_XDECREF(matrix);
 
-  return agg::trans_affine
-    (Py::Float(seq[0]), 
-     Py::Float(seq[1]), 
-     Py::Float(seq[2]), 
-     Py::Float(seq[3]), 
-     Py::Float(seq[4]), 
-     Py::Float(seq[5]));
+  return agg::trans_affine(a, b, c, d, e, f);
 }
 
-// MGDTODO: Implement this as a nice iterator
+/** Helper function to get the next vertex in a Numpy array of vertices.
+ *  Will generally be used through the GET_NEXT_VERTEX macro.
+ */
 inline void get_next_vertex(const char* & vertex_i, const char* vertex_end, 
 			    double& x, double& y,
 			    size_t next_vertex_stride, 
@@ -78,12 +97,18 @@ inline void get_next_vertex(const char* & vertex_i, const char* vertex_end,
 
 #define GET_NEXT_VERTEX(x, y) get_next_vertex(vertex_i, vertex_end, x, y, next_vertex_stride, next_axis_stride)
 
+Py::Object BufferRegion::to_string(const Py::Tuple &args) {
+  
+  // owned=true to prevent memory leak
+  return Py::String(PyString_FromStringAndSize((const char*)aggbuf.data,aggbuf.height*aggbuf.stride), true);
+}
+
+
 GCAgg::GCAgg(const Py::Object &gc, double dpi, bool snapto) :
   dpi(dpi), snapto(snapto), isaa(true), linewidth(1.0), alpha(1.0),
   cliprect(NULL), clippath(NULL), 
   Ndash(0), dashOffset(0.0), dasha(NULL)
 {
-  
   _VERBOSE("GCAgg::GCAgg");
   linewidth = points_to_pixels ( gc.getAttr("_linewidth") ) ;
   alpha = Py::Float( gc.getAttr("_alpha") );
@@ -100,7 +125,6 @@ void
 GCAgg::_set_antialiased(const Py::Object& gc) {
   _VERBOSE("GCAgg::antialiased");
   isaa = Py::Int( gc.getAttr( "_antialiased") );
-  
 }
 
 agg::rgba
@@ -123,13 +147,12 @@ GCAgg::points_to_pixels( const Py::Object& points) {
   return p * dpi/72.0;
 }
 
-
 void
 GCAgg::_set_linecap(const Py::Object& gc) {
   _VERBOSE("GCAgg::_set_linecap");
   
   std::string capstyle = Py::String( gc.getAttr( "_capstyle" ) );
-  
+
   if (capstyle=="butt")
     cap = agg::butt_cap;
   else if (capstyle=="round")
@@ -138,7 +161,6 @@ GCAgg::_set_linecap(const Py::Object& gc) {
     cap = agg::square_cap;
   else
     throw Py::ValueError(Printf("GC _capstyle attribute must be one of butt, round, projecting; found %s", capstyle.c_str()).str());
-  
 }
 
 void
@@ -155,7 +177,6 @@ GCAgg::_set_joinstyle(const Py::Object& gc) {
     join = agg::bevel_join;
   else
     throw Py::ValueError(Printf("GC _joinstyle attribute must be one of butt, round, projecting; found %s", joinstyle.c_str()).str());
-  
 }
 
 void
@@ -193,7 +214,7 @@ GCAgg::_set_dashes(const Py::Object& gc) {
   }
 }
 
-
+// MGDTODO: Convert directly from Bbox object (numpy)
 void
 GCAgg::_set_clip_rectangle( const Py::Object& gc) {
   //set the clip rectangle from the gc
@@ -204,7 +225,7 @@ GCAgg::_set_clip_rectangle( const Py::Object& gc) {
   cliprect = NULL;
   
   Py::Object o ( gc.getAttr( "_cliprect" ) );
-  if (o.ptr()==Py_None) {
+  if (o.ptr() == Py_None) {
     return;
   }
   
@@ -229,36 +250,16 @@ GCAgg::_set_clip_path( const Py::Object& gc) {
   
   _VERBOSE("GCAgg::_set_clip_path");
   
-  delete clippath;
+  Py_XINCREF(clippath);
   clippath = NULL;
   
-  Py::Object o  = gc.getAttr( "_clippath" );
+  Py::Object o = gc.getAttr("_clippath");
   if (o.ptr()==Py_None) {
     return;
   }
   
-  agg::path_storage *tmppath;
-  swig_type_info * descr = SWIG_TypeQuery("agg::path_storage *");
-  assert(descr);
-  if (SWIG_ConvertPtr(o.ptr(),(void **)(&tmppath), descr, 0) == -1) {
-    throw Py::TypeError("Could not convert gc path_storage");
-  }
-  
-  tmppath->rewind(0);
-  clippath = new agg::path_storage();
-  clippath->copy_from(*tmppath);
-  clippath->rewind(0);
-  tmppath->rewind(0);
+  clippath = new PathAgg(o);
 }
-
-
-Py::Object BufferRegion::to_string(const Py::Tuple &args) {
-  
-  // owned=true to prevent memory leak
-  return Py::String(PyString_FromStringAndSize((const char*)aggbuf.data,aggbuf.height*aggbuf.stride), true);
-}
-
-
 
 
 const size_t
@@ -311,19 +312,14 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
 
 
 void
-RendererAgg::set_clipbox_rasterizer( double *cliprect) {
+RendererAgg::set_clipbox_rasterizer(double *cliprect) {
   //set the clip rectangle from the gc
   
   _VERBOSE("RendererAgg::set_clipbox_rasterizer");
-  
 
   theRasterizer->reset_clipping();
   rendererBase->reset_clipping(true);
 
-  //if (cliprect==NULL) {
-  //  theRasterizer->reset_clipping();
-  //  rendererBase->reset_clipping(true);
-  //}
   if (cliprect!=NULL) {
     
     double l = cliprect[0] ;
@@ -355,273 +351,10 @@ RendererAgg::_get_rgba_face(const Py::Object& rgbFace, double alpha) {
   
 }
 
-// MGDTODO: Remove this method (it has been conglomerated into draw_path
-template <class VS>
-void
-RendererAgg::_fill_and_stroke(VS& path,
-			      const GCAgg& gc,
-			      const facepair_t& face,
-			      bool curvy) {
-  typedef agg::conv_curve<VS> curve_t;
-  
-  //bool isclippath(gc.clippath!=NULL);
-  //if (isclippath) _process_alpha_mask(gc);  
-
-  if (face.first) {
-    rendererAA->color(face.second);
-    if (curvy) {
-      curve_t curve(path);
-      theRasterizer->add_path(curve);
-    }
-    else
-      theRasterizer->add_path(path);
-    
-    /*
-    if (isclippath) {
-	typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-	typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
-	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
-	amask_ren_type r(pfa);
-	typedef agg::renderer_scanline_aa_solid<amask_ren_type> renderer_type;
-	renderer_type ren(r);
-	ren.color(gc.color);
-	//std::cout << "render clippath" << std::endl;
-	
-	agg::render_scanlines(*theRasterizer, *slineP8, ren);
-      }
-      else {
-	rendererAA->color(gc.color);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-      }
-    */
-    agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-  }
-  
-  //now stroke the edge
-  if (gc.linewidth) {
-    if (curvy) {
-      curve_t curve(path);
-      agg::conv_stroke<curve_t> stroke(curve);
-      stroke.width(gc.linewidth);
-      stroke.line_cap(gc.cap);
-      stroke.line_join(gc.join);
-      theRasterizer->add_path(stroke);
-    }
-    else {
-      agg::conv_stroke<VS> stroke(path);
-      stroke.width(gc.linewidth);
-      stroke.line_cap(gc.cap);
-      stroke.line_join(gc.join);
-      theRasterizer->add_path(stroke);
-    }
-    
-    
-    /*
-    if ( gc.isaa ) {
-      if (isclippath) {
-	typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-	typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
-	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
-	amask_ren_type r(pfa);
-	typedef agg::renderer_scanline_aa_solid<amask_ren_type> renderer_type;
-	renderer_type ren(r);
-	ren.color(gc.color);
-	//std::cout << "render clippath" << std::endl;
-	
-	agg::render_scanlines(*theRasterizer, *slineP8, ren);
-      }
-      else {
-	rendererAA->color(gc.color);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-      }
-    }
-    else {
-      if (isclippath) {
-	typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-	typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
-	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
-	amask_ren_type r(pfa);
-	typedef agg::renderer_scanline_bin_solid<amask_ren_type> renderer_type;
-	renderer_type ren(r);
-	ren.color(gc.color);
-	agg::render_scanlines(*theRasterizer, *slineP8, ren);
-      }
-      else{
-	rendererBin->color(gc.color);
-	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
-      }
-    }
-
-    */
-    
-    if ( gc.isaa ) {
-      rendererAA->color(gc.color);
-      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-    }
-    else {
-      rendererBin->color(gc.color);
-      agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
-    }
-  }
-  
-
-}
-
-Py::Object
-RendererAgg::draw_rectangle(const Py::Tuple & args) {
-  _VERBOSE("RendererAgg::draw_rectangle");
-  args.verify_length(6);
-  
-  
-  GCAgg gc = GCAgg(args[0], dpi);
-  facepair_t face = _get_rgba_face(args[1], gc.alpha);
-  
-  
-  double l = Py::Float( args[2] );
-  double b = Py::Float( args[3] );
-  double w = Py::Float( args[4] );
-  double h = Py::Float( args[5] );
-  
-  b = height - (b+h);
-  double r = l + w;
-  double t = b + h;
-  
-  //snapto pixel centers
-  l = (int)l + 0.5;
-  b = (int)b + 0.5;
-  r = (int)r + 0.5;
-  t = (int)t + 0.5;
-  
-  
-  set_clipbox_rasterizer(gc.cliprect);
-  
-  agg::path_storage path;
-  
-  
-  path.move_to(l, t);
-  path.line_to(r, t);
-  path.line_to(r, b);
-  path.line_to(l, b);
-  path.close_polygon();
-  
-  _fill_and_stroke(path, gc, face, false);
-  
-  return Py::Object();
-  
-}
-
-Py::Object
-RendererAgg::draw_ellipse(const Py::Tuple& args) {
-  _VERBOSE("RendererAgg::draw_ellipse");
-  args.verify_length(7);
-  
-  GCAgg gc = GCAgg(args[0], dpi);
-  facepair_t face = _get_rgba_face(args[1], gc.alpha);
-  
-  double x = Py::Float( args[2] );
-  double y = Py::Float( args[3] );
-  double w = Py::Float( args[4] );
-  double h = Py::Float( args[5] );
-  double rot = Py::Float( args[6] );
-  
-  double r; // rot in radians
-  
-  set_clipbox_rasterizer(gc.cliprect);
-  
-  // Approximate the ellipse with 4 bezier paths
-  agg::path_storage path;
-  if (rot == 0.0) // simple case
-    {
-      path.move_to(x, height-(y+h));
-      path.arc_to(w, h, 0.0, false, true, x+w, height-y);
-      path.arc_to(w, h, 0.0, false, true, x,   height-(y-h));
-      path.arc_to(w, h, 0.0, false, true, x-w, height-y);
-      path.arc_to(w, h, 0.0, false, true, x,   height-(y+h));
-      path.close_polygon();
-    }
-  else // rotate by hand :(
-    {
-      // deg to rad
-      r = rot * (M_PI/180.0);
-      path.move_to(                      x+(cos(r)*w),          height-(y+(sin(r)*w)));
-      path.arc_to(w, h, -r, false, true, x+(cos(r+M_PI_2*3)*h), height-(y+(sin(r+M_PI_2*3)*h)));
-      path.arc_to(w, h, -r, false, true, x+(cos(r+M_PI)*w),     height-(y+(sin(r+M_PI)*w)));
-      path.arc_to(w, h, -r, false, true, x+(cos(r+M_PI_2)*h),   height-(y+(sin(r+M_PI_2)*h)));
-      path.arc_to(w, h, -r, false, true, x+(cos(r)*w),          height-(y+(sin(r)*w)));
-      path.close_polygon();
-    }
-  
-  _fill_and_stroke(path, gc, face);
-  return Py::Object();
-  
-}
-
-Py::Object
-RendererAgg::draw_polygon(const Py::Tuple& args) {
-  _VERBOSE("RendererAgg::draw_polygon");
-  
-  args.verify_length(3);
-  
-  GCAgg gc = GCAgg(args[0], dpi);
-  facepair_t face = _get_rgba_face(args[1], gc.alpha);
-  
-  Py::SeqBase<Py::Object> points( args[2] );
-  
-  set_clipbox_rasterizer(gc.cliprect);
-  
-  size_t Npoints = points.length();
-  if (Npoints<=0)
-    return Py::Object();
-  
-  
-  // dump the x.y vertices into a double array for faster look ahead
-  // and behind access
-  double *xs = new double[Npoints];
-  double *ys = new double[Npoints];
-  
-  for (size_t i=0; i<Npoints; i++) {
-    Py::SeqBase<Py::Object> xy(points[i]);
-    xy = Py::Tuple(points[i]);
-    xs[i] = Py::Float(xy[0]);
-    ys[i] = Py::Float(xy[1]);
-    ys[i] = height - ys[i];
-  }
-  
-  
-  
-  agg::path_storage path;
-  for (size_t j=0; j<Npoints; j++) {
-    
-    double x = xs[j];
-    double y = ys[j];
-    
-    //snapto pixel centers
-    x = (int)x + 0.5;
-    y = (int)y + 0.5;
-    
-    if (j==0) path.move_to(x,y);
-    else path.line_to(x,y);
-  }
-  path.close_polygon();
-  
-  _fill_and_stroke(path, gc, face, false);
-  
-  delete [] xs;
-  delete [] ys;
-  
-  _VERBOSE("RendererAgg::draw_polygon DONE");
-  return Py::Object();
-  
-}
-
-
-
 SnapData
 SafeSnap::snap (const float& x, const float& y) {
   xsnap = (int)x + 0.5;
   ysnap = (int)y + 0.5;
-
-
   
   if ( first || ( (xsnap!=lastxsnap) || (ysnap!=lastysnap) ) ) {
     lastxsnap = xsnap;
@@ -690,9 +423,6 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
   rb.copy_from(*renderingBuffer, &r, -r.x1, -r.y1);
   BufferRegion* reg = new BufferRegion(buf, r, true);
   return Py::asObject(reg);
-  
-  
-  
 }
 
 Py::Object
@@ -715,23 +445,18 @@ RendererAgg::restore_region(const Py::Tuple& args) {
   rendererBase->copy_from(rbuf, 0, region->rect.x1, region->rect.y1);
   
   return Py::Object();
-  
-  
-  
 }
 
-
+/**
+ * Helper function to convert a Python Bbox object to an agg rectangle
+ */
 template<class T>
 agg::rect_base<T>
 RendererAgg::bbox_to_rect(const Py::Object& o) {
   //return the agg::rect for bbox, flipping y
   PyArrayObject *bbox = (PyArrayObject *) PyArray_ContiguousFromObject(o.ptr(), PyArray_DOUBLE, 2, 2);
 
-  if (!bbox)
-    throw Py::TypeError
-      ("Expected a Bbox object.");
-  
-  if (bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2)
+  if (!bbox || bbox->nd != 2 bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2)
     throw Py::TypeError
       ("Expected a Bbox object.");
 
@@ -805,467 +530,6 @@ int RendererAgg::inPolygon(int row, const double xs[4], const double ys[4], int 
   return numIntersect;
 }
 
-void RendererAgg::DrawQuadMesh(int meshWidth, int meshHeight, const agg::rgba8 colorArray[], const double xCoords[], const double yCoords[])
-{
-  /* draw each quadrilateral */
-  //	agg::renderer_primitives<agg::renderer_base<agg::pixfmt_rgba32> > lineRen(*rendererBase);
-  int i = 0;
-  int j = 0;
-  int k = 0;
-  double xs[4];
-  double ys[4];
-  int col[4];
-  int numCol;
-  double ymin;
-  int firstRow;
-  double ymax;
-  int lastRow;
-  for(i=0; i < meshHeight; i++)
-    {
-      for(j=0; j < meshWidth; j++)
-	{
-	  //currTime = clock();
-	  xs[0] = xCoords[(i * (meshWidth + 1)) + j];
-	  ys[0] = yCoords[(i * (meshWidth + 1)) + j];
-	  xs[1] = xCoords[(i * (meshWidth + 1)) + j+1];
-	  ys[1] = yCoords[(i * (meshWidth + 1)) + j+1];
-	  xs[3] = xCoords[((i+1) * (meshWidth + 1)) + j];
-	  ys[3] = yCoords[((i+1) * (meshWidth + 1)) + j];
-	  xs[2] = xCoords[((i+1) * (meshWidth + 1)) + j+1];
-	  ys[2] = yCoords[((i+1) * (meshWidth + 1)) + j+1];
-	  ymin = std::min(std::min(std::min(ys[0], ys[1]), ys[2]), ys[3]);
-	  ymax = std::max(std::max(std::max(ys[0], ys[1]), ys[2]), ys[3]);
-	  firstRow = (int)(ymin);
-	  lastRow = (int)(ymax);
-	  //timer1 += (clock() - currTime);
-	  //currTime = clock();
-	  //timer2 += (clock() - currTime);
-	  //currTime = clock();
-	  for(k = firstRow; k <= lastRow; k++)
-	    {
-	      numCol = inPolygon(k, xs, ys, col);
-	      if (numCol >= 2) rendererBase->copy_hline(col[0], k, col[1] - 1, colorArray[(i * meshWidth) + j]);
-	      if (numCol == 4) rendererBase->copy_hline(col[2], k, col[3] - 1, colorArray[(i * meshWidth) + j]);
-	    }
-	}
-    }
-  return;
-}
-
-void RendererAgg::DrawQuadMeshEdges(int meshWidth, int meshHeight, const agg::rgba8 colorArray[], const double xCoords[], const double yCoords[])
-{
-  int i, j;
-  agg::renderer_primitives<agg::renderer_base<agg::pixfmt_rgba32> > lineRen(*rendererBase);
-  agg::rgba8 lc(0, 0, 0, 32);
-  lineRen.line_color(lc);
-  /* show the vertical edges */
-  for(i=0; i <= meshWidth; i++)
-    {
-      lineRen.move_to((int)(256.0 * (xCoords[i])), (int)(256.0 * (yCoords[i])));
-      for(j=1; j <= meshHeight; j++)
-	lineRen.line_to((int)(256.0 *(xCoords[(j * (meshWidth + 1))+i])), (int)(256.0 * (yCoords[(j * (meshWidth + 1))+i])));
-    }
-  /* show the horizontal edges */
-  for(i=0; i <= meshHeight; i++)
-    {
-      lineRen.move_to((int)(256.0 * (xCoords[i * (meshWidth + 1)])), (int)(256.0 * (yCoords[i * (meshWidth + 1)])));
-      for(j=1; j <= meshWidth; j++)
-	lineRen.line_to((int)(256.0 * (xCoords[(i * (meshWidth + 1))+j])), (int)(256.0 * (yCoords[(i * (meshWidth + 1))+j])));
-    }
-}
-
-
-
-Py::Object
-RendererAgg::draw_lines(const Py::Tuple& args) {
-  
- _VERBOSE("RendererAgg::draw_lines");
-  args.verify_length(4);
-
-  Py::Object xo = args[1];
-  Py::Object yo = args[2];
-
-  PyArrayObject *xa = (PyArrayObject *) PyArray_ContiguousFromObject(xo.ptr(), PyArray_DOUBLE, 1, 1);
-
-  if (xa==NULL)
-    throw Py::TypeError("RendererAgg::draw_lines expected numerix array");
-
-
-  PyArrayObject *ya = (PyArrayObject *) PyArray_ContiguousFromObject(yo.ptr(), PyArray_DOUBLE, 1, 1);
-
-  if (ya==NULL)
-    throw Py::TypeError("RendererAgg::draw_lines expected numerix array");
-
-
-  size_t Nx = xa->dimensions[0];
-  size_t Ny = ya->dimensions[0];
-
-  if (Nx!=Ny)
-    throw Py::ValueError(Printf("x and y must be equal length arrays; found %d and %d", Nx, Ny).str());
-
-  // call gc with snapto==True if line len is 2 to fix grid line
-  // problem
-  bool snapto = false;
-  if (Nx==2) {
-    // disable subpiel rendering for len(2) horizontal or vertical
-    // lines
-    double x0 = *(double *)(xa->data + 0*xa->strides[0]);
-    double x1 = *(double *)(xa->data + 1*xa->strides[0]);
-    double y0 = *(double *)(ya->data + 0*ya->strides[0]);
-    double y1 = *(double *)(ya->data + 1*ya->strides[0]);
-    snapto = (x0==x1) || (y0==y1);
-
-  }
-  GCAgg gc = GCAgg(args[0], dpi, snapto);
-
-  set_clipbox_rasterizer(gc.cliprect);
-  //path_t transpath(path, xytrans);
-  _process_alpha_mask(gc);
-
-  agg::trans_affine xytrans = py_sequence_to_agg_transformation_matrix(args[3]);
-
-  agg::path_storage path;
-
-  // MGDTODO
-  bool needNonlinear = false;
-  // mpltransform->need_nonlinear_api();
-
-  double thisx(0.0), thisy(0.0);
-  double origdx(0.0), origdy(0.0), origdNorm2(0);
-  bool moveto = true;
-  double heightd = height;
-
-  double lastx(0), lasty(0);
-  double lastWrittenx(0), lastWritteny(0);
-  bool clipped = false;
-  
-  bool haveMin = false, lastMax = true;
-  double dnorm2Min(0), dnorm2Max(0);
-  double maxX(0), maxY(0), minX(0), minY(0);
-  
-  double totdx, totdy, totdot;
-  double paradx, parady, paradNorm2;
-  double perpdx, perpdy, perpdNorm2;
-  
-  int counter = 0;
-  //idea: we can skip drawing many lines: lines < 1 pixel in length, lines 
-  //outside of the drawing area, and we can combine sequential parallel lines
-  //into a single line instead of redrawing lines over the same points.
-  //The loop below works a bit like a state machine, where what it does depends 
-  //on what it did in the last looping. To test whether sequential lines
-  //are close to parallel, I calculate the distance moved perpendicular to the
-  //last line. Once it gets too big, the lines cannot be combined.
-  for (size_t i=0; i<Nx; i++) {
-
-    thisx = *(double *)(xa->data + i*xa->strides[0]);
-    thisy = *(double *)(ya->data + i*ya->strides[0]);
-
-    if (needNonlinear)
-      try {
-	// MGDTODO
-        // mpltransform->nonlinear_only_api(&thisx, &thisy);
-      }
-      catch (...) {
-        moveto = true;
-        continue;
-      }
-      if (MPL_isnan64(thisx) || MPL_isnan64(thisy)) {
-        moveto = true;
-        continue;
-      }
-   
-    //use agg's transformer?
-    xytrans.transform(&thisx, &thisy);
-    thisy = heightd - thisy; //flipy
-    
-    if (snapto) {
-      //disable subpixel rendering for horizontal or vertical lines of len=2
-      //because it causes irregular line widths for grids and ticks
-      thisx = (int)thisx + 0.5;
-      thisy = (int)thisy + 0.5;
-    }
-    
-    //if we are starting a new path segment, move to the first point + init
-    if(moveto){
-      path.move_to(thisx, thisy);
-      lastx = thisx;
-      lasty = thisy;
-      origdNorm2 = 0; //resets the orig-vector variables (see if-statement below)
-      moveto = false;
-      continue;
-    }
-
-    //don't render line segments less that on pixel long!
-    if (fabs(thisx-lastx) < 1.0 && fabs(thisy-lasty) < 1.0 ){
-      continue; //don't update lastx this time!
-    }
-    
-    //skip any lines that are outside the drawing area. Note: More lines
-    //could be clipped, but a more involved calculation would be needed
-    if( (thisx < 0      && lastx < 0     ) ||
-        (thisx > width  && lastx > width ) ||
-        (thisy < 0      && lasty < 0     ) ||
-        (thisy > height && lasty > height) ){
-      lastx = thisx;
-      lasty = thisy;
-      clipped = true;      
-      continue;
-    }
-    
-    //if we have no orig vector, set it to this vector and continue.
-    //this orig vector is the reference vector we will build up the line to
-    if(origdNorm2 == 0){
-      //if we clipped after the moveto but before we got here, redo the moveto
-      if(clipped){
-        path.move_to(lastx, lasty);
-        clipped = false;
-      }
-      
-      origdx = thisx - lastx;
-      origdy = thisy - lasty;
-      origdNorm2 = origdx*origdx + origdy*origdy;
-      
-      //set all the variables to reflect this new orig vecor
-      dnorm2Max = origdNorm2;
-      dnorm2Min = 0;
-      haveMin = false;
-      lastMax = true;
-      maxX = thisx;
-      maxY = thisy;
-      minX = lastx; 
-      minY = lasty;      
-      
-      lastWrittenx = lastx;
-      lastWritteny = lasty;  
-      
-      //set the last point seen
-      lastx = thisx;
-      lasty = thisy;      
-      continue;
-    }
-    
-    //if got to here, then we have an orig vector and we just got 
-    //a vector in the sequence.
-    
-    //check that the perpendicular distance we have moved from the
-    //last written point compared to the line we are building is not too 
-    //much. If o is the orig vector (we are building on), and v is the vector 
-    //from the last written point to the current point, then the perpendicular 
-    //vector is  p = v - (o.v)o,  and we normalize o  (by dividing the 
-    //second term by o.o).  
-    
-    //get the v vector
-    totdx = thisx - lastWrittenx;
-    totdy = thisy - lastWritteny;
-    totdot = origdx*totdx + origdy*totdy;
-    
-    //get the para vector ( = (o.v)o/(o.o) )
-    paradx = totdot*origdx/origdNorm2;
-    parady = totdot*origdy/origdNorm2;
-    paradNorm2 = paradx*paradx + parady*parady;
-    
-    //get the perp vector ( = v - para )
-    perpdx = totdx - paradx;
-    perpdy = totdy - parady;      
-    perpdNorm2 = perpdx*perpdx + perpdy*perpdy;  
-    
-    //if the perp vector is less than some number of (squared) pixels in size,
-    //then merge the current vector
-    if(perpdNorm2 < 0.25 ){
-      //check if the current vector is parallel or
-      //anti-parallel to the orig vector. If it is parallel, test
-      //if it is the longest of the vectors we are merging in that direction. 
-      //If anti-p, test if it is the longest in the opposite direction (the 
-      //min of our final line)
-      
-      lastMax = false;
-      if(totdot >= 0){
-        if(paradNorm2 > dnorm2Max){
-          lastMax = true;
-          dnorm2Max = paradNorm2;
-          maxX = lastWrittenx + paradx;
-          maxY = lastWritteny + parady;
-        }
-      }
-      else{
-      
-        haveMin = true;
-        if(paradNorm2 > dnorm2Min){
-          dnorm2Min = paradNorm2;
-          minX = lastWrittenx + paradx;
-          minY = lastWritteny + parady;
-        }
-      }
-      
-      lastx = thisx;
-      lasty = thisy;
-      continue;
-    }
-    
-    //if we get here, then this vector was not similar enough to the line
-    //we are building, so we need to draw that line and start the next one.
-    
-    //if the line needs to extend in the opposite direction from the direction
-    //we are drawing in, move back to we start drawing from back there.
-    if(haveMin){
-      path.line_to(minX, minY); //would be move_to if not for artifacts
-    }
-    
-    path.line_to(maxX, maxY);
-    
-    //if we clipped some segments between this line and the next line
-    //we are starting, we also need to move to the last point.
-    if(clipped){
-      path.move_to(lastx, lasty);
-    }
-    else if(!lastMax){
-    	//if the last line was not the longest line, then move back to the end 
-      //point of the last line in the sequence. Only do this if not clipped,
-      //since in that case lastx,lasty is not part of the line just drawn.
-      path.line_to(lastx, lasty); //would be move_to if not for artifacts
-    }       
-
-    //std::cout << "draw lines (" << lastx << ", " << lasty << ")" << std::endl;
-
-    //now reset all the variables to get ready for the next line
-    
-    origdx = thisx - lastx;
-    origdy = thisy - lasty;
-    origdNorm2 = origdx*origdx + origdy*origdy;
-    
-    dnorm2Max = origdNorm2;
-    dnorm2Min = 0;
-    haveMin = false;
-    lastMax = true;
-    maxX = thisx;
-    maxY = thisy;
-    minX = lastx; 
-    minY = lasty;
-    
-    lastWrittenx = lastx;
-    lastWritteny = lasty;  
-    
-    clipped = false;
-    
-    lastx = thisx;
-    lasty = thisy;
-    
-    counter++;
-  }
-
-  //draw the last line, which is usually not drawn in the loop
-  if(origdNorm2 != 0){
-    if(haveMin){
-      path.line_to(minX, minY); //would be move_to if not for artifacts
-    }  
-    
-    path.line_to(maxX, maxY);
-  }
-    
-  //std::cout << "drew " << counter+1 << " lines" << std::endl;
-
-  Py_XDECREF(xa);
-  Py_XDECREF(ya);
-
-  //typedef agg::conv_transform<agg::path_storage, agg::trans_affine> path_t;
-  //path_t transpath(path, xytrans);
-  _VERBOSE("RendererAgg::draw_lines rendering lines path");
-  _render_lines_path(path, gc);
-
-  _VERBOSE("RendererAgg::draw_lines DONE");
-  return Py::Object();
-
-}
-
-bool 
-RendererAgg::_process_alpha_mask(const GCAgg& gc)
-  //if gc has a clippath set, process the alpha mask and return True,
-  //else return False
-{
-  if (gc.clippath==NULL) {
-    return false;
-  }
-  if (0 &(gc.clippath==lastclippath)) {
-    //std::cout << "seen it" << std::endl;
-    return true;
-  }
-  rendererBaseAlphaMask->clear(agg::gray8(0, 0));
-  gc.clippath->rewind(0);
-  theRasterizer->add_path(*(gc.clippath));
-  rendererAlphaMask->color(agg::gray8(255,255));
-  agg::render_scanlines(*theRasterizer, *scanlineAlphaMask, *rendererAlphaMask);
-  lastclippath = gc.clippath;
-  return true;
-}
-
-template<class PathSource>
-void
-RendererAgg::_render_lines_path(PathSource &path, const GCAgg& gc) {
-  _VERBOSE("RendererAgg::_render_lines_path");
-  typedef PathSource path_t;
-  //typedef agg::conv_transform<agg::path_storage, agg::trans_affine> path_t;
-  typedef agg::conv_stroke<path_t> stroke_t;
-  typedef agg::conv_dash<path_t> dash_t;
-  
-  bool isclippath(gc.clippath!=NULL);
-  
-  if (gc.dasha==NULL ) { //no dashes
-    stroke_t stroke(path);
-    stroke.width(gc.linewidth);
-    stroke.line_cap(gc.cap);
-    stroke.line_join(gc.join);
-    theRasterizer->add_path(stroke);
-  }
-  else {
-    dash_t dash(path);
-    
-    //todo: dash.dash_start(gc.dashOffset);
-    for (size_t i=0; i<gc.Ndash/2; i+=1)
-      dash.add_dash(gc.dasha[2*i], gc.dasha[2*i+1]);
-    
-    agg::conv_stroke<dash_t> stroke(dash);
-    stroke.line_cap(gc.cap);
-    stroke.line_join(gc.join);
-    stroke.width(gc.linewidth);
-    theRasterizer->add_path(stroke); //boyle freeze is herre
-  }
-  
-  
-  if ( gc.isaa ) {
-    if (isclippath) {
-      typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-      typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
-      pixfmt_amask_type pfa(*pixFmt, *alphaMask);
-      amask_ren_type r(pfa);
-      typedef agg::renderer_scanline_aa_solid<amask_ren_type> renderer_type;
-      renderer_type ren(r);
-      ren.color(gc.color);
-      //std::cout << "render clippath" << std::endl;
-      
-      agg::render_scanlines(*theRasterizer, *slineP8, ren);
-    }
-    else {
-      rendererAA->color(gc.color);
-      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-    }
-  }
-  else {
-    if (isclippath) {
-      typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-      typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
-      pixfmt_amask_type pfa(*pixFmt, *alphaMask);
-      amask_ren_type r(pfa);
-      typedef agg::renderer_scanline_bin_solid<amask_ren_type> renderer_type;
-      renderer_type ren(r);
-      ren.color(gc.color);
-      agg::render_scanlines(*theRasterizer, *slineP8, ren);
-    }
-    else{
-      rendererBin->color(gc.color);
-      agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
-    }
-  }
-}
 
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
@@ -1284,10 +548,10 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   if (!PathAgg::check(marker_path_obj))
     throw Py::TypeError("Native path object is not of correct type");
   PathAgg* marker_path = static_cast<PathAgg*>(marker_path_obj.ptr());
-  agg::trans_affine marker_trans = py_sequence_to_agg_transformation_matrix(args[2]);
+  agg::trans_affine marker_trans = py_to_agg_transformation_matrix(args[2]);
   Py::Object vertices_obj = args[3];
   Py::Object codes_obj = args[4];
-  agg::trans_affine trans = py_sequence_to_agg_transformation_matrix(args[5]);
+  agg::trans_affine trans = py_to_agg_transformation_matrix(args[5]);
   facepair_t face = _get_rgba_face(args[6], gc.alpha);
 
   // Deal with the difference in y-axis direction
@@ -1337,7 +601,8 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     unsigned strokeSize = scanlines.byte_size();
     strokeCache = new agg::int8u[strokeSize]; // or any container
     scanlines.serialize(strokeCache);
-  
+
+    // MGDTODO: Clean this up and support clippaths as well
     theRasterizer->reset_clipping();
     if (gc.cliprect==NULL) {
       rendererBase->reset_clipping(true);
@@ -1557,14 +822,20 @@ RendererAgg::draw_image(const Py::Tuple& args) {
 Py::Object
 RendererAgg::convert_to_native_path(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_image");
-  args.verify_length(2);
+  args.verify_length(1);
   
-  Py::Object vertices_obj = args[0];
-  Py::Object codes_obj = args[1];
+  Py::Object path = args[0];
+
+  return Py::asObject(new PathAgg(path));
+}
+
+  
+PathAgg::PathAgg(const Py::Object& path_obj) : curvy(false) {
+  Py::Object vertices_obj = path_obj.getAttr("vertices");
+  Py::Object codes_obj = path_obj.getAttr("codes");
   
   PyArrayObject* vertices = NULL;
   PyArrayObject* codes = NULL;
-  PathAgg* path = NULL; 
 
   try {
     vertices = (PyArrayObject*)PyArray_ContiguousFromObject
@@ -1575,8 +846,6 @@ RendererAgg::convert_to_native_path(const Py::Tuple& args) {
       (codes_obj.ptr(), PyArray_UINT8, 1, 1);
     if (!codes) 
       throw Py::ValueError("Invalid codes array.");
-
-    path = new PathAgg();
 
     size_t next_vertex_stride = vertices->strides[0];
     size_t next_axis_stride = vertices->strides[1];
@@ -1593,31 +862,31 @@ RendererAgg::convert_to_native_path(const Py::Tuple& args) {
       switch (*(unsigned char*)(code_i)) {
       case MOVETO:
 	GET_NEXT_VERTEX(x0, y0);
-	path->move_to(x0, y0);
+	move_to(x0, y0);
 	_VERBOSE("MOVETO");
 	break;
       case LINETO:
 	GET_NEXT_VERTEX(x0, y0);
-	path->line_to(x0, y0);
+	line_to(x0, y0);
 	_VERBOSE("LINETO");
 	break;
       case CURVE3:
 	GET_NEXT_VERTEX(x0, y0);
 	GET_NEXT_VERTEX(x1, y1);
-	path->curve3(x0, y0, x1, y1);
-	path->curvy = true;
+	curve3(x0, y0, x1, y1);
+	curvy = true;
 	_VERBOSE("CURVE3");
 	break;
       case CURVE4:
 	GET_NEXT_VERTEX(x0, y0);
 	GET_NEXT_VERTEX(x1, y1);
 	GET_NEXT_VERTEX(x2, y2);
-	path->curve4(x0, y0, x1, y1, x2, y2);
-	path->curvy = true;
+	curve4(x0, y0, x1, y1, x2, y2);
+	curvy = true;
 	_VERBOSE("CURVE4");
 	break;
       case CLOSEPOLY:
-	path->close_polygon();
+	close_polygon();
 	_VERBOSE("CLOSEPOLY");
 	break;
       }
@@ -1626,14 +895,11 @@ RendererAgg::convert_to_native_path(const Py::Tuple& args) {
   } catch(...) {
     Py_XDECREF(vertices);
     Py_XDECREF(codes);
-    delete path;
     throw;
   }
 
   Py_XDECREF(vertices);
   Py_XDECREF(codes);
-  
-  return Py::asObject(path);
 }
 
 Py::Object
@@ -1643,7 +909,11 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   typedef agg::conv_stroke<curve_t> stroke_t;
   typedef agg::conv_dash<curve_t> dash_t;
   typedef agg::conv_stroke<dash_t> stroke_dash_t;
-  //draw_path(gc, rgbFace, path, transform)
+  typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
+  typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
+  typedef agg::renderer_scanline_aa_solid<amask_ren_type> amask_aa_renderer_type;
+  typedef agg::renderer_scanline_bin_solid<amask_ren_type> amask_bin_renderer_type;
+
   theRasterizer->reset_clipping();
   
   _VERBOSE("RendererAgg::draw_path");
@@ -1654,52 +924,118 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   if (!PathAgg::check(path_obj))
     throw Py::TypeError("Native path object is not of correct type");
   PathAgg* path = static_cast<PathAgg*>(path_obj.ptr());
-  agg::trans_affine trans = py_sequence_to_agg_transformation_matrix(args[2]);
+  agg::trans_affine trans = py_to_agg_transformation_matrix(args[2]);
   facepair_t face = _get_rgba_face(args[3], gc.alpha);
 
   trans *= agg::trans_affine_scaling(1.0, -1.0);
   trans *= agg::trans_affine_translation(0.0, (double)height);
 
-  transformed_path_t tpath(*path, trans);
-  // MGDTODO: See if there is any advantage to only curving if necessary
-  curve_t curve(tpath);
+  transformed_path_t* tpath = NULL;
+  agg::path_storage new_path;
 
-  set_clipbox_rasterizer(gc.cliprect);
-  
-  if (face.first) {
-    rendererAA->color(face.second);
-    theRasterizer->add_path(curve);
-    agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+  bool has_clippath = (gc.clippath != NULL);
+
+  if (has_clippath && (gc.clippath != lastclippath || trans != lastclippath_transform)) {
+    rendererBaseAlphaMask->clear(agg::gray8(0, 0));
+    gc.clippath->rewind(0);
+    transformed_path_t transformed_clippath(*(gc.clippath), trans);
+    theRasterizer->add_path(transformed_clippath);
+    rendererAlphaMask->color(agg::gray8(255, 255));
+    agg::render_scanlines(*theRasterizer, *scanlineAlphaMask, *rendererAlphaMask);
+    lastclippath = gc.clippath;
+    lastclippath_transform = trans;
   }
 
-  if (gc.linewidth) {
-    if (gc.dasha == NULL) {
-      stroke_t stroke(curve);
-      stroke.width(gc.linewidth);
-      stroke.line_cap(gc.cap);
-      stroke.line_join(gc.join);
-      theRasterizer->add_path(stroke);
-    } else {
-      dash_t dash(curve);
-      for (size_t i = 0; i < (gc.Ndash / 2); ++i)
-	dash.add_dash(gc.dasha[2 * i], gc.dasha[2 * i + 1]);
-      stroke_dash_t stroke(dash);
-      stroke.line_cap(gc.cap);
-      stroke.line_join(gc.join);
-      stroke.width(gc.linewidth);
-      theRasterizer->add_path(stroke); //boyle freeze is herre
+  try {
+    // If this is a straight horizontal or vertical line, quantize to nearest 
+    // pixels
+    if (path->total_vertices() == 2) {
+      double x0, y0, x1, y1;
+      path->vertex(0, &x0, &y0);
+      trans.transform(&x0, &y0);
+      path->vertex(1, &x1, &y1);
+      trans.transform(&x1, &y1);
+      if (((int)x0 == (int)x1) || ((int)y0 == (int)y1)) {
+	new_path.move_to((int)x0 + 0.5, (int)y0 + 0.5);
+	new_path.line_to((int)x1 + 0.5, (int)y1 + 0.5);
+	tpath = new transformed_path_t(new_path, agg::trans_affine());
+      }
+    }
+
+    if (!tpath) {
+      tpath = new transformed_path_t(*path, trans);
+    }
+
+    // Benchmarking shows that there is no noticable slowdown to always
+    // treating paths as having curved segments.  Doing so greatly 
+    // simplifies the code
+    curve_t curve(*tpath);
+    
+    set_clipbox_rasterizer(gc.cliprect);
+    
+    if (face.first) {
+      if (has_clippath) {
+	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	amask_ren_type r(pfa);
+	amask_aa_renderer_type ren(r);
+	ren.color(gc.color);
+	agg::render_scanlines(*theRasterizer, *slineP8, ren);
+      } else{
+	rendererAA->color(face.second);
+	theRasterizer->add_path(curve);
+	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+      }
     }
     
-    if ( gc.isaa ) {
-      rendererAA->color(gc.color);
-      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+    if (gc.linewidth) {
+      if (gc.dasha == NULL) {
+	stroke_t stroke(curve);
+	stroke.width(gc.linewidth);
+	stroke.line_cap(gc.cap);
+	stroke.line_join(gc.join);
+	theRasterizer->add_path(stroke);
+      } else {
+ 	dash_t dash(curve);
+	for (size_t i = 0; i < (gc.Ndash / 2); ++i)
+	dash.add_dash(gc.dasha[2 * i], gc.dasha[2 * i + 1]);
+	stroke_dash_t stroke(dash);
+	stroke.line_cap(gc.cap);
+	stroke.line_join(gc.join);
+	stroke.width(gc.linewidth);
+	theRasterizer->add_path(stroke);
+      }
+    
+      if (gc.isaa) {
+	if (has_clippath) {
+	  pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	  amask_ren_type r(pfa);
+	  amask_aa_renderer_type ren(r);
+	  ren.color(gc.color);
+	  agg::render_scanlines(*theRasterizer, *slineP8, ren);
+	} else {
+	  rendererAA->color(gc.color);
+	  agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+	}
+      } else {
+	if (has_clippath) {
+	  pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	  amask_ren_type r(pfa);
+	  amask_bin_renderer_type ren(r);
+	  ren.color(gc.color);
+	  agg::render_scanlines(*theRasterizer, *slineP8, ren);
+	} else {
+	  rendererBin->color(gc.color);
+	  agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+	}
+      }
     }
-    else {
-      rendererBin->color(gc.color);
-      agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
-    }
+  } catch (...) {
+    delete tpath;
+    throw;
   }
   
+  delete tpath;
+
   return Py::Object();
 }
 
@@ -2033,18 +1369,10 @@ void RendererAgg::init_type()
   behaviors().name("RendererAgg");
   behaviors().doc("The agg backend extension module");
   
-  add_varargs_method("draw_rectangle", &RendererAgg::draw_rectangle,
-		     "draw_rectangle(gc, rgbFace, l, b, w, h)\n");
-  add_varargs_method("draw_ellipse", &RendererAgg::draw_ellipse,
-		     "draw_ellipse(gc, rgbFace, x, y, w, h)\n");
-  add_varargs_method("draw_polygon", &RendererAgg::draw_polygon,
-		     "draw_polygon(gc, rgbFace, points)\n");
   add_varargs_method("draw_path", &RendererAgg::draw_path,
 		     "draw_path(gc, rgbFace, native_path, transform)\n");
   add_varargs_method("convert_to_native_path", &RendererAgg::convert_to_native_path,
 		     "convert_to_native_path(vertices, codes)\n");
-  add_varargs_method("draw_lines", &RendererAgg::draw_lines,
-		     "draw_lines(gc, x, y,)\n");
   add_varargs_method("draw_markers", &RendererAgg::draw_markers,
 		     "draw_markers(gc, marker_path, marker_trans, vertices, codes, rgbFace)\n");
   add_varargs_method("draw_text_image", &RendererAgg::draw_text_image,

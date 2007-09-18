@@ -83,7 +83,6 @@ private:
   float xsnap, lastx, lastxsnap, ysnap, lasty, lastysnap;
 };
 
-
 // a helper class to pass agg::buffer objects around.  agg::buffer is
 // a class in the swig wrapper
 class BufferRegion : public Py::PythonExtension<BufferRegion> {
@@ -106,6 +105,20 @@ public:
   };
 };
 
+// A completely opaque data type used only to pass native path
+// data to/from Python.  Python can't do anything with the data
+// other than create and then use it.
+class PathAgg : 
+  public agg::path_storage, 
+  public Py::PythonExtension<PathAgg> {
+public:
+  static void init_type(void);
+
+  PathAgg(const Py::Object& path_obj);
+
+  bool curvy;
+};
+
 class GCAgg {
 public:
   GCAgg(const Py::Object& gc, double dpi, bool snapto=false);
@@ -113,7 +126,7 @@ public:
   ~GCAgg() {
     delete [] dasha;
     delete [] cliprect;
-    delete clippath;
+    Py_XINCREF(clippath);
   }
 
   double dpi;
@@ -129,7 +142,7 @@ public:
   agg::rgba color;
 
   double *cliprect;
-  agg::path_storage *clippath;
+  PathAgg *clippath;
   //dashes
   size_t Ndash;
   double dashOffset;
@@ -164,10 +177,6 @@ public:
   unsigned int get_width() { return width;}
   unsigned int get_height() { return height;}
   // the drawing methods
-  Py::Object draw_rectangle(const Py::Tuple & args);
-  Py::Object draw_ellipse(const Py::Tuple & args);
-  Py::Object draw_polygon(const Py::Tuple & args);
-  Py::Object draw_lines(const Py::Tuple & args);
   //Py::Object _draw_markers_nocache(const Py::Tuple & args);
   //Py::Object _draw_markers_cache(const Py::Tuple & args);
   Py::Object draw_markers(const Py::Tuple & args);
@@ -223,37 +232,16 @@ protected:
   agg::rect_base<T> bbox_to_rect( const Py::Object& o);
   double points_to_pixels( const Py::Object& points);
   double points_to_pixels_snapto( const Py::Object& points);
-  void DrawQuadMesh(int, int, const agg::rgba8[], const double[], const double[]);
-  void DrawQuadMeshEdges(int, int, const agg::rgba8[], const double[], const double[]);
   int intersectCheck(double, double, double, double, double, int*);
   int inPolygon(int, const double[4], const double[4], int[4]);
   void set_clip_from_bbox(const Py::Object& o);
   agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
   void set_clipbox_rasterizer( double *cliprect);
-  bool _process_alpha_mask(const GCAgg& gc);
-  template <class VS> void _fill_and_stroke(VS&, const GCAgg&, const facepair_t&, bool curvy=true);
-
-  template<class PathSource>
-  void _render_lines_path(PathSource &ps, const GCAgg& gc);
 
 private:
-  agg::path_storage *lastclippath;
-};
-
-// A completely opaque data type used only to pass native path
-// data to/from Python.  Python can't do anything with the data
-// other than create and then use it.
-class PathAgg : 
-  public agg::path_storage, 
-  public Py::PythonExtension<PathAgg> {
-
-public:
-  PathAgg() : curvy(false) {}
-
-  static void init_type(void);
-
-  bool curvy;
+  PathAgg *lastclippath;
+  agg::trans_affine lastclippath_transform;
 };
 
 
@@ -264,8 +252,6 @@ public:
   _backend_agg_module()
     : Py::ExtensionModule<_backend_agg_module>( "_backend_agg" )
   {
-
-    BufferRegion::init_type();
     RendererAgg::init_type();
     PathAgg::init_type();
 
