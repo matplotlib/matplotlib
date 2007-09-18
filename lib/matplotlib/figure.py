@@ -161,10 +161,8 @@ class Figure(Artist):
     def _get_dpi(self):
 	return self._dpi
     def _set_dpi(self, dpi):
-	print "setting dpi"
 	self._dpi = dpi
 	self._dpi_scale_trans.clear().scale(dpi, dpi)
-	print self._dpi_scale_trans
     dpi = property(_get_dpi, _set_dpi)
 	
     def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right'):
@@ -178,10 +176,7 @@ class Figure(Artist):
         bottom : the bottom of the subplots for subplots_adjust
         rotation: the rotation of the xtick labels
         ha : the horizontal alignment of the xticklabels
-
-
         """
-
         for ax in self.get_axes():
             if not hasattr(ax, 'is_last_row'):
                 raise RuntimeError('Axes must be subplot instances; found %s'%type(ax))
@@ -333,11 +328,8 @@ class Figure(Artist):
 
 	dpival = self.dpi
 	self.bbox_inches.max = w, h
-        # self.figwidth.set(w) MGDTODO
-        # self.figheight.set(h)
 	
         if forward:
-            # dpival = self.dpi.get()
             dpival = self.dpi
             canvasw = w*dpival
             canvash = h*dpival
@@ -347,7 +339,6 @@ class Figure(Artist):
 
     def get_size_inches(self):
         return self.bbox_inches.max
-        # return self.figwidth.get(), self.figheight.get() MGDTODO
 
     def get_edgecolor(self):
         'Get the edge color of the Figure rectangle'
@@ -360,7 +351,6 @@ class Figure(Artist):
     def get_figwidth(self):
         'Return the figwidth as a float'
 	return self.bbox_inches.xmax
-        # return self.figwidth.get() MGDTODO
 
     def get_figheight(self):
         'Return the figheight as a float'
@@ -369,7 +359,6 @@ class Figure(Artist):
     def get_dpi(self):
         'Return the dpi as a float'
         return self.dpi
-        # return self.dpi.get() MGDTODO
 
     def get_frameon(self):
         'get the boolean indicating frameon'
@@ -397,7 +386,6 @@ class Figure(Artist):
 
         ACCEPTS: float
         """
-        # self.dpi.set(val) MGDTODO
 	self.dpi = val
 
     def set_figwidth(self, val):
@@ -406,7 +394,6 @@ class Figure(Artist):
 
         ACCEPTS: float
         """
-        # self.figwidth.set(val)  MGDTODO
 	self.bbox_inches.xmax = val
 	
     def set_figheight(self, val):
@@ -415,7 +402,6 @@ class Figure(Artist):
 
         ACCEPTS: float
         """
-	# MGDTODO (set())
 	self.bbox_inches.ymax = val
 
     def set_frameon(self, b):
@@ -598,8 +584,6 @@ class Figure(Artist):
         #print 'figure draw'
         if not self.get_visible(): return
         renderer.open_group('figure')
-	# MGDTODO
-        # self.transFigure.freeze()  # eval the lazy objects
 
         if self.frameon: self.figurePatch.draw(renderer)
 
@@ -633,8 +617,6 @@ class Figure(Artist):
         for legend in self.legends:
             legend.draw(renderer)
 
-	# MGDTODO
-	# self.transFigure.thaw()  # release the lazy objects
         renderer.close_group('figure')
 
         self._cachedRenderer = renderer

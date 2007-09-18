@@ -19,9 +19,9 @@ class TransformNode(object):
         self._parents = Set()
         
     def invalidate(self):
-        if not self._do_invalidation():
-            for parent in self._parents:
-                parent.invalidate()
+        self._do_invalidation()
+        for parent in self._parents:
+            parent.invalidate()
 
     def _do_invalidation(self):
         return False
@@ -187,14 +187,16 @@ class Bbox(BboxBase):
         return 'Bbox(%s)' % repr(self._points)
     __str__ = __repr__
 
-    # JDH: the update method will update the box limits from the
-    # existing limits and the new data; it appears here you are just
-    # using the new data.  We use an "ignore" flag to specify whether
-    # you want to include the existing data or not in the update
     def update_from_data(self, x, y, ignore=True):
-        self._points = npy.array(
-            [[x.min(), y.min()], [x.max(), y.max()]],
-            npy.float_)
+	if ignore:
+	    self._points = npy.array(
+		[[x.min(), y.min()], [x.max(), y.max()]],
+		npy.float_)
+	else:
+	    self._points = npy.array(
+		[[min(x.min(), self.xmin), min(y.min(), self.ymin)],
+		 [max(x.max(), self.xmax), max(y.max(), self.ymax)]],
+		 npy.float_)
         self.invalidate()
 
     # MGDTODO: Probably a more efficient ways to do this...
@@ -409,9 +411,7 @@ class Affine2DBase(Transform):
 	return self.get_matrix()
 	
     def _do_invalidation(self):
-        result = self._inverted is None
         self._inverted = None
-        return result
 
     #@staticmethod
     def _concat(a, b):
@@ -494,6 +494,7 @@ class Affine2D(Affine2DBase):
         if matrix is None:
             matrix = npy.identity(3)
         else:
+	    matrix = npy.asarray(matrix, npy.float_)
             assert matrix.shape == (3, 3)
         self._mtx = matrix
         self._inverted = None
@@ -629,8 +630,6 @@ class BlendedAffine2D(Affine2DBase, BlendedGenericTransform):
         if self._mtx is not None:
             self._mtx = None
             Affine2DBase._do_invalidation(self)
-            return False
-        return True
 
     def is_separable(self):
         return True
@@ -684,7 +683,7 @@ class CompositeAffine2D(Affine2DBase):
 
     def _do_invalidation(self):
         self._mtx = None
-        Affine2DBase._do_invalidation(self)
+        return Affine2DBase._do_invalidation(self)
     
     def get_matrix(self):
         if self._mtx is None:
@@ -718,8 +717,6 @@ class BboxTransform(Affine2DBase):
         if self._mtx is not None:
             self._mtx = None
             Affine2DBase._do_invalidation(self)
-            return False
-        return True
 
     def is_separable(self):
         return True

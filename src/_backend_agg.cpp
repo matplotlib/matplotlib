@@ -456,7 +456,7 @@ RendererAgg::bbox_to_rect(const Py::Object& o) {
   //return the agg::rect for bbox, flipping y
   PyArrayObject *bbox = (PyArrayObject *) PyArray_ContiguousFromObject(o.ptr(), PyArray_DOUBLE, 2, 2);
 
-  if (!bbox || bbox->nd != 2 bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2)
+  if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2)
     throw Py::TypeError
       ("Expected a Bbox object.");
 
