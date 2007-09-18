@@ -88,11 +88,13 @@ class BboxBase(TransformNode):
     intervaly = property(_get_intervaly)
                          
     def _get_width(self):
-        return self.xmax - self.xmin
+	points = self.get_points()
+	return points[1, 0] - points[0, 0]
     width = property(_get_width)
 
     def _get_height(self):
-        return self.ymax - self.ymin
+	points = self.get_points()
+	return points[1, 1] - points[0, 1]
     height = property(_get_height)
 
     def _get_bounds(self):

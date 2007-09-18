@@ -50,6 +50,9 @@ class Path(object):
 		i += NUM_VERTICES[code]
 	    assert i == len(self.vertices)
 
+    def __repr__(self):
+	return "Path(%s, %s)" % (self.vertices, self.codes)
+	    
     def _get_codes(self):
 	return self._codes
     codes = property(_get_codes)

@@ -121,13 +121,9 @@ class RendererAgg(RendererBase):
 				      debug=False)
         if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done',
                                      'debug-annoying')
-        # self.draw_polygon = self._renderer.draw_polygon
-        self.draw_rectangle = self._renderer.draw_rectangle
-	# MGDTODO -- remove these lines
-        # self.draw_lines = self._renderer.draw_lines
-        # self.draw_markers = self._renderer.draw_markers
-        self.draw_image = self._renderer.draw_image
 
+	self.convert_to_native_path = self._renderer.convert_to_native_path
+        self.draw_image = self._renderer.draw_image
         self.copy_from_bbox = self._renderer.copy_from_bbox
         self.restore_region = self._renderer.restore_region
         self.mathtext_parser = MathTextParser('Agg')
@@ -137,12 +133,9 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
 
-    def convert_to_native_path(self, path):
-	return self._renderer.convert_to_native_path(path.vertices, path.codes)
-
-    def _draw_native_path(self, gc, native_path, transform, rgbFace):
-	return self._renderer.draw_path(gc, native_path, transform.to_values(), rgbFace)
-	
+    def _draw_native_path(self, gc, path, transform, rgbFace):
+	return self._renderer.draw_path(gc, path, transform.get_matrix(), rgbFace)
+    
     def draw_arc(self, gcEdge, rgbFace, x, y, width, height, angle1, angle2, rotation):
         """
         Draw an arc centered at x,y with width and height and angles
@@ -175,8 +168,8 @@ class RendererAgg(RendererBase):
     def _draw_native_markers(self, gc, native_marker_path, marker_trans, path, trans, rgbFace=None):
 	return self._renderer.draw_markers(
 	    gc,
-	    native_marker_path, marker_trans.to_values(),
-	    path.vertices, path.codes, trans.to_values(),
+	    native_marker_path, marker_trans.get_matrix(),
+	    path.vertices, path.codes, trans.get_matrix(),
 	    rgbFace)
 
     def draw_polygon(self, *args):
