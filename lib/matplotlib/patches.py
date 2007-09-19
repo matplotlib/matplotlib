@@ -319,8 +319,6 @@ class Rectangle(Patch):
         return str(self.__class__).split('.')[-1] \
             + "(%g,%g;%gx%g)"%(self.xy[0],self.xy[1],self.width,self.height)
 
-    # MGDTODO: Perhaps pass in a Bbox here instead, then the updates will
-    # happen automatically (without needing to call set_x etc.
     def __init__(self, xy, width, height, **kwargs):
         """
         xy is an x,y tuple lower, left
@@ -459,17 +457,14 @@ class Polygon(Patch):
 
     def __init__(self, xy, **kwargs):
         """
-        xy is a sequence of (x,y) 2 tuples
+        xy is a numpy array with shape Nx2
 
         Valid kwargs are:
         %(Patch)s
         See Patch documentation for additional kwargs
         """
-	# MGDTODO: This should encourage the use of numpy arrays of shape Nx2
         Patch.__init__(self, **kwargs)
-        if not isinstance(xy, list):
-            xy = list(xy)
-	self._path = Path(xy, closed=False)
+	self._path = Path(xy, closed=True)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_verts(self):

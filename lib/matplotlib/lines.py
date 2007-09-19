@@ -252,12 +252,9 @@ class Line2D(Artist):
         if not is_numlike(self.pickradius):
             raise ValueError,"pick radius should be a distance"
 
-        if self._newstyle:
-            # transform in backend
-            x = self._x
-            y = self._y
-        else:
-            x, y = self._get_plottable()
+        # transform in backend
+        x = self._x
+        y = self._y
         if len(x)==0: return False,{}
 
         xt, yt = self.get_transform().numerix_x_y(x, y)
@@ -337,7 +334,6 @@ class Line2D(Artist):
 
         ACCEPTS: (npy.array xdata, npy.array ydata)
         """
-
         if len(args)==1:
             x, y = args[0]
         else:
@@ -347,8 +343,9 @@ class Line2D(Artist):
         self._yorig = y
         self.recache()
 
+    # MGDTODO: Masked data arrays are broken
     _masked_array_to_path_code_mapping = npy.array(
-        [Path.LINETO, Path.IGNORE, Path.MOVETO], Path.code_type)
+        [Path.LINETO, Path.MOVETO, Path.MOVETO], Path.code_type)
     def recache(self):
         #if self.axes is None: print 'recache no axes'
         #else: print 'recache units', self.axes.xaxis.units, self.axes.yaxis.units
@@ -387,18 +384,18 @@ class Line2D(Artist):
         # MGDTODO: If _draw_steps is removed, remove the following line also
         self._step_path = None
         
-
     def _is_sorted(self, x):
         "return true if x is sorted"
         if len(x)<2: return 1
         return npy.alltrue(x[1:]-x[0:-1]>=0)
 
+    # MGDTODO: Remove me (seems to be used for old-style interface only)
     def _get_plottable(self):
         # If log scale is set, only pos data will be returned
 
         x, y = self._x, self._y
 
-	# MGDTODO: Deal with the log scale here
+	# MGDTODO: (log-scaling)
 	
 #         try: logx = self.get_transform().get_funcx().get_type()==LOG10
 #         except RuntimeError: logx = False  # non-separable

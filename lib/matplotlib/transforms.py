@@ -32,7 +32,8 @@ class TransformNode(object):
         for child in children:
             getattr(self, child)._parents.add(self)
         self._children = children
-            
+
+        
 class BboxBase(TransformNode):
     '''
     This is the read-only part of a bounding-box
@@ -293,6 +294,7 @@ class Bbox(BboxBase):
         return Bbox.from_lbrt(xmin, ymin, xmax, ymax)
     union = staticmethod(union)
 
+    
 class TransformedBbox(BboxBase):
     def __init__(self, bbox, transform):
         assert isinstance(bbox, Bbox)
@@ -313,16 +315,20 @@ class TransformedBbox(BboxBase):
 
     def get_points(self):
         if self._points is None:
-            self._points = self.transform(self.bbox.get_points())
+            self._points = self.transform.transform(self.bbox.get_points())
         return self._points
+
     
 class Transform(TransformNode):
     def __init__(self):
         TransformNode.__init__(self)
     
-    def __call__(self, points):
+    def transform(self, points):
         raise NotImplementedError()
 
+    def transform_without_affine(self, points):
+        return self.transform(points), IDENTITY
+    
     def __add__(self, other):
         if isinstance(other, Transform):
             return composite_transform_factory(self, other)
@@ -336,7 +342,7 @@ class Transform(TransformNode):
             "Can not add Transform to object of type '%s'" % type(other))
 
     def transform_point(self, point):
-        return self.__call__(npy.asarray([point]))[0]
+        return self.transform(npy.asarray([point]))[0]
     
     def has_inverse(self):
         raise NotImplementedError()
@@ -350,6 +356,7 @@ class Transform(TransformNode):
     def is_affine(self):
         return False
 
+    
 class Affine2DBase(Transform):
     input_dims = 2
     output_dims = 2
@@ -390,7 +397,7 @@ class Affine2DBase(Transform):
     def get_matrix(self):
         raise NotImplementedError()
     
-    def __call__(self, points):
+    def transform(self, points):
         """
         Applies the transformation to an array of 2D points and
         returns the result.
@@ -414,6 +421,11 @@ class Affine2DBase(Transform):
         points = npy.dot(mtx[0:2, 0:2], points)
         points = points + mtx[0:2, 2:]
         return points.transpose()
+
+    def transform_without_affine(self, points):
+        # MGDTODO: Should we copy the points here?  I'd like to avoid it,
+        # if possible
+        return points, self
     
     def inverted(self):
         if self._inverted is None:
@@ -430,9 +442,6 @@ class Affine2DBase(Transform):
 
         
 class Affine2D(Affine2DBase):
-    input_dims = 2
-    output_dims = 2
-    
     def __init__(self, matrix = None):
         """
         Initialize an Affine transform from a 3x3 numpy float array.
@@ -535,40 +544,82 @@ class Affine2D(Affine2DBase):
 
     def is_affine(self):
         return True
+
+IDENTITY = Affine2D()
     
 class BlendedGenericTransform(Transform):
+    input_dims = 2
+    output_dims = 2
+
     def __init__(self, x_transform, y_transform):
 	# Here we ask: "Does it blend?"
         assert x_transform.is_separable()
         assert y_transform.is_separable()
-
+        assert x_transform.input_dims == x_transform.output_dims == 2
+        assert y_transform.input_dims == y_transform.output_dims == 2
+        
         Transform.__init__(self)
         self._x = x_transform
         self._y = y_transform
         self.set_children(['_x', '_y'])
 
-    def __call__(self, points):
-        if self._x == self._y:
+    def transform(self, points):
+        # MGDTODO: Optimize the case where one of these is
+        # an affine
+        x = self._x
+        y = self._y
+        if x == y and x.input_dims == 2:
             return self._x(points)
-        
-        x_points = self._x(points)
-        y_points = self._y(points)
-        # This works because we already know the transforms are
-        # separable
-        return npy.hstack((x_points[:, 0:1], y_points[:, 1:2]))
 
-#     def set_x_transform(self, x_transform):
-#         self.replace_child(0, x_transform)
+        if x.input_dims == 2:
+            x_points = x.transform(points)[:, 0]
+        else:
+            x_points = x.transform(points[:, 0])
 
-#     def set_y_transform(self, y_transform):
-#         self.replace_child(1, y_transform)
+        if y.input_dims == 2:
+            y_points = y.transform(points)[:, 1]
+        else:
+            y_points = y.transform(points[:, 1])
 
+        return npy.vstack((x_points, y_points)).transpose()
+
+    def inverted(self):
+        return BlendedGenericTransform(self._x.inverted(), self._y.inverted())
     
-class BlendedAffine2D(Affine2DBase, BlendedGenericTransform):
+    def is_separable(self):
+        return True
+    
+    
+class BlendedSeparableTransform(Transform):
+    input_dims = 2
+    output_dims = 2
+
+    def __init__(self, x_transform, y_transform):
+	# Here we ask: "Does it blend?"
+        assert x_transform.is_separable()
+        assert y_transform.is_separable()
+        assert x_transform.input_dims == x.transform.output_dims == 1
+        assert y_transform.input_dims == y.transform.output_dims == 1
+        
+        Transform.__init__(self)
+        self._x = x_transform
+        self._y = y_transform
+        self.set_children(['_x', '_y'])
+
+    def transform(self, points):
+        x_points = self._x(points[:, 0])
+        y_points = self._y(points[:, 1])
+        return npy.vstack((x_points[:, 0:1], y_points[:, 1:2])).transpose()
+    
+    
+class BlendedAffine2D(Affine2DBase, Transform):
     def __init__(self, x_transform, y_transform):
         assert x_transform.is_affine()
         assert y_transform.is_affine()
-        BlendedGenericTransform.__init__(self, x_transform, y_transform)
+        Transform.__init__(self)
+        self._x = x_transform
+        self._y = y_transform
+        self.set_children(['_x', '_y'])
         
         Affine2DBase.__init__(self)
         self._mtx = None
@@ -597,11 +648,13 @@ class BlendedAffine2D(Affine2DBase, BlendedGenericTransform):
                 # c to zero.
                 self._mtx = npy.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
         return self._mtx
-        
+
+    
 def blended_transform_factory(x_transform, y_transform):
     if x_transform.is_affine() and y_transform.is_affine():
         return BlendedAffine2D(x_transform, y_transform)
     return BlendedGenericTransform(x_transform, y_transform)
+
 
 class CompositeGenericTransform(Transform):
     def __init__(self, a, b):
@@ -614,8 +667,16 @@ class CompositeGenericTransform(Transform):
         self._b = b
         self.set_children(['_a', '_b'])
         
-    def __call__(self, points):
-        return self._b(self._a(points))
+    def transform(self, points):
+        return self._b.transform(self._a.transform(points))
+
+    def inverted(self):
+        return CompositeGenericTransform(self._b.inverted(), self._a.inverted())
+    
+    def is_separable(self):
+        return True
+        return self._a.is_separable() and self._b.is_separable()
+
     
 class CompositeAffine2D(Affine2DBase):
     def __init__(self, a, b):
@@ -643,10 +704,31 @@ class CompositeAffine2D(Affine2DBase):
                 self._b.get_matrix())
         return self._mtx
 
+    
 def composite_transform_factory(a, b):
     if a.is_affine() and b.is_affine():
         return CompositeAffine2D(a, b)
     return CompositeGenericTransform(a, b)
+
+
+class LogTransform(Transform):
+    input_dims = 1
+    output_dims = 1
+    
+    def transform(self, a):
+        m = npy.ma.masked_where(a < 0, a)
+        return npy.log10(m)
+
+
+class TestLogTransform(Transform):
+    input_dims = 2
+    output_dims = 2
+    def transform(self, xy):
+        return xy * 2
+
+    def inverted(self):
+        return self
+
     
 class BboxTransform(Affine2DBase):
     def __init__(self, boxin, boxout):
@@ -688,6 +770,7 @@ class BboxTransform(Affine2DBase):
             self._mtx = affine._mtx
         return self._mtx
 
+    
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     '''
     Ensure the endpoints of a range are not too close together.
