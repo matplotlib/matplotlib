@@ -632,6 +632,7 @@ class Axes(martist.Artist):
 	
         self.transAxes = mtransforms.BboxTransform(
             mtransforms.Bbox.unit(), self.bbox)
+        # self.set_transform(self.transAxes)
         self.transData = mtransforms.BboxTransform(
             self.viewLim, self.bbox)
 	    
@@ -724,6 +725,7 @@ class Axes(martist.Artist):
         self.axesPatch.set_figure(self.figure)
         self.axesPatch.set_transform(self.transAxes)
         self.axesPatch.set_linewidth(rcParams['axes.linewidth'])
+        # MGDTODO: What is axesFrame for?  We already have axesPatch
         self.axesFrame = mlines.Line2D((0,1,1,0,0), (0,0,1,1,0),
                             linewidth=rcParams['axes.linewidth'],
                             color=rcParams['axes.edgecolor'],
@@ -5201,7 +5203,7 @@ class Subplot(SubplotBase, Axes):
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
     def __str__(self):
-        return "Subplot(%g,%g)"%(self.bottom.get(),self.left.get())
+        return "Subplot(%f,%f,%f,%f)" % (self.bbox.bounds)
 
     def __init__(self, fig, *args, **kwargs):
         """

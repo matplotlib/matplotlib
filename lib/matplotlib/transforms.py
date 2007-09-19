@@ -8,6 +8,8 @@ import numpy as npy
 from numpy.linalg import inv
 from sets import Set
 
+DEBUG = True
+
 # MGDTODO: This creates a ton of cyclical references.  We may want to
 # consider using weak references
 
@@ -53,6 +55,13 @@ class BboxBase(TransformNode):
     
     def __array__(self):
         return self.get_points()
+
+    if DEBUG:
+        def invalidate(self):
+            points = self.get_points()
+            assert points[0, 0] <= points[1, 0]
+            assert points[0, 1] <= points[1, 1]
+            TransformNode.invalidate(self)
     
     # MGDTODO: Probably a more efficient ways to do this...
     def _get_xmin(self):

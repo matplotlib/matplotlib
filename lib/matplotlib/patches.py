@@ -212,8 +212,8 @@ class Patch(artist.Artist):
             gc.set_hatch(self._hatch )
 
         path = self.get_path()
-        transform = self.get_transform()
-
+        transform = self.get_patch_transform() + self.get_transform()
+         
         renderer.draw_path(gc, path, transform, rgbFace)
 
         #renderer.close_group('patch')
@@ -284,7 +284,7 @@ class Shadow(Patch):
         self.patch = patch
         self.props = props
 	self.ox, self.oy = ox, oy
-	self._shadow_transform = transforms.Affine2D.translate(self.ox, self.oy)
+	self._shadow_transform = transforms.Affine2D().translate(self.ox, self.oy)
         self._update()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
@@ -305,8 +305,8 @@ class Shadow(Patch):
     def get_path(self):
         return self.patch.get_path()
 
-    def get_transform(self):
-	return self._transform + self._shadow_transform
+    def get_patch_transform(self):
+	return self._shadow_transform
     
 class Rectangle(Patch):
     """
@@ -315,8 +315,6 @@ class Rectangle(Patch):
 
     """
 
-    _path = Path.unit_rectangle()
-    
     def __str__(self):
         return str(self.__class__).split('.')[-1] \
             + "(%g,%g;%gx%g)"%(self.xy[0],self.xy[1],self.width,self.height)
@@ -346,16 +344,14 @@ class Rectangle(Patch):
         """
         Return the vertices of the rectangle
         """
-	# This is a "class-static" variable, so all rectangles in the plot
-	# will be shared (and merely have different transforms)
-	return self._path
+	return Path.unit_rectangle()
 
         # MGDTODO: Convert units
 #         left, right = self.convert_xunits((x, x + self.width))
 #         bottom, top = self.convert_yunits((y, y + self.height))
 
-    def get_transform(self):
-	return self._rect_transform + self._transform
+    def get_patch_transform(self):
+	return self._rect_transform
     
     def get_x(self):
         "Return the left coord of the rectangle"
@@ -379,7 +375,8 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self._bbox.xmin = x
+        w = self._bbox.width
+        self._bbox.intervalx = (x, x + w)
 
     def set_y(self, y):
         """
@@ -387,7 +384,8 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self._bbox.ymin = y
+        h = self._bbox.height
+        self._bbox.intervaly = (y, y + h)
 
     def set_width(self, w):
         """
@@ -395,7 +393,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self._bbox.width = w
+        self._bbox.xmax = self._bbox.xmin + w
 
     def set_height(self, h):
         """
@@ -403,7 +401,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self._bbox.height = h
+        self._bbox.ymax = self._bbox.ymin + h
 
     def set_bounds(self, *args):
         """
