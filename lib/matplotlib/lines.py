@@ -117,7 +117,7 @@ class Line2D(Artist):
         '--'   : '_draw_dashed',
         '-.'   : '_draw_dash_dot',
         ':'    : '_draw_dotted',
-        'steps': '_draw_steps',
+        'steps': '_draw_solid',
         'None' : '_draw_nothing',
         ' '    : '_draw_nothing',
         ''     : '_draw_nothing',
@@ -352,10 +352,10 @@ class Line2D(Artist):
         self._picker = p
 
     def get_window_extent(self, renderer):
-        xys = self.get_transform()(self._xys)
+        xy = self.get_transform()(self._xy)
 
-	x = xys[:, 0]
-	y = xys[:, 1]
+	x = xy[:, 0]
+	y = xy[:, 1]
         left = x.min()
         bottom = y.min()
         width = x.max() - left
@@ -426,9 +426,19 @@ class Line2D(Artist):
 			       npy.asarray(y, npy.float_))).transpose()
 	self._x = self._xy[:, 0]
 	self._y = self._xy[:, 1]
-	self._path = Path(self._xy, closed=False)
-	
         self._logcache = None
+        
+        if self._linestyle == 'steps':
+            siz=len(xt)
+            if siz<2: return
+            xt, yt = self._x, self._y
+            xt2=npy.ones((2*siz,), xt.dtype)
+            xt2[0:-1:2], xt2[1:-1:2], xt2[-1] = xt, xt[1:], xt[-1]
+            yt2=npy.ones((2*siz,), yt.dtype)
+            yt2[0:-1:2], yt2[1::2] = yt, yt
+            self._path = Path(npy.vstack((xt2, yt2)).transpose(), closed=False)
+        else:
+            self._path = Path(self._xy, closed=False)
 
 
     def _is_sorted(self, x):
@@ -700,24 +710,6 @@ class Line2D(Artist):
         pass
 
     
-    def _draw_steps(self, renderer, gc, xt, yt):
-	# MGDTODO: This is a quirky one.  The step-plotting part
-	# should probably be moved to where the path is generated
-	# in recache, and then just drawn with _draw_solid
-        siz=len(xt)
-        if siz<2: return
-        xt2=npy.ones((2*siz,), xt.dtype)
-        xt2[0:-1:2], xt2[1:-1:2], xt2[-1]=xt, xt[1:], xt[-1]
-        yt2=npy.ones((2*siz,), yt.dtype)
-        yt2[0:-1:2], yt2[1::2]=yt, yt
-        gc.set_linestyle('solid')
-
-        if self._newstyle:
-            renderer.draw_lines(gc, xt2, yt2, self.get_transform())
-        else:
-            renderer.draw_lines(gc, xt2, yt2)
-
-	    
     def _draw_solid(self, renderer, gc, path):
         gc.set_linestyle('solid')
 	renderer.draw_path(gc, path, self.get_transform())

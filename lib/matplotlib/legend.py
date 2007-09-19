@@ -164,7 +164,7 @@ The following dimensions are in axes coords
         else:
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
-        self.set_transform( BboxTransform( Bbox.unit(), parent.bbox) )
+        self.set_transform( BboxTransform(Bbox.unit(), parent.bbox) )
 
         if loc is None:
             loc = rcParams["legend.loc"]
@@ -223,7 +223,7 @@ The following dimensions are in axes coords
         a.set_transform(self.get_transform())
 
     def _approx_text_height(self):
-        return self.fontsize/72.0*self.figure.dpi/self.parent.bbox.height()
+        return self.fontsize/72.0*self.figure.dpi/self.parent.bbox.height
 
 
     def draw(self, renderer):
@@ -531,7 +531,7 @@ The following dimensions are in axes coords
         def get_tbounds(text):  #get text bounds in axes coords
             bbox = text.get_window_extent(renderer)
             bboxa = bbox.inverse_transformed(self.get_transform())
-            return bboxa.get_bounds()
+            return bboxa.bounds
 
         hpos = []
         for t, tabove in zip(self.texts[1:], self.texts[:-1]):
@@ -560,10 +560,10 @@ The following dimensions are in axes coords
         # Set the data for the legend patch
         bbox = copy.copy(self._get_handle_text_bbox(renderer))
 
-        bbox = bbox.scaled(1 + self.pad, 1 + self.pad)
-        l,b,w,h = bbox.get_bounds()
-        self.legendPatch.set_bounds(l,b,w,h)
-
+        bbox = bbox.expanded(1 + self.pad, 1 + self.pad)
+        l, b, w, h = bbox.bounds
+        self.legendPatch.set_bounds(l, b, w, h)
+        
         ox, oy = 0, 0                           # center
 
         if iterable(self._loc) and len(self._loc)==2:
