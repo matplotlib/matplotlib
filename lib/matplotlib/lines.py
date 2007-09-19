@@ -25,53 +25,6 @@ from matplotlib import rcParams
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = range(8)
 
-def unmasked_index_ranges(mask, compressed = True):
-    '''
-    Calculate the good data ranges in a masked 1-D npy.array, based on mask.
-
-    Returns Nx2 npy.array with each row the start and stop indices
-    for slices of the compressed npy.array corresponding to each of N
-    uninterrupted runs of unmasked values.
-    If optional argument compressed is False, it returns the
-    start and stop indices into the original npy.array, not the
-    compressed npy.array.
-    Returns None if there are no unmasked values.
-
-    Example:
-
-    y = ma.array(npy.arange(5), mask = [0,0,1,0,0])
-    #ii = unmasked_index_ranges(y.mask())
-    ii = unmasked_index_ranges(ma.getmask(y))
-        # returns [[0,2,] [2,4,]]
-
-    y.compressed().filled()[ii[1,0]:ii[1,1]]
-        # returns npy.array [3,4,]
-        # (The 'filled()' method converts the masked npy.array to a numerix npy.array.)
-
-    #i0, i1 = unmasked_index_ranges(y.mask(), compressed=False)
-    i0, i1 = unmasked_index_ranges(ma.getmask(y), compressed=False)
-        # returns [[0,3,] [2,5,]]
-
-    y.filled()[ii[1,0]:ii[1,1]]
-        # returns npy.array [3,4,]
-
-    '''
-    m = npy.concatenate(((1,), mask, (1,)))
-    indices = npy.arange(len(mask) + 1)
-    mdif = m[1:] - m[:-1]
-    i0 = npy.compress(mdif == -1, indices)
-    i1 = npy.compress(mdif == 1, indices)
-    assert len(i0) == len(i1)
-    if len(i1) == 0:
-        return None
-    if not compressed:
-        return npy.concatenate((i0[:, npy.newaxis], i1[:, npy.newaxis]), axis=1)
-    seglengths = i1 - i0
-    breakpoints = npy.cumsum(seglengths)
-    ic0 = npy.concatenate(((0,), breakpoints[:-1]))
-    ic1 = breakpoints
-    return npy.concatenate((ic0[:, npy.newaxis], ic1[:, npy.newaxis]), axis=1)
-
 def segment_hits(cx,cy,x,y,radius):
     """Determine if any line segments are within radius of a point. Returns
     the list of line segments that are within that radius.
@@ -117,7 +70,7 @@ class Line2D(Artist):
         '--'   : '_draw_dashed',
         '-.'   : '_draw_dash_dot',
         ':'    : '_draw_dotted',
-        'steps': '_draw_solid',
+        'steps': '_draw_steps',
         'None' : '_draw_nothing',
         ' '    : '_draw_nothing',
         ''     : '_draw_nothing',
@@ -394,6 +347,8 @@ class Line2D(Artist):
         self._yorig = y
         self.recache()
 
+    _masked_array_to_path_code_mapping = npy.array(
+        [Path.LINETO, Path.IGNORE, Path.MOVETO], Path.code_type)
     def recache(self):
         #if self.axes is None: print 'recache no axes'
         #else: print 'recache units', self.axes.xaxis.units, self.axes.yaxis.units
@@ -411,35 +366,27 @@ class Line2D(Artist):
         if len(x) != len(y):
             raise RuntimeError('xdata and ydata must be the same length')
 
-	# MGDTODO: Deal with segments
+	self._xy = npy.vstack((npy.asarray(x, npy.float_),
+			       npy.asarray(y, npy.float_))).transpose()
+	self._x = self._xy[:, 0] # just a view
+	self._y = self._xy[:, 1] # just a view
+        self._logcache = None
+
         mx = ma.getmask(x)
         my = ma.getmask(y)
         mask = ma.mask_or(mx, my)
+        codes = None
         if mask is not ma.nomask:
-            x = ma.masked_array(x, mask=mask).compressed()
-            y = ma.masked_array(y, mask=mask).compressed()
-            self._segments = unmasked_index_ranges(mask)
-        else:
-            self._segments = None
-
-	self._xy = npy.vstack((npy.asarray(x, npy.float_),
-			       npy.asarray(y, npy.float_))).transpose()
-	self._x = self._xy[:, 0]
-	self._y = self._xy[:, 1]
-        self._logcache = None
+            m = npy.concatenate(((1,), mask, (1,)))
+            mdif = m[1:] - m[:-1]
+            mdif = npy.maximum((mdif[:-1] * -2), mask)
+            codes = npy.take(
+                self._masked_array_to_path_code_mapping,
+                mdif)
+        self._path = Path(self._xy, codes, closed=False)
+        # MGDTODO: If _draw_steps is removed, remove the following line also
+        self._step_path = None
         
-        if self._linestyle == 'steps':
-            siz=len(xt)
-            if siz<2: return
-            xt, yt = self._x, self._y
-            xt2=npy.ones((2*siz,), xt.dtype)
-            xt2[0:-1:2], xt2[1:-1:2], xt2[-1] = xt, xt[1:], xt[-1]
-            yt2=npy.ones((2*siz,), yt.dtype)
-            yt2[0:-1:2], yt2[1::2] = yt, yt
-            self._path = Path(npy.vstack((xt2, yt2)).transpose(), closed=False)
-        else:
-            self._path = Path(self._xy, closed=False)
-
 
     def _is_sorted(self, x):
         "return true if x is sorted"
@@ -507,14 +454,7 @@ class Line2D(Artist):
 
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         lineFunc = getattr(self, funcname)
-
-	# MGDTODO: Deal with self._segments
-        if self._segments is not None:
-            for ii in self._segments:
-                lineFunc(renderer, gc, xt[ii[0]:ii[1]], yt[ii[0]:ii[1]])
-
-        else:
-            lineFunc(renderer, gc, self._path)
+        lineFunc(renderer, gc, self._path)
 	    
 	# MGDTODO: Deal with markers
         if self._marker is not None:
@@ -709,7 +649,29 @@ class Line2D(Artist):
     def _draw_nothing(self, renderer, gc, path):
         pass
 
-    
+
+    def _draw_steps(self, renderer, gc, path):
+        # We generate the step function path on-the-fly, and then cache it.
+        # The cache may be later invalidated when the data changes
+        # (in self.recache())
+
+        # MGDTODO: Untested -- using pylab.step doesn't actually trigger
+        # this code -- the path is "stepped" before even getting to this
+        # class.  Perhaps this should be removed here, since it is not as
+        # powerful as what is in axes.step() anyway.
+        if self._step_path is None:
+            vertices = self._path.vertices
+            codes = self._path.codes
+            siz = len(vertices)
+            if siz<2: return
+            new_vertices = npy.zeros((2*siz, 2), vertices.dtype)
+            new_vertices[0:-1:2, 0], new_vertices[1:-1:2, 0], newvertices[-1, 0] = vertices[:, 0], vertices[1:, 0], vertices[-1, 0]
+            new_vertices[0:-1:2, 1], new_vertices[1::2, 1] = vertices[:, 1], vertices[:, 1]
+            self._step_path = Path(new_vertices, closed=False)
+        gc.set_linestyle('solid')
+	renderer.draw_path(gc, self._step_path, self.get_transform())
+
+        
     def _draw_solid(self, renderer, gc, path):
         gc.set_linestyle('solid')
 	renderer.draw_path(gc, path, self.get_transform())
