@@ -32,18 +32,6 @@ class TransformNode(object):
         for child in children:
             getattr(self, child)._parents.add(self)
         self._children = children
-
-    # MGDTODO: decide whether we need this in-place updating and
-    # remove if not
-#     def replace_child(self, index, child):
-#         children = self._children
-#         getattr(self, children[index])._parents.remove(self)
-#         setattr(self, children[index], child)
-#         # We have to reset children in case two or more
-#         # of the children are the same
-#         for child in children:
-#             getattr(self, child)._parents.add(self)
-#         self.invalidate()
             
 class BboxBase(TransformNode):
     '''
@@ -327,52 +315,6 @@ class TransformedBbox(BboxBase):
         if self._points is None:
             self._points = self.transform(self.bbox.get_points())
         return self._points
-
-# MGDTODO: This code probably works, but I don't think it's a good idea
-# (from a code clarity perspective)
-# class BlendedBbox(BboxBase):
-#     def __init__(self, bbox_x, bbox_y):
-#         assert isinstance(bbox_x, BboxBase)
-#         assert isinstance(bbox_y, BboxBase)
-
-#         BboxBase.__init__(self)
-#         self._x = bbox_x
-#         self._y = bbox_y
-#         self.set_children(['_x', '_y'])
-#         self._points = None
-
-#     def __repr__(self):
-#         return "TransformedBbox(%s, %s)" % (self.bbox, self.transform)
-#     __str__ = __repr__
-    
-#     def _do_invalidation(self):
-#         self._points = None
-
-#     def get_points(self):
-#         if self._points is None:
-#             # MGDTODO: Optimize
-#             if self._x == self._y:
-#                 self._points = self._x.get_points()
-#             else:
-#                 x_points = self._x.get_points()
-#                 y_points = self._y.get_points()
-#                 self._points = npy.array(
-#                     [[x_points[0,0], y_points[0,1]],
-#                      [x_points[1,0], y_points[1,1]]],
-#                     npy.float_)
-#         return self._points
-
-#     def _set_intervalx(self, pair):
-#         # MGDTODO: Optimize
-#         bbox = Bbox([[pair[0], 0.0], [pair[1], 0.0]])
-#         self.replace_child(0, bbox)
-#     intervalx = property(BboxBase._get_intervalx, _set_intervalx)
-
-#     def _set_intervaly(self, pair):
-#         # MGDTODO: Optimize
-#         bbox = Bbox([[0.0, pair[0]], [0.0, pair[1]]])
-#         self.replace_child(1, bbox)
-#     intervaly = property(BboxBase._get_intervaly, _set_intervaly)
     
 class Transform(TransformNode):
     def __init__(self):
@@ -746,7 +688,6 @@ class BboxTransform(Affine2DBase):
             self._mtx = affine._mtx
         return self._mtx
 
-# MGDTODO: There's probably a better place for this
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     '''
     Ensure the endpoints of a range are not too close together.

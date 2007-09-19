@@ -40,14 +40,14 @@
 #include "agg_vcgen_markers_term.h"
 
 // These are copied directly from path.py, and must be kept in sync
-#define STOP 0
+#define IGNORE 0
 #define MOVETO 1
 #define LINETO 2
 #define CURVE3 3
 #define CURVE4 4
 #define CLOSEPOLY 5
 
-const size_t NUM_VERTICES[] = { 0, 1, 1, 2, 3, 0 };
+const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3, 0 };
 
 typedef agg::pixfmt_rgba32 pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;

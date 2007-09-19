@@ -40,7 +40,7 @@ class RendererBase:
     def _get_cached_native_path(self, path):
 	native_path = self._native_paths.get(path)
 	if native_path is None:
-	    # print "CACHE MISS", path
+	    print "CACHE MISS", path
 	    native_path = self.convert_to_native_path(path)
 	    self._native_paths[path] = native_path
 	return native_path

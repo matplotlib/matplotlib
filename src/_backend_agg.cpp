@@ -634,6 +634,9 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
       if (num_vertices) {
 	for (size_t j=0; j<num_vertices; ++j)
 	  GET_NEXT_VERTEX(x, y);
+	if (code_i == IGNORE)
+	  continue;
+
 	trans.transform(&x, &y);
 	
 	if (face.first) {
@@ -860,6 +863,10 @@ PathAgg::PathAgg(const Py::Object& path_obj) : curvy(false) {
 
     for (size_t i = 0; i < N; ++i) {
       switch (*(unsigned char*)(code_i)) {
+      case IGNORE:
+	GET_NEXT_VERTEX(x0, y0);
+	_VERBOSE("IGNORE");
+	break;
       case MOVETO:
 	GET_NEXT_VERTEX(x0, y0);
 	move_to(x0, y0);

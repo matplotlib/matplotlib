@@ -1,10 +1,10 @@
 import numpy as npy
 
-VALIDATE_PATHS = True
+DEBUG = True
 
 class Path(object):
     # Path codes
-    STOP      = 0
+    IGNORE    = 0 # 1 vertex
     MOVETO    = 1 # 1 vertex
     LINETO    = 2 # 1 vertex
     CURVE3    = 3 # 2 vertices
@@ -18,7 +18,7 @@ class Path(object):
     UBSPLINE  = 8
     ####
 
-    NUM_VERTICES = [0, 1, 1, 2, 3, 0]
+    NUM_VERTICES = [1, 1, 1, 2, 3, 0]
     
     code_type = npy.uint8
     
@@ -43,7 +43,7 @@ class Path(object):
 	    
 	assert self._codes.ndim == 1
 
-	if VALIDATE_PATHS:
+	if DEBUG:
 	    i = 0
 	    NUM_VERTICES = self.NUM_VERTICES
 	    for code in codes:
