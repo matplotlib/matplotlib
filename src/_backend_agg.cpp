@@ -87,15 +87,17 @@ agg::trans_affine py_to_agg_transformation_matrix(const Py::Object& obj) {
 inline void get_next_vertex(const char* & vertex_i, const char* vertex_end, 
 			    double& x, double& y,
 			    size_t next_vertex_stride, 
-			    size_t next_axis_stride) {
+			    size_t next_axis_stride,
+			    const char* & code_i, size_t code_stride) {
   if (vertex_i + next_axis_stride >= vertex_end)
     throw Py::ValueError("Error parsing path.  Read past end of vertices");
   x = *(double*)vertex_i;
   y = *(double*)(vertex_i + next_axis_stride);
   vertex_i += next_vertex_stride;
+  code_i += code_stride;
 }
 
-#define GET_NEXT_VERTEX(x, y) get_next_vertex(vertex_i, vertex_end, x, y, next_vertex_stride, next_axis_stride)
+#define GET_NEXT_VERTEX(x, y) get_next_vertex(vertex_i, vertex_end, x, y, next_vertex_stride, next_axis_stride, code_i, code_stride)
 
 Py::Object BufferRegion::to_string(const Py::Tuple &args) {
   
@@ -103,6 +105,70 @@ Py::Object BufferRegion::to_string(const Py::Tuple &args) {
   return Py::String(PyString_FromStringAndSize((const char*)aggbuf.data,aggbuf.height*aggbuf.stride), true);
 }
 
+class PathIterator {
+  PyArrayObject* vertices;
+  PyArrayObject* codes;
+  size_t m_iterator;
+  size_t m_total_vertices;
+
+public:
+  PathIterator(const Py::Object& path_obj) :
+    vertices(NULL), codes(NULL), m_iterator(0) {
+    Py::Object vertices_obj = path_obj.getAttr("vertices");
+    Py::Object codes_obj = path_obj.getAttr("codes");
+    
+    vertices = (PyArrayObject*)PyArray_ContiguousFromObject
+      (vertices_obj.ptr(), PyArray_DOUBLE, 2, 2);
+    if (!vertices || vertices->nd != 2 || vertices->dimensions[1] != 2)
+      throw Py::ValueError("Invalid vertices array.");
+    codes = (PyArrayObject*)PyArray_ContiguousFromObject
+      (codes_obj.ptr(), PyArray_UINT8, 1, 1);
+    if (!codes) 
+      throw Py::ValueError("Invalid codes array.");
+    
+    if (codes->dimensions[0] != vertices->dimensions[0])
+      throw Py::ValueError("Vertices and codes array are not the same length.");
+
+    m_total_vertices = codes->dimensions[0];
+  }
+
+  ~PathIterator() {
+    Py_XDECREF(vertices);
+    Py_XDECREF(codes);
+  }
+
+  static const char code_map[];
+
+  inline unsigned vertex(unsigned idx, double* x, double* y) {
+    if (idx > m_total_vertices)
+      throw Py::RuntimeError("Requested vertex past end");
+    double* pv = (double*)(vertices->data + (idx * vertices->strides[0]));
+    *x = *pv++;
+    *y = *pv;
+    // MGDTODO: Range check
+    return code_map[(unsigned int)*(codes->data + (idx * codes->strides[0]))];
+  }
+
+  inline unsigned vertex(double* x, double* y) {
+    if(m_iterator >= m_total_vertices) return agg::path_cmd_stop;
+    return vertex(m_iterator++, x, y);
+  }
+
+  inline void rewind(unsigned path_id) {
+    m_iterator = path_id;
+  }
+
+  inline unsigned total_vertices() {
+    return m_total_vertices;
+  }
+};
+
+const char PathIterator::code_map[] = {0, 
+				       agg::path_cmd_move_to, 
+				       agg::path_cmd_line_to, 
+				       agg::path_cmd_curve3,
+				       agg::path_cmd_curve4,
+				       agg::path_cmd_end_poly | agg::path_flags_close};
 
 GCAgg::GCAgg(const Py::Object &gc, double dpi, bool snapto) :
   dpi(dpi), snapto(snapto), isaa(true), linewidth(1.0), alpha(1.0),
@@ -634,7 +700,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
       if (num_vertices) {
 	for (size_t j=0; j<num_vertices; ++j)
 	  GET_NEXT_VERTEX(x, y);
-	if (code_i == IGNORE)
+	if (*code_i == STOP || *code_i == CLOSEPOLY)
 	  continue;
 
 	trans.transform(&x, &y);
@@ -863,9 +929,10 @@ PathAgg::PathAgg(const Py::Object& path_obj) : curvy(false) {
 
     for (size_t i = 0; i < N; ++i) {
       switch (*(unsigned char*)(code_i)) {
-      case IGNORE:
+      case STOP:
 	GET_NEXT_VERTEX(x0, y0);
-	_VERBOSE("IGNORE");
+	_VERBOSE("STOP");
+	// MGDTODO: If this isn't the end, we should raise an error
 	break;
       case MOVETO:
 	GET_NEXT_VERTEX(x0, y0);
@@ -894,10 +961,10 @@ PathAgg::PathAgg(const Py::Object& path_obj) : curvy(false) {
 	break;
       case CLOSEPOLY:
 	close_polygon();
+	GET_NEXT_VERTEX(x0, y0);
 	_VERBOSE("CLOSEPOLY");
 	break;
       }
-      code_i += code_stride;
     }
   } catch(...) {
     Py_XDECREF(vertices);
@@ -911,7 +978,7 @@ PathAgg::PathAgg(const Py::Object& path_obj) : curvy(false) {
 
 Py::Object
 RendererAgg::draw_path(const Py::Tuple& args) {
-  typedef agg::conv_transform<agg::path_storage> transformed_path_t;
+  typedef agg::conv_transform<PathIterator> transformed_path_t;
   typedef agg::conv_curve<transformed_path_t> curve_t;
   typedef agg::conv_stroke<curve_t> stroke_t;
   typedef agg::conv_dash<curve_t> dash_t;
@@ -928,9 +995,11 @@ RendererAgg::draw_path(const Py::Tuple& args) {
 
   GCAgg gc = GCAgg(args[0], dpi);
   Py::Object path_obj = args[1];
-  if (!PathAgg::check(path_obj))
-    throw Py::TypeError("Native path object is not of correct type");
-  PathAgg* path = static_cast<PathAgg*>(path_obj.ptr());
+//   if (!PathAgg::check(path_obj))
+//     throw Py::TypeError("Native path object is not of correct type");
+  // PathAgg* path = static_cast<PathAgg*>(path_obj.ptr());
+  PathIterator path(path_obj);
+
   agg::trans_affine trans = py_to_agg_transformation_matrix(args[2]);
   facepair_t face = _get_rgba_face(args[3], gc.alpha);
 
@@ -943,34 +1012,34 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   bool has_clippath = (gc.clippath != NULL);
 
   if (has_clippath && (gc.clippath != lastclippath || trans != lastclippath_transform)) {
-    rendererBaseAlphaMask->clear(agg::gray8(0, 0));
-    gc.clippath->rewind(0);
-    transformed_path_t transformed_clippath(*(gc.clippath), trans);
-    theRasterizer->add_path(transformed_clippath);
-    rendererAlphaMask->color(agg::gray8(255, 255));
-    agg::render_scanlines(*theRasterizer, *scanlineAlphaMask, *rendererAlphaMask);
-    lastclippath = gc.clippath;
-    lastclippath_transform = trans;
+//     rendererBaseAlphaMask->clear(agg::gray8(0, 0));
+//     gc.clippath->rewind(0);
+//     transformed_path_t transformed_clippath(*(gc.clippath), trans);
+//     theRasterizer->add_path(transformed_clippath);
+//     rendererAlphaMask->color(agg::gray8(255, 255));
+//     agg::render_scanlines(*theRasterizer, *scanlineAlphaMask, *rendererAlphaMask);
+//     lastclippath = gc.clippath;
+//     lastclippath_transform = trans;
   }
 
   try {
     // If this is a straight horizontal or vertical line, quantize to nearest 
     // pixels
-    if (path->total_vertices() == 2) {
-      double x0, y0, x1, y1;
-      path->vertex(0, &x0, &y0);
-      trans.transform(&x0, &y0);
-      path->vertex(1, &x1, &y1);
-      trans.transform(&x1, &y1);
-      if (((int)x0 == (int)x1) || ((int)y0 == (int)y1)) {
-	new_path.move_to((int)x0 + 0.5, (int)y0 + 0.5);
-	new_path.line_to((int)x1 + 0.5, (int)y1 + 0.5);
-	tpath = new transformed_path_t(new_path, agg::trans_affine());
-      }
-    }
+//     if (path.total_vertices() == 2) {
+//       double x0, y0, x1, y1;
+//       path.vertex(0, &x0, &y0);
+//       trans.transform(&x0, &y0);
+//       path.vertex(1, &x1, &y1);
+//       trans.transform(&x1, &y1);
+//       if (((int)x0 == (int)x1) || ((int)y0 == (int)y1)) {
+// 	new_path.move_to((int)x0 + 0.5, (int)y0 + 0.5);
+// 	new_path.line_to((int)x1 + 0.5, (int)y1 + 0.5);
+// 	tpath = new transformed_path_t(new_path, agg::trans_affine());
+//       }
+//     }
 
     if (!tpath) {
-      tpath = new transformed_path_t(*path, trans);
+      tpath = new transformed_path_t(path, trans);
     }
 
     // Benchmarking shows that there is no noticable slowdown to always
