@@ -112,8 +112,7 @@ class RendererAgg(RendererBase):
         self.dpi = dpi
         self.width = width
         self.height = height
-        if __debug__: verbose.report('RendererAgg.__init__ width=%s, \
-                        height=%s'%(width, height), 'debug-annoying')
+        if __debug__: verbose.report('RendererAgg.__init__ width=%s, height=%s'%(width, height), 'debug-annoying')
         self._renderer = _RendererAgg(int(width), int(height), dpi,
 				      debug=False)
         if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done',
