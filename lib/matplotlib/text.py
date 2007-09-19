@@ -231,7 +231,7 @@ class Text(Artist):
 
         # now rotate the bbox
 
-        cornersRotated = M(cornersHoriz)
+        cornersRotated = M.transform(cornersHoriz)
 
         txs = cornersRotated[:, 0]
         tys = cornersRotated[:, 1]
@@ -269,7 +269,7 @@ class Text(Artist):
 	
 
         # now rotate the positions around the first x,y position
-        xys = M(offsetLayout)
+        xys = M.transform(offsetLayout)
 	tx = xys[:, 0]
 	ty = xys[:, 1]
 	tx += offsetx
@@ -277,7 +277,7 @@ class Text(Artist):
 
         # now inverse transform back to data coords
 	inverse_transform = self.get_transform().inverted()
-        xys = inverse_transform(xys)
+        xys = inverse_transform.transform(xys)
 
         xs, ys = zip(*xys)
 
@@ -407,7 +407,7 @@ class Text(Artist):
         return (x, y, self._text, self._color,
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties), self._rotation,
-                self.get_transform().to_values(),
+                self.get_transform(),
                 )
 
     def get_text(self):

@@ -1,15 +1,13 @@
 import numpy as npy
 
-DEBUG = True
-
 class Path(object):
     # Path codes
-    IGNORE    = 0 # 1 vertex
+    STOP      = 0 # 1 vertex
     MOVETO    = 1 # 1 vertex
     LINETO    = 2 # 1 vertex
     CURVE3    = 3 # 2 vertices
     CURVE4    = 4 # 3 vertices
-    CLOSEPOLY = 5
+    CLOSEPOLY = 5 # 1 vertex
     ###
     # MGDTODO: I'm not sure these are supported by PS/PDF/SVG,
     # so if they don't, we probably shouldn't
@@ -18,37 +16,35 @@ class Path(object):
     UBSPLINE  = 8
     ####
 
-    NUM_VERTICES = [1, 1, 1, 2, 3, 0]
+    NUM_VERTICES = [1, 1, 1, 2, 3, 1]
     
     code_type = npy.uint8
     
     def __init__(self, vertices, codes=None, closed=True):
-	self._vertices = npy.asarray(vertices, npy.float_)
-	assert self._vertices.ndim == 2
-	assert self._vertices.shape[1] == 2
-
+        vertices = npy.asarray(vertices, npy.float_)
+	assert vertices.ndim == 2
+	assert vertices.shape[1] == 2
+        
 	if codes is None:
 	    if closed:
 		codes = self.LINETO * npy.ones(
-		    self._vertices.shape[0] + 1, self.code_type)
+		    vertices.shape[0] + 1, self.code_type)
 		codes[0] = self.MOVETO
-		codes[-1] = self.CLOSEPOLY
+                codes[-1] = self.CLOSEPOLY
+                vertices = npy.concatenate((vertices, [[0.0, 0.0]]))
 	    else:
 		codes = self.LINETO * npy.ones(
-		    self._vertices.shape[0], self.code_type)
+		    vertices.shape[0], self.code_type)
 		codes[0] = self.MOVETO
         else:
 	    codes = npy.asarray(codes, self.code_type)
-	self._codes = codes
-	    
-	assert self._codes.ndim == 1
+            assert codes.ndim == 1
+            assert len(codes) == len(vertices)
 
-	if DEBUG:
-	    i = 0
-	    NUM_VERTICES = self.NUM_VERTICES
-	    for code in codes:
-		i += NUM_VERTICES[code]
-	    assert i == len(self.vertices)
+        self._codes = codes
+	self._vertices = vertices
+        
+	assert self._codes.ndim == 1
 
     def __repr__(self):
 	return "Path(%s, %s)" % (self.vertices, self.codes)
@@ -66,11 +62,13 @@ class Path(object):
 	NUM_VERTICES = self.NUM_VERTICES
 	vertices = self.vertices
 	for code in self.codes:
-	    num_vertices = NUM_VERTICES[code]
-	    if num_vertices >= 1:
-		i += num_vertices - 1
-		yield vertices[i]
-		i += 1
+            if code == self.CLOSEPOLY:
+                i += 1
+            else:
+                num_vertices = NUM_VERTICES[code]
+                i += num_vertices - 1
+                yield vertices[i]
+                i += 1
 
     _unit_rectangle = None
     #@classmethod
@@ -118,16 +116,18 @@ class Path(object):
 		 
 		 [-offset, -1.0],
 		 [-1.0, -offset],
-		 [-1.0, 0.0]],
-		npy.float_)
-	    codes = npy.array(
-		[cls.MOVETO,
-		 cls.CURVE4,
-		 cls.CURVE4,
-		 cls.CURVE4,
-		 cls.CURVE4,
-		 cls.CLOSEPOLY],
-		cls.code_type)
+		 [-1.0, 0.0],
+
+                 [-1.0, 0.0]],
+                npy.float_)
+
+            codes = cls.CURVE4 + npy.ones((len(vertices)))
+	    codes[0] = cls.MOVETO
+            codes[-1] = cls.CLOSEPOLY
+
 	    cls._unit_circle = Path(vertices, codes)
 	return cls._unit_circle
     unit_circle = classmethod(unit_circle)
+
+# MGDTODO: Add a transformed path that would automatically invalidate
+# itself when its transform changes

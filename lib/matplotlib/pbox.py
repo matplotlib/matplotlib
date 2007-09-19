@@ -1,5 +1,3 @@
-# MGDTODO: Just included verbatim for now
-
 class PBox(list):
     '''
     A left-bottom-width-height (lbwh) specification of a bounding box,
