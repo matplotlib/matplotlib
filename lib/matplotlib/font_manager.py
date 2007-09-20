@@ -773,7 +773,6 @@ class FontProperties(object):
         else:
             if is_string_like(size):
                 parent_size = fontManager.get_default_size()
-                print "parent_size", parent_size, size
                 scaling = font_scalings.get(size)
                 if scaling is not None:
                     size = parent_size * scaling
