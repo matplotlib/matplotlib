@@ -17,11 +17,6 @@ from matplotlib import rcParams
 class RendererBase:
     """An abstract base class to handle drawing/rendering operations
     """
-    # This will cache paths across rendering instances
-    # Each subclass of RenderBase should define this a weak-keyed
-    # dictionary to hold native paths
-    # _native_paths = weakref.WeakKeyDictionary()
-    
     def __init__(self):
         self._texmanager = None
 
@@ -37,43 +32,16 @@ class RendererBase:
         """
         pass
 
-    def _get_cached_native_path(self, path):
-	native_path = self._native_paths.get(path)
-	if native_path is None:
-	    print "CACHE MISS", path
-	    native_path = self.convert_to_native_path(path)
-	    self._native_paths[path] = native_path
-	return native_path
-    
     def draw_path(self, gc, path, transform, rgbFace=None):
 	"""
 	Handles the caching of the native path associated with the
 	given path and calls the underlying backend's _draw_path to
 	actually do the drawing.
 	"""
-	native_path = self._get_cached_native_path(path)
-	self._draw_native_path(gc, native_path, transform, rgbFace)
-
-    def _draw_native_path(self, gc, native_path, transform, rgbFace):
-	"""
-	Draw the native path object with the given GraphicsContext and
-	transform.  The transform passed in will always be affine.
-	"""
-	raise NotImplementedError
-	
-    def convert_to_native_path(self, path):
-	"""
-	Backends will normally will override this, but if they don't need any
-	special optimizations, they can just have the generic path data
-	passed to them in draw_path.
-	"""
-	return path
+        # MGDTODO: Update docstring
+        raise NotImplementedError
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
-	native_marker_path = self._get_cached_native_path(marker_path)
-	self._draw_native_markers(gc, native_marker_path, marker_trans, path, trans, rgbFace)
-	
-    def _draw_native_markers(self, gc, native_marker_path, marker_trans, path, trans, rgbFace=None):
         """
         This method is currently underscore hidden because the
         draw_markers method is being used as a sentinel for newstyle
@@ -94,6 +62,10 @@ class RendererBase:
         vec6 = transform.as_vec6_val()
         ...backend dependent affine...
         """
+        # MGDTODO: Update docstring
+        raise NotImplementedError
+	
+    def _draw_native_markers(self, gc, native_marker_path, marker_trans, path, trans, rgbFace=None):
         raise NotImplementedError
 
     def get_image_magnification(self):
