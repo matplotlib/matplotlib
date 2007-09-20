@@ -1255,7 +1255,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     if unpack: return X.transpose()
     else: return X
 
-def csv2rec(fname, comments='#', skiprows=1, checkrows=5, delimiter=',',
+def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
             converterd=None, names=None, missing=None):
     """
     Load data from comma/space/tab delimited file in fname into a
@@ -1314,6 +1314,14 @@ def csv2rec(fname, comments='#', skiprows=1, checkrows=5, delimiter=',',
             else: return get_func(item, funcmap[func])    # recurse
         else: return func
 
+
+    # map column names that clash with builtins -- TODO - extend this list
+    itemd = {
+        'return' : 'return_',
+        'file' : 'file_',
+        'print' : 'print_',
+        }
+        
     def get_converters(reader):
 
         converters = None
@@ -1352,6 +1360,7 @@ def csv2rec(fname, comments='#', skiprows=1, checkrows=5, delimiter=',',
             if not len(item):
                 item = 'column%d'%i
 
+            item = itemd.get(item, item)
             cnt = seen.get(item, 0)
             if cnt>0:
                 names.append(item + '%d'%cnt)
