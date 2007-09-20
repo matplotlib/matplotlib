@@ -117,8 +117,8 @@ class RendererAgg(RendererBase):
 				      debug=False)
         if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done',
                                      'debug-annoying')
-
-	self.convert_to_native_path = self._renderer.convert_to_native_path
+        self.draw_path = self._renderer.draw_path
+        self.draw_markers = self._renderer.draw_markers
         self.draw_image = self._renderer.draw_image
         self.copy_from_bbox = self._renderer.copy_from_bbox
         self.restore_region = self._renderer.restore_region
@@ -128,16 +128,6 @@ class RendererAgg(RendererBase):
         self.bbox = Bbox.from_lbwh(0,0, self.width, self.height)
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
-
-    def _draw_native_path(self, gc, path, transform, rgbFace):
-	return self._renderer.draw_path(gc, path, transform.get_matrix(), rgbFace)
-    
-    def _draw_native_markers(self, gc, native_marker_path, marker_trans, path, trans, rgbFace=None):
-	return self._renderer.draw_markers(
-	    gc,
-	    native_marker_path, marker_trans.get_matrix(),
-	    path.vertices, path.codes, trans.get_matrix(),
-	    rgbFace)
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """

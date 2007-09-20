@@ -365,7 +365,7 @@ class Affine2DBase(Transform):
         Transform.__init__(self)
         self._inverted = None
 
-    def __array__(self):
+    def __array__(self, *args, **kwargs):
 	return self.get_matrix()
 	
     def _do_invalidation(self):

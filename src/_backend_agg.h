@@ -105,20 +105,6 @@ public:
   };
 };
 
-// A completely opaque data type used only to pass native path
-// data to/from Python.  Python can't do anything with the data
-// other than create and then use it.
-class PathAgg : 
-  public agg::path_storage, 
-  public Py::PythonExtension<PathAgg> {
-public:
-  static void init_type(void);
-
-  PathAgg(const Py::Object& path_obj);
-
-  bool curvy;
-};
-
 class GCAgg {
 public:
   GCAgg(const Py::Object& gc, double dpi, bool snapto=false);
@@ -126,7 +112,6 @@ public:
   ~GCAgg() {
     delete [] dasha;
     delete [] cliprect;
-    Py_XINCREF(clippath);
   }
 
   double dpi;
@@ -142,7 +127,7 @@ public:
   agg::rgba color;
 
   double *cliprect;
-  PathAgg *clippath;
+  Py::Object clippath;
   //dashes
   size_t Ndash;
   double dashOffset;
@@ -183,7 +168,6 @@ public:
   Py::Object draw_text_image(const Py::Tuple & args);
   Py::Object draw_image(const Py::Tuple & args);
   Py::Object draw_path(const Py::Tuple & args);
-  Py::Object convert_to_native_path(const Py::Tuple & args);
 
   Py::Object write_rgba(const Py::Tuple & args);
   Py::Object write_png(const Py::Tuple & args);
@@ -240,7 +224,7 @@ protected:
   void set_clipbox_rasterizer( double *cliprect);
 
 private:
-  PathAgg *lastclippath;
+  Py::Object lastclippath;
   agg::trans_affine lastclippath_transform;
 };
 
@@ -253,7 +237,6 @@ public:
     : Py::ExtensionModule<_backend_agg_module>( "_backend_agg" )
   {
     RendererAgg::init_type();
-    PathAgg::init_type();
 
     add_keyword_method("RendererAgg", &_backend_agg_module::new_renderer,
 		       "RendererAgg(width, height, dpi)");
