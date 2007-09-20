@@ -843,10 +843,9 @@ class FontManager:
     """
 
     def __init__(self, size=None, weight='normal'):
-        if not size : size = rcParams['font.size']
-        self.__default_size = size
         self.__default_weight = weight
-
+        self.default_size = size
+        
         paths = [os.path.join(rcParams['datapath'],'fonts','ttf'),
                  os.path.join(rcParams['datapath'],'fonts','afm')]
 
@@ -899,7 +898,9 @@ class FontManager:
 
     def get_default_size(self):
         "Return the default font size."
-        return self.__default_size
+        if self.default_size is None:
+            return rcParams['font.size']
+        return self.default_size
 
     def set_default_weight(self, weight):
         "Set the default font weight.  The initial value is 'normal'."
@@ -1085,6 +1086,7 @@ else:
 
     try:
         fontManager = pickle_load(_fmcache)
+        fontManager.default_size = None
         verbose.report("Using fontManager instance from %s" % _fmcache)
     except:
         _rebuild()
