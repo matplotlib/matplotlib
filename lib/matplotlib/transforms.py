@@ -256,10 +256,10 @@ class Bbox(BboxBase):
         self.invalidate()
         
     def transformed(self, transform):
-        return Bbox(transform(self._points))
+        return Bbox(transform.transform(self._points))
 
     def inverse_transformed(self, transform):
-        return Bbox(transform.inverted()(self._points))
+        return Bbox(transform.inverted().transform(self._points))
     
     def expanded(self, sw, sh):
         width = self.width
@@ -408,13 +408,13 @@ class Affine2DBase(Transform):
         # MGDTODO: The major speed trap here is just converting to
         # the points to an array in the first place.  If we can use
         # more arrays upstream, that should help here.
-        if not isinstance(points, npy.ndarray):
-            import traceback
-            print '-' * 60
-            print 'A non-numpy array was passed in for transformation.  Please '
-            print 'correct this.'
-            print "".join(traceback.format_stack())
-            print points
+#         if not isinstance(points, npy.ndarray):
+#             import traceback
+#             print '-' * 60
+#             print 'A non-numpy array was passed in for transformation.  Please '
+#             print 'correct this.'
+#             print "".join(traceback.format_stack())
+#             print points
         mtx = self.get_matrix()
         points = npy.asarray(points, npy.float_)
         points = points.transpose()
@@ -563,6 +563,10 @@ class BlendedGenericTransform(Transform):
         self._y = y_transform
         self.set_children(['_x', '_y'])
 
+    def __repr__(self):
+        return "BlendedGenericTransform(%s,%s)" % (self._x, self._y)
+    __str__ = __repr__
+        
     def transform(self, points):
         # MGDTODO: Optimize the case where one of these is
         # an affine
@@ -588,28 +592,6 @@ class BlendedGenericTransform(Transform):
     
     def is_separable(self):
         return True
-    
-    
-class BlendedSeparableTransform(Transform):
-    input_dims = 2
-    output_dims = 2
-
-    def __init__(self, x_transform, y_transform):
-	# Here we ask: "Does it blend?"
-        assert x_transform.is_separable()
-        assert y_transform.is_separable()
-        assert x_transform.input_dims == x.transform.output_dims == 1
-        assert y_transform.input_dims == y.transform.output_dims == 1
-        
-        Transform.__init__(self)
-        self._x = x_transform
-        self._y = y_transform
-        self.set_children(['_x', '_y'])
-
-    def transform(self, points):
-        x_points = self._x(points[:, 0])
-        y_points = self._y(points[:, 1])
-        return npy.vstack((x_points[:, 0:1], y_points[:, 1:2])).transpose()
     
     
 class BlendedAffine2D(Affine2DBase, Transform):
@@ -666,6 +648,10 @@ class CompositeGenericTransform(Transform):
         self._a = a
         self._b = b
         self.set_children(['_a', '_b'])
+
+    def __repr__(self):
+        return "CompositeGenericTransform(%s, %s)" % (self._a, self._b)
+    __str__ = __repr__
         
     def transform(self, points):
         return self._b.transform(self._a.transform(points))
@@ -724,10 +710,21 @@ class TestLogTransform(Transform):
     input_dims = 2
     output_dims = 2
     def transform(self, xy):
-        return xy * 2
-
+        marray = npy.ma.masked_where(xy <= 0.0, xy * 10.0)
+        return npy.log10(marray)
+        
     def inverted(self):
-        return self
+        return TestInvertLogTransform()
+
+
+class TestInvertLogTransform(Transform):
+    input_dims = 2
+    output_dims = 2
+    def transform(self, xy):
+        return npy.power(10, xy) / 10.0
+        
+    def inverted(self):
+        return TestLogTransform()
 
     
 class BboxTransform(Affine2DBase):
@@ -825,7 +822,7 @@ if __name__ == '__main__':
 
     assert bbox.bounds == (10, 15, 10, 10)
 
-    print npy.asarray(bbox)
+    assert tuple(npy.asarray(bbox).flatten()) == (10, 15, 20, 25)
     
     bbox.intervalx = (11, 21)
     bbox.intervaly = (16, 26)
@@ -859,29 +856,35 @@ if __name__ == '__main__':
     scale = Affine2D().scale(10, 20)
     assert scale.to_values() == (10, 0, 0, 20, 0, 0)
     rotation = Affine2D().rotate_deg(30)
-    print rotation.to_values() == (0.86602540378443871, 0.49999999999999994,
+    assert rotation.to_values() == (0.86602540378443871, 0.49999999999999994,
                                    -0.49999999999999994, 0.86602540378443871,
                                    0.0, 0.0)
     
     points = npy.array([[1,2],[3,4],[5,6],[7,8]], npy.float_)
-    translated_points = translation(points)
+    translated_points = translation.transform(points)
     assert (translated_points == [[11., 22.], [13., 24.], [15., 26.], [17., 28.]]).all()
-    scaled_points = scale(points)
+    scaled_points = scale.transform(points)
     print scaled_points
-    rotated_points = rotation(points)
+    rotated_points = rotation.transform(points)
     print rotated_points
 
-    tpoints1 = rotation(translation(scale(points)))
+    tpoints1 = rotation.transform(translation.transform(scale.transform(points)))
     trans_sum = scale + translation + rotation
-    tpoints2 = trans_sum(points)
-    print tpoints1, tpoints2
-    print tpoints1 == tpoints2
+    tpoints2 = trans_sum.transform(points)
     # Need to do some sort of fuzzy comparison here?
-    # assert (tpoints1 == tpoints2).all()
+    assert (tpoints1.round() == tpoints2.round()).all()
 
+    print points
+    
+    comp = TestLogTransform() + Affine2D().rotate_deg(15)
+    tpoints = comp.transform(points)
+    itpoints = comp.inverted().transform(tpoints)
+    print tpoints, itpoints
+    assert (points.round() == itpoints.round()).all()
+    
     # Here are some timing tests
     points = npy.asarray([(random(), random()) for i in xrange(10000)])
-    t = timeit.Timer("trans_sum(points)", "from __main__ import trans_sum, points")
+    t = timeit.Timer("trans_sum.transform(points)", "from __main__ import trans_sum, points")
     print "Time to transform 10000 x 10 points:", t.timeit(10)
     
 __all__ = ['Transform', 'Affine2D']

@@ -84,7 +84,8 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, LOAD_DEFAULT
 from matplotlib.mathtext import MathTextParser
-from matplotlib.transforms import Bbox
+from matplotlib.path import Path
+from matplotlib.transforms import Affine2D, Bbox
 
 from _backend_agg import RendererAgg as _RendererAgg
 
@@ -117,8 +118,8 @@ class RendererAgg(RendererBase):
 				      debug=False)
         if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done',
                                      'debug-annoying')
-        self.draw_path = self._renderer.draw_path
-        self.draw_markers = self._renderer.draw_markers
+        #self.draw_path = self._renderer.draw_path
+        #self.draw_markers = self._renderer.draw_markers
         self.draw_image = self._renderer.draw_image
         self.copy_from_bbox = self._renderer.copy_from_bbox
         self.restore_region = self._renderer.restore_region
@@ -129,6 +130,17 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
 
+    # MGDTODO: This is a hack for now to allow for arbitrary transformations
+    def draw_path(self, gc, path, trans, rgbFace=None):
+        new_path, affine = path.transformed_without_affine(trans)
+        self._renderer.draw_path(gc, new_path, affine, rgbFace)
+
+    # MGDTODO: This is a hack for now to allow for arbitrary transformations
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        assert marker_trans.is_affine()
+        new_path, affine = path.transformed_without_affine(trans)
+        self._renderer.draw_markers(gc, marker_path, marker_trans, new_path, affine, rgbFace)
+        
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """
         Draw the math text using matplotlib.mathtext
