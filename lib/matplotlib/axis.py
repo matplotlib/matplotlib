@@ -1032,17 +1032,16 @@ class XAxis(Axis):
             else:
                 bbox = Bbox.union(bboxes)
                 bottom = bbox.ymin
-
-            self.label.set_position( (x, bottom-self.LABELPAD*self.figure.dpi / 72.0))
-
+            self.label.set_position( (x, bottom - self.LABELPAD*self.figure.dpi / 72.0))
+            
         else:
             if not len(bboxes2):
                 top = self.axes.bbox.ymax
             else:
                 bbox = bbox_union(bboxes2)
                 top = bbox.ymax
-
-            self.label.set_position( (x, top+self.LABELPAD*self.figure.dpi.get()/72.0))
+ 
+            self.label.set_position( (x, top+self.LABELPAD*self.figure.dpi / 72.0))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """

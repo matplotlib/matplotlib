@@ -633,9 +633,15 @@ class Axes(martist.Artist):
         self.transAxes = mtransforms.BboxTransform(
             mtransforms.Bbox.unit(), self.bbox)
         # self.set_transform(self.transAxes)
-        self.transData = mtransforms.BboxTransform(
-            self.viewLim, self.bbox)
-	    
+#         self.transData = mtransforms.BboxTransform(
+#             self.viewLim, self.bbox)
+        self.preDataTransform = mtransforms.BboxTransform(
+            self.viewLim, mtransforms.Bbox.unit())
+        self.dataTransform = mtransforms.TestLogTransform()
+        # self.dataTransform = mtransforms.Affine2D().scale(1.5)
+        self.transData = self.preDataTransform + self.dataTransform + mtransforms.BboxTransform(
+            mtransforms.Bbox.unit(), self.bbox)
+        
 	    
     def get_position(self, original=False):
         'Return the axes rectangle left, bottom, width, height'

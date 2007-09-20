@@ -1102,12 +1102,14 @@ class Line2D(Artist):
         """
         return self._dashcapstyle
 
+    
     def get_solid_capstyle(self):
         """
         Get the cap style for solid linestyles
         """
         return self._solidcapstyle
 
+    
     def is_dashed(self):
         'return True if line is dashstyle'
         return self._linestyle in ('--', '-.', ':')

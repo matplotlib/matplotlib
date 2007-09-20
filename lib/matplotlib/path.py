@@ -70,6 +70,13 @@ class Path(object):
                 yield vertices[i]
                 i += 1
 
+    def transformed(self, transform):
+        return Path(transform.transform(self.vertices), self.codes)
+
+    def transformed_without_affine(self, transform):
+        vertices, affine = transform.transform_without_affine(self.vertices)
+        return Path(vertices, self.codes), affine
+                
     _unit_rectangle = None
     #@classmethod
     def unit_rectangle(cls):

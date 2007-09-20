@@ -185,7 +185,8 @@ class Text(Artist):
 
         xmin, ymin = thisx, thisy
         lines = self._text.split('\n')
-            
+
+        # MGDTODO: whs could be a numpy.array
         whs = []
         # Find full vertical extent of font,
         # including ascenders and descenders:
@@ -260,27 +261,21 @@ class Text(Artist):
         else: offsety = ty - ymin
 
         xmin += offsetx
-        xmax += offsetx
         ymin += offsety
-        ymax += offsety
 
         bbox = Bbox.from_lbwh(xmin, ymin, width, height)
 
-	
-
         # now rotate the positions around the first x,y position
         xys = M.transform(offsetLayout)
-	tx = xys[:, 0]
-	ty = xys[:, 1]
-	tx += offsetx
-	ty += offsety
+        xys[:, 0] += offsetx
+        xys[:, 1] += offsety
 
         # now inverse transform back to data coords
 	inverse_transform = self.get_transform().inverted()
         xys = inverse_transform.transform(xys)
 
-        xs, ys = zip(*xys)
-
+        xs, ys = xys[:, 0], xys[:, 1]
+        
         ret = bbox, zip(lines, whs, xs, ys)
         self.cached[key] = ret
         return ret
@@ -331,15 +326,15 @@ class Text(Artist):
 
         for line, wh, x, y in info:
             x, y = trans.transform_point((x, y))
-
+            
             if renderer.flipy():
                 canvasw, canvash = renderer.get_canvas_width_height()
                 y = canvash-y
-
+                
             renderer.draw_text(gc, x, y, line,
                                self._fontproperties, angle,
                                ismath=self.is_math_text(line))
-
+            
     def get_color(self):
         "Return the color of the text"
         return self._color
@@ -407,7 +402,9 @@ class Text(Artist):
         return (x, y, self._text, self._color,
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties), self._rotation,
-                self.get_transform(),
+                # MGDTODO: Find a better way to determine if the
+                # transform as changed
+                str(self.get_transform())
                 )
 
     def get_text(self):
