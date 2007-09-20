@@ -955,24 +955,40 @@ class HorizontalSpanSelector(SpanSelector):
         warnings.warn('Use SpanSelector instead!', DeprecationWarning)
         SpanSelector.__init__(self, ax, onselect, 'horizontal', **kwargs)
 
+
 class RectangleSelector:
     """
     Select a min/max range of the x axes for a matplotlib Axes
 
     Example usage:
 
-      ax = subplot(111)
-      ax.plot(x,y)
+        from matplotlib.widgets import  RectangleSelector
+        from pylab import *
 
-      def onselect(eclick, erelease):
+        def onselect(eclick, erelease):
           'eclick and erelease are matplotlib events at press and release'
-          print 'startposition : (%f,%f)'%(eclick.xdata, eclick.ydata)
-          print 'endposition   : (%f,%f)'%(erelease.xdata, erelease.ydata)
-          print 'used button   : ', eclick.button
+          print ' startposition : (%f, %f)' % (eclick.xdata, eclick.ydata)
+          print ' endposition   : (%f, %f)' % (erelease.xdata, erelease.ydata)
+          print ' used button   : ', eclick.button
 
-      span = Selector(ax, onselect,drawtype='box')
-      show()
+        def toggle_Selector(event):
+            print ' Key pressed.'
+            if event.key in ['Q', 'q'] and toggle_Selector.RS.active:
+                print ' RectangleSelector deactivated.'
+                toggle_Selector.RS.set_active(False)
+            if event.key in ['A', 'a'] and not toggle_Selector.RS.active:
+                print ' RectangleSelector activated.'
+                toggle_Selector.RS.set_active(True)
 
+        x = arange(100)/(99.0)
+        y = sin(x)
+        fig = figure
+        ax = subplot(111)
+        ax.plot(x,y)
+
+        toggle_Selector.RS = RectangleSelector(ax, onselect, drawtype='line')
+        connect('key_press_event', toggle_Selector)
+        show()
     """
     def __init__(self, ax, onselect, drawtype='box',
                  minspanx=None, minspany=None, useblit=False,
@@ -1001,8 +1017,6 @@ class RectangleSelector:
         Use type if you want the mouse to draw a line, a box or nothing
         between click and actual position ny setting
         drawtype = 'line', drawtype='box' or drawtype = 'none'.
-
-
         """
         self.ax = ax
         self.visible = True
@@ -1012,6 +1026,7 @@ class RectangleSelector:
         self.canvas.mpl_connect('button_release_event', self.release)
         self.canvas.mpl_connect('draw_event', self.update_background)
 
+        self.active = True                    # for activation / deactivation
         self.to_draw = None
         self.background = None
 
@@ -1052,6 +1067,14 @@ class RectangleSelector:
 
     def ignore(self, event):
         'return True if event should be ignored'
+        # If RectangleSelector is not active :
+        if not self.active:
+            return True
+        
+        # If canvas was locked
+        if not self.canvas.widgetlock.available(self):
+            return True
+        
         # If no button was pressed yet ignore the event if it was out
         # of the axes
         if self.eventpress == None:
@@ -1141,6 +1164,17 @@ class RectangleSelector:
                                   [self.eventpress.ydata, y])
             self.update()
             return False
+
+    def set_active(self, active):
+        """ Use this to activate / deactivate the RectangleSelector
+
+            from your program with an boolean variable 'active'.
+        """
+        self.active = active
+
+    def get_active(self):
+        """ to get status of active mode (boolean variable)"""
+        return self.active 
 
 class Lasso(Widget):
     def __init__(self, ax, xy, callback=None, useblit=True):
