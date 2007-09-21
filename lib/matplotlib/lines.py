@@ -25,6 +25,53 @@ from matplotlib import rcParams
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = range(8)
 
+def unmasked_index_ranges(mask, compressed = True):
+    '''
+    Calculate the good data ranges in a masked 1-D npy.array, based on mask.
+
+    Returns Nx2 npy.array with each row the start and stop indices
+    for slices of the compressed npy.array corresponding to each of N
+    uninterrupted runs of unmasked values.
+    If optional argument compressed is False, it returns the
+    start and stop indices into the original npy.array, not the
+    compressed npy.array.
+    Returns None if there are no unmasked values.
+
+    Example:
+
+    y = ma.array(npy.arange(5), mask = [0,0,1,0,0])
+    #ii = unmasked_index_ranges(y.mask())
+    ii = unmasked_index_ranges(ma.getmask(y))
+        # returns [[0,2,] [2,4,]]
+
+    y.compressed().filled()[ii[1,0]:ii[1,1]]
+        # returns npy.array [3,4,]
+        # (The 'filled()' method converts the masked npy.array to a numerix npy.array.)
+
+    #i0, i1 = unmasked_index_ranges(y.mask(), compressed=False)
+    i0, i1 = unmasked_index_ranges(ma.getmask(y), compressed=False)
+        # returns [[0,3,] [2,5,]]
+
+    y.filled()[ii[1,0]:ii[1,1]]
+        # returns npy.array [3,4,]
+
+    '''
+    m = npy.concatenate(((1,), mask, (1,)))
+    indices = npy.arange(len(mask) + 1)
+    mdif = m[1:] - m[:-1]
+    i0 = npy.compress(mdif == -1, indices)
+    i1 = npy.compress(mdif == 1, indices)
+    assert len(i0) == len(i1)
+    if len(i1) == 0:
+        return None
+    if not compressed:
+        return npy.concatenate((i0[:, npy.newaxis], i1[:, npy.newaxis]), axis=1)
+    seglengths = i1 - i0
+    breakpoints = npy.cumsum(seglengths)
+    ic0 = npy.concatenate(((0,), breakpoints[:-1]))
+    ic1 = breakpoints
+    return npy.concatenate((ic0[:, npy.newaxis], ic1[:, npy.newaxis]), axis=1)
+
 def segment_hits(cx,cy,x,y,radius):
     """Determine if any line segments are within radius of a point. Returns
     the list of line segments that are within that radius.
@@ -302,7 +349,7 @@ class Line2D(Artist):
         self._picker = p
 
     def get_window_extent(self, renderer):
-        xy = self.get_transform()(self._xy)
+        xy = self.get_transform().transform(self._xy)
 
 	x = xy[:, 0]
 	y = xy[:, 1]
@@ -343,9 +390,6 @@ class Line2D(Artist):
         self._yorig = y
         self.recache()
 
-    # MGDTODO: Masked data arrays are broken
-    _masked_array_to_path_code_mapping = npy.array(
-        [Path.LINETO, Path.MOVETO, Path.MOVETO], Path.code_type)
     def recache(self):
         #if self.axes is None: print 'recache no axes'
         #else: print 'recache units', self.axes.xaxis.units, self.axes.yaxis.units
@@ -363,24 +407,15 @@ class Line2D(Artist):
         if len(x) != len(y):
             raise RuntimeError('xdata and ydata must be the same length')
 
-	self._xy = npy.vstack((npy.asarray(x, npy.float_),
-			       npy.asarray(y, npy.float_))).transpose()
+        x = x.reshape((len(x), 1))
+        y = y.reshape((len(y), 1))
+            
+	self._xy = ma.concatenate((x, y), 1)
 	self._x = self._xy[:, 0] # just a view
 	self._y = self._xy[:, 1] # just a view
         self._logcache = None
-
-        mx = ma.getmask(x)
-        my = ma.getmask(y)
-        mask = ma.mask_or(mx, my)
-        codes = None
-        if mask is not ma.nomask:
-            m = npy.concatenate(((1,), mask, (1,)))
-            mdif = m[1:] - m[:-1]
-            mdif = npy.maximum((mdif[:-1] * -2), mask)
-            codes = npy.take(
-                self._masked_array_to_path_code_mapping,
-                mdif)
-        self._path = Path(self._xy, codes, closed=False)
+        # Masked arrays are now handled by the Path class itself
+        self._path = Path(self._xy, closed=False)
         # MGDTODO: If _draw_steps is removed, remove the following line also
         self._step_path = None
         

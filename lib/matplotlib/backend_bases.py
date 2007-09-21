@@ -1655,60 +1655,30 @@ class NavigationToolbar2:
             #multiple button can get pressed during motion...
             if self._button_pressed==1:
 		inverse = trans.inverted()
-                lastx, lasty = inverse.transform_point((lastx, lasty))
-                x, y = inverse.transform_point( (event.x, event.y) )
-                if a.get_xscale()=='log':
-                    dx=1-lastx/x
-                else:
-                    dx=x-lastx
-                if a.get_yscale()=='log':
-                    dy=1-lasty/y
-                else:
-                    dy=y-lasty
-
-                dx,dy=format_deltas(event,dx,dy)
-
-                if a.get_xscale()=='log':
-                    xmin *= 1-dx
-                    xmax *= 1-dx
-                else:
-                    xmin -= dx
-                    xmax -= dx
-                if a.get_yscale()=='log':
-                    ymin *= 1-dy
-                    ymax *= 1-dy
-                else:
-                    ymin -= dy
-                    ymax -= dy
+                dx, dy = event.x - lastx, event.y - lasty
+                dx, dy = format_deltas(event, dx, dy)
+                delta = npy.array([[dx, dy], [dx, dy]], npy.float_)
+                bbox = transforms.Bbox(a.bbox.get_points() - delta)
+                result = bbox.transformed(inverse)
             elif self._button_pressed==3:
                 try:
+                    inverse = trans.inverted()
                     dx=(lastx-event.x)/float(a.bbox.width)
                     dy=(lasty-event.y)/float(a.bbox.height)
-                    dx,dy=format_deltas(event,dx,dy)
-                    if a.get_aspect() != 'auto':
-                        dx = 0.5*(dx + dy)
-                        dy = dx
-                    alphax = pow(10.0,dx)
-                    alphay = pow(10.0,dy)#use logscaling, avoid singularities and smother scaling...
-		    inverse = trans.inverted()
-                    lastx, lasty = inverse.transform_point( (lastx, lasty) )
-                    if a.get_xscale()=='log':
-                        xmin = lastx*(xmin/lastx)**alphax
-                        xmax = lastx*(xmax/lastx)**alphax
-                    else:
-                        xmin = lastx+alphax*(xmin-lastx)
-                        xmax = lastx+alphax*(xmax-lastx)
-                    if a.get_yscale()=='log':
-                        ymin = lasty*(ymin/lasty)**alphay
-                        ymax = lasty*(ymax/lasty)**alphay
-                    else:
-                        ymin = lasty+alphay*(ymin-lasty)
-                        ymax = lasty+alphay*(ymax-lasty)
+                    alphax = pow(10.0, dx)
+                    alphay = pow(10.0, dy)
+                    # MGDTODO: Make better use of numpy
+                    lastx, lasty = inverse.transform_point((lastx, lasty))
+                    xmin = (lastx + alphax * (xmin - lastx))
+                    xmax = (lastx + alphax * (xmax - lastx))
+                    ymin = (lasty + alphay * (ymin - lasty))
+                    ymax = (lasty + alphay * (ymax - lasty))
+                    result = transforms.Bbox.from_lbrt(xmin, ymin, xmax, ymax)
                 except OverflowError:
                     warnings.warn('Overflow while panning')
                     return
-            a.set_xlim(xmin, xmax)
-            a.set_ylim(ymin, ymax)
+            a.set_xlim(*result.intervalx)
+            a.set_ylim(*result.intervaly)
 
         self.dynamic_update()
 
