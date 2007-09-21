@@ -1,3 +1,8 @@
+    Changed cbook.reversed so it yields a tuple rather than a 
+    (index, tuple). This agrees with the python reversed builtin,
+    and cbook only defines reversed if python doesnt provide the 
+    builtin.
+
     Made skiprows=1 the default on csv2rec
 
     The gd and paint backends have been deleted.

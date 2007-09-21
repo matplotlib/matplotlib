@@ -482,7 +482,7 @@ except:
         enumerate() is new in Python 2.3
         """
         for i in range(len(seq)-1,-1,-1):
-            yield i, seq[i]
+            yield seq[i]
 
 
 # use itertools.izip if available, else use python version
