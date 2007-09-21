@@ -1,3 +1,6 @@
+2007-09-21 Changed cbook.reversed to yield the same result as the 
+           python reversed builtin - DSD
+
 2007-09-13 The usetex support in the pdf backend is more usable now,
            so I am enabling it. - JKS
 
