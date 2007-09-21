@@ -637,10 +637,14 @@ class Axes(martist.Artist):
 #             self.viewLim, self.bbox)
         self.preDataTransform = mtransforms.BboxTransform(
             self.viewLim, mtransforms.Bbox.unit())
-        self.dataTransform = mtransforms.TestLogTransform()
-        # self.dataTransform = mtransforms.Affine2D().scale(1.5)
+#        self.dataTransform = mtransforms.TestPolarTransform()
+#         self.dataTransform = mtransforms.blended_transform_factory(
+#             mtransforms.TestLogTransform(),
+#             mtransforms.Affine2D())
+        self.dataTransform = mtransforms.Affine2D()
         self.transData = self.preDataTransform + self.dataTransform + mtransforms.BboxTransform(
             mtransforms.Bbox.unit(), self.bbox)
+        self.transData.make_graphviz(open("trans.dot", "w"))
         
 	    
     def get_position(self, original=False):
@@ -1523,7 +1527,7 @@ class Axes(martist.Artist):
         'return the xaxis scale string: log or linear'
 	# MGDTODO
         # return self.scaled[self.transData.get_funcx().get_type()]
-	return 'linear'
+	return 'log'
 
     def set_xscale(self, value, basex = 10, subsx=None):
         """

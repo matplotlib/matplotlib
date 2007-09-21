@@ -1,4 +1,5 @@
 import numpy as npy
+from numpy import ma as ma
 
 class Path(object):
     # Path codes
@@ -21,10 +22,8 @@ class Path(object):
     code_type = npy.uint8
     
     def __init__(self, vertices, codes=None, closed=True):
-        vertices = npy.asarray(vertices, npy.float_)
-	assert vertices.ndim == 2
-	assert vertices.shape[1] == 2
-        
+        vertices = ma.asarray(vertices, npy.float_)
+
 	if codes is None:
 	    if closed:
 		codes = self.LINETO * npy.ones(
@@ -41,10 +40,27 @@ class Path(object):
             assert codes.ndim == 1
             assert len(codes) == len(vertices)
 
+        # The path being passed in may have masked values.  However,
+        # the backends are not expected to deal with masked arrays, so
+        # we must remove them from the array (using compressed), and
+        # add MOVETO commands to the codes array accordingly.
+        mask = ma.getmask(vertices)
+        if mask is not ma.nomask:
+            mask1d = ma.mask_or(mask[:, 0], mask[:, 1])
+            vertices = ma.compress(npy.invert(mask1d), vertices, 0)
+            codes = npy.where(npy.concatenate((mask1d[-1:], mask1d[:-1])),
+                              self.MOVETO, codes)
+            codes = ma.masked_array(codes, mask=mask1d).compressed()
+            codes = npy.asarray(codes, self.code_type)
+
+        vertices = npy.asarray(vertices, npy.float_)
+
+        assert vertices.ndim == 2
+        assert vertices.shape[1] == 2
+	assert codes.ndim == 1
+        
         self._codes = codes
 	self._vertices = vertices
-        
-	assert self._codes.ndim == 1
 
     def __repr__(self):
 	return "Path(%s, %s)" % (self.vertices, self.codes)
@@ -91,10 +107,11 @@ class Path(object):
     def unit_regular_polygon(cls, numVertices):
 	path = cls._unit_regular_polygons.get(numVertices)
 	if path is None:
-	    theta = 2*npy.pi/numVertices * npy.arange(numVertices)
-	    # This is to make sure the polygon always "points-up"
+	    theta = 2*npy.pi/numVertices * npy.arange(numVertices).reshape((numVertices, 1))
+	    # This initial rotation is to make sure the polygon always
+            # "points-up"
 	    theta += npy.pi / 2.0
-	    verts = npy.vstack((npy.cos(theta), npy.sin(theta))).transpose()
+	    verts = npy.concatenate((npy.cos(theta), npy.sin(theta)))
 	    path = Path(verts)
 	    cls._unit_regular_polygons[numVertices] = path
 	return path
