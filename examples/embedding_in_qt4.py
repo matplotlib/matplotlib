@@ -122,17 +122,10 @@ modified versions may be distributed without limitation."""
 % {"prog": progname, "version": progversion})
 
 
-def main():
-    # Note: color-intensive applications may require a different color
-    # allocation strategy.
-    QtGui.QApplication.setColorSpec(QtGui.QApplication.NormalColor)
-    qApp = QtGui.QApplication(sys.argv)
+qApp = QtGui.QApplication(sys.argv)
 
-    aw = ApplicationWindow()
-    aw.setWindowTitle("%s" % progname)
-    aw.show()
-#    sys.exit(qApp.exec_())
-    qApp.exec_()
-
-
-if __name__ == "__main__": main()
+aw = ApplicationWindow()
+aw.setWindowTitle("%s" % progname)
+aw.show()
+sys.exit(qApp.exec_())
+#qApp.exec_()
