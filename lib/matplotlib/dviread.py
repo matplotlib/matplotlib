@@ -350,9 +350,9 @@ class Dvi(object):
     def _xxx(self, special):
         matplotlib.verbose.report(
             'Dvi._xxx: encountered special: %s'
-            % ''.join((32 <= ord(ch) < 127) and ch 
-                      or '<%02x>' % ord(ch)
-                      for ch in special),
+            % ''.join([(32 <= ord(ch) < 127) and ch 
+                       or '<%02x>' % ord(ch)
+                       for ch in special]),
             'debug')
 
     def _fnt_def(self, k, c, s, d, a, l, n):

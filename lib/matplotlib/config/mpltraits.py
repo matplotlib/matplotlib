@@ -29,7 +29,7 @@ class BackendHandler(T.TraitHandler):
                 'gtkcairo': 'GTKCairo',
                 'qt4agg': 'Qt4Agg',
                 'qtagg': 'QtAgg',
-                'wxagg': 'WxAgg',
+                'wxagg': 'WXAgg',
                 'agg': 'Agg',
                 'cairo': 'Cairo',
                 'ps': 'PS',

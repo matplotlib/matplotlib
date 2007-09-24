@@ -541,10 +541,10 @@ class PdfFile:
                     widths[ch] = afmdata.get_width_char(ch, isord=True)
                 except KeyError:
                     pass
-            not_None = (ch for ch in range(256) 
-                        if widths[ch] is not None)
-            firstchar = not_None.next()
-            lastchar = max(not_None)
+            not_None = [ch for ch in range(256) 
+                        if widths[ch] is not None]
+            firstchar = not_None[0]
+            lastchar = not_None[-1]
             widths = widths[firstchar:lastchar+1]
             for i,w in enumerate(widths):
                 if w is None: widths[i] = 0
