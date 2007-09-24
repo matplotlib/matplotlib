@@ -25,6 +25,7 @@ from matplotlib import cm
 from matplotlib import patches as mpatches
 from matplotlib import pbox as mpbox
 from matplotlib import quiver as mquiver
+from matplotlib import scale as mscale
 from matplotlib import table as mtable
 from matplotlib import text as mtext
 from matplotlib import ticker as mticker
@@ -449,7 +450,6 @@ class Axes(martist.Artist):
                  **kwargs
                  ):
         """
-
         Build an Axes instance in Figure with
         rect=[left, bottom, width,height in Figure coords
 
@@ -467,8 +467,8 @@ class Axes(martist.Artist):
         navigate: True|False
         navigate_mode: the navigation toolbar button status: 'PAN', 'ZOOM', or None
         position: [left, bottom, width,height in Figure coords
-        sharex : an Axes instance to share the x-axis with
-        sharey : an Axes instance to share the y-axis with
+        sharex: an Axes instance to share the x-axis with
+        sharey: an Axes instance to share the y-axis with
         title: the title string
         visible: a boolean - whether the axes is visible
         xlabel: the xlabel
@@ -491,7 +491,7 @@ class Axes(martist.Artist):
         self.set_adjustable('box')
         self.set_anchor('C')
 
-        # must be set before set_figure
+        # MGDTODO: Check that the axes being shared are scalable
         self._sharex = sharex
         self._sharey = sharey
 	if sharex is not None:
@@ -508,7 +508,7 @@ class Axes(martist.Artist):
 
         # this call may differ for non-sep axes, eg polar
         self._init_axis()
-
+        
         if axisbg is None: axisbg = rcParams['axes.facecolor']
         self._axisbg = axisbg
         self._frameon = frameon
@@ -545,7 +545,7 @@ class Axes(martist.Artist):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = maxis.XAxis(self)
         self.yaxis = maxis.YAxis(self)
-
+        self._update_transAxisXY()
 
     def sharex_foreign(self, axforeign):
         """
@@ -627,26 +627,17 @@ class Axes(martist.Artist):
         set the dataLim and viewLim BBox attributes and the
         transData and transAxes Transformation attributes
         """
-	self.viewLim = mtransforms.Bbox.unit()
 	self.dataLim = mtransforms.Bbox.unit()
-	
+        self.viewLim = mtransforms.Bbox.unit()
         self.transAxes = mtransforms.BboxTransform(
             mtransforms.Bbox.unit(), self.bbox)
-        # self.set_transform(self.transAxes)
-#         self.transData = mtransforms.BboxTransform(
-#             self.viewLim, self.bbox)
-        self.preDataTransform = mtransforms.BboxTransform(
-            self.viewLim, mtransforms.Bbox.unit())
-#        self.dataTransform = mtransforms.TestPolarTransform()
-#         self.dataTransform = mtransforms.blended_transform_factory(
-#             mtransforms.TestLogTransform(),
-#             mtransforms.Affine2D())
-        self.dataTransform = mtransforms.Affine2D()
-        self.transData = self.preDataTransform + self.dataTransform + mtransforms.BboxTransform(
-            mtransforms.Bbox.unit(), self.bbox)
-        self.transData.make_graphviz(open("trans.dot", "w"))
+        self.transAxisXY = mtransforms.TransformWrapper()
+        self.transData = self.transAxisXY + self.transAxes
+
+    def _update_transAxisXY(self):
+        self.transAxisXY.set(mtransforms.blended_transform_factory(
+                self.xaxis.get_transform(), self.yaxis.get_transform()))
         
-	    
     def get_position(self, original=False):
         'Return the axes rectangle left, bottom, width, height'
         if original:
@@ -1525,11 +1516,9 @@ class Axes(martist.Artist):
 
     def get_xscale(self):
         'return the xaxis scale string: log or linear'
-	# MGDTODO
-        # return self.scaled[self.transData.get_funcx().get_type()]
-	return 'log'
+	return self.xaxis.get_scale()
 
-    def set_xscale(self, value, basex = 10, subsx=None):
+    def set_xscale(self, value, **kwargs):
         """
         SET_XSCALE(value, basex=10, subsx=None)
 
@@ -1547,27 +1536,9 @@ class Axes(martist.Artist):
 
         ACCEPTS: ['log' | 'linear' ]
         """
-
-        #if subsx is None: subsx = range(2, basex)
-        assert(value.lower() in ('log', 'linear', ))
-        if value == 'log':
-	    # MGDTODO
-#             self.xaxis.set_major_locator(mticker.LogLocator(basex))
-#             self.xaxis.set_major_formatter(mticker.LogFormatterMathtext(basex))
-#             self.xaxis.set_minor_locator(mticker.LogLocator(basex,subsx))
-#             self.transData.get_funcx().set_type(mtrans.LOG10)
-#             minx, maxx = self.get_xlim()
-#             if min(minx, maxx)<=0:
-#                 self.autoscale_view()
-	    pass
-        elif value == 'linear':
-            self.xaxis.set_major_locator(mticker.AutoLocator())
-            self.xaxis.set_major_formatter(mticker.ScalarFormatter())
-            self.xaxis.set_minor_locator(mticker.NullLocator())
-            self.xaxis.set_minor_formatter(mticker.NullFormatter())
-            # self.transData.get_funcx().set_type( mtrans.IDENTITY )
-	    self.transData.get_funcx().set_type( 0 ) # MGDTODO
-
+        self.xaxis.set_scale(value, **kwargs)
+        self._update_transAxisXY()
+        
     def get_xticks(self):
         'Return the x ticks as a list of locations'
         return self.xaxis.get_ticklocs()
@@ -1655,9 +1626,8 @@ class Axes(martist.Artist):
 
     def get_yscale(self):
         'return the yaxis scale string: log or linear'
-        # return self.scaled[self.transData.get_funcy().get_type()]
-	return 'linear'
-
+        return self.yaxis.get_scale()
+        
     def set_yscale(self, value, basey=10, subsy=None):
         """
         SET_YSCALE(value, basey=10, subsy=None)
@@ -1676,29 +1646,9 @@ class Axes(martist.Artist):
 
         ACCEPTS: ['log' | 'linear']
         """
-
-        #if subsy is None: subsy = range(2, basey)
-        assert(value.lower() in ('log', 'linear', ))
-
-        if value == 'log':
-	    # MGDTODO
-#             self.yaxis.set_major_locator(mticker.LogLocator(basey))
-#             self.yaxis.set_major_formatter(mticker.LogFormatterMathtext(basey))
-#             self.yaxis.set_minor_locator(mticker.LogLocator(basey,subsy))
-#             self.transData.get_funcy().set_type(mtrans.LOG10)
-#             miny, maxy = self.get_ylim()
-#             if min(miny, maxy)<=0:
-#                 self.autoscale_view()
-	    pass
-	    
-        elif value == 'linear':
-            self.yaxis.set_major_locator(mticker.AutoLocator())
-            self.yaxis.set_major_formatter(mticker.ScalarFormatter())
-            self.yaxis.set_minor_locator(mticker.NullLocator())
-            self.yaxis.set_minor_formatter(mticker.NullFormatter())
-            # self.transData.get_funcy().set_type( mtrans.IDENTITY ) MGDTODO
-            self.transData.get_funcy().set_type( 0 )
-	    
+        self.yaxis.set_scale(value, basey, subsy)
+        self._update_transAxisXY()
+        
     def get_yticks(self):
         'Return the y ticks as a list of locations'
         return self.yaxis.get_ticklocs()

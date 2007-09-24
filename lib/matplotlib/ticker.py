@@ -500,8 +500,6 @@ class LogFormatterMathtext(LogFormatter):
 
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'
-        self.verify_intervals()
-
         b = self._base
         # only label the decades
         fx = math.log(x)/math.log(b)
@@ -890,10 +888,9 @@ class LogLocator(Locator):
 
     def __call__(self):
         'Return the locations of the ticks'
-        self.verify_intervals()
         b=self._base
 
-        vmin, vmax = self.viewInterval.get_bounds()
+        vmin, vmax = self.axis.get_view_interval()
         vmin = math.log(vmin)/math.log(b)
         vmax = math.log(vmax)/math.log(b)
 
@@ -922,16 +919,16 @@ class LogLocator(Locator):
 
     def autoscale(self):
         'Try to choose the view limits intelligently'
-        self.verify_intervals()
-
-        vmin, vmax = self.dataInterval.get_bounds()
+        vmin, vmax = self.axis.get_view_interval()
         if vmax<vmin:
             vmin, vmax = vmax, vmin
 
-        minpos = self.dataInterval.minpos()
+#         minpos = self.dataInterval.minpos()
 
-        if minpos<=0:
-            raise RuntimeError('No positive data to plot')
+#         if minpos<=0:
+#             raise RuntimeError('No positive data to plot')
+
+        minpos = max(vmin, 0.00001) #MGDTODO
         if vmin<=0:
             vmin = minpos
         if not is_decade(vmin,self._base): vmin = decade_down(vmin,self._base)

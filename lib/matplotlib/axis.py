@@ -12,14 +12,15 @@ from cbook import enumerate, silent_list, popall, CallbackRegistry
 from lines import Line2D, TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from matplotlib import rcParams
 from patches import bbox_artist
-from ticker import NullFormatter, FixedFormatter, ScalarFormatter, LogFormatter
+from ticker import NullFormatter, FixedFormatter, ScalarFormatter, LogFormatter, LogFormatterMathtext
 from ticker import NullLocator, FixedLocator, LinearLocator, LogLocator, AutoLocator
 
 from font_manager import FontProperties
 from text import Text, TextWithDash, _process_text_args
 from transforms import Affine2D, Bbox, blended_transform_factory, interval_contains, \
-    interval_contains_open
+    interval_contains_open, IntervalTransform
 from patches import bbox_artist
+from scale import LinearScale, LogScale
 
 import matplotlib.units as units
 #import pdb
@@ -479,7 +480,7 @@ class Axis(Artist):
     """
     LABELPAD = 5
     OFFSETTEXTPAD = 3
-
+    
     def __str__(self):
         return str(self.__class__).split('.')[-1] \
             + "(%d,%d)"%self.axes.transAxes.xy_tup((0,0))
@@ -507,9 +508,38 @@ class Axis(Artist):
         self.majorTicks = []
         self.minorTicks = []
         self.pickradius = pickradius
-
+        self._transform = LinearScale(self.axes.viewLim, self.axis).get_transform()
+        self._scale = 'linear'
+        
         self.cla()
 
+    def get_transform(self):
+        return self._transform
+
+    def get_scale(self):
+        return self._scale
+    
+    def set_scale(self, value, base=10, subs=None):
+        # MGDTODO: Move these settings (ticker etc.) into the scale class itself
+        value = value.lower()
+        assert value.lower() in ('log', 'linear')
+        if value == 'linear':
+            self.set_major_locator(AutoLocator())
+            self.set_major_formatter(ScalarFormatter())
+            self.set_minor_locator(NullLocator())
+            self.set_minor_formatter(NullFormatter())
+            self._transform = LinearScale(self.axes.viewLim, self.axis).get_transform()
+        elif value == 'log':
+            self.set_major_locator(LogLocator(base))
+            self.set_major_formatter(LogFormatterMathtext(base))
+            self.set_minor_locator(LogLocator(base,subs))
+            # MGDTODO: Pass base along
+            self._transform = LogScale(self.axes.viewLim, self.axis).get_transform()
+            miny, maxy = getattr(self.axes.viewLim, 'interval' + self.axis)
+            if min(miny, maxy)<=0:
+                self.axes.autoscale_view()
+        self._scale = value
+                
     def get_children(self):
         children = [self.label]
         children.extend(self.majorTicks)
@@ -595,7 +625,7 @@ class Axis(Artist):
 
         for tick, loc, label in zip(minorTicks, minorLocs, minorLabels):
             if tick is None: continue
-            if not interval.contains(loc): continue
+            if not interval_contains(interval, loc): continue
             #if seen.has_key(loc): continue
             tick.update_position(loc)
             tick.set_label1(label)
@@ -952,7 +982,8 @@ class Axis(Artist):
 
 class XAxis(Axis):
     __name__ = 'xaxis'
-
+    axis = 'x'
+            
     def contains(self,mouseevent):
         """Test whether the mouse event occured in the x axis.
         """
@@ -1134,7 +1165,8 @@ class XAxis(Axis):
 
 class YAxis(Axis):
     __name__ = 'yaxis'
-
+    axis = 'y'
+            
     def contains(self,mouseevent):
         """Test whether the mouse event occurred in the y axis.
 
