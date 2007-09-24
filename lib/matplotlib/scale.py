@@ -23,6 +23,7 @@ class LogScale(ScaleBase):
             self._base = base
             self._viewLim = viewLim
             self._direction = direction
+            self.set_children(['_viewLim'])
 
         def transform(self, a):
             a, affine = self.transform_without_affine(a)
@@ -31,13 +32,9 @@ class LogScale(ScaleBase):
         def transform_without_affine(self, a):
             # MGDTODO: Support different bases
             base = self._base
-            marray = ma.masked_where(a <= 0.0, a)
+            marray = ma.masked_where(a <= 0.0, a * 10.0)
             marray = npy.log10(marray)
-            minimum, maximum = getattr(self._viewLim, self._direction)
-            minimum, maximum = npy.log10([minimum, maximum])
-            print marray
-            print Affine1D.from_values(maximum - minimum, minimum).inverted()
-            print minimum, maximum
+            minimum, maximum = npy.log10(getattr(self._viewLim, self._direction) * 10.0)
             return marray, Affine1D.from_values(maximum - minimum, minimum).inverted()
             
         def inverted(self):
@@ -51,11 +48,12 @@ class LogScale(ScaleBase):
             self._base = base
             self._viewLim = viewLim
             self._direction = direction
-
+            self.set_children(['_viewLim'])
+            
         def transform(self, a):
-            minimum, maximum = getattr(self._viewLim, self._direction)
-            Affine1D.from_values(maximum - minimum, minimum).transform(a)
-            return ma.power(10.0, a)
+            minimum, maximum = npy.log10(getattr(self._viewLim, self._direction) * 10.0)
+            a = Affine1D.from_values(maximum - minimum, minimum).transform(a)
+            return ma.power(10.0, a) / 10.0
 
         def inverted(self):
             return LogScale.LogTransform(self._viewLim, self._direction, self._base)
