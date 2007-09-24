@@ -928,15 +928,19 @@ class LogLocator(Locator):
 #         if minpos<=0:
 #             raise RuntimeError('No positive data to plot')
 
-        minpos = max(vmin, 0.00001) #MGDTODO
-        if vmin<=0:
-            vmin = minpos
+        # MGDTODO: Find a good way to track minpos
+        if vmin <= 0.0:
+            vmin = 0.1
+            
         if not is_decade(vmin,self._base): vmin = decade_down(vmin,self._base)
         if not is_decade(vmax,self._base): vmax = decade_up(vmax,self._base)
         if vmin==vmax:
             vmin = decade_down(vmin,self._base)
             vmax = decade_up(vmax,self._base)
-        return mtransforms.nonsingular(vmin, vmax)
+        print vmin, vmax
+        result = mtransforms.nonsingular(vmin, vmax)
+        print result
+        return result
 
 class AutoLocator(MaxNLocator):
     def __init__(self):

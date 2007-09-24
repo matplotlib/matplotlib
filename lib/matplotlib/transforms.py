@@ -181,7 +181,7 @@ class Bbox(BboxBase):
     def __init__(self, points):
         BboxBase.__init__(self)
         self._points = npy.asarray(points, npy.float_)
-
+        
     #@staticmethod
     def unit():
         return Bbox.from_lbrt(0., 0., 1., 1.)
