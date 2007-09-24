@@ -46,7 +46,7 @@ def _create_qApp():
         qApp = QtGui.QApplication( [" "] )
         QtCore.QObject.connect( qApp, QtCore.SIGNAL( "lastWindowClosed()" ),
                             qApp, QtCore.SLOT( "quit()" ) )
-    else:
+        #remember that matplotlib created the qApp - will be used by show()
         _create_qApp.qAppCreatedHere = True
 
 _create_qApp.qAppCreatedHere = False
