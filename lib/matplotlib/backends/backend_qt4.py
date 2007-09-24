@@ -46,10 +46,10 @@ def _create_qApp():
         qApp = QtGui.QApplication( [" "] )
         QtCore.QObject.connect( qApp, QtCore.SIGNAL( "lastWindowClosed()" ),
                             qApp, QtCore.SLOT( "quit()" ) )
-    else:
-      # someone else aready created the qApp and
-      # we let them handle the event-loop control.
-      show._needmain = False
+        #remember that matplotlib created the qApp - will be used by show()
+        _create_qApp.qAppCreatedHere = True
+
+_create_qApp.qAppCreatedHere = False
 
 def show():
     """
@@ -65,11 +65,8 @@ def show():
     if figManager != None:
         figManager.canvas.draw()
 
-    if ( show._needmain ):
-      qApp.exec_()
-      show._needmain = False
-
-show._needmain = True
+    if _create_qApp.qAppCreatedHere:
+        QtGui.qApp.exec_()
 
 
 def new_figure_manager( num, *args, **kwargs ):
