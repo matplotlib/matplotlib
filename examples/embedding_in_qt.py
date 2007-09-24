@@ -25,7 +25,7 @@ progversion = "0.1"
 
 # Note: color-intensive applications may require a different color allocation
 # strategy.
-QApplication.setColorSpec(QApplication.NormalColor)
+#QApplication.setColorSpec(QApplication.NormalColor)
 app = QApplication(sys.argv)
 
 class MyMplCanvas(FigureCanvas):
@@ -129,12 +129,8 @@ modified versions may be distributed without limitation."""
                           % {"prog": progname, "version": progversion})
 
 
-def main():
-    aw = ApplicationWindow()
-    aw.setCaption("%s" % progname)
-    qApp.setMainWidget(aw)
-    aw.show()
-    sys.exit(qApp.exec_loop())
-
-
-if __name__ == "__main__": main()
+aw = ApplicationWindow()
+aw.setCaption("%s" % progname)
+qApp.setMainWidget(aw)
+aw.show()
+sys.exit(qApp.exec_loop())
