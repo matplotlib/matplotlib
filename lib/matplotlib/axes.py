@@ -545,7 +545,7 @@ class Axes(martist.Artist):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = maxis.XAxis(self)
         self.yaxis = maxis.YAxis(self)
-        self._update_transAxisXY()
+        self._update_transScale()
 
     def sharex_foreign(self, axforeign):
         """
@@ -631,12 +631,28 @@ class Axes(martist.Artist):
         self.viewLim = mtransforms.Bbox.unit()
         self.transAxes = mtransforms.BboxTransform(
             mtransforms.Bbox.unit(), self.bbox)
-        self.transAxisXY = mtransforms.TransformWrapper()
-        self.transData = self.transAxisXY + self.transAxes
 
-    def _update_transAxisXY(self):
-        self.transAxisXY.set(mtransforms.blended_transform_factory(
+        # Transforms the x and y axis separately by a scale factor
+        # It is assumed that this part will have non-linear components
+        self.transScale = mtransforms.TransformWrapper(mtransforms.IdentityTransform())
+
+        # A (possibly non-linear) projection on the (already scaled) data
+        self.transProjection = mtransforms.IdentityTransform()
+
+        # An affine transformation on the data, generally to limit the
+        # range of the axes
+        self.transLimits = mtransforms.BboxTransform(
+            mtransforms.TransformedBbox(self.viewLim, self.transScale), mtransforms.Bbox.unit())
+        
+        self.transData = self.transScale + self.transProjection + self.transLimits + self.transAxes
+
+
+    def _update_transScale(self):
+        self.transScale.set(
+            mtransforms.blended_transform_factory(
                 self.xaxis.get_transform(), self.yaxis.get_transform()))
+
+        self.transData.make_graphviz(open("trans.dot", "w"))
         
     def get_position(self, original=False):
         'Return the axes rectangle left, bottom, width, height'
@@ -1537,7 +1553,7 @@ class Axes(martist.Artist):
         ACCEPTS: ['log' | 'linear' ]
         """
         self.xaxis.set_scale(value, **kwargs)
-        self._update_transAxisXY()
+        self._update_transScale()
         
     def get_xticks(self):
         'Return the x ticks as a list of locations'
@@ -1647,7 +1663,7 @@ class Axes(martist.Artist):
         ACCEPTS: ['log' | 'linear']
         """
         self.yaxis.set_scale(value, basey, subsy)
-        self._update_transAxisXY()
+        self._update_transScale()
         
     def get_yticks(self):
         'Return the y ticks as a list of locations'

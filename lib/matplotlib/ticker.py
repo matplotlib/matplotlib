@@ -937,9 +937,7 @@ class LogLocator(Locator):
         if vmin==vmax:
             vmin = decade_down(vmin,self._base)
             vmax = decade_up(vmax,self._base)
-        print vmin, vmax
         result = mtransforms.nonsingular(vmin, vmax)
-        print result
         return result
 
 class AutoLocator(MaxNLocator):

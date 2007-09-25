@@ -88,10 +88,6 @@ class Path(object):
 
     def transformed(self, transform):
         return Path(transform.transform(self.vertices), self.codes)
-
-    def transformed_without_affine(self, transform):
-        vertices, affine = transform.transform_without_affine(self.vertices)
-        return Path(vertices, self.codes), affine
                 
     _unit_rectangle = None
     #@classmethod
@@ -152,6 +148,3 @@ class Path(object):
 	    cls._unit_circle = Path(vertices, codes)
 	return cls._unit_circle
     unit_circle = classmethod(unit_circle)
-
-# MGDTODO: Add a transformed path that would automatically invalidate
-# itself when its transform changes
