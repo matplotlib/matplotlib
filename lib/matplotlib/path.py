@@ -65,7 +65,10 @@ class Path(object):
 
     def __repr__(self):
 	return "Path(%s, %s)" % (self.vertices, self.codes)
-	    
+
+    def __len__(self):
+        return len(self._vertices)
+    
     def _get_codes(self):
 	return self._codes
     codes = property(_get_codes)
@@ -108,7 +111,7 @@ class Path(object):
 	    # This initial rotation is to make sure the polygon always
             # "points-up"
 	    theta += npy.pi / 2.0
-	    verts = npy.concatenate((npy.cos(theta), npy.sin(theta)))
+	    verts = npy.concatenate((npy.cos(theta), npy.sin(theta)), 1)
 	    path = Path(verts)
 	    cls._unit_regular_polygons[numVertices] = path
 	return path

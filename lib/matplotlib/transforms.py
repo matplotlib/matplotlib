@@ -24,7 +24,10 @@ class TransformNode(object):
     _gid = 0
     
     def __init__(self):
-        self._parents = WeakKeyDictionary()
+        # MGDTODO: I'd like to use a WeakKeyDictionary here, but it makes
+        # these instances uncopyable.  As it stands, _parents grows
+        # unboundedly...  Not a good idea.
+        self._parents = Set()
         self._children = Set()
         self._id = TransformNode._gid
         
@@ -34,7 +37,7 @@ class TransformNode(object):
         if not self._do_invalidation(affine_only):
             self._id = TransformNode._gid
             TransformNode._gid += 1
-            for parent in self._parents.iterkeys():
+            for parent in self._parents:
                 parent.invalidate(affine_only)
 
     def _do_invalidation(self, affine_only):
@@ -42,7 +45,7 @@ class TransformNode(object):
         
     def set_children(self, children):
         for child in children:
-            getattr(self, child)._parents[self] = None
+            getattr(self, child)._parents.add(self)
         self._children = children
 
     def make_graphviz(self, fobj):
@@ -1034,8 +1037,8 @@ class CompositeAffine2D(Affine2DBase):
 
     
 def composite_transform_factory(a, b):
-    if isinstance(a, BboxTransform) and isinstance(b, BboxTransform):
-        return BboxTransform(a._boxin, b._boxout)
+#     if isinstance(a, BboxTransform) and isinstance(b, BboxTransform):
+#         return BboxTransform(a._boxin, b._boxout)
     if isinstance(a, AffineBase) and isinstance(b, AffineBase):
         return CompositeAffine2D(a, b)
     return CompositeGenericTransform(a, b)
@@ -1162,19 +1165,23 @@ class TransformedPath(TransformNode):
         
         self._path = path
         self._transform = transform
+        self.set_children(['_transform'])
         self._transformed_path = None
-        self._last_id = transform.get_id()
+
+    def _do_invalidation(self, affine_only):
+        if not affine_only:
+            self._transformed_path = None
+        return True
         
     def get_path_and_affine(self):
-        if (self._transformed_path is None or
-            self._last_id != self._transform.get_id()):
+        if self._transformed_path is None:
             vertices = self._transform.transform_non_affine(self._path.vertices)
             self._transformed_path = Path(vertices, self._path.codes)
+
         return self._transformed_path, self._transform.get_affine()
 
     def get_path(self):
-        if (self._transformed_path is None or
-            self._last_id != self._transform.get_id()):
+        if self._transformed_path is None:
             vertices = self._tranform.transform_non_affine(self._path.vertices)
             self._transformed_path = Path(vertices, self._path.codes)
         vertices = self._transform.transform_affine(self._transformed_path.vertices)
