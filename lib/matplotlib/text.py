@@ -402,9 +402,7 @@ class Text(Artist):
         return (x, y, self._text, self._color,
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties), self._rotation,
-                # MGDTODO: Find a better way to determine if the
-                # transform as changed
-                str(self.get_transform())
+                self.get_transform().get_id()
                 )
 
     def get_text(self):

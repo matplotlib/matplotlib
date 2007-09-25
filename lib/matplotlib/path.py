@@ -41,9 +41,10 @@ class Path(object):
             assert len(codes) == len(vertices)
 
         # The path being passed in may have masked values.  However,
-        # the backends are not expected to deal with masked arrays, so
-        # we must remove them from the array (using compressed), and
-        # add MOVETO commands to the codes array accordingly.
+        # the backends (and any affine transformations in matplotlib
+        # itself), are not expected to deal with masked arrays, so we
+        # must remove them from the array (using compressed), and add
+        # MOVETO commands to the codes array accordingly.
         mask = ma.getmask(vertices)
         if mask is not ma.nomask:
             mask1d = ma.mask_or(mask[:, 0], mask[:, 1])

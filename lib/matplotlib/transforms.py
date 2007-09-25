@@ -21,24 +21,28 @@ DEBUG = False
 # relationships
 
 class TransformNode(object):
+    _gid = 0
+    
     def __init__(self):
-        self._parents = Set()
-        self._children = []
+        self._parents = WeakKeyDictionary()
+        self._children = Set()
+        self._id = TransformNode._gid
         
-    def invalidate(self, which_child=None, affine_only=[]):
-        if which_child is None:
-            which_child = self
-        self._do_invalidation(which_child, affine_only)
-        # affine_only = affine_only and (self.is_affine() or self.is_bbox())
-        for parent in self._parents:
-            parent.invalidate(self, affine_only + [self])
+    def invalidate(self, affine_only=None):
+        if affine_only is None:
+            affine_only = self.is_affine() or self.is_bbox()
+        if not self._do_invalidation(affine_only):
+            self._id = TransformNode._gid
+            TransformNode._gid += 1
+            for parent in self._parents.iterkeys():
+                parent.invalidate(affine_only)
 
-    def _do_invalidation(self, which_child, affine_only):
-        pass
+    def _do_invalidation(self, affine_only):
+        return False
         
     def set_children(self, children):
         for child in children:
-            getattr(self, child)._parents.add(self)
+            getattr(self, child)._parents[self] = None
         self._children = children
 
     def make_graphviz(self, fobj):
@@ -74,6 +78,9 @@ class TransformNode(object):
     def is_bbox(self):
         return False
 
+    def get_id(self):
+        return self._id
+    
     
 class BboxBase(TransformNode):
     '''
@@ -214,6 +221,7 @@ class Bbox(BboxBase):
     def __init__(self, points):
         BboxBase.__init__(self)
         self._points = npy.asarray(points, npy.float_)
+        self._invalid = False
 
     #@staticmethod
     def unit():
@@ -235,6 +243,11 @@ class Bbox(BboxBase):
         return 'Bbox(%s)' % repr(self._points)
     __str__ = __repr__
 
+    def _do_invalidation(self, affine_only):
+        result = self._invalid
+        self._invalid = True
+        return result
+    
     def update_from_data(self, x, y, ignore=True):
 	if ignore:
 	    self._points = npy.array(
@@ -294,6 +307,7 @@ class Bbox(BboxBase):
     bounds = property(BboxBase._get_bounds, _set_bounds)
 
     def get_points(self):
+        self._invalid = False
         return self._points
 
     def set_points(self, points):
@@ -348,21 +362,23 @@ class TransformedBbox(BboxBase):
         assert transform.output_dims == 2
 
         BboxBase.__init__(self)
-        self.bbox = bbox
-        self.transform = transform
-        self.set_children(['bbox', 'transform'])
+        self._bbox = bbox
+        self._transform = transform
+        self.set_children(['_bbox', '_transform'])
         self._points = None
 
     def __repr__(self):
-        return "TransformedBbox(%s, %s)" % (self.bbox, self.transform)
+        return "TransformedBbox(%s, %s)" % (self._bbox, self._transform)
     __str__ = __repr__
     
-    def _do_invalidation(self, which_child, affine_only):
+    def _do_invalidation(self, affine_only):
+        result = self._points is None
         self._points = None
+        return result
 
     def get_points(self):
         if self._points is None:
-            self._points = self.transform.transform(self.bbox.get_points())
+            self._points = self._transform.transform(self._bbox.get_points())
         return self._points
 
     
@@ -461,9 +477,6 @@ class AffineBase(Transform):
     def __array__(self, *args, **kwargs):
 	return self.get_matrix()
 	
-    def _do_invalidation(self, which_child, affine_only):
-        self._inverted = None
-
     #@staticmethod
     def _concat(a, b):
         return npy.dot(b, a)
@@ -476,9 +489,6 @@ class AffineBase(Transform):
 
     def get_matrix(self):
         raise NotImplementedError()
-
-    def transform_affine(self, points):
-        return self.transform(points)
 
     def transform_non_affine(self, points):
         return points
@@ -528,9 +538,11 @@ class Affine1DBase(AffineBase):
 #             print "".join(traceback.format_stack())
 #             print points
         mtx = self.get_matrix()
-        points = ma.asarray(values, npy.float_)
+        points = npy.asarray(values, npy.float_)
         return points * mtx[0,0] + mtx[0,1]
 
+    transform_affine = transform
+    
     def inverted(self):
         if self._inverted is None:
             mtx = self.get_matrix()
@@ -575,7 +587,7 @@ class Affine1D(Affine1DBase):
     def set_matrix(self, mtx):
         self._mtx = mtx
         self.invalidate()
-
+        
     def set(self, other):
         self._mtx = other.get_matrix()
         self.invalidate()
@@ -620,9 +632,11 @@ class IntervalTransform(Affine1DBase):
         return "IntervalTransform(%s)" % (getattr(self._bbox, self._direction))
     __str__ = __repr__
 
-    def _do_invalidation(self, which_child, affine_only):
+    def _do_invalidation(self, affine_only):
+        result = self._mtx is None
         self._mtx = None
-        Affine1DBase._do_invalidation(self, which_child, affine_only)
+        self._inverted = None
+        return result
 
     def get_matrix(self):
         if self._mtx is None:
@@ -678,12 +692,14 @@ class Affine2DBase(AffineBase):
 #             print "".join(traceback.format_stack())
 #             print points
         mtx = self.get_matrix()
-        points = ma.asarray(points, npy.float_)
+        points = npy.asarray(points, npy.float_)
         points = points.transpose()
-        points = ma.dot(mtx[0:2, 0:2], points)
+        points = npy.dot(mtx[0:2, 0:2], points)
         points = points + mtx[0:2, 2:]
         return points.transpose()
 
+    transform_affine = transform
+    
     def inverted(self):
         if self._inverted is None:
             mtx = self.get_matrix()
@@ -801,19 +817,12 @@ class IdentityTransform(Affine2DBase):
     
     def transform(self, points):
         return points
-
-    def transform_affine(self, points):
-        return points
-
-    def transform_non_affine(self, points):
-        return points
+    transform_affine = transform_non_affine = transform
 
     def get_affine(self):
         return self
+    inverted = get_affine
     
-    def inverted(self):
-        return self
-
     
 class BlendedGenericTransform(Transform):
     input_dims = 2
@@ -857,13 +866,11 @@ class BlendedGenericTransform(Transform):
             y_points = y.transform(points[:, 1])
             y_points = y_points.reshape((len(y_points), 1))
 
-        return ma.concatenate((x_points, y_points), 1)
-
+        return npy.concatenate((x_points, y_points), 1)
+    transform_non_affine = transform
+    
     def transform_affine(self, points):
         return points
-        
-    def transform_non_affine(self, points):
-        return self.transform(points)
         
     def get_affine(self):
         return IdentityTransform()
@@ -892,9 +899,10 @@ class BlendedAffine1D(Affine2DBase, Transform):
         return "BlendedAffine1D(%s,%s)" % (self._x, self._y)
     __str__ = __repr__
         
-    def _do_invalidation(self, which_child, affine_only):
+    def _do_invalidation(self, affine_only):
+        result = self._mtx is None
         self._mtx = None
-        Affine2DBase._do_invalidation(self, which_child, affine_only)
+        self._inverted = None
 
     def get_matrix(self):
         if self._mtx is None:
@@ -928,9 +936,11 @@ class BlendedAffine2D(Affine2DBase, Transform):
         return "BlendedAffine2D(%s,%s)" % (self._x, self._y)
     __str__ = __repr__
         
-    def _do_invalidation(self, which_child, affine_only):
+    def _do_invalidation(self, affine_only):
+        result = self._mtx is None
         self._mtx = None
-        Affine2DBase._do_invalidation(self, which_child, affine_only)
+        self._inverted = None
+        return result
 
     def get_matrix(self):
         if self._mtx is None:
@@ -985,7 +995,7 @@ class CompositeGenericTransform(Transform):
         return self._b.transform_non_affine(self._a.transform_non_affine(points))
 
     def get_affine(self):
-        return self._a.get_affine() + self._b.get_affine()
+        return CompositeAffine2D(self._a.get_affine(), self._b.get_affine())
     
     def inverted(self):
         return CompositeGenericTransform(self._b.inverted(), self._a.inverted())
@@ -1009,9 +1019,11 @@ class CompositeAffine2D(Affine2DBase):
         return "CompositeAffine2D(%s, %s)" % (self._a, self._b)
     __str__ = __repr__
 
-    def _do_invalidation(self, which_child, affine_only):
+    def _do_invalidation(self, affine_only):
+        result = self._mtx is None
         self._mtx = None
-        Affine2DBase._do_invalidation(self, which_child, affine_only)
+        self._inverted = None
+        return result
     
     def get_matrix(self):
         if self._mtx is None:
@@ -1117,10 +1129,12 @@ class BboxTransform(Affine2DBase):
         return "BboxTransform(%s, %s)" % (self._boxin, self._boxout)
     __str__ = __repr__
         
-    def _do_invalidation(self, which_child, affine_only):
+    def _do_invalidation(self, affine_only):
+        result = self._mtx is None
         self._mtx = None
-        Affine2DBase._do_invalidation(self, which_child, affine_only)
-
+        self._inverted = None
+        return result
+        
     def is_separable(self):
         return True
 
@@ -1148,21 +1162,19 @@ class TransformedPath(TransformNode):
         
         self._path = path
         self._transform = transform
-        self.set_children(['_transform'])
         self._transformed_path = None
+        self._last_id = transform.get_id()
         
-    def _do_invalidation(self, which_child, affine_only):
-        if not (affine_only[0].is_affine() or affine_only[0].is_bbox()):
-            self._transformed_path = None
-                
     def get_path_and_affine(self):
-        if self._transformed_path is None:
+        if (self._transformed_path is None or
+            self._last_id != self._transform.get_id()):
             vertices = self._transform.transform_non_affine(self._path.vertices)
             self._transformed_path = Path(vertices, self._path.codes)
         return self._transformed_path, self._transform.get_affine()
 
     def get_path(self):
-        if self._transformed_path is None:
+        if (self._transformed_path is None or
+            self._last_id != self._transform.get_id()):
             vertices = self._tranform.transform_non_affine(self._path.vertices)
             self._transformed_path = Path(vertices, self._path.codes)
         vertices = self._transform.transform_affine(self._transformed_path.vertices)
