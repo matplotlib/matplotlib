@@ -132,14 +132,14 @@ class RendererAgg(RendererBase):
 
     # MGDTODO: This is a hack for now to allow for arbitrary transformations
     def draw_path(self, gc, path, trans, rgbFace=None):
-        new_path, affine = path.transformed_without_affine(trans)
-        self._renderer.draw_path(gc, new_path, affine, rgbFace)
+        assert trans.is_affine()
+        self._renderer.draw_path(gc, path, trans, rgbFace)
 
     # MGDTODO: This is a hack for now to allow for arbitrary transformations
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         assert marker_trans.is_affine()
-        new_path, affine = path.transformed_without_affine(trans)
-        self._renderer.draw_markers(gc, marker_path, marker_trans, new_path, affine, rgbFace)
+        assert trans.is_affine()
+        self._renderer.draw_markers(gc, marker_path, marker_trans, path, trans, rgbFace)
         
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """

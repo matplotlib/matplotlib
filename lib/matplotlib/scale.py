@@ -1,66 +1,54 @@
 import numpy as npy
 from numpy import ma
+from numpy.linalg import inv
 
-from transforms import Affine1D, IntervalTransform, Transform
+from transforms import Affine1DBase, IntervalTransform, Transform, \
+    composite_transform_factory, IdentityTransform
 
 class ScaleBase(object):
     pass
 
 class LinearScale(ScaleBase):
-    def __init__(self, viewLim, direction):
-        direction = 'interval' + direction
-        self._transform = IntervalTransform(viewLim, direction)
-
     def get_transform(self):
-        return self._transform
+        return IdentityTransform()
         
 class LogScale(ScaleBase):
     class LogTransform(Transform):
         input_dims = 1
         output_dims = 1
-        def __init__(self, viewLim, direction, base):
+        def __init__(self, base):
             Transform.__init__(self)
             self._base = base
-            self._viewLim = viewLim
-            self._direction = direction
-            self.set_children(['_viewLim'])
 
-        def transform(self, a):
-            a, affine = self.transform_without_affine(a)
-            return affine.transform(a)
+        def is_separable(self):
+            return True
             
-        def transform_without_affine(self, a):
-            # MGDTODO: Support different bases
-            base = self._base
-            marray = ma.masked_where(a <= 0.0, a * 10.0)
-            marray = npy.log10(marray)
-            minimum, maximum = npy.log10(getattr(self._viewLim, self._direction) * 10.0)
-            return marray, Affine1D.from_values(maximum - minimum, minimum).inverted()
+        def transform(self, a):
+            if len(a) > 10:
+                print "Log Transforming..."
+            return ma.log10(ma.masked_where(a <= 0.0, a * 10.0))
             
         def inverted(self):
-            return LogScale.InvertedLogTransform(self._viewLim, self._direction, self._base)
+            return LogScale.InvertedLogTransform(self._base)
 
     class InvertedLogTransform(Transform):
         input_dims = 1
         output_dims = 1
-        def __init__(self, viewLim, direction, base):
+        def __init__(self, base):
             Transform.__init__(self)
             self._base = base
-            self._viewLim = viewLim
-            self._direction = direction
-            self.set_children(['_viewLim'])
+
+        def is_separable(self):
+            return True
             
         def transform(self, a):
-            minimum, maximum = npy.log10(getattr(self._viewLim, self._direction) * 10.0)
-            a = Affine1D.from_values(maximum - minimum, minimum).transform(a)
             return ma.power(10.0, a) / 10.0
 
         def inverted(self):
-            return LogScale.LogTransform(self._viewLim, self._direction, self._base)
+            return LogScale.LogTransform(self._base)
             
-    def __init__(self, viewLim, direction, base=10):
-        direction = 'interval' + direction
-        self._transform = self.LogTransform(viewLim, direction, base)
+    def __init__(self, base=10):
+        self._transform = self.LogTransform(base)
 
     def get_transform(self):
         return self._transform
