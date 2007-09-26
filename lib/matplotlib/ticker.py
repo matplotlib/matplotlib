@@ -919,21 +919,21 @@ class LogLocator(Locator):
 
     def autoscale(self):
         'Try to choose the view limits intelligently'
-        vmin, vmax = self.axis.get_view_interval()
+        vmin, vmax = self.axis.get_data_interval()
         if vmax<vmin:
             vmin, vmax = vmax, vmin
 
-#         minpos = self.dataInterval.minpos()
+        minpos = self.axis.get_minpos()
 
-#         if minpos<=0:
-#             raise RuntimeError('No positive data to plot')
+        if minpos<=0:
+            raise RuntimeError('No positive data to plot')
 
-        # MGDTODO: Find a good way to track minpos
-        if vmin <= 0.0:
-            vmin = 0.1
-            
+        if vmin <= minpos:
+            vmin = minpos
+
         if not is_decade(vmin,self._base): vmin = decade_down(vmin,self._base)
         if not is_decade(vmax,self._base): vmax = decade_up(vmax,self._base)
+
         if vmin==vmax:
             vmin = decade_down(vmin,self._base)
             vmax = decade_up(vmax,self._base)

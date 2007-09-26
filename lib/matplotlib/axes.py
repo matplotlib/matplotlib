@@ -1095,17 +1095,8 @@ class Axes(martist.Artist):
         line._remove_method = lambda h: self.lines.remove(h)
 
     def _update_line_limits(self, line):
-        xdata = line.get_xdata(orig=False)
-        ydata = line.get_ydata(orig=False)
-
-        if line.get_transform() != self.transData:
-            xys = self._get_verts_in_data_coords(
-                line.get_transform(), zip(xdata, ydata))
-            xdata = npy.array([x for x,y in xys])
-            ydata = npy.array([y for x,y in xys])
-
-        self.update_datalim_numerix( xdata, ydata )
-
+        xydata = line.get_xydata()
+        self.update_datalim( xydata )
 
     def add_patch(self, p):
         """
@@ -1150,7 +1141,6 @@ class Axes(martist.Artist):
         # and the data in xydata
         xys = npy.asarray(xys)
         self.update_datalim_numerix(xys[:, 0], xys[:, 1])
-
 
     def update_datalim_numerix(self, x, y):
         'Update the data lim bbox with seq of xy tups'
