@@ -334,6 +334,9 @@ class XTick(Tick):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervalx
 
+    def get_minpos(self):
+        return self.axes.dataLim.minposx
+    
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervalx
@@ -458,6 +461,9 @@ class YTick(Tick):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervaly
 
+    def get_minpos(self):
+        return self.axes.dataLim.minposy
+    
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervaly
@@ -518,7 +524,13 @@ class Axis(Artist):
     def get_scale(self):
         return self._scale.name
     
-    def set_scale(self, value, base=10, subs=None):
+    def set_scale(self, value, basex=10, subsx=None, basey=10, subsy=None):
+        if self.axis_name == 'x':
+            base = basex
+            subs = subsx
+        else:
+            base = basey
+            subs = subsy
         # MGDTODO: Move these settings (ticker etc.) into the scale class itself
         value = value.lower()
         assert value.lower() in ('log', 'linear')
@@ -534,7 +546,7 @@ class Axis(Artist):
             self.set_minor_locator(LogLocator(base,subs))
             # MGDTODO: Pass base along
             self._scale = LogScale()
-            miny, maxy = getattr(self.axes.viewLim, 'interval' + self.axis)
+            miny, maxy = getattr(self.axes.viewLim, 'interval' + self.axis_name)
             if min(miny, maxy)<=0:
                 self.axes.autoscale_view()
                 
@@ -980,7 +992,7 @@ class Axis(Artist):
 
 class XAxis(Axis):
     __name__ = 'xaxis'
-    axis = 'x'
+    axis_name = 'x'
             
     def contains(self,mouseevent):
         """Test whether the mouse event occured in the x axis.
@@ -1156,6 +1168,9 @@ class XAxis(Axis):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervalx
 
+    def get_minpos(self):
+        return self.axes.dataLim.minposx
+    
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervalx
@@ -1163,7 +1178,7 @@ class XAxis(Axis):
 
 class YAxis(Axis):
     __name__ = 'yaxis'
-    axis = 'y'
+    axis_name = 'y'
             
     def contains(self,mouseevent):
         """Test whether the mouse event occurred in the y axis.
@@ -1357,6 +1372,9 @@ class YAxis(Axis):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervaly
 
+    def get_minpos(self):
+        return self.axes.dataLim.minposy
+    
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervaly

@@ -564,6 +564,9 @@ class Line2D(Artist):
             return self._yorig
         return self._y
 
+    def get_xydata(self):
+        return self._xy
+    
     def set_antialiased(self, b):
         """
         True if line should be drawin with antialiased rendering

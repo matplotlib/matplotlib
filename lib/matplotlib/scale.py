@@ -13,6 +13,66 @@ class LinearScale(ScaleBase):
         return IdentityTransform()
         
 class LogScale(ScaleBase):
+    class Log10Transform(Transform):
+        input_dims = 1
+        output_dims = 1
+        def __init__(self):
+            Transform.__init__(self)
+
+        def is_separable(self):
+            return True
+            
+        def transform(self, a):
+            return ma.log10(ma.masked_where(a <= 0.0, a * 10.0))
+            
+        def inverted(self):
+            return LogScale.InvertedLog10Transform()
+
+    class InvertedLog10Transform(Transform):
+        input_dims = 1
+        output_dims = 1
+        def __init__(self):
+            Transform.__init__(self)
+
+        def is_separable(self):
+            return True
+            
+        def transform(self, a):
+            return ma.power(10.0, a) / 10.0
+
+        def inverted(self):
+            return LogScale.Log10Transform()
+
+    class Log2Transform(Transform):
+        input_dims = 1
+        output_dims = 1
+        def __init__(self):
+            Transform.__init__(self)
+
+        def is_separable(self):
+            return True
+            
+        def transform(self, a):
+            return ma.log2(ma.masked_where(a <= 0.0, a * 2.0))
+            
+        def inverted(self):
+            return LogScale.InvertedLog2Transform()
+
+    class InvertedLog2Transform(Transform):
+        input_dims = 1
+        output_dims = 1
+        def __init__(self):
+            Transform.__init__(self)
+
+        def is_separable(self):
+            return True
+            
+        def transform(self, a):
+            return ma.power(2.0, a) / 2.0
+
+        def inverted(self):
+            return LogScale.Log2Transform()
+
     class LogTransform(Transform):
         input_dims = 1
         output_dims = 1
@@ -26,12 +86,12 @@ class LogScale(ScaleBase):
         def transform(self, a):
             if len(a) > 10:
                 print "Log Transforming..."
-            return ma.log10(ma.masked_where(a <= 0.0, a * 10.0))
+            return ma.log(ma.masked_where(a <= 0.0, a * self._base)) / npy.log(self._base)
             
         def inverted(self):
             return LogScale.InvertedLogTransform(self._base)
 
-    class InvertedLogTransform(Transform):
+    class InvertedLog2Transform(Transform):
         input_dims = 1
         output_dims = 1
         def __init__(self, base):
@@ -42,14 +102,21 @@ class LogScale(ScaleBase):
             return True
             
         def transform(self, a):
-            return ma.power(10.0, a) / 10.0
+            return ma.power(self._base, a) / self._base
 
         def inverted(self):
             return LogScale.LogTransform(self._base)
-            
+        
+        
     def __init__(self, base=10):
-        self._transform = self.LogTransform(base)
-
+        if base == 10.0:
+            self._transform = self.Log10Transform()
+        elif base == 2.0:
+            self._transform = self.Log2Transform()
+        # MGDTODO: Natural log etc.
+        else:
+            self._transform = self.LogTransform(base)
+            
     def get_transform(self):
         return self._transform
 

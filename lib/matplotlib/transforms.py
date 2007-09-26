@@ -224,6 +224,7 @@ class Bbox(BboxBase):
     def __init__(self, points):
         BboxBase.__init__(self)
         self._points = npy.asarray(points, npy.float_)
+        self._minpos = npy.array([0.0000001, 0.0000001])
         self._invalid = False
 
     #@staticmethod
@@ -252,15 +253,22 @@ class Bbox(BboxBase):
         return result
     
     def update_from_data(self, x, y, ignore=True):
-	if ignore:
-	    self._points = npy.array(
-		[[x.min(), y.min()], [x.max(), y.max()]],
-		npy.float_)
-	else:
+        if ignore:
+            self._points = npy.array(
+                [[x.min(), y.min()], [x.max(), y.max()]],
+                npy.float_)
+            self._minpos = npy.array(
+                [npy.where(x > 0.0, x, npy.inf).min(), npy.where(y > 0.0, y, npy.inf).min()],
+                npy.float_)
+        else:
 	    self._points = npy.array(
 		[[min(x.min(), self.xmin), min(y.min(), self.ymin)],
 		 [max(x.max(), self.xmax), max(y.max(), self.ymax)]],
 		 npy.float_)
+            minpos = npy.array(
+                [npy.where(x > 0.0, x, npy.inf).min(), npy.where(y > 0.0, y, npy.inf).min()],
+                npy.float_)
+            self._minpos = npy.minimum(minpos, self._minpos)
         self.invalidate()
         
     def _set_xmin(self, val):
@@ -309,6 +317,18 @@ class Bbox(BboxBase):
         self.invalidate()
     bounds = property(BboxBase._get_bounds, _set_bounds)
 
+    def _get_minpos(self):
+        return self._minpos
+    minpos = property(_get_minpos)
+
+    def _get_minposx(self):
+        return self._minpos[0]
+    minposx = property(_get_minposx)
+
+    def _get_minposy(self):
+        return self._minpos[1]
+    minposy = property(_get_minposy)
+    
     def get_points(self):
         self._invalid = False
         return self._points
@@ -541,7 +561,7 @@ class Affine1DBase(AffineBase):
 #             print "".join(traceback.format_stack())
 #             print points
         mtx = self.get_matrix()
-        points = npy.asarray(values, npy.float_)
+        # points = npy.asarray(values, npy.float_)
         return points * mtx[0,0] + mtx[0,1]
 
     transform_affine = transform
@@ -695,10 +715,15 @@ class Affine2DBase(AffineBase):
 #             print "".join(traceback.format_stack())
 #             print points
         mtx = self.get_matrix()
-        points = npy.asarray(points, npy.float_)
-        points = points.transpose()
-        points = npy.dot(mtx[0:2, 0:2], points)
-        points = points + mtx[0:2, 2:]
+        if ma.isarray(points):
+            points = points.transpose()
+            points = ma.dot(mtx[0:2, 0:2], points)
+            points = points + mtx[0:2, 2:]
+        else:
+            points = npy.asarray(points, npy.float_)
+            points = points.transpose()
+            points = npy.dot(mtx[0:2, 0:2], points)
+            points = points + mtx[0:2, 2:]
         return points.transpose()
 
     transform_affine = transform
@@ -869,7 +894,7 @@ class BlendedGenericTransform(Transform):
             y_points = y.transform(points[:, 1])
             y_points = y_points.reshape((len(y_points), 1))
 
-        return npy.concatenate((x_points, y_points), 1)
+        return ma.concatenate((x_points, y_points), 1)
     transform_non_affine = transform
     
     def transform_affine(self, points):
