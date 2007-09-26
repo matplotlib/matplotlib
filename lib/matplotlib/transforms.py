@@ -1069,15 +1069,6 @@ def composite_transform_factory(a, b):
     return CompositeGenericTransform(a, b)
 
 
-class LogTransform(Transform):
-    input_dims = 1
-    output_dims = 1
-    
-    def transform(self, a):
-        m = ma.masked_where(a < 0, a)
-        return npy.log10(m)
-
-
 class TestPolarTransform(Transform):
     input_dims = 2
     output_dims = 2
