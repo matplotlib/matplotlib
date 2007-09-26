@@ -73,6 +73,36 @@ class LogScale(ScaleBase):
         def inverted(self):
             return LogScale.Log2Transform()
 
+    class NaturalLogTransform(Transform):
+        input_dims = 1
+        output_dims = 1
+        def __init__(self):
+            Transform.__init__(self)
+
+        def is_separable(self):
+            return True
+            
+        def transform(self, a):
+            return ma.log(ma.masked_where(a <= 0.0, a * npy.e))
+            
+        def inverted(self):
+            return LogScale.InvertedNaturalLogTransform()
+
+    class InvertedNaturalLogTransform(Transform):
+        input_dims = 1
+        output_dims = 1
+        def __init__(self):
+            Transform.__init__(self)
+
+        def is_separable(self):
+            return True
+            
+        def transform(self, a):
+            return ma.power(npy.e, a) / npy.e
+
+        def inverted(self):
+            return LogScale.Log2Transform()
+        
     class LogTransform(Transform):
         input_dims = 1
         output_dims = 1
@@ -84,14 +114,12 @@ class LogScale(ScaleBase):
             return True
             
         def transform(self, a):
-            if len(a) > 10:
-                print "Log Transforming..."
             return ma.log(ma.masked_where(a <= 0.0, a * self._base)) / npy.log(self._base)
             
         def inverted(self):
             return LogScale.InvertedLogTransform(self._base)
 
-    class InvertedLog2Transform(Transform):
+    class InvertedLogTransform(Transform):
         input_dims = 1
         output_dims = 1
         def __init__(self, base):
@@ -113,7 +141,8 @@ class LogScale(ScaleBase):
             self._transform = self.Log10Transform()
         elif base == 2.0:
             self._transform = self.Log2Transform()
-        # MGDTODO: Natural log etc.
+        elif base == npy.e:
+            self._transform = self.NaturalLogTransform()
         else:
             self._transform = self.LogTransform(base)
             
