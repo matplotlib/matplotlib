@@ -1855,7 +1855,7 @@ class Parser(object):
                              "tanh")
 
         fontname     = oneOf("rm cal it tt sf bf")
-        latex2efont  = oneOf("mathrm mathcal mathit mathtt mathsf mathbf")
+        latex2efont  = oneOf("mathrm mathcal mathit mathtt mathsf mathbf mathdefault")
 
         space        =(FollowedBy(bslash)
                      +   (Literal(r'\ ')
