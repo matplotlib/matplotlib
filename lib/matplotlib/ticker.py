@@ -332,9 +332,12 @@ class ScalarFormatter(Formatter):
                     sciNotStr = r'{\times}'+self.format_data(10**self.orderOfMagnitude)
                 else:
                     sciNotStr = u'\xd7'+'1e%d'% self.orderOfMagnitude
-            if self._useMathText or self._usetex:
+            if self._useMathText:
+                return ''.join(('$\mathdefault{',sciNotStr,offsetStr,'}$'))
+            elif self._usetex:
                 return ''.join(('$',sciNotStr,offsetStr,'$'))
-            else: return ''.join((sciNotStr,offsetStr))
+            else:
+                return ''.join((sciNotStr,offsetStr))
         else: return ''
 
     def set_locs(self, locs):
@@ -395,8 +398,11 @@ class ScalarFormatter(Formatter):
                    for loc in locs]
         sigfigs.sort()
         self.format = '%1.' + str(sigfigs[-1]) + 'f'
-        if self._usetex or self._useMathText: self.format = '$%s$'%self.format
-
+        if self._usetex:
+            self.format = '$%s$' % self.format
+        elif self._useMathText:
+            self.format = '$\mathdefault{%s}$' % self.format
+            
     def pprint_val(self, x):
         xp = (x-self.offset)/10**self.orderOfMagnitude
         if npy.absolute(xp) < 1e-8: xp = 0
@@ -545,11 +551,13 @@ class LogFormatterMathtext(LogFormatter):
         elif not isDecade:
             if usetex:
                 s = r'$%d^{%.2f}$'% (b, fx)
-            else: s = '$%d^{%.2f}$'% (b, fx)
+            else:
+                s = '$\mathdefault{%d^{%.2f}}$'% (b, fx)
         else:
             if usetex:
                 s = r'$%d^{%d}$'% (b, self.nearest_long(fx))
-            else: s = r'$%d^{%d}$'% (b, self.nearest_long(fx))
+            else:
+                s = r'$\mathdefault{%d^{%d}}$'% (b, self.nearest_long(fx))
 
         return s
 
