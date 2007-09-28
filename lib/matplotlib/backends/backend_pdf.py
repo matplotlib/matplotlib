@@ -1472,6 +1472,11 @@ class RendererPdf(RendererBase):
             if dvifont != oldfont:
                 fontinfo = self.tex_font_mapping(dvifont.texname)
                 pdfname = self.file.fontName(fontinfo.filename)
+                if not fontinfo.afm:
+                    matplotlib.verbose.report(
+                        'RendererPdf.draw_tex: No AFM file found for %s (%s)' \
+                            % (dvifont.texname, fontinfo.filename),
+                        'helpful')
                 self.file.fontInfo[pdfname] = Bunch(
                     encodingfile=fontinfo.encoding,
                     afmfile=fontinfo.afm)

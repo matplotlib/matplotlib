@@ -734,6 +734,9 @@ def find_tex_file(filename, format=None):
     result = pipe.readline().rstrip()
     pipe.close()
 
+    matplotlib.verbose.report('find_tex_file: %s -> %s' \
+                                  % (filename, result),
+                              'debug')
     return result
 
 # With multiple text objects per figure (e.g. tick labels) we may end
