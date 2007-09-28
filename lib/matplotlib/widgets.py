@@ -971,14 +971,14 @@ class RectangleSelector:
           print ' endposition   : (%f, %f)' % (erelease.xdata, erelease.ydata)
           print ' used button   : ', eclick.button
 
-        def toggle_Selector(event):
+        def toggle_selector(event):
             print ' Key pressed.'
-            if event.key in ['Q', 'q'] and toggle_Selector.RS.active:
+            if event.key in ['Q', 'q'] and toggle_selector.RS.active:
                 print ' RectangleSelector deactivated.'
-                toggle_Selector.RS.set_active(False)
-            if event.key in ['A', 'a'] and not toggle_Selector.RS.active:
+                toggle_selector.RS.set_active(False)
+            if event.key in ['A', 'a'] and not toggle_selector.RS.active:
                 print ' RectangleSelector activated.'
-                toggle_Selector.RS.set_active(True)
+                toggle_selector.RS.set_active(True)
 
         x = arange(100)/(99.0)
         y = sin(x)
@@ -986,8 +986,8 @@ class RectangleSelector:
         ax = subplot(111)
         ax.plot(x,y)
 
-        toggle_Selector.RS = RectangleSelector(ax, onselect, drawtype='line')
-        connect('key_press_event', toggle_Selector)
+        toggle_selector.RS = RectangleSelector(ax, onselect, drawtype='line')
+        connect('key_press_event', toggle_selector)
         show()
     """
     def __init__(self, ax, onselect, drawtype='box',
