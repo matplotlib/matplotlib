@@ -510,8 +510,8 @@ class Axes3DI(Axes):
         #
         polys = []
         boxes = []
-        for rs in npy.arange(0,rows,rstride):
-            for cs in npy.arange(0,cols,cstride):
+        for rs in npy.arange(0,rows-1,rstride):
+            for cs in npy.arange(0,cols-1,cstride):
                 ps = []
                 corners = []
                 for a,ta in [(X,tX),(Y,tY),(Z,tZ)]:
