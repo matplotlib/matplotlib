@@ -84,7 +84,7 @@ class Dvi(object):
                 e = 0           # zero depth
             else:               # glyph
                 x,y,font,g,w = elt
-                h = _mul2012(font._scale,  font._tfm.height[g])
+                h = _mul2012(font._scale, font._tfm.height[g])
                 e = _mul2012(font._scale, font._tfm.depth[g])
             minx = min(minx, x)
             miny = min(miny, y - h)
@@ -380,19 +380,21 @@ class Dvi(object):
 
 class DviFont(object):
     """
-    Object that holds a font's texname and size and supports comparison.
+    Object that holds a font's texname and size, supports comparison,
+    and knows the widths of glyphs in the same units as the AFM file.
     There are also internal attributes (for use by dviread.py) that
     are _not_ used for comparison.
 
     The size is in Adobe points (converted from TeX points).
     """
-    __slots__ = ('texname', 'size', '_scale', '_vf', '_tfm')
+    __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
     def __init__(self, scale, tfm, texname, vf):
         self._scale, self._tfm, self.texname, self._vf = \
             scale, tfm, texname, vf
-        # TODO: would it make more sense to have the size in dpi units?
         self.size = scale * (72.0 / (72.27 * 2**16))
+        self.widths = [ (1000*tfm.width.get(char, 0)) >> 20
+                        for char in range(0, max(tfm.width)) ]
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and \
@@ -402,6 +404,10 @@ class DviFont(object):
         return not self.__eq__(other)
 
     def _width_of(self, char):
+        """
+        Width of char in dvi units. For internal use by dviread.py.
+        """
+
         width = self._tfm.width.get(char, None)
         if width is not None:
             return _mul2012(width, self._scale)
@@ -598,7 +604,6 @@ class PsfontsMap(object):
         fn, enc = result.filename, result.encoding
         if fn is not None and not fn.startswith('/'):
             result.filename = find_tex_file(fn)
-            result.afm = find_tex_file(fn[:-4] + '.afm')
         if enc is not None and not enc.startswith('/'):
             result.encoding = find_tex_file(result.encoding)
         return result
