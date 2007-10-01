@@ -496,7 +496,7 @@ class Line2D(Artist):
 
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         lineFunc = getattr(self, funcname)
-        lineFunc(renderer, gc, *self._transformed_path.get_path_and_affine())
+        lineFunc(renderer, gc, *self._transformed_path.get_transformed_path_and_affine())
 	    
 	# MGDTODO: Deal with markers
         if self._marker is not None:
@@ -507,7 +507,7 @@ class Line2D(Artist):
             gc.set_alpha(self._alpha)
             funcname = self._markers.get(self._marker, '_draw_nothing')
             markerFunc = getattr(self, funcname)
-            markerFunc(renderer, gc, *self._transformed_path.get_path_and_affine())
+            markerFunc(renderer, gc, *self._transformed_path.get_transformed_path_and_affine())
 
         #renderer.close_group('line2d')
 

@@ -20,7 +20,7 @@ from text import Text, TextWithDash, _process_text_args
 from transforms import Affine2D, Bbox, blended_transform_factory, interval_contains, \
     interval_contains_open, IntervalTransform
 from patches import bbox_artist
-from scale import LinearScale, LogScale
+from scale import scale_factory
 
 import matplotlib.units as units
 #import pdb
@@ -514,41 +514,19 @@ class Axis(Artist):
         self.majorTicks = []
         self.minorTicks = []
         self.pickradius = pickradius
-        self._scale = LinearScale()
         
         self.cla()
-
+        self.set_scale('linear')
+        
     def get_transform(self):
         return self._scale.get_transform()
-    
+
     def get_scale(self):
         return self._scale.name
     
-    def set_scale(self, value, basex=10, subsx=None, basey=10, subsy=None):
-        if self.axis_name == 'x':
-            base = basex
-            subs = subsx
-        else:
-            base = basey
-            subs = subsy
-        # MGDTODO: Move these settings (ticker etc.) into the scale class itself
-        value = value.lower()
-        assert value.lower() in ('log', 'linear')
-        if value == 'linear':
-            self.set_major_locator(AutoLocator())
-            self.set_major_formatter(ScalarFormatter())
-            self.set_minor_locator(NullLocator())
-            self.set_minor_formatter(NullFormatter())
-            self._scale = LinearScale()
-        elif value == 'log':
-            self.set_major_locator(LogLocator(base))
-            self.set_major_formatter(LogFormatterMathtext(base))
-            self.set_minor_locator(LogLocator(base,subs))
-            # MGDTODO: Pass base along
-            self._scale = LogScale()
-            miny, maxy = getattr(self.axes.viewLim, 'interval' + self.axis_name)
-            if min(miny, maxy)<=0:
-                self.axes.autoscale_view()
+    def set_scale(self, value, **kwargs):
+        self._scale = scale_factory(value, self, **kwargs)
+        self._scale.set_default_locators_and_formatters(self)
                 
     def get_children(self):
         children = [self.label]

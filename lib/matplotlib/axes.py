@@ -23,6 +23,7 @@ from matplotlib import lines as mlines
 from matplotlib import mlab
 from matplotlib import cm
 from matplotlib import patches as mpatches
+from matplotlib import path as mpath
 from matplotlib import pbox as mpbox
 from matplotlib import quiver as mquiver
 from matplotlib import scale as mscale
@@ -1461,7 +1462,7 @@ class Axes(martist.Artist):
         self.axesPatch.set_facecolor(color)
 
     ### data limits, ticks, tick labels, and formatting
-
+            
     def get_xlim(self):
         'Get the x axis range [xmin, xmax]'
         return self.viewLim.intervalx
@@ -1503,11 +1504,6 @@ class Axes(martist.Artist):
         if xmin is None: xmin = old_xmin
         if xmax is None: xmax = old_xmax
 
-	# MGDTODO
-#         if (self.transData.get_funcx().get_type()==mtrans.LOG10
-#             and min(xmin, xmax)<=0):
-#             raise ValueError('Cannot set nonpositive limits with log transform')
-
         xmin, xmax = mtransforms.nonsingular(xmin, xmax, increasing=False)
 
 	self.viewLim.intervalx = (xmin, xmax)
@@ -1516,7 +1512,7 @@ class Axes(martist.Artist):
 	    # Call all of the other x-axes that are shared with this one
 	    for other in self._shared_x_axes.get_siblings(self):
 		if other is not self:
-		    other.set_xlim(self.viewLim.xmin, self.viewLim.xmax, emit=False)
+		    other.set_xlim(self.viewLim.intervalx, emit=False)
 	    
         return xmin, xmax
 
@@ -1634,7 +1630,7 @@ class Axes(martist.Artist):
         'return the yaxis scale string: log or linear'
         return self.yaxis.get_scale()
         
-    def set_yscale(self, value, basey=10, subsy=None):
+    def set_yscale(self, value, **kwargs):
         """
         SET_YSCALE(value, basey=10, subsy=None)
 
@@ -1652,7 +1648,7 @@ class Axes(martist.Artist):
 
         ACCEPTS: ['log' | 'linear']
         """
-        self.yaxis.set_scale(value, basey, subsy)
+        self.yaxis.set_scale(value, **kwargs)
         self._update_transScale()
         
     def get_yticks(self):
@@ -1788,6 +1784,32 @@ class Axes(martist.Artist):
         """
         self._navigate_mode = b
 
+    def drag_pan(self, button, x, y, startx, starty, start_lim, start_trans):
+        if button == 1:
+            inverse = start_trans.inverted()
+            dx = startx - x
+            dy = starty - y
+            result = self.bbox.frozen().translated(dx, dy).transformed(inverse)
+        elif button == 3:
+            try:
+                inverse = start_trans.inverted()
+                dx = (startx - x) / float(self.bbox.width)
+                dy = (starty - y) / float(self.bbox.height)
+                xmin, ymin, xmax, ymax = start_lim.lbrt
+
+                alpha = npy.power(10.0, (dx, dy))
+                start = inverse.transform_point((startx, starty))
+                lim_points = start_lim.get_points()
+                result = start + alpha * (lim_points - start)
+                result = mtransforms.Bbox(result)
+            except OverflowError:
+                warnings.warn('Overflow while panning')
+                return
+            
+        # MGDTODO: Could we do this with a single set_lim?
+        self.set_xlim(*result.intervalx)
+        self.set_ylim(*result.intervaly)
+        
     def get_cursor_props(self):
         """return the cursor props as a linewidth, color tuple where
         linewidth is a float and color is an RGBA tuple"""
@@ -5658,8 +5680,253 @@ class PolarSubplot(SubplotBase, PolarAxes):
             self, fig,
             [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
 
+######################################################################
+# New Polar Axes
+        
+class PolarAxes(Axes):
+    class PolarTransform(mtransforms.Transform):
+        input_dims = 2
+        output_dims = 2
+        is_separable = False
 
+        def transform(self, tr):
+            xy = npy.zeros(tr.shape, npy.float_)
+            t = tr[:, 0:1]
+            r = tr[:, 1:2]
+            x = xy[:, 0:1]
+            y = xy[:, 1:2]
+            x += r * npy.cos(t)
+            y += r * npy.sin(t)
+            return xy
+        transform_non_affine = transform
 
+        def interpolate(self, a, steps):
+            steps = npy.floor(steps)
+            new_length = ((len(a) - 1) * steps) + 1
+            new_shape = list(a.shape)
+            new_shape[0] = new_length
+            result = npy.zeros(new_shape, a.dtype)
+
+            result[0] = a[0]
+            a0 = a[0:-1]
+            a1 = a[1:  ]
+            delta = ((a1 - a0) / steps)
+            
+            for i in range(1, int(steps)+1):
+                result[i::steps] = delta * i + a0
+
+            return result
+        
+#         def transform_path(self, path):
+#             twopi = 2.0 * npy.pi
+#             halfpi = 0.5 * npy.pi
+            
+#             vertices = path.vertices
+#             t0 = vertices[0:-1, 0]
+#             t1 = vertices[1:  , 0]
+#             td = npy.where(t1 > t0, t1 - t0, twopi - (t0 - t1))
+#             maxtd = td.max()
+#             interpolate = npy.ceil(maxtd / halfpi)
+#             if interpolate > 1.0:
+#                 vertices = self.interpolate(vertices, interpolate)
+
+#             vertices = self.transform(vertices)
+
+#             result = npy.zeros((len(vertices) * 3 - 2, 2), npy.float_)
+#             codes = mpath.Path.CURVE4 * npy.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
+#             result[0] = vertices[0]
+#             codes[0] = mpath.Path.MOVETO
+
+#             kappa = 4.0 * ((npy.sqrt(2.0) - 1.0) / 3.0)
+#             kappa = 0.5
+            
+#             p0   = vertices[0:-1]
+#             p1   = vertices[1:  ]
+
+#             x0   = p0[:, 0:1]
+#             y0   = p0[:, 1: ]
+#             b0   = ((y0 - x0) - y0) / ((x0 + y0) - x0)
+#             a0   = y0 - b0*x0
+
+#             x1   = p1[:, 0:1]
+#             y1   = p1[:, 1: ]
+#             b1   = ((y1 - x1) - y1) / ((x1 + y1) - x1)
+#             a1   = y1 - b1*x1
+
+#             x = -(a0-a1) / (b0-b1)
+#             y = a0 + b0*x
+
+#             xk = (x - x0) * kappa + x0
+#             yk = (y - y0) * kappa + y0
+
+#             result[1::3, 0:1] = xk
+#             result[1::3, 1: ] = yk
+
+#             xk = (x - x1) * kappa + x1
+#             yk = (y - y1) * kappa + y1
+
+#             result[2::3, 0:1] = xk
+#             result[2::3, 1: ] = yk
+            
+#             result[3::3] = p1
+
+#             print vertices[-2:]
+#             print result[-2:]
+            
+#             return mpath.Path(result, codes)
+            
+#             twopi = 2.0 * npy.pi
+#             halfpi = 0.5 * npy.pi
+            
+#             vertices = path.vertices
+#             t0 = vertices[0:-1, 0]
+#             t1 = vertices[1:  , 0]
+#             td = npy.where(t1 > t0, t1 - t0, twopi - (t0 - t1))
+#             maxtd = td.max()
+#             interpolate = npy.ceil(maxtd / halfpi)
+
+#             print "interpolate", interpolate
+#             if interpolate > 1.0:
+#                 vertices = self.interpolate(vertices, interpolate)
+            
+#             result = npy.zeros((len(vertices) * 3 - 2, 2), npy.float_)
+#             codes = mpath.Path.CURVE4 * npy.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
+#             result[0] = vertices[0]
+#             codes[0] = mpath.Path.MOVETO
+
+#             kappa = 4.0 * ((npy.sqrt(2.0) - 1.0) / 3.0)
+#             tkappa = npy.arctan(kappa)
+#             hyp_kappa = npy.sqrt(kappa*kappa + 1.0)
+
+#             t0 = vertices[0:-1, 0]
+#             t1 = vertices[1:  , 0]
+#             r0 = vertices[0:-1, 1]
+#             r1 = vertices[1:  , 1]
+
+#             td = npy.where(t1 > t0, t1 - t0, twopi - (t0 - t1))
+#             td_scaled = td / (npy.pi * 0.5)
+#             rd = r1 - r0
+#             r0kappa = r0 * kappa * td_scaled
+#             r1kappa = r1 * kappa * td_scaled
+#             ravg_kappa = ((r1 + r0) / 2.0) * kappa * td_scaled
+
+#             result[1::3, 0] = t0 + (tkappa * td_scaled)
+#             result[1::3, 1] = r0*hyp_kappa
+#             # result[1::3, 1] = r0 / npy.cos(tkappa * td_scaled) # npy.sqrt(r0*r0 + ravg_kappa*ravg_kappa)
+
+#             result[2::3, 0] = t1 - (tkappa * td_scaled)
+#             result[2::3, 1] = r1*hyp_kappa
+#             # result[2::3, 1] = r1 / npy.cos(tkappa * td_scaled) # npy.sqrt(r1*r1 + ravg_kappa*ravg_kappa)
+            
+#             result[3::3, 0] = t1
+#             result[3::3, 1] = r1
+
+#             print vertices[:6], result[:6], t0[:6], t1[:6], td[:6], td_scaled[:6], tkappa
+#             result = self.transform(result)
+#             return mpath.Path(result, codes)
+#         transform_path_non_affine = transform_path
+
+        def inverted(self):
+            return PolarAxes.InvertedPolarTransform()
+
+    class PolarAffine(mtransforms.Affine2DBase):
+        def __init__(self, limits):
+            mtransforms.Affine2DBase.__init__(self)
+            self._limits = limits
+            self.set_children(limits)
+            self._mtx = None
+
+        def get_matrix(self):
+            if self._invalid:
+                xmin, ymin, xmax, ymax = self._limits.lbrt
+                affine = mtransforms.Affine2D().rotate(xmin).scale(0.5 / ymax).translate(0.5, 0.5)
+                self._mtx = affine.get_matrix()
+                self._inverted = None
+                self._invalid = 0
+            return self._mtx
+    
+    class InvertedPolarTransform(mtransforms.Transform):
+        input_dims = 2
+        output_dims = 2
+        is_separable = False
+
+        def transform(self, xy):
+            x = xy[:, 0:1]
+            y = xy[:, 1:]
+            r = npy.sqrt(x*x + y*y)
+            theta = npy.arccos(x / r)
+            theta = npy.where(y < 0, 2 * npy.pi - theta, theta)
+            return npy.concatenate((theta, r), 1)
+
+        def inverted(self):
+            return PolarAxes.PolarTransform()
+        
+    def _set_lim_and_transforms(self):
+        """
+        set the dataLim and viewLim BBox attributes and the
+        transData and transAxes Transformation attributes
+        """
+	self.dataLim = mtransforms.Bbox.unit()
+        self.viewLim = mtransforms.Bbox.unit()
+        self.transAxes = mtransforms.BboxTransform(
+            mtransforms.Bbox.unit(), self.bbox)
+
+        # Transforms the x and y axis separately by a scale factor
+        # It is assumed that this part will have non-linear components
+        self.transScale = mtransforms.TransformWrapper(mtransforms.IdentityTransform())
+
+        # A (possibly non-linear) projection on the (already scaled) data
+        self.transProjection = self.PolarTransform()
+
+        # An affine transformation on the data, generally to limit the
+        # range of the axes
+        self.transProjectionAffine = self.PolarAffine(self.viewLim)
+        
+        self.transData = self.transScale + self.transProjection + \
+            self.transProjectionAffine + self.transAxes
+
+    def drag_pan(self, button, x, y, startx, starty, start_lim, start_trans):
+        if button == 1:
+            inverse = start_trans.inverted()
+            startt, startr = inverse.transform_point((startx, starty))
+            t, r = inverse.transform_point((x, y))
+
+            scale = r / startr
+            self.set_ylim(start_lim.ymin, start_lim.ymax / scale)
+
+            dt0 = t - startt
+            dt1 = startt - t
+            if abs(dt1) < abs(dt0):
+                dt = abs(dt1) * sign(dt0) * -1.0
+            else:
+                dt = dt0 * -1.0
+            self.set_xlim(start_lim.xmin - dt, start_lim.xmin - dt + npy.pi*2.0)
+        
+    def set_rmax(self, rmax):
+        self.viewLim.maxy = rmax
+        
+class PolarSubplot(SubplotBase, PolarAxes):
+    """
+    Create a polar subplot with
+
+      PolarSubplot(numRows, numCols, plotNum)
+
+    where plotNum=1 is the first plot number and increasing plotNums
+    fill rows first.  max(plotNum)==numRows*numCols
+
+    You can leave out the commas if numRows<=numCols<=plotNum<10, as
+    in
+
+      Subplot(211)    # 2 rows, 1 column, first (upper) plot
+    """
+    def __str__(self):
+        return "PolarSubplot(%gx%g)"%(self.figW,self.figH)
+    def __init__(self, fig, *args, **kwargs):
+        SubplotBase.__init__(self, fig, *args)
+        PolarAxes.__init__(
+            self, fig,
+            [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
+        
 martist.kwdocd['Axes'] = martist.kwdocd['Subplot'] = martist.kwdoc(Axes)
 """
 # this is some discarded code I was using to find the minimum positive

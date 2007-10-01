@@ -130,16 +130,16 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
 
-    # MGDTODO: This is a hack for now to allow for arbitrary transformations
+    # MGDTODO: Just adding helpful asserts.  This can be removed in the future
     def draw_path(self, gc, path, trans, rgbFace=None):
-        assert trans.is_affine()
-        self._renderer.draw_path(gc, path, trans, rgbFace)
+        assert trans.is_affine
+        self._renderer.draw_path(gc, path, trans.frozen(), rgbFace)
 
-    # MGDTODO: This is a hack for now to allow for arbitrary transformations
+    # MGDTODO: Just adding helpful asserts.  This can be removed in the future
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
-        assert marker_trans.is_affine()
-        assert trans.is_affine()
-        self._renderer.draw_markers(gc, marker_path, marker_trans, path, trans, rgbFace)
+        assert marker_trans.is_affine
+        assert trans.is_affine
+        self._renderer.draw_markers(gc, marker_path, marker_trans.frozen(), path, trans.frozen(), rgbFace)
         
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """
