@@ -270,7 +270,7 @@ def checkdep_pdftops():
                 v = line.split()[-1]
         float(v)
         return v
-    except (IndexError, ValueError):
+    except (IndexError, ValueError, UnboundLocalError):
         return None
 
 def compare_versions(a, b):
