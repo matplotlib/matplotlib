@@ -1,8 +1,15 @@
+2007-09-30 Modified update* methods of Bbox and Interval so they
+           work with reversed axes.  Prior to this, trying to
+           set the ticks on a reversed axis failed with an
+           uninformative error message. - EF
+
+2007-09-30 Applied patches to axes3d to fix index error problem - EF
+
 2007-09-24 Applied Eike Welk's patch reported on mpl-dev on 2007-09-22
            Fixes a bug with multiple plot windows in the qt backend,
            ported the changes to backend_qt4 as well - DSD
 
-2007-09-21 Changed cbook.reversed to yield the same result as the 
+2007-09-21 Changed cbook.reversed to yield the same result as the
            python reversed builtin - DSD
 
 2007-09-13 The usetex support in the pdf backend is more usable now,

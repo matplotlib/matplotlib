@@ -159,12 +159,19 @@ Interval::update(const Py::Tuple &args) {
 
   double minx = _val1->val();
   double maxx = _val2->val();
+  int reversed = 0;
+  if (minx > maxx) {
+    reversed = 1;
+    double tmp = minx;
+    minx = maxx;
+    maxx = tmp;
+  }
 
 
 
   double thisval;
   thisval = Py::Float(vals[0]);
-  if (ignore) {    
+  if (ignore) {
     minx = thisval;
     maxx = thisval;
   }
@@ -176,9 +183,13 @@ Interval::update(const Py::Tuple &args) {
     _minpos->update(thisval);
   }
 
-
-  _val1->set_api(minx);
-  _val2->set_api(maxx);
+  if (reversed) {
+    _val1->set_api(maxx);
+    _val2->set_api(minx);
+  } else {
+    _val1->set_api(minx);
+    _val2->set_api(maxx);
+  }
   return Py::Object();
 }
 
@@ -459,8 +470,24 @@ Bbox::update(const Py::Tuple &args) {
 
   double minx = _ll->xval();
   double maxx = _ur->xval();
+  int xreversed = 0;
+  if (minx > maxx) {
+    xreversed = 1;
+    double tmp = minx;
+    minx = maxx;
+    maxx = tmp;
+  }
+
+
   double miny = _ll->yval();
   double maxy = _ur->yval();
+  int yreversed = 0;
+  if (miny > maxy) {
+    yreversed = 1;
+    double tmp = miny;
+    miny = maxy;
+    maxy = tmp;
+  }
 
   Py::Tuple tup;
   if (ignore) {
@@ -482,11 +509,22 @@ Bbox::update(const Py::Tuple &args) {
     if (y>maxy) maxy=y;
   }
 
+  if (xreversed) {
+    _ll->x_api()->set_api(maxx);
+    _ur->x_api()->set_api(minx);
+  } else {
+    _ll->x_api()->set_api(minx);
+    _ur->x_api()->set_api(maxx);
+  }
 
-  _ll->x_api()->set_api(minx);
-  _ll->y_api()->set_api(miny);
-  _ur->x_api()->set_api(maxx);
-  _ur->y_api()->set_api(maxy);
+  if (yreversed) {
+    _ll->y_api()->set_api(maxy);
+    _ur->y_api()->set_api(miny);
+  } else {
+    _ll->y_api()->set_api(miny);
+    _ur->y_api()->set_api(maxy);
+  }
+
   return Py::Object();
 }
 
@@ -519,8 +557,24 @@ Bbox::update_numerix_xy(const Py::Tuple &args) {
 
   double minx = _ll->xval();
   double maxx = _ur->xval();
+  int xreversed = 0;
+  if (minx > maxx) {
+    xreversed = 1;
+    double tmp = minx;
+    minx = maxx;
+    maxx = tmp;
+  }
+
+
   double miny = _ll->yval();
   double maxy = _ur->yval();
+  int yreversed = 0;
+  if (miny > maxy) {
+    yreversed = 1;
+    double tmp = miny;
+    miny = maxy;
+    maxy = tmp;
+  }
 
   double thisx, thisy;
   //don't use current bounds on first update
@@ -550,10 +604,21 @@ Bbox::update_numerix_xy(const Py::Tuple &args) {
 
   Py_XDECREF(xyin);
   if (ngood) {
-    _ll->x_api()->set_api(minx);
-    _ll->y_api()->set_api(miny);
-    _ur->x_api()->set_api(maxx);
-    _ur->y_api()->set_api(maxy);
+    if (xreversed) {
+      _ll->x_api()->set_api(maxx);
+      _ur->x_api()->set_api(minx);
+    } else {
+      _ll->x_api()->set_api(minx);
+      _ur->x_api()->set_api(maxx);
+    }
+
+    if (yreversed) {
+      _ll->y_api()->set_api(maxy);
+      _ur->y_api()->set_api(miny);
+    } else {
+      _ll->y_api()->set_api(miny);
+      _ur->y_api()->set_api(maxy);
+    }
   }
   return Py::Object();
 }
@@ -594,8 +659,24 @@ Bbox::update_numerix(const Py::Tuple &args) {
 
   double minx = _ll->xval();
   double maxx = _ur->xval();
+  int xreversed = 0;
+  if (minx > maxx) {
+    xreversed = 1;
+    double tmp = minx;
+    minx = maxx;
+    maxx = tmp;
+  }
+
+
   double miny = _ll->yval();
   double maxy = _ur->yval();
+  int yreversed = 0;
+  if (miny > maxy) {
+    yreversed = 1;
+    double tmp = miny;
+    miny = maxy;
+    maxy = tmp;
+  }
 
   double thisx, thisy;
   //don't use current bounds on first update
@@ -627,10 +708,21 @@ Bbox::update_numerix(const Py::Tuple &args) {
   Py_XDECREF(y);
 
 
-  _ll->x_api()->set_api(minx);
-  _ll->y_api()->set_api(miny);
-  _ur->x_api()->set_api(maxx);
-  _ur->y_api()->set_api(maxy);
+  if (xreversed) {
+    _ll->x_api()->set_api(maxx);
+    _ur->x_api()->set_api(minx);
+  } else {
+    _ll->x_api()->set_api(minx);
+    _ur->x_api()->set_api(maxx);
+  }
+
+  if (yreversed) {
+    _ll->y_api()->set_api(maxy);
+    _ur->y_api()->set_api(miny);
+  } else {
+    _ll->y_api()->set_api(miny);
+    _ur->y_api()->set_api(maxy);
+  }
   return Py::Object();
 }
 
