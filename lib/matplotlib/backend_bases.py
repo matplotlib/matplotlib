@@ -1483,7 +1483,7 @@ class NavigationToolbar2:
                     self._lastCursor = cursors.SELECT_REGION
                 if self._xypress:
                     x, y = event.x, event.y
-                    lastx, lasty, a, ind, lim, trans= self._xypress[0]
+                    lastx, lasty, a, ind, lim, trans = self._xypress[0]
                     self.draw_rubberband(event, x, y, lastx, lasty)
             elif (self._active=='PAN' and
                   self._lastCursor != cursors.MOVE):
@@ -1558,10 +1558,7 @@ class NavigationToolbar2:
         self._xypress=[]
         for i, a in enumerate(self.canvas.figure.get_axes()):
             if x is not None and y is not None and a.in_axes(x, y) and a.get_navigate():
-                xmin, xmax = a.get_xlim()
-                ymin, ymax = a.get_ylim()
-                lim = xmin, xmax, ymin, ymax
-                self._xypress.append((x, y, a, i, lim, copy.deepcopy(a.transData)))
+                self._xypress.append((x, y, a, i, a.viewLim.frozen(), a.transData.frozen()))
                 self.canvas.mpl_disconnect(self._idDrag)
                 self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.drag_pan)
 
@@ -1585,10 +1582,7 @@ class NavigationToolbar2:
         self._xypress=[]
         for i, a in enumerate(self.canvas.figure.get_axes()):
             if x is not None and y is not None and a.in_axes(x, y) and a.get_navigate():
-                xmin, xmax = a.get_xlim()
-                ymin, ymax = a.get_ylim()
-                lim = xmin, xmax, ymin, ymax
-                self._xypress.append(( x, y, a, i, lim, copy.deepcopy(a.transData) ))
+                self._xypress.append(( x, y, a, i, a.viewLim.frozen(), a.transData.frozen()))
 
         self.press(event)
 
@@ -1648,38 +1642,12 @@ class NavigationToolbar2:
                     dx=dx/abs(dx)*abs(dy)
             return (dx,dy)
 
-        for cur_xypress in self._xypress:
-            lastx, lasty, a, ind, lim, trans = cur_xypress
-            xmin, xmax, ymin, ymax = lim
+        for lastx, lasty, a, ind, old_lim, old_trans in self._xypress:
             #safer to use the recorded button at the press than current button:
             #multiple button can get pressed during motion...
-            if self._button_pressed==1:
-		inverse = trans.inverted()
-                dx, dy = event.x - lastx, event.y - lasty
-                dx, dy = format_deltas(event, dx, dy)
-                delta = npy.array([[dx, dy], [dx, dy]], npy.float_)
-                bbox = transforms.Bbox(a.bbox.get_points() - delta)
-                result = bbox.transformed(inverse)
-            elif self._button_pressed==3:
-                try:
-                    inverse = trans.inverted()
-                    dx=(lastx-event.x)/float(a.bbox.width)
-                    dy=(lasty-event.y)/float(a.bbox.height)
-                    alphax = pow(10.0, dx)
-                    alphay = pow(10.0, dy)
-                    # MGDTODO: Make better use of numpy
-                    lastx, lasty = inverse.transform_point((lastx, lasty))
-                    xmin = (lastx + alphax * (xmin - lastx))
-                    xmax = (lastx + alphax * (xmax - lastx))
-                    ymin = (lasty + alphay * (ymin - lasty))
-                    ymax = (lasty + alphay * (ymax - lasty))
-                    result = transforms.Bbox.from_lbrt(xmin, ymin, xmax, ymax)
-                except OverflowError:
-                    warnings.warn('Overflow while panning')
-                    return
-            a.set_xlim(*result.intervalx)
-            a.set_ylim(*result.intervaly)
-
+            dx, dy = event.x - lastx, event.y - lasty
+            dx, dy = format_deltas(event, dx, dy)
+            a.drag_pan(self._button_pressed, lastx + dx, lasty + dy, lastx, lasty, old_lim, old_trans)
         self.dynamic_update()
 
     def release_zoom(self, event):

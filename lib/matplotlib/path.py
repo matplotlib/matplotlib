@@ -1,6 +1,8 @@
 import numpy as npy
 from numpy import ma as ma
 
+KAPPA = 4.0 * (npy.sqrt(2) - 1) / 3.0
+
 class Path(object):
     # Path codes
     STOP      = 0 # 1 vertex
@@ -122,7 +124,7 @@ class Path(object):
     def unit_circle(cls):
 	# MGDTODO: Optimize?
 	if cls._unit_circle is None:
-	    offset = 4.0 * (npy.sqrt(2) - 1) / 3.0
+            offset = KAPPA
 	    vertices = npy.array(
 		[[-1.0, 0.0],
 		 

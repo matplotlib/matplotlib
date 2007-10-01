@@ -7,10 +7,11 @@ import re, os, errno, sys, StringIO, traceback, locale
 import time, datetime
 import numpy as npy
 
-try: set
+try:
+    set = set
 except NameError:
     from sets import Set as set
-
+    
 major, minor1, minor2, s, tmp = sys.version_info
 
 
