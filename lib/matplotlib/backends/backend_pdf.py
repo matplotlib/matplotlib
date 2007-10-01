@@ -500,70 +500,15 @@ class PdfFile:
         finally:
             fh.close()
 
-        fh = open(fontinfo.afmfile, 'rb')
-        matplotlib.verbose.report(
-            'Reading metrics from ' + fontinfo.afmfile, 'debug')
-        try:
-            afmdata = AFM(fh)
-        finally:
-            fh.close()
-
         font = FT2Font(filename)
-        font.attach_file(fontinfo.afmfile)
 
         widthsObject, fontdescObject, fontdictObject, fontfileObject = \
             [ self.reserveObject(n) for n in
                 ('font widths', 'font descriptor',
                  'font dictionary', 'font file') ]
 
-        _, _, fullname, familyname, weight, italic_angle, fixed_pitch, \
-            ul_position, ul_thickness = font.get_ps_font_info()
-
-        if fontinfo.encodingfile is not None:
-            enc = dviread.Encoding(fontinfo.encodingfile)
-            widths = []
-            for ch in enc:
-                try:
-                    widths.append(afmdata.get_width_from_char_name(ch))
-                except KeyError:
-                    matplotlib.verbose.report(
-                        'No width for %s in %s' % (ch, fullname), 'debug-annoying')
-                    widths.append(0)
-
-            differencesArray = [ Name(ch) for ch in enc ]
-            differencesArray = [ 0 ] + differencesArray
-            firstchar = 0
-            lastchar = len(differencesArray) - 2
-        else:
-            widths = [ None for i in range(256) ]
-            for ch in range(256):
-                try:
-                    widths[ch] = afmdata.get_width_char(ch, isord=True)
-                except KeyError:
-                    pass
-            not_None = [ch for ch in range(256) 
-                        if widths[ch] is not None]
-            firstchar = not_None[0]
-            lastchar = not_None[-1]
-            widths = widths[firstchar:lastchar+1]
-            for i,w in enumerate(widths):
-                if w is None: widths[i] = 0
-
-            differencesArray = [ ]
-            need_idx = True
-            for ch in range(firstchar, lastchar+1):
-                try:
-                    name = afmdata.get_name_char(ch, isord=True)
-                    if need_idx:
-                        differencesArray.append(ch)
-                        need_idx = False
-                    differencesArray.append(Name(name))
-                except KeyError:
-                    matplotlib.verbose.report(
-                        'No name for glyph %d in %s' % (ch, fullname), 
-                        'debug-annoying')
-                    need_idx = True
-
+        firstchar = 0
+        lastchar = len(fontinfo.widths) - 1
         
         fontdict = {
             'Type':           Name('Font'),
@@ -575,15 +520,22 @@ class PdfFile:
             'FontDescriptor': fontdescObject,
             }
 
-        fontdict.update({
-                'Encoding': { 'Type': Name('Encoding'),
-                              'Differences': differencesArray },
-                })
+        if fontinfo.encodingfile is not None:
+            enc = dviread.Encoding(fontinfo.encodingfile)
+            differencesArray = [ Name(ch) for ch in enc ]
+            differencesArray = [ 0 ] + differencesArray
+            fontdict.update({
+                    'Encoding': { 'Type': Name('Encoding'),
+                                  'Differences': differencesArray },
+                    })
+
+        _, _, fullname, familyname, weight, italic_angle, fixed_pitch, \
+            ul_position, ul_thickness = font.get_ps_font_info()
 
         flags = 0
         if fixed_pitch:   flags |= 1 << 0  # fixed width
         if 0:             flags |= 1 << 1  # TODO: serif
-        if 1:             flags |= 1 << 2  # TODO: symbolic
+        if 1:             flags |= 1 << 2  # TODO: symbolic (most TeX fonts are)
         else:             flags |= 1 << 5  # non-symbolic
         if italic_angle:  flags |= 1 << 6  # italic
         if 0:             flags |= 1 << 16 # TODO: all caps
@@ -598,33 +550,17 @@ class PdfFile:
             'ItalicAngle': italic_angle,
             'Ascent':      font.ascender,
             'Descent':     font.descender,
-            'CapHeight':   1000, # default guess if missing from AFM file
-            'XHeight':     afmdata.get_xheight(),
+            'CapHeight':   1000, # TODO: find this out
+            'XHeight':     500, # TODO: this one too
             'FontFile':    fontfileObject,
             'FontFamily':  familyname,
+            'StemV':       50, # TODO 
+            # (see also revision 3874; but not all TeX distros have AFM files!)
             #'FontWeight': a number where 400 = Regular, 700 = Bold
             }
-        try:
-            descriptor['CapHeight'] = afmdata.get_capheight()
-        except KeyError:
-            pass
-
-        # StemV is obligatory in PDF font descriptors but optional in
-        # AFM files. The collection of AFM files in my TeX Live 2007
-        # collection has values ranging from 22 to 219, with both
-        # median and mode 50, so if the AFM file is silent, I'm
-        # guessing 50. -JKS
-        StemV = afmdata.get_vertical_stem_width()
-        if StemV is None: StemV = 50
-        descriptor['StemV'] = StemV
-
-        # StemH is entirely optional:
-        StemH = afmdata.get_horizontal_stem_width()
-        if StemH is not None:
-            descriptor['StemH'] = StemH
 
         self.writeObject(fontdictObject, fontdict)
-        self.writeObject(widthsObject, widths)
+        self.writeObject(widthsObject, fontinfo.widths)
         self.writeObject(fontdescObject, descriptor)
 
         t1font = type1font.Type1Font(filename)
@@ -1470,11 +1406,13 @@ class RendererPdf(RendererBase):
         oldfont, seq = None, []
         for x1, y1, dvifont, glyph, width in page.text:
             if dvifont != oldfont:
-                fontinfo = self.tex_font_mapping(dvifont.texname)
-                pdfname = self.file.fontName(fontinfo.filename)
-                self.file.fontInfo[pdfname] = Bunch(
-                    encodingfile=fontinfo.encoding,
-                    afmfile=fontinfo.afm)
+                psfont = self.tex_font_mapping(dvifont.texname)
+                pdfname = self.file.fontName(psfont.filename)
+                if self.file.fontInfo.get(pdfname, None) is None:
+                    self.file.fontInfo[pdfname] = Bunch(
+                        encodingfile=psfont.encoding,
+                        widths=dvifont.widths,
+                        dvifont=dvifont)
                 seq += [['font', pdfname, dvifont.size]]
                 oldfont = dvifont
             seq += [['text', x1, y1, [chr(glyph)], x1+width]]

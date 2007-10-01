@@ -530,8 +530,11 @@ class Axis(Artist):
                 
     def get_children(self):
         children = [self.label]
-        children.extend(self.majorTicks)
-        children.extend(self.minorTicks)
+        majorticks = self.get_major_ticks()
+        minorticks = self.get_minor_ticks()        
+        
+        children.extend(majorticks)
+        children.extend(minorticks)
         return children
 
     def cla(self):
@@ -654,7 +657,8 @@ class Axis(Artist):
 
     def get_gridlines(self):
         'Return the grid lines as a list of Line2D instance'
-        return silent_list('Line2D gridline', [tick.gridline for tick in self.majorTicks])
+        ticks = self.get_major_ticks()
+        return silent_list('Line2D gridline', [tick.gridline for tick in ticks])
 
     def get_label(self):
         'Return the axis label as a Text instance'
@@ -670,14 +674,16 @@ class Axis(Artist):
 
     def get_ticklabels(self):
         'Return a list of Text instances for ticklabels'
-        labels1 = [tick.label1 for tick in self.majorTicks if tick.label1On]
-        labels2 = [tick.label2 for tick in self.majorTicks if tick.label2On]
+        ticks = self.get_major_ticks()
+        labels1 = [tick.label1 for tick in ticks if tick.label1On]
+        labels2 = [tick.label2 for tick in ticks if tick.label2On]
         return silent_list('Text ticklabel', labels1+labels2)
 
     def get_ticklines(self):
         'Return the ticklines lines as a list of Line2D instance'
         lines = []
-        for tick in self.majorTicks:
+        ticks = self.get_major_ticks()        
+        for tick in ticks:
             lines.append(tick.tick1line)
             lines.append(tick.tick2line)
         return silent_list('Line2D ticklines', lines)
@@ -1087,8 +1093,9 @@ class XAxis(Axis):
         """
         assert position == 'top' or position == 'bottom' or position == 'both' or position == 'default'
 
-        ticks = list(self.majorTicks)  # a copy
-        ticks.extend( self.minorTicks )
+
+        ticks = list( self.get_major_ticks() )  # a copy
+        ticks.extend( self.get_minor_ticks() )
 
         if position == 'top':
             for t in ticks:
@@ -1287,8 +1294,8 @@ class YAxis(Axis):
         """
         assert position == 'left' or position == 'right' or position == 'both' or position == 'default'
 
-        ticks = list(self.majorTicks) # a copy
-        ticks.extend( self.minorTicks )
+        ticks = list( self.get_major_ticks() ) # a copy
+        ticks.extend( self.get_minor_ticks() )
 
         if position == 'right':
             self.set_offset_position('right')

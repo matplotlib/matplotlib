@@ -510,16 +510,16 @@ class Axes3DI(Axes):
         #
         polys = []
         boxes = []
-        for rs in npy.arange(0,rows,rstride):
-            for cs in npy.arange(0,cols,cstride):
+        for rs in npy.arange(0,rows-1,rstride):
+            for cs in npy.arange(0,cols-1,cstride):
                 ps = []
                 corners = []
                 for a,ta in [(X,tX),(Y,tY),(Z,tZ)]:
-                    ztop = a[rs][cs:min(cols-1,cs+cstride)]
+                    ztop = a[rs][cs:min(cols,cs+cstride+1)]
                     zleft = ta[min(cols-1,cs+cstride)][rs:min(rows,rs+rstride+1)]
                     zbase = a[min(rows-1,rs+rstride)][cs:min(cols,cs+cstride+1):]
                     zbase = zbase[::-1]
-                    zright = ta[cs][rs:min(rows-1,rs+rstride):]
+                    zright = ta[cs][rs:min(rows,rs+rstride+1):]
                     zright = zright[::-1]
                     corners.append([ztop[0],ztop[-1],zbase[0],zbase[-1]])
                     z = npy.concatenate((ztop,zleft,zbase,zright))
