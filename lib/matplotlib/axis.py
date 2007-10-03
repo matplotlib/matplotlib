@@ -18,12 +18,11 @@ from ticker import NullLocator, FixedLocator, LinearLocator, LogLocator, AutoLoc
 from font_manager import FontProperties
 from text import Text, TextWithDash, _process_text_args
 from transforms import Affine2D, Bbox, blended_transform_factory, interval_contains, \
-    interval_contains_open, IntervalTransform
+    interval_contains_open, IntervalTransform, IdentityTransform
 from patches import bbox_artist
 from scale import scale_factory
 
 import matplotlib.units as units
-#import pdb
 
 
 class Tick(Artist):
@@ -112,6 +111,12 @@ class Tick(Artist):
         children = [self.tick1line, self.tick2line, self.gridline, self.label1, self.label2]
         return children
 
+    def set_clip_path(self, clippath, transform=None):
+        Artist.set_clip_path(self, clippath, transform)
+        self.tick1line.set_clip_path(clippath, transform)
+        self.tick2line.set_clip_path(clippath, transform)
+        self.gridline.set_clip_path(clippath, transform)
+    
     def contains(self, mouseevent):
         """Test whether the mouse event occured in the Tick marks.
 
@@ -164,9 +169,12 @@ class Tick(Artist):
         midPoint = interval_contains_open(self.get_view_interval(), self.get_loc() )
 
         if midPoint:
-            if self.gridOn:  self.gridline.draw(renderer)
-            if self.tick1On: self.tick1line.draw(renderer)
-            if self.tick2On: self.tick2line.draw(renderer)
+            if self.gridOn:
+                self.gridline.draw(renderer)
+            if self.tick1On:
+                self.tick1line.draw(renderer)
+            if self.tick2On:
+                self.tick2line.draw(renderer)
 
         if self.label1On: self.label1.draw(renderer)
         if self.label2On: self.label2.draw(renderer)
@@ -213,8 +221,10 @@ class Tick(Artist):
         'return the view Interval instance for the axis tjis tick is ticking'
         raise NotImplementedError('Derived must override')
 
+    def set_view_interval(self, vmin, vmax, ignore=False):
+        raise NotImplementedError('Derived must override')
 
-
+    
 class XTick(Tick):
     """
     Contains all the Artists needed to make an x tick - the tick line,
@@ -237,12 +247,7 @@ class XTick(Tick):
             xaxis=True,
             )
 
-	trans = blended_transform_factory(
-	    self.axes.transData, self.axes.transAxes)
-        #offset the text downward with a post transformation
-	trans = trans + Affine2D().translate(0, -1 * self._padPixels)
-        t.set_transform(trans)
-
+        t.set_transform(self.axes.get_xaxis_text1_transform(self._padPixels))
         self._set_artist_props(t)
         return t
 
@@ -262,11 +267,7 @@ class XTick(Tick):
             horizontalalignment='center',
             )
 
-	trans = blended_transform_factory(
-	    self.axes.transData, self.axes.transAxes)
-        # offset the text upward with a post transformation
-        trans = trans + Affine2D().translate(0, self._padPixels)
-        t.set_transform( trans )
+        t.set_transform(self.axes.get_xaxis_text2_transform(self._padPixels))
         self._set_artist_props(t)
         return t
 
@@ -280,8 +281,7 @@ class XTick(Tick):
                     marker = self._xtickmarkers[0],
                     markersize=self._size,
                     )
-        l.set_transform(blended_transform_factory(
-		self.axes.transData, self.axes.transAxes) )
+        l.set_transform(self.axes.get_xaxis_transform())
         self._set_artist_props(l)
         return l
 
@@ -296,24 +296,20 @@ class XTick(Tick):
                        markersize=self._size,
                        )
 
-        l.set_transform(blended_transform_factory(
-		self.axes.transData, self.axes.transAxes) )
+        l.set_transform(self.axes.get_xaxis_transform())
         self._set_artist_props(l)
         return l
 
     def _get_gridline(self, loc):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
-        l = Line2D( xdata=(loc, loc), ydata=(0, 1),
-                    color=rcParams['grid.color'],
-                    linestyle=rcParams['grid.linestyle'],
-                    linewidth=rcParams['grid.linewidth'],
-                    antialiased=False,
-                    )
-        l.set_transform(
-	    blended_transform_factory(
-		self.axes.transData, self.axes.transAxes))
-        l.set_clip_box(self.axes.bbox)
+        l = Line2D(xdata=(loc, loc), ydata=(0, 1.0),
+                   color=rcParams['grid.color'],
+                   linestyle=rcParams['grid.linestyle'],
+                   linewidth=rcParams['grid.linewidth'],
+                   antialiased=False,
+                   )
+        l.set_transform(self.axes.get_xaxis_transform())
         self._set_artist_props(l)
 
         return l
@@ -321,7 +317,6 @@ class XTick(Tick):
     def update_position(self, loc):
         'Set the location of tick in data coords with scalar loc'
         x = loc
-
 
         self.tick1line.set_xdata((x,))
         self.tick2line.set_xdata((x,))
@@ -334,6 +329,13 @@ class XTick(Tick):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervalx
 
+    def set_view_interval(self, vmin, vmax, ignore = False):
+        if ignore:
+            self.axes.viewLim.intervalx = vmin, vmax
+        else:
+            Vmin, Vmax = self.get_view_interval()
+            self.axes.viewLim.intervalx = min(vmin, Vmin), max(vmax, Vmax)
+    
     def get_minpos(self):
         return self.axes.dataLim.minposx
     
@@ -363,12 +365,7 @@ class YTick(Tick):
             dashdirection=0,
             xaxis=False,
             )
-        trans = blended_transform_factory(
-	    self.axes.transAxes, self.axes.transData)
-        # offset the text leftward with a post transformation
-	trans = trans + Affine2D().translate(-1 * self._padPixels, 0)
-
-        t.set_transform( trans )
+        t.set_transform(self.axes.get_yaxis_text1_transform(self._padPixels))
         #t.set_transform( self.axes.transData )
         self._set_artist_props(t)
         return t
@@ -386,11 +383,7 @@ class YTick(Tick):
             xaxis=False,
             horizontalalignment='left',
             )
-        trans = blended_transform_factory(
-	    self.axes.transAxes, self.axes.transData)
-        # offset the text rightward with a post transformation
-	trans = trans + Affine2D().translate(self._padPixels, 0)
-        t.set_transform( trans )
+        t.set_transform(self.axes.get_yaxis_text2_transform(self._padPixels))
         self._set_artist_props(t)
         return t
 
@@ -404,9 +397,7 @@ class YTick(Tick):
                     linestyle = 'None',
                     markersize=self._size,
                        )
-        l.set_transform(
-	    blended_transform_factory(
-		self.axes.transAxes, self.axes.transData))
+        l.set_transform(self.axes.get_yaxis_transform())
         self._set_artist_props(l)
         return l
 
@@ -420,9 +411,7 @@ class YTick(Tick):
                     markersize=self._size,
                     )
 
-        l.set_transform(
-	    blended_transform_factory(
-		self.axes.transAxes, self.axes.transData))
+        l.set_transform(self.axes.get_yaxis_transform())
         self._set_artist_props(l)
         return l
 
@@ -436,10 +425,7 @@ class YTick(Tick):
                     antialiased=False,
                     )
 
-        l.set_transform( blended_transform_factory(
-		self.axes.transAxes, self.axes.transData) )
-        l.set_clip_box(self.axes.bbox)
-
+        l.set_transform(self.axes.get_yaxis_transform())
         self._set_artist_props(l)
         return l
 
@@ -461,6 +447,13 @@ class YTick(Tick):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervaly
 
+    def set_view_interval(self, vmin, vmax):
+        if ignore:
+            self.axes.viewLim.intervaly = vmin, vmax
+        else:
+            Vmin, Vmax = self.get_view_interval()
+            self.axes.viewLim.intervaly = min(vmin, Vmin), max(vmax, Vmax)
+    
     def get_minpos(self):
         return self.axes.dataLim.minposy
     
@@ -530,8 +523,8 @@ class Axis(Artist):
                 
     def get_children(self):
         children = [self.label]
-        majorticks = self.get_major_ticks()
-        minorticks = self.get_minor_ticks()        
+        majorticks = self.get_major_ticks(len(self.major.locator()))
+        minorticks = self.get_minor_ticks(len(self.minor.locator()))        
         
         children.extend(majorticks)
         children.extend(minorticks)
@@ -565,11 +558,20 @@ class Axis(Artist):
         self.units = None
         self.set_units(None)
 
-
+    def set_clip_path(self, clippath, transform=None):
+        Artist.set_clip_path(self, clippath, transform)
+        majorticks = self.get_major_ticks(len(self.major.locator()))
+        minorticks = self.get_minor_ticks(len(self.minor.locator()))        
+        for child in self.majorTicks + self.minorTicks:
+            child.set_clip_path(clippath, transform)
+        
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
         raise NotImplementedError('Derived must override')
 
+    def set_view_interval(self, vmin, vmax, ignore=False):
+        raise NotImplementedError('Derived must override')
+    
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         raise NotImplementedError('Derived must override')
@@ -585,8 +587,8 @@ class Axis(Artist):
         ticklabelBoxes = []
         ticklabelBoxes2 = []
 
-        majorTicks = self.get_major_ticks()
         majorLocs = self.major.locator()
+        majorTicks = self.get_major_ticks(len(majorLocs))
         self.major.formatter.set_locs(majorLocs)
         majorLabels = [self.major.formatter(val, i) for i, val in enumerate(majorLocs)]
 
@@ -609,8 +611,8 @@ class Axis(Artist):
                 extent = tick.label2.get_window_extent(renderer)
                 ticklabelBoxes2.append(extent)
 
-        minorTicks = self.get_minor_ticks()
         minorLocs = self.minor.locator()
+        minorTicks = self.get_minor_ticks(len(minorLocs))
         self.minor.formatter.set_locs(minorLocs)
         minorLabels = [self.minor.formatter(val, i) for i, val in enumerate(minorLocs)]
 
@@ -727,10 +729,8 @@ class Axis(Artist):
         'Get the formatter of the minor ticker'
         return self.minor.formatter
 
-    def get_major_ticks(self):
+    def get_major_ticks(self, numticks):
         'get the tick instances; grow as necessary'
-
-        numticks = len(self.major.locator())
 
         if len(self.majorTicks)<numticks:
             # update the new tick label properties from the old
@@ -746,9 +746,8 @@ class Axis(Artist):
         return ticks
 
 
-    def get_minor_ticks(self):
+    def get_minor_ticks(self, numticks):
         'get the minor tick instances; grow as necessary'
-        numticks = len(self.minor.locator())
         if len(self.minorTicks)<numticks:
             protoTick = self.minorTicks[0]
             for i in range(numticks-len(self.minorTicks)):
@@ -949,8 +948,9 @@ class Axis(Artist):
         ### XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
         self.set_major_locator( FixedLocator(ticks) )
-        self.get_view_interval().update(ticks,0)
-        return self.get_major_ticks()
+        if len(ticks):
+            self.set_view_interval(min(ticks), max(ticks))
+        return self.get_major_ticks(len(ticks))
 
     def _update_label_position(self, bboxes, bboxes2):
         """
@@ -1153,6 +1153,13 @@ class XAxis(Axis):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervalx
 
+    def set_view_interval(self, vmin, vmax, ignore=False):
+        if ignore:
+            self.axes.viewLim.intervalx = vmin, vmax
+        else:
+            Vmin, Vmax = self.get_view_interval()
+            self.axes.viewLim.intervalx = min(vmin, Vmin), max(vmax, Vmax)
+    
     def get_minpos(self):
         return self.axes.dataLim.minposx
     
@@ -1357,6 +1364,13 @@ class YAxis(Axis):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervaly
 
+    def set_view_interval(self, vmin, vmax, ignore=False):
+        if ignore:
+            self.axes.viewLim.intervaly = vmin, vmax
+        else:
+            Vmin, Vmax = self.get_view_interval()
+            self.axes.viewLim.intervaly = min(vmin, Vmin), max(vmax, Vmax)
+    
     def get_minpos(self):
         return self.axes.dataLim.minposy
     

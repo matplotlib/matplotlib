@@ -402,7 +402,7 @@ class Text(Artist):
         return (x, y, self._text, self._color,
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties), self._rotation,
-                self.get_transform().get_id()
+                self.get_transform().id
                 )
 
     def get_text(self):

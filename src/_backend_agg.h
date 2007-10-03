@@ -128,6 +128,8 @@ public:
 
   double *cliprect;
   Py::Object clippath;
+  agg::trans_affine clippath_trans;
+
   //dashes
   size_t Ndash;
   double dashOffset;
@@ -221,13 +223,14 @@ protected:
   void set_clip_from_bbox(const Py::Object& o);
   agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
-  void set_clipbox_rasterizer( double *cliprect);
+  template<class R>
+  void set_clipbox(double *cliprect, R rasterizer);
+  bool render_clippath(const GCAgg& gc);
 
 private:
   Py::Object lastclippath;
   agg::trans_affine lastclippath_transform;
 };
-
 
 // the extension module
 class _backend_agg_module : public Py::ExtensionModule<_backend_agg_module>
@@ -240,6 +243,10 @@ public:
 
     add_keyword_method("RendererAgg", &_backend_agg_module::new_renderer,
 		       "RendererAgg(width, height, dpi)");
+    add_varargs_method("point_in_path", &_backend_agg_module::point_in_path,
+		       "point_in_path(x, y, path, trans)");
+    add_varargs_method("point_on_path", &_backend_agg_module::point_on_path,
+		       "point_on_path(x, y, r, path, trans)");
     initialize( "The agg rendering backend" );
   }
 
@@ -248,9 +255,8 @@ public:
 private:
 
   Py::Object new_renderer (const Py::Tuple &args, const Py::Dict &kws);
-
-
-
+  Py::Object point_in_path(const Py::Tuple& args);
+  Py::Object point_on_path(const Py::Tuple& args);
 };
 
 

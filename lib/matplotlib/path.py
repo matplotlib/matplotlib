@@ -1,3 +1,5 @@
+import math
+
 import numpy as npy
 from numpy import ma as ma
 
@@ -122,7 +124,6 @@ class Path(object):
     _unit_circle = None
     #@classmethod
     def unit_circle(cls):
-	# MGDTODO: Optimize?
 	if cls._unit_circle is None:
             offset = KAPPA
 	    vertices = npy.array(
@@ -147,10 +148,91 @@ class Path(object):
                  [-1.0, 0.0]],
                 npy.float_)
 
-            codes = cls.CURVE4 + npy.ones((len(vertices)))
+            codes = cls.CURVE4 * npy.ones((len(vertices)))
 	    codes[0] = cls.MOVETO
             codes[-1] = cls.CLOSEPOLY
 
 	    cls._unit_circle = Path(vertices, codes)
 	return cls._unit_circle
     unit_circle = classmethod(unit_circle)
+
+    #@classmethod
+    def arc(cls, theta1, theta2, is_wedge=False):
+        # From Masionobe, L.  2003.  "Drawing an elliptical arc using
+        # polylines, quadratic or cubic Bezier curves".
+        #
+        # http://www.spaceroots.org/documents/ellipse/index.html
+
+        # degrees to radians
+        theta1 *= math.pi / 180.0
+        theta2 *= math.pi / 180.0
+        
+        twopi = math.pi * 2.0
+        halfpi = math.pi * 0.5
+        
+        eta1 = math.atan2(math.sin(theta1), math.cos(theta1))
+        eta2 = math.atan2(math.sin(theta2), math.cos(theta2))
+        eta2 -= twopi * math.floor((eta2 - eta1) / twopi)
+        if (theta2 - theta1 > math.pi) and (eta2 - eta1 < math.pi):
+            eta2 += twopi
+
+        # number of curve segments to make
+        n = int(2 ** math.ceil((eta2 - eta1) / halfpi))
+
+        deta = (eta2 - eta1) / n
+        etaB = eta1
+
+        cos_etaB = math.cos(etaB)
+        sin_etaB = math.sin(etaB)
+        xB = cos_etaB
+        yB = sin_etaB
+        xB_dot = -sin_etaB
+        yB_dot = cos_etaB
+
+        if is_wedge:
+            length = n * 3 + 4
+            vertices = npy.zeros((length, 2), npy.float_)
+            codes = Path.CURVE4 * npy.ones((length, ), Path.code_type)
+            vertices[1] = [xB, yB]
+            codes[0:2] = [Path.MOVETO, Path.LINETO]
+            vertex_offset = 2
+        else:
+            length = n * 3 + 1
+            vertices = npy.zeros((length, 2), npy.float_)
+            codes = Path.CURVE4 * npy.ones((length, ), Path.code_type)
+            vertices[0] = [xB, yB]
+            codes[0] = Path.MOVETO
+            vertex_offset = 1
+
+        t = math.tan(0.5 * deta)
+        alpha = math.sin(deta) * (math.sqrt(4.0 + 3.0 * t * t) - 1) / 3.0
+        
+        for i in xrange(n):
+            xA = xB
+            yA = yB
+            xA_dot = xB_dot
+            yA_dot = yB_dot
+            
+            etaB += deta
+            cos_etaB = math.cos(etaB)
+            sin_etaB = math.sin(etaB)
+            xB = cos_etaB
+            yB = sin_etaB
+            xB_dot = -sin_etaB
+            yB_dot = cos_etaB
+
+            offset = i*3 + vertex_offset
+            vertices[offset:offset+3] = [
+                [xA + alpha * xA_dot, yA + alpha * yA_dot],
+                [xB - alpha * xB_dot, yB - alpha * yB_dot],
+                [xB, yB]]
+
+        if is_wedge:
+            codes[-2:] = [Path.LINETO, Path.CLOSEPOLY]
+            
+        return Path(vertices, codes)
+    arc = classmethod(arc)
+
+    def wedge(cls, theta1, theta2):
+        return cls.arc(theta1, theta2, True)
+    wedge = classmethod(wedge)

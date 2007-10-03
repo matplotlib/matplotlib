@@ -899,6 +899,9 @@ class LogLocator(Locator):
         b=self._base
 
         vmin, vmax = self.axis.get_view_interval()
+        if vmin <= 0.0:
+            vmin = self.axis.get_minpos()
+            
         vmin = math.log(vmin)/math.log(b)
         vmax = math.log(vmax)/math.log(b)
 

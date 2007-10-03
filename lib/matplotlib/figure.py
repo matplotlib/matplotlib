@@ -7,7 +7,7 @@ import numpy as npy
 
 import artist
 from artist import Artist
-from axes import Axes, Subplot, PolarSubplot, PolarAxes
+from axes import Axes, SubplotBase, subplot_class_factory
 from cbook import flatten, allequal, Stack, iterable, dedent
 import _image
 import colorbar as cbar
@@ -22,6 +22,8 @@ from ticker import FormatStrFormatter
 from transforms import Affine2D, Bbox, BboxTransform, TransformedBbox
 from cm import ScalarMappable
 from contour import ContourSet
+from projections import projection_factory, get_projection_names, \
+    get_projection_class
 import warnings
 
 class SubplotParams:
@@ -449,12 +451,17 @@ class Figure(Artist):
         """
         Add an a axes with axes rect [left, bottom, width, height] where all
         quantities are in fractions of figure width and height.  kwargs are
-        legal Axes kwargs plus "polar" which sets whether to create a polar axes
-
+        legal Axes kwargs plus "projection" which sets the projection type
+        of the axes.  (For backward compatibility, polar=True may also be
+        provided, which is equivalent to projection='polar').
+        Valid values for "projection" are: %s.  Some of these projections
+        support additional kwargs, which may be provided to add_axes.
+        
             rect = l,b,w,h
             add_axes(rect)
             add_axes(rect, frameon=False, axisbg='g')
             add_axes(rect, polar=True)
+            add_axes(rect, projection='polar')
             add_axes(ax)   # add an Axes instance
 
 
@@ -470,10 +477,10 @@ class Figure(Artist):
             add_axes(rect, label='axes2')
 
         The Axes instance will be returned
-
+        
         The following kwargs are supported:
-        %(Axes)s
-        """
+        %s
+        """ % (", ".join(get_projection_names()), '%(Axes)s')
 
         key = self._make_key(*args, **kwargs)
 
@@ -489,12 +496,16 @@ class Figure(Artist):
         else:
             rect = args[0]
             ispolar = kwargs.pop('polar', False)
-
+            projection = kwargs.pop('projection', None)
             if ispolar:
-                a = PolarAxes(self, rect, **kwargs)
-            else:
-                a = Axes(self, rect, **kwargs)
-
+                if projection is not None and projection != 'polar':
+                    raise ValueError(
+                        "polar=True, yet projection='%s'. " +
+                        "Only one of these arguments should be supplied." %
+                        projection)
+                projection = 'polar'
+            
+            a = projection_factory(projection, self, rect, **kwargs)
 
         self.axes.append(a)
         self._axstack.push(a)
@@ -513,15 +524,21 @@ class Figure(Artist):
             add_subplot(111, polar=True)  # add a polar subplot
             add_subplot(sub)              # add Subplot instance sub
 
-        kwargs are legal Axes kwargs plus"polar" which sets whether to create a
-        polar axes.  The Axes instance will be returned.
+        kwargs are legal Axes kwargs plus "projection", which chooses
+        a projection type for the axes.  (For backward compatibility,
+        polar=True may also be provided, which is equivalent to
+        projection='polar').  Valid values for "projection" are: %s.
+        Some of these projections support additional kwargs, which may
+        be provided to add_axes.
 
+        The Axes instance will be returned.
+        
         If the figure already has a subplot with key *args, *kwargs then it will
         simply make that subplot current and return it
 
         The following kwargs are supported:
-        %(Axes)s
-        """
+        %s
+        """ % (", ".join(get_projection_names()), "%(Axes)s")
 
         key = self._make_key(*args, **kwargs)
         if self._seen.has_key(key):
@@ -532,16 +549,22 @@ class Figure(Artist):
 
         if not len(args): return
 
-        if isinstance(args[0], Subplot) or isinstance(args[0], PolarSubplot):
+        if isinstance(args[0], SubplotBase):
             a = args[0]
             assert(a.get_figure() is self)
         else:
             ispolar = kwargs.pop('polar', False)
+            projection = kwargs.pop('projection', None)
             if ispolar:
-                a = PolarSubplot(self, *args, **kwargs)
-            else:
-                a = Subplot(self, *args, **kwargs)
+                if projection is not None and projection != 'polar':
+                    raise ValueError(
+                        "polar=True, yet projection='%s'. " +
+                        "Only one of these arguments should be supplied." %
+                        projection)
+                projection = 'polar'
 
+            projection_class = get_projection_class(projection)
+            a = subplot_class_factory(projection_class)(self, *args, **kwargs)
 
         self.axes.append(a)
         self._axstack.push(a)

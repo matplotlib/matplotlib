@@ -1033,7 +1033,27 @@ class Grouper(object):
 	itself.
 	"""
 	return self._mapping.get(a, [a])
-		
+
+    
+def simple_linear_interpolation(a, steps):
+    steps = npy.floor(steps)
+    new_length = ((len(a) - 1) * steps) + 1
+    new_shape = list(a.shape)
+    new_shape[0] = new_length
+    result = npy.zeros(new_shape, a.dtype)
+
+    result[0] = a[0]
+    a0 = a[0:-1]
+    a1 = a[1:  ]
+    delta = ((a1 - a0) / steps)
+
+    # MGDTODO: Could use linspace here?
+    for i in range(1, int(steps)):
+        result[i::steps] = delta * i + a0
+    result[steps::steps] = a1
+        
+    return result
+
 if __name__=='__main__':
     assert( allequal([1,1,1]) )
     assert(not  allequal([1,1,0]) )

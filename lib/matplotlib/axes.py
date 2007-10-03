@@ -1,5 +1,5 @@
 from __future__ import division, generators
-import math, sys, warnings, copy
+import math, sys, warnings, copy, new
 
 import numpy as npy
 
@@ -24,7 +24,6 @@ from matplotlib import mlab
 from matplotlib import cm
 from matplotlib import patches as mpatches
 from matplotlib import path as mpath
-from matplotlib import pbox as mpbox
 from matplotlib import quiver as mquiver
 from matplotlib import scale as mscale
 from matplotlib import table as mtable
@@ -428,15 +427,8 @@ class Axes(martist.Artist):
 
 
     """
-
-    # MGDTODO
-#     scaled = {mtrans.IDENTITY : 'linear',
-#               mtrans.LOG10 : 'log',
-#               }
-    scaled = {0 : 'linear',
-              1 : 'log',
-              }
-
+    name = "rectilinear"
+    
     _shared_x_axes = cbook.Grouper()
     _shared_y_axes = cbook.Grouper()
     
@@ -474,16 +466,16 @@ class Axes(martist.Artist):
         visible: a boolean - whether the axes is visible
         xlabel: the xlabel
         xlim: (xmin, xmax) view limits
-        xscale: ['log' | 'linear' ]
+        xscale: [%(scale)s]
         xticklabels: sequence of strings
         xticks: sequence of floats
         ylabel: the ylabel strings
         ylim: (ymin, ymax) view limits
-        yscale: ['log' | 'linear']
+        yscale: [%(scale)s]
         yticklabels: sequence of strings
         yticks: sequence of floats
 
-        """
+        """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
         martist.Artist.__init__(self)
         self._position = mtransforms.Bbox.from_lbwh(*rect)
         self._originalPosition = copy.deepcopy(self._position)
@@ -637,6 +629,10 @@ class Axes(martist.Artist):
         # It is assumed that this part will have non-linear components
         self.transScale = mtransforms.TransformWrapper(mtransforms.IdentityTransform())
 
+        self._set_transData()
+
+    # MGDTODO: Rename this method
+    def _set_transData(self):
         # A (possibly non-linear) projection on the (already scaled) data
         self.transProjection = mtransforms.IdentityTransform()
 
@@ -647,7 +643,33 @@ class Axes(martist.Artist):
         
         self.transData = self.transScale + self.transProjection + self.transLimits + self.transAxes
 
+        self._xaxis_transform = mtransforms.blended_transform_factory(
+                self.axes.transData, self.axes.transAxes)
+        self._yaxis_transform = mtransforms.blended_transform_factory(
+                self.axes.transAxes, self.axes.transData)
 
+    def get_xaxis_transform(self):
+        return self._xaxis_transform
+
+    def get_xaxis_text1_transform(self, pad_pixels):
+        return (self._xaxis_transform +
+                mtransforms.Affine2D().translate(0, -1 * pad_pixels))
+
+    def get_xaxis_text2_transform(self, pad_pixels):
+        return (self._xaxis_transform +
+                mtransforms.Affine2D().translate(0, pad_pixels))
+
+    def get_yaxis_transform(self):
+        return self._yaxis_transform
+
+    def get_yaxis_text1_transform(self, pad_pixels):
+        return (self._yaxis_transform +
+                mtransforms.Affine2D().translate(-1 * pad_pixels, 0))
+
+    def get_yaxis_text2_transform(self, pad_pixels):
+        return (self._yaxis_transform +
+                mtransforms.Affine2D().translate(pad_pixels, 0))
+        
     def _update_transScale(self):
         self.transScale.set(
             mtransforms.blended_transform_factory(
@@ -691,6 +713,9 @@ class Axes(martist.Artist):
             a.set_transform(self.transData)
         a.axes = self
 
+    def get_axes_patch(self):
+        return mpatches.Rectangle((0.0, 0.0), 1.0, 1.0)
+        
     def cla(self):
         'Clear the current axes'
 
@@ -734,23 +759,25 @@ class Axes(martist.Artist):
         self.title.set_clip_box(None)
 
         self._set_artist_props(self.title)
-
-        self.axesPatch = mpatches.Rectangle(
-            xy=(0,0), width=1, height=1,
-            facecolor=self._axisbg,
-            edgecolor=rcParams['axes.edgecolor'],
-            )
+        
+        self.axesPatch = self.get_axes_patch()
         self.axesPatch.set_figure(self.figure)
-        self.axesPatch.set_transform(self.transAxes)
+        self.axesPatch.set_facecolor(self._axisbg)
+        self.axesPatch.set_edgecolor(rcParams['axes.edgecolor'])
         self.axesPatch.set_linewidth(rcParams['axes.linewidth'])
-        # MGDTODO: What is axesFrame for?  We already have axesPatch
-        self.axesFrame = mlines.Line2D((0,1,1,0,0), (0,0,1,1,0),
-                            linewidth=rcParams['axes.linewidth'],
-                            color=rcParams['axes.edgecolor'],
-                            figure=self.figure)
+        self.axesPatch.set_transform(self.transAxes)
+
+        self.axesFrame = self.get_axes_patch()
+        self.axesFrame.set_figure(self.figure)
+        self.axesFrame.set_facecolor(None)
+        self.axesFrame.set_edgecolor(rcParams['axes.edgecolor'])
+        self.axesFrame.set_linewidth(rcParams['axes.linewidth'])
         self.axesFrame.set_transform(self.transAxes)
         self.axesFrame.set_zorder(2.5)
         self.axison = True
+
+        self.xaxis.set_clip_path(self.axesPatch)
+        self.yaxis.set_clip_path(self.axesPatch)
 
     def clear(self):
         'clear the axes'
@@ -838,19 +865,23 @@ class Axes(martist.Artist):
         """
         ACCEPTS: ['C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W']
         """
-        if anchor in mpbox.PBox.coefs.keys() or len(anchor) == 2:
+        if anchor in mtransforms.Bbox.coefs.keys() or len(anchor) == 2:
             self._anchor = anchor
         else:
             raise ValueError('argument must be among %s' %
-                                ', '.join(PBox.coefs.keys()))
+                                ', '.join(mtransforms.BBox.coefs.keys()))
 
-
-    def apply_aspect(self, data_ratio = None):
+    def get_data_ratio(self):
+        xmin,xmax = self.get_xlim()
+        xsize = max(math.fabs(xmax-xmin), 1e-30)
+        ymin,ymax = self.get_ylim()
+        ysize = max(math.fabs(ymax-ymin), 1e-30)
+        return ysize/xsize
+        
+    def apply_aspect(self):
         '''
         Use self._aspect and self._adjustable to modify the
         axes box or the view limits.
-        The data_ratio kwarg is set to 1 for polar axes.  It is
-        used only when _adjustable is 'box'.
         '''
 
         if self._aspect == 'auto':
@@ -869,18 +900,11 @@ class Axes(martist.Artist):
 
         figW,figH = self.get_figure().get_size_inches()
         fig_aspect = figH/figW
-        #print 'figW, figH, fig_aspect', figW, figH, fig_aspect
-        xmin,xmax = self.get_xlim()
-        xsize = max(math.fabs(xmax-xmin), 1e-30)
-        ymin,ymax = self.get_ylim()
-        ysize = max(math.fabs(ymax-ymin), 1e-30)
         if self._adjustable == 'box':
-            if data_ratio is None:
-                data_ratio = ysize/xsize
-            box_aspect = A * data_ratio
-            pb = mpbox.PBox(self._originalPosition)
-            pb1 = pb.shrink_to_aspect(box_aspect, fig_aspect)
-            self.set_position(pb1.anchor(self._anchor), 'active')
+            box_aspect = A * self.get_data_ratio()
+            pb = self._originalPosition.frozen()
+            pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
+            self.set_position(pb1.anchored(self._anchor, pb), 'active')
             return
 
 
@@ -1079,7 +1103,7 @@ class Axes(martist.Artist):
             collection.set_label('collection%d'%len(self.collections))
         self.collections.append(collection)
         self._set_artist_props(collection)
-        collection.set_clip_box(self.bbox)
+        collection.set_clip_path(self.axesPatch)
         if autolim:
             self.update_datalim(collection.get_verts(self.transData))
         collection._remove_method = lambda h: self.collections.remove(h)
@@ -1087,7 +1111,7 @@ class Axes(martist.Artist):
     def add_line(self, line):
         'Add a line to the list of plot lines'
         self._set_artist_props(line)
-        line.set_clip_box(self.bbox)
+        line.set_clip_path(self.axesPatch)
 
         self._update_line_limits(line)
         if not line.get_label():
@@ -1107,7 +1131,7 @@ class Axes(martist.Artist):
         """
 
         self._set_artist_props(p)
-        p.set_clip_box(self.bbox)
+        p.set_clip_path(self.axesPatch)
         self._update_patch_limits(p)
         self.patches.append(p)
         p._remove_method = lambda h: self.patches.remove(h)
@@ -1115,7 +1139,7 @@ class Axes(martist.Artist):
     def _update_patch_limits(self, p):
         'update the datalimits for patch p'
         xys = self._get_verts_in_data_coords(
-            p.get_transform(), p.get_verts())
+            p.get_transform(), p.get_path().vertices)
         self.update_datalim(xys)
 
 
@@ -1160,8 +1184,8 @@ class Axes(martist.Artist):
         # display and then back to data to get it in data units
         #xys = trans.seq_xy_tups(xys)
         #return [ self.transData.inverse_xy_tup(xy) for xy in xys]
-        xys = trans(npy.asarray(xys))
-        return self.transData.inverted()(xys)
+        xys = trans.transform(npy.asarray(xys))
+        return self.transData.inverted().transform(xys)
 
     def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
         'look for unit kwargs and update the axis instances as necessary'
@@ -1189,9 +1213,9 @@ class Axes(martist.Artist):
                 #print '\tkw setting yunits', yunits
                 self.yaxis.set_units(yunits)
 
-    def in_axes(self, xwin, ywin):
+    def in_axes(self, mouseevent):
         'return True is the point xwin, ywin (display coords) are in the Axes'
-        return self.bbox.contains(xwin, ywin)
+        return self.axesPatch.contains(mouseevent)[0]
 
     def get_autoscale_on(self):
         """
@@ -1206,7 +1230,6 @@ class Axes(martist.Artist):
         ACCEPTS: True|False
         """
         self._autoscaleon = b
-
 
     def autoscale_view(self, tight=False, scalex=True, scaley=True):
         """
@@ -1239,8 +1262,8 @@ class Axes(martist.Artist):
             if yl[1] < yl[0]:
                 YL = YL[::-1]
             self.set_ylim(YL)
-    #### Drawing
 
+    #### Drawing
     def draw(self, renderer=None, inframe=False):
         "Draw everything (plot lines, axes, labels)"
 	if renderer is None:
@@ -1252,7 +1275,9 @@ class Axes(martist.Artist):
         renderer.open_group('axes')
         self.apply_aspect()
 
-        if self.axison and self._frameon: self.axesPatch.draw(renderer)
+        if self.axison and self._frameon:
+            self.axesPatch.draw(renderer)
+            
         artists = []
 
         if len(self.images)<=1 or renderer.option_image_nocomposite():
@@ -1261,7 +1286,6 @@ class Axes(martist.Artist):
         else:
             # make a composite image blending alpha
             # list of (mimage.Image, ox, oy)
-
 
             mag = renderer.get_image_magnification()
             ims = [(im.make_image(mag),0,0)
@@ -1276,8 +1300,6 @@ class Axes(martist.Artist):
             # composite images need special args so they will not
             # respect z-order for now
             renderer.draw_image(l, b, im, self.bbox)
-
-
 
         artists.extend(self.collections)
         artists.extend(self.patches)
@@ -1517,14 +1539,15 @@ class Axes(martist.Artist):
         return xmin, xmax
 
     def get_xscale(self):
-        'return the xaxis scale string: log or linear'
+        'return the xaxis scale string: %s' % (
+            ", ".join(mscale.get_scale_names()))
 	return self.xaxis.get_scale()
 
     def set_xscale(self, value, **kwargs):
         """
-        SET_XSCALE(value, basex=10, subsx=None)
+        SET_XSCALE(value)
 
-        Set the xscaling: 'log' or 'linear'
+        Set the xscaling: %(scale)s
 
         If value is 'log', the additional kwargs have the following meaning
 
@@ -1536,8 +1559,8 @@ class Axes(martist.Artist):
               put minor ticks on 1,2,5,11,12,15,21, ....To turn off
               minor ticking, set subsx=[]
 
-        ACCEPTS: ['log' | 'linear' ]
-        """
+        ACCEPTS: [%(scale)s]
+        """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
         self.xaxis.set_scale(value, **kwargs)
         self._update_transScale()
         
@@ -1610,11 +1633,6 @@ class Axes(martist.Artist):
         if ymin is None: ymin = old_ymin
         if ymax is None: ymax = old_ymax
 
-	# MGDTODO
-#         if (self.transData.get_funcy().get_type()==mtrans.LOG10
-#             and min(ymin, ymax)<=0):
-#             raise ValueError('Cannot set nonpositive limits with log transform')
-
         ymin, ymax = mtransforms.nonsingular(ymin, ymax, increasing=False)
 	self.viewLim.intervaly = (ymin, ymax)
         if emit:
@@ -1627,14 +1645,15 @@ class Axes(martist.Artist):
         return ymin, ymax
 
     def get_yscale(self):
-        'return the yaxis scale string: log or linear'
+        'return the xaxis scale string: %s' % (
+                ", ".join(mscale.get_scale_names()))
         return self.yaxis.get_scale()
         
     def set_yscale(self, value, **kwargs):
         """
         SET_YSCALE(value, basey=10, subsy=None)
 
-        Set the yscaling: 'log' or 'linear'
+        Set the yscaling: %(scale)s
 
         If value is 'log', the additional kwargs have the following meaning
 
@@ -1646,8 +1665,8 @@ class Axes(martist.Artist):
               put minor ticks on 1,2,5,11,12,15, 21, ....To turn off
               minor ticking, set subsy=[]
 
-        ACCEPTS: ['log' | 'linear']
-        """
+        ACCEPTS: %(scale)s
+        """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
         self.yaxis.set_scale(value, **kwargs)
         self._update_transScale()
         
@@ -1681,14 +1700,6 @@ class Axes(martist.Artist):
         """
         return self.yaxis.set_ticklabels(labels, fontdict, **kwargs)
     set_yticklabels.__doc__ = cbook.dedent(set_yticklabels.__doc__) % martist.kwdocd
-
-    def toggle_log_lineary(self):
-        'toggle between log and linear on the y axis'
-	# MGDTODO
-#         funcy = self.transData.get_funcy().get_type()
-#         if funcy==mtrans.LOG10: self.set_yscale('linear')
-#         elif funcy==mtrans.IDENTITY: self.set_yscale('log')
-	pass
 
     def xaxis_date(self, tz=None):
         """Sets up x-axis ticks and labels that treat the x data as dates.
@@ -1748,12 +1759,12 @@ class Axes(martist.Artist):
 
     def format_coord(self, x, y):
         'return a format string formatting the x, y coord'
-
+        if x is None or y is None:
+            return ''
         xs = self.format_xdata(x)
         ys = self.format_ydata(y)
         return  'x=%s, y=%s'%(xs,ys)
-
-
+    
     #### Interactive manipulation
 
     def get_navigate(self):
@@ -1784,17 +1795,40 @@ class Axes(martist.Artist):
         """
         self._navigate_mode = b
 
-    def drag_pan(self, button, x, y, startx, starty, start_lim, start_trans):
+    def drag_pan(self, button, key, startx, starty, dx, dy,
+                 start_lim, start_trans):
+        def format_deltas(key, dx, dy):
+            if key=='control':
+                if(abs(dx)>abs(dy)):
+                    dy = dx
+                else:
+                    dx = dy
+            elif key=='x':
+                dy = 0
+            elif key=='y':
+                dx = 0
+            elif key=='shift':
+                if 2*abs(dx) < abs(dy):
+                    dx=0
+                elif 2*abs(dy) < abs(dx):
+                    dy=0
+                elif(abs(dx)>abs(dy)):
+                    dy=dy/abs(dy)*abs(dx)
+                else:
+                    dx=dx/abs(dx)*abs(dy)
+            return (dx,dy)
+
         if button == 1:
             inverse = start_trans.inverted()
-            dx = startx - x
-            dy = starty - y
-            result = self.bbox.frozen().translated(dx, dy).transformed(inverse)
+            dx, dy = format_deltas(key, dx, dy)
+            result = self.bbox.frozen().translated(-dx, -dy).transformed(inverse)
         elif button == 3:
             try:
+                # MGDTODO: This is broken with log scales
                 inverse = start_trans.inverted()
-                dx = (startx - x) / float(self.bbox.width)
-                dy = (starty - y) / float(self.bbox.height)
+                dx, dy = format_deltas(key, dx, dy)
+                dx = -dx / float(self.bbox.width)
+                dy = -dy / float(self.bbox.height)
                 xmin, ymin, xmax, ymax = start_lim.lbrt
 
                 alpha = npy.power(10.0, (dx, dy))
@@ -1806,7 +1840,6 @@ class Axes(martist.Artist):
                 warnings.warn('Overflow while panning')
                 return
             
-        # MGDTODO: Could we do this with a single set_lim?
         self.set_xlim(*result.intervalx)
         self.set_ylim(*result.intervaly)
         
@@ -1880,7 +1913,7 @@ class Axes(martist.Artist):
         """
         if callable(self._contains): return self._contains(self,mouseevent)
 
-        inside = self.bbox.contains(mouseevent.x,mouseevent.y)
+        inside = self.axesPatch.contains(mouseevent.x, mouseevent.y)
         return inside,{}
 
     def pick(self,*args):
@@ -2100,7 +2133,7 @@ class Axes(martist.Artist):
 
 
         #if t.get_clip_on():  t.set_clip_box(self.bbox)
-        if kwargs.has_key('clip_on'):  t.set_clip_box(self.bbox)
+        if kwargs.has_key('clip_on'):  t.set_clip_path(self.axesPatch)
         return t
     text.__doc__ = cbook.dedent(text.__doc__) % martist.kwdocd
 
@@ -2118,7 +2151,7 @@ class Axes(martist.Artist):
         a = mtext.Annotation(*args, **kwargs)
         a.set_transform(mtransforms.Affine2D())
         self._set_artist_props(a)
-        if kwargs.has_key('clip_on'):  a.set_clip_box(self.bbox)
+        if kwargs.has_key('clip_on'):  a.set_clip_path(self.axesPatch)
         self.texts.append(a)
         return a
     annotate.__doc__ = cbook.dedent(annotate.__doc__) % martist.kwdocd
@@ -5056,7 +5089,7 @@ class SubplotBase:
       Subplot(211)    # 2 rows, 1 column, first (upper) plot
     """
 
-    def __init__(self, fig, *args):
+    def __init__(self, fig, *args, **kwargs):
         """
         fig is a figure instance
 
@@ -5087,6 +5120,10 @@ class SubplotBase:
 
         self.update_params()
 
+        # _axes_class is set in the subplot_class_factory
+        self._axes_class.__init__(self, fig, [self.figLeft, self.figBottom,
+                                              self.figW, self.figH], **kwargs)
+        
     def get_geometry(self):
         'get the subplot geometry, eg 2,2,3'
         return self._rows, self._cols, self._num+1
@@ -5176,36 +5213,18 @@ class SubplotBase:
         for label in self.get_yticklabels():
             label.set_visible(firstcol)
 
-class Subplot(SubplotBase, Axes):
-    """
-    Emulate matlab's(TM) subplot command, creating axes with
-
-      Subplot(numRows, numCols, plotNum)
-
-    where plotNum=1 is the first plot number and increasing plotNums
-    fill rows first.  max(plotNum)==numRows*numCols
-
-    You can leave out the commas if numRows<=numCols<=plotNum<10, as
-    in
-
-      Subplot(211)    # 2 rows, 1 column, first (upper) plot
-    """
-    def __str__(self):
-        return "Subplot(%f,%f,%f,%f)" % (self.bbox.bounds)
-
-    def __init__(self, fig, *args, **kwargs):
-        """
-        See Axes base class documentation for args and kwargs
-        """
-        SubplotBase.__init__(self, fig, *args)
-        Axes.__init__(self, fig, [self.figLeft, self.figBottom,
-                                  self.figW, self.figH], **kwargs)
-
+def subplot_class_factory(axes_class=None):
+    # MGDTODO: This is a little bit strange to make a new class on the
+    # fly like this, but it keeps things relatively similar to how they
+    # were before
+    new_class = new.classobj("%sSubplot" % (axes_class.__name__),
+                             (SubplotBase, axes_class),
+                             {'_axes_class': axes_class})
+    return new_class
 
 
 class PolarAxes(Axes):
     """
-
     Make a PolarAxes.  The rectangular bounding box of the axes is given by
 
 
@@ -5644,11 +5663,6 @@ class PolarAxes(Axes):
         'return the yaxis scale string'
         return 'polar'
 
-    def toggle_log_lineary(self):
-        'toggle between log and linear axes ignored for polar'
-        pass
-
-
     def table(self, *args, **kwargs):
         """
         TABLE(*args, **kwargs)
@@ -5679,255 +5693,9 @@ class PolarSubplot(SubplotBase, PolarAxes):
         PolarAxes.__init__(
             self, fig,
             [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
-
-######################################################################
-# New Polar Axes
-        
-class PolarAxes(Axes):
-    class PolarTransform(mtransforms.Transform):
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
-
-        def transform(self, tr):
-            xy = npy.zeros(tr.shape, npy.float_)
-            t = tr[:, 0:1]
-            r = tr[:, 1:2]
-            x = xy[:, 0:1]
-            y = xy[:, 1:2]
-            x += r * npy.cos(t)
-            y += r * npy.sin(t)
-            return xy
-        transform_non_affine = transform
-
-        def interpolate(self, a, steps):
-            steps = npy.floor(steps)
-            new_length = ((len(a) - 1) * steps) + 1
-            new_shape = list(a.shape)
-            new_shape[0] = new_length
-            result = npy.zeros(new_shape, a.dtype)
-
-            result[0] = a[0]
-            a0 = a[0:-1]
-            a1 = a[1:  ]
-            delta = ((a1 - a0) / steps)
-            
-            for i in range(1, int(steps)+1):
-                result[i::steps] = delta * i + a0
-
-            return result
-        
-#         def transform_path(self, path):
-#             twopi = 2.0 * npy.pi
-#             halfpi = 0.5 * npy.pi
-            
-#             vertices = path.vertices
-#             t0 = vertices[0:-1, 0]
-#             t1 = vertices[1:  , 0]
-#             td = npy.where(t1 > t0, t1 - t0, twopi - (t0 - t1))
-#             maxtd = td.max()
-#             interpolate = npy.ceil(maxtd / halfpi)
-#             if interpolate > 1.0:
-#                 vertices = self.interpolate(vertices, interpolate)
-
-#             vertices = self.transform(vertices)
-
-#             result = npy.zeros((len(vertices) * 3 - 2, 2), npy.float_)
-#             codes = mpath.Path.CURVE4 * npy.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
-#             result[0] = vertices[0]
-#             codes[0] = mpath.Path.MOVETO
-
-#             kappa = 4.0 * ((npy.sqrt(2.0) - 1.0) / 3.0)
-#             kappa = 0.5
-            
-#             p0   = vertices[0:-1]
-#             p1   = vertices[1:  ]
-
-#             x0   = p0[:, 0:1]
-#             y0   = p0[:, 1: ]
-#             b0   = ((y0 - x0) - y0) / ((x0 + y0) - x0)
-#             a0   = y0 - b0*x0
-
-#             x1   = p1[:, 0:1]
-#             y1   = p1[:, 1: ]
-#             b1   = ((y1 - x1) - y1) / ((x1 + y1) - x1)
-#             a1   = y1 - b1*x1
-
-#             x = -(a0-a1) / (b0-b1)
-#             y = a0 + b0*x
-
-#             xk = (x - x0) * kappa + x0
-#             yk = (y - y0) * kappa + y0
-
-#             result[1::3, 0:1] = xk
-#             result[1::3, 1: ] = yk
-
-#             xk = (x - x1) * kappa + x1
-#             yk = (y - y1) * kappa + y1
-
-#             result[2::3, 0:1] = xk
-#             result[2::3, 1: ] = yk
-            
-#             result[3::3] = p1
-
-#             print vertices[-2:]
-#             print result[-2:]
-            
-#             return mpath.Path(result, codes)
-            
-#             twopi = 2.0 * npy.pi
-#             halfpi = 0.5 * npy.pi
-            
-#             vertices = path.vertices
-#             t0 = vertices[0:-1, 0]
-#             t1 = vertices[1:  , 0]
-#             td = npy.where(t1 > t0, t1 - t0, twopi - (t0 - t1))
-#             maxtd = td.max()
-#             interpolate = npy.ceil(maxtd / halfpi)
-
-#             print "interpolate", interpolate
-#             if interpolate > 1.0:
-#                 vertices = self.interpolate(vertices, interpolate)
-            
-#             result = npy.zeros((len(vertices) * 3 - 2, 2), npy.float_)
-#             codes = mpath.Path.CURVE4 * npy.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
-#             result[0] = vertices[0]
-#             codes[0] = mpath.Path.MOVETO
-
-#             kappa = 4.0 * ((npy.sqrt(2.0) - 1.0) / 3.0)
-#             tkappa = npy.arctan(kappa)
-#             hyp_kappa = npy.sqrt(kappa*kappa + 1.0)
-
-#             t0 = vertices[0:-1, 0]
-#             t1 = vertices[1:  , 0]
-#             r0 = vertices[0:-1, 1]
-#             r1 = vertices[1:  , 1]
-
-#             td = npy.where(t1 > t0, t1 - t0, twopi - (t0 - t1))
-#             td_scaled = td / (npy.pi * 0.5)
-#             rd = r1 - r0
-#             r0kappa = r0 * kappa * td_scaled
-#             r1kappa = r1 * kappa * td_scaled
-#             ravg_kappa = ((r1 + r0) / 2.0) * kappa * td_scaled
-
-#             result[1::3, 0] = t0 + (tkappa * td_scaled)
-#             result[1::3, 1] = r0*hyp_kappa
-#             # result[1::3, 1] = r0 / npy.cos(tkappa * td_scaled) # npy.sqrt(r0*r0 + ravg_kappa*ravg_kappa)
-
-#             result[2::3, 0] = t1 - (tkappa * td_scaled)
-#             result[2::3, 1] = r1*hyp_kappa
-#             # result[2::3, 1] = r1 / npy.cos(tkappa * td_scaled) # npy.sqrt(r1*r1 + ravg_kappa*ravg_kappa)
-            
-#             result[3::3, 0] = t1
-#             result[3::3, 1] = r1
-
-#             print vertices[:6], result[:6], t0[:6], t1[:6], td[:6], td_scaled[:6], tkappa
-#             result = self.transform(result)
-#             return mpath.Path(result, codes)
-#         transform_path_non_affine = transform_path
-
-        def inverted(self):
-            return PolarAxes.InvertedPolarTransform()
-
-    class PolarAffine(mtransforms.Affine2DBase):
-        def __init__(self, limits):
-            mtransforms.Affine2DBase.__init__(self)
-            self._limits = limits
-            self.set_children(limits)
-            self._mtx = None
-
-        def get_matrix(self):
-            if self._invalid:
-                xmin, ymin, xmax, ymax = self._limits.lbrt
-                affine = mtransforms.Affine2D().rotate(xmin).scale(0.5 / ymax).translate(0.5, 0.5)
-                self._mtx = affine.get_matrix()
-                self._inverted = None
-                self._invalid = 0
-            return self._mtx
-    
-    class InvertedPolarTransform(mtransforms.Transform):
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
-
-        def transform(self, xy):
-            x = xy[:, 0:1]
-            y = xy[:, 1:]
-            r = npy.sqrt(x*x + y*y)
-            theta = npy.arccos(x / r)
-            theta = npy.where(y < 0, 2 * npy.pi - theta, theta)
-            return npy.concatenate((theta, r), 1)
-
-        def inverted(self):
-            return PolarAxes.PolarTransform()
-        
-    def _set_lim_and_transforms(self):
-        """
-        set the dataLim and viewLim BBox attributes and the
-        transData and transAxes Transformation attributes
-        """
-	self.dataLim = mtransforms.Bbox.unit()
-        self.viewLim = mtransforms.Bbox.unit()
-        self.transAxes = mtransforms.BboxTransform(
-            mtransforms.Bbox.unit(), self.bbox)
-
-        # Transforms the x and y axis separately by a scale factor
-        # It is assumed that this part will have non-linear components
-        self.transScale = mtransforms.TransformWrapper(mtransforms.IdentityTransform())
-
-        # A (possibly non-linear) projection on the (already scaled) data
-        self.transProjection = self.PolarTransform()
-
-        # An affine transformation on the data, generally to limit the
-        # range of the axes
-        self.transProjectionAffine = self.PolarAffine(self.viewLim)
-        
-        self.transData = self.transScale + self.transProjection + \
-            self.transProjectionAffine + self.transAxes
-
-    def drag_pan(self, button, x, y, startx, starty, start_lim, start_trans):
-        if button == 1:
-            inverse = start_trans.inverted()
-            startt, startr = inverse.transform_point((startx, starty))
-            t, r = inverse.transform_point((x, y))
-
-            scale = r / startr
-            self.set_ylim(start_lim.ymin, start_lim.ymax / scale)
-
-            dt0 = t - startt
-            dt1 = startt - t
-            if abs(dt1) < abs(dt0):
-                dt = abs(dt1) * sign(dt0) * -1.0
-            else:
-                dt = dt0 * -1.0
-            self.set_xlim(start_lim.xmin - dt, start_lim.xmin - dt + npy.pi*2.0)
-        
-    def set_rmax(self, rmax):
-        self.viewLim.maxy = rmax
-        
-class PolarSubplot(SubplotBase, PolarAxes):
-    """
-    Create a polar subplot with
-
-      PolarSubplot(numRows, numCols, plotNum)
-
-    where plotNum=1 is the first plot number and increasing plotNums
-    fill rows first.  max(plotNum)==numRows*numCols
-
-    You can leave out the commas if numRows<=numCols<=plotNum<10, as
-    in
-
-      Subplot(211)    # 2 rows, 1 column, first (upper) plot
-    """
-    def __str__(self):
-        return "PolarSubplot(%gx%g)"%(self.figW,self.figH)
-    def __init__(self, fig, *args, **kwargs):
-        SubplotBase.__init__(self, fig, *args)
-        PolarAxes.__init__(
-            self, fig,
-            [self.figLeft, self.figBottom, self.figW, self.figH], **kwargs)
         
 martist.kwdocd['Axes'] = martist.kwdocd['Subplot'] = martist.kwdoc(Axes)
+
 """
 # this is some discarded code I was using to find the minimum positive
 # data point for some log scaling fixes.  I realized there was a

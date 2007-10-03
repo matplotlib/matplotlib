@@ -1,7 +1,8 @@
 from __future__ import division
 import sys, re
 from cbook import iterable, flatten
-from transforms import Affine2D
+from transforms import Affine2D, Bbox, IdentityTransform, TransformedBbox, \
+    TransformedPath
 import matplotlib.units as units
 
 ## Note, matplotlib artists use the doc strings for set and get
@@ -145,7 +146,7 @@ class Artist(object):
     def get_transform(self):
         'return the Transformation instance used by this artist'
         if self._transform is None:
-            self._transform = Affine2D()
+            self._transform = IdentityTransform()
         return self._transform
 
     def hitlist(self,event):
@@ -284,16 +285,28 @@ class Artist(object):
         self._clipon = clipbox is not None or self._clippath is not None
         self.pchanged()
 
-    def set_clip_path(self, path):
+    def set_clip_path(self, path, transform=None):
         """
         Set the artist's clip path
 
-        ACCEPTS: an agg.path_storage instance
+        ACCEPTS: a Path instance and a Transform instance, or a Patch instance
         """
-        self._clippath = path
+        from patches import Patch, Rectangle
+        if transform is None:
+            if isinstance(path, Rectangle):
+                self.clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
+            elif isinstance(path, Patch):
+                self._clippath = TransformedPath(
+                    path.get_path(),
+                    path.get_transform())
+            elif path is None:
+                self._clippath = None
+            else:
+                raise TypeError("Invalid arguments to set_clip_path")
+        else:
+            self._clippath = TransformedPath(path, transform)
         self._clipon = self.clipbox is not None or path is not None
         self.pchanged()
-
 
     def get_alpha(self):
         """
@@ -431,6 +444,7 @@ class Artist(object):
         self._alpha = other._alpha
         self.clipbox = other.clipbox
         self._clipon = other._clipon
+        self._clippath = other._clippath
         self._lod = other._lod
         self._label = other._label
         self.pchanged()

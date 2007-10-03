@@ -88,6 +88,7 @@ from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
 packages = [
     'matplotlib',
     'matplotlib.backends',
+    'matplotlib.projections',
     'matplotlib.toolkits',
     'matplotlib.numerix',
     'matplotlib.numerix.mlab',
