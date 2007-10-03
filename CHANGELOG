@@ -1,3 +1,6 @@
+2007-10-01 Made matplotlib.use() raise an exception if called after
+           backends has been imported.
+
 2007-09-30 Modified update* methods of Bbox and Interval so they
            work with reversed axes.  Prior to this, trying to
            set the ticks on a reversed axis failed with an
