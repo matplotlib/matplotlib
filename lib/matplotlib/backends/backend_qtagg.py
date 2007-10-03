@@ -64,14 +64,6 @@ class FigureCanvasQTAgg( FigureCanvasAgg, FigureCanvasQT ):
 
     def resizeEvent( self, e ):
         FigureCanvasQT.resizeEvent( self, e )
-        w = e.size().width()
-        h = e.size().height()
-        if DEBUG: print "FigureCanvasQtAgg.resizeEvent(", w, ",", h, ")"
-        dpival = self.figure.dpi.get()
-        winch = w/dpival
-        hinch = h/dpival
-        self.figure.set_size_inches( winch, hinch )
-        self.draw()
 
     def drawRectangle( self, rect ):
         self.rect = rect
