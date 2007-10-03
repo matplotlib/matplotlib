@@ -135,7 +135,6 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
 
     def resizeEvent( self, event ):
         if DEBUG: print 'resize (%d x %d)' % (event.size().width(), event.size().height())
-        print "JRE--DBG: qt : resizeEvent"
         qt.QWidget.resizeEvent( self, event )
         w = event.size().width()
         h = event.size().height()
@@ -147,7 +146,6 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         self.draw()
 
     def resize( self, w, h ):
-        print "JRE--DBG: qt : resize"
         # Pass through to Qt to resize the widget.
         qt.QWidget.resize( self, w, h )
 
