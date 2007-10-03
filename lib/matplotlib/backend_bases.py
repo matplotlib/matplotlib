@@ -537,7 +537,9 @@ class GraphicsContextBase:
         """
         Return the clip path
         """
-        return self._clippath
+        if self._clippath is not None:
+            return self._clippath.get_transformed_path_and_affine()
+        return None, None
 
     def get_dashes(self):
         """
@@ -608,7 +610,7 @@ class GraphicsContextBase:
 
     def set_clip_path(self, path):
         """
-        Set the clip path
+        Set the clip path and transformation
         """
         self._clippath = path
 
@@ -758,7 +760,7 @@ class LocationEvent(Event):
             return
 
         # Find all axes containing the mouse
-        axes_list = [a for a in self.canvas.figure.get_axes() if a.in_axes(x, y)]
+        axes_list = [a for a in self.canvas.figure.get_axes() if a.in_axes(self)]
 
         if len(axes_list) == 0: # None found
             self.inaxes = None
@@ -1333,7 +1335,7 @@ class FigureManagerBase:
             if event.key!='a':
                 n=int(event.key)-1
             for i, a in enumerate(self.canvas.figure.get_axes()):
-                if event.x is not None and event.y is not None and a.in_axes(event.x, event.y):
+                if event.x is not None and event.y is not None and a.in_axes(event):
                     if event.key=='a':
                         a.set_navigate(True)
                     else:
@@ -1557,7 +1559,7 @@ class NavigationToolbar2:
 
         self._xypress=[]
         for i, a in enumerate(self.canvas.figure.get_axes()):
-            if x is not None and y is not None and a.in_axes(x, y) and a.get_navigate():
+            if x is not None and y is not None and a.in_axes(event) and a.get_navigate():
                 self._xypress.append((x, y, a, i, a.viewLim.frozen(), a.transData.frozen()))
                 self.canvas.mpl_disconnect(self._idDrag)
                 self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.drag_pan)
@@ -1581,7 +1583,7 @@ class NavigationToolbar2:
 
         self._xypress=[]
         for i, a in enumerate(self.canvas.figure.get_axes()):
-            if x is not None and y is not None and a.in_axes(x, y) and a.get_navigate():
+            if x is not None and y is not None and a.in_axes(event) and a.get_navigate():
                 self._xypress.append(( x, y, a, i, a.viewLim.frozen(), a.transData.frozen()))
 
         self.press(event)
@@ -1621,33 +1623,12 @@ class NavigationToolbar2:
     def drag_pan(self, event):
         'the drag callback in pan/zoom mode'
 
-        def format_deltas(event,dx,dy):
-            if event.key=='control':
-                if(abs(dx)>abs(dy)):
-                    dy = dx
-                else:
-                    dx = dy
-            elif event.key=='x':
-                dy = 0
-            elif event.key=='y':
-                dx = 0
-            elif event.key=='shift':
-                if 2*abs(dx) < abs(dy):
-                    dx=0
-                elif 2*abs(dy) < abs(dx):
-                    dy=0
-                elif(abs(dx)>abs(dy)):
-                    dy=dy/abs(dy)*abs(dx)
-                else:
-                    dx=dx/abs(dx)*abs(dy)
-            return (dx,dy)
-
         for lastx, lasty, a, ind, old_lim, old_trans in self._xypress:
             #safer to use the recorded button at the press than current button:
             #multiple button can get pressed during motion...
             dx, dy = event.x - lastx, event.y - lasty
-            dx, dy = format_deltas(event, dx, dy)
-            a.drag_pan(self._button_pressed, lastx + dx, lasty + dy, lastx, lasty, old_lim, old_trans)
+            a.drag_pan(self._button_pressed, event.key, lastx, lasty, dx, dy,
+                       old_lim, old_trans)
         self.dynamic_update()
 
     def release_zoom(self, event):
@@ -1664,7 +1645,7 @@ class NavigationToolbar2:
                 self.draw()
                 return
 
-            xmin, ymin, xmax, ymax = lim
+            xmin, ymin, xmax, ymax = lim.lbrt
 
             # zoom to rect
 	    inverse = a.transData.inverted()

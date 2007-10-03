@@ -4,9 +4,12 @@ from numpy.linalg import inv
 
 from ticker import NullFormatter, FixedFormatter, ScalarFormatter, \
     LogFormatter, LogFormatterMathtext
-from ticker import NullLocator, FixedLocator, LinearLocator, LogLocator, AutoLocator
+from ticker import NullLocator, FixedLocator, LinearLocator, LogLocator, \
+    AutoLocator
 from transforms import Affine1DBase, IntervalTransform, Transform, \
     composite_transform_factory, IdentityTransform
+
+# MGDTODO: Should the tickers/locators be moved here?
 
 class ScaleBase(object):
     def set_default_locators_and_formatters(self, axis):
@@ -129,12 +132,12 @@ class LogScale(ScaleBase):
         
     def __init__(self, axis, **kwargs):
         if axis.axis_name == 'x':
-            base = kwargs.pop('basex')
-            subs = kwargs.pop('subsx')
+            base = kwargs.pop('basex', 10.0)
+            subs = kwargs.pop('subsx', [])
         else:
-            base = kwargs.pop('basey')
-            subs = kwargs.pop('subsy')
-            
+            base = kwargs.pop('basey', 10.0)
+            subs = kwargs.pop('subsy', [])
+
         if base == 10.0:
             self._transform = self.Log10Transform()
         elif base == 2.0:
@@ -170,3 +173,8 @@ def scale_factory(scale, axis, **kwargs):
         raise ValueError("Unknown scale type '%s'" % scale)
     
     return _scale_mapping[scale](axis, **kwargs)
+
+def get_scale_names():
+    names = _scale_mapping.keys()
+    names.sort()
+    return names

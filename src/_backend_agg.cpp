@@ -132,7 +132,7 @@ public:
   }
 
   inline unsigned vertex(double* x, double* y) {
-    if(m_iterator >= m_total_vertices) return agg::path_cmd_stop;
+    if (m_iterator >= m_total_vertices) return agg::path_cmd_stop;
     return vertex(m_iterator++, x, y);
   }
 
@@ -331,7 +331,13 @@ GCAgg::_set_clip_path( const Py::Object& gc) {
   
   _VERBOSE("GCAgg::_set_clip_path");
   
-  clippath = gc.getAttr("_clippath");
+  Py::Object method_obj = gc.getAttr("get_clip_path");
+  Py::Callable method(method_obj);
+  Py::Tuple path_and_transform = method.apply(Py::Tuple());
+  if (path_and_transform[0].ptr() != Py_None) {
+    clippath = path_and_transform[0];
+    clippath_trans = py_to_agg_transformation_matrix(path_and_transform[1]);
+  }
 }
 
 
@@ -382,15 +388,12 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
 };
 
 
-
+template<class R>
 void
-RendererAgg::set_clipbox_rasterizer(double *cliprect) {
+RendererAgg::set_clipbox(double *cliprect, R rasterizer) {
   //set the clip rectangle from the gc
   
-  _VERBOSE("RendererAgg::set_clipbox_rasterizer");
-
-  theRasterizer->reset_clipping();
-  rendererBase->reset_clipping(true);
+  _VERBOSE("RendererAgg::set_clipbox");
 
   if (cliprect!=NULL) {
     
@@ -399,10 +402,9 @@ RendererAgg::set_clipbox_rasterizer(double *cliprect) {
     double w = cliprect[2] ;
     double h = cliprect[3] ;
     
-    theRasterizer->clip_box(l, height-(b+h),
-			    l+w, height-b);
+    rasterizer->clip_box((int)l, (int)(height-(b+h)), (int)(l+w), (int)(height-b));
   }
-  _VERBOSE("RendererAgg::set_clipbox_rasterizer done");
+  _VERBOSE("RendererAgg::set_clipbox done");
   
 }
 
@@ -602,6 +604,32 @@ int RendererAgg::inPolygon(int row, const double xs[4], const double ys[4], int 
   return numIntersect;
 }
 
+bool RendererAgg::render_clippath(const GCAgg& gc) {
+  typedef agg::conv_transform<PathIterator> transformed_path_t;
+  typedef agg::conv_curve<transformed_path_t> curve_t;
+
+  bool has_clippath = (gc.clippath.ptr() != Py_None);
+
+  if (has_clippath && 
+      (gc.clippath.ptr() != lastclippath.ptr() || 
+       gc.clippath_trans != lastclippath_transform)) {
+    agg::trans_affine trans(gc.clippath_trans);
+    trans *= agg::trans_affine_scaling(1.0, -1.0);
+    trans *= agg::trans_affine_translation(0.0, (double)height);
+
+    PathIterator clippath(gc.clippath);
+    rendererBaseAlphaMask->clear(agg::gray8(0, 0));
+    transformed_path_t transformed_clippath(clippath, trans);
+    agg::conv_curve<transformed_path_t> curved_clippath(transformed_clippath);
+    theRasterizer->add_path(curved_clippath);
+    rendererAlphaMask->color(agg::gray8(255, 255));
+    agg::render_scanlines(*theRasterizer, *scanlineAlphaMask, *rendererAlphaMask);
+    lastclippath = gc.clippath;
+    lastclippath_transform = gc.clippath_trans;
+  }
+
+  return has_clippath;
+}
 
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
@@ -610,6 +638,10 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   typedef agg::conv_stroke<curve_t> stroke_t;
   typedef agg::conv_dash<curve_t> dash_t;
   typedef agg::conv_stroke<dash_t> stroke_dash_t;
+  typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
+  typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
+  typedef agg::renderer_scanline_aa_solid<amask_ren_type> amask_aa_renderer_type;
+  typedef agg::renderer_scanline_bin_solid<amask_ren_type> amask_bin_renderer_type;
 
   theRasterizer->reset_clipping();
   
@@ -664,19 +696,11 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     unsigned strokeSize = scanlines.byte_size();
     strokeCache = new agg::int8u[strokeSize]; // or any container
     scanlines.serialize(strokeCache);
-
-    // MGDTODO: Clean this up and support clippaths as well
+    
     theRasterizer->reset_clipping();
-    if (gc.cliprect==NULL) {
-      rendererBase->reset_clipping(true);
-    }
-    else {
-      int l = (int)(gc.cliprect[0]) ;
-      int b = (int)(gc.cliprect[1]) ;
-      int w = (int)(gc.cliprect[2]) ;
-      int h = (int)(gc.cliprect[3]) ;
-      rendererBase->clip_box(l, height-(b+h),l+w, height-b);
-    }
+    rendererBase->reset_clipping(true);
+    set_clipbox(gc.cliprect, rendererBase);
+    bool has_clippath = render_clippath(gc);
     
     double x, y;
 
@@ -684,17 +708,35 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
     while (path_transformed.vertex(&x, &y) != agg::path_cmd_stop) {
+      //render the fill
       if (face.first) {
-	//render the fill
-	sa.init(fillCache, fillSize, x, y);
-	rendererAA->color(face.second);
-	agg::render_scanlines(sa, sl, *rendererAA);
+	if (has_clippath) {
+	  pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	  amask_ren_type r(pfa);
+	  amask_aa_renderer_type ren(r);
+	  sa.init(fillCache, fillSize, x, y);
+	  ren.color(face.second);
+	  agg::render_scanlines(sa, sl, ren);
+	} else {
+	  sa.init(fillCache, fillSize, x, y);
+	  rendererAA->color(face.second);
+	  agg::render_scanlines(sa, sl, *rendererAA);
+	}
       }
       
       //render the stroke
-      sa.init(strokeCache, strokeSize, x, y);
-      rendererAA->color(gc.color);
-      agg::render_scanlines(sa, sl, *rendererAA);
+      if (has_clippath) {
+	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	amask_ren_type r(pfa);
+	amask_aa_renderer_type ren(r);
+	sa.init(strokeCache, strokeSize, x, y);
+	ren.color(gc.color);
+	agg::render_scanlines(sa, sl, ren);
+      } else {
+	sa.init(strokeCache, strokeSize, x, y);
+	rendererAA->color(gc.color);
+	agg::render_scanlines(sa, sl, *rendererAA);
+      }
     }
   } catch(...) {
     delete[] fillCache;
@@ -796,7 +838,8 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
 
   GCAgg gc = GCAgg(args[4], dpi);
   
-  set_clipbox_rasterizer(gc.cliprect);
+  theRasterizer->reset_clipping();
+  set_clipbox(gc.cliprect, theRasterizer);
 
   const unsigned char* const buffer = image->get_buffer();
   agg::rendering_buffer srcbuf
@@ -875,8 +918,6 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   typedef agg::renderer_scanline_aa_solid<amask_ren_type> amask_aa_renderer_type;
   typedef agg::renderer_scanline_bin_solid<amask_ren_type> amask_bin_renderer_type;
 
-  theRasterizer->reset_clipping();
-  
   _VERBOSE("RendererAgg::draw_path");
   args.verify_length(3, 4);
 
@@ -889,6 +930,8 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   trans *= agg::trans_affine_scaling(1.0, -1.0);
   trans *= agg::trans_affine_translation(0.0, (double)height);
 
+  // If this is a straight horizontal or vertical line, quantize to nearest 
+  // pixels
   bool snap = false;
   if (path.total_vertices() == 2) {
     double x0, y0, x1, y1;
@@ -905,95 +948,73 @@ RendererAgg::draw_path(const Py::Tuple& args) {
     face_obj = args[3];
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
 
-  bool has_clippath = (gc.clippath.ptr() != Py_None);
+  transformed_path_t tpath(path, trans);
+  quantize_t quantized(tpath, snap);
 
-  if (has_clippath && 
-      (gc.clippath.ptr() != lastclippath.ptr() || trans != lastclippath_transform)) {
-    PathIterator clippath(gc.clippath);
-    rendererBaseAlphaMask->clear(agg::gray8(0, 0));
-    transformed_path_t transformed_clippath(clippath, trans);
-    agg::conv_curve<transformed_path_t> curved_clippath(transformed_clippath);
-    theRasterizer->add_path(curved_clippath);
-    rendererAlphaMask->color(agg::gray8(255, 255));
-    agg::render_scanlines(*theRasterizer, *scanlineAlphaMask, *rendererAlphaMask);
-    lastclippath = gc.clippath;
-    lastclippath_transform = trans;
+  // Benchmarking shows that there is no noticable slowdown to always
+  // treating paths as having curved segments.  Doing so greatly 
+  // simplifies the code
+  curve_t curve(quantized);
+    
+  theRasterizer->reset_clipping();
+  set_clipbox(gc.cliprect, theRasterizer);
+  bool has_clippath = render_clippath(gc);
+    
+  if (face.first) {
+    if (has_clippath) {
+      pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+      amask_ren_type r(pfa);
+      amask_aa_renderer_type ren(r);
+      ren.color(gc.color);
+      agg::render_scanlines(*theRasterizer, *slineP8, ren);
+    } else {
+      rendererAA->color(face.second);
+      theRasterizer->add_path(curve);
+      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+    }
   }
-
-  try {
-    // If this is a straight horizontal or vertical line, quantize to nearest 
-    // pixels
-
-    transformed_path_t tpath(path, trans);
-    quantize_t quantized(tpath, snap);
-
-    // Benchmarking shows that there is no noticable slowdown to always
-    // treating paths as having curved segments.  Doing so greatly 
-    // simplifies the code
-    curve_t curve(quantized);
     
-    set_clipbox_rasterizer(gc.cliprect);
+  if (gc.linewidth) {
+    if (gc.dasha == NULL) {
+      stroke_t stroke(curve);
+      stroke.width(gc.linewidth);
+      stroke.line_cap(gc.cap);
+      stroke.line_join(gc.join);
+      theRasterizer->add_path(stroke);
+    } else {
+      dash_t dash(curve);
+      for (size_t i = 0; i < (gc.Ndash / 2); ++i)
+	dash.add_dash(gc.dasha[2 * i], gc.dasha[2 * i + 1]);
+      stroke_dash_t stroke(dash);
+      stroke.line_cap(gc.cap);
+      stroke.line_join(gc.join);
+      stroke.width(gc.linewidth);
+      theRasterizer->add_path(stroke);
+    }
     
-    if (face.first) {
+    if (gc.isaa) {
       if (has_clippath) {
 	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
 	amask_ren_type r(pfa);
 	amask_aa_renderer_type ren(r);
 	ren.color(gc.color);
 	agg::render_scanlines(*theRasterizer, *slineP8, ren);
-      } else{
-	rendererAA->color(face.second);
-	theRasterizer->add_path(curve);
+      } else {
+	rendererAA->color(gc.color);
 	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
       }
-    }
-    
-    if (gc.linewidth) {
-      if (gc.dasha == NULL) {
-	stroke_t stroke(curve);
-	stroke.width(gc.linewidth);
-	stroke.line_cap(gc.cap);
-	stroke.line_join(gc.join);
-	theRasterizer->add_path(stroke);
+    } else {
+      if (has_clippath) {
+	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	amask_ren_type r(pfa);
+	amask_bin_renderer_type ren(r);
+	ren.color(gc.color);
+	agg::render_scanlines(*theRasterizer, *slineP8, ren);
       } else {
- 	dash_t dash(curve);
-	for (size_t i = 0; i < (gc.Ndash / 2); ++i)
-	dash.add_dash(gc.dasha[2 * i], gc.dasha[2 * i + 1]);
-	stroke_dash_t stroke(dash);
-	stroke.line_cap(gc.cap);
-	stroke.line_join(gc.join);
-	stroke.width(gc.linewidth);
-	theRasterizer->add_path(stroke);
-      }
-    
-      if (gc.isaa) {
-	if (has_clippath) {
-	  pixfmt_amask_type pfa(*pixFmt, *alphaMask);
-	  amask_ren_type r(pfa);
-	  amask_aa_renderer_type ren(r);
-	  ren.color(gc.color);
-	  agg::render_scanlines(*theRasterizer, *slineP8, ren);
-	} else {
-	  rendererAA->color(gc.color);
-	  agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-	}
-      } else {
-	if (has_clippath) {
-	  pixfmt_amask_type pfa(*pixFmt, *alphaMask);
-	  amask_ren_type r(pfa);
-	  amask_bin_renderer_type ren(r);
-	  ren.color(gc.color);
-	  agg::render_scanlines(*theRasterizer, *slineP8, ren);
-	} else {
-	  rendererBin->color(gc.color);
-	  agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
-	}
+	rendererBin->color(gc.color);
+	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
       }
     }
-  } catch (...) {
-    // MGDTODO: We don't have anything on the heap, so this catch
-    // clause isn't really necessary, but we might again soon...
-    throw;
   }
   
   return Py::Object();
@@ -1291,6 +1312,161 @@ RendererAgg::~RendererAgg() {
   delete rendererAlphaMask;
   delete scanlineAlphaMask;
   
+}
+
+//
+// The following code was found in the Agg 2.3 examples (interactive_polygon.cpp).
+// It has been generalized to work on (possibly curved) polylines, rather than
+// just polygons.  The original comments have been kept intact.
+//  -- Michael Droettboom 2007-10-02
+//
+//======= Crossings Multiply algorithm of InsideTest ======================== 
+//
+// By Eric Haines, 3D/Eye Inc, erich@eye.com
+//
+// This version is usually somewhat faster than the original published in
+// Graphics Gems IV; by turning the division for testing the X axis crossing
+// into a tricky multiplication test this part of the test became faster,
+// which had the additional effect of making the test for "both to left or
+// both to right" a bit slower for triangles than simply computing the
+// intersection each time.  The main increase is in triangle testing speed,
+// which was about 15% faster; all other polygon complexities were pretty much
+// the same as before.  On machines where division is very expensive (not the
+// case on the HP 9000 series on which I tested) this test should be much
+// faster overall than the old code.  Your mileage may (in fact, will) vary,
+// depending on the machine and the test data, but in general I believe this
+// code is both shorter and faster.  This test was inspired by unpublished
+// Graphics Gems submitted by Joseph Samosky and Mark Haigh-Hutchinson.
+// Related work by Samosky is in:
+//
+// Samosky, Joseph, "SectionView: A system for interactively specifying and
+// visualizing sections through three-dimensional medical image data",
+// M.S. Thesis, Department of Electrical Engineering and Computer Science,
+// Massachusetts Institute of Technology, 1993.
+//
+// Shoot a test ray along +X axis.  The strategy is to compare vertex Y values
+// to the testing point's Y and quickly discard edges which are entirely to one
+// side of the test ray.  Note that CONVEX and WINDING code can be added as
+// for the CrossingsTest() code; it is left out here for clarity.
+//
+// Input 2D polygon _pgon_ with _numverts_ number of vertices and test point
+// _point_, returns 1 if inside, 0 if outside.
+template<class T>
+bool point_in_path_impl(double tx, double ty, T& path) {
+  int yflag0, yflag1, inside_flag;
+  double vtx0, vty0, vtx1, vty1;
+  double x, y;
+
+  if (path.vertex(&x, &y) == agg::path_cmd_stop)
+    return false;
+
+  while (true) {
+    vtx0 = x;
+    vty0 = y;
+
+    // get test bit for above/below X axis
+    yflag0 = (vty0 >= ty);
+
+    vtx1 = x;
+    vty1 = x;
+
+    inside_flag = 0;
+    while (true) {
+      unsigned code = path.vertex(&x, &y);
+      if (code == agg::path_cmd_stop)
+	return false;
+      // The following cases denote the beginning on a new subpath
+      if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
+	break;
+      if (code == agg::path_cmd_move_to)
+	break;
+      
+      yflag1 = (vty1 >= ty);
+      // Check if endpoints straddle (are on opposite sides) of X axis
+      // (i.e. the Y's differ); if so, +X ray could intersect this edge.
+      // The old test also checked whether the endpoints are both to the
+      // right or to the left of the test point.  However, given the faster
+      // intersection point computation used below, this test was found to
+      // be a break-even proposition for most polygons and a loser for
+      // triangles (where 50% or more of the edges which survive this test
+      // will cross quadrants and so have to have the X intersection computed
+      // anyway).  I credit Joseph Samosky with inspiring me to try dropping
+      // the "both left or both right" part of my code.
+      if (yflag0 != yflag1) {
+	// Check intersection of pgon segment with +X ray.
+	// Note if >= point's X; if so, the ray hits it.
+	// The division operation is avoided for the ">=" test by checking
+	// the sign of the first vertex wrto the test point; idea inspired
+	// by Joseph Samosky's and Mark Haigh-Hutchinson's different
+	// polygon inclusion tests.
+	if ( ((vty1-ty) * (vtx0-vtx1) >=
+	      (vtx1-tx) * (vty0-vty1)) == yflag1 ) {
+	  inside_flag ^= 1;
+	}
+      }
+
+      // Move to the next pair of vertices, retaining info as possible.
+      yflag0 = yflag1;
+      vtx0 = vtx1;
+      vty0 = vty1;
+	
+      vtx1 = x;
+      vty1 = y;
+    }
+
+    if (inside_flag != 0)
+      return true;
+  }
+
+  return false;
+}
+
+bool point_in_path(double x, double y, PathIterator& path, agg::trans_affine& trans) {
+  typedef agg::conv_transform<PathIterator> transformed_path_t;
+  typedef agg::conv_curve<transformed_path_t> curve_t;
+  
+  transformed_path_t trans_path(path, trans);
+  curve_t curved_path(trans_path);
+  return point_in_path_impl(x, y, curved_path);
+}
+
+bool point_on_path(double x, double y, double r, PathIterator& path, agg::trans_affine& trans) {
+  typedef agg::conv_transform<PathIterator> transformed_path_t;
+  typedef agg::conv_curve<transformed_path_t> curve_t;
+  typedef agg::conv_stroke<curve_t> stroke_t;
+
+  transformed_path_t trans_path(path, trans);
+  curve_t curved_path(trans_path);
+  stroke_t stroked_path(curved_path);
+  stroked_path.width(r * 2.0);
+  return point_in_path_impl(x, y, stroked_path);
+}
+
+Py::Object _backend_agg_module::point_in_path(const Py::Tuple& args) {
+  args.verify_length(4);
+  
+  double x = Py::Float(args[0]);
+  double y = Py::Float(args[1]);
+  PathIterator path(args[2]);
+  agg::trans_affine trans = py_to_agg_transformation_matrix(args[3]);
+
+  if (::point_in_path(x, y, path, trans))
+    return Py::Int(1);
+  return Py::Int(0);
+}
+
+Py::Object _backend_agg_module::point_on_path(const Py::Tuple& args) {
+  args.verify_length(5);
+  
+  double x = Py::Float(args[0]);
+  double y = Py::Float(args[1]);
+  double r = Py::Float(args[2]);
+  PathIterator path(args[3]);
+  agg::trans_affine trans = py_to_agg_transformation_matrix(args[4]);
+
+  if (::point_on_path(x, y, r, path, trans))
+    return Py::Int(1);
+  return Py::Int(0);
 }
 
 /* ------------ module methods ------------- */

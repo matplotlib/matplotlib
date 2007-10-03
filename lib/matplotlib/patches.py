@@ -12,6 +12,8 @@ import matplotlib.nxutils as nxutils
 import matplotlib.mlab as mlab
 import matplotlib.artist as artist
 from matplotlib.path import Path
+# MGDTODO: Maybe this belongs elsewhere
+from matplotlib.backends._backend_agg import point_in_path
 
 # these are not available for the object inspector until after the
 # class is build so we define an initial set here for the init
@@ -72,6 +74,7 @@ class Patch(artist.Artist):
         self._linewidth = linewidth
         self._antialiased = antialiased
         self._hatch = hatch
+        self._combined_transform = transforms.IdentityTransform()
         self.fill = fill
 	
         if len(kwargs): artist.setp(self, **kwargs)
@@ -84,19 +87,15 @@ class Patch(artist.Artist):
 
         Returns T/F, {}
         """
-	# MGDTODO: This will probably need to be implemented in C++
-
+	# This is a general version of contains should work on any
+        # patch with a path.  However, patches that have a faster
+        # algebraic solution to hit-testing should override this
+        # method.
 	if callable(self._contains): return self._contains(self,mouseevent)
 
-        try:
-            # TODO: make this consistent with patch collection algorithm
-            x, y = self.get_transform().inverse_xy_tup((mouseevent.x, mouseevent.y))
-            xyverts = self.get_verts()
-            inside = nxutils.pnpoly(x, y, xyverts)
-            #print str(self),"%g,%g is in"%(x,y),xyverts,inside
-            return inside,{}
-        except ValueError:
-            return False,{}
+        inside = point_in_path(mouseevent.x, mouseevent.y, self.get_path(),
+                               self.get_transform().frozen())
+        return inside, {}
 
     def update_from(self, other):
         artist.Artist.update_from(self, other)
@@ -109,6 +108,17 @@ class Patch(artist.Artist):
         self.set_figure(other.get_figure())
         self.set_alpha(other.get_alpha())
 
+    def get_transform(self):
+        return self._combined_transform
+
+    def set_transform(self, t):
+        artist.Artist.set_transform(self, t)
+        self._combined_transform = self.get_patch_transform() + \
+            artist.Artist.get_transform(self)
+
+    def get_patch_transform(self):
+        return transforms.IdentityTransform()
+    
     def get_antialiased(self):
         return self._antialiased
 
@@ -207,12 +217,12 @@ class Patch(artist.Artist):
 
         if not self.fill or self._facecolor is None: rgbFace = None
         else: rgbFace = colors.colorConverter.to_rgb(self._facecolor)
-
+        
         if self._hatch:
             gc.set_hatch(self._hatch )
 
         path = self.get_path()
-        transform = self.get_patch_transform() + self.get_transform()
+        transform = self.get_transform()
          
         renderer.draw_path(gc, path, transform, rgbFace)
 
@@ -226,10 +236,8 @@ class Patch(artist.Artist):
 
 
     def get_window_extent(self, renderer=None):
-        verts = self.get_verts()
-        tverts = self.get_transform().seq_xy_tups(verts)
-        return transforms.bound_vertices(tverts)
-
+        trans_path = self.get_path().transformed(self.get_path_transform())
+        return Bbox.unit().update_from_data(trans_path.vertices)
 
 
     def set_lw(self, val):
@@ -350,6 +358,11 @@ class Rectangle(Patch):
 
     def get_patch_transform(self):
 	return self._rect_transform
+
+    def contains(self, mouseevent):
+        x, y = self.get_transform().inverted().transform_point(
+            (mouseevent.x, mouseevent.y))
+        return (x >= 0.0 and x <= 1.0 and y >= 0.0 and y <= 1.0), {}
     
     def get_x(self):
         "Return the left coord of the rectangle"
@@ -445,8 +458,8 @@ class RegularPolygon(Patch):
     def get_path(self):
 	return self._path
 
-    def get_transform(self):
-	return self._poly_transform + self._transform
+    def get_patch_transform(self):
+	return self._poly_transform
 	
 class Polygon(Patch):
     """
@@ -467,39 +480,35 @@ class Polygon(Patch):
 	self._path = Path(xy, closed=True)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-    def get_verts(self):
+    def get_path(self):
 	return self._path
-
-        # MGDTODO: Convert units
-        xs = self.convert_xunits(xs)
-        ys = self.convert_yunits(ys)
-
-class Wedge(Polygon):
+    
+class Wedge(Patch):
     def __str__(self):
         return "Wedge(%g,%g)"%self.xy[0]
-    def __init__(self, center, r, theta1, theta2,
-                 dtheta=0.1, **kwargs):
+    def __init__(self, center, r, theta1, theta2, **kwargs):
         """
         Draw a wedge centered at x,y tuple center with radius r that
         sweeps theta1 to theta2 (angles)
-
-        dtheta is the resolution in degrees
 
         Valid kwargs are:
         %(Patch)s
 
         """
-	# MGDTODO: Implement me
-        xc, yc = center
-        rads = (math.pi/180.)*npy.arange(theta1, theta2+0.1*dtheta, dtheta)
-        xs = r*npy.cos(rads)+xc
-        ys = r*npy.sin(rads)+yc
-        verts = [center]
-        verts.extend([(x,y) for x,y in zip(xs,ys)])
-
-        Polygon.__init__(self, verts, **kwargs)
+        Patch.__init__(self, **kwargs)
+        self.theta1 = theta1
+        self.theta2 = theta2
+        self._path = Path.wedge(theta1, theta2)
+        self._path_transform = transforms.Affine2D() \
+            .scale(r).translate(*center)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+    def get_path(self):
+	return self._path
+
+    def get_patch_transform(self):
+	return self._path_transform
+        
 class Arrow(Polygon):
     """
     An arrow patch
@@ -516,7 +525,7 @@ class Arrow(Polygon):
 
         Valid kwargs are:
         %(Patch)s
-          """
+        """
 	# MGDTODO: Implement me
         arrow = npy.array( [
             [ 0.0,  0.1 ], [ 0.0, -0.1],
@@ -708,7 +717,6 @@ class CirclePolygon(RegularPolygon):
         %(Patch)s
 
         """
-	# MGDTODO: Implement me
         self.center = xy
         self.radius = radius
         RegularPolygon.__init__(self, xy,
@@ -718,15 +726,6 @@ class CirclePolygon(RegularPolygon):
                                 **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-
-def inellipse(x,y,cx,cy,a,b,angle):
-    x,y = x-cx,y-cy
-    theta = math.atan2(x,y) + math.radians(angle)
-    rsq = x*x+y*y
-    asin = a * math.sin(theta)
-    bcos = b * math.cos(theta)
-    Rsq = b*b*a*a / (bcos*bcos + asin*asin)
-    return Rsq > rsq;
 
 class Ellipse(Patch):
     """
@@ -745,55 +744,31 @@ class Ellipse(Patch):
         Valid kwargs are:
         %(Patch)s
         """
-	# MGDTODO: Implement me
         Patch.__init__(self, **kwargs)
 
-        # self.center  = npy.array(xy, npy.float)
         self.center = xy
         self.width, self.height = width, height
         self.angle = angle
+	self._patch_transform = transforms.Affine2D() \
+	    .scale(self.width * 0.5, self.height * 0.5) \
+	    .rotate_deg(angle) \
+	    .translate(*xy)
+        
+    def get_path(self):
+        """
+        Return the vertices of the rectangle
+        """
+	return Path.unit_circle()
 
+    def get_patch_transform(self):
+        return self._patch_transform
+        
     def contains(self,ev):
-        if ev.xdata is None or ev.ydata is None: return False,{}
-        inside = inellipse(ev.xdata,ev.ydata,
-                           self.center[0],self.center[1],
-                           self.height*0.5,self.width*0.5,self.angle)
-        return inside,{}
+        if ev.x is None or ev.y is None: return False,{}
+        x, y = self.get_transform().inverted().transform_point((ev.x, ev.y))
+        return (x*x + y*y) <= 1.0, {}
 
-    def get_verts(self):
-        x,y = self.center
-        l,r = x-self.width/2.0, x+self.width/2.0
-        b,t = y-self.height/2.0, y+self.height/2.0
-        x,l,r = self.convert_xunits((x,l,r))
-        y,b,t = self.convert_yunits((y,b,t))
-        return npy.array(((x,y),(l,y),(x,t),(r,y),(x,b)), npy.float)
-
-    def draw(self, renderer):
-        if not self.get_visible(): return
-        #renderer.open_group('patch')
-        gc = renderer.new_gc()
-        gc.set_foreground(self._edgecolor)
-        gc.set_linewidth(self._linewidth)
-        gc.set_alpha(self._alpha)
-        gc.set_antialiased(self._antialiased)
-        self._set_gc_clip(gc)
-
-        gc.set_capstyle('projecting')
-
-        if not self.fill or self._facecolor is None: rgbFace = None
-        else: rgbFace = colors.colorConverter.to_rgb(self._facecolor)
-
-        if self._hatch:
-            gc.set_hatch(self._hatch )
-
-        tverts = self.get_transform().seq_xy_tups(self.get_verts())
-        # center is first vert
-        width = tverts[3,0] - tverts[1,0]
-        height = tverts[2,1] - tverts[4,1]
-
-        renderer.draw_arc(gc, rgbFace, tverts[0,0], tverts[0,1],
-                          width, height, 0.0, 360.0, self.angle)
-
+    
 class Circle(Ellipse):
     """
     A circle patch
@@ -812,7 +787,6 @@ class Circle(Ellipse):
         %(Patch)s
 
         """
-	# MGDTODO: Implement me
         if kwargs.has_key('resolution'):
             import warnings
             warnings.warn('Circle is now scale free.  Use CirclePolygon instead!', DeprecationWarning)

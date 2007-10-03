@@ -25,10 +25,11 @@ class TransformNode(object):
 
     is_affine = False
     is_bbox = False
+    pass_through = False
     
     def __init__(self):
         self._parents = WeakKeyDictionary()
-        self._id = TransformNode._gid
+        self.id = TransformNode._gid
         TransformNode._gid += 1
         self._invalid = 1
         self._children = []
@@ -42,8 +43,8 @@ class TransformNode(object):
 
         while len(stack):
             root = stack.pop()
-            if root._invalid == 0:
-                root._id = TransformNode._gid
+            if root._invalid == 0 or root.pass_through:
+                root.id = TransformNode._gid
                 TransformNode._gid += 1
                 root._invalid = value
                 stack.extend(root._parents.keys())
@@ -80,9 +81,6 @@ class TransformNode(object):
         fobj.write("digraph G {\n")
         recurse(self)
         fobj.write("}\n")
-
-    def get_id(self):
-        return self._id
     
     
 class BboxBase(TransformNode):
@@ -226,7 +224,7 @@ class Bbox(BboxBase):
         BboxBase.__init__(self)
         self._points = npy.asarray(points, npy.float_)
         self._minpos = npy.array([0.0000001, 0.0000001])
-
+        
     #@staticmethod
     def unit():
         return Bbox.from_lbrt(0., 0., 1., 1.)
@@ -247,7 +245,13 @@ class Bbox(BboxBase):
         return 'Bbox(%s)' % repr(self._points)
     __str__ = __repr__
 
-    def update_from_data(self, x, y, ignore=True):
+    def ignore(self, value):
+        self._ignore = value
+    
+    def update_from_data(self, x, y, ignore=None):
+        if ignore is None:
+            ignore = self._ignore
+            
         if ignore:
             self._points = npy.array(
                 [[x.min(), y.min()], [x.max(), y.max()]],
@@ -346,7 +350,75 @@ class Bbox(BboxBase):
 
     def translated(self, tx, ty):
         return Bbox(self._points + (tx, ty))
-    
+
+    coefs = {'C':  (0.5, 0.5),
+             'SW': (0,0),
+             'S':  (0.5, 0),
+             'SE': (1.0, 0),
+             'E':  (1.0, 0.5),
+             'NE': (1.0, 1.0),
+             'N':  (0.5, 1.0),
+             'NW': (0, 1.0),
+             'W':  (0, 0.5)}
+    def anchored(self, c, container = None):
+        '''
+        Shift to position c within a container.
+
+        c can be a sequence (cx, cy) where cx, cy range from 0 to 1,
+        where 0 is left or bottom and 1 is right or top.
+
+        Alternatively, c can be a string: C for centered,
+        S for bottom-center, SE for bottom-left, E for left, etc.
+
+        Optional arg container is the lbwh box within which the
+        PBox is positioned; it defaults to the initial
+        PBox.
+        '''
+        if container is None:
+            container = self
+        l, b, w, h = container.bounds
+        if isinstance(c, str):
+            cx, cy = self.coefs[c]
+        else:
+            cx, cy = c
+        L, B, W, H = self.bounds
+        return Bbox(self._points +
+                    [(l + cx * (w-W)) - L,
+                     (b + cy * (h-H)) - B])
+
+    def shrunk(self, mx, my):
+        '''
+        Shrink the box by mx in the x direction and my in the y direction.
+        The lower left corner of the box remains unchanged.
+        Normally mx and my will be <= 1, but this is not enforced.
+        '''
+        l, b, w, h = self.bounds
+        return Bbox([self._points[0],
+                     self._points[1] - [w - (mx * w), h - (my * h)]])
+
+    def shrunk_to_aspect(self, box_aspect, container = None, fig_aspect = 1.0):
+        '''
+        Shrink the box so that it is as large as it can be while
+        having the desired aspect ratio, box_aspect.
+        If the box coordinates are relative--that is, fractions of
+        a larger box such as a figure--then the physical aspect
+        ratio of that figure is specified with fig_aspect, so
+        that box_aspect can also be given as a ratio of the
+        absolute dimensions, not the relative dimensions.
+        '''
+        assert box_aspect > 0 and fig_aspect > 0
+        if container is None:
+            container = self
+        l,b,w,h = container.bounds
+        H = w * box_aspect/fig_aspect
+        if H <= h:
+            W = w
+        else:
+            W = h * fig_aspect/box_aspect
+            H = h
+        return Bbox([self._points[0],
+                     self._points[0] + (W, H)])
+        
     #@staticmethod
     def union(bboxes):
         """
@@ -455,6 +527,7 @@ class TransformWrapper(Transform):
         self.output_dims = child.output_dims
         self._child = child
         self.set_children(child)
+        self._invalid = 0
 
     def __repr__(self):
         return "TransformWrapper(%r)" % self._child
@@ -612,6 +685,7 @@ class Affine1D(Affine1DBase):
 	    matrix = npy.asarray(matrix, npy.float_)
             assert matrix.shape == (2, 2)
         self._mtx = matrix
+        self._invalid = 0
 
     def __repr__(self):
         return "Affine1D(%s)" % repr(self._mtx)
@@ -768,6 +842,7 @@ class Affine2D(Affine2DBase):
 	    matrix = npy.asarray(matrix, npy.float_)
             assert matrix.shape == (3, 3)
         self._mtx = matrix
+        self._invalid = 0
 
     def __repr__(self):
         return "Affine2D(%s)" % repr(self._mtx)
@@ -881,7 +956,8 @@ class BlendedGenericTransform(Transform):
     input_dims = 2
     output_dims = 2
     is_separable = True
-
+    pass_through = True
+    
     def __init__(self, x_transform, y_transform):
 	# Here we ask: "Does it blend?"
         # MGDTODO: Reinvoke these asserts?
@@ -1014,6 +1090,8 @@ def blended_transform_factory(x_transform, y_transform):
 
 
 class CompositeGenericTransform(Transform):
+    pass_through = True
+    
     def __init__(self, a, b):
         assert a.output_dims == b.input_dims
         self.input_dims = a.input_dims
@@ -1026,6 +1104,7 @@ class CompositeGenericTransform(Transform):
         self._mtx = None
 
     def frozen(self):
+        self._invalid = 0
         return composite_transform_factory(self._a.frozen(), self._b.frozen())
         
     def _get_is_affine(self):
@@ -1101,7 +1180,11 @@ class CompositeAffine2D(Affine2DBase):
 
     
 def composite_transform_factory(a, b):
-    if isinstance(a, AffineBase) and isinstance(b, AffineBase):
+    if isinstance(a, IdentityTransform):
+        return b
+    elif isinstance(b, IdentityTransform):
+        return a
+    elif isinstance(a, AffineBase) and isinstance(b, AffineBase):
         return CompositeAffine2D(a, b)
     return CompositeGenericTransform(a, b)
     
@@ -1135,6 +1218,7 @@ class BboxTransform(Affine2DBase):
                                    [0.0    , 0.0    , 1.0        ]],
                                   npy.float_)
             self._inverted = None
+            self._invalid = 0
         return self._mtx
 
 
@@ -1151,13 +1235,13 @@ class TransformedPath(TransformNode):
     def get_transformed_path_and_affine(self):
         if self._invalid == 1 or self._transformed_path is None:
             self._transformed_path = self._transform.transform_path_non_affine(self._path)
-            self._invalid = 0
+        self._invalid = 0
         return self._transformed_path, self._transform.get_affine()
 
     def get_fully_transformed_path(self):
         if self._invalid == 1 or self._transformed_path is None:
             self._transformed_path = self._transform.transform_path_non_affine(self._path)
-            self._invalid = 0
+        self._invalid = 0
         return self._transform.transform_path_affine(self._transformed_path)
 
     def get_affine(self):
