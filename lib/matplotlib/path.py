@@ -1,11 +1,57 @@
+"""
+Contains a class for managing paths (polylines).
+
+October 2007 Michael Droettboom
+"""
+
 import math
 
 import numpy as npy
 from numpy import ma as ma
 
+from matplotlib.backends._backend_agg import point_in_path, get_path_extents
+from matplotlib.cbook import simple_linear_interpolation
+
 KAPPA = 4.0 * (npy.sqrt(2) - 1) / 3.0
 
 class Path(object):
+    """
+    Path represents a series of possibly disconnected, possibly
+    closed, line and curve segments.
+
+    The underlying storage is made up of two parallel numpy arrays:
+      vertices: an Nx2 float array of vertices
+      codes: an N-length uint8 array of vertex types
+
+    These two arrays always have the same length in the first
+    dimension.  Therefore, to represent a cubic curve, you must
+    provide three vertices as well as three codes "CURVE3".
+
+    The code types are:
+
+       STOP   :  1 vertex (ignored)
+          A marker for the end of the entire path (currently not
+          required and ignored)
+
+       MOVETO :  1 vertex
+          Pick up the pen and move to the given vertex.
+          
+       LINETO :  1 vertex
+          Draw a line from the current position to the given vertex.
+          
+       CURVE3 :  1 control point, 1 endpoint
+          Draw a quadratic Bezier curve from the current position,
+          with the given control point, to the given end point.
+
+       CURVE4 :  2 control points, 1 endpoint
+          Draw a cubic Bezier curve from the current position, with
+          the given control points, to the given end point.
+
+       CLOSEPOLY : 1 vertex (ignored)
+          Draw a line segment to the start point of the current
+          polyline.
+    """
+    
     # Path codes
     STOP      = 0 # 1 vertex
     MOVETO    = 1 # 1 vertex
@@ -13,19 +59,31 @@ class Path(object):
     CURVE3    = 3 # 2 vertices
     CURVE4    = 4 # 3 vertices
     CLOSEPOLY = 5 # 1 vertex
-    ###
-    # MGDTODO: I'm not sure these are supported by PS/PDF/SVG,
-    # so if they don't, we probably shouldn't
-    CURVEN    = 6
-    CATROM    = 7
-    UBSPLINE  = 8
-    ####
 
     NUM_VERTICES = [1, 1, 1, 2, 3, 1]
     
     code_type = npy.uint8
     
     def __init__(self, vertices, codes=None, closed=True):
+        """
+        Create a new path with the given vertices and codes.
+
+        vertices is an Nx2 numpy float array.
+
+        codes is an N-length numpy array of type Path.code_type.
+
+        See the docstring of Path for a description of the various
+        codes.
+
+        These two arrays must have the same length in the first
+        dimension.
+
+        If codes is None, vertices will be treated as a series of line
+        segments.  Additionally, if closed is also True, the polyline
+        will closed.  If vertices contains masked values, the
+        resulting path will be compressed, with MOVETO codes inserted
+        in the correct places to jump over the masked regions.
+        """
         vertices = ma.asarray(vertices, npy.float_)
 
 	if codes is None:
@@ -82,6 +140,11 @@ class Path(object):
     vertices = property(_get_vertices)
 
     def iter_endpoints(self):
+        """
+        Iterates over all of the endpoints in the path.  Unlike
+        iterating directly over the vertices array, curve control
+        points are skipped over.
+        """
 	i = 0
 	NUM_VERTICES = self.NUM_VERTICES
 	vertices = self.vertices
@@ -95,11 +158,57 @@ class Path(object):
                 i += 1
 
     def transformed(self, transform):
+        """
+        Return a transformed copy of the path.
+
+        See transforms.TransformedPath for a path that will cache the
+        transformed result and automatically update when the transform
+        changes.
+        """
         return Path(transform.transform(self.vertices), self.codes)
-                
+
+    def contains_point(self, point, transform=None):
+        """
+        Returns True if the path contains the given point.
+
+        If transform is not None, the path will be transformed before
+        performing the test.
+        """
+        if transform is None:
+            from transforms import IdentityTransform
+            transform = IdentityTransform
+        return point_in_path(point[0], point[1], self, transform.frozen())
+
+    def get_extents(self, transform=None):
+        """
+        Returns the extents (xmin, ymin, xmax, ymax) of the path.
+
+        Unlike computing the extents on the vertices alone, this
+        algorithm will take into account the curves and deal with
+        control points appropriately.
+        """
+        from transforms import Bbox, IdentityTransform
+        if transform is None:
+            transform = IdentityTransform
+        return Bbox.from_lbrt(*get_path_extents(self, transform))
+
+    def interpolated(self, steps):
+        """
+        Returns a new path resampled to length N x steps.
+        Does not currently handle interpolating curves.
+        """
+        vertices = simple_linear_interpolation(self.vertices, steps)
+        codes = self.codes
+        new_codes = Path.LINETO * npy.ones(((len(codes) - 1) * steps + 1, ))
+        new_codes[0::steps] = codes
+        return Path(vertices, new_codes)
+        
     _unit_rectangle = None
     #@classmethod
     def unit_rectangle(cls):
+        """
+        Returns a Path of the unit rectangle from (0, 0) to (1, 1).
+        """
 	if cls._unit_rectangle is None:
 	    cls._unit_rectangle = \
 		Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
@@ -109,9 +218,14 @@ class Path(object):
     _unit_regular_polygons = {}
     #@classmethod
     def unit_regular_polygon(cls, numVertices):
+        """
+        Returns a Path for a unit regular polygon with the given
+        numVertices and radius of 1.0, centered at (0, 0).
+        """
 	path = cls._unit_regular_polygons.get(numVertices)
 	if path is None:
-	    theta = 2*npy.pi/numVertices * npy.arange(numVertices).reshape((numVertices, 1))
+	    theta = (2*npy.pi/numVertices *
+                     npy.arange(numVertices).reshape((numVertices, 1)))
 	    # This initial rotation is to make sure the polygon always
             # "points-up"
 	    theta += npy.pi / 2.0
@@ -124,6 +238,10 @@ class Path(object):
     _unit_circle = None
     #@classmethod
     def unit_circle(cls):
+        """
+        Returns a Path of the unit circle.  The circle is approximated
+        using cubic Bezier curves.
+        """
 	if cls._unit_circle is None:
             offset = KAPPA
 	    vertices = npy.array(
@@ -158,6 +276,10 @@ class Path(object):
 
     #@classmethod
     def arc(cls, theta1, theta2, is_wedge=False):
+        """
+        Returns an arc on the unit circle from angle theta1 to angle
+        theta2 (in degrees).
+        """
         # From Masionobe, L.  2003.  "Drawing an elliptical arc using
         # polylines, quadratic or cubic Bezier curves".
         #
@@ -234,5 +356,9 @@ class Path(object):
     arc = classmethod(arc)
 
     def wedge(cls, theta1, theta2):
+        """
+        Returns a wedge of the unit circle from angle theta1 to angle
+        theta2 (in degrees).
+        """
         return cls.arc(theta1, theta2, True)
     wedge = classmethod(wedge)

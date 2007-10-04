@@ -169,8 +169,8 @@ public:
   unsigned vertex(double* x, double* y) {
     unsigned cmd = m_source->vertex(x, y);
     if (m_quantize && agg::is_vertex(cmd)) {
-      *x = (int)(*x + 0.5);
-      *y = (int)(*y + 0.5);
+      *x = int(*x) + 0.5;
+      *y = int(*y) + 0.5;
     }
     return cmd;
   }
@@ -180,7 +180,7 @@ public:
   }
 
 private:
-  VertexSource*      m_source;
+  VertexSource* m_source;
   bool m_quantize;
 };
 
@@ -463,9 +463,23 @@ SafeSnap::snap (const float& x, const float& y) {
   lasty = y;
   return SnapData(true, xsnap, ysnap);    
 }  
-		 
 
+template<class Path>
+bool should_snap(Path& path, const agg::trans_affine& trans) {
+  // If this is a straight horizontal or vertical line, quantize to nearest 
+  // pixels
+  bool snap = false;
+  if (path.total_vertices() == 2) {
+    double x0, y0, x1, y1;
+    path.vertex(0, &x0, &y0);
+    trans.transform(&x0, &y0);
+    path.vertex(1, &x1, &y1);
+    trans.transform(&x1, &y1);
+    snap = (fabs(x0 - x1) < 1.0 || fabs(y0 - y1) < 1.0);
+  }
 
+  return snap;
+}
 
 Py::Object
 RendererAgg::copy_from_bbox(const Py::Tuple& args) {
@@ -579,31 +593,6 @@ int RendererAgg::intersectCheck(double yCoord, double x1, double y1, double x2, 
   return 0;
 }
 
-int RendererAgg::inPolygon(int row, const double xs[4], const double ys[4], int col[4])
-{
-  int numIntersect = 0;
-  int i;
-  /* Determines the boundaries of the row of pixels that is in the polygon */
-  /* A pixel (x, y) is in the polygon if its center (x+0.5, y+0.5) is */
-  double ycoord = (double(row) + 0.5);
-  for(i=0; i<=3; i++)
-    numIntersect += intersectCheck(ycoord, xs[i], ys[i], xs[(i+1)%4], ys[(i+1)%4], col+numIntersect);
-  
-  /* reorder if necessary */
-  if (numIntersect == 2 && col[0] > col[1]) std::swap(col[0],col[1]);
-  if (numIntersect == 4) {
-    // Inline bubble sort on array of size 4
-    if (col[0] > col[1]) std::swap(col[0],col[1]);
-    if (col[1] > col[2]) std::swap(col[1],col[2]);
-    if (col[2] > col[3]) std::swap(col[2],col[3]);
-    if (col[0] > col[1]) std::swap(col[0],col[1]);
-    if (col[1] > col[2]) std::swap(col[1],col[2]);
-    if (col[0] > col[1]) std::swap(col[0],col[1]);
-  }
-  // numIntersect must be 0, 2 or 4
-  return numIntersect;
-}
-
 bool RendererAgg::render_clippath(const GCAgg& gc) {
   typedef agg::conv_transform<PathIterator> transformed_path_t;
   typedef agg::conv_curve<transformed_path_t> curve_t;
@@ -634,6 +623,7 @@ bool RendererAgg::render_clippath(const GCAgg& gc) {
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
   typedef agg::conv_transform<PathIterator> transformed_path_t;
+  typedef conv_quantize<transformed_path_t> quantize_t;
   typedef agg::conv_curve<transformed_path_t> curve_t;
   typedef agg::conv_stroke<curve_t> stroke_t;
   typedef agg::conv_dash<curve_t> dash_t;
@@ -647,15 +637,14 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   
   args.verify_length(5, 6);
   
-  GCAgg gc = GCAgg(args[0], dpi);
-  Py::Object marker_path_obj = args[1];
-  agg::trans_affine marker_trans = py_to_agg_transformation_matrix(args[2]);
-  Py::Object path_obj = args[3];
-  agg::trans_affine trans = py_to_agg_transformation_matrix(args[4]);
-  Py::Object face_obj;
+  Py::Object	    gc_obj	    = args[0];
+  Py::Object	    marker_path_obj = args[1];
+  agg::trans_affine marker_trans    = py_to_agg_transformation_matrix(args[2]);
+  Py::Object	    path_obj	    = args[3];
+  agg::trans_affine trans	    = py_to_agg_transformation_matrix(args[4]);
+  Py::Object        face_obj;
   if (args.size() == 6)
     face_obj = args[5];
-  facepair_t face = _get_rgba_face(face_obj, gc.alpha);
 
   // Deal with the difference in y-axis direction
   marker_trans *= agg::trans_affine_scaling(1.0, -1.0);
@@ -668,6 +657,11 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
   PathIterator path(path_obj);
   transformed_path_t path_transformed(path, trans);
+  bool snap = should_snap(path, trans);
+  GCAgg gc = GCAgg(gc_obj, dpi, snap);
+  quantize_t path_quantized(path_transformed, snap);
+
+  facepair_t face = _get_rgba_face(face_obj, gc.alpha);
   
   //maxim's suggestions for cached scanlines
   agg::scanline_storage_aa8 scanlines;
@@ -707,7 +701,9 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::serialized_scanlines_adaptor_aa8 sa;
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
-    while (path_transformed.vertex(&x, &y) != agg::path_cmd_stop) {
+    while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
+      x += 0.5;
+      y += 0.5;
       //render the fill
       if (face.first) {
 	if (has_clippath) {
@@ -839,6 +835,7 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
   GCAgg gc = GCAgg(args[4], dpi);
   
   theRasterizer->reset_clipping();
+  rendererBase->reset_clipping(true);
   set_clipbox(gc.cliprect, theRasterizer);
 
   const unsigned char* const buffer = image->get_buffer();
@@ -923,33 +920,21 @@ RendererAgg::draw_path(const Py::Tuple& args) {
 
   Py::Object gc_obj = args[0];
   Py::Object path_obj = args[1];
-  PathIterator path(path_obj);
-
   agg::trans_affine trans = py_to_agg_transformation_matrix(args[2]);
-
-  trans *= agg::trans_affine_scaling(1.0, -1.0);
-  trans *= agg::trans_affine_translation(0.0, (double)height);
-
-  // If this is a straight horizontal or vertical line, quantize to nearest 
-  // pixels
-  bool snap = false;
-  if (path.total_vertices() == 2) {
-    double x0, y0, x1, y1;
-    path.vertex(0, &x0, &y0);
-    trans.transform(&x0, &y0);
-    path.vertex(1, &x1, &y1);
-    trans.transform(&x1, &y1);
-    snap = ((int)x0 == (int)x1) || ((int)y0 == (int)y1);
-  }
-
-  GCAgg gc = GCAgg(gc_obj, dpi, snap);
   Py::Object face_obj;
   if (args.size() == 4)
     face_obj = args[3];
-  facepair_t face = _get_rgba_face(face_obj, gc.alpha);
+
+  PathIterator path(path_obj);
+  trans *= agg::trans_affine_scaling(1.0, -1.0);
+  trans *= agg::trans_affine_translation(0.0, (double)height);
 
   transformed_path_t tpath(path, trans);
+  bool snap = should_snap(path, trans);
   quantize_t quantized(tpath, snap);
+
+  GCAgg gc = GCAgg(gc_obj, dpi, snap);
+  facepair_t face = _get_rgba_face(face_obj, gc.alpha);
 
   // Benchmarking shows that there is no noticable slowdown to always
   // treating paths as having curved segments.  Doing so greatly 
@@ -957,6 +942,7 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   curve_t curve(quantized);
     
   theRasterizer->reset_clipping();
+  rendererBase->reset_clipping(true);
   set_clipbox(gc.cliprect, theRasterizer);
   bool has_clippath = render_clippath(gc);
     
@@ -992,7 +978,7 @@ RendererAgg::draw_path(const Py::Tuple& args) {
       theRasterizer->add_path(stroke);
     }
     
-    if (gc.isaa) {
+    if (gc.isaa && !(snap && gc.dasha)) {
       if (has_clippath) {
 	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
 	amask_ren_type r(pfa);
@@ -1467,6 +1453,47 @@ Py::Object _backend_agg_module::point_on_path(const Py::Tuple& args) {
   if (::point_on_path(x, y, r, path, trans))
     return Py::Int(1);
   return Py::Int(0);
+}
+
+void get_path_extents(PathIterator& path, agg::trans_affine& trans, 
+		      double* x0, double* y0, double* x1, double* y1) {
+  typedef agg::conv_transform<PathIterator> transformed_path_t;
+  typedef agg::conv_curve<transformed_path_t> curve_t;
+  
+  transformed_path_t trans_path(path, trans);
+  curve_t curved_path(trans_path);
+  double x, y;
+
+  curved_path.vertex(&x, &y);
+
+  *x0 = x;
+  *y0 = y;
+  *x1 = x;
+  *y1 = y;
+
+  while (curved_path.vertex(&x, &y) != agg::path_cmd_stop) {
+    if (x < *x0) *x0 = x;
+    if (y < *y0) *y0 = y;
+    if (x > *x1) *x1 = x;
+    if (y > *y1) *y1 = y;
+  }
+}
+
+Py::Object _backend_agg_module::get_path_extents(const Py::Tuple& args) {
+  args.verify_length(2);
+  
+  PathIterator path(args[0]);
+  agg::trans_affine trans = py_to_agg_transformation_matrix(args[1]);
+
+  double x0, y0, x1, y1;
+  ::get_path_extents(path, trans, &x0, &y0, &x1, &y1);
+
+  Py::Tuple result(4);
+  result[0] = Py::Float(x0);
+  result[1] = Py::Float(y0);
+  result[2] = Py::Float(x1);
+  result[3] = Py::Float(y1);
+  return result;
 }
 
 /* ------------ module methods ------------- */

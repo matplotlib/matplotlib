@@ -256,10 +256,10 @@ The following dimensions are in axes coords
         bboxesText = [t.get_window_extent(renderer) for t in self.texts]
         bboxesHandles = [h.get_window_extent(renderer) for h in self.legendHandles if h is not None]
 
-
         bboxesAll = bboxesText
         bboxesAll.extend(bboxesHandles)
         bbox = Bbox.union(bboxesAll)
+        
         self.save = bbox
 
         ibox = bbox.inverse_transformed(self.get_transform())
@@ -558,7 +558,7 @@ The following dimensions are in axes coords
                 handle.set_height(h/2)
 
         # Set the data for the legend patch
-        bbox = copy.copy(self._get_handle_text_bbox(renderer))
+        bbox = self._get_handle_text_bbox(renderer).frozen()
 
         bbox = bbox.expanded(1 + self.pad, 1 + self.pad)
         l, b, w, h = bbox.bounds

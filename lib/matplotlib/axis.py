@@ -166,7 +166,7 @@ class Tick(Artist):
     def draw(self, renderer):
         if not self.get_visible(): return
         renderer.open_group(self.__name__)
-        midPoint = interval_contains_open(self.get_view_interval(), self.get_loc() )
+        midPoint = interval_contains(self.get_view_interval(), self.get_loc())
 
         if midPoint:
             if self.gridOn:
@@ -176,8 +176,10 @@ class Tick(Artist):
             if self.tick2On:
                 self.tick2line.draw(renderer)
 
-        if self.label1On: self.label1.draw(renderer)
-        if self.label2On: self.label2.draw(renderer)
+        if self.label1On:
+            self.label1.draw(renderer)
+        if self.label2On:
+            self.label2.draw(renderer)
 
         renderer.close_group(self.__name__)
 
@@ -237,17 +239,19 @@ class XTick(Tick):
         # get the affine as an a,b,c,d,tx,ty list
         # x in data coords, y in axes coords
         #t =  Text(
+        trans, vert, horiz = self.axes.get_xaxis_text1_transform(self._padPixels)
+        
         t =  TextWithDash(
             x=loc, y=0,
             fontproperties=FontProperties(size=rcParams['xtick.labelsize']),
             color=rcParams['xtick.color'],
-            verticalalignment='top',
-            horizontalalignment='center',
+            verticalalignment=vert,
+            horizontalalignment=horiz,
             dashdirection=0,
             xaxis=True,
             )
 
-        t.set_transform(self.axes.get_xaxis_text1_transform(self._padPixels))
+        t.set_transform(trans)
         self._set_artist_props(t)
         return t
 
@@ -257,17 +261,19 @@ class XTick(Tick):
         'Get the default Text 2 instance'
         # x in data coords, y in axes coords
         #t =  Text(
+        trans, vert, horiz = self.axes.get_xaxis_text2_transform(self._padPixels)
+
         t =  TextWithDash(
             x=loc, y=1,
             fontproperties=FontProperties(size=rcParams['xtick.labelsize']),
             color=rcParams['xtick.color'],
-            verticalalignment='bottom',
+            verticalalignment=vert,
             dashdirection=1,
             xaxis=True,
-            horizontalalignment='center',
+            horizontalalignment=horiz,
             )
 
-        t.set_transform(self.axes.get_xaxis_text2_transform(self._padPixels))
+        t.set_transform(trans)
         self._set_artist_props(t)
         return t
 
@@ -277,7 +283,6 @@ class XTick(Tick):
         l = Line2D( xdata=(loc,), ydata=(0,),
                     color='k',
                     linestyle = 'None',
-                    antialiased=False,
                     marker = self._xtickmarkers[0],
                     markersize=self._size,
                     )
@@ -291,7 +296,6 @@ class XTick(Tick):
         l = Line2D( xdata=(loc,), ydata=(1,),
                        color='k',
                        linestyle = 'None',
-                       antialiased=False,
                        marker = self._xtickmarkers[1],
                        markersize=self._size,
                        )
@@ -307,7 +311,6 @@ class XTick(Tick):
                    color=rcParams['grid.color'],
                    linestyle=rcParams['grid.linestyle'],
                    linewidth=rcParams['grid.linewidth'],
-                   antialiased=False,
                    )
         l.set_transform(self.axes.get_xaxis_transform())
         self._set_artist_props(l)
@@ -356,16 +359,18 @@ class YTick(Tick):
         'Get the default Text instance'
         # x in axes coords, y in data coords
         #t =  Text(
-        t =  TextWithDash(
+        trans, vert, horiz = self.axes.get_yaxis_text1_transform(self._padPixels)
+
+        t = TextWithDash(
             x=0, y=loc,
             fontproperties=FontProperties(size=rcParams['ytick.labelsize']),
             color=rcParams['ytick.color'],
-            verticalalignment='center',
-            horizontalalignment='right',
+            verticalalignment=vert,
+            horizontalalignment=horiz,
             dashdirection=0,
             xaxis=False,
             )
-        t.set_transform(self.axes.get_yaxis_text1_transform(self._padPixels))
+        t.set_transform(trans)
         #t.set_transform( self.axes.transData )
         self._set_artist_props(t)
         return t
@@ -374,16 +379,18 @@ class YTick(Tick):
         'Get the default Text instance'
         # x in axes coords, y in data coords
         #t =  Text(
+        trans, vert, horiz = self.axes.get_yaxis_text2_transform(self._padPixels)
+
         t =  TextWithDash(
             x=1, y=loc,
             fontproperties=FontProperties(size=rcParams['ytick.labelsize']),
             color=rcParams['ytick.color'],
-            verticalalignment='center',
+            verticalalignment=vert,
             dashdirection=1,
             xaxis=False,
-            horizontalalignment='left',
+            horizontalalignment=horiz,
             )
-        t.set_transform(self.axes.get_yaxis_text2_transform(self._padPixels))
+        t.set_transform(trans)
         self._set_artist_props(t)
         return t
 
@@ -392,7 +399,6 @@ class YTick(Tick):
         # x in axes coords, y in data coords
 
         l = Line2D( (0,), (loc,), color='k',
-                    antialiased=False,
                     marker = self._ytickmarkers[0],
                     linestyle = 'None',
                     markersize=self._size,
@@ -405,7 +411,6 @@ class YTick(Tick):
         'Get the default line2D instance'
         # x in axes coords, y in data coords
         l = Line2D( (1,), (0,), color='k',
-                    antialiased=False,
                     marker = self._ytickmarkers[1],
                     linestyle = 'None',
                     markersize=self._size,
@@ -422,7 +427,6 @@ class YTick(Tick):
                     color=rcParams['grid.color'],
                     linestyle=rcParams['grid.linestyle'],
                     linewidth=rcParams['grid.linewidth'],
-                    antialiased=False,
                     )
 
         l.set_transform(self.axes.get_yaxis_transform())
@@ -523,8 +527,8 @@ class Axis(Artist):
                 
     def get_children(self):
         children = [self.label]
-        majorticks = self.get_major_ticks(len(self.major.locator()))
-        minorticks = self.get_minor_ticks(len(self.minor.locator()))        
+        majorticks = self.get_major_ticks()
+        minorticks = self.get_minor_ticks()        
         
         children.extend(majorticks)
         children.extend(minorticks)
@@ -560,8 +564,8 @@ class Axis(Artist):
 
     def set_clip_path(self, clippath, transform=None):
         Artist.set_clip_path(self, clippath, transform)
-        majorticks = self.get_major_ticks(len(self.major.locator()))
-        minorticks = self.get_minor_ticks(len(self.minor.locator()))        
+        majorticks = self.get_major_ticks()
+        minorticks = self.get_minor_ticks()        
         for child in self.majorTicks + self.minorTicks:
             child.set_clip_path(clippath, transform)
         
@@ -729,9 +733,11 @@ class Axis(Artist):
         'Get the formatter of the minor ticker'
         return self.minor.formatter
 
-    def get_major_ticks(self, numticks):
+    def get_major_ticks(self, numticks=None):
         'get the tick instances; grow as necessary'
-
+        if numticks is None:
+            numticks = len(self.get_major_locator()())
+        
         if len(self.majorTicks)<numticks:
             # update the new tick label properties from the old
             protoTick = self.majorTicks[0]
@@ -746,8 +752,11 @@ class Axis(Artist):
         return ticks
 
 
-    def get_minor_ticks(self, numticks):
+    def get_minor_ticks(self, numticks=None):
         'get the minor tick instances; grow as necessary'
+        if numticks is None:
+            numticks = len(self.get_minor_locator()())
+
         if len(self.minorTicks)<numticks:
             protoTick = self.minorTicks[0]
             for i in range(numticks-len(self.minorTicks)):

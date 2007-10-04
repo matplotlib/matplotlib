@@ -219,7 +219,6 @@ protected:
   double points_to_pixels( const Py::Object& points);
   double points_to_pixels_snapto( const Py::Object& points);
   int intersectCheck(double, double, double, double, double, int*);
-  int inPolygon(int, const double[4], const double[4], int[4]);
   void set_clip_from_bbox(const Py::Object& o);
   agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
@@ -247,6 +246,8 @@ public:
 		       "point_in_path(x, y, path, trans)");
     add_varargs_method("point_on_path", &_backend_agg_module::point_on_path,
 		       "point_on_path(x, y, r, path, trans)");
+    add_varargs_method("get_path_extents", &_backend_agg_module::get_path_extents,
+		       "get_path_extents(path, trans)");
     initialize( "The agg rendering backend" );
   }
 
@@ -257,6 +258,7 @@ private:
   Py::Object new_renderer (const Py::Tuple &args, const Py::Dict &kws);
   Py::Object point_in_path(const Py::Tuple& args);
   Py::Object point_on_path(const Py::Tuple& args);
+  Py::Object get_path_extents(const Py::Tuple& args);
 };
 
 

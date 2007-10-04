@@ -12,8 +12,6 @@ import matplotlib.nxutils as nxutils
 import matplotlib.mlab as mlab
 import matplotlib.artist as artist
 from matplotlib.path import Path
-# MGDTODO: Maybe this belongs elsewhere
-from matplotlib.backends._backend_agg import point_in_path
 
 # these are not available for the object inspector until after the
 # class is build so we define an initial set here for the init
@@ -93,8 +91,8 @@ class Patch(artist.Artist):
         # method.
 	if callable(self._contains): return self._contains(self,mouseevent)
 
-        inside = point_in_path(mouseevent.x, mouseevent.y, self.get_path(),
-                               self.get_transform().frozen())
+        inside = self.get_path().contains_point(
+            (mouseevent.x, mouseevent.y), self.get_transform())
         return inside, {}
 
     def update_from(self, other):
@@ -236,8 +234,8 @@ class Patch(artist.Artist):
 
 
     def get_window_extent(self, renderer=None):
-        trans_path = self.get_path().transformed(self.get_path_transform())
-        return Bbox.unit().update_from_data(trans_path.vertices)
+        return Bbox.from_lbrt(
+            get_path_extents(self.get_path(), self.get_patch_transform()))
 
 
     def set_lw(self, val):
@@ -341,7 +339,9 @@ class Rectangle(Patch):
 
         Patch.__init__(self, **kwargs)
 
-	self._bbox = transforms.Bbox.from_lbwh(xy[0], xy[1], width, height)
+        left, right = self.convert_xunits((xy[0], xy[0] + width))
+        bottom, top = self.convert_yunits((xy[1], xy[1] + height))
+	self._bbox = transforms.Bbox.from_lbrt(left, bottom, right, top)
 	self._rect_transform = transforms.BboxTransform(
 	    transforms.Bbox.unit(), self._bbox)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
@@ -351,10 +351,6 @@ class Rectangle(Patch):
         Return the vertices of the rectangle
         """
 	return Path.unit_rectangle()
-
-        # MGDTODO: Convert units
-#         left, right = self.convert_xunits((x, x + self.width))
-#         bottom, top = self.convert_yunits((y, y + self.height))
 
     def get_patch_transform(self):
 	return self._rect_transform
