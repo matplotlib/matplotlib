@@ -503,9 +503,6 @@ class Axes(martist.Artist):
         self.set_label(label)
         self.set_figure(fig)
 
-        self._invertedx = False
-        self._invertedy = False
-
         # this call may differ for non-sep axes, eg polar
         self._init_axis()
 
@@ -896,9 +893,9 @@ class Axes(martist.Artist):
         figW,figH = self.get_figure().get_size_inches()
         fig_aspect = figH/figW
         #print 'figW, figH, fig_aspect', figW, figH, fig_aspect
-        xmin,xmax = self.get_xlim()
+        xmin,xmax = self.get_xbound()
         xsize = max(math.fabs(xmax-xmin), 1e-30)
-        ymin,ymax = self.get_ylim()
+        ymin,ymax = self.get_ybound()
         ysize = max(math.fabs(ymax-ymin), 1e-30)
         if self._adjustable == 'box':
             if data_ratio is None:
@@ -956,14 +953,14 @@ class Axes(martist.Artist):
             yc = 0.5*(ymin+ymax)
             y0 = yc - Ysize/2.0
             y1 = yc + Ysize/2.0
-            self.set_ylim((y0, y1))
+            self.set_ybound((y0, y1))
             #print 'New y0, y1:', y0, y1
             #print 'New ysize, ysize/xsize', y1-y0, (y1-y0)/xsize
         else:
             xc = 0.5*(xmin+xmax)
             x0 = xc - Xsize/2.0
             x1 = xc + Xsize/2.0
-            self.set_xlim((x0, x1))
+            self.set_xbound((x0, x1))
             #print 'New x0, x1:', x0, x1
             #print 'New xsize, ysize/xsize', x1-x0, ysize/(x1-x0)
 
@@ -1257,24 +1254,20 @@ class Axes(martist.Artist):
                       len(self.lines)==0 and
                       len(self.patches)==0)):
 
-            if scalex: self.set_xlim(self.dataLim.intervalx().get_bounds())
+            if scalex: self.set_xbound(self.dataLim.intervalx().get_bounds())
 
-            if scaley: self.set_ylim(self.dataLim.intervaly().get_bounds())
+            if scaley: self.set_ybound(self.dataLim.intervaly().get_bounds())
             return
 
         if scalex:
-            xl = self.get_xlim()
+            xl = self.get_xbound()
             XL = self.xaxis.get_major_locator().autoscale()
-            if xl[1] < xl[0]:
-                XL = XL[::-1]
-            self.set_xlim(XL)
+            self.set_xbound(XL)
         if scaley:
             ylocator = self.yaxis.get_major_locator()
-            yl = self.get_ylim()
+            yl = self.get_ybound()
             YL = ylocator.autoscale()
-            if yl[1] < yl[0]:
-                YL = YL[::-1]
-            self.set_ylim(YL)
+            self.set_ybound(YL)
     #### Drawing
 
     def draw(self, renderer=None, inframe=False):
@@ -1503,25 +1496,51 @@ class Axes(martist.Artist):
 
     ### data limits, ticks, tick labels, and formatting
 
-    def invert_xaxis(self, invert=True):
-        "Invert the x-axis if 'invert' is True."
-        self._invertedx = invert
+    def invert_xaxis(self):
+        "Invert the x-axis."
+        left, right = self.get_xlim()
+        self.set_xlim(right, left)
 
     def xaxis_inverted(self):
         'Returns True if the x-axis is inverted.'
-        return self._invertedx
+        left, right = self.get_xlim()
+        return right < left
+
+    def get_xbound(self):
+        "Returns the x-axis numerical bounds in the form of lowerBound < upperBound"
+        left, right = self.get_xlim()
+        if left < right:
+           return left, right
+        else:
+           return right, left
+
+    def set_xbound(self, lower=None, upper=None):
+        """Set the lower and upper numerical bounds of the x-axis.
+           This method will honor axes inversion regardless of parameter order.
+        """
+        if upper is None and iterable(lower):
+            lower,upper = lower
+
+        old_lower,old_upper = self.get_xbound()
+
+        if lower is None: lower = old_lower
+        if upper is None: upper = old_upper
+
+        if self.xaxis_inverted():
+            if lower < upper:
+                self.set_xlim(upper, lower)
+            else:
+                self.set_xlim(lower, upper)
+        else:
+            if lower < upper:
+                self.set_xlim(lower, upper)
+            else:
+                self.set_xlim(upper, lower)
 
     def get_xlim(self):
-        """Get the x-axis range [xmin, xmax]
+        'Get the x axis range [xmin, xmax]'
+        return self.viewLim.intervalx().get_bounds()
 
-        NOTE: The returned values are always [xmin, xmax] such that
-              xmin < xmax; regardless of whether or not the axes are inverted.
-        """
-        bound1, bound2 = self.viewLim.intervalx().get_bounds()
-        if ( self._invertedx ):
-            return bound2, bound1
-        else:
-            return bound1, bound2
 
     def set_xlim(self, xmin=None, xmax=None, emit=True, **kwargs):
         """
@@ -1560,25 +1579,12 @@ class Axes(martist.Artist):
         if xmin is None: xmin = old_xmin
         if xmax is None: xmax = old_xmax
 
-        # provided for backwards compatability
-        if ( xmax < xmin ):
-            # swap the values so that xmin < xmax and set inverted flag
-            tmp = xmin
-            xmin = xmax
-            xmax = tmp
-            self.invert_xaxis( True )
-
         if (self.transData.get_funcx().get_type()==mtrans.LOG10
             and min(xmin, xmax)<=0):
             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        if ( self._invertedx ):
-            xmax, xmin = mtrans.nonsingular(xmax, xmin, increasing=False)
-            self.viewLim.intervalx().set_bounds(xmax, xmin)
-        else:
-            xmin, xmax = mtrans.nonsingular(xmin, xmax, increasing=False)
-            self.viewLim.intervalx().set_bounds(xmin, xmax)
-
+        xmin, xmax = mtrans.nonsingular(xmin, xmax, increasing=False)
+        self.viewLim.intervalx().set_bounds(xmin, xmax)
         if emit: self.callbacks.process('xlim_changed', self)
 
         return xmin, xmax
@@ -1654,25 +1660,50 @@ class Axes(martist.Artist):
         return self.xaxis.set_ticklabels(labels, fontdict, **kwargs)
     set_xticklabels.__doc__ = cbook.dedent(set_xticklabels.__doc__) % martist.kwdocd
 
-    def invert_yaxis(self, invert=True):
-        "Invert the y-axis if 'invert' is True."
-        self._invertedy = invert
+    def invert_yaxis(self):
+        "Invert the y-axis."
+        left, right = self.get_ylim()
+        self.set_ylim(right, left)
 
     def yaxis_inverted(self):
         'Returns True if the y-axis is inverted.'
-        return self._invertedy
+        left, right = self.get_ylim()
+        return right < left
+
+    def get_ybound(self):
+        "Returns the y-axis numerical bounds in the form of lowerBound < upperBound"
+        left, right = self.get_ylim()
+        if left < right:
+           return left, right
+        else:
+           return right, left
+
+    def set_ybound(self, lower=None, upper=None):
+        """Set the lower and upper numerical bounds of the y-axis.
+           This method will honor axes inversion regardless of parameter order.
+        """
+        if upper is None and iterable(lower):
+            lower,upper = lower
+
+        old_lower,old_upper = self.get_ybound()
+
+        if lower is None: lower = old_lower
+        if upper is None: upper = old_upper
+
+        if self.yaxis_inverted():
+            if lower < upper:
+                self.set_ylim(upper, lower)
+            else:
+                self.set_ylim(lower, upper)
+        else:
+            if lower < upper:
+                self.set_ylim(lower, upper)
+            else:
+                self.set_ylim(upper, lower)
 
     def get_ylim(self):
-        """Get the y-axis range [xmin, xmax]
-
-        NOTE: The returned values are always [ymin, ymax] such that
-              ymin < ymax; regardless of whether or not the axes are inverted.
-        """
-        bound1, bound2 = self.viewLim.intervaly().get_bounds()
-        if ( self._invertedy ):
-            return bound2, bound1
-        else:
-            return bound1, bound2
+        'Get the y axis range [ymin, ymax]'
+        return self.viewLim.intervaly().get_bounds()
 
     def set_ylim(self, ymin=None, ymax=None, emit=True, **kwargs):
         """
@@ -1696,6 +1727,7 @@ class Axes(martist.Artist):
         ACCEPTS: len(2) sequence of floats
         """
 
+
         if ymax is None and iterable(ymin):
             ymin,ymax = ymin
 
@@ -1709,25 +1741,12 @@ class Axes(martist.Artist):
         if ymin is None: ymin = old_ymin
         if ymax is None: ymax = old_ymax
 
-        # provided for backwards compatability
-        if ( ymax < ymin ):
-            # swap the values so that ymin < ymax and set inverted flag
-            tmp = ymin
-            ymin = ymax
-            ymax = tmp
-            self.invert_yaxis( True )
-
         if (self.transData.get_funcy().get_type()==mtrans.LOG10
             and min(ymin, ymax)<=0):
             raise ValueError('Cannot set nonpositive limits with log transform')
 
-        if ( self._invertedy ):
-            ymax, ymin = mtrans.nonsingular(ymax, ymin, increasing=False)
-            self.viewLim.intervaly().set_bounds(ymax, ymin)
-        else:
-            ymin, ymax = mtrans.nonsingular(ymin, ymax, increasing=False)
-            self.viewLim.intervaly().set_bounds(ymin, ymax)
-
+        ymin, ymax = mtrans.nonsingular(ymin, ymax, increasing=False)
+        self.viewLim.intervaly().set_bounds(ymin, ymax)
         if emit: self.callbacks.process('ylim_changed', self)
 
         return ymin, ymax
