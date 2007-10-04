@@ -40,7 +40,7 @@
 # information on how to customize the grid locations and labels
 
 import numpy as npy
-from matplotlib.pyplot import figure, show, rc
+from matplotlib.pyplot import figure, show, rc, grid
 
 # radar green, solid grid lines
 rc('grid', color='#316931', linewidth=1, linestyle='-')
@@ -55,6 +55,7 @@ r = npy.arange(0, 3.0, 0.01)
 theta = 2*npy.pi*r
 ax.plot(theta, r, color='#ee8d18', lw=3)
 ax.set_rmax(2.0)
+grid(True)
 
 ax.set_title("And there was much rejoicing!", fontsize=20)
 show()

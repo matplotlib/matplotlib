@@ -149,17 +149,17 @@ class AxesImage(Artist, cm.ScalarMappable):
         dyintv = ymax-ymin
 
         # the viewport scale factor
-        sx = dxintv/self.axes.viewLim.width()
-        sy = dyintv/self.axes.viewLim.height()
+        sx = dxintv/self.axes.viewLim.width
+        sy = dyintv/self.axes.viewLim.height
 
         if im.get_interpolation()!=_image.NEAREST:
             im.apply_translation(-1, -1)
 
         # the viewport translation
-        tx = (xmin-self.axes.viewLim.xmin())/dxintv * numcols
-        ty = (ymin-self.axes.viewLim.ymin())/dyintv * numrows
+        tx = (xmin-self.axes.viewLim.xmin)/dxintv * numcols
+        ty = (ymin-self.axes.viewLim.ymin)/dyintv * numrows
 
-        l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
+        l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
         widthDisplay *= magnification
         heightDisplay *= magnification
 
@@ -180,8 +180,9 @@ class AxesImage(Artist, cm.ScalarMappable):
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
         im = self.make_image(renderer.get_image_magnification())
-        l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
-        renderer.draw_image(l, b, im, self.axes.bbox)
+        l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
+        print self.axes.bbox.frozen()
+        renderer.draw_image(l, b, im, self.axes.bbox.frozen())
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image.

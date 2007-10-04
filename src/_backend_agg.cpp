@@ -187,7 +187,6 @@ private:
 
 GCAgg::GCAgg(const Py::Object &gc, double dpi, bool snapto) :
   dpi(dpi), snapto(snapto), isaa(true), linewidth(1.0), alpha(1.0),
-  cliprect(NULL), 
   Ndash(0), dashOffset(0.0), dasha(NULL)
 {
   _VERBOSE("GCAgg::GCAgg");
@@ -295,34 +294,14 @@ GCAgg::_set_dashes(const Py::Object& gc) {
   }
 }
 
-// MGDTODO: Convert directly from Bbox object (numpy)
 void
 GCAgg::_set_clip_rectangle( const Py::Object& gc) {
   //set the clip rectangle from the gc
   
   _VERBOSE("GCAgg::_set_clip_rectangle");
-  
-  delete [] cliprect;
-  cliprect = NULL;
-  
+
   Py::Object o ( gc.getAttr( "_cliprect" ) );
-  if (o.ptr() == Py_None) {
-    return;
-  }
-  
-  Py::SeqBase<Py::Object> rect( o );
-  
-  double l = Py::Float(rect[0]) ;
-  double b = Py::Float(rect[1]) ;
-  double w = Py::Float(rect[2]) ;
-  double h = Py::Float(rect[3]) ;
-  
-  cliprect = new double[4];
-  //todo check for memory alloc failure
-  cliprect[0] = l;
-  cliprect[1] = b;
-  cliprect[2] = w;
-  cliprect[3] = h;
+  cliprect = o;
 }
 
 void
@@ -387,25 +366,29 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   
 };
 
-
 template<class R>
 void
-RendererAgg::set_clipbox(double *cliprect, R rasterizer) {
+RendererAgg::set_clipbox(Py::Object& cliprect, R rasterizer) {
   //set the clip rectangle from the gc
   
   _VERBOSE("RendererAgg::set_clipbox");
 
-  if (cliprect!=NULL) {
+  if (cliprect.ptr() != Py_None) {
+    PyArrayObject* bbox = (PyArrayObject*) PyArray_FromObject(cliprect.ptr(), PyArray_DOUBLE, 2, 2);   
+
+    if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2)
+      throw Py::TypeError
+	("Expected a Bbox object.");
     
-    double l = cliprect[0] ;
-    double b = cliprect[1] ;
-    double w = cliprect[2] ;
-    double h = cliprect[3] ;
-    
-    rasterizer->clip_box((int)l, (int)(height-(b+h)), (int)(l+w), (int)(height-b));
+    double l = *(double*)PyArray_GETPTR2(bbox, 0, 0);
+    double b = *(double*)PyArray_GETPTR2(bbox, 0, 1);
+    double r = *(double*)PyArray_GETPTR2(bbox, 1, 0);
+    double t = *(double*)PyArray_GETPTR2(bbox, 1, 1);
+
+    rasterizer->clip_box((int)l, (int)(height-t), (int)r, (int)(height-b));
   }
+
   _VERBOSE("RendererAgg::set_clipbox done");
-  
 }
 
 std::pair<bool, agg::rgba>
@@ -485,17 +468,24 @@ Py::Object
 RendererAgg::copy_from_bbox(const Py::Tuple& args) {
   //copy region in bbox to buffer and return swig/agg buffer object
   args.verify_length(1);
+
+  Py::Object box_obj = args[0];
+
+  PyArrayObject* bbox = (PyArrayObject*) PyArray_FromObject(box_obj.ptr(), PyArray_DOUBLE, 2, 2);   
   
+  if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2)
+    throw Py::TypeError
+      ("Expected a Bbox object.");
+    
+  double l = *(double*)PyArray_GETPTR2(bbox, 0, 0);
+  double b = *(double*)PyArray_GETPTR2(bbox, 0, 1);
+  double r = *(double*)PyArray_GETPTR2(bbox, 1, 0);
+  double t = *(double*)PyArray_GETPTR2(bbox, 1, 1);
   
-  agg::rect r = bbox_to_rect<int>(args[0]);
-  /*
-    r.x1 -=5;
-    r.y1 -=5;
-    r.x2 +=5;
-    r.y2 +=5;
-  */
-  int boxwidth = r.x2-r.x1;
-  int boxheight = r.y2-r.y1;
+  agg::rect rect((int)l, (int)(height-t), (int)r, (int)(height-b));
+
+  int boxwidth = rect.x2-rect.x1;
+  int boxheight = rect.y2-rect.y1;
   int boxstride = boxwidth*4;
   agg::buffer buf(boxwidth, boxheight, boxstride, false);
   if (buf.data ==NULL) {
@@ -508,8 +498,8 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
   pixfmt pf(rbuf);
   renderer_base rb(pf);
   //rb.clear(agg::rgba(1, 0, 0)); //todo remove me
-  rb.copy_from(*renderingBuffer, &r, -r.x1, -r.y1);
-  BufferRegion* reg = new BufferRegion(buf, r, true);
+  rb.copy_from(*renderingBuffer, &rect, -rect.x1, -rect.y1);
+  BufferRegion* reg = new BufferRegion(buf, rect, true);
   return Py::asObject(reg);
 }
 
@@ -533,64 +523,6 @@ RendererAgg::restore_region(const Py::Tuple& args) {
   rendererBase->copy_from(rbuf, 0, region->rect.x1, region->rect.y1);
   
   return Py::Object();
-}
-
-/**
- * Helper function to convert a Python Bbox object to an agg rectangle
- */
-template<class T>
-agg::rect_base<T>
-RendererAgg::bbox_to_rect(const Py::Object& o) {
-  //return the agg::rect for bbox, flipping y
-  PyArrayObject *bbox = (PyArrayObject *) PyArray_ContiguousFromObject(o.ptr(), PyArray_DOUBLE, 2, 2);
-
-  if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2)
-    throw Py::TypeError
-      ("Expected a Bbox object.");
-
-  double l = bbox->data[0];
-  double b = bbox->data[1];
-  double r = bbox->data[2];
-  double t = bbox->data[3];
-  T height = (T)(b - t);
-  
-  agg::rect_base<T> rect((T)l, height-(T)t, (T)r, height-(T)b ) ;
-  if (!rect.is_valid())
-    throw Py::ValueError("Invalid rectangle in bbox_to_rect");
-  return rect;
-}
-
-void
-RendererAgg::set_clip_from_bbox(const Py::Object& o) {
-  
-  // do not puut this in the else below.  We want to unconditionally
-  // clear the clip
-  theRasterizer->reset_clipping();
-  rendererBase->reset_clipping(true);
-  
-  if (o.ptr() != Py_None) {  //using clip
-    // Bbox::check(args[0]) failing; something about cross module?
-    // set the clip rectangle
-    // flipy
-    agg::rect_base<double> r = bbox_to_rect<double>(o);
-    theRasterizer->clip_box(r.x1, r.y1, r.x2, r.y2);
-    rendererBase->clip_box((int)r.x1, (int)r.y1, (int)r.x2, (int)r.y2);
-  }
-  
-}
-
-/****************************/
-
-int RendererAgg::intersectCheck(double yCoord, double x1, double y1, double x2, double y2, int* intersectPoint)
-{
-  /* Returns 0 if no intersection or 1 if yes */
-  /* If yes, changes intersectPoint to the x coordinate of the point of intersection */
-  if ((y1>=yCoord) != (y2>=yCoord)) {
-    /* Don't need to check for y1==y2 because the above condition rejects it automatically */
-    *intersectPoint = (int)( ( x1 * (y2 - yCoord) + x2 * (yCoord - y1) ) / (y2 - y1) + 0.5);
-    return 1;
-  }
-  return 0;
 }
 
 bool RendererAgg::render_clippath(const GCAgg& gc) {
@@ -633,6 +565,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   typedef agg::renderer_scanline_aa_solid<amask_ren_type> amask_aa_renderer_type;
   typedef agg::renderer_scanline_bin_solid<amask_ren_type> amask_bin_renderer_type;
 
+  rendererBase->reset_clipping(true);
   theRasterizer->reset_clipping();
   
   args.verify_length(5, 6);
@@ -802,6 +735,7 @@ public:
 
 };
 
+// MGDTODO: Support clip paths
 Py::Object
 RendererAgg::draw_text_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_text");
@@ -877,6 +811,7 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
 }
 
 
+// MGDTODO: Support clip paths
 Py::Object
 RendererAgg::draw_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_image");
@@ -885,8 +820,11 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   float x = Py::Float(args[0]);
   float y = Py::Float(args[1]);
   Image *image = static_cast<Image*>(args[2].ptr());
+  Py::Object box_obj = args[3];
   
-  set_clip_from_bbox(args[3]);
+  theRasterizer->reset_clipping();
+  rendererBase->reset_clipping(true);
+  set_clipbox(box_obj, rendererBase);
   
   pixfmt pixf(*(image->rbufOut));
   

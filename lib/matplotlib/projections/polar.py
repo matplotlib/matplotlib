@@ -12,14 +12,29 @@ from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, BboxTransform, \
     IdentityTransform, Transform, TransformWrapper
 
 class PolarAxes(Axes):
+    """
+    A polar graph projection, where the input dimensions are theta, r.
+
+    Theta starts pointing east and goes anti-clockwise.
+    """
     name = 'polar'
     
     class PolarTransform(Transform):
+        """
+        The base polar transform.  This handles projection theta and r into
+        Cartesian coordinate space, but does not perform the ultimate affine
+        transformation into the correct position.
+        """
         input_dims = 2
         output_dims = 2
         is_separable = False
 
         def __init__(self, resolution):
+            """
+            Create a new polar transform.  Resolution is the number of steps
+            to interpolate between each input line segment to approximate its
+            path in curved polar space.
+            """
             Transform.__init__(self)
             self._resolution = resolution
 
@@ -32,19 +47,34 @@ class PolarAxes(Axes):
             x += r * npy.cos(t)
             y += r * npy.sin(t)
             return xy
+        transform.__doc__ = Transform.transform.__doc__
+
         transform_non_affine = transform
+        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def transform_path(self, path):
             if len(path.vertices) == 2:
                 path = path.interpolated(self._resolution)
             return Path(self.transform(path.vertices), path.codes)
+        transform_path.__doc__ = Transform.transform_path.__doc__
+        
         transform_path_non_affine = transform_path
+        transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
         
         def inverted(self):
             return PolarAxes.InvertedPolarTransform()
+        inverted.__doc__ = Transform.inverted.__doc__
 
     class PolarAffine(Affine2DBase):
+        """
+        The affine part of the polar projection.  Scales the output so
+        that maximum radius rests on the edge of the axes circle.
+        """
         def __init__(self, limits):
+            """
+            limits is the view limit of the data.  The only part of
+            its bounds that is used is ymax (for the radius maximum).
+            """
             Affine2DBase.__init__(self)
             self._limits = limits
             self.set_children(limits)
@@ -60,8 +90,13 @@ class PolarAxes(Axes):
                 self._inverted = None
                 self._invalid = 0
             return self._mtx
+        get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
     
     class InvertedPolarTransform(Transform):
+        """
+        The inverse of the polar transform, mapping Cartesian
+        coordinate space back to t and r.
+        """
         input_dims = 2
         output_dims = 2
         is_separable = False
@@ -73,21 +108,34 @@ class PolarAxes(Axes):
             theta = npy.arccos(x / r)
             theta = npy.where(y < 0, 2 * npy.pi - theta, theta)
             return npy.concatenate((theta, r), 1)
+        transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
             return PolarAxes.PolarTransform()
+        inverted.__doc__ = Transform.inverted.__doc__
 
     class ThetaFormatter(Formatter):
+        """
+        Used to format the theta tick labels.  Converts the native
+        unit of radians into degrees and adds a degree symbol.
+        """
         def __call__(self, x, pos=None):
+            # \u00b0 : degree symbol
             return u"%d\u00b0" % ((x / npy.pi) * 180.0)
 
     class RadialLocator(Locator):
+        """
+        Used to locate radius ticks.
+        
+        Ensures that all ticks are strictly positive.  For all other
+        tasks, it delegates to the base Locator (which may be
+        different depending on the scale of the r-axis.
+        """
         def __init__(self, base):
             self.base = base
 
         def __call__(self):
             ticks = self.base()
-            # MGDTODO: Use numpy
             return [x for x in ticks if x > 0]
 
         def autoscale(self):
@@ -105,6 +153,10 @@ class PolarAxes(Axes):
     RESOLUTION = 100
         
     def __init__(self, *args, **kwargs):
+        """
+        Create a new Polar Axes for a polar plot.
+        """
+        
         self._rpad = 0.05
         Axes.__init__(self, *args, **kwargs)
         self.set_aspect('equal', adjustable='box', anchor='C')
@@ -120,7 +172,7 @@ class PolarAxes(Axes):
         self.yaxis.set_major_locator(self.RadialLocator(self.yaxis.get_major_locator()))
 
     def _set_lim_and_transforms(self):
-	self.dataLim = Bbox([[0.0, 0.0], [npy.pi * 2.0, 1.0]])
+	self.dataLim = Bbox.unit()
         self.viewLim = Bbox.unit()
         self.transAxes = BboxTransform(Bbox.unit(), self.bbox)
 
@@ -134,14 +186,20 @@ class PolarAxes(Axes):
         # An affine transformation on the data, generally to limit the
         # range of the axes
         self.transProjectionAffine = self.PolarAffine(self.viewLim)
-        
+
+        # The complete data transformation stack -- from data all the
+        # way to display coordinates
         self.transData = self.transScale + self.transProjection + \
             (self.transProjectionAffine + self.transAxes)
 
+        # This is the transform for theta-axis ticks.  It is
+        # equivalent to transData, except it always puts r == 1.0 at
+        # the edge of the axis circle.
         self._xaxis_transform = (
             self.transProjection +
             self.PolarAffine(Bbox.unit()) +
             self.transAxes)
+        # The theta labels are moved from radius == 0.0 to radius == 1.1
         self._theta_label1_position = Affine2D().translate(0.0, 1.1)
         self._xaxis_text1_transform = (
             self._theta_label1_position +
@@ -150,10 +208,14 @@ class PolarAxes(Axes):
         self._xaxis_text2_transform = (
             self._theta_label2_position +
             self._xaxis_transform)
-        
+
+        # This is the transform for r-axis ticks.  It scales the theta
+        # axis so the gridlines from 0.0 to 1.0, now go from 0.0 to
+        # 2pi.
         self._yaxis_transform = (
             Affine2D().scale(npy.pi * 2.0, 1.0) +
             self.transData)
+        # The r-axis labels are put at an angle and padded in the r-direction
         self._r_label1_position = Affine2D().translate(22.5, self._rpad)
         self._yaxis_text1_transform = (
             self._r_label1_position +
@@ -166,6 +228,9 @@ class PolarAxes(Axes):
             Affine2D().scale(1.0 / 360.0, 1.0) +
             self._yaxis_transform
             )
+
+    def get_xaxis_transform(self):
+        return self._xaxis_transform
         
     def get_xaxis_text1_transform(self, pixelPad):
         return self._xaxis_text1_transform, 'center', 'center'
@@ -173,6 +238,9 @@ class PolarAxes(Axes):
     def get_xaxis_text2_transform(self, pixelPad):
         return self._xaxis_text2_transform, 'center', 'center'
 
+    def get_yaxis_transform(self):
+        return self._yaxis_transform
+    
     def get_yaxis_text1_transform(self, pixelPad):
         return self._yaxis_text1_transform, 'center', 'center'
 
@@ -181,62 +249,6 @@ class PolarAxes(Axes):
     
     def get_axes_patch(self):
         return Circle((0.5, 0.5), 0.5)
-
-    def start_pan(self, x, y, button):
-        angle = self._r_label1_position.to_values()[4] / 180.0 * npy.pi
-        mode = ''
-        if button == 1:
-            epsilon = npy.pi / 45.0
-            t, r = self.transData.inverted().transform_point((x, y))
-            if t >= angle - epsilon and t <= angle + epsilon:
-                mode = 'drag_r_labels'
-        elif button == 3:
-            mode = 'zoom'
-            
-        self._pan_start = cbook.Bunch(
-            rmax          = self.get_rmax(),
-            trans         = self.transData.frozen(),
-            trans_inverse = self.transData.inverted().frozen(),
-            r_label_angle = self._r_label1_position.to_values()[4],
-            x             = x,
-            y             = y,
-            mode          = mode
-            )
-
-    def end_pan(self):
-        del self._pan_start
-                                       
-    def drag_pan(self, button, key, x, y):
-        p = self._pan_start
-        
-        if p.mode == 'drag_r_labels':
-            startt, startr = p.trans_inverse.transform_point((p.x, p.y))
-            t, r = p.trans_inverse.transform_point((x, y))
-            
-            # Deal with theta
-            dt0 = t - startt
-            dt1 = startt - t
-            if abs(dt1) < abs(dt0):
-                dt = abs(dt1) * sign(dt0) * -1.0
-            else:
-                dt = dt0 * -1.0
-            dt = (dt / npy.pi) * 180.0
-
-            rpad = self._r_label1_position.to_values()[5]
-            self._r_label1_position.clear().translate(
-                p.r_label_angle - dt, rpad)
-            self._r_label2_position.clear().translate(
-                p.r_label_angle - dt, -rpad)
-            
-        elif p.mode == 'zoom':
-            startt, startr = p.trans_inverse.transform_point((p.x, p.y))
-            t, r = p.trans_inverse.transform_point((x, y))
-            
-            dr = r - startr
-
-            # Deal with r
-            scale = r / startr
-            self.set_rmax(p.rmax / scale)
             
     def set_rmax(self, rmax):
         self.viewLim.ymax = rmax
@@ -249,6 +261,11 @@ class PolarAxes(Axes):
     def get_rmax(self):
         return self.viewLim.ymax
 
+    def set_yscale(self, *args, **kwargs):
+        Axes.set_yscale(self, *args, **kwargs)
+        self.yaxis.set_major_locator(
+            self.RadialLocator(self.yaxis.get_major_locator()))
+    
     set_rscale = Axes.set_yscale
     set_rticks = Axes.set_yticks
 
@@ -330,24 +347,19 @@ class PolarAxes(Axes):
         
     set_rgrids.__doc__ = cbook.dedent(set_rgrids.__doc__) % kwdocd
     
-    def set_rscale(self, *args, **kwargs):
-        return self.set_yscale(*args, **kwargs)
-
     def set_xscale(self, *args, **kwargs):
         raise NotImplementedError("You can not set the xscale on a polar plot.")
 
-    def set_yscale(self, *args, **kwargs):
-        Axes.set_yscale(self, *args, **kwargs)
-        self.yaxis.set_major_locator(
-            self.RadialLocator(self.yaxis.get_major_locator()))
-    
     def set_xlim(self, *args, **kargs):
-        # The xlim's a fixed, no matter what you do
+        # The xlim is fixed, no matter what you do
         self.viewLim.intervalx = (0.0, npy.pi * 2.0)
     
     def format_coord(self, theta, r):
         'return a format string formatting the coordinate'
         theta /= math.pi
+        # \u03b8: lower-case theta
+        # \u03c0: lower-case pi
+        # \u00b0: degree symbol
         return u'\u03b8=%0.3f\u03c0 (%0.3f\u00b0), r=%0.3f' % (theta, theta * 180.0, r)
 
     def get_data_ratio(self):
@@ -356,6 +368,64 @@ class PolarAxes(Axes):
         this should always be 1.0
         '''
         return 1.0
+
+    ### Interactive panning
+    
+    def start_pan(self, x, y, button):
+        angle = self._r_label1_position.to_values()[4] / 180.0 * npy.pi
+        mode = ''
+        if button == 1:
+            epsilon = npy.pi / 45.0
+            t, r = self.transData.inverted().transform_point((x, y))
+            if t >= angle - epsilon and t <= angle + epsilon:
+                mode = 'drag_r_labels'
+        elif button == 3:
+            mode = 'zoom'
+            
+        self._pan_start = cbook.Bunch(
+            rmax          = self.get_rmax(),
+            trans         = self.transData.frozen(),
+            trans_inverse = self.transData.inverted().frozen(),
+            r_label_angle = self._r_label1_position.to_values()[4],
+            x             = x,
+            y             = y,
+            mode          = mode
+            )
+
+    def end_pan(self):
+        del self._pan_start
+                                       
+    def drag_pan(self, button, key, x, y):
+        p = self._pan_start
+        
+        if p.mode == 'drag_r_labels':
+            startt, startr = p.trans_inverse.transform_point((p.x, p.y))
+            t, r = p.trans_inverse.transform_point((x, y))
+            
+            # Deal with theta
+            dt0 = t - startt
+            dt1 = startt - t
+            if abs(dt1) < abs(dt0):
+                dt = abs(dt1) * sign(dt0) * -1.0
+            else:
+                dt = dt0 * -1.0
+            dt = (dt / npy.pi) * 180.0
+
+            rpad = self._r_label1_position.to_values()[5]
+            self._r_label1_position.clear().translate(
+                p.r_label_angle - dt, rpad)
+            self._r_label2_position.clear().translate(
+                p.r_label_angle - dt, -rpad)
+            
+        elif p.mode == 'zoom':
+            startt, startr = p.trans_inverse.transform_point((p.x, p.y))
+            t, r = p.trans_inverse.transform_point((x, y))
+            
+            dr = r - startr
+
+            # Deal with r
+            scale = r / startr
+            self.set_rmax(p.rmax / scale)
     
 # These are a couple of aborted attempts to project a polar plot using
 # cubic bezier curves.
