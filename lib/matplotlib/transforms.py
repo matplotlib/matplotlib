@@ -191,7 +191,7 @@ class BboxBase(TransformNode):
         return Bbox(self.get_points().copy())
     frozen.__doc__ = TransformNode.__doc__
     
-    def __array__(self):
+    def __array__(self, *args, **kwargs):
         return self.get_points()
 
     def _get_xmin(self):

@@ -111,7 +111,6 @@ public:
 
   ~GCAgg() {
     delete [] dasha;
-    delete [] cliprect;
   }
 
   double dpi;
@@ -126,7 +125,7 @@ public:
   double alpha;
   agg::rgba color;
 
-  double *cliprect;
+  Py::Object cliprect;
   Py::Object clippath;
   agg::trans_affine clippath_trans;
 
@@ -214,16 +213,12 @@ public:
   const int debug;
 
 protected:
-  template<class T>
-  agg::rect_base<T> bbox_to_rect( const Py::Object& o);
   double points_to_pixels( const Py::Object& points);
   double points_to_pixels_snapto( const Py::Object& points);
-  int intersectCheck(double, double, double, double, double, int*);
-  void set_clip_from_bbox(const Py::Object& o);
   agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
   template<class R>
-  void set_clipbox(double *cliprect, R rasterizer);
+  void set_clipbox(Py::Object& cliprect, R rasterizer);
   bool render_clippath(const GCAgg& gc);
 
 private:
