@@ -498,6 +498,9 @@ class Axes(martist.Artist):
         self.set_label(label)
         self.set_figure(fig)
 
+        self._invertedx = False
+        self._invertedy = False
+
         # this call may differ for non-sep axes, eg polar
         self._init_axis()
         
@@ -1422,10 +1425,25 @@ class Axes(martist.Artist):
 
     ### data limits, ticks, tick labels, and formatting
             
-    def get_xlim(self):
-        'Get the x axis range [xmin, xmax]'
-        return self.viewLim.intervalx
+    def invert_xaxis(self, invert=True):
+        "Invert the x-axis if 'invert' is True."
+        self._invertedx = invert
 
+    def xaxis_inverted(self):
+        'Returns True if the x-axis is inverted.'
+        return self._invertedx
+
+    def get_xlim(self):
+        """Get the x-axis range [xmin, xmax]
+
+        NOTE: The returned values are always [xmin, xmax] such that
+              xmin < xmax; regardless of whether or not the axes are inverted.
+        """
+        bound1, bound2 = self.viewLim.intervalx
+        if ( self._invertedx ):
+            return bound2, bound1
+        else:
+            return bound1, bound2
 
     def set_xlim(self, xmin=None, xmax=None, emit=True, **kwargs):
         """
@@ -1463,9 +1481,21 @@ class Axes(martist.Artist):
         if xmin is None: xmin = old_xmin
         if xmax is None: xmax = old_xmax
 
-        xmin, xmax = mtransforms.nonsingular(xmin, xmax, increasing=False)
+        # provided for backwards compatability
+        if ( xmax < xmin ):
+            # swap the values so that xmin < xmax and set inverted flag
+            tmp = xmin
+            xmin = xmax
+            xmax = tmp
+            self.invert_xaxis( True )
 
-	self.viewLim.intervalx = (xmin, xmax)
+        if ( self._invertedx ):
+            xmax, xmin = mtransforms.nonsingular(xmax, xmin, increasing=False)
+            self.viewLim.intervalx = (xmax, xmin)
+        else:
+            xmin, xmax = mtransforms.nonsingular(xmin, xmax, increasing=False)
+            self.viewLim.intervalx = (xmin, xmax)
+
         if emit:
 	    self.callbacks.process('xlim_changed', self)
 	    # Call all of the other x-axes that are shared with this one
@@ -1534,9 +1564,25 @@ class Axes(martist.Artist):
         return self.xaxis.set_ticklabels(labels, fontdict, **kwargs)
     set_xticklabels.__doc__ = cbook.dedent(set_xticklabels.__doc__) % martist.kwdocd
 
+    def invert_yaxis(self, invert=True):
+        "Invert the y-axis if 'invert' is True."
+        self._invertedy = invert
+
+    def yaxis_inverted(self):
+        'Returns True if the y-axis is inverted.'
+        return self._invertedy
+
     def get_ylim(self):
-        'Get the y axis range [ymin, ymax]'
-        return self.viewLim.intervaly
+        """Get the y-axis range [xmin, xmax]
+
+        NOTE: The returned values are always [ymin, ymax] such that
+              ymin < ymax; regardless of whether or not the axes are inverted.
+        """
+        bound1, bound2 = self.viewLim.intervaly
+        if ( self._invertedy ):
+            return bound2, bound1
+        else:
+            return bound1, bound2
 
     def set_ylim(self, ymin=None, ymax=None, emit=True, **kwargs):
         """
@@ -1572,8 +1618,21 @@ class Axes(martist.Artist):
         if ymin is None: ymin = old_ymin
         if ymax is None: ymax = old_ymax
 
-        ymin, ymax = mtransforms.nonsingular(ymin, ymax, increasing=False)
-	self.viewLim.intervaly = (ymin, ymax)
+        # provided for backwards compatability
+        if ( ymax < ymin ):
+            # swap the values so that ymin < ymax and set inverted flag
+            tmp = ymin
+            ymin = ymax
+            ymax = tmp
+            self.invert_yaxis( True )
+
+        if ( self._invertedy ):
+            ymax, ymin = mtransforms.nonsingular(ymax, ymin, increasing=False)
+            self.viewLim.intervaly = (ymax, ymin)
+        else:
+            ymin, ymax = mtransforms.nonsingular(ymin, ymax, increasing=False)
+            self.viewLim.intervaly = (ymin, ymax)
+
         if emit:
 	    self.callbacks.process('ylim_changed', self)
 	    # Call all of the other y-axes that are shared with this one
@@ -1582,7 +1641,6 @@ class Axes(martist.Artist):
 		    other.set_ylim(self.viewLim.ymin, self.viewLim.ymax, emit=False)
 
         self.figure.canvas.draw_idle()
-                    
         return ymin, ymax
 
     def get_yscale(self):

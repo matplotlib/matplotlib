@@ -1951,10 +1951,12 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
 
 # MGDTODO: Optimize (perhaps in an extension)
 def interval_contains(interval, val):
-    return interval[0] <= val and interval[1] >= val
+    return ((interval[0] <= val and interval[1] >= val) or
+            (interval[1] <= val and interval[0] >= val))
 
 def interval_contains_open(interval, val):
-    return interval[0] < val and interval[1] > val
+    return ((interval[0] < val and interval[1] > val) or
+            (interval[1] < val and interval[0] > val))
     
 if __name__ == '__main__':
     import copy
