@@ -782,7 +782,8 @@ class Ellipse(Patch):
         b,t = y-self.height/2.0, y+self.height/2.0
         x,l,r = self.convert_xunits((x,l,r))
         y,b,t = self.convert_yunits((y,b,t))
-        return npy.array(((x,y),(l,y),(x,t),(r,y),(x,b)), npy.float)
+        verts = ((x,y), (l,y), (x,t), (r,y), (x,b))
+        return npy.array(verts, npy.float)
 
     def draw(self, renderer):
         if not self.get_visible(): return
@@ -804,11 +805,32 @@ class Ellipse(Patch):
 
         tverts = self.get_transform().seq_xy_tups(self.get_verts())
         # center is first vert
-        width = tverts[3,0] - tverts[1,0]
-        height = tverts[2,1] - tverts[4,1]
+        # take the abs since we do not want a negative width or height as this
+        # will cause the renderer to misbehave.
+        width = abs(tverts[3,0] - tverts[1,0])
+        height = abs(tverts[2,1] - tverts[4,1])
+
+        # we also have to transform the angle, do this using polar coordinates
+        # convert to radians
+        angle = self.angle * math.pi / 180.0
+
+        # convert the angle to polar coordinates (Assume r = 1.0)
+        anglex = math.cos(-angle)
+        angley = math.sin(-angle)
+
+        # transform the angle vertex and the origin
+        angle_verts = npy.array(((anglex, angley), (0.0, 0.0)), npy.float)
+        angle_verts = self.get_transform().seq_xy_tups(angle_verts)
+
+        # get the new x and y coords (from the origin)
+        anglex = angle_verts[0, 0] - angle_verts[1, 0]
+        angley = angle_verts[0, 1] - angle_verts[1, 1]
+
+        # convert back to an angle (in degrees)
+        angle = math.atan2(angley, anglex) * 180.0 / math.pi
 
         renderer.draw_arc(gc, rgbFace, tverts[0,0], tverts[0,1],
-                          width, height, 0.0, 360.0, self.angle)
+                          width, height, 0.0, 360.0, angle)
 
 class Circle(Ellipse):
     """
