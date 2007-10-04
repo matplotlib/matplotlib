@@ -34,40 +34,22 @@ class RendererBase:
 
     def draw_path(self, gc, path, transform, rgbFace=None):
 	"""
-	Handles the caching of the native path associated with the
-	given path and calls the underlying backend's _draw_path to
-	actually do the drawing.
+        Draws a Path instance using the given affine transform.
 	"""
-        # MGDTODO: Update docstring
         raise NotImplementedError
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         """
-        This method is currently underscore hidden because the
-        draw_markers method is being used as a sentinel for newstyle
-        backend drawing
+        Draws a marker at each of the vertices in path.  This includes
+        all vertices, including control points on curves.  To avoid
+        that behavior, those vertices should be removed before calling
+        this function.
 
-        path - a matplotlib.agg.path_storage instance
-
-        Draw the marker specified in path with graphics context gc at
-        each of the locations in arrays x and y.  trans is a
-        matplotlib.transforms.Transformation instance used to
-        transform x and y to display coords.  It consists of an
-        optional nonlinear component and an affine.  You can access
-        these two components as
-
-        if transform.need_nonlinear():
-          x,y = transform.nonlinear_only_numerix(x, y)
-        # the a,b,c,d,tx,ty affine which transforms x and y
-        vec6 = transform.as_vec6_val()
-        ...backend dependent affine...
+        marker_trans is an affine transform applied to the marker.
+        trans is an affine transform applied to the path.
         """
-        # MGDTODO: Update docstring
         raise NotImplementedError
 	
-    def _draw_native_markers(self, gc, native_marker_path, marker_trans, path, trans, rgbFace=None):
-        raise NotImplementedError
-
     def get_image_magnification(self):
         """
         Get the factor by which to magnify images passed to draw_image.
@@ -1560,7 +1542,8 @@ class NavigationToolbar2:
         self._xypress=[]
         for i, a in enumerate(self.canvas.figure.get_axes()):
             if x is not None and y is not None and a.in_axes(event) and a.get_navigate():
-                self._xypress.append((x, y, a, i, a.viewLim.frozen(), a.transData.frozen()))
+                a.start_pan(x, y, event.button)
+                self._xypress.append((a, i))
                 self.canvas.mpl_disconnect(self._idDrag)
                 self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.drag_pan)
 
@@ -1597,13 +1580,11 @@ class NavigationToolbar2:
             lims.append( (xmin, xmax, ymin, ymax) )
             # Store both the original and modified positions
             pos.append( (
-		    copy.copy(a.get_position(True)),
-                    copy.copy(a.get_position() )) )
+		    a.get_position(True).frozen(),
+                    a.get_position().frozen() ) )
         self._views.push(lims)
         self._positions.push(pos)
         self.set_history_buttons()
-
-
 
     def release(self, event):
         'this will be called whenever mouse button is released'
@@ -1613,6 +1594,8 @@ class NavigationToolbar2:
         'the release mouse button callback in pan/zoom mode'
         self.canvas.mpl_disconnect(self._idDrag)
         self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)
+        for a, ind in self._xypress:
+            a.end_pan()
         if not self._xypress: return
         self._xypress = None
         self._button_pressed=None
@@ -1623,12 +1606,10 @@ class NavigationToolbar2:
     def drag_pan(self, event):
         'the drag callback in pan/zoom mode'
 
-        for lastx, lasty, a, ind, old_lim, old_trans in self._xypress:
+        for a, ind in self._xypress:
             #safer to use the recorded button at the press than current button:
             #multiple button can get pressed during motion...
-            dx, dy = event.x - lastx, event.y - lasty
-            a.drag_pan(self._button_pressed, event.key, lastx, lasty, dx, dy,
-                       old_lim, old_trans)
+            a.drag_pan(self._button_pressed, event.key, event.x, event.y)
         self.dynamic_update()
 
     def release_zoom(self, event):

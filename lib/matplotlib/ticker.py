@@ -545,8 +545,7 @@ class Locator(TickHelper):
 
     def autoscale(self):
         'autoscale the view limits'
-        self.verify_intervals()
-        return mtransforms.nonsingular(*self.dataInterval.get_bounds())
+        return mtransforms.nonsingular(*self.axis.get_view_interval())
 
     def pan(self, numsteps):
         'Pan numticks (can be positive or negative)'

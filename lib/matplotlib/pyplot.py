@@ -9,7 +9,8 @@ from matplotlib.image import imread as _imread
 from matplotlib import rcParams, rcParamsDefault, get_backend
 from matplotlib.artist import getp, get
 from matplotlib.artist import setp as _setp
-from matplotlib.axes import Axes, PolarAxes
+from matplotlib.axes import Axes
+from matplotlib.projections import PolarAxes
 from matplotlib import mlab  # for csv2rec in plotfile
 
 from matplotlib import cm

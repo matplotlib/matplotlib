@@ -393,7 +393,6 @@ class Line2D(Artist):
     def recache(self):
         #if self.axes is None: print 'recache no axes'
         #else: print 'recache units', self.axes.xaxis.units, self.axes.yaxis.units
-	# MGDTODO: Deal with units
         x = ma.asarray(self.convert_xunits(self._xorig), float)
         y = ma.asarray(self.convert_yunits(self._yorig), float)
 
@@ -414,11 +413,11 @@ class Line2D(Artist):
 	self._x = self._xy[:, 0] # just a view
 	self._y = self._xy[:, 1] # just a view
         self._logcache = None
+
         # Masked arrays are now handled by the Path class itself
         self._path = Path(self._xy, closed=False)
         self._transformed_path = TransformedPath(self._path, self.get_transform())
-        # MGDTODO: If _draw_steps is removed, remove the following line also
-        self._step_path = None
+
 
     def set_transform(self, t):
         """
@@ -434,47 +433,8 @@ class Line2D(Artist):
         if len(x)<2: return 1
         return npy.alltrue(x[1:]-x[0:-1]>=0)
 
-    # MGDTODO: Remove me (seems to be used for old-style interface only)
-    def _get_plottable(self):
-        # If log scale is set, only pos data will be returned
-
-        x, y = self._x, self._y
-
-	# MGDTODO: (log-scaling)
-	
-#         try: logx = self.get_transform().get_funcx().get_type()==LOG10
-#         except RuntimeError: logx = False  # non-separable
-
-#         try: logy = self.get_transform().get_funcy().get_type()==LOG10
-#         except RuntimeError: logy = False  # non-separable
-
-        if True:
-            return x, y
-
-        if self._logcache is not None:
-            waslogx, waslogy, xcache, ycache = self._logcache
-            if logx==waslogx and waslogy==logy:
-                return xcache, ycache
-
-        Nx = len(x)
-        Ny = len(y)
-
-        if logx: indx = npy.greater(x, 0)
-        else:    indx = npy.ones(len(x))
-
-        if logy: indy = npy.greater(y, 0)
-        else:    indy = npy.ones(len(y))
-
-        ind, = npy.nonzero(npy.logical_and(indx, indy))
-        x = npy.take(x, ind)
-        y = npy.take(y, ind)
-
-        self._logcache = logx, logy, x, y
-        return x, y
-
-
     def draw(self, renderer):
-        #renderer.open_group('line2d')
+        renderer.open_group('line2d')
 
         if not self._visible: return
         self._newstyle = hasattr(renderer, 'draw_markers')
@@ -498,7 +458,6 @@ class Line2D(Artist):
         lineFunc = getattr(self, funcname)
         lineFunc(renderer, gc, *self._transformed_path.get_transformed_path_and_affine())
 	    
-	# MGDTODO: Deal with markers
         if self._marker is not None:
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
@@ -509,7 +468,7 @@ class Line2D(Artist):
             markerFunc = getattr(self, funcname)
             markerFunc(renderer, gc, *self._transformed_path.get_transformed_path_and_affine())
 
-        #renderer.close_group('line2d')
+        renderer.close_group('line2d')
 
     def get_antialiased(self): return self._antialiased
     def get_color(self): return self._color
@@ -694,29 +653,7 @@ class Line2D(Artist):
     def _draw_nothing(self, *args, **kwargs):
         pass
 
-
-    def _draw_steps(self, renderer, gc, path):
-        # We generate the step function path on-the-fly, and then cache it.
-        # The cache may be later invalidated when the data changes
-        # (in self.recache())
-
-        # MGDTODO: Untested -- using pylab.step doesn't actually trigger
-        # this code -- the path is "stepped" before even getting to this
-        # class.  Perhaps this should be removed here, since it is not as
-        # powerful as what is in axes.step() anyway.
-        if self._step_path is None:
-            vertices = self._path.vertices
-            codes = self._path.codes
-            siz = len(vertices)
-            if siz<2: return
-            new_vertices = npy.zeros((2*siz, 2), vertices.dtype)
-            new_vertices[0:-1:2, 0], new_vertices[1:-1:2, 0], newvertices[-1, 0] = vertices[:, 0], vertices[1:, 0], vertices[-1, 0]
-            new_vertices[0:-1:2, 1], new_vertices[1::2, 1] = vertices[:, 1], vertices[:, 1]
-            self._step_path = Path(new_vertices, closed=False)
-        gc.set_linestyle('solid')
-	renderer.draw_path(gc, self._step_path, self.get_transform())
-
-        
+    
     def _draw_solid(self, renderer, gc, path, trans):
         gc.set_linestyle('solid')
 	renderer.draw_path(gc, path, trans)

@@ -96,15 +96,6 @@ class RendererAgg(RendererBase):
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles
     """
-    # MGDTODO: Renderers seem to get created and destroyed fairly
-    # often so the paths are cached at the class (not instance) level.
-    # However, this dictionary is only directly used by RendererBase,
-    # so it seems funny to define it here.  However, if we didn't, the
-    # native paths would be shared across renderers, which is
-    # obviously bad.  Seems like a good use of metaclasses, but that
-    # also seems like a heavy solution for a minor problem.
-    _native_paths = weakref.WeakKeyDictionary()
-    
     debug=1
     texd = {}  # a cache of tex image rasters
     def __init__(self, width, height, dpi):
@@ -130,12 +121,10 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
 
-    # MGDTODO: Just adding helpful asserts.  This can be removed in the future
     def draw_path(self, gc, path, trans, rgbFace=None):
         assert trans.is_affine
         self._renderer.draw_path(gc, path, trans.frozen(), rgbFace)
 
-    # MGDTODO: Just adding helpful asserts.  This can be removed in the future
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         assert marker_trans.is_affine
         assert trans.is_affine
