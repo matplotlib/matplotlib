@@ -335,6 +335,11 @@ class Artist(object):
         'Return artist clip path'
         return self._clippath
 
+    def get_transformed_clip_path_and_affine(self):
+        if self._clippath is not None:
+            return self._clippath.get_transformed_path_and_affine()
+        return None, None
+    
     def set_clip_on(self, b):
         """
         Set  whether artist uses clipping

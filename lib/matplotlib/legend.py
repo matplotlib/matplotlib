@@ -34,7 +34,7 @@ from mlab import segments_intersect
 from patches import Patch, Rectangle, RegularPolygon, Shadow, bbox_artist, draw_bbox
 from collections import LineCollection, RegularPolyCollection, PatchCollection
 from text import Text
-from transforms import Bbox, BboxTransform
+from transforms import Affine2D, Bbox, BboxTransform
 
 def line_cuts_bbox(line, bbox):
     """ Return True if and only if line cuts bbox. """
@@ -164,8 +164,9 @@ The following dimensions are in axes coords
         else:
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
-        self.set_transform( BboxTransform(Bbox.unit(), parent.bbox) )
-
+        self._offsetTransform = Affine2D()
+        self.set_transform( self._offsetTransform + BboxTransform(Bbox.unit(), parent.bbox) )
+        
         if loc is None:
             loc = rcParams["legend.loc"]
             if not self.isaxes and loc in [0,'best']:
@@ -429,23 +430,7 @@ The following dimensions are in axes coords
 
     def _offset(self, ox, oy):
         'Move all the artists by ox,oy (axes coords)'
-        for t in self.texts:
-            x,y = t.get_position()
-            t.set_position( (x+ox, y+oy) )
-
-        for h in self.legendHandles:
-            if isinstance(h, Line2D):
-                x,y = h.get_xdata(orig=False), h.get_ydata(orig=False)
-                h.set_data( x+ox, y+oy)
-            elif isinstance(h, Rectangle):
-                h.xy[0] = h.xy[0] + ox
-                h.xy[1] = h.xy[1] + oy
-            elif isinstance(h, RegularPolygon):
-                h.verts = [(x + ox, y + oy) for x, y in h.verts]
-
-        x, y = self.legendPatch.get_x(), self.legendPatch.get_y()
-        self.legendPatch.set_x(x+ox)
-        self.legendPatch.set_y(y+oy)
+        self._offsetTransform.clear().translate(ox, oy)
 
     def _find_best_position(self, width, height, consider=None):
         """Determine the best location to place the legend.

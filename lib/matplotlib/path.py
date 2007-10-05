@@ -87,12 +87,14 @@ class Path(object):
         vertices = ma.asarray(vertices, npy.float_)
 
 	if codes is None:
-	    if closed:
+            if len(vertices) == 0:
+                codes = npy.zeros((0, ), self.code_type)
+            elif closed:
 		codes = self.LINETO * npy.ones(
 		    vertices.shape[0] + 1, self.code_type)
 		codes[0] = self.MOVETO
-                codes[-1] = self.CLOSEPOLY
-                vertices = npy.concatenate((vertices, [[0.0, 0.0]]))
+                codes[-1] = self.LINETO
+                vertices = npy.concatenate((vertices, [vertices[0]]))
 	    else:
 		codes = self.LINETO * npy.ones(
 		    vertices.shape[0], self.code_type)
@@ -187,9 +189,9 @@ class Path(object):
         algorithm will take into account the curves and deal with
         control points appropriately.
         """
-        from transforms import Bbox, IdentityTransform
+        from transforms import Affine2D, Bbox
         if transform is None:
-            transform = IdentityTransform
+            transform = Affine2D()
         return Bbox.from_lbrt(*get_path_extents(self, transform))
 
     def interpolated(self, steps):

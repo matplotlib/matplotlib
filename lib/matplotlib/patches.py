@@ -221,8 +221,11 @@ class Patch(artist.Artist):
 
         path = self.get_path()
         transform = self.get_transform()
-         
-        renderer.draw_path(gc, path, transform, rgbFace)
+        # MGDTODO: Use a transformed path here?
+        tpath = transform.transform_path_non_affine(path)
+        affine = transform.get_affine()
+        
+        renderer.draw_path(gc, tpath, affine, rgbFace)
 
         #renderer.close_group('patch')
 
@@ -234,8 +237,7 @@ class Patch(artist.Artist):
 
 
     def get_window_extent(self, renderer=None):
-        return Bbox.from_lbrt(
-            get_path_extents(self.get_path(), self.get_patch_transform()))
+        return self.get_path().get_extents(self.get_transform())
 
 
     def set_lw(self, val):
@@ -441,21 +443,49 @@ class RegularPolygon(Patch):
         Valid kwargs are:
         %(Patch)s
         """
-        Patch.__init__(self, **kwargs)
-
+        self._xy = xy
+        self._orientation = orientation
+        self._radius = radius
 	self._path = Path.unit_regular_polygon(numVertices)
-	self._poly_transform = transforms.Affine2D() \
-	    .scale(radius) \
-	    .rotate(orientation) \
-	    .translate(*xy)
-
+        self._poly_transform = transforms.Affine2D()
+        self._update_transform()
+        
+        Patch.__init__(self, **kwargs)
+        
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+    def _update_transform(self):
+        self._poly_transform.clear() \
+	    .scale(self.radius) \
+	    .rotate(self.orientation) \
+	    .translate(*self.xy)
+
+    def _get_xy(self):
+        return self._xy
+    def _set_xy(self, xy):
+        self._xy = xy
+        self._update_transform()
+    xy = property(_get_xy, _set_xy)
+
+    def _get_orientation(self):
+        return self._orientation
+    def _set_orientation(self, xy):
+        self._orientation = xy
+        self._update_transform()
+    orientation = property(_get_orientation, _set_orientation)
+    
+    def _get_radius(self):
+        return self._radius
+    def _set_radius(self, xy):
+        self._radius = xy
+        self._update_transform()
+    radius = property(_get_radius, _set_radius)
+    
     def get_path(self):
 	return self._path
 
     def get_patch_transform(self):
-	return self._poly_transform
+        return self._poly_transform
 	
 class Polygon(Patch):
     """
@@ -492,10 +522,8 @@ class Wedge(Patch):
 
         """
         Patch.__init__(self, **kwargs)
-        self.theta1 = theta1
-        self.theta2 = theta2
         self._path = Path.wedge(theta1, theta2)
-        self._path_transform = transforms.Affine2D() \
+        self._patch_transform = transforms.Affine2D() \
             .scale(r).translate(*center)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
@@ -503,7 +531,7 @@ class Wedge(Patch):
 	return self._path
 
     def get_patch_transform(self):
-	return self._path_transform
+	return self._patch_transform
         
 class Arrow(Polygon):
     """
@@ -515,6 +543,12 @@ class Arrow(Polygon):
         cx,cy = (x1+x2)/2.,(y1+y2)/2.
         return "Arrow(%g,%g)"%(cx,cy)
 
+    _path = Path( [
+            [ 0.0,  0.1 ], [ 0.0, -0.1],
+            [ 0.8, -0.1 ], [ 0.8, -0.3],
+            [ 1.0,  0.0 ], [ 0.8,  0.3],
+            [ 0.8,  0.1 ] ] )
+    
     def __init__( self, x, y, dx, dy, width=1.0, **kwargs ):
         """Draws an arrow, starting at (x,y), direction and length
         given by (dx,dy) the width of the arrow is scaled by width
@@ -522,22 +556,23 @@ class Arrow(Polygon):
         Valid kwargs are:
         %(Patch)s
         """
-	# MGDTODO: Implement me
-        arrow = npy.array( [
-            [ 0.0,  0.1 ], [ 0.0, -0.1],
-            [ 0.8, -0.1 ], [ 0.8, -0.3],
-            [ 1.0,  0.0 ], [ 0.8,  0.3],
-            [ 0.8,  0.1 ] ] )
         L = npy.sqrt(dx**2+dy**2) or 1 # account for div by zero
-        arrow[:,0] *= L
-        arrow[:,1] *= width
         cx = float(dx)/L
         sx = float(dy)/L
-        M = npy.array( [ [ cx, sx],[ -sx, cx ] ] )
-        verts = npy.dot( arrow, M )+ [x,y]
-        Polygon.__init__( self, [ tuple(t) for t in verts ], **kwargs )
+
+        trans1 = transforms.Affine2D().scale(L, width)
+        trans2 = transforms.Affine2D.from_values(cx, sx, -sx, cx, 0.0, 0.0)
+        trans3 = transforms.Affine2d().translate(x, y)
+        trans = trans1 + trans2 + trans3
+        self._patch_transform = trans.frozen()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+    def get_path(self):
+        return self._path
+
+    def get_patch_transform(self):
+        return self._patch_transform
+    
 class FancyArrow(Polygon):
     """Like Arrow, but lets you set head width and head height independently."""
 
@@ -614,7 +649,7 @@ class FancyArrow(Polygon):
         Polygon.__init__(self, map(tuple, verts), **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-class YAArrow(Polygon):
+class YAArrow(Patch):
     """
     Yet another arrow class
 
@@ -640,25 +675,25 @@ class YAArrow(Polygon):
         %(Patch)s
 
         """
-	# MGDTODO: Implement me
         self.dpi = dpi
         self.xytip = xytip
         self.xybase = xybase
         self.width = width
         self.frac = frac
         self.headwidth = headwidth
-        verts = self.get_verts()
-        Polygon.__init__(self, verts, **kwargs)
+        Patch.__init__(self, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-
-
-    def get_verts(self):
+    def get_path(self):
+        # MGDTODO: Since this is dpi dependent, we need to recompute
+        # the path every time.  Perhaps this can be plugged through the
+        # dpi transform instead (if only we know how to get it...)
+        
         # the base vertices
         x1, y1 = self.xytip
         x2, y2 = self.xybase
-        k1 = self.width*self.dpi.get()/72./2.
-        k2 = self.headwidth*self.dpi.get()/72./2.
+        k1 = self.width*self.dpi/72./2.
+        k2 = self.headwidth*self.dpi/72./2.
         xb1, yb1, xb2, yb2 = self.getpoints(x1, y1, x2, y2, k1)
 
         # a point on the segment 20% of the distance from the tip to the base
@@ -669,12 +704,14 @@ class YAArrow(Polygon):
         xc1, yc1, xc2, yc2 = self.getpoints(x1, y1, xm, ym, k1)
         xd1, yd1, xd2, yd2 = self.getpoints(x1, y1, xm, ym, k2)
 
-
         xs = self.convert_xunits([xb1, xb2, xc2, xd2, x1, xd1, xc1])
         ys = self.convert_yunits([yb1, yb2, yc2, yd2, y1, yd1, yc1])
-        return zip(xs, ys)
 
+        return Path(zip(xs, ys))
 
+    def get_patch_transform(self):
+        return transforms.IdentityTransform()
+    
     def getpoints(self, x1,y1,x2,y2, k):
         """
         for line segment defined by x1,y1 and x2,y2, return the points on

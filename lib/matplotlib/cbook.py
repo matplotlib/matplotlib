@@ -981,12 +981,16 @@ class Grouper(object):
     >>> g.joined('a', 'c')
     True
     >>> g.joined('a', 'd')
-    False"""   
+    False
+    """   
     def __init__(self, init=[]):
 	mapping = self._mapping = {}
 	for x in init:
 	    mapping[x] = [x]
-        
+
+    def __contains__(self, item):
+        return item in self._mapping
+            
     def join(self, a, *args):
 	"""
 	Join given arguments into the same set.
@@ -1019,7 +1023,7 @@ class Grouper(object):
 
     def __iter__(self):
 	"""
-	Returns an iterator returning each of the disjoint sets as a list.
+	Returns an iterator yielding each of the disjoint sets as a list.
 	"""
 	seen = set()
 	for elem, group in self._mapping.iteritems():

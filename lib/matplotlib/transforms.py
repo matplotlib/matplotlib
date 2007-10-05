@@ -255,11 +255,15 @@ class BboxBase(TransformNode):
     
     def containsx(self, x):
         xmin, xmax = self.intervalx
-        return x >= xmin and x <= xmax
+        return ((xmin < xmax
+                 and (x >= xmin and x <= xmax))
+                or (x >= xmax and x <= xmin))
 
     def containsy(self, y):
         ymin, ymax = self.intervaly
-        return y >= ymin and y <= ymax
+        return ((ymin < ymax
+                 and (y >= ymin and y <= ymax))
+                or (y >= ymax and y <= ymin))
     
     def contains(self, x, y):
         return self.containsx(x) and self.containsy(y)
@@ -280,11 +284,15 @@ class BboxBase(TransformNode):
     
     def fully_containsx(self, x):
         xmin, xmax = self.intervalx
-        return x > xmin and x < xmax
+        return ((xmin < xmax
+                 and (x > xmin and x < xmax))
+                or (x > xmax and x < xmin))
 
     def fully_containsy(self, y):
         ymin, ymax = self.intervaly
-        return y > ymin and y < ymax
+        return ((ymin < ymax
+                 and (x > ymin and x < ymax))
+                or (x > ymax and x < ymin))
     
     def fully_contains(self, x, y):
         return self.fully_containsx(x) \
@@ -390,16 +398,24 @@ class Bbox(BboxBase):
         if ignore is None:
             ignore = self._ignore
 
+        if len(x) == 0 or len(y) == 0:
+            return
+            
+        # MGDTODO: All getters of minpos should be aware that is is sometimes -inf
         if ma.isMaskedArray(x) or ma.isMaskedArray(y):
+            xpos = ma.where(x > 0.0, x, npy.inf)
+            ypos = ma.where(y > 0.0, y, npy.inf)
+        else:
+            xpos = npy.where(x > 0.0, x, npy.inf)
+            ypos = npy.where(y > 0.0, y, npy.inf)
+        if len(xpos) and len(ypos):
             minpos = npy.array(
-                [ma.where(x > 0.0, x, npy.inf).min(),
-                 ma.where(y > 0.0, y, npy.inf).min()],
+                [xpos.min(),
+                 ypos.min()],
                 npy.float_)
         else:
-            minpos = npy.array(
-                [npy.where(x > 0.0, x, npy.inf).min(),
-                 npy.where(y > 0.0, y, npy.inf).min()],
-                npy.float_)
+            minpos = npy.array([-npy.inf, -npy.inf], npy.float_)
+
         if ignore:
             self._points = npy.array(
                 [[x.min(), y.min()], [x.max(), y.max()]],
@@ -1951,12 +1967,16 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
 
 # MGDTODO: Optimize (perhaps in an extension)
 def interval_contains(interval, val):
-    return ((interval[0] <= val and interval[1] >= val) or
-            (interval[1] <= val and interval[0] >= val))
+    a, b = interval
+    return (((a < b)
+             and (a <= val and b >= val))
+            or (b <= val and a >= val))
 
 def interval_contains_open(interval, val):
-    return ((interval[0] < val and interval[1] > val) or
-            (interval[1] < val and interval[0] > val))
+    a, b = interval
+    return (((a < b)
+             and (a < val and b > val))
+            or (b < val and a > val))
     
 if __name__ == '__main__':
     import copy

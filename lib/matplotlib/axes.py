@@ -488,13 +488,9 @@ class Axes(martist.Artist):
         self._sharey = sharey
 	if sharex is not None:
 	    self._shared_x_axes.join(self, sharex)
-	if sharey is not None:
+        if sharey is not None:
 	    self._shared_y_axes.join(self, sharey)
-        # Flag: True if some other Axes instance is sharing our x or y axis
-        self._masterx = False
-        self._mastery = False
-        if sharex: sharex._masterx = True
-        if sharey: sharey._mastery = True
+
         self.set_label(label)
         self.set_figure(fig)
 
@@ -822,7 +818,8 @@ class Axes(martist.Artist):
         Use self._aspect and self._adjustable to modify the
         axes box or the view limits.
         '''
-
+        #MGDTODO: Numpify
+        
         if self._aspect == 'auto':
             self.set_position( self._originalPosition , 'active')
             return
@@ -834,7 +831,7 @@ class Axes(martist.Artist):
 
         #Ensure at drawing time that any Axes involved in axis-sharing
         # does not have its position changed.
-        if self._masterx or self._mastery or self._sharex or self._sharey:
+        if self in self._shared_x_axes or self in self._shared_y_axes:
             self._adjustable = 'datalim'
 
         figW,figH = self.get_figure().get_size_inches()
@@ -847,6 +844,11 @@ class Axes(martist.Artist):
             return
 
 
+        xmin,xmax = self.get_xlim()
+        xsize = max(math.fabs(xmax-xmin), 1e-30)
+        ymin,ymax = self.get_ylim()
+        ysize = max(math.fabs(ymax-ymin), 1e-30)
+        
         l,b,w,h = self.get_position(original=True).bounds
         box_aspect = fig_aspect * (h/w)
         data_ratio = box_aspect / A
@@ -858,8 +860,8 @@ class Axes(martist.Artist):
             #print 'good enough already'
             return
         dL = self.dataLim
-        xr = 1.05 * dL.width()
-        yr = 1.05 * dL.height()
+        xr = 1.05 * dL.width
+        yr = 1.05 * dL.height
         xmarg = xsize - xr
         ymarg = ysize - yr
         Ysize = data_ratio * xsize
@@ -871,10 +873,10 @@ class Axes(martist.Artist):
         #print 'xmin, xmax, ymin, ymax', xmin, xmax, ymin, ymax
         #print 'xsize, Xsize, ysize, Ysize', xsize, Xsize, ysize, Ysize
 
-        changex = ((self._sharey or self._mastery) and not
-                            (self._sharex or self._masterx))
-        changey = ((self._sharex or self._masterx) and not
-                            (self._sharey or self._mastery))
+        changex = (self in self._shared_y_axes
+                   and self not in self._shared_x_axes)
+        changey = (self in self._shared_x_axes
+                   and self not in self._shared_y_axes)
         if changex and changey:
             warnings.warn("adjustable='datalim' cannot work with shared x and y axes")
             return
@@ -2200,7 +2202,8 @@ class Axes(martist.Artist):
         %(Line2D)s
         """
 
-        trans = mtransforms.blend_xy_sep_transform(self.transAxes, self.transData)
+        trans = mtransforms.blended_transform_factory(
+            self.transAxes, self.transData)
         l, = self.plot([xmin,xmax], [y,y], transform=trans, scalex=False, **kwargs)
         return l
 
@@ -2236,7 +2239,8 @@ class Axes(martist.Artist):
         %(Line2D)s
         """
 
-        trans = mtransforms.blend_xy_sep_transform( self.transData, self.transAxes )
+        trans = mtransforms.blended_transform_factory(
+            self.transData, self.transAxes)
         l, = self.plot([x,x], [ymin,ymax] , transform=trans, scaley=False, **kwargs)
         return l
 
@@ -2275,7 +2279,8 @@ class Axes(martist.Artist):
         %(Polygon)s
         """
         # convert y axis units
-        trans = mtransforms.blend_xy_sep_transform( self.transAxes, self.transData)
+        trans = mtransforms.blended_transform_factory(
+            self.transAxes, self.transData)
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
@@ -2315,7 +2320,8 @@ class Axes(martist.Artist):
         %(Polygon)s
         """
         # convert x axis units
-        trans = mtransforms.blend_xy_sep_transform(self.transData, self.transAxes)
+        trans = mtransforms.blended_transform_factory(
+            self.transData, self.transAxes)
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
@@ -2386,7 +2392,7 @@ class Axes(martist.Artist):
         return coll
     hlines.__doc__ = cbook.dedent(hlines.__doc__)
 
-    def vlines(self, x, ymin, ymax, colors='k', linestyle='solid',
+    def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
                      label='', **kwargs):
         """
         VLINES(x, ymin, ymax, color='k')
@@ -2438,7 +2444,7 @@ class Axes(martist.Artist):
                                     for thisx, (thisymin, thisymax) in zip(x,Y)]
         #print 'creating line collection'
         coll = mcoll.LineCollection(verts, colors=colors,
-                              linestyle=linestyle, label=label)
+                              linestyles=linestyles, label=label)
         self.add_collection(coll)
         coll.update(kwargs)
 
@@ -3660,7 +3666,7 @@ class Axes(martist.Artist):
             else:
                 lower = y-yerr[0]
                 upper = y+yerr[1]
-
+                
             barcols.append( self.vlines(x, lower, upper, **lines_kw) )
             if capsize > 0:
 

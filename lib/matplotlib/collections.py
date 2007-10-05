@@ -17,7 +17,11 @@ import matplotlib.transforms as transforms
 import matplotlib.artist as artist
 import matplotlib.backend_bases as backend_bases
 import matplotlib.nxutils as nxutils
+import matplotlib.path as path
 
+# MGDTODO: Now that everything draws through draw_path_collection,
+# perhaps more stuff could be moved into the Collection base class
+# here
 
 class Collection(artist.Artist):
     """
@@ -616,9 +620,10 @@ class LineCollection(Collection, cm.ScalarMappable):
                  linewidths    = None,
                  colors       = None,
                  antialiaseds  = None,
-                 linestyle = 'solid',
-                 offsets = None,
-                 transOffset = None,#transforms.identity_transform(),
+                 linestyles = 'solid',
+                 # MGDTODO: Deal with offsets (mayb
+#                offsets = None,
+#                transOffset = None,#transforms.identity_transform(),
                  norm = None,
                  cmap = None,
                  pickradius = 5,
@@ -663,13 +668,11 @@ class LineCollection(Collection, cm.ScalarMappable):
         matrix _A is not None (ie a call to set_array has been made), at
         draw time a call to scalar mappable will be made to set the colors.
         """
-
         Collection.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
 
         if linewidths is None   :
             linewidths   = (mpl.rcParams['lines.linewidth'], )
-
         if colors is None       :
             colors       = (mpl.rcParams['lines.color'],)
         if antialiaseds is None :
@@ -678,19 +681,20 @@ class LineCollection(Collection, cm.ScalarMappable):
         self._colors = _colors.colorConverter.to_rgba_list(colors)
         self._aa = self._get_value(antialiaseds)
         self._lw = self._get_value(linewidths)
-        self.set_linestyle(linestyle)
+        self.set_linestyles(linestyles)
         self._uniform_offsets = None
-        if offsets is not None:
-            offsets = npy.asarray(offsets)
-            if len(offsets.shape) == 1:
-                offsets = offsets[npy.newaxis,:]  # Make it Nx2.
-        if transOffset is None:
-            if offsets is not None:
-                self._uniform_offsets = offsets
-                offsets = None
-            transOffset = transforms.identity_transform()
-        self._offsets = offsets
-        self._transOffset = transOffset
+        # MGDTODO: Deal with offsets
+#         if offsets is not None:
+#             offsets = npy.asarray(offsets)
+#             if len(offsets.shape) == 1:
+#                 offsets = offsets[npy.newaxis,:]  # Make it Nx2.
+#         if transOffset is None:
+#             if offsets is not None:
+#                 self._uniform_offsets = offsets
+#                 offsets = None
+#             transOffset = transforms.IdentityTransform()
+#         self._offsets = offsets
+#         self._transOffset = transOffset
         self.set_segments(segments)
         self.pickradius = pickradius
         self.update(kwargs)
@@ -712,9 +716,10 @@ class LineCollection(Collection, cm.ScalarMappable):
         mx,my = mouseevent.x,mouseevent.y
         transform = self.get_transform()
 
+        # MGDTODO: Numpify
         ind = []
         for this in xrange(len(self._segments)):
-            xy = transform.seq_xy_tups(self._segments[this])
+            xy = transform.transform_point(self._segments[this])
             this_ind = ML.segment_hits(mx,my,xy[:,0],xy[:,1],self.pickradius)
             ind.extend([(this,k) for k in this_ind])
         return len(ind)>0,dict(ind=ind)
@@ -722,45 +727,47 @@ class LineCollection(Collection, cm.ScalarMappable):
     def set_pickradius(self,pickradius): self.pickradius = 5
     def get_pickradius(self): return self.pickradius
 
-    def get_transoffset(self):
-        if self._transOffset is None:
-            self._transOffset = transforms.identity_transform()
-        return self._transOffset
+    # MGDTODO: Support offsets (maybe)
+#     def get_transoffset(self):
+#         if self._transOffset is None:
+#             self._transOffset = transforms.identity_transform()
+#         return self._transOffset
 
     def set_segments(self, segments):
         if segments is None: return
-        self._segments = [npy.asarray(seg) for seg in segments]
-        if self._uniform_offsets is not None:
-            self._add_offsets()
+        self._paths = [path.Path(seg, closed=False) for seg in segments]
+        
+#         if self._uniform_offsets is not None:
+#             self._add_offsets()
 
     set_verts = set_segments # for compatibility with PolyCollection
 
-    def _add_offsets(self):
-        segs = self._segments
-        offsets = self._uniform_offsets
-        Nsegs = len(segs)
-        Noffs = offsets.shape[0]
-        if Noffs == 1:
-            for i in range(Nsegs):
-                segs[i] = segs[i] + i * offsets
-        else:
-            for i in range(Nsegs):
-                io = i%Noffs
-                segs[i] = segs[i] + offsets[io:io+1]
-
+    # MGDTODO: Support offsets (maybe)
+#     def _add_offsets(self):
+#         segs = self._segments
+#         offsets = self._uniform_offsets
+#         Nsegs = len(segs)
+#         Noffs = offsets.shape[0]
+#         if Noffs == 1:
+#             for i in range(Nsegs):
+#                 segs[i] = segs[i] + i * offsets
+#         else:
+#             for i in range(Nsegs):
+#                 io = i%Noffs
+#                 segs[i] = segs[i] + offsets[io:io+1]
 
     def draw(self, renderer):
         if not self.get_visible(): return
         renderer.open_group('linecollection')
         transform = self.get_transform()
-        transoffset = self.get_transoffset()
+        # MGDTODO: Deal with offsets (maybe)
+#         transoffset = self.get_transoffset()
 
-        transform.freeze()
-        transoffset.freeze()
+        # segments = self._segments
+        # MGDTODO: Deal with offsets (maybe)
+        # offsets = self._offsets
 
-        segments = self._segments
-        offsets = self._offsets
-
+        # MGDTODO: Transform the paths (since we don't keep track of segments anymore
         if self.have_units():
             segments = []
             for segment in self._segments:
@@ -768,20 +775,18 @@ class LineCollection(Collection, cm.ScalarMappable):
                 xs = self.convert_xunits(xs)
                 ys = self.convert_yunits(ys)
                 segments.append(zip(xs, ys))
-            if self._offsets is not None:
-                xs = self.convert_xunits(self._offsets[:0])
-                ys = self.convert_yunits(self._offsets[:1])
-                offsets = zip(xs, ys)
-
+#             if self._offsets is not None:
+#                 xs = self.convert_xunits(self._offsets[:0])
+#                 ys = self.convert_yunits(self._offsets[:1])
+#                 offsets = zip(xs, ys)
+                
         self.update_scalarmappable()
         #print 'calling renderer draw line collection'
-        renderer.draw_line_collection(
-            segments, transform, self.clipbox,
-            self._colors, self._lw, self._ls, self._aa, offsets,
-            transoffset)
-        transform.thaw()
-        transoffset.thaw()
-
+        clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
+        renderer.draw_path_collection(
+            transform, self.clipbox, clippath, clippath_trans,
+            self._paths, [None], [None], 
+            self._colors, self._lw, self._ls, self._aa)
         renderer.close_group('linecollection')
 
     def set_linewidth(self, lw):
@@ -795,17 +800,33 @@ class LineCollection(Collection, cm.ScalarMappable):
 
         self._lw = self._get_value(lw)
 
-    def set_linestyle(self, ls):
+    def set_linestyles(self, ls):
         """
         Set the linestyles(s) for the collection.
         ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |  (offset, on-off-dash-seq) ]
         """
-        if cbook.is_string_like(ls):
-            dashes = backend_bases.GraphicsContextBase.dashd[ls]
-        elif cbook.iterable(ls) and len(ls)==2:
-            dashes = ls
-        else: raise ValueError('Do not know how to convert %s to dashes'%ls)
-
+        try:
+            if cbook.is_string_like(ls):
+                dashes = [backend_bases.GraphicsContextBase.dashd[ls]]
+            elif cbook.iterable(ls):
+                try:
+                    dashes = []
+                    for x in ls:
+                        if cbook.is_string_like(x):
+                            dashes.append(backend_bases.GraphicsContextBase.dashd[ls])
+                        elif cbook.iterator(x) and len(x) == 2:
+                            dashes.append(x)
+                        else:
+                            raise ValueError()
+                except ValueError:
+                    if len(ls)==2:
+                        dashes = ls
+                    else:
+                        raise ValueError()
+            else:
+                raise ValueError()
+        except ValueError:
+            raise ValueError('Do not know how to convert %s to dashes'%ls)
 
         self._ls = dashes
 
@@ -859,23 +880,6 @@ class LineCollection(Collection, cm.ScalarMappable):
     def get_color(self):
         return self._colors
     get_colors = get_color  # for compatibility with old versions
-
-    def get_verts(self, dataTrans=None):
-        '''Return vertices in data coordinates.
-        The calculation is incomplete in general; it is based
-        on the segments or the offsets, whichever is using
-        dataTrans as its transformation, so it does not take
-        into account the combined effect of segments and offsets.
-        '''
-        verts = []
-        if self._offsets is None:
-            for seg in self._segments:
-                verts.extend(seg)
-            return [tuple(xy) for xy in verts]
-        if self.get_transoffset() == dataTrans:
-            return [tuple(xy) for xy in self._offsets]
-        raise NotImplementedError('Vertices in data coordinates are calculated\n'
-                + 'with offsets only if _transOffset == dataTrans.')
 
     def update_scalarmappable(self):
         """
