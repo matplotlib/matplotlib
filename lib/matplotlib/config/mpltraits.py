@@ -46,7 +46,7 @@ class BackendHandler(T.TraitHandler):
     def info(self):
         be = self.backends.keys()
         be.sort
-        return "one of %s"% ', '.join('%s'%i for i in be)
+        return "one of %s"% ', '.join(['%s'%i for i in be])
 
 
 class BoolHandler(T.TraitHandler):
@@ -73,7 +73,7 @@ class BoolHandler(T.TraitHandler):
             return self.error(object, name, value)
 
     def info(self):
-        return "one of %s"% ', '.join('%s'%i for i in self.bools.keys())
+        return "one of %s"% ', '.join(['%s'%i for i in self.bools.keys()])
 
 flexible_true = T.Trait(True, BoolHandler())
 flexible_false = T.Trait(False, BoolHandler())

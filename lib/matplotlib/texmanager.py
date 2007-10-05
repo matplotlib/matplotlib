@@ -110,7 +110,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 
     _rc_cache = None
     _rc_cache_keys = ('text.latex.preamble', )\
-                     + tuple('font.'+n for n in ('family', ) + font_families)
+                     + tuple(['font.'+n for n in ('family', ) + font_families])
 
     def __init__(self):
 
@@ -125,7 +125,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 
         fontconfig = [self.font_family]
         for font_family, font_family_attr in \
-            ((ff, ff.replace('-', '_')) for ff in self.font_families):
+            [(ff, ff.replace('-', '_')) for ff in self.font_families]:
             for font in rcParams['font.'+font_family]:
                 if font.lower() in self.font_info:
                     found_font = self.font_info[font.lower()]
@@ -163,7 +163,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
     def get_font_config(self):
         "Reinitializes self if rcParams self depends on have changed."
         if self._rc_cache is None:
-            self._rc_cache = dict((k,None) for k in self._rc_cache_keys)
+            self._rc_cache = dict([(k,None) for k in self._rc_cache_keys])
         changed = [par for par in self._rc_cache_keys if rcParams[par] != \
                    self._rc_cache[par]]
         if changed:

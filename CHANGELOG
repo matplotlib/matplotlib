@@ -1,3 +1,6 @@
+2007-10-05 remove generator expressions from texmanager and mpltraits. 
+           generator expressions are not supported by python-2.3 - DSD
+
 2007-10-01 Made matplotlib.use() raise an exception if called after
            backends has been imported.
 
