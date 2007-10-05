@@ -397,12 +397,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         cmap = kwargs.get('cmap', None)
         self.colors = kwargs.get('colors', None)
         norm = kwargs.get('norm', None)
-        self.clip_ends = kwargs.get('clip_ends', None)      ########
         self.extend = kwargs.get('extend', 'neither')
-        if self.clip_ends is not None:
-            warnings.warn("'clip_ends' has been replaced by 'extend'")
-            self.levels = self.levels[1:-1] # discard specified end levels
-            self.extend = 'both'            # regenerate end levels
         self.antialiased = kwargs.get('antialiased', True)
         self.nchunk = kwargs.get('nchunk', 0)
         self.locator = kwargs.get('locator', None)
@@ -436,10 +431,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             _mask = None
 
         if self.filled:
-            if self.linewidths is None:
-                self.linewidths = 0.05 # Good default for Postscript.
-            if cbook.iterable(self.linewidths):
-                self.linewidths = self.linewidths[0]
+            if self.linewidths is not None:
+                warnings.warn('linewidths is ignored by contourf')
             C = _cntr.Cntr(x, y, z.filled(), _mask)
             lowers = self._levels[:-1]
             uppers = self._levels[1:]
@@ -447,7 +440,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 nlist = C.trace(level, level_upper, points = 0,
                         nchunk = self.nchunk)
                 col = collections.PolyCollection(nlist,
-                                     linewidths = (self.linewidths,),
                                      antialiaseds = (self.antialiased,),
                                      edgecolors= 'None')
                 self.ax.add_collection(col)
@@ -627,16 +619,16 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self._levels = npy.asarray(self._levels)
         self.vmin = npy.amin(self.levels)  # alternative would be self.layers
         self.vmax = npy.amax(self.levels)
-        if self.extend in ('both', 'min') or self.clip_ends:
+        if self.extend in ('both', 'min'):
             self.vmin = 2 * self.levels[0] - self.levels[1]
-        if self.extend in ('both', 'max') or self.clip_ends:
+        if self.extend in ('both', 'max'):
             self.vmax = 2 * self.levels[-1] - self.levels[-2]
         self.layers = self._levels # contour: a line is a thin layer
         if self.filled:
             self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
-            if self.extend in ('both', 'min') or self.clip_ends:
+            if self.extend in ('both', 'min'):
                 self.layers[0] = 0.5 * (self.vmin + self._levels[1])
-            if self.extend in ('both', 'max') or self.clip_ends:
+            if self.extend in ('both', 'max'):
                 self.layers[-1] = 0.5 * (self.vmax + self._levels[-2])
 
         return (x, y, z)
@@ -774,7 +766,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
               contour levels if they are not given explicitly via the
               V argument.
 
-            ***** New: *****
             * extend = 'neither', 'both', 'min', 'max'
               Unless this is 'neither' (default), contour levels are
               automatically added to one or both ends of the range so that
@@ -782,8 +773,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
               mapped to the special colormap values which default to
               the ends of the colormap range, but can be set via
               Colormap.set_under() and Colormap.set_over() methods.
-              To replace clip_ends=True and V = [-100, 2, 1, 0, 1, 2, 100],
-              use extend='both' and V = [2, 1, 0, 1, 2].
+
             ****************
 
             contour only:
@@ -799,29 +789,13 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 matplotlibrc is used
 
             contourf only:
-            ***** Obsolete: ****
-            * clip_ends = True
-              If False, the limits for color scaling are set to the
-              minimum and maximum contour levels.
-              True (default) clips the scaling limits.  Example:
-              if the contour boundaries are V = [-100, 2, 1, 0, 1, 2, 100],
-              then the scaling limits will be [-100, 100] if clip_ends
-              is False, and [-3, 3] if clip_ends is True.
-            * linewidths = None or a number; default of 0.05 works for
-              Postscript; a value of about 0.5 seems better for Agg.
-            * antialiased = True (default) or False; if False, there is
-              no need to increase the linewidths for Agg, but True gives
-              nicer color boundaries.  If antialiased is True and linewidths
-              is too small, then there may be light-colored lines at the
-              color boundaries caused by the antialiasing.
+            * antialiased = True (default) or False
             * nchunk = 0 (default) for no subdivision of the domain;
               specify a positive integer to divide the domain into
               subdomains of roughly nchunk by nchunk points. This may
               never actually be advantageous, so this option may be
               removed.  Chunking introduces artifacts at the chunk
-              boundaries unless antialiased = False, or linewidths is
-              set to a large enough value for the particular renderer and
-              resolution.
+              boundaries unless antialiased = False
         """
 
 
