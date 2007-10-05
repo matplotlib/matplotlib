@@ -492,16 +492,18 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
         '''
-        zmax = self.zmax
-        zmin = self.zmin
-        zmargin = (zmax - zmin) * 0.001 # so z < (zmax + zmargin)
-        zmax = zmax + zmargin
-        intv = transforms.Interval(transforms.Value(zmin), transforms.Value(zmax))
         if self.locator is None:
             self.locator = ticker.MaxNLocator(N+1)
-        self.locator.set_view_interval(intv)
-        self.locator.set_data_interval(intv)
-        lev = self.locator()
+        locator = self.locator
+        zmax = self.zmax
+        zmin = self.zmin
+        locator.set_bounds(zmin, zmax)
+        lev = locator()
+        zmargin = (zmax - zmin) * 0.000001 # so z < (zmax + zmargin)
+        if zmax >= lev[-1]:
+            lev[-1] += zmargin
+        if zmin <= lev[0]:
+            lev[0] -= zmargin
         self._auto = True
         if self.filled:
             return lev
