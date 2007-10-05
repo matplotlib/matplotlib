@@ -4408,6 +4408,29 @@ class Axes(martist.Artist):
         return im
 
 
+    def _pcolorargs(self, funcname, *args):
+        if len(args)==1:
+            C = args[0]
+            numRows, numCols = C.shape
+            X, Y = npy.meshgrid(npy.arange(numCols+1), npy.arange(numRows+1) )
+        elif len(args)==3:
+            X, Y, C = args
+        else:
+            raise TypeError(
+                'Illegal arguments to %s; see help(%s)' % (funcname, funcname))
+
+        Nx = X.shape[-1]
+        Ny = Y.shape[0]
+        if len(X.shape) <> 2 or X.shape[0] == 1:
+            x = X.reshape(1,Nx)
+            X = x.repeat(Ny, axis=0)
+        if len(Y.shape) <> 2 or Y.shape[1] == 1:
+            y = Y.reshape(Ny, 1)
+            Y = y.repeat(Nx, axis=1)
+        if X.shape != Y.shape:
+            raise TypeError(
+                'Incompatible X, Y inputs to %s; see help(%s)' % (funcname, funcname))
+        return X, Y, C
 
     def pcolor(self, *args, **kwargs):
         """
@@ -4520,24 +4543,8 @@ class Axes(martist.Artist):
         vmax = kwargs.pop('vmax', None)
         shading = kwargs.pop('shading', 'flat')
 
-        if len(args)==1:
-            C = args[0]
-            numRows, numCols = C.shape
-            X, Y = npy.meshgrid(npy.arange(numCols+1), npy.arange(numRows+1) )
-        elif len(args)==3:
-            X, Y, C = args
-            numRows, numCols = C.shape
-        else:
-            raise TypeError, 'Illegal arguments to pcolor; see help(pcolor)'
-
-        Nx = X.shape[-1]
-        Ny = Y.shape[0]
-        if len(X.shape) <> 2 or X.shape[0] == 1:
-            X = X.ravel().resize((Ny, Nx))
-        if len(Y.shape) <> 2 or Y.shape[1] == 1:
-            Y = Y.ravel().resize((Nx, Ny)).T
-
-
+        X, Y, C = self._pcolorargs('pcolor', *args)
+        Ny, Nx = X.shape
 
         # convert to MA, if necessary.
         C = ma.asarray(C)
@@ -4673,22 +4680,8 @@ class Axes(martist.Artist):
         shading = kwargs.pop('shading', 'flat')
         edgecolors = kwargs.pop('edgecolors', 'None')
 
-        if len(args)==1:
-            C = args[0]
-            numRows, numCols = C.shape
-            X, Y = npy.meshgrid(npy.arange(numCols+1), npy.arange(numRows+1) )
-        elif len(args)==3:
-            X, Y, C = args
-            numRows, numCols = C.shape
-        else:
-            raise TypeError, 'Illegal arguments to pcolormesh; see help(pcolormesh)'
-
-        Nx = X.shape[-1]
-        Ny = Y.shape[0]
-        if len(X.shape) <> 2 or X.shape[0] == 1:
-            X = X.ravel().resize((Ny, Nx))
-        if len(Y.shape) <> 2 or Y.shape[1] == 1:
-            Y = Y.ravel().resize((Nx, Ny)).T
+        X, Y, C = self._pcolorargs('pcolormesh', *args)
+        Ny, Nx = X.shape
 
         # convert to one dimensional arrays
         C = ma.ravel(C[0:Ny-1, 0:Nx-1]) # data point in each cell is value at lower left corner
