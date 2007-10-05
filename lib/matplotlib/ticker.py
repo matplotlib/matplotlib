@@ -370,7 +370,7 @@ class ScalarFormatter(Formatter):
             self.format = '$%s$' % self.format
         elif self._useMathText:
             self.format = '$\mathdefault{%s}$' % self.format
-            
+
     def pprint_val(self, x):
         xp = (x-self.offset)/10**self.orderOfMagnitude
         if npy.absolute(xp) < 1e-8: xp = 0
