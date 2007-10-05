@@ -3262,9 +3262,9 @@ class Axes(martist.Artist):
             pass
         elif align == 'center':
             if orientation == 'vertical':
-                left = left - width/2.
+                left = [left[i] - width[i]/2. for i in range(len(left))]
             elif orientation == 'horizontal':
-                bottom = bottom-height/2.
+                bottom = [bottom[i] - height[i]/2. for i in range(len(bottom))]
 
         else:
             raise ValueError, 'invalid alignment: %s' % align
