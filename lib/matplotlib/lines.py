@@ -349,6 +349,7 @@ class Line2D(Artist):
         self._picker = p
 
     def get_window_extent(self, renderer):
+        # MGDTODO: Numpify
         xy = self.get_transform().transform(self._xy)
 
 	x = xy[:, 0]
@@ -690,7 +691,7 @@ class Line2D(Artist):
     def _draw_pixel(self, renderer, gc, path, path_trans):
 	rgbFace = self._get_rgb_face()
 	transform = Affine2D().translate(-0.5, -0.5)
-	renderer.draw_markers(gc, Path.unit_rectangle, transform,
+	renderer.draw_markers(gc, Path.unit_rectangle(), transform,
 			      path, path_trans, rgbFace)
 	
 	

@@ -83,322 +83,322 @@ class RendererBase:
     ## These functions no longer need to be implemented in the backends --
     ## they now perform all of their functions in terms of the new API.
     
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2,
-                 rotation):
-        """
-        Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
-        with width and height and angles from 0.0 to 360.0
-        0 degrees is at 3-o'clock
-        positive angles are anti-clockwise
-        draw rotated 'rotation' degrees anti-clockwise about x,y
+#     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2,
+#                  rotation):
+#         """
+#         Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
+#         with width and height and angles from 0.0 to 360.0
+#         0 degrees is at 3-o'clock
+#         positive angles are anti-clockwise
+#         draw rotated 'rotation' degrees anti-clockwise about x,y
 
-        If the color rgbFace is not None, fill the arc with it.
-        """
-        raise NotImplementedError
+#         If the color rgbFace is not None, fill the arc with it.
+#         """
+#         raise NotImplementedError
 
-    def draw_line_collection(self, segments, transform, clipbox,
-                             colors, linewidths, linestyle, antialiaseds,
-                             offsets, transOffset):
-        """
-        This is a function for optimized line drawing. If you need to draw
-        many line segments with similar properties, it is faster to avoid the
-        overhead of all the object creation etc. The lack of total
-        configurability is compensated for with efficiency. Hence we don't use
-        a GC and many of the line props it supports. See
-        matplotlib.collections for more details.
+#     def draw_line_collection(self, segments, transform, clipbox,
+#                              colors, linewidths, linestyle, antialiaseds,
+#                              offsets, transOffset):
+#         """
+#         This is a function for optimized line drawing. If you need to draw
+#         many line segments with similar properties, it is faster to avoid the
+#         overhead of all the object creation etc. The lack of total
+#         configurability is compensated for with efficiency. Hence we don't use
+#         a GC and many of the line props it supports. See
+#         matplotlib.collections for more details.
 
-        segments is a sequence of ( line0, line1, line2), where linen =
-        is an Mx2 array with columns x, y.  Each line can be a
-        different length
+#         segments is a sequence of ( line0, line1, line2), where linen =
+#         is an Mx2 array with columns x, y.  Each line can be a
+#         different length
 
-        transform is used to Transform the lines
+#         transform is used to Transform the lines
 
-        clipbox is a  xmin, ymin, width, height clip rect
+#         clipbox is a  xmin, ymin, width, height clip rect
 
-        colors is a tuple of RGBA tuples
+#         colors is a tuple of RGBA tuples
 
-        linewidths is a tuple of linewidths
-        *** really should be called 'dashes' not 'linestyle', since
-        we call gc.set_dashes() not gc.set_linestyle() ***
+#         linewidths is a tuple of linewidths
+#         *** really should be called 'dashes' not 'linestyle', since
+#         we call gc.set_dashes() not gc.set_linestyle() ***
 
-        linestyle is an (offset, onoffseq) tuple or None,None for solid
+#         linestyle is an (offset, onoffseq) tuple or None,None for solid
 
-        antialiseds is a tuple of ones or zeros indicating whether the
-        segment should be aa or not
+#         antialiseds is a tuple of ones or zeros indicating whether the
+#         segment should be aa or not
 
-        offsets, if not None, is an Nx2 array of x,y offsets to
-        translate the lines by after transform is used to transform
-        the offset coords
+#         offsets, if not None, is an Nx2 array of x,y offsets to
+#         translate the lines by after transform is used to transform
+#         the offset coords
 
-        This function could be overridden in the backend to possibly implement
-        faster drawing, but it is already much faster than using draw_lines()
-        by itself.
-        """
+#         This function could be overridden in the backend to possibly implement
+#         faster drawing, but it is already much faster than using draw_lines()
+#         by itself.
+#         """
 
-        newstyle = getattr(self, 'draw_markers', None) is not None
-        identity = transforms.identity_transform()
-        gc = self.new_gc()
-        if clipbox is not None:
-            gc.set_clip_rectangle(clipbox.get_bounds())
-        gc.set_dashes(*linestyle)
+#         newstyle = getattr(self, 'draw_markers', None) is not None
+#         identity = transforms.identity_transform()
+#         gc = self.new_gc()
+#         if clipbox is not None:
+#             gc.set_clip_rectangle(clipbox.get_bounds())
+#         gc.set_dashes(*linestyle)
 
-        Nc        = len(colors)
-        Nlw       = len(linewidths)
-        Naa       = len(antialiaseds)
-        Nsegments = len(segments)
+#         Nc        = len(colors)
+#         Nlw       = len(linewidths)
+#         Naa       = len(antialiaseds)
+#         Nsegments = len(segments)
 
-        usingOffsets = offsets is not None
-        Noffsets  = 0
-        if usingOffsets:
-            Noffsets = offsets.shape[0]
-            offsets = transOffset.numerix_xy(offsets)
+#         usingOffsets = offsets is not None
+#         Noffsets  = 0
+#         if usingOffsets:
+#             Noffsets = offsets.shape[0]
+#             offsets = transOffset.numerix_xy(offsets)
 
-        for i in xrange(max(Noffsets, Nsegments)):
-            color = colors[i % Nc]
-            rgb   = color[0], color[1], color[2]
-            alpha = color[-1]
+#         for i in xrange(max(Noffsets, Nsegments)):
+#             color = colors[i % Nc]
+#             rgb   = color[0], color[1], color[2]
+#             alpha = color[-1]
 
-            gc.set_foreground(rgb, isRGB=True)
-            gc.set_alpha( alpha )
-            gc.set_linewidth( linewidths[i % Nlw] )
-            gc.set_antialiased( antialiaseds[i % Naa] )
-            seg = segments[i % Nsegments]
-            if not len(seg): continue
-            xy = transform.numerix_xy(seg)
-            if usingOffsets:
-                xy = xy + offsets[i % Noffsets]
+#             gc.set_foreground(rgb, isRGB=True)
+#             gc.set_alpha( alpha )
+#             gc.set_linewidth( linewidths[i % Nlw] )
+#             gc.set_antialiased( antialiaseds[i % Naa] )
+#             seg = segments[i % Nsegments]
+#             if not len(seg): continue
+#             xy = transform.numerix_xy(seg)
+#             if usingOffsets:
+#                 xy = xy + offsets[i % Noffsets]
 
-            if newstyle: self.draw_lines(gc, xy[:,0], xy[:,1], identity)
-            else: self.draw_lines(gc, xy[:,0], xy[:,1])
+#             if newstyle: self.draw_lines(gc, xy[:,0], xy[:,1], identity)
+#             else: self.draw_lines(gc, xy[:,0], xy[:,1])
 
-    def draw_line(self, gc, x1, y1, x2, y2):
-        """
-        Draw a single line from x1,y1 to x2,y2
-        """
-        raise NotImplementedError
+#     def draw_line(self, gc, x1, y1, x2, y2):
+#         """
+#         Draw a single line from x1,y1 to x2,y2
+#         """
+#         raise NotImplementedError
 
-    def draw_lines(self, gc, x, y, transform=None):
-        """
-        x and y are equal length arrays, draw lines connecting each
-        point in x, y
-        """
-        raise NotImplementedError
+#     def draw_lines(self, gc, x, y, transform=None):
+#         """
+#         x and y are equal length arrays, draw lines connecting each
+#         point in x, y
+#         """
+#         raise NotImplementedError
 
-    def draw_point(self, gc, x, y):
-        """
-        Draw a single point at x,y
-        Where 'point' is a device-unit point (or pixel), not a matplotlib point
-        """
-        raise NotImplementedError
+#     def draw_point(self, gc, x, y):
+#         """
+#         Draw a single point at x,y
+#         Where 'point' is a device-unit point (or pixel), not a matplotlib point
+#         """
+#         raise NotImplementedError
 
-    def draw_quad_mesh(self, meshWidth, meshHeight, colors,
-                        xCoords, yCoords, clipbox,
-                        transform, offsets, transOffset, showedges):
-        """
-        Draw a quadrilateral mesh
-        See documentation in QuadMesh class in collections.py for details
-        """
-        # print "draw_quad_mesh not found, using function in backend_bases"
-        verts = npy.zeros(((meshWidth * meshHeight), 4, 2), npy.float32)
-        indices = npy.arange((meshWidth + 1) * (meshHeight + 1))
-        indices = npy.compress((indices + 1) % (meshWidth + 1), indices)
-        indices = indices[:(meshWidth * meshHeight)]
-        verts[:, 0, 0] = npy.take(xCoords, indices)
-        verts[:, 0, 1] = npy.take(yCoords, indices)
-        verts[:, 1, 0] = npy.take(xCoords, (indices + 1))
-        verts[:, 1, 1] = npy.take(yCoords, (indices + 1))
-        verts[:, 2, 0] = npy.take(xCoords, (indices + meshWidth + 2))
-        verts[:, 2, 1] = npy.take(yCoords, (indices + meshWidth + 2))
-        verts[:, 3, 0] = npy.take(xCoords, (indices + meshWidth + 1))
-        verts[:, 3, 1] = npy.take(yCoords, (indices + meshWidth + 1))
-        if (showedges):
-            edgecolors = colors
-        else:
-            edgecolors = (0, 0, 0, 0),
-        self.draw_poly_collection(verts, transform,
-                                clipbox, colors, edgecolors,
-                                (0.25,), (0,), offsets, transOffset)
+#     def draw_quad_mesh(self, meshWidth, meshHeight, colors,
+#                         xCoords, yCoords, clipbox,
+#                         transform, offsets, transOffset, showedges):
+#         """
+#         Draw a quadrilateral mesh
+#         See documentation in QuadMesh class in collections.py for details
+#         """
+#         # print "draw_quad_mesh not found, using function in backend_bases"
+#         verts = npy.zeros(((meshWidth * meshHeight), 4, 2), npy.float32)
+#         indices = npy.arange((meshWidth + 1) * (meshHeight + 1))
+#         indices = npy.compress((indices + 1) % (meshWidth + 1), indices)
+#         indices = indices[:(meshWidth * meshHeight)]
+#         verts[:, 0, 0] = npy.take(xCoords, indices)
+#         verts[:, 0, 1] = npy.take(yCoords, indices)
+#         verts[:, 1, 0] = npy.take(xCoords, (indices + 1))
+#         verts[:, 1, 1] = npy.take(yCoords, (indices + 1))
+#         verts[:, 2, 0] = npy.take(xCoords, (indices + meshWidth + 2))
+#         verts[:, 2, 1] = npy.take(yCoords, (indices + meshWidth + 2))
+#         verts[:, 3, 0] = npy.take(xCoords, (indices + meshWidth + 1))
+#         verts[:, 3, 1] = npy.take(yCoords, (indices + meshWidth + 1))
+#         if (showedges):
+#             edgecolors = colors
+#         else:
+#             edgecolors = (0, 0, 0, 0),
+#         self.draw_poly_collection(verts, transform,
+#                                 clipbox, colors, edgecolors,
+#                                 (0.25,), (0,), offsets, transOffset)
 
-    def draw_poly_collection(
-        self, verts, transform, clipbox, facecolors, edgecolors,
-        linewidths, antialiaseds, offsets, transOffset):
-        """
-        Draw a polygon collection
+#     def draw_poly_collection(
+#         self, verts, transform, clipbox, facecolors, edgecolors,
+#         linewidths, antialiaseds, offsets, transOffset):
+#         """
+#         Draw a polygon collection
 
-        verts are a sequence of polygon vectors, where each polygon
-        vector is a sequence of x,y tuples of vertices
+#         verts are a sequence of polygon vectors, where each polygon
+#         vector is a sequence of x,y tuples of vertices
 
-        facecolors and edgecolors are a sequence of RGBA tuples
-        linewidths are a sequence of linewidths
-        antialiaseds are a sequence of 0,1 integers whether to use aa
+#         facecolors and edgecolors are a sequence of RGBA tuples
+#         linewidths are a sequence of linewidths
+#         antialiaseds are a sequence of 0,1 integers whether to use aa
 
-        If a linewidth is zero or an edgecolor alpha is zero, the
-        line will be omitted; similarly, the fill will be omitted
-        if the facecolor alpha is zero.
-        """
-        ## line and/or fill OK
-        Nface = len(facecolors)
-        Nedge = len(edgecolors)
-        Nlw = len(linewidths)
-        Naa = len(antialiaseds)
+#         If a linewidth is zero or an edgecolor alpha is zero, the
+#         line will be omitted; similarly, the fill will be omitted
+#         if the facecolor alpha is zero.
+#         """
+#         ## line and/or fill OK
+#         Nface = len(facecolors)
+#         Nedge = len(edgecolors)
+#         Nlw = len(linewidths)
+#         Naa = len(antialiaseds)
 
-        usingOffsets = offsets is not None
-        Noffsets = 0
-        Nverts = len(verts)
-        if usingOffsets:
-            Noffsets = len(offsets)
+#         usingOffsets = offsets is not None
+#         Noffsets = 0
+#         Nverts = len(verts)
+#         if usingOffsets:
+#             Noffsets = len(offsets)
 
-        N = max(Noffsets, Nverts)
+#         N = max(Noffsets, Nverts)
 
-        gc = self.new_gc()
-        if clipbox is not None:
-            gc.set_clip_rectangle(clipbox.get_bounds())
+#         gc = self.new_gc()
+#         if clipbox is not None:
+#             gc.set_clip_rectangle(clipbox.get_bounds())
 
 
-        for i in xrange(N):
-            polyverts = ma.filled(verts[i % Nverts], npy.nan)
-            if npy.any(npy.isnan(polyverts)):
-                continue
-            linewidth = linewidths[i % Nlw]
-            rf,gf,bf,af = facecolors[i % Nface]
-            re,ge,be,ae = edgecolors[i % Nedge]
-            if af==0:
-                if ae==0 or linewidth == 0:
-                    continue
-                rgbFace = None
-                alpha = ae
-            else:
-                rgbFace = rf,gf,bf
-            if ae==0:
-                alpha = af
-                gc.set_linewidth(0)
-            else:
-                # the draw_poly interface can't handle separate alphas for
-                # edge and face so we'll just use the maximum
-                alpha = max(af,ae)
-                gc.set_foreground( (re,ge,be), isRGB=True)
-                gc.set_linewidth( linewidths[i % Nlw] )
-                #print 'verts', zip(thisxverts, thisyverts)
+#         for i in xrange(N):
+#             polyverts = ma.filled(verts[i % Nverts], npy.nan)
+#             if npy.any(npy.isnan(polyverts)):
+#                 continue
+#             linewidth = linewidths[i % Nlw]
+#             rf,gf,bf,af = facecolors[i % Nface]
+#             re,ge,be,ae = edgecolors[i % Nedge]
+#             if af==0:
+#                 if ae==0 or linewidth == 0:
+#                     continue
+#                 rgbFace = None
+#                 alpha = ae
+#             else:
+#                 rgbFace = rf,gf,bf
+#             if ae==0:
+#                 alpha = af
+#                 gc.set_linewidth(0)
+#             else:
+#                 # the draw_poly interface can't handle separate alphas for
+#                 # edge and face so we'll just use the maximum
+#                 alpha = max(af,ae)
+#                 gc.set_foreground( (re,ge,be), isRGB=True)
+#                 gc.set_linewidth( linewidths[i % Nlw] )
+#                 #print 'verts', zip(thisxverts, thisyverts)
 
-            gc.set_antialiased( antialiaseds[i % Naa] )  # Used for fill only?
-            gc.set_alpha( alpha )
-            tverts = transform.seq_xy_tups(polyverts)
-            if usingOffsets:
-                xo,yo = transOffset.xy_tup(offsets[i % Noffsets])
-                tverts = [(x+xo,y+yo) for x,y in tverts]
+#             gc.set_antialiased( antialiaseds[i % Naa] )  # Used for fill only?
+#             gc.set_alpha( alpha )
+#             tverts = transform.seq_xy_tups(polyverts)
+#             if usingOffsets:
+#                 xo,yo = transOffset.xy_tup(offsets[i % Noffsets])
+#                 tverts = [(x+xo,y+yo) for x,y in tverts]
 
-            self.draw_polygon(gc, rgbFace, tverts)
+#             self.draw_polygon(gc, rgbFace, tverts)
 
-    def draw_polygon(self, gc, rgbFace, points):
-        """
-        Draw a polygon using the GraphicsContext instance gc.
-        points is a len vertices tuple, each element
-        giving the x,y coords a vertex
+#     def draw_polygon(self, gc, rgbFace, points):
+#         """
+#         Draw a polygon using the GraphicsContext instance gc.
+#         points is a len vertices tuple, each element
+#         giving the x,y coords a vertex
 
-        If the color rgbFace is not None, fill the polygon with it
-        """
-        raise NotImplementedError
+#         If the color rgbFace is not None, fill the polygon with it
+#         """
+#         raise NotImplementedError
 
-    def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
-        """
-        Draw a non-filled rectangle using the GraphicsContext instance gcEdge,
-        with lower left at x,y with width and height.
+#     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
+#         """
+#         Draw a non-filled rectangle using the GraphicsContext instance gcEdge,
+#         with lower left at x,y with width and height.
 
-        If rgbFace is not None, fill the rectangle with it.
-        """
-	warnings.warn("draw_rectangle called", warnings.PendingDeprecationWarning)
-	transform = transforms.Affine2D().scale(width, height).translate(x, y)
-	self.draw_path(gcEdge, Path.unit_rectangle(), transform, rgbFace)
+#         If rgbFace is not None, fill the rectangle with it.
+#         """
+# 	warnings.warn("draw_rectangle called", warnings.PendingDeprecationWarning)
+# 	transform = transforms.Affine2D().scale(width, height).translate(x, y)
+# 	self.draw_path(gcEdge, Path.unit_rectangle(), transform, rgbFace)
 	
-    def draw_regpoly_collection(
-        self, clipbox, offsets, transOffset, verts, sizes,
-        facecolors, edgecolors, linewidths, antialiaseds):
-        """
-        Draw a regular poly collection
+#     def draw_regpoly_collection(
+#         self, clipbox, offsets, transOffset, verts, sizes,
+#         facecolors, edgecolors, linewidths, antialiaseds):
+#         """
+#         Draw a regular poly collection
 
-        offsets   - is a sequence is x,y tuples
-        transOffset - maps this to display coords
+#         offsets   - is a sequence is x,y tuples
+#         transOffset - maps this to display coords
 
-        verts - are the vertices of the regular polygon at the origin
+#         verts - are the vertices of the regular polygon at the origin
 
-        sizes are the area of the circle that circumscribes the
-        polygon in points^2
+#         sizes are the area of the circle that circumscribes the
+#         polygon in points^2
 
-        facecolors and edgecolors are a sequence of RGBA tuples
-        linewidths are a sequence of linewidths
-        antialiaseds are a sequence of 0,1 integers whether to use aa
-        """
-        ## line and/or fill OK
-        gc = self.new_gc()
-        if clipbox is not None:
-            gc.set_clip_rectangle(clipbox.get_bounds())
+#         facecolors and edgecolors are a sequence of RGBA tuples
+#         linewidths are a sequence of linewidths
+#         antialiaseds are a sequence of 0,1 integers whether to use aa
+#         """
+#         ## line and/or fill OK
+#         gc = self.new_gc()
+#         if clipbox is not None:
+#             gc.set_clip_rectangle(clipbox.get_bounds())
 
-        xverts, yverts = zip(*verts)
-        xverts = npy.asarray(xverts)
-        yverts = npy.asarray(yverts)
+#         xverts, yverts = zip(*verts)
+#         xverts = npy.asarray(xverts)
+#         yverts = npy.asarray(yverts)
 
-        Nface  = len(facecolors)
-        Nedge  = len(edgecolors)
-        Nlw    = len(linewidths)
-        Naa    = len(antialiaseds)
-        Nsizes = len(sizes)
+#         Nface  = len(facecolors)
+#         Nedge  = len(edgecolors)
+#         Nlw    = len(linewidths)
+#         Naa    = len(antialiaseds)
+#         Nsizes = len(sizes)
 
-        for i, loc in enumerate(offsets):
-            xo,yo = transOffset.xy_tup(loc)
-            #print 'xo, yo', loc, (xo, yo)
-            scale = sizes[i % Nsizes]
+#         for i, loc in enumerate(offsets):
+#             xo,yo = transOffset.xy_tup(loc)
+#             #print 'xo, yo', loc, (xo, yo)
+#             scale = sizes[i % Nsizes]
 
-            thisxverts = scale*xverts + xo
-            thisyverts = scale*yverts + yo
-            #print 'xverts', xverts
+#             thisxverts = scale*xverts + xo
+#             thisyverts = scale*yverts + yo
+#             #print 'xverts', xverts
 
-            linewidth = linewidths[i % Nlw]
-            rf,gf,bf,af = facecolors[i % Nface]
-            re,ge,be,ae = edgecolors[i % Nedge]
-            if af==0:
-                if ae==0 or linewidth == 0:
-                    continue
-                rgbFace = None
-                alpha = ae
-            else:
-                rgbFace = rf,gf,bf
-            if ae==0:
-                alpha = af
-                gc.set_linewidth(0)
-            else:
-                # the draw_poly interface can't handle separate alphas for
-                # edge and face so we'll just use the maximum
-                alpha = max(af,ae)
-                gc.set_foreground( (re,ge,be), isRGB=True)
-                gc.set_linewidth( linewidths[i % Nlw] )
-                #print 'verts', zip(thisxverts, thisyverts)
+#             linewidth = linewidths[i % Nlw]
+#             rf,gf,bf,af = facecolors[i % Nface]
+#             re,ge,be,ae = edgecolors[i % Nedge]
+#             if af==0:
+#                 if ae==0 or linewidth == 0:
+#                     continue
+#                 rgbFace = None
+#                 alpha = ae
+#             else:
+#                 rgbFace = rf,gf,bf
+#             if ae==0:
+#                 alpha = af
+#                 gc.set_linewidth(0)
+#             else:
+#                 # the draw_poly interface can't handle separate alphas for
+#                 # edge and face so we'll just use the maximum
+#                 alpha = max(af,ae)
+#                 gc.set_foreground( (re,ge,be), isRGB=True)
+#                 gc.set_linewidth( linewidths[i % Nlw] )
+#                 #print 'verts', zip(thisxverts, thisyverts)
 
-            gc.set_antialiased( antialiaseds[i % Naa] )  # Used for fill only?
-            gc.set_alpha( alpha )
-            #print 'verts', zip(thisxverts, thisyverts)
-            self.draw_polygon(gc, rgbFace, zip(thisxverts, thisyverts))
+#             gc.set_antialiased( antialiaseds[i % Naa] )  # Used for fill only?
+#             gc.set_alpha( alpha )
+#             #print 'verts', zip(thisxverts, thisyverts)
+#             self.draw_polygon(gc, rgbFace, zip(thisxverts, thisyverts))
 
 
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
-        raise NotImplementedError
+#     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
+#         raise NotImplementedError
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
-        """
-        Draw the text.Text instance s at x,y (display coords) with font
-        properties instance prop at angle in degrees, using GraphicsContext gc
+#     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+#         """
+#         Draw the text.Text instance s at x,y (display coords) with font
+#         properties instance prop at angle in degrees, using GraphicsContext gc
 
-        **backend implementers note**
+#         **backend implementers note**
 
-        When you are trying to determine if you have gotten your bounding box
-        right (which is what enables the text layout/alignment to work
-        properly), it helps to change the line in text.py
+#         When you are trying to determine if you have gotten your bounding box
+#         right (which is what enables the text layout/alignment to work
+#         properly), it helps to change the line in text.py
 
-                  if 0: bbox_artist(self, renderer)
+#                   if 0: bbox_artist(self, renderer)
 
-        to if 1, and then the actual bounding box will be blotted along with
-        your text.
-        """
-        raise NotImplementedError
+#         to if 1, and then the actual bounding box will be blotted along with
+#         your text.
+#         """
+#         raise NotImplementedError
 
     def flipy(self):
         """return true if y small numbers are top for renderer
@@ -594,6 +594,7 @@ class GraphicsContextBase:
         """
         Set the clip path and transformation
         """
+        assert path is None or isinstance(path, transforms.TransformedPath)
         self._clippath = path
 
     def set_dashes(self, dash_offset, dash_list):

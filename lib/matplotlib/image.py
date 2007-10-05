@@ -181,7 +181,6 @@ class AxesImage(Artist, cm.ScalarMappable):
         if not self.get_visible(): return
         im = self.make_image(renderer.get_image_magnification())
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
-        print self.axes.bbox.frozen()
         renderer.draw_image(l, b, im, self.axes.bbox.frozen())
 
     def contains(self, mouseevent):

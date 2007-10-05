@@ -2,6 +2,8 @@ import math
 
 import numpy as npy
 
+import matplotlib
+rcParams = matplotlib.rcParams
 from matplotlib.artist import kwdocd
 from matplotlib.axes import Axes
 from matplotlib import cbook
@@ -171,6 +173,10 @@ class PolarAxes(Axes):
         self.set_thetagrids(angles)
         self.yaxis.set_major_locator(self.RadialLocator(self.yaxis.get_major_locator()))
 
+        self.grid(rcParams['polaraxes.grid'])
+        self.xaxis.set_ticks_position('none')
+        self.yaxis.set_ticks_position('none')
+        
     def _set_lim_and_transforms(self):
 	self.dataLim = Bbox.unit()
         self.viewLim = Bbox.unit()

@@ -292,6 +292,7 @@ class Text(Artist):
         """
         self._bbox = rectprops
 
+    # MGDTODO: The clipping here could be generalized
     def draw(self, renderer):
         #return
         if renderer is not None:
@@ -303,7 +304,7 @@ class Text(Artist):
         gc.set_foreground(self._color)
         gc.set_alpha(self._alpha)
         if self.get_clip_on():
-            gc.set_clip_rectangle(self.clipbox.get_bounds())
+            gc.set_clip_rectangle(self.clipbox)
 
 
 
@@ -316,7 +317,7 @@ class Text(Artist):
         if rcParams['text.usetex']:
             canvasw, canvash = renderer.get_canvas_width_height()
             for line, wh, x, y in info:
-                x, y = trans.xy_tup((x, y))
+                x, y = trans.transform_point((x, y))
                 if renderer.flipy():
                     y = canvash-y
 
@@ -1051,20 +1052,21 @@ class Annotation(Text):
         """
         Text.set_clip_box(self, clipbox)
 
+    # MGDTODO: Abstract this out -- this seems weird to have this big "switch" here
     def _get_xy(self, x, y, s):
         if s=='data':
             trans = self.axes.transData
-            return trans.xy_tup((x,y))
+            return trans.transform_point((x, y))
         elif s=='polar':
             theta, r = x, y
             x = r*npy.cos(theta)
             y = r*npy.sin(theta)
             trans = self.axes.transData
-            return trans.xy_tup((x,y))
+            return trans.transform_point((x,y))
         elif s=='figure points':
             #points from the lower left corner of the figure
-            dpi = self.figure.dpi.get()
-            l,b,w,h = self.figure.bbox.get_bounds()
+            dpi = self.figure.dpi
+            l,b,w,h = self.figure.bbox.bounds
             r = l+w
             t = b+h
 
@@ -1077,7 +1079,7 @@ class Annotation(Text):
             return x,y
         elif s=='figure pixels':
             #pixels from the lower left corner of the figure
-            l,b,w,h = self.figure.bbox.get_bounds()
+            l,b,w,h = self.figure.bbox.bounds
             r = l+w
             t = b+h
             if x<0:
@@ -1088,11 +1090,11 @@ class Annotation(Text):
         elif s=='figure fraction':
             #(0,0) is lower left, (1,1) is upper right of figure
             trans = self.figure.transFigure
-            return trans.xy_tup((x,y))
+            return trans.transform_point((x,y))
         elif s=='axes points':
             #points from the lower left corner of the axes
-            dpi = self.figure.dpi.get()
-            l,b,w,h = self.axes.bbox.get_bounds()
+            dpi = self.figure.dpi
+            l,b,w,h = self.axes.bbox.bounds
             r = l+w
             t = b+h
             if x<0:
@@ -1107,7 +1109,7 @@ class Annotation(Text):
         elif s=='axes pixels':
             #pixels from the lower left corner of the axes
 
-            l,b,w,h = self.axes.bbox.get_bounds()
+            l,b,w,h = self.axes.bbox.bounds
             r = l+w
             t = b+h
             if x<0:
@@ -1122,7 +1124,7 @@ class Annotation(Text):
         elif s=='axes fraction':
             #(0,0) is lower left, (1,1) is upper right of axes
             trans = self.axes.transAxes
-            return trans.xy_tup((x,y))
+            return trans.transform_point((x, y))
 
 
     def update_positions(self, renderer):
@@ -1136,8 +1138,8 @@ class Annotation(Text):
 
         if self.arrowprops:
             x0, y0 = x, y
-            l,b,w,h = self.get_window_extent(renderer).get_bounds()
-            dpi = self.figure.dpi.get()
+            l,b,w,h = self.get_window_extent(renderer).bounds
+            dpi = self.figure.dpi
             r = l+w
             t = b+h
             xc = 0.5*(l+r)

@@ -1098,9 +1098,9 @@ class XAxis(Axis):
         default resets the tick positions to the default:
         ticks on both positions, labels at bottom.
 
-        ACCEPTS: [ 'top' | 'bottom' | 'both' | 'default' ]
+        ACCEPTS: [ 'top' | 'bottom' | 'both' | 'default' | 'none' ]
         """
-        assert position == 'top' or position == 'bottom' or position == 'both' or position == 'default'
+        assert position in ('top', 'bottom', 'both', 'default', 'none')
 
 
         ticks = list( self.get_major_ticks() )  # a copy
@@ -1124,6 +1124,10 @@ class XAxis(Axis):
                 t.tick2On = True
                 t.label1On = True
                 t.label2On = False
+        elif position == 'none':
+            for t in ticks:
+                t.tick1On = False
+                t.tick2On = False
         else:
             for t in ticks:
                 t.tick1On = True
@@ -1306,9 +1310,9 @@ class YAxis(Axis):
         default resets the tick positions to the default:
         ticks on both positions, labels on the left.
 
-        ACCEPTS: [ 'left' | 'right' | 'both' | 'default' ]
+        ACCEPTS: [ 'left' | 'right' | 'both' | 'default' | 'none' ]
         """
-        assert position == 'left' or position == 'right' or position == 'both' or position == 'default'
+        assert position in ('left', 'right', 'both', 'default', 'none')
 
         ticks = list( self.get_major_ticks() ) # a copy
         ticks.extend( self.get_minor_ticks() )
@@ -1334,6 +1338,10 @@ class YAxis(Axis):
                 t.tick2On = True
                 t.label1On = True
                 t.label2On = False
+        elif position == 'none':
+            for t in ticks:
+                t.tick1On = False
+                t.tick2On = False
         else:
             self.set_offset_position('left')
             for t in ticks:

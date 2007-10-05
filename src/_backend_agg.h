@@ -39,6 +39,8 @@
 #include "agg_scanline_p.h"
 #include "agg_vcgen_markers_term.h"
 
+#include "agg_py_path_iterator.h"
+
 // These are copied directly from path.py, and must be kept in sync
 #define STOP   0
 #define MOVETO 1
@@ -108,10 +110,7 @@ public:
 class GCAgg {
 public:
   GCAgg(const Py::Object& gc, double dpi, bool snapto=false);
-
-  ~GCAgg() {
-    delete [] dasha;
-  }
+  GCAgg(double dpi, bool snapto=false);
 
   double dpi;
   bool snapto;
@@ -130,12 +129,11 @@ public:
   agg::trans_affine clippath_trans;
 
   //dashes
-  size_t Ndash;
+  typedef std::vector<std::pair<double, double> > dash_t;
   double dashOffset;
-  double *dasha;
+  dash_t dashes;
 
-  
-protected:
+ protected:
   agg::rgba get_color(const Py::Object& gc);
   double points_to_pixels( const Py::Object& points);
   void _set_linecap(const Py::Object& gc) ;
@@ -144,8 +142,6 @@ protected:
   void _set_clip_rectangle( const Py::Object& gc);
   void _set_clip_path( const Py::Object& gc);
   void _set_antialiased( const Py::Object& gc);
-
-
 };
 
 
@@ -169,6 +165,7 @@ public:
   Py::Object draw_text_image(const Py::Tuple & args);
   Py::Object draw_image(const Py::Tuple & args);
   Py::Object draw_path(const Py::Tuple & args);
+  Py::Object draw_path_collection(const Py::Tuple & args);
 
   Py::Object write_rgba(const Py::Tuple & args);
   Py::Object write_png(const Py::Tuple & args);
@@ -217,9 +214,13 @@ protected:
   double points_to_pixels_snapto( const Py::Object& points);
   agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
+  bool bbox_to_rect(const Py::Object& bbox, double* l, double* b, double* r, double* t);
   template<class R>
   void set_clipbox(Py::Object& cliprect, R rasterizer);
-  bool render_clippath(const GCAgg& gc);
+  bool render_clippath(const Py::Object& clippath, const agg::trans_affine& clippath_trans);
+  void _draw_path(PathIterator& path, agg::trans_affine trans, 
+		  bool snap, bool has_clippath, 
+		  const facepair_t& face, const GCAgg& gc);
 
 private:
   Py::Object lastclippath;
