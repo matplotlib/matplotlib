@@ -815,8 +815,8 @@ class Ellipse(Patch):
         angle = self.angle * math.pi / 180.0
 
         # convert the angle to polar coordinates (Assume r = 1.0)
-        anglex = math.cos(-angle)
-        angley = math.sin(-angle)
+        anglex = math.cos(angle)
+        angley = math.sin(angle)
 
         # transform the angle vertex and the origin
         angle_verts = npy.array(((anglex, angley), (0.0, 0.0)), npy.float)
