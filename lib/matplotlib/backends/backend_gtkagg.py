@@ -97,6 +97,8 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
                                    0, 0, 0, 0, w, h)
         if DEBUG: print 'FigureCanvasGTKAgg.done'
 
+    def print_png(self, filename, *args, **kwargs):
+        return FigureCanvasAgg.print_png(self, filename, *args, **kwargs)
 
 """\
 Traceback (most recent call last):
