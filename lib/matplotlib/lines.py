@@ -349,24 +349,14 @@ class Line2D(Artist):
         self._picker = p
 
     def get_window_extent(self, renderer):
-        # MGDTODO: Numpify
-        xy = self.get_transform().transform(self._xy)
-
-	x = xy[:, 0]
-	y = xy[:, 1]
-        left = x.min()
-        bottom = y.min()
-        width = x.max() - left
-        height = y.max() - bottom
+        bbox = Bbox()
+        bbox.update_from_data(self.get_transform().transform(self._xy))
 
         # correct for marker size, if any
         if self._marker is not None:
             ms = self._markersize / 72.0 * self.figure.dpi
-            left -= ms/2
-            bottom -= ms/2
-            width += ms
-            height += ms
-        return Bbox.from_lbwh(left, bottom, width, height)
+            bbox = Bbox(bbox.get_points() + [[-ms/2.0, ms/2.0]])
+        return bbox
 
 
     def set_axes(self, ax):

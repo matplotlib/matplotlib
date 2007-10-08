@@ -32,7 +32,7 @@ from font_manager import FontProperties
 from lines import Line2D
 from mlab import segments_intersect
 from patches import Patch, Rectangle, RegularPolygon, Shadow, bbox_artist, draw_bbox
-from collections import LineCollection, RegularPolyCollection, PatchCollection
+from collections import LineCollection, RegularPolyCollection
 from text import Text
 from transforms import Affine2D, Bbox, BboxTransform
 
