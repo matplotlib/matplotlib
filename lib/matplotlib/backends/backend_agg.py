@@ -387,5 +387,5 @@ class FigureCanvasAgg(FigureCanvasBase):
         
     def print_png(self, filename, *args, **kwargs):
         self.draw()
-        self.get_renderer()._renderer.write_png(str(filename))
+        self.get_renderer()._renderer.write_png(str(filename), self.figure.dpi.get())
         
