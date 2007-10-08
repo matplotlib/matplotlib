@@ -1072,7 +1072,7 @@ RendererAgg::write_png(const Py::Tuple& args)
 {
   _VERBOSE("RendererAgg::write_png");
   
-  args.verify_length(1);
+  args.verify_length(1, 2);
   
   FILE *fp;
   Py::Object o = Py::Object(args[0]);
@@ -1133,6 +1133,13 @@ RendererAgg::write_png(const Py::Tuple& args)
 	       width, height, 8,
 	       PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
 	       PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+  // Save the dpi of the image in the file
+  if (args.size() == 2) {
+    double dpi = Py::Float(args[1]);
+    size_t dots_per_meter = (size_t)(dpi / (2.54 / 100.0));
+    png_set_pHYs(png_ptr, info_ptr, dots_per_meter, dots_per_meter, PNG_RESOLUTION_METER);
+  }
   
   // this a a color image!
   sig_bit.gray = 0;
@@ -1718,7 +1725,7 @@ void RendererAgg::init_type()
   add_varargs_method("write_rgba", &RendererAgg::write_rgba,
 		     "write_rgba(fname)");
   add_varargs_method("write_png", &RendererAgg::write_png,
-		     "write_png(fname)");
+		     "write_png(fname, dpi=None)");
   add_varargs_method("tostring_rgb", &RendererAgg::tostring_rgb,
 		     "s = tostring_rgb()");
   add_varargs_method("tostring_argb", &RendererAgg::tostring_argb,
