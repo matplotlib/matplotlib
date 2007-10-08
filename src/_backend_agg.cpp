@@ -336,9 +336,11 @@ RendererAgg::bbox_to_rect(const Py::Object& bbox_obj, double* l, double* b, doub
   if (bbox_obj.ptr() != Py_None) {
     PyArrayObject* bbox = (PyArrayObject*) PyArray_FromObject(bbox_obj.ptr(), PyArray_DOUBLE, 2, 2);   
 
-    if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2)
+    if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2) {
+      Py_XDECREF(bbox);
       throw Py::TypeError
 	("Expected a Bbox object.");
+    }
     
     *l	      = *(double*)PyArray_GETPTR2(bbox, 0, 0);
     double _b = *(double*)PyArray_GETPTR2(bbox, 0, 1);
@@ -346,8 +348,11 @@ RendererAgg::bbox_to_rect(const Py::Object& bbox_obj, double* l, double* b, doub
     double _t = *(double*)PyArray_GETPTR2(bbox, 1, 1);
     *b	      = height - _t;
     *t	      = height - _b;
+
+    Py_XDECREF(bbox);
     return true;
   }
+
   return false;
 }
 
@@ -920,7 +925,7 @@ RendererAgg::draw_path(const Py::Tuple& args) {
 Py::Object
 RendererAgg::draw_path_collection(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_path_collection");
-  args.verify_length(11);
+  args.verify_length(13);
   
   //segments, trans, clipbox, colors, linewidths, antialiaseds
   agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0]);
@@ -929,23 +934,30 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   agg::trans_affine       clippath_trans   = py_to_agg_transformation_matrix(args[3], false);
   Py::SeqBase<Py::Object> paths		   = args[4];
   Py::SeqBase<Py::Object> transforms_obj   = args[5];
-  Py::SeqBase<Py::Object> facecolors_obj   = args[6];
-  Py::SeqBase<Py::Object> edgecolors_obj   = args[7];
-  Py::SeqBase<Py::Float>  linewidths	   = args[8];
-  Py::SeqBase<Py::Object> linestyles_obj   = args[9];
-  Py::SeqBase<Py::Int>    antialiaseds	   = args[10];
+  Py::Object              offsets_obj      = args[6];
+  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7], false);
+  Py::SeqBase<Py::Object> facecolors_obj   = args[8];
+  Py::SeqBase<Py::Object> edgecolors_obj   = args[9];
+  Py::SeqBase<Py::Float>  linewidths	   = args[10];
+  Py::SeqBase<Py::Object> linestyles_obj   = args[11];
+  Py::SeqBase<Py::Int>    antialiaseds	   = args[12];
   
   GCAgg gc(dpi, false);
 
+  PyArrayObject* offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 2, 2);
+  if (!offsets || offsets->dimensions[1] != 2)
+    throw Py::ValueError("Offsets array must be Nx2");
+
   size_t Npaths	     = paths.length();
-  size_t Ntransforms = std::min(transforms_obj.length(), Npaths);
-  size_t Nfacecolors = std::min(facecolors_obj.length(), Npaths);
-  size_t Nedgecolors = std::min(edgecolors_obj.length(), Npaths);
+  size_t Noffsets    = offsets->dimensions[0];
+  size_t N	     = std::max(Npaths, Noffsets);
+  size_t Ntransforms = std::min(transforms_obj.length(), N);
+  size_t Nfacecolors = std::min(facecolors_obj.length(), N);
+  size_t Nedgecolors = std::min(edgecolors_obj.length(), N);
   size_t Nlinewidths = linewidths.length();
-  size_t Nlinestyles = std::min(linestyles_obj.length(), Npaths);
+  size_t Nlinestyles = std::min(linestyles_obj.length(), N);
   size_t Naa	     = antialiaseds.length();
 
-  size_t N	  = Npaths;
   size_t i        = 0;
   
   // Convert all of the transforms up front
@@ -983,7 +995,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
     }
   }
 
-  // Convert all of the edges up front
+  // Convert all of the edgecolors up front
   typedef std::vector<agg::rgba> edgecolors_t;
   edgecolors_t edgecolors;
   edgecolors.reserve(Nedgecolors);
@@ -1016,18 +1028,23 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   bool has_clippath = render_clippath(clippath, clippath_trans);
 
   for (i = 0; i < N; ++i) {
-    facepair_t& face = facecolors[i % Nfacecolors];
-    gc.color = edgecolors[i % Nedgecolors];
-    gc.linewidth = double(Py::Float(linewidths[i % Nlinewidths])) * dpi/72.0;
-    gc.dashes = dashes[i % Nlinestyles].second;
-    gc.dashOffset = dashes[i % Nlinestyles].first;
-    gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
+    double xo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
+    double yo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
+    offset_trans.transform(&xo, &yo);
+    agg::trans_affine_translation transOffset(xo, yo);
     agg::trans_affine& trans = transforms[i % Ntransforms];
-    PathIterator path(paths[i]);
+    facepair_t& face         = facecolors[i % Nfacecolors];
+    gc.color		     = edgecolors[i % Nedgecolors];
+    gc.linewidth	     = double(Py::Float(linewidths[i % Nlinewidths])) * dpi/72.0;
+    gc.dashes		     = dashes[i % Nlinestyles].second;
+    gc.dashOffset	     = dashes[i % Nlinestyles].first;
+    gc.isaa		     = bool(Py::Int(antialiaseds[i % Naa]));
+    PathIterator path(paths[i % Npaths]);
     bool snap = (path.total_vertices() == 2);
-    _draw_path(path, trans, snap, has_clippath, face, gc);
+    _draw_path(path, trans * transOffset, snap, has_clippath, face, gc);
   }
 
+  Py_XDECREF(offsets);
   return Py::Object();
 }
 
@@ -1482,11 +1499,9 @@ Py::Object _backend_agg_module::point_on_path(const Py::Tuple& args) {
 
 void get_path_extents(PathIterator& path, agg::trans_affine& trans, 
 		      double* x0, double* y0, double* x1, double* y1) {
-  typedef agg::conv_transform<PathIterator> transformed_path_t;
-  typedef agg::conv_curve<transformed_path_t> curve_t;
+  typedef agg::conv_curve<PathIterator> curve_t;
   
-  transformed_path_t trans_path(path, trans);
-  curve_t curved_path(trans_path);
+  curve_t curved_path(path);
   double x, y;
   curved_path.rewind(0);
 
@@ -1505,6 +1520,9 @@ void get_path_extents(PathIterator& path, agg::trans_affine& trans,
     if (x > *x1) *x1 = x;
     if (y > *y1) *y1 = y;
   }
+
+  trans.transform(x0, y0);
+  trans.transform(x1, y1);
 }
 
 Py::Object _backend_agg_module::get_path_extents(const Py::Tuple& args) {
@@ -1521,6 +1539,133 @@ Py::Object _backend_agg_module::get_path_extents(const Py::Tuple& args) {
   result[1] = Py::Float(y0);
   result[2] = Py::Float(x1);
   result[3] = Py::Float(y1);
+  return result;
+}
+
+struct PathCollectionExtents {
+  double x0, y0, x1, y1;
+};
+
+Py::Object _backend_agg_module::get_path_collection_extents(const Py::Tuple& args) {
+  args.verify_length(5);
+
+  //segments, trans, clipbox, colors, linewidths, antialiaseds
+  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0]);
+  Py::SeqBase<Py::Object> paths		   = args[1];
+  Py::SeqBase<Py::Object> transforms_obj   = args[2];
+  Py::SeqBase<Py::Object> offsets          = args[3];
+  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[4], false);
+
+  size_t Npaths	     = paths.length();
+  size_t Noffsets    = offsets.length();
+  size_t N	     = std::max(Npaths, Noffsets);
+  size_t Ntransforms = std::min(transforms_obj.length(), N);
+  size_t i;
+
+  // Convert all of the transforms up front
+  typedef std::vector<agg::trans_affine> transforms_t;
+  transforms_t transforms;
+  transforms.reserve(Ntransforms);
+  for (i = 0; i < Ntransforms; ++i) {
+    agg::trans_affine trans = py_to_agg_transformation_matrix
+      (transforms_obj[i], false);
+    trans *= master_transform;
+    transforms.push_back(trans);
+  }
+  
+  typedef std::vector<PathCollectionExtents> path_extents_t;
+  path_extents_t path_extents;
+  path_extents.resize(Npaths);
+
+  // Get each of the path extents first
+  i = 0;
+  for (path_extents_t::iterator p = path_extents.begin();
+       p != path_extents.end(); ++p, ++i) {
+    PathIterator path(paths[i]);
+    agg::trans_affine& trans = transforms[i % Ntransforms];
+    ::get_path_extents(path, trans, &p->x0, &p->y0, &p->x1, &p->y1);
+  }
+
+  // The offset each of those and collect the mins/maxs
+  double x0 = std::numeric_limits<double>::infinity();
+  double y0 = std::numeric_limits<double>::infinity();
+  double x1 = -std::numeric_limits<double>::infinity();
+  double y1 = -std::numeric_limits<double>::infinity();
+  for (i = 0; i < N; ++i) {
+    Py::SeqBase<Py::Float> offset = Py::SeqBase<Py::Float>(offsets[i % Noffsets]);
+    double xo                = Py::Float(offset[0]);
+    double yo                = Py::Float(offset[1]);
+    offset_trans.transform(&xo, &yo);
+    PathCollectionExtents& ext = path_extents[i % Npaths];
+
+    x0 = std::min(x0, ext.x0 + xo);
+    y0 = std::min(y0, ext.y0 + yo);
+    x1 = std::max(x1, ext.x1 + xo);
+    y1 = std::max(y1, ext.y1 + yo);
+  }
+
+  Py::Tuple result(4);
+  result[0] = Py::Float(x0);
+  result[1] = Py::Float(y0);
+  result[2] = Py::Float(x1);
+  result[3] = Py::Float(y1);
+  return result;
+}
+
+Py::Object _backend_agg_module::point_in_path_collection(const Py::Tuple& args) {
+  args.verify_length(9);
+
+  //segments, trans, clipbox, colors, linewidths, antialiaseds
+  double		  x		   = Py::Float(args[0]);
+  double		  y		   = Py::Float(args[1]);
+  double                  radius           = Py::Float(args[2]);
+  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[3]);
+  Py::SeqBase<Py::Object> paths		   = args[4];
+  Py::SeqBase<Py::Object> transforms_obj   = args[5];
+  Py::SeqBase<Py::Object> offsets          = args[6];
+  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7], false);
+  Py::SeqBase<Py::Object> facecolors       = args[8];
+  
+  size_t Npaths	     = paths.length();
+  size_t Noffsets    = offsets.length();
+  size_t N	     = std::max(Npaths, Noffsets);
+  size_t Ntransforms = std::min(transforms_obj.length(), N);
+  size_t Ncolors     = facecolors.length();
+  size_t i;
+
+  // Convert all of the transforms up front
+  typedef std::vector<agg::trans_affine> transforms_t;
+  transforms_t transforms;
+  transforms.reserve(Ntransforms);
+  for (i = 0; i < Ntransforms; ++i) {
+    agg::trans_affine trans = py_to_agg_transformation_matrix
+      (transforms_obj[i], false);
+    trans *= master_transform;
+    transforms.push_back(trans);
+  }
+
+  Py::List result;
+
+  for (i = 0; i < N; ++i) {
+    PathIterator path(paths[i % Npaths]);
+    
+    Py::SeqBase<Py::Float> offset = Py::SeqBase<Py::Float>(offsets[i % Noffsets]);
+    double xo                = Py::Float(offset[0]);
+    double yo                = Py::Float(offset[1]);
+    offset_trans.transform(&xo, &yo);
+    agg::trans_affine_translation transOffset(xo, yo);
+    agg::trans_affine trans = transforms[i % Ntransforms] * transOffset;
+
+    const Py::Object& facecolor_obj = facecolors[i & Ncolors];
+    if (facecolor_obj.ptr() == Py_None) {
+      if (::point_on_path(x, y, radius, path, trans))
+	result.append(Py::Int((int)i));
+    } else {
+      if (::point_in_path(x, y, path, trans))
+	result.append(Py::Int((int)i));
+    }
+  }
+
   return result;
 }
 
@@ -1563,7 +1708,7 @@ void RendererAgg::init_type()
   add_varargs_method("draw_path", &RendererAgg::draw_path,
 		     "draw_path(gc, path, transform, rgbFace)\n");
   add_varargs_method("draw_path_collection", &RendererAgg::draw_path_collection,
-		     "draw_path_collection(master_transform, cliprect, clippath, clippath_trans, paths, transforms, facecolors, edgecolors, linewidths, linestyles, antialiaseds)\n");
+		     "draw_path_collection(master_transform, cliprect, clippath, clippath_trans, paths, transforms, offsets, offsetTrans, facecolors, edgecolors, linewidths, linestyles, antialiaseds)\n");
   add_varargs_method("draw_markers", &RendererAgg::draw_markers,
 		     "draw_markers(gc, marker_path, marker_trans, path, rgbFace)\n");
   add_varargs_method("draw_text_image", &RendererAgg::draw_text_image,

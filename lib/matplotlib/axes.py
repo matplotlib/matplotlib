@@ -1046,7 +1046,7 @@ class Axes(martist.Artist):
         self._set_artist_props(collection)
         collection.set_clip_path(self.axesPatch)
         if autolim:
-            self.update_datalim(collection.get_verts(self.transData))
+            self.update_datalim(collection.get_datalim(self.transData))
         collection._remove_method = lambda h: self.collections.remove(h)
 
     def add_line(self, line):
@@ -1105,6 +1105,9 @@ class Axes(martist.Artist):
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
+        # MGDTODO: This isn't always the most efficient way to do this... in
+        # some cases things should use update_datalim_bounds
+        
         if not ma.isMaskedArray(xys):
             xys = npy.asarray(xys)
         self.update_datalim_numerix(xys[:, 0], xys[:, 1])
@@ -1119,6 +1122,10 @@ class Axes(martist.Artist):
 	self.dataLim.update_from_data(x, y, self.ignore_existing_data_limits)
 	self.ignore_existing_data_limits = False
 
+    def update_datalim_bounds(self, bounds):
+        # MGDTODO: Document me
+        self.dataLim.bounds = Bbox.union([self.dataLim, bounds]).bounds
+        
     def _get_verts_in_data_coords(self, trans, xys):
         if trans == self.transData:
             return xys
@@ -4006,8 +4013,8 @@ class Axes(martist.Artist):
                shading='faceted  --> edgecolors=None
            edgecolors also can be any mpl color or sequence of colors.
 
-           Optional kwargs control the PatchCollection properties:
-        %(PatchCollection)s
+           Optional kwargs control the Collection properties:
+        %(Collection)s
         """
 
         if not self._hold: self.cla()
@@ -4439,7 +4446,7 @@ class Axes(martist.Artist):
 
           * alpha=1.0 : the alpha blending value
 
-        Return value is a mcoll.PatchCollection
+        Return value is a mcoll.Collection
         object
 
         Grid Orientation
@@ -4627,7 +4634,7 @@ class Axes(martist.Artist):
 
           * alpha=1.0 : the alpha blending value
 
-        Return value is a collections.PatchCollection
+        Return value is a collections.Collection
         object
 
         See pcolor for an explantion of the grid orientation and the

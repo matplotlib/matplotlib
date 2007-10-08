@@ -131,11 +131,15 @@ class RendererAgg(RendererBase):
         self._renderer.draw_markers(gc, marker_path, marker_trans.frozen(), path, trans.frozen(), rgbFace)
 
     def draw_path_collection(self, master_transform, clipbox, clippath, clippath_trans,
-                             paths, transforms, facecolors, edgecolors, linewidths, linestyles, antialiaseds):
+                             paths, transforms, offsets, transOffset, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds):
         assert master_transform.is_affine
+        if transOffset is not None:
+            transOffset = transOffset.frozen()
         self._renderer.draw_path_collection(
             master_transform.frozen(), clipbox, clippath, clippath_trans,
-            paths, transforms, facecolors, edgecolors, linewidths, linestyles, antialiaseds)
+            paths, transforms, offsets, transOffset, facecolors, edgecolors, linewidths,
+            linestyles, antialiaseds)
         
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """

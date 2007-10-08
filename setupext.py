@@ -352,6 +352,7 @@ def add_agg_flags(module):
     try_pkgconfig(module, 'libpng', 'png')
     module.libraries.append('z')
     add_base_flags(module)
+    add_numpy_flags(module)
     module.include_dirs.extend(['src','swig', '%s/include'%AGG_VERSION, '.'])
 
     # put these later for correct link order
@@ -823,7 +824,7 @@ def build_tkagg(ext_modules, packages):
 
     # add agg flags before pygtk because agg only supports freetype1
     # and pygtk includes freetype2.  This is a bit fragile.
-
+    
     add_tk_flags(module) # do this first
     add_agg_flags(module)
     add_ft2font_flags(module)

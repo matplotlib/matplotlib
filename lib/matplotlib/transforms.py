@@ -395,6 +395,8 @@ class Bbox(BboxBase):
            when False, include the existing bounds of the Bbox.
            when None, use the last value passed to Bbox.ignore().
         """
+        # MGDTODO: It may be more efficient for some callers to use update_from_data_xy instead
+
         if ignore is None:
             ignore = self._ignore
 
@@ -430,6 +432,18 @@ class Bbox(BboxBase):
 		 npy.float_)
             self._minpos = npy.minimum(minpos, self._minpos)
         self.invalidate()
+
+    def update_from_data_xy(self, xy, ignore=None):
+        """
+        Update the bounds of the Bbox based on the passed in data.
+
+        xy: a numpy array of 2D points
+        ignore:
+           when True, ignore the existing bounds of the Bbox.
+           when False, include the existing bounds of the Bbox.
+           when None, use the last value passed to Bbox.ignore().
+        """
+        return self.update_from_data(xy[:, 0], xy[:, 1], ignore)
         
     def _set_xmin(self, val):
         self._points[0, 0] = val
