@@ -1079,7 +1079,7 @@ class FigureCanvasBase:
         'png': 'Portable Network Graphics',
         'ps' : 'Postscript',
         'raw': 'Raw RGBA bitmap',
-        'rgb': 'Raw RGBA bitmap',
+        'rgba': 'Raw RGBA bitmap',
         'svg': 'Scalable Vector Graphics',
         'svgz': 'Scalable Vector Graphics'
         }
