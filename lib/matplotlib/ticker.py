@@ -116,10 +116,35 @@ from matplotlib import transforms as mtransforms
 
 class TickHelper:
     axis = None
+    class DummyAxis:
+        def __init__(self):
+            self.dataLim = mtransforms.Bbox
+            self.viewLim = mtransforms.Bbox
+
+        def get_view_interval(self):
+            return self.viewLim.intervalx
+
+        def set_view_interval(self, vmin, vmax):
+            self.viewLim.intervalx = vmin, vmax
+
+        def get_data_interval(self):
+            return self.dataLim.intervalx
+
+        def set_data_interval(self, vmin, vmax):
+            self.dataLim.intervalx = vmin, vmax
+            
     def set_axis(self, axis):
         self.axis = axis
 
+    def create_dummy_axis(self):
+        self.axis = self.DummyAxis()
+        
+    def set_view_interval(self, vmin, vmax):
+        self.axis.set_view_interval(vmin, vmax)
 
+    def set_data_interval(self, vmin, vmax):
+        self.axis.set_data_interval(vmin, vmax)
+        
 class Formatter(TickHelper):
     """
     Convert the tick location to a string
@@ -900,6 +925,9 @@ class LogLocator(Locator):
         vmin, vmax = self.axis.get_view_interval()
         if vmin <= 0.0:
             vmin = self.axis.get_minpos()
+            if vmin <= 0.0:
+                raise ValueError(
+                    "Data has no positive values, and therefore can not be log-scaled.")
             
         vmin = math.log(vmin)/math.log(b)
         vmax = math.log(vmax)/math.log(b)
@@ -936,7 +964,8 @@ class LogLocator(Locator):
         minpos = self.axis.get_minpos()
 
         if minpos<=0:
-            raise RuntimeError('No positive data to plot')
+            raise ValueError(
+                "Data has no positive values, and therefore can not be log-scaled.")
 
         if vmin <= minpos:
             vmin = minpos

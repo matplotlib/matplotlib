@@ -300,18 +300,19 @@ class Line2D(Artist):
             raise ValueError,"pick radius should be a distance"
 
         # transform in backend
-        x = self._x
-        y = self._y
-        if len(x)==0: return False,{}
+        if len(self._xy)==0: return False,{}
 
-        xt, yt = self.get_transform().numerix_x_y(x, y)
-
+        xyt = self.get_transform().transform(self._xy)
+        xt = xyt[:, 0]
+        yt = xyt[:, 1]
+        
         if self.figure == None:
             print str(self),' has no figure set'
             pixels = self.pickradius
         else:
-            pixels = self.figure.dpi.get()/72. * self.pickradius
-
+            pixels = self.figure.dpi/72. * self.pickradius
+            
+        path, transform = self._transformed_path.get_transformed_path_and_affine()
         if self._linestyle == 'None':
             # If no line, return the nearby point(s)
             d = npy.sqrt((xt-mouseevent.x)**2 + (yt-mouseevent.y)**2)
@@ -384,11 +385,17 @@ class Line2D(Artist):
     def recache(self):
         #if self.axes is None: print 'recache no axes'
         #else: print 'recache units', self.axes.xaxis.units, self.axes.yaxis.units
-        x = ma.asarray(self.convert_xunits(self._xorig), float)
-        y = ma.asarray(self.convert_yunits(self._yorig), float)
-
-        x = ma.ravel(x)
-        y = ma.ravel(y)
+        if ma.isMaskedArray(self._xorig) or ma.isMaskedArray(self._yorig):
+            x = ma.asarray(self.convert_xunits(self._xorig), float)
+            y = ma.asarray(self.convert_yunits(self._yorig), float)
+            x = ma.ravel(x)
+            y = ma.ravel(y)
+        else:
+            x = npy.asarray(self.convert_xunits(self._xorig), float)
+            y = npy.asarray(self.convert_yunits(self._yorig), float)
+            x = npy.ravel(x)
+            y = npy.ravel(y)
+            
         if len(x)==1 and len(y)>1:
             x = x * npy.ones(y.shape, float)
         if len(y)==1 and len(x)>1:
@@ -399,8 +406,11 @@ class Line2D(Artist):
 
         x = x.reshape((len(x), 1))
         y = y.reshape((len(y), 1))
-            
-	self._xy = ma.concatenate((x, y), 1)
+
+        if ma.isMaskedArray(x) or ma.isMaskedArray(y):
+            self._xy = ma.concatenate((x, y), 1)
+        else:
+            self._xy = npy.concatenate((x, y), 1)
 	self._x = self._xy[:, 0] # just a view
 	self._y = self._xy[:, 1] # just a view
         self._logcache = None

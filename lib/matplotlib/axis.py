@@ -524,7 +524,10 @@ class Axis(Artist):
     def set_scale(self, value, **kwargs):
         self._scale = scale_factory(value, self, **kwargs)
         self._scale.set_default_locators_and_formatters(self)
-                
+
+    def limit_range_for_scale(self, vmin, vmax):
+        return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
+        
     def get_children(self):
         children = [self.label]
         majorticks = self.get_major_ticks()
@@ -580,6 +583,10 @@ class Axis(Artist):
         'return the Interval instance for this axis data limits'
         raise NotImplementedError('Derived must override')
 
+    def set_data_interval(self):
+        'Set the axis data limits'
+        raise NotImplementedError('Derived must override')
+    
     def _set_artist_props(self, a):
         if a is None: return
         a.set_figure(self.figure)
@@ -887,7 +894,7 @@ class Axis(Artist):
         ACCEPTS: A Formatter instance
         """
         self.major.formatter = formatter
-        self.major.formatter.set_axis(self)
+        formatter.set_axis(self)
 
 
     def set_minor_formatter(self, formatter):
@@ -897,7 +904,7 @@ class Axis(Artist):
         ACCEPTS: A Formatter instance
         """
         self.minor.formatter = formatter
-        self.minor.formatter.set_axis(self)
+        formatter.set_axis(self)
 
 
     def set_major_locator(self, locator):
@@ -907,7 +914,7 @@ class Axis(Artist):
         ACCEPTS: a Locator instance
         """
         self.major.locator = locator
-        self.major.locator.set_axis(self)
+        locator.set_axis(self)
 
 
     def set_minor_locator(self, locator):
@@ -917,7 +924,7 @@ class Axis(Artist):
         ACCEPTS: a Locator instance
         """
         self.minor.locator = locator
-        self.minor.locator.set_axis(self)
+        locator.set_axis(self)
 
     def set_pickradius(self, pickradius):
         """
@@ -1180,6 +1187,14 @@ class XAxis(Axis):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervalx
 
+    def set_data_interval(self, vmin, vmax, ignore=False):
+        'return the Interval instance for this axis data limits'
+        if ignore:
+            self.axes.dataLim.intervalx = vmin, vmax
+        else:
+            Vmin, Vmax = self.get_data_interval()
+            self.axes.dataLim.intervalx = min(vmin, Vmin), max(vmax, Vmax)
+
 
 class YAxis(Axis):
     __name__ = 'yaxis'
@@ -1395,5 +1410,12 @@ class YAxis(Axis):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervaly
 
+    def set_data_interval(self, vmin, vmax, ignore=False):
+        'return the Interval instance for this axis data limits'
+        if ignore:
+            self.axes.dataLim.intervaly = vmin, vmax
+        else:
+            Vmin, Vmax = self.get_data_interval()
+            self.axes.dataLim.intervaly = min(vmin, Vmin), max(vmax, Vmax)
 
 

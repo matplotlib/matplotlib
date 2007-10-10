@@ -1598,7 +1598,7 @@ class NavigationToolbar2:
         for a, ind in self._xypress:
             a.end_pan()
         if not self._xypress: return
-        self._xypress = None
+        self._xypress = []
         self._button_pressed=None
         self.push_current()
         self.release(event)

@@ -32,7 +32,7 @@ from weakref import WeakKeyDictionary
 import cbook
 from path import Path
 
-DEBUG = False
+DEBUG = True
 
 class TransformNode(object):
     """
@@ -403,7 +403,6 @@ class Bbox(BboxBase):
         if len(x) == 0 or len(y) == 0:
             return
             
-        # MGDTODO: All getters of minpos should be aware that is is sometimes -inf
         if ma.isMaskedArray(x) or ma.isMaskedArray(y):
             xpos = ma.where(x > 0.0, x, npy.inf)
             ypos = ma.where(y > 0.0, y, npy.inf)
@@ -616,26 +615,28 @@ class Bbox(BboxBase):
     #@staticmethod
     def union(bboxes):
         """
-        Return a Bbox that bounds all the given bboxes.
+        Return a Bbox that contains all of the given bboxes.
         """
-        # MGDTODO: There's got to be a way to utilize numpy here
-        # to make this faster...
         assert(len(bboxes))
 
         if len(bboxes) == 1:
             return bboxes[0]
-        
-        bbox = bboxes[0]
-        xmin0, ymin0, xmax0, ymax0 = bbox.lbrt
 
-        for bbox in bboxes[1:]:
-            xmin, ymin, xmax, ymax = bbox.lbrt
-            xmin0 = min(xmin0, xmin)
-            ymin0 = min(ymin0, ymin)
-            xmax0 = max(xmax0, xmax)
-            ymax0 = max(ymax0, ymax)
+        xmin = npy.inf
+        ymin = npy.inf
+        xmax = -npy.inf
+        ymax = -npy.inf
 
-        return Bbox.from_lbrt(xmin0, ymin0, xmax0, ymax0)
+        for bbox in bboxes:
+            points = bbox.get_points()
+            xs = points[:, 0]
+            ys = points[:, 1]
+            xmin = min(xmin, npy.min(xs))
+            ymin = min(ymin, npy.min(ys))
+            xmax = max(xmax, npy.max(xs))
+            ymax = max(ymax, npy.max(ys))
+
+        return Bbox.from_lbrt(xmin, ymin, xmax, ymax)
     union = staticmethod(union)
 
     
@@ -1243,22 +1244,18 @@ class Affine2DBase(AffineBase):
         # MGDTODO: The major speed trap here is just converting to
         # the points to an array in the first place.  If we can use
         # more arrays upstream, that should help here.
-        if DEBUG and not isinstance(values, npy.ndarray):
+        if DEBUG and not ma.isMaskedArray(points) and not isinstance(points, npy.ndarray):
             import traceback
             print '-' * 60
-            print 'A non-numpy array of type %s was passed in for transformation.' % type(values)
+            print 'A non-numpy array of type %s was passed in for transformation.' % type(points)
             print 'Please correct this.'
             print "".join(traceback.format_stack())
         mtx = self.get_matrix()
         if ma.isMaskedArray(points):
-            points = points.transpose()
-            points = ma.dot(mtx[0:2, 0:2], points)
-            points = points + mtx[0:2, 2:]
+            points = ma.dot(mtx[0:2, 0:2], points.transpose()) + mtx[0:2, 2:]
         else:
-            points = npy.asarray(points, npy.float_)
-            points = points.transpose()
-            points = npy.dot(mtx[0:2, 0:2], points)
-            points = points + mtx[0:2, 2:]
+            # points = npy.asarray(points, npy.float_)
+            points = npy.dot(mtx[0:2, 0:2], points.transpose()) + mtx[0:2, 2:]
         return points.transpose()
     transform.__doc__ = AffineBase.transform.__doc__
     
@@ -1558,7 +1555,10 @@ class BlendedGenericTransform(Transform):
             y_points = y.transform(points[:, 1])
             y_points = y_points.reshape((len(y_points), 1))
 
-        return ma.concatenate((x_points, y_points), 1)
+        if ma.isMaskedArray(x_points) or ma.isMaskedArray(y_points):
+            return ma.concatenate((x_points, y_points), 1)
+        else:
+            return npy.concatenate((x_points, y_points), 1)
     transform.__doc__ = Transform.transform.__doc__
     
     transform_non_affine = transform
@@ -1741,14 +1741,6 @@ class CompositeGenericTransform(Transform):
         return "CompositeGenericTransform(%s, %s)" % (self._a, self._b)
     __str__ = __repr__
 
-    # MGDTODO: Remove
-#     def get_matrix(self):
-#         if self._invalid:
-#             assert self._a.is_affine and self._b.is_affine
-#             self._mtx = npy.dot(self._b.get_matrix(), self._a.get_matrix())
-#             self._invalid = 0
-#         return self._mtx
-    
     def transform(self, points):
         return self._b.transform(
             self._a.transform(points))
@@ -1927,18 +1919,18 @@ class TransformedPath(TransformNode):
         the transform already applied, along with the affine part of
         the path necessary to complete the transformation.
         """
-        if (self._invalid != self.INVALID_AFFINE or
+        if (self._invalid & self.INVALID_NON_AFFINE or
             self._transformed_path is None):
             self._transformed_path = \
                 self._transform.transform_path_non_affine(self._path)
-            self._invalid = 0
+        self._invalid = 0
         return self._transformed_path, self._transform.get_affine()
 
     def get_fully_transformed_path(self):
         """
         Return a fully-transformed copy of the child path.
         """
-        if (self._invalid != self.INVALID_AFFINE
+        if (self._invalid & self.INVALID_NON_AFFINE
             or self._transformed_path is None):
             self._transformed_path = \
                 self._transform.transform_path_non_affine(self._path)

@@ -429,13 +429,11 @@ class DateLocator(ticker.Locator):
         self.tz = tz
 
     def datalim_to_dt(self):
-        self.verify_intervals()
-        dmin, dmax = self.dataInterval.get_bounds()
+        dmin, dmax = self.axis.get_data_interval()
         return num2date(dmin, self.tz), num2date(dmax, self.tz)
 
     def viewlim_to_dt(self):
-        self.verify_intervals()
-        vmin, vmax = self.viewInterval.get_bounds()
+        vmin, vmax = self.axis.get_view_interval()
         return num2date(vmin, self.tz), num2date(vmax, self.tz)
 
     def _get_unit(self):
@@ -459,8 +457,6 @@ class RRuleLocator(DateLocator):
         self.rule = o
 
     def __call__(self):
-        self.verify_intervals()
-
         # if no data have been set, this will tank with a ValueError
         try: dmin, dmax = self.viewlim_to_dt()
         except ValueError: return []
@@ -500,7 +496,6 @@ class RRuleLocator(DateLocator):
         """
         Set the view limits to include the data range
         """
-        self.verify_intervals()
         dmin, dmax = self.datalim_to_dt()
         if dmin>dmax:
             dmax, dmin = dmin, dmax
@@ -537,6 +532,10 @@ class AutoDateLocator(DateLocator):
         self.refresh()
         return self._locator()
 
+    def set_axis(self, axis):
+        DateLocator.set_axis(self, axis)
+        self._locator.set_axis(axis)
+    
     def refresh(self):
         'refresh internal information based on current lim'
         dmin, dmax = self.viewlim_to_dt()
@@ -563,8 +562,6 @@ class AutoDateLocator(DateLocator):
 
     def autoscale(self):
         'Try to choose the view limits intelligently'
-
-        self.verify_intervals()
         dmin, dmax = self.datalim_to_dt()
         self._locator = self.get_locator(dmin, dmax)
         return self._locator.autoscale()
@@ -667,9 +664,10 @@ class AutoDateLocator(DateLocator):
                               bysecond=bysecond )
 
         locator = RRuleLocator(rrule, self.tz)
-
-        locator.set_view_interval(self.viewInterval)
-        locator.set_data_interval(self.dataInterval)
+        locator.set_axis(self.axis)
+        
+        locator.set_view_interval(*self.axis.get_view_interval())
+        locator.set_data_interval(*self.axis.get_data_interval())
         return locator
 
 
@@ -710,8 +708,6 @@ class YearLocator(DateLocator):
         return 365
 
     def __call__(self):
-        self.verify_intervals()
-
         dmin, dmax = self.viewlim_to_dt()
         ymin = self.base.le(dmin.year)
         ymax = self.base.ge(dmax.year)
@@ -728,7 +724,6 @@ class YearLocator(DateLocator):
         """
         Set the view limits to include the data range
         """
-        self.verify_intervals()
         dmin, dmax = self.datalim_to_dt()
 
         ymin = self.base.le(dmin.year)

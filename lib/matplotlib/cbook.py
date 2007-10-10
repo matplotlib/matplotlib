@@ -1051,7 +1051,6 @@ def simple_linear_interpolation(a, steps):
     a1 = a[1:  ]
     delta = ((a1 - a0) / steps)
 
-    # MGDTODO: Could use linspace here?
     for i in range(1, int(steps)):
         result[i::steps] = delta * i + a0
     result[steps::steps] = a1

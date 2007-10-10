@@ -14,7 +14,10 @@ from transforms import Affine1DBase, IntervalTransform, Transform, \
 class ScaleBase(object):
     def set_default_locators_and_formatters(self, axis):
         raise NotImplementedError
-        
+
+    def limit_range_for_scale(self, vmin, vmax, minpos):
+        return vmin, vmax
+    
 class LinearScale(ScaleBase):
     name = 'linear'
     
@@ -39,6 +42,9 @@ class LogScale(ScaleBase):
         is_separable = True
             
         def transform(self, a):
+            # MGDTODO: Remove me
+            if len(a) > 10:
+                print "log transforming"
             return ma.log10(ma.masked_where(a <= 0.0, a * 10.0))
             
         def inverted(self):
@@ -159,6 +165,9 @@ class LogScale(ScaleBase):
     def get_transform(self):
         return self._transform
 
+    def limit_range_for_scale(self, vmin, vmax, minpos):
+        return (vmin <= 0.0 and minpos or vmin,
+                vmax <= 0.0 and minpos or vmax)
     
 _scale_mapping = {
     'linear' : LinearScale,

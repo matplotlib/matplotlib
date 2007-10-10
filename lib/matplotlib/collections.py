@@ -59,12 +59,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
     _offsets = npy.zeros((1, 2))
     _transOffset = transforms.IdentityTransform()
 
-    _facecolors = [None]
-    _edgecolors = [None]
-    _lw = [1.0]
-    _ls = [None]
-    _aa = [True]
-    _pickradius = 5.0
     _transforms = [None]
     
     zorder = 1
@@ -107,9 +101,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._uniform_offsets = None
         self._offsets = npy.zeros((1, 2))
         if offsets is not None:
-            offsets = npy.asarray(offsets)
-            if len(offsets.shape) == 1:
-                offsets = offsets[npy.newaxis,:]  # Make it Nx2.
+#             if len(offsets.shape) == 1:
+#                 offsets = offsets[npy.newaxis,:]  # Make it Nx2.
             if transOffset is not None:
                 Affine2D = transforms.Affine2D
                 self._offsets = offsets
@@ -152,29 +145,37 @@ class Collection(artist.Artist, cm.ScalarMappable):
         transform = self.get_transform()
         transOffset = self._transOffset
         offsets = self._offsets
+        paths = self.get_paths()
 
-        # MGDTODO: Transform the paths (since we don't keep track of segments anymore
+        # MGDTODO: Test me
         if self.have_units():
-            segments = []
-            for segment in self._segments:
+            paths = []
+            for path in self._paths:
+                vertices = path.vertices
                 xs, ys = zip(*segment)
                 xs = self.convert_xunits(xs)
                 ys = self.convert_yunits(ys)
-                segments.append(zip(xs, ys))
-#             if self._offsets is not None:
-#                 xs = self.convert_xunits(self._offsets[:0])
-#                 ys = self.convert_yunits(self._offsets[:1])
-#                 offsets = zip(xs, ys)
+                paths.append(path.Path(zip(xs, ys), path.codes))
+            if self._offsets is not None:
+                xs = self.convert_xunits(self._offsets[:0])
+                ys = self.convert_yunits(self._offsets[:1])
+                offsets = zip(xs, ys)
                 
         self.update_scalarmappable()
 
         #print 'calling renderer draw line collection'
         clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
 
+        if not transform.is_affine:
+            paths = [transform.transform_path_non_affine(path) for path in paths]
+            transform = transform.get_affine()
+        
         renderer.draw_path_collection(
             transform, self.clipbox, clippath, clippath_trans,
-            self.get_paths(), self.get_transforms(), offsets, transOffset, 
-            self._facecolors, self._edgecolors, self._lw, self._ls, self._aa)
+            paths, self.get_transforms(),
+            npy.asarray(offsets, npy.float_), transOffset, 
+            self._facecolors, self._edgecolors, self._linewidths,
+            self._linestyles, self._antialiaseds)
         renderer.close_group(self.__class__.__name__)
 
     def contains(self, mouseevent):
@@ -190,7 +191,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._offsetTrans, self._facecolors)
         return len(ind)>0,dict(ind=ind)
 
-    # MGDTODO
+    # MGDTODO: Update
     def get_transformed_patches(self):
         """
         get a sequence of the polygons in the collection in display (transformed) space
@@ -272,7 +273,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         except ValueError:
             raise ValueError('Do not know how to convert %s to dashes'%ls)
 
-        self._ls = dashes
+        self._linestyles = dashes
         
     def set_color(self, c):
         """
@@ -328,13 +329,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 self._edgecolors = [(r,g,b,alpha) for r,g,b,a in self._edgecolors]
 
     def get_linewidth(self):
-        return self._lw
-
+        return self._linewidths
+    
     def get_linestyle(self):
-        return self._ls
+        return self._linestyles
 
     def get_dashes(self):
-        return self._ls
+        return self._linestyles
                 
     def update_scalarmappable(self):
         """
@@ -509,14 +510,20 @@ class RegularPolyCollection(Collection):
         self._sizes = sizes
         self._dpi = dpi
         self._paths = [path.Path.unit_regular_polygon(numsides)]
-        self._transforms = [transforms.Affine2D().scale(x) for x in sizes]
+        # sizes is the area of the circle circumscribing the polygon
+        # in points^2
+        self._transforms = [
+            transforms.Affine2D().rotate(rotation).scale(
+                (math.sqrt(x) * self._dpi / 72.0) * (1.0 / math.sqrt(math.pi)))
+            for x in sizes]
+        self.set_transform(transforms.IdentityTransform())
         
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_paths(self):
         return self._paths
     
-    # MGDTODO
+    # MGDTODO: Update
     def get_transformed_patches(self):
         # Shouldn't need all these calls to asarray;
         # the variables should be converted when stored.

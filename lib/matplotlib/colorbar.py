@@ -317,12 +317,13 @@ class ColorbarBase(cm.ScalarMappable):
             intv = transforms.Interval(transforms.Value(self._values[0]),
                                        transforms.Value(self._values[-1]))
         else:
-            intv = transforms.Interval(transforms.Value(self.vmin),
-                                       transforms.Value(self.vmax))
-        locator.set_view_interval(intv)
-        locator.set_data_interval(intv)
-        formatter.set_view_interval(intv)
-        formatter.set_data_interval(intv)
+            intv = self.vmin, self.vmax
+        locator.create_dummy_axis()
+        locator.set_view_interval(*intv)
+        locator.set_data_interval(*intv)
+        formatter.create_dummy_axis()
+        formatter.set_view_interval(*intv)
+        formatter.set_data_interval(*intv)
         b = npy.array(locator())
         b, ticks = self._locate(b)
         formatter.set_locs(b)
