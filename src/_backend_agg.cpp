@@ -527,10 +527,8 @@ Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
   typedef agg::conv_transform<PathIterator>		     transformed_path_t;
   typedef conv_quantize<transformed_path_t>		     quantize_t;
-  typedef agg::conv_curve<transformed_path_t>		     curve_t;
+  typedef agg::conv_curve<transformed_path_t>	             curve_t;
   typedef agg::conv_stroke<curve_t>			     stroke_t;
-  typedef agg::conv_dash<curve_t>			     dash_t;
-  typedef agg::conv_stroke<dash_t>			     stroke_dash_t;
   typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
   typedef agg::renderer_base<pixfmt_amask_type>		     amask_ren_type;
   typedef agg::renderer_scanline_aa_solid<amask_ren_type>    amask_aa_renderer_type;
@@ -836,16 +834,30 @@ void RendererAgg::_draw_path(PathIterator& path, agg::trans_affine trans,
 
   // Render face
   if (face.first) {
-    if (has_clippath) {
-      pixfmt_amask_type pfa(*pixFmt, *alphaMask);
-      amask_ren_type r(pfa);
-      amask_aa_renderer_type ren(r);
-      ren.color(face.second);
-      agg::render_scanlines(*theRasterizer, *slineP8, ren);
+    if (gc.isaa) {
+      if (has_clippath) {
+	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	amask_ren_type r(pfa);
+	amask_aa_renderer_type ren(r);
+	ren.color(face.second);
+	agg::render_scanlines(*theRasterizer, *slineP8, ren);
+      } else {
+	rendererAA->color(face.second);
+	theRasterizer->add_path(curve);
+	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+      }
     } else {
-      rendererAA->color(face.second);
-      theRasterizer->add_path(curve);
-      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+      if (has_clippath) {
+	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	amask_ren_type r(pfa);
+	amask_bin_renderer_type ren(r);
+	ren.color(face.second);
+	agg::render_scanlines(*theRasterizer, *slineP8, ren);
+      } else {
+	rendererBin->color(face.second);
+	theRasterizer->add_path(curve);
+	agg::render_scanlines(*theRasterizer, *slineP8, *rendererBin);
+      }
     }
   }
 
@@ -959,7 +971,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   size_t Naa	     = antialiaseds.length();
 
   size_t i        = 0;
-  
+
   // Convert all of the transforms up front
   typedef std::vector<agg::trans_affine> transforms_t;
   transforms_t transforms;
@@ -1028,6 +1040,8 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   bool has_clippath = render_clippath(clippath, clippath_trans);
 
   for (i = 0; i < N; ++i) {
+    PathIterator path(paths[i % Npaths]);
+    bool snap = (path.total_vertices() == 2);
     double xo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
     double yo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
     offset_trans.transform(&xo, &yo);
@@ -1039,8 +1053,6 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
     gc.dashes		     = dashes[i % Nlinestyles].second;
     gc.dashOffset	     = dashes[i % Nlinestyles].first;
     gc.isaa		     = bool(Py::Int(antialiaseds[i % Naa]));
-    PathIterator path(paths[i % Npaths]);
-    bool snap = (path.total_vertices() == 2);
     _draw_path(path, trans * transOffset, snap, has_clippath, face, gc);
   }
 

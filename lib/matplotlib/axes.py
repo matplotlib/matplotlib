@@ -477,7 +477,11 @@ class Axes(martist.Artist):
 
         """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
         martist.Artist.__init__(self)
-        self._position = mtransforms.Bbox.from_lbwh(*rect)
+        if isinstance(rect, mtransforms.Bbox):
+            self._position = rect
+        else:
+            warnings.warn("Passing non-bbox as rect to Axes")
+            mtransforms.Bbox.from_lbwh(*rect)
         self._originalPosition = self._position.frozen()
         self.set_axes(self)
         self.set_aspect('auto')
@@ -564,15 +568,15 @@ class Axes(martist.Artist):
         # It is assumed that this part will have non-linear components
         self.transScale = mtransforms.TransformWrapper(mtransforms.IdentityTransform())
 
-        # A (possibly non-linear) projection on the (already scaled) data
-        self.transProjection = mtransforms.IdentityTransform()
-
         # An affine transformation on the data, generally to limit the
         # range of the axes
         self.transLimits = mtransforms.BboxTransform(
             mtransforms.TransformedBbox(self.viewLim, self.transScale), mtransforms.Bbox.unit())
-        
-        self.transData = self.transScale + self.transProjection + self.transLimits + self.transAxes
+
+        # The parentheses are important for efficiency here -- they
+        # group the last two (which are usually affines) separately
+        # from the first (which, with log-scaling can be non-affine).
+        self.transData = self.transScale + (self.transLimits + self.transAxes)
 
         self._xaxis_transform = mtransforms.blended_transform_factory(
                 self.axes.transData, self.axes.transAxes)
@@ -807,9 +811,9 @@ class Axes(martist.Artist):
                                 ', '.join(mtransforms.BBox.coefs.keys()))
 
     def get_data_ratio(self):
-        xmin,xmax = self.get_xlim()
+        xmin,xmax = self.get_xbound()
         xsize = max(math.fabs(xmax-xmin), 1e-30)
-        ymin,ymax = self.get_ylim()
+        ymin,ymax = self.get_ybound()
         ysize = max(math.fabs(ymax-ymin), 1e-30)
         return ysize/xsize
         
@@ -819,7 +823,7 @@ class Axes(martist.Artist):
         axes box or the view limits.
         '''
         #MGDTODO: Numpify
-        
+
         if self._aspect == 'auto':
             self.set_position( self._originalPosition , 'active')
             return
@@ -842,7 +846,6 @@ class Axes(martist.Artist):
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
             self.set_position(pb1.anchored(self._anchor, pb), 'active')
             return
-
 
         xmin,xmax = self.get_xbound()
         xsize = max(math.fabs(xmax-xmin), 1e-30)
@@ -1519,7 +1522,9 @@ class Axes(martist.Artist):
         if xmin is None: xmin = old_xmin
         if xmax is None: xmax = old_xmax
 
-        xmax, xmin = mtransforms.nonsingular(xmax, xmin, increasing=False)
+        xmin, xmax = mtransforms.nonsingular(xmin, xmax)
+        xmin, xmax = self.xaxis.limit_range_for_scale(xmin, xmax)
+
         self.viewLim.intervalx = (xmin, xmax)
         
         if emit:
@@ -1678,6 +1683,7 @@ class Axes(martist.Artist):
         if ymax is None: ymax = old_ymax
 
         ymin, ymax = mtransforms.nonsingular(ymin, ymax, increasing=False)
+        ymin, ymax = self.yaxis.limit_range_for_scale(ymin, ymax)
         self.viewLim.intervaly = (ymin, ymax)
 
         if emit:
@@ -1884,10 +1890,12 @@ class Axes(martist.Artist):
                 .transformed(p.trans_inverse)
         elif button == 3:
             try:
-                # MGDTODO: This is broken with log scales
-                dx, dy = format_deltas(key, dx, dy)
                 dx = -dx / float(self.bbox.width)
                 dy = -dy / float(self.bbox.height)
+                dx, dy = format_deltas(key, dx, dy)
+                if self.get_aspect() != 'auto':
+                    dx = 0.5 * (dx + dy)
+                    dy = dx
                 xmin, ymin, xmax, ymax = p.lim.lbrt
 
                 alpha = npy.power(10.0, (dx, dy))
@@ -2375,7 +2383,7 @@ class Axes(martist.Artist):
     axvspan.__doc__ = cbook.dedent(axvspan.__doc__) % martist.kwdocd
 
 
-    def hlines(self, y, xmin, xmax, colors='k', linestyle='solid',
+    def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
                      label='', **kwargs):
         """
         HLINES(y, xmin, xmax, colors='k', linestyle='solid', **kwargs)
@@ -2417,7 +2425,7 @@ class Axes(martist.Artist):
         verts = [ ((thisxmin, thisy), (thisxmax, thisy))
                             for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
         coll = mcoll.LineCollection(verts, colors=colors,
-                                    linestyle=linestyle, label=label)
+                                    linestyles=linestyles, label=label)
         self.add_collection(coll)
         coll.update(kwargs)
 
@@ -4896,7 +4904,7 @@ class Axes(martist.Artist):
         self.set_xlabel('Frequency')
         self.set_ylabel('Cross Spectrum Magnitude (dB)')
         self.grid(True)
-        vmin, vmax = self.viewLim.intervaly().get_bounds()
+        vmin, vmax = self.viewLim.intervaly
 
         intv = vmax-vmin
         step = 10*int(npy.log10(intv))
@@ -5177,8 +5185,7 @@ class SubplotBase:
         self.update_params()
 
         # _axes_class is set in the subplot_class_factory
-        self._axes_class.__init__(self, fig, [self.figLeft, self.figBottom,
-                                              self.figW, self.figH], **kwargs)
+        self._axes_class.__init__(self, fig, self.figbox, **kwargs)
         
     def get_geometry(self):
         'get the subplot geometry, eg 2,2,3'
@@ -5190,7 +5197,7 @@ class SubplotBase:
         self._cols = numcols
         self._num = num-1
         self.update_params()
-        self.set_position([self.figLeft, self.figBottom,  self.figW, self.figH])
+        self.set_position(self.figbox)
 
     def update_params(self):
         'update the subplot position from fig.subplotpars'
@@ -5220,10 +5227,7 @@ class SubplotBase:
         figBottom = top - (rowNum+1)*figH - rowNum*sepH
         figLeft = left + colNum*(figW + sepW)
 
-        self.figBottom = figBottom
-        self.figLeft = figLeft
-        self.figW = figW
-        self.figH = figH
+        self.figbox = mtransforms.Bbox.from_lbwh(figLeft, figBottom, figW, figH)
         self.rowNum = rowNum
         self.colNum = colNum
         self.numRows = rows

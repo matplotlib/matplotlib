@@ -179,14 +179,17 @@ class Text(Artist):
         key = self.get_prop_tup()
         if self.cached.has_key(key): return self.cached[key]
         horizLayout = []
-        thisx, thisy = self._get_xy_display()
+        transform = self.get_transform()
+        x, y = self.get_position()
+        thisx, thisy = transform.transform_point((x, y))
+        tx, ty = thisx, thisy
+
         width = 0
         height = 0
 
         xmin, ymin = thisx, thisy
         lines = self._text.split('\n')
 
-        # MGDTODO: whs could be a numpy.array
         whs = []
         # Find full vertical extent of font,
         # including ascenders and descenders:
@@ -267,11 +270,10 @@ class Text(Artist):
 
         # now rotate the positions around the first x,y position
         xys = M.transform(offsetLayout)
-        xys[:, 0] += offsetx
-        xys[:, 1] += offsety
+        xys += (offsetx, offsety)
 
         # now inverse transform back to data coords
-	inverse_transform = self.get_transform().inverted()
+	inverse_transform = transform.inverted()
         xys = inverse_transform.transform(xys)
 
         xs, ys = xys[:, 0], xys[:, 1]
@@ -781,13 +783,14 @@ class TextWithDash(Text):
 
         # Compute the dash end points
         # The 'c' prefix is for canvas coordinates
-        cxy = npy.array(transform.xy_tup((dashx, dashy)))
+        cxy = transform.transform_point((dashx, dashy))
         cd = npy.array([cos_theta, sin_theta])
         c1 = cxy+dashpush*cd
         c2 = cxy+(dashpush+dashlength)*cd
 
-        (x1, y1) = transform.inverse_xy_tup(tuple(c1))
-        (x2, y2) = transform.inverse_xy_tup(tuple(c2))
+        inverse = transform.inverted()
+        (x1, y1) = inverse.transform_point(tuple(c1))
+        (x2, y2) = inverse.transform_point(tuple(c2))
         self.dashline.set_data((x1, x2), (y1, y2))
 
         # We now need to extend this vector out to
@@ -805,7 +808,7 @@ class TextWithDash(Text):
         # but I don't grok the transformation stuff
         # well enough yet.
         we = Text.get_window_extent(self, renderer=renderer)
-        w, h = we.width(), we.height()
+        w, h = we.width, we.height
         # Watch for zeros
         if sin_theta == 0.0:
             dx = w
@@ -824,13 +827,13 @@ class TextWithDash(Text):
         cwd *= 1+dashpad/npy.sqrt(npy.dot(cwd,cwd))
         cw = c2+(dashdirection*2-1)*cwd
 
-        self._x, self._y = transform.inverse_xy_tup(tuple(cw))
+        self._x, self._y = inverse.transform_point(tuple(cw))
 
         # Now set the window extent
         # I'm not at all sure this is the right way to do this.
         we = Text.get_window_extent(self, renderer=renderer)
-        self._twd_window_extent = we.deepcopy()
-        self._twd_window_extent.update(((c1[0], c1[1]),), False)
+        self._twd_window_extent = we.frozen()
+        self._twd_window_extent.update_from_data_xy(npy.array([c1]), False)
 
         # Finally, make text align center
         Text.set_horizontalalignment(self, 'center')

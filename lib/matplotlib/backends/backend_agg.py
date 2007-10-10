@@ -381,11 +381,11 @@ class FigureCanvasAgg(FigureCanvasBase):
         return 'png'
 
     def print_raw(self, filename, *args, **kwargs):
-        self.draw()
+        FigureCanvasAgg.draw(self)
         self.get_renderer()._renderer.write_rgba(str(filename))
     print_rgba = print_raw
         
     def print_png(self, filename, *args, **kwargs):
-        self.draw()
-        self.get_renderer()._renderer.write_png(str(filename), self.figure.dpi.get())
+        FigureCanvasAgg.draw(self)
+        self.get_renderer()._renderer.write_png(str(filename), self.figure.dpi)
         
