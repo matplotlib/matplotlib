@@ -268,19 +268,23 @@ class BboxBase(TransformNode):
     def contains(self, x, y):
         return self.containsx(x) and self.containsy(y)
 
-    def overlapsx(self, other):
-        xmin, xmax = other.intervalx
-        return self.containsx(xmin) \
-            or self.containsx(xmax)
-
-    def overlapsy(self, other):
-        ymin, ymax = other.intervaly
-        return self.containsy(ymin) \
-            or self.containsy(ymax)
-    
     def overlaps(self, other):
-        return self.overlapsx(other) \
-            and self.overlapsy(other)
+        ax1, ay1, ax2, ay2 = self._get_lbrt()
+        bx1, by1, bx2, by2 = other._get_lbrt()
+
+        if ax2 < ax1:
+            ax2, ax1 = ax1, ax2
+        if ay2 < ay1:
+            ay2, ay1 = ay1, ay2
+        if bx2 < bx1:
+            bx2, bx1 = bx1, bx2
+        if by2 < by1:
+            by2, by1 = by1, by2
+
+        return not ((bx2 < ax1) or
+                    (by2 < ay1) or
+                    (bx1 > ax2) or
+                    (by1 > ay2))
     
     def fully_containsx(self, x):
         xmin, xmax = self.intervalx
@@ -298,19 +302,23 @@ class BboxBase(TransformNode):
         return self.fully_containsx(x) \
             and self.fully_containsy(y)
 
-    def fully_overlapsx(self, other):
-        xmin, xmax = other.intervalx
-        return self.fully_containsx(xmin) \
-            or self.fully_containsx(xmax)
-
-    def fully_overlapsy(self, other):
-        ymin, ymax = other.intervaly
-        return self.fully_containsy(ymin) \
-            or self.fully_containsy(ymax)
-    
     def fully_overlaps(self, other):
-        return self.fully_overlapsx(other) and \
-            self.fully_overlapsy(other)
+        ax1, ay1, ax2, ay2 = self._get_lbrt()
+        bx1, by1, bx2, by2 = other._get_lbrt()
+
+        if ax2 < ax1:
+            ax2, ax1 = ax1, ax2
+        if ay2 < ay1:
+            ay2, ay1 = ay1, ay2
+        if bx2 < bx1:
+            bx2, bx1 = bx1, bx2
+        if by2 < by1:
+            by2, by1 = by1, by2
+
+        return not ((bx2 <= ax1) or
+                    (by2 <= ay1) or
+                    (bx1 >= ax2) or
+                    (by1 >= ay2))
 
     def transformed(self, transform):
         """
@@ -324,8 +332,139 @@ class BboxBase(TransformNode):
         given transform.
         """
         return Bbox(transform.inverted().transform(self.get_points()))
-    
-    
+
+    coefs = {'C':  (0.5, 0.5),
+             'SW': (0,0),
+             'S':  (0.5, 0),
+             'SE': (1.0, 0),
+             'E':  (1.0, 0.5),
+             'NE': (1.0, 1.0),
+             'N':  (0.5, 1.0),
+             'NW': (0, 1.0),
+             'W':  (0, 0.5)}
+    def anchored(self, c, container = None):
+        """
+        Return a copy of the Bbox, shifted to position c within a
+        container.
+
+        c: may be either a) a sequence (cx, cy) where cx, cy range
+        from 0 to 1, where 0 is left or bottom and 1 is right or top;
+        or b) a string: C for centered, S for bottom-center, SE for
+        bottom-left, E for left, etc.
+
+        Optional arg container is the lbwh box within which the BBox
+        is positioned; it defaults to the initial BBox.
+        """
+        if container is None:
+            container = self
+        l, b, w, h = container.bounds
+        if isinstance(c, str):
+            cx, cy = self.coefs[c]
+        else:
+            cx, cy = c
+        L, B, W, H = self.bounds
+        return Bbox(self._points +
+                    [(l + cx * (w-W)) - L,
+                     (b + cy * (h-H)) - B])
+
+    def shrunk(self, mx, my):
+        """
+        Return a copy of the Bbox, shurnk by the factor mx in the x
+        direction and the factor my in the y direction.  The lower
+        left corner of the box remains unchanged.  Normally mx and my
+        will be <= 1, but this is not enforced.
+        """
+        w, h = self.size
+        return Bbox([self._points[0],
+                    self._points[0] + [mx * w, my * h]])
+
+    def shrunk_to_aspect(self, box_aspect, container = None, fig_aspect = 1.0):
+        """
+        Return a copy of the Bbox, shrunk so that it is as large as it
+        can be while having the desired aspect ratio, box_aspect.  If
+        the box coordinates are relative--that is, fractions of a
+        larger box such as a figure--then the physical aspect ratio of
+        that figure is specified with fig_aspect, so that box_aspect
+        can also be given as a ratio of the absolute dimensions, not
+        the relative dimensions.
+        """
+        assert box_aspect > 0 and fig_aspect > 0
+        if container is None:
+            container = self
+        w, h = container.size
+        H = w * box_aspect/fig_aspect
+        if H <= h:
+            W = w
+        else:
+            W = h * fig_aspect/box_aspect
+            H = h
+        return Bbox([self._points[0],
+                     self._points[0] + (W, H)])
+
+    def splitx(self, *args):
+        '''
+        e.g., bbox.splitx(f1, f2, ...)
+
+        Returns a list of new BBoxes formed by
+        splitting the original one with vertical lines
+        at fractional positions f1, f2, ...
+        '''
+        boxes = []
+        xf = [0] + list(args) + [1]
+        l, b, r, t = self.lbrt
+        w = r - l
+        for xf0, xf1 in zip(xf[:-1], xf[1:]):
+            boxes.append(Bbox([[l + xf0 * w, b], [l + xf1 * w, t]]))
+        return boxes
+
+    def splity(self, *args):
+        '''
+        e.g., bbox.splitx(f1, f2, ...)
+
+        Returns a list of new PBoxes formed by
+        splitting the original one with horizontal lines
+        at fractional positions f1, f2, ...
+        '''
+        boxes = []
+        yf = [0] + list(args) + [1]
+        l, b, r, t = self.lbrt
+        h = t - b
+        for yf0, yf1 in zip(yf[:-1], yf[1:]):
+            boxes.append(Bbox([[l, b + yf0 * h], [r, b + yf1 * h]]))
+        return boxes
+
+    def count_contains(self, vertices):
+        if len(vertices) == 0:
+            return 0
+        vertices = npy.asarray(vertices)
+        xmin, ymin, xmax, ymax = self._get_lbrt()
+        dxmin = npy.sign(vertices[:, 0] - xmin)
+        dymin = npy.sign(vertices[:, 1] - ymin)
+        dxmax = npy.sign(vertices[:, 0] - xmax)
+        dymax = npy.sign(vertices[:, 1] - ymax)
+        inside = (abs(dxmin + dxmax) + abs(dymin + dymax)) <= 2
+        return N.sum(inside)
+
+    def count_overlaps(self, bboxes):
+        ax1, ay1, ax2, ay2 = self._get_lbrt()
+        if ax2 < ax1:
+            ax2, ax1 = ax1, ax2
+        if ay2 < ay1:
+            ay2, ay1 = ay1, ay2
+
+        count = 0
+        for bbox in bboxes:
+            bx1, by1, bx2, by2 = bbox._get_lbrt()
+            if bx2 < bx1:
+                bx2, bx1 = bx1, bx2
+            if by2 < by1:
+                by2, by1 = by1, by2
+            count += (not ((bx2 <= ax1) or
+                           (by2 <= ay1) or
+                           (bx1 >= ax2) or
+                           (by1 >= ay2)))
+        return count
+            
 class Bbox(BboxBase):
     def __init__(self, points):
         """
@@ -402,7 +541,7 @@ class Bbox(BboxBase):
 
         if len(x) == 0 or len(y) == 0:
             return
-            
+
         if ma.isMaskedArray(x) or ma.isMaskedArray(y):
             xpos = ma.where(x > 0.0, x, npy.inf)
             ypos = ma.where(y > 0.0, y, npy.inf)
@@ -430,6 +569,7 @@ class Bbox(BboxBase):
                   max(y.max(), self.ymax)]],
 		 npy.float_)
             self._minpos = npy.minimum(minpos, self._minpos)
+
         self.invalidate()
 
     def update_from_data_xy(self, xy, ignore=None):
@@ -544,74 +684,6 @@ class Bbox(BboxBase):
         """
         return Bbox(self._points + (tx, ty))
 
-    coefs = {'C':  (0.5, 0.5),
-             'SW': (0,0),
-             'S':  (0.5, 0),
-             'SE': (1.0, 0),
-             'E':  (1.0, 0.5),
-             'NE': (1.0, 1.0),
-             'N':  (0.5, 1.0),
-             'NW': (0, 1.0),
-             'W':  (0, 0.5)}
-    def anchored(self, c, container = None):
-        """
-        Return a copy of the Bbox, shifted to position c within a
-        container.
-
-        c: may be either a) a sequence (cx, cy) where cx, cy range
-        from 0 to 1, where 0 is left or bottom and 1 is right or top;
-        or b) a string: C for centered, S for bottom-center, SE for
-        bottom-left, E for left, etc.
-
-        Optional arg container is the lbwh box within which the BBox
-        is positioned; it defaults to the initial BBox.
-        """
-        if container is None:
-            container = self
-        l, b, w, h = container.bounds
-        if isinstance(c, str):
-            cx, cy = self.coefs[c]
-        else:
-            cx, cy = c
-        L, B, W, H = self.bounds
-        return Bbox(self._points +
-                    [(l + cx * (w-W)) - L,
-                     (b + cy * (h-H)) - B])
-
-    def shrunk(self, mx, my):
-        """
-        Return a copy of the Bbox, shurnk by the factor mx in the x
-        direction and the factor my in the y direction.  The lower
-        left corner of the box remains unchanged.  Normally mx and my
-        will be <= 1, but this is not enforced.
-        """
-        w, h = self.size
-        return Bbox([self._points[0],
-                     self._points[1] - [w - (mx * w), h - (my * h)]])
-
-    def shrunk_to_aspect(self, box_aspect, container = None, fig_aspect = 1.0):
-        """
-        Return a copy of the Bbox, shrunk so that it is as large as it
-        can be while having the desired aspect ratio, box_aspect.  If
-        the box coordinates are relative--that is, fractions of a
-        larger box such as a figure--then the physical aspect ratio of
-        that figure is specified with fig_aspect, so that box_aspect
-        can also be given as a ratio of the absolute dimensions, not
-        the relative dimensions.
-        """
-        assert box_aspect > 0 and fig_aspect > 0
-        if container is None:
-            container = self
-        w, h = container.size
-        H = w * box_aspect/fig_aspect
-        if H <= h:
-            W = w
-        else:
-            W = h * fig_aspect/box_aspect
-            H = h
-        return Bbox([self._points[0],
-                     self._points[0] + (W, H)])
-        
     #@staticmethod
     def union(bboxes):
         """
@@ -1444,6 +1516,7 @@ class Affine2D(Affine2DBase):
         return mtx[0, 1] == 0.0 and mtx[1, 0] == 0.0
     is_separable = property(_get_is_separable)
 
+    
 class IdentityTransform(Affine2DBase):
     """
     A special class that does on thing, the identity transform, in a
@@ -1478,10 +1551,10 @@ class IdentityTransform(Affine2DBase):
     transform_path.__doc__ = Affine2DBase.transform_path.__doc__
 
     transform_path_affine = transform_path
-    transform_path_affine = Affine2DBase.transform_path_affine.__doc__
+    transform_path_affine.__doc__ = Affine2DBase.transform_path_affine.__doc__
     
     transform_path_non_affine = transform_path
-    transform_path_non_affine = Affine2DBase.transform_path_non_affine.__doc__
+    transform_path_non_affine.__doc__ = Affine2DBase.transform_path_non_affine.__doc__
     
     def get_affine(self):
         return self

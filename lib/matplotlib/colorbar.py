@@ -319,9 +319,9 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             intv = self.vmin, self.vmax
         locator.create_dummy_axis()
+        formatter.create_dummy_axis()
         locator.set_view_interval(*intv)
         locator.set_data_interval(*intv)
-        formatter.create_dummy_axis()
         formatter.set_view_interval(*intv)
         formatter.set_data_interval(*intv)
         b = npy.array(locator())
@@ -580,18 +580,18 @@ def make_axes(parent, **kw):
     shrink = kw.pop('shrink', 1.0)
     aspect = kw.pop('aspect', 20)
     #pb = transforms.PBox(parent.get_position())
-    pb = transforms.PBox(parent.get_position(original=True))
+    pb = parent.get_position(original=True).frozen()
     if orientation == 'vertical':
         pad = kw.pop('pad', 0.05)
         x1 = 1.0-fraction
         pb1, pbx, pbcb = pb.splitx(x1-pad, x1)
-        pbcb.shrink(1.0, shrink).anchor('C')
+        pbcb = pbcb.shrunk(1.0, shrink).anchored('C', pbcb)
         anchor = (0.0, 0.5)
         panchor = (1.0, 0.5)
     else:
         pad = kw.pop('pad', 0.15)
         pbcb, pbx, pb1 = pb.splity(fraction, fraction+pad)
-        pbcb.shrink(shrink, 1.0).anchor('C')
+        pbcb = pbcb.shrunk(shrink, 1.0).anchored('C', pbcb)
         aspect = 1.0/aspect
         anchor = (0.5, 1.0)
         panchor = (0.5, 0.0)

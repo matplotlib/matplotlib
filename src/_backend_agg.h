@@ -247,7 +247,7 @@ public:
     add_varargs_method("get_path_collection_extents", &_backend_agg_module::get_path_collection_extents,
 		       "get_path_collection_extents(trans, paths, transforms, offsets, offsetTrans)");
     add_varargs_method("point_in_path_collection", &_backend_agg_module::point_in_path_collection,
-		       "point_in_path_collection(x, y, r, trans, paths, transforms, offsets, offsetTrans, colors)");
+		       "point_in_path_collection(x, y, r, trans, paths, transforms, offsets, offsetTrans, filled)");
 
     initialize( "The agg rendering backend" );
   }

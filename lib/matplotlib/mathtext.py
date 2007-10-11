@@ -672,7 +672,8 @@ class BakomaFonts(TruetypeFonts):
     _slanted_symbols = Set(r"\int \oint".split())
 
     def _get_glyph(self, fontname, sym, fontsize):
-        if fontname in self.fontmap and latex_to_bakoma.has_key(sym):
+        use_default = fontname == 'default' and len(sym) == 1
+        if latex_to_bakoma.has_key(sym) and not use_default:
             basename, num = latex_to_bakoma[sym]
             slanted = (basename == "cmmi10") or sym in self._slanted_symbols
             cached_font = self._get_font(basename)

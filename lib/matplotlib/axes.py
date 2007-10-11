@@ -480,8 +480,7 @@ class Axes(martist.Artist):
         if isinstance(rect, mtransforms.Bbox):
             self._position = rect
         else:
-            warnings.warn("Passing non-bbox as rect to Axes")
-            mtransforms.Bbox.from_lbwh(*rect)
+            self._position = mtransforms.Bbox.from_lbwh(*rect)
         self._originalPosition = self._position.frozen()
         self.set_axes(self)
         self.set_aspect('auto')
@@ -596,7 +595,7 @@ class Axes(martist.Artist):
     def get_xaxis_text2_transform(self, pad_pixels):
         return (self._xaxis_transform +
                 mtransforms.Affine2D().translate(0, pad_pixels),
-                "top", "center")
+                "bottom", "center")
 
     def get_yaxis_transform(self):
         return self._yaxis_transform
@@ -609,7 +608,7 @@ class Axes(martist.Artist):
     def get_yaxis_text2_transform(self, pad_pixels):
         return (self._yaxis_transform +
                 mtransforms.Affine2D().translate(pad_pixels, 0),
-                "center", "right")
+                "center", "left")
         
     def _update_transScale(self):
         self.transScale.set(
@@ -643,7 +642,7 @@ class Axes(martist.Artist):
 	    self._position.set(pos)
         if which in ('both', 'original'):
             self._originalPosition.set(pos)
-	    
+
 	    
     def _set_artist_props(self, a):
         'set the boilerplate props for artists added to axes'
@@ -1083,7 +1082,8 @@ class Axes(martist.Artist):
     def _update_patch_limits(self, p):
         'update the datalimits for patch p'
         xys = self._get_verts_in_data_coords(
-            p.get_transform(), p.get_path().vertices)
+            p.get_data_transform(),
+            p.get_patch_transform().transform(p.get_path().vertices))
         self.update_datalim(xys)
 
 
@@ -1240,11 +1240,11 @@ class Axes(martist.Artist):
                    for im in self.images if im.get_visible()]
 
 
-            im = mimage.from_images(self.bbox.height()*mag,
-                                    self.bbox.width()*mag,
+            im = mimage.from_images(self.bbox.height*mag,
+                                    self.bbox.width*mag,
                                     ims)
             im.is_grayscale = False
-            l, b, w, h = self.bbox.get_bounds()
+            l, b, w, h = self.bbox.bounds
             # composite images need special args so they will not
             # respect z-order for now
             renderer.draw_image(l, b, im, self.bbox)

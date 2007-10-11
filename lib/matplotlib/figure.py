@@ -623,11 +623,11 @@ class Figure(Artist):
             mag = renderer.get_image_magnification()
             ims = [(im.make_image(mag), im.ox*mag, im.oy*mag)
                    for im in self.images]
-            im = _image.from_images(self.bbox.height()*mag,
-                                    self.bbox.width()*mag,
+            im = _image.from_images(self.bbox.height * mag,
+                                    self.bbox.width * mag,
                                     ims)
             im.is_grayscale = False
-            l, b, w, h = self.bbox.get_bounds()
+            l, b, w, h = self.bbox.bounds
             renderer.draw_image(l, b, im, self.bbox)
 
 

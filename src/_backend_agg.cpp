@@ -605,8 +605,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
     while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
-      x += 0.5;
-      y += 0.5;
       //render the fill
       if (face.first) {
 	if (has_clippath) {
@@ -948,8 +946,8 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   Py::SeqBase<Py::Object> transforms_obj   = args[5];
   Py::Object              offsets_obj      = args[6];
   agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7], false);
-  Py::SeqBase<Py::Object> facecolors_obj   = args[8];
-  Py::SeqBase<Py::Object> edgecolors_obj   = args[9];
+  Py::Object              facecolors_obj   = args[8];
+  Py::Object              edgecolors_obj   = args[9];
   Py::SeqBase<Py::Float>  linewidths	   = args[10];
   Py::SeqBase<Py::Object> linestyles_obj   = args[11];
   Py::SeqBase<Py::Int>    antialiaseds	   = args[12];
@@ -960,15 +958,30 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   if (!offsets || offsets->dimensions[1] != 2)
     throw Py::ValueError("Offsets array must be Nx2");
 
+  PyArrayObject* facecolors = (PyArrayObject*)PyArray_FromObject(facecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
+  if (!facecolors || 
+      (facecolors->nd == 1 && facecolors->dimensions[0] != 0) || 
+      (facecolors->nd == 2 && facecolors->dimensions[1] != 4))
+    throw Py::ValueError("Facecolors must be a Nx4 numpy array or empty");
+
+  PyArrayObject* edgecolors = (PyArrayObject*)PyArray_FromObject(edgecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
+  if (!edgecolors || 
+      (edgecolors->nd == 1 && edgecolors->dimensions[0] != 0) || 
+      (edgecolors->nd == 2 && edgecolors->dimensions[1] != 4))
+    throw Py::ValueError("Edgecolors must be a Nx4 numpy array");
+
   size_t Npaths	     = paths.length();
   size_t Noffsets    = offsets->dimensions[0];
   size_t N	     = std::max(Npaths, Noffsets);
   size_t Ntransforms = std::min(transforms_obj.length(), N);
-  size_t Nfacecolors = std::min(facecolors_obj.length(), N);
-  size_t Nedgecolors = std::min(edgecolors_obj.length(), N);
+  size_t Nfacecolors = facecolors->dimensions[0];
+  size_t Nedgecolors = edgecolors->dimensions[0];
   size_t Nlinewidths = linewidths.length();
   size_t Nlinestyles = std::min(linestyles_obj.length(), N);
   size_t Naa	     = antialiaseds.length();
+
+  if ((Nfacecolors == 0 && Nedgecolors == 0) || N == 0)
+    return Py::Object();
 
   size_t i        = 0;
 
@@ -981,46 +994,6 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
       (transforms_obj[i], false);
     trans *= master_transform;
     transforms.push_back(trans);
-  }
-
-  // Convert all of the facecolors up front
-  typedef std::vector<facepair_t> facecolors_t;
-  facecolors_t facecolors;
-  facecolors.resize(Nfacecolors);
-  i = 0;
-  for (facecolors_t::iterator f = facecolors.begin(); 
-       f != facecolors.end(); ++f, ++i) {
-    double r, g, b, a;
-    const Py::Object& facecolor_obj = facecolors_obj[i];
-    if (facecolor_obj.ptr() == Py_None)
-      f->first = false;
-    else {
-      Py::SeqBase<Py::Float> facergba = facecolor_obj;
-      r = Py::Float(facergba[0]);
-      g = Py::Float(facergba[1]);
-      b = Py::Float(facergba[2]);
-      a = 1.0;
-      if (facergba.size() == 4)
-	a = Py::Float(facergba[3]);
-      f->first = true;
-      f->second = agg::rgba(r, g, b, a);
-    }
-  }
-
-  // Convert all of the edgecolors up front
-  typedef std::vector<agg::rgba> edgecolors_t;
-  edgecolors_t edgecolors;
-  edgecolors.reserve(Nedgecolors);
-  for (i = 0; i < Nedgecolors; ++i) {
-    double r, g, b, a;
-    Py::SeqBase<Py::Float> edgergba(edgecolors_obj[i]);
-    r = Py::Float(edgergba[0]);
-    g = Py::Float(edgergba[1]);
-    b = Py::Float(edgergba[2]);
-    a = 1.0;
-    if (edgergba.size() == 4)
-      a = Py::Float(edgergba[3]);
-    edgecolors.push_back(agg::rgba(r, g, b, a));
   }
 
   // Convert all the dashes up front
@@ -1039,6 +1012,11 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   set_clipbox(cliprect, theRasterizer);
   bool has_clippath = render_clippath(clippath, clippath_trans);
 
+  // Set some defaults, assuming no face or edge
+  gc.linewidth = 0.0;
+  facepair_t face;
+  face.first = Nfacecolors != 0;
+
   for (i = 0; i < N; ++i) {
     PathIterator path(paths[i % Npaths]);
     bool snap = (path.total_vertices() == 2);
@@ -1047,11 +1025,26 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
     offset_trans.transform(&xo, &yo);
     agg::trans_affine_translation transOffset(xo, yo);
     agg::trans_affine& trans = transforms[i % Ntransforms];
-    facepair_t& face         = facecolors[i % Nfacecolors];
-    gc.color		     = edgecolors[i % Nedgecolors];
-    gc.linewidth	     = double(Py::Float(linewidths[i % Nlinewidths])) * dpi/72.0;
-    gc.dashes		     = dashes[i % Nlinestyles].second;
-    gc.dashOffset	     = dashes[i % Nlinestyles].first;
+
+    if (Nfacecolors) {
+      size_t fi = i % Nfacecolors;
+      face.second            = agg::rgba(*(double*)PyArray_GETPTR2(facecolors, fi, 0),
+					 *(double*)PyArray_GETPTR2(facecolors, fi, 1),
+					 *(double*)PyArray_GETPTR2(facecolors, fi, 2),
+					 *(double*)PyArray_GETPTR2(facecolors, fi, 3));
+    }
+
+    if (Nedgecolors) {
+      size_t ei = i % Nedgecolors;
+      gc.color               = agg::rgba(*(double*)PyArray_GETPTR2(edgecolors, ei, 0),
+					 *(double*)PyArray_GETPTR2(edgecolors, ei, 1),
+					 *(double*)PyArray_GETPTR2(edgecolors, ei, 2),
+					 *(double*)PyArray_GETPTR2(edgecolors, ei, 3));
+      gc.linewidth	     = double(Py::Float(linewidths[i % Nlinewidths])) * dpi/72.0;
+      gc.dashes		     = dashes[i % Nlinestyles].second;
+      gc.dashOffset	     = dashes[i % Nlinestyles].first;
+    }
+
     gc.isaa		     = bool(Py::Int(antialiaseds[i % Naa]));
     _draw_path(path, trans * transOffset, snap, has_clippath, face, gc);
   }
@@ -1400,16 +1393,17 @@ RendererAgg::~RendererAgg() {
 template<class T>
 bool point_in_path_impl(double tx, double ty, T& path) {
   int yflag0, yflag1, inside_flag;
-  double vtx0, vty0, vtx1, vty1;
+  double vtx0, vty0, vtx1, vty1, sx, sy;
   double x, y;
 
   path.rewind(0);
-  if (path.vertex(&x, &y) == agg::path_cmd_stop)
+  unsigned code = path.vertex(&x, &y);
+  if (code == agg::path_cmd_stop)
     return false;
 
   while (true) {
-    vtx0 = x;
-    vty0 = y;
+    sx = vtx0 = x;
+    sy = vty0 = y;
 
     // get test bit for above/below X axis
     yflag0 = (vty0 >= ty);
@@ -1419,13 +1413,12 @@ bool point_in_path_impl(double tx, double ty, T& path) {
 
     inside_flag = 0;
     while (true) {
-      unsigned code = path.vertex(&x, &y);
-      if (code == agg::path_cmd_stop)
-	return false;
+      code = path.vertex(&x, &y);
+
       // The following cases denote the beginning on a new subpath
-      if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
-	break;
-      if (code == agg::path_cmd_move_to)
+      if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
+	x = sx; y = sy;
+      } else if (code == agg::path_cmd_move_to)
 	break;
       
       yflag1 = (vty1 >= ty);
@@ -1459,10 +1452,17 @@ bool point_in_path_impl(double tx, double ty, T& path) {
 	
       vtx1 = x;
       vty1 = y;
+
+      if (code == agg::path_cmd_stop || 
+	  (code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
+	break;
     }
 
     if (inside_flag != 0)
       return true;
+
+    if (code == agg::path_cmd_stop)
+      return false;
   }
 
   return false;
@@ -1641,15 +1641,18 @@ Py::Object _backend_agg_module::point_in_path_collection(const Py::Tuple& args) 
   agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[3]);
   Py::SeqBase<Py::Object> paths		   = args[4];
   Py::SeqBase<Py::Object> transforms_obj   = args[5];
-  Py::SeqBase<Py::Object> offsets          = args[6];
-  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7], false);
-  Py::SeqBase<Py::Object> facecolors       = args[8];
+  Py::SeqBase<Py::Object> offsets_obj      = args[6];
+  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7]);
+  bool                    filled           = Py::Int(args[8]);
   
+  PyArrayObject* offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 2, 2);
+  if (!offsets || offsets->dimensions[1] != 2)
+    throw Py::ValueError("Offsets array must be Nx2");
+
   size_t Npaths	     = paths.length();
-  size_t Noffsets    = offsets.length();
+  size_t Noffsets    = offsets->dimensions[0];
   size_t N	     = std::max(Npaths, Noffsets);
   size_t Ntransforms = std::min(transforms_obj.length(), N);
-  size_t Ncolors     = facecolors.length();
   size_t i;
 
   // Convert all of the transforms up front
@@ -1668,19 +1671,18 @@ Py::Object _backend_agg_module::point_in_path_collection(const Py::Tuple& args) 
   for (i = 0; i < N; ++i) {
     PathIterator path(paths[i % Npaths]);
     
-    Py::SeqBase<Py::Float> offset = Py::SeqBase<Py::Float>(offsets[i % Noffsets]);
-    double xo                = Py::Float(offset[0]);
-    double yo                = Py::Float(offset[1]);
+    double xo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
+    double yo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
     offset_trans.transform(&xo, &yo);
     agg::trans_affine_translation transOffset(xo, yo);
-    agg::trans_affine trans = transforms[i % Ntransforms] * transOffset;
+    agg::trans_affine trans = transforms[i % Ntransforms];
+    trans *= transOffset;
 
-    const Py::Object& facecolor_obj = facecolors[i & Ncolors];
-    if (facecolor_obj.ptr() == Py_None) {
-      if (::point_on_path(x, y, radius, path, trans))
+    if (filled) {
+      if (::point_in_path(x, y, path, trans))
 	result.append(Py::Int((int)i));
     } else {
-      if (::point_in_path(x, y, path, trans))
+      if (::point_on_path(x, y, radius, path, trans))
 	result.append(Py::Int((int)i));
     }
   }
