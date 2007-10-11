@@ -2,7 +2,7 @@ import sys
 
 import matplotlib
 from matplotlib import _pylab_helpers
-from matplotlib.cbook import dedent, silent_list
+from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
 from matplotlib.figure import Figure, figaspect
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.image import imread as _imread
@@ -1231,9 +1231,9 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     def getname_val(identifier):
         'return the name and column data for identifier'
-        if cbook.is_string_like(identifier):
+        if is_string_like(identifier):
             return identifier, r[identifier]
-        elif cbook.is_numlike(identifier):
+        elif is_numlike(identifier):
             name = r.dtype.names[int(identifier)]
             return name, r[name]
         else:
