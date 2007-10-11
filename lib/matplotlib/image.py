@@ -332,8 +332,8 @@ class NonUniformImage(AxesImage):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
-        x0, y0, v_width, v_height = self.axes.viewLim.get_bounds()
-        l, b, width, height = self.axes.bbox.get_bounds()
+        x0, y0, v_width, v_height = self.axes.viewLim.bounds
+        l, b, width, height = self.axes.bbox.bounds
         width *= magnification
         height *= magnification
         im = _image.pcolor(self._Ax, self._Ay, self._A,

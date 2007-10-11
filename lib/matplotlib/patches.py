@@ -114,6 +114,9 @@ class Patch(artist.Artist):
         self._combined_transform = self.get_patch_transform() + \
             artist.Artist.get_transform(self)
 
+    def get_data_transform(self):
+        return artist.Artist.get_transform(self)
+        
     def get_patch_transform(self):
         return transforms.IdentityTransform()
     
@@ -307,8 +310,8 @@ class Shadow(Patch):
             g = rho*g
             b = rho*b
 
-            self.set_facecolor((r,g,b))
-            self.set_edgecolor((r,g,b))
+            self.set_facecolor((r,g,b,0.5))
+            self.set_edgecolor((r,g,b,0.5))
 	    
     def get_path(self):
         return self.patch.get_path()
@@ -960,7 +963,7 @@ def bbox_artist(artist, renderer, props=None, fill=True):
     pad = props.pop('pad', 4)
     pad = renderer.points_to_pixels(pad)
     bbox = artist.get_window_extent(renderer)
-    l,b,w,h = bbox.get_bounds()
+    l,b,w,h = bbox.bounds
     l-=pad/2.
     b-=pad/2.
     w+=pad

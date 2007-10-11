@@ -1290,13 +1290,12 @@ class YAxis(Axis):
 	    
         else:
             if not len(bboxes2):
-                right = self.axes.bbox.xmax()
+                right = self.axes.bbox.xmax
             else:
+                bbox = Bbox.union(bboxes2)
+                right = bbox.xmax
 
-                bbox = bbox_union(bboxes2)
-                right = bbox.xmax()
-
-            self.label.set_position( (right+self.LABELPAD*self.figure.dpi.get()/72.0, y))
+            self.label.set_position( (right+self.LABELPAD*self.figure.dpi/72.0, y))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """

@@ -316,7 +316,7 @@ class ColorConverter:
         If the sequence is a list, the list items are changed in place.
         """
         try:
-            return [self.to_rgba(c, alpha)]
+            result = [self.to_rgba(c, alpha)]
         except ValueError:
             # If c is a list it must be maintained as the same list
             # with modified items so that items can be appended to
@@ -325,7 +325,8 @@ class ColorConverter:
                 c = list(c)
             for i, cc in enumerate(c):
                 c[i] = self.to_rgba(cc, alpha)  # change in place
-            return c
+            result = c
+        return npy.asarray(result, npy.float_)
 
 colorConverter = ColorConverter()
 

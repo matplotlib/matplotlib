@@ -23,6 +23,9 @@ import matplotlib.path as path
 from matplotlib.backends._backend_agg import get_path_collection_extents, \
     point_in_path_collection
 
+# MGDTODO: Treat facecolors and edgecolors as numpy arrays always
+# and then update draw_path_collection to use the array interface
+
 class Collection(artist.Artist, cm.ScalarMappable):
     """
     Base class for Collections.  Must be subclassed to be usable.
@@ -58,7 +61,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
     """
     _offsets = npy.zeros((1, 2))
     _transOffset = transforms.IdentityTransform()
-
     _transforms = [None]
     
     zorder = 1
@@ -163,9 +165,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 
         self.update_scalarmappable()
 
-        #print 'calling renderer draw line collection'
         clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
 
+        # MGDTODO: This may benefit from using TransformedPath
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(path) for path in paths]
             transform = transform.get_affine()
@@ -185,10 +187,19 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Returns T/F, dict(ind=itemlist), where every item in itemlist contains the event.
         """
         if callable(self._contains): return self._contains(self,mouseevent)
+
+        transform = self.get_transform()
+        paths = self.get_paths()
+        if not transform.is_affine:
+            paths = [transform.transform_path_non_affine(path) for path in paths]
+            transform = transform.get_affine()
+
+        # MGDTODO: Don't pick when outside of clip path / clip box
         ind = point_in_path_collection(
             mouseevent.x, mouseevent.y, self._pickradius,
-            self.get_transform(), self._paths, self._transforms, self._offsets,
-            self._offsetTrans, self._facecolors)
+            transform.frozen(), paths, self.get_transforms(),
+            npy.asarray(self._offsets, npy.float_),
+            self._transOffset.frozen(), len(self._facecolors))
         return len(ind)>0,dict(ind=ind)
 
     # MGDTODO: Update
@@ -233,7 +244,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def set_pickradius(self,pickradius): self.pickradius = 5
     def get_pickradius(self): return self.pickradius
     
-    def set_linewidth(self, lw):
+    def set_linewidths(self, lw):
         """
         Set the linewidth(s) for the collection.  lw can be a scalar or a
         sequence; if it is a sequence the patches will cycle through the
@@ -242,9 +253,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ACCEPTS: float or sequence of floats
         """
         self._linewidths = self._get_value(lw)
-    def set_linewidths(self, lw):
-        self.set_linewidth(lw)
-
+    set_linewidth = set_linewidths
+        
     def set_linestyles(self, ls):
         """
         Set the linestyles(s) for the collection.
@@ -274,6 +284,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             raise ValueError('Do not know how to convert %s to dashes'%ls)
 
         self._linestyles = dashes
+    set_dashes = set_linestyle = set_linestyles
         
     def set_color(self, c):
         """
@@ -295,8 +306,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
         self._facecolors = _colors.colorConverter.to_rgba_list(c)
-    def set_facecolors(self, c):
-        self.set_facecolor(c)
+    set_facecolors = set_facecolor
 
     def set_edgecolor(self, c):
         """
@@ -308,10 +318,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         if c == 'None':
             self._linewidths = (0.0,)
+            self._edgecolors = npy.array([])
         else:
             self._edgecolors = _colors.colorConverter.to_rgba_list(c)
-    def set_edgecolors(self, c):
-        self.set_edgecolor(c)
+    set_edgecolors = set_edgecolor
 
     def set_alpha(self, alpha):
         """
@@ -324,29 +334,30 @@ class Collection(artist.Artist, cm.ScalarMappable):
         except TypeError: raise TypeError('alpha must be a float')
         else:
             artist.Artist.set_alpha(self, alpha)
-            self._facecolors = [(r,g,b,alpha) for r,g,b,a in self._facecolors]
-            if cbook.is_string_like(self._edgecolors) and self._edgecolors != 'None':
-                self._edgecolors = [(r,g,b,alpha) for r,g,b,a in self._edgecolors]
+            self._facecolors[:, 3] = alpha
+            self._edgecolors[:, 3] = alpha
 
-    def get_linewidth(self):
+    def get_linewidths(self):
         return self._linewidths
+    get_linewidth = get_linewidths
     
-    def get_linestyle(self):
+    def get_linestyles(self):
         return self._linestyles
-
-    def get_dashes(self):
-        return self._linestyles
+    get_dashes = get_linestyle = get_linestyles
                 
     def update_scalarmappable(self):
         """
-        If the scalar mappable array is not none, update facecolors
+        If the scalar mappable array is not none, update colors
         from scalar data
         """
         #print 'update_scalarmappable: self._A', self._A
         if self._A is None: return
         if len(self._A.shape)>1:
             raise ValueError('PatchCollections can only map rank 1 arrays')
-        self._facecolors = self.to_rgba(self._A, self._alpha)
+        if len(self._facecolors):
+            self._facecolors = self.to_rgba(self._A, self._alpha)
+        else:
+            self._edgecolors = self.to_rgba(self._A, self._alpha)
         #print self._facecolors
 
 
@@ -673,6 +684,8 @@ class LineCollection(Collection, cm.ScalarMappable):
         if antialiaseds is None: antialiaseds = (mpl.rcParams['lines.antialiased'],)
         self.set_linestyles(linestyles)
 
+        colors = _colors.colorConverter.to_rgba_list(colors)
+        
         Collection.__init__(
             self,
             edgecolors=colors,
@@ -686,7 +699,7 @@ class LineCollection(Collection, cm.ScalarMappable):
             pickradius=pickradius,
             **kwargs)
 
-        self._facecolors = [None]
+        self._facecolors = npy.array([])
         self.set_segments(segments)
 
     def get_paths(self):

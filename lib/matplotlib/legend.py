@@ -38,7 +38,7 @@ from transforms import Affine2D, Bbox, BboxTransform
 
 def line_cuts_bbox(line, bbox):
     """ Return True if and only if line cuts bbox. """
-    minx, miny, width, height = bbox.get_bounds()
+    minx, miny, width, height = bbox.bounds
     maxx = minx + width
     maxy = miny + height
 
@@ -343,31 +343,27 @@ The following dimensions are in axes coords
         bboxes = []
         lines = []
 
-        inv = ax.transAxes.inverse_xy_tup
+        inv = ax.transAxes.inverted().transform
 
         for handle in ax.lines:
             assert isinstance(handle, Line2D)
-
-            xdata = handle.get_xdata(orig=False)
-            ydata = handle.get_ydata(orig=False)
+            data = handle.get_xydata()
             trans = handle.get_transform()
-            xt, yt = trans.numerix_x_y(xdata, ydata)
-
-            # XXX need a special method in transform to do a list of verts
-            averts = [inv(v) for v in zip(xt, yt)]
+            tdata = trans.transform(data)
+            averts = inv(tdata)
             lines.append(averts)
 
         for handle in ax.patches:
             assert isinstance(handle, Patch)
 
-            verts = handle.get_verts()
+            path = handle.get_path()
             trans = handle.get_transform()
-            tverts = trans.seq_xy_tups(verts)
+            tpath = trans.transform_path(path)
+            tverts = tpath.vertices
+            averts = inv(tverts)
 
-            averts = [inv(v) for v in tverts]
-
-            bbox = unit_bbox()
-            bbox.update(averts, True)
+            bbox = Bbox.unit()
+            bbox.update_from_data_xy(averts, True)
             bboxes.append(bbox)
 
         for handle in ax.collections:
@@ -445,22 +441,19 @@ The following dimensions are in axes coords
 
         consider = [self._loc_to_axes_coords(x, width, height) for x in range(1, len(self.codes))]
 
-        tx, ty = self.legendPatch.xy
+        tx, ty = self.legendPatch.get_x(), self.legendPatch.get_y()
 
         candidates = []
         for l, b in consider:
             legendBox = Bbox.from_lbwh(l, b, width, height)
             badness = 0
             badness = legendBox.count_contains(verts)
-            ox, oy = l-tx, b-ty
-            for bbox in bboxes:
-                if legendBox.overlaps(bbox):
-                    badness += 1
-
+            badness += legendBox.count_overlaps(bboxes)
             for line in lines:
                 if line_cuts_bbox(line, legendBox):
                     badness += 1
 
+            ox, oy = l-tx, b-ty
             if badness == 0:
                 return ox, oy
 
@@ -563,7 +556,5 @@ The following dimensions are in axes coords
             ox, oy = x-l, y-b
 
         self._offset(ox, oy)
-
-
 
 #artist.kwdocd['Legend'] = kwdoc(Legend)

@@ -118,8 +118,8 @@ class TickHelper:
     axis = None
     class DummyAxis:
         def __init__(self):
-            self.dataLim = mtransforms.Bbox
-            self.viewLim = mtransforms.Bbox
+            self.dataLim = mtransforms.Bbox.unit()
+            self.viewLim = mtransforms.Bbox.unit()
 
         def get_view_interval(self):
             return self.viewLim.intervalx
@@ -137,7 +137,8 @@ class TickHelper:
         self.axis = axis
 
     def create_dummy_axis(self):
-        self.axis = self.DummyAxis()
+        if self.axis is None:
+            self.axis = self.DummyAxis()
         
     def set_view_interval(self, vmin, vmax):
         self.axis.set_view_interval(vmin, vmax)
@@ -229,8 +230,8 @@ class OldScalarFormatter(Formatter):
 
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'
-        self.verify_intervals()
-        d = abs(self.viewInterval.span())
+        xmin, xmax = self.axis.get_view_interval()
+        d = abs(xmax - xmin)
 
         return self.pprint_val(x,d)
 
@@ -322,7 +323,7 @@ class ScalarFormatter(Formatter):
                 if self.offset > 0: offsetStr = '+' + offsetStr
             if self.orderOfMagnitude:
                 if self._usetex or self._useMathText:
-                    sciNotStr = r'{\times}'+self.format_data(10**self.orderOfMagnitude)
+                    sciNotStr = r'\times'+self.format_data(10**self.orderOfMagnitude)
                 else:
                     sciNotStr = u'\xd7'+'1e%d'% self.orderOfMagnitude
             if self._useMathText:
@@ -451,8 +452,8 @@ class LogFormatter(Formatter):
 
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'
-        self.verify_intervals()
-        d = abs(self.viewInterval.span())
+        vmin, vmax = self.axis.get_view_interval()
+        d = abs(vmax - vmin)
         b=self._base
         # only label the decades
         fx = math.log(x)/math.log(b)
@@ -769,10 +770,7 @@ class MultipleLocator(Locator):
 
     def __call__(self):
         'Return the locations of the ticks'
-
-        self.verify_intervals()
-
-        vmin, vmax = self.viewInterval.get_bounds()
+        vmin, vmax = self.axis.get_view_interval()
         if vmax<vmin:
             vmin, vmax = vmax, vmin
         vmin = self._base.ge(vmin)
@@ -786,9 +784,7 @@ class MultipleLocator(Locator):
         Set the view limits to the nearest multiples of base that
         contain the data
         """
-
-        self.verify_intervals()
-        dmin, dmax = self.dataInterval.get_bounds()
+        dmin, dmax = self.axis.get_data_interval()
 
         vmin = self._base.le(dmin)
         vmax = self._base.ge(dmax)
