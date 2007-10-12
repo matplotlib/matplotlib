@@ -32,7 +32,9 @@ from weakref import WeakKeyDictionary
 import cbook
 from path import Path
 
-DEBUG = True
+DEBUG = False
+
+# MGDTODO: Cache get_affine???
 
 class TransformNode(object):
     """
@@ -81,7 +83,7 @@ class TransformNode(object):
         # A list of the children is kept around for debugging purposes
         # only.
         self._children = []
-
+        
     def __copy__(self, *args):
         raise NotImplementedError(
             "TransformNode instances can not be copied. " +
@@ -402,13 +404,13 @@ class BboxBase(TransformNode):
                      self._points[0] + (W, H)])
 
     def splitx(self, *args):
-        '''
+        """
         e.g., bbox.splitx(f1, f2, ...)
 
         Returns a list of new BBoxes formed by
         splitting the original one with vertical lines
         at fractional positions f1, f2, ...
-        '''
+        """
         boxes = []
         xf = [0] + list(args) + [1]
         l, b, r, t = self.lbrt
@@ -418,13 +420,13 @@ class BboxBase(TransformNode):
         return boxes
 
     def splity(self, *args):
-        '''
+        """
         e.g., bbox.splitx(f1, f2, ...)
 
         Returns a list of new PBoxes formed by
         splitting the original one with horizontal lines
         at fractional positions f1, f2, ...
-        '''
+        """
         boxes = []
         yf = [0] + list(args) + [1]
         l, b, r, t = self.lbrt
@@ -434,6 +436,11 @@ class BboxBase(TransformNode):
         return boxes
 
     def count_contains(self, vertices):
+        """
+        Count the number of vertices contained in the Bbox.
+
+        vertices is a Nx2 numpy array.
+        """
         if len(vertices) == 0:
             return 0
         vertices = npy.asarray(vertices)
@@ -446,6 +453,11 @@ class BboxBase(TransformNode):
         return N.sum(inside)
 
     def count_overlaps(self, bboxes):
+        """
+        Count the number of bounding boxes that overlap this one.
+
+        bboxes is a sequence of Bbox objects
+        """
         ax1, ay1, ax2, ay2 = self._get_lbrt()
         if ax2 < ax1:
             ax2, ax1 = ax1, ax2
@@ -454,7 +466,9 @@ class BboxBase(TransformNode):
 
         count = 0
         for bbox in bboxes:
-            bx1, by1, bx2, by2 = bbox._get_lbrt()
+            # bx1, by1, bx2, by2 = bbox._get_lbrt()
+            # The above, inlined...
+            bx1, by1, bx2, by2 = bbox.get_points().flatten()
             if bx2 < bx1:
                 bx2, bx1 = bx1, bx2
             if by2 < by1:
@@ -464,7 +478,53 @@ class BboxBase(TransformNode):
                            (bx1 >= ax2) or
                            (by1 >= ay2)))
         return count
-            
+
+    def expanded(self, sw, sh):
+        """
+        Return a new Bbox which is this Bbox expanded around its
+        center by the given factors sw and sh.
+        """
+        width = self.width
+        height = self.height
+        deltaw = (sw * width - width) / 2.0
+        deltah = (sh * height - height) / 2.0
+        a = npy.array([[-deltaw, -deltah], [deltaw, deltah]])
+        return Bbox(self._points + a)
+
+    def translated(self, tx, ty):
+        """
+        Return a copy of the Bbox, translated by tx and ty.
+        """
+        return Bbox(self._points + (tx, ty))
+
+    #@staticmethod
+    def union(bboxes):
+        """
+        Return a Bbox that contains all of the given bboxes.
+        """
+        assert(len(bboxes))
+
+        if len(bboxes) == 1:
+            return bboxes[0]
+
+        xmin = npy.inf
+        ymin = npy.inf
+        xmax = -npy.inf
+        ymax = -npy.inf
+
+        for bbox in bboxes:
+            points = bbox.get_points()
+            xs = points[:, 0]
+            ys = points[:, 1]
+            xmin = min(xmin, npy.min(xs))
+            ymin = min(ymin, npy.min(ys))
+            xmax = max(xmax, npy.max(xs))
+            ymax = max(ymax, npy.max(ys))
+
+        return Bbox.from_lbrt(xmin, ymin, xmax, ymax)
+    union = staticmethod(union)
+    
+    
 class Bbox(BboxBase):
     def __init__(self, points):
         """
@@ -535,7 +595,6 @@ class Bbox(BboxBase):
            when None, use the last value passed to Bbox.ignore().
         """
         # MGDTODO: It may be more efficient for some callers to use update_from_data_xy instead
-
         if ignore is None:
             ignore = self._ignore
 
@@ -569,7 +628,6 @@ class Bbox(BboxBase):
                   max(y.max(), self.ymax)]],
 		 npy.float_)
             self._minpos = npy.minimum(minpos, self._minpos)
-
         self.invalidate()
 
     def update_from_data_xy(self, xy, ignore=None):
@@ -665,51 +723,6 @@ class Bbox(BboxBase):
         """
         self._points = other.get_points()
         self.invalidate()
-        
-    def expanded(self, sw, sh):
-        """
-        Return a new Bbox which is this Bbox expanded around its
-        center by the given factors sw and sh.
-        """
-        width = self.width
-        height = self.height
-        deltaw = (sw * width - width) / 2.0
-        deltah = (sh * height - height) / 2.0
-        a = npy.array([[-deltaw, -deltah], [deltaw, deltah]])
-        return Bbox(self._points + a)
-
-    def translated(self, tx, ty):
-        """
-        Return a copy of the Bbox, translated by tx and ty.
-        """
-        return Bbox(self._points + (tx, ty))
-
-    #@staticmethod
-    def union(bboxes):
-        """
-        Return a Bbox that contains all of the given bboxes.
-        """
-        assert(len(bboxes))
-
-        if len(bboxes) == 1:
-            return bboxes[0]
-
-        xmin = npy.inf
-        ymin = npy.inf
-        xmax = -npy.inf
-        ymax = -npy.inf
-
-        for bbox in bboxes:
-            points = bbox.get_points()
-            xs = points[:, 0]
-            ys = points[:, 1]
-            xmin = min(xmin, npy.min(xs))
-            ymin = min(ymin, npy.min(ys))
-            xmax = max(xmax, npy.max(xs))
-            ymax = max(ymax, npy.max(ys))
-
-        return Bbox.from_lbrt(xmin, ymin, xmax, ymax)
-    union = staticmethod(union)
 
     
 class TransformedBbox(BboxBase):
@@ -1633,14 +1646,38 @@ class BlendedGenericTransform(Transform):
         else:
             return npy.concatenate((x_points, y_points), 1)
     transform.__doc__ = Transform.transform.__doc__
-    
-    transform_non_affine = transform
+
+    def transform_affine(self, points):
+        if self._x.is_affine and self._y.is_affine:
+            return self.transform(points)
+        return points
+    transform_affine.__doc__ = Transform.transform_affine.__doc__
+
+    def transform_non_affine(self, points):
+        if self._x.is_affine and self._y.is_affine:
+            return points
+        return self.transform(points)
     transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
     def inverted(self):
         return BlendedGenericTransform(self._x.inverted(), self._y.inverted())
     inverted.__doc__ = Transform.inverted.__doc__
-    
+
+    def get_affine(self):
+        if self._x.is_affine and self._y.is_affine:
+            if self._x == self._y:
+                return self._x.get_affine()
+            else:
+                x_mtx = self._x.get_affine().get_matrix()
+                y_mtx = self._y.get_affine().get_matrix()
+                # This works because we already know the transforms are
+                # separable, though normally one would want to set b and
+                # c to zero.
+                mtx = npy.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
+                return Affine2D(mtx)
+        return IdentityTransform()
+    get_affine.__doc__ = Transform.get_affine.__doc__
+
 
 class BlendedAffine1D(Affine2DBase):
     """
@@ -1807,7 +1844,7 @@ class CompositeGenericTransform(Transform):
     is_affine = property(_get_is_affine)
         
     def _get_is_separable(self):
-        return self._a.is_separable() and self._b.is_separable()
+        return self._a.is_separable and self._b.is_separable
     is_separable = property(_get_is_separable)
         
     def __repr__(self):
@@ -1838,7 +1875,7 @@ class CompositeGenericTransform(Transform):
     
     def transform_path_affine(self, path):
         return self._b.transform_path_affine(
-            self._a.transform(path))
+            self._a.transform_path(path))
     transform_path_affine.__doc__ = Transform.transform_path_affine.__doc__
 
     def transform_path_non_affine(self, path):
@@ -1850,7 +1887,8 @@ class CompositeGenericTransform(Transform):
     
     def get_affine(self):
         if self._a.is_affine and self._b.is_affine:
-            return CompositeAffine2D(self._a.get_affine(), self._b.get_affine())
+            return Affine2D(npy.dot(self._b.get_affine().get_matrix(),
+                                    self._a.get_affine().get_matrix()))
         return self._b.get_affine()
     get_affine.__doc__ = Transform.get_affine.__doc__
     

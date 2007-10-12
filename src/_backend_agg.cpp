@@ -82,7 +82,10 @@ agg::trans_affine py_to_agg_transformation_matrix(const Py::Object& obj, bool er
       return agg::trans_affine(a, b, c, d, e, f);
     }
   } catch (...) {
-    
+    if (errors) {
+      Py_XDECREF(matrix);
+      throw;
+    }
   }
 
   Py_XDECREF(matrix);
@@ -333,8 +336,10 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
 
 bool
 RendererAgg::bbox_to_rect(const Py::Object& bbox_obj, double* l, double* b, double* r, double* t) {
+  PyArrayObject* bbox = NULL;
+
   if (bbox_obj.ptr() != Py_None) {
-    PyArrayObject* bbox = (PyArrayObject*) PyArray_FromObject(bbox_obj.ptr(), PyArray_DOUBLE, 2, 2);   
+    bbox = (PyArrayObject*) PyArray_FromObject(bbox_obj.ptr(), PyArray_DOUBLE, 2, 2);   
 
     if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2) {
       Py_XDECREF(bbox);
@@ -559,9 +564,9 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
   PathIterator path(path_obj);
   transformed_path_t path_transformed(path, trans);
-  bool snap = should_snap(path, trans);
-  GCAgg gc = GCAgg(gc_obj, dpi, snap);
-  quantize_t path_quantized(path_transformed, snap);
+  // bool snap = should_snap(path, trans);
+  GCAgg gc = GCAgg(gc_obj, dpi, true);
+  quantize_t path_quantized(path_transformed, true);
   path_quantized.rewind(0);
 
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
@@ -638,6 +643,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   } catch(...) {
     delete[] fillCache;
     delete[] strokeCache;
+    throw;
   }
   
   delete [] fillCache;
@@ -879,7 +885,7 @@ void RendererAgg::_draw_path(PathIterator& path, agg::trans_affine trans,
       theRasterizer->add_path(stroke);
     }
     
-    if (gc.isaa && !(snap && gc.dashes.size())) {
+    if (gc.isaa && !(snap && gc.linewidth < 1.5)) {
       if (has_clippath) {
 	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
 	amask_ren_type r(pfa);
@@ -954,99 +960,110 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   
   GCAgg gc(dpi, false);
 
-  PyArrayObject* offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 2, 2);
-  if (!offsets || offsets->dimensions[1] != 2)
-    throw Py::ValueError("Offsets array must be Nx2");
+  PyArrayObject* offsets    = NULL;
+  PyArrayObject* facecolors = NULL;
+  PyArrayObject* edgecolors = NULL;
 
-  PyArrayObject* facecolors = (PyArrayObject*)PyArray_FromObject(facecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
-  if (!facecolors || 
-      (facecolors->nd == 1 && facecolors->dimensions[0] != 0) || 
-      (facecolors->nd == 2 && facecolors->dimensions[1] != 4))
-    throw Py::ValueError("Facecolors must be a Nx4 numpy array or empty");
+  try {
+    offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 2, 2);
+    if (!offsets || offsets->dimensions[1] != 2)
+      throw Py::ValueError("Offsets array must be Nx2");
 
-  PyArrayObject* edgecolors = (PyArrayObject*)PyArray_FromObject(edgecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
-  if (!edgecolors || 
-      (edgecolors->nd == 1 && edgecolors->dimensions[0] != 0) || 
-      (edgecolors->nd == 2 && edgecolors->dimensions[1] != 4))
-    throw Py::ValueError("Edgecolors must be a Nx4 numpy array");
+    PyArrayObject* facecolors = (PyArrayObject*)PyArray_FromObject(facecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
+    if (!facecolors || 
+	(facecolors->nd == 1 && facecolors->dimensions[0] != 0) || 
+	(facecolors->nd == 2 && facecolors->dimensions[1] != 4))
+      throw Py::ValueError("Facecolors must be a Nx4 numpy array or empty");
 
-  size_t Npaths	     = paths.length();
-  size_t Noffsets    = offsets->dimensions[0];
-  size_t N	     = std::max(Npaths, Noffsets);
-  size_t Ntransforms = std::min(transforms_obj.length(), N);
-  size_t Nfacecolors = facecolors->dimensions[0];
-  size_t Nedgecolors = edgecolors->dimensions[0];
-  size_t Nlinewidths = linewidths.length();
-  size_t Nlinestyles = std::min(linestyles_obj.length(), N);
-  size_t Naa	     = antialiaseds.length();
+    PyArrayObject* edgecolors = (PyArrayObject*)PyArray_FromObject(edgecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
+    if (!edgecolors || 
+	(edgecolors->nd == 1 && edgecolors->dimensions[0] != 0) || 
+	(edgecolors->nd == 2 && edgecolors->dimensions[1] != 4))
+      throw Py::ValueError("Edgecolors must be a Nx4 numpy array");
+    
+    size_t Npaths      = paths.length();
+    size_t Noffsets    = offsets->dimensions[0];
+    size_t N	       = std::max(Npaths, Noffsets);
+    size_t Ntransforms = std::min(transforms_obj.length(), N);
+    size_t Nfacecolors = facecolors->dimensions[0];
+    size_t Nedgecolors = edgecolors->dimensions[0];
+    size_t Nlinewidths = linewidths.length();
+    size_t Nlinestyles = std::min(linestyles_obj.length(), N);
+    size_t Naa	       = antialiaseds.length();
 
-  if ((Nfacecolors == 0 && Nedgecolors == 0) || N == 0)
-    return Py::Object();
-
-  size_t i        = 0;
-
-  // Convert all of the transforms up front
-  typedef std::vector<agg::trans_affine> transforms_t;
-  transforms_t transforms;
-  transforms.reserve(Ntransforms);
-  for (i = 0; i < Ntransforms; ++i) {
-    agg::trans_affine trans = py_to_agg_transformation_matrix
-      (transforms_obj[i], false);
-    trans *= master_transform;
-    transforms.push_back(trans);
-  }
-
-  // Convert all the dashes up front
-  typedef std::vector<std::pair<double, GCAgg::dash_t> > dashes_t;
-  dashes_t dashes;
-  dashes.resize(Nlinestyles);
-  i = 0;
-  for (dashes_t::iterator d = dashes.begin(); 
-       d != dashes.end(); ++d, ++i) {
-    convert_dashes(Py::Tuple(linestyles_obj[i]), false, dpi, d->second, d->first);
-  }
-
-  // Handle any clipping globally
-  theRasterizer->reset_clipping();
-  rendererBase->reset_clipping(true);
-  set_clipbox(cliprect, theRasterizer);
-  bool has_clippath = render_clippath(clippath, clippath_trans);
-
-  // Set some defaults, assuming no face or edge
-  gc.linewidth = 0.0;
-  facepair_t face;
-  face.first = Nfacecolors != 0;
-
-  for (i = 0; i < N; ++i) {
-    PathIterator path(paths[i % Npaths]);
-    bool snap = (path.total_vertices() == 2);
-    double xo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
-    double yo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
-    offset_trans.transform(&xo, &yo);
-    agg::trans_affine_translation transOffset(xo, yo);
-    agg::trans_affine& trans = transforms[i % Ntransforms];
-
-    if (Nfacecolors) {
-      size_t fi = i % Nfacecolors;
-      face.second            = agg::rgba(*(double*)PyArray_GETPTR2(facecolors, fi, 0),
-					 *(double*)PyArray_GETPTR2(facecolors, fi, 1),
-					 *(double*)PyArray_GETPTR2(facecolors, fi, 2),
-					 *(double*)PyArray_GETPTR2(facecolors, fi, 3));
+    if ((Nfacecolors == 0 && Nedgecolors == 0) || N == 0)
+      return Py::Object();
+    
+    size_t i        = 0;
+    
+    // Convert all of the transforms up front
+    typedef std::vector<agg::trans_affine> transforms_t;
+    transforms_t transforms;
+    transforms.reserve(Ntransforms);
+    for (i = 0; i < Ntransforms; ++i) {
+      agg::trans_affine trans = py_to_agg_transformation_matrix
+	(transforms_obj[i], false);
+      trans *= master_transform;
+      transforms.push_back(trans);
     }
-
-    if (Nedgecolors) {
-      size_t ei = i % Nedgecolors;
-      gc.color               = agg::rgba(*(double*)PyArray_GETPTR2(edgecolors, ei, 0),
-					 *(double*)PyArray_GETPTR2(edgecolors, ei, 1),
-					 *(double*)PyArray_GETPTR2(edgecolors, ei, 2),
-					 *(double*)PyArray_GETPTR2(edgecolors, ei, 3));
-      gc.linewidth	     = double(Py::Float(linewidths[i % Nlinewidths])) * dpi/72.0;
-      gc.dashes		     = dashes[i % Nlinestyles].second;
-      gc.dashOffset	     = dashes[i % Nlinestyles].first;
+    
+    // Convert all the dashes up front
+    typedef std::vector<std::pair<double, GCAgg::dash_t> > dashes_t;
+    dashes_t dashes;
+    dashes.resize(Nlinestyles);
+    i = 0;
+    for (dashes_t::iterator d = dashes.begin(); 
+	 d != dashes.end(); ++d, ++i) {
+      convert_dashes(Py::Tuple(linestyles_obj[i]), false, dpi, d->second, d->first);
     }
-
-    gc.isaa		     = bool(Py::Int(antialiaseds[i % Naa]));
-    _draw_path(path, trans * transOffset, snap, has_clippath, face, gc);
+    
+    // Handle any clipping globally
+    theRasterizer->reset_clipping();
+    rendererBase->reset_clipping(true);
+    set_clipbox(cliprect, theRasterizer);
+    bool has_clippath = render_clippath(clippath, clippath_trans);
+    
+    // Set some defaults, assuming no face or edge
+    gc.linewidth = 0.0;
+    facepair_t face;
+    face.first = Nfacecolors != 0;
+    
+    for (i = 0; i < N; ++i) {
+      PathIterator path(paths[i % Npaths]);
+      bool snap = (path.total_vertices() == 2);
+      double xo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
+      double yo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
+      offset_trans.transform(&xo, &yo);
+      agg::trans_affine_translation transOffset(xo, yo);
+      agg::trans_affine& trans = transforms[i % Ntransforms];
+      
+      if (Nfacecolors) {
+	size_t fi = i % Nfacecolors;
+	face.second            = agg::rgba(*(double*)PyArray_GETPTR2(facecolors, fi, 0),
+					   *(double*)PyArray_GETPTR2(facecolors, fi, 1),
+					   *(double*)PyArray_GETPTR2(facecolors, fi, 2),
+					   *(double*)PyArray_GETPTR2(facecolors, fi, 3));
+      }
+      
+      if (Nedgecolors) {
+	size_t ei = i % Nedgecolors;
+	gc.color               = agg::rgba(*(double*)PyArray_GETPTR2(edgecolors, ei, 0),
+					   *(double*)PyArray_GETPTR2(edgecolors, ei, 1),
+					   *(double*)PyArray_GETPTR2(edgecolors, ei, 2),
+					   *(double*)PyArray_GETPTR2(edgecolors, ei, 3));
+	gc.linewidth 	       = double(Py::Float(linewidths[i % Nlinewidths])) * dpi/72.0;
+	gc.dashes		     = dashes[i % Nlinestyles].second;
+	gc.dashOffset	       = dashes[i % Nlinestyles].first;
+      }
+      
+      gc.isaa		       = bool(Py::Int(antialiaseds[i % Naa]));
+      _draw_path(path, trans * transOffset, snap, has_clippath, face, gc);
+    }
+  } catch (...) {
+    Py_XDECREF(offsets);
+    Py_XDECREF(facecolors);
+    Py_XDECREF(edgecolors);
+    throw;
   }
 
   Py_XDECREF(offsets);
@@ -1518,18 +1535,15 @@ Py::Object _backend_agg_module::point_on_path(const Py::Tuple& args) {
 
 void get_path_extents(PathIterator& path, agg::trans_affine& trans, 
 		      double* x0, double* y0, double* x1, double* y1) {
-  typedef agg::conv_curve<PathIterator> curve_t;
-  
-  curve_t curved_path(path);
+  typedef agg::conv_transform<PathIterator> transformed_path_t;
+  typedef agg::conv_curve<transformed_path_t> curve_t;
   double x, y;
+  unsigned code;
+
+  transformed_path_t tpath(path, trans);
+  curve_t curved_path(tpath);
+
   curved_path.rewind(0);
-
-  unsigned code = curved_path.vertex(&x, &y);
-
-  *x0 = x;
-  *y0 = y;
-  *x1 = x;
-  *y1 = y;
 
   while ((code = curved_path.vertex(&x, &y)) != agg::path_cmd_stop) {
     if (code & agg::path_cmd_end_poly == agg::path_cmd_end_poly)
@@ -1539,9 +1553,6 @@ void get_path_extents(PathIterator& path, agg::trans_affine& trans,
     if (x > *x1) *x1 = x;
     if (y > *y1) *y1 = y;
   }
-
-  trans.transform(x0, y0);
-  trans.transform(x1, y1);
 }
 
 Py::Object _backend_agg_module::get_path_extents(const Py::Tuple& args) {
@@ -1550,7 +1561,11 @@ Py::Object _backend_agg_module::get_path_extents(const Py::Tuple& args) {
   PathIterator path(args[0]);
   agg::trans_affine trans = py_to_agg_transformation_matrix(args[1]);
 
-  double x0, y0, x1, y1;
+  double x0 = std::numeric_limits<double>::infinity();
+  double y0 = std::numeric_limits<double>::infinity();
+  double x1 = -std::numeric_limits<double>::infinity();
+  double y1 = -std::numeric_limits<double>::infinity();
+
   ::get_path_extents(path, trans, &x0, &y0, &x1, &y1);
 
   Py::Tuple result(4);
@@ -1561,10 +1576,6 @@ Py::Object _backend_agg_module::get_path_extents(const Py::Tuple& args) {
   return result;
 }
 
-struct PathCollectionExtents {
-  double x0, y0, x1, y1;
-};
-
 Py::Object _backend_agg_module::get_path_collection_extents(const Py::Tuple& args) {
   args.verify_length(5);
 
@@ -1572,56 +1583,57 @@ Py::Object _backend_agg_module::get_path_collection_extents(const Py::Tuple& arg
   agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0]);
   Py::SeqBase<Py::Object> paths		   = args[1];
   Py::SeqBase<Py::Object> transforms_obj   = args[2];
-  Py::SeqBase<Py::Object> offsets          = args[3];
+  Py::Object              offsets_obj      = args[3];
   agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[4], false);
 
-  size_t Npaths	     = paths.length();
-  size_t Noffsets    = offsets.length();
-  size_t N	     = std::max(Npaths, Noffsets);
-  size_t Ntransforms = std::min(transforms_obj.length(), N);
-  size_t i;
+  PyArrayObject* offsets = NULL;
+  double x0, y0, x1, y1;
 
-  // Convert all of the transforms up front
-  typedef std::vector<agg::trans_affine> transforms_t;
-  transforms_t transforms;
-  transforms.reserve(Ntransforms);
-  for (i = 0; i < Ntransforms; ++i) {
-    agg::trans_affine trans = py_to_agg_transformation_matrix
-      (transforms_obj[i], false);
-    trans *= master_transform;
-    transforms.push_back(trans);
+  try {
+    offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 2, 2);
+    if (!offsets || offsets->dimensions[1] != 2)
+      throw Py::ValueError("Offsets array must be Nx2");
+
+    size_t Npaths      = paths.length();
+    size_t Noffsets    = offsets->dimensions[0];
+    size_t N	       = std::max(Npaths, Noffsets);
+    size_t Ntransforms = std::min(transforms_obj.length(), N);
+    size_t i;
+
+    // Convert all of the transforms up front
+    typedef std::vector<agg::trans_affine> transforms_t;
+    transforms_t transforms;
+    transforms.reserve(Ntransforms);
+    for (i = 0; i < Ntransforms; ++i) {
+      agg::trans_affine trans = py_to_agg_transformation_matrix
+	(transforms_obj[i], false);
+      trans *= master_transform;
+      transforms.push_back(trans);
+    }
+    
+    // The offset each of those and collect the mins/maxs
+    x0 = std::numeric_limits<double>::infinity();
+    y0 = std::numeric_limits<double>::infinity();
+    x1 = -std::numeric_limits<double>::infinity();
+    y1 = -std::numeric_limits<double>::infinity();
+    for (i = 0; i < N; ++i) {
+      PathIterator path(paths[i % Npaths]);
+      
+      double xo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
+      double yo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
+      offset_trans.transform(&xo, &yo);
+      agg::trans_affine_translation transOffset(xo, yo);
+      agg::trans_affine trans = transforms[i % Ntransforms];
+      trans *= transOffset;
+
+      ::get_path_extents(path, trans, &x0, &y0, &x1, &y1);
+    }
+  } catch (...) {
+    Py_XDECREF(offsets);
+    throw;
   }
-  
-  typedef std::vector<PathCollectionExtents> path_extents_t;
-  path_extents_t path_extents;
-  path_extents.resize(Npaths);
 
-  // Get each of the path extents first
-  i = 0;
-  for (path_extents_t::iterator p = path_extents.begin();
-       p != path_extents.end(); ++p, ++i) {
-    PathIterator path(paths[i]);
-    agg::trans_affine& trans = transforms[i % Ntransforms];
-    ::get_path_extents(path, trans, &p->x0, &p->y0, &p->x1, &p->y1);
-  }
-
-  // The offset each of those and collect the mins/maxs
-  double x0 = std::numeric_limits<double>::infinity();
-  double y0 = std::numeric_limits<double>::infinity();
-  double x1 = -std::numeric_limits<double>::infinity();
-  double y1 = -std::numeric_limits<double>::infinity();
-  for (i = 0; i < N; ++i) {
-    Py::SeqBase<Py::Float> offset = Py::SeqBase<Py::Float>(offsets[i % Noffsets]);
-    double xo                = Py::Float(offset[0]);
-    double yo                = Py::Float(offset[1]);
-    offset_trans.transform(&xo, &yo);
-    PathCollectionExtents& ext = path_extents[i % Npaths];
-
-    x0 = std::min(x0, ext.x0 + xo);
-    y0 = std::min(y0, ext.y0 + yo);
-    x1 = std::max(x1, ext.x1 + xo);
-    y1 = std::max(y1, ext.y1 + yo);
-  }
+  Py_XDECREF(offsets);
 
   Py::Tuple result(4);
   result[0] = Py::Float(x0);

@@ -145,6 +145,11 @@ class TickHelper:
 
     def set_data_interval(self, vmin, vmax):
         self.axis.set_data_interval(vmin, vmax)
+
+    def set_bounds(self, vmin, vmax):
+        self.set_view_interval(vmin, vmax)
+        self.set_data_interval(vmin, vmax)
+
         
 class Formatter(TickHelper):
     """

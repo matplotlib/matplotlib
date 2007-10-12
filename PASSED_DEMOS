@@ -16,10 +16,10 @@ anscombe.py		O
 arctest.py		O
 arrow_demo.py		O
 axes_demo.py		O
-axes_props.py		[SOMETHING FUNNY ABOUT DASHED LINES]
+axes_props.py		O
 axhspan_demo.py		O
 axis_equal_demo.py      O
-backend_driver.py
+backend_driver.py	[N/A]
 barchart_demo.py        O
 barcode_demo.py         O
 barh_demo.py		[BROKEN IN TRUNK]
@@ -29,14 +29,14 @@ break.py		O
 broken_barh.py		O
 clippath_test.py	O
 clippedline.py		O
-collections_demo.py     -- [NEEDS ADDITIONAL WORK]
+collections_demo.py  	O
 colorbar_only.py	O
 color_by_yvalue.py	O
 color_demo.py		O
 colours.py		[???]
-contour_demo.py		
-contourf_demo.py
-contour_image.py
+contour_demo.py		O
+contourf_demo.py	[FLOATING POINT EXCEPTION]
+contour_image.py	[FLOATING POINT EXCEPTION]
 coords_demo.py		O
 coords_report.py	O
 csd_demo.py		O
