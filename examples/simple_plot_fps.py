@@ -21,11 +21,13 @@ grid(True)
 #savefig('simple_plot')
 
 import time
-
+from matplotlib import transforms
+    
 frames = 100.0
 t = time.clock()
 ion()
 for i in xrange(int(frames)):
+    transforms.CATCH = True
     part = i / frames
     axis([0.0, 1.0 - part, -1.0 + part, 1.0 - part])
     show()

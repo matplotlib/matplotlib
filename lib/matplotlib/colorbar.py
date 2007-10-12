@@ -314,8 +314,7 @@ class ColorbarBase(cm.ScalarMappable):
                 b = self._boundaries[self._inside]
                 locator = ticker.FixedLocator(b, nbins=10)
         if isinstance(self.norm, colors.NoNorm):
-            intv = transforms.Interval(transforms.Value(self._values[0]),
-                                       transforms.Value(self._values[-1]))
+            intv = self._values[0], self._values[-1]
         else:
             intv = self.vmin, self.vmax
         locator.create_dummy_axis()

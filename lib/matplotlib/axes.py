@@ -1110,7 +1110,6 @@ class Axes(martist.Artist):
         # and the data in xydata
         # MGDTODO: This isn't always the most efficient way to do this... in
         # some cases things should use update_datalim_bounds
-        
         if not ma.isMaskedArray(xys):
             xys = npy.asarray(xys)
         self.update_datalim_numerix(xys[:, 0], xys[:, 1])

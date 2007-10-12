@@ -91,16 +91,18 @@ class Tick(Artist):
         self._size = size
 
         self._padPixels = self.figure.dpi * self._pad * (1/72.0)
+        self._locTransform = Affine2D()
+        
+        self.tick1line = self._get_tick1line()
+        self.tick2line = self._get_tick2line()
+        self.gridline = self._get_gridline()
 
-
-        self.tick1line = self._get_tick1line(loc)
-        self.tick2line = self._get_tick2line(loc)
-        self.gridline = self._get_gridline(loc)
-
-        self.label1 = self._get_text1(loc)
+        self.label1 = self._get_text1()
         self.label = self.label1  # legacy name
-        self.label2 = self._get_text2(loc)
+        self.label2 = self._get_text2()
 
+        self.update_position(loc)
+        
         self.gridOn = gridOn
         self.tick1On = tick1On
         self.tick2On = tick2On
@@ -138,23 +140,23 @@ class Tick(Artist):
         'Get the value of the tick label pad in points'
         return self._pad.get()
 
-    def _get_text1(self, loc):
+    def _get_text1(self):
         'Get the default Text 1 instance'
         pass
 
-    def _get_text2(self, loc):
+    def _get_text2(self):
         'Get the default Text 2 instance'
         pass
 
-    def _get_tick1line(self, loc):
+    def _get_tick1line(self):
         'Get the default line2D instance for tick1'
         pass
 
-    def _get_tick2line(self, loc):
+    def _get_tick2line(self):
         'Get the default line2D instance for tick2'
         pass
 
-    def _get_gridline(self, loc):
+    def _get_gridline(self):
         'Get the default grid Line2d instance for this tick'
         pass
 
@@ -183,22 +185,6 @@ class Tick(Artist):
 
         renderer.close_group(self.__name__)
 
-    def set_xy(self, loc):
-        """
-        Set the location of tick in data coords with scalar loc
-
-        ACCEPTS: float
-        """
-        raise NotImplementedError('Derived must override')
-
-    def set_label(self, s):  # legacy name
-        """
-        Set the text of ticklabel
-
-        ACCEPTS: str
-        """
-        self.label1.set_text(s)
-
     def set_label1(self, s):
         """
         Set the text of ticklabel
@@ -206,7 +192,8 @@ class Tick(Artist):
         ACCEPTS: str
         """
         self.label1.set_text(s)
-
+    set_label = set_label1
+        
     def set_label2(self, s):
         """
         Set the text of ticklabel2
@@ -233,7 +220,7 @@ class XTick(Tick):
     the label text and the grid line
     """
     __name__ = 'xtick'
-    def _get_text1(self, loc):
+    def _get_text1(self):
         'Get the default Text instance'
         # the y loc is 3 points below the min of y axis
         # get the affine as an a,b,c,d,tx,ty list
@@ -242,7 +229,7 @@ class XTick(Tick):
         trans, vert, horiz = self.axes.get_xaxis_text1_transform(self._padPixels)
         
         t =  TextWithDash(
-            x=loc, y=0,
+            x=0, y=0,
             fontproperties=FontProperties(size=rcParams['xtick.labelsize']),
             color=rcParams['xtick.color'],
             verticalalignment=vert,
@@ -256,15 +243,15 @@ class XTick(Tick):
         return t
 
 
-    def _get_text2(self, loc):
+    def _get_text2(self):
 
         'Get the default Text 2 instance'
         # x in data coords, y in axes coords
         #t =  Text(
         trans, vert, horiz = self.axes.get_xaxis_text2_transform(self._padPixels)
 
-        t =  TextWithDash(
-            x=loc, y=1,
+        t = TextWithDash(
+            x=0, y=1,
             fontproperties=FontProperties(size=rcParams['xtick.labelsize']),
             color=rcParams['xtick.color'],
             verticalalignment=vert,
@@ -272,60 +259,55 @@ class XTick(Tick):
             xaxis=True,
             horizontalalignment=horiz,
             )
-
         t.set_transform(trans)
         self._set_artist_props(t)
         return t
 
-    def _get_tick1line(self, loc):
+    def _get_tick1line(self):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
-        l = Line2D( xdata=(loc,), ydata=(0,),
-                    color='k',
-                    linestyle = 'None',
-                    marker = self._xtickmarkers[0],
-                    markersize=self._size,
-                    )
+        l = Line2D(xdata=(0,), ydata=(0,),
+                   color='k',
+                   linestyle = 'None',
+                   marker = self._xtickmarkers[0],
+                   markersize=self._size,
+                   )
         l.set_transform(self.axes.get_xaxis_transform())
         self._set_artist_props(l)
         return l
 
-    def _get_tick2line(self, loc):
+    def _get_tick2line(self):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
-        l = Line2D( xdata=(loc,), ydata=(1,),
+        l = Line2D( xdata=(0,), ydata=(1,),
                        color='k',
                        linestyle = 'None',
                        marker = self._xtickmarkers[1],
                        markersize=self._size,
                        )
 
-        l.set_transform(self.axes.get_xaxis_transform())
+        l.set_transform(self._locTransform + self.axes.get_xaxis_transform())
         self._set_artist_props(l)
         return l
 
-    def _get_gridline(self, loc):
+    def _get_gridline(self):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
-        l = Line2D(xdata=(loc, loc), ydata=(0, 1.0),
+        l = Line2D(xdata=(0.0, 0.0), ydata=(0, 1.0),
                    color=rcParams['grid.color'],
                    linestyle=rcParams['grid.linestyle'],
                    linewidth=rcParams['grid.linewidth'],
                    )
-        l.set_transform(self.axes.get_xaxis_transform())
+        l.set_transform(self._locTransform + self.axes.get_xaxis_transform())
         self._set_artist_props(l)
 
         return l
 
     def update_position(self, loc):
         'Set the location of tick in data coords with scalar loc'
-        x = loc
-
-        self.tick1line.set_xdata((x,))
-        self.tick2line.set_xdata((x,))
-        self.gridline.set_xdata((x, ))
-        self.label1.set_x(x)
-        self.label2.set_x(x)
+        self._locTransform.clear().translate(loc, 0.0)
+        self.label1.set_x(loc)
+        self.label2.set_x(loc)
         self._loc = loc
 
     def get_view_interval(self):
@@ -355,14 +337,14 @@ class YTick(Tick):
     __name__ = 'ytick'
 
     # how far from the y axis line the right of the ticklabel are
-    def _get_text1(self, loc):
+    def _get_text1(self):
         'Get the default Text instance'
         # x in axes coords, y in data coords
         #t =  Text(
         trans, vert, horiz = self.axes.get_yaxis_text1_transform(self._padPixels)
 
         t = TextWithDash(
-            x=0, y=loc,
+            x=0, y=0,
             fontproperties=FontProperties(size=rcParams['ytick.labelsize']),
             color=rcParams['ytick.color'],
             verticalalignment=vert,
@@ -375,14 +357,14 @@ class YTick(Tick):
         self._set_artist_props(t)
         return t
 
-    def _get_text2(self, loc):
+    def _get_text2(self):
         'Get the default Text instance'
         # x in axes coords, y in data coords
         #t =  Text(
         trans, vert, horiz = self.axes.get_yaxis_text2_transform(self._padPixels)
 
-        t =  TextWithDash(
-            x=1, y=loc,
+        t = TextWithDash(
+            x=1, y=0,
             fontproperties=FontProperties(size=rcParams['ytick.labelsize']),
             color=rcParams['ytick.color'],
             verticalalignment=vert,
@@ -394,20 +376,20 @@ class YTick(Tick):
         self._set_artist_props(t)
         return t
 
-    def _get_tick1line(self, loc):
+    def _get_tick1line(self):
         'Get the default line2D instance'
         # x in axes coords, y in data coords
 
-        l = Line2D( (0,), (loc,), color='k',
+        l = Line2D( (0,), (0,), color='k',
                     marker = self._ytickmarkers[0],
                     linestyle = 'None',
                     markersize=self._size,
                        )
-        l.set_transform(self.axes.get_yaxis_transform())
+        l.set_transform(self._locTransform + self.axes.get_yaxis_transform())
         self._set_artist_props(l)
         return l
 
-    def _get_tick2line(self, loc):
+    def _get_tick2line(self):
         'Get the default line2D instance'
         # x in axes coords, y in data coords
         l = Line2D( (1,), (0,), color='k',
@@ -416,34 +398,29 @@ class YTick(Tick):
                     markersize=self._size,
                     )
 
-        l.set_transform(self.axes.get_yaxis_transform())
+        l.set_transform(self._locTransform + self.axes.get_yaxis_transform())
         self._set_artist_props(l)
         return l
 
-    def _get_gridline(self, loc):
+    def _get_gridline(self):
         'Get the default line2D instance'
         # x in axes coords, y in data coords
-        l = Line2D( xdata=(0,1), ydata=(loc,loc),
+        l = Line2D( xdata=(0,1), ydata=(0, 0),
                     color=rcParams['grid.color'],
                     linestyle=rcParams['grid.linestyle'],
                     linewidth=rcParams['grid.linewidth'],
                     )
 
-        l.set_transform(self.axes.get_yaxis_transform())
+        l.set_transform(self._locTransform + self.axes.get_yaxis_transform())
         self._set_artist_props(l)
         return l
 
 
     def update_position(self, loc):
         'Set the location of tick in data coords with scalar loc'
-        y = loc
-        self.tick1line.set_ydata((y,))
-        self.tick2line.set_ydata((y,))
-        self.gridline.set_ydata((y, ))
-
-        self.label1.set_y( y )
-        self.label2.set_y( y )
-
+        self._locTransform.clear().translate(0.0, loc)
+        self.label1.set_y(loc)
+        self.label2.set_y(loc)
         self._loc = loc
 
 
@@ -558,9 +535,11 @@ class Axis(Artist):
         popall(self.majorTicks)
         popall(self.minorTicks)
 
-        self.majorTicks.extend([self._get_tick(major=True)  for i in range(1)])
-        self.minorTicks.extend([self._get_tick(major=False) for i in range(1)])
-
+        self.majorTicks.extend([self._get_tick(major=True)])
+        self.minorTicks.extend([self._get_tick(major=False)])
+        self._lastNumMajorTicks = 1
+        self._lastNumMinorTicks = 1
+        
         self.converter = None
         self.units = None
         self.set_units(None)
@@ -744,16 +723,21 @@ class Axis(Artist):
         'get the tick instances; grow as necessary'
         if numticks is None:
             numticks = len(self.get_major_locator()())
-        
-        if len(self.majorTicks)<numticks:
+
+        if len(self.majorTicks) < numticks:
             # update the new tick label properties from the old
-            protoTick = self.majorTicks[0]
-            for i in range(numticks-len(self.majorTicks)):
+            for i in range(numticks - len(self.majorTicks)):
                 tick = self._get_tick(major=True)
-                #tick = protoTick
+                self.majorTicks.append(tick)
+            
+        if self._lastNumMajorTicks < numticks:
+            protoTick = self.majorTicks[0]
+            for i in range(self._lastNumMajorTicks, len(self.majorTicks)):
+                tick = self.majorTicks[i]
                 if self._gridOnMajor: tick.gridOn = True
                 self._copy_tick_props(protoTick, tick)
-                self.majorTicks.append(tick)
+
+        self._lastNumMajorTicks = numticks
         ticks = self.majorTicks[:numticks]
 
         return ticks
@@ -764,13 +748,20 @@ class Axis(Artist):
         if numticks is None:
             numticks = len(self.get_minor_locator()())
 
-        if len(self.minorTicks)<numticks:
+        if len(self.minorTicks) < numticks:
+            # update the new tick label properties from the old
+            for i in range(numticks - len(self.minorTicks)):
+                tick = self._get_tick(minor=True)
+                self.minorTicks.append(tick)
+            
+        if self._lastNumMinorTicks < numticks:
             protoTick = self.minorTicks[0]
-            for i in range(numticks-len(self.minorTicks)):
-                tick = self._get_tick(major=False)
+            for i in range(self._lastNumMinorTicks, len(self.minorTicks)):
+                tick = self.minorTicks[i]
                 if self._gridOnMinor: tick.gridOn = True
                 self._copy_tick_props(protoTick, tick)
-                self.minorTicks.append(tick)
+
+        self._lastNumMinorTicks = numticks
         ticks = self.minorTicks[:numticks]
 
         return ticks
@@ -945,7 +936,6 @@ class Axis(Artist):
         #ticklabels = [str(l) for l in ticklabels]
 
         self.set_major_formatter( FixedFormatter(ticklabels) )
-
 
         ret = []
         for i, tick in enumerate(self.get_major_ticks()):

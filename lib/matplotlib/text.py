@@ -172,7 +172,6 @@ class Text(Artist):
         self._linespacing = other._linespacing
 
     def _get_layout(self, renderer):
-
         # layout the xylocs in display coords as if angle = zero and
         # then rotate them around self._x, self._y
         #return _unit_box
@@ -327,11 +326,10 @@ class Text(Artist):
                                   self._fontproperties, angle)
             return
 
+        canvasw, canvash = renderer.get_canvas_width_height()
         for line, wh, x, y in info:
             x, y = trans.transform_point((x, y))
-            
             if renderer.flipy():
-                canvasw, canvash = renderer.get_canvas_width_height()
                 y = canvash-y
                 
             renderer.draw_text(gc, x, y, line,
