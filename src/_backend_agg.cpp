@@ -832,6 +832,8 @@ void RendererAgg::_draw_path(PathIterator& path, agg::trans_affine trans,
 
   // Render face
   if (face.first) {
+    theRasterizer->add_path(curve);
+
     if (gc.isaa) {
       if (has_clippath) {
 	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
@@ -841,7 +843,6 @@ void RendererAgg::_draw_path(PathIterator& path, agg::trans_affine trans,
 	agg::render_scanlines(*theRasterizer, *slineP8, ren);
       } else {
 	rendererAA->color(face.second);
-	theRasterizer->add_path(curve);
 	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
       }
     } else {
@@ -853,7 +854,6 @@ void RendererAgg::_draw_path(PathIterator& path, agg::trans_affine trans,
 	agg::render_scanlines(*theRasterizer, *slineP8, ren);
       } else {
 	rendererBin->color(face.second);
-	theRasterizer->add_path(curve);
 	agg::render_scanlines(*theRasterizer, *slineP8, *rendererBin);
       }
     }
@@ -945,7 +945,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   Py::SeqBase<Py::Object> paths		   = args[4];
   Py::SeqBase<Py::Object> transforms_obj   = args[5];
   Py::Object              offsets_obj      = args[6];
-  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7], false);
+  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7]);
   Py::Object              facecolors_obj   = args[8];
   Py::Object              edgecolors_obj   = args[9];
   Py::SeqBase<Py::Float>  linewidths	   = args[10];

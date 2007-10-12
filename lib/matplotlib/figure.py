@@ -106,8 +106,7 @@ class SubplotParams:
 class Figure(Artist):
 
     def __str__(self):
-        return "Figure(%gx%g)"%(self.bbox.max)
-        # return "Figure(%gx%g)"%(self.figwidth.get(),self.figheight.get())
+        return "Figure(%gx%g)" % tuple(self.bbox.size)
     
     def __init__(self,
                  figsize   = None,  # defaults to rc figure.figsize

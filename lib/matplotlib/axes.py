@@ -1196,9 +1196,9 @@ class Axes(martist.Artist):
                       len(self.lines)==0 and
                       len(self.patches)==0)):
 
-            if scalex: self.set_xbound(self.dataLim.intervalx().get_bounds())
+            if scalex: self.set_xbound(self.dataLim.intervalx)
 
-            if scaley: self.set_ybound(self.dataLim.intervaly().get_bounds())
+            if scaley: self.set_ybound(self.dataLim.intervaly)
             return
 
         if scalex:
@@ -4107,7 +4107,6 @@ class Axes(martist.Artist):
 
         if sym is not None:
             if symstyle==0:
-
                 collection = mcoll.RegularPolyCollection(
                     self.figure.dpi,
                     numsides, rotation, scales,
@@ -4143,7 +4142,7 @@ class Axes(martist.Artist):
             verts /= rescale
 
             scales = npy.asarray(scales)
-            scales = npy.sqrt(scales * self.figure.dpi.get() / 72.)
+            scales = npy.sqrt(scales * self.figure.dpi / 72.)
             if len(scales)==1:
                 verts = [scales[0]*verts]
             else:
@@ -4858,7 +4857,7 @@ class Axes(martist.Artist):
         self.set_xlabel('Frequency')
         self.set_ylabel('Power Spectrum (dB)')
         self.grid(True)
-        vmin, vmax = self.viewLim.intervaly().get_bounds()
+        vmin, vmax = self.viewLim.intervaly
         intv = vmax-vmin
         logi = int(npy.log10(intv))
         if logi==0: logi=.1
