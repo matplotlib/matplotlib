@@ -55,8 +55,7 @@ class PolarAxes(Axes):
         transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def transform_path(self, path):
-            if len(path.vertices) == 2:
-                path = path.interpolated(self._resolution)
+            path = path.interpolated(self._resolution)
             return Path(self.transform(path.vertices), path.codes)
         transform_path.__doc__ = Transform.transform_path.__doc__
         

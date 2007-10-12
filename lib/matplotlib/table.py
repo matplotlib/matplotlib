@@ -216,7 +216,7 @@ class Table(Artist):
         self._cells[(row, col)] = cell
 
     def _approx_text_height(self):
-        return self.FONTSIZE/72.0*self.figure.dpi.get()/self._axes.bbox.height() * 1.2
+        return self.FONTSIZE/72.0*self.figure.dpi/self._axes.bbox.height * 1.2
 
     def draw(self, renderer):
         # Need a renderer to do hit tests on mouseevent; assume the last one will do

@@ -93,7 +93,7 @@ class Path(object):
 		codes = self.LINETO * npy.ones(
 		    vertices.shape[0] + 1, self.code_type)
 		codes[0] = self.MOVETO
-                codes[-1] = self.LINETO
+                codes[-1] = self.CLOSEPOLY
                 vertices = npy.concatenate((vertices, [vertices[0]]))
 	    else:
 		codes = self.LINETO * npy.ones(
@@ -214,7 +214,7 @@ class Path(object):
 	if cls._unit_rectangle is None:
 	    cls._unit_rectangle = \
 		Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
-	return cls._unit_rectangle
+        return cls._unit_rectangle
     unit_rectangle = classmethod(unit_rectangle)
 
     _unit_regular_polygons = {}
@@ -237,6 +237,37 @@ class Path(object):
 	return path
     unit_regular_polygon = classmethod(unit_regular_polygon)
 
+    _unit_regular_stars = {}
+    #@classmethod
+    def unit_regular_star(cls, numVertices, innerCircle=0.5):
+        """
+        Returns a Path for a unit regular star with the given
+        numVertices and radius of 1.0, centered at (0, 0).
+        """
+	path = cls._unit_regular_stars.get((numVertices, innerCircle))
+	if path is None:
+            ns2 = numVertices * 2
+	    theta = (2*npy.pi/ns2 * npy.arange(ns2))
+	    # This initial rotation is to make sure the polygon always
+            # "points-up"
+	    theta += npy.pi / 2.0
+            r = npy.ones(ns2)
+            r[1::2] = innerCircle
+	    verts = npy.vstack((r*npy.cos(theta), r*npy.sin(theta))).transpose()
+	    path = Path(verts)
+	    cls._unit_regular_polygons[(numVertices, innerCircle)] = path
+	return path
+    unit_regular_star = classmethod(unit_regular_star)
+
+    #@classmethod
+    def unit_regular_asterisk(cls, numVertices):
+        """
+        Returns a Path for a unit regular asterisk with the given
+        numVertices and radius of 1.0, centered at (0, 0).
+        """
+	return cls.unit_regular_star(numVertices, 0.0)
+    unit_regular_asterisk = classmethod(unit_regular_asterisk)
+    
     _unit_circle = None
     #@classmethod
     def unit_circle(cls):

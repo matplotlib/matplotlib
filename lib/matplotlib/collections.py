@@ -78,9 +78,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  **kwargs
                  ):
         """
-        Create a PatchCollection
+        Create a Collection
 
-        %(PatchCollection)s
+        %(Collection)s
         """
         artist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
@@ -103,8 +103,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._uniform_offsets = None
         self._offsets = npy.zeros((1, 2))
         if offsets is not None:
-#             if len(offsets.shape) == 1:
-#                 offsets = offsets[npy.newaxis,:]  # Make it Nx2.
+            offsets = npy.asarray(offsets, npy.float_)
+            if len(offsets.shape) == 1:
+                offsets = offsets[npy.newaxis,:]  # Make it Nx2.
             if transOffset is not None:
                 Affine2D = transforms.Affine2D
                 self._offsets = offsets
@@ -171,7 +172,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(path) for path in paths]
             transform = transform.get_affine()
-        
+        if not transOffset.is_affine:
+            offsets = transOffset.transform_non_affine(offsets)
+            transOffset = transOffset.get_affine()
+            
         renderer.draw_path_collection(
             transform, self.clipbox, clippath, clippath_trans,
             paths, self.get_transforms(),
@@ -353,7 +357,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         #print 'update_scalarmappable: self._A', self._A
         if self._A is None: return
         if len(self._A.shape)>1:
-            raise ValueError('PatchCollections can only map rank 1 arrays')
+            raise ValueError('Collections can only map rank 1 arrays')
         if len(self._facecolors):
             self._facecolors = self.to_rgba(self._A, self._alpha)
         else:
@@ -410,32 +414,44 @@ class QuadMesh(Collection):
     (0, 2) .. (0, meshWidth), (1, 0), (1, 1), and so on.
     """
     def __init__(self, meshWidth, meshHeight, coordinates, showedges):
+        Path = path.Path
+        
         Collection.__init__(self)
         self._meshWidth = meshWidth
         self._meshHeight = meshHeight
         self._coordinates = coordinates
         self._showedges = showedges
-
-    def get_verts(self, dataTrans=None):
-        return self._coordinates;
+            
+        # MGDTODO: Numpify
+        coordinates = coordinates.reshape((meshHeight + 1, meshWidth + 1, 2))
+        c = coordinates
+        paths = []
+        # We could let the Path constructor generate the codes for us,
+        # but this is faster, since we know they'll always be the same
+        codes = npy.array([Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO])
+        for m in xrange(meshHeight):
+            for n in xrange(meshWidth):
+                paths.append(Path(
+                        [c[m  , n],
+                         c[m  , n+1],
+                         c[m+1, n+1],
+                         c[m+1, n]],
+                        codes))
+        self._paths = paths
+        
+    def get_paths(self, dataTrans=None):
+        return self._paths
 
     def draw(self, renderer):
-        # does not call update_scalarmappable, need to update it
-        # when creating/changing              ****** Why not?  speed?
-        if not self.get_visible(): return
-        transform = self.get_transform()
-        transoffset = self._transOffset
-        transform.freeze()
-        transoffset.freeze()
-        #print 'QuadMesh draw'
         self.update_scalarmappable()  #######################
 
-        renderer.draw_quad_mesh( self._meshWidth, self._meshHeight,
-            self._facecolors, self._coordinates[:,0],
-            self._coordinates[:, 1], self.clipbox, transform,
-            self._offsets, transoffset, self._showedges)
-        transform.thaw()
-        transoffset.thaw()
+        self._linewidths = (1,)
+        if self._showedges:
+            self._edgecolors = npy.array([[0.0, 0.0, 0.0, 1.0]], npy.float_)
+        else:
+            self._edgecolors = self._facecolors
+
+        Collection.draw(self, renderer)
 
 class PolyCollection(Collection):
     def __init__(self, verts, **kwargs):
@@ -476,6 +492,8 @@ class BrokenBarHCollection(PolyCollection):
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 class RegularPolyCollection(Collection):
+    _path_generator = path.Path.unit_regular_polygon
+    
     def __init__(self,
                  dpi,
                  numsides,
@@ -514,18 +532,16 @@ class RegularPolyCollection(Collection):
             offsets = offsets,
             transOffset = ax.transData,
             )
-
-
         """
         Collection.__init__(self,**kwargs)
         self._sizes = sizes
         self._dpi = dpi
-        self._paths = [path.Path.unit_regular_polygon(numsides)]
+        self._paths = [self._path_generator(numsides)]
         # sizes is the area of the circle circumscribing the polygon
         # in points^2
         self._transforms = [
-            transforms.Affine2D().rotate(rotation).scale(
-                (math.sqrt(x) * self._dpi / 72.0) * (1.0 / math.sqrt(math.pi)))
+            transforms.Affine2D().rotate(-rotation).scale(
+                (math.sqrt(x) * self._dpi / 72.0) / math.sqrt(math.pi))
             for x in sizes]
         self.set_transform(transforms.IdentityTransform())
         
@@ -554,72 +570,13 @@ class RegularPolyCollection(Collection):
 
 
 class StarPolygonCollection(RegularPolyCollection):
-    def __init__(self,
-                 dpi,
-                 numsides,
-                 rotation = 0 ,
-                 sizes = (1,),
-                 **kwargs):
-        """
-        Draw a regular star like Polygone with numsides.
-
-        * dpi is the figure dpi instance, and is required to do the
-          area scaling.
-
-        * numsides: the number of sides of the polygon
-
-        * sizes gives the area of the circle circumscribing the
-          regular polygon in points^2
-
-        * rotation is the rotation of the polygon in radians
-
-        %(Collection)s
-        """
-
-        RegularPolyCollection.__init__(self, dpi, numsides, rotation, sizes, **kwargs)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
-
-    def _update_verts(self):
-        scale = 1.0/math.sqrt(math.pi)
-        ns2 = self.numsides*2
-        r = scale*npy.ones(ns2)
-        r[1::2] *= 0.5
-        theta  = (math.pi/self.numsides)*npy.arange(ns2) + self.rotation
-        self._verts = zip( r*npy.sin(theta), r*npy.cos(theta) )
-
+    _path_generator = path.Path.unit_regular_star
+    
+    
 class AsteriskPolygonCollection(RegularPolyCollection):
-    def __init__(self,
-                 dpi,
-                 numsides,
-                 rotation = 0 ,
-                 sizes = (1,),
-                 **kwargs):
-        """
-        Draw a regular asterisk Polygone with numsides spikes.
-
-        * dpi is the figure dpi instance, and is required to do the
-          area scaling.
-
-        * numsides: the number of spikes of the polygon
-
-        * sizes gives the area of the circle circumscribing the
-          regular polygon in points^2
-
-        * rotation is the rotation of the polygon in radians
-
-        %(Collection)s
-        """
-
-        RegularPolyCollection.__init__(self, dpi, numsides, rotation, sizes, **kwargs)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
-
-    def _update_verts(self):
-        scale = 1.0/math.sqrt(math.pi)
-        r = scale*npy.ones(self.numsides*2)
-        r[1::2] = 0
-        theta  = (math.pi/self.numsides)*npy.arange(2*self.numsides) + self.rotation
-        self._verts = zip( r*npy.sin(theta), r*npy.cos(theta) )
-
+    _path_generator = path.Path.unit_regular_asterisk
+    
+    
 class LineCollection(Collection, cm.ScalarMappable):
     """
     All parameters must be sequences or scalars; if scalars, they will

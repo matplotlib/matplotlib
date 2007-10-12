@@ -495,7 +495,7 @@ class Polygon(Patch):
     A general polygon patch.
     """
     def __str__(self):
-        return "Poly(%g,%g)"%self.xy[0]
+        return "Poly(%g, %g)" % tuple(self._path.vertices[0])
 
     def __init__(self, xy, **kwargs):
         """
@@ -506,11 +506,15 @@ class Polygon(Patch):
         See Patch documentation for additional kwargs
         """
         Patch.__init__(self, **kwargs)
+        self.xy = xy
 	self._path = Path(xy, closed=True)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
 	return self._path
+
+    def update(self):
+        self._path = Path(self.xy, closed=True)
     
 class Wedge(Patch):
     def __str__(self):

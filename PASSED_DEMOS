@@ -148,63 +148,63 @@ pcolor_demo.py		O
 pcolor_log.py		O
 pcolor_nonuniform.py	O
 pcolor_small.py		O
-pick_event_demo2.py
-pick_event_demo.py
-pie_demo.py
-plotfile_demo.py
-polar_bar.py
-polar_demo.py
-polar_legend.py
-polar_scatter.py
-poly_editor.py
-poormans_contour.py
+pick_event_demo2.py	O
+pick_event_demo.py	O
+pie_demo.py		O
+plotfile_demo.py	O
+polar_bar.py		O
+polar_demo.py		O
+polar_legend.py		O
+polar_scatter.py	O
+poly_editor.py		[NEEDS OVERHAUL]
+poormans_contour.py	O
 printing_in_wx.py
-print_stdout.py
-psd_demo.py
+print_stdout.py		[BROKEN?]
+psd_demo.py		O
 pstest.py
 pylab_with_gtk.py
-pythonic_matplotlib.py
-quadmesh_demo.py
-quiver_demo.py
-rc_traits.py
-scatter_custom_symbol.py
-scatter_demo2.py
-scatter_demo.py
-scatter_masked.py
-scatter_profile.py
-scatter_star_poly.py
-set_and_get.py
-shared_axis_across_figures.py
-shared_axis_demo.py
-simple3d_oo.py
-simple3d.py
-simple_plot_fps.py
-simple_plot.py
-specgram_demo.py
-spy_demos.py
-stem_plot.py
-step_demo.py
-stock_demo.py
-strip_chart_demo.py
-subplot_demo.py
-subplots_adjust.py
-subplot_toolbar.py
-system_monitor.py
-table_demo.py
-tex_demo.py
-text_handles.py
-text_rotation.py
-text_themes.py
-tex_unicode_demo.py
-toggle_images.py
-to_numeric.py
+pythonic_matplotlib.py	O
+quadmesh_demo.py	[MASKED VALUES NOT QUITE RIGHT]
+quiver_demo.py		[SEGFAULTS]
+rc_traits.py		[N/A]
+scatter_custom_symbol.py O
+scatter_demo2.py	O
+scatter_demo.py		O
+scatter_masked.py	O
+scatter_profile.py	O
+scatter_star_poly.py	O [SOME BUGS IN TRUNK -- FIXED ON BRANCH]
+set_and_get.py		O
+shared_axis_across_figures.py O
+shared_axis_demo.py	O
+simple3d_oo.py		[PUNTING ON 3D FOR NOW]
+simple3d.py		[PUNTING ON 3D FOR NOW]
+simple_plot_fps.py	O
+simple_plot.py		O
+specgram_demo.py	O
+spy_demos.py		O
+stem_plot.py		O
+step_demo.py		O
+stock_demo.py		O
+strip_chart_demo.py	[REQUIRES GTK]
+subplot_demo.py		O
+subplots_adjust.py	O
+subplot_toolbar.py	O
+system_monitor.py	O
+table_demo.py		
+tex_demo.py		O
+text_handles.py		O
+text_rotation.py	O	
+text_themes.py		O	
+tex_unicode_demo.py	O
+toggle_images.py	[???]
+to_numeric.py		[REQUIRES PIL]
 transoffset.py
-two_scales.py
-unicode_demo.py
-vertical_ticklabels.py
-vline_demo.py
-webapp_demo.py
-wxcursor_demo.py
-xcorr_demo.py
-zoom_window.py
-zorder_demo.py
+two_scales.py		O
+unicode_demo.py		O
+vertical_ticklabels.py	O
+vline_demo.py		O
+webapp_demo.py		
+wxcursor_demo.py	
+xcorr_demo.py		O	
+zoom_window.py		O
+zorder_demo.py		O

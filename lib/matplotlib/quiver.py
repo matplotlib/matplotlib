@@ -168,8 +168,7 @@ class QuiverKey(artist.Artist):
         self.coord = kw.pop('coordinates', 'axes')
         self.color = kw.pop('color', None)
         self.label = label
-        self.labelsep = (transforms.Value(kw.pop('labelsep', 0.1))
-                                                     * Q.ax.figure.dpi)
+        self.labelsep = (kw.pop('labelsep', 0.1) * Q.ax.figure.dpi)
         self.labelpos = kw.pop('labelpos', 'N')
         self.labelcolor = kw.pop('labelcolor', None)
         self.fontproperties = kw.pop('fontproperties', dict())
@@ -281,8 +280,8 @@ class Quiver(collections.PolyCollection):
         self.pivot = kw.pop('pivot', 'tail')
         kw.setdefault('facecolors', self.color)
         kw.setdefault('linewidths', (0,))
-        collections.PolyCollection.__init__(self, None, offsets=zip(X, Y),
-                                       transOffset=ax.transData, **kw)
+        collections.PolyCollection.__init__(self, [], offsets=zip(X, Y),
+                                            transOffset=ax.transData, **kw)
         self.polykw = kw
         self.set_UVC(U, V, C)
         self._initialized = False
@@ -324,7 +323,7 @@ class Quiver(collections.PolyCollection):
         if not self._initialized:
             trans = self._set_transform()
             ax = self.ax
-            sx, sy = trans.inverse_xy_tup((ax.bbox.width(), ax.bbox.height()))
+            sx, sy = trans.transform_point((ax.bbox.width, ax.bbox.height))
             self.span = sx
             sn = max(8, min(25, math.sqrt(self.N)))
             if self.width is None:
@@ -362,17 +361,17 @@ class Quiver(collections.PolyCollection):
             dx = dx1/dx0
         else:
             if self.units == 'width':
-                dx = ax.bbox.ur().x() - ax.bbox.ll().x()
+                dx = ax.bbox.width
             elif self.units == 'height':
-                dx = ax.bbox.ur().y() - ax.bbox.ll().y()
+                dx = ax.bbox.height
             elif self.units == 'dots':
                 dx = transforms.Value(1)
             elif self.units == 'inches':
                 dx = ax.figure.dpi
             else:
                 raise ValueError('unrecognized units')
-        bb = transforms.Bbox(transforms.origin(), transforms.Point(dx, dx))
-        trans = transforms.get_bbox_transform(transforms.unit_bbox(), bb)
+        bb = transforms.Bbox.from_lbrt(0, 0, dx, dx)
+        trans = transforms.BboxTransform(transforms.Bbox.unit(), bb)
         self.set_transform(trans)
         return trans
 
