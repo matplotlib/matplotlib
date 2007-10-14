@@ -882,7 +882,7 @@ grestore
         """
         # local variable eliminates all repeated attribute lookups
         write = self._pswriter.write
-
+        write('gsave\n')
         if debugPS and command:
             write("% "+command+"\n")
 
@@ -915,7 +915,7 @@ grestore
             write("stroke\n")
         if cliprect:
             write("grestore\n")
-
+        write('grestore\n')            
     def push_gc(self, gc, store=1):
         """
         Push the current onto stack, with the exception of the clip box, which
