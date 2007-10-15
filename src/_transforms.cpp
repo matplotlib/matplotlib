@@ -1974,6 +1974,7 @@ Affine::affine_params_api(double* a, double* b, double* c, double*d, double* tx,
   *ty = _ty->val();
 
 }
+
 Py::Object
 Affine::as_vec6(const Py::Tuple &args) {
   _VERBOSE("Affine::as_vec6");

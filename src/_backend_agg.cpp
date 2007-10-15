@@ -2052,7 +2052,7 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   theRasterizer->reset_clipping();
   
   _VERBOSE("RendererAgg::draw_path");
-  args.verify_length(4);
+  args.verify_length(3);
   
   GCAgg gc = GCAgg(args[0], dpi);
   facepair_t face = _get_rgba_face(args[1], gc.alpha);
@@ -2064,43 +2064,20 @@ RendererAgg::draw_path(const Py::Tuple& args) {
     throw Py::TypeError("Could not convert path_storage");
   
   
-  Transformation* mpltransform = static_cast<Transformation*>(args[3].ptr());
-  
-  double a, b, c, d, tx, ty;
-  try {
-    mpltransform->affine_params_api(&a, &b, &c, &d, &tx, &ty);
-  }
-  catch(...) {
-    throw Py::ValueError("Domain error on affine_params_api in RendererAgg::draw_path");
-  }
-  
-  agg::trans_affine xytrans = agg::trans_affine(a,b,c,d,tx,ty);
   
   double heightd = double(height);
-  agg::path_storage tpath;  // the mpl transformed path
-  bool needNonlinear = mpltransform->need_nonlinear_api();
+  agg::path_storage tpath;  // the flipped path
   size_t Nx = path->total_vertices();
   double x, y;
   unsigned cmd;
   bool curvy = false;
   for (size_t i=0; i<Nx; i++) {
+
+    if (cmd==agg::path_cmd_curve3 || cmd==agg::path_cmd_curve4) curvy=true;    
     cmd = path->vertex(i, &x, &y);
-    if (cmd==agg::path_cmd_curve3 || cmd==agg::path_cmd_curve4) curvy=true;
-    if (needNonlinear)
-      try {
-	mpltransform->nonlinear_only_api(&x, &y);
-      }
-      catch (...) {
-	throw Py::ValueError("Domain error on nonlinear_only_api in RendererAgg::draw_path");
-	
-      }
-    
-    //use agg's transformer?
-    xytrans.transform(&x, &y);
-    y = heightd - y; //flipy
-    tpath.add_vertex(x,y,cmd);
+    tpath.add_vertex(x, heightd-y, cmd);
   }
-  
+  set_clipbox_rasterizer(gc.cliprect);
   _fill_and_stroke(tpath, gc, face, curvy);
   return Py::Object();
   

@@ -11,7 +11,8 @@ import matplotlib.transforms as transforms
 import matplotlib.nxutils as nxutils
 import matplotlib.mlab as mlab
 import matplotlib.artist as artist
-
+from matplotlib import transforms as mtrans
+import agg
 
 # these are not available for the object inspector until after the
 # class is build so we define an initial set here for the init
@@ -749,6 +750,32 @@ class Ellipse(Patch):
     """
     A scale-free ellipse
     """
+    offset = 4.0 * (npy.sqrt(2) - 1) / 3.0
+
+    circle = npy.array([
+        [-1.0, 0.0],
+
+        [-1.0, offset],
+        [-offset, 1.0],
+        [0.0, 1.0],
+
+        [offset, 1.0],
+        [1.0, offset],
+        [1.0, 0.0],
+
+        [1.0, -offset],
+        [offset, -1.0],
+        [0.0, -1.0],
+
+        [-offset, -1.0],
+        [-1.0, -offset],
+        [-1.0, 0.0],
+
+        [-1.0, 0.0]
+        ],
+                       npy.float_)
+
+    
     def __str__(self):
         return "Ellipse(%d,%d;%dx%d)"%(self.center[0],self.center[1],self.width,self.height)
 
@@ -777,13 +804,28 @@ class Ellipse(Patch):
         return inside,{}
 
     def get_verts(self):
-        x,y = self.center
-        l,r = x-self.width/2.0, x+self.width/2.0
-        b,t = y-self.height/2.0, y+self.height/2.0
-        x,l,r = self.convert_xunits((x,l,r))
-        y,b,t = self.convert_yunits((y,b,t))
-        verts = ((x,y), (l,y), (x,t), (r,y), (x,b))
-        return npy.array(verts, npy.float)
+
+        xcenter, ycenter = self.center
+
+        width, height = self.width, self.height
+        angle = self.angle
+
+        theta = npy.arange(0.0, 360.0, 1.0)*npy.pi/180.0
+        x = width/2. * npy.cos(theta)
+        y = height/2. * npy.sin(theta)
+
+        rtheta = angle*npy.pi/180.
+        R = npy.array([
+            [npy.cos(rtheta),  -npy.sin(rtheta)],
+            [npy.sin(rtheta), npy.cos(rtheta)],
+            ])
+
+
+        x, y = npy.dot(R, npy.array([x, y]))
+        x += xcenter
+        y += ycenter
+
+        return zip(x, y)
 
     def draw(self, renderer):
         if not self.get_visible(): return
@@ -803,34 +845,71 @@ class Ellipse(Patch):
         if self._hatch:
             gc.set_hatch(self._hatch )
 
-        tverts = self.get_transform().seq_xy_tups(self.get_verts())
-        # center is first vert
-        # take the abs since we do not want a negative width or height as this
-        # will cause the renderer to misbehave.
-        width = abs(tverts[3,0] - tverts[1,0])
-        height = abs(tverts[2,1] - tverts[4,1])
+        offset = self.offset
 
-        # we also have to transform the angle, do this using polar coordinates
-        # convert to radians
-        angle = self.angle * math.pi / 180.0
+        
 
-        # convert the angle to polar coordinates (Assume r = 1.0)
-        anglex = math.cos(angle)
-        angley = math.sin(angle)
+        if not hasattr(renderer, 'draw_path'):
+            verbose.report('patches.Ellipse renderer does not support path drawing; falling back on vertex approximation for nonlinear transformation')
+            renderer.draw_polygon(gc, rgbFace, self.get_verts())
+            return
+        
 
-        # transform the angle vertex and the origin
-        angle_verts = npy.array(((anglex, angley), (0.0, 0.0)), npy.float)
-        angle_verts = self.get_transform().seq_xy_tups(angle_verts)
+        x, y = self.center
+        theta = self.angle * npy.pi/180.
+        T = npy.array([
+            [1, 0, x],
+            [0, 1, y],
+            [0, 0, 1]])
 
-        # get the new x and y coords (from the origin)
-        anglex = angle_verts[0, 0] - angle_verts[1, 0]
-        angley = angle_verts[0, 1] - angle_verts[1, 1]
+        S = npy.array([
+            [self.width/2., 0, 0],
+            [0, self.height/2., 0],
+            [0, 0, 1]])
 
-        # convert back to an angle (in degrees)
-        angle = math.atan2(angley, anglex) * 180.0 / math.pi
 
-        renderer.draw_arc(gc, rgbFace, tverts[0,0], tverts[0,1],
-                          width, height, 0.0, 360.0, angle)
+        
+        # rotate by theta
+        R = npy.array([
+            [npy.cos(theta),  -npy.sin(theta), 0],
+            [npy.sin(theta), npy.cos(theta), 0],
+            [0,           0,          1]])
+
+        # transform unit circle into ellipse
+        E = npy.dot(T, npy.dot(R, S))
+        
+
+        # Apply the display affine
+        sx, b, c, sy, tx, ty = self.get_transform().as_vec6_val()
+
+        # display coords
+        D = npy.array([
+            [sx, b, tx],
+            [c, sy, ty],
+            [0, 0, 1]], npy.float_)
+
+        M = npy.dot(D,E)
+
+        C = npy.ones((3, len(self.circle)))
+        C[0:2,:] = self.circle.T
+        
+        ellipse = npy.dot(M, C).T[:,:2]
+
+        path =  agg.path_storage()
+        path.move_to(*ellipse[0])
+        verts = ellipse[1:4].flat
+        path.curve4(*verts)
+        verts = ellipse[4:7].flat
+        path.curve4(*verts)
+        verts = ellipse[7:10].flat
+        path.curve4(*verts)
+        verts = ellipse[10:13].flat
+        path.curve4(*verts)
+        path.close_polygon()
+
+        renderer.draw_path(gc, rgbFace, path)
+
+                              
 
 class Circle(Ellipse):
     """

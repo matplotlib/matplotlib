@@ -230,17 +230,18 @@ def is_numlike(obj):
     except TypeError: return False
     else: return True
 
-def to_filehandle(fname):
+def to_filehandle(fname, flag='r'):
     """
     fname can be a filename or a file handle.  Support for gzipped
-    files is automatic, if the filename ends in .gz
+    files is automatic, if the filename ends in .gz.  flag is a
+    read/write flag for file
     """
     if is_string_like(fname):
         if fname.endswith('.gz'):
             import gzip
-            fh = gzip.open(fname)
+            fh = gzip.open(fname, flag)
         else:
-            fh = file(fname)
+            fh = file(fname, flag)
     elif hasattr(fname, 'seek'):
         fh = fname
     else:
