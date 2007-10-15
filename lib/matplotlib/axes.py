@@ -1037,6 +1037,7 @@ class Axes(martist.Artist):
         a.set_axes(self)
         self.artists.append(a)
         self._set_artist_props(a)
+        a.set_clip_path(self.axesPatch)
         a._remove_method = lambda h: self.artists.remove(h)
 
     def add_collection(self, collection, autolim=False):
@@ -1091,6 +1092,7 @@ class Axes(martist.Artist):
         'Add a table instance to the list of axes tables'
         self._set_artist_props(tab)
         self.tables.append(tab)
+        tab.set_clip_path(self.axesPatch)
         tab._remove_method = lambda h: self.tables.remove(h)
 
     def relim(self):

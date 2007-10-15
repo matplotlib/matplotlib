@@ -91,7 +91,6 @@ class Tick(Artist):
         self._size = size
 
         self._padPixels = self.figure.dpi * self._pad * (1/72.0)
-        self._locTransform = Affine2D()
         
         self.tick1line = self._get_tick1line()
         self.tick2line = self._get_tick2line()
@@ -286,7 +285,7 @@ class XTick(Tick):
                        markersize=self._size,
                        )
 
-        l.set_transform(self._locTransform + self.axes.get_xaxis_transform())
+        l.set_transform(self.axes.get_xaxis_transform())
         self._set_artist_props(l)
         return l
 
@@ -298,16 +297,20 @@ class XTick(Tick):
                    linestyle=rcParams['grid.linestyle'],
                    linewidth=rcParams['grid.linewidth'],
                    )
-        l.set_transform(self._locTransform + self.axes.get_xaxis_transform())
+        l.set_transform(self.axes.get_xaxis_transform())
         self._set_artist_props(l)
 
         return l
 
     def update_position(self, loc):
         'Set the location of tick in data coords with scalar loc'
-        self._locTransform.clear().translate(loc, 0.0)
-        self.label1.set_x(loc)
-        self.label2.set_x(loc)
+        x = loc
+
+        self.tick1line.set_xdata((x,))
+        self.tick2line.set_xdata((x,))
+        self.gridline.set_xdata((x, ))
+        self.label1.set_x(x)
+        self.label2.set_x(x)
         self._loc = loc
 
     def get_view_interval(self):
@@ -385,7 +388,7 @@ class YTick(Tick):
                     linestyle = 'None',
                     markersize=self._size,
                        )
-        l.set_transform(self._locTransform + self.axes.get_yaxis_transform())
+        l.set_transform(self.axes.get_yaxis_transform())
         self._set_artist_props(l)
         return l
 
@@ -398,7 +401,7 @@ class YTick(Tick):
                     markersize=self._size,
                     )
 
-        l.set_transform(self._locTransform + self.axes.get_yaxis_transform())
+        l.set_transform(self.axes.get_yaxis_transform())
         self._set_artist_props(l)
         return l
 
@@ -411,19 +414,24 @@ class YTick(Tick):
                     linewidth=rcParams['grid.linewidth'],
                     )
 
-        l.set_transform(self._locTransform + self.axes.get_yaxis_transform())
+        l.set_transform(self.axes.get_yaxis_transform())
         self._set_artist_props(l)
         return l
 
 
     def update_position(self, loc):
         'Set the location of tick in data coords with scalar loc'
-        self._locTransform.clear().translate(0.0, loc)
-        self.label1.set_y(loc)
-        self.label2.set_y(loc)
+        y = loc
+        self.tick1line.set_ydata((y,))
+        self.tick2line.set_ydata((y,))
+        self.gridline.set_ydata((y, ))
+
+        self.label1.set_y( y )
+        self.label2.set_y( y )
+
         self._loc = loc
 
-
+        
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervaly
@@ -751,7 +759,7 @@ class Axis(Artist):
         if len(self.minorTicks) < numticks:
             # update the new tick label properties from the old
             for i in range(numticks - len(self.minorTicks)):
-                tick = self._get_tick(minor=True)
+                tick = self._get_tick(major=False)
                 self.minorTicks.append(tick)
             
         if self._lastNumMinorTicks < numticks:

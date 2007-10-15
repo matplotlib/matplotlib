@@ -455,8 +455,10 @@ class Line2D(Artist):
         gc.set_capstyle(cap)
 
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
-        lineFunc = getattr(self, funcname)
-        lineFunc(renderer, gc, *self._transformed_path.get_transformed_path_and_affine())
+        if funcname != '_draw_nothing':
+            tpath, affine = self._transformed_path.get_transformed_path_and_affine()
+            lineFunc = getattr(self, funcname)
+            lineFunc(renderer, gc, tpath, affine)
 	    
         if self._marker is not None:
             gc = renderer.new_gc()
@@ -465,8 +467,10 @@ class Line2D(Artist):
             gc.set_linewidth(self._markeredgewidth)
             gc.set_alpha(self._alpha)
             funcname = self._markers.get(self._marker, '_draw_nothing')
-            markerFunc = getattr(self, funcname)
-            markerFunc(renderer, gc, *self._transformed_path.get_transformed_path_and_affine())
+            if funcname != '_draw_nothing':
+                tpath, affine = self._transformed_path.get_transformed_path_and_affine()
+                markerFunc = getattr(self, funcname)
+                markerFunc(renderer, gc, tpath, affine)
 
         renderer.close_group('line2d')
 
@@ -621,10 +625,8 @@ class Line2D(Artist):
 
         ACCEPTS: npy.array
         """
-        try: del self._xsorted
-        except AttributeError: pass
-
-        self.set_data(x, self.get_ydata())
+        self._xorig = x
+        self.recache()
 
     def set_ydata(self, y):
         """
@@ -633,8 +635,8 @@ class Line2D(Artist):
         ACCEPTS: npy.array
         """
 
-        self.set_data(self.get_xdata(), y)
-
+        self._yorig = y
+        self.recache()
 
     def set_dashes(self, seq):
         """

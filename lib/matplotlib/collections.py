@@ -43,7 +43,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
           linewidths=None,
           antialiaseds = None,
           offsets = None,
-          transOffset = transforms.identity_transform(),
+          transOffset = transforms.IdentityTransform(),
           norm = None,  # optional for cm.ScalarMappable
           cmap = None,  # ditto
 
@@ -376,7 +376,7 @@ artist.kwdocd['Collection'] = """\
       linewidths=None,
       antialiaseds = None,
       offsets = None,
-      transOffset = transforms.identity_transform(),
+      transOffset = transforms.IdentityTransform(),
       norm = None,  # optional for cm.ScalarMappable
       cmap = None,  # ditto
 

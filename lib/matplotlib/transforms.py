@@ -34,8 +34,6 @@ from path import Path
 
 DEBUG = False
 
-# MGDTODO: Cache get_affine???
-
 class TransformNode(object):
     """
     TransformNode is the base class for anything that participates in
@@ -51,7 +49,7 @@ class TransformNode(object):
     # INVALID_AFFINE_ONLY
     INVALID_NON_AFFINE = 1
     INVALID_AFFINE     = 2
-    INVALID            = INVALID_NON_AFFINE & INVALID_AFFINE
+    INVALID            = INVALID_NON_AFFINE | INVALID_AFFINE
     
     # Some metadata about the transform, used to determine whether an
     # invalidation is affine-only
@@ -70,11 +68,6 @@ class TransformNode(object):
         # parents are deleted, references from the children won't keep
         # them alive.
         self._parents = WeakKeyDictionary()
-
-        # id is an arbitrary integer that is updated every time the node
-        # is invalidated.
-        self.id = TransformNode._gid
-        TransformNode._gid += 1
 
         # TransformNodes start out as invalid until their values are
         # computed for the first time.
@@ -105,15 +98,14 @@ class TransformNode(object):
         value = ((self.is_affine or self.is_bbox)
                  and self.INVALID_AFFINE
                  or self.INVALID)
-
+        
         # Invalidate all ancestors of self using pseudo-recursion.
+        parent = None
         stack = [self]
         while len(stack):
             root = stack.pop()
             # Stop at subtrees that have already been invalidated
             if root._invalid == 0 or root.pass_through:
-                root.id = TransformNode._gid
-                TransformNode._gid += 1
                 root._invalid = value
                 stack.extend(root._parents.keys())
 
@@ -466,8 +458,7 @@ class BboxBase(TransformNode):
 
         count = 0
         for bbox in bboxes:
-            # bx1, by1, bx2, by2 = bbox._get_lbrt()
-            # The above, inlined...
+            # bx1, by1, bx2, by2 = bbox._get_lbrt() ... inlined...
             bx1, by1, bx2, by2 = bbox.get_points().flatten()
             if bx2 < bx1:
                 bx2, bx1 = bx1, bx2
@@ -497,6 +488,26 @@ class BboxBase(TransformNode):
         """
         return Bbox(self._points + (tx, ty))
 
+    def corners(self):
+        """
+        Return an array of points which are the four corners of this
+        rectangle.
+        """
+        l, b, r, t = self.get_points().flatten()
+        return npy.array([[l, b], [l, t], [r, b], [r, t]])
+    
+    def rotated(self, radians):
+        """
+        Return a new bounding box that bounds a rotated version of this
+        bounding box.  The new bounding box is still aligned with the
+        axes, of course.
+        """
+        corners = self.corners()
+        corners_rotated = Affine2D().rotate(radians).transform(corners)
+        bbox = Bbox.unit()
+        bbox.update_from_data(corners_rotated, ignore=True)
+        return bbox
+    
     #@staticmethod
     def union(bboxes):
         """
@@ -965,7 +976,6 @@ class TransformWrapper(Transform):
         self.transform_path_non_affine = child.transform_path_non_affine
         self.get_affine                = child.get_affine
         self.inverted                  = child.inverted
-        # self.get_matrix                = child.get_matrix
     
     def set(self, child):
         """
@@ -1609,7 +1619,8 @@ class BlendedGenericTransform(Transform):
         self._x = x_transform
         self._y = y_transform
         self.set_children(x_transform, y_transform)
-
+        self._affine = None
+        
     def _get_is_affine(self):
         return self._x.is_affine and self._y.is_affine
     is_affine = property(_get_is_affine)
@@ -1648,9 +1659,7 @@ class BlendedGenericTransform(Transform):
     transform.__doc__ = Transform.transform.__doc__
 
     def transform_affine(self, points):
-        if self._x.is_affine and self._y.is_affine:
-            return self.transform(points)
-        return points
+        return self.get_affine().transform(points)
     transform_affine.__doc__ = Transform.transform_affine.__doc__
 
     def transform_non_affine(self, points):
@@ -1664,18 +1673,22 @@ class BlendedGenericTransform(Transform):
     inverted.__doc__ = Transform.inverted.__doc__
 
     def get_affine(self):
-        if self._x.is_affine and self._y.is_affine:
-            if self._x == self._y:
-                return self._x.get_affine()
+        if self._invalid or self._affine is None:
+            if self._x.is_affine and self._y.is_affine:
+                if self._x == self._y:
+                    self._affine = self._x.get_affine()
+                else:
+                    x_mtx = self._x.get_affine().get_matrix()
+                    y_mtx = self._y.get_affine().get_matrix()
+                    # This works because we already know the transforms are
+                    # separable, though normally one would want to set b and
+                    # c to zero.
+                    mtx = npy.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
+                    self._affine = Affine2D(mtx)
             else:
-                x_mtx = self._x.get_affine().get_matrix()
-                y_mtx = self._y.get_affine().get_matrix()
-                # This works because we already know the transforms are
-                # separable, though normally one would want to set b and
-                # c to zero.
-                mtx = npy.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
-                return Affine2D(mtx)
-        return IdentityTransform()
+                self._affine = IdentityTransform()
+            self._invalid = 0
+        return self._affine
     get_affine.__doc__ = Transform.get_affine.__doc__
 
 
@@ -1830,6 +1843,7 @@ class CompositeGenericTransform(Transform):
         self._b = b
         self.set_children(a, b)
         self._mtx = None
+        self._affine = None
 
     def frozen(self):
         self._invalid = 0
@@ -1857,8 +1871,7 @@ class CompositeGenericTransform(Transform):
     transform.__doc__ = Transform.transform.__doc__
     
     def transform_affine(self, points):
-        return self._b.transform_affine(
-            self._a.transform(points))
+        return self.get_affine().transform(points)
     transform_affine.__doc__ = Transform.transform_affine.__doc__
 
     def transform_non_affine(self, points):
@@ -1886,10 +1899,14 @@ class CompositeGenericTransform(Transform):
     transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
     
     def get_affine(self):
-        if self._a.is_affine and self._b.is_affine:
-            return Affine2D(npy.dot(self._b.get_affine().get_matrix(),
-                                    self._a.get_affine().get_matrix()))
-        return self._b.get_affine()
+        if self._invalid or self._affine is None:
+            if self._a.is_affine and self._b.is_affine:
+                self._affine = Affine2D(npy.dot(self._b.get_affine().get_matrix(),
+                                                self._a.get_affine().get_matrix()))
+            else:
+                self._affine = self._b.get_affine()
+            self._invalid = 0
+        return self._affine
     get_affine.__doc__ = Transform.get_affine.__doc__
     
     def inverted(self):
@@ -2023,6 +2040,7 @@ class TransformedPath(TransformNode):
         self._transform = transform
         self.set_children(transform)
         self._transformed_path = None
+        self.get_affine = self._transform.get_affine
 
     def get_transformed_path_and_affine(self):
         """
@@ -2035,7 +2053,7 @@ class TransformedPath(TransformNode):
             self._transformed_path = \
                 self._transform.transform_path_non_affine(self._path)
         self._invalid = 0
-        return self._transformed_path, self._transform.get_affine()
+        return self._transformed_path, self.get_affine()
 
     def get_fully_transformed_path(self):
         """
@@ -2047,12 +2065,6 @@ class TransformedPath(TransformNode):
                 self._transform.transform_path_non_affine(self._path)
         self._invalid = 0
         return self._transform.transform_path_affine(self._transformed_path)
-
-    def get_affine(self):
-        """
-        Get the affine part of the child transform.
-        """
-        return self._transform.get_affine()
     
     
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
