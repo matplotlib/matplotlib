@@ -1077,6 +1077,8 @@ class Annotation(Text):
     def _get_xy(self, x, y, s):
         if s=='data':
             trans = self.axes.transData
+            x = float(self.convert_xunits(x))
+            y = float(self.convert_yunits(y))
             return trans.xy_tup((x,y))
         elif s=='polar':
             theta, r = x, y
