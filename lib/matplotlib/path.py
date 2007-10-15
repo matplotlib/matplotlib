@@ -84,7 +84,8 @@ class Path(object):
         resulting path will be compressed, with MOVETO codes inserted
         in the correct places to jump over the masked regions.
         """
-        vertices = ma.asarray(vertices, npy.float_)
+        if not ma.isMaskedArray(vertices):
+            vertices = ma.asarray(vertices, npy.float_)
 
 	if codes is None:
             if len(vertices) == 0:

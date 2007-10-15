@@ -172,24 +172,18 @@ class Text(Artist):
         self._linespacing = other._linespacing
 
     def _get_layout(self, renderer):
-        # layout the xylocs in display coords as if angle = zero and
-        # then rotate them around self._x, self._y
-        #return _unit_box
         key = self.get_prop_tup()
         if self.cached.has_key(key): return self.cached[key]
+
         horizLayout = []
-        transform = self.get_transform()
-        x, y = self.get_position()
-        thisx, thisy = transform.transform_point((x, y))
-        tx, ty = thisx, thisy
 
-        width = 0
-        height = 0
-
-        xmin, ymin = thisx, thisy
+        thisx, thisy  = 0.0, 0.0
+        xmin, ymin    = 0.0, 0.0
+        width, height = 0.0, 0.0
         lines = self._text.split('\n')
 
-        whs = []
+        whs = npy.zeros((len(lines), 2))
+        horizLayout = npy.zeros((len(lines), 4))
         # Find full vertical extent of font,
         # including ascenders and descenders:
         tmp, heightt, bl = renderer.get_text_width_height_descent(
@@ -197,43 +191,39 @@ class Text(Artist):
         offsety = heightt * self._linespacing
 
         baseline = None
-        for line in lines:
+        for i, line in enumerate(lines):
             w, h, d = renderer.get_text_width_height_descent(
                 line, self._fontproperties, ismath=self.is_math_text(line))
             if baseline is None:
                 baseline = h - d
-            whs.append( (w,h) )
-            horizLayout.append((line, thisx, thisy, w, h))
+            whs[i] = w, h
+            horizLayout[i] = thisx, thisy, w, h
             thisy -= offsety
             width = max(width, w)
 
-        ymin = horizLayout[-1][2]
-        ymax = horizLayout[0][2] + horizLayout[0][-1]
+        ymin = horizLayout[-1][1]
+        ymax = horizLayout[0][1] + horizLayout[0][3]
         height = ymax-ymin
-
         xmax = xmin + width
+
         # get the rotation matrix
-        M = self.get_rotation_matrix(xmin, ymin)
+        M = Affine2D().rotate_deg(self.get_rotation())
+
+        offsetLayout = npy.zeros((len(lines), 2))
+        offsetLayout[:] = horizLayout[:, 0:2]
+        # now offset the individual text lines within the box
+        if len(lines)>1: # do the multiline aligment
+            malign = self._get_multialignment()
+            if malign == 'center':
+                offsetLayout[:, 0] += width/2.0 - horizLayout[:, 2] / 2.0
+            elif malign == 'right':
+                offsetLayout[:, 0] += width - horizLayout[:, 2]
 
         # the corners of the unrotated bounding box
         cornersHoriz = npy.array(
 	    [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)],
 	    npy.float_)
-        offsetLayout = npy.zeros((len(lines), 2))
-        # now offset the individual text lines within the box
-        if len(lines)>1: # do the multiline aligment
-            malign = self._get_multialignment()
-            for i, (line, thisx, thisy, w, h) in enumerate(horizLayout):
-                if malign=='center': offsetx = width/2.0-w/2.0
-                elif malign=='right': offsetx = width-w
-                else: offsetx = 0
-                thisx += offsetx
-		offsetLayout[i] = (thisx, thisy)
-        else: # no additional layout needed
-            offsetLayout[0] = horizLayout[0][1:3]
-
         # now rotate the bbox
-
         cornersRotated = M.transform(cornersHoriz)
 
         txs = cornersRotated[:, 0]
@@ -251,36 +241,29 @@ class Text(Artist):
 
         # compute the text location in display coords and the offsets
         # necessary to align the bbox with that location
-        tx, ty = self._get_xy_display()
+        if halign=='center':  offsetx = (xmin + width/2.0)
+        elif halign=='right': offsetx = (xmin + width)
+        else: offsetx = xmin
 
-        if halign=='center':  offsetx = tx - (xmin + width/2.0)
-        elif halign=='right': offsetx = tx - (xmin + width)
-        else: offsetx = tx - xmin
+        if valign=='center': offsety = (ymin + height/2.0)
+        elif valign=='top': offsety  = (ymin + height)
+        elif valign=='baseline': offsety = (ymin + height) + baseline
+        else: offsety = ymin
 
-        if valign=='center': offsety = ty - (ymin + height/2.0)
-        elif valign=='top': offsety  = ty - (ymin + height)
-        elif valign=='baseline': offsety = ty - (ymin + height) + baseline
-        else: offsety = ty - ymin
-
-        xmin += offsetx
-        ymin += offsety
+        xmin -= offsetx
+        ymin -= offsety
 
         bbox = Bbox.from_lbwh(xmin, ymin, width, height)
 
         # now rotate the positions around the first x,y position
         xys = M.transform(offsetLayout)
-        xys += (offsetx, offsety)
-
-        # now inverse transform back to data coords
-	inverse_transform = transform.inverted()
-        xys = inverse_transform.transform(xys)
+        xys -= (offsetx, offsety)
 
         xs, ys = xys[:, 0], xys[:, 1]
         
         ret = bbox, zip(lines, whs, xs, ys)
         self.cached[key] = ret
         return ret
-
 
     def set_bbox(self, rectprops):
         """
@@ -307,18 +290,20 @@ class Text(Artist):
         if self.get_clip_on():
             gc.set_clip_rectangle(self.clipbox)
 
-
-
         if self._bbox:
             bbox_artist(self, renderer, self._bbox)
         angle = self.get_rotation()
 
         bbox, info = self._get_layout(renderer)
         trans = self.get_transform()
+        posx, posy = self.get_position()
+        posx, posy = trans.transform_point((posx, posy))
+        canvasw, canvash = renderer.get_canvas_width_height()
+        
         if rcParams['text.usetex']:
-            canvasw, canvash = renderer.get_canvas_width_height()
             for line, wh, x, y in info:
-                x, y = trans.transform_point((x, y))
+                x = x + posx
+                y = y + posy
                 if renderer.flipy():
                     y = canvash-y
 
@@ -326,9 +311,9 @@ class Text(Artist):
                                   self._fontproperties, angle)
             return
 
-        canvasw, canvash = renderer.get_canvas_width_height()
         for line, wh, x, y in info:
-            x, y = trans.transform_point((x, y))
+            x = x + posx
+            y = y + posy
             if renderer.flipy():
                 y = canvash-y
                 
@@ -402,8 +387,7 @@ class Text(Artist):
         x, y = self.get_position()
         return (x, y, self._text, self._color,
                 self._verticalalignment, self._horizontalalignment,
-                hash(self._fontproperties), self._rotation,
-                self.get_transform().id
+                hash(self._fontproperties), self._rotation
                 )
 
     def get_text(self):
@@ -432,10 +416,10 @@ class Text(Artist):
 
         angle = self.get_rotation()
         bbox, info = self._get_layout(self._renderer)
+        x, y = self.get_position()
+        x, y = self.get_transform().transform_point((x, y))
+        bbox = bbox.translated(x, y)
         return bbox
-
-    def get_rotation_matrix(self, x0, y0):
-	return Affine2D().rotate_deg_around(x0, y0, self.get_rotation())
 
     def set_backgroundcolor(self, color):
         """
