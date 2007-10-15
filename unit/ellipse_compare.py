@@ -27,27 +27,22 @@ y += ycenter
 
 fig = figure()
 ax = fig.add_subplot(211, aspect='auto')
-ax.fill(x, y, alpha=0.2, facecolor='yellow')
+ax.fill(x, y, alpha=0.2, facecolor='yellow', edgecolor='yellow', linewidth=1, zorder=1)
 
 e1 = patches.Ellipse((xcenter, ycenter), width, height,
-             angle=angle, linewidth=2, fill=False)
+             angle=angle, linewidth=2, fill=False, zorder=2)
 
-ax.add_artist(e1)
+ax.add_patch(e1)
 
 ax = fig.add_subplot(212, aspect='equal')
-ax.fill(x, y, alpha=0.2, facecolor='yellow')
+ax.fill(x, y, alpha=0.2, facecolor='green', edgecolor='green', zorder=1)
 e2 = patches.Ellipse((xcenter, ycenter), width, height,
-             angle=angle, linewidth=2, fill=False)
+             angle=angle, linewidth=2, fill=False, zorder=2)
 
 
-ax.add_artist(e2)
-ax.autoscale_view()
-
-
-ax.set_xlim(0.2, .5)
-ax.set_ylim(0.3, 0.7)
+ax.add_patch(e2)
 
 #fig.savefig('ellipse_compare.png')
-#fig.savefig('ellipse_compare.ps')
+fig.savefig('ellipse_compare')
 
 show()

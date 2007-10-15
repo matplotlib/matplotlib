@@ -329,7 +329,7 @@ class RendererPS(RendererBase):
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
         return font
-
+        
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
         """
         Draw an arc centered at x,y with width and height and angles
@@ -340,7 +340,7 @@ class RendererPS(RendererBase):
         """
         ps = '%f %f translate\n%f rotate\n%f %f translate\n%s ellipse' % \
             (x, y, rotation, -x, -y, _nums_to_str(angle1, angle2, 0.5*width, 0.5*height, x, y))
-        self._draw_ps(ps, gc, rgbFace, "arc")
+        self._draw_ps(ps, gc, None, "arc")
 
     def _rgba(self, im):
         return im.as_rgba_str()
@@ -519,8 +519,41 @@ grestore
             end += step
         if cliprect: write('grestore\n')
 
-    def draw_path(self,gc,rgbFace,path,trans):
-        pass
+    def draw_path(self, gc, rgbFace, path):
+
+        ps_cmd = []
+        ps_cmd.append('newpath')
+        
+        while 1:
+            code, xp, yp = path.vertex()
+
+            #print code, xp, yp
+            
+            if code == agg.path_cmd_stop:
+                ps_cmd.append('closepath') # Hack, path_cmd_end_poly not found
+                break
+            elif code == agg.path_cmd_move_to:
+                ps_cmd.append('%g %g m' % (xp,yp))
+            elif code == agg.path_cmd_line_to:
+                ps_cmd.append('%g %g l' % (xp,yp))
+            elif code == agg.path_cmd_curve3:
+                pass
+            elif code == agg.path_cmd_curve4:
+                verts = [xp, yp]
+                verts.extend(path.vertex()[1:])
+                verts.extend(path.vertex()[1:])
+                ps_cmd.append('%g %g %g %g %g %g curveto'%tuple(verts))
+            elif code == agg.path_cmd_end_poly:
+                ps_cmd.append('closepath')
+            elif code == agg.path_cmd_mask:
+                pass
+            else:
+                pass
+                #print code
+
+        ps = '\n'.join(ps_cmd)
+
+        self._draw_ps(ps, gc, rgbFace, "custom_path")
 
     def draw_lines(self, gc, x, y, transform):
         """
@@ -883,6 +916,7 @@ grestore
         # local variable eliminates all repeated attribute lookups
         write = self._pswriter.write
         write('gsave\n')
+
         if debugPS and command:
             write("% "+command+"\n")
 
@@ -916,6 +950,7 @@ grestore
         if cliprect:
             write("grestore\n")
         write('grestore\n')            
+
     def push_gc(self, gc, store=1):
         """
         Push the current onto stack, with the exception of the clip box, which
@@ -1581,5 +1616,15 @@ psDefs = [
       0 0 1 5 3 roll arc
       setmatrix
       closepath
-    } bind def"""
+    } bind def""",
+    """/unitcircle {
+    newpath
+-1. 0. moveto
+-1.0 0.552284749831 -0.552284749831 1.0 0.0 1.0 curveto
+0.552284749831 1.0 1.0 0.552284749831 1.0 0.0 curveto
+1.0 -0.552284749831 0.552284749831 -1.0 0.0 -1.0 curveto
+-0.552284749831 -1.0 -1.0 -0.552284749831 -1.0 0.0 curveto
+closepath
+    } bind def""",
+    
 ]
