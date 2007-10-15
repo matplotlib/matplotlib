@@ -109,8 +109,9 @@ class RendererAgg(RendererBase):
 				      debug=False)
         if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done',
                                      'debug-annoying')
-        #self.draw_path = self._renderer.draw_path
-        #self.draw_markers = self._renderer.draw_markers
+        self.draw_path = self._renderer.draw_path
+        self.draw_markers = self._renderer.draw_markers
+        self.draw_path_collection = self._renderer.draw_path_collection
         self.draw_image = self._renderer.draw_image
         self.copy_from_bbox = self._renderer.copy_from_bbox
         self.restore_region = self._renderer.restore_region
@@ -121,26 +122,6 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
 
-    def draw_path(self, gc, path, trans, rgbFace=None):
-        assert trans.is_affine
-        self._renderer.draw_path(gc, path, trans.frozen(), rgbFace)
-
-    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
-        assert marker_trans.is_affine
-        assert trans.is_affine
-        self._renderer.draw_markers(gc, marker_path, marker_trans.frozen(), path, trans.frozen(), rgbFace)
-
-    def draw_path_collection(self, master_transform, clipbox, clippath, clippath_trans,
-                             paths, transforms, offsets, transOffset, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds):
-        assert master_transform.is_affine
-        if transOffset is not None:
-            transOffset = transOffset.frozen()
-        self._renderer.draw_path_collection(
-            master_transform.frozen(), clipbox, clippath, clippath_trans,
-            paths, transforms, offsets, transOffset, facecolors, edgecolors, linewidths,
-            linestyles, antialiaseds)
-        
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """
         Draw the math text using matplotlib.mathtext
@@ -153,11 +134,6 @@ class RendererAgg(RendererBase):
         x = int(x) + ox
         y = int(y) - oy
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
-        if 0:
-            self._renderer.draw_rectangle(gc, None,
-                                          int(x),
-                                          self.height-int(y),
-                                          width, height)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         """
@@ -173,13 +149,13 @@ class RendererAgg(RendererBase):
         if len(s) == 1 and ord(s) > 127:
             font.load_char(ord(s), flags=LOAD_DEFAULT)
         else:
+            # We pass '0' for angle here, since it will be rotated (in raster
+            # space) in the following call to draw_text_image).
             font.set_text(s, 0, flags=LOAD_DEFAULT)
         font.draw_glyphs_to_bitmap()
 
         #print x, y, int(x), int(y)
 
-        # We pass '0' for angle here, since is has already been rotated
-        # (in vector space) in the above call to font.set_text.
         self._renderer.draw_text_image(font.get_image(), int(x), int(y) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath, rgb=(0,0,0)):
