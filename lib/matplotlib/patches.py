@@ -820,6 +820,8 @@ class Ellipse(Patch):
             [npy.sin(rtheta), npy.cos(rtheta)],
             ])
 
+        x = self.convert_xunits(x)
+        y = self.convert_yunits(y)
 
         x, y = npy.dot(R, npy.array([x, y]))
         x += xcenter
@@ -845,9 +847,6 @@ class Ellipse(Patch):
         if self._hatch:
             gc.set_hatch(self._hatch )
 
-        offset = self.offset
-
-        
 
         if not hasattr(renderer, 'draw_path'):
             verbose.report('patches.Ellipse renderer does not support path drawing; falling back on vertex approximation for nonlinear transformation')
@@ -856,15 +855,23 @@ class Ellipse(Patch):
         
 
         x, y = self.center
+        x = self.convert_xunits(x)
+        y = self.convert_yunits(y)
+
         theta = self.angle * npy.pi/180.
         T = npy.array([
             [1, 0, x],
             [0, 1, y],
             [0, 0, 1]])
 
+        w, h = self.width/2, self.height/2.
+        w = self.convert_xunits(w)
+        h = self.convert_yunits(h)
+
+        
         S = npy.array([
-            [self.width/2., 0, 0],
-            [0, self.height/2., 0],
+            [w, 0, 0],
+            [0, h, 0],
             [0, 0, 1]])
 
 
