@@ -32,14 +32,14 @@ void TTStreamWriter::printf(const char* format, ...)
   va_start(arg_list, format);
   char buffer[PRINTF_BUFFER_SIZE];
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_MSC_VER)
   int size = _vsnprintf(buffer, PRINTF_BUFFER_SIZE, format, arg_list);
 #else
   int size = vsnprintf(buffer, PRINTF_BUFFER_SIZE, format, arg_list);
 #endif
   if (size >= PRINTF_BUFFER_SIZE) {
     char* buffer2 = (char*)malloc(size);
-#ifdef WIN32
+#if defined(WIN32) || defined(_MSC_VER)
     _vsnprintf(buffer2, size, format, arg_list);
 #else
     vsnprintf(buffer2, size, format, arg_list);
