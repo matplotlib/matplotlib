@@ -167,7 +167,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.update_scalarmappable()
 
         clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
-
+        if clippath_trans is not None:
+            clippath_trans = clippath_trans.frozen()
+        
         # MGDTODO: This may benefit from using TransformedPath
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(path) for path in paths]
@@ -175,9 +177,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
-            
+        
         renderer.draw_path_collection(
-            transform, self.clipbox, clippath, clippath_trans,
+            transform.frozen(), self.clipbox, clippath, clippath_trans,
             paths, self.get_transforms(),
             npy.asarray(offsets, npy.float_), transOffset, 
             self._facecolors, self._edgecolors, self._linewidths,

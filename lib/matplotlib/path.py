@@ -142,7 +142,7 @@ class Path(object):
 	return self._vertices
     vertices = property(_get_vertices)
 
-    def iter_endpoints(self):
+    def iter_segments(self):
         """
         Iterates over all of the endpoints in the path.  Unlike
         iterating directly over the vertices array, curve control
@@ -151,15 +151,20 @@ class Path(object):
 	i = 0
 	NUM_VERTICES = self.NUM_VERTICES
 	vertices = self.vertices
-	for code in self.codes:
+        codes = self.codes
+        
+	while i < len(vertices):
+            code = codes[i]
             if code == self.CLOSEPOLY:
+                yield [], code
                 i += 1
+            elif code == self.STOP:
+                return
             else:
                 num_vertices = NUM_VERTICES[code]
-                i += num_vertices - 1
-                yield vertices[i]
-                i += 1
-
+                yield vertices[i:i+num_vertices].flatten(), code
+                i += num_vertices
+                
     def transformed(self, transform):
         """
         Return a transformed copy of the path.
