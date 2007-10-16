@@ -2,8 +2,7 @@
 # file is pasted into pylab.py.  We did try to do this the smart way,
 # with callable functions and new.function, but could never get the
 # docstrings right for python2.2.  See
-# http://groups-beta.google.com/group/comp.lang.python/messages/1b14640f3a4ad3dc,b3d7453af21e5f82,17739e70ac6f710c,9d5291fce29cbbb1,c5b578e4ffc6af28,056ff270daa2f414?thread_id=dcd63ec13096a0f6&mode=thread
-
+# http://groups.google.com/group/comp.lang.python/browse_frm/thread/dcd63ec13096a0f6/1b14640f3a4ad3dc?#1b14640f3a4ad3dc
 
 
 # note we check for __doc__ is not None since py2exe optimize removes

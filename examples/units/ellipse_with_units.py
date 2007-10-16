@@ -1,18 +1,19 @@
 """
 Compare the ellipse generated with arcs versus a polygonal approximation 
 """
+from basic_units import cm
 import numpy as npy
 from matplotlib import patches
 from pylab import figure, show
 
-xcenter, ycenter = 0.38, 0.52
+xcenter, ycenter = 0.38*cm, 0.52*cm
 #xcenter, ycenter = 0., 0.
-width, height = 1e-1, 3e-1
+width, height = 1e-1*cm, 3e-1*cm
 angle = -30
 
 theta = npy.arange(0.0, 360.0, 1.0)*npy.pi/180.0
-x = width/2. * npy.cos(theta)
-y = height/2. * npy.sin(theta)
+x = 0.5 * width * npy.cos(theta)
+y = 0.5 * height * npy.sin(theta)
 
 rtheta = angle*npy.pi/180.
 R = npy.array([

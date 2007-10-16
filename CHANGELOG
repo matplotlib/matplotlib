@@ -1,3 +1,12 @@
+2007-10-15 Fixed a bug in patches.Ellipse that was broken for
+           aspect='auto'.  Scale free ellipses now work properly for
+           equal and auto on Agg and PS, and they fall back on a
+           polygonal approximation for nonlinear transformations until
+           we convince oursleves that the spline approximation holds
+           for nonlinear transformations. Added
+           unit/ellipse_compare.py to compare spline with vertex
+           approx for both aspects. JDH
+
 2007-10-05 remove generator expressions from texmanager and mpltraits. 
            generator expressions are not supported by python-2.3 - DSD
 
