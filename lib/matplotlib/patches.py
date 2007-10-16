@@ -771,32 +771,6 @@ class Ellipse(Patch):
     """
     A scale-free ellipse
     """
-    offset = 4.0 * (npy.sqrt(2) - 1) / 3.0
-
-    circle = npy.array([
-        [-1.0, 0.0],
-
-        [-1.0, offset],
-        [-offset, 1.0],
-        [0.0, 1.0],
-
-        [offset, 1.0],
-        [1.0, offset],
-        [1.0, 0.0],
-
-        [1.0, -offset],
-        [offset, -1.0],
-        [0.0, -1.0],
-
-        [-offset, -1.0],
-        [-1.0, -offset],
-        [-1.0, 0.0],
-
-        [-1.0, 0.0]
-        ],
-                       npy.float_)
-
-    
     def __str__(self):
         return "Ellipse(%d,%d;%dx%d)"%(self.center[0],self.center[1],self.width,self.height)
 
