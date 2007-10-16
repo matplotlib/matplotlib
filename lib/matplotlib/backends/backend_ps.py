@@ -371,7 +371,7 @@ class RendererPS(RendererBase):
         """
         return self.image_magnification
 
-    def draw_image(self, x, y, im, bbox):
+    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         """
         Draw the Image instance into the current axes; x is the
         distance in pixels from the left hand side of the canvas and y
@@ -397,9 +397,16 @@ class RendererPS(RendererBase):
         figh = self.height*72
         #print 'values', origin, flipud, figh, h, y
 
+        clip = []
         if bbox is not None:
             clipx,clipy,clipw,cliph = bbox.bounds
-            clip = '%s clipbox' % _nums_to_str(clipw, cliph, clipx, clipy)
+            clip.append('%s clipbox' % _nums_to_str(clipw, cliph, clipx, clipy))
+        if clippath is not None:
+            print "clippath"
+            id = self._get_clip_path(clippath, clippath_trans)
+            clip.append('%s' % id)
+        clip = '\n'.join(clip)
+            
         #y = figh-(y+h)
         ps = """gsave
 %(clip)s
@@ -507,7 +514,7 @@ grestore
         Nlinestyles = len(linestyles)
         Naa         = len(antialiaseds)
 
-        if (Nfacecolors == 0 and Nedgecolors == 0) or N == 0:
+        if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
         
         for i in range(Ntpaths):

@@ -99,7 +99,7 @@ agg::trans_affine py_to_agg_transformation_matrix(const Py::Object& obj, bool er
  the C++ representation as a std::vector<std::pair<double, double> >
  (GCAgg::dash_t)
 */
-void convert_dashes(const Py::Tuple& dashes, bool snap, double dpi, GCAgg::dash_t& dashes_out, 
+void convert_dashes(const Py::Tuple& dashes, double dpi, GCAgg::dash_t& dashes_out, 
 		    double& dashOffset_out) {
   if (dashes.length()!=2)
     throw Py::ValueError(Printf("Dash descriptor must be a length 2 tuple; found %d", dashes.length()).str());
@@ -124,10 +124,6 @@ void convert_dashes(const Py::Tuple& dashes, bool snap, double dpi, GCAgg::dash_
   for (size_t i = 0; i < Ndash; i += 2) {
     val0 = double(Py::Float(dashSeq[i])) * dpi/72.0;
     val1 = double(Py::Float(dashSeq[i+1])) * dpi/72.0;
-    if (snap) {
-      val0 = (int)val0 + 0.5;
-      val1 = (int)val1 + 0.5;
-    }
     dashes_out.push_back(std::make_pair(val0, val1));
   }
 }
@@ -143,8 +139,6 @@ public:
   conv_quantize(VertexSource& source, bool quantize) :
     m_source(&source), m_quantize(quantize) {}
   
-  void set_source(VertexSource& source) { m_source = &source; }
-
   void rewind(unsigned path_id) { 
     m_source->rewind(path_id); 
   }
@@ -158,18 +152,14 @@ public:
     return cmd;
   }
 
-  void activate(bool quantize) {
-    m_quantize = quantize;
-  }
-
 private:
   VertexSource* m_source;
   bool m_quantize;
 };
 
 
-GCAgg::GCAgg(const Py::Object &gc, double dpi, bool snapto) :
-  dpi(dpi), snapto(snapto), isaa(true), linewidth(1.0), alpha(1.0),
+GCAgg::GCAgg(const Py::Object &gc, double dpi) :
+  dpi(dpi), isaa(true), linewidth(1.0), alpha(1.0),
   dashOffset(0.0)
 {
   _VERBOSE("GCAgg::GCAgg");
@@ -184,8 +174,8 @@ GCAgg::GCAgg(const Py::Object &gc, double dpi, bool snapto) :
   _set_clip_path(gc);
 }
 
-GCAgg::GCAgg(double dpi, bool snapto) :
-  dpi(dpi), snapto(snapto), isaa(true), linewidth(1.0), alpha(1.0),
+GCAgg::GCAgg(double dpi) :
+  dpi(dpi), isaa(true), linewidth(1.0), alpha(1.0),
   dashOffset(0.0)
 {
 
@@ -260,7 +250,7 @@ GCAgg::_set_dashes(const Py::Object& gc) {
     return;
   }
 
-  convert_dashes(dash_obj, snapto, dpi, dashes, dashOffset);
+  convert_dashes(dash_obj, dpi, dashes, dashOffset);
 }
 
 void
@@ -435,17 +425,31 @@ template<class Path>
 bool should_snap(Path& path, const agg::trans_affine& trans) {
   // If this is a straight horizontal or vertical line, quantize to nearest 
   // pixels
-  bool snap = false;
-  if (path.total_vertices() == 2) {
-    double x0, y0, x1, y1;
-    path.vertex(0, &x0, &y0);
-    trans.transform(&x0, &y0);
-    path.vertex(1, &x1, &y1);
+  double x0, y0, x1, y1;
+  unsigned code;
+  code = path.vertex(&x0, &y0);
+  trans.transform(&x0, &y0);
+
+  while ((code = path.vertex(&x1, &y1)) != agg::path_cmd_stop) {
+
+    switch (code) {
+    case agg::path_cmd_curve3:
+    case agg::path_cmd_curve4:
+      path.rewind(0);
+      return false;
+    }
+
     trans.transform(&x1, &y1);
-    snap = (fabs(x0 - x1) < 1.0 || fabs(y0 - y1) < 1.0);
+    if (!(fabs(x0 - x1) < 0.1 || fabs(y0 - y1) < 0.1)) {
+      path.rewind(0);
+      return false;
+    }
+    x0 = x1;
+    y0 = y1;
   }
 
-  return snap;
+  path.rewind(0);
+  return true;
 }
 
 Py::Object
@@ -563,10 +567,10 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   curve_t marker_path_curve(marker_path_transformed);
 
   PathIterator path(path_obj);
+  bool snap = should_snap(path, trans);
   transformed_path_t path_transformed(path, trans);
-  // bool snap = should_snap(path, trans);
-  GCAgg gc = GCAgg(gc_obj, dpi, true);
-  quantize_t path_quantized(path_transformed, true);
+  GCAgg gc = GCAgg(gc_obj, dpi);
+  quantize_t path_quantized(path_transformed, snap);
   path_quantized.rewind(0);
 
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
@@ -793,31 +797,37 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
 Py::Object
 RendererAgg::draw_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_image");
-  args.verify_length(4);
+  args.verify_length(4, 6);
   
   float x = Py::Float(args[0]);
   float y = Py::Float(args[1]);
   Image *image = static_cast<Image*>(args[2].ptr());
   Py::Object box_obj = args[3];
-  
+  Py::Object clippath;
+  agg::trans_affine clippath_trans;
+  if (args.size() == 6) {
+    clippath = args[4];
+    clippath_trans = py_to_agg_transformation_matrix(args[5]);
+  }
+ 
   theRasterizer->reset_clipping();
   rendererBase->reset_clipping(true);
   set_clipbox(box_obj, rendererBase);
-  
-  pixfmt pixf(*(image->rbufOut));
-  
-  
+
   Py::Tuple empty;
+  pixfmt pixf(*(image->rbufOut));
   image->flipud_out(empty);
+
   rendererBase->blend_from(pixf, 0, (int)x, (int)(height-(y+image->rowsOut)));
+
   image->flipud_out(empty);
   
   return Py::Object();
 }
 
 void RendererAgg::_draw_path(PathIterator& path, agg::trans_affine trans, 
-			    bool snap, bool has_clippath, 
-			    const facepair_t& face, const GCAgg& gc) {
+			     bool has_clippath, const facepair_t& face, 
+			     const GCAgg& gc) {
   typedef agg::conv_transform<PathIterator>		     transformed_path_t;
   typedef conv_quantize<transformed_path_t>		     quantize_t;
   typedef agg::conv_curve<quantize_t>			     curve_t;
@@ -833,6 +843,7 @@ void RendererAgg::_draw_path(PathIterator& path, agg::trans_affine trans,
   trans *= agg::trans_affine_translation(0.0, (double)height);
 
   // Build the transform stack
+  bool snap = should_snap(path, trans);
   transformed_path_t tpath(path, trans);
   quantize_t quantized(tpath, snap);
   // Benchmarking shows that there is no noticable slowdown to always
@@ -871,25 +882,36 @@ void RendererAgg::_draw_path(PathIterator& path, agg::trans_affine trans,
 
   // Render stroke
   if (gc.linewidth != 0.0) {
+    double linewidth = gc.linewidth;
+    if (snap)
+      linewidth = round(linewidth);
+
     if (gc.dashes.size() == 0) {
       stroke_t stroke(curve);
-      stroke.width(gc.linewidth);
+      stroke.width(linewidth);
       stroke.line_cap(gc.cap);
       stroke.line_join(gc.join);
       theRasterizer->add_path(stroke);
     } else {
       dash_t dash(curve);
       for (GCAgg::dash_t::const_iterator i = gc.dashes.begin();
-	   i != gc.dashes.end(); ++i)
-	dash.add_dash(i->first, i->second);
+	   i != gc.dashes.end(); ++i) {
+	double val0 = i->first;
+	double val1 = i->second;
+	if (snap) {
+	  val0 = (int)val0 + 0.5;
+	  val1 = (int)val1 + 0.5;
+	}
+	dash.add_dash(val0, val1);
+      } 
       stroke_dash_t stroke(dash);
       stroke.line_cap(gc.cap);
       stroke.line_join(gc.join);
-      stroke.width(gc.linewidth);
+      stroke.width(linewidth);
       theRasterizer->add_path(stroke);
     }
     
-    if (gc.isaa && !(snap && gc.linewidth < 1.5)) {
+    if (gc.isaa && !(snap)) {
       if (has_clippath) {
 	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
 	amask_ren_type r(pfa);
@@ -928,8 +950,7 @@ RendererAgg::draw_path(const Py::Tuple& args) {
     face_obj = args[3];
 
   PathIterator path(path_obj);
-  bool snap = should_snap(path, trans);
-  GCAgg gc = GCAgg(gc_obj, dpi, snap);
+  GCAgg gc = GCAgg(gc_obj, dpi);
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
   
   theRasterizer->reset_clipping();
@@ -937,7 +958,7 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   set_clipbox(gc.cliprect, theRasterizer);
   bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
-  _draw_path(path, trans, snap, has_clippath, face, gc);
+  _draw_path(path, trans, has_clippath, face, gc);
   
   return Py::Object();
 }
@@ -962,7 +983,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   Py::SeqBase<Py::Object> linestyles_obj   = args[11];
   Py::SeqBase<Py::Int>    antialiaseds	   = args[12];
   
-  GCAgg gc(dpi, false);
+  GCAgg gc(dpi);
 
   PyArrayObject* offsets    = NULL;
   PyArrayObject* facecolors = NULL;
@@ -973,13 +994,15 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
     if (!offsets || offsets->dimensions[1] != 2)
       throw Py::ValueError("Offsets array must be Nx2");
 
-    PyArrayObject* facecolors = (PyArrayObject*)PyArray_FromObject(facecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
+    PyArrayObject* facecolors = (PyArrayObject*)PyArray_FromObject
+      (facecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
     if (!facecolors || 
 	(facecolors->nd == 1 && facecolors->dimensions[0] != 0) || 
 	(facecolors->nd == 2 && facecolors->dimensions[1] != 4))
       throw Py::ValueError("Facecolors must be a Nx4 numpy array or empty");
 
-    PyArrayObject* edgecolors = (PyArrayObject*)PyArray_FromObject(edgecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
+    PyArrayObject* edgecolors = (PyArrayObject*)PyArray_FromObject
+      (edgecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
     if (!edgecolors || 
 	(edgecolors->nd == 1 && edgecolors->dimensions[0] != 0) || 
 	(edgecolors->nd == 2 && edgecolors->dimensions[1] != 4))
@@ -995,10 +1018,10 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
     size_t Nlinestyles = std::min(linestyles_obj.length(), N);
     size_t Naa	       = antialiaseds.length();
 
-    if ((Nfacecolors == 0 && Nedgecolors == 0) || N == 0)
+    if ((Nfacecolors == 0 && Nedgecolors == 0) || Npaths == 0)
       return Py::Object();
     
-    size_t i        = 0;
+    size_t i = 0;
     
     // Convert all of the transforms up front
     typedef std::vector<agg::trans_affine> transforms_t;
@@ -1018,7 +1041,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
     i = 0;
     for (dashes_t::iterator d = dashes.begin(); 
 	 d != dashes.end(); ++d, ++i) {
-      convert_dashes(Py::Tuple(linestyles_obj[i]), false, dpi, d->second, d->first);
+      convert_dashes(Py::Tuple(linestyles_obj[i]), dpi, d->second, d->first);
     }
     
     // Handle any clipping globally
@@ -1034,34 +1057,34 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
     
     for (i = 0; i < N; ++i) {
       PathIterator path(paths[i % Npaths]);
-      bool snap = (path.total_vertices() == 2);
-      double xo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
-      double yo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
+      double xo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
+      double yo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
       offset_trans.transform(&xo, &yo);
       agg::trans_affine_translation transOffset(xo, yo);
       agg::trans_affine& trans = transforms[i % Ntransforms];
       
       if (Nfacecolors) {
 	size_t fi = i % Nfacecolors;
-	face.second            = agg::rgba(*(double*)PyArray_GETPTR2(facecolors, fi, 0),
-					   *(double*)PyArray_GETPTR2(facecolors, fi, 1),
-					   *(double*)PyArray_GETPTR2(facecolors, fi, 2),
-					   *(double*)PyArray_GETPTR2(facecolors, fi, 3));
+	face.second = agg::rgba(*(double*)PyArray_GETPTR2(facecolors, fi, 0),
+				*(double*)PyArray_GETPTR2(facecolors, fi, 1),
+				*(double*)PyArray_GETPTR2(facecolors, fi, 2),
+				*(double*)PyArray_GETPTR2(facecolors, fi, 3));
       }
       
       if (Nedgecolors) {
 	size_t ei = i % Nedgecolors;
-	gc.color               = agg::rgba(*(double*)PyArray_GETPTR2(edgecolors, ei, 0),
-					   *(double*)PyArray_GETPTR2(edgecolors, ei, 1),
-					   *(double*)PyArray_GETPTR2(edgecolors, ei, 2),
-					   *(double*)PyArray_GETPTR2(edgecolors, ei, 3));
-	gc.linewidth 	       = double(Py::Float(linewidths[i % Nlinewidths])) * dpi/72.0;
-	gc.dashes		     = dashes[i % Nlinestyles].second;
-	gc.dashOffset	       = dashes[i % Nlinestyles].first;
+	gc.color = agg::rgba(*(double*)PyArray_GETPTR2(edgecolors, ei, 0),
+			     *(double*)PyArray_GETPTR2(edgecolors, ei, 1),
+			     *(double*)PyArray_GETPTR2(edgecolors, ei, 2),
+			     *(double*)PyArray_GETPTR2(edgecolors, ei, 3));
+	gc.linewidth = double(Py::Float(linewidths[i % Nlinewidths])) * dpi/72.0;
+	gc.dashes = dashes[i % Nlinestyles].second;
+	gc.dashOffset = dashes[i % Nlinestyles].first;
       }
       
-      gc.isaa		       = bool(Py::Int(antialiaseds[i % Naa]));
-      _draw_path(path, trans * transOffset, snap, has_clippath, face, gc);
+      gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
+
+      _draw_path(path, trans * transOffset, has_clippath, face, gc);
     }
   } catch (...) {
     Py_XDECREF(offsets);

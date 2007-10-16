@@ -35,26 +35,26 @@ color_by_yvalue.py	O
 color_demo.py		O
 colours.py		[???]
 contour_demo.py		O
-contourf_demo.py	[FLOATING POINT EXCEPTION]
-contour_image.py	[FLOATING POINT EXCEPTION]
+contourf_demo.py	O
+contour_image.py	O
 coords_demo.py		O
 coords_report.py	O
 csd_demo.py		O
 cursor_demo.py		O
-custom_figure_class.py  [EXCEPT FOR PS OUTPUT]
+custom_figure_class.py  O
 customize_rc.py
 custom_ticker1.py	O
 dannys_example.py	[REQUIRES NUMERIC]
 dash_control.py		O
 dashpointlabel.py	O
-dashtick.py
+dashtick.py		O
 data_browser.py		O
 data_helper.py		[N/A]
 date_demo1.py		O
 date_demo2.py		O
-date_demo_convert.py	O [PASSES]
-date_demo_rrule.py	O [PASSES]
-date_index_formatter.py O [PASSES]
+date_demo_convert.py	O
+date_demo_rrule.py	O
+date_index_formatter.py O
 dynamic_collection.py   O
 dynamic_demo.py		[GTK]
 dynamic_demo_wx.py	[WX]
@@ -77,7 +77,7 @@ embedding_in_wx.py
 errorbar_demo.py	O
 errorbar_limits.py	O	
 figimage_demo.py	O
-figlegend_demo.py	[HORRIBLY BROKEN]
+figlegend_demo.py	O
 figtext.py		O
 fill_between_posneg.py	O
 fill_between.py		O
@@ -94,7 +94,7 @@ ganged_plots.py		O
 glyph_to_path.py	[Requires PIL]
 gradient_bar.py		O
 gtk_spreadsheet.py		
-hatch_demo.py		[Requires PS]
+hatch_demo.py		O
 histogram_demo_canvasagg.py [???]
 histogram_demo.py	O
 image_demo2.py		O

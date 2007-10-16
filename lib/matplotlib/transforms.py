@@ -822,7 +822,7 @@ class Transform(TransformNode):
         raise TypeError(
             "Can not add Transform to object of type '%s'" % type(other))
 
-    def __array__(self):
+    def __array__(self, *args, **kwargs):
         """
         Used by C/C++ -based backends to get at the array matrix data.
         """

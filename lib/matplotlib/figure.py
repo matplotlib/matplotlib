@@ -627,7 +627,8 @@ class Figure(Artist):
                                     ims)
             im.is_grayscale = False
             l, b, w, h = self.bbox.bounds
-            renderer.draw_image(l, b, im, self.bbox)
+            renderer.draw_image(l, b, im, self.bbox,
+                                *self.get_transformed_clip_path_and_affine())
 
 
         # render the axes
@@ -702,7 +703,6 @@ class Figure(Artist):
 
         handles = flatten(handles)
         l = Legend(self, handles, labels, *args, **kwargs)
-        self._set_artist_props(l)
         self.legends.append(l)
         return l
 
