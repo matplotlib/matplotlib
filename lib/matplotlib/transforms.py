@@ -822,6 +822,12 @@ class Transform(TransformNode):
         raise TypeError(
             "Can not add Transform to object of type '%s'" % type(other))
 
+    def __array__(self):
+        """
+        Used by C/C++ -based backends to get at the array matrix data.
+        """
+        return self.frozen().__array__()
+    
     def transform(self, values):
         """
         Performs the transformation on the given array of values.

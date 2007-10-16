@@ -458,7 +458,7 @@ class Line2D(Artist):
         if funcname != '_draw_nothing':
             tpath, affine = self._transformed_path.get_transformed_path_and_affine()
             lineFunc = getattr(self, funcname)
-            lineFunc(renderer, gc, tpath, affine)
+            lineFunc(renderer, gc, tpath, affine.frozen())
 	    
         if self._marker is not None:
             gc = renderer.new_gc()
@@ -470,7 +470,7 @@ class Line2D(Artist):
             if funcname != '_draw_nothing':
                 tpath, affine = self._transformed_path.get_transformed_path_and_affine()
                 markerFunc = getattr(self, funcname)
-                markerFunc(renderer, gc, tpath, affine)
+                markerFunc(renderer, gc, tpath, affine.frozen())
 
         renderer.close_group('line2d')
 

@@ -24,8 +24,8 @@ from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.text import Text
-
-from matplotlib.transforms import get_vec6_scales
+from matplotlib.path import Path
+from matplotlib.transforms import IdentityTransform
 
 import numpy as npy
 import binascii
@@ -141,7 +141,9 @@ class RendererPS(RendererBase):
         self.fontsize = None
         self.hatch = None
         self.image_magnification = dpi/72.0
-
+        self._clip_paths = {}
+        self._path_collection_id = 0
+        
         self.fontd = {}
         self.afmfontd = {}
         self.used_characters = {}
@@ -247,7 +249,7 @@ class RendererPS(RendererBase):
    hatchl cvi hatchgap idiv hatchgap mul
    hatchgap
    hatchr cvi hatchgap idiv hatchgap mul
-   {hatcht moveto 0 hatchb hatcht sub rlineto}
+   {hatcht m 0 hatchb hatcht sub r }
    for
    stroke
   grestore
@@ -329,18 +331,6 @@ class RendererPS(RendererBase):
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
         return font
-
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
-        """
-        Draw an arc centered at x,y with width and height and angles
-        from 0.0 to 360.0
-
-        If gcFace is not None, fill the arc slice with it.  gcEdge
-        is a GraphicsContext instance
-        """
-        ps = '%f %f translate\n%f rotate\n%f %f translate\n%s ellipse' % \
-            (x, y, rotation, -x, -y, _nums_to_str(angle1, angle2, 0.5*width, 0.5*height, x, y))
-        self._draw_ps(ps, gc, rgbFace, "arc")
 
     def _rgba(self, im):
         return im.as_rgba_str()
@@ -428,14 +418,47 @@ grestore
         # unflip
         im.flipud_out()
 
-    def draw_line(self, gc, x0, y0, x1, y1):
-        """
-        Draw a single line from x0,y0 to x1,y1
-        """
-        ps = '%1.4g %1.4g m %1.4g %1.4g l'%(x0, y0, x1, y1)
-        self._draw_ps(ps, gc, None, "line")
+    def _convert_path(self, path, transform):
+        path = transform.transform_path(path)
+        
+        ps = []
+        for points, code in path.iter_segments():
+            if code == Path.MOVETO:
+                ps.append("%g %g m" % tuple(points))
+            elif code == Path.LINETO:
+                ps.append("%g %g l" % tuple(points))
+            elif code == Path.CURVE3:
+                ps.append("%g %g %g %g %g %g c" %
+                          (points[0], points[1],
+                           points[0], points[1],
+                           points[2], points[3]))
+            elif code == Path.CURVE4:
+                ps.append("%g %g %g %g %g %g c" % tuple(points))
+            elif code == Path.CLOSEPOLY:
+                ps.append("cl")
+        ps = "\n".join(ps)
+        
+        return ps
 
-    def draw_markers(self, gc, path, rgbFace, x, y, transform):
+    def _get_clip_path(self, clippath, clippath_transform):
+        id = self._clip_paths.get((clippath, clippath_transform))
+        if id is None:
+            id = 'c%x' % len(self._clip_paths)
+            ps_cmd = ['/%s {' % id]
+            ps_cmd.append(self._convert_path(clippath, clippath_transform))
+            ps_cmd.extend(['clip', 'newpath', '} bind def\n'])
+            self._pswriter.write('\n'.join(ps_cmd))
+            self._clip_paths[(clippath, clippath_transform)] = id
+        return id
+
+    def draw_path(self, gc, path, transform, rgbFace=None):
+        """
+        Draws a Path instance using the given affine transform.
+	"""
+        ps = self._convert_path(path, transform)
+        self._draw_ps(ps, gc, rgbFace)
+
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         """
         Draw the markers defined by path at each of the positions in x
         and y.  path coordinates are points, x and y coords will be
@@ -452,216 +475,82 @@ grestore
                 ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace
 
         # construct the generic marker command:
-        ps_cmd = ['gsave'] # dont want the translate to be global
-        ps_cmd.append('newpath')
-        ps_cmd.append('translate')
-        while 1:
-            code, xp, yp = path.vertex()
-            if code == agg.path_cmd_stop:
-                ps_cmd.append('closepath') # Hack, path_cmd_end_poly not found
-                break
-            elif code == agg.path_cmd_move_to:
-                ps_cmd.append('%g %g m' % (xp,yp))
-            elif code == agg.path_cmd_line_to:
-                ps_cmd.append('%g %g l' % (xp,yp))
-            elif code == agg.path_cmd_curve3:
-                pass
-            elif code == agg.path_cmd_curve4:
-                pass
-            elif code == agg.path_cmd_end_poly:
-                pass
-                ps_cmd.append('closepath')
-            elif code == agg.path_cmd_mask:
-                pass
-            else:
-                pass
-                #print code
+        ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # dont want the translate to be global
+        ps_cmd.append(self._convert_path(marker_path, marker_trans))
 
         if rgbFace:
-            ps_cmd.append('gsave')
-            ps_cmd.append(ps_color)
-            ps_cmd.append('fill')
-            ps_cmd.append('grestore')
+            ps_cmd.extend(['gsave', ps_color, 'fill', 'grestore'])
 
-        ps_cmd.append('stroke')
-        ps_cmd.append('grestore') # undo translate()
-        ps_cmd = '\n'.join(ps_cmd)
+        ps_cmd.extend(['stroke', 'grestore', '} bind def'])
+        
+        tpath = trans.transform_path(path)
+        for x, y in tpath.vertices:
+            ps_cmd.append("%1.3g %1.3g o" % (x, y))
 
-        self.push_gc(gc, store=1)
+        ps = '\n'.join(ps_cmd)
+        self._draw_ps(ps, gc, rgbFace, fill=False, stroke=False)
 
-        def drawone(x, y):
-            try:
-                xt, yt = transform.xy_tup((x, y))
-                ret = '%g %g o' % (xt, yt)
-            except ValueError:
-                pass
-            else:
-                return ret
-
-        step = 500
-        start = 0
-        end = step
-
-        mask = npy.where(npy.isnan(x) + npy.isnan(y), 0, 1)
-
-        cliprect = gc.get_clip_rectangle()
-        if cliprect:
-            write('gsave\n')
-            xc,yc,wc,hc=cliprect
-            write('%g %g %g %g clipbox\n' % (wc,hc,xc,yc))
-        write(' '.join(['/o {', ps_cmd, '} bind def\n']))
-        # Now evaluate the marker command at each marker location:
-        while start < len(x):
-            todraw = izip(x[start:end+1], y[start:end+1], mask[start:end+1])
-            ps = [i for i in [drawone(xi,yi) for xi,yi,mi in todraw if mi] if i]
-            write('\n'.join(ps)+'\n')
-            start = end
-            end += step
-        if cliprect: write('grestore\n')
-
-    def draw_path(self,gc,rgbFace,path,trans):
-        pass
-
-    def draw_lines(self, gc, x, y, transform):
-        """
-        x and y are npy.equal length arrays, draw lines connecting each
-        point in x, y
-        """
-        if debugPS: self._pswriter.write('% draw_lines \n')
-
+    def draw_path_collection(self, master_transform, cliprect, clippath,
+                             clippath_trans, paths, all_transforms, offsets,
+                             offsetTrans, facecolors, edgecolors, linewidths,
+                             linestyles, antialiaseds):
         write = self._pswriter.write
+        
+        Npaths      = len(paths)
+        Noffsets    = len(offsets)
+        N           = max(Npaths, Noffsets)
+        Ntransforms = min(len(all_transforms), N)
+        Ntpaths     = max(Npaths, Ntransforms)
+        Nfacecolors = len(facecolors)
+        Nedgecolors = len(edgecolors)
+        Nlinewidths = len(linewidths)
+        Nlinestyles = len(linestyles)
+        Naa         = len(antialiaseds)
 
-        def drawone(x, y, skip):
-            try:
-                if skip: raise(ValueError)
-                xt, yt = transform.xy_tup((x, y))
-                ret = '%g %g %c' % (xt, yt, drawone.state)
-            except ValueError:
-                drawone.state = 'm'
-            else:
-                drawone.state = 'l'
-                return ret
+        if (Nfacecolors == 0 and Nedgecolors == 0) or N == 0:
+            return
+        
+        for i in range(Ntpaths):
+            path = paths[i % Npaths]
+            transform = all_transforms[i % Ntransforms]
+            if transform is None:
+                transform = IdentityTransform()
+            transform += master_transform
 
-        step = 100000
-        start = 0
-        end = step
+            ps_cmd = ['/p%x_%x {' % (self._path_collection_id, i),
+                      'newpath', 'translate']
+            ps_cmd.append(self._convert_path(path, transform))
+            ps_cmd.extend(['} bind def\n'])
+            write('\n'.join(ps_cmd))
+            
+        toffsets = offsetTrans.transform(offsets)
+            
+        gc = self.new_gc()
 
-        skip = npy.where(npy.isnan(x) + npy.isnan(y), 1, 0)
-        points = zip(x,y,skip)
+        gc.set_clip_rectangle(cliprect)
+        if clippath is not None:
+            clippath = transforms.TransformedPath(clippath, clippath_trans)
+            gc.set_clippath(clippath)
+        
+        if Nfacecolors == 0:
+            rgbFace = None
 
-        self.push_gc(gc, store=1)
-        cliprect = gc.get_clip_rectangle()
-        if cliprect:
-            write('gsave\n')
-            xc,yc,wc,hc=cliprect
-            write('%g %g %g %g clipbox\n' % (wc,hc,xc,yc))
-        while start < len(points):
-            drawone.state = 'm'
-            ps = [i for i in [drawone(x,y,s) for x,y,s in points[start:end+1]]\
-                  if i]
-            ps.append('stroke')
-            write('\n'.join(ps)+'\n')
-            start = end
-            end += step
-        if cliprect: write('grestore\n')
+        for i in xrange(N):
+            path_id = i % Ntpaths
+            xo, yo = toffsets[i % Noffsets]
+            if Nfacecolors:
+                rgbFace = facecolors[i % Nfacecolors]
+            if Nedgecolors:
+                gc.set_foreground(edgecolors[i % Nedgecolors])
+                gc.set_linewidth(linewidths[i % Nlinewidths])
+                gc.set_dashes(*linestyles[i % Nlinestyles])
+            gc.set_antialiased(antialiaseds[i % Naa])
 
+            ps = "%g %g p%x_%x" % (xo, yo, self._path_collection_id, path_id)
+            self._draw_ps(ps, gc, rgbFace)
 
-    def draw_lines_old(self, gc, x, y, transform=None):
-        """
-        x and y are npy.equal length arrays, draw lines connecting each
-        point in x, y
-        """
-        if debugPS: self._pswriter.write('% draw_lines \n')
-
-        write = self._pswriter.write
-
-        mask = npy.where(npy.isnan(x) + npy.isnan(y), 0, 1)
-        if transform: # this won't be called if draw_markers is hidden
-            if transform.need_nonlinear():
-                x,y,mask = transform.nonlinear_only_numerix(x, y, returnMask=1)
-
-            # a,b,c,d,tx,ty affine which transforms x and y into ps coordinates
-            a,b,c,d,tx,ty = transform.as_vec6_val()
-
-            xo = a*x+c*y+tx
-            yo = b*x+d*y+ty
-            x,y = xo,yo
-
-            self.push_gc(gc, store=1)
-
-            cliprect = gc.get_clip_rectangle()
-            if cliprect:
-                write('gsave\n')
-                xc,yc,wc,hc=cliprect
-                write('%g %g %g %g clipbox\n' % (wc,hc,xc,yc))
-
-        steps  = 50
-        start  = 0
-        end    = steps
-        points = zip(x,y)
-
-        while start < len(x):
-            # npy.put moveto on all the bad data and on the first good
-            # point after the bad data
-            codes = [('m','l')[int(i)] for i in mask]
-            ind = npy.nonzero(mask[start:end+1]==0)+1
-            if len(ind):
-                if ind[-1]>=len(codes):
-                    ind = ind[:-1]
-            for i in ind:
-                codes[i] = 'm'
-            # npy.put a moveto on the first point, regardless
-            codes[0] = 'm'
-
-            thisx = x[start:end+1]
-            thisy = y[start:end+1]
-            to_draw = izip(thisx, thisy, codes, mask)
-            if not to_draw:
-                break
-
-            ps = ["%g %g %c" % (xp, yp, c) for xp, yp, c, m in to_draw if m]
-            if transform:
-                ps.append('stroke')
-                write('\n'.join(ps)+'\n')
-            else:
-                self._draw_ps("\n".join(ps)+'\n', gc, None)
-            start = end
-            end   += steps
-        if transform:
-            if cliprect: write("grestore\n")
-
-    def draw_point(self, gc, x, y):
-        """
-        Draw a single point at x,y
-        """
-        # TODO: is there a better way to draw points in postscript?
-        #       (use a small circle?)
-        self.draw_line(gc, x, y, x+1, y+1)
-
-    def draw_polygon(self, gc, rgbFace, points):
-        """
-        Draw a polygon.  points is a len vertices tuple, each element
-        giving the x,y coords a vertex
-
-        If rgbFace is not None, fill the poly with it.  gc
-        is a GraphicsContext instance
-        """
-        ps = ["%s m\n" % _nums_to_str(*points[0])]
-        ps.extend([ "%s l\n" % _nums_to_str(x, y) for x,y in points[1:] ])
-        ps.append("closepath")
-        self._draw_ps(''.join(ps), gc, rgbFace, "polygon")
-
-    def draw_rectangle(self, gc, rgbFace, x, y, width, height):
-        """
-        Draw a rectangle with lower left at x,y with width and height.
-
-        If gcFace is not None, fill the rectangle with it.  gcEdge
-        is a GraphicsContext instance
-        """
-        # TODO: use rectstroke
-        ps = '%s box' % _nums_to_str(width, height, x, y)
-        self._draw_ps(ps, gc, rgbFace, "rectangle")
-
+        self._path_collection_id += 1
+            
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
         """
         draw a Text instance
@@ -853,7 +742,6 @@ grestore
     """ % locals()
             self._pswriter.write(ps)
 
-
     def draw_mathtext(self, gc,
         x, y, s, prop, angle):
         """
@@ -875,68 +763,57 @@ grestore
 """ % locals()
         self._pswriter.write(ps)
 
-    def _draw_ps(self, ps, gc, rgbFace, command=None):
+    def _draw_ps(self, ps, gc, rgbFace, fill=True, stroke=True, command=None):
         """
         Emit the PostScript sniplet 'ps' with all the attributes from 'gc'
         applied.  'ps' must consist of PostScript commands to construct a path.
         """
         # local variable eliminates all repeated attribute lookups
         write = self._pswriter.write
-        write('gsave\n')
+        # write('gsave\n')
         if debugPS and command:
             write("% "+command+"\n")
 
-        cliprect = gc.get_clip_rectangle()
-        self.set_color(*gc.get_rgb())
         self.set_linewidth(gc.get_linewidth())
         jint = gc.get_joinstyle()
         self.set_linejoin(jint)
         cint = gc.get_capstyle()
         self.set_linecap(cint)
         self.set_linedash(*gc.get_dashes())
-
+                  
+        cliprect = gc.get_clip_rectangle()
         if cliprect:
-            x,y,w,h=cliprect
+            x,y,w,h=cliprect.bounds
             write('gsave\n%1.4g %1.4g %1.4g %1.4g clipbox\n' % (w,h,x,y))
+        clippath, clippath_trans = gc.get_clip_path()
+        if clippath:
+            id = self._get_clip_path(clippath, clippath_trans)
+            write('gsave\n%s\n' % id)
+            
         # Jochen, is the strip necessary? - this could be a honking big string
         write(ps.strip())
         write("\n")
-        if rgbFace:
+
+        if rgbFace is not None and fill:
             #print 'rgbface', rgbFace
             write("gsave\n")
-            self.set_color(store=0, *rgbFace)
+            self.set_color(store=0, *rgbFace[:3])
             write("fill\ngrestore\n")
 
         hatch = gc.get_hatch()
         if (hatch):
             self.set_hatch(hatch)
 
-        if self.linewidth > 0:
+        if self.linewidth > 0 and stroke:
+            self.set_color(*gc.get_rgb()[:3])
             write("stroke\n")
+        if clippath:
+            write("grestore\n")
         if cliprect:
             write("grestore\n")
-        write('grestore\n')            
-    def push_gc(self, gc, store=1):
-        """
-        Push the current onto stack, with the exception of the clip box, which
-        must be isolated in a gsave/grestore pair.
-        """
-        # local variable eliminates all repeated attribute lookups
-        write = self._pswriter.write
+        #write('grestore\n')
 
-        self.set_color(store=store, *gc.get_rgb())
-        self.set_linewidth(gc.get_linewidth(), store=store)
-        self.set_linejoin(gc.get_joinstyle(), store=store)
-        self.set_linecap(gc.get_capstyle(), store=store)
-        self.set_linedash(store=store, *gc.get_dashes())
-
-##        cliprect = gc.get_clip_rectangle()
-##        if cliprect:
-##            x,y,w,h=cliprect
-##            write('%1.3f %1.3f %1.3f %1.3f clipbox\n' % (w,h,x,y))
-
-##        write("\n")
-
+            
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
         return {'butt':0,
@@ -1044,7 +921,7 @@ class FigureCanvasPS(FigureCanvasBase):
         xo = 72*0.5*(paperWidth - width)
         yo = 72*0.5*(paperHeight - height)
 
-        l, b, w, h = self.figure.bbox.get_bounds()
+        l, b, w, h = self.figure.bbox.bounds
         llx = xo
         lly = yo
         urx = llx + w
@@ -1521,33 +1398,6 @@ FigureManager = FigureManagerPS
 # http://www.mactech.com/articles/mactech/Vol.09/09.04/PostscriptTutorial/
 # http://www.math.ubc.ca/people/faculty/cass/graphics/text/www/
 #
-# Some comments about the implementation:
-#
-# Drawing ellipses:
-#
-# ellipse adds a counter-clockwise segment of an elliptical arc to the
-# current path. The ellipse procedure takes six operands: the x and y
-# coordinates of the center of the ellipse (the center is defined as
-# the point of intersection of the major and minor axes), the
-# ``radius'' of the ellipse in the x direction, the ``radius'' of the
-# ellipse in the y direction, the starting angle of the elliptical arc
-# and the ending angle of the elliptical arc.
-#
-# The basic strategy used in drawing the ellipse is to translate to
-# the center of the ellipse, scale the user coordinate system by the x
-# and y radius values, and then add a circular arc, centered at the
-# origin with a 1 unit radius to the current path. We will be
-# transforming the user coordinate system with the translate and
-# rotate operators to add the elliptical arc segment but we don't want
-# these transformations to affect other parts of the program. In other
-# words, we would like to localize the effect of the transformations.
-# Usually the gsave and grestore operators would be ideal candidates
-# for this task.  Unfortunately gsave and grestore are inappropriate
-# for this situation because we cannot save the arc segment that we
-# have added to the path. Instead we will localize the effect of the
-# transformations by saving the current transformation matrix and
-# restoring it explicitly after we have added the elliptical arc to
-# the path.
 
 # The usage comments use the notation of the operator summary
 # in the PostScript Language reference manual.
@@ -1558,28 +1408,22 @@ psDefs = [
     "/l { lineto } bind def",
     # x y  *r*  -
     "/r { rlineto } bind def",
+    # x1 y1 x2 y2 x y *c*  -
+    "/c { curveto } bind def",
+    # *closepath*  -
+    "/cl { closepath } bind def",
     # w h x y  *box*  -
     """/box {
       m
       1 index 0 r
       0 exch r
       neg 0 r
-      closepath
+      cl
     } bind def""",
     # w h x y  *clipbox*  -
     """/clipbox {
       box
       clip
       newpath
-    } bind def""",
-    # angle1 angle2 rx ry x y  *ellipse*  -
-    """/ellipse {
-      newpath
-      matrix currentmatrix 7 1 roll
-      translate
-      scale
-      0 0 1 5 3 roll arc
-      setmatrix
-      closepath
     } bind def"""
 ]

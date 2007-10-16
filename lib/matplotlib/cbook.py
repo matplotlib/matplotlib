@@ -174,6 +174,7 @@ class silent_list(list):
     def __str__(self):
         return '<a list of %d %s objects>' % (len(self), self.type)
 
+# MGDTODO: This is very incomplete
 def strip_math(s):
     'remove latex formatting from mathtext'
     remove = (r'\rm', '\cal', '\tt', '\it', '\\', '{', '}')
