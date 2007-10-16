@@ -809,6 +809,8 @@ def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
     If p is a scalar, the largest value of x less than or equal
     to the p percentage point in the sequence is returned.
     """
+
+
     x = npy.ravel(x)
     x.sort()
     Nx = len(x)
@@ -1282,7 +1284,10 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
     converterd, if not None, is a dictionary mapping column number or
     munged column name to a converter function
 
-    See examples/loadrec.py
+    names, if not None, is a list of header names.  In this case, no
+    header will be read from the file
+
+    if no rows are found, None is returned See examples/loadrec.py
     """
 
     if converterd is None:
@@ -1291,9 +1296,42 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
     import dateutil.parser
     parsedate = dateutil.parser.parse
 
-    fh = cbook.to_filehandle(fname)
-    reader = csv.reader(fh, delimiter=delimiter)
 
+    fh = cbook.to_filehandle(fname)
+
+    
+    class FH:
+        """
+        for space delimited files, we want different behavior than
+        comma or tab.  Generally, we want multiple spaces to be
+        treated as a single separator, whereas with comma and tab we
+        want multiple commas to return multiple (empty) fields.  The
+        join/strip trick below effects this
+        """
+        def __init__(self, fh):
+            self.fh = fh
+
+        def close(self):
+            self.fh.close()
+
+        def seek(self, arg):
+            self.fh.seek(arg)
+
+        def fix(self, s):
+            return ' '.join(s.split())
+
+
+        def next(self):
+            return self.fix(self.fh.next())
+
+        def __iter__(self):
+            for line in self.fh:            
+                yield self.fix(line)
+
+    if delimiter==' ':
+        fh = FH(fh)
+
+    reader = csv.reader(fh, delimiter=delimiter)        
     def process_skiprows(reader):
         if skiprows:
             for i, row in enumerate(reader):
@@ -1388,8 +1426,130 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
         rows.append([func(val) for func, val in zip(converters, row)])
     fh.close()
 
+    if not len(rows):
+        return None
     r = npy.rec.fromrecords(rows, names=names)
     return r
+
+
+def rec2csv(r, fname, delimiter=','):
+    """
+    Save the data from numpy record array r into a comma/space/tab
+    delimited file.  The record array dtype names will be used for
+    column headers.
+
+
+    fname - can be a filename or a file handle.  Support for gzipped
+    files is automatic, if the filename ends in .gz
+    """
+    fh = cbook.to_filehandle(fname, 'w')
+    writer = csv.writer(fh, delimiter=delimiter)
+    header = r.dtype.names
+    writer.writerow(header)
+    for row in r:
+        writer.writerow(map(str, row))
+    fh.close()
+
+# some record array helpers
+def rec_append_field(rec, name, arr, dtype=None):
+    'return a new record array with field name populated with data from array arr'
+    arr = npy.asarray(arr)
+    if dtype is None:
+        dtype = arr.dtype
+    newdtype = npy.dtype(rec.dtype.descr + [(name, dtype)])
+    newrec = npy.empty(rec.shape, dtype=newdtype)
+    for field in rec.dtype.fields:
+        newrec[field] = rec[field]
+    newrec[name] = arr
+    return newrec.view(npy.recarray)
+
+  
+def rec_drop_fields(rec, names):
+    'return a new numpy record array with fields in names dropped'    
+
+    names = set(names)
+    Nr = len(rec)
+    
+    newdtype = npy.dtype([(name, rec.dtype[name]) for name in rec.dtype.names
+                       if name not in names])
+
+    newrec = npy.empty(Nr, dtype=newdtype)
+    for field in newdtype.names:
+        newrec[field] = rec[field]
+
+    return newrec.view(npy.recarray)
+
+    
+def rec_join(key, r1, r2):
+    """
+    join record arrays r1 and r2 on key; key is a tuple of field
+    names.  if r1 and r2 have equal values on all the keys in the key
+    tuple, then their fields will be merged into a new record array
+    containing the union of the fields of r1 and r2
+    """
+
+    for name in key:
+        if name not in r1.dtype.names:
+            raise ValueError('r1 does not have key field %s'%name)
+        if name not in r2.dtype.names:
+            raise ValueError('r2 does not have key field %s'%name)
+
+    def makekey(row):
+        return tuple([row[name] for name in key])
+
+  
+    names = list(r1.dtype.names) + [name for name in r2.dtype.names if name not in set(r1.dtype.names)]
+ 
+
+    
+    r1d = dict([(makekey(row),i) for i,row in enumerate(r1)])        
+    r2d = dict([(makekey(row),i) for i,row in enumerate(r2)])
+
+    r1keys = set(r1d.keys())    
+    r2keys = set(r2d.keys())
+
+    keys = r1keys & r2keys
+
+    r1ind = [r1d[k] for k in keys]
+    r2ind = [r2d[k] for k in keys]
+
+    
+    r1 = r1[r1ind]
+    r2 = r2[r2ind]
+
+    r2 = rec_drop_fields(r2, r1.dtype.names)
+
+
+    def key_desc(name):
+        'if name is a string key, use the larger size of r1 or r2 before merging'
+        dt1 = r1.dtype[name]
+        if dt1.type != npy.string_:
+            return (name, dt1.descr[0][1])
+
+        dt2 = r1.dtype[name]
+        assert dt2==dt1
+        if dt1.num>dt2.num:
+            return (name, dt1.descr[0][1])
+        else:
+            return (name, dt2.descr[0][1])
+
+        
+        
+    keydesc = [key_desc(name) for name in key]
+
+    newdtype = npy.dtype(keydesc +
+                         [desc for desc in r1.dtype.descr if desc[0] not in key ] +
+                         [desc for desc in r2.dtype.descr if desc[0] not in key ] )
+                         
+    
+    newrec = npy.empty(len(r1), dtype=newdtype)
+    for field in r1.dtype.names:
+        newrec[field] = r1[field]
+
+    for field in r2.dtype.names:
+        newrec[field] = r2[field]
+
+    return newrec.view(npy.recarray)
 
 def slopes(x,y):
     """

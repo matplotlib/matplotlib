@@ -653,7 +653,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   
 }
 
-
 /**
  * This is a custom span generator that converts spans in the 
  * 8-bit inverted greyscale font buffer to rgba that agg can use.
@@ -776,10 +775,15 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
 					   srcbuf, 0, interpolator, filter);
   span_gen_type output_span_generator(&image_span_generator, gc.color);
   renderer_type ri(*rendererBase, output_span_generator);
-  agg::rasterizer_scanline_aa<> rasterizer;
-  agg::scanline_p8 scanline;
-  rasterizer.add_path(rect2);
-  agg::render_scanlines(rasterizer, scanline, ri);
+  //agg::rasterizer_scanline_aa<> rasterizer;
+  //agg::scanline_p8 scanline;
+  //rasterizer.add_path(rect2);
+  //agg::render_scanlines(rasterizer, scanline, ri);
+
+  
+  theRasterizer->add_path(rect2);
+  agg::render_scanlines(*theRasterizer, *slineP8, ri);
+
   
   return Py::Object();
 }

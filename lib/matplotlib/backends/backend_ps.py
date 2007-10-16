@@ -331,7 +331,7 @@ class RendererPS(RendererBase):
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
         return font
-
+        
     def _rgba(self, im):
         return im.as_rgba_str()
 
@@ -398,7 +398,7 @@ class RendererPS(RendererBase):
         #print 'values', origin, flipud, figh, h, y
 
         if bbox is not None:
-            clipx,clipy,clipw,cliph = bbox.get_bounds()
+            clipx,clipy,clipw,cliph = bbox.bounds
             clip = '%s clipbox' % _nums_to_str(clipw, cliph, clipx, clipy)
         #y = figh-(y+h)
         ps = """gsave
@@ -1425,5 +1425,15 @@ psDefs = [
       box
       clip
       newpath
-    } bind def"""
+    } bind def""",
+    """/unitcircle {
+    newpath
+-1. 0. moveto
+-1.0 0.552284749831 -0.552284749831 1.0 0.0 1.0 curveto
+0.552284749831 1.0 1.0 0.552284749831 1.0 0.0 curveto
+1.0 -0.552284749831 0.552284749831 -1.0 0.0 -1.0 curveto
+-0.552284749831 -1.0 -1.0 -0.552284749831 -1.0 0.0 curveto
+closepath
+    } bind def""",
+    
 ]
