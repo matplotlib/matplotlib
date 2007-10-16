@@ -165,7 +165,8 @@ The following dimensions are in axes coords
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
         self._offsetTransform = Affine2D()
-        self.set_transform( self._offsetTransform + BboxTransform(Bbox.unit(), parent.bbox) )
+        self._parentTransform = BboxTransform(Bbox.unit(), parent.bbox)
+        Artist.set_transform(self, self._offsetTransform + self._parentTransform)
         
         if loc is None:
             loc = rcParams["legend.loc"]
@@ -192,6 +193,12 @@ The following dimensions are in axes coords
 
         self._loc = loc
 
+        self.legendPatch = Rectangle(
+            xy=(0.0, 0.0), width=0.5, height=0.5,
+            facecolor='w', edgecolor='k',
+            )
+        self._set_artist_props(self.legendPatch)
+
         # make a trial box in the middle of the axes.  relocate it
         # based on it's bbox
         left, top = 0.5, 0.5
@@ -203,20 +210,6 @@ The following dimensions are in axes coords
         self.texts = self._get_texts(labels, textleft, top)
         self.legendHandles = self._get_handles(handles, self.texts)
 
-
-        if len(self.texts):
-            left, top = self.texts[-1].get_position()
-            HEIGHT = self._approx_text_height()*len(self.texts)
-        else:
-            HEIGHT = 0.2
-
-        bottom = top-HEIGHT
-        left -= self.handlelen + self.handletextsep + self.pad
-        self.legendPatch = Rectangle(
-            xy=(left, bottom), width=0.5, height=HEIGHT,
-            facecolor='w', edgecolor='k',
-            )
-        self._set_artist_props(self.legendPatch)
         self._drawFrame = True
 
     def _set_artist_props(self, a):
@@ -282,6 +275,7 @@ The following dimensions are in axes coords
                 legline.update_from(handle)
                 self._set_artist_props(legline) # after update
                 legline.set_clip_box(None)
+                legline.set_clip_path(self.legendPatch)
                 legline.set_markersize(self.markerscale*legline.get_markersize())
 
                 ret.append(legline)
@@ -293,12 +287,14 @@ The following dimensions are in axes coords
                 p.update_from(handle)
                 self._set_artist_props(p)
                 p.set_clip_box(None)
+                p.set_clip_path(self.legendPatch)
                 ret.append(p)
             elif isinstance(handle, LineCollection):
                 ydata = (y-HEIGHT/2)*npy.ones(self._xdata.shape, float)
                 legline = Line2D(self._xdata, ydata)
                 self._set_artist_props(legline)
                 legline.set_clip_box(None)
+                legline.set_clip_path(self.legendPatch)
                 lw = handle.get_linewidth()[0]
                 dashes = handle.get_dashes()
                 color = handle.get_colors()[0]
@@ -316,6 +312,7 @@ The following dimensions are in axes coords
                     p.set_edgecolor(handle._edgecolors[0])
                 self._set_artist_props(p)
                 p.set_clip_box(None)
+                p.set_clip_path(self.legendPatch)
                 ret.append(p)
 
             else:
@@ -536,7 +533,7 @@ The following dimensions are in axes coords
                 handle.set_height(h/2)
 
         # Set the data for the legend patch
-        bbox = self._get_handle_text_bbox(renderer).frozen()
+        bbox = self._get_handle_text_bbox(renderer)
 
         bbox = bbox.expanded(1 + self.pad, 1 + self.pad)
         l, b, w, h = bbox.bounds

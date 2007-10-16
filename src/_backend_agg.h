@@ -109,11 +109,10 @@ public:
 
 class GCAgg {
 public:
-  GCAgg(const Py::Object& gc, double dpi, bool snapto=false);
-  GCAgg(double dpi, bool snapto=false);
+  GCAgg(const Py::Object& gc, double dpi);
+  GCAgg(double dpi);
 
   double dpi;
-  bool snapto;
   bool isaa;
 
   agg::line_cap_e cap;
@@ -219,8 +218,7 @@ protected:
   void set_clipbox(Py::Object& cliprect, R rasterizer);
   bool render_clippath(const Py::Object& clippath, const agg::trans_affine& clippath_trans);
   void _draw_path(PathIterator& path, agg::trans_affine trans, 
-		  bool snap, bool has_clippath, 
-		  const facepair_t& face, const GCAgg& gc);
+		  bool has_clippath, const facepair_t& face, const GCAgg& gc);
 
 private:
   Py::Object lastclippath;

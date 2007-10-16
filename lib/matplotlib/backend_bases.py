@@ -68,7 +68,7 @@ class RendererBase:
         Nlinestyles = len(linestyles)
         Naa         = len(antialiaseds)
 
-        if (Nfacecolors == 0 and Nedgecolors == 0) or N == 0:
+        if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
         
         ttransforms = []
@@ -113,7 +113,7 @@ class RendererBase:
         """
         return 1.0
 
-    def draw_image(self, x, y, im, bbox):
+    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         """
         Draw the Image instance into the current axes; x is the
         distance in pixels from the left hand side of the canvas. y is

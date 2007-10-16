@@ -1248,7 +1248,10 @@ class Axes(martist.Artist):
             l, b, w, h = self.bbox.bounds
             # composite images need special args so they will not
             # respect z-order for now
-            renderer.draw_image(l, b, im, self.bbox)
+            renderer.draw_image(
+                l, b, im, self.bbox,
+                self.axesPatch.get_path(),
+                self.axesPatch.get_transform())
 
         artists.extend(self.collections)
         artists.extend(self.patches)
@@ -4379,6 +4382,7 @@ class Axes(martist.Artist):
         im.set_data(X)
         im.set_alpha(alpha)
         self._set_artist_props(im)
+        im.set_clip_path(self.axesPatch)
         #if norm is None and shape is None:
         #    im.set_clim(vmin, vmax)
         if vmin is not None or vmax is not None:

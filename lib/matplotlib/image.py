@@ -181,7 +181,8 @@ class AxesImage(Artist, cm.ScalarMappable):
         if not self.get_visible(): return
         im = self.make_image(renderer.get_image_magnification())
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
-        renderer.draw_image(l, b, im, self.axes.bbox.frozen())
+        renderer.draw_image(l, b, im, self.axes.bbox.frozen(),
+                            *self.get_transformed_clip_path_and_affine())
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image.
@@ -481,7 +482,8 @@ class FigureImage(Artist, cm.ScalarMappable):
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
         im = self.make_image()
-        renderer.draw_image(self.ox, self.oy, im, self.figure.bbox)
+        renderer.draw_image(self.ox, self.oy, im, self.figure.bbox,
+                            *self.get_transformed_clip_path_and_affine())
 
     def write_png(self, fname):
         """Write the image to png file with fname"""
