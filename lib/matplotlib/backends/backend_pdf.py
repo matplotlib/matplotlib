@@ -33,7 +33,10 @@ from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, \
     LOAD_NO_HINTING, KERNING_UNFITTED
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Bbox
+from matplotlib.path import Path
 from matplotlib import ttconv
+# MGDTODO: Move this stuff
+from matplotlib.backends._backend_agg import get_path_extents
 
 # Overview
 #
@@ -90,22 +93,26 @@ def fill(strings, linelen=75):
     """Make one string from sequence of strings, with whitespace
     in between. The whitespace is chosen to form lines of at most
     linelen characters, if possible."""
-
-    s, strings = [strings[0]], strings[1:]
-    while strings:
-        if len(s[-1]) + len(strings[0]) < linelen:
-            s[-1] += ' ' + strings[0]
+    currpos = 0
+    lasti = 0
+    result = []
+    for i, s in enumerate(strings):
+        length = len(s)
+        if currpos + length < linelen:
+            currpos += length + 1
         else:
-            s.append(strings[0])
-        strings = strings[1:]
-    return '\n'.join(s)
+            result.append(' '.join(strings[lasti:i]))
+            lasti = i
+            currpos = length
+    result.append(' '.join(strings[lasti:]))
+    return '\n'.join(result)
 
 
 def pdfRepr(obj):
     """Map Python objects to PDF syntax."""
 
     # Some objects defined later have their own pdfRepr method.
-    if 'pdfRepr' in dir(obj):
+    if hasattr(obj, 'pdfRepr'):
         return obj.pdfRepr()
 
     # Floats. PDF does not have exponential notation (1.0e-10) so we
@@ -164,6 +171,13 @@ def pdfRepr(obj):
         else: r += "-%02d'%02d'" % (z//3600, z%3600)
         return pdfRepr(r)
 
+    # A bounding box
+    elif isinstance(obj, Bbox):
+        r = ["["]
+        r.extend([pdfRepr(val) for val in obj.lbrt])
+        r.append("]")
+        return fill(r)
+    
     else:
         raise TypeError, \
             "Don't know a PDF representation for %s objects." \
@@ -379,7 +393,6 @@ class PdfFile:
 
         self.markers = {}
         self.two_byte_charprocs = {}
-        self.nextMarker = 1
 
         # The PDF spec recommends to include every procset
         procsets = [ Name(x)
@@ -409,8 +422,8 @@ class PdfFile:
                                for val in self.alphaStates.values()]))
         self.writeHatches()
         xobjects = dict(self.images.values())
-        for name, value in self.markers.items():
-            xobjects[name] = value[0]
+        for tup in self.markers.values():
+            xobjects[tup[0]] = tup[1]
         for name, value in self.two_byte_charprocs.items():
             xobjects[name] = value
         self.writeObject(self.XObjectObject, xobjects)
@@ -1009,71 +1022,64 @@ end"""
 
             img.flipud_out()
 
-    def markerObject(self, path, fillp, lw):
+    def markerObject(self, path, trans, fillp, lw):
         """Return name of a marker XObject representing the given path."""
-
-        name = Name('M%d' % self.nextMarker)
-        ob = self.reserveObject('marker %d' % self.nextMarker)
-        self.nextMarker += 1
-        self.markers[name] = (ob, path, fillp, lw)
+        key = (path, trans)
+        result = self.markers.get(key)
+        if result is None:
+            name = Name('M%d' % len(self.markers))
+            ob = self.reserveObject('marker %d' % len(self.markers))
+            self.markers[key] = (name, ob, path, trans, fillp, lw)
+        else:
+            name = result[0]
         return name
-
+    
     def writeMarkers(self):
-        for name, tuple in self.markers.items():
-            object, path, fillp, lw = tuple
+        for tup in self.markers.values():
+            name, object, path, trans, fillp, lw = tup
+            a, b, c, d = get_path_extents(path, trans)
+            bbox = Bbox.from_lbrt(*get_path_extents(path, trans))
+            bbox = bbox.padded(lw * 0.5)
             self.beginStream(
                 object.id, None,
                 {'Type': Name('XObject'), 'Subtype': Name('Form'),
-                 'BBox': self.pathBbox(path, lw) })
-            self.writePath(path, fillp)
+                 'BBox': bbox })
+            self.writePath(path, trans)
+            if fillp:
+                self.output(Op.fill_stroke)
+            else:
+                self.output(Op.stroke)
             self.endStream()
 
     #@staticmethod
-    def pathBbox(path, lw):
-        path.rewind(0)
-        x, y = [], []
-        while True:
-            code, xp, yp = path.vertex()
-            if code & agg.path_cmd_mask in \
-                    (agg.path_cmd_move_to, agg.path_cmd_line_to):
-                x.append(xp)
-                y.append(yp)
-            elif code == agg.path_cmd_stop:
-                break
-        return min(x)-lw, min(y)-lw, max(x)+lw, max(y)+lw
-    pathBbox = staticmethod(pathBbox)
-
-    #@staticmethod
-    def pathOperations(path):
-        path.rewind(0)
-        result = []
-        while True:
-            code, x, y = path.vertex()
-            code = code & agg.path_cmd_mask
-            if code == agg.path_cmd_stop:
-                break
-            elif code == agg.path_cmd_move_to:
-                result += (x, y, Op.moveto)
-            elif code == agg.path_cmd_line_to:
-                result += (x, y, Op.lineto)
-            elif code == agg.path_cmd_curve3:
-                pass # TODO
-            elif code == agg.path_cmd_curve4:
-                pass # TODO
-            elif code == agg.path_cmd_end_poly:
-                result += (Op.closepath,)
-            else:
-                print >>sys.stderr, "pathOperations", code, xp, yp
-        return result
+    def pathOperations(path, transform):
+        tpath = transform.transform_path(path)
+        
+        cmds = []
+        for points, code in tpath.iter_segments():
+            if code == Path.MOVETO:
+                cmds.extend(points)
+                cmds.append(Op.moveto)
+            elif code == Path.LINETO:
+                cmds.extend(points)
+                cmds.append(Op.lineto)
+            elif code == Path.CURVE3:
+                cmds.extend([points[0], points[1],
+                             points[0], points[1],
+                             points[2], points[3],
+                             Op.curveto])
+            elif code == Path.CURVE4:
+                cmds.extend(points)
+                cmds.append(Op.curveto)
+            elif code == Path.CLOSEPOLY:
+                cmds.append(Op.closepath)
+        return cmds
     pathOperations = staticmethod(pathOperations)
-
-    def writePath(self, path, fillp):
-        self.output(*self.pathOperations(path))
-        if fillp:
-            self.output(Op.fill_stroke)
-        else:
-            self.output(Op.stroke)
-
+            
+    def writePath(self, path, transform):
+        cmds = self.pathOperations(path, transform)
+        self.output(*cmds)
+        
     def reserveObject(self, name=''):
         """Reserve an ID for an indirect object.
         The name is used for debugging in case we forget to print out
@@ -1177,59 +1183,6 @@ class RendererPdf(RendererBase):
                 stat_key, (realpath, Set()))
             used_characters[1].update(set)
 
-    def draw_arc(self, gcEdge, rgbFace, x, y, width, height,
-                 angle1, angle2, rotation):
-        """
-        Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
-        with width and height and angles from 0.0 to 360.0
-        0 degrees is at 3-o'clock, rotated by `rotation` degrees
-        positive angles are anti-clockwise
-
-        If the color rgbFace is not None, fill the arc with it.
-        """
-        # source: agg_bezier_arc.cpp in agg23
-
-        def arc_to_bezier(cx, cy, rx, ry, angle1, sweep, rotation):
-            halfsweep = sweep / 2.0
-            x0, y0 = cos(halfsweep), sin(halfsweep)
-            tx = (1.0 - x0) * 4.0/3.0;
-            ty = y0 - tx * x0 / y0;
-            px =  x0, x0+tx, x0+tx, x0
-            py = -y0,   -ty,    ty, y0
-            sn, cs = sin(angle1 + halfsweep), cos(angle1 + halfsweep)
-            result = [ (rx * (pxi * cs - pyi * sn),
-                        ry * (pxi * sn + pyi * cs))
-                       for pxi, pyi in zip(px, py) ]
-            result = [ (cx + cos(rotation)*x - sin(rotation)*y,
-                        cy + sin(rotation)*x + cos(rotation)*y)
-                       for x, y in result ]
-            return reduce(lambda x, y: x + y, result)
-
-        epsilon = 0.01
-        angle1 *= pi/180.0
-        angle2 *= pi/180.0
-        rotation *= pi/180.0
-        sweep = angle2 - angle1
-        angle1 = angle1 % (2*pi)
-        sweep = min(max(-2*pi, sweep), 2*pi)
-
-        if sweep < 0.0:
-            sweep, angle1, angle2 = -sweep, angle2, angle1
-        bp = [ pi/2.0 * i
-               for i in range(4)
-               if pi/2.0 * i < sweep-epsilon ]
-        bp.append(sweep)
-        subarcs = [ arc_to_bezier(x, y, width/2.0, height/2.0,
-                                  bp[i], bp[i+1]-bp[i], rotation)
-                    for i in range(len(bp)-1) ]
-
-        self.check_gc(gcEdge, rgbFace)
-        self.file.output(subarcs[0][0], subarcs[0][1], Op.moveto)
-        for arc in subarcs:
-            self.file.output(*(arc[2:] + (Op.curveto,)))
-
-        self.file.output(self.gc.close_and_paint())
-
     def get_image_magnification(self):
         return self.image_magnification
 
@@ -1246,82 +1199,29 @@ class RendererPdf(RendererBase):
         self.file.output(Op.gsave, w, 0, 0, h, x, y, Op.concat_matrix,
                          imob, Op.use_xobject, Op.grestore)
 
-    def draw_line(self, gc, x1, y1, x2, y2):
-        if npy.isnan(x1) or npy.isnan(x2) or npy.isnan(y1) or npy.isnan(y2):
-            return
-        self.check_gc(gc)
-        self.file.output(x1, y1, Op.moveto,
-                         x2, y2, Op.lineto, self.gc.paint())
-
-    def draw_lines(self, gc, x, y, transform=None):
-        self.check_gc(gc)
-        if transform is not None:
-            x, y = transform.seq_x_y(x, y)
-        nan_at = npy.isnan(x) | npy.isnan(y)
-        next_op = Op.moveto
-        for i in range(len(x)):
-            if nan_at[i]:
-                next_op = Op.moveto
-            else:
-                self.file.output(x[i], y[i], next_op)
-                next_op = Op.lineto
+    def draw_path(self, gc, path, transform, rgbFace=None):
+        self.check_gc(gc, rgbFace)
+        stream = self.file.writePath(path, transform)
         self.file.output(self.gc.paint())
 
-    def draw_point(self, gc, x, y):
-        print >>sys.stderr, "draw_point called"
-
-        self.check_gc(gc, gc._rgb)
-        self.file.output(x, y, 1, 1,
-                         Op.rectangle, Op.fill_stroke)
-
-    def draw_polygon(self, gcEdge, rgbFace, points):
-        # Optimization for axis-aligned rectangles
-        if len(points) == 4:
-            if points[0][0] == points[1][0] and points[1][1] == points[2][1] and \
-               points[2][0] == points[3][0] and points[3][1] == points[0][1]:
-                self.draw_rectangle(gcEdge, rgbFace,
-                                    min(points[0][0], points[2][0]),
-                                    min(points[1][1], points[3][1]),
-                                    abs(points[2][0] - points[0][0]),
-                                    abs(points[3][1] - points[1][1]))
-                return
-            elif points[0][1] == points[1][1] and points[1][0] == points[2][0] and \
-                 points[2][1] == points[3][1] and points[3][0] == points[0][0]:
-                self.draw_rectangle(gcEdge, rgbFace,
-                                    min(points[1][0], points[3][0]),
-                                    min(points[2][1], points[0][1]),
-                                    abs(points[1][0] - points[3][0]),
-                                    abs(points[2][1] - points[0][1]))
-                return
-
-        self.check_gc(gcEdge, rgbFace)
-        self.file.output(points[0][0], points[0][1], Op.moveto)
-        for x,y in points[1:]:
-            self.file.output(x, y, Op.lineto)
-        self.file.output(self.gc.close_and_paint())
-
-    def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
-        self.check_gc(gcEdge, rgbFace)
-        self.file.output(x, y, width, height, Op.rectangle)
-        self.file.output(self.gc.paint())
-
-    def draw_markers(self, gc, path, rgbFace, x, y, trans):
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         self.check_gc(gc, rgbFace)
         fillp = rgbFace is not None
-        marker = self.file.markerObject(path, fillp, self.gc._linewidth)
-        x, y = trans.numerix_x_y(npy.asarray(x), npy.asarray(y))
-        nan_at = npy.isnan(x) | npy.isnan(y)
 
-        self.file.output(Op.gsave)
-        ox, oy = 0, 0
-        for i in range(len(x)):
-            if nan_at[i]: continue
-            dx, dy, ox, oy = x[i]-ox, y[i]-oy, x[i], y[i]
-            self.file.output(1, 0, 0, 1, dx, dy,
-                             Op.concat_matrix,
-                             marker, Op.use_xobject)
-        self.file.output(Op.grestore)
+        output = self.file.output
+        marker = self.file.markerObject(
+            marker_path, marker_trans, fillp, self.gc._linewidth)
+        tpath = trans.transform_path(path)
 
+        output(Op.gsave)
+        lastx, lasty = 0, 0
+        for x, y in tpath.vertices:
+            dx, dy = x - lastx, y - lasty
+            output(1, 0, 0, 1, dx, dy, Op.concat_matrix,
+                   marker, Op.use_xobject)
+            lastx, lasty = x, y
+        output(Op.grestore)
+        
     def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
         if angle == oldangle == 0:
             self.file.output(x - oldx, y - oldy, Op.textpos)
@@ -1735,7 +1635,7 @@ class GraphicsContextPdf(GraphicsContextBase):
 
     def hatch_cmd(self, hatch):
         if not hatch:
-            if self._fillcolor:
+            if self._fillcolor is not None:
                 return self.fillcolor_cmd(self._fillcolor)
             else:
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
@@ -1757,7 +1657,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         if rgb[0] == rgb[1] == rgb[2]:
             return [rgb[0], Op.setgray_stroke]
         else:
-            return list(rgb) + [Op.setrgb_stroke]
+            return list(rgb[:3]) + [Op.setrgb_stroke]
 
     def fillcolor_cmd(self, rgb):
         if rgb is None or rcParams['pdf.inheritcolor']:
@@ -1765,7 +1665,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         elif rgb[0] == rgb[1] == rgb[2]:
             return [rgb[0], Op.setgray_nonstroke]
         else:
-            return list(rgb) + [Op.setrgb_nonstroke]
+            return list(rgb[:3]) + [Op.setrgb_nonstroke]
 
     def push(self):
         parent = GraphicsContextPdf(self.file)
@@ -1791,11 +1691,12 @@ class GraphicsContextPdf(GraphicsContextBase):
         if (self._cliprect, self._clippath) != (cliprect, clippath):
             cmds.extend(self.push())
             if self._cliprect != cliprect:
-                cmds.extend([t for t in cliprect] + 
-                            [Op.rectangle, Op.clip, Op.endpath])
+                cmds.extend([cliprect, Op.rectangle, Op.clip, Op.endpath])
             if self._clippath != clippath:
-                cmds.extend(PdfFile.pathOperations(clippath) +
-                            [Op.clip, Op.endpath])
+                cmds.extend(
+                    PdfFile.pathOperations(
+                        *clippath.get_transformed_path_and_affine()) +
+                    [Op.clip, Op.endpath])
         return cmds
 
     commands = (
@@ -1821,7 +1722,11 @@ class GraphicsContextPdf(GraphicsContextBase):
         for params, cmd in self.commands:
             ours = [ getattr(self, p) for p in params ] 
             theirs = [ getattr(other, p) for p in params ]
-            if ours != theirs:
+            try:
+                different = ours != theirs
+            except ValueError:
+                different = ours.shape != theirs.shape or npy.any(ours != theirs)
+            if ours is not theirs:
                 cmds.extend(cmd(self, *theirs))
                 for p in params:
                     setattr(self, p, getattr(other, p))
