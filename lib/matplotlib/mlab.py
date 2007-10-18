@@ -1342,9 +1342,15 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
     process_skiprows(reader)
 
 
+    def myfloat(x):
+        if x==missing:
+            return npy.nan
+        else:
+            return float(x)
+
     def get_func(item, func):
         # promote functions in this order
-        funcmap = {int:float, float:dateutil.parser.parse, dateutil.parser.parse:str}
+        funcmap = {int:myfloat, myfloat:dateutil.parser.parse, dateutil.parser.parse:str}
         try: func(item)
         except:
             if func==str:

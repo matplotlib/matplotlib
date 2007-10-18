@@ -239,7 +239,8 @@ class PatchCollection(Collection, cm.ScalarMappable):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._facecolors = _colors.colorConverter.to_rgba_list(c)
+        self._facecolors = _colors.colorConverter.to_rgba_list(c, self._alpha)
+
     def set_facecolors(self, c):
         self.set_facecolor(c)
 
