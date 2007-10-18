@@ -281,6 +281,8 @@ class Line2D(Artist):
         if is_numlike(self._picker):
             self.pickradius = self._picker
 
+        self._xorig = npy.asarray([])
+        self._yorig = npy.asarray([])
         self.set_data(xdata, ydata)
         self._logcache = None
 
@@ -377,9 +379,13 @@ class Line2D(Artist):
         else:
             x, y = args
 
-        self._xorig = x
-        self._yorig = y
-        self.recache()
+        x = npy.asarray(x)
+        y = npy.asarray(y)
+        if ((x.shape != self._xorig.shape or npy.any(x != self._xorig)) or
+            (y.shape != self._yorig.shape or npy.any(y != self._yorig))):
+            self._xorig = x
+            self._yorig = y
+            self.recache()
 
     def recache(self):
         #if self.axes is None: print 'recache no axes'
@@ -625,8 +631,10 @@ class Line2D(Artist):
 
         ACCEPTS: npy.array
         """
-        self._xorig = x
-        self.recache()
+        x = npy.asarray(x)
+        if x.shape != self._xorig.shape or npy.any(x != self._xorig):
+            self._xorig = x
+            self.recache()
 
     def set_ydata(self, y):
         """
@@ -634,9 +642,10 @@ class Line2D(Artist):
 
         ACCEPTS: npy.array
         """
-
-        self._yorig = y
-        self.recache()
+        y = npy.asarray(y)
+        if y.shape != self._yorig.shape or npy.any(y != self._yorig):
+            self._yorig = y
+            self.recache()
 
     def set_dashes(self, seq):
         """

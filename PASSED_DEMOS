@@ -164,8 +164,8 @@ psd_demo.py		O
 pstest.py
 pylab_with_gtk.py
 pythonic_matplotlib.py	O
-quadmesh_demo.py	[MASKED VALUES NOT QUITE RIGHT]
-quiver_demo.py		[SEGFAULTS]
+quadmesh_demo.py	O [MASKED VALUES ARE SHOWN DUE TO A BUG IN TRUNK]
+quiver_demo.py		O
 rc_traits.py		[N/A]
 scatter_custom_symbol.py O
 scatter_demo2.py	O

@@ -206,24 +206,24 @@ class QuiverKey(artist.Artist):
 
     def _text_x(self, x):
         if self.labelpos == 'E':
-            return x + self.labelsep.get()
+            return x + self.labelsep
         elif self.labelpos == 'W':
-            return x - self.labelsep.get()
+            return x - self.labelsep
         else:
             return x
 
     def _text_y(self, y):
         if self.labelpos == 'N':
-            return y + self.labelsep.get()
+            return y + self.labelsep
         elif self.labelpos == 'S':
-            return y - self.labelsep.get()
+            return y - self.labelsep
         else:
             return y
 
     def draw(self, renderer):
         self._init()
         self.vector.draw(renderer)
-        x, y = self.get_transform().xy_tup((self.X, self.Y))
+        x, y = self.get_transform().transform_point((self.X, self.Y))
         self.text.set_x(self._text_x(x))
         self.text.set_y(self._text_y(y))
         self.text.draw(renderer)
@@ -323,7 +323,7 @@ class Quiver(collections.PolyCollection):
         if not self._initialized:
             trans = self._set_transform()
             ax = self.ax
-            sx, sy = trans.transform_point((ax.bbox.width, ax.bbox.height))
+            sx, sy = trans.inverted().transform_point((ax.bbox.width, ax.bbox.height))
             self.span = sx
             sn = max(8, min(25, math.sqrt(self.N)))
             if self.width is None:
@@ -333,12 +333,7 @@ class Quiver(collections.PolyCollection):
         self._init()
         if self._new_UV:
             verts = self._make_verts(self.U, self.V)
-            # Using nan internally here is the easiest
-            # way to support masked inputs; it doesn't
-            # require adding mask support to PolyCollection,
-            # and it keeps all array dimensions (X, Y, U, V, C)
-            # intact.
-            self.set_verts(verts.filled(npy.nan))
+            self.set_verts(verts)
             self._new_UV = False
         collections.PolyCollection.draw(self, renderer)
 
@@ -353,11 +348,11 @@ class Quiver(collections.PolyCollection):
         ax = self.ax
         if self.units in ('x', 'y'):
             if self.units == 'x':
-                dx0 = ax.viewLim.ur().x() - ax.viewLim.ll().x()
-                dx1 = ax.bbox.ur().x() - ax.bbox.ll().x()
+                dx0 = ax.viewLim.width
+                dx1 = ax.bbox.width
             else:
-                dx0 = ax.viewLim.ur().y() - ax.viewLim.ll().y()
-                dx1 = ax.bbox.ur().y() - ax.bbox.ll().y()
+                dx0 = ax.viewLim.height
+                dx1 = ax.bbox.height
             dx = dx1/dx0
         else:
             if self.units == 'width':
@@ -365,13 +360,12 @@ class Quiver(collections.PolyCollection):
             elif self.units == 'height':
                 dx = ax.bbox.height
             elif self.units == 'dots':
-                dx = transforms.Value(1)
+                dx = 1.0
             elif self.units == 'inches':
                 dx = ax.figure.dpi
             else:
                 raise ValueError('unrecognized units')
-        bb = transforms.Bbox.from_lbrt(0, 0, dx, dx)
-        trans = transforms.BboxTransform(transforms.Bbox.unit(), bb)
+        trans = transforms.Affine2D().scale(dx)
         self.set_transform(trans)
         return trans
 
