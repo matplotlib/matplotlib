@@ -41,13 +41,13 @@ class PolarAxes(Axes):
             self._resolution = resolution
 
         def transform(self, tr):
-            xy = npy.zeros(tr.shape, npy.float_)
-            t = tr[:, 0:1]
-            r = tr[:, 1:2]
-            x = xy[:, 0:1]
-            y = xy[:, 1:2]
-            x += r * npy.cos(t)
-            y += r * npy.sin(t)
+            xy   = npy.zeros(tr.shape, npy.float_)
+            t    = tr[:, 0:1]
+            r    = tr[:, 1:2]
+            x    = xy[:, 0:1]
+            y    = xy[:, 1:2]
+            x[:] = r * npy.cos(t)
+            y[:] = r * npy.sin(t)
             return xy
         transform.__doc__ = Transform.transform.__doc__
 

@@ -1573,12 +1573,12 @@ void get_path_extents(PathIterator& path, agg::trans_affine& trans,
   curved_path.rewind(0);
 
   while ((code = curved_path.vertex(&x, &y)) != agg::path_cmd_stop) {
-    if (code & agg::path_cmd_end_poly == agg::path_cmd_end_poly)
-      continue;
     if (x < *x0) *x0 = x;
     if (y < *y0) *y0 = y;
     if (x > *x1) *x1 = x;
     if (y > *y1) *y1 = y;
+    if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
+      continue;
   }
 }
 

@@ -490,6 +490,14 @@ class BboxBase(TransformNode):
         a = npy.array([[-deltaw, -deltah], [deltaw, deltah]])
         return Bbox(self._points + a)
 
+    def padded(self, p):
+        """
+        Return a new Bbox that is padded on all four sides by the
+        given value.
+        """
+        points = self._points
+        return Bbox(points + [[-p, -p], [p, p]])
+    
     def translated(self, tx, ty):
         """
         Return a copy of the Bbox, translated by tx and ty.
