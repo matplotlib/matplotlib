@@ -311,7 +311,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._facecolors = _colors.colorConverter.to_rgba_list(c)
+        self._facecolors = _colors.colorConverter.to_rgba_list(c, self._alpha)
+
     set_facecolors = set_facecolor
 
     def set_edgecolor(self, c):
