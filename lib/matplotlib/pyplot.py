@@ -312,7 +312,7 @@ def figlegend(handles, labels, loc, **kwargs):
 
     A matplotlib.legend.Legend instance is returned
     """
-    l=  gcf().legend(handles, labels, loc, **kwargs)
+    l = gcf().legend(handles, labels, loc, **kwargs)
     draw_if_interactive()
     return l
 

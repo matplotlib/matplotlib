@@ -356,7 +356,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         If the scalar mappable array is not none, update colors
         from scalar data
         """
-        #print 'update_scalarmappable: self._A', self._A
         if self._A is None: return
         if len(self._A.shape)>1:
             raise ValueError('Collections can only map rank 1 arrays')
@@ -364,7 +363,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._facecolors = self.to_rgba(self._A, self._alpha)
         else:
             self._edgecolors = self.to_rgba(self._A, self._alpha)
-        #print self._facecolors
 
 
 # these are not available for the object inspector until after the
@@ -445,7 +443,7 @@ class QuadMesh(Collection):
         return self._paths
 
     def draw(self, renderer):
-        self.update_scalarmappable()  #######################
+        self.update_scalarmappable()
 
         self._linewidths = (1,)
         if self._showedges:

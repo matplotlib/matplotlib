@@ -90,7 +90,7 @@ class TransformNode(object):
         """
         # Shortcut: If self is already invalid, that means its parents
         # are as well, so we don't need to do anything.
-        if self._invalid:
+        if self._invalid or not len(self._parents):
             return
 
         # If we are an affine transform being changed, we can set the
@@ -127,7 +127,7 @@ class TransformNode(object):
         """
         return self
         
-    def write_graphviz(self, fobj):
+    def write_graphviz(self, fobj, highlight=[]):
         """
         For debugging purposes.
 
@@ -146,14 +146,22 @@ class TransformNode(object):
             if root in seen:
                 return
             seen.add(root)
-            fobj.write('%s [label="%s"];\n' %
-                       (hash(root), root.__class__.__name__))
+            props = {}
+            label = root.__class__.__name__
+            if root._invalid:
+                label = '[%s]' % label
+            if root in highlight:
+                props['style'] = 'bold'
             if root.is_affine:
-                fobj.write('%s [style=filled, color=".7 .7 .9"];\n' %
-                           hash(root))
-            elif root.is_bbox:
-                fobj.write('%s [style=filled, color=".9 .9 .7"];\n' %
-                           hash(root))
+                props['shape'] = 'parallelogram'
+            if root.is_bbox:
+                props['shape'] = 'box'
+            props['label'] = '"%s"' % label
+            props = ' '.join(['%s=%s' % (key, val) for key, val in props.items()])
+
+            fobj.write('%s [%s];\n' %
+                       (hash(root), props))
+
             for child in root._children:
                 name = '?'
                 for key, val in root.__dict__.items():
@@ -627,19 +635,22 @@ class Bbox(BboxBase):
             minpos = npy.array([-npy.inf, -npy.inf], npy.float_)
 
         if ignore:
-            self._points = npy.array(
+            points = npy.array(
                 [[x.min(), y.min()], [x.max(), y.max()]],
                 npy.float_)
             self._minpos = minpos
         else:
-	    self._points = npy.array(
+	    points = npy.array(
 		[[min(x.min(), self.xmin),
                   min(y.min(), self.ymin)],
 		 [max(x.max(), self.xmax),
                   max(y.max(), self.ymax)]],
 		 npy.float_)
             self._minpos = npy.minimum(minpos, self._minpos)
-        self.invalidate()
+
+        if npy.any(self._points != points):
+            self._points = points
+            self.invalidate()
 
     def update_from_data_xy(self, xy, ignore=None):
         """
@@ -695,8 +706,10 @@ class Bbox(BboxBase):
 
     def _set_bounds(self, bounds):
         l, b, w, h = bounds
-        self._points = npy.array([[l, b], [l+w, b+h]], npy.float_)
-        self.invalidate()
+        points = npy.array([[l, b], [l+w, b+h]], npy.float_)
+        if npy.any(self._points != points):
+            self._points = points
+            self.invalidate()
     bounds = property(BboxBase._get_bounds, _set_bounds)
 
     def _get_minpos(self):
@@ -725,15 +738,17 @@ class Bbox(BboxBase):
         of the form: [[xmin, ymin], [xmax, ymax]].  No error checking
         is performed, as this method is mainly for internal use.
         """
-        self._points = points
-        self.invalidate()
+        if npy.any(self._points != points):
+            self._points = points
+            self.invalidate()
 
     def set(self, other):
         """
         Set this bounding box from the "frozen" bounds of another Bbox.
         """
-        self._points = other.get_points()
-        self.invalidate()
+        if npy.any(self._points != other.get_points()):
+            self._points = other.get_points()
+            self.invalidate()
 
     
 class TransformedBbox(BboxBase):
@@ -1848,8 +1863,6 @@ class CompositeGenericTransform(Transform):
         self._a = a
         self._b = b
         self.set_children(a, b)
-        self._mtx = None
-        self._affine = None
 
     def frozen(self):
         self._invalid = 0
@@ -1905,14 +1918,11 @@ class CompositeGenericTransform(Transform):
     transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
     
     def get_affine(self):
-        if self._invalid or self._affine is None:
-            if self._a.is_affine and self._b.is_affine:
-                self._affine = Affine2D(npy.dot(self._b.get_affine().get_matrix(),
-                                                self._a.get_affine().get_matrix()))
-            else:
-                self._affine = self._b.get_affine()
-            self._invalid = 0
-        return self._affine
+        if self._a.is_affine and self._b.is_affine:
+            return Affine2D(npy.dot(self._b.get_affine().get_matrix(),
+                                    self._a.get_affine().get_matrix()))
+        else:
+            return self._b.get_affine()
     get_affine.__doc__ = Transform.get_affine.__doc__
     
     def inverted(self):
@@ -2046,7 +2056,6 @@ class TransformedPath(TransformNode):
         self._transform = transform
         self.set_children(transform)
         self._transformed_path = None
-        self.get_affine = self._transform.get_affine
 
     def get_transformed_path_and_affine(self):
         """
@@ -2071,7 +2080,9 @@ class TransformedPath(TransformNode):
                 self._transform.transform_path_non_affine(self._path)
         self._invalid = 0
         return self._transform.transform_path_affine(self._transformed_path)
-    
+
+    def get_affine(self):
+        return self._transform.get_affine()
     
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     '''
