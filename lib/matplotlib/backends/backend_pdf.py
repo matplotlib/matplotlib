@@ -105,7 +105,7 @@ def pdfRepr(obj):
     """Map Python objects to PDF syntax."""
 
     # Some objects defined later have their own pdfRepr method.
-    if 'pdfRepr' in dir(obj):
+    if hasattr(obj, 'pdfRepr'):
         return obj.pdfRepr()
 
     # Floats. PDF does not have exponential notation (1.0e-10) so we
