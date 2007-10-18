@@ -90,15 +90,19 @@ def fill(strings, linelen=75):
     """Make one string from sequence of strings, with whitespace
     in between. The whitespace is chosen to form lines of at most
     linelen characters, if possible."""
-
-    s, strings = [strings[0]], strings[1:]
-    while strings:
-        if len(s[-1]) + len(strings[0]) < linelen:
-            s[-1] += ' ' + strings[0]
+    currpos = 0
+    lasti = 0
+    result = []
+    for i, s in enumerate(strings):
+        length = len(s)
+        if currpos + length < linelen:
+            currpos += length + 1
         else:
-            s.append(strings[0])
-        strings = strings[1:]
-    return '\n'.join(s)
+            result.append(' '.join(strings[lasti:i]))
+            lasti = i
+            currpos = length
+    result.append(' '.join(strings[lasti:]))
+    return '\n'.join(result)
 
 
 def pdfRepr(obj):
