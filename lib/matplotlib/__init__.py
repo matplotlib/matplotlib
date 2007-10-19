@@ -149,12 +149,9 @@ class Verbose:
     # --verbose-silent or --verbose-helpful
     _commandLineVerbose = None
 
-
     for arg in sys.argv[1:]:
         if not arg.startswith('--verbose-'): continue
         _commandLineVerbose = arg[10:]
-
-
 
     def __init__(self):
         self.set_level('silent')
@@ -195,8 +192,6 @@ class Verbose:
             return True
         return False
 
-
-
     def wrap(self, fmt, func, level='helpful', always=True):
         """
         return a callable function that wraps func and reports it
@@ -224,6 +219,7 @@ class Verbose:
 
 
 verbose=Verbose()
+
 
 def checkdep_dvipng():
     try:
