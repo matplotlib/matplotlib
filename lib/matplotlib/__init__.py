@@ -55,7 +55,7 @@ gmail.com).
 """
 from __future__ import generators
 
-NEWCONFIG = False
+NEWCONFIG = True
 
 __version__  = '0.90.1'
 __revision__ = '$Revision$'
@@ -243,7 +243,7 @@ def checkdep_ghostscript():
             command = 'gs -v'
         stdin, stdout = os.popen4(command)
         line = stdout.readlines()[0]
-        v = line.split()[2]
+        v = line.split()[-2]
         vtest = '.'.join(v.split('.')[:2]) # deal with version numbers like '7.07.1'
         float(vtest)
         return vtest
