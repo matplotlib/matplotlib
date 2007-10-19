@@ -849,7 +849,7 @@ class Ellipse(Patch):
 
 
         if not hasattr(renderer, 'draw_path'):
-            verbose.report('patches.Ellipse renderer does not support path drawing; falling back on vertex approximation for nonlinear transformation')
+            mpl.verbose.report('patches.Ellipse renderer does not support path drawing; falling back on vertex approximation for nonlinear transformation')
             renderer.draw_polygon(gc, rgbFace, self.get_verts())
             return
         
