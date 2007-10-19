@@ -217,6 +217,7 @@ class PatchCollection(Collection, cm.ScalarMappable):
         ACCEPTS: float or sequence of floats
         """
         self._linewidths = self._get_value(lw)
+
     def set_linewidths(self, lw):
         self.set_linewidth(lw)
 
@@ -256,6 +257,7 @@ class PatchCollection(Collection, cm.ScalarMappable):
             self._linewidths = (0.0,)
         else:
             self._edgecolors = _colors.colorConverter.to_rgba_list(c)
+
     def set_edgecolors(self, c):
         self.set_edgecolor(c)
 
@@ -721,6 +723,7 @@ class LineCollection(Collection, cm.ScalarMappable):
         return len(ind)>0,dict(ind=ind)
 
     def set_pickradius(self,pickradius): self.pickradius = 5
+
     def get_pickradius(self): return self.pickradius
 
     def get_transoffset(self):
