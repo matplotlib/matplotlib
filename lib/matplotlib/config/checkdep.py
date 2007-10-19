@@ -1,4 +1,7 @@
-import os, re, sys
+import os
+import re
+import sys
+import warnings
 import distutils.version as version
 
 def dvipng():
@@ -19,7 +22,7 @@ def ghostscript():
             command = 'gs -v'
         stdin, stdout = os.popen4(command)
         line = stdout.readlines()[0]
-        v = line.split()[2]
+        v = line.split()[-2]
         vtest = '.'.join(v.split('.')[:2]) # deal with version numbers like '7.07.1'
         float(vtest)
         return vtest
