@@ -55,7 +55,7 @@ gmail.com).
 """
 from __future__ import generators
 
-NEWCONFIG = True
+NEWCONFIG = False
 
 __version__  = '0.90.1'
 __revision__ = '$Revision$'
