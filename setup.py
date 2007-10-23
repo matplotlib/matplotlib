@@ -24,8 +24,8 @@ BUILD_IMAGE = 1
 # it.  It makes very nice antialiased output and also supports alpha
 # blending
 BUILD_AGG          = 1
-BUILD_GTKAGG       = 'auto'
-BUILD_GTK          = 'auto'
+BUILD_GTKAGG       = 1
+BUILD_GTK          = 1
 
 # build TK GUI with Agg renderer ; requires Tkinter Python extension
 # and Tk includes
@@ -271,7 +271,7 @@ print_line()
 # packagers: set rc['numerix'] and rc['backend'] here to override the auto
 # defaults, eg
 #rc['numerix'] = numpy
-#rc['backend'] = GTKAgg
+#rc['backend'] = 'GTKAgg'
 if sys.platform=='win32':
     rc = dict(backend='TkAgg', numerix='numpy')
 template = file('matplotlibrc.template').read()

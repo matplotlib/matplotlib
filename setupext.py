@@ -43,9 +43,10 @@ WIN32 - VISUAL STUDIO 7.1 (2003)
 
 import os
 
+
 basedir = {
     'win32'  : ['win32_static',],
-    'linux2' : ['/usr/local', '/usr',],
+    'linux2' : ['/usr/local', '/usr'],
     'linux'  : ['/usr/local', '/usr',],
     'cygwin' : ['/usr/local', '/usr',],
     'darwin' : ['/sw/lib/freetype2', '/sw/lib/freetype219', '/usr/local',
@@ -170,6 +171,7 @@ def has_pkgconfig():
     if sys.platform == 'win32':
         has_pkgconfig.cache = False
     else:
+        #print 'environ',  os.environ['PKG_CONFIG_PATH']
         status, output = commands.getstatusoutput("pkg-config --help")
         has_pkgconfig.cache = (status == 0)
     return has_pkgconfig.cache
@@ -192,6 +194,9 @@ def get_pkgconfig(module,
 
     status, output = commands.getstatusoutput(
         "%s %s %s" % (pkg_config_exec, flags, packages))
+    #if packages.startswith('pygtk'):
+    #    print 'status', status, output
+    #    raise SystemExit
     if status == 0:
         for token in output.split():
             attr = _flags.get(token[:2], None)

@@ -390,7 +390,7 @@ class FigureManagerGTK(FigureManagerBase):
 
         self.window = gtk.Window()
         self.window.set_title("Figure %d" % num)
-
+        
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
         self.vbox.show()
@@ -439,7 +439,10 @@ class FigureManagerGTK(FigureManagerBase):
                gtk.main_level() >= 1:
             gtk.main_quit()
 
-
+    def show(self):
+        # show the figure window
+        self.window.show()
+        
     def full_screen_toggle (self):
         self._full_screen_flag = not self._full_screen_flag
         if self._full_screen_flag:

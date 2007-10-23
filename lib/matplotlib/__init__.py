@@ -149,12 +149,9 @@ class Verbose:
     # --verbose-silent or --verbose-helpful
     _commandLineVerbose = None
 
-
     for arg in sys.argv[1:]:
         if not arg.startswith('--verbose-'): continue
         _commandLineVerbose = arg[10:]
-
-
 
     def __init__(self):
         self.set_level('silent')
@@ -195,8 +192,6 @@ class Verbose:
             return True
         return False
 
-
-
     def wrap(self, fmt, func, level='helpful', always=True):
         """
         return a callable function that wraps func and reports it
@@ -225,6 +220,7 @@ class Verbose:
 
 verbose=Verbose()
 
+
 def checkdep_dvipng():
     try:
         stdin, stdout = os.popen4('dvipng -version')
@@ -243,7 +239,7 @@ def checkdep_ghostscript():
             command = 'gs -v'
         stdin, stdout = os.popen4(command)
         line = stdout.readlines()[0]
-        v = line.split()[2]
+        v = line.split()[-2]
         vtest = '.'.join(v.split('.')[:2]) # deal with version numbers like '7.07.1'
         float(vtest)
         return vtest
