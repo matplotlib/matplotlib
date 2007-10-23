@@ -47,16 +47,16 @@ class RendererSVG(RendererBase):
         svgwriter.write(svgProlog%(width,height,width,height))
 
     def _draw_svg_element(self, element, details, gc, rgbFace):
-        cliprect, clipid = self._get_gc_clip_svg(gc)
+        clipid = self._get_gc_clip_svg(gc)
         if clipid is None:
             clippath = ''
         else:
             clippath = 'clip-path="url(#%s)"' % clipid
 
         style = self._get_style(gc, rgbFace)
-        self._svgwriter.write ('%s<%s style="%s" %s %s/>\n' % (
-            cliprect, element, style, clippath, details))
-
+        self._svgwriter.write ('<%s style="%s" %s %s/>\n' % (
+                element, style, clippath, details))
+        
     def _get_font(self, prop):
         key = hash(prop)
         font = self.fontd.get(key)
@@ -108,36 +108,23 @@ class RendererSVG(RendererBase):
         cliprect = gc.get_clip_rectangle()
         clippath, clippath_trans = gc.get_clip_path()
         if clippath is not None:
-            pathkey = (hash(clippath), hash(clippath_trans))
-            path = ''
-            if self._clipd.get(pathkey) is None:
-                self._clipd[pathkey] = clippath
-                path_data = self._convert_path(clippath, clippath_trans)
-                path = """\
-<defs>
-    <clipPath id="%(pathkey)s">
-    <path d="%(path_data)s"/>
-    </clipPath>
-</defs>
-""" % locals()
-            return path, pathkey
+            path_data = self._convert_path(clippath, clippath_trans)
+            path = '<path d="%s"/>' % path_data
         elif cliprect is not None:
-            rectkey = hash(cliprect)
-            box = ''
-            if self._clipd.get(rectkey) is None:
-                self._clipd[rectkey] = cliprect
-                x, y, w, h = cliprect.bounds
-                y = self.height-(y+h)
-                box = """\
-<defs>
-    <clipPath id="%(rectkey)s">
-    <rect x="%(x)s" y="%(y)s" width="%(w)s" height="%(h)s"/>
-    </clipPath>
-</defs>
-""" % locals()
-            return box, rectkey
-        
-        return '', None
+            x, y, w, h = cliprect.bounds
+            y = self.height-(y+h)
+            path = '<rect x="%(x)s" y="%(y)s" width="%(w)s" height="%(h)s"/>' % locals()
+        else:
+            return None
+            
+        id = self._clipd.get(path)
+        if id is None:
+            id = 'p%x' % len(self._clipd)
+            self._svgwriter.write('<defs>\n  <clipPath id="%s">\n' % id)
+            self._svgwriter.write(path)
+            self._svgwriter.write('\n  </clipPath>\n</defs>')
+            self._clipd[path] = id
+        return id
 
     def open_group(self, s):
         self._groupd[s] = self._groupd.get(s,0) + 1
@@ -193,17 +180,17 @@ class RendererSVG(RendererBase):
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         write = self._svgwriter.write
         
-        key = self._convert_path(marker_path, marker_trans + Affine2D().scale(0, -1.0))
+        key = self._convert_path(marker_path, marker_trans + Affine2D().scale(1.0, -1.0))
         name = self._markers.get(key)
         if name is None:
-            name = 'm_%x' % len(self._markers)
+            name = 'm%x' % len(self._markers)
             write('<defs><path id="%s" d="%s"/></defs>\n' % (name, key))
             self._markers[key] = name
 
         trans_and_flip = self._make_flip_transform(trans)
         tpath = trans_and_flip.transform_path(path)
         for x, y in tpath.vertices:
-            details = 'xlink:href="#%s" transform="translate(%f, %f)"' % (name, x, y)
+            details = 'xlink:href="#%s" x="%f" y="%f"' % (name, x, y)
             self._draw_svg_element('use', details, gc, rgbFace)
             
     def draw_image(self, x, y, im, bbox):
@@ -307,7 +294,7 @@ class RendererSVG(RendererBase):
 
                 svg.append('<use xlink:href="#%s"' % charid)
                 if currx != 0:
-                    svg.append(' transform="translate(%s)"' %
+                    svg.append(' x="%s"' %
                                (currx * (self.FONT_SCALE / fontsize)))
                 svg.append('/>\n')
                 currx += (glyph.linearHoriAdvance / 65536.0)
@@ -364,7 +351,7 @@ class RendererSVG(RendererBase):
 
             if step[0] != 4:
                 currx, curry = step[-2], -step[-1]
-        char_num = 'c_%x' % len(self._char_defs)
+        char_num = 'c%x' % len(self._char_defs)
         path_element = '<path id="%s" d="%s"/>\n' % (char_num, ''.join(path_data))
         self._char_defs[char_id] = (char_num, path_element)
         return char_num

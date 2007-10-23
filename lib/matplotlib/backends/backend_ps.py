@@ -503,57 +503,22 @@ grestore
                              linestyles, antialiaseds):
         write = self._pswriter.write
         
-        Npaths      = len(paths)
-        Noffsets    = len(offsets)
-        N           = max(Npaths, Noffsets)
-        Ntransforms = min(len(all_transforms), N)
-        Ntpaths     = max(Npaths, Ntransforms)
-        Nfacecolors = len(facecolors)
-        Nedgecolors = len(edgecolors)
-        Nlinewidths = len(linewidths)
-        Nlinestyles = len(linestyles)
-        Naa         = len(antialiaseds)
-
-        if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
-            return
-        
-        for i in range(Ntpaths):
-            path = paths[i % Npaths]
-            transform = all_transforms[i % Ntransforms]
-            if transform is None:
-                transform = IdentityTransform()
-            transform += master_transform
-
+        path_codes = []
+        for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
+            master_transform, paths, all_transforms)):
             ps_cmd = ['/p%x_%x {' % (self._path_collection_id, i),
                       'newpath', 'translate']
             ps_cmd.append(self._convert_path(path, transform))
             ps_cmd.extend(['} bind def\n'])
             write('\n'.join(ps_cmd))
+            path_codes.append("p%x_%x" % (self._path_collection_id, i))
             
-        toffsets = offsetTrans.transform(offsets)
-            
-        gc = self.new_gc()
+        for xo, yo, path_id, gc, rgbFace in self._iter_collection(
+            path_codes, cliprect, clippath, clippath_trans,
+            offsets, offsetTrans, facecolors, edgecolors,
+            linewidths, linestyles, antialiaseds):
 
-        gc.set_clip_rectangle(cliprect)
-        if clippath is not None:
-            clippath = transforms.TransformedPath(clippath, clippath_trans)
-            gc.set_clippath(clippath)
-        
-        if Nfacecolors == 0:
-            rgbFace = None
-
-        for i in xrange(N):
-            path_id = i % Ntpaths
-            xo, yo = toffsets[i % Noffsets]
-            if Nfacecolors:
-                rgbFace = facecolors[i % Nfacecolors]
-            if Nedgecolors:
-                gc.set_foreground(edgecolors[i % Nedgecolors])
-                gc.set_linewidth(linewidths[i % Nlinewidths])
-                gc.set_dashes(*linestyles[i % Nlinestyles])
-            gc.set_antialiased(antialiaseds[i % Naa])
-
-            ps = "%g %g p%x_%x" % (xo, yo, self._path_collection_id, path_id)
+            ps = "%g %g %s" % (xo, yo, path_id)
             self._draw_ps(ps, gc, rgbFace)
 
         self._path_collection_id += 1
@@ -786,7 +751,9 @@ grestore
         cint = gc.get_capstyle()
         self.set_linecap(cint)
         self.set_linedash(*gc.get_dashes())
-                  
+        if self.linewidth > 0 and stroke:
+            self.set_color(*gc.get_rgb()[:3])
+
         cliprect = gc.get_clip_rectangle()
         if cliprect:
             x,y,w,h=cliprect.bounds
