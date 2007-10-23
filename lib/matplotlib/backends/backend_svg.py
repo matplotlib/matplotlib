@@ -10,6 +10,8 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, FontProperties
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
+from matplotlib.path import Path
+from matplotlib.transforms import Affine2D
 
 from xml.sax.saxutils import escape as escape_xml_text
 
@@ -39,6 +41,7 @@ class RendererSVG(RendererBase):
             self._imaged = {}
         self._clipd = {}
         self._char_defs = {}
+        self._markers = {}
         self.mathtext_parser = MathTextParser('SVG')
         self.fontd = {}
         svgwriter.write(svgProlog%(width,height,width,height))
@@ -74,7 +77,7 @@ class RendererSVG(RendererBase):
         if rgbFace is None:
             fill = 'none'
         else:
-            fill = rgb2hex(rgbFace)
+            fill = rgb2hex(rgbFace[:3])
 
         offset, seq = gc.get_dashes()
         if seq is None:
@@ -103,28 +106,38 @@ class RendererSVG(RendererBase):
 
     def _get_gc_clip_svg(self, gc):
         cliprect = gc.get_clip_rectangle()
-        if cliprect is None:
-            return '', None
-        else:
-            # See if we've already seen this clip rectangle
-            key = hash(cliprect)
-            if self._clipd.get(key) is None:  # If not, store a new clipPath
-                self._clipd[key] = cliprect
-                x, y, w, h = cliprect
-                y = self.height-(y+h)
-                style = "stroke: gray; fill: none;"
-                box = """\
+        clippath, clippath_trans = gc.get_clip_path()
+        if clippath is not None:
+            pathkey = (hash(clippath), hash(clippath_trans))
+            path = ''
+            if self._clipd.get(pathkey) is None:
+                self._clipd[pathkey] = clippath
+                path_data = self._convert_path(clippath, clippath_trans)
+                path = """\
 <defs>
-    <clipPath id="%(key)s">
-    <rect x="%(x)s" y="%(y)s" width="%(w)s" height="%(h)s"
-    style="%(style)s"/>
+    <clipPath id="%(pathkey)s">
+    <path d="%(path_data)s"/>
     </clipPath>
 </defs>
 """ % locals()
-                return box, key
-            else:
-                # return id of previously defined clipPath
-                return '', key
+            return path, pathkey
+        elif cliprect is not None:
+            rectkey = hash(cliprect)
+            box = ''
+            if self._clipd.get(rectkey) is None:
+                self._clipd[rectkey] = cliprect
+                x, y, w, h = cliprect.bounds
+                y = self.height-(y+h)
+                box = """\
+<defs>
+    <clipPath id="%(rectkey)s">
+    <rect x="%(x)s" y="%(y)s" width="%(w)s" height="%(h)s"/>
+    </clipPath>
+</defs>
+""" % locals()
+            return box, rectkey
+        
+        return '', None
 
     def open_group(self, s):
         self._groupd[s] = self._groupd.get(s,0) + 1
@@ -133,20 +146,66 @@ class RendererSVG(RendererBase):
     def close_group(self, s):
         self._svgwriter.write('</g>\n')
 
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
-        """
-        Ignores angles for now
-        """
-        details = 'cx="%s" cy="%s" rx="%s" ry="%s" transform="rotate(%1.1f %s %s)"' % \
-            (x,  self.height-y, width/2.0, height/2.0, -rotation, x, self.height-y)
-        self._draw_svg_element('ellipse', details, gc, rgbFace)
-
     def option_image_nocomposite(self):
         """
         if svg.image_noscale is True, compositing multiple images into one is prohibited
         """
         return rcParams['svg.image_noscale']
 
+    _path_commands = {
+        Path.MOVETO: 'M%s %s',
+        Path.LINETO: 'L%s %s',
+        Path.CURVE3: 'Q%s %s %s %s',
+        Path.CURVE4: 'C%s %s %s %s %s %s'
+        }
+
+    def _make_flip_transform(self, transform):
+        return (transform +
+                Affine2D()
+                .scale(1.0, -1.0)
+                .translate(0.0, self.height))
+    
+    def _convert_path(self, path, transform):
+        tpath = transform.transform_path(path)
+
+        path_data = []
+        appender = path_data.append
+        path_commands = self._path_commands
+        currpos = 0
+        for points, code in tpath.iter_segments():
+            if code == Path.CLOSEPOLY:
+                segment = 'z'
+            else:
+                segment = path_commands[code] % tuple(points)
+
+            if currpos + len(segment) > 75:
+                appender("\n")
+                currpos = 0
+            appender(segment)
+            currpos += len(segment)
+        return ''.join(path_data)
+    
+    def draw_path(self, gc, path, transform, rgbFace=None):
+        trans_and_flip = self._make_flip_transform(transform)
+        path_data = self._convert_path(path, trans_and_flip)
+        self._draw_svg_element('path', 'd="%s"' % path_data, gc, rgbFace)
+
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        write = self._svgwriter.write
+        
+        key = self._convert_path(marker_path, marker_trans + Affine2D().scale(0, -1.0))
+        name = self._markers.get(key)
+        if name is None:
+            name = 'm_%x' % len(self._markers)
+            write('<defs><path id="%s" d="%s"/></defs>\n' % (name, key))
+            self._markers[key] = name
+
+        trans_and_flip = self._make_flip_transform(trans)
+        tpath = trans_and_flip.transform_path(path)
+        for x, y in tpath.vertices:
+            details = 'xlink:href="#%s" transform="translate(%f, %f)"' % (name, x, y)
+            self._draw_svg_element('use', details, gc, rgbFace)
+            
     def draw_image(self, x, y, im, bbox):
         trans = [1,0,0,1,0,0]
         transstr = ''
@@ -203,38 +262,6 @@ class RendererSVG(RendererBase):
             '<image x="%s" y="%s" width="%s" height="%s" '
             'xlink:href="%s" %s/>\n'%(x/trans[0], (self.height-y)/trans[3]-h, w, h, hrefstr, transstr)
             )
-
-    def draw_line(self, gc, x1, y1, x2, y2):
-        details = 'd="M%s,%sL%s,%s"' % (x1, self.height-y1,
-                                           x2, self.height-y2)
-        self._draw_svg_element('path', details, gc, None)
-
-    def draw_lines(self, gc, x, y, transform=None):
-        if len(x)==0: return
-        if len(x)!=len(y):
-            raise ValueError('x and y must be the same length')
-
-        y = self.height - y
-        details = ['d="M%s,%s' % (x[0], y[0])]
-        xys = zip(x[1:], y[1:])
-        details.extend(['L%s,%s' % tup for tup in xys])
-        details.append('"')
-        details = ''.join(details)
-        self._draw_svg_element('path', details, gc, None)
-
-    def draw_point(self, gc, x, y):
-        # result seems to have a hole in it...
-        self.draw_arc(gc, gc.get_rgb(), x, y, 1, 0, 0, 0, 0)
-
-    def draw_polygon(self, gc, rgbFace, points):
-        details = 'points = "%s"' % ' '.join(['%s,%s'%(x,self.height-y)
-                                              for x, y in points])
-        self._draw_svg_element('polygon', details, gc, rgbFace)
-
-    def draw_rectangle(self, gc, rgbFace, x, y, width, height):
-        details = 'width="%s" height="%s" x="%s" y="%s"' % (width, height, x,
-                                                            self.height-y-height)
-        self._draw_svg_element('rect', details, gc, rgbFace)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         if ismath:
@@ -467,7 +494,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         return self._print_svg(filename, svgwriter)
     
     def _print_svg(self, filename, svgwriter):
-        self.figure.dpi.set(72)
+        self.figure.set_dpi(72.0)
         width, height = self.figure.get_size_inches()
         w, h = width*72, height*72
 
