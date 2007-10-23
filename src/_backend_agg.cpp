@@ -434,7 +434,7 @@ bool should_snap(Path& path, const agg::trans_affine& trans) {
     }
 
     trans.transform(&x1, &y1);
-    if (!(fabs(x0 - x1) < 0.1 || fabs(y0 - y1) < 0.1)) {
+    if (!(fabs(x0 - x1) < 0.001 || fabs(y0 - y1) < 0.001)) {
       path.rewind(0);
       return false;
     }
