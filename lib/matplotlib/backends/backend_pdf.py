@@ -32,7 +32,7 @@ import matplotlib.dviread as dviread
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, \
     LOAD_NO_HINTING, KERNING_UNFITTED
 from matplotlib.mathtext import MathTextParser
-from matplotlib.transforms import Bbox
+from matplotlib.transforms import Bbox, BboxBase
 from matplotlib.path import Path
 from matplotlib import ttconv
 # MGDTODO: Move this stuff
@@ -172,11 +172,8 @@ def pdfRepr(obj):
         return pdfRepr(r)
 
     # A bounding box
-    elif isinstance(obj, Bbox):
-        r = ["["]
-        r.extend([pdfRepr(val) for val in obj.lbrt])
-        r.append("]")
-        return fill(r)
+    elif isinstance(obj, BboxBase):
+        return fill([pdfRepr(val) for val in obj.bounds])
     
     else:
         raise TypeError, \
@@ -1043,7 +1040,7 @@ end"""
             self.beginStream(
                 object.id, None,
                 {'Type': Name('XObject'), 'Subtype': Name('Form'),
-                 'BBox': bbox })
+                 'BBox': list(bbox.lbrt) })
             self.writePath(path, trans)
             if fillp:
                 self.output(Op.fill_stroke)
