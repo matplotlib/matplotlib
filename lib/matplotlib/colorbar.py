@@ -155,6 +155,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.filled = filled
         self.solids = None
         self.lines = None
+        self.set_label('')
         if cbook.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
@@ -183,6 +184,7 @@ class ColorbarBase(cm.ScalarMappable):
         self._config_axes(X, Y)
         if self.filled:
             self._add_solids(X, Y, C)
+        self._set_label()
 
     def _config_axes(self, X, Y):
         '''
@@ -220,11 +222,17 @@ class ColorbarBase(cm.ScalarMappable):
             ax.set_xticklabels(ticklabels)
             ax.xaxis.get_major_formatter().set_offset_string(offset_string)
 
-    def set_label(self, label, **kw):
+    def _set_label(self):
         if self.orientation == 'vertical':
-            self.ax.set_ylabel(label, **kw)
+            self.ax.set_ylabel(self._label, **self._labelkw)
         else:
-            self.ax.set_xlabel(label, **kw)
+            self.ax.set_xlabel(self._label, **self._labelkw)
+
+    def set_label(self, label, **kw):
+        self._label = label
+        self._labelkw = kw
+        self._set_label()
+
 
     def _outline(self, X, Y):
         '''
@@ -556,6 +564,10 @@ class Colorbar(ColorbarBase):
         is changed.
         '''
         cm.ScalarMappable.notify(self, mappable)
+        # We are using an ugly brute-force method: clearing and
+        # redrawing the whole thing.  The problem is that if any
+        # properties have been changed by methods other than the
+        # colorbar methods, those changes will be lost.
         self.ax.cla()
         self.draw_all()
         #if self.vmin != self.norm.vmin or self.vmax != self.norm.vmax:
