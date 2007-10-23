@@ -284,7 +284,6 @@ class Line2D(Artist):
         self._xorig = npy.asarray([])
         self._yorig = npy.asarray([])
         self.set_data(xdata, ydata)
-        self._logcache = None
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred on the line.  The pick radius determines
@@ -386,6 +385,8 @@ class Line2D(Artist):
             self._xorig = x
             self._yorig = y
             self.recache()
+        else:
+            self._transformed_path = TransformedPath(self._path, self.get_transform())
 
     def recache(self):
         #if self.axes is None: print 'recache no axes'
@@ -418,7 +419,6 @@ class Line2D(Artist):
             self._xy = npy.concatenate((x, y), 1)
 	self._x = self._xy[:, 0] # just a view
 	self._y = self._xy[:, 1] # just a view
-        self._logcache = None
 
         # Masked arrays are now handled by the Path class itself
         self._path = Path(self._xy, closed=False)
@@ -632,9 +632,7 @@ class Line2D(Artist):
         ACCEPTS: npy.array
         """
         x = npy.asarray(x)
-        if x.shape != self._xorig.shape or npy.any(x != self._xorig):
-            self._xorig = x
-            self.recache()
+        self.set_data(x, self._yorig)
 
     def set_ydata(self, y):
         """
@@ -643,9 +641,7 @@ class Line2D(Artist):
         ACCEPTS: npy.array
         """
         y = npy.asarray(y)
-        if y.shape != self._yorig.shape or npy.any(y != self._yorig):
-            self._yorig = y
-            self.recache()
+        self.set_data(self._xorig, y)
 
     def set_dashes(self, seq):
         """
