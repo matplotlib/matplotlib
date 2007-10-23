@@ -55,13 +55,90 @@ class RendererBase:
                              offsetTrans, facecolors, edgecolors, linewidths,
                              linestyles, antialiaseds):
         """
-        MGDTODO: Document me.  Explain that often the backend will not
-        want to override this.
+        This provides a fallback implementation of
+        draw_path_collection that makes multiple calls to draw_path.
+        Often, the backend will want to override this in order to
+        render each set of path data only once, and then reference
+        that path multiple times with the different offsets, colors,
+        styles etc.  The methods _iter_collection_raw_paths and
+        _iter_collection are provided to help with (and standardize)
+        the implementation that in each backend.
+        """
+        path_ids = []
+        for path, transform in self._iter_collection_raw_paths(
+            master_transform, paths, all_transforms):
+            path_ids.append((path, transform))
+
+        for xo, yo, path_id, gc, rgbFace in self._iter_collection(
+            path_ids, cliprect, clippath, clippath_trans,
+            offsets, offsetTrans, facecolors, edgecolors,
+            linewidths, linestyles, antialiaseds):
+            path, transform = path_id
+            transform = transform.frozen().translate(xo, yo)
+            self.draw_path(gc, path, transform, rgbFace)
+            
+    def _iter_collection_raw_paths(self, master_transform, paths, all_transforms):
+        """
+        This is a helper method (along with _iter_collection) to make
+        it easier to write a space-efficent draw_path_collection
+        implementation in a backend.
+
+        This method yields all of the base path/transform
+        combinations, given a master transform, a list of paths and
+        list of transforms.
+
+        The arguments should be exactly what is passed in to
+        draw_path_collection.
+
+        The backend should take each yielded path and transform and
+        create an object can be referenced (reused) later.
         """
         Npaths      = len(paths)
+        Ntransforms = len(all_transforms)
+        N           = max(Npaths, Ntransforms)
+
+        if Npaths == 0:
+            return
+
+        for i in xrange(N):
+            path = paths[i % Npaths]
+            transform = all_transforms[i % Ntransforms]
+            if transform is None:
+                transform = transforms.IdentityTransform()
+            transform += master_transform
+            yield path, transform
+
+    def _iter_collection(self, path_ids, cliprect, clippath, clippath_trans,
+                         offsets, offsetTrans, facecolors, edgecolors,
+                         linewidths, linestyles, antialiaseds):
+        """
+        This is a helper method (along with
+        _iter_collection_raw_paths) to make it easier to write a
+        space-efficent draw_path_collection implementation in a
+        backend.
+
+        This method yields all of the path, offset and graphics
+        context combinations to draw the path collection.  The caller
+        should already have looped over the results of
+        _iter_collection_raw_paths to draw this collection.
+
+        The arguments should be the same as that passed into
+        draw_path_collection, with the exception of path_ids, which
+        is a list of arbitrary objects that the backend will use to
+        reference one of the paths created in the
+        _iter_collection_raw_paths stage.
+
+        Each yielded result is of the form:
+
+           xo, yo, path_id, gc, rgbFace
+
+        where xo, yo is an offset; path_id is one of the elements of
+        path_ids; gc is a graphics context and rgbFace is a color to
+        use for filling the path.
+        """
+        Npaths      = len(path_ids)
         Noffsets    = len(offsets)
         N           = max(Npaths, Noffsets)
-        Ntransforms = min(len(all_transforms), N)
         Nfacecolors = len(facecolors)
         Nedgecolors = len(edgecolors)
         Nlinewidths = len(linewidths)
@@ -71,16 +148,10 @@ class RendererBase:
         if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
         
-        ttransforms = []
-        for i in range(Ntransforms):
-            transform = all_transforms[i]
-            if transform is None:
-                transform = transforms.IdentityTransform()
-            ttransforms.append((transform + master_transform).frozen())
-
         toffsets = offsetTrans.transform(offsets)
             
         gc = self.new_gc()
+
         gc.set_clip_rectangle(cliprect)
         if clippath is not None:
             clippath = transforms.TransformedPath(clippath, clippath_trans)
@@ -89,12 +160,9 @@ class RendererBase:
         if Nfacecolors == 0:
             rgbFace = None
 
-        print linewidths, edgecolors
-            
         for i in xrange(N):
-            path = paths[i % Npaths]
+            path_id = path_ids[i % Npaths]
             xo, yo = toffsets[i % Noffsets]
-            transform = ttransforms[i % Ntransforms].frozen().translate(xo, yo)
             if Nfacecolors:
                 rgbFace = facecolors[i % Nfacecolors]
             if Nedgecolors:
@@ -103,8 +171,8 @@ class RendererBase:
                 gc.set_dashes(*linestyles[i % Nlinestyles])
             gc.set_antialiased(antialiaseds[i % Naa])
 
-            self.draw_path(gc, path, transform, rgbFace)
-                
+            yield xo, yo, path_id, gc, rgbFace
+        
     def get_image_magnification(self):
         """
         Get the factor by which to magnify images passed to draw_image.
