@@ -1024,7 +1024,7 @@ end"""
 
     def markerObject(self, path, trans, fillp, lw):
         """Return name of a marker XObject representing the given path."""
-        key = (path, trans)
+        key = (path, trans, fillp is not None, lw)
         result = self.markers.get(key)
         if result is None:
             name = Name('M%d' % len(self.markers))
