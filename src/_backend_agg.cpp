@@ -48,17 +48,11 @@ agg::trans_affine py_to_agg_transformation_matrix(const Py::Object& obj, bool er
   PyArrayObject* matrix = NULL;
   
   try {
-    if (obj.ptr() == Py_None) {
-      if (errors)
-	throw Py::Exception();
-      return agg::trans_affine();
-    }
+    if (obj.ptr() == Py_None)
+      throw Py::Exception();
     matrix = (PyArrayObject*) PyArray_FromObject(obj.ptr(), PyArray_DOUBLE, 2, 2);
-    if (!matrix) {
-      if (errors)
-	throw Py::Exception();
-      return agg::trans_affine();
-    }
+    if (!matrix)
+      throw Py::Exception();
     if (matrix->nd == 2 || matrix->dimensions[0] == 3 || matrix->dimensions[1] == 3) {
       size_t stride0 = matrix->strides[0];
       size_t stride1 = matrix->strides[1];
@@ -81,16 +75,16 @@ agg::trans_affine py_to_agg_transformation_matrix(const Py::Object& obj, bool er
       
       return agg::trans_affine(a, b, c, d, e, f);
     }
+
+    throw Py::Exception();
   } catch (...) {
     if (errors) {
       Py_XDECREF(matrix);
-      throw;
+      throw Py::TypeError("Invalid affine transformation matrix");
     }
   }
 
   Py_XDECREF(matrix);
-  if (errors)
-    throw Py::TypeError("Invalid affine transformation matrix");
   return agg::trans_affine();
 }
 
@@ -797,6 +791,7 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
 Py::Object
 RendererAgg::draw_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_image");
+
   args.verify_length(4, 6);
   
   float x = Py::Float(args[0]);
@@ -807,7 +802,7 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   agg::trans_affine clippath_trans;
   if (args.size() == 6) {
     clippath = args[4];
-    clippath_trans = py_to_agg_transformation_matrix(args[5]);
+    clippath_trans = py_to_agg_transformation_matrix(args[5], false);
   }
  
   theRasterizer->reset_clipping();
