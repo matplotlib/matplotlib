@@ -1,3 +1,8 @@
+2007-10-19 Removed a gsave/grestore pair surrounding _draw_ps, which
+           was causing a loss graphics state info (see "EPS output
+           problem - scatter & edgecolors" on mpl-dev, 2007-10-29)
+           - DSD
+
 2007-10-15 Fixed a bug in patches.Ellipse that was broken for
            aspect='auto'.  Scale free ellipses now work properly for
            equal and auto on Agg and PS, and they fall back on a

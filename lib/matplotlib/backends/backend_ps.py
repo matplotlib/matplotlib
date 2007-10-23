@@ -777,7 +777,6 @@ grestore
         """
         # local variable eliminates all repeated attribute lookups
         write = self._pswriter.write
-        # write('gsave\n')
         if debugPS and command:
             write("% "+command+"\n")
 
@@ -818,7 +817,6 @@ grestore
             write("grestore\n")
         if cliprect:
             write("grestore\n")
-        #write('grestore\n')
 
             
 class GraphicsContextPS(GraphicsContextBase):

@@ -288,7 +288,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 raise ValueError()
         except ValueError:
             raise ValueError('Do not know how to convert %s to dashes'%ls)
-
         self._linestyles = dashes
     set_dashes = set_linestyle = set_linestyles
         
