@@ -151,7 +151,7 @@ class PolarAxes(Axes):
         def refresh(self):
             return self.base.refresh()
 
-    RESOLUTION = 100
+    RESOLUTION = 50
         
     def __init__(self, *args, **kwargs):
         """
