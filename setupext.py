@@ -90,6 +90,7 @@ BUILT_NXUTILS   = False
 BUILT_ENTHOUGHT = False
 BUILT_CONTOUR   = False
 BUILT_GDK       = False
+BUILT_PATH      = False
 
 AGG_VERSION = 'agg23'
 
@@ -897,6 +898,37 @@ def build_agg(ext_modules, packages):
 
     BUILT_AGG = True
 
+def build_path(ext_modules, packages):
+    global BUILT_PATH
+    if BUILT_PATH: return # only build it if you you haven't already
+
+    agg = (
+           'agg_curves.cpp',
+           'agg_bezier_arc.cpp',
+           'agg_path_storage.cpp',
+           'agg_trans_affine.cpp',
+           'agg_vcgen_stroke.cpp',
+           )
+
+    deps = ['%s/src/%s'%(AGG_VERSION, name) for name in agg]
+    deps.extend(glob.glob('CXX/*.cxx'))
+    deps.extend(glob.glob('CXX/*.c'))
+
+    temp_copy('src/_path.cpp', 'src/path.cpp')
+    deps.extend(['src/path.cpp'])
+    module = Extension(
+        'matplotlib._path',
+        deps,
+        include_dirs=numpy_inc_dirs,
+        )
+
+    add_numpy_flags(module)
+
+    add_agg_flags(module)
+    ext_modules.append(module)
+
+    BUILT_PATH = True
+    
 def build_image(ext_modules, packages):
     global BUILT_IMAGE
     if BUILT_IMAGE: return # only build it if you you haven't already
