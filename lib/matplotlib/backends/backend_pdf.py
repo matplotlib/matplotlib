@@ -1032,12 +1032,12 @@ end"""
     def writeMarkers(self):
         for tup in self.markers.values():
             name, object, path, trans, fillp, lw = tup
-            bbox = Bbox.from_lbrt(*path.get_extents(trans))
+            bbox = Bbox.from_extents(*path.get_extents(trans))
             bbox = bbox.padded(lw * 0.5)
             self.beginStream(
                 object.id, None,
                 {'Type': Name('XObject'), 'Subtype': Name('Form'),
-                 'BBox': list(bbox.lbrt) })
+                 'BBox': list(bbox.extents) })
             self.writePath(path, trans)
             if fillp:
                 self.output(Op.fill_stroke)

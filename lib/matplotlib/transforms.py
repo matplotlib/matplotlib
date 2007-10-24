@@ -196,28 +196,46 @@ class BboxBase(TransformNode):
     def __array__(self, *args, **kwargs):
         return self.get_points()
 
-    def _get_xmin(self):
+    def _get_x0(self):
         return self.get_points()[0, 0]
-    xmin = property(_get_xmin)
+    x0 = property(_get_x0)
     
-    def _get_ymin(self):
+    def _get_y0(self):
         return self.get_points()[0, 1]
+    y0 = property(_get_y0)
+
+    def _get_x1(self):
+        return self.get_points()[1, 0]
+    x1 = property(_get_x1)
+
+    def _get_y1(self):
+        return self.get_points()[1, 1]
+    y1 = property(_get_y1)
+
+    def _get_xmin(self):
+        return min(self.get_points()[:, 0])
+    xmin = property(_get_xmin)
+
+    def _get_ymin(self):
+        return min(self.get_points()[:, 1])
     ymin = property(_get_ymin)
 
     def _get_xmax(self):
-        return self.get_points()[1, 0]
+        return max(self.get_points()[:, 0])
     xmax = property(_get_xmax)
 
     def _get_ymax(self):
-        return self.get_points()[1, 1]
+        return max(self.get_points()[:, 1])
     ymax = property(_get_ymax)
-
+    
     def _get_min(self):
-        return self.get_points()[0]
+        return [min(self.get_points()[:, 0]),
+                min(self.get_points()[:, 1])]
     min = property(_get_min)
     
     def _get_max(self):
-        return self.get_points()[1]
+        return [max(self.get_points()[:, 0]),
+                max(self.get_points()[:, 1])]
     max = property(_get_max)
     
     def _get_intervalx(self):
@@ -244,35 +262,35 @@ class BboxBase(TransformNode):
     size = property(_get_size)
     
     def _get_bounds(self):
-        ((xmin, ymin), (xmax, ymax)) = self.get_points()
-        return (xmin, ymin, xmax - xmin, ymax - ymin)
+        ((x0, y0), (x1, y1)) = self.get_points()
+        return (x0, y0, x1 - x0, y1 - y0)
     bounds = property(_get_bounds)
 
-    def _get_lbrt(self):
+    def _get_extents(self):
         return self.get_points().flatten().copy()
-    lbrt = property(_get_lbrt)
+    extents = property(_get_extents)
     
     def get_points(self):
         return NotImplementedError()
     
     def containsx(self, x):
-        xmin, xmax = self.intervalx
-        return ((xmin < xmax
-                 and (x >= xmin and x <= xmax))
-                or (x >= xmax and x <= xmin))
+        x0, x1 = self.intervalx
+        return ((x0 < x1
+                 and (x >= x0 and x <= x1))
+                or (x >= x1 and x <= x0))
 
     def containsy(self, y):
-        ymin, ymax = self.intervaly
-        return ((ymin < ymax
-                 and (y >= ymin and y <= ymax))
-                or (y >= ymax and y <= ymin))
+        y0, y1 = self.intervaly
+        return ((y0 < y1
+                 and (y >= y0 and y <= y1))
+                or (y >= y1 and y <= y0))
     
     def contains(self, x, y):
         return self.containsx(x) and self.containsy(y)
 
     def overlaps(self, other):
-        ax1, ay1, ax2, ay2 = self._get_lbrt()
-        bx1, by1, bx2, by2 = other._get_lbrt()
+        ax1, ay1, ax2, ay2 = self._get_extents()
+        bx1, by1, bx2, by2 = other._get_extents()
 
         if ax2 < ax1:
             ax2, ax1 = ax1, ax2
@@ -289,24 +307,24 @@ class BboxBase(TransformNode):
                     (by1 > ay2))
     
     def fully_containsx(self, x):
-        xmin, xmax = self.intervalx
-        return ((xmin < xmax
-                 and (x > xmin and x < xmax))
-                or (x > xmax and x < xmin))
+        x0, x1 = self.intervalx
+        return ((x0 < x1
+                 and (x > x0 and x < x1))
+                or (x > x1 and x < x0))
 
     def fully_containsy(self, y):
-        ymin, ymax = self.intervaly
-        return ((ymin < ymax
-                 and (x > ymin and x < ymax))
-                or (x > ymax and x < ymin))
+        y0, y1 = self.intervaly
+        return ((y0 < y1
+                 and (x > y0 and x < y1))
+                or (x > y1 and x < y0))
     
     def fully_contains(self, x, y):
         return self.fully_containsx(x) \
             and self.fully_containsy(y)
 
     def fully_overlaps(self, other):
-        ax1, ay1, ax2, ay2 = self._get_lbrt()
-        bx1, by1, bx2, by2 = other._get_lbrt()
+        ax1, ay1, ax2, ay2 = self._get_extents()
+        bx1, by1, bx2, by2 = other._get_extents()
 
         if ax2 < ax1:
             ax2, ax1 = ax1, ax2
@@ -354,7 +372,7 @@ class BboxBase(TransformNode):
         or b) a string: C for centered, S for bottom-center, SE for
         bottom-left, E for left, etc.
 
-        Optional arg container is the lbwh box within which the BBox
+        Optional arg container is the box within which the BBox
         is positioned; it defaults to the initial BBox.
         """
         if container is None:
@@ -413,10 +431,10 @@ class BboxBase(TransformNode):
         """
         boxes = []
         xf = [0] + list(args) + [1]
-        l, b, r, t = self.lbrt
-        w = r - l
+        x0, y0, x1, y1 = self._get_extents()
+        w = x1 - x0
         for xf0, xf1 in zip(xf[:-1], xf[1:]):
-            boxes.append(Bbox([[l + xf0 * w, b], [l + xf1 * w, t]]))
+            boxes.append(Bbox([[x0 + xf0 * w, y0], [x0 + xf1 * w, y1]]))
         return boxes
 
     def splity(self, *args):
@@ -429,10 +447,10 @@ class BboxBase(TransformNode):
         """
         boxes = []
         yf = [0] + list(args) + [1]
-        l, b, r, t = self.lbrt
-        h = t - b
+        x0, y0, x1, y1 = self._get_extents()
+        h = y1 - y0
         for yf0, yf1 in zip(yf[:-1], yf[1:]):
-            boxes.append(Bbox([[l, b + yf0 * h], [r, b + yf1 * h]]))
+            boxes.append(Bbox([[x0, y0 + yf0 * h], [x1, y0 + yf1 * h]]))
         return boxes
 
     def count_contains(self, vertices):
@@ -444,12 +462,12 @@ class BboxBase(TransformNode):
         if len(vertices) == 0:
             return 0
         vertices = npy.asarray(vertices)
-        xmin, ymin, xmax, ymax = self._get_lbrt()
-        dxmin = npy.sign(vertices[:, 0] - xmin)
-        dymin = npy.sign(vertices[:, 1] - ymin)
-        dxmax = npy.sign(vertices[:, 0] - xmax)
-        dymax = npy.sign(vertices[:, 1] - ymax)
-        inside = (abs(dxmin + dxmax) + abs(dymin + dymax)) <= 2
+        x0, y0, x1, y1 = self._get_extents()
+        dx0 = npy.sign(vertices[:, 0] - x0)
+        dy0 = npy.sign(vertices[:, 1] - y0)
+        dx1 = npy.sign(vertices[:, 0] - x1)
+        dy1 = npy.sign(vertices[:, 1] - y1)
+        inside = (abs(dx0 + dx1) + abs(dy0 + dy1)) <= 2
         return N.sum(inside)
 
     def count_overlaps(self, bboxes):
@@ -458,7 +476,7 @@ class BboxBase(TransformNode):
 
         bboxes is a sequence of Bbox objects
         """
-        ax1, ay1, ax2, ay2 = self._get_lbrt()
+        ax1, ay1, ax2, ay2 = self._get_extents()
         if ax2 < ax1:
             ax2, ax1 = ax1, ax2
         if ay2 < ay1:
@@ -466,7 +484,7 @@ class BboxBase(TransformNode):
 
         count = 0
         for bbox in bboxes:
-            # bx1, by1, bx2, by2 = bbox._get_lbrt() ... inlined...
+            # bx1, by1, bx2, by2 = bbox._get_extents() ... inlined...
             bx1, by1, bx2, by2 = bbox.get_points().flatten()
             if bx2 < bx1:
                 bx2, bx1 = bx1, bx2
@@ -534,21 +552,21 @@ class BboxBase(TransformNode):
         if len(bboxes) == 1:
             return bboxes[0]
 
-        xmin = npy.inf
-        ymin = npy.inf
-        xmax = -npy.inf
-        ymax = -npy.inf
+        x0 = npy.inf
+        y0 = npy.inf
+        x1 = -npy.inf
+        y1 = -npy.inf
 
         for bbox in bboxes:
             points = bbox.get_points()
             xs = points[:, 0]
             ys = points[:, 1]
-            xmin = min(xmin, npy.min(xs))
-            ymin = min(ymin, npy.min(ys))
-            xmax = max(xmax, npy.max(xs))
-            ymax = max(ymax, npy.max(ys))
+            x0 = min(x0, npy.min(xs))
+            y0 = min(y0, npy.min(ys))
+            x1 = max(x1, npy.max(xs))
+            y1 = max(y1, npy.max(ys))
 
-        return Bbox.from_lbrt(xmin, ymin, xmax, ymax)
+        return Bbox.from_extents(x0, y0, x1, y1)
     union = staticmethod(union)
     
     
@@ -557,10 +575,10 @@ class Bbox(BboxBase):
         """
         Create a new bounding box.
 
-        points: a 2x2 numpy array of the form [[xmin, ymin], [xmax, ymax]]
+        points: a 2x2 numpy array of the form [[x0, y0], [x1, y1]]
 
         If you need to create Bbox from another form of data, consider the
-        class methods unit, from_lbwh and from_lbrt.
+        class methods unit, from_bounds and from_extents.
         """
         BboxBase.__init__(self)
         self._points = npy.asarray(points, npy.float_)
@@ -572,19 +590,19 @@ class Bbox(BboxBase):
         """
         Create a new unit BBox from (0, 0) to (1, 1).
         """
-        return Bbox.from_lbrt(0., 0., 1., 1.)
+        return Bbox.from_extents(0., 0., 1., 1.)
     unit = staticmethod(unit)
 
     #@staticmethod
-    def from_lbwh(left, bottom, width, height):
+    def from_bounds(left, bottom, width, height):
         """
         Create a new Bbox from left, bottom, width and height.
         """
-        return Bbox.from_lbrt(left, bottom, left + width, bottom + height)
-    from_lbwh = staticmethod(from_lbwh)
+        return Bbox.from_extents(left, bottom, left + width, bottom + height)
+    from_bounds = staticmethod(from_bounds)
 
     #@staticmethod
-    def from_lbrt(*args):
+    def from_extents(*args):
         """
         Create a new Bbox from left, bottom, right and top.
 
@@ -592,7 +610,7 @@ class Bbox(BboxBase):
         """
         points = npy.array(args, dtype=npy.float_).reshape(2, 2)
         return Bbox(points)
-    from_lbrt = staticmethod(from_lbrt)
+    from_extents = staticmethod(from_extents)
     
     def __repr__(self):
         return 'Bbox(%s)' % repr(self._points)
@@ -648,11 +666,12 @@ class Bbox(BboxBase):
                 npy.float_)
             self._minpos = minpos
         else:
+            x0, y0, x1, y1 = self._get_extents()
 	    points = npy.array(
-		[[min(x.min(), self.xmin),
-                  min(y.min(), self.ymin)],
-		 [max(x.max(), self.xmax),
-                  max(y.max(), self.ymax)]],
+		[[min(x.min(), x0, x1),
+                  min(y.min(), y0, y1)],
+		 [max(x.max(), x0, x1),
+                  max(y.max(), y0, y1)]],
 		 npy.float_)
             self._minpos = npy.minimum(minpos, self._minpos)
 
@@ -672,25 +691,25 @@ class Bbox(BboxBase):
         """
         return self.update_from_data(xy[:, 0], xy[:, 1], ignore)
         
-    def _set_xmin(self, val):
+    def _set_x0(self, val):
         self._points[0, 0] = val
         self.invalidate()
-    xmin = property(BboxBase._get_xmin, _set_xmin)
+    x0 = property(BboxBase._get_x0, _set_x0)
 
-    def _set_ymin(self, val):
+    def _set_y0(self, val):
         self._points[0, 1] = val
         self.invalidate()
-    ymin = property(BboxBase._get_ymin, _set_ymin)
+    y0 = property(BboxBase._get_y0, _set_y0)
 
-    def _set_xmax(self, val):
+    def _set_x1(self, val):
         self._points[1, 0] = val
         self.invalidate()
-    xmax = property(BboxBase._get_xmax, _set_xmax)
+    x1 = property(BboxBase._get_x1, _set_x1)
 
-    def _set_ymax(self, val):
+    def _set_y1(self, val):
         self._points[1, 1] = val
         self.invalidate()
-    ymax = property(BboxBase._get_ymax, _set_ymax)
+    y1 = property(BboxBase._get_y1, _set_y1)
 
     def _set_min(self, val):
         self._points[0] = val
@@ -735,7 +754,7 @@ class Bbox(BboxBase):
     def get_points(self):
         """
         Set the points of the bounding box directly as a numpy array
-        of the form: [[xmin, ymin], [xmax, ymax]].
+        of the form: [[x0, y0], [x1, y1]].
         """
         self._invalid = 0
         return self._points
@@ -743,7 +762,7 @@ class Bbox(BboxBase):
     def set_points(self, points):
         """
         Set the points of the bounding box directly from a numpy array
-        of the form: [[xmin, ymin], [xmax, ymax]].  No error checking
+        of the form: [[x0, y0], [x1, y1]].  No error checking
         is performed, as this method is mainly for internal use.
         """
         if npy.any(self._points != points):
@@ -2137,11 +2156,11 @@ if __name__ == '__main__':
     from random import random
     import timeit
 
-    bbox = Bbox.from_lbrt(10., 15., 20., 25.)
-    assert bbox.xmin == 10
-    assert bbox.ymin == 15
-    assert bbox.xmax == 20
-    assert bbox.ymax == 25
+    bbox = Bbox.from_extents(10., 15., 20., 25.)
+    assert bbox.x0 == 10
+    assert bbox.y0 == 15
+    assert bbox.x1 == 20
+    assert bbox.y1 == 25
 
     assert npy.all(bbox.min == [10, 15])
     assert npy.all(bbox.max == [20, 25])
@@ -2160,18 +2179,18 @@ if __name__ == '__main__':
     
     assert bbox.bounds == (11, 16, 10, 10)
 
-    bbox.xmin = 12
-    bbox.ymin = 17
-    bbox.xmax = 22
-    bbox.ymax = 27
+    bbox.x0 = 12
+    bbox.y0 = 17
+    bbox.x1 = 22
+    bbox.y1 = 27
 
     assert bbox.bounds == (12, 17, 10, 10)
 
-    bbox = Bbox.from_lbwh(10, 11, 12, 13)
+    bbox = Bbox.from_bounds(10, 11, 12, 13)
     assert bbox.bounds == (10, 11, 12, 13)
 
     bbox_copy = copy.deepcopy(bbox)
-    assert (bbox.lbrt == bbox_copy.lbrt).all()
+    assert (bbox.extents == bbox_copy.extents).all()
     bbox_copy.max = (14, 15)
     assert bbox.bounds == (10, 11, 12, 13)
     assert bbox_copy.bounds == (10, 11, 4, 4)
@@ -2180,7 +2199,7 @@ if __name__ == '__main__':
     bbox2 = Bbox([[30., 35.], [40., 45.]])
     trans = BboxTransform(bbox1, bbox2)
     bbox3 = bbox1.transformed(trans)
-    assert (bbox3.lbrt == bbox2.lbrt).all()
+    assert (bbox3.extents == bbox2.extents).all()
 
     translation = Affine2D().translate(10, 20)
     assert translation.to_values() == (1, 0, 0, 1, 10, 20)
