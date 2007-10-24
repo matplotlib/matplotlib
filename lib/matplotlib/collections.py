@@ -19,13 +19,6 @@ import matplotlib.backend_bases as backend_bases
 import matplotlib.nxutils as nxutils
 import matplotlib.path as path
 
-# MGDTODO: Move this stuff
-from matplotlib.backends._backend_agg import get_path_collection_extents, \
-    point_in_path_collection
-
-# MGDTODO: Treat facecolors and edgecolors as numpy arrays always
-# and then update draw_path_collection to use the array interface
-
 class Collection(artist.Artist, cm.ScalarMappable):
     """
     Base class for Collections.  Must be subclassed to be usable.
@@ -133,7 +126,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._transforms
         
     def get_datalim(self, transData):
-        result = transforms.Bbox.from_lbrt(*get_path_collection_extents(
+        result = transforms.Bbox.from_lbrt(*path.get_path_collection_extents(
                 self.get_transform().frozen(),
                 self.get_paths(),
                 self.get_transforms(),
@@ -201,7 +194,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             transform = transform.get_affine()
 
         # MGDTODO: Don't pick when outside of clip path / clip box
-        ind = point_in_path_collection(
+        ind = path.point_in_path_collection(
             mouseevent.x, mouseevent.y, self._pickradius,
             transform.frozen(), paths, self.get_transforms(),
             npy.asarray(self._offsets, npy.float_),

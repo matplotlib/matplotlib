@@ -19,6 +19,11 @@ rc = {'backend':'PS', 'numerix':'numpy'}
 # whatever array packages you have installed.
 BUILD_IMAGE = 1
 
+# Build the path utilities module.  This module depends on some parts
+# of Agg, but is separate from _backend_agg, since it is used even when
+# the Agg renderer is not.
+BUILD_PATH         = 1
+
 # Build the antigrain geometry toolkit.  Agg makes heavy use of
 # templates, so it probably requires a fairly recent compiler to build
 # it.  It makes very nice antialiased output and also supports alpha
@@ -77,7 +82,7 @@ if major==2 and minor1<3 or major<2:
 import glob
 from distutils.core import setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
-     build_ft2font, build_image, build_windowing, \
+     build_ft2font, build_image, build_windowing, build_path, \
      build_contour, build_nxutils, build_enthought, build_swigagg, build_gdk, \
      build_subprocess, build_ttconv, print_line, print_status, print_message, \
      print_raw, check_for_freetype, check_for_libpng, check_for_gtk, check_for_tk, \
@@ -260,6 +265,9 @@ if BUILD_WINDOWING and sys.platform=='win32':
 if BUILD_IMAGE:
     build_image(ext_modules, packages)
 
+if BUILD_PATH:
+    build_path(ext_modules, packages)
+    
 for mod in ext_modules:
     if VERBOSE:
         mod.extra_compile_args.append('-DVERBOSE')

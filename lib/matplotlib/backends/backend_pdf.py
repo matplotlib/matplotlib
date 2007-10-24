@@ -35,8 +35,6 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Bbox, BboxBase
 from matplotlib.path import Path
 from matplotlib import ttconv
-# MGDTODO: Move this stuff
-from matplotlib.backends._backend_agg import get_path_extents
 
 # Overview
 #
@@ -1034,8 +1032,7 @@ end"""
     def writeMarkers(self):
         for tup in self.markers.values():
             name, object, path, trans, fillp, lw = tup
-            a, b, c, d = get_path_extents(path, trans)
-            bbox = Bbox.from_lbrt(*get_path_extents(path, trans))
+            bbox = Bbox.from_lbrt(*path.get_extents(trans))
             bbox = bbox.padded(lw * 0.5)
             self.beginStream(
                 object.id, None,

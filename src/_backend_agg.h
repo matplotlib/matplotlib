@@ -236,17 +236,6 @@ public:
 
     add_keyword_method("RendererAgg", &_backend_agg_module::new_renderer,
 		       "RendererAgg(width, height, dpi)");
-    add_varargs_method("point_in_path", &_backend_agg_module::point_in_path,
-		       "point_in_path(x, y, path, trans)");
-    add_varargs_method("point_on_path", &_backend_agg_module::point_on_path,
-		       "point_on_path(x, y, r, path, trans)");
-    add_varargs_method("get_path_extents", &_backend_agg_module::get_path_extents,
-		       "get_path_extents(path, trans)");
-    add_varargs_method("get_path_collection_extents", &_backend_agg_module::get_path_collection_extents,
-		       "get_path_collection_extents(trans, paths, transforms, offsets, offsetTrans)");
-    add_varargs_method("point_in_path_collection", &_backend_agg_module::point_in_path_collection,
-		       "point_in_path_collection(x, y, r, trans, paths, transforms, offsets, offsetTrans, filled)");
-
     initialize( "The agg rendering backend" );
   }
 
@@ -255,11 +244,6 @@ public:
 private:
 
   Py::Object new_renderer (const Py::Tuple &args, const Py::Dict &kws);
-  Py::Object point_in_path(const Py::Tuple& args);
-  Py::Object point_on_path(const Py::Tuple& args);
-  Py::Object get_path_extents(const Py::Tuple& args);
-  Py::Object get_path_collection_extents(const Py::Tuple& args);
-  Py::Object point_in_path_collection(const Py::Tuple& args);
 };
 
 

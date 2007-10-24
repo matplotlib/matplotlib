@@ -9,7 +9,8 @@ import math
 import numpy as npy
 from numpy import ma as ma
 
-from matplotlib.backends._backend_agg import point_in_path, get_path_extents
+from matplotlib._path import point_in_path, get_path_extents, \
+    get_path_collection_extents, point_in_path_collection
 from matplotlib.cbook import simple_linear_interpolation
 
 KAPPA = 4.0 * (npy.sqrt(2) - 1) / 3.0

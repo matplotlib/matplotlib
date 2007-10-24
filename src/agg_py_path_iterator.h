@@ -1,5 +1,10 @@
+#ifndef __AGG_PY_PATH_ITERATOR_H__
+#define __AGG_PY_PATH_ITERATOR_H__
+
+#include "CXX/Objects.hxx"
 #define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
+#include "agg_path_storage.h"
 
 class PathIterator {
   PyArrayObject* vertices;
@@ -66,3 +71,5 @@ const char PathIterator::code_map[] =
    agg::path_cmd_curve3,
    agg::path_cmd_curve4,
    agg::path_cmd_end_poly | agg::path_flags_close};
+
+#endif // __AGG_PY_PATH_ITERATOR_H__
