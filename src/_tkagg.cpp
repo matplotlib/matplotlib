@@ -86,28 +86,28 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     /* check for bbox/blitting */
     bboxo = (PyObject*)atol(argv[4]);
     if (bboxo != Py_None) {
-      printf("bbox passed in");
-
-      const void* bbox_buffer;
-      Py_ssize_t bbox_buffer_len;
-      if (!PyObject_CheckReadBuffer(bboxo))
-	throw Py::TypeError
-	  ("Argument 5 to PyAggImagePhoto must be a Bbox object.");
-
-      if (PyObject_AsReadBuffer(bboxo, &bbox_buffer, &bbox_buffer_len))
-	throw Py::Exception();
-
-      if (bbox_buffer_len != sizeof(double) * 4)
-	throw Py::TypeError
-	  ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
-
       has_bbox = true;
+      PyArrayObject* bbox = NULL;
+      try {
+	bbox = (PyArrayObject*) PyArray_FromObject(bboxo, PyArray_DOUBLE, 2, 2);   
+	
+	if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2) {
+	  throw Py::TypeError
+	    ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
+	}
+	
+	l = *(double*)PyArray_GETPTR2(bbox, 0, 0);
+	b = *(double*)PyArray_GETPTR2(bbox, 0, 1);
+	r = *(double*)PyArray_GETPTR2(bbox, 1, 0);
+	t = *(double*)PyArray_GETPTR2(bbox, 1, 1);
 
-      double* bbox_values = (double*)bbox_buffer;
-      l = bbox_values[0];
-      b = bbox_values[1];
-      r = bbox_values[2];
-      t = bbox_values[3];
+	Py_XDECREF(bbox);
+	bbox = NULL;
+      } catch (...) {
+	Py_XDECREF(bbox);
+	bbox = NULL;
+	throw;
+      }
 
       destx = (int)l;
       desty = srcheight-(int)t;
@@ -228,5 +228,7 @@ static PyMethodDef functions[] = {
 extern "C"
 DL_EXPORT(void) init_tkagg(void)
 {
-    Py_InitModule("_tkagg", functions);
+  import_array();
+
+  Py_InitModule("_tkagg", functions);
 }

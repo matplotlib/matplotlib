@@ -113,14 +113,17 @@ def segment_hits(cx,cy,x,y,radius):
 
 class Line2D(Artist):
     lineStyles = _lineStyles =  { # hidden names deprecated
-        '-'    : '_draw_solid',
-        '--'   : '_draw_dashed',
-        '-.'   : '_draw_dash_dot',
-        ':'    : '_draw_dotted',
-        'steps': '_draw_steps',
-        'None' : '_draw_nothing',
-        ' '    : '_draw_nothing',
-        ''     : '_draw_nothing',
+        '-'          : '_draw_solid',
+        '--'         : '_draw_dashed',
+        '-.'         : '_draw_dash_dot',
+        ':'          : '_draw_dotted',
+        'steps'      : '_draw_steps_pre',
+        'steps-mid'  : '_draw_steps_mid',
+        'steps-pre'  : '_draw_steps_pre',
+        'steps-post' : '_draw_steps_post',
+        'None'       : '_draw_nothing',
+        ' '          : '_draw_nothing',
+        ''           : '_draw_nothing',
     }
 
     markers = _markers =  {  # hidden names deprecated
@@ -208,7 +211,7 @@ class Line2D(Artist):
           data: (npy.array xdata, npy.array ydata)
           figure: a matplotlib.figure.Figure instance
           label: any string
-          linestyle or ls: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
+          linestyle or ls: [ '-' | '--' | '-.' | ':' | 'steps' | 'steps-pre' | 'steps-mid' | 'steps-post' | 'None' | ' ' | '' ]
           linewidth or lw: float value in points
           lod: [True | False]
           marker: [ '+' | ',' | '.' | '1' | '2' | '3' | '4'
@@ -566,7 +569,10 @@ class Line2D(Artist):
         """
         Set the linestyle of the line
 
-        ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
+        'steps' is equivalent to 'steps-pre' and is maintained for
+        backward-compatibility.
+        
+        ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'steps-pre' | 'steps-mid' | 'steps-post' | 'None' | ' ' | '' ]
         """
         if linestyle not in self._lineStyles:
             verbose.report('Unrecognized line style %s, %s' %
@@ -668,9 +674,73 @@ class Line2D(Artist):
 	renderer.draw_path(gc, path, trans)
 
 
-    def _draw_steps(self, renderer, gc, path, trans):
-        # MGDTODO: Implement me
-        raise NotImplementedError("'steps' linestyle should be returning soon...")
+    def _step(self, x, y, where):
+        if not cbook.iterable(x):
+            x = ma.array([x], dtype=npy.float_)
+        if not cbook.iterable(y):
+            y = ma.array([y], dtype=npy.float_)
+
+        if where=='pre':
+            x2 = ma.zeros((2*len(x)-1,), npy.float_)
+            y2 = ma.zeros((2*len(y)-1,), npy.float_)
+
+            x2[0::2], x2[1::2] = x, x[:-1]
+            y2[0::2], y2[1:-1:2] = y, y[1:]
+
+        elif where=='post':
+            x2 = ma.zeros((2*len(x)-1,), npy.float_)
+            y2 = ma.zeros((2*len(y)-1,), npy.float_)
+
+            x2[::2], x2[1:-1:2] = x, x[1:]
+            y2[0::2], y2[1::2] = y, y[:-1]
+
+        elif where=='mid':
+            x2 = ma.zeros((2*len(x),), npy.float_)
+            y2 = ma.zeros((2*len(y),), npy.float_)
+
+            x2[1:-1:2] = 0.5*(x[:-1]+x[1:])
+            x2[2::2] = 0.5*(x[:-1]+x[1:])
+            x2[0], x2[-1] = x[0], x[-1]
+
+            y2[0::2], y2[1::2] = y, y
+
+        return x2, y2
+
+    
+    def _draw_steps_pre(self, renderer, gc, path, trans):
+        vertices = self._xy
+        steps = ma.zeros((2*len(vertices)-1, 2), npy.float_)
+
+        steps[0::2, 0], steps[1::2, 0] = vertices[:, 0], vertices[:-1, 0]
+        steps[0::2, 1], steps[1:-1:2, 1] = vertices[:, 1], vertices[1:, 1]
+
+        path = Path(steps, closed=False)
+        self._draw_solid(renderer, gc, path, trans)
+
+
+    def _draw_steps_post(self, renderer, gc, path, trans):
+        vertices = self._xy
+        steps = ma.zeros((2*len(vertices)-1, 2), npy.float_)
+
+        steps[::2, 0], steps[1:-1:2, 0] = vertices[:, 0], vertices[1:, 0]
+        steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:-1, 1]
+
+        path = Path(steps, closed=False)
+        self._draw_solid(renderer, gc, path, trans)
+
+        
+    def _draw_steps_mid(self, renderer, gc, path, trans):
+        vertices = self._xy
+        steps = ma.zeros((2*len(vertices), 2), npy.float_)
+
+        steps[1:-1:2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
+        steps[2::2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
+        steps[0, 0] = vertices[0, 0]
+        steps[-1, 0] = vertices[-1, 0]
+        steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:, 1]
+
+        path = Path(steps, closed=False)
+        self._draw_solid(renderer, gc, path, trans)
         
 
     def _draw_dashed(self, renderer, gc, path, trans):
@@ -922,7 +992,7 @@ class Line2D(Artist):
 		    [-1.0, 1.0], [1.0, -1.0]],
 		   [Path.MOVETO, Path.LINETO,
 		    Path.MOVETO, Path.LINETO])
-    def _draw_x(self, renderer, gc, xt, yt):
+    def _draw_x(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset)
 	renderer.draw_markers(gc, self._x_path, transform,

@@ -233,6 +233,7 @@ public:
     : Py::ExtensionModule<_backend_agg_module>( "_backend_agg" )
   {
     RendererAgg::init_type();
+    BufferRegion::init_type();
 
     add_keyword_method("RendererAgg", &_backend_agg_module::new_renderer,
 		       "RendererAgg(width, height, dpi)");

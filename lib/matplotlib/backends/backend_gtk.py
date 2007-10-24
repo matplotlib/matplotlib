@@ -249,7 +249,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             return # empty fig
 
         # resize the figure (in inches)
-        dpi = self.figure.dpi.get()
+        dpi = self.figure.dpi
         self.figure.set_size_inches (w/dpi, h/dpi)
         self._need_redraw = True
 

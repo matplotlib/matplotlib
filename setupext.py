@@ -813,7 +813,8 @@ def build_gtkagg(ext_modules, packages):
     add_agg_flags(module)
     add_ft2font_flags(module)
     add_pygtk_flags(module)
-
+    add_numpy_flags(module)
+    
     ext_modules.append(module)
     BUILT_GTKAGG = True
 

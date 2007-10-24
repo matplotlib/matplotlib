@@ -12,6 +12,8 @@
 
 #include "agg_basics.h"
 #include "_backend_agg.h"
+#define PY_ARRAY_TYPES_PREFIX NumPy
+#include "numpy/arrayobject.h"
 
 // the extension module
 class _gtkagg_module : public Py::ExtensionModule<_gtkagg_module>
@@ -69,27 +71,30 @@ private:
     else {
       //bbox is not None; copy the image in the bbox
       // MGDTODO: Use PyArray rather than buffer interface here
-
       PyObject* clipbox = args[2].ptr();
-      const void* clipbox_buffer;
-      Py_ssize_t clipbox_buffer_len;
-      if (!PyObject_CheckReadBuffer(clipbox))
-	throw Py::TypeError
-	  ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
+      PyArrayObject* bbox = NULL;
+      double l, b, r, t;
 
-      if (PyObject_AsReadBuffer(clipbox, &clipbox_buffer, &clipbox_buffer_len))
-	throw Py::Exception();
+      try {
+	bbox = (PyArrayObject*) PyArray_FromObject(clipbox, PyArray_DOUBLE, 2, 2);   
+	
+	if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2) {
+	  throw Py::TypeError
+	    ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
+	}
+	
+	l = *(double*)PyArray_GETPTR2(bbox, 0, 0);
+	b = *(double*)PyArray_GETPTR2(bbox, 0, 1);
+	r = *(double*)PyArray_GETPTR2(bbox, 1, 0);
+	t = *(double*)PyArray_GETPTR2(bbox, 1, 1);
 
-      if (clipbox_buffer_len != sizeof(double) * 4)
-	throw Py::TypeError
-	  ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
-
-      double* clipbox_values = (double*)clipbox_buffer;
-      double l = clipbox_values[0];
-      double b = clipbox_values[1];
-      double r = clipbox_values[2];
-      double t = clipbox_values[3];
-
+	Py_XDECREF(bbox);
+	bbox = NULL;
+      } catch (...) {
+	Py_XDECREF(bbox);
+	bbox = NULL;
+	throw;
+      }
       //std::cout << b << " "
       //		<< t << " ";
 
@@ -146,6 +151,7 @@ DL_EXPORT(void)
 {
   init_pygobject();
   init_pygtk();
+  import_array();
   //suppress unused warning by creating in two lines
   static _gtkagg_module* _gtkagg = NULL;
   _gtkagg = new _gtkagg_module;
