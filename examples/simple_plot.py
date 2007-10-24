@@ -17,6 +17,4 @@ grid(True)
 #savefig('simple_plot.png')
 savefig('simple_plot')
 
-axes().set_xlim(5, -5)
-
 show()
