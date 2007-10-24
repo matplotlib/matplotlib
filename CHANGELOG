@@ -1,3 +1,5 @@
+2007-10-24 Added ax kwarg to Figure.colorbar and pyplot.colorbar - EF
+
 2007-10-19 Removed a gsave/grestore pair surrounding _draw_ps, which
            was causing a loss graphics state info (see "EPS output
            problem - scatter & edgecolors" on mpl-dev, 2007-10-29)
@@ -12,7 +14,7 @@
            unit/ellipse_compare.py to compare spline with vertex
            approx for both aspects. JDH
 
-2007-10-05 remove generator expressions from texmanager and mpltraits. 
+2007-10-05 remove generator expressions from texmanager and mpltraits.
            generator expressions are not supported by python-2.3 - DSD
 
 2007-10-01 Made matplotlib.use() raise an exception if called after

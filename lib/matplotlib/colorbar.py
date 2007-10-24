@@ -70,21 +70,27 @@ colormap_kw_doc = '''
 colorbar_doc = '''
 Add a colorbar to a plot.
 
-Function signatures:
+Function signatures for the pyplot interface; all but the first are
+also method signatures for the Figure.colorbar method:
 
     colorbar(**kwargs)
-
     colorbar(mappable, **kwargs)
+    colorbar(mappable, cax=cax, **kwargs)
+    colorbar(mappable, ax=ax, **kwargs)
 
-    colorbar(mappable, cax, **kwargs)
+    arguments:
+        mappable: the image, ContourSet, etc. to which the colorbar applies;
+                    this argument is mandatory for the Figure.colorbar
+                    method but optional for the pyplot.colorbar function,
+                    which sets the default to the current image.
 
-The optional arguments mappable and cax may be included in the kwargs;
-they are image, ContourSet, etc. to which the colorbar applies, and
-the axes object in which the colorbar will be drawn.  Defaults are
-the current image and a new axes object created next to that image
-after resizing the image.
+    keyword arguments:
+        cax: None | axes object into which the colorbar will be drawn
+        ax:  None | parent axes object from which space for a new
+                     colorbar axes will be stolen
 
-kwargs are in two groups:
+
+**kwargs are in two groups:
     axes properties:
 %s
     colorbar properties:
