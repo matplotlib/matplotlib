@@ -1080,10 +1080,10 @@ def colormaps():
 
 
 from matplotlib.colorbar import colorbar_doc
-def colorbar(mappable = None, cax=None,**kw):
+def colorbar(mappable=None, cax=None, ax=None, **kw):
     if mappable is None:
         mappable = gci()
-    ret = gcf().colorbar(mappable, cax = cax, **kw)
+    ret = gcf().colorbar(mappable, cax = cax, ax=ax, **kw)
     draw_if_interactive()
     return ret
 colorbar.__doc__ = colorbar_doc
