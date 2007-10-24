@@ -68,10 +68,11 @@ class PolygonInteractor:
 
     def get_ind_under_point(self, event):
         'get the index of the vertex under point if within epsilon tolerance'
-        x, y = zip(*self.poly.xy)
 
         # display coords
-        xt, yt = self.poly.get_transform().numerix_x_y(x, y)
+        xy = npy.asarray(self.poly.xy)
+        xyt = self.poly.get_transform().transform(xy)
+        xt, yt = xyt[:, 0], xyt[:, 1]
         d = sqrt((xt-event.x)**2 + (yt-event.y)**2)
         indseq = nonzero(equal(d, amin(d)))
         ind = indseq[0]
@@ -130,7 +131,7 @@ class PolygonInteractor:
         x,y = event.xdata, event.ydata
         self.poly.xy[self._ind] = x,y
         self.line.set_data(zip(*self.poly.xy))
-
+        
         self.canvas.restore_region(self.background)
         self.ax.draw_artist(self.poly)
         self.ax.draw_artist(self.line)

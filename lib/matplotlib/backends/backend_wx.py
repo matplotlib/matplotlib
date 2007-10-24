@@ -2043,7 +2043,7 @@ class PrintoutWx(wx.Printout):
         vscale    = float(ppw) / fig_dpi
 
         # set figure resolution,bg color for printer
-        self.canvas.figure.dpi.set(ppw)
+        self.canvas.figure.dpi = ppw
         self.canvas.figure.set_facecolor('#FFFFFF')
 
         renderer  = RendererWx(self.canvas.bitmap, self.canvas.figure.dpi)
