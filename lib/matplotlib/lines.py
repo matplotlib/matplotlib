@@ -378,8 +378,10 @@ class Line2D(Artist):
         else:
             x, y = args
 
-        x = npy.asarray(x)
-        y = npy.asarray(y)
+        if not ma.isMaskedArray(x):
+            x = npy.asarray(x)
+        if not ma.isMaskedArray(y):
+            y = npy.asarray(y)
         if ((x.shape != self._xorig.shape or npy.any(x != self._xorig)) or
             (y.shape != self._yorig.shape or npy.any(y != self._yorig))):
             self._xorig = x
@@ -665,6 +667,11 @@ class Line2D(Artist):
         gc.set_linestyle('solid')
 	renderer.draw_path(gc, path, trans)
 
+
+    def _draw_steps(self, renderer, gc, path, trans):
+        # MGDTODO: Implement me
+        raise NotImplementedError("'steps' linestyle should be returning soon...")
+        
 
     def _draw_dashed(self, renderer, gc, path, trans):
         gc.set_linestyle('dashed')
