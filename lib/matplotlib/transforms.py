@@ -927,6 +927,7 @@ class Transform(TransformNode):
         The transformed point is returned as a sequence of length
         self.output_dims.
         """
+        assert len(point) == 2
         return self.transform(npy.asarray([point]))[0]
 
     def transform_path(self, path):

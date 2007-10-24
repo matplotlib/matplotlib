@@ -506,8 +506,8 @@ class Polygon(Patch):
         See Patch documentation for additional kwargs
         """
         Patch.__init__(self, **kwargs)
-        self.xy = xy
 	self._path = Path(xy, closed=True)
+        self.xy = self._path.vertices
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
