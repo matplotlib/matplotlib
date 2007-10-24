@@ -140,16 +140,16 @@ class FltkCanvas(Fltk.Fl_Widget):
             self._oldsize =newsize
             self._source.resize(newsize)
             self._source.draw()
-        t1,t2,w,h = self._source.figure.bbox.get_bounds()
+        t1,t2,w,h = self._source.figure.bbox.bounds
         Fltk.fl_draw_image(self._source.buffer_rgba(0,0),0,0,int(w),int(h),4,0)
         self.redraw()
 
     def blit(self,bbox=None):
         if bbox is None:
-            t1,t2,w,h = self._source.figure.bbox.get_bounds()
+            t1,t2,w,h = self._source.figure.bbox.bounds
         else:
-           t1o,t2o,wo,ho = self._source.figure.bbox.get_bounds()
-           t1,t2,w,h = bbox.get_bounds()
+           t1o,t2o,wo,ho = self._source.figure.bbox.bounds
+           t1,t2,w,h = bbox.bounds
         x,y=int(t1),int(t2)
         Fltk.fl_draw_image(self._source.buffer_rgba(x,y),x,y,int(w),int(h),4,int(wo)*4)
         #self.redraw()
@@ -222,7 +222,7 @@ class FltkCanvas(Fltk.Fl_Widget):
 class FigureCanvasFltkAgg(FigureCanvasAgg):
     def __init__(self, figure):
         FigureCanvasAgg.__init__(self,figure)
-        t1,t2,w,h = self.figure.bbox.get_bounds()
+        t1,t2,w,h = self.figure.bbox.bounds
         w, h = int(w), int(h)
         self.canvas=FltkCanvas(0, 0, w, h, "canvas",self)
         #self.draw()
@@ -263,7 +263,7 @@ class FigureManagerFltkAgg(FigureManagerBase):
     def __init__(self, canvas, num, window):
         FigureManagerBase.__init__(self, canvas, num)
         #Fltk container window
-        t1,t2,w,h = canvas.figure.bbox.get_bounds()
+        t1,t2,w,h = canvas.figure.bbox.bounds
         w, h = int(w), int(h)
         self.window = window
         self.window.size(w,h+30)
@@ -405,7 +405,7 @@ class NavigationToolbar:
         Fltk.Fl_File_Icon.load_system_icons()
         self._fc = Fltk.Fl_File_Chooser( ".", "*", Fltk.Fl_File_Chooser.CREATE, "Save Figure" )
         self._fc.hide()
-        t1,t2,w,h = canvas.figure.bbox.get_bounds()
+        t1,t2,w,h = canvas.figure.bbox.bounds
         w, h = int(w), int(h)
         self._group = Fltk.Fl_Pack(0,h+2,1000,26)
         self._group.type(Fltk.FL_HORIZONTAL)
@@ -591,7 +591,7 @@ class NavigationToolbar2FltkAgg(NavigationToolbar2):
         Fltk.Fl_File_Icon.load_system_icons()
         self._fc = Fltk.Fl_File_Chooser( ".", "*", Fltk.Fl_File_Chooser.CREATE, "Save Figure" )
         self._fc.hide()
-        t1,t2,w,h = self.canvas.figure.bbox.get_bounds()
+        t1,t2,w,h = self.canvas.figure.bbox.bounds
         w, h = int(w), int(h)
         self._group = Fltk.Fl_Pack(0,h+2,1000,26)
         self._group.type(Fltk.FL_HORIZONTAL)

@@ -459,7 +459,7 @@ class RendererWx(RendererBase):
         convert point measures to pixes using dpi and the pixels per
         inch of the display
         """
-        return points*(PIXELS_PER_INCH/72.0*self.dpi.get()/72.0)
+        return points*(PIXELS_PER_INCH/72.0*self.dpi/72.0)
 
 class GraphicsContextWx(GraphicsContextBase, wx.MemoryDC):
     """
@@ -735,7 +735,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         FigureCanvasBase.__init__(self, figure)
         # Set preferred window size hint - helps the sizer (if one is
         # connected)
-        l,b,w,h = figure.bbox.get_bounds()
+        l,b,w,h = figure.bbox.bounds
         w = int(math.ceil(w))
         h = int(math.ceil(h))
 
@@ -981,6 +981,7 @@ The current aspect ration will be kept."""
         drawDC.BeginDrawing()
         drawDC.DrawBitmap(self.bitmap, 0, 0)
         drawDC.EndDrawing()
+        wx.GetApp().Yield()
 
     filetypes = FigureCanvasBase.filetypes.copy()
     filetypes['bmp'] = 'Windows bitmap'
@@ -1092,7 +1093,7 @@ The current aspect ration will be kept."""
         if not self._isConfigured:
             self._isConfigured = True
 
-        dpival = self.figure.dpi.get()
+        dpival = self.figure.dpi
         winch = self._width/dpival
         hinch = self._height/dpival
         self.figure.set_size_inches(winch, hinch)
@@ -1132,7 +1133,7 @@ The current aspect ration will be kept."""
     def _onRightButtonDown(self, evt):
         """Start measuring on an axis."""
         x = evt.GetX()
-        y = self.figure.bbox.height() - evt.GetY()
+        y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
         self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 3, guiEvent=evt)
@@ -1141,7 +1142,7 @@ The current aspect ration will be kept."""
     def _onRightButtonUp(self, evt):
         """End measuring on an axis."""
         x = evt.GetX()
-        y = self.figure.bbox.height() - evt.GetY()
+        y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
         if self.HasCapture(): self.ReleaseMouse()
         FigureCanvasBase.button_release_event(self, x, y, 3, guiEvent=evt)
@@ -1149,7 +1150,7 @@ The current aspect ration will be kept."""
     def _onLeftButtonDown(self, evt):
         """Start measuring on an axis."""
         x = evt.GetX()
-        y = self.figure.bbox.height() - evt.GetY()
+        y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
         self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 1, guiEvent=evt)
@@ -1157,7 +1158,7 @@ The current aspect ration will be kept."""
     def _onLeftButtonUp(self, evt):
         """End measuring on an axis."""
         x = evt.GetX()
-        y = self.figure.bbox.height() - evt.GetY()
+        y = self.figure.bbox.height - evt.GetY()
         #print 'release button', 1
         evt.Skip()
         if self.HasCapture(): self.ReleaseMouse()
@@ -1171,7 +1172,7 @@ The current aspect ration will be kept."""
         """Start measuring on an axis."""
 
         x = evt.GetX()
-        y = self.figure.bbox.height() - evt.GetY()
+        y = self.figure.bbox.height - evt.GetY()
         evt.Skip()
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=evt)
 
@@ -1274,7 +1275,7 @@ class FigureFrameWx(wx.Frame):
             pos = wx.DefaultPosition
         else:
             pos =wx.Point(20,20)
-        l,b,w,h = fig.bbox.get_bounds()
+        l,b,w,h = fig.bbox.bounds
         wx.Frame.__init__(self, parent=None, id=-1, pos=pos,
                           title="Figure %d" % num,
                           size=(w,h))
@@ -1730,7 +1731,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
         dc.ResetBoundingBox()
         dc.BeginDrawing()
-        height = self.canvas.figure.bbox.height()
+        height = self.canvas.figure.bbox.height
         y1 = height - y1
         y0 = height - y0
 
@@ -2036,7 +2037,7 @@ class PrintoutWx(wx.Printout):
         # so that we can temporarily set them to the dpi of
         # the printer, and the bg color to white
         bgcolor   = self.canvas.figure.get_facecolor()
-        fig_dpi   = self.canvas.figure.dpi.get()
+        fig_dpi   = self.canvas.figure.dpi
 
         # draw the bitmap, scaled appropriately
         vscale    = float(ppw) / fig_dpi

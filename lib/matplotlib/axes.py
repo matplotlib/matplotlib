@@ -1538,7 +1538,8 @@ class Axes(martist.Artist):
 		if other is not self:
 		    other.set_xlim(self.viewLim.intervalx, emit=False)
 
-        self.figure.canvas.draw_idle()
+        if self.figure.canvas is not None:
+            self.figure.canvas.draw_idle()
                     
         return xmin, xmax
 
@@ -1697,7 +1698,8 @@ class Axes(martist.Artist):
 		if other is not self:
 		    other.set_ylim(self.viewLim.ymin, self.viewLim.ymax, emit=False)
 
-        self.figure.canvas.draw_idle()
+        if self.figure.canvas is not None:
+            self.figure.canvas.draw_idle()
         return ymin, ymax
 
     def get_yscale(self):
@@ -3036,37 +3038,11 @@ class Axes(martist.Artist):
         '''
 
         where = kwargs.pop('where', 'pre')
-
-        if not cbook.iterable(x):
-            x = ma.array([x], dtype=npy.float_)
-        if not cbook.iterable(y):
-            y = ma.array([y], dtype=npy.float_)
-
-        if where=='pre':
-            x2 = ma.zeros((2*len(x)-1,), npy.float_)
-            y2 = ma.zeros((2*len(y)-1,), npy.float_)
-
-            x2[0::2], x2[1::2] = x, x[:-1]
-            y2[0::2], y2[1:-1:2] = y, y[1:]
-
-        elif where=='post':
-            x2 = ma.zeros((2*len(x)-1,), npy.float_)
-            y2 = ma.zeros((2*len(y)-1,), npy.float_)
-
-            x2[::2], x2[1:-1:2] = x, x[1:]
-            y2[0::2], y2[1::2] = y, y[:-1]
-
-        elif where=='mid':
-            x2 = ma.zeros((2*len(x),), npy.float_)
-            y2 = ma.zeros((2*len(y),), npy.float_)
-
-            x2[1:-1:2] = 0.5*(x[:-1]+x[1:])
-            x2[2::2] = 0.5*(x[:-1]+x[1:])
-            x2[0], x2[-1] = x[0], x[-1]
-
-            y2[0::2], y2[1::2] = y, y
-
-        return self.plot(x2, y2, *args, **kwargs)
+        if where not in ('pre', 'post', 'mid'):
+            raise ValueError("'where' argument to step must be 'pre', 'post' or 'mid'")
+        kwargs['linestyle'] = 'steps-' + where
+        
+        return self.plot(x, y, *args, **kwargs)
 
 
     def bar(self, left, height, width=0.8, bottom=None,

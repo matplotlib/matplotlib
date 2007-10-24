@@ -101,7 +101,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     def mousePressEvent( self, event ):
         x = event.pos().x()
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.pos().y()
+        y = self.figure.bbox.height - event.pos().y()
         button = self.buttond[event.button()]
         FigureCanvasBase.button_press_event( self, x, y, button )
         if DEBUG: print 'button pressed:', event.button()
@@ -109,14 +109,14 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     def mouseMoveEvent( self, event ):
         x = event.x()
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.y()
+        y = self.figure.bbox.height - event.y()
         FigureCanvasBase.motion_notify_event( self, x, y )
         #if DEBUG: print 'mouse move'
 
     def mouseReleaseEvent( self, event ):
         x = event.x()
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.y()
+        y = self.figure.bbox.height - event.y()
         button = self.buttond[event.button()]
         FigureCanvasBase.button_release_event( self, x, y, button )
         if DEBUG: print 'button released'
@@ -138,7 +138,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         w = event.size().width()
         h = event.size().height()
         if DEBUG: print "FigureCanvasQtAgg.resizeEvent(", w, ",", h, ")"
-        dpival = self.figure.dpi.get()
+        dpival = self.figure.dpi
         winch = w/dpival
         hinch = h/dpival
         self.figure.set_size_inches( winch, hinch )
@@ -149,7 +149,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         QtGui.QWidget.resize( self, w, h )
 
         # Resize the figure by converting pixels to inches.
-        pixelPerInch = self.figure.dpi.get()
+        pixelPerInch = self.figure.dpi
         wInch = w / pixelPerInch
         hInch = h / pixelPerInch
         self.figure.set_size_inches( wInch, hInch )

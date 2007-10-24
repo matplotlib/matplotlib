@@ -5,7 +5,6 @@ a toolbar to a gtk.Window
 """
 import gtk
 
-from matplotlib.axes import Subplot
 from matplotlib.figure import Figure
 from numpy import arange, sin, pi
 

@@ -2,14 +2,14 @@ accented_text.py        O
 agg_buffer_to_array.py  O
 agg_oo.py               O
 agg_resize.py           [BROKEN IN TRUNK]
-agg_test.py
+agg_test.py		???
 alignment_test.py       O
-animation_blit_fltk.py
-animation_blit.py
-animation_blit_qt4.py
-animation_blit_qt.py
-animation_blit_tk.py
-animation_blit_wx.py
+animation_blit_fltk.py  [terminate called after throwing an instance of 'Swig::DirectorMethodException']
+animation_blit.py	O
+animation_blit_qt4.py	O
+animation_blit_qt.py	O
+animation_blit_tk.py	O
+animation_blit_wx.py	O
 anim.py                 O [BUT SLOWER]
 annotation_demo.py      O
 anscombe.py		O
@@ -56,24 +56,24 @@ date_demo_convert.py	O
 date_demo_rrule.py	O
 date_index_formatter.py O
 dynamic_collection.py   O
-dynamic_demo.py		[GTK]
-dynamic_demo_wx.py	[WX]
-dynamic_image_gtkagg.py
-dynamic_image_wxagg2.py
-dynamic_image_wxagg.py
+dynamic_demo.py		O
+dynamic_demo_wx.py	[REQUIRES NON-AGG WX RENDERER, WHICH IS NOT YET IMPLEMENTED]
+dynamic_image_gtkagg.py O
+dynamic_image_wxagg2.py O
+dynamic_image_wxagg.py	
 ellipse_demo.py		O
 ellipse_rotated.py	O
-embedding_in_gtk2.py
-embedding_in_gtk3.py
-embedding_in_gtk.py
-embedding_in_qt4.py
-embedding_in_qt.py
-embedding_in_tk2.py
-embedding_in_tk.py
-embedding_in_wx2.py
-embedding_in_wx3.py
-embedding_in_wx4.py
-embedding_in_wx.py
+embedding_in_gtk2.py	[REQUIRES NON-AGG GDK RENDERER, WHICH IS NOT YET IMPLEMENTED]
+embedding_in_gtk3.py	O
+embedding_in_gtk.py	[REQUIRES NON-AGG GDK RENDERER, WHICH IS NOT YET IMPLEMENTED]
+embedding_in_qt4.py	O
+embedding_in_qt.py	O
+embedding_in_tk2.py	O
+embedding_in_tk.py	O
+embedding_in_wx2.py	[IDENTICAL BUG IN TRUNK -- Y-AXIS VALUES ARE TRUNCATED]
+embedding_in_wx3.py	O
+embedding_in_wx4.py	O
+embedding_in_wx.py	[REQUIRES NON-AGG WX RENDERER, WHICH IS NOT YET IMPLEMENTED]
 errorbar_demo.py	O
 errorbar_limits.py	O	
 figimage_demo.py	O
@@ -91,20 +91,20 @@ fonts_demo.py		O
 font_table_ttf.py	[N/A]
 ftface_props.py		[N/A]
 ganged_plots.py		O
-glyph_to_path.py	[Requires PIL]
+glyph_to_path.py	O
 gradient_bar.py		O
-gtk_spreadsheet.py		
+gtk_spreadsheet.py	[REQUIRES NON-AGG GDK RENDERER, WHICH IS NOT YET IMPLEMENTED]	
 hatch_demo.py		O
 histogram_demo_canvasagg.py [???]
 histogram_demo.py	O
 image_demo2.py		O
-image_demo3.py		[Requires PIL]
+image_demo3.py		O
 image_demo.py		O
 image_interp.py		O
 image_masked.py		O [Whew!]
 image_origin.py		O
 image_slices_viewer.py  [BROKEN ON TRUNK]
-__init__.py
+__init__.py		[N/A]
 integral_demo.py	O
 interactive2.py		[N/A]
 interactive.py		[N/A]
@@ -119,7 +119,7 @@ legend_demo.py		O
 legend_scatter.py	O
 line_collection2.py	O
 line_collection.py	O
-lineprops_dialog_gtk.py
+lineprops_dialog_gtk.py	O
 line_styles.py		O
 load_converter.py	O
 loadrec.py		O
@@ -132,7 +132,7 @@ major_minor_demo2.py	O
 masked_demo.py		O
 mathtext_demo.py	O
 mathtext_examples.py	O
-mathtext_wx.py
+mathtext_wx.py		O
 matplotlib_icon.py	[N/A]
 matshow.py		O
 movie_demo.py		O

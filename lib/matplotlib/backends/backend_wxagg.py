@@ -19,7 +19,6 @@ from __future__ import division
 import wx
 import matplotlib
 from matplotlib.figure import Figure
-from matplotlib.transforms import Bbox, Point, Value
 
 from backend_agg import FigureCanvasAgg
 import backend_wx
@@ -74,7 +73,7 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
             self.gui_repaint()
             return
 
-        l, b, w, h = bbox.get_bounds()
+        l, b, w, h = bbox.bounds
         r = l + w
         t = b + h
         x = int(l)

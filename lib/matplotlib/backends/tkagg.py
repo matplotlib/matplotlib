@@ -4,15 +4,19 @@ import Tkinter as Tk
 def blit(photoimage, aggimage, bbox=None, colormode=1):
     tk = photoimage.tk
 
+    if bbox is not None:
+        bbox_array = bbox.__array__()
+    else:
+        bbox_array = None
     try:
-        tk.call("PyAggImagePhoto", photoimage, id(aggimage), colormode, id(bbox))
+        tk.call("PyAggImagePhoto", photoimage, id(aggimage), colormode, id(bbox_array))
     except Tk.TclError, v:
         try:
             try:
                 _tkagg.tkinit(tk.interpaddr(), 1)
             except AttributeError:
                 _tkagg.tkinit(id(tk), 0)
-            tk.call("PyAggImagePhoto", photoimage, id(aggimage), colormode, id(bbox))
+            tk.call("PyAggImagePhoto", photoimage, id(aggimage), colormode, id(bbox_array))
         except (ImportError, AttributeError, Tk.TclError):
             raise
 
