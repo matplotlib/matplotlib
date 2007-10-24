@@ -131,7 +131,7 @@ class Figure(Artist):
 
 	self._dpi_scale_trans = Affine2D()
         self.dpi = dpi
-	self.bbox_inches = Bbox.from_lbwh(0, 0, *figsize)
+	self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
 	self.bbox = TransformedBbox(self.bbox_inches, self._dpi_scale_trans)
 	
         self.frameon = frameon
@@ -351,11 +351,11 @@ class Figure(Artist):
 
     def get_figwidth(self):
         'Return the figwidth as a float'
-	return self.bbox_inches.xmax
+	return self.bbox_inches.width
 
     def get_figheight(self):
         'Return the figheight as a float'
-        return self.bbox_inches.ymax
+        return self.bbox_inches.height
 
     def get_dpi(self):
         'Return the dpi as a float'
@@ -395,7 +395,7 @@ class Figure(Artist):
 
         ACCEPTS: float
         """
-	self.bbox_inches.xmax = val
+	self.bbox_inches.x1 = val
 	
     def set_figheight(self, val):
         """
@@ -403,7 +403,7 @@ class Figure(Artist):
 
         ACCEPTS: float
         """
-	self.bbox_inches.ymax = val
+	self.bbox_inches.y1 = val
 
     def set_frameon(self, b):
         """

@@ -1070,7 +1070,7 @@ class XAxis(Axis):
                 bottom = self.axes.bbox.ymin
             else:
                 bbox = Bbox.union(bboxes)
-                bottom = bbox.ymin
+                bottom = bbox.y0
             self.label.set_position( (x, bottom - self.LABELPAD*self.figure.dpi / 72.0))
             
         else:
@@ -1078,8 +1078,7 @@ class XAxis(Axis):
                 top = self.axes.bbox.ymax
             else:
                 bbox = bbox_union(bboxes2)
-                top = bbox.ymax
- 
+                top = bbox.y1
             self.label.set_position( (x, top+self.LABELPAD*self.figure.dpi / 72.0))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
@@ -1092,7 +1091,7 @@ class XAxis(Axis):
             bottom = self.axes.bbox.ymin
         else:
             bbox = Bbox.union(bboxes)
-            bottom = bbox.ymin
+            bottom = bbox.y0
         self.offsetText.set_position((x, bottom-self.OFFSETTEXTPAD*self.figure.dpi/72.0))
 	
     def set_ticks_position(self, position):
@@ -1280,9 +1279,8 @@ class YAxis(Axis):
             if not len(bboxes):
                 left = self.axes.bbox.xmin
             else:
-
                 bbox = Bbox.union(bboxes)
-                left = bbox.xmin
+                left = bbox.x0
 
             self.label.set_position( (left-self.LABELPAD*self.figure.dpi/72.0, y))
 	    
@@ -1291,7 +1289,7 @@ class YAxis(Axis):
                 right = self.axes.bbox.xmax
             else:
                 bbox = Bbox.union(bboxes2)
-                right = bbox.xmax
+                right = bbox.x1
 
             self.label.set_position( (right+self.LABELPAD*self.figure.dpi/72.0, y))
 

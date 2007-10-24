@@ -118,7 +118,7 @@ class RendererAgg(RendererBase):
         self.mathtext_parser = MathTextParser('Agg')
         self._fontd = {}
         
-        self.bbox = Bbox.from_lbwh(0,0, self.width, self.height)
+        self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
 
@@ -227,7 +227,7 @@ class RendererAgg(RendererBase):
 
         cliprect = gc.get_clip_rectangle()
         if cliprect is None: bbox = None
-        else: bbox = Bbox.from_lbwh(*cliprect)
+        else: bbox = Bbox.from_bounds(*cliprect)
         self.draw_image(x, self.height-y, im, bbox)
 
     def get_canvas_width_height(self):

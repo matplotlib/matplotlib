@@ -346,7 +346,7 @@ class Rectangle(Patch):
 
         left, right = self.convert_xunits((xy[0], xy[0] + width))
         bottom, top = self.convert_yunits((xy[1], xy[1] + height))
-	self._bbox = transforms.Bbox.from_lbrt(left, bottom, right, top)
+	self._bbox = transforms.Bbox.from_extents(left, bottom, right, top)
 	self._rect_transform = transforms.BboxTransform(
 	    transforms.Bbox.unit(), self._bbox)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
@@ -367,11 +367,11 @@ class Rectangle(Patch):
     
     def get_x(self):
         "Return the left coord of the rectangle"
-        return self._bbox.xmin
+        return self._bbox.x0
 
     def get_y(self):
         "Return the bottom coord of the rectangle"
-        return self._bbox.ymin
+        return self._bbox.y0
 
     def get_width(self):
         "Return the width of the  rectangle"
@@ -405,7 +405,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self._bbox.xmax = self._bbox.xmin + w
+        self._bbox.x1 = self._bbox.x0 + w
 
     def set_height(self, h):
         """
@@ -413,7 +413,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self._bbox.ymax = self._bbox.ymin + h
+        self._bbox.y1 = self._bbox.y0 + h
 
     def set_bounds(self, *args):
         """

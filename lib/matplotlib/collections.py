@@ -126,12 +126,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._transforms
         
     def get_datalim(self, transData):
-        result = transforms.Bbox.from_lbrt(*path.get_path_collection_extents(
-                self.get_transform().frozen(),
-                self.get_paths(),
-                self.get_transforms(),
-                self._offsets,
-                self._transOffset.frozen()))
+        result = path.get_path_collection_extents(
+            self.get_transform().frozen(),
+            self.get_paths(),
+            self.get_transforms(),
+            self._offsets,
+            self._transOffset.frozen())
         result = result.transformed(transData.inverted())
         return result
 

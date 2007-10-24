@@ -156,8 +156,8 @@ class AxesImage(Artist, cm.ScalarMappable):
             im.apply_translation(-1, -1)
 
         # the viewport translation
-        tx = (xmin-self.axes.viewLim.xmin)/dxintv * numcols
-        ty = (ymin-self.axes.viewLim.ymin)/dyintv * numrows
+        tx = (xmin-self.axes.viewLim.x0)/dxintv * numcols
+        ty = (ymin-self.axes.viewLim.y0)/dyintv * numrows
 
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
         widthDisplay *= magnification

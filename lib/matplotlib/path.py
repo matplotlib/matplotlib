@@ -10,7 +10,8 @@ import numpy as npy
 from numpy import ma as ma
 
 from matplotlib._path import point_in_path, get_path_extents, \
-    get_path_collection_extents, point_in_path_collection
+    point_in_path_collection
+import matplotlib._path as _path
 from matplotlib.cbook import simple_linear_interpolation
 
 KAPPA = 4.0 * (npy.sqrt(2) - 1) / 3.0
@@ -199,7 +200,7 @@ class Path(object):
         from transforms import Affine2D, Bbox
         if transform is None:
             transform = Affine2D()
-        return Bbox.from_lbrt(*get_path_extents(self, transform))
+        return Bbox.from_extents(*get_path_extents(self, transform))
 
     def interpolated(self, steps):
         """
@@ -402,3 +403,6 @@ class Path(object):
         """
         return cls.arc(theta1, theta2, True)
     wedge = classmethod(wedge)
+
+def get_path_collection_extents(*args):
+    return Bbox.from_extents(*_path.get_path_collection_extents(*args))

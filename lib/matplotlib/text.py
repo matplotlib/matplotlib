@@ -253,7 +253,7 @@ class Text(Artist):
         xmin -= offsetx
         ymin -= offsety
 
-        bbox = Bbox.from_lbwh(xmin, ymin, width, height)
+        bbox = Bbox.from_bounds(xmin, ymin, width, height)
 
         # now rotate the positions around the first x,y position
         xys = M.transform(offsetLayout)
@@ -407,7 +407,7 @@ class Text(Artist):
         if not self.get_visible(): return Bbox.unit()
         if self._text == '':
             tx, ty = self._get_xy_display()
-            return Bbox.from_lbwh(tx,ty,0,0)
+            return Bbox.from_bounds(tx,ty,0,0)
 
         if renderer is not None:
             self._renderer = renderer

@@ -442,7 +442,7 @@ The following dimensions are in axes coords
 
         candidates = []
         for l, b in consider:
-            legendBox = Bbox.from_lbwh(l, b, width, height)
+            legendBox = Bbox.from_bounds(l, b, width, height)
             badness = 0
             badness = legendBox.count_contains(verts)
             badness += legendBox.count_overlaps(bboxes)

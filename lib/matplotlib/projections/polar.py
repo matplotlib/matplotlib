@@ -256,7 +256,7 @@ class PolarAxes(Axes):
         return Circle((0.5, 0.5), 0.5)
             
     def set_rmax(self, rmax):
-        self.viewLim.ymax = rmax
+        self.viewLim.y1 = rmax
         angle = self._r_label1_position.to_values()[4]
         self._r_label1_position.clear().translate(
             angle, rmax * self._rpad)

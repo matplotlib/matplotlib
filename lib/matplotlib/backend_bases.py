@@ -1422,7 +1422,7 @@ class NavigationToolbar2:
                 self.draw()
                 return
 
-            xmin, ymin, xmax, ymax = lim.lbrt
+            x0, y0, x1, y1 = lim.extents
 
             # zoom to rect
 	    inverse = a.transData.inverted()
@@ -1432,49 +1432,49 @@ class NavigationToolbar2:
             Ymin,Ymax=a.get_ylim()
 
             if Xmin < Xmax:
-                if x<lastx:  xmin, xmax = x, lastx
-                else: xmin, xmax = lastx, x
-                if xmin < Xmin: xmin=Xmin
-                if xmax > Xmax: xmax=Xmax
+                if x<lastx:  x0, x1 = x, lastx
+                else: x0, x1 = lastx, x
+                if x0 < Xmin: x0=Xmin
+                if x1 > Xmax: x1=Xmax
             else:
-                if x>lastx:  xmin, xmax = x, lastx
-                else: xmin, xmax = lastx, x
-                if xmin > Xmin: xmin=Xmin
-                if xmax < Xmax: xmax=Xmax
+                if x>lastx:  x0, x1 = x, lastx
+                else: x0, x1 = lastx, x
+                if x0 > Xmin: x0=Xmin
+                if x1 < Xmax: x1=Xmax
 
             if Ymin < Ymax:
-                if y<lasty:  ymin, ymax = y, lasty
-                else: ymin, ymax = lasty, y
-                if ymin < Ymin: ymin=Ymin
-                if ymax > Ymax: ymax=Ymax
+                if y<lasty:  y0, y1 = y, lasty
+                else: y0, y1 = lasty, y
+                if y0 < Ymin: y0=Ymin
+                if y1 > Ymax: y1=Ymax
             else:
-                if y>lasty:  ymin, ymax = y, lasty
-                else: ymin, ymax = lasty, y
-                if ymin > Ymin: ymin=Ymin
-                if ymax < Ymax: ymax=Ymax
+                if y>lasty:  y0, y1 = y, lasty
+                else: y0, y1 = lasty, y
+                if y0 > Ymin: y0=Ymin
+                if y1 < Ymax: y1=Ymax
 
             if self._button_pressed == 1:
-                a.set_xlim((xmin, xmax))
-                a.set_ylim((ymin, ymax))
+                a.set_xlim((x0, x1))
+                a.set_ylim((y0, y1))
             elif self._button_pressed == 3:
                 if a.get_xscale()=='log':
-                    alpha=npy.log(Xmax/Xmin)/npy.log(xmax/xmin)
-                    x1=pow(Xmin/xmin,alpha)*Xmin
-                    x2=pow(Xmax/xmin,alpha)*Xmin
+                    alpha=npy.log(Xmax/Xmin)/npy.log(x1/x0)
+                    rx1=pow(Xmin/x0,alpha)*Xmin
+                    x2=pow(Xmax/x0,alpha)*Xmin
                 else:
-                    alpha=(Xmax-Xmin)/(xmax-xmin)
-                    x1=alpha*(Xmin-xmin)+Xmin
-                    x2=alpha*(Xmax-xmin)+Xmin
+                    alpha=(Xmax-Xmin)/(x1-x0)
+                    rx1=alpha*(Xmin-x0)+Xmin
+                    x2=alpha*(Xmax-x0)+Xmin
                 if a.get_yscale()=='log':
-                    alpha=npy.log(Ymax/Ymin)/npy.log(ymax/ymin)
-                    y1=pow(Ymin/ymin,alpha)*Ymin
-                    y2=pow(Ymax/ymin,alpha)*Ymin
+                    alpha=npy.log(Ymax/Ymin)/npy.log(y1/y0)
+                    ry1=pow(Ymin/y0,alpha)*Ymin
+                    ry2=pow(Ymax/y0,alpha)*Ymin
                 else:
-                    alpha=(Ymax-Ymin)/(ymax-ymin)
-                    y1=alpha*(Ymin-ymin)+Ymin
-                    y2=alpha*(Ymax-ymin)+Ymin
-                a.set_xlim((x1, x2))
-                a.set_ylim((y1, y2))
+                    alpha=(Ymax-Ymin)/(y1-y0)
+                    ry1=alpha*(Ymin-y0)+Ymin
+                    ry2=alpha*(Ymax-y0)+Ymin
+                a.set_xlim((rx1, rx2))
+                a.set_ylim((ry1, ry2))
 
         self.draw()
         self._xypress = None

@@ -480,7 +480,7 @@ class Axes(martist.Artist):
         if isinstance(rect, mtransforms.Bbox):
             self._position = rect
         else:
-            self._position = mtransforms.Bbox.from_lbwh(*rect)
+            self._position = mtransforms.Bbox.from_bounds(*rect)
         self._originalPosition = self._position.frozen()
         self.set_axes(self)
         self.set_aspect('auto')
@@ -1696,7 +1696,7 @@ class Axes(martist.Artist):
 	    # Call all of the other y-axes that are shared with this one
 	    for other in self._shared_y_axes.get_siblings(self):
 		if other is not self:
-		    other.set_ylim(self.viewLim.ymin, self.viewLim.ymax, emit=False)
+		    other.set_ylim(self.viewLim.intervaly, emit=False)
 
         if self.figure.canvas is not None:
             self.figure.canvas.draw_idle()
@@ -1902,7 +1902,6 @@ class Axes(martist.Artist):
                 if self.get_aspect() != 'auto':
                     dx = 0.5 * (dx + dy)
                     dy = dx
-                xmin, ymin, xmax, ymax = p.lim.lbrt
 
                 alpha = npy.power(10.0, (dx, dy))
                 start = p.trans_inverse.transform_point((p.x, p.y))
@@ -5207,7 +5206,7 @@ class SubplotBase:
         figBottom = top - (rowNum+1)*figH - rowNum*sepH
         figLeft = left + colNum*(figW + sepW)
 
-        self.figbox = mtransforms.Bbox.from_lbwh(figLeft, figBottom, figW, figH)
+        self.figbox = mtransforms.Bbox.from_bounds(figLeft, figBottom, figW, figH)
         self.rowNum = rowNum
         self.colNum = colNum
         self.numRows = rows
