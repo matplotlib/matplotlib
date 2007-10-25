@@ -1032,7 +1032,7 @@ end"""
     def writeMarkers(self):
         for tup in self.markers.values():
             name, object, path, trans, fillp, lw = tup
-            bbox = Bbox.from_extents(*path.get_extents(trans))
+            bbox = path.get_extents(trans)
             bbox = bbox.padded(lw * 0.5)
             self.beginStream(
                 object.id, None,

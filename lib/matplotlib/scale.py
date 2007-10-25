@@ -42,9 +42,6 @@ class LogScale(ScaleBase):
         is_separable = True
             
         def transform(self, a):
-            # MGDTODO: Remove me
-            if len(a) > 10:
-                print "log transforming"
             return ma.log10(ma.masked_where(a <= 0.0, a * 10.0))
             
         def inverted(self):

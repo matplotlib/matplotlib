@@ -156,13 +156,13 @@ polar_bar.py		O
 polar_demo.py		O
 polar_legend.py		O
 polar_scatter.py	O
-poly_editor.py		[NEEDS OVERHAUL]
+poly_editor.py		O
 poormans_contour.py	O
-printing_in_wx.py
+printing_in_wx.py	[REQUIRES NON-AGG WX RENDERER, WHICH IS NOT YET IMPLEMENTED]
 print_stdout.py		[BROKEN?]
 psd_demo.py		O
-pstest.py
-pylab_with_gtk.py
+pstest.py		O
+pylab_with_gtk.py	O
 pythonic_matplotlib.py	O
 quadmesh_demo.py	O [MASKED VALUES ARE SHOWN DUE TO A BUG IN TRUNK]
 quiver_demo.py		O
@@ -190,7 +190,7 @@ subplot_demo.py		O
 subplots_adjust.py	O
 subplot_toolbar.py	O
 system_monitor.py	O
-table_demo.py		
+table_demo.py		O
 tex_demo.py		O
 text_handles.py		O
 text_rotation.py	O	
@@ -204,7 +204,7 @@ unicode_demo.py		O
 vertical_ticklabels.py	O
 vline_demo.py		O
 webapp_demo.py		
-wxcursor_demo.py	
+wxcursor_demo.py	O
 xcorr_demo.py		O	
 zoom_window.py		O
 zorder_demo.py		O

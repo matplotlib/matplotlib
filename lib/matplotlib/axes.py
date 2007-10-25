@@ -582,8 +582,6 @@ class Axes(martist.Artist):
         self._yaxis_transform = mtransforms.blended_transform_factory(
                 self.axes.transAxes, self.axes.transData)
 
-        self.transData.write_graphviz(open("trans.dot", "w"))
-
     def get_xaxis_transform(self):
         return self._xaxis_transform
 
@@ -636,8 +634,10 @@ class Axes(martist.Artist):
                 'original' to change the second;
                 'both' to change both
 
-        ACCEPTS: len(4) sequence of floats
+        ACCEPTS: len(4) sequence of floats, or a Bbox object
         """
+        if not isinstance(pos, mtransforms.BboxBase):
+            pos = mtransforms.Bbox.from_bounds(*pos)
         if which in ('both', 'active'):
 	    self._position.set(pos)
         if which in ('both', 'original'):

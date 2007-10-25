@@ -102,7 +102,7 @@ class Patch(artist.Artist):
         self.set_fill(other.get_fill())
         self.set_hatch(other.get_hatch())
         self.set_linewidth(other.get_linewidth())
-        self.set_transform(other.get_transform())
+        self.set_transform(other.get_data_transform())
         self.set_figure(other.get_figure())
         self.set_alpha(other.get_alpha())
 

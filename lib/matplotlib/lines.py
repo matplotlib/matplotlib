@@ -448,7 +448,6 @@ class Line2D(Artist):
         renderer.open_group('line2d')
 
         if not self._visible: return
-        self._newstyle = hasattr(renderer, 'draw_markers')
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
 

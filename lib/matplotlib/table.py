@@ -75,7 +75,6 @@ class Cell(Rectangle):
         return self._text
 
     def set_fontsize(self, size):
-
         self._text.set_fontsize(size)
 
     def get_fontsize(self):
@@ -108,7 +107,7 @@ class Cell(Rectangle):
         Currently support 'left', 'center' and 'right'
         """
         bbox = self.get_window_extent(renderer)
-        l, b, w, h = bbox.get_bounds()
+        l, b, w, h = bbox.bounds
 
         # draw in center vertically
         self._text.set_verticalalignment('center')
@@ -130,8 +129,8 @@ class Cell(Rectangle):
     def get_text_bounds(self, renderer):
         """ Get text bounds in axes co-ordinates. """
         bbox = self._text.get_window_extent(renderer)
-	bboxa = bbox.inverse_transformed(self.get_transform())
-        return bboxa.get_bounds()
+	bboxa = bbox.inverse_transformed(self.get_data_transform())
+        return bboxa.bounds
 
     def get_required_width(self, renderer):
         """ Get width required for this cell. """
@@ -246,8 +245,8 @@ class Table(Artist):
                  for pos in self._cells.keys()
                  if pos[0] >= 0 and pos[1] >= 0]
 
-        bbox = bbox_all(boxes)
-        return inverse_transform_bbox(self.get_transform(), bbox)
+        bbox = Bbox.union(boxes)
+        return bbox.inverse_transformed(self.get_transform())
 
     def contains(self,mouseevent):
         """Test whether the mouse event occurred in the table.
@@ -393,7 +392,7 @@ class Table(Artist):
         self._do_cell_alignment()
 
         bbox = self._get_grid_bbox(renderer)
-        l,b,w,h = bbox.get_bounds()
+        l,b,w,h = bbox.bounds
 
         if self._bbox is not None:
             # Position according to bbox
@@ -530,7 +529,7 @@ def table(ax,
     if rowLabels is not None:
         for row in xrange(rows):
             table.add_cell(row+offset, -1,
-                           width=rowLabelWidth, height=height,
+                           width=rowLabelWidth or 1e-15, height=height,
                            text=rowLabels[row], facecolor=rowColours[row],
                            loc=rowLoc)
         if rowLabelWidth == 0:
