@@ -70,21 +70,27 @@ colormap_kw_doc = '''
 colorbar_doc = '''
 Add a colorbar to a plot.
 
-Function signatures:
+Function signatures for the pyplot interface; all but the first are
+also method signatures for the Figure.colorbar method:
 
     colorbar(**kwargs)
-
     colorbar(mappable, **kwargs)
+    colorbar(mappable, cax=cax, **kwargs)
+    colorbar(mappable, ax=ax, **kwargs)
 
-    colorbar(mappable, cax, **kwargs)
+    arguments:
+        mappable: the image, ContourSet, etc. to which the colorbar applies;
+                    this argument is mandatory for the Figure.colorbar
+                    method but optional for the pyplot.colorbar function,
+                    which sets the default to the current image.
 
-The optional arguments mappable and cax may be included in the kwargs;
-they are image, ContourSet, etc. to which the colorbar applies, and
-the axes object in which the colorbar will be drawn.  Defaults are
-the current image and a new axes object created next to that image
-after resizing the image.
+    keyword arguments:
+        cax: None | axes object into which the colorbar will be drawn
+        ax:  None | parent axes object from which space for a new
+                     colorbar axes will be stolen
 
-kwargs are in two groups:
+
+**kwargs are in two groups:
     axes properties:
 %s
     colorbar properties:
@@ -155,6 +161,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.filled = filled
         self.solids = None
         self.lines = None
+        self.set_label('')
         if cbook.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
@@ -183,6 +190,7 @@ class ColorbarBase(cm.ScalarMappable):
         self._config_axes(X, Y)
         if self.filled:
             self._add_solids(X, Y, C)
+        self._set_label()
 
     def _config_axes(self, X, Y):
         '''
@@ -220,11 +228,17 @@ class ColorbarBase(cm.ScalarMappable):
             ax.set_xticklabels(ticklabels)
             ax.xaxis.get_major_formatter().set_offset_string(offset_string)
 
-    def set_label(self, label, **kw):
+    def _set_label(self):
         if self.orientation == 'vertical':
-            self.ax.set_ylabel(label, **kw)
+            self.ax.set_ylabel(self._label, **self._labelkw)
         else:
-            self.ax.set_xlabel(label, **kw)
+            self.ax.set_xlabel(self._label, **self._labelkw)
+
+    def set_label(self, label, **kw):
+        self._label = label
+        self._labelkw = kw
+        self._set_label()
+
 
     def _outline(self, X, Y):
         '''
@@ -556,6 +570,10 @@ class Colorbar(ColorbarBase):
         is changed.
         '''
         cm.ScalarMappable.notify(self, mappable)
+        # We are using an ugly brute-force method: clearing and
+        # redrawing the whole thing.  The problem is that if any
+        # properties have been changed by methods other than the
+        # colorbar methods, those changes will be lost.
         self.ax.cla()
         self.draw_all()
         #if self.vmin != self.norm.vmin or self.vmax != self.norm.vmax:

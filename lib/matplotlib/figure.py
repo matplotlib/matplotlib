@@ -790,9 +790,9 @@ class Figure(Artist):
 
         self.canvas.print_figure(*args, **kwargs)
 
-    def colorbar(self, mappable, cax=None, **kw):
-        orientation = kw.get('orientation', 'vertical')
-        ax = self.gca()
+    def colorbar(self, mappable, cax=None, ax=None, **kw):
+        if ax is None:
+            ax = self.gca()
         if cax is None:
             cax, kw = cbar.make_axes(ax, **kw)
         cb = cbar.Colorbar(cax, mappable, **kw)
