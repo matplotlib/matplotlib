@@ -155,7 +155,7 @@ class RendererBase:
         gc.set_clip_rectangle(cliprect)
         if clippath is not None:
             clippath = transforms.TransformedPath(clippath, clippath_trans)
-            gc.set_clippath(clippath)
+            gc.set_clip_path(clippath)
         
         if Nfacecolors == 0:
             rgbFace = None

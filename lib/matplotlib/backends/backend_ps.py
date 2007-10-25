@@ -402,7 +402,6 @@ class RendererPS(RendererBase):
             clipx,clipy,clipw,cliph = bbox.bounds
             clip.append('%s clipbox' % _nums_to_str(clipw, cliph, clipx, clipy))
         if clippath is not None:
-            print "clippath"
             id = self._get_clip_path(clippath, clippath_trans)
             clip.append('%s' % id)
         clip = '\n'.join(clip)

@@ -32,7 +32,9 @@ from weakref import WeakKeyDictionary
 import cbook
 from path import Path
 
-DEBUG = False
+DEBUG = True
+if DEBUG:
+    import warnings
 
 class TransformNode(object):
     """
@@ -140,6 +142,9 @@ class TransformNode(object):
 
         fobj: A Python file-like object
         """
+        if not DEBUG:
+            return
+        
         seen = cbook.set()
 
         def recurse(root):
@@ -189,6 +194,15 @@ class BboxBase(TransformNode):
     def __init__(self):
         TransformNode.__init__(self)
 
+    if DEBUG:
+        def _check(points):
+            if ma.isMaskedArray(points):
+                warnings.warn("Bbox bounds are a masked array.")
+            if (points[1,0] - points[0,0] == 0 or
+                points[1,1] - points[0,1] == 0):
+                warnings.warn("Singular Bbox.")
+        _check = staticmethod(_check)
+        
     def frozen(self):
         return Bbox(self.get_points().copy())
     frozen.__doc__ = TransformNode.__doc__
@@ -585,6 +599,16 @@ class Bbox(BboxBase):
         self._minpos = npy.array([0.0000001, 0.0000001])
         self._ignore = True
         
+    if DEBUG:
+        ___init__ = __init__
+        def __init__(self, points):
+            self._check(points)
+            self.___init__(points)
+        
+        def invalidate(self):
+            self._check(self._points)
+            TransformNode.invalidate(self)
+        
     #@staticmethod
     def unit():
         """
@@ -809,7 +833,13 @@ class TransformedBbox(BboxBase):
             self._points = self._transform.transform(self._bbox.get_points())
             self._invalid = 0
         return self._points
-    
+
+    if DEBUG:
+        _get_points = get_points
+        def get_points(self):
+            points = self._get_points()
+            self._check(points)
+            return points
     
 class Transform(TransformNode):
     """
@@ -1148,20 +1178,24 @@ class Affine1DBase(AffineBase):
     matrix_from_values = staticmethod(matrix_from_values)
 
     def transform(self, values):
-        # The major speed trap here is just converting to the points
-        # to an array in the first place.  If we can use more arrays
-        # upstream, that should help here.
-        if DEBUG and not isinstance(values, npy.ndarray):
-            import traceback
-            print '-' * 60
-            print 'A non-numpy array of type %s was passed in for transformation.' % type(values)
-            print 'Please correct this.'
-            print "".join(traceback.format_stack())
         mtx = self.get_matrix()
         points = npy.asarray(values, npy.float_)
         return points * mtx[0, 0] + mtx[0, 1]
-    transform.__doc__ = AffineBase.transform.__doc__
 
+    if DEBUG:
+        _transform = transform
+        def transform(self, values):
+            # The major speed trap here is just converting to the points
+            # to an array in the first place.  If we can use more arrays
+            # upstream, that should help here.
+            if not isinstance(values, npy.ndarray):
+                warnings.warn(
+                    ('A non-numpy array of type %s was passed in for ' +
+                     'transformation.  Please correct this.')
+                    % type(values))
+            return self._transform(values)
+    transform.__doc__ = AffineBase.transform.__doc__
+    
     transform_affine = transform
     transform_affine.__doc__ = AffineBase.transform_affine.__doc__
     
@@ -1385,22 +1419,26 @@ class Affine2DBase(AffineBase):
     matrix_from_values = staticmethod(matrix_from_values)
 
     def transform(self, points):
-        # MGDTODO: The major speed trap here is just converting to
-        # the points to an array in the first place.  If we can use
-        # more arrays upstream, that should help here.
-        if DEBUG and not ma.isMaskedArray(points) and not isinstance(points, npy.ndarray):
-            import traceback
-            print '-' * 60
-            print 'A non-numpy array of type %s was passed in for transformation.' % type(points)
-            print 'Please correct this.'
-            print "".join(traceback.format_stack())
         mtx = self.get_matrix()
         if ma.isMaskedArray(points):
             points = ma.dot(mtx[0:2, 0:2], points.transpose()) + mtx[0:2, 2:]
         else:
-            # points = npy.asarray(points, npy.float_)
             points = npy.dot(mtx[0:2, 0:2], points.transpose()) + mtx[0:2, 2:]
         return points.transpose()
+
+    if DEBUG:
+        _transform = transform
+        def transform(self, points):
+            # MGDTODO: The major speed trap here is just converting to
+            # the points to an array in the first place.  If we can use
+            # more arrays upstream, that should help here.
+            if (not ma.isMaskedArray(points) and
+                not isinstance(points, npy.ndarray)):
+                warnings.warn(
+                    ('A non-numpy array of type %s was passed in for ' +
+                     'transformation.  Please correct this.')
+                    % type(values))
+            return self._transform(points)
     transform.__doc__ = AffineBase.transform.__doc__
     
     transform_affine = transform
@@ -1660,9 +1698,6 @@ class BlendedGenericTransform(Transform):
         create.
         """
 	# Here we ask: "Does it blend?"
-        # MGDTODO: Reinvoke these asserts?
-        # assert x_transform.is_separable()
-        # assert y_transform.is_separable()
         
         Transform.__init__(self)
         self._x = x_transform
@@ -2111,6 +2146,7 @@ class TransformedPath(TransformNode):
 
     def get_affine(self):
         return self._transform.get_affine()
+
     
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     '''
@@ -2231,5 +2267,3 @@ if __name__ == '__main__':
     points = npy.asarray([(random(), random()) for i in xrange(10000)])
     t = timeit.Timer("trans_sum.transform(points)", "from __main__ import trans_sum, points")
     print "Time to transform 10000 x 10 points:", t.timeit(10)
-    
-__all__ = ['Transform', 'Affine2D']
