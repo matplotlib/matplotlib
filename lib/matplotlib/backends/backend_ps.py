@@ -994,12 +994,12 @@ class FigureCanvasPS(FigureCanvasBase):
         tmpfile = os.path.join(gettempdir(), md5.md5(outfile).hexdigest())
         fh = file(tmpfile, 'w')
 
-        self.figure.dpi.set(72) # ignore the dpi kwarg
+        self.figure.dpi = 72 # ignore the dpi kwarg
         width, height = self.figure.get_size_inches()
         xo = 0
         yo = 0
 
-        l, b, w, h = self.figure.bbox.get_bounds()
+        l, b, w, h = self.figure.bbox.bounds
         llx = xo
         lly = yo
         urx = llx + w

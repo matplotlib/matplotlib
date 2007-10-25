@@ -1180,11 +1180,12 @@ class RendererPdf(RendererBase):
     def get_image_magnification(self):
         return self.image_magnification
 
-    def draw_image(self, x, y, im, bbox):
+    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         #print >>sys.stderr, "draw_image called"
 
+        # MGDTODO: Support clippath here
         gc = self.new_gc()
-        gc.set_clip_rectangle(bbox.get_bounds())
+        gc.set_clip_rectangle(bbox.bounds)
         self.check_gc(gc)
 
         h, w = im.get_size_out()
@@ -1714,13 +1715,19 @@ class GraphicsContextPdf(GraphicsContextBase):
         """
         cmds = []
         for params, cmd in self.commands:
-            ours = [ getattr(self, p) for p in params ] 
-            theirs = [ getattr(other, p) for p in params ]
-            try:
-                different = ours != theirs
-            except ValueError:
-                different = ours.shape != theirs.shape or npy.any(ours != theirs)
-            if ours is not theirs:
+            different = False
+            for p in params:
+                ours = getattr(self, p)
+                theirs = getattr(other, p)
+                try:
+                    different = bool(ours != theirs)
+                except ValueError:
+                    different = ours.shape != theirs.shape or npy.any(ours != theirs)
+                if different:
+                    break
+                
+            if different:
+                theirs = [getattr(other, p) for p in params]
                 cmds.extend(cmd(self, *theirs))
                 for p in params:
                     setattr(self, p, getattr(other, p))

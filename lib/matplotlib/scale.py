@@ -9,8 +9,6 @@ from ticker import NullLocator, FixedLocator, LinearLocator, LogLocator, \
 from transforms import Affine1DBase, IntervalTransform, Transform, \
     composite_transform_factory, IdentityTransform
 
-# MGDTODO: Should the tickers/locators be moved here?
-
 class ScaleBase(object):
     def set_default_locators_and_formatters(self, axis):
         raise NotImplementedError

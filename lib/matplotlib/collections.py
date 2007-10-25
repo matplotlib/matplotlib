@@ -126,13 +126,21 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._transforms
         
     def get_datalim(self, transData):
+        transform = self.get_transform()
+        transOffset = self._transOffset
+        offsets = self._offsets
+        paths = self.get_paths()
+        if not transform.is_affine:
+            paths = [transform.transform_path_non_affine(p) for p in paths]
+            transform = transform.get_affine()
+        if not transOffset.is_affine:
+            offsets = transOffset.transform_non_affine(offsets)
+            transOffset = transOffset.get_affine()
+        
         result = path.get_path_collection_extents(
-            self.get_transform().frozen(),
-            self.get_paths(),
-            self.get_transforms(),
-            self._offsets,
-            self._transOffset.frozen())
-        result = result.transformed(transData.inverted())
+            transform.frozen(), paths, self.get_transforms(),
+            npy.asarray(offsets, npy.float_), transOffset.frozen())
+        result = result.inverse_transformed(transData)
         return result
 
     def draw(self, renderer):
@@ -143,7 +151,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         offsets = self._offsets
         paths = self.get_paths()
 
-        # MGDTODO: Test me
         if self.have_units():
             paths = []
             for path in self._paths:
@@ -163,7 +170,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if clippath_trans is not None:
             clippath_trans = clippath_trans.frozen()
         
-        # MGDTODO: This may benefit from using TransformedPath
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(path) for path in paths]
             transform = transform.get_affine()
@@ -193,52 +199,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
             paths = [transform.transform_path_non_affine(path) for path in paths]
             transform = transform.get_affine()
 
-        # MGDTODO: Don't pick when outside of clip path / clip box
         ind = path.point_in_path_collection(
             mouseevent.x, mouseevent.y, self._pickradius,
             transform.frozen(), paths, self.get_transforms(),
             npy.asarray(self._offsets, npy.float_),
             self._transOffset.frozen(), len(self._facecolors))
         return len(ind)>0,dict(ind=ind)
-
-    # MGDTODO: Update
-    def get_transformed_patches(self):
-        """
-        get a sequence of the polygons in the collection in display (transformed) space
-
-        The ith element in the returned sequence is a list of x,y
-        vertices defining the ith polygon
-        """
-
-        verts = self._verts
-        offsets = self._offsets
-        usingOffsets = offsets is not None
-        transform = self.get_transform()
-        transOffset = self.get_transoffset()
-        Noffsets = 0
-        Nverts = len(verts)
-        if usingOffsets:
-            Noffsets = len(offsets)
-
-        N = max(Noffsets, Nverts)
-
-        data = []
-        #print 'verts N=%d, Nverts=%d'%(N, Nverts), verts
-        #print 'offsets; Noffsets=%d'%Noffsets
-        for i in xrange(N):
-            #print 'i%%Nverts=%d'%(i%Nverts)
-            polyverts = verts[i % Nverts]
-            if npy.any(npy.isnan(polyverts)):
-                continue
-            #print 'thisvert', i, polyverts
-            tverts = transform.seq_xy_tups(polyverts)
-            if usingOffsets:
-                #print 'using offsets'
-                xo,yo = transOffset.xy_tup(offsets[i % Noffsets])
-                tverts = [(x+xo,y+yo) for x,y in tverts]
-
-            data.append(tverts)
-        return data
 
     def set_pickradius(self,pickradius): self.pickradius = 5
     def get_pickradius(self): return self.pickradius
@@ -414,8 +380,8 @@ class QuadMesh(Collection):
         self._meshHeight = meshHeight
         self._coordinates = coordinates
         self._showedges = showedges
-            
-        # MGDTODO: Numpify
+
+        # MGDTODO: Is it possible to Numpify this?
         coordinates = coordinates.reshape((meshHeight + 1, meshWidth + 1, 2))
         c = coordinates
         paths = []
@@ -542,24 +508,6 @@ class RegularPolyCollection(Collection):
 
     def get_paths(self):
         return self._paths
-    
-    # MGDTODO: Update
-    def get_transformed_patches(self):
-        # Shouldn't need all these calls to asarray;
-        # the variables should be converted when stored.
-        # Similar speedups with numpy should be attainable
-        # in many other places.
-        verts = npy.asarray(self._verts)
-        offsets = npy.asarray(self._offsets)
-        Npoly = len(offsets)
-        scales = npy.sqrt(npy.asarray(self._sizes)*self._dpi.get()/72.0)
-        Nscales = len(scales)
-        if Nscales >1:
-            scales = npy.resize(scales, (Npoly, 1, 1))
-        transOffset = self.get_transoffset()
-        xyo = transOffset.numerix_xy(offsets)
-        polys = scales * verts + xyo[:, npy.newaxis, :]
-        return polys
 
 
 class StarPolygonCollection(RegularPolyCollection):

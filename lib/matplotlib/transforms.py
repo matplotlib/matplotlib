@@ -32,7 +32,7 @@ from weakref import WeakKeyDictionary
 import cbook
 from path import Path
 
-DEBUG = True
+DEBUG = False
 if DEBUG:
     import warnings
 
@@ -276,7 +276,7 @@ class BboxBase(TransformNode):
     size = property(_get_size)
     
     def _get_bounds(self):
-        ((x0, y0), (x1, y1)) = self.get_points()
+        x0, y0, x1, y1 = self.get_points().flatten()
         return (x0, y0, x1 - x0, y1 - y0)
     bounds = property(_get_bounds)
 
@@ -608,21 +608,24 @@ class Bbox(BboxBase):
         def invalidate(self):
             self._check(self._points)
             TransformNode.invalidate(self)
-        
+
+    _unit_values = npy.array([[0.0, 0.0], [1.0, 1.0]], npy.float_)
     #@staticmethod
     def unit():
         """
         Create a new unit BBox from (0, 0) to (1, 1).
         """
-        return Bbox.from_extents(0., 0., 1., 1.)
+        return Bbox(Bbox._unit_values.copy())
     unit = staticmethod(unit)
 
     #@staticmethod
-    def from_bounds(left, bottom, width, height):
+    def from_bounds(x0, y0, width, height):
         """
-        Create a new Bbox from left, bottom, width and height.
+        Create a new Bbox from x0, y0, width and height.
+
+        width and height may be negative.
         """
-        return Bbox.from_extents(left, bottom, left + width, bottom + height)
+        return Bbox.from_extents(x0, y0, x0 + width, y0 + height)
     from_bounds = staticmethod(from_bounds)
 
     #@staticmethod
@@ -663,7 +666,6 @@ class Bbox(BboxBase):
            when False, include the existing bounds of the Bbox.
            when None, use the last value passed to Bbox.ignore().
         """
-        # MGDTODO: It may be more efficient for some callers to use update_from_data_xy instead
         if ignore is None:
             ignore = self._ignore
 
@@ -830,7 +832,11 @@ class TransformedBbox(BboxBase):
     
     def get_points(self):
         if self._invalid:
-            self._points = self._transform.transform(self._bbox.get_points())
+            points = self._transform.transform(self._bbox.get_points())
+            if ma.isMaskedArray(points):
+                points.putmask(0.0)
+                points = npy.asarray(points)
+            self._points = points
             self._invalid = 0
         return self._points
 
@@ -1429,8 +1435,8 @@ class Affine2DBase(AffineBase):
     if DEBUG:
         _transform = transform
         def transform(self, points):
-            # MGDTODO: The major speed trap here is just converting to
-            # the points to an array in the first place.  If we can use
+            # The major speed trap here is just converting to the
+            # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
             if (not ma.isMaskedArray(points) and
                 not isinstance(points, npy.ndarray)):
@@ -2074,7 +2080,7 @@ class BboxTransform(Affine2DBase):
         """
         assert boxin.is_bbox
         assert boxout.is_bbox
-
+        
         Affine2DBase.__init__(self)
         self._boxin = boxin
         self._boxout = boxout
@@ -2092,6 +2098,8 @@ class BboxTransform(Affine2DBase):
             outl, outb, outw, outh = self._boxout.bounds
             x_scale = outw / inw
             y_scale = outh / inh
+            if DEBUG and (x_scale == 0 or y_scale == 0):
+                raise ValueError("Transforming from or to a singular bounding box.")
             self._mtx = npy.array([[x_scale, 0.0    , (-inl*x_scale+outl)],
                                    [0.0    , y_scale, (-inb*y_scale+outb)],
                                    [0.0    , 0.0    , 1.0        ]],
@@ -2175,18 +2183,17 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     return vmin, vmax
 
 
-# MGDTODO: Optimize (perhaps in an extension)
 def interval_contains(interval, val):
     a, b = interval
-    return (((a < b)
-             and (a <= val and b >= val))
-            or (b <= val and a >= val))
+    return (
+        ((a < b) and (a <= val and b >= val))
+        or (b <= val and a >= val))
 
 def interval_contains_open(interval, val):
     a, b = interval
-    return (((a < b)
-             and (a < val and b > val))
-            or (b < val and a > val))
+    return (
+        ((a < b) and (a < val and b > val))
+        or (b < val and a > val))
     
 if __name__ == '__main__':
     import copy

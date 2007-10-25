@@ -25,6 +25,7 @@ from matplotlib import rcParams
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = range(8)
 
+# COVERAGE NOTE: Never called internally or from examples
 def unmasked_index_ranges(mask, compressed = True):
     '''
     Calculate the good data ranges in a masked 1-D npy.array, based on mask.
@@ -71,45 +72,6 @@ def unmasked_index_ranges(mask, compressed = True):
     ic0 = npy.concatenate(((0,), breakpoints[:-1]))
     ic1 = breakpoints
     return npy.concatenate((ic0[:, npy.newaxis], ic1[:, npy.newaxis]), axis=1)
-
-def segment_hits(cx,cy,x,y,radius):
-    """Determine if any line segments are within radius of a point. Returns
-    the list of line segments that are within that radius.
-    """
-    # Process single points specially
-    if len(x) < 2:
-        res, = npy.nonzero( (cx - x)**2 + (cy - y)**2 <= radius**2 )
-        return res
-
-    # We need to lop the last element off a lot.
-    xr,yr = x[:-1],y[:-1]
-
-    # Only look at line segments whose nearest point to C on the line
-    # lies within the segment.
-    dx,dy = x[1:]-xr, y[1:]-yr
-    Lnorm_sq = dx**2+dy**2    # Possibly want to eliminate Lnorm==0
-    u = ( (cx-xr)*dx + (cy-yr)*dy )/Lnorm_sq
-    candidates = (u>=0) & (u<=1)
-    #if any(candidates): print "candidates",xr[candidates]
-
-    # Note that there is a little area near one side of each point
-    # which will be near neither segment, and another which will
-    # be near both, depending on the angle of the lines.  The
-    # following radius test eliminates these ambiguities.
-    point_hits = (cx - x)**2 + (cy - y)**2 <= radius**2
-    #if any(point_hits): print "points",xr[candidates]
-    candidates = candidates & ~point_hits[:-1] & ~point_hits[1:]
-
-    # For those candidates which remain, determine how far they lie away
-    # from the line.
-    px,py = xr+u*dx,yr+u*dy
-    line_hits = (cx-px)**2 + (cy-py)**2 <= radius**2
-    #if any(line_hits): print "lines",xr[candidates]
-    line_hits = line_hits & candidates
-    points, = point_hits.ravel().nonzero()
-    lines, = line_hits.ravel().nonzero()
-    #print points,lines
-    return npy.concatenate((points,lines))
 
 class Line2D(Artist):
     lineStyles = _lineStyles =  { # hidden names deprecated
@@ -381,12 +343,17 @@ class Line2D(Artist):
         else:
             x, y = args
 
+        not_masked = 0
         if not ma.isMaskedArray(x):
             x = npy.asarray(x)
+            not_masked += 1
         if not ma.isMaskedArray(y):
             y = npy.asarray(y)
-        if ((x.shape != self._xorig.shape or npy.any(x != self._xorig)) or
-            (y.shape != self._yorig.shape or npy.any(y != self._yorig))):
+            not_masked += 1
+            
+        if (not_masked < 2 or
+            ((x.shape != self._xorig.shape or npy.any(x != self._xorig)) or
+            (y.shape != self._yorig.shape or npy.any(y != self._yorig)))):
             self._xorig = x
             self._yorig = y
             self.recache()
