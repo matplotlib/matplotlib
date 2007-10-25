@@ -1,5 +1,5 @@
 from __future__ import division
-import sys, re
+import sys, re, warnings
 from cbook import iterable, flatten
 from transforms import Affine2D, Bbox, IdentityTransform, TransformedBbox, \
     TransformedPath
@@ -174,7 +174,7 @@ class Artist(object):
         """
         if callable(self._contains): return self._contains(self,mouseevent)
         #raise NotImplementedError,str(self.__class__)+" needs 'contains' method"
-        print str(self.__class__)+" needs 'contains' method"
+        warnings.warn("'%s' needs 'contains' method" % self.__class__.__name__)
         return False,{}
 
     def set_contains(self,picker):

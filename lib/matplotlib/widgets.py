@@ -240,9 +240,10 @@ class Slider(Widget):
         self.set_val(val)
 
     def set_val(self, val):
-        self.poly.xy[-1] = val, 0
-        self.poly.xy[-2] = val, 1
-        self.poly.update()
+        xy = self.poly.xy
+        xy[-1] = val, 0
+        xy[-2] = val, 1
+        self.poly.xy = xy
         self.valtext.set_text(self.valfmt%val)
         if self.drawon: self.ax.figure.canvas.draw()
         self.val = val

@@ -224,7 +224,6 @@ class Patch(artist.Artist):
 
         path = self.get_path()
         transform = self.get_transform()
-        # MGDTODO: Use a transformed path here?
         tpath = transform.transform_path_non_affine(path)
         affine = transform.get_affine()
         
@@ -328,7 +327,7 @@ class Rectangle(Patch):
 
     def __str__(self):
         return str(self.__class__).split('.')[-1] \
-            + "(%g,%g;%gx%g)"%(self.xy[0],self.xy[1],self.width,self.height)
+            + "(%g,%g;%gx%g)" % tuple(self._bbox.bounds)
 
     def __init__(self, xy, width, height, **kwargs):
         """
@@ -433,7 +432,7 @@ class RegularPolygon(Patch):
     A regular polygon patch.
     """
     def __str__(self):
-        return "Poly%d(%g,%g)"%(self.numVertices,self.xy[0],self.xy[1])
+        return "Poly%d(%g,%g)"%(self._numVertices,self._xy[0],self._xy[1])
 
     def __init__(self, xy, numVertices, radius=5, orientation=0,
                  **kwargs):
@@ -447,6 +446,7 @@ class RegularPolygon(Patch):
         %(Patch)s
         """
         self._xy = xy
+        self._numVertices = numVertices
         self._orientation = orientation
         self._radius = radius
 	self._path = Path.unit_regular_polygon(numVertices)
@@ -483,6 +483,13 @@ class RegularPolygon(Patch):
         self._radius = xy
         self._update_transform()
     radius = property(_get_radius, _set_radius)
+
+    def _get_numvertices(self):
+        return self._numVertices
+    def _set_numvertices(self, numVertices):
+        self._numVertices = numVertices
+        self._path = Path.unit_regular_polygon(numVertices)
+    numvertices = property(_get_numvertices, _set_numvertices)
     
     def get_path(self):
 	return self._path
@@ -495,7 +502,7 @@ class Polygon(Patch):
     A general polygon patch.
     """
     def __str__(self):
-        return "Poly(%g, %g)" % tuple(self._path.vertices[0])
+        return "Poly((%g, %g) ...)" % tuple(self._path.vertices[0])
 
     def __init__(self, xy, **kwargs):
         """
@@ -507,15 +514,17 @@ class Polygon(Patch):
         """
         Patch.__init__(self, **kwargs)
 	self._path = Path(xy, closed=True)
-        self.xy = self._path.vertices
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
 	return self._path
 
-    def update(self):
-        self._path = Path(self.xy, closed=True)
-    
+    def _get_xy(self):
+        return self._path.vertices
+    def _set_xy(self, vertices):
+        self._path = Path(vertices, closed=True)
+    xy = property(_get_xy, _set_xy)
+        
 class Wedge(Patch):
     def __str__(self):
         return "Wedge(%g,%g)"%self.xy[0]
@@ -539,16 +548,14 @@ class Wedge(Patch):
 
     def get_patch_transform(self):
 	return self._patch_transform
-        
+
+# COVERAGE NOTE: Not used internally or from examples
 class Arrow(Polygon):
     """
     An arrow patch
     """
     def __str__(self):
-        x1,y1 = self.xy[0]
-        x2,y2 = self.xy[1]
-        cx,cy = (x1+x2)/2.,(y1+y2)/2.
-        return "Arrow(%g,%g)"%(cx,cy)
+        return "Arrow()"
 
     _path = Path( [
             [ 0.0,  0.1 ], [ 0.0, -0.1],
@@ -584,10 +591,7 @@ class FancyArrow(Polygon):
     """Like Arrow, but lets you set head width and head height independently."""
 
     def __str__(self):
-        x1,y1 = self.xy[0]
-        x2,y2 = self.xy[1]
-        cx,cy = (x1+x2)/2.,(y1+y2)/2.
-        return "FancyArrow(%g,%g)"%(cx,cy)
+        return "FancyArrow()"
 
     def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False, \
         head_width=None, head_length=None, shape='full', overhang=0, \
@@ -608,7 +612,6 @@ class FancyArrow(Polygon):
         %(Patch)s
 
         """
-	# MGDTODO: Implement me
         if head_width is None:
             head_width = 3 * width
         if head_length is None:
@@ -664,10 +667,7 @@ class YAArrow(Patch):
     x1,y1 and a base at x2, y2.
     """
     def __str__(self):
-        x1,y1 = self.xy[0]
-        x2,y2 = self.xy[1]
-        cx,cy = (x1+x2)/2.,(y1+y2)/2.
-        return "YAArrow(%g,%g)"%(cx,cy)
+        return "YAArrow()"
 
     def __init__(self, dpi, xytip, xybase, width=4, frac=0.1, headwidth=12, **kwargs):
         """
@@ -692,9 +692,8 @@ class YAArrow(Patch):
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
-        # MGDTODO: Since this is dpi dependent, we need to recompute
-        # the path every time.  Perhaps this can be plugged through the
-        # dpi transform instead (if only we know how to get it...)
+        # Since this is dpi dependent, we need to recompute the path
+        # every time.
         
         # the base vertices
         x1, y1 = self.xytip
@@ -786,13 +785,16 @@ class Ellipse(Patch):
         """
         Patch.__init__(self, **kwargs)
 
-        self.center = xy
-        self.width, self.height = width, height
-        self.angle = angle
-	self._patch_transform = transforms.Affine2D() \
-	    .scale(self.width * 0.5, self.height * 0.5) \
-	    .rotate_deg(angle) \
-	    .translate(*xy)
+        self._center = xy
+        self._width, self._height = width, height
+        self._angle = angle
+        self._recompute_transform()
+
+    def _recompute_transform(self):
+        self._patch_transform = transforms.Affine2D() \
+	    .scale(self._width * 0.5, self._height * 0.5) \
+	    .rotate_deg(self._angle) \
+	    .translate(*self._center)
         
     def get_path(self):
         """
@@ -808,7 +810,28 @@ class Ellipse(Patch):
         x, y = self.get_transform().inverted().transform_point((ev.x, ev.y))
         return (x*x + y*y) <= 1.0, {}
                               
+    def _get_center(self):
+        return self._center
+    def _set_center(self, center):
+        self._center = center
+        self._recompute_transform()
+    center = property(_get_center, _set_center)
 
+    def _get_xy(self):
+        return self._xy
+    def _set_xy(self, xy):
+        self._xy = xy
+        self._recompute_transform()
+    xy = property(_get_xy, _set_xy)
+
+    def _get_angle(self):
+        return self._angle
+    def _set_angle(self, angle):
+        self._angle = angle
+        self._recompute_transform()
+    angle = property(_get_angle, _set_angle)
+    
+    
 class Circle(Ellipse):
     """
     A circle patch
@@ -816,8 +839,7 @@ class Circle(Ellipse):
     def __str__(self):
         return "Circle((%g,%g),r=%g)"%(self.center[0],self.center[1],self.radius)
 
-    def __init__(self, xy, radius=5,
-                 **kwargs):
+    def __init__(self, xy, radius=5, **kwargs):
         """
         Create true circle at center xy=(x,y) with given radius;
         unlike circle polygon which is a polygonal approcimation, this
@@ -835,122 +857,6 @@ class Circle(Ellipse):
         self.radius = radius
         Ellipse.__init__(self, xy, radius*2, radius*2, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
-
-
-class PolygonInteractor:
-    """
-    An polygon editor.
-
-    Key-bindings
-
-      't' toggle vertex markers on and off.  When vertex markers are on,
-          you can move them, delete them
-
-      'd' delete the vertex under point
-
-      'i' insert a vertex at point.  You must be within epsilon of the
-          line connecting two existing vertices
-
-    """
-
-    showverts = True
-    epsilon = 5  # max pixel distance to count as a vertex hit
-
-    def __str__(self):
-        return "PolygonInteractor"
-
-    def __init__(self, poly):
-        if poly.figure is None:
-            raise RuntimeError('You must first add the polygon to a figure or canvas before defining the interactor')
-        canvas = poly.figure.canvas
-        self.poly = poly
-        self.poly.verts = list(self.poly.verts)
-        x, y = zip(*self.poly.verts)
-        self.line = lines.Line2D(x,y,marker='o', markerfacecolor='r')
-        #self._update_line(poly)
-
-        cid = self.poly.add_callback(self.poly_changed)
-        self._ind = None # the active vert
-
-        canvas.mpl_connect('button_press_event', self.button_press_callback)
-        canvas.mpl_connect('key_press_event', self.key_press_callback)
-        canvas.mpl_connect('button_release_event', self.button_release_callback)
-        canvas.mpl_connect('motion_notify_event', self.motion_notify_callback)
-        self.canvas = canvas
-
-
-    def poly_changed(self, poly):
-        'this method is called whenever the polygon object is called'
-        # only copy the artist props to the line (except visibility)
-        vis = self.line.get_visible()
-        artist.Artist.update_from(self.line, poly)
-        self.line.set_visible(vis)  # don't use the poly visibility state
-
-
-    def get_ind_under_point(self, event):
-        'get the index of the vertex under point if within epsilon tolerance'
-        x, y = zip(*self.poly.verts)
-
-        # display coords
-        xt, yt = self.poly.get_transform().numerix_x_y(x, y)
-        d = npy.sqrt((xt-event.x)**2 + (yt-event.y)**2)
-        ind, = npy.nonzero(npy.equal(d, npy.amin(d)))
-
-        if d[ind]>=self.epsilon:
-            ind = None
-
-        return ind
-
-    def button_press_callback(self, event):
-        'whenever a mouse button is pressed'
-        if not self.showverts: return
-        if event.inaxes==None: return
-        if event.button != 1: return
-        self._ind = self.get_ind_under_point(event)
-
-    def button_release_callback(self, event):
-        'whenever a mouse button is released'
-        if not self.showverts: return
-        if event.button != 1: return
-        self._ind = None
-
-    def key_press_callback(self, event):
-        'whenever a key is pressed'
-        if not event.inaxes: return
-        if event.key=='t':
-            self.showverts = not self.showverts
-            self.line.set_visible(self.showverts)
-            if not self.showverts: self._ind = None
-        elif event.key=='d':
-            ind = self.get_ind_under_point(event)
-            if ind is not None:
-                self.poly.verts = [tup for i,tup in enumerate(self.poly.verts) if i!=ind]
-                self.line.set_data(zip(*self.poly.verts))
-        elif event.key=='i':
-            xys = self.poly.get_transform().seq_xy_tups(self.poly.verts)
-            p = event.x, event.y # display coords
-            for i in range(len(xys)-1):
-                s0 = xys[i]
-                s1 = xys[i+1]
-                d = mlab.dist_point_to_segment(p, s0, s1)
-                if d<=self.epsilon:
-                    self.poly.verts.insert(i+1, (event.xdata, event.ydata))
-                    self.line.set_data(zip(*self.poly.verts))
-                    break
-
-
-        self.canvas.draw()
-
-    def motion_notify_callback(self, event):
-        'on mouse movement'
-        if not self.showverts: return
-        if self._ind is None: return
-        if event.inaxes is None: return
-        if event.button != 1: return
-        x,y = event.xdata, event.ydata
-        self.poly.verts[self._ind] = x,y
-        self.line.set_data(zip(*self.poly.verts))
-        self.canvas.draw_idle()
 
 
 def bbox_artist(artist, renderer, props=None, fill=True):

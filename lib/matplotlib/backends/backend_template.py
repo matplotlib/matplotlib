@@ -66,22 +66,21 @@ class RendererTemplate(RendererBase):
                  rotation):
         pass
 
-    def draw_image(self, x, y, im, bbox):
+    def draw_path(self, gc, path, transform, rgbFace=None):
         pass
 
-    def draw_line(self, gc, x1, y1, x2, y2):
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         pass
 
-    def draw_lines(self, gc, x, y):
-        pass
-
-    def draw_point(self, gc, x, y):
-        pass
-
-    def draw_polygon(self, gcEdge, rgbFace, points):
-        pass
-
-    def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
+    # draw_path_collection is optional, and we get more correct
+    # relative timings by leaving it out.
+#     def draw_path_collection(self, master_transform, cliprect, clippath,
+#                              clippath_trans, paths, all_transforms, offsets,
+#                              offsetTrans, facecolors, edgecolors, linewidths,
+#                              linestyles, antialiaseds):
+#         pass
+    
+    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         pass
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):

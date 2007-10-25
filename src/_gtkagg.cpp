@@ -70,7 +70,6 @@ private:
     }
     else {
       //bbox is not None; copy the image in the bbox
-      // MGDTODO: Use PyArray rather than buffer interface here
       PyObject* clipbox = args[2].ptr();
       PyArrayObject* bbox = NULL;
       double l, b, r, t;

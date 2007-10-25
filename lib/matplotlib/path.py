@@ -405,4 +405,7 @@ class Path(object):
     wedge = classmethod(wedge)
 
 def get_path_collection_extents(*args):
+    from transforms import Bbox
+    if len(args[1]) == 0:
+        raise ValueError("No paths provided")
     return Bbox.from_extents(*_path.get_path_collection_extents(*args))

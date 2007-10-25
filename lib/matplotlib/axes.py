@@ -821,16 +821,15 @@ class Axes(martist.Artist):
         Use self._aspect and self._adjustable to modify the
         axes box or the view limits.
         '''
-        #MGDTODO: Numpify
-
-        if self._aspect == 'auto':
+        aspect = self.get_aspect()
+        if aspect == 'auto':
             self.set_position( self._originalPosition , 'active')
             return
 
-        if self._aspect == 'equal':
+        if aspect == 'equal':
             A = 1
         else:
-            A = self._aspect
+            A = aspect
 
         #Ensure at drawing time that any Axes involved in axis-sharing
         # does not have its position changed.
@@ -843,7 +842,7 @@ class Axes(martist.Artist):
             box_aspect = A * self.get_data_ratio()
             pb = self._originalPosition.frozen()
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
-            self.set_position(pb1.anchored(self._anchor, pb), 'active')
+            self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
             return
 
         xmin,xmax = self.get_xbound()
@@ -1040,7 +1039,7 @@ class Axes(martist.Artist):
         a.set_clip_path(self.axesPatch)
         a._remove_method = lambda h: self.artists.remove(h)
 
-    def add_collection(self, collection, autolim=False):
+    def add_collection(self, collection, autolim=True):
         'add a Collection instance to Axes'
         label = collection.get_label()
         if not label:
@@ -1127,8 +1126,8 @@ class Axes(martist.Artist):
 	self.ignore_existing_data_limits = False
 
     def update_datalim_bounds(self, bounds):
-        # MGDTODO: Document me
-        self.dataLim.bounds = Bbox.union([self.dataLim, bounds]).bounds
+        'Update the datalim to include the given Bbox'
+        self.dataLim.set(Bbox.union([self.dataLim, bounds]))
         
     def _get_verts_in_data_coords(self, trans, xys):
         if trans == self.transData:
@@ -2017,8 +2016,9 @@ class Axes(martist.Artist):
         Note this algorithm calculates distance to the vertices of the
         polygon, so if you want to pick a patch, click on the edge!
         """
+        # MGDTODO: Needs updating
         if trans is not None:
-            xywin = trans.xy_tup((x,y))
+            xywin = trans.transform_point((x,y))
         else:
             xywin = x,y
 
@@ -2036,12 +2036,12 @@ class Axes(martist.Artist):
         def dist(a):
             if isinstance(a, Text):
                 bbox = a.get_window_extent()
-                l,b,w,h = bbox.get_bounds()
+                l,b,w,h = bbox.bounds
                 verts = (l,b), (l,b+h), (l+w,b+h), (l+w, b)
                 xt, yt = zip(*verts)
             elif isinstance(a, Patch):
-                verts = a.get_verts()
-                tverts = a.get_transform().seq_xy_tups(verts)
+                path = a.get_path()
+                tverts = a.get_transform().transform_path(path)
                 xt, yt = zip(*tverts)
             elif isinstance(a, mlines.Line2D):
                 xdata = a.get_xdata(orig=False)
@@ -3278,19 +3278,19 @@ class Axes(martist.Artist):
         self.hold(holdstate) # restore previous hold state
 
         if adjust_xlim:
-            xmin, xmax = self.dataLim.intervalx().get_bounds()
+            xmin, xmax = self.dataLim.intervalx
             xmin = npy.amin(width)
             if xerr is not None:
                 xmin = xmin - npy.amax(xerr)
             xmin = max(xmin*0.9, 1e-100)
-            self.dataLim.intervalx().set_bounds(xmin, xmax)
+            self.dataLim.intervalx = (xmin, xmax)
         if adjust_ylim:
-            ymin, ymax = self.dataLim.intervaly().get_bounds()
+            ymin, ymax = self.dataLim.intervaly
             ymin = npy.amin(height)
             if yerr is not None:
                 ymin = ymin - npy.amax(yerr)
             ymin = max(ymin*0.9, 1e-100)
-            self.dataLim.intervaly().set_bounds(ymin, ymax)
+            self.dataLim.intervaly = (ymin, ymax)
         self.autoscale_view()
         return patches
     bar.__doc__ = cbook.dedent(bar.__doc__) % martist.kwdocd
@@ -4197,7 +4197,7 @@ class Axes(martist.Artist):
 
     def quiver(self, *args, **kw):
         q = mquiver.Quiver(self, *args, **kw)
-        self.add_collection(q)
+        self.add_collection(q, False)
         self.update_datalim_numerix(q.X, q.Y)
         self.autoscale_view()
         return q
@@ -5170,6 +5170,7 @@ class SubplotBase:
         'get the subplot geometry, eg 2,2,3'
         return self._rows, self._cols, self._num+1
 
+    # COVERAGE NOTE: Never used internally or from examples
     def change_geometry(self, numrows, numcols, num):
         'change subplot geometry, eg from 1,1,1 to 2,2,3'
         self._rows = numrows
@@ -5238,6 +5239,7 @@ class SubplotBase:
     def is_last_col(self):
         return self.colNum==self.numCols-1
 
+    # COVERAGE NOTE: Never used internally or from examples
     def label_outer(self):
         """
         set the visible property on ticklabels so xticklabels are

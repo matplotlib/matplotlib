@@ -193,7 +193,8 @@ class RendererSVG(RendererBase):
             details = 'xlink:href="#%s" x="%f" y="%f"' % (name, x, y)
             self._draw_svg_element('use', details, gc, rgbFace)
             
-    def draw_image(self, x, y, im, bbox):
+    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
+        # MGDTODO: Support clippath here
         trans = [1,0,0,1,0,0]
         transstr = ''
         if rcParams['svg.image_noscale']:

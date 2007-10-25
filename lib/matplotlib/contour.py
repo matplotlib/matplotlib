@@ -464,7 +464,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     ls = mpl.rcParams['contour.negative_linestyle']
                     col.set_linestyle(ls)
                 col.set_label('_nolegend_')
-                self.ax.add_collection(col)
+                self.ax.add_collection(col, False)
                 self.collections.append(col)
         self.changed() # set the colors
         x0 = ma.minimum(x)

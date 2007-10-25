@@ -223,7 +223,7 @@ class RendererBase:
         baseline (descent), in display coords of the string s with
         FontPropertry prop
         """
-        return 1,1,1
+        raise NotImplementedError
 
     def new_gc(self):
         """

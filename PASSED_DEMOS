@@ -60,7 +60,7 @@ dynamic_demo.py		O
 dynamic_demo_wx.py	[REQUIRES NON-AGG WX RENDERER, WHICH IS NOT YET IMPLEMENTED]
 dynamic_image_gtkagg.py O
 dynamic_image_wxagg2.py O
-dynamic_image_wxagg.py	
+dynamic_image_wxagg.py	[REQUIRES NON-AGG WX RENDERER, WHICH IS NOT YET IMPLEMENTED]
 ellipse_demo.py		O
 ellipse_rotated.py	O
 embedding_in_gtk2.py	[REQUIRES NON-AGG GDK RENDERER, WHICH IS NOT YET IMPLEMENTED]
