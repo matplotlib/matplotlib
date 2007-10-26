@@ -1820,6 +1820,12 @@ class Axes(martist.Artist):
     
     #### Interactive manipulation
 
+    def can_zoom(self):
+        """
+        Return True if this axes support the zoom box
+        """
+        return True
+    
     def get_navigate(self):
         """
         Get whether the axes responds to navigation commands
