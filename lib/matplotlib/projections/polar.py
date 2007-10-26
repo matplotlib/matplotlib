@@ -10,8 +10,8 @@ from matplotlib import cbook
 from matplotlib.patches import Circle
 from matplotlib.path import Path
 from matplotlib.ticker import Formatter, Locator
-from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, BboxTransform, \
-    IdentityTransform, Transform, TransformWrapper
+from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
+    BboxTransformTo, IdentityTransform, Transform, TransformWrapper
 
 class PolarAxes(Axes):
     """
@@ -179,7 +179,7 @@ class PolarAxes(Axes):
     def _set_lim_and_transforms(self):
 	self.dataLim = Bbox.unit()
         self.viewLim = Bbox.unit()
-        self.transAxes = BboxTransform(Bbox.unit(), self.bbox)
+        self.transAxes = BboxTransformTo(self.bbox)
 
         # Transforms the x and y axis separately by a scale factor
         # It is assumed that this part will have non-linear components

@@ -346,8 +346,7 @@ class Rectangle(Patch):
         left, right = self.convert_xunits((xy[0], xy[0] + width))
         bottom, top = self.convert_yunits((xy[1], xy[1] + height))
 	self._bbox = transforms.Bbox.from_extents(left, bottom, right, top)
-	self._rect_transform = transforms.BboxTransform(
-	    transforms.Bbox.unit(), self._bbox)
+	self._rect_transform = transforms.BboxTransformTo(self._bbox)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):

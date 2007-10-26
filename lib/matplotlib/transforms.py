@@ -211,6 +211,9 @@ class BboxBase(TransformNode):
     def __array__(self, *args, **kwargs):
         return self.get_points()
 
+    def is_unit(self):
+        return list(self.get_points().flatten()) == [0., 0., 1., 1.]
+    
     def _get_x0(self):
         return self.get_points()[0, 0]
     x0 = property(_get_x0)
@@ -1824,6 +1827,86 @@ class BboxTransform(Affine2DBase):
                 raise ValueError("Transforming from or to a singular bounding box.")
             self._mtx = npy.array([[x_scale, 0.0    , (-inl*x_scale+outl)],
                                    [0.0    , y_scale, (-inb*y_scale+outb)],
+                                   [0.0    , 0.0    , 1.0        ]],
+                                  npy.float_)
+            self._inverted = None
+            self._invalid = 0
+        return self._mtx
+    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
+
+
+class BboxTransformTo(Affine2DBase):
+    """
+    BboxTransformSimple linearly transforms points from the unit Bbox
+    to another Bbox.
+    """
+    is_separable = True
+
+    def __init__(self, boxout):
+        """
+        Create a new BboxTransform that linearly transforms points
+        from the unit Bbox to boxout.
+        """
+        assert boxout.is_bbox
+        
+        Affine2DBase.__init__(self)
+        self._boxout = boxout
+        self.set_children(boxout)
+        self._mtx = None
+        self._inverted = None
+
+    def __repr__(self):
+        return "BboxTransformTo(%s)" % (self._boxout)
+    __str__ = __repr__
+        
+    def get_matrix(self):
+        if self._invalid:
+            outl, outb, outw, outh = self._boxout.bounds
+            if DEBUG and (outw == 0 or outh == 0):
+                raise ValueError("Transforming to a singular bounding box.")
+            self._mtx = npy.array([[outw,  0.0, outl],
+                                   [ 0.0, outh, outb],
+                                   [ 0.0,  0.0,  1.0]],
+                                  npy.float_)
+            self._inverted = None
+            self._invalid = 0
+        return self._mtx
+    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
+
+
+class BboxTransformFrom(Affine2DBase):
+    """
+    BboxTransform linearly transforms points from one Bbox to the unit
+    Bbox.
+    """
+    is_separable = True
+
+    def __init__(self, boxin):
+        """
+        Create a new BboxTransform that linearly transforms points
+        from boxin to the unit Bbox.
+        """
+        assert boxin.is_bbox
+        
+        Affine2DBase.__init__(self)
+        self._boxin = boxin
+        self.set_children(boxin)
+        self._mtx = None
+        self._inverted = None
+
+    def __repr__(self):
+        return "BboxTransformFrom(%s)" % (self._boxin)
+    __str__ = __repr__
+        
+    def get_matrix(self):
+        if self._invalid:
+            inl, inb, inw, inh = self._boxin.bounds
+            if DEBUG and (inw == 0 or inh == 0):
+                raise ValueError("Transforming from a singular bounding box.")
+            x_scale = 1.0 / inw
+            y_scale = 1.0 / inh
+            self._mtx = npy.array([[x_scale, 0.0    , (-inl*x_scale)],
+                                   [0.0    , y_scale, (-inb*y_scale)],
                                    [0.0    , 0.0    , 1.0        ]],
                                   npy.float_)
             self._inverted = None

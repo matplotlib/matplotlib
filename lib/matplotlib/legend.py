@@ -34,7 +34,7 @@ from mlab import segments_intersect
 from patches import Patch, Rectangle, RegularPolygon, Shadow, bbox_artist, draw_bbox
 from collections import LineCollection, RegularPolyCollection
 from text import Text
-from transforms import Affine2D, Bbox, BboxTransform
+from transforms import Affine2D, Bbox, BboxTransformTo
 
 def line_cuts_bbox(line, bbox):
     """ Return True if and only if line cuts bbox. """
@@ -165,7 +165,7 @@ The following dimensions are in axes coords
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
         self._offsetTransform = Affine2D()
-        self._parentTransform = BboxTransform(Bbox.unit(), parent.bbox)
+        self._parentTransform = BboxTransformTo(parent.bbox)
         Artist.set_transform(self, self._offsetTransform + self._parentTransform)
         
         if loc is None:
