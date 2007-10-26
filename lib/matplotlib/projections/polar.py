@@ -175,6 +175,8 @@ class PolarAxes(Axes):
         self.grid(rcParams['polaraxes.grid'])
         self.xaxis.set_ticks_position('none')
         self.yaxis.set_ticks_position('none')
+
+        self.title.set_y(1.06)
         
     def _set_lim_and_transforms(self):
 	self.dataLim = Bbox.unit()
