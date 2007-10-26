@@ -128,61 +128,62 @@ class TransformNode(object):
         might normally be used.
         """
         return self
-        
-    def write_graphviz(self, fobj, highlight=[]):
-        """
-        For debugging purposes.
 
-        Writes the transform tree rooted at 'self' to a graphviz "dot"
-        format file.  This file can be run through the "dot" utility
-        to produce a graph of the transform tree.
+    if DEBUG:
+        def write_graphviz(self, fobj, highlight=[]):
+            """
+            For debugging purposes.
 
-        Affine transforms are marked in blue.  Bounding boxes are
-        marked in yellow.
+            Writes the transform tree rooted at 'self' to a graphviz "dot"
+            format file.  This file can be run through the "dot" utility
+            to produce a graph of the transform tree.
 
-        fobj: A Python file-like object
-        """
-        if not DEBUG:
+            Affine transforms are marked in blue.  Bounding boxes are
+            marked in yellow.
+
+            fobj: A Python file-like object
+            """
+            seen = cbook.set()
+
+            def recurse(root):
+                if root in seen:
+                    return
+                seen.add(root)
+                props = {}
+                label = root.__class__.__name__
+                if root._invalid:
+                    label = '[%s]' % label
+                if root in highlight:
+                    props['style'] = 'bold'
+                if root.is_affine:
+                    props['shape'] = 'parallelogram'
+                if root.is_bbox:
+                    props['shape'] = 'box'
+                props['label'] = '"%s"' % label
+                props = ' '.join(['%s=%s' % (key, val) for key, val in props.items()])
+
+                fobj.write('%s [%s];\n' %
+                           (hash(root), props))
+
+                for child in root._children:
+                    name = '?'
+                    for key, val in root.__dict__.items():
+                        if val is child:
+                            name = key
+                            break
+                    fobj.write('%s -> %s [label="%s", fontsize=10];\n' % (
+                            hash(root),
+                            hash(child),
+                            name))
+                    recurse(child)
+
+            fobj.write("digraph G {\n")
+            recurse(self)
+            fobj.write("}\n")
+    else:
+        def write_graphviz(self, fobj, highlight=[]):
             return
-        
-        seen = cbook.set()
-
-        def recurse(root):
-            if root in seen:
-                return
-            seen.add(root)
-            props = {}
-            label = root.__class__.__name__
-            if root._invalid:
-                label = '[%s]' % label
-            if root in highlight:
-                props['style'] = 'bold'
-            if root.is_affine:
-                props['shape'] = 'parallelogram'
-            if root.is_bbox:
-                props['shape'] = 'box'
-            props['label'] = '"%s"' % label
-            props = ' '.join(['%s=%s' % (key, val) for key, val in props.items()])
-
-            fobj.write('%s [%s];\n' %
-                       (hash(root), props))
-
-            for child in root._children:
-                name = '?'
-                for key, val in root.__dict__.items():
-                    if val is child:
-                        name = key
-                        break
-                fobj.write('%s -> %s [label="%s", fontsize=10];\n' % (
-                        hash(root),
-                        hash(child),
-                        name))
-                recurse(child)
-
-        fobj.write("digraph G {\n")
-        recurse(self)
-        fobj.write("}\n")
-    
+   
     
 class BboxBase(TransformNode):
     """
@@ -226,6 +227,14 @@ class BboxBase(TransformNode):
         return self.get_points()[1, 1]
     y1 = property(_get_y1)
 
+    def _get_p0(self):
+        return self.get_points()[0]
+    p0 = property(_get_p0)
+
+    def _get_p1(self):
+        return self.get_points()[1]
+    p1 = property(_get_p1)
+    
     def _get_xmin(self):
         return min(self.get_points()[:, 0])
     xmin = property(_get_xmin)
@@ -737,15 +746,15 @@ class Bbox(BboxBase):
         self.invalidate()
     y1 = property(BboxBase._get_y1, _set_y1)
 
-    def _set_min(self, val):
+    def _set_p0(self, val):
         self._points[0] = val
         self.invalidate()
-    min = property(BboxBase._get_min, _set_min)
-    
-    def _set_max(self, val):
+    p0 = property(BboxBase._get_p0, _set_p0)
+
+    def _set_p1(self, val):
         self._points[1] = val
         self.invalidate()
-    max = property(BboxBase._get_max, _set_max)
+    p1 = property(BboxBase._get_p1, _set_p1)
     
     def _set_intervalx(self, interval):
         self._points[:, 0] = interval
@@ -1135,240 +1144,6 @@ class AffineBase(Transform):
     def get_affine(self):
         return self
     get_affine.__doc__ = Transform.get_affine.__doc__
-
-    
-class Affine1DBase(AffineBase):
-    """
-    The base class of all 1D affine transforms.
-
-    Provides the read-only interface.
-
-    1D affine transformations are performed using a 2x2 numpy array:
-    
-        a b
-        0 1
-
-    where a is scale and b is translation.
-    """
-    input_dims = 1
-    output_dims = 1
-    is_separable = True
-
-    def __init__(self):
-        AffineBase.__init__(self)
-
-    def frozen(self):
-        return Affine1D(self.get_matrix().copy())
-    frozen.__doc__ = AffineBase.frozen.__doc__
-        
-    def __array__(self, *args, **kwargs):
-	return self.get_matrix()
-
-    def to_values(self):
-        """
-        Returns a, b
-        """
-        mtx = self.get_matrix()
-        return mtx[0]
-    
-    #@staticmethod
-    def matrix_from_values(a, b):
-        """
-        Create a new transformation matrix as a numpy array using the
-        values a, b, where:
-
-          a: scale
-          b: translation
-        """
-        return npy.array([[a, b], [0.0, 1.0]], npy.float_)
-    matrix_from_values = staticmethod(matrix_from_values)
-
-    def transform(self, values):
-        mtx = self.get_matrix()
-        points = npy.asarray(values, npy.float_)
-        return points * mtx[0, 0] + mtx[0, 1]
-
-    if DEBUG:
-        _transform = transform
-        def transform(self, values):
-            # The major speed trap here is just converting to the points
-            # to an array in the first place.  If we can use more arrays
-            # upstream, that should help here.
-            if not isinstance(values, npy.ndarray):
-                warnings.warn(
-                    ('A non-numpy array of type %s was passed in for ' +
-                     'transformation.  Please correct this.')
-                    % type(values))
-            return self._transform(values)
-    transform.__doc__ = AffineBase.transform.__doc__
-    
-    transform_affine = transform
-    transform_affine.__doc__ = AffineBase.transform_affine.__doc__
-    
-    def inverted(self):
-        if self._inverted is None or self._invalid:
-            mtx = self.get_matrix()
-            self._inverted = Affine1D(inv(mtx))
-            self._invalid = 0
-        return self._inverted
-    inverted.__doc__ = AffineBase.inverted.__doc__
-
-    
-class Affine1D(Affine1DBase):
-    """
-    A concrete 1D affine transformation.
-
-    1D affine transformations are performed using a 2x2 numpy array:
-    
-        a b
-        0 1
-
-    where a is scale and b is translation.
-    """
-    def __init__(self, matrix = None):
-        """
-        Initialize an Affine transform from a 2x2 numpy float array.
-
-        If matrix is None, initialize with the identity transform.
-        """
-        Affine1DBase.__init__(self)
-        if matrix is None:
-            matrix = npy.identity(2)
-        else:
-	    matrix = npy.asarray(matrix, npy.float_)
-            assert matrix.shape == (2, 2)
-        self._mtx = matrix
-        self._invalid = 0
-
-    def __repr__(self):
-        return "Affine1D(%s)" % repr(self._mtx)
-    __str__ = __repr__
-
-    def __cmp__(self, other):
-        if (isinstance(other, Affine1D) and
-            (self.get_matrix() == other.get_matrix()).all()):
-            return 0
-        return -1
-    
-    #@staticmethod
-    def from_values(a, b):
-        """
-        Create a new Affine1D instance from the given values.
-
-          a: scale
-          b: translation
-        """
-        return Affine1D(Affine1D.matrix_from_values(a, b))
-    from_values = staticmethod(from_values)
-
-    def get_matrix(self):
-        """
-        Get the underlying transformation matrix as a 2x2 numpy array.
-
-          a b
-          0 1
-
-        where a is scale and b is translation.
-        """
-        self._invalid = 0
-        return self._mtx
-    
-    def set_matrix(self, mtx):
-        """
-        Set the underlying transformation matrix from a 2x2 numpy array.
-        
-          a b
-          0 1
-
-        where a is scale and b is translation.
-        """
-        self._mtx = mtx
-        self.invalidate()
-        
-    def set(self, other):
-        """
-        Set this transformation from a frozen copy of another
-        Affine1DBase instance.
-        """
-        assert isinstance(other, Affine1DBase)
-        self._mtx = other.get_matrix()
-        self.invalidate()
-    
-    #@staticmethod
-    def identity():
-        """
-        Return a new Affine1D instance that is the identity transform.
-
-        Unless this transform will be mutated later on, consider using
-        the faster IdentityTransform class instead.
-        """
-        return Affine1D(npy.identity(2))
-    identity = staticmethod(identity)
-
-    def clear(self):
-        """
-        Resets this transformation back to the identity transform.
-        """
-        self._mtx = npy.identity(2)
-        self.invalidate()
-        return self
-    
-    def translate(self, t):
-        """
-        Add a translation t to this transform.
-
-        Returns self, so this method can easily be chained with more
-        calls to translate() and scale().
-        """
-        self._mtx[0, 1] += t
-        self.invalidate()
-        return self
-
-    def scale(self, s):
-        """
-        Add a scale s to this transform.
-
-        Returns self, so this method can easily be chained with more
-        calls to translate() and scale().
-        """
-        self._mtx[0, 0] *= s
-        self.invalidate()
-        return self
-
-    
-class IntervalTransform(Affine1DBase):
-    """
-    A 1D transformation that linearly transforms points along the
-    input interval (0.0, 1.0) to an arbitrary child interval.
-    """
-    def __init__(self, bbox, direction):
-        """
-        bbox: A Bbox instance containing the child interval.
-        direction: A string 'x' or 'y' indicating the interval of the
-                   bbox to use as the child interval.
-        """
-        assert direction in ('x', 'y')
-        assert bbox.is_bbox
-        
-        Affine1DBase.__init__(self)
-        self._bbox = bbox
-        self._direction = "interval" + direction
-        self.set_children(bbox)
-        self._mtx = None
-        
-    def __repr__(self):
-        return "IntervalTransform(%s)" % (getattr(self._bbox, self._direction))
-    __str__ = __repr__
-
-    def get_matrix(self):
-        if self._invalid:
-            vmin, vmax = getattr(self._bbox, self._direction)
-            self._mtx = inv(npy.array([[vmax - vmin, vmin],
-                                       [0.0, 1.0]], npy.float_))
-            self._inverted = None
-            self._invalid = 0
-        return self._mtx
-    get_matrix.__doc__ = Affine1DBase.get_matrix.__doc__
 
     
 class Affine2DBase(AffineBase):
@@ -1780,56 +1555,6 @@ class BlendedGenericTransform(Transform):
             self._invalid = 0
         return self._affine
     get_affine.__doc__ = Transform.get_affine.__doc__
-
-
-class BlendedAffine1D(Affine2DBase):
-    """
-    A "blended" transform uses one transform for the x-direction, and
-    another transform for the y-direction.
-
-    This version is an optimization for the case where both child
-    transforms are of type Affine1DBase.
-    """
-    is_separable = True
-    
-    def __init__(self, x_transform, y_transform):
-        """
-        Create a new "blended" transform using x_transform to
-        transform the x-axis and y_transform to transform the y_axis.
-
-        Both x_transform and y_transform must be 1D affine transforms.
-        
-        You will generally not call this constructor directly but use
-        the blended_transform_factory function instead, which can
-        determine automatically which kind of blended transform to
-        create.
-        """
-        assert isinstance(x_transform, Affine1DBase)
-        assert isinstance(y_transform, Affine1DBase)
-
-        Transform.__init__(self)
-        self._x = x_transform
-        self._y = y_transform
-        self.set_children(x_transform, y_transform)
-        
-        Affine2DBase.__init__(self)
-        self._mtx = None
-
-    def __repr__(self):
-        return "BlendedAffine1D(%s,%s)" % (self._x, self._y)
-    __str__ = __repr__
-        
-    def get_matrix(self):
-        if self._invalid:
-            x_mtx = self._x.get_matrix()
-            y_mtx = self._y.get_matrix()
-            self._mtx = npy.array([[x_mtx[0, 0], 0.0, x_mtx[0, 1]],
-                                   [0.0, y_mtx[0, 0], y_mtx[0, 1]],
-                                   [0.0, 0.0, 1.0]])
-            self._inverted = None
-            self._invalid = 0
-        return self._mtx
-    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
     
     
 class BlendedAffine2D(Affine2DBase):
@@ -1900,9 +1625,6 @@ def blended_transform_factory(x_transform, y_transform):
     if (isinstance(x_transform, Affine2DBase)
         and isinstance(y_transform, Affine2DBase)):
         return BlendedAffine2D(x_transform, y_transform)
-    elif (isinstance(x_transform, Affine1DBase)
-          and isinstance(y_transform, Affine1DBase)):
-        return BlendedAffine1D(x_transform, y_transform)
     return BlendedGenericTransform(x_transform, y_transform)
 
 
@@ -2235,7 +1957,7 @@ if __name__ == '__main__':
 
     bbox_copy = copy.deepcopy(bbox)
     assert (bbox.extents == bbox_copy.extents).all()
-    bbox_copy.max = (14, 15)
+    bbox_copy.p1 = (14, 15)
     assert bbox.bounds == (10, 11, 12, 13)
     assert bbox_copy.bounds == (10, 11, 4, 4)
     

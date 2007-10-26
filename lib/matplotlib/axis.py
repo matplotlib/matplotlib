@@ -18,7 +18,7 @@ from ticker import NullLocator, FixedLocator, LinearLocator, LogLocator, AutoLoc
 from font_manager import FontProperties
 from text import Text, TextWithDash, _process_text_args
 from transforms import Affine2D, Bbox, blended_transform_factory, interval_contains, \
-    interval_contains_open, IntervalTransform, IdentityTransform
+    interval_contains_open, IdentityTransform
 from patches import bbox_artist
 from scale import scale_factory
 

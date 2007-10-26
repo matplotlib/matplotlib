@@ -42,6 +42,7 @@ class RendererSVG(RendererBase):
         self._clipd = {}
         self._char_defs = {}
         self._markers = {}
+        self._path_collection_id = 0
         self.mathtext_parser = MathTextParser('SVG')
         self.fontd = {}
         svgwriter.write(svgProlog%(width,height,width,height))
@@ -192,6 +193,32 @@ class RendererSVG(RendererBase):
         for x, y in tpath.vertices:
             details = 'xlink:href="#%s" x="%f" y="%f"' % (name, x, y)
             self._draw_svg_element('use', details, gc, rgbFace)
+
+    def draw_path_collection(self, master_transform, cliprect, clippath,
+                             clippath_trans, paths, all_transforms, offsets,
+                             offsetTrans, facecolors, edgecolors, linewidths,
+                             linestyles, antialiaseds):
+        write = self._svgwriter.write
+        
+        path_codes = []
+        write('<defs>\n')
+        for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
+            master_transform, paths, all_transforms)):
+            name = 'coll%x_%x' % (self._path_collection_id, i)
+            transform = transform.frozen().scale(1.0, -1.0)
+            d = self._convert_path(path, transform)
+            write('<path id="%s" d="%s"/>\n' % (name, d))
+            path_codes.append(name)
+        write('</defs>\n')
+            
+        for xo, yo, path_id, gc, rgbFace in self._iter_collection(
+            path_codes, cliprect, clippath, clippath_trans,
+            offsets, offsetTrans, facecolors, edgecolors,
+            linewidths, linestyles, antialiaseds):
+            details = 'xlink:href="#%s" x="%f" y="%f"' % (path_id, xo, self.height - yo)
+            self._draw_svg_element('use', details, gc, rgbFace)
+
+        self._path_collection_id += 1
             
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         # MGDTODO: Support clippath here
