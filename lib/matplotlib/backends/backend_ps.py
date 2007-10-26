@@ -505,12 +505,13 @@ grestore
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
             master_transform, paths, all_transforms)):
-            ps_cmd = ['/p%x_%x {' % (self._path_collection_id, i),
+            name = 'p%x_%x' % (self._path_collection_id, i)
+            ps_cmd = ['/%s {' % name,
                       'newpath', 'translate']
             ps_cmd.append(self._convert_path(path, transform))
             ps_cmd.extend(['} bind def\n'])
             write('\n'.join(ps_cmd))
-            path_codes.append("p%x_%x" % (self._path_collection_id, i))
+            path_codes.append(name)
             
         for xo, yo, path_id, gc, rgbFace in self._iter_collection(
             path_codes, cliprect, clippath, clippath_trans,

@@ -6,8 +6,7 @@ from ticker import NullFormatter, FixedFormatter, ScalarFormatter, \
     LogFormatter, LogFormatterMathtext
 from ticker import NullLocator, FixedLocator, LinearLocator, LogLocator, \
     AutoLocator
-from transforms import Affine1DBase, IntervalTransform, Transform, \
-    composite_transform_factory, IdentityTransform
+from transforms import Transform, composite_transform_factory, IdentityTransform
 
 class ScaleBase(object):
     def set_default_locators_and_formatters(self, axis):

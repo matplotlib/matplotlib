@@ -238,8 +238,8 @@ class QuiverKey(artist.Artist):
             self.set_transform(self.Q.ax.figure.transFigure)
         elif self.coord == 'inches':
             dx = ax.figure.dpi
-            bb = transforms.Bbox(transforms.origin(), transforms.Point(dx, dx))
-            trans = transforms.get_bbox_transform(transforms.unit_bbox(), bb)
+            bb = transforms.Bbox.from_extents(0, 0, dx, dy)
+            trans = transforms.BboxTransform(Bbox.unit(), bb)
             self.set_transform(trans)
         else:
             raise ValueError('unrecognized coordinates')

@@ -328,7 +328,7 @@ class Figure(Artist):
             w,h = args
 
 	dpival = self.dpi
-	self.bbox_inches.max = w, h
+	self.bbox_inches.p1 = w, h
 	
         if forward:
             dpival = self.dpi
@@ -339,7 +339,7 @@ class Figure(Artist):
                 manager.resize(int(canvasw), int(canvash))
 
     def get_size_inches(self):
-        return self.bbox_inches.max
+        return self.bbox_inches.p1
 
     def get_edgecolor(self):
         'Get the edge color of the Figure rectangle'

@@ -55,6 +55,7 @@ files = (
     'image_origin.py',
     'invert_axes.py',
     'layer_images.py',
+    'legend_auto.py',
     'legend_demo.py',
     'legend_demo2.py',
     'line_collection.py',
