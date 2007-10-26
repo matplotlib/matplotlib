@@ -21,17 +21,17 @@ Return value is a sequence of text, line instances that make
 up the legend
 """
 from __future__ import division
-import copy, sys, warnings
+import warnings
 
 import numpy as npy
 
-from matplotlib import verbose, rcParams
+from matplotlib import rcParams
 from artist import Artist
-from cbook import enumerate, is_string_like, iterable, silent_list
+from cbook import is_string_like, iterable, silent_list
 from font_manager import FontProperties
 from lines import Line2D
 from mlab import segments_intersect
-from patches import Patch, Rectangle, RegularPolygon, Shadow, bbox_artist, draw_bbox
+from patches import Patch, Rectangle, Shadow, bbox_artist
 from collections import LineCollection, RegularPolyCollection
 from text import Text
 from transforms import Affine2D, Bbox, BboxTransformTo

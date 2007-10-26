@@ -15,8 +15,7 @@ except ImportError:
 import numpy as npy
 
 from matplotlib import verbose, get_configdir
-from artist import Artist
-from dates import date2num, num2date
+from dates import date2num
 from matplotlib.cbook import Bunch
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.colors import colorConverter

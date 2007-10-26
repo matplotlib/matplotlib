@@ -33,7 +33,7 @@ rc('text', usetex=True)
 
 """
 
-import copy, glob, md5, os, shutil, sys, warnings
+import copy, glob, md5, os, shutil, sys
 import numpy as npy
 import matplotlib as mpl
 from matplotlib import rcParams

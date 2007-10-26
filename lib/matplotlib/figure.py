@@ -1,8 +1,6 @@
 """
 Figure class -- add docstring here!
 """
-import sys
-
 import numpy as npy
 
 import artist
@@ -11,20 +9,15 @@ from axes import Axes, SubplotBase, subplot_class_factory
 from cbook import flatten, allequal, Stack, iterable, dedent
 import _image
 import colorbar as cbar
-from colors import Normalize, rgb2hex
 from image import FigureImage
 from matplotlib import rcParams
-from patches import Rectangle, Polygon
+from patches import Rectangle
 from text import Text, _process_text_args
 
 from legend import Legend
-from ticker import FormatStrFormatter
 from transforms import Affine2D, Bbox, BboxTransformTo, TransformedBbox
-from cm import ScalarMappable
-from contour import ContourSet
 from projections import projection_factory, get_projection_names, \
     get_projection_class
-import warnings
 
 class SubplotParams:
     """

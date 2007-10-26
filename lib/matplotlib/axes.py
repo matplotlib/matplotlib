@@ -1,5 +1,5 @@
 from __future__ import division, generators
-import math, sys, warnings, copy, new
+import math, warnings, new
 
 import numpy as npy
 
@@ -9,7 +9,6 @@ import matplotlib
 rcParams = matplotlib.rcParams
 
 from matplotlib import artist as martist
-from matplotlib import agg
 from matplotlib import axis as maxis
 from matplotlib import cbook
 from matplotlib import collections as mcoll
@@ -21,9 +20,7 @@ from matplotlib import image as mimage
 from matplotlib import legend as mlegend
 from matplotlib import lines as mlines
 from matplotlib import mlab
-from matplotlib import cm
 from matplotlib import patches as mpatches
-from matplotlib import path as mpath
 from matplotlib import quiver as mquiver
 from matplotlib import scale as mscale
 from matplotlib import table as mtable

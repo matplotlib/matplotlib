@@ -21,7 +21,6 @@ import matplotlib.colors as colors
 import matplotlib.cm as cm
 import matplotlib.ticker as ticker
 import matplotlib.cbook as cbook
-import matplotlib.transforms as transforms
 import matplotlib.lines as lines
 import matplotlib.patches as patches
 import matplotlib.collections as collections

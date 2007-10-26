@@ -33,12 +33,12 @@ License   : matplotlib license (PSF compatible)
             see license/LICENSE_TTFQUERY.
 """
 
-import os, sys, glob, shutil
+import os, sys, glob
 from sets import Set
 import matplotlib
 from matplotlib import afm
 from matplotlib import ft2font
-from matplotlib import rcParams, get_home, get_configdir
+from matplotlib import rcParams, get_configdir
 from matplotlib.cbook import is_string_like
 from matplotlib.fontconfig_pattern import \
     parse_fontconfig_pattern, generate_fontconfig_pattern

@@ -55,7 +55,7 @@ Credits:
 """
 
 from __future__ import division
-import sys, datetime, csv, warnings
+import csv, warnings
 
 import numpy as npy
 

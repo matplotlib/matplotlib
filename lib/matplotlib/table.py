@@ -20,14 +20,12 @@ License   : matplotlib license
 
 """
 from __future__ import division
-import sys, warnings
-
-from matplotlib import verbose
+import warnings
 
 import artist
 from artist import Artist
 from patches import Rectangle
-from cbook import enumerate, is_string_like, flatten
+from cbook import is_string_like
 from text import Text
 from transforms import Bbox
 

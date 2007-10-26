@@ -76,8 +76,7 @@ Date formatters
   DateIndexFormatter - date plots with implicit x indexing.
 
 """
-import sys, re, time, math, datetime
-import locale
+import re, time, math, datetime
 
 import pytz
 import matplotlib

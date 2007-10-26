@@ -4,7 +4,7 @@ operations.
 
 """
 from __future__ import division
-import sys, os
+import os
 
 import numpy as npy
 import numerix.ma as ma

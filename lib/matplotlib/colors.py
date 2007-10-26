@@ -34,7 +34,6 @@ Finally, legal html names for colors, like 'red', 'burlywood' and
 'chartreuse' are supported.
 """
 import re
-import warnings
 import numpy as npy
 import matplotlib.numerix.npyma as ma
 import matplotlib.cbook as cbook
