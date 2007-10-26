@@ -560,8 +560,7 @@ class Axes(martist.Artist):
         """
 	self.dataLim = mtransforms.Bbox.unit()
         self.viewLim = mtransforms.Bbox.unit()
-        self.transAxes = mtransforms.BboxTransform(
-            mtransforms.Bbox.unit(), self.bbox)
+        self.transAxes = mtransforms.BboxTransformTo(self.bbox)
 
         # Transforms the x and y axis separately by a scale factor
         # It is assumed that this part will have non-linear components
@@ -569,8 +568,8 @@ class Axes(martist.Artist):
 
         # An affine transformation on the data, generally to limit the
         # range of the axes
-        self.transLimits = mtransforms.BboxTransform(
-            mtransforms.TransformedBbox(self.viewLim, self.transScale), mtransforms.Bbox.unit())
+        self.transLimits = mtransforms.BboxTransformFrom(
+            mtransforms.TransformedBbox(self.viewLim, self.transScale))
 
         # The parentheses are important for efficiency here -- they
         # group the last two (which are usually affines) separately

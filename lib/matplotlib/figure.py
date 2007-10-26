@@ -19,7 +19,7 @@ from text import Text, _process_text_args
 
 from legend import Legend
 from ticker import FormatStrFormatter
-from transforms import Affine2D, Bbox, BboxTransform, TransformedBbox
+from transforms import Affine2D, Bbox, BboxTransformTo, TransformedBbox
 from cm import ScalarMappable
 from contour import ContourSet
 from projections import projection_factory, get_projection_names, \
@@ -136,7 +136,7 @@ class Figure(Artist):
 	
         self.frameon = frameon
 
-        self.transFigure = BboxTransform(Bbox.unit(), self.bbox)
+        self.transFigure = BboxTransformTo(self.bbox)
 
         self.figurePatch = Rectangle(
             xy=(0,0), width=1, height=1,
