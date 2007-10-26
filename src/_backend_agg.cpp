@@ -95,8 +95,8 @@ public:
   unsigned vertex(double* x, double* y) {
     unsigned cmd = m_source->vertex(x, y);
     if (m_quantize && agg::is_vertex(cmd)) {
-      *x = int(*x) + 0.5;
-      *y = int(*y) + 0.5;
+      *x = round(*x) + 0.5;
+      *y = round(*y) + 0.5;
     }
     return cmd;
   }
@@ -389,7 +389,7 @@ bool should_snap(Path& path, const agg::trans_affine& trans) {
     }
 
     trans.transform(&x1, &y1);
-    if (!(fabs(x0 - x1) < 0.001 || fabs(y0 - y1) < 0.001)) {
+    if (!(fabs(x0 - x1) < 1e-4 || fabs(y0 - y1) < 1e-4)) {
       path.rewind(0);
       return false;
     }

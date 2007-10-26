@@ -55,8 +55,11 @@ class PolarAxes(Axes):
         transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def transform_path(self, path):
-            path = path.interpolated(self._resolution)
-            return Path(self.transform(path.vertices), path.codes)
+            vertices = path.vertices
+            if len(vertices) == 2 and vertices[0, 0] == vertices[1, 0]:
+                return Path(self.transform(vertices), path.codes)
+            ipath = path.interpolated(self._resolution)
+            return Path(self.transform(ipath.vertices), ipath.codes)
         transform_path.__doc__ = Transform.transform_path.__doc__
         
         transform_path_non_affine = transform_path
@@ -151,7 +154,7 @@ class PolarAxes(Axes):
         def refresh(self):
             return self.base.refresh()
 
-    RESOLUTION = 50
+    RESOLUTION = 75
         
     def __init__(self, *args, **kwargs):
         """
@@ -377,6 +380,12 @@ class PolarAxes(Axes):
         return 1.0
 
     ### Interactive panning
+
+    def can_zoom(self):
+        """
+        Return True if this axes support the zoom box
+        """
+        return False
     
     def start_pan(self, x, y, button):
         angle = self._r_label1_position.to_values()[4] / 180.0 * npy.pi
