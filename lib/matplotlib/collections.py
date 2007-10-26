@@ -16,7 +16,6 @@ import matplotlib.cm as cm
 import matplotlib.transforms as transforms
 import matplotlib.artist as artist
 import matplotlib.backend_bases as backend_bases
-import matplotlib.nxutils as nxutils
 import matplotlib.path as path
 
 class Collection(artist.Artist, cm.ScalarMappable):

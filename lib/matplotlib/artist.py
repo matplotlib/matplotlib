@@ -1,9 +1,7 @@
 from __future__ import division
-import sys, re, warnings
+import re, warnings
 from cbook import iterable, flatten
-from transforms import Affine2D, Bbox, IdentityTransform, TransformedBbox, \
-    TransformedPath
-import matplotlib.units as units
+from transforms import Bbox, IdentityTransform, TransformedBbox, TransformedPath
 
 ## Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every

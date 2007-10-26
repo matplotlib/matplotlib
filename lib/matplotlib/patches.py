@@ -6,10 +6,7 @@ import numpy as npy
 import matplotlib.cbook as cbook
 import matplotlib.artist as artist
 import matplotlib.colors as colors
-import matplotlib.lines as lines
 import matplotlib.transforms as transforms
-import matplotlib.nxutils as nxutils
-import matplotlib.mlab as mlab
 import matplotlib.artist as artist
 from matplotlib.path import Path
 

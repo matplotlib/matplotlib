@@ -10,7 +10,6 @@ import matplotlib.numerix.npyma as ma
 import matplotlib._cntr as _cntr
 import matplotlib.path as path
 import matplotlib.ticker as ticker
-import matplotlib.transforms as transforms
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 import matplotlib.collections as collections

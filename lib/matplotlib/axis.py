@@ -2,23 +2,19 @@
 Classes for the ticks and x and y axis
 """
 from __future__ import division
-import copy
-import math
-import re
-import sys
 
 from artist import Artist, setp
 from cbook import enumerate, silent_list, popall, CallbackRegistry
 from lines import Line2D, TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from matplotlib import rcParams
 from patches import bbox_artist
-from ticker import NullFormatter, FixedFormatter, ScalarFormatter, LogFormatter, LogFormatterMathtext
-from ticker import NullLocator, FixedLocator, LinearLocator, LogLocator, AutoLocator
+from ticker import NullFormatter, FixedFormatter, ScalarFormatter
+from ticker import NullLocator, FixedLocator, AutoLocator
 
 from font_manager import FontProperties
-from text import Text, TextWithDash, _process_text_args
-from transforms import Affine2D, Bbox, blended_transform_factory, interval_contains, \
-    interval_contains_open, IdentityTransform
+from text import Text, TextWithDash
+from transforms import Affine2D, Bbox, blended_transform_factory, \
+    interval_contains
 from patches import bbox_artist
 from scale import scale_factory
 

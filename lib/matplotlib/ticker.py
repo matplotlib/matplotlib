@@ -104,10 +104,9 @@ examples of using date locators and formatters.
 
 
 from __future__ import division
-import sys, os, re, time, math, warnings
+import math
 import numpy as npy
-import matplotlib as mpl
-from matplotlib import verbose, rcParams
+from matplotlib import rcParams
 from matplotlib import cbook
 from matplotlib import transforms as mtransforms
 

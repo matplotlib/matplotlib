@@ -1,12 +1,9 @@
 import numpy as npy
 from numpy import ma
-from numpy.linalg import inv
 
-from ticker import NullFormatter, FixedFormatter, ScalarFormatter, \
-    LogFormatter, LogFormatterMathtext
-from ticker import NullLocator, FixedLocator, LinearLocator, LogLocator, \
-    AutoLocator
-from transforms import Transform, composite_transform_factory, IdentityTransform
+from ticker import NullFormatter, ScalarFormatter, LogFormatterMathtext
+from ticker import NullLocator, LogLocator, AutoLocator
+from transforms import Transform, IdentityTransform
 
 class ScaleBase(object):
     def set_default_locators_and_formatters(self, axis):

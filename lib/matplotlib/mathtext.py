@@ -124,29 +124,27 @@ License   : matplotlib license (PSF compatible)
 
 """
 from __future__ import division
-import os, sys
+import os
 from cStringIO import StringIO
-from math import floor, ceil
+from math import ceil
 from sets import Set
 import unicodedata
 from warnings import warn
 
 from numpy import inf, isinf
 
-from matplotlib import verbose
-from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
-     Combine, Group, Optional, Forward, NotAny, alphas, nums, alphanums, \
-     StringStart, StringEnd, ParseFatalException, FollowedBy, Regex, \
-     operatorPrecedence, opAssoc, ParseResults, Or, Suppress, oneOf, \
-     ParseException, MatchFirst, NoMatch, Empty
+from matplotlib.pyparsing import Combine, Group, Optional, Forward, \
+    Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
+    ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
+    FollowedBy, Regex
 
 from matplotlib.afm import AFM
-from matplotlib.cbook import enumerate, iterable, Bunch, get_realpath_and_stat, \
+from matplotlib.cbook import Bunch, get_realpath_and_stat, \
     is_string_like
 from matplotlib.ft2font import FT2Font, FT2Image, KERNING_DEFAULT, LOAD_DEFAULT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, \
-        latex_to_standard, tex2uni, type12uni, tex2type1, uni2type1, \
+        latex_to_standard, tex2uni, tex2type1, uni2type1, \
         latex_to_cmex
 from matplotlib import get_data_path, rcParams
 

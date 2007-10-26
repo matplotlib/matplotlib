@@ -4,10 +4,9 @@ graphics contexts must implement to serve as a matplotlib backend
 """
 
 from __future__ import division
-import os, sys, warnings, copy, weakref
+import os
 
 import numpy as npy
-import matplotlib.numerix.npyma as ma
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 import matplotlib.transforms as transforms

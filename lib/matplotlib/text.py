@@ -2,17 +2,15 @@
 Figure and Axes text
 """
 from __future__ import division
-import re, math
+import math
 
 import numpy as npy
 
-import matplotlib
-from matplotlib import verbose
 from matplotlib import cbook
 from matplotlib import rcParams
 import artist
 from artist import Artist
-from cbook import enumerate, is_string_like, maxdict, is_numlike
+from cbook import enumerate, is_string_like, maxdict
 from font_manager import FontProperties
 from patches import bbox_artist, YAArrow
 from transforms import Affine2D, Bbox

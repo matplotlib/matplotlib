@@ -6,14 +6,12 @@ variety of line styles, markers and colors
 # TODO: expose cap and join style attrs
 from __future__ import division
 
-import sys, math, warnings
-
 import numpy as npy
 
 import numerix.ma as ma
 from matplotlib import verbose
 import artist
-from artist import Artist, setp
+from artist import Artist
 from cbook import iterable, is_string_like, is_numlike
 from colors import colorConverter
 from path import Path

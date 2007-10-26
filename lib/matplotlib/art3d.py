@@ -10,7 +10,6 @@ from collections import LineCollection, PolyCollection
 import text
 
 from colors import Normalize
-from cm import jet
 
 import numpy as npy
 import proj3d

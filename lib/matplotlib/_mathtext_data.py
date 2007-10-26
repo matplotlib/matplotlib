@@ -14,8 +14,6 @@ for charcode, glyphind in items:
     print charcode, glyphind
 """
 
-from sets import Set
-
 latex_to_bakoma = {
     r'\oint'                : ('cmex10',  45),
     r'\bigodot'             : ('cmex10',  50),
