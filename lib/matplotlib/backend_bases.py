@@ -326,13 +326,15 @@ class GraphicsContextBase:
 
     def get_clip_rectangle(self):
         """
-        Return the clip rectangle as (left, bottom, width, height)
+        Return the clip rectangle as a Bbox instance
         """
         return self._cliprect
 
     def get_clip_path(self):
         """
-        Return the clip path
+        Return the clip path in the form (path, transform), where path
+        is a path.Path instance, and transform as an affine transform
+        to apply to the path before clipping.
         """
         if self._clippath is not None:
             return self._clippath.get_transformed_path_and_affine()
