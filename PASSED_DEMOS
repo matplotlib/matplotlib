@@ -22,7 +22,7 @@ axis_equal_demo.py      O
 backend_driver.py	[N/A]
 barchart_demo.py        O
 barcode_demo.py         O
-barh_demo.py		[BROKEN IN TRUNK]
+barh_demo.py		O
 bar_stacked.py		O
 boxplot_demo.py		O
 break.py		O
