@@ -209,4 +209,20 @@ xcorr_demo.py		O
 zoom_window.py		O
 zorder_demo.py		O
 
-MGDTODO: units directory
+
+units directory -----
+
+annotate_with_units.py	O
+artist_tests.py		O
+bar_demo2.py		O
+bar_unit_demo.py	[BROKEN IN TRUNK]
+basic_units.py		[N/A]
+date_converter.py	O
+date_support.py		[N/A]
+ellipse_with_units.py	[BROKEN IN TRUNK]
+evans_test2.py		O
+evans_test.py		O
+__init__.py		[N/A]
+radian_demo.py		O
+units_sample.py		O	
+units_scatter.py	

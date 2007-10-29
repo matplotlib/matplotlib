@@ -16,7 +16,7 @@ import matplotlib.cm as cm
 import matplotlib.transforms as transforms
 import matplotlib.artist as artist
 import matplotlib.backend_bases as backend_bases
-import matplotlib.path as path
+import matplotlib.path as mpath
 
 class Collection(artist.Artist, cm.ScalarMappable):
     """
@@ -136,7 +136,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
         
-        result = path.get_path_collection_extents(
+        result = mpath.get_path_collection_extents(
             transform.frozen(), paths, self.get_transforms(),
             npy.asarray(offsets, npy.float_), transOffset.frozen())
         result = result.inverse_transformed(transData)
@@ -154,15 +154,19 @@ class Collection(artist.Artist, cm.ScalarMappable):
             paths = []
             for path in self._paths:
                 vertices = path.vertices
-                xs, ys = zip(*segment)
+                xs, ys = vertices[:, 0], vertices[:, 1]
                 xs = self.convert_xunits(xs)
                 ys = self.convert_yunits(ys)
-                paths.append(path.Path(zip(xs, ys), path.codes))
+                paths.append(mpath.Path(zip(xs, ys), path.codes))
             if self._offsets is not None:
                 xs = self.convert_xunits(self._offsets[:0])
                 ys = self.convert_yunits(self._offsets[:1])
                 offsets = zip(xs, ys)
-                
+        if len(offsets) == 0:
+            offsets = npy.zeros((1, 2))
+        else:
+            offsets = npy.asarray(offsets, npy.float_)
+
         self.update_scalarmappable()
 
         clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
@@ -179,7 +183,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         renderer.draw_path_collection(
             transform.frozen(), self.clipbox, clippath, clippath_trans,
             paths, self.get_transforms(),
-            npy.asarray(offsets, npy.float_), transOffset, 
+            offsets, transOffset, 
             self._facecolors, self._edgecolors, self._linewidths,
             self._linestyles, self._antialiaseds)
         renderer.close_group(self.__class__.__name__)
@@ -198,7 +202,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             paths = [transform.transform_path_non_affine(path) for path in paths]
             transform = transform.get_affine()
 
-        ind = path.point_in_path_collection(
+        ind = mpath.point_in_path_collection(
             mouseevent.x, mouseevent.y, self._pickradius,
             transform.frozen(), paths, self.get_transforms(),
             npy.asarray(self._offsets, npy.float_),
@@ -372,7 +376,7 @@ class QuadMesh(Collection):
     (0, 2) .. (0, meshWidth), (1, 0), (1, 1), and so on.
     """
     def __init__(self, meshWidth, meshHeight, coordinates, showedges):
-        Path = path.Path
+        Path = mpath.Path
         
         Collection.__init__(self)
         self._meshWidth = meshWidth
@@ -426,7 +430,7 @@ class PolyCollection(Collection):
 
     def set_verts(self, verts):
         '''This allows one to delay initialization of the vertices.'''
-        self._paths = [path.Path(v, closed=True) for v in verts]
+        self._paths = [mpath.Path(v, closed=True) for v in verts]
 
     def get_paths(self):
         return self._paths
@@ -450,7 +454,7 @@ class BrokenBarHCollection(PolyCollection):
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 class RegularPolyCollection(Collection):
-    _path_generator = path.Path.unit_regular_polygon
+    _path_generator = mpath.Path.unit_regular_polygon
     
     def __init__(self,
                  dpi,
@@ -510,11 +514,11 @@ class RegularPolyCollection(Collection):
 
 
 class StarPolygonCollection(RegularPolyCollection):
-    _path_generator = path.Path.unit_regular_star
+    _path_generator = mpath.Path.unit_regular_star
     
     
 class AsteriskPolygonCollection(RegularPolyCollection):
-    _path_generator = path.Path.unit_regular_asterisk
+    _path_generator = mpath.Path.unit_regular_asterisk
     
     
 class LineCollection(Collection, cm.ScalarMappable):
@@ -604,10 +608,10 @@ class LineCollection(Collection, cm.ScalarMappable):
         
     def set_segments(self, segments):
         if segments is None: return
-        segments = [npy.asarray(seg, npy.float_) for seg in segments]
+        segments = [npy.asarray([[y.get_value() for y in x] for x in seg], npy.float_) for seg in segments]
         if self._uniform_offsets is not None:
             segments = self._add_offsets(segments)
-        self._paths = [path.Path(seg, closed=False) for seg in segments]
+        self._paths = [mpath.Path(seg, closed=False) for seg in segments]
         
     set_verts = set_segments # for compatibility with PolyCollection
 
