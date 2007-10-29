@@ -309,6 +309,7 @@ class Artist(object):
         if transform is None:
             if isinstance(path, Rectangle):
                 self.clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
+                self._clippath = None
                 success = True
             elif isinstance(path, Patch):
                 self._clippath = TransformedPath(
