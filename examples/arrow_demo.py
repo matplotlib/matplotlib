@@ -280,6 +280,7 @@ sample_data = {
 
 if __name__ == '__main__':
     from sys import argv
+    d = None
     if len(argv) > 1:
         if argv[1] == 'full':
             d = all_on_max
@@ -293,7 +294,7 @@ if __name__ == '__main__':
         elif argv[1] == 'sample':
             d = sample_data
             scaled = True
-    else:
+    if d is None:
         d = all_on_max
         scaled=False
     if len(argv) > 2:

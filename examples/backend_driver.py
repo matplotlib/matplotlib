@@ -22,10 +22,16 @@ import matplotlib.backends as mplbe
 files = (
     'alignment_test.py',
     'arctest.py',
+    'arrow_demo.py',
     'axes_demo.py',
+    'axhspan_demo.py',
     'bar_stacked.py',
     'barchart_demo.py',
+    'boxplot_demo.py',
+    'broken_barh.py',
+    'barh_demo.py',
     'color_demo.py',
+    'colorbar_only.py',
     'contour_demo.py',
     'contourf_demo.py',
     'csd_demo.py',
@@ -33,6 +39,8 @@ files = (
     'customize_rc.py',
     'date_demo1.py',
     'date_demo2.py',
+    'equal_aspect_ratio.py',
+    'errorbar_limits.py',
     'figimage_demo.py',
     'figlegend_demo.py',
     'figtext.py',
@@ -40,12 +48,14 @@ files = (
     'finance_demo.py',
     'fonts_demo_kw.py',
     'histogram_demo.py',
+    'hline_demo.py',
     'image_demo.py',
     'image_demo2.py',
     'image_masked.py',
     'image_origin.py',
     'invert_axes.py',
     'layer_images.py',
+    'legend_auto.py',
     'legend_demo.py',
     'legend_demo2.py',
     'line_collection.py',
@@ -66,11 +76,18 @@ files = (
     'polar_demo.py',
     'polar_scatter.py',
     'psd_demo.py',
+    'quadmesh_demo.py',
     'quiver_demo.py',
     'scatter_demo.py',
     'scatter_demo2.py',
+    'scatter_star_poly.py',
+    'shared_axis_demo.py',
+    'shared_axis_across_figures.py',
     'simple_plot.py',
     'specgram_demo.py',
+    'spy_demos.py',
+    'stem_plot.py',
+    'step_demo.py',
     'stock_demo.py',
     'subplot_demo.py',
 #    'set_and_get.py',
@@ -104,7 +121,7 @@ except ImportError:
     def run(arglist):
         os.system(' '.join(arglist))
 
-def drive(backend, python='python', switches = []):
+def drive(backend, python=['python'], switches = []):
 
     exclude = failbackend.get(backend, [])
     switchstring = ' '.join(switches)
@@ -151,17 +168,20 @@ def drive(backend, python='python', switches = []):
             tmpfile.write('savefig("%s", dpi=150)' % outfile)
 
         tmpfile.close()
-        run([python, tmpfile_name, switchstring])
+        run(python + [tmpfile_name, switchstring])
         #os.system('%s %s %s' % (python, tmpfile_name, switchstring))
         os.remove(tmpfile_name)
 
 if __name__ == '__main__':
     times = {}
     default_backends = ['Agg', 'PS', 'SVG', 'PDF', 'Template']
-    if sys.platform == 'win32':
-        python = r'c:\Python24\python.exe'
+    if '--coverage' in sys.argv:
+        python = ['coverage.py', '-x']
+        sys.argv.remove('--coverage')
+    elif sys.platform == 'win32':
+        python = [r'c:\Python24\python.exe']
     else:
-        python = 'python'
+        python = ['python']
     all_backends = [b.lower() for b in mplbe.all_backends]
     all_backends.extend(['cairo.png', 'cairo.ps', 'cairo.pdf', 'cairo.svg'])
     backends = []

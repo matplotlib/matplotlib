@@ -79,7 +79,12 @@ def fig_10():
 
 if __name__ == '__main__':
     nfigs = 10
-    figures = [int(f) for f in sys.argv[1:]]
+    figures = []
+    for f in sys.argv[1:]:
+        try:
+            figures.append(int(f))
+        except ValueError:
+            pass
     if len(figures) == 0:
         figures = range(1, nfigs+1)
 
