@@ -141,7 +141,7 @@ from matplotlib.pyparsing import Combine, Group, Optional, Forward, \
 from matplotlib.afm import AFM
 from matplotlib.cbook import Bunch, get_realpath_and_stat, \
     is_string_like
-from matplotlib.ft2font import FT2Font, FT2Image, KERNING_DEFAULT, LOAD_DEFAULT, LOAD_NO_HINTING
+from matplotlib.ft2font import FT2Font, FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, \
         latex_to_standard, tex2uni, tex2type1, uni2type1, \
@@ -304,7 +304,7 @@ class MathtextBackendAggRender(MathtextBackend):
                 self.fonts_object.get_used_characters())
 
     def get_hinting_type(self):
-        return LOAD_DEFAULT
+        return LOAD_FORCE_AUTOHINT
 
 def MathtextBackendAgg():
     return MathtextBackendBbox(MathtextBackendAggRender())

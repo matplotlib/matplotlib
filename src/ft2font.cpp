@@ -943,7 +943,7 @@ FT2Font::set_text(const Py::Tuple & args, const Py::Dict & kwargs) {
 
   angle = angle/360.0*2*3.14159;
 
-  long flags = FT_LOAD_DEFAULT;
+  long flags = FT_LOAD_FORCE_AUTOHINT;
   if (kwargs.hasKey("flags"))
     flags = Py::Long(kwargs["flags"]);
 
@@ -1054,7 +1054,7 @@ FT2Font::get_num_glyphs(const Py::Tuple & args){
 }
 
 char FT2Font::load_char__doc__[] =
-"load_char(charcode, flags=LOAD_LOAD_DEFAULT)\n"
+"load_char(charcode, flags=LOAD_FORCE_AUTOHINT)\n"
 "\n"
 "Load character with charcode in current fontfile and set glyph.\n"
 "The flags argument can be a bitwise-or of the LOAD_XXX constants.\n"
@@ -1075,7 +1075,7 @@ FT2Font::load_char(const Py::Tuple & args, const Py::Dict & kwargs) {
   //load a char using the unsigned long charcode
 
   args.verify_length(1);
-  long charcode = Py::Long(args[0]), flags = Py::Long(FT_LOAD_DEFAULT);
+  long charcode = Py::Long(args[0]), flags = Py::Long(FT_LOAD_FORCE_AUTOHINT);
   if (kwargs.hasKey("flags"))
     flags = Py::Long(kwargs["flags"]);
   
