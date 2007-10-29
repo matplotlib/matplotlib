@@ -1173,6 +1173,8 @@ class Axes(martist.Artist):
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
         xys = npy.asarray(xys)
+        
+
         self.dataLim.update_numerix_xy(xys, -1)
 
 
@@ -3242,21 +3244,6 @@ class Axes(martist.Artist):
 
         patches = []
 
-        # lets do some conversions now
-        if self.xaxis is not None:
-            xconv = self.xaxis.converter
-            if xconv is not None:
-                units = self.xaxis.get_units()
-                left = xconv.convert( left, units )
-                width = xconv.convert( width, units )
-
-        if self.yaxis is not None:
-            yconv = self.yaxis.converter
-            if yconv is not None :
-                units = self.yaxis.get_units()
-                bottom = yconv.convert( bottom, units )
-                height = yconv.convert( height, units )
-
 
         if align == 'edge':
             pass
@@ -3645,23 +3632,24 @@ class Axes(martist.Artist):
         a list of error bar cap lines, the third element is a list of
         line collections for the horizontal and vertical error ranges
         """
+
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         if not self._hold: self.cla()
 
-        # make sure all the args are iterable arrays
-        if not iterable(x): x = npy.array([x])
-        else: x = npy.asarray(x)
+        # make sure all the args are iterable; use lists not arrays to preserve units
+        if not iterable(x):
+            x = [x]
 
-        if not iterable(y): y = npy.array([y])
-        else: y = npy.asarray(y)
+        if not iterable(y):
+            y = [y]
 
         if xerr is not None:
-            if not iterable(xerr): xerr = npy.array([xerr])
-            else: xerr = npy.asarray(xerr)
+            if not iterable(xerr):
+                xerr = [xerr]
 
         if yerr is not None:
-            if not iterable(yerr): yerr = npy.array([yerr])
-            else: yerr = npy.asarray(yerr)
+            if not iterable(yerr):
+                yerr = [yerr]
 
         l0 = None
 
@@ -3677,7 +3665,9 @@ class Axes(martist.Artist):
         if 'lw' in kwargs:
             lines_kw['lw']=kwargs['lw']
 
-        if not iterable(lolims): lolims = npy.array([lolims]*len(x), bool)
+        # arrays fine here, they are booleans and hence not units
+        if not iterable(lolims):
+            lolims = npy.asarray([lolims]*len(x), bool)
         else: lolims = npy.asarray(lolims, bool)
 
         if not iterable(uplims): uplims = npy.array([uplims]*len(x), bool)
@@ -3699,12 +3689,14 @@ class Axes(martist.Artist):
                 plot_kw['mew']=kwargs['mew']
 
         if xerr is not None:
-            if len(xerr.shape) == 1:
-                left  = x-xerr
-                right = x+xerr
+            if iterable(xerr) and len(xerr)==2:
+                # using list comps rather than arrays to preserve units                
+                left  = [thisx-thiserr for (thisx, thiserr) in zip(x,xerr[0])]
+                right  = [thisx+thiserr for (thisx, thiserr) in zip(x,xerr[1])]
             else:
-                left  = x-xerr[0]
-                right = x+xerr[1]
+                # using list comps rather than arrays to preserve units
+                left  = [thisx-thiserr for (thisx, thiserr) in zip(x,xerr)]
+                right  = [thisx+thiserr for (thisx, thiserr) in zip(x,xerr)]
 
             barcols.append( self.hlines(y, left, right, **lines_kw ) )
             if capsize > 0:
@@ -3723,12 +3715,14 @@ class Axes(martist.Artist):
                     caplines.extend( self.plot(right, y, 'k|', **plot_kw) )
 
         if yerr is not None:
-            if len(yerr.shape) == 1:
-                lower = y-yerr
-                upper = y+yerr
+            if iterable(yerr) and len(yerr)==2:
+                # using list comps rather than arrays to preserve units
+                lower  = [thisy-thiserr for (thisy, thiserr) in zip(y,yerr[0])]
+                upper  = [thisy+thiserr for (thisy, thiserr) in zip(y,yerr[1])]
             else:
-                lower = y-yerr[0]
-                upper = y+yerr[1]
+                # using list comps rather than arrays to preserve units
+                lower  = [thisy-thiserr for (thisy, thiserr) in zip(y,yerr)]
+                upper  = [thisy+thiserr for (thisy, thiserr) in zip(y,yerr)]
 
             barcols.append( self.vlines(x, lower, upper, **lines_kw) )
             if capsize > 0:

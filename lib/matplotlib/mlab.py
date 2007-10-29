@@ -1455,6 +1455,115 @@ def rec2csv(r, fname, delimiter=','):
     for row in r:
         writer.writerow(map(str, row))
     fh.close()
+    
+try:
+    import pyExcelerator as excel
+except ImportError:
+    pass
+else:
+
+    class Format:
+        xlstyle = None
+        def convert(self, x):
+            return x
+
+    class FormatFloat(Format):
+        def __init__(self, precision=4):
+            self.xlstyle = excel.XFStyle()
+            zeros = ''.join(['0']*precision)
+            self.xlstyle.num_format_str = '#,##0.%s;[RED]-#,##0.%s'%(zeros, zeros)
+
+    class FormatInt(Format):
+        convert = int
+        def __init__(self):
+
+            self.xlstyle = excel.XFStyle()
+            self.xlstyle.num_format_str = '#,##;[RED]-#,##'
+
+    class FormatPercent(Format):
+        def __init__(self, precision=4):
+            self.xlstyle = excel.XFStyle()
+            zeros = ''.join(['0']*precision)
+            self.xlstyle.num_format_str = '0.%s%;[RED]-0.%s%'%(zeros, zeros)
+
+    class FormatThousands(FormatFloat):
+        def __init__(self, precision=1):
+            FormatFloat.__init__(self, precision)
+
+        def convert(self, x):
+            return x/1e3
+
+    class FormatMillions(FormatFloat):
+        def __init__(self, precision=1):
+            FormatFloat.__init__(self, precision)
+
+        def convert(self, x):
+            return x/1e6
+
+    class FormatDate(Format):
+        def __init__(self, fmt='%Y-%m-%d'):
+            self.fmt = fmt
+
+        def convert(self, val):
+            return val.strftime(self.fmt)
+
+    class FormatDatetime(Format):
+        def __init__(self, fmt='%Y-%m-%d %H:%M:%S'):
+            self.fmt = fmt
+
+        def convert(self, val):
+            return val.strftime(self.fmt)
+
+    class FormatObject(Format):
+
+        def convert(self, x):
+            return str(x)
+
+    def rec2excel(ws, r, formatd=None, rownum=0):
+        """
+        save record array r to excel pyExcelerator worksheet ws
+        starting at rownum
+
+        formatd is a dictionary mapping dtype name -> Format instances
+        """
+
+        if formatd is None:
+            formatd = dict()
+
+        formats = []
+        for i, name in enumerate(r.dtype.names):
+            dt = r.dtype[name]
+            format = formatd.get(name)
+            if format is None:
+                format = rec2excel.formatd.get(dt.type, FormatObject())
+
+            ws.write(rownum, i, name)
+            formats.append(format)
+
+        rownum+=1
+
+        ind = npy.arange(len(r.dtype.names))
+        for row in r:
+            for i in ind:
+                val = row[i]
+                format = formats[i]
+                val = format.convert(val)
+                if format.xlstyle is None:
+                    ws.write(rownum, i, val)
+                else:
+                    ws.write(rownum, i, val, format.xlstyle)
+            rownum += 1
+    rec2excel.formatd = {
+            npy.int16 : FormatInt(),                
+            npy.int32 : FormatInt(),
+            npy.int64 : FormatInt(),        
+            npy.float32 : FormatFloat(),
+            npy.float64 : FormatFloat(),        
+            npy.object_ : FormatObject(),
+            npy.string_ : Format(),        
+            }
+
+
 
 # some record array helpers
 def rec_append_field(rec, name, arr, dtype=None):
