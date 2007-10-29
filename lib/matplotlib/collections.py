@@ -608,7 +608,7 @@ class LineCollection(Collection, cm.ScalarMappable):
         
     def set_segments(self, segments):
         if segments is None: return
-        segments = [npy.asarray([[y.get_value() for y in x] for x in seg], npy.float_) for seg in segments]
+        segments = [npy.asarray(seg, npy.float_) for seg in segments]
         if self._uniform_offsets is not None:
             segments = self._add_offsets(segments)
         self._paths = [mpath.Path(seg, closed=False) for seg in segments]
