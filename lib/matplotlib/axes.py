@@ -494,9 +494,6 @@ class Axes(martist.Artist):
         self.set_label(label)
         self.set_figure(fig)
 
-        self._invertedx = False
-        self._invertedy = False
-
         # this call may differ for non-sep axes, eg polar
         self._init_axis()
         
@@ -553,7 +550,8 @@ class Axes(martist.Artist):
     def _set_lim_and_transforms(self):
         """
         set the dataLim and viewLim BBox attributes and the
-        transData and transAxes Transformation attributes
+        transScale, transData, transLimits and transAxes
+        transformations.
         """
 	self.dataLim = mtransforms.Bbox.unit()
         self.viewLim = mtransforms.Bbox.unit()
@@ -579,27 +577,105 @@ class Axes(martist.Artist):
                 self.axes.transAxes, self.axes.transData)
 
     def get_xaxis_transform(self):
+        """
+        Get the transformation used for drawing x-axis labels, ticks
+        and gridlines.  The x-direction is in data coordinates and the
+        y-direction is in axis coordinates.
+
+        This transformation is primarily used by the Axis class, and
+        is meant to be overridden by new kinds of projections that may
+        need to place axis elements in different locations.
+        """
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad_pixels):
+        """
+        Get the transformation used for drawing x-axis labels, which
+        will add the given number of pad_pixels between the axes and
+        the label.  The x-direction is in data coordinates and the
+        y-direction is in axis coordinates.  Returns a 3-tuple of the
+        form:
+
+          (transform, valign, halign)
+
+        where valign and halign are requested alignments for the text.
+
+        This transformation is primarily used by the Axis class, and
+        is meant to be overridden by new kinds of projections that may
+        need to place axis elements in different locations.
+        """
         return (self._xaxis_transform +
                 mtransforms.Affine2D().translate(0, -1 * pad_pixels),
                 "top", "center")
 
     def get_xaxis_text2_transform(self, pad_pixels):
+        """
+        Get the transformation used for drawing the secondary x-axis
+        labels, which will add the given number of pad_pixels between
+        the axes and the label.  The x-direction is in data
+        coordinates and the y-direction is in axis coordinates.
+        Returns a 3-tuple of the form:
+
+          (transform, valign, halign)
+
+        where valign and halign are requested alignments for the text.
+
+        This transformation is primarily used by the Axis class, and
+        is meant to be overridden by new kinds of projections that may
+        need to place axis elements in different locations.
+        """
         return (self._xaxis_transform +
                 mtransforms.Affine2D().translate(0, pad_pixels),
                 "bottom", "center")
 
     def get_yaxis_transform(self):
+        """
+        Get the transformation used for drawing y-axis labels, ticks
+        and gridlines.  The x-direction is in axis coordinates and the
+        y-direction is in data coordinates.
+
+        This transformation is primarily used by the Axis class, and
+        is meant to be overridden by new kinds of projections that may
+        need to place axis elements in different locations.
+        """
         return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pad_pixels):
+        """
+        Get the transformation used for drawing y-axis labels, which
+        will add the given number of pad_pixels between the axes and
+        the label.  The x-direction is in axis coordinates and the
+        y-direction is in data coordinates.  Returns a 3-tuple of the
+        form:
+
+          (transform, valign, halign)
+
+        where valign and halign are requested alignments for the text.
+
+        This transformation is primarily used by the Axis class, and
+        is meant to be overridden by new kinds of projections that may
+        need to place axis elements in different locations.
+        """
         return (self._yaxis_transform +
                 mtransforms.Affine2D().translate(-1 * pad_pixels, 0),
                 "center", "right")
 
     def get_yaxis_text2_transform(self, pad_pixels):
+        """
+        Get the transformation used for drawing the secondary y-axis
+        labels, which will add the given number of pad_pixels between
+        the axes and the label.  The x-direction is in axis
+        coordinates and the y-direction is in data coordinates.
+        Returns a 3-tuple of the form:
+
+          (transform, valign, halign)
+
+        where valign and halign are requested alignments for the text.
+
+        This transformation is primarily used by the Axis class, and
+        is meant to be overridden by new kinds of projections that may
+        need to place axis elements in different locations.
+        """
         return (self._yaxis_transform +
                 mtransforms.Affine2D().translate(pad_pixels, 0),
                 "center", "left")
@@ -610,11 +686,11 @@ class Axes(martist.Artist):
                 self.xaxis.get_transform(), self.yaxis.get_transform()))
         
     def get_position(self, original=False):
-        'Return the axes rectangle left, bottom, width, height'
+        'Return the a copy of the axes rectangle as a Bbox'
         if original:
-            return self._originalPosition
+            return self._originalPosition.frozen()
         else:
-            return self._position
+            return self._position.frozen()
 
 	
     def set_position(self, pos, which='both'):
@@ -639,7 +715,6 @@ class Axes(martist.Artist):
         if which in ('both', 'original'):
             self._originalPosition.set(pos)
 
-	    
     def _set_artist_props(self, a):
         'set the boilerplate props for artists added to axes'
         a.set_figure(self.figure)
@@ -648,6 +723,16 @@ class Axes(martist.Artist):
         a.axes = self
 
     def get_axes_patch(self):
+        """
+        Returns the patch used to draw the background of the axes.  It
+        is also used as the clipping path for any data elements on the
+        axes.
+
+        In the standard axes, this is a rectangle, but in other
+        projections it may not be.
+
+        Intended to be overridden by new projection types.
+        """
         return mpatches.Rectangle((0.0, 0.0), 1.0, 1.0)
         
     def cla(self):
@@ -806,6 +891,12 @@ class Axes(martist.Artist):
                                 ', '.join(mtransforms.BBox.coefs.keys()))
 
     def get_data_ratio(self):
+        """
+        Returns the aspect ratio of the raw data.
+
+        This method is intended to be overridden by new projection
+        types.
+        """
         xmin,xmax = self.get_xbound()
         xsize = max(math.fabs(xmax-xmin), 1e-30)
         ymin,ymax = self.get_ybound()
@@ -1032,6 +1123,7 @@ class Axes(martist.Artist):
         a.set_axes(self)
         self.artists.append(a)
         self._set_artist_props(a)
+        # MGDTODO: We may not want to do this -- the old trunk didn't
         a.set_clip_path(self.axesPatch)
         a._remove_method = lambda h: self.artists.remove(h)
 
@@ -1074,19 +1166,20 @@ class Axes(martist.Artist):
         self._update_patch_limits(p)
         self.patches.append(p)
         p._remove_method = lambda h: self.patches.remove(h)
-
+        
     def _update_patch_limits(self, p):
         'update the datalimits for patch p'
-        xys = self._get_verts_in_data_coords(
-            p.get_data_transform(),
-            p.get_patch_transform().transform(p.get_path().vertices))
-        self.update_datalim(xys)
-
+        vertices = p.get_patch_transform().transform(p.get_path().vertices)
+        if p.get_data_transform() != self.transData:
+            transform = p.get_data_transform() + self.transData.inverted()
+            xys = transform.transform(vertices)
+        self.update_datalim(vertices)
 
     def add_table(self, tab):
         'Add a table instance to the list of axes tables'
         self._set_artist_props(tab)
         self.tables.append(tab)
+        # MGDTODO: We may not want to do this (the old version in trunk didn't)
         tab.set_clip_path(self.axesPatch)
         tab._remove_method = lambda h: self.tables.remove(h)
 
@@ -1105,8 +1198,6 @@ class Axes(martist.Artist):
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
-        # MGDTODO: This isn't always the most efficient way to do this... in
-        # some cases things should use update_datalim_bounds
         if not ma.isMaskedArray(xys):
             xys = npy.asarray(xys)
         self.update_datalim_numerix(xys[:, 0], xys[:, 1])
@@ -1117,7 +1208,6 @@ class Axes(martist.Artist):
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
-        ## self.dataLim.update_numerix(x, y, -1)
 	self.dataLim.update_from_data(x, y, self.ignore_existing_data_limits)
 	self.ignore_existing_data_limits = False
 
@@ -1125,16 +1215,6 @@ class Axes(martist.Artist):
         'Update the datalim to include the given Bbox'
         self.dataLim.set(Bbox.union([self.dataLim, bounds]))
         
-    def _get_verts_in_data_coords(self, trans, xys):
-        if trans == self.transData:
-            return xys
-        # data is not in axis data units.  We must transform it to
-        # display and then back to data to get it in data units
-        #xys = trans.seq_xy_tups(xys)
-        #return [ self.transData.inverse_xy_tup(xy) for xy in xys]
-        xys = trans.transform(npy.asarray(xys))
-        return self.transData.inverted().transform(xys)
-
     def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
         'look for unit kwargs and update the axis instances as necessary'
 
@@ -1162,7 +1242,7 @@ class Axes(martist.Artist):
                 self.yaxis.set_units(yunits)
 
     def in_axes(self, mouseevent):
-        'return True is the point xwin, ywin (display coords) are in the Axes'
+        'return True if the given mouseevent (in display coords) is in the Axes'
         return self.axesPatch.contains(mouseevent)[0]
 
     def get_autoscale_on(self):
@@ -1268,11 +1348,11 @@ class Axes(martist.Artist):
         if self.axison and self._frameon:
             artists.append(self.axesFrame)
 
-	dsu = [ (a.zorder, a) for a in artists
+	dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
 		if not a.get_animated() ]
         dsu.sort()
 
-        for zorder, a in dsu:
+        for zorder, i, a in dsu:
             a.draw(renderer)
 
         renderer.close_group('axes')
@@ -1474,16 +1554,10 @@ class Axes(martist.Artist):
                 self.set_xlim(upper, lower)
 
     def get_xlim(self):
-        """Get the x-axis range [xmin, xmax]
-
-        NOTE: The returned values are always [xmin, xmax] such that
-              xmin < xmax; regardless of whether or not the axes are inverted.
         """
-        bound1, bound2 = self.viewLim.intervalx
-        if ( self._invertedx ):
-            return bound2, bound1
-        else:
-            return bound1, bound2
+        Get the x-axis range [xmin, xmax]
+        """
+        return self.viewLim.intervalx
 
     def set_xlim(self, xmin=None, xmax=None, emit=True, **kwargs):
         """
@@ -1637,16 +1711,10 @@ class Axes(martist.Artist):
                 self.set_ylim(upper, lower)
 
     def get_ylim(self):
-        """Get the y-axis range [xmin, xmax]
-
-        NOTE: The returned values are always [ymin, ymax] such that
-              ymin < ymax; regardless of whether or not the axes are inverted.
         """
-        bound1, bound2 = self.viewLim.intervaly
-        if ( self._invertedy ):
-            return bound2, bound1
-        else:
-            return bound1, bound2
+        Get the y-axis range [xmin, xmax]
+        """
+        return self.viewLim.intervaly
 
     def set_ylim(self, ymin=None, ymax=None, emit=True, **kwargs):
         """
@@ -1812,8 +1880,10 @@ class Axes(martist.Artist):
 
     def format_coord(self, x, y):
         'return a format string formatting the x, y coord'
-        if x is None or y is None:
-            return ''
+        if x is None:
+            x = '???'
+        if y is None:
+            y = '???'
         xs = self.format_xdata(x)
         ys = self.format_ydata(y)
         return  'x=%s, y=%s'%(xs,ys)
@@ -1855,6 +1925,17 @@ class Axes(martist.Artist):
         self._navigate_mode = b
 
     def start_pan(self, x, y, button):
+        """
+        Called when a pan operation has started.
+
+        x, y are the mouse coordinates in display coords.
+        button is the mouse button number:
+           1: LEFT
+           2: MIDDLE
+           3: RIGHT
+        
+        Intended to be overridden by new projection types.
+        """
         self._pan_start = cbook.Bunch(
             lim           = self.viewLim.frozen(),
             trans         = self.transData.frozen(),
@@ -1864,9 +1945,29 @@ class Axes(martist.Artist):
             )
 
     def end_pan(self):
+        """
+        Called when a pan operation completes (when the mouse button
+        is up.)
+
+        Intended to be overridden by new projection types.
+        """
         del self._pan_start
         
     def drag_pan(self, button, key, x, y):
+        """
+        Called when the mouse moves during a pan operation.
+
+        button is the mouse button number:
+           1: LEFT
+           2: MIDDLE
+           3: RIGHT
+
+        key is a "shift" key
+
+        x, y are the mouse coordinates in display coords.
+
+        Intended to be overridden by new projection types.
+        """
         def format_deltas(key, dx, dy):
             if key=='control':
                 if(abs(dx)>abs(dy)):
@@ -2223,7 +2324,7 @@ class Axes(martist.Artist):
         %(Annotation)s
         """
         a = mtext.Annotation(*args, **kwargs)
-        a.set_transform(mtransforms.Affine2D())
+        a.set_transform(mtransforms.IdentityTransform())
         self._set_artist_props(a)
         if kwargs.has_key('clip_on'):  a.set_clip_path(self.axesPatch)
         self.texts.append(a)
@@ -4035,9 +4136,9 @@ class Axes(martist.Artist):
             if len(sh) == 1 and sh[0] == len(x):
                 colors = None  # use cmap, norm after collection is created
             else:
-                colors = mcolors.colorConverter.to_rgba_list(c, alpha)
+                colors = mcolors.colorConverter.to_rgba_array(c, alpha)
         else:
-            colors = mcolors.colorConverter.to_rgba_list(c, alpha)
+            colors = mcolors.colorConverter.to_rgba_array(c, alpha)
 
         if not iterable(s):
             scales = (s,)
@@ -4137,7 +4238,7 @@ class Axes(martist.Artist):
                 offsets = zip(x,y),
                 transOffset = self.transData,
                 )
-            collection.set_transform(mtransforms.Affine2D())
+            collection.set_transform(mtransforms.IdentityTransform())
         collection.set_alpha(alpha)
         collection.update(kwargs)
 
@@ -4198,6 +4299,9 @@ class Axes(martist.Artist):
     quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
 
     def quiver(self, *args, **kw):
+        """
+        MGDTODO: Document me
+        """
         q = mquiver.Quiver(self, *args, **kw)
         self.add_collection(q, False)
         self.update_datalim_numerix(q.X, q.Y)

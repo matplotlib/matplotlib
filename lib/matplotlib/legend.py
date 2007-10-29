@@ -363,15 +363,6 @@ The following dimensions are in axes coords
             bbox.update_from_data_xy(averts, True)
             bboxes.append(bbox)
 
-        for handle in ax.collections:
-            if isinstance(handle, LineCollection):
-                hlines = handle.get_lines()
-                trans = handle.get_transform()
-                for line in hlines:
-                    tline = trans.seq_xy_tups(line)
-                    aline = [inv(v) for v in tline]
-                    lines.append(aline)
-
         return [vertices, bboxes, lines]
 
     def draw_frame(self, b):

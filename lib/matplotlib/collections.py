@@ -83,12 +83,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if antialiaseds is None: antialiaseds = (mpl.rcParams['patch.antialiased'],)
         self.set_linestyles(linestyles)
         
-        self._facecolors  = _colors.colorConverter.to_rgba_list(facecolors)
+        self._facecolors  = _colors.colorConverter.to_rgba_array(facecolors)
         if edgecolors == 'None':
             self._edgecolors = self._facecolors
             linewidths = (0,)
         else:
-            self._edgecolors = _colors.colorConverter.to_rgba_list(edgecolors)
+            self._edgecolors = _colors.colorConverter.to_rgba_array(edgecolors)
         self._linewidths  = self._get_value(linewidths)
         self._antialiaseds = self._get_value(antialiaseds)
 
@@ -268,7 +268,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._facecolors = _colors.colorConverter.to_rgba_list(c, self._alpha)
+        self._facecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
 
     set_facecolors = set_facecolor
 
@@ -284,7 +284,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._linewidths = (0.0,)
             self._edgecolors = npy.array([])
         else:
-            self._edgecolors = _colors.colorConverter.to_rgba_list(c)
+            self._edgecolors = _colors.colorConverter.to_rgba_array(c)
     set_edgecolors = set_edgecolor
 
     def set_alpha(self, alpha):
@@ -581,7 +581,7 @@ class LineCollection(Collection, cm.ScalarMappable):
         if antialiaseds is None: antialiaseds = (mpl.rcParams['lines.antialiased'],)
         self.set_linestyles(linestyles)
 
-        colors = _colors.colorConverter.to_rgba_list(colors)
+        colors = _colors.colorConverter.to_rgba_array(colors)
         
         Collection.__init__(
             self,
@@ -633,7 +633,7 @@ class LineCollection(Collection, cm.ScalarMappable):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._edgecolors = _colors.colorConverter.to_rgba_list(c)
+        self._edgecolors = _colors.colorConverter.to_rgba_array(c)
 
     def color(self, c):
         """

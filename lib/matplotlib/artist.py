@@ -2,6 +2,7 @@ from __future__ import division
 import re, warnings
 from cbook import iterable, flatten
 from transforms import Bbox, IdentityTransform, TransformedBbox, TransformedPath
+from path import Path
 
 ## Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
@@ -285,25 +286,48 @@ class Artist(object):
 
     def set_clip_path(self, path, transform=None):
         """
-        Set the artist's clip path
+        Set the artist's clip path, which may be:
 
-        ACCEPTS: a Path instance and a Transform instance, or a Patch instance
+          a) a Patch (or subclass) instance
+
+          b) a Path instance, in which cas aoptional transform may
+             be provided, which will be applied to the path before using it
+             for clipping.
+
+          c) None, to remove the clipping path
+
+        For efficiency, if the path happens to be an axis-aligned
+        rectangle, this method will set the clipping box to the
+        corresponding rectangle and set the clipping path to None.
+             
+        ACCEPTS: a Path instance and a Transform instance, a Patch
+        instance, or None
         """
         from patches import Patch, Rectangle
+
+        success = False
         if transform is None:
             if isinstance(path, Rectangle):
                 self.clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
+                success = True
             elif isinstance(path, Patch):
                 self._clippath = TransformedPath(
                     path.get_path(),
                     path.get_transform())
-            elif path is None:
-                self._clippath = None
-            else:
-                raise TypeError("Invalid arguments to set_clip_path")
-        else:
+                success = True
+                
+        if path is None:
+            self._clippath = None
+            success = True
+        elif isinstance(path, Path):
             self._clippath = TransformedPath(path, transform)
-        self._clipon = self.clipbox is not None or path is not None
+            success = True
+            
+        if not success:
+            print type(path), type(transform)
+            raise TypeError("Invalid arguments to set_clip_path")
+
+        self._clipon = self.clipbox is not None or self._clippath is not None
         self.pchanged()
 
     def get_alpha(self):
@@ -334,6 +358,10 @@ class Artist(object):
         return self._clippath
 
     def get_transformed_clip_path_and_affine(self):
+        '''
+        Return the clip path with the non-affine part of its transformation applied,
+        and the remaining affine part of its transformation.
+        '''
         if self._clippath is not None:
             return self._clippath.get_transformed_path_and_affine()
         return None, None

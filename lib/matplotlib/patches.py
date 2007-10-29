@@ -82,7 +82,7 @@ class Patch(artist.Artist):
 
         Returns T/F, {}
         """
-	# This is a general version of contains should work on any
+	# This is a general version of contains that should work on any
         # patch with a path.  However, patches that have a faster
         # algebraic solution to hit-testing should override this
         # method.
@@ -290,8 +290,8 @@ class Shadow(Patch):
         Patch.__init__(self)
         self.patch = patch
         self.props = props
-	self.ox, self.oy = ox, oy
-	self._shadow_transform = transforms.Affine2D().translate(self.ox, self.oy)
+	self._ox, self._oy = ox, oy
+        self._update_transform()
         self._update()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
@@ -308,7 +308,22 @@ class Shadow(Patch):
 
             self.set_facecolor((r,g,b,0.5))
             self.set_edgecolor((r,g,b,0.5))
-	    
+
+    def _update_transform(self):
+        self._shadow_transform = transforms.Affine2D().translate(self._ox, self._oy)
+            
+    def _get_ox(self):
+        return self._ox
+    def _set_ox(self, ox):
+        self._ox = ox
+        self._update_transform()
+    
+    def _get_oy(self):
+        return self._oy
+    def _set_oy(self, oy):
+        self._oy = oy
+        self._update_transform()
+        
     def get_path(self):
         return self.patch.get_path()
 
