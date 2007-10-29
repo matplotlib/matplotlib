@@ -350,8 +350,10 @@ class Rectangle(Patch):
         Return the vertices of the rectangle
         """
         x, y = self.xy
-        left, right = self.convert_xunits((x, x + self.width))
-        bottom, top = self.convert_yunits((y, y + self.height))
+        left = self.convert_xunits(x)
+        right = self.convert_xunits(x + self.width)
+        bottom = self.convert_yunits(y)
+        top = self.convert_yunits(y+self.height)
 
         return ( (left, bottom), (left, top),
                  (right, top), (right, bottom),
@@ -806,8 +808,15 @@ class Ellipse(Patch):
     def get_verts(self):
 
         xcenter, ycenter = self.center
-
         width, height = self.width, self.height
+
+        xcenter = self.convert_xunits(xcenter)
+        width = self.convert_xunits(width)        
+        ycenter = self.convert_yunits(ycenter)
+        height = self.convert_xunits(height)        
+
+
+
         angle = self.angle
 
         theta = npy.arange(0.0, 360.0, 1.0)*npy.pi/180.0
@@ -820,8 +829,6 @@ class Ellipse(Patch):
             [npy.sin(rtheta), npy.cos(rtheta)],
             ])
 
-        x = self.convert_xunits(x)
-        y = self.convert_yunits(y)
 
         x, y = npy.dot(R, npy.array([x, y]))
         x += xcenter
@@ -857,6 +864,8 @@ class Ellipse(Patch):
         x, y = self.center
         x = self.convert_xunits(x)
         y = self.convert_yunits(y)
+        w = self.convert_xunits(self.width)/2.
+        h = self.convert_yunits(self.height)/2.
 
         theta = self.angle * npy.pi/180.
         T = npy.array([
@@ -864,9 +873,7 @@ class Ellipse(Patch):
             [0, 1, y],
             [0, 0, 1]])
 
-        w, h = self.width/2, self.height/2.
-        w = self.convert_xunits(w)
-        h = self.convert_yunits(h)
+
 
         
         S = npy.array([
