@@ -849,7 +849,7 @@ class SpanSelector:
         self.prev = (0, 0)
 
         if self.direction == 'horizontal':
-            trans = (self.ax.transData, self.ax.transAxes)
+            trans = blended_transform_factory(self.ax.transData, self.ax.transAxes)
             w,h = 0,1
         else:
             trans = blended_transform_factory(self.ax.transAxes, self.ax.transData)

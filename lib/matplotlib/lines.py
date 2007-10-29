@@ -71,6 +71,45 @@ def unmasked_index_ranges(mask, compressed = True):
     ic1 = breakpoints
     return npy.concatenate((ic0[:, npy.newaxis], ic1[:, npy.newaxis]), axis=1)
 
+def segment_hits(cx,cy,x,y,radius):
+    """Determine if any line segments are within radius of a point. Returns
+    the list of line segments that are within that radius.
+    """
+    # Process single points specially
+    if len(x) < 2:
+        res, = npy.nonzero( (cx - x)**2 + (cy - y)**2 <= radius**2 )
+        return res
+
+    # We need to lop the last element off a lot.
+    xr,yr = x[:-1],y[:-1]
+
+    # Only look at line segments whose nearest point to C on the line
+    # lies within the segment.
+    dx,dy = x[1:]-xr, y[1:]-yr
+    Lnorm_sq = dx**2+dy**2    # Possibly want to eliminate Lnorm==0
+    u = ( (cx-xr)*dx + (cy-yr)*dy )/Lnorm_sq
+    candidates = (u>=0) & (u<=1)
+    #if any(candidates): print "candidates",xr[candidates]
+
+    # Note that there is a little area near one side of each point
+    # which will be near neither segment, and another which will
+    # be near both, depending on the angle of the lines.  The
+    # following radius test eliminates these ambiguities.
+    point_hits = (cx - x)**2 + (cy - y)**2 <= radius**2
+    #if any(point_hits): print "points",xr[candidates]
+    candidates = candidates & ~point_hits[:-1] & ~point_hits[1:]
+
+    # For those candidates which remain, determine how far they lie away
+    # from the line.
+    px,py = xr+u*dx,yr+u*dy
+    line_hits = (cx-px)**2 + (cy-py)**2 <= radius**2
+    #if any(line_hits): print "lines",xr[candidates]
+    line_hits = line_hits & candidates
+    points, = point_hits.ravel().nonzero()
+    lines, = line_hits.ravel().nonzero()
+    #print points,lines
+    return npy.concatenate((points,lines))
+
 class Line2D(Artist):
     lineStyles = _lineStyles =  { # hidden names deprecated
         '-'          : '_draw_solid',
@@ -276,7 +315,6 @@ class Line2D(Artist):
         else:
             pixels = self.figure.dpi/72. * self.pickradius
             
-        path, transform = self._transformed_path.get_transformed_path_and_affine()
         if self._linestyle == 'None':
             # If no line, return the nearby point(s)
             d = npy.sqrt((xt-mouseevent.x)**2 + (yt-mouseevent.y)**2)
@@ -320,7 +358,7 @@ class Line2D(Artist):
         # correct for marker size, if any
         if self._marker is not None:
             ms = (self._markersize / 72.0 * self.figure.dpi) * 0.5
-            bbox = Bbox(bbox.get_points() + [[-ms, -ms], [ms, ms]])
+            bbox = bbox.padded(ms)
         return bbox
 
     def set_axes(self, ax):
@@ -399,7 +437,7 @@ class Line2D(Artist):
         """
         set the Transformation instance used by this artist
 
-        ACCEPTS: a matplotlib.transform transformation instance
+        ACCEPTS: a matplotlib.transforms.Transform instance
         """
         Artist.set_transform(self, t)
         self._transformed_path = TransformedPath(self._path, self.get_transform())

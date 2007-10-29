@@ -73,7 +73,7 @@ class RendererBase:
             offsets, offsetTrans, facecolors, edgecolors,
             linewidths, linestyles, antialiaseds):
             path, transform = path_id
-            transform = transform.frozen().translate(xo, yo)
+            transform = transforms.Affine2D(transform.get_matrix()).translate(xo, yo)
             self.draw_path(gc, path, transform, rgbFace)
             
     def _iter_collection_raw_paths(self, master_transform, paths, all_transforms):
@@ -200,6 +200,27 @@ class RendererBase:
         """
         return False
 
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
+        raise NotImplementedError
+
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+        """
+        Draw the text.Text instance s at x,y (display coords) with font
+        properties instance prop at angle in degrees, using GraphicsContext gc
+
+        **backend implementers note**
+
+        When you are trying to determine if you have gotten your bounding box
+        right (which is what enables the text layout/alignment to work
+        properly), it helps to change the line in text.py
+
+                  if 0: bbox_artist(self, renderer)
+
+        to if 1, and then the actual bounding box will be blotted along with
+        your text.
+        """
+        raise NotImplementedError
+    
     def flipy(self):
         """return true if y small numbers are top for renderer
         Is used for drawing text (text.py) and images (image.py) only
@@ -386,7 +407,8 @@ class GraphicsContextBase:
 
     def set_clip_path(self, path):
         """
-        Set the clip path and transformation
+        Set the clip path and transformation.  Path should be a
+        transforms.TransformedPath instance.
         """
         assert path is None or isinstance(path, transforms.TransformedPath)
         self._clippath = path

@@ -14,7 +14,7 @@ from ticker import NullLocator, FixedLocator, AutoLocator
 from font_manager import FontProperties
 from text import Text, TextWithDash
 from transforms import Affine2D, Bbox, blended_transform_factory, \
-    interval_contains
+    IdentityTransform, interval_contains
 from patches import bbox_artist
 from scale import scale_factory
 
@@ -113,6 +113,7 @@ class Tick(Artist):
         self.tick1line.set_clip_path(clippath, transform)
         self.tick2line.set_clip_path(clippath, transform)
         self.gridline.set_clip_path(clippath, transform)
+    set_clip_path.__doc__ = Artist.set_clip_path.__doc__
     
     def contains(self, mouseevent):
         """Test whether the mouse event occured in the Tick marks.
@@ -1015,7 +1016,7 @@ class XAxis(Axis):
             horizontalalignment='center',
             )
         label.set_transform( blended_transform_factory(
-		self.axes.transAxes, Affine2D() ))
+		self.axes.transAxes, IdentityTransform() ))
 
         self._set_artist_props(label)
         self.label_position='bottom'
@@ -1030,7 +1031,7 @@ class XAxis(Axis):
             horizontalalignment='right',
             )
         offsetText.set_transform( blended_transform_factory(
-		self.axes.transAxes, Affine2D() ))
+		self.axes.transAxes, IdentityTransform() ))
         self._set_artist_props(offsetText)
         self.offset_text_position='bottom'
         return offsetText
@@ -1092,11 +1093,11 @@ class XAxis(Axis):
 	
     def set_ticks_position(self, position):
         """
-        Set the ticks position (top, bottom, both or default)
-        both sets the ticks to appear on both positions, but
-        does not change the tick labels.
-        default resets the tick positions to the default:
-        ticks on both positions, labels at bottom.
+        Set the ticks position (top, bottom, both, default or none)
+        both sets the ticks to appear on both positions, but does not
+        change the tick labels.  default resets the tick positions to
+        the default: ticks on both positions, labels at bottom.  none
+        can be used if you don't want any ticks.
 
         ACCEPTS: [ 'top' | 'bottom' | 'both' | 'default' | 'none' ]
         """
@@ -1225,7 +1226,7 @@ class YAxis(Axis):
             rotation='vertical',
             )
         label.set_transform( blended_transform_factory(
-		Affine2D(), self.axes.transAxes) )
+		IdentityTransform(), self.axes.transAxes) )
 
         self._set_artist_props(label)
         self.label_position='left'
@@ -1240,7 +1241,7 @@ class YAxis(Axis):
             horizontalalignment = 'left',
             )
         offsetText.set_transform(blended_transform_factory(
-		self.axes.transAxes, Affine2D()) )
+		self.axes.transAxes, IdentityTransform()) )
         self._set_artist_props(offsetText)
         self.offset_text_position='left'
         return offsetText
