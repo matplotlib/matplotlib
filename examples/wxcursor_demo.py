@@ -3,6 +3,8 @@ Example to draw a cursor and report the data coords in wx
 """
 
 import matplotlib
+matplotlib.use('WXAgg')
+
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure
@@ -65,6 +67,5 @@ class App(wx.App):
         return True
 
 if __name__=='__main__':
-    matplotlib.use('WXAgg')
     app = App(0)
     app.MainLoop()
