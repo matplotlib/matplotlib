@@ -82,7 +82,7 @@ from matplotlib.backend_bases import RendererBase,\
 from matplotlib.cbook import enumerate, is_string_like, exception_to_str
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
-from matplotlib.ft2font import FT2Font, LOAD_DEFAULT
+from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D, Bbox
@@ -147,11 +147,11 @@ class RendererAgg(RendererBase):
         font = self._get_agg_font(prop)
         if font is None: return None
         if len(s) == 1 and ord(s) > 127:
-            font.load_char(ord(s), flags=LOAD_DEFAULT)
+            font.load_char(ord(s), flags=LOAD_FORCE_AUTOHINT)
         else:
             # We pass '0' for angle here, since it will be rotated (in raster
             # space) in the following call to draw_text_image).
-            font.set_text(s, 0, flags=LOAD_DEFAULT)
+            font.set_text(s, 0, flags=LOAD_FORCE_AUTOHINT)
         font.draw_glyphs_to_bitmap()
 
         #print x, y, int(x), int(y)
@@ -181,7 +181,7 @@ class RendererAgg(RendererBase):
                 self.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
         font = self._get_agg_font(prop)
-        font.set_text(s, 0.0, flags=LOAD_DEFAULT)  # the width and height of unrotated string
+        font.set_text(s, 0.0, flags=LOAD_FORCE_AUTOHINT)  # the width and height of unrotated string
         w, h = font.get_width_height()
         d = font.get_descent()
         w /= 64.0  # convert from subpixels
