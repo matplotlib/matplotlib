@@ -1,3 +1,6 @@
+2007-10-31 Made log color scale easier to use with contourf;
+           automatic level generation now works. - EF
+
 2007-10-24 Added ax kwarg to Figure.colorbar and pyplot.colorbar - EF
 
 2007-10-19 Removed a gsave/grestore pair surrounding _draw_ps, which

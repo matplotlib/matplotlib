@@ -401,6 +401,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.antialiased = kwargs.get('antialiased', True)
         self.nchunk = kwargs.get('nchunk', 0)
         self.locator = kwargs.get('locator', None)
+        if (isinstance(norm, colors.LogNorm)
+                or isinstance(self.locator, ticker.LogLocator)):
+            self.logscale = True
+            if norm is None:
+                norm = colors.LogNorm()
+            if self.extend is not 'neither':
+                raise ValueError('extend kwarg does not work yet with log scale')
+        else:
+            self.logscale = False
 
         if self.origin is not None: assert(self.origin in
                                             ['lower', 'upper', 'image'])
@@ -493,7 +502,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         three levels to provide boundaries for both regions.
         '''
         if self.locator is None:
-            self.locator = ticker.MaxNLocator(N+1)
+            if self.logscale:
+                self.locator = ticker.LogLocator()
+            else:
+                self.locator = ticker.MaxNLocator(N+1)
         locator = self.locator
         zmax = self.zmax
         zmin = self.zmin
@@ -503,7 +515,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if zmax >= lev[-1]:
             lev[-1] += zmargin
         if zmin <= lev[0]:
-            lev[0] -= zmargin
+            if self.logscale:
+                lev[0] = 0.99 * zmin
+            else:
+                lev[0] -= zmargin
         self._auto = True
         if self.filled:
             return lev
@@ -589,6 +604,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             raise TypeError("Too many arguments to %s; see help(%s)" % (fn,fn))
         self.zmax = ma.maximum(z)
         self.zmin = ma.minimum(z)
+        if self.logscale and self.zmin <= 0:
+            z = ma.masked_where(z <= 0, z)
+            warnings.warn('Log scale: values of z <=0 have been masked')
+            self.zmin = z.min()
         self._auto = False
         if self.levels is None:
             if Nargs == 1 or Nargs == 3:
