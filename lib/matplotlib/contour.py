@@ -390,7 +390,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.levels = kwargs.get('levels', None)
         self.filled = kwargs.get('filled', False)
         self.linewidths = kwargs.get('linewidths', None)
-
+        self.linestyles = kwargs.get('linestyles', 'solid')
+        
         self.alpha = kwargs.get('alpha', 1.0)
         self.origin = kwargs.get('origin', None)
         self.extent = kwargs.get('extent', None)
@@ -457,11 +458,13 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         else:
             tlinewidths = self._process_linewidths()
             self.tlinewidths = tlinewidths
+            tlinestyles = self._process_linestyles()
             C = _cntr.Cntr(x, y, z.filled(), _mask)
-            for level, width in zip(self.levels, tlinewidths):
+            for level, width, lstyle in zip(self.levels, tlinewidths, tlinestyles):
                 nlist = C.trace(level, points = 0)
                 col = collections.LineCollection(nlist,
-                                     linewidths = width)
+                                     linewidths = width,
+                                     linestyle = lstyle)
 
                 if level < 0.0 and self.monochrome:
                     ls = mpl.rcParams['contour.negative_linestyle']
@@ -696,6 +699,18 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 linewidths = [linewidths] * Nlev
             tlinewidths = [(w,) for w in linewidths]
         return tlinewidths
+    
+    def _process_linestyles(self):
+        linestyles = self.linestyles
+        Nlev = len(self.levels)
+        if linestyles is None:
+            tlinestyles = ['solid'] * Nlev
+        else:
+            if cbook.is_string_like(linestyles):
+                tlinestyles = [linestyles] * Nlev
+            elif cbook.iterable(linestyles) and len(linestyles) < Nlev:
+                tlinestyles = list(linestyles) * int(npy.ceil(Nlev/len(linestyles)))
+        return tlinestyles
 
     def get_alpha(self):
         '''For compatibility with artists, return self.alpha'''

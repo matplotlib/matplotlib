@@ -811,7 +811,7 @@ def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
     """
 
 
-    x = npy.ravel(x)
+    x = npy.array(x).ravel()  # we need a copy
     x.sort()
     Nx = len(x)
 
@@ -1449,7 +1449,7 @@ def rec2csv(r, fname, delimiter=','):
     files is automatic, if the filename ends in .gz
     """
     fh = cbook.to_filehandle(fname, 'w')
-    writer = csv.writer(fh, delimiter=delimiter)
+    writer = csv.writer(fh, delimiter=delimiter, quoting=csv.QUOTE_NONNUMERIC)
     header = r.dtype.names
     writer.writerow(header)
     for row in r:
