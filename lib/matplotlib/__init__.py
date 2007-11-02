@@ -234,12 +234,11 @@ def checkdep_dvipng():
 def checkdep_ghostscript():
     try:
         if sys.platform == 'win32':
-            command = 'gswin32c -v'
+            command = 'gswin32c --version'
         else:
-            command = 'gs -v'
+            command = 'gs --version'
         stdin, stdout = os.popen4(command)
-        line = stdout.readlines()[0]
-        v = line.split()[-2]
+        v = stdout.read()[:-1]
         vtest = '.'.join(v.split('.')[:2]) # deal with version numbers like '7.07.1'
         float(vtest)
         return vtest

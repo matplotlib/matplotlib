@@ -55,8 +55,6 @@ def _get_home():
     else:
         raise RuntimeError('please define environment variable $HOME')
 
-
-
 get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
 
 def _get_configdir():
@@ -89,8 +87,8 @@ where you want matplotlib data stored """%h)
         os.mkdir(p)
 
     return p
-get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
 
+get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
 
 def _get_data_path():
     'get the path to matplotlib data'
