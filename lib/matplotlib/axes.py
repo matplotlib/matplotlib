@@ -3505,7 +3505,7 @@ class Axes(martist.Artist):
         texts = []
         slices = []
         autotexts = []
-        for frac, label, expl in zip(x,labels, explode):
+        for frac, label, expl in cbook.safezip(x,labels, explode):
             x, y = center
             theta2 = theta1 + frac
             thetam = 2*math.pi*0.5*(theta1+theta2)
@@ -3645,11 +3645,11 @@ class Axes(martist.Artist):
 
         if xerr is not None:
             if not iterable(xerr):
-                xerr = [xerr]
+                xerr = [xerr]*len(x)
 
         if yerr is not None:
             if not iterable(yerr):
-                yerr = [yerr]
+                yerr = [yerr]*len(y)
 
         l0 = None
 
@@ -3679,6 +3679,18 @@ class Axes(martist.Artist):
         if not iterable(xuplims): xuplims = npy.array([xuplims]*len(x), bool)
         else: xuplims = npy.asarray(xuplims, bool)
 
+        def xywhere(xs, ys, mask):
+            """
+            return xs[mask], ys[mask] where mask is True but xs and
+            ys are not arrays
+            """
+            assert len(xs)==len(ys)
+            assert len(xs)==len(mask)
+            xs = [thisx for thisx, b in zip(xs, mask) if b]
+            ys = [thisy for thisy, b in zip(ys, mask) if b]
+            return xs, ys
+            
+
         if capsize > 0:
             plot_kw = {
                 'ms':2*capsize,
@@ -3691,53 +3703,66 @@ class Axes(martist.Artist):
         if xerr is not None:
             if iterable(xerr) and len(xerr)==2:
                 # using list comps rather than arrays to preserve units                
-                left  = [thisx-thiserr for (thisx, thiserr) in zip(x,xerr[0])]
-                right  = [thisx+thiserr for (thisx, thiserr) in zip(x,xerr[1])]
+                left  = [thisx-thiserr for (thisx, thiserr) in cbook.safezip(x,xerr[0])]
+                right  = [thisx+thiserr for (thisx, thiserr) in cbook.safezip(x,xerr[1])]
             else:
                 # using list comps rather than arrays to preserve units
-                left  = [thisx-thiserr for (thisx, thiserr) in zip(x,xerr)]
-                right  = [thisx+thiserr for (thisx, thiserr) in zip(x,xerr)]
+                left  = [thisx-thiserr for (thisx, thiserr) in cbook.safezip(x,xerr)]
+                right  = [thisx+thiserr for (thisx, thiserr) in cbook.safezip(x,xerr)]
 
             barcols.append( self.hlines(y, left, right, **lines_kw ) )
             if capsize > 0:
                 if xlolims.any():
-                    caplines.extend( self.plot(left[xlolims], y[xlolims], ls='None', marker=mlines.CARETLEFT, **plot_kw) )
+                    # can't use numpy logical indexing since left and
+                    # y are lists
+                    leftlo, ylo = xywhere(left, y, xlolims)
+                    
+                    caplines.extend( self.plot(leftlo, ylo, ls='None', marker=mlines.CARETLEFT, **plot_kw) )
                     xlolims = ~xlolims
-                    caplines.extend( self.plot(left[xlolims], y[xlolims], 'k|', **plot_kw) )
+                    leftlo, ylo = xywhere(left, y, xlolims)                    
+                    caplines.extend( self.plot(leftlo, ylo, 'k|', **plot_kw) )
                 else:
                     caplines.extend( self.plot(left, y, 'k|', **plot_kw) )
 
                 if xuplims.any():
-                    caplines.extend( self.plot(right[xuplims],  y[xuplims], ls='None', marker=mlines.CARETRIGHT, **plot_kw) )
+                    
+                    rightup, yup = xywhere(right, y, xuplims)
+                    caplines.extend( self.plot(rightup,  yup, ls='None', marker=mlines.CARETRIGHT, **plot_kw) )
                     xuplims = ~xuplims
-                    caplines.extend( self.plot(right[xuplims],  y[xuplims], 'k|', **plot_kw) )
+                    rightup, yup = xywhere(right, y, xuplims)
+                    caplines.extend( self.plot(rightup,  yup, 'k|', **plot_kw) )
                 else:
                     caplines.extend( self.plot(right, y, 'k|', **plot_kw) )
 
         if yerr is not None:
             if iterable(yerr) and len(yerr)==2:
                 # using list comps rather than arrays to preserve units
-                lower  = [thisy-thiserr for (thisy, thiserr) in zip(y,yerr[0])]
-                upper  = [thisy+thiserr for (thisy, thiserr) in zip(y,yerr[1])]
+                lower  = [thisy-thiserr for (thisy, thiserr) in cbook.safezip(y,yerr[0])]
+                upper  = [thisy+thiserr for (thisy, thiserr) in cbook.safezip(y,yerr[1])]
             else:
                 # using list comps rather than arrays to preserve units
-                lower  = [thisy-thiserr for (thisy, thiserr) in zip(y,yerr)]
-                upper  = [thisy+thiserr for (thisy, thiserr) in zip(y,yerr)]
+                lower  = [thisy-thiserr for (thisy, thiserr) in cbook.safezip(y,yerr)]
+                upper  = [thisy+thiserr for (thisy, thiserr) in cbook.safezip(y,yerr)]
 
             barcols.append( self.vlines(x, lower, upper, **lines_kw) )
             if capsize > 0:
 
                 if lolims.any():
-                    caplines.extend( self.plot(x[lolims], lower[lolims], ls='None', marker=mlines.CARETDOWN, **plot_kw) )
+                    xlo, lowerlo = xywhere(x, lower, lolims)
+                    caplines.extend( self.plot(xlo, lowerlo, ls='None', marker=mlines.CARETDOWN, **plot_kw) )
                     lolims = ~lolims
-                    caplines.extend( self.plot(x[lolims], lower[lolims], 'k_', **plot_kw) )
+                    xlo, lowerlo = xywhere(x, lower, lolims)
+                    caplines.extend( self.plot(xlo, lowerlo, 'k_', **plot_kw) )
                 else:
                     caplines.extend( self.plot(x, lower, 'k_', **plot_kw) )
 
                 if uplims.any():
-                    caplines.extend( self.plot(x[uplims], upper[uplims], ls='None', marker=mlines.CARETUP, **plot_kw) )
+                    xup, upperup = xywhere(x, upper, uplims)
+                    
+                    caplines.extend( self.plot(xup, upperup, ls='None', marker=mlines.CARETUP, **plot_kw) )
                     uplims = ~uplims
-                    caplines.extend( self.plot(x[uplims], upper[uplims], 'k_', **plot_kw) )
+                    xup, upperup = xywhere(x, upper, uplims)
+                    caplines.extend( self.plot(xup, upperup, 'k_', **plot_kw) )
                 else:
                     caplines.extend( self.plot(x, upper, 'k_', **plot_kw) )
 

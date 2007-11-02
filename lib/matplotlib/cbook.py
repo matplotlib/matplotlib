@@ -844,6 +844,15 @@ def report_memory(i=0):  # argument may go away
 
     return mem
 
+
+def safezip(x, y):
+    'make sure x and y are equal len before zipping'
+    Nx = len(x)
+    Ny = len(y)
+    if Nx!=Ny:
+        raise RuntimeError('x and y must be equal length; found len(x)=%d and len(y)=%d'%
+                           (Nx, Ny))
+    return zip(x, y)
 class MemoryMonitor:
     def __init__(self, nmax=20000):
         self._nmax = nmax
