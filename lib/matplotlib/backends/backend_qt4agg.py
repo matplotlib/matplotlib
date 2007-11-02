@@ -6,8 +6,6 @@ from __future__ import division
 import os, sys
 
 import matplotlib
-from matplotlib import verbose
-from matplotlib.cbook import enumerate
 from matplotlib.figure import Figure
 
 from backend_agg import FigureCanvasAgg
@@ -61,7 +59,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         self.drawRect = False
         self.rect = []
         self.replot = True
-        self.pixmap = QtGui.QPixmap()
+        self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
 
     def resizeEvent( self, e ):
         FigureCanvasQT.resizeEvent( self, e )
@@ -86,26 +84,25 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
 
         # only replot data when needed
         if type(self.replot) is bool: # might be a bbox for blitting
-            if ( self.replot ):
-                #stringBuffer = str( self.buffer_rgba(0,0) )
-                FigureCanvasAgg.draw( self )
+            if self.replot:
+                FigureCanvasAgg.draw(self)
 
-                # matplotlib is in rgba byte order.
-                # qImage wants to put the bytes into argb format and
-                # is in a 4 byte unsigned int.  little endian system is LSB first
-                # and expects the bytes in reverse order (bgra).
-                if ( QtCore.QSysInfo.ByteOrder == QtCore.QSysInfo.LittleEndian ):
-                    stringBuffer = self.renderer._renderer.tostring_bgra()
-                else:
-                    stringBuffer = self.renderer._renderer.tostring_argb()
-                qImage = QtGui.QImage( stringBuffer, self.renderer.width,
-                                       self.renderer.height,
-                                       QtGui.QImage.Format_ARGB32)
-                self.pixmap = self.pixmap.fromImage( qImage )
-            p.drawPixmap( QtCore.QPoint( 0, 0 ), self.pixmap )
+            # matplotlib is in rgba byte order.  QImage wants to put the bytes
+            # into argb format and is in a 4 byte unsigned int.  Little endian
+            # system is LSB first and expects the bytes in reverse order
+            # (bgra).
+            if QtCore.QSysInfo.ByteOrder == QtCore.QSysInfo.LittleEndian:
+                stringBuffer = self.renderer._renderer.tostring_bgra()
+            else:
+                stringBuffer = self.renderer._renderer.tostring_argb()
+
+            qImage = QtGui.QImage(stringBuffer, self.renderer.width,
+                                  self.renderer.height,
+                                  QtGui.QImage.Format_ARGB32)
+            p.drawPixmap(QtCore.QPoint(0, 0), QtGui.QPixmap.fromImage(qImage))
 
             # draw the zoom rectangle to the QPainter
-            if ( self.drawRect ):
+            if self.drawRect:
                 p.setPen( QtGui.QPen( QtCore.Qt.black, 1, QtCore.Qt.DotLine ) )
                 p.drawRect( self.rect[0], self.rect[1], self.rect[2], self.rect[3] )
 
@@ -117,8 +114,8 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             reg = self.copy_from_bbox(bbox)
             stringBuffer = reg.to_string()
             qImage = QtGui.QImage(stringBuffer, w, h, QtGui.QImage.Format_ARGB32)
-            self.pixmap = self.pixmap.fromImage( qImage )
-            p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), self.pixmap)
+            pixmap = QtGui.QPixmap.fromImage(qImage)
+            p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), pixmap)
 
         p.end()
         self.replot = False
