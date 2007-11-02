@@ -1,3 +1,6 @@
+2007-11-02 Commited Phil Thompson's patch 1599876, fixes to Qt4Agg 
+           backend and qt4 blitting demo - DSD 
+
 2007-10-31 Made log color scale easier to use with contourf;
            automatic level generation now works. - EF
 
