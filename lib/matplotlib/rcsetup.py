@@ -367,7 +367,7 @@ defaultParams = {
     'mathtext.it'         : ['serif:italic', validate_font_properties],
     'mathtext.bf'         : ['serif:bold', validate_font_properties],
     'mathtext.sf'         : ['sans\-serif', validate_font_properties],
-    'mathtext.fontset'    : [True, validate_fontset],
+    'mathtext.fontset'    : ['cm', validate_fontset],
     'mathtext.fallback_to_cm' : [True, validate_bool],
     
     'image.aspect'        : ['equal', validate_aspect],  # equal, auto, a number
