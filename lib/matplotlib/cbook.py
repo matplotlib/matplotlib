@@ -557,7 +557,7 @@ def dedent(s):
     # expressions.  However, this function accounted for almost 30% of
     # matplotlib startup time, so it is worthy of optimization at all
     # costs.
-    
+
     if not s:      # includes case of s is None
         return ''
 
@@ -576,7 +576,7 @@ def dedent(s):
     if unindent is None:
         unindent = re.compile("\n\r? {0,%d}" % nshift)
         _dedent_regex[nshift] = unindent
-        
+
     result = unindent.sub("\n", s).strip()
     return result
 
@@ -844,15 +844,15 @@ def report_memory(i=0):  # argument may go away
 
     return mem
 
+_safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
+def safezip(*args):
+    'make sure args are equal len before zipping'
+    Nx = len(args[0])
+    for i, arg in enumerate(args[1:]):
+        if len(arg) != Nx:
+            raise ValueError(_safezip_msg % (Nx, i+1, len(arg)))
+    return zip(*args)
 
-def safezip(x, y):
-    'make sure x and y are equal len before zipping'
-    Nx = len(x)
-    Ny = len(y)
-    if Nx!=Ny:
-        raise RuntimeError('x and y must be equal length; found len(x)=%d and len(y)=%d'%
-                           (Nx, Ny))
-    return zip(x, y)
 class MemoryMonitor:
     def __init__(self, nmax=20000):
         self._nmax = nmax
