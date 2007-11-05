@@ -814,6 +814,7 @@ class UnicodeFonts(TruetypeFonts):
                      MathTextWarning)
                 return self.cm_fallback._get_glyph(fontname, sym, fontsize)
             else:
+                warn("Substituting with a dummy symbol.", MathTextWarning)
                 new_fontname = fontname
                 cached_font = self._get_font(fontname)
                 uniindex = 0xA4 # currency character, for lack of anything better
