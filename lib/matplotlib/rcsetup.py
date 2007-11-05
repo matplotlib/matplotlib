@@ -202,7 +202,9 @@ def validate_fontsize(s):
 def validate_font_properties(s):
     parse_fontconfig_pattern(s)
     return s
-    
+
+validate_fontset = ValidateInStrings('fontset', ['cm', 'stix', 'custom'])
+
 validate_verbose = ValidateInStrings('verbose',[
     'silent', 'helpful', 'debug', 'debug-annoying',
     ])
@@ -365,7 +367,7 @@ defaultParams = {
     'mathtext.it'         : ['serif:italic', validate_font_properties],
     'mathtext.bf'         : ['serif:bold', validate_font_properties],
     'mathtext.sf'         : ['sans\-serif', validate_font_properties],
-    'mathtext.use_cm'     : [True, validate_bool],
+    'mathtext.fontset'    : [True, validate_fontset],
     'mathtext.fallback_to_cm' : [True, validate_bool],
     
     'image.aspect'        : ['equal', validate_aspect],  # equal, auto, a number

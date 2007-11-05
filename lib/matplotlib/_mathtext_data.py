@@ -1755,7 +1755,10 @@ type12uni = {'uni24C8': 9416,
 
 uni2type1 = dict([(v,k) for k,v in type12uni.items()])
 
-tex2uni = {'doteq': 8784,
+tex2uni = {
+'widehat': 0x0302,
+'widetilde': 0x0303,
+'doteq': 8784,
 'partial': 8706,
 'gg': 8811,
 'asymp': 8781,
