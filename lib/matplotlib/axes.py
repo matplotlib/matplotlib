@@ -1173,7 +1173,7 @@ class Axes(martist.Artist):
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
         xys = npy.asarray(xys)
-        
+
 
         self.dataLim.update_numerix_xy(xys, -1)
 
@@ -1631,25 +1631,33 @@ class Axes(martist.Artist):
             self.xaxis.set_minor_formatter(mticker.NullFormatter())
             self.transData.get_funcx().set_type( mtrans.IDENTITY )
 
-    def get_xticks(self):
+    def get_xticks(self, minor=False):
         'Return the x ticks as a list of locations'
-        return self.xaxis.get_ticklocs()
+        return self.xaxis.get_ticklocs(minor=minor)
 
-    def set_xticks(self, ticks):
+    def set_xticks(self, ticks, minor=False):
         """
         Set the x ticks with list of ticks
 
         ACCEPTS: sequence of floats
         """
-        return self.xaxis.set_ticks(ticks)
+        return self.xaxis.set_ticks(ticks, minor=minor)
 
-    def get_xticklabels(self):
+    def get_xmajorticklabels(self):
         'Get the xtick labels as a list of Text instances'
-        return cbook.silent_list('Text xticklabel', self.xaxis.get_ticklabels())
+        return cbook.silent_list('Text xticklabel', self.xaxis.get_majorticklabels())
 
-    def set_xticklabels(self, labels, fontdict=None, **kwargs):
+    def get_xminorticklabels(self):
+        'Get the xtick labels as a list of Text instances'
+        return cbook.silent_list('Text xticklabel', self.xaxis.get_minorticklabels())
+
+    def get_xticklabels(self, minor=False):
+        'Get the xtick labels as a list of Text instances'
+        return cbook.silent_list('Text xticklabel', self.xaxis.get_ticklabels(minor=minor))
+
+    def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        SET_XTICKLABELS(labels, fontdict=None, **kwargs)
+        set_xticklabels(labels, fontdict=None, minor=False, **kwargs)
 
         Set the xtick labels with list of strings labels Return a list of axis
         text instances.
@@ -1659,7 +1667,7 @@ class Axes(martist.Artist):
 
         ACCEPTS: sequence of strings
         """
-        return self.xaxis.set_ticklabels(labels, fontdict, **kwargs)
+        return self.xaxis.set_ticklabels(labels, fontdict, minor=minor, **kwargs)
     set_xticklabels.__doc__ = cbook.dedent(set_xticklabels.__doc__) % martist.kwdocd
 
     def invert_yaxis(self):
@@ -1795,25 +1803,33 @@ class Axes(martist.Artist):
             self.yaxis.set_minor_formatter(mticker.NullFormatter())
             self.transData.get_funcy().set_type( mtrans.IDENTITY )
 
-    def get_yticks(self):
+    def get_yticks(self, minor=False):
         'Return the y ticks as a list of locations'
-        return self.yaxis.get_ticklocs()
+        return self.yaxis.get_ticklocs(minor=minor)
 
-    def set_yticks(self, ticks):
+    def set_yticks(self, ticks, minor=False):
         """
         Set the y ticks with list of ticks
 
         ACCEPTS: sequence of floats
         """
-        return self.yaxis.set_ticks(ticks)
+        return self.yaxis.set_ticks(ticks, minor=minor)
 
-    def get_yticklabels(self):
-        'Get the ytick labels as a list of Text instances'
-        return cbook.silent_list('Text yticklabel', self.yaxis.get_ticklabels())
+    def get_ymajorticklabels(self):
+        'Get the xtick labels as a list of Text instances'
+        return cbook.silent_list('Text yticklabel', self.yaxis.get_majorticklabels())
 
-    def set_yticklabels(self, labels, fontdict=None, **kwargs):
+    def get_yminorticklabels(self):
+        'Get the xtick labels as a list of Text instances'
+        return cbook.silent_list('Text yticklabel', self.yaxis.get_minorticklabels())
+
+    def get_yticklabels(self, minor=False):
+        'Get the xtick labels as a list of Text instances'
+        return cbook.silent_list('Text yticklabel', self.yaxis.get_ticklabels(minor=minor))
+
+    def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        SET_YTICKLABELS(labels, fontdict=None, **kwargs)
+        set_yticklabels(labels, fontdict=None, minor=False, **kwargs)
 
         Set the ytick labels with list of strings labels.  Return a list of
         Text instances.
@@ -1823,7 +1839,7 @@ class Axes(martist.Artist):
 
         ACCEPTS: sequence of strings
         """
-        return self.yaxis.set_ticklabels(labels, fontdict, **kwargs)
+        return self.yaxis.set_ticklabels(labels, fontdict, minor=minor, **kwargs)
     set_yticklabels.__doc__ = cbook.dedent(set_yticklabels.__doc__) % martist.kwdocd
 
     def toggle_log_lineary(self):
@@ -3702,7 +3718,7 @@ class Axes(martist.Artist):
 
         if xerr is not None:
             if iterable(xerr) and len(xerr)==2:
-                # using list comps rather than arrays to preserve units                
+                # using list comps rather than arrays to preserve units
                 left  = [thisx-thiserr for (thisx, thiserr) in cbook.safezip(x,xerr[0])]
                 right  = [thisx+thiserr for (thisx, thiserr) in cbook.safezip(x,xerr[1])]
             else:
