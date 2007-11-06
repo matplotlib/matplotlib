@@ -15,10 +15,14 @@ import time
 
 class BlitQT(QtCore.QObject):
     def __init__(self):
-        QtCore.QObject.__init__(self, None)
-
         self.ax = p.subplot(111)
         self.canvas = self.ax.figure.canvas
+
+        # By making this a child of the canvas we make sure that it is
+        # destroyed first and avoids a possible exception when the user clicks
+        # on the window's close box.
+        QtCore.QObject.__init__(self, self.canvas)
+        
         self.cnt = 0
 
         # create the initial line
@@ -26,9 +30,14 @@ class BlitQT(QtCore.QObject):
         self.line, = p.plot(self.x, npy.sin(self.x), animated=True, lw=2)
 
         self.background = None
+        self.old_size = 0, 0
 
     def timerEvent(self, evt):
-        if self.background is None:
+        # See if the size has changed since last time round.
+        current_size = self.ax.bbox.width(), self.ax.bbox.height()
+
+        if self.old_size != current_size:
+            self.old_size = current_size
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
         # restore the clean slate background

@@ -1,3 +1,9 @@
+2007-11-02 Commited Phil Thompson's patch 1599876, fixes to Qt4Agg 
+           backend and qt4 blitting demo - DSD 
+
+2007-10-31 Made log color scale easier to use with contourf;
+           automatic level generation now works. - EF
+
 2007-10-29 TRANSFORMS REFACTORING
 
 	   The primary goal of this refactoring was to make it easier
@@ -66,7 +72,6 @@
 
 	   See API_CHANGES for more low-level information about this
 	   refactoring.
-		
 
 2007-10-24 Added ax kwarg to Figure.colorbar and pyplot.colorbar - EF
 

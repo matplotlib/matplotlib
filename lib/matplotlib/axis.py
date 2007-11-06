@@ -513,8 +513,8 @@ class Axis(Artist):
     def get_children(self):
         children = [self.label]
         majorticks = self.get_major_ticks()
-        minorticks = self.get_minor_ticks()        
-        
+        minorticks = self.get_minor_ticks()
+
         children.extend(majorticks)
         children.extend(minorticks)
         return children
@@ -669,24 +669,62 @@ class Axis(Artist):
         'Return the depth of the axis used by the picker'
         return self.pickradius
 
-    def get_ticklabels(self):
-        'Return a list of Text instances for ticklabels'
+    def get_majorticklabels(self):
+        'Return a list of Text instances for the major ticklabels'
         ticks = self.get_major_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1On]
         labels2 = [tick.label2 for tick in ticks if tick.label2On]
-        return silent_list('Text ticklabel', labels1+labels2)
+        return silent_list('Text major ticklabel', labels1+labels2)
 
-    def get_ticklines(self):
-        'Return the ticklines lines as a list of Line2D instance'
+    def get_minorticklabels(self):
+        'Return a list of Text instances for the minor ticklabels'
+        ticks = self.get_minor_ticks()
+        labels1 = [tick.label1 for tick in ticks if tick.label1On]
+        labels2 = [tick.label2 for tick in ticks if tick.label2On]
+        return silent_list('Text minor ticklabel', labels1+labels2)
+
+    def get_ticklabels(self, minor=False):
+        'Return a list of Text instances for ticklabels'
+        if minor:
+            return self.get_minorticklabels()
+        return self.get_majorticklabels()
+
+    def get_majorticklines(self):
+        'Return the major tick lines as a list of Line2D instances'
         lines = []
-        ticks = self.get_major_ticks()        
+        ticks = self.get_major_ticks()
         for tick in ticks:
             lines.append(tick.tick1line)
             lines.append(tick.tick2line)
         return silent_list('Line2D ticklines', lines)
 
-    def get_ticklocs(self):
+    def get_minorticklines(self):
+        'Return the minor tick lines as a list of Line2D instances'
+        lines = []
+        ticks = self.get_minor_ticks()
+        for tick in ticks:
+            lines.append(tick.tick1line)
+            lines.append(tick.tick2line)
+        return silent_list('Line2D ticklines', lines)
+
+    def get_ticklines(self, minor=False):
+        'Return the tick lines as a list of Line2D instances'
+        if minor:
+            return self.get_minorticklines()
+        return self.get_majorticklines()
+
+    def get_majorticklocs(self):
+        "Get the major tick locations in data coordinates as a numpy array"
+        return self.major.locator()
+
+    def get_minorticklocs(self):
+        "Get the minor tick locations in data coordinates as a numpy array"
+        return self.minor.locator()
+
+    def get_ticklocs(self, minor=False):
         "Get the tick locations in data coordinates as a numpy array"
+        if minor:
+            return self.minor.locator()
         return self.major.locator()
 
     def _get_tick(self, major):
@@ -728,7 +766,6 @@ class Axis(Artist):
         'get the tick instances; grow as necessary'
         if numticks is None:
             numticks = len(self.get_major_locator()())
-
         if len(self.majorTicks) < numticks:
             # update the new tick label properties from the old
             for i in range(numticks - len(self.majorTicks)):
@@ -934,23 +971,30 @@ class Axis(Artist):
     def set_ticklabels(self, ticklabels, *args, **kwargs):
         """
         Set the text values of the tick labels. Return a list of Text
-        instances.
+        instances.  Use kwarg minor=True to select minor ticks.
 
         ACCEPTS: sequence of strings
         """
         #ticklabels = [str(l) for l in ticklabels]
+        minor = kwargs.pop('minor', False)
+        if minor:
+            self.set_minor_formatter(FixedFormatter(ticklabels))
+            ticks = self.get_minor_ticks()
+        else:
+            self.set_major_formatter( FixedFormatter(ticklabels) )
+            ticks = self.get_major_ticks()
 
         self.set_major_formatter( FixedFormatter(ticklabels) )
 
         ret = []
-        for i, tick in enumerate(self.get_major_ticks()):
+        for i, tick in enumerate(ticks):
             if i<len(ticklabels):
                 tick.label1.set_text(ticklabels[i])
                 ret.append(tick.label1)
             tick.label1.update(kwargs)
         return ret
 
-    def set_ticks(self, ticks):
+    def set_ticks(self, ticks, minor=False):
         """
         Set the locations of the tick marks from sequence ticks
 
@@ -958,10 +1002,14 @@ class Axis(Artist):
         """
         ### XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
-        self.set_major_locator( FixedLocator(ticks) )
         if len(ticks):
             self.set_view_interval(min(ticks), max(ticks))
-        return self.get_major_ticks(len(ticks))
+        if minor:
+            self.set_minor_locator(FixedLocator(ticks))
+            return self.get_minor_ticks(len(ticks))
+        else:
+            self.set_major_locator( FixedLocator(ticks) )
+            return self.get_major_ticks(len(ticks))
 
     def _update_label_position(self, bboxes, bboxes2):
         """

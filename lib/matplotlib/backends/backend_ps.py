@@ -18,7 +18,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
 from matplotlib.cbook import is_string_like, izip, get_realpath_and_stat
 from matplotlib.figure import Figure
 
-from matplotlib.font_manager import findfont
+from matplotlib.font_manager import findfont, is_opentype_cff_font
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
@@ -846,7 +846,7 @@ class FigureCanvasPS(FigureCanvasBase):
         else:
             self._print_figure(outfile, format, dpi, facecolor, edgecolor,
                                orientation, isLandscape, papertype)
-        
+            
     def _print_figure(self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
                       orientation='portrait', isLandscape=False, papertype=None):
         """
@@ -950,7 +950,15 @@ class FigureCanvasPS(FigureCanvasBase):
                     for c in chars:
                         gind = cmap.get(ord(c)) or 0
                         glyph_ids.append(gind)
-                    convert_ttf_to_ps(font_filename, fh, rcParams['ps.fonttype'], glyph_ids)
+                    # The ttf to ps (subsetting) support doesn't work for
+                    # OpenType fonts that are Postscript inside (like the
+                    # STIX fonts).  This will simply turn that off to avoid
+                    # errors.
+                    if is_opentype_cff_font(font_filename):
+                        raise RuntimeError("OpenType CFF fonts can not be saved using the internal Postscript backend at this time.\nConsider using the Cairo backend.")
+                    else:
+                        fonttype = rcParams['ps.fonttype']
+                        convert_ttf_to_ps(font_filename, fh, rcParams['ps.fonttype'], glyph_ids)
         print >>fh, "end"
         print >>fh, "%%EndProlog"
 

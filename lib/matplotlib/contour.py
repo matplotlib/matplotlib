@@ -395,7 +395,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.levels = kwargs.get('levels', None)
         self.filled = kwargs.get('filled', False)
         self.linewidths = kwargs.get('linewidths', None)
-
+        self.linestyles = kwargs.get('linestyles', 'solid')
+        
         self.alpha = kwargs.get('alpha', 1.0)
         self.origin = kwargs.get('origin', None)
         self.extent = kwargs.get('extent', None)
@@ -406,6 +407,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.antialiased = kwargs.get('antialiased', True)
         self.nchunk = kwargs.get('nchunk', 0)
         self.locator = kwargs.get('locator', None)
+        if (isinstance(norm, colors.LogNorm)
+                or isinstance(self.locator, ticker.LogLocator)):
+            self.logscale = True
+            if norm is None:
+                norm = colors.LogNorm()
+            if self.extend is not 'neither':
+                raise ValueError('extend kwarg does not work yet with log scale')
+        else:
+            self.logscale = False
 
         if self.origin is not None: assert(self.origin in
                                             ['lower', 'upper', 'image'])
@@ -453,11 +463,13 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         else:
             tlinewidths = self._process_linewidths()
             self.tlinewidths = tlinewidths
+            tlinestyles = self._process_linestyles()
             C = _cntr.Cntr(x, y, z.filled(), _mask)
-            for level, width in zip(self.levels, tlinewidths):
+            for level, width, lstyle in zip(self.levels, tlinewidths, tlinestyles):
                 nlist = C.trace(level, points = 0)
                 col = collections.LineCollection(nlist,
-                                     linewidths = width)
+                                     linewidths = width,
+                                     linestyle = lstyle)
 
                 if level < 0.0 and self.monochrome:
                     ls = mpl.rcParams['contour.negative_linestyle']
@@ -498,7 +510,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         three levels to provide boundaries for both regions.
         '''
         if self.locator is None:
-            self.locator = ticker.MaxNLocator(N+1)
+            if self.logscale:
+                self.locator = ticker.LogLocator()
+            else:
+                self.locator = ticker.MaxNLocator(N+1)
             self.locator.create_dummy_axis()
         locator = self.locator
         zmax = self.zmax
@@ -509,7 +524,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if zmax >= lev[-1]:
             lev[-1] += zmargin
         if zmin <= lev[0]:
-            lev[0] -= zmargin
+            if self.logscale:
+                lev[0] = 0.99 * zmin
+            else:
+                lev[0] -= zmargin
         self._auto = True
         if self.filled:
             return lev
@@ -595,6 +613,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             raise TypeError("Too many arguments to %s; see help(%s)" % (fn,fn))
         self.zmax = ma.maximum(z)
         self.zmin = ma.minimum(z)
+        if self.logscale and self.zmin <= 0:
+            z = ma.masked_where(z <= 0, z)
+            warnings.warn('Log scale: values of z <=0 have been masked')
+            self.zmin = z.min()
         self._auto = False
         if self.levels is None:
             if Nargs == 1 or Nargs == 3:
@@ -683,6 +705,18 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 linewidths = [linewidths] * Nlev
             tlinewidths = [(w,) for w in linewidths]
         return tlinewidths
+    
+    def _process_linestyles(self):
+        linestyles = self.linestyles
+        Nlev = len(self.levels)
+        if linestyles is None:
+            tlinestyles = ['solid'] * Nlev
+        else:
+            if cbook.is_string_like(linestyles):
+                tlinestyles = [linestyles] * Nlev
+            elif cbook.iterable(linestyles) and len(linestyles) < Nlev:
+                tlinestyles = list(linestyles) * int(npy.ceil(Nlev/len(linestyles)))
+        return tlinestyles
 
     def get_alpha(self):
         '''For compatibility with artists, return self.alpha'''

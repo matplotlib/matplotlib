@@ -398,6 +398,7 @@ class Rectangle(Patch):
         ACCEPTS: float
         """
         w = self._bbox.width
+        x = self.convert_xunits(x)
         self._bbox.intervalx = (x, x + w)
 
     def set_y(self, y):
@@ -407,6 +408,7 @@ class Rectangle(Patch):
         ACCEPTS: float
         """
         h = self._bbox.height
+        y = self.convert_yunits(y)
         self._bbox.intervaly = (y, y + h)
 
     def set_width(self, w):
@@ -415,6 +417,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
+        w = self.convert_xunits(w)
         self._bbox.x1 = self._bbox.x0 + w
 
     def set_height(self, h):
@@ -423,6 +426,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
+        h = self.convert_yunits(h)
         self._bbox.y1 = self._bbox.y0 + h
 
     def set_bounds(self, *args):
@@ -435,7 +439,9 @@ class Rectangle(Patch):
             l,b,w,h = args[0]
         else:
             l,b,w,h = args
-	self._bbox.bounds = l,b,w,h
+        l, w = self.convert_xunits((l, w))
+        b, h = self.convert_yunits((b, h))
+        self._bbox.bounds = l,b,w,h
 
 
 class RegularPolygon(Patch):

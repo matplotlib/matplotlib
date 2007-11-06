@@ -36,7 +36,7 @@ License   : matplotlib license (PSF compatible)
 import os, sys, glob
 from sets import Set
 import matplotlib
-from matplotlib import afm
+from matplotlib import afm 
 from matplotlib import ft2font
 from matplotlib import rcParams, get_configdir
 from matplotlib.cbook import is_string_like
@@ -95,6 +95,10 @@ if not USE_FONTCONFIG:
         path = os.path.join(home, '.fonts')
         X11FontDirectories.append(path)
 
+def get_fontext_synonyms(fontext):
+    return {'ttf': ('ttf', 'otf'),
+            'afm': ('afm',)}[fontext]
+        
 def win32FontDirectory():
     """Return the user-specified font directory for Win32."""
 
@@ -121,6 +125,8 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     if directory is None:
         directory = win32FontDirectory()
 
+    fontext = get_fontext_synonyms(fontext)
+        
     key, items = None, {}
     for fontdir in MSFontDirectories:
         try:
@@ -129,7 +135,10 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
             continue
 
         if not local:
-            return glob.glob(os.path.join(directory, '*.'+fontext))
+            files = []
+            for ext in fontext:
+                files.extend(glob.glob(os.path.join(directory, '*.'+ext)))
+            return files
         try:
             for j in range(_winreg.QueryInfoKey(local)[1]):
                 try:
@@ -137,7 +146,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
                     if not os.path.dirname(direc):
                         direc = os.path.join(directory, direc)
                     direc = os.path.abspath(direc).lower()
-                    if direc[-4:] == '.'+fontext:
+                    if os.path.splitext(direc)[1][1:] in fontext:
                         items[direc] = 1
                 except EnvironmentError:
                     continue
@@ -168,13 +177,16 @@ def OSXInstalledFonts(directory=None, fontext=None):
     if directory is None:
         directory = OSXFontDirectory()
 
+    fontext = get_fontext_synonyms(fontext)
+        
     files = []
     for path in directory:
         if fontext is None:
             files.extend(glob.glob(os.path.join(path,'*')))
         else:
-            files.extend(glob.glob(os.path.join(path, '*.'+fontext)))
-            files.extend(glob.glob(os.path.join(path, '*.'+fontext.upper())))
+            for ext in fontext:
+                files.extend(glob.glob(os.path.join(path, '*.'+ext)))
+                files.extend(glob.glob(os.path.join(path, '*.'+ext.upper())))
     return files
 
 
@@ -201,12 +213,14 @@ def get_fontconfig_fonts(fontext='ttf'):
     except ImportError:
         return {}
 
+    fontext = get_fontext_synonyms(fontext)
+    
     fontfiles = {}
     status, output = commands.getstatusoutput("fc-list file")
     if status == 0:
         for line in output.split('\n'):
             fname = line.split(':')[0]
-            if (os.path.splitext(fname)[1] == "." + fontext and
+            if (os.path.splitext(fname)[1][1:] in fontext and
                 os.path.exists(fname)):
                 fontfiles[fname] = 1
 
@@ -221,7 +235,8 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     AFM fonts as an option.
     """
     fontfiles = {}
-
+    fontexts = get_fontext_synonyms(fontext)
+    
     if fontpaths is None:
         if sys.platform == 'win32':
             fontdir = win32FontDirectory()
@@ -230,7 +245,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
             # now get all installed fonts directly...
             for f in win32InstalledFonts(fontdir):
                 base, ext = os.path.splitext(f)
-                if len(ext)>1 and ext[1:].lower()==fontext:
+                if len(ext)>1 and ext[1:].lower() in fontexts:
                     fontfiles[f] = 1
         else:
             fontpaths = x11FontDirectory()
@@ -246,8 +261,10 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
         fontpaths = [fontpaths]
 
     for path in fontpaths:
-        files = glob.glob(os.path.join(path, '*.'+fontext))
-        files.extend(glob.glob(os.path.join(path, '*.'+fontext.upper())))
+        files = []
+        for ext in fontexts:
+            files.extend(glob.glob(os.path.join(path, '*.'+ext)))
+            files.extend(glob.glob(os.path.join(path, '*.'+ext.upper())))
         for fname in files:
             fontfiles[os.path.abspath(fname)] = 1
 
@@ -1042,21 +1059,41 @@ class FontManager:
             return self.defaultFont
         return fname
 
+
+_is_opentype_cff_font_cache = {}
+def is_opentype_cff_font(filename):
+    """
+    Returns True if the given font is a Postscript Compact Font Format
+    Font embedded in an OpenType wrapper.
+    """
+    if os.path.splitext(filename)[1].lower() == '.otf':
+        result = _is_opentype_cff_font_cache.get(filename)
+        if result is None:
+            fd = open(filename, 'rb')
+            tag = fd.read(4)
+            fd.close()
+            result = (tag == 'OTTO')
+            _is_opentype_cff_font_cache[filename] = result
+        return result
+    return False
+        
+    
 if USE_FONTCONFIG and sys.platform != 'win32':
     import re
 
     def fc_match(pattern, fontext):
         import commands
+        fontexts = get_fontext_synonyms(fontext)
         ext = "." + fontext
         status, output = commands.getstatusoutput('fc-match -sv "%s"' % pattern)
         if status == 0:
             for match in _fc_match_regex.finditer(output):
                 file = match.group(1)
-                if os.path.splitext(file)[1] == ext:
+                if os.path.splitext(file)[1][1:] in fontexts:
                     return file
         return None
 
-    _fc_match_regex = re.compile(r'\sfile:\s+"(.*)"')
+    _fc_match_regex = re.compile(r'\sfile:\s+"([^"]*)"')
     _fc_match_cache = {}
     
     def findfont(prop, fontext='ttf'):
