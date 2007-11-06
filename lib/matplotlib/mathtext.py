@@ -835,21 +835,21 @@ class UnicodeFonts(TruetypeFonts):
         return [(fontname, sym)]
 
 class StixFonts(UnicodeFonts):
-    _fontmap = { 'rm'  : ('STIXGeneral', 'otf'),
-                 'tt'  : ('VeraMono', 'ttf'),
-                 'it'  : ('STIXGeneralItalic', 'otf'),
-                 'bf'  : ('STIXGeneralBol', 'otf'),
-                 'sf'  : ('Vera', 'ttf'),
-                 'nonunirm' : ('STIXNonUni', 'otf'),
-                 'nonuniit' : ('STIXNonUniIta', 'otf'),
-                 'nonunibf' : ('STIXNonUniBol', 'otf'),
+    _fontmap = { 'rm'  : 'STIXGeneral',
+                 'tt'  : 'VeraMono',
+                 'it'  : 'STIXGeneralItalic',
+                 'bf'  : 'STIXGeneralBol',
+                 'sf'  : 'Vera',
+                 'nonunirm' : 'STIXNonUni',
+                 'nonuniit' : 'STIXNonUniIta',
+                 'nonunibf' : 'STIXNonUniBol',
                  
-                 0 : ('STIXGeneral', 'otf'),
-                 1 : ('STIXSiz1Sym', 'otf'),
-                 2 : ('STIXSiz2Sym', 'otf'),
-                 3 : ('STIXSiz3Sym', 'otf'),
-                 4 : ('STIXSiz4Sym', 'otf'),
-                 5 : ('STIXSiz5Sym', 'otf')
+                 0 : 'STIXGeneral',
+                 1 : 'STIXSiz1Sym',
+                 2 : 'STIXSiz2Sym',
+                 3 : 'STIXSiz3Sym',
+                 4 : 'STIXSiz4Sym',
+                 5 : 'STIXSiz5Sym'
                  }
     fontmap = {}
     use_cmex = False
@@ -858,8 +858,8 @@ class StixFonts(UnicodeFonts):
     def __init__(self, *args, **kwargs):
         TruetypeFonts.__init__(self, *args, **kwargs)
         if not len(self.fontmap):
-            for key, (name, ext) in self._fontmap.iteritems():
-                fullpath = os.path.join(self.basepath, ext, name + "." + ext)
+            for key, name in self._fontmap.iteritems():
+                fullpath = os.path.join(self.basepath, 'ttf', name + ".ttf")
                 self.fontmap[key] = fullpath
                 self.fontmap[name] = fullpath
 
