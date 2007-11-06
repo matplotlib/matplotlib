@@ -5,6 +5,7 @@ October 2007 Michael Droettboom
 """
 
 import math
+from weakref import WeakValueDictionary
 
 import numpy as npy
 from matplotlib.numerix import npyma as ma
@@ -65,8 +66,11 @@ class Path(object):
     NUM_VERTICES = [1, 1, 1, 2, 3, 1]
     
     code_type = npy.uint8
+
+    _open_codes_cache = WeakValueDictionary()
+    _closed_codes_cache = WeakValueDictionary()
     
-    def __init__(self, vertices, codes=None, closed=True):
+    def __init__(self, vertices, codes=None, closed=False):
         """
         Create a new path with the given vertices and codes.
 
@@ -88,25 +92,37 @@ class Path(object):
         resulting path will be compressed, with MOVETO codes inserted
         in the correct places to jump over the masked regions.
         """
-        mask = ma.nomask
         if ma.isMaskedArray(vertices):
             mask = ma.getmask(vertices)
         else:
             vertices = npy.asarray(vertices, npy.float_)
-
+            mask = ma.nomask
+            
 	if codes is None:
-            if len(vertices) == 0:
-                codes = npy.zeros((0, ), self.code_type)
-            elif closed:
-		codes = self.LINETO * npy.ones(
-		    vertices.shape[0] + 1, self.code_type)
-		codes[0] = self.MOVETO
-                codes[-1] = self.CLOSEPOLY
+            if closed:
+                # MGDTODO: Remove me once efficiency concerns are
+                # taken care of.
+                warnings.warn("""
+EFFICIENCY CONCERN: Having the Path constructor create a closed
+polyline automatically is not always the most efficient way to do
+things, since it causes a memory copy of the vertices array.  If the
+caller can easily close the polygon itself it should do so.
+""")
+                codes = self._closed_codes_cache.get(len(vertices))
+                if codes is None:
+                    codes = self.LINETO * npy.ones(
+                        vertices.shape[0] + 1, self.code_type)
+                    codes[0] = self.MOVETO
+                    codes[-1] = self.CLOSEPOLY
+                    self._closed_codes_cache[len(vertices)] = codes
                 vertices = npy.concatenate((vertices, [vertices[0]]))
-	    else:
-		codes = self.LINETO * npy.ones(
-		    vertices.shape[0], self.code_type)
-		codes[0] = self.MOVETO
+            else:
+                codes = self._open_codes_cache.get(len(vertices))
+                if codes is None:
+                    codes = self.LINETO * npy.ones(
+                        vertices.shape[0], self.code_type)
+                    codes[0] = self.MOVETO
+                    self._open_codes_cache[len(vertices)] = codes
         else:
 	    codes = npy.asarray(codes, self.code_type)
             assert codes.ndim == 1
@@ -222,7 +238,7 @@ class Path(object):
         """
 	if cls._unit_rectangle is None:
 	    cls._unit_rectangle = \
-		Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
+		Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]])
         return cls._unit_rectangle
     unit_rectangle = classmethod(unit_rectangle)
 
@@ -308,7 +324,7 @@ class Path(object):
                  [-1.0, 0.0]],
                 npy.float_)
 
-            codes = cls.CURVE4 * npy.ones((len(vertices)))
+            codes = cls.CURVE4 * npy.ones(14)
 	    codes[0] = cls.MOVETO
             codes[-1] = cls.CLOSEPOLY
 
