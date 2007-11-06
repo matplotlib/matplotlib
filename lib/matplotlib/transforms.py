@@ -24,7 +24,7 @@ assumed to occur after the non-affine.  For any transform:
 """
 
 import numpy as npy
-from numpy import ma as ma
+from matplotlib.numerix import npyma as ma
 from numpy.linalg import inv
 
 from weakref import WeakKeyDictionary
