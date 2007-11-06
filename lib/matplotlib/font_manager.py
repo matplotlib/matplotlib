@@ -1059,6 +1059,25 @@ class FontManager:
             return self.defaultFont
         return fname
 
+
+_is_opentype_cff_font_cache = {}
+def is_opentype_cff_font(filename):
+    """
+    Returns True if the given font is a Postscript Compact Font Format
+    Font embedded in an OpenType wrapper.
+    """
+    if os.path.splitext(filename)[1].lower() == '.otf':
+        result = _is_opentype_cff_font_cache.get(filename)
+        if result is None:
+            fd = open(filename, 'rb')
+            tag = fd.read(4)
+            fd.close()
+            result = (tag == 'OTTO')
+            _is_opentype_cff_font_cache[filename] = result
+        return result
+    return False
+        
+    
 if USE_FONTCONFIG and sys.platform != 'win32':
     import re
 
