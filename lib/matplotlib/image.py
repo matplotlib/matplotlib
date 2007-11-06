@@ -7,7 +7,7 @@ from __future__ import division
 import os
 
 import numpy as npy
-import numerix.ma as ma
+from matplotlib.numerix import npyma as ma
 
 from matplotlib import rcParams
 from artist import Artist

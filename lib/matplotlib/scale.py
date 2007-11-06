@@ -1,5 +1,5 @@
 import numpy as npy
-from numpy import ma
+from matplotlib.numerix import npyma as ma
 
 from ticker import NullFormatter, ScalarFormatter, LogFormatterMathtext
 from ticker import NullLocator, LogLocator, AutoLocator
