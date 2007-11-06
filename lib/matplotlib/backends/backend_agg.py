@@ -18,55 +18,9 @@ TODO:
 
   * allow save to file handle
 
-  * allow load from png
-
   * integrate screen dpi w/ ppi and text
 
 INSTALLING
-
-  REQUIREMENTs
-
-    python2.2+
-    Numeric 22+
-    agg2 (see below)
-    freetype 2
-    libpng
-    libz
-
-  Install AGG2 (cut and paste below into xterm should work)
-
-    wget http://www.antigrain.com/agg2.tar.gz
-    tar xvfz agg2.tar.gz
-    cd agg2
-    make
-
-    (Optional) if you want to make the examples:
-    cd examples/X11
-    make
-
-  Installing backend_agg
-
-
-   Edit setup.py: change aggsrc to point to the agg2 src tree and
-   replace if 0: with if 1: in the backend_agg section
-
-   Then just do the usual thing: python setup.py build
-
-   Please let me know if you encounter build problems, and tell me
-   platform, gcc version, etc...  Currently the paths in setupext.py
-   assume as linux like filesystem (eg X11 include dir, location of
-   libttf, etcc) so you may need to tweak these
-
-  Using agg backend
-
-    python somefile.py -dAgg
-
-  or
-
-    import matplotlib
-    matplotlib.use('Agg')
-
-
 """
 from __future__ import division
 import os, sys, weakref
