@@ -70,9 +70,11 @@ class Path(object):
         """
         Create a new path with the given vertices and codes.
 
-        vertices is an Nx2 numpy float array.
+        vertices is an Nx2 numpy float array, masked array or Python
+        sequence.
 
-        codes is an N-length numpy array of type Path.code_type.
+        codes is an N-length numpy array or Python sequence of type
+        Path.code_type.
 
         See the docstring of Path for a description of the various
         codes.
