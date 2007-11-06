@@ -1945,7 +1945,8 @@ class Parser(object):
                        ) | Error(r"Expected \hspace{n}"))
                      ).setParseAction(self.customspace).setName('customspace')
 
-        symbol       =(Regex(ur"([a-zA-Z0-9 +\-*/<>=:,.;!'@()\u0080-\uffff])|(\\[%${}\[\]])")
+        unicode_range = u"\U00000080-\U0001ffff"
+        symbol       =(Regex(UR"([a-zA-Z0-9 +\-*/<>=:,.;!'@()%s])|(\\[%%${}\[\]])" % unicode_range)
                      | Combine(
                          bslash
                        + oneOf(tex2uni.keys())
