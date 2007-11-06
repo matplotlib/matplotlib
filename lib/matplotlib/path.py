@@ -7,7 +7,7 @@ October 2007 Michael Droettboom
 import math
 
 import numpy as npy
-from numpy import ma as ma
+from matplotlib.numerix import npyma as ma
 
 from matplotlib._path import point_in_path, get_path_extents, \
     point_in_path_collection
@@ -86,7 +86,8 @@ class Path(object):
         resulting path will be compressed, with MOVETO codes inserted
         in the correct places to jump over the masked regions.
         """
-        if not ma.isMaskedArray(vertices):
+        mask = ma.getmask(vertices)
+        if not mask:
             vertices = ma.asarray(vertices, npy.float_)
 
 	if codes is None:
@@ -112,7 +113,6 @@ class Path(object):
         # itself), are not expected to deal with masked arrays, so we
         # must remove them from the array (using compressed), and add
         # MOVETO commands to the codes array accordingly.
-        mask = ma.getmask(vertices)
         if mask is not ma.nomask:
             mask1d = ma.mask_or(mask[:, 0], mask[:, 1])
             vertices = ma.compress(npy.invert(mask1d), vertices, 0)
@@ -125,7 +125,6 @@ class Path(object):
 
         assert vertices.ndim == 2
         assert vertices.shape[1] == 2
-	assert codes.ndim == 1
         
         self._codes = codes
 	self._vertices = vertices
