@@ -360,9 +360,9 @@ class ContourLabeler:
                     if inline:
                         new = self.break_linecontour(linecontour, rotation, lw, ind)
                         if len(new[0]):
-                            paths[segNum] = path.Path(new[0], closed=False)
+                            paths[segNum] = path.Path(new[0])
                         if len(new[1]):
-                            additions.append(path.Path(new[1], closed=False))
+                            additions.append(path.Path(new[1]))
             paths.extend(additions)
 
             

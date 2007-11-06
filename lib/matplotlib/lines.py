@@ -429,7 +429,7 @@ class Line2D(Artist):
 	self._y = self._xy[:, 1] # just a view
 
         # Masked arrays are now handled by the Path class itself
-        self._path = Path(self._xy, closed=False)
+        self._path = Path(self._xy)
         self._transformed_path = TransformedPath(self._path, self.get_transform())
 
 
@@ -683,7 +683,7 @@ class Line2D(Artist):
         steps[0::2, 0], steps[1::2, 0] = vertices[:, 0], vertices[:-1, 0]
         steps[0::2, 1], steps[1:-1:2, 1] = vertices[:, 1], vertices[1:, 1]
 
-        path = Path(steps, closed=False)
+        path = Path(steps)
         self._draw_solid(renderer, gc, path, trans)
 
 
@@ -694,7 +694,7 @@ class Line2D(Artist):
         steps[::2, 0], steps[1:-1:2, 0] = vertices[:, 0], vertices[1:, 0]
         steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:-1, 1]
 
-        path = Path(steps, closed=False)
+        path = Path(steps)
         self._draw_solid(renderer, gc, path, trans)
 
         
@@ -708,7 +708,7 @@ class Line2D(Artist):
         steps[-1, 0] = vertices[-1, 0]
         steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:, 1]
 
-        path = Path(steps, closed=False)
+        path = Path(steps)
         self._draw_solid(renderer, gc, path, trans)
         
 
@@ -756,7 +756,7 @@ class Line2D(Artist):
 	    rgbFace)
 
 
-    _triangle_path = Path([[0.0, 1.0], [-1.0, -1.0], [1.0, -1.0]])
+    _triangle_path = Path([[0.0, 1.0], [-1.0, -1.0], [1.0, -1.0], [0.0, 1.0]])
     def _draw_triangle_up(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset, offset)
@@ -838,7 +838,7 @@ class Line2D(Artist):
 			      path, path_trans, rgbFace)
 
 
-    _line_marker_path = Path([[0.0, -1.0], [0.0, 1.0]], closed=False)
+    _line_marker_path = Path([[0.0, -1.0], [0.0, 1.0]])
     def _draw_vline(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset)
@@ -853,7 +853,7 @@ class Line2D(Artist):
 			      path, path_trans)
 
 		
-    _tickhoriz_path = Path([[0.0, 0.5], [1.0, 0.5]], closed=False)
+    _tickhoriz_path = Path([[0.0, 0.5], [1.0, 0.5]])
     def _draw_tickleft(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
 	marker_transform = Affine2D().scale(-offset, 1.0)
@@ -868,7 +868,7 @@ class Line2D(Artist):
 			      path, path_trans)
 
 	
-    _tickvert_path = Path([[-0.5, 0.0], [-0.5, 1.0]], closed=False)
+    _tickvert_path = Path([[-0.5, 0.0], [-0.5, 1.0]])
     def _draw_tickup(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
 	marker_transform = Affine2D().scale(1.0, offset)

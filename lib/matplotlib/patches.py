@@ -578,7 +578,7 @@ class Arrow(Polygon):
             [ 0.0,  0.1 ], [ 0.0, -0.1],
             [ 0.8, -0.1 ], [ 0.8, -0.3],
             [ 1.0,  0.0 ], [ 0.8,  0.3],
-            [ 0.8,  0.1 ] ] )
+            [ 0.8,  0.1 ], [ 0.0,  0.1] ] )
     
     def __init__( self, x, y, dx, dy, width=1.0, **kwargs ):
         """Draws an arrow, starting at (x,y), direction and length
@@ -727,8 +727,8 @@ class YAArrow(Patch):
         xc1, yc1, xc2, yc2 = self.getpoints(x1, y1, xm, ym, k1)
         xd1, yd1, xd2, yd2 = self.getpoints(x1, y1, xm, ym, k2)
 
-        xs = self.convert_xunits([xb1, xb2, xc2, xd2, x1, xd1, xc1])
-        ys = self.convert_yunits([yb1, yb2, yc2, yd2, y1, yd1, yc1])
+        xs = self.convert_xunits([xb1, xb2, xc2, xd2, x1, xd1, xc1, xb1])
+        ys = self.convert_yunits([yb1, yb2, yc2, yd2, y1, yd1, yc1, yb1])
 
         return Path(zip(xs, ys))
 

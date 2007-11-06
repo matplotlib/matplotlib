@@ -4680,9 +4680,10 @@ class Axes(martist.Artist):
         xy = npy.concatenate((X1[:,newaxis], Y1[:,newaxis],
                              X2[:,newaxis], Y2[:,newaxis],
                              X3[:,newaxis], Y3[:,newaxis],
-                             X4[:,newaxis], Y4[:,newaxis]),
+                             X4[:,newaxis], Y4[:,newaxis],
+                             X1[:,newaxis], Y1[:,newaxis]),
                              axis=1)
-        verts = xy.reshape((npoly, 4, 2))
+        verts = xy.reshape((npoly, 5, 2))
 
         #verts = zip(zip(X1,Y1),zip(X2,Y2),zip(X3,Y3),zip(X4,Y4))
 
@@ -4696,6 +4697,7 @@ class Axes(martist.Artist):
         kwargs.setdefault('edgecolors', edgecolors)
         kwargs.setdefault('antialiaseds', (0,))
         kwargs.setdefault('linewidths', (0.25,))
+        kwargs['closed'] = False
 
         collection = mcoll.PolyCollection(verts, **kwargs)
 
