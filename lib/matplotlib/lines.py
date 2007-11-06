@@ -8,7 +8,7 @@ from __future__ import division
 
 import numpy as npy
 
-import numerix.ma as ma
+from matplotlib.numerix import npyma as ma
 from matplotlib import verbose
 import artist
 from artist import Artist
