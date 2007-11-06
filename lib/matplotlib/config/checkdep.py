@@ -4,28 +4,27 @@ import sys
 import warnings
 import distutils.version as version
 
+tex_req = '3.1415'
+gs_req = '7.07'
+gs_sugg = '8.60'
+dvipng_req = '1.5'
+pdftops_req = '3.0'
+
 def dvipng():
     try:
         stdin, stdout = os.popen4('dvipng -version')
-        line = stdout.readlines()[1]
-        v = line.split()[-1]
-        float(v)
-        return v
+        return stdout.readlines()[1].split()[-1]
     except (IndexError, ValueError):
         return None
 
 def ghostscript():
     try:
         if sys.platform == 'win32':
-            command = 'gswin32c -v'
+            command = 'gswin32c --version'
         else:
-            command = 'gs -v'
+            command = 'gs --version'
         stdin, stdout = os.popen4(command)
-        line = stdout.readlines()[0]
-        v = line.split()[-2]
-        vtest = '.'.join(v.split('.')[:2]) # deal with version numbers like '7.07.1'
-        float(vtest)
-        return vtest
+        return stdout.read()[:-1]
     except (IndexError, ValueError):
         return None
 
@@ -35,9 +34,7 @@ def tex():
         line = stdout.readlines()[0]
         pattern = '3\.1\d+'
         match = re.search(pattern, line)
-        v = match.group(0)
-        float(v)
-        return v
+        return match.group(0)
     except (IndexError, ValueError):
         return None
 
@@ -46,9 +43,7 @@ def pdftops():
         stdin, stdout = os.popen4('pdftops -v')
         for line in stdout.readlines():
             if 'version' in line:
-                v = line.split()[-1]
-        float(v)
-        return v
+                return line.split()[-1]
     except (IndexError, ValueError):
         return None
 
@@ -66,8 +61,6 @@ def ps_distiller(s):
         return False
 
     flag = True
-    gs_req = '7.07'
-    gs_sugg = '7.07'
     gs_v = ghostscript()
     if compare_versions(gs_v, gs_sugg): pass
     elif compare_versions(gs_v, gs_req):
@@ -81,14 +74,13 @@ def ps_distiller(s):
                        'system.') % gs_req)
 
     if s == 'xpdf':
-        pdftops_req = '3.0'
         pdftops_v = pdftops()
         if compare_versions(pdftops_v, pdftops_req): pass
         else:
             flag = False
             warnings.warn(('matplotlibrc ps.usedistiller can not be set to '
-                           'xpdf unless xpdf-%s or later is installed on your '
-                           'system.') % pdftops_req)
+                           'xpdf unless pdftops-%s or later is installed on '
+                           'your system.') % pdftops_req)
 
     if flag:
         return s
@@ -99,10 +91,6 @@ def usetex(s):
     if not s:
         return False
 
-    tex_req = '3.1415'
-    gs_req = '7.07'
-    gs_sugg = '7.07'
-    dvipng_req = '1.5'
     flag = True
 
     tex_v = tex()

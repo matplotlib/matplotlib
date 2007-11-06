@@ -9,6 +9,7 @@ import os
 import re
 import sys
 import time
+import warnings
 import zlib
 
 import numpy as npy
@@ -25,7 +26,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict, get_realpath_and_stat
 from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont
+from matplotlib.font_manager import findfont, is_opentype_cff_font
 from matplotlib.afm import AFM
 import matplotlib.type1font as type1font
 import matplotlib.dviread as dviread
@@ -790,7 +791,8 @@ end"""
                 glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
                 # Why divided by 3.0 ??? Wish I knew... MGD
                 widths.append((ccode, cvt(glyph.horiAdvance) / 3.0))
-                cid_to_gid_map[ccode] = unichr(gind)
+                if ccode < 65536:
+                    cid_to_gid_map[ccode] = unichr(gind)
                 max_ccode = max(ccode, max_ccode)
             widths.sort()
             cid_to_gid_map = cid_to_gid_map[:max_ccode + 1]
@@ -880,6 +882,15 @@ end"""
             'StemV'       : 0 # ???
             }
 
+        # The font subsetting to a Type 3 font does not work for
+        # OpenType (.otf) that embed a Postscript CFF font, so avoid that --
+        # save as a (non-subsetted) Type 42 font instead.
+        if is_opentype_cff_font(filename):
+            fonttype = 42
+            warnings.warn(("'%s' can not be subsetted into a Type 3 font. " +
+                           "The entire font will be embedded in the output.") %
+                           os.path.basename(filename))
+        
         if fonttype == 3:
             return embedTTFType3(font, characters, descriptor)
         elif fonttype == 42:
@@ -1130,10 +1141,6 @@ class RendererPdf(RendererBase):
         self.truetype_font_cache = {}
         self.afm_font_cache = {}
         self.file.used_characters = self.used_characters = {}
-        if rcParams['pdf.fonttype'] == 3:
-            self.encode_string = self.encode_string_type3
-        else:
-            self.encode_string = self.encode_string_type42
         self.mathtext_parser = MathTextParser("Pdf")
         self.image_magnification = dpi/72.0
         self.tex_font_map = None
@@ -1235,7 +1242,7 @@ class RendererPdf(RendererBase):
         # When using Type 3 fonts, we can't use character codes higher
         # than 255, so we use the "Do" command to render those
         # instead.
-        fonttype = rcParams['pdf.fonttype']
+        global_fonttype = rcParams['pdf.fonttype']
 
         # Set up a global transformation matrix for the whole math expression
         a = angle / 180.0 * pi
@@ -1248,6 +1255,11 @@ class RendererPdf(RendererBase):
         prev_font = None, None
         oldx, oldy = 0, 0
         for ox, oy, fontname, fontsize, num, symbol_name in glyphs:
+            if is_opentype_cff_font(fontname):
+                fonttype = 42
+            else:
+                fonttype = global_fonttype
+            
             if fonttype == 42 or num <= 255:
                 self._setup_textpos(ox, oy, 0, oldx, oldy)
                 oldx, oldy = ox, oy
@@ -1255,14 +1267,19 @@ class RendererPdf(RendererBase):
                     self.file.output(self.file.fontName(fontname), fontsize,
                                      Op.selectfont)
                     prev_font = fontname, fontsize
-                self.file.output(self.encode_string(unichr(num)), Op.show)
+                self.file.output(self.encode_string(unichr(num), fonttype), Op.show)
         self.file.output(Op.end_text)
 
         # If using Type 3 fonts, render all of the two-byte characters
         # as XObjects using the 'Do' command.
-        if fonttype == 3:
+        if global_fonttype == 3:
             for ox, oy, fontname, fontsize, num, symbol_name in glyphs:
-                if num > 255:
+                if is_opentype_cff_font(fontname):
+                    fonttype = 42
+                else:
+                    fonttype = global_fonttype
+                
+                if fonttype == 3 and num > 255:
                     self.file.output(Op.gsave,
                                      0.001 * fontsize, 0,
                                      0, 0.001 * fontsize,
@@ -1362,10 +1379,9 @@ class RendererPdf(RendererBase):
             self.draw_polygon(boxgc, gc._rgb,
                               ((x1,y1), (x2,y2), (x3,y3), (x4,y4)))
 
-    def encode_string_type3(self, s):
-        return s.encode('cp1252', 'replace')
-
-    def encode_string_type42(self, s):
+    def encode_string(self, s, fonttype):
+        if fonttype == 3:
+            return s.encode('cp1252', 'replace')
         return s.encode('utf-16be', 'replace')
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
@@ -1391,20 +1407,29 @@ class RendererPdf(RendererBase):
             font = self._get_font_afm(prop)
             l, b, w, h = font.get_str_bbox(s)
             y -= b * fontsize / 1000
+            fonttype = 42
         else:
             font = self._get_font_ttf(prop)
             self.track_characters(font, s)
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
             y += font.get_descent() / 64.0
 
+            fonttype = rcParams['pdf.fonttype']
+                
+            # We can't subset all OpenType fonts, so switch to Type 42
+            # in that case.
+            if is_opentype_cff_font(font.fname):
+                fonttype = 42
+            
         def check_simple_method(s):
             """Determine if we should use the simple or woven method
-            to output this text, and chunks the string into 1-bit and
-            2-bit sections if necessary."""
+            to output this text, and chunks the string into 1-byte and
+            2-byte sections if necessary."""
             use_simple_method = True
             chunks = []
-            if rcParams['pdf.fonttype'] == 3:
-                if not isinstance(s, str) and len(s) != 0:
+
+            if not rcParams['pdf.use14corefonts']:
+                if fonttype == 3 and not isinstance(s, str) and len(s) != 0:
                     # Break the string into chunks where each chunk is either
                     # a string of chars <= 255, or a single character > 255.
                     s = unicode(s)
@@ -1428,7 +1453,7 @@ class RendererPdf(RendererBase):
                              prop.get_size_in_points(),
                              Op.selectfont)
             self._setup_textpos(x, y, angle)
-            self.file.output(self.encode_string(s), Op.show, Op.end_text)
+            self.file.output(self.encode_string(s, fonttype), Op.show, Op.end_text)
 
         def draw_text_woven(chunks):
             """Outputs text using the woven method, alternating
@@ -1458,7 +1483,7 @@ class RendererPdf(RendererBase):
                 for chunk_type, chunk in chunks:
                     if mode == 1 and chunk_type == 1:
                         self._setup_textpos(newx, 0, 0, oldx, 0, 0)
-                        self.file.output(self.encode_string(chunk), Op.show)
+                        self.file.output(self.encode_string(chunk, fonttype), Op.show)
                         oldx = newx
 
                     lastgind = None

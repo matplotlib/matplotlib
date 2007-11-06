@@ -1,21 +1,23 @@
 #!/usr/bin/env python
 """
 Show how to connect to keypress events
-
-Note, on the wx backend on some platforms (eg linux), you have to
-first click on the figure before the keypress events are activated.
-If you know how to fix this, please email us!
 """
-from pylab import *
+import numpy as n
+from pylab import figure, show
 
 def press(event):
     print 'press', event.key
-    if event.key=='g':
-        grid()
-        draw()
+    if event.key=='x':
+        visible = xl.get_visible()
+        xl.set_visible(not visible)
+        fig.canvas.draw()
 
-connect('key_press_event', press)
+fig = figure()
+ax = fig.add_subplot(111)
 
-title('press g to toggle grid')
-plot(rand(12), rand(12), 'go')
+fig.canvas.mpl_connect('key_press_event', press)
+
+ax.plot(n.random.rand(12), n.random.rand(12), 'go')
+xl = ax.set_xlabel('easy come, easy go')
+
 show()

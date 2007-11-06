@@ -166,7 +166,7 @@ class MPLConfig(TConfig):
         it  = T.Trait('serif:oblique' , mplT.FontconfigPatternHandler())
         bf  = T.Trait('serif:bold'    , mplT.FontconfigPatternHandler())
         sf  = T.Trait('sans'          , mplT.FontconfigPatternHandler())
-        use_cm = T.true
+        fontset = T.Trait('cm', 'cm', 'stix', 'custom')
         fallback_to_cm = T.true
 
     class axes(TConfig):
@@ -344,7 +344,7 @@ class RcParamsWrapper(dict):
         'mathtext.it'         : (self.tconfig.mathtext, 'it'),
         'mathtext.bf'         : (self.tconfig.mathtext, 'bf'),
         'mathtext.sf'         : (self.tconfig.mathtext, 'sf'),
-        'mathtext.use_cm'     : (self.tconfig.mathtext, 'use_cm'),
+        'mathtext.fontset'    : (self.tconfig.mathtext, 'fontset'),
         'mathtext.fallback_to_cm' : (self.tconfig.mathtext, 'fallback_to_cm'),
 
         'image.aspect' : (self.tconfig.image, 'aspect'),

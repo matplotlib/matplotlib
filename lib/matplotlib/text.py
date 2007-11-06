@@ -614,7 +614,7 @@ class Text(Artist):
         self._text = '%s' % (s,)
 
     def is_math_text(self, s):
-        if rcParams['text.usetex']: return 'TeX'        
+        if rcParams['text.usetex']: return 'TeX'
 
         # Did we find an even number of non-escaped dollar signs?
         # If so, treat is as math text.

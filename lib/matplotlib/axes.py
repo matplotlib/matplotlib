@@ -1638,25 +1638,33 @@ class Axes(martist.Artist):
         self.xaxis.set_scale(value, **kwargs)
         self._update_transScale()
         
-    def get_xticks(self):
+    def get_xticks(self, minor=False):
         'Return the x ticks as a list of locations'
-        return self.xaxis.get_ticklocs()
+        return self.xaxis.get_ticklocs(minor=minor)
 
-    def set_xticks(self, ticks):
+    def set_xticks(self, ticks, minor=False):
         """
         Set the x ticks with list of ticks
 
         ACCEPTS: sequence of floats
         """
-        return self.xaxis.set_ticks(ticks)
+        return self.xaxis.set_ticks(ticks, minor=minor)
 
-    def get_xticklabels(self):
+    def get_xmajorticklabels(self):
         'Get the xtick labels as a list of Text instances'
-        return cbook.silent_list('Text xticklabel', self.xaxis.get_ticklabels())
+        return cbook.silent_list('Text xticklabel', self.xaxis.get_majorticklabels())
 
-    def set_xticklabels(self, labels, fontdict=None, **kwargs):
+    def get_xminorticklabels(self):
+        'Get the xtick labels as a list of Text instances'
+        return cbook.silent_list('Text xticklabel', self.xaxis.get_minorticklabels())
+
+    def get_xticklabels(self, minor=False):
+        'Get the xtick labels as a list of Text instances'
+        return cbook.silent_list('Text xticklabel', self.xaxis.get_ticklabels(minor=minor))
+
+    def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        SET_XTICKLABELS(labels, fontdict=None, **kwargs)
+        set_xticklabels(labels, fontdict=None, minor=False, **kwargs)
 
         Set the xtick labels with list of strings labels Return a list of axis
         text instances.
@@ -1666,7 +1674,7 @@ class Axes(martist.Artist):
 
         ACCEPTS: sequence of strings
         """
-        return self.xaxis.set_ticklabels(labels, fontdict, **kwargs)
+        return self.xaxis.set_ticklabels(labels, fontdict, minor=minor, **kwargs)
     set_xticklabels.__doc__ = cbook.dedent(set_xticklabels.__doc__) % martist.kwdocd
 
     def invert_yaxis(self):
@@ -1791,25 +1799,33 @@ class Axes(martist.Artist):
         self.yaxis.set_scale(value, **kwargs)
         self._update_transScale()
         
-    def get_yticks(self):
+    def get_yticks(self, minor=False):
         'Return the y ticks as a list of locations'
-        return self.yaxis.get_ticklocs()
+        return self.yaxis.get_ticklocs(minor=minor)
 
-    def set_yticks(self, ticks):
+    def set_yticks(self, ticks, minor=False):
         """
         Set the y ticks with list of ticks
 
         ACCEPTS: sequence of floats
         """
-        return self.yaxis.set_ticks(ticks)
+        return self.yaxis.set_ticks(ticks, minor=minor)
 
-    def get_yticklabels(self):
-        'Get the ytick labels as a list of Text instances'
-        return cbook.silent_list('Text yticklabel', self.yaxis.get_ticklabels())
+    def get_ymajorticklabels(self):
+        'Get the xtick labels as a list of Text instances'
+        return cbook.silent_list('Text yticklabel', self.yaxis.get_majorticklabels())
 
-    def set_yticklabels(self, labels, fontdict=None, **kwargs):
+    def get_yminorticklabels(self):
+        'Get the xtick labels as a list of Text instances'
+        return cbook.silent_list('Text yticklabel', self.yaxis.get_minorticklabels())
+
+    def get_yticklabels(self, minor=False):
+        'Get the xtick labels as a list of Text instances'
+        return cbook.silent_list('Text yticklabel', self.yaxis.get_ticklabels(minor=minor))
+
+    def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        SET_YTICKLABELS(labels, fontdict=None, **kwargs)
+        set_yticklabels(labels, fontdict=None, minor=False, **kwargs)
 
         Set the ytick labels with list of strings labels.  Return a list of
         Text instances.
@@ -1819,7 +1835,7 @@ class Axes(martist.Artist):
 
         ACCEPTS: sequence of strings
         """
-        return self.yaxis.set_ticklabels(labels, fontdict, **kwargs)
+        return self.yaxis.set_ticklabels(labels, fontdict, minor=minor, **kwargs)
     set_yticklabels.__doc__ = cbook.dedent(set_yticklabels.__doc__) % martist.kwdocd
 
     def xaxis_date(self, tz=None):
@@ -3314,21 +3330,6 @@ class Axes(martist.Artist):
 
         patches = []
 
-        # lets do some conversions now
-        if self.xaxis is not None:
-            xconv = self.xaxis.converter
-            if xconv is not None:
-                units = self.xaxis.get_units()
-                left = xconv.convert( left, units )
-                width = xconv.convert( width, units )
-
-        if self.yaxis is not None:
-            yconv = self.yaxis.converter
-            if yconv is not None :
-                units = self.yaxis.get_units()
-                bottom = yconv.convert( bottom, units )
-                height = yconv.convert( height, units )
-
 
         if align == 'edge':
             pass
@@ -3590,7 +3591,7 @@ class Axes(martist.Artist):
         texts = []
         slices = []
         autotexts = []
-        for frac, label, expl in zip(x,labels, explode):
+        for frac, label, expl in cbook.safezip(x,labels, explode):
             x, y = center
             theta2 = theta1 + frac
             thetam = 2*math.pi*0.5*(theta1+theta2)
@@ -3717,23 +3718,24 @@ class Axes(martist.Artist):
         a list of error bar cap lines, the third element is a list of
         line collections for the horizontal and vertical error ranges
         """
+
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         if not self._hold: self.cla()
 
-        # make sure all the args are iterable arrays
-        if not iterable(x): x = npy.array([x])
-        else: x = npy.asarray(x)
+        # make sure all the args are iterable; use lists not arrays to preserve units
+        if not iterable(x):
+            x = [x]
 
-        if not iterable(y): y = npy.array([y])
-        else: y = npy.asarray(y)
+        if not iterable(y):
+            y = [y]
 
         if xerr is not None:
-            if not iterable(xerr): xerr = npy.array([xerr])
-            else: xerr = npy.asarray(xerr)
+            if not iterable(xerr):
+                xerr = [xerr]*len(x)
 
         if yerr is not None:
-            if not iterable(yerr): yerr = npy.array([yerr])
-            else: yerr = npy.asarray(yerr)
+            if not iterable(yerr):
+                yerr = [yerr]*len(y)
 
         l0 = None
 
@@ -3749,7 +3751,9 @@ class Axes(martist.Artist):
         if 'lw' in kwargs:
             lines_kw['lw']=kwargs['lw']
 
-        if not iterable(lolims): lolims = npy.array([lolims]*len(x), bool)
+        # arrays fine here, they are booleans and hence not units
+        if not iterable(lolims):
+            lolims = npy.asarray([lolims]*len(x), bool)
         else: lolims = npy.asarray(lolims, bool)
 
         if not iterable(uplims): uplims = npy.array([uplims]*len(x), bool)
@@ -3761,6 +3765,18 @@ class Axes(martist.Artist):
         if not iterable(xuplims): xuplims = npy.array([xuplims]*len(x), bool)
         else: xuplims = npy.asarray(xuplims, bool)
 
+        def xywhere(xs, ys, mask):
+            """
+            return xs[mask], ys[mask] where mask is True but xs and
+            ys are not arrays
+            """
+            assert len(xs)==len(ys)
+            assert len(xs)==len(mask)
+            xs = [thisx for thisx, b in zip(xs, mask) if b]
+            ys = [thisy for thisy, b in zip(ys, mask) if b]
+            return xs, ys
+            
+
         if capsize > 0:
             plot_kw = {
                 'ms':2*capsize,
@@ -3771,51 +3787,68 @@ class Axes(martist.Artist):
                 plot_kw['mew']=kwargs['mew']
 
         if xerr is not None:
-            if len(xerr.shape) == 1:
-                left  = x-xerr
-                right = x+xerr
+            if iterable(xerr) and len(xerr)==2:
+                # using list comps rather than arrays to preserve units
+                left  = [thisx-thiserr for (thisx, thiserr) in cbook.safezip(x,xerr[0])]
+                right  = [thisx+thiserr for (thisx, thiserr) in cbook.safezip(x,xerr[1])]
             else:
-                left  = x-xerr[0]
-                right = x+xerr[1]
+                # using list comps rather than arrays to preserve units
+                left  = [thisx-thiserr for (thisx, thiserr) in cbook.safezip(x,xerr)]
+                right  = [thisx+thiserr for (thisx, thiserr) in cbook.safezip(x,xerr)]
 
             barcols.append( self.hlines(y, left, right, **lines_kw ) )
             if capsize > 0:
                 if xlolims.any():
-                    caplines.extend( self.plot(left[xlolims], y[xlolims], ls='None', marker=mlines.CARETLEFT, **plot_kw) )
+                    # can't use numpy logical indexing since left and
+                    # y are lists
+                    leftlo, ylo = xywhere(left, y, xlolims)
+                    
+                    caplines.extend( self.plot(leftlo, ylo, ls='None', marker=mlines.CARETLEFT, **plot_kw) )
                     xlolims = ~xlolims
-                    caplines.extend( self.plot(left[xlolims], y[xlolims], 'k|', **plot_kw) )
+                    leftlo, ylo = xywhere(left, y, xlolims)                    
+                    caplines.extend( self.plot(leftlo, ylo, 'k|', **plot_kw) )
                 else:
                     caplines.extend( self.plot(left, y, 'k|', **plot_kw) )
 
                 if xuplims.any():
-                    caplines.extend( self.plot(right[xuplims],  y[xuplims], ls='None', marker=mlines.CARETRIGHT, **plot_kw) )
+                    
+                    rightup, yup = xywhere(right, y, xuplims)
+                    caplines.extend( self.plot(rightup,  yup, ls='None', marker=mlines.CARETRIGHT, **plot_kw) )
                     xuplims = ~xuplims
-                    caplines.extend( self.plot(right[xuplims],  y[xuplims], 'k|', **plot_kw) )
+                    rightup, yup = xywhere(right, y, xuplims)
+                    caplines.extend( self.plot(rightup,  yup, 'k|', **plot_kw) )
                 else:
                     caplines.extend( self.plot(right, y, 'k|', **plot_kw) )
 
         if yerr is not None:
-            if len(yerr.shape) == 1:
-                lower = y-yerr
-                upper = y+yerr
+            if iterable(yerr) and len(yerr)==2:
+                # using list comps rather than arrays to preserve units
+                lower  = [thisy-thiserr for (thisy, thiserr) in cbook.safezip(y,yerr[0])]
+                upper  = [thisy+thiserr for (thisy, thiserr) in cbook.safezip(y,yerr[1])]
             else:
-                lower = y-yerr[0]
-                upper = y+yerr[1]
+                # using list comps rather than arrays to preserve units
+                lower  = [thisy-thiserr for (thisy, thiserr) in cbook.safezip(y,yerr)]
+                upper  = [thisy+thiserr for (thisy, thiserr) in cbook.safezip(y,yerr)]
                 
             barcols.append( self.vlines(x, lower, upper, **lines_kw) )
             if capsize > 0:
 
                 if lolims.any():
-                    caplines.extend( self.plot(x[lolims], lower[lolims], ls='None', marker=mlines.CARETDOWN, **plot_kw) )
+                    xlo, lowerlo = xywhere(x, lower, lolims)
+                    caplines.extend( self.plot(xlo, lowerlo, ls='None', marker=mlines.CARETDOWN, **plot_kw) )
                     lolims = ~lolims
-                    caplines.extend( self.plot(x[lolims], lower[lolims], 'k_', **plot_kw) )
+                    xlo, lowerlo = xywhere(x, lower, lolims)
+                    caplines.extend( self.plot(xlo, lowerlo, 'k_', **plot_kw) )
                 else:
                     caplines.extend( self.plot(x, lower, 'k_', **plot_kw) )
 
                 if uplims.any():
-                    caplines.extend( self.plot(x[uplims], upper[uplims], ls='None', marker=mlines.CARETUP, **plot_kw) )
+                    xup, upperup = xywhere(x, upper, uplims)
+                    
+                    caplines.extend( self.plot(xup, upperup, ls='None', marker=mlines.CARETUP, **plot_kw) )
                     uplims = ~uplims
-                    caplines.extend( self.plot(x[uplims], upper[uplims], 'k_', **plot_kw) )
+                    xup, upperup = xywhere(x, upper, uplims)
+                    caplines.extend( self.plot(xup, upperup, 'k_', **plot_kw) )
                 else:
                     caplines.extend( self.plot(x, upper, 'k_', **plot_kw) )
 

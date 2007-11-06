@@ -6,7 +6,7 @@ __all__ = ['backend','show','draw_if_interactive',
            'new_figure_manager', 'backend_version']
 
 interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'QtAgg', 'Qt4Agg',
-                  'TkAgg', 'WX', 'WXAgg', 'CocoaAgg', 'Aqt']
+                  'TkAgg', 'WX', 'WXAgg', 'CocoaAgg']
 non_interactive_bk = ['Agg2', 'Agg', 'Cairo', 'EMF', 'GDK',
                       'Pdf', 'PS', 'SVG', 'Template']
 all_backends = interactive_bk + non_interactive_bk
@@ -50,7 +50,4 @@ def pylab_setup():
 
     return new_figure_manager, draw_if_interactive, show
 
-# a hack to keep old versions of ipython working with mpl
-if 'IPython.Shell' in  sys.modules:
-    new_figure_manager, draw_if_interactive, show = pylab_setup()
 

@@ -526,7 +526,7 @@ class TruetypeFonts(Fonts):
     A generic base class for all font setups that use Truetype fonts
     (through ft2font)
     """
-    basepath = os.path.join( get_data_path(), 'fonts', 'ttf' )
+    basepath = os.path.join( get_data_path(), 'fonts' )
 
     class CachedFont:
         def __init__(self, font):
@@ -663,7 +663,7 @@ class BakomaFonts(TruetypeFonts):
         TruetypeFonts.__init__(self, *args, **kwargs)
         if not len(self.fontmap):
             for key, val in self._fontmap.iteritems():
-                fullpath = os.path.join(self.basepath, val + ".ttf")
+                fullpath = os.path.join(self.basepath, 'ttf', val + ".ttf")
                 self.fontmap[key] = fullpath
                 self.fontmap[val] = fullpath
 
@@ -749,7 +749,8 @@ class UnicodeFonts(TruetypeFonts):
     """
 
     fontmap = {}
-
+    use_cmex = True
+    
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
         if rcParams['mathtext.fallback_to_cm']:
@@ -771,18 +772,20 @@ class UnicodeFonts(TruetypeFonts):
     def _get_glyph(self, fontname, sym, fontsize):
         found_symbol = False
 
-        uniindex = latex_to_cmex.get(sym)
-        if uniindex is not None:
-            fontname = 'ex'
-            found_symbol = True
-        else:
+        if self.use_cmex:
+            uniindex = latex_to_cmex.get(sym)
+            if uniindex is not None:
+                fontname = 'ex'
+                found_symbol = True
+                
+        if not found_symbol:
             try:
                 uniindex = get_unicode_index(sym)
                 found_symbol = True
             except ValueError:
                 uniindex = ord('?')
                 warn("No TeX to unicode mapping for '%s'" %
-                     sym.encode('ascii', 'replace'),
+                     sym.encode('ascii', 'backslashreplace'),
                      MathTextWarning)
 
         # Only characters in the "Letter" class should be italicized in 'it'
@@ -803,7 +806,7 @@ class UnicodeFonts(TruetypeFonts):
             except KeyError:
                 warn("Font '%s' does not have a glyph for '%s'" %
                      (cached_font.font.postscript_name,
-                      sym.encode('ascii', 'replace')),
+                      sym.encode('ascii', 'backslashreplace')),
                      MathTextWarning)
                 found_symbol = False
 
@@ -813,6 +816,8 @@ class UnicodeFonts(TruetypeFonts):
                      MathTextWarning)
                 return self.cm_fallback._get_glyph(fontname, sym, fontsize)
             else:
+                warn("Substituting with a dummy symbol.", MathTextWarning)
+                fontname = 'rm'
                 new_fontname = fontname
                 cached_font = self._get_font(fontname)
                 uniindex = 0xA4 # currency character, for lack of anything better
@@ -827,6 +832,71 @@ class UnicodeFonts(TruetypeFonts):
             return self.cm_fallback.get_sized_alternatives_for_symbol(
                 fontname, sym)
         return [(fontname, sym)]
+
+class StixFonts(UnicodeFonts):
+    _fontmap = { 'rm'  : 'STIXGeneral',
+                 'tt'  : 'VeraMono',
+                 'it'  : 'STIXGeneralItalic',
+                 'bf'  : 'STIXGeneralBol',
+                 'sf'  : 'Vera',
+                 'nonunirm' : 'STIXNonUni',
+                 'nonuniit' : 'STIXNonUniIta',
+                 'nonunibf' : 'STIXNonUniBol',
+                 
+                 0 : 'STIXGeneral',
+                 1 : 'STIXSiz1Sym',
+                 2 : 'STIXSiz2Sym',
+                 3 : 'STIXSiz3Sym',
+                 4 : 'STIXSiz4Sym',
+                 5 : 'STIXSiz5Sym'
+                 }
+    fontmap = {}
+    use_cmex = False
+    cm_fallback = False
+
+    def __init__(self, *args, **kwargs):
+        TruetypeFonts.__init__(self, *args, **kwargs)
+        if not len(self.fontmap):
+            for key, name in self._fontmap.iteritems():
+                fullpath = os.path.join(self.basepath, 'ttf', name + ".ttf")
+                self.fontmap[key] = fullpath
+                self.fontmap[name] = fullpath
+
+    def _get_glyph(self, fontname, sym, fontsize):
+        # Handle calligraphic letters
+        if fontname == 'cal':
+            if len(sym) != 1 or ord(sym) < ord('A') or ord(sym) > ord('Z'):
+                raise ValueError(r"Sym '%s' is not available in \mathcal font" % sym)
+            fontname = 'nonuniit'
+            sym = unichr(ord(sym) + 0xe22d - ord('A'))
+
+        # Handle private use area glyphs
+        if (fontname in ('it', 'rm', 'bf') and
+            len(sym) == 1 and ord(sym) >= 0xe000 and ord(sym) <= 0xf8ff):
+            fontname = 'nonuni' + fontname
+
+        return UnicodeFonts._get_glyph(self, fontname, sym, fontsize)
+                
+    _size_alternatives = {}
+    def get_sized_alternatives_for_symbol(self, fontname, sym):
+        alternatives = self._size_alternatives.get(sym)
+        if alternatives:
+            return alternatives
+
+        alternatives = []
+        try:
+            uniindex = get_unicode_index(sym)
+        except ValueError:
+            return [(fontname, sym)]
+
+        for i in range(6):
+            cached_font = self._get_font(i)
+            glyphindex = cached_font.charmap.get(uniindex)
+            if glyphindex is not None:
+                alternatives.append((i, unichr(uniindex)))
+
+        self._size_alternatives[sym] = alternatives
+        return alternatives
     
 class StandardPsFonts(Fonts):
     """
@@ -1089,7 +1159,7 @@ class Char(Node):
         Node.__init__(self)
         self.c = c
         self.font_output = state.font_output
-        assert isinstance(state.font, str)
+        assert isinstance(state.font, (str, unicode, int))
         self.font = state.font
         self.fontsize = state.fontsize
         self.dpi = state.dpi
@@ -1874,7 +1944,8 @@ class Parser(object):
                        ) | Error(r"Expected \hspace{n}"))
                      ).setParseAction(self.customspace).setName('customspace')
 
-        symbol       =(Regex(r"([a-zA-Z0-9 +\-*/<>=:,.;!'@()])|(\\[%${}\[\]])")
+        unicode_range = u"\U00000080-\U0001ffff"
+        symbol       =(Regex(UR"([a-zA-Z0-9 +\-*/<>=:,.;!'@()%s])|(\\[%%${}\[\]])" % unicode_range)
                      | Combine(
                          bslash
                        + oneOf(tex2uni.keys())
@@ -2506,10 +2577,15 @@ class MathTextParser(object):
             font_output = StandardPsFonts(prop)
         else:
             backend = self._backend_mapping[self._output]()
-            if rcParams['mathtext.use_cm']:
+            fontset = rcParams['mathtext.fontset']
+            if fontset == 'cm':
                 font_output = BakomaFonts(prop, backend)
-            else:
+            elif fontset == 'stix':
+                font_output = StixFonts(prop, backend)
+            elif fontset == 'custom':
                 font_output = UnicodeFonts(prop, backend)
+            else:
+                raise ValueError("mathtext.fontset must be either 'cm', 'stix', or 'custom'")
 
         fontsize = prop.get_size_in_points()
 

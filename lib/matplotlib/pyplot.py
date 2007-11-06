@@ -34,20 +34,15 @@ from ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
 
 ## Global ##
 
-# a hack to keep old versions of ipython working with mpl after bug
-# fix #1209354
-if 'IPython.Shell' in  sys.modules:
-    from matplotlib.backends import new_figure_manager, draw_if_interactive, show
-else:
-    from matplotlib.backends import pylab_setup
-    new_figure_manager, draw_if_interactive, show = pylab_setup()
+from matplotlib.backends import pylab_setup
+new_figure_manager, draw_if_interactive, show = pylab_setup()
 
 def switch_backend(newbackend):
     """
     Swtich the default backend to newbackend.  This feature is
     EXPERIMENTAL, and is only expected to work switching to an image
     backend.  Eg, if you have a bunch of PS scripts that you want to
-    run from an interactive ipython session, yuo may want to switch to
+    run from an interactive ipython session, you may want to switch to
     the PS backend before running them to avoid having a bunch of GUI
     windows popup.  If you try to interactively switch from one GUI
     backend to another, you will explode.
