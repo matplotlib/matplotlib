@@ -388,8 +388,10 @@ class Line2D(Artist):
             not_masked += 1
             
         if (not_masked < 2 or
-            ((x.shape != self._xorig.shape or npy.any(x != self._xorig)) or
-            (y.shape != self._yorig.shape or npy.any(y != self._yorig)))):
+            (x is not self._xorig and
+             (x.shape != self._xorig.shape or npy.any(x != self._xorig))) or
+            (y is not self._yorig and
+              (y.shape != self._yorig.shape or npy.any(y != self._yorig)))):
             self._xorig = x
             self._yorig = y
             self.recache()

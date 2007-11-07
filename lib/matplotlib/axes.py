@@ -4788,7 +4788,8 @@ class Axes(martist.Artist):
         vmax = kwargs.pop('vmax', None)
         shading = kwargs.pop('shading', 'flat')
         edgecolors = kwargs.pop('edgecolors', 'None')
-
+        antialiased = kwargs.pop('antialiased', False)
+        
         X, Y, C = self._pcolorargs('pcolormesh', *args)
         Ny, Nx = X.shape
 
@@ -4807,7 +4808,7 @@ class Axes(martist.Artist):
             showedges = 0
 
         collection = mcoll.QuadMesh(
-            Nx - 1, Ny - 1, coords, showedges)  # kwargs are not used
+            Nx - 1, Ny - 1, coords, showedges, antialiased=antialiased)  # kwargs are not used
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))

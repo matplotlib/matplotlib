@@ -66,6 +66,7 @@ class RendererAgg(RendererBase):
         self.draw_path = self._renderer.draw_path
         self.draw_markers = self._renderer.draw_markers
         self.draw_path_collection = self._renderer.draw_path_collection
+        self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.draw_image = self._renderer.draw_image
         self.copy_from_bbox = self._renderer.copy_from_bbox
         self.restore_region = self._renderer.restore_region

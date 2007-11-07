@@ -745,14 +745,20 @@ grestore
         if debugPS and command:
             write("% "+command+"\n")
 
-        self.set_linewidth(gc.get_linewidth())
-        jint = gc.get_joinstyle()
-        self.set_linejoin(jint)
-        cint = gc.get_capstyle()
-        self.set_linecap(cint)
-        self.set_linedash(*gc.get_dashes())
-        if self.linewidth > 0 and stroke:
-            self.set_color(*gc.get_rgb()[:3])
+        stroke = (stroke and gc.get_linewidth() > 0.0 and
+                  (len(gc.get_rgb()) <= 3 or gc.get_rgb()[3] != 0.0))
+        fill = (fill and rgbFace is not None and
+                (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
+            
+        if stroke:
+            self.set_linewidth(gc.get_linewidth())
+            jint = gc.get_joinstyle()
+            self.set_linejoin(jint)
+            cint = gc.get_capstyle()
+            self.set_linecap(cint)
+            self.set_linedash(*gc.get_dashes())
+            if self.linewidth > 0 and stroke:
+                self.set_color(*gc.get_rgb()[:3])
 
         cliprect = gc.get_clip_rectangle()
         if cliprect:
@@ -767,7 +773,7 @@ grestore
         write(ps.strip())
         write("\n")
 
-        if rgbFace is not None and fill:
+        if fill:
             #print 'rgbface', rgbFace
             write("gsave\n")
             self.set_color(store=0, *rgbFace[:3])

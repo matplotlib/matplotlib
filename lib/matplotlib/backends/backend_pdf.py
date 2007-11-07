@@ -993,7 +993,7 @@ end"""
 
         rgba = npy.fromstring(s, npy.uint8)
         rgba.shape = (h, w, 4)
-        rgb = rgba[:,:,:3]
+        rgb = rgba[:,:,:4]
         return h, w, rgb.tostring()
 
     def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
@@ -1601,10 +1601,12 @@ class GraphicsContextPdf(GraphicsContextBase):
         return `d`
 
     def _strokep(self):
-        return self._linewidth > 0 and self._alpha > 0
+        return (self._linewidth > 0 and self._alpha > 0 and
+                (len(self._rgb) <= 3 or self._rgb[3] != 0.0))
 
     def _fillp(self):
-        return self._fillcolor is not None or self._hatch
+        return ((self._fillcolor is not None or self._hatch) and
+                (len(self._fillcolor) <= 3 or self._fillcolor[3] != 0.0))
 
     def close_and_paint(self):
         if self._strokep():
