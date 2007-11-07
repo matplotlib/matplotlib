@@ -261,9 +261,12 @@ Py::Object _path_module::get_path_collection_extents(const Py::Tuple& args) {
   double x0, y0, x1, y1;
 
   try {
-    offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 2, 2);
-    if (!offsets || offsets->dimensions[1] != 2)
+    offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
+    if (!offsets || 
+	(offsets->nd == 2 && offsets->dimensions[1] != 2) || 
+	(offsets->nd == 1 && offsets->dimensions[0])) {
       throw Py::ValueError("Offsets array must be Nx2");
+    }
 
     size_t Npaths      = paths.length();
     size_t Noffsets    = offsets->dimensions[0];
@@ -287,15 +290,22 @@ Py::Object _path_module::get_path_collection_extents(const Py::Tuple& args) {
     y0 = std::numeric_limits<double>::infinity();
     x1 = -std::numeric_limits<double>::infinity();
     y1 = -std::numeric_limits<double>::infinity();
+    agg::trans_affine trans;
+
     for (i = 0; i < N; ++i) {
       PathIterator path(paths[i % Npaths]);
-      
-      double xo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
-      double yo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
-      offset_trans.transform(&xo, &yo);
-      agg::trans_affine_translation transOffset(xo, yo);
-      agg::trans_affine trans = transforms[i % Ntransforms];
-      trans *= transOffset;
+      if (Ntransforms) {
+	trans = transforms[i % Ntransforms];
+      } else {
+	trans = master_transform;
+      }
+
+      if (Noffsets) {
+	double xo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
+	double yo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
+	offset_trans.transform(&xo, &yo);
+	trans *= agg::trans_affine_translation(xo, yo);
+      }
 
       ::get_path_extents(path, trans, &x0, &y0, &x1, &y1);
     }

@@ -23,15 +23,14 @@ public:
     if (!vertices || vertices->nd != 2 || vertices->dimensions[1] != 2)
       throw Py::ValueError("Invalid vertices array.");
 
-    codes = (PyArrayObject*)PyArray_FromObject
-      (codes_obj.ptr(), PyArray_UINT8, 1, 1);
-    if (!codes) 
-      throw Py::ValueError("Invalid codes array.");
-    
-    if (codes->dimensions[0] != vertices->dimensions[0])
-      throw Py::ValueError("vertices and codes arrays are not the same length.");
+    if (codes_obj.ptr() != Py_None) {
+      codes = (PyArrayObject*)PyArray_FromObject
+	(codes_obj.ptr(), PyArray_UINT8, 1, 1);
+      if (!codes) 
+	throw Py::ValueError("Invalid codes array.");
+    }
 
-    m_total_vertices = codes->dimensions[0];
+    m_total_vertices = vertices->dimensions[0];
   }
 
   ~PathIterator() {
@@ -46,7 +45,11 @@ public:
       throw Py::RuntimeError("Requested vertex past end");
     *x = *(double*)PyArray_GETPTR2(vertices, idx, 0);
     *y = *(double*)PyArray_GETPTR2(vertices, idx, 1);
-    return code_map[(int)*(char *)PyArray_GETPTR1(codes, idx)];
+    if (codes) {
+      return code_map[(int)*(char *)PyArray_GETPTR1(codes, idx)];
+    } else {
+      return idx == 0 ? agg::path_cmd_move_to : agg::path_cmd_line_to;
+    }
   }
 
   inline unsigned vertex(double* x, double* y) {

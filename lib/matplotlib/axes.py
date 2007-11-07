@@ -4697,7 +4697,6 @@ class Axes(martist.Artist):
         kwargs.setdefault('edgecolors', edgecolors)
         kwargs.setdefault('antialiaseds', (0,))
         kwargs.setdefault('linewidths', (0.25,))
-        kwargs['closed'] = False
 
         collection = mcoll.PolyCollection(verts, **kwargs)
 

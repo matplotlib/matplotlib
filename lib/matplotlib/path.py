@@ -53,6 +53,12 @@ class Path(object):
        CLOSEPOLY : 1 vertex (ignored)
           Draw a line segment to the start point of the current
           polyline.
+
+    Users of Path objects should not access the vertices and codes
+    arrays directly.  Instead, they should use iter_segments to get
+    the vertex/code pairs.  This is important since many Paths do not
+    store a codes array at all, but have a default one provided for
+    them by iter_segments.
     """
     
     # Path codes
@@ -67,10 +73,7 @@ class Path(object):
     
     code_type = npy.uint8
 
-    _open_codes_cache = WeakValueDictionary()
-    _closed_codes_cache = WeakValueDictionary()
-    
-    def __init__(self, vertices, codes=None, closed=False):
+    def __init__(self, vertices, codes=None):
         """
         Create a new path with the given vertices and codes.
 
@@ -87,43 +90,17 @@ class Path(object):
         dimension.
 
         If codes is None, vertices will be treated as a series of line
-        segments.  Additionally, if closed is also True, the polyline
-        will closed.  If vertices contains masked values, the
-        resulting path will be compressed, with MOVETO codes inserted
-        in the correct places to jump over the masked regions.
+        segments.  If vertices contains masked values, the resulting
+        path will be compressed, with MOVETO codes inserted in the
+        correct places to jump over the masked regions.
         """
         if ma.isMaskedArray(vertices):
             mask = ma.getmask(vertices)
         else:
             vertices = npy.asarray(vertices, npy.float_)
             mask = ma.nomask
-            
-	if codes is None:
-            if closed:
-                # MGDTODO: Remove me once efficiency concerns are
-                # taken care of.
-                warnings.warn("""
-EFFICIENCY CONCERN: Having the Path constructor create a closed
-polyline automatically is not always the most efficient way to do
-things, since it causes a memory copy of the vertices array.  If the
-caller can easily close the polygon itself it should do so.
-""")
-                codes = self._closed_codes_cache.get(len(vertices))
-                if codes is None:
-                    codes = self.LINETO * npy.ones(
-                        vertices.shape[0] + 1, self.code_type)
-                    codes[0] = self.MOVETO
-                    codes[-1] = self.CLOSEPOLY
-                    self._closed_codes_cache[len(vertices)] = codes
-                vertices = npy.concatenate((vertices, [vertices[0]]))
-            else:
-                codes = self._open_codes_cache.get(len(vertices))
-                if codes is None:
-                    codes = self.LINETO * npy.ones(
-                        vertices.shape[0], self.code_type)
-                    codes[0] = self.MOVETO
-                    self._open_codes_cache[len(vertices)] = codes
-        else:
+
+        if codes is not None:
 	    codes = npy.asarray(codes, self.code_type)
             assert codes.ndim == 1
             assert len(codes) == len(vertices)
@@ -136,6 +113,10 @@ caller can easily close the polygon itself it should do so.
         if mask is not ma.nomask:
             mask1d = ma.mask_or(mask[:, 0], mask[:, 1])
             vertices = ma.compress(npy.invert(mask1d), vertices, 0)
+            if codes is None:
+                codes = self.LINETO * npy.ones(
+                    vertices.shape[0], self.code_type)
+                codes[0] = self.MOVETO
             codes = npy.where(npy.concatenate((mask1d[-1:], mask1d[:-1])),
                               self.MOVETO, codes)
             codes = ma.masked_array(codes, mask=mask1d).compressed()
@@ -144,23 +125,15 @@ caller can easily close the polygon itself it should do so.
         assert vertices.ndim == 2
         assert vertices.shape[1] == 2
         
-        self._codes = codes
-	self._vertices = vertices
+        self.codes = codes
+	self.vertices = vertices
 
     def __repr__(self):
 	return "Path(%s, %s)" % (self.vertices, self.codes)
 
     def __len__(self):
-        return len(self._vertices)
+        return len(self.vertices)
     
-    def _get_codes(self):
-	return self._codes
-    codes = property(_get_codes)
-
-    def _get_vertices(self):
-	return self._vertices
-    vertices = property(_get_vertices)
-
     def iter_segments(self):
         """
         Iterates over all of the endpoints in the path.  Unlike
@@ -171,18 +144,28 @@ caller can easily close the polygon itself it should do so.
 	NUM_VERTICES = self.NUM_VERTICES
 	vertices = self.vertices
         codes = self.codes
+
+        if not len(vertices):
+            return
         
-	while i < len(vertices):
-            code = codes[i]
-            if code == self.CLOSEPOLY:
-                yield [], code
-                i += 1
-            elif code == self.STOP:
-                return
-            else:
-                num_vertices = NUM_VERTICES[code]
-                yield vertices[i:i+num_vertices].flatten(), code
-                i += num_vertices
+        if codes is None:
+            code = self.MOVETO
+            yield vertices[0], self.MOVETO
+            i = 1
+            for v in vertices[1:]:
+                yield v, self.LINETO
+        else:
+            while i < len(vertices):
+                code = codes[i]
+                if code == self.CLOSEPOLY:
+                    yield [], code
+                    i += 1
+                elif code == self.STOP:
+                    return
+                else:
+                    num_vertices = NUM_VERTICES[code]
+                    yield vertices[i:i+num_vertices].flatten(), code
+                    i += num_vertices
                 
     def transformed(self, transform):
         """
@@ -242,7 +225,7 @@ caller can easily close the polygon itself it should do so.
         return cls._unit_rectangle
     unit_rectangle = classmethod(unit_rectangle)
 
-    _unit_regular_polygons = {}
+    _unit_regular_polygons = WeakValueDictionary()
     #@classmethod
     def unit_regular_polygon(cls, numVertices):
         """
@@ -262,7 +245,7 @@ caller can easily close the polygon itself it should do so.
 	return path
     unit_regular_polygon = classmethod(unit_regular_polygon)
 
-    _unit_regular_stars = {}
+    _unit_regular_stars = WeakValueDictionary()
     #@classmethod
     def unit_regular_star(cls, numVertices, innerCircle=0.5):
         """
@@ -413,6 +396,7 @@ caller can easily close the polygon itself it should do so.
         return Path(vertices, codes)
     arc = classmethod(arc)
 
+    #@classmethod
     def wedge(cls, theta1, theta2):
         """
         Returns a wedge of the unit circle from angle theta1 to angle
