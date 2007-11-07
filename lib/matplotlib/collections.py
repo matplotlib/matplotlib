@@ -51,9 +51,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
     draw time a call to scalar mappable will be made to set the face
     colors.
     """
-    _offsets = npy.zeros((1, 2))
+    _offsets = npy.array([], npy.float_)
     _transOffset = transforms.IdentityTransform()
-    _transforms = [None]
+    _transforms = []
     
     zorder = 1
     def __init__(self,
@@ -93,7 +93,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._antialiaseds = self._get_value(antialiaseds)
 
         self._uniform_offsets = None
-        self._offsets = npy.zeros((1, 2))
+        self._offsets = npy.array([], npy.float_)
         if offsets is not None:
             offsets = npy.asarray(offsets, npy.float_)
             if len(offsets.shape) == 1:
@@ -135,10 +135,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
-        
+        offsets = npy.asarray(offsets, npy.float_)
+            
         result = mpath.get_path_collection_extents(
             transform.frozen(), paths, self.get_transforms(),
-            npy.asarray(offsets, npy.float_), transOffset.frozen())
+            offsets, transOffset.frozen())
         result = result.inverse_transformed(transData)
         return result
 
@@ -158,12 +159,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 xs = self.convert_xunits(xs)
                 ys = self.convert_yunits(ys)
                 paths.append(mpath.Path(zip(xs, ys), path.codes))
-            if self._offsets is not None:
+            if len(self._offsets):
                 xs = self.convert_xunits(self._offsets[:0])
                 ys = self.convert_yunits(self._offsets[:1])
                 offsets = zip(xs, ys)
         if len(offsets) == 0:
-            offsets = npy.zeros((1, 2))
+            offsets = npy.array([], npy.float_)
         else:
             offsets = npy.asarray(offsets, npy.float_)
 
@@ -384,27 +385,33 @@ class QuadMesh(Collection):
         self._coordinates = coordinates
         self._showedges = showedges
 
-        # MGDTODO: Is it possible to Numpify this?
-        coordinates = coordinates.reshape((meshHeight + 1, meshWidth + 1, 2))
-        c = coordinates
-        paths = []
+        c = coordinates.reshape((meshHeight + 1, meshWidth + 1, 2))
         # We could let the Path constructor generate the codes for us,
         # but this is faster, since we know they'll always be the same
-        codes = npy.array([Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
-        for m in xrange(meshHeight):
-            for n in xrange(meshWidth):
-                paths.append(Path(
-                        [c[m  , n],
-                         c[m  , n+1],
-                         c[m+1, n+1],
-                         c[m+1, n],
-                         c[m  , n]],
-                        codes))
-        self._paths = paths
+        codes = npy.array(
+            [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY],
+            Path.code_type)
+
+        points = npy.concatenate((
+                c[0:-1, 0:-1],
+                c[0:-1, 1:  ],
+                c[1:  , 1:  ],
+                c[1:  , 0:-1],
+                c[0:-1, 0:-1]
+                ), axis=2)
+        points = points.reshape((meshWidth * meshHeight, 5, 2))
+        self._paths = [Path(x, codes) for x in points]
+
+        self._bbox = transforms.Bbox.unit()
+        self._bbox.update_from_data_xy(c.reshape(
+                ((meshWidth + 1) * (meshHeight + 1), 2)))
         
     def get_paths(self, dataTrans=None):
         return self._paths
 
+    def get_datalim(self, transData):
+        return self._bbox
+    
     def draw(self, renderer):
         self.update_scalarmappable()
 
@@ -425,14 +432,13 @@ class PolyCollection(Collection):
 
         %(Collection)s
         """
-        self.closed = kwargs.pop("closed", True)
         Collection.__init__(self,**kwargs)
         self.set_verts(verts)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def set_verts(self, verts):
         '''This allows one to delay initialization of the vertices.'''
-        self._paths = [mpath.Path(v, closed=self.closed) for v in verts]
+        self._paths = [mpath.Path(v) for v in verts]
 
     def get_paths(self):
         return self._paths

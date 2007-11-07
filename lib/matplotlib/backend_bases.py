@@ -99,13 +99,12 @@ class RendererBase:
         if Npaths == 0:
             return
 
+        transform = transforms.IdentityTransform()
         for i in xrange(N):
             path = paths[i % Npaths]
-            transform = all_transforms[i % Ntransforms]
-            if transform is None:
-                transform = transforms.IdentityTransform()
-            transform += master_transform
-            yield path, transform
+            if Ntransforms:
+                transform = all_transforms[i % Ntransforms]
+            yield path, transform + master_transform
 
     def _iter_collection(self, path_ids, cliprect, clippath, clippath_trans,
                          offsets, offsetTrans, facecolors, edgecolors,
@@ -146,8 +145,8 @@ class RendererBase:
 
         if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
-        
-        toffsets = offsetTrans.transform(offsets)
+        if Noffsets:
+            toffsets = offsetTrans.transform(offsets)
             
         gc = self.new_gc()
 
@@ -159,9 +158,11 @@ class RendererBase:
         if Nfacecolors == 0:
             rgbFace = None
 
+        xo, yo = 0, 0
         for i in xrange(N):
             path_id = path_ids[i % Npaths]
-            xo, yo = toffsets[i % Noffsets]
+            if Noffsets:
+                xo, yo = toffsets[i % Noffsets]
             if Nfacecolors:
                 rgbFace = facecolors[i % Nfacecolors]
             if Nedgecolors:

@@ -940,9 +940,12 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   PyArrayObject* edgecolors = NULL;
 
   try {
-    offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 2, 2);
-    if (!offsets || offsets->dimensions[1] != 2)
+    offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
+    if (!offsets || 
+	(offsets->nd == 2 && offsets->dimensions[1] != 2) || 
+	(offsets->nd == 1 && offsets->dimensions[0])) {
       throw Py::ValueError("Offsets array must be Nx2");
+    }
 
     PyArrayObject* facecolors = (PyArrayObject*)PyArray_FromObject
       (facecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
@@ -1004,14 +1007,22 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
     gc.linewidth = 0.0;
     facepair_t face;
     face.first = Nfacecolors != 0;
-    
+    agg::trans_affine trans;
+
     for (i = 0; i < N; ++i) {
       PathIterator path(paths[i % Npaths]);
-      double xo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
-      double yo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
-      offset_trans.transform(&xo, &yo);
-      agg::trans_affine_translation transOffset(xo, yo);
-      agg::trans_affine& trans = transforms[i % Ntransforms];
+      if (Ntransforms) {
+	trans = transforms[i % Ntransforms];
+      } else {
+	trans = master_transform;
+      }
+
+      if (Noffsets) {
+	double xo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
+	double yo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
+	offset_trans.transform(&xo, &yo);
+	trans *= agg::trans_affine_translation(xo, yo);
+      }
       
       if (Nfacecolors) {
 	size_t fi = i % Nfacecolors;
@@ -1034,7 +1045,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
       
       gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
 
-      _draw_path(path, trans * transOffset, has_clippath, face, gc);
+      _draw_path(path, trans, has_clippath, face, gc);
     }
   } catch (...) {
     Py_XDECREF(offsets);

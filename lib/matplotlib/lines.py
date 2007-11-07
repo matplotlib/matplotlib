@@ -928,7 +928,7 @@ class Line2D(Artist):
 			      path, path_trans)
 
 
-    _caret_path = Path([[-1.0, 1.5], [0.0, 0.0], [1.0, 1.5]], closed=False)
+    _caret_path = Path([[-1.0, 1.5], [0.0, 0.0], [1.0, 1.5]])
     def _draw_caretdown(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset)

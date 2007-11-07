@@ -530,7 +530,7 @@ class Polygon(Patch):
         See Patch documentation for additional kwargs
         """
         Patch.__init__(self, **kwargs)
-	self._path = Path(xy, closed=True)
+	self._path = Path(xy)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
@@ -539,7 +539,7 @@ class Polygon(Patch):
     def _get_xy(self):
         return self._path.vertices
     def _set_xy(self, vertices):
-        self._path = Path(vertices, closed=True)
+        self._path = Path(vertices)
     xy = property(_get_xy, _set_xy)
         
 class Wedge(Patch):
