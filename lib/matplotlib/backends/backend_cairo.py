@@ -39,7 +39,8 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
 from matplotlib.cbook        import enumerate, izip, is_string_like
 from matplotlib.figure       import Figure
 from matplotlib.mathtext     import MathTextParser
-from matplotlib.transforms   import Bbox
+from matplotlib.path         import Path
+from matplotlib.transforms   import Bbox, Affine2D
 from matplotlib.font_manager import ttfFontProperty
 from matplotlib import rcParams
 
@@ -48,9 +49,9 @@ _debug = False
 
 # Image::color_conv(format) for draw_image()
 if sys.byteorder == 'little':
-   BYTE_FORMAT = 0 # BGRA
+    BYTE_FORMAT = 0 # BGRA
 else:
-   BYTE_FORMAT = 1 # ARGB
+    BYTE_FORMAT = 1 # ARGB
 
 
 class RendererCairo(RendererBase):
@@ -91,9 +92,9 @@ class RendererCairo(RendererBase):
         self.mathtext_parser = MathTextParser('Cairo')
 
     def set_ctx_from_surface (self, surface):
-       self.ctx = cairo.Context (surface)
-       self.ctx.save() # restore, save  - when call new_gc()
-
+        self.ctx = cairo.Context (surface)
+        self.ctx.save() # restore, save  - when call new_gc()
+       
 
     def set_width_height(self, width, height):
         self.width  = width
@@ -109,9 +110,12 @@ class RendererCairo(RendererBase):
 
         #_.ctx.save()
 
-        if fill_c:
+        if fill_c is not None:
             ctx.save()
-            ctx.set_source_rgb (*fill_c)
+            if len(fill_c) == 3:
+                ctx.set_source_rgb (*fill_c)
+            else:
+                ctx.set_source_rgba (*fill_c)
             #if stroke_c:   # always (implicitly) set at the moment
             ctx.fill_preserve()
             #else:
@@ -124,22 +128,48 @@ class RendererCairo(RendererBase):
 
         #_.ctx.restore() # revert to the default attributes
 
-
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2,
-                 rotation):
-        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
+    #@staticmethod
+    def convert_path(ctx, tpath):
+        for points, code in tpath.iter_segments():
+            if code == Path.MOVETO:
+                ctx.move_to(*points)
+            elif code == Path.LINETO:
+                ctx.line_to(*points)
+            elif code == Path.CURVE3:
+                ctx.curve_to(points[0], points[1],
+                             points[0], points[1],
+                             points[2], points[3])
+            elif code == Path.CURVE4:
+                ctx.curve_to(*points)
+            elif code == Path.CLOSEPOLY:
+                ctx.close_path()
+    convert_path = staticmethod(convert_path)
+        
+    def draw_path(self, gc, path, transform, rgbFace=None):
         ctx = gc.ctx
-        ctx.save()
-        ctx.translate(x, self.height - y)
-        ctx.rotate(rotation)
-        ctx.scale(width / 2.0, height / 2.0)
-        ctx.new_sub_path()
-        ctx.arc(0.0, 0.0, 1.0, npy.pi * angle1 / 180.,
-                npy.pi * angle2 / 180.)
-        ctx.restore()
+        ctx.new_path()
+        transform = transform + \
+            Affine2D().scale(1.0, -1.0).translate(0, self.height)
+        tpath = transform.transform_path(path)
+        
+        self.convert_path(ctx, tpath)
 
-        self._fill_and_stroke (ctx, rgbFace)
+        self._fill_and_stroke(ctx, rgbFace)
 
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        ctx = gc.ctx
+        ctx.new_path()
+        marker_trans = marker_trans + Affine2D().scale(1.0, -1.0)
+        tmarker_path = marker_trans.transform_path(marker_path)
+        
+        trans = trans + Affine2D().scale(1.0, -1.0).translate(0, self.height)
+        tpath = trans.transform_path(path)
+        for x, y in tpath.vertices:
+            ctx.save()
+            ctx.translate(x, y)
+            self.convert_path(ctx, tmarker_path)
+            self._fill_and_stroke(ctx, rgbFace)
+            ctx.restore()
 
     def draw_image(self, x, y, im, bbox):
         # bbox - not currently used
@@ -158,118 +188,6 @@ class RendererCairo(RendererBase):
 
         im.flipud_out()
 
-
-    def draw_line(self, gc, x1, y1, x2, y2):
-        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        ctx = gc.ctx
-        ctx.new_path()
-        ctx.move_to (x1, self.height - y1)
-        ctx.line_to (x2, self.height - y2)
-        self._fill_and_stroke (ctx, None)
-
-
-    def draw_lines(self, gc, x, y, transform=None):
-        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-
-        if transform:
-            if transform.need_nonlinear():
-                x, y = transform.nonlinear_only_numerix(x, y)
-            x, y = transform.numerix_x_y(x, y)
-
-        ctx = gc.ctx
-        matrix_old = ctx.get_matrix()
-        ctx.set_matrix (self.matrix_flipy)
-
-        points = izip(x,y)
-        x, y = points.next()
-        ctx.new_path()
-        ctx.move_to (x, y)
-
-        for x,y in points:
-            ctx.line_to (x, y)
-        self._fill_and_stroke (ctx, None)
-
-        ctx.set_matrix (matrix_old)
-
-
-    def draw_markers_OLD(self, gc, path, rgbFace, x, y, transform):
-        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-
-        ctx = gc.ctx
-
-        if transform.need_nonlinear():
-            x,y = transform.nonlinear_only_numerix(x, y)
-
-        x, y = transform.numerix_x_y(x, y) # do nonlinear and affine transform
-
-        # TODO - use cairo transform
-        # matrix worked for dotted lines, but not markers in line_styles.py
-        # it upsets/transforms generate_path() ?
-        # need to flip y too, and update generate_path() ?
-        # the a,b,c,d,tx,ty affine which transforms x and y
-        #vec6 = transform.as_vec6_val() # not used (yet)
-        #matrix_old = ctx.get_matrix()
-        #ctx.set_matrix (cairo.Matrix (*vec6))
-
-        path_list = [path.vertex() for i in range(path.total_vertices())]
-
-        def generate_path (path_list):
-           for code, xp, yp in path_list:
-               if code == agg.path_cmd_move_to:
-                  ctx.move_to (xp, -yp)
-               elif code == agg.path_cmd_line_to:
-                  ctx.line_to (xp, -yp)
-               elif code == agg.path_cmd_end_poly:
-                  ctx.close_path()
-
-        for x,y in izip(x,y):
-            ctx.save()
-            ctx.new_path()
-            ctx.translate(x, self.height - y)
-            generate_path (path_list)
-
-            self._fill_and_stroke (ctx, rgbFace)
-
-            ctx.restore() # undo translate()
-
-        #ctx.set_matrix(matrix_old)
-
-
-    def draw_point(self, gc, x, y):
-        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        # render by drawing a 0.5 radius circle
-        ctx = gc.ctx
-        ctx.new_path()
-        ctx.arc (x, self.height - y, 0.5, 0, 2*npy.pi)
-        self._fill_and_stroke (ctx, gc.get_rgb())
-
-
-    def draw_polygon(self, gc, rgbFace, points):
-        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-
-        ctx = gc.ctx
-        matrix_old = ctx.get_matrix()
-        ctx.set_matrix (self.matrix_flipy)
-
-        ctx.new_path()
-        x, y = points[0]
-        ctx.move_to (x, y)
-        for x,y in points[1:]:
-            ctx.line_to (x, y)
-        ctx.close_path()
-
-        self._fill_and_stroke (ctx, rgbFace)
-
-        ctx.set_matrix (matrix_old)
-
-    def draw_rectangle(self, gc, rgbFace, x, y, width, height):
-        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        ctx = gc.ctx
-        ctx.new_path()
-        ctx.rectangle (x, self.height - y - height, width, height)
-        self._fill_and_stroke (ctx, rgbFace)
-
-
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         # Note: x,y are device/display coords, not user-coords, unlike other
         # draw_* methods
@@ -287,7 +205,7 @@ class RendererCairo(RendererBase):
                                  self.fontweights[prop.get_weight()])
 
            # size = prop.get_size_in_points() * self.dpi.get() / 96.0
-           size = prop.get_size_in_points() * self.dpi.get() / 72.0
+           size = prop.get_size_in_points() * self.dpi / 72.0
 
            ctx.save()
            if angle:
@@ -301,7 +219,7 @@ class RendererCairo(RendererBase):
 
         ctx = gc.ctx
         width, height, descent, glyphs, rects = self.mathtext_parser.parse(
-            s, self.dpi.get(), prop)
+            s, self.dpi, prop)
 
         ctx.save()
         ctx.translate(x, y)
@@ -319,7 +237,7 @@ class RendererCairo(RendererBase):
                                  self.fontweights[fontProp.weight])
 
            # size = prop.get_size_in_points() * self.dpi.get() / 96.0
-           size = fontsize * self.dpi.get() / 72.0
+           size = fontsize * self.dpi / 72.0
            ctx.set_font_size(size)
            ctx.show_text(s.encode("utf-8"))
            ctx.restore()
@@ -349,7 +267,7 @@ class RendererCairo(RendererBase):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         if ismath:
             width, height, descent, fonts, used_characters = self.mathtext_parser.parse(
-               s, self.dpi.get(), prop)
+               s, self.dpi, prop)
             return width, height, descent
 
         ctx = self.text_ctx
@@ -362,7 +280,7 @@ class RendererCairo(RendererBase):
         # but if /96.0 is used the font is too small
 
         #size = prop.get_size_in_points() * self.dpi.get() / 96.0
-        size = prop.get_size_in_points() * self.dpi.get() / 72.0
+        size = prop.get_size_in_points() * self.dpi / 72.0
 
         # problem - scale remembers last setting and font can become
         # enormous causing program to crash
@@ -384,7 +302,7 @@ class RendererCairo(RendererBase):
 
     def points_to_pixels(self, points):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        return points/72.0 * self.dpi.get()
+        return points/72.0 * self.dpi
 
 
 class GraphicsContextCairo(GraphicsContextBase):
@@ -428,7 +346,7 @@ class GraphicsContextCairo(GraphicsContextBase):
     def set_clip_rectangle(self, rectangle):
         self._cliprect = rectangle
 
-        x,y,w,h = rectangle
+        x,y,w,h = rectangle.bounds
         # pixel-aligned clip-regions are faster
         x,y,w,h = round(x), round(y), round(w), round(h)
         ctx = self.ctx
@@ -439,6 +357,17 @@ class GraphicsContextCairo(GraphicsContextBase):
         # in fill_and_stroke() inside ctx.save() ... ctx.restore()
 
 
+    def set_clip_path(self, path):
+        if path is not None:
+            tpath, affine = path.get_transformed_path_and_affine()
+            ctx = self.ctx
+            ctx.new_path()
+            affine = affine + Affine2D().scale(1.0, -1.0).translate(0.0, self.renderer.height)
+            tpath = affine.transform_path(tpath)
+            RendererCairo.convert_path(ctx, tpath)
+            ctx.clip()
+
+        
     def set_dashes(self, offset, dashes):
         self._dashes = offset, dashes
         if dashes == None:
@@ -450,12 +379,17 @@ class GraphicsContextCairo(GraphicsContextBase):
 
     def set_foreground(self, fg, isRGB=None):
         GraphicsContextBase.set_foreground(self, fg, isRGB)
-        self.ctx.set_source_rgb(*self._rgb)
-
+        if len(self._rgb) == 3:
+            self.ctx.set_source_rgb(*self._rgb)
+        else:
+            self.ctx.set_source_rgba(*self._rgb)
 
     def set_graylevel(self, frac):
         GraphicsContextBase.set_graylevel(self, frac)
-        self.ctx.set_source_rgb(*self._rgb)
+        if len(self._rgb) == 3:
+            self.ctx.set_source_rgb(*self._rgb)
+        else:
+            self.ctx.set_source_rgba(*self._rgb)
 
 
     def set_joinstyle(self, js):
