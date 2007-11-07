@@ -165,6 +165,8 @@ public:
   Py::Object draw_image(const Py::Tuple & args);
   Py::Object draw_path(const Py::Tuple & args);
   Py::Object draw_path_collection(const Py::Tuple & args);
+  Py::Object RendererAgg::draw_quad_mesh(const Py::Tuple& args);
+
 
   Py::Object write_rgba(const Py::Tuple & args);
   Py::Object write_png(const Py::Tuple & args);
@@ -215,10 +217,28 @@ protected:
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
   bool bbox_to_rect(const Py::Object& bbox, double* l, double* b, double* r, double* t);
   template<class R>
-  void set_clipbox(Py::Object& cliprect, R rasterizer);
+  void set_clipbox(const Py::Object& cliprect, R rasterizer);
   bool render_clippath(const Py::Object& clippath, const agg::trans_affine& clippath_trans);
-  void _draw_path(PathIterator& path, agg::trans_affine trans, 
-		  bool has_clippath, const facepair_t& face, const GCAgg& gc);
+  template<class PathIteratorType>
+  void _draw_path(PathIteratorType& path, agg::trans_affine trans, 
+		  bool has_clippath, const facepair_t& face, const GCAgg& gc, bool check_snap);
+  template<class PathGenerator>
+  Py::Object
+  _draw_path_collection_generic
+    (const agg::trans_affine&	    master_transform,
+     const Py::Object&		    cliprect,
+     const Py::Object&		    clippath,
+     const agg::trans_affine&       clippath_trans,
+     const PathGenerator&	    path_finder,
+     const Py::SeqBase<Py::Object>& transforms_obj,
+     const Py::Object&              offsets_obj,
+     const agg::trans_affine&       offset_trans,
+     const Py::Object&              facecolors_obj,
+     const Py::Object&              edgecolors_obj,
+     const Py::SeqBase<Py::Float>&  linewidths,
+     const Py::SeqBase<Py::Object>& linestyles_obj,
+     const Py::SeqBase<Py::Int>&    antialiaseds,
+     bool                           check_snap);
 
 private:
   Py::Object lastclippath;

@@ -9,6 +9,7 @@ import os
 import numpy as npy
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
+import matplotlib.path as path
 import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
 from matplotlib import rcParams
@@ -75,6 +76,30 @@ class RendererBase:
             path, transform = path_id
             transform = transforms.Affine2D(transform.get_matrix()).translate(xo, yo)
             self.draw_path(gc, path, transform, rgbFace)
+
+    def draw_quad_mesh(self, master_transform, cliprect, clippath,
+                       clippath_trans, meshWidth, meshHeight, coordinates,
+                       offsets, offsetTrans, facecolors, antialiased,
+                       showedges):
+        """
+        This provides a fallback implementation of draw_quad_mesh that
+        generates paths and then calls draw_path_collection.
+        """
+        from matplotlib.collections import QuadMesh
+        paths = QuadMesh.convert_mesh_to_paths(
+            meshWidth, meshHeight, coordinates)
+
+        if showedges:
+            edgecolors = npy.array([[0.0, 0.0, 0.0, 1.0]], npy.float_)
+            linewidths = npy.array([1.0], npy.float_)
+        else:
+            edgecolors = linewidths = npy.array([], npy.float_)
+            linewidths = npy.array([0.0], npy.float_)
+            
+        return self.draw_path_collection(
+            master_transform, cliprect, clippath, clippath_trans,
+            paths, [], offsets, offsetTrans, facecolors, edgecolors,
+            linewidths, [], [antialiased])
             
     def _iter_collection_raw_paths(self, master_transform, paths, all_transforms):
         """
@@ -158,6 +183,9 @@ class RendererBase:
         if Nfacecolors == 0:
             rgbFace = None
 
+        if Nedgecolors == 0:
+            gc.set_linewidth(0.0)
+            
         xo, yo = 0, 0
         for i in xrange(N):
             path_id = path_ids[i % Npaths]

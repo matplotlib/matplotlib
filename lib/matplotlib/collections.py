@@ -376,52 +376,88 @@ class QuadMesh(Collection):
     at mesh coordinates (0, 0), then the one at (0, 1), then at
     (0, 2) .. (0, meshWidth), (1, 0), (1, 1), and so on.
     """
-    def __init__(self, meshWidth, meshHeight, coordinates, showedges):
-        Path = mpath.Path
-        
+    def __init__(self, meshWidth, meshHeight, coordinates, showedges, antialiased=True):
         Collection.__init__(self)
         self._meshWidth = meshWidth
         self._meshHeight = meshHeight
         self._coordinates = coordinates
         self._showedges = showedges
+        self._antialiased = antialiased
 
+        self._paths = None
+
+        self._bbox = transforms.Bbox.unit()
+        self._bbox.update_from_data_xy(coordinates.reshape(
+                ((meshWidth + 1) * (meshHeight + 1), 2)))
+        
+    def get_paths(self, dataTrans=None):
+        import pdb
+        pdb.set_trace()
+        if self._paths is None:
+            self._paths = self.convert_mesh_to_paths(
+                self._meshWidth, self._meshHeight, self._coordinates)
+        return self._paths
+
+    #@staticmethod
+    def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
+        Path = mpath.Path
+        
         c = coordinates.reshape((meshHeight + 1, meshWidth + 1, 2))
         # We could let the Path constructor generate the codes for us,
         # but this is faster, since we know they'll always be the same
         codes = npy.array(
             [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY],
             Path.code_type)
-
+            
         points = npy.concatenate((
-                c[0:-1, 0:-1],
-                c[0:-1, 1:  ],
-                c[1:  , 1:  ],
-                c[1:  , 0:-1],
-                c[0:-1, 0:-1]
-                ), axis=2)
+                    c[0:-1, 0:-1],
+                    c[0:-1, 1:  ],
+                    c[1:  , 1:  ],
+                    c[1:  , 0:-1],
+                    c[0:-1, 0:-1]
+                    ), axis=2)
         points = points.reshape((meshWidth * meshHeight, 5, 2))
-        self._paths = [Path(x, codes) for x in points]
-
-        self._bbox = transforms.Bbox.unit()
-        self._bbox.update_from_data_xy(c.reshape(
-                ((meshWidth + 1) * (meshHeight + 1), 2)))
-        
-    def get_paths(self, dataTrans=None):
-        return self._paths
-
+        return [Path(x, codes) for x in points]
+    convert_mesh_to_paths = staticmethod(convert_mesh_to_paths)
+    
     def get_datalim(self, transData):
         return self._bbox
     
     def draw(self, renderer):
+        if not self.get_visible(): return
+        renderer.open_group(self.__class__.__name__)
+        transform = self.get_transform()
+        transOffset = self._transOffset
+        offsets = self._offsets
+
+        if self.have_units():
+            if len(self._offsets):
+                xs = self.convert_xunits(self._offsets[:0])
+                ys = self.convert_yunits(self._offsets[:1])
+                offsets = zip(xs, ys)
+
+        if len(offsets) == 0:
+            offsets = npy.array([], npy.float_)
+        else:
+            offsets = npy.asarray(offsets, npy.float_)
+
         self.update_scalarmappable()
 
-        self._linewidths = (1,)
-        if self._showedges:
-            self._edgecolors = npy.array([[0.0, 0.0, 0.0, 1.0]], npy.float_)
-        else:
-            self._edgecolors = self._facecolors
+        clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
+        if clippath_trans is not None:
+            clippath_trans = clippath_trans.frozen()
+        
+        assert transform.is_affine
+        if not transOffset.is_affine:
+            offsets = transOffset.transform_non_affine(offsets)
+            transOffset = transOffset.get_affine()
 
-        Collection.draw(self, renderer)
+        renderer.draw_quad_mesh(
+            transform.frozen(), self.clipbox, clippath, clippath_trans,
+            self._meshWidth, self._meshHeight, self._coordinates,
+            offsets, transOffset, self._facecolors, self._antialiased,
+            self._showedges)
+        renderer.close_group(self.__class__.__name__)
 
 class PolyCollection(Collection):
     def __init__(self, verts, **kwargs):

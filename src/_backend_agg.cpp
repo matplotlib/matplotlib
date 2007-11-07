@@ -302,7 +302,7 @@ RendererAgg::bbox_to_rect(const Py::Object& bbox_obj, double* l, double* b, doub
 
 template<class R>
 void
-RendererAgg::set_clipbox(Py::Object& cliprect, R rasterizer) {
+RendererAgg::set_clipbox(const Py::Object& cliprect, R rasterizer) {
   //set the clip rectangle from the gc
   
   _VERBOSE("RendererAgg::set_clipbox");
@@ -775,10 +775,11 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   return Py::Object();
 }
 
-void RendererAgg::_draw_path(PathIterator& path, agg::trans_affine trans, 
+template<class PathIteratorType>
+void RendererAgg::_draw_path(PathIteratorType& path, agg::trans_affine trans, 
 			     bool has_clippath, const facepair_t& face, 
-			     const GCAgg& gc) {
-  typedef agg::conv_transform<PathIterator>		     transformed_path_t;
+			     const GCAgg& gc, bool check_snap) {
+  typedef agg::conv_transform<PathIteratorType>		     transformed_path_t;
   typedef conv_quantize<transformed_path_t>		     quantize_t;
   typedef agg::conv_curve<quantize_t>			     curve_t;
   typedef agg::conv_stroke<curve_t>			     stroke_t;
@@ -793,7 +794,9 @@ void RendererAgg::_draw_path(PathIterator& path, agg::trans_affine trans,
   trans *= agg::trans_affine_translation(0.0, (double)height);
 
   // Build the transform stack
-  bool snap = should_snap(path, trans);
+  bool snap = false;
+  if (check_snap)
+    snap = should_snap(path, trans);
   transformed_path_t tpath(path, trans);
   quantize_t quantized(tpath, snap);
   // Benchmarking shows that there is no noticable slowdown to always
@@ -908,31 +911,28 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   set_clipbox(gc.cliprect, theRasterizer);
   bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
-  _draw_path(path, trans, has_clippath, face, gc);
+  _draw_path(path, trans, has_clippath, face, gc, true);
   
   return Py::Object();
 }
 
+template<class PathGenerator>
 Py::Object
-RendererAgg::draw_path_collection(const Py::Tuple& args) {
-  _VERBOSE("RendererAgg::draw_path_collection");
-  args.verify_length(13);
-  
-  //segments, trans, clipbox, colors, linewidths, antialiaseds
-  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0]);
-  Py::Object		  cliprect	   = args[1];
-  Py::Object		  clippath	   = args[2];
-  agg::trans_affine       clippath_trans   = py_to_agg_transformation_matrix(args[3], false);
-  Py::SeqBase<Py::Object> paths		   = args[4];
-  Py::SeqBase<Py::Object> transforms_obj   = args[5];
-  Py::Object              offsets_obj      = args[6];
-  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7]);
-  Py::Object              facecolors_obj   = args[8];
-  Py::Object              edgecolors_obj   = args[9];
-  Py::SeqBase<Py::Float>  linewidths	   = args[10];
-  Py::SeqBase<Py::Object> linestyles_obj   = args[11];
-  Py::SeqBase<Py::Int>    antialiaseds	   = args[12];
-  
+RendererAgg::_draw_path_collection_generic
+  (const agg::trans_affine&	  master_transform,
+   const Py::Object&		  cliprect,
+   const Py::Object&		  clippath,
+   const agg::trans_affine&       clippath_trans,
+   const PathGenerator&		  path_generator,
+   const Py::SeqBase<Py::Object>& transforms_obj,
+   const Py::Object&              offsets_obj,
+   const agg::trans_affine&       offset_trans,
+   const Py::Object&              facecolors_obj,
+   const Py::Object&              edgecolors_obj,
+   const Py::SeqBase<Py::Float>&  linewidths,
+   const Py::SeqBase<Py::Object>& linestyles_obj,
+   const Py::SeqBase<Py::Int>&    antialiaseds,
+   bool                           check_snap) {
   GCAgg gc(dpi);
 
   PyArrayObject* offsets    = NULL;
@@ -961,7 +961,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
 	(edgecolors->nd == 2 && edgecolors->dimensions[1] != 4))
       throw Py::ValueError("Edgecolors must be a Nx4 numpy array");
     
-    size_t Npaths      = paths.length();
+    size_t Npaths      = path_generator.num_paths();
     size_t Noffsets    = offsets->dimensions[0];
     size_t N	       = std::max(Npaths, Noffsets);
     size_t Ntransforms = std::min(transforms_obj.length(), N);
@@ -1010,7 +1010,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
     agg::trans_affine trans;
 
     for (i = 0; i < N; ++i) {
-      PathIterator path(paths[i % Npaths]);
+      typename PathGenerator::path_iterator path = path_generator(i);
       if (Ntransforms) {
 	trans = transforms[i % Ntransforms];
       } else {
@@ -1038,14 +1038,20 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
 			     *(double*)PyArray_GETPTR2(edgecolors, ei, 1),
 			     *(double*)PyArray_GETPTR2(edgecolors, ei, 2),
 			     *(double*)PyArray_GETPTR2(edgecolors, ei, 3));
-	gc.linewidth = double(Py::Float(linewidths[i % Nlinewidths])) * dpi/72.0;
-	gc.dashes = dashes[i % Nlinestyles].second;
-	gc.dashOffset = dashes[i % Nlinestyles].first;
+	if (Nlinewidths) {
+	  gc.linewidth = double(Py::Float(linewidths[i % Nlinewidths])) * dpi/72.0;
+	} else {
+	  gc.linewidth = 1.0;
+	}
+	if (Nlinestyles) {
+	  gc.dashes = dashes[i % Nlinestyles].second;
+	  gc.dashOffset = dashes[i % Nlinestyles].first;
+	}
       }
       
       gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
 
-      _draw_path(path, trans, has_clippath, face, gc);
+      _draw_path(path, trans, has_clippath, face, gc, check_snap);
     }
   } catch (...) {
     Py_XDECREF(offsets);
@@ -1059,12 +1065,213 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
 }
 
 
+class PathListGenerator {
+  const Py::SeqBase<Py::Object>& m_paths;
+
+public:
+  typedef PathIterator path_iterator;
+
+  inline PathListGenerator(const Py::SeqBase<Py::Object>& paths) :
+    m_paths(paths) {
+
+  }
+  
+  inline size_t num_paths() const {
+    return m_paths.size();
+  }
+
+  inline path_iterator operator()(size_t i) const {
+    return PathIterator(m_paths[i]);
+  }
+};
+
+Py::Object
+RendererAgg::draw_path_collection(const Py::Tuple& args) {
+  _VERBOSE("RendererAgg::draw_path_collection");
+  args.verify_length(13);
+  
+  //segments, trans, clipbox, colors, linewidths, antialiaseds
+  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0]);
+  Py::Object		  cliprect	   = args[1];
+  Py::Object		  clippath	   = args[2];
+  agg::trans_affine       clippath_trans   = py_to_agg_transformation_matrix(args[3], false);
+  Py::SeqBase<Py::Object> paths		   = args[4];
+  Py::SeqBase<Py::Object> transforms_obj   = args[5];
+  Py::Object              offsets_obj      = args[6];
+  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7]);
+  Py::Object              facecolors_obj   = args[8];
+  Py::Object              edgecolors_obj   = args[9];
+  Py::SeqBase<Py::Float>  linewidths	   = args[10];
+  Py::SeqBase<Py::Object> linestyles_obj   = args[11];
+  Py::SeqBase<Py::Int>    antialiaseds	   = args[12];
+
+  PathListGenerator path_generator(paths);
+
+  _draw_path_collection_generic
+    (master_transform,
+     cliprect,
+     clippath,
+     clippath_trans,
+     path_generator,
+     transforms_obj,
+     offsets_obj,
+     offset_trans,
+     facecolors_obj,
+     edgecolors_obj,
+     linewidths,
+     linestyles_obj,
+     antialiaseds,
+     true);
+
+  return Py::Object();
+}
+
+class QuadMeshGenerator {
+  size_t m_meshWidth;
+  size_t m_meshHeight;
+  PyArrayObject* m_coordinates;
+
+  class QuadMeshPathIterator {
+    size_t m_iterator;
+    size_t m_m, m_n;
+    PyArrayObject* m_coordinates;
+  public:
+    QuadMeshPathIterator(size_t m, size_t n, PyArrayObject* coordinates) :
+      m_iterator(0), m_m(m), m_n(n), m_coordinates(coordinates) {
+    }
+    
+    static const size_t offsets[5][2];
+
+    inline unsigned vertex(unsigned idx, double* x, double* y) {
+      size_t m = m_m + offsets[idx][0];
+      size_t n = m_n + offsets[idx][1];
+      *x = *(double*)PyArray_GETPTR3(m_coordinates, m, n, 0);
+      *y = *(double*)PyArray_GETPTR3(m_coordinates, m, n, 1);
+      return (idx == 0) ? agg::path_cmd_move_to : agg::path_cmd_line_to;
+    }
+
+    inline unsigned vertex(double* x, double* y) {
+      if (m_iterator >= total_vertices()) return agg::path_cmd_stop;
+      return vertex(m_iterator++, x, y);
+    }
+
+    inline void rewind(unsigned path_id) {
+      m_iterator = path_id;
+    }
+    
+    inline unsigned total_vertices() {
+      return 5;
+    }
+
+    inline bool has_curves() {
+      return false;
+    }
+  };
+
+public:
+  typedef QuadMeshPathIterator path_iterator;
+
+  inline QuadMeshGenerator(size_t meshWidth, size_t meshHeight, const Py::Object& coordinates) :
+    m_meshWidth(meshWidth), m_meshHeight(meshHeight), m_coordinates(NULL) {
+    PyArrayObject* coordinates_array = (PyArrayObject*)PyArray_FromObject(coordinates.ptr(), PyArray_DOUBLE, 1, 3);
+    if (!coordinates_array) {
+      throw Py::ValueError("Invalid coordinates array.");
+    }
+    
+    Py::Tuple shape(3);
+    shape[0] = Py::Int((int)meshHeight + 1);
+    shape[1] = Py::Int((int)meshWidth + 1);
+    shape[2] = Py::Int(2);
+    m_coordinates = (PyArrayObject*)PyArray_Reshape(coordinates_array, shape.ptr());
+  }
+  
+  inline ~QuadMeshGenerator() {
+    Py_XDECREF(m_coordinates);
+  }
+
+  inline size_t num_paths() const {
+    return m_meshWidth * m_meshHeight;
+  }
+
+  inline path_iterator operator()(size_t i) const {
+    return QuadMeshPathIterator(i % m_meshHeight, i / m_meshHeight, m_coordinates);
+  }
+};
+
+const size_t QuadMeshGenerator::QuadMeshPathIterator::offsets[5][2] = {
+      { 0, 0 },
+      { 0, 1 },
+      { 1, 1 },
+      { 1, 0 },
+      { 0, 0 } };
+
+Py::Object
+RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
+  _VERBOSE("RendererAgg::draw_quad_mesh");
+  args.verify_length(12);
+  
+  //segments, trans, clipbox, colors, linewidths, antialiaseds
+  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0]);
+  Py::Object		  cliprect	   = args[1];
+  Py::Object		  clippath	   = args[2];
+  agg::trans_affine       clippath_trans   = py_to_agg_transformation_matrix(args[3], false);
+  size_t                  mesh_width       = Py::Int(args[4]);
+  size_t                  mesh_height      = Py::Int(args[5]);
+  Py::Object              coordinates	   = args[6];
+  Py::Object              offsets_obj      = args[7];
+  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[8]);
+  Py::Object              facecolors_obj   = args[9];
+  bool                    antialiased	   = (bool)Py::Int(args[10]);
+  bool                    showedges        = (bool)Py::Int(args[11]);
+  
+  QuadMeshGenerator path_generator(mesh_width, mesh_height, coordinates);
+
+  Py::SeqBase<Py::Object> transforms_obj;
+  Py::Object edgecolors_obj;
+  Py::Tuple linewidths(1);
+  linewidths[0] = Py::Float(1.0);
+  Py::SeqBase<Py::Object> linestyles_obj;
+  Py::Tuple antialiaseds(1);
+  antialiaseds[0] = Py::Int(antialiased ? 1 : 0);
+
+  if (showedges) {
+    int dims[] = { 1, 4, 0 };
+    double data[] = { 0, 0, 0, 1 };
+    edgecolors_obj = PyArray_FromDimsAndData(2, dims, PyArray_DOUBLE, (char*)data);
+  } else {
+    if (antialiased) {
+      edgecolors_obj = facecolors_obj;
+    } else {
+      int dims[] = { 0, 0 };
+      edgecolors_obj = PyArray_FromDims(1, dims, PyArray_DOUBLE);
+    }
+  }
+
+  _draw_path_collection_generic
+    (master_transform,
+     cliprect,
+     clippath,
+     clippath_trans,
+     path_generator,
+     transforms_obj,
+     offsets_obj,
+     offset_trans,
+     facecolors_obj,
+     edgecolors_obj,
+     linewidths,
+     linestyles_obj,
+     antialiaseds,
+     false);
+
+  return Py::Object();
+}
+
 Py::Object
 RendererAgg::write_rgba(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::write_rgba");
   
   args.verify_length(1);
-  std::string fname = Py::String( args[0]);
+  std::string fname = Py::String(args[0]);
   
   std::ofstream of2( fname.c_str(), std::ios::binary|std::ios::out);
   for (size_t i=0; i<NUMBYTES; i++) {
@@ -1072,7 +1279,6 @@ RendererAgg::write_rgba(const Py::Tuple& args) {
   }
   return Py::Object();
 }
-
 
 // this code is heavily adapted from the paint license, which is in
 // the file paint.license (BSD compatible) included in this
@@ -1398,6 +1604,8 @@ void RendererAgg::init_type()
 		     "draw_path(gc, path, transform, rgbFace)\n");
   add_varargs_method("draw_path_collection", &RendererAgg::draw_path_collection,
 		     "draw_path_collection(master_transform, cliprect, clippath, clippath_trans, paths, transforms, offsets, offsetTrans, facecolors, edgecolors, linewidths, linestyles, antialiaseds)\n");
+  add_varargs_method("draw_quad_mesh", &RendererAgg::draw_quad_mesh,
+		     "draw_quad_mesh(master_transform, cliprect, clippath, clippath_trans, meshWidth, meshHeight, coordinates, offsets, offsetTrans, facecolors, antialiaseds, showedges)\n");
   add_varargs_method("draw_markers", &RendererAgg::draw_markers,
 		     "draw_markers(gc, marker_path, marker_trans, path, rgbFace)\n");
   add_varargs_method("draw_text_image", &RendererAgg::draw_text_image,

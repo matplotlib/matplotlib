@@ -7,35 +7,35 @@
 #include "agg_path_storage.h"
 
 class PathIterator {
-  PyArrayObject* vertices;
-  PyArrayObject* codes;
+  PyArrayObject* m_vertices;
+  PyArrayObject* m_codes;
   size_t m_iterator;
   size_t m_total_vertices;
 
 public:
   PathIterator(const Py::Object& path_obj) :
-    vertices(NULL), codes(NULL), m_iterator(0) {
+    m_vertices(NULL), m_codes(NULL), m_iterator(0) {
     Py::Object vertices_obj = path_obj.getAttr("vertices");
     Py::Object codes_obj = path_obj.getAttr("codes");
     
-    vertices = (PyArrayObject*)PyArray_FromObject
+    m_vertices = (PyArrayObject*)PyArray_FromObject
       (vertices_obj.ptr(), PyArray_DOUBLE, 2, 2);
-    if (!vertices || vertices->nd != 2 || vertices->dimensions[1] != 2)
+    if (!m_vertices || m_vertices->nd != 2 || m_vertices->dimensions[1] != 2)
       throw Py::ValueError("Invalid vertices array.");
 
     if (codes_obj.ptr() != Py_None) {
-      codes = (PyArrayObject*)PyArray_FromObject
+      m_codes = (PyArrayObject*)PyArray_FromObject
 	(codes_obj.ptr(), PyArray_UINT8, 1, 1);
-      if (!codes) 
+      if (!m_codes) 
 	throw Py::ValueError("Invalid codes array.");
     }
 
-    m_total_vertices = vertices->dimensions[0];
+    m_total_vertices = m_vertices->dimensions[0];
   }
 
   ~PathIterator() {
-    Py_XDECREF(vertices);
-    Py_XDECREF(codes);
+    Py_XDECREF(m_vertices);
+    Py_XDECREF(m_codes);
   }
 
   static const char code_map[];
@@ -43,10 +43,10 @@ public:
   inline unsigned vertex(unsigned idx, double* x, double* y) {
     if (idx > m_total_vertices)
       throw Py::RuntimeError("Requested vertex past end");
-    *x = *(double*)PyArray_GETPTR2(vertices, idx, 0);
-    *y = *(double*)PyArray_GETPTR2(vertices, idx, 1);
-    if (codes) {
-      return code_map[(int)*(char *)PyArray_GETPTR1(codes, idx)];
+    *x = *(double*)PyArray_GETPTR2(m_vertices, idx, 0);
+    *y = *(double*)PyArray_GETPTR2(m_vertices, idx, 1);
+    if (m_codes) {
+      return code_map[(int)*(char *)PyArray_GETPTR1(m_codes, idx)];
     } else {
       return idx == 0 ? agg::path_cmd_move_to : agg::path_cmd_line_to;
     }
@@ -63,6 +63,10 @@ public:
 
   inline unsigned total_vertices() {
     return m_total_vertices;
+  }
+
+  inline bool has_curves() {
+    return m_codes;
   }
 };
 
