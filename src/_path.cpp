@@ -263,8 +263,8 @@ Py::Object _path_module::get_path_collection_extents(const Py::Tuple& args) {
   try {
     offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
     if (!offsets || 
-	(offsets->nd == 2 && offsets->dimensions[1] != 2) || 
-	(offsets->nd == 1 && offsets->dimensions[0])) {
+	(PyArray_NDIM(offsets) == 2 && PyArray_DIM(offsets, 1) != 2) || 
+	(PyArray_NDIM(offsets) == 1 && PyArray_DIM(offsets, 0) != 0)) {
       throw Py::ValueError("Offsets array must be Nx2");
     }
 
@@ -338,9 +338,12 @@ Py::Object _path_module::point_in_path_collection(const Py::Tuple& args) {
   agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7]);
   bool                    filled           = Py::Int(args[8]);
   
-  PyArrayObject* offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 2, 2);
-  if (!offsets || offsets->dimensions[1] != 2)
+  PyArrayObject* offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
+  if (!offsets || 
+      (PyArray_NDIM(offsets) == 2 && PyArray_DIM(offsets, 1) != 2) || 
+      (PyArray_NDIM(offsets) == 1 && PyArray_DIM(offsets, 0) != 0)) {
     throw Py::ValueError("Offsets array must be Nx2");
+  }
 
   size_t Npaths	     = paths.length();
   size_t Noffsets    = offsets->dimensions[0];
@@ -360,16 +363,23 @@ Py::Object _path_module::point_in_path_collection(const Py::Tuple& args) {
   }
 
   Py::List result;
+  agg::trans_affine trans;
 
   for (i = 0; i < N; ++i) {
     PathIterator path(paths[i % Npaths]);
-    
-    double xo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
-    double yo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
-    offset_trans.transform(&xo, &yo);
-    agg::trans_affine_translation transOffset(xo, yo);
-    agg::trans_affine trans = transforms[i % Ntransforms];
-    trans *= transOffset;
+
+    if (Ntransforms) {
+      trans = transforms[i % Ntransforms];
+    } else {
+      trans = master_transform;
+    }
+
+    if (Noffsets) {
+      double xo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
+      double yo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
+      offset_trans.transform(&xo, &yo);
+      trans *= agg::trans_affine_translation(xo, yo);
+    }
 
     if (filled) {
       if (::point_in_path(x, y, path, trans))

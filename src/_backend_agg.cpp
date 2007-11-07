@@ -280,7 +280,7 @@ RendererAgg::bbox_to_rect(const Py::Object& bbox_obj, double* l, double* b, doub
   if (bbox_obj.ptr() != Py_None) {
     bbox = (PyArrayObject*) PyArray_FromObject(bbox_obj.ptr(), PyArray_DOUBLE, 2, 2);   
 
-    if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2) {
+    if (!bbox || PyArray_NDIM(bbox) != 2 || PyArray_DIM(bbox, 0) != 2 || PyArray_DIM(bbox, 1) != 2) {
       Py_XDECREF(bbox);
       throw Py::TypeError
 	("Expected a Bbox object.");
@@ -942,23 +942,23 @@ RendererAgg::_draw_path_collection_generic
   try {
     offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
     if (!offsets || 
-	(offsets->nd == 2 && offsets->dimensions[1] != 2) || 
-	(offsets->nd == 1 && offsets->dimensions[0])) {
+	(PyArray_NDIM(offsets) == 2 && PyArray_DIM(offsets, 1) != 2) || 
+	(PyArray_NDIM(offsets) == 1 && PyArray_DIM(offsets, 0) != 0)) {
       throw Py::ValueError("Offsets array must be Nx2");
     }
 
     PyArrayObject* facecolors = (PyArrayObject*)PyArray_FromObject
       (facecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
     if (!facecolors || 
-	(facecolors->nd == 1 && facecolors->dimensions[0] != 0) || 
-	(facecolors->nd == 2 && facecolors->dimensions[1] != 4))
+	(PyArray_NDIM(facecolors) == 1 && PyArray_DIM(facecolors, 0) != 0) || 
+	(PyArray_NDIM(facecolors) == 2 && PyArray_DIM(facecolors, 1) != 4))
       throw Py::ValueError("Facecolors must be a Nx4 numpy array or empty");
 
     PyArrayObject* edgecolors = (PyArrayObject*)PyArray_FromObject
       (edgecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
     if (!edgecolors || 
-	(edgecolors->nd == 1 && edgecolors->dimensions[0] != 0) || 
-	(edgecolors->nd == 2 && edgecolors->dimensions[1] != 4))
+	(PyArray_NDIM(edgecolors) == 1 && PyArray_DIM(edgecolors, 0) != 0) || 
+	(PyArray_NDIM(edgecolors) == 2 && PyArray_DIM(edgecolors, 1) != 4))
       throw Py::ValueError("Edgecolors must be a Nx4 numpy array");
     
     size_t Npaths      = path_generator.num_paths();
@@ -1178,11 +1178,11 @@ public:
       throw Py::ValueError("Invalid coordinates array.");
     }
     
-    Py::Tuple shape(3);
-    shape[0] = Py::Int((int)meshHeight + 1);
-    shape[1] = Py::Int((int)meshWidth + 1);
-    shape[2] = Py::Int(2);
-    m_coordinates = (PyArrayObject*)PyArray_Reshape(coordinates_array, shape.ptr());
+    PyArray_Dims shape;
+    npy_intp dims[] = { meshHeight + 1, meshWidth + 1, 2 };
+    shape.ptr = dims;
+    shape.len = 3;
+    m_coordinates = (PyArrayObject*)PyArray_Newshape(coordinates_array, &shape, PyArray_CORDER);
   }
   
   inline ~QuadMeshGenerator() {
@@ -1237,13 +1237,13 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
   if (showedges) {
     int dims[] = { 1, 4, 0 };
     double data[] = { 0, 0, 0, 1 };
-    edgecolors_obj = PyArray_FromDimsAndData(2, dims, PyArray_DOUBLE, (char*)data);
+    edgecolors_obj = PyArray_SimpleNewFromData(2, dims, PyArray_DOUBLE, (char*)data);
   } else {
     if (antialiased) {
       edgecolors_obj = facecolors_obj;
     } else {
       int dims[] = { 0, 0 };
-      edgecolors_obj = PyArray_FromDims(1, dims, PyArray_DOUBLE);
+      edgecolors_obj = PyArray_SimpleNew(1, dims, PyArray_DOUBLE);
     }
   }
 
