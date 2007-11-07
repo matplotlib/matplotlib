@@ -62,7 +62,7 @@ class RendererBase:
         that path multiple times with the different offsets, colors,
         styles etc.  The methods _iter_collection_raw_paths and
         _iter_collection are provided to help with (and standardize)
-        the implementation that in each backend.
+        the implementation across backends.
         """
         path_ids = []
         for path, transform in self._iter_collection_raw_paths(
@@ -91,10 +91,9 @@ class RendererBase:
 
         if showedges:
             edgecolors = npy.array([[0.0, 0.0, 0.0, 1.0]], npy.float_)
-            linewidths = npy.array([1.0], npy.float_)
         else:
-            edgecolors = linewidths = npy.array([], npy.float_)
-            linewidths = npy.array([0.0], npy.float_)
+            edgecolors = facecolors
+        linewidths = npy.array([1.0], npy.float_)
             
         return self.draw_path_collection(
             master_transform, cliprect, clippath, clippath_trans,
@@ -195,8 +194,10 @@ class RendererBase:
                 rgbFace = facecolors[i % Nfacecolors]
             if Nedgecolors:
                 gc.set_foreground(edgecolors[i % Nedgecolors])
-                gc.set_linewidth(linewidths[i % Nlinewidths])
-                gc.set_dashes(*linestyles[i % Nlinestyles])
+                if Nlinewidths:
+                    gc.set_linewidth(linewidths[i % Nlinewidths])
+                if Nlinestyles:
+                    gc.set_dashes(*linestyles[i % Nlinestyles])
             gc.set_antialiased(antialiaseds[i % Naa])
 
             yield xo, yo, path_id, gc, rgbFace
@@ -466,7 +467,7 @@ class GraphicsContextBase:
         if isRGB:
             self._rgb = fg
         else:
-            self._rgb = colors.colorConverter.to_rgb(fg)
+            self._rgb = colors.colorConverter.to_rgba(fg)
 
     def set_graylevel(self, frac):
         """

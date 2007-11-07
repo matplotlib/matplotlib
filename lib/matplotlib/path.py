@@ -209,8 +209,11 @@ class Path(object):
         """
         vertices = simple_linear_interpolation(self.vertices, steps)
         codes = self.codes
-        new_codes = Path.LINETO * npy.ones(((len(codes) - 1) * steps + 1, ))
-        new_codes[0::steps] = codes
+        if codes is not None:
+            new_codes = Path.LINETO * npy.ones(((len(codes) - 1) * steps + 1, ))
+            new_codes[0::steps] = codes
+        else:
+            new_codes = None
         return Path(vertices, new_codes)
         
     _unit_rectangle = None
