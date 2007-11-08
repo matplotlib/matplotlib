@@ -672,6 +672,7 @@ class BakomaFonts(TruetypeFonts):
     _slanted_symbols = Set(r"\int \oint".split())
 
     def _get_glyph(self, fontname, sym, fontsize):
+        symbol_name = None
         if fontname in self.fontmap and latex_to_bakoma.has_key(sym):
             basename, num = latex_to_bakoma[sym]
             slanted = (basename == "cmmi10") or sym in self._slanted_symbols
@@ -682,10 +683,20 @@ class BakomaFonts(TruetypeFonts):
             slanted = (fontname == "it")
             cached_font = self._get_font(fontname)
             num = ord(sym)
-            symbol_name = cached_font.font.get_glyph_name(
-                cached_font.charmap[num])
-        else:
-            raise ValueError('unrecognized symbol "%s"' % sym)
+            gid = cached_font.charmap.get(num)
+            if gid is not None:
+                symbol_name = cached_font.font.get_glyph_name(
+                    cached_font.charmap[num])
+
+        if symbol_name is None:
+            warn("Unrecognized symbol '%s'. Substituting with a dummy symbol."
+                 % sym.encode('ascii', 'backslashreplace'), MathTextWarning)
+            fontname = 'it'
+            cached_font = self._get_font(fontname)
+            num = 0x3F # currency character, for lack of anything better
+            gid = cached_font.charmap[num]
+            symbol_name = cached_font.font.get_glyph_name(gid)
+            slanted = False
 
         return cached_font, num, symbol_name, fontsize, slanted
 
