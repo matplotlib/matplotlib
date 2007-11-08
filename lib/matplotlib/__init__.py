@@ -63,10 +63,7 @@ import md5, os, re, shutil, sys, warnings
 import distutils.sysconfig
 
 
-NEWCONFIG = True
-# TODO: remove this when we stop shipping 
-# enthought.traits as an internal package:
-#sys.path.append(os.path.split(__file__)[0])
+NEWCONFIG = False
 
 
 # Needed for toolkit setuptools support
