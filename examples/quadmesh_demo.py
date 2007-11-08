@@ -7,7 +7,7 @@ This demo illustrates a bug in quadmesh with masked data.
 """
 
 import numpy as npy
-from matplotlib.pyplot import figure, show
+from matplotlib.pyplot import figure, show, savefig
 from matplotlib import cm, colors
 from matplotlib.numerix import npyma as ma
 
@@ -26,10 +26,12 @@ Zm = ma.masked_where(npy.fabs(Qz) < 0.5*npy.amax(Qz), Z)
 
 fig = figure()
 ax = fig.add_subplot(121)
+ax.set_axis_bgcolor("#bdb76b")
 ax.pcolormesh(Qx,Qz,Z)
 ax.set_title('Without masked values')
 
 ax = fig.add_subplot(122)
+ax.set_axis_bgcolor("#bdb76b")
 #  You can control the color of the masked region:
 #cmap = cm.jet
 #cmap.set_bad('r', 1.0)
@@ -39,3 +41,4 @@ col = ax.pcolormesh(Qx,Qz,Zm)
 ax.set_title('With masked values')
 show()
 
+savefig("quadmesh_demo")
