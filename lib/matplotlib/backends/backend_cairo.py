@@ -156,21 +156,6 @@ class RendererCairo(RendererBase):
 
         self._fill_and_stroke(ctx, rgbFace)
 
-    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
-        ctx = gc.ctx
-        ctx.new_path()
-        marker_trans = marker_trans + Affine2D().scale(1.0, -1.0)
-        tmarker_path = marker_trans.transform_path(marker_path)
-        
-        trans = trans + Affine2D().scale(1.0, -1.0).translate(0, self.height)
-        tpath = trans.transform_path(path)
-        for x, y in tpath.vertices:
-            ctx.save()
-            ctx.translate(x, y)
-            self.convert_path(ctx, tmarker_path)
-            self._fill_and_stroke(ctx, rgbFace)
-            ctx.restore()
-
     def draw_image(self, x, y, im, bbox):
         # bbox - not currently used
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())

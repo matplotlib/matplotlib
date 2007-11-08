@@ -69,8 +69,10 @@ class RendererTemplate(RendererBase):
     def draw_path(self, gc, path, transform, rgbFace=None):
         pass
 
-    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
-        pass
+    # draw_markers is optional, and we get more correct
+    # relative timings by leaving it out.
+#     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+#         pass
 
     # draw_path_collection is optional, and we get more correct
     # relative timings by leaving it out.
@@ -79,7 +81,15 @@ class RendererTemplate(RendererBase):
 #                              offsetTrans, facecolors, edgecolors, linewidths,
 #                              linestyles, antialiaseds):
 #         pass
-    
+
+    # draw_quad_mesh is optional, and we get more correct
+    # relative timings by leaving it out.
+#     def draw_quad_mesh(self, master_transform, cliprect, clippath,
+#                        clippath_trans, meshWidth, meshHeight, coordinates,
+#                        offsets, offsetTrans, facecolors, antialiased,
+#                        showedges):
+#         pass
+        
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         pass
 
