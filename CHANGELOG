@@ -1,3 +1,6 @@
+2007-11-08 Moved csv2rec to recutils and added other record array
+           utilities - JDH
+
 2007-11-08 If available, use existing pyparsing installation - DSD 
 
 2007-11-07 Removed old enthought.traits from lib/matplotlib, added 
