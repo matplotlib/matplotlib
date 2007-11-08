@@ -982,20 +982,6 @@ def build_transforms(ext_modules, packages):
     add_base_flags(module)
     ext_modules.append(module)
 
-#def build_enthought(ext_modules, packages):
-#    global BUILT_ENTHOUGHT
-#    if BUILT_ENTHOUGHT: return # only build it if you you haven't already
-#
-#    ctraits = Extension('matplotlib.enthought.traits.ctraits',  ['lib/matplotlib/enthought/traits/ctraits.c'])
-#    ext_modules.append(ctraits)
-#    packages.extend(['matplotlib/enthought',
-#                     'matplotlib/enthought/traits',
-#                     'matplotlib/enthought/traits/ui',
-#                     'matplotlib/enthought/traits/ui/null',
-#                     'matplotlib/enthought/resource',
-#                     'matplotlib/enthought/util',
-#                     ])
-#    BUILT_ENTHOUGHT = True
 
 def build_traits(ext_modules, packages):
     global BUILT_TRAITS
@@ -1008,11 +994,9 @@ def build_traits(ext_modules, packages):
     packages.extend(['enthought',
                      'enthought/etsconfig',
                      'enthought/traits',
-#                     'enthought/traits/plugins',
                      'enthought/traits/ui',
                      'enthought/traits/ui/extras',
                      'enthought/traits/ui/null',
-#                     'enthought/traits/ui/tests',
                      'enthought/traits/ui/tk',
                      ])
     BUILT_TRAITS = True
