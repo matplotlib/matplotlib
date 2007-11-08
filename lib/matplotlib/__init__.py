@@ -55,14 +55,19 @@ gmail.com).
 """
 from __future__ import generators
 
-NEWCONFIG = False
-
 __version__  = '0.90.1'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
 import md5, os, re, shutil, sys, warnings
 import distutils.sysconfig
+
+
+NEWCONFIG = True
+# TODO: remove this when we stop shipping 
+# enthought.traits as an internal package:
+#sys.path.append(os.path.split(__file__)[0])
+
 
 # Needed for toolkit setuptools support
 if 0:

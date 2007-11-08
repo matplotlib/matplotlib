@@ -87,7 +87,7 @@ BUILT_WXAGG     = False
 BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
 BUILT_NXUTILS   = False
-BUILT_ENTHOUGHT = False
+BUILT_TRAITS = False
 BUILT_CONTOUR   = False
 BUILT_GDK       = False
 
@@ -323,6 +323,23 @@ def check_for_cairo():
         return False
     else:
         print_status("Cairo", cairo.version)
+
+def check_for_traits():
+    gotit = False
+    try:
+        from enthought import traits
+        gotit = True
+        try:
+            from enthought.traits import version
+        except:
+            print_status("enthought.traits", "unknown and incompatible version: < 2.0")
+            return gotit
+        else:
+            if version.version.endswith('mpl'): gotit = False
+            print_status("enthought.traits", version.version)
+    except ImportError:
+        print_status("enthought.traits", "no")
+    return gotit
 
 def check_for_numpy():
     gotit = False
@@ -965,20 +982,41 @@ def build_transforms(ext_modules, packages):
     add_base_flags(module)
     ext_modules.append(module)
 
-def build_enthought(ext_modules, packages):
-    global BUILT_ENTHOUGHT
-    if BUILT_ENTHOUGHT: return # only build it if you you haven't already
+#def build_enthought(ext_modules, packages):
+#    global BUILT_ENTHOUGHT
+#    if BUILT_ENTHOUGHT: return # only build it if you you haven't already
+#
+#    ctraits = Extension('matplotlib.enthought.traits.ctraits',  ['lib/matplotlib/enthought/traits/ctraits.c'])
+#    ext_modules.append(ctraits)
+#    packages.extend(['matplotlib/enthought',
+#                     'matplotlib/enthought/traits',
+#                     'matplotlib/enthought/traits/ui',
+#                     'matplotlib/enthought/traits/ui/null',
+#                     'matplotlib/enthought/resource',
+#                     'matplotlib/enthought/util',
+#                     ])
+#    BUILT_ENTHOUGHT = True
 
-    ctraits = Extension('matplotlib.enthought.traits.ctraits',  ['lib/matplotlib/enthought/traits/ctraits.c'])
+def build_traits(ext_modules, packages):
+    global BUILT_TRAITS
+    if BUILT_TRAITS:
+        return # only build it if you you haven't already
+
+    ctraits = Extension('enthought.traits.ctraits',
+                        ['lib/enthought/traits/ctraits.c'])
     ext_modules.append(ctraits)
-    packages.extend(['matplotlib/enthought',
-                     'matplotlib/enthought/traits',
-                     'matplotlib/enthought/traits/ui',
-                     'matplotlib/enthought/traits/ui/null',
-                     'matplotlib/enthought/resource',
-                     'matplotlib/enthought/util',
+    packages.extend(['enthought',
+                     'enthought/etsconfig',
+                     'enthought/traits',
+#                     'enthought/traits/plugins',
+                     'enthought/traits/ui',
+                     'enthought/traits/ui/extras',
+                     'enthought/traits/ui/null',
+#                     'enthought/traits/ui/tests',
+                     'enthought/traits/ui/tk',
                      ])
-    BUILT_ENTHOUGHT = True
+    BUILT_TRAITS = True
+
 
 def build_contour(ext_modules, packages):
     global BUILT_CONTOUR

@@ -7,7 +7,7 @@
 # below.
 
 import sys, os, re
-import matplotlib.enthought.traits as traits
+import matplotlib.enthought.traits.api as traits
 from matplotlib.cbook import is_string_like
 from matplotlib.artist import Artist
 
