@@ -14,6 +14,7 @@
 #include "_backend_agg.h"
 #define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
+#include "agg_py_transforms.h"
 
 // the extension module
 class _gtkagg_module : public Py::ExtensionModule<_gtkagg_module>
@@ -71,31 +72,12 @@ private:
     else {
       //bbox is not None; copy the image in the bbox
       PyObject* clipbox = args[2].ptr();
-      PyArrayObject* bbox = NULL;
       double l, b, r, t;
 
-      try {
-	bbox = (PyArrayObject*) PyArray_FromObject(clipbox, PyArray_DOUBLE, 2, 2);   
-	
-	if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2) {
-	  throw Py::TypeError
-	    ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
-	}
-	
-	l = *(double*)PyArray_GETPTR2(bbox, 0, 0);
-	b = *(double*)PyArray_GETPTR2(bbox, 0, 1);
-	r = *(double*)PyArray_GETPTR2(bbox, 1, 0);
-	t = *(double*)PyArray_GETPTR2(bbox, 1, 1);
-
-	Py_XDECREF(bbox);
-	bbox = NULL;
-      } catch (...) {
-	Py_XDECREF(bbox);
-	bbox = NULL;
-	throw;
+      if (!py_convert_bbox(clipbox, l, b, r, t)) {
+	throw Py::TypeError
+	  ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
       }
-      //std::cout << b << " "
-      //		<< t << " ";
 
       destx = (int)l;
       desty = srcheight-(int)t;
@@ -118,10 +100,7 @@ private:
       agg::rect_base<int> region(destx, desty, (int)r, srcheight-(int)b);
       destrb.copy_from(*aggRenderer->renderingBuffer, &region,
 		       -destx, -desty);
-
-
     }
-
 
     /*std::cout << desty << " "
 	      << destheight << " "

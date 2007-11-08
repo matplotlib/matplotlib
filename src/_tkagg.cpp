@@ -14,6 +14,7 @@
 
 #include "agg_basics.h"
 #include "_backend_agg.h"
+#include "agg_py_transforms.h"
 
 extern "C" {
 #ifdef __APPLE__
@@ -85,29 +86,8 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
 
     /* check for bbox/blitting */
     bboxo = (PyObject*)atol(argv[4]);
-    if (bboxo != Py_None) {
+    if (py_convert_bbox(bboxo, l, b, r, t)) {
       has_bbox = true;
-      PyArrayObject* bbox = NULL;
-      try {
-	bbox = (PyArrayObject*) PyArray_FromObject(bboxo, PyArray_DOUBLE, 2, 2);   
-	
-	if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2) {
-	  throw Py::TypeError
-	    ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
-	}
-	
-	l = *(double*)PyArray_GETPTR2(bbox, 0, 0);
-	b = *(double*)PyArray_GETPTR2(bbox, 0, 1);
-	r = *(double*)PyArray_GETPTR2(bbox, 1, 0);
-	t = *(double*)PyArray_GETPTR2(bbox, 1, 1);
-
-	Py_XDECREF(bbox);
-	bbox = NULL;
-      } catch (...) {
-	Py_XDECREF(bbox);
-	bbox = NULL;
-	throw;
-      }
 
       destx = (int)l;
       desty = srcheight-(int)t;

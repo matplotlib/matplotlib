@@ -273,33 +273,6 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   
 };
 
-bool
-RendererAgg::bbox_to_rect(const Py::Object& bbox_obj, double* l, double* b, double* r, double* t) {
-  PyArrayObject* bbox = NULL;
-
-  if (bbox_obj.ptr() != Py_None) {
-    bbox = (PyArrayObject*) PyArray_FromObject(bbox_obj.ptr(), PyArray_DOUBLE, 2, 2);   
-
-    if (!bbox || PyArray_NDIM(bbox) != 2 || PyArray_DIM(bbox, 0) != 2 || PyArray_DIM(bbox, 1) != 2) {
-      Py_XDECREF(bbox);
-      throw Py::TypeError
-	("Expected a Bbox object.");
-    }
-    
-    *l	      = *(double*)PyArray_GETPTR2(bbox, 0, 0);
-    double _b = *(double*)PyArray_GETPTR2(bbox, 0, 1);
-    *r	      = *(double*)PyArray_GETPTR2(bbox, 1, 0);
-    double _t = *(double*)PyArray_GETPTR2(bbox, 1, 1);
-    *b	      = height - _t;
-    *t	      = height - _b;
-
-    Py_XDECREF(bbox);
-    return true;
-  }
-
-  return false;
-}
-
 template<class R>
 void
 RendererAgg::set_clipbox(const Py::Object& cliprect, R rasterizer) {
@@ -308,7 +281,7 @@ RendererAgg::set_clipbox(const Py::Object& cliprect, R rasterizer) {
   _VERBOSE("RendererAgg::set_clipbox");
 
   double l, b, r, t;
-  if (bbox_to_rect(cliprect, &l, &b, &r, &t)) {
+  if (py_convert_bbox(cliprect.ptr(), l, b, r, t)) {
     rasterizer->clip_box((int)l, (int)b, (int)r, (int)t);
   }
 
@@ -408,7 +381,7 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
 
   Py::Object box_obj = args[0];
   double l, b, r, t;
-  if (!bbox_to_rect(box_obj, &l, &b, &r, &t)) 
+  if (!py_convert_bbox(box_obj.ptr(), l, b, r, t)) 
     throw Py::TypeError("Invalid bbox provided to copy_from_bbox");
   
   agg::rect rect((int)l, (int)b, (int)r, (int)t);
