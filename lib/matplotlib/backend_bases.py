@@ -15,7 +15,21 @@ import matplotlib.widgets as widgets
 from matplotlib import rcParams
 
 class RendererBase:
-    """An abstract base class to handle drawing/rendering operations
+    """An abstract base class to handle drawing/rendering operations.
+
+    The following methods *must* be implemented in the backend:
+
+       draw_path
+       draw_image
+       draw_text
+       get_text_width_height_descent
+
+    The following methods *should* be implemented in the backend for
+    optimization reasons:
+    
+       draw_markers
+       draw_path_collection
+       draw_quad_mesh
     """
     def __init__(self):
         self._texmanager = None
@@ -47,22 +61,41 @@ class RendererBase:
 
         marker_trans is an affine transform applied to the marker.
         trans is an affine transform applied to the path.
-        """
-        raise NotImplementedError
 
+        This provides a fallback implementation of draw_markers that
+        makes multiple calls to draw_path.  Some backends may want to
+        override this method in order to draw the marker only once and
+        reuse it multiple times.
+        """
+        ctx = gc.ctx
+        ctx.new_path()
+        tpath = trans.transform_path(path)
+        for x, y in tpath.vertices:
+            self.draw_path(gc, marker_path,
+                           marker_trans + transforms.Affine2D().translate(x, y),
+                           rgbFace)
+        
     def draw_path_collection(self, master_transform, cliprect, clippath,
                              clippath_trans, paths, all_transforms, offsets,
                              offsetTrans, facecolors, edgecolors, linewidths,
                              linestyles, antialiaseds):
         """
+        Draws a collection of paths, selecting drawing properties from
+        the lists facecolors, edgecolors, linewidths, linestyles and
+        antialiaseds.  offsets is a list of offsets to apply to each
+        of the paths.  The offsets in offsets are first transformed by
+        offsetTrans before being applied.
+
         This provides a fallback implementation of
         draw_path_collection that makes multiple calls to draw_path.
-        Often, the backend will want to override this in order to
-        render each set of path data only once, and then reference
-        that path multiple times with the different offsets, colors,
-        styles etc.  The methods _iter_collection_raw_paths and
+        Some backends may want to override this in order to render
+        each set of path data only once, and then reference that path
+        multiple times with the different offsets, colors, styles etc.
+        The generator methods _iter_collection_raw_paths and
         _iter_collection are provided to help with (and standardize)
-        the implementation across backends.
+        the implementation across backends.  It is highly recommended
+        to use those generators, so that changes to the behavior of
+        draw_path_collection can be made globally.
         """
         path_ids = []
         for path, transform in self._iter_collection_raw_paths(
