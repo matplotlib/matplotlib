@@ -1,4 +1,4 @@
-from matplotlib.mlab import csv2rec
+from matplotlib.recutils import csv2rec
 from pylab import figure, show
 
 a = csv2rec('data/msft.csv')

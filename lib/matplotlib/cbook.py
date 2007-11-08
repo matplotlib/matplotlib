@@ -853,6 +853,7 @@ def safezip(*args):
             raise ValueError(_safezip_msg % (Nx, i+1, len(arg)))
     return zip(*args)
 
+
 class MemoryMonitor:
     def __init__(self, nmax=20000):
         self._nmax = nmax
@@ -895,12 +896,14 @@ class MemoryMonitor:
         x = npy.arange(i0, self._n, isub)
         return x, self._mem[i0:self._n:isub]
 
-    def plot(self, i0=0, isub=1):
-        from pylab import figure, show
-        fig = figure()
+    def plot(self, i0=0, isub=1, fig=None):
+        if fig is None:            
+            from pylab import figure, show
+            fig = figure()
+
         ax = fig.add_subplot(111)
         ax.plot(*self.xy(i0, isub))
-        show()
+        fig.canvas.draw()
 
 
 def print_cycles(objects, outstream=sys.stdout, show_progress=False):
