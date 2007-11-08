@@ -78,10 +78,11 @@ import glob
 from distutils.core import setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_ft2font, build_image, build_windowing, build_transforms, \
-     build_contour, build_nxutils, build_enthought, build_swigagg, build_gdk, \
+     build_contour, build_nxutils, build_traits, build_swigagg, build_gdk, \
      build_subprocess, build_ttconv, print_line, print_status, print_message, \
      print_raw, check_for_freetype, check_for_libpng, check_for_gtk, check_for_tk, \
-     check_for_wx, check_for_numpy, check_for_qt, check_for_qt4, check_for_cairo
+     check_for_wx, check_for_numpy, check_for_qt, check_for_qt4, check_for_cairo, \
+     check_for_traits
 #import distutils.sysconfig
 
 # jdh
@@ -98,6 +99,8 @@ packages = [
     'matplotlib.numerix.fft',
     'matplotlib.config'
     ]
+
+py_modules = ['pylab']
 
 ext_modules = []
 
@@ -218,7 +221,12 @@ if havedate: # dates require python23 datetime
 
 build_swigagg(ext_modules, packages)
 build_transforms(ext_modules, packages)
-build_enthought(ext_modules, packages)
+
+# for the traited config package:
+try: import configobj
+except ImportError: py_modules.append('configobj')
+
+if not check_for_traits(): build_traits(ext_modules, packages)
 
 if check_for_gtk() and (BUILD_GTK or BUILD_GTKAGG):
     if BUILD_GTK:
@@ -295,7 +303,7 @@ distrib = setup(name="matplotlib",
       """,
       packages = packages,
       platforms='any',
-      py_modules = ['pylab'],
+      py_modules = py_modules,
       ext_modules = ext_modules,
       package_dir = {'': 'lib'},
       package_data = package_data,
