@@ -1,3 +1,10 @@
+2007-11-08 If available, use existing pyparsing installation - DSD 
+
+2007-11-07 Removed old enthought.traits from lib/matplotlib, added 
+           Gael Varoquaux's enthought.traits-2.6b1, which is stripped 
+           of setuptools. The package is installed to site-packages 
+           if not already available - DSD
+
 2007-11-02 Commited Phil Thompson's patch 1599876, fixes to Qt4Agg 
            backend and qt4 blitting demo - DSD 
 
