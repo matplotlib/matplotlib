@@ -222,6 +222,9 @@ if havedate: # dates require python23 datetime
 build_swigagg(ext_modules, packages)
 build_transforms(ext_modules, packages)
 
+try: import pyparsing
+except ImportError: py_modules.append('pyparsing')
+
 # for the traited config package:
 try: import configobj
 except ImportError: py_modules.append('configobj')

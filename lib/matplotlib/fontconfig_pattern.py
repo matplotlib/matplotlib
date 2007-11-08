@@ -18,8 +18,8 @@ Author : Michael Droettboom <mdroe@stsci.edu>
 License   : matplotlib license (PSF compatible)
 """
 import re
-from matplotlib.pyparsing import Literal, OneOrMore, ZeroOrMore, \
-    Optional, Regex, StringEnd, ParseException, Suppress
+from pyparsing import Literal, OneOrMore, ZeroOrMore, Optional, Regex, \
+    StringEnd, ParseException, Suppress
 
 family_punc = r'\\\-:,'
 family_unescape = re.compile(r'\\([%s])' % family_punc).sub

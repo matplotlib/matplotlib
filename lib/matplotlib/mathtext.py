@@ -134,11 +134,11 @@ from warnings import warn
 from numpy import inf, isinf
 
 from matplotlib import verbose
-from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, \
-     Combine, Group, Optional, Forward, NotAny, alphas, nums, alphanums, \
-     StringStart, StringEnd, ParseFatalException, FollowedBy, Regex, \
-     operatorPrecedence, opAssoc, ParseResults, Or, Suppress, oneOf, \
-     ParseException, MatchFirst, NoMatch, Empty
+from pyparsing import Literal, Word, OneOrMore, ZeroOrMore, Combine, Group, \
+     Optional, Forward, NotAny, alphas, nums, alphanums, StringStart, \
+     StringEnd, ParseFatalException, FollowedBy, Regex, operatorPrecedence, \
+     opAssoc, ParseResults, Or, Suppress, oneOf, ParseException, MatchFirst, \
+     NoMatch, Empty
 
 from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch, get_realpath_and_stat, \
