@@ -215,7 +215,6 @@ protected:
   double points_to_pixels_snapto( const Py::Object& points);
   agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
-  bool bbox_to_rect(const Py::Object& bbox, double* l, double* b, double* r, double* t);
   template<class R>
   void set_clipbox(const Py::Object& cliprect, R rasterizer);
   bool render_clippath(const Py::Object& clippath, const agg::trans_affine& clippath_trans);

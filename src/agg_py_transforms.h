@@ -7,7 +7,6 @@
 #include "CXX/Objects.hxx"
 #include "agg_trans_affine.h"
 
-
 /** A helper function to convert from a Numpy affine transformation matrix
  *  to an agg::trans_affine.
  */
@@ -20,10 +19,10 @@ agg::trans_affine py_to_agg_transformation_matrix(const Py::Object& obj, bool er
     matrix = (PyArrayObject*) PyArray_FromObject(obj.ptr(), PyArray_DOUBLE, 2, 2);
     if (!matrix)
       throw std::exception();
-    if (matrix->nd == 2 || matrix->dimensions[0] == 3 || matrix->dimensions[1] == 3) {
-      size_t stride0 = matrix->strides[0];
-      size_t stride1 = matrix->strides[1];
-      char* row0 = matrix->data;
+    if (PyArray_NDIM(matrix) == 2 || PyArray_DIM(matrix, 0) == 3 || PyArray_DIM(matrix, 1) == 3) {
+      size_t stride0 = PyArray_STRIDE(matrix, 0);
+      size_t stride1 = PyArray_STRIDE(matrix, 1);
+      char* row0 = PyArray_BYTES(matrix);
       char* row1 = row0 + stride0;
       
       double a = *(double*)(row0);
@@ -53,6 +52,37 @@ agg::trans_affine py_to_agg_transformation_matrix(const Py::Object& obj, bool er
 
   Py_XDECREF(matrix);
   return agg::trans_affine();
+}
+
+bool py_convert_bbox(PyObject* bbox_obj, double& l, double& b, double& r, double& t) {
+  PyArrayObject* bbox = NULL;
+
+  if (bbox_obj == Py_None)
+    return false;
+
+  try {
+    bbox = (PyArrayObject*) PyArray_FromObject(bbox_obj, PyArray_DOUBLE, 2, 2);   
+	
+    if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2) {
+      throw Py::TypeError
+	("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
+    }
+	
+    l = *(double*)PyArray_GETPTR2(bbox, 0, 0);
+    b = *(double*)PyArray_GETPTR2(bbox, 0, 1);
+    r = *(double*)PyArray_GETPTR2(bbox, 1, 0);
+    t = *(double*)PyArray_GETPTR2(bbox, 1, 1);
+
+    Py_XDECREF(bbox);
+    bbox = NULL;
+    return true;
+  } catch (...) {
+    Py_XDECREF(bbox);
+    bbox = NULL;
+    throw;
+  }
+
+  return false;
 }
 
 #endif // __AGG_PY_TRANSFORMS_H__
