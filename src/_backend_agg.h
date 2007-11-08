@@ -165,7 +165,7 @@ public:
   Py::Object draw_image(const Py::Tuple & args);
   Py::Object draw_path(const Py::Tuple & args);
   Py::Object draw_path_collection(const Py::Tuple & args);
-  Py::Object RendererAgg::draw_quad_mesh(const Py::Tuple& args);
+  Py::Object draw_quad_mesh(const Py::Tuple& args);
 
 
   Py::Object write_rgba(const Py::Tuple & args);
