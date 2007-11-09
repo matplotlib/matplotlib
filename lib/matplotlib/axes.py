@@ -3717,7 +3717,7 @@ class Axes(martist.Artist):
                 plot_kw['mew']=kwargs['mew']
 
         if xerr is not None:
-            if iterable(xerr) and len(xerr)==2:
+            if iterable(xerr) and len(xerr)==2 and iterable(xerr[0]) and iterable(xerr[1]):
                 # using list comps rather than arrays to preserve units
                 left  = [thisx-thiserr for (thisx, thiserr) in cbook.safezip(x,xerr[0])]
                 right  = [thisx+thiserr for (thisx, thiserr) in cbook.safezip(x,xerr[1])]
@@ -3751,7 +3751,7 @@ class Axes(martist.Artist):
                     caplines.extend( self.plot(right, y, 'k|', **plot_kw) )
 
         if yerr is not None:
-            if iterable(yerr) and len(yerr)==2:
+            if iterable(yerr) and len(yerr)==2 and iterable(yerr[0]) and iterable(yerr[1]):
                 # using list comps rather than arrays to preserve units
                 lower  = [thisy-thiserr for (thisy, thiserr) in cbook.safezip(y,yerr[0])]
                 upper  = [thisy+thiserr for (thisy, thiserr) in cbook.safezip(y,yerr[1])]
