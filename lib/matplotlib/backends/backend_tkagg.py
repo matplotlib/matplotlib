@@ -549,6 +549,9 @@ class NavigationToolbar(Tk.Frame):
                 fname, err)
             error_msg_tkpaint(msg)
 
+        #the enlarged figure prints to the canvas and freezes unless a redraw is forced
+        self.canvas.draw()  
+
     def update(self):
         _focus = windowing.FocusManager()
         self._axes = self.canvas.figure.axes
