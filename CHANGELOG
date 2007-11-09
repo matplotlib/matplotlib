@@ -1,3 +1,6 @@
+2007-11-08 Added additional record array utilites to mlab (rec2excel,
+           rec2gtk, rec_join, rec_append_field, rec_drop_field) - JDH
+
 2007-11-08 Updated pytz to version 2007g - DSD
 
 2007-11-08 Updated pyparsing to version 1.4.8 - DSD
