@@ -1,8 +1,9 @@
-from pylab import figure, show, nx
+from matplotlib.pyplot import figure, show
 import matplotlib.transforms as transforms
 from matplotlib.patches import RegularPolygon
 import matplotlib.agg as agg
-
+from numpy import arange, sin, pi
+from numpy.random import rand
 
 class ClipWindow:
     def __init__(self, ax, line):
@@ -58,9 +59,9 @@ class ClipWindow:
 
 fig = figure(figsize=(8,8))
 ax = fig.add_subplot(111)
-t = nx.arange(0.0, 4.0, 0.01)
-s = 2*nx.sin(2*nx.pi*8*t)
+t = arange(0.0, 4.0, 0.01)
+s = 2*sin(2*pi*8*t)
 
-line, = ax.plot(t, 2*(nx.mlab.rand(len(t))-0.5), 'b-')
+line, = ax.plot(t, 2*(rand(len(t))-0.5), 'b-')
 clipwin = ClipWindow(ax, line)
 show()

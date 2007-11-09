@@ -3,7 +3,7 @@ import fltk
 import matplotlib
 matplotlib.use('FltkAgg')
 import pylab as p
-import numpy as nx
+import numpy as npy
 import time
 
 
@@ -29,7 +29,7 @@ class animator:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.canvas.restore_region(self.background)
         # update the data
-        line.set_ydata(nx.sin(x+self.cnt/10.0))
+        line.set_ydata(npy.sin(x+self.cnt/10.0))
         # just draw the animated artist
         self.ax.draw_artist(line)
         # just redraw the axes rectangle
@@ -45,8 +45,8 @@ ax = p.subplot(111)
 p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs
 p.grid() # to ensure proper background restore
 # create the initial line
-x = nx.arange(0,2*nx.pi,0.01)
-line, = p.plot(x, nx.sin(x), animated=True)
+x = npy.arange(0,2*npy.pi,0.01)
+line, = p.plot(x, npy.sin(x), animated=True)
 p.draw()
 anim=animator(ax)
 

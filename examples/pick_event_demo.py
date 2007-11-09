@@ -63,23 +63,25 @@ specified epsilon tolerance)
 The examples below illustrate each of these methods.
 """
 
-from pylab import figure, show, nx
+from matplotlib.pyplot import figure, show
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.text import Text
 from matplotlib.image import AxesImage
+import numpy as npy
+from numpy.random import rand
 
 if 1: # simple picking, lines, rectangles and text
     fig = figure()
     ax1 = fig.add_subplot(211)
     ax1.set_title('click on points, rectangles or text', picker=True)
     ax1.set_ylabel('ylabel', picker=True, bbox=dict(facecolor='red'))
-    line, = ax1.plot(nx.mlab.rand(100), 'o', picker=5)  # 5 points tolerance
+    line, = ax1.plot(rand(100), 'o', picker=5)  # 5 points tolerance
 
     # pick the rectangle
     ax2 = fig.add_subplot(212)
 
-    bars = ax2.bar(range(10), nx.mlab.rand(10), picker=True)
+    bars = ax2.bar(range(10), rand(10), picker=True)
     for label in ax2.get_xticklabels():  # make the xtick labels pickable
         label.set_picker(True)
 
@@ -90,7 +92,7 @@ if 1: # simple picking, lines, rectangles and text
             xdata = thisline.get_xdata()
             ydata = thisline.get_ydata()
             ind = event.ind
-            print 'onpick1 line:', zip(nx.take(xdata, ind), nx.take(ydata, ind))
+            print 'onpick1 line:', zip(npy.take(xdata, ind), npy.take(ydata, ind))
         elif isinstance(event.artist, Rectangle):
             patch = event.artist
             print 'onpick1 patch:', patch.get_verts()
@@ -122,12 +124,12 @@ if 1: # picking with a custom hit test function
         xdata = line.get_xdata()
         ydata = line.get_ydata()
         maxd = 0.05
-        d = nx.sqrt((xdata-mouseevent.xdata)**2. + (ydata-mouseevent.ydata)**2.)
+        d = npy.sqrt((xdata-mouseevent.xdata)**2. + (ydata-mouseevent.ydata)**2.)
 
-        ind = nx.nonzero(nx.less_equal(d, maxd))
+        ind = npy.nonzero(npy.less_equal(d, maxd))
         if len(ind):
-            pickx = nx.take(xdata, ind)
-            picky = nx.take(ydata, ind)
+            pickx = npy.take(xdata, ind)
+            picky = npy.take(ydata, ind)
             props = dict(ind=ind, pickx=pickx, picky=picky)
             return True, props
         else:
@@ -139,16 +141,16 @@ if 1: # picking with a custom hit test function
     fig = figure()
     ax1 = fig.add_subplot(111)
     ax1.set_title('custom picker for line data')
-    line, = ax1.plot(nx.mlab.rand(100), nx.mlab.rand(100), 'o', picker=line_picker)
+    line, = ax1.plot(rand(100), rand(100), 'o', picker=line_picker)
     fig.canvas.mpl_connect('pick_event', onpick2)
 
 
 if 1: # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
 
-    x, y, c, s = nx.mlab.rand(4, 100)
+    x, y, c, s = rand(4, 100)
     def onpick3(event):
         ind = event.ind
-        print 'onpick3 scatter:', ind, nx.take(x, ind), nx.take(y, ind)
+        print 'onpick3 scatter:', ind, npy.take(x, ind), npy.take(y, ind)
 
     fig = figure()
     ax1 = fig.add_subplot(111)
@@ -159,10 +161,10 @@ if 1: # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
 if 1: # picking images (matplotlib.image.AxesImage)
     fig = figure()
     ax1 = fig.add_subplot(111)
-    im1 = ax1.imshow(nx.rand(10,5), extent=(1,2,1,2), picker=True)
-    im2 = ax1.imshow(nx.rand(5,10), extent=(3,4,1,2), picker=True)
-    im3 = ax1.imshow(nx.rand(20,25), extent=(1,2,3,4), picker=True)
-    im4 = ax1.imshow(nx.rand(30,12), extent=(3,4,3,4), picker=True)
+    im1 = ax1.imshow(rand(10,5), extent=(1,2,1,2), picker=True)
+    im2 = ax1.imshow(rand(5,10), extent=(3,4,1,2), picker=True)
+    im3 = ax1.imshow(rand(20,25), extent=(1,2,3,4), picker=True)
+    im4 = ax1.imshow(rand(30,12), extent=(3,4,3,4), picker=True)
     ax1.axis([0,5,0,5])
 
     def onpick4(event):
