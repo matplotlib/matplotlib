@@ -114,7 +114,6 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             reg = self.copy_from_bbox(bbox)
             stringBuffer = reg.to_string()
             qImage = QtGui.QImage(stringBuffer, w, h, QtGui.QImage.Format_ARGB32)
-            p = QtGui.QPainter(self)
             pixmap = QtGui.QPixmap.fromImage(qImage)
             p = QtGui.QPainter( self )
             p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), pixmap)
