@@ -256,7 +256,7 @@ def checkdep_tex():
         v = match.group(0)
         float(v)
         return v
-    except (IndexError, ValueError):
+    except (IndexError, ValueError, AttributeError):
         return None
 
 def checkdep_pdftops():

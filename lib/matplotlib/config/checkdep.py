@@ -35,7 +35,7 @@ def tex():
         pattern = '3\.1\d+'
         match = re.search(pattern, line)
         return match.group(0)
-    except (IndexError, ValueError):
+    except (IndexError, ValueError, AttributeError):
         return None
 
 def pdftops():
