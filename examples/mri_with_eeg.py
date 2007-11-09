@@ -15,7 +15,7 @@ from matplotlib.transforms import get_bbox_transform, Point, Value, Bbox,\
 if 1:   # load the data
     # data are 256x256 16 bit integers
     dfile = 'data/s1045.ima'
-    im = fromstring(file(dfile, 'rb').read(), UInt16).astype(Float)
+    im = fromstring(file(dfile, 'rb').read(), uint16).astype(float)
     im.shape = 256, 256
 
 if 1: # plot the MRI in pcolor
@@ -37,7 +37,7 @@ if 1:  # plot the histogram of MRI intensity
 if 1:   # plot the EEG
     # load the data
     numSamples, numRows = 800,4
-    data = fromstring(file('data/eeg.dat', 'rb').read(), Float)
+    data = fromstring(file('data/eeg.dat', 'rb').read(), float)
     data.shape = numSamples, numRows
     t = arange(numSamples)/float(numSamples)*10.0
     ticklocs = []

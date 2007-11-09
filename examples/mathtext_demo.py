@@ -4,7 +4,8 @@ Use matplotlib's internal LaTex parser and layout engine.  For true
 latex rendering, see the text.usetex option
 """
 import numpy as npy
-from pylab import figure, show
+from matplotlib.pyplot import figure, show
+
 fig = figure()
 fig.subplots_adjust(bottom=0.2)
 
@@ -21,7 +22,8 @@ ax.text(1, 1.6, tex, fontsize=20, va='bottom')
 
 ax.legend(("Foo", "Testing $x^2$"))
 
-#title(r'$\Delta_i^j \hspace{0.4} \rm{versus} \hspace{0.4} \Delta_{i+1}^j$', fontsize=20)
-fig.savefig('mathtext_demo')
+ax.set_title(r'$\Delta_i^j \hspace{0.4} \rm{versus} \hspace{0.4} \Delta_{i+1}^j$', fontsize=20)
+#fig.savefig('mathtext_demo')
 
 show()
+
