@@ -511,7 +511,7 @@ class Wedge(Polygon):
     def __str__(self):
         return "Wedge(%g,%g)"%self.xy[0]
     def __init__(self, center, r, theta1, theta2,
-                 dtheta=0.1, **kwargs):
+                 dtheta=5.0, **kwargs):
         """
         Draw a wedge centered at x,y tuple center with radius r that
         sweeps theta1 to theta2 (angles)
@@ -523,7 +523,11 @@ class Wedge(Polygon):
 
         """
         xc, yc = center
-        rads = (math.pi/180.)*npy.arange(theta1, theta2+0.1*dtheta, dtheta)
+        theta1 = float(theta1)
+        theta2 = float(theta2)
+        dtheta = float(dtheta)
+        num_points = abs(theta2 - theta1) / dtheta
+        rads = (npy.pi/180.) * npy.linspace(theta1, theta2, num_points, endpoint=True)
         xs = r*npy.cos(rads)+xc
         ys = r*npy.sin(rads)+yc
         verts = [center]
