@@ -323,6 +323,50 @@ def check_for_cairo():
         return False
     else:
         print_status("Cairo", cairo.version)
+        return True
+
+def check_for_pyparsing():
+    try:
+        import pyparsing
+    except ImportError:
+        print_status("pyparsing", "mpl-provided")
+        return False
+    else:
+        print_status("pyparsing", pyparsing.__version__)
+        return True
+
+def check_for_pytz():
+    try:
+        import pytz
+    except ImportError:
+        print_status("pytz", "mpl-provided")
+        return False
+    else:
+        print_status("pytz", pytz.__version__)
+        return True
+
+def check_for_dateutil():
+    try:
+        import dateutil
+    except ImportError:
+        print_status("dateutil", "mpl-provided")
+        return False
+    else:
+        try:
+            print_status("dateutil", dateutil.__version)
+        except AttributeError:
+            print_status("dateutil", "present, version unknown")
+        return True
+
+def check_for_configobj():
+    try:
+        import configobj
+    except ImportError:
+        print_status("configobj", "mpl-provided")
+        return False
+    else:
+        print_status("configobj", configobj.__version__)
+        return True
 
 def check_for_traits():
     gotit = False
