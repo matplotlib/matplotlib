@@ -4385,7 +4385,9 @@ class Axes(martist.Artist):
     #### plotting z(x,y): imshow, pcolor and relatives, contour
 
 
-    def imshow(self, X,
+    def imshow(self, I,
+               X = None,
+               Y = None,
                cmap = None,
                norm = None,
                aspect=None,
@@ -4402,18 +4404,24 @@ class Axes(martist.Artist):
                **kwargs):
         """
 
-        IMSHOW(X, cmap=None, norm=None, aspect=None, interpolation=None,
-               alpha=1.0, vmin=None, vmax=None, origin=None, extent=None)
+        IMSHOW(I, X=None, Y=None, cmap=None, norm=None, aspect=None,
+               interpolation=None, alpha=1.0, vmin=None, vmax=None,
+               origin=None, extent=None)
 
-        IMSHOW(X) - plot image X to current axes, resampling to scale to axes
-                    size (X may be numarray/Numeric array or PIL image)
+        IMSHOW(I) - plot image I to current axes, resampling to scale to axes
+                    size (I may be numarray/Numeric array or PIL image)
 
-        IMSHOW(X, **kwargs) - Use keyword args to control image scaling,
-        colormapping etc. See below for details
+        IMSHOW(I, X, Y) - plot image I to current axes, with
+                          nonuniform X and Y axes.  (I, X and Y may be
+                          numarray/Numeric array or PIL image)
+                    
+        IMSHOW(I, X, Y, **kwargs) - Use keyword args to control image
+                                    scaling, colormapping etc. See
+                                    below for details
 
 
-        Display the image in X to current axes.  X may be a float array, a
-        uint8 array or a PIL image. If X is an array, X can have the following
+        Display the image in I to current axes.  I may be a float array, a
+        uint8 array or a PIL image. If I is an array, I can have the following
         shapes:
 
             MxN    : luminance (grayscale, float array only)
@@ -4425,6 +4433,10 @@ class Axes(martist.Artist):
         The value for each component of MxNx3 and MxNx4 float arrays should be
         in the range 0.0 to 1.0; MxN float arrays may be normalised.
 
+        X and/or Y may be provided to specify a non-uniform image
+        grid. Each element of the X or Y arrays is the width or height
+        of the corresponding pixel in the given image.
+        
         A image.AxesImage instance is returned
 
         The following kwargs are allowed:
@@ -4488,12 +4500,25 @@ class Axes(martist.Artist):
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
         if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
         if aspect is None: aspect = rcParams['image.aspect']
-        self.set_aspect(aspect)
-        im = mimage.AxesImage(self, cmap, norm, interpolation, origin, extent,
-                       filternorm=filternorm,
-                       filterrad=filterrad, **kwargs)
-
-        im.set_data(X)
+        # self.set_aspect(aspect)
+        
+        if X is None and Y is None:
+            im = mimage.AxesImage(self, cmap, norm, interpolation, origin, extent,
+                                  filternorm=filternorm,
+                                  filterrad=filterrad, **kwargs)
+            
+            im.set_data(I)
+        else:
+            if X is None:
+                X = npy.arange(I.shape[1])
+            if Y is None:
+                Y = npy.arange(I.shape[0])
+            im = mimage.NonUniformImage(self, cmap=cmap, norm=norm,
+                                        interpolation=interpolation,
+                                        origin=origin, extent=extent,
+                                        filternorm=filternorm,
+                                        filterrad=filterrad, **kwargs)
+            im.set_data(X, Y, I)
         im.set_alpha(alpha)
         self._set_artist_props(im)
         im.set_clip_path(self.axesPatch)
@@ -4515,7 +4540,7 @@ class Axes(martist.Artist):
 
         return im
 
-
+    
     def _pcolorargs(self, funcname, *args):
         if len(args)==1:
             C = args[0]

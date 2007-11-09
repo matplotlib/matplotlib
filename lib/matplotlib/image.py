@@ -77,8 +77,6 @@ class AxesImage(Artist, cm.ScalarMappable):
         # reverse interp dict
         self._interpdr = dict([ (v,k) for k,v in self._interpd.items()])
 
-        if interpolation is None: interpolation = rcParams['image.interpolation']
-
         self.set_interpolation(interpolation)
         self.axes = ax
 
@@ -267,7 +265,7 @@ class AxesImage(Artist, cm.ScalarMappable):
 
         ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' | 'blackman64', 'nearest' | 'sinc144' | 'sinc256' | 'sinc64' | 'spline16' | 'spline36']
         """
-
+        if s is None: s = rcParams['image.interpolation']
         s = s.lower()
         if not self._interpd.has_key(s):
             raise ValueError('Illegal interpolation string')
@@ -317,17 +315,10 @@ class AxesImage(Artist, cm.ScalarMappable):
 
 class NonUniformImage(AxesImage):
     def __init__(self, ax,
-                 cmap = None,
-                 norm = None,
-                 extent=None,
+                 **kwargs
                 ):
         AxesImage.__init__(self, ax,
-                           cmap = cmap,
-                           norm = norm,
-                           extent=extent,
-                           interpolation = 'nearest',
-                           origin = 'lower',
-                          )
+                           **kwargs)
 
     def make_image(self, magnification=1.0):
         if self._A is None:
@@ -382,9 +373,11 @@ class NonUniformImage(AxesImage):
         raise NotImplementedError('Method not supported')
 
     def set_interpolation(self, s):
-        if s != 'nearest':
+        print s
+        if s != None and s != 'nearest':
             raise NotImplementedError('Only nearest neighbor supported')
-
+        AxesImage.set_interpolation(self, s)
+        
     def get_extent(self):
         if self._A is None:
             raise RuntimeError('Must set data first')
