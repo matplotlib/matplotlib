@@ -1265,7 +1265,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     converterseq = None
     for i,line in enumerate(fh):
         if i<skiprows: continue
-        line = line[:line.find(comments)].strip()
+        line = line.split(comments, 1).strip()
         if not len(line): continue
         if converterseq is None:
             converterseq = [converters.get(j,float)
