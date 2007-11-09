@@ -67,8 +67,6 @@ class RendererBase:
         override this method in order to draw the marker only once and
         reuse it multiple times.
         """
-        ctx = gc.ctx
-        ctx.new_path()
         tpath = trans.transform_path(path)
         for x, y in tpath.vertices:
             self.draw_path(gc, marker_path,
