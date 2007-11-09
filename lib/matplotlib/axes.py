@@ -720,6 +720,8 @@ class Axes(martist.Artist):
 
         self.xaxis.cla()
         self.yaxis.cla()
+        self.set_xscale('linear')
+        self.set_yscale('linear')
 
         self.dataLim.ignore(1)
         self.callbacks = cbook.CallbackRegistry(('xlim_changed', 'ylim_changed'))
