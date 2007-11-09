@@ -6,3 +6,4 @@ datetime module.
 """
 __author__ = "Gustavo Niemeyer <gustavo@niemeyer.net>"
 __license__ = "PSF License"
+__version__ = "1.2"
