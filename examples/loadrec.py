@@ -1,7 +1,7 @@
-from matplotlib.recutils import csv2rec
+from matplotlib import mlab
 from pylab import figure, show
 
-a = csv2rec('data/msft.csv')
+a = mlab.csv2rec('data/msft.csv')
 print a.dtype
 
 fig = figure()

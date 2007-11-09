@@ -9,7 +9,7 @@ Formatter to get the appropriate date string for a given index.
 """
 
 import numpy
-from matplotlib.recutils import csv2rec
+from matplotlib.mlab import csv2rec
 from pylab import figure, show
 from matplotlib.ticker import Formatter
 
