@@ -80,8 +80,6 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         if DEBUG: print 'FigureCanvasQtAgg.paintEvent: ', self, \
            self.get_width_height()
 
-        p = QtGui.QPainter( self )
-
         # only replot data when needed
         if type(self.replot) is bool: # might be a bbox for blitting
             if self.replot:
@@ -99,6 +97,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             qImage = QtGui.QImage(stringBuffer, self.renderer.width,
                                   self.renderer.height,
                                   QtGui.QImage.Format_ARGB32)
+            p = QtGui.QPainter(self)
             p.drawPixmap(QtCore.QPoint(0, 0), QtGui.QPixmap.fromImage(qImage))
 
             # draw the zoom rectangle to the QPainter
@@ -106,6 +105,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
                 p.setPen( QtGui.QPen( QtCore.Qt.black, 1, QtCore.Qt.DotLine ) )
                 p.drawRect( self.rect[0], self.rect[1], self.rect[2], self.rect[3] )
 
+            p.end()
         # we are blitting here
         else:
             bbox = self.replot
@@ -114,10 +114,10 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             reg = self.copy_from_bbox(bbox)
             stringBuffer = reg.to_string()
             qImage = QtGui.QImage(stringBuffer, w, h, QtGui.QImage.Format_ARGB32)
+            p = QtGui.QPainter(self)
             pixmap = QtGui.QPixmap.fromImage(qImage)
             p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), pixmap)
-
-        p.end()
+            p.end()
         self.replot = False
         self.drawRect = False
 
