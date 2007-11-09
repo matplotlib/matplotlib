@@ -299,7 +299,7 @@ def check_for_qt():
         print_status("Qt", "no")
         return False
     else:
-        print_status("Qt", "Qt: %s, pyqt: %s" %
+        print_status("Qt", "Qt: %s, PyQt: %s" %
                      (convert_qt_version(pyqtconfig.Configuration().qt_version),
                       pyqtconfig.Configuration().pyqt_version_str))
         return True
@@ -311,7 +311,7 @@ def check_for_qt4():
         print_status("Qt4", "no")
         return False
     else:
-        print_status("Qt4", "Qt: %s, pyqt: %s" %
+        print_status("Qt4", "Qt: %s, PyQt4: %s" %
                      (convert_qt_version(pyqtconfig.Configuration().qt_version),
                       pyqtconfig.Configuration().pyqt_version_str))
         return True
