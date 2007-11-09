@@ -1,3 +1,9 @@
+2007-11-09 Applied Martin Teichmann's patch 1828813: a QPainter is used in
+           paintEvent, which has to be destroyed using  the method end(). If 
+           matplotlib raises an exception before the call to end - and it 
+           does if you feed it with bad data - this method end() is never 
+           called and Qt4 will start spitting error messages - DSD
+
 2007-11-09 Moved pyparsing back into matplotlib namespace. Don't use 
            system pyparsing, API is too variable from one release
            to the next - DSD
