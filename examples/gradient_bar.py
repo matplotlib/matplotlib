@@ -1,4 +1,6 @@
-from pylab import figure, show, nx, cm
+from matplotlib.pyplot import figure, show, cm
+from numpy import arange
+from numpy.random import rand
 
 def gbar(ax, x, y, width=0.5, bottom=0):
    X = [[.6, .6],[.7,.7]]
@@ -19,8 +21,8 @@ ax.imshow(X, interpolation='bicubic', cmap=cm.copper,
          extent=(xmin, xmax, ymin, ymax), alpha=1)
 
 N = 10
-x = nx.arange(N)+0.25
-y = nx.mlab.rand(N)
+x = arange(N)+0.25
+y = rand(N)
 gbar(ax, x, y, width=0.7)
 ax.set_aspect('normal')
 show()

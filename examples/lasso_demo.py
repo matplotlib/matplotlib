@@ -13,7 +13,9 @@ from matplotlib.nxutils import points_inside_poly
 from matplotlib.colors import colorConverter
 from matplotlib.collections import RegularPolyCollection
 
-from pylab import figure, show, nx
+from matplotlib.pyplot import figure, show
+from numpy import nonzero
+from numpy.random import rand
 
 class Datum:
     colorin = colorConverter.to_rgba('red')
@@ -47,9 +49,7 @@ class LassoManager:
         self.cid = self.canvas.mpl_connect('button_press_event', self.onpress)
 
     def callback(self, verts):
-        #print 'all done', verts
-        #ind = matplotlib.mlab._inside_poly_deprecated(self.xys, verts)
-        ind = nx.nonzero(points_inside_poly(self.xys, verts))
+        ind = nonzero(points_inside_poly(self.xys, verts))[0]
         for i in range(self.Nxy):
             if i in ind:
                 self.facecolors[i] = Datum.colorin
@@ -66,7 +66,7 @@ class LassoManager:
         # acquire a lock on the widget drawing
         self.canvas.widgetlock(self.lasso)
 
-data = [Datum(*xy) for xy in nx.mlab.rand(100, 2)]
+data = [Datum(*xy) for xy in rand(100, 2)]
 
 fig = figure()
 ax = fig.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)

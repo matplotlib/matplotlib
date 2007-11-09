@@ -1,7 +1,7 @@
 import pylab
 
-x = pylab.nx.mlab.rand(10)
-y = pylab.nx.mlab.rand(10)
+x = pylab.rand(10)
+y = pylab.rand(10)
 
 pylab.subplot(321)
 pylab.scatter(x,y,s=80,marker=">")

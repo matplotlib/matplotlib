@@ -2,7 +2,7 @@
 """
 Make a "broken" horizontal bar plot, ie one with gaps
 """
-from pylab import figure, show, nx
+from matplotlib.pyplot import figure, show
 
 fig = figure()
 ax = fig.add_subplot(111)

@@ -1,14 +1,16 @@
-from pylab import figure, show, cm, nx
+from matplotlib.pyplot import figure, show, cm
+from numpy import where
+from numpy.random import rand
 
 # the bar
-x = nx.where(nx.mlab.rand(500)>0.7, 1.0, 0.0)
+x = where(rand(500)>0.7, 1.0, 0.0)
 
 axprops = dict(xticks=[], yticks=[])
 barprops = dict(aspect='auto', cmap=cm.binary, interpolation='nearest')
 
 fig = figure()
 
-# a vertical barcode
+# a vertical barcode -- this is broken at present
 x.shape = len(x), 1
 ax = fig.add_axes([0.1, 0.3, 0.1, 0.6], **axprops)
 ax.imshow(x, **barprops)
