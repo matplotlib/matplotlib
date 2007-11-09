@@ -42,6 +42,7 @@ WIN32 - VISUAL STUDIO 7.1 (2003)
 """
 
 import os
+import re
 
 
 basedir = {
@@ -325,21 +326,33 @@ def check_for_cairo():
         print_status("Cairo", cairo.version)
         return True
 
-def check_for_pytz():
+def check_for_datetime():
+    try:
+        import datetime
+    except ImportError:
+        print_status("datetime", "no")
+        return False
+    else:
+        print_status("datetime", "present, version unknown")
+        return True
+
+def check_for_pytz(hasdatetime=True):
     try:
         import pytz
     except ImportError:
-        print_status("pytz", "mpl-provided")
+        if hasdatetime: print_status("pytz", "mpl-provided")
+        else: print_status("pytz", "no")
         return False
     else:
         print_status("pytz", pytz.__version__)
         return True
 
-def check_for_dateutil():
+def check_for_dateutil(hasdatetime=True):
     try:
         import dateutil
     except ImportError:
-        print_status("dateutil", "mpl-provided")
+        if hasdatetime: print_status("dateutil", "mpl-provided")
+        else: print_status("dateutil", "no")
         return False
     else:
         try:
@@ -374,6 +387,51 @@ def check_for_traits():
     except ImportError:
         print_status("enthought.traits", "no")
     return gotit
+
+def check_for_dvipng():
+    try:
+        stdin, stdout = os.popen4('dvipng -version')
+        print_status("dvipng", stdout.readlines()[1].split()[-1])
+        return True
+    except (IndexError, ValueError):
+        print_status("dvipng", "no")
+        return False
+
+def check_for_ghostscript():
+    try:
+        if sys.platform == 'win32':
+            command = 'gswin32c --version'
+        else:
+            command = 'gs --version'
+        stdin, stdout = os.popen4(command)
+        print_status("ghostscript", stdout.read()[:-1])
+        return True
+    except (IndexError, ValueError):
+        print_status("ghostscript", "no")
+        return False
+
+def check_for_latex():
+    try:
+        stdin, stdout = os.popen4('latex -version')
+        line = stdout.readlines()[0]
+        pattern = '3\.1\d+'
+        match = re.search(pattern, line)
+        print_status("latex", match.group(0))
+        return True
+    except (IndexError, ValueError, AttributeError):
+        print_status("latex", "no")
+        return False
+
+def check_for_pdftops():
+    try:
+        stdin, stdout = os.popen4('pdftops -v')
+        for line in stdout.readlines():
+            if 'version' in line:
+                print_status("pdftops", line.split()[-1])
+                return True
+    except (IndexError, ValueError):
+        print_status("pdftops", "no")
+        return False
 
 def check_for_numpy():
     gotit = False
