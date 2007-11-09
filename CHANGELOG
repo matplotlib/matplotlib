@@ -1,4 +1,6 @@
-2007-11-08 Update pyparsing to version 1.4.8 - DSD
+2007-11-08 Updated pytz to version 2007g - DSD
+
+2007-11-08 Updated pyparsing to version 1.4.8 - DSD
 
 2007-11-08 Moved csv2rec to recutils and added other record array
            utilities - JDH
