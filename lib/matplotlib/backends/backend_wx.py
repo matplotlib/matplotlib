@@ -94,7 +94,7 @@ Examples which work on this release:
 
 cvs_id = '$Id$'
 
-import sys, os, os.path, math, StringIO
+import sys, os, os.path, math, StringIO, weakref
 
 # Debugging settings here...
 # Debug level set here. If the debug level is less than 5, information
@@ -154,7 +154,9 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.artist import Artist
 from matplotlib.cbook import exception_to_str
 from matplotlib.figure import Figure
+from matplotlib.path import Path
 from matplotlib.text import _process_text_args, Text
+from matplotlib.transforms import Affine2D
 from matplotlib.widgets import SubplotTool
 from matplotlib import rcParams
 
@@ -261,10 +263,14 @@ class RendererWx(RendererBase):
         #return 1, 1
         if ismath: s = self.strip_math(s)
 
-        if self.gc is None: gc = self.new_gc()
+        if self.gc is None:
+            gc = self.new_gc()
+        else:
+            gc = self.gc
+        gfx_ctx = gc.gfx_ctx
         font = self.get_wx_font(s, prop)
-        self.gc.SetFont(font)
-        w, h, descent, leading = self.gc.GetFullTextExtent(s)
+        gfx_ctx.SetFont(font, wx.BLACK)
+        w, h, descent, leading = gfx_ctx.GetFullTextExtent(s)
 
         return w, h, descent
 
@@ -272,95 +278,47 @@ class RendererWx(RendererBase):
         'return the canvas width and height in display coords'
         return self.width, self.height
 
-
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
-        """
-        Draw an arc centered at x,y with width and height and angles
-        from 0.0 to 360.0.
-        If rgbFace is present, fill the figure in this colour, otherwise
-        it is not filled.
-        """
+    def handle_clip_rectangle(self, gc):
+        new_bounds = gc.get_clip_rectangle()
+        if new_bounds is not None:
+            new_bounds = new_bounds.bounds
+        gfx_ctx = gc.gfx_ctx
+        if gfx_ctx._lastcliprect != new_bounds:
+            gfx_ctx._lastcliprect = new_bounds
+            if new_bounds is None:
+                gfx_ctx.ResetClip()
+            else:
+                gfx_ctx.Clip(*new_bounds)
+    
+    #@staticmethod
+    def convert_path(gfx_ctx, tpath):
+        wxpath = gfx_ctx.CreatePath()
+        for points, code in tpath.iter_segments():
+            if code == Path.MOVETO:
+                wxpath.MoveToPoint(*points)
+            elif code == Path.LINETO:
+                wxpath.AddLineToPoint(*points)
+            elif code == Path.CURVE3:
+                wxpath.AddQuadCurveToPoint(*points)
+            elif code == Path.CURVE4:
+                wxpath.AddCurveToPoint(*points)
+            elif code == Path.CLOSEPOLY:
+                wxpath.CloseSubpath()
+        return wxpath
+    convert_path = staticmethod(convert_path)
+        
+    def draw_path(self, gc, path, transform, rgbFace=None):
         gc.select()
-        assert gc.Ok(), "wxMemoryDC not OK to use"
-        # wxPython requires upper left corner of bounding rectange for ellipse
-        # Theoretically you don't need the int() below, but it seems to make
-        # rounding of arc centre point more accurate in screen co-ordinates
-        ulX = x - int(width/2)
-        ulY = self.height - int(y + (height/2))
+        self.handle_clip_rectangle(gc)
+        gfx_ctx = gc.gfx_ctx
+        transform = transform + Affine2D().scale(1.0, -1.0).translate(0.0, self.height)
+        tpath = transform.transform_path(path)
+        wxpath = self.convert_path(gfx_ctx, tpath)
         if rgbFace is not None:
-            r,g,b = self._to_wx_rgb(rgbFace)
-            new_brush =wx.Brush(wx.Colour(r,g,b), wx.SOLID)
-            gc.SetBrush(new_brush)
+            gfx_ctx.SetBrush(wx.Brush(gc.get_wxcolour(rgbFace)))
+            gfx_ctx.DrawPath(wxpath)
         else:
-            gc.SetBrush(wx.TRANSPARENT_BRUSH)
-        gc.DrawEllipticArc(int(ulX), int(ulY), int(width)+1, int(height)+1,
-                           int(angle1), int(angle2))
-        gc.unselect()
-
-    def draw_line(self, gc, x1, y1, x2, y2):
-        """
-        Draw a single line from x1,y1 to x2,y2
-        """
-        DEBUG_MSG("draw_line()", 1, self)
-        gc.select()
-        gc.DrawLine(int(x1), self.height - int(y1),
-                    int(x2), self.height - int(y2))
-        gc.unselect()
-
-    def draw_lines(self, gc, x, y):
-        """
-        x and y are equal length arrays, draw lines connecting each
-        point in x, y
-        """
-        gc.select()
-        assert gc.Ok(), "wxMemoryDC not OK to use"
-        assert len(x) == len(y), "draw_lines() x and y must be of equal length"
-        gc.DrawLines([wx.Point(int(x[i]), self.height - int(y[i])) for i in range(len(x))])
-        gc.unselect()
-
-    def draw_polygon(self, gc, rgbFace, points):
-        """
-        Draw a polygon.  points is a len vertices tuple, each element
-        giving the x,y coords a vertex
-        """
-        gc.select()
-        assert gc.Ok(), "wxMemoryDC not OK to use"
-        points = [(int(x), self.height - int(y)) for x,y in points]
-        if rgbFace is not None:
-            r,g,b = self._to_wx_rgb(rgbFace)
-            new_brush =wx.Brush(wx.Colour(r,g,b), wx.SOLID)
-            gc.SetBrush(new_brush)
-        else:
-            gc.SetBrush(wx.TRANSPARENT_BRUSH)
-        gc.DrawPolygon(points)
-        gc.unselect()
-
-    def draw_rectangle(self, gc, rgbFace, x, y, width, height):
-        """
-        Draw a rectangle at lower left x,y with width and height
-        If filled=True, fill the rectangle with the gc foreground
-        gc is a GraphicsContext instance
-        """
-        # wxPython uses rectangle from TOP left!
-        gc.select()
-        assert gc.Ok(), "wxMemoryDC not OK to use"
-        if rgbFace is not None:
-            r,g,b = self._to_wx_rgb(rgbFace)
-            new_brush =wx.Brush(wx.Colour(r,g,b), wx.SOLID)
-            gc.SetBrush(new_brush)
-        else:
-            gc.SetBrush(wx.TRANSPARENT_BRUSH)
-        gc.DrawRectangle(int(x), self.height - int(height + y),
-                                 int(math.ceil(width)), int(math.ceil(height)))
-        gc.unselect()
-
-    def draw_point(self, gc, x, y):
-        """
-        Draw a single point at x,y
-        """
-        gc.select()
-        assert gc.Ok(), "wxMemoryDC not OK to use"
-        gc.DrawPoint(int(x), self.height - int(y))
+            gfx_ctx.StrokePath(wxpath)
         gc.unselect()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
@@ -371,21 +329,23 @@ class RendererWx(RendererBase):
         if ismath: s = self.strip_math(s)
         DEBUG_MSG("draw_text()", 1, self)
         gc.select()
-
+        self.handle_clip_rectangle(gc)
+        gfx_ctx = gc.gfx_ctx
+        
         font = self.get_wx_font(s, prop)
-        gc.SetFont(font)
-        assert gc.Ok(), "wxMemoryDC not OK to use"
+        color = gc.get_wxcolour(gc.get_rgb())
+        gfx_ctx.SetFont(font, color)
 
         w, h, d = self.get_text_width_height_descent(s, prop, ismath)
         x = int(x)
         y = int(y-h)
 
-        if angle!=0:
-            try: gc.DrawRotatedText(s, x, y, angle)
-            except:
-                verbose.print_error(exception_to_str('WX rotated text failed'))
+        if angle == 0.0:
+            gfx_ctx.DrawText(s, x, y)
         else:
-            gc.DrawText(s, x, y)
+            angle = angle * (math.pi / 180.0)
+            gfx_ctx.DrawRotatedText(s, x, y, angle)
+            
         gc.unselect()
 
     def new_gc(self):
@@ -395,7 +355,6 @@ class RendererWx(RendererBase):
         DEBUG_MSG('new_gc()', 2, self)
         self.gc = GraphicsContextWx(self.bitmap, self)
         self.gc.select()
-        assert self.gc.Ok(), "wxMemoryDC not OK to use"
         self.gc.unselect()
         return self.gc
 
@@ -446,13 +405,6 @@ class RendererWx(RendererBase):
 
         return font
 
-    def _to_wx_rgb(self, rgb):
-        """Takes a colour value and returns a tuple (r,g,b) suitable
-        for instantiating a wx.Colour."""
-        r, g, b = rgb
-        return (int(r * 255), int(g * 255), int(b * 255))
-
-
 
     def points_to_pixels(self, points):
         """
@@ -461,15 +413,15 @@ class RendererWx(RendererBase):
         """
         return points*(PIXELS_PER_INCH/72.0*self.dpi/72.0)
 
-class GraphicsContextWx(GraphicsContextBase, wx.MemoryDC):
+class GraphicsContextWx(GraphicsContextBase):
     """
     The graphics context provides the color, line styles, etc...
 
-    In wxPython this is done by wrapping a wxDC object and forwarding the
-    appropriate calls to it. Notice also that colour and line styles are
-    mapped on the wx.Pen() member of the wxDC. This means that we have some
-    rudimentary pen management here.
-
+    This class stores a reference to a wxMemoryDC, and a
+    wxGraphicsContext that draws to it.  Creating a wxGraphicsContext
+    seems to be fairly heavy, so these objects are cached based on the
+    bitmap object that is passed in.
+    
     The base GraphicsContext stores colors as a RGB tuple on the unit
     interval, eg, (0.5, 0.0, 1.0).  wxPython uses an int interval, but
     since wxPython colour management is rather simple, I have not chosen
@@ -487,26 +439,30 @@ class GraphicsContextWx(GraphicsContextBase, wx.MemoryDC):
                   'dashed':    wx.SHORT_DASH,
                   'dashdot':   wx.DOT_DASH,
                   'dotted':    wx.DOT }
-    _lastWxDC = None
-
+    _cache = weakref.WeakKeyDictionary()
+    
     def __init__(self, bitmap, renderer):
         GraphicsContextBase.__init__(self)
-        wx.MemoryDC.__init__(self)
         #assert self.Ok(), "wxMemoryDC not OK to use"
         DEBUG_MSG("__init__()", 1, self)
-        # Make sure (belt and braces!) that existing wxDC is not selected to
-        # to a bitmap.
-        if GraphicsContextWx._lastWxDC != None:
 
-            GraphicsContextWx._lastWxDC.SelectObject(wx.NullBitmap)
-
-        self.SelectObject(bitmap)
+        dc, gfx_ctx = self._cache.get(bitmap, (None, None))
+        if dc is None:
+            print "new dc"
+            dc = wx.MemoryDC()
+            dc.SelectObject(bitmap)
+            gfx_ctx = wx.GraphicsContext.Create(dc)
+            gfx_ctx._lastcliprect = None
+            self._cache[bitmap] = dc, gfx_ctx
+        
         self.bitmap = bitmap
-        self.SetPen(wx.Pen('BLACK', 1, wx.SOLID))
-        self._style=wx.SOLID
+        self.dc = dc
+        self.gfx_ctx = gfx_ctx
+        self._pen = wx.Pen('BLACK', 1, wx.SOLID)
+        gfx_ctx.SetPen(self._pen)
+        self._style = wx.SOLID
         self.renderer = renderer
-        GraphicsContextWx._lastWxDC = self
-
+        
     def select(self):
         """
         Select the current bitmap into this wxDC instance
@@ -524,23 +480,6 @@ class GraphicsContextWx(GraphicsContextBase, wx.MemoryDC):
             self.SelectObject(wx.NullBitmap)
             self.IsSelected = False
 
-    def set_clip_rectangle(self, rect):
-        """
-        Destroys previous clipping region and defines a new one.
-        """
-        DEBUG_MSG("set_clip_rectangle()", 1, self)
-        self.select()
-        l,b,w,h = rect
-        # this appears to be version dependent'
-        if hasattr(self, 'SetClippingRegionXY'):
-            clipfunc = getattr(self, 'SetClippingRegionXY')
-        else:
-            clipfunc = getattr(self, 'SetClippingRegion')
-
-        clipfunc(int(l), self.renderer.height - int(b+h),
-                 int(w), int(h))
-        self.unselect()
-
     def set_foreground(self, fg, isRGB=None):
         """
         Set the foreground color.  fg can be a matlab format string, a
@@ -556,12 +495,8 @@ class GraphicsContextWx(GraphicsContextBase, wx.MemoryDC):
         self.select()
         GraphicsContextBase.set_foreground(self, fg, isRGB)
 
-        pen = self.GetPen()
-        pen.SetColour(self.get_wxcolour())
-        self.SetPen(pen)
-        brush =wx.Brush(self.get_wxcolour(), wx.SOLID)
-        self.SetBrush(brush)
-        self.SetTextForeground(self.get_wxcolour())
+        self._pen.SetColour(self.get_wxcolour(self.get_rgb()))
+        self.gfx_ctx.SetPen(self._pen)
         self.unselect()
 
     def set_graylevel(self, frac):
@@ -573,11 +508,8 @@ class GraphicsContextWx(GraphicsContextBase, wx.MemoryDC):
         DEBUG_MSG("set_graylevel()", 1, self)
         self.select()
         GraphicsContextBase.set_graylevel(self, frac)
-        pen = self.GetPen()
-        pen.SetColour(self.get_wxcolour())
-        self.SetPen(pen)
-        brush =wx.Brush(self.get_wxcolour(), wx.SOLID)
-        self.SetBrush(brush)
+        self._pen.SetColour(self.get_wxcolour(self.get_rgb()))
+        self.gfx_ctx.SetPen(self._pen)
         self.unselect()
 
     def set_linewidth(self, w):
@@ -588,11 +520,10 @@ class GraphicsContextWx(GraphicsContextBase, wx.MemoryDC):
         self.select()
         if w>0 and w<1: w = 1
         GraphicsContextBase.set_linewidth(self, w)
-        pen = self.GetPen()
         lw = int(self.renderer.points_to_pixels(self._linewidth))
         if lw==0: lw = 1
-        pen.SetWidth(lw)
-        self.SetPen(pen)
+        self._pen.SetWidth(lw)
+        self.gfx_ctx.SetPen(self._pen)
         self.unselect()
 
     def set_capstyle(self, cs):
@@ -602,9 +533,8 @@ class GraphicsContextWx(GraphicsContextBase, wx.MemoryDC):
         DEBUG_MSG("set_capstyle()", 1, self)
         self.select()
         GraphicsContextBase.set_capstyle(self, cs)
-        pen = self.GetPen()
-        pen.SetCap(GraphicsContextWx._capd[self._capstyle])
-        self.SetPen(pen)
+        self._pen.SetCap(GraphicsContextWx._capd[self._capstyle])
+        self.gfx_ctx.SetPen(self._pen)
         self.unselect()
 
     def set_joinstyle(self, js):
@@ -614,9 +544,8 @@ class GraphicsContextWx(GraphicsContextBase, wx.MemoryDC):
         DEBUG_MSG("set_joinstyle()", 1, self)
         self.select()
         GraphicsContextBase.set_joinstyle(self, js)
-        pen = self.GetPen()
-        pen.SetJoin(GraphicsContextWx._joind[self._joinstyle])
-        self.SetPen(pen)
+        self._pen.SetJoin(GraphicsContextWx._joind[self._joinstyle])
+        self.gfx_ctx.SetPen(self._pen)
         self.unselect()
 
     def set_linestyle(self, ls):
@@ -629,25 +558,32 @@ class GraphicsContextWx(GraphicsContextBase, wx.MemoryDC):
         try:
             self._style = GraphicsContextWx._dashd_wx[ls]
         except KeyError:
-            self._style=wx.LONG_DASH# Style not used elsewhere...
+            self._style = wx.LONG_DASH# Style not used elsewhere...
 
         # On MS Windows platform, only line width of 1 allowed for dash lines
         if wx.Platform == '__WXMSW__':
             self.set_linewidth(1)
 
-        pen = self.GetPen()
-        pen.SetStyle(self._style)
-        self.SetPen(pen)
+        self._pen.SetStyle(self._style)
+        self.gfx_ctx.SetPen(self._pen)
         self.unselect()
 
-    def get_wxcolour(self):
+    def get_wxcolour(self, color):
         """return a wx.Colour from RGB format"""
         DEBUG_MSG("get_wx_color()", 1, self)
-        r, g, b = self.get_rgb()
-        r *= 255
-        g *= 255
-        b *= 255
-        return wx.Colour(red=int(r), green=int(g), blue=int(b))
+        if len(color) == 3:
+            r, g, b = color
+            r *= 255
+            g *= 255
+            b *= 255
+            return wx.Colour(red=int(r), green=int(g), blue=int(b))
+        else:
+            r, g, b, a = color
+            r *= 255
+            g *= 255
+            b *= 255
+            a *= 255
+            return wx.Colour(red=int(r), green=int(g), blue=int(b), alpha=int(a))
 
 class FigureCanvasWx(FigureCanvasBase, wx.Panel):
     """
@@ -783,7 +719,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         self.macros = {} # dict from wx id to seq of macros
 
         self.Printer_Init()
-
+        
     def Destroy(self, *args, **kwargs):
         wx.Panel.Destroy(self, *args, **kwargs)
 
@@ -938,6 +874,9 @@ The current aspect ration will be kept."""
         self.gui_repaint()
 
 
+    def draw_idle(self, *args, **kwargs):
+        pass
+        
     def draw(self, repaint=True):
         """
         Render the figure using RendererWx instance renderer, or using a
@@ -1016,7 +955,7 @@ The current aspect ration will be kept."""
     def _print_image(self, filename, filetype, *args, **kwargs):
         origBitmap   = self.bitmap
 
-        l,b,width,height = self.figure.bbox.get_bounds()
+        l,b,width,height = self.figure.bbox.bounds
         width = int(math.ceil(width))
         height = int(math.ceil(height))
 
