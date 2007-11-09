@@ -1,3 +1,7 @@
+2007-11-09 Moved pyparsing back into matplotlib namespace. Don't use 
+           system pyparsing, API is too variable from one release
+           to the next - DSD
+
 2007-11-08 Made pylab use straight numpy instead of oldnumeric
            by default - EF
 

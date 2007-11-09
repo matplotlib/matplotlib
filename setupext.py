@@ -325,16 +325,6 @@ def check_for_cairo():
         print_status("Cairo", cairo.version)
         return True
 
-def check_for_pyparsing():
-    try:
-        import pyparsing
-    except ImportError:
-        print_status("pyparsing", "mpl-provided")
-        return False
-    else:
-        print_status("pyparsing", pyparsing.__version__)
-        return True
-
 def check_for_pytz():
     try:
         import pytz
