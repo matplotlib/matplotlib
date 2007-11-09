@@ -353,7 +353,7 @@ def check_for_dateutil():
         return False
     else:
         try:
-            print_status("dateutil", dateutil.__version)
+            print_status("dateutil", dateutil.__version__)
         except AttributeError:
             print_status("dateutil", "present, version unknown")
         return True
