@@ -1,7 +1,3 @@
-    Removed matplotlib.pyparsing. We now use the system's pyparsing
-    if it is available, and if not, we install pyparsing directly into
-    site-packages
-
     Moved mlab.csv2rec -> recutils.csv2rec
 
     Added ax kwarg to pyplot.colorbar and Figure.colorbar so that
