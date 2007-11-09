@@ -1082,8 +1082,7 @@ class FigureCanvasBase:
             self.figure.set_facecolor(origfacecolor)
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
-
-        self.draw()
+            self.figure.canvas.draw()
             
         return result
 

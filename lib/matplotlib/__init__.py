@@ -55,14 +55,16 @@ gmail.com).
 """
 from __future__ import generators
 
-NEWCONFIG = False
-
 __version__  = '0.90.1'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
 import md5, os, re, shutil, sys, warnings
 import distutils.sysconfig
+
+
+NEWCONFIG = False
+
 
 # Needed for toolkit setuptools support
 if 0:
@@ -254,7 +256,7 @@ def checkdep_tex():
         v = match.group(0)
         float(v)
         return v
-    except (IndexError, ValueError):
+    except (IndexError, ValueError, AttributeError):
         return None
 
 def checkdep_pdftops():

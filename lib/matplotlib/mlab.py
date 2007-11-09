@@ -44,13 +44,42 @@ commands with the same names.
       compute it for a lot of pairs.  This function is optimized to do
       this efficiently by caching the direct FFTs.
 
-Credits:
+= record array helper functions = 
 
-  Unless otherwise noted, these functions were written by
-  Author: John D. Hunter <jdhunter@ace.bsd.uchicago.edu>
+  rec2csv          : store record array in CSV file
+  rec2excel        : store record array in excel worksheet - required pyExcelerator
+  rec2gtk          : put record array in GTK treeview - requires gtk
+  csv2rec          : import record array from CSV file with type inspection
+  rec_append_field : add a field/array to record array
+  rec_drop_fields  : drop fields from record array
+  rec_join         : join two record arrays on sequence of fields
 
-  Some others are from the Numeric documentation, or imported from
-  MLab or other Numeric packages
+For the rec viewer clases (rec2csv, rec2excel and rec2gtk), there are
+a bunch of Format objects you can pass into the functions that will do
+things like color negative values red, set percent formatting and
+scaling, etc.
+
+
+Example usage:
+
+    r = csv2rec('somefile.csv', checkrows=0)
+
+    formatd = dict(
+        weight = FormatFloat(2),
+        change = FormatPercent(2),
+        cost   = FormatThousands(2),
+        )
+
+
+    rec2excel(r, 'test.xls', formatd=formatd)
+    rec2csv(r, 'test.csv', formatd=formatd)
+    scroll = rec2gtk(r, formatd=formatd)
+
+    win = gtk.Window()
+    win.set_size_request(600,800)
+    win.add(scroll)
+    win.show_all()
+    gtk.main()
 
 """
 
@@ -1257,414 +1286,6 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     if unpack: return X.transpose()
     else: return X
 
-def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
-            converterd=None, names=None, missing=None):
-    """
-    Load data from comma/space/tab delimited file in fname into a
-    numpy record array and return the record array.
-
-    If names is None, a header row is required to automatically assign
-    the recarray names.  The headers will be lower cased, spaces will
-    be converted to underscores, and illegal attribute name characters
-    removed.  If names is not None, it is a sequence of names to use
-    for the column names.  In this case, it is assumed there is no header row.
-
-
-    fname - can be a filename or a file handle.  Support for gzipped
-    files is automatic, if the filename ends in .gz
-
-    comments - the character used to indicate the start of a comment
-    in the file
-
-    skiprows  - is the number of rows from the top to skip
-
-    checkrows - is the number of rows to check to validate the column
-    data type.  When set to zero all rows are validated.
-
-    converterd, if not None, is a dictionary mapping column number or
-    munged column name to a converter function
-
-    names, if not None, is a list of header names.  In this case, no
-    header will be read from the file
-
-    if no rows are found, None is returned See examples/loadrec.py
-    """
-
-    if converterd is None:
-        converterd = dict()
-
-    import dateutil.parser
-    parsedate = dateutil.parser.parse
-
-
-    fh = cbook.to_filehandle(fname)
-
-    
-    class FH:
-        """
-        for space delimited files, we want different behavior than
-        comma or tab.  Generally, we want multiple spaces to be
-        treated as a single separator, whereas with comma and tab we
-        want multiple commas to return multiple (empty) fields.  The
-        join/strip trick below effects this
-        """
-        def __init__(self, fh):
-            self.fh = fh
-
-        def close(self):
-            self.fh.close()
-
-        def seek(self, arg):
-            self.fh.seek(arg)
-
-        def fix(self, s):
-            return ' '.join(s.split())
-
-
-        def next(self):
-            return self.fix(self.fh.next())
-
-        def __iter__(self):
-            for line in self.fh:            
-                yield self.fix(line)
-
-    if delimiter==' ':
-        fh = FH(fh)
-
-    reader = csv.reader(fh, delimiter=delimiter)        
-    def process_skiprows(reader):
-        if skiprows:
-            for i, row in enumerate(reader):
-                if i>=(skiprows-1): break
-
-        return fh, reader
-
-    process_skiprows(reader)
-
-
-    def myfloat(x):
-        if x==missing:
-            return npy.nan
-        else:
-            return float(x)
-
-    def get_func(item, func):
-        # promote functions in this order
-        funcmap = {int:myfloat, myfloat:dateutil.parser.parse, dateutil.parser.parse:str}
-        try: func(item)
-        except:
-            if func==str:
-                raise ValueError('Could not find a working conversion function')
-            else: return get_func(item, funcmap[func])    # recurse
-        else: return func
-
-
-    # map column names that clash with builtins -- TODO - extend this list
-    itemd = {
-        'return' : 'return_',
-        'file' : 'file_',
-        'print' : 'print_',
-        }
-        
-    def get_converters(reader):
-
-        converters = None
-        for i, row in enumerate(reader):
-            if i==0:
-                converters = [int]*len(row)
-            if checkrows and i>checkrows:
-                break
-            #print i, len(names), len(row)
-            #print 'converters', zip(converters, row)
-            for j, (name, item) in enumerate(zip(names, row)):
-                func = converterd.get(j)
-                if func is None:
-                    func = converterd.get(name)
-                if func is None:
-                    if not item.strip(): continue
-                    func = converters[j]
-                    if len(item.strip()):
-                        func = get_func(item, func)
-                converters[j] = func
-        return converters
-
-    # Get header and remove invalid characters
-    needheader = names is None
-    if needheader:
-        headers = reader.next()
-        # remove these chars
-        delete = set("""~!@#$%^&*()-=+~\|]}[{';: /?.>,<""")
-        delete.add('"')
-
-        names = []
-        seen = dict()
-        for i, item in enumerate(headers):
-            item = item.strip().lower().replace(' ', '_')
-            item = ''.join([c for c in item if c not in delete])
-            if not len(item):
-                item = 'column%d'%i
-
-            item = itemd.get(item, item)
-            cnt = seen.get(item, 0)
-            if cnt>0:
-                names.append(item + '%d'%cnt)
-            else:
-                names.append(item)
-            seen[item] = cnt+1
-
-    # get the converter functions by inspecting checkrows
-    converters = get_converters(reader)
-    if converters is None:
-        raise ValueError('Could not find any valid data in CSV file')
-
-    # reset the reader and start over
-    fh.seek(0)
-    process_skiprows(reader)
-    if needheader:
-        skipheader = reader.next()
-
-    # iterate over the remaining rows and convert the data to date
-    # objects, ints, or floats as approriate
-    rows = []
-    for i, row in enumerate(reader):
-        if not len(row): continue
-        if row[0].startswith(comments): continue
-        rows.append([func(val) for func, val in zip(converters, row)])
-    fh.close()
-
-    if not len(rows):
-        return None
-    r = npy.rec.fromrecords(rows, names=names)
-    return r
-
-
-def rec2csv(r, fname, delimiter=','):
-    """
-    Save the data from numpy record array r into a comma/space/tab
-    delimited file.  The record array dtype names will be used for
-    column headers.
-
-
-    fname - can be a filename or a file handle.  Support for gzipped
-    files is automatic, if the filename ends in .gz
-    """
-    fh = cbook.to_filehandle(fname, 'w')
-    writer = csv.writer(fh, delimiter=delimiter, quoting=csv.QUOTE_NONNUMERIC)
-    header = r.dtype.names
-    writer.writerow(header)
-    for row in r:
-        writer.writerow(map(str, row))
-    fh.close()
-    
-try:
-    import pyExcelerator as excel
-except ImportError:
-    pass
-else:
-
-    class Format:
-        xlstyle = None
-        def convert(self, x):
-            return x
-
-    class FormatFloat(Format):
-        def __init__(self, precision=4):
-            self.xlstyle = excel.XFStyle()
-            zeros = ''.join(['0']*precision)
-            self.xlstyle.num_format_str = '#,##0.%s;[RED]-#,##0.%s'%(zeros, zeros)
-
-    class FormatInt(Format):
-        convert = int
-        def __init__(self):
-
-            self.xlstyle = excel.XFStyle()
-            self.xlstyle.num_format_str = '#,##;[RED]-#,##'
-
-    class FormatPercent(Format):
-        def __init__(self, precision=4):
-            self.xlstyle = excel.XFStyle()
-            zeros = ''.join(['0']*precision)
-            self.xlstyle.num_format_str = '0.%s%;[RED]-0.%s%'%(zeros, zeros)
-
-    class FormatThousands(FormatFloat):
-        def __init__(self, precision=1):
-            FormatFloat.__init__(self, precision)
-
-        def convert(self, x):
-            return x/1e3
-
-    class FormatMillions(FormatFloat):
-        def __init__(self, precision=1):
-            FormatFloat.__init__(self, precision)
-
-        def convert(self, x):
-            return x/1e6
-
-    class FormatDate(Format):
-        def __init__(self, fmt='%Y-%m-%d'):
-            self.fmt = fmt
-
-        def convert(self, val):
-            return val.strftime(self.fmt)
-
-    class FormatDatetime(Format):
-        def __init__(self, fmt='%Y-%m-%d %H:%M:%S'):
-            self.fmt = fmt
-
-        def convert(self, val):
-            return val.strftime(self.fmt)
-
-    class FormatObject(Format):
-
-        def convert(self, x):
-            return str(x)
-
-    def rec2excel(ws, r, formatd=None, rownum=0):
-        """
-        save record array r to excel pyExcelerator worksheet ws
-        starting at rownum
-
-        formatd is a dictionary mapping dtype name -> Format instances
-        """
-
-        if formatd is None:
-            formatd = dict()
-
-        formats = []
-        for i, name in enumerate(r.dtype.names):
-            dt = r.dtype[name]
-            format = formatd.get(name)
-            if format is None:
-                format = rec2excel.formatd.get(dt.type, FormatObject())
-
-            ws.write(rownum, i, name)
-            formats.append(format)
-
-        rownum+=1
-
-        ind = npy.arange(len(r.dtype.names))
-        for row in r:
-            for i in ind:
-                val = row[i]
-                format = formats[i]
-                val = format.convert(val)
-                if format.xlstyle is None:
-                    ws.write(rownum, i, val)
-                else:
-                    ws.write(rownum, i, val, format.xlstyle)
-            rownum += 1
-    rec2excel.formatd = {
-            npy.int16 : FormatInt(),                
-            npy.int32 : FormatInt(),
-            npy.int64 : FormatInt(),        
-            npy.float32 : FormatFloat(),
-            npy.float64 : FormatFloat(),        
-            npy.object_ : FormatObject(),
-            npy.string_ : Format(),        
-            }
-
-
-
-# some record array helpers
-def rec_append_field(rec, name, arr, dtype=None):
-    'return a new record array with field name populated with data from array arr'
-    arr = npy.asarray(arr)
-    if dtype is None:
-        dtype = arr.dtype
-    newdtype = npy.dtype(rec.dtype.descr + [(name, dtype)])
-    newrec = npy.empty(rec.shape, dtype=newdtype)
-    for field in rec.dtype.fields:
-        newrec[field] = rec[field]
-    newrec[name] = arr
-    return newrec.view(npy.recarray)
-
-  
-def rec_drop_fields(rec, names):
-    'return a new numpy record array with fields in names dropped'    
-
-    names = set(names)
-    Nr = len(rec)
-    
-    newdtype = npy.dtype([(name, rec.dtype[name]) for name in rec.dtype.names
-                       if name not in names])
-
-    newrec = npy.empty(Nr, dtype=newdtype)
-    for field in newdtype.names:
-        newrec[field] = rec[field]
-
-    return newrec.view(npy.recarray)
-
-    
-def rec_join(key, r1, r2):
-    """
-    join record arrays r1 and r2 on key; key is a tuple of field
-    names.  if r1 and r2 have equal values on all the keys in the key
-    tuple, then their fields will be merged into a new record array
-    containing the union of the fields of r1 and r2
-    """
-
-    for name in key:
-        if name not in r1.dtype.names:
-            raise ValueError('r1 does not have key field %s'%name)
-        if name not in r2.dtype.names:
-            raise ValueError('r2 does not have key field %s'%name)
-
-    def makekey(row):
-        return tuple([row[name] for name in key])
-
-  
-    names = list(r1.dtype.names) + [name for name in r2.dtype.names if name not in set(r1.dtype.names)]
- 
-
-    
-    r1d = dict([(makekey(row),i) for i,row in enumerate(r1)])        
-    r2d = dict([(makekey(row),i) for i,row in enumerate(r2)])
-
-    r1keys = set(r1d.keys())    
-    r2keys = set(r2d.keys())
-
-    keys = r1keys & r2keys
-
-    r1ind = [r1d[k] for k in keys]
-    r2ind = [r2d[k] for k in keys]
-
-    
-    r1 = r1[r1ind]
-    r2 = r2[r2ind]
-
-    r2 = rec_drop_fields(r2, r1.dtype.names)
-
-
-    def key_desc(name):
-        'if name is a string key, use the larger size of r1 or r2 before merging'
-        dt1 = r1.dtype[name]
-        if dt1.type != npy.string_:
-            return (name, dt1.descr[0][1])
-
-        dt2 = r1.dtype[name]
-        assert dt2==dt1
-        if dt1.num>dt2.num:
-            return (name, dt1.descr[0][1])
-        else:
-            return (name, dt2.descr[0][1])
-
-        
-        
-    keydesc = [key_desc(name) for name in key]
-
-    newdtype = npy.dtype(keydesc +
-                         [desc for desc in r1.dtype.descr if desc[0] not in key ] +
-                         [desc for desc in r2.dtype.descr if desc[0] not in key ] )
-                         
-    
-    newrec = npy.empty(len(r1), dtype=newdtype)
-    for field in r1.dtype.names:
-        newrec[field] = r1[field]
-
-    for field in r2.dtype.names:
-        newrec[field] = r2[field]
-
-    return newrec.view(npy.recarray)
 
 def slopes(x,y):
     """
@@ -2315,3 +1936,762 @@ def approx_real(x):
         return x
 
 ### end mlab2 functions
+
+#Classes for manipulating and viewing numpy record arrays
+
+
+
+
+
+def safe_isnan(x):
+    'isnan for arbitrary types'
+    try: b = npy.isnan(x)
+    except NotImplementedError: return False
+    else: return b
+
+
+def rec_append_field(rec, name, arr, dtype=None):
+    'return a new record array with field name populated with data from array arr'
+    arr = npy.asarray(arr)
+    if dtype is None:
+        dtype = arr.dtype
+    newdtype = npy.dtype(rec.dtype.descr + [(name, dtype)])
+    newrec = npy.empty(rec.shape, dtype=newdtype)
+    for field in rec.dtype.fields:
+        newrec[field] = rec[field]
+    newrec[name] = arr
+    return newrec.view(npy.recarray)
+
+  
+def rec_drop_fields(rec, names):
+    'return a new numpy record array with fields in names dropped'    
+
+    names = set(names)
+    Nr = len(rec)
+    
+    newdtype = npy.dtype([(name, rec.dtype[name]) for name in rec.dtype.names
+                       if name not in names])
+
+    newrec = npy.empty(Nr, dtype=newdtype)
+    for field in newdtype.names:
+        newrec[field] = rec[field]
+
+    return newrec.view(npy.recarray)
+
+    
+def rec_join(key, r1, r2):
+    """
+    join record arrays r1 and r2 on key; key is a tuple of field
+    names.  if r1 and r2 have equal values on all the keys in the key
+    tuple, then their fields will be merged into a new record array
+    containing the union of the fields of r1 and r2
+    """
+
+    for name in key:
+        if name not in r1.dtype.names:
+            raise ValueError('r1 does not have key field %s'%name)
+        if name not in r2.dtype.names:
+            raise ValueError('r2 does not have key field %s'%name)
+
+    def makekey(row):
+        return tuple([row[name] for name in key])
+
+  
+    names = list(r1.dtype.names) + [name for name in r2.dtype.names if name not in set(r1.dtype.names)]
+ 
+
+    
+    r1d = dict([(makekey(row),i) for i,row in enumerate(r1)])        
+    r2d = dict([(makekey(row),i) for i,row in enumerate(r2)])
+
+    r1keys = set(r1d.keys())    
+    r2keys = set(r2d.keys())
+
+    keys = r1keys & r2keys
+
+    r1ind = [r1d[k] for k in keys]
+    r2ind = [r2d[k] for k in keys]
+
+    
+    r1 = r1[r1ind]
+    r2 = r2[r2ind]
+
+    r2 = rec_drop_fields(r2, r1.dtype.names)
+
+
+    def key_desc(name):
+        'if name is a string key, use the larger size of r1 or r2 before merging'
+        dt1 = r1.dtype[name]
+        if dt1.type != npy.string_:
+            return (name, dt1.descr[0][1])
+
+        dt2 = r1.dtype[name]
+        assert dt2==dt1
+        if dt1.num>dt2.num:
+            return (name, dt1.descr[0][1])
+        else:
+            return (name, dt2.descr[0][1])
+
+        
+        
+    keydesc = [key_desc(name) for name in key]
+
+    newdtype = npy.dtype(keydesc +
+                         [desc for desc in r1.dtype.descr if desc[0] not in key ] +
+                         [desc for desc in r2.dtype.descr if desc[0] not in key ] )
+                         
+    
+    newrec = npy.empty(len(r1), dtype=newdtype)
+    for field in r1.dtype.names:
+        newrec[field] = r1[field]
+
+    for field in r2.dtype.names:
+        newrec[field] = r2[field]
+
+    return newrec.view(npy.recarray)
+
+
+def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
+            converterd=None, names=None, missing=None):
+    """
+    Load data from comma/space/tab delimited file in fname into a
+    numpy record array and return the record array.
+
+    If names is None, a header row is required to automatically assign
+    the recarray names.  The headers will be lower cased, spaces will
+    be converted to underscores, and illegal attribute name characters
+    removed.  If names is not None, it is a sequence of names to use
+    for the column names.  In this case, it is assumed there is no header row.
+
+
+    fname - can be a filename or a file handle.  Support for gzipped
+    files is automatic, if the filename ends in .gz
+
+    comments - the character used to indicate the start of a comment
+    in the file
+
+    skiprows  - is the number of rows from the top to skip
+
+    checkrows - is the number of rows to check to validate the column
+    data type.  When set to zero all rows are validated.
+
+    converterd, if not None, is a dictionary mapping column number or
+    munged column name to a converter function
+
+    names, if not None, is a list of header names.  In this case, no
+    header will be read from the file
+
+    if no rows are found, None is returned See examples/loadrec.py
+    """
+
+    if converterd is None:
+        converterd = dict()
+
+    import dateutil.parser
+    parsedate = dateutil.parser.parse
+
+
+    fh = cbook.to_filehandle(fname)
+
+    
+    class FH:
+        """
+        for space delimited files, we want different behavior than
+        comma or tab.  Generally, we want multiple spaces to be
+        treated as a single separator, whereas with comma and tab we
+        want multiple commas to return multiple (empty) fields.  The
+        join/strip trick below effects this
+        """
+        def __init__(self, fh):
+            self.fh = fh
+
+        def close(self):
+            self.fh.close()
+
+        def seek(self, arg):
+            self.fh.seek(arg)
+
+        def fix(self, s):
+            return ' '.join(s.split())
+
+
+        def next(self):
+            return self.fix(self.fh.next())
+
+        def __iter__(self):
+            for line in self.fh:            
+                yield self.fix(line)
+
+    if delimiter==' ':
+        fh = FH(fh)
+
+    reader = csv.reader(fh, delimiter=delimiter)        
+    def process_skiprows(reader):
+        if skiprows:
+            for i, row in enumerate(reader):
+                if i>=(skiprows-1): break
+
+        return fh, reader
+
+    process_skiprows(reader)
+
+
+    def myfloat(x):
+        if x==missing:
+            return npy.nan
+        else:
+            return float(x)
+
+    def get_func(item, func):
+        # promote functions in this order
+        funcmap = {int:myfloat, myfloat:dateutil.parser.parse, dateutil.parser.parse:str}
+        try: func(item)
+        except:
+            if func==str:
+                raise ValueError('Could not find a working conversion function')
+            else: return get_func(item, funcmap[func])    # recurse
+        else: return func
+
+
+    # map column names that clash with builtins -- TODO - extend this list
+    itemd = {
+        'return' : 'return_',
+        'file' : 'file_',
+        'print' : 'print_',
+        }
+        
+    def get_converters(reader):
+
+        converters = None
+        for i, row in enumerate(reader):
+            if i==0:
+                converters = [int]*len(row)
+            if checkrows and i>checkrows:
+                break
+            #print i, len(names), len(row)
+            #print 'converters', zip(converters, row)
+            for j, (name, item) in enumerate(zip(names, row)):
+                func = converterd.get(j)
+                if func is None:
+                    func = converterd.get(name)
+                if func is None:
+                    if not item.strip(): continue
+                    func = converters[j]
+                    if len(item.strip()):
+                        func = get_func(item, func)
+                converters[j] = func
+        return converters
+
+    # Get header and remove invalid characters
+    needheader = names is None
+    if needheader:
+        headers = reader.next()
+        # remove these chars
+        delete = set("""~!@#$%^&*()-=+~\|]}[{';: /?.>,<""")
+        delete.add('"')
+
+        names = []
+        seen = dict()
+        for i, item in enumerate(headers):
+            item = item.strip().lower().replace(' ', '_')
+            item = ''.join([c for c in item if c not in delete])
+            if not len(item):
+                item = 'column%d'%i
+
+            item = itemd.get(item, item)
+            cnt = seen.get(item, 0)
+            if cnt>0:
+                names.append(item + '%d'%cnt)
+            else:
+                names.append(item)
+            seen[item] = cnt+1
+
+    # get the converter functions by inspecting checkrows
+    converters = get_converters(reader)
+    if converters is None:
+        raise ValueError('Could not find any valid data in CSV file')
+
+    # reset the reader and start over
+    fh.seek(0)
+    process_skiprows(reader)
+    if needheader:
+        skipheader = reader.next()
+
+    # iterate over the remaining rows and convert the data to date
+    # objects, ints, or floats as approriate
+    rows = []
+    for i, row in enumerate(reader):
+        if not len(row): continue
+        if row[0].startswith(comments): continue
+        rows.append([func(val) for func, val in zip(converters, row)])
+    fh.close()
+
+    if not len(rows):
+        return None
+    r = npy.rec.fromrecords(rows, names=names)
+    return r
+
+
+# a series of classes for describing the format intentions of various rec views
+class FormatObj:
+    def tostr(self, x):
+        return str(self.toval(x))
+    
+    def toval(self, x):
+        return x
+
+
+class FormatString(FormatObj):
+    def tostr(self, x):
+        return '"%s"'%self.toval(x)
+
+
+class FormatFormatStr(FormatObj):
+    def __init__(self, fmt):
+        self.fmt = fmt
+
+    def tostr(self, x):
+        if x is None: return 'None'
+        return self.fmt%self.toval(x)
+
+class FormatFloat(FormatFormatStr):
+    def __init__(self, precision=4, scale=1.):
+        FormatFormatStr.__init__(self, '%%1.%df'%precision)
+        self.precision = precision
+        self.scale = scale
+        
+    def toval(self, x):
+        if x is not None:
+            x = x * self.scale
+        return x
+    
+class FormatInt(FormatObj):
+    pass
+
+class FormatPercent(FormatFloat):
+    def __init__(self, precision=4):
+        FormatFloat.__init__(self, precision, scale=100.)
+
+class FormatThousands(FormatFloat):
+    def __init__(self, precision=4):
+        FormatFloat.__init__(self, precision, scale=1e-3)
+
+class FormatMillions(FormatFloat):
+    def __init__(self, precision=4):
+        FormatFloat.__init__(self, precision, scale=1e-6)
+
+
+class FormatDate(FormatString):
+    def __init__(self, fmt):
+        self.fmt = fmt
+
+    def toval(self, x):
+        if x is None: return 'None'
+        return x.strftime(self.fmt)
+
+class FormatDatetime(FormatDate):
+    def __init__(self, fmt='%Y-%m-%d %H:%M:%S'):
+        FormatDate.__init__(self, fmt)
+
+
+defaultformatd = {
+    npy.int16 : FormatInt(),                
+    npy.int32 : FormatInt(),
+    npy.int64 : FormatInt(),        
+    npy.float32 : FormatFloat(),
+    npy.float64 : FormatFloat(),        
+    npy.object_ : FormatObj(),
+    npy.string_ : FormatString(),        
+    }
+
+def get_formatd(r, formatd=None):
+    'build a formatd guaranteed to have a key for every dtype name'
+    if formatd is None:
+        formatd = dict()
+    
+    for i, name in enumerate(r.dtype.names):
+        dt = r.dtype[name]
+        format = formatd.get(name)
+        if format is None:
+            format = defaultformatd.get(dt.type, FormatObj())
+        formatd[name] = format
+    return formatd
+
+def csvformat_factory(format):
+    format = copy.deepcopy(format)
+    if isinstance(format, FormatFloat):            
+        format.scale = 1. # override scaling for storage
+        format.fmt = '%g' # maximal precision
+    return format
+
+def rec2csv(r, fname, delimiter=',', formatd=None):
+    """
+    Save the data from numpy record array r into a comma/space/tab
+    delimited file.  The record array dtype names will be used for
+    column headers.
+
+
+    fname - can be a filename or a file handle.  Support for gzipped
+    files is automatic, if the filename ends in .gz
+    """
+    formatd = get_formatd(r, formatd)
+    funcs = []
+    for i, name in enumerate(r.dtype.names):
+        funcs.append(csvformat_factory(formatd[name]).tostr)
+
+    fh = cbook.to_filehandle(fname, 'w')
+    writer = csv.writer(fh, delimiter=delimiter)
+    header = r.dtype.names
+    writer.writerow(header)
+    for row in r:
+        writer.writerow([func(val) for func, val in zip(funcs, row)])
+    fh.close()
+
+# if pyExcelerator is installed, provide an excel view
+try:
+    import pyExcelerator as excel
+except ImportError:
+    pass
+else:
+
+    def xlformat_factory(format):
+        """
+        copy the format, perform any overrides, and attach an xlstyle instance
+        copied format is returned
+        """
+        format = copy.deepcopy(format)
+
+        
+        
+        xlstyle = excel.XFStyle()
+        if isinstance(format, FormatFloat):            
+            zeros = ''.join(['0']*format.precision)
+            xlstyle.num_format_str = '#,##0.%s;[RED]-#,##0.%s'%(zeros, zeros)
+        elif isinstance(format, FormatInt):
+            xlstyle.num_format_str = '#,##;[RED]-#,##'        
+        elif isinstance(format, FormatPercent):
+            zeros = ''.join(['0']*format.precision)
+            xlstyle.num_format_str = '0.%s%;[RED]-0.%s%'%(zeros, zeros)
+            format.scale = 1.
+        else:
+            xlstyle = None
+
+        format.xlstyle = xlstyle
+        
+        return format
+
+    def rec2excel(r, ws, formatd=None, rownum=0):
+        """
+        save record array r to excel pyExcelerator worksheet ws
+        starting at rownum.  if ws is string like, assume it is a
+        filename and save to it
+
+        formatd is a dictionary mapping dtype name -> FormatXL instances
+
+        The next rownum after writing is returned
+        """
+
+        autosave = False
+        if cbook.is_string_like(ws):
+            filename = ws
+            wb = excel.Workbook()
+            ws = wb.add_sheet('worksheet')
+            autosave = True
+
+
+        if formatd is None:
+            formatd = dict()
+
+        formats = []
+        for i, name in enumerate(r.dtype.names):
+            dt = r.dtype[name]
+            format = formatd.get(name)
+            if format is None:
+                format = defaultformatd.get(dt.type, FormatObj())
+
+            format = xlformat_factory(format)
+            ws.write(rownum, i, name)
+            formats.append(format)
+
+        rownum+=1
+
+            
+        ind = npy.arange(len(r.dtype.names))
+        for row in r:
+            for i in ind:
+                val = row[i]
+                format = formats[i]
+                val = format.toval(val)
+                if format.xlstyle is None:
+                    ws.write(rownum, i, val)
+                else:
+                    if safe_isnan(val):
+                        ws.write(rownum, i, 'NaN')
+                    else:
+                        ws.write(rownum, i, val, format.xlstyle)
+            rownum += 1
+
+        if autosave:
+            wb.save(filename)
+        return rownum
+
+
+
+
+# if gtk is installed, provide a gtk view
+try:
+    import gtk, gobject
+except ImportError:
+    pass
+except RuntimeError:
+    pass
+else:
+
+
+    def gtkformat_factory(format, colnum):
+        """
+        copy the format, perform any overrides, and attach an gtk style attrs
+
+
+        xalign = 0.
+        cell = None
+
+        """
+
+        format = copy.copy(format)
+        format.xalign = 0.
+        format.cell = None
+
+        def negative_red_cell(column, cell, model, thisiter):
+            val = model.get_value(thisiter, colnum)
+            try: val = float(val)
+            except: cell.set_property('foreground', 'black')
+            else:
+                if val<0:
+                    cell.set_property('foreground', 'red')
+                else:
+                    cell.set_property('foreground', 'black')
+
+
+        if isinstance(format, FormatFloat) or isinstance(format, FormatInt):            
+            format.cell = negative_red_cell
+            format.xalign = 1.
+        elif isinstance(format, FormatDate):
+            format.xalign = 1.
+        return format
+
+
+
+    class SortedStringsScrolledWindow(gtk.ScrolledWindow):
+        """
+        A simple treeview/liststore assuming all columns are strings.
+        Supports ascending/descending sort by clicking on column header
+        """
+
+        def __init__(self, colheaders, formatterd=None):
+            """
+            xalignd if not None, is a dict mapping col header to xalignent (default 1)
+
+            formatterd if not None, is a dict mapping col header to a ColumnFormatter
+            """
+
+
+            gtk.ScrolledWindow.__init__(self)
+            self.colheaders = colheaders
+            self.seq = None # not initialized with accts
+            self.set_shadow_type(gtk.SHADOW_ETCHED_IN)
+            self.set_policy(gtk.POLICY_AUTOMATIC,
+                            gtk.POLICY_AUTOMATIC)
+
+            types = [gobject.TYPE_STRING] * len(colheaders)
+            model = self.model = gtk.ListStore(*types)
+
+
+            treeview = gtk.TreeView(self.model)
+            treeview.show()
+            treeview.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+            treeview.set_rules_hint(True)
+
+
+            class Clicked:
+                def __init__(self, parent, i):
+                    self.parent = parent
+                    self.i = i
+                    self.num = 0
+
+                def __call__(self, column):
+                    ind = []
+                    dsu = []
+                    for rownum, thisiter in enumerate(self.parent.iters):
+                        val = model.get_value(thisiter, self.i)
+                        try: val = float(val.strip().rstrip('%'))
+                        except ValueError: pass
+                        if npy.isnan(val): val = npy.inf # force nan to sort uniquely
+                        dsu.append((val, rownum))
+                    dsu.sort()
+                    if not self.num%2: dsu.reverse()
+
+                    vals, otherind = zip(*dsu)
+                    ind.extend(otherind)
+
+                    self.parent.model.reorder(ind)
+                    newiters = []
+                    for i in ind:
+                        newiters.append(self.parent.iters[i])
+                    self.parent.iters = newiters[:]
+                    for i, thisiter in enumerate(self.parent.iters):
+                        key = tuple([self.parent.model.get_value(thisiter, j) for j in range(len(colheaders))])
+                        self.parent.rownumd[i] = key
+
+                    self.num+=1
+
+
+            if formatterd is None:
+                formatterd = dict()
+
+            formatterd = formatterd.copy()
+
+            for i, header in enumerate(colheaders):
+                renderer = gtk.CellRendererText()
+                if header not in formatterd:
+                    formatterd[header] = ColumnFormatter()
+                formatter = formatterd[header]
+
+                column = gtk.TreeViewColumn(header, renderer, text=i)
+                renderer.set_property('xalign', formatter.xalign)
+                column.connect('clicked', Clicked(self, i))
+                column.set_property('clickable', True)
+
+                if formatter.cell is not None:
+                    column.set_cell_data_func(renderer, formatter.cell)
+
+                treeview.append_column(column)
+
+
+
+            self.formatterd = formatterd
+            self.lastcol = column
+            self.add(treeview)
+            self.treeview = treeview
+            self.clear()
+
+        def clear(self):
+            self.iterd = dict()  
+            self.iters = []        # an ordered list of iters
+            self.rownumd = dict()  # a map from rownum -> symbol
+            self.model.clear()
+            self.datad = dict()
+
+
+        def flat(self, row):
+            seq = []
+            for i,val in enumerate(row):
+                formatter = self.formatterd.get(self.colheaders[i])
+                seq.extend([i,formatter.tostr(val)])
+            return seq
+
+        def __delete_selected(self, *unused): # untested
+
+
+            keyd = dict([(thisiter, key) for key, thisiter in self.iterd.values()])
+            for row in self.get_selected():
+                key = tuple(row)
+                thisiter = self.iterd[key]
+                self.model.remove(thisiter)
+                del self.datad[key]
+                del self.iterd[key] 
+                self.iters.remove(thisiter)
+
+            for i, thisiter in enumerate(self.iters):
+                self.rownumd[i] = keyd[thisiter]
+
+
+
+        def delete_row(self, row):
+            key = tuple(row)
+            thisiter = self.iterd[key]
+            self.model.remove(thisiter)
+
+
+            del self.datad[key]
+            del self.iterd[key] 
+            self.rownumd[len(self.iters)] = key
+            self.iters.remove(thisiter)
+
+            for rownum, thiskey in self.rownumd.items():
+                if thiskey==key: del self.rownumd[rownum]
+
+        def add_row(self, row):
+            thisiter = self.model.append()                
+            self.model.set(thisiter, *self.flat(row))
+            key = tuple(row)
+            self.datad[key] = row
+            self.iterd[key] = thisiter
+            self.rownumd[len(self.iters)] = key
+            self.iters.append(thisiter)
+
+        def update_row(self, rownum, newrow):
+            key = self.rownumd[rownum]
+            thisiter = self.iterd[key]
+            newkey = tuple(newrow)
+
+            self.rownumd[rownum] = newkey
+            del self.datad[key]
+            del self.iterd[key]
+            self.datad[newkey] = newrow
+            self.iterd[newkey] = thisiter
+
+
+            self.model.set(thisiter, *self.flat(newrow))
+
+        def get_row(self, rownum):
+            key = self.rownumd[rownum]
+            return self.datad[key]
+
+        def get_selected(self):
+            selected = []
+            def foreach(model, path, iter, selected):
+                selected.append(model.get_value(iter, 0))
+
+            self.treeview.get_selection().selected_foreach(foreach, selected)
+            return selected
+
+
+
+    def rec2gtk(r, formatd=None, rownum=0):
+        """
+        save record array r to excel pyExcelerator worksheet ws
+        starting at rownum.  if ws is string like, assume it is a
+        filename and save to it
+
+        formatd is a dictionary mapping dtype name -> FormatXL instances
+
+        The next rownum after writing is returned
+        """
+
+
+
+        if formatd is None:
+            formatd = dict()
+
+        formats = []
+        for i, name in enumerate(r.dtype.names):
+            dt = r.dtype[name]
+            format = formatd.get(name)
+            if format is None:
+                format = defaultformatd.get(dt.type, FormatObj())
+            #print 'gtk fmt factory', i, name, format, type(format)
+            format = gtkformat_factory(format, i)
+            formatd[name] = format
+
+
+        colheaders = r.dtype.names
+        scroll = SortedStringsScrolledWindow(colheaders, formatd)
+
+        ind = npy.arange(len(r.dtype.names))
+        for row in r:
+            scroll.add_row(row)
+
+        return scroll
+
+

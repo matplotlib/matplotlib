@@ -42,6 +42,7 @@ WIN32 - VISUAL STUDIO 7.1 (2003)
 """
 
 import os
+import re
 
 
 basedir = {
@@ -87,7 +88,7 @@ BUILT_WXAGG     = False
 BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
 BUILT_NXUTILS   = False
-BUILT_ENTHOUGHT = False
+BUILT_TRAITS = False
 BUILT_CONTOUR   = False
 BUILT_GDK       = False
 BUILT_PATH      = False
@@ -324,6 +325,114 @@ def check_for_cairo():
         return False
     else:
         print_status("Cairo", cairo.version)
+        return True
+
+def check_for_datetime():
+    try:
+        import datetime
+    except ImportError:
+        print_status("datetime", "no")
+        return False
+    else:
+        print_status("datetime", "present, version unknown")
+        return True
+
+def check_for_pytz(hasdatetime=True):
+    try:
+        import pytz
+    except ImportError:
+        if hasdatetime: print_status("pytz", "mpl-provided")
+        else: print_status("pytz", "no")
+        return False
+    else:
+        print_status("pytz", pytz.__version__)
+        return True
+
+def check_for_dateutil(hasdatetime=True):
+    try:
+        import dateutil
+    except ImportError:
+        if hasdatetime: print_status("dateutil", "mpl-provided")
+        else: print_status("dateutil", "no")
+        return False
+    else:
+        try:
+            print_status("dateutil", dateutil.__version__)
+        except AttributeError:
+            print_status("dateutil", "present, version unknown")
+        return True
+
+def check_for_configobj():
+    try:
+        import configobj
+    except ImportError:
+        print_status("configobj", "mpl-provided")
+        return False
+    else:
+        print_status("configobj", configobj.__version__)
+        return True
+
+def check_for_traits():
+    gotit = False
+    try:
+        from enthought import traits
+        gotit = True
+        try:
+            from enthought.traits import version
+        except:
+            print_status("enthought.traits", "unknown and incompatible version: < 2.0")
+            return gotit
+        else:
+            if version.version.endswith('mpl'): gotit = False
+            print_status("enthought.traits", version.version)
+    except ImportError:
+        print_status("enthought.traits", "no")
+    return gotit
+
+def check_for_dvipng():
+    try:
+        stdin, stdout = os.popen4('dvipng -version')
+        print_status("dvipng", stdout.readlines()[1].split()[-1])
+        return True
+    except (IndexError, ValueError):
+        print_status("dvipng", "no")
+        return False
+
+def check_for_ghostscript():
+    try:
+        if sys.platform == 'win32':
+            command = 'gswin32c --version'
+        else:
+            command = 'gs --version'
+        stdin, stdout = os.popen4(command)
+        print_status("ghostscript", stdout.read()[:-1])
+        return True
+    except (IndexError, ValueError):
+        print_status("ghostscript", "no")
+        return False
+
+def check_for_latex():
+    try:
+        stdin, stdout = os.popen4('latex -version')
+        line = stdout.readlines()[0]
+        pattern = '3\.1\d+'
+        match = re.search(pattern, line)
+        print_status("latex", match.group(0))
+        return True
+    except (IndexError, ValueError, AttributeError):
+        print_status("latex", "no")
+        return False
+
+def check_for_pdftops():
+    try:
+        stdin, stdout = os.popen4('pdftops -v')
+        for line in stdout.readlines():
+            if 'version' in line:
+                print_status("pdftops", line.split()[-1])
+                return True
+    except (IndexError, ValueError):
+        print_status("pdftops", "no")
+        return False
 
 def check_for_numpy():
     gotit = False
@@ -983,20 +1092,25 @@ def build_swigagg(ext_modules, packages):
     agg.libraries.extend(std_libs)
     ext_modules.append(agg)
 
-def build_enthought(ext_modules, packages):
-    global BUILT_ENTHOUGHT
-    if BUILT_ENTHOUGHT: return # only build it if you you haven't already
 
-    ctraits = Extension('matplotlib.enthought.traits.ctraits',  ['lib/matplotlib/enthought/traits/ctraits.c'])
+def build_traits(ext_modules, packages):
+    global BUILT_TRAITS
+    if BUILT_TRAITS:
+        return # only build it if you you haven't already
+
+    ctraits = Extension('enthought.traits.ctraits',
+                        ['lib/enthought/traits/ctraits.c'])
     ext_modules.append(ctraits)
-    packages.extend(['matplotlib/enthought',
-                     'matplotlib/enthought/traits',
-                     'matplotlib/enthought/traits/ui',
-                     'matplotlib/enthought/traits/ui/null',
-                     'matplotlib/enthought/resource',
-                     'matplotlib/enthought/util',
+    packages.extend(['enthought',
+                     'enthought/etsconfig',
+                     'enthought/traits',
+                     'enthought/traits/ui',
+                     'enthought/traits/ui/extras',
+                     'enthought/traits/ui/null',
+                     'enthought/traits/ui/tk',
                      ])
-    BUILT_ENTHOUGHT = True
+    BUILT_TRAITS = True
+
 
 def build_contour(ext_modules, packages):
     global BUILT_CONTOUR

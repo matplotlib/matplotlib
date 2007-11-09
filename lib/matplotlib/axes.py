@@ -4138,6 +4138,8 @@ class Axes(martist.Artist):
 
            Optional kwargs control the Collection properties:
         %(Collection)s
+
+        A Collection instance is returned
         """
 
         if not self._hold: self.cla()
