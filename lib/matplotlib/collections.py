@@ -217,9 +217,7 @@ class PatchCollection(Collection, cm.ScalarMappable):
         ACCEPTS: float or sequence of floats
         """
         self._linewidths = self._get_value(lw)
-
-    def set_linewidths(self, lw):
-        self.set_linewidth(lw)
+    set_linewidths = set_lw = set_linewidth
 
     def set_color(self, c):
         """
@@ -798,7 +796,8 @@ class LineCollection(Collection, cm.ScalarMappable):
         """
 
         self._lw = self._get_value(lw)
-
+    set_linewidths = set_lw = set_linewidth
+        
     def set_linestyle(self, ls):
         """
         Set the linestyles(s) for the collection.
