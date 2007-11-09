@@ -83,10 +83,13 @@ import glob
 from distutils.core import setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_ft2font, build_image, build_windowing, build_path, \
-     build_contour, build_nxutils, build_enthought, build_swigagg, build_gdk, \
+     build_contour, build_nxutils, build_traits, build_swigagg, build_gdk, \
      build_subprocess, build_ttconv, print_line, print_status, print_message, \
-     print_raw, check_for_freetype, check_for_libpng, check_for_gtk, check_for_tk, \
-     check_for_wx, check_for_numpy, check_for_qt, check_for_qt4, check_for_cairo
+     print_raw, check_for_freetype, check_for_libpng, check_for_gtk, \
+     check_for_tk, check_for_wx, check_for_numpy, check_for_qt, check_for_qt4, \
+     check_for_cairo, check_for_traits, check_for_pytz, check_for_dateutil, \
+     check_for_configobj, check_for_dvipng, check_for_ghostscript, \
+     check_for_latex, check_for_pdftops, check_for_datetime
 #import distutils.sysconfig
 
 # jdh
@@ -104,6 +107,8 @@ packages = [
     'matplotlib.numerix.fft',
     'matplotlib.config'
     ]
+
+py_modules = ['pylab']
 
 ext_modules = []
 
@@ -186,44 +191,10 @@ if 1:  # I don't think we need to make these optional
     build_contour(ext_modules, packages)
     build_nxutils(ext_modules, packages)
 
-print_raw("")
-print_raw("OPTIONAL DEPENDENCIES")
-    
-try: import datetime
-except ImportError: havedate = False
-else: havedate = True
-
-if havedate: # dates require python23 datetime
-    # only install pytz and dateutil if the user hasn't got them
-    def add_pytz():
-        packages.append('pytz')
-        # install pytz subdirs
-        for dirpath, dirname, filenames in os.walk(os.path.join('lib', 'pytz','zoneinfo')):
-            if '.svn' not in dirpath:
-                packages.append('/'.join(dirpath.split(os.sep)[1:]))
-
-    def add_dateutil():
-        packages.append('dateutil')
-
-    if sys.platform=='win32':
-        # always add these to the win32 installer
-        add_pytz()
-        add_dateutil()
-    else:
-        # only add them if we need them
-
-        try:
-            import pytz
-        except ImportError:
-            add_pytz()
-
-        try:
-            import dateutil
-        except ImportError:
-            add_dateutil()
-
 build_swigagg(ext_modules, packages)
-build_enthought(ext_modules, packages)
+
+print_raw("")
+print_raw("OPTIONAL BACKEND DEPENDENCIES")
 
 if check_for_gtk() and (BUILD_GTK or BUILD_GTKAGG):
     if BUILD_GTK:
@@ -274,6 +245,58 @@ for mod in ext_modules:
         mod.extra_compile_args.append('-DVERBOSE')
 
 print_raw("")
+print_raw("OPTIONAL DATE/TIMEZONE DEPENDENCIES")
+
+hasdatetime = check_for_datetime()
+hasdateutil = check_for_dateutil(hasdatetime)
+haspytz = check_for_pytz(hasdatetime)
+
+if hasdatetime: # dates require python23 datetime
+    # only install pytz and dateutil if the user hasn't got them
+    
+    def add_pytz():
+        packages.append('pytz')
+        resources = ['zone.tab', 'locales/pytz.pot']
+        # install pytz subdirs
+        for dirpath, dirname, filenames in os.walk(os.path.join('lib', 'pytz', 
+                                                                'zoneinfo')):
+            if '.svn' not in dirpath:
+                # remove the 'lib/pytz' part of the path
+                basepath = dirpath.split(os.path.sep, 2)[2]
+                resources.extend([os.path.join(basepath, filename)
+                                  for filename in filenames])
+        package_data['pytz'] = resources
+        assert len(resources) > 10, 'pytz zoneinfo files not found!'
+#                packages.append('/'.join(dirpath.split(os.sep)[1:]))
+
+    def add_dateutil():
+        packages.append('dateutil')
+        packages.append('dateutil/zoneinfo')
+        package_data['dateutil'] = ['zoneinfo/zoneinfo*.tar.*']
+
+    if sys.platform=='win32':
+        # always add these to the win32 installer
+        add_pytz()
+        add_dateutil()
+    else:
+        # only add them if we need them
+        if not haspytz: add_pytz()
+        if not hasdateutil: add_dateutil()
+
+print_raw("")
+print_raw("OPTIONAL USETEX DEPENDENCIES")
+check_for_dvipng()
+check_for_ghostscript()
+check_for_latex()
+check_for_pdftops()
+
+# TODO: comment out for mpl release:
+print_raw("")
+print_raw("EXPERIMENTAL CONFIG PACKAGE DEPENDENCIES")
+if not check_for_configobj(): py_modules.append('configobj')
+if not check_for_traits(): build_traits(ext_modules, packages)
+
+print_raw("")
 print_raw("[Edit setup.cfg to suppress the above messages]")
 print_line()
 
@@ -303,7 +326,7 @@ distrib = setup(name="matplotlib",
       """,
       packages = packages,
       platforms='any',
-      py_modules = ['pylab'],
+      py_modules = py_modules,
       ext_modules = ext_modules,
       package_dir = {'': 'lib'},
       package_data = package_data,

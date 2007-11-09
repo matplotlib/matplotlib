@@ -1,5 +1,41 @@
-2007-11-02 Commited Phil Thompson's patch 1599876, fixes to Qt4Agg 
-           backend and qt4 blitting demo - DSD 
+2007-11-09 Applied Martin Teichmann's patch 1828813: a QPainter is used in
+           paintEvent, which has to be destroyed using  the method end(). If 
+           matplotlib raises an exception before the call to end - and it 
+           does if you feed it with bad data - this method end() is never 
+           called and Qt4 will start spitting error messages
+
+2007-11-09 Moved pyparsing back into matplotlib namespace. Don't use 
+           system pyparsing, API is too variable from one release
+           to the next - DSD
+
+2007-11-08 Made pylab use straight numpy instead of oldnumeric
+           by default - EF
+
+2007-11-08 Added additional record array utilites to mlab (rec2excel,
+           rec2gtk, rec_join, rec_append_field, rec_drop_field) - JDH
+
+2007-11-08 Updated pytz to version 2007g - DSD
+
+2007-11-08 Updated pyparsing to version 1.4.8 - DSD
+
+2007-11-08 Moved csv2rec to recutils and added other record array
+           utilities - JDH
+
+2007-11-08 If available, use existing pyparsing installation - DSD
+
+2007-11-07 Removed old enthought.traits from lib/matplotlib, added
+           Gael Varoquaux's enthought.traits-2.6b1, which is stripped
+           of setuptools. The package is installed to site-packages
+           if not already available - DSD
+
+2007-11-05 Added easy access to minor tick properties; slight mod
+           of patch by Pierre G-M - EF
+
+2007-11-02 Commited Phil Thompson's patch 1599876, fixes to Qt4Agg
+           backend and qt4 blitting demo - DSD
+
+2007-11-02 Commited Phil Thompson's patch 1599876, fixes to Qt4Agg
+           backend and qt4 blitting demo - DSD
 
 2007-10-31 Made log color scale easier to use with contourf;
            automatic level generation now works. - EF
@@ -93,7 +129,7 @@
            generator expressions are not supported by python-2.3 - DSD
 
 2007-10-01 Made matplotlib.use() raise an exception if called after
-           backends has been imported.
+           backends has been imported. - EF
 
 2007-09-30 Modified update* methods of Bbox and Interval so they
            work with reversed axes.  Prior to this, trying to
@@ -253,7 +289,7 @@
 
 2007-07-19 completed numpification of most trivial cases - NN
 
-2007-07-19 converted non-numpy relicts troughout the code - NN
+2007-07-19 converted non-numpy relicts throughout the code - NN
 
 2007-07-19 replaced the Python code in numerix/ by a minimal wrapper around
            numpy that explicitly mentions all symbols that need to be

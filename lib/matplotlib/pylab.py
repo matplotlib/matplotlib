@@ -230,38 +230,6 @@ else:
 # bring all the  symbols in so folks can import them from
 # pylab in one fell swoop
 
-from numpy.oldnumeric import array, zeros, shape, rank, size, fromstring,\
-        take, put, putmask, reshape, repeat, choose, searchsorted,\
-        cumsum, product, cumproduct, alltrue, sometrue, allclose,\
-        arrayrange, arange, asarray, convolve, swapaxes, concatenate,\
-        transpose, sort, argsort, argmax, argmin, innerproduct, dot,\
-        outerproduct, resize, indices, fromfunction, diagonal, trace,\
-        ravel, nonzero, shape, where, compress, clip, zeros, ones,\
-        identity, add, logical_or, exp, subtract, logical_xor,\
-        log, multiply, logical_not, log10, divide, maximum, sin,\
-        minimum, sinh, conjugate, bitwise_and, sqrt, power, bitwise_or,\
-        tan, absolute, bitwise_xor, tanh, negative, ceil, greater, fabs,\
-        greater_equal, floor, less, arccos, arctan2, less_equal, arcsin,\
-        fmod, equal, arctan, hypot, not_equal, cos, around, logical_and,\
-        cosh, arccosh, arcsinh, arctanh, cross_correlate,\
-        pi, ArrayType, matrixmultiply
-
-from numpy.oldnumeric import sum as asum
-
-from numpy.oldnumeric import Int8, UInt8, Int16, UInt16, Int32, UInt32, Float32,\
-        Float64, Complex32, Complex64, Float, Int, Complex
-
-from numpy.fft import fft   # Why just fft?
-from numpy.linalg import inv as inverse
-from numpy.oldnumeric.linear_algebra import eigenvectors
-        # not quite the same as linalg.eig
-
-
-pymin, pymax = min, max
-from numpy.oldnumeric.mlab import *
-min, max = pymin, pymax
-from numpy import amin, amax
-
 from matplotlib.mlab import  window_hanning, window_none,\
         conv, detrend, detrend_mean, detrend_none, detrend_linear,\
         polyfit, polyval, entropy, normpdf,\
@@ -271,23 +239,42 @@ from matplotlib.mlab import  window_hanning, window_none,\
         diagonal_matrix, base_repr, binary_repr, log2, ispower2,\
         bivariate_normal, load, save, stineman_interp
 
-from numpy import meshgrid, linspace, logspace, corrcoef, vander
+from numpy import *
+from numpy.fft import *
+from numpy.random import *
+from numpy.linalg import *
 
-"""
-problem syms
- - cross_correlate  - getting from convolve
-average
-sarray
-dump
-dumps
-load
-loads
-divide_safe
-invert
-left_shift
-right_shift
-sign
-"""
+# old style--if True, override standard numpy with oldnumeric
+if False:
+    from numpy.oldnumeric import array, zeros, shape, rank, size, fromstring,\
+            take, put, putmask, reshape, repeat, choose, searchsorted,\
+            cumsum, product, cumproduct, alltrue, sometrue, allclose,\
+            arrayrange, arange, asarray, convolve, swapaxes, concatenate,\
+            transpose, sort, argsort, argmax, argmin, innerproduct, dot,\
+            outerproduct, resize, indices, fromfunction, diagonal, trace,\
+            ravel, nonzero, shape, where, compress, clip, zeros, ones,\
+            identity, add, logical_or, exp, subtract, logical_xor,\
+            log, multiply, logical_not, log10, divide, maximum, sin,\
+            minimum, sinh, conjugate, bitwise_and, sqrt, power, bitwise_or,\
+            tan, absolute, bitwise_xor, tanh, negative, ceil, greater, fabs,\
+            greater_equal, floor, less, arccos, arctan2, less_equal, arcsin,\
+            fmod, equal, arctan, hypot, not_equal, cos, around, logical_and,\
+            cosh, arccosh, arcsinh, arctanh, cross_correlate,\
+            pi, ArrayType, matrixmultiply
+
+    from numpy.oldnumeric import sum as asum
+
+    from numpy.oldnumeric import Int8, UInt8, Int16, UInt16, Int32, UInt32, Float32,\
+            Float64, Complex32, Complex64, Float, Int, Complex
+
+    pymin, pymax = min, max
+    from numpy.oldnumeric.mlab import *
+    min, max = pymin, pymax
+    from numpy import amin, amax
+    from numpy.oldnumeric.linear_algebra import eigenvectors
+            # not quite the same as linalg.eig
+    from numpy.linalg import inv as inverse
+
 
 from matplotlib.pyplot import *
 

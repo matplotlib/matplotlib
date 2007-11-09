@@ -172,7 +172,7 @@ def OSXFontDirectory():
             pass
     return fontpaths
 
-def OSXInstalledFonts(directory=None, fontext=None):
+def OSXInstalledFonts(directory=None, fontext='ttf'):
     """Get list of font files on OS X - ignores font suffix by default"""
     if directory is None:
         directory = OSXFontDirectory()
@@ -251,7 +251,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
             fontpaths = x11FontDirectory()
             # check for OS X & load its fonts if present
             if sys.platform == 'darwin':
-                for f in OSXInstalledFonts():
+                for f in OSXInstalledFonts(fontext=fontext):
                     fontfiles[f] = 1
 
             for f in get_fontconfig_fonts(fontext):
