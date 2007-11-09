@@ -83,7 +83,7 @@ from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      print_raw, check_for_freetype, check_for_libpng, check_for_gtk, \
      check_for_tk, check_for_wx, check_for_numpy, check_for_qt, check_for_qt4, \
      check_for_cairo, check_for_traits, check_for_pytz, check_for_dateutil, \
-     check_for_pyparsing, check_for_configobj
+     check_for_configobj
 #import distutils.sysconfig
 
 # jdh
@@ -183,8 +183,6 @@ if BUILD_TTCONV:
 if 1:  # I don't think we need to make these optional
     build_contour(ext_modules, packages)
     build_nxutils(ext_modules, packages)
-
-if not check_for_pyparsing(): py_modules.append('pyparsing')
 
 print_raw("")
 print_raw("OPTIONAL DEPENDENCIES")

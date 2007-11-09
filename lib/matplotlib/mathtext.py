@@ -134,7 +134,7 @@ from warnings import warn
 from numpy import inf, isinf
 
 from matplotlib import verbose
-from pyparsing import Literal, Word, OneOrMore, ZeroOrMore, Combine, Group, \
+from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, Combine, Group, \
      Optional, Forward, NotAny, alphas, nums, alphanums, StringStart, \
      StringEnd, ParseFatalException, FollowedBy, Regex, operatorPrecedence, \
      opAssoc, ParseResults, Or, Suppress, oneOf, ParseException, MatchFirst, \

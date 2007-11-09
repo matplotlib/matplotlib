@@ -18,7 +18,7 @@ Author : Michael Droettboom <mdroe@stsci.edu>
 License   : matplotlib license (PSF compatible)
 """
 import re
-from pyparsing import Literal, OneOrMore, ZeroOrMore, Optional, Regex, \
+from matplotlib.pyparsing import Literal, OneOrMore, ZeroOrMore, Optional, Regex, \
     StringEnd, ParseException, Suppress
 
 family_punc = r'\\\-:,'
