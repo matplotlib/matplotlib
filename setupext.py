@@ -360,7 +360,7 @@ def check_provide_pytz(hasdatetime=True):
         import pytz
     except ImportError:
         if hasdatetime and provide_pytz:
-            print_status("pytz", "mpl-provided")
+            print_status("pytz", "matplotlib will provide")
             return True
         else:
             print_status("pytz", "no")
@@ -374,7 +374,7 @@ def check_provide_dateutil(hasdatetime=True):
         import dateutil
     except ImportError:
         if hasdatetime and provide_dateutil:
-            print_status("dateutil", "mpl-provided")
+            print_status("dateutil", "matplotlib will provide")
             return True
         else:
             print_status("dateutil", "no")
@@ -391,7 +391,7 @@ def check_provide_configobj():
         import configobj
     except ImportError:
         if provide_configobj:
-            print_status("configobj", "mpl-provided")
+            print_status("configobj", "matplotlib will provide")
             return True
         else:
             print_status("configobj", "no")
@@ -410,14 +410,14 @@ def check_provide_traits():
             return False
         else:
             if version.version.endswith('mpl'):
-                print_status("enthought.traits", "mpl-provided")
+                print_status("enthought.traits", "matplotlib will provide")
                 return True
             else:
                 print_status("enthought.traits", version.version)
                 return False
     except ImportError:
         if provide_traits:
-            print_status("enthought.traits", "mpl-provided")
+            print_status("enthought.traits", "matplotlib will provide")
             return True
         else:
             print_status("enthought.traits", "no")
