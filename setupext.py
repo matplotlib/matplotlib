@@ -98,14 +98,33 @@ AGG_VERSION = 'agg23'
 numpy_inc_dirs = []
 
 # Based on the contents of setup.cfg, determine if the status block
-# should be displayed
+# should be displayed, if missing external packages should be provided
 display_status = True
+provide_pytz = True
+provide_dateutil = True
+provide_configobj = True
+provide_traits = True
 if os.path.exists("setup.cfg"):
     config = ConfigParser.SafeConfigParser()
     config.read("setup.cfg")
     try:
-        if config.get("status", "suppress"):
-            display_status = False
+        display_status = not config.getboolean("status", "suppress")
+    except:
+        pass
+    try:
+        provide_pytz = config.getboolean("provide packages", "pytz")
+    except:
+        pass
+    try:
+        provide_dateutil = config.getboolean("provide packages", "dateutil")
+    except:
+        pass
+    try:
+        provide_configobj = config.getboolean("provide packages", "configobj")
+    except:
+        pass
+    try:
+        provide_traits = config.getboolean("provide packages", "enthought.traits")
     except:
         pass
 
@@ -336,57 +355,73 @@ def check_for_datetime():
         print_status("datetime", "present, version unknown")
         return True
 
-def check_for_pytz(hasdatetime=True):
+def check_provide_pytz(hasdatetime=True):
     try:
         import pytz
     except ImportError:
-        if hasdatetime: print_status("pytz", "mpl-provided")
-        else: print_status("pytz", "no")
-        return False
+        if hasdatetime and provide_pytz:
+            print_status("pytz", "mpl-provided")
+            return True
+        else:
+            print_status("pytz", "no")
+            return False
     else:
         print_status("pytz", pytz.__version__)
-        return True
+        return False
 
-def check_for_dateutil(hasdatetime=True):
+def check_provide_dateutil(hasdatetime=True):
     try:
         import dateutil
     except ImportError:
-        if hasdatetime: print_status("dateutil", "mpl-provided")
-        else: print_status("dateutil", "no")
-        return False
+        if hasdatetime and provide_dateutil:
+            print_status("dateutil", "mpl-provided")
+            return True
+        else:
+            print_status("dateutil", "no")
+            return False
     else:
         try:
             print_status("dateutil", dateutil.__version__)
         except AttributeError:
             print_status("dateutil", "present, version unknown")
-        return True
+        return False
 
-def check_for_configobj():
+def check_provide_configobj():
     try:
         import configobj
     except ImportError:
-        print_status("configobj", "mpl-provided")
-        return False
+        if provide_configobj:
+            print_status("configobj", "mpl-provided")
+            return True
+        else:
+            print_status("configobj", "no")
+            return False
     else:
         print_status("configobj", configobj.__version__)
-        return True
+        return False
 
-def check_for_traits():
-    gotit = False
+def check_provide_traits():
     try:
         from enthought import traits
-        gotit = True
         try:
             from enthought.traits import version
         except:
             print_status("enthought.traits", "unknown and incompatible version: < 2.0")
-            return gotit
+            return False
         else:
-            if version.version.endswith('mpl'): gotit = False
-            print_status("enthought.traits", version.version)
+            if version.version.endswith('mpl'):
+                print_status("enthought.traits", "mpl-provided")
+                return True
+            else:
+                print_status("enthought.traits", version.version)
+                return False
     except ImportError:
-        print_status("enthought.traits", "no")
-    return gotit
+        if provide_traits:
+            print_status("enthought.traits", "mpl-provided")
+            return True
+        else:
+            print_status("enthought.traits", "no")
+            return False
 
 def check_for_dvipng():
     try:
