@@ -112,19 +112,19 @@ if os.path.exists("setup.cfg"):
     except:
         pass
     try:
-        provide_pytz = config.getboolean("provide packages", "pytz")
+        provide_pytz = config.getboolean("provide_packages", "pytz")
     except:
         pass
     try:
-        provide_dateutil = config.getboolean("provide packages", "dateutil")
+        provide_dateutil = config.getboolean("provide_packages", "dateutil")
     except:
         pass
     try:
-        provide_configobj = config.getboolean("provide packages", "configobj")
+        provide_configobj = config.getboolean("provide_packages", "configobj")
     except:
         pass
     try:
-        provide_traits = config.getboolean("provide packages", "enthought.traits")
+        provide_traits = config.getboolean("provide_packages", "enthought.traits")
     except:
         pass
 
