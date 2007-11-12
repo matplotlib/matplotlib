@@ -6,7 +6,7 @@ import gc
 
 stests = [
     r'Kerning: AVA $AVA$',
-    r'\$100.00 $\alpha$',
+    r'\$100.00 $\alpha \_$',
     r'$\frac{\$100.00}{y}$',
     r'$x   y$',
     r'$x+y\ x=y\ x<y\ x:y\ x,y\ x@y$',
