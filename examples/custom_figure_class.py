@@ -1,7 +1,7 @@
 """
 You can pass a custom Figure constructor to figure if youy want to derive from the default Figure.  This simple example creates a figure with a figure title
 """
-from pylab import figure, show, nx
+from matplotlib.pyplot import figure, show
 from matplotlib.figure import Figure
 
 class MyFigure(Figure):
