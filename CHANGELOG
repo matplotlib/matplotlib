@@ -1,3 +1,9 @@
+2007-11-12 Exposed all the build options in setup.cfg. These options are
+           read into a dict called "options" by setupext.py. Also, added
+           "-mpl" tags to the version strings for packages provided by
+           matplotlib. Versions provided by mpl will be identified and 
+           updated on subsequent installs - DSD
+
 2007-11-12 Added support for STIX fonts.  A new rcParam,
 	   mathtext.fontset, can be used to choose between: 
            
