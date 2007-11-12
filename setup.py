@@ -7,9 +7,6 @@ The matplotlib build options can be modified with a setup.cfg file. See
 setup.cfg.template for more information.
 """
 
-
-VERBOSE = False # insert lots of diagnostic prints in extension code
-
 # This dict will be updated as we try to select the best option during
 # the build process. However, values in setup.cfg will be used, if 
 # defined.
@@ -186,7 +183,7 @@ if options['build_image']:
     build_image(ext_modules, packages)
 
 for mod in ext_modules:
-    if VERBOSE:
+    if options['verbose']:
         mod.extra_compile_args.append('-DVERBOSE')
 
 print_raw("")

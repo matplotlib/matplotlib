@@ -99,6 +99,7 @@ numpy_inc_dirs = []
 
 # matplotlib build options, which can be altered using setup.cfg
 options = {'display_status': True, 
+           'verbose': False, 
            'provide_pytz': 'auto', 
            'provide_dateutil': 'auto', 
            'provide_configobj': 'auto', 
@@ -117,7 +118,11 @@ options = {'display_status': True,
 if os.path.exists("setup.cfg"):
     config = ConfigParser.SafeConfigParser()
     config.read("setup.cfg")
+
     try: options['display_status'] = not config.getboolean("status", "suppress")
+    except: pass
+
+    try: options['verbose'] = not config.getboolean("status", "verbose")
     except: pass
 
     try: options['provide_pytz'] = config.getboolean("provide_packages", "pytz")
