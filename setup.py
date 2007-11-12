@@ -120,8 +120,7 @@ packages = [
     'matplotlib.numerix.npyma',
     'matplotlib.numerix.linear_algebra',
     'matplotlib.numerix.random_array',
-    'matplotlib.numerix.fft',
-    'matplotlib.config'
+    'matplotlib.numerix.fft'
     ]
 
 py_modules = ['pylab']
@@ -307,10 +306,9 @@ check_for_pdftops()
 # TODO: comment out for mpl release:
 print_raw("")
 print_raw("EXPERIMENTAL CONFIG PACKAGE DEPENDENCIES")
-if check_provide_configobj():
-    py_modules.append('configobj')
-if check_provide_traits():
-    build_traits(ext_modules, packages)
+packages.append('matplotlib.config')
+if check_provide_configobj(): py_modules.append('configobj')
+if check_provide_traits(): build_traits(ext_modules, packages)
 
 print_raw("")
 print_raw("[Edit setup.cfg to suppress the above messages]")
