@@ -249,7 +249,7 @@ from numpy.fft import *
 from numpy.random import *
 from numpy.linalg import *
 
-from matplotlib.mlab import load, window_hanning, window_none, conv, detrend, demean, \
+from matplotlib.mlab import window_hanning, window_none, conv, detrend, demean, \
      detrend_mean, detrend_none, detrend_linear, entropy, normpdf, levypdf, \
      find, longest_contiguous_ones, longest_ones, prepca, prctile, prctile_rank, \
      center_matrix, rk4, bivariate_normal, get_xyz_where, get_sparse_matrix, dist, \
