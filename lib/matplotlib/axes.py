@@ -4727,7 +4727,7 @@ class Axes(martist.Artist):
         X = X.ravel()
         Y = Y.ravel()
 
-        coords = npy.zeros(((Nx * Ny), 2), npy.float32)
+        coords = npy.zeros(((Nx * Ny), 2), X.dtype)
         coords[:, 0] = X
         coords[:, 1] = Y
 
