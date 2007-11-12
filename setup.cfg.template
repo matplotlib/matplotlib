@@ -7,8 +7,10 @@ tag_svn_revision = 1
 [status]
 # To suppress display of the dependencies and their versions
 # at the top of the build log, uncomment the following line:
-#
 #suppress = True
+#
+# Uncomment to insert lots of diagnostic prints in extension code
+#verbose = True
 
 [provide_packages]
 # By default, matplotlib checks for a few dependencies and 
