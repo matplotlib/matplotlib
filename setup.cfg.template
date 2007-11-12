@@ -11,14 +11,37 @@ tag_svn_revision = 1
 #suppress = True
 
 [provide_packages]
-# by default, matplotlib checks for a few dependencies and 
+# By default, matplotlib checks for a few dependencies and 
 # installs them if missing. This feature can be turned off 
 # by uncommenting the following lines:
 #
-## date/timezone support:
+## Date/timezone support:
 #pytz = False
 #dateutil = False
 #
-## experimental config package support:
+## Experimental config package support:
 #enthought.traits = False
 #configobj = False
+
+[gui_support]
+# Matplotlib supports multiple GUI toolkits, including Cocoa, 
+# GTK, Fltk, Qt, Qt4, Tk, and WX. Support for many of these 
+# toolkits requires AGG, the Anti-Grain Geometry library, which 
+# is provided by matplotlib and built by default.
+#
+# Some backends are written in pure Python, and others require 
+# extension code to be compiled. By default, matplotlib checks 
+# for these GUI toolkits during installation and, if present, 
+# compiles the required extensions to support the toolkit. GTK 
+# support requires the GTK runtime environment and PyGTK. Wx 
+# support requires wxWidgets and wxPython. Tk support requires 
+# Tk and Tkinter. The other GUI toolkits do not require any 
+# extension code, and can be used as long as the libraries are 
+# installed on your system.
+# 
+# You can uncomment any the following lines if you know you do
+# not want to use the GUI toolkit.
+#gtk = False
+#gtkagg = False
+#tkagg = False
+#wxagg = False

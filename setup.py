@@ -17,6 +17,21 @@ rc = {'backend':'PS', 'numerix':'numpy'}
 # build support for whatever array packages you have installed.
 BUILD_IMAGE = 1
 
+
+# build a small extension to manage the focus on win32 platforms.
+#BUILD_WINDOWING        = 0
+BUILD_WINDOWING        = 'auto'
+
+
+VERBOSE = False # insert lots of diagnostic prints in extension code
+
+
+
+
+## You shouldn't need to customize below this point
+import ConfigParser
+import os
+
 # Build the antigrain geometry toolkit.  Agg makes heavy use of
 # templates, so it probably requires a fairly recent compiler to build
 # it.  It makes very nice antialiased output and also supports alpha
@@ -35,18 +50,26 @@ BUILD_TKAGG        = 'auto'
 # needed for wxpython <2.8 if you plan on doing animations
 BUILD_WXAGG        = 1
 
+if os.path.exists("setup.cfg"):
+    config = ConfigParser.SafeConfigParser()
+    config.read("setup.cfg")
+    try:
+        BUILD_GTK = config.getboolean("gui_support", "gtk")
+    except:
+        pass
+    try:
+        BUILD_GTKAGG = config.getboolean("gui_support", "gtkagg")
+    except:
+        pass
+    try:
+        BUILD_TKAGG = config.getboolean("gui_support", "tkagg")
+    except:
+        pass
+    try:
+        BUILD_WXAGG = config.getboolean("gui_support", "wxagg")
+    except:
+        pass
 
-# build a small extension to manage the focus on win32 platforms.
-#BUILD_WINDOWING        = 0
-BUILD_WINDOWING        = 'auto'
-
-
-VERBOSE = False # insert lots of diagnostic prints in extension code
-
-
-
-
-## You shouldn't need to customize below this point
 
 # BEFORE importing disutils, remove MANIFEST. distutils doesn't properly
 # update it when the contents of directories change.

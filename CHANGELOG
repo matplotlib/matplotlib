@@ -1,3 +1,6 @@
+2007-11-12 Options to disable building backend extension modules moved 
+           from setup.py to setup.cfg - DSD
+
 2007-11-09 Applied Martin Teichmann's patch 1828813: a QPainter is used in
            paintEvent, which has to be destroyed using  the method end(). If 
            matplotlib raises an exception before the call to end - and it 
