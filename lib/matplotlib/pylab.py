@@ -249,6 +249,19 @@ from numpy.fft import *
 from numpy.random import *
 from numpy.linalg import *
 
+from matplotlib.mlab import load, window_hanning, window_none, conv, detrend, demean, \
+     detrend_mean, detrend_none, detrend_linear, entropy, normpdf, levypdf, \
+     find, longest_contiguous_ones, longest_ones, prepca, prctile, prctile_rank, \
+     center_matrix, rk4, bivariate_normal, get_xyz_where, get_sparse_matrix, dist, \
+     dist_point_to_segment, segments_intersect, fftsurr, liaupunov, movavg, \
+     save, load, slopes, stineman_interp, inside_poly, poly_below, poly_between, exp_safe, \
+     amap, rms_flat, l1norm, l2norm, norm_flat, frange, diagonal_matrix, identity, \
+     base_repr, binary_repr, log2, ispower2, fromfunction_kw, rem, norm, orth, rank, sqrtm,\
+     mfuncC, approx_real, rec_append_field, rec_drop_fields, rec_join, csv2rec, rec2csv
+
+
+     
+
 # old style--if True, override standard numpy with oldnumeric
 if False:
     from numpy.oldnumeric import array, zeros, shape, rank, size, fromstring,\

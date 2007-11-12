@@ -442,8 +442,9 @@ def corrcoef(*args):
     kw = dict(rowvar=False)
     return npy.corrcoef(*args, **kw)
 
-def polyfit(x,y,N):
+def polyfit(*args, **kwargs):
     """
+    def polyfit(x,y,N)
 
     Do a best fit polynomial of order N of y to x.  Return value is a
     vector of polynomial coefficients [pk ... p1 p0].  Eg, for N=2
@@ -480,21 +481,13 @@ def polyfit(x,y,N):
     See also polyval
 
     """
-    x = npy.asarray(x, dtype=npy.float_)
-    #y = npy.asarray(y, dtype=npy.float_)
-    #y.shape = (len(y),1)
-    #X = npy.matrix(npy.vander(x, N+1))
-    #Xt = npy.matrix(X.transpose())
-    #c = npy.array(npy.linalg.inv(Xt*X)*Xt*y)  # convert back to array
-    #c.shape = (N+1,)
-    #return c
-    X = npy.vander(x, N+1)
-    return npy.linalg.lstsq(X, y)[0]
+    warnings.warn("use numpy.poyfit", DeprecationWarning)
+    return npy.polyfit(*args, **kw)
 
 
 
 
-def polyval(p,x):
+def polyval(*args, **kwargs):
     """
     y = polyval(p,x)
 
@@ -510,14 +503,11 @@ def polyval(p,x):
     See also polyfit
 
     """
-    x = npy.asarray(x, dtype=npy.float_)
-    p = npy.asarray(p, dtype=npy.float_).reshape((len(p),1))
-    X = npy.vander(x,len(p))
-    y =  npy.dot(X,p)
-    return y.reshape(x.shape)
+    warnings.warn("use numpy.polyval", DeprecationWarning)
+    return npy.polyval(*args, **kw)
 
 
-def vander(x,N=None):
+def vander(*args, **kwargs):
     """
     X = vander(x,N=None)
 
@@ -527,7 +517,7 @@ def vander(x,N=None):
 
     """
     warnings.warn("Use numpy.vander()", DeprecationWarning)
-    return npy.vander(x, N)
+    return npy.vander(*args, **kwargs)
 
 
 def donothing_callback(*args):
@@ -1262,6 +1252,17 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     fh = cbook.to_filehandle(fname)
     X = []
 
+    if delimiter==' ':
+        # space splitting is a special case since x.split() is what
+        # you want, not x.split(' ')
+        def splitfunc(x):
+            return x.split()
+    else:
+        def splitfunc(x):
+            return x.split(delimiter)
+
+            
+        
     converterseq = None
     for i,line in enumerate(fh):
         if i<skiprows: continue
@@ -1269,13 +1270,13 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
         if not len(line): continue
         if converterseq is None:
             converterseq = [converters.get(j,float)
-                               for j,val in enumerate(line.split(delimiter))]
+                               for j,val in enumerate(splitfunc(line))]
         if usecols is not None:
             vals = line.split(delimiter)
             row = [converterseq[j](vals[j]) for j in usecols]
         else:
             row = [converterseq[j](val)
-                      for j,val in enumerate(line.split(delimiter))]
+                      for j,val in enumerate(splitfunc(line))]
         thisLen = len(row)
         X.append(row)
 
@@ -2281,7 +2282,7 @@ class FormatMillions(FormatFloat):
         FormatFloat.__init__(self, precision, scale=1e-6)
 
 
-class FormatDate(FormatString):
+class FormatDate(FormatObj):
     def __init__(self, fmt):
         self.fmt = fmt
 
@@ -2301,7 +2302,7 @@ defaultformatd = {
     npy.float32 : FormatFloat(),
     npy.float64 : FormatFloat(),        
     npy.object_ : FormatObj(),
-    npy.string_ : FormatString(),        
+    npy.string_ : FormatObj(),        
     }
 
 def get_formatd(r, formatd=None):
@@ -2658,7 +2659,7 @@ else:
 
 
 
-    def rec2gtk(r, formatd=None, rownum=0):
+    def rec2gtk(r, formatd=None, rownum=0, autowin=True):
         """
         save record array r to excel pyExcelerator worksheet ws
         starting at rownum.  if ws is string like, assume it is a
@@ -2666,7 +2667,13 @@ else:
 
         formatd is a dictionary mapping dtype name -> FormatXL instances
 
-        The next rownum after writing is returned
+        This function creates a SortedStringsScrolledWindow (derived
+        from gtk.ScrolledWindow) and returns it.  if autowin is True,
+        a gtk.Window is created, attached to the
+        SortedStringsScrolledWindow instance, shown and returned.  If
+        autowin=False, the caller is responsible for adding the
+        SortedStringsScrolledWindow instance to a gtk widget and
+        showing it.
         """
 
 
@@ -2692,6 +2699,14 @@ else:
         for row in r:
             scroll.add_row(row)
 
+
+        if autowin:
+            win = gtk.Window()
+            win.set_default_size(800,600)
+            win.add(scroll)
+            win.show_all()
+            scroll.win = win
+            
         return scroll
 
 
