@@ -1019,7 +1019,7 @@ if gtk.pygtk_version >= (2,4,0):
         def get_filename_from_user (self):
             while True:
                 filename = None
-                if self.run() != gtk.RESPONSE_OK:
+                if self.run() != int(gtk.RESPONSE_OK):
                     break
                 filename = self.get_filename()
                 break
@@ -1045,7 +1045,7 @@ else:
             self.set_filename(self.path)
 
             filename = None
-            if self.run() == gtk.RESPONSE_OK:
+            if self.run() == int(gtk.RESPONSE_OK):
                 self.path = filename = self.get_filename()
             self.hide()
 
