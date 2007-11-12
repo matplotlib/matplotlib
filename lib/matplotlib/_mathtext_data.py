@@ -2265,482 +2265,207 @@ tex2uni = {
 'bigotimes': 10754
 }
 
-uni2tex = dict([(v,k) for k,v in tex2uni.items()])
-
-tex2type1 = {'doteq': 'uni2250',
-'partial': 'uni2202',
-'gg': 'uni226B',
-'asymp': 'uni224D',
-'blacktriangledown': 'uni25BE',
-'otimes': 'uni2297',
-'nearrow': 'uni2197',
-'varpi': 'uni03D6',
-'vee': 'uni2228',
-'vec': 'uni20D7',
-'smile': 'uni2323',
-'succnsim': 'uni22E9',
-'gimel': 'uni2137',
-'vert': 'bar',
-'varrho': 'uni03F1',
-'P': 'paragraph',
-'approxident': 'uni224B',
-'Swarrow': 'uni21D9',
-'textasciicircum': 'asciicircum',
-'imageof': 'uni22B7',
-'ntriangleleft': 'uni22EA',
-'nleq': 'uni2270',
-'div': 'divide',
-'nparallel': 'uni2226',
-'Leftarrow': 'uni21D0',
-'lll': 'uni22D8',
-'oiint': 'uni222F',
-'ngeq': 'uni2271',
-'Theta': 'uni0398',
-'origof': 'uni22B6',
-'blacksquare': 'uni25A0',
-'hspace': 'uni200A',
-'solbar': 'uni233F',
-'neg': 'logicalnot',
-'sum': 'uni2211',
-'Vdash': 'uni22A9',
-'coloneq': 'uni2254',
-'degree': 'degree',
-'bowtie': 'uni22C8',
-'blacktriangleright': 'uni25B6',
-'varsigma': 'uni03C2',
-'leq': 'uni2264',
-'ggg': 'uni22D9',
-'lneqq': 'uni2268',
-'scurel': 'uni22B1',
-'stareq': 'uni225B',
-'BbbN': 'uni2115',
-'nLeftarrow': 'uni21CD',
-'nLeftrightarrow': 'uni21CE',
-'k': 'uni0328',
-'bot': 'uni22A5',
-'BbbC': 'uni2102',
-'Lsh': 'uni21B0',
-'leftleftarrows': 'uni21C7',
-'BbbZ': 'uni2124',
-'digamma': 'uni03DD',
-'BbbR': 'uni211D',
-'BbbP': 'uni2119',
-'BbbQ': 'uni211A',
-'vartriangleright': 'uni22B3',
-'succsim': 'uni227F',
-'wedge': 'uni2227',
-'lessgtr': 'uni2276',
-'veebar': 'uni22BB',
-'mapsdown': 'uni21A7',
-'Rsh': 'uni21B1',
-'chi': 'uni03C7',
-'prec': 'uni227A',
-'nsubseteq': 'uni2288',
-'therefore': 'uni2234',
-'eqcirc': 'uni2256',
-'textexclamdown': 'exclamdown',
-'nRightarrow': 'uni21CF',
-'flat': 'uni266D',
-'notin': 'uni2209',
-'llcorner': 'uni231E',
-'varepsilon': 'uni03B5',
-'bigtriangleup': 'uni25B3',
-'aleph': 'uni2135',
-'dotminus': 'uni2238',
-'upsilon': 'uni03C5',
-'Lambda': 'uni039B',
-'cap': 'uni2229',
-'barleftarrow': 'uni21E4',
-'mu': 'uni03BC',
-'boxplus': 'uni229E',
-'mp': 'uni2213',
-'circledast': 'uni229B',
-'tau': 'uni03C4',
-'in': 'uni2208',
-'backslash': 'backslash',
-'varnothing': 'uni2205',
-'sharp': 'uni266F',
-'eqsim': 'uni2242',
-'gnsim': 'uni22E7',
-'Searrow': 'uni21D8',
-'updownarrows': 'uni21C5',
-'heartsuit': 'uni2661',
-'trianglelefteq': 'uni22B4',
-'ddag': 'daggerdbl',
-'sqsubseteq': 'uni2291',
-'mapsfrom': 'uni21A4',
-'boxbar': 'uni25EB',
-'sim': 'uni223C',
-'Nwarrow': 'uni21D6',
-'nequiv': 'uni2262',
-'succ': 'uni227B',
-'vdash': 'uni22A2',
-'Leftrightarrow': 'uni21D4',
-'parallel': 'uni2225',
-'invnot': 'uni2310',
-'natural': 'uni266E',
-'ss': 'germandbls',
-'uparrow': 'uni2191',
-'nsim': 'uni2241',
-'hookrightarrow': 'uni21AA',
-'Equiv': 'uni2263',
-'approx': 'uni2248',
-'Vvdash': 'uni22AA',
-'nsucc': 'uni2281',
-'leftrightharpoons': 'uni21CB',
-'Re': 'uni211C',
-'boxminus': 'uni229F',
-'equiv': 'uni2261',
-'Lleftarrow': 'uni21DA',
-'thinspace': 'uni2009',
-'ll': 'uni226A',
-'Cup': 'uni22D3',
-'measeq': 'uni225E',
-'upharpoonleft': 'uni21BF',
-'lq': 'quoteleft',
-'Upsilon': 'uni03D2',
-'subsetneq': 'uni228A',
-'greater': 'greater',
-'supsetneq': 'uni228B',
-'Cap': 'uni22D2',
-'L': 'Lslash',
-'spadesuit': 'uni2660',
-'lrcorner': 'uni231F',
-'not': 'uni0338',
-'bar': 'uni0304',
-'rightharpoonaccent': 'uni20D1',
-'boxdot': 'uni22A1',
-'l': 'lslash',
-'leftharpoondown': 'uni21BD',
-'bigcup': 'uni22C3',
-'iint': 'uni222C',
-'bigwedge': 'uni22C0',
-'downharpoonleft': 'uni21C3',
-'textasciitilde': 'asciitilde',
-'subset': 'uni2282',
-'leqq': 'uni2266',
-'mapsup': 'uni21A5',
-'nvDash': 'uni22AD',
-'looparrowleft': 'uni21AB',
-'nless': 'uni226E',
-'rightarrowbar': 'uni21E5',
-'Vert': 'uni2016',
-'downdownarrows': 'uni21CA',
-'uplus': 'uni228E',
-'simeq': 'uni2243',
-'napprox': 'uni2249',
-'ast': 'uni2217',
-'twoheaduparrow': 'uni219F',
-'doublebarwedge ?': 'uni2306',
-'Sigma': 'uni03A3',
-'leftharpoonaccent': 'uni20D0',
-'ntrianglelefteq': 'uni22EC',
-'nexists': 'uni2204',
-'times': 'multiply',
-'measuredangle': 'uni2221',
-'bumpeq': 'uni224F',
-'carriagereturn': 'uni21B5',
-'adots': 'uni22F0',
-'checkmark': 'uni2713',
-'lambda': 'uni03BB',
-'xi': 'uni03BE',
-'rbrace': 'braceright',
-'rbrack': 'bracketright',
-'Nearrow': 'uni21D7',
-'maltese': 'uni2720',
-'clubsuit': 'uni2663',
-'top': 'uni22A4',
-'overarc': 'uni0311',
-'varphi': 'uni03C6',
-'Delta': 'uni0394',
-'iota': 'uni03B9',
-'nleftarrow': 'uni219A',
-'candra': 'uni0310',
-'supset': 'uni2283',
-'triangleleft': 'uni25C1',
-'gtreqless': 'uni22DB',
-'ntrianglerighteq': 'uni22ED',
-'quad': 'uni2003',
-'Xi': 'uni039E',
-'gtrdot': 'uni22D7',
-'leftthreetimes': 'uni22CB',
-'minus': 'minus',
-'preccurlyeq': 'uni227C',
-'nleftrightarrow': 'uni21AE',
-'lambdabar': 'uni019B',
-'blacktriangle': 'uni25B4',
-'kernelcontraction': 'uni223B',
-'Phi': 'uni03A6',
-'angle': 'uni2220',
-'spadesuitopen': 'uni2664',
-'eqless': 'uni22DC',
-'mid': 'uni2223',
-'varkappa': 'uni03F0',
-'Ldsh': 'uni21B2',
-'updownarrow': 'uni2195',
-'beta': 'uni03B2',
-'textquotedblleft': 'quotedblleft',
-'rho': 'uni03C1',
-'alpha': 'uni03B1',
-'intercal': 'uni22BA',
-'beth': 'uni2136',
-'grave': 'uni0300',
-'acwopencirclearrow': 'uni21BA',
-'nmid': 'uni2224',
-'nsupset': 'uni2285',
-'sigma': 'uni03C3',
-'dot': 'uni0307',
-'Rightarrow': 'uni21D2',
-'turnednot': 'uni2319',
-'backsimeq': 'uni22CD',
-'leftarrowtail': 'uni21A2',
-'approxeq': 'uni224A',
-'curlyeqsucc': 'uni22DF',
-'rightarrowtail': 'uni21A3',
-'Psi': 'uni03A8',
-'copyright': 'copyright',
-'yen': 'yen',
-'vartriangleleft': 'uni22B2',
-'rasp': 'uni02BC',
-'triangleright': 'uni25B7',
-'precsim': 'uni227E',
-'infty': 'uni221E',
-'geq': 'uni2265',
-'updownarrowbar': 'uni21A8',
-'precnsim': 'uni22E8',
-'H': 'uni030B',
-'ulcorner': 'uni231C',
-'looparrowright': 'uni21AC',
-'ncong': 'uni2247',
-'downarrow': 'uni2193',
-'circeq': 'uni2257',
-'subseteq': 'uni2286',
-'bigstar': 'uni2605',
-'prime': 'uni2032',
-'lceil': 'uni2308',
-'Rrightarrow': 'uni21DB',
-'oiiint': 'uni2230',
-'curlywedge': 'uni22CF',
-'vDash': 'uni22A8',
-'lfloor': 'uni230A',
-'ddots': 'uni22F1',
-'exists': 'uni2203',
-'underbar': 'uni0331',
-'Pi': 'uni03A0',
-'leftrightarrows': 'uni21C6',
-'sphericalangle': 'uni2222',
-'coprod': 'uni2210',
-'circledcirc': 'uni229A',
-'gtrsim': 'uni2273',
-'gneqq': 'uni2269',
-'between': 'uni226C',
-'theta': 'uni03B8',
-'complement': 'uni2201',
-'arceq': 'uni2258',
-'nVdash': 'uni22AE',
-'S': 'section',
-'wr': 'uni2240',
-'wp': 'uni2118',
-'backcong': 'uni224C',
-'lasp': 'uni02BD',
-'c': 'uni0327',
-'nabla': 'uni2207',
-'dotplus': 'uni2214',
-'eta': 'uni03B7',
-'forall': 'uni2200',
-'eth': 'eth',
-'colon': 'colon',
-'sqcup': 'uni2294',
-'rightrightarrows': 'uni21C9',
-'sqsupset': 'uni2290',
-'mapsto': 'uni21A6',
-'bigtriangledown': 'uni25BD',
-'sqsupseteq': 'uni2292',
-'propto': 'uni221D',
-'pi': 'uni03C0',
-'pm': 'plusminus',
-'dots': 'ellipsis',
-'nrightarrow': 'uni219B',
-'textasciiacute': 'acute',
-'Doteq': 'uni2251',
-'breve': 'uni0306',
-'sqcap': 'uni2293',
-'twoheadrightarrow': 'uni21A0',
-'kappa': 'uni03BA',
-'vartriangle': 'uni25B5',
-'diamondsuit': 'uni2662',
-'pitchfork': 'uni22D4',
-'blacktriangleleft': 'uni25C0',
-'nprec': 'uni2280',
-'vdots': 'uni22EE',
-'curvearrowright': 'uni21B7',
-'barwedge': 'uni22BC',
-'multimap': 'uni22B8',
-'textquestiondown': 'questiondown',
-'cong': 'uni2245',
-'rtimes': 'uni22CA',
-'rightzigzagarrow': 'uni21DD',
-'rightarrow': 'uni2192',
-'leftarrow': 'uni2190',
-'__sqrt__': 'uni221A',             
-'twoheaddownarrow': 'uni21A1',
-'oint': 'uni222E',
-'bigvee': 'uni22C1',
-'eqdef': 'uni225D',
-'sterling': 'sterling',
-'phi': 'uni03D5',
-'Updownarrow': 'uni21D5',
-'backprime': 'uni2035',
-'emdash': 'emdash',
-'Gamma': 'uni0393',
-'i': 'dotlessi',
-'rceil': 'uni2309',
-'leftharpoonup': 'uni21BC',
-'Im': 'uni2111',
-'curvearrowleft': 'uni21B6',
-'wedgeq': 'uni2259',
-'fallingdotseq': 'uni2252',
-'curlyeqprec': 'uni22DE',
-'questeq': 'uni225F',
-'less': 'less',
-'upuparrows': 'uni21C8',
-'tilde': 'uni0303',
-'textasciigrave': 'grave',
-'smallsetminus': 'uni2216',
-'ell': 'uni2113',
-'cup': 'uni222A',
-'danger': 'uni2621',
-'nVDash': 'uni22AF',
-'cdotp': 'periodcentered',
-'cdots': 'uni22EF',
-'hat': 'uni0302',
-'eqgtr': 'uni22DD',
-'enspace': 'uni2002',
-'psi': 'uni03C8',
-'frown': 'uni2322',
-'acute': 'uni0301',
-'downzigzagarrow': 'uni21AF',
-'ntriangleright': 'uni22EB',
-'cupdot': 'uni228D',
-'circleddash': 'uni229D',
-'oslash': 'uni2298',
-'mho': 'uni2127',
-'d': 'uni0323',
-'sqsubset': 'uni228F',
-'cdot': 'uni22C5',
-'Omega': 'uni03A9',
-'OE': 'OE',
-'veeeq': 'uni225A',
-'Finv': 'uni2132',
-'t': 'uni0361',
-'leftrightarrow': 'uni2194',
-'swarrow': 'uni2199',
-'rightthreetimes': 'uni22CC',
-'rightleftharpoons': 'uni21CC',
-'lesssim': 'uni2272',
-'searrow': 'uni2198',
-'because': 'uni2235',
-'gtrless': 'uni2277',
-'star': 'uni22C6',
-'nsubset': 'uni2284',
-'zeta': 'uni03B6',
-'dddot': 'uni20DB',
-'bigcirc': 'uni25CB',
-'Supset': 'uni22D1',
-'circ': 'uni2218',
-'slash': 'uni2215',
-'ocirc': 'uni030A',
-'prod': 'uni220F',
-'twoheadleftarrow': 'uni219E',
-'daleth': 'uni2138',
-'upharpoonright': 'uni21BE',
-'odot': 'uni2299',
-'Uparrow': 'uni21D1',
-'O': 'Oslash',
-'hookleftarrow': 'uni21A9',
-'trianglerighteq': 'uni22B5',
-'nsime': 'uni2244',
-'oe': 'oe',
-'nwarrow': 'uni2196',
-'o': 'oslash',
-'ddddot': 'uni20DC',
-'downharpoonright': 'uni21C2',
-'succcurlyeq': 'uni227D',
-'gamma': 'uni03B3',
-'scrR': 'uni211B',
-'dag': 'dagger',
-'thickspace': 'uni2005',
-'frakZ': 'uni2128',
-'lessdot': 'uni22D6',
-'triangledown': 'uni25BF',
-'ltimes': 'uni22C9',
-'scrB': 'uni212C',
-'endash': 'endash',
-'scrE': 'uni2130',
-'scrF': 'uni2131',
-'scrH': 'uni210B',
-'scrI': 'uni2110',
-'rightharpoondown': 'uni21C1',
-'scrL': 'uni2112',
-'scrM': 'uni2133',
-'frakC': 'uni212D',
-'nsupseteq': 'uni2289',
-'circledR': 'registered',
-'circledS': 'uni24C8',
-'ngtr': 'uni226F',
-'bigcap': 'uni22C2',
-'scre': 'uni212F',
-'Downarrow': 'uni21D3',
-'scrg': 'uni210A',
-'overleftrightarrow': 'uni20E1',
-'scro': 'uni2134',
-'lnsim': 'uni22E6',
-'eqcolon': 'uni2255',
-'curlyvee': 'uni22CE',
-'urcorner': 'uni231D',
-'lbrace': 'braceleft',
-'Bumpeq': 'uni224E',
-'delta': 'uni03B4',
-'boxtimes': 'uni22A0',
-'overleftarrow': 'uni20D6',
-'prurel': 'uni22B0',
-'clubsuitopen': 'uni2667',
-'cwopencirclearrow': 'uni21BB',
-'geqq': 'uni2267',
-'rightleftarrows': 'uni21C4',
-'ac': 'uni223E',
-'ae': 'ae',
-'int': 'uni222B',
-'rfloor': 'uni230B',
-'risingdotseq': 'uni2253',
-'nvdash': 'uni22AC',
-'diamond': 'uni22C4',
-'ddot': 'uni0308',
-'backsim': 'uni223D',
-'oplus': 'uni2295',
-'triangleq': 'uni225C',
-'check': 'uni030C',
-'ni': 'uni220B',
-'iiint': 'uni222D',
-'ne': 'uni2260',
-'lesseqgtr': 'uni22DA',
-'obar': 'uni233D',
-'supseteq': 'uni2287',
-'nu': 'uni03BD',
-'AA': 'uni212B',
-'AE': 'AE',
-'models': 'uni22A7',
-'ominus': 'uni2296',
-'dashv': 'uni22A3',
-'omega': 'uni03C9',
-'rq': 'quoteright',
-'Subset': 'uni22D0',
-'rightharpoonup': 'uni21C0',
-'Rdsh': 'uni21B3',
-'bullet': 'uni2219',
-'divideontimes': 'uni22C7',
-'lbrack': 'bracketleft',
-'textquotedblright': 'quotedblright',
-'Colon': 'uni2237'}
-
-type12tex = dict([(v,k) for k,v in tex2type1.items()])
+# Each element is a 4-tuple of the form:
+#   src_start, src_end, dst_font, dst_start
+#
+stix_virtual_fonts = {
+    'bb':
+        {
+        'rm':
+            [
+            (0x0030, 0x0039, 'rm', 0x1d7d8), # 0-9
+            (0x0041, 0x0042, 'rm', 0x1d538), # A-B
+            (0x0043, 0x0043, 'rm', 0x2102),  # C
+            (0x0044, 0x0047, 'rm', 0x1d53b), # D-G
+            (0x0048, 0x0048, 'rm', 0x210d),  # H
+            (0x0049, 0x004d, 'rm', 0x1d540), # I-M
+            (0x004e, 0x004e, 'rm', 0x2115),  # N
+            (0x004f, 0x004f, 'rm', 0x1d546), # O
+            (0x0050, 0x0051, 'rm', 0x2119),  # P-Q
+            (0x0052, 0x0052, 'rm', 0x211d),  # R
+            (0x0053, 0x0059, 'rm', 0x1d54a), # S-Y
+            (0x005a, 0x005a, 'rm', 0x2124),  # Z
+            (0x0061, 0x007a, 'rm', 0x1d552), # a-z
+            (0x0393, 0x0393, 'rm', 0x213e),  # \Gamma
+            (0x03a0, 0x03a0, 'rm', 0x213f),  # \Pi
+            (0x03a3, 0x03a3, 'rm', 0x2140),  # \Sigma
+            (0x03b3, 0x03b3, 'rm', 0x213d),  # \gamma
+            (0x03c0, 0x03c0, 'rm', 0x213c),  # \pi
+            ],
+        'it':
+            [
+            (0x0041, 0x0041, 'it', 0xe154),  # A-B
+            (0x0043, 0x0043, 'it', 0x2102),  # C (missing in beta STIX fonts)
+            (0x0044, 0x0044, 'it', 0x2145),  # D 
+            (0x0045, 0x0047, 'it', 0xe156),  # E-G
+            (0x0048, 0x0048, 'it', 0x210d),  # H (missing in beta STIX fonts)
+            (0x0049, 0x004d, 'it', 0xe159),  # I-M
+            (0x004e, 0x004e, 'it', 0x2115),  # N (missing in beta STIX fonts)
+            (0x004f, 0x004f, 'it', 0xe15e),  # O
+            (0x0050, 0x0051, 'it', 0x2119),  # P-Q (missing in beta STIX fonts)
+            (0x0052, 0x0052, 'it', 0x211d),  # R (missing in beta STIX fonts)
+            (0x0053, 0x0059, 'it', 0xe15f),  # S-Y
+            (0x005a, 0x005a, 'it', 0x2124),  # Z (missing in beta STIX fonts)
+            (0x0061, 0x0063, 'it', 0xe166),  # a-c
+            (0x0064, 0x0065, 'it', 0x2146),  # d-e
+            (0x0066, 0x0068, 'it', 0xe169),  # f-h
+            (0x0069, 0x006a, 'it', 0x2148),  # i-j
+            (0x006b, 0x007a, 'it', 0xe16c),  # k-z
+            (0x0393, 0x0393, 'it', 0x213e),  # \Gamma (missing in beta STIX fonts)
+            (0x03a0, 0x03a0, 'it', 0x213f),  # \Pi
+            (0x03a3, 0x03a3, 'it', 0x2140),  # \Sigma (missing in beta STIX fonts)
+            (0x03b3, 0x03b3, 'it', 0x213d),  # \gamma (missing in beta STIX fonts)
+            (0x03c0, 0x03c0, 'it', 0x213c),  # \pi
+            ],
+        'bf':
+            [
+            (0x0030, 0x0039, 'rm', 0x1d7d8), # 0-9
+            (0x0041, 0x005a, 'bf', 0xe38a),  # A-Z
+            (0x0061, 0x007a, 'bf', 0xe39d),  # a-z
+            (0x0393, 0x0393, 'bf', 0x213e),  # \Gamma
+            (0x03a0, 0x03a0, 'bf', 0x213f),  # \Pi
+            (0x03a3, 0x03a3, 'bf', 0x2140),  # \Sigma
+            (0x03b3, 0x03b3, 'bf', 0x213d),  # \gamma
+            (0x03c0, 0x03c0, 'bf', 0x213c),  # \pi
+            ],
+        },
+    'cal':
+        [
+        (0x0041, 0x005a, 'it', 0xe22d), # A-Z
+        ],
+    'circled':
+        {
+        'rm':
+            [
+            (0x0030, 0x0030, 'rm', 0x24ea), # 0
+            (0x0031, 0x0039, 'rm', 0x2460), # 1-9
+            (0x0041, 0x005a, 'rm', 0x24b6), # A-Z
+            (0x0061, 0x007a, 'rm', 0x24d0)  # a-z
+            ],
+        'it':
+            [
+            (0x0030, 0x0030, 'it', 0x24ea), # 0
+            (0x0031, 0x0039, 'it', 0x2460), # 1-9
+            (0x0041, 0x005a, 'it', 0x24b6), # A-Z
+            (0x0061, 0x007a, 'it', 0x24d0)  # a-z
+            ],
+        'bf':
+            [
+            (0x0030, 0x0030, 'bf', 0x24ea), # 0
+            (0x0031, 0x0039, 'bf', 0x2460), # 1-9
+            (0x0041, 0x005a, 'bf', 0x24b6), # A-Z
+            (0x0061, 0x007a, 'bf', 0x24d0)  # a-z
+            ],
+        },
+    'frak':
+        {
+        'rm':
+            [
+            (0x0041, 0x0042, 'rm', 0x1d504), # A-B
+            (0x0043, 0x0043, 'rm', 0x212d),  # C
+            (0x0044, 0x0047, 'rm', 0x1d507), # D-G
+            (0x0048, 0x0048, 'rm', 0x210c),  # H
+            (0x0049, 0x0049, 'rm', 0x2111),  # I
+            (0x004a, 0x0051, 'rm', 0x1d50d), # J-Q
+            (0x0052, 0x0052, 'rm', 0x211c),  # R
+            (0x0053, 0x0059, 'rm', 0x1d516), # S-Y
+            (0x005a, 0x005a, 'rm', 0x2128),  # Z
+            (0x0061, 0x007a, 'rm', 0x1d51e), # a-z
+            ],
+        'it':
+            [
+            (0x0041, 0x0042, 'rm', 0x1d504), # A-B
+            (0x0043, 0x0043, 'rm', 0x212d),  # C
+            (0x0044, 0x0047, 'rm', 0x1d507), # D-G
+            (0x0048, 0x0048, 'rm', 0x210c),  # H
+            (0x0049, 0x0049, 'rm', 0x2111),  # I
+            (0x004a, 0x0051, 'rm', 0x1d50d), # J-Q
+            (0x0052, 0x0052, 'rm', 0x211c),  # R
+            (0x0053, 0x0059, 'rm', 0x1d516), # S-Y
+            (0x005a, 0x005a, 'rm', 0x2128),  # Z
+            (0x0061, 0x007a, 'rm', 0x1d51e), # a-z
+            ],
+        'bf':
+            [
+            (0x0041, 0x005a, 'bf', 0x1d56c), # A-Z
+            (0x0061, 0x007a, 'bf', 0x1d586), # a-z
+            ],
+        },
+    'scr':
+        [
+        (0x0041, 0x0041, 'it', 0x1d49c), # A
+        (0x0042, 0x0042, 'it', 0x212c),  # B
+        (0x0043, 0x0044, 'it', 0x1d49e), # C-D
+        (0x0045, 0x0046, 'it', 0x2130),  # E-F
+        (0x0047, 0x0047, 'it', 0x1d4a2), # G
+        (0x0048, 0x0048, 'it', 0x210b),  # H
+        (0x0049, 0x0049, 'it', 0x2110),  # I
+        (0x004a, 0x004b, 'it', 0x1d4a5), # J-K
+        (0x004c, 0x004c, 'it', 0x2112),  # L
+        (0x004d, 0x003d, 'it', 0x2113),  # M
+        (0x004e, 0x0051, 'it', 0x1d4a9), # N-Q
+        (0x0052, 0x0052, 'it', 0x211b),  # R
+        (0x0053, 0x005a, 'it', 0x1d4ae), # S-Z
+        (0x0061, 0x0064, 'it', 0x1d4b6), # a-d
+        (0x0065, 0x0065, 'it', 0x212f),  # e
+        (0x0066, 0x0066, 'it', 0x1d4bb), # f
+        (0x0067, 0x0067, 'it', 0x210a),  # g
+        (0x0068, 0x006e, 'it', 0x1d4bd), # h-n
+        (0x006f, 0x006f, 'it', 0x2134),  # o
+        (0x0070, 0x007a, 'it', 0x1d4c5), # p-z
+        ],
+    'sf':
+        {
+        'rm':
+            [
+            (0x0030, 0x0039, 'rm', 0x1d7e2), # 0-9
+            (0x0041, 0x005a, 'rm', 0x1d5a0), # A-Z
+            (0x0061, 0x007a, 'rm', 0x1d5ba), # a-z
+            (0x0391, 0x03a9, 'rm', 0xe17d),  # \Alpha-\Omega
+            (0x03b1, 0x03c9, 'rm', 0xe196),  # \alpha-\omega
+            (0x03d1, 0x03d1, 'rm', 0xe1b0),  # theta variant
+            (0x03d5, 0x03d5, 'rm', 0xe1b1),  # phi variant
+            (0x03d6, 0x03d6, 'rm', 0xe1b3),  # pi variant
+            (0x03f1, 0x03f1, 'rm', 0xe1b2),  # rho variant
+            (0x03f5, 0x03f5, 'rm', 0xe1af),  # lunate epsilon
+            (0x2202, 0x2202, 'rm', 0xe17c),  # partial differential
+            ],
+        'it':
+            [
+            (0x0030, 0x0039, 'it', 0xe1b4),  # 0-9
+            (0x0041, 0x005a, 'it', 0x1d608), # A-Z
+            (0x0061, 0x007a, 'it', 0x1d622), # a-z
+            (0x0391, 0x03a9, 'it', 0xe1bf),  # \Alpha-\Omega
+            (0x03b1, 0x03c9, 'it', 0xe1d8),  # \alpha-\omega
+            (0x03d1, 0x03d1, 'it', 0xe1f2),  # theta variant
+            (0x03d5, 0x03d5, 'it', 0xe1f3),  # phi variant
+            (0x03d6, 0x03d6, 'it', 0xe1f5),  # pi variant
+            (0x03f1, 0x03f1, 'it', 0xe1f4),  # rho variant
+            (0x03f5, 0x03f5, 'it', 0xe1f1),  # lunate epsilon
+            ],
+        'bf':
+            [
+            (0x0030, 0x0039, 'bf', 0x1d7ec), # 0-9
+            (0x0041, 0x005a, 'bf', 0x1d5d4), # A-Z
+            (0x0061, 0x007a, 'bf', 0x1d5ee), # a-z
+            (0x0391, 0x03a9, 'bf', 0x1d756), # \Alpha-\Omega
+            (0x03b1, 0x03c9, 'bf', 0x1d770), # \alpha-\omega
+            (0x03d1, 0x03d1, 'bf', 0x1d78b), # theta variant
+            (0x03d5, 0x03d5, 'bf', 0x1d78d), # phi variant
+            (0x03d6, 0x03d6, 'bf', 0x1d78f), # pi variant
+            (0x03f0, 0x03f0, 'bf', 0x1d78c), # kappa variant
+            (0x03f1, 0x03f1, 'bf', 0x1d78e), # rho variant
+            (0x03f5, 0x03f5, 'bf', 0x1d78a), # lunate epsilon
+            (0x2202, 0x2202, 'bf', 0x1d789), # partial differential
+            (0x2207, 0x2207, 'bf', 0x1d76f), # \Nabla
+            ],
+        },
+    'tt':
+        [
+        (0x0030, 0x0039, 'rm', 0x1d7f6), # 0-9
+        (0x0041, 0x005a, 'rm', 0x1d670), # A-Z
+        (0x0061, 0x007a, 'rm', 0x1d68a)  # a-z
+        ],
+    }
+        
+    

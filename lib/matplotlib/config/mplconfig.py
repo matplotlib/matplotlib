@@ -166,7 +166,7 @@ class MPLConfig(TConfig):
         it  = T.Trait('serif:oblique' , mplT.FontconfigPatternHandler())
         bf  = T.Trait('serif:bold'    , mplT.FontconfigPatternHandler())
         sf  = T.Trait('sans'          , mplT.FontconfigPatternHandler())
-        fontset = T.Trait('cm', 'cm', 'stix', 'custom')
+        fontset = T.Trait('cm', 'cm', 'stix', 'stixsans', 'custom')
         fallback_to_cm = T.true
 
     class axes(TConfig):

@@ -203,7 +203,7 @@ def validate_font_properties(s):
     parse_fontconfig_pattern(s)
     return s
 
-validate_fontset = ValidateInStrings('fontset', ['cm', 'stix', 'custom'])
+validate_fontset = ValidateInStrings('fontset', ['cm', 'stix', 'stixsans', 'custom'])
 
 validate_verbose = ValidateInStrings('verbose',[
     'silent', 'helpful', 'debug', 'debug-annoying',
