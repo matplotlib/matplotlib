@@ -184,7 +184,7 @@ class RendererSVG(RendererBase):
             im.write_png(filename)
             im.flipud_out()
 
-            imfile = file (filename, 'r')
+            imfile = file (filename, 'rb')
             image64 = base64.encodestring (imfile.read())
             imfile.close()
             os.remove(filename)
