@@ -1,3 +1,25 @@
+2007-11-12 Added support for STIX fonts.  A new rcParam,
+	   mathtext.fontset, can be used to choose between: 
+           
+	   'cm':
+	     The TeX/LaTeX Computer Modern fonts 
+
+	   'stix': 
+	     The STIX fonts (see stixfonts.org)
+
+	   'stixsans': 
+	     The STIX fonts, using sans-serif glyphs by default 
+
+	   'custom': 
+	     A generic Unicode font, in which case the mathtext font
+	     must be specified using mathtext.bf, mathtext.it,
+	     mathtext.sf etc.
+            
+	   Added a new example, stix_fonts_demo.py to show how to access
+	   different fonts and unusual symbols.
+	    
+           - MGD
+
 2007-11-12 Options to disable building backend extension modules moved 
            from setup.py to setup.cfg - DSD
 
