@@ -1,4 +1,3 @@
-    Moved mlab.csv2rec -> recutils.csv2rec
 
     Added ax kwarg to pyplot.colorbar and Figure.colorbar so that
     one can specify the axes object from which space for the colorbar

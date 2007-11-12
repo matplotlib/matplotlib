@@ -4798,6 +4798,39 @@ class Axes(martist.Artist):
         return mtable.table(self, **kwargs)
     table.__doc__ = cbook.dedent(table.__doc__) % martist.kwdocd
 
+    def twinx(self):
+        """
+        ax = twinx()
+
+        create a twin of Axes for generating a plot with a sharex
+        x-axis but independent y axis.  The y-axis of self will have
+        ticks on left and the returned axes will have ticks on the
+        right
+        """
+
+        ax2 = self.figure.add_axes(self.get_position(), sharex=self, frameon=False)
+        ax2.yaxis.tick_right()
+        ax2.yaxis.set_label_position('right')
+        self.yaxis.tick_left()
+        return ax2
+
+    def twiny(self):
+        """
+        ax = twiny()
+
+        create a twin of Axes for generating a plot with a shared
+        y-axis but independent x axis.  The x-axis of self will have
+        ticks on bottom and the returned axes will have ticks on the
+        top
+        """
+        
+        ax2 = self.figure.add_axes(self.get_position(), sharey=self, frameon=False)
+        ax2.xaxis.tick_top()
+        ax2.xaxis.set_label_position('top')
+        self.xaxis.tick_bottom()
+        return ax2
+    
+
     #### Data analysis
 
 
