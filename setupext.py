@@ -97,38 +97,64 @@ AGG_VERSION = 'agg23'
 # for nonstandard installation/build with --prefix variable
 numpy_inc_dirs = []
 
-# Based on the contents of setup.cfg, determine if the status block
-# should be displayed, if missing external packages should be provided
-display_status = True
-provide_pytz = True
-provide_dateutil = True
-provide_configobj = True
-provide_traits = True
+# matplotlib build options, which can be altered using setup.cfg
+options = {'display_status': True, 
+           'provide_pytz': 'auto', 
+           'provide_dateutil': 'auto', 
+           'provide_configobj': 'auto', 
+           'provide_traits': 'auto', 
+           'build_agg': True, 
+           'build_gtk': 'auto', 
+           'build_gtkagg': 'auto', 
+           'build_tkagg': 'auto', 
+           'build_wxagg': 'auto', 
+           'build_image': True, 
+           'build_windowing': True, 
+           'backend': None, 
+           'numerix': None}
+
+# Based on the contents of setup.cfg, determine the build options
 if os.path.exists("setup.cfg"):
     config = ConfigParser.SafeConfigParser()
     config.read("setup.cfg")
-    try:
-        display_status = not config.getboolean("status", "suppress")
-    except:
-        pass
-    try:
-        provide_pytz = config.getboolean("provide_packages", "pytz")
-    except:
-        pass
-    try:
-        provide_dateutil = config.getboolean("provide_packages", "dateutil")
-    except:
-        pass
-    try:
-        provide_configobj = config.getboolean("provide_packages", "configobj")
-    except:
-        pass
-    try:
-        provide_traits = config.getboolean("provide_packages", "enthought.traits")
-    except:
-        pass
+    try: options['display_status'] = not config.getboolean("status", "suppress")
+    except: pass
 
-if display_status:
+    try: options['provide_pytz'] = config.getboolean("provide_packages", "pytz")
+    except: options['provide_pytz'] = 'auto'
+
+    try: options['provide_dateutil'] = config.getboolean("provide_packages",
+                                                         "dateutil")
+    except: options['provide_dateutil'] = 'auto'
+
+    try: options['provide_configobj'] = config.getboolean("provide_packages",
+                                                          "configobj")
+    except: options['provide_configobj'] = 'auto'
+
+    try: options['provide_traits'] = config.getboolean("provide_packages",
+                                                       "enthought.traits")
+    except: options['provide_traits'] = 'auto'
+
+    try: options['build_gtk'] = config.getboolean("gui_support", "gtk")
+    except: options['build_gtk'] = 'auto'
+
+    try: options['build_gtkagg'] = config.getboolean("gui_support", "gtkagg")
+    except: options['build_gtkagg'] = 'auto'
+
+    try: options['build_tkagg'] = config.getboolean("gui_support", "tkagg")
+    except: options['build_tkagg'] = 'auto'
+
+    try: options['build_wxagg'] = config.getboolean("gui_support", "wxagg")
+    except: options['build_wxagg'] = 'auto'
+
+    try: options['backend'] = config.get("rc_options", "backend")
+    except: pass
+
+    try: options['numerix'] = config.get("rc_options", "numerix")
+    except: pass
+
+
+if options['display_status']:
     def print_line(char='='):
         print char * 76
 
@@ -356,24 +382,34 @@ def check_for_datetime():
         return True
 
 def check_provide_pytz(hasdatetime=True):
+    if hasdatetime and (options['provide_pytz'] is True):
+        print_status("pytz", "matplotlib will provide")
+        return True
     try:
         import pytz
     except ImportError:
-        if hasdatetime and provide_pytz:
+        if hasdatetime and options['provide_pytz']:
             print_status("pytz", "matplotlib will provide")
             return True
         else:
             print_status("pytz", "no")
             return False
     else:
-        print_status("pytz", pytz.__version__)
-        return False
+        if pytz.__version__.endswith('mpl'):
+            print_status("pytz", "matplotlib will provide")
+            return True
+        else:
+            print_status("pytz", pytz.__version__)
+            return False
 
 def check_provide_dateutil(hasdatetime=True):
+    if hasdatetime and (options['provide_dateutil'] is True):
+        print_status("dateutil", "matplotlib will provide")
+        return True
     try:
         import dateutil
     except ImportError:
-        if hasdatetime and provide_dateutil:
+        if hasdatetime and options['provide_dateutil']:
             print_status("dateutil", "matplotlib will provide")
             return True
         else:
@@ -381,26 +417,41 @@ def check_provide_dateutil(hasdatetime=True):
             return False
     else:
         try:
-            print_status("dateutil", dateutil.__version__)
+            if dateutil.__version__.endswith('mpl'):
+                print_status("dateutil", "matplotlib will provide")
+                return True
+            else:
+                print_status("dateutil", dateutil.__version__)
+                return False
         except AttributeError:
             print_status("dateutil", "present, version unknown")
-        return False
+            return False
 
 def check_provide_configobj():
+    if options['provide_configobj'] is True:
+        print_status("configobj", "matplotlib will provide")
+        return True
     try:
         import configobj
     except ImportError:
-        if provide_configobj:
+        if options['provide_configobj']:
             print_status("configobj", "matplotlib will provide")
             return True
         else:
             print_status("configobj", "no")
             return False
     else:
-        print_status("configobj", configobj.__version__)
-        return False
+        if configobj.__version__.endswith('mpl'):
+            print_status("configobj", "matplotlib will provide")
+            return True
+        else:
+            print_status("configobj", configobj.__version__)
+            return False
 
 def check_provide_traits():
+    if options['provide_traits'] is True:
+        print_status("enthought.traits", "matplotlib will provide")
+        return True
     try:
         from enthought import traits
         try:
@@ -416,7 +467,7 @@ def check_provide_traits():
                 print_status("enthought.traits", version.version)
                 return False
     except ImportError:
-        if provide_traits:
+        if options['provide_traits']:
             print_status("enthought.traits", "matplotlib will provide")
             return True
         else:

@@ -3,72 +3,17 @@ You will need to have freetype, libpng and zlib installed to compile
 matplotlib, inlcuding the *-devel versions of these libraries if you
 are using a package manager like RPM or debian.
 
-matplotlib has added some extension module code which can optionally
-be built by setting the appropriate flag below.
-
-The GTKAgg and TkAgg will try to build if they detect pygtk or Tkinter
-respectively; set them to 0 if you do not want to build them
+The matplotlib build options can be modified with a setup.cfg file. See
+setup.cfg.template for more information.
 """
-
-
-rc = {'backend':'PS', 'numerix':'numpy'}
-
-# build the image support module - requires agg.  By default, matplotlib will 
-# build support for whatever array packages you have installed.
-BUILD_IMAGE = 1
-
-
-# build a small extension to manage the focus on win32 platforms.
-#BUILD_WINDOWING        = 0
-BUILD_WINDOWING        = 'auto'
 
 
 VERBOSE = False # insert lots of diagnostic prints in extension code
 
-
-
-
-## You shouldn't need to customize below this point
-import ConfigParser
-import os
-
-# Build the antigrain geometry toolkit.  Agg makes heavy use of
-# templates, so it probably requires a fairly recent compiler to build
-# it.  It makes very nice antialiased output and also supports alpha
-# blending
-BUILD_AGG          = 1
-BUILD_GTKAGG       = 1
-BUILD_GTK          = 1
-
-# build TK GUI with Agg renderer ; requires Tkinter Python extension
-# and Tk includes
-# Use False or 0 if you don't want to build
-BUILD_TKAGG        = 'auto'
-
-
-# build wxPython extension code to efficiently blit agg into wx.  Only
-# needed for wxpython <2.8 if you plan on doing animations
-BUILD_WXAGG        = 1
-
-if os.path.exists("setup.cfg"):
-    config = ConfigParser.SafeConfigParser()
-    config.read("setup.cfg")
-    try:
-        BUILD_GTK = config.getboolean("gui_support", "gtk")
-    except:
-        pass
-    try:
-        BUILD_GTKAGG = config.getboolean("gui_support", "gtkagg")
-    except:
-        pass
-    try:
-        BUILD_TKAGG = config.getboolean("gui_support", "tkagg")
-    except:
-        pass
-    try:
-        BUILD_WXAGG = config.getboolean("gui_support", "wxagg")
-    except:
-        pass
+# This dict will be updated as we try to select the best option during
+# the build process. However, values in setup.cfg will be used, if 
+# defined.
+rc = {'backend':'Agg', 'numerix':'numpy'}
 
 
 # BEFORE importing disutils, remove MANIFEST. distutils doesn't properly
@@ -106,7 +51,7 @@ from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      check_for_cairo, check_provide_traits, check_provide_pytz, \
      check_provide_dateutil, check_provide_configobj, check_for_dvipng, \
      check_for_ghostscript, check_for_latex, check_for_pdftops, \
-     check_for_datetime
+     check_for_datetime, options
 #import distutils.sysconfig
 
 # jdh
@@ -126,12 +71,6 @@ packages = [
 py_modules = ['pylab']
 
 ext_modules = []
-
-# these are not optional
-BUILD_FT2FONT = 1
-BUILD_TTCONV  = 1
-BUILD_CONTOUR = 1
-BUILD_NXUTILS = 1
 
 for line in file('lib/matplotlib/__init__.py').readlines():
     if (line.startswith('__version__')):
@@ -166,16 +105,6 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
 if not check_for_numpy():
     sys.exit()
 
-# The NUMERIX variable (a list) is left over from the days when it had
-# a string for each of the supported backends. Now there is only one
-# supported backend, so this approach could (should?) get changed for
-# simplicity.
-
-import numpy
-NUMERIX = ['numpy']
-
-rc['numerix'] = NUMERIX[-1]
-
 try: import subprocess
 except ImportError: havesubprocess = False
 else: havesubprocess = True
@@ -196,15 +125,10 @@ if not havesubprocess:
 if not check_for_freetype():
     sys.exit(1)
     
-if BUILD_FT2FONT:
-    build_ft2font(ext_modules, packages)
-
-if BUILD_TTCONV:
-    build_ttconv(ext_modules, packages)
-
-if 1:  # I don't think we need to make these optional
-    build_contour(ext_modules, packages)
-    build_nxutils(ext_modules, packages)
+build_ft2font(ext_modules, packages)
+build_ttconv(ext_modules, packages)
+build_contour(ext_modules, packages)
+build_nxutils(ext_modules, packages)
 
 build_swigagg(ext_modules, packages)
 build_transforms(ext_modules, packages)
@@ -212,45 +136,53 @@ build_transforms(ext_modules, packages)
 print_raw("")
 print_raw("OPTIONAL BACKEND DEPENDENCIES")
 
-if check_for_gtk() and (BUILD_GTK or BUILD_GTKAGG):
-    if BUILD_GTK:
+
+# the options can be True, False, or 'auto'. If True, try to build
+# regardless of the lack of dependencies. If auto, silently skip 
+# when dependencies are missing.
+hasgtk = check_for_gtk()
+if options['build_gtk']:
+    if hasgtk or (options['build_gtk'] is True):
         build_gdk(ext_modules, packages)
         rc['backend'] = 'GTK'
-    if BUILD_GTKAGG:
-        BUILD_AGG = 1
+if options['build_gtkagg']:
+    if hasgtk or (options['build_gtkagg'] is True):
+        options['build_agg'] = 1
         build_gtkagg(ext_modules, packages)
         rc['backend'] = 'GTKAgg'
 
-if check_for_tk() and BUILD_TKAGG:
-    BUILD_AGG = 1
-    build_tkagg(ext_modules, packages)
-    rc['backend'] = 'TkAgg'
+if options['build_tkagg']:
+    if check_for_tk() or (options['build_tkagg'] is True):
+        options['build_agg'] = 1
+        build_tkagg(ext_modules, packages)
+        rc['backend'] = 'TkAgg'
 
-explanation = None
-if check_for_wx() and BUILD_WXAGG:
-    BUILD_AGG = 1
-    import wx
-    if getattr(wx, '__version__', '0.0')[0:3] < '2.8':
-        build_wxagg(ext_modules, packages)
-        wxagg_backend_status = "yes"
-    else:
-        print_message("WxAgg extension not required for wxPython >= 2.8")
-    rc['backend'] = 'WXAgg'
+if options['build_wxagg']:
+    if check_for_wx() or (options['build_wxagg'] is True):
+        options['build_agg'] = 1
+        import wx
+        if getattr(wx, '__version__', '0.0')[0:3] < '2.8' :
+            build_wxagg(ext_modules, packages)
+            wxagg_backend_status = "yes"
+        else:
+            print_message("WxAgg extension not required for wxPython >= 2.8")
+        rc['backend'] = 'WXAgg'
 
-# These are informational only.  We don't build
-# any extensions for them.
+# These are informational only.  We don't build any extensions for them.
 check_for_qt()
 check_for_qt4()
 check_for_cairo()
     
-if check_for_libpng() and BUILD_AGG:
+if check_for_libpng() and options['build_agg']:
     build_agg(ext_modules, packages)
-    if rc['backend'] == 'PS': rc['backend'] = 'Agg'
+    rc['backend'] = 'Agg'
+else:
+    rc['backend'] = 'SVG'
 
-if BUILD_WINDOWING and sys.platform=='win32':
+if options['build_windowing'] and sys.platform=='win32':
    build_windowing(ext_modules, packages)
 
-if BUILD_IMAGE:
+if options['build_image']:
     build_image(ext_modules, packages)
 
 for mod in ext_modules:
@@ -314,12 +246,13 @@ print_raw("")
 print_raw("[Edit setup.cfg to suppress the above messages]")
 print_line()
 
-# packagers: set rc['numerix'] and rc['backend'] here to override the auto
-# defaults, eg
-#rc['numerix'] = numpy
-#rc['backend'] = 'GTKAgg'
+# Write the default matplotlibrc file
 if sys.platform=='win32':
-    rc = dict(backend='TkAgg', numerix='numpy')
+    rc['backend'] = 'TkAgg'
+    rc['numerix'] = 'numpy'
+else:
+    if options['backend']: rc['backend'] = options['backend']
+    if options['numerix']: rc['numerix'] = options['numerix']
 template = file('matplotlibrc.template').read()
 file('lib/matplotlib/mpl-data/matplotlibrc', 'w').write(template%rc)
 

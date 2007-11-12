@@ -13,7 +13,11 @@ tag_svn_revision = 1
 [provide_packages]
 # By default, matplotlib checks for a few dependencies and 
 # installs them if missing. This feature can be turned off 
-# by uncommenting the following lines:
+# by uncommenting the following lines. Acceptible values are:
+#     True: install, overwrite an existing installation
+#     False: do not install
+#     auto: install only if the package is unavailable. This 
+#           is the default behavior
 #
 ## Date/timezone support:
 #pytz = False
@@ -40,8 +44,34 @@ tag_svn_revision = 1
 # installed on your system.
 # 
 # You can uncomment any the following lines if you know you do
-# not want to use the GUI toolkit.
+# not want to use the GUI toolkit. Acceptible values are:
+#     True: build the extension. Exits with a warning if the 
+#           required dependencies are not available
+#     False: do not build the extension
+#     auto: build if the required dependencies are available,
+#           otherwise skip silently. This is the default 
+#           behavior
+#
 #gtk = False
 #gtkagg = False
 #tkagg = False
 #wxagg = False
+
+[rc_options]
+# User-configurable options
+#
+# Default backend, one of: Agg, Cairo, CocoaAgg, GTK, GTKAgg, 
+# GTKCairo, FltkAgg, QtAgg, Qt4Agg, SVG, TkAgg, WX, WXAgg. 
+# Only the Agg and SVG backends do not require external 
+# dependencies. Do not choose GTK, GTKAgg, GTKCairo, TkAgg or 
+# WXAgg if you have disabled the relevent extension modules.
+# Agg will be used by default.
+#backend = Agg
+#
+# The numerix module was historically used to provide 
+# compatibility between the Numeric, numarray, and NumPy array
+# packages. Now that NumPy has emerge as the universal array 
+# package for python, numerix is not really necessary and is 
+# maintained to provide backward compatibility. Do not change 
+# this unless you have a compelling reason to do so.
+#numerix = numpy
