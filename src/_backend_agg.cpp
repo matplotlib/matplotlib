@@ -2256,6 +2256,21 @@ RendererAgg::write_rgba(const Py::Tuple& args) {
   
 }
 
+static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t length) {
+  PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
+  PyObject* write_method = PyObject_GetAttrString(py_file_obj, "write");
+  PyObject_CallFunction(write_method, "s#", data, length);
+    
+  // MGDTODO: Check NULL on failure
+}
+
+static void flush_png_data(png_structp png_ptr) {
+  PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
+  PyObject* flush_method = PyObject_GetAttrString(py_file_obj, "write");
+  if (flush_method) {
+    PyObject_CallFunction(flush_method, "");
+  }
+}
 
 // this code is heavily adapted from the paint license, which is in
 // the file paint.license (BSD compatible) included in this
@@ -2267,97 +2282,96 @@ RendererAgg::write_png(const Py::Tuple& args)
   
   args.verify_length(1, 2);
   
-  FILE *fp;
-  Py::Object o = Py::Object(args[0]);
-  bool fpclose = true;
-  if (o.isString()) {
-    std::string fileName = Py::String(o);
+  FILE *fp = NULL;
+  Py::Object py_fileobj = Py::Object(args[0]);
+  if (py_fileobj.isString()) {
+    std::string fileName = Py::String(py_fileobj);
     const char *file_name = fileName.c_str();
     if ((fp = fopen(file_name, "wb")) == NULL)
       throw Py::RuntimeError( Printf("Could not open file %s", file_name).str() );
   }
   else {
-    if ((fp = PyFile_AsFile(o.ptr())) == NULL)
-      throw Py::TypeError("Could not convert object to file pointer");
-    fpclose = false;
+    if ((fp = PyFile_AsFile(py_fileobj.ptr())) == NULL) {
+      PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(), "write");
+      if (!(write_method && PyCallable_Check(write_method)))
+	throw Py::TypeError("Object does not appear to be a Python file-like object");
+    }
   }
-  
-  png_structp png_ptr;
-  png_infop info_ptr;
-  struct        png_color_8_struct sig_bit;
-  png_uint_32 row;
-  
-  png_bytep *row_pointers = new png_bytep[height];
-  for (row = 0; row < height; ++row) {
-    row_pointers[row] = pixBuffer + row * width * 4;
-  }
-  
-  
-  if (fp == NULL) {
-    delete [] row_pointers;
-    throw Py::RuntimeError("Could not open file");
-  }
-  
-  
-  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-  if (png_ptr == NULL) {
-    if (fpclose) fclose(fp);
-    delete [] row_pointers;
-    throw Py::RuntimeError("Could not create write struct");
-  }
-  
-  info_ptr = png_create_info_struct(png_ptr);
-  if (info_ptr == NULL) {
-    if (fpclose) fclose(fp);
-    png_destroy_write_struct(&png_ptr, &info_ptr);
-    delete [] row_pointers;
-    throw Py::RuntimeError("Could not create info struct");
-  }
-  
-  if (setjmp(png_ptr->jmpbuf)) {
-    if (fpclose) fclose(fp);
-    png_destroy_write_struct(&png_ptr, &info_ptr);
-    delete [] row_pointers;
-    throw Py::RuntimeError("Error building image");
-  }
-  
-  png_init_io(png_ptr, fp);
-  png_set_IHDR(png_ptr, info_ptr,
-	       width, height, 8,
-	       PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
-	       PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
-  // Save the dpi of the image in the file
-  if (args.size() == 2) {
-    double dpi = Py::Float(args[1]);
-    size_t dots_per_meter = (size_t)(dpi / (2.54 / 100.0));
-    png_set_pHYs(png_ptr, info_ptr, dots_per_meter, dots_per_meter, PNG_RESOLUTION_METER);
+  png_bytep *row_pointers = NULL;
+  png_structp png_ptr = NULL;
+  png_infop info_ptr = NULL;
+  
+  try {
+    struct        png_color_8_struct sig_bit;
+    png_uint_32 row;
+    
+    row_pointers = new png_bytep[height];
+    for (row = 0; row < height; ++row) {
+      row_pointers[row] = pixBuffer + row * width * 4;
+    }
+  
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (png_ptr == NULL) {
+      throw Py::RuntimeError("Could not create write struct");
+    }
+  
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == NULL) {
+      throw Py::RuntimeError("Could not create info struct");
+    }
+  
+    if (setjmp(png_ptr->jmpbuf)) {
+      throw Py::RuntimeError("Error building image");
+    }
+  
+    if (fp) {
+      png_init_io(png_ptr, fp);
+    } else {
+      png_set_write_fn(png_ptr, (void*)py_fileobj.ptr(), 
+		       &write_png_data, &flush_png_data);
+    }
+    png_set_IHDR(png_ptr, info_ptr,
+		 width, height, 8,
+		 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+		 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    // Save the dpi of the image in the file
+    if (args.size() == 2) {
+      double dpi = Py::Float(args[1]);
+      size_t dots_per_meter = (size_t)(dpi / (2.54 / 100.0));
+      png_set_pHYs(png_ptr, info_ptr, dots_per_meter, dots_per_meter, PNG_RESOLUTION_METER);
+    }
+    
+    // this a a color image!
+    sig_bit.gray = 0;
+    sig_bit.red = 8;
+    sig_bit.green = 8;
+    sig_bit.blue = 8;
+    /* if the image has an alpha channel then */
+    sig_bit.alpha = 8;
+    png_set_sBIT(png_ptr, info_ptr, &sig_bit);
+    
+    png_write_info(png_ptr, info_ptr);
+    png_write_image(png_ptr, row_pointers);
+    png_write_end(png_ptr, info_ptr);
+    
+    /* Changed calls to png_destroy_write_struct to follow
+       http://www.libpng.org/pub/png/libpng-manual.txt.
+       This ensures the info_ptr memory is released.
+    */
+    
+  } catch (...) {
+      if (fp) fclose(fp);
+      delete [] row_pointers;
+      if (png_ptr && info_ptr) png_destroy_write_struct(&png_ptr, &info_ptr);
+      throw;
   }
-  
-  // this a a color image!
-  sig_bit.gray = 0;
-  sig_bit.red = 8;
-  sig_bit.green = 8;
-  sig_bit.blue = 8;
-  /* if the image has an alpha channel then */
-  sig_bit.alpha = 8;
-  png_set_sBIT(png_ptr, info_ptr, &sig_bit);
-  
-  png_write_info(png_ptr, info_ptr);
-  png_write_image(png_ptr, row_pointers);
-  png_write_end(png_ptr, info_ptr);
-  
-  /* Changed calls to png_destroy_write_struct to follow
-     http://www.libpng.org/pub/png/libpng-manual.txt.
-     This ensures the info_ptr memory is released.
-  */
   
   png_destroy_write_struct(&png_ptr, &info_ptr);
-  
   delete [] row_pointers;
-  
-  if (fpclose) fclose(fp);
-  
+  if (fp) fclose(fp);
+
   return Py::Object();
 }
 
