@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
 import datetime
-from pylab import figure, show, nx
+from matplotlib.pyplot import figure, show
 from matplotlib.dates import DayLocator, HourLocator, DateFormatter, drange
-
+from numpy import arange
 
 date1 = datetime.datetime( 2000, 3, 2)
 date2 = datetime.datetime( 2000, 3, 6)
 delta = datetime.timedelta(hours=6)
 dates = drange(date1, date2, delta)
 
-y = nx.arange( len(dates)*1.0)
+y = arange( len(dates)*1.0)
 
 fig = figure()
 ax = fig.add_subplot(111)
@@ -25,7 +25,7 @@ ax.set_xlim( dates[0], dates[-1] )
 # tick, not the base multiple
 
 ax.xaxis.set_major_locator( DayLocator() )
-ax.xaxis.set_minor_locator( HourLocator(nx.arange(0,25,6)) )
+ax.xaxis.set_minor_locator( HourLocator(arange(0,25,6)) )
 ax.xaxis.set_major_formatter( DateFormatter('%Y-%m-%d') )
 
 ax.fmt_xdata = DateFormatter('%Y-%m-%d %H:%M:%S')

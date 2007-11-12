@@ -1,6 +1,7 @@
-from pylab import figure, show, nx
+from matplotlib.pylab import figure, show
+import numpy
 
-x,y = nx.mlab.randn(2,100)
+x,y = numpy.random.randn(2,100)
 fig = figure()
 ax1 = fig.add_subplot(211)
 ax1.xcorr(x, y, usevlines=True, maxlags=50, normed=True)
@@ -13,3 +14,4 @@ ax2.grid(True)
 ax2.axhline(0, color='black', lw=2)
 
 show()
+

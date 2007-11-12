@@ -1,7 +1,8 @@
 import random
 from matplotlib.collections import RegularPolyCollection
 import matplotlib.cm as cm
-from pylab import figure, show, nx
+from matplotlib.pyplot import figure, show
+from numpy.random import rand
 
 fig = figure()
 ax = fig.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)
@@ -29,8 +30,8 @@ def onpress(event):
     press 'a' to add a random point from the collection, 'd' to delete one
     """
     if event.key=='a':
-        x,y = nx.mlab.rand(2)
-        color = cm.jet(nx.mlab.rand())
+        x,y = rand(2)
+        color = cm.jet(rand())
         offsets.append((x,y))
         facecolors.append(color)
         fig.canvas.draw()

@@ -9,15 +9,17 @@ window will be the x,y coords of the clicked point.
 Note the diameter of the circles in the scatter are defined in
 points**2, so their size is independent of the zoom
 """
-from pylab import figure, show, nx
+from matplotlib.pyplot import figure, show
+import numpy
 figsrc = figure()
 figzoom = figure()
 
 axsrc = figsrc.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)
-axzoom = figzoom.add_subplot(111, xlim=(0.45,0.55), ylim=(0.4,.6), autoscale_on=False)
+axzoom = figzoom.add_subplot(111, xlim=(0.45,0.55), ylim=(0.4,.6),
+                                                    autoscale_on=False)
 axsrc.set_title('Click to zoom')
 axzoom.set_title('zoom window')
-x,y,s,c = nx.mlab.rand(4,200)
+x,y,s,c = numpy.random.rand(4,200)
 s *= 200
 
 

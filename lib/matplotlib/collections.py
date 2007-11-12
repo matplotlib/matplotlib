@@ -222,7 +222,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ACCEPTS: float or sequence of floats
         """
         self._linewidths = self._get_value(lw)
-    set_linewidth = set_linewidths
+    set_lw = set_linewidth = set_linewidths
         
     def set_linestyles(self, ls):
         """
