@@ -992,7 +992,7 @@ class PolygonInteractor:
             raise RuntimeError('You must first add the polygon to a figure or canvas before defining the interactor')
         canvas = poly.figure.canvas
         self.poly = poly
-        self.poly.verts = list(self.poly.verts)
+        self.poly.verts = list(self.poly.get_verts())
         x, y = zip(*self.poly.verts)
         self.line = lines.Line2D(x,y,marker='o', markerfacecolor='r')
         #self._update_line(poly)
