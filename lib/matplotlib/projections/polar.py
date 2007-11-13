@@ -357,8 +357,9 @@ class PolarAxes(Axes):
         
     set_rgrids.__doc__ = cbook.dedent(set_rgrids.__doc__) % kwdocd
     
-    def set_xscale(self, *args, **kwargs):
-        raise NotImplementedError("You can not set the xscale on a polar plot.")
+    def set_xscale(self, scale, *args, **kwargs):
+        if scale != 'linear':
+            raise NotImplementedError("You can not set the xscale on a polar plot.")
 
     def set_xlim(self, *args, **kargs):
         # The xlim is fixed, no matter what you do
