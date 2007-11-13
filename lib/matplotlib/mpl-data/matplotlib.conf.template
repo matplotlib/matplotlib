@@ -21,11 +21,11 @@
 # the default values listed herein.
 # 
 # Colors: for the color values below, you can either use
-#  - a matplotlib color string, such as r, k, or b
+#  - a matplotlib color string, such as r | k | b
 #  - an rgb tuple, such as (1.0, 0.5, 0.0)
 #  - a hex string, such as #ff00ff or ff00ff
 #  - a scalar grayscale intensity such as 0.75
-#  - a legal html color name, eg red, blue, darkslategray
+#  - a legal html color name, eg red | blue | darkslategray
 # 
 # Interactivity: see http://matplotlib.sourceforge.net/interactive.html.
 # 
@@ -33,7 +33,7 @@
 
 # a value of type 'str'
 datapath = '/usr/lib64/python2.5/site-packages/matplotlib/mpl-data'
-# one of 0, on, false, 1, no, n, y, off, yes, true
+# one of: 0 | on | false | 1 | no | n | y | off | yes | true
 interactive = False
 # a value of type 'bool'
 maskedarray = False
@@ -64,9 +64,9 @@ units = False
     # name like 'orange', a hex color like '#efefef', a grayscale intensity
     # like '0.5', or an RGBA tuple (1,0,0,1)
     facecolor = 'white'
-    # one of 0, on, false, 1, no, n, y, off, yes, true
+    # one of: 0 | on | false | 1 | no | n | y | off | yes | true
     grid = False
-    # one of 0, on, false, 1, no, n, y, off, yes, true
+    # one of: 0 | on | false | 1 | no | n | y | off | yes | true
     hold = True
     # any valid matplotlib color, eg an abbreviation like 'r' for red, a full
     # name like 'orange', a hex color like '#efefef', a grayscale intensity
@@ -77,7 +77,7 @@ units = False
     labelsize = 'medium'
     # a value of type 'float'
     linewidth = 1.0
-    # one of 0, on, false, 1, no, n, y, off, yes, true
+    # one of: 0 | on | false | 1 | no | n | y | off | yes | true
     polargrid = True
     # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or 'medium' 
     # or 'large' or 'x-large' or 'xx-large'
@@ -88,10 +88,8 @@ units = False
         limits = [-7.0, 7.0]
 
 [backend]
-    # Valid backends are: 'GTKAgg', 'GTKCairo', 'QtAgg', 'Qt4Agg',
-    # 'TkAgg', 'Agg', 'Cairo', 'PS', 'PDF', 'SVG'
-    # one of ps, qt4agg, tkagg, gtkagg, agg, cairo, gtkcairo, wxagg, qtagg, temp
-    # late, svg, pdf
+    # one of: ps | qt4agg | fltkagg | gtkagg | agg | cairo | gtk | gtkcairo | wx
+    # agg | tkagg | qtagg | template | svg | cocoaagg | pdf | wx
     use = 'Agg'
 
     [[cairo]]

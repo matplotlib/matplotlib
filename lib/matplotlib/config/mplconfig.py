@@ -43,11 +43,11 @@ class MPLConfig(TConfig):
     the default values listed herein.
 
     Colors: for the color values below, you can either use
-     - a matplotlib color string, such as r, k, or b
+     - a matplotlib color string, such as r | k | b
      - an rgb tuple, such as (1.0, 0.5, 0.0)
      - a hex string, such as #ff00ff or ff00ff
      - a scalar grayscale intensity such as 0.75
-     - a legal html color name, eg red, blue, darkslategray
+     - a legal html color name, eg red | blue | darkslategray
 
     Interactivity: see http://matplotlib.sourceforge.net/interactive.html.
 
@@ -63,8 +63,6 @@ class MPLConfig(TConfig):
     units = T.false
 
     class backend(TConfig):
-        """Valid backends are: 'GTKAgg', 'GTKCairo', 'QtAgg', 'Qt4Agg',
-        'TkAgg', 'Agg', 'Cairo', 'PS', 'PDF', 'SVG'"""
         use = T.Trait('Agg', mplT.BackendHandler())
 
         class cairo(TConfig):
