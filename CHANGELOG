@@ -1,3 +1,47 @@
+2007-11-13 All backends now support writing to a file-like object, not
+	   just a regular file.  savefig() can be passed a file-like
+	   object in place of a file path. - MGD
+
+2007-11-13 Improved the default backend selection at build time:
+           SVG -> Agg -> TkAgg -> WXAgg -> GTK -> GTKAgg. The last usable 
+           backend in this progression will be chosen in the default 
+           config file. If a backend is defined in setup.cfg, that will
+           be the default backend - DSD
+
+2007-11-13 Improved creation of default config files at build time for
+           traited config package - DSD
+
+2007-11-12 Exposed all the build options in setup.cfg. These options are
+           read into a dict called "options" by setupext.py. Also, added
+           "-mpl" tags to the version strings for packages provided by
+           matplotlib. Versions provided by mpl will be identified and 
+           updated on subsequent installs - DSD
+
+2007-11-12 Added support for STIX fonts.  A new rcParam,
+	   mathtext.fontset, can be used to choose between: 
+           
+	   'cm':
+	     The TeX/LaTeX Computer Modern fonts 
+
+	   'stix': 
+	     The STIX fonts (see stixfonts.org)
+
+	   'stixsans': 
+	     The STIX fonts, using sans-serif glyphs by default 
+
+	   'custom': 
+	     A generic Unicode font, in which case the mathtext font
+	     must be specified using mathtext.bf, mathtext.it,
+	     mathtext.sf etc.
+            
+	   Added a new example, stix_fonts_demo.py to show how to access
+	   different fonts and unusual symbols.
+	    
+           - MGD
+
+2007-11-12 Options to disable building backend extension modules moved 
+           from setup.py to setup.cfg - DSD
+
 2007-11-09 Applied Martin Teichmann's patch 1828813: a QPainter is used in
            paintEvent, which has to be destroyed using  the method end(). If 
            matplotlib raises an exception before the call to end - and it 

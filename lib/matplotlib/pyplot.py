@@ -493,14 +493,8 @@ def twinx(ax=None):
     """
     if ax is None:
         ax=gca()
-
-
-    ax2 = gcf().add_axes(ax.get_position(), sharex=ax, frameon=False)
-    ax2.yaxis.tick_right()
-    ax2.yaxis.set_label_position('right')
-    ax.yaxis.tick_left()
     draw_if_interactive()
-    return ax2
+    return ax.twinx()
 
 
 def twiny(ax=None):
@@ -511,14 +505,8 @@ def twiny(ax=None):
     """
     if ax is None:
         ax=gca()
-
-
-    ax2 = gcf().add_axes(ax.get_position(), sharey=ax, frameon=False)
-    ax2.xaxis.tick_top()
-    ax2.xaxis.set_label_position('top')
-    ax.xaxis.tick_bottom()
     draw_if_interactive()
-    return ax2
+    return ax.twiny()
 
 
 

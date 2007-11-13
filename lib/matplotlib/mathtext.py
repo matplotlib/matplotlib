@@ -144,8 +144,7 @@ from matplotlib.cbook import Bunch, get_realpath_and_stat, \
 from matplotlib.ft2font import FT2Font, FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, \
-        latex_to_standard, tex2uni, tex2type1, uni2type1, \
-        latex_to_cmex
+        latex_to_standard, tex2uni, latex_to_cmex, stix_virtual_fonts
 from matplotlib import get_data_path, rcParams
 
 ####################
@@ -181,29 +180,6 @@ or a Type1 symbol name (i.e. 'phi').
 TeX/Type1 symbol"""%locals()
         raise ValueError, message
 
-
-#Not used, but might turn useful
-def get_type1_name(symbol):
-    """get_type1_name(symbol) -> string
-
-Returns the the Type1 name of symbol.
-symbol can be a single unicode character, or a TeX command (i.e. r'\pi').
-
-"""
-    try:# This will succeed if symbol is a single unicode char
-        return uni2type1[ord(symbol)]
-    except TypeError:
-        pass
-    try:# Is symbol a TeX symbol (i.e. \alpha)
-        return tex2type1[symbol.strip("\\")]
-    except KeyError:
-        pass
-    # The symbol is already a Type1 name so return it
-    if isinstance(symbol, str):
-        return symbol
-    else:
-        # The user did not suply a valid symbol, show usage
-        raise ValueError, get_type1_name.__doc__
 
 class MathtextBackend(object):
     def __init__(self):
@@ -468,7 +444,7 @@ class Fonts(object):
         """
         return 0.
 
-    def get_metrics(self, font, sym, fontsize, dpi):
+    def get_metrics(self, font, font_class, sym, fontsize, dpi):
         """
         font: one of the TeX font names, tt, it, rm, cal, sf, bf or
                default (non-math)
@@ -483,7 +459,7 @@ class Fonts(object):
           iceberg - the distance from the baseline to the top of the glyph.
              horiBearingY in Truetype parlance, height in TeX parlance
         """
-        info = self._get_info(font, sym, fontsize, dpi)
+        info = self._get_info(font, font_class, sym, fontsize, dpi)
         return info.metrics
 
     def set_canvas_size(self, w, h, d):
@@ -491,8 +467,8 @@ class Fonts(object):
         self.width, self.height, self.depth = ceil(w), ceil(h), ceil(d)
         self.mathtext_backend.set_canvas_size(self.width, self.height, self.depth)
 
-    def render_glyph(self, ox, oy, facename, sym, fontsize, dpi):
-        info = self._get_info(facename, sym, fontsize, dpi)
+    def render_glyph(self, ox, oy, facename, font_class, sym, fontsize, dpi):
+        info = self._get_info(facename, font_class, sym, fontsize, dpi)
         realpath, stat_key = get_realpath_and_stat(info.font.fname)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, Set()))
@@ -566,7 +542,10 @@ class TruetypeFonts(Fonts):
 
         cached_font = self.fonts.get(basename)
         if cached_font is None:
-            font = FT2Font(basename)
+            try:
+                font = FT2Font(basename)
+            except RuntimeError:
+                return None
             cached_font = self.CachedFont(font)
             self.fonts[basename] = cached_font
             self.fonts[font.postscript_name] = cached_font
@@ -578,15 +557,15 @@ class TruetypeFonts(Fonts):
             return glyph.height/64.0/2.0 + 256.0/64.0 * dpi/72.0
         return 0.
 
-    def _get_info (self, fontname, sym, fontsize, dpi, mark_as_used=True):
+    def _get_info(self, fontname, font_class, sym, fontsize, dpi):
         'load the cmfont, metrics and glyph with caching'
-        key = fontname, sym, fontsize, dpi
+        key = fontname, font_class, sym, fontsize, dpi
         bunch = self.glyphd.get(key)
         if bunch is not None:
             return bunch
 
         cached_font, num, symbol_name, fontsize, slanted = \
-            self._get_glyph(fontname, sym, fontsize)
+            self._get_glyph(fontname, font_class, sym, fontsize)
 
         font = cached_font.font
         font.set_size(fontsize, dpi)
@@ -627,7 +606,7 @@ class TruetypeFonts(Fonts):
         pclt = cached_font.font.get_sfnt_table('pclt')
         if pclt is None:
             # Some fonts don't store the xHeight, so we do a poor man's xHeight
-            metrics = self.get_metrics(font, 'x', fontsize, dpi)
+            metrics = self.get_metrics(font, 'it', 'x', fontsize, dpi)
             return metrics.iceberg
         xHeight = pclt['xHeight'] / 64.0
         return xHeight
@@ -636,11 +615,11 @@ class TruetypeFonts(Fonts):
         cached_font = self._get_font(font)
         return max(1.0, cached_font.font.underline_thickness / 64.0 / fontsize * 10.0)
 
-    def get_kern(self, font1, sym1, fontsize1,
-                 font2, sym2, fontsize2, dpi):
+    def get_kern(self, font1, fontclass1, sym1, fontsize1,
+                 font2, fontclass2, sym2, fontsize2, dpi):
         if font1 == font2 and fontsize1 == fontsize2:
-            info1 = self._get_info(font1, sym1, fontsize1, dpi)
-            info2 = self._get_info(font2, sym2, fontsize2, dpi)
+            info1 = self._get_info(font1, fontclass1, sym1, fontsize1, dpi)
+            info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
             return font.get_kerning(info1.num, info2.num, KERNING_DEFAULT) / 64.0
         return 0.0
@@ -669,7 +648,7 @@ class BakomaFonts(TruetypeFonts):
 
     _slanted_symbols = Set(r"\int \oint".split())
 
-    def _get_glyph(self, fontname, sym, fontsize):
+    def _get_glyph(self, fontname, font_class, sym, fontsize):
         symbol_name = None
         if fontname in self.fontmap and latex_to_bakoma.has_key(sym):
             basename, num = latex_to_bakoma[sym]
@@ -680,11 +659,12 @@ class BakomaFonts(TruetypeFonts):
         elif len(sym) == 1:
             slanted = (fontname == "it")
             cached_font = self._get_font(fontname)
-            num = ord(sym)
-            gid = cached_font.charmap.get(num)
-            if gid is not None:
-                symbol_name = cached_font.font.get_glyph_name(
-                    cached_font.charmap[num])
+            if cached_font is not None:
+                num = ord(sym)
+                gid = cached_font.charmap.get(num)
+                if gid is not None:
+                    symbol_name = cached_font.font.get_glyph_name(
+                        cached_font.charmap[num])
 
         if symbol_name is None:
             warn("Unrecognized symbol '%s'. Substituting with a dummy symbol."
@@ -778,8 +758,11 @@ class UnicodeFonts(TruetypeFonts):
             self.fontmap['ex'] = font
 
     _slanted_symbols = Set(r"\int \oint".split())
-            
-    def _get_glyph(self, fontname, sym, fontsize):
+
+    def _map_virtual_font(self, fontname, font_class, uniindex):
+        return fontname, uniindex
+    
+    def _get_glyph(self, fontname, font_class, sym, fontsize):
         found_symbol = False
 
         if self.use_cmex:
@@ -798,6 +781,9 @@ class UnicodeFonts(TruetypeFonts):
                      sym.encode('ascii', 'backslashreplace'),
                      MathTextWarning)
 
+        fontname, uniindex = self._map_virtual_font(
+            fontname, font_class, uniindex)
+                
         # Only characters in the "Letter" class should be italicized in 'it'
         # mode.  Greek capital letters should be Roman.
         if found_symbol:
@@ -805,26 +791,29 @@ class UnicodeFonts(TruetypeFonts):
 
             if fontname == 'it':
                 unistring = unichr(uniindex)
-                if (not unicodedata.category(unistring).startswith("L")
+                if (not unicodedata.category(unistring)[0] == "L"
                     or unicodedata.name(unistring).startswith("GREEK CAPITAL")):
                     new_fontname = 'rm'
 
             slanted = (new_fontname == 'it') or sym in self._slanted_symbols
             cached_font = self._get_font(new_fontname)
-            try:
-                glyphindex = cached_font.charmap[uniindex]
-            except KeyError:
-                warn("Font '%s' does not have a glyph for '%s'" %
-                     (cached_font.font.postscript_name,
-                      sym.encode('ascii', 'backslashreplace')),
-                     MathTextWarning)
-                found_symbol = False
+            found_symbol = False
+            if cached_font is not None:
+                try:
+                    glyphindex = cached_font.charmap[uniindex]
+                    found_symbol = True
+                except KeyError:
+                    warn("Font '%s' does not have a glyph for '%s'" %
+                         (cached_font.font.postscript_name,
+                          sym.encode('ascii', 'backslashreplace')),
+                         MathTextWarning)
 
         if not found_symbol:
             if self.cm_fallback:
                 warn("Substituting with a symbol from Computer Modern.",
                      MathTextWarning)
-                return self.cm_fallback._get_glyph(fontname, sym, fontsize)
+                return self.cm_fallback._get_glyph(
+                    fontname, 'it', sym, fontsize)
             else:
                 warn("Substituting with a dummy symbol.", MathTextWarning)
                 fontname = 'rm'
@@ -845,10 +834,8 @@ class UnicodeFonts(TruetypeFonts):
 
 class StixFonts(UnicodeFonts):
     _fontmap = { 'rm'  : 'STIXGeneral',
-                 'tt'  : 'VeraMono',
                  'it'  : 'STIXGeneralItalic',
                  'bf'  : 'STIXGeneralBol',
-                 'sf'  : 'Vera',
                  'nonunirm' : 'STIXNonUni',
                  'nonuniit' : 'STIXNonUniIta',
                  'nonunibf' : 'STIXNonUniBol',
@@ -865,6 +852,7 @@ class StixFonts(UnicodeFonts):
     cm_fallback = False
 
     def __init__(self, *args, **kwargs):
+        self._sans = kwargs.pop("sans", False)
         TruetypeFonts.__init__(self, *args, **kwargs)
         if not len(self.fontmap):
             for key, name in self._fontmap.iteritems():
@@ -872,20 +860,47 @@ class StixFonts(UnicodeFonts):
                 self.fontmap[key] = fullpath
                 self.fontmap[name] = fullpath
 
-    def _get_glyph(self, fontname, sym, fontsize):
-        # Handle calligraphic letters
-        if fontname == 'cal':
-            if len(sym) != 1 or ord(sym) < ord('A') or ord(sym) > ord('Z'):
-                raise ValueError(r"Sym '%s' is not available in \mathcal font" % sym)
-            fontname = 'nonuniit'
-            sym = unichr(ord(sym) + 0xe22d - ord('A'))
+    def _map_virtual_font(self, fontname, font_class, uniindex):
+        # Handle these "fonts" that are actually embedded in
+        # other fonts.
+        mapping = stix_virtual_fonts.get(fontname)
+        if self._sans and mapping is None:
+            mapping = stix_virtual_fonts['sf']
+            doing_sans_conversion = True
+        else:
+            doing_sans_conversion = False
 
+        if mapping is not None:
+            if isinstance(mapping, dict):
+                mapping = mapping[font_class]
+
+            # Binary search for the source glyph
+            lo = 0
+            hi = len(mapping)
+            while lo < hi:
+                mid = (lo+hi)//2
+                range = mapping[mid]
+                if uniindex < range[0]:
+                    hi = mid
+                elif uniindex <= range[1]:
+                    break
+                else:
+                    lo = mid + 1
+
+            if uniindex >= range[0] and uniindex <= range[1]:
+                uniindex = uniindex - range[0] + range[3]
+                fontname = range[2]
+            elif not doing_sans_conversion:
+                # This will generate a dummy character
+                uniindex = 0x1
+                fontname = 'it'
+        
         # Handle private use area glyphs
         if (fontname in ('it', 'rm', 'bf') and
-            len(sym) == 1 and ord(sym) >= 0xe000 and ord(sym) <= 0xf8ff):
+            uniindex >= 0xe000 and uniindex <= 0xf8ff):
             fontname = 'nonuni' + fontname
 
-        return UnicodeFonts._get_glyph(self, fontname, sym, fontsize)
+        return fontname, uniindex
                 
     _size_alternatives = {}
     def get_sized_alternatives_for_symbol(self, fontname, sym):
@@ -953,7 +968,7 @@ class StandardPsFonts(Fonts):
             self.fonts[cached_font.get_fontname()] = cached_font
         return cached_font
 
-    def _get_info (self, fontname, sym, fontsize, dpi):
+    def _get_info (self, fontname, font_class, sym, fontsize, dpi):
         'load the cmfont, metrics and glyph with caching'
         key = fontname, sym, fontsize, dpi
         tup = self.glyphd.get(key)
@@ -1031,11 +1046,11 @@ class StandardPsFonts(Fonts):
 
         return self.glyphd[key]
 
-    def get_kern(self, font1, sym1, fontsize1,
-                 font2, sym2, fontsize2, dpi):
+    def get_kern(self, font1, fontclass1, sym1, fontsize1,
+                 font2, fontclass2, sym2, fontsize2, dpi):
         if font1 == font2 and fontsize1 == fontsize2:
-            info1 = self._get_info(font1, sym1, fontsize1, dpi)
-            info2 = self._get_info(font2, sym2, fontsize2, dpi)
+            info1 = self._get_info(font1, fontclass1, sym1, fontsize1, dpi)
+            info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
             return (font.get_kern_dist(info1.glyph, info2.glyph)
                     * 0.001 * fontsize1)
@@ -1171,6 +1186,7 @@ class Char(Node):
         self.font_output = state.font_output
         assert isinstance(state.font, (str, unicode, int))
         self.font = state.font
+        self.font_class = state.font_class
         self.fontsize = state.fontsize
         self.dpi = state.dpi
         # The real width, height and depth will be set during the
@@ -1182,7 +1198,7 @@ class Char(Node):
 
     def _update_metrics(self):
         metrics = self._metrics = self.font_output.get_metrics(
-            self.font, self.c, self.fontsize, self.dpi)
+            self.font, self.font_class, self.c, self.fontsize, self.dpi)
         if self.c == ' ':
             self.width = metrics.advance
         else:
@@ -1201,8 +1217,8 @@ class Char(Node):
         kern = 0.
         if isinstance(next, Char):
             kern = self.font_output.get_kern(
-                self.font, self.c, self.fontsize,
-                next.font, next.c, next.fontsize,
+                self.font, self.font_class, self.c, self.fontsize,
+                next.font, next.font_class, next.c, next.fontsize,
                 self.dpi)
         return advance + kern
 
@@ -1210,7 +1226,7 @@ class Char(Node):
         """Render the character to the canvas"""
         self.font_output.render_glyph(
             x, y,
-            self.font, self.c, self.fontsize, self.dpi)
+            self.font, self.font_class, self.c, self.fontsize, self.dpi)
 
     def shrink(self):
         Node.shrink(self)
@@ -1232,7 +1248,7 @@ class Accent(Char):
     are already offset correctly from the baseline in TrueType fonts."""
     def _update_metrics(self):
         metrics = self._metrics = self.font_output.get_metrics(
-            self.font, self.c, self.fontsize, self.dpi)
+            self.font, self.font_class, self.c, self.fontsize, self.dpi)
         self.width = metrics.xmax - metrics.xmin
         self.height = metrics.ymax - metrics.ymin
         self.depth = 0
@@ -1249,7 +1265,7 @@ class Accent(Char):
         """Render the character to the canvas"""
         self.font_output.render_glyph(
             x - self._metrics.xmin, y + self._metrics.ymin,
-            self.font, self.c, self.fontsize, self.dpi)
+            self.font, self.font_class, self.c, self.fontsize, self.dpi)
 
 class List(Box):
     """A list of nodes (either horizontal or vertical).
@@ -1934,7 +1950,9 @@ class Parser(object):
                              "tanh")
 
         fontname     = oneOf("rm cal it tt sf bf")
-        latex2efont  = oneOf("mathrm mathcal mathit mathtt mathsf mathbf mathdefault")
+        latex2efont  = oneOf("mathrm mathcal mathit mathtt mathsf mathbf "
+                             "mathdefault mathbb mathfrak mathcircled "
+                             "mathscr")
 
         space        =(FollowedBy(bslash)
                      +   (Literal(r'\ ')
@@ -1955,7 +1973,7 @@ class Parser(object):
                      ).setParseAction(self.customspace).setName('customspace')
 
         unicode_range = u"\U00000080-\U0001ffff"
-        symbol       =(Regex(UR"([a-zA-Z0-9 +\-*/<>=:,.;!'@()%s])|(\\[%%${}\[\]])" % unicode_range)
+        symbol       =(Regex(UR"([a-zA-Z0-9 +\-*/<>=:,.;!'@()%s])|(\\[%%${}\[\]_])" % unicode_range)
                      | Combine(
                          bslash
                        + oneOf(tex2uni.keys())
@@ -2091,7 +2109,7 @@ class Parser(object):
         self._em_width_cache = {}
 
     def parse(self, s, fonts_object, fontsize, dpi):
-        self._state_stack = [self.State(fonts_object, 'default', fontsize, dpi)]
+        self._state_stack = [self.State(fonts_object, 'default', 'rm', fontsize, dpi)]
         try:
             self._expression.parseString(s)
         except ParseException, err:
@@ -2106,10 +2124,11 @@ class Parser(object):
     # entering and leaving a group { } or math/non-math, the stack
     # is pushed and popped accordingly.  The current state always
     # exists in the top element of the stack.
-    class State:
-        def __init__(self, font_output, font, fontsize, dpi):
+    class State(object):
+        def __init__(self, font_output, font, font_class, fontsize, dpi):
             self.font_output = font_output
-            self.font = font
+            self._font = font
+            self.font_class = font_class
             self.fontsize = fontsize
             self.dpi = dpi
 
@@ -2117,9 +2136,18 @@ class Parser(object):
             return Parser.State(
                 self.font_output,
                 self.font,
+                self.font_class,
                 self.fontsize,
                 self.dpi)
 
+        def _get_font(self):
+            return self._font
+        def _set_font(self, name):
+            if name in ('it', 'rm', 'bf'):
+                self.font_class = name
+            self._font = name
+        font = property(_get_font, _set_font)
+        
     def get_state(self):
         return self._state_stack[-1]
 
@@ -2157,7 +2185,7 @@ class Parser(object):
         width = self._em_width_cache.get(key)
         if width is None:
             metrics = state.font_output.get_metrics(
-                state.font, 'm', state.fontsize, state.dpi)
+                state.font, 'it', 'm', state.fontsize, state.dpi)
             width = metrics.advance
             self._em_width_cache[key] = width
         return Kern(width * percentage)
@@ -2472,7 +2500,7 @@ class Parser(object):
         # Shift so the fraction line sits in the middle of the
         # equals sign
         metrics = state.font_output.get_metrics(
-            state.font, '=', state.fontsize, state.dpi)
+            state.font, 'it', '=', state.fontsize, state.dpi)
         shift = (cden.height -
                  ((metrics.ymax + metrics.ymin) / 2 -
                   thickness * 3.0))
@@ -2592,10 +2620,12 @@ class MathTextParser(object):
                 font_output = BakomaFonts(prop, backend)
             elif fontset == 'stix':
                 font_output = StixFonts(prop, backend)
+            elif fontset == 'stixsans':
+                font_output = StixFonts(prop, backend, sans=True)
             elif fontset == 'custom':
                 font_output = UnicodeFonts(prop, backend)
             else:
-                raise ValueError("mathtext.fontset must be either 'cm', 'stix', or 'custom'")
+                raise ValueError("mathtext.fontset must be either 'cm', 'stix', 'stixsans', or 'custom'")
 
         fontsize = prop.get_size_in_points()
 
