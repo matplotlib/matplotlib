@@ -110,8 +110,8 @@ class Tick(Artist):
 
     def set_clip_path(self, clippath, transform=None):
         Artist.set_clip_path(self, clippath, transform)
-        self.tick1line.set_clip_path(clippath, transform)
-        self.tick2line.set_clip_path(clippath, transform)
+        #self.tick1line.set_clip_path(clippath, transform)
+        #self.tick2line.set_clip_path(clippath, transform)
         self.gridline.set_clip_path(clippath, transform)
     set_clip_path.__doc__ = Artist.set_clip_path.__doc__
     
