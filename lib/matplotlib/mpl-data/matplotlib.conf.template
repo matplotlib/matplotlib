@@ -39,14 +39,13 @@ interactive = False
 maskedarray = False
 # 'numpy' or 'numeric' or 'numarray'
 numerix = 'numpy'
-# 'Africa/Abidjan' or 'Africa/Accra' or 'Africa/Addis_Ababa' or 'Africa/Algiers'
-#  or 'Africa/Asmara' or 'Africa/Asmera' or 'Africa/Bamako' or 'Africa/Bangui' o
-# r 'Africa/Banjul' or 'Africa/Bissau' or 'Africa/Blantyre' or 'Africa/Brazzavil
-#  <...snipped 10590 chars...> 
-# or 'Turkey' or 'UCT' or 'US/Alaska' or 'US/Aleutian' or 'US/Arizona' or 'US/Ce
-# ntral' or 'US/East-Indiana' or 'US/Eastern' or 'US/Hawaii' or 'US/Indiana-Star
-# ke' or 'US/Michigan' or 'US/Mountain' or 'US/Pacific' or 'US/Pacific-New' or '
-# US/Samoa' or 'UTC' or 'Universal' or 'W-SU' or 'WET' or 'Zulu' or 'posixrules'
+# 'Africa/Abidjan' or 'Africa/Accra' or 'Africa/Addis_Ababa' or
+# 'Africa/Algiers' or 'Africa/Asmara' or 'Africa/Asmera' or 'Africa/Bamako' or
+# 'Africa/Bangui' or 'Africa/Banjul' or 'Africa/Bissau' or 'Africa/Blantyre'
+#  <...snipped 156 lines...> 
+# 'US/Michigan' or 'US/Mountain' or 'US/Pacific' or 'US/Pacific-New' or
+# 'US/Samoa' or 'UTC' or 'Universal' or 'W-SU' or 'WET' or 'Zulu' or
+# 'posixrules'
 timezone = 'UTC'
 # 'toolbar2' or None
 toolbar = 'toolbar2'
@@ -72,15 +71,15 @@ units = False
     # name like 'orange', a hex color like '#efefef', a grayscale intensity
     # like '0.5', or an RGBA tuple (1,0,0,1)
     labelcolor = 'black'
-    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or 'medium' 
-    # or 'large' or 'x-large' or 'xx-large'
+    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or
+    # 'medium' or 'large' or 'x-large' or 'xx-large'
     labelsize = 'medium'
     # a value of type 'float'
     linewidth = 1.0
     # one of: 0 | on | false | 1 | no | n | y | off | yes | true
     polargrid = True
-    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or 'medium' 
-    # or 'large' or 'x-large' or 'xx-large'
+    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or
+    # 'medium' or 'large' or 'x-large' or 'xx-large'
     titlesize = 'large'
 
     [[formatter]]
@@ -88,8 +87,8 @@ units = False
         limits = [-7.0, 7.0]
 
 [backend]
-    # one of: ps | qt4agg | fltkagg | gtkagg | agg | cairo | gtk | gtkcairo | wx
-    # agg | tkagg | qtagg | template | svg | cocoaagg | pdf | wx
+    # one of: ps | qt4agg | fltkagg | gtkagg | agg | cairo | gtk | gtkcairo |
+    # wxagg | tkagg | qtagg | template | svg | cocoaagg | pdf | wx
     use = 'Agg'
 
     [[cairo]]
@@ -109,10 +108,10 @@ units = False
     [[ps]]
         # 3 or 42
         fonttype = 3
-        # 'auto' or 'letter' or 'legal' or 'ledger' or 'A0' or 'A1' or 'A2' or '
-        # A3' or 'A4' or 'A5' or 'A6' or 'A7' or 'A8' or 'A9' or 'A10' or 'B0' o
-        # r 'B1' or 'B2' or 'B3' or 'B4' or 'B5' or 'B6' or 'B7' or 'B8' or 'B9'
-        #  or 'B10'
+        # 'auto' or 'letter' or 'legal' or 'ledger' or 'A0' or 'A1' or 'A2' or
+        # 'A3' or 'A4' or 'A5' or 'A6' or 'A7' or 'A8' or 'A9' or 'A10' or
+        # 'B0' or 'B1' or 'B2' or 'B3' or 'B4' or 'B5' or 'B6' or 'B7' or 'B8'
+        # or 'B9' or 'B10'
         papersize = 'letter'
         # a value of type 'bool'
         useafm = False
@@ -189,16 +188,16 @@ units = False
     serif = ['Bitstream Vera Serif', 'New Century Schoolbook', 'Century Schoolbook L', 'Utopia', 'ITC Bookman', 'Bookman', 'Nimbus Roman No9 L', 'Times New Roman', 'Times', 'Palatino', 'Charter', 'serif']
     # a value of type 'float'
     size = 12.0
-    # 'ultra-condensed' or 'extra-condensed' or 'condensed' or 'semi-condensed' 
-    # or 'normal' or 'semi-expanded' or 'expanded' or 'extra-expanded' or 'ultra
-    # -expanded' or 'wider' or 'narrower'
+    # 'ultra-condensed' or 'extra-condensed' or 'condensed' or
+    # 'semi-condensed' or 'normal' or 'semi-expanded' or 'expanded' or
+    # 'extra-expanded' or 'ultra-expanded' or 'wider' or 'narrower'
     stretch = 'normal'
     # 'normal' or 'italic' or 'oblique'
     style = 'normal'
     # 'normal' or 'small-caps'
     variant = 'normal'
-    # 'normal' or 'bold' or 'bolder' or 'lighter' or 100 or 200 or 300 or 400 or
-    #  500 or 600 or 700 or 800 or 900
+    # 'normal' or 'bold' or 'bolder' or 'lighter' or 100 or 200 or 300 or 400
+    # or 500 or 600 or 700 or 800 or 900
     weight = 'normal'
 
 [grid]
@@ -214,18 +213,18 @@ units = False
 [image]
     # a value of type 'float' or 'equal' or 'auto'
     aspect = 'equal'
-    # 'Accent' or 'Accent_r' or 'Blues' or 'Blues_r' or 'BrBG' or 'BrBG_r' or 'B
-    # uGn' or 'BuGn_r' or 'BuPu' or 'BuPu_r' or 'Dark2' or 'Dark2_r' or 'GnBu' o
-    # r 'GnBu_r' or 'Greens' or 'Greens_r' or 'Greys' or 'Greys_r' or 'OrRd' or 
-    #  <...snipped 1010 chars...> 
-    # ist_stern' or 'gist_stern_r' or 'gist_yarg' or 'gist_yarg_r' or 'gray' or 
-    # 'gray_r' or 'hot' or 'hot_r' or 'hsv' or 'hsv_r' or 'jet' or 'jet_r' or 'p
-    # ink' or 'pink_r' or 'prism' or 'prism_r' or 'spectral' or 'spectral_r' or 
-    # 'spring' or 'spring_r' or 'summer' or 'summer_r' or 'winter' or 'winter_r'
+    # 'Accent' or 'Accent_r' or 'Blues' or 'Blues_r' or 'BrBG' or 'BrBG_r' or
+    # 'BuGn' or 'BuGn_r' or 'BuPu' or 'BuPu_r' or 'Dark2' or 'Dark2_r' or
+    # 'GnBu' or 'GnBu_r' or 'Greens' or 'Greens_r' or 'Greys' or 'Greys_r' or
+    #  <...snipped 16 lines...> 
+    # 'pink_r' or 'prism' or 'prism_r' or 'spectral' or 'spectral_r' or
+    # 'spring' or 'spring_r' or 'summer' or 'summer_r' or 'winter' or
+    # 'winter_r'
     cmap = 'jet'
-    # 'bilinear' or 'nearest' or 'bicubic' or 'spline16' or 'spline36' or 'hanni
-    # ng' or 'hamming' or 'hermite' or 'kaiser' or 'quadric' or 'catrom' or 'gau
-    # ssian' or 'bessel' or 'mitchell' or 'sinc' or 'lanczos' or 'blackman'
+    # 'bilinear' or 'nearest' or 'bicubic' or 'spline16' or 'spline36' or
+    # 'hanning' or 'hamming' or 'hermite' or 'kaiser' or 'quadric' or 'catrom'
+    # or 'gaussian' or 'bessel' or 'mitchell' or 'sinc' or 'lanczos' or
+    # 'blackman'
     interpolation = 'bilinear'
     # a value of type 'int'
     lut = 256
@@ -235,8 +234,8 @@ units = False
 [legend]
     # a value of type 'float'
     axespad = 0.02
-    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or 'medium' 
-    # or 'large' or 'x-large' or 'xx-large'
+    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or
+    # 'medium' or 'large' or 'x-large' or 'xx-large'
     fontsize = 'medium'
     # a value of type 'float'
     handlelen = 0.050000000000000003
@@ -246,9 +245,9 @@ units = False
     isaxes = True
     # a value of type 'float'
     labelsep = 0.01
-    # 'best' or 'upper right' or 'upper left' or 'lower left' or 'lower right' o
-    # r 'right' or 'center left' or 'center right' or 'lower center' or 'upper c
-    # enter' or 'center'
+    # 'best' or 'upper right' or 'upper left' or 'lower left' or 'lower right'
+    # or 'right' or 'center left' or 'center right' or 'lower center' or
+    # 'upper center' or 'center'
     loc = 'upper right'
     # a value of type 'float'
     markerscale = 1.0
@@ -274,9 +273,9 @@ units = False
     linestyle = '-'
     # a value of type 'float'
     linewidth = 1.0
-    # 'None' or 'o' or '.' or ',' or '^' or 'v' or '<' or '>' or 's' or '+' or '
-    # x' or 'D' or 'd' or '1' or '2' or '3' or '4' or 'h' or 'H' or 'p' or '|' o
-    # r '_'
+    # 'None' or 'o' or '.' or ',' or '^' or 'v' or '<' or '>' or 's' or '+' or
+    # 'x' or 'D' or 'd' or '1' or '2' or '3' or '4' or 'h' or 'H' or 'p' or
+    # '|' or '_'
     marker = 'None'
     # a value of type 'float'
     markeredgewidth = 0.5
@@ -288,27 +287,27 @@ units = False
     solid_joinstyle = 'miter'
 
 [mathtext]
-    # A fontconfig pattern.  See the fontconfig user manual for more information
-    # .
+    # A fontconfig pattern.  See the fontconfig user manual for more
+    # information.
     bf = 'serif:bold'
-    # A fontconfig pattern.  See the fontconfig user manual for more information
-    # .
+    # A fontconfig pattern.  See the fontconfig user manual for more
+    # information.
     cal = 'cursive'
     # a value of type 'bool'
     fallback_to_cm = True
     # 'cm' or 'stix' or 'stixsans' or 'custom'
     fontset = 'cm'
-    # A fontconfig pattern.  See the fontconfig user manual for more information
-    # .
+    # A fontconfig pattern.  See the fontconfig user manual for more
+    # information.
     it = 'serif:oblique'
-    # A fontconfig pattern.  See the fontconfig user manual for more information
-    # .
+    # A fontconfig pattern.  See the fontconfig user manual for more
+    # information.
     rm = 'serif'
-    # A fontconfig pattern.  See the fontconfig user manual for more information
-    # .
+    # A fontconfig pattern.  See the fontconfig user manual for more
+    # information.
     sf = 'sans'
-    # A fontconfig pattern.  See the fontconfig user manual for more information
-    # .
+    # A fontconfig pattern.  See the fontconfig user manual for more
+    # information.
     tt = 'monospace'
 
 [patch]
@@ -368,8 +367,8 @@ units = False
     color = 'black'
     # 'in' or 'out'
     direction = 'in'
-    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or 'medium' 
-    # or 'large' or 'x-large' or 'xx-large'
+    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or
+    # 'medium' or 'large' or 'x-large' or 'xx-large'
     labelsize = 'small'
 
     [[major]]
@@ -391,8 +390,8 @@ units = False
     color = 'black'
     # 'in' or 'out'
     direction = 'in'
-    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or 'medium' 
-    # or 'large' or 'x-large' or 'xx-large'
+    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or
+    # 'medium' or 'large' or 'x-large' or 'xx-large'
     labelsize = 'small'
 
     [[major]]

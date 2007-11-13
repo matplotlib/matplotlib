@@ -76,6 +76,50 @@ import configobj
 # Utility functions
 ############################################################################
 
+def get_split_ind(seq, N):
+   """seq is a list of words.  Return the index into seq such that
+   len(' '.join(seq[:ind])<=N
+   """
+
+   sLen = 0
+   # todo: use Alex's xrange pattern from the cbook for efficiency
+   for (word, ind) in zip(seq, range(len(seq))):
+      sLen += len(word) + 1  # +1 to account for the len(' ')
+      if sLen>=N: return ind
+   return len(seq)
+
+def wrap(prefix, text, cols, max_lines=6):
+    'wrap text with prefix at length cols'
+    pad = ' '*len(prefix.expandtabs())
+    available = cols - len(pad)
+
+    seq = text.split(' ')
+    Nseq = len(seq)
+    ind = 0
+    lines = []
+    while ind<Nseq:
+        lastInd = ind
+        ind += get_split_ind(seq[ind:], available)
+        lines.append(seq[lastInd:ind])
+
+    num_lines = len(lines)
+    abbr_end = max_lines // 2
+    abbr_start = max_lines - abbr_end
+    lines_skipped = False
+    for i in range(num_lines):
+        if i == 0:
+            # add the prefix to the first line, pad with spaces otherwise
+            ret = prefix + ' '.join(lines[i]) + '\n'
+        elif i < abbr_start or i > num_lines-abbr_end-1:
+            ret += pad + ' '.join(lines[i]) + '\n'
+        else:
+            if not lines_skipped:
+                lines_skipped = True
+                ret += ' <...snipped %d lines...> \n' % (num_lines-max_lines)
+#    for line in lines[1:]:
+#        ret += pad + ' '.join(line) + '\n'
+    return ret[:-1]
+
 def dedent(txt):
     """A modified version of textwrap.dedent, specialized for docstrings.
 
@@ -113,44 +157,6 @@ def comment(strng,indent=''):
     template = indent + '# %s'
     lines = [template % s for s in strng.splitlines(True)]
     return ''.join(lines)
-
-
-def short_str(txt,line_length=80,max_lines=6):
-    """Shorten a text input if necessary.
-    """
-
-    assert max_lines%2==0,"max_lines must be even"
-
-    if txt.count('\n') <= 1:
-        # Break up auto-generated text that can be *very* long but in just one
-        # line.
-        ltxt = len(txt)
-        max_len = line_length*max_lines
-        chunk = max_lines/2
-
-        if ltxt > max_len:
-            out = []
-            for n in range(chunk):
-                out.append(txt[line_length*n:line_length*(n+1)])
-
-            out.append(' <...snipped %d chars...> ' % (ltxt-max_len))
-
-            for n in range(-chunk-1,0,1):
-                # Special-casing for the last step of the loop, courtesy of
-                # Python's idiotic string slicign semantics when the second
-                # argument is 0.  Argh.
-                end = line_length*(n+1)
-                if end==0: end = None
-                out.append(txt[line_length*n:end])
-
-            txt = '\n'.join(out)
-        else:
-            nlines = ltxt/line_length
-            out = [ txt[line_length*n:line_length*(n+1)]
-                    for n in range(nlines+1)]
-            if out:
-                txt = '\n'.join(out)
-    return txt
 
 
 def configObj2Str(cobj):
@@ -463,7 +469,7 @@ class TConfig(T.HasStrictTraits):
                 # Get a short version of info with lines of max. 78 chars, so
                 # that after commenting them out (with '# ') they are at most
                 # 80-chars long.
-                out.append(comment(short_str(info,78-len(indent)),indent))
+                out.append(comment(wrap('',info.replace('\n', ' '),78-len(indent)),indent))
             except (KeyError,AttributeError):
                 pass
             out.append(indent+('%s = %r' % (s,v)))
