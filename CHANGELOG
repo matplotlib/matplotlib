@@ -1,3 +1,12 @@
+2007-11-13 Improved the default backend selection at build time:
+           SVG -> Agg -> TkAgg -> WXAgg -> GTK -> GTKAgg. The last usable 
+           backend in this progression will be chosen in the default 
+           config file. If a backend is defined in setup.cfg, that will
+           be the default backend - DSD
+
+2007-11-13 Improved creation of default config files at build time for
+           traited config package - DSD
+
 2007-11-12 Exposed all the build options in setup.cfg. These options are
            read into a dict called "options" by setupext.py. Also, added
            "-mpl" tags to the version strings for packages provided by

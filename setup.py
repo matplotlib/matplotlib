@@ -133,21 +133,21 @@ build_transforms(ext_modules, packages)
 print_raw("")
 print_raw("OPTIONAL BACKEND DEPENDENCIES")
 
+if check_for_libpng() and options['build_agg']:
+    build_agg(ext_modules, packages)
+    rc['backend'] = 'Agg'
+else:
+    rc['backend'] = 'SVG'
+
+if options['build_image']:
+    build_image(ext_modules, packages)
+
+if options['build_windowing'] and sys.platform=='win32':
+   build_windowing(ext_modules, packages)
 
 # the options can be True, False, or 'auto'. If True, try to build
 # regardless of the lack of dependencies. If auto, silently skip 
 # when dependencies are missing.
-hasgtk = check_for_gtk()
-if options['build_gtk']:
-    if hasgtk or (options['build_gtk'] is True):
-        build_gdk(ext_modules, packages)
-        rc['backend'] = 'GTK'
-if options['build_gtkagg']:
-    if hasgtk or (options['build_gtkagg'] is True):
-        options['build_agg'] = 1
-        build_gtkagg(ext_modules, packages)
-        rc['backend'] = 'GTKAgg'
-
 if options['build_tkagg']:
     if check_for_tk() or (options['build_tkagg'] is True):
         options['build_agg'] = 1
@@ -165,26 +165,21 @@ if options['build_wxagg']:
             print_message("WxAgg extension not required for wxPython >= 2.8")
         rc['backend'] = 'WXAgg'
 
+hasgtk = check_for_gtk()
+if options['build_gtk']:
+    if hasgtk or (options['build_gtk'] is True):
+        build_gdk(ext_modules, packages)
+        rc['backend'] = 'GTK'
+if options['build_gtkagg']:
+    if hasgtk or (options['build_gtkagg'] is True):
+        options['build_agg'] = 1
+        build_gtkagg(ext_modules, packages)
+        rc['backend'] = 'GTKAgg'
+
 # These are informational only.  We don't build any extensions for them.
 check_for_qt()
 check_for_qt4()
 check_for_cairo()
-    
-if check_for_libpng() and options['build_agg']:
-    build_agg(ext_modules, packages)
-    rc['backend'] = 'Agg'
-else:
-    rc['backend'] = 'SVG'
-
-if options['build_windowing'] and sys.platform=='win32':
-   build_windowing(ext_modules, packages)
-
-if options['build_image']:
-    build_image(ext_modules, packages)
-
-for mod in ext_modules:
-    if options['verbose']:
-        mod.extra_compile_args.append('-DVERBOSE')
 
 print_raw("")
 print_raw("OPTIONAL DATE/TIMEZONE DEPENDENCIES")
@@ -253,8 +248,19 @@ else:
 template = file('matplotlibrc.template').read()
 file('lib/matplotlib/mpl-data/matplotlibrc', 'w').write(template%rc)
 
+# Write the default matplotlib.conf file
+template = file('lib/matplotlib/mpl-data/matplotlib.conf.template').read()
+template = template.replace("datapath = ", "#datapath = ")
+template = template.replace("numerix = 'numpy'", "numerix = '%s'"%rc['numerix'])
+template = template.replace("    use = 'Agg'", "    use = '%s'"%rc['backend'])
+file('lib/matplotlib/mpl-data/matplotlib.conf', 'w').write(template)
+
 try: additional_params # has setupegg.py provided
 except NameError: additional_params = {}
+
+for mod in ext_modules:
+    if options['verbose']:
+        mod.extra_compile_args.append('-DVERBOSE')
 
 distrib = setup(name="matplotlib",
       version= __version__,
