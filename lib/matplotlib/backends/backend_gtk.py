@@ -365,11 +365,24 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
                                      0, 0, 0, 0, width, height)
 
-        try:
-            pixbuf.save(filename, format)
-        except gobject.GError, exc:
-            error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
-
+        if is_string_like(filename):
+            try:
+                pixbuf.save(filename, format)
+            except gobject.GError, exc:
+                error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
+        elif hasattr(filename, 'write') and callable(filename.write):
+            if hasattr(pixbuf, 'save_to_callback'):
+                def save_callback(buf, data=None):
+                    data.write(buf)
+                try:
+                    pixbuf.save_to_callback(save_callback, format, user_data=filename)
+                except gobject.GError, exc:
+                    error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
+            else:
+                raise ValueError("Saving to a Python file-like object is only supported by PyGTK >= 2.8")
+        else:
+            raise ValueError("filename must be a path or a file-like object")
+            
     def get_default_filetype(self):
         return 'png'
 
@@ -1019,7 +1032,7 @@ if gtk.pygtk_version >= (2,4,0):
         def get_filename_from_user (self):
             while True:
                 filename = None
-                if self.run() != gtk.RESPONSE_OK:
+                if self.run() != int(gtk.RESPONSE_OK):
                     break
                 filename = self.get_filename()
                 break
@@ -1045,7 +1058,7 @@ else:
             self.set_filename(self.path)
 
             filename = None
-            if self.run() == gtk.RESPONSE_OK:
+            if self.run() == int(gtk.RESPONSE_OK):
                 self.path = filename = self.get_filename()
             self.hide()
 

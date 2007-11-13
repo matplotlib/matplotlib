@@ -1,6 +1,6 @@
 # Makefile for matplotlib
 
-PYTHON = /usr/bin/python2.5
+PYTHON = `which python`
 VERSION = `${PYTHON} setup.py --version`
 
 DISTFILES = API_CHANGES KNOWN_BUGS INSTALL README TODO license	\
@@ -12,11 +12,11 @@ RELEASE = matplotlib-${VERSION}
 
 clean: 
 	${PYTHON} setup.py clean;\
-	rm -f *.png *.ps *.eps *.svg *.jpg
+	rm -f *.png *.ps *.eps *.svg *.jpg *.pdf
 	find . -name "_tmp*.py" | xargs rm -f;\
 	find . \( -name "*~" -o -name "*.pyc" \) | xargs rm -f;\
-	find examples \( -name "*.svg" -o -name "*.png" -o -name "*.ps"  -o -name "*.eps" -o -name "*.tar" -o  -name "*.gz" -o -name "*.log" -o -name "*.aux" -o -name "*.tex" \) | xargs rm -f
-	find unit \( -name "*.png" -o -name "*.ps"  -o -name "*.eps" \) | xargs rm -f
+	find examples \( -name "*.svg" C-o -name "*.png" -o -name "*.pdf" -o -name "*.ps"  -o -name "*.eps" -o -name "*.tar" -o  -name "*.gz" -o -name "*.log" -o -name "*.aux" -o -name "*.tex" \) | xargs rm -f
+	find unit \( -name "*.png" -o -name "*.ps"  -o -name "*.pdf" -o -name "*.eps" \) | xargs rm -f
 	find . \( -name "#*" -o -name ".#*" -o -name ".*~" -o -name "*~" \) | xargs rm -f
 
 

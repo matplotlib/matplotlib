@@ -65,7 +65,7 @@ class MPLConfig(TConfig):
     class backend(TConfig):
         """Valid backends are: 'GTKAgg', 'GTKCairo', 'QtAgg', 'Qt4Agg',
         'TkAgg', 'Agg', 'Cairo', 'PS', 'PDF', 'SVG'"""
-        use = T.Trait('TkAgg', mplT.BackendHandler())
+        use = T.Trait('Agg', mplT.BackendHandler())
 
         class cairo(TConfig):
             format = T.Trait('png', 'png', 'ps', 'pdf', 'svg')
@@ -166,7 +166,7 @@ class MPLConfig(TConfig):
         it  = T.Trait('serif:oblique' , mplT.FontconfigPatternHandler())
         bf  = T.Trait('serif:bold'    , mplT.FontconfigPatternHandler())
         sf  = T.Trait('sans'          , mplT.FontconfigPatternHandler())
-        fontset = T.Trait('cm', 'cm', 'stix', 'custom')
+        fontset = T.Trait('cm', 'cm', 'stix', 'stixsans', 'custom')
         fallback_to_cm = T.true
 
     class axes(TConfig):
@@ -525,5 +525,5 @@ def rcdefaults():
 ##############################################################################
 if __name__ == "__main__":
     mplConfig = MPLConfig()
-    tconf2File(mplConfig, '../mpl-data/matplotlib.conf', force=True)
-    print 'Default matplotlib.conf created in ../mpl-data'
+    tconf2File(mplConfig, '../mpl-data/matplotlib.conf.template', force=True)
+    print 'matplotlib.conf.template created in ../mpl-data'
