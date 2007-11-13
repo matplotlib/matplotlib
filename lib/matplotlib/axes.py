@@ -4504,7 +4504,7 @@ class Axes(martist.Artist):
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
         if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
         if aspect is None: aspect = rcParams['image.aspect']
-        # self.set_aspect(aspect)
+        self.set_aspect(aspect)
         
         if X is None and Y is None:
             im = mimage.AxesImage(self, cmap, norm, interpolation, origin, extent,
