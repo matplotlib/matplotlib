@@ -92,7 +92,7 @@ units = False
     # 'TkAgg', 'Agg', 'Cairo', 'PS', 'PDF', 'SVG'
     # one of ps, qt4agg, tkagg, gtkagg, agg, cairo, gtkcairo, wxagg, qtagg, temp
     # late, svg, pdf
-    use = 'TkAgg'
+    use = 'Agg'
 
     [[cairo]]
         # 'png' or 'ps' or 'pdf' or 'svg'
