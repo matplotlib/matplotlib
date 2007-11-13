@@ -1047,10 +1047,16 @@ class FigureCanvasPS(FigureCanvasBase):
         written into this file object.
         """
         isEPSF = format == 'eps'
-        title = outfile
-
-        # write to a temp file, we'll move it to outfile when done
-        tmpfile = os.path.join(gettempdir(), md5.md5(outfile).hexdigest())
+        passed_in_file_object = False
+        if is_string_like(outfile):
+            title = outfile
+            tmpfile = os.path.join(gettempdir(), md5.md5(outfile).hexdigest())
+        elif hasattr(outfile, 'write') and callable(outfile.write):
+            title = None
+            tmpfile = os.path.join(gettempdir(), md5.md5(str(hash(outfile))).hexdigest())
+            passed_in_file_object = True
+        else:
+            raise ValueError("outfile must be a path or a file-like object")
         fh = file(tmpfile, 'w')
 
         # find the appropriate papertype
@@ -1168,10 +1174,11 @@ class FigureCanvasPS(FigureCanvasBase):
         elif rcParams['ps.usedistiller'] == 'xpdf':
             xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
 
-        if  isinstance(outfile, file):
+        if passed_in_file_object:
             fh = file(tmpfile)
             print >>outfile, fh.read()
-        else: shutil.move(tmpfile, outfile)
+        else:
+            shutil.move(tmpfile, outfile)
 
     def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
                           orientation, isLandscape, papertype):

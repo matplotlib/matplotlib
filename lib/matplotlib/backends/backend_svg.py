@@ -5,6 +5,7 @@ import os, codecs, base64, tempfile, urllib, gzip
 from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
+from matplotlib.cbook import is_string_like
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, FontProperties
@@ -458,15 +459,27 @@ class FigureCanvasSVG(FigureCanvasBase):
                  'svgz': 'Scalable Vector Graphics'}
 
     def print_svg(self, filename, *args, **kwargs):
-        svgwriter = codecs.open(filename, 'w', 'utf-8')
-        return self._print_svg(filename, svgwriter)
-
+        if is_string_like(filename):
+            fh_to_close = svgwriter = codecs.open(filename, 'w', 'utf-8')
+        elif hasattr(filename, 'write') and callable(filename.write):
+            svgwriter = codecs.EncodedFile(filename, 'utf-8')
+            fh_to_close = None
+        else:
+            raise ValueError("filename must be a path or a file-like object")
+        return self._print_svg(filename, svgwriter, fh_to_close)
+            
     def print_svgz(self, filename, *args, **kwargs):
-        gzipwriter = gzip.GzipFile(filename, 'w')
-        svgwriter = codecs.EncodedFile(gzipwriter, 'utf-8')
-        return self._print_svg(filename, svgwriter)
+        if is_string_like(filename):
+            gzipwriter = gzip.GzipFile(filename, 'w')
+            fh_to_close = svgwriter = codecs.EncodedFile(gzipwriter, 'utf-8')
+        elif hasattr(filename, 'write') and callable(filename.write):
+            fh_to_close = gzipwriter = gzip.GzipFile(fileobj=filename, mode='w')
+            svgwriter = codecs.EncodedFile(gzipwriter, 'utf-8')
+        else:
+            raise ValueError("filename must be a path or a file-like object")
+        return self._print_svg(filename, svgwriter, fh_to_close)
     
-    def _print_svg(self, filename, svgwriter):
+    def _print_svg(self, filename, svgwriter, fh_to_close=None):
         self.figure.dpi.set(72)
         width, height = self.figure.get_size_inches()
         w, h = width*72, height*72
@@ -474,7 +487,8 @@ class FigureCanvasSVG(FigureCanvasBase):
         renderer = RendererSVG(w, h, svgwriter, filename)
         self.figure.draw(renderer)
         renderer.finish()
-        svgwriter.close()
+        if fh_to_close is not None:
+            svgwriter.close()
         
     def get_default_filetype(self):
         return 'svg'

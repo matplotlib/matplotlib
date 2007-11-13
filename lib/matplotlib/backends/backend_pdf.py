@@ -325,7 +325,15 @@ class PdfFile:
         self.width, self.height = width, height
         self.nextObject = 1     # next free object id
         self.xrefTable = [ [0, 65535, 'the zero object'] ]
-        fh = file(filename, 'wb')
+        self.passed_in_file_object = False
+        if is_string_like(filename):
+            fh = file(filename, 'wb')
+        elif hasattr(filename, 'write') and callable(filename.write):
+            fh = filename
+            self.passed_in_file_object = True
+        else:
+            raise ValueError("filename must be a path or a file-like object")
+        
         self.fh = fh
         self.currentstream = None # stream object to write to, if any
         fh.write("%PDF-1.4\n")    # 1.4 is the first version to have alpha
@@ -423,7 +431,8 @@ class PdfFile:
         self.writeMarkers()
         self.writeXref()
         self.writeTrailer()
-        self.fh.close()
+        if not self.passed_in_file_object:
+            self.fh.close()
 
     def write(self, data):
         if self.currentstream is None:
