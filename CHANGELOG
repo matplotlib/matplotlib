@@ -1,3 +1,7 @@
+2007-11-13 All backends now support writing to a file-like object, not
+	   just a regular file.  savefig() can be passed a file-like
+	   object in place of a file path. - MGD
+
 2007-11-13 Improved the default backend selection at build time:
            SVG -> Agg -> TkAgg -> WXAgg -> GTK -> GTKAgg. The last usable 
            backend in this progression will be chosen in the default 
