@@ -169,7 +169,6 @@ hasgtk = check_for_gtk()
 if options['build_gtk']:
     if hasgtk or (options['build_gtk'] is True):
         build_gdk(ext_modules, packages)
-        rc['backend'] = 'GTK'
 if options['build_gtkagg']:
     if hasgtk or (options['build_gtkagg'] is True):
         options['build_agg'] = 1

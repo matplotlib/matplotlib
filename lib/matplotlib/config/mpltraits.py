@@ -24,18 +24,22 @@ def is_string_like(obj):
 class BackendHandler(T.TraitHandler):
     """
     """
-    backends = {'tkagg': 'TkAgg',
+    backends = {'agg': 'Agg',
+                'cairo': 'Cairo',
+                'cocoaagg': 'CocoaAgg',
+                'fltkagg': 'FltkAgg',
+                'gtk': 'GTK',
                 'gtkagg': 'GTKAgg',
                 'gtkcairo': 'GTKCairo',
+                'pdf': 'Pdf',
+                'ps': 'PS',
                 'qt4agg': 'Qt4Agg',
                 'qtagg': 'QtAgg',
-                'wxagg': 'WXAgg',
-                'agg': 'Agg',
-                'cairo': 'Cairo',
-                'ps': 'PS',
-                'pdf': 'Pdf',
                 'svg': 'SVG',
-                'template': 'Template' }
+                'template': 'Template',
+                'tkagg': 'TkAgg',
+                'wx': 'WX',
+                'wxagg': 'WXAgg'}
 
     def validate(self, object, name, value):
         try:
@@ -46,7 +50,7 @@ class BackendHandler(T.TraitHandler):
     def info(self):
         be = self.backends.keys()
         be.sort
-        return "one of %s"% ', '.join(['%s'%i for i in be])
+        return "one of: %s"% ' | '.join(['%s'%i for i in be])
 
 
 class BoolHandler(T.TraitHandler):
@@ -73,7 +77,7 @@ class BoolHandler(T.TraitHandler):
             return self.error(object, name, value)
 
     def info(self):
-        return "one of %s"% ', '.join(['%s'%i for i in self.bools.keys()])
+        return "one of: %s"% ' | '.join(['%s'%i for i in self.bools.keys()])
 
 flexible_true = T.Trait(True, BoolHandler())
 flexible_false = T.Trait(False, BoolHandler())
