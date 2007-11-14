@@ -2266,7 +2266,7 @@ static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t lengt
 
 static void flush_png_data(png_structp png_ptr) {
   PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
-  PyObject* flush_method = PyObject_GetAttrString(py_file_obj, "write");
+  PyObject* flush_method = PyObject_GetAttrString(py_file_obj, "flush");
   if (flush_method) {
     PyObject_CallFunction(flush_method, "");
   }
