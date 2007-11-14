@@ -230,7 +230,7 @@ class AxesImage(Artist, cm.ScalarMappable):
         """
         retained for backwards compatibility - use set_data instead
 
-        ACCEPTS: numeric/numarray/PIL Image A"""
+        ACCEPTS: numpy array A or PIL Image"""
         # This also needs to be here to override the inherited
         # cm.ScalarMappable.set_array method so it is not invoked
         # by mistake.
