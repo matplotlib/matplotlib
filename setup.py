@@ -126,6 +126,7 @@ build_ft2font(ext_modules, packages)
 build_ttconv(ext_modules, packages)
 build_contour(ext_modules, packages)
 build_nxutils(ext_modules, packages)
+build_path(ext_modules, packages)
 
 build_swigagg(ext_modules, packages)
 
