@@ -11,8 +11,8 @@ import numpy as npy
 from matplotlib.numerix import npyma as ma
 
 from matplotlib._path import point_in_path, get_path_extents, \
-    point_in_path_collection
-import matplotlib._path as _path
+    point_in_path_collection, get_path_collection_extents, \
+    path_in_path
 from matplotlib.cbook import simple_linear_interpolation
 
 KAPPA = 4.0 * (npy.sqrt(2) - 1) / 3.0
@@ -128,6 +128,30 @@ class Path(object):
         self.codes = codes
 	self.vertices = vertices
 
+    #@staticmethod
+    def make_compound_path(*args):
+        """
+        Make a compound path from a list of Path objects.  Only
+        polygons (not curves) are supported.
+        """
+        for p in args:
+            assert p.codes is None
+
+        lengths = [len(x) for x in args]
+        total_length = sum(lengths)
+
+        vertices = npy.vstack([x.vertices for x in args])
+        vertices.reshape((total_length, 2))
+        
+        codes = Path.LINETO * npy.ones(total_length)
+        i = 0
+        for length in lengths:
+            codes[i] = Path.MOVETO
+            i += length
+            
+        return Path(vertices, codes)
+    make_compound_path = staticmethod(make_compound_path)
+    
     def __repr__(self):
 	return "Path(%s, %s)" % (self.vertices, self.codes)
 
@@ -186,9 +210,18 @@ class Path(object):
         """
         if transform is None:
             from transforms import IdentityTransform
-            transform = IdentityTransform
+            transform = IdentityTransform()
         return point_in_path(point[0], point[1], self, transform.frozen())
 
+    def contains_path(self, path, transform=None):
+        """
+        Returns True if this path completely contains the given path.
+        """
+        if transform is None:
+            from transforms import IdentityTransform
+            transform = IdentityTransform()
+        return path_in_path(self, IdentityTransform(), path, transform)
+        
     def get_extents(self, transform=None):
         """
         Returns the extents (xmin, ymin, xmax, ymax) of the path.
@@ -408,8 +441,9 @@ class Path(object):
         return cls.arc(theta1, theta2, True)
     wedge = classmethod(wedge)
 
+_get_path_collection_extents = get_path_collection_extents
 def get_path_collection_extents(*args):
     from transforms import Bbox
     if len(args[1]) == 0:
         raise ValueError("No paths provided")
-    return Bbox.from_extents(*_path.get_path_collection_extents(*args))
+    return Bbox.from_extents(*_get_path_collection_extents(*args))
