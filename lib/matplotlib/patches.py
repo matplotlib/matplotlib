@@ -152,7 +152,7 @@ class Patch(artist.Artist):
         ACCEPTS: any matplotlib color
         """
         self._facecolor = color
-
+        
     def set_linewidth(self, w):
         """
         Set the patch linewidth in points
@@ -522,6 +522,28 @@ class RegularPolygon(Patch):
     def get_patch_transform(self):
         return self._poly_transform
 	
+class PathPatch(Patch):
+    """
+    A general polycurve path patch.
+    """
+    def __str__(self):
+        return "Poly((%g, %g) ...)" % tuple(self._path.vertices[0])
+
+    def __init__(self, path, **kwargs):
+        """
+        path is a Path object
+        
+        Valid kwargs are:
+        %(Patch)s
+        See Patch documentation for additional kwargs
+        """
+        Patch.__init__(self, **kwargs)
+	self._path = path
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
+
+    def get_path(self):
+	return self._path
+
 class Polygon(Patch):
     """
     A general polygon patch.
@@ -549,7 +571,7 @@ class Polygon(Patch):
     def _set_xy(self, vertices):
         self._path = Path(vertices)
     xy = property(_get_xy, _set_xy)
-        
+    
 class Wedge(Patch):
     def __str__(self):
         return "Wedge(%g,%g)"%self.xy[0]

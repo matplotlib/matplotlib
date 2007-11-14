@@ -9,6 +9,8 @@
 #include "agg_path_storage.h"
 #include "agg_trans_affine.h"
 
+// MGDTODO: Un-CXX-ify this module
+
 // the extension module
 class _path_module : public Py::ExtensionModule<_path_module>
 {
@@ -26,6 +28,10 @@ public:
 		       "get_path_collection_extents(trans, paths, transforms, offsets, offsetTrans)");
     add_varargs_method("point_in_path_collection", &_path_module::point_in_path_collection,
 		       "point_in_path_collection(x, y, r, trans, paths, transforms, offsets, offsetTrans, filled)");
+    add_varargs_method("path_in_path", &_path_module::path_in_path,
+		       "point_in_path_collection(a, atrans, b, btrans)");
+    add_varargs_method("clip_path_to_rect", &_path_module::clip_path_to_rect,
+		       "clip_path_to_rect(path, bbox, inside)");
 
     initialize("Helper functions for paths");
   }
@@ -39,6 +45,8 @@ private:
   Py::Object get_path_extents(const Py::Tuple& args);
   Py::Object get_path_collection_extents(const Py::Tuple& args);
   Py::Object point_in_path_collection(const Py::Tuple& args);
+  Py::Object path_in_path(const Py::Tuple& args);
+  Py::Object clip_path_to_rect(const Py::Tuple& args);
 };
 
 //
@@ -85,11 +93,14 @@ bool point_in_path_impl(double tx, double ty, T& path) {
   double x, y;
 
   path.rewind(0);
-  unsigned code = path.vertex(&x, &y);
-  if (code == agg::path_cmd_stop)
-    return false;
 
+  inside_flag = 0;
+
+  unsigned code = 0;
   while (true) {
+    if (code != agg::path_cmd_move_to)
+      code = path.vertex(&x, &y);
+
     sx = vtx0 = x;
     sy = vty0 = y;
 
@@ -104,11 +115,11 @@ bool point_in_path_impl(double tx, double ty, T& path) {
       code = path.vertex(&x, &y);
 
       // The following cases denote the beginning on a new subpath
-      if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
+      if (code == agg::path_cmd_stop || (code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
 	x = sx; y = sy;
       } else if (code == agg::path_cmd_move_to)
 	break;
-      
+
       yflag1 = (vty1 >= ty);
       // Check if endpoints straddle (are on opposite sides) of X axis
       // (i.e. the Y's differ); if so, +X ray could intersect this edge.
@@ -146,26 +157,37 @@ bool point_in_path_impl(double tx, double ty, T& path) {
 	break;
     }
 
+    yflag1 = (vty1 >= ty);
+    if (yflag0 != yflag1) {
+      if ( ((vty1-ty) * (vtx0-vtx1) >=
+	    (vtx1-tx) * (vty0-vty1)) == yflag1 ) {
+	inside_flag ^= 1;
+      }
+    }
+
     if (inside_flag != 0)
       return true;
 
     if (code == agg::path_cmd_stop)
-      return false;
+      break;
   }
 
-  return false;
+  return (inside_flag != 0);
 }
 
-bool point_in_path(double x, double y, PathIterator& path, agg::trans_affine& trans) {
+inline bool point_in_path(double x, double y, PathIterator& path, const agg::trans_affine& trans) {
   typedef agg::conv_transform<PathIterator> transformed_path_t;
   typedef agg::conv_curve<transformed_path_t> curve_t;
   
+  if (path.total_vertices() < 3)
+    return false;
+
   transformed_path_t trans_path(path, trans);
   curve_t curved_path(trans_path);
   return point_in_path_impl(x, y, curved_path);
 }
 
-bool point_on_path(double x, double y, double r, PathIterator& path, agg::trans_affine& trans) {
+inline bool point_on_path(double x, double y, double r, PathIterator& path, const agg::trans_affine& trans) {
   typedef agg::conv_transform<PathIterator> transformed_path_t;
   typedef agg::conv_curve<transformed_path_t> curve_t;
   typedef agg::conv_stroke<curve_t> stroke_t;
@@ -204,7 +226,7 @@ Py::Object _path_module::point_on_path(const Py::Tuple& args) {
   return Py::Int(0);
 }
 
-void get_path_extents(PathIterator& path, agg::trans_affine& trans, 
+void get_path_extents(PathIterator& path, const agg::trans_affine& trans, 
 		      double* x0, double* y0, double* x1, double* y1) {
   typedef agg::conv_transform<PathIterator> transformed_path_t;
   typedef agg::conv_curve<transformed_path_t> curve_t;
@@ -392,6 +414,248 @@ Py::Object _path_module::point_in_path_collection(const Py::Tuple& args) {
 
   return result;
 }
+
+bool path_in_path(PathIterator& a, const agg::trans_affine& atrans,
+		  PathIterator& b, const agg::trans_affine& btrans) {
+  typedef agg::conv_transform<PathIterator> transformed_path_t;
+  typedef agg::conv_curve<transformed_path_t> curve_t;
+
+  if (a.total_vertices() < 3)
+    return false;
+  
+  transformed_path_t b_path_trans(b, btrans);
+  curve_t b_curved(b_path_trans);
+
+  double x, y;
+  b_curved.rewind(0);
+  while (b_curved.vertex(&x, &y) != agg::path_cmd_stop) {
+    if (!::point_in_path(x, y, a, atrans))
+      return false;
+  }
+  
+  return true;
+}
+
+Py::Object _path_module::path_in_path(const Py::Tuple& args) {
+  args.verify_length(4);
+
+  PathIterator a(args[0]);
+  agg::trans_affine atrans = py_to_agg_transformation_matrix(args[1]);
+  PathIterator b(args[2]);
+  agg::trans_affine btrans = py_to_agg_transformation_matrix(args[3]);
+
+  return Py::Int(::path_in_path(a, atrans, b, btrans));
+}
+
+/** The clip_path_to_rect code here is a clean-room implementation of the
+    Sutherland-Hodgman clipping algorithm described here:
+  
+  http://en.wikipedia.org/wiki/Sutherland-Hodgman_clipping_algorithm
+*/
+
+typedef std::vector<std::pair<double, double> > Polygon;
+
+namespace clip_to_rect_filters {
+  /* There are four different passes needed to create/remove vertices
+     (one for each side of the rectangle).  The differences between those
+     passes are encapsulated in these functor classes.
+  */
+  struct bisectx {
+    double m_x;
+
+    bisectx(double x) : m_x(x) {}
+
+    void bisect(double sx, double sy, double px, double py, double* bx, double* by) const {
+      *bx = m_x;
+      double dx = px - sx;
+      double dy = py - sy;
+      *by = sy + dy * ((m_x - sx) / dx);
+    }
+  };
+
+  struct xlt : public bisectx {
+    xlt(double x) : bisectx(x) {}
+
+    bool operator()(double x, double y) const {
+      return x <= m_x;
+    }
+  };
+
+  struct xgt : public bisectx {
+    xgt(double x) : bisectx(x) {}
+    
+    bool operator()(double x, double y) const {
+      return x >= m_x;
+    }
+  };
+
+  struct bisecty {
+    double m_y;
+
+    bisecty(double y) : m_y(y) {}
+
+    void bisect(double sx, double sy, double px, double py, double* bx, double* by) const {
+      *by = m_y;
+      double dx = px - sx;
+      double dy = py - sy;
+      *bx = sx + dx * ((m_y - sy) / dy);
+    }
+  };
+
+  struct ylt : public bisecty {
+    ylt(double y) : bisecty(y) {}
+
+    bool operator()(double x, double y) const {
+      return y <= m_y;
+    }
+  };
+
+  struct ygt : public bisecty {
+    ygt(double y) : bisecty(y) {}
+
+    bool operator()(double x, double y) const {
+      return y >= m_y;
+    }
+  };
+}
+
+template<class Filter>
+void clip_to_rect_one_step(const Polygon& polygon, Polygon& result, const Filter& filter) {
+  double sx, sy, px, py, bx, by;
+  bool sinside, pinside;
+  result.clear();
+
+  if (polygon.size() == 0)
+    return;
+
+  sx = polygon.back().first;
+  sy = polygon.back().second;
+  for (Polygon::const_iterator i = polygon.begin(); i != polygon.end(); ++i) {
+    px = i->first;
+    py = i->second;
+    
+    sinside = filter(sx, sy);
+    pinside = filter(px, py);
+    
+    if (sinside) {
+      if (pinside) {
+	result.push_back(std::make_pair(px, py));
+      } else {
+	filter.bisect(sx, sy, px, py, &bx, &by);
+	result.push_back(std::make_pair(bx, by));
+      }
+    } else {
+      if (pinside) {
+	filter.bisect(sx, sy, px, py, &bx, &by);
+	result.push_back(std::make_pair(bx, by));
+	result.push_back(std::make_pair(px, py));
+      }
+    }
+    
+    sx = px; sy = py;
+  }
+}   
+
+void clip_to_rect(PathIterator& path, 
+		  double x0, double y0, double x1, double y1, 
+		  bool inside, std::vector<Polygon>& results) {
+  double xmin, ymin, xmax, ymax;
+  if (x0 < x1) {
+    xmin = x0; xmax = x1;
+  } else {
+    xmin = x1; xmax = x0;
+  }
+
+  if (y0 < y1) {
+    ymin = y0; ymax = y1;
+  } else {
+    ymin = y1; ymax = y0;
+  }
+
+  if (!inside) {
+    std::swap(xmin, xmax);
+    std::swap(ymin, ymax);
+  }
+
+  Polygon polygon1, polygon2;
+  double x, y;
+  unsigned code = 0;
+  path.rewind(0);
+
+  while (true) {
+    polygon1.clear();
+    while (true) {
+      if (code == agg::path_cmd_move_to)
+	polygon1.push_back(std::make_pair(x, y));
+
+      code = path.vertex(&x, &y);
+
+      if (code == agg::path_cmd_stop)
+	break;
+
+      if (code != agg::path_cmd_move_to)
+	polygon1.push_back(std::make_pair(x, y));
+
+      if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
+	break;
+      } else if (code == agg::path_cmd_move_to) {
+	break;
+      }
+    }
+
+    // The result of each step is fed into the next (note the
+    // swapping of polygon1 and polygon2 at each step).
+    clip_to_rect_one_step(polygon1, polygon2, clip_to_rect_filters::xlt(xmax));
+    clip_to_rect_one_step(polygon2, polygon1, clip_to_rect_filters::xgt(xmin));
+    clip_to_rect_one_step(polygon1, polygon2, clip_to_rect_filters::ylt(ymax));
+    clip_to_rect_one_step(polygon2, polygon1, clip_to_rect_filters::ygt(ymin));
+
+    if (polygon1.size())
+      results.push_back(polygon1);
+
+    if (code == agg::path_cmd_stop)
+      break;
+  }
+}
+
+Py::Object _path_module::clip_path_to_rect(const Py::Tuple &args) {
+  args.verify_length(3);
+  
+  PathIterator path(args[0]);
+  Py::Object bbox_obj = args[1];
+  bool inside = Py::Int(args[2]);
+
+  double x0, y0, x1, y1;
+  if (!py_convert_bbox(bbox_obj.ptr(), x0, y0, x1, y1))
+    throw Py::TypeError("Argument 2 to clip_to_rect must be a Bbox object.");
+
+  std::vector<Polygon> results;
+
+  ::clip_to_rect(path, x0, y0, x1, y1, inside, results);
+
+  // MGDTODO: Not exception safe
+  int dims[2];
+  dims[1] = 2;
+  PyObject* py_results = PyList_New(results.size());
+  for (std::vector<Polygon>::const_iterator p = results.begin(); p != results.end(); ++p) {
+    size_t size = p->size();
+    dims[0] = p->size();
+    PyArrayObject* pyarray = (PyArrayObject*)PyArray_FromDims(2, dims, PyArray_DOUBLE);
+    for (size_t i = 0; i < size; ++i) {
+      ((double *)pyarray->data)[2*i] = (*p)[i].first;
+      ((double *)pyarray->data)[2*i+1] = (*p)[i].second;
+    }
+    // MGDTODO: Error check
+    PyList_SetItem(py_results, p - results.begin(), (PyObject *)pyarray);
+  }
+
+  return Py::Object(py_results, true);
+}
+
+struct XY {
+  double x;
+  double y;
+};
 
 extern "C"
 DL_EXPORT(void)
