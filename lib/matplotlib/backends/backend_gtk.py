@@ -19,7 +19,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
 from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
-from matplotlib.cbook import is_string_like, enumerate
+from matplotlib.cbook import is_string_like, is_writable_file_like, enumerate
 from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
@@ -370,7 +370,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                 pixbuf.save(filename, format)
             except gobject.GError, exc:
                 error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
-        elif hasattr(filename, 'write') and callable(filename.write):
+        elif is_writable_file_like(filename):
             if hasattr(pixbuf, 'save_to_callback'):
                 def save_callback(buf, data=None):
                     data.write(buf)

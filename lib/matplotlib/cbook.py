@@ -213,6 +213,9 @@ def is_string_like(obj):
     except (TypeError, ValueError): return 0
     return 1
 
+def is_writable_file_like(obj):
+    return hasattr(filename, 'write') and callable(filename.write)
+
 def is_scalar(obj):
     return is_string_like(obj) or not iterable(obj)
 
