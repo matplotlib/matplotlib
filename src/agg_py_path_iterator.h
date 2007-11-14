@@ -20,7 +20,7 @@ public:
     
     m_vertices = (PyArrayObject*)PyArray_FromObject
       (vertices_obj.ptr(), PyArray_DOUBLE, 2, 2);
-    if (!m_vertices || m_vertices->nd != 2 || m_vertices->dimensions[1] != 2)
+    if (!m_vertices || PyArray_NDIM(m_vertices) != 2 || PyArray_DIM(m_vertices, 1) != 2)
       throw Py::ValueError("Invalid vertices array.");
 
     if (codes_obj.ptr() != Py_None) {
