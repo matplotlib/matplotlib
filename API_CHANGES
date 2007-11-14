@@ -169,6 +169,9 @@ TRANSFORMS REFACTORING
 		
 END OF TRANSFORMS REFACTORING
 
+    Changed cbook.is_file_like to cbook.is_writable_file_like and
+    corrected behavior.
+
     Moved mlab.csv2rec -> recutils.csv2rec
 
     Added ax kwarg to pyplot.colorbar and Figure.colorbar so that

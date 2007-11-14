@@ -19,8 +19,6 @@ TODO:
   * allow save to file handle
 
   * integrate screen dpi w/ ppi and text
-
-INSTALLING
 """
 from __future__ import division
 import os, sys, weakref

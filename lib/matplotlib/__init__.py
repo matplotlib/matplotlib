@@ -118,8 +118,7 @@ if not _python23:
 
 
 def is_string_like(obj):
-    if hasattr(obj, 'shape'): return 0 # this is a workaround
-                                       # for a bug in numeric<23.1
+    if hasattr(obj, 'shape'): return 0
     try: obj + ''
     except (TypeError, ValueError): return 0
     return 1

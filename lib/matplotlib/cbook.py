@@ -209,19 +209,13 @@ def iterable(obj):
 
 
 def is_string_like(obj):
-    if hasattr(obj, 'shape'): return 0 # this is a workaround
-                                       # for a bug in numeric<23.1
+    if hasattr(obj, 'shape'): return 0
     try: obj + ''
     except (TypeError, ValueError): return 0
     return 1
 
-
-def is_file_like(obj):
-    if hasattr(obj, 'shape'): return 0 # this is a workaround
-                                       # for a bug in numeric<23.1
-    try: obj + ''
-    except (TypeError, ValueError): return 0
-    return 1
+def is_writable_file_like(obj):
+    return hasattr(filename, 'write') and callable(filename.write)
 
 def is_scalar(obj):
     return is_string_like(obj) or not iterable(obj)

@@ -353,7 +353,7 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
     # zero pad x up to NFFT if it is shorter than NFFT
     if len(x)<NFFT:
         n = len(x)
-        x = resize(x, (NFFT,))
+        x = npy.resize(x, (NFFT,))
         x[n:] = 0
 
 
@@ -533,7 +533,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     Cxy, Phase, freqs = cohere_pairs( X, ij, ...)
 
     Compute the coherence for all pairs in ij.  X is a
-    numSamples,numCols Numeric array.  ij is a list of tuples (i,j).
+    numSamples,numCols numpy array.  ij is a list of tuples (i,j).
     Each tuple is a pair of indexes into the columns of X for which
     you want to compute coherence.  For example, if X has 64 columns,
     and you want to compute all nonredundant pairs, define ij as
@@ -894,7 +894,7 @@ def rk4(derivs, y0, t):
     Example 1 :
 
         ## 2D system
-        # Numeric solution
+
         def derivs6(x,t):
             d1 =  x[0] + 2*x[1]
             d2 =  -3*x[0] + 4*x[1]
@@ -1480,8 +1480,7 @@ def poly_between(x, ylower, yupper):
 """
 A set of convenient utilities for numerical work.
 
-Most of this module requires Numerical Python or is meant to be used with it.
-See http://www.pfdubois.com/numpy for details.
+Most of this module requires numpy or is meant to be used with it.
 
 Copyright (c) 2001-2004, Fernando Perez. <Fernando.Perez@colorado.edu>
 All rights reserved.
@@ -1754,7 +1753,7 @@ def ispower2(n):
 
 #from numpy import fromfunction as fromfunction_kw
 def fromfunction_kw(function, dimensions, **kwargs):
-    """Drop-in replacement for fromfunction() from Numerical Python.
+    """Drop-in replacement for fromfunction() from numpy
 
     Allows passing keyword arguments to the desired function.
 
@@ -1938,11 +1937,7 @@ def approx_real(x):
 
 ### end mlab2 functions
 
-#Classes for manipulating and viewing numpy record arrays
-
-
-
-
+#helpers for loading, saving, manipulating and viewing numpy record arrays
 
 def safe_isnan(x):
     'isnan for arbitrary types'
@@ -2236,10 +2231,10 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
 # a series of classes for describing the format intentions of various rec views
 class FormatObj:
     def tostr(self, x):
-        return str(self.toval(x))
+        return self.toval(x)
     
     def toval(self, x):
-        return x
+        return str(x)
 
 
 class FormatString(FormatObj):

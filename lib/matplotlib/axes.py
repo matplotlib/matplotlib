@@ -4413,7 +4413,7 @@ class Axes(martist.Artist):
                origin=None, extent=None)
 
         IMSHOW(I) - plot image I to current axes, resampling to scale to axes
-                    size (I may be numarray/Numeric array or PIL image)
+                    size (I may be numpy array or PIL image)
 
         IMSHOW(I, X, Y) - plot image I to current axes, with
                           nonuniform X and Y axes.  (I, X and Y may be
@@ -4988,10 +4988,10 @@ class Axes(martist.Artist):
         return n, bins, cbook.silent_list('Patch', patches)
     hist.__doc__ = cbook.dedent(hist.__doc__) % martist.kwdocd
 
-    def psd(self, x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+    def psd(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0, **kwargs):
         """
-        PSD(x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+        PSD(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0, **kwargs)
 
         The power spectral density by Welches average periodogram method.  The
@@ -5002,22 +5002,27 @@ class Axes(martist.Artist):
         with a scaling to correct for power loss due to windowing.  Fs is the
         sampling frequency.
 
-            NFFT is the length of the fft segment; must be a power of 2
+            * NFFT is the length of the fft segment; must be a power of 2
 
-            Fs is the sampling frequency.
+            * Fs is the sampling frequency.
 
-            detrend - the function applied to each segment before fft-ing,
+            * Fc is the center frequency of x (defaults to 0), which offsets
+              the yextents of the image to reflect the frequency range used
+              when a signal is acquired and then filtered and downsampled to
+              baseband.
+
+            * detrend - the function applied to each segment before fft-ing,
               designed to remove the mean or linear trend.  Unlike in matlab,
               where the detrend parameter is a vector, in matplotlib is it a
               function.  The mlab module defines detrend_none, detrend_mean,
               detrend_linear, but you can use a custom function as well.
 
-            window - the function used to window the segments.  window is a
+            * window - the function used to window the segments.  window is a
               function, unlike in matlab(TM) where it is a vector.  mlab defines
               window_none, window_hanning, but you can use a custom function
               as well.
 
-            noverlap gives the length of the overlap between segments.
+            * noverlap gives the length of the overlap between segments.
 
         Returns the tuple Pxx, freqs
 
@@ -5035,6 +5040,7 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
         pxx, freqs = mlab.psd(x, NFFT, Fs, detrend, window, noverlap)
         pxx.shape = len(freqs),
+        freqs += Fc
 
         self.plot(freqs, 10*npy.log10(pxx), **kwargs)
         self.set_xlabel('Frequency')
@@ -5052,10 +5058,10 @@ class Axes(martist.Artist):
         return pxx, freqs
     psd.__doc__ = cbook.dedent(psd.__doc__) % martist.kwdocd
 
-    def csd(self, x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+    def csd(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0, **kwargs):
         """
-        CSD(x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+        CSD(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
             window=window_hanning, noverlap=0, **kwargs)
 
         The cross spectral density Pxy by Welches average periodogram method.
@@ -5081,6 +5087,7 @@ class Axes(martist.Artist):
         pxy, freqs = mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap)
         pxy.shape = len(freqs),
         # pxy is complex
+        freqs += Fc
 
         self.plot(freqs, 10*npy.log10(npy.absolute(pxy)), **kwargs)
         self.set_xlabel('Frequency')
@@ -5097,11 +5104,10 @@ class Axes(martist.Artist):
         return pxy, freqs
     csd.__doc__ = cbook.dedent(csd.__doc__) % martist.kwdocd
 
-    def cohere(self, x, y, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+    def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                window=mlab.window_hanning, noverlap=0, **kwargs):
         """
-        COHERE(x, y, NFFT=256, Fs=2,
-              detrend = mlab.detrend_none,
+        COHERE(x, y, NFFT=256, Fs=2, Fc=0, detrend = mlab.detrend_none,
               window = mlab.window_hanning, noverlap=0, **kwargs)
 
         cohere the coherence between x and y.  Coherence is the normalized
@@ -5126,6 +5132,7 @@ class Axes(martist.Artist):
         """
         if not self._hold: self.cla()
         cxy, freqs = mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap)
+        freqs += Fc
 
         self.plot(freqs, cxy, **kwargs)
         self.set_xlabel('Frequency')
@@ -5135,11 +5142,11 @@ class Axes(martist.Artist):
         return cxy, freqs
     cohere.__doc__ = cbook.dedent(cohere.__doc__) % martist.kwdocd
 
-    def specgram(self, x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+    def specgram(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                  window=mlab.window_hanning, noverlap=128,
                  cmap = None, xextent=None):
         """
-        SPECGRAM(x, NFFT=256, Fs=2, detrend=mlab.detrend_none,
+        SPECGRAM(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                  window = mlab.window_hanning, noverlap=128,
                  cmap=None, xextent=None)
 
@@ -5181,7 +5188,8 @@ class Axes(martist.Artist):
 
         if xextent is None: xextent = 0, npy.amax(bins)
         xmin, xmax = xextent
-        extent = xmin, xmax, npy.amin(freqs), npy.amax(freqs)
+        freqs += Fc
+        extent = xmin, xmax, freqs[0], freqs[-1]
         im = self.imshow(Z, cmap, extent=extent)
         self.axis('auto')
 
