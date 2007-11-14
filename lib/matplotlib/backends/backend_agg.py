@@ -26,8 +26,9 @@ INSTALLING
 
   REQUIREMENTs
 
-    python2.2+
-    Numeric 22+
+    python2.3+
+    numpy 1.0 + 
+    
     agg2 (see below)
     freetype 2
     libpng

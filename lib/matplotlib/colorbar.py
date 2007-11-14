@@ -509,7 +509,7 @@ class ColorbarBase(cm.ScalarMappable):
         N = len(b)
         ii = npy.minimum(npy.searchsorted(b, xn), N-1)
         i0 = npy.maximum(ii - 1, 0)
-        #db = b[ii] - b[i0]  (does not work with Numeric)
+        #db = b[ii] - b[i0] 
         db = npy.take(b, ii) - npy.take(b, i0)
         db = npy.where(i0==ii, 1.0, db)
         #dy = y[ii] - y[i0]

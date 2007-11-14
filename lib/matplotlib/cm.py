@@ -56,7 +56,7 @@ class ScalarMappable:
         return x
 
     def set_array(self, A):
-        'Set the image array from numeric/numarray A'
+        'Set the image array from numpy array A'
         self._A = A
 
     def get_array(self):

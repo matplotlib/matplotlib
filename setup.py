@@ -263,15 +263,16 @@ for mod in ext_modules:
 
 distrib = setup(name="matplotlib",
       version= __version__,
-      description = "Matlab(TM) style python plotting package",
+      description = "Python plotting package",
       author = "John D. Hunter",
       author_email="jdh2358@gmail.com",
       url = "http://matplotlib.sourceforge.net",
       long_description = """
       matplotlib strives to produce publication quality 2D graphics
-      using matlab plotting for inspiration.  Although the main lib is
-      object oriented, there is a functional interface "pylab"
-      for people coming from Matlab.
+      for interactive graphing, scientific publishing, user interface
+      development and web application servers targeting multiple user
+      interfaces and hardcopy output formats.  There is a 'pylab' mode
+      which emulates matlab graphics
       """,
       packages = packages,
       platforms='any',

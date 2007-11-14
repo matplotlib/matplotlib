@@ -23,7 +23,7 @@ DEBUG = False
 class MPLConfig(TConfig):
     """
     This is a sample matplotlib configuration file.  It should be placed
-    in HOME/.matplotlib/matplotlibrc (unix/linux like systems) and
+    in HOME/.matplotlib (unix/linux like systems) and
     C:\Documents and Settings\yourname\.matplotlib (win32 systems)
 
     By default, the installer will overwrite the existing file in the install
