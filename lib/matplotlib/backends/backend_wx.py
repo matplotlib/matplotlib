@@ -381,7 +381,12 @@ class RendererWx(RendererBase):
         y = int(y-h)
 
         if angle!=0:
-            try: gc.DrawRotatedText(s, x, y, angle)
+            # Correct for the fact that text if rotated around the upper-left corner,
+            # rather than the lower-left corner as we expect.
+            rads = angle / 180.0 * math.pi
+            xo = h * math.sin(rads)
+            yo = h * math.cos(rads)
+            try: gc.DrawRotatedText(s, x - xo, y - yo, angle)
             except:
                 verbose.print_error(exception_to_str('WX rotated text failed'))
         else:
