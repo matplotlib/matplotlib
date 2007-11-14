@@ -7,17 +7,22 @@ from __future__ import division
 import sys, os
 
 import numpy as npy
-import numerix.ma as ma
+
+import matplotlib.numerix.npyma as ma
 
 from matplotlib import rcParams
-from artist import Artist
-from colors import colorConverter
-import cm
-import _image
+from matplotlib import artist as martist
+from matplotlib import colors as mcolors
+from matplotlib import cm
 
+# For clarity, names from _image are given explicitly in this module:
+from matplotlib import _image
 
-from _image import *
-class AxesImage(Artist, cm.ScalarMappable):
+# For user convenience, the names from _image are also imported into
+# the image namespace:
+from matplotlib._image import *
+
+class AxesImage(martist.Artist, cm.ScalarMappable):
 
     def __init__(self, ax,
                  cmap = None,
@@ -43,7 +48,7 @@ class AxesImage(Artist, cm.ScalarMappable):
         Additional kwargs are matplotlib.artist properties
 
         """
-        Artist.__init__(self)
+        martist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
 
         if origin is None: origin = rcParams['image.origin']
@@ -101,7 +106,7 @@ class AxesImage(Artist, cm.ScalarMappable):
 
         ACCEPTS: float
         """
-        Artist.set_alpha(self, alpha)
+        martist.Artist.set_alpha(self, alpha)
         self._imcache = None
 
     def changed(self):
@@ -135,7 +140,8 @@ class AxesImage(Artist, cm.ScalarMappable):
         else:
             im = self._imcache
 
-        bg = colorConverter.to_rgba(self.axes.get_frame().get_facecolor(), 0)
+        fc = self.axes.get_frame().get_facecolor()
+        bg = mcolors.colorConverter.to_rgba(fc, 0)
         im.set_bg( *bg)
 
         # image input dimensions
@@ -236,12 +242,12 @@ class AxesImage(Artist, cm.ScalarMappable):
         # by mistake.
 
         self.set_data(A)
-    
+
     def set_extent(self, extent):
         """extent is data axes (left, right, bottom, top) for making image plots
         """
         self._extent = extent
-        
+
         xmin, xmax, ymin, ymax = extent
         corners = (xmin, ymin), (xmax, ymax)
         self.axes.update_datalim(corners)
@@ -338,10 +344,9 @@ class NonUniformImage(AxesImage):
         height *= magnification
         im = _image.pcolor(self._Ax, self._Ay, self._A,
                            height, width,
-                           (x0, x0+v_width, y0, y0+v_height),
-                          )
-
-        bg = colorConverter.to_rgba(self.axes.get_frame().get_facecolor(), 0)
+                           (x0, x0+v_width, y0, y0+v_height))
+        fc = self.axes.get_frame().get_facecolor()
+        bg = mcolors.colorConverter.to_rgba(fc, 0)
         im.set_bg(*bg)
         return im
 
@@ -408,7 +413,7 @@ class NonUniformImage(AxesImage):
 
 
 
-class FigureImage(Artist, cm.ScalarMappable):
+class FigureImage(martist.Artist, cm.ScalarMappable):
     def __init__(self, fig,
                  cmap = None,
                  norm = None,
@@ -422,7 +427,7 @@ class FigureImage(Artist, cm.ScalarMappable):
         norm is a colors.Normalize instance to map luminance to 0-1
 
         """
-        Artist.__init__(self)
+        martist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
         if origin is None: origin = rcParams['image.origin']
         self.origin = origin
@@ -470,7 +475,8 @@ class FigureImage(Artist, cm.ScalarMappable):
         x = self.to_rgba(self._A, self._alpha)
 
         im = _image.fromarray(x, 1)
-        im.set_bg( *colorConverter.to_rgba(self.figure.get_facecolor(), 0) )
+        fc = self.figure.get_facecolor()
+        im.set_bg( *mcolors.colorConverter.to_rgba(fc, 0) )
         im.is_grayscale = (self.cmap.name == "gray" and
                            len(self._A.shape) == 2)
         if self.origin=='upper':
