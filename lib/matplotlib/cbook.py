@@ -208,12 +208,7 @@ def iterable(obj):
 
 
 def is_string_like(obj):
-    try: obj + ''
-    except (TypeError, ValueError): return 0
-    return 1
-
-
-def is_file_like(obj):
+    if hasattr(obj, 'shape'): return 0
     try: obj + ''
     except (TypeError, ValueError): return 0
     return 1

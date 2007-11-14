@@ -1,4 +1,5 @@
-
+    removed cbook.is_file_like, which appears to be broken and unused.
+ 
     Added ax kwarg to pyplot.colorbar and Figure.colorbar so that
     one can specify the axes object from which space for the colorbar
     is to be taken, if one does not want to make the colorbar axes
