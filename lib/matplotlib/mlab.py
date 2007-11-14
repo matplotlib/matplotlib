@@ -353,7 +353,7 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
     # zero pad x up to NFFT if it is shorter than NFFT
     if len(x)<NFFT:
         n = len(x)
-        x = resize(x, (NFFT,))
+        x = npy.resize(x, (NFFT,))
         x[n:] = 0
 
 
