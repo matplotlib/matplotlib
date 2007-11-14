@@ -680,7 +680,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
             defaultextension = self.canvas.get_default_filetype()
             )
 
-        if fname == "" :
+        if fname == "" or fname == ():
             return
         else:
             try:
