@@ -152,7 +152,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      cursors
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.artist import Artist
-from matplotlib.cbook import exception_to_str, is_string_like
+from matplotlib.cbook import exception_to_str, is_string_like, is_writable_file_like
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.text import _process_text_args, Text
@@ -343,8 +343,10 @@ class RendererWx(RendererBase):
         if angle == 0.0:
             gfx_ctx.DrawText(s, x, y)
         else:
-            angle = angle * (math.pi / 180.0)
-            gfx_ctx.DrawRotatedText(s, x, y, angle)
+            angle = angle / 180.0 * math.pi
+            xo = h * math.sin(rads)
+            yo = h * math.cos(rads)
+            gfx_ctx.DrawRotatedText(s, x - xo, y - yo, angle)
             
         gc.unselect()
 
@@ -976,7 +978,7 @@ The current aspect ration will be kept."""
                 # the error on a call or print_figure may not work because
                 # printing can be qued and called from realize
                 raise RuntimeError('Could not save figure to %s\n' % (filename))
-        elif hasattr(filename, 'write') and callable(filename.write):
+        elif is_writable_file_like(filename):
             if not self.bitmap.ConvertToImage().SaveStream(filename, filetype):
                 DEBUG_MSG('print_figure() file save error', 4, self)
                 raise RuntimeError('Could not save figure to %s\n' % (filename))

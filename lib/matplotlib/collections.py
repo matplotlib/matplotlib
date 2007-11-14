@@ -364,7 +364,7 @@ class QuadMesh(Collection):
     thus (meshWidth * meshHeight) quadrilaterals in the mesh.
     The mesh need not be regular and the polygons need not be convex.
     A quadrilateral mesh is represented by a
-    (2 x ((meshWidth + 1) * (meshHeight + 1))) Numeric array
+    (2 x ((meshWidth + 1) * (meshHeight + 1))) numpy array
     'coordinates' where each row is the X and Y coordinates of one
     of the vertices.
     To define the function that maps from a data point to

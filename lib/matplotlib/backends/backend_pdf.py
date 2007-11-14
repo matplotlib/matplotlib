@@ -24,7 +24,8 @@ from matplotlib import __version__, rcParams, agg, get_data_path
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict, get_realpath_and_stat
+from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict, \
+    get_realpath_and_stat, is_writable_file_like
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font
 from matplotlib.afm import AFM
@@ -333,7 +334,7 @@ class PdfFile:
         self.passed_in_file_object = False
         if is_string_like(filename):
             fh = file(filename, 'wb')
-        elif hasattr(filename, 'write') and callable(filename.write):
+        elif is_writable_file_like(filename):
             fh = filename
             self.passed_in_file_object = True
         else:

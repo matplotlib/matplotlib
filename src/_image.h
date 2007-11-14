@@ -134,6 +134,8 @@ public:
 		       "from_images");
     add_varargs_method("pcolor", &_image_module::pcolor,
                "pcolor");
+    add_varargs_method("pcolor2", &_image_module::pcolor2,
+               "pcolor2");
     initialize( "The _image module" );
   }
 
@@ -145,11 +147,13 @@ private:
   Py::Object fromarray (const Py::Tuple &args);
   Py::Object fromarray2 (const Py::Tuple &args);
   Py::Object pcolor (const Py::Tuple &args);
+  Py::Object pcolor2 (const Py::Tuple &args);
   Py::Object readpng (const Py::Tuple &args);
   Py::Object from_images (const Py::Tuple &args);
 
   static char _image_module_fromarray__doc__[];
   static char _image_module_pcolor__doc__[];
+  static char _image_module_pcolor2__doc__[];
   static char _image_module_fromarray2__doc__[];
   static char _image_module_frombyte__doc__[];
   static char _image_module_frombuffer__doc__[];

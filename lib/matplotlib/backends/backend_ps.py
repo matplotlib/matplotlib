@@ -15,7 +15,8 @@ from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
-from matplotlib.cbook import is_string_like, izip, get_realpath_and_stat
+from matplotlib.cbook import is_string_like, izip, get_realpath_and_stat, \
+    is_writable_file_like
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import findfont, is_opentype_cff_font
@@ -873,7 +874,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if is_string_like(outfile):
             title = outfile
             tmpfile = os.path.join(gettempdir(), md5.md5(outfile).hexdigest())
-        elif hasattr(outfile, 'write') and callable(outfile.write):
+        elif is_writable_file_like(outfile):
             title = None
             tmpfile = os.path.join(gettempdir(), md5.md5(str(hash(outfile))).hexdigest())
             passed_in_file_object = True

@@ -35,7 +35,9 @@ for a in sys.argv:
         use_maskedarray = True
     if a == "--ma":
         use_maskedarray = False
-del a
+
+try: del a
+except NameError: pass
 
 if which[0] is None:
     try:  # In theory, rcParams always has *some* value for numerix.

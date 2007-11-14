@@ -5,7 +5,7 @@ import os, codecs, base64, tempfile, urllib, gzip
 from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import is_string_like
+from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, FontProperties
@@ -503,7 +503,7 @@ class FigureCanvasSVG(FigureCanvasBase):
     def print_svg(self, filename, *args, **kwargs):
         if is_string_like(filename):
             fh_to_close = svgwriter = codecs.open(filename, 'w', 'utf-8')
-        elif hasattr(filename, 'write') and callable(filename.write):
+        elif is_writable_file_like(filename):
             svgwriter = codecs.EncodedFile(filename, 'utf-8')
             fh_to_close = None
         else:
@@ -514,7 +514,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         if is_string_like(filename):
             gzipwriter = gzip.GzipFile(filename, 'w')
             fh_to_close = svgwriter = codecs.EncodedFile(gzipwriter, 'utf-8')
-        elif hasattr(filename, 'write') and callable(filename.write):
+        elif is_writable_file_like(filename):
             fh_to_close = gzipwriter = gzip.GzipFile(fileobj=filename, mode='w')
             svgwriter = codecs.EncodedFile(gzipwriter, 'utf-8')
         else:

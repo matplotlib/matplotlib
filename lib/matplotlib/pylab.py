@@ -191,11 +191,6 @@ _Other
 
 __end
 
-Credits: The plotting commands were provided by
-John D. Hunter <jdhunter@ace.bsd.uchicago.edu>
-
-Most of the other commands are from Numeric, MLab and FFT, with the
-exception of those in mlab.py provided by matplotlib.
 """
 import sys, warnings
 
