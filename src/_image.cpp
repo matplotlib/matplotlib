@@ -1403,8 +1403,8 @@ _image_module::pcolor(const Py::Tuple& args) {
   // Create output
   Image* imo = new Image;
   imo->rowsIn = rows;
-  imo->rowsOut = rows;
   imo->colsIn = cols;
+  imo->rowsOut = rows;
   imo->colsOut = cols;
   size_t NUMBYTES(rows * cols * 4);
   agg::int8u *buffer = new agg::int8u[NUMBYTES];
@@ -1499,6 +1499,227 @@ _image_module::pcolor(const Py::Tuple& args) {
   return Py::asObject(imo);
 }
 
+void _bin_indices(int *irows, int nrows, double *y, int ny,
+                                            double sc, double offs)
+{
+    int i;
+    if (sc*(y[ny-1] - y[0]) > 0)
+    {
+        int ii = 0;
+        int iilast = ny-1;
+        int iy0 = (int)floor(sc * (y[ii]  - offs));
+        int iy1 = (int)floor(sc * (y[ii+1]  - offs));
+        for (i=0; i<nrows && i<iy0; i++) {
+            irows[i] = -1;
+        }
+        for (; i<nrows; i++) {
+            while (i > iy1 && ii < iilast) {
+                ii++;
+                iy0 = iy1;
+                iy1 = (int)floor(sc * (y[ii+1] - offs));
+            }
+            if (i >= iy0 && i <= iy1) irows[i] = ii;
+            else break;
+        }
+        for (; i<nrows; i++) {
+            irows[i] = -1;
+        }
+    }
+    else
+    {
+        int iilast = ny-1;
+        int ii = iilast;
+        int iy0 = (int)floor(sc * (y[ii]  - offs));
+        int iy1 = (int)floor(sc * (y[ii-1]  - offs));
+        for (i=0; i<nrows && i<iy0; i++) {
+            irows[i] = -1;
+        }
+        for (; i<nrows; i++) {
+            while (i > iy1 && ii > 1) {
+                ii--;
+                iy0 = iy1;
+                iy1 = (int)floor(sc * (y[ii-1] - offs));
+            }
+            if (i >= iy0 && i <= iy1) irows[i] = ii-1;
+            else break;
+        }
+        for (; i<nrows; i++) {
+            irows[i] = -1;
+        }
+    }
+}
+
+char __image_module_pcolor2__doc__[] =
+"pcolor2(x, y, data, rows, cols, bounds, bg)\n"
+"\n"
+"Generate a pseudo-color image from data on a non-uniform grid\n"
+"specified by its cell boundaries.\n"
+"bounds = (x_left, x_right, y_bot, y_top)\n"
+"bg = ndarray of 4 uint8 representing background rgba\n"
+;
+Py::Object
+_image_module::pcolor2(const Py::Tuple& args) {
+    _VERBOSE("_image_module::pcolor2");
+
+    if (args.length() != 7)
+        throw Py::TypeError("Incorrect number of arguments (6 expected)");
+
+    Py::Object xp = args[0];
+    Py::Object yp = args[1];
+    Py::Object dp = args[2];
+    int rows = Py::Int(args[3]);
+    int cols = Py::Int(args[4]);
+    Py::Tuple bounds = args[5];
+    Py::Object bgp = args[6];
+
+    if (bounds.length() !=4)
+        throw Py::TypeError("Incorrect number of bounds (4 expected)");
+    double x_left = Py::Float(bounds[0]);
+    double x_right = Py::Float(bounds[1]);
+    double y_bot = Py::Float(bounds[2]);
+    double y_top = Py::Float(bounds[3]);
+
+    // Check we have something to output to
+    if (rows == 0 || cols ==0)
+        throw Py::ValueError("rows or cols is zero; there are no pixels");
+
+    // Get numpy arrays
+    PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(),
+                                                          PyArray_DOUBLE, 1, 1);
+    if (x == NULL)
+        throw Py::ValueError("x is of incorrect type (wanted 1D double)");
+    PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yp.ptr(),
+                                                          PyArray_DOUBLE, 1, 1);
+    if (y == NULL) {
+        Py_XDECREF(x);
+        throw Py::ValueError("y is of incorrect type (wanted 1D double)");
+    }
+    PyArrayObject *d = (PyArrayObject *) PyArray_ContiguousFromObject(dp.ptr(),
+                                                          PyArray_UBYTE, 3, 3);
+    if (d == NULL) {
+        Py_XDECREF(x);
+        Py_XDECREF(y);
+        throw Py::ValueError("data is of incorrect type (wanted 3D uint8)");
+    }
+    if (d->dimensions[2] != 4) {
+        Py_XDECREF(x);
+        Py_XDECREF(y);
+        Py_XDECREF(d);
+        throw Py::ValueError("data must be in RGBA format");
+    }
+
+    // Check dimensions match
+    int nx = x->dimensions[0];
+    int ny = y->dimensions[0];
+    if (nx != d->dimensions[1]+1 || ny != d->dimensions[0]+1) {
+        Py_XDECREF(x);
+        Py_XDECREF(y);
+        Py_XDECREF(d);
+        throw Py::ValueError("data and axis bin boundary dimensions are incompatible");
+    }
+
+    PyArrayObject *bg = (PyArrayObject *) PyArray_ContiguousFromObject(bgp.ptr(),
+                                                          PyArray_UBYTE, 1, 1);
+    if (bg == NULL) {
+        Py_XDECREF(x);
+        Py_XDECREF(y);
+        Py_XDECREF(d);
+        throw Py::ValueError("bg is of incorrect type (wanted 1D uint8)");
+    }
+    if (bg->dimensions[0] != 4) {
+        Py_XDECREF(x);
+        Py_XDECREF(y);
+        Py_XDECREF(d);
+        Py_XDECREF(bg);
+        throw Py::ValueError("bg must be in RGBA format");
+    }
+
+
+    // Allocate memory for pointer arrays
+    int * irows = reinterpret_cast<int*>(PyMem_Malloc(sizeof(int)*rows));
+    if (irows == NULL) {
+        Py_XDECREF(x);
+        Py_XDECREF(y);
+        Py_XDECREF(d);
+        Py_XDECREF(bg);
+        throw Py::MemoryError("Cannot allocate memory for lookup table");
+    }
+    int * jcols = reinterpret_cast<int*>(PyMem_Malloc(sizeof(int*)*cols));
+    if (jcols == NULL) {
+        Py_XDECREF(x);
+        Py_XDECREF(y);
+        Py_XDECREF(d);
+        Py_XDECREF(bg);
+        PyMem_Free(irows);
+        throw Py::MemoryError("Cannot allocate memory for lookup table");
+    }
+
+    // Create output
+    Image* imo = new Image;
+    imo->rowsIn = rows;
+    imo->rowsOut = rows;
+    imo->colsIn = cols;
+    imo->colsOut = cols;
+    size_t NUMBYTES(rows * cols * 4);
+    agg::int8u *buffer = new agg::int8u[NUMBYTES];
+    if (buffer == NULL) {
+        Py_XDECREF(x);
+        Py_XDECREF(y);
+        Py_XDECREF(d);
+        Py_XDECREF(bg);
+        PyMem_Free(irows);
+        PyMem_Free(jcols);
+        throw Py::MemoryError("Could not allocate memory for image");
+    }
+
+    // Calculate the pointer arrays to map input x to output x
+    int i, j;
+    double *x0 = reinterpret_cast<double*>(x->data);
+    double *y0 = reinterpret_cast<double*>(y->data);
+    double sx = cols/(x_right - x_left);
+    double sy = rows/(y_top - y_bot);
+    _bin_indices(jcols, cols, x0, nx, sx, x_left);
+    _bin_indices(irows, rows, y0, ny, sy, y_bot);
+
+    // Copy data to output buffer
+    agg::int8u * position = buffer;
+    unsigned char *start = reinterpret_cast<unsigned char*>(d->data);
+    unsigned char *bgptr = reinterpret_cast<unsigned char*>(bg->data);
+    int s0 = d->strides[0];
+    int s1 = d->strides[1];
+
+    for (i=0; i<rows; i++)
+    {
+        for (j=0; j<cols; j++)
+        {
+            if (irows[i] == -1 || jcols[j] == -1) {
+                memcpy(position, bgptr, 4*sizeof(agg::int8u));
+            }
+            else {
+                memcpy(position, (start + s0*irows[i] + s1*jcols[j]),
+                                                  4*sizeof(agg::int8u));
+            }
+            position += 4;
+        }
+    }
+
+    // Attach output buffer to output buffer
+    imo->rbufOut = new agg::rendering_buffer;
+    imo->bufferOut = buffer;
+    imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
+
+    Py_XDECREF(x);
+    Py_XDECREF(y);
+    Py_XDECREF(d);
+    Py_XDECREF(bg);
+    PyMem_Free(irows);
+    PyMem_Free(jcols);
+
+    return Py::asObject(imo);
+}
+
+
+
 #if defined(_MSC_VER)
 DL_EXPORT(void)
 #elif defined(__cplusplus)
@@ -1532,7 +1753,7 @@ init_image(void) {
   d["SINC"]  = Py::Int(Image::SINC);
   d["LANCZOS"]  = Py::Int(Image::LANCZOS);
   d["BLACKMAN"] = Py::Int(Image::BLACKMAN);
-  
+
   d["ASPECT_FREE"] = Py::Int(Image::ASPECT_FREE);
   d["ASPECT_PRESERVE"] = Py::Int(Image::ASPECT_PRESERVE);
 
