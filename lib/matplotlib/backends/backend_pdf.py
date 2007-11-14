@@ -1758,6 +1758,8 @@ class GraphicsContextPdf(GraphicsContextBase):
                 try:
                     different = bool(ours != theirs)
                 except ValueError:
+                    ours = npy.asarray(ours)
+                    theirs = npy.asarray(theirs)
                     different = ours.shape != theirs.shape or npy.any(ours != theirs)
                 if different:
                     break
