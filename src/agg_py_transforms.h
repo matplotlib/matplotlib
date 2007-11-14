@@ -63,7 +63,7 @@ bool py_convert_bbox(PyObject* bbox_obj, double& l, double& b, double& r, double
   try {
     bbox = (PyArrayObject*) PyArray_FromObject(bbox_obj, PyArray_DOUBLE, 2, 2);   
 	
-    if (!bbox || bbox->nd != 2 || bbox->dimensions[0] != 2 || bbox->dimensions[1] != 2) {
+    if (!bbox || PyArray_NDIM(bbox) != 2 || PyArray_DIM(bbox, 0) != 2 || PyArray_DIM(bbox, 1) != 2) {
       throw Py::TypeError
 	("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
     }
