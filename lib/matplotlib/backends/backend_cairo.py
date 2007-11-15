@@ -105,29 +105,18 @@ class RendererCairo(RendererBase):
         # font transform?
 
 
-    def _fill_and_stroke (self, ctx, fill_c):
-        #assert fill_c or stroke_c
-
-        #_.ctx.save()
-
+    def _fill_and_stroke (self, ctx, fill_c, alpha):
         if fill_c is not None:
             ctx.save()
             if len(fill_c) == 3:
-                ctx.set_source_rgb (*fill_c)
+                ctx.set_source_rgba (fill_c[0], fill_c[1], fill_c[2], alpha)
             else:
                 ctx.set_source_rgba (*fill_c)
-            #if stroke_c:   # always (implicitly) set at the moment
             ctx.fill_preserve()
-            #else:
-            #    ctx.fill()
             ctx.restore()
-
-        #if stroke_c:                      # always stroke
-            #ctx.set_source_rgb (stroke_c) # is already set
         ctx.stroke()
 
-        #_.ctx.restore() # revert to the default attributes
-
+        
     #@staticmethod
     def convert_path(ctx, tpath):
         for points, code in tpath.iter_segments():
@@ -144,19 +133,23 @@ class RendererCairo(RendererBase):
             elif code == Path.CLOSEPOLY:
                 ctx.close_path()
     convert_path = staticmethod(convert_path)
-        
+
+    
     def draw_path(self, gc, path, transform, rgbFace=None):
+        if len(path.vertices) > 18980:
+           raise ValueError("The Cairo backend can not draw paths longer than 18980 points.")
+
         ctx = gc.ctx
-        ctx.new_path()
         transform = transform + \
             Affine2D().scale(1.0, -1.0).translate(0, self.height)
         tpath = transform.transform_path(path)
         
+        ctx.new_path()
         self.convert_path(ctx, tpath)
 
-        self._fill_and_stroke(ctx, rgbFace)
+        self._fill_and_stroke(ctx, rgbFace, gc.get_alpha())
 
-    def draw_image(self, x, y, im, bbox):
+    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         # bbox - not currently used
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
 
@@ -288,8 +281,8 @@ class RendererCairo(RendererBase):
     def points_to_pixels(self, points):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         return points/72.0 * self.dpi
-
-
+               
+    
 class GraphicsContextCairo(GraphicsContextBase):
     _joind = {
         'bevel' : cairo.LINE_JOIN_BEVEL,
@@ -389,7 +382,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         self._linewidth = w
         self.ctx.set_line_width (self.renderer.points_to_pixels(w))
 
-
+        
 def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
     """
     Create a new figure manager instance
