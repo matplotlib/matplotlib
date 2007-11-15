@@ -1608,9 +1608,8 @@ class Axes(martist.Artist):
 	    for other in self._shared_x_axes.get_siblings(self):
 		if other is not self:
 		    other.set_xlim(self.viewLim.intervalx, emit=False)
-
-        if self.figure.canvas is not None:
-            self.figure.canvas.draw_idle()
+                    if other.figure != self.figure and other.figure.canvas is not None:
+                        other.figure.canvas.draw_idle()
                     
         return xmin, xmax
 
@@ -1770,9 +1769,8 @@ class Axes(martist.Artist):
 	    for other in self._shared_y_axes.get_siblings(self):
 		if other is not self:
 		    other.set_ylim(self.viewLim.intervaly, emit=False)
-
-        if self.figure.canvas is not None:
-            self.figure.canvas.draw_idle()
+                    if other.figure != self.figure and other.figure.canvas is not None:
+                        other.figure.canvas.draw_idle()
         return ymin, ymax
 
     def get_yscale(self):
