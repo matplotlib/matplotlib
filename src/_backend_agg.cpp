@@ -282,8 +282,8 @@ RendererAgg::set_clipbox(const Py::Object& cliprect, R rasterizer) {
 
   double l, b, r, t;
   if (py_convert_bbox(cliprect.ptr(), l, b, r, t)) {
-    rasterizer->clip_box(int(round(l)) + 1, height - int(round(b)) + 1, 
-			 int(round(r)) + 1, height - int(round(t)) + 1);
+    rasterizer->clip_box(int(round(l)) + 1, height - int(round(b)), 
+			 int(round(r)),     height - int(round(t)));
   }
 
   _VERBOSE("RendererAgg::set_clipbox done");
@@ -526,8 +526,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     strokeCache = new agg::int8u[strokeSize]; // or any container
     scanlines.serialize(strokeCache);
     
-    theRasterizer->reset_clipping();
-    rendererBase->reset_clipping(true);
     set_clipbox(gc.cliprect, rendererBase);
     bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
     
@@ -536,34 +534,41 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::serialized_scanlines_adaptor_aa8 sa;
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
-    while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
-      //render the fill
-      if (face.first) {
-	if (has_clippath) {
-	  pixfmt_amask_type pfa(*pixFmt, *alphaMask);
-	  amask_ren_type r(pfa);
-	  amask_aa_renderer_type ren(r);
-	  sa.init(fillCache, fillSize, x, y);
-	  ren.color(face.second);
-	  agg::render_scanlines(sa, sl, ren);
-	} else {
-	  sa.init(fillCache, fillSize, x, y);
-	  rendererAA->color(face.second);
-	  agg::render_scanlines(sa, sl, *rendererAA);
-	}
-      }
-      
-      //render the stroke
+    if (face.first) {
+      // render the fill
       if (has_clippath) {
 	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
 	amask_ren_type r(pfa);
 	amask_aa_renderer_type ren(r);
-	sa.init(strokeCache, strokeSize, x, y);
-	ren.color(gc.color);
-	agg::render_scanlines(sa, sl, ren);
+	ren.color(face.second);
+	while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
+	  sa.init(fillCache, fillSize, x, y);
+	  agg::render_scanlines(sa, sl, ren);
+	}
       } else {
+	rendererAA->color(face.second);
+	while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
+	  sa.init(fillCache, fillSize, x, y);
+	  agg::render_scanlines(sa, sl, *rendererAA);
+	}
+      }
+      path_quantized.rewind(0);
+    }
+
+    //render the stroke
+    if (has_clippath) {
+      pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+      amask_ren_type r(pfa);
+      amask_aa_renderer_type ren(r);
+      ren.color(gc.color);
+      while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
 	sa.init(strokeCache, strokeSize, x, y);
-	rendererAA->color(gc.color);
+	agg::render_scanlines(sa, sl, ren);
+      }
+    } else {
+      rendererAA->color(gc.color);
+      while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
+	sa.init(strokeCache, strokeSize, x, y);
 	agg::render_scanlines(sa, sl, *rendererAA);
       }
     }
@@ -880,8 +885,6 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   GCAgg gc = GCAgg(gc_obj, dpi);
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
   
-  theRasterizer->reset_clipping();
-  rendererBase->reset_clipping(true);
   set_clipbox(gc.cliprect, theRasterizer);
   bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
