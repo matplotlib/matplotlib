@@ -395,8 +395,6 @@ class Line2D(Artist):
             self._xorig = x
             self._yorig = y
             self.recache()
-        else:
-            self._transformed_path = TransformedPath(self._path, self.get_transform())
 
     def recache(self):
         #if self.axes is None: print 'recache no axes'
@@ -741,11 +739,11 @@ class Line2D(Artist):
 	    gc, Path.unit_circle(), transform, path, path_trans,
 	    rgbFace)
 
-	
+    _draw_pixel_transform = Affine2D().translate(-0.5, -0.5)
     def _draw_pixel(self, renderer, gc, path, path_trans):
 	rgbFace = self._get_rgb_face()
-	transform = Affine2D().translate(-0.5, -0.5)
-	renderer.draw_markers(gc, Path.unit_rectangle(), transform,
+	renderer.draw_markers(gc, Path.unit_rectangle(),
+                              self._draw_pixel_transform,
 			      path, path_trans, rgbFace)
 	
 	
