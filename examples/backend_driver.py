@@ -123,9 +123,7 @@ except ImportError:
         os.system(' '.join(arglist))
 
 def drive(backend, python=['python'], switches = []):
-
     exclude = failbackend.get(backend, [])
-    switchstring = ' '.join(switches)
     # Strip off the format specifier, if any.
     if backend.startswith('cairo'):
         _backend = 'cairo'
@@ -136,7 +134,7 @@ def drive(backend, python=['python'], switches = []):
             print '\tSkipping %s, known to fail on backend: %s'%backend
             continue
 
-        print '\tdriving %s %s' % (fname, switchstring)
+        print ('\tdriving %-40s' % (fname)),
         basename, ext = os.path.splitext(fname)
         outfile = basename + '_%s'%backend
         tmpfile_name = '_tmp_%s.py' % basename
@@ -169,7 +167,10 @@ def drive(backend, python=['python'], switches = []):
             tmpfile.write('savefig("%s", dpi=150)' % outfile)
 
         tmpfile.close()
+        start_time = time.time()
         run(python + [tmpfile_name, switchstring])
+        end_time = time.time()
+        print (end_time - start_time)
         #os.system('%s %s %s' % (python, tmpfile_name, switchstring))
         os.remove(tmpfile_name)
 
@@ -193,7 +194,8 @@ if __name__ == '__main__':
     if not backends:
         backends = default_backends
     for backend in backends:
-        print 'testing %s' % backend
+        switchstring = ' '.join(switches)
+        print 'testing %s %s' % (backend, switchstring)
         t0 = time.time()
         drive(backend, python, switches)
         t1 = time.time()
