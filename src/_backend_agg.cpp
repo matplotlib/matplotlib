@@ -466,9 +466,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   typedef agg::renderer_scanline_aa_solid<amask_ren_type>    amask_aa_renderer_type;
   typedef agg::renderer_scanline_bin_solid<amask_ren_type>   amask_bin_renderer_type;
 
-  rendererBase->reset_clipping(true);
-  theRasterizer->reset_clipping();
-  
   args.verify_length(5, 6);
   
   Py::Object	    gc_obj	    = args[0];
@@ -525,7 +522,9 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     unsigned strokeSize = scanlines.byte_size();
     strokeCache = new agg::int8u[strokeSize]; // or any container
     scanlines.serialize(strokeCache);
-    
+
+    theRasterizer->reset_clipping();
+    rendererBase->reset_clipping(true);
     set_clipbox(gc.cliprect, rendererBase);
     bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
     
@@ -885,6 +884,8 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   GCAgg gc = GCAgg(gc_obj, dpi);
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
   
+  theRasterizer->reset_clipping();
+  rendererBase->reset_clipping(true);
   set_clipbox(gc.cliprect, theRasterizer);
   bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
