@@ -205,6 +205,8 @@ class ColorbarBase(cm.ScalarMappable):
         self.outline = lines.Line2D(x, y, color=mpl.rcParams['axes.edgecolor'],
                                     linewidth=mpl.rcParams['axes.linewidth'])
         ax.add_artist(self.outline)
+        self.outline.set_clip_box(None)
+        self.outline.set_clip_path(None)
         c = mpl.rcParams['axes.facecolor']
         self.patch = patches.Polygon(zip(x,y), edgecolor=c,
                  facecolor=c,
