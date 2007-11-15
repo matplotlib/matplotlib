@@ -112,11 +112,11 @@ class Path(object):
         # MOVETO commands to the codes array accordingly.
         if mask is not ma.nomask:
             mask1d = ma.mask_or(mask[:, 0], mask[:, 1])
-            vertices = ma.compress(npy.invert(mask1d), vertices, 0)
             if codes is None:
                 codes = self.LINETO * npy.ones(
-                    vertices.shape[0], self.code_type)
+                    len(vertices), self.code_type)
                 codes[0] = self.MOVETO
+            vertices = ma.compress(npy.invert(mask1d), vertices, 0)
             codes = npy.where(npy.concatenate((mask1d[-1:], mask1d[:-1])),
                               self.MOVETO, codes)
             codes = ma.masked_array(codes, mask=mask1d).compressed()
@@ -273,7 +273,7 @@ class Path(object):
 	path = cls._unit_regular_polygons.get(numVertices)
 	if path is None:
 	    theta = (2*npy.pi/numVertices *
-                     npy.arange(numVertices).reshape((numVertices, 1)))
+                     npy.arange(numVertices + 1).reshape((numVertices + 1, 1)))
 	    # This initial rotation is to make sure the polygon always
             # "points-up"
 	    theta += npy.pi / 2.0
@@ -293,11 +293,11 @@ class Path(object):
 	path = cls._unit_regular_stars.get((numVertices, innerCircle))
 	if path is None:
             ns2 = numVertices * 2
-	    theta = (2*npy.pi/ns2 * npy.arange(ns2))
+	    theta = (2*npy.pi/ns2 * npy.arange(ns2 + 1))
 	    # This initial rotation is to make sure the polygon always
             # "points-up"
 	    theta += npy.pi / 2.0
-            r = npy.ones(ns2)
+            r = npy.ones(ns2 + 1)
             r[1::2] = innerCircle
 	    verts = npy.vstack((r*npy.cos(theta), r*npy.sin(theta))).transpose()
 	    path = Path(verts)

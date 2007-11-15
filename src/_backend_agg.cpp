@@ -1044,21 +1044,22 @@ RendererAgg::_draw_path_collection_generic
 
 class PathListGenerator {
   const Py::SeqBase<Py::Object>& m_paths;
+  size_t m_npaths;
 
 public:
   typedef PathIterator path_iterator;
 
   inline PathListGenerator(const Py::SeqBase<Py::Object>& paths) :
-    m_paths(paths) {
+    m_paths(paths), m_npaths(paths.size()) {
 
   }
   
   inline size_t num_paths() const {
-    return m_paths.size();
+    return m_npaths;
   }
 
   inline path_iterator operator()(size_t i) const {
-    return PathIterator(m_paths[i]);
+    return PathIterator(m_paths[i % m_npaths]);
   }
 };
 
