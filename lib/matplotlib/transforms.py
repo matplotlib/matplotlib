@@ -37,6 +37,8 @@ DEBUG = False
 if DEBUG:
     import warnings
 
+MaskedArray = ma.MaskedArray
+    
 class TransformNode(object):
     """
     TransformNode is the base class for anything that participates in
@@ -1205,7 +1207,7 @@ class Affine2DBase(AffineBase):
 
     def transform(self, points):
         mtx = self.get_matrix()
-        if ma.isMaskedArray(points):
+        if isinstance(points, MaskedArray):
             points = ma.dot(mtx[0:2, 0:2], points.transpose()) + mtx[0:2, 2:]
             return points.transpose()
         return affine_transform(points, mtx)
@@ -1526,7 +1528,7 @@ class BlendedGenericTransform(Transform):
             y_points = y.transform(points[:, 1])
             y_points = y_points.reshape((len(y_points), 1))
 
-        if ma.isMaskedArray(x_points) or ma.isMaskedArray(y_points):
+        if isinstance(x_points, MaskedArray) or isinstance(y_points, MaskedArray):
             return ma.concatenate((x_points, y_points), 1)
         else:
             return npy.concatenate((x_points, y_points), 1)
