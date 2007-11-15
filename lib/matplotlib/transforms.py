@@ -32,6 +32,7 @@ from weakref import WeakKeyDictionary
 
 import cbook
 from path import Path
+from _path import count_bboxes_overlapping_bbox
 
 DEBUG = False
 if DEBUG:
@@ -93,16 +94,16 @@ class TransformNode(object):
         Invalidate this transform node and all of its parents.  Should
         be called anytime the transform changes.
         """
-        # Shortcut: If self is already invalid, that means its parents
-        # are as well, so we don't need to do anything.
-        if self._invalid or not len(self._parents):
-            return
-
         # If we are an affine transform being changed, we can set the
         # flag to INVALID_AFFINE_ONLY
         value = ((self.is_affine or self.is_bbox)
                  and self.INVALID_AFFINE
                  or self.INVALID)
+
+        # Shortcut: If self is already invalid, that means its parents
+        # are as well, so we don't need to do anything.
+        if self._invalid == value or not len(self._parents):
+            return
         
         # Invalidate all ancestors of self using pseudo-recursion.
         parent = None
@@ -194,9 +195,11 @@ class BboxBase(TransformNode):
     read-only access to its data.
     """
     is_bbox = True
-    
-    def __init__(self):
-        TransformNode.__init__(self)
+
+    #* Redundant: Removed for performance
+    #
+    # def __init__(self):
+    #     TransformNode.__init__(self)
 
     if DEBUG:
         def _check(points):
@@ -896,9 +899,11 @@ class Transform(TransformNode):
 
     # True if this transform is separable in the x- and y- dimensions.
     is_separable = False
-    
-    def __init__(self):
-        TransformNode.__init__(self)
+
+    #* Redundant: Removed for performance
+    #
+    # def __init__(self):
+    #     TransformNode.__init__(self)
 
     def __add__(self, other):
         """
@@ -1171,8 +1176,10 @@ class Affine2DBase(AffineBase):
     input_dims = 2
     output_dims = 2
 
-    def __init__(self):
-        AffineBase.__init__(self)
+    #* Redundant: Removed for performance
+    #
+    # def __init__(self):
+    #     Affine2DBase.__init__(self)
 
     def frozen(self):
         return Affine2D(self.get_matrix().copy())

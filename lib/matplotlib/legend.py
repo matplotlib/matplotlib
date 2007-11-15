@@ -340,28 +340,25 @@ The following dimensions are in axes coords
         bboxes = []
         lines = []
 
-        inv = ax.transAxes.inverted().transform
+        inverse_transform = ax.transAxes.inverted()
 
         for handle in ax.lines:
             assert isinstance(handle, Line2D)
             data = handle.get_xydata()
             trans = handle.get_transform()
             tdata = trans.transform(data)
-            averts = inv(tdata)
+            averts = inverse_transform.transform(tdata)
             lines.append(averts)
 
         for handle in ax.patches:
             assert isinstance(handle, Patch)
 
-            path = handle.get_path()
-            trans = handle.get_transform()
-            tpath = trans.transform_path(path)
-            tverts = tpath.vertices
-            averts = inv(tverts)
-
-            bbox = Bbox.unit()
-            bbox.update_from_data_xy(averts, True)
-            bboxes.append(bbox)
+            if isinstance(handle, Rectangle):
+                transform = handle.get_data_transform() + inverse_transform
+                bboxes.append(handle._bbox.transformed(transform))
+            else:
+                transform = handle.get_transform() + inverse_transform
+                bboxes.append(handle.get_path().get_extents(transform))
 
         return [vertices, bboxes, lines]
 
