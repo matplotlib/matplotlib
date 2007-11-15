@@ -160,31 +160,33 @@ class Path(object):
     
     def iter_segments(self):
         """
-        Iterates over all of the endpoints in the path.  Unlike
-        iterating directly over the vertices array, curve control
-        points are skipped over.
+        Iterates over all of the curve segments in the path.
         """
-	i = 0
-	NUM_VERTICES = self.NUM_VERTICES
 	vertices = self.vertices
         codes = self.codes
+        len_vertices = len(vertices)
 
+	NUM_VERTICES = self.NUM_VERTICES
+        MOVETO = self.MOVETO
+        LINETO = self.LINETO
+        CLOSEPOLY = self.CLOSEPOLY
+        STOP = self.STOP
+        
         if not len(vertices):
             return
         
         if codes is None:
-            code = self.MOVETO
-            yield vertices[0], self.MOVETO
-            i = 1
+            yield vertices[0], MOVETO
             for v in vertices[1:]:
-                yield v, self.LINETO
+                yield v, LINETO
         else:
-            while i < len(vertices):
+            i = 0
+            while i < len_vertices:
                 code = codes[i]
-                if code == self.CLOSEPOLY:
+                if code == CLOSEPOLY:
                     yield [], code
                     i += 1
-                elif code == self.STOP:
+                elif code == STOP:
                     return
                 else:
                     num_vertices = NUM_VERTICES[code]

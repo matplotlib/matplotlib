@@ -25,6 +25,7 @@ assumed to occur after the non-affine.  For any transform:
 
 import numpy as npy
 from matplotlib.numerix import npyma as ma
+from matplotlib._path import affine_transform
 from numpy.linalg import inv
 
 from weakref import WeakKeyDictionary
@@ -1206,10 +1207,13 @@ class Affine2DBase(AffineBase):
         mtx = self.get_matrix()
         if ma.isMaskedArray(points):
             points = ma.dot(mtx[0:2, 0:2], points.transpose()) + mtx[0:2, 2:]
-        else:
-            points = npy.dot(mtx[0:2, 0:2], points.transpose()) + mtx[0:2, 2:]
-        return points.transpose()
+            return points.transpose()
+        return affine_transform(points, mtx)
 
+    def transform_point(self, point):
+        mtx = self.get_matrix()
+        return affine_transform(point, mtx)
+    
     if DEBUG:
         _transform = transform
         def transform(self, points):
@@ -1251,7 +1255,7 @@ class Affine2D(Affine2DBase):
         Affine2DBase.__init__(self)
         if matrix is None:
             matrix = npy.identity(3)
-        else:
+        elif DEBUG:
 	    matrix = npy.asarray(matrix, npy.float_)
             assert matrix.shape == (3, 3)
         self._mtx = matrix
@@ -1276,7 +1280,9 @@ class Affine2D(Affine2DBase):
           b d f
           0 0 1
         """
-        return Affine2D(Affine2D.matrix_from_values(a, b, c, d, e, f))
+        return Affine2D(
+            npy.array([a, c, e, b, d, f, 0.0, 0.0, 1.0], npy.float_)
+            .reshape((3,3)))
     from_values = staticmethod(from_values)
 
     def get_matrix(self):
