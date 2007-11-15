@@ -146,7 +146,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
     def __init__(self, figure, master=None, resize_callback=None):
         FigureCanvasAgg.__init__(self, figure)
-        self._idle = True
+        self._idle = False
         t1,t2,w,h = self.figure.bbox.bounds
         w, h = int(w), int(h)
         self._tkcanvas = Tk.Canvas(
