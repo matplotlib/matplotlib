@@ -1,5 +1,6 @@
 import numpy as npy
 from matplotlib.numerix import npyma as ma
+MaskedArray = ma.MaskedArray
 
 from ticker import NullFormatter, ScalarFormatter, LogFormatterMathtext
 from ticker import NullLocator, LogLocator, AutoLocator
@@ -26,17 +27,26 @@ class LinearScale(ScaleBase):
     
     def get_transform(self):
         return IdentityTransform()
-        
+
+def _mask_non_positives(a):
+    mask = a <= 0.0
+    if mask.any():
+        return ma.MaskedArray(a, mask=mask)
+    return a
+    
 class LogScale(ScaleBase):
     name = 'log'
-    
+
     class Log10Transform(Transform):
         input_dims = 1
         output_dims = 1
         is_separable = True
             
         def transform(self, a):
-            return ma.log10(ma.masked_where(a <= 0.0, a * 10.0))
+            a = _mask_non_positives(a * 10.0)
+            if isinstance(a, MaskedArray):
+                return ma.log10(a)
+            return npy.log10(a)
             
         def inverted(self):
             return LogScale.InvertedLog10Transform()
@@ -58,7 +68,10 @@ class LogScale(ScaleBase):
         is_separable = True
             
         def transform(self, a):
-            return ma.log2(ma.masked_where(a <= 0.0, a * 2.0))
+            a = _mask_non_positives(a * 2.0)
+            if isinstance(a, MaskedArray):
+                return ma.log2(a)
+            return npy.log2(a)
             
         def inverted(self):
             return LogScale.InvertedLog2Transform()
@@ -80,7 +93,10 @@ class LogScale(ScaleBase):
         is_separable = True
         
         def transform(self, a):
-            return ma.log(ma.masked_where(a <= 0.0, a * npy.e))
+            a = _mask_non_positives(a * npy.e)
+            if isinstance(a, MaskedArray):
+                return ma.log(a)
+            return npy.log(a)
             
         def inverted(self):
             return LogScale.InvertedNaturalLogTransform()
@@ -106,7 +122,10 @@ class LogScale(ScaleBase):
             self._base = base
             
         def transform(self, a):
-            return ma.log(ma.masked_where(a <= 0.0, a * self._base)) / npy.log(self._base)
+            a = _mask_non_positives(a * self._base)
+            if isinstance(a, MaskedArray):
+                return ma.log10(a) / npy.log(self._base)
+            return npy.log(a) / npy.log(self._base)
             
         def inverted(self):
             return LogScale.InvertedLogTransform(self._base)
