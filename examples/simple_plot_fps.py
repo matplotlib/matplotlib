@@ -23,7 +23,12 @@ import time
 
 frames = 100.0
 t = time.time()
+c = time.clock()
 for i in xrange(int(frames)):
     part = i / frames
     axis([0.0, 1.0 - part, -1.0 + part, 1.0 - part])
-print "fps:", frames / (time.time() - t)
+wallclock = time.time() - t
+user = time.clock() - c
+print "wallclock:", wallclock
+print "user:", user
+print "fps:", frames / wallclock
