@@ -2,6 +2,7 @@ from __future__ import division, generators
 import math, sys, warnings
 
 import numpy as npy
+npy.seterr(invalid='ignore')
 
 import matplotlib.numerix.npyma as ma
 
@@ -2502,7 +2503,6 @@ class Axes(martist.Artist):
                 'vlines now uses a collections.LineCollection and not a list of Line2D to draw; see API_CHANGES')
 
         self._process_unit_info(xdata=x, ydata=ymin, kwargs=kwargs)
-
 
         if not iterable(x): x = [x]
         if not iterable(ymin): ymin = [ymin]
