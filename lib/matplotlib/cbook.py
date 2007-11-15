@@ -176,7 +176,7 @@ class silent_list(list):
 
 def strip_math(s):
     'remove latex formatting from mathtext'
-    remove = (r'\rm', '\cal', '\tt', '\it', '\\', '{', '}')
+    remove = (r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
     s = s[1:-1]
     for r in remove:  s = s.replace(r,'')
     return s
