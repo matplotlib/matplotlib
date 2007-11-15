@@ -5465,6 +5465,7 @@ class SubplotBase:
         for label in self.get_yticklabels():
             label.set_visible(firstcol)
 
+_subplot_classes = {}            
 def subplot_class_factory(axes_class=None):
     # This makes a new class that inherits from SubclassBase and the
     # given axes_class (which is assumed to be a subclass of Axes).
@@ -5472,11 +5473,21 @@ def subplot_class_factory(axes_class=None):
     # This is perhaps a little bit roundabout to make a new class on
     # the fly like this, but it means that a new Subplot class does
     # not have to be created for every type of Axes.
-    new_class = new.classobj("%sSubplot" % (axes_class.__name__),
-                             (SubplotBase, axes_class),
-                             {'_axes_class': axes_class})
-    return new_class
+    if axes_class is None:
+        axes_class = Axes
+    
+    new_class = _subplot_classes.get(axes_class)
+    if new_class is None:
+        new_class = new.classobj("%sSubplot" % (axes_class.__name__),
+                                 (SubplotBase, axes_class),
+                                 {'_axes_class': axes_class})
+        _subplot_classes[axes_class] = new_class
         
+    return new_class
+
+# This is provided for backward compatibility
+Subplot = subplot_class_factory()
+
 martist.kwdocd['Axes'] = martist.kwdocd['Subplot'] = martist.kwdoc(Axes)
 
 """
