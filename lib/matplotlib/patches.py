@@ -103,6 +103,9 @@ class Patch(artist.Artist):
         self.set_figure(other.get_figure())
         self.set_alpha(other.get_alpha())
 
+    def get_extents(self):
+        return self.get_path().get_extents(self.get_transform())
+        
     def get_transform(self):
         return self._combined_transform
 

@@ -41,6 +41,8 @@ public:
 		       "clip_path_to_rect(path, bbox, inside)");
     add_varargs_method("affine_transform", &_path_module::affine_transform,
 		       "affine_transform(vertices, transform)");
+    add_varargs_method("count_bboxes_overlapping_bbox", &_path_module::count_bboxes_overlapping_bbox,
+		       "count_bboxes_overlapping_bbox(bbox, bboxes)");
     
     initialize("Helper functions for paths");
   }
@@ -57,6 +59,7 @@ private:
   Py::Object path_in_path(const Py::Tuple& args);
   Py::Object clip_path_to_rect(const Py::Tuple& args);
   Py::Object affine_transform(const Py::Tuple& args);
+  Py::Object count_bboxes_overlapping_bbox(const Py::Tuple& args);
 };
 
 //
@@ -734,6 +737,46 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args) {
   Py_XDECREF(transform);
 
   return Py::Object((PyObject*)result, true);
+}
+
+Py::Object _path_module::count_bboxes_overlapping_bbox(const Py::Tuple& args) {
+  args.verify_length(2);
+  
+  Py::Object		  bbox	 = args[0];
+  Py::SeqBase<Py::Object> bboxes = args[1];
+  
+  double ax0, ay0, ax1, ay1;
+  double bx0, by0, bx1, by1;
+  long count = 0;
+
+  if (py_convert_bbox(bbox.ptr(), ax0, ay0, ax1, ay1)) {
+    if (ax1 < ax0)
+      std::swap(ax0, ax1);
+    if (ay1 < ay0)
+      std::swap(ay0, ay1);
+
+    size_t num_bboxes = bboxes.size();
+    for (size_t i = 0; i < num_bboxes; ++i) {
+      Py::Object bbox_b = bboxes[i];
+      if (py_convert_bbox(bbox_b.ptr(), bx0, by0, bx1, by1)) {
+	if (bx1 < bx0)
+	  std::swap(bx0, bx1);
+	if (by1 < by0)
+	  std::swap(by0, by1);
+	if (not ((bx1 <= ax0) or
+		 (by1 <= ay0) or
+		 (bx0 >= ax1) or
+		 (by0 >= ay1)))
+	  ++count;
+      } else {
+	throw Py::ValueError("Non-bbox object in bboxes list");
+      }
+    }
+  } else {
+    throw Py::ValueError("First argument to count_bboxes_overlapping_bbox must be a Bbox object.");
+  }
+
+  return Py::Int(count);
 }
 
 extern "C"
