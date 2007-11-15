@@ -2294,7 +2294,7 @@ RendererAgg::write_png(const Py::Tuple& args)
     if ((fp = PyFile_AsFile(py_fileobj.ptr())) == NULL) {
       PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(), "write");
       if (!(write_method && PyCallable_Check(write_method)))
-	throw Py::TypeError("Object does not appear to be a Python file-like object");
+	throw Py::TypeError("Object does not appear to be a path or a Python file-like object");
     }
   }
 
