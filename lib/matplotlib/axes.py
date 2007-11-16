@@ -2597,7 +2597,6 @@ class Axes(martist.Artist):
 
         self._process_unit_info(xdata=x, ydata=ymin, kwargs=kwargs)
 
-
         if not iterable(x): x = [x]
         if not iterable(ymin): ymin = [ymin]
         if not iterable(ymax): ymax = [ymax]
