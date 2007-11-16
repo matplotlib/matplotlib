@@ -2432,7 +2432,9 @@ stix_virtual_fonts = {
             ],
         'it':
             [
-            (0x0030, 0x0039, 'it', 0xe1b4),  # 0-9
+            # These numerals are actually upright.  We don't actually
+            # want italic numerals ever.
+            (0x0030, 0x0039, 'rm', 0x1d7e2),  # 0-9
             (0x0041, 0x005a, 'it', 0x1d608), # A-Z
             (0x0061, 0x007a, 'it', 0x1d622), # a-z
             (0x0391, 0x03a9, 'it', 0xe1bf),  # \Alpha-\Omega
