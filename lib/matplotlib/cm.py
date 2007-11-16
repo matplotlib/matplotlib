@@ -45,14 +45,18 @@ class ScalarMappable:
         'set the colorbar image and axes associated with mappable'
         self.colorbar = im, ax
 
-    def to_rgba(self, x, alpha=1.0):
+    def to_rgba(self, x, alpha=1.0, bytes=False):
         '''Return a normalized rgba array corresponding to x.
         If x is already an rgb or rgba array, return it unchanged.
         '''
-        if hasattr(x, 'shape') and len(x.shape)>2: return x
+        try:
+            if x.ndim == 3 and (x.shape[2] == 3 or x.shape[2] == 4):
+                return x
+        except AttributeError:
+            pass
         x = ma.asarray(x)
         x = self.norm(x)
-        x = self.cmap(x, alpha)
+        x = self.cmap(x, alpha=alpha, bytes=bytes)
         return x
 
     def set_array(self, A):

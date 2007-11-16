@@ -406,7 +406,7 @@ class Colormap:
         self._isinit = False
 
 
-    def __call__(self, X, alpha=1.0):
+    def __call__(self, X, alpha=1.0, bytes=False):
         """
         X is either a scalar or an array (of any dimension).
         If scalar, a tuple of rgba values is returned, otherwise
@@ -415,6 +415,8 @@ class Colormap:
         If they are floating point, then they must be in the
         interval (0.0, 1.0).
         Alpha must be a scalar.
+        If bytes is False, the rgba values will be floats on a
+        0-1 scale; if True, they will be uint8, 0-255.
         """
 
         if not self._isinit: self._init()
@@ -439,7 +441,11 @@ class Colormap:
         npy.putmask(xa, xa<0, self._i_under)
         if mask_bad is not None and mask_bad.shape == xa.shape:
             npy.putmask(xa, mask_bad, self._i_bad)
-        rgba = self._lut[xa]
+        if bytes:
+            lut = (self._lut * 255).astype(npy.uint8)
+        else:
+            lut = self._lut
+        rgba = lut[xa]
         if vtype == 'scalar':
             rgba = tuple(rgba[0,:])
         return rgba
