@@ -6,7 +6,6 @@
 #define __BACKEND_AGG_H
 #include <utility>
 #include "CXX/Extensions.hxx"
-#include "agg_buffer.h"  // a swig wrapper
 
 #include "agg_arrowhead.h"
 #include "agg_basics.h"
@@ -59,7 +58,6 @@ typedef agg::rasterizer_scanline_aa<> rasterizer;
 
 typedef agg::scanline_p8 scanline_p8;
 typedef agg::scanline_bin scanline_bin;
-//yypedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanline_alphamask;
 typedef agg::amask_no_clip_gray8 alpha_mask_type;
 
 
@@ -89,20 +87,28 @@ private:
 // a class in the swig wrapper
 class BufferRegion : public Py::PythonExtension<BufferRegion> {
 public:
-  BufferRegion( agg::buffer& aggbuf, const agg::rect &r, bool freemem=true) : aggbuf(aggbuf), rect(r), freemem(freemem) {
-    //std::cout << "buffer region" << std::endl;
+  BufferRegion(const agg::rect_i &r, bool freemem=true) : 
+  rect(r), freemem(freemem) {
+    width = r.x2 - r.x1;
+    height = r.y2 - r.y1;
+    stride = width * 4;
+    data = new agg::int8u[stride * height];
   }
-  agg::buffer aggbuf;
-  agg::rect rect;
+  agg::int8u* data;
+  agg::rect_i rect;
+  int width;
+  int height;
+  int stride;
+  
   bool freemem;
-  Py::Object to_string(const Py::Tuple &args);
 
+  Py::Object to_string(const Py::Tuple &args);
   static void init_type(void);
+
   virtual ~BufferRegion() {
-    //std::cout << "buffer region bye bye" << std::endl;
     if (freemem) {
-      delete [] aggbuf.data;
-      aggbuf.data = NULL;
+      delete [] data;
+      data = NULL;
     }
   };
 };
