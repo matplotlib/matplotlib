@@ -442,6 +442,7 @@ def corrcoef(*args):
     kw = dict(rowvar=False)
     return npy.corrcoef(*args, **kw)
 
+
 def polyfit(*args, **kwargs):
     """
     def polyfit(x,y,N)
@@ -482,7 +483,7 @@ def polyfit(*args, **kwargs):
 
     """
     warnings.warn("use numpy.poyfit", DeprecationWarning)
-    return npy.polyfit(*args, **kw)
+    return npy.polyfit(*args, **kwargs)
 
 
 
@@ -504,8 +505,7 @@ def polyval(*args, **kwargs):
 
     """
     warnings.warn("use numpy.polyval", DeprecationWarning)
-    return npy.polyval(*args, **kw)
-
+    return npy.polyval(*args, **kwargs)
 
 def vander(*args, **kwargs):
     """
@@ -2262,7 +2262,8 @@ class FormatFloat(FormatFormatStr):
         return x
     
 class FormatInt(FormatObj):
-    pass
+    def toval(self, x):
+        return x
 
 class FormatPercent(FormatFloat):
     def __init__(self, precision=4):
