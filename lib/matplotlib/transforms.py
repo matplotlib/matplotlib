@@ -1215,8 +1215,8 @@ class Affine2DBase(AffineBase):
     def transform(self, points):
         mtx = self.get_matrix()
         if isinstance(points, MaskedArray):
-            points = ma.dot(mtx[0:2, 0:2], points.transpose()) + mtx[0:2, 2:]
-            return points.transpose()
+            tpoints = affine_transform(points.data, mtx)
+            return ma.MaskedArray(tpoints, mask=ma.getmask(points))
         return affine_transform(points, mtx)
 
     def transform_point(self, point):
