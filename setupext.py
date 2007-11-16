@@ -93,7 +93,7 @@ BUILT_CONTOUR   = False
 BUILT_GDK       = False
 BUILT_PATH      = False
 
-AGG_VERSION = 'agg23'
+AGG_VERSION = 'agg24'
 
 # for nonstandard installation/build with --prefix variable
 numpy_inc_dirs = []
@@ -559,7 +559,7 @@ def add_agg_flags(module):
     module.libraries.append('z')
     add_base_flags(module)
     add_numpy_flags(module)
-    module.include_dirs.extend(['src','swig', '%s/include'%AGG_VERSION, '.'])
+    module.include_dirs.extend(['src', '%s/include'%AGG_VERSION, '.'])
 
     # put these later for correct link order
     module.libraries.extend(std_libs)
@@ -1067,13 +1067,10 @@ def build_agg(ext_modules, packages):
 
     agg = (
            'agg_trans_affine.cpp',
-           'agg_path_storage.cpp',
            'agg_bezier_arc.cpp',
            'agg_curves.cpp',
            'agg_vcgen_dash.cpp',
            'agg_vcgen_stroke.cpp',
-           #'agg_vcgen_markers_term.cpp',
-           'agg_rasterizer_scanline_aa.cpp',
            'agg_image_filters.cpp',
            )
 
@@ -1106,7 +1103,6 @@ def build_path(ext_modules, packages):
     agg = (
            'agg_curves.cpp',
            'agg_bezier_arc.cpp',
-           'agg_path_storage.cpp',
            'agg_trans_affine.cpp',
            'agg_vcgen_stroke.cpp',
            )
@@ -1135,8 +1131,6 @@ def build_image(ext_modules, packages):
     if BUILT_IMAGE: return # only build it if you you haven't already
 
     agg = ('agg_trans_affine.cpp',
-           'agg_path_storage.cpp',
-           'agg_rasterizer_scanline_aa.cpp',
            'agg_image_filters.cpp',
            'agg_bezier_arc.cpp',
            )
@@ -1158,30 +1152,6 @@ def build_image(ext_modules, packages):
     ext_modules.append(module)
 
     BUILT_IMAGE = True
-
-def build_swigagg(ext_modules, packages):
-    # setup the swig agg wrapper
-    deps = ['src/agg.cxx']
-    deps.extend(['%s/src/%s'%(AGG_VERSION, fname) for fname in
-                 (
-        'agg_trans_affine.cpp',
-        'agg_path_storage.cpp',
-        'agg_bezier_arc.cpp',
-        'agg_vcgen_dash.cpp',
-        'agg_vcgen_stroke.cpp',
-        'agg_rasterizer_scanline_aa.cpp',
-        'agg_curves.cpp',
-        )
-                 ])
-
-
-    agg = Extension('matplotlib._agg',
-                    deps,
-                    )
-
-    agg.include_dirs.extend(['%s/include'%AGG_VERSION, 'src', 'swig'])
-    agg.libraries.extend(std_libs)
-    ext_modules.append(agg)
 
 
 def build_traits(ext_modules, packages):

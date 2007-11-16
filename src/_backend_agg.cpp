@@ -10,14 +10,16 @@
 #include <time.h>
 #include <algorithm>
 
-#include "agg_conv_transform.h"
 #include "agg_conv_curve.h"
+#include "agg_conv_transform.h"
+#include "agg_image_accessors.h"
+#include "agg_renderer_primitives.h"
 #include "agg_scanline_storage_aa.h"
 #include "agg_scanline_storage_bin.h"
-#include "agg_renderer_primitives.h"
-#include "agg_span_image_filter_gray.h"
-#include "agg_span_interpolator_linear.h"
 #include "agg_span_allocator.h"
+#include "agg_span_image_filter_gray.h"
+#include "agg_span_image_filter_rgba.h"
+#include "agg_span_interpolator_linear.h"
 #include "util/agg_color_conv_rgb8.h"
 
 #include "ft2font.h"
@@ -79,7 +81,7 @@ void convert_dashes(const Py::Tuple& dashes, double dpi, GCAgg::dash_t& dashes_o
 
 Py::Object BufferRegion::to_string(const Py::Tuple &args) {
   // owned=true to prevent memory leak
-  return Py::String(PyString_FromStringAndSize((const char*)aggbuf.data,aggbuf.height*aggbuf.stride), true);
+  return Py::String(PyString_FromStringAndSize((const char*)data, height*stride), true);
 }
 
 template<class VertexSource> class conv_quantize
@@ -354,19 +356,20 @@ bool should_snap(Path& path, const agg::trans_affine& trans) {
   trans.transform(&x0, &y0);
 
   while ((code = path.vertex(&x1, &y1)) != agg::path_cmd_stop) {
+    trans.transform(&x1, &y1);
 
     switch (code) {
     case agg::path_cmd_curve3:
     case agg::path_cmd_curve4:
       path.rewind(0);
       return false;
+    case agg::path_cmd_line_to:
+      if (!(fabs(x0 - x1) < 1e-4 || fabs(y0 - y1) < 1e-4)) {
+	path.rewind(0);
+	return false;
+      }
     }
 
-    trans.transform(&x1, &y1);
-    if (!(fabs(x0 - x1) < 1e-4 || fabs(y0 - y1) < 1e-4)) {
-      path.rewind(0);
-      return false;
-    }
     x0 = x1;
     y0 = y1;
   }
@@ -385,24 +388,25 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
   if (!py_convert_bbox(box_obj.ptr(), l, b, r, t)) 
     throw Py::TypeError("Invalid bbox provided to copy_from_bbox");
   
-  agg::rect rect((int)l, (int)b, (int)r, (int)t);
-
-  int boxwidth = rect.x2-rect.x1;
-  int boxheight = rect.y2-rect.y1;
-  int boxstride = boxwidth*4;
-  agg::buffer buf(boxwidth, boxheight, boxstride, false);
-  if (buf.data ==NULL) {
+  agg::rect_i rect((int)l, height - (int)t, (int)r, height - (int)b);
+  
+  BufferRegion* reg = NULL;
+  try {
+    reg = new BufferRegion(rect, true);
+  } catch (...) {
     throw Py::MemoryError("RendererAgg::copy_from_bbox could not allocate memory for buffer");
   }
-  
+
+  if (!reg) {
+    throw Py::MemoryError("RendererAgg::copy_from_bbox could not allocate memory for buffer");
+  }
+
   agg::rendering_buffer rbuf;
-  rbuf.attach(buf.data, boxwidth, boxheight, boxstride);
+  rbuf.attach(reg->data, reg->width, reg->height, reg->stride);
   
   pixfmt pf(rbuf);
   renderer_base rb(pf);
-  //rb.clear(agg::rgba(1, 0, 0)); //todo remove me
   rb.copy_from(*renderingBuffer, &rect, -rect.x1, -rect.y1);
-  BufferRegion* reg = new BufferRegion(buf, rect, true);
   return Py::asObject(reg);
 }
 
@@ -412,16 +416,16 @@ RendererAgg::restore_region(const Py::Tuple& args) {
   args.verify_length(1);
   BufferRegion* region  = static_cast<BufferRegion*>(args[0].ptr());
   
-  if (region->aggbuf.data==NULL)
+  if (region->data==NULL)
     return Py::Object();
   //throw Py::ValueError("Cannot restore_region from NULL data");
   
   
   agg::rendering_buffer rbuf;
-  rbuf.attach(region->aggbuf.data,
-	      region->aggbuf.width,
-	      region->aggbuf.height,
-	      region->aggbuf.stride);
+  rbuf.attach(region->data,
+	      region->width,
+	      region->height,
+	      region->stride);
   
   rendererBase->copy_from(rbuf, 0, region->rect.x1, region->rect.y1);
   
@@ -588,53 +592,43 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
  * This is a custom span generator that converts spans in the 
  * 8-bit inverted greyscale font buffer to rgba that agg can use.
  */
-template<
-  class ColorT,
-  class ChildGenerator>
-class font_to_rgba :
-  public agg::span_generator<ColorT, 
-			     agg::span_allocator<ColorT> >
+template<class ChildGenerator>
+class font_to_rgba
 {
 public:
   typedef ChildGenerator child_type;
-  typedef ColorT color_type;
-  typedef agg::span_allocator<color_type> allocator_type;
-  typedef agg::span_generator<
-    ColorT, 
-    agg::span_allocator<ColorT> > base_type;
+  typedef agg::rgba8 color_type;
+  typedef typename child_type::color_type child_color_type;
+  typedef agg::span_allocator<child_color_type> span_alloc_type;
 
 private:
   child_type* _gen;
-  allocator_type _alloc;
   color_type _color;
+  span_alloc_type _allocator;
   
 public:
   font_to_rgba(child_type* gen, color_type color) : 
-    base_type(_alloc),
     _gen(gen),
     _color(color) {
   }
 
-  color_type* generate(int x, int y, unsigned len)
+  void generate(color_type* output_span, int x, int y, unsigned len)
   {
-    color_type* dst = base_type::allocator().span();
-
-    typename child_type::color_type* src = _gen->generate(x, y, len);
+    _allocator.allocate(len);
+    child_color_type* input_span = _allocator.span();
+    _gen->generate(input_span, x, y, len);
 
     do {
-      *dst = _color;
-      dst->a = src->v;
-      ++src;
-      ++dst;
+      *output_span = _color;
+      output_span->a = input_span->v;
+      ++output_span;
+      ++input_span;
     } while (--len);
-
-    return base_type::allocator().span();
   }
 
-  void prepare(unsigned max_span_len) 
+  void prepare() 
   {
-    _alloc.allocate(max_span_len);
-    _gen->prepare(max_span_len);
+    _gen->prepare();
   }
 
 };
@@ -644,12 +638,14 @@ Py::Object
 RendererAgg::draw_text_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_text");
 
+  typedef agg::span_allocator<agg::gray8> gray_span_alloc_type;
+  typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
   typedef agg::span_interpolator_linear<> interpolator_type;
-  typedef agg::span_image_filter_gray<agg::gray8, interpolator_type> 
+  typedef agg::image_accessor_clip<agg::pixfmt_gray8> image_accessor_type;
+  typedef agg::span_image_filter_gray_2x2<image_accessor_type, interpolator_type> 
     image_span_gen_type;
-  typedef font_to_rgba<pixfmt::color_type, image_span_gen_type> 
-    span_gen_type;
-  typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> 
+  typedef font_to_rgba<image_span_gen_type> span_gen_type;
+  typedef agg::renderer_scanline_aa<renderer_base, color_span_alloc_type, span_gen_type> 
     renderer_type;
   
   args.verify_length(5);
@@ -699,22 +695,16 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
   inv_mtx.invert();
 
   agg::image_filter_lut filter;
-  filter.calculate(agg::image_filter_spline36());
+  filter.calculate(agg::image_filter_spline16());
   interpolator_type interpolator(inv_mtx);
-  agg::span_allocator<agg::gray8> gray_span_allocator;
-  image_span_gen_type image_span_generator(gray_span_allocator, 
-					   srcbuf, 0, interpolator, filter);
+  color_span_alloc_type sa;
+  image_accessor_type ia(pixf_img, 0);
+  image_span_gen_type image_span_generator(ia, interpolator, filter);
   span_gen_type output_span_generator(&image_span_generator, gc.color);
-  renderer_type ri(*rendererBase, output_span_generator);
-  //agg::rasterizer_scanline_aa<> rasterizer;
-  //agg::scanline_p8 scanline;
-  //rasterizer.add_path(rect2);
-  //agg::render_scanlines(rasterizer, scanline, ri);
-
+  renderer_type ri(*rendererBase, sa, output_span_generator);
   
   theRasterizer->add_path(rect2);
   agg::render_scanlines(*theRasterizer, *slineP8, ri);
-
   
   return Py::Object();
 }
@@ -1585,7 +1575,6 @@ void BufferRegion::init_type() {
   
   add_varargs_method("to_string", &BufferRegion::to_string,
 		     "to_string()");
-  
 }
 
 
@@ -1621,10 +1610,9 @@ void RendererAgg::init_type()
   add_varargs_method("clear", &RendererAgg::clear,
 		     "clear()");
   add_varargs_method("copy_from_bbox", &RendererAgg::copy_from_bbox,
-		     "copy_from_bbox(bbox)");
-  
+ 		     "copy_from_bbox(bbox)");
   add_varargs_method("restore_region", &RendererAgg::restore_region,
-		     "restore_region(region)");
+ 		     "restore_region(region)");
 }
 
 extern "C"

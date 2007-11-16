@@ -10,20 +10,22 @@
 #define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
 
+#include "agg_color_rgba.h"
+#include "agg_conv_transform.h"
+#include "agg_image_accessors.h"
+#include "agg_path_storage.h"
 #include "agg_pixfmt_rgb.h"
 #include "agg_pixfmt_rgba.h"
-#include "agg_color_rgba.h"
-#include "agg_rendering_buffer.h"
 #include "agg_rasterizer_scanline_aa.h"
+#include "agg_renderer_scanline.h"
+#include "agg_rendering_buffer.h"
 #include "agg_scanline_bin.h"
-#include "agg_path_storage.h"
-#include "agg_conv_transform.h"
+#include "agg_scanline_bin.h"
+#include "agg_scanline_u.h"
+#include "agg_span_allocator.h"
 #include "agg_span_image_filter_rgb.h"
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
-#include "agg_scanline_bin.h"
-#include "agg_scanline_u.h"
-#include "agg_renderer_scanline.h"
 #include "util/agg_color_conv_rgb8.h"
 #include "_image.h"
 #include "mplutils.h"
@@ -363,14 +365,12 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   imageMatrix.invert();
   interpolator_type interpolator(imageMatrix);
 
-  agg::span_allocator<agg::rgba8> sa;
+  typedef agg::span_allocator<agg::rgba8> span_alloc_type;
+  span_alloc_type sa;
   agg::rgba8 background(agg::rgba8(int(255*bg.r),
 				   int(255*bg.g),
 				   int(255*bg.b),
 				   int(255*bg.a)));
-
-
-
 
   // the image path
   agg::path_storage path;
@@ -438,16 +438,19 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   agg::conv_transform<agg::path_storage> imageBox(path, srcMatrix);
   ras.add_path(imageBox);
 
+  typedef agg::image_accessor_clip<pixfmt> img_accessor_type;
+	
+  pixfmt pixfmtin(*rbufIn);
+  img_accessor_type ia(pixfmtin, background);
   switch(interpolation)
     {
 
     case NEAREST:
       {
-	typedef agg::span_image_filter_rgba_nn<agg::rgba8,agg::order_rgba, interpolator_type> span_gen_type;
-	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-
-	span_gen_type sg(sa, *rbufIn, background, interpolator);
-	renderer_type ri(rb, sg);
+	typedef agg::span_image_filter_rgba_nn<img_accessor_type, interpolator_type> span_gen_type;
+	typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+	span_gen_type sg(ia, interpolator);
+	renderer_type ri(rb, sa, sg);
 	agg::render_scanlines(ras, sl, ri);
       }
       break;
@@ -488,14 +491,11 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
                 case LANCZOS: filter.calculate(agg::image_filter_lanczos(radius), norm); break;
                 case BLACKMAN: filter.calculate(agg::image_filter_blackman(radius), norm); break;
                 }
-
-	typedef agg::span_image_filter_rgba<agg::rgba8, agg::order_rgba,
-	  interpolator_type> span_gen_type;
-	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-	span_gen_type sg(sa, rbufPad, background, interpolator, filter);
-	renderer_type ri(rb, sg);
+	typedef agg::span_image_filter_rgba_2x2<img_accessor_type, interpolator_type> span_gen_type;
+	typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+	span_gen_type sg(ia, interpolator, filter);
+	renderer_type ri(rb, sa, sg);
 	agg::render_scanlines(ras, sl, ri);
-
       }
       break;
 

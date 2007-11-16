@@ -1,5 +1,0 @@
-Use automake to build the library. 
-
-If automake is not available you still can use the old make. 
-There is a very simple Makefile that can be used. Note that
-if you use automake it will overwrite Makefile.
