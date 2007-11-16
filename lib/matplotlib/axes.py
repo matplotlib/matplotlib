@@ -2,7 +2,6 @@ from __future__ import division, generators
 import math, sys, warnings
 
 import numpy as npy
-npy.seterr(invalid='ignore')
 
 import matplotlib.numerix.npyma as ma
 
