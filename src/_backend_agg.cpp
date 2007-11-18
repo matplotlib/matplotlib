@@ -1052,7 +1052,8 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
   }
 
   set_clip_from_bbox(args[5]);
-
+  // Does it make sense to support offsets in QuadMesh?
+  // When would they be used?
   Py::SeqBase<Py::Object> offsets;
   Transformation* transOffset = NULL;
   bool usingOffsets = args[7].ptr() != Py_None;
@@ -1079,19 +1080,12 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
   std::pair<double, double> xyo, xy;
 
   //do non-offset transformations
-  double* xCoordsa = new double[Nverts];
-  double* yCoordsa = new double[Nverts];
   double* newXCoords = new double[Nverts];
   double* newYCoords = new double[Nverts];
   size_t k, q;
-  for(k=0; k < Nverts; k++)
-    {
-      xCoordsa[k] = *(double *)(xCoords -> data + k*(xCoords -> strides[0]));
-      yCoordsa[k] = *(double *)(yCoords -> data + k*(yCoords -> strides[0]));
-    }
-  transform->arrayOperator(Nverts, xCoordsa, yCoordsa, newXCoords, newYCoords);
-  delete xCoordsa;
-  delete yCoordsa;
+  transform->arrayOperator(Nverts, (const double *)xCoords->data,
+                                    (const double *)yCoords->data,
+                                    newXCoords, newYCoords);
   if(usingOffsets)
     {
       double* xOffsets = new double[Noffsets];
@@ -1099,17 +1093,17 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
       double* newXOffsets = new double[Noffsets];
       double* newYOffsets = new double[Noffsets];
       for(k=0; k < Noffsets; k++)
-	{
-	  Py::SeqBase<Py::Object> pos = Py::SeqBase<Py::Object>(offsets[k]);
-	  xOffsets[k] = Py::Float(pos[0]);
-	  yOffsets[k] = Py::Float(pos[1]);
-	}
+        {
+          Py::SeqBase<Py::Object> pos = Py::SeqBase<Py::Object>(offsets[k]);
+          xOffsets[k] = Py::Float(pos[0]);
+          yOffsets[k] = Py::Float(pos[1]);
+        }
       transOffset->arrayOperator(Noffsets, xOffsets, yOffsets, newXOffsets, newYOffsets);
       for(k=0; k < Nverts; k++)
-	{
-	  newXCoords[k] += newXOffsets[k];
-	  newYCoords[k] += newYOffsets[k];
-	}
+        {
+          newXCoords[k] += newXOffsets[k];
+          newYCoords[k] += newYOffsets[k];
+        }
       delete xOffsets;
       delete yOffsets;
       delete newXOffsets;
