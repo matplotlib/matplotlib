@@ -322,15 +322,14 @@ class QuadMesh(PatchCollection):
         return self._coordinates;
 
     def draw(self, renderer):
-        # does not call update_scalarmappable, need to update it
-        # when creating/changing              ****** Why not?  speed?
         if not self.get_visible(): return
         transform = self.get_transform()
         transoffset = self.get_transoffset()
         transform.freeze()
         transoffset.freeze()
         #print 'QuadMesh draw'
-        self.update_scalarmappable()  #######################
+        if self.check_update('array'):
+            self.update_scalarmappable()
 
         renderer.draw_quad_mesh( self._meshWidth, self._meshHeight,
             self._facecolors, self._coordinates[:,0],
@@ -797,7 +796,7 @@ class LineCollection(Collection, cm.ScalarMappable):
 
         self._lw = self._get_value(lw)
     set_linewidths = set_lw = set_linewidth
-        
+
     def set_linestyle(self, ls):
         """
         Set the linestyles(s) for the collection.
