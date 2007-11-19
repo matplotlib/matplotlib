@@ -3313,7 +3313,7 @@ class Axes(martist.Artist):
         self.hold(holdstate) # restore previous hold state
 
         if adjust_xlim:
-            xmin, xmax = self.dataLim.intervalx().get_bounds()
+            xmin, xmax = self.dataLim.intervalx().get_bounds()  
             xmin = npy.amin(width)
             if xerr is not None:
                 xmin = xmin - npy.amax(xerr)
