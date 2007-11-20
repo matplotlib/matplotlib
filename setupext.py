@@ -466,11 +466,16 @@ def check_provide_traits():
             print_status("enthought.traits", "unknown and incompatible version: < 2.0")
             return False
         else:
-            if version.version.endswith('mpl'):
+            # traits 2 and 3 store their version strings in different places:
+            try:
+                version = version.version
+            except AttributeError:
+                version = version.__version__
+            if version.endswith('mpl'):
                 print_status("enthought.traits", "matplotlib will provide")
                 return True
             else:
-                print_status("enthought.traits", version.version)
+                print_status("enthought.traits", version)
                 return False
     except ImportError:
         if options['provide_traits']:
