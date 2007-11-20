@@ -2845,22 +2845,18 @@ def oneOf( strs, caseless=False, useRegex=True ):
     else:
         warnings.warn("Invalid argument to oneOf, expected string or list",
                 SyntaxWarning, stacklevel=2)
-        
+
+    symbols.sort(reverse=True)
     i = 0
     while i < len(symbols)-1:
         cur = symbols[i]
-        for j,other in enumerate(symbols[i+1:]):
+        for j, other in enumerate(symbols[i+1:]):
             if ( isequal(other, cur) ):
                 del symbols[i+j+1]
+            else:
                 break
-            elif ( masks(cur, other) ):
-                del symbols[i+j+1]
-                symbols.insert(i,other)
-                cur = other
-                break
-        else:
-            i += 1
-
+        i += 1
+    
     if not caseless and useRegex:
         #~ print strs,"->", "|".join( [ _escapeRegexChars(sym) for sym in symbols] )
         try:
