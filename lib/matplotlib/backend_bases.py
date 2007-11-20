@@ -9,6 +9,7 @@ import os
 import numpy as npy
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
+import matplotlib._image as _image
 import matplotlib.path as path
 import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
@@ -328,6 +329,12 @@ class RendererBase:
     def strip_math(self, s):
         return cbook.strip_math(s)
 
+    def start_rasterizing(self):
+        pass
+
+    def stop_rasterizing(self):
+        pass
+    
 
 class GraphicsContextBase:
     """An abstract base class that provides color, line styles, etc...

@@ -20,10 +20,11 @@ from math import ceil, cos, floor, pi, sin
 from sets import Set
 
 import matplotlib
-from matplotlib import __version__, rcParams, agg, get_data_path
+from matplotlib import __version__, rcParams, get_data_path
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
+from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict, \
     get_realpath_and_stat, is_writable_file_like
 from matplotlib.figure import Figure
@@ -327,8 +328,9 @@ class Stream:
 class PdfFile:
     """PDF file with one page."""
 
-    def __init__(self, width, height, filename):
+    def __init__(self, width, height, dpi, filename):
         self.width, self.height = width, height
+        self.dpi = dpi
         self.nextObject = 1     # next free object id
         self.xrefTable = [ [0, 65535, 'the zero object'] ]
         self.passed_in_file_object = False
@@ -379,7 +381,7 @@ class PdfFile:
         thePage = { 'Type': Name('Page'),
                     'Parent': pagesObject,
                     'Resources': resourceObject,
-                    'MediaBox': [ 0, 0, 72*width, 72*height ],
+                    'MediaBox': [ 0, 0, dpi*width, dpi*height ],
                     'Contents': contentObject }
         self.writeObject(thePageObject, thePage)
 
@@ -1003,8 +1005,9 @@ end"""
 
         rgba = npy.fromstring(s, npy.uint8)
         rgba.shape = (h, w, 4)
-        rgb = rgba[:,:,:4]
-        return h, w, rgb.tostring()
+        rgb = rgba[:,:,:3]
+        a = rgba[:,:,3:]
+        return h, w, rgb.tostring(), a.tostring()
 
     def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
         rgbat = im.as_rgba_str()
@@ -1022,20 +1025,36 @@ end"""
             img.flipud_out()
             if img.is_grayscale:
                 height, width, data = self._gray(img)
-                colorspace = Name('DeviceGray')
+                self.beginStream(
+                    pair[1].id,
+                    self.reserveObject('length of image stream'),
+                    {'Type': Name('XObject'), 'Subtype': Name('Image'),
+                     'Width': width, 'Height': height,
+                     'ColorSpace': Name('DeviceGray'), 'BitsPerComponent': 8 })
+                self.currentstream.write(data) # TODO: predictors (i.e., output png)
+                self.endStream()
             else:
-                height, width, data = self._rgb(img)
-                colorspace = Name('DeviceRGB')
+                height, width, data, adata = self._rgb(img)
+                smaskObject = self.reserveObject("smask")
+                stream = self.beginStream(
+                    smaskObject.id,
+                    self.reserveObject('length of smask stream'),
+                    {'Type': Name('XObject'), 'Subtype': Name('Image'),
+                     'Width': width, 'Height': height,
+                     'ColorSpace': Name('DeviceGray'), 'BitsPerComponent': 8 })
+                self.currentstream.write(adata) # TODO: predictors (i.e., output png)
+                self.endStream()
 
-            self.beginStream(
-                pair[1].id,
-                self.reserveObject('length of image stream'),
-                {'Type': Name('XObject'), 'Subtype': Name('Image'),
-                 'Width': width, 'Height': height,
-                 'ColorSpace': colorspace, 'BitsPerComponent': 8 })
-            self.currentstream.write(data) # TODO: predictors (i.e., output png)
-            self.endStream()
-
+                self.beginStream(
+                    pair[1].id,
+                    self.reserveObject('length of image stream'),
+                    {'Type': Name('XObject'), 'Subtype': Name('Image'),
+                     'Width': width, 'Height': height,
+                     'ColorSpace': Name('DeviceRGB'), 'BitsPerComponent': 8,
+                     'SMask': smaskObject})
+                self.currentstream.write(data) # TODO: predictors (i.e., output png)
+                self.endStream()
+                
             img.flipud_out()
 
     def markerObject(self, path, trans, fillp, lw):
@@ -1152,7 +1171,7 @@ class RendererPdf(RendererBase):
         self.afm_font_cache = {}
         self.file.used_characters = self.used_characters = {}
         self.mathtext_parser = MathTextParser("Pdf")
-        self.image_magnification = dpi/72.0
+        self.dpi = dpi
         self.tex_font_map = None
 
     def finalize(self):
@@ -1194,19 +1213,16 @@ class RendererPdf(RendererBase):
                 stat_key, (realpath, Set()))
             used_characters[1].update(set)
 
-    def get_image_magnification(self):
-        return self.image_magnification
-
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         #print >>sys.stderr, "draw_image called"
 
         # MGDTODO: Support clippath here
         gc = self.new_gc()
-        gc.set_clip_rectangle(bbox.bounds)
+        if bbox is not None:
+            gc.set_clip_rectangle(bbox)
         self.check_gc(gc)
 
         h, w = im.get_size_out()
-        h, w = h/self.image_magnification, w/self.image_magnification
         imob = self.file.imageObject(im)
         self.file.output(Op.gsave, w, 0, 0, h, x, y, Op.concat_matrix,
                          imob, Op.use_xobject, Op.grestore)
@@ -1246,7 +1262,7 @@ class RendererPdf(RendererBase):
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
         width, height, descent, glyphs, rects, used_characters = \
-            self.mathtext_parser.parse(s, 72, prop)
+            self.mathtext_parser.parse(s, self.dpi, prop)
         self.merge_used_characters(used_characters)
 
         # When using Type 3 fonts, we can't use character codes higher
@@ -1311,7 +1327,7 @@ class RendererPdf(RendererBase):
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
-        dvi = dviread.Dvi(dvifile, 72)
+        dvi = dviread.Dvi(dvifile, self.dpi)
         page = iter(dvi).next()
         dvi.close()
 
@@ -1539,13 +1555,13 @@ class RendererPdf(RendererBase):
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             dvifile = texmanager.make_dvi(s, fontsize)
-            dvi = dviread.Dvi(dvifile, 72)
+            dvi = dviread.Dvi(dvifile, self.dpi)
             page = iter(dvi).next()
             dvi.close()
             return page.width, page.height, page.descent
         if ismath:
             w, h, d, glyphs, rects, used_characters = \
-                self.mathtext_parser.parse(s, 72, prop)
+                self.mathtext_parser.parse(s, self.dpi, prop)
 
         elif rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
@@ -1583,14 +1599,14 @@ class RendererPdf(RendererBase):
             font = FT2Font(str(filename))
             self.truetype_font_cache[key] = font
         font.clear()
-        font.set_size(prop.get_size_in_points(), 72.0)
+        font.set_size(prop.get_size_in_points(), self.dpi)
         return font
 
     def flipy(self):
         return False
 
     def get_canvas_width_height(self):
-        return self.file.width / 72.0, self.file.height / 72.0
+        return self.file.width / self.dpi, self.file.height / self.dpi
 
     def new_gc(self):
         return GraphicsContextPdf(self.file)
@@ -1830,11 +1846,12 @@ class FigureCanvasPdf(FigureCanvasBase):
         return 'pdf'
     
     def print_pdf(self, filename, **kwargs):
-        dpi = kwargs.get('dpi', None)
-        self.figure.set_dpi(72) # Override the dpi kwarg
+        dpi = kwargs.get('dpi', 72)
+        self.figure.set_dpi(dpi) # Override the dpi kwarg
         width, height = self.figure.get_size_inches()
-        file = PdfFile(width, height, filename)
-        renderer = RendererPdf(file, dpi)
+        file = PdfFile(width, height, dpi, filename)
+        renderer = MixedModeRenderer(
+            width, height, dpi, RendererPdf(file, dpi))
         self.figure.draw(renderer)
         renderer.finalize()
         file.close()
