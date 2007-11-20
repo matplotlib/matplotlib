@@ -956,8 +956,10 @@ int RendererAgg::inPolygon(int row, const double xs[4], const double ys[4], int 
   return numIntersect;
 }
 
-void RendererAgg::DrawQuadMesh(int meshWidth, int meshHeight, const agg::rgba8 colorArray[], const double xCoords[], const double yCoords[])
+void RendererAgg::DrawQuadMesh(int meshWidth, int meshHeight, void* colors_void, const double xCoords[], const double yCoords[])
 {
+  PyArrayObject* colors = (PyArrayObject*)colors_void;
+
   /* draw each quadrilateral */
   //	agg::renderer_primitives<agg::renderer_base<agg::pixfmt_rgba32> > lineRen(*rendererBase);
   int i = 0;
@@ -992,18 +994,25 @@ void RendererAgg::DrawQuadMesh(int meshWidth, int meshHeight, const agg::rgba8 c
 	  //currTime = clock();
 	  //timer2 += (clock() - currTime);
 	  //currTime = clock();
+	  size_t color_index = (i * meshWidth) + j;
+	  agg::rgba color(*(double*)PyArray_GETPTR2(colors, color_index, 0),
+			  *(double*)PyArray_GETPTR2(colors, color_index, 1),
+			  *(double*)PyArray_GETPTR2(colors, color_index, 2),
+			  *(double*)PyArray_GETPTR2(colors, color_index, 3));
+
 	  for(k = firstRow; k <= lastRow; k++)
 	    {
 	      numCol = inPolygon(k, xs, ys, col);
-	      if (numCol >= 2) rendererBase->copy_hline(col[0], k, col[1] - 1, colorArray[(i * meshWidth) + j]);
-	      if (numCol == 4) rendererBase->copy_hline(col[2], k, col[3] - 1, colorArray[(i * meshWidth) + j]);
+	      
+	      if (numCol >= 2) rendererBase->copy_hline(col[0], k, col[1] - 1, color);
+	      if (numCol == 4) rendererBase->copy_hline(col[2], k, col[3] - 1, color);
 	    }
 	}
     }
   return;
 }
 
-void RendererAgg::DrawQuadMeshEdges(int meshWidth, int meshHeight, const agg::rgba8 colorArray[], const double xCoords[], const double yCoords[])
+void RendererAgg::DrawQuadMeshEdges(int meshWidth, int meshHeight, const double xCoords[], const double yCoords[])
 {
   int i, j;
   agg::renderer_primitives<agg::renderer_base<agg::pixfmt_rgba32> > lineRen(*rendererBase);
@@ -1027,7 +1036,6 @@ void RendererAgg::DrawQuadMeshEdges(int meshWidth, int meshHeight, const agg::rg
 
 Py::Object
 RendererAgg::draw_quad_mesh(const Py::Tuple& args){
-
   //printf("#1: %d\n", clock());
   Py::Object colorsi = args[2];
   Py::Object xCoordsi = args[3];
@@ -1035,7 +1043,6 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
   int meshWidth = Py::Int(args[0]);
   int meshHeight = Py::Int(args[1]);
   int showedges = Py::Int(args[9]);
-  int numQuads = (meshWidth * meshHeight);
   PyArrayObject *colors = (PyArrayObject *) PyArray_ContiguousFromObject(colorsi.ptr(), PyArray_DOUBLE, 2, 2);
   PyArrayObject *xCoords = (PyArrayObject *) PyArray_ContiguousFromObject(xCoordsi.ptr(), PyArray_DOUBLE, 1, 1);
   PyArrayObject *yCoords = (PyArrayObject *) PyArray_ContiguousFromObject(yCoordsi.ptr(), PyArray_DOUBLE, 1, 1);
@@ -1117,30 +1124,14 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
 
   /**** End of transformations ****/
 
-  /* convert colors */
-  double r;
-  double g;
-  double b;
-  double a;
-  int i;
-  agg::rgba8* colorArray = new agg::rgba8[numQuads];
-  for(i=0; i < numQuads; i++)
-    {
-      r = *(double *)(colors -> data + i*(colors -> strides[0]));
-      g = *(double *)(colors -> data + i*(colors -> strides[0]) + (colors -> strides[1]));
-      b = *(double *)(colors -> data + i*(colors -> strides[0]) + 2*(colors -> strides[1]));
-      a = *(double *)(colors -> data + i*(colors -> strides[0]) + 3*(colors -> strides[1]));
-      colorArray[i] = agg::rgba8((int)(255.0 * r), (int)(255.0 * g), (int)(255.0 * b), (int)(255.0 * a));
-    }
-  DrawQuadMesh(meshWidth, meshHeight, colorArray, &(newXCoords[0]), &(newYCoords[0]));
+  DrawQuadMesh(meshWidth, meshHeight, colors, &(newXCoords[0]), &(newYCoords[0]));
   if(showedges)
-    DrawQuadMeshEdges(meshWidth, meshHeight, colorArray, &(newXCoords[0]), &(newYCoords[0]));
+    DrawQuadMeshEdges(meshWidth, meshHeight, &(newXCoords[0]), &(newYCoords[0]));
   Py_XDECREF(xCoords);
   Py_XDECREF(yCoords);
   Py_XDECREF(colors);
   delete newXCoords;
   delete newYCoords;
-  delete colorArray;
   //printf("#2: %d\n", clock());
   return Py::Object();
 }
