@@ -215,8 +215,8 @@ protected:
   agg::rect bbox_to_rect( const Py::Object& o);
   double points_to_pixels( const Py::Object& points);
   double points_to_pixels_snapto( const Py::Object& points);
-  void DrawQuadMesh(int, int, const agg::rgba8[], const double[], const double[]);
-  void DrawQuadMeshEdges(int, int, const agg::rgba8[], const double[], const double[]);
+  void DrawQuadMesh(int, int, void* colors, const double[], const double[]);
+  void DrawQuadMeshEdges(int, int, const double[], const double[]);
   int intersectCheck(double, double, double, double, double, int*);
   int inPolygon(int, const double[4], const double[4], int[4]);
   void set_clip_from_bbox(const Py::Object& o);
