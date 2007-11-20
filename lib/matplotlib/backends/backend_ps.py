@@ -947,6 +947,9 @@ grestore
 
         if self.linewidth > 0:
             write("stroke\n")
+        else:
+            write("newpath\n")
+            
         if cliprect:
             write("grestore\n")
 
