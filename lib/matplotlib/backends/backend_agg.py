@@ -68,6 +68,7 @@ class RendererAgg(RendererBase):
         self.draw_image = self._renderer.draw_image
         self.copy_from_bbox = self._renderer.copy_from_bbox
         self.restore_region = self._renderer.restore_region
+        self.tostring_rgba_minimized = self._renderer.tostring_rgba_minimized
         self.mathtext_parser = MathTextParser('Agg')
         self._fontd = {}
         
