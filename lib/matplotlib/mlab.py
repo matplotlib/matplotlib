@@ -44,7 +44,7 @@ commands with the same names.
       compute it for a lot of pairs.  This function is optimized to do
       this efficiently by caching the direct FFTs.
 
-= record array helper functions = 
+= record array helper functions =
 
   rec2csv          : store record array in CSV file
   rec2excel        : store record array in excel worksheet - required pyExcelerator
@@ -1261,8 +1261,6 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
         def splitfunc(x):
             return x.split(delimiter)
 
-            
-        
     converterseq = None
     for i,line in enumerate(fh):
         if i<skiprows: continue
@@ -1958,13 +1956,13 @@ def rec_append_field(rec, name, arr, dtype=None):
     newrec[name] = arr
     return newrec.view(npy.recarray)
 
-  
+
 def rec_drop_fields(rec, names):
-    'return a new numpy record array with fields in names dropped'    
+    'return a new numpy record array with fields in names dropped'
 
     names = set(names)
     Nr = len(rec)
-    
+
     newdtype = npy.dtype([(name, rec.dtype[name]) for name in rec.dtype.names
                        if name not in names])
 
@@ -1974,7 +1972,7 @@ def rec_drop_fields(rec, names):
 
     return newrec.view(npy.recarray)
 
-    
+
 def rec_join(key, r1, r2):
     """
     join record arrays r1 and r2 on key; key is a tuple of field
@@ -1992,15 +1990,15 @@ def rec_join(key, r1, r2):
     def makekey(row):
         return tuple([row[name] for name in key])
 
-  
-    names = list(r1.dtype.names) + [name for name in r2.dtype.names if name not in set(r1.dtype.names)]
- 
 
-    
-    r1d = dict([(makekey(row),i) for i,row in enumerate(r1)])        
+    names = list(r1.dtype.names) + [name for name in r2.dtype.names if name not in set(r1.dtype.names)]
+
+
+
+    r1d = dict([(makekey(row),i) for i,row in enumerate(r1)])
     r2d = dict([(makekey(row),i) for i,row in enumerate(r2)])
 
-    r1keys = set(r1d.keys())    
+    r1keys = set(r1d.keys())
     r2keys = set(r2d.keys())
 
     keys = r1keys & r2keys
@@ -2008,7 +2006,7 @@ def rec_join(key, r1, r2):
     r1ind = [r1d[k] for k in keys]
     r2ind = [r2d[k] for k in keys]
 
-    
+
     r1 = r1[r1ind]
     r2 = r2[r2ind]
 
@@ -2028,15 +2026,15 @@ def rec_join(key, r1, r2):
         else:
             return (name, dt2.descr[0][1])
 
-        
-        
+
+
     keydesc = [key_desc(name) for name in key]
 
     newdtype = npy.dtype(keydesc +
                          [desc for desc in r1.dtype.descr if desc[0] not in key ] +
                          [desc for desc in r2.dtype.descr if desc[0] not in key ] )
-                         
-    
+
+
     newrec = npy.empty(len(r1), dtype=newdtype)
     for field in r1.dtype.names:
         newrec[field] = r1[field]
@@ -2089,7 +2087,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
 
     fh = cbook.to_filehandle(fname)
 
-    
+
     class FH:
         """
         for space delimited files, we want different behavior than
@@ -2115,13 +2113,13 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
             return self.fix(self.fh.next())
 
         def __iter__(self):
-            for line in self.fh:            
+            for line in self.fh:
                 yield self.fix(line)
 
     if delimiter==' ':
         fh = FH(fh)
 
-    reader = csv.reader(fh, delimiter=delimiter)        
+    reader = csv.reader(fh, delimiter=delimiter)
     def process_skiprows(reader):
         if skiprows:
             for i, row in enumerate(reader):
@@ -2155,7 +2153,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
         'file' : 'file_',
         'print' : 'print_',
         }
-        
+
     def get_converters(reader):
 
         converters = None
@@ -2209,6 +2207,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
 
     # reset the reader and start over
     fh.seek(0)
+    reader = csv.reader(fh, delimiter=delimiter)
     process_skiprows(reader)
     if needheader:
         skipheader = reader.next()
@@ -2232,7 +2231,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
 class FormatObj:
     def tostr(self, x):
         return self.toval(x)
-    
+
     def toval(self, x):
         return str(x)
 
@@ -2255,12 +2254,12 @@ class FormatFloat(FormatFormatStr):
         FormatFormatStr.__init__(self, '%%1.%df'%precision)
         self.precision = precision
         self.scale = scale
-        
+
     def toval(self, x):
         if x is not None:
             x = x * self.scale
         return x
-    
+
 class FormatInt(FormatObj):
     def toval(self, x):
         return x
@@ -2292,20 +2291,20 @@ class FormatDatetime(FormatDate):
 
 
 defaultformatd = {
-    npy.int16 : FormatInt(),                
+    npy.int16 : FormatInt(),
     npy.int32 : FormatInt(),
-    npy.int64 : FormatInt(),        
+    npy.int64 : FormatInt(),
     npy.float32 : FormatFloat(),
-    npy.float64 : FormatFloat(),        
+    npy.float64 : FormatFloat(),
     npy.object_ : FormatObj(),
-    npy.string_ : FormatObj(),        
+    npy.string_ : FormatObj(),
     }
 
 def get_formatd(r, formatd=None):
     'build a formatd guaranteed to have a key for every dtype name'
     if formatd is None:
         formatd = dict()
-    
+
     for i, name in enumerate(r.dtype.names):
         dt = r.dtype[name]
         format = formatd.get(name)
@@ -2316,7 +2315,7 @@ def get_formatd(r, formatd=None):
 
 def csvformat_factory(format):
     format = copy.deepcopy(format)
-    if isinstance(format, FormatFloat):            
+    if isinstance(format, FormatFloat):
         format.scale = 1. # override scaling for storage
         format.fmt = '%g' # maximal precision
     return format
@@ -2358,14 +2357,14 @@ else:
         """
         format = copy.deepcopy(format)
 
-        
-        
+
+
         xlstyle = excel.XFStyle()
-        if isinstance(format, FormatFloat):            
+        if isinstance(format, FormatFloat):
             zeros = ''.join(['0']*format.precision)
             xlstyle.num_format_str = '#,##0.%s;[RED]-#,##0.%s'%(zeros, zeros)
         elif isinstance(format, FormatInt):
-            xlstyle.num_format_str = '#,##;[RED]-#,##'        
+            xlstyle.num_format_str = '#,##;[RED]-#,##'
         elif isinstance(format, FormatPercent):
             zeros = ''.join(['0']*format.precision)
             xlstyle.num_format_str = '0.%s%;[RED]-0.%s%'%(zeros, zeros)
@@ -2374,7 +2373,7 @@ else:
             xlstyle = None
 
         format.xlstyle = xlstyle
-        
+
         return format
 
     def rec2excel(r, ws, formatd=None, rownum=0):
@@ -2412,7 +2411,7 @@ else:
 
         rownum+=1
 
-            
+
         ind = npy.arange(len(r.dtype.names))
         for row in r:
             for i in ind:
@@ -2470,7 +2469,7 @@ else:
                     cell.set_property('foreground', 'black')
 
 
-        if isinstance(format, FormatFloat) or isinstance(format, FormatInt):            
+        if isinstance(format, FormatFloat) or isinstance(format, FormatInt):
             format.cell = negative_red_cell
             format.xalign = 1.
         elif isinstance(format, FormatDate):
@@ -2573,7 +2572,7 @@ else:
             self.clear()
 
         def clear(self):
-            self.iterd = dict()  
+            self.iterd = dict()
             self.iters = []        # an ordered list of iters
             self.rownumd = dict()  # a map from rownum -> symbol
             self.model.clear()
@@ -2596,7 +2595,7 @@ else:
                 thisiter = self.iterd[key]
                 self.model.remove(thisiter)
                 del self.datad[key]
-                del self.iterd[key] 
+                del self.iterd[key]
                 self.iters.remove(thisiter)
 
             for i, thisiter in enumerate(self.iters):
@@ -2611,7 +2610,7 @@ else:
 
 
             del self.datad[key]
-            del self.iterd[key] 
+            del self.iterd[key]
             self.rownumd[len(self.iters)] = key
             self.iters.remove(thisiter)
 
@@ -2619,7 +2618,7 @@ else:
                 if thiskey==key: del self.rownumd[rownum]
 
         def add_row(self, row):
-            thisiter = self.model.append()                
+            thisiter = self.model.append()
             self.model.set(thisiter, *self.flat(row))
             key = tuple(row)
             self.datad[key] = row
@@ -2702,7 +2701,7 @@ else:
             win.add(scroll)
             win.show_all()
             scroll.win = win
-            
+
         return scroll
 
 

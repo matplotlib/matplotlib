@@ -787,6 +787,9 @@ grestore
         if self.linewidth > 0 and stroke:
             self.set_color(*gc.get_rgb()[:3])
             write("stroke\n")
+        else:
+            write("newpath\n")
+
         if clippath:
             write("grestore\n")
         if cliprect:

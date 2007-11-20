@@ -441,7 +441,8 @@ class QuadMesh(Collection):
         else:
             offsets = npy.asarray(offsets, npy.float_)
 
-        self.update_scalarmappable()
+        if self.check_update('array'):
+            self.update_scalarmappable()
 
         clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
         if clippath_trans is not None:

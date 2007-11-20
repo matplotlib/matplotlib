@@ -404,8 +404,106 @@ class NonUniformImage(AxesImage):
             raise RuntimeError('Cannot change colors after loading data')
         cm.ScalarMappable.set_cmap(self, norm)
 
+class PcolorImage(martist.Artist, cm.ScalarMappable):
+    def __init__(self, ax,
+                 x=None,
+                 y=None,
+                 A=None,
+                 cmap = None,
+                 norm = None,
+                 **kwargs
+                ):
+        """
+        cmap defaults to its rc setting
+
+        cmap is a colors.Colormap instance
+        norm is a colors.Normalize instance to map luminance to 0-1
+
+        Additional kwargs are matplotlib.artist properties
+
+        """
+        martist.Artist.__init__(self)
+        cm.ScalarMappable.__init__(self, norm, cmap)
+        self.axes = ax
+        self._rgbacache = None
+        self.update(kwargs)
+        self.set_data(x, y, A)
+
+    def make_image(self, magnification=1.0):
+        if self._A is None:
+            raise RuntimeError('You must first set the image array')
+        fc = self.axes.get_frame().get_facecolor()
+        bg = mcolors.colorConverter.to_rgba(fc, 0)
+        bg = (npy.array(bg)*255).astype(npy.uint8)
+        x0, y0, v_width, v_height = self.axes.viewLim.get_bounds()
+        l, b, width, height = self.axes.bbox.get_bounds()
+        width *= magnification
+        height *= magnification
+        if self.check_update('array'):
+            A = self.to_rgba(self._A, alpha=self._alpha, bytes=True)
+            self._rgbacache = A
+            if self._A.ndim == 2:
+                self.is_grayscale = self.cmap.is_gray()
+        else:
+            A = self._rgbacache
+        im = _image.pcolor2(self._Ax, self._Ay, A,
+                           height, width,
+                           (x0, x0+v_width, y0, y0+v_height),
+                           bg)
+        im.is_grayscale = self.is_grayscale
+        return im
+
+    def draw(self, renderer, *args, **kwargs):
+        if not self.get_visible(): return
+        im = self.make_image(renderer.get_image_magnification())
+        l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
+        renderer.draw_image(l, b, im, self.axes.bbox)
 
 
+    def set_data(self, x, y, A):
+        A = ma.asarray(A)
+        if x is None:
+            x = npy.arange(0, A.shape[1]+1, dtype=npy.float64)
+        else:
+            x = npy.asarray(x, npy.float64).ravel()
+        if y is None:
+            y = npy.arange(0, A.shape[0]+1, dtype=npy.float64)
+        else:
+            y = npy.asarray(y, npy.float64).ravel()
+
+        if A.shape[:2] != (y.size-1, x.size-1):
+            print A.shape
+            print y.size
+            print x.size
+            raise ValueError("Axes don't match array shape")
+        if A.ndim not in [2, 3]:
+            raise ValueError("A must be 2D or 3D")
+        if A.ndim == 3 and A.shape[2] == 1:
+            A.shape = A.shape[:2]
+        self.is_grayscale = False
+        if A.ndim == 3:
+            if A.shape[2] in [3, 4]:
+                if (A[:,:,0] == A[:,:,1]).all() and (A[:,:,0] == A[:,:,2]).all():
+                    self.is_grayscale = True
+            else:
+                raise ValueError("3D arrays must have RGB or RGBA as last dim")
+        self._A = A
+        self._Ax = x
+        self._Ay = y
+        self.update_dict['array'] = True
+
+    def set_array(self, *args):
+        raise NotImplementedError('Method not supported')
+
+    def set_alpha(self, alpha):
+        """
+        Set the alpha value used for blending - not supported on
+        all backends
+
+        ACCEPTS: float
+        """
+        martist.Artist.set_alpha(self, alpha)
+        self.update_dict['array'] = True
 
 class FigureImage(martist.Artist, cm.ScalarMappable):
     def __init__(self, fig,
