@@ -1709,6 +1709,7 @@ class AutoWidthChar(Hlist):
         char = char_class(sym, state)
 
         Hlist.__init__(self, [char])
+        self.width = char.width
 
 class Ship(object):
     """Once the boxes have been set up, this sends them to output.
@@ -1744,10 +1745,13 @@ class Ship(object):
         left_edge     = self.cur_h
         self.cur_s    += 1
         self.max_push = max(self.cur_s, self.max_push)
-
+        clamp         = self.clamp
+        
         for p in box.children:
             if isinstance(p, Char):
                 p.render(self.cur_h + self.off_h, self.cur_v + self.off_v)
+                self.cur_h += p.width
+            elif isinstance(p, Kern):
                 self.cur_h += p.width
             elif isinstance(p, List):
                 # @623
@@ -1787,14 +1791,12 @@ class Ship(object):
                     if glue_sign == 1: # stretching
                         if glue_spec.stretch_order == glue_order:
                             cur_glue += glue_spec.stretch
-                            cur_g = round(self.clamp(float(box.glue_set) * cur_glue))
+                            cur_g = round(clamp(float(box.glue_set) * cur_glue))
                     elif glue_spec.shrink_order == glue_order:
                         cur_glue += glue_spec.shrink
-                        cur_g = round(self.clamp(float(box.glue_set) * cur_glue))
+                        cur_g = round(clamp(float(box.glue_set) * cur_glue))
                 rule_width += cur_g
                 self.cur_h += rule_width
-            elif isinstance(p, Kern):
-                self.cur_h += p.width
         self.cur_s -= 1
 
     def vlist_out(self, box):
@@ -1807,9 +1809,12 @@ class Ship(object):
         left_edge     = self.cur_h
         self.cur_v    -= box.height
         top_edge      = self.cur_v
+        clamp         = self.clamp
 
         for p in box.children:
-            if isinstance(p, List):
+            if isinstance(p, Kern):
+                self.cur_v += p.width
+            elif isinstance(p, List):
                 if len(p.children) == 0:
                     self.cur_v += p.height + p.depth
                 else:
@@ -1842,14 +1847,12 @@ class Ship(object):
                     if glue_sign == 1: # stretching
                         if glue_spec.stretch_order == glue_order:
                             cur_glue += glue_spec.stretch
-                            cur_g = round(self.clamp(float(box.glue_set) * cur_glue))
+                            cur_g = round(clamp(float(box.glue_set) * cur_glue))
                     elif glue_spec.shrink_order == glue_order: # shrinking
                         cur_glue += glue_spec.shrink
-                        cur_g = round(self.clamp(float(box.glue_set) * cur_glue))
+                        cur_g = round(clamp(float(box.glue_set) * cur_glue))
                 rule_height += cur_g
                 self.cur_v += rule_height
-            elif isinstance(p, Kern):
-                self.cur_v += p.width
             elif isinstance(p, Char):
                 raise RuntimeError("Internal mathtext error: Char node found in vlist")
         self.cur_s -= 1
@@ -1923,6 +1926,21 @@ class Parser(object):
 
     _dropsub_symbols = Set(r'''\int \oint'''.split())
 
+    _fontnames = Set("rm cal it tt sf bf default bb frak circled scr".split())
+    
+    _function_names = Set("""
+      arccos csc ker min arcsin deg lg Pr arctan det lim sec arg dim
+      liminf sin cos exp limsup sinh cosh gcd ln sup cot hom log tan
+      coth inf max tanh""".split())
+
+    _ambiDelim = Set(r"""
+      | \| / \backslash \uparrow \downarrow \updownarrow \Uparrow
+      \Downarrow \Updownarrow .""".split())
+
+    _leftDelim = Set(r"( [ { \lfloor \langle \lceil".split())
+
+    _rightDelim = Set(r") ] } \rfloor \rangle \rceil".split())
+    
     def __init__(self):
         # All forward declarations are here
         font = Forward().setParseAction(self.font).setName("font")
@@ -1946,15 +1964,10 @@ class Parser(object):
 
         accent       = oneOf(self._accent_map.keys() + list(self._wide_accents))
 
-        function     = oneOf("arccos csc ker min arcsin deg lg Pr arctan det "
-                             "lim sec arg dim liminf sin cos exp limsup sinh "
-                             "cosh gcd ln sup cot hom log tan coth inf max "
-                             "tanh")
+        function     = oneOf(list(self._function_names))
 
-        fontname     = oneOf("rm cal it tt sf bf")
-        latex2efont  = oneOf("mathrm mathcal mathit mathtt mathsf mathbf "
-                             "mathdefault mathbb mathfrak mathcircled "
-                             "mathscr")
+        fontname     = oneOf(list(self._fontnames))
+        latex2efont  = oneOf(['math' + x for x in self._fontnames])
 
         space        =(FollowedBy(bslash)
                      +   (Literal(r'\ ')
@@ -1993,7 +2006,8 @@ class Parser(object):
                      ).setParseAction(self.accent).setName("accent")
 
         function     =(Suppress(bslash)
-                     + function).setParseAction(self.function).setName("function")
+                     + function
+                     ).setParseAction(self.function).setName("function")
 
         group        = Group(
                          start_group
@@ -2065,11 +2079,9 @@ class Parser(object):
                        | placeable
                      )
 
-        ambiDelim    = oneOf(r"""| \| / \backslash \uparrow \downarrow
-                                 \updownarrow \Uparrow \Downarrow
-                                 \Updownarrow .""")
-        leftDelim    = oneOf(r"( [ { \lfloor \langle \lceil")
-        rightDelim   = oneOf(r") ] } \rfloor \rangle \rceil")
+        ambiDelim    = oneOf(self._ambiDelim)
+        leftDelim    = oneOf(self._leftDelim)
+        rightDelim   = oneOf(self._rightDelim)
         autoDelim   <<(Suppress(Literal(r"\left"))
                      + ((leftDelim | ambiDelim) | Error("Expected a delimiter"))
                      + Group(
@@ -2397,7 +2409,9 @@ class Parser(object):
                 super = next1
                 sub = next2
         else:
-            raise ParseFatalException("Subscript/superscript sequence is too long.  Use braces { } to remove ambiguity.")
+            raise ParseFatalException(
+                "Subscript/superscript sequence is too long. "
+                "Use braces { } to remove ambiguity.")
 
         state = self.get_state()
         rule_thickness = state.font_output.get_underline_thickness(
@@ -2405,6 +2419,7 @@ class Parser(object):
         xHeight = state.font_output.get_xheight(
             state.font, state.fontsize, state.dpi)
 
+        # Handle over/under symbols, such as sum or integral
         if self.is_overunder(nucleus):
             vlist = []
             shift = 0.
@@ -2433,6 +2448,7 @@ class Parser(object):
             result = Hlist([vlist])
             return [result]
 
+        # Handle regular sub/superscripts
         shift_up = nucleus.height - SUBDROP * xHeight
         if self.is_dropsub(nucleus):
             shift_down = nucleus.depth + SUBDROP * xHeight
