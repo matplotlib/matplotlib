@@ -1474,7 +1474,65 @@ RendererAgg::buffer_rgba(const Py::Tuple& args) {
   return Py::asObject(PyBuffer_FromMemory( pixBuffer+start, row_len*height-start));
 }
 
+Py::Object
+RendererAgg::tostring_rgba_minimized(const Py::Tuple& args) {
+  args.verify_length(0);
 
+  int xmin = width;
+  int ymin = height;
+  int xmax = 0;
+  int ymax = 0;
+  
+  // Looks at the alpha channel to find the minimum extents of the image
+  unsigned char* pixel = pixBuffer + 3;
+  for (int y = 0; y < (int)height; ++y) {
+    for (int x = 0; x < (int)width; ++x) {
+      if (*pixel) {
+	if (x < xmin) xmin = x;
+	if (y < ymin) ymin = y;
+	if (x > xmax) xmax = x;
+	if (y > ymax) ymax = y;
+      }
+      pixel += 4;
+    }
+  }
+
+  int newwidth = 0;
+  int newheight = 0;
+  Py::String data;
+  if (xmin < xmax and ymin < ymax) {
+    // Expand the bounds by 1 pixel on all sides
+    xmin = std::max(0, xmin - 1);
+    ymin = std::max(0, ymin - 1);
+    xmax = std::min(xmax, (int)width);
+    ymax = std::min(ymax, (int)height);
+    
+    newwidth	= xmax - xmin;
+    newheight	= ymax - ymin;
+    int newsize	= newwidth * newheight * 4;
+    
+    unsigned char* buf = new unsigned char[newsize];
+    unsigned int*  dst = (unsigned int*)buf;
+    unsigned int*  src = (unsigned int*)pixBuffer;
+    for (int y = ymin; y < ymax; ++y)
+      for (int x = xmin; x < xmax; ++x, ++dst)
+	*dst = src[y * width + x];
+
+    data = Py::String((const char *)buf, (int)newsize);
+  }
+
+  Py::Tuple bounds(4);
+  bounds[0] = Py::Int(xmin);
+  bounds[1] = Py::Int(ymin);
+  bounds[2] = Py::Int(newwidth);
+  bounds[3] = Py::Int(newheight);
+  
+  Py::Tuple result(2);
+  result[0] = data;
+  result[1] = bounds;
+
+  return result;
+}
 
 Py::Object
 RendererAgg::clear(const Py::Tuple& args) {
@@ -1605,6 +1663,8 @@ void RendererAgg::init_type()
 		     "s = tostring_argb()");
   add_varargs_method("tostring_bgra", &RendererAgg::tostring_bgra,
 		     "s = tostring_bgra()");
+  add_varargs_method("tostring_rgba_minimized", &RendererAgg::tostring_rgba_minimized,
+		     "s = tostring_rgba_minimized()");
   add_varargs_method("buffer_rgba", &RendererAgg::buffer_rgba,
 		     "buffer = buffer_rgba()");
   add_varargs_method("clear", &RendererAgg::clear,
