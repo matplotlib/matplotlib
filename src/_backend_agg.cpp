@@ -469,7 +469,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   typedef agg::renderer_base<pixfmt_amask_type>		     amask_ren_type;
   typedef agg::renderer_scanline_aa_solid<amask_ren_type>    amask_aa_renderer_type;
   typedef agg::renderer_scanline_bin_solid<amask_ren_type>   amask_bin_renderer_type;
-
   args.verify_length(5, 6);
 
   Py::Object	    gc_obj	    = args[0];
