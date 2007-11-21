@@ -2846,7 +2846,11 @@ def oneOf( strs, caseless=False, useRegex=True ):
         warnings.warn("Invalid argument to oneOf, expected string or list",
                 SyntaxWarning, stacklevel=2)
 
-    symbols.sort(reverse=True)
+    try:
+        symbols.sort(reverse=True)
+    except TypeError:
+        symbols.sort()
+        symbols.reverse()
     i = 0
     while i < len(symbols)-1:
         cur = symbols[i]

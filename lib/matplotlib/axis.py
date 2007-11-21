@@ -526,6 +526,9 @@ class Axis(Artist):
         self.set_minor_locator(NullLocator())
         self.set_minor_formatter(NullFormatter())
 
+        # Clear the callback registry for this axis, or it may "leak"
+        self.callbacks = CallbackRegistry(('units', 'units finalize'))
+
         # whether the grids are on
         self._gridOnMajor = rcParams['axes.grid']
         self._gridOnMinor = False
