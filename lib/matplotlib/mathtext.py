@@ -505,6 +505,7 @@ class TruetypeFonts(Fonts):
     (through ft2font)
     """
     basepath = os.path.join( get_data_path(), 'fonts' )
+    _fonts = {}
 
     class CachedFont:
         def __init__(self, font):
@@ -519,21 +520,17 @@ class TruetypeFonts(Fonts):
     def __init__(self, default_font_prop, mathtext_backend):
         Fonts.__init__(self, default_font_prop, mathtext_backend)
         self.glyphd           = {}
-        self.fonts            = {}
 
-        filename = findfont(default_font_prop)
-        default_font = self.CachedFont(FT2Font(str(filename)))
+        if self._fonts == {}:
+            filename = findfont(default_font_prop)
+            default_font = self.CachedFont(FT2Font(str(filename)))
 
-        self.fonts['default'] = default_font
+            self._fonts['default'] = default_font
 
     def destroy(self):
         self.glyphd = None
-        for cached_font in self.fonts.values():
-            cached_font.charmap = None
-            cached_font.glyphmap = None
-            cached_font.font = None
         Fonts.destroy(self)
-        
+
     def _get_font(self, font):
         """Looks up a CachedFont with its charmap and inverse charmap.
         font may be a TeX font name (cal, rm, it etc.), or postscript name."""
@@ -542,16 +539,16 @@ class TruetypeFonts(Fonts):
         else:
             basename = font
 
-        cached_font = self.fonts.get(basename)
+        cached_font = self._fonts.get(basename)
         if cached_font is None:
             try:
                 font = FT2Font(basename)
             except RuntimeError:
                 return None
             cached_font = self.CachedFont(font)
-            self.fonts[basename] = cached_font
-            self.fonts[font.postscript_name] = cached_font
-            self.fonts[font.postscript_name.lower()] = cached_font
+            self._fonts[basename] = cached_font
+            self._fonts[font.postscript_name] = cached_font
+            self._fonts[font.postscript_name.lower()] = cached_font
         return cached_font
 
     def _get_offset(self, cached_font, glyph, fontsize, dpi):
