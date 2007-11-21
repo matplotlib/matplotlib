@@ -2077,9 +2077,9 @@ class Parser(object):
                        | placeable
                      )
 
-        ambiDelim    = oneOf(self._ambiDelim)
-        leftDelim    = oneOf(self._leftDelim)
-        rightDelim   = oneOf(self._rightDelim)
+        ambiDelim    = oneOf(list(self._ambiDelim))
+        leftDelim    = oneOf(list(self._leftDelim))
+        rightDelim   = oneOf(list(self._rightDelim))
         autoDelim   <<(Suppress(Literal(r"\left"))
                      + ((leftDelim | ambiDelim) | Error("Expected a delimiter"))
                      + Group(
