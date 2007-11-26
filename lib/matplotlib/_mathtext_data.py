@@ -2439,7 +2439,7 @@ stix_virtual_fonts = {
             (0x0030, 0x0039, 'rm', 0x1d7e2),  # 0-9
             (0x0041, 0x005a, 'it', 0x1d608), # A-Z
             (0x0061, 0x007a, 'it', 0x1d622), # a-z
-            (0x0391, 0x03a9, 'it', 0xe1bf),  # \Alpha-\Omega
+            (0x0391, 0x03a9, 'rm', 0xe17d),  # \Alpha-\Omega
             (0x03b1, 0x03c9, 'it', 0xe1d8),  # \alpha-\omega
             (0x03d1, 0x03d1, 'it', 0xe1f2),  # theta variant
             (0x03d5, 0x03d5, 'it', 0xe1f3),  # phi variant
