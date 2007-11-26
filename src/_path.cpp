@@ -696,9 +696,10 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args) {
       f = *(double*)(row1);
     }
 
-    result = (PyArrayObject*)PyArray_FromDimsAndDataAndDescr
-      (PyArray_NDIM(vertices), PyArray_DIMS(vertices), 
-       PyArray_DescrFromType(PyArray_DOUBLE), NULL);
+    result = (PyArrayObject*)PyArray_NewFromDescr
+      (&PyArray_Type, PyArray_DescrFromType(PyArray_DOUBLE), 
+       PyArray_NDIM(vertices), PyArray_DIMS(vertices), 
+       NULL, NULL, 0, NULL);
     if (PyArray_NDIM(vertices) == 2) {
       size_t n = PyArray_DIM(vertices, 0);
       char* vertex_in = PyArray_BYTES(vertices);
