@@ -380,6 +380,8 @@ class GraphicsContextBase:
         Return the alpha value used for blending - not supported on
         all backends
         """
+        if len(self._rgb) == 4:
+            return self._rgb[3]
         return self._alpha
 
     def get_antialiased(self):
