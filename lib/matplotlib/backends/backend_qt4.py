@@ -359,7 +359,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
         QtGui.QApplication.setOverrideCursor( QtGui.QCursor( cursord[cursor] ) )
 
     def draw_rubberband( self, event, x0, y0, x1, y1 ):
-        height = self.canvas.figure.bbox.height()
+        height = self.canvas.figure.bbox.height
         y1 = height - y1
         y0 = height - y0
 
