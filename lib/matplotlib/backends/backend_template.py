@@ -62,10 +62,6 @@ class RendererTemplate(RendererBase):
     writing a new backend. Refer to backend_bases.RendererBase for
     documentation of the classes methods.
     """
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2,
-                 rotation):
-        pass
-
     def draw_path(self, gc, path, transform, rgbFace=None):
         pass
 
