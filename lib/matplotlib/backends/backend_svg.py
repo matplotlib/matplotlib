@@ -246,14 +246,11 @@ class RendererSVG(RendererBase):
         font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
         y -= font.get_descent() / 64.0
         
-        thetext = escape_xml_text(s)
-        fontfamily = font.family_name
-        fontstyle = prop.get_style()
         fontsize = prop.get_size_in_points()
         color = rgb2hex(gc.get_rgb())
 
         if rcParams['svg.embed_char_paths']:
-            svg = ['<g transform="']
+            svg = ['<g style="fill: %s" transform="' % color]
             if angle != 0:
                 svg.append('translate(%s,%s)rotate(%1.1f)' % (x,y,-angle))
             elif x != 0 or y != 0:
@@ -288,6 +285,10 @@ class RendererSVG(RendererBase):
             svg.append('</g>\n')
             svg = ''.join(svg)
         else:
+            thetext = escape_xml_text(s)
+            fontfamily = font.family_name
+            fontstyle = prop.get_style()
+
             style = 'font-size: %f; font-family: %s; font-style: %s; fill: %s;'%(fontsize, fontfamily,fontstyle, color)
             if angle!=0:
                 transform = 'transform="translate(%s,%s) rotate(%1.1f) translate(%s,%s)"' % (x,y,-angle,-x,-y)
