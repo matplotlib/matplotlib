@@ -2298,7 +2298,7 @@ stix_virtual_fonts = {
             [
             (0x0041, 0x0041, 'it', 0xe154),  # A-B
             (0x0043, 0x0043, 'it', 0x2102),  # C (missing in beta STIX fonts)
-            (0x0044, 0x0044, 'it', 0x2145),  # D 
+            (0x0044, 0x0044, 'it', 0x2145),  # D
             (0x0045, 0x0047, 'it', 0xe156),  # E-G
             (0x0048, 0x0048, 'it', 0x210d),  # H (missing in beta STIX fonts)
             (0x0049, 0x004d, 'it', 0xe159),  # I-M
@@ -2346,8 +2346,8 @@ stix_virtual_fonts = {
             ],
         'it':
             [
-            (0x0030, 0x0030, 'it', 0x24ea), # 0
-            (0x0031, 0x0039, 'it', 0x2460), # 1-9
+            (0x0030, 0x0030, 'rm', 0x24ea), # 0
+            (0x0031, 0x0039, 'rm', 0x2460), # 1-9
             (0x0041, 0x005a, 'it', 0x24b6), # A-Z
             (0x0061, 0x007a, 'it', 0x24d0)  # a-z
             ],
@@ -2436,7 +2436,7 @@ stix_virtual_fonts = {
             [
             # These numerals are actually upright.  We don't actually
             # want italic numerals ever.
-            (0x0030, 0x0039, 'rm', 0x1d7e2),  # 0-9
+            (0x0030, 0x0039, 'rm', 0x1d7e2), # 0-9
             (0x0041, 0x005a, 'it', 0x1d608), # A-Z
             (0x0061, 0x007a, 'it', 0x1d622), # a-z
             (0x0391, 0x03a9, 'rm', 0xe17d),  # \Alpha-\Omega
