@@ -208,7 +208,7 @@ class MathtextBackend(object):
 class MathtextBackendBbox(MathtextBackend):
     """A backend whose only purpose is to get a precise bounding box.
     Only required for the Agg backend."""
-    
+
     def __init__(self, real_backend):
         MathtextBackend.__init__(self)
         self.bbox = [0, 0, 0, 0]
@@ -219,7 +219,7 @@ class MathtextBackendBbox(MathtextBackend):
                      min(self.bbox[1], y1),
                      max(self.bbox[2], x2),
                      max(self.bbox[3], y2)]
-        
+
     def render_glyph(self, ox, oy, info):
         self._update_bbox(ox + info.metrics.xmin,
                           oy - info.metrics.ymax,
@@ -251,14 +251,14 @@ class MathtextBackendBbox(MathtextBackend):
         self.real_backend.fonts_object = self.fonts_object
         self.real_backend.ox = self.bbox[0]
         self.real_backend.oy = self.bbox[1]
-        
+
 class MathtextBackendAggRender(MathtextBackend):
     def __init__(self):
         self.ox = 0
         self.oy = 0
         self.image = None
         MathtextBackend.__init__(self)
-    
+
     def set_canvas_size(self, w, h, d):
         MathtextBackend.set_canvas_size(self, w, h, d)
         self.image = FT2Image(ceil(w), ceil(h + d))
@@ -284,11 +284,11 @@ class MathtextBackendAggRender(MathtextBackend):
 
 def MathtextBackendAgg():
     return MathtextBackendBbox(MathtextBackendAggRender())
-    
+
 class MathtextBackendBitmapRender(MathtextBackendAggRender):
     def get_results(self, box):
         return self.image
-    
+
 def MathtextBackendBitmap():
     return MathtextBackendBbox(MathtextBackendBitmapRender())
 
@@ -310,7 +310,7 @@ setfont
 """ % locals()
             self.lastfont = postscript_name, fontsize
             self.pswriter.write(ps)
-        
+
         ps = """%(ox)f %(oy)f moveto
 /%(symbol_name)s glyphshow\n
 """ % locals()
@@ -426,7 +426,7 @@ class Fonts(object):
         """Fix any cyclical references before the object is about
         to be destroyed."""
         self.used_characters = None
-        
+
     def get_kern(self, font1, sym1, fontsize1,
                  font2, sym2, fontsize2, dpi):
         """
@@ -737,7 +737,7 @@ class UnicodeFonts(TruetypeFonts):
 
     fontmap = {}
     use_cmex = True
-    
+
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
         if rcParams['mathtext.fallback_to_cm']:
@@ -758,7 +758,7 @@ class UnicodeFonts(TruetypeFonts):
 
     def _map_virtual_font(self, fontname, font_class, uniindex):
         return fontname, uniindex
-    
+
     def _get_glyph(self, fontname, font_class, sym, fontsize):
         found_symbol = False
 
@@ -767,7 +767,7 @@ class UnicodeFonts(TruetypeFonts):
             if uniindex is not None:
                 fontname = 'ex'
                 found_symbol = True
-                
+
         if not found_symbol:
             try:
                 uniindex = get_unicode_index(sym)
@@ -780,7 +780,7 @@ class UnicodeFonts(TruetypeFonts):
 
         fontname, uniindex = self._map_virtual_font(
             fontname, font_class, uniindex)
-                
+
         # Only characters in the "Letter" class should be italicized in 'it'
         # mode.  Greek capital letters should be Roman.
         if found_symbol:
@@ -830,13 +830,16 @@ class UnicodeFonts(TruetypeFonts):
         return [(fontname, sym)]
 
 class StixFonts(UnicodeFonts):
+    """
+    A font handling class for the STIX fonts
+    """
     _fontmap = { 'rm'  : 'STIXGeneral',
                  'it'  : 'STIXGeneralItalic',
                  'bf'  : 'STIXGeneralBol',
                  'nonunirm' : 'STIXNonUni',
                  'nonuniit' : 'STIXNonUniIta',
                  'nonunibf' : 'STIXNonUniBol',
-                 
+
                  0 : 'STIXGeneral',
                  1 : 'STIXSiz1Sym',
                  2 : 'STIXSiz2Sym',
@@ -849,7 +852,6 @@ class StixFonts(UnicodeFonts):
     cm_fallback = False
 
     def __init__(self, *args, **kwargs):
-        self._sans = kwargs.pop("sans", False)
         TruetypeFonts.__init__(self, *args, **kwargs)
         if not len(self.fontmap):
             for key, name in self._fontmap.iteritems():
@@ -891,14 +893,14 @@ class StixFonts(UnicodeFonts):
                 # This will generate a dummy character
                 uniindex = 0x1
                 fontname = 'it'
-        
+
         # Handle private use area glyphs
         if (fontname in ('it', 'rm', 'bf') and
             uniindex >= 0xe000 and uniindex <= 0xf8ff):
             fontname = 'nonuni' + fontname
 
         return fontname, uniindex
-                
+
     _size_alternatives = {}
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         alternatives = self._size_alternatives.get(sym)
@@ -919,7 +921,14 @@ class StixFonts(UnicodeFonts):
 
         self._size_alternatives[sym] = alternatives
         return alternatives
-    
+
+class StixSansFonts(StixFonts):
+    """
+    A font handling class for the STIX fonts (using sans-serif
+    characters by default).
+    """
+    _sans = True
+
 class StandardPsFonts(Fonts):
     """
     Use the standard postscript fonts for rendering to backend_ps
@@ -1085,7 +1094,8 @@ class StandardPsFonts(Fonts):
 # Note that (as TeX) y increases downward, unlike many other parts of
 # matplotlib.
 
-# How much text shrinks when going to the next-smallest level
+# How much text shrinks when going to the next-smallest level.  GROW_FACTOR
+# must be the inverse of SHRINK_FACTOR.
 SHRINK_FACTOR   = 0.7
 GROW_FACTOR     = 1.0 / SHRINK_FACTOR
 # The number of different sizes of chars to use, beyond which they will not
@@ -1160,10 +1170,16 @@ class Box(Node):
         pass
 
 class Vbox(Box):
+    """
+    A box with only height (zero width).
+    """
     def __init__(self, height, depth):
         Box.__init__(self, 0., height, depth)
 
 class Hbox(Box):
+    """
+    A box with only width (zero height and depth).
+    """
     def __init__(self, width):
         Box.__init__(self, width, 0., 0.)
 
@@ -1241,8 +1257,9 @@ class Char(Node):
         self.depth    *= GROW_FACTOR
 
 class Accent(Char):
-    """The font metrics need to be dealt with differently for accents, since they
-    are already offset correctly from the baseline in TrueType fonts."""
+    """The font metrics need to be dealt with differently for accents,
+    since they are already offset correctly from the baseline in
+    TrueType fonts."""
     def _update_metrics(self):
         metrics = self._metrics = self.font_output.get_metrics(
             self.font, self.font_class, self.c, self.fontsize, self.dpi)
@@ -1741,7 +1758,7 @@ class Ship(object):
         self.cur_s    += 1
         self.max_push = max(self.cur_s, self.max_push)
         clamp         = self.clamp
-        
+
         for p in box.children:
             if isinstance(p, Char):
                 p.render(self.cur_h + self.off_h, self.cur_v + self.off_v)
@@ -1864,7 +1881,7 @@ def Error(msg):
     empty = Empty()
     empty.setParseAction(raise_error)
     return empty
-    
+
 class Parser(object):
     _binary_operators = Set(r'''
       + *
@@ -1922,7 +1939,7 @@ class Parser(object):
     _dropsub_symbols = Set(r'''\int \oint'''.split())
 
     _fontnames = Set("rm cal it tt sf bf default bb frak circled scr".split())
-    
+
     _function_names = Set("""
       arccos csc ker min arcsin deg lg Pr arctan det lim sec arg dim
       liminf sin cos exp limsup sinh cosh gcd ln sup cot hom log tan
@@ -1935,7 +1952,7 @@ class Parser(object):
     _leftDelim = Set(r"( [ { \lfloor \langle \lceil".split())
 
     _rightDelim = Set(r") ] } \rfloor \rangle \rceil".split())
-    
+
     def __init__(self):
         # All forward declarations are here
         font = Forward().setParseAction(self.font).setName("font")
@@ -1947,7 +1964,7 @@ class Parser(object):
         self._expression = Forward().setParseAction(self.finish).setName("finish")
 
         float        = Regex(r"-?[0-9]+\.?[0-9]*")
-        
+
         lbrace       = Literal('{').suppress()
         rbrace       = Literal('}').suppress()
         start_group  = (Optional(latexfont) + lbrace)
@@ -1993,7 +2010,7 @@ class Parser(object):
         c_over_c     =(Suppress(bslash)
                      + oneOf(self._char_over_chars.keys())
                      ).setParseAction(self.char_over_chars)
-        
+
         accent       = Group(
                          Suppress(bslash)
                        + accent
@@ -2055,7 +2072,7 @@ class Parser(object):
                      ) | Error("Expected symbol or group")
 
         simple      <<(space
-                     | customspace  
+                     | customspace
                      | font
                      | subsuper
                      )
@@ -2105,11 +2122,11 @@ class Parser(object):
               + (Suppress(math_delim)
                  | Error("Expected end of math '$'"))
               + non_math
-            )  
+            )
           ) + StringEnd()
 
         self._expression.enablePackrat()
-        
+
         self.clear()
 
     def clear(self):
@@ -2156,7 +2173,7 @@ class Parser(object):
                 self.font_class = name
             self._font = name
         font = property(_get_font, _set_font)
-        
+
     def get_state(self):
         return self._state_stack[-1]
 
@@ -2214,7 +2231,7 @@ class Parser(object):
 
     def customspace(self, s, loc, toks):
         return [self._make_space(float(toks[1]))]
-    
+
     def symbol(self, s, loc, toks):
         # print "symbol", toks
         c = toks[0]
@@ -2240,7 +2257,7 @@ class Parser(object):
         # (in multiples of underline height)
         r'AA' : (  ('rm', 'A', 1.0), (None, '\circ', 0.5), 0.0),
     }
-    
+
     def char_over_chars(self, s, loc, toks):
         sym = toks[0]
         state = self.get_state()
@@ -2251,7 +2268,7 @@ class Parser(object):
             self._char_over_chars.get(sym, (None, None, 0.0))
         if under_desc is None:
             raise ParseFatalException("Error parsing symbol")
-        
+
         over_state = state.copy()
         if over_desc[0] is not None:
             over_state.font = over_desc[0]
@@ -2265,19 +2282,19 @@ class Parser(object):
         under = Char(under_desc[1], under_state)
 
         width = max(over.width, under.width)
-        
+
         over_centered = HCentered([over])
         over_centered.hpack(width, 'exactly')
 
         under_centered = HCentered([under])
         under_centered.hpack(width, 'exactly')
-        
+
         return Vlist([
                 over_centered,
                 Vbox(0., thickness * space),
                 under_centered
                 ])
-        
+
     _accent_map = {
         r'hat'   : r'\circumflexaccent',
         r'breve' : r'\combiningbreve',
@@ -2601,7 +2618,7 @@ class MathTextParser(object):
     return is width, height, fonts
     """
     _parser = None
-    
+
     _backend_mapping = {
         'Bitmap': MathtextBackendBitmap,
         'Agg'   : MathtextBackendAgg,
@@ -2611,6 +2628,13 @@ class MathTextParser(object):
         'Cairo' : MathtextBackendCairo
         }
 
+    _font_type_mapping = {
+        'cm'       : BakomaFonts,
+        'stix'     : StixFonts,
+        'stixsans' : StixSansFonts,
+        'custom'   : UnicodeFonts
+        }
+
     def __init__(self, output):
         self._output = output
         self._cache = {}
@@ -2618,7 +2642,7 @@ class MathTextParser(object):
     def parse(self, s, dpi = 72, prop = None):
         if prop is None:
             prop = FontProperties()
-        
+
         cacheKey = (s, dpi, hash(prop))
         result = self._cache.get(cacheKey)
         if result is not None:
@@ -2629,16 +2653,13 @@ class MathTextParser(object):
         else:
             backend = self._backend_mapping[self._output]()
             fontset = rcParams['mathtext.fontset']
-            if fontset == 'cm':
-                font_output = BakomaFonts(prop, backend)
-            elif fontset == 'stix':
-                font_output = StixFonts(prop, backend)
-            elif fontset == 'stixsans':
-                font_output = StixFonts(prop, backend, sans=True)
-            elif fontset == 'custom':
-                font_output = UnicodeFonts(prop, backend)
+            fontset_class = self._font_type_mapping.get(fontset)
+            if fontset_class is not None:
+                font_output = fontset_class(prop, backend)
             else:
-                raise ValueError("mathtext.fontset must be either 'cm', 'stix', 'stixsans', or 'custom'")
+                raise ValueError(
+                    "mathtext.fontset must be either 'cm', 'stix', "
+                    "'stixsans', or 'custom'")
 
         fontsize = prop.get_size_in_points()
 
@@ -2646,7 +2667,7 @@ class MathTextParser(object):
         # with each request.
         if self._parser is None:
             self.__class__._parser = Parser()
-            
+
         box = self._parser.parse(s, font_output, fontsize, dpi)
         font_output.set_canvas_size(box.width, box.height, box.depth)
         result = font_output.get_results(box)
@@ -2658,5 +2679,5 @@ class MathTextParser(object):
         font_output.destroy()
         font_output.mathtext_backend.fonts_object = None
         font_output.mathtext_backend = None
-        
+
         return result
