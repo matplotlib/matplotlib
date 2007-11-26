@@ -1203,14 +1203,14 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
   antialiaseds[0] = Py::Int(antialiased ? 1 : 0);
 
   if (showedges) {
-    int dims[] = { 1, 4, 0 };
+    npy_intp dims[] = { 1, 4, 0 };
     double data[] = { 0, 0, 0, 1 };
     edgecolors_obj = PyArray_SimpleNewFromData(2, dims, PyArray_DOUBLE, (char*)data);
   } else {
     if (antialiased) {
       edgecolors_obj = facecolors_obj;
     } else {
-      int dims[] = { 0, 0 };
+      npy_intp dims[] = { 0, 0 };
       edgecolors_obj = PyArray_SimpleNew(1, dims, PyArray_DOUBLE);
     }
   }
