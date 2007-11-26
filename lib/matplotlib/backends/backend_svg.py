@@ -409,7 +409,7 @@ class RendererSVG(RendererBase):
             svg.append('</text>\n')
 
         if len(svg_rects):
-            style = "fill: black; stroke: none"
+            style = "fill: %s; stroke: none" % color
             svg.append('<g style="%s" transform="' % style)
             if angle != 0:
                 svg.append('translate(%s,%s) rotate(%1.1f)'
