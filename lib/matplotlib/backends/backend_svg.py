@@ -26,7 +26,7 @@ def new_figure_manager(num, *args, **kwargs):
 
 _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 class RendererSVG(RendererBase):
-    FONT_SCALE = 1200.0
+    FONT_SCALE = 100.0
 
     def __init__(self, width, height, svgwriter, basename=None):
         self.width=width
