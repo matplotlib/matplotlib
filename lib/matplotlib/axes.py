@@ -182,7 +182,7 @@ class _process_plot_var_args:
 
     def __call__(self, *args, **kwargs):
 
-        if self.axes.xaxis is not None and self.axes.xaxis is not None:
+        if self.axes.xaxis is not None and self.axes.yaxis is not None:
             xunits = kwargs.pop( 'xunits', self.axes.xaxis.units)
             yunits = kwargs.pop( 'yunits', self.axes.yaxis.units)
             if xunits!=self.axes.xaxis.units:
@@ -1288,6 +1288,8 @@ class Axes(martist.Artist):
         self.transAxes.freeze()
         if self.axison and self._frameon: self.axesPatch.draw(renderer)
         artists = []
+
+
 
         if len(self.images)<=1 or renderer.option_image_nocomposite():
             for im in self.images:
@@ -3313,7 +3315,7 @@ class Axes(martist.Artist):
         self.hold(holdstate) # restore previous hold state
 
         if adjust_xlim:
-            xmin, xmax = self.dataLim.intervalx().get_bounds()  
+            xmin, xmax = self.dataLim.intervalx().get_bounds()
             xmin = npy.amin(width)
             if xerr is not None:
                 xmin = xmin - npy.amax(xerr)
