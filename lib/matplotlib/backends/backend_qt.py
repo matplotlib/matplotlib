@@ -102,7 +102,7 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
     def mousePressEvent( self, event ):
         x = event.pos().x()
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.pos().y()
+        y = self.figure.bbox.height - event.pos().y()
         button = self.buttond[event.button()]
         FigureCanvasBase.button_press_event( self, x, y, button )
         if DEBUG: print 'button pressed:', event.button()

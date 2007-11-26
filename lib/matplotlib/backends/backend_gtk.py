@@ -549,7 +549,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
                 return
 
             ax = event.inaxes
-            l,b,w,h = [int(val) for val in ax.bbox.get_bounds()]
+            l,b,w,h = [int(val) for val in ax.bbox.bounds]
             b = int(height)-(b+h)
             axrect = l,b,w,h
             self._imageBack = axrect, drawable.get_image(*axrect)
