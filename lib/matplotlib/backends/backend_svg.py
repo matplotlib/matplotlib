@@ -29,7 +29,7 @@ def new_figure_manager(num, *args, **kwargs):
 
 _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 class RendererSVG(RendererBase):
-    FONT_SCALE = 1200.0
+    FONT_SCALE = 100.0
 
     def __init__(self, width, height, svgwriter, basename=None):
         self.width=width
@@ -293,7 +293,6 @@ class RendererSVG(RendererBase):
         color = rgb2hex(gc.get_rgb()[:3])
 
         if rcParams['svg.embed_char_paths']:
-
             svg = ['<g style="fill: %s" transform="' % color]
             if angle != 0:
                 svg.append('translate(%s,%s)rotate(%1.1f)' % (x,y,-angle))
@@ -453,7 +452,7 @@ class RendererSVG(RendererBase):
             svg.append('</text>\n')
 
         if len(svg_rects):
-            style = "fill: black; stroke: none"
+            style = "fill: %s; stroke: none" % color
             svg.append('<g style="%s" transform="' % style)
             if angle != 0:
                 svg.append('translate(%s,%s) rotate(%1.1f)'
