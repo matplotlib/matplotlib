@@ -5,6 +5,7 @@ import os, codecs, base64, tempfile, urllib, gzip
 from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
+from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
@@ -93,7 +94,7 @@ class RendererSVG(RendererBase):
             return 'fill: %s; stroke: %s; stroke-width: %s; ' \
                 'stroke-linejoin: %s; stroke-linecap: %s; %s opacity: %s' % (
                          fill,
-                         rgb2hex(gc.get_rgb()),
+                         rgb2hex(gc.get_rgb()[:3]),
                          linewidth,
                          gc.get_joinstyle(),
                          _capstyle_d[gc.get_capstyle()],
@@ -288,14 +289,12 @@ class RendererSVG(RendererBase):
         font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
         y -= font.get_descent() / 64.0
         
-        thetext = escape_xml_text(s)
-        fontfamily = font.family_name
-        fontstyle = prop.get_style()
         fontsize = prop.get_size_in_points()
-        color = rgb2hex(gc.get_rgb())
+        color = rgb2hex(gc.get_rgb()[:3])
 
         if rcParams['svg.embed_char_paths']:
-            svg = ['<g transform="']
+
+            svg = ['<g style="fill: %s" transform="' % color]
             if angle != 0:
                 svg.append('translate(%s,%s)rotate(%1.1f)' % (x,y,-angle))
             elif x != 0 or y != 0:
@@ -330,6 +329,10 @@ class RendererSVG(RendererBase):
             svg.append('</g>\n')
             svg = ''.join(svg)
         else:
+            thetext = escape_xml_text(s)
+            fontfamily = font.family_name
+            fontstyle = prop.get_style()
+
             style = 'font-size: %f; font-family: %s; font-style: %s; fill: %s;'%(fontsize, fontfamily,fontstyle, color)
             if angle!=0:
                 transform = 'transform="translate(%s,%s) rotate(%1.1f) translate(%s,%s)"' % (x,y,-angle,-x,-y)
@@ -393,7 +396,7 @@ class RendererSVG(RendererBase):
             self.mathtext_parser.parse(s, 72, prop)
         svg_glyphs = svg_elements.svg_glyphs
         svg_rects = svg_elements.svg_rects
-        color = rgb2hex(gc.get_rgb())
+        color = rgb2hex(gc.get_rgb()[:3])
 
         self.open_group("mathtext")
 
@@ -466,7 +469,7 @@ class RendererSVG(RendererBase):
         self._svgwriter.write (''.join(svg))
         self.close_group("mathtext")
 
-    def finish(self):
+    def finalize(self):
         write = self._svgwriter.write
         if len(self._char_defs):
             write('<defs id="fontpaths">\n')
@@ -501,34 +504,23 @@ class FigureCanvasSVG(FigureCanvasBase):
                  'svgz': 'Scalable Vector Graphics'}
 
     def print_svg(self, filename, *args, **kwargs):
-        if is_string_like(filename):
-            fh_to_close = svgwriter = codecs.open(filename, 'w', 'utf-8')
-        elif is_writable_file_like(filename):
-            svgwriter = codecs.EncodedFile(filename, 'utf-8')
-            fh_to_close = None
-        else:
-            raise ValueError("filename must be a path or a file-like object")
-        return self._print_svg(filename, svgwriter, fh_to_close)
-            
+        svgwriter = codecs.open(filename, 'w', 'utf-8')
+        return self._print_svg(filename, svgwriter)
+
     def print_svgz(self, filename, *args, **kwargs):
-        if is_string_like(filename):
-            gzipwriter = gzip.GzipFile(filename, 'w')
-            fh_to_close = svgwriter = codecs.EncodedFile(gzipwriter, 'utf-8')
-        elif is_writable_file_like(filename):
-            fh_to_close = gzipwriter = gzip.GzipFile(fileobj=filename, mode='w')
-            svgwriter = codecs.EncodedFile(gzipwriter, 'utf-8')
-        else:
-            raise ValueError("filename must be a path or a file-like object")
-        return self._print_svg(filename, svgwriter, fh_to_close)
+        gzipwriter = gzip.GzipFile(filename, 'w')
+        svgwriter = codecs.EncodedFile(gzipwriter, 'utf-8')
+        return self._print_svg(filename, svgwriter)
     
     def _print_svg(self, filename, svgwriter, fh_to_close=None):
         self.figure.set_dpi(72.0)
         width, height = self.figure.get_size_inches()
         w, h = width*72, height*72
 
-        renderer = RendererSVG(w, h, svgwriter, filename)
+        renderer = MixedModeRenderer(
+            width, height, 72.0, RendererSVG(w, h, svgwriter, filename))
         self.figure.draw(renderer)
-        renderer.finish()
+        renderer.finalize()
         if fh_to_close is not None:
             svgwriter.close()
         

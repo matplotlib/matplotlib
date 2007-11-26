@@ -41,11 +41,11 @@ class MixedModeRenderer(object):
         self._set_current_renderer(vector_renderer)
 
     _methods = """
-        open_group close_group draw_path draw_markers
-        draw_path_collection draw_quad_mesh get_image_magnification
-        draw_image draw_tex draw_text flipy option_image_nocomposite
-        get_texmanager get_text_width_height_descent new_gc
-        points_to_pixels strip_math finalize
+        close_group draw_image draw_markers draw_path
+        draw_path_collection draw_quad_mesh draw_tex draw_text
+        finalize flipy get_canvas_width_height get_image_magnification
+        get_texmanager get_text_width_height_descent new_gc open_group
+        option_image_nocomposite points_to_pixels strip_math
         """.split()
     def _set_current_renderer(self, renderer):
         self._renderer = renderer
@@ -93,7 +93,3 @@ class MixedModeRenderer(object):
                 self._renderer.draw_image(l, height - b - h, image, None)
             self._raster_renderer = None
             self._rasterizing = False
-
-    def get_canvas_width_height(self):
-        'return the canvas width and height in display coords'
-        return self._width, self._height
