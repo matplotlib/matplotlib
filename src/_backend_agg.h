@@ -226,16 +226,16 @@ protected:
   void set_clipbox(const Py::Object& cliprect, R rasterizer);
   bool render_clippath(const Py::Object& clippath, const agg::trans_affine& clippath_trans);
   template<class PathIteratorType>
-  void _draw_path(PathIteratorType& path, agg::trans_affine trans, 
-		  bool has_clippath, const facepair_t& face, const GCAgg& gc, bool check_snap);
-  template<class PathGenerator>
+  void _draw_path(PathIteratorType& path, bool has_clippath,
+		  const facepair_t& face, const GCAgg& gc);
+  template<class PathGenerator, int check_snap, int has_curves>
   Py::Object
   _draw_path_collection_generic
-    (const agg::trans_affine&	    master_transform,
+    (agg::trans_affine 	            master_transform,
      const Py::Object&		    cliprect,
      const Py::Object&		    clippath,
      const agg::trans_affine&       clippath_trans,
-     const PathGenerator&	    path_finder,
+     const PathGenerator&	    path_generator,
      const Py::SeqBase<Py::Object>& transforms_obj,
      const Py::Object&              offsets_obj,
      const agg::trans_affine&       offset_trans,
@@ -243,8 +243,7 @@ protected:
      const Py::Object&              edgecolors_obj,
      const Py::SeqBase<Py::Float>&  linewidths,
      const Py::SeqBase<Py::Object>& linestyles_obj,
-     const Py::SeqBase<Py::Int>&    antialiaseds,
-     bool                           check_snap);
+     const Py::SeqBase<Py::Int>&    antialiaseds);
 
 private:
   Py::Object lastclippath;
