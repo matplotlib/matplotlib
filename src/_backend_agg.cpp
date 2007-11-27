@@ -1113,8 +1113,9 @@ class QuadMeshGenerator {
     inline unsigned vertex(unsigned idx, double* x, double* y) {
       size_t m = m_m + offsets[idx][0];
       size_t n = m_n + offsets[idx][1];
-      *x = *(double*)PyArray_GETPTR3(m_coordinates, m, n, 0);
-      *y = *(double*)PyArray_GETPTR3(m_coordinates, m, n, 1);
+      double* pair = (double*)PyArray_GETPTR2(m_coordinates, m, n);
+      *x = *pair++;
+      *y = *pair;
       return (idx == 0) ? agg::path_cmd_move_to : agg::path_cmd_line_to;
     }
 
@@ -1130,10 +1131,6 @@ class QuadMeshGenerator {
     inline unsigned total_vertices() {
       return 5;
     }
-
-    inline bool has_curves() {
-      return false;
-    }
   };
 
 public:
@@ -1146,11 +1143,7 @@ public:
       throw Py::ValueError("Invalid coordinates array.");
     }
 
-    PyArray_Dims shape;
-    npy_intp dims[] = { meshHeight + 1, meshWidth + 1, 2 };
-    shape.ptr = dims;
-    shape.len = 3;
-    m_coordinates = (PyArrayObject*)PyArray_Newshape(coordinates_array, &shape, PyArray_CORDER);
+    m_coordinates = coordinates_array;
   }
 
   inline ~QuadMeshGenerator() {

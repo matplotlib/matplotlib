@@ -163,10 +163,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 xs = self.convert_xunits(self._offsets[:0])
                 ys = self.convert_yunits(self._offsets[:1])
                 offsets = zip(xs, ys)
-        if len(offsets) == 0:
-            offsets = npy.array([], npy.float_)
-        else:
-            offsets = npy.asarray(offsets, npy.float_)
+                
+        offsets = npy.asarray(offsets, npy.float_)
 
         self.update_scalarmappable()
 
@@ -389,10 +387,12 @@ class QuadMesh(Collection):
         self._bbox = transforms.Bbox.unit()
         self._bbox.update_from_data_xy(coordinates.reshape(
                 ((meshWidth + 1) * (meshHeight + 1), 2)))
+
+        # By converting to floats now, we can avoid that on every draw.
+        self._coordinates = self._coordinates.reshape((meshHeight + 1, meshWidth + 1, 2))
+        self._coordinates = npy.array(self._coordinates, npy.float_)
         
     def get_paths(self, dataTrans=None):
-        import pdb
-        pdb.set_trace()
         if self._paths is None:
             self._paths = self.convert_mesh_to_paths(
                 self._meshWidth, self._meshHeight, self._coordinates)
@@ -402,7 +402,7 @@ class QuadMesh(Collection):
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
         Path = mpath.Path
         
-        c = coordinates.reshape((meshHeight + 1, meshWidth + 1, 2))
+        c = coordinates
         # We could let the Path constructor generate the codes for us,
         # but this is faster, since we know they'll always be the same
         codes = npy.array(
@@ -436,10 +436,7 @@ class QuadMesh(Collection):
                 ys = self.convert_yunits(self._offsets[:1])
                 offsets = zip(xs, ys)
 
-        if len(offsets) == 0:
-            offsets = npy.array([], npy.float_)
-        else:
-            offsets = npy.asarray(offsets, npy.float_)
+        offsets = npy.asarray(offsets, npy.float_)
 
         if self.check_update('array'):
             self.update_scalarmappable()
