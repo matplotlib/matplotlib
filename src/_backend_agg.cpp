@@ -348,10 +348,13 @@ SafeSnap::snap (const float& x, const float& y) {
 
 template<class Path>
 bool should_snap(Path& path, const agg::trans_affine& trans) {
-  // If this is a straight horizontal or vertical line, quantize to nearest
+  // If this contains only straight horizontal or vertical lines, quantize to nearest
   // pixels
   double x0, y0, x1, y1;
   unsigned code;
+  if (path.total_vertices() > 5)
+    return false;
+
   code = path.vertex(&x0, &y0);
   trans.transform(&x0, &y0);
 
@@ -742,38 +745,20 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   return Py::Object();
 }
 
-template<class PathIteratorType>
-void RendererAgg::_draw_path(PathIteratorType& path, agg::trans_affine trans,
-			     bool has_clippath, const facepair_t& face,
-			     const GCAgg& gc, bool check_snap) {
-  typedef agg::conv_transform<PathIteratorType>		     transformed_path_t;
-  typedef conv_quantize<transformed_path_t>		     quantize_t;
-  typedef agg::conv_curve<quantize_t>			     curve_t;
-  typedef agg::conv_stroke<curve_t>			     stroke_t;
-  typedef agg::conv_dash<curve_t>			     dash_t;
+template<class path_t>
+void RendererAgg::_draw_path(path_t& path, bool has_clippath,
+			     const facepair_t& face, const GCAgg& gc) {
+  typedef agg::conv_stroke<path_t>			     stroke_t;
+  typedef agg::conv_dash<path_t>			     dash_t;
   typedef agg::conv_stroke<dash_t>			     stroke_dash_t;
   typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
   typedef agg::renderer_base<pixfmt_amask_type>		     amask_ren_type;
   typedef agg::renderer_scanline_aa_solid<amask_ren_type>    amask_aa_renderer_type;
   typedef agg::renderer_scanline_bin_solid<amask_ren_type>   amask_bin_renderer_type;
 
-  trans *= agg::trans_affine_scaling(1.0, -1.0);
-  trans *= agg::trans_affine_translation(0.0, (double)height);
-
-  // Build the transform stack
-  bool snap = false;
-  if (check_snap)
-    snap = should_snap(path, trans);
-  transformed_path_t tpath(path, trans);
-  quantize_t quantized(tpath, snap);
-  // Benchmarking shows that there is no noticable slowdown to always
-  // treating paths as having curved segments.  Doing so greatly
-  // simplifies the code
-  curve_t curve(quantized);
-
   // Render face
   if (face.first) {
-    theRasterizer->add_path(curve);
+    theRasterizer->add_path(path);
 
     if (gc.isaa) {
       if (has_clippath) {
@@ -803,22 +788,21 @@ void RendererAgg::_draw_path(PathIteratorType& path, agg::trans_affine trans,
   // Render stroke
   if (gc.linewidth != 0.0) {
     double linewidth = gc.linewidth;
-    if (snap)
+    if (!gc.isaa)
       linewidth = round(linewidth);
-
     if (gc.dashes.size() == 0) {
-      stroke_t stroke(curve);
+      stroke_t stroke(path);
       stroke.width(linewidth);
       stroke.line_cap(gc.cap);
       stroke.line_join(gc.join);
       theRasterizer->add_path(stroke);
     } else {
-      dash_t dash(curve);
+      dash_t dash(path);
       for (GCAgg::dash_t::const_iterator i = gc.dashes.begin();
 	   i != gc.dashes.end(); ++i) {
 	double val0 = i->first;
 	double val1 = i->second;
-	if (snap) {
+	if (!gc.isaa) {
 	  val0 = (int)val0 + 0.5;
 	  val1 = (int)val1 + 0.5;
 	}
@@ -831,7 +815,7 @@ void RendererAgg::_draw_path(PathIteratorType& path, agg::trans_affine trans,
       theRasterizer->add_path(stroke);
     }
 
-    if (gc.isaa && !(snap)) {
+    if (gc.isaa) {
       if (has_clippath) {
 	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
 	amask_ren_type r(pfa);
@@ -859,6 +843,10 @@ void RendererAgg::_draw_path(PathIteratorType& path, agg::trans_affine trans,
 
 Py::Object
 RendererAgg::draw_path(const Py::Tuple& args) {
+  typedef agg::conv_transform<PathIterator>	transformed_path_t;
+  typedef conv_quantize<transformed_path_t>	quantize_t;
+  typedef agg::conv_curve<quantize_t>		curve_t;
+
   _VERBOSE("RendererAgg::draw_path");
   args.verify_length(3, 4);
 
@@ -878,15 +866,24 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   set_clipbox(gc.cliprect, theRasterizer);
   bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
-  _draw_path(path, trans, has_clippath, face, gc, true);
+  trans *= agg::trans_affine_scaling(1.0, -1.0);
+  trans *= agg::trans_affine_translation(0.0, (double)height);
+  bool snap = should_snap(path, trans);
+  transformed_path_t tpath(path, trans);
+  quantize_t quantized(tpath, snap);
+  curve_t curve(quantized);
+  if (snap)
+    gc.isaa = false;
+
+  _draw_path(curve, has_clippath, face, gc);
 
   return Py::Object();
 }
 
-template<class PathGenerator>
+template<class PathGenerator, int check_snap, int has_curves>
 Py::Object
 RendererAgg::_draw_path_collection_generic
-  (const agg::trans_affine&	  master_transform,
+  (agg::trans_affine	          master_transform,
    const Py::Object&		  cliprect,
    const Py::Object&		  clippath,
    const agg::trans_affine&       clippath_trans,
@@ -898,8 +895,12 @@ RendererAgg::_draw_path_collection_generic
    const Py::Object&              edgecolors_obj,
    const Py::SeqBase<Py::Float>&  linewidths,
    const Py::SeqBase<Py::Object>& linestyles_obj,
-   const Py::SeqBase<Py::Int>&    antialiaseds,
-   bool                           check_snap) {
+   const Py::SeqBase<Py::Int>&    antialiaseds) {
+  typedef agg::conv_transform<typename PathGenerator::path_iterator> transformed_path_t;
+  typedef conv_quantize<transformed_path_t>			     quantize_t;
+  typedef agg::conv_curve<quantize_t>				     quantized_curve_t;
+  typedef agg::conv_curve<transformed_path_t>			     curve_t;
+
   GCAgg gc(dpi);
 
   PyArrayObject* offsets    = NULL;
@@ -944,6 +945,9 @@ RendererAgg::_draw_path_collection_generic
     size_t i = 0;
 
     // Convert all of the transforms up front
+    master_transform *= agg::trans_affine_scaling(1.0, -1.0);
+    master_transform *= agg::trans_affine_translation(0.0, (double)height);
+
     typedef std::vector<agg::trans_affine> transforms_t;
     transforms_t transforms;
     transforms.reserve(Ntransforms);
@@ -975,6 +979,7 @@ RendererAgg::_draw_path_collection_generic
     facepair_t face;
     face.first = Nfacecolors != 0;
     agg::trans_affine trans;
+    bool snap = false;
 
     for (i = 0; i < N; ++i) {
       typename PathGenerator::path_iterator path = path_generator(i);
@@ -1016,9 +1021,32 @@ RendererAgg::_draw_path_collection_generic
 	}
       }
 
-      gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
+      if (check_snap) {
+	snap = should_snap(path, trans);
+	if (snap)
+	  gc.isaa = false;
+	else
+	  gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
 
-      _draw_path(path, trans, has_clippath, face, gc, check_snap);
+	transformed_path_t tpath(path, trans);
+	quantize_t quantized(tpath, snap);
+	if (has_curves) {
+	  quantized_curve_t curve(quantized);
+	  _draw_path(curve, has_clippath, face, gc);
+	} else {
+	  _draw_path(quantized, has_clippath, face, gc);
+	}
+      } else {
+	gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
+
+	transformed_path_t tpath(path, trans);
+	if (has_curves) {
+	  curve_t curve(tpath);
+	  _draw_path(curve, has_clippath, face, gc);
+	} else {
+	  _draw_path(tpath, has_clippath, face, gc);
+	}
+      }
     }
   } catch (...) {
     Py_XDECREF(offsets);
@@ -1075,7 +1103,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
 
   PathListGenerator path_generator(paths);
 
-  _draw_path_collection_generic
+  _draw_path_collection_generic<PathListGenerator, 1, 1>
     (master_transform,
      cliprect,
      clippath,
@@ -1088,8 +1116,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
      edgecolors_obj,
      linewidths,
      linestyles_obj,
-     antialiaseds,
-     true);
+     antialiaseds);
 
   return Py::Object();
 }
@@ -1108,19 +1135,18 @@ class QuadMeshGenerator {
       m_iterator(0), m_m(m), m_n(n), m_coordinates(coordinates) {
     }
 
-    static const size_t offsets[5][2];
-
     inline unsigned vertex(unsigned idx, double* x, double* y) {
-      size_t m = m_m + offsets[idx][0];
-      size_t n = m_n + offsets[idx][1];
+      size_t m = (idx   & 0x2) ? (m_m + 1) : m_m;
+      size_t n = (idx+1 & 0x2) ? (m_n + 1) : m_n;
       double* pair = (double*)PyArray_GETPTR2(m_coordinates, m, n);
       *x = *pair++;
       *y = *pair;
-      return (idx == 0) ? agg::path_cmd_move_to : agg::path_cmd_line_to;
+      return (idx) ? agg::path_cmd_line_to : agg::path_cmd_move_to;
     }
 
     inline unsigned vertex(double* x, double* y) {
-      if (m_iterator >= total_vertices()) return agg::path_cmd_stop;
+      if (m_iterator >= total_vertices()) 
+	return agg::path_cmd_stop;
       return vertex(m_iterator++, x, y);
     }
 
@@ -1158,13 +1184,6 @@ public:
     return QuadMeshPathIterator(i % m_meshHeight, i / m_meshHeight, m_coordinates);
   }
 };
-
-const size_t QuadMeshGenerator::QuadMeshPathIterator::offsets[5][2] = {
-      { 0, 0 },
-      { 0, 1 },
-      { 1, 1 },
-      { 1, 0 },
-      { 0, 0 } };
 
 Py::Object
 RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
@@ -1208,7 +1227,7 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
     }
   }
 
-  _draw_path_collection_generic
+  _draw_path_collection_generic<QuadMeshGenerator, 0, 0>
     (master_transform,
      cliprect,
      clippath,
@@ -1221,8 +1240,7 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
      edgecolors_obj,
      linewidths,
      linestyles_obj,
-     antialiaseds,
-     false);
+     antialiaseds);
 
   return Py::Object();
 }
