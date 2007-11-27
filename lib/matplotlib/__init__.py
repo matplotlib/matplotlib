@@ -51,11 +51,11 @@ The base matplotlib namespace includes:
         pylab (if pylab is imported).
 
 matplotlib is written by John D. Hunter (jdh2358 at
-gmail.com).
+gmail.com and a host of others).
 """
 from __future__ import generators
 
-__version__  = '0.90.1'
+__version__  = '0.91.0'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
