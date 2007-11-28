@@ -10,7 +10,6 @@ from tempfile import gettempdir
 from cStringIO import StringIO
 from matplotlib import verbose, __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
-import matplotlib.agg as agg
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -144,7 +143,7 @@ class RendererPS(RendererBase):
         self.image_magnification = dpi/72.0
         self._clip_paths = {}
         self._path_collection_id = 0
-        
+
         self.fontd = {}
         self.afmfontd = {}
         self.used_characters = {}
@@ -332,7 +331,7 @@ class RendererPS(RendererBase):
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
         return font
-        
+
     def _rgba(self, im):
         return im.as_rgba_str()
 
@@ -406,7 +405,7 @@ class RendererPS(RendererBase):
             id = self._get_clip_path(clippath, clippath_trans)
             clip.append('%s' % id)
         clip = '\n'.join(clip)
-            
+
         #y = figh-(y+h)
         ps = """gsave
 %(clip)s
@@ -427,7 +426,7 @@ grestore
 
     def _convert_path(self, path, transform):
         path = transform.transform_path(path)
-        
+
         ps = []
         for points, code in path.iter_segments():
             if code == Path.MOVETO:
@@ -444,7 +443,7 @@ grestore
             elif code == Path.CLOSEPOLY:
                 ps.append("cl")
         ps = "\n".join(ps)
-        
+
         return ps
 
     def _get_clip_path(self, clippath, clippath_transform):
@@ -489,7 +488,7 @@ grestore
             ps_cmd.extend(['gsave', ps_color, 'fill', 'grestore'])
 
         ps_cmd.extend(['stroke', 'grestore', '} bind def'])
-        
+
         tpath = trans.transform_path(path)
         for x, y in tpath.vertices:
             ps_cmd.append("%1.3g %1.3g o" % (x, y))
@@ -502,7 +501,7 @@ grestore
                              offsetTrans, facecolors, edgecolors, linewidths,
                              linestyles, antialiaseds):
         write = self._pswriter.write
-        
+
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
             master_transform, paths, all_transforms)):
@@ -513,7 +512,7 @@ grestore
             ps_cmd.extend(['} bind def\n'])
             write('\n'.join(ps_cmd))
             path_codes.append(name)
-            
+
         for xo, yo, path_id, gc, rgbFace in self._iter_collection(
             path_codes, cliprect, clippath, clippath_trans,
             offsets, offsetTrans, facecolors, edgecolors,
@@ -523,7 +522,7 @@ grestore
             self._draw_ps(ps, gc, rgbFace)
 
         self._path_collection_id += 1
-            
+
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
         """
         draw a Text instance
@@ -570,7 +569,7 @@ grestore
 
         elif isinstance(s, unicode):
             return self.draw_unicode(gc, x, y, s, prop, angle)
-        
+
         elif rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
 
@@ -654,7 +653,7 @@ grestore
                     kern = 0
                 last_name = name
                 thisx += kern * scale
-                
+
                 lines.append('%f %f m /%s glyphshow'%(thisx, thisy, name))
 
                 thisx += width * scale
@@ -671,7 +670,7 @@ setfont
 grestore
     """ % locals()
             self._pswriter.write(ps)
-            
+
         else:
             font = self._get_font_ttf(prop)
 
@@ -750,7 +749,7 @@ grestore
                   (len(gc.get_rgb()) <= 3 or gc.get_rgb()[3] != 0.0))
         fill = (fill and rgbFace is not None and
                 (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
-            
+
         if stroke:
             self.set_linewidth(gc.get_linewidth())
             jint = gc.get_joinstyle()
@@ -769,7 +768,7 @@ grestore
         if clippath:
             id = self._get_clip_path(clippath, clippath_trans)
             write('gsave\n%s\n' % id)
-            
+
         # Jochen, is the strip necessary? - this could be a honking big string
         write(ps.strip())
         write("\n")
@@ -795,7 +794,7 @@ grestore
         if cliprect:
             write("grestore\n")
 
-            
+
 class GraphicsContextPS(GraphicsContextBase):
     def get_capstyle(self):
         return {'butt':0,
@@ -821,16 +820,16 @@ class FigureCanvasPS(FigureCanvasBase):
 
     filetypes = {'ps'  : 'Postscript',
                  'eps' : 'Encapsulated Postscript'}
-    
+
     def get_default_filetype(self):
         return 'ps'
-    
+
     def print_ps(self, outfile, *args, **kwargs):
         return self._print_ps(outfile, 'ps', *args, **kwargs)
 
     def print_eps(self, outfile, *args, **kwargs):
         return self._print_ps(outfile, 'eps', *args, **kwargs)
-    
+
     def _print_ps(self, outfile, format, *args, **kwargs):
         papertype = kwargs.get("papertype", rcParams['ps.papersize'])
         papertype = papertype.lower()
@@ -839,7 +838,7 @@ class FigureCanvasPS(FigureCanvasBase):
         elif papertype not in papersize:
             raise RuntimeError( '%s is not a valid papertype. Use one \
                     of %s'% (papertype, ', '.join( papersize.keys() )) )
-            
+
         orientation = kwargs.get("orientation", "portrait").lower()
         if orientation == 'landscape': isLandscape = True
         elif orientation == 'portrait': isLandscape = False
@@ -849,14 +848,14 @@ class FigureCanvasPS(FigureCanvasBase):
         dpi = kwargs.get("dpi", 72)
         facecolor = kwargs.get("facecolor", "w")
         edgecolor = kwargs.get("edgecolor", "w")
-        
+
         if rcParams['text.usetex']:
             self._print_figure_tex(outfile, format, dpi, facecolor, edgecolor,
                                    orientation, isLandscape, papertype)
         else:
             self._print_figure(outfile, format, dpi, facecolor, edgecolor,
                                orientation, isLandscape, papertype)
-            
+
     def _print_figure(self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
                       orientation='portrait', isLandscape=False, papertype=None):
         """
