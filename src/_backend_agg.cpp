@@ -549,8 +549,8 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::serialized_scanlines_adaptor_aa8 sa;
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
-    while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
-      if (has_clippath) {
+    if (has_clippath) {
+      while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
 	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
 	amask_ren_type r(pfa);
 	amask_aa_renderer_type ren(r);
@@ -563,7 +563,9 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 	ren.color(gc.color);
 	sa.init(strokeCache, strokeSize, x, y);
 	agg::render_scanlines(sa, sl, ren);
-      } else {
+      }
+    } else {
+      while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
 	if (face.first) {
 	  rendererAA->color(face.second);
 	  sa.init(fillCache, fillSize, x, y);
@@ -1139,6 +1141,7 @@ class QuadMeshGenerator {
       m_iterator(0), m_m(m), m_n(n), m_coordinates(coordinates) {
     }
 
+  private:
     inline unsigned vertex(unsigned idx, double* x, double* y) {
       size_t m = (idx   & 0x2) ? (m_m + 1) : m_m;
       size_t n = (idx+1 & 0x2) ? (m_n + 1) : m_n;
@@ -1148,8 +1151,9 @@ class QuadMeshGenerator {
       return (idx) ? agg::path_cmd_line_to : agg::path_cmd_move_to;
     }
 
+  public:
     inline unsigned vertex(double* x, double* y) {
-      if (m_iterator >= total_vertices()) 
+      if (m_iterator >= total_vertices())
 	return agg::path_cmd_stop;
       return vertex(m_iterator++, x, y);
     }
@@ -1496,7 +1500,7 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args) {
   int ymin = height;
   int xmax = 0;
   int ymax = 0;
-  
+
   // Looks at the alpha channel to find the minimum extents of the image
   unsigned char* pixel = pixBuffer + 3;
   for (int y = 0; y < (int)height; ++y) {
@@ -1520,11 +1524,11 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args) {
     ymin = std::max(0, ymin - 1);
     xmax = std::min(xmax, (int)width);
     ymax = std::min(ymax, (int)height);
-    
+
     newwidth	= xmax - xmin;
     newheight	= ymax - ymin;
     int newsize	= newwidth * newheight * 4;
-    
+
     unsigned char* buf = new unsigned char[newsize];
     unsigned int*  dst = (unsigned int*)buf;
     unsigned int*  src = (unsigned int*)pixBuffer;
@@ -1540,7 +1544,7 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args) {
   bounds[1] = Py::Int(ymin);
   bounds[2] = Py::Int(newwidth);
   bounds[3] = Py::Int(newheight);
-  
+
   Py::Tuple result(2);
   result[0] = data;
   result[1] = bounds;
