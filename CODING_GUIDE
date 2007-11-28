@@ -113,14 +113,15 @@ python, C and C++
 ; and similarly for c++-mode-hook and c-mode-hook
 (add-hook 'python-mode-hook
           (lambda ()
-	    (add-hook 'local-write-file-hooks 'delete-trailing-whitespace)))
+	  (add-hook 'write-file-functions 'delete-trailing-whitespace)))
 
 
-for older versions of emacs (emacs<23) you may need to do
+
+for older versions of emacs (emacs<22) you may need to do
 
 (add-hook 'python-mode-hook
           (lambda ()
-	  (add-hook 'write-file-functions 'delete-trailing-whitespace)))
+          (add-hook 'local-write-file-hooks 'delete-trailing-whitespace)))	
 
 
 
