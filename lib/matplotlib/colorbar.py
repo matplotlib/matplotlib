@@ -198,17 +198,17 @@ class ColorbarBase(cm.ScalarMappable):
         ax = self.ax
         ax.set_frame_on(False)
         ax.set_navigate(False)
-        x, y = self._outline(X, Y)
-        ax.set_xlim(npy.amin(x), npy.amax(x))
-        ax.set_ylim(npy.amin(y), npy.amax(y))
-        ax.update_datalim_numerix(x, y)
-        self.outline = lines.Line2D(x, y, color=mpl.rcParams['axes.edgecolor'],
+        xy = self._outline(X, Y)
+        ax.update_datalim(xy)
+        ax.set_xlim(*ax.dataLim.intervalx)
+        ax.set_ylim(*ax.dataLim.intervaly)
+        self.outline = lines.Line2D(xy[:, 0], xy[:, 1], color=mpl.rcParams['axes.edgecolor'],
                                     linewidth=mpl.rcParams['axes.linewidth'])
         ax.add_artist(self.outline)
         self.outline.set_clip_box(None)
         self.outline.set_clip_path(None)
         c = mpl.rcParams['axes.facecolor']
-        self.patch = patches.Polygon(zip(x,y), edgecolor=c,
+        self.patch = patches.Polygon(xy, edgecolor=c,
                  facecolor=c,
                  linewidth=0.01,
                  zorder=-1)
@@ -250,9 +250,11 @@ class ColorbarBase(cm.ScalarMappable):
         ii = [0, 1, N-2, N-1, 2*N-1, 2*N-2, N+1, N, 0]
         x = npy.take(npy.ravel(npy.transpose(X)), ii)
         y = npy.take(npy.ravel(npy.transpose(Y)), ii)
+        x = x.reshape((len(x), 1))
+        y = y.reshape((len(y), 1))
         if self.orientation == 'horizontal':
-            return y,x
-        return x,y
+            return npy.hstack((y, x))
+        return npy.hstack((x, y))
 
     def _edges(self, X, Y):
         '''
@@ -510,7 +512,7 @@ class ColorbarBase(cm.ScalarMappable):
         N = len(b)
         ii = npy.minimum(npy.searchsorted(b, xn), N-1)
         i0 = npy.maximum(ii - 1, 0)
-        #db = b[ii] - b[i0] 
+        #db = b[ii] - b[i0]
         db = npy.take(b, ii) - npy.take(b, i0)
         db = npy.where(i0==ii, 1.0, db)
         #dy = y[ii] - y[i0]

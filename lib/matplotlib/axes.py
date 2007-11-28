@@ -425,10 +425,10 @@ class Axes(martist.Artist):
 
     """
     name = "rectilinear"
-    
+
     _shared_x_axes = cbook.Grouper()
     _shared_y_axes = cbook.Grouper()
-    
+
     def __str__(self):
         return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
     def __init__(self, fig, rect,
@@ -496,7 +496,7 @@ class Axes(martist.Artist):
 
         # this call may differ for non-sep axes, eg polar
         self._init_axis()
-        
+
         if axisbg is None: axisbg = rcParams['axes.facecolor']
         self._axisbg = axisbg
         self._frameon = frameon
@@ -679,12 +679,12 @@ class Axes(martist.Artist):
         return (self._yaxis_transform +
                 mtransforms.Affine2D().translate(pad_pixels, 0),
                 "center", "left")
-        
+
     def _update_transScale(self):
         self.transScale.set(
             mtransforms.blended_transform_factory(
                 self.xaxis.get_transform(), self.yaxis.get_transform()))
-        
+
     def get_position(self, original=False):
         'Return the a copy of the axes rectangle as a Bbox'
         if original:
@@ -692,7 +692,7 @@ class Axes(martist.Artist):
         else:
             return self._position.frozen()
 
-	
+
     def set_position(self, pos, which='both'):
         """
         Set the axes position with pos = [left, bottom, width, height]
@@ -734,7 +734,7 @@ class Axes(martist.Artist):
         Intended to be overridden by new projection types.
         """
         return mpatches.Rectangle((0.0, 0.0), 1.0, 1.0)
-        
+
     def cla(self):
         'Clear the current axes'
 
@@ -780,7 +780,7 @@ class Axes(martist.Artist):
         self.title.set_clip_box(None)
 
         self._set_artist_props(self.title)
-        
+
         self.axesPatch = self.get_axes_patch()
         self.axesPatch.set_figure(self.figure)
         self.axesPatch.set_facecolor(self._axisbg)
@@ -904,7 +904,7 @@ class Axes(martist.Artist):
         ymin,ymax = self.get_ybound()
         ysize = max(math.fabs(ymax-ymin), 1e-30)
         return ysize/xsize
-        
+
     def apply_aspect(self):
         '''
         Use self._aspect and self._adjustable to modify the
@@ -938,7 +938,7 @@ class Axes(martist.Artist):
         xsize = max(math.fabs(xmax-xmin), 1e-30)
         ymin,ymax = self.get_ybound()
         ysize = max(math.fabs(ymax-ymin), 1e-30)
-        
+
         l,b,w,h = self.get_position(original=True).bounds
         box_aspect = fig_aspect * (h/w)
         data_ratio = box_aspect / A
@@ -1125,7 +1125,6 @@ class Axes(martist.Artist):
         a.set_axes(self)
         self.artists.append(a)
         self._set_artist_props(a)
-        # MGDTODO: We may not want to do this -- the old trunk didn't
         a.set_clip_path(self.axesPatch)
         a._remove_method = lambda h: self.artists.remove(h)
 
@@ -1168,7 +1167,7 @@ class Axes(martist.Artist):
         self._update_patch_limits(p)
         self.patches.append(p)
         p._remove_method = lambda h: self.patches.remove(h)
-        
+
     def _update_patch_limits(self, p):
         'update the datalimits for patch p'
         vertices = p.get_patch_transform().transform(p.get_path().vertices)
@@ -1181,7 +1180,6 @@ class Axes(martist.Artist):
         'Add a table instance to the list of axes tables'
         self._set_artist_props(tab)
         self.tables.append(tab)
-        # MGDTODO: We may not want to do this (the old version in trunk didn't)
         tab.set_clip_path(self.axesPatch)
         tab._remove_method = lambda h: self.tables.remove(h)
 
@@ -1202,7 +1200,8 @@ class Axes(martist.Artist):
         # and the data in xydata
         if not ma.isMaskedArray(xys):
             xys = npy.asarray(xys)
-        self.update_datalim_numerix(xys[:, 0], xys[:, 1])
+        self.dataLim.update_from_data_xy(xys, self.ignore_existing_data_limits)
+	self.ignore_existing_data_limits = False
 
     def update_datalim_numerix(self, x, y):
         'Update the data lim bbox with seq of xy tups'
@@ -1216,7 +1215,7 @@ class Axes(martist.Artist):
     def update_datalim_bounds(self, bounds):
         'Update the datalim to include the given Bbox'
         self.dataLim.set(Bbox.union([self.dataLim, bounds]))
-        
+
     def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
         'look for unit kwargs and update the axis instances as necessary'
 
@@ -1303,7 +1302,7 @@ class Axes(martist.Artist):
 
         if self.axison and self._frameon:
             self.axesPatch.draw(renderer)
-            
+
         artists = []
 
         if len(self.images)<=1 or renderer.option_image_nocomposite():
@@ -1513,7 +1512,7 @@ class Axes(martist.Artist):
         self.axesPatch.set_facecolor(color)
 
     ### data limits, ticks, tick labels, and formatting
-            
+
     def invert_xaxis(self):
         "Invert the x-axis."
         left, right = self.get_xlim()
@@ -1601,7 +1600,7 @@ class Axes(martist.Artist):
         xmin, xmax = self.xaxis.limit_range_for_scale(xmin, xmax)
 
         self.viewLim.intervalx = (xmin, xmax)
-        
+
         if emit:
 	    self.callbacks.process('xlim_changed', self)
 	    # Call all of the other x-axes that are shared with this one
@@ -1610,7 +1609,7 @@ class Axes(martist.Artist):
 		    other.set_xlim(self.viewLim.intervalx, emit=False)
                     if other.figure != self.figure and other.figure.canvas is not None:
                         other.figure.canvas.draw_idle()
-                    
+
         return xmin, xmax
 
     def get_xscale(self):
@@ -1638,7 +1637,7 @@ class Axes(martist.Artist):
         """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
         self.xaxis.set_scale(value, **kwargs)
         self._update_transScale()
-        
+
     def get_xticks(self, minor=False):
         'Return the x ticks as a list of locations'
         return self.xaxis.get_ticklocs(minor=minor)
@@ -1777,7 +1776,7 @@ class Axes(martist.Artist):
         'return the xaxis scale string: %s' % (
                 ", ".join(mscale.get_scale_names()))
         return self.yaxis.get_scale()
-        
+
     def set_yscale(self, value, **kwargs):
         """
         SET_YSCALE(value, basey=10, subsy=None)
@@ -1798,7 +1797,7 @@ class Axes(martist.Artist):
         """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
         self.yaxis.set_scale(value, **kwargs)
         self._update_transScale()
-        
+
     def get_yticks(self, minor=False):
         'Return the y ticks as a list of locations'
         return self.yaxis.get_ticklocs(minor=minor)
@@ -1903,7 +1902,7 @@ class Axes(martist.Artist):
         xs = self.format_xdata(x)
         ys = self.format_ydata(y)
         return  'x=%s, y=%s'%(xs,ys)
-    
+
     #### Interactive manipulation
 
     def can_zoom(self):
@@ -1911,7 +1910,7 @@ class Axes(martist.Artist):
         Return True if this axes support the zoom box
         """
         return True
-    
+
     def get_navigate(self):
         """
         Get whether the axes responds to navigation commands
@@ -1949,7 +1948,7 @@ class Axes(martist.Artist):
            1: LEFT
            2: MIDDLE
            3: RIGHT
-        
+
         Intended to be overridden by new projection types.
         """
         self._pan_start = cbook.Bunch(
@@ -1968,7 +1967,7 @@ class Axes(martist.Artist):
         Intended to be overridden by new projection types.
         """
         del self._pan_start
-        
+
     def drag_pan(self, button, key, x, y):
         """
         Called when the mouse moves during a pan operation.
@@ -2029,10 +2028,10 @@ class Axes(martist.Artist):
             except OverflowError:
                 warnings.warn('Overflow while panning')
                 return
-            
+
         self.set_xlim(*result.intervalx)
         self.set_ylim(*result.intervaly)
-        
+
     def get_cursor_props(self):
         """return the cursor props as a linewidth, color tuple where
         linewidth is a float and color is an RGBA tuple"""
@@ -3158,7 +3157,7 @@ class Axes(martist.Artist):
         if where not in ('pre', 'post', 'mid'):
             raise ValueError("'where' argument to step must be 'pre', 'post' or 'mid'")
         kwargs['linestyle'] = 'steps-' + where
-        
+
         return self.plot(x, y, *args, **kwargs)
 
 
@@ -3828,7 +3827,7 @@ class Axes(martist.Artist):
                 # using list comps rather than arrays to preserve units
                 lower  = [thisy-thiserr for (thisy, thiserr) in cbook.safezip(y,yerr)]
                 upper  = [thisy+thiserr for (thisy, thiserr) in cbook.safezip(y,yerr)]
-                
+
             barcols.append( self.vlines(x, lower, upper, **lines_kw) )
             if capsize > 0:
 
@@ -4334,7 +4333,7 @@ class Axes(martist.Artist):
 
     def quiver(self, *args, **kw):
         """
-        MGDTODO: Document me
+        TODO: Document me
         """
         q = mquiver.Quiver(self, *args, **kw)
         self.add_collection(q, False)
@@ -4516,7 +4515,7 @@ class Axes(martist.Artist):
 
         return im
 
-    
+
     def _pcolorargs(self, funcname, *args):
         if len(args)==1:
             C = args[0]
@@ -4790,7 +4789,7 @@ class Axes(martist.Artist):
         shading = kwargs.pop('shading', 'flat')
         edgecolors = kwargs.pop('edgecolors', 'None')
         antialiased = kwargs.pop('antialiased', False)
-        
+
         X, Y, C = self._pcolorargs('pcolormesh', *args)
         Ny, Nx = X.shape
 
@@ -5519,7 +5518,7 @@ class SubplotBase:
 
         # _axes_class is set in the subplot_class_factory
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
-        
+
     def get_geometry(self):
         'get the subplot geometry, eg 2,2,3'
         return self._rows, self._cols, self._num+1
@@ -5608,24 +5607,24 @@ class SubplotBase:
         for label in self.get_yticklabels():
             label.set_visible(firstcol)
 
-_subplot_classes = {}            
+_subplot_classes = {}
 def subplot_class_factory(axes_class=None):
     # This makes a new class that inherits from SubclassBase and the
     # given axes_class (which is assumed to be a subclass of Axes).
-    
+
     # This is perhaps a little bit roundabout to make a new class on
     # the fly like this, but it means that a new Subplot class does
     # not have to be created for every type of Axes.
     if axes_class is None:
         axes_class = Axes
-    
+
     new_class = _subplot_classes.get(axes_class)
     if new_class is None:
         new_class = new.classobj("%sSubplot" % (axes_class.__name__),
                                  (SubplotBase, axes_class),
                                  {'_axes_class': axes_class})
         _subplot_classes[axes_class] = new_class
-        
+
     return new_class
 
 # This is provided for backward compatibility

@@ -38,10 +38,10 @@ class Path(object):
 
        MOVETO :  1 vertex
           Pick up the pen and move to the given vertex.
-          
+
        LINETO :  1 vertex
           Draw a line from the current position to the given vertex.
-          
+
        CURVE3 :  1 control point, 1 endpoint
           Draw a quadratic Bezier curve from the current position,
           with the given control point, to the given end point.
@@ -60,7 +60,7 @@ class Path(object):
     store a codes array at all, but have a default one provided for
     them by iter_segments.
     """
-    
+
     # Path codes
     STOP      = 0 # 1 vertex
     MOVETO    = 1 # 1 vertex
@@ -70,7 +70,7 @@ class Path(object):
     CLOSEPOLY = 5 # 1 vertex
 
     NUM_VERTICES = [1, 1, 1, 2, 3, 1]
-    
+
     code_type = npy.uint8
 
     def __init__(self, vertices, codes=None):
@@ -124,7 +124,7 @@ class Path(object):
 
         assert vertices.ndim == 2
         assert vertices.shape[1] == 2
-        
+
         self.codes = codes
 	self.vertices = vertices
 
@@ -142,22 +142,22 @@ class Path(object):
 
         vertices = npy.vstack([x.vertices for x in args])
         vertices.reshape((total_length, 2))
-        
+
         codes = Path.LINETO * npy.ones(total_length)
         i = 0
         for length in lengths:
             codes[i] = Path.MOVETO
             i += length
-            
+
         return Path(vertices, codes)
     make_compound_path = staticmethod(make_compound_path)
-    
+
     def __repr__(self):
 	return "Path(%s, %s)" % (self.vertices, self.codes)
 
     def __len__(self):
         return len(self.vertices)
-    
+
     def iter_segments(self):
         """
         Iterates over all of the curve segments in the path.
@@ -171,10 +171,10 @@ class Path(object):
         LINETO = self.LINETO
         CLOSEPOLY = self.CLOSEPOLY
         STOP = self.STOP
-        
+
         if not len(vertices):
             return
-        
+
         if codes is None:
             yield vertices[0], MOVETO
             for v in vertices[1:]:
@@ -192,7 +192,7 @@ class Path(object):
                     num_vertices = NUM_VERTICES[code]
                     yield vertices[i:i+num_vertices].flatten(), code
                     i += num_vertices
-                
+
     def transformed(self, transform):
         """
         Return a transformed copy of the path.
@@ -223,7 +223,7 @@ class Path(object):
             from transforms import IdentityTransform
             transform = IdentityTransform()
         return path_in_path(self, IdentityTransform(), path, transform)
-        
+
     def get_extents(self, transform=None):
         """
         Returns the extents (xmin, ymin, xmax, ymax) of the path.
@@ -235,7 +235,7 @@ class Path(object):
         from transforms import Affine2D, Bbox
         if transform is None:
             transform = Affine2D()
-        return Bbox.from_extents(*get_path_extents(self, transform))
+        return Bbox(get_path_extents(self, transform))
 
     def intersects_path(self, other):
         """
@@ -252,7 +252,7 @@ class Path(object):
             BboxTransformTo(bbox))
         result = self.intersects_path(rectangle)
         return result
-    
+
     def interpolated(self, steps):
         """
         Returns a new path resampled to length N x steps.
@@ -266,7 +266,7 @@ class Path(object):
         else:
             new_codes = None
         return Path(vertices, new_codes)
-        
+
     _unit_rectangle = None
     #@classmethod
     def unit_rectangle(cls):
@@ -329,7 +329,7 @@ class Path(object):
         """
 	return cls.unit_regular_star(numVertices, 0.0)
     unit_regular_asterisk = classmethod(unit_regular_asterisk)
-    
+
     _unit_circle = None
     #@classmethod
     def unit_circle(cls):
@@ -341,19 +341,19 @@ class Path(object):
             offset = KAPPA
 	    vertices = npy.array(
 		[[-1.0, 0.0],
-		 
+
 		 [-1.0, offset],
 		 [-offset, 1.0],
 		 [0.0, 1.0],
-		 
+
 		 [offset, 1.0],
 		 [1.0, offset],
 		 [1.0, 0.0],
-		 
+
 		 [1.0, -offset],
 		 [offset, -1.0],
 		 [0.0, -1.0],
-		 
+
 		 [-offset, -1.0],
 		 [-1.0, -offset],
 		 [-1.0, 0.0],
@@ -383,10 +383,10 @@ class Path(object):
         # degrees to radians
         theta1 *= math.pi / 180.0
         theta2 *= math.pi / 180.0
-        
+
         twopi = math.pi * 2.0
         halfpi = math.pi * 0.5
-        
+
         eta1 = math.atan2(math.sin(theta1), math.cos(theta1))
         eta2 = math.atan2(math.sin(theta2), math.cos(theta2))
         eta2 -= twopi * math.floor((eta2 - eta1) / twopi)
@@ -423,13 +423,13 @@ class Path(object):
 
         t = math.tan(0.5 * deta)
         alpha = math.sin(deta) * (math.sqrt(4.0 + 3.0 * t * t) - 1) / 3.0
-        
+
         for i in xrange(n):
             xA = xB
             yA = yB
             xA_dot = xB_dot
             yA_dot = yB_dot
-            
+
             etaB += deta
             cos_etaB = math.cos(etaB)
             sin_etaB = math.sin(etaB)
@@ -446,7 +446,7 @@ class Path(object):
 
         if is_wedge:
             codes[-2:] = [Path.LINETO, Path.CLOSEPOLY]
-            
+
         return Path(vertices, codes)
     arc = classmethod(arc)
 
