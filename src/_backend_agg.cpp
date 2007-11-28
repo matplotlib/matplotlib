@@ -462,6 +462,8 @@ bool RendererAgg::render_clippath(const Py::Object& clippath, const agg::trans_a
   return has_clippath;
 }
 
+#define MARKER_CACHE_SIZE 512
+
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
   typedef agg::conv_transform<PathIterator>		     transformed_path_t;
@@ -505,6 +507,8 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   agg::scanline_storage_aa8 scanlines;
   theRasterizer->reset();
 
+  agg::int8u  staticFillCache[MARKER_CACHE_SIZE];
+  agg::int8u  staticStrokeCache[MARKER_CACHE_SIZE];
   agg::int8u* fillCache = NULL;
   agg::int8u* strokeCache = NULL;
 
@@ -514,7 +518,10 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
       theRasterizer->add_path(marker_path_curve);
       agg::render_scanlines(*theRasterizer, *slineP8, scanlines);
       fillSize = scanlines.byte_size();
-      fillCache = new agg::int8u[fillSize]; // or any container
+      if (fillSize < MARKER_CACHE_SIZE)
+	fillCache = staticFillCache;
+      else
+	fillCache = new agg::int8u[fillSize];
       scanlines.serialize(fillCache);
     }
 
@@ -526,7 +533,10 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     theRasterizer->add_path(stroke);
     agg::render_scanlines(*theRasterizer, *slineP8, scanlines);
     unsigned strokeSize = scanlines.byte_size();
-    strokeCache = new agg::int8u[strokeSize]; // or any container
+    if (strokeSize < MARKER_CACHE_SIZE)
+      strokeCache = staticStrokeCache;
+    else
+      strokeCache = new agg::int8u[strokeSize];
     scanlines.serialize(strokeCache);
 
     theRasterizer->reset_clipping();
@@ -539,52 +549,44 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::serialized_scanlines_adaptor_aa8 sa;
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
-    if (face.first) {
-      // render the fill
+    while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
       if (has_clippath) {
 	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
 	amask_ren_type r(pfa);
 	amask_aa_renderer_type ren(r);
-	ren.color(face.second);
-	while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
+
+	if (face.first) {
+	  ren.color(face.second);
 	  sa.init(fillCache, fillSize, x, y);
 	  agg::render_scanlines(sa, sl, ren);
 	}
+	ren.color(gc.color);
+	sa.init(strokeCache, strokeSize, x, y);
+	agg::render_scanlines(sa, sl, ren);
       } else {
-	rendererAA->color(face.second);
-	while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
+	if (face.first) {
+	  rendererAA->color(face.second);
 	  sa.init(fillCache, fillSize, x, y);
 	  agg::render_scanlines(sa, sl, *rendererAA);
 	}
-      }
-      path_quantized.rewind(0);
-    }
 
-    //render the stroke
-    if (has_clippath) {
-      pixfmt_amask_type pfa(*pixFmt, *alphaMask);
-      amask_ren_type r(pfa);
-      amask_aa_renderer_type ren(r);
-      ren.color(gc.color);
-      while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
-	sa.init(strokeCache, strokeSize, x, y);
-	agg::render_scanlines(sa, sl, ren);
-      }
-    } else {
-      rendererAA->color(gc.color);
-      while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
+	rendererAA->color(gc.color);
 	sa.init(strokeCache, strokeSize, x, y);
 	agg::render_scanlines(sa, sl, *rendererAA);
       }
     }
   } catch(...) {
-    delete[] fillCache;
-    delete[] strokeCache;
+    if (fillCache != staticFillCache)
+      delete[] fillCache;
+    if (strokeCache != staticStrokeCache)
+      delete[] strokeCache;
     throw;
   }
 
-  delete [] fillCache;
-  delete [] strokeCache;
+  if (fillCache != staticFillCache)
+    delete[] fillCache;
+  if (strokeCache != staticStrokeCache)
+    delete[] strokeCache;
 
   return Py::Object();
 
@@ -945,9 +947,6 @@ RendererAgg::_draw_path_collection_generic
     size_t i = 0;
 
     // Convert all of the transforms up front
-    master_transform *= agg::trans_affine_scaling(1.0, -1.0);
-    master_transform *= agg::trans_affine_translation(0.0, (double)height);
-
     typedef std::vector<agg::trans_affine> transforms_t;
     transforms_t transforms;
     transforms.reserve(Ntransforms);
@@ -955,6 +954,7 @@ RendererAgg::_draw_path_collection_generic
       agg::trans_affine trans = py_to_agg_transformation_matrix
 	(transforms_obj[i], false);
       trans *= master_transform;
+
       transforms.push_back(trans);
     }
 
@@ -995,6 +995,10 @@ RendererAgg::_draw_path_collection_generic
 	offset_trans.transform(&xo, &yo);
 	trans *= agg::trans_affine_translation(xo, yo);
       }
+
+      // These transformations must be done post-offsets
+      trans *= agg::trans_affine_scaling(1.0, -1.0);
+      trans *= agg::trans_affine_translation(0.0, (double)height);
 
       if (Nfacecolors) {
 	size_t fi = i % Nfacecolors;
