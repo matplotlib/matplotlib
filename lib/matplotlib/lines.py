@@ -285,6 +285,7 @@ class Line2D(Artist):
 
         self._xorig = npy.asarray([])
         self._yorig = npy.asarray([])
+        self._invalid = True
         self.set_data(xdata, ydata)
 
     def contains(self, mouseevent):
@@ -353,7 +354,7 @@ class Line2D(Artist):
 
     def get_window_extent(self, renderer):
         bbox = Bbox.unit()
-        bbox.update_from_data_xy(self.get_transform().transform(self._xy),
+        bbox.update_from_data_xy(self.get_transform().transform(self.get_xydata()),
                                  ignore=True)
         # correct for marker size, if any
         if self._marker is not None:
@@ -394,9 +395,10 @@ class Line2D(Artist):
               (y.shape != self._yorig.shape or npy.any(y != self._yorig)))):
             self._xorig = x
             self._yorig = y
-            self.recache()
+            self._invalid = True
         else:
-            self._transformed_path._invalid = self._transformed_path.INVALID_NON_AFFINE
+            if hasattr(self, "_transformed_path"):
+                self._transformed_path._invalid = self._transformed_path.INVALID_NON_AFFINE
 
     def recache(self):
         #if self.axes is None: print 'recache no axes'
@@ -434,6 +436,7 @@ class Line2D(Artist):
         self._path = Path(self._xy)
         self._transformed_path = TransformedPath(self._path, self.get_transform())
 
+        self._invalid = False
 
     def set_transform(self, t):
         """
@@ -442,7 +445,8 @@ class Line2D(Artist):
         ACCEPTS: a matplotlib.transforms.Transform instance
         """
         Artist.set_transform(self, t)
-        self._transformed_path = TransformedPath(self._path, self.get_transform())
+        self._invalid = True
+        # self._transformed_path = TransformedPath(self._path, self.get_transform())
         
     def _is_sorted(self, x):
         "return true if x is sorted"
@@ -450,6 +454,9 @@ class Line2D(Artist):
         return npy.alltrue(x[1:]-x[0:-1]>=0)
 
     def draw(self, renderer):
+        if self._invalid:
+            self.recache()
+        
         renderer.open_group('line2d')
 
         if not self._visible: return
@@ -531,6 +538,8 @@ class Line2D(Artist):
         """
         if orig:
             return self._xorig
+        if self._invalid:
+            self.recache()
         return self._x
 
     def get_ydata(self, orig=True):
@@ -540,9 +549,21 @@ class Line2D(Artist):
         """
         if orig:
             return self._yorig
+        if self._invalid:
+            self.recache()
         return self._y
 
+    def get_path(self):
+        """
+        Return the Path object associated with this line.
+        """
+        if self._invalid:
+            self.recache()
+        return self._path
+
     def get_xydata(self):
+        if self._invalid:
+            self.recache()
         return self._xy
     
     def set_antialiased(self, b):

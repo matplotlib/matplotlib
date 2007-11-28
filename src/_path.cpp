@@ -36,13 +36,15 @@ public:
     add_varargs_method("point_in_path_collection", &_path_module::point_in_path_collection,
 		       "point_in_path_collection(x, y, r, trans, paths, transforms, offsets, offsetTrans, filled)");
     add_varargs_method("path_in_path", &_path_module::path_in_path,
-		       "point_in_path_collection(a, atrans, b, btrans)");
+		       "path_in_path(a, atrans, b, btrans)");
     add_varargs_method("clip_path_to_rect", &_path_module::clip_path_to_rect,
 		       "clip_path_to_rect(path, bbox, inside)");
     add_varargs_method("affine_transform", &_path_module::affine_transform,
 		       "affine_transform(vertices, transform)");
     add_varargs_method("count_bboxes_overlapping_bbox", &_path_module::count_bboxes_overlapping_bbox,
 		       "count_bboxes_overlapping_bbox(bbox, bboxes)");
+    add_varargs_method("path_intersects_path", &_path_module::path_intersects_path,
+		       "path_intersects_path(p1, p2)");
     
     initialize("Helper functions for paths");
   }
@@ -60,6 +62,7 @@ private:
   Py::Object clip_path_to_rect(const Py::Tuple& args);
   Py::Object affine_transform(const Py::Tuple& args);
   Py::Object count_bboxes_overlapping_bbox(const Py::Tuple& args);
+  Py::Object path_intersects_path(const Py::Tuple& args);
 };
 
 //
@@ -673,7 +676,8 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args) {
 
     transform = (PyArrayObject*) PyArray_FromObject
       (transform_obj.ptr(), PyArray_DOUBLE, 2, 2);
-    if (!transform || PyArray_NDIM(transform) != 2 || PyArray_DIM(transform, 0) != 3 || PyArray_DIM(transform, 1) != 3)
+    if (!transform || PyArray_NDIM(transform) != 2 || 
+	PyArray_DIM(transform, 0) != 3 || PyArray_DIM(transform, 1) != 3)
       throw Py::ValueError("Invalid transform.");
     
     double a, b, c, d, e, f;
@@ -781,6 +785,70 @@ Py::Object _path_module::count_bboxes_overlapping_bbox(const Py::Tuple& args) {
   }
 
   return Py::Int(count);
+}
+
+bool segments_intersect(const double& x1, const double &y1,
+			const double& x2, const double &y2,
+			const double& x3, const double &y3,
+			const double& x4, const double &y4) {
+  double den = ((y4-y3) * (x2-x1)) - ((x4-x3)*(y2-y1));
+  if (den == 0.0)
+    return false;
+
+  double n1 = ((x4-x3) * (y1-y3)) - ((y4-y3)*(x1-x3));
+  double n2 = ((x2-x1) * (y1-y3)) - ((y2-y1)*(x1-x3));
+
+  double u1 = n1/den;
+  double u2 = n2/den;
+  
+  return (u1 >= 0.0 && u1 <= 1.0 &&
+	  u2 >= 0.0 && u2 <= 1.0);
+}
+
+bool path_intersects_path(PathIterator& p1, PathIterator& p2) {
+  typedef agg::conv_curve<PathIterator> curve_t;
+
+  if (p1.total_vertices() < 2 || p2.total_vertices() < 2)
+    return false;
+
+  curve_t c1(p1);
+  curve_t c2(p2);
+
+  double x11, y11, x12, y12;
+  double x21, y21, x22, y22;
+
+  c1.vertex(&x11, &y11);
+  while (c1.vertex(&x12, &y12) != agg::path_cmd_stop) {
+    c2.rewind(0);
+    c2.vertex(&x21, &y21);
+    while (c2.vertex(&x22, &y22) != agg::path_cmd_stop) {
+      if (segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22))
+	return true;
+      x21 = x22; y21 = y22;
+    }
+    x11 = x12; y11 = y12;
+  }
+
+  return false;
+}
+
+Py::Object _path_module::path_intersects_path(const Py::Tuple& args) {
+  args.verify_length(2);
+
+  PathIterator p1(args[0]);
+  PathIterator p2(args[1]);
+
+  bool intersects = ::path_intersects_path(p1, p2);
+  if (!intersects) {
+    intersects = ::path_in_path(p1, agg::trans_affine(), p2, agg::trans_affine());
+    if (!intersects) {
+      intersects = ::path_in_path(p2, agg::trans_affine(), p1, agg::trans_affine());
+      if (!intersects) {
+	return Py::Int(0);
+      }
+    }
+  }
+  return Py::Int(1);
 }
 
 extern "C"
