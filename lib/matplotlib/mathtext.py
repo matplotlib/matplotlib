@@ -852,6 +852,7 @@ class StixFonts(UnicodeFonts):
     fontmap = {}
     use_cmex = False
     cm_fallback = False
+    _sans = False
 
     def __init__(self, *args, **kwargs):
         TruetypeFonts.__init__(self, *args, **kwargs)
