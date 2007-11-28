@@ -39,6 +39,8 @@ in mind.
   * If you have altered extension code, do you pass
     unit/memleak_hawaii.py?
 
+
+
 == Importing and name spaces ==
 
 For numpy, use:
@@ -102,6 +104,25 @@ longer, use parentheses to break it; do not use an escaped
 newline.  It may be preferable to use a temporary variable
 to replace a single long line with two shorter and more
 readable lines.
+
+Please do not commit lines with trailing white space, as it causes
+noise in svn diffs.  If you are an emacs user, the following in your
+.emacs will cause emacs to strip trailing white space on save for
+python, C and C++
+
+; and similarly for c++-mode-hook and c-mode-hook
+(add-hook 'python-mode-hook
+          (lambda ()
+	    (add-hook 'local-write-file-hooks 'delete-trailing-whitespace)))
+
+
+for older versions of emacs (emacs<23) you may need to do
+
+(add-hook 'python-mode-hook
+          (lambda ()
+	  (add-hook 'write-file-functions 'delete-trailing-whitespace)))
+
+
 
 
 == Licenses ==
