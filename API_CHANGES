@@ -33,11 +33,11 @@ TRANSFORMS REFACTORING
       Bbox.height()				Bbox.height
 
       Bbox.intervalx().get_bounds()		Bbox.intervalx
-      Bbox.intervalx().set_bounds()		
+      Bbox.intervalx().set_bounds()
         [Bbox.intervalx is now a property.]
 
       Bbox.intervaly().get_bounds()		Bbox.intervaly
-      Bbox.intervaly().set_bounds()		
+      Bbox.intervaly().set_bounds()
         [Bbox.intervaly is now a property.]
 
       Bbox.xmin()				Bbox.x0 or Bbox.xmin
@@ -84,7 +84,7 @@ TRANSFORMS REFACTORING
         [Axes.set_position() now accepts either four scalars or a
         transforms Bbox instance.]
 
-	      					  [also returns a Bbox]						  
+	      					  [also returns a Bbox]
       Axes.toggle_log_lineary()			Axes.set_yscale()
         [Since the recfactoring allows for more than two scale types
         ('log' or 'linear'), it no longer makes sense to have a
@@ -119,10 +119,10 @@ TRANSFORMS REFACTORING
 
     contour.py
       Contour._segments				Contour.get_paths()
-        [Contour.get_paths() now returns a list of path.Path instances.]        
+        [Contour.get_paths() now returns a list of path.Path instances.]
 
     figure.py
-      Figure.dpi.get()/set()			Figure.dpi (a property)			
+      Figure.dpi.get()/set()			Figure.dpi (a property)
 
     patches.py
       get_verts()				get_path()
@@ -150,9 +150,9 @@ TRANSFORMS REFACTORING
                              offsetTrans, facecolors, edgecolors, linewidths,
                              linestyles, antialiaseds) [optional]
 
-	        
+
         **changed methods** --->
-	  draw_image(self, x, y, im, bbox)	draw_image(self, x, y, im, bbox, 
+	  draw_image(self, x, y, im, bbox)	draw_image(self, x, y, im, bbox,
 	  		      	     		           clippath, clippath_trans)
 
 	**removed methods** --->
@@ -166,8 +166,10 @@ TRANSFORMS REFACTORING
 		draw_polygon
 		draw_rectangle
 		draw_regpoly_collection
-		
+
 END OF TRANSFORMS REFACTORING
+
+0.91.0 Released
 
     Changed cbook.is_file_like to cbook.is_writable_file_like and
     corrected behavior.

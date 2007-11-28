@@ -14,9 +14,6 @@ commands with the same names.
     * find - Return the indices where some condition is true;
              numpy.nonzero is similar but more general.
 
-    * polyfit - least squares best polynomial fit of x to y
-
-    * polyval - evaluate a vector for a vector of polynomial coeffs
 
     * prctile - find the percentiles of a sequence
 
@@ -29,11 +26,14 @@ commands with the same names.
 
   The following are deprecated; please import directly from numpy
   (with care--function signatures may differ):
+
     * conv     - convolution  (numpy.convolve)
     * corrcoef - The matrix of correlation coefficients
     * hist -- Histogram (numpy.histogram)
     * linspace -- Linear spaced array from min to max
     * meshgrid
+    * polyfit - least squares best polynomial fit of x to y
+    * polyval - evaluate a vector for a vector of polynomial coeffs
     * trapz - trapeziodal integration (trapz(x,y) -> numpy.trapz(y,x))
     * vander - the Vandermonde matrix
 
@@ -46,13 +46,13 @@ commands with the same names.
 
 = record array helper functions =
 
-  rec2csv          : store record array in CSV file
-  rec2excel        : store record array in excel worksheet - required pyExcelerator
-  rec2gtk          : put record array in GTK treeview - requires gtk
-  csv2rec          : import record array from CSV file with type inspection
-  rec_append_field : add a field/array to record array
-  rec_drop_fields  : drop fields from record array
-  rec_join         : join two record arrays on sequence of fields
+   * rec2csv          : store record array in CSV file
+   * rec2excel        : store record array in excel worksheet - required pyExcelerator
+   * rec2gtk          : put record array in GTK treeview - requires gtk
+   * csv2rec          : import record array from CSV file with type inspection
+   * rec_append_field : add a field/array to record array
+   * rec_drop_fields  : drop fields from record array
+   * rec_join         : join two record arrays on sequence of fields
 
 For the rec viewer clases (rec2csv, rec2excel and rec2gtk), there are
 a bunch of Format objects you can pass into the functions that will do
