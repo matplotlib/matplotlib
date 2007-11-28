@@ -22,7 +22,7 @@ ax.text(1, 1.6, tex, fontsize=20, va='bottom')
 
 ax.legend(("Foo", "Testing $x^2$"))
 
-ax.set_title(r'$\Delta_i^j \hspace{0.4} \rm{versus} \hspace{0.4} \Delta_{i+1}^j$', fontsize=20)
+ax.set_title(r'$\Delta_i^j \hspace{0.4} \mathrm{versus} \hspace{0.4} \Delta_{i+1}^j$', fontsize=20)
 #fig.savefig('mathtext_demo')
 
 show()
