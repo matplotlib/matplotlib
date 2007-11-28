@@ -36,33 +36,6 @@ from collections import LineCollection, RegularPolyCollection
 from text import Text
 from transforms import Affine2D, Bbox, BboxTransformTo
 
-def line_cuts_bbox(line, bbox):
-    """ Return True if and only if line cuts bbox. """
-    minx, miny, width, height = bbox.bounds
-    maxx = minx + width
-    maxy = miny + height
-
-    n = len(line)
-    if n == 0:
-        return False
-
-    if n == 1:
-        return bbox.contains(line[0][0], line[0][1])
-    p1 = line[0]
-    for p2 in line[1:]:
-        segment = (p1, p2)
-        # See if the segment cuts any of the edges of bbox
-        for edge in (((minx, miny), (minx, maxy)),
-                     ((minx, miny), (maxx, miny)),
-                     ((maxx, miny), (maxx, maxy)),
-                     ((minx, maxy), (maxx, maxy))):
-            if segments_intersect(segment, edge):
-                return True
-        p1=p2
-
-    return False
-
-
 class Legend(Artist):
     """
     Place a legend on the axes at location loc.  Labels are a
@@ -344,11 +317,11 @@ The following dimensions are in axes coords
 
         for handle in ax.lines:
             assert isinstance(handle, Line2D)
-            data = handle.get_xydata()
+            path = handle.get_path()
             trans = handle.get_transform()
-            tdata = trans.transform(data)
-            averts = inverse_transform.transform(tdata)
-            lines.append(averts)
+            tpath = trans.transform_path(path)
+            apath = inverse_transform.transform_path(tpath)
+            lines.append(apath)
 
         for handle in ax.patches:
             assert isinstance(handle, Patch)
@@ -435,7 +408,7 @@ The following dimensions are in axes coords
             badness = legendBox.count_contains(verts)
             badness += legendBox.count_overlaps(bboxes)
             for line in lines:
-                if line_cuts_bbox(line, legendBox):
+                if line.intersects_bbox(legendBox):
                     badness += 1
 
             ox, oy = l-tx, b-ty

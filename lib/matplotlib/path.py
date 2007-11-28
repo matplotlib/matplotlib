@@ -12,7 +12,7 @@ from matplotlib.numerix import npyma as ma
 
 from matplotlib._path import point_in_path, get_path_extents, \
     point_in_path_collection, get_path_collection_extents, \
-    path_in_path
+    path_in_path, path_intersects_path
 from matplotlib.cbook import simple_linear_interpolation
 
 KAPPA = 4.0 * (npy.sqrt(2) - 1) / 3.0
@@ -237,6 +237,22 @@ class Path(object):
             transform = Affine2D()
         return Bbox.from_extents(*get_path_extents(self, transform))
 
+    def intersects_path(self, other):
+        """
+        Returns True if this path intersects another given path.
+        """
+        return path_intersects_path(self, other)
+
+    def intersects_bbox(self, bbox):
+        """
+        Returns True if this path intersects a given Bbox.
+        """
+        from transforms import BboxTransformTo
+        rectangle = self.unit_rectangle().transformed(
+            BboxTransformTo(bbox))
+        result = self.intersects_path(rectangle)
+        return result
+    
     def interpolated(self, steps):
         """
         Returns a new path resampled to length N x steps.

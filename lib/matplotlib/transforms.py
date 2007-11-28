@@ -508,25 +508,7 @@ class BboxBase(TransformNode):
 
         bboxes is a sequence of Bbox objects
         """
-        ax1, ay1, ax2, ay2 = self._get_extents()
-        if ax2 < ax1:
-            ax2, ax1 = ax1, ax2
-        if ay2 < ay1:
-            ay2, ay1 = ay1, ay2
-
-        count = 0
-        for bbox in bboxes:
-            # bx1, by1, bx2, by2 = bbox._get_extents() ... inlined...
-            bx1, by1, bx2, by2 = bbox.get_points().flatten()
-            if bx2 < bx1:
-                bx2, bx1 = bx1, bx2
-            if by2 < by1:
-                by2, by1 = by1, by2
-            count += (not ((bx2 <= ax1) or
-                           (by2 <= ay1) or
-                           (bx1 >= ax2) or
-                           (by1 >= ay2)))
-        return count
+        return count_bboxes_overlapping_bbox(self, bboxes)
 
     def expanded(self, sw, sh):
         """
