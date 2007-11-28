@@ -980,7 +980,6 @@ def build_ft2font(ext_modules, packages):
     deps = ['src/ft2font.cpp', 'src/mplutils.cpp']
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
-    deps.extend(glob.glob('CXX/*.h'))
 
     module = Extension('matplotlib.ft2font', deps)
     add_ft2font_flags(module)
