@@ -556,7 +556,7 @@ class BboxBase(TransformNode):
         corners = self.corners()
         corners_rotated = Affine2D().rotate(radians).transform(corners)
         bbox = Bbox.unit()
-        bbox.update_from_data(corners_rotated, ignore=True)
+        bbox.update_from_data_xy(corners_rotated, ignore=True)
         return bbox
 
     #@staticmethod
@@ -649,7 +649,8 @@ class Bbox(BboxBase):
     def ignore(self, value):
         """
         Set whether the existing bounds of the box should be ignored
-        by subsequent calls to update_from_data.
+        by subsequent calls to update_from_data or
+        update_from_data_xy.
 
         value: When True, subsequent calls to update_from_data will
                ignore the existing bounds of the Bbox.
