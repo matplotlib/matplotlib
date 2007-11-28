@@ -180,7 +180,7 @@ class _process_plot_var_args:
 
     def __call__(self, *args, **kwargs):
 
-        if self.axes.xaxis is not None and self.axes.xaxis is not None:
+        if self.axes.xaxis is not None and self.axes.yaxis is not None:
             xunits = kwargs.pop( 'xunits', self.axes.xaxis.units)
             yunits = kwargs.pop( 'yunits', self.axes.yaxis.units)
             if xunits!=self.axes.xaxis.units:
@@ -1304,6 +1304,8 @@ class Axes(martist.Artist):
             self.axesPatch.draw(renderer)
 
         artists = []
+
+
 
         if len(self.images)<=1 or renderer.option_image_nocomposite():
             for im in self.images:
@@ -4798,7 +4800,7 @@ class Axes(martist.Artist):
         X = X.ravel()
         Y = Y.ravel()
 
-        coords = npy.zeros(((Nx * Ny), 2), X.dtype)
+        coords = npy.zeros(((Nx * Ny), 2), dtype=float)
         coords[:, 0] = X
         coords[:, 1] = Y
 

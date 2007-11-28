@@ -1,3 +1,6 @@
+===============================================================
+2007-11-27 Released 0.91.0 at revision 4478
+
 2007-11-13 All backends now support writing to a file-like object, not
 	   just a regular file.  savefig() can be passed a file-like
 	   object in place of a file path. - MGD
