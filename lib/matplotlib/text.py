@@ -258,7 +258,7 @@ class Text(Artist):
         xys -= (offsetx, offsety)
 
         xs, ys = xys[:, 0], xys[:, 1]
-        
+
         ret = bbox, zip(lines, whs, xs, ys)
         self.cached[key] = ret
         return ret
@@ -274,7 +274,6 @@ class Text(Artist):
         """
         self._bbox = rectprops
 
-    # MGDTODO: The clipping here could be generalized
     def draw(self, renderer):
         #return
         if renderer is not None:
@@ -297,7 +296,7 @@ class Text(Artist):
         posx, posy = self.get_position()
         posx, posy = trans.transform_point((posx, posy))
         canvasw, canvash = renderer.get_canvas_width_height()
-        
+
         if rcParams['text.usetex']:
             for line, wh, x, y in info:
                 x = x + posx
@@ -314,11 +313,11 @@ class Text(Artist):
             y = y + posy
             if renderer.flipy():
                 y = canvash-y
-                
+
             renderer.draw_text(gc, x, y, line,
                                self._fontproperties, angle,
                                ismath=self.is_math_text(line))
-            
+
     def get_color(self):
         "Return the color of the text"
         return self._color
@@ -1035,7 +1034,6 @@ class Annotation(Text):
         """
         Text.set_clip_box(self, clipbox)
 
-    # MGDTODO: Abstract this out -- this seems weird to have this big "switch" here
     def _get_xy(self, x, y, s):
         if s=='data':
             trans = self.axes.transData
