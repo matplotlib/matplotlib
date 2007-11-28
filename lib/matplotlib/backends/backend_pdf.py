@@ -719,7 +719,7 @@ end"""
                     charprocDict['Type'] = Name('XObject')
                     charprocDict['Subtype'] = Name('Form')
                     charprocDict['BBox'] = bbox
-                charprocObject = self.reserveObject('charProc for %s' % name)
+                charprocObject = self.reserveObject('charProc')
                 self.beginStream(charprocObject.id, None, charprocDict)
                 self.currentstream.write(stream)
                 self.endStream()
@@ -1308,6 +1308,7 @@ class RendererPdf(RendererBase):
                     fonttype = global_fonttype
 
                 if fonttype == 3 and num > 255:
+                    self.file.fontName(fontname)
                     self.file.output(Op.gsave,
                                      0.001 * fontsize, 0,
                                      0, 0.001 * fontsize,
