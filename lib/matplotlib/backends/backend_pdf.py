@@ -334,7 +334,7 @@ class PdfFile:
             self.passed_in_file_object = True
         else:
             raise ValueError("filename must be a path or a file-like object")
-        
+
         self.fh = fh
         self.currentstream = None # stream object to write to, if any
         fh.write("%PDF-1.4\n")    # 1.4 is the first version to have alpha
@@ -524,7 +524,7 @@ class PdfFile:
 
         firstchar = 0
         lastchar = len(fontinfo.widths) - 1
-        
+
         fontdict = {
             'Type':           Name('Font'),
             'Subtype':        Name('Type1'),
@@ -569,7 +569,7 @@ class PdfFile:
             'XHeight':     500, # TODO: this one too
             'FontFile':    fontfileObject,
             'FontFamily':  familyname,
-            'StemV':       50, # TODO 
+            'StemV':       50, # TODO
             # (see also revision 3874; but not all TeX distros have AFM files!)
             #'FontWeight': a number where 400 = Regular, 700 = Bold
             }
@@ -614,7 +614,7 @@ endcmap
 CMapName currentdict /CMap defineresource pop
 end
 end"""
-    
+
     def embedTTF(self, filename, characters):
         """Embed the TTF font from the named file into the document."""
 
@@ -713,7 +713,7 @@ end"""
                     charprocDict['Type'] = Name('XObject')
                     charprocDict['Subtype'] = Name('Form')
                     charprocDict['BBox'] = bbox
-                charprocObject = self.reserveObject('charProc for %s' % name)
+                charprocObject = self.reserveObject('charProc')
                 self.beginStream(charprocObject.id, None, charprocDict)
                 self.currentstream.write(stream)
                 self.endStream()
@@ -827,7 +827,7 @@ end"""
             unicode_cmap = (self._identityToUnicodeCMap %
                             (len(unicode_groups),
                              "\n".join(unicode_bfrange)))
-                
+
             # CIDToGIDMap stream
             cid_to_gid_map = "".join(cid_to_gid_map).encode("utf-16be")
             self.beginStream(cidToGidMapObject.id,
@@ -842,7 +842,7 @@ end"""
                              {'Length': unicode_cmap})
             self.currentstream.write(unicode_cmap)
             self.endStream()
-            
+
             descriptor['MaxWidth'] = max_width
 
             # Write everything out
@@ -896,7 +896,7 @@ end"""
             warnings.warn(("'%s' can not be subsetted into a Type 3 font. " +
                            "The entire font will be embedded in the output.") %
                            os.path.basename(filename))
-        
+
         if fonttype == 3:
             return embedTTFType3(font, characters, descriptor)
         elif fonttype == 42:
@@ -1378,7 +1378,7 @@ class RendererPdf(RendererBase):
                 fonttype = 42
             else:
                 fonttype = global_fonttype
-            
+
             if fonttype == 42 or num <= 255:
                 self._setup_textpos(ox, oy, 0, oldx, oldy)
                 oldx, oldy = ox, oy
@@ -1397,8 +1397,9 @@ class RendererPdf(RendererBase):
                     fonttype = 42
                 else:
                     fonttype = global_fonttype
-                
+
                 if fonttype == 3 and num > 255:
+                    self.file.fontName(fontname)
                     self.file.output(Op.gsave,
                                      0.001 * fontsize, 0,
                                      0, 0.001 * fontsize,
@@ -1534,12 +1535,12 @@ class RendererPdf(RendererBase):
             y += font.get_descent() / 64.0
 
             fonttype = rcParams['pdf.fonttype']
-                
+
             # We can't subset all OpenType fonts, so switch to Type 42
             # in that case.
             if is_opentype_cff_font(font.fname):
                 fonttype = 42
-            
+
         def check_simple_method(s):
             """Determine if we should use the simple or woven method
             to output this text, and chunks the string into 1-byte and
@@ -1830,7 +1831,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         if (self._cliprect, self._clippath) != (cliprect, clippath):
             cmds.extend(self.push())
             if self._cliprect != cliprect:
-                cmds.extend([t for t in cliprect] + 
+                cmds.extend([t for t in cliprect] +
                             [Op.rectangle, Op.clip, Op.endpath])
             if self._clippath != clippath:
                 cmds.extend(PdfFile.pathOperations(clippath) +
@@ -1858,7 +1859,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         """
         cmds = []
         for params, cmd in self.commands:
-            ours = [ getattr(self, p) for p in params ] 
+            ours = [ getattr(self, p) for p in params ]
             theirs = [ getattr(other, p) for p in params ]
             if ours != theirs:
                 cmds.extend(cmd(self, *theirs))
@@ -1919,10 +1920,10 @@ class FigureCanvasPdf(FigureCanvasBase):
         pass
 
     filetypes = {'pdf': 'Portable Document Format'}
-    
+
     def get_default_filetype(self):
         return 'pdf'
-    
+
     def print_pdf(self, filename, **kwargs):
         dpi = kwargs.get('dpi', None)
         self.figure.set_dpi(72) # Override the dpi kwarg
