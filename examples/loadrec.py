@@ -2,6 +2,7 @@ from matplotlib import mlab
 from pylab import figure, show
 
 a = mlab.csv2rec('data/msft.csv')
+a.sort()
 print a.dtype
 
 fig = figure()
