@@ -315,9 +315,10 @@ class Axes3DI(Axes):
 
     def mouse_init(self):
         self.button_pressed = None
-        self.figure.canvas.mpl_connect('motion_notify_event', self.on_move)
-        self.figure.canvas.mpl_connect('button_press_event', self.button_press)
-        self.figure.canvas.mpl_connect('button_release_event', self.button_release)
+        if self.figure.canvas != None:
+            self.figure.canvas.mpl_connect('motion_notify_event', self.on_move)
+            self.figure.canvas.mpl_connect('button_press_event', self.button_press)
+            self.figure.canvas.mpl_connect('button_release_event', self.button_release)
 
     def button_press(self, event):
         self.button_pressed = event.button
