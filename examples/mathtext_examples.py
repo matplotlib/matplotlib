@@ -49,15 +49,7 @@ stests = [
     r'$\widehat{abc}\widetilde{def}$',
     r'$\Gamma \Delta \Theta \Lambda \Xi \Pi \Sigma \Upsilon \Phi \Psi \Omega$',
     r'$\alpha \beta \gamma \delta \epsilon \zeta \eta \theta \iota \lambda \mu \nu \xi \pi \kappa \rho \sigma \tau \upsilon \phi \chi \psi$',
-<<<<<<< .mine
-<<<<<<< .mine
-    #ur'Generic symbol: $\u23ce \mathrm{\ue0f2}$'
-=======
-    #ur'Generic symbol: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
-=======
     ur'Generic symbol: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
->>>>>>> .r4393
->>>>>>> .r4174
     ]
 
 from pylab import *
@@ -71,11 +63,7 @@ def doall():
     axis([0, 3, -len(tests), 0])
     yticks(arange(len(tests)) * -1)
     for i, s in enumerate(tests):
-<<<<<<< .mine
-        print i,s
-=======
         print (i, s)
->>>>>>> .r4174
         text(0.1, -i, s, fontsize=20)
 
     savefig('mathtext_examples')
