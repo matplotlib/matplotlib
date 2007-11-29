@@ -1092,7 +1092,7 @@ class StandardPsFonts(Fonts):
 #    Typesetting math formulas
 #
 # Many of the docstrings below refer to a numbered "node" in that
-# book, e.g. @123
+# book, e.g. node123
 #
 # Note that (as TeX) y increases downward, unlike many other parts of
 # matplotlib.
@@ -1120,7 +1120,7 @@ class MathTextWarning(Warning):
 
 class Node(object):
     """A node in the TeX box model
-    @133
+    node133
     """
     def __init__(self):
         self.size = 0
@@ -1149,7 +1149,7 @@ class Node(object):
 
 class Box(Node):
     """Represents any node with a physical location.
-    @135"""
+    node135"""
     def __init__(self, width, height, depth):
         Node.__init__(self)
         self.width  = width
@@ -1195,7 +1195,7 @@ class Char(Node):
     The metrics must be converted to the TeX way, and the advance (if
     different from width) must be converted into a Kern node when the
     Char is added to its parent Hlist.
-    @134"""
+    node134"""
     def __init__(self, c, state):
         Node.__init__(self)
         self.c = c
@@ -1286,7 +1286,7 @@ class Accent(Char):
 
 class List(Box):
     """A list of nodes (either horizontal or vertical).
-    @135"""
+    node135"""
     def __init__(self, elements):
         Box.__init__(self, 0., 0., 0.)
         self.shift_amount = 0.   # An arbitrary offset
@@ -1344,7 +1344,7 @@ class List(Box):
 
 class Hlist(List):
     """A horizontal list of boxes.
-    @135"""
+    node135"""
     def __init__(self, elements, w=0., m='additional', do_kern=True):
         List.__init__(self, elements)
         if do_kern:
@@ -1387,7 +1387,7 @@ class Hlist(List):
         Thus, hpack(w, exactly) produces a box whose width is exactly w, while
         hpack (w, additional ) yields a box whose width is the natural width
         plus w.  The default values produce a box with the natural width.
-        @644, @649"""
+        node644, node649"""
         # I don't know why these get reset in TeX.  Shift_amount is pretty
         # much useless if we do.
         #self.shift_amount = 0.
@@ -1434,7 +1434,7 @@ class Hlist(List):
 
 class Vlist(List):
     """A vertical list of boxes.
-    @137"""
+    node137"""
     def __init__(self, elements, h=0., m='additional'):
         List.__init__(self, elements)
         self.vpack()
@@ -1451,7 +1451,7 @@ class Vlist(List):
         Thus, vpack(h, exactly) produces a box whose width is exactly w, while
         vpack(w, additional) yields a box whose width is the natural width
         plus w.  The default values produce a box with the natural width.
-        @644, @668"""
+        node644, node668"""
         # I don't know why these get reset in TeX.  Shift_amount is pretty
         # much useless if we do.
         # self.shift_amount = 0.
@@ -1510,7 +1510,7 @@ class Rule(Box):
     rule up to the boundary of the innermost enclosing box. This is called
     a "running dimension." The width is never running in an Hlist; the
     height and depth are never running in a Vlist.
-    @138"""
+    node138"""
     def __init__(self, width, height, depth, state):
         Box.__init__(self, width, height, depth)
         self.font_output = state.font_output
@@ -1538,7 +1538,7 @@ class Glue(Node):
     GlueSpec class, which is shared between multiple glue objects.  (This
     is a memory optimization which probably doesn't matter anymore, but it's
     easier to stick to what TeX does.)
-    @149, @152"""
+    node149, node152"""
     def __init__(self, glue_type, copy=False):
         Node.__init__(self)
         self.glue_subtype   = 'normal'
@@ -1566,7 +1566,7 @@ class Glue(Node):
             self.glue_spec.width *= GROW_FACTOR
 
 class GlueSpec(object):
-    """@150, @151"""
+    """node150, node151"""
     def __init__(self, width=0., stretch=0., stretch_order=0, shrink=0., shrink_order=0):
         self.width         = width
         self.stretch       = stretch
@@ -1647,7 +1647,7 @@ class Kern(Node):
     better to move them closer together or further apart. A kern node can
     also appear in a vertical list, when its 'width' denotes additional
     spacing in the vertical direction.
-    @155"""
+    node155"""
     def __init__(self, width):
         Node.__init__(self)
         self.width = width
@@ -1733,7 +1733,7 @@ class Ship(object):
     and vlist_out , which traverse the Hlists and Vlists inside of
     horizontal and vertical boxes.  The global variables used in TeX to
     store state as it processes have become member variables here.
-    @592."""
+    node592."""
     def __call__(self, ox, oy, box):
         self.max_push    = 0 # Deepest nesting of push commands so far
         self.cur_s       = 0
@@ -1769,7 +1769,7 @@ class Ship(object):
             elif isinstance(p, Kern):
                 self.cur_h += p.width
             elif isinstance(p, List):
-                # @623
+                # node623
                 if len(p.children) == 0:
                     self.cur_h += p.width
                 else:
@@ -1783,7 +1783,7 @@ class Ship(object):
                     self.cur_h = edge + p.width
                     self.cur_v = base_line
             elif isinstance(p, Box):
-                # @624
+                # node624
                 rule_height = p.height
                 rule_depth  = p.depth
                 rule_width  = p.width
@@ -1799,7 +1799,7 @@ class Ship(object):
                     self.cur_v = baseline
                 self.cur_h += rule_width
             elif isinstance(p, Glue):
-                # @625
+                # node625
                 glue_spec = p.glue_spec
                 rule_width = glue_spec.width - cur_g
                 if glue_sign != 0: # normal
@@ -2470,7 +2470,7 @@ class Parser(object):
         else:
             shift_down = SUBDROP * xHeight
         if super is None:
-            # @757
+            # node757
             sub.shrink()
             x = Hlist([sub])
             # x.width += SCRIPT_SPACE * xHeight
