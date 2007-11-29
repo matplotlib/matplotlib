@@ -6,9 +6,7 @@ faster*
 from __future__ import division
 from pylab import *
 from matplotlib.lines import Line2D
-from matplotlib.transforms import get_bbox_transform, Point, Value, Bbox,\
-     unit_bbox
-
+from matplotlib.transforms import Bbox, BboxTransform, BboxTransformTo, Affine2D
 
 # I use if 1 to break up the different regions of code visually
 
@@ -36,37 +34,32 @@ if 1:  # plot the histogram of MRI intensity
 
 if 1:   # plot the EEG
     # load the data
+
     numSamples, numRows = 800,4
     data = fromstring(file('data/eeg.dat', 'rb').read(), float)
     data.shape = numSamples, numRows
     t = arange(numSamples)/float(numSamples)*10.0
     ticklocs = []
     ax = subplot(212)
+    xlim(0,10)
+    xticks(arange(10))
 
-    boxin = Bbox(
-        Point(ax.viewLim.ll().x(), Value(-20)),
-        Point(ax.viewLim.ur().x(), Value(20)))
+    boxin = Bbox.from_extents(ax.viewLim.x0, -20, ax.viewLim.x1, 20)
 
+    height = ax.bbox.height
+    boxout = Bbox.from_extents(ax.bbox.x0, -1.0 * height,
+                               ax.bbox.x1,  1.0 * height)
 
-    height = ax.bbox.ur().y() - ax.bbox.ll().y()
-    boxout = Bbox(
-        Point(ax.bbox.ll().x(), Value(-1)*height),
-        Point(ax.bbox.ur().x(), Value(1) * height))
-
-
-    transOffset = get_bbox_transform(
-        unit_bbox(),
-        Bbox( Point( Value(0), ax.bbox.ll().y()),
-              Point( Value(1), ax.bbox.ur().y())
-              ))
+    transOffset = BboxTransformTo(
+        Bbox.from_extents(0.0, ax.bbox.y0, 1.0, ax.bbox.y1))
 
 
     for i in range(numRows):
         # effectively a copy of transData
-        trans = get_bbox_transform(boxin, boxout)
+        trans = BboxTransform(boxin, boxout)
         offset = (i+1)/(numRows+1)
 
-        trans.set_offset( (0, offset), transOffset)
+        trans += Affine2D().translate(*transOffset.transform_point((0, offset)))
 
         thisLine = Line2D(
             t, data[:,i]-data[0,i],
@@ -76,9 +69,6 @@ if 1:   # plot the EEG
 
         ax.add_line(thisLine)
         ticklocs.append(offset)
-
-    xlim(0,10)
-    xticks(arange(10))
 
     setp(gca(), 'yticklabels', ['PG3', 'PG5', 'PG7', 'PG9'])
 
