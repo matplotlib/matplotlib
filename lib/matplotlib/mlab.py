@@ -2441,7 +2441,7 @@ except ImportError:
     pass
 except RuntimeError:
     pass
-else:
+
 
 
     def gtkformat_factory(format, colnum):
