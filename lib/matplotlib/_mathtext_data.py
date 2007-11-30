@@ -88,7 +88,7 @@ latex_to_bakoma = {
     r'\phi'                 : ('cmmi10',  42),
     r'\chi'                 : ('cmmi10',  17),
     r'\psi'                 : ('cmmi10',  31),
-    
+
     r'('                    : ('cmr10',  119),
     r'\leftparen'           : ('cmr10',  119),
     r'\rightparen'          : ('cmr10',   68),
@@ -127,7 +127,7 @@ latex_to_bakoma = {
     r'\Phi'                 : ('cmr10',   9),
     r'\Psi'                 : ('cmr10',  15),
     r'\Omega'               : ('cmr10',  12),
-    
+
     # these are mathml names, I think.  I'm just using them for the
     # tex methods noted
     r'\circumflexaccent'         : ('cmr10',   124), # for \hat
@@ -398,7 +398,7 @@ latex_to_standard = {
     r'\}'               : ('pncr8a', 125),
     r'\backslash'       : ('pncr8a',  92),
     r'\ast'             : ('pncr8a',  42),
-    
+
     r'\circumflexaccent'         : ('pncri8a',   124), # for \hat
     r'\combiningbreve'           : ('pncri8a',   81),  # for \breve
     r'\combininggraveaccent'     : ('pncri8a', 114), # for \grave
@@ -2071,7 +2071,7 @@ tex2uni = {
 'rightzigzagarrow': 8669,
 'rightarrow': 8594,
 'leftarrow': 8592,
-'__sqrt__': 8730,           
+'__sqrt__': 8730,
 'twoheaddownarrow': 8609,
 'oint': 8750,
 'bigvee': 8897,
@@ -2236,7 +2236,7 @@ tex2uni = {
 '{': 123,
 '}': 125,
 '_': 95,
-'imath': 0x131,          
+'imath': 0x131,
 'circumflexaccent'         : 770,
 'combiningbreve'           : 774,
 'combiningoverline'        : 772,
@@ -2294,6 +2294,7 @@ stix_virtual_fonts = {
             ],
         'it':
             [
+            (0x0030, 0x0039, 'rm', 0x1d7d8), # 0-9
             (0x0041, 0x0041, 'it', 0xe154),  # A-B
             (0x0043, 0x0043, 'it', 0x2102),  # C (missing in beta STIX fonts)
             (0x0044, 0x0044, 'it', 0x2145),  # D
@@ -2469,5 +2470,5 @@ stix_virtual_fonts = {
         (0x0061, 0x007a, 'rm', 0x1d68a)  # a-z
         ],
     }
-        
-    
+
+
