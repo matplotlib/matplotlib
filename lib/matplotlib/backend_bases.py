@@ -27,7 +27,7 @@ class RendererBase:
 
     The following methods *should* be implemented in the backend for
     optimization reasons:
-    
+
        draw_markers
        draw_path_collection
        draw_quad_mesh
@@ -73,7 +73,7 @@ class RendererBase:
             self.draw_path(gc, marker_path,
                            marker_trans + transforms.Affine2D().translate(x, y),
                            rgbFace)
-        
+
     def draw_path_collection(self, master_transform, cliprect, clippath,
                              clippath_trans, paths, all_transforms, offsets,
                              offsetTrans, facecolors, edgecolors, linewidths,
@@ -126,12 +126,12 @@ class RendererBase:
         else:
             edgecolors = facecolors
         linewidths = npy.array([1.0], npy.float_)
-            
+
         return self.draw_path_collection(
             master_transform, cliprect, clippath, clippath_trans,
             paths, [], offsets, offsetTrans, facecolors, edgecolors,
             linewidths, [], [antialiased])
-            
+
     def _iter_collection_raw_paths(self, master_transform, paths, all_transforms):
         """
         This is a helper method (along with _iter_collection) to make
@@ -203,20 +203,20 @@ class RendererBase:
             return
         if Noffsets:
             toffsets = offsetTrans.transform(offsets)
-            
+
         gc = self.new_gc()
 
         gc.set_clip_rectangle(cliprect)
         if clippath is not None:
             clippath = transforms.TransformedPath(clippath, clippath_trans)
             gc.set_clip_path(clippath)
-        
+
         if Nfacecolors == 0:
             rgbFace = None
 
         if Nedgecolors == 0:
             gc.set_linewidth(0.0)
-            
+
         xo, yo = 0, 0
         for i in xrange(N):
             path_id = path_ids[i % Npaths]
@@ -233,7 +233,7 @@ class RendererBase:
             gc.set_antialiased(antialiaseds[i % Naa])
 
             yield xo, yo, path_id, gc, rgbFace
-        
+
     def get_image_magnification(self):
         """
         Get the factor by which to magnify images passed to draw_image.
@@ -282,7 +282,7 @@ class RendererBase:
         your text.
         """
         raise NotImplementedError
-    
+
     def flipy(self):
         """return true if y small numbers are top for renderer
         Is used for drawing text (text.py) and images (image.py) only
@@ -334,7 +334,7 @@ class RendererBase:
 
     def stop_rasterizing(self):
         pass
-    
+
 
 class GraphicsContextBase:
     """An abstract base class that provides color, line styles, etc...
@@ -380,8 +380,6 @@ class GraphicsContextBase:
         Return the alpha value used for blending - not supported on
         all backends
         """
-        if len(self._rgb) == 4:
-            return self._rgb[3]
         return self._alpha
 
     def get_antialiased(self):
@@ -795,7 +793,7 @@ class FigureCanvasBase:
         # can't delete the artist
         while h:
             print "Removing",h
-            if h.remove(): 
+            if h.remove():
                 self.draw_idle()
                 break
             parent = None
@@ -804,7 +802,7 @@ class FigureCanvasBase:
                     parent = p
                     break
             h = parent
-        
+
     def onHilite(self, ev):
         """
         Mouse event processor which highlights the artists
@@ -980,7 +978,7 @@ class FigureCanvasBase:
     #  a) otherwise we'd have cyclical imports, since all of these
     #     classes inherit from FigureCanvasBase
     #  b) so we don't import a bunch of stuff the user may never use
-    
+
     def print_emf(self, *args, **kwargs):
         from backends.backend_emf import FigureCanvasEMF # lazy import
         emf = self.switch_backends(FigureCanvasEMF)
@@ -990,7 +988,7 @@ class FigureCanvasBase:
         from backends.backend_ps import FigureCanvasPS # lazy import
         ps = self.switch_backends(FigureCanvasPS)
         return ps.print_eps(*args, **kwargs)
-    
+
     def print_pdf(self, *args, **kwargs):
         from backends.backend_pdf import FigureCanvasPdf # lazy import
         pdf = self.switch_backends(FigureCanvasPdf)
@@ -1000,7 +998,7 @@ class FigureCanvasBase:
         from backends.backend_agg import FigureCanvasAgg # lazy import
         agg = self.switch_backends(FigureCanvasAgg)
         return agg.print_png(*args, **kwargs)
-    
+
     def print_ps(self, *args, **kwargs):
         from backends.backend_ps import FigureCanvasPS # lazy import
         ps = self.switch_backends(FigureCanvasPS)
@@ -1016,12 +1014,12 @@ class FigureCanvasBase:
         from backends.backend_svg import FigureCanvasSVG # lazy import
         svg = self.switch_backends(FigureCanvasSVG)
         return svg.print_svg(*args, **kwargs)
-    
+
     def print_svgz(self, *args, **kwargs):
         from backends.backend_svg import FigureCanvasSVG # lazy import
         svg = self.switch_backends(FigureCanvasSVG)
         return svg.print_svgz(*args, **kwargs)
-    
+
     def get_supported_filetypes(self):
         return self.filetypes
 
@@ -1031,7 +1029,7 @@ class FigureCanvasBase:
             groupings.setdefault(name, []).append(ext)
             groupings[name].sort()
         return groupings
-    
+
     def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', format=None, **kwargs):
         """
@@ -1069,7 +1067,7 @@ class FigureCanvasBase:
 
         if dpi is None:
             dpi = rcParams['savefig.dpi']
-            
+
         origDPI = self.figure.dpi
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
@@ -1092,12 +1090,12 @@ class FigureCanvasBase:
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
             self.figure.canvas.draw()
-            
+
         return result
 
     def get_default_filetype(self):
         raise NotImplementedError
-    
+
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.  Note that
