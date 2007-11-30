@@ -682,12 +682,12 @@ end"""
             descriptor['MaxWidth'] = max(widths)
 
             # Make the "Differences" array, sort the ccodes < 255 from
-            # the two-byte ccodes, and build the whole set of glyph ids
+            # the multi-byte ccodes, and build the whole set of glyph ids
             # that we need from this font.
             cmap = font.get_charmap()
             glyph_ids = []
             differences = []
-            two_byte_chars = Set()
+            multi_byte_chars = Set()
             for c in characters:
                 ccode = ord(c)
                 gind = cmap.get(ccode) or 0
@@ -696,7 +696,7 @@ end"""
                 if ccode <= 255:
                     differences.append((ccode, glyph_name))
                 else:
-                    two_byte_chars.add(glyph_name)
+                    multi_byte_chars.add(glyph_name)
             differences.sort()
 
             last_c = -2
@@ -715,7 +715,7 @@ end"""
                 charprocDict = { 'Length': len(stream) }
                 # The 2-byte characters are used as XObjects, so they
                 # need extra info in their dictionary
-                if charname in two_byte_chars:
+                if charname in multi_byte_chars:
                     charprocDict['Type'] = Name('XObject')
                     charprocDict['Subtype'] = Name('Form')
                     charprocDict['BBox'] = bbox
@@ -726,9 +726,9 @@ end"""
 
                 # Send the glyphs with ccode > 255 to the XObject dictionary,
                 # and the others to the font itself
-                if charname in two_byte_chars:
+                if charname in multi_byte_chars:
                     name = self._get_xobject_symbol_name(filename, charname)
-                    self.two_byte_charprocs[name] = charprocObject
+                    self.multi_byte_charprocs[name] = charprocObject
                 else:
                     charprocs[charname] = charprocObject
 
@@ -1297,7 +1297,7 @@ class RendererPdf(RendererBase):
                 self.file.output(self.encode_string(unichr(num), fonttype), Op.show)
         self.file.output(Op.end_text)
 
-        # If using Type 3 fonts, render all of the two-byte characters
+        # If using Type 3 fonts, render all of the multi-byte characters
         # as XObjects using the 'Do' command.
         if global_fonttype == 3:
             for ox, oy, fontname, fontsize, num, symbol_name in glyphs:
