@@ -12,7 +12,7 @@ from matplotlib.numerix import npyma as ma
 
 from matplotlib._path import point_in_path, get_path_extents, \
     point_in_path_collection, get_path_collection_extents, \
-    path_in_path, path_intersects_path
+    path_in_path, path_intersects_path, convert_path_to_polygons
 from matplotlib.cbook import simple_linear_interpolation
 
 KAPPA = 4.0 * (npy.sqrt(2) - 1) / 3.0
@@ -210,19 +210,17 @@ class Path(object):
         If transform is not None, the path will be transformed before
         performing the test.
         """
-        if transform is None:
-            from transforms import IdentityTransform
-            transform = IdentityTransform()
-        return point_in_path(point[0], point[1], self, transform.frozen())
+        if transform is not None:
+            transform = transform.frozen()
+        return point_in_path(point[0], point[1], self, transform)
 
     def contains_path(self, path, transform=None):
         """
         Returns True if this path completely contains the given path.
         """
-        if transform is None:
-            from transforms import IdentityTransform
-            transform = IdentityTransform()
-        return path_in_path(self, IdentityTransform(), path, transform)
+        if transform is not None:
+            transform = transform.frozen()
+        return path_in_path(self, None, path, transform)
 
     def get_extents(self, transform=None):
         """
@@ -232,9 +230,9 @@ class Path(object):
         algorithm will take into account the curves and deal with
         control points appropriately.
         """
-        from transforms import Affine2D, Bbox
-        if transform is None:
-            transform = Affine2D()
+        from transforms import Bbox
+        if transform is not None:
+            transform = transform.frozen()
         return Bbox(get_path_extents(self, transform))
 
     def intersects_path(self, other):
@@ -266,6 +264,23 @@ class Path(object):
         else:
             new_codes = None
         return Path(vertices, new_codes)
+
+    def to_polygons(self, transform=None):
+        """
+        Convert this path to a list of polygons.  Each polygon is an
+        Nx2 array of vertices.  In other words, each polygon has no
+        "move to" instructions or curves.
+        """
+        if transform is not None:
+            transform = transform.frozen()
+        # Deal with the common and simple case
+        if self.codes is None:
+            if len(self.vertices):
+                return [transform.transform(self.vertices)]
+            return []
+        # Deal with the case where there are curves and/or multiple
+        # subpaths (using extension code)
+        return convert_path_to_polygons(self, transform)
 
     _unit_rectangle = None
     #@classmethod
