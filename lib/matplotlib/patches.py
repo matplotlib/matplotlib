@@ -71,7 +71,7 @@ class Patch(artist.Artist):
         self._hatch = hatch
         self._combined_transform = transforms.IdentityTransform()
         self.fill = fill
-	
+
         if len(kwargs): artist.setp(self, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
@@ -105,7 +105,7 @@ class Patch(artist.Artist):
 
     def get_extents(self):
         return self.get_path().get_extents(self.get_transform())
-        
+
     def get_transform(self):
         return self._combined_transform
 
@@ -116,10 +116,10 @@ class Patch(artist.Artist):
 
     def get_data_transform(self):
         return artist.Artist.get_transform(self)
-        
+
     def get_patch_transform(self):
         return transforms.IdentityTransform()
-    
+
     def get_antialiased(self):
         return self._antialiased
 
@@ -155,7 +155,7 @@ class Patch(artist.Artist):
         ACCEPTS: any matplotlib color
         """
         self._facecolor = color
-        
+
     def set_linewidth(self, w):
         """
         Set the patch linewidth in points
@@ -212,7 +212,7 @@ class Patch(artist.Artist):
 
         if cbook.is_string_like(self._edgecolor) and self._edgecolor.lower()=='none':
             gc.set_linewidth(0)
-        else:        
+        else:
             gc.set_foreground(self._edgecolor)
             gc.set_linewidth(self._linewidth)
 
@@ -226,7 +226,7 @@ class Patch(artist.Artist):
             rgbFace = None
         else:
             rgbFace = colors.colorConverter.to_rgb(self._facecolor)
-        
+
         if self._hatch:
             gc.set_hatch(self._hatch )
 
@@ -234,7 +234,7 @@ class Patch(artist.Artist):
         transform = self.get_transform()
         tpath = transform.transform_path_non_affine(path)
         affine = transform.get_affine()
-        
+
         renderer.draw_path(gc, tpath, affine, rgbFace)
 
         #renderer.close_group('patch')
@@ -322,25 +322,25 @@ class Shadow(Patch):
 
     def _update_transform(self):
         self._shadow_transform = transforms.Affine2D().translate(self._ox, self._oy)
-            
+
     def _get_ox(self):
         return self._ox
     def _set_ox(self, ox):
         self._ox = ox
         self._update_transform()
-    
+
     def _get_oy(self):
         return self._oy
     def _set_oy(self, oy):
         self._oy = oy
         self._update_transform()
-        
+
     def get_path(self):
         return self.patch.get_path()
 
     def get_patch_transform(self):
-	return self._shadow_transform
-    
+	return self.patch.get_patch_transform() + self._shadow_transform
+
 class Rectangle(Patch):
     """
     Draw a rectangle with lower left at xy=(x,y) with specified
@@ -385,7 +385,7 @@ class Rectangle(Patch):
         x, y = self.get_transform().inverted().transform_point(
             (mouseevent.x, mouseevent.y))
         return (x >= 0.0 and x <= 1.0 and y >= 0.0 and y <= 1.0), {}
-    
+
     def get_x(self):
         "Return the left coord of the rectangle"
         return self._bbox.x0
@@ -480,9 +480,9 @@ class RegularPolygon(Patch):
 	self._path = Path.unit_regular_polygon(numVertices)
         self._poly_transform = transforms.Affine2D()
         self._update_transform()
-        
+
         Patch.__init__(self, **kwargs)
-        
+
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def _update_transform(self):
@@ -504,7 +504,7 @@ class RegularPolygon(Patch):
         self._orientation = xy
         self._update_transform()
     orientation = property(_get_orientation, _set_orientation)
-    
+
     def _get_radius(self):
         return self._radius
     def _set_radius(self, xy):
@@ -518,13 +518,13 @@ class RegularPolygon(Patch):
         self._numVertices = numVertices
         self._path = Path.unit_regular_polygon(numVertices)
     numvertices = property(_get_numvertices, _set_numvertices)
-    
+
     def get_path(self):
 	return self._path
 
     def get_patch_transform(self):
         return self._poly_transform
-	
+
 class PathPatch(Patch):
     """
     A general polycurve path patch.
@@ -535,7 +535,7 @@ class PathPatch(Patch):
     def __init__(self, path, **kwargs):
         """
         path is a Path object
-        
+
         Valid kwargs are:
         %(Patch)s
         See Patch documentation for additional kwargs
@@ -574,7 +574,7 @@ class Polygon(Patch):
     def _set_xy(self, vertices):
         self._path = Path(vertices)
     xy = property(_get_xy, _set_xy)
-    
+
 class Wedge(Patch):
     def __str__(self):
         return "Wedge(%g,%g)"%self.xy[0]
@@ -612,7 +612,7 @@ class Arrow(Polygon):
             [ 0.8, -0.1 ], [ 0.8, -0.3],
             [ 1.0,  0.0 ], [ 0.8,  0.3],
             [ 0.8,  0.1 ], [ 0.0,  0.1] ] )
-    
+
     def __init__( self, x, y, dx, dy, width=1.0, **kwargs ):
         """Draws an arrow, starting at (x,y), direction and length
         given by (dx,dy) the width of the arrow is scaled by width
@@ -636,7 +636,7 @@ class Arrow(Polygon):
 
     def get_patch_transform(self):
         return self._patch_transform
-    
+
 class FancyArrow(Polygon):
     """Like Arrow, but lets you set head width and head height independently."""
 
@@ -744,7 +744,7 @@ class YAArrow(Patch):
     def get_path(self):
         # Since this is dpi dependent, we need to recompute the path
         # every time.
-        
+
         # the base vertices
         x1, y1 = self.xytip
         x2, y2 = self.xybase
@@ -767,7 +767,7 @@ class YAArrow(Patch):
 
     def get_patch_transform(self):
         return transforms.IdentityTransform()
-    
+
     def getpoints(self, x1,y1,x2,y2, k):
         """
         for line segment defined by x1,y1 and x2,y2, return the points on
@@ -845,7 +845,7 @@ class Ellipse(Patch):
 	    .scale(self._width * 0.5, self._height * 0.5) \
 	    .rotate_deg(self._angle) \
 	    .translate(*self._center)
-        
+
     def get_path(self):
         """
         Return the vertices of the rectangle
@@ -854,12 +854,12 @@ class Ellipse(Patch):
 
     def get_patch_transform(self):
         return self._patch_transform
-        
+
     def contains(self,ev):
         if ev.x is None or ev.y is None: return False,{}
         x, y = self.get_transform().inverted().transform_point((ev.x, ev.y))
         return (x*x + y*y) <= 1.0, {}
-                              
+
     def _get_center(self):
         return self._center
     def _set_center(self, center):
@@ -880,8 +880,8 @@ class Ellipse(Patch):
         self._angle = angle
         self._recompute_transform()
     angle = property(_get_angle, _set_angle)
-    
-    
+
+
 class Circle(Ellipse):
     """
     A circle patch
