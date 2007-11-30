@@ -16,3 +16,4 @@ recursive-include CXX  *.cxx *.hxx *.c *.h
 recursive-include agg23 *
 recursive-include lib *
 recursive-include swig *
+recursive-include ttconv *.cpp *.h
