@@ -94,7 +94,7 @@ class RendererCairo(RendererBase):
     def set_ctx_from_surface (self, surface):
         self.ctx = cairo.Context (surface)
         self.ctx.save() # restore, save  - when call new_gc()
-       
+
 
     def set_width_height(self, width, height):
         self.width  = width
@@ -111,12 +111,12 @@ class RendererCairo(RendererBase):
             if len(fill_c) == 3:
                 ctx.set_source_rgba (fill_c[0], fill_c[1], fill_c[2], alpha)
             else:
-                ctx.set_source_rgba (*fill_c)
+                ctx.set_source_rgba (fill_c[0], fill_c[1], fill_c[2], alpha*fill_c[3])
             ctx.fill_preserve()
             ctx.restore()
         ctx.stroke()
 
-        
+
     #@staticmethod
     def convert_path(ctx, tpath):
         for points, code in tpath.iter_segments():
@@ -134,7 +134,7 @@ class RendererCairo(RendererBase):
                 ctx.close_path()
     convert_path = staticmethod(convert_path)
 
-    
+
     def draw_path(self, gc, path, transform, rgbFace=None):
         if len(path.vertices) > 18980:
            raise ValueError("The Cairo backend can not draw paths longer than 18980 points.")
@@ -143,7 +143,7 @@ class RendererCairo(RendererBase):
         transform = transform + \
             Affine2D().scale(1.0, -1.0).translate(0, self.height)
         tpath = transform.transform_path(path)
-        
+
         ctx.new_path()
         self.convert_path(ctx, tpath)
 
@@ -203,11 +203,11 @@ class RendererCairo(RendererBase):
         ctx.translate(x, y)
         if angle:
            ctx.rotate (-angle * npy.pi / 180)
-           
+
         for font, fontsize, s, ox, oy in glyphs:
            ctx.new_path()
            ctx.move_to(ox, oy)
-           
+
            fontProp = ttfFontProperty(font)
            ctx.save()
            ctx.select_font_face (fontProp.name,
@@ -228,7 +228,7 @@ class RendererCairo(RendererBase):
 
         ctx.restore()
 
-        
+
     def flipy(self):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         return True
@@ -281,8 +281,8 @@ class RendererCairo(RendererBase):
     def points_to_pixels(self, points):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         return points/72.0 * self.dpi
-               
-    
+
+
 class GraphicsContextCairo(GraphicsContextBase):
     _joind = {
         'bevel' : cairo.LINE_JOIN_BEVEL,
@@ -323,6 +323,8 @@ class GraphicsContextCairo(GraphicsContextBase):
 
     def set_clip_rectangle(self, rectangle):
         self._cliprect = rectangle
+        if rectangle is None:
+           return
 
         x,y,w,h = rectangle.bounds
         # pixel-aligned clip-regions are faster
@@ -345,7 +347,7 @@ class GraphicsContextCairo(GraphicsContextBase):
             RendererCairo.convert_path(ctx, tpath)
             ctx.clip()
 
-        
+
     def set_dashes(self, offset, dashes):
         self._dashes = offset, dashes
         if dashes == None:
@@ -382,7 +384,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         self._linewidth = w
         self.ctx.set_line_width (self.renderer.points_to_pixels(w))
 
-        
+
 def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
     """
     Create a new figure manager instance
@@ -406,7 +408,7 @@ class FigureCanvasCairo (FigureCanvasBase):
 
         self.figure.draw (renderer)
         surface.write_to_png (fobj)
-    
+
     def print_pdf(self, fobj, *args, **kwargs):
         return self._save(fobj, 'pdf', *args, **kwargs)
 
@@ -418,16 +420,16 @@ class FigureCanvasCairo (FigureCanvasBase):
 
     def print_svgz(self, fobj, *args, **kwargs):
         return self._save(fobj, 'svgz', *args, **kwargs)
-    
+
     def get_default_filetype(self):
         return rcParams['cairo.format']
-    
+
     def _save (self, fo, format, **kwargs):
         # save PDF/PS/SVG
         orientation = kwargs.get('orientation', 'portrait')
 
         dpi = 72
-        self.figure.dpi.set (dpi)
+        self.figure.dpi = dpi
         w_in, h_in = self.figure.get_size_inches()
         width_in_points, height_in_points = w_in * dpi, h_in * dpi
 
