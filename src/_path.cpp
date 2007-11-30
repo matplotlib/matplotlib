@@ -48,6 +48,8 @@ public:
                            "count_bboxes_overlapping_bbox(bbox, bboxes)");
         add_varargs_method("path_intersects_path", &_path_module::path_intersects_path,
                            "path_intersects_path(p1, p2)");
+        add_varargs_method("convert_path_to_polygons", &_path_module::convert_path_to_polygons,
+                           "convert_path_to_polygons(path, trans)");
 
         initialize("Helper functions for paths");
     }
@@ -66,6 +68,7 @@ private:
     Py::Object affine_transform(const Py::Tuple& args);
     Py::Object count_bboxes_overlapping_bbox(const Py::Tuple& args);
     Py::Object path_intersects_path(const Py::Tuple& args);
+    Py::Object convert_path_to_polygons(const Py::Tuple& args);
 };
 
 //
@@ -137,7 +140,7 @@ bool point_in_path_impl(double tx, double ty, T& path)
             code = path.vertex(&x, &y);
 
             // The following cases denote the beginning on a new subpath
-            if (code == agg::path_cmd_stop || 
+            if (code == agg::path_cmd_stop ||
 		(code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
             {
                 x = sx;
@@ -234,7 +237,7 @@ Py::Object _path_module::point_in_path(const Py::Tuple& args)
     double x = Py::Float(args[0]);
     double y = Py::Float(args[1]);
     PathIterator path(args[2]);
-    agg::trans_affine trans = py_to_agg_transformation_matrix(args[3]);
+    agg::trans_affine trans = py_to_agg_transformation_matrix(args[3], false);
 
     if (::point_in_path(x, y, path, trans))
         return Py::Int(1);
@@ -623,9 +626,9 @@ Py::Object _path_module::path_in_path(const Py::Tuple& args)
     args.verify_length(4);
 
     PathIterator a(args[0]);
-    agg::trans_affine atrans = py_to_agg_transformation_matrix(args[1]);
+    agg::trans_affine atrans = py_to_agg_transformation_matrix(args[1], false);
     PathIterator b(args[2]);
-    agg::trans_affine btrans = py_to_agg_transformation_matrix(args[3]);
+    agg::trans_affine btrans = py_to_agg_transformation_matrix(args[3], false);
 
     return Py::Int(::path_in_path(a, atrans, b, btrans));
 }
@@ -1089,6 +1092,68 @@ Py::Object _path_module::path_intersects_path(const Py::Tuple& args)
         }
     }
     return Py::Int(1);
+}
+
+void _add_polygon(Py::List& polygons, const std::vector<double>& polygon) {
+    if (polygon.size() == 0)
+	return;
+    npy_intp polygon_dims[] = { polygon.size() / 2, 2, 0 };
+    double* polygon_data = new double[polygon.size()];
+    memcpy(polygon_data, &polygon[0], polygon.size() * sizeof(double));
+    PyArrayObject* polygon_array = NULL;
+    polygon_array = (PyArrayObject*)PyArray_SimpleNewFromData
+	(2, polygon_dims, PyArray_DOUBLE, polygon_data);
+    if (!polygon_array)
+    {
+	delete[] polygon_data;
+	throw Py::RuntimeError("Error creating polygon array");
+    }
+    polygons.append(Py::Object((PyObject*)polygon_array));
+}
+
+Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
+{
+    typedef agg::conv_transform<PathIterator> transformed_path_t;
+    typedef agg::conv_curve<transformed_path_t> curve_t;
+
+    typedef std::vector<double> vertices_t;
+
+    args.verify_length(2);
+
+    PathIterator path(args[0]);
+    agg::trans_affine trans = py_to_agg_transformation_matrix(args[1], false);
+
+    transformed_path_t tpath(path, trans);
+    curve_t curve(tpath);
+
+    Py::List polygons;
+    vertices_t polygon;
+    double x, y;
+    unsigned code;
+
+    while ((code = curve.vertex(&x, &y)) != agg::path_cmd_stop)
+    {
+	if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
+	    if (polygon.size() >= 2)
+	    {
+		polygon.push_back(polygon[0]);
+		polygon.push_back(polygon[1]);
+		_add_polygon(polygons, polygon);
+	    }
+	    polygon.clear();
+	} else {
+	    if (code == agg::path_cmd_move_to) {
+		_add_polygon(polygons, polygon);
+		polygon.clear();
+	    }
+	    polygon.push_back(x);
+	    polygon.push_back(y);
+	}
+    }
+
+    _add_polygon(polygons, polygon);
+
+    return polygons;
 }
 
 extern "C"

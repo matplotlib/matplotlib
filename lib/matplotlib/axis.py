@@ -87,7 +87,7 @@ class Tick(Artist):
         self._size = size
 
         self._padPixels = self.figure.dpi * self._pad * (1/72.0)
-        
+
         self.tick1line = self._get_tick1line()
         self.tick2line = self._get_tick2line()
         self.gridline = self._get_gridline()
@@ -97,7 +97,7 @@ class Tick(Artist):
         self.label2 = self._get_text2()
 
         self.update_position(loc)
-        
+
         self.gridOn = gridOn
         self.tick1On = tick1On
         self.tick2On = tick2On
@@ -114,7 +114,7 @@ class Tick(Artist):
         #self.tick2line.set_clip_path(clippath, transform)
         self.gridline.set_clip_path(clippath, transform)
     set_clip_path.__doc__ = Artist.set_clip_path.__doc__
-    
+
     def contains(self, mouseevent):
         """Test whether the mouse event occured in the Tick marks.
 
@@ -189,7 +189,7 @@ class Tick(Artist):
         """
         self.label1.set_text(s)
     set_label = set_label1
-        
+
     def set_label2(self, s):
         """
         Set the text of ticklabel2
@@ -209,7 +209,7 @@ class Tick(Artist):
     def set_view_interval(self, vmin, vmax, ignore=False):
         raise NotImplementedError('Derived must override')
 
-    
+
 class XTick(Tick):
     """
     Contains all the Artists needed to make an x tick - the tick line,
@@ -223,7 +223,7 @@ class XTick(Tick):
         # x in data coords, y in axes coords
         #t =  Text(
         trans, vert, horiz = self.axes.get_xaxis_text1_transform(self._padPixels)
-        
+
         t =  TextWithDash(
             x=0, y=0,
             fontproperties=FontProperties(size=rcParams['xtick.labelsize']),
@@ -320,10 +320,10 @@ class XTick(Tick):
         else:
             Vmin, Vmax = self.get_view_interval()
             self.axes.viewLim.intervalx = min(vmin, Vmin), max(vmax, Vmax)
-    
+
     def get_minpos(self):
         return self.axes.dataLim.minposx
-    
+
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervalx
@@ -428,7 +428,7 @@ class YTick(Tick):
 
         self._loc = loc
 
-        
+
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervaly
@@ -439,10 +439,10 @@ class YTick(Tick):
         else:
             Vmin, Vmax = self.get_view_interval()
             self.axes.viewLim.intervaly = min(vmin, Vmin), max(vmax, Vmax)
-    
+
     def get_minpos(self):
         return self.axes.dataLim.minposy
-    
+
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervaly
@@ -465,7 +465,7 @@ class Axis(Artist):
     """
     LABELPAD = 5
     OFFSETTEXTPAD = 3
-    
+
     def __str__(self):
         return str(self.__class__).split('.')[-1] \
             + "(%d,%d)"%self.axes.transAxes.xy_tup((0,0))
@@ -493,23 +493,23 @@ class Axis(Artist):
         self.majorTicks = []
         self.minorTicks = []
         self.pickradius = pickradius
-        
+
         self.cla()
         self.set_scale('linear')
-        
+
     def get_transform(self):
         return self._scale.get_transform()
 
     def get_scale(self):
         return self._scale.name
-    
+
     def set_scale(self, value, **kwargs):
         self._scale = scale_factory(value, self, **kwargs)
         self._scale.set_default_locators_and_formatters(self)
 
     def limit_range_for_scale(self, vmin, vmax):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
-        
+
     def get_children(self):
         children = [self.label]
         majorticks = self.get_major_ticks()
@@ -547,7 +547,7 @@ class Axis(Artist):
         self.minorTicks.extend([self._get_tick(major=False)])
         self._lastNumMajorTicks = 1
         self._lastNumMinorTicks = 1
-        
+
         self.converter = None
         self.units = None
         self.set_units(None)
@@ -555,17 +555,17 @@ class Axis(Artist):
     def set_clip_path(self, clippath, transform=None):
         Artist.set_clip_path(self, clippath, transform)
         majorticks = self.get_major_ticks()
-        minorticks = self.get_minor_ticks()        
+        minorticks = self.get_minor_ticks()
         for child in self.majorTicks + self.minorTicks:
             child.set_clip_path(clippath, transform)
-        
+
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
         raise NotImplementedError('Derived must override')
 
     def set_view_interval(self, vmin, vmax, ignore=False):
         raise NotImplementedError('Derived must override')
-    
+
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         raise NotImplementedError('Derived must override')
@@ -573,7 +573,7 @@ class Axis(Artist):
     def set_data_interval(self):
         'Set the axis data limits'
         raise NotImplementedError('Derived must override')
-    
+
     def _set_artist_props(self, a):
         if a is None: return
         a.set_figure(self.figure)
@@ -774,7 +774,7 @@ class Axis(Artist):
             for i in range(numticks - len(self.majorTicks)):
                 tick = self._get_tick(major=True)
                 self.majorTicks.append(tick)
-            
+
         if self._lastNumMajorTicks < numticks:
             protoTick = self.majorTicks[0]
             for i in range(self._lastNumMajorTicks, len(self.majorTicks)):
@@ -798,7 +798,7 @@ class Axis(Artist):
             for i in range(numticks - len(self.minorTicks)):
                 tick = self._get_tick(major=False)
                 self.minorTicks.append(tick)
-            
+
         if self._lastNumMinorTicks < numticks:
             protoTick = self.minorTicks[0]
             for i in range(self._lastNumMinorTicks, len(self.minorTicks)):
@@ -1039,7 +1039,7 @@ class Axis(Artist):
 class XAxis(Axis):
     __name__ = 'xaxis'
     axis_name = 'x'
-            
+
     def contains(self,mouseevent):
         """Test whether the mouse event occured in the x axis.
         """
@@ -1120,7 +1120,7 @@ class XAxis(Axis):
                 bbox = Bbox.union(bboxes)
                 bottom = bbox.y0
             self.label.set_position( (x, bottom - self.LABELPAD*self.figure.dpi / 72.0))
-            
+
         else:
             if not len(bboxes2):
                 top = self.axes.bbox.ymax
@@ -1141,7 +1141,7 @@ class XAxis(Axis):
             bbox = Bbox.union(bboxes)
             bottom = bbox.y0
         self.offsetText.set_position((x, bottom-self.OFFSETTEXTPAD*self.figure.dpi/72.0))
-	
+
     def set_ticks_position(self, position):
         """
         Set the ticks position (top, bottom, both, default or none)
@@ -1224,10 +1224,10 @@ class XAxis(Axis):
         else:
             Vmin, Vmax = self.get_view_interval()
             self.axes.viewLim.intervalx = min(vmin, Vmin), max(vmax, Vmax)
-    
+
     def get_minpos(self):
         return self.axes.dataLim.minposx
-    
+
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervalx
@@ -1244,7 +1244,7 @@ class XAxis(Axis):
 class YAxis(Axis):
     __name__ = 'yaxis'
     axis_name = 'y'
-            
+
     def contains(self,mouseevent):
         """Test whether the mouse event occurred in the y axis.
 
@@ -1331,7 +1331,7 @@ class YAxis(Axis):
                 left = bbox.x0
 
             self.label.set_position( (left-self.LABELPAD*self.figure.dpi/72.0, y))
-	    
+
         else:
             if not len(bboxes2):
                 right = self.axes.bbox.xmax
@@ -1349,7 +1349,7 @@ class YAxis(Axis):
         x,y = self.offsetText.get_position()
         top = self.axes.bbox.ymax
         self.offsetText.set_position((x, top+self.OFFSETTEXTPAD*self.figure.dpi/72.0))
-	
+
     def set_offset_position(self, position):
         assert position == 'left' or position == 'right'
 
@@ -1445,10 +1445,10 @@ class YAxis(Axis):
         else:
             Vmin, Vmax = self.get_view_interval()
             self.axes.viewLim.intervaly = min(vmin, Vmin), max(vmax, Vmax)
-    
+
     def get_minpos(self):
         return self.axes.dataLim.minposy
-    
+
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.dataLim.intervaly
