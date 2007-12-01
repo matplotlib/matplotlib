@@ -15,7 +15,7 @@ def get_two_stock_data():
     M1 = resize(M1, (M1.shape[0]/2,2) )
 
     M2 = fromstring( file('data/%s.dat' % ticker2, 'rb').read(), '<d')
-    M2 = resize(M1, (M2.shape[0]/2,2) )
+    M2 = resize(M2, (M2.shape[0]/2,2) )
 
     d1, p1 = M1[:,0], M1[:,1]
     d2, p2 = M2[:,0], M2[:,1]
