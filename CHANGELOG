@@ -1,4 +1,7 @@
 ===============================================================
+2007-11-27 Released 0.91.1 at revision 4517
+
+===============================================================
 2007-11-27 Released 0.91.0 at revision 4478
 
 2007-11-13 All backends now support writing to a file-like object, not

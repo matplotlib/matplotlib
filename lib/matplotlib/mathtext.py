@@ -16,7 +16,18 @@ OVERVIEW
 
   s = r'$\mathcal{R}\prod_{i=\alpha\mathcal{B}}^\infty a_i\sin(2 \pi f x_i)$'
 
-  The fonts \cal, \rm, \it, and \tt are allowed.
+  Different fonts may be selected:
+    \mathcal      Calligraphic fonts
+    \mathrm       Roman (upright) font
+    \mathit       Italic font
+    \mathtt       Typewriter (monospaced) font, similar to Courier
+
+  Additionally, if using the STIX fonts:
+    \mathbb       Blackboard (double-struck) font
+    \mathcircled  Circled characters
+    \mathfrak     Fraktur (Gothic-style) font
+    \mathscr      Script (cursive) font
+    \mathsf       Sans-serif font
 
   The following accents are provided: \hat, \breve, \grave, \bar,
   \acute, \tilde, \vec, \dot, \ddot.  All of them have the same
@@ -539,10 +550,7 @@ class TruetypeFonts(Fonts):
 
         cached_font = self._fonts.get(basename)
         if cached_font is None:
-            try:
-                font = FT2Font(basename)
-            except RuntimeError:
-                return None
+            font = FT2Font(basename)
             cached_font = self.CachedFont(font)
             self._fonts[basename] = cached_font
             self._fonts[font.postscript_name] = cached_font
@@ -650,13 +658,20 @@ class BakomaFonts(TruetypeFonts):
         if fontname in self.fontmap and latex_to_bakoma.has_key(sym):
             basename, num = latex_to_bakoma[sym]
             slanted = (basename == "cmmi10") or sym in self._slanted_symbols
-            cached_font = self._get_font(basename)
-            symbol_name = cached_font.font.get_glyph_name(num)
-            num = cached_font.glyphmap[num]
+            try:
+                cached_font = self._get_font(basename)
+            except RuntimeError:
+                pass
+            else:
+                symbol_name = cached_font.font.get_glyph_name(num)
+                num = cached_font.glyphmap[num]
         elif len(sym) == 1:
             slanted = (fontname == "it")
-            cached_font = self._get_font(fontname)
-            if cached_font is not None:
+            try:
+                cached_font = self._get_font(fontname)
+            except RuntimeError:
+                pass
+            else:
                 num = ord(sym)
                 gid = cached_font.charmap.get(num)
                 if gid is not None:
@@ -793,9 +808,12 @@ class UnicodeFonts(TruetypeFonts):
                     new_fontname = 'rm'
 
             slanted = (new_fontname == 'it') or sym in self._slanted_symbols
-            cached_font = self._get_font(new_fontname)
             found_symbol = False
-            if cached_font is not None:
+            try:
+                cached_font = self._get_font(new_fontname)
+            except RuntimeError:
+                pass
+            else:
                 try:
                     glyphindex = cached_font.charmap[uniindex]
                     found_symbol = True
