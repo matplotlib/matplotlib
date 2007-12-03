@@ -14,7 +14,7 @@ INTRODUCTION
   more.  If you want to produce PNGs or GUI images that support all of
   matplotlib's features, you should compile matplotlib with agg
   support and use one of the GUI agg backends: GTKAgg, WXAgg, TkAgg or
-  FLTKAgg.   
+  FLTKAgg.
 
 COMPILING
 
@@ -36,7 +36,7 @@ COMPILING
   As discussed above, most users will want to set 'BUILD_AGG = 1' and
   one or more of the GUI backends to True.  Exceptions to this are if
   you know you don't need a GUI (eg a web server) or you only want to
-  produce vector graphics. 
+  produce vector graphics.
 
   If you have installed prerequisites to nonstandard places and need
   to inform matplotlib where they are, edit setupext.py an add the
@@ -53,16 +53,12 @@ COMPILING
   with matplotlib, it is important that you have *both* present and in
   your PYTHONPATH when you compile matplotlib.
 
-  Note that if you install matplotlib anywhere other than the default
-  location, you will need to set the MATPLOTLIBDATA environment
-  variable to point to the install base dir.
- 
   Once you have everything above set to your liking, just do the usual
   thing
 
       python setup.py build
       python setup.py install
-    
+
 WINDOWS
 
   If you don't already have python installed, you may want to consider
@@ -106,7 +102,7 @@ DISTROS: (rpms, apt, fink, osx, freebsd, gentoo, etc)
     To build all the backends on a binary linux distro such as redhat,
     you need to install a number of the devel libs (and whatever
     dependencies they require), I suggest
- 
+
       matplotlib core: zlib, zlib-devel, libpng, libpng-devel,
                        freetype, freetype-devel, freetype-utils
 
@@ -134,7 +130,7 @@ DISTROS: (rpms, apt, fink, osx, freebsd, gentoo, etc)
     http://www.freshports.org/math/py-matplotlib/
 
   Gentoo
- 
+
     http://www.gentoo-portage.com/dev-python/matplotlib
 
   OS X
