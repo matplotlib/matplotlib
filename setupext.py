@@ -94,25 +94,26 @@ BUILT_GDK       = False
 BUILT_PATH      = False
 
 AGG_VERSION = 'agg24'
+TCL_TK_CACHE = None
 
 # for nonstandard installation/build with --prefix variable
 numpy_inc_dirs = []
 
 # matplotlib build options, which can be altered using setup.cfg
-options = {'display_status': True, 
-           'verbose': False, 
-           'provide_pytz': 'auto', 
-           'provide_dateutil': 'auto', 
-           'provide_configobj': 'auto', 
-           'provide_traits': 'auto', 
-           'build_agg': True, 
-           'build_gtk': 'auto', 
-           'build_gtkagg': 'auto', 
-           'build_tkagg': 'auto', 
-           'build_wxagg': 'auto', 
-           'build_image': True, 
-           'build_windowing': True, 
-           'backend': None, 
+options = {'display_status': True,
+           'verbose': False,
+           'provide_pytz': 'auto',
+           'provide_dateutil': 'auto',
+           'provide_configobj': 'auto',
+           'provide_traits': 'auto',
+           'build_agg': True,
+           'build_gtk': 'auto',
+           'build_gtkagg': 'auto',
+           'build_tkagg': 'auto',
+           'build_wxagg': 'auto',
+           'build_image': True,
+           'build_windowing': True,
+           'backend': None,
            'numerix': None}
 
 # Based on the contents of setup.cfg, determine the build options
@@ -799,51 +800,6 @@ def add_wx_flags(module, wxconfig):
 # or else you'll build for a wrong version of the Tcl
 # interpreter (leading to nasty segfaults).
 
-class FoundTclTk:
-    pass
-
-def find_tcltk():
-    """Finds Tcl/Tk includes/libraries/version by interrogating Tkinter."""
-    # By this point, we already know that Tkinter imports correctly
-    import Tkinter
-    o = FoundTclTk()
-    try:
-        tk=Tkinter.Tk()
-    except Tkinter.TclError:
-        o.tcl_lib = "/usr/local/lib"
-        o.tcl_inc = "/usr/local/include"
-        o.tk_lib = "/usr/local/lib"
-        o.tk_inc = "/usr/local/include"
-        o.tkv = ""
-    else:
-        tk.withdraw()
-        o.tcl_lib = os.path.normpath(os.path.join(str(tk.getvar('tcl_library')), '../'))
-        o.tk_lib = os.path.normpath(os.path.join(str(tk.getvar('tk_library')), '../'))
-        o.tkv = str(Tkinter.TkVersion)[:3]
-        o.tcl_inc = os.path.normpath(os.path.join(str(tk.getvar('tcl_library')),
-                    '../../include/tcl'+o.tkv))
-        if not os.path.exists(o.tcl_inc):
-            o.tcl_inc = os.path.normpath(os.path.join(str(tk.getvar('tcl_library')),
-                        '../../include'))
-        o.tk_inc = os.path.normpath(os.path.join(str(tk.getvar('tk_library')),
-                    '../../include/tk'+o.tkv))
-        if not os.path.exists(o.tk_inc):
-            o.tk_inc = os.path.normpath(os.path.join(str(tk.getvar('tk_library')),
-                        '../../include'))
-
-        if ((not os.path.exists(os.path.join(o.tk_inc,'tk.h'))) and
-            os.path.exists(os.path.join(o.tcl_inc,'tk.h'))):
-            o.tk_inc = o.tcl_inc
-
-        if not os.path.exists(o.tcl_inc):
-            # this is a hack for suse linux, which is broken
-            if (sys.platform.startswith('linux') and
-                os.path.exists('/usr/include/tcl.h') and
-                os.path.exists('/usr/include/tk.h')):
-                o.tcl_inc = '/usr/include/'
-                o.tk_inc = '/usr/include/'
-    return o
-
 def check_for_tk():
     gotit = False
     explanation = None
@@ -855,28 +811,26 @@ def check_for_tk():
         explanation = 'Tkinter present but import failed'
     else:
         if Tkinter.TkVersion < 8.3:
-            explanation = "Tcl/Tk v8.3 or later required\n"
-            sys.exit(1)
+            explanation = "Tcl/Tk v8.3 or later required"
         else:
-            try:
-                tk = Tkinter.Tk()
-                tk.withdraw()
-            except Tkinter.TclError:
-                explanation = """\
-Using default library and include directories for Tcl and Tk because a
-Tk window failed to open.  You may need to define DISPLAY for Tk to work
-so that setup can determine where your libraries are located."""
             gotit = True
 
     if gotit:
         module = Extension('test', [])
         try:
-            add_tk_flags(module)
+            explanation = add_tk_flags(module)
         except RuntimeError, e:
             explanation = str(e)
             gotit = False
-        if not find_include_file(module.include_dirs, "tk.h"):
-            explanation = 'Tkinter present, but header files are not installed.  You may need to install development packages.'
+        else:
+            if not find_include_file(module.include_dirs, "tk.h"):
+                message = 'Tkinter present, but header files are not found. ' + \
+                          'You may need to install development packages.'
+                if explanation is not None:
+                    explanation += '\n' + message
+                else:
+                    explanation = message
+                gotit = False
 
     if gotit:
         print_status("Tkinter", "Tkinter: %s, Tk: %s, Tcl: %s" %
@@ -887,22 +841,62 @@ so that setup can determine where your libraries are located."""
         print_message(explanation)
     return gotit
 
+def query_tcltk():
+    """Tries to open a Tk window in order to query the Tk object about its library paths.
+       This should never be called more than once by the same process, as Tk intricacies
+       may cause the Python interpreter to hang. The function also has a workaround if
+       no X server is running (useful for autobuild systems)."""
+    global TCL_TK_CACHE
+    # Use cached values if they exist, which ensures this function only executes once
+    if TCL_TK_CACHE is not None:
+        return TCL_TK_CACHE
+
+    # By this point, we already know that Tkinter imports correctly
+    import Tkinter
+    tcl_lib_dir = ''
+    tk_lib_dir = ''
+    # First try to open a Tk window (requires a running X server)
+    try:
+        tk = Tkinter.Tk()
+    except Tkinter.TclError:
+        # Next, start Tcl interpreter without opening a Tk window (no need for X server)
+        # This feature is available in python version 2.4 and up
+        try:
+            tcl = Tkinter.Tcl()
+        except AttributeError:    # Python version not high enough
+            pass
+        except Tkinter.TclError:  # Something went wrong while opening Tcl
+            pass
+        else:
+            tcl_lib_dir = str(tcl.getvar('tcl_library'))
+            # Guess Tk location based on Tcl location
+            tk_lib_dir = tcl_lib_dir.replace('Tcl', 'Tk').replace('tcl', 'tk')
+    else:
+        # Obtain Tcl and Tk locations from Tk widget
+        tk.withdraw()
+        tcl_lib_dir = str(tk.getvar('tcl_library'))
+        tk_lib_dir = str(tk.getvar('tk_library'))
+
+    # Save directories and version string to cache
+    TCL_TK_CACHE = tcl_lib_dir, tk_lib_dir, str(Tkinter.TkVersion)[:3]
+    return TCL_TK_CACHE
+
 def add_tk_flags(module):
     'Add the module flags to build extensions which use tk'
-    if sys.platform=='win32':
+    message = None
+    if sys.platform == 'win32':
         major, minor1, minor2, s, tmp = sys.version_info
-        if major==2 and minor1 in [3, 4, 5]:
+        if major == 2 and minor1 in [3, 4, 5]:
             module.include_dirs.extend(['win32_static/include/tcl8.4'])
             module.libraries.extend(['tk84', 'tcl84'])
-        elif major==2 and minor1==2:
+        elif major == 2 and minor1 == 2:
             module.include_dirs.extend(['win32_static/include/tcl8.3'])
             module.libraries.extend(['tk83', 'tcl83'])
         else:
             raise RuntimeError('No tk/win32 support for this python version yet')
         module.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
-        return
 
-    elif sys.platform == 'darwin' :
+    elif sys.platform == 'darwin':
         # this config section lifted directly from Imaging - thanks to
         # the effbot!
 
@@ -914,7 +908,7 @@ def add_tk_flags(module):
             join(os.getenv('HOME'), '/Library/Frameworks')
         ]
 
-        # Find the directory that contains the Tcl.framwork and Tk.framework
+        # Find the directory that contains the Tcl.framework and Tk.framework
         # bundles.
         # XXX distutils should support -F!
         tk_framework_found = 0
@@ -947,14 +941,54 @@ def add_tk_flags(module):
             module.include_dirs.extend(tk_include_dirs)
             module.extra_link_args.extend(frameworks)
             module.extra_compile_args.extend(frameworks)
-            return
 
-    # you're still here? ok we'll try it this way
-    o = find_tcltk() # todo: try/except
-    module.include_dirs.extend([o.tcl_inc, o.tk_inc])
-    module.library_dirs.extend([o.tcl_lib, o.tk_lib])
-    module.libraries.extend(['tk'+o.tkv, 'tcl'+o.tkv])
+    # you're still here? ok we'll try it this way...
+    else:
+        # Query Tcl/Tk system for library paths and version string
+        tcl_lib_dir, tk_lib_dir, tk_ver = query_tcltk() # todo: try/except
 
+        # Process base directories to obtain include + lib dirs
+        if tcl_lib_dir != '' and tk_lib_dir != '':
+            tcl_lib = os.path.normpath(os.path.join(tcl_lib_dir, '../'))
+            tk_lib = os.path.normpath(os.path.join(tk_lib_dir, '../'))
+            tcl_inc = os.path.normpath(os.path.join(tcl_lib_dir,
+                                       '../../include/tcl' + tk_ver))
+            if not os.path.exists(tcl_inc):
+                tcl_inc = os.path.normpath(os.path.join(tcl_lib_dir,
+                                           '../../include'))
+            tk_inc = os.path.normpath(os.path.join(tk_lib_dir,
+                                      '../../include/tk' + tk_ver))
+            if not os.path.exists(tk_inc):
+                tk_inc = os.path.normpath(os.path.join(tk_lib_dir,
+                                          '../../include'))
+
+            if ((not os.path.exists(os.path.join(tk_inc,'tk.h'))) and
+                os.path.exists(os.path.join(tcl_inc,'tk.h'))):
+                tk_inc = tcl_inc
+
+            if not os.path.exists(tcl_inc):
+                # this is a hack for suse linux, which is broken
+                if (sys.platform.startswith('linux') and
+                    os.path.exists('/usr/include/tcl.h') and
+                    os.path.exists('/usr/include/tk.h')):
+                    tcl_inc = '/usr/include'
+                    tk_inc = '/usr/include'
+        else:
+            message = """\
+Using default library and include directories for Tcl and Tk because a
+Tk window failed to open.  You may need to define DISPLAY for Tk to work
+so that setup can determine where your libraries are located."""
+            tcl_inc = "/usr/local/include"
+            tk_inc = "/usr/local/include"
+            tcl_lib = "/usr/local/lib"
+            tk_lib = "/usr/local/lib"
+            tk_ver = ""
+        # Add final versions of directories and libraries to module lists
+        module.include_dirs.extend([tcl_inc, tk_inc])
+        module.library_dirs.extend([tcl_lib, tk_lib])
+        module.libraries.extend(['tk' + tk_ver, 'tcl' + tk_ver])
+
+    return message
 
 def add_windowing_flags(module):
     'Add the module flags to build extensions using windowing api'
@@ -1019,7 +1053,7 @@ def build_gtkagg(ext_modules, packages):
     add_ft2font_flags(module)
     add_pygtk_flags(module)
     add_numpy_flags(module)
-    
+
     ext_modules.append(module)
     BUILT_GTKAGG = True
 
@@ -1034,9 +1068,6 @@ def build_tkagg(ext_modules, packages):
                        deps,
                        )
 
-    # add agg flags before pygtk because agg only supports freetype1
-    # and pygtk includes freetype2.  This is a bit fragile.
-    
     add_tk_flags(module) # do this first
     add_agg_flags(module)
     add_ft2font_flags(module)
@@ -1130,7 +1161,7 @@ def build_path(ext_modules, packages):
     ext_modules.append(module)
 
     BUILT_PATH = True
-    
+
 def build_image(ext_modules, packages):
     global BUILT_IMAGE
     if BUILT_IMAGE: return # only build it if you you haven't already

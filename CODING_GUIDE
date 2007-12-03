@@ -117,7 +117,7 @@ python, C and C++
 
 
 
-for older versions of emacs (emacs<22) you may need to do
+for older versions of emacs (emacs<22) you need to do
 
 (add-hook 'python-mode-hook
           (lambda ()
