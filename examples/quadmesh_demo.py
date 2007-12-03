@@ -13,7 +13,8 @@ from matplotlib.numerix import npyma as ma
 
 n = 56
 x = npy.linspace(-1.5,1.5,n)
-X,Y = npy.meshgrid(x,x);
+y = npy.linspace(-1.5,1.5,n*2)
+X,Y = npy.meshgrid(x,y);
 Qx = npy.cos(Y) - npy.cos(X)
 Qz = npy.sin(Y) + npy.sin(X)
 Qx = (Qx + 1.1)
