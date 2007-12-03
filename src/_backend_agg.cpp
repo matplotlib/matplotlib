@@ -1145,7 +1145,7 @@ class QuadMeshGenerator {
     inline unsigned vertex(unsigned idx, double* x, double* y) {
       size_t m = (idx   & 0x2) ? (m_m + 1) : m_m;
       size_t n = (idx+1 & 0x2) ? (m_n + 1) : m_n;
-      double* pair = (double*)PyArray_GETPTR2(m_coordinates, m, n);
+      double* pair = (double*)PyArray_GETPTR2(m_coordinates, n, m);
       *x = *pair++;
       *y = *pair;
       return (idx) ? agg::path_cmd_line_to : agg::path_cmd_move_to;
@@ -1172,7 +1172,7 @@ public:
 
   inline QuadMeshGenerator(size_t meshWidth, size_t meshHeight, const Py::Object& coordinates) :
     m_meshWidth(meshWidth), m_meshHeight(meshHeight), m_coordinates(NULL) {
-    PyArrayObject* coordinates_array = (PyArrayObject*)PyArray_FromObject(coordinates.ptr(), PyArray_DOUBLE, 1, 3);
+    PyArrayObject* coordinates_array = (PyArrayObject*)PyArray_FromObject(coordinates.ptr(), PyArray_DOUBLE, 3, 3);
     if (!coordinates_array) {
       throw Py::ValueError("Invalid coordinates array.");
     }
@@ -1189,7 +1189,7 @@ public:
   }
 
   inline path_iterator operator()(size_t i) const {
-    return QuadMeshPathIterator(i % m_meshHeight, i / m_meshHeight, m_coordinates);
+    return QuadMeshPathIterator(i % m_meshWidth, i / m_meshWidth, m_coordinates);
   }
 };
 
