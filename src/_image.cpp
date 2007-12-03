@@ -379,56 +379,10 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
 
   double x0, y0, x1, y1;
 
-  if (interpolation==NEAREST) {
-    x0 = 0.0;
-    x1 = colsIn;
-    y0 = 0.0;
-    y1 = rowsIn;
-  }
-  else {
-    // if interpolation != nearest, create a new input buffer with the
-    // edges mirrored on all size.  Then new buffer size is colsIn+2 by
-    // rowsIn+2
-
-    x0 = 1.0;
-    x1 = colsIn+1;
-    y0 = 1.0;
-    y1 = rowsIn+1;
-
-
-    bufferPad = new agg::int8u[(rowsIn+2) * (colsIn+2) * BPP];
-    if (bufferPad ==NULL)
-      throw Py::MemoryError("Image::resize could not allocate memory");
-    rbufPad.attach(bufferPad, colsIn+2, rowsIn+2, (colsIn+2) * BPP);
-
-    pixfmt pixfpad(rbufPad);
-    renderer_base rbpad(pixfpad);
-
-    pixfmt pixfin(*rbufIn);
-    renderer_base rbin(pixfin);
-
-    rbpad.copy_from(*rbufIn, 0, 1, 1);
-
-    agg::rect_base<int> firstrow(0, 0, colsIn-1, 0);
-    rbpad.copy_from(*rbufIn, &firstrow, 1, 0);
-
-    agg::rect_base<int> lastrow(0, rowsIn-1, colsIn-1, rowsIn-1);
-    rbpad.copy_from(*rbufIn, &lastrow, 1, 2);
-
-    agg::rect_base<int> firstcol(0, 0, 0, rowsIn-1);
-    rbpad.copy_from(*rbufIn, &firstcol, 0, 1);
-
-    agg::rect_base<int> lastcol(colsIn-1, 0, colsIn-1, rowsIn-1);
-    rbpad.copy_from(*rbufIn, &lastcol, 2, 1);
-
-    rbpad.copy_pixel(0, 0, rbin.pixel(0,0) );
-    rbpad.copy_pixel(0, colsIn+1, rbin.pixel(0,colsIn-1) );
-    rbpad.copy_pixel(rowsIn+1, 0, rbin.pixel(rowsIn-1,0) );
-    rbpad.copy_pixel(rowsIn+1, colsIn+1, rbin.pixel(rowsIn-1,colsIn-1) );
-
-
-  }
-
+  x0 = 0.0;
+  x1 = colsIn;
+  y0 = 0.0;
+  y1 = rowsIn;
 
   path.move_to(x0, y0);
   path.line_to(x1, y0);
@@ -439,7 +393,7 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   ras.add_path(imageBox);
 
   typedef agg::image_accessor_clip<pixfmt> img_accessor_type;
-	
+
   pixfmt pixfmtin(*rbufIn);
   img_accessor_type ia(pixfmtin, background);
   switch(interpolation)

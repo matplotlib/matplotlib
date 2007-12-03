@@ -156,9 +156,6 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         sx = dxintv/self.axes.viewLim.width
         sy = dyintv/self.axes.viewLim.height
 
-        if im.get_interpolation()!=_image.NEAREST:
-            im.apply_translation(-1, -1)
-
         # the viewport translation
         tx = (xmin-self.axes.viewLim.x0)/dxintv * numcols
         ty = (ymin-self.axes.viewLim.y0)/dyintv * numrows
@@ -382,7 +379,7 @@ class NonUniformImage(AxesImage):
         if s != None and s != 'nearest':
             raise NotImplementedError('Only nearest neighbor supported')
         AxesImage.set_interpolation(self, s)
-        
+
     def get_extent(self):
         if self._A is None:
             raise RuntimeError('Must set data first')
