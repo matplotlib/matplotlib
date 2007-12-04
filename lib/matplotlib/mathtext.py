@@ -2021,7 +2021,7 @@ class Parser(object):
                      ).setParseAction(self.customspace).setName('customspace')
 
         unicode_range = u"\U00000080-\U0001ffff"
-        symbol       =(Regex(UR"([a-zA-Z0-9 +\-*/<>=:,.;!'@()%s])|(\\[%%${}\[\]_])" % unicode_range)
+        symbol       =(Regex(UR"([a-zA-Z0-9 +\-*/<>=:,.;!'@()|%s])|(\\[%%${}\[\]_|])" % unicode_range)
                      | Combine(
                          bslash
                        + oneOf(tex2uni.keys())
