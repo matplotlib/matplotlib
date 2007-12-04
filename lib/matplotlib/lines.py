@@ -309,13 +309,13 @@ class Line2D(Artist):
         xyt = self.get_transform().transform(self._xy)
         xt = xyt[:, 0]
         yt = xyt[:, 1]
-        
+
         if self.figure == None:
             print str(self),' has no figure set'
             pixels = self.pickradius
         else:
             pixels = self.figure.dpi/72. * self.pickradius
-            
+
         if self._linestyle == 'None':
             # If no line, return the nearby point(s)
             d = npy.sqrt((xt-mouseevent.x)**2 + (yt-mouseevent.y)**2)
@@ -387,7 +387,7 @@ class Line2D(Artist):
         if not ma.isMaskedArray(y):
             y = npy.asarray(y)
             not_masked += 1
-            
+
         if (not_masked < 2 or
             (x is not self._xorig and
              (x.shape != self._xorig.shape or npy.any(x != self._xorig))) or
@@ -413,7 +413,7 @@ class Line2D(Artist):
             y = npy.asarray(self.convert_yunits(self._yorig), float)
             x = npy.ravel(x)
             y = npy.ravel(y)
-            
+
         if len(x)==1 and len(y)>1:
             x = x * npy.ones(y.shape, float)
         if len(y)==1 and len(x)>1:
@@ -447,7 +447,7 @@ class Line2D(Artist):
         Artist.set_transform(self, t)
         self._invalid = True
         # self._transformed_path = TransformedPath(self._path, self.get_transform())
-        
+
     def _is_sorted(self, x):
         "return true if x is sorted"
         if len(x)<2: return 1
@@ -456,7 +456,7 @@ class Line2D(Artist):
     def draw(self, renderer):
         if self._invalid:
             self.recache()
-        
+
         renderer.open_group('line2d')
 
         if not self._visible: return
@@ -481,7 +481,7 @@ class Line2D(Artist):
             tpath, affine = self._transformed_path.get_transformed_path_and_affine()
             lineFunc = getattr(self, funcname)
             lineFunc(renderer, gc, tpath, affine.frozen())
-	    
+
         if self._marker is not None:
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
@@ -565,7 +565,7 @@ class Line2D(Artist):
         if self._invalid:
             self.recache()
         return self._xy
-    
+
     def set_antialiased(self, b):
         """
         True if line should be drawin with antialiased rendering
@@ -596,7 +596,7 @@ class Line2D(Artist):
 
         'steps' is equivalent to 'steps-pre' and is maintained for
         backward-compatibility.
-        
+
         ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'steps-pre' | 'steps-mid' | 'steps-post' | 'None' | ' ' | '' ]
         """
         if linestyle not in self._lineStyles:
@@ -693,12 +693,12 @@ class Line2D(Artist):
     def _draw_nothing(self, *args, **kwargs):
         pass
 
-    
+
     def _draw_solid(self, renderer, gc, path, trans):
         gc.set_linestyle('solid')
 	renderer.draw_path(gc, path, trans)
 
-    
+
     def _draw_steps_pre(self, renderer, gc, path, trans):
         vertices = self._xy
         steps = ma.zeros((2*len(vertices)-1, 2), npy.float_)
@@ -720,7 +720,7 @@ class Line2D(Artist):
         path = Path(steps)
         self._draw_solid(renderer, gc, path, trans)
 
-        
+
     def _draw_steps_mid(self, renderer, gc, path, trans):
         vertices = self._xy
         steps = ma.zeros((2*len(vertices), 2), npy.float_)
@@ -733,7 +733,7 @@ class Line2D(Artist):
 
         path = Path(steps)
         self._draw_solid(renderer, gc, path, trans)
-        
+
 
     def _draw_dashed(self, renderer, gc, path, trans):
         gc.set_linestyle('dashed')
@@ -747,12 +747,12 @@ class Line2D(Artist):
         gc.set_linestyle('dashdot')
 	renderer.draw_path(gc, path, trans)
 
-	    
+
     def _draw_dotted(self, renderer, gc, path, trans):
         gc.set_linestyle('dotted')
 	renderer.draw_path(gc, path, trans)
 
-	
+
     def _draw_point(self, renderer, gc, path, path_trans):
         w = renderer.points_to_pixels(self._markersize) * \
 	    self._point_size_reduction * 0.5
@@ -768,8 +768,8 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, Path.unit_rectangle(),
                               self._draw_pixel_transform,
 			      path, path_trans, rgbFace)
-	
-	
+
+
     def _draw_circle(self, renderer, gc, path, path_trans):
         w = renderer.points_to_pixels(self._markersize) * 0.5
         rgbFace = self._get_rgb_face()
@@ -795,7 +795,7 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, self._triangle_path, transform,
 			      path, path_trans, rgbFace)
 
-	
+
     def _draw_triangle_left(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset, offset).rotate_deg(90)
@@ -819,7 +819,7 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, Path.unit_rectangle(), transform,
 			      path, path_trans, rgbFace)
 
-	
+
     def _draw_diamond(self, renderer, gc, path, path_trans):
         side = renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45).scale(side)
@@ -827,7 +827,7 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, Path.unit_rectangle(), transform,
 			      path, path_trans, rgbFace)
 
-	
+
     def _draw_thin_diamond(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().translate(-0.5, -0.5) \
@@ -836,7 +836,7 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, Path.unit_rectangle(), transform,
 			      path, path_trans, rgbFace)
 
-	
+
     def _draw_pentagon(self, renderer, gc, path, path_trans):
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset)
@@ -844,7 +844,7 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, Path.unit_regular_polygon(5), transform,
 			      path, path_trans, rgbFace)
 
-	
+
     def _draw_hexagon1(self, renderer, gc, path, path_trans):
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset)
@@ -852,7 +852,7 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, Path.unit_regular_polygon(6), transform,
 			      path, path_trans, rgbFace)
 
-	
+
     def _draw_hexagon2(self, renderer, gc, path, path_trans):
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset).rotate_deg(30)
@@ -868,14 +868,14 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, self._line_marker_path, transform,
 			      path, path_trans)
 
-		
+
     def _draw_hline(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset).rotate_deg(90)
 	renderer.draw_markers(gc, self._line_marker_path, transform,
 			      path, path_trans)
 
-		
+
     _tickhoriz_path = Path([[0.0, 0.5], [1.0, 0.5]])
     def _draw_tickleft(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
@@ -883,14 +883,14 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, self._tickhoriz_path, marker_transform,
 			      path, path_trans)
 
-	
+
     def _draw_tickright(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
 	marker_transform = Affine2D().scale(offset, 1.0)
 	renderer.draw_markers(gc, self._tickhoriz_path, marker_transform,
 			      path, path_trans)
 
-	
+
     _tickvert_path = Path([[-0.5, 0.0], [-0.5, 1.0]])
     def _draw_tickup(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
@@ -898,7 +898,7 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, self._tickvert_path, marker_transform,
 			      path, path_trans)
 
-	
+
     def _draw_tickdown(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
 	marker_transform = Affine2D().scale(1.0, -offset)
@@ -929,21 +929,21 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, self._tri_path, transform,
 			      path, path_trans)
 
-	
+
     def _draw_tri_up(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset).rotate_deg(180)
 	renderer.draw_markers(gc, self._tri_path, transform,
 			      path, path_trans)
 
-	
+
     def _draw_tri_left(self, renderer, gc, path, path_trans):
 	offset = 0.5*renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset).rotate_deg(90)
 	renderer.draw_markers(gc, self._tri_path, transform,
 			      path, path_trans)
 
-	
+
     def _draw_tri_right(self, renderer, gc, path, path_trans):
 	offset = 0.5*renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset).rotate_deg(270)
@@ -958,24 +958,24 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, self._caret_path, transform,
 			      path, path_trans)
 
-	
+
     def _draw_caretup(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
 	transform = Affine2D().scale(offset).rotate_deg(180)
 	renderer.draw_markers(gc, self._caret_path, transform,
 			      path, path_trans)
 
-	
+
     def _draw_caretleft(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset).rotate_deg(90)
+	transform = Affine2D().scale(offset).rotate_deg(270)
 	renderer.draw_markers(gc, self._caret_path, transform,
 			      path, path_trans)
 
-	
+
     def _draw_caretright(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset).rotate_deg(270)
+	transform = Affine2D().scale(offset).rotate_deg(90)
 	renderer.draw_markers(gc, self._caret_path, transform,
 			      path, path_trans)
 
@@ -990,7 +990,7 @@ class Line2D(Artist):
 	renderer.draw_markers(gc, self._x_path, transform,
 			      path, path_trans)
 
-	
+
     def update_from(self, other):
         'copy properties from other to self'
         Artist.update_from(self, other)
@@ -1163,14 +1163,14 @@ class Line2D(Artist):
         """
         return self._dashcapstyle
 
-    
+
     def get_solid_capstyle(self):
         """
         Get the cap style for solid linestyles
         """
         return self._solidcapstyle
 
-    
+
     def is_dashed(self):
         'return True if line is dashstyle'
         return self._linestyle in ('--', '-.', ':')
