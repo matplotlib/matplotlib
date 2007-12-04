@@ -1125,7 +1125,7 @@ class XAxis(Axis):
             if not len(bboxes2):
                 top = self.axes.bbox.ymax
             else:
-                bbox = bbox_union(bboxes2)
+                bbox = Bbox.union(bboxes2)
                 top = bbox.y1
             self.label.set_position( (x, top+self.LABELPAD*self.figure.dpi / 72.0))
 
