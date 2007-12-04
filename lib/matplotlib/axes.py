@@ -21,7 +21,6 @@ from matplotlib import legend as mlegend
 from matplotlib import lines as mlines
 from matplotlib import mlab
 from matplotlib import patches as mpatches
-from matplotlib import path as mpath
 from matplotlib import quiver as mquiver
 from matplotlib import scale as mscale
 from matplotlib import table as mtable
@@ -771,14 +770,13 @@ class Axes(martist.Artist):
 
         self.grid(self._gridOn)
         props = font_manager.FontProperties(size=rcParams['axes.titlesize'])
-        self.titleOffsetTrans = mtransforms.Affine2D()
-        self.title = mtext.Text(
-            x=0.5, y=1.00, text='',
+        self.title =  mtext.Text(
+            x=0.5, y=1.02, text='',
             fontproperties=props,
             verticalalignment='bottom',
             horizontalalignment='center',
             )
-        self.title.set_transform(self.transAxes + self.titleOffsetTrans)
+        self.title.set_transform(self.transAxes)
         self.title.set_clip_box(None)
 
         self._set_artist_props(self.title)
@@ -801,8 +799,6 @@ class Axes(martist.Artist):
 
         self.xaxis.set_clip_path(self.axesPatch)
         self.yaxis.set_clip_path(self.axesPatch)
-
-        self.titleOffsetTrans.clear()
 
     def clear(self):
         'clear the axes'
@@ -909,14 +905,14 @@ class Axes(martist.Artist):
         ysize = max(math.fabs(ymax-ymin), 1e-30)
         return ysize/xsize
 
-    def apply_aspect(self, currentPosition):
+    def apply_aspect(self):
         '''
         Use self._aspect and self._adjustable to modify the
         axes box or the view limits.
         '''
         aspect = self.get_aspect()
         if aspect == 'auto':
-            self.set_position(currentPosition, 'active')
+            self.set_position( self._originalPosition , 'active')
             return
 
         if aspect == 'equal':
@@ -933,7 +929,7 @@ class Axes(martist.Artist):
         fig_aspect = figH/figW
         if self._adjustable == 'box':
             box_aspect = A * self.get_data_ratio()
-            pb = currentPosition.frozen()
+            pb = self._originalPosition.frozen()
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
             self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
             return
@@ -1141,7 +1137,7 @@ class Axes(martist.Artist):
         self._set_artist_props(collection)
         collection.set_clip_path(self.axesPatch)
         if autolim:
-            if len(collection._paths):
+            if collection._paths and len(collection._paths):
                 self.update_datalim(collection.get_datalim(self.transData))
         collection._remove_method = lambda h: self.collections.remove(h)
 
@@ -1293,47 +1289,24 @@ class Axes(martist.Artist):
             YL = ylocator.autoscale()
             self.set_ybound(YL)
 
-    def adjust_for_axis_text(self, renderer):
-        pad_pixels = rcParams['xtick.major.pad'] * self.figure.dpi / 72.0
-        inverse_transFigure = self.figure.transFigure.inverted()
-        t_text, b_text = self.xaxis.get_text_heights(renderer)
-        l_text, r_text = self.yaxis.get_text_widths(renderer)
-        title_height = self.title.get_window_extent(renderer).height
-        title_height += pad_pixels * 2.0
-        original_t_text = t_text
-
-        ((l_text, t_text),
-         (r_text, b_text),
-         (dummy, title_height)) = inverse_transFigure.transform(
-            ((l_text, t_text),
-             (r_text, b_text),
-             (0.0, title_height)))
-        x0, y0, x1, y1 = self.get_position(True).extents
-        # Adjust the title
-        self.titleOffsetTrans.clear().translate(
-            0, original_t_text + pad_pixels * 2.0)
-        return mtransforms.Bbox.from_extents(
-            x0 + l_text, y0 + b_text, x1 - r_text,
-            y1 - t_text - title_height)
-
     #### Drawing
     def draw(self, renderer=None, inframe=False):
         "Draw everything (plot lines, axes, labels)"
-        if renderer is None:
+	if renderer is None:
             renderer = self._cachedRenderer
 
         if renderer is None:
             raise RuntimeError('No renderer defined')
         if not self.get_visible(): return
         renderer.open_group('axes')
-
-        currentPosition = self.adjust_for_axis_text(renderer)
-        self.apply_aspect(currentPosition)
+        self.apply_aspect()
 
         if self.axison and self._frameon:
             self.axesPatch.draw(renderer)
 
         artists = []
+
+
 
         if len(self.images)<=1 or renderer.option_image_nocomposite():
             for im in self.images:
@@ -1345,6 +1318,7 @@ class Axes(martist.Artist):
             mag = renderer.get_image_magnification()
             ims = [(im.make_image(mag),0,0)
                    for im in self.images if im.get_visible()]
+
 
             im = mimage.from_images(self.bbox.height*mag,
                                     self.bbox.width*mag,
@@ -1386,14 +1360,6 @@ class Axes(martist.Artist):
             a.draw(renderer)
 
         renderer.close_group('axes')
-
-#         ### DEBUGGING
-#         gc = renderer.new_gc()
-#         gc.set_linewidth(2.0)
-#         x0, y0, x1, y1 = self.get_position(True).extents
-#         renderer.draw_path(gc, mpath.Path(
-#                            [[x0, y0], [x0, y1], [x1, y1], [x1, y0], [x0, y0]]),
-#                            self.figure.transFigure)
         self._cachedRenderer = renderer
 
     def draw_artist(self, a):
