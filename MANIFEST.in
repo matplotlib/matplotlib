@@ -5,8 +5,13 @@ include matplotlibrc.template matplotlibrc setup.cfg.template
 include __init__.py setupext.py setup.py setupegg.py makeswig.py
 include examples/data/*
 include lib/matplotlib/toolkits
+include lib/matplotlib/mpl-data/matplotlib.conf
+include lib/matplotlib/mpl-data/matplotlib.conf.template
+include lib/matplotlib/mpl-data/lineprops.glade
+include lib/matplotlib/mpl-data/matplotlibrc
 include lib/matplotlib/mpl-data/images/*
 include lib/matplotlib/mpl-data/fonts/ttf/*
+include lib/matplotlib/mpl-data/fonts/pdfcorefonts/*
 include lib/matplotlib/mpl-data/fonts/afm/*
 recursive-include license LICENSE*
 recursive-include examples README *.py
