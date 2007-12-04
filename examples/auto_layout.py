@@ -10,7 +10,7 @@ s = cos(2*2*pi*t)
 ax1 = subplot(211)
 plot(t, s, '-', lw=2)
 
-xlabel('xlabel for bottom axes')
+xlabel('xlabel for top axes')
 ylabel('ylabel on the right')
 title('About as simple as it gets, folks')
 grid(True)
