@@ -20,7 +20,7 @@ class PolarAxes(Axes):
     Theta starts pointing east and goes anti-clockwise.
     """
     name = 'polar'
-    
+
     class PolarTransform(Transform):
         """
         The base polar transform.  This handles projection theta and r into
@@ -61,10 +61,10 @@ class PolarAxes(Axes):
             ipath = path.interpolated(self._resolution)
             return Path(self.transform(ipath.vertices), ipath.codes)
         transform_path.__doc__ = Transform.transform_path.__doc__
-        
+
         transform_path_non_affine = transform_path
         transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
-        
+
         def inverted(self):
             return PolarAxes.InvertedPolarTransform()
         inverted.__doc__ = Transform.inverted.__doc__
@@ -95,7 +95,7 @@ class PolarAxes(Axes):
                 self._invalid = 0
             return self._mtx
         get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
-    
+
     class InvertedPolarTransform(Transform):
         """
         The inverse of the polar transform, mapping Cartesian
@@ -130,7 +130,7 @@ class PolarAxes(Axes):
     class RadialLocator(Locator):
         """
         Used to locate radius ticks.
-        
+
         Ensures that all ticks are strictly positive.  For all other
         tasks, it delegates to the base Locator (which may be
         different depending on the scale of the r-axis.
@@ -155,12 +155,12 @@ class PolarAxes(Axes):
             return self.base.refresh()
 
     RESOLUTION = 75
-        
+
     def __init__(self, *args, **kwargs):
         """
         Create a new Polar Axes for a polar plot.
         """
-        
+
         self._rpad = 0.05
         Axes.__init__(self, *args, **kwargs)
         self.set_aspect('equal', adjustable='box', anchor='C')
@@ -179,8 +179,6 @@ class PolarAxes(Axes):
         self.xaxis.set_ticks_position('none')
         self.yaxis.set_ticks_position('none')
 
-        self.title.set_y(1.06)
-        
     def _set_lim_and_transforms(self):
 	self.dataLim = Bbox.unit()
         self.viewLim = Bbox.unit()
@@ -239,9 +237,17 @@ class PolarAxes(Axes):
             self._yaxis_transform
             )
 
+    def update_layout(self, renderer):
+        t_text, b_text = self.xaxis.get_text_heights(renderer)
+        l_text, r_text = self.yaxis.get_text_widths(renderer)
+        originalPosition = self.get_position(True)
+        title_offset = (b_text - originalPosition.transformed(
+                self.figure.transFigure).height) / 2.0
+        self.titleOffsetTrans.clear().translate(0, title_offset)
+
     def get_xaxis_transform(self):
         return self._xaxis_transform
-        
+
     def get_xaxis_text1_transform(self, pixelPad):
         return self._xaxis_text1_transform, 'center', 'center'
 
@@ -250,16 +256,16 @@ class PolarAxes(Axes):
 
     def get_yaxis_transform(self):
         return self._yaxis_transform
-    
+
     def get_yaxis_text1_transform(self, pixelPad):
         return self._yaxis_text1_transform, 'center', 'center'
 
     def get_yaxis_text2_transform(self, pixelPad):
         return self._yaxis_text2_transform, 'center', 'center'
-    
+
     def get_axes_patch(self):
         return Circle((0.5, 0.5), 0.5)
-            
+
     def set_rmax(self, rmax):
         self.viewLim.y1 = rmax
         angle = self._r_label1_position.to_values()[4]
@@ -275,7 +281,7 @@ class PolarAxes(Axes):
         Axes.set_yscale(self, *args, **kwargs)
         self.yaxis.set_major_locator(
             self.RadialLocator(self.yaxis.get_major_locator()))
-    
+
     set_rscale = Axes.set_yscale
     set_rticks = Axes.set_yticks
 
@@ -313,7 +319,7 @@ class PolarAxes(Axes):
         for t in self.xaxis.get_ticklabels():
             t.update(kwargs)
     set_thetagrids.__doc__ = cbook.dedent(set_thetagrids.__doc__) % kwdocd
-    
+
     def set_rgrids(self, radii, labels=None, angle=None, rpad=None, **kwargs):
         """
         set the radial locations and labels of the r grids
@@ -354,9 +360,9 @@ class PolarAxes(Axes):
         self._r_label2_position.clear().translate(angle, -self._rpad * rmax)
         for t in self.yaxis.get_ticklabels():
             t.update(kwargs)
-        
+
     set_rgrids.__doc__ = cbook.dedent(set_rgrids.__doc__) % kwdocd
-    
+
     def set_xscale(self, scale, *args, **kwargs):
         if scale != 'linear':
             raise NotImplementedError("You can not set the xscale on a polar plot.")
@@ -364,7 +370,7 @@ class PolarAxes(Axes):
     def set_xlim(self, *args, **kargs):
         # The xlim is fixed, no matter what you do
         self.viewLim.intervalx = (0.0, npy.pi * 2.0)
-    
+
     def format_coord(self, theta, r):
         'return a format string formatting the coordinate'
         theta /= math.pi
@@ -387,7 +393,7 @@ class PolarAxes(Axes):
         Return True if this axes support the zoom box
         """
         return False
-    
+
     def start_pan(self, x, y, button):
         angle = self._r_label1_position.to_values()[4] / 180.0 * npy.pi
         mode = ''
@@ -398,7 +404,7 @@ class PolarAxes(Axes):
                 mode = 'drag_r_labels'
         elif button == 3:
             mode = 'zoom'
-            
+
         self._pan_start = cbook.Bunch(
             rmax          = self.get_rmax(),
             trans         = self.transData.frozen(),
@@ -411,14 +417,14 @@ class PolarAxes(Axes):
 
     def end_pan(self):
         del self._pan_start
-                                       
+
     def drag_pan(self, button, key, x, y):
         p = self._pan_start
-        
+
         if p.mode == 'drag_r_labels':
             startt, startr = p.trans_inverse.transform_point((p.x, p.y))
             t, r = p.trans_inverse.transform_point((x, y))
-            
+
             # Deal with theta
             dt0 = t - startt
             dt1 = startt - t
@@ -433,24 +439,24 @@ class PolarAxes(Axes):
                 p.r_label_angle - dt, rpad)
             self._r_label2_position.clear().translate(
                 p.r_label_angle - dt, -rpad)
-            
+
         elif p.mode == 'zoom':
             startt, startr = p.trans_inverse.transform_point((p.x, p.y))
             t, r = p.trans_inverse.transform_point((x, y))
-            
+
             dr = r - startr
 
             # Deal with r
             scale = r / startr
             self.set_rmax(p.rmax / scale)
-    
+
 # These are a couple of aborted attempts to project a polar plot using
 # cubic bezier curves.
-        
+
 #         def transform_path(self, path):
 #             twopi = 2.0 * npy.pi
 #             halfpi = 0.5 * npy.pi
-            
+
 #             vertices = path.vertices
 #             t0 = vertices[0:-1, 0]
 #             t1 = vertices[1:  , 0]
@@ -469,7 +475,7 @@ class PolarAxes(Axes):
 
 #             kappa = 4.0 * ((npy.sqrt(2.0) - 1.0) / 3.0)
 #             kappa = 0.5
-            
+
 #             p0   = vertices[0:-1]
 #             p1   = vertices[1:  ]
 
@@ -497,17 +503,17 @@ class PolarAxes(Axes):
 
 #             result[2::3, 0:1] = xk
 #             result[2::3, 1: ] = yk
-            
+
 #             result[3::3] = p1
 
 #             print vertices[-2:]
 #             print result[-2:]
-            
+
 #             return mpath.Path(result, codes)
-            
+
 #             twopi = 2.0 * npy.pi
 #             halfpi = 0.5 * npy.pi
-            
+
 #             vertices = path.vertices
 #             t0 = vertices[0:-1, 0]
 #             t1 = vertices[1:  , 0]
@@ -518,7 +524,7 @@ class PolarAxes(Axes):
 #             print "interpolate", interpolate
 #             if interpolate > 1.0:
 #                 vertices = self.interpolate(vertices, interpolate)
-            
+
 #             result = npy.zeros((len(vertices) * 3 - 2, 2), npy.float_)
 #             codes = mpath.Path.CURVE4 * npy.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
 #             result[0] = vertices[0]
@@ -547,7 +553,7 @@ class PolarAxes(Axes):
 #             result[2::3, 0] = t1 - (tkappa * td_scaled)
 #             result[2::3, 1] = r1*hyp_kappa
 #             # result[2::3, 1] = r1 / npy.cos(tkappa * td_scaled) # npy.sqrt(r1*r1 + ravg_kappa*ravg_kappa)
-            
+
 #             result[3::3, 0] = t1
 #             result[3::3, 1] = r1
 
@@ -556,4 +562,4 @@ class PolarAxes(Axes):
 #             return mpath.Path(result, codes)
 #         transform_path_non_affine = transform_path
 
-        
+

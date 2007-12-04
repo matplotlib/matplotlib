@@ -130,11 +130,11 @@ class Tick(Artist):
 
         ACCEPTS: float
         """
-        self._pad.set(val)
+        self._pad = val
 
     def get_pad(self, val):
         'Get the value of the tick label pad in points'
-        return self._pad.get()
+        return self._pad
 
     def _get_text1(self):
         'Get the default Text 1 instance'
@@ -578,30 +578,43 @@ class Axis(Artist):
         if a is None: return
         a.set_figure(self.figure)
 
-    def draw(self, renderer, *args, **kwargs):
-        'Draw the axis lines, grid lines, tick lines and labels'
-        if not self.get_visible(): return
-        renderer.open_group(__name__)
-        ticklabelBoxes = []
-        ticklabelBoxes2 = []
-
+    def iter_ticks(self):
+        """
+        Iterate through all of the major and minor ticks.
+        """
         majorLocs = self.major.locator()
         majorTicks = self.get_major_ticks(len(majorLocs))
         self.major.formatter.set_locs(majorLocs)
         majorLabels = [self.major.formatter(val, i) for i, val in enumerate(majorLocs)]
 
+        minorLocs = self.minor.locator()
+        minorTicks = self.get_minor_ticks(len(minorLocs))
+        self.minor.formatter.set_locs(minorLocs)
+        minorLabels = [self.minor.formatter(val, i) for i, val in enumerate(minorLocs)]
 
-        seen = {}
+        major_minor = [
+            (majorTicks, majorLocs, majorLabels),
+            (minorTicks, minorLocs, minorLabels)]
+
+        for group in major_minor:
+            for tick in zip(*group):
+                yield tick
+
+    def get_ticklabel_extents(self, renderer):
+        """
+        Get the extents of the tick labels on either side
+        of the axes.
+        """
+        ticklabelBoxes = []
+        ticklabelBoxes2 = []
 
         interval = self.get_view_interval()
-        for tick, loc, label in zip(majorTicks, majorLocs, majorLabels):
+        for tick, loc, label in self.iter_ticks():
             if tick is None: continue
             if not interval_contains(interval, loc): continue
-            seen[loc] = 1
             tick.update_position(loc)
             tick.set_label1(label)
             tick.set_label2(label)
-            tick.draw(renderer)
             if tick.label1On and tick.label1.get_visible():
                 extent = tick.label1.get_window_extent(renderer)
                 ticklabelBoxes.append(extent)
@@ -609,19 +622,30 @@ class Axis(Artist):
                 extent = tick.label2.get_window_extent(renderer)
                 ticklabelBoxes2.append(extent)
 
-        minorLocs = self.minor.locator()
-        minorTicks = self.get_minor_ticks(len(minorLocs))
-        self.minor.formatter.set_locs(minorLocs)
-        minorLabels = [self.minor.formatter(val, i) for i, val in enumerate(minorLocs)]
+        if len(ticklabelBoxes):
+            bbox = Bbox.union(ticklabelBoxes)
+        else:
+            bbox = Bbox.from_extents(0, 0, 0, 0)
+        if len(ticklabelBoxes2):
+            bbox2 = Bbox.union(ticklabelBoxes2)
+        else:
+            bbox2 = Bbox.from_extents(0, 0, 0, 0)
+        return bbox, bbox2
 
-        for tick, loc, label in zip(minorTicks, minorLocs, minorLabels):
+    def draw(self, renderer, *args, **kwargs):
+        'Draw the axis lines, grid lines, tick lines and labels'
+        ticklabelBoxes = []
+        ticklabelBoxes2 = []
+
+        if not self.get_visible(): return
+        renderer.open_group(__name__)
+        interval = self.get_view_interval()
+        for tick, loc, label in self.iter_ticks():
             if tick is None: continue
             if not interval_contains(interval, loc): continue
-            #if seen.has_key(loc): continue
             tick.update_position(loc)
             tick.set_label1(label)
             tick.set_label2(label)
-
             tick.draw(renderer)
             if tick.label1On and tick.label1.get_visible():
                 extent = tick.label1.get_window_extent(renderer)
@@ -1142,6 +1166,28 @@ class XAxis(Axis):
             bottom = bbox.y0
         self.offsetText.set_position((x, bottom-self.OFFSETTEXTPAD*self.figure.dpi/72.0))
 
+    def get_text_heights(self, renderer):
+        """
+        Returns the amount of space one should reserve for text
+        above and below the axes.  Returns a tuple (above, below)
+        """
+        bbox, bbox2 = self.get_ticklabel_extents(renderer)
+        # MGDTODO: Need a better way to get the pad
+        padPixels = self.majorTicks[0]._padPixels
+
+        above = 0.0
+        if bbox2.height:
+            above += bbox2.height + padPixels
+        below = 0.0
+        if bbox.height:
+            below += bbox.height + padPixels
+
+        if self.get_label_position() == 'top':
+            above += self.label.get_window_extent(renderer).height + padPixels
+        else:
+            below += self.label.get_window_extent(renderer).height + padPixels
+        return above, below
+
     def set_ticks_position(self, position):
         """
         Set the ticks position (top, bottom, both, default or none)
@@ -1359,6 +1405,24 @@ class YAxis(Axis):
 
         self.offsetText.set_ha(position)
         self.offsetText.set_position((x,y))
+
+    def get_text_widths(self, renderer):
+        bbox, bbox2 = self.get_ticklabel_extents(renderer)
+        # MGDTODO: Need a better way to get the pad
+        padPixels = self.majorTicks[0]._padPixels
+
+        left = 0.0
+        if bbox.width:
+            left += bbox.width + padPixels
+        right = 0.0
+        if bbox2.width:
+            right += bbox2.width + padPixels
+
+        if self.get_label_position() == 'left':
+            left += self.label.get_window_extent(renderer).width + padPixels
+        else:
+            right += self.label.get_window_extent(renderer).width + padPixels
+        return left, right
 
     def set_ticks_position(self, position):
         """
