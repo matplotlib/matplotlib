@@ -933,6 +933,7 @@ def bbox_artist(artist, renderer, props=None, fill=True):
                   height=h,
                   fill=fill,
                   )
+    r.set_transform(transforms.IdentityTransform())
     r.set_clip_on( False )
     r.update(props)
     r.draw(renderer)
