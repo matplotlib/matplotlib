@@ -506,6 +506,8 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   //maxim's suggestions for cached scanlines
   agg::scanline_storage_aa8 scanlines;
   theRasterizer->reset();
+  theRasterizer->reset_clipping();
+  rendererBase->reset_clipping(true);
 
   agg::int8u  staticFillCache[MARKER_CACHE_SIZE];
   agg::int8u  staticStrokeCache[MARKER_CACHE_SIZE];
@@ -792,8 +794,12 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
   // Render stroke
   if (gc.linewidth != 0.0) {
     double linewidth = gc.linewidth;
-    if (!gc.isaa)
-      linewidth = round(linewidth);
+    if (!gc.isaa) {
+      if (linewidth < 0.5)
+	linewidth = 0.5;
+      else
+	linewidth = round(linewidth);
+    }
     if (gc.dashes.size() == 0) {
       stroke_t stroke(path);
       stroke.width(linewidth);
