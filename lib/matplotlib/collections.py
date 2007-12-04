@@ -54,7 +54,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     _offsets = npy.array([], npy.float_)
     _transOffset = transforms.IdentityTransform()
     _transforms = []
-    
+
     zorder = 1
     def __init__(self,
                  edgecolors=None,
@@ -82,7 +82,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if linewidths is None: linewidths = (mpl.rcParams['patch.linewidth'],)
         if antialiaseds is None: antialiaseds = (mpl.rcParams['patch.antialiased'],)
         self.set_linestyles(linestyles)
-        
+
         self._facecolors  = _colors.colorConverter.to_rgba_array(facecolors)
         if edgecolors == 'None':
             self._edgecolors = self._facecolors
@@ -117,13 +117,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 else: return val
 
         raise TypeError('val must be a float or nonzero sequence of floats')
-        
+
     def get_paths(self):
         raise NotImplementedError
 
     def get_transforms(self):
         return self._transforms
-        
+
     def get_datalim(self, transData):
         transform = self.get_transform()
         transOffset = self._transOffset
@@ -136,7 +136,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
         offsets = npy.asarray(offsets, npy.float_)
-            
+
         result = mpath.get_path_collection_extents(
             transform.frozen(), paths, self.get_transforms(),
             offsets, transOffset.frozen())
@@ -163,7 +163,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 xs = self.convert_xunits(self._offsets[:0])
                 ys = self.convert_yunits(self._offsets[:1])
                 offsets = zip(xs, ys)
-                
+
         offsets = npy.asarray(offsets, npy.float_)
 
         self.update_scalarmappable()
@@ -171,18 +171,18 @@ class Collection(artist.Artist, cm.ScalarMappable):
         clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
         if clippath_trans is not None:
             clippath_trans = clippath_trans.frozen()
-        
+
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(path) for path in paths]
             transform = transform.get_affine()
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
-        
+
         renderer.draw_path_collection(
             transform.frozen(), self.clipbox, clippath, clippath_trans,
             paths, self.get_transforms(),
-            offsets, transOffset, 
+            offsets, transOffset,
             self._facecolors, self._edgecolors, self._linewidths,
             self._linestyles, self._antialiaseds)
         renderer.close_group(self.__class__.__name__)
@@ -210,7 +210,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_pickradius(self,pickradius): self.pickradius = 5
     def get_pickradius(self): return self.pickradius
-    
+
     def set_linewidths(self, lw):
         """
         Set the linewidth(s) for the collection.  lw can be a scalar or a
@@ -221,7 +221,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         self._linewidths = self._get_value(lw)
     set_lw = set_linewidth = set_linewidths
-        
+
     def set_linestyles(self, ls):
         """
         Set the linestyles(s) for the collection.
@@ -251,7 +251,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             raise ValueError('Do not know how to convert %s to dashes'%ls)
         self._linestyles = dashes
     set_dashes = set_linestyle = set_linestyles
-        
+
     def set_color(self, c):
         """
         Set both the edgecolor and the facecolor.
@@ -307,11 +307,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_linewidths(self):
         return self._linewidths
     get_linewidth = get_linewidths
-    
+
     def get_linestyles(self):
         return self._linestyles
     get_dashes = get_linestyle = get_linestyles
-                
+
     def update_scalarmappable(self):
         """
         If the scalar mappable array is not none, update colors
@@ -348,7 +348,7 @@ artist.kwdocd['Collection'] = """\
     None, they default to their patch.* rc params setting, in sequence
     form.
 """
-        
+
 class QuadMesh(Collection):
     """
     Class for the efficient drawing of a quadrilateral mesh.
@@ -391,7 +391,7 @@ class QuadMesh(Collection):
         # By converting to floats now, we can avoid that on every draw.
         self._coordinates = self._coordinates.reshape((meshHeight + 1, meshWidth + 1, 2))
         self._coordinates = npy.array(self._coordinates, npy.float_)
-        
+
     def get_paths(self, dataTrans=None):
         if self._paths is None:
             self._paths = self.convert_mesh_to_paths(
@@ -401,14 +401,14 @@ class QuadMesh(Collection):
     #@staticmethod
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
         Path = mpath.Path
-        
+
         c = coordinates
         # We could let the Path constructor generate the codes for us,
         # but this is faster, since we know they'll always be the same
         codes = npy.array(
             [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY],
             Path.code_type)
-            
+
         points = npy.concatenate((
                     c[0:-1, 0:-1],
                     c[0:-1, 1:  ],
@@ -419,10 +419,10 @@ class QuadMesh(Collection):
         points = points.reshape((meshWidth * meshHeight, 5, 2))
         return [Path(x, codes) for x in points]
     convert_mesh_to_paths = staticmethod(convert_mesh_to_paths)
-    
+
     def get_datalim(self, transData):
         return self._bbox
-    
+
     def draw(self, renderer):
         if not self.get_visible(): return
         renderer.open_group(self.__class__.__name__)
@@ -444,7 +444,7 @@ class QuadMesh(Collection):
         clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
         if clippath_trans is not None:
             clippath_trans = clippath_trans.frozen()
-        
+
         assert transform.is_affine
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)
@@ -478,7 +478,7 @@ class PolyCollection(Collection):
 
     def get_paths(self):
         return self._paths
-        
+
 class BrokenBarHCollection(PolyCollection):
     """
     A colleciton of horizontal bars spanning yrange with a sequence of
@@ -493,13 +493,13 @@ class BrokenBarHCollection(PolyCollection):
         """
         ymin, ywidth = yrange
         ymax = ymin + ywidth
-        verts = [ [(xmin, ymin), (xmin, ymax), (xmin+xwidth, ymax), (xmin+xwidth, ymin)] for xmin, xwidth in xranges]
+        verts = [ [(xmin, ymin), (xmin, ymax), (xmin+xwidth, ymax), (xmin+xwidth, ymin), (xmin, ymin)] for xmin, xwidth in xranges]
         PolyCollection.__init__(self, verts, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 class RegularPolyCollection(Collection):
     _path_generator = mpath.Path.unit_regular_polygon
-    
+
     def __init__(self,
                  dpi,
                  numsides,
@@ -550,7 +550,7 @@ class RegularPolyCollection(Collection):
                 (math.sqrt(x) * self._dpi / 72.0) / math.sqrt(math.pi))
             for x in sizes]
         self.set_transform(transforms.IdentityTransform())
-        
+
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_paths(self):
@@ -559,12 +559,12 @@ class RegularPolyCollection(Collection):
 
 class StarPolygonCollection(RegularPolyCollection):
     _path_generator = mpath.Path.unit_regular_star
-    
-    
+
+
 class AsteriskPolygonCollection(RegularPolyCollection):
     _path_generator = mpath.Path.unit_regular_asterisk
-    
-    
+
+
 class LineCollection(Collection, cm.ScalarMappable):
     """
     All parameters must be sequences or scalars; if scalars, they will
@@ -630,7 +630,7 @@ class LineCollection(Collection, cm.ScalarMappable):
         self.set_linestyles(linestyles)
 
         colors = _colors.colorConverter.to_rgba_array(colors)
-        
+
         Collection.__init__(
             self,
             edgecolors=colors,
@@ -649,14 +649,14 @@ class LineCollection(Collection, cm.ScalarMappable):
 
     def get_paths(self):
         return self._paths
-        
+
     def set_segments(self, segments):
         if segments is None: return
         segments = [npy.asarray(seg, npy.float_) for seg in segments]
         if self._uniform_offsets is not None:
             segments = self._add_offsets(segments)
         self._paths = [mpath.Path(seg) for seg in segments]
-        
+
     set_verts = set_segments # for compatibility with PolyCollection
 
     def _add_offsets(self, segs):
