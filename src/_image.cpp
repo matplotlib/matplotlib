@@ -392,10 +392,11 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   agg::conv_transform<agg::path_storage> imageBox(path, srcMatrix);
   ras.add_path(imageBox);
 
-  typedef agg::image_accessor_clip<pixfmt> img_accessor_type;
+  typedef agg::wrap_mode_reflect reflect_type;
+  typedef agg::image_accessor_wrap<pixfmt, reflect_type, reflect_type> img_accessor_type;
 
   pixfmt pixfmtin(*rbufIn);
-  img_accessor_type ia(pixfmtin, background);
+  img_accessor_type ia(pixfmtin);
   switch(interpolation)
     {
 
