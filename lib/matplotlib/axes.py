@@ -1599,7 +1599,7 @@ class Axes(martist.Artist):
         if xmin is None: xmin = old_xmin
         if xmax is None: xmax = old_xmax
 
-        xmin, xmax = mtransforms.nonsingular(xmin, xmax)
+        xmin, xmax = mtransforms.nonsingular(xmin, xmax, increasing=False)
         xmin, xmax = self.xaxis.limit_range_for_scale(xmin, xmax)
 
         self.viewLim.intervalx = (xmin, xmax)
