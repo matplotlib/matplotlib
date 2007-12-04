@@ -143,7 +143,7 @@ def validate_color(s):
 
     if len(s)==6 and s.isalnum(): # looks like hex
         return '#' + s
-    
+
     if len(s)==7 and s.startswith('#') and s[1:].isalnum():
         return s
 
@@ -198,7 +198,7 @@ def validate_fontsize(s):
         return float(s)
     except ValueError:
         raise ValueError('not a valid font size')
-    
+
 def validate_font_properties(s):
     parse_fontconfig_pattern(s)
     return s
@@ -369,7 +369,7 @@ defaultParams = {
     'mathtext.sf'         : ['sans\-serif', validate_font_properties],
     'mathtext.fontset'    : ['cm', validate_fontset],
     'mathtext.fallback_to_cm' : [True, validate_bool],
-    
+
     'image.aspect'        : ['equal', validate_aspect],  # equal, auto, a number
     'image.interpolation' : ['bilinear', str],
     'image.cmap'          : ['jet', str],        # one of gray, jet, etc
@@ -440,12 +440,12 @@ defaultParams = {
     'figure.facecolor'  : [ '0.75', validate_color], # facecolor; scalar gray
     'figure.edgecolor'  : [ 'w', validate_color],  # edgecolor; white
 
-    'figure.subplot.left'   : [0.125, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
+    'figure.subplot.left'   : [0.1, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
     'figure.subplot.right'  : [0.9, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
     'figure.subplot.bottom' : [0.1, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
     'figure.subplot.top'    : [0.9, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
-    'figure.subplot.wspace' : [0.2, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
-    'figure.subplot.hspace' : [0.2, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
+    'figure.subplot.wspace' : [0.1, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
+    'figure.subplot.hspace' : [0.1, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
 
 
     'savefig.dpi'         : [100, validate_float],   # DPI

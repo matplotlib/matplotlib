@@ -770,13 +770,14 @@ class Axes(martist.Artist):
 
         self.grid(self._gridOn)
         props = font_manager.FontProperties(size=rcParams['axes.titlesize'])
+        self.titleOffsetTrans = mtransforms.Affine2D().translate(0.0, 10.0)
         self.title =  mtext.Text(
-            x=0.5, y=1.02, text='',
+            x=0.5, y=1.0, text='',
             fontproperties=props,
             verticalalignment='bottom',
             horizontalalignment='center',
             )
-        self.title.set_transform(self.transAxes)
+        self.title.set_transform(self.transAxes + self.titleOffsetTrans)
         self.title.set_clip_box(None)
 
         self._set_artist_props(self.title)
@@ -799,6 +800,8 @@ class Axes(martist.Artist):
 
         self.xaxis.set_clip_path(self.axesPatch)
         self.yaxis.set_clip_path(self.axesPatch)
+
+        self.titleOffsetTrans.clear()
 
     def clear(self):
         'clear the axes'
@@ -905,14 +908,14 @@ class Axes(martist.Artist):
         ysize = max(math.fabs(ymax-ymin), 1e-30)
         return ysize/xsize
 
-    def apply_aspect(self):
+    def apply_aspect(self, position):
         '''
         Use self._aspect and self._adjustable to modify the
         axes box or the view limits.
         '''
         aspect = self.get_aspect()
         if aspect == 'auto':
-            self.set_position( self._originalPosition , 'active')
+            self.set_position( position , 'active')
             return
 
         if aspect == 'equal':
@@ -929,7 +932,7 @@ class Axes(martist.Artist):
         fig_aspect = figH/figW
         if self._adjustable == 'box':
             box_aspect = A * self.get_data_ratio()
-            pb = self._originalPosition.frozen()
+            pb = position.frozen()
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
             self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
             return
@@ -939,7 +942,7 @@ class Axes(martist.Artist):
         ymin,ymax = self.get_ybound()
         ysize = max(math.fabs(ymax-ymin), 1e-30)
 
-        l,b,w,h = self.get_position(original=True).bounds
+        l,b,w,h = position.bounds
         box_aspect = fig_aspect * (h/w)
         data_ratio = box_aspect / A
 
@@ -1014,7 +1017,7 @@ class Axes(martist.Artist):
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
                 self.autoscale_view()
-                self.apply_aspect()
+                # self.apply_aspect()
                 if s=='equal':
                     self.set_aspect('equal', adjustable='datalim')
                 elif s == 'scaled':
@@ -1289,6 +1292,32 @@ class Axes(martist.Artist):
             YL = ylocator.autoscale()
             self.set_ybound(YL)
 
+    def update_layout(self, renderer):
+        pad_pixels = rcParams['xtick.major.pad'] * self.figure.dpi / 72.0
+        inverse_transFigure = self.figure.transFigure.inverted()
+        t_text, b_text = self.xaxis.get_text_heights(renderer)
+        l_text, r_text = self.yaxis.get_text_widths(renderer)
+        title_height = self.title.get_window_extent(renderer).height
+        title_height += pad_pixels * 2.0
+        original_t_text = t_text
+
+        ((l_text, t_text),
+         (r_text, b_text),
+         (dummy, title_height)) = inverse_transFigure.transform(
+            ((l_text, t_text),
+             (r_text, b_text),
+             (0.0, title_height)))
+        x0, y0, x1, y1 = self.get_position(True).extents
+        # Adjust the title
+        self.titleOffsetTrans.clear().translate(
+            0, original_t_text + pad_pixels * 2.0)
+
+        new_position = mtransforms.Bbox.from_extents(
+            x0 + l_text, y0 + b_text,
+            x1 - r_text, y1 - t_text - title_height)
+
+        self.set_position(new_position, 'active')
+
     #### Drawing
     def draw(self, renderer=None, inframe=False):
         "Draw everything (plot lines, axes, labels)"
@@ -1299,7 +1328,8 @@ class Axes(martist.Artist):
             raise RuntimeError('No renderer defined')
         if not self.get_visible(): return
         renderer.open_group('axes')
-        self.apply_aspect()
+
+        self.apply_aspect(self.get_position())
 
         if self.axison and self._frameon:
             self.axesPatch.draw(renderer)

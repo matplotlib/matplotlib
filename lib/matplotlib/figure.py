@@ -6,7 +6,7 @@ import numpy as npy
 import artist
 from artist import Artist
 from axes import Axes, SubplotBase, subplot_class_factory
-from cbook import flatten, allequal, Stack, iterable, dedent
+from cbook import flatten, allequal, Stack, iterable, dedent, set
 import _image
 import colorbar as cbar
 from image import FigureImage
@@ -100,7 +100,7 @@ class Figure(Artist):
 
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
-    
+
     def __init__(self,
                  figsize   = None,  # defaults to rc figure.figsize
                  dpi       = None,  # defaults to rc figure.dpi
@@ -126,7 +126,7 @@ class Figure(Artist):
         self.dpi = dpi
 	self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
 	self.bbox = TransformedBbox(self.bbox_inches, self._dpi_scale_trans)
-	
+
         self.frameon = frameon
 
         self.transFigure = BboxTransformTo(self.bbox)
@@ -158,7 +158,7 @@ class Figure(Artist):
 	self._dpi = dpi
 	self._dpi_scale_trans.clear().scale(dpi, dpi)
     dpi = property(_get_dpi, _set_dpi)
-	
+
     def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right'):
         """
         A common use case is a number of subplots with shared xaxes
@@ -181,7 +181,7 @@ class Figure(Artist):
             else:
                 for label in ax.get_xticklabels():
                     label.set_visible(False)
-        self.subplots_adjust(bottom=bottom)
+        #self.subplots_adjust(bottom=bottom)
 
     def get_children(self):
         'get a list of artists contained in the figure'
@@ -322,7 +322,7 @@ class Figure(Artist):
 
 	dpival = self.dpi
 	self.bbox_inches.p1 = w, h
-	
+
         if forward:
             dpival = self.dpi
             canvasw = w*dpival
@@ -389,7 +389,7 @@ class Figure(Artist):
         ACCEPTS: float
         """
 	self.bbox_inches.x1 = val
-	
+
     def set_figheight(self, val):
         """
         Set the height of the figure in inches
@@ -448,7 +448,7 @@ class Figure(Artist):
         provided, which is equivalent to projection='polar').
         Valid values for "projection" are: %s.  Some of these projections
         support additional kwargs, which may be provided to add_axes.
-        
+
             rect = l,b,w,h
             add_axes(rect)
             add_axes(rect, frameon=False, axisbg='g')
@@ -469,7 +469,7 @@ class Figure(Artist):
             add_axes(rect, label='axes2')
 
         The Axes instance will be returned
-        
+
         The following kwargs are supported:
         %s
         """ % (", ".join(get_projection_names()), '%(Axes)s')
@@ -496,7 +496,7 @@ class Figure(Artist):
                         "Only one of these arguments should be supplied." %
                         projection)
                 projection = 'polar'
-            
+
             a = projection_factory(projection, self, rect, **kwargs)
 
         self.axes.append(a)
@@ -524,7 +524,7 @@ class Figure(Artist):
         be provided to add_axes.
 
         The Axes instance will be returned.
-        
+
         If the figure already has a subplot with key *args, *kwargs then it will
         simply make that subplot current and return it
 
@@ -623,6 +623,39 @@ class Figure(Artist):
             renderer.draw_image(l, b, im, self.bbox,
                                 *self.get_transformed_clip_path_and_affine())
 
+        # update the positions of the axes
+        # This gives each of the axes the opportunity to resize itself
+        # based on the tick and axis labels etc., and then makes sure
+        # that any axes that began life aligned to another axes remains
+        # aligned after these adjustments
+        if len(self.axes) > 1:
+            aligned_positions = [{}, {}, {}, {}]
+            for a in self.axes:
+                a.update_layout(renderer)
+                orig_pos = a.get_position(True)
+                curr_pos = a.get_position()
+                for pos, orig, curr in zip(aligned_positions,
+                                           orig_pos.get_points().flatten(),
+                                           curr_pos.get_points().flatten()):
+                    if orig in pos:
+                        pos[orig][0].append(a)
+                        pos[orig][1].add(curr)
+                    else:
+                        pos[orig] = [[a], set([curr])]
+
+            for i, pos in enumerate(aligned_positions):
+                for axes, places in pos.values():
+                    if len(places) > 1:
+                        if i < 2:
+                            curr = max(places)
+                        else:
+                            curr = min(places)
+                        for a in axes:
+                            curr_pos = a.get_position().frozen()
+                            curr_pos.get_points()[i/2, i%2] = curr
+                            a.set_position(curr_pos, 'active')
+        else:
+            for a in self.axes: a.update_layout(renderer)
 
         # render the axes
         for a in self.axes: a.draw(renderer)

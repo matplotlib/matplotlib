@@ -7,7 +7,7 @@ import matplotlib as mpl
 
 # Make a figure and axes with dimensions as desired.
 fig = pylab.figure(figsize=(8,1.5))
-ax = fig.add_axes([0.05, 0.4, 0.9, 0.5])
+ax = fig.add_axes([0.05, 0.05, 0.9, 0.9])
 
 # Set the colormap and norm to correspond to the data for which
 # the colorbar will be used.
