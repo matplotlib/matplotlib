@@ -4694,12 +4694,14 @@ class Axes(martist.Artist):
 
 
         if shading == 'faceted':
-            edgecolors =  (0,0,0,1),
+            edgecolors = (0,0,0,1),
+            linewidths = (0.25,)
         else:
             edgecolors = 'None'
+            linewidths = (0.0,)
         kwargs.setdefault('edgecolors', edgecolors)
         kwargs.setdefault('antialiaseds', (0,))
-        kwargs.setdefault('linewidths', (0.25,))
+        kwargs.setdefault('linewidths', linewidths)
 
         collection = mcoll.PolyCollection(verts, **kwargs)
 
