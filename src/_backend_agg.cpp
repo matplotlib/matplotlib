@@ -1003,7 +1003,7 @@ void RendererAgg::DrawQuadMesh(int meshWidth, int meshHeight, void* colors_void,
 	  for(k = firstRow; k <= lastRow; k++)
 	    {
 	      numCol = inPolygon(k, xs, ys, col);
-	      
+
 	      if (numCol >= 2) rendererBase->copy_hline(col[0], k, col[1] - 1, color);
 	      if (numCol == 4) rendererBase->copy_hline(col[2], k, col[3] - 1, color);
 	    }
@@ -2137,9 +2137,25 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
 
   args.verify_length(5);
 
-  FT2Image *image = static_cast<FT2Image*>(args[0].ptr());
-  if (!image->get_buffer())
-    return Py::Object();
+  const unsigned char* buffer = NULL;
+  int width, height;
+  Py::Object image_obj = args[0];
+  if (PyArray_Check(image_obj.ptr())) {
+    PyArrayObject* image_array = NULL;
+    image_array = (PyArrayObject*)PyArray_FromObject(image_obj.ptr(), PyArray_UBYTE, 2, 2);
+    if (!image_array)
+      throw Py::ValueError("First argument to draw_text_image must be a FT2Font.Image object or a Nx2 uint8 numpy array.");
+    buffer = (unsigned char *)PyArray_DATA(image_array);
+    width = PyArray_DIM(image_array, 1);
+    height = PyArray_DIM(image_array, 0);
+  } else {
+    FT2Image *image = static_cast<FT2Image*>(args[0].ptr());
+    if (!image->get_buffer())
+      throw Py::ValueError("First argument to draw_text_image must be a FT2Font.Image object or a Nx2 uint8 numpy array.");
+    buffer = image->get_buffer();
+    width = image->get_width();
+    height = image->get_height();
+  }
 
   int x(0),y(0);
   try {
@@ -2157,22 +2173,19 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
 
   set_clipbox_rasterizer(gc.cliprect);
 
-  const unsigned char* const buffer = image->get_buffer();
-  agg::rendering_buffer srcbuf
-    ((agg::int8u*)buffer, image->get_width(),
-     image->get_height(), image->get_width());
+  agg::rendering_buffer srcbuf((agg::int8u*)buffer, width, height, width);
   agg::pixfmt_gray8 pixf_img(srcbuf);
 
   agg::trans_affine mtx;
-  mtx *= agg::trans_affine_translation(0, -(int)image->get_height());
+  mtx *= agg::trans_affine_translation(0, -(int)height);
   mtx *= agg::trans_affine_rotation(-angle * agg::pi / 180.0);
   mtx *= agg::trans_affine_translation(x, y);
 
   agg::path_storage rect;
   rect.move_to(0, 0);
-  rect.line_to(image->get_width(), 0);
-  rect.line_to(image->get_width(), image->get_height());
-  rect.line_to(0, image->get_height());
+  rect.line_to(width, 0);
+  rect.line_to(width, height);
+  rect.line_to(0, height);
   rect.line_to(0, 0);
   agg::conv_transform<agg::path_storage> rect2(rect, mtx);
 
