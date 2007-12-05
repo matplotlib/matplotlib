@@ -2367,7 +2367,7 @@ else:
             xlstyle.num_format_str = '#,##;[RED]-#,##'
         elif isinstance(format, FormatPercent):
             zeros = ''.join(['0']*format.precision)
-            xlstyle.num_format_str = '0.%s%;[RED]-0.%s%'%(zeros, zeros)
+            xlstyle.num_format_str = '0.%s%%;[RED]-0.%s%%'%(zeros, zeros)
             format.scale = 1.
         else:
             xlstyle = None
@@ -2376,11 +2376,13 @@ else:
 
         return format
 
-    def rec2excel(r, ws, formatd=None, rownum=0):
+    def rec2excel(r, ws, formatd=None, rownum=0, colnum=0):
         """
         save record array r to excel pyExcelerator worksheet ws
         starting at rownum.  if ws is string like, assume it is a
         filename and save to it
+
+        start writing at rownum, colnum
 
         formatd is a dictionary mapping dtype name -> FormatXL instances
 
@@ -2399,6 +2401,12 @@ else:
             formatd = dict()
 
         formats = []
+        font = excel.Font()
+        font.bold = True
+
+        stylehdr = excel.XFStyle()
+        stylehdr.font = font
+
         for i, name in enumerate(r.dtype.names):
             dt = r.dtype[name]
             format = formatd.get(name)
@@ -2406,7 +2414,7 @@ else:
                 format = defaultformatd.get(dt.type, FormatObj())
 
             format = xlformat_factory(format)
-            ws.write(rownum, i, name)
+            ws.write(rownum, colnum+i, name, stylehdr)
             formats.append(format)
 
         rownum+=1
@@ -2419,12 +2427,12 @@ else:
                 format = formats[i]
                 val = format.toval(val)
                 if format.xlstyle is None:
-                    ws.write(rownum, i, val)
+                    ws.write(rownum, colnum+i, val)
                 else:
                     if safe_isnan(val):
-                        ws.write(rownum, i, 'NaN')
+                        ws.write(rownum, colnum+i, 'NaN')
                     else:
-                        ws.write(rownum, i, val, format.xlstyle)
+                        ws.write(rownum, colnum+i, val, format.xlstyle)
             rownum += 1
 
         if autosave:
