@@ -238,6 +238,7 @@ class MPLConfig(TConfig):
         dpi = T.Float(80)
         facecolor = T.Trait('0.75', mplT.ColorHandler())
         edgecolor = T.Trait('white', mplT.ColorHandler())
+        autolayout = T.false
 
         class subplot(TConfig):
             """The figure subplot parameters.  All dimensions are fraction
@@ -415,6 +416,7 @@ class RcParamsWrapper(dict):
         'figure.subplot.wspace' : (self.tconfig.figure.subplot, 'wspace'),
         'figure.subplot.hspace' : (self.tconfig.figure.subplot, 'hspace'),
 
+        'figure.autolayout' : (self.tconfig.figure, 'autolayout'),
 
         'savefig.dpi' : (self.tconfig.savefig, 'dpi'),
         'savefig.facecolor' : (self.tconfig.savefig, 'facecolor'),

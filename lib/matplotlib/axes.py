@@ -802,7 +802,7 @@ class Axes(martist.Artist):
         self.xaxis.set_clip_path(self.axesPatch)
         self.yaxis.set_clip_path(self.axesPatch)
 
-        self.titleOffsetTrans.clear()
+        self.titleOffsetTrans.clear().translate(0.0, 10.0)
 
     def clear(self):
         'clear the axes'
