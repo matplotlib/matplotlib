@@ -243,6 +243,8 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
         self.set_data(A)
 
+
+
     def set_extent(self, extent):
         """extent is data axes (left, right, bottom, top) for making image plots
         """

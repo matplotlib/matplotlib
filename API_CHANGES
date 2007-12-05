@@ -1,3 +1,5 @@
+    Removed, dead/experimental ExampleInfo, Namespace and Importer
+    code from matplotlib/__init__.py
 0.91.1 Released
 
 0.91.0 Released
