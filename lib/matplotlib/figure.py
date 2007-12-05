@@ -164,11 +164,13 @@ class Figure(Artist):
 
     def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right'):
         """
-        A common use case is a number of subplots with shared xaxes
-        where the x-axis is date data.  The ticklabels are often
-        long,and it helps to rotate them on the bottom subplot and
-        turn them off on other subplots.  This function will raise a
-        RuntimeError if any of the Axes are not Subplots.
+        Date ticklabels often overlap, so it is useful to rotate them
+        and right align them.  Also, a common use case is a number of
+        subplots with shared xaxes where the x-axis is date data.  The
+        ticklabels are often long, and it helps to rotate them on the
+        bottom subplot and turn them off on other subplots, as well as
+        turn off xlabels.
+
 
         bottom : the bottom of the subplots for subplots_adjust
         rotation: the rotation of the xtick labels
@@ -177,17 +179,25 @@ class Figure(Artist):
 
         """
 
-        for ax in self.get_axes():
-            if not hasattr(ax, 'is_last_row'):
-                raise RuntimeError('Axes must be subplot instances; found %s'%type(ax))
-            if ax.is_last_row():
-                for label in ax.get_xticklabels():
-                    label.set_ha(ha)
-                    label.set_rotation(rotation)
-            else:
-                for label in ax.get_xticklabels():
-                    label.set_visible(False)
-        self.subplots_adjust(bottom=bottom)
+        allsubplots = npy.alltrue([hasattr(ax, 'is_last_row') for ax in self.axes])
+        if len(self.axes)==1:
+            for label in ax.get_xticklabels():
+                label.set_ha(ha)
+                label.set_rotation(rotation)
+        else:
+            if allsubplots:
+                for ax in self.get_axes():
+                    if ax.is_last_row():
+                        for label in ax.get_xticklabels():
+                            label.set_ha(ha)
+                            label.set_rotation(rotation)
+                    else:
+                        for label in ax.get_xticklabels():
+                            label.set_visible(False)
+                        ax.set_xlabel('')
+
+        if allsubplots:
+            self.subplots_adjust(bottom=bottom)
 
     def get_children(self):
         'get a list of artists contained in the figure'
