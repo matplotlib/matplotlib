@@ -9,8 +9,6 @@ from numpy import sqrt, nonzero, equal, asarray, dot, amin
 from matplotlib.mlab import dist_point_to_segment
 
 
-
-
 class PolygonInteractor:
     """
     An polygon editor.
@@ -74,7 +72,7 @@ class PolygonInteractor:
         xyt = self.poly.get_transform().transform(xy)
         xt, yt = xyt[:, 0], xyt[:, 1]
         d = sqrt((xt-event.x)**2 + (yt-event.y)**2)
-        indseq = nonzero(equal(d, amin(d)))
+        indseq = nonzero(equal(d, amin(d)))[0]
         ind = indseq[0]
 
         if d[ind]>=self.epsilon:
@@ -129,6 +127,7 @@ class PolygonInteractor:
         if event.inaxes is None: return
         if event.button != 1: return
         x,y = event.xdata, event.ydata
+
         self.poly.xy[self._ind] = x,y
         self.line.set_data(zip(*self.poly.xy))
         
@@ -161,7 +160,7 @@ ax = subplot(111)
 ax.add_patch(poly)
 p = PolygonInteractor( ax, poly)
 
-ax.add_line(p.line)
+#ax.add_line(p.line)
 ax.set_title('Click and drag a point to move it')
 ax.set_xlim((-2,2))
 ax.set_ylim((-2,2))
