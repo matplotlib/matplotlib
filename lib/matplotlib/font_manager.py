@@ -36,7 +36,7 @@ License   : matplotlib license (PSF compatible)
 import os, sys, glob, shutil
 from sets import Set
 import matplotlib
-from matplotlib import afm 
+from matplotlib import afm
 from matplotlib import ft2font
 from matplotlib import rcParams, get_home, get_configdir
 from matplotlib.cbook import is_string_like
@@ -49,7 +49,7 @@ except ImportError:
     import pickle
 
 USE_FONTCONFIG = False
-    
+
 verbose = matplotlib.verbose
 
 font_scalings = {'xx-small': 0.579, 'x-small': 0.694, 'small': 0.833,
@@ -98,7 +98,7 @@ if not USE_FONTCONFIG:
 def get_fontext_synonyms(fontext):
     return {'ttf': ('ttf', 'otf'),
             'afm': ('afm',)}[fontext]
-        
+
 def win32FontDirectory():
     """Return the user-specified font directory for Win32."""
 
@@ -126,7 +126,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
         directory = win32FontDirectory()
 
     fontext = get_fontext_synonyms(fontext)
-        
+
     key, items = None, {}
     for fontdir in MSFontDirectories:
         try:
@@ -178,7 +178,7 @@ def OSXInstalledFonts(directory=None, fontext='ttf'):
         directory = OSXFontDirectory()
 
     fontext = get_fontext_synonyms(fontext)
-        
+
     files = []
     for path in directory:
         if fontext is None:
@@ -214,7 +214,7 @@ def get_fontconfig_fonts(fontext='ttf'):
         return {}
 
     fontext = get_fontext_synonyms(fontext)
-    
+
     fontfiles = {}
     status, output = commands.getstatusoutput("fc-list file")
     if status == 0:
@@ -236,7 +236,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     """
     fontfiles = {}
     fontexts = get_fontext_synonyms(fontext)
-    
+
     if fontpaths is None:
         if sys.platform == 'win32':
             fontdir = win32FontDirectory()
@@ -635,7 +635,7 @@ class FontProperties(object):
         stretch = [rcParams['font.stretch']]
         size = [rcParams['font.size']]
         file = None
-        
+
     def __init__(self,
                  family = None,
                  style  = None,
@@ -653,7 +653,7 @@ class FontProperties(object):
         if _init is not None:
             self.__props.__dict__.update(_init)
             return
-        
+
         if is_string_like(family):
             # Treat family as a fontconfig pattern if it is the only
             # parameter provided.
@@ -674,16 +674,16 @@ class FontProperties(object):
         self.set_stretch(stretch)
         self.set_file(fname)
         self.set_size(size)
-            
+
     def _parse_fontconfig_pattern(self, pattern):
         return parse_fontconfig_pattern(pattern)
 
     def __hash__(self):
-        return hash(repr(self.__props))
+        return hash(repr(self.__props.__dict__))
 
     def __str__(self):
         return self.get_fontconfig_pattern()
-                              
+
     def get_family(self):
         """Return a list of font names that comprise the font family.
         """
@@ -727,7 +727,7 @@ class FontProperties(object):
 
     def get_fontconfig_pattern(self):
         return generate_fontconfig_pattern(self.__props.__dict__)
-    
+
     def set_family(self, family):
         """
         Change the font family.  May be either an alias (generic name
@@ -741,7 +741,7 @@ class FontProperties(object):
                 family = [family]
             self.__props.family = family
     set_name = set_family
-            
+
     def set_style(self, style):
         """Set the font style.  Values are: normal, italic or oblique."""
         if style is None:
@@ -812,7 +812,7 @@ class FontProperties(object):
 
     def add_property_pair(self, key, val):
         self.__props.setdefault(key, []).append(val)
-        
+
     def copy(self):
         """Return a deep copy of self"""
         return FontProperties(_init = self.__props.__dict__)
@@ -862,7 +862,7 @@ class FontManager:
     def __init__(self, size=None, weight='normal'):
         self.__default_weight = weight
         self.default_size = size
-        
+
         paths = [os.path.join(rcParams['datapath'],'fonts','ttf'),
                  os.path.join(rcParams['datapath'],'fonts','afm')]
 
@@ -1076,8 +1076,8 @@ def is_opentype_cff_font(filename):
             _is_opentype_cff_font_cache[filename] = result
         return result
     return False
-        
-    
+
+
 if USE_FONTCONFIG and sys.platform != 'win32':
     import re
 
@@ -1095,7 +1095,7 @@ if USE_FONTCONFIG and sys.platform != 'win32':
 
     _fc_match_regex = re.compile(r'\sfile:\s+"([^"]*)"')
     _fc_match_cache = {}
-    
+
     def findfont(prop, fontext='ttf'):
         if not is_string_like(prop):
             prop = prop.get_fontconfig_pattern()

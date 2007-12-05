@@ -16,7 +16,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
 from matplotlib.cbook import is_string_like, izip, get_realpath_and_stat, \
-    is_writable_file_like
+    is_writable_file_like, maxdict
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import findfont, is_opentype_cff_font
@@ -123,6 +123,9 @@ class RendererPS(RendererBase):
     context instance that controls the colors/styles.
     """
 
+    fontd = maxdict(50)
+    afmfontd = maxdict(50)
+
     def __init__(self, width, height, pswriter, dpi=72):
         RendererBase.__init__(self)
         self.width = width
@@ -143,8 +146,6 @@ class RendererPS(RendererBase):
         self.hatch = None
         self.image_magnification = dpi/72.0
 
-        self.fontd = {}
-        self.afmfontd = {}
         self.used_characters = {}
         self.mathtext_parser = MathTextParser("PS")
 
@@ -315,7 +316,11 @@ class RendererPS(RendererBase):
         key = hash(prop)
         font = self.afmfontd.get(key)
         if font is None:
-            font = AFM(file(findfont(prop, fontext='afm')))
+            fname = findfont(prop, fontext='afm')
+            font = self.afmfontd.get(fname)
+            if font is None:
+                font = AFM(file(findfont(prop, fontext='afm')))
+                self.afmfontd[fname] = font
             self.afmfontd[key] = font
         return font
 
@@ -324,13 +329,16 @@ class RendererPS(RendererBase):
         font = self.fontd.get(key)
         if font is None:
             fname = findfont(prop)
-            font = FT2Font(str(fname))
+            font = self.fontd.get(fname)
+            if font is None:
+                font = FT2Font(str(fname))
+                self.fontd[fname] = font
             self.fontd[key] = font
         font.clear()
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
         return font
-        
+
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
         """
         Draw an arc centered at x,y with width and height and angles
@@ -524,12 +532,12 @@ grestore
 
         ps_cmd = []
         ps_cmd.append('newpath')
-        
+
         while 1:
             code, xp, yp = path.vertex()
 
             #print code, xp, yp
-            
+
             if code == agg.path_cmd_stop:
                 ps_cmd.append('closepath') # Hack, path_cmd_end_poly not found
                 break
@@ -742,7 +750,7 @@ grestore
 
         elif isinstance(s, unicode):
             return self.draw_unicode(gc, x, y, s, prop, angle)
-        
+
         elif rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
 
@@ -826,7 +834,7 @@ grestore
                     kern = 0
                 last_name = name
                 thisx += kern * scale
-                
+
                 lines.append('%f %f m /%s glyphshow'%(thisx, thisy, name))
 
                 thisx += width * scale
@@ -843,7 +851,7 @@ setfont
 grestore
     """ % locals()
             self._pswriter.write(ps)
-            
+
         else:
             font = self._get_font_ttf(prop)
 
@@ -949,7 +957,7 @@ grestore
             write("stroke\n")
         else:
             write("newpath\n")
-            
+
         if cliprect:
             write("grestore\n")
 
@@ -999,16 +1007,16 @@ class FigureCanvasPS(FigureCanvasBase):
 
     filetypes = {'ps'  : 'Postscript',
                  'eps' : 'Encapsulated Postscript'}
-    
+
     def get_default_filetype(self):
         return 'ps'
-    
+
     def print_ps(self, outfile, *args, **kwargs):
         return self._print_ps(outfile, 'ps', *args, **kwargs)
 
     def print_eps(self, outfile, *args, **kwargs):
         return self._print_ps(outfile, 'eps', *args, **kwargs)
-    
+
     def _print_ps(self, outfile, format, *args, **kwargs):
         papertype = kwargs.get("papertype", rcParams['ps.papersize'])
         papertype = papertype.lower()
@@ -1017,7 +1025,7 @@ class FigureCanvasPS(FigureCanvasBase):
         elif papertype not in papersize:
             raise RuntimeError( '%s is not a valid papertype. Use one \
                     of %s'% (papertype, ', '.join( papersize.keys() )) )
-            
+
         orientation = kwargs.get("orientation", "portrait").lower()
         if orientation == 'landscape': isLandscape = True
         elif orientation == 'portrait': isLandscape = False
@@ -1027,14 +1035,14 @@ class FigureCanvasPS(FigureCanvasBase):
         dpi = kwargs.get("dpi", 72)
         facecolor = kwargs.get("facecolor", "w")
         edgecolor = kwargs.get("edgecolor", "w")
-        
+
         if rcParams['text.usetex']:
             self._print_figure_tex(outfile, format, dpi, facecolor, edgecolor,
                                    orientation, isLandscape, papertype)
         else:
             self._print_figure(outfile, format, dpi, facecolor, edgecolor,
                                orientation, isLandscape, papertype)
-            
+
     def _print_figure(self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
                       orientation='portrait', isLandscape=False, papertype=None):
         """
@@ -1643,5 +1651,5 @@ psDefs = [
 -0.552284749831 -1.0 -1.0 -0.552284749831 -1.0 0.0 curveto
 closepath
     } bind def""",
-    
+
 ]
