@@ -2140,8 +2140,8 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
   const unsigned char* buffer = NULL;
   int width, height;
   Py::Object image_obj = args[0];
+  PyArrayObject* image_array = NULL;
   if (PyArray_Check(image_obj.ptr())) {
-    PyArrayObject* image_array = NULL;
     image_array = (PyArrayObject*)PyArray_FromObject(image_obj.ptr(), PyArray_UBYTE, 2, 2);
     if (!image_array)
       throw Py::ValueError("First argument to draw_text_image must be a FT2Font.Image object or a Nx2 uint8 numpy array.");
@@ -2164,6 +2164,8 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
   }
   catch (Py::TypeError) {
     //x,y out of range; todo issue warning?
+    if (image_array)
+      Py_XDECREF(image_array);
     return Py::Object();
   }
 
@@ -2209,6 +2211,8 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
   theRasterizer->add_path(rect2);
   agg::render_scanlines(*theRasterizer, *slineP8, ri);
 
+  if (image_array)
+    Py_XDECREF(image_array);
 
   return Py::Object();
 }
