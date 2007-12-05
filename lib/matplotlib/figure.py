@@ -151,7 +151,7 @@ class Figure(Artist):
         self.clf()
 
         self._cachedRenderer = None
-        self._autoLayout = False
+        self._autoLayout = rcParams['figure.autolayout']
 
     def _get_dpi(self):
 	return self._dpi
@@ -185,7 +185,8 @@ class Figure(Artist):
             else:
                 for label in ax.get_xticklabels():
                     label.set_visible(False)
-        #self.subplots_adjust(bottom=bottom)
+        if not self._autoLayout:
+            self.subplots_adjust(bottom=bottom)
 
     def get_children(self):
         'get a list of artists contained in the figure'
