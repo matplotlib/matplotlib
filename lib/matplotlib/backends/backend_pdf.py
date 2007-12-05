@@ -25,7 +25,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict, \
-    get_realpath_and_stat, is_writable_file_like
+    get_realpath_and_stat, is_writable_file_like, maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font
 from matplotlib.afm import AFM
@@ -1147,13 +1147,13 @@ end"""
         self.write("\nstartxref\n%d\n%%%%EOF\n" % self.startxref)
 
 class RendererPdf(RendererBase):
+    truetype_font_cache = maxdict(50)
+    afm_font_cache = maxdict(50)
 
     def __init__(self, file, dpi):
         RendererBase.__init__(self)
         self.file = file
         self.gc = self.new_gc()
-        self.truetype_font_cache = {}
-        self.afm_font_cache = {}
         self.file.used_characters = self.used_characters = {}
         self.mathtext_parser = MathTextParser("Pdf")
         self.image_magnification = dpi/72.0
@@ -1161,8 +1161,6 @@ class RendererPdf(RendererBase):
 
     def finalize(self):
         self.gc.finalize()
-        del self.truetype_font_cache
-        del self.afm_font_cache
 
     def check_gc(self, gc, fillcolor=None):
         orig_fill = gc._fillcolor
@@ -1679,9 +1677,12 @@ class RendererPdf(RendererBase):
         font = self.afm_font_cache.get(key)
         if font is None:
             filename = findfont(prop, fontext='afm')
-            fh = file(filename)
-            font = AFM(fh)
-            fh.close()
+            font = self.afm_font_cache.get(filename)
+            if font is None:
+                fh = file(filename)
+                font = AFM(fh)
+                self.afm_font_cache[filename] = font
+                fh.close()
             self.afm_font_cache[key] = font
         return font
 
@@ -1690,7 +1691,10 @@ class RendererPdf(RendererBase):
         font = self.truetype_font_cache.get(key)
         if font is None:
             filename = findfont(prop)
-            font = FT2Font(str(filename))
+            font = self.truetype_font_cache.get(filename)
+            if font is None:
+                font = FT2Font(str(filename))
+                self.truetype_font_cache[filename] = font
             self.truetype_font_cache[key] = font
         font.clear()
         font.set_size(prop.get_size_in_points(), 72.0)
