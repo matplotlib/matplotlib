@@ -15,7 +15,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
 from matplotlib.cbook import is_string_like, izip, get_realpath_and_stat, \
-    is_writable_file_like
+    is_writable_file_like, maxdict
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import findfont, is_opentype_cff_font
@@ -122,6 +122,9 @@ class RendererPS(RendererBase):
     context instance that controls the colors/styles.
     """
 
+    fontd = maxdict(50)
+    afmfontd = maxdict(50)
+
     def __init__(self, width, height, pswriter, dpi=72):
         RendererBase.__init__(self)
         self.width = width
@@ -144,8 +147,6 @@ class RendererPS(RendererBase):
         self._clip_paths = {}
         self._path_collection_id = 0
 
-        self.fontd = {}
-        self.afmfontd = {}
         self.used_characters = {}
         self.mathtext_parser = MathTextParser("PS")
 
@@ -316,7 +317,11 @@ class RendererPS(RendererBase):
         key = hash(prop)
         font = self.afmfontd.get(key)
         if font is None:
-            font = AFM(file(findfont(prop, fontext='afm')))
+            fname = findfont(prop, fontext='afm')
+            font = self.afmfontd.get(fname)
+            if font is None:
+                font = AFM(file(findfont(prop, fontext='afm')))
+                self.afmfontd[fname] = font
             self.afmfontd[key] = font
         return font
 
@@ -325,7 +330,10 @@ class RendererPS(RendererBase):
         font = self.fontd.get(key)
         if font is None:
             fname = findfont(prop)
-            font = FT2Font(str(fname))
+            font = self.fontd.get(fname)
+            if font is None:
+                font = FT2Font(str(fname))
+                self.fontd[fname] = font
             self.fontd[key] = font
         font.clear()
         size = prop.get_size_in_points()
