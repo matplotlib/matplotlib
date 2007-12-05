@@ -440,12 +440,12 @@ defaultParams = {
     'figure.facecolor'  : [ '0.75', validate_color], # facecolor; scalar gray
     'figure.edgecolor'  : [ 'w', validate_color],  # edgecolor; white
 
-    'figure.subplot.left'   : [0.1, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
+    'figure.subplot.left'   : [0.125, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
     'figure.subplot.right'  : [0.9, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
     'figure.subplot.bottom' : [0.1, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
     'figure.subplot.top'    : [0.9, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
-    'figure.subplot.wspace' : [0.1, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
-    'figure.subplot.hspace' : [0.1, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
+    'figure.subplot.wspace' : [0.2, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
+    'figure.subplot.hspace' : [0.2, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
 
 
     'savefig.dpi'         : [100, validate_float],   # DPI
