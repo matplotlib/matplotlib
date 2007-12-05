@@ -39,7 +39,10 @@ in mind.
   * If you have altered extension code, do you pass
     unit/memleak_hawaii.py?
 
-
+  * if you have added new files or directories, or reorganized
+    existing ones, are the new files included in the match patterns in
+    MANIFEST.in.  This file determines what goes into the src
+    distribution of the mpl build.
 
 == Importing and name spaces ==
 

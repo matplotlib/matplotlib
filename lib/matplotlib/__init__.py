@@ -55,7 +55,7 @@ gmail.com and a host of others).
 """
 from __future__ import generators
 
-__version__  = '0.91.1'
+__version__  = '0.91.2svn'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
@@ -783,61 +783,4 @@ verbose.report('interactive is %s'%rcParams['interactive'])
 verbose.report('units is %s'%rcParams['units'])
 verbose.report('platform is %s'%sys.platform)
 verbose.report('loaded modules: %s'%sys.modules.keys(), 'debug')
-
-class ExampleInfo:
-    pass
-
-class ExampleManager:
-    baseurl = 'http://matplotlib.sf.net'
-    urls = ['%s/%s'%(baseurl, subdir) for subdir in
-            ( 'examples', 'examples/widgets')]
-
-    def get_examples(self):
-        import urllib, re
-        rgx = re.compile('.*<A HREF="([^.]+\.py)">.*')
-        examples = []
-        for url in urls:
-            lines = urllib.urlopen(url).readlines()
-            for line in lines:
-                m = rgx.match(line)
-                if m is not None:
-                    examples.append('%s/%s'%(url, m.group(1)))
-        return examples
-
-    def get_info(self, s):
-        """
-        return an ExampleInfo instance from s, the string content of
-        an example
-        """
-        pass
-
-class Namespace:
-    """
-    A class which takes a list of modules and creates an object with
-    the module naems at attrs
-    """
-    def __init__(self, namespace):
-        for k,v in namespace.items():
-            modname = getattr(v, '__name__', None)
-            if modname is None: continue
-            if modname.startswith('matplotlib.'):
-                self.__dict__[modname.replace('matplotlib.', '')] = v
-
-
-class Importer:
-    def __init__(self, modstr):
-        """
-        import a bunch of matplotlib modules listed in modstr into a
-        single namespace.  Eg,
-
-        mpl = Importer('artist, cbook, lines, patches')
-        print mpl.cbook.iterable(1)
-        """
-        for name in modstr.split(','):
-            name = name.strip()
-            wholename = '.'.join(['matplotlib', name])
-            basemod = __import__(wholename)
-            mod = getattr(basemod, name)
-            setattr(self, name, mod)
-
 

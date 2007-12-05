@@ -150,13 +150,14 @@ class _process_plot_var_args:
     an arbitrary number of x, y, fmt are allowed
     """
 
+    defaultColors = ['b','g','r','c','m','y','k']
     def __init__(self, axes, command='plot'):
         self.axes = axes
         self.command = command
         self._clear_color_cycle()
 
     def _clear_color_cycle(self):
-        self.colors = ['b','g','r','c','m','y','k']
+        self.colors = _process_plot_var_args.defaultColors[:]
         # if the default line color is a color format string, move it up
         # in the que
         try: ind = self.colors.index(rcParams['lines.color'])

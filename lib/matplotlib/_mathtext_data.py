@@ -88,7 +88,8 @@ latex_to_bakoma = {
     r'\phi'                 : ('cmmi10',  42),
     r'\chi'                 : ('cmmi10',  17),
     r'\psi'                 : ('cmmi10',  31),
-
+    r'|'                    : ('cmsy10',  47),
+    r'\|'                   : ('cmsy10',  47),
     r'('                    : ('cmr10',  119),
     r'\leftparen'           : ('cmr10',  119),
     r'\rightparen'          : ('cmr10',   68),
@@ -1771,6 +1772,7 @@ tex2uni = {
 'succnsim': 8937,
 'gimel': 8503,
 'vert': 124,
+'|': 124,
 'varrho': 1009,
 'P': 182,
 'approxident': 8779,
