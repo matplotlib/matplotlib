@@ -1,42 +1,42 @@
+
 INTRODUCTION
 
-  matplotlib requires at a minimum python 2.2+, Numeric or numarray
-  and freetype.  To get the most out of matplotlib, you will want to
-  build some of the optional GUI and image extensions, discussed
-  below.  Matplotlib is known to work on linux, unix, win32 and OS X
+  matplotlib requires at a minimum python 2.3, numpy, libpng and
+  freetype.  To get the most out of matplotlib, you will want to build
+  some of the optional GUI and image extensions, discussed below.
+  Matplotlib is known to work on linux, unix, win32 and OS X
   platforms.
 
   There are two kinds of matplotlib backends: vector based and raster
-  based.  The vector based backends, SVG and PS, produce ASCII text
-  output files *.svg and *.ps.  The core raster based renderer is the
-  http://antigrain.com (agg) backend.  This is a high quality 2D
-  library that supports fast antialiasing, alpha blending and much
-  more.  If you want to produce PNGs or GUI images that support all of
-  matplotlib's features, you should compile matplotlib with agg
-  support and use one of the GUI agg backends: GTKAgg, WXAgg, TkAgg or
-  FLTKAgg.
+  based.  The vector based backends, SVG, PDF and PS, produce ASCII
+  text output files *.svg, *.pdf and *.ps.  The core raster based
+  renderer is the http://antigrain.com (agg) backend.  This is a high
+  quality 2D library that supports fast antialiasing, alpha blending
+  and much more.  If you want to produce PNGs or GUI images that
+  support all of matplotlib's features, you should compile matplotlib
+  with agg support and use one of the GUI agg backends: GTKAgg, WXAgg,
+  TkAgg or FLTKAgg.
 
 COMPILING
 
-  You will need to have recent versions of freetype (>= 2.1.7), libpng
-  and zlib installed on your system.  If you are using a package
-  manager, also make sure the devel versions of these packages are
-  also installed (eg freetype-devel).
+  You will need to have recent versions of freetype, libpng and zlib
+  installed on your system.  If you are using a package manager, also
+  make sure the devel versions of these packages are also installed
+  (eg freetype-devel).
 
-  The top of setup.py contains some flags controlling which backends
-  will be built.  If you want to use a GUI backend, you will need
-  either Tkinter, pygtk or wxpython installed on your system, from src
-  or from a package manager including the devel packages.  You can
-  choose which backends to enable by setting the flags in setup.py,
-  but the 'auto' flags will work in most cases, as matplotlib tries to
-  find a GUI and build the backend acccordingly.  If you know you
-  don't want a particular backend or extension, you can set that flag
-  to False.
+  matplotlib ships with a setup.cfg.template which you can use to
+  customize the build process.  Copy it to setup.cfg if you need to
+  customize something.  See that files for details of the parameters
+  you can set.
 
-  As discussed above, most users will want to set 'BUILD_AGG = 1' and
-  one or more of the GUI backends to True.  Exceptions to this are if
-  you know you don't need a GUI (eg a web server) or you only want to
-  produce vector graphics.
+  If you want to use a GUI backend, you will need either Tkinter,
+  pygtk or wxpython installed on your system, from src or from a
+  package manager including the devel packages.  You can choose which
+  backends to enable by setting the flags in setup.py, but the default
+  is to automatically detect your installed GUIs and build support for
+  them.  If you later find that you did not have a GUI toolkit like
+  pygtk installed when you built matplotlib, but now want it, you will
+  need to install the toolkit and rebuild matplotlib.
 
   If you have installed prerequisites to nonstandard places and need
   to inform matplotlib where they are, edit setupext.py an add the
@@ -45,13 +45,6 @@ COMPILING
   /some/path/include/somheader.h, put /some/path in the basedir list
   for your platform.
 
-  matplotlib works with with Numeric or numarray.  At compile time,
-  setup.py will look for both packages and compile the appropriate
-  extensions into matplotlib.  At runtime, the correct extension code
-  will be chosen based on your numerix setting in matplotlibrc.  If
-  you want to be able to use either Numeric or numarray efficiently
-  with matplotlib, it is important that you have *both* present and in
-  your PYTHONPATH when you compile matplotlib.
 
   Once you have everything above set to your liking, just do the usual
   thing
@@ -62,20 +55,19 @@ COMPILING
 WINDOWS
 
   If you don't already have python installed, you may want to consider
-  using the enthought edition of python, which has (old) scipy, Numeric, and
+  using the enthought edition of python, which has scipy, numpy, and
   wxpython, plus a lot of other goodies, preinstalled -
   http://www.enthought.com/python .  With the enthought edition of
   python + matplotlib installer, the following backends should work
-  out of the box: agg, wx, wxagg, tkagg, ps and svg.
+  out of the box: agg, wx, wxagg, tkagg, ps, pdf and svg.
 
   For standard python installations, you will also need to install
-  either numpy, Numeric or numarray in addition to the matplotlib installer.
-  With a standard python + Numeric/numarray + matplotlib, the
-  following backends should work on windows: agg, tkagg, ps, svg.  If
-  you want others, eg a wx, wxagg, gtk or gtkagg, you'll need to
-  install the requisite GUI toolkits.  This is fairly easy, as both
-  wxpython and pygtk come with windows friendly installers.  The
-  latter includes an additional requirement of the GTK runtime.
+  either numpy, in addition to the matplotlib installer.  On some
+  systems you will also need to download msvcp71.dll library, which
+  you can download from
+  http://www.dll-files.com/dllindex/dll-files.shtml?msvcp71 or other
+  sites.  You will need to unzip the archive and drag the dll into
+  c:\windows\system32
 
   All of the GUI backends run on windows, but TkAgg is probably the
   best for interactive use from the standard python shell or ipython.
@@ -113,17 +105,8 @@ DISTROS: (rpms, apt, fink, osx, freebsd, gentoo, etc)
 
   DEBIAN
 
-    Vittorio Palmisano <redclay@email.it> maintails the debian
-    packages at http://mentors.debian.net
-
-
-    * add this lines to your /etc/apt/sources.list:
-      deb http://anakonda.altervista.org/debian packages/
-      deb-src http://anakonda.altervista.org/debian sources/
-
-    * then run:
-      # apt-get update
-      # apt-get install python-matplotlib python-matplotlib-doc
+   matplotlib is part of debian (and ubuntu) so you shoule be able to
+   apt-get install it.
 
   FREEBSD
 
