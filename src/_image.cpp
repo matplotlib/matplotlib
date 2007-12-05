@@ -850,7 +850,7 @@ _image_module::from_images(const Py::Tuple& args) {
 char _image_module_readpng__doc__[] =
 "readpng(fname)\n"
 "\n"
-"Load an image from png file into a numerix array of MxNx4 uint8";
+"Load an image from png file into a numerix array of MxNx4 float";
 Py::Object
 _image_module::readpng(const Py::Tuple& args) {
 
