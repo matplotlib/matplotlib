@@ -151,7 +151,7 @@ from matplotlib.pyparsing import Combine, Group, Optional, Forward, \
 
 from matplotlib.afm import AFM
 from matplotlib.cbook import Bunch, get_realpath_and_stat, \
-    is_string_like
+    is_string_like, maxdict
 from matplotlib.ft2font import FT2Font, FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, \
@@ -2656,7 +2656,7 @@ class MathTextParser(object):
 
     def __init__(self, output):
         self._output = output
-        self._cache = {}
+        self._cache = maxdict(50)
 
     def parse(self, s, dpi = 72, prop = None):
         if prop is None:
