@@ -9,4 +9,6 @@ fig = figure()
 ax = fig.add_subplot(111)
 ax.plot(a.date, a.adj_close, '-')
 fig.autofmt_xdate()
+
+mlab.rec2excel(a, 'test.xls', colnum=4)
 show()

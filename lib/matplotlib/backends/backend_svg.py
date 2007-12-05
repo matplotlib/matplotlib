@@ -6,7 +6,7 @@ from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import is_string_like, is_writable_file_like
+from matplotlib.cbook import is_string_like, is_writable_file_like, maxdict
 from matplotlib.colors import rgb2hex
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, FontProperties
@@ -30,6 +30,7 @@ def new_figure_manager(num, *args, **kwargs):
 _capstyle_d = {'projecting' : 'square', 'butt' : 'butt', 'round': 'round',}
 class RendererSVG(RendererBase):
     FONT_SCALE = 100.0
+    fontd = maxdict(50)
 
     def __init__(self, width, height, svgwriter, basename=None):
         self.width=width
@@ -46,7 +47,6 @@ class RendererSVG(RendererBase):
         self._markers = {}
         self._path_collection_id = 0
         self.mathtext_parser = MathTextParser('SVG')
-        self.fontd = {}
         svgwriter.write(svgProlog%(width,height,width,height))
 
     def _draw_svg_element(self, element, details, gc, rgbFace):
@@ -59,13 +59,16 @@ class RendererSVG(RendererBase):
         style = self._get_style(gc, rgbFace)
         self._svgwriter.write ('<%s style="%s" %s %s/>\n' % (
                 element, style, clippath, details))
-        
+
     def _get_font(self, prop):
         key = hash(prop)
         font = self.fontd.get(key)
         if font is None:
             fname = findfont(prop)
-            font = FT2Font(str(fname))
+            font = self.fontd.get(fname)
+            if font is None:
+                font = FT2Font(str(fname))
+                self.fontd[fname] = font
             self.fontd[key] = font
         font.clear()
         size = prop.get_size_in_points()
@@ -119,7 +122,7 @@ class RendererSVG(RendererBase):
             path = '<rect x="%(x)s" y="%(y)s" width="%(w)s" height="%(h)s"/>' % locals()
         else:
             return None
-            
+
         id = self._clipd.get(path)
         if id is None:
             id = 'p%x' % len(self._clipd)
@@ -154,7 +157,7 @@ class RendererSVG(RendererBase):
                 Affine2D()
                 .scale(1.0, -1.0)
                 .translate(0.0, self.height))
-    
+
     def _convert_path(self, path, transform):
         tpath = transform.transform_path(path)
 
@@ -174,7 +177,7 @@ class RendererSVG(RendererBase):
             appender(segment)
             currpos += len(segment)
         return ''.join(path_data)
-    
+
     def draw_path(self, gc, path, transform, rgbFace=None):
         trans_and_flip = self._make_flip_transform(transform)
         path_data = self._convert_path(path, trans_and_flip)
@@ -182,7 +185,7 @@ class RendererSVG(RendererBase):
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         write = self._svgwriter.write
-        
+
         key = self._convert_path(marker_path, marker_trans + Affine2D().scale(1.0, -1.0))
         name = self._markers.get(key)
         if name is None:
@@ -201,7 +204,7 @@ class RendererSVG(RendererBase):
                              offsetTrans, facecolors, edgecolors, linewidths,
                              linestyles, antialiaseds):
         write = self._svgwriter.write
-        
+
         path_codes = []
         write('<defs>\n')
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
@@ -212,7 +215,7 @@ class RendererSVG(RendererBase):
             write('<path id="%s" d="%s"/>\n' % (name, d))
             path_codes.append(name)
         write('</defs>\n')
-            
+
         for xo, yo, path_id, gc, rgbFace in self._iter_collection(
             path_codes, cliprect, clippath, clippath_trans,
             offsets, offsetTrans, facecolors, edgecolors,
@@ -221,7 +224,7 @@ class RendererSVG(RendererBase):
             self._draw_svg_element('use', details, gc, rgbFace)
 
         self._path_collection_id += 1
-            
+
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         # MGDTODO: Support clippath here
         trans = [1,0,0,1,0,0]
@@ -288,7 +291,7 @@ class RendererSVG(RendererBase):
         font = self._get_font(prop)
         font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
         y -= font.get_descent() / 64.0
-        
+
         fontsize = prop.get_size_in_points()
         color = rgb2hex(gc.get_rgb()[:3])
 
@@ -429,7 +432,7 @@ class RendererSVG(RendererBase):
             for font, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
                 new_y = - new_y_mtc
                 style = "font-size: %f; font-family: %s" % (fontsize, font.family_name)
-                
+
                 svg.append('<tspan style="%s"' % style)
                 xadvance = metrics.advance
                 svg.append(' textLength="%s"' % xadvance)
@@ -503,14 +506,20 @@ class FigureCanvasSVG(FigureCanvasBase):
                  'svgz': 'Scalable Vector Graphics'}
 
     def print_svg(self, filename, *args, **kwargs):
-        svgwriter = codecs.open(filename, 'w', 'utf-8')
-        return self._print_svg(filename, svgwriter)
+        if is_string_like(filename):
+            fh_to_close = svgwriter = codecs.open(filename, 'w', 'utf-8')
+        elif is_writable_file_like(filename):
+            svgwriter = codecs.EncodedFile(filename, 'utf-8')
+            fh_to_close = None
+        else:
+            raise ValueError("filename must be a path or a file-like object")
+        return self._print_svg(filename, svgwriter, fh_to_close)
 
     def print_svgz(self, filename, *args, **kwargs):
         gzipwriter = gzip.GzipFile(filename, 'w')
         svgwriter = codecs.EncodedFile(gzipwriter, 'utf-8')
         return self._print_svg(filename, svgwriter)
-    
+
     def _print_svg(self, filename, svgwriter, fh_to_close=None):
         self.figure.set_dpi(72.0)
         width, height = self.figure.get_size_inches()
@@ -522,10 +531,10 @@ class FigureCanvasSVG(FigureCanvasBase):
         renderer.finalize()
         if fh_to_close is not None:
             svgwriter.close()
-        
+
     def get_default_filetype(self):
         return 'svg'
-        
+
 class FigureManagerSVG(FigureManagerBase):
     pass
 

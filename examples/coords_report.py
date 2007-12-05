@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-# override the default reporting of coords (coords reporting not
-# implemented yet on wx*)
+# override the default reporting of coords
 
 from pylab import *
 

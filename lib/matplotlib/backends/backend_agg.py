@@ -31,7 +31,8 @@ from matplotlib._image import fromarray
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
      GraphicsContextBase, FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import enumerate, is_string_like, exception_to_str
+from matplotlib.cbook import enumerate, is_string_like, exception_to_str, \
+    maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT
@@ -49,7 +50,8 @@ class RendererAgg(RendererBase):
     context instance that controls the colors/styles
     """
     debug=1
-    texd = {}  # a cache of tex image rasters
+    texd = maxdict(50)  # a cache of tex image rasters
+    _fontd = maxdict(50)
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
         RendererBase.__init__(self)
@@ -70,7 +72,6 @@ class RendererAgg(RendererBase):
         self.restore_region = self._renderer.restore_region
         self.tostring_rgba_minimized = self._renderer.tostring_rgba_minimized
         self.mathtext_parser = MathTextParser('Agg')
-        self._fontd = {}
 
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
         if __debug__: verbose.report('RendererAgg.__init__ done',
@@ -172,7 +173,10 @@ class RendererAgg(RendererBase):
 
         if font is None:
             fname = findfont(prop)
-            font = FT2Font(str(fname))
+            font = self._fontd.get(fname)
+            if font is None:
+                font = FT2Font(str(fname))
+                self._fontd[fname] = font
             self._fontd[key] = font
 
         font.clear()
