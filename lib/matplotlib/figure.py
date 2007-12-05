@@ -151,6 +151,7 @@ class Figure(Artist):
         self.clf()
 
         self._cachedRenderer = None
+        self._autoLayout = False
 
     def _get_dpi(self):
 	return self._dpi
@@ -158,6 +159,9 @@ class Figure(Artist):
 	self._dpi = dpi
 	self._dpi_scale_trans.clear().scale(dpi, dpi)
     dpi = property(_get_dpi, _set_dpi)
+
+    def enable_auto_layout(self, setting=True):
+        self._autoLayout = setting
 
     def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right'):
         """
@@ -628,8 +632,9 @@ class Figure(Artist):
         # based on the tick and axis labels etc., and then makes sure
         # that any axes that began life aligned to another axes remains
         # aligned after these adjustments
-        if len(self.axes) > 1:
+        if self._autoLayout and len(self.axes) > 1:
             aligned_positions = [{}, {}, {}, {}]
+            sizes = [{}, {}]
             for a in self.axes:
                 a.update_layout(renderer)
                 orig_pos = a.get_position(True)
@@ -642,6 +647,15 @@ class Figure(Artist):
                         pos[orig][1].add(curr)
                     else:
                         pos[orig] = [[a], set([curr])]
+                for size, orig, curr in zip(sizes,
+                                            orig_pos.size,
+                                            curr_pos.size):
+                    orig = round(orig * 100.0) / 100.0
+                    if orig in size:
+                        size[orig][0].append(a)
+                        size[orig][1].add(curr)
+                    else:
+                        size[orig] = [[a], set([curr])]
 
             for i, pos in enumerate(aligned_positions):
                 for axes, places in pos.values():
@@ -654,7 +668,19 @@ class Figure(Artist):
                             curr_pos = a.get_position().frozen()
                             curr_pos.get_points()[i/2, i%2] = curr
                             a.set_position(curr_pos, 'active')
-        else:
+
+            for i, size in enumerate(sizes):
+                for axes, dims in size.values():
+                    new = min(dims)
+                    for a in axes:
+                        curr_pos = a.get_position().frozen()
+                        curr = curr_pos.size[i]
+                        if curr > new:
+                            extra = (curr - new) * 0.5
+                            curr_pos.get_points()[0, i] += extra
+                            curr_pos.get_points()[1, i] -= extra
+                            a.set_position(curr_pos, 'active')
+        elif self._autoLayout:
             for a in self.axes: a.update_layout(renderer)
 
         # render the axes
