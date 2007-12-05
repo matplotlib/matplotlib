@@ -146,10 +146,9 @@ class RendererAgg(RendererBase):
     def draw_tex(self, gc, x, y, s, prop, angle):
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
-        dpi = self.dpi
 
         texmanager = self.get_texmanager()
-        key = s, size, dpi, angle, texmanager.get_font_config()
+        key = s, size, self.dpi, angle, texmanager.get_font_config()
         im = self.texd.get(key)
         if im is None:
             Z = texmanager.get_grey(s, size, dpi)
@@ -285,10 +284,16 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     def print_raw(self, filename, *args, **kwargs):
         FigureCanvasAgg.draw(self)
-        self.get_renderer()._renderer.write_rgba(str(filename))
+        original_dpi = renderer.dpi
+        renderer.dpi = self.figure.dpi
+        renderer._renderer.write_rgba(str(filename))
+        renderer.dpi = original_dpi
     print_rgba = print_raw
 
     def print_png(self, filename, *args, **kwargs):
         FigureCanvasAgg.draw(self)
-        self.get_renderer()._renderer.write_png(filename, self.figure.dpi)
-
+        renderer = self.get_renderer()
+        original_dpi = renderer.dpi
+        renderer.dpi = self.figure.dpi
+        renderer._renderer.write_png(filename, self.figure.dpi)
+        renderer.dpi = original_dpi
