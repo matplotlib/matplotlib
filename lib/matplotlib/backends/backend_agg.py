@@ -71,7 +71,7 @@ class RendererAgg(RendererBase):
         self.tostring_rgba_minimized = self._renderer.tostring_rgba_minimized
         self.mathtext_parser = MathTextParser('Agg')
         self._fontd = {}
-        
+
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
@@ -84,7 +84,7 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
-        
+
         x = int(x) + ox
         y = int(y) - oy
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
@@ -112,7 +112,7 @@ class RendererAgg(RendererBase):
 
         self._renderer.draw_text_image(font.get_image(), int(x), int(y) + 1, angle, gc)
 
-    def get_text_width_height_descent(self, s, prop, ismath, rgb=(0,0,0)):
+    def get_text_width_height_descent(self, s, prop, ismath):
         """
         get the width and height in display coords of the string s
         with FontPropertry prop
@@ -125,8 +125,8 @@ class RendererAgg(RendererBase):
             # todo: handle props
             size = prop.get_size_in_points()
             texmanager = self.get_texmanager()
-            Z = texmanager.get_rgba(s, size, self.dpi, rgb)
-            m,n,tmp = Z.shape
+            Z = texmanager.get_grey(s, size, self.dpi)
+            m,n = Z.shape
             # TODO: descent of TeX text (I am imitating backend_ps here -JKS)
             return n, m, 0
 
@@ -145,44 +145,17 @@ class RendererAgg(RendererBase):
 
     def draw_tex(self, gc, x, y, s, prop, angle):
         # todo, handle props, angle, origins
-        rgb = gc.get_rgb()
         size = prop.get_size_in_points()
         dpi = self.dpi
 
-        flip = angle==90
-        w,h,d = self.get_text_width_height_descent(s, prop, 'TeX', rgb)
-        if flip:
-            w,h = h,w
-            x -= w
-
         texmanager = self.get_texmanager()
-        key = s, size, dpi, rgb, angle, texmanager.get_font_config()
+        key = s, size, dpi, angle, texmanager.get_font_config()
         im = self.texd.get(key)
         if im is None:
-            Z = texmanager.get_rgba(s, size, dpi, rgb)
-            if flip:
-                r = Z[:,:,0]
-                g = Z[:,:,1]
-                b = Z[:,:,2]
-                a = Z[:,:,3]
-                m,n,tmp = Z.shape
+            Z = texmanager.get_grey(s, size, dpi)
+            Z = npy.array(Z * 255.0, npy.uint8)
 
-                def func(x):
-                    return npy.transpose(npy.fliplr(x))
-
-                Z = npy.zeros((n,m,4), float)
-                Z[:,:,0] = func(r)
-                Z[:,:,1] = func(g)
-                Z[:,:,2] = func(b)
-                Z[:,:,3] = func(a)
-            im = fromarray(Z, 1)
-            im.flipud_out()
-            self.texd[key] = im
-
-        cliprect = gc.get_clip_rectangle()
-        if cliprect is None: bbox = None
-        else: bbox = Bbox.from_bounds(*cliprect)
-        self.draw_image(x, self.height-y, im, bbox)
+        self._renderer.draw_text_image(Z, x, y, angle, gc)
 
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
@@ -217,7 +190,7 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.points_to_pixels',
                                      'debug-annoying')
         return points*self.dpi/72.0
-    
+
     def tostring_rgb(self):
         if __debug__: verbose.report('RendererAgg.tostring_rgb',
                                      'debug-annoying')
@@ -314,8 +287,8 @@ class FigureCanvasAgg(FigureCanvasBase):
         FigureCanvasAgg.draw(self)
         self.get_renderer()._renderer.write_rgba(str(filename))
     print_rgba = print_raw
-        
+
     def print_png(self, filename, *args, **kwargs):
         FigureCanvasAgg.draw(self)
         self.get_renderer()._renderer.write_png(filename, self.figure.dpi)
-        
+
