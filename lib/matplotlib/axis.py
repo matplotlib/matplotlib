@@ -86,8 +86,6 @@ class Tick(Artist):
         self._loc = loc
         self._size = size
 
-        self._padPixels = self.figure.dpi * self._pad * (1/72.0)
-
         self.tick1line = self._get_tick1line()
         self.tick2line = self._get_tick2line()
         self.gridline = self._get_gridline()
@@ -114,6 +112,9 @@ class Tick(Artist):
         #self.tick2line.set_clip_path(clippath, transform)
         self.gridline.set_clip_path(clippath, transform)
     set_clip_path.__doc__ = Artist.set_clip_path.__doc__
+
+    def get_pad_pixels(self):
+        return self.figure.dpi * self._pad / 72.0
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured in the Tick marks.
@@ -222,7 +223,7 @@ class XTick(Tick):
         # get the affine as an a,b,c,d,tx,ty list
         # x in data coords, y in axes coords
         #t =  Text(
-        trans, vert, horiz = self.axes.get_xaxis_text1_transform(self._padPixels)
+        trans, vert, horiz = self.axes.get_xaxis_text1_transform(self.get_pad_pixels())
 
         t =  TextWithDash(
             x=0, y=0,
@@ -244,7 +245,7 @@ class XTick(Tick):
         'Get the default Text 2 instance'
         # x in data coords, y in axes coords
         #t =  Text(
-        trans, vert, horiz = self.axes.get_xaxis_text2_transform(self._padPixels)
+        trans, vert, horiz = self.axes.get_xaxis_text2_transform(self.get_pad_pixels())
 
         t = TextWithDash(
             x=0, y=1,
@@ -341,7 +342,7 @@ class YTick(Tick):
         'Get the default Text instance'
         # x in axes coords, y in data coords
         #t =  Text(
-        trans, vert, horiz = self.axes.get_yaxis_text1_transform(self._padPixels)
+        trans, vert, horiz = self.axes.get_yaxis_text1_transform(self.get_pad_pixels())
 
         t = TextWithDash(
             x=0, y=0,
@@ -361,7 +362,7 @@ class YTick(Tick):
         'Get the default Text instance'
         # x in axes coords, y in data coords
         #t =  Text(
-        trans, vert, horiz = self.axes.get_yaxis_text2_transform(self._padPixels)
+        trans, vert, horiz = self.axes.get_yaxis_text2_transform(self.get_pad_pixels())
 
         t = TextWithDash(
             x=1, y=0,
@@ -1173,7 +1174,7 @@ class XAxis(Axis):
         """
         bbox, bbox2 = self.get_ticklabel_extents(renderer)
         # MGDTODO: Need a better way to get the pad
-        padPixels = self.majorTicks[0]._padPixels
+        padPixels = self.majorTicks[0].get_pad_pixels()
 
         above = 0.0
         if bbox2.height:
@@ -1409,7 +1410,7 @@ class YAxis(Axis):
     def get_text_widths(self, renderer):
         bbox, bbox2 = self.get_ticklabel_extents(renderer)
         # MGDTODO: Need a better way to get the pad
-        padPixels = self.majorTicks[0]._padPixels
+        padPixels = self.majorTicks[0].get_pad_pixels()
 
         left = 0.0
         if bbox.width:

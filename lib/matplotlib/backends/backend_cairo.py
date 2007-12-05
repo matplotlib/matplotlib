@@ -182,7 +182,6 @@ class RendererCairo(RendererBase):
                                  self.fontangles [prop.get_style()],
                                  self.fontweights[prop.get_weight()])
 
-           # size = prop.get_size_in_points() * self.dpi.get() / 96.0
            size = prop.get_size_in_points() * self.dpi / 72.0
 
            ctx.save()
@@ -214,7 +213,6 @@ class RendererCairo(RendererBase):
                                  self.fontangles [fontProp.style],
                                  self.fontweights[fontProp.weight])
 
-           # size = prop.get_size_in_points() * self.dpi.get() / 96.0
            size = fontsize * self.dpi / 72.0
            ctx.set_font_size(size)
            ctx.show_text(s.encode("utf-8"))
@@ -257,7 +255,6 @@ class RendererCairo(RendererBase):
         # Cairo (says it) uses 1/96 inch user space units, ref: cairo_gstate.c
         # but if /96.0 is used the font is too small
 
-        #size = prop.get_size_in_points() * self.dpi.get() / 96.0
         size = prop.get_size_in_points() * self.dpi / 72.0
 
         # problem - scale remembers last setting and font can become
