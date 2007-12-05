@@ -651,7 +651,7 @@ class Figure(Artist):
                 for size, orig, curr in zip(sizes,
                                             orig_pos.size,
                                             curr_pos.size):
-                    orig = round(orig * 100.0) / 100.0
+                    orig = round(orig * 1000.0) / 1000.0
                     if orig in size:
                         size[orig][0].append(a)
                         size[orig][1].add(curr)
