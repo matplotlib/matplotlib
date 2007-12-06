@@ -152,7 +152,7 @@ class RendererAgg(RendererBase):
         key = s, size, self.dpi, angle, texmanager.get_font_config()
         im = self.texd.get(key)
         if im is None:
-            Z = texmanager.get_grey(s, size, dpi)
+            Z = texmanager.get_grey(s, size, self.dpi)
             Z = npy.array(Z * 255.0, npy.uint8)
 
         self._renderer.draw_text_image(Z, x, y, angle, gc)
