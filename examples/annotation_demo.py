@@ -55,6 +55,12 @@ if 1:
 
     ax.annotate('points', xy=(100, 300),  xycoords='figure points')
 
+    ax.annotate('offset', xy=(1, 1),  xycoords='data',
+                xytext=(-15, 10), textcoords='offset points',
+                arrowprops=dict(facecolor='black', shrink=0.05),
+                horizontalalignment='right', verticalalignment='bottom',
+                )
+
     ax.annotate('local max', xy=(3, 1),  xycoords='data',
                 xytext=(0.8, 0.95), textcoords='axes fraction',
                 arrowprops=dict(facecolor='black', shrink=0.05),
