@@ -615,6 +615,15 @@ distribution""" % (key, cnt, fname)
     if ret['datapath'] is None:
         ret['datapath'] = get_data_path()
 
+    if not ret['text.latex.preamble'] == ['']:
+        verbose.report("""
+*****************************************************************
+You have the following UNSUPPORTED LaTeX preamble customizations:
+%s
+Please do not ask for support with these customizations active.
+*****************************************************************
+"""% '\n'.join(ret['text.latex.preamble']), 'helpful')
+
     verbose.report('loaded rc file %s'%fname)
 
     return ret
