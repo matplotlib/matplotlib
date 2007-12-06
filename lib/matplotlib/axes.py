@@ -909,11 +909,14 @@ class Axes(martist.Artist):
         ysize = max(math.fabs(ymax-ymin), 1e-30)
         return ysize/xsize
 
-    def apply_aspect(self, position):
+    def apply_aspect(self, position=None):
         '''
         Use self._aspect and self._adjustable to modify the
         axes box or the view limits.
         '''
+        if position is None:
+            position = self.get_position(True)
+
         aspect = self.get_aspect()
         if aspect == 'auto':
             self.set_position( position , 'active')
