@@ -275,7 +275,7 @@ class ValidateInterval:
 
 # a map from key -> value, converter
 defaultParams = {
-    'backend'           : ['WXAgg', validate_backend],
+    'backend'           : ['Agg', validate_backend], # agg is certainly present
     'numerix'           : ['numpy', validate_numerix],
     'maskedarray'       : [False, validate_bool],
     'toolbar'           : ['toolbar2', validate_toolbar],
