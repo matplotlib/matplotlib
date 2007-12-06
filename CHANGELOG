@@ -1,3 +1,7 @@
+2007-12-06 fixed a bug in savefig, saving to a nonexistent directory 
+           would result in a crash in some circumstances. Closes bug
+           1699614 - DSD
+
 2007-12-06 fixed a bug in rcsetup, see bug 1845057 - DSD
 
 ===============================================================

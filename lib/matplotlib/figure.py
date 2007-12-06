@@ -1,6 +1,7 @@
 """
 Figure class -- add docstring here!
 """
+import os
 import sys
 
 import numpy as npy
@@ -772,6 +773,9 @@ class Figure(Artist):
 
         format - one of the file extensions supported by the active backend.
         """
+        path = os.path.abspath(os.path.split(args[0])[0])
+        if not os.access(path, os.W_OK):
+            raise IOError('%s is not a writeable directory'%path)
 
         for key in ('dpi', 'facecolor', 'edgecolor'):
             if not kwargs.has_key(key):
