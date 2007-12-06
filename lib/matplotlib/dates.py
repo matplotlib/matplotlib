@@ -534,7 +534,7 @@ class AutoDateLocator(DateLocator):
     def set_axis(self, axis):
         DateLocator.set_axis(self, axis)
         self._locator.set_axis(axis)
-    
+
     def refresh(self):
         'refresh internal information based on current lim'
         dmin, dmax = self.viewlim_to_dt()
@@ -664,7 +664,7 @@ class AutoDateLocator(DateLocator):
 
         locator = RRuleLocator(rrule, self.tz)
         locator.set_axis(self.axis)
-        
+
         locator.set_view_interval(*self.axis.get_view_interval())
         locator.set_data_interval(*self.axis.get_data_interval())
         return locator
@@ -1039,6 +1039,7 @@ if __name__=='__main__':
     delta = datetime.timedelta(hours=6)
     dates = drange(d1, d2, delta)
 
+    # MGDTODO: Broken on transforms branch
     #print 'orig', d1
     #print 'd2n and back', num2date(date2num(d1), tz)
     from _transforms import Value, Interval
