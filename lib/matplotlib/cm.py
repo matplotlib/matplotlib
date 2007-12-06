@@ -58,7 +58,7 @@ class ScalarMappable:
                 if x.shape[2] == 3:
                     if x.dtype == npy.uint8:
                         alpha = npy.array(alpha*255, npy.uint8)
-                    m, n = npy.shape[:2]
+                    m, n = x.shape[:2]
                     xx = npy.empty(shape=(m,n,4), dtype = x.dtype)
                     xx[:,:,:3] = x
                     xx[:,:,3] = alpha
