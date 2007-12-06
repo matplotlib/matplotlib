@@ -1080,6 +1080,24 @@ class Annotation(Text):
             x = float(self.convert_xunits(x))
             y = float(self.convert_yunits(y))
             return trans.xy_tup((x,y))
+        elif s=='data offset':
+            # convert the data point
+            dx, dy = self.xy
+            trans = self.axes.transData
+            dx = float(self.convert_xunits(dx))
+            dy = float(self.convert_yunits(dy))
+            dx, dy = trans.xy_tup((dx, dy))
+
+            # convert the offset
+            dpi = self.figure.dpi.get()
+            x *= dpi/72.
+            y *= dpi/72.
+
+            # add the offset to the data point
+            x += dx
+            y += dy
+
+            return x, y
         elif s=='polar':
             theta, r = x, y
             x = r*npy.cos(theta)
