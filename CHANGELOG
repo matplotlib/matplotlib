@@ -1,3 +1,5 @@
+2007-12-06 updated references to mpl data directories for py2exe - DSD
+
 2007-12-06 fixed a bug in rcsetup, see bug 1845057 - DSD
 
 ===============================================================

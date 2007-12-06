@@ -77,7 +77,7 @@ def _get_configdir():
     if os.path.exists(p):
         if not is_writable_dir(p):
             raise RuntimeError("""\
-'%s' is not a writable dir; you must set %s/.matplotlib to be a writable dir. 
+'%s' is not a writable dir; you must set %s/.matplotlib to be a writable dir.
 You can also set environment variable MPLCONFIGDIR to any writable directory
 where you want matplotlib data stored """%h)
     else:
@@ -110,11 +110,16 @@ def _get_data_path():
 
     # py2exe zips pure python, so still need special check
     if getattr(sys,'frozen',None):
-        path = os.path.join(os.path.split(sys.path[0])[0], 'matplotlibdata')
+        path = os.path.join(os.path.split(sys.path[0])[0], 'mpl-data')
+        if os.path.isdir(path): return path
+        else:
+            # Try again assuming we need to step up one more directory
+            path = os.path.join(os.path.split(os.path.split(sys.path[0])[0])[0],
+                                'mpl-data')
         if os.path.isdir(path): return path
         else:
             # Try again assuming sys.path[0] is a dir not a exe
-            path = os.path.join(sys.path[0], 'matplotlibdata')
+            path = os.path.join(sys.path[0], 'mpl-data')
             if os.path.isdir(path): return path
 
     raise RuntimeError('Could not find the matplotlib data files')
@@ -136,8 +141,8 @@ def get_py2exe_datafiles():
         if 'Matplotlib.nib' in files:
             files.remove('Matplotlib.nib')
         files = [os.path.join(root, filename) for filename in files]
-        root = root.replace(tail, 'matplotlibdata')
-        root = root[root.index('matplotlibdata'):]
+        root = root.replace(tail, 'mpl-data')
+        root = root[root.index('mpl-data'):]
         d[root] = files
     return d.items()
 
