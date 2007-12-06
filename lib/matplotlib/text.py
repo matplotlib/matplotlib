@@ -187,7 +187,7 @@ class Text(Artist):
 
         xmin, ymin = thisx, thisy
         lines = self._text.split('\n')
-            
+
         whs = []
         # Find full vertical extent of font,
         # including ascenders and descenders:
@@ -1025,7 +1025,7 @@ class Annotation(Text):
            'axes pixels'     : pixels from lower left corner of axes
            'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
            'data'            : use the coordinate system of the object being annotated (default)
-           'data offset'     : Specify an offset (in points) from the xy value
+           'offset points'     : Specify an offset (in points) from the xy value
            'polar'           : you can specify theta, r for the annotation, even
                                in cartesian plots.  Note that if you
                                are using a polar axes, you do not need
@@ -1081,12 +1081,12 @@ class Annotation(Text):
             x = float(self.convert_xunits(x))
             y = float(self.convert_yunits(y))
             return trans.xy_tup((x,y))
-        elif s=='data offset':
+        elif s=='offset points':
             # convert the data point
             dx, dy = self.xy
 
             # prevent recursion
-            if self.xycoords == 'data offset':
+            if self.xycoords == 'offset points':
                return self._get_xy(dx, dy, 'data')
 
             dx, dy = self._get_xy(dx, dy, self.xycoords)

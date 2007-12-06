@@ -10,6 +10,7 @@ annotated points and text location, respectively.  Optionally, you can specify t
   'axes points'     : points from lower left corner of axes
   'axes pixels'     : pixels from lower left corner of axes
   'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
+  'offset points'   : Specify an offset (in points) from the xy value
   'data'            : use the axes data coordinate system
 
 Optionally, you can specify arrow properties which draws and arrow
