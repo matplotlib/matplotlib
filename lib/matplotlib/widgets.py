@@ -662,8 +662,8 @@ class Cursor:
         self.vertOn = True
         self.useblit = useblit
 
-        self.lineh = ax.axhline(0, visible=False, **lineprops)
-        self.linev = ax.axvline(0, visible=False, **lineprops)
+        self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **lineprops)
+        self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **lineprops)
 
         self.background = None
         self.needclear = False
@@ -1070,11 +1070,11 @@ class RectangleSelector:
         # If RectangleSelector is not active :
         if not self.active:
             return True
-        
+
         # If canvas was locked
         if not self.canvas.widgetlock.available(self):
             return True
-        
+
         # If no button was pressed yet ignore the event if it was out
         # of the axes
         if self.eventpress == None:
@@ -1174,7 +1174,7 @@ class RectangleSelector:
 
     def get_active(self):
         """ to get status of active mode (boolean variable)"""
-        return self.active 
+        return self.active
 
 class Lasso(Widget):
     def __init__(self, ax, xy, callback=None, useblit=True):
