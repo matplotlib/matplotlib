@@ -1025,6 +1025,7 @@ class Annotation(Text):
            'axes pixels'     : pixels from lower left corner of axes
            'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
            'data'            : use the coordinate system of the object being annotated (default)
+           'data offset'     : Specify an offset (in points) from the xy value
            'polar'           : you can specify theta, r for the annotation, even
                                in cartesian plots.  Note that if you
                                are using a polar axes, you do not need
@@ -1083,10 +1084,12 @@ class Annotation(Text):
         elif s=='data offset':
             # convert the data point
             dx, dy = self.xy
-            trans = self.axes.transData
-            dx = float(self.convert_xunits(dx))
-            dy = float(self.convert_yunits(dy))
-            dx, dy = trans.xy_tup((dx, dy))
+
+            # prevent recursion
+            if self.xycoords == 'data offset':
+               return self._get_xy(dx, dy, 'data')
+
+            dx, dy = self._get_xy(dx, dy, self.xycoords)
 
             # convert the offset
             dpi = self.figure.dpi.get()
