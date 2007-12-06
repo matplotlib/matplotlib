@@ -7,7 +7,7 @@ import numpy as npy
 from matplotlib.pyplot import figure, show
 
 fig = figure()
-# fig.subplots_adjust(bottom=0.2)
+fig.subplots_adjust(bottom=0.2)
 
 ax = fig.add_subplot(111, axisbg='y')
 ax.plot([1,2,3], 'r')

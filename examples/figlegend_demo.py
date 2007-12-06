@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from pylab import *
-ax1 = axes([0.05, 0.1, 0.4, 0.7])
+ax1 = axes([0.1, 0.1, 0.4, 0.7])
 ax2 = axes([0.55, 0.1, 0.4, 0.7])
 
 x = arange(0.0, 2.0, 0.02)

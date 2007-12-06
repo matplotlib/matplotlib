@@ -22,7 +22,7 @@ if not quotes:
     raise SystemExit
 
 fig = figure()
-# fig.subplots_adjust(bottom=0.2)
+fig.subplots_adjust(bottom=0.2)
 ax = fig.add_subplot(111)
 ax.xaxis.set_major_locator(mondays)
 ax.xaxis.set_minor_locator(alldays)
