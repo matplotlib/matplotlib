@@ -4,7 +4,7 @@ operations.
 
 """
 from __future__ import division
-import sys, os
+import sys, os, warnings
 
 import numpy as npy
 
@@ -185,6 +185,9 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
+        if (self.axes.get_xscale() != 'linear' or
+            self.axes.get_yscale() != 'linear'):
+            warnings.warn("Images are not supported on non-linear axes.")
         im = self.make_image(renderer.get_image_magnification())
         l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
         renderer.draw_image(l, b, im, self.axes.bbox)
