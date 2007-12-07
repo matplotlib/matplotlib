@@ -10,6 +10,7 @@ annotated points and text location, respectively.  Optionally, you can specify t
   'axes points'     : points from lower left corner of axes
   'axes pixels'     : pixels from lower left corner of axes
   'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
+  'offset points'   : Specify an offset (in points) from the xy value
   'data'            : use the axes data coordinate system
 
 Optionally, you can specify arrow properties which draws and arrow
@@ -53,6 +54,12 @@ if 1:
     ax.annotate('pixels', xy=(20, 20),  xycoords='figure pixels')
 
     ax.annotate('points', xy=(100, 300),  xycoords='figure points')
+
+    ax.annotate('offset', xy=(1, 1),  xycoords='data',
+                xytext=(-15, 10), textcoords='offset points',
+                arrowprops=dict(facecolor='black', shrink=0.05),
+                horizontalalignment='right', verticalalignment='bottom',
+                )
 
     ax.annotate('local max', xy=(3, 1),  xycoords='data',
                 xytext=(0.8, 0.95), textcoords='axes fraction',

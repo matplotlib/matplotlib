@@ -215,7 +215,7 @@ def is_string_like(obj):
     return 1
 
 def is_writable_file_like(obj):
-    return hasattr(filename, 'write') and callable(filename.write)
+    return hasattr(obj, 'write') and callable(obj.write)
 
 def is_scalar(obj):
     return is_string_like(obj) or not iterable(obj)
@@ -892,7 +892,7 @@ class MemoryMonitor:
         return x, self._mem[i0:self._n:isub]
 
     def plot(self, i0=0, isub=1, fig=None):
-        if fig is None:            
+        if fig is None:
             from pylab import figure, show
             fig = figure()
 

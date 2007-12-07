@@ -182,6 +182,7 @@ class Text(Artist):
 
         whs = npy.zeros((len(lines), 2))
         horizLayout = npy.zeros((len(lines), 4))
+
         # Find full vertical extent of font,
         # including ascenders and descenders:
         tmp, heightt, bl = renderer.get_text_width_height_descent(
@@ -986,6 +987,7 @@ class Annotation(Text):
            'axes pixels'     : pixels from lower left corner of axes
            'axes fraction'   : 0,1 is lower left of axes and 1,1 is upper right
            'data'            : use the coordinate system of the object being annotated (default)
+           'offset points'     : Specify an offset (in points) from the xy value
            'polar'           : you can specify theta, r for the annotation, even
                                in cartesian plots.  Note that if you
                                are using a polar axes, you do not need
@@ -1041,6 +1043,26 @@ class Annotation(Text):
             x = float(self.convert_xunits(x))
             y = float(self.convert_yunits(y))
             return trans.transform_point((x, y))
+        elif s=='offset points':
+            # convert the data point
+            dx, dy = self.xy
+
+            # prevent recursion
+            if self.xycoords == 'offset points':
+               return self._get_xy(dx, dy, 'data')
+
+            dx, dy = self._get_xy(dx, dy, self.xycoords)
+
+            # convert the offset
+            dpi = self.figure.dpi.get()
+            x *= dpi/72.
+            y *= dpi/72.
+
+            # add the offset to the data point
+            x += dx
+            y += dy
+
+            return x, y
         elif s=='polar':
             theta, r = x, y
             x = r*npy.cos(theta)
