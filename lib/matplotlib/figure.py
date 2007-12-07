@@ -519,6 +519,7 @@ class Figure(Artist):
         Add a subplot.  Examples
 
             add_subplot(111)
+            add_subplot(1,1,1)            # equivalent but more general
             add_subplot(212, axisbg='r')  # add subplot with red background
             add_subplot(111, polar=True)  # add a polar subplot
             add_subplot(sub)              # add Subplot instance sub
