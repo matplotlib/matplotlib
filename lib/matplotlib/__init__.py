@@ -428,11 +428,16 @@ def _get_data_path():
 
     # py2exe zips pure python, so still need special check
     if getattr(sys,'frozen',None):
-        path = os.path.join(os.path.split(sys.path[0])[0], 'matplotlibdata')
+        path = os.path.join(os.path.split(sys.path[0])[0], 'mpl-data')
+        if os.path.isdir(path): return path
+        else:
+            # Try again assuming we need to step up one more directory
+            path = os.path.join(os.path.split(os.path.split(sys.path[0])[0])[0],
+                                'mpl-data')
         if os.path.isdir(path): return path
         else:
             # Try again assuming sys.path[0] is a dir not a exe
-            path = os.path.join(sys.path[0], 'matplotlibdata')
+            path = os.path.join(sys.path[0], 'mpl-data')
             if os.path.isdir(path): return path
 
     raise RuntimeError('Could not find the matplotlib data files')
@@ -442,7 +447,8 @@ def _get_data_path_cached():
         defaultParams['datapath'][0] = _get_data_path()
     return defaultParams['datapath'][0]
 
-get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path_cached, always=False)
+get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path_cached,
+                             always=False)
 
 def get_py2exe_datafiles():
     datapath = get_data_path()
@@ -454,8 +460,8 @@ def get_py2exe_datafiles():
         if 'Matplotlib.nib' in files:
             files.remove('Matplotlib.nib')
         files = [os.path.join(root, filename) for filename in files]
-        root = root.replace(tail, 'matplotlibdata')
-        root = root[root.index('matplotlibdata'):]
+        root = root.replace(tail, 'mpl-data')
+        root = root[root.index('mpl-data'):]
         d[root] = files
     return d.items()
 

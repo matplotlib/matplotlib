@@ -1,3 +1,9 @@
+2007-12-06 let widgets.Cursor initialize to the lower x and y bounds
+           rather than 0,0, which can cause havoc for dates and other
+           transforms - DSD
+
+2007-12-06 updated references to mpl data directories for py2exe - DSD
+
 2007-12-06 fixed a bug in rcsetup, see bug 1845057 - DSD
 
 ===============================================================
@@ -11,8 +17,8 @@
 	   object in place of a file path. - MGD
 
 2007-11-13 Improved the default backend selection at build time:
-           SVG -> Agg -> TkAgg -> WXAgg -> GTK -> GTKAgg. The last usable 
-           backend in this progression will be chosen in the default 
+           SVG -> Agg -> TkAgg -> WXAgg -> GTK -> GTKAgg. The last usable
+           backend in this progression will be chosen in the default
            config file. If a backend is defined in setup.cfg, that will
            be the default backend - DSD
 
@@ -22,41 +28,41 @@
 2007-11-12 Exposed all the build options in setup.cfg. These options are
            read into a dict called "options" by setupext.py. Also, added
            "-mpl" tags to the version strings for packages provided by
-           matplotlib. Versions provided by mpl will be identified and 
+           matplotlib. Versions provided by mpl will be identified and
            updated on subsequent installs - DSD
 
 2007-11-12 Added support for STIX fonts.  A new rcParam,
-	   mathtext.fontset, can be used to choose between: 
-           
-	   'cm':
-	     The TeX/LaTeX Computer Modern fonts 
+	   mathtext.fontset, can be used to choose between:
 
-	   'stix': 
+	   'cm':
+	     The TeX/LaTeX Computer Modern fonts
+
+	   'stix':
 	     The STIX fonts (see stixfonts.org)
 
-	   'stixsans': 
-	     The STIX fonts, using sans-serif glyphs by default 
+	   'stixsans':
+	     The STIX fonts, using sans-serif glyphs by default
 
-	   'custom': 
+	   'custom':
 	     A generic Unicode font, in which case the mathtext font
 	     must be specified using mathtext.bf, mathtext.it,
 	     mathtext.sf etc.
-            
+
 	   Added a new example, stix_fonts_demo.py to show how to access
 	   different fonts and unusual symbols.
-	    
+
            - MGD
 
-2007-11-12 Options to disable building backend extension modules moved 
+2007-11-12 Options to disable building backend extension modules moved
            from setup.py to setup.cfg - DSD
 
 2007-11-09 Applied Martin Teichmann's patch 1828813: a QPainter is used in
-           paintEvent, which has to be destroyed using  the method end(). If 
-           matplotlib raises an exception before the call to end - and it 
-           does if you feed it with bad data - this method end() is never 
+           paintEvent, which has to be destroyed using  the method end(). If
+           matplotlib raises an exception before the call to end - and it
+           does if you feed it with bad data - this method end() is never
            called and Qt4 will start spitting error messages
 
-2007-11-09 Moved pyparsing back into matplotlib namespace. Don't use 
+2007-11-09 Moved pyparsing back into matplotlib namespace. Don't use
            system pyparsing, API is too variable from one release
            to the next - DSD
 
@@ -101,7 +107,7 @@
 
 	   The transformation framework was completely rewritten in
 	   Python (with Numpy).  This will make it easier to add news
-	   kinds of transformations without writing C/C++ code.  
+	   kinds of transformations without writing C/C++ code.
 
 	   Transforms are composed into a 'transform tree', made of
 	   transforms whose value depends on other transforms (their
@@ -133,7 +139,7 @@
 	   the backends more consistent in terms of functionality.
 
 	   User visible changes:
-	   
+
 	   - POLAR PLOTS: Polar plots are now interactively zoomable,
              and the r-axis labels can be interactively rotated.
              Straight line segments are now interpolated to follow the
@@ -141,21 +147,21 @@
 
 	   - Non-rectangular clipping works in more backends and with
              more types of objects.
-	     
+
 	   - Sharing an axis across figures is now done in exactly
 	     the same way as sharing an axis between two axes in the
 	     same figure:
-	   
+
 	   	   fig1 = figure()
 		   fig2 = figure()
 
 		   ax1 = fig1.add_subplot(111)
 		   ax2 = fig2.add_subplot(111, sharex=ax1, sharey=ax1)
-		   
+
            - linestyles now include steps-pre, steps-post and
              steps-mid.  The old step still works and is equivalent to
              step-pre.
-	     
+
 	   - Multiple line styles may be provided to a collection.
 
 	   See API_CHANGES for more low-level information about this

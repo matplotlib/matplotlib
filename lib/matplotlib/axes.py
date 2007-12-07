@@ -5511,25 +5511,23 @@ class Axes(martist.Artist):
 
 class SubplotBase:
     """
-    Emulate matlab's(TM) subplot command, creating axes with
-
-      Subplot(numRows, numCols, plotNum)
-
-    where plotNum=1 is the first plot number and increasing plotNums
-    fill rows first.  max(plotNum)==numRows*numCols
-
-    You can leave out the commas if numRows<=numCols<=plotNum<10, as
-    in
-
-      Subplot(211)    # 2 rows, 1 column, first (upper) plot
+    Base class for subplots, which are Axes instances with additional
+    methods to facilitate generating and manipulating a set of Axes
+    within a figure.
     """
 
     def __init__(self, fig, *args, **kwargs):
         """
         fig is a figure instance
 
-        args is a varargs to specify the subplot
+        args is numRows, numCols, plotNum
+            where the array of subplots in the figure has dimensions
+            numRows, numCols, and where plotNum is the number of the
+            subplot being created.  plotNum starts at 1 in the upper
+            right corner and increases to the right.
 
+            If numRows<=numCols<=plotNum<10, args can be the decimal
+            integer numRows*100 + numCols*10 + plotNum.
         """
 
         self.figure = fig
@@ -5650,7 +5648,6 @@ _subplot_classes = {}
 def subplot_class_factory(axes_class=None):
     # This makes a new class that inherits from SubclassBase and the
     # given axes_class (which is assumed to be a subclass of Axes).
-
     # This is perhaps a little bit roundabout to make a new class on
     # the fly like this, but it means that a new Subplot class does
     # not have to be created for every type of Axes.
