@@ -5403,25 +5403,23 @@ class Axes(martist.Artist):
 
 class SubplotBase:
     """
-    Emulate matlab's(TM) subplot command, creating axes with
-
-      Subplot(numRows, numCols, plotNum)
-
-    where plotNum=1 is the first plot number and increasing plotNums
-    fill rows first.  max(plotNum)==numRows*numCols
-
-    You can leave out the commas if numRows<=numCols<=plotNum<10, as
-    in
-
-      Subplot(211)    # 2 rows, 1 column, first (upper) plot
+    Base class for subplots, which are Axes instances with additional
+    methods to facilitate generating and manipulating a set of Axes
+    within a figure.
     """
 
     def __init__(self, fig, *args):
         """
         fig is a figure instance
 
-        args is a varargs to specify the subplot
+        args is numRows, numCols, plotNum
+            where the array of subplots in the figure has dimensions
+            numRows, numCols, and where plotNum is the number of the
+            subplot being created.  plotNum starts at 1 in the upper
+            right corner and increases to the right.
 
+            If numRows<=numCols<=plotNum<10, args can be the decimal
+            integer numRows*100 + numCols*10 + plotNum.
         """
 
         self.figure = fig
@@ -5538,24 +5536,17 @@ class SubplotBase:
 
 class Subplot(SubplotBase, Axes):
     """
-    Emulate matlab's(TM) subplot command, creating axes with
+    subplot class for Cartesian Axes
 
-      Subplot(numRows, numCols, plotNum)
-
-    where plotNum=1 is the first plot number and increasing plotNums
-    fill rows first.  max(plotNum)==numRows*numCols
-
-    You can leave out the commas if numRows<=numCols<=plotNum<10, as
-    in
-
-      Subplot(211)    # 2 rows, 1 column, first (upper) plot
+    This is not normally instantiated by the user; instead,
+    use the Figure.add_subplot method.
     """
     def __str__(self):
         return "Subplot(%g,%g)"%(self.bottom.get(),self.left.get())
 
     def __init__(self, fig, *args, **kwargs):
         """
-        See Axes base class documentation for args and kwargs
+        See SubplotBase and Axes base class documentation for args and kwargs
         """
         SubplotBase.__init__(self, fig, *args)
         Axes.__init__(self, fig, [self.figLeft, self.figBottom,
@@ -5565,7 +5556,6 @@ class Subplot(SubplotBase, Axes):
 
 class PolarAxes(Axes):
     """
-
     Make a PolarAxes.  The rectangular bounding box of the axes is given by
 
 
@@ -6018,17 +6008,10 @@ class PolarAxes(Axes):
 
 class PolarSubplot(SubplotBase, PolarAxes):
     """
-    Create a polar subplot with
+    subplot class for Polar Axes
 
-      PolarSubplot(numRows, numCols, plotNum)
-
-    where plotNum=1 is the first plot number and increasing plotNums
-    fill rows first.  max(plotNum)==numRows*numCols
-
-    You can leave out the commas if numRows<=numCols<=plotNum<10, as
-    in
-
-      Subplot(211)    # 2 rows, 1 column, first (upper) plot
+    This is not normally instantiated by the user; instead,
+    use the Figure.add_subplot(..., polar=True) method.
     """
     def __str__(self):
         return "PolarSubplot(%gx%g)"%(self.figW,self.figH)
