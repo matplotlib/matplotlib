@@ -165,21 +165,6 @@ validate_orientation = ValidateInStrings('orientation',[
     'landscape', 'portrait',
     ])
 
-def validate_latex_preamble(s):
-    'return a list'
-    preamble_list = validate_stringlist(s)
-    if not preamble_list == ['']:
-        verbose.report("""
-*****************************************************************
-You have the following UNSUPPORTED LaTeX preamble customizations:
-%s
-Please do not ask for support with these customizations active.
-*****************************************************************
-"""% '\n'.join(preamble_list), 'helpful')
-    return preamble_list
-
-
-
 def validate_aspect(s):
     if s in ('auto', 'equal'):
         return s
@@ -290,7 +275,7 @@ class ValidateInterval:
 
 # a map from key -> value, converter
 defaultParams = {
-    'backend'           : ['WXAgg', validate_backend],
+    'backend'           : ['Agg', validate_backend], # agg is certainly present
     'numerix'           : ['numpy', validate_numerix],
     'maskedarray'       : [False, validate_bool],
     'toolbar'           : ['toolbar2', validate_toolbar],
@@ -353,7 +338,7 @@ defaultParams = {
     'text.color'          : ['k', validate_color],     # black
     'text.usetex'         : [False, validate_bool],
     'text.latex.unicode'  : [False, validate_bool],
-    'text.latex.preamble' : [[''], validate_latex_preamble],
+    'text.latex.preamble' : [[''], validate_stringlist],
     'text.dvipnghack'     : [False, validate_bool],
     'text.fontstyle'      : ['normal', str],
     'text.fontangle'      : ['normal', str],
