@@ -440,33 +440,6 @@ class Path(object):
             n = int(2 ** math.ceil((eta2 - eta1) / halfpi))
 
         deta = (eta2 - eta1) / n
-        etaB = eta1
-
-        cos_etaB = math.cos(etaB)
-        sin_etaB = math.sin(etaB)
-        xB = cos_etaB
-        yB = sin_etaB
-        xB_dot = -sin_etaB
-        yB_dot = cos_etaB
-
-        if is_wedge:
-            length = n * 3 + 4
-            vertices = npy.zeros((length, 2), npy.float_)
-            codes = Path.CURVE4 * npy.ones((length, ), Path.code_type)
-            vertices[1] = [xB, yB]
-            codes[0:2] = [Path.MOVETO, Path.LINETO]
-            codes[-2:] = [Path.LINETO, Path.CLOSEPOLY]
-            vertex_offset = 2
-            end = length - 2
-        else:
-            length = n * 3 + 1
-            vertices = npy.zeros((length, 2), npy.float_)
-            codes = Path.CURVE4 * npy.ones((length, ), Path.code_type)
-            vertices[0] = [xB, yB]
-            codes[0] = Path.MOVETO
-            vertex_offset = 1
-            end = length
-
         t = math.tan(0.5 * deta)
         alpha = math.sin(deta) * (math.sqrt(4.0 + 3.0 * t * t) - 1) / 3.0
 
@@ -483,6 +456,24 @@ class Path(object):
         yB = sin_eta[1:]
         xB_dot = -yB
         yB_dot = xB
+
+        if is_wedge:
+            length = n * 3 + 4
+            vertices = npy.zeros((length, 2), npy.float_)
+            codes = Path.CURVE4 * npy.ones((length, ), Path.code_type)
+            vertices[1] = [xA[0], yA[0]]
+            codes[0:2] = [Path.MOVETO, Path.LINETO]
+            codes[-2:] = [Path.LINETO, Path.CLOSEPOLY]
+            vertex_offset = 2
+            end = length - 2
+        else:
+            length = n * 3 + 1
+            vertices = npy.zeros((length, 2), npy.float_)
+            codes = Path.CURVE4 * npy.ones((length, ), Path.code_type)
+            vertices[0] = [xA[0], yA[0]]
+            codes[0] = Path.MOVETO
+            vertex_offset = 1
+            end = length
 
         vertices[vertex_offset  :end:3, 0] = xA + alpha * xA_dot
         vertices[vertex_offset  :end:3, 1] = yA + alpha * yA_dot
