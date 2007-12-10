@@ -1,3 +1,9 @@
+2007-12-10 Fix SVG text rendering bug.
+
+2007-12-10 Increase accuracy of circle and ellipse drawing by using an 8-piece
+           bezier approximation, rather than a 4-piece one.  Fix PDF, SVG and
+           Cairo backends so they can draw paths (meaning ellipses as well).
+
 2007-12-07 Issue a warning when drawing an image on a non-linear axis. - MGD
 
 2007-12-06 let widgets.Cursor initialize to the lower x and y bounds
