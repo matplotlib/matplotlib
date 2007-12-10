@@ -109,9 +109,10 @@ def win32FontDirectory():
     else:
         user = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, MSFolders)
         try:
-            return _winreg.QueryValueEx(user, 'Fonts')[0]
-        except OSError:
-            pass # Fall through to default
+            try:
+                return _winreg.QueryValueEx(user, 'Fonts')[0]
+            except OSError:
+                pass # Fall through to default
         finally:
             _winreg.CloseKey(user)
     return os.path.join(os.environ['WINDIR'], 'Fonts')
