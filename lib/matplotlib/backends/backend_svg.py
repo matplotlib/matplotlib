@@ -140,49 +140,6 @@ class RendererSVG(RendererBase):
     def close_group(self, s):
         self._svgwriter.write('</g>\n')
 
-<<<<<<< .working
-=======
-    def draw_path(self, gc, rgbFace, path):
-        cmd = []
-
-        while 1:
-            code, xp, yp = path.vertex()
-            yp = self.height - yp
-
-            if code == agg.path_cmd_stop:
-                cmd.append('z') # Hack, path_cmd_end_poly not found
-                break
-            elif code == agg.path_cmd_move_to:
-                cmd.append('M%g %g' % (xp, yp))
-            elif code == agg.path_cmd_line_to:
-                cmd.append('L%g %g' % (xp, yp))
-            elif code == agg.path_cmd_curve3:
-                verts = [xp, yp]
-                verts.extent(path.vertex()[1:])
-                verts[-1] = self.height - verts[-1]
-                cmd.append('Q%g %g %g %g' % tuple(verts))
-            elif code == agg.path_cmd_curve4:
-                verts = [xp, yp]
-                verts.extend(path.vertex()[1:])
-                verts[-1] = self.height - verts[-1]
-                verts.extend(path.vertex()[1:])
-                verts[-1] = self.height - verts[-1]
-                cmd.append('C%g %g %g %g %g %g'%tuple(verts))
-            elif code == agg.path_cmd_end_poly:
-                cmd.append('z')
-
-        path_data = "".join(cmd)
-        self._draw_svg_element("path", 'd="%s"' % path_data, gc, rgbFace)
-
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
-        """
-        Ignores angles for now
-        """
-        details = 'cx="%s" cy="%s" rx="%s" ry="%s" transform="rotate(%1.1f %s %s)"' % \
-            (x,  self.height-y, width/2.0, height/2.0, -rotation, x, self.height-y)
-        self._draw_svg_element('ellipse', details, gc, rgbFace)
-
->>>>>>> .merge-right.r4686
     def option_image_nocomposite(self):
         """
         if svg.image_noscale is True, compositing multiple images into one is prohibited
