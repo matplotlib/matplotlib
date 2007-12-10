@@ -1249,6 +1249,36 @@ class RendererPdf(RendererBase):
 
         self.file.output(self.gc.close_and_paint())
 
+    def draw_path(self, gc, rgbFace, path):
+        self.check_gc(gc, rgbFace)
+
+        cmds = []
+
+        while 1:
+            code, xp, yp = path.vertex()
+
+            if code == agg.path_cmd_stop:
+                cmds.append(Op.closepath)
+                break
+            elif code == agg.path_cmd_move_to:
+                cmds.extend([xp, yp, Op.moveto])
+            elif code == agg.path_cmd_line_to:
+                cmds.extend([xp, yp, Op.lineto])
+            elif code == agg.path_cmd_curve3:
+                cmds.extend([xp, yp])
+                cmds.extend([xp, yp])
+                cmds.extend(path.vertex()[1:])
+                cmds.append(Op.curveto)
+            elif code == agg.path_cmd_curve4:
+                cmds.extend([xp, yp])
+                cmds.extend(path.vertex()[1:])
+                cmds.extend(path.vertex()[1:])
+                cmds.append(Op.curveto)
+            elif code == agg.path_cmd_end_poly:
+                cmds.append(Op.closepath)
+        self.file.output(*cmds)
+        self.file.output(self.gc.paint())
+
     def get_image_magnification(self):
         return self.image_magnification
 

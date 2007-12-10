@@ -34,6 +34,7 @@ if cairo.version_info < _version_required:
 backend_version = cairo.version
 del _version_required
 
+from matplotlib import agg
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook        import enumerate, izip, is_string_like
@@ -124,6 +125,34 @@ class RendererCairo(RendererBase):
 
         #_.ctx.restore() # revert to the default attributes
 
+    def draw_path(self, gc, rgbFace, path):
+        ctx = gc.ctx
+        ctx.new_path()
+
+        while 1:
+            code, xp, yp = path.vertex()
+            yp = self.height - yp
+
+            if code == agg.path_cmd_stop:
+                ctx.close_path()
+                break
+            elif code == agg.path_cmd_move_to:
+                ctx.move_to(xp, yp)
+            elif code == agg.path_cmd_line_to:
+                ctx.line_to(xp, yp)
+            elif code == agg.path_cmd_curve3:
+                _, xp1, yp1 = path.vertex()
+                yp1 = self.height - yp1
+                ctx.curve_to(xp, yp, xp, yp, xp1, yp1)
+            elif code == agg.path_cmd_curve4:
+                _, xp1, yp1 = path.vertex()
+                yp1 = self.height - yp1
+                _, xp2, yp2 = path.vertex()
+                yp2 = self.height - yp2
+                ctx.curve_to(xp, yp, xp1, yp1, xp2, yp2)
+            elif code == agg.path_cmd_end_poly:
+                ctx.close_path()
+        self._fill_and_stroke(ctx, rgbFace)
 
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2,
                  rotation):
@@ -307,11 +336,11 @@ class RendererCairo(RendererBase):
         ctx.translate(x, y)
         if angle:
            ctx.rotate (-angle * npy.pi / 180)
-           
+
         for font, fontsize, s, ox, oy in glyphs:
            ctx.new_path()
            ctx.move_to(ox, oy)
-           
+
            fontProp = ttfFontProperty(font)
            ctx.save()
            ctx.select_font_face (fontProp.name,
@@ -332,7 +361,7 @@ class RendererCairo(RendererBase):
 
         ctx.restore()
 
-        
+
     def flipy(self):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         return True
@@ -494,7 +523,7 @@ class FigureCanvasCairo (FigureCanvasBase):
 
         self.figure.draw (renderer)
         surface.write_to_png (fobj)
-    
+
     def print_pdf(self, fobj, *args, **kwargs):
         return self._save(fobj, 'pdf', *args, **kwargs)
 
@@ -506,10 +535,10 @@ class FigureCanvasCairo (FigureCanvasBase):
 
     def print_svgz(self, fobj, *args, **kwargs):
         return self._save(fobj, 'svgz', *args, **kwargs)
-    
+
     def get_default_filetype(self):
         return rcParams['cairo.format']
-    
+
     def _save (self, fo, format, **kwargs):
         # save PDF/PS/SVG
         orientation = kwargs.get('orientation', 'portrait')
