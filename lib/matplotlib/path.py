@@ -15,8 +15,6 @@ from matplotlib._path import point_in_path, get_path_extents, \
     path_in_path, path_intersects_path, convert_path_to_polygons
 from matplotlib.cbook import simple_linear_interpolation
 
-KAPPA = 4.0 * (npy.sqrt(2) - 1) / 3.0
-
 class Path(object):
     """
     Path represents a series of possibly disconnected, possibly
@@ -350,33 +348,58 @@ class Path(object):
     def unit_circle(cls):
         """
         Returns a Path of the unit circle.  The circle is approximated
-        using cubic Bezier curves.
+        using cubic Bezier curves.  This uses 8 splines around the
+        circle using the approach presented here:
+
+        Lancaster, Don.  Approximating a Circle or an Ellipse Using Four
+        Bezier Cubic Splines.
+
+        http://www.tinaja.com/glib/ellipse4.pdf
         """
 	if cls._unit_circle is None:
-            offset = KAPPA
+            MAGIC = 0.2652031
+            SQRT2 = npy.sqrt(0.5)
+            MAGIC45 = npy.sqrt((MAGIC*MAGIC) / 2.0)
+
 	    vertices = npy.array(
-		[[-1.0, 0.0],
+		[[0.0, -1.0],
 
-		 [-1.0, offset],
-		 [-offset, 1.0],
-		 [0.0, 1.0],
+		 [MAGIC, -1.0],
+		 [SQRT2-MAGIC45, -SQRT2-MAGIC45],
+		 [SQRT2, -SQRT2],
 
-		 [offset, 1.0],
-		 [1.0, offset],
-		 [1.0, 0.0],
+		 [SQRT2+MAGIC45, -SQRT2+MAGIC45],
+		 [1.0, -MAGIC],
+                 [1.0, 0.0],
 
-		 [1.0, -offset],
-		 [offset, -1.0],
-		 [0.0, -1.0],
+                 [1.0, MAGIC],
+                 [SQRT2+MAGIC45, SQRT2-MAGIC45],
+                 [SQRT2, SQRT2],
 
-		 [-offset, -1.0],
-		 [-1.0, -offset],
-		 [-1.0, 0.0],
+                 [SQRT2-MAGIC45, SQRT2+MAGIC45],
+                 [MAGIC, 1.0],
+                 [0.0, 1.0],
 
-                 [-1.0, 0.0]],
+                 [-MAGIC, 1.0],
+                 [-SQRT2+MAGIC45, SQRT2+MAGIC45],
+                 [-SQRT2, SQRT2],
+
+                 [-SQRT2-MAGIC45, SQRT2-MAGIC45],
+                 [-1.0, MAGIC],
+                 [-1.0, 0.0],
+
+                 [-1.0, -MAGIC],
+                 [-SQRT2-MAGIC45, -SQRT2+MAGIC45],
+                 [-SQRT2, -SQRT2],
+
+                 [-SQRT2+MAGIC45, -SQRT2-MAGIC45],
+                 [-MAGIC, -1.0],
+                 [0.0, -1.0],
+
+                 [0.0, -1.0]],
                 npy.float_)
 
-            codes = cls.CURVE4 * npy.ones(14)
+            codes = cls.CURVE4 * npy.ones(26)
 	    codes[0] = cls.MOVETO
             codes[-1] = cls.CLOSEPOLY
 
