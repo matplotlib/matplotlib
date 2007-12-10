@@ -1,3 +1,5 @@
+2007-12-07 Issue a warning when drawing an image on a non-linear axis. - MGD
+
 2007-12-06 let widgets.Cursor initialize to the lower x and y bounds
            rather than 0,0, which can cause havoc for dates and other
            transforms - DSD
@@ -5,6 +7,10 @@
 2007-12-06 updated references to mpl data directories for py2exe - DSD
 
 2007-12-06 fixed a bug in rcsetup, see bug 1845057 - DSD
+
+2007-12-05 Fix how fonts are cached to avoid loading the same one multiple times.
+           (This was a regression since 0.90 caused by the refactoring of
+           font_manager.py) - MGD
 
 ===============================================================
 2007-11-27 Released 0.91.1 at revision 4517
