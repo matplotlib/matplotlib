@@ -30,7 +30,7 @@ class MixedModeRenderer(object):
         self._raster_renderer_class = raster_renderer_class
         self._width = width
         self._height = height
-        self._dpi = dpi
+        self.dpi = dpi
 
         assert not vector_renderer.option_image_nocomposite()
         self._vector_renderer = vector_renderer
@@ -55,7 +55,7 @@ class MixedModeRenderer(object):
                 setattr(self, method, getattr(renderer, method))
         renderer.start_rasterizing = self.start_rasterizing
         renderer.stop_rasterizing = self.stop_rasterizing
-        
+
     def start_rasterizing(self):
         """
         Enter "raster" mode.  All subsequent drawing commands (until
@@ -70,7 +70,7 @@ class MixedModeRenderer(object):
                 self._width*self._dpi, self._height*self._dpi, self._dpi)
             self._set_current_renderer(self._raster_renderer)
             self._rasterizing = True
-        
+
     def stop_rasterizing(self):
         """
         Exit "raster" mode.  All of the drawing that was done since
