@@ -358,41 +358,41 @@ class Path(object):
         """
 	if cls._unit_circle is None:
             MAGIC = 0.2652031
-            SQRT2 = npy.sqrt(0.5)
+            SQRTHALF = npy.sqrt(0.5)
             MAGIC45 = npy.sqrt((MAGIC*MAGIC) / 2.0)
 
 	    vertices = npy.array(
 		[[0.0, -1.0],
 
 		 [MAGIC, -1.0],
-		 [SQRT2-MAGIC45, -SQRT2-MAGIC45],
-		 [SQRT2, -SQRT2],
+		 [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
+		 [SQRTHALF, -SQRTHALF],
 
-		 [SQRT2+MAGIC45, -SQRT2+MAGIC45],
+		 [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
 		 [1.0, -MAGIC],
                  [1.0, 0.0],
 
                  [1.0, MAGIC],
-                 [SQRT2+MAGIC45, SQRT2-MAGIC45],
-                 [SQRT2, SQRT2],
+                 [SQRTHALF+MAGIC45, SQRTHALF-MAGIC45],
+                 [SQRTHALF, SQRTHALF],
 
-                 [SQRT2-MAGIC45, SQRT2+MAGIC45],
+                 [SQRTHALF-MAGIC45, SQRTHALF+MAGIC45],
                  [MAGIC, 1.0],
                  [0.0, 1.0],
 
                  [-MAGIC, 1.0],
-                 [-SQRT2+MAGIC45, SQRT2+MAGIC45],
-                 [-SQRT2, SQRT2],
+                 [-SQRTHALF+MAGIC45, SQRTHALF+MAGIC45],
+                 [-SQRTHALF, SQRTHALF],
 
-                 [-SQRT2-MAGIC45, SQRT2-MAGIC45],
+                 [-SQRTHALF-MAGIC45, SQRTHALF-MAGIC45],
                  [-1.0, MAGIC],
                  [-1.0, 0.0],
 
                  [-1.0, -MAGIC],
-                 [-SQRT2-MAGIC45, -SQRT2+MAGIC45],
-                 [-SQRT2, -SQRT2],
+                 [-SQRTHALF-MAGIC45, -SQRTHALF+MAGIC45],
+                 [-SQRTHALF, -SQRTHALF],
 
-                 [-SQRT2+MAGIC45, -SQRT2-MAGIC45],
+                 [-SQRTHALF+MAGIC45, -SQRTHALF-MAGIC45],
                  [-MAGIC, -1.0],
                  [0.0, -1.0],
 
