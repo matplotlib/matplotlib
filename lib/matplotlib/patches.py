@@ -201,7 +201,7 @@ class Patch(artist.Artist):
 
         if cbook.is_string_like(self._edgecolor) and self._edgecolor.lower()=='none':
             gc.set_linewidth(0)
-        else:        
+        else:
             gc.set_foreground(self._edgecolor)
             gc.set_linewidth(self._linewidth)
 
@@ -764,32 +764,46 @@ class Ellipse(Patch):
     """
     A scale-free ellipse
     """
-    offset = 4.0 * (npy.sqrt(2) - 1) / 3.0
+    MAGIC = 0.2652031
+    SQRT2 = npy.sqrt(0.5)
+    MAGIC45 = npy.sqrt((MAGIC*MAGIC) / 2.0)
 
-    circle = npy.array([
-        [-1.0, 0.0],
+    circle = npy.array(
+        [[0.0, -1.0],
 
-        [-1.0, offset],
-        [-offset, 1.0],
-        [0.0, 1.0],
+         [MAGIC, -1.0],
+         [SQRT2-MAGIC45, -SQRT2-MAGIC45],
+         [SQRT2, -SQRT2],
 
-        [offset, 1.0],
-        [1.0, offset],
-        [1.0, 0.0],
+         [SQRT2+MAGIC45, -SQRT2+MAGIC45],
+         [1.0, -MAGIC],
+         [1.0, 0.0],
 
-        [1.0, -offset],
-        [offset, -1.0],
-        [0.0, -1.0],
+         [1.0, MAGIC],
+         [SQRT2+MAGIC45, SQRT2-MAGIC45],
+         [SQRT2, SQRT2],
 
-        [-offset, -1.0],
-        [-1.0, -offset],
-        [-1.0, 0.0],
+         [SQRT2-MAGIC45, SQRT2+MAGIC45],
+         [MAGIC, 1.0],
+         [0.0, 1.0],
 
-        [-1.0, 0.0]
-        ],
-                       npy.float_)
+         [-MAGIC, 1.0],
+         [-SQRT2+MAGIC45, SQRT2+MAGIC45],
+         [-SQRT2, SQRT2],
 
-    
+         [-SQRT2-MAGIC45, SQRT2-MAGIC45],
+         [-1.0, MAGIC],
+         [-1.0, 0.0],
+
+         [-1.0, -MAGIC],
+         [-SQRT2-MAGIC45, -SQRT2+MAGIC45],
+         [-SQRT2, -SQRT2],
+
+         [-SQRT2+MAGIC45, -SQRT2-MAGIC45],
+         [-MAGIC, -1.0],
+         [0.0, -1.0]],
+        npy.float_)
+
     def __str__(self):
         return "Ellipse(%d,%d;%dx%d)"%(self.center[0],self.center[1],self.width,self.height)
 
@@ -823,9 +837,9 @@ class Ellipse(Patch):
         width, height = self.width, self.height
 
         xcenter = self.convert_xunits(xcenter)
-        width = self.convert_xunits(width)        
+        width = self.convert_xunits(width)
         ycenter = self.convert_yunits(ycenter)
-        height = self.convert_xunits(height)        
+        height = self.convert_xunits(height)
 
 
 
@@ -871,7 +885,7 @@ class Ellipse(Patch):
             mpl.verbose.report('patches.Ellipse renderer does not support path drawing; falling back on vertex approximation for nonlinear transformation')
             renderer.draw_polygon(gc, rgbFace, self.get_verts())
             return
-        
+
 
         x, y = self.center
         x = self.convert_xunits(x)
@@ -887,14 +901,14 @@ class Ellipse(Patch):
 
 
 
-        
+
         S = npy.array([
             [w, 0, 0],
             [0, h, 0],
             [0, 0, 1]])
 
 
-        
+
         # rotate by theta
         R = npy.array([
             [npy.cos(theta),  -npy.sin(theta), 0],
@@ -903,7 +917,7 @@ class Ellipse(Patch):
 
         # transform unit circle into ellipse
         E = npy.dot(T, npy.dot(R, S))
-        
+
 
         # Apply the display affine
         sx, b, c, sy, tx, ty = self.get_transform().as_vec6_val()
@@ -918,24 +932,18 @@ class Ellipse(Patch):
 
         C = npy.ones((3, len(self.circle)))
         C[0:2,:] = self.circle.T
-        
+
         ellipse = npy.dot(M, C).T[:,:2]
 
         path =  agg.path_storage()
         path.move_to(*ellipse[0])
-        verts = ellipse[1:4].flat
-        path.curve4(*verts)
-        verts = ellipse[4:7].flat
-        path.curve4(*verts)
-        verts = ellipse[7:10].flat
-        path.curve4(*verts)
-        verts = ellipse[10:13].flat
-        path.curve4(*verts)
+        for i in range(1, 25, 3):
+            path.curve4(*ellipse[i:i+3].flat)
         path.close_polygon()
 
         renderer.draw_path(gc, rgbFace, path)
 
-                              
+
 
 class Circle(Ellipse):
     """
