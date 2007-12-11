@@ -1,4 +1,4 @@
-from matplotlib import pylab
+import pylab
 
 DATA = ((1, 3),
         (2, 4),
@@ -15,26 +15,27 @@ dash_style = (
     (1, 20, 30, 60, 10),
     )
 
-def test_dashpointlabel(save=False):
-    pylab.clf()
-    (x,y) = zip(*DATA)
-    pylab.plot(x, y, marker='o')
-    for i in xrange(len(DATA)):
-        (x,y) = DATA[i]
-        (dd, dl, r, dr, dp) = dash_style[i]
-        pylab.text(x, y, str((x,y)), withdash=True,
-                   dashdirection=dd,
-                   dashlength=dl,
-                   rotation=r,
-                   dashrotation=dr,
-                   dashpush=dp,
-                   )
-    axis = pylab.gca()
-    axis.set_xlim((0.0, 5.0))
-    axis.set_ylim((0.0, 5.0))
-    if save:
-        pylab.savefig('dashpointlabel')
-    pylab.show()
+fig = pylab.figure()
+ax = fig.add_subplot(111)
 
-if __name__ == '__main__':
-    test_dashpointlabel()
+
+(x,y) = zip(*DATA)
+ax.plot(x, y, marker='o')
+for i in xrange(len(DATA)):
+    (x,y) = DATA[i]
+    (dd, dl, r, dr, dp) = dash_style[i]
+    #print 'dashlen call', dl
+    t = ax.text(x, y, str((x,y)), withdash=True,
+               dashdirection=dd,
+               dashlength=dl,
+               rotation=r,
+               dashrotation=dr,
+               dashpush=dp,
+               )
+
+ax.set_xlim((0.0, 5.0))
+ax.set_ylim((0.0, 5.0))
+#if save:
+#    pylab.savefig('dashpointlabel')
+pylab.show()
+
