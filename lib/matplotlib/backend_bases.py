@@ -953,7 +953,6 @@ class FigureCanvasBase:
                 a.set_facecolor('lightblue')
             else: self._active[a] = None
         self.draw_idle()
-        #self.gui_repaint()
 
     def pick(self, mouseevent):
         if not self.widgetlock.locked():
