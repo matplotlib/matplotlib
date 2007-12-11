@@ -962,6 +962,10 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
         outstream.write("Examining: %r\n" % (obj,))
         recurse(obj, obj, { }, [])
 
+
+
+
+
 if __name__=='__main__':
     assert( allequal([1,1,1]) )
     assert(not  allequal([1,1,0]) )
