@@ -368,6 +368,11 @@ class Text(Artist):
         "Return the horizontal alignment as string"
         return self._horizontalalignment
 
+
+    def _get_xy_display(self):
+        'get the (possibly unit converted) transformed x,y in display coords'
+        return self.get_transform().transform_point((self._x, self._y))
+
     def get_position(self):
         "Return x, y as tuple"
         x = float(self.convert_xunits(self._x))
@@ -631,6 +636,8 @@ class Text(Artist):
 
         ACCEPTS: a matplotlib.font_manager.FontProperties instance
         """
+        if is_string_like(fp):
+            fp = FontProperties(fp)
         self._fontproperties = fp
 
 artist.kwdocd['Text'] = artist.kwdoc(Text)
@@ -731,6 +738,24 @@ class TextWithDash(Text):
 
         #self.set_bbox(dict(pad=0))
 
+    def get_position(self):
+        "Return x, y as tuple"
+        x = float(self.convert_xunits(self._dashx))
+        y = float(self.convert_yunits(self._dashy))
+        return x, y
+
+    def get_prop_tup(self):
+        """
+        Return a hashable tuple of properties
+
+        Not intended to be human readable, but useful for backends who
+        want to cache derived information about text (eg layouts) and
+        need to know if the text has changed
+        """
+        props = [p for p in Text.get_prop_tup(self)]
+        props.extend([self._x, self._y, self._dashlength, self._dashdirection, self._dashrotation, self._dashpad, self._dashpush])
+        return tuple(props)
+
     def draw(self, renderer):
         self.update_coords(renderer)
         Text.draw(self, renderer)
@@ -808,7 +833,8 @@ class TextWithDash(Text):
         cwd *= 1+dashpad/npy.sqrt(npy.dot(cwd,cwd))
         cw = c2+(dashdirection*2-1)*cwd
 
-        self._x, self._y = inverse.transform_point(tuple(cw))
+        newx, newy = inverse.transform_point(tuple(cw))
+        self._x, self._y = newx, newy
 
         # Now set the window extent
         # I'm not at all sure this is the right way to do this.
@@ -892,9 +918,6 @@ class TextWithDash(Text):
         """
         self._dashpush = dp
 
-    def get_position(self):
-        "Return x, y as tuple"
-        return self._dashx, self._dashy
 
     def set_position(self, xy):
         """

@@ -11,7 +11,7 @@ try:
     set = set
 except NameError:
     from sets import Set as set
-    
+
 major, minor1, minor2, s, tmp = sys.version_info
 
 
@@ -974,9 +974,9 @@ class Grouper(object):
     .get().
 
     The objects being joined must be hashable.
-    
+
     For example:
-    
+
     >>> g = grouper.Grouper()
     >>> g.join('a', 'b')
     >>> g.join('b', 'c')
@@ -989,7 +989,7 @@ class Grouper(object):
     True
     >>> g.joined('a', 'd')
     False
-    """   
+    """
     def __init__(self, init=[]):
 	mapping = self._mapping = {}
 	for x in init:
@@ -997,7 +997,7 @@ class Grouper(object):
 
     def __contains__(self, item):
         return item in self._mapping
-            
+
     def join(self, a, *args):
 	"""
 	Join given arguments into the same set.
@@ -1045,7 +1045,7 @@ class Grouper(object):
 	"""
 	return self._mapping.get(a, [a])
 
-    
+
 def simple_linear_interpolation(a, steps):
     steps = npy.floor(steps)
     new_length = ((len(a) - 1) * steps) + 1
@@ -1061,7 +1061,7 @@ def simple_linear_interpolation(a, steps):
     for i in range(1, int(steps)):
         result[i::steps] = delta * i + a0
     result[steps::steps] = a1
-        
+
     return result
 
 if __name__=='__main__':

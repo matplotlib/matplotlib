@@ -1006,7 +1006,6 @@ class Arc(Ellipse):
             dx = x1 - x0
             dy = y1 - y0
             dr2 = dx*dx + dy*dy
-            dr = npy.sqrt(dr2)
             D = x0*y1 - x1*y0
             D2 = D*D
             discrim = dr2 - D2
@@ -1017,7 +1016,9 @@ class Arc(Ellipse):
                 y = (-D*dx) / dr2
                 yield x, y
             elif discrim > 0.0:
-                if dy < 0:
+                # The definition of "sign" here is different from
+                # npy.sign: we never want to get 0.0
+                if dy < 0.0:
                     sign_dy = -1.0
                 else:
                     sign_dy = 1.0
@@ -1057,10 +1058,10 @@ class Arc(Ellipse):
             x0, y0 = p0
             x1, y1 = p1
             for x, y in iter_circle_intersect_on_line_seg(x0, y0, x1, y1):
-                # Convert radians to angles
                 theta = npy.arccos(x)
                 if y < 0:
                     theta = TWOPI - theta
+                # Convert radians to angles
                 theta *= RAD2DEG
                 if theta > theta1 and theta < theta2:
                     thetas[theta] = None
@@ -1072,7 +1073,6 @@ class Arc(Ellipse):
         last_theta = theta1
         theta1_rad = theta1 * DEG2RAD
         inside = box_path.contains_point((npy.cos(theta1_rad), npy.sin(theta1_rad)))
-
         for theta in thetas:
             if inside:
                 self._path = Path.arc(last_theta, theta, 8)

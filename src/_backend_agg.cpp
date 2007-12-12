@@ -625,7 +625,7 @@ public:
 
     do {
       *output_span = _color;
-      output_span->a = input_span->v;
+      output_span->a = ((unsigned int)_color.a * (unsigned int)input_span->v) >> 8;
       ++output_span;
       ++input_span;
     } while (--len);
