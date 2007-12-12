@@ -993,15 +993,6 @@ class Arc(Ellipse):
             self._path = Path.arc(self._theta1, self._theta2)
             return Patch.draw(self, renderer)
 
-        # Transforms the axes box_path so that it is relative to the unit
-        # circle in the same way that it is relative to the desired
-        # ellipse.
-        box_path = Path.unit_rectangle()
-        box_path_transform = transforms.BboxTransformTo(self.axes.bbox) + \
-            self.get_transform().inverted()
-        box_path = box_path.transformed(box_path_transform)
-        vertices = []
-
         def iter_circle_intersect_on_line(x0, y0, x1, y1):
             dx = x1 - x0
             dy = y1 - y0
@@ -1045,6 +1036,15 @@ class Arc(Ellipse):
             for x, y in iter_circle_intersect_on_line(x0, y0, x1, y1):
                 if x >= x0e and x <= x1e and y >= y0e and y <= y1e:
                     yield x, y
+
+
+        # Transforms the axes box_path so that it is relative to the unit
+        # circle in the same way that it is relative to the desired
+        # ellipse.
+        box_path = Path.unit_rectangle()
+        box_path_transform = transforms.BboxTransformTo(self.axes.bbox) + \
+            self.get_transform().inverted()
+        box_path = box_path.transformed(box_path_transform)
 
         PI = npy.pi
         TWOPI = PI * 2.0
