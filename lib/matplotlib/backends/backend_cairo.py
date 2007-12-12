@@ -34,7 +34,6 @@ if cairo.version_info < _version_required:
 backend_version = cairo.version
 del _version_required
 
-from matplotlib import agg
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.cbook        import enumerate, izip, is_string_like

@@ -2,7 +2,6 @@ from __future__ import division
 
 import os, codecs, base64, tempfile, urllib, gzip
 
-from matplotlib import agg
 from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
