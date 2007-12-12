@@ -2107,7 +2107,7 @@ public:
 
     do {
       *dst = _color;
-      dst->a = src->v;
+      dst->a = ((unsigned int)_color.a * (unsigned int)src->v) >> 8;
       ++src;
       ++dst;
     } while (--len);
