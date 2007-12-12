@@ -6,7 +6,7 @@
 
 import math
 from pylab import *
-from matplotlib.patches import Ellipse
+from matplotlib.patches import Arc
 
 # given a point x, y
 x = 2692.440
@@ -54,22 +54,22 @@ ax.set_aspect( 'equal', 'datalim' )
 
 # make the lower-bound ellipse
 diam = (r - delta) * 2.0
-lower_ellipse = Ellipse( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkgreen" )
+lower_ellipse = Arc( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkgreen" )
 ax.add_patch( lower_ellipse )
 
 # make the target ellipse
 diam = r * 2.0
-target_ellipse = Ellipse( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkred" )
+target_ellipse = Arc( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkred" )
 ax.add_patch( target_ellipse )
 
 # make the upper-bound ellipse
 diam = (r + delta) * 2.0
-upper_ellipse = Ellipse( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkblue" )
+upper_ellipse = Arc( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkblue" )
 ax.add_patch( upper_ellipse )
 
 # make the target
 diam = delta * 2.0
-target = Ellipse( (x, y), diam, diam, 0.0, fill=False, edgecolor="#DD1208" )
+target = Arc( (x, y), diam, diam, 0.0, fill=False, edgecolor="#DD1208" )
 ax.add_patch( target )
 
 # give it a big marker
@@ -104,4 +104,4 @@ ax.set_xlim(2650, 2735)
 ax.set_ylim(6705, 6735)
 show()
 
-savefig("ellipse")
+# savefig("ellipse")

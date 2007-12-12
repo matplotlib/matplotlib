@@ -109,7 +109,7 @@ private:
 // Input 2D polygon _pgon_ with _numverts_ number of vertices and test point
 // _point_, returns 1 if inside, 0 if outside.
 template<class T>
-bool point_in_path_impl(double tx, double ty, T& path)
+bool point_in_path_impl(const double tx, const double ty, T& path)
 {
     int yflag0, yflag1, inside_flag;
     double vtx0, vty0, vtx1, vty1, sx, sy;
@@ -132,7 +132,7 @@ bool point_in_path_impl(double tx, double ty, T& path)
         yflag0 = (vty0 >= ty);
 
         vtx1 = x;
-        vty1 = x;
+        vty1 = y;
 
         inside_flag = 0;
         do
@@ -141,7 +141,7 @@ bool point_in_path_impl(double tx, double ty, T& path)
 
             // The following cases denote the beginning on a new subpath
             if (code == agg::path_cmd_stop ||
-		(code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
+                (code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
             {
                 x = sx;
                 y = sy;
@@ -169,7 +169,7 @@ bool point_in_path_impl(double tx, double ty, T& path)
                 // by Joseph Samosky's and Mark Haigh-Hutchinson's different
                 // polygon inclusion tests.
                 if ( ((vty1-ty) * (vtx0-vtx1) >=
-                        (vtx1-tx) * (vty0-vty1)) == yflag1 )
+                      (vtx1-tx) * (vty0-vty1)) == yflag1 )
                 {
                     inside_flag ^= 1;
                 }
@@ -184,7 +184,7 @@ bool point_in_path_impl(double tx, double ty, T& path)
             vty1 = y;
         }
         while (code != agg::path_cmd_stop &&
-	       (code & agg::path_cmd_end_poly) != agg::path_cmd_end_poly);
+               (code & agg::path_cmd_end_poly) != agg::path_cmd_end_poly);
 
         yflag1 = (vty1 >= ty);
         if (yflag0 != yflag1)

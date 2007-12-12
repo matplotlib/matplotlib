@@ -408,7 +408,7 @@ class Path(object):
     unit_circle = classmethod(unit_circle)
 
     #@classmethod
-    def arc(cls, theta1, theta2, is_wedge=False, n=None):
+    def arc(cls, theta1, theta2, n=None, is_wedge=False):
         """
         Returns an arc on the unit circle from angle theta1 to angle
         theta2 (in degrees).
@@ -486,12 +486,12 @@ class Path(object):
     arc = classmethod(arc)
 
     #@classmethod
-    def wedge(cls, theta1, theta2):
+    def wedge(cls, theta1, theta2, n=None):
         """
         Returns a wedge of the unit circle from angle theta1 to angle
         theta2 (in degrees).
         """
-        return cls.arc(theta1, theta2, True)
+        return cls.arc(theta1, theta2, True, n)
     wedge = classmethod(wedge)
 
 _get_path_collection_extents = get_path_collection_extents
