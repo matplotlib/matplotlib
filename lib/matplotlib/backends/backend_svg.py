@@ -286,7 +286,7 @@ class RendererSVG(RendererBase):
         color = rgb2hex(gc.get_rgb())
 
         if rcParams['svg.embed_char_paths']:
-            svg = ['<g style="fill: %s" transform="' % color]
+            svg = ['<g style="fill: %s; opacity: %s" transform="' % (color, gc.get_alpha())]
             if angle != 0:
                 svg.append('translate(%s,%s)rotate(%1.1f)' % (x,y,-angle))
             elif x != 0 or y != 0:
@@ -325,7 +325,8 @@ class RendererSVG(RendererBase):
             fontfamily = font.family_name
             fontstyle = prop.get_style()
 
-            style = 'font-size: %f; font-family: %s; font-style: %s; fill: %s;'%(fontsize, fontfamily,fontstyle, color)
+            style = ('font-size: %f; font-family: %s; font-style: %s; fill: %s; opacity: %s' %
+                     (fontsize, fontfamily,fontstyle, color, gc.get_alpha()))
             if angle!=0:
                 transform = 'transform="translate(%s,%s) rotate(%1.1f) translate(%s,%s)"' % (x,y,-angle,-x,-y)
                 # Inkscape doesn't support rotate(angle x y)
