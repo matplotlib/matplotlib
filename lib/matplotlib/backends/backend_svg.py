@@ -245,30 +245,33 @@ class RendererSVG(RendererBase):
 
         h,w = im.get_size_out()
 
+        self._svgwriter.write (
+            '<image x="%s" y="%s" width="%s" height="%s" '
+            '%s xlink:href="'%(x/trans[0], (self.height-y)/trans[3]-h, w, h, transstr)
+            )
+
         if rcParams['svg.image_inline']:
-            filename = os.path.join (tempfile.gettempdir(),
-                                    tempfile.gettempprefix() + '.png'
-                                    )
+            class Base64Writer(object):
+                def __init__(self, write_method):
+                    self._write_method = write_method
+                    self._buffer = ''
+                def write(self, data):
+                    self._buffer += data
+                    while len(self._buffer) >= 64:
+                        self._write_method(base64.encodestring(buffer[:64]))
+                        self._write_method('\n')
+                        self._buffer = self._buffer[64:]
+                def flush(self):
+                    self._write_method(base64.encodestring(self._buffer))
+                    self._write_method('\n')
 
-            verbose.report ('Writing temporary image file for inlining: %s' % filename)
-            # im.write_png() accepts a filename, not file object, would be
-            # good to avoid using files and write to mem with StringIO
-
-            # JDH: it *would* be good, but I don't know how to do this
-            # since libpng seems to want a FILE* and StringIO doesn't seem
-            # to provide one.  I suspect there is a way, but I don't know
-            # it
+            self._svgwriter.write("data:image/png;base64,\n")
+            base64writer = Base64Writer(self._svgwriter.write)
 
             im.flipud_out()
-            im.write_png(filename)
+            im.write_png(base64writer)
             im.flipud_out()
-
-            imfile = file (filename, 'rb')
-            image64 = base64.encodestring (imfile.read())
-            imfile.close()
-            os.remove(filename)
-            hrefstr = 'data:image/png;base64,\n' + image64
-
+            base64writer.flush()
         else:
             self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
             filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
@@ -276,12 +279,9 @@ class RendererSVG(RendererBase):
             im.flipud_out()
             im.write_png(filename)
             im.flipud_out()
-            hrefstr = filename
+            self._svgwriter.write(filename)
 
-        self._svgwriter.write (
-            '<image x="%s" y="%s" width="%s" height="%s" '
-            'xlink:href="%s" %s/>\n'%(x/trans[0], (self.height-y)/trans[3]-h, w, h, hrefstr, transstr)
-            )
+        self._svgwriter.write('"/>\n')
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         if ismath:

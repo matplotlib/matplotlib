@@ -575,7 +575,25 @@ Image::set_interpolation(const Py::Tuple& args) {
 
 }
 
+static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t length) {
+  PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
+  PyObject* write_method = PyObject_GetAttrString(py_file_obj, "write");
+  PyObject* result = NULL;
+  if (write_method)
+    result = PyObject_CallFunction(write_method, "s#", data, length);
+  Py_XDECREF(write_method);
+  Py_XDECREF(result);
+}
 
+static void flush_png_data(png_structp png_ptr) {
+  PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
+  PyObject* flush_method = PyObject_GetAttrString(py_file_obj, "flush");
+  PyObject* result = NULL;
+  if (flush_method)
+    result = PyObject_CallFunction(flush_method, "");
+  Py_XDECREF(flush_method);
+  Py_XDECREF(result);
+}
 
 // this code is heavily adapted from the paint license, which is in
 // the file paint.license (BSD compatible) included in this
@@ -593,79 +611,90 @@ Image::write_png(const Py::Tuple& args)
 
   args.verify_length(1);
 
-  std::pair<agg::int8u*,bool> bufpair = _get_output_buffer();
+  FILE *fp = NULL;
+  Py::Object py_fileobj = Py::Object(args[0]);
+  if (py_fileobj.isString()) {
+    std::string fileName = Py::String(py_fileobj);
+    const char *file_name = fileName.c_str();
+    if ((fp = fopen(file_name, "wb")) == NULL)
+      throw Py::RuntimeError( Printf("Could not open file %s", file_name).str() );
+  }
+  else {
+    PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(), "write");
+    if (!(write_method && PyCallable_Check(write_method))) {
+      Py_XDECREF(write_method);
+      throw Py::TypeError("Object does not appear to be a path or a Python file-like object");
+    }
+    Py_XDECREF(write_method);
+  }
 
-  std::string fileName = Py::String(args[0]);
-  const char *file_name = fileName.c_str();
-  FILE *fp;
   png_structp png_ptr;
   png_infop info_ptr;
-  struct        png_color_8_struct sig_bit;
+  struct png_color_8_struct sig_bit;
   png_uint_32 row=0;
 
   //todo: allocate on heap
-  png_bytep *row_pointers = new png_bytep[rowsOut];
+  png_bytep *row_pointers = NULL;
+  std::pair<agg::int8u*,bool> bufpair;
+  bufpair.first = NULL;
+  bufpair.second = false;
 
-  for (row = 0; row < rowsOut; ++row)
-    row_pointers[row] = bufpair.first + row * colsOut * 4;
+  try {
+    row_pointers = new png_bytep[rowsOut];
+    if (!row_pointers)
+      throw Py::RuntimeError("Out of memory");
 
-  fp = fopen(file_name, "wb");
-  if (fp == NULL) {
+    bufpair = _get_output_buffer();
+    for (row = 0; row < rowsOut; ++row)
+      row_pointers[row] = bufpair.first + row * colsOut * 4;
+
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (png_ptr == NULL)
+      throw Py::RuntimeError("Could not create write struct");
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == NULL)
+      throw Py::RuntimeError("Could not create info struct");
+
+    if (setjmp(png_ptr->jmpbuf))
+      throw Py::RuntimeError("Error building image");
+
+    if (fp) {
+      png_init_io(png_ptr, fp);
+    } else {
+      png_set_write_fn(png_ptr, (void*)py_fileobj.ptr(),
+		       &write_png_data, &flush_png_data);
+    }
+    png_set_IHDR(png_ptr, info_ptr,
+                 colsOut, rowsOut, 8,
+                 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    // this a a color image!
+    sig_bit.gray = 0;
+    sig_bit.red = 8;
+    sig_bit.green = 8;
+    sig_bit.blue = 8;
+    /* if the image has an alpha channel then */
+    sig_bit.alpha = 8;
+    png_set_sBIT(png_ptr, info_ptr, &sig_bit);
+
+    png_write_info(png_ptr, info_ptr);
+    png_write_image(png_ptr, row_pointers);
+    png_write_end(png_ptr, info_ptr);
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+  } catch (...) {
     if (bufpair.second) delete [] bufpair.first;
-    delete [] row_pointers;
-    throw Py::RuntimeError(Printf("Could not open file %s", file_name).str());
-  }
-
-
-  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-  if (png_ptr == NULL) {
-    if (bufpair.second) delete [] bufpair.first;
-    fclose(fp);
-    delete [] row_pointers;
-    throw Py::RuntimeError("Could not create write struct");
-  }
-
-  info_ptr = png_create_info_struct(png_ptr);
-  if (info_ptr == NULL) {
-    if (bufpair.second) delete [] bufpair.first;
-    fclose(fp);
+    if (fp) fclose(fp);
     png_destroy_write_struct(&png_ptr, &info_ptr);
     delete [] row_pointers;
-    throw Py::RuntimeError("Could not create info struct");
+    throw;
   }
 
-  if (setjmp(png_ptr->jmpbuf)) {
-    if (bufpair.second) delete [] bufpair.first;
-    fclose(fp);
-    png_destroy_write_struct(&png_ptr, &info_ptr);
-    delete [] row_pointers;
-    throw Py::RuntimeError("Error building image");
-  }
-
-  png_init_io(png_ptr, fp);
-  png_set_IHDR(png_ptr, info_ptr,
-	       colsOut, rowsOut, 8,
-	       PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
-	       PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-  // this a a color image!
-  sig_bit.gray = 0;
-  sig_bit.red = 8;
-  sig_bit.green = 8;
-  sig_bit.blue = 8;
-  /* if the image has an alpha channel then */
-  sig_bit.alpha = 8;
-  png_set_sBIT(png_ptr, info_ptr, &sig_bit);
-
-  png_write_info(png_ptr, info_ptr);
-  png_write_image(png_ptr, row_pointers);
-  png_write_end(png_ptr, info_ptr);
-  png_destroy_write_struct(&png_ptr, &info_ptr);
-  fclose(fp);
-
+  if (fp) fclose(fp);
   delete [] row_pointers;
-
   if (bufpair.second) delete [] bufpair.first;
+
   return Py::Object();
 }
 
