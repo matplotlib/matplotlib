@@ -675,6 +675,8 @@ class Text(Artist):
 
         ACCEPTS: a matplotlib.font_manager.FontProperties instance
         """
+        if is_string_like(fp):
+            fp = FontProperties(fp)
         self._fontproperties = fp
 
 artist.kwdocd['Text'] = artist.kwdoc(Text)
