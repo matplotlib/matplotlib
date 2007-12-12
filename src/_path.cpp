@@ -141,7 +141,7 @@ bool point_in_path_impl(const double tx, const double ty, T& path)
 
             // The following cases denote the beginning on a new subpath
             if (code == agg::path_cmd_stop ||
-                (code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
+		(code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
             {
                 x = sx;
                 y = sy;
@@ -184,7 +184,7 @@ bool point_in_path_impl(const double tx, const double ty, T& path)
             vty1 = y;
         }
         while (code != agg::path_cmd_stop &&
-               (code & agg::path_cmd_end_poly) != agg::path_cmd_end_poly);
+	       (code & agg::path_cmd_end_poly) != agg::path_cmd_end_poly);
 
         yflag1 = (vty1 >= ty);
         if (yflag0 != yflag1)
