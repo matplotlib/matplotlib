@@ -989,7 +989,7 @@ class Arc(Ellipse):
             (self._width, self._height))
         inv_error = (1.0 / 1.89818e-6)
 
-        if width < inv_error and height < inv_error and False:
+        if width < inv_error and height < inv_error:
             self._path = Path.arc(self._theta1, self._theta2)
             return Patch.draw(self, renderer)
 
