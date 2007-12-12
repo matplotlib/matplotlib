@@ -839,6 +839,7 @@ class Ellipse(Patch):
         self._width, self._height = width, height
         self._angle = angle
         self._recompute_transform()
+        self._path = Path.unit_circle()
 
     def _recompute_transform(self):
         self._patch_transform = transforms.Affine2D() \
@@ -850,7 +851,7 @@ class Ellipse(Patch):
         """
         Return the vertices of the rectangle
         """
-	return Path.unit_circle()
+	return self._path
 
     def get_patch_transform(self):
         return self._patch_transform
@@ -881,7 +882,6 @@ class Ellipse(Patch):
         self._recompute_transform()
     angle = property(_get_angle, _set_angle)
 
-
 class Circle(Ellipse):
     """
     A circle patch
@@ -908,6 +908,179 @@ class Circle(Ellipse):
         Ellipse.__init__(self, xy, radius*2, radius*2, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+class Arc(Ellipse):
+    """
+    An elliptical arc.  Because it performs various optimizations, it may not be
+    filled.
+    """
+    def __str__(self):
+        return "Arc(%d,%d;%dx%d)"%(self.center[0],self.center[1],self.width,self.height)
+
+    def __init__(self, xy, width, height, angle=0.0, theta1=0.0, theta2=360.0, **kwargs):
+        """
+        xy - center of ellipse
+        width - length of horizontal axis
+        height - length of vertical axis
+        angle - rotation in degrees (anti-clockwise)
+        theta1 - starting angle of the arc in degrees
+        theta2 - ending angle of the arc in degrees
+
+        If theta1 and theta2 are not provided, the arc will form a
+        complete ellipse.
+
+        Valid kwargs are:
+        %(Patch)s
+        """
+        fill = kwargs.pop('fill')
+        if fill:
+            raise ValueError("Arc objects can not be filled")
+        kwargs['fill'] = False
+
+        Ellipse.__init__(self, xy, width, height, angle, **kwargs)
+
+        self._theta1 = theta1
+        self._theta2 = theta2
+
+    def draw(self, renderer):
+        """
+        Ellipses are normally drawn using an approximation that uses
+        eight cubic bezier splines.  The error of this approximation
+        is 1.89818e-6, according to this unverified source:
+
+          Lancaster, Don.  Approximating a Circle or an Ellipse Using
+          Four Bezier Cubic Splines.
+
+          http://www.tinaja.com/glib/ellipse4.pdf
+
+        There is a use case where very large ellipses must be drawn
+        with very high accuracy, and it is too expensive to render the
+        entire ellipse with enough segments (either splines or line
+        segments).  Therefore, in the case where either radius of the
+        ellipse is large enough that the error of the spline
+        approximation will be visible (greater than one pixel offset
+        from the ideal), a different technique is used.
+
+        In that case, only the visible parts of the ellipse are drawn,
+        with each visible arc using a fixed number of spline segments
+        (8).  The algorithm proceeds as follows:
+
+          1. The points where the ellipse intersects the axes bounding
+          box are located.  (This is done be performing an inverse
+          transformation on the axes bbox such that it is relative to
+          the unit circle -- this makes the intersection calculation
+          much easier than doing rotated ellipse intersection
+          directly).
+
+          This uses the "line intersecting a circle" algorithm from:
+
+            Vince, John.  Geometry for Computer Graphics: Formulae,
+            Examples & Proofs.  London: Springer-Verlag, 2005.
+
+          2. The angles of each of the intersection points are
+          calculated.
+
+          3. Proceeding counterclockwise starting in the positive
+          x-direction, each of the visible arc-segments between the
+          pairs of vertices are drawn using the bezier arc
+          approximation technique implemented in Path.arc().
+        """
+        # Get the width and height in pixels
+        width, height = self.get_transform().transform_point(
+            (self._width, self._height))
+        inv_error = (1.0 / 1.89818e-6)
+
+        if width < inv_error and height < inv_error and False:
+            self._path = Path.arc(self._theta1, self._theta2)
+            return Patch.draw(self, renderer)
+
+        # Transforms the axes box_path so that it is relative to the unit
+        # circle in the same way that it is relative to the desired
+        # ellipse.
+        box_path = Path.unit_rectangle()
+        box_path_transform = transforms.BboxTransformTo(self.axes.bbox) + \
+            self.get_transform().inverted()
+        box_path = box_path.transformed(box_path_transform)
+        vertices = []
+
+        def iter_circle_intersect_on_line(x0, y0, x1, y1):
+            dx = x1 - x0
+            dy = y1 - y0
+            dr2 = dx*dx + dy*dy
+            dr = npy.sqrt(dr2)
+            D = x0*y1 - x1*y0
+            D2 = D*D
+            discrim = dr2 - D2
+
+            # Single (tangential) intersection
+            if discrim == 0.0:
+                x = (D*dy) / dr2
+                y = (-D*dx) / dr2
+                yield x, y
+            elif discrim > 0.0:
+                if dy < 0:
+                    sign_dy = -1.0
+                else:
+                    sign_dy = 1.0
+                sqrt_discrim = npy.sqrt(discrim)
+                for sign in (1., -1.):
+                    x = (D*dy + sign * sign_dy * dx * sqrt_discrim) / dr2
+                    y = (-D*dx + sign * npy.abs(dy) * sqrt_discrim) / dr2
+                    yield x, y
+
+        def iter_circle_intersect_on_line_seg(x0, y0, x1, y1):
+            epsilon = 1e-9
+            if x1 < x0:
+                x0e, x1e = x1, x0
+            else:
+                x0e, x1e = x0, x1
+            if y1 < y0:
+                y0e, y1e = y1, y0
+            else:
+                y0e, y1e = y0, y1
+            x0e -= epsilon
+            y0e -= epsilon
+            x1e += epsilon
+            y1e += epsilon
+            for x, y in iter_circle_intersect_on_line(x0, y0, x1, y1):
+                if x >= x0e and x <= x1e and y >= y0e and y <= y1e:
+                    yield x, y
+
+        PI = npy.pi
+        TWOPI = PI * 2.0
+        RAD2DEG = 180.0 / PI
+        DEG2RAD = PI / 180.0
+        theta1 = self._theta1
+        theta2 = self._theta2
+        thetas = {}
+        # For each of the point pairs, there is a line segment
+        for p0, p1 in zip(box_path.vertices[:-1], box_path.vertices[1:]):
+            x0, y0 = p0
+            x1, y1 = p1
+            for x, y in iter_circle_intersect_on_line_seg(x0, y0, x1, y1):
+                # Convert radians to angles
+                theta = npy.arccos(x)
+                if y < 0:
+                    theta = TWOPI - theta
+                theta *= RAD2DEG
+                if theta > theta1 and theta < theta2:
+                    thetas[theta] = None
+
+        thetas = thetas.keys()
+        thetas.sort()
+        thetas.append(theta2)
+
+        last_theta = theta1
+        theta1_rad = theta1 * DEG2RAD
+        inside = box_path.contains_point((npy.cos(theta1_rad), npy.sin(theta1_rad)))
+
+        for theta in thetas:
+            if inside:
+                self._path = Path.arc(last_theta, theta, 8)
+                Patch.draw(self, renderer)
+                inside = False
+            else:
+                inside = True
+            last_theta = theta
 
 def bbox_artist(artist, renderer, props=None, fill=True):
     """
