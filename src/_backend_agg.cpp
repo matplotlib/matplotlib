@@ -1289,17 +1289,21 @@ RendererAgg::write_rgba(const Py::Tuple& args) {
 static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t length) {
   PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
   PyObject* write_method = PyObject_GetAttrString(py_file_obj, "write");
-  PyObject_CallFunction(write_method, "s#", data, length);
-
-  // MGDTODO: Check NULL on failure
+  PyObject* result = NULL;
+  if (write_method)
+    result = PyObject_CallFunction(write_method, "s#", data, length);
+  Py_XDECREF(write_method);
+  Py_XDECREF(result);
 }
 
 static void flush_png_data(png_structp png_ptr) {
   PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
   PyObject* flush_method = PyObject_GetAttrString(py_file_obj, "flush");
-  if (flush_method) {
-    PyObject_CallFunction(flush_method, "");
-  }
+  PyObject* result = NULL;
+  if (flush_method)
+    result = PyObject_CallFunction(flush_method, "");
+  Py_XDECREF(flush_method);
+  Py_XDECREF(result);
 }
 
 // this code is heavily adapted from the paint license, which is in
@@ -1322,8 +1326,11 @@ RendererAgg::write_png(const Py::Tuple& args)
   }
   else {
     PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(), "write");
-    if (!(write_method && PyCallable_Check(write_method)))
+    if (!(write_method && PyCallable_Check(write_method))) {
+      Py_XDECREF(write_method);
       throw Py::TypeError("Object does not appear to be a path or a Python file-like object");
+    }
+    Py_XDECREF(write_method);
   }
 
   png_bytep *row_pointers = NULL;
