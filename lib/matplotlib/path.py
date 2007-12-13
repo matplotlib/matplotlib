@@ -423,25 +423,25 @@ class Path(object):
         # http://www.spaceroots.org/documents/ellipse/index.html
 
         # degrees to radians
-        theta1 *= math.pi / 180.0
-        theta2 *= math.pi / 180.0
+        theta1 *= npy.pi / 180.0
+        theta2 *= npy.pi / 180.0
 
-        twopi  = math.pi * 2.0
-        halfpi = math.pi * 0.5
+        twopi  = npy.pi * 2.0
+        halfpi = npy.pi * 0.5
 
-        eta1 = math.atan2(math.sin(theta1), math.cos(theta1))
-        eta2 = math.atan2(math.sin(theta2), math.cos(theta2))
-        eta2 -= twopi * math.floor((eta2 - eta1) / twopi)
-        if (theta2 - theta1 > math.pi) and (eta2 - eta1 < math.pi):
+        eta1 = npy.arctan2(npy.sin(theta1), npy.cos(theta1))
+        eta2 = npy.arctan2(npy.sin(theta2), npy.cos(theta2))
+        eta2 -= twopi * npy.floor((eta2 - eta1) / twopi)
+        if (theta2 - theta1 > npy.pi) and (eta2 - eta1 < npy.pi):
             eta2 += twopi
 
         # number of curve segments to make
         if n is None:
-            n = int(2 ** math.ceil((eta2 - eta1) / halfpi))
+            n = int(2 ** npy.ceil((eta2 - eta1) / halfpi))
 
         deta = (eta2 - eta1) / n
-        t = math.tan(0.5 * deta)
-        alpha = math.sin(deta) * (math.sqrt(4.0 + 3.0 * t * t) - 1) / 3.0
+        t = npy.tan(0.5 * deta)
+        alpha = npy.sin(deta) * (npy.sqrt(4.0 + 3.0 * t * t) - 1) / 3.0
 
         steps = npy.linspace(eta1, eta2, n + 1, True)
         cos_eta = npy.cos(steps)
