@@ -253,7 +253,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   alphaMaskRenderingBuffer = new agg::rendering_buffer;
   alphaMaskRenderingBuffer->attach(alphaBuffer, width, height, stride);
   alphaMask		   = new alpha_mask_type(*alphaMaskRenderingBuffer);
-  //jdh
+
   pixfmtAlphaMask	   = new agg::pixfmt_gray8(*alphaMaskRenderingBuffer);
   rendererBaseAlphaMask	   = new renderer_base_alpha_mask_type(*pixfmtAlphaMask);
   rendererAlphaMask	   = new renderer_alpha_mask_type(*rendererBaseAlphaMask);
