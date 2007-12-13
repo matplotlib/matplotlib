@@ -910,8 +910,8 @@ class Circle(Ellipse):
 
 class Arc(Ellipse):
     """
-    An elliptical arc.  Because it performs various optimizations, it may not be
-    filled.
+    An elliptical arc.  Because it performs various optimizations, it
+    can not be filled.
     """
     def __str__(self):
         return "Arc(%d,%d;%dx%d)"%(self.center[0],self.center[1],self.width,self.height)
