@@ -169,6 +169,10 @@ TRANSFORMS REFACTORING
 
 END OF TRANSFORMS REFACTORING
 
+    Moved rec2gtk to matplotlib.toolkits.gtktools
+
+    Moved rec2excel to matplotlib.toolkits.exceltools
+
     Removed, dead/experimental ExampleInfo, Namespace and Importer
     code from matplotlib/__init__.py
 0.91.1 Released
