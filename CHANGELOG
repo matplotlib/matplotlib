@@ -1,3 +1,6 @@
+2007-12-13 Moved rec2gtk to matplotlib.toolkits.gtktools and rec2excel
+           to matplotlib.toolkits.exceltools - JDH
+
 2007-12-12 Support alpha-blended text in the Agg and Svg backends -
            MGD
 
