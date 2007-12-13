@@ -297,7 +297,7 @@ char Image::get_matrix__doc__[] =
 
 Py::Object
 Image::get_matrix(const Py::Tuple& args) {
-  _VERBOSE("Image::get_size");
+  _VERBOSE("Image::get_matrix");
 
   args.verify_length(0);
 
@@ -565,7 +565,7 @@ char Image::get_size_out__doc__[] =
 
 Py::Object
 Image::get_size_out(const Py::Tuple& args) {
-  _VERBOSE("Image::get_size");
+  _VERBOSE("Image::get_size_out");
 
   args.verify_length(0);
 
