@@ -147,7 +147,9 @@ from numpy import inf, isinf
 from matplotlib.pyparsing import Combine, Group, Optional, Forward, \
     Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
     ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
-    FollowedBy, Regex
+    FollowedBy, Regex, ParserElement
+# Enable packrat parsing
+ParserElement.enablePackrat()
 
 from matplotlib.afm import AFM
 from matplotlib.cbook import Bunch, get_realpath_and_stat, \
@@ -1982,7 +1984,7 @@ class Parser(object):
         autoDelim = Forward().setParseAction(self.auto_sized_delimiter)
         self._expression = Forward().setParseAction(self.finish).setName("finish")
 
-        float        = Regex(r"-?[0-9]+\.?[0-9]*")
+        float        = Regex(r"-?[0-9]*(\.[0-9]+)?")
 
         lbrace       = Literal('{').suppress()
         rbrace       = Literal('}').suppress()
@@ -2001,14 +2003,13 @@ class Parser(object):
         latex2efont  = oneOf(['math' + x for x in self._fontnames])
 
         space        =(FollowedBy(bslash)
-                     +   (Literal(r'\ ')
-                       |  Literal(r'\/')
-                       |  Literal(r'\,')
-                       |  Literal(r'\;')
-                       |  Literal(r'\quad')
-                       |  Literal(r'\qquad')
-                       |  Literal(r'\!')
-                       )
+                     + oneOf([r'\ ',
+                              r'\/',
+                              r'\,',
+                              r'\;',
+                              r'\quad',
+                              r'\qquad',
+                              r'\!'])
                       ).setParseAction(self.space).setName('space')
 
         customspace  =(Literal(r'\hspace')
@@ -2055,19 +2056,13 @@ class Parser(object):
                      + latex2efont)
 
         frac         = Group(
-                       Suppress(
-                         bslash
-                       + Literal("frac")
-                       )
+                       Suppress(Literal(r"\frac"))
                      + ((group + group)
                         | Error(r"Expected \frac{num}{den}"))
                      ).setParseAction(self.frac).setName("frac")
 
         sqrt         = Group(
-                       Suppress(
-                         bslash
-                       + Literal("sqrt")
-                       )
+                       Suppress(Literal(r"\sqrt"))
                      + Optional(
                          Suppress(Literal("["))
                        + Group(
@@ -2096,9 +2091,7 @@ class Parser(object):
                      | subsuper
                      )
 
-        subsuperop   =(Literal("_")
-                     | Literal("^")
-                     )
+        subsuperop   = oneOf(["_", "^"])
 
         subsuper    << Group(
                          ( Optional(placeable)
@@ -2127,8 +2120,7 @@ class Parser(object):
                      ^ simple
                      ).setParseAction(self.math).setName("math")
 
-        math_delim   =(~bslash
-                     + Literal('$'))
+        math_delim   = ~bslash + Literal('$')
 
         non_math     = Regex(r"(?:(?:\\[$])|[^$])*"
                      ).setParseAction(self.non_math).setName("non_math").leaveWhitespace()
@@ -2143,8 +2135,6 @@ class Parser(object):
               + non_math
             )
           ) + StringEnd()
-
-        self._expression.enablePackrat()
 
         self.clear()
 
