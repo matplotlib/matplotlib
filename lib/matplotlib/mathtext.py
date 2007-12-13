@@ -1984,7 +1984,7 @@ class Parser(object):
         autoDelim = Forward().setParseAction(self.auto_sized_delimiter)
         self._expression = Forward().setParseAction(self.finish).setName("finish")
 
-        float        = Regex(r"-?[0-9]*(\.[0-9]+)?")
+        float        = Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
 
         lbrace       = Literal('{').suppress()
         rbrace       = Literal('}').suppress()
