@@ -251,7 +251,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   alphaMaskRenderingBuffer = new agg::rendering_buffer;
   alphaMaskRenderingBuffer->attach(alphaBuffer, width, height, stride);
   alphaMask = new alpha_mask_type(*alphaMaskRenderingBuffer);
-  //jdh
+
   pixfmtAlphaMask = new agg::pixfmt_gray8(*alphaMaskRenderingBuffer);
   rendererBaseAlphaMask = new renderer_base_alpha_mask_type(*pixfmtAlphaMask);
   rendererAlphaMask = new renderer_alpha_mask_type(*rendererBaseAlphaMask);
@@ -440,7 +440,6 @@ RendererAgg::draw_rectangle(const Py::Tuple & args) {
 
   GCAgg gc = GCAgg(args[0], dpi);
   facepair_t face = _get_rgba_face(args[1], gc.alpha);
-
 
   double l = Py::Float( args[2] );
   double b = Py::Float( args[3] );
@@ -2022,7 +2021,6 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     delete [] fillCache;
   delete [] strokeCache;
 
-  //jdh
   _VERBOSE("RendererAgg::_draw_markers_cache done");
   return Py::Object();
 
@@ -2200,6 +2198,7 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
   agg::span_allocator<agg::gray8> gray_span_allocator;
   image_span_gen_type image_span_generator(gray_span_allocator,
 					   srcbuf, 0, interpolator, filter);
+
   span_gen_type output_span_generator(&image_span_generator, gc.color);
   renderer_type ri(*rendererBase, output_span_generator);
   //agg::rasterizer_scanline_aa<> rasterizer;

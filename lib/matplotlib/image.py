@@ -23,6 +23,7 @@ from matplotlib import _image
 from matplotlib._image import *
 
 class AxesImage(martist.Artist, cm.ScalarMappable):
+    zorder = 1
 
     def __init__(self, ax,
                  cmap = None,
@@ -517,18 +518,21 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         self.update_dict['array'] = True
 
 class FigureImage(martist.Artist, cm.ScalarMappable):
+    zorder = 1
     def __init__(self, fig,
                  cmap = None,
                  norm = None,
                  offsetx = 0,
                  offsety = 0,
                  origin=None,
+                 **kwargs
                  ):
 
         """
         cmap is a colors.Colormap instance
         norm is a colors.Normalize instance to map luminance to 0-1
 
+        kwargs are an optional list of Artist keyword args
         """
         martist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
@@ -537,6 +541,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         self.figure = fig
         self.ox = offsetx
         self.oy = offsety
+        self.update(kwargs)
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image.

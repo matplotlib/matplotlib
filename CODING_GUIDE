@@ -113,6 +113,16 @@ noise in svn diffs.  If you are an emacs user, the following in your
 .emacs will cause emacs to strip trailing white space on save for
 python, C and C++
 
+
+When importing modules from the matplotlib namespace
+
+  import matplotlib.cbook as cbook   # DO
+  from matplotlib import cbook       #DONT
+
+because the latter is ambiguous whether cbook is a module or a
+function to the new developer.  The former makes it explcit that you
+are importing a module or package.
+
 ; and similarly for c++-mode-hook and c-mode-hook
 (add-hook 'python-mode-hook
           (lambda ()
