@@ -1,8 +1,12 @@
-2007-12-10 Fix SVG text rendering bug.
+2007-12-12 Support alpha-blended text in the Agg and Svg backends -
+           MGD
 
-2007-12-10 Increase accuracy of circle and ellipse drawing by using an 8-piece
-           bezier approximation, rather than a 4-piece one.  Fix PDF, SVG and
-           Cairo backends so they can draw paths (meaning ellipses as well).
+2007-12-10 Fix SVG text rendering bug. - MGD
+
+2007-12-10 Increase accuracy of circle and ellipse drawing by using an
+           8-piece bezier approximation, rather than a 4-piece one.
+           Fix PDF, SVG and Cairo backends so they can draw paths
+           (meaning ellipses as well). - MGD
 
 2007-12-07 Issue a warning when drawing an image on a non-linear axis. - MGD
 
@@ -17,6 +21,10 @@
 2007-12-05 Fix how fonts are cached to avoid loading the same one multiple times.
            (This was a regression since 0.90 caused by the refactoring of
            font_manager.py) - MGD
+
+2007-12-05 Support arbitrary rotation of usetex text in Agg backend. - MGD
+
+2007-12-04 Support '|' as a character in mathtext - MGD
 
 ===============================================================
 2007-11-27 Released 0.91.1 at revision 4517

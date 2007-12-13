@@ -1,7 +1,9 @@
+    A warning is issued when an image is drawn on log-scaled
+    axes, since it will not log-scale the image data.
+
     Moved rec2gtk to matplotlib.toolkits.gtktools
 
     Moved rec2excel to matplotlib.toolkits.exceltools
-
 
     Removed, dead/experimental ExampleInfo, Namespace and Importer
     code from matplotlib/__init__.py
@@ -11,7 +13,7 @@
 
     Changed cbook.is_file_like to cbook.is_writable_file_like and
     corrected behavior.
- 
+
     Added ax kwarg to pyplot.colorbar and Figure.colorbar so that
     one can specify the axes object from which space for the colorbar
     is to be taken, if one does not want to make the colorbar axes
