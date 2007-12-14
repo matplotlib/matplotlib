@@ -741,8 +741,6 @@ class Axes(martist.Artist):
 
         self.xaxis.cla()
         self.yaxis.cla()
-        self.set_xscale('linear')
-        self.set_yscale('linear')
 
 	self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry(('xlim_changed', 'ylim_changed'))
@@ -768,6 +766,8 @@ class Axes(martist.Artist):
         self.collections = []  # collection.Collection instances
 
         self._autoscaleon = True
+        self.set_xscale('linear')
+        self.set_yscale('linear')
 
         self.grid(self._gridOn)
         props = font_manager.FontProperties(size=rcParams['axes.titlesize'])
@@ -1654,6 +1654,7 @@ class Axes(martist.Artist):
             ", ".join(mscale.get_scale_names()))
 	return self.xaxis.get_scale()
 
+    # MGDTODO: Update docstring
     def set_xscale(self, value, **kwargs):
         """
         SET_XSCALE(value)
@@ -1673,6 +1674,7 @@ class Axes(martist.Artist):
         ACCEPTS: [%(scale)s]
         """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
         self.xaxis.set_scale(value, **kwargs)
+        self.autoscale_view()
         self._update_transScale()
 
     def get_xticks(self, minor=False):
@@ -1833,6 +1835,7 @@ class Axes(martist.Artist):
         ACCEPTS: %(scale)s
         """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
         self.yaxis.set_scale(value, **kwargs)
+        self.autoscale_view()
         self._update_transScale()
 
     def get_yticks(self, minor=False):
@@ -1992,6 +1995,7 @@ class Axes(martist.Artist):
             lim           = self.viewLim.frozen(),
             trans         = self.transData.frozen(),
             trans_inverse = self.transData.inverted().frozen(),
+            bbox          = self.bbox.frozen(),
             x             = x,
             y             = y
             )
@@ -2044,9 +2048,11 @@ class Axes(martist.Artist):
         p = self._pan_start
         dx = x - p.x
         dy = y - p.y
+        if dx == 0 and dy == 0:
+            return
         if button == 1:
             dx, dy = format_deltas(key, dx, dy)
-            result = self.bbox.frozen().translated(-dx, -dy) \
+            result = p.bbox.translated(-dx, -dy) \
                 .transformed(p.trans_inverse)
         elif button == 3:
             try:
