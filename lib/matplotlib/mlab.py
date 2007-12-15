@@ -2233,12 +2233,12 @@ class FormatObj:
         return self.toval(x)
 
     def toval(self, x):
-        return str(x)
+        return repr(x)
 
 
 class FormatString(FormatObj):
     def tostr(self, x):
-        return '"%s"'%self.toval(x)
+        return '"%r"'%self.toval(x)
 
 
 class FormatFormatStr(FormatObj):
@@ -2317,7 +2317,7 @@ def csvformat_factory(format):
     format = copy.deepcopy(format)
     if isinstance(format, FormatFloat):
         format.scale = 1. # override scaling for storage
-        format.fmt = '%g' # maximal precision
+        format.fmt = '%r'
     return format
 
 def rec2csv(r, fname, delimiter=',', formatd=None):
