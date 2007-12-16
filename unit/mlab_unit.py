@@ -13,25 +13,34 @@ class TestMlab(unittest.TestCase):
         self.failIf( fh.closed )
 
     def test_csv2rec_roundtrip(self):
-        # Make sure double-precision floats pass through.
+
+        # Make sure double-precision floats and strings pass through a
+        # roundtrip unaltered.
 
         # A bug in numpy (fixed in r4602) meant that numpy scalars
         # lost precision when passing through repr(). csv2rec was
         # affected by this. This test will only pass on numpy >=
         # 1.0.5.
-        ra=numpy.rec.array([(123, 1197346475.0137341), (456, 123.456)],
-                           dtype=[('a', '<i8'), ('b', '<f8')])
-        rec2csv_closes_files = True
-        if rec2csv_closes_files:
-            fh = 'mlab_unit_tmp.csv'
-        else:
-            fh = StringIO.StringIO()
+        ra=numpy.rec.array([(123, 1197346475.0137341, 'a,bc'),
+                            (456, 123.456, 'd\'ef'),
+                            (789, 0.000000001, 'ghi'),
+                            ],
+                           dtype=[('a', '<i8'), ('b', '<f8'), ('c', '|S3')])
+        fh = StringIO.StringIO()
         mlab.rec2csv( ra, fh )
-        if not rec2csv_closes_files:
+        fh.seek(0)
+        if 0:
+            print 'CSV contents:','-'*40
+            print fh.read()
+            print '-'*40
             fh.seek(0)
         ra2 = mlab.csv2rec(fh)
+        fh.close()
         for name in ra.dtype.names:
-            #print name, repr(ra[name]), repr(ra2[name])
+            if 0:
+                print name, repr(ra[name]), repr(ra2[name])
+                dt = ra.dtype[name]
+                print 'repr(dt.type)',repr(dt.type)
             self.failUnless( numpy.all(ra[name] == ra2[name]) ) # should not fail with numpy 1.0.5
 
 if __name__=='__main__':

@@ -2236,10 +2236,14 @@ class FormatObj:
         return repr(x)
 
 
+class FormatString2(FormatObj):
+    def tostr(self, x):
+        val = repr(x)
+        return val[1:-1]
+
 class FormatString(FormatObj):
     def tostr(self, x):
         return '"%r"'%self.toval(x)
-
 
 class FormatFormatStr(FormatObj):
     def __init__(self, fmt):
@@ -2297,7 +2301,7 @@ defaultformatd = {
     npy.float32 : FormatFloat(),
     npy.float64 : FormatFloat(),
     npy.object_ : FormatObj(),
-    npy.string_ : FormatObj(),
+    npy.string_ : FormatString2(),
     }
 
 def get_formatd(r, formatd=None):
