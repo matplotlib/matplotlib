@@ -2335,13 +2335,14 @@ def rec2csv(r, fname, delimiter=',', formatd=None):
     for i, name in enumerate(r.dtype.names):
         funcs.append(csvformat_factory(formatd[name]).tostr)
 
-    fh = cbook.to_filehandle(fname, 'w')
+    fh, opened = cbook.to_filehandle(fname, 'w', return_opened=True)
     writer = csv.writer(fh, delimiter=delimiter)
     header = r.dtype.names
     writer.writerow(header)
     for row in r:
         writer.writerow([func(val) for func, val in zip(funcs, row)])
-    fh.close()
+    if opened:
+        fh.close()
 
 
 

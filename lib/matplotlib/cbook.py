@@ -224,7 +224,7 @@ def is_numlike(obj):
     except TypeError: return False
     else: return True
 
-def to_filehandle(fname, flag='r'):
+def to_filehandle(fname, flag='r', return_opened=False):
     """
     fname can be a filename or a file handle.  Support for gzipped
     files is automatic, if the filename ends in .gz.  flag is a
@@ -236,10 +236,14 @@ def to_filehandle(fname, flag='r'):
             fh = gzip.open(fname, flag)
         else:
             fh = file(fname, flag)
+        opened = True
     elif hasattr(fname, 'seek'):
         fh = fname
+        opened = False
     else:
         raise ValueError('fname must be a string or file handle')
+    if return_opened:
+        return fh, opened
     return fh
 
 def flatten(seq, scalarp=is_scalar):
