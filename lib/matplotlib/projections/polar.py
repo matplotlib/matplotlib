@@ -310,7 +310,7 @@ class PolarAxes(Axes):
         ACCEPTS: sequence of floats
         """
         angles = npy.asarray(angles, npy.float_)
-        self.set_xticks((angles / 180.0) * npy.pi)
+        self.set_xticks(angles * (npy.pi / 180.0))
         if labels is not None:
             self.set_xticklabels(labels)
         if frac is not None:
