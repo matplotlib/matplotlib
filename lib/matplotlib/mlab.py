@@ -2129,6 +2129,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
 
     process_skiprows(reader)
 
+    dateparser = dateutil.parser.parse
 
     def myfloat(x):
         if x==missing:
@@ -2136,9 +2137,18 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
         else:
             return float(x)
 
+    def mydate(x):
+        # try and return a date object
+        d = dateparser(x)
+
+        if d.hour>0 or d.minute>0 or d.second>0:
+            raise ValueError('not a date')
+        return d.date()
+
+
     def get_func(item, func):
         # promote functions in this order
-        funcmap = {int:myfloat, myfloat:dateutil.parser.parse, dateutil.parser.parse:str}
+        funcmap = {int:myfloat, myfloat:mydate, mydate:dateparser, dateparser:str}
         try: func(item)
         except:
             if func==str:
@@ -2238,8 +2248,12 @@ class FormatObj:
 
 class FormatString(FormatObj):
     def tostr(self, x):
-        return '"%s"'%self.toval(x)
+        val = repr(x)
+        return val[1:-1]
 
+#class FormatString(FormatObj):
+#    def tostr(self, x):
+#        return '"%r"'%self.toval(x)
 
 class FormatFormatStr(FormatObj):
     def __init__(self, fmt):
@@ -2297,7 +2311,7 @@ defaultformatd = {
     npy.float32 : FormatFloat(),
     npy.float64 : FormatFloat(),
     npy.object_ : FormatObj(),
-    npy.string_ : FormatObj(),
+    npy.string_ : FormatString(),
     }
 
 def get_formatd(r, formatd=None):
@@ -2317,7 +2331,7 @@ def csvformat_factory(format):
     format = copy.deepcopy(format)
     if isinstance(format, FormatFloat):
         format.scale = 1. # override scaling for storage
-        format.fmt = '%g' # maximal precision
+        format.fmt = '%r'
     return format
 
 def rec2csv(r, fname, delimiter=',', formatd=None):
@@ -2335,13 +2349,14 @@ def rec2csv(r, fname, delimiter=',', formatd=None):
     for i, name in enumerate(r.dtype.names):
         funcs.append(csvformat_factory(formatd[name]).tostr)
 
-    fh = cbook.to_filehandle(fname, 'w')
+    fh, opened = cbook.to_filehandle(fname, 'w', return_opened=True)
     writer = csv.writer(fh, delimiter=delimiter)
     header = r.dtype.names
     writer.writerow(header)
     for row in r:
         writer.writerow([func(val) for func, val in zip(funcs, row)])
-    fh.close()
+    if opened:
+        fh.close()
 
 
 
