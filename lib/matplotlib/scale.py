@@ -2,8 +2,8 @@ import numpy as npy
 from matplotlib.numerix import npyma as ma
 MaskedArray = ma.MaskedArray
 
-from ticker import NullFormatter, ScalarFormatter, LogFormatterMathtext
-from ticker import NullLocator, LogLocator, AutoLocator, SymmetricalLogLocator
+from ticker import NullFormatter, ScalarFormatter, LogFormatterMathtext, Formatter
+from ticker import NullLocator, LogLocator, AutoLocator, SymmetricalLogLocator, FixedLocator
 from transforms import Transform, IdentityTransform
 
 class ScaleBase(object):
@@ -27,6 +27,7 @@ class LinearScale(ScaleBase):
 
     def get_transform(self):
         return IdentityTransform()
+
 
 def _mask_non_positives(a):
     mask = a <= 0.0
@@ -185,7 +186,17 @@ class LogScale(ScaleBase):
         return (vmin <= 0.0 and minpos or vmin,
                 vmax <= 0.0 and minpos or vmax)
 
+
 class SymmetricalLogScale(ScaleBase):
+    """
+    The symmetrical logarithmic scale is logarithmic in both the
+    positive and negative directions from the origin.
+
+    Since the values close to zero tend toward infinity, there is
+    usually need to have a range around zero that is linear.  The
+    parameter "linthresh" allows the user to specify the size of this
+    range (-linthresh, linthresh).
+    """
     name = 'symlog'
 
     class SymmetricalLogTransform(Transform):
@@ -263,10 +274,83 @@ class SymmetricalLogScale(ScaleBase):
         return self._transform
 
 
+class MercatorLatitudeScale(ScaleBase):
+    """
+    Scales data in range -pi/2 to pi/2 (-90 to 90 degrees) using
+    the system used to scale latitudes in a Mercator projection.
+
+    The scale function:
+      ln(tan(y) + sec(y))
+
+    The inverse scale function:
+      atan(sinh(y))
+
+    source:
+    http://en.wikipedia.org/wiki/Mercator_projection
+    """
+    name = 'mercator_latitude'
+
+    class MercatorLatitudeTransform(Transform):
+        input_dims = 1
+        output_dims = 1
+        is_separable = True
+
+        def __init__(self, thresh):
+            Transform.__init__(self)
+            self.thresh = thresh
+
+        def transform(self, a):
+            masked = ma.masked_where((a < -self.thresh) | (a > self.thresh), a)
+            return ma.log(ma.tan(masked) + 1.0 / ma.cos(masked))
+
+        def inverted(self):
+            return MercatorLatitudeScale.InvertedMercatorLatitudeTransform()
+
+    class InvertedMercatorLatitudeTransform(Transform):
+        input_dims = 1
+        output_dims = 1
+        is_separable = True
+
+        def transform(self, a):
+            return npy.arctan(npy.sinh(a))
+
+        def inverted(self):
+            return MercatorLatitudeScale.MercatorLatitudeTransform()
+
+    def __init__(self, axis, **kwargs):
+        thresh = kwargs.pop("thresh", (85 / 180.0) * npy.pi)
+        if thresh >= npy.pi / 2.0:
+            raise ValueError("thresh must be less than pi/2")
+        self.thresh = thresh
+        self._transform = self.MercatorLatitudeTransform(thresh)
+
+    def set_default_locators_and_formatters(self, axis):
+        class ThetaFormatter(Formatter):
+            """
+            Used to format the theta tick labels.  Converts the native
+            unit of radians into degrees and adds a degree symbol.
+            """
+            def __call__(self, x, pos=None):
+                # \u00b0 : degree symbol
+                return u"%d\u00b0" % ((x / npy.pi) * 180.0)
+
+        deg2rad = npy.pi / 180.0
+        axis.set_major_locator(FixedLocator(
+                npy.arange(-90, 90, 10) * deg2rad))
+        axis.set_major_formatter(ThetaFormatter())
+        axis.set_minor_formatter(ThetaFormatter())
+
+    def get_transform(self):
+        return self._transform
+
+    def limit_range_for_scale(self, vmin, vmax, minpos):
+        return max(vmin, -self.thresh), min(vmax, self.thresh)
+
 _scale_mapping = {
-    'linear'    : LinearScale,
-    'log'       : LogScale,
-    'symlog'    : SymmetricalLogScale
+    'linear'            : LinearScale,
+    'log'               : LogScale,
+    'symlog'            : SymmetricalLogScale,
+    'mercator_latitude' : MercatorLatitudeScale
     }
 def scale_factory(scale, axis, **kwargs):
     scale = scale.lower()
