@@ -399,7 +399,7 @@ class PdfFile:
         self.nextImage = 1
 
         self.markers = {}
-        self.two_byte_charprocs = {}
+        self.multi_byte_charprocs = {}
 
         # The PDF spec recommends to include every procset
         procsets = [ Name(x)
@@ -431,7 +431,7 @@ class PdfFile:
         xobjects = dict(self.images.values())
         for tup in self.markers.values():
             xobjects[tup[0]] = tup[1]
-        for name, value in self.two_byte_charprocs.items():
+        for name, value in self.multi_byte_charprocs.items():
             xobjects[name] = value
         self.writeObject(self.XObjectObject, xobjects)
         self.writeImages()
