@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from pylab import *
 
-dt = 1.0
+dt = 0.01
 x = arange(-50.0, 50.0, dt)
 y = arange(0, 100.0, dt)
 
@@ -25,5 +25,5 @@ yscale('symlog')
 grid(True)
 ylabel('symlog both')
 
-savefig('log_demo')
+savefig('symlog_demo')
 show()
