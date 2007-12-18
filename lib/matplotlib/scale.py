@@ -7,10 +7,23 @@ from ticker import NullLocator, LogLocator, AutoLocator, SymmetricalLogLocator, 
 from transforms import Transform, IdentityTransform
 
 class ScaleBase(object):
+    def get_transform(self):
+        """
+        Return the transform object associated with this scale.
+        """
+        raise NotImplementedError
+
     def set_default_locators_and_formatters(self, axis):
+        """
+        Set the locators and formatters that go with this scale.
+        """
         raise NotImplementedError
 
     def limit_range_for_scale(self, vmin, vmax, minpos):
+        """
+        Returns the range vmin, vmax, limited to the domain supported
+        by this scale.
+        """
         return vmin, vmax
 
 class LinearScale(ScaleBase):
@@ -285,6 +298,10 @@ class MercatorLatitudeScale(ScaleBase):
     The inverse scale function:
       atan(sinh(y))
 
+    Since the Mercator scale tends to infinity at +/- 90 degrees,
+    there is user-defined threshold, above and below which nothing
+    will be plotted.  This defaults to +/- 85 degrees.
+
     source:
     http://en.wikipedia.org/wiki/Mercator_projection
     """
@@ -302,23 +319,27 @@ class MercatorLatitudeScale(ScaleBase):
         def transform(self, a):
             masked = ma.masked_where((a < -self.thresh) | (a > self.thresh), a)
             if masked.mask.any():
-                return ma.log(ma.abs(ma.tan(masked) + 1.0 / ma.cos(masked)))
+                return ma.log(npy.abs(ma.tan(masked) + 1.0 / ma.cos(masked)))
             else:
                 return npy.log(npy.abs(npy.tan(a) + 1.0 / npy.cos(a)))
 
         def inverted(self):
-            return MercatorLatitudeScale.InvertedMercatorLatitudeTransform()
+            return MercatorLatitudeScale.InvertedMercatorLatitudeTransform(self.thresh)
 
     class InvertedMercatorLatitudeTransform(Transform):
         input_dims = 1
         output_dims = 1
         is_separable = True
 
+        def __init__(self, thresh):
+            Transform.__init__(self)
+            self.thresh = thresh
+
         def transform(self, a):
             return npy.arctan(npy.sinh(a))
 
         def inverted(self):
-            return MercatorLatitudeScale.MercatorLatitudeTransform()
+            return MercatorLatitudeScale.MercatorLatitudeTransform(self.thresh)
 
     def __init__(self, axis, **kwargs):
         thresh = kwargs.pop("thresh", (85 / 180.0) * npy.pi)
@@ -328,11 +349,7 @@ class MercatorLatitudeScale(ScaleBase):
         self._transform = self.MercatorLatitudeTransform(thresh)
 
     def set_default_locators_and_formatters(self, axis):
-        class ThetaFormatter(Formatter):
-            """
-            Used to format the theta tick labels.  Converts the native
-            unit of radians into degrees and adds a degree symbol.
-            """
+        class DegreeFormatter(Formatter):
             def __call__(self, x, pos=None):
                 # \u00b0 : degree symbol
                 return u"%d\u00b0" % ((x / npy.pi) * 180.0)
@@ -340,8 +357,8 @@ class MercatorLatitudeScale(ScaleBase):
         deg2rad = npy.pi / 180.0
         axis.set_major_locator(FixedLocator(
                 npy.arange(-90, 90, 10) * deg2rad))
-        axis.set_major_formatter(ThetaFormatter())
-        axis.set_minor_formatter(ThetaFormatter())
+        axis.set_major_formatter(DegreeFormatter())
+        axis.set_minor_formatter(DegreeFormatter())
 
     def get_transform(self):
         return self._transform
@@ -365,6 +382,12 @@ def scale_factory(scale, axis, **kwargs):
         raise ValueError("Unknown scale type '%s'" % scale)
 
     return _scale_mapping[scale](axis, **kwargs)
+
+def register_scale(scale_class):
+    """
+    Register a new kind of scale.
+    """
+    _scale_mapping[scale_class.name] = scale_class
 
 def get_scale_names():
     names = _scale_mapping.keys()
