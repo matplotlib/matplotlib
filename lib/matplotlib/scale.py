@@ -301,7 +301,10 @@ class MercatorLatitudeScale(ScaleBase):
 
         def transform(self, a):
             masked = ma.masked_where((a < -self.thresh) | (a > self.thresh), a)
-            return ma.log(ma.tan(masked) + 1.0 / ma.cos(masked))
+            if masked.mask.any():
+                return ma.log(ma.abs(ma.tan(masked) + 1.0 / ma.cos(masked)))
+            else:
+                return npy.log(npy.abs(npy.tan(a) + 1.0 / npy.cos(a)))
 
         def inverted(self):
             return MercatorLatitudeScale.InvertedMercatorLatitudeTransform()
@@ -345,6 +348,7 @@ class MercatorLatitudeScale(ScaleBase):
 
     def limit_range_for_scale(self, vmin, vmax, minpos):
         return max(vmin, -self.thresh), min(vmax, self.thresh)
+
 
 _scale_mapping = {
     'linear'            : LinearScale,
