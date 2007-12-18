@@ -5,17 +5,18 @@ Adding new scales and projections to matplotlib
 .. ::author Michael Droettboom
 
 Matplotlib supports the addition of new transformations that transform
-the data before it is displayed.  Separable transformations, that work
-on a single dimension are called "scales", and non-separable
-transformations, that take data in two or more dimensions as input are
-called "projections".
-
-This document is intended for developers and advanced users who need
-to add more scales and projections to matplotlib.
+the data before it is displayed.  In ``matplotlib`` nomenclature,
+separable transformations, working on a single dimension, are called
+"scales", and non-separable transformations, that take handle data in
+two or more dimensions at a time, are called "projections".
 
 From the user's perspective, the scale of a plot can be set with
 ``set_xscale`` and ``set_yscale``.  Choosing the projection
 currently has no *standardized* method. [MGDTODO]
+
+This document is intended for developers and advanced users who need
+to add more scales and projections to matplotlib.
+
 
 Creating a new scale
 ====================
