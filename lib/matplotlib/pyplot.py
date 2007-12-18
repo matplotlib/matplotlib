@@ -12,7 +12,7 @@ from matplotlib.artist import setp as _setp
 from matplotlib.axes import Axes
 from matplotlib.projections import PolarAxes
 from matplotlib import mlab  # for csv2rec in plotfile
-from matplotlib.scale import get_scale_names
+from matplotlib.scale import get_scale_docs, get_scale_names
 
 from matplotlib import cm
 from matplotlib.cm import get_cmap
@@ -727,26 +727,34 @@ def ylim(*args, **kwargs):
     return ret
 
 
-# MGDTODO: Update docstring
 def xscale(*args, **kwargs):
     """
     SET_XSCALE(value)
 
-    Set the xscaling: %(scale)s
-    """ % {'scale': ' | '.join([repr(x) for x in get_scale_names()])}
+    Set the scaling for the x-axis: %(scale)s
+
+    Different keywords may be accepted, depending on the scale:
+
+    %(scale_docs)s
+    """ % {'scale': ' | '.join([repr(x) for x in get_scale_names()]),
+           'scale_docs': get_scale_docs()}
     ax = gca()
     ret = ax.set_xscale(*args, **kwargs)
     draw_if_interactive()
     return ret
 
 
-# MGDTODO: Update docstring
 def yscale(*args, **kwargs):
     """
     SET_YSCALE(value)
 
-    Set the yscaling: %(scale)s
-    """ % {'scale': ' | '.join([repr(x) for x in get_scale_names()])}
+    Set the scaling for the y-axis: %(scale)s
+
+    Different keywords may be accepted, depending on the scale:
+
+    %(scale_docs)s
+    """ % {'scale': ' | '.join([repr(x) for x in get_scale_names()]),
+           'scale_docs': get_scale_docs()}
     ax = gca()
     ret = ax.set_yscale(*args, **kwargs)
     draw_if_interactive()
