@@ -1287,13 +1287,10 @@ class Axes(martist.Artist):
             return
 
         if scalex:
-            xl = self.get_xbound()
             XL = self.xaxis.get_major_locator().autoscale()
             self.set_xbound(XL)
         if scaley:
-            ylocator = self.yaxis.get_major_locator()
-            yl = self.get_ybound()
-            YL = ylocator.autoscale()
+            YL = self.yaxis.get_major_locator().autoscale()
             self.set_ybound(YL)
 
     def update_layout(self, renderer):
