@@ -277,20 +277,12 @@ void get_path_extents(PathIterator& path, const agg::trans_affine& trans,
     {
         if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
             continue;
-        if (x < *x0)
-        {
-            *x0 = x;
-            if (x > 0.0)
-                *xm = x;
-        }
-        if (y < *y0)
-        {
-            *y0 = y;
-            if (y > 0.0)
-                *ym = y;
-        }
+        if (x < *x0) *x0 = x;
+        if (y < *y0) *y0 = y;
         if (x > *x1) *x1 = x;
         if (y > *y1) *y1 = y;
+        if (x > 0.0 && x < *xm) *xm = x;
+        if (y > 0.0 && y < *ym) *ym = y;
     }
 }
 
@@ -435,8 +427,8 @@ Py::Object _path_module::get_path_collection_extents(const Py::Tuple& args)
     args.verify_length(5);
 
     //segments, trans, clipbox, colors, linewidths, antialiaseds
-    agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0]);
-    Py::SeqBase<Py::Object> paths		   = args[1];
+    agg::trans_affine       master_transform = py_to_agg_transformation_matrix(args[0]);
+    Py::SeqBase<Py::Object> paths	     = args[1];
     Py::SeqBase<Py::Object> transforms_obj   = args[2];
     Py::Object              offsets_obj      = args[3];
     agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[4], false);
@@ -523,11 +515,11 @@ Py::Object _path_module::point_in_path_collection(const Py::Tuple& args)
     args.verify_length(9);
 
     //segments, trans, clipbox, colors, linewidths, antialiaseds
-    double		  x		   = Py::Float(args[0]);
-    double		  y		   = Py::Float(args[1]);
+    double                  x                = Py::Float(args[0]);
+    double                  y                = Py::Float(args[1]);
     double                  radius           = Py::Float(args[2]);
-    agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[3]);
-    Py::SeqBase<Py::Object> paths		   = args[4];
+    agg::trans_affine       master_transform = py_to_agg_transformation_matrix(args[3]);
+    Py::SeqBase<Py::Object> paths	     = args[4];
     Py::SeqBase<Py::Object> transforms_obj   = args[5];
     Py::SeqBase<Py::Object> offsets_obj      = args[6];
     agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7]);
@@ -541,9 +533,9 @@ Py::Object _path_module::point_in_path_collection(const Py::Tuple& args)
         throw Py::ValueError("Offsets array must be Nx2");
     }
 
-    size_t Npaths	     = paths.length();
+    size_t Npaths      = paths.length();
     size_t Noffsets    = offsets->dimensions[0];
-    size_t N	     = std::max(Npaths, Noffsets);
+    size_t N           = std::max(Npaths, Noffsets);
     size_t Ntransforms = std::min(transforms_obj.length(), N);
     size_t i;
 
@@ -919,10 +911,6 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args)
             f = *(double*)(row1);
         }
 
-        // I would have preferred to use PyArray_FromDims here, but on
-        // 64-bit platforms, PyArray_DIMS() does not return the same thing
-        // that PyArray_FromDims wants, requiring a copy, which I would
-        // like to avoid in this critical section.
         result = (PyArrayObject*)PyArray_SimpleNew
                  (PyArray_NDIM(vertices), PyArray_DIMS(vertices), PyArray_DOUBLE);
         if (PyArray_NDIM(vertices) == 2)
