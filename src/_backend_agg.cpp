@@ -239,26 +239,21 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   height(height),
   dpi(dpi),
   NUMBYTES(width*height*4),
+  alphaBuffer(NULL),
+  alphaMaskRenderingBuffer(NULL),
+  alphaMask(NULL),
+  pixfmtAlphaMask(NULL),
+  rendererBaseAlphaMask(NULL),
+  rendererAlphaMask(NULL),
+  scanlineAlphaMask(NULL),
   debug(debug)
 {
   _VERBOSE("RendererAgg::RendererAgg");
   unsigned stride(width*4);
 
-
   pixBuffer	  = new agg::int8u[NUMBYTES];
   renderingBuffer = new agg::rendering_buffer;
   renderingBuffer->attach(pixBuffer, width, height, stride);
-
-  alphaBuffer		   = new agg::int8u[NUMBYTES];
-  alphaMaskRenderingBuffer = new agg::rendering_buffer;
-  alphaMaskRenderingBuffer->attach(alphaBuffer, width, height, stride);
-  alphaMask		   = new alpha_mask_type(*alphaMaskRenderingBuffer);
-
-  pixfmtAlphaMask	   = new agg::pixfmt_gray8(*alphaMaskRenderingBuffer);
-  rendererBaseAlphaMask	   = new renderer_base_alpha_mask_type(*pixfmtAlphaMask);
-  rendererAlphaMask	   = new renderer_alpha_mask_type(*rendererBaseAlphaMask);
-  scanlineAlphaMask	   = new agg::scanline_p8();
-
 
   slineP8  = new scanline_p8;
   slineBin = new scanline_bin;
@@ -274,6 +269,21 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   //theRasterizer->filling_rule(agg::fill_non_zero);
 
 };
+
+void RendererAgg::create_alpha_buffers() {
+  if (!alphaBuffer) {
+    unsigned stride(width*4);
+    alphaBuffer		   = new agg::int8u[NUMBYTES];
+    alphaMaskRenderingBuffer = new agg::rendering_buffer;
+    alphaMaskRenderingBuffer->attach(alphaBuffer, width, height, stride);
+    alphaMask		   = new alpha_mask_type(*alphaMaskRenderingBuffer);
+
+    pixfmtAlphaMask	   = new agg::pixfmt_gray8(*alphaMaskRenderingBuffer);
+    rendererBaseAlphaMask	   = new renderer_base_alpha_mask_type(*pixfmtAlphaMask);
+    rendererAlphaMask	   = new renderer_alpha_mask_type(*rendererBaseAlphaMask);
+    scanlineAlphaMask	   = new agg::scanline_p8();
+  }
+}
 
 template<class R>
 void
@@ -442,6 +452,7 @@ bool RendererAgg::render_clippath(const Py::Object& clippath, const agg::trans_a
   if (has_clippath &&
       (clippath.ptr() != lastclippath.ptr() ||
        clippath_trans != lastclippath_transform)) {
+    create_alpha_buffers();
     agg::trans_affine trans(clippath_trans);
     trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_translation(0.0, (double)height);
@@ -617,7 +628,7 @@ public:
     _color(color) {
   }
 
-  void generate(color_type* output_span, int x, int y, unsigned len)
+  inline void generate(color_type* output_span, int x, int y, unsigned len)
   {
     _allocator.allocate(len);
     child_color_type* input_span = _allocator.span();
