@@ -158,16 +158,7 @@ USAGE:
 
 BACKENDS
 
-  mathtext currently works with GTK, Agg, GTKAgg, TkAgg and WxAgg and
-  PS, though only horizontal and vertical rotations are supported in
-  *Agg
-
-  mathtext now embeds the TrueType computer modern fonts into the PS
-  file, so what you see on the screen should be what you get on paper.
-
-  Backends which don't support mathtext will just render the TeX
-  string as a literal.  Stay tuned.
-
+  mathtext currently works with all backends.
 
 KNOWN ISSUES:
 
