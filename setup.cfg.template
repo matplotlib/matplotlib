@@ -13,12 +13,12 @@ tag_svn_revision = 1
 #verbose = True
 
 [provide_packages]
-# By default, matplotlib checks for a few dependencies and 
-# installs them if missing. This feature can be turned off 
+# By default, matplotlib checks for a few dependencies and
+# installs them if missing. This feature can be turned off
 # by uncommenting the following lines. Acceptible values are:
 #     True: install, overwrite an existing installation
 #     False: do not install
-#     auto: install only if the package is unavailable. This 
+#     auto: install only if the package is unavailable. This
 #           is the default behavior
 #
 ## Date/timezone support:
@@ -30,28 +30,28 @@ tag_svn_revision = 1
 #configobj = False
 
 [gui_support]
-# Matplotlib supports multiple GUI toolkits, including Cocoa, 
-# GTK, Fltk, Qt, Qt4, Tk, and WX. Support for many of these 
-# toolkits requires AGG, the Anti-Grain Geometry library, which 
+# Matplotlib supports multiple GUI toolkits, including Cocoa,
+# GTK, Fltk, Qt, Qt4, Tk, and WX. Support for many of these
+# toolkits requires AGG, the Anti-Grain Geometry library, which
 # is provided by matplotlib and built by default.
 #
-# Some backends are written in pure Python, and others require 
-# extension code to be compiled. By default, matplotlib checks 
-# for these GUI toolkits during installation and, if present, 
-# compiles the required extensions to support the toolkit. GTK 
-# support requires the GTK runtime environment and PyGTK. Wx 
-# support requires wxWidgets and wxPython. Tk support requires 
-# Tk and Tkinter. The other GUI toolkits do not require any 
-# extension code, and can be used as long as the libraries are 
+# Some backends are written in pure Python, and others require
+# extension code to be compiled. By default, matplotlib checks
+# for these GUI toolkits during installation and, if present,
+# compiles the required extensions to support the toolkit. GTK
+# support requires the GTK runtime environment and PyGTK. Wx
+# support requires wxWidgets and wxPython. Tk support requires
+# Tk and Tkinter. The other GUI toolkits do not require any
+# extension code, and can be used as long as the libraries are
 # installed on your system.
-# 
+#
 # You can uncomment any the following lines if you know you do
 # not want to use the GUI toolkit. Acceptible values are:
-#     True: build the extension. Exits with a warning if the 
+#     True: build the extension. Exits with a warning if the
 #           required dependencies are not available
 #     False: do not build the extension
 #     auto: build if the required dependencies are available,
-#           otherwise skip silently. This is the default 
+#           otherwise skip silently. This is the default
 #           behavior
 #
 #gtk = False
@@ -62,18 +62,20 @@ tag_svn_revision = 1
 [rc_options]
 # User-configurable options
 #
-# Default backend, one of: Agg, Cairo, CocoaAgg, GTK, GTKAgg, 
-# GTKCairo, FltkAgg, QtAgg, Qt4Agg, SVG, TkAgg, WX, WXAgg. 
-# Only the Agg and SVG backends do not require external 
-# dependencies. Do not choose GTK, GTKAgg, GTKCairo, TkAgg or 
-# WXAgg if you have disabled the relevent extension modules.
-# Agg will be used by default.
+# Default backend, one of: Agg, Cairo, CocoaAgg, GTK, GTKAgg,
+# GTKCairo, FltkAgg, Pdf, Ps, QtAgg, Qt4Agg, SVG, TkAgg, WX, WXAgg.
+#
+# The Agg, Ps, Pdf and SVG backends do not require external
+# dependencies. Do not choose GTK, GTKAgg, GTKCairo, TkAgg or WXAgg if
+# you have disabled the relevent extension modules.  Agg will be used
+# by default.
+#
 #backend = Agg
 #
-# The numerix module was historically used to provide 
+# The numerix module was historically used to provide
 # compatibility between the Numeric, numarray, and NumPy array
-# packages. Now that NumPy has emerge as the universal array 
-# package for python, numerix is not really necessary and is 
-# maintained to provide backward compatibility. Do not change 
+# packages. Now that NumPy has emerge as the universal array
+# package for python, numerix is not really necessary and is
+# maintained to provide backward compatibility. Do not change
 # this unless you have a compelling reason to do so.
 #numerix = numpy
