@@ -77,7 +77,7 @@ public:
   SafeSnap() : first(true), xsnap(0.0), lastx(0.0), lastxsnap(0.0),
 	       ysnap(0.0), lasty(0.0), lastysnap(0.0)  {}
   SnapData snap (const float& x, const float& y);
-      
+
 private:
   bool first;
   float xsnap, lastx, lastxsnap, ysnap, lasty, lastysnap;
@@ -87,7 +87,7 @@ private:
 // a class in the swig wrapper
 class BufferRegion : public Py::PythonExtension<BufferRegion> {
 public:
-  BufferRegion(const agg::rect_i &r, bool freemem=true) : 
+  BufferRegion(const agg::rect_i &r, bool freemem=true) :
   rect(r), freemem(freemem) {
     width = r.x2 - r.x1;
     height = r.y2 - r.y1;
@@ -99,7 +99,7 @@ public:
   int width;
   int height;
   int stride;
-  
+
   bool freemem;
 
   Py::Object to_string(const Py::Tuple &args);
@@ -151,7 +151,7 @@ public:
 
 
 //struct AMRenderer {
-//  
+//
 //}
 
 // the renderer
@@ -246,6 +246,7 @@ protected:
      const Py::SeqBase<Py::Int>&    antialiaseds);
 
 private:
+  void create_alpha_buffers();
   Py::Object lastclippath;
   agg::trans_affine lastclippath_transform;
 };
