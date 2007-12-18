@@ -81,34 +81,80 @@ USAGE:
 
   Allowed TeX symbols:
 
-  [MGDTODO: This list is no longer exhaustive and needs to be updated]
-
-  \/ \Delta \Downarrow \Gamma \Im \LEFTangle \LEFTbrace \LEFTbracket
-  \LEFTparen \Lambda \Leftarrow \Leftbrace \Leftbracket \Leftparen
-  \Leftrightarrow \Omega \P \Phi \Pi \Psi \RIGHTangle \RIGHTbrace
-  \RIGHTbracket \RIGHTparen \Re \Rightarrow \Rightbrace \Rightbracket
-  \Rightparen \S \SQRT \Sigma \Sqrt \Theta \Uparrow \Updownarrow
-  \Upsilon \Vert \Xi \aleph \alpha \approx \angstrom \ast \asymp
-  \backslash \beta \bigcap \bigcirc \bigcup \bigodot \bigoplus
-  \bigotimes \bigtriangledown \bigtriangleup \biguplus \bigvee
-  \bigwedge \bot \bullet \cap \cdot \chi \circ \clubsuit \coprod \cup
-  \dag \dashv \ddag \delta \diamond \diamondsuit \div \downarrow \ell
-  \emptyset \epsilon \equiv \eta \exists \flat \forall \frown \gamma
-  \geq \gg \heartsuit \hspace \imath \in \infty \int \iota \jmath
-  \kappa \lambda \langle \lbrace \lceil \leftangle \leftarrow
-  \leftbrace \leftbracket \leftharpoondown \leftharpoonup \leftparen
-  \leftrightarrow \leq \lfloor \ll \mid \mp \mu \nabla \natural
-  \nearrow \neg \ni \nu \nwarrow \odot \oint \omega \ominus \oplus
-  \oslash \otimes \phi \pi \pm \prec \preceq \prime \prod \propto \psi
-  \rangle \rbrace \rceil \rfloor \rho \rightangle \rightarrow
-  \rightbrace \rightbracket \rightharpoondown \rightharpoonup
-  \rightparen \searrow \sharp \sigma \sim \simeq \slash \smile
-  \spadesuit \sqcap \sqcup \sqrt \sqsubseteq \sqsupseteq \subset
-  \subseteq \succ \succeq \sum \supset \supseteq \swarrow \tau \theta
-  \times \top \triangleleft \triangleright \uparrow \updownarrow
-  \uplus \upsilon \varepsilon \varphi \varphi \varrho \varsigma
-  \vartheta \vdash \vee \vert \wedge \wp \wr \xi \zeta
-
+  $ \% \AA \AE \BbbC \BbbN \BbbP \BbbQ \BbbR \BbbZ \Bumpeq \Cap \Colon
+  \Cup \Delta \Doteq \Downarrow \Equiv \Finv \Gamma \H \Im \L \Lambda
+  \Ldsh \Leftarrow \Leftrightarrow \Lleftarrow \Lsh \Nearrow \Nwarrow
+  \O \OE \Omega \P \Phi \Pi \Psi \Rdsh \Re \Rightarrow \Rrightarrow
+  \Rsh \S \Searrow \Sigma \Subset \Supset \Swarrow \Theta \Uparrow
+  \Updownarrow \Upsilon \Vdash \Vert \Vvdash \Xi \_ \__sqrt__ \ac
+  \acute \acwopencirclearrow \adots \ae \aleph \alpha \angle \approx
+  \approxeq \approxident \arceq \ast \asymp \backcong \backprime
+  \backsim \backsimeq \backslash \bar \barleftarrow \barwedge \because
+  \beta \beth \between \bigcap \bigcirc \bigcup \bigodot \bigoplus
+  \bigotimes \bigstar \bigtriangledown \bigtriangleup \biguplus
+  \bigvee \bigwedge \blacksquare \blacktriangle \blacktriangledown
+  \blacktriangleleft \blacktriangleright \bot \bowtie \boxbar \boxdot
+  \boxminus \boxplus \boxtimes \breve \bullet \bumpeq \c \candra \cap
+  \carriagereturn \cdot \cdotp \cdots \check \checkmark \chi \circ
+  \circeq \circledR \circledS \circledast \circledcirc \circleddash
+  \circumflexaccent \clubsuit \clubsuitopen \colon \coloneq
+  \combiningacuteaccent \combiningbreve \combiningdiaeresis
+  \combiningdotabove \combininggraveaccent \combiningoverline
+  \combiningrightarrowabove \combiningtilde \complement \cong \coprod
+  \copyright \cup \cupdot \curlyeqprec \curlyeqsucc \curlyvee
+  \curlywedge \curvearrowleft \curvearrowright \cwopencirclearrow \d
+  \dag \daleth \danger \dashv \ddag \ddddot \dddot \ddot \ddots
+  \degree \delta \diamond \diamondsuit \digamma \div \divideontimes
+  \dot \doteq \dotminus \dotplus \dots \doublebarwedge ? \downarrow
+  \downdownarrows \downharpoonleft \downharpoonright \downzigzagarrow
+  \ell \emdash \emptyset \endash \enspace \epsilon \eqcirc \eqcolon
+  \eqdef \eqgtr \eqless \eqsim \equiv \eta \eth \exists \fallingdotseq
+  \flat \forall \frakC \frakZ \frown \gamma \geq \geqq \gg \ggg \gimel
+  \gneqq \gnsim \grave \greater \gtrdot \gtreqless \gtrless \gtrsim
+  \hat \heartsuit \hookleftarrow \hookrightarrow \i \iiint \iint
+  \imageof \imath \in \infty \int \intercal \invnot \iota \jmath \k
+  \kappa \kernelcontraction \l \lambda \lambdabar \lasp \lbrace
+  \lbrack \lceil \leftangle \leftarrow \leftarrowtail \leftbrace
+  \leftharpoonaccent \leftharpoondown \leftharpoonup \leftleftarrows
+  \leftparen \leftrightarrow \leftrightarrows \leftrightharpoons
+  \leftthreetimes \leq \leqq \less \lessdot \lesseqgtr \lessgtr
+  \lesssim \lfloor \ll \llcorner \lll \lneqq \lnsim \looparrowleft
+  \looparrowright \lq \lrcorner \ltimes \maltese \mapsdown \mapsfrom
+  \mapsto \mapsup \measeq \measuredangle \mho \mid \minus \models \mp
+  \mu \multimap \nLeftarrow \nLeftrightarrow \nRightarrow \nVDash
+  \nVdash \nabla \napprox \natural \ncong \ne \nearrow \neg \nequiv
+  \nexists \ngeq \ngtr \ni \nleftarrow \nleftrightarrow \nleq \nless
+  \nmid \not \notin \nparallel \nprec \nrightarrow \nsim \nsime
+  \nsubset \nsubseteq \nsucc \nsupset \nsupseteq \ntriangleleft
+  \ntrianglelefteq \ntriangleright \ntrianglerighteq \nu \nvDash
+  \nvdash \nwarrow \o \obar \ocirc \odot \oe \oiiint \oiint \oint
+  \omega \ominus \oplus \origof \oslash \otimes \overarc
+  \overleftarrow \overleftrightarrow \parallel \partial \phi \pi
+  \pitchfork \pm \prec \preccurlyeq \preceq \precnsim \precsim \prime
+  \prod \propto \prurel \psi \quad \questeq \rasp \rbrace \rbrack
+  \rceil \rfloor \rho \rightangle \rightarrow \rightarrowbar
+  \rightarrowtail \rightbrace \rightharpoonaccent \rightharpoondown
+  \rightharpoonup \rightleftarrows \rightleftharpoons \rightparen
+  \rightrightarrows \rightthreetimes \rightzigzagarrow \risingdotseq
+  \rq \rtimes \scrB \scrE \scrF \scrH \scrI \scrL \scrM \scrR \scre
+  \scrg \scro \scurel \searrow \sharp \sigma \sim \simeq \slash
+  \smallsetminus \smile \solbar \spadesuit \spadesuitopen
+  \sphericalangle \sqcap \sqcup \sqsubset \sqsubseteq \sqsupset
+  \sqsupseteq \ss \star \stareq \sterling \subset \subseteq \subsetneq
+  \succ \succcurlyeq \succeq \succnsim \succsim \sum \supset \supseteq
+  \supsetneq \swarrow \t \tau \textasciiacute \textasciicircum
+  \textasciigrave \textasciitilde \textexclamdown \textquestiondown
+  \textquotedblleft \textquotedblright \therefore \theta \thickspace
+  \thinspace \tilde \times \to \top \triangledown \triangleleft
+  \trianglelefteq \triangleq \triangleright \trianglerighteq
+  \turnednot \twoheaddownarrow \twoheadleftarrow \twoheadrightarrow
+  \twoheaduparrow \ulcorner \underbar \uparrow \updownarrow
+  \updownarrowbar \updownarrows \upharpoonleft \upharpoonright \uplus
+  \upsilon \upuparrows \urcorner \vDash \varepsilon \varkappa
+  \varnothing \varphi \varpi \varrho \varsigma \vartheta \vartriangle
+  \vartriangleleft \vartriangleright \vdash \vdots \vec \vee \veebar
+  \veeeq \vert \wedge \wedgeq \widehat \widetilde \wp \wr \xi \yen
+  \zeta \{ \| \}
 
 BACKENDS
 
