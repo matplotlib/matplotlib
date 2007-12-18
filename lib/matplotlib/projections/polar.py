@@ -74,19 +74,21 @@ class PolarAxes(Axes):
         The affine part of the polar projection.  Scales the output so
         that maximum radius rests on the edge of the axes circle.
         """
-        def __init__(self, limits):
+        def __init__(self, scale_transform, limits):
             """
             limits is the view limit of the data.  The only part of
             its bounds that is used is ymax (for the radius maximum).
             """
             Affine2DBase.__init__(self)
+            self._scale_transform = scale_transform
             self._limits = limits
-            self.set_children(limits)
+            self.set_children(scale_transform, limits)
             self._mtx = None
 
         def get_matrix(self):
             if self._invalid:
-                ymax = self._limits.ymax
+                limits_scaled = self._limits.transformed(self._scale_transform)
+                ymax = limits_scaled.ymax
                 affine = Affine2D() \
                     .scale(0.5 / ymax) \
                     .translate(0.5, 0.5)
@@ -193,7 +195,7 @@ class PolarAxes(Axes):
 
         # An affine transformation on the data, generally to limit the
         # range of the axes
-        self.transProjectionAffine = self.PolarAffine(self.viewLim)
+        self.transProjectionAffine = self.PolarAffine(self.transScale, self.viewLim)
 
         # The complete data transformation stack -- from data all the
         # way to display coordinates
@@ -205,7 +207,7 @@ class PolarAxes(Axes):
         # the edge of the axis circle.
         self._xaxis_transform = (
             self.transProjection +
-            self.PolarAffine(Bbox.unit()) +
+            self.PolarAffine(IdentityTransform(), Bbox.unit()) +
             self.transAxes)
         # The theta labels are moved from radius == 0.0 to radius == 1.1
         self._theta_label1_position = Affine2D().translate(0.0, 1.1)
