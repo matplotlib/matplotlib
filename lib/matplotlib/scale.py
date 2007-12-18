@@ -1,7 +1,9 @@
+import textwrap
 import numpy as npy
 from matplotlib.numerix import npyma as ma
 MaskedArray = ma.MaskedArray
 
+from cbook import dedent
 from ticker import NullFormatter, ScalarFormatter, LogFormatterMathtext, Formatter
 from ticker import NullLocator, LogLocator, AutoLocator, SymmetricalLogLocator, FixedLocator
 from transforms import Transform, IdentityTransform
@@ -30,6 +32,8 @@ class LinearScale(ScaleBase):
     name = 'linear'
 
     def __init__(self, axis, **kwargs):
+        """
+        """
         pass
 
     def set_default_locators_and_formatters(self, axis):
@@ -167,6 +171,12 @@ class LogScale(ScaleBase):
 
 
     def __init__(self, axis, **kwargs):
+        """
+        basex/basey: The base of the logarithm
+
+        subsx/subsy: The number of subticks to draw between each major
+        tick
+        """
         if axis.axis_name == 'x':
             base = kwargs.pop('basex', 10.0)
             subs = kwargs.pop('subsx', None)
@@ -262,6 +272,16 @@ class SymmetricalLogScale(ScaleBase):
             return SymmetricalLogScale.SymmetricalLogTransform(self.base)
 
     def __init__(self, axis, **kwargs):
+        """
+        basex/basey: The base of the logarithm
+
+        linthreshx/linthreshy: The range (-x, x) within which the plot
+        is linear (to avoid having the plot go to infinity around
+        zero).
+
+        subsx/subsy: The number of subticks to render between each
+        major tick.
+        """
         if axis.axis_name == 'x':
             base = kwargs.pop('basex', 10.0)
             linthresh = kwargs.pop('linthreshx', 2.0)
@@ -342,6 +362,9 @@ class MercatorLatitudeScale(ScaleBase):
             return MercatorLatitudeScale.MercatorLatitudeTransform(self.thresh)
 
     def __init__(self, axis, **kwargs):
+        """
+        thresh: The degree above which to crop the data.
+        """
         thresh = kwargs.pop("thresh", (85 / 180.0) * npy.pi)
         if thresh >= npy.pi / 2.0:
             raise ValueError("thresh must be less than pi/2")
@@ -393,3 +416,16 @@ def get_scale_names():
     names = _scale_mapping.keys()
     names.sort()
     return names
+
+def get_scale_docs():
+    docs = []
+    for name in get_scale_names():
+        scale_class = _scale_mapping[name]
+        docs.append("    '%s'" % name)
+        docs.append("")
+        class_docs = textwrap.wrap(
+            dedent(scale_class.__init__.__doc__), initial_indent=" " * 8,
+            subsequent_indent = " " * 8)
+        docs.extend(class_docs)
+        docs.append("")
+    return "\n".join(docs)

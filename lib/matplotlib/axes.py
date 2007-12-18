@@ -1651,25 +1651,18 @@ class Axes(martist.Artist):
             ", ".join(mscale.get_scale_names()))
 	return self.xaxis.get_scale()
 
-    # MGDTODO: Update docstring
     def set_xscale(self, value, **kwargs):
         """
         SET_XSCALE(value)
 
-        Set the xscaling: %(scale)s
-
-        If value is 'log', the additional kwargs have the following meaning
-
-            * basex: base of the logarithm
-
-            * subsx: a sequence of the location of the minor ticks;
-              None defaults to autosubs, which depend on the number of
-              decades in the plot.  Eg for base 10, subsx=(1,2,5) will
-              put minor ticks on 1,2,5,11,12,15,21, ....To turn off
-              minor ticking, set subsx=[]
+        Set the scaling of the x-axis: %(scale)s
 
         ACCEPTS: [%(scale)s]
-        """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
+
+        Different kwargs are accepted, depending on the scale:
+        %(scale_docs)s
+        """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()]),
+               'scale_docs': mscale.get_scale_docs().strip()}
         self.xaxis.set_scale(value, **kwargs)
         self.autoscale_view()
         self._update_transScale()
@@ -1815,22 +1808,16 @@ class Axes(martist.Artist):
 
     def set_yscale(self, value, **kwargs):
         """
-        SET_YSCALE(value, basey=10, subsy=None)
+        SET_YSCALE(value)
 
-        Set the yscaling: %(scale)s
+        Set the scaling of the y-axis: %(scale)s
 
-        If value is 'log', the additional kwargs have the following meaning
+        ACCEPTS: [%(scale)s]
 
-            * basey: base of the logarithm
-
-            * subsy: a sequence of the location of the minor ticks;
-              None defaults to autosubs, which depend on the number of
-              decades in the plot.  Eg for base 10, subsy=(1,2,5) will
-              put minor ticks on 1,2,5,11,12,15, 21, ....To turn off
-              minor ticking, set subsy=[]
-
-        ACCEPTS: %(scale)s
-        """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
+        Different kwargs are accepted, depending on the scale:
+        %(scale_docs)s
+        """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()]),
+               'scale_docs': mscale.get_scale_docs().strip()}
         self.yaxis.set_scale(value, **kwargs)
         self.autoscale_view()
         self._update_transScale()
