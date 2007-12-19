@@ -1330,7 +1330,7 @@ class Axes(martist.Artist):
         if not self.get_visible(): return
         renderer.open_group('axes')
 
-        self.apply_aspect(self.get_position())
+        self.apply_aspect(self.get_position(True))
 
         if self.axison and self._frameon:
             self.axesPatch.draw(renderer)
@@ -5079,7 +5079,7 @@ class Axes(martist.Artist):
         right
         """
 
-        ax2 = self.figure.add_axes(self.get_position(), sharex=self, frameon=False)
+        ax2 = self.figure.add_axes(self.get_position(True), sharex=self, frameon=False)
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
         self.yaxis.tick_left()
@@ -5095,7 +5095,7 @@ class Axes(martist.Artist):
         top
         """
 
-        ax2 = self.figure.add_axes(self.get_position(), sharey=self, frameon=False)
+        ax2 = self.figure.add_axes(self.get_position(True), sharey=self, frameon=False)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
         self.xaxis.tick_bottom()
