@@ -93,13 +93,15 @@ class TransformNode(object):
         """
         # If we are an affine transform being changed, we can set the
         # flag to INVALID_AFFINE_ONLY
-        value = ((self.is_affine or self.is_bbox)
-                 and self.INVALID_AFFINE
-                 or self.INVALID)
+        value = (self.is_affine) and self.INVALID_AFFINE or self.INVALID
 
         # Shortcut: If self is already invalid, that means its parents
         # are as well, so we don't need to do anything.
-        if self._invalid == value or not len(self._parents):
+        if self._invalid == value:
+            return
+
+        if not len(self._parents):
+            self._invalid = value
             return
 
         # Invalidate all ancestors of self using pseudo-recursion.
@@ -108,7 +110,7 @@ class TransformNode(object):
         while len(stack):
             root = stack.pop()
             # Stop at subtrees that have already been invalidated
-            if root._invalid == 0 or root.pass_through:
+            if root._invalid != value or root.pass_through:
                 root._invalid = value
                 stack.extend(root._parents.keys())
 
@@ -198,6 +200,7 @@ class BboxBase(TransformNode):
     read-only access to its data.
     """
     is_bbox = True
+    is_affine = True
 
     #* Redundant: Removed for performance
     #
@@ -208,6 +211,7 @@ class BboxBase(TransformNode):
         def _check(points):
             if ma.isMaskedArray(points):
                 warnings.warn("Bbox bounds are a masked array.")
+            points = npy.asarray(points)
             if (points[1,0] - points[0,0] == 0 or
                 points[1,1] - points[0,1] == 0):
                 warnings.warn("Singular Bbox.")
@@ -1011,6 +1015,8 @@ class TransformWrapper(Transform):
     transform may only be replaced with another child transform of the
     same dimensions.
     """
+    pass_through = True
+
     def __init__(self, child):
         """
         child: A Transform instance.  This child may later be replaced
@@ -1546,7 +1552,6 @@ class BlendedAffine2D(Affine2DBase):
     This version is an optimization for the case where both child
     transforms are of type Affine2DBase.
     """
-
     is_separable = True
 
     def __init__(self, x_transform, y_transform):
@@ -1917,8 +1922,8 @@ class TransformedPath(TransformNode):
         the transform already applied, along with the affine part of
         the path necessary to complete the transformation.
         """
-        if (self._invalid & self.INVALID_NON_AFFINE or
-            self._transformed_path is None):
+        if ((self._invalid & self.INVALID_NON_AFFINE == self.INVALID_NON_AFFINE)
+            or self._transformed_path is None):
             self._transformed_path = \
                 self._transform.transform_path_non_affine(self._path)
         self._invalid = 0
@@ -1928,7 +1933,7 @@ class TransformedPath(TransformNode):
         """
         Return a fully-transformed copy of the child path.
         """
-        if (self._invalid & self.INVALID_NON_AFFINE
+        if ((self._invalid & self.INVALID_NON_AFFINE == self.INVALID_NON_AFFINE)
             or self._transformed_path is None):
             self._transformed_path = \
                 self._transform.transform_path_non_affine(self._path)

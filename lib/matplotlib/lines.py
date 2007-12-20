@@ -396,9 +396,6 @@ class Line2D(Artist):
             self._xorig = x
             self._yorig = y
             self._invalid = True
-        else:
-            if hasattr(self, "_transformed_path"):
-                self._transformed_path._invalid = self._transformed_path.INVALID_NON_AFFINE
 
     def recache(self):
         #if self.axes is None: print 'recache no axes'
