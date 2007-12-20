@@ -94,13 +94,13 @@ class Tick(Artist):
         self.label = self.label1  # legacy name
         self.label2 = self._get_text2()
 
-        self.update_position(loc)
-
         self.gridOn = gridOn
         self.tick1On = tick1On
         self.tick2On = tick2On
         self.label1On = label1On
         self.label2On = label2On
+
+        self.update_position(loc)
 
     def get_children(self):
         children = [self.tick1line, self.tick2line, self.gridline, self.label1, self.label2]
@@ -304,11 +304,16 @@ class XTick(Tick):
         'Set the location of tick in data coords with scalar loc'
         x = loc
 
-        self.tick1line.set_xdata((x,))
-        self.tick2line.set_xdata((x,))
-        self.gridline.set_xdata((x, ))
-        self.label1.set_x(x)
-        self.label2.set_x(x)
+        if self.tick1On:
+            self.tick1line.set_xdata((x,))
+        if self.tick2On:
+            self.tick2line.set_xdata((x,))
+        if self.gridOn:
+            self.gridline.set_xdata((x,))
+        if self.label1On:
+            self.label1.set_x(x)
+        if self.label2On:
+            self.label2.set_x(x)
         self._loc = loc
 
     def get_view_interval(self):
@@ -420,13 +425,16 @@ class YTick(Tick):
     def update_position(self, loc):
         'Set the location of tick in data coords with scalar loc'
         y = loc
-        self.tick1line.set_ydata((y,))
-        self.tick2line.set_ydata((y,))
-        self.gridline.set_ydata((y, ))
-
-        self.label1.set_y( y )
-        self.label2.set_y( y )
-
+        if self.tick1On:
+            self.tick1line.set_ydata((y,))
+        if self.tick2On:
+            self.tick2line.set_ydata((y,))
+        if self.gridOn:
+            self.gridline.set_ydata((y, ))
+        if self.label1On:
+            self.label1.set_y( y )
+        if self.label2On:
+            self.label2.set_y( y )
         self._loc = loc
 
 
@@ -1231,6 +1239,8 @@ class XAxis(Axis):
             for t in ticks:
                 t.tick1On = True
                 t.tick2On = True
+        for t in ticks:
+            t.update_position(t._loc)
 
     def tick_top(self):
         'use ticks only on top'
