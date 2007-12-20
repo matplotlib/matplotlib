@@ -1,4 +1,4 @@
-from geo import AitoffAxes, HammerAxes, MolleweideAxes, LambertAxes
+from geo import AitoffAxes, HammerAxes, LambertAxes
 from polar import PolarAxes
 from matplotlib import axes
 
@@ -25,7 +25,6 @@ projection_registry.register(
     PolarAxes,
     AitoffAxes,
     HammerAxes,
-    MolleweideAxes,
     LambertAxes)
 
 def get_projection_class(projection):
