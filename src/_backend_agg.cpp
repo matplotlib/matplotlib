@@ -363,6 +363,9 @@ bool should_snap(Path& path, const agg::trans_affine& trans) {
   double x0, y0, x1, y1;
   unsigned code;
 
+  if (path.total_vertices() > 15)
+    return false;
+
   code = path.vertex(&x0, &y0);
   trans.transform(&x0, &y0);
 
