@@ -304,6 +304,11 @@ class XTick(Tick):
         'Set the location of tick in data coords with scalar loc'
         x = loc
 
+        nonlinear = (hasattr(self.axes, 'yaxis') and
+                     self.axes.yaxis.get_scale() != 'linear' or
+                     hasattr(self.axes, 'xaxis') and
+                     self.axes.xaxis.get_scale() != 'linear')
+
         if self.tick1On:
             self.tick1line.set_xdata((x,))
         if self.tick2On:
@@ -314,6 +319,12 @@ class XTick(Tick):
             self.label1.set_x(x)
         if self.label2On:
             self.label2.set_x(x)
+
+        if nonlinear:
+            self.tick1line._invalid = True
+            self.tick2line._invalid = True
+            self.gridline._invalid = True
+
         self._loc = loc
 
     def get_view_interval(self):
@@ -425,6 +436,12 @@ class YTick(Tick):
     def update_position(self, loc):
         'Set the location of tick in data coords with scalar loc'
         y = loc
+
+        nonlinear = (hasattr(self.axes, 'yaxis') and
+                     self.axes.yaxis.get_scale() != 'linear' or
+                     hasattr(self.axes, 'xaxis') and
+                     self.axes.xaxis.get_scale() != 'linear')
+
         if self.tick1On:
             self.tick1line.set_ydata((y,))
         if self.tick2On:
@@ -435,6 +452,11 @@ class YTick(Tick):
             self.label1.set_y( y )
         if self.label2On:
             self.label2.set_y( y )
+        if nonlinear:
+            self.tick1line._invalid = True
+            self.tick2line._invalid = True
+            self.gridline._invalid = True
+
         self._loc = loc
 
 
