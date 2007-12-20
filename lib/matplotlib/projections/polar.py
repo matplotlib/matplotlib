@@ -66,7 +66,7 @@ class PolarAxes(Axes):
         transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
 
         def inverted(self):
-            return PolarAxes.InvertedPolarTransform()
+            return PolarAxes.InvertedPolarTransform(self._resolution)
         inverted.__doc__ = Transform.inverted.__doc__
 
     class PolarAffine(Affine2DBase):
@@ -107,6 +107,10 @@ class PolarAxes(Axes):
         output_dims = 2
         is_separable = False
 
+        def __init__(self, resolution):
+            Transform.__init__(self)
+            self._resolution = resolution
+
         def transform(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:]
@@ -117,7 +121,7 @@ class PolarAxes(Axes):
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
-            return PolarAxes.PolarTransform()
+            return PolarAxes.PolarTransform(self._resolution)
         inverted.__doc__ = Transform.inverted.__doc__
 
     class ThetaFormatter(Formatter):
