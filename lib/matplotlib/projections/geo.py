@@ -397,12 +397,12 @@ class HammerAxes(GeoAxes):
         return self.HammerTransform(resolution)
 
 
-class MolleweideAxes(GeoAxes):
-    name = 'molleweide'
+class MollweideAxes(GeoAxes):
+    name = 'mollweide'
 
-    class MolleweideTransform(Transform):
+    class MollweideTransform(Transform):
         """
-        The base Molleweide transform.
+        The base Mollweide transform.
         """
         input_dims = 2
         output_dims = 2
@@ -410,9 +410,9 @@ class MolleweideAxes(GeoAxes):
 
         def __init__(self, resolution):
             """
-            Create a new Molleweide transform.  Resolution is the number of steps
+            Create a new Mollweide transform.  Resolution is the number of steps
             to interpolate between each input line segment to approximate its
-            path in curved Molleweide space.
+            path in curved Mollweide space.
             """
             Transform.__init__(self)
             self._resolution = resolution
@@ -441,10 +441,10 @@ class MolleweideAxes(GeoAxes):
         transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
 
         def inverted(self):
-            return MolleweideAxes.InvertedMolleweideTransform(self._resolution)
+            return MollweideAxes.InvertedMollweideTransform(self._resolution)
         inverted.__doc__ = Transform.inverted.__doc__
 
-    class InvertedMolleweideTransform(Transform):
+    class InvertedMollweideTransform(Transform):
         input_dims = 2
         output_dims = 2
         is_separable = False
@@ -459,7 +459,7 @@ class MolleweideAxes(GeoAxes):
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
-            return MolleweideAxes.MolleweideTransform(self._resolution)
+            return MollweideAxes.MollweideTransform(self._resolution)
         inverted.__doc__ = Transform.inverted.__doc__
 
     def __init__(self, *args, **kwargs):
@@ -469,7 +469,7 @@ class MolleweideAxes(GeoAxes):
         self.cla()
 
     def _get_core_transform(self, resolution):
-        return self.MolleweideTransform(resolution)
+        return self.MollweideTransform(resolution)
 
 
 class LambertAxes(GeoAxes):
