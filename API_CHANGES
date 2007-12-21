@@ -1,3 +1,6 @@
+    For csv2rec, checkrows=0 is the new default indicating all rows
+    will be checked for type inference
+
     A warning is issued when an image is drawn on log-scaled
     axes, since it will not log-scale the image data.
 
