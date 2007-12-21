@@ -973,6 +973,337 @@ class Circle(Ellipse):
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
+class Arc(Ellipse):
+    """
+    An elliptical arc.  Because it performs various optimizations, it
+    can not be filled.
+    """
+    def __str__(self):
+        return "Arc(%d,%d;%dx%d)"%(self.center[0],self.center[1],self.width,self.height)
+
+    def __init__(self, xy, width, height, angle=0.0, theta1=0.0, theta2=360.0, **kwargs):
+        """
+        xy - center of ellipse
+        width - length of horizontal axis
+        height - length of vertical axis
+        angle - rotation in degrees (anti-clockwise)
+        theta1 - starting angle of the arc in degrees
+        theta2 - ending angle of the arc in degrees
+
+        If theta1 and theta2 are not provided, the arc will form a
+        complete ellipse.
+
+        Valid kwargs are:
+        %(Patch)s
+        """
+        fill = kwargs.pop('fill')
+        if fill:
+            raise ValueError("Arc objects can not be filled")
+        kwargs['fill'] = False
+
+        Ellipse.__init__(self, xy, width, height, angle, **kwargs)
+
+        self._theta1 = theta1
+        self._theta2 = theta2
+
+    def draw(self, renderer):
+        """
+        Ellipses are normally drawn using an approximation that uses
+        eight cubic bezier splines.  The error of this approximation
+        is 1.89818e-6, according to this unverified source:
+
+          Lancaster, Don.  Approximating a Circle or an Ellipse Using
+          Four Bezier Cubic Splines.
+
+          http://www.tinaja.com/glib/ellipse4.pdf
+
+        There is a use case where very large ellipses must be drawn
+        with very high accuracy, and it is too expensive to render the
+        entire ellipse with enough segments (either splines or line
+        segments).  Therefore, in the case where either radius of the
+        ellipse is large enough that the error of the spline
+        approximation will be visible (greater than one pixel offset
+        from the ideal), a different technique is used.
+
+        In that case, only the visible parts of the ellipse are drawn,
+        with each visible arc using a fixed number of spline segments
+        (8), which should be adequate when the number of pixels across
+        the image is less than 5e5.  The algorithm proceeds as
+        follows:
+
+          1. The points where the ellipse intersects the axes bounding
+          box are located.  (This is done be performing an inverse
+          transformation on the axes bbox such that it is relative to
+          the unit circle -- this makes the intersection calculation
+          much easier than doing rotated ellipse intersection
+          directly).
+
+          This uses the "line intersecting a circle" algorithm from:
+
+            Vince, John.  Geometry for Computer Graphics: Formulae,
+            Examples & Proofs.  London: Springer-Verlag, 2005.
+
+          2. The angles of each of the intersection points are
+          calculated.
+
+          3. Proceeding counterclockwise starting in the positive
+          x-direction, each of the visible arc-segments between each
+          pair of intersections are drawn using the bezier arc
+          approximation technique implemented in arc().
+        """
+        # Do the usual GC handling stuff
+        if not self.get_visible(): return
+        gc = renderer.new_gc()
+        gc.set_foreground(self._edgecolor)
+        gc.set_linewidth(self._linewidth)
+        gc.set_alpha(self._alpha)
+        gc.set_antialiased(self._antialiased)
+        self._set_gc_clip(gc)
+        gc.set_capstyle('projecting')
+        if not self.fill or self._facecolor is None: rgbFace = None
+        else: rgbFace = colors.colorConverter.to_rgb(self._facecolor)
+        if self._hatch:
+            gc.set_hatch(self._hatch )
+
+        def iter_circle_intersect_on_line(x0, y0, x1, y1):
+            dx = x1 - x0
+            dy = y1 - y0
+            dr2 = dx*dx + dy*dy
+            D = x0*y1 - x1*y0
+            D2 = D*D
+            discrim = dr2 - D2
+
+            # Single (tangential) intersection
+            if discrim == 0.0:
+                x = (D*dy) / dr2
+                y = (-D*dx) / dr2
+                yield x, y
+            elif discrim > 0.0:
+                # The definition of "sign" here is different from
+                # npy.sign: we never want to get 0.0
+                if dy < 0.0:
+                    sign_dy = -1.0
+                else:
+                    sign_dy = 1.0
+                sqrt_discrim = npy.sqrt(discrim)
+                for sign in (1., -1.):
+                    x = (D*dy + sign * sign_dy * dx * sqrt_discrim) / dr2
+                    y = (-D*dx + sign * npy.abs(dy) * sqrt_discrim) / dr2
+                    yield x, y
+
+        def iter_circle_intersect_on_line_seg(x0, y0, x1, y1):
+            epsilon = 1e-9
+            if x1 < x0:
+                x0e, x1e = x1, x0
+            else:
+                x0e, x1e = x0, x1
+            if y1 < y0:
+                y0e, y1e = y1, y0
+            else:
+                y0e, y1e = y0, y1
+            x0e -= epsilon
+            y0e -= epsilon
+            x1e += epsilon
+            y1e += epsilon
+            for x, y in iter_circle_intersect_on_line(x0, y0, x1, y1):
+                if x >= x0e and x <= x1e and y >= y0e and y <= y1e:
+                    yield x, y
+
+        def arc(theta1, theta2, trans, n=None):
+            """
+            Returns an arc on the unit circle from angle theta1 to
+            angle theta2 (in degrees).  The returned arc is already
+            transformed using the affine transformation matrix trans.
+            The arc is returned as an agg::path_storage object.
+
+            If n is provided, it is the number of spline segments to make.
+            If n is not provided, the number of spline segments is determined
+            based on the delta between theta1 and theta2.
+            """
+            # From Masionobe, L.  2003.  "Drawing an elliptical arc using
+            # polylines, quadratic or cubic Bezier curves".
+            #
+            # http://www.spaceroots.org/documents/ellipse/index.html
+
+            # degrees to radians
+            theta1 *= npy.pi / 180.0
+            theta2 *= npy.pi / 180.0
+
+            twopi  = npy.pi * 2.0
+            halfpi = npy.pi * 0.5
+
+            eta1 = npy.arctan2(npy.sin(theta1), npy.cos(theta1))
+            eta2 = npy.arctan2(npy.sin(theta2), npy.cos(theta2))
+            eta2 -= twopi * npy.floor((eta2 - eta1) / twopi)
+            if (theta2 - theta1 > npy.pi) and (eta2 - eta1 < npy.pi):
+                eta2 += twopi
+
+            # number of curve segments to make
+            if n is None:
+                n = int(2 ** npy.ceil((eta2 - eta1) / halfpi))
+
+            deta = (eta2 - eta1) / n
+            t = npy.tan(0.5 * deta)
+            alpha = npy.sin(deta) * (npy.sqrt(4.0 + 3.0 * t * t) - 1) / 3.0
+
+            steps = npy.linspace(eta1, eta2, n + 1, True)
+            cos_eta = npy.cos(steps)
+            sin_eta = npy.sin(steps)
+
+            xA = cos_eta[:-1]
+            yA = sin_eta[:-1]
+            xA_dot = -yA
+            yA_dot = xA
+
+            xB = cos_eta[1:]
+            yB = sin_eta[1:]
+            xB_dot = -yB
+            yB_dot = xB
+
+            length = n * 3 + 1
+            vertices = npy.zeros((length, 2), npy.float_)
+            vertices[0] = [xA[0], yA[0]]
+            end = length
+
+            vertices[1::3, 0] = xA + alpha * xA_dot
+            vertices[1::3, 1] = yA + alpha * yA_dot
+            vertices[2::3, 0] = xB - alpha * xB_dot
+            vertices[2::3, 1] = yB - alpha * yB_dot
+            vertices[3::3, 0] = xB
+            vertices[3::3, 1] = yB
+
+            vertices = affine_transform(vertices, trans)
+
+            path = agg.path_storage()
+            path.move_to(*vertices[0])
+            for i in range(1, length, 3):
+                path.curve4(*vertices[i:i+3].flat)
+            return path
+
+        def point_in_polygon(x, y, poly):
+            inside = False
+            for i in range(len(poly) - 1):
+                p1x, p1y = poly[i]
+                p2x, p2y = poly[i+1]
+                if p1x < p2x:
+                    xmin, xmax = p1x, p2x
+                else:
+                    xmin, xmax = p2x, p1x
+                if p1y < p2y:
+                    ymin, ymax = p1y, p2y
+                else:
+                    ymin, ymax = p2y, p1y
+                if (y > ymin and
+                    y <= ymax and
+                    x <= xmax):
+                    xinters = (y-p1y)*(p2x-p1x)/(p2y-p1y)+p1x
+                    if p1x == p2x or x <= xinters:
+                        inside = not inside
+            return inside
+
+        def affine_transform(vertices, transform):
+            # This may seem silly, but it's faster than expanding the
+            # vertices array to Nx3 and then back to Nx2
+            transform = transform.copy()
+            transform[0, 1], transform[1, 0] = transform[1, 0], transform[0, 1]
+            vertices = npy.dot(vertices, transform[0:2, 0:2])
+            vertices += transform[0:2, 2:].flat
+            return vertices
+
+        # Set up the master transform from unit circle, all the way to
+        # display space.
+        trans = self.get_transform()
+        scale = npy.array(
+            [[self.width * 0.5, 0.0, 0.0],
+             [0.0, self.height * 0.5, 0.0],
+             [0.0, 0.0, 1.0]], npy.float_)
+        theta = (self.angle / 180.0) * npy.pi
+        rotate = npy.array(
+            [[npy.cos(theta), -npy.sin(theta), 0.0],
+             [npy.sin(theta), npy.cos(theta), 0.0],
+             [0.0, 0.0, 1.0]], npy.float_)
+        translate = npy.array(
+            [[1.0, 0.0, self.center[0]],
+             [0.0, 1.0, self.center[1]],
+             [0.0, 0.0, 1.0]], npy.float_)
+        sx, b, c, sy, tx, ty = trans.as_vec6_val()
+        dataTrans = npy.array(
+            [[sx, b, tx],
+             [c, sy, ty],
+             [0, 0, 1]], npy.float_)
+        mainTrans = \
+            npy.dot(
+              npy.dot(
+                npy.dot(dataTrans, translate), rotate), scale)
+
+        # Determine the size of the ellipse in pixels, and use
+        # that as a threshold to use the fast (whole ellipse)
+        # technique or accurate (partial arcs) technique.
+        size = affine_transform(
+            npy.array([[self.width, self.height]], npy.float_),
+            mainTrans)
+        width = size[0,0]
+        height = size[0,1]
+        # We divide the error in half, to just be *really*
+        # conservative
+        inv_error = (1.0 / 1.89818e-6) * 0.5
+
+        if width < inv_error and height < inv_error:
+            path = arc(self._theta1, self._theta2, mainTrans)
+            renderer.draw_path(gc, rgbFace, path)
+            return
+
+        # Transforms the axes box_path so that it is relative to the unit
+        # circle in the same way that it is relative to the desired
+        # ellipse.
+        axes_bbox = self.axes.bbox
+        box_path = npy.array(
+            [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]],
+            npy.float_)
+        axesTrans = npy.array(
+            [[axes_bbox.width(), 0.0, axes_bbox.xmin()],
+             [0.0, axes_bbox.height(), axes_bbox.ymin()],
+             [0.0, 0.0, 1.0]], npy.float_)
+        boxTrans = npy.dot(npy.linalg.inv(mainTrans), axesTrans)
+        box_path = affine_transform(box_path, boxTrans)
+
+        PI = npy.pi
+        TWOPI = PI * 2.0
+        RAD2DEG = 180.0 / PI
+        DEG2RAD = PI / 180.0
+        theta1 = self._theta1
+        theta2 = self._theta2
+        thetas = {}
+        # For each of the point pairs, there is a line segment
+        for p0, p1 in zip(box_path[:-1], box_path[1:]):
+            x0, y0 = p0
+            x1, y1 = p1
+            for x, y in iter_circle_intersect_on_line_seg(x0, y0, x1, y1):
+                theta = npy.arccos(x)
+                if y < 0:
+                    theta = TWOPI - theta
+                # Convert radians to angles
+                theta *= RAD2DEG
+                if theta > theta1 and theta < theta2:
+                    thetas[theta] = None
+
+        thetas = thetas.keys()
+        thetas.sort()
+        thetas.append(theta2)
+
+        last_theta = theta1
+        theta1_rad = theta1 * DEG2RAD
+        inside = point_in_polygon(npy.cos(theta1_rad), npy.sin(theta1_rad), box_path)
+        for theta in thetas:
+            if inside:
+                path = arc(last_theta, theta, mainTrans, 8)
+                renderer.draw_path(gc, rgbFace, path)
+                inside = False
+            else:
+                inside = True
+            last_theta = theta
+
+
 class PolygonInteractor:
     """
     An polygon editor.
