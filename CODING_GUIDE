@@ -12,6 +12,9 @@ svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk matplotli
 # checking out the main src
 svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib --username=youruser --password=yourpass
 
+# branch checkouts, eg the transforms branch 
+svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/transforms transbranch
+
 == Committing changes ==
 
 When committing changes to matplotlib, there are a few things to bear
@@ -26,12 +29,6 @@ in mind.
   * Are your changes python2.3 compatible?  We are still trying to
     support 2.3, so avoid 2.4 only features like decorators until we
     remove 2.3 support
-
-  * Are your changes Numeric, numarray and numpy compatible?  Try
-    running simple_plot.py or image_demo.py with --Numeric, --numarray
-    and --numpy (Note, someone should add examples to
-    backend_driver.py which explicitly require numpy, numarray and
-    Numeric so we can automatically catch these)
 
   * Can you pass examples/backend_driver.py?  This is our poor man's
     unit test.
@@ -49,9 +46,8 @@ in mind.
 For numpy, use:
 
     import numpy as npy
-    ...
     a = npy.array([1,2,3])
-    ...
+    
 
 For masked arrays, use:
     import matplotlib.numerix.npyma as ma
@@ -64,15 +60,19 @@ For masked arrays, use:
 For matplotlib main module, use:
 
     import matplotlib as mpl
-    ...
     mpl.rcParams['xtick.major.pad'] = 6
 
-For matplotlib modules, use:
+For matplotlib modules (or any other modules), use:
 
-    import matplotlib.cbook as cbook as mpl_cbook
-    ...
-    if mpl_cbook.iterable(z):
-        ...
+    import matplotlib.cbook as cbook 
+    
+    if cbook.iterable(z):
+        pass
+
+    We prefer this over the equivalent 'from matplotlib import cbook'
+    because the latter is ambiguous whether cbook is a module or a
+    function to the new developer.  The former makes it explcit that
+    you are importing a module or package.
 
 == Naming, spacing, and formatting conventions ==
 
@@ -113,15 +113,6 @@ noise in svn diffs.  If you are an emacs user, the following in your
 .emacs will cause emacs to strip trailing white space on save for
 python, C and C++
 
-
-When importing modules from the matplotlib namespace
-
-  import matplotlib.cbook as cbook   # DO
-  from matplotlib import cbook       #DONT
-
-because the latter is ambiguous whether cbook is a module or a
-function to the new developer.  The former makes it explcit that you
-are importing a module or package.
 
 ; and similarly for c++-mode-hook and c-mode-hook
 (add-hook 'python-mode-hook

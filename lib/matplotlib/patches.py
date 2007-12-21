@@ -977,9 +977,15 @@ class Arc(Ellipse):
     """
     An elliptical arc.  Because it performs various optimizations, it
     can not be filled.
+
+    The arc must be used in an Axes instance it cannot be added
+    directly to a Figure) because it is optimized to only render the
+    segments that are inside the axes bounding box with high
+    resolution.
     """
     def __str__(self):
-        return "Arc(%d,%d;%dx%d)"%(self.center[0],self.center[1],self.width,self.height)
+
+        return "Arc(%s,%s;%sx%s)"%(self.center[0],self.center[1],self.width,self.height)
 
     def __init__(self, xy, width, height, angle=0.0, theta1=0.0, theta2=360.0, **kwargs):
         """
@@ -1053,6 +1059,10 @@ class Arc(Ellipse):
         """
         # Do the usual GC handling stuff
         if not self.get_visible(): return
+
+        if not hasattr(self, 'axes'):
+            raise RuntimeError('Arcs can only be used in Axes instances')
+
         gc = renderer.new_gc()
         gc.set_foreground(self._edgecolor)
         gc.set_linewidth(self._linewidth)
@@ -1212,10 +1222,17 @@ class Arc(Ellipse):
 
         # Set up the master transform from unit circle, all the way to
         # display space.
+
+        centerx, centery = self.center
+        centerx = self.convert_xunits(centerx)
+        centery = self.convert_yunits(centery)
+        width = self.convert_xunits(self.width)
+        height = self.convert_yunits(self.height)
+
         trans = self.get_transform()
         scale = npy.array(
-            [[self.width * 0.5, 0.0, 0.0],
-             [0.0, self.height * 0.5, 0.0],
+            [[width * 0.5, 0.0, 0.0],
+             [0.0, height * 0.5, 0.0],
              [0.0, 0.0, 1.0]], npy.float_)
         theta = (self.angle / 180.0) * npy.pi
         rotate = npy.array(
@@ -1223,8 +1240,8 @@ class Arc(Ellipse):
              [npy.sin(theta), npy.cos(theta), 0.0],
              [0.0, 0.0, 1.0]], npy.float_)
         translate = npy.array(
-            [[1.0, 0.0, self.center[0]],
-             [0.0, 1.0, self.center[1]],
+            [[1.0, 0.0, centerx],
+             [0.0, 1.0, centery],
              [0.0, 0.0, 1.0]], npy.float_)
         sx, b, c, sy, tx, ty = trans.as_vec6_val()
         dataTrans = npy.array(
@@ -1240,7 +1257,7 @@ class Arc(Ellipse):
         # that as a threshold to use the fast (whole ellipse)
         # technique or accurate (partial arcs) technique.
         size = affine_transform(
-            npy.array([[self.width, self.height]], npy.float_),
+            npy.array([[width, height]], npy.float_),
             mainTrans)
         width = size[0,0]
         height = size[0,1]
