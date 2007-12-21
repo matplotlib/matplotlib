@@ -36,7 +36,7 @@ ax.add_patch(e1)
 
 ax = fig.add_subplot(212, aspect='equal')
 ax.fill(x, y, alpha=0.2, facecolor='green', edgecolor='green', zorder=1)
-e2 = patches.Ellipse((xcenter, ycenter), width, height,
+e2 = patches.Arc((xcenter, ycenter), width, height,
              angle=angle, linewidth=2, fill=False, zorder=2)
 
 
