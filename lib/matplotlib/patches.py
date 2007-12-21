@@ -366,10 +366,11 @@ class Rectangle(Patch):
 
         Patch.__init__(self, **kwargs)
 
-        left, right = self.convert_xunits((xy[0], xy[0] + width))
-        bottom, top = self.convert_yunits((xy[1], xy[1] + height))
-	self._bbox = transforms.Bbox.from_extents(left, bottom, right, top)
-	self._rect_transform = transforms.BboxTransformTo(self._bbox)
+        self._x = xy[0]
+        self._y = xy[1]
+        self._width = width
+        self._height = height
+        self._rect_transform = transforms.IdentityTransform()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
@@ -377,6 +378,19 @@ class Rectangle(Patch):
         Return the vertices of the rectangle
         """
 	return Path.unit_rectangle()
+
+    def _update_patch_transform(self):
+        x = self.convert_xunits(self._x)
+        y = self.convert_yunits(self._y)
+        width = self.convert_xunits(self._width)
+        height = self.convert_yunits(self._height)
+        bbox = transforms.Bbox.from_bounds(x, y, width, height)
+        self._rect_transform = transforms.BboxTransformTo(bbox)
+        self._combined_transform = self._rect_transform + artist.Artist.get_transform(self)
+
+    def draw(self, renderer):
+        self._update_patch_transform()
+        Patch.draw(self, renderer)
 
     def get_patch_transform(self):
 	return self._rect_transform
@@ -388,19 +402,19 @@ class Rectangle(Patch):
 
     def get_x(self):
         "Return the left coord of the rectangle"
-        return self._bbox.x0
+        return self._x
 
     def get_y(self):
         "Return the bottom coord of the rectangle"
-        return self._bbox.y0
+        return self._y
 
     def get_width(self):
         "Return the width of the  rectangle"
-        return self._bbox.width
+        return self._width
 
     def get_height(self):
         "Return the height of the rectangle"
-        return self._bbox.height
+        return self._height
 
     def set_x(self, x):
         """
@@ -408,9 +422,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        w = self._bbox.width
-        x = self.convert_xunits(x)
-        self._bbox.intervalx = (x, x + w)
+        self._x = x
 
     def set_y(self, y):
         """
@@ -418,9 +430,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        h = self._bbox.height
-        y = self.convert_yunits(y)
-        self._bbox.intervaly = (y, y + h)
+        self._y = y
 
     def set_width(self, w):
         """
@@ -428,8 +438,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        w = self.convert_xunits(w)
-        self._bbox.x1 = self._bbox.x0 + w
+        self._width = w
 
     def set_height(self, h):
         """
@@ -437,8 +446,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        h = self.convert_yunits(h)
-        self._bbox.y1 = self._bbox.y0 + h
+        self._height = h
 
     def set_bounds(self, *args):
         """
@@ -450,10 +458,13 @@ class Rectangle(Patch):
             l,b,w,h = args[0]
         else:
             l,b,w,h = args
-        l, w = self.convert_xunits((l, w))
-        b, h = self.convert_yunits((b, h))
-        self._bbox.bounds = l,b,w,h
+        self._x = l
+        self._y = b
+        self._width = w
+        self._height = h
 
+    def get_bbox(self):
+        return transforms.Bbox.from_bounds(self._x, self._y, self._width, self._height)
 
 class RegularPolygon(Patch):
     """
@@ -494,7 +505,6 @@ class RegularPolygon(Patch):
     def _get_xy(self):
         return self._xy
     def _set_xy(self, xy):
-        self._xy = xy
         self._update_transform()
     xy = property(_get_xy, _set_xy)
 
@@ -588,9 +598,23 @@ class Wedge(Patch):
 
         """
         Patch.__init__(self, **kwargs)
-        self._path = Path.wedge(theta1, theta2)
+        self.center = center
+        self.r = r
+        self.theta1 = theta1
+        self.theta2 = theta2
+        self._patch_transform = transforms.IdentityTransform()
+        self._path = Path.wedge(self.theta1, self.theta2)
+
+    def draw(self, renderer):
+        x = self.convert_xunits(self.center[0])
+        y = self.convert_yunits(self.center[1])
+        rx = self.convert_xunits(self.r)
+        ry = self.convert_yunits(self.r)
         self._patch_transform = transforms.Affine2D() \
-            .scale(r).translate(*center)
+            .scale(rx, ry).translate(x, y)
+        self._combined_transform = self._patch_transform + \
+            artist.Artist.get_transform(self)
+        Patch.draw(self, renderer)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
@@ -806,8 +830,6 @@ class CirclePolygon(RegularPolygon):
         %(Patch)s
 
         """
-        self.center = xy
-        self.radius = radius
         RegularPolygon.__init__(self, xy,
                                 resolution,
                                 radius,
@@ -821,7 +843,7 @@ class Ellipse(Patch):
     A scale-free ellipse
     """
     def __str__(self):
-        return "Ellipse(%d,%d;%dx%d)"%(self.center[0],self.center[1],self.width,self.height)
+        return "Ellipse(%s,%s;%sx%s)"%(self.center[0],self.center[1],self.width,self.height)
 
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
         """
@@ -835,17 +857,27 @@ class Ellipse(Patch):
         """
         Patch.__init__(self, **kwargs)
 
-        self._center = xy
-        self._width, self._height = width, height
-        self._angle = angle
-        self._recompute_transform()
+        self.center = xy
+        self.width, self.height = width, height
+        self.angle = angle
         self._path = Path.unit_circle()
+        self._patch_transform = transforms.IdentityTransform()
 
     def _recompute_transform(self):
+        center = (self.convert_xunits(self.center[0]),
+                  self.convert_yunits(self.center[1]))
+        width = self.convert_xunits(self.width)
+        height = self.convert_yunits(self.height)
         self._patch_transform = transforms.Affine2D() \
-	    .scale(self._width * 0.5, self._height * 0.5) \
-	    .rotate_deg(self._angle) \
-	    .translate(*self._center)
+	    .scale(width * 0.5, height * 0.5) \
+	    .rotate_deg(self.angle) \
+	    .translate(*center)
+        self._combined_transform = self._patch_transform + \
+            artist.Artist.get_transform(self)
+
+    def draw(self, renderer):
+        self._recompute_transform()
+        Patch.draw(self, renderer)
 
     def get_path(self):
         """
@@ -861,26 +893,6 @@ class Ellipse(Patch):
         x, y = self.get_transform().inverted().transform_point((ev.x, ev.y))
         return (x*x + y*y) <= 1.0, {}
 
-    def _get_center(self):
-        return self._center
-    def _set_center(self, center):
-        self._center = center
-        self._recompute_transform()
-    center = property(_get_center, _set_center)
-
-    def _get_xy(self):
-        return self._xy
-    def _set_xy(self, xy):
-        self._xy = xy
-        self._recompute_transform()
-    xy = property(_get_xy, _set_xy)
-
-    def _get_angle(self):
-        return self._angle
-    def _set_angle(self, angle):
-        self._angle = angle
-        self._recompute_transform()
-    angle = property(_get_angle, _set_angle)
 
 class Circle(Ellipse):
     """
@@ -912,9 +924,14 @@ class Arc(Ellipse):
     """
     An elliptical arc.  Because it performs various optimizations, it
     can not be filled.
+
+    The arc must be used in an Axes instance it cannot be added
+    directly to a Figure) because it is optimized to only render the
+    segments that are inside the axes bounding box with high
+    resolution.
     """
     def __str__(self):
-        return "Arc(%d,%d;%dx%d)"%(self.center[0],self.center[1],self.width,self.height)
+        return "Arc(%s,%s;%sx%s)"%(self.center[0],self.center[1],self.width,self.height)
 
     def __init__(self, xy, width, height, angle=0.0, theta1=0.0, theta2=360.0, **kwargs):
         """
@@ -938,8 +955,8 @@ class Arc(Ellipse):
 
         Ellipse.__init__(self, xy, width, height, angle, **kwargs)
 
-        self._theta1 = theta1
-        self._theta2 = theta2
+        self.theta1 = theta1
+        self.theta2 = theta2
 
     def draw(self, renderer):
         """
@@ -984,13 +1001,20 @@ class Arc(Ellipse):
           pairs of vertices are drawn using the bezier arc
           approximation technique implemented in Path.arc().
         """
+        if not hasattr(self, 'axes'):
+            raise RuntimeError('Arcs can only be used in Axes instances')
+
+        self._recompute_transform()
+
         # Get the width and height in pixels
+        width = self.convert_xunits(self.width)
+        height = self.convert_yunits(self.height)
         width, height = self.get_transform().transform_point(
-            (self._width, self._height))
-        inv_error = (1.0 / 1.89818e-6)
+            (width, height))
+        inv_error = (1.0 / 1.89818e-6) * 0.5
 
         if width < inv_error and height < inv_error:
-            self._path = Path.arc(self._theta1, self._theta2)
+            self._path = Path.arc(self.theta1, self.theta2)
             return Patch.draw(self, renderer)
 
         def iter_circle_intersect_on_line(x0, y0, x1, y1):
@@ -1037,7 +1061,6 @@ class Arc(Ellipse):
                 if x >= x0e and x <= x1e and y >= y0e and y <= y1e:
                     yield x, y
 
-
         # Transforms the axes box_path so that it is relative to the unit
         # circle in the same way that it is relative to the desired
         # ellipse.
@@ -1050,8 +1073,8 @@ class Arc(Ellipse):
         TWOPI = PI * 2.0
         RAD2DEG = 180.0 / PI
         DEG2RAD = PI / 180.0
-        theta1 = self._theta1
-        theta2 = self._theta2
+        theta1 = self.theta1
+        theta2 = self.theta2
         thetas = {}
         # For each of the point pairs, there is a line segment
         for p0, p1 in zip(box_path.vertices[:-1], box_path.vertices[1:]):

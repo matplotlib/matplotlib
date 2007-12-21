@@ -1,5 +1,5 @@
 """
-Compare the ellipse generated with arcs versus a polygonal approximation 
+Compare the ellipse generated with arcs versus a polygonal approximation
 """
 from basic_units import cm
 import numpy as npy
@@ -45,5 +45,25 @@ ax.add_patch(e2)
 
 #fig.savefig('ellipse_compare.png')
 fig.savefig('ellipse_compare')
+
+fig = figure()
+ax = fig.add_subplot(211, aspect='auto')
+ax.fill(x, y, alpha=0.2, facecolor='yellow', edgecolor='yellow', linewidth=1, zorder=1)
+
+e1 = patches.Arc((xcenter, ycenter), width, height,
+             angle=angle, linewidth=2, fill=False, zorder=2)
+
+ax.add_patch(e1)
+
+ax = fig.add_subplot(212, aspect='equal')
+ax.fill(x, y, alpha=0.2, facecolor='green', edgecolor='green', zorder=1)
+e2 = patches.Arc((xcenter, ycenter), width, height,
+             angle=angle, linewidth=2, fill=False, zorder=2)
+
+
+ax.add_patch(e2)
+
+#fig.savefig('arc_compare.png')
+fig.savefig('arc_compare')
 
 show()

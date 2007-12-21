@@ -140,7 +140,7 @@ The following dimensions are in axes coords
         self._offsetTransform = Affine2D()
         self._parentTransform = BboxTransformTo(parent.bbox)
         Artist.set_transform(self, self._offsetTransform + self._parentTransform)
-        
+
         if loc is None:
             loc = rcParams["legend.loc"]
             if not self.isaxes and loc in [0,'best']:
@@ -226,7 +226,7 @@ The following dimensions are in axes coords
         bboxesAll = bboxesText
         bboxesAll.extend(bboxesHandles)
         bbox = Bbox.union(bboxesAll)
-        
+
         self.save = bbox
 
         ibox = bbox.inverse_transformed(self.get_transform())
@@ -328,7 +328,7 @@ The following dimensions are in axes coords
 
             if isinstance(handle, Rectangle):
                 transform = handle.get_data_transform() + inverse_transform
-                bboxes.append(handle._bbox.transformed(transform))
+                bboxes.append(handle.get_bbox().transformed(transform))
             else:
                 transform = handle.get_transform() + inverse_transform
                 bboxes.append(handle.get_path().get_extents(transform))
@@ -499,7 +499,7 @@ The following dimensions are in axes coords
         bbox = bbox.expanded(1 + self.pad, 1 + self.pad)
         l, b, w, h = bbox.bounds
         self.legendPatch.set_bounds(l, b, w, h)
-        
+
         ox, oy = 0, 0                           # center
 
         if iterable(self._loc) and len(self._loc)==2:
