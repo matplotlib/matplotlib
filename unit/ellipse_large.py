@@ -6,7 +6,7 @@
 
 import math
 from pylab import *
-from matplotlib.patches import Arc
+from matplotlib.patches import Ellipse, Arc
 
 # given a point x, y
 x = 2692.440
@@ -47,25 +47,55 @@ def custom_ellipse( ax, x, y, major, minor, theta, numpoints = 750, **kwargs ):
    ellipseLine = ax.plot( xs, ys, **kwargs )
 
 
+
+
 ##################################################
 # make the axes
-ax = subplot( 211, aspect='equal' )
-ax.set_aspect( 'equal', 'datalim' )
+ax1 = subplot( 311, aspect='equal' )
+ax1.set_aspect( 'equal', 'datalim' )
 
 # make the lower-bound ellipse
 diam = (r - delta) * 2.0
-lower_ellipse = Arc( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkgreen" )
-ax.add_patch( lower_ellipse )
+lower_ellipse = Ellipse( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkgreen" )
+ax1.add_patch( lower_ellipse )
 
 # make the target ellipse
 diam = r * 2.0
-target_ellipse = Arc( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkred" )
-ax.add_patch( target_ellipse )
+target_ellipse = Ellipse( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkred" )
+ax1.add_patch( target_ellipse )
 
 # make the upper-bound ellipse
 diam = (r + delta) * 2.0
-upper_ellipse = Arc( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkblue" )
-ax.add_patch( upper_ellipse )
+upper_ellipse = Ellipse( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkblue" )
+ax1.add_patch( upper_ellipse )
+
+# make the target
+diam = delta * 2.0
+target = Ellipse( (x, y), diam, diam, 0.0, fill=False, edgecolor="#DD1208" )
+ax1.add_patch( target )
+
+# give it a big marker
+ax1.plot( [x], [y], marker='x', linestyle='None', mfc='red', mec='red', markersize=10 )
+
+##################################################
+# make the axes
+ax = subplot( 312, aspect='equal' , sharex=ax1, sharey=ax1)
+ax.set_aspect( 'equal', 'datalim' )
+
+# make the lower-bound arc
+diam = (r - delta) * 2.0
+lower_arc = Arc( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkgreen" )
+ax.add_patch( lower_arc )
+
+# make the target arc
+diam = r * 2.0
+target_arc = Arc( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkred" )
+ax.add_patch( target_arc )
+
+# make the upper-bound arc
+diam = (r + delta) * 2.0
+upper_arc = Arc( (0.0, 0.0), diam, diam, 0.0, fill=False, edgecolor="darkblue" )
+ax.add_patch( upper_arc )
 
 # make the target
 diam = delta * 2.0
@@ -75,11 +105,17 @@ ax.add_patch( target )
 # give it a big marker
 ax.plot( [x], [y], marker='x', linestyle='None', mfc='red', mec='red', markersize=10 )
 
+
+
+
+
 ##################################################
 # now lets do the same thing again using a custom ellipse function
 
+
+
 # make the axes
-ax = subplot( 212, aspect='equal', sharex=ax, sharey=ax )
+ax = subplot( 313, aspect='equal', sharex=ax1, sharey=ax1 )
 ax.set_aspect( 'equal', 'datalim' )
 
 # make the lower-bound ellipse
@@ -97,11 +133,17 @@ custom_ellipse( ax, x, y, delta, delta, 0.0, color="#BB1208" )
 # give it a big marker
 ax.plot( [x], [y], marker='x', linestyle='None', mfc='red', mec='red', markersize=10 )
 
+
+# give it a big marker
+ax.plot( [x], [y], marker='x', linestyle='None', mfc='red', mec='red', markersize=10 )
+
 ##################################################
 # lets zoom in to see the area of interest
 
-ax.set_xlim(2650, 2735)
-ax.set_ylim(6705, 6735)
+ax1.set_xlim(2650, 2735)
+ax1.set_ylim(6705, 6735)
+
+savefig("ellipse")
 show()
 
-# savefig("ellipse")
+

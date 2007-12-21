@@ -2045,7 +2045,7 @@ def rec_join(key, r1, r2):
     return newrec.view(npy.recarray)
 
 
-def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
+def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing=None):
     """
     Load data from comma/space/tab delimited file in fname into a
@@ -2075,7 +2075,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=5, delimiter=',',
     names, if not None, is a list of header names.  In this case, no
     header will be read from the file
 
-    if no rows are found, None is returned See examples/loadrec.py
+    if no rows are found, None is returned -- see examples/loadrec.py
     """
 
     if converterd is None:

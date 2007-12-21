@@ -321,6 +321,8 @@ class _process_plot_var_args:
                 ret.append(seg)
 
             def makefill(x, y):
+                x = self.axes.convert_xunits(x)
+                y = self.axes.convert_yunits(y)
                 facecolor = self._get_next_cycle_color()
                 seg = mpatches.Polygon(zip(x, y),
                               facecolor = facecolor,
@@ -363,6 +365,8 @@ class _process_plot_var_args:
 
         def makefill(x, y):
             facecolor = color
+            x = self.axes.convert_xunits(x)
+            y = self.axes.convert_yunits(y)
             seg = mpatches.Polygon(zip(x, y),
                           facecolor = facecolor,
                           fill=True,
