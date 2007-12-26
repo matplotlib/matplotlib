@@ -1,3 +1,5 @@
+2007-12-25 Fix bug in errorbar, identified by Noriko Minakawa - EF
+
 2007-12-25 Changed masked array importing to work with the upcoming
            numpy 1.05 (now the maskedarray branch) as well as with
            earlier versions. - EF
