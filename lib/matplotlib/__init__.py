@@ -727,8 +727,11 @@ if NEWCONFIG:
     except:
         from config import rcParams, rcdefaults
 
-_use_error_msg = """ matplotlib.use() must be called *before* pylab
-or matplotlib.backends is imported for the first time."""
+_use_error_msg = """ This call to matplotlib.use() has no effect
+because the the backend has already been chosen;
+matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
+or matplotlib.backends is imported for the first time.
+"""
 
 def use(arg):
     """
@@ -747,7 +750,7 @@ def use(arg):
     be called before importing matplotlib.backends.
     """
     if 'matplotlib.backends' in sys.modules:
-        raise RuntimeError(_use_error_msg)
+        warnings.warn(_use_error_msg)
     be_parts = arg.split('.')
     name = validate_backend(be_parts[0])
     rcParams['backend'] = name

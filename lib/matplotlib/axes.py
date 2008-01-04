@@ -3779,6 +3779,8 @@ class Axes(martist.Artist):
             lines_kw['linewidth']=kwargs['linewidth']
         if 'lw' in kwargs:
             lines_kw['lw']=kwargs['lw']
+        if 'transform' in kwargs:
+            lines_kw['transform'] = kwargs['transform']
 
         # arrays fine here, they are booleans and hence not units
         if not iterable(lolims):
@@ -3814,6 +3816,8 @@ class Axes(martist.Artist):
                 plot_kw['markeredgewidth']=kwargs['markeredgewidth']
             if 'mew' in kwargs:
                 plot_kw['mew']=kwargs['mew']
+            if 'transform' in kwargs:
+                plot_kw['transform'] = kwargs['transform']
 
         if xerr is not None:
             if iterable(xerr) and len(xerr)==2 and iterable(xerr[0]) and iterable(xerr[1]):
