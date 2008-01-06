@@ -902,9 +902,9 @@ def add_tk_flags(module):
         # First test for a MacOSX/darwin framework install
         from os.path import join, exists
         framework_dirs = [
-            '/System/Library/Frameworks/',
+            join(os.getenv('HOME'), '/Library/Frameworks'),
             '/Library/Frameworks',
-            join(os.getenv('HOME'), '/Library/Frameworks')
+            '/System/Library/Frameworks/',
         ]
         
         # Find the directory that contains the Tcl.framework and Tk.framework
