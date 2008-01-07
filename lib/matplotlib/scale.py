@@ -307,94 +307,11 @@ class SymmetricalLogScale(ScaleBase):
         return self._transform
 
 
-class MercatorLatitudeScale(ScaleBase):
-    """
-    Scales data in range -pi/2 to pi/2 (-90 to 90 degrees) using
-    the system used to scale latitudes in a Mercator projection.
-
-    The scale function:
-      ln(tan(y) + sec(y))
-
-    The inverse scale function:
-      atan(sinh(y))
-
-    Since the Mercator scale tends to infinity at +/- 90 degrees,
-    there is user-defined threshold, above and below which nothing
-    will be plotted.  This defaults to +/- 85 degrees.
-
-    source:
-    http://en.wikipedia.org/wiki/Mercator_projection
-    """
-    name = 'mercator_latitude'
-
-    class MercatorLatitudeTransform(Transform):
-        input_dims = 1
-        output_dims = 1
-        is_separable = True
-
-        def __init__(self, thresh):
-            Transform.__init__(self)
-            self.thresh = thresh
-
-        def transform(self, a):
-            masked = ma.masked_where((a < -self.thresh) | (a > self.thresh), a)
-            if masked.mask.any():
-                return ma.log(npy.abs(ma.tan(masked) + 1.0 / ma.cos(masked)))
-            else:
-                return npy.log(npy.abs(npy.tan(a) + 1.0 / npy.cos(a)))
-
-        def inverted(self):
-            return MercatorLatitudeScale.InvertedMercatorLatitudeTransform(self.thresh)
-
-    class InvertedMercatorLatitudeTransform(Transform):
-        input_dims = 1
-        output_dims = 1
-        is_separable = True
-
-        def __init__(self, thresh):
-            Transform.__init__(self)
-            self.thresh = thresh
-
-        def transform(self, a):
-            return npy.arctan(npy.sinh(a))
-
-        def inverted(self):
-            return MercatorLatitudeScale.MercatorLatitudeTransform(self.thresh)
-
-    def __init__(self, axis, **kwargs):
-        """
-        thresh: The degree above which to crop the data.
-        """
-        thresh = kwargs.pop("thresh", (85 / 180.0) * npy.pi)
-        if thresh >= npy.pi / 2.0:
-            raise ValueError("thresh must be less than pi/2")
-        self.thresh = thresh
-        self._transform = self.MercatorLatitudeTransform(thresh)
-
-    def set_default_locators_and_formatters(self, axis):
-        class DegreeFormatter(Formatter):
-            def __call__(self, x, pos=None):
-                # \u00b0 : degree symbol
-                return u"%d\u00b0" % ((x / npy.pi) * 180.0)
-
-        deg2rad = npy.pi / 180.0
-        axis.set_major_locator(FixedLocator(
-                npy.arange(-90, 90, 10) * deg2rad))
-        axis.set_major_formatter(DegreeFormatter())
-        axis.set_minor_formatter(DegreeFormatter())
-
-    def get_transform(self):
-        return self._transform
-
-    def limit_range_for_scale(self, vmin, vmax, minpos):
-        return max(vmin, -self.thresh), min(vmax, self.thresh)
-
 
 _scale_mapping = {
     'linear'            : LinearScale,
     'log'               : LogScale,
-    'symlog'            : SymmetricalLogScale,
-    'mercator_latitude' : MercatorLatitudeScale
+    'symlog'            : SymmetricalLogScale
     }
 def scale_factory(scale, axis, **kwargs):
     scale = scale.lower()

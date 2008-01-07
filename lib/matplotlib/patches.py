@@ -371,6 +371,7 @@ class Rectangle(Patch):
         self._width = width
         self._height = height
         self._rect_transform = transforms.IdentityTransform()
+        self._update_patch_transform()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
@@ -862,6 +863,7 @@ class Ellipse(Patch):
         self.angle = angle
         self._path = Path.unit_circle()
         self._patch_transform = transforms.IdentityTransform()
+        self._recompute_transform()
 
     def _recompute_transform(self):
         center = (self.convert_xunits(self.center[0]),
