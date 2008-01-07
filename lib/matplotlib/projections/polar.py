@@ -186,8 +186,6 @@ class PolarAxes(Axes):
         self.yaxis.set_ticks_position('none')
 
     def _set_lim_and_transforms(self):
-	self.dataLim = Bbox.unit()
-        self.viewLim = Bbox.unit()
         self.transAxes = BboxTransformTo(self.bbox)
 
         # Transforms the x and y axis separately by a scale factor

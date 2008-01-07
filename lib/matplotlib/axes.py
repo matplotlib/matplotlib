@@ -550,6 +550,10 @@ class Axes(martist.Artist):
 
         self.bbox = mtransforms.TransformedBbox(self._position, fig.transFigure)
         #these will be updated later as data is added
+	self.dataLim = mtransforms.Bbox.unit()
+        self.viewLim = mtransforms.Bbox.unit()
+        self.transScale = mtransforms.TransformWrapper(mtransforms.IdentityTransform())
+
         self._set_lim_and_transforms()
 
     def _set_lim_and_transforms(self):
@@ -558,8 +562,6 @@ class Axes(martist.Artist):
         transScale, transData, transLimits and transAxes
         transformations.
         """
-	self.dataLim = mtransforms.Bbox.unit()
-        self.viewLim = mtransforms.Bbox.unit()
         self.transAxes = mtransforms.BboxTransformTo(self.bbox)
 
         # Transforms the x and y axis separately by a scale factor

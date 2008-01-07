@@ -26,6 +26,10 @@ projection_registry.register(
     AitoffAxes,
     HammerAxes,
     LambertAxes)
+)
+
+def register_projection(cls):
+    projection_registry.register(cls)
 
 def get_projection_class(projection):
     if projection is None:

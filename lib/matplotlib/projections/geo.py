@@ -51,18 +51,12 @@ class GeoAxes(Axes):
         Axes.set_ylim(self, -npy.pi / 2.0, npy.pi / 2.0)
 
     def _set_lim_and_transforms(self):
-	self.dataLim = Bbox.unit()
-        self.viewLim = Bbox.unit()
-        self.transAxes = BboxTransformTo(self.bbox)
-
-        # Transforms the x and y axis separately by a scale factor
-        # It is assumed that this part will have non-linear components
-        self.transScale = TransformWrapper(IdentityTransform())
-
         # A (possibly non-linear) projection on the (already scaled) data
         self.transProjection = self._get_core_transform(self.RESOLUTION)
 
         self.transAffine = self._get_affine_transform()
+
+        self.transAxes = BboxTransformTo(self.bbox)
 
         # The complete data transformation stack -- from data all the
         # way to display coordinates
