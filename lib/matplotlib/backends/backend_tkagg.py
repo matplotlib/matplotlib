@@ -147,7 +147,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
     def __init__(self, figure, master=None, resize_callback=None):
         FigureCanvasAgg.__init__(self, figure)
         self._idle = True
-        t1,t2,w,h = self.figure.bbox.get_bounds()
+        t1,t2,w,h = self.figure.bbox.bounds
         w, h = int(w), int(h)
         self._tkcanvas = Tk.Canvas(
             master=master, width=w, height=h, borderwidth=4)
@@ -175,7 +175,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             self._resize_callback(event)
 
         # compute desired figure size in inches
-        dpival = self.figure.dpi.get()
+	dpival = self.figure.dpi
         winch = width/dpival
         hinch = height/dpival
         self.figure.set_size_inches(winch, hinch)
@@ -218,13 +218,13 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
     def motion_notify_event(self, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.y
+        y = self.figure.bbox.height - event.y
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
 
     def button_press_event(self, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.y
+        y = self.figure.bbox.height - event.y
         num = getattr(event, 'num', None)
 
         if sys.platform=='darwin':
@@ -238,7 +238,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
     def button_release_event(self, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height() - event.y
+        y = self.figure.bbox.height - event.y
 
         num = getattr(event, 'num', None)
 
@@ -287,7 +287,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.window.wm_title("Figure %d" % num)
         self.canvas = canvas
         self._num =  num
-        t1,t2,w,h = canvas.figure.bbox.get_bounds()
+        t1,t2,w,h = canvas.figure.bbox.bounds
         w, h = int(w), int(h)
         self.window.minsize(int(w*3/4),int(h*3/4))
         if matplotlib.rcParams['toolbar']=='classic':
@@ -435,7 +435,7 @@ class NavigationToolbar(Tk.Frame):
         self.canvas = canvas
         self.window = window
 
-        xmin, xmax = canvas.figure.bbox.intervalx().get_bounds()
+        xmin, xmax = canvas.figure.bbox.intervalx
         height, width = 50, xmax-xmin
         Tk.Frame.__init__(self, master=self.window,
                           width=width, height=height,
@@ -581,7 +581,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         self.message.set(s)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        height = self.canvas.figure.bbox.height()
+        height = self.canvas.figure.bbox.height
         y0 =  height-y0
         y1 =  height-y1
         try: self.lastrect
@@ -611,7 +611,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         return b
 
     def _init_toolbar(self):
-        xmin, xmax = self.canvas.figure.bbox.intervalx().get_bounds()
+        xmin, xmax = self.canvas.figure.bbox.intervalx
         height, width = 50, xmax-xmin
         Tk.Frame.__init__(self, master=self.window,
                           width=width, height=height,

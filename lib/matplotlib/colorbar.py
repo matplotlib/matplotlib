@@ -21,7 +21,6 @@ import matplotlib.colors as colors
 import matplotlib.cm as cm
 import matplotlib.ticker as ticker
 import matplotlib.cbook as cbook
-import matplotlib.transforms as transforms
 import matplotlib.lines as lines
 import matplotlib.patches as patches
 import matplotlib.collections as collections
@@ -199,15 +198,17 @@ class ColorbarBase(cm.ScalarMappable):
         ax = self.ax
         ax.set_frame_on(False)
         ax.set_navigate(False)
-        x, y = self._outline(X, Y)
-        ax.set_xlim(npy.amin(x), npy.amax(x))
-        ax.set_ylim(npy.amin(y), npy.amax(y))
-        ax.update_datalim_numerix(x, y)
-        self.outline = lines.Line2D(x, y, color=mpl.rcParams['axes.edgecolor'],
+        xy = self._outline(X, Y)
+        ax.update_datalim(xy)
+        ax.set_xlim(*ax.dataLim.intervalx)
+        ax.set_ylim(*ax.dataLim.intervaly)
+        self.outline = lines.Line2D(xy[:, 0], xy[:, 1], color=mpl.rcParams['axes.edgecolor'],
                                     linewidth=mpl.rcParams['axes.linewidth'])
         ax.add_artist(self.outline)
+        self.outline.set_clip_box(None)
+        self.outline.set_clip_path(None)
         c = mpl.rcParams['axes.facecolor']
-        self.patch = patches.Polygon(zip(x,y), edgecolor=c,
+        self.patch = patches.Polygon(xy, edgecolor=c,
                  facecolor=c,
                  linewidth=0.01,
                  zorder=-1)
@@ -249,9 +250,11 @@ class ColorbarBase(cm.ScalarMappable):
         ii = [0, 1, N-2, N-1, 2*N-1, 2*N-2, N+1, N, 0]
         x = npy.take(npy.ravel(npy.transpose(X)), ii)
         y = npy.take(npy.ravel(npy.transpose(Y)), ii)
+        x = x.reshape((len(x), 1))
+        y = y.reshape((len(y), 1))
         if self.orientation == 'horizontal':
-            return y,x
-        return x,y
+            return npy.hstack((y, x))
+        return npy.hstack((x, y))
 
     def _edges(self, X, Y):
         '''
@@ -328,15 +331,15 @@ class ColorbarBase(cm.ScalarMappable):
                 b = self._boundaries[self._inside]
                 locator = ticker.FixedLocator(b, nbins=10)
         if isinstance(self.norm, colors.NoNorm):
-            intv = transforms.Interval(transforms.Value(self._values[0]),
-                                       transforms.Value(self._values[-1]))
+            intv = self._values[0], self._values[-1]
         else:
-            intv = transforms.Interval(transforms.Value(self.vmin),
-                                       transforms.Value(self.vmax))
-        locator.set_view_interval(intv)
-        locator.set_data_interval(intv)
-        formatter.set_view_interval(intv)
-        formatter.set_data_interval(intv)
+            intv = self.vmin, self.vmax
+        locator.create_dummy_axis()
+        formatter.create_dummy_axis()
+        locator.set_view_interval(*intv)
+        locator.set_data_interval(*intv)
+        formatter.set_view_interval(*intv)
+        formatter.set_data_interval(*intv)
         b = npy.array(locator())
         b, ticks = self._locate(b)
         formatter.set_locs(b)
@@ -509,7 +512,7 @@ class ColorbarBase(cm.ScalarMappable):
         N = len(b)
         ii = npy.minimum(npy.searchsorted(b, xn), N-1)
         i0 = npy.maximum(ii - 1, 0)
-        #db = b[ii] - b[i0] 
+        #db = b[ii] - b[i0]
         db = npy.take(b, ii) - npy.take(b, i0)
         db = npy.where(i0==ii, 1.0, db)
         #dy = y[ii] - y[i0]
@@ -597,18 +600,18 @@ def make_axes(parent, **kw):
     shrink = kw.pop('shrink', 1.0)
     aspect = kw.pop('aspect', 20)
     #pb = transforms.PBox(parent.get_position())
-    pb = transforms.PBox(parent.get_position(original=True))
+    pb = parent.get_position(original=True).frozen()
     if orientation == 'vertical':
         pad = kw.pop('pad', 0.05)
         x1 = 1.0-fraction
         pb1, pbx, pbcb = pb.splitx(x1-pad, x1)
-        pbcb.shrink(1.0, shrink).anchor('C')
+        pbcb = pbcb.shrunk(1.0, shrink).anchored('C', pbcb)
         anchor = (0.0, 0.5)
         panchor = (1.0, 0.5)
     else:
         pad = kw.pop('pad', 0.15)
         pbcb, pbx, pb1 = pb.splity(fraction, fraction+pad)
-        pbcb.shrink(shrink, 1.0).anchor('C')
+        pbcb = pbcb.shrunk(shrink, 1.0).anchored('C', pbcb)
         aspect = 1.0/aspect
         anchor = (0.5, 1.0)
         panchor = (0.5, 0.0)

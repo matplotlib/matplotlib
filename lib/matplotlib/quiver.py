@@ -168,8 +168,7 @@ class QuiverKey(artist.Artist):
         self.coord = kw.pop('coordinates', 'axes')
         self.color = kw.pop('color', None)
         self.label = label
-        self.labelsep = (transforms.Value(kw.pop('labelsep', 0.1))
-                                                     * Q.ax.figure.dpi)
+        self.labelsep = (kw.pop('labelsep', 0.1) * Q.ax.figure.dpi)
         self.labelpos = kw.pop('labelpos', 'N')
         self.labelcolor = kw.pop('labelcolor', None)
         self.fontproperties = kw.pop('fontproperties', dict())
@@ -207,24 +206,24 @@ class QuiverKey(artist.Artist):
 
     def _text_x(self, x):
         if self.labelpos == 'E':
-            return x + self.labelsep.get()
+            return x + self.labelsep
         elif self.labelpos == 'W':
-            return x - self.labelsep.get()
+            return x - self.labelsep
         else:
             return x
 
     def _text_y(self, y):
         if self.labelpos == 'N':
-            return y + self.labelsep.get()
+            return y + self.labelsep
         elif self.labelpos == 'S':
-            return y - self.labelsep.get()
+            return y - self.labelsep
         else:
             return y
 
     def draw(self, renderer):
         self._init()
         self.vector.draw(renderer)
-        x, y = self.get_transform().xy_tup((self.X, self.Y))
+        x, y = self.get_transform().transform_point((self.X, self.Y))
         self.text.set_x(self._text_x(x))
         self.text.set_y(self._text_y(y))
         self.text.draw(renderer)
@@ -239,8 +238,8 @@ class QuiverKey(artist.Artist):
             self.set_transform(self.Q.ax.figure.transFigure)
         elif self.coord == 'inches':
             dx = ax.figure.dpi
-            bb = transforms.Bbox(transforms.origin(), transforms.Point(dx, dx))
-            trans = transforms.get_bbox_transform(transforms.unit_bbox(), bb)
+            bb = transforms.Bbox.from_extents(0, 0, dx, dy)
+            trans = transforms.BboxTransformTo(bb)
             self.set_transform(trans)
         else:
             raise ValueError('unrecognized coordinates')
@@ -281,8 +280,8 @@ class Quiver(collections.PolyCollection):
         self.pivot = kw.pop('pivot', 'tail')
         kw.setdefault('facecolors', self.color)
         kw.setdefault('linewidths', (0,))
-        collections.PolyCollection.__init__(self, None, offsets=zip(X, Y),
-                                       transOffset=ax.transData, **kw)
+        collections.PolyCollection.__init__(self, [], offsets=zip(X, Y),
+                                            transOffset=ax.transData, **kw)
         self.polykw = kw
         self.set_UVC(U, V, C)
         self._initialized = False
@@ -324,7 +323,7 @@ class Quiver(collections.PolyCollection):
         if not self._initialized:
             trans = self._set_transform()
             ax = self.ax
-            sx, sy = trans.inverse_xy_tup((ax.bbox.width(), ax.bbox.height()))
+            sx, sy = trans.inverted().transform_point((ax.bbox.width, ax.bbox.height))
             self.span = sx
             sn = max(8, min(25, math.sqrt(self.N)))
             if self.width is None:
@@ -334,12 +333,7 @@ class Quiver(collections.PolyCollection):
         self._init()
         if self._new_UV:
             verts = self._make_verts(self.U, self.V)
-            # Using nan internally here is the easiest
-            # way to support masked inputs; it doesn't
-            # require adding mask support to PolyCollection,
-            # and it keeps all array dimensions (X, Y, U, V, C)
-            # intact.
-            self.set_verts(verts.filled(npy.nan))
+            self.set_verts(verts)
             self._new_UV = False
         collections.PolyCollection.draw(self, renderer)
 
@@ -354,25 +348,24 @@ class Quiver(collections.PolyCollection):
         ax = self.ax
         if self.units in ('x', 'y'):
             if self.units == 'x':
-                dx0 = ax.viewLim.ur().x() - ax.viewLim.ll().x()
-                dx1 = ax.bbox.ur().x() - ax.bbox.ll().x()
+                dx0 = ax.viewLim.width
+                dx1 = ax.bbox.width
             else:
-                dx0 = ax.viewLim.ur().y() - ax.viewLim.ll().y()
-                dx1 = ax.bbox.ur().y() - ax.bbox.ll().y()
+                dx0 = ax.viewLim.height
+                dx1 = ax.bbox.height
             dx = dx1/dx0
         else:
             if self.units == 'width':
-                dx = ax.bbox.ur().x() - ax.bbox.ll().x()
+                dx = ax.bbox.width
             elif self.units == 'height':
-                dx = ax.bbox.ur().y() - ax.bbox.ll().y()
+                dx = ax.bbox.height
             elif self.units == 'dots':
-                dx = transforms.Value(1)
+                dx = 1.0
             elif self.units == 'inches':
                 dx = ax.figure.dpi
             else:
                 raise ValueError('unrecognized units')
-        bb = transforms.Bbox(transforms.origin(), transforms.Point(dx, dx))
-        trans = transforms.get_bbox_transform(transforms.unit_bbox(), bb)
+        trans = transforms.Affine2D().scale(dx)
         self.set_transform(trans)
         return trans
 

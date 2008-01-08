@@ -5,7 +5,7 @@ Michael Droettboom has spent the last several months working on the
 "transforms branch" of matplotlib, in which he rewrote from the ground
 up the transformation infrastructure in matplotlib, which many found
 unintuitive and hard to extend.  In addition to a cleaner code base,
-the refactoring allows you to define your own transformations and
+the reorganization allows you to define your own transformations and
 projections (e.g. map projections) within matplotlib.  He has merged his
 work into the HEAD of the svn trunk, and this will be the basis for
 future matplotlib releases.
@@ -24,12 +24,12 @@ infrastructure but nonetheless need access to svn bug fixes.
 Using the new code
 ==================
 
-To check out the trunk with the latest transforms refactoring:
+To check out the trunk with the latest transforms changes:
 
     > svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib
 
 If you already have a working copy of the trunk, your next "svn up" will
-include the latest transforms refactoring.
+include the latest transforms changes.
 
 Using the old svn code
 ======================
@@ -38,8 +38,30 @@ To check out the maintenance branch, in order to commit bugfixes to 0.91.x:
 
     > svn co  https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v0_91_maint  matplotlib_0_91_maint
 
-Any applicable bugfixes on the 0.91.x should be merged into the trunk so
-they are fixed there as well.
+Any applicable bugfixes on the 0.91.x maintenance branch should be
+merged into the trunk so they are fixed there as well.  Svnmerge.py
+makes this process rather straightforward, but you may also manually
+merge if you prefer.
+
+Merging bugfixes on the maint branch to the trunk using svnmerge.py
+-------------------------------------------------------------------
+
+Download svnmerge.py from here:
+
+  http://www.orcaware.com/svn/wiki/Svnmerge.py
+
+From the working copy of the *trunk* (svnmerge.py always pulls *to*
+the current working copy), so
+
+   > svnmerge.py merge
+
+to pull in changes from the maintenance branch.  Manually resolve any
+conflicts, if necessary, test them, and then commit with
+
+   > svn commit -F svnmerge-commit-message.txt
+
+(Note the above will stop working when the maintenance branch is
+abandoned.)
 
 API CHANGES in the new transformation infrastructure
 ====================================================
@@ -48,7 +70,7 @@ While Michael worked hard to keep the API mostly unchanged while
 performing what has been called "open heart surgery on matplotlib",
 there have been some changes, as discussed below.
 
-The primary goal of this refactoring was to make it easier to
+The primary goal of these changes was to make it easier to
 extend matplotlib to support new kinds of projections.  This is
 primarily an internal improvement, and the possible user-visible
 changes it allows are yet to come.

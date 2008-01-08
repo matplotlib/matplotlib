@@ -8,8 +8,8 @@ import matplotlib as mpl
 import numpy as npy
 import matplotlib.numerix.npyma as ma
 import matplotlib._cntr as _cntr
+import matplotlib.path as path
 import matplotlib.ticker as ticker
-import matplotlib.transforms as transforms
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 import matplotlib.collections as collections
@@ -210,7 +210,7 @@ class ContourLabeler:
 
         trans = self.ax.transData
 
-        slc = trans.seq_xy_tups(linecontour)
+        slc = trans.transform(linecontour)
         x,y = slc[ind]
         xx= npy.asarray(slc)[:,0].copy()
         yy=npy.asarray(slc)[:,1].copy()
@@ -247,8 +247,9 @@ class ContourLabeler:
             new_x1, new_y1 = x-xlabel, y-ylabel
             new_x2, new_y2 = x+xlabel, y+ylabel
 
-        new_x1d, new_y1d = trans.inverse_xy_tup((new_x1, new_y1))
-        new_x2d, new_y2d = trans.inverse_xy_tup((new_x2, new_y2))
+        inverse = trans.inverted()
+        new_x1d, new_y1d = inverse.transform_point((new_x1, new_y1))
+        new_x2d, new_y2d = inverse.transform_point((new_x2, new_y2))
         new_xy1 = npy.array(((new_x1d, new_y1d),))
         new_xy2 = npy.array(((new_x2d, new_y2d),))
 
@@ -333,20 +334,22 @@ class ContourLabeler:
             con = self.collections[icon]
             lw = self.get_label_width(lev, fmt, fsize)
             additions = []
-            for segNum, linecontour in enumerate(con._segments):
+            paths = con.get_paths()
+            for segNum, linepath in enumerate(paths):
+                linecontour = linepath.vertices
                 # for closed contours add one more point to
                 # avoid division by zero
                 if npy.all(linecontour[0] == linecontour[-1]):
                     linecontour = npy.concatenate((linecontour,
-                                               linecontour[1][npy.newaxis,:]))
+                                                   linecontour[1][npy.newaxis,:]))
                     #linecontour.append(linecontour[1])
                 # transfer all data points to screen coordinates
-                slc = trans.seq_xy_tups(linecontour)
+                slc = trans.transform(linecontour)
                 if self.print_label(slc,lw):
                     x,y, rotation, ind  = self.locate_label(slc, lw)
                     # transfer the location of the label back to
                     # data coordinates
-                    dx,dy = trans.inverse_xy_tup((x,y))
+                    dx,dy = trans.inverted().transform_point((x,y))
                     t = text.Text(dx, dy, rotation = rotation,
                              horizontalalignment='center',
                              verticalalignment='center')
@@ -355,12 +358,14 @@ class ContourLabeler:
                     self.cl.append(t)
                     self.cl_cvalues.append(cvalue)
                     if inline:
-                        new = self.break_linecontour(linecontour, rotation,
-                                                       lw, ind)
-                        con._segments[segNum] = new[0]
-                        additions.append(new[1])
-            con._segments.extend(additions)
+                        new = self.break_linecontour(linecontour, rotation, lw, ind)
+                        if len(new[0]):
+                            paths[segNum] = path.Path(new[0])
+                        if len(new[1]):
+                            additions.append(path.Path(new[1]))
+            paths.extend(additions)
 
+            
 class ContourSet(cm.ScalarMappable, ContourLabeler):
     """
     Create and store a set of contour lines or filled regions.
@@ -470,7 +475,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     ls = mpl.rcParams['contour.negative_linestyle']
                     col.set_linestyle(ls)
                 col.set_label('_nolegend_')
-                self.ax.add_collection(col)
+                self.ax.add_collection(col, False)
                 self.collections.append(col)
         self.changed() # set the colors
         x0 = ma.minimum(x)
@@ -509,6 +514,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.locator = ticker.LogLocator()
             else:
                 self.locator = ticker.MaxNLocator(N+1)
+            self.locator.create_dummy_axis()
         locator = self.locator
         zmax = self.zmax
         zmin = self.zmin

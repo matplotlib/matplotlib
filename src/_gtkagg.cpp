@@ -12,7 +12,9 @@
 
 #include "agg_basics.h"
 #include "_backend_agg.h"
-#include "_transforms.h"
+#define PY_ARRAY_TYPES_PREFIX NumPy
+#include "numpy/arrayobject.h"
+#include "agg_py_transforms.h"
 
 // the extension module
 class _gtkagg_module : public Py::ExtensionModule<_gtkagg_module>
@@ -69,15 +71,13 @@ private:
     }
     else {
       //bbox is not None; copy the image in the bbox
+      PyObject* clipbox = args[2].ptr();
+      double l, b, r, t;
 
-      Bbox* clipbox = static_cast<Bbox*>(args[2].ptr());
-      double l = clipbox->ll_api()->x_api()->val() ;
-      double b = clipbox->ll_api()->y_api()->val();
-      double r = clipbox->ur_api()->x_api()->val() ;
-      double t = clipbox->ur_api()->y_api()->val() ;
-
-      //std::cout << b << " "
-      //		<< t << " ";
+      if (!py_convert_bbox(clipbox, l, b, r, t)) {
+	throw Py::TypeError
+	  ("Argument 3 to agg_to_gtk_drawable must be a Bbox object.");
+      }
 
       destx = (int)l;
       desty = srcheight-(int)t;
@@ -100,10 +100,7 @@ private:
       agg::rect_base<int> region(destx, desty, (int)r, srcheight-(int)b);
       destrb.copy_from(*aggRenderer->renderingBuffer, &region,
 		       -destx, -desty);
-
-
     }
-
 
     /*std::cout << desty << " "
 	      << destheight << " "
@@ -132,6 +129,7 @@ DL_EXPORT(void)
 {
   init_pygobject();
   init_pygtk();
+  import_array();
   //suppress unused warning by creating in two lines
   static _gtkagg_module* _gtkagg = NULL;
   _gtkagg = new _gtkagg_module;

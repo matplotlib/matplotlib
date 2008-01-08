@@ -12,7 +12,7 @@ import numpy as npy
 from mlab import dist
 from patches import Circle, Rectangle
 from lines import Line2D
-from transforms import blend_xy_sep_transform
+from transforms import blended_transform_factory
 
 class LockDraw:
     """
@@ -240,8 +240,10 @@ class Slider(Widget):
         self.set_val(val)
 
     def set_val(self, val):
-        self.poly.xy[-1] = val, 0
-        self.poly.xy[-2] = val, 1
+        xy = self.poly.xy
+        xy[-1] = val, 0
+        xy[-2] = val, 1
+        self.poly.xy = xy
         self.valtext.set_text(self.valfmt%val)
         if self.drawon: self.ax.figure.canvas.draw()
         self.val = val
@@ -847,10 +849,10 @@ class SpanSelector:
         self.prev = (0, 0)
 
         if self.direction == 'horizontal':
-            trans = blend_xy_sep_transform(self.ax.transData, self.ax.transAxes)
+            trans = blended_transform_factory(self.ax.transData, self.ax.transAxes)
             w,h = 0,1
         else:
-            trans = blend_xy_sep_transform(self.ax.transAxes, self.ax.transData)
+            trans = blended_transform_factory(self.ax.transAxes, self.ax.transData)
             w,h = 1,0
         self.rect = Rectangle( (0,0), w, h,
                                transform=trans,

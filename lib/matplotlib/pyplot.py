@@ -9,8 +9,10 @@ from matplotlib.image import imread as _imread
 from matplotlib import rcParams, rcParamsDefault, get_backend
 from matplotlib.artist import getp, get
 from matplotlib.artist import setp as _setp
-from matplotlib.axes import Axes, PolarAxes
+from matplotlib.axes import Axes
+from matplotlib.projections import PolarAxes
 from matplotlib import mlab  # for csv2rec in plotfile
+from matplotlib.scale import get_scale_docs, get_scale_names
 
 from matplotlib import cm
 from matplotlib.cm import get_cmap
@@ -306,7 +308,7 @@ def figlegend(handles, labels, loc, **kwargs):
 
     A matplotlib.legend.Legend instance is returned
     """
-    l=  gcf().legend(handles, labels, loc, **kwargs)
+    l = gcf().legend(handles, labels, loc, **kwargs)
     draw_if_interactive()
     return l
 
@@ -476,7 +478,7 @@ def subplot(*args, **kwargs):
     byebye = []
     for other in fig.axes:
         if other==a: continue
-        if bbox.overlaps(other.bbox, ignoreend=True):
+        if bbox.fully_overlaps(other.bbox):
             byebye.append(other)
     for ax in byebye: delaxes(ax)
 
@@ -725,6 +727,38 @@ def ylim(*args, **kwargs):
     return ret
 
 
+def xscale(*args, **kwargs):
+    """
+    SET_XSCALE(value)
+
+    Set the scaling for the x-axis: %(scale)s
+
+    Different keywords may be accepted, depending on the scale:
+
+    %(scale_docs)s
+    """ % {'scale': ' | '.join([repr(x) for x in get_scale_names()]),
+           'scale_docs': get_scale_docs()}
+    ax = gca()
+    ret = ax.set_xscale(*args, **kwargs)
+    draw_if_interactive()
+    return ret
+
+
+def yscale(*args, **kwargs):
+    """
+    SET_YSCALE(value)
+
+    Set the scaling for the y-axis: %(scale)s
+
+    Different keywords may be accepted, depending on the scale:
+
+    %(scale_docs)s
+    """ % {'scale': ' | '.join([repr(x) for x in get_scale_names()]),
+           'scale_docs': get_scale_docs()}
+    ax = gca()
+    ret = ax.set_yscale(*args, **kwargs)
+    draw_if_interactive()
+    return ret
 
 
 def xticks(*args, **kwargs):

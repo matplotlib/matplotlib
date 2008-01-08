@@ -4,20 +4,34 @@ graphics contexts must implement to serve as a matplotlib backend
 """
 
 from __future__ import division
-import os, sys, warnings
+import os
 
 import numpy as npy
-import matplotlib.numerix.npyma as ma
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
+import matplotlib._image as _image
+import matplotlib.path as path
 import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
 from matplotlib import rcParams
 
 class RendererBase:
-    """An abstract base class to handle drawing/rendering operations
-    """
+    """An abstract base class to handle drawing/rendering operations.
 
+    The following methods *must* be implemented in the backend:
+
+       draw_path
+       draw_image
+       draw_text
+       get_text_width_height_descent
+
+    The following methods *should* be implemented in the backend for
+    optimization reasons:
+
+       draw_markers
+       draw_path_collection
+       draw_quad_mesh
+    """
     def __init__(self):
         self._texmanager = None
 
@@ -33,19 +47,192 @@ class RendererBase:
         """
         pass
 
-
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2,
-                 rotation):
-        """
-        Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
-        with width and height and angles from 0.0 to 360.0
-        0 degrees is at 3-o'clock
-        positive angles are anti-clockwise
-        draw rotated 'rotation' degrees anti-clockwise about x,y
-
-        If the color rgbFace is not None, fill the arc with it.
-        """
+    def draw_path(self, gc, path, transform, rgbFace=None):
+	"""
+        Draws a Path instance using the given affine transform.
+	"""
         raise NotImplementedError
+
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        """
+        Draws a marker at each of the vertices in path.  This includes
+        all vertices, including control points on curves.  To avoid
+        that behavior, those vertices should be removed before calling
+        this function.
+
+        marker_trans is an affine transform applied to the marker.
+        trans is an affine transform applied to the path.
+
+        This provides a fallback implementation of draw_markers that
+        makes multiple calls to draw_path.  Some backends may want to
+        override this method in order to draw the marker only once and
+        reuse it multiple times.
+        """
+        tpath = trans.transform_path(path)
+        for x, y in tpath.vertices:
+            self.draw_path(gc, marker_path,
+                           marker_trans + transforms.Affine2D().translate(x, y),
+                           rgbFace)
+
+    def draw_path_collection(self, master_transform, cliprect, clippath,
+                             clippath_trans, paths, all_transforms, offsets,
+                             offsetTrans, facecolors, edgecolors, linewidths,
+                             linestyles, antialiaseds):
+        """
+        Draws a collection of paths, selecting drawing properties from
+        the lists facecolors, edgecolors, linewidths, linestyles and
+        antialiaseds.  offsets is a list of offsets to apply to each
+        of the paths.  The offsets in offsets are first transformed by
+        offsetTrans before being applied.
+
+        This provides a fallback implementation of
+        draw_path_collection that makes multiple calls to draw_path.
+        Some backends may want to override this in order to render
+        each set of path data only once, and then reference that path
+        multiple times with the different offsets, colors, styles etc.
+        The generator methods _iter_collection_raw_paths and
+        _iter_collection are provided to help with (and standardize)
+        the implementation across backends.  It is highly recommended
+        to use those generators, so that changes to the behavior of
+        draw_path_collection can be made globally.
+        """
+        path_ids = []
+        for path, transform in self._iter_collection_raw_paths(
+            master_transform, paths, all_transforms):
+            path_ids.append((path, transform))
+
+        for xo, yo, path_id, gc, rgbFace in self._iter_collection(
+            path_ids, cliprect, clippath, clippath_trans,
+            offsets, offsetTrans, facecolors, edgecolors,
+            linewidths, linestyles, antialiaseds):
+            path, transform = path_id
+            transform = transforms.Affine2D(transform.get_matrix()).translate(xo, yo)
+            self.draw_path(gc, path, transform, rgbFace)
+
+    def draw_quad_mesh(self, master_transform, cliprect, clippath,
+                       clippath_trans, meshWidth, meshHeight, coordinates,
+                       offsets, offsetTrans, facecolors, antialiased,
+                       showedges):
+        """
+        This provides a fallback implementation of draw_quad_mesh that
+        generates paths and then calls draw_path_collection.
+        """
+        from matplotlib.collections import QuadMesh
+        paths = QuadMesh.convert_mesh_to_paths(
+            meshWidth, meshHeight, coordinates)
+
+        if showedges:
+            edgecolors = npy.array([[0.0, 0.0, 0.0, 1.0]], npy.float_)
+        else:
+            edgecolors = facecolors
+        linewidths = npy.array([1.0], npy.float_)
+
+        return self.draw_path_collection(
+            master_transform, cliprect, clippath, clippath_trans,
+            paths, [], offsets, offsetTrans, facecolors, edgecolors,
+            linewidths, [], [antialiased])
+
+    def _iter_collection_raw_paths(self, master_transform, paths, all_transforms):
+        """
+        This is a helper method (along with _iter_collection) to make
+        it easier to write a space-efficent draw_path_collection
+        implementation in a backend.
+
+        This method yields all of the base path/transform
+        combinations, given a master transform, a list of paths and
+        list of transforms.
+
+        The arguments should be exactly what is passed in to
+        draw_path_collection.
+
+        The backend should take each yielded path and transform and
+        create an object can be referenced (reused) later.
+        """
+        Npaths      = len(paths)
+        Ntransforms = len(all_transforms)
+        N           = max(Npaths, Ntransforms)
+
+        if Npaths == 0:
+            return
+
+        transform = transforms.IdentityTransform()
+        for i in xrange(N):
+            path = paths[i % Npaths]
+            if Ntransforms:
+                transform = all_transforms[i % Ntransforms]
+            yield path, transform + master_transform
+
+    def _iter_collection(self, path_ids, cliprect, clippath, clippath_trans,
+                         offsets, offsetTrans, facecolors, edgecolors,
+                         linewidths, linestyles, antialiaseds):
+        """
+        This is a helper method (along with
+        _iter_collection_raw_paths) to make it easier to write a
+        space-efficent draw_path_collection implementation in a
+        backend.
+
+        This method yields all of the path, offset and graphics
+        context combinations to draw the path collection.  The caller
+        should already have looped over the results of
+        _iter_collection_raw_paths to draw this collection.
+
+        The arguments should be the same as that passed into
+        draw_path_collection, with the exception of path_ids, which
+        is a list of arbitrary objects that the backend will use to
+        reference one of the paths created in the
+        _iter_collection_raw_paths stage.
+
+        Each yielded result is of the form:
+
+           xo, yo, path_id, gc, rgbFace
+
+        where xo, yo is an offset; path_id is one of the elements of
+        path_ids; gc is a graphics context and rgbFace is a color to
+        use for filling the path.
+        """
+        Npaths      = len(path_ids)
+        Noffsets    = len(offsets)
+        N           = max(Npaths, Noffsets)
+        Nfacecolors = len(facecolors)
+        Nedgecolors = len(edgecolors)
+        Nlinewidths = len(linewidths)
+        Nlinestyles = len(linestyles)
+        Naa         = len(antialiaseds)
+
+        if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
+            return
+        if Noffsets:
+            toffsets = offsetTrans.transform(offsets)
+
+        gc = self.new_gc()
+
+        gc.set_clip_rectangle(cliprect)
+        if clippath is not None:
+            clippath = transforms.TransformedPath(clippath, clippath_trans)
+            gc.set_clip_path(clippath)
+
+        if Nfacecolors == 0:
+            rgbFace = None
+
+        if Nedgecolors == 0:
+            gc.set_linewidth(0.0)
+
+        xo, yo = 0, 0
+        for i in xrange(N):
+            path_id = path_ids[i % Npaths]
+            if Noffsets:
+                xo, yo = toffsets[i % Noffsets]
+            if Nfacecolors:
+                rgbFace = facecolors[i % Nfacecolors]
+            if Nedgecolors:
+                gc.set_foreground(edgecolors[i % Nedgecolors])
+                if Nlinewidths:
+                    gc.set_linewidth(linewidths[i % Nlinewidths])
+                if Nlinestyles:
+                    gc.set_dashes(*linestyles[i % Nlinestyles])
+            gc.set_antialiased(antialiaseds[i % Naa])
+
+            yield xo, yo, path_id, gc, rgbFace
 
     def get_image_magnification(self):
         """
@@ -55,7 +242,7 @@ class RendererBase:
         """
         return 1.0
 
-    def draw_image(self, x, y, im, bbox):
+    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         """
         Draw the Image instance into the current axes; x is the
         distance in pixels from the left hand side of the canvas. y is
@@ -74,310 +261,6 @@ class RendererBase:
         want to rescale and composite raster images. (like SVG)
         """
         return False
-
-    def _draw_markers(self, bgc, path, rgbFace, x, y, trans):
-        """
-        This method is currently underscore hidden because the
-        draw_markers method is being used as a sentinel for newstyle
-        backend drawing
-
-        path - a matplotlib.agg.path_storage instance
-
-        Draw the marker specified in path with graphics context gc at
-        each of the locations in arrays x and y.  trans is a
-        matplotlib.transforms.Transformation instance used to
-        transform x and y to display coords.  It consists of an
-        optional nonlinear component and an affine.  You can access
-        these two components as
-
-        if transform.need_nonlinear():
-          x,y = transform.nonlinear_only_numerix(x, y)
-        # the a,b,c,d,tx,ty affine which transforms x and y
-        vec6 = transform.as_vec6_val()
-        ...backend dependent affine...
-        """
-        pass
-
-    def draw_line_collection(self, segments, transform, clipbox,
-                             colors, linewidths, linestyle, antialiaseds,
-                             offsets, transOffset):
-        """
-        This is a function for optimized line drawing. If you need to draw
-        many line segments with similar properties, it is faster to avoid the
-        overhead of all the object creation etc. The lack of total
-        configurability is compensated for with efficiency. Hence we don't use
-        a GC and many of the line props it supports. See
-        matplotlib.collections for more details.
-
-        segments is a sequence of ( line0, line1, line2), where linen =
-        is an Mx2 array with columns x, y.  Each line can be a
-        different length
-
-        transform is used to Transform the lines
-
-        clipbox is a  xmin, ymin, width, height clip rect
-
-        colors is a tuple of RGBA tuples
-
-        linewidths is a tuple of linewidths
-        *** really should be called 'dashes' not 'linestyle', since
-        we call gc.set_dashes() not gc.set_linestyle() ***
-
-        linestyle is an (offset, onoffseq) tuple or None,None for solid
-
-        antialiseds is a tuple of ones or zeros indicating whether the
-        segment should be aa or not
-
-        offsets, if not None, is an Nx2 array of x,y offsets to
-        translate the lines by after transform is used to transform
-        the offset coords
-
-        This function could be overridden in the backend to possibly implement
-        faster drawing, but it is already much faster than using draw_lines()
-        by itself.
-        """
-
-        newstyle = getattr(self, 'draw_markers', None) is not None
-        identity = transforms.identity_transform()
-        gc = self.new_gc()
-        if clipbox is not None:
-            gc.set_clip_rectangle(clipbox.get_bounds())
-        gc.set_dashes(*linestyle)
-
-        Nc        = len(colors)
-        Nlw       = len(linewidths)
-        Naa       = len(antialiaseds)
-        Nsegments = len(segments)
-
-        usingOffsets = offsets is not None
-        Noffsets  = 0
-        if usingOffsets:
-            Noffsets = offsets.shape[0]
-            offsets = transOffset.numerix_xy(offsets)
-
-        for i in xrange(max(Noffsets, Nsegments)):
-            color = colors[i % Nc]
-            rgb   = color[0], color[1], color[2]
-            alpha = color[-1]
-
-            gc.set_foreground(rgb, isRGB=True)
-            gc.set_alpha( alpha )
-            gc.set_linewidth( linewidths[i % Nlw] )
-            gc.set_antialiased( antialiaseds[i % Naa] )
-            seg = segments[i % Nsegments]
-            if not len(seg): continue
-            xy = transform.numerix_xy(seg)
-            if usingOffsets:
-                xy = xy + offsets[i % Noffsets]
-
-            if newstyle: self.draw_lines(gc, xy[:,0], xy[:,1], identity)
-            else: self.draw_lines(gc, xy[:,0], xy[:,1])
-
-    def draw_line(self, gc, x1, y1, x2, y2):
-        """
-        Draw a single line from x1,y1 to x2,y2
-        """
-        raise NotImplementedError
-
-    def draw_lines(self, gc, x, y, transform=None):
-        """
-        x and y are equal length arrays, draw lines connecting each
-        point in x, y
-        """
-        raise NotImplementedError
-
-    def draw_point(self, gc, x, y):
-        """
-        Draw a single point at x,y
-        Where 'point' is a device-unit point (or pixel), not a matplotlib point
-        """
-        raise NotImplementedError
-
-    def draw_quad_mesh(self, meshWidth, meshHeight, colors,
-                        xCoords, yCoords, clipbox,
-                        transform, offsets, transOffset, showedges):
-        """
-        Draw a quadrilateral mesh
-        See documentation in QuadMesh class in collections.py for details
-        """
-        # print "draw_quad_mesh not found, using function in backend_bases"
-        verts = npy.zeros(((meshWidth * meshHeight), 4, 2), npy.float32)
-        indices = npy.arange((meshWidth + 1) * (meshHeight + 1))
-        indices = npy.compress((indices + 1) % (meshWidth + 1), indices)
-        indices = indices[:(meshWidth * meshHeight)]
-        verts[:, 0, 0] = npy.take(xCoords, indices)
-        verts[:, 0, 1] = npy.take(yCoords, indices)
-        verts[:, 1, 0] = npy.take(xCoords, (indices + 1))
-        verts[:, 1, 1] = npy.take(yCoords, (indices + 1))
-        verts[:, 2, 0] = npy.take(xCoords, (indices + meshWidth + 2))
-        verts[:, 2, 1] = npy.take(yCoords, (indices + meshWidth + 2))
-        verts[:, 3, 0] = npy.take(xCoords, (indices + meshWidth + 1))
-        verts[:, 3, 1] = npy.take(yCoords, (indices + meshWidth + 1))
-        if (showedges):
-            edgecolors = colors
-        else:
-            edgecolors = (0, 0, 0, 0),
-        self.draw_poly_collection(verts, transform,
-                                clipbox, colors, edgecolors,
-                                (0.25,), (0,), offsets, transOffset)
-
-    def draw_poly_collection(
-        self, verts, transform, clipbox, facecolors, edgecolors,
-        linewidths, antialiaseds, offsets, transOffset):
-        """
-        Draw a polygon collection
-
-        verts are a sequence of polygon vectors, where each polygon
-        vector is a sequence of x,y tuples of vertices
-
-        facecolors and edgecolors are a sequence of RGBA tuples
-        linewidths are a sequence of linewidths
-        antialiaseds are a sequence of 0,1 integers whether to use aa
-
-        If a linewidth is zero or an edgecolor alpha is zero, the
-        line will be omitted; similarly, the fill will be omitted
-        if the facecolor alpha is zero.
-        """
-        ## line and/or fill OK
-        Nface = len(facecolors)
-        Nedge = len(edgecolors)
-        Nlw = len(linewidths)
-        Naa = len(antialiaseds)
-
-        usingOffsets = offsets is not None
-        Noffsets = 0
-        Nverts = len(verts)
-        if usingOffsets:
-            Noffsets = len(offsets)
-
-        N = max(Noffsets, Nverts)
-
-        gc = self.new_gc()
-        if clipbox is not None:
-            gc.set_clip_rectangle(clipbox.get_bounds())
-
-
-        for i in xrange(N):
-            polyverts = ma.filled(verts[i % Nverts], npy.nan)
-            if npy.any(npy.isnan(polyverts)):
-                continue
-            linewidth = linewidths[i % Nlw]
-            rf,gf,bf,af = facecolors[i % Nface]
-            re,ge,be,ae = edgecolors[i % Nedge]
-            if af==0:
-                if ae==0 or linewidth == 0:
-                    continue
-                rgbFace = None
-                alpha = ae
-            else:
-                rgbFace = rf,gf,bf
-            if ae==0:
-                alpha = af
-                gc.set_linewidth(0)
-            else:
-                # the draw_poly interface can't handle separate alphas for
-                # edge and face so we'll just use the maximum
-                alpha = max(af,ae)
-                gc.set_foreground( (re,ge,be), isRGB=True)
-                gc.set_linewidth( linewidths[i % Nlw] )
-                #print 'verts', zip(thisxverts, thisyverts)
-
-            gc.set_antialiased( antialiaseds[i % Naa] )  # Used for fill only?
-            gc.set_alpha( alpha )
-            tverts = transform.seq_xy_tups(polyverts)
-            if usingOffsets:
-                xo,yo = transOffset.xy_tup(offsets[i % Noffsets])
-                tverts = [(x+xo,y+yo) for x,y in tverts]
-
-            self.draw_polygon(gc, rgbFace, tverts)
-
-    def draw_polygon(self, gc, rgbFace, points):
-        """
-        Draw a polygon using the GraphicsContext instance gc.
-        points is a len vertices tuple, each element
-        giving the x,y coords a vertex
-
-        If the color rgbFace is not None, fill the polygon with it
-        """
-        raise NotImplementedError
-
-    def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
-        """
-        Draw a non-filled rectangle using the GraphicsContext instance gcEdge,
-        with lower left at x,y with width and height.
-
-        If rgbFace is not None, fill the rectangle with it.
-        """
-        raise NotImplementedError
-
-    def draw_regpoly_collection(
-        self, clipbox, offsets, transOffset, verts, sizes,
-        facecolors, edgecolors, linewidths, antialiaseds):
-        """
-        Draw a regular poly collection
-
-        offsets   - is a sequence is x,y tuples
-        transOffset - maps this to display coords
-
-        verts - are the vertices of the regular polygon at the origin
-
-        sizes are the area of the circle that circumscribes the
-        polygon in points^2
-
-        facecolors and edgecolors are a sequence of RGBA tuples
-        linewidths are a sequence of linewidths
-        antialiaseds are a sequence of 0,1 integers whether to use aa
-        """
-        ## line and/or fill OK
-        gc = self.new_gc()
-        if clipbox is not None:
-            gc.set_clip_rectangle(clipbox.get_bounds())
-
-        xverts, yverts = zip(*verts)
-        xverts = npy.asarray(xverts)
-        yverts = npy.asarray(yverts)
-
-        Nface  = len(facecolors)
-        Nedge  = len(edgecolors)
-        Nlw    = len(linewidths)
-        Naa    = len(antialiaseds)
-        Nsizes = len(sizes)
-
-        for i, loc in enumerate(offsets):
-            xo,yo = transOffset.xy_tup(loc)
-            #print 'xo, yo', loc, (xo, yo)
-            scale = sizes[i % Nsizes]
-
-            thisxverts = scale*xverts + xo
-            thisyverts = scale*yverts + yo
-            #print 'xverts', xverts
-
-            linewidth = linewidths[i % Nlw]
-            rf,gf,bf,af = facecolors[i % Nface]
-            re,ge,be,ae = edgecolors[i % Nedge]
-            if af==0:
-                if ae==0 or linewidth == 0:
-                    continue
-                rgbFace = None
-                alpha = ae
-            else:
-                rgbFace = rf,gf,bf
-            if ae==0:
-                alpha = af
-                gc.set_linewidth(0)
-            else:
-                # the draw_poly interface can't handle separate alphas for
-                # edge and face so we'll just use the maximum
-                alpha = max(af,ae)
-                gc.set_foreground( (re,ge,be), isRGB=True)
-                gc.set_linewidth( linewidths[i % Nlw] )
-                #print 'verts', zip(thisxverts, thisyverts)
-
-            gc.set_antialiased( antialiaseds[i % Naa] )  # Used for fill only?
-            gc.set_alpha( alpha )
-            #print 'verts', zip(thisxverts, thisyverts)
-            self.draw_polygon(gc, rgbFace, zip(thisxverts, thisyverts))
-
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
         raise NotImplementedError
@@ -416,19 +299,13 @@ class RendererBase:
             self._texmanager = TexManager()
         return self._texmanager
 
-    def get_text_extent(self, text): # is not used, can be removed?
-        """
-        Get the text extent in window coords
-        """
-        return transforms.lbwh_to_bbox(0,0,1,1)  # your values here
-
     def get_text_width_height_descent(self, s, prop, ismath):
         """
         get the width and height, and the offset from the bottom to the
         baseline (descent), in display coords of the string s with
         FontPropertry prop
         """
-        return 1,1,1
+        raise NotImplementedError
 
     def new_gc(self):
         """
@@ -451,6 +328,12 @@ class RendererBase:
 
     def strip_math(self, s):
         return cbook.strip_math(s)
+
+    def start_rasterizing(self):
+        pass
+
+    def stop_rasterizing(self):
+        pass
 
 
 class GraphicsContextBase:
@@ -511,15 +394,19 @@ class GraphicsContextBase:
 
     def get_clip_rectangle(self):
         """
-        Return the clip rectangle as (left, bottom, width, height)
+        Return the clip rectangle as a Bbox instance
         """
         return self._cliprect
 
     def get_clip_path(self):
         """
-        Return the clip path
+        Return the clip path in the form (path, transform), where path
+        is a path.Path instance, and transform as an affine transform
+        to apply to the path before clipping.
         """
-        return self._clippath
+        if self._clippath is not None:
+            return self._clippath.get_transformed_path_and_affine()
+        return None, None
 
     def get_dashes(self):
         """
@@ -590,8 +477,10 @@ class GraphicsContextBase:
 
     def set_clip_path(self, path):
         """
-        Set the clip path
+        Set the clip path and transformation.  Path should be a
+        transforms.TransformedPath instance.
         """
+        assert path is None or isinstance(path, transforms.TransformedPath)
         self._clippath = path
 
     def set_dashes(self, dash_offset, dash_list):
@@ -616,7 +505,7 @@ class GraphicsContextBase:
         if isRGB:
             self._rgb = fg
         else:
-            self._rgb = colors.colorConverter.to_rgb(fg)
+            self._rgb = colors.colorConverter.to_rgba(fg)
 
     def set_graylevel(self, frac):
         """
@@ -740,7 +629,7 @@ class LocationEvent(Event):
             return
 
         # Find all axes containing the mouse
-        axes_list = [a for a in self.canvas.figure.get_axes() if a.in_axes(x, y)]
+        axes_list = [a for a in self.canvas.figure.get_axes() if a.in_axes(self)]
 
         if len(axes_list) == 0: # None found
             self.inaxes = None
@@ -752,7 +641,8 @@ class LocationEvent(Event):
         else: # Just found one hit
             self.inaxes = axes_list[0]
 
-        try: xdata, ydata = self.inaxes.transData.inverse_xy_tup((x, y))
+        try:
+	    xdata, ydata = self.inaxes.transData.inverted().transform_point((x, y))
         except ValueError:
             self.xdata  = None
             self.ydata  = None
@@ -903,7 +793,7 @@ class FigureCanvasBase:
         # can't delete the artist
         while h:
             print "Removing",h
-            if h.remove(): 
+            if h.remove():
                 self.draw_idle()
                 break
             parent = None
@@ -912,7 +802,7 @@ class FigureCanvasBase:
                     parent = p
                     break
             h = parent
-        
+
     def onHilite(self, ev):
         """
         Mouse event processor which highlights the artists
@@ -1069,7 +959,7 @@ class FigureCanvasBase:
     def get_width_height(self):
         """return the figure width and height in points or pixels
         (depending on the backend), truncated to integers"""
-        return int(self.figure.bbox.width()), int(self.figure.bbox.height())
+        return int(self.figure.bbox.width), int(self.figure.bbox.height)
 
     filetypes = {
         'emf': 'Enhanced Metafile',
@@ -1087,7 +977,7 @@ class FigureCanvasBase:
     #  a) otherwise we'd have cyclical imports, since all of these
     #     classes inherit from FigureCanvasBase
     #  b) so we don't import a bunch of stuff the user may never use
-    
+
     def print_emf(self, *args, **kwargs):
         from backends.backend_emf import FigureCanvasEMF # lazy import
         emf = self.switch_backends(FigureCanvasEMF)
@@ -1097,7 +987,7 @@ class FigureCanvasBase:
         from backends.backend_ps import FigureCanvasPS # lazy import
         ps = self.switch_backends(FigureCanvasPS)
         return ps.print_eps(*args, **kwargs)
-    
+
     def print_pdf(self, *args, **kwargs):
         from backends.backend_pdf import FigureCanvasPdf # lazy import
         pdf = self.switch_backends(FigureCanvasPdf)
@@ -1107,7 +997,7 @@ class FigureCanvasBase:
         from backends.backend_agg import FigureCanvasAgg # lazy import
         agg = self.switch_backends(FigureCanvasAgg)
         return agg.print_png(*args, **kwargs)
-    
+
     def print_ps(self, *args, **kwargs):
         from backends.backend_ps import FigureCanvasPS # lazy import
         ps = self.switch_backends(FigureCanvasPS)
@@ -1123,12 +1013,12 @@ class FigureCanvasBase:
         from backends.backend_svg import FigureCanvasSVG # lazy import
         svg = self.switch_backends(FigureCanvasSVG)
         return svg.print_svg(*args, **kwargs)
-    
+
     def print_svgz(self, *args, **kwargs):
         from backends.backend_svg import FigureCanvasSVG # lazy import
         svg = self.switch_backends(FigureCanvasSVG)
         return svg.print_svgz(*args, **kwargs)
-    
+
     def get_supported_filetypes(self):
         return self.filetypes
 
@@ -1138,7 +1028,7 @@ class FigureCanvasBase:
             groupings.setdefault(name, []).append(ext)
             groupings[name].sort()
         return groupings
-    
+
     def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', format=None, **kwargs):
         """
@@ -1176,12 +1066,12 @@ class FigureCanvasBase:
 
         if dpi is None:
             dpi = rcParams['savefig.dpi']
-            
-        origDPI = self.figure.dpi.get()
+
+        origDPI = self.figure.dpi
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
 
-        self.figure.dpi.set(dpi)
+        self.figure.dpi = dpi
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
@@ -1194,17 +1084,17 @@ class FigureCanvasBase:
                 orientation=orientation,
                 **kwargs)
         finally:
-            self.figure.dpi.set(origDPI)
+            self.figure.dpi = origDPI
             self.figure.set_facecolor(origfacecolor)
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
             self.figure.canvas.draw()
-            
+
         return result
 
     def get_default_filetype(self):
         raise NotImplementedError
-    
+
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.  Note that
@@ -1312,7 +1202,7 @@ class FigureManagerBase:
             if event.key!='a':
                 n=int(event.key)-1
             for i, a in enumerate(self.canvas.figure.get_axes()):
-                if event.x is not None and event.y is not None and a.in_axes(event.x, event.y):
+                if event.x is not None and event.y is not None and a.in_axes(event):
                     if event.key=='a':
                         a.set_navigate(True)
                     else:
@@ -1462,7 +1352,7 @@ class NavigationToolbar2:
                     self._lastCursor = cursors.SELECT_REGION
                 if self._xypress:
                     x, y = event.x, event.y
-                    lastx, lasty, a, ind, lim, trans= self._xypress[0]
+                    lastx, lasty, a, ind, lim, trans = self._xypress[0]
                     self.draw_rubberband(event, x, y, lastx, lasty)
             elif (self._active=='PAN' and
                   self._lastCursor != cursors.MOVE):
@@ -1536,11 +1426,9 @@ class NavigationToolbar2:
 
         self._xypress=[]
         for i, a in enumerate(self.canvas.figure.get_axes()):
-            if x is not None and y is not None and a.in_axes(x, y) and a.get_navigate():
-                xmin, xmax = a.get_xlim()
-                ymin, ymax = a.get_ylim()
-                lim = xmin, xmax, ymin, ymax
-                self._xypress.append((x, y, a, i, lim,a.transData.deepcopy()))
+            if x is not None and y is not None and a.in_axes(event) and a.get_navigate():
+                a.start_pan(x, y, event.button)
+                self._xypress.append((a, i))
                 self.canvas.mpl_disconnect(self._idDrag)
                 self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.drag_pan)
 
@@ -1563,11 +1451,9 @@ class NavigationToolbar2:
 
         self._xypress=[]
         for i, a in enumerate(self.canvas.figure.get_axes()):
-            if x is not None and y is not None and a.in_axes(x, y) and a.get_navigate():
-                xmin, xmax = a.get_xlim()
-                ymin, ymax = a.get_ylim()
-                lim = xmin, xmax, ymin, ymax
-                self._xypress.append(( x, y, a, i, lim, a.transData.deepcopy() ))
+            if x is not None and y is not None and a.in_axes(event) \
+                    and a.get_navigate() and a.can_zoom():
+                self._xypress.append(( x, y, a, i, a.viewLim.frozen(), a.transData.frozen()))
 
         self.press(event)
 
@@ -1580,13 +1466,11 @@ class NavigationToolbar2:
             lims.append( (xmin, xmax, ymin, ymax) )
             # Store both the original and modified positions
             pos.append( (
-                    tuple( a.get_position(True) ),
-                    tuple( a.get_position() ) ) )
+		    a.get_position(True).frozen(),
+                    a.get_position().frozen() ) )
         self._views.push(lims)
         self._positions.push(pos)
         self.set_history_buttons()
-
-
 
     def release(self, event):
         'this will be called whenever mouse button is released'
@@ -1596,8 +1480,10 @@ class NavigationToolbar2:
         'the release mouse button callback in pan/zoom mode'
         self.canvas.mpl_disconnect(self._idDrag)
         self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)
+        for a, ind in self._xypress:
+            a.end_pan()
         if not self._xypress: return
-        self._xypress = None
+        self._xypress = []
         self._button_pressed=None
         self.push_current()
         self.release(event)
@@ -1606,87 +1492,10 @@ class NavigationToolbar2:
     def drag_pan(self, event):
         'the drag callback in pan/zoom mode'
 
-        def format_deltas(event,dx,dy):
-            if event.key=='control':
-                if(abs(dx)>abs(dy)):
-                    dy = dx
-                else:
-                    dx = dy
-            elif event.key=='x':
-                dy = 0
-            elif event.key=='y':
-                dx = 0
-            elif event.key=='shift':
-                if 2*abs(dx) < abs(dy):
-                    dx=0
-                elif 2*abs(dy) < abs(dx):
-                    dy=0
-                elif(abs(dx)>abs(dy)):
-                    dy=dy/abs(dy)*abs(dx)
-                else:
-                    dx=dx/abs(dx)*abs(dy)
-            return (dx,dy)
-
-        for cur_xypress in self._xypress:
-            lastx, lasty, a, ind, lim, trans = cur_xypress
-            xmin, xmax, ymin, ymax = lim
+        for a, ind in self._xypress:
             #safer to use the recorded button at the press than current button:
             #multiple button can get pressed during motion...
-            if self._button_pressed==1:
-                lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
-                x, y = trans.inverse_xy_tup( (event.x, event.y) )
-                if a.get_xscale()=='log':
-                    dx=1-lastx/x
-                else:
-                    dx=x-lastx
-                if a.get_yscale()=='log':
-                    dy=1-lasty/y
-                else:
-                    dy=y-lasty
-
-                dx,dy=format_deltas(event,dx,dy)
-
-                if a.get_xscale()=='log':
-                    xmin *= 1-dx
-                    xmax *= 1-dx
-                else:
-                    xmin -= dx
-                    xmax -= dx
-                if a.get_yscale()=='log':
-                    ymin *= 1-dy
-                    ymax *= 1-dy
-                else:
-                    ymin -= dy
-                    ymax -= dy
-            elif self._button_pressed==3:
-                try:
-                    dx=(lastx-event.x)/float(a.bbox.width())
-                    dy=(lasty-event.y)/float(a.bbox.height())
-                    dx,dy=format_deltas(event,dx,dy)
-                    if a.get_aspect() != 'auto':
-                        dx = 0.5*(dx + dy)
-                        dy = dx
-                    alphax = pow(10.0,dx)
-                    alphay = pow(10.0,dy)#use logscaling, avoid singularities and smother scaling...
-                    lastx, lasty = trans.inverse_xy_tup( (lastx, lasty) )
-                    if a.get_xscale()=='log':
-                        xmin = lastx*(xmin/lastx)**alphax
-                        xmax = lastx*(xmax/lastx)**alphax
-                    else:
-                        xmin = lastx+alphax*(xmin-lastx)
-                        xmax = lastx+alphax*(xmax-lastx)
-                    if a.get_yscale()=='log':
-                        ymin = lasty*(ymin/lasty)**alphay
-                        ymax = lasty*(ymax/lasty)**alphay
-                    else:
-                        ymin = lasty+alphay*(ymin-lasty)
-                        ymax = lasty+alphay*(ymax-lasty)
-                except OverflowError:
-                    warnings.warn('Overflow while panning')
-                    return
-            a.set_xlim(xmin, xmax)
-            a.set_ylim(ymin, ymax)
-
+            a.drag_pan(self._button_pressed, event.key, event.x, event.y)
         self.dynamic_update()
 
     def release_zoom(self, event):
@@ -1703,58 +1512,59 @@ class NavigationToolbar2:
                 self.draw()
                 return
 
-            xmin, ymin, xmax, ymax = lim
+            x0, y0, x1, y1 = lim.extents
 
             # zoom to rect
-            lastx, lasty = a.transData.inverse_xy_tup( (lastx, lasty) )
-            x, y = a.transData.inverse_xy_tup( (x, y) )
+	    inverse = a.transData.inverted()
+            lastx, lasty = inverse.transform_point( (lastx, lasty) )
+            x, y = inverse.transform_point( (x, y) )
             Xmin,Xmax=a.get_xlim()
             Ymin,Ymax=a.get_ylim()
 
             if Xmin < Xmax:
-                if x<lastx:  xmin, xmax = x, lastx
-                else: xmin, xmax = lastx, x
-                if xmin < Xmin: xmin=Xmin
-                if xmax > Xmax: xmax=Xmax
+                if x<lastx:  x0, x1 = x, lastx
+                else: x0, x1 = lastx, x
+                if x0 < Xmin: x0=Xmin
+                if x1 > Xmax: x1=Xmax
             else:
-                if x>lastx:  xmin, xmax = x, lastx
-                else: xmin, xmax = lastx, x
-                if xmin > Xmin: xmin=Xmin
-                if xmax < Xmax: xmax=Xmax
+                if x>lastx:  x0, x1 = x, lastx
+                else: x0, x1 = lastx, x
+                if x0 > Xmin: x0=Xmin
+                if x1 < Xmax: x1=Xmax
 
             if Ymin < Ymax:
-                if y<lasty:  ymin, ymax = y, lasty
-                else: ymin, ymax = lasty, y
-                if ymin < Ymin: ymin=Ymin
-                if ymax > Ymax: ymax=Ymax
+                if y<lasty:  y0, y1 = y, lasty
+                else: y0, y1 = lasty, y
+                if y0 < Ymin: y0=Ymin
+                if y1 > Ymax: y1=Ymax
             else:
-                if y>lasty:  ymin, ymax = y, lasty
-                else: ymin, ymax = lasty, y
-                if ymin > Ymin: ymin=Ymin
-                if ymax < Ymax: ymax=Ymax
+                if y>lasty:  y0, y1 = y, lasty
+                else: y0, y1 = lasty, y
+                if y0 > Ymin: y0=Ymin
+                if y1 < Ymax: y1=Ymax
 
             if self._button_pressed == 1:
-                a.set_xlim((xmin, xmax))
-                a.set_ylim((ymin, ymax))
+                a.set_xlim((x0, x1))
+                a.set_ylim((y0, y1))
             elif self._button_pressed == 3:
                 if a.get_xscale()=='log':
-                    alpha=npy.log(Xmax/Xmin)/npy.log(xmax/xmin)
-                    x1=pow(Xmin/xmin,alpha)*Xmin
-                    x2=pow(Xmax/xmin,alpha)*Xmin
+                    alpha=npy.log(Xmax/Xmin)/npy.log(x1/x0)
+                    rx1=pow(Xmin/x0,alpha)*Xmin
+                    x2=pow(Xmax/x0,alpha)*Xmin
                 else:
-                    alpha=(Xmax-Xmin)/(xmax-xmin)
-                    x1=alpha*(Xmin-xmin)+Xmin
-                    x2=alpha*(Xmax-xmin)+Xmin
+                    alpha=(Xmax-Xmin)/(x1-x0)
+                    rx1=alpha*(Xmin-x0)+Xmin
+                    x2=alpha*(Xmax-x0)+Xmin
                 if a.get_yscale()=='log':
-                    alpha=npy.log(Ymax/Ymin)/npy.log(ymax/ymin)
-                    y1=pow(Ymin/ymin,alpha)*Ymin
-                    y2=pow(Ymax/ymin,alpha)*Ymin
+                    alpha=npy.log(Ymax/Ymin)/npy.log(y1/y0)
+                    ry1=pow(Ymin/y0,alpha)*Ymin
+                    ry2=pow(Ymax/y0,alpha)*Ymin
                 else:
-                    alpha=(Ymax-Ymin)/(ymax-ymin)
-                    y1=alpha*(Ymin-ymin)+Ymin
-                    y2=alpha*(Ymax-ymin)+Ymin
-                a.set_xlim((x1, x2))
-                a.set_ylim((y1, y2))
+                    alpha=(Ymax-Ymin)/(y1-y0)
+                    ry1=alpha*(Ymin-y0)+Ymin
+                    ry2=alpha*(Ymax-y0)+Ymin
+                a.set_xlim((rx1, rx2))
+                a.set_ylim((ry1, ry2))
 
         self.draw()
         self._xypress = None

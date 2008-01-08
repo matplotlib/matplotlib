@@ -45,6 +45,8 @@ fig = P.figure()
 a = fig.add_subplot(2,2,1)
 col = collections.LineCollection([spiral], offsets=xyo,
                                 transOffset=a.transData)
+trans = transforms.Affine2D().scale(fig.dpi/72.0)
+col.set_transform(trans)  # the points to pixels transform
     # Note: the first argument to the collection initializer
     # must be a list of sequences of x,y tuples; we have only
     # one sequence, but we still have to put it in a list.
@@ -59,9 +61,6 @@ a.add_collection(col, autolim=True)
 
 # Make a transform for the line segments such that their size is
 # given in points:
-trans = transforms.scale_transform(fig.dpi/transforms.Value(72.),
-                                    fig.dpi/transforms.Value(72.))
-col.set_transform(trans)  # the points to pixels transform
 col.set_color(colors)
 
 a.autoscale_view()  # See comment above, after a.add_collection.
@@ -74,28 +73,25 @@ a = fig.add_subplot(2,2,2)
 
 col = collections.PolyCollection([spiral], offsets=xyo,
                                 transOffset=a.transData)
-a.add_collection(col, autolim=True)
-trans = transforms.scale_transform(fig.dpi/transforms.Value(72.),
-                                    fig.dpi/transforms.Value(72.))
+trans = transforms.Affine2D().scale(fig.dpi/72.0)
 col.set_transform(trans)  # the points to pixels transform
+a.add_collection(col, autolim=True)
 col.set_color(colors)
 
 
 a.autoscale_view()
 a.set_title('PolyCollection using offsets')
 
-
 # 7-sided regular polygons
 
 a = fig.add_subplot(2,2,3)
 
 col = collections.RegularPolyCollection(fig.dpi, 7,
-                                        sizes = N.fabs(xx)*10, offsets=xyo,
+                                        sizes = N.fabs(xx)*10.0, offsets=xyo,
                                         transOffset=a.transData)
-a.add_collection(col, autolim=True)
-trans = transforms.scale_transform(fig.dpi/transforms.Value(72.),
-                                    fig.dpi/transforms.Value(72.))
+trans = transforms.Affine2D().scale(fig.dpi/72.0)
 col.set_transform(trans)  # the points to pixels transform
+a.add_collection(col, autolim=True)
 col.set_color(colors)
 a.autoscale_view()
 a.set_title('RegularPolyCollection using offsets')

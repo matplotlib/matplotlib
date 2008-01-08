@@ -6,7 +6,6 @@
 #define __BACKEND_AGG_H
 #include <utility>
 #include "CXX/Extensions.hxx"
-#include "agg_buffer.h"  // a swig wrapper
 
 #include "agg_arrowhead.h"
 #include "agg_basics.h"
@@ -39,6 +38,18 @@
 #include "agg_scanline_p.h"
 #include "agg_vcgen_markers_term.h"
 
+#include "agg_py_path_iterator.h"
+
+// These are copied directly from path.py, and must be kept in sync
+#define STOP   0
+#define MOVETO 1
+#define LINETO 2
+#define CURVE3 3
+#define CURVE4 4
+#define CLOSEPOLY 5
+
+const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3, 1 };
+
 typedef agg::pixfmt_rgba32 pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
@@ -47,7 +58,6 @@ typedef agg::rasterizer_scanline_aa<> rasterizer;
 
 typedef agg::scanline_p8 scanline_p8;
 typedef agg::scanline_bin scanline_bin;
-//yypedef agg::scanline_u8_am<agg::alpha_mask_gray8> scanline_alphamask;
 typedef agg::amask_no_clip_gray8 alpha_mask_type;
 
 
@@ -67,47 +77,48 @@ public:
   SafeSnap() : first(true), xsnap(0.0), lastx(0.0), lastxsnap(0.0),
 	       ysnap(0.0), lasty(0.0), lastysnap(0.0)  {}
   SnapData snap (const float& x, const float& y);
-      
+
 private:
   bool first;
   float xsnap, lastx, lastxsnap, ysnap, lasty, lastysnap;
 };
 
-
 // a helper class to pass agg::buffer objects around.  agg::buffer is
 // a class in the swig wrapper
 class BufferRegion : public Py::PythonExtension<BufferRegion> {
 public:
-  BufferRegion( agg::buffer& aggbuf, const agg::rect &r, bool freemem=true) : aggbuf(aggbuf), rect(r), freemem(freemem) {
-    //std::cout << "buffer region" << std::endl;
+  BufferRegion(const agg::rect_i &r, bool freemem=true) :
+  rect(r), freemem(freemem) {
+    width = r.x2 - r.x1;
+    height = r.y2 - r.y1;
+    stride = width * 4;
+    data = new agg::int8u[stride * height];
   }
-  agg::buffer aggbuf;
-  agg::rect rect;
-  bool freemem;
-  Py::Object to_string(const Py::Tuple &args);
+  agg::int8u* data;
+  agg::rect_i rect;
+  int width;
+  int height;
+  int stride;
 
+  bool freemem;
+
+  Py::Object to_string(const Py::Tuple &args);
   static void init_type(void);
+
   virtual ~BufferRegion() {
-    //std::cout << "buffer region bye bye" << std::endl;
     if (freemem) {
-      delete [] aggbuf.data;
-      aggbuf.data = NULL;
+      delete [] data;
+      data = NULL;
     }
   };
 };
 
 class GCAgg {
 public:
-  GCAgg(const Py::Object& gc, double dpi, bool snapto=false);
-
-  ~GCAgg() {
-    delete [] dasha;
-    delete [] cliprect;
-    delete clippath;
-  }
+  GCAgg(const Py::Object& gc, double dpi);
+  GCAgg(double dpi);
 
   double dpi;
-  bool snapto;
   bool isaa;
 
   agg::line_cap_e cap;
@@ -118,15 +129,16 @@ public:
   double alpha;
   agg::rgba color;
 
-  double *cliprect;
-  agg::path_storage *clippath;
-  //dashes
-  size_t Ndash;
-  double dashOffset;
-  double *dasha;
+  Py::Object cliprect;
+  Py::Object clippath;
+  agg::trans_affine clippath_trans;
 
-  
-protected:
+  //dashes
+  typedef std::vector<std::pair<double, double> > dash_t;
+  double dashOffset;
+  dash_t dashes;
+
+ protected:
   agg::rgba get_color(const Py::Object& gc);
   double points_to_pixels( const Py::Object& points);
   void _set_linecap(const Py::Object& gc) ;
@@ -135,13 +147,11 @@ protected:
   void _set_clip_rectangle( const Py::Object& gc);
   void _set_clip_path( const Py::Object& gc);
   void _set_antialiased( const Py::Object& gc);
-
-
 };
 
 
 //struct AMRenderer {
-//  
+//
 //}
 
 // the renderer
@@ -154,26 +164,22 @@ public:
   unsigned int get_width() { return width;}
   unsigned int get_height() { return height;}
   // the drawing methods
-  Py::Object draw_rectangle(const Py::Tuple & args);
-  Py::Object draw_ellipse(const Py::Tuple & args);
-  Py::Object draw_polygon(const Py::Tuple & args);
-  Py::Object draw_line_collection(const Py::Tuple& args);
-  Py::Object draw_quad_mesh(const Py::Tuple& args);
-  Py::Object draw_poly_collection(const Py::Tuple& args);
-  Py::Object draw_regpoly_collection(const Py::Tuple& args);
-  Py::Object draw_lines(const Py::Tuple & args);
-  Py::Object draw_path(const Py::Tuple & args);
   //Py::Object _draw_markers_nocache(const Py::Tuple & args);
   //Py::Object _draw_markers_cache(const Py::Tuple & args);
   Py::Object draw_markers(const Py::Tuple & args);
   Py::Object draw_text_image(const Py::Tuple & args);
   Py::Object draw_image(const Py::Tuple & args);
+  Py::Object draw_path(const Py::Tuple & args);
+  Py::Object draw_path_collection(const Py::Tuple & args);
+  Py::Object draw_quad_mesh(const Py::Tuple& args);
+
 
   Py::Object write_rgba(const Py::Tuple & args);
   Py::Object write_png(const Py::Tuple & args);
   Py::Object tostring_rgb(const Py::Tuple & args);
   Py::Object tostring_argb(const Py::Tuple & args);
   Py::Object tostring_bgra(const Py::Tuple & args);
+  Py::Object tostring_rgba_minimized(const Py::Tuple & args);
   Py::Object buffer_rgba(const Py::Tuple & args);
   Py::Object clear(const Py::Tuple & args);
 
@@ -212,27 +218,38 @@ public:
   const int debug;
 
 protected:
-  agg::rect bbox_to_rect( const Py::Object& o);
   double points_to_pixels( const Py::Object& points);
   double points_to_pixels_snapto( const Py::Object& points);
-  void DrawQuadMesh(int, int, void* colors, const double[], const double[]);
-  void DrawQuadMeshEdges(int, int, const double[], const double[]);
-  int intersectCheck(double, double, double, double, double, int*);
-  int inPolygon(int, const double[4], const double[4], int[4]);
-  void set_clip_from_bbox(const Py::Object& o);
   agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
-  void set_clipbox_rasterizer( double *cliprect);
-  bool _process_alpha_mask(const GCAgg& gc);
-  template <class VS> void _fill_and_stroke(VS&, const GCAgg&, const facepair_t&, bool curvy=true);
-
-  template<class PathSource>
-  void _render_lines_path(PathSource &ps, const GCAgg& gc);
+  template<class R>
+  void set_clipbox(const Py::Object& cliprect, R rasterizer);
+  bool render_clippath(const Py::Object& clippath, const agg::trans_affine& clippath_trans);
+  template<class PathIteratorType>
+  void _draw_path(PathIteratorType& path, bool has_clippath,
+		  const facepair_t& face, const GCAgg& gc);
+  template<class PathGenerator, int check_snap, int has_curves>
+  Py::Object
+  _draw_path_collection_generic
+    (agg::trans_affine 	            master_transform,
+     const Py::Object&		    cliprect,
+     const Py::Object&		    clippath,
+     const agg::trans_affine&       clippath_trans,
+     const PathGenerator&	    path_generator,
+     const Py::SeqBase<Py::Object>& transforms_obj,
+     const Py::Object&              offsets_obj,
+     const agg::trans_affine&       offset_trans,
+     const Py::Object&              facecolors_obj,
+     const Py::Object&              edgecolors_obj,
+     const Py::SeqBase<Py::Float>&  linewidths,
+     const Py::SeqBase<Py::Object>& linestyles_obj,
+     const Py::SeqBase<Py::Int>&    antialiaseds);
 
 private:
-  agg::path_storage *lastclippath;
+  void create_alpha_buffers();
+  Py::Object lastclippath;
+  agg::trans_affine lastclippath_transform;
 };
-
 
 // the extension module
 class _backend_agg_module : public Py::ExtensionModule<_backend_agg_module>
@@ -241,9 +258,8 @@ public:
   _backend_agg_module()
     : Py::ExtensionModule<_backend_agg_module>( "_backend_agg" )
   {
-
-    BufferRegion::init_type();
     RendererAgg::init_type();
+    BufferRegion::init_type();
 
     add_keyword_method("RendererAgg", &_backend_agg_module::new_renderer,
 		       "RendererAgg(width, height, dpi)");
@@ -255,9 +271,6 @@ public:
 private:
 
   Py::Object new_renderer (const Py::Tuple &args, const Py::Dict &kws);
-
-
-
 };
 
 

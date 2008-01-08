@@ -9,7 +9,6 @@ from collections import LineCollection
 from patches import Circle
 import numpy as npy
 import numpy.linalg as linalg
-from math import sqrt
 
 def _hide_cross(a,b):
     """

@@ -84,7 +84,7 @@ Example usage:
 """
 
 from __future__ import division
-import sys, datetime, csv, warnings, copy
+import csv, warnings
 
 import numpy as npy
 

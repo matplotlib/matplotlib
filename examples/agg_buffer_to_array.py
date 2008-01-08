@@ -12,7 +12,7 @@ fig.canvas.draw()
 
 # grab rhe pixel buffer and dumpy it into a numpy array
 buf = fig.canvas.buffer_rgba(0,0)
-l, b, w, h = fig.bbox.get_bounds()
+l, b, w, h = fig.bbox.bounds
 X = npy.fromstring(buf, npy.uint8)
 X.shape = h,w,4
 

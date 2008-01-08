@@ -136,6 +136,75 @@
 2007-10-31 Made log color scale easier to use with contourf;
            automatic level generation now works. - EF
 
+2007-10-29 TRANSFORMS REFACTORING
+
+	   The primary goal of this refactoring was to make it easier
+	   to extend matplotlib to support new kinds of projections.
+	   This is primarily an internal improvement, and the possible
+	   user-visible changes it allows are yet to come.
+
+	   The transformation framework was completely rewritten in
+	   Python (with Numpy).  This will make it easier to add news
+	   kinds of transformations without writing C/C++ code.
+
+	   Transforms are composed into a 'transform tree', made of
+	   transforms whose value depends on other transforms (their
+	   children).  When the contents of children change, their
+	   parents are automatically updated to reflect those changes.
+	   To do this an "invalidation" method is used: when children
+	   change, all of their ancestors are marked as "invalid".
+	   When the value of a transform is accessed at a later time,
+	   its value is recomputed only if it is invalid, otherwise a
+	   cached value may be used.  This prevents unnecessary
+	   recomputations of transforms, and contributes to better
+	   interactive performance.
+
+	   The framework can be used for both affine and non-affine
+	   transformations.  However, for speed, we want use the
+	   backend renderers to perform affine transformations
+	   whenever possible.  Therefore, it is possible to perform
+	   just the affine or non-affine part of a transformation on a
+	   set of data.  The affine is always assumed to occur after
+	   the non-affine.  For any transform:
+
+	        full transform == non-affine + affine
+
+	   Much of the drawing has been refactored in terms of
+	   compound paths.  Therefore, many methods have been removed
+	   from the backend interface and replaced with a a handful to
+	   draw compound paths.  This will make updating the backends
+	   easier, since there is less to update.  It also should make
+	   the backends more consistent in terms of functionality.
+
+	   User visible changes:
+
+	   - POLAR PLOTS: Polar plots are now interactively zoomable,
+             and the r-axis labels can be interactively rotated.
+             Straight line segments are now interpolated to follow the
+             curve of the r-axis.
+
+	   - Non-rectangular clipping works in more backends and with
+             more types of objects.
+
+	   - Sharing an axis across figures is now done in exactly
+	     the same way as sharing an axis between two axes in the
+	     same figure:
+
+	   	   fig1 = figure()
+		   fig2 = figure()
+
+		   ax1 = fig1.add_subplot(111)
+		   ax2 = fig2.add_subplot(111, sharex=ax1, sharey=ax1)
+
+           - linestyles now include steps-pre, steps-post and
+             steps-mid.  The old step still works and is equivalent to
+             step-pre.
+
+	   - Multiple line styles may be provided to a collection.
+
+	   See API_CHANGES for more low-level information about this
+	   refactoring.
+
 2007-10-24 Added ax kwarg to Figure.colorbar and pyplot.colorbar - EF
 
 2007-10-19 Removed a gsave/grestore pair surrounding _draw_ps, which

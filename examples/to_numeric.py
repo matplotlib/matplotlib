@@ -17,7 +17,7 @@ agg.draw()
 s = agg.tostring_rgb()
 
 # get the width and the height to resize the matrix
-l,b,w,h = agg.figure.bbox.get_bounds()
+l,b,w,h = agg.figure.bbox.bounds
 w, h = int(w), int(h)
 
 

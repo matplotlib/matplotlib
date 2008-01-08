@@ -61,7 +61,7 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         if w==1 or h==1: return # empty fig
 
         # compute desired figure size in inches
-        dpival = self.figure.dpi.get()
+        dpival = self.figure.dpi
         winch = w/dpival
         hinch = h/dpival
         self.figure.set_size_inches(winch, hinch)

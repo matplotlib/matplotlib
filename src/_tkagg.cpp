@@ -14,7 +14,7 @@
 
 #include "agg_basics.h"
 #include "_backend_agg.h"
-#include "_transforms.h"
+#include "agg_py_transforms.h"
 
 extern "C" {
 #ifdef __APPLE__
@@ -46,7 +46,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
 
     // vars for blitting
     PyObject* bboxo;
-    Bbox* bbox;
+    bool has_bbox;
     agg::int8u *destbuffer;
     double l,b,r,t;
     int destx, desty, destwidth, destheight, deststride;
@@ -86,12 +86,8 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
 
     /* check for bbox/blitting */
     bboxo = (PyObject*)atol(argv[4]);
-    if (bboxo != Py_None) {
-      bbox = (Bbox*)bboxo;
-      l = bbox->ll_api()->x_api()->val();
-      b = bbox->ll_api()->y_api()->val();
-      r = bbox->ur_api()->x_api()->val();
-      t = bbox->ur_api()->y_api()->val();
+    if (py_convert_bbox(bboxo, l, b, r, t)) {
+      has_bbox = true;
 
       destx = (int)l;
       desty = srcheight-(int)t;
@@ -113,7 +109,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
       destrb.copy_from(*aggRenderer->renderingBuffer, &region,
 		       -destx, -desty);
     } else {
-      bbox = NULL;
+      has_bbox = false;
       destbuffer = NULL;
       destx = desty = destwidth = destheight = deststride = 0;
     }
@@ -138,8 +134,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
         }
     }
 
-    if (bbox) {
-
+    if (has_bbox) {
       block.width  = destwidth;
       block.height = destheight;
       block.pitch = deststride;
@@ -213,5 +208,7 @@ static PyMethodDef functions[] = {
 extern "C"
 DL_EXPORT(void) init_tkagg(void)
 {
-    Py_InitModule("_tkagg", functions);
+  import_array();
+
+  Py_InitModule("_tkagg", functions);
 }

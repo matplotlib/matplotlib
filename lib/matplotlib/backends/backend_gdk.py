@@ -25,7 +25,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
 from matplotlib.cbook import is_string_like, enumerate
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
-
+from matplotlib.transforms import Affine2D
 from matplotlib.backends._backend_gdk import pixbuf_get_pixels_array
 
 
@@ -81,23 +81,25 @@ class RendererGDK(RendererBase):
         """
         self.width, self.height = width, height
 
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
-        x, y = int(x-0.5*width), self.height-int(y+0.5*height)
-        w, h = int(width)+1, int(height)+1
-        a1, a2 = int(angle1*64), int(angle2*64)
+    def draw_path(self, gc, path, transform, rgbFace=None):
+        transform = transform + Affine2D(). \
+            scale(1.0, -1.0).translate(0, self.height)
+        polygons = path.to_polygons(transform)
+        for polygon in polygons:
+            # draw_polygon won't take an arbitrary sequence -- it must be a list
+            # of tuples
+            polygon = [(int(round(x)), int(round(y))) for x, y in polygon]
+            if rgbFace is not None:
+                saveColor = gc.gdkGC.foreground
+                gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
+                self.gdkDrawable.draw_polygon(gc.gdkGC, True, polygon)
+                gc.gdkGC.foreground = saveColor
+            if gc.gdkGC.line_width > 0:
+                self.gdkDrawable.draw_lines(gc.gdkGC, polygon)
 
-        if rgbFace:
-            saveColor = gc.gdkGC.foreground
-            gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
-            self.gdkDrawable.draw_arc(gc.gdkGC, True, x, y, w, h, a1, a2)
-            gc.gdkGC.foreground = saveColor
-        if gc.gdkGC.line_width > 0:
-            self.gdkDrawable.draw_arc(gc.gdkGC, False, x, y, w, h, a1, a2)
-
-
-    def draw_image(self, x, y, im, bbox):
+    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         if bbox != None:
-            l,b,w,h = bbox.get_bounds()
+            l,b,w,h = bbox.bounds
             #rectangle = (int(l), self.height-int(b+h),
             #             int(w), int(h))
             # set clip rect?
@@ -135,48 +137,6 @@ class RendererGDK(RendererBase):
         im.flipud_out()
 
 
-    def draw_line(self, gc, x1, y1, x2, y2):
-        if gc.gdkGC.line_width > 0:
-            self.gdkDrawable.draw_line(gc.gdkGC, int(x1), self.height-int(y1),
-                                   int(x2), self.height-int(y2))
-
-
-    def draw_lines(self, gc, x, y, transform=None):
-        if gc.gdkGC.line_width > 0:
-            x = x.astype(npy.int16)
-            y = self.height - y.astype(npy.int16)
-            self.gdkDrawable.draw_lines(gc.gdkGC, zip(x,y))
-
-
-    def draw_point(self, gc, x, y):
-        self.gdkDrawable.draw_point(gc.gdkGC, int(x), self.height-int(y))
-
-
-    def draw_polygon(self, gc, rgbFace, points):
-        points = [(int(x), self.height-int(y)) for x,y in points]
-        if rgbFace:
-            saveColor = gc.gdkGC.foreground
-            gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
-            self.gdkDrawable.draw_polygon(gc.gdkGC, True, points)
-            gc.gdkGC.foreground = saveColor
-        if gc.gdkGC.line_width > 0:
-            self.gdkDrawable.draw_polygon(gc.gdkGC, False, points)
-
-
-    def draw_rectangle(self, gc, rgbFace, x, y, width, height):
-        x, y = int(x), self.height-int(y+height)
-        #x, y = int(x), self.height-int(math.ceil(y+height))
-        w, h = int(math.ceil(width)), int(math.ceil(height))
-
-        if rgbFace:
-            saveColor = gc.gdkGC.foreground
-            gc.gdkGC.foreground = gc.rgb_to_gdk_color(rgbFace)
-            self.gdkDrawable.draw_rectangle(gc.gdkGC, True, x, y, w, h)
-            gc.gdkGC.foreground = saveColor
-        if gc.gdkGC.line_width > 0:
-            self.gdkDrawable.draw_rectangle(gc.gdkGC, False, x, y, w, h)
-
-
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         x, y = int(x), int(y)
 
@@ -200,7 +160,7 @@ class RendererGDK(RendererBase):
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         ox, oy, width, height, descent, font_image, used_characters = \
-            self.mathtext_parser.parse(s, self.dpi.get(), prop)
+            self.mathtext_parser.parse(s, self.dpi, prop)
 
         if angle==90:
             width, height = height, width
@@ -213,7 +173,7 @@ class RendererGDK(RendererBase):
 
         # a numpixels by num fonts array
         Xall = npy.zeros((N,1), npy.uint8)
-        
+
         image_str = font_image.as_str()
         Xall[:,0] = npy.fromstring(image_str, npy.uint8)
 
@@ -310,12 +270,12 @@ class RendererGDK(RendererBase):
         # two (not one) layouts are created for every text item s (then they
         # are cached) - why?
 
-        key = self.dpi.get(), s, hash(prop)
+        key = self.dpi, s, hash(prop)
         value = self.layoutd.get(key)
         if value != None:
             return value
 
-        size = prop.get_size_in_points() * self.dpi.get() / 96.0
+        size = prop.get_size_in_points() * self.dpi / 96.0
         size = round(size)
 
         font_str = '%s, %s %i' % (prop.get_name(), prop.get_style(), size,)
@@ -341,7 +301,7 @@ class RendererGDK(RendererBase):
     def get_text_width_height_descent(self, s, prop, ismath):
         if ismath:
             ox, oy, width, height, descent, font_image, used_characters = \
-                self.mathtext_parser.parse(s, self.dpi.get(), prop)
+                self.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
 
         layout, inkRect, logicalRect = self._get_pango_layout(s, prop)
@@ -353,7 +313,7 @@ class RendererGDK(RendererBase):
 
 
     def points_to_pixels(self, points):
-        return points/72.0 * self.dpi.get()
+        return points/72.0 * self.dpi
 
 
 class GraphicsContextGDK(GraphicsContextBase):
@@ -386,9 +346,9 @@ class GraphicsContextGDK(GraphicsContextBase):
         return an allocated gtk.gdk.Color
         """
         try:
-            return self._cached[rgb]
+            return self._cached[tuple(rgb)]
         except KeyError:
-            color = self._cached[rgb] = \
+            color = self._cached[tuple(rgb)] = \
                     self._cmap.alloc_color(
                         int(rgb[0]*65535),int(rgb[1]*65535),int(rgb[2]*65535))
             return color
@@ -404,13 +364,14 @@ class GraphicsContextGDK(GraphicsContextBase):
 
     def set_clip_rectangle(self, rectangle):
         GraphicsContextBase.set_clip_rectangle(self, rectangle)
-        l,b,w,h = rectangle
+        if rectangle is None:
+            return
+        l,b,w,h = rectangle.bounds
         rectangle = (int(l), self.renderer.height-int(b+h)+1,
                      int(w), int(h))
         #rectangle = (int(l), self.renderer.height-int(b+h),
         #             int(w+1), int(h+2))
         self.gdkGC.set_clip_rectangle(rectangle)
-
 
     def set_dashes(self, dash_offset, dash_list):
         GraphicsContextBase.set_dashes(self, dash_offset, dash_list)
@@ -486,7 +447,7 @@ class FigureCanvasGDK (FigureCanvasBase):
 
     def print_png(self, filename, *args, **kwargs):
         return self._print_image(filename, 'png')
-    
+
     def _print_image(self, filename, format, *args, **kwargs):
         width, height = self.get_width_height()
         pixmap = gtk.gdk.Pixmap (None, width, height, depth=24)
@@ -500,4 +461,6 @@ class FigureCanvasGDK (FigureCanvasBase):
                                  0, 0, 0, 0, width, height)
 
         pixbuf.save(filename, format)
-        
+
+    def get_default_filetype(self):
+        return 'png'

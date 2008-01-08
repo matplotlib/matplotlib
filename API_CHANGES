@@ -1,3 +1,174 @@
+TRANSFORMS REFACTORING
+
+    The primary goal of this refactoring was to make it easier to
+    extend matplotlib to support new kinds of projections.  This is
+    primarily an internal improvement, and the possible user-visible
+    changes it allows are yet to come.
+
+    See transforms.py for a description of the design of the new
+    transformation framework.
+
+    The view intervals are now stored only in one place -- in the Axes
+    instance, not in the formatter instances as well.  This means
+    formatters must get their limits from their Axis, which in turn
+    looks up its limits from the Axes.  If a Locator is used
+    temporarily and not assigned to an Axis or Axes, (e.g. in
+    contour.py), a dummy axis must be created to store its bounds.
+    Call Locator.create_dummy_axis() to do so.
+
+    The functionality of Pbox has been merged with Bbox.  Its methods
+    now all return copies rather than modifying in place.
+
+    The following lists many of the simple changes necessary to update
+    code from the old transformation framework to the new one.  In
+    particular, methods that return a copy are named with a verb in
+    the past tense, whereas methods that alter an object in place are
+    named with a very in the present tense.
+
+    transforms.py
+      Bbox.get_bounds()				Bbox.bounds
+
+      Bbox.width()				Bbox.width
+
+      Bbox.height()				Bbox.height
+
+      Bbox.intervalx().get_bounds()		Bbox.intervalx
+      Bbox.intervalx().set_bounds()
+        [Bbox.intervalx is now a property.]
+
+      Bbox.intervaly().get_bounds()		Bbox.intervaly
+      Bbox.intervaly().set_bounds()
+        [Bbox.intervaly is now a property.]
+
+      Bbox.xmin()				Bbox.x0 or Bbox.xmin
+      Bbox.ymin()				Bbox.y0 or Bbox.ymin
+      Bbox.xmax()				Bbox.x1 or Bbox.xmax
+      Bbox.ymax()				Bbox.y1 or Bbox.ymax
+        [The Bbox is bound by the points (x0, y0) to (x1, y1) and
+        there is no defined order to these points, that is, x0 is not
+        necessarily the left edge of the box.  To get the left edge of
+	the Bbox, use the read-only property xmin.]
+
+      Bbox.overlaps(bboxes)			Bbox.count_overlaps(bboxes)
+
+      bbox_all(bboxes)				Bbox.union(bboxes)
+        [Bbox.union is a staticmethod.]
+
+      lbwh_to_bbox(l, b, w, h)			Bbox.from_bounds(x0, y0, w, h)
+
+      inverse_transform_bbox(trans, bbox)  	bbox.inverse_transformed(trans)
+
+      Interval.contains_open(v)			interval_contains_open(tuple, v)
+      Interval.contains(v)			interval_contains_open(tuple, v)
+
+      identity_transform()			IdentityTransform()
+
+      blend_xy_sep_transform(xtrans, ytrans)	blended_transform_factory(xtrans, ytrans)
+
+      scale_transform(xs, ys)			Affine2D().scale(xs[, ys])
+
+      get_bbox_transform(boxin, boxout) 	BboxTransform(boxin, boxout) or
+      				 		BboxTransformFrom(boxin) or
+						BboxTransformTo(boxout)
+
+      Transform.seq_xy_tup(points)		Transform.transform(points)
+
+      Transform.inverse_xy_tup(points)		Transform.inverted().transform(points)
+
+    axes.py
+      Axes.get_position()			Axes.get_position()
+        [Axes.get_position() used to return a list of points, not it
+        returns a transforms.Bbox instance.]
+
+      Axes.set_position()			Axes.set_position()
+        [Axes.set_position() now accepts either four scalars or a
+        transforms Bbox instance.]
+
+	      					  [also returns a Bbox]
+      Axes.toggle_log_lineary()			Axes.set_yscale()
+        [Since the recfactoring allows for more than two scale types
+        ('log' or 'linear'), it no longer makes sense to have a
+        toggle.  Axes.toggle_log_lineary() has been removed.]
+
+      Axes.hlines(linestyle=)	               Axes.hlines(linestyles=)
+      Axes.vlines(linestyle=)	               Axes.vlines(linestyles=)
+        [The kwarg 'linestyle' has been replaced with 'linestyles',
+        which accepts either a single linestyle or a list of
+        linestyles to use.]
+
+      Subplot class is gone -- now there is only SubplotBase.
+
+      The Polar class has moved to projections/polar.py
+
+    artist.py
+      Artist.set_clip_path(path)		Artist.set_clip_path(path, transform)
+        [set_clip_path now accepts a path.Path instance and a
+        transformation that will be applied to the path immediately
+        before clipping.]
+
+    collections.py
+      linestyle					linestyles
+        [Linestyles are now treated like all other collection
+        attributes -- a single value or multiple values may be
+        provided.]
+
+    colors.py
+      ColorConvertor.to_rgba_list(c)		ColorConvertor.to_rgba_array(c)
+        [ColorConvertor.to_rgba_array(c) returns an Nx4 Numpy array of
+        RGBA color quadruples.]
+
+    contour.py
+      Contour._segments				Contour.get_paths()
+        [Contour.get_paths() now returns a list of path.Path instances.]
+
+    figure.py
+      Figure.dpi.get()/set()			Figure.dpi (a property)
+
+    patches.py
+      get_verts()				get_path()
+        [Patch.get_path() returns a path.Path instance.]
+
+    backend_bases.py
+      GraphicsContext.set_clip_rectangle(tuple)	GraphicsContext.set_clip_rectangle(bbox)
+
+      GraphicsContext.get_clip_path()		GraphicsContext.get_clip_path()
+        [GraphicsContext.get_clip_path() returns a tuple of the form
+        (path, affine_transform), where path is a path.Path instance
+        and affine_transform is a transforms.Affine2D instance.]
+
+      GraphicsContext.set_clip_path(clippath) 	GraphicsContext.set_clip_path(clippath)
+        [Now accepts only an instance of transforms.TransformedPath.]
+
+      RendererBase class:
+        **new methods** --->
+	  draw_path(self, gc, path, transform, rgbFace)
+
+	  draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace)
+
+	  draw_path_collection(self, master_transform, cliprect, clippath,
+                             clippath_trans, paths, all_transforms, offsets,
+                             offsetTrans, facecolors, edgecolors, linewidths,
+                             linestyles, antialiaseds) [optional]
+
+
+        **changed methods** --->
+	  draw_image(self, x, y, im, bbox)	draw_image(self, x, y, im, bbox,
+	  		      	     		           clippath, clippath_trans)
+
+	**removed methods** --->
+	        draw_arc
+		draw_line_collection
+		draw_line
+		draw_lines
+		draw_point
+		draw_quad_mesh
+		draw_poly_collection
+		draw_polygon
+		draw_rectangle
+		draw_regpoly_collection
+
+END OF TRANSFORMS REFACTORING
+
 0.91.2 Released
 
     For csv2rec, checkrows=0 is the new default indicating all rows
