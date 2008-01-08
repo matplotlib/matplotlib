@@ -1,0 +1,64 @@
+Migrating to the new matplotlib codebase
+========================================
+
+Michael Droettboom has spent the last several month working on the
+"transforms branch" of matplotlib, in which he rewrote from the ground
+up the transformation infrastructure in matplotlib, whih many found
+unintuitive and hard to extend.  In addition to a cleaner code base,
+the refactoring allows you to define your own trasformations and
+projections (eg map projections) within matplotlib.  He has merged his
+work into the HEAD of the svn trunk, and this will be the basis for
+future matplotlib releases.
+
+If you are a svn user, we encourage you to continue using the trunk as
+before, but with the understanding that you are now truly on the
+bleeding edge.  Michael has made sure all the examples still pass with
+the new code base, so for the vast majority of you, I except to see
+few problems.  But we need to get as many people as possible using the
+new code base so we can find and fix the remaining problems.  We have
+take the svn cde used in the last stable release in the 0.91 series,
+and made it a maintenance branch so we can still fix bugs and support
+people who are not ready to migrate to the new transformation
+infrastructure but nonetheless need acccess to svn bug fixes.
+
+The experimental transforms refactoring changes have been merged into
+SVN trunk.  While this version is passing all examples and unit tests,
+there may be changes that subtly break things that used to work, raise
+nasty exceptions or kill innocent puppies.  To help move matplotlib
+forward, we encourage all users who are comfortable with the bleeding
+edge to use the trunk with their own plots and report any bugs to the
+mailing list.
+
+Using the new code
+==================
+
+To check out the trunk with the latest transforms refactoring:
+
+    > svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib
+
+If you already have a working copy of the trunk, your next "svn up" will
+include the latest transforms refactoring.
+
+Using the old svn code
+======================
+
+To check out the maintenance branch, in order to commit bugfixes to 0.91.x:
+
+    > svn co  https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v0_91_maint  matplotlib_0_91_maint
+
+Any applicable bugfixes on the 0.91.x should be merged into the trunk so
+they are fixed there as well.
+
+API CHANGES in the new transformation infrastructure
+====================================================
+
+While Michael worked hard to keep the API mostly unchanged while
+performing what has been called "open heart surgery on matplotlib",
+there have been some changes, as discussed below.
+
+The primary goal of this refactoring was to make it easier to
+extend matplotlib to support new kinds of projections.  This is
+primarily an internal improvement, and the possible user-visible
+changes it allows are yet to come.
+
+These changes are detailed in the API_CHANGES document
