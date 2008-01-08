@@ -5,8 +5,8 @@ Michael Droettboom has spent the last several months working on the
 "transforms branch" of matplotlib, in which he rewrote from the ground
 up the transformation infrastructure in matplotlib, which many found
 unintuitive and hard to extend.  In addition to a cleaner code base,
-the refactoring allows you to define your own trasformations and
-projections (eg map projections) within matplotlib.  He has merged his
+the refactoring allows you to define your own transformations and
+projections (e.g. map projections) within matplotlib.  He has merged his
 work into the HEAD of the svn trunk, and this will be the basis for
 future matplotlib releases.
 
@@ -19,15 +19,7 @@ new code base so we can find and fix the remaining problems.  We have
 take the svn code used in the last stable release in the 0.91 series,
 and made it a maintenance branch so we can still fix bugs and support
 people who are not ready to migrate to the new transformation
-infrastructure but nonetheless need acccess to svn bug fixes.
-
-The experimental transforms refactoring changes have been merged into
-SVN trunk.  While this version is passing all examples and unit tests,
-there may be changes that subtly break things that used to work, raise
-nasty exceptions or kill innocent puppies.  To help move matplotlib
-forward, we encourage all users who are comfortable with the bleeding
-edge to use the trunk with their own plots and report any bugs to the
-mailing list.
+infrastructure but nonetheless need access to svn bug fixes.
 
 Using the new code
 ==================
@@ -61,4 +53,4 @@ extend matplotlib to support new kinds of projections.  This is
 primarily an internal improvement, and the possible user-visible
 changes it allows are yet to come.
 
-These changes are detailed in the API_CHANGES document
+These changes are detailed in the API_CHANGES document.
