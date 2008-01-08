@@ -13,7 +13,7 @@ N = 20
 theta = npy.arange(0.0, 2*npy.pi, 2*npy.pi/N)
 radii = 10*npy.random.rand(N)
 width = npy.pi/4*npy.random.rand(N)
-bars = ax.bar(theta, radii, width=width, bottom=0.1)
+bars = ax.bar(theta, radii, width=width, bottom=0.0)
 for r,bar in zip(radii, bars):
     bar.set_facecolor( cm.jet(r/10.))
     bar.set_alpha(0.5)

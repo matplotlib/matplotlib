@@ -9,7 +9,7 @@ pylab.scatter(x,y,s=80,marker=">")
 pylab.subplot(322)
 pylab.scatter(x,y,s=80,marker=(5,0))
 
-verts = zip([-1.,1.,1.],[-1.,-1.,1.])
+verts = zip([-1.,1.,1.,-1.],[-1.,-1.,1.,-1.])
 pylab.subplot(323)
 pylab.scatter(x,y,s=80,marker=(verts,0))
 # equivalent:

@@ -20,10 +20,11 @@ from math import ceil, cos, floor, pi, sin
 from sets import Set
 
 import matplotlib
-from matplotlib import __version__, rcParams, agg, get_data_path
+from matplotlib import __version__, rcParams, get_data_path
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
+from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict, \
     get_realpath_and_stat, is_writable_file_like, maxdict
 from matplotlib.figure import Figure
@@ -34,7 +35,8 @@ import matplotlib.dviread as dviread
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, \
     LOAD_NO_HINTING, KERNING_UNFITTED
 from matplotlib.mathtext import MathTextParser
-from matplotlib.transforms import Bbox
+from matplotlib.transforms import Bbox, BboxBase
+from matplotlib.path import Path
 from matplotlib import ttconv
 
 # Overview
@@ -169,6 +171,10 @@ def pdfRepr(obj):
         elif z < 0: r += "+%02d'%02d'" % ((-z)//3600, (-z)%3600)
         else: r += "-%02d'%02d'" % (z//3600, z%3600)
         return pdfRepr(r)
+
+    # A bounding box
+    elif isinstance(obj, BboxBase):
+        return fill([pdfRepr(val) for val in obj.bounds])
 
     else:
         raise TypeError, \
@@ -322,8 +328,9 @@ class Stream:
 class PdfFile:
     """PDF file with one page."""
 
-    def __init__(self, width, height, filename):
+    def __init__(self, width, height, dpi, filename):
         self.width, self.height = width, height
+        self.dpi = dpi
         self.nextObject = 1     # next free object id
         self.xrefTable = [ [0, 65535, 'the zero object'] ]
         self.passed_in_file_object = False
@@ -374,7 +381,7 @@ class PdfFile:
         thePage = { 'Type': Name('Page'),
                     'Parent': pagesObject,
                     'Resources': resourceObject,
-                    'MediaBox': [ 0, 0, 72*width, 72*height ],
+                    'MediaBox': [ 0, 0, dpi*width, dpi*height ],
                     'Contents': contentObject }
         self.writeObject(thePageObject, thePage)
 
@@ -392,8 +399,7 @@ class PdfFile:
         self.nextImage = 1
 
         self.markers = {}
-        self.two_byte_charprocs = {}
-        self.nextMarker = 1
+        self.multi_byte_charprocs = {}
 
         # The PDF spec recommends to include every procset
         procsets = [ Name(x)
@@ -423,9 +429,9 @@ class PdfFile:
                                for val in self.alphaStates.values()]))
         self.writeHatches()
         xobjects = dict(self.images.values())
-        for name, value in self.markers.items():
-            xobjects[name] = value[0]
-        for name, value in self.two_byte_charprocs.items():
+        for tup in self.markers.values():
+            xobjects[tup[0]] = tup[1]
+        for name, value in self.multi_byte_charprocs.items():
             xobjects[name] = value
         self.writeObject(self.XObjectObject, xobjects)
         self.writeImages()
@@ -676,12 +682,12 @@ end"""
             descriptor['MaxWidth'] = max(widths)
 
             # Make the "Differences" array, sort the ccodes < 255 from
-            # the two-byte ccodes, and build the whole set of glyph ids
+            # the multi-byte ccodes, and build the whole set of glyph ids
             # that we need from this font.
             cmap = font.get_charmap()
             glyph_ids = []
             differences = []
-            two_byte_chars = Set()
+            multi_byte_chars = Set()
             for c in characters:
                 ccode = ord(c)
                 gind = cmap.get(ccode) or 0
@@ -690,7 +696,7 @@ end"""
                 if ccode <= 255:
                     differences.append((ccode, glyph_name))
                 else:
-                    two_byte_chars.add(glyph_name)
+                    multi_byte_chars.add(glyph_name)
             differences.sort()
 
             last_c = -2
@@ -709,7 +715,7 @@ end"""
                 charprocDict = { 'Length': len(stream) }
                 # The 2-byte characters are used as XObjects, so they
                 # need extra info in their dictionary
-                if charname in two_byte_chars:
+                if charname in multi_byte_chars:
                     charprocDict['Type'] = Name('XObject')
                     charprocDict['Subtype'] = Name('Form')
                     charprocDict['BBox'] = bbox
@@ -720,9 +726,9 @@ end"""
 
                 # Send the glyphs with ccode > 255 to the XObject dictionary,
                 # and the others to the font itself
-                if charname in two_byte_chars:
+                if charname in multi_byte_chars:
                     name = self._get_xobject_symbol_name(filename, charname)
-                    self.two_byte_charprocs[name] = charprocObject
+                    self.multi_byte_charprocs[name] = charprocObject
                 else:
                     charprocs[charname] = charprocObject
 
@@ -1000,7 +1006,8 @@ end"""
         rgba = npy.fromstring(s, npy.uint8)
         rgba.shape = (h, w, 4)
         rgb = rgba[:,:,:3]
-        return h, w, rgb.tostring()
+        a = rgba[:,:,3:]
+        return h, w, rgb.tostring(), a.tostring()
 
     def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
         rgbat = im.as_rgba_str()
@@ -1018,86 +1025,94 @@ end"""
             img.flipud_out()
             if img.is_grayscale:
                 height, width, data = self._gray(img)
-                colorspace = Name('DeviceGray')
+                self.beginStream(
+                    pair[1].id,
+                    self.reserveObject('length of image stream'),
+                    {'Type': Name('XObject'), 'Subtype': Name('Image'),
+                     'Width': width, 'Height': height,
+                     'ColorSpace': Name('DeviceGray'), 'BitsPerComponent': 8 })
+                self.currentstream.write(data) # TODO: predictors (i.e., output png)
+                self.endStream()
             else:
-                height, width, data = self._rgb(img)
-                colorspace = Name('DeviceRGB')
+                height, width, data, adata = self._rgb(img)
+                smaskObject = self.reserveObject("smask")
+                stream = self.beginStream(
+                    smaskObject.id,
+                    self.reserveObject('length of smask stream'),
+                    {'Type': Name('XObject'), 'Subtype': Name('Image'),
+                     'Width': width, 'Height': height,
+                     'ColorSpace': Name('DeviceGray'), 'BitsPerComponent': 8 })
+                self.currentstream.write(adata) # TODO: predictors (i.e., output png)
+                self.endStream()
 
-            self.beginStream(
-                pair[1].id,
-                self.reserveObject('length of image stream'),
-                {'Type': Name('XObject'), 'Subtype': Name('Image'),
-                 'Width': width, 'Height': height,
-                 'ColorSpace': colorspace, 'BitsPerComponent': 8 })
-            self.currentstream.write(data) # TODO: predictors (i.e., output png)
-            self.endStream()
+                self.beginStream(
+                    pair[1].id,
+                    self.reserveObject('length of image stream'),
+                    {'Type': Name('XObject'), 'Subtype': Name('Image'),
+                     'Width': width, 'Height': height,
+                     'ColorSpace': Name('DeviceRGB'), 'BitsPerComponent': 8,
+                     'SMask': smaskObject})
+                self.currentstream.write(data) # TODO: predictors (i.e., output png)
+                self.endStream()
 
             img.flipud_out()
 
-    def markerObject(self, path, fillp, lw):
+    def markerObject(self, path, trans, fillp, lw):
         """Return name of a marker XObject representing the given path."""
-
-        name = Name('M%d' % self.nextMarker)
-        ob = self.reserveObject('marker %d' % self.nextMarker)
-        self.nextMarker += 1
-        self.markers[name] = (ob, path, fillp, lw)
+        key = (path, trans, fillp is not None, lw)
+        result = self.markers.get(key)
+        if result is None:
+            name = Name('M%d' % len(self.markers))
+            ob = self.reserveObject('marker %d' % len(self.markers))
+            self.markers[key] = (name, ob, path, trans, fillp, lw)
+        else:
+            name = result[0]
         return name
 
     def writeMarkers(self):
-        for name, tuple in self.markers.items():
-            object, path, fillp, lw = tuple
+        for tup in self.markers.values():
+            name, object, path, trans, fillp, lw = tup
+            bbox = path.get_extents(trans)
+            bbox = bbox.padded(lw * 0.5)
             self.beginStream(
                 object.id, None,
                 {'Type': Name('XObject'), 'Subtype': Name('Form'),
-                 'BBox': self.pathBbox(path, lw) })
-            self.writePath(path, fillp)
+                 'BBox': list(bbox.extents) })
+            self.writePath(path, trans)
+            if fillp:
+                self.output(Op.fill_stroke)
+            else:
+                self.output(Op.stroke)
             self.endStream()
 
     #@staticmethod
-    def pathBbox(path, lw):
-        path.rewind(0)
-        x, y = [], []
-        while True:
-            code, xp, yp = path.vertex()
-            if code & agg.path_cmd_mask in \
-                    (agg.path_cmd_move_to, agg.path_cmd_line_to):
-                x.append(xp)
-                y.append(yp)
-            elif code == agg.path_cmd_stop:
-                break
-        return min(x)-lw, min(y)-lw, max(x)+lw, max(y)+lw
-    pathBbox = staticmethod(pathBbox)
+    def pathOperations(path, transform):
+        tpath = transform.transform_path(path)
 
-    #@staticmethod
-    def pathOperations(path):
-        path.rewind(0)
-        result = []
-        while True:
-            code, x, y = path.vertex()
-            code = code & agg.path_cmd_mask
-            if code == agg.path_cmd_stop:
-                break
-            elif code == agg.path_cmd_move_to:
-                result += (x, y, Op.moveto)
-            elif code == agg.path_cmd_line_to:
-                result += (x, y, Op.lineto)
-            elif code == agg.path_cmd_curve3:
-                pass # TODO
-            elif code == agg.path_cmd_curve4:
-                pass # TODO
-            elif code == agg.path_cmd_end_poly:
-                result += (Op.closepath,)
-            else:
-                print >>sys.stderr, "pathOperations", code, xp, yp
-        return result
+        cmds = []
+        for points, code in tpath.iter_segments():
+            if code == Path.MOVETO:
+                cmds.extend(points)
+                cmds.append(Op.moveto)
+            elif code == Path.LINETO:
+                cmds.extend(points)
+                cmds.append(Op.lineto)
+            elif code == Path.CURVE3:
+                cmds.extend([points[0], points[1],
+                             points[0], points[1],
+                             points[2], points[3],
+                             Op.curveto])
+            elif code == Path.CURVE4:
+                cmds.extend(points)
+                cmds.append(Op.curveto)
+            elif code == Path.CLOSEPOLY:
+                cmds.append(Op.closepath)
+        return cmds
     pathOperations = staticmethod(pathOperations)
 
-    def writePath(self, path, fillp):
-        self.output(*self.pathOperations(path))
-        if fillp:
-            self.output(Op.fill_stroke)
-        else:
-            self.output(Op.stroke)
+    def writePath(self, path, transform):
+        cmds = self.pathOperations(path, transform)
+        self.output(*cmds)
 
     def reserveObject(self, name=''):
         """Reserve an ID for an indirect object.
@@ -1156,7 +1171,7 @@ class RendererPdf(RendererBase):
         self.gc = self.new_gc()
         self.file.used_characters = self.used_characters = {}
         self.mathtext_parser = MathTextParser("Pdf")
-        self.image_magnification = dpi/72.0
+        self.dpi = dpi
         self.tex_font_map = None
 
     def finalize(self):
@@ -1196,180 +1211,42 @@ class RendererPdf(RendererBase):
                 stat_key, (realpath, Set()))
             used_characters[1].update(set)
 
-    def draw_arc(self, gcEdge, rgbFace, x, y, width, height,
-                 angle1, angle2, rotation):
-        """
-        Draw an arc using GraphicsContext instance gcEdge, centered at x,y,
-        with width and height and angles from 0.0 to 360.0
-        0 degrees is at 3-o'clock, rotated by `rotation` degrees
-        positive angles are anti-clockwise
-
-        If the color rgbFace is not None, fill the arc with it.
-        """
-        # source: agg_bezier_arc.cpp in agg23
-
-        def arc_to_bezier(cx, cy, rx, ry, angle1, sweep, rotation):
-            halfsweep = sweep / 2.0
-            x0, y0 = cos(halfsweep), sin(halfsweep)
-            tx = (1.0 - x0) * 4.0/3.0;
-            ty = y0 - tx * x0 / y0;
-            px =  x0, x0+tx, x0+tx, x0
-            py = -y0,   -ty,    ty, y0
-            sn, cs = sin(angle1 + halfsweep), cos(angle1 + halfsweep)
-            result = [ (rx * (pxi * cs - pyi * sn),
-                        ry * (pxi * sn + pyi * cs))
-                       for pxi, pyi in zip(px, py) ]
-            result = [ (cx + cos(rotation)*x - sin(rotation)*y,
-                        cy + sin(rotation)*x + cos(rotation)*y)
-                       for x, y in result ]
-            return reduce(lambda x, y: x + y, result)
-
-        epsilon = 0.01
-        angle1 *= pi/180.0
-        angle2 *= pi/180.0
-        rotation *= pi/180.0
-        sweep = angle2 - angle1
-        angle1 = angle1 % (2*pi)
-        sweep = min(max(-2*pi, sweep), 2*pi)
-
-        if sweep < 0.0:
-            sweep, angle1, angle2 = -sweep, angle2, angle1
-        bp = [ pi/2.0 * i
-               for i in range(4)
-               if pi/2.0 * i < sweep-epsilon ]
-        bp.append(sweep)
-        subarcs = [ arc_to_bezier(x, y, width/2.0, height/2.0,
-                                  bp[i], bp[i+1]-bp[i], rotation)
-                    for i in range(len(bp)-1) ]
-
-        self.check_gc(gcEdge, rgbFace)
-        self.file.output(subarcs[0][0], subarcs[0][1], Op.moveto)
-        for arc in subarcs:
-            self.file.output(*(arc[2:] + (Op.curveto,)))
-
-        self.file.output(self.gc.close_and_paint())
-
-    def draw_path(self, gc, rgbFace, path):
-        self.check_gc(gc, rgbFace)
-
-        cmds = []
-
-        while 1:
-            code, xp, yp = path.vertex()
-
-            if code == agg.path_cmd_stop:
-                cmds.append(Op.closepath)
-                break
-            elif code == agg.path_cmd_move_to:
-                cmds.extend([xp, yp, Op.moveto])
-            elif code == agg.path_cmd_line_to:
-                cmds.extend([xp, yp, Op.lineto])
-            elif code == agg.path_cmd_curve3:
-                cmds.extend([xp, yp])
-                cmds.extend([xp, yp])
-                cmds.extend(path.vertex()[1:])
-                cmds.append(Op.curveto)
-            elif code == agg.path_cmd_curve4:
-                cmds.extend([xp, yp])
-                cmds.extend(path.vertex()[1:])
-                cmds.extend(path.vertex()[1:])
-                cmds.append(Op.curveto)
-            elif code == agg.path_cmd_end_poly:
-                cmds.append(Op.closepath)
-        self.file.output(*cmds)
-        self.file.output(self.gc.paint())
-
-    def get_image_magnification(self):
-        return self.image_magnification
-
-    def draw_image(self, x, y, im, bbox):
+    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         #print >>sys.stderr, "draw_image called"
 
+        # MGDTODO: Support clippath here
         gc = self.new_gc()
-        gc.set_clip_rectangle(bbox.get_bounds())
+        if bbox is not None:
+            gc.set_clip_rectangle(bbox)
         self.check_gc(gc)
 
         h, w = im.get_size_out()
-        h, w = h/self.image_magnification, w/self.image_magnification
         imob = self.file.imageObject(im)
         self.file.output(Op.gsave, w, 0, 0, h, x, y, Op.concat_matrix,
                          imob, Op.use_xobject, Op.grestore)
 
-    def draw_line(self, gc, x1, y1, x2, y2):
-        if npy.isnan(x1) or npy.isnan(x2) or npy.isnan(y1) or npy.isnan(y2):
-            return
-        self.check_gc(gc)
-        self.file.output(x1, y1, Op.moveto,
-                         x2, y2, Op.lineto, self.gc.paint())
-
-    def draw_lines(self, gc, x, y, transform=None):
-        self.check_gc(gc)
-        if transform is not None:
-            x, y = transform.seq_x_y(x, y)
-        nan_at = npy.isnan(x) | npy.isnan(y)
-        next_op = Op.moveto
-        for i in range(len(x)):
-            if nan_at[i]:
-                next_op = Op.moveto
-            else:
-                self.file.output(x[i], y[i], next_op)
-                next_op = Op.lineto
+    def draw_path(self, gc, path, transform, rgbFace=None):
+        self.check_gc(gc, rgbFace)
+        stream = self.file.writePath(path, transform)
         self.file.output(self.gc.paint())
 
-    def draw_point(self, gc, x, y):
-        print >>sys.stderr, "draw_point called"
-
-        self.check_gc(gc, gc._rgb)
-        self.file.output(x, y, 1, 1,
-                         Op.rectangle, Op.fill_stroke)
-
-    def draw_polygon(self, gcEdge, rgbFace, points):
-        # Optimization for axis-aligned rectangles
-        if len(points) == 4:
-            if points[0][0] == points[1][0] and points[1][1] == points[2][1] and \
-               points[2][0] == points[3][0] and points[3][1] == points[0][1]:
-                self.draw_rectangle(gcEdge, rgbFace,
-                                    min(points[0][0], points[2][0]),
-                                    min(points[1][1], points[3][1]),
-                                    abs(points[2][0] - points[0][0]),
-                                    abs(points[3][1] - points[1][1]))
-                return
-            elif points[0][1] == points[1][1] and points[1][0] == points[2][0] and \
-                 points[2][1] == points[3][1] and points[3][0] == points[0][0]:
-                self.draw_rectangle(gcEdge, rgbFace,
-                                    min(points[1][0], points[3][0]),
-                                    min(points[2][1], points[0][1]),
-                                    abs(points[1][0] - points[3][0]),
-                                    abs(points[2][1] - points[0][1]))
-                return
-
-        self.check_gc(gcEdge, rgbFace)
-        self.file.output(points[0][0], points[0][1], Op.moveto)
-        for x,y in points[1:]:
-            self.file.output(x, y, Op.lineto)
-        self.file.output(self.gc.close_and_paint())
-
-    def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
-        self.check_gc(gcEdge, rgbFace)
-        self.file.output(x, y, width, height, Op.rectangle)
-        self.file.output(self.gc.paint())
-
-    def draw_markers(self, gc, path, rgbFace, x, y, trans):
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         self.check_gc(gc, rgbFace)
         fillp = rgbFace is not None
-        marker = self.file.markerObject(path, fillp, self.gc._linewidth)
-        x, y = trans.numerix_x_y(npy.asarray(x), npy.asarray(y))
-        nan_at = npy.isnan(x) | npy.isnan(y)
 
-        self.file.output(Op.gsave)
-        ox, oy = 0, 0
-        for i in range(len(x)):
-            if nan_at[i]: continue
-            dx, dy, ox, oy = x[i]-ox, y[i]-oy, x[i], y[i]
-            self.file.output(1, 0, 0, 1, dx, dy,
-                             Op.concat_matrix,
-                             marker, Op.use_xobject)
-        self.file.output(Op.grestore)
+        output = self.file.output
+        marker = self.file.markerObject(
+            marker_path, marker_trans, fillp, self.gc._linewidth)
+        tpath = trans.transform_path(path)
+
+        output(Op.gsave)
+        lastx, lasty = 0, 0
+        for x, y in tpath.vertices:
+            dx, dy = x - lastx, y - lasty
+            output(1, 0, 0, 1, dx, dy, Op.concat_matrix,
+                   marker, Op.use_xobject)
+            lastx, lasty = x, y
+        output(Op.grestore)
 
     def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
         if angle == oldangle == 0:
@@ -1383,7 +1260,7 @@ class RendererPdf(RendererBase):
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
         width, height, descent, glyphs, rects, used_characters = \
-            self.mathtext_parser.parse(s, 72, prop)
+            self.mathtext_parser.parse(s, self.dpi, prop)
         self.merge_used_characters(used_characters)
 
         # When using Type 3 fonts, we can't use character codes higher
@@ -1411,16 +1288,18 @@ class RendererPdf(RendererBase):
                 self._setup_textpos(ox, oy, 0, oldx, oldy)
                 oldx, oldy = ox, oy
                 if (fontname, fontsize) != prev_font:
+                    fontsize *= self.dpi/72.0
                     self.file.output(self.file.fontName(fontname), fontsize,
                                      Op.selectfont)
                     prev_font = fontname, fontsize
                 self.file.output(self.encode_string(unichr(num), fonttype), Op.show)
         self.file.output(Op.end_text)
 
-        # If using Type 3 fonts, render all of the two-byte characters
+        # If using Type 3 fonts, render all of the multi-byte characters
         # as XObjects using the 'Do' command.
         if global_fonttype == 3:
             for ox, oy, fontname, fontsize, num, symbol_name in glyphs:
+                fontsize *= self.dpi/72.0
                 if is_opentype_cff_font(fontname):
                     fonttype = 42
                 else:
@@ -1449,7 +1328,7 @@ class RendererPdf(RendererBase):
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
-        dvi = dviread.Dvi(dvifile, 72)
+        dvi = dviread.Dvi(dvifile, self.dpi)
         page = iter(dvi).next()
         dvi.close()
 
@@ -1549,7 +1428,7 @@ class RendererPdf(RendererBase):
         self.check_gc(gc, gc._rgb)
         if ismath: return self.draw_mathtext(gc, x, y, s, prop, angle)
 
-        fontsize = prop.get_size_in_points()
+        fontsize = prop.get_size_in_points() * self.dpi/72.0
 
         if rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
@@ -1598,7 +1477,7 @@ class RendererPdf(RendererBase):
             """Outputs text using the simple method."""
             self.file.output(Op.begin_text,
                              self.file.fontName(prop),
-                             prop.get_size_in_points(),
+                             fontsize,
                              Op.selectfont)
             self._setup_textpos(x, y, angle)
             self.file.output(self.encode_string(s, fonttype), Op.show, Op.end_text)
@@ -1625,7 +1504,7 @@ class RendererPdf(RendererBase):
                 if mode == 1:
                     self.file.output(Op.begin_text,
                                      self.file.fontName(prop),
-                                     prop.get_size_in_points(),
+                                     fontsize,
                                      Op.selectfont)
 
                 for chunk_type, chunk in chunks:
@@ -1677,18 +1556,18 @@ class RendererPdf(RendererBase):
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             dvifile = texmanager.make_dvi(s, fontsize)
-            dvi = dviread.Dvi(dvifile, 72)
+            dvi = dviread.Dvi(dvifile, self.dpi)
             page = iter(dvi).next()
             dvi.close()
             return page.width, page.height, page.descent
         if ismath:
             w, h, d, glyphs, rects, used_characters = \
-                self.mathtext_parser.parse(s, 72, prop)
+                self.mathtext_parser.parse(s, self.dpi, prop)
 
         elif rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
             l, b, w, h, d = font.get_str_bbox_and_descent(s)
-            scale = prop.get_size_in_points() / 1000.0
+            scale = prop.get_size_in_points()
             w *= scale
             h *= scale
             d *= scale
@@ -1696,10 +1575,11 @@ class RendererPdf(RendererBase):
             font = self._get_font_ttf(prop)
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
             w, h = font.get_width_height()
-            w /= 64.0
-            h /= 64.0
+            scale = (1.0 / 64.0)
+            w *= scale
+            h *= scale
             d = font.get_descent()
-            d /= 64.0
+            d *= scale
         return w, h, d
 
     def _get_font_afm(self, prop):
@@ -1727,14 +1607,14 @@ class RendererPdf(RendererBase):
                 self.truetype_font_cache[filename] = font
             self.truetype_font_cache[key] = font
         font.clear()
-        font.set_size(prop.get_size_in_points(), 72.0)
+        font.set_size(prop.get_size_in_points(), self.dpi)
         return font
 
     def flipy(self):
         return False
 
     def get_canvas_width_height(self):
-        return self.file.width / 72.0, self.file.height / 72.0
+        return self.file.width / self.dpi, self.file.height / self.dpi
 
     def new_gc(self):
         return GraphicsContextPdf(self.file)
@@ -1755,10 +1635,12 @@ class GraphicsContextPdf(GraphicsContextBase):
         return `d`
 
     def _strokep(self):
-        return self._linewidth > 0 and self._alpha > 0
+        return (self._linewidth > 0 and self._alpha > 0 and
+                (len(self._rgb) <= 3 or self._rgb[3] != 0.0))
 
     def _fillp(self):
-        return self._fillcolor is not None or self._hatch
+        return ((self._fillcolor is not None or self._hatch) and
+                (len(self._fillcolor) <= 3 or self._fillcolor[3] != 0.0))
 
     def close_and_paint(self):
         if self._strokep():
@@ -1809,7 +1691,7 @@ class GraphicsContextPdf(GraphicsContextBase):
 
     def hatch_cmd(self, hatch):
         if not hatch:
-            if self._fillcolor:
+            if self._fillcolor is not None:
                 return self.fillcolor_cmd(self._fillcolor)
             else:
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
@@ -1831,7 +1713,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         if rgb[0] == rgb[1] == rgb[2]:
             return [rgb[0], Op.setgray_stroke]
         else:
-            return list(rgb) + [Op.setrgb_stroke]
+            return list(rgb[:3]) + [Op.setrgb_stroke]
 
     def fillcolor_cmd(self, rgb):
         if rgb is None or rcParams['pdf.inheritcolor']:
@@ -1839,7 +1721,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         elif rgb[0] == rgb[1] == rgb[2]:
             return [rgb[0], Op.setgray_nonstroke]
         else:
-            return list(rgb) + [Op.setrgb_nonstroke]
+            return list(rgb[:3]) + [Op.setrgb_nonstroke]
 
     def push(self):
         parent = GraphicsContextPdf(self.file)
@@ -1865,11 +1747,12 @@ class GraphicsContextPdf(GraphicsContextBase):
         if (self._cliprect, self._clippath) != (cliprect, clippath):
             cmds.extend(self.push())
             if self._cliprect != cliprect:
-                cmds.extend([t for t in cliprect] +
-                            [Op.rectangle, Op.clip, Op.endpath])
+                cmds.extend([cliprect, Op.rectangle, Op.clip, Op.endpath])
             if self._clippath != clippath:
-                cmds.extend(PdfFile.pathOperations(clippath) +
-                            [Op.clip, Op.endpath])
+                cmds.extend(
+                    PdfFile.pathOperations(
+                        *clippath.get_transformed_path_and_affine()) +
+                    [Op.clip, Op.endpath])
         return cmds
 
     commands = (
@@ -1893,9 +1776,21 @@ class GraphicsContextPdf(GraphicsContextBase):
         """
         cmds = []
         for params, cmd in self.commands:
-            ours = [ getattr(self, p) for p in params ]
-            theirs = [ getattr(other, p) for p in params ]
-            if ours != theirs:
+            different = False
+            for p in params:
+                ours = getattr(self, p)
+                theirs = getattr(other, p)
+                try:
+                    different = bool(ours != theirs)
+                except ValueError:
+                    ours = npy.asarray(ours)
+                    theirs = npy.asarray(theirs)
+                    different = ours.shape != theirs.shape or npy.any(ours != theirs)
+                if different:
+                    break
+
+            if different:
+                theirs = [getattr(other, p) for p in params]
                 cmds.extend(cmd(self, *theirs))
                 for p in params:
                     setattr(self, p, getattr(other, p))
@@ -1959,11 +1854,12 @@ class FigureCanvasPdf(FigureCanvasBase):
         return 'pdf'
 
     def print_pdf(self, filename, **kwargs):
-        dpi = kwargs.get('dpi', None)
-        self.figure.set_dpi(72) # Override the dpi kwarg
+        dpi = kwargs.get('dpi', 72)
+        self.figure.set_dpi(dpi) # Override the dpi kwarg
         width, height = self.figure.get_size_inches()
-        file = PdfFile(width, height, filename)
-        renderer = RendererPdf(file, dpi)
+        file = PdfFile(width, height, dpi, filename)
+        renderer = MixedModeRenderer(
+            width, height, dpi, RendererPdf(file, dpi))
         self.figure.draw(renderer)
         renderer.finalize()
         file.close()

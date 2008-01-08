@@ -11,7 +11,6 @@ array
 """
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
-from matplotlib.axes import Subplot
 from matplotlib.mlab import normpdf
 from numpy.random import randn
 import numpy
@@ -45,7 +44,7 @@ s = canvas.tostring_rgb()  # save this and convert to bitmap as needed
 
 # get the figure dimensions for creating bitmaps or numpy arrays,
 # etc.
-l,b,w,h = fig.bbox.get_bounds()
+l,b,w,h = fig.bbox.bounds
 w, h = int(w), int(h)
 
 if 0:

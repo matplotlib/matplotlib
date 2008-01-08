@@ -18,8 +18,8 @@ Author : Michael Droettboom <mdroe@stsci.edu>
 License   : matplotlib license (PSF compatible)
 """
 import re
-from matplotlib.pyparsing import Literal, OneOrMore, ZeroOrMore, Optional, Regex, \
-    StringEnd, ParseException, Suppress
+from matplotlib.pyparsing import Literal, ZeroOrMore, \
+    Optional, Regex, StringEnd, ParseException, Suppress
 
 family_punc = r'\\\-:,'
 family_unescape = re.compile(r'\\([%s])' % family_punc).sub
@@ -35,7 +35,7 @@ class FontconfigPatternParser:
     See here for a rough specification of these patterns:
     http://www.fontconfig.org/fontconfig-user.html
     """
-    
+
 
     _constants = {
         'thin'           : ('weight', 'light'),
@@ -63,12 +63,12 @@ class FontconfigPatternParser:
         'extraexpanded'  : ('width', 'extra-expanded'),
         'ultraexpanded'  : ('width', 'ultra-expanded')
         }
-    
+
     def __init__(self):
         family      = Regex(r'([^%s]|(\\[%s]))*' %
                             (family_punc, family_punc)) \
                       .setParseAction(self._family)
-        size        = Regex(r'[0-9.]+') \
+        size        = Regex(r"([0-9]+\.?[0-9]*|\.[0-9]+)") \
                       .setParseAction(self._size)
         name        = Regex(r'[a-z]+') \
                       .setParseAction(self._name)
@@ -79,7 +79,7 @@ class FontconfigPatternParser:
         families    =(family
                     + ZeroOrMore(
                         Literal(',')
-                      + family)  
+                      + family)
                     ).setParseAction(self._families)
 
         point_sizes =(size
@@ -118,10 +118,10 @@ class FontconfigPatternParser:
             self._parser.parseString(pattern)
         except self.ParseException, e:
             raise ValueError("Could not parse font string: '%s'\n%s" % (pattern, e))
-            
+
         self._properties = None
         return props
-        
+
     def _family(self, s, loc, tokens):
         return [family_unescape(r'\1', tokens[0])]
 
@@ -141,7 +141,7 @@ class FontconfigPatternParser:
     def _point_sizes(self, s, loc, tokens):
         self._properties['size'] = tokens
         return []
-        
+
     def _property(self, s, loc, tokens):
         if len(tokens) == 1:
             if tokens[0] in self._constants:

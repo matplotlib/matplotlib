@@ -62,7 +62,6 @@ from matplotlib.backends.backend_wx import FigureCanvasWx,\
      FigureManager, NavigationToolbar2Wx
 
 from matplotlib.figure import Figure
-from matplotlib.axes import Subplot
 import  numpy
 from wx import *
 

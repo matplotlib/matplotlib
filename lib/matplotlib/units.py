@@ -43,7 +43,6 @@ datetime objects
     units.registry[datetime.date] = DateConverter()
 
 """
-import matplotlib
 from matplotlib.cbook import iterable, is_numlike
 
 class AxisInfo:

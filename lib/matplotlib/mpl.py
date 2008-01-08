@@ -1,5 +1,4 @@
 from matplotlib import artist
-from matplotlib import agg
 from matplotlib import axis
 from matplotlib import axes
 from matplotlib import cbook

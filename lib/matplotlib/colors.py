@@ -34,7 +34,6 @@ Finally, legal html names for colors, like 'red', 'burlywood' and
 'chartreuse' are supported.
 """
 import re
-import warnings
 import numpy as npy
 import matplotlib.numerix.npyma as ma
 import matplotlib.cbook as cbook
@@ -308,24 +307,26 @@ class ColorConverter:
         except (TypeError, ValueError), exc:
             raise ValueError('to_rgba: Invalid rgba arg "%s"\n%s' % (str(arg), exc))
 
-    def to_rgba_list(self, c, alpha=None):
+    def to_rgba_array(self, c, alpha=None):
         """
-        Returns a list of rgba tuples.
+        Returns an Numpy array of rgba tuples.
 
         Accepts a single mpl color spec or a sequence of specs.
-        If the sequence is a list, the list items are changed in place.
+        If the sequence is a list or array, the items are changed in place,
+        but an array copy is still returned.
         """
         try:
-            return [self.to_rgba(c, alpha)]
+            result = [self.to_rgba(c, alpha)]
         except ValueError:
             # If c is a list it must be maintained as the same list
             # with modified items so that items can be appended to
             # it. This is needed for examples/dynamic_collections.py.
-            if not isinstance(c, list): # specific; don't need duck-typing
+            if not isinstance(c, (list, npy.ndarray)): # specific; don't need duck-typing
                 c = list(c)
             for i, cc in enumerate(c):
                 c[i] = self.to_rgba(cc, alpha)  # change in place
-            return c
+            result = c
+        return npy.asarray(result, npy.float_)
 
 colorConverter = ColorConverter()
 

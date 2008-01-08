@@ -23,7 +23,7 @@ ax.set_ylim((amin(amin(ys)),amax(amax(ys))))
 # See matplotlib.collections.LineCollection for more information
 line_segments = LineCollection([zip(x,y) for y in ys], # Make a sequence of x,y pairs
                                 linewidths    = (0.5,1,1.5,2),
-                                linestyle = 'solid')
+                                linestyles = 'solid')
 line_segments.set_array(x)
 ax.add_collection(line_segments)
 fig = gcf()

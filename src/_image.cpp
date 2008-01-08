@@ -10,20 +10,22 @@
 #define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
 
+#include "agg_color_rgba.h"
+#include "agg_conv_transform.h"
+#include "agg_image_accessors.h"
+#include "agg_path_storage.h"
 #include "agg_pixfmt_rgb.h"
 #include "agg_pixfmt_rgba.h"
-#include "agg_color_rgba.h"
-#include "agg_rendering_buffer.h"
 #include "agg_rasterizer_scanline_aa.h"
+#include "agg_renderer_scanline.h"
+#include "agg_rendering_buffer.h"
 #include "agg_scanline_bin.h"
-#include "agg_path_storage.h"
-#include "agg_conv_transform.h"
+#include "agg_scanline_bin.h"
+#include "agg_scanline_u.h"
+#include "agg_span_allocator.h"
 #include "agg_span_image_filter_rgb.h"
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
-#include "agg_scanline_bin.h"
-#include "agg_scanline_u.h"
-#include "agg_renderer_scanline.h"
 #include "util/agg_color_conv_rgb8.h"
 #include "_image.h"
 #include "mplutils.h"
@@ -363,14 +365,12 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   imageMatrix.invert();
   interpolator_type interpolator(imageMatrix);
 
-  agg::span_allocator<agg::rgba8> sa;
+  typedef agg::span_allocator<agg::rgba8> span_alloc_type;
+  span_alloc_type sa;
   agg::rgba8 background(agg::rgba8(int(255*bg.r),
 				   int(255*bg.g),
 				   int(255*bg.b),
 				   int(255*bg.a)));
-
-
-
 
   // the image path
   agg::path_storage path;
@@ -379,56 +379,10 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
 
   double x0, y0, x1, y1;
 
-  if (interpolation==NEAREST) {
-    x0 = 0.0;
-    x1 = colsIn;
-    y0 = 0.0;
-    y1 = rowsIn;
-  }
-  else {
-    // if interpolation != nearest, create a new input buffer with the
-    // edges mirrored on all size.  Then new buffer size is colsIn+2 by
-    // rowsIn+2
-
-    x0 = 1.0;
-    x1 = colsIn+1;
-    y0 = 1.0;
-    y1 = rowsIn+1;
-
-
-    bufferPad = new agg::int8u[(rowsIn+2) * (colsIn+2) * BPP];
-    if (bufferPad ==NULL)
-      throw Py::MemoryError("Image::resize could not allocate memory");
-    rbufPad.attach(bufferPad, colsIn+2, rowsIn+2, (colsIn+2) * BPP);
-
-    pixfmt pixfpad(rbufPad);
-    renderer_base rbpad(pixfpad);
-
-    pixfmt pixfin(*rbufIn);
-    renderer_base rbin(pixfin);
-
-    rbpad.copy_from(*rbufIn, 0, 1, 1);
-
-    agg::rect_base<int> firstrow(0, 0, colsIn-1, 0);
-    rbpad.copy_from(*rbufIn, &firstrow, 1, 0);
-
-    agg::rect_base<int> lastrow(0, rowsIn-1, colsIn-1, rowsIn-1);
-    rbpad.copy_from(*rbufIn, &lastrow, 1, 2);
-
-    agg::rect_base<int> firstcol(0, 0, 0, rowsIn-1);
-    rbpad.copy_from(*rbufIn, &firstcol, 0, 1);
-
-    agg::rect_base<int> lastcol(colsIn-1, 0, colsIn-1, rowsIn-1);
-    rbpad.copy_from(*rbufIn, &lastcol, 2, 1);
-
-    rbpad.copy_pixel(0, 0, rbin.pixel(0,0) );
-    rbpad.copy_pixel(0, colsIn+1, rbin.pixel(0,colsIn-1) );
-    rbpad.copy_pixel(rowsIn+1, 0, rbin.pixel(rowsIn-1,0) );
-    rbpad.copy_pixel(rowsIn+1, colsIn+1, rbin.pixel(rowsIn-1,colsIn-1) );
-
-
-  }
-
+  x0 = 0.0;
+  x1 = colsIn;
+  y0 = 0.0;
+  y1 = rowsIn;
 
   path.move_to(x0, y0);
   path.line_to(x1, y0);
@@ -438,16 +392,20 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   agg::conv_transform<agg::path_storage> imageBox(path, srcMatrix);
   ras.add_path(imageBox);
 
+  typedef agg::wrap_mode_reflect reflect_type;
+  typedef agg::image_accessor_wrap<pixfmt, reflect_type, reflect_type> img_accessor_type;
+
+  pixfmt pixfmtin(*rbufIn);
+  img_accessor_type ia(pixfmtin);
   switch(interpolation)
     {
 
     case NEAREST:
       {
-	typedef agg::span_image_filter_rgba_nn<agg::rgba8,agg::order_rgba, interpolator_type> span_gen_type;
-	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-
-	span_gen_type sg(sa, *rbufIn, background, interpolator);
-	renderer_type ri(rb, sg);
+	typedef agg::span_image_filter_rgba_nn<img_accessor_type, interpolator_type> span_gen_type;
+	typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+	span_gen_type sg(ia, interpolator);
+	renderer_type ri(rb, sa, sg);
 	agg::render_scanlines(ras, sl, ri);
       }
       break;
@@ -488,14 +446,11 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
                 case LANCZOS: filter.calculate(agg::image_filter_lanczos(radius), norm); break;
                 case BLACKMAN: filter.calculate(agg::image_filter_blackman(radius), norm); break;
                 }
-
-	typedef agg::span_image_filter_rgba<agg::rgba8, agg::order_rgba,
-	  interpolator_type> span_gen_type;
-	typedef agg::renderer_scanline_aa<renderer_base, span_gen_type> renderer_type;
-	span_gen_type sg(sa, rbufPad, background, interpolator, filter);
-	renderer_type ri(rb, sg);
+	typedef agg::span_image_filter_rgba_2x2<img_accessor_type, interpolator_type> span_gen_type;
+	typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+	span_gen_type sg(ia, interpolator, filter);
+	renderer_type ri(rb, sa, sg);
 	agg::render_scanlines(ras, sl, ri);
-
       }
       break;
 
@@ -620,7 +575,25 @@ Image::set_interpolation(const Py::Tuple& args) {
 
 }
 
+static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t length) {
+  PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
+  PyObject* write_method = PyObject_GetAttrString(py_file_obj, "write");
+  PyObject* result = NULL;
+  if (write_method)
+    result = PyObject_CallFunction(write_method, "s#", data, length);
+  Py_XDECREF(write_method);
+  Py_XDECREF(result);
+}
 
+static void flush_png_data(png_structp png_ptr) {
+  PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
+  PyObject* flush_method = PyObject_GetAttrString(py_file_obj, "flush");
+  PyObject* result = NULL;
+  if (flush_method)
+    result = PyObject_CallFunction(flush_method, "");
+  Py_XDECREF(flush_method);
+  Py_XDECREF(result);
+}
 
 // this code is heavily adapted from the paint license, which is in
 // the file paint.license (BSD compatible) included in this
@@ -638,79 +611,90 @@ Image::write_png(const Py::Tuple& args)
 
   args.verify_length(1);
 
-  std::pair<agg::int8u*,bool> bufpair = _get_output_buffer();
+  FILE *fp = NULL;
+  Py::Object py_fileobj = Py::Object(args[0]);
+  if (py_fileobj.isString()) {
+    std::string fileName = Py::String(py_fileobj);
+    const char *file_name = fileName.c_str();
+    if ((fp = fopen(file_name, "wb")) == NULL)
+      throw Py::RuntimeError( Printf("Could not open file %s", file_name).str() );
+  }
+  else {
+    PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(), "write");
+    if (!(write_method && PyCallable_Check(write_method))) {
+      Py_XDECREF(write_method);
+      throw Py::TypeError("Object does not appear to be a path or a Python file-like object");
+    }
+    Py_XDECREF(write_method);
+  }
 
-  std::string fileName = Py::String(args[0]);
-  const char *file_name = fileName.c_str();
-  FILE *fp;
   png_structp png_ptr;
   png_infop info_ptr;
-  struct        png_color_8_struct sig_bit;
+  struct png_color_8_struct sig_bit;
   png_uint_32 row=0;
 
   //todo: allocate on heap
-  png_bytep *row_pointers = new png_bytep[rowsOut];
+  png_bytep *row_pointers = NULL;
+  std::pair<agg::int8u*,bool> bufpair;
+  bufpair.first = NULL;
+  bufpair.second = false;
 
-  for (row = 0; row < rowsOut; ++row)
-    row_pointers[row] = bufpair.first + row * colsOut * 4;
+  try {
+    row_pointers = new png_bytep[rowsOut];
+    if (!row_pointers)
+      throw Py::RuntimeError("Out of memory");
 
-  fp = fopen(file_name, "wb");
-  if (fp == NULL) {
+    bufpair = _get_output_buffer();
+    for (row = 0; row < rowsOut; ++row)
+      row_pointers[row] = bufpair.first + row * colsOut * 4;
+
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (png_ptr == NULL)
+      throw Py::RuntimeError("Could not create write struct");
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == NULL)
+      throw Py::RuntimeError("Could not create info struct");
+
+    if (setjmp(png_ptr->jmpbuf))
+      throw Py::RuntimeError("Error building image");
+
+    if (fp) {
+      png_init_io(png_ptr, fp);
+    } else {
+      png_set_write_fn(png_ptr, (void*)py_fileobj.ptr(),
+		       &write_png_data, &flush_png_data);
+    }
+    png_set_IHDR(png_ptr, info_ptr,
+                 colsOut, rowsOut, 8,
+                 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+    // this a a color image!
+    sig_bit.gray = 0;
+    sig_bit.red = 8;
+    sig_bit.green = 8;
+    sig_bit.blue = 8;
+    /* if the image has an alpha channel then */
+    sig_bit.alpha = 8;
+    png_set_sBIT(png_ptr, info_ptr, &sig_bit);
+
+    png_write_info(png_ptr, info_ptr);
+    png_write_image(png_ptr, row_pointers);
+    png_write_end(png_ptr, info_ptr);
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+  } catch (...) {
     if (bufpair.second) delete [] bufpair.first;
-    delete [] row_pointers;
-    throw Py::RuntimeError(Printf("Could not open file %s", file_name).str());
-  }
-
-
-  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-  if (png_ptr == NULL) {
-    if (bufpair.second) delete [] bufpair.first;
-    fclose(fp);
-    delete [] row_pointers;
-    throw Py::RuntimeError("Could not create write struct");
-  }
-
-  info_ptr = png_create_info_struct(png_ptr);
-  if (info_ptr == NULL) {
-    if (bufpair.second) delete [] bufpair.first;
-    fclose(fp);
+    if (fp) fclose(fp);
     png_destroy_write_struct(&png_ptr, &info_ptr);
     delete [] row_pointers;
-    throw Py::RuntimeError("Could not create info struct");
+    throw;
   }
 
-  if (setjmp(png_ptr->jmpbuf)) {
-    if (bufpair.second) delete [] bufpair.first;
-    fclose(fp);
-    png_destroy_write_struct(&png_ptr, &info_ptr);
-    delete [] row_pointers;
-    throw Py::RuntimeError("Error building image");
-  }
-
-  png_init_io(png_ptr, fp);
-  png_set_IHDR(png_ptr, info_ptr,
-	       colsOut, rowsOut, 8,
-	       PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
-	       PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-  // this a a color image!
-  sig_bit.gray = 0;
-  sig_bit.red = 8;
-  sig_bit.green = 8;
-  sig_bit.blue = 8;
-  /* if the image has an alpha channel then */
-  sig_bit.alpha = 8;
-  png_set_sBIT(png_ptr, info_ptr, &sig_bit);
-
-  png_write_info(png_ptr, info_ptr);
-  png_write_image(png_ptr, row_pointers);
-  png_write_end(png_ptr, info_ptr);
-  png_destroy_write_struct(&png_ptr, &info_ptr);
-  fclose(fp);
-
+  if (fp) fclose(fp);
   delete [] row_pointers;
-
   if (bufpair.second) delete [] bufpair.first;
+
   return Py::Object();
 }
 

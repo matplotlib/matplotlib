@@ -46,9 +46,9 @@
 
 #include "agg_basics.h"
 #include "_backend_agg.h"
-#include "_transforms.h"
 #include "agg_pixfmt_rgba.h"
 #include "util/agg_color_conv_rgb8.h"
+#include "agg_py_transforms.h"
 
 #include <wx/image.h>
 #include <wx/bitmap.h>
@@ -56,8 +56,8 @@
 
 
 // forward declarations
-static wxImage  *convert_agg2image(RendererAgg *aggRenderer, Bbox *clipbox);
-static wxBitmap *convert_agg2bitmap(RendererAgg *aggRenderer, Bbox *clipbox);
+static wxImage  *convert_agg2image(RendererAgg *aggRenderer, Py::Object clipbox);
+static wxBitmap *convert_agg2bitmap(RendererAgg *aggRenderer, Py::Object clipbox);
 
 
 // the extension module
@@ -94,9 +94,7 @@ private:
     RendererAgg* aggRenderer = static_cast<RendererAgg*>(
         args[0].getAttr("_renderer").ptr());
 
-    Bbox *clipbox = NULL;
-    if (args[1].ptr() != Py_None)
-        clipbox = static_cast<Bbox*>(args[1].ptr());
+    Py::Object clipbox = args[1];
 
     // convert the buffer
     wxImage *image = convert_agg2image(aggRenderer, clipbox);
@@ -118,9 +116,7 @@ private:
     RendererAgg* aggRenderer = static_cast<RendererAgg*>(
        args[0].getAttr("_renderer").ptr());
 
-    Bbox *clipbox = NULL;
-    if (args[1].ptr() != Py_None)
-        clipbox = static_cast<Bbox*>(args[1].ptr());
+    Py::Object clipbox = args[1];
 
     // convert the buffer
     wxBitmap *bitmap = convert_agg2bitmap(aggRenderer, clipbox);
@@ -141,7 +137,7 @@ private:
 // Implementation Functions
 //
 
-static wxImage *convert_agg2image(RendererAgg *aggRenderer, Bbox *clipbox)
+static wxImage *convert_agg2image(RendererAgg *aggRenderer, Py::Object clipbox)
 {
     int srcWidth  = 1;
     int srcHeight = 1;
@@ -150,7 +146,9 @@ static wxImage *convert_agg2image(RendererAgg *aggRenderer, Bbox *clipbox)
     bool deleteSrcBuffer = false;
     agg::int8u *srcBuffer = NULL;
 
-    if (clipbox == NULL) {
+    double l, b, r, t;
+
+    if (!py_convert_bbox(clipbox.ptr(), l, b, r, t)) {
         // Convert everything: rgba => rgb -> image
         srcBuffer = aggRenderer->pixBuffer;
         srcWidth  = (int) aggRenderer->get_width();
@@ -158,11 +156,6 @@ static wxImage *convert_agg2image(RendererAgg *aggRenderer, Bbox *clipbox)
         srcStride = (int) aggRenderer->get_width()*4;
     } else {
         // Convert a region: rgba => clipped rgba => rgb -> image
-        double l = clipbox->ll_api()->x_api()->val() ;
-        double b = clipbox->ll_api()->y_api()->val();
-        double r = clipbox->ur_api()->x_api()->val() ;
-        double t = clipbox->ur_api()->y_api()->val() ;
-
         srcWidth = (int) (r-l);
         srcHeight = (int) (t-b);
         srcStride = srcWidth*4;
@@ -230,7 +223,7 @@ static wxImage *convert_agg2image(RendererAgg *aggRenderer, Bbox *clipbox)
 }
 
 
-static wxBitmap *convert_agg2bitmap(RendererAgg *aggRenderer, Bbox *clipbox)
+static wxBitmap *convert_agg2bitmap(RendererAgg *aggRenderer, Py::Object clipbox)
 {
     // Convert everything: rgba => rgb -> image => bitmap
     // Convert a region:   rgba => clipped rgba => rgb -> image => bitmap

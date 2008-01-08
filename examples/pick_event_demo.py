@@ -95,7 +95,7 @@ if 1: # simple picking, lines, rectangles and text
             print 'onpick1 line:', zip(npy.take(xdata, ind), npy.take(ydata, ind))
         elif isinstance(event.artist, Rectangle):
             patch = event.artist
-            print 'onpick1 patch:', patch.get_verts()
+            print 'onpick1 patch:', patch.get_path()
         elif isinstance(event.artist, Text):
             text = event.artist
             print 'onpick1 text:', text.get_text()

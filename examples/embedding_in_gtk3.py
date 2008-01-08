@@ -5,7 +5,6 @@ demonstrate adding a FigureCanvasGTK/GTKAgg widget to a gtk.ScrolledWindow
 
 import gtk
 
-from matplotlib.axes import Subplot
 from matplotlib.figure import Figure
 from numpy import arange, sin, pi
 

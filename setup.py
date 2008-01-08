@@ -8,10 +8,9 @@ setup.cfg.template for more information.
 """
 
 # This dict will be updated as we try to select the best option during
-# the build process. However, values in setup.cfg will be used, if 
+# the build process. However, values in setup.cfg will be used, if
 # defined.
 rc = {'backend':'Agg', 'numerix':'numpy'}
-
 
 # BEFORE importing disutils, remove MANIFEST. distutils doesn't properly
 # update it when the contents of directories change.
@@ -36,12 +35,12 @@ directory.""")
 
 if major==2 and minor1<3 or major<2:
     raise SystemExit("""matplotlib requires Python 2.3 or later.""")
-    
+
 import glob
 from distutils.core import setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
-     build_ft2font, build_image, build_windowing, build_transforms, \
-     build_contour, build_nxutils, build_traits, build_swigagg, build_gdk, \
+     build_ft2font, build_image, build_windowing, build_path, \
+     build_contour, build_nxutils, build_traits, build_gdk, \
      build_subprocess, build_ttconv, print_line, print_status, print_message, \
      print_raw, check_for_freetype, check_for_libpng, check_for_gtk, \
      check_for_tk, check_for_wx, check_for_numpy, check_for_qt, check_for_qt4, \
@@ -55,6 +54,7 @@ from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
 packages = [
     'matplotlib',
     'matplotlib.backends',
+    'matplotlib.projections',
     'matplotlib.toolkits',
     'matplotlib.numerix',
     'matplotlib.numerix.mlab',
@@ -112,7 +112,7 @@ if havesubprocess and sys.version < '2.4':
     subprocess_dir = os.path.dirname(subprocess.__file__)
     if subprocess_dir.endswith('.egg/subprocess'):
         havesubprocess = False
-        
+
 if not havesubprocess:
     packages.append('subprocess')
     if sys.platform == 'win32':
@@ -120,14 +120,12 @@ if not havesubprocess:
 
 if not check_for_freetype():
     sys.exit(1)
-    
+
 build_ft2font(ext_modules, packages)
 build_ttconv(ext_modules, packages)
 build_contour(ext_modules, packages)
 build_nxutils(ext_modules, packages)
-
-build_swigagg(ext_modules, packages)
-build_transforms(ext_modules, packages)
+build_path(ext_modules, packages)
 
 print_raw("")
 print_raw("OPTIONAL BACKEND DEPENDENCIES")
@@ -145,7 +143,7 @@ if options['build_windowing'] and sys.platform=='win32':
    build_windowing(ext_modules, packages)
 
 # the options can be True, False, or 'auto'. If True, try to build
-# regardless of the lack of dependencies. If auto, silently skip 
+# regardless of the lack of dependencies. If auto, silently skip
 # when dependencies are missing.
 if options['build_tkagg']:
     if check_for_tk() or (options['build_tkagg'] is True):
@@ -188,12 +186,12 @@ provide_pytz = check_provide_pytz(hasdatetime)
 
 if hasdatetime: # dates require python23 datetime
     # only install pytz and dateutil if the user hasn't got them
-    
+
     def add_pytz():
         packages.append('pytz')
         resources = ['zone.tab', 'locales/pytz.pot']
         # install pytz subdirs
-        for dirpath, dirname, filenames in os.walk(os.path.join('lib', 'pytz', 
+        for dirpath, dirname, filenames in os.walk(os.path.join('lib', 'pytz',
                                                                 'zoneinfo')):
             if '.svn' not in dirpath:
                 # remove the 'lib/pytz' part of the path

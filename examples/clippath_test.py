@@ -14,14 +14,13 @@ class ClipWindow:
         self.poly = RegularPolygon(
             (200, 200), numVertices=10, radius=100,
             facecolor='yellow', alpha=0.25,
-            transform=transforms.identity_transform())
+            transform=transforms.IdentityTransform())
 
         ax.add_patch(self.poly)
         self.canvas.mpl_connect('button_press_event', self.onpress)
         self.canvas.mpl_connect('button_release_event', self.onrelease)
         self.canvas.mpl_connect('motion_notify_event', self.onmove)
         self.x, self.y = None, None
-
 
     def onpress(self, event):
         self.x, self.y = event.x, event.y
@@ -43,17 +42,7 @@ class ClipWindow:
         self._clip()
 
     def _clip(self):
-        fig = self.ax.figure
-        l,b,w,h = fig.bbox.get_bounds()
-        path = agg.path_storage()
-
-        for i, xy in enumerate(self.poly.get_verts()):
-            x,y = xy
-            y = h-y
-            if i==0: path.move_to(x,y)
-            else:    path.line_to(x,y)
-        path.close_polygon()
-        self.line.set_clip_path(path)
+        self.line.set_clip_path(self.poly.get_path(), self.poly.get_transform())
         self.canvas.draw_idle()
 
 

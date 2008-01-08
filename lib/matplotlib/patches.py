@@ -6,13 +6,9 @@ import numpy as npy
 import matplotlib.cbook as cbook
 import matplotlib.artist as artist
 import matplotlib.colors as colors
-import matplotlib.lines as lines
 import matplotlib.transforms as transforms
-import matplotlib.nxutils as nxutils
-import matplotlib.mlab as mlab
 import matplotlib.artist as artist
-from matplotlib import transforms as mtrans
-import agg
+from matplotlib.path import Path
 
 # these are not available for the object inspector until after the
 # class is build so we define an initial set here for the init
@@ -73,6 +69,7 @@ class Patch(artist.Artist):
         self._linewidth = linewidth
         self._antialiased = antialiased
         self._hatch = hatch
+        self._combined_transform = transforms.IdentityTransform()
         self.fill = fill
 
         if len(kwargs): artist.setp(self, **kwargs)
@@ -85,17 +82,15 @@ class Patch(artist.Artist):
 
         Returns T/F, {}
         """
-        if callable(self._contains): return self._contains(self,mouseevent)
+	# This is a general version of contains that should work on any
+        # patch with a path.  However, patches that have a faster
+        # algebraic solution to hit-testing should override this
+        # method.
+	if callable(self._contains): return self._contains(self,mouseevent)
 
-        try:
-            # TODO: make this consistent with patch collection algorithm
-            x, y = self.get_transform().inverse_xy_tup((mouseevent.x, mouseevent.y))
-            xyverts = self.get_verts()
-            inside = nxutils.pnpoly(x, y, xyverts)
-            #print str(self),"%g,%g is in"%(x,y),xyverts,inside
-            return inside,{}
-        except ValueError:
-            return False,{}
+        inside = self.get_path().contains_point(
+            (mouseevent.x, mouseevent.y), self.get_transform())
+        return inside, {}
 
     def update_from(self, other):
         artist.Artist.update_from(self, other)
@@ -104,10 +99,26 @@ class Patch(artist.Artist):
         self.set_fill(other.get_fill())
         self.set_hatch(other.get_hatch())
         self.set_linewidth(other.get_linewidth())
-        self.set_transform(other.get_transform())
+        self.set_transform(other.get_data_transform())
         self.set_figure(other.get_figure())
         self.set_alpha(other.get_alpha())
 
+    def get_extents(self):
+        return self.get_path().get_extents(self.get_transform())
+
+    def get_transform(self):
+        return self._combined_transform
+
+    def set_transform(self, t):
+        artist.Artist.set_transform(self, t)
+        self._combined_transform = self.get_patch_transform() + \
+            artist.Artist.get_transform(self)
+
+    def get_data_transform(self):
+        return artist.Artist.get_transform(self)
+
+    def get_patch_transform(self):
+        return transforms.IdentityTransform()
 
     def get_antialiased(self):
         return self._antialiased
@@ -219,26 +230,24 @@ class Patch(artist.Artist):
         if self._hatch:
             gc.set_hatch(self._hatch )
 
-        verts = self.get_verts()
-        tverts = self.get_transform().seq_xy_tups(verts)
+        path = self.get_path()
+        transform = self.get_transform()
+        tpath = transform.transform_path_non_affine(path)
+        affine = transform.get_affine()
 
-        renderer.draw_polygon(gc, rgbFace, tverts)
-
+        renderer.draw_path(gc, tpath, affine, rgbFace)
 
         #renderer.close_group('patch')
 
-    def get_verts(self):
+    def get_path(self):
         """
-        Return the vertices of the patch
+        Return the path of this patch
         """
         raise NotImplementedError('Derived must override')
 
 
     def get_window_extent(self, renderer=None):
-        verts = self.get_verts()
-        tverts = self.get_transform().seq_xy_tups(verts)
-        return transforms.bound_vertices(tverts)
-
+        return self.get_path().get_extents(self.get_transform())
 
 
     def set_lw(self, val):
@@ -290,12 +299,12 @@ class Shadow(Patch):
         %(Patch)s
         """
         Patch.__init__(self)
-        self.ox, self.oy = ox, oy
         self.patch = patch
         self.props = props
+	self._ox, self._oy = ox, oy
+        self._update_transform()
         self._update()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
-
 
     def _update(self):
         self.update_from(self.patch)
@@ -308,19 +317,29 @@ class Shadow(Patch):
             g = rho*g
             b = rho*b
 
-            self.set_facecolor((r,g,b))
-            self.set_edgecolor((r,g,b))
+            self.set_facecolor((r,g,b,0.5))
+            self.set_edgecolor((r,g,b,0.5))
 
-    def get_verts(self):
-        verts = self.patch.get_verts()
-        xs = self.convert_xunits([x+self.ox for x,y in verts])
-        ys = self.convert_yunits([y+self.oy for x,y in verts])
-        return zip(xs, ys)
+    def _update_transform(self):
+        self._shadow_transform = transforms.Affine2D().translate(self._ox, self._oy)
 
-    def _draw(self, renderer):
-        'draw the shadow'
-        self._update()
-        Patch.draw(self, renderer)
+    def _get_ox(self):
+        return self._ox
+    def _set_ox(self, ox):
+        self._ox = ox
+        self._update_transform()
+
+    def _get_oy(self):
+        return self._oy
+    def _set_oy(self, oy):
+        self._oy = oy
+        self._update_transform()
+
+    def get_path(self):
+        return self.patch.get_path()
+
+    def get_patch_transform(self):
+	return self.patch.get_patch_transform() + self._shadow_transform
 
 class Rectangle(Patch):
     """
@@ -331,10 +350,9 @@ class Rectangle(Patch):
 
     def __str__(self):
         return str(self.__class__).split('.')[-1] \
-            + "(%g,%g;%gx%g)"%(self.xy[0],self.xy[1],self.width,self.height)
+            + "(%g,%g;%gx%g)" % tuple(self._bbox.bounds)
 
-    def __init__(self, xy, width, height,
-                 **kwargs):
+    def __init__(self, xy, width, height, **kwargs):
         """
         xy is an x,y tuple lower, left
 
@@ -348,40 +366,56 @@ class Rectangle(Patch):
 
         Patch.__init__(self, **kwargs)
 
-        self.xy  = list(xy)
-        self.width, self.height = width, height
+        self._x = xy[0]
+        self._y = xy[1]
+        self._width = width
+        self._height = height
+        self._rect_transform = transforms.IdentityTransform()
+        self._update_patch_transform()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-
-    def get_verts(self):
+    def get_path(self):
         """
         Return the vertices of the rectangle
         """
-        x, y = self.xy
-        left = self.convert_xunits(x)
-        right = self.convert_xunits(x + self.width)
-        bottom = self.convert_yunits(y)
-        top = self.convert_yunits(y+self.height)
+	return Path.unit_rectangle()
 
-        return ( (left, bottom), (left, top),
-                 (right, top), (right, bottom),
-                 )
+    def _update_patch_transform(self):
+        x = self.convert_xunits(self._x)
+        y = self.convert_yunits(self._y)
+        width = self.convert_xunits(self._width)
+        height = self.convert_yunits(self._height)
+        bbox = transforms.Bbox.from_bounds(x, y, width, height)
+        self._rect_transform = transforms.BboxTransformTo(bbox)
+        self._combined_transform = self._rect_transform + artist.Artist.get_transform(self)
+
+    def draw(self, renderer):
+        self._update_patch_transform()
+        Patch.draw(self, renderer)
+
+    def get_patch_transform(self):
+	return self._rect_transform
+
+    def contains(self, mouseevent):
+        x, y = self.get_transform().inverted().transform_point(
+            (mouseevent.x, mouseevent.y))
+        return (x >= 0.0 and x <= 1.0 and y >= 0.0 and y <= 1.0), {}
 
     def get_x(self):
         "Return the left coord of the rectangle"
-        return self.xy[0]
+        return self._x
 
     def get_y(self):
         "Return the bottom coord of the rectangle"
-        return self.xy[1]
+        return self._y
 
     def get_width(self):
         "Return the width of the  rectangle"
-        return self.width
+        return self._width
 
     def get_height(self):
         "Return the height of the rectangle"
-        return self.height
+        return self._height
 
     def set_x(self, x):
         """
@@ -389,7 +423,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self.xy[0] = x
+        self._x = x
 
     def set_y(self, y):
         """
@@ -397,7 +431,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self.xy[1] = y
+        self._y = y
 
     def set_width(self, w):
         """
@@ -405,7 +439,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self.width = w
+        self._width = w
 
     def set_height(self, h):
         """
@@ -413,7 +447,7 @@ class Rectangle(Patch):
 
         ACCEPTS: float
         """
-        self.height = h
+        self._height = h
 
     def set_bounds(self, *args):
         """
@@ -425,17 +459,20 @@ class Rectangle(Patch):
             l,b,w,h = args[0]
         else:
             l,b,w,h = args
-        self.xy = [l,b]
-        self.width = w
-        self.height = h
+        self._x = l
+        self._y = b
+        self._width = w
+        self._height = h
 
+    def get_bbox(self):
+        return transforms.Bbox.from_bounds(self._x, self._y, self._width, self._height)
 
 class RegularPolygon(Patch):
     """
     A regular polygon patch.
     """
     def __str__(self):
-        return "Poly%d(%g,%g)"%(self.numVertices,self.xy[0],self.xy[1])
+        return "Poly%d(%g,%g)"%(self._numVertices,self._xy[0],self._xy[1])
 
     def __init__(self, xy, numVertices, radius=5, orientation=0,
                  **kwargs):
@@ -448,103 +485,158 @@ class RegularPolygon(Patch):
         Valid kwargs are:
         %(Patch)s
         """
-        Patch.__init__(self, **kwargs)
+        self._xy = xy
+        self._numVertices = numVertices
+        self._orientation = orientation
+        self._radius = radius
+	self._path = Path.unit_regular_polygon(numVertices)
+        self._poly_transform = transforms.Affine2D()
+        self._update_transform()
 
-        self.xy = list(xy)
-        self.numVertices = numVertices
-        self.radius = radius
-        self.orientation = orientation
+        Patch.__init__(self, **kwargs)
 
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+    def _update_transform(self):
+        self._poly_transform.clear() \
+	    .scale(self.radius) \
+	    .rotate(self.orientation) \
+	    .translate(*self.xy)
 
+    def _get_xy(self):
+        return self._xy
+    def _set_xy(self, xy):
+        self._update_transform()
+    xy = property(_get_xy, _set_xy)
 
-    def get_verts(self):
-        theta = 2*npy.pi/self.numVertices*npy.arange(self.numVertices) + \
-                self.orientation
-        r = float(self.radius)
-        x, y = map(float, self.xy)
+    def _get_orientation(self):
+        return self._orientation
+    def _set_orientation(self, xy):
+        self._orientation = xy
+        self._update_transform()
+    orientation = property(_get_orientation, _set_orientation)
 
-        xs = x + r*npy.cos(theta)
-        ys = y + r*npy.sin(theta)
+    def _get_radius(self):
+        return self._radius
+    def _set_radius(self, xy):
+        self._radius = xy
+        self._update_transform()
+    radius = property(_get_radius, _set_radius)
 
-        #xs = self.convert_xunits(xs)
-        #ys = self.convert_yunits(ys)
+    def _get_numvertices(self):
+        return self._numVertices
+    def _set_numvertices(self, numVertices):
+        self._numVertices = numVertices
+        self._path = Path.unit_regular_polygon(numVertices)
+    numvertices = property(_get_numvertices, _set_numvertices)
 
+    def get_path(self):
+	return self._path
 
-        self.verts = zip(xs, ys)
+    def get_patch_transform(self):
+        return self._poly_transform
 
-        return self.verts
+class PathPatch(Patch):
+    """
+    A general polycurve path patch.
+    """
+    def __str__(self):
+        return "Poly((%g, %g) ...)" % tuple(self._path.vertices[0])
+
+    def __init__(self, path, **kwargs):
+        """
+        path is a Path object
+
+        Valid kwargs are:
+        %(Patch)s
+        See Patch documentation for additional kwargs
+        """
+        Patch.__init__(self, **kwargs)
+	self._path = path
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
+
+    def get_path(self):
+	return self._path
 
 class Polygon(Patch):
     """
     A general polygon patch.
     """
     def __str__(self):
-        return "Poly(%g,%g)"%self.xy[0]
+        return "Poly((%g, %g) ...)" % tuple(self._path.vertices[0])
 
     def __init__(self, xy, **kwargs):
         """
-        xy is a sequence of (x,y) 2 tuples
+        xy is a numpy array with shape Nx2
 
         Valid kwargs are:
         %(Patch)s
         See Patch documentation for additional kwargs
         """
-
         Patch.__init__(self, **kwargs)
-        if not isinstance(xy, list):
-            xy = list(xy)
-        self.xy = xy
+	self._path = Path(xy)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+    def get_path(self):
+	return self._path
 
+    def _get_xy(self):
+        return self._path.vertices
+    def _set_xy(self, vertices):
+        self._path = Path(vertices)
+    xy = property(_get_xy, _set_xy)
 
-    def get_verts(self):
-        xs, ys = zip(*self.xy)[:2]
-        xs = self.convert_xunits(xs)
-        ys = self.convert_yunits(ys)
-        return zip(xs, ys)
-
-
-class Wedge(Polygon):
+class Wedge(Patch):
     def __str__(self):
         return "Wedge(%g,%g)"%self.xy[0]
-    def __init__(self, center, r, theta1, theta2,
-                 dtheta=5.0, **kwargs):
+    def __init__(self, center, r, theta1, theta2, **kwargs):
         """
         Draw a wedge centered at x,y tuple center with radius r that
         sweeps theta1 to theta2 (angles)
-
-        dtheta is the resolution in degrees
 
         Valid kwargs are:
         %(Patch)s
 
         """
-        xc, yc = center
-        theta1 = float(theta1)
-        theta2 = float(theta2)
-        dtheta = float(dtheta)
-        num_points = abs(theta2 - theta1) / dtheta
-        rads = (npy.pi/180.) * npy.linspace(theta1, theta2, num_points, endpoint=True)
-        xs = r*npy.cos(rads)+xc
-        ys = r*npy.sin(rads)+yc
-        verts = [center]
-        verts.extend([(x,y) for x,y in zip(xs,ys)])
+        Patch.__init__(self, **kwargs)
+        self.center = center
+        self.r = r
+        self.theta1 = theta1
+        self.theta2 = theta2
+        self._patch_transform = transforms.IdentityTransform()
+        self._path = Path.wedge(self.theta1, self.theta2)
 
-        Polygon.__init__(self, verts, **kwargs)
+    def draw(self, renderer):
+        x = self.convert_xunits(self.center[0])
+        y = self.convert_yunits(self.center[1])
+        rx = self.convert_xunits(self.r)
+        ry = self.convert_yunits(self.r)
+        self._patch_transform = transforms.Affine2D() \
+            .scale(rx, ry).translate(x, y)
+        self._combined_transform = self._patch_transform + \
+            artist.Artist.get_transform(self)
+        Patch.draw(self, renderer)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+    def get_path(self):
+	return self._path
+
+    def get_patch_transform(self):
+	return self._patch_transform
+
+# COVERAGE NOTE: Not used internally or from examples
 class Arrow(Polygon):
     """
     An arrow patch
     """
     def __str__(self):
-        x1,y1 = self.xy[0]
-        x2,y2 = self.xy[1]
-        cx,cy = (x1+x2)/2.,(y1+y2)/2.
-        return "Arrow(%g,%g)"%(cx,cy)
+        return "Arrow()"
+
+    _path = Path( [
+            [ 0.0,  0.1 ], [ 0.0, -0.1],
+            [ 0.8, -0.1 ], [ 0.8, -0.3],
+            [ 1.0,  0.0 ], [ 0.8,  0.3],
+            [ 0.8,  0.1 ], [ 0.0,  0.1] ] )
 
     def __init__( self, x, y, dx, dy, width=1.0, **kwargs ):
         """Draws an arrow, starting at (x,y), direction and length
@@ -552,30 +644,29 @@ class Arrow(Polygon):
 
         Valid kwargs are:
         %(Patch)s
-          """
-        arrow = npy.array( [
-            [ 0.0,  0.1 ], [ 0.0, -0.1],
-            [ 0.8, -0.1 ], [ 0.8, -0.3],
-            [ 1.0,  0.0 ], [ 0.8,  0.3],
-            [ 0.8,  0.1 ] ] )
+        """
         L = npy.sqrt(dx**2+dy**2) or 1 # account for div by zero
-        arrow[:,0] *= L
-        arrow[:,1] *= width
         cx = float(dx)/L
         sx = float(dy)/L
-        M = npy.array( [ [ cx, sx],[ -sx, cx ] ] )
-        verts = npy.dot( arrow, M )+ [x,y]
-        Polygon.__init__( self, [ tuple(t) for t in verts ], **kwargs )
+
+        trans1 = transforms.Affine2D().scale(L, width)
+        trans2 = transforms.Affine2D.from_values(cx, sx, -sx, cx, 0.0, 0.0)
+        trans3 = transforms.Affine2d().translate(x, y)
+        trans = trans1 + trans2 + trans3
+        self._patch_transform = trans.frozen()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
+
+    def get_path(self):
+        return self._path
+
+    def get_patch_transform(self):
+        return self._patch_transform
 
 class FancyArrow(Polygon):
     """Like Arrow, but lets you set head width and head height independently."""
 
     def __str__(self):
-        x1,y1 = self.xy[0]
-        x2,y2 = self.xy[1]
-        cx,cy = (x1+x2)/2.,(y1+y2)/2.
-        return "FancyArrow(%g,%g)"%(cx,cy)
+        return "FancyArrow()"
 
     def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False, \
         head_width=None, head_length=None, shape='full', overhang=0, \
@@ -643,7 +734,7 @@ class FancyArrow(Polygon):
         Polygon.__init__(self, map(tuple, verts), **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-class YAArrow(Polygon):
+class YAArrow(Patch):
     """
     Yet another arrow class
 
@@ -651,10 +742,7 @@ class YAArrow(Polygon):
     x1,y1 and a base at x2, y2.
     """
     def __str__(self):
-        x1,y1 = self.xy[0]
-        x2,y2 = self.xy[1]
-        cx,cy = (x1+x2)/2.,(y1+y2)/2.
-        return "YAArrow(%g,%g)"%(cx,cy)
+        return "YAArrow()"
 
     def __init__(self, dpi, xytip, xybase, width=4, frac=0.1, headwidth=12, **kwargs):
         """
@@ -675,18 +763,18 @@ class YAArrow(Polygon):
         self.width = width
         self.frac = frac
         self.headwidth = headwidth
-        verts = self.get_verts()
-        Polygon.__init__(self, verts, **kwargs)
+        Patch.__init__(self, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+    def get_path(self):
+        # Since this is dpi dependent, we need to recompute the path
+        # every time.
 
-
-    def get_verts(self):
         # the base vertices
         x1, y1 = self.xytip
         x2, y2 = self.xybase
-        k1 = self.width*self.dpi.get()/72./2.
-        k2 = self.headwidth*self.dpi.get()/72./2.
+        k1 = self.width*self.dpi/72./2.
+        k2 = self.headwidth*self.dpi/72./2.
         xb1, yb1, xb2, yb2 = self.getpoints(x1, y1, x2, y2, k1)
 
         # a point on the segment 20% of the distance from the tip to the base
@@ -697,11 +785,13 @@ class YAArrow(Polygon):
         xc1, yc1, xc2, yc2 = self.getpoints(x1, y1, xm, ym, k1)
         xd1, yd1, xd2, yd2 = self.getpoints(x1, y1, xm, ym, k2)
 
+        xs = self.convert_xunits([xb1, xb2, xc2, xd2, x1, xd1, xc1, xb1])
+        ys = self.convert_yunits([yb1, yb2, yc2, yd2, y1, yd1, yc1, yb1])
 
-        xs = self.convert_xunits([xb1, xb2, xc2, xd2, x1, xd1, xc1])
-        ys = self.convert_yunits([yb1, yb2, yc2, yd2, y1, yd1, yc1])
-        return zip(xs, ys)
+        return Path(zip(xs, ys))
 
+    def get_patch_transform(self):
+        return transforms.IdentityTransform()
 
     def getpoints(self, x1,y1,x2,y2, k):
         """
@@ -741,8 +831,6 @@ class CirclePolygon(RegularPolygon):
         %(Patch)s
 
         """
-        self.center = xy
-        self.radius = radius
         RegularPolygon.__init__(self, xy,
                                 resolution,
                                 radius,
@@ -751,61 +839,12 @@ class CirclePolygon(RegularPolygon):
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
-def inellipse(x,y,cx,cy,a,b,angle):
-    x,y = x-cx,y-cy
-    theta = math.atan2(x,y) + math.radians(angle)
-    rsq = x*x+y*y
-    asin = a * math.sin(theta)
-    bcos = b * math.cos(theta)
-    Rsq = b*b*a*a / (bcos*bcos + asin*asin)
-    return Rsq > rsq;
-
 class Ellipse(Patch):
     """
     A scale-free ellipse
     """
-    MAGIC = 0.2652031
-    SQRTHALF = npy.sqrt(0.5)
-    MAGIC45 = npy.sqrt((MAGIC*MAGIC) / 2.0)
-
-    circle = npy.array(
-        [[0.0, -1.0],
-
-         [MAGIC, -1.0],
-         [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
-         [SQRTHALF, -SQRTHALF],
-
-         [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
-         [1.0, -MAGIC],
-         [1.0, 0.0],
-
-         [1.0, MAGIC],
-         [SQRTHALF+MAGIC45, SQRTHALF-MAGIC45],
-         [SQRTHALF, SQRTHALF],
-
-         [SQRTHALF-MAGIC45, SQRTHALF+MAGIC45],
-         [MAGIC, 1.0],
-         [0.0, 1.0],
-
-         [-MAGIC, 1.0],
-         [-SQRTHALF+MAGIC45, SQRTHALF+MAGIC45],
-         [-SQRTHALF, SQRTHALF],
-
-         [-SQRTHALF-MAGIC45, SQRTHALF-MAGIC45],
-         [-1.0, MAGIC],
-         [-1.0, 0.0],
-
-         [-1.0, -MAGIC],
-         [-SQRTHALF-MAGIC45, -SQRTHALF+MAGIC45],
-         [-SQRTHALF, -SQRTHALF],
-
-         [-SQRTHALF+MAGIC45, -SQRTHALF-MAGIC45],
-         [-MAGIC, -1.0],
-         [0.0, -1.0]],
-        npy.float_)
-
     def __str__(self):
-        return "Ellipse(%d,%d;%dx%d)"%(self.center[0],self.center[1],self.width,self.height)
+        return "Ellipse(%s,%s;%sx%s)"%(self.center[0],self.center[1],self.width,self.height)
 
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
         """
@@ -819,130 +858,42 @@ class Ellipse(Patch):
         """
         Patch.__init__(self, **kwargs)
 
-        # self.center  = npy.array(xy, npy.float)
         self.center = xy
         self.width, self.height = width, height
         self.angle = angle
+        self._path = Path.unit_circle()
+        self._patch_transform = transforms.IdentityTransform()
+        self._recompute_transform()
 
-    def contains(self,ev):
-        if ev.xdata is None or ev.ydata is None: return False,{}
-        inside = inellipse(ev.xdata,ev.ydata,
-                           self.center[0],self.center[1],
-                           self.height*0.5,self.width*0.5,self.angle)
-        return inside,{}
-
-    def get_verts(self):
-
-        xcenter, ycenter = self.center
-        width, height = self.width, self.height
-
-        xcenter = self.convert_xunits(xcenter)
-        width = self.convert_xunits(width)
-        ycenter = self.convert_yunits(ycenter)
-        height = self.convert_xunits(height)
-
-
-
-        angle = self.angle
-
-        theta = npy.arange(0.0, 360.0, 1.0)*npy.pi/180.0
-        x = width/2. * npy.cos(theta)
-        y = height/2. * npy.sin(theta)
-
-        rtheta = angle*npy.pi/180.
-        R = npy.array([
-            [npy.cos(rtheta),  -npy.sin(rtheta)],
-            [npy.sin(rtheta), npy.cos(rtheta)],
-            ])
-
-
-        x, y = npy.dot(R, npy.array([x, y]))
-        x += xcenter
-        y += ycenter
-
-        return zip(x, y)
+    def _recompute_transform(self):
+        center = (self.convert_xunits(self.center[0]),
+                  self.convert_yunits(self.center[1]))
+        width = self.convert_xunits(self.width)
+        height = self.convert_yunits(self.height)
+        self._patch_transform = transforms.Affine2D() \
+	    .scale(width * 0.5, height * 0.5) \
+	    .rotate_deg(self.angle) \
+	    .translate(*center)
+        self._combined_transform = self._patch_transform + \
+            artist.Artist.get_transform(self)
 
     def draw(self, renderer):
-        if not self.get_visible(): return
-        #renderer.open_group('patch')
-        gc = renderer.new_gc()
-        gc.set_foreground(self._edgecolor)
-        gc.set_linewidth(self._linewidth)
-        gc.set_alpha(self._alpha)
-        gc.set_antialiased(self._antialiased)
-        self._set_gc_clip(gc)
+        self._recompute_transform()
+        Patch.draw(self, renderer)
 
-        gc.set_capstyle('projecting')
+    def get_path(self):
+        """
+        Return the vertices of the rectangle
+        """
+	return self._path
 
-        if not self.fill or self._facecolor is None: rgbFace = None
-        else: rgbFace = colors.colorConverter.to_rgb(self._facecolor)
+    def get_patch_transform(self):
+        return self._patch_transform
 
-        if self._hatch:
-            gc.set_hatch(self._hatch )
-
-
-        if not hasattr(renderer, 'draw_path'):
-            mpl.verbose.report('patches.Ellipse renderer does not support path drawing; falling back on vertex approximation for nonlinear transformation')
-            renderer.draw_polygon(gc, rgbFace, self.get_verts())
-            return
-
-
-        x, y = self.center
-        x = self.convert_xunits(x)
-        y = self.convert_yunits(y)
-        w = self.convert_xunits(self.width)/2.
-        h = self.convert_yunits(self.height)/2.
-
-        theta = self.angle * npy.pi/180.
-        T = npy.array([
-            [1, 0, x],
-            [0, 1, y],
-            [0, 0, 1]])
-
-
-
-
-        S = npy.array([
-            [w, 0, 0],
-            [0, h, 0],
-            [0, 0, 1]])
-
-
-
-        # rotate by theta
-        R = npy.array([
-            [npy.cos(theta),  -npy.sin(theta), 0],
-            [npy.sin(theta), npy.cos(theta), 0],
-            [0,           0,          1]])
-
-        # transform unit circle into ellipse
-        E = npy.dot(T, npy.dot(R, S))
-
-
-        # Apply the display affine
-        sx, b, c, sy, tx, ty = self.get_transform().as_vec6_val()
-
-        # display coords
-        D = npy.array([
-            [sx, b, tx],
-            [c, sy, ty],
-            [0, 0, 1]], npy.float_)
-
-        M = npy.dot(D,E)
-
-        C = npy.ones((3, len(self.circle)))
-        C[0:2,:] = self.circle.T
-
-        ellipse = npy.dot(M, C).T[:,:2]
-
-        path =  agg.path_storage()
-        path.move_to(*ellipse[0])
-        for i in range(1, 25, 3):
-            path.curve4(*ellipse[i:i+3].flat)
-        path.close_polygon()
-
-        renderer.draw_path(gc, rgbFace, path)
-
+    def contains(self,ev):
+        if ev.x is None or ev.y is None: return False,{}
+        x, y = self.get_transform().inverted().transform_point((ev.x, ev.y))
+        return (x*x + y*y) <= 1.0, {}
 
 
 class Circle(Ellipse):
@@ -952,8 +903,7 @@ class Circle(Ellipse):
     def __str__(self):
         return "Circle((%g,%g),r=%g)"%(self.center[0],self.center[1],self.radius)
 
-    def __init__(self, xy, radius=5,
-                 **kwargs):
+    def __init__(self, xy, radius=5, **kwargs):
         """
         Create true circle at center xy=(x,y) with given radius;
         unlike circle polygon which is a polygonal approcimation, this
@@ -972,7 +922,6 @@ class Circle(Ellipse):
         Ellipse.__init__(self, xy, radius*2, radius*2, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-
 class Arc(Ellipse):
     """
     An elliptical arc.  Because it performs various optimizations, it
@@ -984,7 +933,6 @@ class Arc(Ellipse):
     resolution.
     """
     def __str__(self):
-
         return "Arc(%s,%s;%sx%s)"%(self.center[0],self.center[1],self.width,self.height)
 
     def __init__(self, xy, width, height, angle=0.0, theta1=0.0, theta2=360.0, **kwargs):
@@ -1009,8 +957,8 @@ class Arc(Ellipse):
 
         Ellipse.__init__(self, xy, width, height, angle, **kwargs)
 
-        self._theta1 = theta1
-        self._theta2 = theta2
+        self.theta1 = theta1
+        self.theta2 = theta2
 
     def draw(self, renderer):
         """
@@ -1033,9 +981,7 @@ class Arc(Ellipse):
 
         In that case, only the visible parts of the ellipse are drawn,
         with each visible arc using a fixed number of spline segments
-        (8), which should be adequate when the number of pixels across
-        the image is less than 5e5.  The algorithm proceeds as
-        follows:
+        (8).  The algorithm proceeds as follows:
 
           1. The points where the ellipse intersects the axes bounding
           box are located.  (This is done be performing an inverse
@@ -1053,27 +999,25 @@ class Arc(Ellipse):
           calculated.
 
           3. Proceeding counterclockwise starting in the positive
-          x-direction, each of the visible arc-segments between each
-          pair of intersections are drawn using the bezier arc
-          approximation technique implemented in arc().
+          x-direction, each of the visible arc-segments between the
+          pairs of vertices are drawn using the bezier arc
+          approximation technique implemented in Path.arc().
         """
-        # Do the usual GC handling stuff
-        if not self.get_visible(): return
-
         if not hasattr(self, 'axes'):
             raise RuntimeError('Arcs can only be used in Axes instances')
 
-        gc = renderer.new_gc()
-        gc.set_foreground(self._edgecolor)
-        gc.set_linewidth(self._linewidth)
-        gc.set_alpha(self._alpha)
-        gc.set_antialiased(self._antialiased)
-        self._set_gc_clip(gc)
-        gc.set_capstyle('projecting')
-        if not self.fill or self._facecolor is None: rgbFace = None
-        else: rgbFace = colors.colorConverter.to_rgb(self._facecolor)
-        if self._hatch:
-            gc.set_hatch(self._hatch )
+        self._recompute_transform()
+
+        # Get the width and height in pixels
+        width = self.convert_xunits(self.width)
+        height = self.convert_yunits(self.height)
+        width, height = self.get_transform().transform_point(
+            (width, height))
+        inv_error = (1.0 / 1.89818e-6) * 0.5
+
+        if width < inv_error and height < inv_error:
+            self._path = Path.arc(self.theta1, self.theta2)
+            return Patch.draw(self, renderer)
 
         def iter_circle_intersect_on_line(x0, y0, x1, y1):
             dx = x1 - x0
@@ -1119,180 +1063,23 @@ class Arc(Ellipse):
                 if x >= x0e and x <= x1e and y >= y0e and y <= y1e:
                     yield x, y
 
-        def arc(theta1, theta2, trans, n=None):
-            """
-            Returns an arc on the unit circle from angle theta1 to
-            angle theta2 (in degrees).  The returned arc is already
-            transformed using the affine transformation matrix trans.
-            The arc is returned as an agg::path_storage object.
-
-            If n is provided, it is the number of spline segments to make.
-            If n is not provided, the number of spline segments is determined
-            based on the delta between theta1 and theta2.
-            """
-            # From Masionobe, L.  2003.  "Drawing an elliptical arc using
-            # polylines, quadratic or cubic Bezier curves".
-            #
-            # http://www.spaceroots.org/documents/ellipse/index.html
-
-            # degrees to radians
-            theta1 *= npy.pi / 180.0
-            theta2 *= npy.pi / 180.0
-
-            twopi  = npy.pi * 2.0
-            halfpi = npy.pi * 0.5
-
-            eta1 = npy.arctan2(npy.sin(theta1), npy.cos(theta1))
-            eta2 = npy.arctan2(npy.sin(theta2), npy.cos(theta2))
-            eta2 -= twopi * npy.floor((eta2 - eta1) / twopi)
-            if (theta2 - theta1 > npy.pi) and (eta2 - eta1 < npy.pi):
-                eta2 += twopi
-
-            # number of curve segments to make
-            if n is None:
-                n = int(2 ** npy.ceil((eta2 - eta1) / halfpi))
-
-            deta = (eta2 - eta1) / n
-            t = npy.tan(0.5 * deta)
-            alpha = npy.sin(deta) * (npy.sqrt(4.0 + 3.0 * t * t) - 1) / 3.0
-
-            steps = npy.linspace(eta1, eta2, n + 1, True)
-            cos_eta = npy.cos(steps)
-            sin_eta = npy.sin(steps)
-
-            xA = cos_eta[:-1]
-            yA = sin_eta[:-1]
-            xA_dot = -yA
-            yA_dot = xA
-
-            xB = cos_eta[1:]
-            yB = sin_eta[1:]
-            xB_dot = -yB
-            yB_dot = xB
-
-            length = n * 3 + 1
-            vertices = npy.zeros((length, 2), npy.float_)
-            vertices[0] = [xA[0], yA[0]]
-            end = length
-
-            vertices[1::3, 0] = xA + alpha * xA_dot
-            vertices[1::3, 1] = yA + alpha * yA_dot
-            vertices[2::3, 0] = xB - alpha * xB_dot
-            vertices[2::3, 1] = yB - alpha * yB_dot
-            vertices[3::3, 0] = xB
-            vertices[3::3, 1] = yB
-
-            vertices = affine_transform(vertices, trans)
-
-            path = agg.path_storage()
-            path.move_to(*vertices[0])
-            for i in range(1, length, 3):
-                path.curve4(*vertices[i:i+3].flat)
-            return path
-
-        def point_in_polygon(x, y, poly):
-            inside = False
-            for i in range(len(poly) - 1):
-                p1x, p1y = poly[i]
-                p2x, p2y = poly[i+1]
-                if p1x < p2x:
-                    xmin, xmax = p1x, p2x
-                else:
-                    xmin, xmax = p2x, p1x
-                if p1y < p2y:
-                    ymin, ymax = p1y, p2y
-                else:
-                    ymin, ymax = p2y, p1y
-                if (y > ymin and
-                    y <= ymax and
-                    x <= xmax):
-                    xinters = (y-p1y)*(p2x-p1x)/(p2y-p1y)+p1x
-                    if p1x == p2x or x <= xinters:
-                        inside = not inside
-            return inside
-
-        def affine_transform(vertices, transform):
-            # This may seem silly, but it's faster than expanding the
-            # vertices array to Nx3 and then back to Nx2
-            transform = transform.copy()
-            transform[0, 1], transform[1, 0] = transform[1, 0], transform[0, 1]
-            vertices = npy.dot(vertices, transform[0:2, 0:2])
-            vertices += transform[0:2, 2:].flat
-            return vertices
-
-        # Set up the master transform from unit circle, all the way to
-        # display space.
-
-        centerx, centery = self.center
-        centerx = self.convert_xunits(centerx)
-        centery = self.convert_yunits(centery)
-        width = self.convert_xunits(self.width)
-        height = self.convert_yunits(self.height)
-
-        trans = self.get_transform()
-        scale = npy.array(
-            [[width * 0.5, 0.0, 0.0],
-             [0.0, height * 0.5, 0.0],
-             [0.0, 0.0, 1.0]], npy.float_)
-        theta = (self.angle / 180.0) * npy.pi
-        rotate = npy.array(
-            [[npy.cos(theta), -npy.sin(theta), 0.0],
-             [npy.sin(theta), npy.cos(theta), 0.0],
-             [0.0, 0.0, 1.0]], npy.float_)
-        translate = npy.array(
-            [[1.0, 0.0, centerx],
-             [0.0, 1.0, centery],
-             [0.0, 0.0, 1.0]], npy.float_)
-        sx, b, c, sy, tx, ty = trans.as_vec6_val()
-        dataTrans = npy.array(
-            [[sx, b, tx],
-             [c, sy, ty],
-             [0, 0, 1]], npy.float_)
-        mainTrans = \
-            npy.dot(
-              npy.dot(
-                npy.dot(dataTrans, translate), rotate), scale)
-
-        # Determine the size of the ellipse in pixels, and use
-        # that as a threshold to use the fast (whole ellipse)
-        # technique or accurate (partial arcs) technique.
-        size = affine_transform(
-            npy.array([[width, height]], npy.float_),
-            mainTrans)
-        width = size[0,0]
-        height = size[0,1]
-        # We divide the error in half, to just be *really*
-        # conservative
-        inv_error = (1.0 / 1.89818e-6) * 0.5
-
-        if width < inv_error and height < inv_error:
-            path = arc(self._theta1, self._theta2, mainTrans)
-            renderer.draw_path(gc, rgbFace, path)
-            return
-
         # Transforms the axes box_path so that it is relative to the unit
         # circle in the same way that it is relative to the desired
         # ellipse.
-        axes_bbox = self.axes.bbox
-        box_path = npy.array(
-            [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]],
-            npy.float_)
-        axesTrans = npy.array(
-            [[axes_bbox.width(), 0.0, axes_bbox.xmin()],
-             [0.0, axes_bbox.height(), axes_bbox.ymin()],
-             [0.0, 0.0, 1.0]], npy.float_)
-        boxTrans = npy.dot(npy.linalg.inv(mainTrans), axesTrans)
-        box_path = affine_transform(box_path, boxTrans)
+        box_path = Path.unit_rectangle()
+        box_path_transform = transforms.BboxTransformTo(self.axes.bbox) + \
+            self.get_transform().inverted()
+        box_path = box_path.transformed(box_path_transform)
 
         PI = npy.pi
         TWOPI = PI * 2.0
         RAD2DEG = 180.0 / PI
         DEG2RAD = PI / 180.0
-        theta1 = self._theta1
-        theta2 = self._theta2
+        theta1 = self.theta1
+        theta2 = self.theta2
         thetas = {}
         # For each of the point pairs, there is a line segment
-        for p0, p1 in zip(box_path[:-1], box_path[1:]):
+        for p0, p1 in zip(box_path.vertices[:-1], box_path.vertices[1:]):
             x0, y0 = p0
             x1, y1 = p1
             for x, y in iter_circle_intersect_on_line_seg(x0, y0, x1, y1):
@@ -1310,132 +1097,15 @@ class Arc(Ellipse):
 
         last_theta = theta1
         theta1_rad = theta1 * DEG2RAD
-        inside = point_in_polygon(npy.cos(theta1_rad), npy.sin(theta1_rad), box_path)
+        inside = box_path.contains_point((npy.cos(theta1_rad), npy.sin(theta1_rad)))
         for theta in thetas:
             if inside:
-                path = arc(last_theta, theta, mainTrans, 8)
-                renderer.draw_path(gc, rgbFace, path)
+                self._path = Path.arc(last_theta, theta, 8)
+                Patch.draw(self, renderer)
                 inside = False
             else:
                 inside = True
             last_theta = theta
-
-
-class PolygonInteractor:
-    """
-    An polygon editor.
-
-    Key-bindings
-
-      't' toggle vertex markers on and off.  When vertex markers are on,
-          you can move them, delete them
-
-      'd' delete the vertex under point
-
-      'i' insert a vertex at point.  You must be within epsilon of the
-          line connecting two existing vertices
-
-    """
-
-    showverts = True
-    epsilon = 5  # max pixel distance to count as a vertex hit
-
-    def __str__(self):
-        return "PolygonInteractor"
-
-    def __init__(self, poly):
-        if poly.figure is None:
-            raise RuntimeError('You must first add the polygon to a figure or canvas before defining the interactor')
-        canvas = poly.figure.canvas
-        self.poly = poly
-        self.poly.verts = list(self.poly.get_verts())
-        x, y = zip(*self.poly.verts)
-        self.line = lines.Line2D(x,y,marker='o', markerfacecolor='r')
-        #self._update_line(poly)
-
-        cid = self.poly.add_callback(self.poly_changed)
-        self._ind = None # the active vert
-
-        canvas.mpl_connect('button_press_event', self.button_press_callback)
-        canvas.mpl_connect('key_press_event', self.key_press_callback)
-        canvas.mpl_connect('button_release_event', self.button_release_callback)
-        canvas.mpl_connect('motion_notify_event', self.motion_notify_callback)
-        self.canvas = canvas
-
-
-    def poly_changed(self, poly):
-        'this method is called whenever the polygon object is called'
-        # only copy the artist props to the line (except visibility)
-        vis = self.line.get_visible()
-        artist.Artist.update_from(self.line, poly)
-        self.line.set_visible(vis)  # don't use the poly visibility state
-
-
-    def get_ind_under_point(self, event):
-        'get the index of the vertex under point if within epsilon tolerance'
-        x, y = zip(*self.poly.verts)
-
-        # display coords
-        xt, yt = self.poly.get_transform().numerix_x_y(x, y)
-        d = npy.sqrt((xt-event.x)**2 + (yt-event.y)**2)
-        ind, = npy.nonzero(npy.equal(d, npy.amin(d)))
-
-        if d[ind]>=self.epsilon:
-            ind = None
-
-        return ind
-
-    def button_press_callback(self, event):
-        'whenever a mouse button is pressed'
-        if not self.showverts: return
-        if event.inaxes==None: return
-        if event.button != 1: return
-        self._ind = self.get_ind_under_point(event)
-
-    def button_release_callback(self, event):
-        'whenever a mouse button is released'
-        if not self.showverts: return
-        if event.button != 1: return
-        self._ind = None
-
-    def key_press_callback(self, event):
-        'whenever a key is pressed'
-        if not event.inaxes: return
-        if event.key=='t':
-            self.showverts = not self.showverts
-            self.line.set_visible(self.showverts)
-            if not self.showverts: self._ind = None
-        elif event.key=='d':
-            ind = self.get_ind_under_point(event)
-            if ind is not None:
-                self.poly.verts = [tup for i,tup in enumerate(self.poly.verts) if i!=ind]
-                self.line.set_data(zip(*self.poly.verts))
-        elif event.key=='i':
-            xys = self.poly.get_transform().seq_xy_tups(self.poly.verts)
-            p = event.x, event.y # display coords
-            for i in range(len(xys)-1):
-                s0 = xys[i]
-                s1 = xys[i+1]
-                d = mlab.dist_point_to_segment(p, s0, s1)
-                if d<=self.epsilon:
-                    self.poly.verts.insert(i+1, (event.xdata, event.ydata))
-                    self.line.set_data(zip(*self.poly.verts))
-                    break
-
-
-        self.canvas.draw()
-
-    def motion_notify_callback(self, event):
-        'on mouse movement'
-        if not self.showverts: return
-        if self._ind is None: return
-        if event.inaxes is None: return
-        if event.button != 1: return
-        x,y = event.xdata, event.ydata
-        self.poly.verts[self._ind] = x,y
-        self.line.set_data(zip(*self.poly.verts))
-        self.canvas.draw_idle()
-
 
 def bbox_artist(artist, renderer, props=None, fill=True):
     """
@@ -1451,7 +1121,7 @@ def bbox_artist(artist, renderer, props=None, fill=True):
     pad = props.pop('pad', 4)
     pad = renderer.points_to_pixels(pad)
     bbox = artist.get_window_extent(renderer)
-    l,b,w,h = bbox.get_bounds()
+    l,b,w,h = bbox.bounds
     l-=pad/2.
     b-=pad/2.
     w+=pad
@@ -1461,6 +1131,7 @@ def bbox_artist(artist, renderer, props=None, fill=True):
                   height=h,
                   fill=fill,
                   )
+    r.set_transform(transforms.IdentityTransform())
     r.set_clip_on( False )
     r.update(props)
     r.draw(renderer)

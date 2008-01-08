@@ -62,26 +62,34 @@ class RendererTemplate(RendererBase):
     writing a new backend. Refer to backend_bases.RendererBase for
     documentation of the classes methods.
     """
-    def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2,
-                 rotation):
+    def __init__(self, dpi):
+        self.dpi = dpi
+
+    def draw_path(self, gc, path, transform, rgbFace=None):
         pass
 
-    def draw_image(self, x, y, im, bbox):
-        pass
+    # draw_markers is optional, and we get more correct
+    # relative timings by leaving it out.
+#     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+#         pass
 
-    def draw_line(self, gc, x1, y1, x2, y2):
-        pass
+    # draw_path_collection is optional, and we get more correct
+    # relative timings by leaving it out.
+#     def draw_path_collection(self, master_transform, cliprect, clippath,
+#                              clippath_trans, paths, all_transforms, offsets,
+#                              offsetTrans, facecolors, edgecolors, linewidths,
+#                              linestyles, antialiaseds):
+#         pass
 
-    def draw_lines(self, gc, x, y):
-        pass
+    # draw_quad_mesh is optional, and we get more correct
+    # relative timings by leaving it out.
+#     def draw_quad_mesh(self, master_transform, cliprect, clippath,
+#                        clippath_trans, meshWidth, meshHeight, coordinates,
+#                        offsets, offsetTrans, facecolors, antialiased,
+#                        showedges):
+#         pass
 
-    def draw_point(self, gc, x, y):
-        pass
-
-    def draw_polygon(self, gcEdge, rgbFace, points):
-        pass
-
-    def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
+    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         pass
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
@@ -195,7 +203,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
         """
         Draw the figure using the renderer
         """
-        renderer = RendererTemplate()
+        renderer = RendererTemplate(self.figure.dpi)
         self.figure.draw(renderer)
 
     # You should provide a print_xxx function for every file format
@@ -216,7 +224,7 @@ class FigureCanvasTemplate(FigureCanvasBase):
 
     def get_default_filetype(self):
         return 'foo'
-    
+
 class FigureManagerTemplate(FigureManagerBase):
     """
     Wrap everything up into a window for the pylab interface

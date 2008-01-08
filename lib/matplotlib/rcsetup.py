@@ -432,6 +432,7 @@ defaultParams = {
     'figure.subplot.wspace' : [0.2, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
     'figure.subplot.hspace' : [0.2, ValidateInterval(0, 1, closedmin=False, closedmax=True)],
 
+    'figure.autolayout'   : [False, validate_bool],
 
     'savefig.dpi'         : [100, validate_float],   # DPI
     'savefig.facecolor'   : ['w', validate_color],  # facecolor; white

@@ -172,25 +172,25 @@ License   : matplotlib license (PSF compatible)
 
 """
 from __future__ import division
-import os, sys
+import os
 from cStringIO import StringIO
-from math import floor, ceil
+from math import ceil
 from sets import Set
 import unicodedata
 from warnings import warn
 
 from numpy import inf, isinf
 
-from matplotlib import verbose
-from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, Combine, Group, \
-     Optional, Forward, NotAny, alphas, nums, alphanums, StringStart, \
-     StringEnd, ParseFatalException, FollowedBy, Regex, operatorPrecedence, \
-     opAssoc, ParseResults, Or, Suppress, oneOf, ParseException, MatchFirst, \
-     NoMatch, Empty
+from matplotlib.pyparsing import Combine, Group, Optional, Forward, \
+    Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
+    ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
+    FollowedBy, Regex, ParserElement
+# Enable packrat parsing
+ParserElement.enablePackrat()
 
 from matplotlib.afm import AFM
-from matplotlib.cbook import enumerate, iterable, Bunch, get_realpath_and_stat, \
-    is_string_like
+from matplotlib.cbook import Bunch, get_realpath_and_stat, \
+    is_string_like, maxdict
 from matplotlib.ft2font import FT2Font, FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, \
@@ -2021,7 +2021,7 @@ class Parser(object):
         autoDelim = Forward().setParseAction(self.auto_sized_delimiter)
         self._expression = Forward().setParseAction(self.finish).setName("finish")
 
-        float        = Regex(r"-?[0-9]+\.?[0-9]*")
+        float        = Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
 
         lbrace       = Literal('{').suppress()
         rbrace       = Literal('}').suppress()
@@ -2040,14 +2040,13 @@ class Parser(object):
         latex2efont  = oneOf(['math' + x for x in self._fontnames])
 
         space        =(FollowedBy(bslash)
-                     +   (Literal(r'\ ')
-                       |  Literal(r'\/')
-                       |  Literal(r'\,')
-                       |  Literal(r'\;')
-                       |  Literal(r'\quad')
-                       |  Literal(r'\qquad')
-                       |  Literal(r'\!')
-                       )
+                     + oneOf([r'\ ',
+                              r'\/',
+                              r'\,',
+                              r'\;',
+                              r'\quad',
+                              r'\qquad',
+                              r'\!'])
                       ).setParseAction(self.space).setName('space')
 
         customspace  =(Literal(r'\hspace')
@@ -2094,19 +2093,13 @@ class Parser(object):
                      + latex2efont)
 
         frac         = Group(
-                       Suppress(
-                         bslash
-                       + Literal("frac")
-                       )
+                       Suppress(Literal(r"\frac"))
                      + ((group + group)
                         | Error(r"Expected \frac{num}{den}"))
                      ).setParseAction(self.frac).setName("frac")
 
         sqrt         = Group(
-                       Suppress(
-                         bslash
-                       + Literal("sqrt")
-                       )
+                       Suppress(Literal(r"\sqrt"))
                      + Optional(
                          Suppress(Literal("["))
                        + Group(
@@ -2135,9 +2128,7 @@ class Parser(object):
                      | subsuper
                      )
 
-        subsuperop   =(Literal("_")
-                     | Literal("^")
-                     )
+        subsuperop   = oneOf(["_", "^"])
 
         subsuper    << Group(
                          ( Optional(placeable)
@@ -2166,8 +2157,7 @@ class Parser(object):
                      ^ simple
                      ).setParseAction(self.math).setName("math")
 
-        math_delim   =(~bslash
-                     + Literal('$'))
+        math_delim   = ~bslash + Literal('$')
 
         non_math     = Regex(r"(?:(?:\\[$])|[^$])*"
                      ).setParseAction(self.non_math).setName("non_math").leaveWhitespace()
@@ -2182,8 +2172,6 @@ class Parser(object):
               + non_math
             )
           ) + StringEnd()
-
-        self._expression.enablePackrat()
 
         self.clear()
 
@@ -2695,7 +2683,7 @@ class MathTextParser(object):
 
     def __init__(self, output):
         self._output = output
-        self._cache = {}
+        self._cache = maxdict(50)
 
     def parse(self, s, dpi = 72, prop = None):
         if prop is None:

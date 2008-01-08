@@ -11,12 +11,10 @@ Axes3D
 
 import random
 
-import matplotlib
 from axes import Axes
 import cbook
 from transforms import unit_bbox
 
-import figure
 import numpy as npy
 from colors import Normalize
 

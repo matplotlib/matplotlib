@@ -7,7 +7,8 @@ import re, os, errno, sys, StringIO, traceback, locale
 import time, datetime
 import numpy as npy
 
-try: set
+try:
+    set = set
 except NameError:
     from sets import Set as set
 
@@ -175,7 +176,7 @@ class silent_list(list):
 
 def strip_math(s):
     'remove latex formatting from mathtext'
-    remove = (r'\rm', '\cal', '\tt', '\it', '\\', '{', '}')
+    remove = (r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
     s = s[1:-1]
     for r in remove:  s = s.replace(r,'')
     return s
@@ -966,9 +967,106 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
         outstream.write("Examining: %r\n" % (obj,))
         recurse(obj, obj, { }, [])
 
+class Grouper(object):
+    """
+    This class provides a lightweight way to group arbitrary objects
+    together into disjoint sets when a full-blown graph data structure
+    would be overkill.
+
+    Objects can be joined using .join(), tested for connectedness
+    using .joined(), and all disjoint sets can be retreived using
+    .get().
+
+    The objects being joined must be hashable.
+
+    For example:
+
+    >>> g = grouper.Grouper()
+    >>> g.join('a', 'b')
+    >>> g.join('b', 'c')
+    >>> g.join('d', 'e')
+    >>> list(g.get())
+    [['a', 'b', 'c'], ['d', 'e']]
+    >>> g.joined('a', 'b')
+    True
+    >>> g.joined('a', 'c')
+    True
+    >>> g.joined('a', 'd')
+    False
+    """
+    def __init__(self, init=[]):
+	mapping = self._mapping = {}
+	for x in init:
+	    mapping[x] = [x]
+
+    def __contains__(self, item):
+        return item in self._mapping
+
+    def join(self, a, *args):
+	"""
+	Join given arguments into the same set.
+	Accepts one or more arguments.
+	"""
+	mapping = self._mapping
+	set_a = mapping.setdefault(a, [a])
+
+	for arg in args:
+	    set_b = mapping.get(arg)
+	    if set_b is None:
+		set_a.append(arg)
+		mapping[arg] = set_a
+	    elif set_b is not set_a:
+		if len(set_b) > len(set_a):
+		    set_a, set_b = set_b, set_a
+		set_a.extend(set_b)
+		for elem in set_b:
+		    mapping[elem] = set_a
+
+    def joined(self, a, b):
+	"""
+	Returns True if a and b are members of the same set.
+	"""
+	mapping = self._mapping
+	try:
+	    return mapping[a] is mapping[b]
+	except KeyError:
+	    return False
+
+    def __iter__(self):
+	"""
+	Returns an iterator yielding each of the disjoint sets as a list.
+	"""
+	seen = set()
+	for elem, group in self._mapping.iteritems():
+	    if elem not in seen:
+		yield group
+		seen.update(group)
+
+    def get_siblings(self, a):
+	"""
+	Returns all of the items joined with the given item, including
+	itself.
+	"""
+	return self._mapping.get(a, [a])
 
 
+def simple_linear_interpolation(a, steps):
+    steps = npy.floor(steps)
+    new_length = ((len(a) - 1) * steps) + 1
+    new_shape = list(a.shape)
+    new_shape[0] = new_length
+    result = npy.zeros(new_shape, a.dtype)
 
+    result[0] = a[0]
+    a0 = a[0:-1]
+    a1 = a[1:  ]
+    delta = ((a1 - a0) / steps)
+
+    for i in range(1, int(steps)):
+        result[i::steps] = delta * i + a0
+    result[steps::steps] = a1
+
+    return result
 
 if __name__=='__main__':
     assert( allequal([1,1,1]) )

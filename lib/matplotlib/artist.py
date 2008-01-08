@@ -1,8 +1,8 @@
 from __future__ import division
-import sys, re
+import re, warnings
 from cbook import iterable, flatten
-from transforms import identity_transform
-import matplotlib.units as units
+from transforms import Bbox, IdentityTransform, TransformedBbox, TransformedPath
+from path import Path
 
 ## Note, matplotlib artists use the doc strings for set and get
 # methods to enable the introspection methods of setp and getp.  Every
@@ -21,7 +21,7 @@ import matplotlib.units as units
 # http://groups.google.com/groups?hl=en&lr=&threadm=mailman.5090.1098044946.5135.python-list%40python.org&rnum=1&prev=/groups%3Fq%3D__doc__%2Bauthor%253Ajdhunter%2540ace.bsd.uchicago.edu%26hl%3Den%26btnG%3DGoogle%2BSearch
 
 
-class Artist:
+class Artist(object):
     """
     Abstract base class for someone who renders into a FigureCanvas
     """
@@ -145,7 +145,7 @@ class Artist:
     def get_transform(self):
         'return the Transformation instance used by this artist'
         if self._transform is None:
-            self._transform = identity_transform()
+            self._transform = IdentityTransform()
         return self._transform
 
     def hitlist(self,event):
@@ -173,7 +173,7 @@ class Artist:
         """
         if callable(self._contains): return self._contains(self,mouseevent)
         #raise NotImplementedError,str(self.__class__)+" needs 'contains' method"
-        print str(self.__class__)+" needs 'contains' method"
+        warnings.warn("'%s' needs 'contains' method" % self.__class__.__name__)
         return False,{}
 
     def set_contains(self,picker):
@@ -284,16 +284,52 @@ class Artist:
         self._clipon = clipbox is not None or self._clippath is not None
         self.pchanged()
 
-    def set_clip_path(self, path):
+    def set_clip_path(self, path, transform=None):
         """
-        Set the artist's clip path
+        Set the artist's clip path, which may be:
 
-        ACCEPTS: an agg.path_storage instance
+          a) a Patch (or subclass) instance
+
+          b) a Path instance, in which cas aoptional transform may
+             be provided, which will be applied to the path before using it
+             for clipping.
+
+          c) None, to remove the clipping path
+
+        For efficiency, if the path happens to be an axis-aligned
+        rectangle, this method will set the clipping box to the
+        corresponding rectangle and set the clipping path to None.
+             
+        ACCEPTS: a Path instance and a Transform instance, a Patch
+        instance, or None
         """
-        self._clippath = path
-        self._clipon = self.clipbox is not None or path is not None
+        from patches import Patch, Rectangle
+
+        success = False
+        if transform is None:
+            if isinstance(path, Rectangle):
+                self.clipbox = TransformedBbox(Bbox.unit(), path.get_transform())
+                self._clippath = None
+                success = True
+            elif isinstance(path, Patch):
+                self._clippath = TransformedPath(
+                    path.get_path(),
+                    path.get_transform())
+                success = True
+                
+        if path is None:
+            self._clippath = None
+            success = True
+        elif isinstance(path, Path):
+            self._clippath = TransformedPath(path, transform)
+            success = True
+            
+        if not success:
+            print type(path), type(transform)
+            raise TypeError("Invalid arguments to set_clip_path")
+
+        self._clipon = self.clipbox is not None or self._clippath is not None
         self.pchanged()
-
 
     def get_alpha(self):
         """
@@ -322,6 +358,15 @@ class Artist:
         'Return artist clip path'
         return self._clippath
 
+    def get_transformed_clip_path_and_affine(self):
+        '''
+        Return the clip path with the non-affine part of its transformation applied,
+        and the remaining affine part of its transformation.
+        '''
+        if self._clippath is not None:
+            return self._clippath.get_transformed_path_and_affine()
+        return None, None
+    
     def set_clip_on(self, b):
         """
         Set  whether artist uses clipping
@@ -337,7 +382,7 @@ class Artist:
     def _set_gc_clip(self, gc):
         'set the clip properly for the gc'
         if self.clipbox is not None:
-            gc.set_clip_rectangle(self.clipbox.get_bounds())
+            gc.set_clip_rectangle(self.clipbox)
         gc.set_clip_path(self._clippath)
 
     def draw(self, renderer, *args, **kwargs):
@@ -431,6 +476,7 @@ class Artist:
         self._alpha = other._alpha
         self.clipbox = other.clipbox
         self._clipon = other._clipon
+        self._clippath = other._clippath
         self._lod = other._lod
         self._label = other._label
         self.pchanged()

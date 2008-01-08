@@ -21,51 +21,20 @@ Return value is a sequence of text, line instances that make
 up the legend
 """
 from __future__ import division
-import sys, warnings
+import warnings
 
 import numpy as npy
 
-from matplotlib import verbose, rcParams
+from matplotlib import rcParams
 from artist import Artist
-from cbook import enumerate, is_string_like, iterable, silent_list
+from cbook import is_string_like, iterable, silent_list
 from font_manager import FontProperties
 from lines import Line2D
 from mlab import segments_intersect
-from patches import Patch, Rectangle, RegularPolygon, Shadow, bbox_artist, draw_bbox
-from collections import LineCollection, RegularPolyCollection, PatchCollection
+from patches import Patch, Rectangle, Shadow, bbox_artist
+from collections import LineCollection, RegularPolyCollection
 from text import Text
-from transforms import Bbox, Point, Value, get_bbox_transform, bbox_all,\
-     unit_bbox, inverse_transform_bbox, lbwh_to_bbox
-
-
-
-
-def line_cuts_bbox(line, bbox):
-    """ Return True if and only if line cuts bbox. """
-    minx, miny, width, height = bbox.get_bounds()
-    maxx = minx + width
-    maxy = miny + height
-
-    n = len(line)
-    if n == 0:
-        return False
-
-    if n == 1:
-        return bbox.contains(line[0][0], line[0][1])
-    p1 = line[0]
-    for p2 in line[1:]:
-        segment = (p1, p2)
-        # See if the segment cuts any of the edges of bbox
-        for edge in (((minx, miny), (minx, maxy)),
-                     ((minx, miny), (maxx, miny)),
-                     ((maxx, miny), (maxx, maxy)),
-                     ((minx, maxy), (maxx, maxy))):
-            if segments_intersect(segment, edge):
-                return True
-        p1=p2
-
-    return False
-
+from transforms import Affine2D, Bbox, BboxTransformTo
 
 class Legend(Artist):
     """
@@ -168,7 +137,9 @@ The following dimensions are in axes coords
         else:
             raise TypeError("Legend needs either Axes or Figure as parent")
         self.parent = parent
-        self.set_transform( get_bbox_transform( unit_bbox(), parent.bbox) )
+        self._offsetTransform = Affine2D()
+        self._parentTransform = BboxTransformTo(parent.bbox)
+        Artist.set_transform(self, self._offsetTransform + self._parentTransform)
 
         if loc is None:
             loc = rcParams["legend.loc"]
@@ -195,6 +166,12 @@ The following dimensions are in axes coords
 
         self._loc = loc
 
+        self.legendPatch = Rectangle(
+            xy=(0.0, 0.0), width=0.5, height=0.5,
+            facecolor='w', edgecolor='k',
+            )
+        self._set_artist_props(self.legendPatch)
+
         # make a trial box in the middle of the axes.  relocate it
         # based on it's bbox
         left, top = 0.5, 0.5
@@ -206,20 +183,6 @@ The following dimensions are in axes coords
         self.texts = self._get_texts(labels, textleft, top)
         self.legendHandles = self._get_handles(handles, self.texts)
 
-
-        if len(self.texts):
-            left, top = self.texts[-1].get_position()
-            HEIGHT = self._approx_text_height()*len(self.texts)
-        else:
-            HEIGHT = 0.2
-
-        bottom = top-HEIGHT
-        left -= self.handlelen + self.handletextsep + self.pad
-        self.legendPatch = Rectangle(
-            xy=(left, bottom), width=0.5, height=HEIGHT,
-            facecolor='w', edgecolor='k',
-            )
-        self._set_artist_props(self.legendPatch)
         self._drawFrame = True
 
     def _set_artist_props(self, a):
@@ -227,7 +190,7 @@ The following dimensions are in axes coords
         a.set_transform(self.get_transform())
 
     def _approx_text_height(self):
-        return self.fontsize/72.0*self.figure.dpi.get()/self.parent.bbox.height()
+        return self.fontsize/72.0*self.figure.dpi/self.parent.bbox.height
 
 
     def draw(self, renderer):
@@ -260,13 +223,13 @@ The following dimensions are in axes coords
         bboxesText = [t.get_window_extent(renderer) for t in self.texts]
         bboxesHandles = [h.get_window_extent(renderer) for h in self.legendHandles if h is not None]
 
-
         bboxesAll = bboxesText
         bboxesAll.extend(bboxesHandles)
-        bbox = bbox_all(bboxesAll)
+        bbox = Bbox.union(bboxesAll)
+
         self.save = bbox
 
-        ibox =  inverse_transform_bbox(self.get_transform(), bbox)
+        ibox = bbox.inverse_transformed(self.get_transform())
         self.ibox = ibox
 
         return ibox
@@ -285,6 +248,7 @@ The following dimensions are in axes coords
                 legline.update_from(handle)
                 self._set_artist_props(legline) # after update
                 legline.set_clip_box(None)
+                legline.set_clip_path(self.legendPatch)
                 legline.set_markersize(self.markerscale*legline.get_markersize())
 
                 ret.append(legline)
@@ -296,12 +260,14 @@ The following dimensions are in axes coords
                 p.update_from(handle)
                 self._set_artist_props(p)
                 p.set_clip_box(None)
+                p.set_clip_path(self.legendPatch)
                 ret.append(p)
             elif isinstance(handle, LineCollection):
                 ydata = (y-HEIGHT/2)*npy.ones(self._xdata.shape, float)
                 legline = Line2D(self._xdata, ydata)
                 self._set_artist_props(legline)
                 legline.set_clip_box(None)
+                legline.set_clip_path(self.legendPatch)
                 lw = handle.get_linewidth()[0]
                 dashes = handle.get_dashes()
                 color = handle.get_colors()[0]
@@ -319,6 +285,7 @@ The following dimensions are in axes coords
                     p.set_edgecolor(handle._edgecolors[0])
                 self._set_artist_props(p)
                 p.set_clip_box(None)
+                p.set_clip_path(self.legendPatch)
                 ret.append(p)
 
             else:
@@ -346,41 +313,25 @@ The following dimensions are in axes coords
         bboxes = []
         lines = []
 
-        inv = ax.transAxes.inverse_xy_tup
+        inverse_transform = ax.transAxes.inverted()
 
         for handle in ax.lines:
             assert isinstance(handle, Line2D)
-
-            xdata = handle.get_xdata(orig=False)
-            ydata = handle.get_ydata(orig=False)
+            path = handle.get_path()
             trans = handle.get_transform()
-            xt, yt = trans.numerix_x_y(xdata, ydata)
-
-            # XXX need a special method in transform to do a list of verts
-            averts = [inv(v) for v in zip(xt, yt)]
-            lines.append(averts)
+            tpath = trans.transform_path(path)
+            apath = inverse_transform.transform_path(tpath)
+            lines.append(apath)
 
         for handle in ax.patches:
             assert isinstance(handle, Patch)
 
-            verts = handle.get_verts()
-            trans = handle.get_transform()
-            tverts = trans.seq_xy_tups(verts)
-
-            averts = [inv(v) for v in tverts]
-
-            bbox = unit_bbox()
-            bbox.update(averts, True)
-            bboxes.append(bbox)
-
-        for handle in ax.collections:
-            if isinstance(handle, LineCollection):
-                hlines = handle.get_lines()
-                trans = handle.get_transform()
-                for line in hlines:
-                    tline = trans.seq_xy_tups(line)
-                    aline = [inv(v) for v in tline]
-                    lines.append(aline)
+            if isinstance(handle, Rectangle):
+                transform = handle.get_data_transform() + inverse_transform
+                bboxes.append(handle.get_bbox().transformed(transform))
+            else:
+                transform = handle.get_transform() + inverse_transform
+                bboxes.append(handle.get_path().get_extents(transform))
 
         return [vertices, bboxes, lines]
 
@@ -433,23 +384,7 @@ The following dimensions are in axes coords
 
     def _offset(self, ox, oy):
         'Move all the artists by ox,oy (axes coords)'
-        for t in self.texts:
-            x,y = t.get_position()
-            t.set_position( (x+ox, y+oy) )
-
-        for h in self.legendHandles:
-            if isinstance(h, Line2D):
-                x,y = h.get_xdata(orig=False), h.get_ydata(orig=False)
-                h.set_data( x+ox, y+oy)
-            elif isinstance(h, Rectangle):
-                h.xy[0] = h.xy[0] + ox
-                h.xy[1] = h.xy[1] + oy
-            elif isinstance(h, RegularPolygon):
-                h.verts = [(x + ox, y + oy) for x, y in h.verts]
-
-        x, y = self.legendPatch.get_x(), self.legendPatch.get_y()
-        self.legendPatch.set_x(x+ox)
-        self.legendPatch.set_y(y+oy)
+        self._offsetTransform.clear().translate(ox, oy)
 
     def _find_best_position(self, width, height, consider=None):
         """Determine the best location to place the legend.
@@ -464,22 +399,19 @@ The following dimensions are in axes coords
 
         consider = [self._loc_to_axes_coords(x, width, height) for x in range(1, len(self.codes))]
 
-        tx, ty = self.legendPatch.xy
+        tx, ty = self.legendPatch.get_x(), self.legendPatch.get_y()
 
         candidates = []
         for l, b in consider:
-            legendBox = lbwh_to_bbox(l, b, width, height)
+            legendBox = Bbox.from_bounds(l, b, width, height)
             badness = 0
             badness = legendBox.count_contains(verts)
-            ox, oy = l-tx, b-ty
-            for bbox in bboxes:
-                if legendBox.overlaps(bbox):
-                    badness += 1
-
+            badness += legendBox.count_overlaps(bboxes)
             for line in lines:
-                if line_cuts_bbox(line, legendBox):
+                if line.intersects_bbox(legendBox):
                     badness += 1
 
+            ox, oy = l-tx, b-ty
             if badness == 0:
                 return ox, oy
 
@@ -534,8 +466,8 @@ The following dimensions are in axes coords
         if not len(self.legendHandles) and not len(self.texts): return
         def get_tbounds(text):  #get text bounds in axes coords
             bbox = text.get_window_extent(renderer)
-            bboxa = inverse_transform_bbox(self.get_transform(), bbox)
-            return bboxa.get_bounds()
+            bboxa = bbox.inverse_transformed(self.get_transform())
+            return bboxa.bounds
 
         hpos = []
         for t, tabove in zip(self.texts[1:], self.texts[:-1]):
@@ -562,11 +494,11 @@ The following dimensions are in axes coords
                 handle.set_height(h/2)
 
         # Set the data for the legend patch
-        bbox = self._get_handle_text_bbox(renderer).deepcopy()
+        bbox = self._get_handle_text_bbox(renderer)
 
-        bbox.scale(1 + self.pad, 1 + self.pad)
-        l,b,w,h = bbox.get_bounds()
-        self.legendPatch.set_bounds(l,b,w,h)
+        bbox = bbox.expanded(1 + self.pad, 1 + self.pad)
+        l, b, w, h = bbox.bounds
+        self.legendPatch.set_bounds(l, b, w, h)
 
         ox, oy = 0, 0                           # center
 
@@ -582,7 +514,5 @@ The following dimensions are in axes coords
             ox, oy = x-l, y-b
 
         self._offset(ox, oy)
-
-
 
 #artist.kwdocd['Legend'] = kwdoc(Legend)

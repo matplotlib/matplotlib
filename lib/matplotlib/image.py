@@ -4,7 +4,7 @@ operations.
 
 """
 from __future__ import division
-import sys, os, warnings
+import os, warnings
 
 import numpy as npy
 
@@ -83,8 +83,6 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         # reverse interp dict
         self._interpdr = dict([ (v,k) for k,v in self._interpd.items()])
 
-        if interpolation is None: interpolation = rcParams['image.interpolation']
-
         self.set_interpolation(interpolation)
         self.axes = ax
 
@@ -156,17 +154,14 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         dyintv = ymax-ymin
 
         # the viewport scale factor
-        sx = dxintv/self.axes.viewLim.width()
-        sy = dyintv/self.axes.viewLim.height()
-
-        if im.get_interpolation()!=_image.NEAREST:
-            im.apply_translation(-1, -1)
+        sx = dxintv/self.axes.viewLim.width
+        sy = dyintv/self.axes.viewLim.height
 
         # the viewport translation
-        tx = (xmin-self.axes.viewLim.xmin())/dxintv * numcols
-        ty = (ymin-self.axes.viewLim.ymin())/dyintv * numrows
+        tx = (xmin-self.axes.viewLim.x0)/dxintv * numcols
+        ty = (ymin-self.axes.viewLim.y0)/dyintv * numrows
 
-        l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
+        l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
         widthDisplay *= magnification
         heightDisplay *= magnification
 
@@ -190,8 +185,9 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
             self.axes.get_yscale() != 'linear'):
             warnings.warn("Images are not supported on non-linear axes.")
         im = self.make_image(renderer.get_image_magnification())
-        l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
-        renderer.draw_image(l, b, im, self.axes.bbox)
+        l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
+        renderer.draw_image(l, b, im, self.axes.bbox.frozen(),
+                            *self.get_transformed_clip_path_and_affine())
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image.
@@ -278,7 +274,7 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
         ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' | 'blackman64', 'nearest' | 'sinc144' | 'sinc256' | 'sinc64' | 'spline16' | 'spline36']
         """
-
+        if s is None: s = rcParams['image.interpolation']
         s = s.lower()
         if not self._interpd.has_key(s):
             raise ValueError('Illegal interpolation string')
@@ -328,24 +324,17 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
 class NonUniformImage(AxesImage):
     def __init__(self, ax,
-                 cmap = None,
-                 norm = None,
-                 extent=None,
+                 **kwargs
                 ):
         AxesImage.__init__(self, ax,
-                           cmap = cmap,
-                           norm = norm,
-                           extent=extent,
-                           interpolation = 'nearest',
-                           origin = 'lower',
-                          )
+                           **kwargs)
 
     def make_image(self, magnification=1.0):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
-        x0, y0, v_width, v_height = self.axes.viewLim.get_bounds()
-        l, b, width, height = self.axes.bbox.get_bounds()
+        x0, y0, v_width, v_height = self.axes.viewLim.bounds
+        l, b, width, height = self.axes.bbox.bounds
         width *= magnification
         height *= magnification
         im = _image.pcolor(self._Ax, self._Ay, self._A,
@@ -392,8 +381,10 @@ class NonUniformImage(AxesImage):
         raise NotImplementedError('Method not supported')
 
     def set_interpolation(self, s):
-        if s != 'nearest':
+        print s
+        if s != None and s != 'nearest':
             raise NotImplementedError('Only nearest neighbor supported')
+        AxesImage.set_interpolation(self, s)
 
     def get_extent(self):
         if self._A is None:
@@ -595,7 +586,8 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
         im = self.make_image()
-        renderer.draw_image(self.ox, self.oy, im, self.figure.bbox)
+        renderer.draw_image(self.ox, self.oy, im, self.figure.bbox,
+                            *self.get_transformed_clip_path_and_affine())
 
     def write_png(self, fname):
         """Write the image to png file with fname"""

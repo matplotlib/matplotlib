@@ -20,18 +20,14 @@ License   : matplotlib license
 
 """
 from __future__ import division
-import sys, warnings
-
-from matplotlib import verbose
+import warnings
 
 import artist
 from artist import Artist
 from patches import Rectangle
-from cbook import enumerate, is_string_like, flatten
+from cbook import is_string_like
 from text import Text
-from transforms import Bbox, inverse_transform_bbox, bbox_all, unit_bbox, \
-     get_bbox_transform
-
+from transforms import Bbox
 
 
 
@@ -77,7 +73,6 @@ class Cell(Rectangle):
         return self._text
 
     def set_fontsize(self, size):
-
         self._text.set_fontsize(size)
 
     def get_fontsize(self):
@@ -110,7 +105,7 @@ class Cell(Rectangle):
         Currently support 'left', 'center' and 'right'
         """
         bbox = self.get_window_extent(renderer)
-        l, b, w, h = bbox.get_bounds()
+        l, b, w, h = bbox.bounds
 
         # draw in center vertically
         self._text.set_verticalalignment('center')
@@ -132,8 +127,8 @@ class Cell(Rectangle):
     def get_text_bounds(self, renderer):
         """ Get text bounds in axes co-ordinates. """
         bbox = self._text.get_window_extent(renderer)
-        bboxa = inverse_transform_bbox(self.get_transform(), bbox)
-        return bboxa.get_bounds()
+	bboxa = bbox.inverse_transformed(self.get_data_transform())
+        return bboxa.bounds
 
     def get_required_width(self, renderer):
         """ Get width required for this cell. """
@@ -218,7 +213,7 @@ class Table(Artist):
         self._cells[(row, col)] = cell
 
     def _approx_text_height(self):
-        return self.FONTSIZE/72.0*self.figure.dpi.get()/self._axes.bbox.height() * 1.2
+        return self.FONTSIZE/72.0*self.figure.dpi/self._axes.bbox.height * 1.2
 
     def draw(self, renderer):
         # Need a renderer to do hit tests on mouseevent; assume the last one will do
@@ -248,8 +243,8 @@ class Table(Artist):
                  for pos in self._cells.keys()
                  if pos[0] >= 0 and pos[1] >= 0]
 
-        bbox = bbox_all(boxes)
-        return inverse_transform_bbox(self.get_transform(), bbox)
+        bbox = Bbox.union(boxes)
+        return bbox.inverse_transformed(self.get_transform())
 
     def contains(self,mouseevent):
         """Test whether the mouse event occurred in the table.
@@ -395,7 +390,7 @@ class Table(Artist):
         self._do_cell_alignment()
 
         bbox = self._get_grid_bbox(renderer)
-        l,b,w,h = bbox.get_bounds()
+        l,b,w,h = bbox.bounds
 
         if self._bbox is not None:
             # Position according to bbox
@@ -532,7 +527,7 @@ def table(ax,
     if rowLabels is not None:
         for row in xrange(rows):
             table.add_cell(row+offset, -1,
-                           width=rowLabelWidth, height=height,
+                           width=rowLabelWidth or 1e-15, height=height,
                            text=rowLabels[row], facecolor=rowColours[row],
                            loc=rowLoc)
         if rowLabelWidth == 0:

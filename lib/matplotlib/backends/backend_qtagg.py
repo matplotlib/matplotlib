@@ -115,8 +115,8 @@ class FigureCanvasQTAgg( FigureCanvasAgg, FigureCanvasQT ):
         # we are blitting here
         else:
             bbox = self.replot
-            w, h = int(bbox.width()), int(bbox.height())
-            l, t = bbox.ll().x().get(), bbox.ur().y().get()
+            l, b, w, h = bbox.bounds
+            t = b + h
             reg = self.copy_from_bbox(bbox)
             stringBuffer = reg.to_string()
             qImage = qt.QImage(stringBuffer, w, h, 32, None, 0, qt.QImage.IgnoreEndian)
