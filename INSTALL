@@ -30,9 +30,9 @@ COMPILING
   you can set.
 
   If you want to use a GUI backend, you will need either Tkinter,
-  pygtk or wxpython installed on your system, from src or from a
+  pygtk , wxPython or Qt installed on your system, from src or from a
   package manager including the devel packages.  You can choose which
-  backends to enable by setting the flags in setup.py, but the default
+  backends to enable by setting the flags in setup.cfg, but the default
   is to automatically detect your installed GUIs and build support for
   them.  If you later find that you did not have a GUI toolkit like
   pygtk installed when you built matplotlib, but now want it, you will
