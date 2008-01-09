@@ -1,59 +1,59 @@
 # MPLConfig - plaintext (in .conf format)
 
 # This is a sample matplotlib configuration file.  It should be placed
-# in HOME/.matplotlib/matplotlibrc (unix/linux like systems) and
+# in HOME/.matplotlib (unix/linux like systems) and
 # C:\Documents and Settings\yourname\.matplotlib (win32 systems)
-#
+# 
 # By default, the installer will overwrite the existing file in the install
 # path, so if you want to preserve yours, please move it to your HOME dir and
 # set the environment variable if necessary.
-#
+# 
 # This file is best viewed in a editor which supports ini or conf mode syntax
 # highlighting.
-#
+# 
 # Blank lines, or lines starting with a comment symbol, are ignored,
 # as are trailing comments.  Other lines must have the format
-#
+# 
 #   key = val   optional comment
-#
+# 
 # val should be valid python syntax, just as you would use when setting
 # properties using rcParams. This should become more obvious by inspecting
 # the default values listed herein.
-#
+# 
 # Colors: for the color values below, you can either use
 #  - a matplotlib color string, such as r | k | b
 #  - an rgb tuple, such as (1.0, 0.5, 0.0)
 #  - a hex string, such as #ff00ff or ff00ff
 #  - a scalar grayscale intensity such as 0.75
 #  - a legal html color name, eg red | blue | darkslategray
-#
+# 
 # Interactivity: see http://matplotlib.sourceforge.net/interactive.html.
-#
+# 
 # ### CONFIGURATION BEGINS HERE ###
 
 # a value of type 'str'
 datapath = '/usr/lib64/python2.5/site-packages/matplotlib/mpl-data'
 # one of: 0 | on | false | 1 | no | n | y | off | yes | true
 interactive = False
-# a value of type 'bool'
+# a boolean
 maskedarray = False
 # 'numpy' or 'numeric' or 'numarray'
 numerix = 'numpy'
 # 'Africa/Abidjan' or 'Africa/Accra' or 'Africa/Addis_Ababa' or
 # 'Africa/Algiers' or 'Africa/Asmara' or 'Africa/Asmera' or 'Africa/Bamako' or
 # 'Africa/Bangui' or 'Africa/Banjul' or 'Africa/Bissau' or 'Africa/Blantyre'
-#  <...snipped 156 lines...>
+#  <...snipped 156 lines...> 
 # 'US/Michigan' or 'US/Mountain' or 'US/Pacific' or 'US/Pacific-New' or
 # 'US/Samoa' or 'UTC' or 'Universal' or 'W-SU' or 'WET' or 'Zulu' or
 # 'posixrules'
 timezone = 'UTC'
 # 'toolbar2' or None
 toolbar = 'toolbar2'
-# a value of type 'bool'
+# a boolean
 units = False
 
 [axes]
-    # a value of type 'bool'
+    # a boolean
     axisbelow = False
     # any valid matplotlib color, eg an abbreviation like 'r' for red, a full
     # name like 'orange', a hex color like '#efefef', a grayscale intensity
@@ -71,19 +71,19 @@ units = False
     # name like 'orange', a hex color like '#efefef', a grayscale intensity
     # like '0.5', or an RGBA tuple (1,0,0,1)
     labelcolor = 'black'
-    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or
-    # 'medium' or 'large' or 'x-large' or 'xx-large'
+    # a float or 'xx-small' or 'x-small' or 'small' or 'medium' or 'large' or
+    # 'x-large' or 'xx-large'
     labelsize = 'medium'
-    # a value of type 'float'
+    # a float
     linewidth = 1.0
     # one of: 0 | on | false | 1 | no | n | y | off | yes | true
     polargrid = True
-    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or
-    # 'medium' or 'large' or 'x-large' or 'xx-large'
+    # a float or 'xx-small' or 'x-small' or 'small' or 'medium' or 'large' or
+    # 'x-large' or 'xx-large'
     titlesize = 'large'
 
     [[formatter]]
-        # a list of from 2 to 2 items each of which is a value of type 'float'
+        # a list of from 2 to 2 items which are a float
         limits = [-7.0, 7.0]
 
 [backend]
@@ -100,43 +100,44 @@ units = False
         compression = 6
         # 3 or 42
         fonttype = 3
-        # a value of type 'bool'
+        # a boolean
         inheritcolor = False
-        # a value of type 'bool'
+        # a boolean
         use14corefonts = False
 
     [[ps]]
         # 3 or 42
         fonttype = 3
-        # auto | letter | legal | ledger | A0 | A1 | A2 |
-        # A3 | A4 | A5 | A6 | A7 | A8 | A9 | A10 |
-        # B0 | B1 | B2 | B3 | B4 | B5 | B6 | B7 | B8
-        # | B9 | B10
+        # 'auto' or 'letter' or 'legal' or 'ledger' or 'A0' or 'A1' or 'A2' or
+        # 'A3' or 'A4' or 'A5' or 'A6' or 'A7' or 'A8' or 'A9' or 'A10' or
+        # 'B0' or 'B1' or 'B2' or 'B3' or 'B4' or 'B5' or 'B6' or 'B7' or 'B8'
+        # or 'B9' or 'B10'
         papersize = 'letter'
-        # a value of type 'bool'
+        # a boolean
         useafm = False
 
         [[[distiller]]]
-            # a value of type 'float'
-            resolution = 6000.0
-            # a bool or None or 'ghostscript' or 'xpdf'
+            # a float
+            resolution = 6000
+            # an implementor of, or can be adapted to implement, bool or None
+            # or None or 'ghostscript' or 'xpdf'
             use = None
 
     [[svg]]
-        # a value of type 'bool'
+        # a boolean
         embed_chars = True
-        # a value of type 'bool'
+        # a boolean
         image_inline = True
-        # a value of type 'bool'
+        # a boolean
         image_noscale = False
 
     [[tk]]
         # window_focus : Maintain shell focus for TkAgg
         # pythoninspect: tk sets PYTHONINSPECT
 
-        # a value of type 'bool'
+        # a boolean
         pythoninspect = False
-        # a value of type 'bool'
+        # a boolean
         window_focus = False
 
 [contour]
@@ -144,8 +145,10 @@ units = False
     negative_linestyle = 'dashed'
 
 [figure]
-    # a value of type 'float'
-    dpi = 80.0
+    # a boolean
+    autolayout = False
+    # a float
+    dpi = 80
     # any valid matplotlib color, eg an abbreviation like 'r' for red, a full
     # name like 'orange', a hex color like '#efefef', a grayscale intensity
     # like '0.5', or an RGBA tuple (1,0,0,1)
@@ -154,39 +157,39 @@ units = False
     # name like 'orange', a hex color like '#efefef', a grayscale intensity
     # like '0.5', or an RGBA tuple (1,0,0,1)
     facecolor = '0.75'
-    # a list of from 2 to 2 items each of which is a value of type 'float'
+    # a list of from 2 to 2 items which are a float
     figsize = [8.0, 6.0]
 
     [[subplot]]
         # The figure subplot parameters.  All dimensions are fraction
         # of the figure width or height
-        # a value of type 'float'
+        # a float
         bottom = 0.10000000000000001
-        # a value of type 'float'
+        # a float
         hspace = 0.20000000000000001
-        # a value of type 'float'
+        # a float
         left = 0.125
-        # a value of type 'float'
+        # a float
         right = 0.90000000000000002
-        # a value of type 'float'
+        # a float
         top = 0.90000000000000002
-        # a value of type 'float'
+        # a float
         wspace = 0.20000000000000001
 
 [font]
-    # a list of items each of which is a value of type 'str'
+    # a list of items which are a value of type 'str'
     cursive = ['Apple Chancery', 'Textile', 'Zapf Chancery', 'Sand', 'cursive']
     # 'sans-serif' or 'serif' or 'cursive' or 'fantasy' or 'monospace'
     family = 'sans-serif'
-    # a list of items each of which is a value of type 'str'
+    # a list of items which are a value of type 'str'
     fantasy = ['Comic Sans MS', 'Chicago', 'Charcoal', 'Impact', 'Western', 'fantasy']
-    # a list of items each of which is a value of type 'str'
+    # a list of items which are a value of type 'str'
     monospace = ['Bitstream Vera Sans Mono', 'Andale Mono', 'Nimbus Mono L', 'Courier New', 'Courier', 'Fixed', 'Terminal', 'monospace']
-    # a list of items each of which is a value of type 'str'
+    # a list of items which are a value of type 'str'
     sans_serif = ['Bitstream Vera Sans', 'Lucida Grande', 'Verdana', 'Geneva', 'Lucid', 'Arial', 'Helvetica', 'Avant Garde', 'sans-serif']
-    # a list of items each of which is a value of type 'str'
+    # a list of items which are a value of type 'str'
     serif = ['Bitstream Vera Serif', 'New Century Schoolbook', 'Century Schoolbook L', 'Utopia', 'ITC Bookman', 'Bookman', 'Nimbus Roman No9 L', 'Times New Roman', 'Times', 'Palatino', 'Charter', 'serif']
-    # a value of type 'float'
+    # a float
     size = 12.0
     # 'ultra-condensed' or 'extra-condensed' or 'condensed' or
     # 'semi-condensed' or 'normal' or 'semi-expanded' or 'expanded' or
@@ -207,16 +210,16 @@ units = False
     color = 'black'
     # '-' or '--' or '-.' or ':' or 'steps' or '' or ' '
     linestyle = ':'
-    # a value of type 'float'
+    # a float
     linewidth = 0.5
 
 [image]
-    # a value of type 'float' or 'equal' or 'auto'
+    # a float or 'equal' or 'auto'
     aspect = 'equal'
     # 'Accent' or 'Accent_r' or 'Blues' or 'Blues_r' or 'BrBG' or 'BrBG_r' or
     # 'BuGn' or 'BuGn_r' or 'BuPu' or 'BuPu_r' or 'Dark2' or 'Dark2_r' or
     # 'GnBu' or 'GnBu_r' or 'Greens' or 'Greens_r' or 'Greys' or 'Greys_r' or
-    #  <...snipped 16 lines...>
+    #  <...snipped 16 lines...> 
     # 'pink_r' or 'prism' or 'prism_r' or 'spectral' or 'spectral_r' or
     # 'spring' or 'spring_r' or 'summer' or 'summer_r' or 'winter' or
     # 'winter_r'
@@ -226,40 +229,40 @@ units = False
     # or 'gaussian' or 'bessel' or 'mitchell' or 'sinc' or 'lanczos' or
     # 'blackman'
     interpolation = 'bilinear'
-    # a value of type 'int'
+    # an integer
     lut = 256
     # 'upper' or 'lower'
     origin = 'upper'
 
 [legend]
-    # a value of type 'float'
+    # a float
     axespad = 0.02
-    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or
-    # 'medium' or 'large' or 'x-large' or 'xx-large'
+    # a float or 'xx-small' or 'x-small' or 'small' or 'medium' or 'large' or
+    # 'x-large' or 'xx-large'
     fontsize = 'medium'
-    # a value of type 'float'
+    # a float
     handlelen = 0.050000000000000003
-    # a value of type 'float'
+    # a float
     handletextsep = 0.02
-    # a value of type 'bool'
+    # a boolean
     isaxes = True
-    # a value of type 'float'
+    # a float
     labelsep = 0.01
     # 'best' or 'upper right' or 'upper left' or 'lower left' or 'lower right'
     # or 'right' or 'center left' or 'center right' or 'lower center' or
     # 'upper center' or 'center'
     loc = 'upper right'
-    # a value of type 'float'
+    # a float
     markerscale = 1.0
-    # a value of type 'int'
+    # an integer
     numpoints = 3
-    # a value of type 'float'
+    # a float
     pad = 0.20000000000000001
-    # a value of type 'bool'
+    # a boolean
     shadow = False
 
 [lines]
-    # a value of type 'bool'
+    # a boolean
     antialiased = True
     # any valid matplotlib color, eg an abbreviation like 'r' for red, a full
     # name like 'orange', a hex color like '#efefef', a grayscale intensity
@@ -271,16 +274,16 @@ units = False
     dash_joinstyle = 'miter'
     # '-' or '--' or '-.' or ':' or 'steps' or '' or ' ' or None
     linestyle = '-'
-    # a value of type 'float'
+    # a float
     linewidth = 1.0
     # 'None' or 'o' or '.' or ',' or '^' or 'v' or '<' or '>' or 's' or '+' or
     # 'x' or 'D' or 'd' or '1' or '2' or '3' or '4' or 'h' or 'H' or 'p' or
     # '|' or '_'
     marker = 'None'
-    # a value of type 'float'
+    # a float
     markeredgewidth = 0.5
-    # a value of type 'float'
-    markersize = 6.0
+    # a float
+    markersize = 6
     # 'butt' or 'round' or 'projecting'
     solid_capstyle = 'butt'
     # 'miter' or 'round' or 'bevel'
@@ -293,7 +296,7 @@ units = False
     # A fontconfig pattern.  See the fontconfig user manual for more
     # information.
     cal = 'cursive'
-    # a value of type 'bool'
+    # a boolean
     fallback_to_cm = True
     # 'cm' or 'stix' or 'stixsans' or 'custom'
     fontset = 'cm'
@@ -311,7 +314,7 @@ units = False
     tt = 'monospace'
 
 [patch]
-    # a value of type 'bool'
+    # a boolean
     antialiased = True
     # any valid matplotlib color, eg an abbreviation like 'r' for red, a full
     # name like 'orange', a hex color like '#efefef', a grayscale intensity
@@ -321,12 +324,12 @@ units = False
     # name like 'orange', a hex color like '#efefef', a grayscale intensity
     # like '0.5', or an RGBA tuple (1,0,0,1)
     facecolor = 'blue'
-    # a value of type 'float'
+    # a float
     linewidth = 1.0
 
 [savefig]
-    # a value of type 'float'
-    dpi = 100.0
+    # a float
+    dpi = 100
     # any valid matplotlib color, eg an abbreviation like 'r' for red, a full
     # name like 'orange', a hex color like '#efefef', a grayscale intensity
     # like '0.5', or an RGBA tuple (1,0,0,1)
@@ -343,19 +346,19 @@ units = False
     # name like 'orange', a hex color like '#efefef', a grayscale intensity
     # like '0.5', or an RGBA tuple (1,0,0,1)
     color = 'black'
-    # a value of type 'bool'
+    # a boolean
     usetex = False
 
     [[latex]]
-        # a value of type 'bool'
+        # a boolean
         dvipnghack = False
-        # a list of items each of which is a value of type 'str'
+        # a list of items which are a value of type 'str'
         preamble = []
-        # a value of type 'bool'
+        # a boolean
         unicode = False
 
 [verbose]
-    # a value of type 'str' or a value of type 'unicode' or 'sys.stdout'
+    # a file name or 'sys.stdout'
     fileo = 'sys.stdout'
     # 'silent' or 'helpful' or 'debug' or 'debug-annoying'
     level = 'silent'
@@ -367,21 +370,21 @@ units = False
     color = 'black'
     # 'in' or 'out'
     direction = 'in'
-    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or
-    # 'medium' or 'large' or 'x-large' or 'xx-large'
+    # a float or 'xx-small' or 'x-small' or 'small' or 'medium' or 'large' or
+    # 'x-large' or 'xx-large'
     labelsize = 'small'
 
     [[major]]
-        # a value of type 'float'
-        pad = 4.0
-        # a value of type 'float'
-        size = 4.0
+        # a float
+        pad = 4
+        # a float
+        size = 4
 
     [[minor]]
-        # a value of type 'float'
-        pad = 4.0
-        # a value of type 'float'
-        size = 2.0
+        # a float
+        pad = 4
+        # a float
+        size = 2
 
 [yticks]
     # any valid matplotlib color, eg an abbreviation like 'r' for red, a full
@@ -390,18 +393,18 @@ units = False
     color = 'black'
     # 'in' or 'out'
     direction = 'in'
-    # a value of type 'float' or 'xx-small' or 'x-small' or 'small' or
-    # 'medium' or 'large' or 'x-large' or 'xx-large'
+    # a float or 'xx-small' or 'x-small' or 'small' or 'medium' or 'large' or
+    # 'x-large' or 'xx-large'
     labelsize = 'small'
 
     [[major]]
-        # a value of type 'float'
-        pad = 4.0
-        # a value of type 'float'
-        size = 4.0
+        # a float
+        pad = 4
+        # a float
+        size = 4
 
     [[minor]]
-        # a value of type 'float'
-        pad = 4.0
-        # a value of type 'float'
-        size = 2.0
+        # a float
+        pad = 4
+        # a float
+        size = 2
