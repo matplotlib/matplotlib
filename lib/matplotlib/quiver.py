@@ -267,6 +267,7 @@ class Quiver(collections.PolyCollection):
         X, Y, U, V, C = self._parse_args(*args)
         self.X = X
         self.Y = Y
+        self.XY = npy.hstack((X[:,npy.newaxis], Y[:,npy.newaxis]))
         self.N = len(X)
         self.scale = kw.pop('scale', None)
         self.headwidth = kw.pop('headwidth', 3)
@@ -280,7 +281,7 @@ class Quiver(collections.PolyCollection):
         self.pivot = kw.pop('pivot', 'tail')
         kw.setdefault('facecolors', self.color)
         kw.setdefault('linewidths', (0,))
-        collections.PolyCollection.__init__(self, [], offsets=zip(X, Y),
+        collections.PolyCollection.__init__(self, [], offsets=self.XY,
                                             transOffset=ax.transData, **kw)
         self.polykw = kw
         self.set_UVC(U, V, C)
@@ -307,7 +308,7 @@ class Quiver(collections.PolyCollection):
         nr = 1
         if len(nn) > 1:
             nr = nn[1]
-        if len(args) == 2:
+        if len(args) == 2: # remaining after removing U,V,C
             X, Y = [npy.array(a).ravel() for a in args]
             if len(X) == nc and len(Y) == nr:
                 X, Y = [a.ravel() for a in npy.meshgrid(X, Y)]
