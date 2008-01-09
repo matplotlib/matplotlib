@@ -43,7 +43,7 @@ public:
         Py_XDECREF(m_codes);
     }
 
-    static const char code_map[];
+    static const unsigned code_map[];
 
 private:
     inline unsigned vertex(unsigned idx, double* x, double* y)
@@ -66,7 +66,8 @@ public:
     {
         if (m_iterator >= m_total_vertices) return agg::path_cmd_stop;
         unsigned code = vertex(m_iterator++, x, y);
-        while (MPL_isnan64(*x) || MPL_isnan64(*y)) {
+        while ((MPL_isnan64(*x) || MPL_isnan64(*y)) &&
+               m_iterator < m_total_vertices) {
           vertex(m_iterator++, x, y);
           code = agg::path_cmd_move_to;
         }
@@ -90,7 +91,7 @@ public:
 };
 
 // Maps path codes on the Python side to agg path commands
-const char PathIterator::code_map[] =
+const unsigned PathIterator::code_map[] =
     {0,
      agg::path_cmd_move_to,
      agg::path_cmd_line_to,
