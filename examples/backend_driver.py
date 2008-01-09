@@ -71,6 +71,7 @@ files = (
     'mathtext_demo.py',
     'mri_with_eeg.py',
     'multiple_figs_demo.py',
+    'nan_test.py',
     'pcolor_demo.py',
     'pcolor_demo2.py',
     'pcolor_small.py',

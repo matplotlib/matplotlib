@@ -93,8 +93,10 @@ class Path(object):
         correct places to jump over the masked regions.
         """
         if ma.isMaskedArray(vertices):
+            is_mask = True
             mask = ma.getmask(vertices)
         else:
+            is_mask = False
             vertices = npy.asarray(vertices, npy.float_)
             mask = ma.nomask
 
@@ -108,17 +110,21 @@ class Path(object):
         # itself), are not expected to deal with masked arrays, so we
         # must remove them from the array (using compressed), and add
         # MOVETO commands to the codes array accordingly.
-        if mask is not ma.nomask:
-            mask1d = ma.mask_or(mask[:, 0], mask[:, 1])
-            if codes is None:
-                codes = self.LINETO * npy.ones(
-                    len(vertices), self.code_type)
-                codes[0] = self.MOVETO
-            vertices = ma.compress(npy.invert(mask1d), vertices, 0)
-            codes = npy.where(npy.concatenate((mask1d[-1:], mask1d[:-1])),
-                              self.MOVETO, codes)
-            codes = ma.masked_array(codes, mask=mask1d).compressed()
-            codes = npy.asarray(codes, self.code_type)
+        if is_mask:
+            if mask is not ma.nomask:
+                mask1d = ma.mask_or(mask[:, 0], mask[:, 1])
+                if codes is None:
+                    codes = self.LINETO * npy.ones(
+                        len(vertices), self.code_type)
+                    codes[0] = self.MOVETO
+                vertices = ma.compress(npy.invert(mask1d), vertices, 0)
+                vertices = npy.asarray(vertices)
+                codes = npy.where(npy.concatenate((mask1d[-1:], mask1d[:-1])),
+                                  self.MOVETO, codes)
+                codes = ma.masked_array(codes, mask=mask1d).compressed()
+                codes = npy.asarray(codes, self.code_type)
+            else:
+                vertices = npy.asarray(vertices, npy.float_)
 
         assert vertices.ndim == 2
         assert vertices.shape[1] == 2
@@ -161,8 +167,13 @@ class Path(object):
         Iterates over all of the curve segments in the path.
         """
 	vertices = self.vertices
+        if not len(vertices):
+            return
+
         codes = self.codes
         len_vertices = len(vertices)
+        isnan = npy.isnan
+        any = npy.any
 
 	NUM_VERTICES = self.NUM_VERTICES
         MOVETO = self.MOVETO
@@ -170,15 +181,17 @@ class Path(object):
         CLOSEPOLY = self.CLOSEPOLY
         STOP = self.STOP
 
-        if not len(vertices):
-            return
-
         if codes is None:
-            yield vertices[0], MOVETO
-            for v in vertices[1:]:
-                yield v, LINETO
+            next_code = MOVETO
+            for v in vertices:
+                if any(isnan(v)):
+                    next_code = MOVETO
+                else:
+                    yield v, next_code
+                    next_code = LINETO
         else:
             i = 0
+            was_nan = False
             while i < len_vertices:
                 code = codes[i]
                 if code == CLOSEPOLY:
@@ -188,7 +201,14 @@ class Path(object):
                     return
                 else:
                     num_vertices = NUM_VERTICES[code]
-                    yield vertices[i:i+num_vertices].flatten(), code
+                    curr_vertices = vertices[i:i+num_vertices].flatten()
+                    if any(isnan(curr_vertices)):
+                        was_nan = True
+                    elif was_nan:
+                        yield curr_vertices[-2:], MOVETO
+                        was_nan = False
+                    else:
+                        yield curr_vertices, code
                     i += num_vertices
 
     def transformed(self, transform):

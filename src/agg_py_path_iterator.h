@@ -5,6 +5,7 @@
 #define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
 #include "agg_path_storage.h"
+#include "MPL_isnan.h"
 
 class PathIterator
 {
@@ -64,7 +65,12 @@ public:
     inline unsigned vertex(double* x, double* y)
     {
         if (m_iterator >= m_total_vertices) return agg::path_cmd_stop;
-        return vertex(m_iterator++, x, y);
+        unsigned code = vertex(m_iterator++, x, y);
+        while (MPL_isnan64(*x) || MPL_isnan64(*y)) {
+          vertex(m_iterator++, x, y);
+          code = agg::path_cmd_move_to;
+        }
+        return code;
     }
 
     inline void rewind(unsigned path_id)
