@@ -491,7 +491,7 @@ class Path(object):
         Returns a wedge of the unit circle from angle theta1 to angle
         theta2 (in degrees).
         """
-        return cls.arc(theta1, theta2, True, n)
+        return cls.arc(theta1, theta2, n, True)
     wedge = classmethod(wedge)
 
 _get_path_collection_extents = get_path_collection_extents
