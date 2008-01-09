@@ -438,10 +438,8 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         fc = self.axes.get_frame().get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
         bg = (npy.array(bg)*255).astype(npy.uint8)
-        x0, y0, v_width, v_height = self.axes.viewLim.get_bounds()
-        l, b, width, height = self.axes.bbox.get_bounds()
-        width *= magnification
-        height *= magnification
+        width = self.axes.bbox.width * magnification
+        height = self.axes.bbox.height * magnification
         if self.check_update('array'):
             A = self.to_rgba(self._A, alpha=self._alpha, bytes=True)
             self._rgbacache = A
@@ -449,9 +447,11 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
                 self.is_grayscale = self.cmap.is_gray()
         else:
             A = self._rgbacache
+        vl = self.axes.viewLim
         im = _image.pcolor2(self._Ax, self._Ay, A,
-                           height, width,
-                           (x0, x0+v_width, y0, y0+v_height),
+                           self.axes.bbox.height,
+                           self.axes.bbox.width,
+                           (vl.x0, vl.x1, vl.y0, vl.y1),
                            bg)
         im.is_grayscale = self.is_grayscale
         return im
@@ -459,8 +459,11 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
         im = self.make_image(renderer.get_image_magnification())
-        l, b, widthDisplay, heightDisplay = self.axes.bbox.get_bounds()
-        renderer.draw_image(l, b, im, self.axes.bbox)
+        renderer.draw_image(self.axes.bbox.xmin,
+                            self.axes.bbox.ymin,
+                            im,
+                            self.axes.bbox.frozen(),
+                            *self.get_transformed_clip_path_and_affine())
 
 
     def set_data(self, x, y, A):
