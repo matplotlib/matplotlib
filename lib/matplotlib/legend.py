@@ -248,7 +248,7 @@ The following dimensions are in axes coords
                 legline.update_from(handle)
                 self._set_artist_props(legline) # after update
                 legline.set_clip_box(None)
-                legline.set_clip_path(self.legendPatch)
+                legline.set_clip_path(None)
                 legline.set_markersize(self.markerscale*legline.get_markersize())
 
                 ret.append(legline)
@@ -260,14 +260,14 @@ The following dimensions are in axes coords
                 p.update_from(handle)
                 self._set_artist_props(p)
                 p.set_clip_box(None)
-                p.set_clip_path(self.legendPatch)
+                p.set_clip_path(None)
                 ret.append(p)
             elif isinstance(handle, LineCollection):
                 ydata = (y-HEIGHT/2)*npy.ones(self._xdata.shape, float)
                 legline = Line2D(self._xdata, ydata)
                 self._set_artist_props(legline)
                 legline.set_clip_box(None)
-                legline.set_clip_path(self.legendPatch)
+                legline.set_clip_path(None)
                 lw = handle.get_linewidth()[0]
                 dashes = handle.get_dashes()
                 color = handle.get_colors()[0]
@@ -285,7 +285,7 @@ The following dimensions are in axes coords
                     p.set_edgecolor(handle._edgecolors[0])
                 self._set_artist_props(p)
                 p.set_clip_box(None)
-                p.set_clip_path(self.legendPatch)
+                p.set_clip_path(None)
                 ret.append(p)
 
             else:
