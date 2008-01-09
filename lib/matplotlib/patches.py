@@ -107,12 +107,7 @@ class Patch(artist.Artist):
         return self.get_path().get_extents(self.get_transform())
 
     def get_transform(self):
-        return self._combined_transform
-
-    def set_transform(self, t):
-        artist.Artist.set_transform(self, t)
-        self._combined_transform = self.get_patch_transform() + \
-            artist.Artist.get_transform(self)
+        return self.get_patch_transform() + artist.Artist.get_transform(self)
 
     def get_data_transform(self):
         return artist.Artist.get_transform(self)
@@ -387,13 +382,9 @@ class Rectangle(Patch):
         height = self.convert_yunits(self._height)
         bbox = transforms.Bbox.from_bounds(x, y, width, height)
         self._rect_transform = transforms.BboxTransformTo(bbox)
-        self._combined_transform = self._rect_transform + artist.Artist.get_transform(self)
-
-    def draw(self, renderer):
-        self._update_patch_transform()
-        Patch.draw(self, renderer)
 
     def get_patch_transform(self):
+        self._update_patch_transform()
 	return self._rect_transform
 
     def contains(self, mouseevent):
@@ -513,27 +504,25 @@ class RegularPolygon(Patch):
         return self._orientation
     def _set_orientation(self, xy):
         self._orientation = xy
-        self._update_transform()
     orientation = property(_get_orientation, _set_orientation)
 
     def _get_radius(self):
         return self._radius
     def _set_radius(self, xy):
         self._radius = xy
-        self._update_transform()
     radius = property(_get_radius, _set_radius)
 
     def _get_numvertices(self):
         return self._numVertices
     def _set_numvertices(self, numVertices):
         self._numVertices = numVertices
-        self._path = Path.unit_regular_polygon(numVertices)
     numvertices = property(_get_numvertices, _set_numvertices)
 
     def get_path(self):
 	return self._path
 
     def get_patch_transform(self):
+        self._update_transform()
         return self._poly_transform
 
 class PathPatch(Patch):
@@ -606,22 +595,16 @@ class Wedge(Patch):
         self._patch_transform = transforms.IdentityTransform()
         self._path = Path.wedge(self.theta1, self.theta2)
 
-    def draw(self, renderer):
+    def get_path(self):
+	return self._path
+
+    def get_patch_transform(self):
         x = self.convert_xunits(self.center[0])
         y = self.convert_yunits(self.center[1])
         rx = self.convert_xunits(self.r)
         ry = self.convert_yunits(self.r)
         self._patch_transform = transforms.Affine2D() \
             .scale(rx, ry).translate(x, y)
-        self._combined_transform = self._patch_transform + \
-            artist.Artist.get_transform(self)
-        Patch.draw(self, renderer)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
-
-    def get_path(self):
-	return self._path
-
-    def get_patch_transform(self):
 	return self._patch_transform
 
 # COVERAGE NOTE: Not used internally or from examples
@@ -874,12 +857,6 @@ class Ellipse(Patch):
 	    .scale(width * 0.5, height * 0.5) \
 	    .rotate_deg(self.angle) \
 	    .translate(*center)
-        self._combined_transform = self._patch_transform + \
-            artist.Artist.get_transform(self)
-
-    def draw(self, renderer):
-        self._recompute_transform()
-        Patch.draw(self, renderer)
 
     def get_path(self):
         """
@@ -888,6 +865,7 @@ class Ellipse(Patch):
 	return self._path
 
     def get_patch_transform(self):
+        self._recompute_transform()
         return self._patch_transform
 
     def contains(self,ev):
