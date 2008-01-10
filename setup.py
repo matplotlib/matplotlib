@@ -8,7 +8,7 @@ setup.cfg.template for more information.
 """
 
 # This dict will be updated as we try to select the best option during
-# the build process. However, values in setup.cfg will be used, if 
+# the build process. However, values in setup.cfg will be used, if
 # defined.
 rc = {'backend':'Agg', 'numerix':'numpy'}
 
@@ -36,7 +36,7 @@ directory.""")
 
 if major==2 and minor1<3 or major<2:
     raise SystemExit("""matplotlib requires Python 2.3 or later.""")
-    
+
 import glob
 from distutils.core import setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
@@ -112,7 +112,7 @@ if havesubprocess and sys.version < '2.4':
     subprocess_dir = os.path.dirname(subprocess.__file__)
     if subprocess_dir.endswith('.egg/subprocess'):
         havesubprocess = False
-        
+
 if not havesubprocess:
     packages.append('subprocess')
     if sys.platform == 'win32':
@@ -120,7 +120,7 @@ if not havesubprocess:
 
 if not check_for_freetype():
     sys.exit(1)
-    
+
 build_ft2font(ext_modules, packages)
 build_ttconv(ext_modules, packages)
 build_contour(ext_modules, packages)
@@ -145,7 +145,7 @@ if options['build_windowing'] and sys.platform=='win32':
    build_windowing(ext_modules, packages)
 
 # the options can be True, False, or 'auto'. If True, try to build
-# regardless of the lack of dependencies. If auto, silently skip 
+# regardless of the lack of dependencies. If auto, silently skip
 # when dependencies are missing.
 if options['build_tkagg']:
     if check_for_tk() or (options['build_tkagg'] is True):
@@ -188,12 +188,12 @@ provide_pytz = check_provide_pytz(hasdatetime)
 
 if hasdatetime: # dates require python23 datetime
     # only install pytz and dateutil if the user hasn't got them
-    
+
     def add_pytz():
         packages.append('pytz')
         resources = ['zone.tab', 'locales/pytz.pot']
         # install pytz subdirs
-        for dirpath, dirname, filenames in os.walk(os.path.join('lib', 'pytz', 
+        for dirpath, dirname, filenames in os.walk(os.path.join('lib', 'pytz',
                                                                 'zoneinfo')):
             if '.svn' not in dirpath:
                 # remove the 'lib/pytz' part of the path
@@ -237,12 +237,8 @@ print_raw("[Edit setup.cfg to suppress the above messages]")
 print_line()
 
 # Write the default matplotlibrc file
-if sys.platform=='win32':
-    rc['backend'] = 'TkAgg'
-    rc['numerix'] = 'numpy'
-else:
-    if options['backend']: rc['backend'] = options['backend']
-    if options['numerix']: rc['numerix'] = options['numerix']
+if options['backend']: rc['backend'] = options['backend']
+if options['numerix']: rc['numerix'] = options['numerix']
 template = file('matplotlibrc.template').read()
 file('lib/matplotlib/mpl-data/matplotlibrc', 'w').write(template%rc)
 
