@@ -1,3 +1,6 @@
+2008-01-10 Moved toolkits to mpl_toolkits, made mpl_toolkits
+           a namespace package - JSWHIT
+
 2008-01-10 Use setup.cfg to set the default parameters (tkagg, 
            numpy) when building windows installers - DSD
 
