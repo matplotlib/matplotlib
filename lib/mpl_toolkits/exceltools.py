@@ -4,7 +4,7 @@ Some io tools for excel -- requires pypyExcelerator
 Example usage:
 
     import matplotlib.mlab as mlab
-    import matplotlib.toolkits.exceltools as exceltools
+    import mpl_toolkits.exceltools as exceltools
     
     r = mlab.csv2rec('somefile.csv', checkrows=0)
 
