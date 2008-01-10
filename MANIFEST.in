@@ -4,7 +4,7 @@ include Makefile  MANIFEST.in MANIFEST
 include matplotlibrc.template matplotlibrc setup.cfg.template
 include __init__.py setupext.py setup.py setupegg.py makeswig.py
 include examples/data/*
-include lib/matplotlib/toolkits
+include lib/mpl_toolkits
 include lib/matplotlib/mpl-data/matplotlib.conf
 include lib/matplotlib/mpl-data/matplotlib.conf.template
 include lib/matplotlib/mpl-data/lineprops.glade
