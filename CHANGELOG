@@ -1,3 +1,5 @@
+2008-01-10 Fix bug displaying [ and ] in mathtext - MGD
+
 2008-01-10 Fix bug when displaying a tick value offset with scientific
            notation. (Manifests itself as a warning that the \times
            symbol can not be found). - MGD
