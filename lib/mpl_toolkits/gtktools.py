@@ -7,7 +7,7 @@ Some gtk specific tools and widgets
 Example usage
 
     import matplotlib.mlab as mlab
-    import matplotlib.toolkits.gtktools as gtktools
+    import mpl_toolkits.gtktools as gtktools
     
     r = mlab.csv2rec('somefile.csv', checkrows=0)
 
