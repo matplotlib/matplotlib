@@ -236,12 +236,8 @@ print_raw("[Edit setup.cfg to suppress the above messages]")
 print_line()
 
 # Write the default matplotlibrc file
-if sys.platform=='win32':
-    rc['backend'] = 'TkAgg'
-    rc['numerix'] = 'numpy'
-else:
-    if options['backend']: rc['backend'] = options['backend']
-    if options['numerix']: rc['numerix'] = options['numerix']
+if options['backend']: rc['backend'] = options['backend']
+if options['numerix']: rc['numerix'] = options['numerix']
 template = file('matplotlibrc.template').read()
 file('lib/matplotlib/mpl-data/matplotlibrc', 'w').write(template%rc)
 
