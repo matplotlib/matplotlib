@@ -29,7 +29,15 @@ To check out the trunk with the latest transforms changes:
     > svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib
 
 If you already have a working copy of the trunk, your next "svn up" will
-include the latest transforms changes.
+include the latest transforms changes.  
+
+Before installing, make sure you completely remove the old matplotlib
+build and install directories, eg: 
+
+    > cd matplotlib
+    > sudo rm -rf build
+    > sudo rm -rf /usr/local/lib/python2.5/site-packages/matplotlib
+    > sudo python setup.py install
 
 Using the old svn code
 ======================
