@@ -561,8 +561,10 @@ def rc_params(fail_on_error=False):
 
     fname = matplotlib_fname()
     if not os.path.exists(fname):
+        # this should never happen, default in mpl-data should always be found
         message = 'could not find rc file; returning defaults'
-        ret =  dict([ (key, tup[0]) for key, tup in defaultParams.items()])
+        ret = RcParams([ (key, default) for key, (default, converter) in \
+                        defaultParams.iteritems() ])
         warnings.warn(message)
         return ret
 
