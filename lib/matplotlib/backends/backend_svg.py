@@ -294,8 +294,20 @@ class RendererSVG(RendererBase):
 
         fontsize = prop.get_size_in_points()
         color = rgb2hex(gc.get_rgb()[:3])
+        write = self._svgwriter.write
 
         if rcParams['svg.embed_char_paths']:
+            new_chars = []
+            for c in s:
+                path = self._add_char_def(prop, c)
+                if path is not None:
+                    new_chars.append(path)
+            if len(new_chars):
+                write('<defs>\n')
+                for path in new_chars:
+                    write(path)
+                write('</defs>\n')
+
             svg = ['<g style="fill: %s; opacity: %s" transform="' % (color, gc.get_alpha())]
             if angle != 0:
                 svg.append('translate(%s,%s)rotate(%1.1f)' % (x,y,-angle))
@@ -307,7 +319,7 @@ class RendererSVG(RendererBase):
             lastgind = None
             currx = 0
             for c in s:
-                charid = self._add_char_def(prop, c)
+                charnum = self._get_char_def_id(prop, c)
                 ccode = ord(c)
                 gind = cmap.get(ccode)
                 if gind is None:
@@ -322,7 +334,7 @@ class RendererSVG(RendererBase):
                 lastgind = gind
                 currx += kern/64.0
 
-                svg.append('<use xlink:href="#%s"' % charid)
+                svg.append('<use xlink:href="#%s"' % charnum)
                 if currx != 0:
                     svg.append(' x="%s"' %
                                (currx * (self.FONT_SCALE / fontsize)))
@@ -346,7 +358,7 @@ class RendererSVG(RendererBase):
             svg = """\
 <text style="%(style)s" x="%(x)s" y="%(y)s" %(transform)s>%(thetext)s</text>
 """ % locals()
-        self._svgwriter.write (svg)
+        write(svg)
 
     def _add_char_def(self, prop, char):
         if isinstance(prop, FontProperties):
@@ -357,9 +369,9 @@ class RendererSVG(RendererBase):
         font.set_size(self.FONT_SCALE, 72)
         ps_name = font.get_sfnt()[(1,0,0,6)]
         char_id = urllib.quote('%s-%d' % (ps_name, ord(char)))
-        char_num, path = self._char_defs.get(char_id, (None, None))
+        char_num = self._char_defs.get(char_id, None)
         if char_num is not None:
-            return char_num
+            return None
 
         path_data = []
         glyph = font.load_char(ord(char), flags=LOAD_NO_HINTING)
@@ -388,8 +400,19 @@ class RendererSVG(RendererBase):
                 currx, curry = step[-2], -step[-1]
         char_num = 'c%x' % len(self._char_defs)
         path_element = '<path id="%s" d="%s"/>\n' % (char_num, ''.join(path_data))
-        self._char_defs[char_id] = (char_num, path_element)
-        return char_num
+        self._char_defs[char_id] = char_num
+        return path_element
+
+    def _get_char_def_id(self, prop, char):
+        if isinstance(prop, FontProperties):
+            newprop = prop.copy()
+            font = self._get_font(newprop)
+        else:
+            font = prop
+        font.set_size(self.FONT_SCALE, 72)
+        ps_name = font.get_sfnt()[(1,0,0,6)]
+        char_id = urllib.quote('%s-%d' % (ps_name, ord(char)))
+        return self._char_defs[char_id]
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         """
@@ -400,12 +423,22 @@ class RendererSVG(RendererBase):
         svg_glyphs = svg_elements.svg_glyphs
         svg_rects = svg_elements.svg_rects
         color = rgb2hex(gc.get_rgb()[:3])
-
-        self.open_group("mathtext")
+        write = self._svgwriter.write
 
         style = "fill: %s" % color
 
         if rcParams['svg.embed_char_paths']:
+            new_chars = []
+            for font, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
+                path = self._add_char_def(font, thetext)
+                if path is not None:
+                    new_chars.append(path)
+            if len(new_chars):
+                write('<defs>\n')
+                for path in new_chars:
+                    write(path)
+                write('</defs>\n')
+
             svg = ['<g style="%s" transform="' % style]
             if angle != 0:
                 svg.append('translate(%s,%s)rotate(%1.1f)'
@@ -415,7 +448,7 @@ class RendererSVG(RendererBase):
             svg.append('">\n')
 
             for font, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
-                charid = self._add_char_def(font, thetext)
+                charid = self._get_char_def_id(font, thetext)
 
                 svg.append('<use xlink:href="#%s" transform="translate(%s,%s)scale(%s)"/>\n' %
                            (charid, new_x, -new_y_mtc, fontsize / self.FONT_SCALE))
@@ -469,16 +502,12 @@ class RendererSVG(RendererBase):
                 svg.append('<rect x="%s" y="%s" width="%s" height="%s" fill="black" stroke="none" />' % (x, -y + height, width, height))
             svg.append("</g>")
 
-        self._svgwriter.write (''.join(svg))
+        self.open_group("mathtext")
+        write (''.join(svg))
         self.close_group("mathtext")
 
     def finalize(self):
         write = self._svgwriter.write
-        if len(self._char_defs):
-            write('<defs id="fontpaths">\n')
-            for char_num, path in self._char_defs.values():
-                write(path)
-            write('</defs>\n')
         write('</svg>\n')
 
     def flipy(self):
