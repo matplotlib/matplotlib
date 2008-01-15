@@ -541,7 +541,7 @@ grestore
         corr = 0#w/2*(fontsize-10)/10
         pos = _nums_to_str(x-corr, y)
         thetext = 'psmarker%d' % self.textcnt
-        color = '%1.3f,%1.3f,%1.3f'% gc.get_rgb()
+        color = '%1.3f,%1.3f,%1.3f'% gc.get_rgb()[:3]
         fontcmd = {'sans-serif' : r'{\sffamily %s}',
                'monospace'  : r'{\ttfamily %s}'}.get(
                 rcParams['font.family'], r'{\rmfamily %s}')
@@ -597,7 +597,7 @@ grestore
             fontname = font.get_fontname()
             fontsize = prop.get_size_in_points()
             rotate = '%1.1f rotate' % angle
-            setcolor = '%1.3f %1.3f %1.3f setrgbcolor' % gc.get_rgb()
+            setcolor = '%1.3f %1.3f %1.3f setrgbcolor' % gc.get_rgb()[:3]
             #h = 0
             ps = """\
 gsave
