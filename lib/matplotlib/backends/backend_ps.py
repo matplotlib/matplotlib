@@ -759,16 +759,6 @@ grestore
         fill = (fill and rgbFace is not None and
                 (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
 
-        if stroke:
-            self.set_linewidth(gc.get_linewidth())
-            jint = gc.get_joinstyle()
-            self.set_linejoin(jint)
-            cint = gc.get_capstyle()
-            self.set_linecap(cint)
-            self.set_linedash(*gc.get_dashes())
-            if self.linewidth > 0 and stroke:
-                self.set_color(*gc.get_rgb()[:3])
-
         cliprect = gc.get_clip_rectangle()
         if cliprect:
             x,y,w,h=cliprect.bounds
@@ -782,17 +772,23 @@ grestore
         write(ps.strip())
         write("\n")
 
+        hatch = gc.get_hatch()
+        if hatch:
+            self.set_hatch(hatch)
+
         if fill:
             #print 'rgbface', rgbFace
             write("gsave\n")
             self.set_color(store=0, *rgbFace[:3])
             write("fill\ngrestore\n")
 
-        hatch = gc.get_hatch()
-        if (hatch):
-            self.set_hatch(hatch)
-
-        if self.linewidth > 0 and stroke:
+        if stroke and gc.get_linewidth() > 0.0:
+            self.set_linewidth(gc.get_linewidth())
+            jint = gc.get_joinstyle()
+            self.set_linejoin(jint)
+            cint = gc.get_capstyle()
+            self.set_linecap(cint)
+            self.set_linedash(*gc.get_dashes())
             self.set_color(*gc.get_rgb()[:3])
             write("stroke\n")
         else:
