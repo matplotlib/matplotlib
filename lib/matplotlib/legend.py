@@ -272,7 +272,7 @@ The following dimensions are in axes coords
                 legline.set_clip_box(None)
                 legline.set_clip_path(None)
                 lw = handle.get_linewidth()[0]
-                dashes = handle.get_dashes()
+                dashes = handle.get_dashes()[0]
                 color = handle.get_colors()[0]
                 legline.set_color(color)
                 legline.set_linewidth(lw)
