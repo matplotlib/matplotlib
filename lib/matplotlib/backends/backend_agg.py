@@ -299,5 +299,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer = self.get_renderer()
         original_dpi = renderer.dpi
         renderer.dpi = self.figure.dpi
+        filename = str(filename) # until we figure out unicode handling
         renderer._renderer.write_png(filename, self.figure.dpi)
         renderer.dpi = original_dpi
