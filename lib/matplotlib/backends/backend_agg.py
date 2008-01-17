@@ -394,5 +394,6 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     def print_png(self, filename, *args, **kwargs):
         self.draw()
+        filename = str(filename) # until we figure out unicode handling
         self.get_renderer()._renderer.write_png(filename, self.figure.dpi.get())
 
