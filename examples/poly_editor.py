@@ -37,6 +37,7 @@ class PolygonInteractor:
 
         x, y = zip(*self.poly.xy)
         self.line = Line2D(x,y,marker='o', markerfacecolor='r', animated=True)
+        self.ax.add_line(self.line)
         #self._update_line(poly)
 
         cid = self.poly.add_callback(self.poly_changed)
