@@ -35,12 +35,12 @@ class LassoManager:
 
         self.Nxy = len(data)
 
-        self.facecolors = [d.color for d in data]
+        facecolors = [d.color for d in data]
         self.xys = [(d.x, d.y) for d in data]
 
         self.collection = RegularPolyCollection(
             fig.dpi, 6, sizes=(100,),
-            facecolors=self.facecolors,
+            facecolors=facecolors,
             offsets = self.xys,
             transOffset = ax.transData)
 
@@ -49,12 +49,13 @@ class LassoManager:
         self.cid = self.canvas.mpl_connect('button_press_event', self.onpress)
 
     def callback(self, verts):
+        facecolors = self.collection.get_facecolors()
         ind = nonzero(points_inside_poly(self.xys, verts))[0]
         for i in range(self.Nxy):
             if i in ind:
-                self.facecolors[i] = Datum.colorin
+                facecolors[i] = Datum.colorin
             else:
-                self.facecolors[i] = Datum.colorout
+                facecolors[i] = Datum.colorout
 
         self.canvas.draw_idle()
         self.canvas.widgetlock.release(self.lasso)
