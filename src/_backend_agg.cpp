@@ -887,7 +887,7 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   trans *= agg::trans_affine_scaling(1.0, -1.0);
   trans *= agg::trans_affine_translation(0.0, (double)height);
   bool snap = should_snap(path, trans);
-  bool simplify = should_simplify(path);
+  bool simplify = should_simplify(path) && !face.first;
 
   transformed_path_t tpath(path, trans);
   simplify_t simplified(tpath, snap, simplify, width, height);
