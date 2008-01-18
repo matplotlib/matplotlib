@@ -37,6 +37,7 @@ class PolygonInteractor:
 
         x, y = zip(*self.poly.xy)
         self.line = Line2D(x,y,marker='o', markerfacecolor='r', animated=True)
+        self.ax.add_line(self.line)
         #self._update_line(poly)
 
         cid = self.poly.add_callback(self.poly_changed)
@@ -106,14 +107,17 @@ class PolygonInteractor:
                 self.poly.xy = [tup for i,tup in enumerate(self.poly.xy) if i!=ind]
                 self.line.set_data(zip(*self.poly.xy))
         elif event.key=='i':
-            xys = self.poly.get_transform().seq_xy_tups(self.poly.xy)
+            xys = self.poly.get_transform().transform(self.poly.xy)
             p = event.x, event.y # display coords
             for i in range(len(xys)-1):
                 s0 = xys[i]
                 s1 = xys[i+1]
                 d = dist_point_to_segment(p, s0, s1)
                 if d<=self.epsilon:
-                    self.poly.xy.insert(i+1, (event.xdata, event.ydata))
+                    self.poly.xy = npy.array(
+                        list(self.poly.xy[:i]) +
+                        [(event.xdata, event.ydata)] +
+                        list(self.poly.xy[i:]))
                     self.line.set_data(zip(*self.poly.xy))
                     break
 
@@ -130,7 +134,7 @@ class PolygonInteractor:
 
         self.poly.xy[self._ind] = x,y
         self.line.set_data(zip(*self.poly.xy))
-        
+
         self.canvas.restore_region(self.background)
         self.ax.draw_artist(self.poly)
         self.ax.draw_artist(self.line)
