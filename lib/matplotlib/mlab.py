@@ -1990,11 +1990,6 @@ def rec_join(key, r1, r2):
     def makekey(row):
         return tuple([row[name] for name in key])
 
-
-    names = list(r1.dtype.names) + [name for name in r2.dtype.names if name not in set(r1.dtype.names)]
-
-
-
     r1d = dict([(makekey(row),i) for i,row in enumerate(r1)])
     r2d = dict([(makekey(row),i) for i,row in enumerate(r2)])
 
@@ -2003,12 +1998,14 @@ def rec_join(key, r1, r2):
 
     keys = r1keys & r2keys
 
-    r1ind = [r1d[k] for k in keys]
-    r2ind = [r2d[k] for k in keys]
+    r1ind = npy.array([r1d[k] for k in keys])
+    r2ind = npy.array([r2d[k] for k in keys])
 
+    # Make sure that the output rows have the same relative order as r1
+    sortind = r1ind.argsort()
 
-    r1 = r1[r1ind]
-    r2 = r2[r2ind]
+    r1 = r1[r1ind[sortind]]
+    r2 = r2[r2ind[sortind]]
 
     r2 = rec_drop_fields(r2, r1.dtype.names)
 
