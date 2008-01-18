@@ -20,6 +20,7 @@
 #include "agg_span_image_filter_gray.h"
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
+#include "agg_conv_shorten_path.h"
 #include "util/agg_color_conv_rgb8.h"
 
 #include "ft2font.h"
@@ -83,31 +84,6 @@ Py::Object BufferRegion::to_string(const Py::Tuple &args) {
   // owned=true to prevent memory leak
   return Py::String(PyString_FromStringAndSize((const char*)data, height*stride), true);
 }
-
-template<class VertexSource> class conv_quantize
-{
-public:
-  conv_quantize(VertexSource& source, bool quantize) :
-    m_source(&source), m_quantize(quantize) {}
-
-  void rewind(unsigned path_id) {
-    m_source->rewind(path_id);
-  }
-
-  unsigned vertex(double* x, double* y) {
-    unsigned cmd = m_source->vertex(x, y);
-    if (m_quantize && agg::is_vertex(cmd)) {
-      *x = round(*x) + 0.5;
-      *y = round(*y) + 0.5;
-    }
-    return cmd;
-  }
-
-private:
-  VertexSource* m_source;
-  bool m_quantize;
-};
-
 
 GCAgg::GCAgg(const Py::Object &gc, double dpi) :
   dpi(dpi), isaa(true), linewidth(1.0), alpha(1.0),
@@ -358,8 +334,8 @@ SafeSnap::snap (const float& x, const float& y) {
 
 template<class Path>
 bool should_snap(Path& path, const agg::trans_affine& trans) {
-  // If this contains only straight horizontal or vertical lines, quantize to nearest
-  // pixels
+  // If this contains only straight horizontal or vertical lines, it should be
+  // quantized to the nearest pixels
   double x0, y0, x1, y1;
   unsigned code;
 
@@ -390,6 +366,11 @@ bool should_snap(Path& path, const agg::trans_affine& trans) {
 
   path.rewind(0);
   return true;
+}
+
+template<class Path>
+bool should_simplify(Path& path) {
+  return !path.has_curves() && path.total_vertices() > 5;
 }
 
 Py::Object
@@ -479,7 +460,7 @@ bool RendererAgg::render_clippath(const Py::Object& clippath, const agg::trans_a
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
   typedef agg::conv_transform<PathIterator>		     transformed_path_t;
-  typedef conv_quantize<transformed_path_t>		     quantize_t;
+  typedef SimplifyPath<transformed_path_t>		     simplify_t;
   typedef agg::conv_curve<transformed_path_t>	             curve_t;
   typedef agg::conv_stroke<curve_t>			     stroke_t;
   typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
@@ -510,8 +491,8 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   bool snap = should_snap(path, trans);
   transformed_path_t path_transformed(path, trans);
   GCAgg gc = GCAgg(gc_obj, dpi);
-  quantize_t path_quantized(path_transformed, snap);
-  path_quantized.rewind(0);
+  simplify_t path_simplified(path_transformed, snap, false, width, height);
+  path_simplified.rewind(0);
 
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
 
@@ -564,7 +545,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
     if (has_clippath) {
-      while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
+      while (path_simplified.vertex(&x, &y) != agg::path_cmd_stop) {
 	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
 	amask_ren_type r(pfa);
 	amask_aa_renderer_type ren(r);
@@ -579,7 +560,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 	agg::render_scanlines(sa, sl, ren);
       }
     } else {
-      while (path_quantized.vertex(&x, &y) != agg::path_cmd_stop) {
+      while (path_simplified.vertex(&x, &y) != agg::path_cmd_stop) {
 	if (face.first) {
 	  rendererAA->color(face.second);
 	  sa.init(fillCache, fillSize, x, y);
@@ -881,8 +862,8 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
 Py::Object
 RendererAgg::draw_path(const Py::Tuple& args) {
   typedef agg::conv_transform<PathIterator>	transformed_path_t;
-  typedef conv_quantize<transformed_path_t>	quantize_t;
-  typedef agg::conv_curve<quantize_t>		curve_t;
+  typedef SimplifyPath<transformed_path_t>	simplify_t;
+  typedef agg::conv_curve<simplify_t>		curve_t;
 
   _VERBOSE("RendererAgg::draw_path");
   args.verify_length(3, 4);
@@ -906,9 +887,11 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   trans *= agg::trans_affine_scaling(1.0, -1.0);
   trans *= agg::trans_affine_translation(0.0, (double)height);
   bool snap = should_snap(path, trans);
+  bool simplify = should_simplify(path);
+
   transformed_path_t tpath(path, trans);
-  quantize_t quantized(tpath, snap);
-  curve_t curve(quantized);
+  simplify_t simplified(tpath, snap, simplify, width, height);
+  curve_t curve(simplified);
   if (snap)
     gc.isaa = false;
 
@@ -934,8 +917,8 @@ RendererAgg::_draw_path_collection_generic
    const Py::SeqBase<Py::Object>& linestyles_obj,
    const Py::SeqBase<Py::Int>&    antialiaseds) {
   typedef agg::conv_transform<typename PathGenerator::path_iterator> transformed_path_t;
-  typedef conv_quantize<transformed_path_t>			     quantize_t;
-  typedef agg::conv_curve<quantize_t>				     quantized_curve_t;
+  typedef SimplifyPath<transformed_path_t>			     simplify_t;
+  typedef agg::conv_curve<simplify_t>				     simplified_curve_t;
   typedef agg::conv_curve<transformed_path_t>			     curve_t;
 
   GCAgg gc(dpi);
@@ -1068,12 +1051,12 @@ RendererAgg::_draw_path_collection_generic
 	  gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
 
 	transformed_path_t tpath(path, trans);
-	quantize_t quantized(tpath, snap);
+	simplify_t simplified(tpath, snap, false, width, height);
 	if (has_curves) {
-	  quantized_curve_t curve(quantized);
+	  simplified_curve_t curve(simplified);
 	  _draw_path(curve, has_clippath, face, gc);
 	} else {
-	  _draw_path(quantized, has_clippath, face, gc);
+	  _draw_path(simplified, has_clippath, face, gc);
 	}
       } else {
 	gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));

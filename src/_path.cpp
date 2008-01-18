@@ -1102,17 +1102,23 @@ void _add_polygon(Py::List& polygons, const std::vector<double>& polygon) {
 Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
-    typedef agg::conv_curve<transformed_path_t> curve_t;
+    typedef SimplifyPath<transformed_path_t> simplify_t;
+    typedef agg::conv_curve<simplify_t> curve_t;
 
     typedef std::vector<double> vertices_t;
 
-    args.verify_length(2);
+    args.verify_length(4);
 
     PathIterator path(args[0]);
     agg::trans_affine trans = py_to_agg_transformation_matrix(args[1], false);
+    double width = Py::Float(args[2]);
+    double height = Py::Float(args[3]);
+
+    bool simplify = !path.has_curves();
 
     transformed_path_t tpath(path, trans);
-    curve_t curve(tpath);
+    simplify_t simplified(tpath, false, simplify, width, height);
+    curve_t curve(simplified);
 
     Py::List polygons;
     vertices_t polygon;
