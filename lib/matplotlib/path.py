@@ -283,7 +283,7 @@ class Path(object):
             new_codes = None
         return Path(vertices, new_codes)
 
-    def to_polygons(self, transform=None):
+    def to_polygons(self, transform=None, width=0, height=0):
         """
         Convert this path to a list of polygons.  Each polygon is an
         Nx2 array of vertices.  In other words, each polygon has no
@@ -292,13 +292,13 @@ class Path(object):
         if transform is not None:
             transform = transform.frozen()
         # Deal with the common and simple case
-        if self.codes is None:
+        if self.codes is None and len(self.vertices) < 100:
             if len(self.vertices):
                 return [transform.transform(self.vertices)]
             return []
         # Deal with the case where there are curves and/or multiple
         # subpaths (using extension code)
-        return convert_path_to_polygons(self, transform)
+        return convert_path_to_polygons(self, transform, width, height)
 
     _unit_rectangle = None
     #@classmethod

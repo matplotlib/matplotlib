@@ -84,7 +84,7 @@ class RendererGDK(RendererBase):
     def draw_path(self, gc, path, transform, rgbFace=None):
         transform = transform + Affine2D(). \
             scale(1.0, -1.0).translate(0, self.height)
-        polygons = path.to_polygons(transform)
+        polygons = path.to_polygons(transform, self.width, self.height)
         for polygon in polygons:
             # draw_polygon won't take an arbitrary sequence -- it must be a list
             # of tuples
