@@ -275,6 +275,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     set_facecolors = set_facecolor
 
+    def get_facecolor(self):
+        return self._facecolors
+    get_facecolors = get_facecolor
+
     def set_edgecolor(self, c):
         """
         Set the edgecolor(s) of the collection. c can be a matplotlib color
