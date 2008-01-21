@@ -526,7 +526,9 @@ class Wedge(Polygon):
         theta1 = float(theta1)
         theta2 = float(theta2)
         dtheta = float(dtheta)
-        num_points = abs(theta2 - theta1) / dtheta
+        num_points = (abs(theta2 - theta1) / dtheta)
+        if num_points < 2.0:
+            num_points = 2.0
         rads = (npy.pi/180.) * npy.linspace(theta1, theta2, num_points, endpoint=True)
         xs = r*npy.cos(rads)+xc
         ys = r*npy.sin(rads)+yc
