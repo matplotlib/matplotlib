@@ -294,11 +294,17 @@ Py::Object _path_module::get_path_extents(const Py::Tuple& args)
     agg::trans_affine trans = py_to_agg_transformation_matrix(args[1], false);
 
     npy_intp extent_dims[] = { 2, 2, 0 };
-    double* extents_data = new double[4];
+    double* extents_data = NULL;
     double xm, ym;
     PyArrayObject* extents = NULL;
     try
     {
+        extents = (PyArrayObject*)PyArray_SimpleNew
+                  (2, extent_dims, PyArray_DOUBLE);
+        if (extents == NULL)
+            throw Py::MemoryError("Could not allocate result array");
+        extents_data = (double*)PyArray_DATA(extents);
+
         extents_data[0] = std::numeric_limits<double>::infinity();
         extents_data[1] = std::numeric_limits<double>::infinity();
         extents_data[2] = -std::numeric_limits<double>::infinity();
@@ -307,16 +313,10 @@ Py::Object _path_module::get_path_extents(const Py::Tuple& args)
         ::get_path_extents(path, trans,
                            &extents_data[0], &extents_data[1], &extents_data[2], &extents_data[3],
                            &xm, &ym);
-
-        extents = (PyArrayObject*)PyArray_SimpleNewFromData
-                  (2, extent_dims, PyArray_DOUBLE, extents_data);
     }
     catch (...)
     {
-        if (extents)
-            Py_XDECREF(extents);
-        else
-            delete[] extents_data;
+        Py_XDECREF(extents);
         throw;
     }
 
@@ -357,15 +357,27 @@ Py::Object _path_module::update_path_extents(const Py::Tuple& args)
     Py_XDECREF(input_minpos);
 
     npy_intp extent_dims[] = { 2, 2, 0 };
-    double* extents_data = new double[4];
+    double* extents_data = NULL;
     npy_intp minpos_dims[] = { 2, 0 };
-    double* minpos_data = new double[2];
+    double* minpos_data = NULL;
     PyArrayObject* extents = NULL;
     PyArrayObject* minpos = NULL;
     bool changed = false;
 
     try
     {
+        extents = (PyArrayObject*)PyArray_SimpleNew
+            (2, extent_dims, PyArray_DOUBLE);
+        if (extents == NULL)
+            throw Py::MemoryError("Could not allocate result array");
+        minpos = (PyArrayObject*)PyArray_SimpleNew
+            (1, minpos_dims, PyArray_DOUBLE);
+        if (minpos == NULL)
+            throw Py::MemoryError("Could not allocate result array");
+
+        extents_data = (double*)PyArray_DATA(extents);
+        minpos_data = (double*)PyArray_DATA(minpos);
+
         if (ignore)
         {
             extents_data[0] = std::numeric_limits<double>::infinity();
@@ -396,21 +408,11 @@ Py::Object _path_module::update_path_extents(const Py::Tuple& args)
                    minpos_data[0]  != xm ||
                    minpos_data[1]  != ym);
 
-        extents = (PyArrayObject*)PyArray_SimpleNewFromData
-                  (2, extent_dims, PyArray_DOUBLE, extents_data);
-        minpos = (PyArrayObject*)PyArray_SimpleNewFromData
-                 (1, minpos_dims, PyArray_DOUBLE, minpos_data);
     }
     catch (...)
     {
-        if (extents)
-            Py_XDECREF(extents);
-        else
-            delete[] extents_data;
-        if (minpos)
-            Py_XDECREF(minpos);
-        else
-            delete[] minpos_data;
+        Py_XDECREF(extents);
+        Py_XDECREF(minpos);
         throw;
     }
 
@@ -418,6 +420,9 @@ Py::Object _path_module::update_path_extents(const Py::Tuple& args)
     result[0] = Py::Object((PyObject*) extents);
     result[1] = Py::Object((PyObject*) minpos);
     result[2] = Py::Int(changed ? 1 : 0);
+
+    Py_XDECREF(extents);
+    Py_XDECREF(minpos);
 
     return result;
 }
@@ -964,7 +969,7 @@ Py::Object _path_module::count_bboxes_overlapping_bbox(const Py::Tuple& args)
 {
     args.verify_length(2);
 
-    Py::Object		  bbox	 = args[0];
+    Py::Object		    bbox   = args[0];
     Py::SeqBase<Py::Object> bboxes = args[1];
 
     double ax0, ay0, ax1, ay1;
@@ -1086,16 +1091,15 @@ void _add_polygon(Py::List& polygons, const std::vector<double>& polygon) {
     if (polygon.size() == 0)
 	return;
     npy_intp polygon_dims[] = { polygon.size() / 2, 2, 0 };
-    double* polygon_data = new double[polygon.size()];
-    memcpy(polygon_data, &polygon[0], polygon.size() * sizeof(double));
     PyArrayObject* polygon_array = NULL;
-    polygon_array = (PyArrayObject*)PyArray_SimpleNewFromData
-	(2, polygon_dims, PyArray_DOUBLE, polygon_data);
+    polygon_array = (PyArrayObject*)PyArray_SimpleNew
+	(2, polygon_dims, PyArray_DOUBLE);
     if (!polygon_array)
     {
-	delete[] polygon_data;
-	throw Py::RuntimeError("Error creating polygon array");
+	throw Py::MemoryError("Error creating polygon array");
     }
+    double* polygon_data = (double*)PyArray_DATA(polygon_array);
+    memcpy(polygon_data, &polygon[0], polygon.size() * sizeof(double));
     polygons.append(Py::Object((PyObject*)polygon_array));
 }
 
