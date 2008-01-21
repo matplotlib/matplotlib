@@ -6,7 +6,7 @@
 #include "numpy/arrayobject.h"
 #include "agg_path_storage.h"
 #include "MPL_isnan.h"
-#include <deque>
+#include <queue>
 
 class PathIterator
 {
@@ -134,7 +134,8 @@ public:
 #if DEBUG_SIMPLIFY
     ~SimplifyPath()
     {
-        printf("%d %d\n", m_pushed, m_skipped);
+        if (m_simplify)
+            printf("%d %d\n", m_pushed, m_skipped);
     }
 #endif
 
@@ -175,21 +176,29 @@ public:
         // multiple points can be emitted in a single call, and those points
         // will be popped from the queue in subsequent calls.  The following
         // block will empty the queue before proceeding to the main loop below.
+        //  -- Michael Droettboom
         if (m_queue.size())
         {
             const item& front = m_queue.front();
             unsigned cmd = front.cmd;
             *x = front.x;
             *y = front.y;
-            m_queue.pop_front();
+            m_queue.pop();
+#if DEBUG_SIMPLIFY
+            printf((cmd == agg::path_cmd_move_to) ? "|" : "-");
+#endif
             return cmd;
         }
 
         // If the queue is now empty, and the path was fully consumed
         // in the last call to the main loop, return agg::path_cmd_stop to
         // signal that there are no more points to emit.
-        if (m_done)
+        if (m_done) {
+#if DEBUG_SIMPLIFY
+            printf(".\n");
+#endif
             return agg::path_cmd_stop;
+        }
 
         // The main simplification loop.  The point is consume only as many
         // points as necessary until some have been added to the outbound
@@ -209,15 +218,15 @@ public:
             // + init
             if (m_moveto)
             {
-                m_queue.push_back(item(agg::path_cmd_move_to, *x, *y));
                 m_lastx = *x;
                 m_lasty = *y;
                 m_moveto = false;
                 m_origdNorm2 = 0.0;
 #if DEBUG_SIMPLIFY
                 m_pushed++;
+                printf("|");
 #endif
-                break;
+                return agg::path_cmd_move_to;
             }
 
             // Don't render line segments less than one pixel long
@@ -240,6 +249,9 @@ public:
                 m_lastx = *x;
                 m_lasty = *y;
                 m_clipped = true;
+#if DEBUG_SIMPLIFY
+                m_skipped++;
+#endif
                 continue;
             }
 
@@ -252,7 +264,7 @@ public:
             {
                 if (m_clipped)
                 {
-                    m_queue.push_back(item(agg::path_cmd_move_to, m_lastx, m_lasty));
+                    m_queue.push(item(agg::path_cmd_move_to, m_lastx, m_lasty));
                     m_clipped = false;
                 }
 
@@ -277,6 +289,9 @@ public:
                 // set the last point seen
                 m_lastx = *x;
                 m_lasty = *y;
+#if DEBUG_SIMPLIFY
+                m_skipped++;
+#endif
                 continue;
             }
 
@@ -339,6 +354,9 @@ public:
 
                 m_lastx = *x;
                 m_lasty = *y;
+#if DEBUG_SIMPLIFY
+                m_skipped++;
+#endif
                 continue;
             }
 
@@ -350,14 +368,14 @@ public:
             //direction we are drawing in, move back to we start drawing from
             //back there.
             if (m_haveMin)
-                m_queue.push_back(item(agg::path_cmd_line_to, m_minX, m_minY));
-            m_queue.push_back(item(agg::path_cmd_line_to, m_maxX, m_maxY));
+                m_queue.push(item(agg::path_cmd_line_to, m_minX, m_minY));
+            m_queue.push(item(agg::path_cmd_line_to, m_maxX, m_maxY));
 
             //if we clipped some segments between this line and the next line
             //we are starting, we also need to move to the last point.
             if (m_clipped)
             {
-                m_queue.push_back(item(agg::path_cmd_move_to, m_lastx, m_lasty));
+                m_queue.push(item(agg::path_cmd_move_to, m_lastx, m_lasty));
             }
             else if (!m_lastMax)
             {
@@ -367,11 +385,10 @@ public:
                 //the line just drawn.
 
                 //Would be move_to if not for the artifacts
-                m_queue.push_back(item(agg::path_cmd_line_to, m_lastx, m_lasty));
+                m_queue.push(item(agg::path_cmd_line_to, m_lastx, m_lasty));
             }
 
             //now reset all the variables to get ready for the next line
-
             m_origdx = *x - m_lastx;
             m_origdy = *y - m_lasty;
             m_origdNorm2 = m_origdx*m_origdx + m_origdy*m_origdy;
@@ -393,7 +410,7 @@ public:
             m_lastx = *x;
             m_lasty = *y;
 #if DEBUG_SIMPLIFY
-            m_pushed++;
+            m_pushed += m_queue.size();
 #endif
             break;
         }
@@ -406,8 +423,8 @@ public:
             if (m_origdNorm2 != 0)
             {
                 if (m_haveMin)
-                    m_queue.push_back(item(agg::path_cmd_line_to, m_minX, m_minY));
-                m_queue.push_back(item(agg::path_cmd_line_to, m_maxX, m_maxY));
+                    m_queue.push(item(agg::path_cmd_line_to, m_minX, m_minY));
+                m_queue.push(item(agg::path_cmd_line_to, m_maxX, m_maxY));
             }
             m_done = true;
         }
@@ -420,11 +437,17 @@ public:
             unsigned cmd = front.cmd;
             *x = front.x;
             *y = front.y;
-            m_queue.pop_front();
+            m_queue.pop();
+#if DEBUG_SIMPLIFY
+            printf((cmd == agg::path_cmd_move_to) ? "|" : "-");
+#endif
             return cmd;
         }
         else
         {
+#if DEBUG_SIMPLIFY
+            printf(".\n");
+#endif
             return agg::path_cmd_stop;
         }
     }
@@ -443,7 +466,7 @@ private:
         double x;
         double y;
     };
-    typedef std::deque<item> ItemQueue;
+    typedef std::queue<item> ItemQueue;
     ItemQueue m_queue;
     bool m_moveto;
     double m_lastx, m_lasty;
