@@ -1001,6 +1001,7 @@ RendererAgg::_draw_path_collection_generic
 
     for (i = 0; i < N; ++i) {
       typename PathGenerator::path_iterator path = path_generator(i);
+
       if (Ntransforms) {
 	trans = transforms[i % Ntransforms];
       } else {
@@ -1070,15 +1071,18 @@ RendererAgg::_draw_path_collection_generic
 	}
       }
     }
+
+    Py_XDECREF(offsets);
+    Py_XDECREF(facecolors);
+    Py_XDECREF(edgecolors);
+    return Py::Object();
   } catch (...) {
+    printf("Exception!\n");
     Py_XDECREF(offsets);
     Py_XDECREF(facecolors);
     Py_XDECREF(edgecolors);
     throw;
   }
-
-  Py_XDECREF(offsets);
-  return Py::Object();
 }
 
 
@@ -1186,9 +1190,9 @@ class QuadMeshGenerator {
 public:
   typedef QuadMeshPathIterator path_iterator;
 
-  inline QuadMeshGenerator(size_t meshWidth, size_t meshHeight, const Py::Object& coordinates) :
+  inline QuadMeshGenerator(size_t meshWidth, size_t meshHeight, PyObject* coordinates) :
     m_meshWidth(meshWidth), m_meshHeight(meshHeight), m_coordinates(NULL) {
-    PyArrayObject* coordinates_array = (PyArrayObject*)PyArray_FromObject(coordinates.ptr(), PyArray_DOUBLE, 3, 3);
+    PyArrayObject* coordinates_array = (PyArrayObject*)PyArray_FromObject(coordinates, PyArray_DOUBLE, 3, 3);
     if (!coordinates_array) {
       throw Py::ValueError("Invalid coordinates array.");
     }
@@ -1214,6 +1218,7 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_quad_mesh");
   args.verify_length(12);
 
+
   //segments, trans, clipbox, colors, linewidths, antialiaseds
   agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0]);
   Py::Object		  cliprect	   = args[1];
@@ -1221,12 +1226,13 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
   agg::trans_affine       clippath_trans   = py_to_agg_transformation_matrix(args[3], false);
   size_t                  mesh_width       = Py::Int(args[4]);
   size_t                  mesh_height      = Py::Int(args[5]);
-  Py::Object              coordinates	   = args[6];
+  PyObject*               coordinates	   = args[6].ptr();
   Py::Object              offsets_obj      = args[7];
   agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[8]);
   Py::Object              facecolors_obj   = args[9];
   bool                    antialiased	   = (bool)Py::Int(args[10]);
   bool                    showedges        = (bool)Py::Int(args[11]);
+  bool                    free_edgecolors  = false;
 
   QuadMeshGenerator path_generator(mesh_width, mesh_height, coordinates);
 
@@ -1242,12 +1248,14 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
     npy_intp dims[] = { 1, 4, 0 };
     double data[] = { 0, 0, 0, 1 };
     edgecolors_obj = PyArray_SimpleNewFromData(2, dims, PyArray_DOUBLE, (char*)data);
+    free_edgecolors = true;
   } else {
     if (antialiased) {
       edgecolors_obj = facecolors_obj;
     } else {
       npy_intp dims[] = { 0, 0 };
       edgecolors_obj = PyArray_SimpleNew(1, dims, PyArray_DOUBLE);
+      free_edgecolors = true;
     }
   }
 
@@ -1265,6 +1273,9 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
      linewidths,
      linestyles_obj,
      antialiaseds);
+
+  if (free_edgecolors)
+    Py_XDECREF(edgecolors_obj.ptr());
 
   return Py::Object();
 }
