@@ -24,7 +24,9 @@ public:
 
         m_vertices = (PyArrayObject*)PyArray_FromObject
                      (vertices_obj.ptr(), PyArray_DOUBLE, 2, 2);
-        if (!m_vertices || PyArray_NDIM(m_vertices) != 2 || PyArray_DIM(m_vertices, 1) != 2)
+        if (!m_vertices ||
+            PyArray_NDIM(m_vertices) != 2 ||
+            PyArray_DIM(m_vertices, 1) != 2)
             throw Py::ValueError("Invalid vertices array.");
 
         if (codes_obj.ptr() != Py_None)
@@ -116,7 +118,7 @@ public:
     SimplifyPath(VertexSource& source, bool quantize, bool simplify,
                  double width = 0.0, double height = 0.0) :
             m_source(&source), m_quantize(quantize), m_simplify(simplify),
-            m_width(width), m_height(height),
+            m_width(width), m_height(height), m_queue_read(0), m_queue_write(0),
             m_moveto(true), m_lastx(0.0), m_lasty(0.0), m_clipped(false),
             m_do_clipping(width > 0.0 && height > 0.0),
             m_origdx(0.0), m_origdy(0.0),
@@ -177,18 +179,20 @@ public:
         // will be popped from the queue in subsequent calls.  The following
         // block will empty the queue before proceeding to the main loop below.
         //  -- Michael Droettboom
-        if (m_queue.size())
+        if (m_queue_read < m_queue_write)
         {
-            const item& front = m_queue.front();
+            const item& front = m_queue[m_queue_read++];
             unsigned cmd = front.cmd;
             *x = front.x;
             *y = front.y;
-            m_queue.pop();
 #if DEBUG_SIMPLIFY
             printf((cmd == agg::path_cmd_move_to) ? "|" : "-");
 #endif
             return cmd;
         }
+
+        m_queue_read = 0;
+        m_queue_write = 0;
 
         // If the queue is now empty, and the path was fully consumed
         // in the last call to the main loop, return agg::path_cmd_stop to
@@ -200,8 +204,8 @@ public:
             return agg::path_cmd_stop;
         }
 
-        // The main simplification loop.  The point is consume only as many
-        // points as necessary until some have been added to the outbound
+        // The main simplification loop.  The point is to consume only as many
+        // points as necessary until something has been added to the outbound
         // queue, not to run through the entire path in one go.  This
         // eliminates the need to allocate and fill an entire additional path
         // array on each draw.
@@ -241,10 +245,10 @@ public:
             //skip any lines that are outside the drawing area. Note: More lines
             //could be clipped, but a more involved calculation would be needed
             if (m_do_clipping &&
-                ((*x < -1 && m_lastx < -1) ||
-                 (*x > m_width + 1 && m_lastx > m_width + 1) ||
-                 (*y < -1 && m_lasty < -1) ||
-                 (*y > m_height + 1 && m_lasty > m_height + 1)))
+                ((*x < -1.0 && m_lastx < -1.0) ||
+                 (*x > m_width + 1.0 && m_lastx > m_width + 1.0) ||
+                 (*y < -1.0 && m_lasty < -1.0) ||
+                 (*y > m_height + 1.0 && m_lasty > m_height + 1.0)))
             {
                 m_lastx = *x;
                 m_lasty = *y;
@@ -264,31 +268,24 @@ public:
             {
                 if (m_clipped)
                 {
-                    m_queue.push(item(agg::path_cmd_move_to, m_lastx, m_lasty));
+                    m_queue[m_queue_write++].set(agg::path_cmd_move_to, m_lastx, m_lasty);
                     m_clipped = false;
                 }
 
                 m_origdx = *x - m_lastx;
                 m_origdy = *y - m_lasty;
-                m_origdNorm2 = m_origdx*m_origdx + m_origdy+m_origdy;
+                m_origdNorm2 = m_origdx*m_origdx + m_origdy*m_origdy;
 
                 //set all the variables to reflect this new orig vecor
                 m_dnorm2Max = m_origdNorm2;
-                m_dnorm2Min = 0;
+                m_dnorm2Min = 0.0;
                 m_haveMin = false;
                 m_lastMax = true;
 
-                m_maxX = *x;
-                m_maxY = *y;
-                m_minX = m_lastx;
-                m_minY = m_lasty;
-
-                m_lastWrittenX = m_lastx;
-                m_lastWrittenY = m_lasty;
-
-                // set the last point seen
-                m_lastx = *x;
-                m_lasty = *y;
+                m_lastx = m_maxX = *x;
+                m_lasty = m_maxY = *y;
+                m_lastWrittenX = m_minX = m_lastx;
+                m_lastWrittenY = m_minY = m_lasty;
 #if DEBUG_SIMPLIFY
                 m_skipped++;
 #endif
@@ -313,7 +310,6 @@ public:
             // get the para vector ( = (o.v)o/(o.o))
             double paradx = totdot*m_origdx/m_origdNorm2;
             double parady = totdot*m_origdy/m_origdNorm2;
-            double paradNorm2 = paradx*paradx + parady*parady;
 
             // get the perp vector ( = v - para)
             double perpdx = totdx - paradx;
@@ -329,6 +325,8 @@ public:
                 //if it is the longest of the vectors we are merging in that
                 //direction. If anti-p, test if it is the longest in the
                 //opposite direction (the min of our final line)
+
+                double paradNorm2 = paradx*paradx + parady*parady;
 
                 m_lastMax = false;
                 if (totdot >= 0)
@@ -368,25 +366,21 @@ public:
             //direction we are drawing in, move back to we start drawing from
             //back there.
             if (m_haveMin)
-                m_queue.push(item(agg::path_cmd_line_to, m_minX, m_minY));
-            m_queue.push(item(agg::path_cmd_line_to, m_maxX, m_maxY));
+              m_queue[m_queue_write++].set(agg::path_cmd_move_to, m_minX, m_minY);
+            m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_maxX, m_maxY);
 
             //if we clipped some segments between this line and the next line
             //we are starting, we also need to move to the last point.
             if (m_clipped)
-            {
-                m_queue.push(item(agg::path_cmd_move_to, m_lastx, m_lasty));
-            }
+              m_queue[m_queue_write++].set(agg::path_cmd_move_to, m_lastx, m_lasty);
             else if (!m_lastMax)
-            {
                 //if the last line was not the longest line, then move back to
                 //the end point of the last line in the sequence. Only do this
                 //if not clipped, since in that case lastx,lasty is not part of
                 //the line just drawn.
 
                 //Would be move_to if not for the artifacts
-                m_queue.push(item(agg::path_cmd_line_to, m_lastx, m_lasty));
-            }
+              m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_lastx, m_lasty);
 
             //now reset all the variables to get ready for the next line
             m_origdx = *x - m_lastx;
@@ -394,23 +388,17 @@ public:
             m_origdNorm2 = m_origdx*m_origdx + m_origdy*m_origdy;
 
             m_dnorm2Max = m_origdNorm2;
-            m_dnorm2Min = 0;
+            m_dnorm2Min = 0.0;
             m_haveMin = false;
             m_lastMax = true;
-            m_maxX = *x;
-            m_maxY = *y;
-            m_minX = m_lastx;
-            m_minY = m_lasty;
-
-            m_lastWrittenX = m_lastx;
-            m_lastWrittenY = m_lasty;
+            m_lastx = m_maxX = *x;
+            m_lasty = m_maxY = *y;
+            m_lastWrittenX = m_minX = m_lastx;
+            m_lastWrittenY = m_minY = m_lasty;
 
             m_clipped = false;
-
-            m_lastx = *x;
-            m_lasty = *y;
 #if DEBUG_SIMPLIFY
-            m_pushed += m_queue.size();
+            m_pushed += m_queue_write - m_queue_read;
 #endif
             break;
         }
@@ -423,21 +411,20 @@ public:
             if (m_origdNorm2 != 0)
             {
                 if (m_haveMin)
-                    m_queue.push(item(agg::path_cmd_line_to, m_minX, m_minY));
-                m_queue.push(item(agg::path_cmd_line_to, m_maxX, m_maxY));
+                    m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_minX, m_minY);
+                m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_maxX, m_maxY);
             }
             m_done = true;
         }
 
         // Return the first item in the queue, if any, otherwise
         // indicate that we're done.
-        if (m_queue.size())
+        if (m_queue_read < m_queue_write)
         {
-            const item& front = m_queue.front();
+            const item& front = m_queue[m_queue_read++];
             unsigned cmd = front.cmd;
             *x = front.x;
             *y = front.y;
-            m_queue.pop();
 #if DEBUG_SIMPLIFY
             printf((cmd == agg::path_cmd_move_to) ? "|" : "-");
 #endif
@@ -460,14 +447,20 @@ private:
 
     struct item
     {
-        item(unsigned cmd_, const double& x_, double& y_) :
-                cmd(cmd_), x(x_), y(y_) {}
+        item() {}
+        inline void set(const unsigned cmd_, const double& x_, const double& y_) {
+          cmd = cmd_;
+          x = x_;
+          y = y_;
+        }
         unsigned cmd;
         double x;
         double y;
     };
-    typedef std::queue<item> ItemQueue;
-    ItemQueue m_queue;
+    int m_queue_read;
+    int m_queue_write;
+    item m_queue[6];
+
     bool m_moveto;
     double m_lastx, m_lasty;
     bool m_clipped;
