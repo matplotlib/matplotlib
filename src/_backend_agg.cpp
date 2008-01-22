@@ -370,7 +370,7 @@ bool should_snap(Path& path, const agg::trans_affine& trans) {
 
 template<class Path>
 bool should_simplify(Path& path) {
-  return !path.has_curves() && path.total_vertices() > 5;
+  return !path.has_curves() && path.total_vertices() >= 128;
 }
 
 Py::Object
@@ -803,10 +803,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
   if (gc.linewidth != 0.0) {
     double linewidth = gc.linewidth;
     if (!gc.isaa) {
-      if (linewidth < 0.5)
-	linewidth = 0.5;
-      else
-	linewidth = round(linewidth);
+      linewidth = (linewidth < 0.5) ? 0.5 : round(linewidth);
     }
     if (gc.dashes.size() == 0) {
       stroke_t stroke(path);
