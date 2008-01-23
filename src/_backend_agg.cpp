@@ -929,7 +929,8 @@ RendererAgg::_draw_path_collection_generic
   PyArrayObject* edgecolors = NULL;
 
   try {
-    offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
+    offsets = (PyArrayObject*)PyArray_FromObject
+      (offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
     if (!offsets ||
 	(PyArray_NDIM(offsets) == 2 && PyArray_DIM(offsets, 1) != 2) ||
 	(PyArray_NDIM(offsets) == 1 && PyArray_DIM(offsets, 0) != 0)) {
@@ -1078,7 +1079,6 @@ RendererAgg::_draw_path_collection_generic
     Py_XDECREF(edgecolors);
     return Py::Object();
   } catch (...) {
-    printf("Exception!\n");
     Py_XDECREF(offsets);
     Py_XDECREF(facecolors);
     Py_XDECREF(edgecolors);
