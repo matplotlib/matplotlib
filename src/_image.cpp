@@ -580,7 +580,7 @@ static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t lengt
   PyObject* write_method = PyObject_GetAttrString(py_file_obj, "write");
   PyObject* result = NULL;
   if (write_method)
-    result = PyObject_CallFunction(write_method, "s#", data, length);
+    result = PyObject_CallFunction(write_method, (char *)"s#", data, length);
   Py_XDECREF(write_method);
   Py_XDECREF(result);
 }
@@ -590,7 +590,7 @@ static void flush_png_data(png_structp png_ptr) {
   PyObject* flush_method = PyObject_GetAttrString(py_file_obj, "flush");
   PyObject* result = NULL;
   if (flush_method)
-    result = PyObject_CallFunction(flush_method, "");
+    result = PyObject_CallFunction(flush_method, (char *)"");
   Py_XDECREF(flush_method);
   Py_XDECREF(result);
 }
