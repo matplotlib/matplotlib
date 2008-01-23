@@ -101,7 +101,7 @@ class Path(object):
             mask = ma.nomask
 
         if codes is not None:
-	    codes = npy.asarray(codes, self.code_type)
+            codes = npy.asarray(codes, self.code_type)
             assert codes.ndim == 1
             assert len(codes) == len(vertices)
 
@@ -112,17 +112,15 @@ class Path(object):
         # MOVETO commands to the codes array accordingly.
         if is_mask:
             if mask is not ma.nomask:
-                mask1d = ma.mask_or(mask[:, 0], mask[:, 1])
+                mask1d = npy.logical_or.reduce(mask, axis=1)
+                gmask1d = npy.invert(mask1d)
                 if codes is None:
-                    codes = self.LINETO * npy.ones(
-                        len(vertices), self.code_type)
+                    codes = npy.empty((len(vertices)), self.code_type)
+                    codes.fill(self.LINETO)
                     codes[0] = self.MOVETO
-                vertices = npy.compress(npy.invert(mask1d), vertices, 0)
-                vertices = npy.asarray(vertices)
-                codes = npy.where(npy.concatenate((mask1d[-1:], mask1d[:-1])),
-                                  self.MOVETO, codes)
-                codes = ma.masked_array(codes, mask=mask1d).compressed()
-                codes = npy.asarray(codes, self.code_type)
+                vertices = vertices[gmask1d].filled() # ndarray
+                codes[npy.roll(mask1d, 1)] = self.MOVETO
+                codes = codes[gmask1d] # npy.compress is much slower
             else:
                 vertices = npy.asarray(vertices, npy.float_)
 
@@ -130,7 +128,7 @@ class Path(object):
         assert vertices.shape[1] == 2
 
         self.codes = codes
-	self.vertices = vertices
+        self.vertices = vertices
 
     #@staticmethod
     def make_compound_path(*args):
