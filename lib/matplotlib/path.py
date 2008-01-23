@@ -117,7 +117,7 @@ class Path(object):
                     codes = self.LINETO * npy.ones(
                         len(vertices), self.code_type)
                     codes[0] = self.MOVETO
-                vertices = ma.compress(npy.invert(mask1d), vertices, 0)
+                vertices = npy.compress(npy.invert(mask1d), vertices, 0)
                 vertices = npy.asarray(vertices)
                 codes = npy.where(npy.concatenate((mask1d[-1:], mask1d[:-1])),
                                   self.MOVETO, codes)
