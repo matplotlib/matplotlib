@@ -343,6 +343,10 @@ bool should_snap(Path& path, const agg::trans_affine& trans) {
     return false;
 
   code = path.vertex(&x0, &y0);
+  if (code == agg::path_cmd_stop) {
+    path.rewind(0);
+    return false;
+  }
   trans.transform(&x0, &y0);
 
   while ((code = path.vertex(&x1, &y1)) != agg::path_cmd_stop) {
@@ -1602,7 +1606,6 @@ RendererAgg::rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha) {
   double g = Py::Float(rgb[1]);
   double b = Py::Float(rgb[2]);
   return agg::rgba(r, g, b, alpha);
-
 }
 
 
@@ -1615,8 +1618,6 @@ RendererAgg::points_to_pixels_snapto(const Py::Object& points) {
   double p = Py::Float( points ) ;
   //return (int)(p*PIXELS_PER_INCH/72.0*dpi/72.0)+0.5;
   return (int)(p*dpi/72.0)+0.5;
-
-
 }
 
 double
