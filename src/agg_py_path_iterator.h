@@ -118,7 +118,7 @@ public:
     SimplifyPath(VertexSource& source, bool quantize, bool simplify,
                  double width = 0.0, double height = 0.0) :
             m_source(&source), m_quantize(quantize), m_simplify(simplify),
-            m_width(width), m_height(height), m_queue_read(0), m_queue_write(0),
+            m_width(width + 1.0), m_height(height + 1.0), m_queue_read(0), m_queue_write(0),
             m_moveto(true), m_lastx(0.0), m_lasty(0.0), m_clipped(false),
             m_do_clipping(width > 0.0 && height > 0.0),
             m_origdx(0.0), m_origdy(0.0),
@@ -246,9 +246,9 @@ public:
             //could be clipped, but a more involved calculation would be needed
             if (m_do_clipping &&
                 ((*x < -1.0 && m_lastx < -1.0) ||
-                 (*x > m_width + 1.0 && m_lastx > m_width + 1.0) ||
+                 (*x > m_width && m_lastx > m_width) ||
                  (*y < -1.0 && m_lasty < -1.0) ||
-                 (*y > m_height + 1.0 && m_lasty > m_height + 1.0)))
+                 (*y > m_height && m_lasty > m_height)))
             {
                 m_lastx = *x;
                 m_lasty = *y;
