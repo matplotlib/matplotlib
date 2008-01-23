@@ -1200,12 +1200,11 @@ class Axes(martist.Artist):
     def relim(self):
         'recompute the datalimits based on current artists'
         self.dataLim.ignore(True)
+        self.ignore_existing_data_limits = True
         for line in self.lines:
-            self.ignore_existing_data_limits = True
             self._update_line_limits(line)
 
         for p in self.patches:
-            self.ignore_existing_data_limits = True
             self._update_patch_limits(p)
 
     def update_datalim(self, xys):
