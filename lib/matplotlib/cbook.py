@@ -182,25 +182,25 @@ def strip_math(s):
     return s
 
 class Bunch:
-   """
-   Often we want to just collect a bunch of stuff together, naming each
-   item of the bunch; a dictionary's OK for that, but a small do- nothing
-   class is even handier, and prettier to use.  Whenever you want to
-   group a few variables:
+    """
+    Often we want to just collect a bunch of stuff together, naming each
+    item of the bunch; a dictionary's OK for that, but a small do- nothing
+    class is even handier, and prettier to use.  Whenever you want to
+    group a few variables:
 
-     >>> point = Bunch(datum=2, squared=4, coord=12)
-     >>> point.datum
+      >>> point = Bunch(datum=2, squared=4, coord=12)
+      >>> point.datum
 
-     By: Alex Martelli
-     From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52308
-   """
-   def __init__(self, **kwds):
-      self.__dict__.update(kwds)
+      By: Alex Martelli
+      From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/52308
+    """
+    def __init__(self, **kwds):
+        self.__dict__.update(kwds)
 
 
 def unique(x):
-   'Return a list of unique elements of x'
-   return dict([ (val, 1) for val in x]).keys()
+    'Return a list of unique elements of x'
+    return dict([ (val, 1) for val in x]).keys()
 
 def iterable(obj):
     try: len(obj)
@@ -266,55 +266,55 @@ def flatten(seq, scalarp=is_scalar):
         if scalarp(item): yield item
         else:
             for subitem in flatten(item, scalarp):
-               yield subitem
+                yield subitem
 
 
 
 class Sorter:
-   """
+    """
 
-   Sort by attribute or item
+    Sort by attribute or item
 
-   Example usage:
-   sort = Sorter()
+    Example usage:
+    sort = Sorter()
 
-   list = [(1, 2), (4, 8), (0, 3)]
-   dict = [{'a': 3, 'b': 4}, {'a': 5, 'b': 2}, {'a': 0, 'b': 0},
-   {'a': 9, 'b': 9}]
+    list = [(1, 2), (4, 8), (0, 3)]
+    dict = [{'a': 3, 'b': 4}, {'a': 5, 'b': 2}, {'a': 0, 'b': 0},
+    {'a': 9, 'b': 9}]
 
 
-   sort(list)       # default sort
-   sort(list, 1)    # sort by index 1
-   sort(dict, 'a')  # sort a list of dicts by key 'a'
+    sort(list)       # default sort
+    sort(list, 1)    # sort by index 1
+    sort(dict, 'a')  # sort a list of dicts by key 'a'
 
-   """
+    """
 
-   def _helper(self, data, aux, inplace):
-      aux.sort()
-      result = [data[i] for junk, i in aux]
-      if inplace: data[:] = result
-      return result
+    def _helper(self, data, aux, inplace):
+        aux.sort()
+        result = [data[i] for junk, i in aux]
+        if inplace: data[:] = result
+        return result
 
-   def byItem(self, data, itemindex=None, inplace=1):
-      if itemindex is None:
-         if inplace:
-            data.sort()
-            result = data
-         else:
-            result = data[:]
-            result.sort()
-         return result
-      else:
-         aux = [(data[i][itemindex], i) for i in range(len(data))]
-         return self._helper(data, aux, inplace)
+    def byItem(self, data, itemindex=None, inplace=1):
+        if itemindex is None:
+            if inplace:
+                data.sort()
+                result = data
+            else:
+                result = data[:]
+                result.sort()
+            return result
+        else:
+            aux = [(data[i][itemindex], i) for i in range(len(data))]
+            return self._helper(data, aux, inplace)
 
-   def byAttribute(self, data, attributename, inplace=1):
-      aux = [(getattr(data[i],attributename),i) for i in range(len(data))]
-      return self._helper(data, aux, inplace)
+    def byAttribute(self, data, attributename, inplace=1):
+        aux = [(getattr(data[i],attributename),i) for i in range(len(data))]
+        return self._helper(data, aux, inplace)
 
-   # a couple of handy synonyms
-   sort = byItem
-   __call__ = byItem
+    # a couple of handy synonyms
+    sort = byItem
+    __call__ = byItem
 
 
 
@@ -398,11 +398,11 @@ class Null:
 
 
 def mkdirs(newdir, mode=0777):
-   try: os.makedirs(newdir, mode)
-   except OSError, err:
-      # Reraise the error unless it's about an already existing directory
-      if err.errno != errno.EEXIST or not os.path.isdir(newdir):
-         raise
+    try: os.makedirs(newdir, mode)
+    except OSError, err:
+        # Reraise the error unless it's about an already existing directory
+        if err.errno != errno.EEXIST or not os.path.isdir(newdir):
+            raise
 
 
 class GetRealpathAndStat:
@@ -456,7 +456,7 @@ class RingBuffer:
         return self.data
 
     def __get_item__(self, i):
-       return self.data[i % len(self.data)]
+        return self.data[i % len(self.data)]
 
 
 # use enumerate builtin if available, else use python version
@@ -501,16 +501,16 @@ except:
 
 
 def get_split_ind(seq, N):
-   """seq is a list of words.  Return the index into seq such that
-   len(' '.join(seq[:ind])<=N
-   """
+    """seq is a list of words.  Return the index into seq such that
+    len(' '.join(seq[:ind])<=N
+    """
 
-   sLen = 0
-   # todo: use Alex's xrange pattern from the cbook for efficiency
-   for (word, ind) in zip(seq, range(len(seq))):
-      sLen += len(word) + 1  # +1 to account for the len(' ')
-      if sLen>=N: return ind
-   return len(seq)
+    sLen = 0
+    # todo: use Alex's xrange pattern from the cbook for efficiency
+    for (word, ind) in zip(seq, range(len(seq))):
+        sLen += len(word) + 1  # +1 to account for the len(' ')
+        if sLen>=N: return ind
+    return len(seq)
 
 
 def wrap(prefix, text, cols):
@@ -630,20 +630,20 @@ def get_recursive_filelist(args):
 
 
 def pieces(seq, num=2):
-   "Break up the seq into num tuples"
-   start = 0
-   while 1:
-      item = seq[start:start+num]
-      if not len(item): break
-      yield item
-      start += num
+    "Break up the seq into num tuples"
+    start = 0
+    while 1:
+        item = seq[start:start+num]
+        if not len(item): break
+        yield item
+        start += num
 
 def exception_to_str(s = None):
 
-   sh = StringIO.StringIO()
-   if s is not None: print >>sh, s
-   traceback.print_exc(file=sh)
-   return sh.getvalue()
+    sh = StringIO.StringIO()
+    if s is not None: print >>sh, s
+    traceback.print_exc(file=sh)
+    return sh.getvalue()
 
 
 def allequal(seq):
@@ -995,59 +995,59 @@ class Grouper(object):
     False
     """
     def __init__(self, init=[]):
-	mapping = self._mapping = {}
-	for x in init:
-	    mapping[x] = [x]
+        mapping = self._mapping = {}
+        for x in init:
+            mapping[x] = [x]
 
     def __contains__(self, item):
         return item in self._mapping
 
     def join(self, a, *args):
-	"""
-	Join given arguments into the same set.
-	Accepts one or more arguments.
-	"""
-	mapping = self._mapping
-	set_a = mapping.setdefault(a, [a])
+        """
+        Join given arguments into the same set.
+        Accepts one or more arguments.
+        """
+        mapping = self._mapping
+        set_a = mapping.setdefault(a, [a])
 
-	for arg in args:
-	    set_b = mapping.get(arg)
-	    if set_b is None:
-		set_a.append(arg)
-		mapping[arg] = set_a
-	    elif set_b is not set_a:
-		if len(set_b) > len(set_a):
-		    set_a, set_b = set_b, set_a
-		set_a.extend(set_b)
-		for elem in set_b:
-		    mapping[elem] = set_a
+        for arg in args:
+            set_b = mapping.get(arg)
+            if set_b is None:
+                set_a.append(arg)
+                mapping[arg] = set_a
+            elif set_b is not set_a:
+                if len(set_b) > len(set_a):
+                    set_a, set_b = set_b, set_a
+                set_a.extend(set_b)
+                for elem in set_b:
+                    mapping[elem] = set_a
 
     def joined(self, a, b):
-	"""
-	Returns True if a and b are members of the same set.
-	"""
-	mapping = self._mapping
-	try:
-	    return mapping[a] is mapping[b]
-	except KeyError:
-	    return False
+        """
+        Returns True if a and b are members of the same set.
+        """
+        mapping = self._mapping
+        try:
+            return mapping[a] is mapping[b]
+        except KeyError:
+            return False
 
     def __iter__(self):
-	"""
-	Returns an iterator yielding each of the disjoint sets as a list.
-	"""
-	seen = set()
-	for elem, group in self._mapping.iteritems():
-	    if elem not in seen:
-		yield group
-		seen.update(group)
+        """
+        Returns an iterator yielding each of the disjoint sets as a list.
+        """
+        seen = set()
+        for elem, group in self._mapping.iteritems():
+            if elem not in seen:
+                yield group
+                seen.update(group)
 
     def get_siblings(self, a):
-	"""
-	Returns all of the items joined with the given item, including
-	itself.
-	"""
-	return self._mapping.get(a, [a])
+        """
+        Returns all of the items joined with the given item, including
+        itself.
+        """
+        return self._mapping.get(a, [a])
 
 
 def simple_linear_interpolation(a, steps):

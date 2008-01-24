@@ -491,10 +491,10 @@ class Axes(martist.Artist):
 
         self._sharex = sharex
         self._sharey = sharey
-	if sharex is not None:
-	    self._shared_x_axes.join(self, sharex)
+        if sharex is not None:
+            self._shared_x_axes.join(self, sharex)
         if sharey is not None:
-	    self._shared_y_axes.join(self, sharey)
+            self._shared_y_axes.join(self, sharey)
 
         self.set_label(label)
         self.set_figure(fig)
@@ -550,7 +550,7 @@ class Axes(martist.Artist):
 
         self.bbox = mtransforms.TransformedBbox(self._position, fig.transFigure)
         #these will be updated later as data is added
-	self.dataLim = mtransforms.Bbox.unit()
+        self.dataLim = mtransforms.Bbox.unit()
         self.viewLim = mtransforms.Bbox.unit()
         self.transScale = mtransforms.TransformWrapper(mtransforms.IdentityTransform())
 
@@ -718,7 +718,7 @@ class Axes(martist.Artist):
         if not isinstance(pos, mtransforms.BboxBase):
             pos = mtransforms.Bbox.from_bounds(*pos)
         if which in ('both', 'active'):
-	    self._position.set(pos)
+            self._position.set(pos)
         if which in ('both', 'original'):
             self._originalPosition.set(pos)
 
@@ -748,7 +748,7 @@ class Axes(martist.Artist):
         self.xaxis.cla()
         self.yaxis.cla()
 
-	self.ignore_existing_data_limits = True
+        self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry(('xlim_changed', 'ylim_changed'))
 
         if self._sharex is not None:
@@ -1329,7 +1329,7 @@ class Axes(martist.Artist):
     #### Drawing
     def draw(self, renderer=None, inframe=False):
         "Draw everything (plot lines, axes, labels)"
-	if renderer is None:
+        if renderer is None:
             renderer = self._cachedRenderer
 
         if renderer is None:
@@ -1390,8 +1390,8 @@ class Axes(martist.Artist):
         if self.axison and self._frameon:
             artists.append(self.axesFrame)
 
-	dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
-		if not a.get_animated() ]
+        dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
+                if not a.get_animated() ]
         dsu.sort()
 
         for zorder, i, a in dsu:
@@ -1568,9 +1568,9 @@ class Axes(martist.Artist):
         "Returns the x-axis numerical bounds in the form of lowerBound < upperBound"
         left, right = self.get_xlim()
         if left < right:
-           return left, right
+            return left, right
         else:
-           return right, left
+            return right, left
 
     def set_xbound(self, lower=None, upper=None):
         """Set the lower and upper numerical bounds of the x-axis.
@@ -1643,11 +1643,11 @@ class Axes(martist.Artist):
         self.viewLim.intervalx = (xmin, xmax)
 
         if emit:
-	    self.callbacks.process('xlim_changed', self)
-	    # Call all of the other x-axes that are shared with this one
-	    for other in self._shared_x_axes.get_siblings(self):
-		if other is not self:
-		    other.set_xlim(self.viewLim.intervalx, emit=False)
+            self.callbacks.process('xlim_changed', self)
+            # Call all of the other x-axes that are shared with this one
+            for other in self._shared_x_axes.get_siblings(self):
+                if other is not self:
+                    other.set_xlim(self.viewLim.intervalx, emit=False)
                     if other.figure != self.figure and other.figure.canvas is not None:
                         other.figure.canvas.draw_idle()
 
@@ -1656,7 +1656,7 @@ class Axes(martist.Artist):
     def get_xscale(self):
         'return the xaxis scale string: %s' % (
             ", ".join(mscale.get_scale_names()))
-	return self.xaxis.get_scale()
+        return self.xaxis.get_scale()
 
     def set_xscale(self, value, **kwargs):
         """
@@ -1727,9 +1727,9 @@ class Axes(martist.Artist):
         "Returns the y-axis numerical bounds in the form of lowerBound < upperBound"
         left, right = self.get_ylim()
         if left < right:
-           return left, right
+            return left, right
         else:
-           return right, left
+            return right, left
 
     def set_ybound(self, lower=None, upper=None):
         """Set the lower and upper numerical bounds of the y-axis.
@@ -1799,11 +1799,11 @@ class Axes(martist.Artist):
         self.viewLim.intervaly = (ymin, ymax)
 
         if emit:
-	    self.callbacks.process('ylim_changed', self)
-	    # Call all of the other y-axes that are shared with this one
-	    for other in self._shared_y_axes.get_siblings(self):
-		if other is not self:
-		    other.set_ylim(self.viewLim.intervaly, emit=False)
+            self.callbacks.process('ylim_changed', self)
+            # Call all of the other y-axes that are shared with this one
+            for other in self._shared_y_axes.get_siblings(self):
+                if other is not self:
+                    other.set_ylim(self.viewLim.intervaly, emit=False)
                     if other.figure != self.figure and other.figure.canvas is not None:
                         other.figure.canvas.draw_idle()
         return ymin, ymax
@@ -5709,5 +5709,3 @@ martist.kwdocd['Axes'] = martist.kwdocd['Subplot'] = martist.kwdoc(Axes)
                     # warning, probably breaks inverted axis
                     self.set_xlim((0.1*minx, maxx))
 """
-
-

@@ -12,11 +12,11 @@ from matplotlib import finance
 from matplotlib import font_manager
 from matplotlib import image
 from matplotlib import legend
-from matplotlib import lines 
-from matplotlib import mlab 
+from matplotlib import lines
+from matplotlib import mlab
 from matplotlib import cm
 from matplotlib import patches
-from matplotlib import quiver 
+from matplotlib import quiver
 from matplotlib import rcParams
 from matplotlib import table
 from matplotlib import text
@@ -24,4 +24,3 @@ from matplotlib import ticker
 from matplotlib import transforms
 from matplotlib import units
 from matplotlib import widgets
-

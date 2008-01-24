@@ -699,4 +699,3 @@ class NoNorm(Normalize):
 # compatibility with earlier class names that violated convention:
 normalize = Normalize
 no_norm = NoNorm
-

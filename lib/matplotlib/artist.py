@@ -299,7 +299,7 @@ class Artist(object):
         For efficiency, if the path happens to be an axis-aligned
         rectangle, this method will set the clipping box to the
         corresponding rectangle and set the clipping path to None.
-             
+
         ACCEPTS: a Path instance and a Transform instance, a Patch
         instance, or None
         """
@@ -316,14 +316,14 @@ class Artist(object):
                     path.get_path(),
                     path.get_transform())
                 success = True
-                
+
         if path is None:
             self._clippath = None
             success = True
         elif isinstance(path, Path):
             self._clippath = TransformedPath(path, transform)
             success = True
-            
+
         if not success:
             print type(path), type(transform)
             raise TypeError("Invalid arguments to set_clip_path")
@@ -366,7 +366,7 @@ class Artist(object):
         if self._clippath is not None:
             return self._clippath.get_transformed_path_and_affine()
         return None, None
-    
+
     def set_clip_on(self, b):
         """
         Set  whether artist uses clipping

@@ -194,4 +194,3 @@ class ScalarMappable:
             observer.notify(self)
         for key in self.update_dict:
             self.update_dict[key] = True
-

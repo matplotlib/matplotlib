@@ -365,7 +365,7 @@ class ContourLabeler:
                             additions.append(path.Path(new[1]))
             paths.extend(additions)
 
-            
+
 class ContourSet(cm.ScalarMappable, ContourLabeler):
     """
     Create and store a set of contour lines or filled regions.
@@ -396,7 +396,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.filled = kwargs.get('filled', False)
         self.linewidths = kwargs.get('linewidths', None)
         self.linestyles = kwargs.get('linestyles', 'solid')
-        
+
         self.alpha = kwargs.get('alpha', 1.0)
         self.origin = kwargs.get('origin', None)
         self.extent = kwargs.get('extent', None)
@@ -705,7 +705,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 linewidths = [linewidths] * Nlev
             tlinewidths = [(w,) for w in linewidths]
         return tlinewidths
-    
+
     def _process_linestyles(self):
         linestyles = self.linestyles
         Nlev = len(self.levels)
@@ -839,5 +839,3 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
               removed.  Chunking introduces artifacts at the chunk
               boundaries unless antialiased = False
         """
-
-

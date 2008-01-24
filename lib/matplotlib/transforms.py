@@ -286,13 +286,13 @@ class BboxBase(TransformNode):
     intervaly = property(_get_intervaly)
 
     def _get_width(self):
-	points = self.get_points()
-	return points[1, 0] - points[0, 0]
+        points = self.get_points()
+        return points[1, 0] - points[0, 0]
     width = property(_get_width)
 
     def _get_height(self):
-	points = self.get_points()
-	return points[1, 1] - points[0, 1]
+        points = self.get_points()
+        return points[1, 1] - points[0, 1]
     height = property(_get_height)
 
     def _get_size(self):
@@ -1092,7 +1092,7 @@ class AffineBase(Transform):
         self._inverted = None
 
     def __array__(self, *args, **kwargs):
-	return self.get_matrix()
+        return self.get_matrix()
 
     #@staticmethod
     def _concat(a, b):
@@ -1160,7 +1160,7 @@ class Affine2DBase(AffineBase):
     is_separable = property(_get_is_separable)
 
     def __array__(self, *args, **kwargs):
-	return self.get_matrix()
+        return self.get_matrix()
 
     def to_values(self):
         """
@@ -1234,7 +1234,7 @@ class Affine2D(Affine2DBase):
         if matrix is None:
             matrix = npy.identity(3)
         elif DEBUG:
-	    matrix = npy.asarray(matrix, npy.float_)
+            matrix = npy.asarray(matrix, npy.float_)
             assert matrix.shape == (3, 3)
         self._mtx = matrix
         self._invalid = 0
@@ -1465,7 +1465,7 @@ class BlendedGenericTransform(Transform):
         determine automatically which kind of blended transform to
         create.
         """
-	# Here we ask: "Does it blend?"
+        # Here we ask: "Does it blend?"
 
         Transform.__init__(self)
         self._x = x_transform

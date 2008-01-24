@@ -113,8 +113,8 @@ else: _havedate = True
 
 if not _python23:
     def enumerate(seq):
-         for i in range(len(seq)):
-             yield i, seq[i]
+        for i in range(len(seq)):
+            yield i, seq[i]
 
 
 def is_string_like(obj):
@@ -803,4 +803,3 @@ verbose.report('interactive is %s'%rcParams['interactive'])
 verbose.report('units is %s'%rcParams['units'])
 verbose.report('platform is %s'%sys.platform)
 verbose.report('loaded modules: %s'%sys.modules.keys(), 'debug')
-

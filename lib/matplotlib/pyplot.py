@@ -2379,7 +2379,3 @@ def spectral():
     if im is not None:
         im.set_cmap(cm.spectral)
     draw_if_interactive()
-
-
-
-

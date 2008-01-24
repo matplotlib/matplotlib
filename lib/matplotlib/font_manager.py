@@ -1139,4 +1139,3 @@ else:
             _rebuild()
             font =  fontManager.findfont(prop, **kw)
         return font
-

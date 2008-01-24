@@ -709,4 +709,3 @@ for k in ('QuadMesh', 'PolyCollection', 'BrokenBarHCollection', 'RegularPolyColl
           'StarPolygonCollection'):
     artist.kwdocd[k] = patchstr
 artist.kwdocd['LineCollection'] = artist.kwdoc(LineCollection)
-

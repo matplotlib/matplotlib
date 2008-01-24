@@ -48,9 +48,9 @@ class RendererBase:
         pass
 
     def draw_path(self, gc, path, transform, rgbFace=None):
-	"""
+        """
         Draws a Path instance using the given affine transform.
-	"""
+        """
         raise NotImplementedError
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
@@ -642,7 +642,7 @@ class LocationEvent(Event):
             self.inaxes = axes_list[0]
 
         try:
-	    xdata, ydata = self.inaxes.transData.inverted().transform_point((x, y))
+            xdata, ydata = self.inaxes.transData.inverted().transform_point((x, y))
         except ValueError:
             self.xdata  = None
             self.ydata  = None
@@ -1466,7 +1466,7 @@ class NavigationToolbar2:
             lims.append( (xmin, xmax, ymin, ymax) )
             # Store both the original and modified positions
             pos.append( (
-		    a.get_position(True).frozen(),
+                    a.get_position(True).frozen(),
                     a.get_position().frozen() ) )
         self._views.push(lims)
         self._positions.push(pos)
@@ -1515,7 +1515,7 @@ class NavigationToolbar2:
             x0, y0, x1, y1 = lim.extents
 
             # zoom to rect
-	    inverse = a.transData.inverted()
+            inverse = a.transData.inverted()
             lastx, lasty = inverse.transform_point( (lastx, lasty) )
             x, y = inverse.transform_point( (x, y) )
             Xmin,Xmax=a.get_xlim()
@@ -1661,5 +1661,3 @@ class NavigationToolbar2:
     def set_history_buttons(self):
         'enable or disable back/forward button'
         pass
-
-

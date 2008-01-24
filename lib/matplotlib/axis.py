@@ -1122,7 +1122,7 @@ class XAxis(Axis):
             horizontalalignment='center',
             )
         label.set_transform( blended_transform_factory(
-		self.axes.transAxes, IdentityTransform() ))
+                self.axes.transAxes, IdentityTransform() ))
 
         self._set_artist_props(label)
         self.label_position='bottom'
@@ -1137,7 +1137,7 @@ class XAxis(Axis):
             horizontalalignment='right',
             )
         offsetText.set_transform( blended_transform_factory(
-		self.axes.transAxes, IdentityTransform() ))
+                self.axes.transAxes, IdentityTransform() ))
         self._set_artist_props(offsetText)
         self.offset_text_position='bottom'
         return offsetText
@@ -1356,7 +1356,7 @@ class YAxis(Axis):
             rotation='vertical',
             )
         label.set_transform( blended_transform_factory(
-		IdentityTransform(), self.axes.transAxes) )
+                IdentityTransform(), self.axes.transAxes) )
 
         self._set_artist_props(label)
         self.label_position='left'
@@ -1371,7 +1371,7 @@ class YAxis(Axis):
             horizontalalignment = 'left',
             )
         offsetText.set_transform(blended_transform_factory(
-		self.axes.transAxes, IdentityTransform()) )
+                self.axes.transAxes, IdentityTransform()) )
         self._set_artist_props(offsetText)
         self.offset_text_position='left'
         return offsetText
@@ -1557,5 +1557,3 @@ class YAxis(Axis):
         else:
             Vmin, Vmax = self.get_data_interval()
             self.axes.dataLim.intervaly = min(vmin, Vmin), max(vmax, Vmax)
-
-

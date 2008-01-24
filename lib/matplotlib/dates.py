@@ -1066,6 +1066,3 @@ if __name__=='__main__':
     #for t in  ticks: print formatter(t)
 
     for t in dates: print formatter(t)
-
-
-

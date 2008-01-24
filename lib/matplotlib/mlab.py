@@ -2354,6 +2354,3 @@ def rec2csv(r, fname, delimiter=',', formatd=None):
         writer.writerow([func(val) for func, val in zip(funcs, row)])
     if opened:
         fh.close()
-
-
-

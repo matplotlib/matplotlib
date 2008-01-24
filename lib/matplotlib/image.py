@@ -357,7 +357,7 @@ class NonUniformImage(AxesImage):
         if len(A.shape) == 3 and A.shape[2] not in [1, 3, 4]:
             raise TypeError("3D arrays must have three (RGB) or four (RGBA) color components")
         if len(A.shape) == 3 and A.shape[2] == 1:
-             A.shape = A.shape[0:2]
+            A.shape = A.shape[0:2]
         if len(A.shape) == 2:
             if A.dtype != npy.uint8:
                 A = (self.cmap(self.norm(A))*255).astype(npy.uint8)

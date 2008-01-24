@@ -57,4 +57,3 @@ class Gcf(object):
         Gcf._activeQue.append(manager)
         Gcf.figs[manager.num] = manager
     set_active = staticmethod(set_active)
-

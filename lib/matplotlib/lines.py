@@ -426,8 +426,8 @@ class Line2D(Artist):
             self._xy = ma.concatenate((x, y), 1)
         else:
             self._xy = npy.concatenate((x, y), 1)
-	self._x = self._xy[:, 0] # just a view
-	self._y = self._xy[:, 1] # just a view
+        self._x = self._xy[:, 0] # just a view
+        self._y = self._xy[:, 1] # just a view
 
         # Masked arrays are now handled by the Path class itself
         self._path = Path(self._xy)
@@ -693,7 +693,7 @@ class Line2D(Artist):
 
     def _draw_solid(self, renderer, gc, path, trans):
         gc.set_linestyle('solid')
-	renderer.draw_path(gc, path, trans)
+        renderer.draw_path(gc, path, trans)
 
 
     def _draw_steps_pre(self, renderer, gc, path, trans):
@@ -737,255 +737,255 @@ class Line2D(Artist):
         if self._dashSeq is not None:
             gc.set_dashes(0, self._dashSeq)
 
-	renderer.draw_path(gc, path, trans)
+        renderer.draw_path(gc, path, trans)
 
 
     def _draw_dash_dot(self, renderer, gc, path, trans):
         gc.set_linestyle('dashdot')
-	renderer.draw_path(gc, path, trans)
+        renderer.draw_path(gc, path, trans)
 
 
     def _draw_dotted(self, renderer, gc, path, trans):
         gc.set_linestyle('dotted')
-	renderer.draw_path(gc, path, trans)
+        renderer.draw_path(gc, path, trans)
 
 
     def _draw_point(self, renderer, gc, path, path_trans):
         w = renderer.points_to_pixels(self._markersize) * \
-	    self._point_size_reduction * 0.5
+            self._point_size_reduction * 0.5
         rgbFace = self._get_rgb_face()
-	transform = Affine2D().scale(w)
-	renderer.draw_markers(
-	    gc, Path.unit_circle(), transform, path, path_trans,
-	    rgbFace)
+        transform = Affine2D().scale(w)
+        renderer.draw_markers(
+            gc, Path.unit_circle(), transform, path, path_trans,
+            rgbFace)
 
     _draw_pixel_transform = Affine2D().translate(-0.5, -0.5)
     def _draw_pixel(self, renderer, gc, path, path_trans):
-	rgbFace = self._get_rgb_face()
-	renderer.draw_markers(gc, Path.unit_rectangle(),
+        rgbFace = self._get_rgb_face()
+        renderer.draw_markers(gc, Path.unit_rectangle(),
                               self._draw_pixel_transform,
-			      path, path_trans, rgbFace)
+                              path, path_trans, rgbFace)
 
 
     def _draw_circle(self, renderer, gc, path, path_trans):
         w = renderer.points_to_pixels(self._markersize) * 0.5
         rgbFace = self._get_rgb_face()
-	transform = Affine2D().scale(w, w)
-	renderer.draw_markers(
-	    gc, Path.unit_circle(), transform, path, path_trans,
-	    rgbFace)
+        transform = Affine2D().scale(w, w)
+        renderer.draw_markers(
+            gc, Path.unit_circle(), transform, path, path_trans,
+            rgbFace)
 
 
     _triangle_path = Path([[0.0, 1.0], [-1.0, -1.0], [1.0, -1.0], [0.0, 1.0]])
     def _draw_triangle_up(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset, offset)
+        transform = Affine2D().scale(offset, offset)
         rgbFace = self._get_rgb_face()
-	renderer.draw_markers(gc, self._triangle_path, transform,
-			      path, path_trans, rgbFace)
+        renderer.draw_markers(gc, self._triangle_path, transform,
+                              path, path_trans, rgbFace)
 
 
     def _draw_triangle_down(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset, -offset)
+        transform = Affine2D().scale(offset, -offset)
         rgbFace = self._get_rgb_face()
-	renderer.draw_markers(gc, self._triangle_path, transform,
-			      path, path_trans, rgbFace)
+        renderer.draw_markers(gc, self._triangle_path, transform,
+                              path, path_trans, rgbFace)
 
 
     def _draw_triangle_left(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset, offset).rotate_deg(90)
+        transform = Affine2D().scale(offset, offset).rotate_deg(90)
         rgbFace = self._get_rgb_face()
-	renderer.draw_markers(gc, self._triangle_path, transform,
-			      path, path_trans, rgbFace)
+        renderer.draw_markers(gc, self._triangle_path, transform,
+                              path, path_trans, rgbFace)
 
 
     def _draw_triangle_right(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset, offset).rotate_deg(-90)
+        transform = Affine2D().scale(offset, offset).rotate_deg(-90)
         rgbFace = self._get_rgb_face()
-	renderer.draw_markers(gc, self._triangle_path, transform,
-			      path, path_trans, rgbFace)
+        renderer.draw_markers(gc, self._triangle_path, transform,
+                              path, path_trans, rgbFace)
 
 
     def _draw_square(self, renderer, gc, path, path_trans):
         side = renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().translate(-0.5, -0.5).scale(side)
+        transform = Affine2D().translate(-0.5, -0.5).scale(side)
         rgbFace = self._get_rgb_face()
-	renderer.draw_markers(gc, Path.unit_rectangle(), transform,
-			      path, path_trans, rgbFace)
+        renderer.draw_markers(gc, Path.unit_rectangle(), transform,
+                              path, path_trans, rgbFace)
 
 
     def _draw_diamond(self, renderer, gc, path, path_trans):
         side = renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45).scale(side)
+        transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45).scale(side)
         rgbFace = self._get_rgb_face()
-	renderer.draw_markers(gc, Path.unit_rectangle(), transform,
-			      path, path_trans, rgbFace)
+        renderer.draw_markers(gc, Path.unit_rectangle(), transform,
+                              path, path_trans, rgbFace)
 
 
     def _draw_thin_diamond(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().translate(-0.5, -0.5) \
-	    .rotate_deg(45).scale(offset * 0.6, offset)
+        transform = Affine2D().translate(-0.5, -0.5) \
+            .rotate_deg(45).scale(offset * 0.6, offset)
         rgbFace = self._get_rgb_face()
-	renderer.draw_markers(gc, Path.unit_rectangle(), transform,
-			      path, path_trans, rgbFace)
+        renderer.draw_markers(gc, Path.unit_rectangle(), transform,
+                              path, path_trans, rgbFace)
 
 
     def _draw_pentagon(self, renderer, gc, path, path_trans):
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset)
-	rgbFace = self._get_rgb_face()
-	renderer.draw_markers(gc, Path.unit_regular_polygon(5), transform,
-			      path, path_trans, rgbFace)
+        transform = Affine2D().scale(offset)
+        rgbFace = self._get_rgb_face()
+        renderer.draw_markers(gc, Path.unit_regular_polygon(5), transform,
+                              path, path_trans, rgbFace)
 
 
     def _draw_hexagon1(self, renderer, gc, path, path_trans):
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset)
-	rgbFace = self._get_rgb_face()
-	renderer.draw_markers(gc, Path.unit_regular_polygon(6), transform,
-			      path, path_trans, rgbFace)
+        transform = Affine2D().scale(offset)
+        rgbFace = self._get_rgb_face()
+        renderer.draw_markers(gc, Path.unit_regular_polygon(6), transform,
+                              path, path_trans, rgbFace)
 
 
     def _draw_hexagon2(self, renderer, gc, path, path_trans):
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset).rotate_deg(30)
-	rgbFace = self._get_rgb_face()
-	renderer.draw_markers(gc, Path.unit_regular_polygon(6), transform,
-			      path, path_trans, rgbFace)
+        transform = Affine2D().scale(offset).rotate_deg(30)
+        rgbFace = self._get_rgb_face()
+        renderer.draw_markers(gc, Path.unit_regular_polygon(6), transform,
+                              path, path_trans, rgbFace)
 
 
     _line_marker_path = Path([[0.0, -1.0], [0.0, 1.0]])
     def _draw_vline(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset)
-	renderer.draw_markers(gc, self._line_marker_path, transform,
-			      path, path_trans)
+        transform = Affine2D().scale(offset)
+        renderer.draw_markers(gc, self._line_marker_path, transform,
+                              path, path_trans)
 
 
     def _draw_hline(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset).rotate_deg(90)
-	renderer.draw_markers(gc, self._line_marker_path, transform,
-			      path, path_trans)
+        transform = Affine2D().scale(offset).rotate_deg(90)
+        renderer.draw_markers(gc, self._line_marker_path, transform,
+                              path, path_trans)
 
 
     _tickhoriz_path = Path([[0.0, 0.5], [1.0, 0.5]])
     def _draw_tickleft(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
-	marker_transform = Affine2D().scale(-offset, 1.0)
-	renderer.draw_markers(gc, self._tickhoriz_path, marker_transform,
-			      path, path_trans)
+        marker_transform = Affine2D().scale(-offset, 1.0)
+        renderer.draw_markers(gc, self._tickhoriz_path, marker_transform,
+                              path, path_trans)
 
 
     def _draw_tickright(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
-	marker_transform = Affine2D().scale(offset, 1.0)
-	renderer.draw_markers(gc, self._tickhoriz_path, marker_transform,
-			      path, path_trans)
+        marker_transform = Affine2D().scale(offset, 1.0)
+        renderer.draw_markers(gc, self._tickhoriz_path, marker_transform,
+                              path, path_trans)
 
 
     _tickvert_path = Path([[-0.5, 0.0], [-0.5, 1.0]])
     def _draw_tickup(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
-	marker_transform = Affine2D().scale(1.0, offset)
-	renderer.draw_markers(gc, self._tickvert_path, marker_transform,
-			      path, path_trans)
+        marker_transform = Affine2D().scale(1.0, offset)
+        renderer.draw_markers(gc, self._tickvert_path, marker_transform,
+                              path, path_trans)
 
 
     def _draw_tickdown(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
-	marker_transform = Affine2D().scale(1.0, -offset)
-	renderer.draw_markers(gc, self._tickvert_path, marker_transform,
-			      path, path_trans)
+        marker_transform = Affine2D().scale(1.0, -offset)
+        renderer.draw_markers(gc, self._tickvert_path, marker_transform,
+                              path, path_trans)
 
 
     _plus_path = Path([[-1.0, 0.0], [1.0, 0.0],
-		       [0.0, -1.0], [0.0, 1.0]],
-		      [Path.MOVETO, Path.LINETO,
-		       Path.MOVETO, Path.LINETO])
+                       [0.0, -1.0], [0.0, 1.0]],
+                      [Path.MOVETO, Path.LINETO,
+                       Path.MOVETO, Path.LINETO])
     def _draw_plus(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset)
-	renderer.draw_markers(gc, self._plus_path, transform,
-			      path, path_trans)
+        transform = Affine2D().scale(offset)
+        renderer.draw_markers(gc, self._plus_path, transform,
+                              path, path_trans)
 
 
     _tri_path = Path([[0.0, 0.0], [0.0, -1.0],
-		      [0.0, 0.0], [0.8, 0.5],
-		      [0.0, 0.0], [-0.8, 0.5]],
-		     [Path.MOVETO, Path.LINETO,
-		      Path.MOVETO, Path.LINETO,
-		      Path.MOVETO, Path.LINETO])
+                      [0.0, 0.0], [0.8, 0.5],
+                      [0.0, 0.0], [-0.8, 0.5]],
+                     [Path.MOVETO, Path.LINETO,
+                      Path.MOVETO, Path.LINETO,
+                      Path.MOVETO, Path.LINETO])
     def _draw_tri_down(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset)
-	renderer.draw_markers(gc, self._tri_path, transform,
-			      path, path_trans)
+        transform = Affine2D().scale(offset)
+        renderer.draw_markers(gc, self._tri_path, transform,
+                              path, path_trans)
 
 
     def _draw_tri_up(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset).rotate_deg(180)
-	renderer.draw_markers(gc, self._tri_path, transform,
-			      path, path_trans)
+        transform = Affine2D().scale(offset).rotate_deg(180)
+        renderer.draw_markers(gc, self._tri_path, transform,
+                              path, path_trans)
 
 
     def _draw_tri_left(self, renderer, gc, path, path_trans):
-	offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset).rotate_deg(90)
-	renderer.draw_markers(gc, self._tri_path, transform,
-			      path, path_trans)
+        offset = 0.5*renderer.points_to_pixels(self._markersize)
+        transform = Affine2D().scale(offset).rotate_deg(90)
+        renderer.draw_markers(gc, self._tri_path, transform,
+                              path, path_trans)
 
 
     def _draw_tri_right(self, renderer, gc, path, path_trans):
-	offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset).rotate_deg(270)
-	renderer.draw_markers(gc, self._tri_path, transform,
-			      path, path_trans)
+        offset = 0.5*renderer.points_to_pixels(self._markersize)
+        transform = Affine2D().scale(offset).rotate_deg(270)
+        renderer.draw_markers(gc, self._tri_path, transform,
+                              path, path_trans)
 
 
     _caret_path = Path([[-1.0, 1.5], [0.0, 0.0], [1.0, 1.5]])
     def _draw_caretdown(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset)
-	renderer.draw_markers(gc, self._caret_path, transform,
-			      path, path_trans)
+        transform = Affine2D().scale(offset)
+        renderer.draw_markers(gc, self._caret_path, transform,
+                              path, path_trans)
 
 
     def _draw_caretup(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset).rotate_deg(180)
-	renderer.draw_markers(gc, self._caret_path, transform,
-			      path, path_trans)
+        transform = Affine2D().scale(offset).rotate_deg(180)
+        renderer.draw_markers(gc, self._caret_path, transform,
+                              path, path_trans)
 
 
     def _draw_caretleft(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset).rotate_deg(270)
-	renderer.draw_markers(gc, self._caret_path, transform,
-			      path, path_trans)
+        transform = Affine2D().scale(offset).rotate_deg(270)
+        renderer.draw_markers(gc, self._caret_path, transform,
+                              path, path_trans)
 
 
     def _draw_caretright(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset).rotate_deg(90)
-	renderer.draw_markers(gc, self._caret_path, transform,
-			      path, path_trans)
+        transform = Affine2D().scale(offset).rotate_deg(90)
+        renderer.draw_markers(gc, self._caret_path, transform,
+                              path, path_trans)
 
 
     _x_path = Path([[-1.0, -1.0], [1.0, 1.0],
-		    [-1.0, 1.0], [1.0, -1.0]],
-		   [Path.MOVETO, Path.LINETO,
-		    Path.MOVETO, Path.LINETO])
+                    [-1.0, 1.0], [1.0, -1.0]],
+                   [Path.MOVETO, Path.LINETO,
+                    Path.MOVETO, Path.LINETO])
     def _draw_x(self, renderer, gc, path, path_trans):
         offset = 0.5*renderer.points_to_pixels(self._markersize)
-	transform = Affine2D().scale(offset)
-	renderer.draw_markers(gc, self._x_path, transform,
-			      path, path_trans)
+        transform = Affine2D().scale(offset)
+        renderer.draw_markers(gc, self._x_path, transform,
+                              path, path_trans)
 
 
     def update_from(self, other):

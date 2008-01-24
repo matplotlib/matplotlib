@@ -139,4 +139,3 @@ class Registry(dict):
 
 
 registry = Registry()
-

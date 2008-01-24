@@ -122,10 +122,10 @@ class Figure(Artist):
         if facecolor is None: facecolor = rcParams['figure.facecolor']
         if edgecolor is None: edgecolor = rcParams['figure.edgecolor']
 
-	self._dpi_scale_trans = Affine2D()
+        self._dpi_scale_trans = Affine2D()
         self.dpi = dpi
-	self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
-	self.bbox = TransformedBbox(self.bbox_inches, self._dpi_scale_trans)
+        self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
+        self.bbox = TransformedBbox(self.bbox_inches, self._dpi_scale_trans)
 
         self.frameon = frameon
 
@@ -154,10 +154,10 @@ class Figure(Artist):
         self._autoLayout = rcParams['figure.autolayout']
 
     def _get_dpi(self):
-	return self._dpi
+        return self._dpi
     def _set_dpi(self, dpi):
-	self._dpi = dpi
-	self._dpi_scale_trans.clear().scale(dpi, dpi)
+        self._dpi = dpi
+        self._dpi_scale_trans.clear().scale(dpi, dpi)
     dpi = property(_get_dpi, _set_dpi)
 
     def enable_auto_layout(self, setting=True):
@@ -334,8 +334,8 @@ class Figure(Artist):
         else:
             w,h = args
 
-	dpival = self.dpi
-	self.bbox_inches.p1 = w, h
+        dpival = self.dpi
+        self.bbox_inches.p1 = w, h
 
         if forward:
             dpival = self.dpi
@@ -358,7 +358,7 @@ class Figure(Artist):
 
     def get_figwidth(self):
         'Return the figwidth as a float'
-	return self.bbox_inches.width
+        return self.bbox_inches.width
 
     def get_figheight(self):
         'Return the figheight as a float'
@@ -394,7 +394,7 @@ class Figure(Artist):
 
         ACCEPTS: float
         """
-	self.dpi = val
+        self.dpi = val
 
     def set_figwidth(self, val):
         """
@@ -402,7 +402,7 @@ class Figure(Artist):
 
         ACCEPTS: float
         """
-	self.bbox_inches.x1 = val
+        self.bbox_inches.x1 = val
 
     def set_figheight(self, val):
         """
@@ -410,7 +410,7 @@ class Figure(Artist):
 
         ACCEPTS: float
         """
-	self.bbox_inches.y1 = val
+        self.bbox_inches.y1 = val
 
     def set_frameon(self, b):
         """
