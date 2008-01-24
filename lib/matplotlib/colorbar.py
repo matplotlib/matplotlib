@@ -670,4 +670,3 @@ class ColorbarAxes(axes.Axes):
         self.set_aspect(aspect, anchor=anchor, adjustable='box')
 
 '''
-

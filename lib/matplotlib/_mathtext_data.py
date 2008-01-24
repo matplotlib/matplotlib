@@ -2472,5 +2472,3 @@ stix_virtual_fonts = {
         (0x0061, 0x007a, 'rm', 0x1d68a)  # a-z
         ],
     }
-
-

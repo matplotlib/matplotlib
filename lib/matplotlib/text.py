@@ -220,8 +220,8 @@ class Text(Artist):
 
         # the corners of the unrotated bounding box
         cornersHoriz = npy.array(
-	    [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)],
-	    npy.float_)
+            [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)],
+            npy.float_)
         # now rotate the bbox
         cornersRotated = M.transform(cornersHoriz)
 
@@ -1072,7 +1072,7 @@ class Annotation(Text):
 
             # prevent recursion
             if self.xycoords == 'offset points':
-               return self._get_xy(dx, dy, 'data')
+                return self._get_xy(dx, dy, 'data')
 
             dx, dy = self._get_xy(dx, dy, self.xycoords)
 

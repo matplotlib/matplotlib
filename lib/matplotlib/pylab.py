@@ -255,7 +255,7 @@ from matplotlib.mlab import window_hanning, window_none, conv, detrend, demean, 
      mfuncC, approx_real, rec_append_field, rec_drop_fields, rec_join, csv2rec, rec2csv
 
 
-     
+
 
 # old style--if True, override standard numpy with oldnumeric
 if False:
@@ -290,6 +290,3 @@ if False:
 
 
 from matplotlib.pyplot import *
-
-
-

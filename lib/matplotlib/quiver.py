@@ -442,5 +442,3 @@ class Quiver(collections.PolyCollection):
         return X, Y
 
     quiver_doc = _quiver_doc
-
-

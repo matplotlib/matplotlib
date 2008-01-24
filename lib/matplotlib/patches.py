@@ -82,11 +82,11 @@ class Patch(artist.Artist):
 
         Returns T/F, {}
         """
-	# This is a general version of contains that should work on any
+        # This is a general version of contains that should work on any
         # patch with a path.  However, patches that have a faster
         # algebraic solution to hit-testing should override this
         # method.
-	if callable(self._contains): return self._contains(self,mouseevent)
+        if callable(self._contains): return self._contains(self,mouseevent)
 
         inside = self.get_path().contains_point(
             (mouseevent.x, mouseevent.y), self.get_transform())
@@ -296,7 +296,7 @@ class Shadow(Patch):
         Patch.__init__(self)
         self.patch = patch
         self.props = props
-	self._ox, self._oy = ox, oy
+        self._ox, self._oy = ox, oy
         self._update_transform()
         self._update()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
@@ -334,7 +334,7 @@ class Shadow(Patch):
         return self.patch.get_path()
 
     def get_patch_transform(self):
-	return self.patch.get_patch_transform() + self._shadow_transform
+        return self.patch.get_patch_transform() + self._shadow_transform
 
 class Rectangle(Patch):
     """
@@ -373,7 +373,7 @@ class Rectangle(Patch):
         """
         Return the vertices of the rectangle
         """
-	return Path.unit_rectangle()
+        return Path.unit_rectangle()
 
     def _update_patch_transform(self):
         x = self.convert_xunits(self._x)
@@ -385,7 +385,7 @@ class Rectangle(Patch):
 
     def get_patch_transform(self):
         self._update_patch_transform()
-	return self._rect_transform
+        return self._rect_transform
 
     def contains(self, mouseevent):
         x, y = self.get_transform().inverted().transform_point(
@@ -480,7 +480,7 @@ class RegularPolygon(Patch):
         self._numVertices = numVertices
         self._orientation = orientation
         self._radius = radius
-	self._path = Path.unit_regular_polygon(numVertices)
+        self._path = Path.unit_regular_polygon(numVertices)
         self._poly_transform = transforms.Affine2D()
         self._update_transform()
 
@@ -490,9 +490,9 @@ class RegularPolygon(Patch):
 
     def _update_transform(self):
         self._poly_transform.clear() \
-	    .scale(self.radius) \
-	    .rotate(self.orientation) \
-	    .translate(*self.xy)
+            .scale(self.radius) \
+            .rotate(self.orientation) \
+            .translate(*self.xy)
 
     def _get_xy(self):
         return self._xy
@@ -519,7 +519,7 @@ class RegularPolygon(Patch):
     numvertices = property(_get_numvertices, _set_numvertices)
 
     def get_path(self):
-	return self._path
+        return self._path
 
     def get_patch_transform(self):
         self._update_transform()
@@ -541,11 +541,11 @@ class PathPatch(Patch):
         See Patch documentation for additional kwargs
         """
         Patch.__init__(self, **kwargs)
-	self._path = path
+        self._path = path
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
-	return self._path
+        return self._path
 
 class Polygon(Patch):
     """
@@ -563,11 +563,11 @@ class Polygon(Patch):
         See Patch documentation for additional kwargs
         """
         Patch.__init__(self, **kwargs)
-	self._path = Path(xy)
+        self._path = Path(xy)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
-	return self._path
+        return self._path
 
     def _get_xy(self):
         return self._path.vertices
@@ -596,7 +596,7 @@ class Wedge(Patch):
         self._path = Path.wedge(self.theta1, self.theta2)
 
     def get_path(self):
-	return self._path
+        return self._path
 
     def get_patch_transform(self):
         x = self.convert_xunits(self.center[0])
@@ -605,7 +605,7 @@ class Wedge(Patch):
         ry = self.convert_yunits(self.r)
         self._patch_transform = transforms.Affine2D() \
             .scale(rx, ry).translate(x, y)
-	return self._patch_transform
+        return self._patch_transform
 
 # COVERAGE NOTE: Not used internally or from examples
 class Arrow(Polygon):
@@ -854,15 +854,15 @@ class Ellipse(Patch):
         width = self.convert_xunits(self.width)
         height = self.convert_yunits(self.height)
         self._patch_transform = transforms.Affine2D() \
-	    .scale(width * 0.5, height * 0.5) \
-	    .rotate_deg(self.angle) \
-	    .translate(*center)
+            .scale(width * 0.5, height * 0.5) \
+            .rotate_deg(self.angle) \
+            .translate(*center)
 
     def get_path(self):
         """
         Return the vertices of the rectangle
         """
-	return self._path
+        return self._path
 
     def get_patch_transform(self):
         self._recompute_transform()
@@ -1138,5 +1138,3 @@ artist.kwdocd['Patch'] = patchdoc = artist.kwdoc(Patch)
 for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
           'FancyArrow', 'YAArrow', 'CirclePolygon', 'Ellipse'):
     artist.kwdocd[k] = patchdoc
-
-

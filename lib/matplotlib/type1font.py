@@ -33,7 +33,7 @@ class Type1Font(object):
         rawdata = file.read()
         if not rawdata.startswith(chr(128)):
             return rawdata
-        
+
         data = ''
         while len(rawdata) > 0:
             if not rawdata.startswith(chr(128)):
@@ -96,10 +96,9 @@ class Type1Font(object):
                           for i in range(len1, idx, 2)])
 
         return data[:len1], binary, data[idx:]
-            
+
 if __name__ == '__main__':
     import sys
     font = Type1Font(sys.argv[1])
     parts = font.parts
     print len(parts[0]), len(parts[1]), len(parts[2])
-

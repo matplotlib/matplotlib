@@ -155,7 +155,7 @@ class Path(object):
     make_compound_path = staticmethod(make_compound_path)
 
     def __repr__(self):
-	return "Path(%s, %s)" % (self.vertices, self.codes)
+        return "Path(%s, %s)" % (self.vertices, self.codes)
 
     def __len__(self):
         return len(self.vertices)
@@ -164,7 +164,7 @@ class Path(object):
         """
         Iterates over all of the curve segments in the path.
         """
-	vertices = self.vertices
+        vertices = self.vertices
         if not len(vertices):
             return
 
@@ -173,7 +173,7 @@ class Path(object):
         isnan = npy.isnan
         any = npy.any
 
-	NUM_VERTICES = self.NUM_VERTICES
+        NUM_VERTICES = self.NUM_VERTICES
         MOVETO = self.MOVETO
         LINETO = self.LINETO
         CLOSEPOLY = self.CLOSEPOLY
@@ -304,9 +304,9 @@ class Path(object):
         """
         Returns a Path of the unit rectangle from (0, 0) to (1, 1).
         """
-	if cls._unit_rectangle is None:
-	    cls._unit_rectangle = \
-		Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]])
+        if cls._unit_rectangle is None:
+            cls._unit_rectangle = \
+                Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]])
         return cls._unit_rectangle
     unit_rectangle = classmethod(unit_rectangle)
 
@@ -317,17 +317,17 @@ class Path(object):
         Returns a Path for a unit regular polygon with the given
         numVertices and radius of 1.0, centered at (0, 0).
         """
-	path = cls._unit_regular_polygons.get(numVertices)
-	if path is None:
-	    theta = (2*npy.pi/numVertices *
+        path = cls._unit_regular_polygons.get(numVertices)
+        if path is None:
+            theta = (2*npy.pi/numVertices *
                      npy.arange(numVertices + 1).reshape((numVertices + 1, 1)))
-	    # This initial rotation is to make sure the polygon always
+            # This initial rotation is to make sure the polygon always
             # "points-up"
-	    theta += npy.pi / 2.0
-	    verts = npy.concatenate((npy.cos(theta), npy.sin(theta)), 1)
-	    path = Path(verts)
-	    cls._unit_regular_polygons[numVertices] = path
-	return path
+            theta += npy.pi / 2.0
+            verts = npy.concatenate((npy.cos(theta), npy.sin(theta)), 1)
+            path = Path(verts)
+            cls._unit_regular_polygons[numVertices] = path
+        return path
     unit_regular_polygon = classmethod(unit_regular_polygon)
 
     _unit_regular_stars = WeakValueDictionary()
@@ -337,19 +337,19 @@ class Path(object):
         Returns a Path for a unit regular star with the given
         numVertices and radius of 1.0, centered at (0, 0).
         """
-	path = cls._unit_regular_stars.get((numVertices, innerCircle))
-	if path is None:
+        path = cls._unit_regular_stars.get((numVertices, innerCircle))
+        if path is None:
             ns2 = numVertices * 2
-	    theta = (2*npy.pi/ns2 * npy.arange(ns2 + 1))
-	    # This initial rotation is to make sure the polygon always
+            theta = (2*npy.pi/ns2 * npy.arange(ns2 + 1))
+            # This initial rotation is to make sure the polygon always
             # "points-up"
-	    theta += npy.pi / 2.0
+            theta += npy.pi / 2.0
             r = npy.ones(ns2 + 1)
             r[1::2] = innerCircle
-	    verts = npy.vstack((r*npy.cos(theta), r*npy.sin(theta))).transpose()
-	    path = Path(verts)
-	    cls._unit_regular_polygons[(numVertices, innerCircle)] = path
-	return path
+            verts = npy.vstack((r*npy.cos(theta), r*npy.sin(theta))).transpose()
+            path = Path(verts)
+            cls._unit_regular_polygons[(numVertices, innerCircle)] = path
+        return path
     unit_regular_star = classmethod(unit_regular_star)
 
     #@classmethod
@@ -358,7 +358,7 @@ class Path(object):
         Returns a Path for a unit regular asterisk with the given
         numVertices and radius of 1.0, centered at (0, 0).
         """
-	return cls.unit_regular_star(numVertices, 0.0)
+        return cls.unit_regular_star(numVertices, 0.0)
     unit_regular_asterisk = classmethod(unit_regular_asterisk)
 
     _unit_circle = None
@@ -374,20 +374,20 @@ class Path(object):
 
         http://www.tinaja.com/glib/ellipse4.pdf
         """
-	if cls._unit_circle is None:
+        if cls._unit_circle is None:
             MAGIC = 0.2652031
             SQRTHALF = npy.sqrt(0.5)
             MAGIC45 = npy.sqrt((MAGIC*MAGIC) / 2.0)
 
-	    vertices = npy.array(
-		[[0.0, -1.0],
+            vertices = npy.array(
+                [[0.0, -1.0],
 
-		 [MAGIC, -1.0],
-		 [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
-		 [SQRTHALF, -SQRTHALF],
+                 [MAGIC, -1.0],
+                 [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
+                 [SQRTHALF, -SQRTHALF],
 
-		 [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
-		 [1.0, -MAGIC],
+                 [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
+                 [1.0, -MAGIC],
                  [1.0, 0.0],
 
                  [1.0, MAGIC],
@@ -418,11 +418,11 @@ class Path(object):
                 npy.float_)
 
             codes = cls.CURVE4 * npy.ones(26)
-	    codes[0] = cls.MOVETO
+            codes[0] = cls.MOVETO
             codes[-1] = cls.CLOSEPOLY
 
-	    cls._unit_circle = Path(vertices, codes)
-	return cls._unit_circle
+            cls._unit_circle = Path(vertices, codes)
+        return cls._unit_circle
     unit_circle = classmethod(unit_circle)
 
     #@classmethod

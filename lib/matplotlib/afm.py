@@ -55,7 +55,7 @@ def _to_bool(s):
 
 def _sanity_check(fh):
     """
-    Check if the file at least looks like AFM. 
+    Check if the file at least looks like AFM.
     If not, raise RuntimeError.
     """
 
@@ -125,9 +125,9 @@ def _parse_header(fh):
         #print '%-s\t%-d line :: %-s' % ( fh.name, len(lst), line )
         key = lst[0]
         if len( lst ) == 2:
-           val = lst[1]
+            val = lst[1]
         else:
-           val = ''
+            val = ''
         #key, val = line.split(' ', 1)
         try: d[key] = headerConverters[key](val)
         except ValueError:
@@ -377,7 +377,7 @@ class AFM:
         Return the string bounding box
         """
         return self.get_str_bbox_and_descent(s)[:4]
-    
+
     def get_name_char(self, c, isord=False):
         """
         Get the name of the character, ie, ';' is 'semicolon'
@@ -401,7 +401,7 @@ class AFM:
         """
         wx, bbox = self._metrics_by_name[name]
         return wx
-        
+
     def get_height_char(self, c, isord=False):
         """
         Get the height of character c from the bounding box.  This is
@@ -426,7 +426,7 @@ class AFM:
         """
         try: return self._kern[ (name1, name2) ]
         except: return 0
-        
+
     def get_fontname(self):
         "Return the font name, eg, Times-Roman"
         return self._header['FontName']
@@ -472,7 +472,7 @@ class AFM:
         not specified in AFM file.
         """
         return self._header.get('StdVW', None)
-    
+
 
 if __name__=='__main__':
     #pathname = '/usr/local/lib/R/afm/'
@@ -482,6 +482,3 @@ if __name__=='__main__':
         fh = file(os.path.join(pathname,fname))
         afm = AFM(fh)
         w,h =  afm.string_width_height('John Hunter is the Man!')
-
-
-
