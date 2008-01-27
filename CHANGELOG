@@ -1,3 +1,7 @@
+2008-01-27 Applied  Martin Teichmann's patch to improve the Qt4
+           backend. Uses Qt's builtin toolbars and statusbars.
+           See bug 1828848 - DSD
+
 2008-01-10 Moved toolkits to mpl_toolkits, made mpl_toolkits
            a namespace package - JSWHIT
 
