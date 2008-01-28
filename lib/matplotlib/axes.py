@@ -331,7 +331,6 @@ class _process_plot_var_args:
                 self.set_patchprops(seg, **kwargs)
                 ret.append(seg)
 
-
             if self.command == 'plot': func = makeline
             else:                      func = makefill
             if multicol:
@@ -2513,10 +2512,6 @@ class Axes(martist.Artist):
         ymin = npy.asarray(ymin)
         ymax = npy.asarray(ymax)
 
-        if len(ymin)==1:
-            ymin = ymin*npy.ones(x.shape, x.dtype)
-        if len(ymax)==1:
-            ymax = ymax*npy.ones(x.shape, x.dtype)
 
         if len(ymin)!=len(x):
             raise ValueError, 'ymin and x are unequal sized sequences'
@@ -2533,12 +2528,17 @@ class Axes(martist.Artist):
         self.add_collection(coll)
         coll.update(kwargs)
 
-        minx = x.min()
-        maxx = x.max()
-        miny = min(ymin.min(), ymax.min())
-        maxy = max(ymin.max(), ymax.max())
-        minx, maxx = self.convert_xunits((minx, maxx))
-        miny, maxy = self.convert_yunits((miny, maxy))
+        # We do the conversion first since not all unitized data is uniform
+        xx = self.convert_xunits( x )
+        yymin = self.convert_yunits( ymin )
+        yymax = self.convert_yunits( ymax )
+
+        minx = min( xx )
+        maxx = max( xx )
+
+        miny = min( min(yymin), min(yymax) )
+        maxy = max( max(yymin), max(yymax) )
+
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
@@ -2644,7 +2644,6 @@ class Axes(martist.Artist):
         autoscaled; default True.  See Axes.autoscale_view for more
         information
         """
-
         scalex = kwargs.pop( 'scalex', True)
         scaley = kwargs.pop( 'scaley', True)
 
