@@ -366,7 +366,7 @@ public:
             //direction we are drawing in, move back to we start drawing from
             //back there.
             if (m_haveMin)
-              m_queue[m_queue_write++].set(agg::path_cmd_move_to, m_minX, m_minY);
+              m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_minX, m_minY);
             m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_maxX, m_maxY);
 
             //if we clipped some segments between this line and the next line
