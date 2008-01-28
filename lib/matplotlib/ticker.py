@@ -336,7 +336,7 @@ class ScalarFormatter(Formatter):
                 return ''.join(('$',sciNotStr,r'\mathdefault{',offsetStr,'}$'))
             elif self._usetex:
                 if sciNotStr != '':
-                    sciNotStr = u'\xd7%s' % sciNotStr
+                    sciNotStr = r'\times%s' % sciNotStr
                 return ''.join(('$',sciNotStr,offsetStr,'$'))
             else:
                 return ''.join((sciNotStr,offsetStr))
