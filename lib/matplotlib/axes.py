@@ -1006,7 +1006,7 @@ class Axes(martist.Artist):
 
         try: v[0]
         except IndexError:
-            emit = kwargs.get('emit', False)
+            emit = kwargs.get('emit', True)
             xmin = kwargs.get('xmin', None)
             xmax = kwargs.get('xmax', None)
 
