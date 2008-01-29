@@ -456,6 +456,8 @@ class Path(object):
         # number of curve segments to make
         if n is None:
             n = int(2 ** npy.ceil((eta2 - eta1) / halfpi))
+        if n < 1:
+            raise ValueError("n must be >= 1 or None")
 
         deta = (eta2 - eta1) / n
         t = npy.tan(0.5 * deta)
