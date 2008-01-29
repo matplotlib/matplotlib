@@ -198,7 +198,7 @@ class Path(object):
                 elif code == STOP:
                     return
                 else:
-                    num_vertices = NUM_VERTICES[code]
+                    num_vertices = NUM_VERTICES[int(code)]
                     curr_vertices = vertices[i:i+num_vertices].flatten()
                     if any(isnan(curr_vertices)):
                         was_nan = True
