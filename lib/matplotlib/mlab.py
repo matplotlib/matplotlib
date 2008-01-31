@@ -84,7 +84,7 @@ Example usage:
 """
 
 from __future__ import division
-import csv, warnings
+import csv, warnings, copy
 
 import numpy as npy
 
@@ -2186,7 +2186,12 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     # Get header and remove invalid characters
     needheader = names is None
     if needheader:
-        headers = reader.next()
+        for row in reader:
+            if len(row) and row[0].startswith(comments):
+                continue
+            headers = row
+            break
+
         # remove these chars
         delete = set("""~!@#$%^&*()-=+~\|]}[{';: /?.>,<""")
         delete.add('"')
