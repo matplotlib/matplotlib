@@ -2102,12 +2102,7 @@ class Parser(object):
                        Suppress(Literal(r"\sqrt"))
                      + Optional(
                          Suppress(Literal("["))
-                       + Group(
-                           OneOrMore(
-                             (c_over_c | symbol)
-                           ^ font
-                           )
-                         )
+                       + Regex("[0-9]+")
                        + Suppress(Literal("]")),
                          default = None
                        )
@@ -2595,11 +2590,7 @@ class Parser(object):
         if root is None:
             root = Box(0., 0., 0.)
         else:
-            if not isinstance(root, ParseResults):
-                raise ParseFatalException(
-                    "Can not parse root of radical. "
-                    "Only simple symbols are allowed in the root.")
-            root = Hlist(root.asList())
+            root = Hlist([Char(x, state) for x in root])
             root.shrink()
             root.shrink()
 

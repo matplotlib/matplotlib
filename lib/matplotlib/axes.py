@@ -2641,10 +2641,6 @@ class Axes(martist.Artist):
         ymin = npy.asarray(ymin)
         ymax = npy.asarray(ymax)
 
-        if len(ymin)==1:
-            ymin = ymin*npy.ones(x.shape, x.dtype)
-        if len(ymax)==1:
-            ymax = ymax*npy.ones(x.shape, x.dtype)
 
         if len(ymin)!=len(x):
             raise ValueError, 'ymin and x are unequal sized sequences'
@@ -2661,12 +2657,17 @@ class Axes(martist.Artist):
         self.add_collection(coll)
         coll.update(kwargs)
 
-        minx = x.min()
-        maxx = x.max()
-        miny = min(ymin.min(), ymax.min())
-        maxy = max(ymin.max(), ymax.max())
-        minx, maxx = self.convert_xunits((minx, maxx))
-        miny, maxy = self.convert_yunits((miny, maxy))
+        # We do the conversion first since not all unitized data is uniform
+        xx = self.convert_xunits( x )
+        yymin = self.convert_yunits( ymin )
+        yymax = self.convert_yunits( ymax )
+
+        minx = min( xx )
+        maxx = max( xx )
+
+        miny = min( min(yymin), min(yymax) )
+        maxy = max( max(yymin), max(yymax) )
+
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
         self.autoscale_view()
@@ -4152,6 +4153,18 @@ class Axes(martist.Artist):
 
         The marker can also be a tuple (numsides, style, angle), which will
         create a custom, regular symbol.
+
+            numsides is the number of sides
+
+            style is the style of the regular symbol:
+              0 : a regular polygon
+              1 : a star-like symbol
+              2 : an asterisk
+
+            angle is the angle of rotation of the symbol
+
+        Finally, marker can be (verts, 0), verts is a sequence of (x,y)
+        vertices for a custom scatter symbol.
 
             numsides is the number of sides
 
