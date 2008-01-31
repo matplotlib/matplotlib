@@ -122,10 +122,10 @@ class Figure(Artist):
         if facecolor is None: facecolor = rcParams['figure.facecolor']
         if edgecolor is None: edgecolor = rcParams['figure.edgecolor']
 
-        self._dpi_scale_trans = Affine2D()
+        self.dpi_scale_trans = Affine2D()
         self.dpi = dpi
         self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
-        self.bbox = TransformedBbox(self.bbox_inches, self._dpi_scale_trans)
+        self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
 
         self.frameon = frameon
 
@@ -157,7 +157,7 @@ class Figure(Artist):
         return self._dpi
     def _set_dpi(self, dpi):
         self._dpi = dpi
-        self._dpi_scale_trans.clear().scale(dpi, dpi)
+        self.dpi_scale_trans.clear().scale(dpi, dpi)
     dpi = property(_get_dpi, _set_dpi)
 
     def enable_auto_layout(self, setting=True):

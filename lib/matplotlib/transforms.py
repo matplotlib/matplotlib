@@ -1898,6 +1898,32 @@ class BboxTransformFrom(Affine2DBase):
     get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
 
 
+class ScaledTranslation(Affine2DBase):
+    def __init__(self, xt, yt, scale_trans):
+        Affine2DBase.__init__(self)
+        self._t = (xt, yt)
+        self._scale_trans = scale_trans
+        self.set_children(scale_trans)
+        self._mtx = None
+        self._inverted = None
+
+    def __repr__(self):
+        return "ScaledTranslation(%s)" % (self._t)
+    __str__ = __repr__
+
+    def get_matrix(self):
+        if self._invalid:
+            xt, yt = self._scale_trans.transform_point(self._t)
+            self._mtx = npy.array([[1.0, 0.0, xt],
+                                   [0.0, 1.0, yt],
+                                   [0.0, 0.0, 1.0]],
+                                  npy.float_)
+            self._invalid = 0
+            self._inverted = None
+        return self._mtx
+    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
+
+
 class TransformedPath(TransformNode):
     """
     A TransformedPath caches a non-affine transformed copy of the

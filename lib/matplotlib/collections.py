@@ -505,7 +505,6 @@ class RegularPolyCollection(Collection):
     _path_generator = mpath.Path.unit_regular_polygon
 
     def __init__(self,
-                 dpi,
                  numsides,
                  rotation = 0 ,
                  sizes = (1,),
@@ -532,7 +531,6 @@ class RegularPolyCollection(Collection):
         black = (0,0,0,1)
 
         collection = RegularPolyCollection(
-            fig.dpi,
             numsides=5, # a pentagon
             rotation=0,
             sizes=(50,),
@@ -545,17 +543,20 @@ class RegularPolyCollection(Collection):
         """
         Collection.__init__(self,**kwargs)
         self._sizes = sizes
-        self._dpi = dpi
         self._paths = [self._path_generator(numsides)]
-        # sizes is the area of the circle circumscribing the polygon
-        # in points^2
-        self._transforms = [
-            transforms.Affine2D().rotate(-rotation).scale(
-                (math.sqrt(x) * self._dpi / 72.0) / math.sqrt(math.pi))
-            for x in sizes]
+        self._rotation = rotation
         self.set_transform(transforms.IdentityTransform())
 
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
+
+    def draw(self, renderer):
+        # sizes is the area of the circle circumscribing the polygon
+        # in points^2
+        self._transforms = [
+            transforms.Affine2D().rotate(-self._rotation).scale(
+                (npy.sqrt(x) * renderer.dpi / 72.0) / npy.sqrt(npy.pi))
+            for x in self._sizes]
+        return Collection.draw(self, renderer)
 
     def get_paths(self):
         return self._paths

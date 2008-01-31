@@ -595,13 +595,13 @@ class Axes(martist.Artist):
         """
         return self._xaxis_transform
 
-    def get_xaxis_text1_transform(self, pad_pixels):
+    def get_xaxis_text1_transform(self, pad_points):
         """
         Get the transformation used for drawing x-axis labels, which
-        will add the given number of pad_pixels between the axes and
-        the label.  The x-direction is in data coordinates and the
-        y-direction is in axis coordinates.  Returns a 3-tuple of the
-        form:
+        will add the given amount of padding (in points) between the
+        axes and the label.  The x-direction is in data coordinates
+        and the y-direction is in axis coordinates.  Returns a 3-tuple
+        of the form:
 
           (transform, valign, halign)
 
@@ -612,14 +612,15 @@ class Axes(martist.Artist):
         need to place axis elements in different locations.
         """
         return (self._xaxis_transform +
-                mtransforms.Affine2D().translate(0, -1 * pad_pixels),
+                mtransforms.ScaledTranslation(0, -1 * pad_points / 72.0,
+                                              self.figure.dpi_scale_trans),
                 "top", "center")
 
-    def get_xaxis_text2_transform(self, pad_pixels):
+    def get_xaxis_text2_transform(self, pad_points):
         """
         Get the transformation used for drawing the secondary x-axis
-        labels, which will add the given number of pad_pixels between
-        the axes and the label.  The x-direction is in data
+        labels, which will add the given amount of padding (in points)
+        between the axes and the label.  The x-direction is in data
         coordinates and the y-direction is in axis coordinates.
         Returns a 3-tuple of the form:
 
@@ -632,7 +633,8 @@ class Axes(martist.Artist):
         need to place axis elements in different locations.
         """
         return (self._xaxis_transform +
-                mtransforms.Affine2D().translate(0, pad_pixels),
+                mtransforms.ScaledTranslation(0, pad_points / 72.0,
+                                              self.figure.dpi_scale_trans),
                 "bottom", "center")
 
     def get_yaxis_transform(self):
@@ -647,13 +649,13 @@ class Axes(martist.Artist):
         """
         return self._yaxis_transform
 
-    def get_yaxis_text1_transform(self, pad_pixels):
+    def get_yaxis_text1_transform(self, pad_points):
         """
         Get the transformation used for drawing y-axis labels, which
-        will add the given number of pad_pixels between the axes and
-        the label.  The x-direction is in axis coordinates and the
-        y-direction is in data coordinates.  Returns a 3-tuple of the
-        form:
+        will add the given amount of padding (in points) between the
+        axes and the label.  The x-direction is in axis coordinates
+        and the y-direction is in data coordinates.  Returns a 3-tuple
+        of the form:
 
           (transform, valign, halign)
 
@@ -664,14 +666,15 @@ class Axes(martist.Artist):
         need to place axis elements in different locations.
         """
         return (self._yaxis_transform +
-                mtransforms.Affine2D().translate(-1 * pad_pixels, 0),
+                mtransforms.ScaledTranslation(-1 * pad_points / 72.0, 0,
+                                               self.figure.dpi_scale_trans),
                 "center", "right")
 
-    def get_yaxis_text2_transform(self, pad_pixels):
+    def get_yaxis_text2_transform(self, pad_points):
         """
         Get the transformation used for drawing the secondary y-axis
-        labels, which will add the given number of pad_pixels between
-        the axes and the label.  The x-direction is in axis
+        labels, which will add the given amount of padding (in points)
+        between the axes and the label.  The x-direction is in axis
         coordinates and the y-direction is in data coordinates.
         Returns a 3-tuple of the form:
 
@@ -684,7 +687,8 @@ class Axes(martist.Artist):
         need to place axis elements in different locations.
         """
         return (self._yaxis_transform +
-                mtransforms.Affine2D().translate(pad_pixels, 0),
+                mtransforms.ScaledTranslation(-1 * pad_points / 72.0, 0,
+                                               self.figure.dpi_scale_trans),
                 "center", "left")
 
     def _update_transScale(self):
@@ -4287,7 +4291,6 @@ class Axes(martist.Artist):
         if sym is not None:
             if symstyle==0:
                 collection = mcoll.RegularPolyCollection(
-                    self.figure.dpi,
                     numsides, rotation, scales,
                     facecolors = colors,
                     edgecolors = edgecolors,
@@ -4297,7 +4300,6 @@ class Axes(martist.Artist):
                     )
             elif symstyle==1:
                 collection = mcoll.StarPolygonCollection(
-                    self.figure.dpi,
                     numsides, rotation, scales,
                     facecolors = colors,
                     edgecolors = edgecolors,
@@ -4307,7 +4309,6 @@ class Axes(martist.Artist):
                     )
             elif symstyle==2:
                 collection = mcoll.AsteriskPolygonCollection(
-                    self.figure.dpi,
                     numsides, rotation, scales,
                     facecolors = colors,
                     edgecolors = edgecolors,
@@ -4316,6 +4317,7 @@ class Axes(martist.Artist):
                     transOffset = self.transData,
                     )
         else:
+            # MGDTODO: This has dpi problems
             # rescale verts
             rescale = npy.sqrt(max(verts[:,0]**2+verts[:,1]**2))
             verts /= rescale

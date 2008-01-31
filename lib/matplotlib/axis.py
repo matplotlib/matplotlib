@@ -223,9 +223,9 @@ class XTick(Tick):
         # get the affine as an a,b,c,d,tx,ty list
         # x in data coords, y in axes coords
         #t =  Text(
-        trans, vert, horiz = self.axes.get_xaxis_text1_transform(self.get_pad_pixels())
+        trans, vert, horiz = self.axes.get_xaxis_text1_transform(self._pad)
 
-        t =  TextWithDash(
+        t = TextWithDash(
             x=0, y=0,
             fontproperties=FontProperties(size=rcParams['xtick.labelsize']),
             color=rcParams['xtick.color'],
@@ -245,7 +245,7 @@ class XTick(Tick):
         'Get the default Text 2 instance'
         # x in data coords, y in axes coords
         #t =  Text(
-        trans, vert, horiz = self.axes.get_xaxis_text2_transform(self.get_pad_pixels())
+        trans, vert, horiz = self.axes.get_xaxis_text2_transform(self._pad)
 
         t = TextWithDash(
             x=0, y=1,
@@ -358,7 +358,7 @@ class YTick(Tick):
         'Get the default Text instance'
         # x in axes coords, y in data coords
         #t =  Text(
-        trans, vert, horiz = self.axes.get_yaxis_text1_transform(self.get_pad_pixels())
+        trans, vert, horiz = self.axes.get_yaxis_text1_transform(self._pad)
 
         t = TextWithDash(
             x=0, y=0,
@@ -378,7 +378,7 @@ class YTick(Tick):
         'Get the default Text instance'
         # x in axes coords, y in data coords
         #t =  Text(
-        trans, vert, horiz = self.axes.get_yaxis_text2_transform(self.get_pad_pixels())
+        trans, vert, horiz = self.axes.get_yaxis_text2_transform(self._pad)
 
         t = TextWithDash(
             x=1, y=0,

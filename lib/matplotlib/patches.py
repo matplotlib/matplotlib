@@ -727,11 +727,11 @@ class YAArrow(Patch):
     def __str__(self):
         return "YAArrow()"
 
-    def __init__(self, dpi, xytip, xybase, width=4, frac=0.1, headwidth=12, **kwargs):
+    def __init__(self, figure, xytip, xybase, width=4, frac=0.1, headwidth=12, **kwargs):
         """
         xytip : (x,y) location of arrow tip
         xybase : (x,y) location the arrow base mid point
-        dpi : the figure dpi instance (fig.dpi)
+        figure : the figure instance (fig.dpi)
         width : the width of the arrow in points
         frac  : the fraction of the arrow length occupied by the head
         headwidth : the width of the base of the arrow head in points
@@ -740,7 +740,7 @@ class YAArrow(Patch):
         %(Patch)s
 
         """
-        self.dpi = dpi
+        self.figure = figure
         self.xytip = xytip
         self.xybase = xybase
         self.width = width
@@ -756,8 +756,8 @@ class YAArrow(Patch):
         # the base vertices
         x1, y1 = self.xytip
         x2, y2 = self.xybase
-        k1 = self.width*self.dpi/72./2.
-        k2 = self.headwidth*self.dpi/72./2.
+        k1 = self.width*self.figure.dpi/72./2.
+        k2 = self.headwidth*self.figure.dpi/72./2.
         xb1, yb1, xb2, yb2 = self.getpoints(x1, y1, x2, y2, k1)
 
         # a point on the segment 20% of the distance from the tip to the base
