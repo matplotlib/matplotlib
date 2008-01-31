@@ -1195,7 +1195,7 @@ class Annotation(Text):
             dx = shrink*r*math.cos(theta)
             dy = shrink*r*math.sin(theta)
 
-            self.arrow = YAArrow(self.figure.dpi, (x0+dx,y0+dy), (x-dx, y-dy),
+            self.arrow = YAArrow(self.figure, (x0+dx,y0+dy), (x-dx, y-dy),
                             width=width, headwidth=headwidth, frac=frac,
                             **d)
             self.arrow.set_clip_box(self.get_clip_box())

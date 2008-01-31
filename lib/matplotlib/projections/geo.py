@@ -120,19 +120,19 @@ class GeoAxes(Axes):
     def get_xaxis_transform(self):
         return self._xaxis_transform
 
-    def get_xaxis_text1_transform(self, pixelPad):
+    def get_xaxis_text1_transform(self, pad):
         return self._xaxis_text1_transform, 'bottom', 'center'
 
-    def get_xaxis_text2_transform(self, pixelPad):
+    def get_xaxis_text2_transform(self, pad):
         return self._xaxis_text2_transform, 'top', 'center'
 
     def get_yaxis_transform(self):
         return self._yaxis_transform
 
-    def get_yaxis_text1_transform(self, pixelPad):
+    def get_yaxis_text1_transform(self, pad):
         return self._yaxis_text1_transform, 'center', 'right'
 
-    def get_yaxis_text2_transform(self, pixelPad):
+    def get_yaxis_text2_transform(self, pad):
         return self._yaxis_text2_transform, 'center', 'left'
 
     def get_axes_patch(self):
