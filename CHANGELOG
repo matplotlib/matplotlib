@@ -1,3 +1,6 @@
+2008-01-31 Fix \sqrt with radical number (broken by making [ and ]
+           work below) - MGD
+
 2008-01-10 Fix bug displaying [ and ] in mathtext - MGD
 
 2008-01-10 Fix bug when displaying a tick value offset with scientific
