@@ -409,44 +409,56 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
 	agg::render_scanlines(ras, sl, ri);
       }
       break;
-        case BILINEAR:
-        case BICUBIC:
-        case SPLINE16:
-        case SPLINE36:
-        case HANNING:
-        case HAMMING:
-        case HERMITE:
-        case KAISER:
-        case QUADRIC:
-        case CATROM:
-        case GAUSSIAN:
-        case BESSEL:
-        case MITCHELL:
-        case SINC:
-        case LANCZOS:
-        case BLACKMAN:
-            {
-                agg::image_filter_lut filter;
-                switch(interpolation)
-                {
-                case BILINEAR:  filter.calculate(agg::image_filter_bilinear(), norm); break;
-                case BICUBIC:  filter.calculate(agg::image_filter_bicubic(), norm); break;
-                case SPLINE16:  filter.calculate(agg::image_filter_spline16(), norm); break;
-                case SPLINE36:  filter.calculate(agg::image_filter_spline36(), norm); break;
-                case HANNING:  filter.calculate(agg::image_filter_hanning(), norm); break;
-                case HAMMING:  filter.calculate(agg::image_filter_hamming(), norm); break;
-                case HERMITE:  filter.calculate(agg::image_filter_hermite(), norm); break;
-                case KAISER:  filter.calculate(agg::image_filter_kaiser(), norm); break;
-                case QUADRIC:  filter.calculate(agg::image_filter_quadric(), norm); break;
-                case CATROM: filter.calculate(agg::image_filter_catrom(), norm); break;
-                case GAUSSIAN: filter.calculate(agg::image_filter_gaussian(), norm); break;
-                case BESSEL: filter.calculate(agg::image_filter_bessel(), norm); break;
-                case MITCHELL: filter.calculate(agg::image_filter_mitchell(), norm); break;
-                case SINC: filter.calculate(agg::image_filter_sinc(radius), norm); break;
-                case LANCZOS: filter.calculate(agg::image_filter_lanczos(radius), norm); break;
-                case BLACKMAN: filter.calculate(agg::image_filter_blackman(radius), norm); break;
-                }
+
+    case HANNING:
+    case HAMMING:
+    case HERMITE:
+      {
+        agg::image_filter_lut filter;
+        switch (interpolation) {
+          case HANNING:  filter.calculate(agg::image_filter_hanning(), norm); break;
+          case HAMMING:  filter.calculate(agg::image_filter_hamming(), norm); break;
+          case HERMITE:  filter.calculate(agg::image_filter_hermite(), norm); break;
+        }
 	typedef agg::span_image_filter_rgba_2x2<img_accessor_type, interpolator_type> span_gen_type;
+	typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+	span_gen_type sg(ia, interpolator, filter);
+	renderer_type ri(rb, sa, sg);
+	agg::render_scanlines(ras, sl, ri);
+      }
+      break;
+    case BILINEAR:
+    case BICUBIC:
+    case SPLINE16:
+    case SPLINE36:
+    case KAISER:
+    case QUADRIC:
+    case CATROM:
+    case GAUSSIAN:
+    case BESSEL:
+    case MITCHELL:
+    case SINC:
+    case LANCZOS:
+    case BLACKMAN:
+      {
+        agg::image_filter_lut filter;
+        switch(interpolation)
+          {
+          case BILINEAR:  filter.calculate(agg::image_filter_bilinear(), norm); break;
+          case BICUBIC:  filter.calculate(agg::image_filter_bicubic(), norm); break;
+          case SPLINE16:  filter.calculate(agg::image_filter_spline16(), norm); break;
+          case SPLINE36:  filter.calculate(agg::image_filter_spline36(), norm); break;
+          case KAISER:  filter.calculate(agg::image_filter_kaiser(), norm); break;
+          case QUADRIC:  filter.calculate(agg::image_filter_quadric(), norm); break;
+          case CATROM: filter.calculate(agg::image_filter_catrom(), norm); break;
+          case GAUSSIAN: filter.calculate(agg::image_filter_gaussian(), norm); break;
+          case BESSEL: filter.calculate(agg::image_filter_bessel(), norm); break;
+          case MITCHELL: filter.calculate(agg::image_filter_mitchell(), norm); break;
+          case SINC: filter.calculate(agg::image_filter_sinc(radius), norm); break;
+          case LANCZOS: filter.calculate(agg::image_filter_lanczos(radius), norm); break;
+          case BLACKMAN: filter.calculate(agg::image_filter_blackman(radius), norm); break;
+          }
+	typedef agg::span_image_filter_rgba<img_accessor_type, interpolator_type> span_gen_type;
 	typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
 	span_gen_type sg(ia, interpolator, filter);
 	renderer_type ri(rb, sa, sg);
