@@ -795,8 +795,7 @@ end"""
                 ccode = ord(c)
                 gind = cmap.get(ccode) or 0
                 glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-                # Why divided by 3.0 ??? Wish I knew... MGD
-                widths.append((ccode, cvt(glyph.horiAdvance) / 3.0))
+                widths.append((ccode, glyph.horiAdvance / 6))
                 if ccode < 65536:
                     cid_to_gid_map[ccode] = unichr(gind)
                 max_ccode = max(ccode, max_ccode)

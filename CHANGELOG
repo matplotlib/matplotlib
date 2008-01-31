@@ -1,3 +1,6 @@
+2008-01-31 Fix text spacing problems in PDF backend with *some* fonts,
+           such as STIXGeneral.
+
 2008-01-31 Fix \sqrt with radical number (broken by making [ and ]
            work below) - MGD
 
