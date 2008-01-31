@@ -1052,6 +1052,12 @@ class Annotation(Text):
         return t,tinfo
 
 
+    def set_figure(self, fig):
+
+        if self.arrow is not None:
+            self.arrow.set_figure(fig)
+        Artist.set_figure(self, fig)
+
     def set_clip_box(self, clipbox):
         """
         Set the artist's clip Bbox
@@ -1204,6 +1210,8 @@ class Annotation(Text):
         self.update_positions(renderer)
 
         if self.arrow is not None:
+            if self.arrow.figure is None and self.figure is not None:
+                self.arrow.figure = self.figure
             self.arrow.draw(renderer)
 
         Text.draw(self, renderer)
