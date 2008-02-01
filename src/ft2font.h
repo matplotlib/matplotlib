@@ -30,11 +30,11 @@ public:
 
   void draw_bitmap(FT_Bitmap* bitmap, FT_Int x, FT_Int y);
   void write_bitmap(const char* filename) const;
-  void draw_rect(unsigned long x0, unsigned long y0, 
+  void draw_rect(unsigned long x0, unsigned long y0,
 		 unsigned long x1, unsigned long y1);
-  void draw_rect_filled(unsigned long x0, unsigned long y0, 
+  void draw_rect_filled(unsigned long x0, unsigned long y0,
 			unsigned long x1, unsigned long y1);
-  
+
   unsigned int get_width() const { return _width; };
   unsigned int get_height() const { return _height; };
   const unsigned char *const get_buffer() const { return _buffer; };
@@ -94,7 +94,6 @@ public:
   Py::Object set_size(const Py::Tuple & args);
   Py::Object set_charmap(const Py::Tuple & args);
   Py::Object set_text(const Py::Tuple & args, const Py::Dict & kwargs);
-  Py::Object get_glyph(const Py::Tuple & args);
   Py::Object get_kerning(const Py::Tuple & args);
   Py::Object get_num_glyphs(const Py::Tuple & args);
   Py::Object load_char(const Py::Tuple & args, const Py::Dict & kws);
@@ -124,7 +123,6 @@ private:
   FT_Error      error;
   std::vector<FT_Glyph> glyphs;
   std::vector<FT_Vector> pos;
-  std::vector<Glyph*> gms;
   double angle;
   double ptsize;
   double dpi;
@@ -168,16 +166,16 @@ public:
     Glyph::init_type();
     FT2Font::init_type();
 
-    add_varargs_method("FT2Font", &ft2font_module::new_ft2font, 
+    add_varargs_method("FT2Font", &ft2font_module::new_ft2font,
 		       "FT2Font");
-    add_varargs_method("FT2Image", &ft2font_module::new_ft2image, 
+    add_varargs_method("FT2Image", &ft2font_module::new_ft2image,
 		       "FT2Image");
     initialize( "The ft2font module" );
   }
-  
-  ~ft2font_module(); 
+
+  ~ft2font_module();
   //static FT_Library ft2Library;
-  
+
 private:
 
   Py::Object new_ft2font (const Py::Tuple &args);
