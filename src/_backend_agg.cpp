@@ -465,7 +465,7 @@ Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
   typedef agg::conv_transform<PathIterator>		     transformed_path_t;
   typedef SimplifyPath<transformed_path_t>		     simplify_t;
-  typedef agg::conv_curve<transformed_path_t>	             curve_t;
+  typedef agg::conv_curve<simplify_t>	                     curve_t;
   typedef agg::conv_stroke<curve_t>			     stroke_t;
   typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
   typedef agg::renderer_base<pixfmt_amask_type>		     amask_ren_type;
@@ -488,15 +488,15 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   trans *= agg::trans_affine_translation(0.0, (double)height);
 
   PathIterator marker_path(marker_path_obj);
+  bool marker_snap = should_snap(marker_path, marker_trans);
   transformed_path_t marker_path_transformed(marker_path, marker_trans);
-  curve_t marker_path_curve(marker_path_transformed);
+  simplify_t marker_path_simplified(marker_path_transformed, marker_snap, false, width, height);
+  curve_t marker_path_curve(marker_path_simplified);
 
   PathIterator path(path_obj);
-  bool snap = should_snap(path, trans);
   transformed_path_t path_transformed(path, trans);
   GCAgg gc = GCAgg(gc_obj, dpi);
-  simplify_t path_simplified(path_transformed, snap, false, width, height);
-  path_simplified.rewind(0);
+  path_transformed.rewind(0);
 
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
 
@@ -549,7 +549,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
     if (has_clippath) {
-      while (path_simplified.vertex(&x, &y) != agg::path_cmd_stop) {
+      while (path_transformed.vertex(&x, &y) != agg::path_cmd_stop) {
 	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
 	amask_ren_type r(pfa);
 	amask_aa_renderer_type ren(r);
@@ -564,7 +564,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 	agg::render_scanlines(sa, sl, ren);
       }
     } else {
-      while (path_simplified.vertex(&x, &y) != agg::path_cmd_stop) {
+      while (path_transformed.vertex(&x, &y) != agg::path_cmd_stop) {
 	if (face.first) {
 	  rendererAA->color(face.second);
 	  sa.init(fillCache, fillSize, x, y);
