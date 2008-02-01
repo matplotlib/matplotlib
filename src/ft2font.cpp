@@ -749,10 +749,6 @@ FT2Font::~FT2Font()
   for (size_t i=0; i<glyphs.size(); i++) {
     FT_Done_Glyph( glyphs[i] );
   }
-
-  for (size_t i=0; i<gms.size(); i++) {
-    Py_DECREF(gms[i]);
-  }
 }
 
 int
@@ -792,12 +788,7 @@ FT2Font::clear(const Py::Tuple & args) {
     FT_Done_Glyph( glyphs[i] );
   }
 
-  for (size_t i=0; i<gms.size(); i++) {
-    Py_DECREF(gms[i]);
-  }
-
-  glyphs.resize(0);
-  gms.resize(0);
+  glyphs.clear();
 
   return Py::Object();
 }
@@ -1021,25 +1012,6 @@ FT2Font::set_text(const Py::Tuple & args, const Py::Dict & kwargs) {
 }
 
 
-char FT2Font::get_glyph__doc__[] =
-"get_glyph(num)\n"
-"\n"
-"Return the glyph object with num num\n"
-;
-Py::Object
-FT2Font::get_glyph(const Py::Tuple & args){
-  _VERBOSE("FT2Font::get_glyph");
-
-  args.verify_length(1);
-  int num = Py::Int(args[0]);
-
-  if ( (size_t)num >= gms.size())
-    throw Py::ValueError("Glyph index out of range");
-
-  Py_INCREF(gms[num]);
-  return Py::asObject(gms[num]);
-}
-
 char FT2Font::get_num_glyphs__doc__[] =
 "get_num_glyphs()\n"
 "\n"
@@ -1093,9 +1065,7 @@ FT2Font::load_char(const Py::Tuple & args, const Py::Dict & kwargs) {
   size_t num = glyphs.size();  //the index into the glyphs list
   glyphs.push_back(thisGlyph);
   Glyph* gm = new Glyph(face, thisGlyph, num);
-  gms.push_back(gm);
-  Py_INCREF(gm);
-  return Py::asObject( gm);
+  return Py::asObject(gm);
 }
 
 char FT2Font::get_width_height__doc__[] =
@@ -1763,8 +1733,6 @@ FT2Font::init_type() {
   add_varargs_method("get_xys", &FT2Font::get_xys,
 		     FT2Font::get_xys__doc__);
 
-  add_varargs_method("get_glyph", &FT2Font::get_glyph,
-		     FT2Font::get_glyph__doc__);
   add_varargs_method("get_num_glyphs", &FT2Font::get_num_glyphs,
 		     FT2Font::get_num_glyphs__doc__);
   add_keyword_method("load_char", &FT2Font::load_char,
