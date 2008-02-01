@@ -1036,6 +1036,7 @@ FT2Font::get_glyph(const Py::Tuple & args){
   if ( (size_t)num >= gms.size())
     throw Py::ValueError("Glyph index out of range");
 
+  Py_INCREF(gms[num]);
   return Py::asObject(gms[num]);
 }
 
@@ -1093,6 +1094,7 @@ FT2Font::load_char(const Py::Tuple & args, const Py::Dict & kwargs) {
   glyphs.push_back(thisGlyph);
   Glyph* gm = new Glyph(face, thisGlyph, num);
   gms.push_back(gm);
+  Py_INCREF(gm);
   return Py::asObject( gm);
 }
 
