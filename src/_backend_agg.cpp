@@ -1110,10 +1110,10 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
           newXCoords[k] += newXOffsets[k];
           newYCoords[k] += newYOffsets[k];
         }
-      delete xOffsets;
-      delete yOffsets;
-      delete newXOffsets;
-      delete newYOffsets;
+      delete[] xOffsets;
+      delete[] yOffsets;
+      delete[] newXOffsets;
+      delete[] newYOffsets;
     }
 
   for(q=0; q < Nverts; q++)
@@ -1129,8 +1129,8 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args){
   Py_XDECREF(xCoords);
   Py_XDECREF(yCoords);
   Py_XDECREF(colors);
-  delete newXCoords;
-  delete newYCoords;
+  delete[] newXCoords;
+  delete[] newYCoords;
   //printf("#2: %d\n", clock());
   return Py::Object();
 }
