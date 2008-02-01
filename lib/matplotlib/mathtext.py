@@ -552,7 +552,6 @@ class TruetypeFonts(Fonts):
     A generic base class for all font setups that use Truetype fonts
     (through ft2font)
     """
-    basepath = os.path.join( get_data_path(), 'fonts' )
     _fonts = {}
 
     class CachedFont:
@@ -686,7 +685,7 @@ class BakomaFonts(TruetypeFonts):
         TruetypeFonts.__init__(self, *args, **kwargs)
         if not len(self.fontmap):
             for key, val in self._fontmap.iteritems():
-                fullpath = os.path.join(self.basepath, 'ttf', val + ".ttf")
+                fullpath = findfont(val)
                 self.fontmap[key] = fullpath
                 self.fontmap[val] = fullpath
 
@@ -913,7 +912,7 @@ class StixFonts(UnicodeFonts):
         TruetypeFonts.__init__(self, *args, **kwargs)
         if not len(self.fontmap):
             for key, name in self._fontmap.iteritems():
-                fullpath = os.path.join(self.basepath, 'ttf', name + ".ttf")
+                fullpath = findfont(name)
                 self.fontmap[key] = fullpath
                 self.fontmap[name] = fullpath
 
