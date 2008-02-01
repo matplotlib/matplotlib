@@ -875,7 +875,7 @@ class Line2D(Artist):
                               path, path_trans)
 
 
-    _tickhoriz_path = Path([[0.0, 0.5], [1.0, 0.5]])
+    _tickhoriz_path = Path([[0.0, 0.0], [1.0, 0.0]])
     def _draw_tickleft(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
         marker_transform = Affine2D().scale(-offset, 1.0)
@@ -890,7 +890,7 @@ class Line2D(Artist):
                               path, path_trans)
 
 
-    _tickvert_path = Path([[-0.5, 0.0], [-0.5, 1.0]])
+    _tickvert_path = Path([[-0.0, 0.0], [-0.0, 1.0]])
     def _draw_tickup(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
         marker_transform = Affine2D().scale(1.0, offset)
