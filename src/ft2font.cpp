@@ -1036,7 +1036,7 @@ FT2Font::get_glyph(const Py::Tuple & args){
   if ( (size_t)num >= gms.size())
     throw Py::ValueError("Glyph index out of range");
 
-  Py_INCREF(gm);
+  Py_INCREF(gms[num]);
   return Py::asObject(gms[num]);
 }
 
