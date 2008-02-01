@@ -8,9 +8,9 @@
 /**
  To improve the hinting of the fonts, this code uses a hack
  presented here:
- 
+
  http://antigrain.com/research/font_rasterization/index.html
- 
+
  The idea is to limit the effect of hinting in the x-direction, while
  preserving hinting in the y-direction.  Since freetype does not
  support this directly, the dpi in the x-direction is set higher than
@@ -20,7 +20,7 @@
  hinting, whereas the global transform does not, this is documented
  behavior of freetype, and therefore hopefully unlikely to change.
  The freetype 2 tutorial says:
- 
+
       NOTE: The transformation is applied to every glyph that is
       loaded through FT_Load_Glyph and is completely independent of
       any hinting process. This means that you won't get the same
@@ -42,7 +42,7 @@
 
 FT_Library _ft2Library;
 
-// FT2Image::FT2Image() : 
+// FT2Image::FT2Image() :
 //   _isDirty(true),
 //   _buffer(NULL),
 //   _width(0), _height(0),
@@ -53,7 +53,7 @@ FT_Library _ft2Library;
 
 FT2Image::FT2Image(unsigned long width, unsigned long height) :
   _isDirty(true),
-  _buffer(NULL), 
+  _buffer(NULL),
   _width(0), _height(0),
   _rgbCopy(NULL),
   _rgbaCopy(NULL) {
@@ -61,10 +61,10 @@ FT2Image::FT2Image(unsigned long width, unsigned long height) :
   resize(width, height);
 }
 
-FT2Image::~FT2Image() { 
+FT2Image::~FT2Image() {
   _VERBOSE("FT2Image::~FT2Image");
-  delete [] _buffer; 
-  _buffer=NULL; 
+  delete [] _buffer;
+  _buffer=NULL;
   delete _rgbCopy;
   delete _rgbaCopy;
 }
@@ -151,7 +151,7 @@ FT2Image::py_write_bitmap(const Py::Tuple & args) {
 }
 
 void
-FT2Image::draw_rect(unsigned long x0, unsigned long y0, 
+FT2Image::draw_rect(unsigned long x0, unsigned long y0,
 		    unsigned long x1, unsigned long y1) {
   if ( x0<0 || y0<0 || x1<0 || y1<0 ||
        x0>_width || x1>_width ||
@@ -195,7 +195,7 @@ FT2Image::py_draw_rect(const Py::Tuple & args) {
   return Py::Object();
 }
 
-void FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0, 
+void FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0,
 				unsigned long x1, unsigned long y1) {
   x0 = CLAMP(x0, 0, _width);
   y0 = CLAMP(y0, 0, _height);
@@ -209,7 +209,7 @@ void FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0,
   }
 
   _isDirty = true;
-}  
+}
 
 char FT2Image::draw_rect_filled__doc__[] =
 "draw_rect_filled(x0, y0, x1, y1)\n"
@@ -245,7 +245,7 @@ FT2Image::py_as_str(const Py::Tuple & args) {
   args.verify_length(0);
 
   return Py::asObject
-    (PyString_FromStringAndSize((const char *)_buffer, 
+    (PyString_FromStringAndSize((const char *)_buffer,
 				_width*_height)
      );
 }
@@ -284,7 +284,7 @@ FT2Image::py_as_rgb_str(const Py::Tuple & args) {
   args.verify_length(0);
 
   makeRgbCopy();
-  
+
   return _rgbCopy->py_as_str(args);
 }
 
@@ -321,7 +321,7 @@ FT2Image::py_as_rgba_str(const Py::Tuple & args) {
   args.verify_length(0);
 
   makeRgbaCopy();
-  
+
   return _rgbaCopy->py_as_str(args);
 }
 
@@ -671,7 +671,7 @@ FT2Font::FT2Font(std::string facefile) :
   }
 
   // set a default fontsize 12 pt at 72dpi
-#ifdef VERTICAL_HINTING  
+#ifdef VERTICAL_HINTING
   error = FT_Set_Char_Size( face, 12 * 64, 0, 72 * HORIZ_HINTING, 72 );
   static FT_Matrix transform = { 65536 / HORIZ_HINTING, 0, 0, 65536 };
   FT_Set_Transform( face, &transform, 0 );
@@ -829,7 +829,7 @@ FT2Font::set_size(const Py::Tuple & args) {
   int error = FT_Set_Char_Size( face, (long)(ptsize * 64), 0,
 				(unsigned int)dpi,
 				(unsigned int)dpi );
-#endif  
+#endif
   if (error)
     throw Py::RuntimeError("Could not set the fontsize");
   return Py::Object();
@@ -1036,7 +1036,6 @@ FT2Font::get_glyph(const Py::Tuple & args){
   if ( (size_t)num >= gms.size())
     throw Py::ValueError("Glyph index out of range");
 
-  Py_INCREF(gms[num]);
   return Py::asObject(gms[num]);
 }
 
@@ -1078,7 +1077,7 @@ FT2Font::load_char(const Py::Tuple & args, const Py::Dict & kwargs) {
   long charcode = Py::Long(args[0]), flags = Py::Long(FT_LOAD_FORCE_AUTOHINT);
   if (kwargs.hasKey("flags"))
     flags = Py::Long(kwargs["flags"]);
-  
+
   int error = FT_Load_Char( face, (unsigned long)charcode, flags);
 
   if (error)
@@ -1094,7 +1093,6 @@ FT2Font::load_char(const Py::Tuple & args, const Py::Dict & kwargs) {
   glyphs.push_back(thisGlyph);
   Glyph* gm = new Glyph(face, thisGlyph, num);
   gms.push_back(gm);
-  Py_INCREF(gm); //todo: refcount correct?
   return Py::asObject( gm);
 }
 
@@ -1659,7 +1657,7 @@ FT2Font::get_sfnt_table(const Py::Tuple & args) {
   }
 }
 
-char FT2Font::get_image__doc__ [] = 
+char FT2Font::get_image__doc__ [] =
   "get_image()\n"
   "\n"
   "Returns the underlying image buffer for this font object.\n";
@@ -1669,7 +1667,7 @@ FT2Font::get_image (const Py::Tuple &args) {
   if (image) {
     Py_XINCREF(image);
     return Py::asObject(image);
-  } 
+  }
   throw Py::RuntimeError("You must call .set_text() before .get_image()");
 }
 
@@ -1684,7 +1682,7 @@ FT2Font::attach_file (const Py::Tuple &args) {
   args.verify_length(1);
 
   std::string filename = Py::String(args[0]);
-  FT_Error error = 
+  FT_Error error =
     FT_Attach_File(face, filename.c_str());
 
   if (error) {
@@ -1884,7 +1882,7 @@ initft2font(void)
   d["KERNING_DEFAULT"]  = Py::Int(FT_KERNING_DEFAULT);
   d["KERNING_UNFITTED"]  = Py::Int(FT_KERNING_UNFITTED);
   d["KERNING_UNSCALED"]  = Py::Int(FT_KERNING_UNSCALED);
-  
+
   d["LOAD_DEFAULT"]    	     = Py::Long(FT_LOAD_DEFAULT);
   d["LOAD_NO_SCALE"]   	     = Py::Long(FT_LOAD_NO_SCALE);
   d["LOAD_NO_HINTING"] 	     = Py::Long(FT_LOAD_NO_HINTING);
@@ -1894,7 +1892,7 @@ initft2font(void)
   d["LOAD_FORCE_AUTOHINT"]   = Py::Long(FT_LOAD_FORCE_AUTOHINT);
   d["LOAD_CROP_BITMAP"]      = Py::Long(FT_LOAD_CROP_BITMAP);
   d["LOAD_PEDANTIC"]         = Py::Long(FT_LOAD_PEDANTIC);
-  d["LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH"] = 
+  d["LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH"] =
     Py::Long(FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH);
   d["LOAD_NO_RECURSE"]       = Py::Long(FT_LOAD_NO_RECURSE);
   d["LOAD_IGNORE_TRANSFORM"] = Py::Long(FT_LOAD_IGNORE_TRANSFORM);
