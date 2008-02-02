@@ -356,7 +356,7 @@ class ColorbarBase(cm.ScalarMappable):
         if b is None:
             b = self.boundaries
         if b is not None:
-            self._boundaries = npy.array(b)
+            self._boundaries = npy.asarray(b, dtype=float)
             if self.values is None:
                 self._values = 0.5*(self._boundaries[:-1]
                                         + self._boundaries[1:])
@@ -456,7 +456,12 @@ class ColorbarBase(cm.ScalarMappable):
         Return colorbar data coordinates for the boundaries of
         a proportional colorbar.
         '''
-        y = self.norm(self._boundaries.copy())
+        if isinstance(self.norm, colors.BoundaryNorm):
+            b = self._boundaries[self._inside]
+            y = (self._boundaries - self._boundaries[0])
+            y = y / (self._boundaries[-1] - self._boundaries[0])
+        else:
+            y = self.norm(self._boundaries.copy())
         if self.extend in ('both', 'min'):
             y[0] = -0.05
         if self.extend in ('both', 'max'):
@@ -492,7 +497,7 @@ class ColorbarBase(cm.ScalarMappable):
         within range, together with their corresponding colorbar
         data coordinates.
         '''
-        if isinstance(self.norm, colors.NoNorm):
+        if isinstance(self.norm, (colors.NoNorm, colors.BoundaryNorm)):
             b = self._boundaries
             xn = x
             xout = x
