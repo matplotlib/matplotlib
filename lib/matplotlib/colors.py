@@ -684,6 +684,36 @@ class LogNorm(Normalize):
         else:
             return vmin * pow((vmax/vmin), value)
 
+class BoundaryNorm(Normalize):
+    def __init__(self, boundaries, clip=False):
+        self.clip = clip
+        self.vmin = boundaries[0]
+        self.vmax = boundaries[-1]
+        self.boundaries = npy.asarray(boundaries)
+        self.midpoints = 0.5 *(self.boundaries[:-1] + self.boundaries[1:])
+        self.N = len(self.boundaries)
+
+    def __call__(self, x, clip=None):
+        if clip is None:
+            clip = self.clip
+        x = ma.asarray(x)
+        mask = ma.getmaskarray(x)
+        xx = x.filled(self.vmax+1)
+        if clip:
+            npy.clip(xx, self.vmin, self.vmax)
+        iret = npy.zeros(x.shape, dtype=npy.int16)
+        for i, b in enumerate(self.boundaries):
+            iret[xx>=b] = i
+        iret[xx<self.vmin] = -1
+        iret[xx>=self.vmax] = self.N
+        ret = ma.array(iret / float(self.N-1), mask=mask)
+        if ret.shape == () and not mask:
+            ret = float(ret)  # assume python scalar
+        return ret
+
+    def inverse(self, value):
+        return self.midpoints[int(value*(self.N-1))]
+
 
 class NoNorm(Normalize):
     '''
