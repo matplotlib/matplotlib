@@ -687,7 +687,7 @@ class Axes(martist.Artist):
         need to place axis elements in different locations.
         """
         return (self._yaxis_transform +
-                mtransforms.ScaledTranslation(-1 * pad_points / 72.0, 0,
+                mtransforms.ScaledTranslation(pad_points / 72.0, 0,
                                                self.figure.dpi_scale_trans),
                 "center", "left")
 
