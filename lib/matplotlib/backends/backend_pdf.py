@@ -1853,8 +1853,9 @@ class FigureCanvasPdf(FigureCanvasBase):
         return 'pdf'
 
     def print_pdf(self, filename, **kwargs):
-        dpi = kwargs.get('dpi', 72)
-        self.figure.set_dpi(dpi) # Override the dpi kwarg
+        dpi = 72 # there are 72 Postscript points to an inch
+        # TODO: use the dpi kwarg for images
+        self.figure.set_dpi(dpi)
         width, height = self.figure.get_size_inches()
         file = PdfFile(width, height, dpi, filename)
         renderer = MixedModeRenderer(
