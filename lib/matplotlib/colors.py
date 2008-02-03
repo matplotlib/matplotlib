@@ -685,13 +685,41 @@ class LogNorm(Normalize):
             return vmin * pow((vmax/vmin), value)
 
 class BoundaryNorm(Normalize):
-    def __init__(self, boundaries, clip=False):
+    '''
+    Generate a colormap index based on discrete intervals.
+
+    Unlike Normalize or LogNorm, BoundaryNorm maps values
+    to integers instead of to the interval 0-1.
+
+    Mapping to the 0-1 interval could have been done via
+    piece-wise linear interpolation, but using integers seems
+    simpler, and reduces the number of conversions back and forth
+    between integer and floating point.
+    '''
+    def __init__(self, boundaries, ncolors, clip=False):
+        '''
+        args:
+            boundaries: a monotonically increasing sequence
+            ncolors: number of colors in the colormap to be used
+
+        If b[i] <= v < b[i+1] then v is mapped to color j;
+        as i varies from 0 to len(boundaries)-2,
+        j goes from 0 to ncolors-1.
+
+        Out-of-range values are mapped to -1 if low and ncolors
+        if high; these are converted to valid indices by
+        Colormap.__call__.
+        '''
         self.clip = clip
         self.vmin = boundaries[0]
         self.vmax = boundaries[-1]
         self.boundaries = npy.asarray(boundaries)
-        self.midpoints = 0.5 *(self.boundaries[:-1] + self.boundaries[1:])
         self.N = len(self.boundaries)
+        self.Ncmap = ncolors
+        if self.N-1 == self.Ncmap:
+            self._interp = False
+        else:
+            self._interp = True
 
     def __call__(self, x, clip=None):
         if clip is None:
@@ -704,15 +732,17 @@ class BoundaryNorm(Normalize):
         iret = npy.zeros(x.shape, dtype=npy.int16)
         for i, b in enumerate(self.boundaries):
             iret[xx>=b] = i
+        if self._interp:
+            iret = (iret * (float(self.Ncmap-1)/(self.N-2))).astype(npy.int16)
         iret[xx<self.vmin] = -1
-        iret[xx>=self.vmax] = self.N
-        ret = ma.array(iret / float(self.N-1), mask=mask)
+        iret[xx>=self.vmax] = self.Ncmap
+        ret = ma.array(iret, mask=mask)
         if ret.shape == () and not mask:
-            ret = float(ret)  # assume python scalar
+            ret = int(ret)  # assume python scalar
         return ret
 
     def inverse(self, value):
-        return self.midpoints[int(value*(self.N-1))]
+        return ValueError("BoundaryNorm is not invertible")
 
 
 class NoNorm(Normalize):

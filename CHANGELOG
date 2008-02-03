@@ -1,3 +1,6 @@
+2008-02-03 Added BoundaryNorm, with examples in colorbar_only.py
+           and image_masked.py. - EF
+
 2008-02-03 Force dpi=72 in pdf backend to fix picture size bug. - JKS
 
 2008-02-01 Fix reference leak in ft2font Glyph objects. - MGD
