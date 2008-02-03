@@ -35,7 +35,7 @@ cmap.set_under('0.75')
 # one greater than the length of the color list.  The bounds must be
 # monotonically increasing.
 bounds = [1, 2, 4, 7, 8]
-norm = mpl.colors.BoundaryNorm(bounds)
+norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 cb2 = mpl.colorbar.ColorbarBase(ax2, cmap=cmap,
                                      norm=norm,
                                      # to use 'extend', you must

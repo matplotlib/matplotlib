@@ -323,6 +323,9 @@ class ColorbarBase(cm.ScalarMappable):
                     nv = len(self._values)
                     base = 1 + int(nv/10)
                     locator = ticker.IndexLocator(base=base, offset=0)
+                elif isinstance(self.norm, colors.BoundaryNorm):
+                    b = self.norm.boundaries
+                    locator = ticker.FixedLocator(b, nbins=10)
                 elif isinstance(self.norm, colors.LogNorm):
                     locator = ticker.LogLocator()
                 else:
@@ -386,6 +389,23 @@ class ColorbarBase(cm.ScalarMappable):
                 v[0] = -1
             if self.extend in ('both', 'max'):
                 v[-1] = self.cmap.N
+            self._boundaries = b
+            self._values = v
+            return
+        elif isinstance(self.norm, colors.BoundaryNorm):
+            b = list(self.norm.boundaries)
+            if self.extend in ('both', 'min'):
+                b = [b[0]-1] + b
+            if self.extend in ('both', 'max'):
+                b = b + [b[-1] + 1]
+            b = npy.array(b)
+            v = npy.zeros((len(b)-1,), dtype=float)
+            bi = self.norm.boundaries
+            v[self._inside] = 0.5*(bi[:-1] + bi[1:])
+            if self.extend in ('both', 'min'):
+                v[0] = b[0] - 1
+            if self.extend in ('both', 'max'):
+                v[-1] = b[-1] + 1
             self._boundaries = b
             self._values = v
             return
