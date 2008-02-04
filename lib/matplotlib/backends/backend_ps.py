@@ -759,6 +759,15 @@ grestore
         fill = (fill and rgbFace is not None and
                 (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
 
+        if stroke or gc.get_linewidth() > 0.0:
+            self.set_linewidth(gc.get_linewidth())
+            jint = gc.get_joinstyle()
+            self.set_linejoin(jint)
+            cint = gc.get_capstyle()
+            self.set_linecap(cint)
+            self.set_linedash(*gc.get_dashes())
+            self.set_color(*gc.get_rgb()[:3])
+
         cliprect = gc.get_clip_rectangle()
         if cliprect:
             x,y,w,h=cliprect.bounds
@@ -782,14 +791,7 @@ grestore
             self.set_color(store=0, *rgbFace[:3])
             write("fill\ngrestore\n")
 
-        if stroke and gc.get_linewidth() > 0.0:
-            self.set_linewidth(gc.get_linewidth())
-            jint = gc.get_joinstyle()
-            self.set_linejoin(jint)
-            cint = gc.get_capstyle()
-            self.set_linecap(cint)
-            self.set_linedash(*gc.get_dashes())
-            self.set_color(*gc.get_rgb()[:3])
+        if stroke or gc.get_linewidth() > 0.0:
             write("stroke\n")
         else:
             write("newpath\n")
