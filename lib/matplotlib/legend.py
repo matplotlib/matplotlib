@@ -122,6 +122,8 @@ The following dimensions are in axes coords
             if value is None:
                 value=rcParams["legend."+name]
             setattr(self,name,value)
+        if self.numpoints <= 0:
+            raise ValueError("numpoints must be >= 0; it was %d"% numpoints)
         if prop is None:
             self.prop=FontProperties(size=rcParams["legend.fontsize"])
         else:
