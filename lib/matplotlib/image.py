@@ -24,6 +24,31 @@ from matplotlib._image import *
 
 class AxesImage(martist.Artist, cm.ScalarMappable):
     zorder = 1
+    # map interpolation strings to module constants
+    _interpd = {
+        'nearest'  : _image.NEAREST,
+        'bilinear' : _image.BILINEAR,
+        'bicubic'  : _image.BICUBIC,
+        'spline16' : _image.SPLINE16,
+        'spline36' : _image.SPLINE36,
+        'hanning'  : _image.HANNING,
+        'hamming'  : _image.HAMMING,
+        'hermite'  : _image.HERMITE,
+        'kaiser'   : _image.KAISER,
+        'quadric'  : _image.QUADRIC,
+        'catrom'   : _image.CATROM,
+        'gaussian' : _image.GAUSSIAN,
+        'bessel'   : _image.BESSEL,
+        'mitchell' : _image.MITCHELL,
+        'sinc'     : _image.SINC,
+        'lanczos'  : _image.LANCZOS,
+        'blackman' : _image.BLACKMAN,
+    }
+
+    # reverse interp dict
+    _interpdr = dict([ (v,k) for k,v in _interpd.items()])
+
+    interpnames = _interpd.keys()
 
     def __init__(self, ax,
                  cmap = None,
@@ -59,29 +84,6 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         self.set_filterrad(filterrad)
 
 
-        # map interpolation strings to module constants
-        self._interpd = {
-            'nearest'  : _image.NEAREST,
-            'bilinear' : _image.BILINEAR,
-            'bicubic'  : _image.BICUBIC,
-            'spline16' : _image.SPLINE16,
-            'spline36' : _image.SPLINE36,
-            'hanning'  : _image.HANNING,
-            'hamming'  : _image.HAMMING,
-            'hermite'  : _image.HERMITE,
-            'kaiser'   : _image.KAISER,
-            'quadric'  : _image.QUADRIC,
-            'catrom'   : _image.CATROM,
-            'gaussian' : _image.GAUSSIAN,
-            'bessel'   : _image.BESSEL,
-            'mitchell' : _image.MITCHELL,
-            'sinc'     : _image.SINC,
-            'lanczos'  : _image.LANCZOS,
-            'blackman' : _image.BLACKMAN,
-        }
-
-        # reverse interp dict
-        self._interpdr = dict([ (v,k) for k,v in self._interpd.items()])
 
         self.set_interpolation(interpolation)
         self.axes = ax

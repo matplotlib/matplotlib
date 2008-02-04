@@ -1,3 +1,6 @@
+2008-02-03 Expose interpnames, a list of valid interpolation
+           methods, as an AxesImage class attribute. - EF
+
 2008-02-03 Added BoundaryNorm, with examples in colorbar_only.py
            and image_masked.py. - EF
 
