@@ -514,12 +514,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.locator = ticker.LogLocator()
             else:
                 self.locator = ticker.MaxNLocator(N+1)
-            self.locator.create_dummy_axis()
-        locator = self.locator
+        self.locator.create_dummy_axis()
         zmax = self.zmax
         zmin = self.zmin
-        locator.set_bounds(zmin, zmax)
-        lev = locator()
+        self.locator.set_bounds(zmin, zmax)
+        lev = self.locator()
         zmargin = (zmax - zmin) * 0.000001 # so z < (zmax + zmargin)
         if zmax >= lev[-1]:
             lev[-1] += zmargin
