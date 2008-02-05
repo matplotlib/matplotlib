@@ -131,6 +131,16 @@ def drive(backend, python=['python'], switches = []):
         _backend = 'cairo'
     else:
         _backend = backend
+
+    # Clear the destination directory for the examples
+    path = backend
+    if os.path.exists(path):
+        import glob
+        for fname in os.listdir(path):
+            os.unlink(os.path.join(path,fname))
+    else:
+        os.mkdir(backend)
+
     for fname in files:
         if fname in exclude:
             print '\tSkipping %s, known to fail on backend: %s'%backend
@@ -138,7 +148,7 @@ def drive(backend, python=['python'], switches = []):
 
         print ('\tdriving %-40s' % (fname)),
         basename, ext = os.path.splitext(fname)
-        outfile = basename + '_%s'%backend
+        outfile = os.path.join(path,basename)
         tmpfile_name = '_tmp_%s.py' % basename
         tmpfile = file(tmpfile_name, 'w')
 
