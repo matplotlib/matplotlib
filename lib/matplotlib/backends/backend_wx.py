@@ -889,6 +889,9 @@ The current aspect ration will be kept."""
         if repaint:
             self.gui_repaint()
 
+    def flush_events(self):
+        wx.Yield()
+ 
     def _get_imagesave_wildcards(self):
         'return the wildcard string for the filesave dialog'
         default_filetype = self.get_default_filetype()
@@ -921,7 +924,7 @@ The current aspect ration will be kept."""
         drawDC.BeginDrawing()
         drawDC.DrawBitmap(self.bitmap, 0, 0)
         drawDC.EndDrawing()
-        wx.GetApp().Yield()
+        #wx.GetApp().Yield()
 
     filetypes = FigureCanvasBase.filetypes.copy()
     filetypes['bmp'] = 'Windows bitmap'
@@ -1301,9 +1304,6 @@ class FigureFrameWx(wx.Frame):
             wxapp.Yield()
         return True
 
-    def flush_events(self):
-        wx.Yield()
-
 class FigureManagerWx(FigureManagerBase):
     """
     This class contains the FigureCanvas and GUI frame
@@ -1332,9 +1332,9 @@ class FigureManagerWx(FigureManagerBase):
         self.canvas.figure.add_axobserver(notify_axes_change)
 
         def showfig(*args):
-            figwin.frame.Show()
-            figwin.canvas.realize()
-            figwin.canvas.draw()
+            frame.Show()
+            canvas.realize()
+            canvas.draw()
 
         # attach a show method to the figure
         self.canvas.figure.show = showfig
