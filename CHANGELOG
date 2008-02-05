@@ -1,3 +1,6 @@
+2008-02-05 Applied Gael's ginput patch and created
+           examples/ginput_demo.py - JDH
+
 2008-02-03 Expose interpnames, a list of valid interpolation
            methods, as an AxesImage class attribute. - EF
 
