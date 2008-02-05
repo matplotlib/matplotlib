@@ -269,7 +269,8 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         key = self._get_key(event)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
 
-
+    def flush_events(self):
+        self._master.update()
 
 class FigureManagerTkAgg(FigureManagerBase):
     """

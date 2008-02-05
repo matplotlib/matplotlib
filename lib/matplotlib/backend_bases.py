@@ -1151,6 +1151,12 @@ class FigureCanvasBase:
         """
         return self.callbacks.disconnect(cid)
 
+    def flush_events(self):
+        """ Flush the GUI events for the figure. Implemented only for
+        backends with GUIs.
+        """
+        raise NotImplementedError
+
 
 class FigureManagerBase:
     """

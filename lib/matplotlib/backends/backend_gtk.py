@@ -386,6 +386,13 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def get_default_filetype(self):
         return 'png'
 
+    def flush_events(self):
+        gtk.gdk.threads_enter()        
+        while gtk.events_pending():
+            gtk.main_iteration(True)
+        gtk.gdk.flush()
+        gtk.gdk.threads_leave()
+        
             
 class FigureManagerGTK(FigureManagerBase):
     """

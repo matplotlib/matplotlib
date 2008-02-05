@@ -272,6 +272,20 @@ def savefig(*args, **kwargs):
 if Figure.savefig.__doc__ is not None:
     savefig.__doc__ = dedent(Figure.savefig.__doc__)
 
+def ginput(*args, **kwargs):
+    """
+    Blocking call to interact with the figure. 
+
+    This will wait for n clicks from the user and return a list of the 
+    coordinates of each click.
+
+    If timeout is negative, does not timeout.
+    """
+    return gcf().ginput(*args, **kwargs)
+if Figure.ginput.__doc__ is not None:
+    ginput.__doc__ = dedent(Figure.ginput.__doc__)
+
+
 # Putting things in figures
 
 def figtext(*args, **kwargs):
