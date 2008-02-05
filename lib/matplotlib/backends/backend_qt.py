@@ -175,6 +175,9 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
 
         return key
 
+    def flush_events(self):
+        qt.qApp.processEvents()
+
 class FigureManagerQT( FigureManagerBase ):
     """
     Public attributes

@@ -1301,6 +1301,9 @@ class FigureFrameWx(wx.Frame):
             wxapp.Yield()
         return True
 
+    def flush_events(self):
+        wx.Yield()
+
 class FigureManagerWx(FigureManagerBase):
     """
     This class contains the FigureCanvas and GUI frame

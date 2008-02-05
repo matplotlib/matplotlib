@@ -2,6 +2,7 @@
 Figure class -- add docstring here!
 """
 import numpy as npy
+import time
 
 import artist
 from artist import Artist
@@ -94,6 +95,83 @@ class SubplotParams:
                 val = rcParams[key]
 
         setattr(self, s, val)
+
+
+class BlockingMouseInput(object):
+    """ Class that creates a callable object to retrieve mouse clicks in a 
+        blocking way. 
+    """
+    def __init__(self, fig):
+        self.fig = fig
+
+
+    def on_click(self, event):
+        """ Event handler that will be passed to the current figure to
+            retrieve clicks.
+        """
+        if event.button == 3:
+            # If it's a right click, pop the last coordinates.
+            if len(self.clicks) > 0:
+                self.clicks.pop()
+                if self.show_clicks:
+                    mark = self.marks.pop()
+                    mark.remove()
+                    self.fig.canvas.draw()
+        elif event.button == 2 and self.n < 0:
+            # If it's a middle click, and we are in infinite mode, finish
+            self.done = True
+        elif event.inaxes:
+            # If it's a valid click, append the coordinates to the list
+            self.clicks.append((event.xdata, event.ydata))
+            if self.verbose: 
+                print "input %i: %f,%f" % (len(self.clicks), 
+                                    event.xdata, event.ydata)
+            if self.show_clicks:
+                self.marks.extend(
+                    event.inaxes.plot([event.xdata,], [event.ydata,], 'r+') )
+                self.fig.canvas.draw()
+            if self.n > 0 and len(self.clicks) >= self.n:
+                self.done = True
+
+
+    def __call__(self, n=1, timeout=30, verbose=False, show_clicks=True):
+        """ Blocking call to retrieve n coordinate pairs through mouse 
+            clicks.
+        """
+        self.verbose     = verbose
+        self.done        = False
+        self.clicks      = []
+        self.show_clicks = True
+        self.marks       = []
+
+        assert isinstance(n, int), "Requires an integer argument"
+        self.n = n
+
+        # Ensure that the figure is shown 
+        self.fig.show()
+        # connect the click events to the on_click function call
+        self.callback = self.fig.canvas.mpl_connect('button_press_event', 
+                                                    self.on_click)
+        # wait for n clicks
+        counter = 0
+        while not self.done:
+            self.fig.canvas.flush_events()
+            time.sleep(0.01)
+
+            # check for a timeout
+            counter += 1
+            if timeout > 0 and counter > timeout/0.01: 
+                print "ginput timeout"; 
+                break;
+
+        # Disconnect the event, clean the figure, and return what we have
+        self.fig.canvas.mpl_disconnect(self.callback)
+        self.callback = None
+        if self.show_clicks:
+            for mark in self.marks:
+                mark.remove()
+            self.fig.canvas.draw()
+        return self.clicks
 
 
 class Figure(Artist):
@@ -891,6 +969,22 @@ class Figure(Artist):
             else:
                 ax.update_params()
                 ax.set_position(ax.figbox)
+
+    def ginput(self, n=1, timeout=30, verbose=False, show_clicks=True):
+        """
+        ginput(self, n=1, timeout=30, verbose=False, show_clicks=True)
+        
+        Blocking call to interact with the figure. 
+
+        This will wait for n clicks from the user and return a list of the 
+        coordinates of each click. If timeout is negative, does not
+        timeout. If n is negative, accumulate clicks until a middle
+        click terminates the input. Right clicking cancels last input.
+        """
+
+        blocking_mouse_input = BlockingMouseInput(self)
+        return blocking_mouse_input(n=n, timeout=timeout,
+                                          verbose=verbose, show_clicks=True)
 
 
 

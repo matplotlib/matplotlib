@@ -13,7 +13,7 @@ from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.widgets import SubplotTool
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, Qt
 
 backend_version = "0.9.1"
 def fn_name(): return sys._getframe(1).f_code.co_name
@@ -173,6 +173,9 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             key = None
 
         return key
+
+    def flush_events(self):
+        Qt.qApp.processEvents()
 
 class FigureManagerQT( FigureManagerBase ):
     """
