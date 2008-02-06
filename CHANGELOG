@@ -1,3 +1,6 @@
+2008-02-05 Added getters for title, xlabel, ylabel, as requested
+           by Brandon Kieth - EF
+
 2008-02-05 Applied Gael's ginput patch and created
            examples/ginput_demo.py - JDH
 

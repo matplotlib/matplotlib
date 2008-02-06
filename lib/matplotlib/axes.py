@@ -2225,6 +2225,12 @@ class Axes(martist.Artist):
 
     #### Labelling
 
+    def get_title(self):
+        """
+        Get the title text string.
+        """
+        return self.title.get_text()
+
     def set_title(self, label, fontdict=None, **kwargs):
         """
         SET_TITLE(label, fontdict=None, **kwargs):
@@ -2250,6 +2256,13 @@ class Axes(martist.Artist):
         return self.title
     set_title.__doc__ = cbook.dedent(set_title.__doc__) % martist.kwdocd
 
+    def get_xlabel(self):
+        """
+        Get the xlabel text string.
+        """
+        label = self.xaxis.get_label()
+        return label.get_text()
+
     def set_xlabel(self, xlabel, fontdict=None, **kwargs):
         """
         SET_XLABEL(xlabel, fontdict=None, **kwargs)
@@ -2268,6 +2281,13 @@ class Axes(martist.Artist):
         label.update(kwargs)
         return label
     set_xlabel.__doc__ = cbook.dedent(set_xlabel.__doc__) % martist.kwdocd
+
+    def get_ylabel(self):
+        """
+        Get the ylabel text string.
+        """
+        label = self.yaxis.get_label()
+        return label.get_text()
 
     def set_ylabel(self, ylabel, fontdict=None, **kwargs):
         """
