@@ -1,3 +1,5 @@
+2008-02-01 Fix doubly-included font problem in Postscript backend - MGD
+
 2008-02-01 Fix reference leak in ft2font Glyph objects. - MGD
 
 2008-01-31 Don't use unicode strings with usetex by default - DSD
