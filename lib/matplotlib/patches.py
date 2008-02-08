@@ -344,8 +344,8 @@ class Rectangle(Patch):
     """
 
     def __str__(self):
-        return str(self.__class__).split('.')[-1] \
-            + "(%g,%g;%gx%g)" % tuple(self._bbox.bounds)
+        return self.__class__.__name__ \
+            + "(%g,%g;%gx%g)" % (self._x, self._y, self._width, self._height)
 
     def __init__(self, xy, width, height, **kwargs):
         """
