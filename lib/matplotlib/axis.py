@@ -498,8 +498,8 @@ class Axis(Artist):
     OFFSETTEXTPAD = 3
 
     def __str__(self):
-        return str(self.__class__).split('.')[-1] \
-            + "(%d,%d)"%self.axes.transAxes.xy_tup((0,0))
+        return self.__class__.__name__ \
+            + "(%f,%f)"%tuple(self.axes.transAxes.transform_point((0,0)))
 
     def __init__(self, axes, pickradius=15):
         """
