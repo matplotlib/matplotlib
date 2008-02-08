@@ -8,9 +8,10 @@ units)
 
 """
 from basic_units import cm, inch
-from pylab import figure, show, nx
+from pylab import figure, show
+import numpy
 
-cms = cm *nx.arange(0, 10, 2)
+cms = cm *numpy.arange(0, 10, 2)
 
 fig = figure()
 
