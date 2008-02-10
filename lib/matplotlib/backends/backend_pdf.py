@@ -35,7 +35,7 @@ import matplotlib.dviread as dviread
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, \
     LOAD_NO_HINTING, KERNING_UNFITTED
 from matplotlib.mathtext import MathTextParser
-from matplotlib.transforms import Bbox, BboxBase
+from matplotlib.transforms import Affine2D, Bbox, BboxBase
 from matplotlib.path import Path
 from matplotlib import ttconv
 
@@ -1331,14 +1331,6 @@ class RendererPdf(RendererBase):
         page = iter(dvi).next()
         dvi.close()
 
-        if angle == 0:          # avoid rounding errors in common case
-            def mytrans(x1, y1):
-                return x+x1, y+y1
-        else:
-            def mytrans(x1, y1, x=x, y=y, a=angle / 180.0 * pi):
-                return x + cos(a)*x1 - sin(a)*y1, \
-                       y + sin(a)*x1 + cos(a)*y1
-
         # Gather font information and do some setup for combining
         # characters into strings.
         oldfont, seq = None, []
@@ -1354,7 +1346,6 @@ class RendererPdf(RendererBase):
                 seq += [['font', pdfname, dvifont.size]]
                 oldfont = dvifont
             seq += [['text', x1, y1, [chr(glyph)], x1+width]]
-        seq += [('end',)]
 
         # Find consecutive text strings with constant x coordinate and
         # combine into a sequence of strings and kerns, or just one
@@ -1374,7 +1365,10 @@ class RendererPdf(RendererBase):
                 continue
             i += 1
 
-        # Now do the actual output.
+        # Create a transform to map the dvi contents to the canvas.
+        mytrans = Affine2D().rotate_deg(angle).translate(x, y)
+
+        # Output the text.
         self.check_gc(gc, gc._rgb)
         self.file.output(Op.begin_text)
         curx, cury, oldx, oldy = 0, 0, 0, 0
@@ -1382,7 +1376,7 @@ class RendererPdf(RendererBase):
             if elt[0] == 'font':
                 self.file.output(elt[1], elt[2], Op.selectfont)
             elif elt[0] == 'text':
-                curx, cury = mytrans(elt[1], elt[2])
+                curx, cury = mytrans.transform((elt[1], elt[2]))
                 self._setup_textpos(curx, cury, angle, oldx, oldy)
                 oldx, oldy = curx, cury
                 if len(elt[3]) == 1:
@@ -1390,20 +1384,20 @@ class RendererPdf(RendererBase):
                 else:
                     self.file.output(elt[3], Op.showkern)
             else:
-                assert elt[0] == 'end'
+                assert False
         self.file.output(Op.end_text)
 
-        # Finally output the boxes (used for the variable-length lines
-        # in square roots and the like).
+        # Then output the boxes (e.g. variable-length lines of square
+        # roots).
         boxgc = self.new_gc()
         boxgc.copy_properties(gc)
         boxgc.set_linewidth(0)
+        pathops = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO,
+                   Path.CLOSEPOLY]
         for x1, y1, h, w in page.boxes:
-            (x1, y1), (x2, y2), (x3, y3), (x4, y4) = \
-                mytrans(x1, y1), mytrans(x1+w, y1), \
-                mytrans(x1+w, y1+h), mytrans(x1, y1+h)
-            self.draw_polygon(boxgc, gc._rgb,
-                              ((x1,y1), (x2,y2), (x3,y3), (x4,y4)))
+            path = Path([[x1, y1], [x1+w, y1], [x1+w, y1+h], [x1, y1+h],
+                         [0,0]], pathops)
+            self.draw_path(boxgc, path, mytrans, gc._rgb)
 
     def encode_string(self, s, fonttype):
         if fonttype == 3:

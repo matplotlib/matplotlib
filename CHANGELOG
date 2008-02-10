@@ -1,3 +1,6 @@
+2008-02-10 Fixed a problem with square roots in the pdf backend with
+           usetex. - JKS
+
 2008-02-08 Fixed minor __str__ bugs so getp(gca()) works. - JKS
 
 2008-02-05 Added getters for title, xlabel, ylabel, as requested
