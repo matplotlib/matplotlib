@@ -933,7 +933,7 @@ def plotting():
     gca      - return the current axes
     gcf      - return the current figure
     gci      - get the current image, or None
-    get      - get a handle graphics property
+    getp     - get a handle graphics property
     hist     - make a histogram
     hold     - set the hold state on current axes
     legend   - add a legend to the axes
@@ -949,7 +949,7 @@ def plotting():
     rc       - control the default params
     savefig  - save the current figure
     scatter  - make a scatter plot
-    set      - set a handle graphics property
+    setp     - set a handle graphics property
     semilogx - log x axis
     semilogy - log y axis
     show     - show the figures
