@@ -1,3 +1,5 @@
+2008-02-11 Update plotting() doc string to refer to getp/setp. - JKS
+
 2008-02-10 Fixed a problem with square roots in the pdf backend with
            usetex. - JKS
 
