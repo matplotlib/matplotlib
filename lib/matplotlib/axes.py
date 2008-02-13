@@ -5020,8 +5020,8 @@ class Axes(martist.Artist):
         nr, nc = C.shape
         if len(args) == 1:
             style = "image"
-            x = [0, nc+1]
-            y = [0, nr+1]
+            x = [0, nc]
+            y = [0, nr]
         elif len(args) == 3:
             x, y = args[:2]
             x = npy.asarray(x)
