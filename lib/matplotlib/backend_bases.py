@@ -1556,11 +1556,11 @@ class NavigationToolbar2:
                 if a.get_xscale()=='log':
                     alpha=npy.log(Xmax/Xmin)/npy.log(x1/x0)
                     rx1=pow(Xmin/x0,alpha)*Xmin
-                    x2=pow(Xmax/x0,alpha)*Xmin
+                    rx2=pow(Xmax/x0,alpha)*Xmin
                 else:
                     alpha=(Xmax-Xmin)/(x1-x0)
                     rx1=alpha*(Xmin-x0)+Xmin
-                    x2=alpha*(Xmax-x0)+Xmin
+                    rx2=alpha*(Xmax-x0)+Xmin
                 if a.get_yscale()=='log':
                     alpha=npy.log(Ymax/Ymin)/npy.log(y1/y0)
                     ry1=pow(Ymin/y0,alpha)*Ymin

@@ -37,7 +37,7 @@ class LassoManager:
 
         facecolors = [d.color for d in data]
         self.xys = [(d.x, d.y) for d in data]
-
+        fig = ax.figure
         self.collection = RegularPolyCollection(
             fig.dpi, 6, sizes=(100,),
             facecolors=facecolors,
@@ -47,6 +47,7 @@ class LassoManager:
         ax.add_collection(self.collection)
 
         self.cid = self.canvas.mpl_connect('button_press_event', self.onpress)
+        self.ind = None
 
     def callback(self, verts):
         facecolors = self.collection.get_facecolors()
@@ -60,7 +61,7 @@ class LassoManager:
         self.canvas.draw_idle()
         self.canvas.widgetlock.release(self.lasso)
         del self.lasso
-
+        self.ind = ind
     def onpress(self, event):
         if self.canvas.widgetlock.locked(): return
         if event.inaxes is None: return
@@ -68,10 +69,12 @@ class LassoManager:
         # acquire a lock on the widget drawing
         self.canvas.widgetlock(self.lasso)
 
-data = [Datum(*xy) for xy in rand(100, 2)]
+if 0:
 
-fig = figure()
-ax = fig.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)
-lman = LassoManager(ax, data)
+    data = [Datum(*xy) for xy in rand(100, 2)]
 
-show()
+    fig = figure()
+    ax = fig.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)
+    lman = LassoManager(ax, data)
+
+    show()
