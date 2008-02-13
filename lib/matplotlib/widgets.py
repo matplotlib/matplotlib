@@ -827,16 +827,14 @@ class SpanSelector:
         assert direction in ['horizontal', 'vertical'], 'Must choose horizontal or vertical for direction'
         self.direction = direction
 
-        self.ax = ax
+        self.ax = None
+        self.canvas = None
         self.visible = True
-        self.canvas = ax.figure.canvas
-        self.canvas.mpl_connect('motion_notify_event', self.onmove)
-        self.canvas.mpl_connect('button_press_event', self.press)
-        self.canvas.mpl_connect('button_release_event', self.release)
-        self.canvas.mpl_connect('draw_event', self.update_background)
+        self.cids=[]
 
         self.rect = None
         self.background = None
+        self.pressv = None
 
         self.rectprops = rectprops
         self.onselect = onselect
@@ -847,8 +845,23 @@ class SpanSelector:
         # Needed when dragging out of axes
         self.buttonDown = False
         self.prev = (0, 0)
-
-        if self.direction == 'horizontal':
+        
+        self.new_axes(ax)
+        
+        
+    def new_axes(self,ax):
+        self.ax = ax
+        if self.canvas is not ax.figure.canvas:
+            for cid in self.cids:
+                self.canvas.mpl_disconnect(cid)
+                
+            self.canvas = ax.figure.canvas
+            
+            self.cids.append(self.canvas.mpl_connect('motion_notify_event', self.onmove))
+            self.cids.append(self.canvas.mpl_connect('button_press_event', self.press))
+	    self.cids.append(self.canvas.mpl_connect('button_release_event', self.release))
+	    self.cids.append(self.canvas.mpl_connect('draw_event', self.update_background))
+	if self.direction == 'horizontal':
             trans = blended_transform_factory(self.ax.transData, self.ax.transAxes)
             w,h = 0,1
         else:
@@ -859,9 +872,8 @@ class SpanSelector:
                                visible=False,
                                **self.rectprops
                                )
-
+                               
         if not self.useblit: self.ax.add_patch(self.rect)
-        self.pressv = None
 
     def update_background(self, event):
         'force an update of the background'
@@ -931,10 +943,10 @@ class SpanSelector:
         minv, maxv = v, self.pressv
         if minv>maxv: minv, maxv = maxv, minv
         if self.direction == 'horizontal':
-            self.rect.xy[0] = minv
+            self.rect.set_x(minv)
             self.rect.set_width(maxv-minv)
         else:
-            self.rect.xy[1] = minv
+            self.rect.set_y(minv)
             self.rect.set_height(maxv-minv)
 
         if self.onmove_callback is not None:
@@ -1155,8 +1167,8 @@ class RectangleSelector:
             miny, maxy = self.eventpress.ydata, y # click-y and actual mouse-y
             if minx>maxx: minx, maxx = maxx, minx # get them in the right order
             if miny>maxy: miny, maxy = maxy, miny
-            self.to_draw.xy[0] = minx             # set lower left of box
-            self.to_draw.xy[1] = miny
+            self.to_draw.set_x(minx)             # set lower left of box
+            self.to_draw.set_y(miny)
             self.to_draw.set_width(maxx-minx)     # set width and height of box
             self.to_draw.set_height(maxy-miny)
             self.update()
