@@ -89,7 +89,7 @@ class MixedModeRenderer(object):
             if w > 0 and h > 0:
                 image = frombuffer(buffer, w, h, True)
                 image.is_grayscale = False
-
+                image.flipud_out()
                 self._renderer.draw_image(l, height - b - h, image, None)
             self._raster_renderer = None
             self._rasterizing = False

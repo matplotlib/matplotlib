@@ -451,8 +451,8 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
             A = self._rgbacache
         vl = self.axes.viewLim
         im = _image.pcolor2(self._Ax, self._Ay, A,
-                           self.axes.bbox.height,
-                           self.axes.bbox.width,
+                           height,
+                           width,
                            (vl.x0, vl.x1, vl.y0, vl.y1),
                            bg)
         im.is_grayscale = self.is_grayscale
