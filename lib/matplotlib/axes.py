@@ -748,7 +748,6 @@ class Axes(martist.Artist):
 
     def cla(self):
         'Clear the current axes'
-
         self.xaxis.cla()
         self.yaxis.cla()
 

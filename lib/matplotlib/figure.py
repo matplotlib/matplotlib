@@ -98,8 +98,8 @@ class SubplotParams:
 
 
 class BlockingMouseInput(object):
-    """ Class that creates a callable object to retrieve mouse clicks in a 
-        blocking way. 
+    """ Class that creates a callable object to retrieve mouse clicks in a
+        blocking way.
     """
     def __init__(self, fig):
         self.fig = fig
@@ -123,8 +123,8 @@ class BlockingMouseInput(object):
         elif event.inaxes:
             # If it's a valid click, append the coordinates to the list
             self.clicks.append((event.xdata, event.ydata))
-            if self.verbose: 
-                print "input %i: %f,%f" % (len(self.clicks), 
+            if self.verbose:
+                print "input %i: %f,%f" % (len(self.clicks),
                                     event.xdata, event.ydata)
             if self.show_clicks:
                 self.marks.extend(
@@ -135,7 +135,7 @@ class BlockingMouseInput(object):
 
 
     def __call__(self, n=1, timeout=30, verbose=False, show_clicks=True):
-        """ Blocking call to retrieve n coordinate pairs through mouse 
+        """ Blocking call to retrieve n coordinate pairs through mouse
             clicks.
         """
         self.verbose     = verbose
@@ -147,10 +147,10 @@ class BlockingMouseInput(object):
         assert isinstance(n, int), "Requires an integer argument"
         self.n = n
 
-        # Ensure that the figure is shown 
+        # Ensure that the figure is shown
         self.fig.show()
         # connect the click events to the on_click function call
-        self.callback = self.fig.canvas.mpl_connect('button_press_event', 
+        self.callback = self.fig.canvas.mpl_connect('button_press_event',
                                                     self.on_click)
         # wait for n clicks
         counter = 0
@@ -160,8 +160,8 @@ class BlockingMouseInput(object):
 
             # check for a timeout
             counter += 1
-            if timeout > 0 and counter > timeout/0.01: 
-                print "ginput timeout"; 
+            if timeout > 0 and counter > timeout/0.01:
+                print "ginput timeout";
                 break;
 
         # Disconnect the event, clean the figure, and return what we have
@@ -936,6 +936,7 @@ class Figure(Artist):
             ax = self.gca()
         if cax is None:
             cax, kw = cbar.make_axes(ax, **kw)
+        cax.hold(True)
         cb = cbar.Colorbar(cax, mappable, **kw)
         mappable.add_observer(cb)
         mappable.set_colorbar(cb, cax)
@@ -973,10 +974,10 @@ class Figure(Artist):
     def ginput(self, n=1, timeout=30, verbose=False, show_clicks=True):
         """
         ginput(self, n=1, timeout=30, verbose=False, show_clicks=True)
-        
-        Blocking call to interact with the figure. 
 
-        This will wait for n clicks from the user and return a list of the 
+        Blocking call to interact with the figure.
+
+        This will wait for n clicks from the user and return a list of the
         coordinates of each click. If timeout is negative, does not
         timeout. If n is negative, accumulate clicks until a middle
         click terminates the input. Right clicking cancels last input.
