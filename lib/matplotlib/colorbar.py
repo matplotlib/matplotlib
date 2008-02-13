@@ -272,15 +272,20 @@ class ColorbarBase(cm.ScalarMappable):
         '''
         Draw the colors using pcolor; optionally add separators.
         '''
-        ## Change to pcolormesh if/when it is fixed to handle alpha
-        ## correctly.
+        ## Change to pcolorfast after fixing bugs in some backends...
         if self.orientation == 'vertical':
             args = (X, Y, C)
         else:
             args = (npy.transpose(Y), npy.transpose(X), npy.transpose(C))
         kw = {'cmap':self.cmap, 'norm':self.norm,
                     'shading':'flat', 'alpha':self.alpha}
+        # Save, set, and restore hold state to keep pcolor from
+        # clearing the axes. Ordinarily this will not be needed,
+        # since the axes object should already have hold set.
+        _hold = self.ax.ishold()
+        self.ax.hold(True)
         col = self.ax.pcolor(*args, **kw)
+        self.ax.hold(_hold)
         #self.add_observer(col) # We should observe, not be observed...
         self.solids = col
         if self.drawedges:
