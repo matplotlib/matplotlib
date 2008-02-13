@@ -5035,7 +5035,8 @@ class Axes(martist.Artist):
                     if (npy.ptp(dx) < 0.01*npy.abs(dx.mean()) and
                         npy.ptp(dy) < 0.01*npy.abs(dy.mean())):
                         style = "image"
-                    style = "pcolorimage"
+                    else:
+                        style = "pcolorimage"
             elif x.ndim == 2 and y.ndim == 2:
                 style = "quadmesh"
             else:
