@@ -1,4 +1,9 @@
-2008-02-12  - Applied Erik Tollerud's span selector patch - JDH
+2008-02-16 Added some new rec array functionality to mlab
+           (rec_summarize, rec2txt and rec_groupby).  See
+           examples/rec_groupby_demo.py.  Thanks to Tim M for rec2txt.
+
+
+2008-02-12 Applied Erik Tollerud's span selector patch - JDH
 
 2008-02-11 Update plotting() doc string to refer to getp/setp. - JKS
 
