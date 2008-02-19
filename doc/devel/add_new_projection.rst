@@ -99,4 +99,4 @@ so that the user can select it.
 
 A full-fledged and heavily annotated example is in
 ``examples/custom_projection_example.py``.  The polar plot
-functionality in ``polar.py`` may also be interest.
+functionality in ``polar.py`` may also be of interest.
