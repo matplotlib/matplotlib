@@ -75,9 +75,6 @@ def segment_hits(cx,cy,x,y,radius):
     """Determine if any line segments are within radius of a point. Returns
     the list of line segments that are within that radius.
     """
-    import pdb
-    pdb.set_trace()
-
     # Process single points specially
     if len(x) < 2:
         res, = npy.nonzero( (cx - x)**2 + (cy - y)**2 <= radius**2 )
