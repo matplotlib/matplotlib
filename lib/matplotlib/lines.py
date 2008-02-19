@@ -75,6 +75,9 @@ def segment_hits(cx,cy,x,y,radius):
     """Determine if any line segments are within radius of a point. Returns
     the list of line segments that are within that radius.
     """
+    import pdb
+    pdb.set_trace()
+
     # Process single points specially
     if len(x) < 2:
         res, = npy.nonzero( (cx - x)**2 + (cy - y)**2 <= radius**2 )
@@ -97,7 +100,7 @@ def segment_hits(cx,cy,x,y,radius):
     # following radius test eliminates these ambiguities.
     point_hits = (cx - x)**2 + (cy - y)**2 <= radius**2
     #if any(point_hits): print "points",xr[candidates]
-    candidates = candidates & ~point_hits[:-1] & ~point_hits[1:]
+    candidates = candidates & ~(point_hits[:-1] | point_hits[1:])
 
     # For those candidates which remain, determine how far they lie away
     # from the line.
@@ -308,7 +311,7 @@ class Line2D(Artist):
         # transform in backend
         if len(self._xy)==0: return False,{}
 
-        xyt = self.get_transform().transform(self._xy)
+        xyt = self._transformed_path.get_fully_transformed_path().vertices
         xt = xyt[:, 0]
         yt = xyt[:, 1]
 

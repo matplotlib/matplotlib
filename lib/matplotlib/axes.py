@@ -215,7 +215,8 @@ class _process_plot_var_args:
             b = self.axes.yaxis.update_units(y)
             if b: return npy.arange(len(y)), y, False
 
-        y = ma.asarray(y)
+        if not ma.isMaskedArray(y):
+            y = npy.asarray(y)
         if len(y.shape) == 1:
             y = y[:,npy.newaxis]
         nr, nc = y.shape
