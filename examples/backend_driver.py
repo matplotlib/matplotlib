@@ -147,6 +147,7 @@ def drive(backend, python=['python'], switches = []):
             continue
 
         print ('\tdriving %-40s' % (fname)),
+        sys.stdout.flush()
         basename, ext = os.path.splitext(fname)
         outfile = os.path.join(path,basename)
         tmpfile_name = '_tmp_%s.py' % basename
@@ -180,7 +181,8 @@ def drive(backend, python=['python'], switches = []):
 
         tmpfile.close()
         start_time = time.time()
-        run(python + [tmpfile_name, switchstring])
+        program = [x % {'name': basename} for x in python]
+        run(program + [tmpfile_name, switchstring])
         end_time = time.time()
         print (end_time - start_time)
         #os.system('%s %s %s' % (python, tmpfile_name, switchstring))
@@ -192,6 +194,10 @@ if __name__ == '__main__':
     if '--coverage' in sys.argv:
         python = ['coverage.py', '-x']
         sys.argv.remove('--coverage')
+    elif '--valgrind' in sys.argv:
+        python = ['valgrind', '--tool=memcheck', '--leak-check=yes',
+                  '--log-file=%(name)s', 'python']
+        sys.argv.remove('--valgrind')
     elif sys.platform == 'win32':
         python = [r'c:\Python24\python.exe']
     else:
