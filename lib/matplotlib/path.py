@@ -317,7 +317,10 @@ class Path(object):
         Returns a Path for a unit regular polygon with the given
         numVertices and radius of 1.0, centered at (0, 0).
         """
-        path = cls._unit_regular_polygons.get(numVertices)
+        if numVertices <= 16:
+            path = cls._unit_regular_polygons.get(numVertices)
+        else:
+            path = None
         if path is None:
             theta = (2*npy.pi/numVertices *
                      npy.arange(numVertices + 1).reshape((numVertices + 1, 1)))
@@ -337,7 +340,10 @@ class Path(object):
         Returns a Path for a unit regular star with the given
         numVertices and radius of 1.0, centered at (0, 0).
         """
-        path = cls._unit_regular_stars.get((numVertices, innerCircle))
+        if numVertices <= 16:
+            path = cls._unit_regular_stars.get((numVertices, innerCircle))
+        else:
+            path = None
         if path is None:
             ns2 = numVertices * 2
             theta = (2*npy.pi/ns2 * npy.arange(ns2 + 1))
