@@ -309,6 +309,8 @@ Py::Object _path_module::get_path_extents(const Py::Tuple& args)
         extents_data[1] = std::numeric_limits<double>::infinity();
         extents_data[2] = -std::numeric_limits<double>::infinity();
         extents_data[3] = -std::numeric_limits<double>::infinity();
+        xm = std::numeric_limits<double>::infinity();
+        ym = std::numeric_limits<double>::infinity();
 
         ::get_path_extents(path, trans,
                            &extents_data[0], &extents_data[1], &extents_data[2], &extents_data[3],
@@ -320,7 +322,7 @@ Py::Object _path_module::get_path_extents(const Py::Tuple& args)
         throw;
     }
 
-    return Py::Object((PyObject*)extents);
+    return Py::Object((PyObject*)extents, true);
 }
 
 Py::Object _path_module::update_path_extents(const Py::Tuple& args)
@@ -474,6 +476,8 @@ Py::Object _path_module::get_path_collection_extents(const Py::Tuple& args)
         y0 = std::numeric_limits<double>::infinity();
         x1 = -std::numeric_limits<double>::infinity();
         y1 = -std::numeric_limits<double>::infinity();
+        xm = std::numeric_limits<double>::infinity();
+        ym = std::numeric_limits<double>::infinity();
         agg::trans_affine trans;
 
         for (i = 0; i < N; ++i)
