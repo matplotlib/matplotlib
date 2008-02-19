@@ -46,18 +46,18 @@ commands with the same names.
 
 = record array helper functions =
 
+   * rec2txt          : pretty print a record array
    * rec2csv          : store record array in CSV file
-   * rec2excel        : store record array in excel worksheet - required pyExcelerator
-
    * csv2rec          : import record array from CSV file with type inspection
    * rec_append_field : add a field/array to record array
    * rec_drop_fields  : drop fields from record array
    * rec_join         : join two record arrays on sequence of fields
+   * rec_groupby      : summarize data by groups (similar to SQL GROUP BY)
+   * rec_summarize    : helper code to filter rec array fields into new fields
 
-For the rec viewer clases (rec2csv, rec2excel), there are
-a bunch of Format objects you can pass into the functions that will do
-things like color negative values red, set percent formatting and
-scaling, etc.
+For the rec viewer clases (eg rec2csv), there are a bunch of Format
+objects you can pass into the functions that will do things like color
+negative values red, set percent formatting and scaling, etc.
 
 
 Example usage:
@@ -84,7 +84,7 @@ Example usage:
 """
 
 from __future__ import division
-import sys, datetime, csv, warnings, copy
+import sys, datetime, csv, warnings, copy, os
 
 import numpy as npy
 
@@ -2045,6 +2045,139 @@ def rec_join(key, r1, r2):
     return newrec.view(npy.recarray)
 
 
+def rec_groupby(r, groupby, stats):
+    """
+    r is a numpy record array
+
+    groupby is a sequence of record array attribute names that
+    together form the grouping key.  eg ('date', 'productcode')
+
+    stats is a sequence of (attr, func, outname) which will call x =
+    func(attr) and assign x to the record array output with attribute
+    outname.
+    Eg,  stats = ( ('sales', len, 'numsales'), ('sales', npy.mean, 'avgsale') )
+
+    return record array has dtype names for each attribute name in in
+    the the 'groupby' argument, with the associated group values, and
+    for each outname name in the stats argument, with the associated
+    stat summary output
+    """
+    # build a dictionary from groupby keys-> list of indices into r with
+    # those keys
+    rowd = dict()
+    for i, row in enumerate(r):
+        key = tuple([row[attr] for attr in groupby])
+        rowd.setdefault(key, []).append(i)
+
+    # sort the output by groupby keys
+    keys = rowd.keys()
+    keys.sort()
+
+    rows = []
+    for key in keys:
+        row = list(key)
+        # get the indices for this groupby key
+        ind = rowd[key]
+        thisr = r[ind]
+        # call each stat function for this groupby slice
+        row.extend([func(thisr[attr]) for attr, func, outname in stats])
+        rows.append(row)
+
+    # build the output record array with groupby and outname attributes
+    attrs, funcs, outnames = zip(*stats)
+    names = list(groupby)
+    names.extend(outnames)
+    return npy.rec.fromrecords(rows, names=names)
+
+
+
+def rec_summarize(r, summaryfuncs):
+    """
+    r is a numpy record array
+
+    summaryfuncs is a list of (attr, func, outname) which will
+    apply codefunc to the the array r[attr] and assign the output
+    to a new attribute name outname.  The returned record array is
+    identical to r, with extra arrays for each element in summaryfuncs
+    """
+
+    names = list(r.dtype.names)
+    arrays = [r[name] for name in names]
+
+    for attr, func, outname in summaryfuncs:
+        names.append(outname)
+        arrays.append(npy.asarray(func(r[attr])))
+
+    return npy.rec.fromarrays(arrays, names=names)
+
+def rec_join(key, r1, r2):
+    """
+    join record arrays r1 and r2 on key; key is a tuple of field
+    names.  if r1 and r2 have equal values on all the keys in the key
+    tuple, then their fields will be merged into a new record array
+    containing the intersection of the fields of r1 and r2
+    """
+
+    for name in key:
+        if name not in r1.dtype.names:
+            raise ValueError('r1 does not have key field %s'%name)
+        if name not in r2.dtype.names:
+            raise ValueError('r2 does not have key field %s'%name)
+
+    def makekey(row):
+        return tuple([row[name] for name in key])
+
+    r1d = dict([(makekey(row),i) for i,row in enumerate(r1)])
+    r2d = dict([(makekey(row),i) for i,row in enumerate(r2)])
+
+    r1keys = set(r1d.keys())
+    r2keys = set(r2d.keys())
+
+    keys = r1keys & r2keys
+
+    r1ind = npy.array([r1d[k] for k in keys])
+    r2ind = npy.array([r2d[k] for k in keys])
+
+    # Make sure that the output rows have the same relative order as r1
+    sortind = r1ind.argsort()
+
+    r1 = r1[r1ind[sortind]]
+    r2 = r2[r2ind[sortind]]
+
+    r2 = rec_drop_fields(r2, r1.dtype.names)
+
+
+    def key_desc(name):
+        'if name is a string key, use the larger size of r1 or r2 before merging'
+        dt1 = r1.dtype[name]
+        if dt1.type != npy.string_:
+            return (name, dt1.descr[0][1])
+
+        dt2 = r1.dtype[name]
+        assert dt2==dt1
+        if dt1.num>dt2.num:
+            return (name, dt1.descr[0][1])
+        else:
+            return (name, dt2.descr[0][1])
+
+
+
+    keydesc = [key_desc(name) for name in key]
+
+    newdtype = npy.dtype(keydesc +
+                         [desc for desc in r1.dtype.descr if desc[0] not in key ] +
+                         [desc for desc in r2.dtype.descr if desc[0] not in key ] )
+
+
+    newrec = npy.empty(len(r1), dtype=newdtype)
+    for field in r1.dtype.names:
+        newrec[field] = r1[field]
+
+    for field in r2.dtype.names:
+        newrec[field] = r2[field]
+
+    return newrec.view(npy.recarray)
+
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing=None):
     """
@@ -2333,6 +2466,97 @@ def csvformat_factory(format):
         format.scale = 1. # override scaling for storage
         format.fmt = '%r'
     return format
+
+def rec2txt(r, header=None, padding=3, precision=3):
+    """
+    Returns a textual representation of a record array.
+
+    r - numpy recarray
+
+    header - list of column headers
+
+    padding - space between each column
+
+    precision - number of decimal places to use for floats.
+        Set to an integer to apply to all floats.  Set to a
+        list of integers to apply precision individually.
+        Precision for non-floats is simply ignored.
+
+        Example:
+            precision=[0,2,3]
+        Output:
+            ID    Price   Return
+            ABC   12.54    0.234
+            XYZ    6.32   -0.076
+    """
+
+    if cbook.is_numlike(precision):
+        precision = [precision]*len(r.dtype)
+
+    def get_type(item,atype=int):
+        tdict = {None:int, int:float, float:str}
+        try: atype(str(item))
+        except: return get_type(item,tdict[atype])
+        return atype
+
+    def get_justify(colname, column, precision):
+        ntype = type(column[0])
+
+        if ntype==npy.str or ntype==npy.str_ or ntype==npy.string0 or ntype==npy.string_:
+            length = max(len(colname),column.itemsize)
+            return 0, length+padding, "%s" # left justify
+
+        if ntype==npy.int or ntype==npy.int16 or ntype==npy.int32 or ntype==npy.int64 or ntype==npy.int8 or ntype==npy.int_:
+            length = max(len(colname),npy.max(map(len,map(str,column))))
+            return 1, length+padding, "%d" # right justify
+
+        if ntype==npy.float or ntype==npy.float32 or ntype==npy.float64 or ntype==npy.float96 or ntype==npy.float_:
+            fmt = "%." + str(precision) + "f"
+            length = max(len(colname),npy.max(map(len,map(lambda x:fmt%x,column))))
+            return 1, length+padding, fmt   # right justify
+
+        return 0, max(len(colname),npy.max(map(len,map(str,column))))+padding, "%s"
+
+    if header is None:
+        header = r.dtype.names
+
+    justify_pad_prec = [get_justify(header[i],r.__getitem__(colname),precision[i]) for i, colname in enumerate(r.dtype.names)]
+
+    justify_pad_prec_spacer = []
+    for i in range(len(justify_pad_prec)):
+        just,pad,prec = justify_pad_prec[i]
+        if i == 0:
+            justify_pad_prec_spacer.append((just,pad,prec,0))
+        else:
+            pjust,ppad,pprec = justify_pad_prec[i-1]
+            if pjust == 0 and just == 1:
+                justify_pad_prec_spacer.append((just,pad-padding,prec,0))
+            elif pjust == 1 and just == 0:
+                justify_pad_prec_spacer.append((just,pad,prec,padding))
+            else:
+                justify_pad_prec_spacer.append((just,pad,prec,0))
+
+    def format(item, just_pad_prec_spacer):
+        just, pad, prec, spacer = just_pad_prec_spacer
+        if just == 0:
+            return spacer*' ' + str(item).ljust(pad)
+        else:
+            if get_type(item) == float:
+                item = (prec%float(item))
+            elif get_type(item) == int:
+                item = (prec%int(item))
+
+            return item.rjust(pad)
+
+    textl = []
+    textl.append(''.join([format(colitem,justify_pad_prec_spacer[j]) for j, colitem in enumerate(header)]))
+    for i, row in enumerate(r):
+        textl.append(''.join([format(colitem,justify_pad_prec_spacer[j]) for j, colitem in enumerate(row)]))
+        if i==0:
+            textl[0] = textl[0].rstrip()
+
+    text = os.linesep.join(textl)
+    return text
 
 def rec2csv(r, fname, delimiter=',', formatd=None):
     """
