@@ -1099,12 +1099,10 @@ void _add_polygon(Py::List& polygons, const std::vector<double>& polygon) {
     polygon_array = (PyArrayObject*)PyArray_SimpleNew
 	(2, polygon_dims, PyArray_DOUBLE);
     if (!polygon_array)
-    {
 	throw Py::MemoryError("Error creating polygon array");
-    }
     double* polygon_data = (double*)PyArray_DATA(polygon_array);
     memcpy(polygon_data, &polygon[0], polygon.size() * sizeof(double));
-    polygons.append(Py::Object((PyObject*)polygon_array));
+    polygons.append(Py::Object((PyObject*)polygon_array, true));
 }
 
 Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
@@ -1132,6 +1130,8 @@ Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
     vertices_t polygon;
     double x, y;
     unsigned code;
+
+    polygon.reserve(path.total_vertices());
 
     while ((code = curve.vertex(&x, &y)) != agg::path_cmd_stop)
     {
