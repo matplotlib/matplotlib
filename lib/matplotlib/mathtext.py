@@ -2656,12 +2656,12 @@ class MathTextParser(object):
     _parser = None
 
     _backend_mapping = {
-        'Bitmap': MathtextBackendBitmap,
-        'Agg'   : MathtextBackendAgg,
-        'PS'    : MathtextBackendPs,
-        'Pdf'   : MathtextBackendPdf,
-        'SVG'   : MathtextBackendSvg,
-        'Cairo' : MathtextBackendCairo
+        'bitmap': MathtextBackendBitmap,
+        'agg'   : MathtextBackendAgg,
+        'ps'    : MathtextBackendPs,
+        'pdf'   : MathtextBackendPdf,
+        'svg'   : MathtextBackendSvg,
+        'cairo' : MathtextBackendCairo
         }
 
     _font_type_mapping = {
@@ -2672,7 +2672,7 @@ class MathTextParser(object):
         }
 
     def __init__(self, output):
-        self._output = output
+        self._output = output.lower()
         self._cache = maxdict(50)
 
     def parse(self, s, dpi = 72, prop = None):
@@ -2689,7 +2689,7 @@ class MathTextParser(object):
         else:
             backend = self._backend_mapping[self._output]()
             fontset = rcParams['mathtext.fontset']
-            fontset_class = self._font_type_mapping.get(fontset)
+            fontset_class = self._font_type_mapping.get(fontset.lower())
             if fontset_class is not None:
                 font_output = fontset_class(prop, backend)
             else:
