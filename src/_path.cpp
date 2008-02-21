@@ -921,7 +921,7 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args)
         }
 
         result = (PyArrayObject*)PyArray_SimpleNew
-                 (PyArray_NDIM(vertices), PyArray_DIMS(vertices), PyArray_DOUBLE);
+          (PyArray_NDIM(vertices), PyArray_DIMS(vertices), PyArray_DOUBLE);
         if (PyArray_NDIM(vertices) == 2)
         {
             size_t n = PyArray_DIM(vertices, 0);
@@ -1017,17 +1017,17 @@ Py::Object _path_module::count_bboxes_overlapping_bbox(const Py::Tuple& args)
     return Py::Int(count);
 }
 
-bool segments_intersect(const double& x1, const double &y1,
-                        const double& x2, const double &y2,
-                        const double& x3, const double &y3,
-                        const double& x4, const double &y4)
+bool segments_intersect(const double& x1, const double& y1,
+                        const double& x2, const double& y2,
+                        const double& x3, const double& y3,
+                        const double& x4, const double& y4)
 {
-    double den = ((y4-y3) * (x2-x1)) - ((x4-x3)*(y2-y1));
+    double den = ((y4-y3)*(x2-x1)) - ((x4-x3)*(y2-y1));
     if (den == 0.0)
         return false;
 
-    double n1 = ((x4-x3) * (y1-y3)) - ((y4-y3)*(x1-x3));
-    double n2 = ((x2-x1) * (y1-y3)) - ((y2-y1)*(x1-x3));
+    double n1 = ((x4-x3)*(y1-y3)) - ((y4-y3)*(x1-x3));
+    double n2 = ((x2-x1)*(y1-y3)) - ((y2-y1)*(x1-x3));
 
     double u1 = n1/den;
     double u2 = n2/den;
@@ -1075,20 +1075,9 @@ Py::Object _path_module::path_intersects_path(const Py::Tuple& args)
     PathIterator p1(args[0]);
     PathIterator p2(args[1]);
 
-    bool intersects = ::path_intersects_path(p1, p2);
-    if (!intersects)
-    {
-        intersects = ::path_in_path(p1, agg::trans_affine(), p2, agg::trans_affine());
-        if (!intersects)
-        {
-            intersects = ::path_in_path(p2, agg::trans_affine(), p1, agg::trans_affine());
-            if (!intersects)
-            {
-                return Py::Int(0);
-            }
-        }
-    }
-    return Py::Int(1);
+    return Py::Int(::path_intersects_path(p1, p2)
+                   || ::path_in_path(p1, agg::trans_affine(), p2, agg::trans_affine())
+                   || ::path_in_path(p2, agg::trans_affine(), p1, agg::trans_affine()));
 }
 
 void _add_polygon(Py::List& polygons, const std::vector<double>& polygon) {
