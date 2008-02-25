@@ -1120,7 +1120,7 @@ Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
     double x, y;
     unsigned code;
 
-    polygon.reserve(path.total_vertices());
+    polygon.reserve(path.total_vertices() * 2);
 
     while ((code = curve.vertex(&x, &y)) != agg::path_cmd_stop)
     {
