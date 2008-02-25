@@ -46,6 +46,7 @@ commands with the same names.
 
 = record array helper functions =
    * rec2txt          : pretty print a record array
+   * rec2txt          : pretty print a record array
    * rec2csv          : store record array in CSV file
    * csv2rec          : import record array from CSV file with type inspection
    * rec_append_field : add a field/array to record array
@@ -2113,6 +2114,139 @@ def rec_join(key, r1, r2):
     return newrec.view(npy.recarray)
 
 
+def rec_groupby(r, groupby, stats):
+    """
+    r is a numpy record array
+
+    groupby is a sequence of record array attribute names that
+    together form the grouping key.  eg ('date', 'productcode')
+
+    stats is a sequence of (attr, func, outname) which will call x =
+    func(attr) and assign x to the record array output with attribute
+    outname.
+    Eg,  stats = ( ('sales', len, 'numsales'), ('sales', npy.mean, 'avgsale') )
+
+    return record array has dtype names for each attribute name in in
+    the the 'groupby' argument, with the associated group values, and
+    for each outname name in the stats argument, with the associated
+    stat summary output
+    """
+    # build a dictionary from groupby keys-> list of indices into r with
+    # those keys
+    rowd = dict()
+    for i, row in enumerate(r):
+        key = tuple([row[attr] for attr in groupby])
+        rowd.setdefault(key, []).append(i)
+
+    # sort the output by groupby keys
+    keys = rowd.keys()
+    keys.sort()
+
+    rows = []
+    for key in keys:
+        row = list(key)
+        # get the indices for this groupby key
+        ind = rowd[key]
+        thisr = r[ind]
+        # call each stat function for this groupby slice
+        row.extend([func(thisr[attr]) for attr, func, outname in stats])
+        rows.append(row)
+
+    # build the output record array with groupby and outname attributes
+    attrs, funcs, outnames = zip(*stats)
+    names = list(groupby)
+    names.extend(outnames)
+    return npy.rec.fromrecords(rows, names=names)
+
+
+
+def rec_summarize(r, summaryfuncs):
+    """
+    r is a numpy record array
+
+    summaryfuncs is a list of (attr, func, outname) which will
+    apply codefunc to the the array r[attr] and assign the output
+    to a new attribute name outname.  The returned record array is
+    identical to r, with extra arrays for each element in summaryfuncs
+    """
+
+    names = list(r.dtype.names)
+    arrays = [r[name] for name in names]
+
+    for attr, func, outname in summaryfuncs:
+        names.append(outname)
+        arrays.append(npy.asarray(func(r[attr])))
+
+    return npy.rec.fromarrays(arrays, names=names)
+
+def rec_join(key, r1, r2):
+    """
+    join record arrays r1 and r2 on key; key is a tuple of field
+    names.  if r1 and r2 have equal values on all the keys in the key
+    tuple, then their fields will be merged into a new record array
+    containing the intersection of the fields of r1 and r2
+    """
+
+    for name in key:
+        if name not in r1.dtype.names:
+            raise ValueError('r1 does not have key field %s'%name)
+        if name not in r2.dtype.names:
+            raise ValueError('r2 does not have key field %s'%name)
+
+    def makekey(row):
+        return tuple([row[name] for name in key])
+
+    r1d = dict([(makekey(row),i) for i,row in enumerate(r1)])
+    r2d = dict([(makekey(row),i) for i,row in enumerate(r2)])
+
+    r1keys = set(r1d.keys())
+    r2keys = set(r2d.keys())
+
+    keys = r1keys & r2keys
+
+    r1ind = npy.array([r1d[k] for k in keys])
+    r2ind = npy.array([r2d[k] for k in keys])
+
+    # Make sure that the output rows have the same relative order as r1
+    sortind = r1ind.argsort()
+
+    r1 = r1[r1ind[sortind]]
+    r2 = r2[r2ind[sortind]]
+
+    r2 = rec_drop_fields(r2, r1.dtype.names)
+
+
+    def key_desc(name):
+        'if name is a string key, use the larger size of r1 or r2 before merging'
+        dt1 = r1.dtype[name]
+        if dt1.type != npy.string_:
+            return (name, dt1.descr[0][1])
+
+        dt2 = r1.dtype[name]
+        assert dt2==dt1
+        if dt1.num>dt2.num:
+            return (name, dt1.descr[0][1])
+        else:
+            return (name, dt2.descr[0][1])
+
+
+
+    keydesc = [key_desc(name) for name in key]
+
+    newdtype = npy.dtype(keydesc +
+                         [desc for desc in r1.dtype.descr if desc[0] not in key ] +
+                         [desc for desc in r2.dtype.descr if desc[0] not in key ] )
+
+
+    newrec = npy.empty(len(r1), dtype=newdtype)
+    for field in r1.dtype.names:
+        newrec[field] = r1[field]
+
+    for field in r2.dtype.names:
+        newrec[field] = r2[field]
+
+    return newrec.view(npy.recarray)
+
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing=None):
     """
@@ -2497,7 +2631,6 @@ def rec2txt(r, header=None, padding=3, precision=3):
 
     text = os.linesep.join(textl)
     return text
-
 
 
 def rec2csv(r, fname, delimiter=',', formatd=None):

@@ -2381,7 +2381,7 @@ class Axes(martist.Artist):
 
 
         #if t.get_clip_on():  t.set_clip_box(self.bbox)
-        if kwargs.has_key('clip_on'):  t.set_clip_path(self.axesPatch)
+        if kwargs.has_key('clip_on'):  t.set_clip_box(self.bbox)
         return t
     text.__doc__ = cbook.dedent(text.__doc__) % martist.kwdocd
 
@@ -4188,6 +4188,7 @@ class Axes(martist.Artist):
 
         Finally, marker can be (verts, 0), verts is a sequence of (x,y)
         vertices for a custom scatter symbol.
+<<<<<<< .working
 
             numsides is the number of sides
 
@@ -4201,6 +4202,9 @@ class Axes(martist.Artist):
         Finally, marker can be (verts, 0), verts is a sequence of (x,y)
         vertices for a custom scatter symbol.
 
+=======
+
+>>>>>>> .merge-right.r4987
         s is a size argument in points squared.
 
         Any or all of x, y, s, and c may be masked arrays, in which
