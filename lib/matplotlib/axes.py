@@ -2236,7 +2236,7 @@ class Axes(martist.Artist):
 
 
         #if t.get_clip_on():  t.set_clip_box(self.bbox)
-        if kwargs.has_key('clip_on'):  t.set_clip_box(self.bbox)
+        if kwargs.get('clip_on'):  t.set_clip_box(self.bbox)
         return t
     text.__doc__ = cbook.dedent(text.__doc__) % martist.kwdocd
 
@@ -4046,22 +4046,22 @@ class Axes(martist.Artist):
             'p' : pentagram
             'h' : hexagon
             '8' : octagon
-        
+
         The marker can also be a tuple (numsides, style, angle), which will
         create a custom, regular symbol.
-        
+
             numsides is the number of sides
-            
+
             style is the style of the regular symbol:
               0 : a regular polygon
               1 : a star-like symbol
               2 : an asterisk
-            
+
             angle is the angle of rotation of the symbol
-        
+
         Finally, marker can be (verts, 0), verts is a sequence of (x,y)
         vertices for a custom scatter symbol.
-        
+
         s is a size argument in points squared.
 
         Any or all of x, y, s, and c may be masked arrays, in which
