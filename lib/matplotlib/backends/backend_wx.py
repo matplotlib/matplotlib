@@ -938,7 +938,7 @@ The current aspect ration will be kept."""
 
     def print_bmp(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_BMP, *args, **kwargs)
-    
+
     def print_jpeg(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_JPEG, *args, **kwargs)
     print_jpg = print_jpeg
@@ -948,14 +948,14 @@ The current aspect ration will be kept."""
 
     def print_png(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_PNG, *args, **kwargs)
-    
+
     def print_tiff(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_TIF, *args, **kwargs)
     print_tif = print_tiff
 
     def print_xpm(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_XPM, *args, **kwargs)
-    
+
     def _print_image(self, filename, filetype, *args, **kwargs):
         origBitmap   = self.bitmap
 
@@ -994,7 +994,7 @@ The current aspect ration will be kept."""
 
     def get_default_filetype(self):
         return 'png'
-        
+
     def realize(self):
         """
         This method will be called when the system is ready to draw,
@@ -1230,9 +1230,9 @@ class FigureFrameWx(wx.Frame):
         DEBUG_MSG("__init__()", 1, self)
         self.num = num
 
-        self.canvas = self.get_canvas(fig)
         statbar = StatusBarWx(self)
         self.SetStatusBar(statbar)
+        self.canvas = self.get_canvas(fig)
         self.sizer =wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
         # By adding toolbar in sizer, we are able to put it at the bottom
@@ -1829,28 +1829,28 @@ class NavigationToolbarWx(wx.ToolBar):
 
         DEBUG_MSG("panx()", 1, self)
         for a in self._active:
-            a.panx(direction)
+            a.xaxis.pan(direction)
         self.canvas.draw()
         self.canvas.Refresh(eraseBackground=False)
 
     def pany(self, direction):
         DEBUG_MSG("pany()", 1, self)
         for a in self._active:
-            a.pany(direction)
+            a.yaxis.pan(direction)
         self.canvas.draw()
         self.canvas.Refresh(eraseBackground=False)
 
     def zoomx(self, in_out):
         DEBUG_MSG("zoomx()", 1, self)
         for a in self._active:
-            a.zoomx(in_out)
+            a.xaxis.zoom(in_out)
         self.canvas.draw()
         self.canvas.Refresh(eraseBackground=False)
 
     def zoomy(self, in_out):
         DEBUG_MSG("zoomy()", 1, self)
         for a in self._active:
-            a.zoomy(in_out)
+            a.yaxis.zoom(in_out)
         self.canvas.draw()
         self.canvas.Refresh(eraseBackground=False)
 
