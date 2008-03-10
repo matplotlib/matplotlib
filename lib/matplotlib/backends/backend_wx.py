@@ -1291,9 +1291,9 @@ class FigureFrameWx(wx.Frame):
         DEBUG_MSG("__init__()", 1, self)
         self.num = num
 
-        self.canvas = self.get_canvas(fig)
         statbar = StatusBarWx(self)
         self.SetStatusBar(statbar)
+        self.canvas = self.get_canvas(fig)
         self.sizer =wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
         # By adding toolbar in sizer, we are able to put it at the bottom
