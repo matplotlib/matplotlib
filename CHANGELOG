@@ -2,6 +2,9 @@
            buffer width/bbox width mismatch in _backend_agg's
            copy_from_bbox - DSD
 
+2008-02-29 Fix class Wx toolbar pan and zoom functions (Thanks Jeff
+           Peery) - MGD
+
 2008-02-16 Added some new rec array functionality to mlab
            (rec_summarize, rec2txt and rec_groupby).  See
            examples/rec_groupby_demo.py.  Thanks to Tim M for rec2txt.
