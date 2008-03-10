@@ -22,7 +22,7 @@ class BlitQT(QtCore.QObject):
         # destroyed first and avoids a possible exception when the user clicks
         # on the window's close box.
         QtCore.QObject.__init__(self, self.canvas)
-        
+
         self.cnt = 0
 
         # create the initial line
@@ -34,7 +34,7 @@ class BlitQT(QtCore.QObject):
 
     def timerEvent(self, evt):
         # See if the size has changed since last time round.
-        current_size = self.ax.bbox.width(), self.ax.bbox.height()
+        current_size = self.ax.bbox.width, self.ax.bbox.height
 
         if self.old_size != current_size:
             self.old_size = current_size

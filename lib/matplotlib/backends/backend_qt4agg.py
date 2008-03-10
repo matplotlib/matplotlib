@@ -112,6 +112,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             l, b, r, t = bbox.extents
             w = int(r) - int(l)
             h = int(t) - int(b)
+            t = int(b) + h
             reg = self.copy_from_bbox(bbox)
             stringBuffer = reg.to_string()
             qImage = QtGui.QImage(stringBuffer, w, h, QtGui.QImage.Format_ARGB32)
