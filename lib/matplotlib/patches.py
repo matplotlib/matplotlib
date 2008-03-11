@@ -608,7 +608,7 @@ class Wedge(Patch):
         return self._patch_transform
 
 # COVERAGE NOTE: Not used internally or from examples
-class Arrow(Polygon):
+class Arrow(Patch):
     """
     An arrow patch
     """
@@ -628,13 +628,14 @@ class Arrow(Polygon):
         Valid kwargs are:
         %(Patch)s
         """
+        Patch.__init__(self, **kwargs)
         L = npy.sqrt(dx**2+dy**2) or 1 # account for div by zero
         cx = float(dx)/L
         sx = float(dy)/L
 
         trans1 = transforms.Affine2D().scale(L, width)
         trans2 = transforms.Affine2D.from_values(cx, sx, -sx, cx, 0.0, 0.0)
-        trans3 = transforms.Affine2d().translate(x, y)
+        trans3 = transforms.Affine2D().translate(x, y)
         trans = trans1 + trans2 + trans3
         self._patch_transform = trans.frozen()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
