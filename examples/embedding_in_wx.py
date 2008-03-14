@@ -37,8 +37,6 @@ There are a few small complexities worth noting in the example:
    figure resizable or not.
 """
 
-import matplotlib
-matplotlib.use('WX')
 from matplotlib.backends.backend_wx import Toolbar, FigureCanvasWx,\
      FigureManager
 

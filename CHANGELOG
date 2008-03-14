@@ -1,3 +1,7 @@
+2008-03-14 Removed an apparently unnecessary call to 
+           FigureCanvasAgg.draw in backend_qt*agg. Thanks to Ted 
+           Drain - DSD 
+
 2008-03-10 Workaround a bug in backend_qt4agg's blitting due to a
            buffer width/bbox width mismatch in _backend_agg's
            copy_from_bbox - DSD
