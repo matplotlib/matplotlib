@@ -153,7 +153,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         if self.have_units():
             paths = []
-            for path in self._paths:
+            for path in self.get_paths():
                 vertices = path.vertices
                 xs, ys = vertices[:, 0], vertices[:, 1]
                 xs = self.convert_xunits(xs)
@@ -305,7 +305,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         except TypeError: raise TypeError('alpha must be a float')
         else:
             artist.Artist.set_alpha(self, alpha)
-            self._facecolors[:, 3] = alpha
+            if len(self._facecolors):
+                self._facecolors[:, 3] = alpha
             self._edgecolors[:, 3] = alpha
 
     def get_linewidths(self):
