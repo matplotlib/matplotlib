@@ -4188,7 +4188,6 @@ class Axes(martist.Artist):
 
         Finally, marker can be (verts, 0), verts is a sequence of (x,y)
         vertices for a custom scatter symbol.
-<<<<<<< .working
 
             numsides is the number of sides
 
@@ -4202,9 +4201,6 @@ class Axes(martist.Artist):
         Finally, marker can be (verts, 0), verts is a sequence of (x,y)
         vertices for a custom scatter symbol.
 
-=======
-
->>>>>>> .merge-right.r4987
         s is a size argument in points squared.
 
         Any or all of x, y, s, and c may be masked arrays, in which
