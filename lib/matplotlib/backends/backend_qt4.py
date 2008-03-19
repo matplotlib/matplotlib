@@ -21,8 +21,8 @@ def fn_name(): return sys._getframe(1).f_code.co_name
 DEBUG = False
 
 cursord = {
-    cursors.MOVE          : QtCore.Qt.PointingHandCursor,
-    cursors.HAND          : QtCore.Qt.WaitCursor,
+    cursors.MOVE          : QtCore.Qt.SizeAllCursor,
+    cursors.HAND          : QtCore.Qt.PointingHandCursor,
     cursors.POINTER       : QtCore.Qt.ArrowCursor,
     cursors.SELECT_REGION : QtCore.Qt.CrossCursor,
     }
