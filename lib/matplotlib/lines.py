@@ -7,8 +7,7 @@ variety of line styles, markers and colors
 from __future__ import division
 
 import numpy as npy
-
-from matplotlib.numerix import npyma as ma
+from numpy import ma
 from matplotlib import verbose
 import artist
 from artist import Artist

@@ -24,7 +24,7 @@ assumed to occur after the non-affine.  For any transform:
 """
 
 import numpy as npy
-from matplotlib.numerix import npyma as ma
+from numpy import ma
 from matplotlib._path import affine_transform
 from numpy.linalg import inv
 

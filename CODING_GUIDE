@@ -12,7 +12,7 @@ svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk matplotli
 # checking out the main src
 svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib --username=youruser --password=yourpass
 
-# branch checkouts, eg the transforms branch 
+# branch checkouts, eg the transforms branch
 svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/transforms transbranch
 
 == Committing changes ==
@@ -47,15 +47,18 @@ For numpy, use:
 
     import numpy as npy
     a = npy.array([1,2,3])
-    
+
 
 For masked arrays, use:
-    import matplotlib.numerix.npyma as ma
+    from numpy import ma
 
-    (This is needed to support the maskedarray module as an
-    alternative to the original numpy ma module; eventually,
-    the maskedarray implementation is likely to replace the
-    ma implementation.)
+    (The earlier recommendation, 'import matplotlib.numerix.npyma as ma',
+    was needed temporarily during the development of the maskedarray
+    implementation as a separate package.  As of numpy 1.05, it
+    replaces the old implementation.
+    Note: "from numpy import ma" works with numpy < 1.05 *and* with
+    numpy >= 1.05.  "import numpy.ma as ma" works *only* with
+    numpy >= 1.05, so for now we must not use it.)
 
 For matplotlib main module, use:
 
@@ -64,8 +67,8 @@ For matplotlib main module, use:
 
 For matplotlib modules (or any other modules), use:
 
-    import matplotlib.cbook as cbook 
-    
+    import matplotlib.cbook as cbook
+
     if cbook.iterable(z):
         pass
 
@@ -125,7 +128,7 @@ for older versions of emacs (emacs<22) you need to do
 
 (add-hook 'python-mode-hook
           (lambda ()
-          (add-hook 'local-write-file-hooks 'delete-trailing-whitespace)))	
+          (add-hook 'local-write-file-hooks 'delete-trailing-whitespace)))
 
 
 

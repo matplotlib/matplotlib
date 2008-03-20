@@ -2,8 +2,7 @@ from __future__ import division, generators
 import math, warnings, new
 
 import numpy as npy
-
-import matplotlib.numerix.npyma as ma
+from numpy import ma
 
 import matplotlib
 rcParams = matplotlib.rcParams

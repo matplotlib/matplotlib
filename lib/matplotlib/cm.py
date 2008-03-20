@@ -3,9 +3,9 @@ This module contains the instantiations of color mapping classes
 """
 
 import numpy as npy
+from numpy import ma
 import matplotlib as mpl
 import matplotlib.colors as colors
-import matplotlib.numerix.npyma as ma
 import matplotlib.cbook as cbook
 from matplotlib._cm import *
 

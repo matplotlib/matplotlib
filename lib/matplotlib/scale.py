@@ -1,6 +1,6 @@
 import textwrap
 import numpy as npy
-from matplotlib.numerix import npyma as ma
+from numpy import ma
 MaskedArray = ma.MaskedArray
 
 from cbook import dedent
