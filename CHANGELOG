@@ -1,3 +1,6 @@
+2008-03-20 Fixed a minor bug in ContourSet._process_linestyles when
+           len(linestyles)==Nlev - MM
+
 2008-03-19 Changed ma import statements to "from numpy import ma";
            this should work with past and future versions of
            numpy, whereas "import numpy.ma as ma" will work only
