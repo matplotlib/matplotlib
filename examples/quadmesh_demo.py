@@ -9,7 +9,7 @@ This demo illustrates a bug in quadmesh with masked data.
 import numpy as npy
 from matplotlib.pyplot import figure, show, savefig
 from matplotlib import cm, colors
-from matplotlib.numerix import npyma as ma
+from numpy import ma
 
 n = 56
 x = npy.linspace(-1.5,1.5,n)

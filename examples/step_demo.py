@@ -1,5 +1,5 @@
 import numpy as npy
-from matplotlib.numerix import npyma as ma
+from numpy import ma
 from matplotlib.pyplot import step, legend, xlim, ylim, show
 
 x = npy.arange(1, 7, 0.4)

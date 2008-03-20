@@ -198,12 +198,7 @@ from cbook import flatten, is_string_like, exception_to_str, popd, \
      silent_list, iterable, enumerate, dedent
 
 import numpy as npy
-# The masked array namespace is brought in as ma; getting
-# this from numerix allows one to select either numpy.ma or
-# Pierre G-M's maskedarray implementation, which may
-# replace the present numpy.ma implementation in a future
-# numpy release.
-from matplotlib.numerix import npyma as ma
+from numpy import ma
 
 from matplotlib import mpl  # pulls in most modules
 

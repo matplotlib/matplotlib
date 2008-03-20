@@ -143,7 +143,7 @@ Keyword arguments (default given first):
 """
 
 import numpy as npy
-import matplotlib.numerix.npyma as ma
+from numpy import ma
 import matplotlib.collections as collections
 import matplotlib.transforms as transforms
 import matplotlib.text as text

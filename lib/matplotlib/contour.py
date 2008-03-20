@@ -6,7 +6,7 @@ from __future__ import division
 import warnings
 import matplotlib as mpl
 import numpy as npy
-import matplotlib.numerix.npyma as ma
+from numpy import ma
 import matplotlib._cntr as _cntr
 import matplotlib.path as path
 import matplotlib.ticker as ticker

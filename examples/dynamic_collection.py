@@ -12,8 +12,8 @@ offsets = [(0.5,0.5)]
 facecolors = [cm.jet(0.5)]
 
 collection = RegularPolyCollection(
-    fig.dpi,
-    numsides=5, # a pentagon
+    #fig.dpi,
+    5, # a pentagon
     rotation=0,
     sizes=(50,),
     facecolors = facecolors,

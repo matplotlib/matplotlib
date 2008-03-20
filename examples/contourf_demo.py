@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from pylab import *
-import matplotlib.numerix.npyma as ma
 origin = 'lower'
 #origin = 'upper'
 

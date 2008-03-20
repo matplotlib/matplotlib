@@ -6,7 +6,7 @@
 '''
 
 from pylab import *
-import matplotlib.numerix.npyma as ma
+from numpy import ma
 import matplotlib.colors as colors
 
 delta = 0.025

@@ -8,7 +8,7 @@ import math
 from weakref import WeakValueDictionary
 
 import numpy as npy
-from matplotlib.numerix import npyma as ma
+from numpy import ma
 
 from matplotlib._path import point_in_path, get_path_extents, \
     point_in_path_collection, get_path_collection_extents, \

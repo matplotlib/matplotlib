@@ -35,7 +35,7 @@ Finally, legal html names for colors, like 'red', 'burlywood' and
 """
 import re
 import numpy as npy
-import matplotlib.numerix.npyma as ma
+from numpy import ma
 import matplotlib.cbook as cbook
 
 cnames = {

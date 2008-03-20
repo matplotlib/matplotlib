@@ -7,8 +7,7 @@ from __future__ import division
 import os, warnings
 
 import numpy as npy
-
-import matplotlib.numerix.npyma as ma
+from numpy import ma
 
 from matplotlib import rcParams
 from matplotlib import artist as martist

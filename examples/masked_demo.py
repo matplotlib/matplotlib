@@ -6,7 +6,6 @@ This would typically be used with gappy data, to
 break the line at the data gaps.
 '''
 
-import matplotlib.numerix.npyma as ma
 from pylab import *
 
 x = ma.arange(0, 2*pi, 0.02)
