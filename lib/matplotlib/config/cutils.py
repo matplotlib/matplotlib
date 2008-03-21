@@ -79,7 +79,7 @@ def _get_configdir():
             raise RuntimeError("""\
 '%s' is not a writable dir; you must set %s/.matplotlib to be a writable dir.
 You can also set environment variable MPLCONFIGDIR to any writable directory
-where you want matplotlib data stored """%h)
+where you want matplotlib data stored """%(p,h))
     else:
         if not is_writable_dir(h):
             raise RuntimeError("Failed to create %s/.matplotlib; consider setting MPLCONFIGDIR to a writable directory for matplotlib configuration data"%h)
