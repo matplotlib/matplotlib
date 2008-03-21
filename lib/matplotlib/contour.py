@@ -708,7 +708,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         else:
             if cbook.is_string_like(linestyles):
                 tlinestyles = [linestyles] * Nlev
-            elif cbook.iterable(linestyles) and len(linestyles) < Nlev:
+            elif cbook.iterable(linestyles) and len(linestyles) <= Nlev:
                 tlinestyles = list(linestyles) * int(npy.ceil(Nlev/len(linestyles)))
         return tlinestyles
 
