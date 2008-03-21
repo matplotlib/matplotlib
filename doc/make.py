@@ -34,7 +34,7 @@ def event_tut():
     os.system('pdflatex event_handling_tut.tex')
 
 def clean():
-    patterns = ['#*', '*~', '*.tex', '*.log', '*.out', '*.aux']
+    patterns = ['#*', '*~', '*.tex', '*.log', '*.out', '*.aux', '*.pdf']
     for pattern in patterns:
         for fname in glob.glob(pattern):
             os.remove(fname)
