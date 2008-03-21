@@ -8,6 +8,7 @@ def figs():
     import dollar_ticks
     import fig_axes_customize_simple
     import fig_axes_labels_simple
+    import fig_x
 
     print 'all figures made'
     for fname in glob.glob('*.pyc'):
