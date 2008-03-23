@@ -1159,7 +1159,7 @@ class RendererPdf(RendererBase):
         self.tex_font_map = None
 
     def finalize(self):
-        self.gc.finalize()
+        self.file.output(*self.gc.finalize())
 
     def check_gc(self, gc, fillcolor=None):
         orig_fill = gc._fillcolor
