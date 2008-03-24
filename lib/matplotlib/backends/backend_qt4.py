@@ -120,7 +120,6 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         button = self.buttond[event.button()]
         FigureCanvasBase.button_release_event( self, x, y, button )
         if DEBUG: print 'button released'
-        self.draw()
 
     def keyPressEvent( self, event ):
         key = self._get_key( event )

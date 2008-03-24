@@ -1,3 +1,6 @@
+2008-03-24 Removed an unnecessary call to draw() in the backend_qt*
+           mouseReleaseEvent. Thanks to Ted Drain - DSD
+
 2008-03-23 Fix a pdf backend bug which sometimes caused the outermost
            gsave to not be balanced with a grestore. - JKS
 
