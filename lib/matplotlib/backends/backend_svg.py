@@ -389,7 +389,7 @@ class RendererSVG(RendererBase):
             if step[0] != 4:
                 currx, curry = step[-2], -step[-1]
         path_data = ''.join(path_data)
-        char_num = 'c_%x' % len(self._char_defs) # md5.new(path_data).hexdigest()
+        char_num = 'c_%s' % md5.new(path_data).hexdigest()
         path_element = '<symbol id="%s"><path d="%s"/></symbol>\n' % (char_num, ''.join(path_data))
         self._char_defs[char_id] = char_num
         return path_element
