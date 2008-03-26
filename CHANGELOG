@@ -1,3 +1,6 @@
+2008-03-26 Fix SVG backend bug that prevents copying and pasting in
+           Inkscape (thanks Kaushik Ghose) - MGD
+
 2008-03-23 Fix a pdf backend bug which sometimes caused the outermost
            gsave to not be balanced with a grestore. - JKS
 
