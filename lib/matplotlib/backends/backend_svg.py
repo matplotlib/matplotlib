@@ -1,6 +1,6 @@
 from __future__ import division
 
-import os, codecs, base64, tempfile, urllib, gzip
+import os, codecs, base64, tempfile, urllib, gzip, md5
 
 from matplotlib import agg
 from matplotlib import verbose, __version__, rcParams
@@ -388,8 +388,9 @@ class RendererSVG(RendererBase):
 
             if step[0] != 4:
                 currx, curry = step[-2], -step[-1]
-        char_num = 'c_%x' % len(self._char_defs)
-        path_element = '<path id="%s" d="%s"/>\n' % (char_num, ''.join(path_data))
+        path_data = ''.join(path_data)
+        char_num = 'c_%x' % len(self._char_defs) # md5.new(path_data).hexdigest()
+        path_element = '<symbol id="%s"><path d="%s"/></symbol>\n' % (char_num, ''.join(path_data))
         self._char_defs[char_id] = char_num
         return path_element
 
