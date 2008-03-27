@@ -427,7 +427,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
             selectedFilter)
         if fname:
             try:
-                self.canvas.print_figure( fname.latin1() )
+                self.canvas.print_figure( unicode(fname) )
             except Exception, e:
                 qt.QMessageBox.critical(
                     self, "Error saving file", str(e),
