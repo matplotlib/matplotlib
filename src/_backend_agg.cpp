@@ -1286,12 +1286,33 @@ RendererAgg::write_rgba(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::write_rgba");
 
   args.verify_length(1);
-  std::string fname = Py::String(args[0]);
 
-  std::ofstream of2( fname.c_str(), std::ios::binary|std::ios::out);
-  for (size_t i=0; i<NUMBYTES; i++) {
-    of2.write((char*)&(pixBuffer[i]), sizeof(char));
+  FILE *fp = NULL;
+  bool close_file = false;
+  Py::Object py_fileobj = Py::Object(args[0]);
+  if (py_fileobj.isString()) {
+    std::string fileName = Py::String(py_fileobj);
+    const char *file_name = fileName.c_str();
+    if ((fp = fopen(file_name, "wb")) == NULL)
+      throw Py::RuntimeError( Printf("Could not open file %s", file_name).str() );
+    fwrite(pixBuffer, 1, NUMBYTES, fp);
+    close_file = true;
+    fclose(fp);
+  } else if (PyFile_CheckExact(py_fileobj.ptr())) {
+    fp = PyFile_AsFile(py_fileobj.ptr());
+    fwrite(pixBuffer, 1, NUMBYTES, fp);
+  } else {
+    PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(), "write");
+    if (!(write_method && PyCallable_Check(write_method))) {
+      Py_XDECREF(write_method);
+      throw Py::TypeError("Object does not appear to be a 8-bit string path or a Python file-like object");
+    }
+
+    PyObject_CallFunction(write_method, "s#", pixBuffer, NUMBYTES);
+
+    Py_XDECREF(write_method);
   }
+
   return Py::Object();
 }
 
@@ -1326,18 +1347,22 @@ RendererAgg::write_png(const Py::Tuple& args)
   args.verify_length(1, 2);
 
   FILE *fp = NULL;
+  bool close_file = false;
   Py::Object py_fileobj = Py::Object(args[0]);
   if (py_fileobj.isString()) {
     std::string fileName = Py::String(py_fileobj);
     const char *file_name = fileName.c_str();
     if ((fp = fopen(file_name, "wb")) == NULL)
       throw Py::RuntimeError( Printf("Could not open file %s", file_name).str() );
+    close_file = true;
+  } else if (PyFile_CheckExact(py_fileobj.ptr())) {
+    fp = PyFile_AsFile(py_fileobj.ptr());
   }
   else {
     PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(), "write");
     if (!(write_method && PyCallable_Check(write_method))) {
       Py_XDECREF(write_method);
-      throw Py::TypeError("Object does not appear to be a path or a Python file-like object");
+      throw Py::TypeError("Object does not appear to be a 8-bit string path or a Python file-like object");
     }
     Py_XDECREF(write_method);
   }
@@ -1406,7 +1431,7 @@ RendererAgg::write_png(const Py::Tuple& args)
     */
 
   } catch (...) {
-      if (fp) fclose(fp);
+      if (fp && close_file) fclose(fp);
       delete [] row_pointers;
       if (png_ptr && info_ptr) png_destroy_write_struct(&png_ptr, &info_ptr);
       throw;
@@ -1414,7 +1439,7 @@ RendererAgg::write_png(const Py::Tuple& args)
 
   png_destroy_write_struct(&png_ptr, &info_ptr);
   delete [] row_pointers;
-  if (fp) fclose(fp);
+  if (fp && close_file) fclose(fp);
 
   return Py::Object();
 }

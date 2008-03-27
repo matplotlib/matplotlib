@@ -1,3 +1,7 @@
+2008-03-27 Fix saving to Unicode filenames with Agg backend
+           (other backends appear to already work...)
+           (Thanks, Christopher Barker) - MGD
+
 2008-03-26 Fix SVG backend bug that prevents copying and pasting in
            Inkscape (thanks Kaushik Ghose) - MGD
 
