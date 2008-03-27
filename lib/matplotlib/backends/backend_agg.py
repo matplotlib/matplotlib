@@ -387,13 +387,17 @@ class FigureCanvasAgg(FigureCanvasBase):
     def get_default_filetype(self):
         return 'png'
 
-    def print_raw(self, filename, *args, **kwargs):
+    def print_raw(self, filename_or_obj, *args, **kwargs):
         self.draw()
-        self.get_renderer()._renderer.write_rgba(str(filename))
+        if type(filename_or_obj) in (str, unicode):
+            filename_or_obj = open(filename_or_obj, 'w')
+        self.get_renderer()._renderer.write_rgba(filename_or_obj)
     print_rgba = print_raw
 
-    def print_png(self, filename, *args, **kwargs):
+    def print_png(self, filename_or_obj, *args, **kwargs):
         self.draw()
-        filename = str(filename) # until we figure out unicode handling
-        self.get_renderer()._renderer.write_png(filename, self.figure.dpi.get())
+        if type(filename_or_obj) in (str, unicode):
+            filename_or_obj = open(filename_or_obj, 'w')
+        self.get_renderer()._renderer.write_png(filename_or_obj,
+                                                self.figure.dpi.get())
 

@@ -425,12 +425,12 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QWidget ):
                 selectedFilter = filter
             filters.append(filter)
         filters = ';;'.join(filters)
-           
+
         fname = QtGui.QFileDialog.getSaveFileName(
             self, "Choose a filename to save to", start, filters, selectedFilter)
         if fname:
             try:
-                self.canvas.print_figure( str(fname.toLatin1()) )
+                self.canvas.print_figure( unicode(fname) )
             except Exception, e:
                 QtGui.QMessageBox.critical(
                     self, "Error saving file", str(e),
