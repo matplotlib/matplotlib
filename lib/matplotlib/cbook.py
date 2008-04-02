@@ -1068,6 +1068,16 @@ def simple_linear_interpolation(a, steps):
 
     return result
 
+
+# a dict to cross-map linestyle arguments
+_linestyles = [('-', 'solid'),
+    ('--', 'dashed'),
+    ('-.', 'dashdot'),
+    (':',  'dotted')]
+
+ls_mapper = dict(_linestyles)
+ls_mapper.update([(ls[1], ls[0]) for ls in _linestyles])
+
 if __name__=='__main__':
     assert( allequal([1,1,1]) )
     assert(not  allequal([1,1,0]) )

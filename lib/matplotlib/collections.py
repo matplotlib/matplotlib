@@ -228,14 +228,25 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |  (offset, on-off-dash-seq) ]
         """
         try:
+            dashd = backend_bases.GraphicsContextBase.dashd
             if cbook.is_string_like(ls):
-                dashes = [backend_bases.GraphicsContextBase.dashd[ls]]
+                if dashd.has_key(ls):
+                    dashes = [dashd[ls]]
+                elif cbook.ls_mapper.has_key(ls):
+                    dashes = [dashd[cbook.ls_mapper[ls]]]
+                else:
+                    raise ValueError()
             elif cbook.iterable(ls):
                 try:
                     dashes = []
                     for x in ls:
                         if cbook.is_string_like(x):
-                            dashes.append(backend_bases.GraphicsContextBase.dashd[ls])
+                            if dashd.has_key(x):
+                                dashes.append(dashd[x])
+                            elif cbook.ls_mapper.has_key(x):
+                                dashes.append(dashd[cbook.ls_mapper[x]])
+                            else:
+                                raise ValueError()
                         elif cbook.iterator(x) and len(x) == 2:
                             dashes.append(x)
                         else:
