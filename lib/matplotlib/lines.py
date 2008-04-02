@@ -11,7 +11,7 @@ from numpy import ma
 from matplotlib import verbose
 import artist
 from artist import Artist
-from cbook import iterable, is_string_like, is_numlike
+from cbook import iterable, is_string_like, is_numlike, ls_mapper
 from colors import colorConverter
 from path import Path
 from transforms import Affine2D, Bbox, TransformedPath
@@ -598,7 +598,10 @@ class Line2D(Artist):
         ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'steps-pre' | 'steps-mid' | 'steps-post' | 'None' | ' ' | '' ]
         """
         if linestyle not in self._lineStyles:
-            verbose.report('Unrecognized line style %s, %s' %
+            if ls_mapper.has_key(linestyle):
+                linestyle = ls_mapper[linestyle]
+            else:
+                verbose.report('Unrecognized line style %s, %s' %
                                             (linestyle, type(linestyle)))
         if linestyle in [' ','']:
             linestyle = 'None'
