@@ -5,7 +5,7 @@ Example usage:
 
     import matplotlib.mlab as mlab
     import matplotlib.toolkits.exceltools as exceltools
-    
+
     r = mlab.csv2rec('somefile.csv', checkrows=0)
 
     formatd = dict(
@@ -107,6 +107,10 @@ def rec2excel(r, ws, formatd=None, rownum=0, colnum=0):
             else:
                 if mlab.safe_isnan(val):
                     ws.write(rownum, colnum+i, 'NaN')
+                elif mlab.safe_isinf(val):
+                    if val<0: sign='-'
+                    else: sign='+'
+                    ws.write(rownum, colnum+i, '%sInf'%sign)
                 else:
                     ws.write(rownum, colnum+i, val, format.xlstyle)
         rownum += 1
