@@ -1944,6 +1944,13 @@ def safe_isnan(x):
     else: return b
 
 
+def safe_isinf(x):
+    'isnan for arbitrary types'
+    try: b = npy.isinf(x)
+    except NotImplementedError: return False
+    else: return b
+
+
 def rec_append_field(rec, name, arr, dtype=None):
     'return a new record array with field name populated with data from array arr'
     arr = npy.asarray(arr)
