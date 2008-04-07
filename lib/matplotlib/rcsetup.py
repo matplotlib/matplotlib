@@ -10,6 +10,7 @@ matplotlibrc file that actually reflects the values given here.
 
 import os
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
+from matplotlib.colors import is_color_like
 
 class ValidateInStrings:
     def __init__(self, key, valid, ignorecase=False):
@@ -122,36 +123,34 @@ class validate_nseq_int:
             return [int(val) for val in s]
 
 
-
 def validate_color(s):
     'return a valid color arg'
-    if s.lower() == 'none': return 'None'
-    if len(s)==1 and s.isalpha(): return s
-    if s.find(',')>=0: # looks like an rgb
+    if s.lower() == 'none':
+        return 'None'
+    if is_color_like(s):
+        return s
+    stmp = '#' + s
+    if is_color_like(stmp):
+        return stmp
+    # If it is still valid, it must be a tuple.
+    colorarg = s
+    msg = ''
+    if s.find(',')>=0:
         # get rid of grouping symbols
-        s = ''.join([ c for c in s if c.isdigit() or c=='.' or c==','])
-        vals = s.split(',')
+        stmp = ''.join([ c for c in s if c.isdigit() or c=='.' or c==','])
+        vals = stmp.split(',')
         if len(vals)!=3:
-            raise ValueError('Color tuples must be length 3')
+            msg = '\nColor tuples must be length 3'
+        else:
+            try:
+                colorarg = [float(val) for val in vals]
+            except ValueError:
+                msg = '\nCould not convert all entries to floats'
 
-        try: return [float(val) for val in vals]
-        except ValueError:
-            raise ValueError('Could not convert all entries "%s" to floats'%s)
+    if not msg and is_color_like(colorarg):
+        return colorarg
 
-    if s.replace('.', '').isdigit(): # looks like scalar (grayscale)
-        return s
-
-    if len(s)==6 and s.isalnum(): # looks like hex
-        return '#' + s
-
-    if len(s)==7 and s.startswith('#') and s[1:].isalnum():
-        return s
-
-    if s.isalpha():
-        #assuming a color name, hold on
-        return s
-
-    raise ValueError('%s does not look like color arg'%s)
+    raise ValueError('%s does not look like a color arg%s'%(s, msg))
 
 def validate_stringlist(s):
     'return a list'
