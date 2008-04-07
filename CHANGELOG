@@ -1,6 +1,9 @@
+2008-04-07 Improve color validation in rc handling, suggested
+           by Lev Givon - EF
+
 2008-04-02 Allow to use both linestyle definition arguments, '-' and
-           'solid' etc. in plots/collections - MM 
-           
+           'solid' etc. in plots/collections - MM
+
 2008-03-27 Fix saving to Unicode filenames with Agg backend
            (other backends appear to already work...)
            (Thanks, Christopher Barker) - MGD
