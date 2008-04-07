@@ -130,7 +130,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
 
         if DEBUG: print "FigureCanvasQtAgg.draw", self
         self.replot = True
-        self.update()
+        FigureCanvasAgg.draw(self)
 
     def blit(self, bbox=None):
         """
