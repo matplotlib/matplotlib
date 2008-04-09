@@ -2442,9 +2442,10 @@ class Axes(martist.Artist):
         y = npy.asarray(y)
 
         if len(xmin)==1:
-            xmin = xmin*npy.ones(y.shape, y.dtype)
+            xmin = npy.resize( xmin, y.shape )
         if len(xmax)==1:
-            xmax = xmax*npy.ones(y.shape, y.dtype)
+            xmax = npy.resize( xmax, y.shape )
+
 
         xmin = npy.asarray(xmin)
         xmax = npy.asarray(xmax)
@@ -2511,6 +2512,11 @@ class Axes(martist.Artist):
         x = npy.asarray(x)
         ymin = npy.asarray(ymin)
         ymax = npy.asarray(ymax)
+
+        if len(ymin)==1:
+            ymin = npy.resize( ymin, x.shape )
+        if len(ymax)==1:
+            ymax = npy.resize( ymax, x.shape )
 
 
         if len(ymin)!=len(x):
