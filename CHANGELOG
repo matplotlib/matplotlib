@@ -1,7 +1,10 @@
-2008-04-11 Revert commits 5002 and 5031, which were intended to 
-           avoid an unnecessary call to draw(). 5002 broke saving 
+2008-04-11 Fix global font rcParam setting after initialization
+           time. - MGD
+
+2008-04-11 Revert commits 5002 and 5031, which were intended to
+           avoid an unnecessary call to draw(). 5002 broke saving
            figures before show(). 5031 fixed the problem created in
-           5002, but broke interactive plotting. Unnecessary call to 
+           5002, but broke interactive plotting. Unnecessary call to
            draw still needs resolution - DSD
 
 2008-04-07 Improve color validation in rc handling, suggested

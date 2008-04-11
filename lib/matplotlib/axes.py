@@ -2592,10 +2592,9 @@ class Axes(martist.Artist):
         xmax = npy.asarray(xmax)
 
         if len(xmin)==1:
-            xmin = xmin*npy.ones(y.shape, y.dtype)
+            xmin = npy.resize( xmin, y.shape )
         if len(xmax)==1:
-            xmax = xmax*npy.ones(y.shape, y.dtype)
-
+            xmax = npy.resize( xmax, y.shape )
 
         if len(xmin)!=len(y):
             raise ValueError, 'xmin and y are unequal sized sequences'
@@ -2660,9 +2659,9 @@ class Axes(martist.Artist):
         ymin = npy.asarray(ymin)
         ymax = npy.asarray(ymax)
         if len(ymin)==1:
-            ymin = ymin*npy.ones(x.shape, x.dtype)
+            ymin = npy.resize( ymin, x.shape )
         if len(ymax)==1:
-            ymax = ymax*npy.ones(x.shape, x.dtype)
+            ymax = npy.resize( ymax, x.shape )
 
         if len(ymin)!=len(x):
             raise ValueError, 'ymin and x are unequal sized sequences'
