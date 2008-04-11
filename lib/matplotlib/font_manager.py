@@ -625,20 +625,6 @@ class FontProperties(object):
     fontconfig.
     """
 
-    class FontPropertiesSet(object):
-        """This class contains all of the default properties at the
-        class level, which are then overridden (only if provided) at
-        the instance level."""
-        family = rcParams['font.' + rcParams['font.family']]
-        if is_string_like(family):
-            family = [family]
-        slant = [rcParams['font.style']]
-        variant = [rcParams['font.variant']]
-        weight = [rcParams['font.weight']]
-        stretch = [rcParams['font.stretch']]
-        size = [rcParams['font.size']]
-        file = None
-
     def __init__(self,
                  family = None,
                  style  = None,
@@ -649,12 +635,17 @@ class FontProperties(object):
                  fname  = None, # if this is set, it's a hardcoded filename to use
                  _init   = None  # used only by copy()
                  ):
-
-        self.__props = self.FontPropertiesSet()
+        self._family = None
+        self._slant = None
+        self._variant = None
+        self._weight = None
+        self._stretch = None
+        self._size = None
+        self._file = None
 
         # This is used only by copy()
         if _init is not None:
-            self.__props.__dict__.update(_init)
+            self.__dict__.update(_init.__dict__)
             return
 
         if is_string_like(family):
@@ -666,9 +657,8 @@ class FontProperties(object):
                 stretch is None and
                 size is None and
                 fname is None):
-                self.__props.__dict__ = self._parse_fontconfig_pattern(family)
+                self.set_fontconfig_pattern(family)
                 return
-            family = [family]
 
         self.set_family(family)
         self.set_style(style)
@@ -682,7 +672,7 @@ class FontProperties(object):
         return parse_fontconfig_pattern(pattern)
 
     def __hash__(self):
-        return hash(repr(self.__props.__dict__))
+        return hash(repr(self.__dict__))
 
     def __str__(self):
         return self.get_fontconfig_pattern()
@@ -690,7 +680,12 @@ class FontProperties(object):
     def get_family(self):
         """Return a list of font names that comprise the font family.
         """
-        return self.__props.family
+        if self._family is None:
+            family = rcParams['font.family']
+            if is_string_like(family):
+                return [family]
+            return family
+        return self._family
 
     def get_name(self):
         """Return the name of the font that best matches the font properties."""
@@ -698,38 +693,45 @@ class FontProperties(object):
 
     def get_style(self):
         """Return the font style.  Values are: normal, italic or oblique."""
-        return self.__props.slant[0]
+        if self._slant is None:
+            return rcParams['font.style']
+        return self._slant
 
     def get_variant(self):
         """Return the font variant.  Values are: normal or small-caps."""
-        return self.__props.variant[0]
+        if self._variant is None:
+            return rcParams['font.variant']
+        return self._variant
 
     def get_weight(self):
         """
         Return the font weight.  See the FontProperties class for a
         a list of possible values.
         """
-        return self.__props.weight[0]
+        if self._weight is None:
+            return rcParams['font.weight']
+        return self._weight
 
     def get_stretch(self):
         """
         Return the font stretch or width.  Options are: normal,
         narrow, condensed, or wide.
         """
-        return self.__props.stretch[0]
+        if self._stretch is None:
+            return rcParams['font.stretch']
+        return self._stretch
 
     def get_size(self):
         """Return the font size."""
-        return float(self.__props.size[0])
+        if self._size is None:
+            return rcParams['font.size']
+        return float(self._size)
 
     def get_file(self):
-        if self.__props.file is not None:
-            return self.__props.file[0]
-        else:
-            return None
+        return self._file
 
     def get_fontconfig_pattern(self):
-        return generate_fontconfig_pattern(self.__props.__dict__)
+        return generate_fontconfig_pattern(self)
 
     def set_family(self, family):
         """
@@ -738,58 +740,49 @@ class FontProperties(object):
         fantasy, or monospace, or a real font name.
         """
         if family is None:
-            self.__props.__dict__.pop('family', None)
+            self._family = None
         else:
             if is_string_like(family):
                 family = [family]
-            self.__props.family = family
+            self._family = family
     set_name = set_family
 
     def set_style(self, style):
         """Set the font style.  Values are: normal, italic or oblique."""
-        if style is None:
-            self.__props.__dict__.pop('style', None)
-        else:
-            if style not in ('normal', 'italic', 'oblique'):
-                raise ValueError("style must be normal, italic or oblique")
-            self.__props.slant = [style]
+        if style not in ('normal', 'italic', 'oblique', None):
+            raise ValueError("style must be normal, italic or oblique")
+        self._slant = style
 
     def set_variant(self, variant):
         """Set the font variant.  Values are: normal or small-caps."""
-        if variant is None:
-            self.__props.__dict__.pop('variant', None)
-        else:
-            if variant not in ('normal', 'small-caps'):
-                raise ValueError("variant must be normal or small-caps")
-            self.__props.variant = [variant]
+        if variant not in ('normal', 'small-caps', None):
+            raise ValueError("variant must be normal or small-caps")
+        self._variant = variant
 
     def set_weight(self, weight):
         """
         Set the font weight.  See the FontProperties class for a
         a list of possible values.
         """
-        if weight is None:
-            self.__props.__dict__.pop('weight', None)
-        else:
-            if (weight not in weight_dict and
-                weight not in weight_dict.keys()):
-                raise ValueError("weight is invalid")
-            self.__props.weight = [weight]
+        if (weight is not None and
+            weight not in weight_dict and
+            weight not in weight_dict.keys()):
+            raise ValueError("weight is invalid")
+        self._weight = weight
 
     def set_stretch(self, stretch):
         """
         Set the font stretch or width.  Options are: normal, narrow,
         condensed, or wide.
         """
-        if stretch is None:
-            self.__props.__dict__.pop('stretch', None)
-        else:
-            self.__props.stretch = [stretch]
+        if stretch not in ('normal', 'narrow', 'condensed', 'wide', None):
+            raise ValueError("stretch is invalid")
+        self._stretch = stretch
 
     def set_size(self, size):
         """Set the font size."""
         if size is None:
-            self.__props.__dict__.pop('size', None)
+            self._size = None
         else:
             if is_string_like(size):
                 parent_size = fontManager.get_default_size()
@@ -797,28 +790,25 @@ class FontProperties(object):
                 if scaling is not None:
                     size = parent_size * scaling
                 else:
-                    size = parent_size
-            if isinstance(size, (int, float)):
-                size = [size]
-            self.__props.size = size
+                    try:
+                        size = float(size)
+                    except ValueError:
+                        size = parent_size
+            assert(type(size) in (int, float))
+            self._size = size
 
     def set_file(self, file):
-        if file is None:
-            self.__props.__dict__.pop('file', None)
-        else:
-            self.__props.file = [file]
+        self._file = file
 
     get_size_in_points = get_size
 
     def set_fontconfig_pattern(self, pattern):
-        self.__props.__dict__ = self._parse_fontconfig_pattern(pattern)
-
-    def add_property_pair(self, key, val):
-        self.__props.setdefault(key, []).append(val)
+        for key, val in self._parse_fontconfig_pattern(pattern).items():
+            getattr(self, "set_" + key)(val)
 
     def copy(self):
         """Return a deep copy of self"""
-        return FontProperties(_init = self.__props.__dict__)
+        return FontProperties(_init = self)
 
 def ttfdict_to_fnames(d):
     'flatten a ttfdict to all the filenames it contains'
