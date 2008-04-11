@@ -1,3 +1,6 @@
+2008-04-11 Fix global font rcParam setting after initialization
+           time. - MGD
+
 2008-03-27 Fix saving to Unicode filenames with Agg backend
            (other backends appear to already work...)
            (Thanks, Christopher Barker) - MGD
