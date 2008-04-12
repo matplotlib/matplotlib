@@ -530,6 +530,15 @@ class ListedColormap(LinearSegmentedColormap):
     """
     def __init__(self, colors, name = 'from_list', N = None):
         """
+        Make a colormap from a list of colors.
+
+        colors is a list of matplotlib color specifications
+        name is a string to identify the colormap
+        N is the number of entries in the map.  The default is None,
+            in which case there is one colormap entry for each
+            element in the list of colors.  If N < len(colors)
+            the list will be truncated at N.  If N > len(colors),
+            the list will be extended by repetition.
         """
         self.colors = colors
         self.monochrome = False  # True only if all colors in map are identical;
@@ -545,7 +554,7 @@ class ListedColormap(LinearSegmentedColormap):
                     self.monochrome = True
                 if len(self.colors) < N:
                     self.colors = list(self.colors) * N
-                    del(self.colors[N:])
+                del(self.colors[N:])
             else:
                 try: gray = float(self.colors)
                 except TypeError: pass
