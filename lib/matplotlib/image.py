@@ -81,6 +81,7 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         self._extent = extent
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
+        self._filterrad = filterrad
 
 
 
@@ -122,13 +123,61 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         if self._A is None:
             raise RuntimeError('You must first set the image array or the image attribute')
 
+        xmin, xmax, ymin, ymax = self.get_extent()
+        dxintv = xmax-xmin
+        dyintv = ymax-ymin
+
+        # the viewport scale factor
+        sx = dxintv/self.axes.viewLim.width
+        sy = dyintv/self.axes.viewLim.height
+        numrows, numcols = self._A.shape[:2]
+        if sx > 2:
+            x0 = (self.axes.viewLim.x0-xmin)/dxintv * numcols
+            ix0 = max(0, int(x0 - self._filterrad))
+            x1 = (self.axes.viewLim.x1-xmin)/dxintv * numcols
+            ix1 = min(numcols, int(x1 + self._filterrad))
+            xslice = slice(ix0, ix1)
+            xmin_old = xmin
+            xmin = xmin_old + ix0*dxintv/numcols
+            xmax = xmin_old + ix1*dxintv/numcols
+            dxintv = xmax - xmin
+            sx = dxintv/self.axes.viewLim.width
+        else:
+            xslice = slice(0, numcols)
+
+        if sy > 2:
+            y0 = (self.axes.viewLim.y0-ymin)/dyintv * numrows
+            iy0 = max(0, int(y0 - self._filterrad))
+            y1 = (self.axes.viewLim.y1-ymin)/dyintv * numrows
+            iy1 = min(numrows, int(y1 + self._filterrad))
+            if self.origin == 'upper':
+                yslice = slice(numrows-iy1, numrows-iy0)
+            else:
+                yslice = slice(iy0, iy1)
+            ymin_old = ymin
+            ymin = ymin_old + iy0*dyintv/numrows
+            ymax = ymin_old + iy1*dyintv/numrows
+            dyintv = ymax - ymin
+            sy = dyintv/self.axes.viewLim.height
+        else:
+            yslice = slice(0, numrows)
+
+        if xslice != self._oldxslice or yslice != self._oldyslice:
+            self._imcache = None
+            self._oldxslice = xslice
+            self._oldyslice = yslice
+
         if self._imcache is None:
             if self._A.dtype == npy.uint8 and len(self._A.shape) == 3:
-                im = _image.frombyte(self._A, 0)
+                im = _image.frombyte(self._A[xslice,yslice,:], 0)
                 im.is_grayscale = False
             else:
-                x = self.to_rgba(self._A, self._alpha)
-                im = _image.fromarray(x, 0)
+                if self._rgbacache is None:
+                    x = self.to_rgba(self._A, self._alpha)
+                    self._rgbacache = x
+                else:
+                    x = self._rgbacache
+                im = _image.fromarray(x[yslice,xslice], 0)
                 if len(self._A.shape) == 2:
                     im.is_grayscale = self.cmap.is_gray()
                 else:
@@ -150,13 +199,6 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
         im.set_interpolation(self._interpd[self._interpolation])
 
-        xmin, xmax, ymin, ymax = self.get_extent()
-        dxintv = xmax-xmin
-        dyintv = ymax-ymin
-
-        # the viewport scale factor
-        sx = dxintv/self.axes.viewLim.width
-        sy = dyintv/self.axes.viewLim.height
 
         # the viewport translation
         tx = (xmin-self.axes.viewLim.x0)/dxintv * numcols
@@ -165,18 +207,14 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
         widthDisplay *= magnification
         heightDisplay *= magnification
-
         im.apply_translation(tx, ty)
-        im.apply_scaling(sx, sy)
 
         # resize viewport to display
         rx = widthDisplay / numcols
         ry = heightDisplay  / numrows
-        im.apply_scaling(rx, ry)
-
+        im.apply_scaling(rx*sx, ry*sy)
         im.resize(int(widthDisplay+0.5), int(heightDisplay+0.5),
                   norm=self._filternorm, radius=self._filterrad)
-
         return im
 
 
@@ -232,6 +270,9 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         self._A = X
 
         self._imcache =None
+        self._rgbacache = None
+        self._oldxslice = None
+        self._oldyslice = None
 
     def set_array(self, A):
         """
@@ -409,6 +450,12 @@ class NonUniformImage(AxesImage):
         cm.ScalarMappable.set_cmap(self, norm)
 
 class PcolorImage(martist.Artist, cm.ScalarMappable):
+    '''
+    Make a pcolor-style plot with an irregular rectangular grid.
+
+    This uses a variation of the original irregular image code,
+    and it is used by pcolorfast for the corresponding grid type.
+    '''
     def __init__(self, ax,
                  x=None,
                  y=None,
