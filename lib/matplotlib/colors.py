@@ -550,6 +550,7 @@ class ListedColormap(LinearSegmentedColormap):
                 self.colors = [self.colors] * N
                 self.monochrome = True
             elif cbook.iterable(self.colors):
+                self.colors = list(self.colors) # in case it was a tuple
                 if len(self.colors) == 1:
                     self.monochrome = True
                 if len(self.colors) < N:
