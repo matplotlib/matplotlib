@@ -1,3 +1,5 @@
+2008-04-15 Speed up color mapping. - EF
+
 2008-04-12 Speed up zooming and panning of dense images. - EF
 
 2008-04-11 Fix global font rcParam setting after initialization
