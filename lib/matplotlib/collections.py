@@ -77,20 +77,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         artist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
 
-        if facecolors is None: facecolors = mpl.rcParams['patch.facecolor']
-        if edgecolors is None: edgecolors = mpl.rcParams['patch.edgecolor']
-        if linewidths is None: linewidths = (mpl.rcParams['patch.linewidth'],)
-        if antialiaseds is None: antialiaseds = (mpl.rcParams['patch.antialiased'],)
-        self.set_linestyles(linestyles)
-
-        self._facecolors  = _colors.colorConverter.to_rgba_array(facecolors)
-        if edgecolors == 'None':
-            self._edgecolors = self._facecolors
-            linewidths = (0,)
-        else:
-            self._edgecolors = _colors.colorConverter.to_rgba_array(edgecolors)
-        self._linewidths  = self._get_value(linewidths)
-        self._antialiaseds = self._get_value(antialiaseds)
+        self.set_edgecolor(edgecolors)
+        self.set_facecolor(facecolors)
+        self.set_linewidth(linewidths)
+        self.set_linestyle(linestyles)
+        self.set_antialiased(antialiaseds)
 
         self._uniform_offsets = None
         self._offsets = npy.array([], npy.float_)
@@ -117,6 +108,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 else: return val
 
         raise TypeError('val must be a float or nonzero sequence of floats')
+
+    def _get_bool(self, val):
+        try: return (bool(val), )
+        except TypeError:
+            if cbook.iterable(val) and len(val):
+                try: bool(val[0])
+                except TypeError: pass # raise below
+                else: return val
+
+        raise TypeError('val must be a bool or nonzero sequence of them')
+
 
     def get_paths(self):
         raise NotImplementedError
@@ -219,6 +221,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: float or sequence of floats
         """
+        if lw is None: lw = mpl.rcParams['patch.linewidth']
         self._linewidths = self._get_value(lw)
     set_lw = set_linewidth = set_linewidths
 
@@ -263,6 +266,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._linestyles = dashes
     set_dashes = set_linestyle = set_linestyles
 
+    def set_antialiased(self, aa):
+        """
+        Set the antialiasing state for rendering.
+
+        ACCEPTS: Boolean or sequence of booleans
+        """
+        if aa is None:
+            aa = mpl.rcParams['patch.antialiased']
+        self._antialiaseds = self._get_bool(aa)
+    set_antialiaseds = set_antialiased
+
     def set_color(self, c):
         """
         Set both the edgecolor and the facecolor.
@@ -282,6 +296,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
+        if c is None: c = mpl.rcParams['patch.facecolor']
         self._facecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
 
     set_facecolors = set_facecolor
@@ -298,16 +313,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        if c == 'None':
-            self._linewidths = (0.0,)
-            self._edgecolors = npy.array([])
-        else:
-            self._edgecolors = _colors.colorConverter.to_rgba_array(c)
+        if c is None: c = mpl.rcParams['patch.edgecolor']
+        self._edgecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
+
     set_edgecolors = set_edgecolor
 
     def set_alpha(self, alpha):
         """
-        Set the alpha tranpancies of the collection.  Alpha must be
+        Set the alpha tranparencies of the collection.  Alpha must be
         a float.
 
         ACCEPTS: float
@@ -316,9 +329,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
         except TypeError: raise TypeError('alpha must be a float')
         else:
             artist.Artist.set_alpha(self, alpha)
-            if len(self._facecolors):
+            try:
                 self._facecolors[:, 3] = alpha
-            self._edgecolors[:, 3] = alpha
+            except (AttributeError, TypeError, IndexError):
+                pass
+            try:
+                self._edgecolors[:, 3] = alpha
+            except (AttributeError, TypeError, IndexError):
+                pass
 
     def get_linewidths(self):
         return self._linewidths
@@ -334,7 +352,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         from scalar data
         """
         if self._A is None: return
-        if len(self._A.shape)>1:
+        if self._A.ndim > 1:
             raise ValueError('Collections can only map rank 1 arrays')
         if len(self._facecolors):
             self._facecolors = self.to_rgba(self._A, self._alpha)
