@@ -314,7 +314,17 @@ class ColorConverter:
         Accepts a single mpl color spec or a sequence of specs.
         If the sequence is a list or array, the items are changed in place,
         but an array copy is still returned.
+
+        Special case to handle "no color": if c is "none" (case-insensitive),
+        then an empty array will be returned.  Same for an empty list.
         """
+        try:
+            if c.lower() == 'none':
+                return npy.zeros((0,4), dtype=npy.float_)
+        except AttributeError:
+            pass
+        if len(c) == 0:
+            return npy.zeros((0,4), dtype=npy.float_)
         try:
             result = [self.to_rgba(c, alpha)]
         except ValueError:

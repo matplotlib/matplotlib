@@ -4134,7 +4134,7 @@ class Axes(martist.Artist):
         """
         SCATTER(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
             vmin=None, vmax=None, alpha=1.0, linewidths=None,
-            faceted=True, **kwargs)
+            verts=None, **kwargs)
         Supported function signatures:
 
             SCATTER(x, y, **kwargs)
@@ -4187,9 +4187,8 @@ class Axes(martist.Artist):
             angle is the angle of rotation of the symbol
 
         Finally, marker can be (verts, 0), verts is a sequence of (x,y)
-        vertices for a custom scatter symbol.
-
-        s is a size argument in points squared.
+        vertices for a custom scatter symbol.  Alternatively, use the
+        kwarg combination marker=None,verts=verts.
 
         Any or all of x, y, s, and c may be masked arrays, in which
         case all masks will be combined and only unmasked points
@@ -4217,16 +4216,13 @@ class Axes(martist.Artist):
             required by RegularPolyCollection -- see
             collections.RegularPolyCollection for details
 
-         * faceted: if True, will use the default edgecolor for the
-           markers.  If False, will set the edgecolors to be the same
-           as the facecolors.
-           This kwarg is deprecated;
-           please use the edgecolors kwarg instead:
-               shading='flat'    --> edgecolors='None'
-               shading='faceted  --> edgecolors=None
-           edgecolors also can be any mpl color or sequence of colors.
+           Optional kwargs control the Collection properties; in
+           particular:
 
-           Optional kwargs control the Collection properties:
+            edgecolors='none' : to plot faces with no outlines
+            facecolors='none' : to plot unfilled outlines
+
+           Here are the standard descriptions of all the Collection kwargs:
         %(Collection)s
 
         A Collection instance is returned
@@ -4270,8 +4266,12 @@ class Axes(martist.Artist):
         else:
             scales = s
 
-        if faceted: edgecolors = None
-        else: edgecolors = 'None'
+        if faceted:
+            edgecolors = None
+        else:
+            edgecolors = 'none'
+            warnings.warn('''replace "faceted=False" with "edgecolors='none'"''',
+                           DeprecationWarning)   #2008/04/18
 
         sym = None
         symstyle = 0
