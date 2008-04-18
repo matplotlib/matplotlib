@@ -446,7 +446,11 @@ class Colormap:
             lut = (self._lut * 255).astype(npy.uint8)
         else:
             lut = self._lut
-        rgba = lut.take(xa, axis=0)  #  twice as fast as lut[xa]
+        rgba = npy.empty(shape=xa.shape+(4,), dtype=lut.dtype)
+        lut.take(xa, axis=0, mode='clip', out=rgba)
+                    #  twice as fast as lut[xa];
+                    #  using the clip or wrap mode and providing an
+                    #  output array speeds it up a little more.
         if vtype == 'scalar':
             rgba = tuple(rgba[0,:])
         return rgba
