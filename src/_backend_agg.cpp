@@ -1308,7 +1308,7 @@ RendererAgg::write_rgba(const Py::Tuple& args) {
       throw Py::TypeError("Object does not appear to be a 8-bit string path or a Python file-like object");
     }
 
-    PyObject_CallFunction(write_method, "s#", pixBuffer, NUMBYTES);
+    PyObject_CallFunction(write_method, (char *)"s#", pixBuffer, NUMBYTES);
 
     Py_XDECREF(write_method);
   }
