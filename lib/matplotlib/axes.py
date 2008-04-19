@@ -801,7 +801,7 @@ class Axes(martist.Artist):
 
         self.axesFrame = self.get_axes_patch()
         self.axesFrame.set_figure(self.figure)
-        self.axesFrame.set_facecolor(None)
+        self.axesFrame.set_facecolor('none')
         self.axesFrame.set_edgecolor(rcParams['axes.edgecolor'])
         self.axesFrame.set_linewidth(rcParams['axes.linewidth'])
         self.axesFrame.set_transform(self.transAxes)

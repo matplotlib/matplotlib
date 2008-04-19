@@ -50,7 +50,7 @@ class Patch(artist.Artist):
                  linewidth=None,
                  antialiased = None,
                  hatch = None,
-                 fill=1,
+                 fill=True,
                  **kwargs
                  ):
         """
@@ -59,18 +59,16 @@ class Patch(artist.Artist):
         """
         artist.Artist.__init__(self)
 
-        if edgecolor is None: edgecolor = mpl.rcParams['patch.edgecolor']
-        if facecolor is None: facecolor = mpl.rcParams['patch.facecolor']
         if linewidth is None: linewidth = mpl.rcParams['patch.linewidth']
         if antialiased is None: antialiased = mpl.rcParams['patch.antialiased']
 
-        self._edgecolor = edgecolor
-        self._facecolor = facecolor
-        self._linewidth = linewidth
-        self._antialiased = antialiased
-        self._hatch = hatch
-        self._combined_transform = transforms.IdentityTransform()
+        self.set_edgecolor(edgecolor)
+        self.set_facecolor(facecolor)
+        self.set_linewidth(linewidth)
+        self.set_antialiased(antialiased)
+        self.set_hatch(hatch)
         self.fill = fill
+        self._combined_transform = transforms.IdentityTransform()
 
         if len(kwargs): artist.setp(self, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
@@ -117,47 +115,59 @@ class Patch(artist.Artist):
 
     def get_antialiased(self):
         return self._antialiased
+    get_aa = get_antialiased
 
     def get_edgecolor(self):
         return self._edgecolor
+    get_ec = get_edgecolor
 
     def get_facecolor(self):
         return self._facecolor
+    get_fc = get_facecolor
 
     def get_linewidth(self):
         return self._linewidth
+    get_lw = get_linewidth
 
     def set_antialiased(self, aa):
         """
         Set whether to use antialiased rendering
 
-        ACCEPTS: [True | False]
+        ACCEPTS: [True | False]  or None for default
         """
+        if aa is None: aa = mpl.rcParams['patch.antialiased']
         self._antialiased = aa
+    set_aa = set_antialiased
 
     def set_edgecolor(self, color):
         """
         Set the patch edge color
 
-        ACCEPTS: any matplotlib color
+        ACCEPTS: mpl color spec, or None for default, or 'none' for no color
         """
+        if color is None: color = mpl.rcParams['patch.edgecolor']
         self._edgecolor = color
+    set_ec = set_edgecolor
 
     def set_facecolor(self, color):
         """
         Set the patch face color
 
-        ACCEPTS: any matplotlib color
+        ACCEPTS: mpl color spec, or None for default, or 'none' for no color
         """
+        if color is None: color = mpl.rcParams['patch.facecolor']
         self._facecolor = color
+    set_fc = set_facecolor
 
     def set_linewidth(self, w):
         """
         Set the patch linewidth in points
 
-        ACCEPTS: float
+        ACCEPTS: float or None for default
         """
+        if w is None: w = mpl.rcParams['patch.linewidth']
         self._linewidth = w
+    set_lw = set_linewidth
 
     def set_fill(self, b):
         """
@@ -240,44 +250,8 @@ class Patch(artist.Artist):
         """
         raise NotImplementedError('Derived must override')
 
-
     def get_window_extent(self, renderer=None):
         return self.get_path().get_extents(self.get_transform())
-
-
-    def set_lw(self, val):
-        'alias for set_linewidth'
-        self.set_linewidth(val)
-
-
-    def set_ec(self, val):
-        'alias for set_edgecolor'
-        self.set_edgecolor(val)
-
-
-    def set_fc(self, val):
-        'alias for set_facecolor'
-        self.set_facecolor(val)
-
-
-    def get_aa(self):
-        'alias for get_antialiased'
-        return self.get_antialiased()
-
-
-    def get_lw(self):
-        'alias for get_linewidth'
-        return self.get_linewidth()
-
-
-    def get_ec(self):
-        'alias for get_edgecolor'
-        return self.get_edgecolor()
-
-
-    def get_fc(self):
-        'alias for get_facecolor'
-        return self.get_facecolor()
 
 
 class Shadow(Patch):
