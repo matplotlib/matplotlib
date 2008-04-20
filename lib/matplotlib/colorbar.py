@@ -351,7 +351,7 @@ class ColorbarBase(cm.ScalarMappable):
         b = npy.array(locator())
         b, ticks = self._locate(b)
         formatter.set_locs(b)
-        ticklabels = [formatter(t) for t in b]
+        ticklabels = [formatter(t, i) for i, t in enumerate(b)]
         offset_string = formatter.get_offset()
         return ticks, ticklabels, offset_string
 
