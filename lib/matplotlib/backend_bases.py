@@ -1508,6 +1508,8 @@ class NavigationToolbar2:
         'the release mouse button callback in zoom to rect mode'
         if not self._xypress: return
 
+        last_a = []
+        
         for cur_xypress in self._xypress:
             x, y = event.x, event.y
             lastx, lasty, a, ind, lim, trans = cur_xypress
@@ -1526,28 +1528,42 @@ class NavigationToolbar2:
             x, y = inverse.transform_point( (x, y) )
             Xmin,Xmax=a.get_xlim()
             Ymin,Ymax=a.get_ylim()
+            
+            # detect twinx,y axes and avoid double zooming
+            twinx, twiny = False, False
+            if last_a:
+                for la in last_a:
+                    if a._shared_x_axes.joined(a,la): twinx=True
+                    if a._shared_y_axes.joined(a,la): twiny=True
+            last_a.append(a)
 
-            if Xmin < Xmax:
-                if x<lastx:  x0, x1 = x, lastx
-                else: x0, x1 = lastx, x
-                if x0 < Xmin: x0=Xmin
-                if x1 > Xmax: x1=Xmax
+            if twinx:
+                x0, x1 = Xmin, Xmax
             else:
-                if x>lastx:  x0, x1 = x, lastx
-                else: x0, x1 = lastx, x
-                if x0 > Xmin: x0=Xmin
-                if x1 < Xmax: x1=Xmax
+                if Xmin < Xmax:
+                    if x<lastx:  x0, x1 = x, lastx
+                    else: x0, x1 = lastx, x
+                    if x0 < Xmin: x0=Xmin
+                    if x1 > Xmax: x1=Xmax
+                else:
+                    if x>lastx:  x0, x1 = x, lastx
+                    else: x0, x1 = lastx, x
+                    if x0 > Xmin: x0=Xmin
+                    if x1 < Xmax: x1=Xmax
 
-            if Ymin < Ymax:
-                if y<lasty:  y0, y1 = y, lasty
-                else: y0, y1 = lasty, y
-                if y0 < Ymin: y0=Ymin
-                if y1 > Ymax: y1=Ymax
+            if twiny:
+                y0, y1 = Ymin, Ymax
             else:
-                if y>lasty:  y0, y1 = y, lasty
-                else: y0, y1 = lasty, y
-                if y0 > Ymin: y0=Ymin
-                if y1 < Ymax: y1=Ymax
+                if Ymin < Ymax:
+                    if y<lasty:  y0, y1 = y, lasty
+                    else: y0, y1 = lasty, y
+                    if y0 < Ymin: y0=Ymin
+                    if y1 > Ymax: y1=Ymax
+                else:
+                    if y>lasty:  y0, y1 = y, lasty
+                    else: y0, y1 = lasty, y
+                    if y0 > Ymin: y0=Ymin
+                    if y1 < Ymax: y1=Ymax
 
             if self._button_pressed == 1:
                 a.set_xlim((x0, x1))
