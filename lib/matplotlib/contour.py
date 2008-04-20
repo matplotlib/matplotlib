@@ -325,7 +325,8 @@ class ContourLabeler:
         levels = self.label_levels
         fslist = self.fslist
         trans = self.ax.transData
-        _colors = self.label_mappable.to_rgba(self.label_cvalues)
+        _colors = self.label_mappable.to_rgba(self.label_cvalues,
+                                                        alpha=self.alpha)
         fmt = self.fmt
         for icon, lev, color, cvalue, fsize in zip(self.label_indices,
                                           self.label_levels,
@@ -456,7 +457,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                         nchunk = self.nchunk)
                 col = collections.PolyCollection(nlist,
                                      antialiaseds = (self.antialiased,),
-                                     edgecolors= 'None')
+                                     edgecolors= 'none',
+                                     alpha=self.alpha)
                 self.ax.add_collection(col)
                 self.collections.append(col)
 
@@ -469,7 +471,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 nlist = C.trace(level, points = 0)
                 col = collections.LineCollection(nlist,
                                      linewidths = width,
-                                     linestyle = lstyle)
+                                     linestyle = lstyle,
+                                     alpha=self.alpha)
 
                 if level < 0.0 and self.monochrome:
                     ls = mpl.rcParams['contour.negative_linestyle']
@@ -491,8 +494,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                                 self.to_rgba(self.cvalues, alpha=self.alpha)]
         self.tcolors = tcolors
         for color, collection in zip(tcolors, self.collections):
+            collection.set_alpha(self.alpha)
             collection.set_color(color)
         for label, cv in zip(self.cl, self.cl_cvalues):
+            label.set_alpha(self.alpha)
             label.set_color(self.label_mappable.to_rgba(cv))
         # add label colors
         cm.ScalarMappable.changed(self)
@@ -718,11 +723,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         return tlinestyles
 
     def get_alpha(self):
-        '''For compatibility with artists, return self.alpha'''
+        '''returns alpha to be applied to all ContourSet artists'''
         return self.alpha
 
     def set_alpha(self, alpha):
-        '''For compatibility with artists, set self.alpha'''
+        '''sets alpha for all ContourSet artists'''
         self.alpha = alpha
         self.changed()
 
