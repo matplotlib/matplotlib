@@ -845,10 +845,14 @@ class MaxNLocator(Locator):
     Select no more than N intervals at nice locations.
     """
 
-    def __init__(self, nbins = 10, steps = None, trim = True, integer=False):
+    def __init__(self, nbins = 10, steps = None,
+                                trim = True,
+                                integer=False,
+                                symmetric=False):
         self._nbins = int(nbins)
         self._trim = trim
         self._integer = integer
+        self._symmetric = symmetric
         if steps is None:
             self._steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
         else:
@@ -890,6 +894,10 @@ class MaxNLocator(Locator):
 
     def autoscale(self):
         dmin, dmax = self.axis.get_data_interval()
+        if self._symmetric:
+            maxabs = max(abs(dmin), abs(dmax))
+            dmin = -maxabs
+            dmax = maxabs
         dmin, dmax = mtransforms.nonsingular(dmin, dmax, expander = 0.05)
         return npy.take(self.bin_boundaries(dmin, dmax), [0,-1])
 

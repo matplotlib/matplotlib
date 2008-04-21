@@ -1,5 +1,8 @@
+    New kwarg, "symmetric", in MaxNLocator
+    allows one require an axis to be centered on zero.
+
     toolkits must now be imported from mpl_toolkits (not matplotlib.toolkits)
-    
+
 TRANSFORMS REFACTORING
 
     The primary goal of this refactoring was to make it easier to
