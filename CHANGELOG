@@ -1,3 +1,5 @@
+2008-04-20 Add support to MaxNLocator for symmetric axis autoscaling. - EF
+
 2008-04-20 Fix double-zoom bug. - MM
 
 2008-04-15 Speed up color mapping. - EF
