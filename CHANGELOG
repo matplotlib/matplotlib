@@ -1,3 +1,5 @@
+2008-04-22 Use "svg.embed_char_paths" consistently everywhere - MGD
+
 2008-04-20 Add support to MaxNLocator for symmetric axis autoscaling. - EF
 
 2008-04-20 Fix double-zoom bug. - MM
