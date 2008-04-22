@@ -1,3 +1,5 @@
+2008-04-22 Use "svg.embed_char_paths" consistently everywhere - MGD
+
 2008-04-11 Fix global font rcParam setting after initialization
            time. - MGD
 
