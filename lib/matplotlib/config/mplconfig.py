@@ -99,7 +99,7 @@ class MPLConfig(TConfig):
         class svg(TConfig):
             image_inline = T.true
             image_noscale = T.false
-            embed_chars = T.true
+            embed_char_paths = T.true
 
     class lines(TConfig):
         linewidth = T.Float(1.0)
@@ -435,7 +435,7 @@ class RcParamsWrapper(dict):
         'pdf.fonttype' : (self.tconfig.backend.pdf, 'fonttype'),
         'svg.image_inline' : (self.tconfig.backend.svg, 'image_inline'),
         'svg.image_noscale' : (self.tconfig.backend.svg, 'image_noscale'),
-        'svg.embed_char_paths' : (self.tconfig.backend.svg, 'embed_chars'),
+        'svg.embed_char_paths' : (self.tconfig.backend.svg, 'embed_char_paths'),
 
         }
 
