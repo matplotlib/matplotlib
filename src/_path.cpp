@@ -1,3 +1,6 @@
+#include <limits>
+#include <math.h>
+
 #include "agg_py_path_iterator.h"
 #include "agg_py_transforms.h"
 
@@ -997,10 +1000,10 @@ Py::Object _path_module::count_bboxes_overlapping_bbox(const Py::Tuple& args)
                     std::swap(bx0, bx1);
                 if (by1 < by0)
                     std::swap(by0, by1);
-                if (not ((bx1 <= ax0) or
-                         (by1 <= ay0) or
-                         (bx0 >= ax1) or
-                         (by0 >= ay1)))
+                if (!((bx1 <= ax0) ||
+                      (by1 <= ay0) ||
+                      (bx0 >= ax1) ||
+                      (by0 >= ay1)))
                     ++count;
             }
             else
