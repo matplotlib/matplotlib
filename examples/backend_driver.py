@@ -126,11 +126,6 @@ except ImportError:
 
 def drive(backend, python=['python'], switches = []):
     exclude = failbackend.get(backend, [])
-    # Strip off the format specifier, if any.
-    if backend.startswith('cairo'):
-        _backend = 'cairo'
-    else:
-        _backend = backend
 
     # Clear the destination directory for the examples
     path = backend
@@ -163,7 +158,7 @@ def drive(backend, python=['python'], switches = []):
         tmpfile.writelines((
             'from __future__ import division\n',
             'import matplotlib\n',
-            'matplotlib.use("%s")\n' % _backend,
+            'matplotlib.use("%s")\n' % backend,
             'from pylab import savefig\n',
             ))
         for line in file(fname):
