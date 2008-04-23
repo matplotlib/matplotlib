@@ -693,7 +693,10 @@ class Bbox(BboxBase):
 
         if len(xy) == 0:
             return
-        xym = ma.masked_invalid(xy)
+        try:
+            xym = ma.masked_invalid(xy) # maybe add copy=False
+        except AttributeError:   # masked_invalid not exposed in npy 1.04
+            xym = ma.masked_where(~npy.isfinite(xy), xy)
         if (xym.count(axis=1)!=2).all():
             return
 
