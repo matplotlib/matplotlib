@@ -693,6 +693,9 @@ class Bbox(BboxBase):
 
         if len(xy) == 0:
             return
+        xym = ma.masked_invalid(xy)
+        if (xym.count(axis=1)!=2).all():
+            return
 
         points, minpos, changed = update_path_extents(
             Path(xy), None, self._points, self._minpos, ignore)
