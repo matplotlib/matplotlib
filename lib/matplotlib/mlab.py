@@ -87,6 +87,7 @@ import csv, warnings, copy, os
 
 import numpy as npy
 
+
 from matplotlib import nxutils
 from matplotlib import cbook
 
@@ -2143,10 +2144,10 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None):
 
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
-            converterd=None, names=None, missing=None):
+            converterd=None, names=None, missing='', missingd=None):
     """
     Load data from comma/space/tab delimited file in fname into a
-    numpy record array and return the record array.
+    numpy (m)record array and return the record array.
 
     If names is None, a header row is required to automatically assign
     the recarray names.  The headers will be lower cased, spaces will
@@ -2172,13 +2173,24 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     names, if not None, is a list of header names.  In this case, no
     header will be read from the file
 
+    missingd - is a dictionary mapping munged column names to field values
+    which signify that the field does not contain actual data and should
+    be masked, e.g. '0000-00-00' or 'unused'
+
+    missing - a string whose value signals a missing field regardless of
+    the column it appears in, e.g. 'unused'
+
     if no rows are found, None is returned -- see examples/loadrec.py
     """
 
     if converterd is None:
         converterd = dict()
 
+    if missingd is None:
+        missingd = {}
+
     import dateutil.parser
+    import datetime
     parsedate = dateutil.parser.parse
 
 
@@ -2226,13 +2238,27 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     process_skiprows(reader)
 
-    dateparser = dateutil.parser.parse
+    def ismissing(name, val):
+        "Should the value val in column name be masked?"
 
-    def myfloat(x):
-        if x==missing:
-            return npy.nan
+        if val == missing or val == missingd.get(name) or val == '':
+            return True
         else:
-            return float(x)
+            return False
+
+    def with_default_value(func, default):
+        def newfunc(name, val):
+            if ismissing(name, val):
+                return default
+            else:
+                return func(val)
+        return newfunc
+
+    dateparser = dateutil.parser.parse
+    mydateparser = with_default_value(dateparser, datetime.date(1,1,1))
+    myfloat = with_default_value(float, npy.nan)
+    myint = with_default_value(int, -1)
+    mystr = with_default_value(str, '')
 
     def mydate(x):
         # try and return a date object
@@ -2241,16 +2267,16 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
         if d.hour>0 or d.minute>0 or d.second>0:
             raise ValueError('not a date')
         return d.date()
+    mydate = with_default_value(mydate, datetime.date(1,1,1))
 
-
-    def get_func(item, func):
+    def get_func(name, item, func):
         # promote functions in this order
-        funcmap = {int:myfloat, myfloat:mydate, mydate:dateparser, dateparser:str}
-        try: func(item)
+        funcmap = {myint:myfloat, myfloat:mydate, mydate:mydateparser, mydateparser:mystr}
+        try: func(name, item)
         except:
-            if func==str:
+            if func==mystr:
                 raise ValueError('Could not find a working conversion function')
-            else: return get_func(item, funcmap[func])    # recurse
+            else: return get_func(name, item, funcmap[func])    # recurse
         else: return func
 
 
@@ -2266,7 +2292,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
         converters = None
         for i, row in enumerate(reader):
             if i==0:
-                converters = [int]*len(row)
+                converters = [myint]*len(row)
             if checkrows and i>checkrows:
                 break
             #print i, len(names), len(row)
@@ -2276,10 +2302,10 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
                 if func is None:
                     func = converterd.get(name)
                 if func is None:
-                    if not item.strip(): continue
+                    #if not item.strip(): continue
                     func = converters[j]
                     if len(item.strip()):
-                        func = get_func(item, func)
+                        func = get_func(name, item, func)
                 converters[j] = func
         return converters
 
@@ -2307,7 +2333,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             item = itemd.get(item, item)
             cnt = seen.get(item, 0)
             if cnt>0:
-                names.append(item + '%d'%cnt)
+                names.append(item + '_%d'%cnt)
             else:
                 names.append(item)
             seen[item] = cnt+1
@@ -2327,15 +2353,24 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     # iterate over the remaining rows and convert the data to date
     # objects, ints, or floats as approriate
     rows = []
+    rowmasks = []
     for i, row in enumerate(reader):
         if not len(row): continue
         if row[0].startswith(comments): continue
-        rows.append([func(val) for func, val in zip(converters, row)])
+        rows.append([func(name, val) for func, name, val in zip(converters, names, row)])
+        rowmasks.append([ismissing(name, val) for name, val in zip(names, row)])
     fh.close()
 
     if not len(rows):
         return None
-    r = npy.rec.fromrecords(rows, names=names)
+    if npy.any(rowmasks):
+        try: from numpy.ma import mrecords
+        except ImportError:
+            raise RuntimeError('numpy 1.05 or later is required for masked array support')
+        else:
+            r = mrecords.fromrecords(rows, names=names, mask=rowmasks)
+    else:
+        r = npy.rec.fromrecords(rows, names=names)
     return r
 
 
@@ -2529,26 +2564,59 @@ def rec2txt(r, header=None, padding=3, precision=3):
 
 
 
-def rec2csv(r, fname, delimiter=',', formatd=None):
+def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
+            missingd=None):
     """
-    Save the data from numpy record array r into a comma/space/tab
+    Save the data from numpy (m)recarray r into a comma/space/tab
     delimited file.  The record array dtype names will be used for
     column headers.
 
 
     fname - can be a filename or a file handle.  Support for gzipped
     files is automatic, if the filename ends in .gz
+
+    See csv2rec and rec2csv for information about missing and
+    missingd, which can be used to fill in masked values into your CSV
+    file.
     """
+
+    if missingd is None:
+        missingd = dict()
+
+    def with_mask(func):
+        def newfunc(val, mask, mval):
+            if mask:
+                return mval
+            else:
+                return func(val)
+        return newfunc
+
     formatd = get_formatd(r, formatd)
     funcs = []
     for i, name in enumerate(r.dtype.names):
-        funcs.append(csvformat_factory(formatd[name]).tostr)
+        funcs.append(with_mask(csvformat_factory(formatd[name]).tostr))
 
     fh, opened = cbook.to_filehandle(fname, 'w', return_opened=True)
     writer = csv.writer(fh, delimiter=delimiter)
     header = r.dtype.names
     writer.writerow(header)
+
+    # Our list of specials for missing values
+    mvals = []
+    for name in header:
+        mvals.append(missingd.get(name, missing))
+
+    ismasked = False
+    if len(r):
+        row = r[0]
+        ismasked = hasattr(row, '_fieldmask')
+
     for row in r:
-        writer.writerow([func(val) for func, val in zip(funcs, row)])
+        if ismasked:
+            row, rowmask = row.item(), row._fieldmask.item()
+        else:
+            rowmask = [False] * len(row)
+        writer.writerow([func(val, mask, mval) for func, val, mask, mval
+                         in zip(funcs, row, rowmask, mvals)])
     if opened:
         fh.close()

@@ -55,5 +55,27 @@ class TestMlab(unittest.TestCase):
                 print 'repr(dt.type)',repr(dt.type)
             self.failUnless( numpy.all(ra[name] == ra2[name]) ) # should not fail with numpy 1.0.5
 
+    def test_csv2rec_masks(self):
+        # Make sure masked entries survive roundtrip
+
+        csv = """date,age,weight,name
+2007-01-01,12,32.2,"jdh1"
+0000-00-00,0,23,"jdh2"
+2007-01-03,,32.5,"jdh3"
+2007-01-04,12,NaN,"jdh4"
+2007-01-05,-1,NULL,"""
+        missingd = dict(date='0000-00-00', age='-1', weight='NULL')
+        fh = StringIO.StringIO(csv)
+        r1 = mlab.csv2rec(fh, missingd=missingd)
+        fh = StringIO.StringIO()
+        mlab.rec2csv(r1, fh, missingd=missingd)
+        fh.seek(0)
+        r2 = mlab.csv2rec(fh, missingd=missingd)
+
+        self.failUnless( numpy.all( r2['date'].mask   == [0,1,0,0,0] ))
+        self.failUnless( numpy.all( r2['age'].mask    == [0,0,1,0,1] ))
+        self.failUnless( numpy.all( r2['weight'].mask == [0,0,0,0,1] ))
+        self.failUnless( numpy.all( r2['name'].mask   == [0,0,0,0,1] ))
+
 if __name__=='__main__':
     unittest.main()
