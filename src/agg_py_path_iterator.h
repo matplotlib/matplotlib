@@ -6,11 +6,8 @@
 #include "numpy/arrayobject.h"
 #include "agg_path_storage.h"
 #include "MPL_isnan.h"
+#include "mplutils.h"
 #include <queue>
-
-static inline double my_round(double v) {
-  return (double)(int)(v + ((v >= 0.0) ? 0.5 : -0.5));
-}
 
 class PathIterator
 {
@@ -161,8 +158,8 @@ public:
             cmd = m_source->vertex(x, y);
             if (m_quantize && agg::is_vertex(cmd))
             {
-                *x = my_round(*x) + 0.5;
-                *y = my_round(*y) + 0.5;
+                *x = mpl_round(*x) + 0.5;
+                *y = mpl_round(*y) + 0.5;
             }
             return cmd;
         }
@@ -218,8 +215,8 @@ public:
             // Do any quantization if requested
             if (m_quantize && agg::is_vertex(cmd))
             {
-                *x = my_round(*x) + 0.5;
-                *y = my_round(*y) + 0.5;
+                *x = mpl_round(*x) + 0.5;
+                *y = mpl_round(*y) + 0.5;
             }
 
             //if we are starting a new path segment, move to the first point
