@@ -1,3 +1,7 @@
+
+2008-04-24 Make numpy 1.1 and python 2.3 required when importing
+           matplotlib - EF
+
 2008-04-24 Fix compilation issues on VS2003 (Thanks Martin Spacek for
            all the help) - MGD
 
