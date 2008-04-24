@@ -1,3 +1,10 @@
+#include <png.h>
+
+// To remove a gcc warning
+#ifdef _POSIX_C_SOURCE
+#undef _POSIX_C_SOURCE
+#endif
+
 #include "Python.h" //after png.h due to setjmp bug
 #include <string>
 
@@ -5,7 +12,6 @@
 #include <fstream>
 #include <cmath>
 #include <cstdio>
-#include <png.h>
 
 #define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
