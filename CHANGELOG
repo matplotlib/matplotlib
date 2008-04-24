@@ -1,3 +1,6 @@
+2008-04-24 Fix sub/superscripts when the size of the font has been
+           changed - MGD
+
 2008-04-22 Use "svg.embed_char_paths" consistently everywhere - MGD
 
 2008-04-20 Add support to MaxNLocator for symmetric axis autoscaling. - EF
