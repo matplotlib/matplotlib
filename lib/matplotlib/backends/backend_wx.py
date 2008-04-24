@@ -283,13 +283,14 @@ class RendererWx(RendererBase):
         if new_bounds is not None:
             new_bounds = new_bounds.bounds
         gfx_ctx = gc.gfx_ctx
-        if gfx_ctx._lastcliprect != new_bounds:
+        if True or gfx_ctx._lastcliprect != new_bounds:
             gfx_ctx._lastcliprect = new_bounds
             if new_bounds is None:
                 gfx_ctx.ResetClip()
             else:
-                gfx_ctx.Clip(*new_bounds)
-    
+                gfx_ctx.Clip(new_bounds[0], self.height - new_bounds[1] - new_bounds[3],
+                             new_bounds[1], new_bounds[3])
+
     #@staticmethod
     def convert_path(gfx_ctx, tpath):
         wxpath = gfx_ctx.CreatePath()
@@ -306,7 +307,7 @@ class RendererWx(RendererBase):
                 wxpath.CloseSubpath()
         return wxpath
     convert_path = staticmethod(convert_path)
-        
+
     def draw_path(self, gc, path, transform, rgbFace=None):
         gc.select()
         self.handle_clip_rectangle(gc)
@@ -331,7 +332,7 @@ class RendererWx(RendererBase):
         gc.select()
         self.handle_clip_rectangle(gc)
         gfx_ctx = gc.gfx_ctx
-        
+
         font = self.get_wx_font(s, prop)
         color = gc.get_wxcolour(gc.get_rgb())
         gfx_ctx.SetFont(font, color)
@@ -347,7 +348,7 @@ class RendererWx(RendererBase):
             xo = h * math.sin(rads)
             yo = h * math.cos(rads)
             gfx_ctx.DrawRotatedText(s, x - xo, y - yo, rads)
-            
+
         gc.unselect()
 
     def new_gc(self):
@@ -423,7 +424,7 @@ class GraphicsContextWx(GraphicsContextBase):
     wxGraphicsContext that draws to it.  Creating a wxGraphicsContext
     seems to be fairly heavy, so these objects are cached based on the
     bitmap object that is passed in.
-    
+
     The base GraphicsContext stores colors as a RGB tuple on the unit
     interval, eg, (0.5, 0.0, 1.0).  wxPython uses an int interval, but
     since wxPython colour management is rather simple, I have not chosen
@@ -442,7 +443,7 @@ class GraphicsContextWx(GraphicsContextBase):
                   'dashdot':   wx.DOT_DASH,
                   'dotted':    wx.DOT }
     _cache = weakref.WeakKeyDictionary()
-    
+
     def __init__(self, bitmap, renderer):
         GraphicsContextBase.__init__(self)
         #assert self.Ok(), "wxMemoryDC not OK to use"
@@ -455,7 +456,7 @@ class GraphicsContextWx(GraphicsContextBase):
             gfx_ctx = wx.GraphicsContext.Create(dc)
             gfx_ctx._lastcliprect = None
             self._cache[bitmap] = dc, gfx_ctx
-        
+
         self.bitmap = bitmap
         self.dc = dc
         self.gfx_ctx = gfx_ctx
@@ -463,7 +464,7 @@ class GraphicsContextWx(GraphicsContextBase):
         gfx_ctx.SetPen(self._pen)
         self._style = wx.SOLID
         self.renderer = renderer
-        
+
     def select(self):
         """
         Select the current bitmap into this wxDC instance
@@ -720,7 +721,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         self.macros = {} # dict from wx id to seq of macros
 
         self.Printer_Init()
-        
+
     def Destroy(self, *args, **kwargs):
         wx.Panel.Destroy(self, *args, **kwargs)
 
@@ -877,7 +878,7 @@ The current aspect ration will be kept."""
 
     def draw_idle(self, *args, **kwargs):
         pass
-        
+
     def draw(self, repaint=True):
         """
         Render the figure using RendererWx instance renderer, or using a
@@ -891,7 +892,7 @@ The current aspect ration will be kept."""
 
     def flush_events(self):
         wx.Yield()
- 
+
     def _get_imagesave_wildcards(self):
         'return the wildcard string for the filesave dialog'
         default_filetype = self.get_default_filetype()
