@@ -1,3 +1,6 @@
+2008-04-24 Fix compilation issues on VS2003 (Thanks Martin Spacek for
+           all the help) - MGD
+
 2008-04-24 Fix sub/superscripts when the size of the font has been
            changed - MGD
 

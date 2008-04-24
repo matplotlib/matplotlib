@@ -270,8 +270,8 @@ RendererAgg::set_clipbox(const Py::Object& cliprect, R rasterizer) {
 
   double l, b, r, t;
   if (py_convert_bbox(cliprect.ptr(), l, b, r, t)) {
-    rasterizer->clip_box(int(round(l)) + 1, height - int(round(b)),
-			 int(round(r)),     height - int(round(t)));
+    rasterizer->clip_box(int(mpl_round(l)) + 1, height - int(mpl_round(b)),
+			 int(mpl_round(r)),     height - int(mpl_round(t)));
   }
 
   _VERBOSE("RendererAgg::set_clipbox done");
@@ -807,7 +807,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
   if (gc.linewidth != 0.0) {
     double linewidth = gc.linewidth;
     if (!gc.isaa) {
-      linewidth = (linewidth < 0.5) ? 0.5 : round(linewidth);
+      linewidth = (linewidth < 0.5) ? 0.5 : mpl_round(linewidth);
     }
     if (gc.dashes.size() == 0) {
       stroke_t stroke(path);
@@ -1576,7 +1576,7 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args) {
   int newwidth = 0;
   int newheight = 0;
   Py::String data;
-  if (xmin < xmax and ymin < ymax) {
+  if (xmin < xmax && ymin < ymax) {
     // Expand the bounds by 1 pixel on all sides
     xmin = std::max(0, xmin - 1);
     ymin = std::max(0, ymin - 1);

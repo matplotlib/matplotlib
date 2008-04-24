@@ -1,4 +1,4 @@
-/* mplutils.h	-- 
+/* mplutils.h	--
  *
  * $Header$
  * $Log$
@@ -25,6 +25,10 @@ void _VERBOSE(const std::string&);
 
 #undef  MAX
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
+
+inline double mpl_round(double v) {
+  return (double)(int)(v + ((v >= 0.0) ? 0.5 : -0.5));
+}
 
 class Printf
 {
