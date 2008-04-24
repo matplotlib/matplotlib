@@ -1,3 +1,6 @@
+#include <pygobject.h>
+#include <pygtk/pygtk.h>
+
 #include <cstring>
 #include <cerrno>
 #include <cstdio>
@@ -5,10 +8,6 @@
 #include <cmath>
 #include <utility>
 #include <fstream>
-
-
-#include <pygobject.h>
-#include <pygtk/pygtk.h>
 
 #include "agg_basics.h"
 #include "_backend_agg.h"

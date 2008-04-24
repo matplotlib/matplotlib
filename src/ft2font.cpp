@@ -1,6 +1,6 @@
-#include <sstream>
 #include "ft2font.h"
 #include "mplutils.h"
+#include <sstream>
 
 #define FIXED_MAJOR(val) (*((short *) &val+1))
 #define FIXED_MINOR(val) (*((short *) &val+0))

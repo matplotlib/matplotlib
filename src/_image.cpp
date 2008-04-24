@@ -1,11 +1,11 @@
+#include "Python.h" //after png.h due to setjmp bug
+#include <string>
+
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cstdio>
 #include <png.h>
-
-#include "Python.h" //after png.h due to setjmp bug
-#include <string>
 
 #define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
@@ -936,10 +936,10 @@ _image_module::readpng(const Py::Tuple& args) {
       png_byte* ptr = (rgba) ? &(row[x*4]) : &(row[x*3]);
       size_t offset = y*A->strides[0] + x*A->strides[1];
       //if ((y<10)&&(x==10)) std::cout << "r = " << ptr[0] << " " << ptr[0]/255.0 << std::endl;
-      *(float*)(A->data + offset + 0*A->strides[2]) = ptr[0]/255.0;
-      *(float*)(A->data + offset + 1*A->strides[2]) = ptr[1]/255.0;
-      *(float*)(A->data + offset + 2*A->strides[2]) = ptr[2]/255.0;
-      *(float*)(A->data + offset + 3*A->strides[2]) = rgba ? ptr[3]/255.0 : 1.0;
+      *(float*)(A->data + offset + 0*A->strides[2]) = (float)(ptr[0]/255.0f);
+      *(float*)(A->data + offset + 1*A->strides[2]) = (float)(ptr[1]/255.0f);
+      *(float*)(A->data + offset + 2*A->strides[2]) = (float)(ptr[2]/255.0f);
+      *(float*)(A->data + offset + 3*A->strides[2]) = rgba ? (float)(ptr[3]/255.0f) : 1.0f;
     }
   }
 
@@ -1434,7 +1434,7 @@ _image_module::pcolor(const Py::Tuple& args) {
       while(xs2 != xl && xo > xm) {
           xs1 = xs2;
           xs2 = xs1+1;
-          xm = 0.5*(*xs1 + *xs2);
+          xm = 0.5f*(*xs1 + *xs2);
           j++;
       }
       *colstart = j - j_last;
@@ -1447,7 +1447,7 @@ _image_module::pcolor(const Py::Tuple& args) {
       while(ys2 != yl && yo > ym) {
           ys1 = ys2;
           ys2 = ys1+1;
-          ym = 0.5*(*ys1 + *ys2);
+          ym = 0.5f*(*ys1 + *ys2);
           j++;
       }
       *rowstart = j - j_last;

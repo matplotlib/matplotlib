@@ -83,11 +83,11 @@ convert_ttf_to_ps(PyObject* self, PyObject* args, PyObject* kwds) {
   int			fonttype;
   std::vector<int>	glyph_ids;
 
-  static const char *kwlist[] = { 
+  static const char *kwlist[] = {
     "filename", "output", "fonttype", "glyph_ids", NULL };
   if (! PyArg_ParseTupleAndKeywords
-      (args, kwds, 
-       "sO&i|O&:convert_ttf_to_ps", 
+      (args, kwds,
+       "sO&i|O&:convert_ttf_to_ps",
        (char**)kwlist,
        &filename,
        fileobject_to_PythonFileWriter,
@@ -96,9 +96,9 @@ convert_ttf_to_ps(PyObject* self, PyObject* args, PyObject* kwds) {
        pyiterable_to_vector_int,
        &glyph_ids))
     return NULL;
-  
+
   if (fonttype != 3 && fonttype != 42) {
-    PyErr_SetString(PyExc_ValueError, 
+    PyErr_SetString(PyExc_ValueError,
 		    "fonttype must be either 3 (raw Postscript) or 42 "
 		    "(embedded Truetype)");
     return NULL;
@@ -109,7 +109,7 @@ convert_ttf_to_ps(PyObject* self, PyObject* args, PyObject* kwds) {
   } catch (TTException& e) {
     PyErr_SetString(PyExc_RuntimeError, e.getMessage());
     return NULL;
-  } catch (PythonExceptionOccurred& e) {
+  } catch (PythonExceptionOccurred& ) {
     return NULL;
   } catch (...) {
     PyErr_SetString(PyExc_RuntimeError, "Unknown C++ exception");
@@ -144,8 +144,8 @@ py_get_pdf_charprocs(PyObject* self, PyObject* args, PyObject* kwds) {
 
   static const char *kwlist[] = { "filename", "glyph_ids", NULL };
   if (! PyArg_ParseTupleAndKeywords
-      (args, kwds, 
-       "s|O&:convert_ttf_to_ps", 
+      (args, kwds,
+       "s|O&:convert_ttf_to_ps",
        (char **)kwlist,
        &filename,
        pyiterable_to_vector_int,
@@ -163,7 +163,7 @@ py_get_pdf_charprocs(PyObject* self, PyObject* args, PyObject* kwds) {
   } catch (TTException& e) {
     PyErr_SetString(PyExc_RuntimeError, e.getMessage());
     return NULL;
-  } catch (PythonExceptionOccurred& e) {
+  } catch (PythonExceptionOccurred& ) {
     return NULL;
   } catch (...) {
     PyErr_SetString(PyExc_RuntimeError, "Unknown C++ exception");
@@ -174,7 +174,7 @@ py_get_pdf_charprocs(PyObject* self, PyObject* args, PyObject* kwds) {
 }
 
 static PyMethodDef ttconv_methods[] = {
-  {"convert_ttf_to_ps", (PyCFunction)convert_ttf_to_ps, METH_KEYWORDS, 
+  {"convert_ttf_to_ps", (PyCFunction)convert_ttf_to_ps, METH_KEYWORDS,
    "convert_ttf_to_ps(filename, output, fonttype, glyph_ids)\n"
    "\n"
    "Converts the Truetype font into a Type 3 or Type 42 Postscript font, "
@@ -191,7 +191,7 @@ static PyMethodDef ttconv_methods[] = {
    "then all glyphs will be included.  If any of the glyphs specified are "
    "composite glyphs, then the component glyphs will also be included."
   },
-  {"get_pdf_charprocs", (PyCFunction)py_get_pdf_charprocs, METH_KEYWORDS, 
+  {"get_pdf_charprocs", (PyCFunction)py_get_pdf_charprocs, METH_KEYWORDS,
    "get_pdf_charprocs(filename, glyph_ids)\n"
    "\n"
    "Given a Truetype font file, returns a dictionary containing the PDF Type 3\n"
@@ -211,7 +211,7 @@ static PyMethodDef ttconv_methods[] = {
 #define PyMODINIT_FUNC void
 #endif
 PyMODINIT_FUNC
-initttconv(void) 
+initttconv(void)
 {
     PyObject* m;
 
