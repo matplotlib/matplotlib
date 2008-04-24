@@ -1,6 +1,8 @@
 /* A python interface to freetype2 */
 #ifndef _FT2FONT_H
 #define _FT2FONT_H
+#include "CXX/Extensions.hxx"
+#include "CXX/Objects.hxx"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -15,8 +17,6 @@ extern "C" {
 #include FT_TYPE1_TABLES_H
 #include FT_TRUETYPE_TABLES_H
 }
-#include "CXX/Extensions.hxx"
-#include "CXX/Objects.hxx"
 
 
 // the freetype string rendered into a width, height buffer

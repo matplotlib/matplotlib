@@ -1,8 +1,8 @@
-#include <limits>
-#include <math.h>
-
 #include "agg_py_path_iterator.h"
 #include "agg_py_transforms.h"
+
+#include <limits>
+#include <math.h>
 
 #include "CXX/Extensions.hxx"
 

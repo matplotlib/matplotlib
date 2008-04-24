@@ -1,12 +1,22 @@
 /* A rewrite of _backend_agg using PyCXX to handle ref counting, etc..
  */
+#include <png.h>
+
+// To remove a gcc warning
+#ifdef _POSIX_C_SOURCE
+#undef _POSIX_C_SOURCE
+#endif
+
+#include "ft2font.h"
+#include "_image.h"
+#include "_backend_agg.h"
+#include "mplutils.h"
 
 #include <iostream>
 #include <fstream>
 #include <cmath>
 #include <cstdio>
 #include <stdexcept>
-#include <png.h>
 #include <time.h>
 #include <algorithm>
 
@@ -22,11 +32,6 @@
 #include "agg_span_interpolator_linear.h"
 #include "agg_conv_shorten_path.h"
 #include "util/agg_color_conv_rgb8.h"
-
-#include "ft2font.h"
-#include "_image.h"
-#include "_backend_agg.h"
-#include "mplutils.h"
 
 #include "swig_runtime.h"
 #include "MPL_isnan.h"
@@ -295,8 +300,8 @@ RendererAgg::_get_rgba_face(const Py::Object& rgbFace, double alpha) {
 
 SnapData
 SafeSnap::snap (const float& x, const float& y) {
-  xsnap = (int)x + 0.5;
-  ysnap = (int)y + 0.5;
+  xsnap = (int)(x + 0.5f);
+  ysnap = (int)(y + 0.5f);
 
   if ( first || ( (xsnap!=lastxsnap) || (ysnap!=lastysnap) ) ) {
     lastxsnap = xsnap;
@@ -737,8 +742,8 @@ RendererAgg::draw_image(const Py::Tuple& args) {
 
   args.verify_length(4, 6);
 
-  float x = Py::Float(args[0]);
-  float y = Py::Float(args[1]);
+  double x = Py::Float(args[0]);
+  double y = Py::Float(args[1]);
   Image *image = static_cast<Image*>(args[2].ptr());
   Py::Object box_obj = args[3];
   Py::Object clippath;
