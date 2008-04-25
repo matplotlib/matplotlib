@@ -532,21 +532,17 @@ def check_for_pdftops():
         return False
 
 def check_for_numpy():
-    gotit = False
     try:
         import numpy
     except ImportError:
         print_status("numpy", "no")
-        print_message("You must install numpy to build matplotlib.")
-        return False
-
-    major, minor1, minor2 = map(int, numpy.__version__.split('.')[:3])
-    if major<1 or (major==1 and minor1<1):
-        print_status("numpy version", "no")
         print_message("You must install numpy 1.1 or later to build matplotlib.")
-
         return False
-
+    nn = numpy.__version__.split('.')
+    if not (int(nn[0]) >= 1 and int(nn[1]) >= 1):
+        print_message(
+           'numpy 1.1 or later is required; you have %s' % numpy.__version__)
+        return False
     module = Extension('test', [])
     add_numpy_flags(module)
     add_base_flags(module)
@@ -554,16 +550,13 @@ def check_for_numpy():
     print_status("numpy", numpy.__version__)
     if not find_include_file(module.include_dirs, os.path.join("numpy", "arrayobject.h")):
         print_message("Could not find the headers for numpy.  You may need to install the development package.")
+        return False
     return True
 
 def add_numpy_flags(module):
     "Add the modules flags to build extensions which use numpy"
     import numpy
-    # TODO: Remove this try statement when it is no longer needed
-    try:
-        module.include_dirs.append(numpy.get_include())
-    except AttributeError:
-        module.include_dirs.append(numpy.get_numpy_include())
+    module.include_dirs.append(numpy.get_include())
 
 def add_agg_flags(module):
     'Add the module flags to build extensions which use agg'
@@ -1267,10 +1260,3 @@ def build_gdk(ext_modules, packages):
 
     BUILT_GDK = True
 
-def build_subprocess(ext_modules, packages):
-    module = Extension(
-        'subprocess._subprocess',
-        ['src/_subprocess.c', ],
-        )
-    add_base_flags(module)
-    ext_modules.append(module)

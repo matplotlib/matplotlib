@@ -20,28 +20,15 @@ if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 import sys
 major, minor1, minor2, s, tmp = sys.version_info
 
-if major==2 and minor1<=3:
-    # setuptools monkeypatches distutils.core.Distribution to support
-    # package_data
-    try: import setuptools
-    except ImportError:
-        raise SystemExit("""\
-matplotlib requires setuptools for installation with python-2.3.  Visit:
-http://cheeseshop.python.org/pypi/setuptools
-for installation instructions for the proper version of setuptools for your
-system.  If this is your first time upgrading matplotlib with the new
-setuptools requirement, you must delete the old matplotlib install
-directory.""")
-
-if major==2 and minor1<3 or major<2:
-    raise SystemExit("""matplotlib requires Python 2.3 or later.""")
+if major==2 and minor1<4 or major<2:
+    raise SystemExit("""matplotlib requires Python 2.4 or later.""")
 
 import glob
 from distutils.core import setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_ft2font, build_image, build_windowing, build_path, \
      build_contour, build_nxutils, build_traits, build_gdk, \
-     build_subprocess, build_ttconv, print_line, print_status, print_message, \
+     build_ttconv, print_line, print_status, print_message, \
      print_raw, check_for_freetype, check_for_libpng, check_for_gtk, \
      check_for_tk, check_for_wx, check_for_numpy, check_for_qt, check_for_qt4, \
      check_for_cairo, check_provide_traits, check_provide_pytz, \
@@ -100,24 +87,7 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               ]}
 
 if not check_for_numpy():
-    sys.exit()
-
-try: import subprocess
-except ImportError: havesubprocess = False
-else: havesubprocess = True
-
-if havesubprocess and sys.version < '2.4':
-    # Python didn't come with subprocess, so let's make sure it's
-    # not in some Python egg (e.g. an older version of matplotlib)
-    # that may get removed.
-    subprocess_dir = os.path.dirname(subprocess.__file__)
-    if subprocess_dir.endswith('.egg/subprocess'):
-        havesubprocess = False
-
-if not havesubprocess:
-    packages.append('subprocess')
-    if sys.platform == 'win32':
-        build_subprocess(ext_modules, packages)
+    sys.exit(1)
 
 if not check_for_freetype():
     sys.exit(1)
