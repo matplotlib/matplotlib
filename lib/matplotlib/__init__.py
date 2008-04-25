@@ -95,9 +95,7 @@ from rcsetup import defaultParams, validate_backend, validate_toolbar
 from rcsetup import validate_cairo_format
 
 major, minor1, minor2, s, tmp = sys.version_info
-_python23 = major>=2 and minor1>=3
-
-_havemath = _python23
+_python24 = major>=2 and minor1>=4
 
 try:
     import datetime
@@ -111,14 +109,14 @@ else: _havedate = True
 #except ImportError: _have_pkg_resources = False
 #else: _have_pkg_resources = True
 
-if not _python23:
-    raise SystemExit('matplotlib requires Python 2.3 or later')
+if not _python24:
+    raise SystemExit('matplotlib requires Python 2.4 or later')
 
 import numpy
 nn = numpy.__version__.split('.')
 if not (int(nn[0]) >= 1 and int(nn[1]) >= 1):
     raise SystemExit(
-            'numpy >= 1.1 is required; you have %s' % numpy.__version__)
+            'numpy 1.1 or later is required; you have %s' % numpy.__version__)
 
 def is_string_like(obj):
     if hasattr(obj, 'shape'): return 0
