@@ -539,6 +539,14 @@ def check_for_numpy():
         print_status("numpy", "no")
         print_message("You must install numpy to build matplotlib.")
         return False
+
+    major, minor1, minor2 = map(int, numpy.__version__.split('.')[:3])
+    if major<1 or (major==1 and minor1<1):
+        print_status("numpy version", "no")
+        print_message("You must install numpy 1.1 or later to build matplotlib.")
+
+        return False
+
     module = Extension('test', [])
     add_numpy_flags(module)
     add_base_flags(module)
