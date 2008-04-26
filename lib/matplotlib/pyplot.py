@@ -274,9 +274,9 @@ if Figure.savefig.__doc__ is not None:
 
 def ginput(*args, **kwargs):
     """
-    Blocking call to interact with the figure. 
+    Blocking call to interact with the figure.
 
-    This will wait for n clicks from the user and return a list of the 
+    This will wait for n clicks from the user and return a list of the
     coordinates of each click.
 
     If timeout is negative, does not timeout.
@@ -345,8 +345,17 @@ def hold(b=None):
     will be cleared on the next plot command
     """
 
-    gcf().hold(b)
-    gca().hold(b)
+    fig = gcf()
+    ax = fig.gca()
+
+    fig.hold(b)
+    ax.hold(b)
+
+    # b=None toggles the hold state, so let's get get the current hold
+    # state; but should pyplot hold toggle the rc setting - me thinks
+    # not
+    b = ax.ishold()
+
     rc('axes', hold=b)
 
 def ishold():

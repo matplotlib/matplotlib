@@ -10,7 +10,7 @@ DISTFILES = API_CHANGES KNOWN_BUGS INSTALL README TODO license	\
 RELEASE = matplotlib-${VERSION}
 
 
-clean: 
+clean:
 	${PYTHON} setup.py clean;\
 	rm -f *.png *.ps *.eps *.svg *.jpg *.pdf
 	find . -name "_tmp*.py" | xargs rm -f;\
@@ -25,11 +25,12 @@ release: ${DISTFILES}
 	${PYTHON} license.py ${VERSION} license/LICENSE;\
 	${PYTHON} setup.py sdist --formats=gztar,zip;
 
-pyback: 
-	tar cvfz pyback.tar.gz *.py lib src examples/*.py  unit/*.py 
+pyback:
+	tar cvfz pyback.tar.gz *.py lib src examples/*.py  unit/*.py
 
 
-
+build_osx105:
+	CFLAGS="-Os -arch i386 -arch ppc" LDFLAGS="-Os -arch i386 -arch ppc" python setup.py build
 
 
 

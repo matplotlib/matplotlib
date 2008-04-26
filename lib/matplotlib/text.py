@@ -4,7 +4,7 @@ Figure and Axes text
 from __future__ import division
 import math
 
-import numpy as npy
+import numpy as np
 
 from matplotlib import cbook
 from matplotlib import rcParams
@@ -180,8 +180,8 @@ class Text(Artist):
         width, height = 0.0, 0.0
         lines = self._text.split('\n')
 
-        whs = npy.zeros((len(lines), 2))
-        horizLayout = npy.zeros((len(lines), 4))
+        whs = np.zeros((len(lines), 2))
+        horizLayout = np.zeros((len(lines), 4))
 
         # Find full vertical extent of font,
         # including ascenders and descenders:
@@ -208,7 +208,7 @@ class Text(Artist):
         # get the rotation matrix
         M = Affine2D().rotate_deg(self.get_rotation())
 
-        offsetLayout = npy.zeros((len(lines), 2))
+        offsetLayout = np.zeros((len(lines), 2))
         offsetLayout[:] = horizLayout[:, 0:2]
         # now offset the individual text lines within the box
         if len(lines)>1: # do the multiline aligment
@@ -219,9 +219,9 @@ class Text(Artist):
                 offsetLayout[:, 0] += width - horizLayout[:, 2]
 
         # the corners of the unrotated bounding box
-        cornersHoriz = npy.array(
+        cornersHoriz = np.array(
             [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)],
-            npy.float_)
+            np.float_)
         # now rotate the bbox
         cornersRotated = M.transform(cornersHoriz)
 
@@ -658,7 +658,7 @@ class TextWithDash(Text):
     dashlength is the length of the dash in canvas units.
     (default=0.0).
 
-    dashdirection is one of 0 or 1, npy.where 0 draws the dash
+    dashdirection is one of 0 or 1, np.where 0 draws the dash
     after the text and 1 before.
     (default=0).
 
@@ -782,15 +782,15 @@ class TextWithDash(Text):
         dashpush = self.get_dashpush()
 
         angle = get_rotation(dashrotation)
-        theta = npy.pi*(angle/180.0+dashdirection-1)
-        cos_theta, sin_theta = npy.cos(theta), npy.sin(theta)
+        theta = np.pi*(angle/180.0+dashdirection-1)
+        cos_theta, sin_theta = np.cos(theta), np.sin(theta)
 
         transform = self.get_transform()
 
         # Compute the dash end points
         # The 'c' prefix is for canvas coordinates
         cxy = transform.transform_point((dashx, dashy))
-        cd = npy.array([cos_theta, sin_theta])
+        cd = np.array([cos_theta, sin_theta])
         c1 = cxy+dashpush*cd
         c2 = cxy+(dashpush+dashlength)*cd
 
@@ -829,8 +829,8 @@ class TextWithDash(Text):
             if dy > h or dy < -h:
                 dy = h
                 dx = h/tan_theta
-        cwd = npy.array([dx, dy])/2
-        cwd *= 1+dashpad/npy.sqrt(npy.dot(cwd,cwd))
+        cwd = np.array([dx, dy])/2
+        cwd *= 1+dashpad/np.sqrt(np.dot(cwd,cwd))
         cw = c2+(dashdirection*2-1)*cwd
 
         newx, newy = inverse.transform_point(tuple(cw))
@@ -840,7 +840,7 @@ class TextWithDash(Text):
         # I'm not at all sure this is the right way to do this.
         we = Text.get_window_extent(self, renderer=renderer)
         self._twd_window_extent = we.frozen()
-        self._twd_window_extent.update_from_data_xy(npy.array([c1]), False)
+        self._twd_window_extent.update_from_data_xy(np.array([c1]), False)
 
         # Finally, make text align center
         Text.set_horizontalalignment(self, 'center')
@@ -1094,8 +1094,8 @@ class Annotation(Text):
             return x, y
         elif s=='polar':
             theta, r = x, y
-            x = r*npy.cos(theta)
-            y = r*npy.sin(theta)
+            x = r*np.cos(theta)
+            y = r*np.cosmsin(theta)
             trans = self.axes.transData
             return trans.transform_point((x,y))
         elif s=='figure points':

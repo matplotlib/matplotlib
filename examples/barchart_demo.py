@@ -1,24 +1,39 @@
+
 #!/usr/bin/env python
 # a bar plot with errorbars
-from pylab import *
+import numpy as np
+import matplotlib.pyplot as plt
 
 N = 5
 menMeans = (20, 35, 30, 35, 27)
 menStd =   (2, 3, 4, 1, 2)
 
-ind = arange(N)  # the x locations for the groups
+ind = np.arange(N)  # the x locations for the groups
 width = 0.35       # the width of the bars
-p1 = bar(ind, menMeans, width, color='r', yerr=menStd)
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+rects1 = ax.bar(ind, menMeans, width, color='r', yerr=menStd)
 
 womenMeans = (25, 32, 34, 20, 25)
 womenStd =   (3, 5, 2, 3, 3)
-p2 = bar(ind+width, womenMeans, width, color='y', yerr=womenStd)
+rects2 = ax.bar(ind+width, womenMeans, width, color='y', yerr=womenStd)
 
-ylabel('Scores')
-title('Scores by group and gender')
-xticks(ind+width, ('G1', 'G2', 'G3', 'G4', 'G5') )
+# add some
+ax.set_ylabel('Scores')
+ax.set_title('Scores by group and gender')
+ax.set_xticks(ind+width, ('G1', 'G2', 'G3', 'G4', 'G5') )
 
-legend( (p1[0], p2[0]), ('Men', 'Women') )
+ax.legend( (rects1[0], rects2[0]), ('Men', 'Women') )
 
-#savefig('barchart_demo')
-show()
+def autolabel(rects):
+    # attach some text labels
+    for rect in rects:
+        height = rect.get_height()
+        ax.text(rect.get_x()+rect.get_width()/2., 1.05*height, '%d'%int(height),
+                ha='center', va='bottom')
+
+autolabel(rects1)
+autolabel(rects2)
+#fig.savefig('barchart_demo')
+plt.show()
