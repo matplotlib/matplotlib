@@ -169,6 +169,13 @@ class QuiverKey(artist.Artist):
         self.color = kw.pop('color', None)
         self.label = label
         self.labelsep = (kw.pop('labelsep', 0.1) * Q.ax.figure.dpi)
+
+        def on_dpi_change(fig):
+            self.labelsep = (kw.pop('labelsep', 0.1) * fig.dpi)
+
+        Q.ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
+
+
         self.labelpos = kw.pop('labelpos', 'N')
         self.labelcolor = kw.pop('labelcolor', None)
         self.fontproperties = kw.pop('fontproperties', dict())
