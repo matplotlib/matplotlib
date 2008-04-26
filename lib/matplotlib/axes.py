@@ -780,7 +780,10 @@ class Axes(martist.Artist):
 
         self.grid(self._gridOn)
         props = font_manager.FontProperties(size=rcParams['axes.titlesize'])
-        self.titleOffsetTrans = mtransforms.Affine2D().translate(0.0, 10.0)
+
+
+        self.titleOffsetTrans = mtransforms.Affine2D().translate(
+            0.0, 5.0*self.figure.dpi/72.)
         self.title =  mtext.Text(
             x=0.5, y=1.0, text='',
             fontproperties=props,
@@ -811,7 +814,16 @@ class Axes(martist.Artist):
         self.xaxis.set_clip_path(self.axesPatch)
         self.yaxis.set_clip_path(self.axesPatch)
 
-        self.titleOffsetTrans.clear().translate(0.0, 10.0)
+        self.titleOffsetTrans.clear().translate(
+            0.0, 5.0*self.figure.dpi/72.)
+
+        def on_dpi_change(fig):
+            self.titleOffsetTrans.clear().translate(
+                0.0, 5.0*fig.dpi/72.)
+
+        self.figure.callbacks.connect('dpi_changed', on_dpi_change)
+
+
 
     def clear(self):
         'clear the axes'
@@ -839,8 +851,10 @@ class Axes(martist.Artist):
         figure will be cleared on the next plot command
 
         """
-        if b is None: self._hold = not self._hold
-        else: self._hold = b
+        if b is None:
+            self._hold = not self._hold
+        else:
+            self._hold = b
 
     def get_aspect(self):
         return self._aspect

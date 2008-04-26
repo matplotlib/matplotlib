@@ -1,7 +1,7 @@
 """
 Figure class -- add docstring here!
 """
-import numpy as npy
+import numpy as np
 import time
 
 import artist
@@ -19,6 +19,8 @@ from legend import Legend
 from transforms import Affine2D, Bbox, BboxTransformTo, TransformedBbox
 from projections import projection_factory, get_projection_names, \
     get_projection_class
+
+import matplotlib.cbook as cbook
 
 class SubplotParams:
     """
@@ -176,6 +178,13 @@ class BlockingMouseInput(object):
 
 class Figure(Artist):
 
+    """
+    The Figure instance supports callbacks through a callbacks
+    attribute which is a cbook.CallbackRegistry instance.  The events
+    you can connect to are 'dpi_changed', and the callback will be
+    called with func(fig) where fig is the Figure instance
+    """
+
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
 
@@ -194,6 +203,8 @@ class Figure(Artist):
         subplotpars is a SubplotParams instance, defaults to rc
         """
         Artist.__init__(self)
+
+        self.callbacks = cbook.CallbackRegistry(('dpi_changed', ))
 
         if figsize is None  : figsize   = rcParams['figure.figsize']
         if dpi is None      : dpi       = rcParams['figure.dpi']
@@ -236,6 +247,7 @@ class Figure(Artist):
     def _set_dpi(self, dpi):
         self._dpi = dpi
         self.dpi_scale_trans.clear().scale(dpi, dpi)
+        self.callbacks.process('dpi_changed', self)
     dpi = property(_get_dpi, _set_dpi)
 
     def enable_auto_layout(self, setting=True):
@@ -255,7 +267,7 @@ class Figure(Artist):
         rotation: the rotation of the xtick labels
         ha : the horizontal alignment of the xticklabels
         """
-        allsubplots = npy.alltrue([hasattr(ax, 'is_last_row') for ax in self.axes])
+        allsubplots = np.alltrue([hasattr(ax, 'is_last_row') for ax in self.axes])
         if len(self.axes)==1:
             for label in ax.get_xticklabels():
                 label.set_ha(ha)
@@ -662,6 +674,9 @@ class Figure(Artist):
         """
         Clear the figure
         """
+
+        self.callbacks = cbook.CallbackRegistry(('dpi_changed', ))
+
         for ax in tuple(self.axes):  # Iterate over the copy.
             ax.cla()
             self.delaxes(ax)         # removes ax from self.axes
@@ -1022,8 +1037,8 @@ def figaspect(arg):
 
     # min/max sizes to respect when autoscaling.  If John likes the idea, they
     # could become rc parameters, for now they're hardwired.
-    figsize_min = npy.array((4.0,2.0)) # min length for width/height
-    figsize_max = npy.array((16.0,16.0)) # max length for width/height
+    figsize_min = np.array((4.0,2.0)) # min length for width/height
+    figsize_max = np.array((16.0,16.0)) # max length for width/height
     #figsize_min = rcParams['figure.figsize_min']
     #figsize_max = rcParams['figure.figsize_max']
 
@@ -1038,7 +1053,7 @@ def figaspect(arg):
     fig_height = rcParams['figure.figsize'][1]
 
     # New size for the figure, keeping the aspect ratio of the caller
-    newsize = npy.array((fig_height/arr_ratio,fig_height))
+    newsize = np.array((fig_height/arr_ratio,fig_height))
 
     # Sanity checks, don't drop either dimension below figsize_min
     newsize /= min(1.0,*(newsize/figsize_min))
@@ -1048,7 +1063,7 @@ def figaspect(arg):
 
     # Finally, if we have a really funky aspect ratio, break it but respect
     # the min/max dimensions (we don't want figures 10 feet tall!)
-    newsize = npy.clip(newsize,figsize_min,figsize_max)
+    newsize = np.clip(newsize,figsize_min,figsize_max)
     return newsize
 
 artist.kwdocd['Figure'] = artist.kwdoc(Figure)

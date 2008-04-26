@@ -45,8 +45,8 @@ in mind.
 
 For numpy, use:
 
-    import numpy as npy
-    a = npy.array([1,2,3])
+    import numpy as np
+    a = np.array([1,2,3])
 
 
 For masked arrays, use:
