@@ -1088,8 +1088,7 @@ class FigureCanvasBase:
             self.figure.set_facecolor(origfacecolor)
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
-            self.figure.canvas.draw()
-
+            #self.figure.canvas.draw() ## seems superfluous
         return result
 
     def get_default_filetype(self):
@@ -1509,7 +1508,7 @@ class NavigationToolbar2:
         if not self._xypress: return
 
         last_a = []
-        
+
         for cur_xypress in self._xypress:
             x, y = event.x, event.y
             lastx, lasty, a, ind, lim, trans = cur_xypress
@@ -1528,7 +1527,7 @@ class NavigationToolbar2:
             x, y = inverse.transform_point( (x, y) )
             Xmin,Xmax=a.get_xlim()
             Ymin,Ymax=a.get_ylim()
-            
+
             # detect twinx,y axes and avoid double zooming
             twinx, twiny = False, False
             if last_a:

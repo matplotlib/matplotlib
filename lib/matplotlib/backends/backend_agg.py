@@ -59,8 +59,7 @@ class RendererAgg(RendererBase):
         self.width = width
         self.height = height
         if __debug__: verbose.report('RendererAgg.__init__ width=%s, height=%s'%(width, height), 'debug-annoying')
-        self._renderer = _RendererAgg(int(width), int(height), dpi,
-				      debug=False)
+        self._renderer = _RendererAgg(int(width), int(height), dpi, debug=False)
         if __debug__: verbose.report('RendererAgg.__init__ _RendererAgg done',
                                      'debug-annoying')
         self.draw_path = self._renderer.draw_path

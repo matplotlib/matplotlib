@@ -168,20 +168,24 @@ class QuiverKey(artist.Artist):
         self.coord = kw.pop('coordinates', 'axes')
         self.color = kw.pop('color', None)
         self.label = label
-        self.labelsep = (kw.pop('labelsep', 0.1) * Q.ax.figure.dpi)
+        self._labelsep_inches = kw.pop('labelsep', 0.1)
+        self.labelsep = (self._labelsep_inches * Q.ax.figure.dpi)
 
         def on_dpi_change(fig):
-            self.labelsep = (kw.pop('labelsep', 0.1) * fig.dpi)
+            self.labelsep = (self._labelsep_inches * fig.dpi)
+            self._initialized = False # simple brute force update
+                                      # works because _init is called
+                                      # at the start of draw.
 
         Q.ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
-
 
         self.labelpos = kw.pop('labelpos', 'N')
         self.labelcolor = kw.pop('labelcolor', None)
         self.fontproperties = kw.pop('fontproperties', dict())
         self.kw = kw
         _fp = self.fontproperties
-        self.text = text.Text(text=label,
+        #boxprops = dict(facecolor='red')
+        self.text = text.Text(text=label,  #      bbox=boxprops,
                        horizontalalignment=self.halign[self.labelpos],
                        verticalalignment=self.valign[self.labelpos],
                        fontproperties=font_manager.FontProperties(**_fp))
@@ -297,6 +301,16 @@ class Quiver(collections.PolyCollection):
         self.keyvec = None
         self.keytext = None
 
+        def on_dpi_change(fig):
+            self._new_UV = True # vertices depend on width, span
+                                # which in turn depend on dpi
+            self._initialized = False # simple brute force update
+                                      # works because _init is called
+                                      # at the start of draw.
+
+        self.ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
+
+
     __init__.__doc__ = """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
@@ -331,7 +345,8 @@ class Quiver(collections.PolyCollection):
         if not self._initialized:
             trans = self._set_transform()
             ax = self.ax
-            sx, sy = trans.inverted().transform_point((ax.bbox.width, ax.bbox.height))
+            sx, sy = trans.inverted().transform_point(
+                                            (ax.bbox.width, ax.bbox.height))
             self.span = sx
             sn = max(8, min(25, math.sqrt(self.N)))
             if self.width is None:
