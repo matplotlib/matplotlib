@@ -68,13 +68,15 @@ class RendererTemplate(RendererBase):
     def draw_path(self, gc, path, transform, rgbFace=None):
         pass
 
-    # draw_markers is optional, and we get more correct
-    # relative timings by leaving it out.
+    # draw_markers is optional, and we get more correct relative
+    # timings by leaving it out.  backend implementers concerned with
+    # performance will probably want to implement it
 #     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
 #         pass
 
     # draw_path_collection is optional, and we get more correct
-    # relative timings by leaving it out.
+    # relative timings by leaving it out. backend implementers concerned with
+    # performance will probably want to implement it
 #     def draw_path_collection(self, master_transform, cliprect, clippath,
 #                              clippath_trans, paths, all_transforms, offsets,
 #                              offsetTrans, facecolors, edgecolors, linewidths,
@@ -82,7 +84,8 @@ class RendererTemplate(RendererBase):
 #         pass
 
     # draw_quad_mesh is optional, and we get more correct
-    # relative timings by leaving it out.
+    # relative timings by leaving it out.  backend implementers concerned with
+    # performance will probably want to implement it
 #     def draw_quad_mesh(self, master_transform, cliprect, clippath,
 #                        clippath_trans, meshWidth, meshHeight, coordinates,
 #                        offsets, offsetTrans, facecolors, antialiased,
