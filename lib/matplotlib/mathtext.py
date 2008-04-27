@@ -1438,8 +1438,8 @@ class Hlist(List):
         w: specifies a width
         m: is either 'exactly' or 'additional'.
 
-        Thus, hpack(w, exactly) produces a box whose width is exactly w, while
-        hpack (w, additional ) yields a box whose width is the natural width
+        Thus, hpack(w, 'exactly') produces a box whose width is exactly w, while
+        hpack (w, 'additional') yields a box whose width is the natural width
         plus w.  The default values produce a box with the natural width.
         node644, node649"""
         # I don't know why these get reset in TeX.  Shift_amount is pretty
@@ -1502,8 +1502,8 @@ class Vlist(List):
         m: is either 'exactly' or 'additional'.
         l: a maximum height
 
-        Thus, vpack(h, exactly) produces a box whose width is exactly w, while
-        vpack(w, additional) yields a box whose width is the natural width
+        Thus, vpack(h, 'exactly') produces a box whose width is exactly w, while
+        vpack(w, 'additional') yields a box whose width is the natural width
         plus w.  The default values produce a box with the natural width.
         node644, node668"""
         # I don't know why these get reset in TeX.  Shift_amount is pretty
@@ -2678,7 +2678,6 @@ class MathTextParser(object):
     def parse(self, s, dpi = 72, prop = None):
         if prop is None:
             prop = FontProperties()
-
         cacheKey = (s, dpi, hash(prop))
         result = self._cache.get(cacheKey)
         if result is not None:

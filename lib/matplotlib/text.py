@@ -1174,7 +1174,6 @@ class Annotation(Text):
         if self.arrowprops:
             x0, y0 = x, y
             l,b,w,h = self.get_window_extent(renderer).bounds
-            dpi = self.figure.dpi
             r = l+w
             t = b+h
             xc = 0.5*(l+r)
