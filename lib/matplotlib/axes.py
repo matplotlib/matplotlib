@@ -4533,10 +4533,10 @@ class Axes(martist.Artist):
         sy = (ymax-ymin) / ny
         x = (x-xmin)/sx
         y = (y-ymin)/sy
-        ix1 = npy.round(x)
-        iy1 = npy.round(y)
-        ix2 = npy.floor(x)
-        iy2 = npy.floor(y)
+        ix1 = npy.round(x).astype(int)
+        iy1 = npy.round(y).astype(int)
+        ix2 = npy.floor(x).astype(int)
+        iy2 = npy.floor(y).astype(int)
 
         nx1 = nx + 1
         ny1 = ny + 1
