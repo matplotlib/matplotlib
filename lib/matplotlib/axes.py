@@ -4519,14 +4519,13 @@ class Axes(martist.Artist):
             x = npy.log10(x)
         if yscale=='log':
             y = npy.log10(y)
-        xmin = min(x)
-        xmax = max(x)
-        ymin = min(y)
-        ymax = max(y)
+        xmin = npy.amin(x)
+        xmax = npy.amax(x)
+        ymin = npy.amin(y)
+        ymax = npy.amax(y)
         # In the x-direction, the hexagons exactly cover the region from
         # xmin to xmax. Need some padding to avoid roundoff errors.
-        width = xmax - xmin
-        padding = 1.e-9 * width
+        padding = 1.e-9 * (xmax - xmin)
         xmin -= padding
         xmax += padding
         sx = (xmax-xmin) / nx
@@ -4551,21 +4550,22 @@ class Axes(martist.Artist):
 
         d1 = (x-ix1)**2 + 3.0 * (y-iy1)**2
         d2 = (x-ix2-0.5)**2 + 3.0 * (y-iy2-0.5)**2
+        bdist = (d1<d2)
 
         for i in xrange(len(x)):
-            if d1[i] < d2[i]:
+            if bdist[i]:
                 lattice1[ix1[i], iy1[i]]+=1
             else:
                 lattice2[ix2[i], iy2[i]]+=1
 
         px = xmin + sx * npy.array([ 0.5, 0.5, 0.0, -0.5, -0.5,  0.0])
-        py = ymin + sy * npy.array([-0.5, 0.5 ,1.0,  0.5, -0.5, -1.0]) / 3.0
+        py = ymin + sy * npy.array([-0.5, 0.5, 1.0,  0.5, -0.5, -1.0]) / 3.0
 
         polygons = npy.zeros((6, n, 2), float)
         polygons[:,:nx1*ny1,0] = npy.repeat(npy.arange(nx1), ny1)
-        polygons[:,:nx1*ny1,1] = npy.array(range(ny1) * nx1)
+        polygons[:,:nx1*ny1,1] = npy.tile(npy.arange(ny1), nx1)
         polygons[:,nx1*ny1:,0] = npy.repeat(npy.arange(nx2) + 0.5, ny2)
-        polygons[:,nx1*ny1:,1] = npy.array(range(ny2) * nx2) + 0.5
+        polygons[:,nx1*ny1:,1] = npy.tile(npy.arange(ny2), nx2) + 0.5
 
         polygons = npy.transpose(polygons, axes=[1,0,2])
         polygons[:,:,0] *= sx
