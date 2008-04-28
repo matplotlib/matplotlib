@@ -469,7 +469,7 @@ grestore
     def draw_path(self, gc, path, transform, rgbFace=None):
         """
         Draws a Path instance using the given affine transform.
-	"""
+        """
         ps = self._convert_path(path, transform)
         self._draw_ps(ps, gc, rgbFace)
 
@@ -744,10 +744,14 @@ grestore
 """ % locals()
         self._pswriter.write(ps)
 
-    def _draw_ps(self, ps, gc, rgbFace, fill=True, stroke=True, command=None):
+    def _draw_ps_oldstyle(self, ps, gc, rgbFace, fill=True, stroke=True, command=None):
         """
         Emit the PostScript sniplet 'ps' with all the attributes from 'gc'
         applied.  'ps' must consist of PostScript commands to construct a path.
+
+        This is the JDH-modified version of the original.  It is kept
+        here now to facilitate checking the version below until we converge.
+
         """
         # local variable eliminates all repeated attribute lookups
         write = self._pswriter.write
@@ -777,15 +781,6 @@ grestore
             id = self._get_clip_path(clippath, clippath_trans)
             write('gsave\n%s\n' % id)
 
-        needwrap = not (clippath or cliprect)
-        if needwrap:
-            # we need to make sure that there is at least 1
-            # save/grestore around each ps write so we'll force it if
-            # we're not getting one from the cliprecot or clippath.
-            # hackish, yes
-            write('gsave\n')
-
-
         # Jochen, is the strip necessary? - this could be a honking big string
         write(ps.strip())
         write("\n")
@@ -809,8 +804,66 @@ grestore
             write("grestore\n")
         if cliprect:
             write("grestore\n")
-        if needwrap:
-            write('grestore\n')
+
+
+    def _draw_ps(self, ps, gc, rgbFace, fill=True, stroke=True, command=None):
+        """
+        Emit the PostScript sniplet 'ps' with all the attributes from 'gc'
+        applied.  'ps' must consist of PostScript commands to construct a path.
+
+        The fill and/or stroke kwargs can be set to False if the
+        'ps' string already includes filling and/or stroking, in
+        which case _draw_ps is just supplying properties and
+        clipping.
+        """
+        # local variable eliminates all repeated attribute lookups
+        write = self._pswriter.write
+        if debugPS and command:
+            write("% "+command+"\n")
+        write('gsave\n')
+        stroke = (stroke and gc.get_linewidth() > 0.0 and
+                  (len(gc.get_rgb()) <= 3 or gc.get_rgb()[3] != 0.0))
+        fill = (fill and rgbFace is not None and
+                (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
+
+        if stroke:
+            self.set_linewidth(gc.get_linewidth())
+            jint = gc.get_joinstyle()
+            self.set_linejoin(jint)
+            cint = gc.get_capstyle()
+            self.set_linecap(cint)
+            self.set_linedash(*gc.get_dashes())
+            self.set_color(*gc.get_rgb()[:3])
+
+        cliprect = gc.get_clip_rectangle()
+        if cliprect:
+            x,y,w,h=cliprect.bounds
+            write('%1.4g %1.4g %1.4g %1.4g clipbox\n' % (w,h,x,y))
+        clippath, clippath_trans = gc.get_clip_path()
+        if clippath:
+            id = self._get_clip_path(clippath, clippath_trans)
+            write('%s\n' % id)
+
+        # Jochen, is the strip necessary? - this could be a honking big string
+        write(ps.strip())
+        write("\n")
+
+        hatch = gc.get_hatch()
+        if hatch:
+            self.set_hatch(hatch)
+
+
+        if fill:
+            self.set_color(store=0, *rgbFace[:3])
+            if stroke:
+                write("gsave\nfill\ngrestore\n")
+            else:
+                write("fill\n")
+        if stroke:
+            write("stroke\n")
+
+        write("grestore\n")
+
 
 
 class GraphicsContextPS(GraphicsContextBase):
