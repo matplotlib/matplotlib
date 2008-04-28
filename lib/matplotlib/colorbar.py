@@ -667,36 +667,3 @@ make_axes.__doc__ ='''
     '''  % make_axes_kw_doc
 
 
-'''
-The following does not work correctly.  The problem seems to be that
-the transforms work right only when fig.add_axes(rect) is used to
-generate the axes, not when the axes object is generated first and
-then fig.add_axes(ax) is called.  I don't understand this. - EF
-
-class ColorbarAxes(axes.Axes):
-    def __init__(self, parent, **kw):
-        orientation = kw.setdefault('orientation', 'vertical')
-        fraction = kw.pop('fraction', 0.15)
-        shrink = kw.pop('shrink', 1.0)
-        aspect = kw.pop('aspect', 20)
-        self.cbkw = kw
-        pb = transforms.PBox(parent.get_position())
-        if orientation == 'vertical':
-            pb1, pbcb = pb.splitx(1.0-fraction)
-            pbcb.shrink(1.0, shrink).anchor('C')
-            anchor = (0.3, 0.5)
-            panchor = (0.8, 0.5)
-        else:
-            pbcb, pb1 = pb.splity(fraction)
-            pbcb.shrink(shrink, 1.0).anchor('C')
-            aspect = 1.0/aspect
-            anchor = (0.5, 0.2)
-            panchor = (0.5, 0.8)
-        parent.set_position(pb1)
-        parent.set_anchor(panchor)
-        fig = parent.get_figure()
-        axes.Axes.__init__(self, fig, pbcb)
-        fig.add_axes(self)
-        self.set_aspect(aspect, anchor=anchor, adjustable='box')
-
-'''
