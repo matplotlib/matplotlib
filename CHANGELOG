@@ -1,3 +1,6 @@
+2008-04-27 Applied patch by Michiel de Hoon to add hexbin
+           axes method and pyplot function - EF
+
 2008-04-25 Enforce python >= 2.4; remove subprocess build - EF
 
 2008-04-25 Enforce the numpy requirement at build time - JDH
