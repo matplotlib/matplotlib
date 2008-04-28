@@ -777,6 +777,15 @@ grestore
             id = self._get_clip_path(clippath, clippath_trans)
             write('gsave\n%s\n' % id)
 
+        needwrap = not (clippath or cliprect)
+        if needwrap:
+            # we need to make sure that there is at least 1
+            # save/grestore around each ps write so we'll force it if
+            # we're not getting one from the cliprecot or clippath.
+            # hackish, yes
+            write('gsave\n')
+
+
         # Jochen, is the strip necessary? - this could be a honking big string
         write(ps.strip())
         write("\n")
@@ -800,6 +809,8 @@ grestore
             write("grestore\n")
         if cliprect:
             write("grestore\n")
+        if needwrap:
+            write('grestore\n')
 
 
 class GraphicsContextPS(GraphicsContextBase):
