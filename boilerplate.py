@@ -99,6 +99,7 @@ _misccommands = (
 cmappable = {
     'contour' : 'if ret._A is not None: gci._current = ret',
     'contourf': 'if ret._A is not None: gci._current = ret',
+    'hexbin' : 'gci._current = ret',
     'scatter' : 'gci._current = ret',
     'pcolor'  : 'gci._current = ret',
     'pcolormesh'  : 'gci._current = ret',
