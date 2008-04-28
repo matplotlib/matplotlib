@@ -11,10 +11,7 @@ plot(t, s, '-', lw=2)
 
 xlabel('time (s)')
 ylabel('voltage (mV)')
-title('A sine wave with a gap of NaN\'s between 0.4 and 0.6')
+title('A sine wave with a gap of NaNs between 0.4 and 0.6')
 grid(True)
-
-#savefig('simple_plot.png')
-savefig('nan_test')
 
 show()
