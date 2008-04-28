@@ -4417,6 +4417,229 @@ class Axes(martist.Artist):
 
     scatter.__doc__ = cbook.dedent(scatter.__doc__) % martist.kwdocd
 
+    def hexbin(self, x, y, gridsize = 100, bins = None,
+                    xscale = 'linear', yscale = 'linear',
+                    cmap=None, norm=None, vmin=None, vmax=None,
+                    alpha=1.0, linewidths=None, edgecolors='none',
+                    **kwargs):
+        """
+        HEXBIN(x, y, gridsize = 100, bins = None,
+            xscale = 'linear', yscale = 'linear',
+            cmap=None, norm=None, vmin=None, vmax=None,
+            alpha=1.0, linewidths=None, edgecolors='none'
+            **kwargs)
+
+        Make a hexagonal binning plot of x versus y, where x, y are 1-D
+        sequences of the same length, N.
+
+        Either or both of x and y may be masked arrays, in which case all
+        masks will be combined and only unmasked points will be plotted.
+
+          * gridsize=100 : The number of hexagons in the x-direction. The
+                           corresponding number of hexagons in the
+                           y-direction is chosen such that the hexagons are
+                           approximately regular.
+                           Alternatively, gridsize can be a tuple with two
+                           elements specifying the number of hexagons in
+                           the x-direction and the y-direction.
+
+          * bins=None      : If None, no binning is applied; the color of
+                             each hexagon directly corresponds to its count
+                             value.
+            bins='log'     : Use a logarithmic scale for the color map.
+                             Internally, log(count+1) is used to determine
+                             the hexagon color.
+            bins=<integer> : Divide the counts in the specified number of
+                             bins, and color the hexagons accordingly
+            bins=<a sequence of values> :
+                             The values of the lower bound of the bins
+                             to be used.
+
+          * xscale = 'linear' | 'log':
+                             Use a logarithmic scale on the horizontal axis.
+
+          * yscale = 'linear' | 'log':
+                             Use a logarithmic scale on the vertical axis.
+
+        Other keyword args; the color mapping and normalization arguments.
+
+          * cmap = cm.jet : a colors.Colormap instance from cm.
+            defaults to rc image.cmap
+
+          * norm = colors.Normalize() : colors.Normalize instance
+            is used to scale luminance data to 0,1.
+
+          * vmin=None and vmax=None : vmin and vmax are used in conjunction
+            with norm to normalize luminance data.  If either are None, the
+            min and max of the color array C is used.  Note if you pass a norm
+            instance, your settings for vmin and vmax will be ignored
+
+          * alpha =1.0 : the alpha value for the patches
+
+          * linewidths, if None, defaults to (lines.linewidth,).  Note
+            that this is a tuple, and if you set the linewidths
+            argument you must set it as a sequence of floats, as
+            required by RegularPolyCollection -- see
+            collections.RegularPolyCollection for details
+
+           Optional kwargs control the Collection properties; in
+           particular:
+
+            edgecolors='none'    : Draw the edges in the same color
+                                   as the fill color. This is the default, as
+                                   it avoids unsightly unpainted pixels
+                                   between the hexagons.
+            edgecolors=None      : Draw the outlines in the default color.
+            edgecolors=<a matplotlib color arg or sequence of rgba tuples>
+                                 : Draw the outlines in the specified color.
+
+           Here are the standard descriptions of all the Collection kwargs:
+        %(Collection)s
+
+        The return value is a PolyCollection instance; use get_array() on
+        this PolyCollection to get the counts in each hexagon.
+        """
+
+        if not self._hold: self.cla()
+
+        self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
+
+        x, y = delete_masked_points(x, y)
+
+        # Set the size of the hexagon grid
+        if iterable(gridsize):
+            nx, ny = gridsize
+        else:
+            nx = gridsize
+            ny = int(nx/math.sqrt(3))
+        # Count the number of data in each hexagon
+        x = npy.array(x, float)
+        y = npy.array(y, float)
+        if xscale=='log':
+            x = npy.log(x)
+        if yscale=='log':
+            y = npy.log(y)
+        xmin = min(x)
+        xmax = max(x)
+        ymin = min(y)
+        ymax = max(y)
+        # In the x-direction, the hexagons exactly cover the region from
+        # xmin to xmax. Need some padding to avoid roundoff errors.
+        width = xmax - xmin
+        padding = 1.e-9 * width
+        xmin -= padding
+        xmax += padding
+        sx = (xmax-xmin) / nx
+        sy = (ymax-ymin) / ny
+        x = (x-xmin)/sx
+        y = (y-ymin)/sy
+        ix1 = npy.round(x)
+        iy1 = npy.round(y)
+        ix2 = npy.floor(x)
+        iy2 = npy.floor(y)
+
+        nx1 = nx + 1
+        ny1 = ny + 1
+        nx2 = nx
+        ny2 = ny
+        n = nx1*ny1+nx2*ny2
+        counts = npy.zeros(n)
+        lattice1 = counts[:nx1*ny1]
+        lattice2 = counts[nx1*ny1:]
+        lattice1.shape = (nx1,ny1)
+        lattice2.shape = (nx2,ny2)
+
+        d1 = (x-ix1)**2 + 3.0 * (y-iy1)**2
+        d2 = (x-ix2-0.5)**2 + 3.0 * (y-iy2-0.5)**2
+
+        for i in xrange(len(x)):
+            if d1[i] < d2[i]:
+                lattice1[ix1[i], iy1[i]]+=1
+            else:
+                lattice2[ix2[i], iy2[i]]+=1
+
+        px = xmin + sx * npy.array([ 0.5, 0.5, 0.0, -0.5, -0.5,  0.0])
+        py = ymin + sy * npy.array([-0.5, 0.5 ,1.0,  0.5, -0.5, -1.0]) / 3.0
+
+        polygons = npy.zeros((6, n, 2), float)
+        polygons[:,:nx1*ny1,0] = npy.repeat(npy.arange(nx1), ny1)
+        polygons[:,:nx1*ny1,1] = npy.array(range(ny1) * nx1)
+        polygons[:,nx1*ny1:,0] = npy.repeat(npy.arange(nx2) + 0.5, ny2)
+        polygons[:,nx1*ny1:,1] = npy.array(range(ny2) * nx2) + 0.5
+
+        polygons = npy.transpose(polygons, axes=[1,0,2])
+        polygons[:,:,0] *= sx
+        polygons[:,:,1] *= sy
+        polygons[:,:,0] += px
+        polygons[:,:,1] += py
+
+        if xscale=='log':
+            polygons[:,:,0] = npy.exp(polygons[:,:,0])
+            xmin = math.exp(xmin)
+            xmax = math.exp(xmax)
+            self.set_xscale('log')
+        if yscale=='log':
+            polygons[:,:,1] = npy.exp(polygons[:,:,1])
+            ymin = math.exp(ymin)
+            ymax = math.exp(ymax)
+            self.set_yscale('log')
+
+        class HexagonBinCollection(mcoll.PolyCollection):
+            """A HexagonBinCollection is a PolyCollection where the edge
+               colors are always kept equal to the fill colors"""
+            def update_scalarmappable(self):
+                mcoll.PolyCollection.update_scalarmappable(self)
+                self._edgecolors = self._facecolors
+
+        if edgecolors=='none':
+            collection = HexagonBinCollection(
+                        polygons,
+                        linewidths = linewidths,
+                        transOffset = self.transData,
+                        )
+        else:
+            collection = mcoll.PolyCollection(
+                        polygons,
+                        edgecolors = edgecolors,
+                        linewidths = linewidths,
+                        transOffset = self.transData,
+                        )
+
+        # Transform the counts if needed
+        if bins=='log':
+            counts = npy.log(counts+1)
+        elif bins!=None:
+            if not iterable(bins):
+                minimum, maximum = min(counts), max(counts)
+                bins-=1 # one less edge than bins
+                bins = minimum + (maximum-minimum)*npy.arange(bins)/bins
+            bins = npy.sort(bins)
+            counts = bins.searchsorted(counts)
+
+        if norm is not None: assert(isinstance(norm, mcolors.Normalize))
+        if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
+        collection.set_array(counts)
+        collection.set_cmap(cmap)
+        collection.set_norm(norm)
+        collection.set_alpha(alpha)
+        collection.update(kwargs)
+
+        if vmin is not None or vmax is not None:
+            collection.set_clim(vmin, vmax)
+        else:
+            collection.autoscale_None()
+
+        corners = ((xmin, ymin), (xmax, ymax))
+        self.update_datalim( corners)
+        self.autoscale_view()
+
+        # add the collection last
+        self.add_collection(collection)
+        return collection
+
+    hexbin.__doc__ = cbook.dedent(hexbin.__doc__) % martist.kwdocd
+
+
     def arrow(self, x, y, dx, dy, **kwargs):
         """
         Draws arrow on specified axis from (x,y) to (x+dx,y+dy).

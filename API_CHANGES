@@ -1,3 +1,7 @@
+    New axes method and pyplot function, hexbin, is an alternative
+    to scatter for large datasets.  It makes something like a
+    pcolor of a 2-D histogram, but uses hexagonal bins.
+
     New kwarg, "symmetric", in MaxNLocator
     allows one require an axis to be centered on zero.
 

@@ -63,6 +63,7 @@ _plotcommands = (
     'csd',
     'errorbar',
     'fill',
+    'hexbin',
     'hist',
     'hlines',
     'imshow',
