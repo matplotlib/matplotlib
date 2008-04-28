@@ -49,6 +49,7 @@ files = (
     'fill_demo.py',
     'finance_demo.py',
     'fonts_demo_kw.py',
+    'hexbin_demo.py',
     'histogram_demo.py',
     'hline_demo.py',
     'image_demo.py',

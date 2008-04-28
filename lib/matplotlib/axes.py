@@ -4447,7 +4447,7 @@ class Axes(martist.Artist):
                              each hexagon directly corresponds to its count
                              value.
             bins='log'     : Use a logarithmic scale for the color map.
-                             Internally, log(count+1) is used to determine
+                             Internally, log10(count+1) is used to determine
                              the hexagon color.
             bins=<integer> : Divide the counts in the specified number of
                              bins, and color the hexagons accordingly
@@ -4456,10 +4456,10 @@ class Axes(martist.Artist):
                              to be used.
 
           * xscale = 'linear' | 'log':
-                             Use a logarithmic scale on the horizontal axis.
+                             Use a log10 scale on the horizontal axis.
 
           * yscale = 'linear' | 'log':
-                             Use a logarithmic scale on the vertical axis.
+                             Use a log10 scale on the vertical axis.
 
         Other keyword args; the color mapping and normalization arguments.
 
@@ -4516,9 +4516,9 @@ class Axes(martist.Artist):
         x = npy.array(x, float)
         y = npy.array(y, float)
         if xscale=='log':
-            x = npy.log(x)
+            x = npy.log10(x)
         if yscale=='log':
-            y = npy.log(y)
+            y = npy.log10(y)
         xmin = min(x)
         xmax = max(x)
         ymin = min(y)
@@ -4574,14 +4574,14 @@ class Axes(martist.Artist):
         polygons[:,:,1] += py
 
         if xscale=='log':
-            polygons[:,:,0] = npy.exp(polygons[:,:,0])
-            xmin = math.exp(xmin)
-            xmax = math.exp(xmax)
+            polygons[:,:,0] = 10**(polygons[:,:,0])
+            xmin = 10**xmin
+            xmax = 10**xmax
             self.set_xscale('log')
         if yscale=='log':
-            polygons[:,:,1] = npy.exp(polygons[:,:,1])
-            ymin = math.exp(ymin)
-            ymax = math.exp(ymax)
+            polygons[:,:,1] = 10**(polygons[:,:,1])
+            ymin = 10**ymin
+            ymax = 10**ymax
             self.set_yscale('log')
 
         class HexagonBinCollection(mcoll.PolyCollection):
@@ -4607,7 +4607,7 @@ class Axes(martist.Artist):
 
         # Transform the counts if needed
         if bins=='log':
-            counts = npy.log(counts+1)
+            counts = npy.log10(counts+1)
         elif bins!=None:
             if not iterable(bins):
                 minimum, maximum = min(counts), max(counts)
