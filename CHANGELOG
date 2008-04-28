@@ -1,3 +1,6 @@
+2008-04-28 Fix bug in SVG text with Mozilla-based viewers (the symbol
+           tag is not supported) - MGD
+
 2008-04-24 Fix sub/superscripts when the size of the font has been
            changed - MGD
 
