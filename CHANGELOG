@@ -1,3 +1,6 @@
+2008-04-28 Fix bug in SVG text with Mozilla-based viewers (the symbol
+           tag is not supported) - MGD
+
 2008-04-27 Applied patch by Michiel de Hoon to add hexbin
            axes method and pyplot function - EF
 
@@ -11,6 +14,7 @@
 2008-04-24 Fix compilation issues on VS2003 (Thanks Martin Spacek for
            all the help) - MGD
 
+>>>>>>> .merge-right.r5090
 2008-04-24 Fix sub/superscripts when the size of the font has been
            changed - MGD
 
