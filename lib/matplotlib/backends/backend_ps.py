@@ -854,10 +854,12 @@ grestore
 
 
         if fill:
-            self.set_color(store=0, *rgbFace[:3])
             if stroke:
-                write("gsave\nfill\ngrestore\n")
+                write("gsave\n")
+                self.set_color(store=0, *rgbFace[:3])
+                write("fill\ngrestore\n")
             else:
+                self.set_color(store=0, *rgbFace[:3])
                 write("fill\n")
         if stroke:
             write("stroke\n")
