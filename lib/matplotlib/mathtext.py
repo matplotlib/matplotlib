@@ -651,12 +651,12 @@ class TruetypeFonts(Fonts):
             # Some fonts don't store the xHeight, so we do a poor man's xHeight
             metrics = self.get_metrics(font, 'it', 'x', fontsize, dpi)
             return metrics.iceberg
-        xHeight = (pclt['xHeight'] / 64.0) * (fontsize / 12.0)
+        xHeight = (pclt['xHeight'] / 64.0) * (fontsize / 12.0) * (dpi / 100.0)
         return xHeight
 
     def get_underline_thickness(self, font, fontsize, dpi):
         cached_font = self._get_font(font)
-        return max(1.0, cached_font.font.underline_thickness / 64.0 / fontsize * 10.0)
+        return cached_font.font.underline_thickness / 64.0 / fontsize * (10.0 * dpi / 100.0)
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
                  font2, fontclass2, sym2, fontsize2, dpi):
