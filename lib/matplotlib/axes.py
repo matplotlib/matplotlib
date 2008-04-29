@@ -1,7 +1,7 @@
 from __future__ import division, generators
 import math, warnings, new
 
-import numpy as npy
+import numpy as np
 from numpy import ma
 
 import matplotlib
@@ -212,16 +212,16 @@ class _process_plot_var_args:
     def _xy_from_y(self, y):
         if self.axes.yaxis is not None:
             b = self.axes.yaxis.update_units(y)
-            if b: return npy.arange(len(y)), y, False
+            if b: return np.arange(len(y)), y, False
 
         if not ma.isMaskedArray(y):
-            y = npy.asarray(y)
+            y = np.asarray(y)
         if len(y.shape) == 1:
-            y = y[:,npy.newaxis]
+            y = y[:,np.newaxis]
         nr, nc = y.shape
-        x = npy.arange(nr)
+        x = np.arange(nr)
         if len(x.shape) == 1:
-            x = x[:,npy.newaxis]
+            x = x[:,np.newaxis]
         return x,y, True
 
     def _xy_from_xy(self, x, y):
@@ -235,18 +235,18 @@ class _process_plot_var_args:
         x = ma.asarray(x)
         y = ma.asarray(y)
         if len(x.shape) == 1:
-            x = x[:,npy.newaxis]
+            x = x[:,np.newaxis]
         if len(y.shape) == 1:
-            y = y[:,npy.newaxis]
+            y = y[:,np.newaxis]
         nrx, ncx = x.shape
         nry, ncy = y.shape
         assert nrx == nry, 'Dimensions of x and y are incompatible'
         if ncx == ncy:
             return x, y, True
         if ncx == 1:
-            x = npy.repeat(x, ncy, axis=1)
+            x = np.repeat(x, ncy, axis=1)
         if ncy == 1:
-            y = npy.repeat(y, ncx, axis=1)
+            y = np.repeat(y, ncx, axis=1)
         assert x.shape == y.shape, 'Dimensions of x and y are incompatible'
         return x, y, True
 
@@ -1231,7 +1231,7 @@ class Axes(martist.Artist):
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
         if not ma.isMaskedArray(xys):
-            xys = npy.asarray(xys)
+            xys = np.asarray(xys)
         self.dataLim.update_from_data_xy(xys, self.ignore_existing_data_limits)
         self.ignore_existing_data_limits = False
 
@@ -2071,7 +2071,7 @@ class Axes(martist.Artist):
                     dx = 0.5 * (dx + dy)
                     dy = dx
 
-                alpha = npy.power(10.0, (dx, dy))
+                alpha = np.power(10.0, (dx, dy))
                 start = p.trans_inverse.transform_point((p.x, p.y))
                 lim_points = p.lim.get_points()
                 result = start + alpha * (lim_points - start)
@@ -2200,7 +2200,7 @@ class Axes(martist.Artist):
         def dist_x_y(p1, x, y):
             'x and y are arrays; return the distance to the closest point'
             x1, y1 = p1
-            return min(npy.sqrt((x-x1)**2+(y-y1)**2))
+            return min(np.sqrt((x-x1)**2+(y-y1)**2))
 
         def dist(a):
             if isinstance(a, Text):
@@ -2217,7 +2217,7 @@ class Axes(martist.Artist):
                 ydata = a.get_ydata(orig=False)
                 xt, yt = a.get_transform().numerix_x_y(xdata, ydata)
 
-            return dist_x_y(xywin, npy.asarray(xt), npy.asarray(yt))
+            return dist_x_y(xywin, np.asarray(xt), np.asarray(yt))
 
         artists = self.lines + self.patches + self.texts
         if callable(among):
@@ -2601,14 +2601,14 @@ class Axes(martist.Artist):
         if not iterable(y): y = [y]
         if not iterable(xmin): xmin = [xmin]
         if not iterable(xmax): xmax = [xmax]
-        y = npy.asarray(y)
-        xmin = npy.asarray(xmin)
-        xmax = npy.asarray(xmax)
+        y = np.asarray(y)
+        xmin = np.asarray(xmin)
+        xmax = np.asarray(xmax)
 
         if len(xmin)==1:
-            xmin = npy.resize( xmin, y.shape )
+            xmin = np.resize( xmin, y.shape )
         if len(xmax)==1:
-            xmax = npy.resize( xmax, y.shape )
+            xmax = np.resize( xmax, y.shape )
 
         if len(xmin)!=len(y):
             raise ValueError, 'xmin and y are unequal sized sequences'
@@ -2669,26 +2669,26 @@ class Axes(martist.Artist):
         if not iterable(x): x = [x]
         if not iterable(ymin): ymin = [ymin]
         if not iterable(ymax): ymax = [ymax]
-        x = npy.asarray(x)
-        ymin = npy.asarray(ymin)
-        ymax = npy.asarray(ymax)
+        x = np.asarray(x)
+        ymin = np.asarray(ymin)
+        ymax = np.asarray(ymax)
         if len(ymin)==1:
-            ymin = npy.resize( ymin, x.shape )
+            ymin = np.resize( ymin, x.shape )
         if len(ymax)==1:
-            ymax = npy.resize( ymax, x.shape )
+            ymax = np.resize( ymax, x.shape )
 
         if len(ymin)!=len(x):
             raise ValueError, 'ymin and x are unequal sized sequences'
         if len(ymax)!=len(x):
             raise ValueError, 'ymax and x are unequal sized sequences'
 
-        Y = npy.array([ymin, ymax]).T
+        Y = np.array([ymin, ymax]).T
 
         verts = [ ((thisx, thisymin), (thisx, thisymax))
                                     for thisx, (thisymin, thisymax) in zip(x,Y)]
         #print 'creating line collection'
         coll = mcoll.LineCollection(verts, colors=colors,
-                              linestyles=linestyles, label=label)
+                                    linestyles=linestyles, label=label)
         self.add_collection(coll)
         coll.update(kwargs)
 
@@ -3063,19 +3063,19 @@ class Axes(martist.Artist):
         if Nx!=len(y):
             raise ValueError('x and y must be equal length')
 
-        x = detrend(npy.asarray(x))
-        y = detrend(npy.asarray(y))
+        x = detrend(np.asarray(x))
+        y = detrend(np.asarray(y))
 
-        c = npy.correlate(x, y, mode=2)
+        c = np.correlate(x, y, mode=2)
 
-        if normed: c/= npy.sqrt(npy.dot(x,x) * npy.dot(y,y))
+        if normed: c/= np.sqrt(np.dot(x,x) * np.dot(y,y))
 
         if maxlags is None: maxlags = Nx - 1
 
         if maxlags >= Nx or maxlags < 1:
             raise ValueError('maglags must be None or strictly positive < %d'%Nx)
 
-        lags = npy.arange(-maxlags,maxlags+1)
+        lags = np.arange(-maxlags,maxlags+1)
         c = c[Nx-1-maxlags:Nx+maxlags]
 
 
@@ -3358,10 +3358,10 @@ class Axes(martist.Artist):
 
 
         # do not convert to array here as unit info is lost
-        #left = npy.asarray(left)
-        #height = npy.asarray(height)
-        #width = npy.asarray(width)
-        #bottom = npy.asarray(bottom)
+        #left = np.asarray(left)
+        #height = np.asarray(height)
+        #width = np.asarray(width)
+        #bottom = np.asarray(bottom)
 
         if len(linewidth) == 1: linewidth = linewidth * nbars
 
@@ -3469,16 +3469,16 @@ class Axes(martist.Artist):
 
         if adjust_xlim:
             xmin, xmax = self.dataLim.intervalx
-            xmin = npy.amin(width)
+            xmin = np.amin(width)
             if xerr is not None:
-                xmin = xmin - npy.amax(xerr)
+                xmin = xmin - np.amax(xerr)
             xmin = max(xmin*0.9, 1e-100)
             self.dataLim.intervalx = (xmin, xmax)
         if adjust_ylim:
             ymin, ymax = self.dataLim.intervaly
-            ymin = npy.amin(height)
+            ymin = np.amin(height)
             if yerr is not None:
-                ymin = ymin - npy.amax(yerr)
+                ymin = ymin - np.amax(yerr)
             ymin = max(ymin*0.9, 1e-100)
             self.dataLim.intervaly = (ymin, ymax)
         self.autoscale_view()
@@ -3596,7 +3596,7 @@ class Axes(martist.Artist):
             l, = self.plot([thisx,thisx], [0, thisy], linefmt)
             stemlines.append(l)
 
-        baseline, = self.plot([npy.amin(x), npy.amax(x)], [0,0], basefmt)
+        baseline, = self.plot([np.amin(x), np.amax(x)], [0,0], basefmt)
 
         self.hold(remember_hold)
 
@@ -3658,10 +3658,10 @@ class Axes(martist.Artist):
         """
         self.set_frame_on(False)
 
-        x = npy.asarray(x).astype(npy.float32)
+        x = np.asarray(x).astype(np.float32)
 
         sx = float(x.sum())
-        if sx>1: x = npy.divide(x,sx)
+        if sx>1: x = np.divide(x,sx)
 
         if labels is None: labels = ['']*len(x)
         if explode is None: explode = [0]*len(x)
@@ -3841,17 +3841,17 @@ class Axes(martist.Artist):
 
         # arrays fine here, they are booleans and hence not units
         if not iterable(lolims):
-            lolims = npy.asarray([lolims]*len(x), bool)
-        else: lolims = npy.asarray(lolims, bool)
+            lolims = np.asarray([lolims]*len(x), bool)
+        else: lolims = np.asarray(lolims, bool)
 
-        if not iterable(uplims): uplims = npy.array([uplims]*len(x), bool)
-        else: uplims = npy.asarray(uplims, bool)
+        if not iterable(uplims): uplims = np.array([uplims]*len(x), bool)
+        else: uplims = np.asarray(uplims, bool)
 
-        if not iterable(xlolims): xlolims = npy.array([xlolims]*len(x), bool)
-        else: xlolims = npy.asarray(xlolims, bool)
+        if not iterable(xlolims): xlolims = np.array([xlolims]*len(x), bool)
+        else: xlolims = np.asarray(xlolims, bool)
 
-        if not iterable(xuplims): xuplims = npy.array([xuplims]*len(x), bool)
-        else: xuplims = npy.asarray(xuplims, bool)
+        if not iterable(xuplims): xuplims = np.array([xuplims]*len(x), bool)
+        else: xuplims = np.asarray(xuplims, bool)
 
         def xywhere(xs, ys, mask):
             """
@@ -4032,26 +4032,26 @@ class Axes(martist.Artist):
             distance = max(positions) - min(positions)
             widths = min(0.15*max(distance,1.0), 0.5)
         if isinstance(widths, float) or isinstance(widths, int):
-            widths = npy.ones((col,), float) * widths
+            widths = np.ones((col,), float) * widths
 
         # loop through columns, adding each to plot
         self.hold(True)
         for i,pos in enumerate(positions):
-            d = npy.ravel(x[i])
+            d = np.ravel(x[i])
             row = len(d)
             # get median and quartiles
             q1, med, q3 = mlab.prctile(d,[25,50,75])
             # get high extreme
             iq = q3 - q1
             hi_val = q3 + whis*iq
-            wisk_hi = npy.compress( d <= hi_val , d )
+            wisk_hi = np.compress( d <= hi_val , d )
             if len(wisk_hi) == 0:
                 wisk_hi = q3
             else:
                 wisk_hi = max(wisk_hi)
             # get low extreme
             lo_val = q1 - whis*iq
-            wisk_lo = npy.compress( d >= lo_val, d )
+            wisk_lo = np.compress( d >= lo_val, d )
             if len(wisk_lo) == 0:
                 wisk_lo = q1
             else:
@@ -4062,16 +4062,16 @@ class Axes(martist.Artist):
             flier_hi_x = []
             flier_lo_x = []
             if len(sym) != 0:
-                flier_hi = npy.compress( d > wisk_hi, d )
-                flier_lo = npy.compress( d < wisk_lo, d )
-                flier_hi_x = npy.ones(flier_hi.shape[0]) * pos
-                flier_lo_x = npy.ones(flier_lo.shape[0]) * pos
+                flier_hi = np.compress( d > wisk_hi, d )
+                flier_lo = np.compress( d < wisk_lo, d )
+                flier_hi_x = np.ones(flier_hi.shape[0]) * pos
+                flier_lo_x = np.ones(flier_lo.shape[0]) * pos
 
             # get x locations for fliers, whisker, whisker cap and box sides
             box_x_min = pos - widths[i] * 0.5
             box_x_max = pos + widths[i] * 0.5
 
-            wisk_x = npy.ones(2) * pos
+            wisk_x = np.ones(2) * pos
 
             cap_x_min = pos - widths[i] * 0.25
             cap_x_max = pos + widths[i] * 0.25
@@ -4089,8 +4089,8 @@ class Axes(martist.Artist):
                 med_x = [box_x_min, box_x_max]
             # calculate 'notch' plot
             else:
-                notch_max = med + 1.57*iq/npy.sqrt(row)
-                notch_min = med - 1.57*iq/npy.sqrt(row)
+                notch_max = med + 1.57*iq/np.sqrt(row)
+                notch_min = med - 1.57*iq/np.sqrt(row)
                 if notch_max > q3:
                     notch_max = q3
                 if notch_min < q1:
@@ -4267,7 +4267,7 @@ class Axes(martist.Artist):
         # mapping, not interpretation as rgb or rgba.
 
         if not is_string_like(c):
-            sh = npy.shape(c)
+            sh = np.shape(c)
             if len(sh) == 1 and sh[0] == len(x):
                 colors = None  # use cmap, norm after collection is created
             else:
@@ -4324,7 +4324,7 @@ class Axes(martist.Artist):
                     symstyle = marker[1]
 
             else:
-                verts = npy.asarray(marker[0])
+                verts = np.asarray(marker[0])
 
         if sym is not None:
             if symstyle==0:
@@ -4357,11 +4357,11 @@ class Axes(martist.Artist):
         else:
             # MGDTODO: This has dpi problems
             # rescale verts
-            rescale = npy.sqrt(max(verts[:,0]**2+verts[:,1]**2))
+            rescale = np.sqrt(max(verts[:,0]**2+verts[:,1]**2))
             verts /= rescale
 
-            scales = npy.asarray(scales)
-            scales = npy.sqrt(scales * self.figure.dpi / 72.)
+            scales = np.asarray(scales)
+            scales = np.sqrt(scales * self.figure.dpi / 72.)
             if len(scales)==1:
                 verts = [scales[0]*verts]
             else:
@@ -4382,7 +4382,7 @@ class Axes(martist.Artist):
         if colors is None:
             if norm is not None: assert(isinstance(norm, mcolors.Normalize))
             if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
-            collection.set_array(npy.asarray(c))
+            collection.set_array(np.asarray(c))
             collection.set_cmap(cmap)
             collection.set_norm(norm)
 
@@ -4394,10 +4394,10 @@ class Axes(martist.Artist):
         temp_x = x
         temp_y = y
 
-        minx = npy.amin(temp_x)
-        maxx = npy.amax(temp_x)
-        miny = npy.amin(temp_y)
-        maxy = npy.amax(temp_y)
+        minx = np.amin(temp_x)
+        maxx = np.amax(temp_x)
+        miny = np.amin(temp_y)
+        maxy = np.amax(temp_y)
 
         w = maxx-minx
         h = maxy-miny
@@ -4513,16 +4513,16 @@ class Axes(martist.Artist):
             nx = gridsize
             ny = int(nx/math.sqrt(3))
         # Count the number of data in each hexagon
-        x = npy.array(x, float)
-        y = npy.array(y, float)
+        x = np.array(x, float)
+        y = np.array(y, float)
         if xscale=='log':
-            x = npy.log10(x)
+            x = np.log10(x)
         if yscale=='log':
-            y = npy.log10(y)
-        xmin = npy.amin(x)
-        xmax = npy.amax(x)
-        ymin = npy.amin(y)
-        ymax = npy.amax(y)
+            y = np.log10(y)
+        xmin = np.amin(x)
+        xmax = np.amax(x)
+        ymin = np.amin(y)
+        ymax = np.amax(y)
         # In the x-direction, the hexagons exactly cover the region from
         # xmin to xmax. Need some padding to avoid roundoff errors.
         padding = 1.e-9 * (xmax - xmin)
@@ -4532,17 +4532,17 @@ class Axes(martist.Artist):
         sy = (ymax-ymin) / ny
         x = (x-xmin)/sx
         y = (y-ymin)/sy
-        ix1 = npy.round(x).astype(int)
-        iy1 = npy.round(y).astype(int)
-        ix2 = npy.floor(x).astype(int)
-        iy2 = npy.floor(y).astype(int)
+        ix1 = np.round(x).astype(int)
+        iy1 = np.round(y).astype(int)
+        ix2 = np.floor(x).astype(int)
+        iy2 = np.floor(y).astype(int)
 
         nx1 = nx + 1
         ny1 = ny + 1
         nx2 = nx
         ny2 = ny
         n = nx1*ny1+nx2*ny2
-        counts = npy.zeros(n)
+        counts = np.zeros(n)
         lattice1 = counts[:nx1*ny1]
         lattice2 = counts[nx1*ny1:]
         lattice1.shape = (nx1,ny1)
@@ -4558,16 +4558,16 @@ class Axes(martist.Artist):
             else:
                 lattice2[ix2[i], iy2[i]]+=1
 
-        px = xmin + sx * npy.array([ 0.5, 0.5, 0.0, -0.5, -0.5,  0.0])
-        py = ymin + sy * npy.array([-0.5, 0.5, 1.0,  0.5, -0.5, -1.0]) / 3.0
+        px = xmin + sx * np.array([ 0.5, 0.5, 0.0, -0.5, -0.5,  0.0])
+        py = ymin + sy * np.array([-0.5, 0.5, 1.0,  0.5, -0.5, -1.0]) / 3.0
 
-        polygons = npy.zeros((6, n, 2), float)
-        polygons[:,:nx1*ny1,0] = npy.repeat(npy.arange(nx1), ny1)
-        polygons[:,:nx1*ny1,1] = npy.tile(npy.arange(ny1), nx1)
-        polygons[:,nx1*ny1:,0] = npy.repeat(npy.arange(nx2) + 0.5, ny2)
-        polygons[:,nx1*ny1:,1] = npy.tile(npy.arange(ny2), nx2) + 0.5
+        polygons = np.zeros((6, n, 2), float)
+        polygons[:,:nx1*ny1,0] = np.repeat(np.arange(nx1), ny1)
+        polygons[:,:nx1*ny1,1] = np.tile(np.arange(ny1), nx1)
+        polygons[:,nx1*ny1:,0] = np.repeat(np.arange(nx2) + 0.5, ny2)
+        polygons[:,nx1*ny1:,1] = np.tile(np.arange(ny2), nx2) + 0.5
 
-        polygons = npy.transpose(polygons, axes=[1,0,2])
+        polygons = np.transpose(polygons, axes=[1,0,2])
         polygons[:,:,0] *= sx
         polygons[:,:,1] *= sy
         polygons[:,:,0] += px
@@ -4607,13 +4607,13 @@ class Axes(martist.Artist):
 
         # Transform the counts if needed
         if bins=='log':
-            counts = npy.log10(counts+1)
+            counts = np.log10(counts+1)
         elif bins!=None:
             if not iterable(bins):
                 minimum, maximum = min(counts), max(counts)
                 bins-=1 # one less edge than bins
-                bins = minimum + (maximum-minimum)*npy.arange(bins)/bins
-            bins = npy.sort(bins)
+                bins = minimum + (maximum-minimum)*np.arange(bins)/bins
+            bins = np.sort(bins)
             counts = bins.searchsorted(counts)
 
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
@@ -4847,7 +4847,7 @@ class Axes(martist.Artist):
         if len(args)==1:
             C = args[0]
             numRows, numCols = C.shape
-            X, Y = npy.meshgrid(npy.arange(numCols+1), npy.arange(numRows+1) )
+            X, Y = np.meshgrid(np.arange(numCols+1), np.arange(numRows+1) )
         elif len(args)==3:
             X, Y, C = args
         else:
@@ -4936,8 +4936,8 @@ class Axes(martist.Artist):
 
             Similarly for meshgrid:
 
-                x = npy.arange(5)
-                y = npy.arange(3)
+                x = np.arange(5)
+                y = np.arange(3)
                 X, Y = meshgrid(x,y)
 
             is equivalent to
@@ -4990,8 +4990,8 @@ class Axes(martist.Artist):
         # don't plot if C or any of the surrounding vertices are masked.
         mask = ma.getmaskarray(C)[0:Ny-1,0:Nx-1]+xymask
 
-        newaxis = npy.newaxis
-        compress = npy.compress
+        newaxis = np.newaxis
+        compress = np.compress
 
         ravelmask = (mask==0).ravel()
         X1 = compress(ravelmask, ma.filled(X[0:-1,0:-1]).ravel())
@@ -5004,7 +5004,7 @@ class Axes(martist.Artist):
         Y4 = compress(ravelmask, ma.filled(Y[0:-1,1:]).ravel())
         npoly = len(X1)
 
-        xy = npy.concatenate((X1[:,newaxis], Y1[:,newaxis],
+        xy = np.concatenate((X1[:,newaxis], Y1[:,newaxis],
                              X2[:,newaxis], Y2[:,newaxis],
                              X3[:,newaxis], Y3[:,newaxis],
                              X4[:,newaxis], Y4[:,newaxis],
@@ -5043,10 +5043,10 @@ class Axes(martist.Artist):
 
         x = X.compressed()
         y = Y.compressed()
-        minx = npy.amin(x)
-        maxx = npy.amax(x)
-        miny = npy.amin(y)
-        maxy = npy.amax(y)
+        minx = np.amin(x)
+        maxx = np.amax(x)
+        miny = np.amin(y)
+        maxy = np.amax(y)
 
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim( corners)
@@ -5127,7 +5127,7 @@ class Axes(martist.Artist):
         X = X.ravel()
         Y = Y.ravel()
 
-        coords = npy.zeros(((Nx * Ny), 2), dtype=float)
+        coords = np.zeros(((Nx * Ny), 2), dtype=float)
         coords[:, 0] = X
         coords[:, 1] = Y
 
@@ -5151,10 +5151,10 @@ class Axes(martist.Artist):
 
         self.grid(False)
 
-        minx = npy.amin(X)
-        maxx = npy.amax(X)
-        miny = npy.amin(Y)
-        maxy = npy.amax(Y)
+        minx = np.amin(X)
+        maxx = np.amax(X)
+        miny = np.amin(Y)
+        maxy = np.amax(Y)
 
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim( corners)
@@ -5250,16 +5250,16 @@ class Axes(martist.Artist):
             y = [0, nr]
         elif len(args) == 3:
             x, y = args[:2]
-            x = npy.asarray(x)
-            y = npy.asarray(y)
+            x = np.asarray(x)
+            y = np.asarray(y)
             if x.ndim == 1 and y.ndim == 1:
                 if x.size == 2 and y.size == 2:
                     style = "image"
                 else:
-                    dx = npy.diff(x)
-                    dy = npy.diff(y)
-                    if (npy.ptp(dx) < 0.01*npy.abs(dx.mean()) and
-                        npy.ptp(dy) < 0.01*npy.abs(dy.mean())):
+                    dx = np.diff(x)
+                    dy = np.diff(y)
+                    if (np.ptp(dx) < 0.01*np.abs(dx.mean()) and
+                        np.ptp(dy) < 0.01*np.abs(dy.mean())):
                         style = "image"
                     else:
                         style = "pcolorimage"
@@ -5283,7 +5283,7 @@ class Axes(martist.Artist):
             # The following needs to be cleaned up; the renderer
             # requires separate contiguous arrays for X and Y,
             # but the QuadMesh class requires the 2D array.
-            coords = npy.empty(((Nx * Ny), 2), npy.float64)
+            coords = np.empty(((Nx * Ny), 2), np.float64)
             coords[:, 0] = X
             coords[:, 1] = Y
 
@@ -5328,7 +5328,7 @@ class Axes(martist.Artist):
             ret.set_clim(vmin, vmax)
         else:
             ret.autoscale_None()
-        self.update_datalim(npy.array([[xl, yb], [xr, yt]]))
+        self.update_datalim(np.array([[xl, yb], [xr, yt]]))
         self.autoscale_view(tight=True)
         return ret
 
@@ -5427,7 +5427,7 @@ class Axes(martist.Artist):
 
           # trapezoidal integration of the probability density function
           pdf, bins, patches = ax.hist(...)
-          print npy.trapz(pdf, bins)
+          print np.trapz(pdf, bins)
 
         align = 'edge' | 'center'.  Interprets bins either as edge
         or center values
@@ -5445,7 +5445,7 @@ class Axes(martist.Artist):
         %(Rectangle)s
         """
         if not self._hold: self.cla()
-        n, bins = npy.histogram(x, bins, range=None, normed=normed)
+        n, bins = np.histogram(x, bins, range=None, normed=normed)
         if width is None: width = 0.9*(bins[1]-bins[0])
         if orientation == 'horizontal':
             patches = self.barh(bins, n, height=width, left=bottom,
@@ -5498,7 +5498,7 @@ class Axes(martist.Artist):
 
         Returns the tuple Pxx, freqs
 
-        For plotting, the power is plotted as 10*npy.log10(pxx) for decibels,
+        For plotting, the power is plotted as 10*np.log10(pxx) for decibels,
         though pxx itself is returned
 
         Refs:
@@ -5514,17 +5514,17 @@ class Axes(martist.Artist):
         pxx.shape = len(freqs),
         freqs += Fc
 
-        self.plot(freqs, 10*npy.log10(pxx), **kwargs)
+        self.plot(freqs, 10*np.log10(pxx), **kwargs)
         self.set_xlabel('Frequency')
         self.set_ylabel('Power Spectrum (dB)')
         self.grid(True)
         vmin, vmax = self.viewLim.intervaly
         intv = vmax-vmin
-        logi = int(npy.log10(intv))
+        logi = int(np.log10(intv))
         if logi==0: logi=.1
         step = 10*logi
         #print vmin, vmax, step, intv, math.floor(vmin), math.ceil(vmax)+1
-        ticks = npy.arange(math.floor(vmin), math.ceil(vmax)+1, step)
+        ticks = np.arange(math.floor(vmin), math.ceil(vmax)+1, step)
         self.set_yticks(ticks)
 
         return pxx, freqs
@@ -5546,7 +5546,7 @@ class Axes(martist.Artist):
         See the PSD help for a description of the optional parameters.
 
         Returns the tuple Pxy, freqs.  Pxy is the cross spectrum (complex
-        valued), and 10*npy.log10(|Pxy|) is plotted
+        valued), and 10*np.log10(|Pxy|) is plotted
 
         Refs:
           Bendat & Piersol -- Random Data: Analysis and Measurement
@@ -5561,16 +5561,16 @@ class Axes(martist.Artist):
         # pxy is complex
         freqs += Fc
 
-        self.plot(freqs, 10*npy.log10(npy.absolute(pxy)), **kwargs)
+        self.plot(freqs, 10*np.log10(np.absolute(pxy)), **kwargs)
         self.set_xlabel('Frequency')
         self.set_ylabel('Cross Spectrum Magnitude (dB)')
         self.grid(True)
         vmin, vmax = self.viewLim.intervaly
 
         intv = vmax-vmin
-        step = 10*int(npy.log10(intv))
+        step = 10*int(np.log10(intv))
 
-        ticks = npy.arange(math.floor(vmin), math.ceil(vmax)+1, step)
+        ticks = np.arange(math.floor(vmin), math.ceil(vmax)+1, step)
         self.set_yticks(ticks)
 
         return pxy, freqs
@@ -5655,10 +5655,10 @@ class Axes(martist.Artist):
              window, noverlap)
 
 
-        Z = 10*npy.log10(Pxx)
-        Z =  npy.flipud(Z)
+        Z = 10*np.log10(Pxx)
+        Z =  np.flipud(Z)
 
-        if xextent is None: xextent = 0, npy.amax(bins)
+        if xextent is None: xextent = 0, np.amax(bins)
         xmin, xmax = xextent
         freqs += Fc
         extent = xmin, xmax, freqs[0], freqs[-1]
@@ -5718,9 +5718,9 @@ class Axes(martist.Artist):
         if marker is None and markersize is None:
             if hasattr(Z, 'tocoo'):
                 raise TypeError, "Image mode does not support scipy.sparse arrays"
-            Z = npy.asarray(Z)
+            Z = np.asarray(Z)
             if precision is None: mask = Z!=0.
-            else:                 mask = npy.absolute(Z)>precision
+            else:                 mask = np.absolute(Z)>precision
 
             if 'cmap' not in kwargs:
                 kwargs['cmap'] = mcolors.ListedColormap(['w', 'k'], name='binary')
@@ -5735,9 +5735,9 @@ class Axes(martist.Artist):
                 x = c.col
                 z = c.data
             else:
-                Z = npy.asarray(Z)
+                Z = np.asarray(Z)
                 if precision is None: mask = Z!=0.
-                else:                 mask = npy.absolute(Z)>precision
+                else:                 mask = np.absolute(Z)>precision
                 y,x,z = mlab.get_xyz_where(mask, mask)
             if marker is None: marker = 's'
             if markersize is None: markersize = 10
@@ -5780,7 +5780,7 @@ class Axes(martist.Artist):
         Returns: an image.AxesImage instance
 
         '''
-        Z = npy.asarray(Z)
+        Z = np.asarray(Z)
         nr, nc = Z.shape
         extent = [-0.5, nc-0.5, nr-0.5, -0.5]
         kw = {'extent': extent,

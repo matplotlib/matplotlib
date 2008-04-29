@@ -8,7 +8,7 @@ they are meant to be fast for common use cases (eg a bunch of solid
 line segemnts)
 """
 import math, warnings
-import numpy as npy
+import numpy as np
 import matplotlib as mpl
 import matplotlib.cbook as cbook
 import matplotlib.colors as _colors # avoid conflict with kwarg
@@ -51,7 +51,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     draw time a call to scalar mappable will be made to set the face
     colors.
     """
-    _offsets = npy.array([], npy.float_)
+    _offsets = np.array([], np.float_)
     _transOffset = transforms.IdentityTransform()
     _transforms = []
 
@@ -84,11 +84,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_antialiased(antialiaseds)
 
         self._uniform_offsets = None
-        self._offsets = npy.array([], npy.float_)
+        self._offsets = np.array([], np.float_)
         if offsets is not None:
-            offsets = npy.asarray(offsets, npy.float_)
+            offsets = np.asarray(offsets, np.float_)
             if len(offsets.shape) == 1:
-                offsets = offsets[npy.newaxis,:]  # Make it Nx2.
+                offsets = offsets[np.newaxis,:]  # Make it Nx2.
             if transOffset is not None:
                 Affine2D = transforms.Affine2D
                 self._offsets = offsets
@@ -137,7 +137,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
-        offsets = npy.asarray(offsets, npy.float_)
+        offsets = np.asarray(offsets, np.float_)
 
         result = mpath.get_path_collection_extents(
             transform.frozen(), paths, self.get_transforms(),
@@ -166,7 +166,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 ys = self.convert_yunits(self._offsets[:1])
                 offsets = zip(xs, ys)
 
-        offsets = npy.asarray(offsets, npy.float_)
+        offsets = np.asarray(offsets, np.float_)
 
         self.update_scalarmappable()
 
@@ -206,7 +206,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ind = mpath.point_in_path_collection(
             mouseevent.x, mouseevent.y, self._pickradius,
             transform.frozen(), paths, self.get_transforms(),
-            npy.asarray(self._offsets, npy.float_),
+            np.asarray(self._offsets, np.float_),
             self._transOffset.frozen(), len(self._facecolors))
         return len(ind)>0,dict(ind=ind)
 
@@ -424,7 +424,7 @@ class QuadMesh(Collection):
 
         # By converting to floats now, we can avoid that on every draw.
         self._coordinates = self._coordinates.reshape((meshHeight + 1, meshWidth + 1, 2))
-        self._coordinates = npy.array(self._coordinates, npy.float_)
+        self._coordinates = np.array(self._coordinates, np.float_)
 
     def get_paths(self, dataTrans=None):
         if self._paths is None:
@@ -439,11 +439,11 @@ class QuadMesh(Collection):
         c = coordinates
         # We could let the Path constructor generate the codes for us,
         # but this is faster, since we know they'll always be the same
-        codes = npy.array(
+        codes = np.array(
             [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY],
             Path.code_type)
 
-        points = npy.concatenate((
+        points = np.concatenate((
                     c[0:-1, 0:-1],
                     c[0:-1, 1:  ],
                     c[1:  , 1:  ],
@@ -470,7 +470,7 @@ class QuadMesh(Collection):
                 ys = self.convert_yunits(self._offsets[:1])
                 offsets = zip(xs, ys)
 
-        offsets = npy.asarray(offsets, npy.float_)
+        offsets = np.asarray(offsets, np.float_)
 
         if self.check_update('array'):
             self.update_scalarmappable()
@@ -556,8 +556,8 @@ class RegularPolyCollection(Collection):
 
         Example: see examples/dynamic_collection.py for complete example
 
-        offsets = npy.random.rand(20,2)
-        facecolors = [cm.jet(x) for x in npy.random.rand(20)]
+        offsets = np.random.rand(20,2)
+        facecolors = [cm.jet(x) for x in np.random.rand(20)]
         black = (0,0,0,1)
 
         collection = RegularPolyCollection(
@@ -584,7 +584,7 @@ class RegularPolyCollection(Collection):
         # in points^2
         self._transforms = [
             transforms.Affine2D().rotate(-self._rotation).scale(
-                (npy.sqrt(x) * renderer.dpi / 72.0) / npy.sqrt(npy.pi))
+                (np.sqrt(x) * renderer.dpi / 72.0) / np.sqrt(np.pi))
             for x in self._sizes]
         return Collection.draw(self, renderer)
 
@@ -679,7 +679,7 @@ class LineCollection(Collection, cm.ScalarMappable):
             pickradius=pickradius,
             **kwargs)
 
-        self._facecolors = npy.array([])
+        self._facecolors = np.array([])
         self.set_segments(segments)
 
     def get_paths(self):
@@ -687,7 +687,7 @@ class LineCollection(Collection, cm.ScalarMappable):
 
     def set_segments(self, segments):
         if segments is None: return
-        segments = [npy.asarray(seg, npy.float_) for seg in segments]
+        segments = [np.asarray(seg, np.float_) for seg in segments]
         if self._uniform_offsets is not None:
             segments = self._add_offsets(segments)
         self._paths = [mpath.Path(seg) for seg in segments]

@@ -5,7 +5,7 @@ from the Python Cookbook -- hence the name cbook
 from __future__ import generators
 import re, os, errno, sys, StringIO, traceback, locale
 import time, datetime
-import numpy as npy
+import numpy as np
 
 try:
     set = set
@@ -856,7 +856,7 @@ def safezip(*args):
 class MemoryMonitor:
     def __init__(self, nmax=20000):
         self._nmax = nmax
-        self._mem = npy.zeros((self._nmax,), npy.int32)
+        self._mem = np.zeros((self._nmax,), np.int32)
         self.clear()
 
     def clear(self):
@@ -892,7 +892,7 @@ class MemoryMonitor:
             print "Warning: array size was too small for the number of calls."
 
     def xy(self, i0=0, isub=1):
-        x = npy.arange(i0, self._n, isub)
+        x = np.arange(i0, self._n, isub)
         return x, self._mem[i0:self._n:isub]
 
     def plot(self, i0=0, isub=1, fig=None):
@@ -1051,11 +1051,11 @@ class Grouper(object):
 
 
 def simple_linear_interpolation(a, steps):
-    steps = npy.floor(steps)
+    steps = np.floor(steps)
     new_length = ((len(a) - 1) * steps) + 1
     new_shape = list(a.shape)
     new_shape[0] = new_length
-    result = npy.zeros(new_shape, a.dtype)
+    result = np.zeros(new_shape, a.dtype)
 
     result[0] = a[0]
     a0 = a[0:-1]

@@ -2,7 +2,7 @@
 This module contains the instantiations of color mapping classes
 """
 
-import numpy as npy
+import numpy as np
 from numpy import ma
 import matplotlib as mpl
 import matplotlib.colors as colors
@@ -56,18 +56,18 @@ class ScalarMappable:
         try:
             if x.ndim == 3:
                 if x.shape[2] == 3:
-                    if x.dtype == npy.uint8:
-                        alpha = npy.array(alpha*255, npy.uint8)
+                    if x.dtype == np.uint8:
+                        alpha = np.array(alpha*255, np.uint8)
                     m, n = x.shape[:2]
-                    xx = npy.empty(shape=(m,n,4), dtype = x.dtype)
+                    xx = np.empty(shape=(m,n,4), dtype = x.dtype)
                     xx[:,:,:3] = x
                     xx[:,:,3] = alpha
                 elif x.shape[2] == 4:
                     xx = x
                 else:
                     raise ValueError("third dimension must be 3 or 4")
-                if bytes and xx.dtype != npy.uint8:
-                    xx = (xx * 255).astype(npy.uint8)
+                if bytes and xx.dtype != np.uint8:
+                    xx = (xx * 255).astype(np.uint8)
                 return xx
         except AttributeError:
             pass

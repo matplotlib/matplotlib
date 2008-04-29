@@ -80,7 +80,7 @@ import re, time, math, datetime
 
 import pytz
 import matplotlib
-import numpy as npy
+import numpy as np
 
 import matplotlib.units as units
 import matplotlib.cbook as cbook
@@ -206,17 +206,17 @@ def date2num(d):
     minutes, seconds) since 0001-01-01 00:00:00 UTC
     """
     if not cbook.iterable(d): return _to_ordinalf(d)
-    else: return npy.asarray([_to_ordinalf(val) for val in d])
+    else: return np.asarray([_to_ordinalf(val) for val in d])
 
 
 def julian2num(j):
     'convert a Julian date (or sequence) to a matplotlib date (or sequence)'
-    if cbook.iterable(j): j = npy.asarray(j)
+    if cbook.iterable(j): j = np.asarray(j)
     return j + 1721425.5
 
 def num2julian(n):
     'convert a matplotlib date (or seguence) to a Julian date (or sequence)'
-    if cbook.iterable(n): n = npy.asarray(n)
+    if cbook.iterable(n): n = np.asarray(n)
     return n - 1721425.5
 
 def num2date(x, tz=None):
@@ -242,7 +242,7 @@ def drange(dstart, dend, delta):
             delta.microseconds/MUSECONDS_PER_DAY)
     f1 = _to_ordinalf(dstart)
     f2 = _to_ordinalf(dend)
-    return npy.arange(f1, f2, step)
+    return np.arange(f1, f2, step)
 
 
 
@@ -903,14 +903,14 @@ def epoch2num(e):
     days since 0001
     """
     spd = 24.*3600.
-    return 719163 + npy.asarray(e)/spd
+    return 719163 + np.asarray(e)/spd
 
 def num2epoch(d):
     """
     convert days since 0001 to epoch.  d can be a number or sequence
     """
     spd = 24.*3600.
-    return (npy.asarray(d)-719163)*spd
+    return (np.asarray(d)-719163)*spd
 
 def mx2num(mxdates):
     """

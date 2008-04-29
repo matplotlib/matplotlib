@@ -85,7 +85,7 @@ Example usage:
 from __future__ import division
 import csv, warnings, copy, os
 
-import numpy as npy
+import numpy as np
 
 
 from matplotlib import nxutils
@@ -100,28 +100,28 @@ except NameError:
 
 def linspace(*args, **kw):
     warnings.warn("use numpy.linspace", DeprecationWarning)
-    return npy.linspace(*args, **kw)
+    return np.linspace(*args, **kw)
 
 def meshgrid(x,y):
     warnings.warn("use numpy.meshgrid", DeprecationWarning)
-    return npy.meshgrid(x,y)
+    return np.meshgrid(x,y)
 
 def mean(x, dim=None):
     warnings.warn("Use numpy.mean(x) or x.mean()", DeprecationWarning)
     if len(x)==0: return None
-    return npy.mean(x, axis=dim)
+    return np.mean(x, axis=dim)
 
 
 def logspace(xmin,xmax,N):
-    return npy.exp(npy.linspace(npy.log(xmin), npy.log(xmax), N))
+    return np.exp(np.linspace(np.log(xmin), np.log(xmax), N))
 
 def _norm(x):
     "return sqrt(x dot x)"
-    return npy.sqrt(npy.dot(x,x))
+    return np.sqrt(np.dot(x,x))
 
 def window_hanning(x):
     "return x times the hanning window of len(x)"
-    return npy.hanning(len(x))*x
+    return np.hanning(len(x))*x
 
 def window_none(x):
     "No window function; simply return x"
@@ -131,7 +131,7 @@ def window_none(x):
 def conv(x, y, mode=2):
     'convolve x with y'
     warnings.warn("Use numpy.convolve(x, y, mode='full')", DeprecationWarning)
-    return npy.convolve(x,y,mode)
+    return np.convolve(x,y,mode)
 
 def detrend(x, key=None):
     if key is None or key=='constant':
@@ -141,10 +141,10 @@ def detrend(x, key=None):
 
 def demean(x, axis=0):
     "Return x minus its mean along the specified axis"
-    x = npy.asarray(x)
+    x = np.asarray(x)
     if axis:
         ind = [slice(None)] * axis
-        ind.append(npy.newaxis)
+        ind.append(np.newaxis)
         return x - x.mean(axis)[ind]
     return x - x.mean(axis)
 
@@ -159,8 +159,8 @@ def detrend_none(x):
 def detrend_linear(y):
     "Return y minus best fit line; 'linear' detrending "
     # This is faster than an algorithm based on linalg.lstsq.
-    x = npy.arange(len(y), dtype=npy.float_)
-    C = npy.cov(x, y, bias=1)
+    x = np.arange(len(y), dtype=np.float_)
+    C = np.cov(x, y, bias=1)
     b = C[0,1]/C[0,0]
     a = y.mean() - b*x.mean()
     return y - (b*x + a)
@@ -200,41 +200,41 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
     if NFFT % 2:
         raise ValueError('NFFT must be even')
 
-    x = npy.asarray(x) # make sure we're dealing with a numpy array
+    x = np.asarray(x) # make sure we're dealing with a numpy array
 
     # zero pad x up to NFFT if it is shorter than NFFT
     if len(x)<NFFT:
         n = len(x)
-        x = npy.resize(x, (NFFT,))    # Can't use resize method.
+        x = np.resize(x, (NFFT,))    # Can't use resize method.
         x[n:] = 0
 
     # for real x, ignore the negative frequencies
-    if npy.iscomplexobj(x): numFreqs = NFFT
+    if np.iscomplexobj(x): numFreqs = NFFT
     else: numFreqs = NFFT//2+1
 
     if cbook.iterable(window):
         assert(len(window) == NFFT)
         windowVals = window
     else:
-        windowVals = window(npy.ones((NFFT,),x.dtype))
+        windowVals = window(np.ones((NFFT,),x.dtype))
     step = NFFT-noverlap
     ind = range(0,len(x)-NFFT+1,step)
     n = len(ind)
-    Pxx = npy.zeros((numFreqs,n), npy.float_)
+    Pxx = np.zeros((numFreqs,n), np.float_)
     # do the ffts of the slices
     for i in range(n):
         thisX = x[ind[i]:ind[i]+NFFT]
         thisX = windowVals * detrend(thisX)
-        fx = npy.absolute(npy.fft.fft(thisX))**2
+        fx = np.absolute(np.fft.fft(thisX))**2
         Pxx[:,i] = fx[:numFreqs]
 
     if n>1:
         Pxx = Pxx.mean(axis=1)
     # Scale the spectrum by the norm of the window to compensate for
     # windowing loss; see Bendat & Piersol Sec 11.5.2
-    Pxx /= (npy.abs(windowVals)**2).sum()
+    Pxx /= (np.abs(windowVals)**2).sum()
 
-    freqs = Fs/NFFT * npy.arange(numFreqs)
+    freqs = Fs/NFFT * np.arange(numFreqs)
 
     return Pxx, freqs
 
@@ -267,32 +267,32 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     if NFFT % 2:
         raise ValueError, 'NFFT must be even'
 
-    x = npy.asarray(x) # make sure we're dealing with a numpy array
-    y = npy.asarray(y) # make sure we're dealing with a numpy array
+    x = np.asarray(x) # make sure we're dealing with a numpy array
+    y = np.asarray(y) # make sure we're dealing with a numpy array
 
     # zero pad x and y up to NFFT if they are shorter than NFFT
     if len(x)<NFFT:
         n = len(x)
-        x = npy.resize(x, (NFFT,))
+        x = np.resize(x, (NFFT,))
         x[n:] = 0
     if len(y)<NFFT:
         n = len(y)
-        y = npy.resize(y, (NFFT,))
+        y = np.resize(y, (NFFT,))
         y[n:] = 0
 
     # for real x, ignore the negative frequencies
-    if npy.iscomplexobj(x): numFreqs = NFFT
+    if np.iscomplexobj(x): numFreqs = NFFT
     else: numFreqs = NFFT//2+1
 
     if cbook.iterable(window):
         assert(len(window) == NFFT)
         windowVals = window
     else:
-        windowVals = window(npy.ones((NFFT,), x.dtype))
+        windowVals = window(np.ones((NFFT,), x.dtype))
     step = NFFT-noverlap
     ind = range(0,len(x)-NFFT+1,step)
     n = len(ind)
-    Pxy = npy.zeros((numFreqs,n), npy.complex_)
+    Pxy = np.zeros((numFreqs,n), np.complex_)
 
     # do the ffts of the slices
     for i in range(n):
@@ -300,9 +300,9 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         thisX = windowVals*detrend(thisX)
         thisY = y[ind[i]:ind[i]+NFFT]
         thisY = windowVals*detrend(thisY)
-        fx = npy.fft.fft(thisX)
-        fy = npy.fft.fft(thisY)
-        Pxy[:,i] = npy.conjugate(fx[:numFreqs])*fy[:numFreqs]
+        fx = np.fft.fft(thisX)
+        fy = np.fft.fft(thisY)
+        Pxy[:,i] = np.conjugate(fx[:numFreqs])*fy[:numFreqs]
 
 
 
@@ -310,8 +310,8 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     # windowing loss; see Bendat & Piersol Sec 11.5.2
     if n>1:
         Pxy = Pxy.mean(axis=1)
-    Pxy /= (npy.abs(windowVals)**2).sum()
-    freqs = Fs/NFFT*npy.arange(numFreqs)
+    Pxy /= (np.abs(windowVals)**2).sum()
+    freqs = Fs/NFFT*np.arange(numFreqs)
     return Pxy, freqs
 
 def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
@@ -342,9 +342,9 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
               segments.
 
     """
-    x = npy.asarray(x)
+    x = np.asarray(x)
     assert(NFFT>noverlap)
-    #if npy.log(NFFT)/npy.log(2) != int(npy.log(NFFT)/npy.log(2)):
+    #if np.log(NFFT)/np.log(2) != int(np.log(NFFT)/np.log(2)):
     #   raise ValueError, 'NFFT must be a power of 2'
     if NFFT % 2:
         raise ValueError('NFFT must be even')
@@ -353,42 +353,42 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
     # zero pad x up to NFFT if it is shorter than NFFT
     if len(x)<NFFT:
         n = len(x)
-        x = npy.resize(x, (NFFT,))
+        x = np.resize(x, (NFFT,))
         x[n:] = 0
 
 
     # for real x, ignore the negative frequencies
-    if npy.iscomplexobj(x):
+    if np.iscomplexobj(x):
         numFreqs=NFFT
     else:
         numFreqs = NFFT//2+1
 
     if cbook.iterable(window):
         assert(len(window) == NFFT)
-        windowVals = npy.asarray(window)
+        windowVals = np.asarray(window)
     else:
-        windowVals = window(npy.ones((NFFT,),x.dtype))
+        windowVals = window(np.ones((NFFT,),x.dtype))
     step = NFFT-noverlap
-    ind = npy.arange(0,len(x)-NFFT+1,step)
+    ind = np.arange(0,len(x)-NFFT+1,step)
     n = len(ind)
-    Pxx = npy.zeros((numFreqs,n), npy.float_)
+    Pxx = np.zeros((numFreqs,n), np.float_)
     # do the ffts of the slices
 
     for i in range(n):
         thisX = x[ind[i]:ind[i]+NFFT]
         thisX = windowVals*detrend(thisX)
-        fx = npy.absolute(npy.fft.fft(thisX))**2
+        fx = np.absolute(np.fft.fft(thisX))**2
         Pxx[:,i] = fx[:numFreqs]
     # Scale the spectrum by the norm of the window to compensate for
     # windowing loss; see Bendat & Piersol Sec 11.5.2
-    Pxx /= (npy.abs(windowVals)**2).sum()
+    Pxx /= (np.abs(windowVals)**2).sum()
     t = 1/Fs*(ind+NFFT/2)
-    freqs = Fs/NFFT*npy.arange(numFreqs)
+    freqs = Fs/NFFT*np.arange(numFreqs)
 
-    if npy.iscomplexobj(x):
+    if np.iscomplexobj(x):
         # center the frequency range at zero
-        freqs = npy.concatenate((freqs[NFFT/2:]-Fs,freqs[:NFFT/2]))
-        Pxx   = npy.concatenate((Pxx[NFFT/2:,:],Pxx[:NFFT/2,:]),0)
+        freqs = np.concatenate((freqs[NFFT/2:]-Fs,freqs[:NFFT/2]))
+        Pxx   = np.concatenate((Pxx[NFFT/2:,:],Pxx[:NFFT/2,:]),0)
 
     return Pxx, freqs, t
 
@@ -420,7 +420,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     Pyy, f = psd(y, NFFT, Fs, detrend, window, noverlap)
     Pxy, f = csd(x, y, NFFT, Fs, detrend, window, noverlap)
 
-    Cxy = npy.divide(npy.absolute(Pxy)**2, Pxx*Pyy)
+    Cxy = np.divide(np.absolute(Pxy)**2, Pxx*Pyy)
     Cxy.shape = (len(f),)
     return Cxy, f
 
@@ -440,7 +440,7 @@ def corrcoef(*args):
     """
     warnings.warn("Use numpy.corrcoef", DeprecationWarning)
     kw = dict(rowvar=False)
-    return npy.corrcoef(*args, **kw)
+    return np.corrcoef(*args, **kw)
 
 
 def polyfit(*args, **kwargs):
@@ -483,7 +483,7 @@ def polyfit(*args, **kwargs):
 
     """
     warnings.warn("use numpy.poyfit", DeprecationWarning)
-    return npy.polyfit(*args, **kwargs)
+    return np.polyfit(*args, **kwargs)
 
 
 
@@ -505,7 +505,7 @@ def polyval(*args, **kwargs):
 
     """
     warnings.warn("use numpy.polyval", DeprecationWarning)
-    return npy.polyval(*args, **kwargs)
+    return np.polyval(*args, **kwargs)
 
 def vander(*args, **kwargs):
     """
@@ -517,7 +517,7 @@ def vander(*args, **kwargs):
 
     """
     warnings.warn("Use numpy.vander()", DeprecationWarning)
-    return npy.vander(*args, **kwargs)
+    return np.vander(*args, **kwargs)
 
 
 def donothing_callback(*args):
@@ -596,7 +596,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     # zero pad if X is too short
     if numRows < NFFT:
         tmp = X
-        X = npy.zeros( (NFFT, numCols), X.dtype)
+        X = np.zeros( (NFFT, numCols), X.dtype)
         X[:numRows,:] = tmp
         del tmp
 
@@ -611,7 +611,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     del seen
 
     # for real X, ignore the negative frequencies
-    if npy.iscomplexobj(X): numFreqs = NFFT
+    if np.iscomplexobj(X): numFreqs = NFFT
     else: numFreqs = NFFT//2+1
 
     # cache the FFT of every windowed, detrended NFFT length segement
@@ -621,7 +621,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         assert(len(window) == NFFT)
         windowVals = window
     else:
-        windowVals = window(npy.ones((NFFT,), typecode(X)))
+        windowVals = window(np.ones((NFFT,), typecode(X)))
     ind = range(0, numRows-NFFT+1, NFFT-noverlap)
     numSlices = len(ind)
     FFTSlices = {}
@@ -631,7 +631,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     normVal = norm(windowVals)**2
     for iCol in allColumns:
         progressCallback(i/Ncols, 'Cacheing FFTs')
-        Slices = npy.zeros( (numSlices,numFreqs), dtype=npy.complex_)
+        Slices = np.zeros( (numSlices,numFreqs), dtype=np.complex_)
         for iSlice in slices:
             thisSlice = X[ind[iSlice]:ind[iSlice]+NFFT, iCol]
             thisSlice = windowVals*detrend(thisSlice)
@@ -640,7 +640,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         FFTSlices[iCol] = Slices
         if preferSpeedOverMemory:
             FFTConjSlices[iCol] = conjugate(Slices)
-        Pxx[iCol] = npy.divide(npy.mean(absolute(Slices)**2), normVal)
+        Pxx[iCol] = np.divide(np.mean(absolute(Slices)**2), normVal)
     del Slices, ind, windowVals
 
     # compute the coherences and phases for all pairs using the
@@ -657,13 +657,13 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         if preferSpeedOverMemory:
             Pxy = FFTSlices[i] * FFTConjSlices[j]
         else:
-            Pxy = FFTSlices[i] * npy.conjugate(FFTSlices[j])
-        if numSlices>1: Pxy = npy.mean(Pxy)
-        Pxy = npy.divide(Pxy, normVal)
-        Cxy[(i,j)] = npy.divide(npy.absolute(Pxy)**2, Pxx[i]*Pxx[j])
-        Phase[(i,j)] =  npy.arctan2(Pxy.imag, Pxy.real)
+            Pxy = FFTSlices[i] * np.conjugate(FFTSlices[j])
+        if numSlices>1: Pxy = np.mean(Pxy)
+        Pxy = np.divide(Pxy, normVal)
+        Cxy[(i,j)] = np.divide(np.absolute(Pxy)**2, Pxx[i]*Pxx[j])
+        Phase[(i,j)] =  np.arctan2(Pxy.imag, Pxy.real)
 
-    freqs = Fs/NFFT*npy.arange(numFreqs)
+    freqs = Fs/NFFT*np.arange(numFreqs)
     if returnPxx:
         return Cxy, Phase, freqs, Pxx
     else:
@@ -684,16 +684,16 @@ def entropy(y, bins):
     Sanalytic = 0.5  * ( 1.0 + log(2*pi*sigma**2.0) )
 
     """
-    n,bins = npy.histogram(y, bins)
-    n = n.astype(npy.float_)
+    n,bins = np.histogram(y, bins)
+    n = n.astype(np.float_)
 
-    n = npy.take(n, npy.nonzero(n)[0])         # get the positive
+    n = np.take(n, np.nonzero(n)[0])         # get the positive
 
-    p = npy.divide(n, len(y))
+    p = np.divide(n, len(y))
 
     delta = bins[1]-bins[0]
-    S = -1.0*npy.sum(p*log(p)) + log(delta)
-    #S = -1.0*npy.sum(p*log(p))
+    S = -1.0*np.sum(p*log(p)) + log(delta)
+    #S = -1.0*np.sum(p*log(p))
     return S
 
 def hist(y, bins=10, normed=0):
@@ -711,12 +711,12 @@ def hist(y, bins=10, normed=0):
     Credits: the Numeric 22 documentation
     """
     warnings.warn("Use numpy.histogram()", DeprecationWarning)
-    return npy.histogram(y, bins=bins, range=None, normed=normed)
+    return np.histogram(y, bins=bins, range=None, normed=normed)
 
 def normpdf(x, *args):
     "Return the normal pdf evaluated at x; args provides mu, sigma"
     mu, sigma = args
-    return 1/(npy.sqrt(2*npy.pi)*sigma)*npy.exp(-0.5 * (1/sigma*(x - mu))**2)
+    return 1/(np.sqrt(2*np.pi)*sigma)*np.exp(-0.5 * (1/sigma*(x - mu))**2)
 
 
 def levypdf(x, gamma, alpha):
@@ -726,26 +726,26 @@ def levypdf(x, gamma, alpha):
 
     if N%2 != 0:
         raise ValueError, 'x must be an event length array; try\n' + \
-              'x = npy.linspace(minx, maxx, N), where N is even'
+              'x = np.linspace(minx, maxx, N), where N is even'
 
 
     dx = x[1]-x[0]
 
 
-    f = 1/(N*dx)*npy.arange(-N/2, N/2, npy.float_)
+    f = 1/(N*dx)*np.arange(-N/2, N/2, np.float_)
 
-    ind = npy.concatenate([npy.arange(N/2, N, int),
-                           npy.arange(0, N/2, int)])
+    ind = np.concatenate([np.arange(N/2, N, int),
+                           np.arange(0, N/2, int)])
     df = f[1]-f[0]
-    cfl = exp(-gamma*npy.absolute(2*pi*f)**alpha)
+    cfl = exp(-gamma*np.absolute(2*pi*f)**alpha)
 
-    px = npy.fft.fft(npy.take(cfl,ind)*df).astype(npy.float_)
-    return npy.take(px, ind)
+    px = np.fft.fft(np.take(cfl,ind)*df).astype(np.float_)
+    return np.take(px, ind)
 
 
 def find(condition):
     "Return the indices where ravel(condition) is true"
-    res, = npy.nonzero(npy.ravel(condition))
+    res, = np.nonzero(np.ravel(condition))
     return res
 
 def trapz(x, y):
@@ -753,12 +753,12 @@ def trapz(x, y):
     Trapezoidal integral of y(x).
     """
     warnings.warn("Use numpy.trapz(y,x) instead of trapz(x,y)", DeprecationWarning)
-    return npy.trapz(y, x)
+    return np.trapz(y, x)
     #if len(x)!=len(y):
     #    raise ValueError, 'x and y must have the same length'
     #if len(x)<2:
     #    raise ValueError, 'x and y must have > 1 element'
-    #return npy.sum(0.5*npy.diff(x)*(y[1:]+y[:-1]))
+    #return np.sum(0.5*np.diff(x)*(y[1:]+y[:-1]))
 
 
 
@@ -769,23 +769,23 @@ def longest_contiguous_ones(x):
     If there are two equally long stretches, pick the first
 
     """
-    x = npy.ravel(x)
+    x = np.ravel(x)
     if len(x)==0:
-        return npy.array([])
+        return np.array([])
 
     ind = (x==0).nonzero()[0]
     if len(ind)==0:
-        return npy.arange(len(x))
+        return np.arange(len(x))
     if len(ind)==len(x):
-        return npy.array([])
+        return np.array([])
 
-    y = npy.zeros( (len(x)+2,), x.dtype)
+    y = np.zeros( (len(x)+2,), x.dtype)
     y[1:-1] = x
-    dif = npy.diff(y)
+    dif = np.diff(y)
     up = (dif ==  1).nonzero()[0];
     dn = (dif == -1).nonzero()[0];
     i = (dn-up == max(dn - up)).nonzero()[0][0]
-    ind = npy.arange(up[i], dn[i])
+    ind = np.arange(up[i], dn[i])
 
     return ind
 
@@ -809,7 +809,7 @@ def prepca(P, frac=0):
     R13 Neural Network Toolbox but is not found in later versions;
     its successor seems to be called "processpcs".
     """
-    U,s,v = npy.linalg.svd(P)
+    U,s,v = np.linalg.svd(P)
     varEach = s**2/P.shape[1]
     totVar = varEach.sum()
     fracVar = varEach/totVar
@@ -817,7 +817,7 @@ def prepca(P, frac=0):
     # select the components that are greater
     Trans = U[:,ind].transpose()
     # The transformed data
-    Pcomponents = npy.dot(Trans,P)
+    Pcomponents = np.dot(Trans,P)
     return Pcomponents, Trans, fracVar[ind]
 
 def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
@@ -830,16 +830,16 @@ def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
     """
 
 
-    x = npy.array(x).ravel()  # we need a copy
+    x = np.array(x).ravel()  # we need a copy
     x.sort()
     Nx = len(x)
 
     if not cbook.iterable(p):
         return x[int(p*Nx/100.0)]
 
-    p = npy.asarray(p)* Nx/100.0
+    p = np.asarray(p)* Nx/100.0
     ind = p.astype(int)
-    ind = npy.where(ind>=Nx, Nx-1, ind)
+    ind = np.where(ind>=Nx, Nx-1, ind)
     return x.take(ind)
 
 def prctile_rank(x, p):
@@ -856,15 +856,15 @@ def prctile_rank(x, p):
     """
 
     if not cbook.iterable(p):
-        p = npy.arange(100.0/p, 100.0, 100.0/p)
+        p = np.arange(100.0/p, 100.0, 100.0/p)
     else:
-        p = npy.asarray(p)
+        p = np.asarray(p)
 
     if p.max()<=1 or p.min()<0 or p.max()>100:
         raise ValueError('percentiles should be in range 0..100, not 0..1')
 
     ptiles = prctile(x, p)
-    return npy.searchsorted(ptiles, x)
+    return np.searchsorted(ptiles, x)
 
 def center_matrix(M, dim=0):
     """
@@ -873,12 +873,12 @@ def center_matrix(M, dim=0):
     if dim=1 operate on columns instead of rows.  (dim is opposite
     to the numpy axis kwarg.)
     """
-    M = npy.asarray(M, npy.float_)
+    M = np.asarray(M, np.float_)
     if dim:
         M = (M - M.mean(axis=0)) / M.std(axis=0)
     else:
-        M = (M - M.mean(axis=1)[:,npy.newaxis])
-        M = M / M.std(axis=1)[:,npy.newaxis]
+        M = (M - M.mean(axis=1)[:,np.newaxis])
+        M = M / M.std(axis=1)[:,np.newaxis]
     return M
 
 
@@ -922,25 +922,25 @@ def rk4(derivs, y0, t):
 
     try: Ny = len(y0)
     except TypeError:
-        yout = npy.zeros( (len(t),), npy.float_)
+        yout = np.zeros( (len(t),), np.float_)
     else:
-        yout = npy.zeros( (len(t), Ny), npy.float_)
+        yout = np.zeros( (len(t), Ny), np.float_)
 
 
     yout[0] = y0
     i = 0
 
-    for i in npy.arange(len(t)-1):
+    for i in np.arange(len(t)-1):
 
         thist = t[i]
         dt = t[i+1] - thist
         dt2 = dt/2.0
         y0 = yout[i]
 
-        k1 = npy.asarray(derivs(y0, thist))
-        k2 = npy.asarray(derivs(y0 + dt2*k1, thist+dt2))
-        k3 = npy.asarray(derivs(y0 + dt2*k2, thist+dt2))
-        k4 = npy.asarray(derivs(y0 + dt*k3, thist+dt))
+        k1 = np.asarray(derivs(y0, thist))
+        k2 = np.asarray(derivs(y0 + dt2*k1, thist+dt2))
+        k3 = np.asarray(derivs(y0 + dt2*k2, thist+dt2))
+        k4 = np.asarray(derivs(y0 + dt*k3, thist+dt))
         yout[i+1] = y0 + dt/6.0*(k1 + 2*k2 + 2*k3 + k4)
     return yout
 
@@ -957,8 +957,8 @@ def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,
 
     rho = sigmaxy/(sigmax*sigmay)
     z = Xmu**2/sigmax**2 + Ymu**2/sigmay**2 - 2*rho*Xmu*Ymu/(sigmax*sigmay)
-    denom = 2*npy.pi*sigmax*sigmay*npy.sqrt(1-rho**2)
-    return npy.exp( -z/(2*(1-rho**2))) / denom
+    denom = 2*np.pi*sigmax*sigmay*np.sqrt(1-rho**2)
+    return np.exp( -z/(2*(1-rho**2))) / denom
 
 
 
@@ -970,22 +970,22 @@ def get_xyz_where(Z, Cond):
     where x and y are the indices into Z and z are the values of Z at
     those indices.  x,y,z are 1D arrays
     """
-    X,Y = npy.indices(Z.shape)
+    X,Y = np.indices(Z.shape)
     return X[Cond], Y[Cond], Z[Cond]
 
 def get_sparse_matrix(M,N,frac=0.1):
     'return a MxN sparse matrix with frac elements randomly filled'
-    data = npy.zeros((M,N))*0.
+    data = np.zeros((M,N))*0.
     for i in range(int(M*N*frac)):
-        x = npy.random.randint(0,M-1)
-        y = npy.random.randint(0,N-1)
-        data[x,y] = npy.random.rand()
+        x = np.random.randint(0,M-1)
+        y = np.random.randint(0,N-1)
+        data[x,y] = np.random.rand()
     return data
 
 def dist(x,y):
     'return the distance between two points'
     d = x-y
-    return npy.sqrt(npy.dot(d,d))
+    return np.sqrt(np.dot(d,d))
 
 def dist_point_to_segment(p, s0, s1):
     """
@@ -996,17 +996,17 @@ def dist_point_to_segment(p, s0, s1):
     This algorithm from
     http://softsurfer.com/Archive/algorithm_0102/algorithm_0102.htm#Distance%20to%20Ray%20or%20Segment
     """
-    p = npy.asarray(p, npy.float_)
-    s0 = npy.asarray(s0, npy.float_)
-    s1 = npy.asarray(s1, npy.float_)
+    p = np.asarray(p, np.float_)
+    s0 = np.asarray(s0, np.float_)
+    s1 = np.asarray(s1, np.float_)
     v = s1 - s0
     w = p - s0
 
-    c1 = npy.dot(w,v);
+    c1 = np.dot(w,v);
     if ( c1 <= 0 ):
         return dist(p, s0);
 
-    c2 = npy.dot(v,v)
+    c2 = np.dot(v,v)
     if ( c2 <= c1 ):
         return dist(p, s1);
 
@@ -1049,11 +1049,11 @@ def fftsurr(x, detrend=detrend_none, window=window_none):
         x=window*detrend(x)
     else:
         x = window(detrend(x))
-    z = npy.fft.fft(x)
-    a = 2.*npy.pi*1j
-    phase = a * npy.random.rand(len(x))
-    z = z*npy.exp(phase)
-    return npy.fft.ifft(z).real
+    z = np.fft.fft(x)
+    a = 2.*np.pi*1j
+    phase = a * np.random.rand(len(x))
+    z = z*np.exp(phase)
+    return np.fft.ifft(z).real
 
 
 def liaupunov(x, fprime):
@@ -1066,7 +1066,7 @@ def liaupunov(x, fprime):
     caveat emptor.
     It also seems that this function's name is badly misspelled.
     """
-    return npy.mean(npy.log(npy.absolute(fprime(x))))
+    return np.mean(np.log(np.absolute(fprime(x))))
 
 class FIFOBuffer:
     """
@@ -1088,10 +1088,10 @@ class FIFOBuffer:
     """
     def __init__(self, nmax):
         'buffer up to nmax points'
-        self._xa = npy.zeros((nmax,), npy.float_)
-        self._ya = npy.zeros((nmax,), npy.float_)
-        self._xs = npy.zeros((nmax,), npy.float_)
-        self._ys = npy.zeros((nmax,), npy.float_)
+        self._xa = np.zeros((nmax,), np.float_)
+        self._ya = np.zeros((nmax,), np.float_)
+        self._xs = np.zeros((nmax,), np.float_)
+        self._ys = np.zeros((nmax,), np.float_)
         self._ind = 0
         self._nmax = nmax
         self.dataLim = None
@@ -1149,9 +1149,9 @@ class FIFOBuffer:
 
 def movavg(x,n):
     'compute the len(n) moving average of x'
-    w = npy.empty((n,), dtype=npy.float_)
+    w = np.empty((n,), dtype=np.float_)
     w[:] = 1.0/n
-    return npy.convolve(x, w, mode='valid')
+    return np.convolve(x, w, mode='valid')
 
 def save(fname, X, fmt='%.18e',delimiter=' '):
     """
@@ -1185,7 +1185,7 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
         raise ValueError('fname must be a string or file handle')
 
 
-    X = npy.asarray(X)
+    X = np.asarray(X)
     origShape = None
     if X.ndim == 1:
         origShape = X.shape
@@ -1278,7 +1278,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
         thisLen = len(row)
         X.append(row)
 
-    X = npy.array(X, npy.float_)
+    X = np.array(X, np.float_)
     r,c = X.shape
     if r==1 or c==1:
         X.shape = max(r,c),
@@ -1313,10 +1313,10 @@ def slopes(x,y):
     Icelandic Meteorological Office, March 2006 halldor at vedur.is)
     """
     # Cast key variables as float.
-    x=npy.asarray(x, npy.float_)
-    y=npy.asarray(y, npy.float_)
+    x=np.asarray(x, np.float_)
+    y=np.asarray(y, np.float_)
 
-    yp=npy.zeros(y.shape, npy.float_)
+    yp=np.zeros(y.shape, np.float_)
 
     dx=x[1:] - x[:-1]
     dy=y[1:] - y[:-1]
@@ -1371,18 +1371,18 @@ def stineman_interp(xi,x,y,yp=None):
     """
 
     # Cast key variables as float.
-    x=npy.asarray(x, npy.float_)
-    y=npy.asarray(y, npy.float_)
+    x=np.asarray(x, np.float_)
+    y=np.asarray(y, np.float_)
     assert x.shape == y.shape
     N=len(y)
 
     if yp is None:
         yp = slopes(x,y)
     else:
-        yp=npy.asarray(yp, npy.float_)
+        yp=np.asarray(yp, np.float_)
 
-    xi=npy.asarray(xi, npy.float_)
-    yi=npy.zeros(xi.shape, npy.float_)
+    xi=np.asarray(xi, np.float_)
+    yi=np.zeros(xi.shape, np.float_)
 
     # calculate linear slopes
     dx = x[1:] - x[:-1]
@@ -1391,7 +1391,7 @@ def stineman_interp(xi,x,y,yp=None):
 
     # find the segment each xi is in
     # this line actually is the key to the efficiency of this implementation
-    idx = npy.searchsorted(x[1:-1], xi)
+    idx = np.searchsorted(x[1:-1], xi)
 
     # now we have generally: x[idx[j]] <= xi[j] <= x[idx[j]+1]
     # except at the boundaries, where it may be that xi[j] < x[0] or xi[j] > x[-1]
@@ -1412,7 +1412,7 @@ def stineman_interp(xi,x,y,yp=None):
     # does more calculations than necessary but exploiting the power
     # of numpy, this is far more efficient than coding a loop by hand
     # in Python
-    yi = yo + dy1dy2 * npy.choose(npy.array(npy.sign(dy1dy2), npy.int32)+1,
+    yi = yo + dy1dy2 * np.choose(np.array(np.sign(dy1dy2), np.int32)+1,
                                  ((2*xi-xidx-xidxp1)/((dy1-dy2)*(xidxp1-xidx)),
                                   0.0,
                                   1/(dy1+dy2),))
@@ -1426,7 +1426,7 @@ def inside_poly(points, verts):
     return value is a sequence of indices into points for the points
     that are inside the polygon
     """
-    res, =  npy.nonzero(nxutils.points_inside_poly(points, verts))
+    res, =  np.nonzero(nxutils.points_inside_poly(points, verts))
     return res
 
 def poly_below(xmin, xs, ys):
@@ -1439,13 +1439,13 @@ def poly_below(xmin, xs, ys):
     xv, yv = poly_below(0, x, y)
     ax.fill(xv, yv)
     """
-    xs = npy.asarray(xs)
-    ys = npy.asarray(ys)
+    xs = np.asarray(xs)
+    ys = np.asarray(ys)
     Nx = len(xs)
     Ny = len(ys)
     assert(Nx==Ny)
-    x = xmin*npy.ones(2*Nx)
-    y = npy.ones(2*Nx)
+    x = xmin*np.ones(2*Nx)
+    y = np.ones(2*Nx)
     x[:Nx] = xs
     y[:Nx] = ys
     y[Nx:] = ys[::-1]
@@ -1462,13 +1462,13 @@ def poly_between(x, ylower, yupper):
     """
     Nx = len(x)
     if not cbook.iterable(ylower):
-        ylower = ylower*npy.ones(Nx)
+        ylower = ylower*np.ones(Nx)
 
     if not cbook.iterable(yupper):
-        yupper = yupper*npy.ones(Nx)
+        yupper = yupper*np.ones(Nx)
 
-    x = npy.concatenate( (x, x[::-1]) )
-    y = npy.concatenate( (yupper, ylower[::-1]) )
+    x = np.concatenate( (x, x[::-1]) )
+    y = np.concatenate( (yupper, ylower[::-1]) )
     return x,y
 
 ### the following code was written and submitted by Fernando Perez
@@ -1532,8 +1532,8 @@ def exp_safe(x):
     floating point exception handling with access to the underlying
     hardware."""
 
-    if type(x) is npy.ndarray:
-        return exp(npy.clip(x,exp_safe_MIN,exp_safe_MAX))
+    if type(x) is np.ndarray:
+        return exp(np.clip(x,exp_safe_MIN,exp_safe_MAX))
     else:
         return math.exp(x)
 
@@ -1543,14 +1543,14 @@ def amap(fn,*args):
     Works like map(), but it returns an array.  This is just a convenient
     shorthand for numpy.array(map(...))
     """
-    return npy.array(map(fn,*args))
+    return np.array(map(fn,*args))
 
 
 #from numpy import zeros_like
 def zeros_like(a):
     """Return an array of zeros of the shape and typecode of a."""
     warnings.warn("Use numpy.zeros_like(a)", DeprecationWarning)
-    return npy.zeros_like(a)
+    return np.zeros_like(a)
 
 #from numpy import sum as sum_flat
 def sum_flat(a):
@@ -1558,32 +1558,32 @@ def sum_flat(a):
 
     It uses a.flat, and if a is not contiguous, a call to ravel(a) is made."""
     warnings.warn("Use numpy.sum(a) or a.sum()", DeprecationWarning)
-    return npy.sum(a)
+    return np.sum(a)
 
 #from numpy import mean as mean_flat
 def mean_flat(a):
     """Return the mean of all the elements of a, flattened out."""
     warnings.warn("Use numpy.mean(a) or a.mean()", DeprecationWarning)
-    return npy.mean(a)
+    return np.mean(a)
 
 def rms_flat(a):
     """Return the root mean square of all the elements of a, flattened out."""
 
-    return npy.sqrt(npy.mean(npy.absolute(a)**2))
+    return np.sqrt(np.mean(np.absolute(a)**2))
 
 def l1norm(a):
     """Return the l1 norm of a, flattened out.
 
     Implemented as a separate function (not a call to norm() for speed)."""
 
-    return npy.sum(npy.absolute(a))
+    return np.sum(np.absolute(a))
 
 def l2norm(a):
     """Return the l2 norm of a, flattened out.
 
     Implemented as a separate function (not a call to norm() for speed)."""
 
-    return npy.sqrt(npy.sum(npy.absolute(a)**2))
+    return np.sqrt(np.sum(np.absolute(a)**2))
 
 def norm_flat(a,p=2):
     """norm(a,p=2) -> l-p norm of a.flat
@@ -1595,9 +1595,9 @@ def norm_flat(a,p=2):
     # This function was being masked by a more general norm later in
     # the file.  We may want to simply delete it.
     if p=='Infinity':
-        return npy.amax(npy.absolute(a))
+        return np.amax(np.absolute(a))
     else:
-        return (npy.sum(npy.absolute(a)**p))**(1.0/p)
+        return (np.sum(np.absolute(a)**p))**(1.0/p)
 
 def frange(xini,xfin=None,delta=None,**kw):
     """frange([start,] stop[, step, keywords]) -> array of floats
@@ -1657,7 +1657,7 @@ def frange(xini,xfin=None,delta=None,**kw):
         # round finds the nearest, so the endpoint can be up to
         # delta/2 larger than xfin.
 
-    return npy.arange(npts)*delta+xini
+    return np.arange(npts)*delta+xini
 # end frange()
 
 #import numpy.diag as diagonal_matrix
@@ -1665,7 +1665,7 @@ def diagonal_matrix(diag):
     """Return square diagonal matrix whose non-zero elements are given by the
     input array."""
     warnings.warn("Use numpy.diag(d)", DeprecationWarning)
-    return npy.diag(diag)
+    return np.diag(diag)
 
 def identity(n, rank=2, dtype='l', typecode=None):
     """identity(n,r) returns the identity matrix of shape (n,n,...,n) (rank r).
@@ -1686,7 +1686,7 @@ def identity(n, rank=2, dtype='l', typecode=None):
         warnings.warn("Use dtype kwarg instead of typecode",
                        DeprecationWarning)
         dtype = typecode
-    iden = npy.zeros((n,)*rank, dtype)
+    iden = np.zeros((n,)*rank, dtype)
     for i in range(n):
         idx = (i,)*rank
         iden[idx] = 1
@@ -1761,7 +1761,7 @@ def fromfunction_kw(function, dimensions, **kwargs):
     The function MyFunction() is responsible for handling the dictionary of
     keywords it will receive."""
     warnings.warn("Use numpy.fromfunction()", DeprecationWarning)
-    return npy.fromfunction(function, dimensions, **kwargs)
+    return np.fromfunction(function, dimensions, **kwargs)
 
 ### end fperez numutils code
 
@@ -1792,7 +1792,7 @@ def fix(x):
     For negative numbers is equivalent to ceil and for positive to floor.
     """
     warnings.warn("Use numpy.fix()", DeprecationWarning)
-    return npy.fix(x)
+    return np.fix(x)
 
 def rem(x,y):
     """
@@ -1802,10 +1802,10 @@ def rem(x,y):
     This also differs from numpy.remainder, which uses floor instead of
     fix.
     """
-    x,y = npy.asarray(x), npy.asarray(y)
-    if npy.any(y == 0):
+    x,y = np.asarray(x), np.asarray(y)
+    if np.any(y == 0):
         return None
-    return x - y * npy.fix(x/y)
+    return x - y * np.fix(x/y)
 
 
 def norm(x,y=2):
@@ -1830,28 +1830,28 @@ def norm(x,y=2):
           NORM(V,-inf) = min(abs(V)).
     """
 
-    x = npy.asarray(x)
+    x = np.asarray(x)
     if x.ndim == 2:
         if y==2:
-            return npy.max(npy.linalg.svd(x)[1])
+            return np.max(np.linalg.svd(x)[1])
         elif y==1:
-            return npy.max(npy.sum(npy.absolute((x)), axis=0))
+            return np.max(np.sum(np.absolute((x)), axis=0))
         elif y=='inf':
-            return npy.max(npy.sum(npy.absolute((npy.transpose(x))), axis=0))
+            return np.max(np.sum(np.absolute((np.transpose(x))), axis=0))
         elif y=='fro':
-            xx = npy.dot(x.transpose(), x)
-            return npy.sqrt(npy.sum(npy.diag(xx), axis=0))
+            xx = np.dot(x.transpose(), x)
+            return np.sqrt(np.sum(np.diag(xx), axis=0))
         else:
             raise ValueError('Second argument not permitted for matrices')
 
     else:
-        xa = npy.absolute(x)
+        xa = np.absolute(x)
         if y == 'inf':
-            return npy.max(xa)
+            return np.max(xa)
         elif y == '-inf':
-            return npy.min(xa)
+            return np.min(xa)
         else:
-            return npy.power(npy.sum(npy.power(xa,y)),1/float(y))
+            return np.power(np.sum(np.power(xa,y)),1/float(y))
 
 
 def orth(A):
@@ -1865,8 +1865,8 @@ def orth(A):
         rank of A.
     """
 
-    A     = npy.asarray(A)
-    U,S,V = npy.linalg.svd(A)
+    A     = np.asarray(A)
+    U,S,V = np.linalg.svd(A)
 
     m,n = A.shape
     if m > 1:
@@ -1876,9 +1876,9 @@ def orth(A):
     else:
         s = 0
 
-    tol = max(m,n) * npy.max(s) * _eps_approx
-    r = npy.sum(s > tol)
-    Q = npy.take(U,range(r),1)
+    tol = max(m,n) * np.max(s) * _eps_approx
+    r = np.sum(s > tol)
+    Q = np.take(U,range(r),1)
 
     return Q
 
@@ -1891,12 +1891,12 @@ def rank(x):
     Note that numerix.mlab.rank() is not equivalent to Matlab's rank.
     This function is!
     """
-    x      = npy.asarray(x)
-    s      = npy.linalg.svd(x, compute_uv=False)
-    maxabs = npy.max(npy.absolute(s))
+    x      = np.asarray(x)
+    s      = np.linalg.svd(x, compute_uv=False)
+    maxabs = np.max(np.absolute(s))
     maxdim = max(x.shape)
     tol    = maxabs * maxdim * _eps_approx
-    return npy.sum(s > tol)
+    return np.sum(s > tol)
 
 def sqrtm(x):
     """
@@ -1904,7 +1904,8 @@ def sqrtm(x):
     This means that s=sqrtm(x) implies dot(s,s) = x.
     Note that s and x are matrices.
     """
-    return mfuncC(npy.sqrt, x)
+    return mfuncC(np.sqrt, x)
+
 
 def mfuncC(f, x):
     """
@@ -1913,12 +1914,12 @@ def mfuncC(f, x):
     This function is needed by sqrtm and allows further functions.
     """
 
-    x      = npy.asarray(x)
-    (v,uT) = npy.linalg.eig(x)
-    V      = npy.diag(f(v+0j))
+    x      = np.asarray(x)
+    (v,uT) = np.linalg.eig(x)
+    V      = np.diag(f(v+0j))
     # todo: warning: this is not exactly what matlab does
     #       MATLAB "B/A is roughly the same as B*inv(A)"
-    y      = npy.dot(uT, npy.dot(V, npy.linalg.inv(uT)))
+    y      = np.dot(uT, np.dot(V, np.linalg.inv(uT)))
     return approx_real(y)
 
 def approx_real(x):
@@ -1927,9 +1928,9 @@ def approx_real(x):
     approx_real(x) : returns x.real if |x.imag| < |x.real| * _eps_approx.
     This function is needed by sqrtm and allows further functions.
     """
-    ai = npy.absolute(x.imag)
-    ar = npy.absolute(x.real)
-    if npy.max(ai) <= npy.max(ar) * _eps_approx:
+    ai = np.absolute(x.imag)
+    ar = np.absolute(x.real)
+    if np.max(ai) <= np.max(ar) * _eps_approx:
         return x.real
     else:
         return x
@@ -1940,27 +1941,27 @@ def approx_real(x):
 
 def safe_isnan(x):
     'isnan for arbitrary types'
-    try: b = npy.isnan(x)
+    try: b = np.isnan(x)
     except NotImplementedError: return False
     else: return b
 
 def safe_isinf(x):
     'isnan for arbitrary types'
-    try: b = npy.isinf(x)
+    try: b = np.isinf(x)
     except NotImplementedError: return False
     else: return b
 
 def rec_append_field(rec, name, arr, dtype=None):
     'return a new record array with field name populated with data from array arr'
-    arr = npy.asarray(arr)
+    arr = np.asarray(arr)
     if dtype is None:
         dtype = arr.dtype
-    newdtype = npy.dtype(rec.dtype.descr + [(name, dtype)])
-    newrec = npy.empty(rec.shape, dtype=newdtype)
+    newdtype = np.dtype(rec.dtype.descr + [(name, dtype)])
+    newrec = np.empty(rec.shape, dtype=newdtype)
     for field in rec.dtype.fields:
         newrec[field] = rec[field]
     newrec[name] = arr
-    return newrec.view(npy.recarray)
+    return newrec.view(np.recarray)
 
 
 def rec_drop_fields(rec, names):
@@ -1969,14 +1970,14 @@ def rec_drop_fields(rec, names):
     names = set(names)
     Nr = len(rec)
 
-    newdtype = npy.dtype([(name, rec.dtype[name]) for name in rec.dtype.names
+    newdtype = np.dtype([(name, rec.dtype[name]) for name in rec.dtype.names
                        if name not in names])
 
-    newrec = npy.empty(Nr, dtype=newdtype)
+    newrec = np.empty(Nr, dtype=newdtype)
     for field in newdtype.names:
         newrec[field] = rec[field]
 
-    return newrec.view(npy.recarray)
+    return newrec.view(np.recarray)
 
 
 
@@ -1990,7 +1991,7 @@ def rec_groupby(r, groupby, stats):
     stats is a sequence of (attr, func, outname) which will call x =
     func(attr) and assign x to the record array output with attribute
     outname.
-    Eg,  stats = ( ('sales', len, 'numsales'), ('sales', npy.mean, 'avgsale') )
+    Eg,  stats = ( ('sales', len, 'numsales'), ('sales', np.mean, 'avgsale') )
 
     return record array has dtype names for each attribute name in in
     the the 'groupby' argument, with the associated group values, and
@@ -2022,7 +2023,7 @@ def rec_groupby(r, groupby, stats):
     attrs, funcs, outnames = zip(*stats)
     names = list(groupby)
     names.extend(outnames)
-    return npy.rec.fromrecords(rows, names=names)
+    return np.rec.fromrecords(rows, names=names)
 
 
 
@@ -2041,9 +2042,9 @@ def rec_summarize(r, summaryfuncs):
 
     for attr, func, outname in summaryfuncs:
         names.append(outname)
-        arrays.append(npy.asarray(func(r[attr])))
+        arrays.append(np.asarray(func(r[attr])))
 
-    return npy.rec.fromarrays(arrays, names=names)
+    return np.rec.fromarrays(arrays, names=names)
 
 
 def rec_join(key, r1, r2, jointype='inner', defaults=None):
@@ -2077,18 +2078,18 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None):
 
     common_keys = r1keys & r2keys
 
-    r1ind = npy.array([r1d[k] for k in common_keys])
-    r2ind = npy.array([r2d[k] for k in common_keys])
+    r1ind = np.array([r1d[k] for k in common_keys])
+    r2ind = np.array([r2d[k] for k in common_keys])
 
     common_len = len(common_keys)
     left_len = right_len = 0
     if jointype == "outer" or jointype == "leftouter":
         left_keys = r1keys.difference(r2keys)
-        left_ind = npy.array([r1d[k] for k in left_keys])
+        left_ind = np.array([r1d[k] for k in left_keys])
         left_len = len(left_ind)
     if jointype == "outer":
         right_keys = r2keys.difference(r1keys)
-        right_ind = npy.array([r2d[k] for k in right_keys])
+        right_ind = np.array([r2d[k] for k in right_keys])
         right_len = len(right_ind)
 
     r2 = rec_drop_fields(r2, r1.dtype.names)
@@ -2097,7 +2098,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None):
     def key_desc(name):
         'if name is a string key, use the larger size of r1 or r2 before merging'
         dt1 = r1.dtype[name]
-        if dt1.type != npy.string_:
+        if dt1.type != np.string_:
             return (name, dt1.descr[0][1])
 
         dt2 = r1.dtype[name]
@@ -2111,12 +2112,12 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None):
 
     keydesc = [key_desc(name) for name in key]
 
-    newdtype = npy.dtype(keydesc +
+    newdtype = np.dtype(keydesc +
                          [desc for desc in r1.dtype.descr if desc[0] not in key ] +
                          [desc for desc in r2.dtype.descr if desc[0] not in key ] )
 
 
-    newrec = npy.empty(common_len + left_len + right_len, dtype=newdtype)
+    newrec = np.empty(common_len + left_len + right_len, dtype=newdtype)
 
     if jointype != 'inner' and defaults is not None: # fill in the defaults enmasse
         newrec_fields = newrec.dtype.fields.keys()
@@ -2137,11 +2138,11 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None):
     # sort newrec using the same order as r1
     sort_indices = r1ind.copy()
     if jointype == "outer" or jointype == "leftouter":
-        sort_indices = npy.append(sort_indices, left_ind)
+        sort_indices = np.append(sort_indices, left_ind)
     newrec[:(common_len+left_len)] = newrec[sort_indices.argsort()]
 
 
-    return newrec.view(npy.recarray)
+    return newrec.view(np.recarray)
 
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
@@ -2257,7 +2258,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     dateparser = dateutil.parser.parse
     mydateparser = with_default_value(dateparser, datetime.date(1,1,1))
-    myfloat = with_default_value(float, npy.nan)
+    myfloat = with_default_value(float, np.nan)
     myint = with_default_value(int, -1)
     mystr = with_default_value(str, '')
 
@@ -2364,14 +2365,14 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     if not len(rows):
         return None
-    if npy.any(rowmasks):
+    if np.any(rowmasks):
         try: from numpy.ma import mrecords
         except ImportError:
             raise RuntimeError('numpy 1.05 or later is required for masked array support')
         else:
             r = mrecords.fromrecords(rows, names=names, mask=rowmasks)
     else:
-        r = npy.rec.fromrecords(rows, names=names)
+        r = np.rec.fromrecords(rows, names=names)
     return r
 
 
@@ -2443,13 +2444,13 @@ class FormatDatetime(FormatDate):
 
 
 defaultformatd = {
-    npy.int16 : FormatInt(),
-    npy.int32 : FormatInt(),
-    npy.int64 : FormatInt(),
-    npy.float32 : FormatFloat(),
-    npy.float64 : FormatFloat(),
-    npy.object_ : FormatObj(),
-    npy.string_ : FormatString(),
+    np.int16 : FormatInt(),
+    np.int32 : FormatInt(),
+    np.int64 : FormatInt(),
+    np.float32 : FormatFloat(),
+    np.float64 : FormatFloat(),
+    np.object_ : FormatObj(),
+    np.string_ : FormatString(),
     }
 
 def get_formatd(r, formatd=None):
@@ -2507,20 +2508,20 @@ def rec2txt(r, header=None, padding=3, precision=3):
     def get_justify(colname, column, precision):
         ntype = type(column[0])
 
-        if ntype==npy.str or ntype==npy.str_ or ntype==npy.string0 or ntype==npy.string_:
+        if ntype==np.str or ntype==np.str_ or ntype==np.string0 or ntype==np.string_:
             length = max(len(colname),column.itemsize)
             return 0, length+padding, "%s" # left justify
 
-        if ntype==npy.int or ntype==npy.int16 or ntype==npy.int32 or ntype==npy.int64 or ntype==npy.int8 or ntype==npy.int_:
-            length = max(len(colname),npy.max(map(len,map(str,column))))
+        if ntype==np.int or ntype==np.int16 or ntype==np.int32 or ntype==np.int64 or ntype==np.int8 or ntype==np.int_:
+            length = max(len(colname),np.max(map(len,map(str,column))))
             return 1, length+padding, "%d" # right justify
 
-        if ntype==npy.float or ntype==npy.float32 or ntype==npy.float64 or ntype==npy.float96 or ntype==npy.float_:
+        if ntype==np.float or ntype==np.float32 or ntype==np.float64 or ntype==np.float96 or ntype==np.float_:
             fmt = "%." + str(precision) + "f"
-            length = max(len(colname),npy.max(map(len,map(lambda x:fmt%x,column))))
+            length = max(len(colname),np.max(map(len,map(lambda x:fmt%x,column))))
             return 1, length+padding, fmt   # right justify
 
-        return 0, max(len(colname),npy.max(map(len,map(str,column))))+padding, "%s"
+        return 0, max(len(colname),np.max(map(len,map(str,column))))+padding, "%s"
 
     if header is None:
         header = r.dtype.names

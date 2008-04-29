@@ -1,5 +1,5 @@
 import textwrap
-import numpy as npy
+import numpy as np
 from numpy import ma
 MaskedArray = ma.MaskedArray
 
@@ -65,7 +65,7 @@ class LogScale(ScaleBase):
             a = _mask_non_positives(a * 10.0)
             if isinstance(a, MaskedArray):
                 return ma.log10(a)
-            return npy.log10(a)
+            return np.log10(a)
 
         def inverted(self):
             return LogScale.InvertedLog10Transform()
@@ -92,7 +92,7 @@ class LogScale(ScaleBase):
             a = _mask_non_positives(a * 2.0)
             if isinstance(a, MaskedArray):
                 return ma.log2(a)
-            return npy.log2(a)
+            return np.log2(a)
 
         def inverted(self):
             return LogScale.InvertedLog2Transform()
@@ -113,13 +113,13 @@ class LogScale(ScaleBase):
         input_dims = 1
         output_dims = 1
         is_separable = True
-        base = npy.e
+        base = np.e
 
         def transform(self, a):
-            a = _mask_non_positives(a * npy.e)
+            a = _mask_non_positives(a * np.e)
             if isinstance(a, MaskedArray):
                 return ma.log(a)
-            return npy.log(a)
+            return np.log(a)
 
         def inverted(self):
             return LogScale.InvertedNaturalLogTransform()
@@ -128,10 +128,10 @@ class LogScale(ScaleBase):
         input_dims = 1
         output_dims = 1
         is_separable = True
-        base = npy.e
+        base = np.e
 
         def transform(self, a):
-            return ma.power(npy.e, a) / npy.e
+            return ma.power(np.e, a) / np.e
 
         def inverted(self):
             return LogScale.Log2Transform()
@@ -148,8 +148,8 @@ class LogScale(ScaleBase):
         def transform(self, a):
             a = _mask_non_positives(a * self.base)
             if isinstance(a, MaskedArray):
-                return ma.log(a) / npy.log(self.base)
-            return npy.log(a) / npy.log(self.base)
+                return ma.log(a) / np.log(self.base)
+            return np.log(a) / np.log(self.base)
 
         def inverted(self):
             return LogScale.InvertedLogTransform(self.base)
@@ -188,7 +188,7 @@ class LogScale(ScaleBase):
             self._transform = self.Log10Transform()
         elif base == 2.0:
             self._transform = self.Log2Transform()
-        elif base == npy.e:
+        elif base == np.e:
             self._transform = self.NaturalLogTransform()
         else:
             self._transform = self.LogTransform(base)
@@ -231,19 +231,19 @@ class SymmetricalLogScale(ScaleBase):
             Transform.__init__(self)
             self.base = base
             self.linthresh = linthresh
-            self._log_base = npy.log(base)
-            self._linadjust = (npy.log(linthresh) / self._log_base) / linthresh
+            self._log_base = np.log(base)
+            self._linadjust = (np.log(linthresh) / self._log_base) / linthresh
 
         def transform(self, a):
-            sign = npy.sign(npy.asarray(a))
+            sign = np.sign(np.asarray(a))
             masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
-            log = sign * ma.log(npy.abs(masked)) / self._log_base
+            log = sign * ma.log(np.abs(masked)) / self._log_base
             if masked.mask.any():
-                return npy.asarray(ma.where(masked.mask,
+                return np.asarray(ma.where(masked.mask,
                                             a * self._linadjust,
                                             log))
             else:
-                return npy.asarray(log)
+                return np.asarray(log)
 
         def inverted(self):
             return SymmetricalLogScale.InvertedSymmetricalLogTransform(self.base, self.linthresh)
@@ -257,16 +257,16 @@ class SymmetricalLogScale(ScaleBase):
             Transform.__init__(self)
             self.base = base
             self.linthresh = linthresh
-            self._log_base = npy.log(base)
-            self._log_linthresh = npy.log(linthresh) / self._log_base
-            self._linadjust = linthresh / (npy.log(linthresh) / self._log_base)
+            self._log_base = np.log(base)
+            self._log_linthresh = np.log(linthresh) / self._log_base
+            self._linadjust = linthresh / (np.log(linthresh) / self._log_base)
 
         def transform(self, a):
-            return npy.where(a <= self._log_linthresh,
-                             npy.where(a >= -self._log_linthresh,
+            return np.where(a <= self._log_linthresh,
+                             np.where(a >= -self._log_linthresh,
                                        a * self._linadjust,
-                                       -(npy.power(self.base, -a))),
-                             npy.power(self.base, a))
+                                       -(np.power(self.base, -a))),
+                             np.power(self.base, a))
 
         def inverted(self):
             return SymmetricalLogScale.SymmetricalLogTransform(self.base)

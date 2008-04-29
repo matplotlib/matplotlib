@@ -7,7 +7,7 @@ layout -- you have to figure out how wide and tall you want your Axes
 to be to accommodate your widget.
 """
 
-import numpy as npy
+import numpy as np
 
 from mlab import dist
 from patches import Circle, Rectangle
@@ -307,7 +307,7 @@ class CheckButtons(Widget):
 
         if len(labels)>1:
             dy = 1./(len(labels)+1)
-            ys = npy.linspace(1-dy, dy, len(labels))
+            ys = np.linspace(1-dy, dy, len(labels))
         else:
             dy = 0.25
             ys = [0.5]
@@ -424,7 +424,7 @@ class RadioButtons(Widget):
         ax.set_yticks([])
         ax.set_navigate(False)
         dy = 1./(len(labels)+1)
-        ys = npy.linspace(1-dy, dy, len(labels))
+        ys = np.linspace(1-dy, dy, len(labels))
         cnt = 0
         axcolor = ax.get_axis_bgcolor()
 
@@ -460,9 +460,9 @@ class RadioButtons(Widget):
         if event.button !=1 : return
         if event.inaxes != self.ax: return
         xy = self.ax.transAxes.inverse_xy_tup((event.x, event.y))
-        pclicked = npy.array([xy[0], xy[1]])
+        pclicked = np.array([xy[0], xy[1]])
         def inside(p):
-            pcirc = npy.array([p.center[0], p.center[1]])
+            pcirc = np.array([p.center[0], p.center[1]])
             return dist(pclicked, pcirc) < p.radius
 
         for p,t in zip(self.circles, self.labels):
@@ -845,18 +845,18 @@ class SpanSelector:
         # Needed when dragging out of axes
         self.buttonDown = False
         self.prev = (0, 0)
-        
+
         self.new_axes(ax)
-        
-        
+
+
     def new_axes(self,ax):
         self.ax = ax
         if self.canvas is not ax.figure.canvas:
             for cid in self.cids:
                 self.canvas.mpl_disconnect(cid)
-                
+
             self.canvas = ax.figure.canvas
-            
+
             self.cids.append(self.canvas.mpl_connect('motion_notify_event', self.onmove))
             self.cids.append(self.canvas.mpl_connect('button_press_event', self.press))
 	    self.cids.append(self.canvas.mpl_connect('button_release_event', self.release))
@@ -872,7 +872,7 @@ class SpanSelector:
                                visible=False,
                                **self.rectprops
                                )
-                               
+
         if not self.useblit: self.ax.add_patch(self.rect)
 
     def update_background(self, event):

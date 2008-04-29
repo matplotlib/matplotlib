@@ -718,7 +718,7 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
   inv_mtx.invert();
 
   agg::image_filter_lut filter;
-  filter.calculate(agg::image_filter_spline16());
+  filter.calculate(agg::image_filter_spline36());
   interpolator_type interpolator(inv_mtx);
   color_span_alloc_type sa;
   image_accessor_type ia(pixf_img, 0);
