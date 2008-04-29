@@ -11,7 +11,7 @@ import text
 
 from colors import Normalize
 
-import numpy as npy
+import numpy as np
 import proj3d
 
 class Wrap2D:
@@ -253,8 +253,8 @@ class Poly3DCollection(Wrap2D):
             segis.append((si,ei))
             si = ei
         xs,ys,zs = zip(*points)
-        ones = npy.ones(len(xs))
-        self.vec = npy.array([xs,ys,zs,ones])
+        ones = np.ones(len(xs))
+        self.vec = np.array([xs,ys,zs,ones])
         self.segis = segis
 
     def draw3d(self, renderer):
@@ -326,7 +326,7 @@ def image_draw(image,renderer):
     source = image._A
     w,h,p = source.shape
     X,Y = meshgrid(arange(w),arange(h))
-    Z = npy.zeros((w,h))
+    Z = np.zeros((w,h))
     tX,tY,tZ = proj3d.transform(X.flat,Y.flat,Z.flat,M)
     tX = reshape(tX,(w,h))
     tY = reshape(tY,(w,h))

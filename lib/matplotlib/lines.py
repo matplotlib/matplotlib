@@ -6,7 +6,7 @@ variety of line styles, markers and colors
 # TODO: expose cap and join style attrs
 from __future__ import division
 
-import numpy as npy
+import numpy as np
 from numpy import ma
 from matplotlib import verbose
 import artist
@@ -25,50 +25,50 @@ from matplotlib import rcParams
 # COVERAGE NOTE: Never called internally or from examples
 def unmasked_index_ranges(mask, compressed = True):
     '''
-    Calculate the good data ranges in a masked 1-D npy.array, based on mask.
+    Calculate the good data ranges in a masked 1-D np.array, based on mask.
 
-    Returns Nx2 npy.array with each row the start and stop indices
-    for slices of the compressed npy.array corresponding to each of N
+    Returns Nx2 np.array with each row the start and stop indices
+    for slices of the compressed np.array corresponding to each of N
     uninterrupted runs of unmasked values.
     If optional argument compressed is False, it returns the
-    start and stop indices into the original npy.array, not the
-    compressed npy.array.
+    start and stop indices into the original np.array, not the
+    compressed np.array.
     Returns None if there are no unmasked values.
 
     Example:
 
-    y = ma.array(npy.arange(5), mask = [0,0,1,0,0])
+    y = ma.array(np.arange(5), mask = [0,0,1,0,0])
     #ii = unmasked_index_ranges(y.mask())
     ii = unmasked_index_ranges(ma.getmask(y))
         # returns [[0,2,] [2,4,]]
 
     y.compressed().filled()[ii[1,0]:ii[1,1]]
-        # returns npy.array [3,4,]
-        # (The 'filled()' method converts the masked npy.array to a numerix npy.array.)
+        # returns np.array [3,4,]
+        # (The 'filled()' method converts the masked np.array to a numerix np.array.)
 
     #i0, i1 = unmasked_index_ranges(y.mask(), compressed=False)
     i0, i1 = unmasked_index_ranges(ma.getmask(y), compressed=False)
         # returns [[0,3,] [2,5,]]
 
     y.filled()[ii[1,0]:ii[1,1]]
-        # returns npy.array [3,4,]
+        # returns np.array [3,4,]
 
     '''
-    m = npy.concatenate(((1,), mask, (1,)))
-    indices = npy.arange(len(mask) + 1)
+    m = np.concatenate(((1,), mask, (1,)))
+    indices = np.arange(len(mask) + 1)
     mdif = m[1:] - m[:-1]
-    i0 = npy.compress(mdif == -1, indices)
-    i1 = npy.compress(mdif == 1, indices)
+    i0 = np.compress(mdif == -1, indices)
+    i1 = np.compress(mdif == 1, indices)
     assert len(i0) == len(i1)
     if len(i1) == 0:
         return None
     if not compressed:
-        return npy.concatenate((i0[:, npy.newaxis], i1[:, npy.newaxis]), axis=1)
+        return np.concatenate((i0[:, np.newaxis], i1[:, np.newaxis]), axis=1)
     seglengths = i1 - i0
-    breakpoints = npy.cumsum(seglengths)
-    ic0 = npy.concatenate(((0,), breakpoints[:-1]))
+    breakpoints = np.cumsum(seglengths)
+    ic0 = np.concatenate(((0,), breakpoints[:-1]))
     ic1 = breakpoints
-    return npy.concatenate((ic0[:, npy.newaxis], ic1[:, npy.newaxis]), axis=1)
+    return np.concatenate((ic0[:, np.newaxis], ic1[:, np.newaxis]), axis=1)
 
 def segment_hits(cx,cy,x,y,radius):
     """Determine if any line segments are within radius of a point. Returns
@@ -76,7 +76,7 @@ def segment_hits(cx,cy,x,y,radius):
     """
     # Process single points specially
     if len(x) < 2:
-        res, = npy.nonzero( (cx - x)**2 + (cy - y)**2 <= radius**2 )
+        res, = np.nonzero( (cx - x)**2 + (cy - y)**2 <= radius**2 )
         return res
 
     # We need to lop the last element off a lot.
@@ -107,7 +107,7 @@ def segment_hits(cx,cy,x,y,radius):
     points, = point_hits.ravel().nonzero()
     lines, = line_hits.ravel().nonzero()
     #print points,lines
-    return npy.concatenate((points,lines))
+    return np.concatenate((points,lines))
 
 class Line2D(Artist):
     lineStyles = _lineStyles =  { # hidden names deprecated
@@ -208,7 +208,7 @@ class Line2D(Artist):
           dash_capstyle: ['butt' | 'round' | 'projecting']
           dash_joinstyle: ['miter' | 'round' | 'bevel']
           dashes: sequence of on/off ink in points
-          data: (npy.array xdata, npy.array ydata)
+          data: (np.array xdata, np.array ydata)
           figure: a matplotlib.figure.Figure instance
           label: any string
           linestyle or ls: [ '-' | '--' | '-.' | ':' | 'steps' | 'steps-pre' | 'steps-mid' | 'steps-post' | 'None' | ' ' | '' ]
@@ -224,8 +224,8 @@ class Line2D(Artist):
           solid_joinstyle: ['miter' | 'round' | 'bevel']
           transform: a matplotlib.transform transformation instance
           visible: [True | False]
-          xdata: npy.array
-          ydata: npy.array
+          xdata: np.array
+          ydata: np.array
           zorder: any number
         """
         Artist.__init__(self)
@@ -284,8 +284,8 @@ class Line2D(Artist):
         if is_numlike(self._picker):
             self.pickradius = self._picker
 
-        self._xorig = npy.asarray([])
-        self._yorig = npy.asarray([])
+        self._xorig = np.asarray([])
+        self._yorig = np.asarray([])
         self._invalid = True
         self.set_data(xdata, ydata)
 
@@ -295,7 +295,7 @@ class Line2D(Artist):
         get/set pickradius() to view or modify it.
 
         Returns True if any values are within the radius along with {'ind': pointlist},
-        npy.where pointlist is the set of points within the radius.
+        np.where pointlist is the set of points within the radius.
 
         TODO: sort returned indices by distance
         """
@@ -319,8 +319,8 @@ class Line2D(Artist):
 
         if self._linestyle == 'None':
             # If no line, return the nearby point(s)
-            d = npy.sqrt((xt-mouseevent.x)**2 + (yt-mouseevent.y)**2)
-            ind, = npy.nonzero(npy.less_equal(d, pixels))
+            d = np.sqrt((xt-mouseevent.x)**2 + (yt-mouseevent.y)**2)
+            ind, = np.nonzero(np.less_equal(d, pixels))
         else:
             # If line, return the nearby segment(s)
             ind = segment_hits(mouseevent.x,mouseevent.y,xt,yt,pixels)
@@ -374,7 +374,7 @@ class Line2D(Artist):
         """
         Set the x and y data
 
-        ACCEPTS: (npy.array xdata, npy.array ydata)
+        ACCEPTS: (np.array xdata, np.array ydata)
         """
         if len(args)==1:
             x, y = args[0]
@@ -383,17 +383,17 @@ class Line2D(Artist):
 
         not_masked = 0
         if not ma.isMaskedArray(x):
-            x = npy.asarray(x)
+            x = np.asarray(x)
             not_masked += 1
         if not ma.isMaskedArray(y):
-            y = npy.asarray(y)
+            y = np.asarray(y)
             not_masked += 1
 
         if (not_masked < 2 or
             (x is not self._xorig and
-             (x.shape != self._xorig.shape or npy.any(x != self._xorig))) or
+             (x.shape != self._xorig.shape or np.any(x != self._xorig))) or
             (y is not self._yorig and
-              (y.shape != self._yorig.shape or npy.any(y != self._yorig)))):
+              (y.shape != self._yorig.shape or np.any(y != self._yorig)))):
             self._xorig = x
             self._yorig = y
             self._invalid = True
@@ -407,15 +407,15 @@ class Line2D(Artist):
             x = ma.ravel(x)
             y = ma.ravel(y)
         else:
-            x = npy.asarray(self.convert_xunits(self._xorig), float)
-            y = npy.asarray(self.convert_yunits(self._yorig), float)
-            x = npy.ravel(x)
-            y = npy.ravel(y)
+            x = np.asarray(self.convert_xunits(self._xorig), float)
+            y = np.asarray(self.convert_yunits(self._yorig), float)
+            x = np.ravel(x)
+            y = np.ravel(y)
 
         if len(x)==1 and len(y)>1:
-            x = x * npy.ones(y.shape, float)
+            x = x * np.ones(y.shape, float)
         if len(y)==1 and len(x)>1:
-            y = y * npy.ones(x.shape, float)
+            y = y * np.ones(x.shape, float)
 
         if len(x) != len(y):
             raise RuntimeError('xdata and ydata must be the same length')
@@ -426,7 +426,7 @@ class Line2D(Artist):
         if ma.isMaskedArray(x) or ma.isMaskedArray(y):
             self._xy = ma.concatenate((x, y), 1)
         else:
-            self._xy = npy.concatenate((x, y), 1)
+            self._xy = np.concatenate((x, y), 1)
         self._x = self._xy[:, 0] # just a view
         self._y = self._xy[:, 1] # just a view
 
@@ -449,7 +449,7 @@ class Line2D(Artist):
     def _is_sorted(self, x):
         "return true if x is sorted"
         if len(x)<2: return 1
-        return npy.alltrue(x[1:]-x[0:-1]>=0)
+        return np.alltrue(x[1:]-x[0:-1]>=0)
 
     def draw(self, renderer):
         if self._invalid:
@@ -661,20 +661,20 @@ class Line2D(Artist):
 
     def set_xdata(self, x):
         """
-        Set the data npy.array for x
+        Set the data np.array for x
 
-        ACCEPTS: npy.array
+        ACCEPTS: np.array
         """
-        x = npy.asarray(x)
+        x = np.asarray(x)
         self.set_data(x, self._yorig)
 
     def set_ydata(self, y):
         """
-        Set the data npy.array for y
+        Set the data np.array for y
 
-        ACCEPTS: npy.array
+        ACCEPTS: np.array
         """
-        y = npy.asarray(y)
+        y = np.asarray(y)
         self.set_data(self._xorig, y)
 
     def set_dashes(self, seq):
@@ -702,7 +702,7 @@ class Line2D(Artist):
 
     def _draw_steps_pre(self, renderer, gc, path, trans):
         vertices = self._xy
-        steps = ma.zeros((2*len(vertices)-1, 2), npy.float_)
+        steps = ma.zeros((2*len(vertices)-1, 2), np.float_)
 
         steps[0::2, 0], steps[1::2, 0] = vertices[:, 0], vertices[:-1, 0]
         steps[0::2, 1], steps[1:-1:2, 1] = vertices[:, 1], vertices[1:, 1]
@@ -713,7 +713,7 @@ class Line2D(Artist):
 
     def _draw_steps_post(self, renderer, gc, path, trans):
         vertices = self._xy
-        steps = ma.zeros((2*len(vertices)-1, 2), npy.float_)
+        steps = ma.zeros((2*len(vertices)-1, 2), np.float_)
 
         steps[::2, 0], steps[1:-1:2, 0] = vertices[:, 0], vertices[1:, 0]
         steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:-1, 1]
@@ -724,7 +724,7 @@ class Line2D(Artist):
 
     def _draw_steps_mid(self, renderer, gc, path, trans):
         vertices = self._xy
-        steps = ma.zeros((2*len(vertices), 2), npy.float_)
+        steps = ma.zeros((2*len(vertices), 2), np.float_)
 
         steps[1:-1:2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
         steps[2::2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])

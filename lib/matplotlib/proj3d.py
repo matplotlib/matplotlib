@@ -7,7 +7,7 @@ Various transforms used for by the 3D code
 
 from collections import LineCollection
 from patches import Circle
-import numpy as npy
+import numpy as np
 import numpy.linalg as linalg
 
 def _hide_cross(a,b):
@@ -16,7 +16,7 @@ def _hide_cross(a,b):
     A x B = <Ay*Bz - Az*By, Az*Bx - Ax*Bz, Ax*By - Ay*Bx>
     a x b = [a2b3 - a3b2, a3b1 - a1b3, a1b2 - a2b1]
     """
-    return npy.array([a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1] - a[1]*b[0]])
+    return np.array([a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1] - a[1]*b[0]])
 cross = _hide_cross
 
 def line2d(p0,p1):
@@ -48,7 +48,7 @@ def line2d_dist(l, p):
     """
     a,b,c = l
     x0,y0 = p
-    return abs((a*x0 + b*y0 + c)/npy.sqrt(a**2+b**2))
+    return abs((a*x0 + b*y0 + c)/np.sqrt(a**2+b**2))
 
 
 def line2d_seg_dist(p1,p2, p0):
@@ -63,12 +63,12 @@ def line2d_seg_dist(p1,p2, p0):
 
     x21 = p2[0] - p1[0]
     y21 = p2[1] - p1[1]
-    x01 = npy.asarray(p0[0]) - p1[0]
-    y01 = npy.asarray(p0[1]) - p1[1]
+    x01 = np.asarray(p0[0]) - p1[0]
+    y01 = np.asarray(p0[1]) - p1[1]
 
     u = (x01*x21 + y01*y21)/float(abs(x21**2 + y21**2))
-    u = npy.clip(u, 0, 1)
-    d = npy.sqrt((x01 - u*x21)**2 + (y01 - u*y21)**2)
+    u = np.clip(u, 0, 1)
+    d = np.sqrt((x01 - u*x21)**2 + (y01 - u*y21)**2)
 
     return d
 
@@ -85,7 +85,7 @@ def test_lines_dists():
     pylab.scatter(xs,ys)
     #
     dist = line2d_seg_dist(p0,p1,(xs[0],ys[0]))
-    dist = line2d_seg_dist(p0,p1,npy.array((xs,ys)))
+    dist = line2d_seg_dist(p0,p1,np.array((xs,ys)))
     for x,y,d in zip(xs,ys,dist):
         c = Circle((x,y),d,fill=0)
         ax.add_patch(c)
@@ -96,13 +96,13 @@ def test_lines_dists():
 
 def mod(v):
     """3d vector length"""
-    return npy.sqrt(v[0]**2+v[1]**2+v[2]**2)
+    return np.sqrt(v[0]**2+v[1]**2+v[2]**2)
 
 def world_transformation(xmin,xmax,
                          ymin,ymax,
                          zmin,zmax):
     dx,dy,dz = (xmax-xmin),(ymax-ymin),(zmax-zmin)
-    return npy.array([
+    return np.array([
         [1.0/dx,0,0,-xmin/dx],
         [0,1.0/dy,0,-ymin/dy],
         [0,0,1.0/dz,-zmin/dz],
@@ -119,11 +119,11 @@ def view_transformation(E, R, V):
     n = (E - R)
     ## new
 #    n /= mod(n)
-#    u = npy.cross(V,n)
+#    u = np.cross(V,n)
 #    u /= mod(u)
-#    v = npy.cross(n,u)
-#    Mr = npy.diag([1.]*4)
-#    Mt = npy.diag([1.]*4)
+#    v = np.cross(n,u)
+#    Mr = np.diag([1.]*4)
+#    Mt = np.diag([1.]*4)
 #    Mr[:3,:3] = u,v,n
 #    Mt[:3,-1] = -E
     ## end new
@@ -145,38 +145,38 @@ def view_transformation(E, R, V):
           [0, 0, 0, 1]]
     ## end old
 
-    return npy.dot(Mr,Mt)
+    return np.dot(Mr,Mt)
 
 def persp_transformation(zfront,zback):
     a = (zfront+zback)/(zfront-zback)
     b = -2*(zfront*zback)/(zfront-zback)
-    return npy.array([[1,0,0,0],
+    return np.array([[1,0,0,0],
                      [0,1,0,0],
                      [0,0,a,b],
                      [0,0,-1,0]
                      ])
 
 def proj_transform_vec(vec, M):
-    vecw = npy.dot(M,vec)
+    vecw = np.dot(M,vec)
     w = vecw[3]
     # clip here..
     txs,tys,tzs = vecw[0]/w,vecw[1]/w,vecw[2]/w
     return txs,tys,tzs
 
 def proj_transform_vec_clip(vec, M):
-    vecw = npy.dot(M,vec)
+    vecw = np.dot(M,vec)
     w = vecw[3]
     # clip here..
     txs,tys,tzs = vecw[0]/w,vecw[1]/w,vecw[2]/w
     tis = (vecw[0] >= 0) * (vecw[0] <= 1) * (vecw[1] >= 0) * (vecw[1] <= 1)
-    if npy.sometrue( tis ):
+    if np.sometrue( tis ):
         tis =  vecw[1]<1
     return txs,tys,tzs,tis
 
 def inv_transform(xs,ys,zs,M):
     iM = linalg.inv(M)
     vec = vec_pad_ones(xs,ys,zs)
-    vecr = npy.dot(iM,vec)
+    vecr = np.dot(iM,vec)
     try:
         vecr = vecr/vecr[3]
     except OverflowError:
@@ -186,11 +186,11 @@ def inv_transform(xs,ys,zs,M):
 def vec_pad_ones(xs,ys,zs):
     try:
         try:
-            vec = npy.array([xs,ys,zs,npy.ones(xs.shape)])
+            vec = np.array([xs,ys,zs,np.ones(xs.shape)])
         except (AttributeError,TypeError):
-            vec = npy.array([xs,ys,zs,npy.ones((len(xs)))])
+            vec = np.array([xs,ys,zs,np.ones((len(xs)))])
     except TypeError:
-        vec = npy.array([xs,ys,zs,1])
+        vec = np.array([xs,ys,zs,1])
     return vec
 
 def proj_transform(xs,ys,zs, M):
@@ -235,13 +235,13 @@ def test_proj_draw_axes(M, s=1):
 
 def test_proj_make_M(E=None):
     # eye point
-    E = E or npy.array([1,-1,2])*1000
-    #E = npy.array([20,10,20])
-    R = npy.array([1,1,1])*100
-    V = npy.array([0,0,1])
+    E = E or np.array([1,-1,2])*1000
+    #E = np.array([20,10,20])
+    R = np.array([1,1,1])*100
+    V = np.array([0,0,1])
     viewM = view_transformation(E,R,V)
     perspM = persp_transformation(100,-100)
-    M = npy.dot(perspM,viewM)
+    M = np.dot(perspM,viewM)
     return M
 
 def test_proj():
@@ -250,7 +250,7 @@ def test_proj():
     ts = ['%d' % i for i in [0,1,2,3,0,4,5,6,7,4]]
     #xs,ys,zs = [0,1,1,0,0,1,1,0],[0,0,1,1,0,0,1,1],[0,0,0,0,1,1,1,1]
     xs,ys,zs = [0,1,1,0,0, 0,1,1,0,0],[0,0,1,1,0, 0,0,1,1,0],[0,0,0,0,0, 1,1,1,1,1]
-    xs,ys,zs = [npy.array(v)*300 for v in (xs,ys,zs)]
+    xs,ys,zs = [np.array(v)*300 for v in (xs,ys,zs)]
     #
     test_proj_draw_axes(M,s=400)
     txs,tys,tzs = proj_transform(xs,ys,zs,M)
@@ -267,19 +267,19 @@ def test_proj():
     pylab.show()
 
 def rot_x(V,alpha):
-    cosa,sina = npy.cos(alpha),npy.sin(alpha)
-    M1 = npy.array([[1,0,0,0],
+    cosa,sina = np.cos(alpha),np.sin(alpha)
+    M1 = np.array([[1,0,0,0],
                    [0,cosa,-sina,0],
                    [0,sina,cosa,0],
                    [0,0,0,0]])
     #
-    return npy.dot(M1,V)
+    return np.dot(M1,V)
 
 def test_rot():
     V = [1,0,0,1]
-    print rot_x(V, npy.pi/6)
+    print rot_x(V, np.pi/6)
     V = [0,1,0,1]
-    print rot_x(V, npy.pi/6)
+    print rot_x(V, np.pi/6)
 
 
 if __name__ == "__main__":

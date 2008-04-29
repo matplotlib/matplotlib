@@ -15,7 +15,7 @@ function is a thin wrapper over Figure.colorbar().
 
 '''
 
-import numpy as npy
+import numpy as np
 import matplotlib as mpl
 import matplotlib.colors as colors
 import matplotlib.cm as cm
@@ -185,7 +185,7 @@ class ColorbarBase(cm.ScalarMappable):
         self._process_values()
         self._find_range()
         X, Y = self._mesh()
-        C = self._values[:,npy.newaxis]
+        C = self._values[:,np.newaxis]
         self._config_axes(X, Y)
         if self.filled:
             self._add_solids(X, Y, C)
@@ -248,13 +248,13 @@ class ColorbarBase(cm.ScalarMappable):
         '''
         N = X.shape[0]
         ii = [0, 1, N-2, N-1, 2*N-1, 2*N-2, N+1, N, 0]
-        x = npy.take(npy.ravel(npy.transpose(X)), ii)
-        y = npy.take(npy.ravel(npy.transpose(Y)), ii)
+        x = np.take(np.ravel(np.transpose(X)), ii)
+        y = np.take(np.ravel(np.transpose(Y)), ii)
         x = x.reshape((len(x), 1))
         y = y.reshape((len(y), 1))
         if self.orientation == 'horizontal':
-            return npy.hstack((y, x))
-        return npy.hstack((x, y))
+            return np.hstack((y, x))
+        return np.hstack((x, y))
 
     def _edges(self, X, Y):
         '''
@@ -276,7 +276,7 @@ class ColorbarBase(cm.ScalarMappable):
         if self.orientation == 'vertical':
             args = (X, Y, C)
         else:
-            args = (npy.transpose(Y), npy.transpose(X), npy.transpose(C))
+            args = (np.transpose(Y), np.transpose(X), np.transpose(C))
         kw = {'cmap':self.cmap, 'norm':self.norm,
                     'shading':'flat', 'alpha':self.alpha}
         # Save, set, and restore hold state to keep pcolor from
@@ -303,8 +303,8 @@ class ColorbarBase(cm.ScalarMappable):
         dummy, y = self._locate(levels)
         if len(y) <> N:
             raise ValueError("levels are outside colorbar range")
-        x = npy.array([0.0, 1.0])
-        X, Y = npy.meshgrid(x,y)
+        x = np.array([0.0, 1.0])
+        X, Y = np.meshgrid(x,y)
         if self.orientation == 'vertical':
             xy = [zip(X[i], Y[i]) for i in range(N)]
         else:
@@ -348,7 +348,7 @@ class ColorbarBase(cm.ScalarMappable):
         locator.set_data_interval(*intv)
         formatter.set_view_interval(*intv)
         formatter.set_data_interval(*intv)
-        b = npy.array(locator())
+        b = np.array(locator())
         b, ticks = self._locate(b)
         formatter.set_locs(b)
         ticklabels = [formatter(t, i) for i, t in enumerate(b)]
@@ -364,32 +364,32 @@ class ColorbarBase(cm.ScalarMappable):
         if b is None:
             b = self.boundaries
         if b is not None:
-            self._boundaries = npy.asarray(b, dtype=float)
+            self._boundaries = np.asarray(b, dtype=float)
             if self.values is None:
                 self._values = 0.5*(self._boundaries[:-1]
                                         + self._boundaries[1:])
                 if isinstance(self.norm, colors.NoNorm):
-                    self._values = (self._values + 0.00001).astype(npy.int16)
+                    self._values = (self._values + 0.00001).astype(np.int16)
                 return
-            self._values = npy.array(self.values)
+            self._values = np.array(self.values)
             return
         if self.values is not None:
-            self._values = npy.array(self.values)
+            self._values = np.array(self.values)
             if self.boundaries is None:
-                b = npy.zeros(len(self.values)+1, 'd')
+                b = np.zeros(len(self.values)+1, 'd')
                 b[1:-1] = 0.5*(self._values[:-1] - self._values[1:])
                 b[0] = 2.0*b[1] - b[2]
                 b[-1] = 2.0*b[-2] - b[-3]
                 self._boundaries = b
                 return
-            self._boundaries = npy.array(self.boundaries)
+            self._boundaries = np.array(self.boundaries)
             return
         # Neither boundaries nor values are specified;
         # make reasonable ones based on cmap and norm.
         if isinstance(self.norm, colors.NoNorm):
             b = self._uniform_y(self.cmap.N+1) * self.cmap.N - 0.5
-            v = npy.zeros((len(b)-1,), dtype=npy.int16)
-            v[self._inside] = npy.arange(self.cmap.N, dtype=npy.int16)
+            v = np.zeros((len(b)-1,), dtype=np.int16)
+            v[self._inside] = np.arange(self.cmap.N, dtype=np.int16)
             if self.extend in ('both', 'min'):
                 v[0] = -1
             if self.extend in ('both', 'max'):
@@ -403,8 +403,8 @@ class ColorbarBase(cm.ScalarMappable):
                 b = [b[0]-1] + b
             if self.extend in ('both', 'max'):
                 b = b + [b[-1] + 1]
-            b = npy.array(b)
-            v = npy.zeros((len(b)-1,), dtype=float)
+            b = np.array(b)
+            v = np.zeros((len(b)-1,), dtype=float)
             bi = self.norm.boundaries
             v[self._inside] = 0.5*(bi[:-1] + bi[1:])
             if self.extend in ('both', 'min'):
@@ -461,19 +461,19 @@ class ColorbarBase(cm.ScalarMappable):
         spaced boundaries, plus ends if required.
         '''
         if self.extend == 'neither':
-            y = npy.linspace(0, 1, N)
+            y = np.linspace(0, 1, N)
         else:
             if self.extend == 'both':
-                y = npy.zeros(N + 2, 'd')
+                y = np.zeros(N + 2, 'd')
                 y[0] = -0.05
                 y[-1] = 1.05
             elif self.extend == 'min':
-                y = npy.zeros(N + 1, 'd')
+                y = np.zeros(N + 1, 'd')
                 y[0] = -0.05
             else:
-                y = npy.zeros(N + 1, 'd')
+                y = np.zeros(N + 1, 'd')
                 y[-1] = 1.05
-            y[self._inside] = npy.linspace(0, 1, N)
+            y[self._inside] = np.linspace(0, 1, N)
         return y
 
     def _proportional_y(self):
@@ -503,13 +503,13 @@ class ColorbarBase(cm.ScalarMappable):
         transposition for a horizontal colorbar are done outside
         this function.
         '''
-        x = npy.array([0.0, 1.0])
+        x = np.array([0.0, 1.0])
         if self.spacing == 'uniform':
             y = self._uniform_y(self._central_N())
         else:
             y = self._proportional_y()
         self._y = y
-        X, Y = npy.meshgrid(x,y)
+        X, Y = np.meshgrid(x,y)
         if self.extend in ('min', 'both'):
             X[0,:] = 0.5
         if self.extend in ('max', 'both'):
@@ -535,19 +535,19 @@ class ColorbarBase(cm.ScalarMappable):
             # floating point errors.
             xn = self.norm(x, clip=False).filled()
             in_cond = (xn > -0.001) & (xn < 1.001)
-            xn = npy.compress(in_cond, xn)
-            xout = npy.compress(in_cond, x)
+            xn = np.compress(in_cond, xn)
+            xout = np.compress(in_cond, x)
         # The rest is linear interpolation with clipping.
         y = self._y
         N = len(b)
-        ii = npy.minimum(npy.searchsorted(b, xn), N-1)
-        i0 = npy.maximum(ii - 1, 0)
+        ii = np.minimum(np.searchsorted(b, xn), N-1)
+        i0 = np.maximum(ii - 1, 0)
         #db = b[ii] - b[i0]
-        db = npy.take(b, ii) - npy.take(b, i0)
-        db = npy.where(i0==ii, 1.0, db)
+        db = np.take(b, ii) - np.take(b, i0)
+        db = np.where(i0==ii, 1.0, db)
         #dy = y[ii] - y[i0]
-        dy = npy.take(y, ii) - npy.take(y, i0)
-        z = npy.take(y, i0) + (xn-npy.take(b,i0))*dy/db
+        dy = np.take(y, ii) - np.take(y, i0)
+        z = np.take(y, i0) + (xn-np.take(b,i0))*dy/db
         return xout, z
 
     def set_alpha(self, alpha):

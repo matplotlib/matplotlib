@@ -18,7 +18,7 @@ Interface:
 
 import matplotlib
 import matplotlib.cbook as mpl_cbook
-import numpy as npy
+import numpy as np
 import os
 import struct
 
@@ -76,8 +76,8 @@ class Dvi(object):
         Output the text and boxes belonging to the most recent page.
         page = dvi._output()
         """
-        minx, miny, maxx, maxy = npy.inf, npy.inf, -npy.inf, -npy.inf
-        maxy_pure = -npy.inf
+        minx, miny, maxx, maxy = np.inf, np.inf, -np.inf, -np.inf
+        maxy_pure = -np.inf
         for elt in self.text + self.boxes:
             if len(elt) == 4:   # box
                 x,y,h,w = elt

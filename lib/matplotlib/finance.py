@@ -12,7 +12,7 @@ try: import datetime
 except ImportError:
     raise SystemExit('The finance module requires datetime support (python2.3)')
 
-import numpy as npy
+import numpy as np
 
 from matplotlib import verbose, get_configdir
 from dates import date2num
@@ -75,7 +75,7 @@ def parse_yahoo_historical(fh, asobject=False, adjusted=True):
     if asobject:
         if len(results)==0: return None
         else:
-            date, open, close, high, low, volume = map(npy.asarray, zip(*results))
+            date, open, close, high, low, volume = map(np.asarray, zip(*results))
         return Bunch(date=date, open=open, close=close, high=high, low=low, volume=volume)
     else:
 

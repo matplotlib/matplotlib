@@ -7,7 +7,7 @@ October 2007 Michael Droettboom
 import math
 from weakref import WeakValueDictionary
 
-import numpy as npy
+import numpy as np
 from numpy import ma
 
 from matplotlib._path import point_in_path, get_path_extents, \
@@ -69,7 +69,7 @@ class Path(object):
 
     NUM_VERTICES = [1, 1, 1, 2, 3, 1]
 
-    code_type = npy.uint8
+    code_type = np.uint8
 
     def __init__(self, vertices, codes=None):
         """
@@ -97,11 +97,11 @@ class Path(object):
             mask = ma.getmask(vertices)
         else:
             is_mask = False
-            vertices = npy.asarray(vertices, npy.float_)
+            vertices = np.asarray(vertices, np.float_)
             mask = ma.nomask
 
         if codes is not None:
-            codes = npy.asarray(codes, self.code_type)
+            codes = np.asarray(codes, self.code_type)
             assert codes.ndim == 1
             assert len(codes) == len(vertices)
 
@@ -112,17 +112,17 @@ class Path(object):
         # MOVETO commands to the codes array accordingly.
         if is_mask:
             if mask is not ma.nomask:
-                mask1d = npy.logical_or.reduce(mask, axis=1)
-                gmask1d = npy.invert(mask1d)
+                mask1d = np.logical_or.reduce(mask, axis=1)
+                gmask1d = np.invert(mask1d)
                 if codes is None:
-                    codes = npy.empty((len(vertices)), self.code_type)
+                    codes = np.empty((len(vertices)), self.code_type)
                     codes.fill(self.LINETO)
                     codes[0] = self.MOVETO
                 vertices = vertices[gmask1d].filled() # ndarray
-                codes[npy.roll(mask1d, 1)] = self.MOVETO
-                codes = codes[gmask1d] # npy.compress is much slower
+                codes[np.roll(mask1d, 1)] = self.MOVETO
+                codes = codes[gmask1d] # np.compress is much slower
             else:
-                vertices = npy.asarray(vertices, npy.float_)
+                vertices = np.asarray(vertices, np.float_)
 
         assert vertices.ndim == 2
         assert vertices.shape[1] == 2
@@ -142,10 +142,10 @@ class Path(object):
         lengths = [len(x) for x in args]
         total_length = sum(lengths)
 
-        vertices = npy.vstack([x.vertices for x in args])
+        vertices = np.vstack([x.vertices for x in args])
         vertices.reshape((total_length, 2))
 
-        codes = Path.LINETO * npy.ones(total_length)
+        codes = Path.LINETO * np.ones(total_length)
         i = 0
         for length in lengths:
             codes[i] = Path.MOVETO
@@ -170,8 +170,8 @@ class Path(object):
 
         codes = self.codes
         len_vertices = len(vertices)
-        isnan = npy.isnan
-        any = npy.any
+        isnan = np.isnan
+        any = np.any
 
         NUM_VERTICES = self.NUM_VERTICES
         MOVETO = self.MOVETO
@@ -275,7 +275,7 @@ class Path(object):
         vertices = simple_linear_interpolation(self.vertices, steps)
         codes = self.codes
         if codes is not None:
-            new_codes = Path.LINETO * npy.ones(((len(codes) - 1) * steps + 1, ))
+            new_codes = Path.LINETO * np.ones(((len(codes) - 1) * steps + 1, ))
             new_codes[0::steps] = codes
         else:
             new_codes = None
@@ -322,12 +322,12 @@ class Path(object):
         else:
             path = None
         if path is None:
-            theta = (2*npy.pi/numVertices *
-                     npy.arange(numVertices + 1).reshape((numVertices + 1, 1)))
+            theta = (2*np.pi/numVertices *
+                     np.arange(numVertices + 1).reshape((numVertices + 1, 1)))
             # This initial rotation is to make sure the polygon always
             # "points-up"
-            theta += npy.pi / 2.0
-            verts = npy.concatenate((npy.cos(theta), npy.sin(theta)), 1)
+            theta += np.pi / 2.0
+            verts = np.concatenate((np.cos(theta), np.sin(theta)), 1)
             path = Path(verts)
             cls._unit_regular_polygons[numVertices] = path
         return path
@@ -346,13 +346,13 @@ class Path(object):
             path = None
         if path is None:
             ns2 = numVertices * 2
-            theta = (2*npy.pi/ns2 * npy.arange(ns2 + 1))
+            theta = (2*np.pi/ns2 * np.arange(ns2 + 1))
             # This initial rotation is to make sure the polygon always
             # "points-up"
-            theta += npy.pi / 2.0
-            r = npy.ones(ns2 + 1)
+            theta += np.pi / 2.0
+            r = np.ones(ns2 + 1)
             r[1::2] = innerCircle
-            verts = npy.vstack((r*npy.cos(theta), r*npy.sin(theta))).transpose()
+            verts = np.vstack((r*np.cos(theta), r*np.sin(theta))).transpose()
             path = Path(verts)
             cls._unit_regular_polygons[(numVertices, innerCircle)] = path
         return path
@@ -382,10 +382,10 @@ class Path(object):
         """
         if cls._unit_circle is None:
             MAGIC = 0.2652031
-            SQRTHALF = npy.sqrt(0.5)
-            MAGIC45 = npy.sqrt((MAGIC*MAGIC) / 2.0)
+            SQRTHALF = np.sqrt(0.5)
+            MAGIC45 = np.sqrt((MAGIC*MAGIC) / 2.0)
 
-            vertices = npy.array(
+            vertices = np.array(
                 [[0.0, -1.0],
 
                  [MAGIC, -1.0],
@@ -421,9 +421,9 @@ class Path(object):
                  [0.0, -1.0],
 
                  [0.0, -1.0]],
-                npy.float_)
+                np.float_)
 
-            codes = cls.CURVE4 * npy.ones(26)
+            codes = cls.CURVE4 * np.ones(26)
             codes[0] = cls.MOVETO
             codes[-1] = cls.CLOSEPOLY
 
@@ -447,31 +447,31 @@ class Path(object):
         # http://www.spaceroots.org/documents/ellipse/index.html
 
         # degrees to radians
-        theta1 *= npy.pi / 180.0
-        theta2 *= npy.pi / 180.0
+        theta1 *= np.pi / 180.0
+        theta2 *= np.pi / 180.0
 
-        twopi  = npy.pi * 2.0
-        halfpi = npy.pi * 0.5
+        twopi  = np.pi * 2.0
+        halfpi = np.pi * 0.5
 
-        eta1 = npy.arctan2(npy.sin(theta1), npy.cos(theta1))
-        eta2 = npy.arctan2(npy.sin(theta2), npy.cos(theta2))
-        eta2 -= twopi * npy.floor((eta2 - eta1) / twopi)
-        if (theta2 - theta1 > npy.pi) and (eta2 - eta1 < npy.pi):
+        eta1 = np.arctan2(np.sin(theta1), np.cos(theta1))
+        eta2 = np.arctan2(np.sin(theta2), np.cos(theta2))
+        eta2 -= twopi * np.floor((eta2 - eta1) / twopi)
+        if (theta2 - theta1 > np.pi) and (eta2 - eta1 < np.pi):
             eta2 += twopi
 
         # number of curve segments to make
         if n is None:
-            n = int(2 ** npy.ceil((eta2 - eta1) / halfpi))
+            n = int(2 ** np.ceil((eta2 - eta1) / halfpi))
         if n < 1:
             raise ValueError("n must be >= 1 or None")
 
         deta = (eta2 - eta1) / n
-        t = npy.tan(0.5 * deta)
-        alpha = npy.sin(deta) * (npy.sqrt(4.0 + 3.0 * t * t) - 1) / 3.0
+        t = np.tan(0.5 * deta)
+        alpha = np.sin(deta) * (np.sqrt(4.0 + 3.0 * t * t) - 1) / 3.0
 
-        steps = npy.linspace(eta1, eta2, n + 1, True)
-        cos_eta = npy.cos(steps)
-        sin_eta = npy.sin(steps)
+        steps = np.linspace(eta1, eta2, n + 1, True)
+        cos_eta = np.cos(steps)
+        sin_eta = np.sin(steps)
 
         xA = cos_eta[:-1]
         yA = sin_eta[:-1]
@@ -485,8 +485,8 @@ class Path(object):
 
         if is_wedge:
             length = n * 3 + 4
-            vertices = npy.zeros((length, 2), npy.float_)
-            codes = Path.CURVE4 * npy.ones((length, ), Path.code_type)
+            vertices = np.zeros((length, 2), np.float_)
+            codes = Path.CURVE4 * np.ones((length, ), Path.code_type)
             vertices[1] = [xA[0], yA[0]]
             codes[0:2] = [Path.MOVETO, Path.LINETO]
             codes[-2:] = [Path.LINETO, Path.CLOSEPOLY]
@@ -494,8 +494,8 @@ class Path(object):
             end = length - 2
         else:
             length = n * 3 + 1
-            vertices = npy.zeros((length, 2), npy.float_)
-            codes = Path.CURVE4 * npy.ones((length, ), Path.code_type)
+            vertices = np.zeros((length, 2), np.float_)
+            codes = Path.CURVE4 * np.ones((length, ), Path.code_type)
             vertices[0] = [xA[0], yA[0]]
             codes[0] = Path.MOVETO
             vertex_offset = 1

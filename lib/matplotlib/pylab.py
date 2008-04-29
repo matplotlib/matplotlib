@@ -197,30 +197,20 @@ import sys, warnings
 from cbook import flatten, is_string_like, exception_to_str, popd, \
      silent_list, iterable, enumerate, dedent
 
-import numpy as npy
+import numpy as np
 from numpy import ma
 
 from matplotlib import mpl  # pulls in most modules
 
-# catch more than an import error here, since the src could fail too,
-# eg a bad pytz install.  I don't want to break all of matplotlib for
-# date support
-try:
-    from matplotlib.dates import date2num, num2date,\
-            datestr2num, strpdate2num, drange,\
-            epoch2num, num2epoch, mx2num,\
-            DateFormatter, IndexDateFormatter, DateLocator,\
-            RRuleLocator, YearLocator, MonthLocator, WeekdayLocator,\
-            DayLocator, HourLocator, MinuteLocator, SecondLocator,\
-            rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY, MONTHLY,\
-            WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY, relativedelta
-except:
-    __dates_all__ = []
-    pass
-else:
-    import matplotlib.dates
-    __dates_all__ = matplotlib.dates.__all__
-
+from matplotlib.dates import date2num, num2date,\
+        datestr2num, strpdate2num, drange,\
+        epoch2num, num2epoch, mx2num,\
+        DateFormatter, IndexDateFormatter, DateLocator,\
+        RRuleLocator, YearLocator, MonthLocator, WeekdayLocator,\
+        DayLocator, HourLocator, MinuteLocator, SecondLocator,\
+        rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY, MONTHLY,\
+        WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY, relativedelta
+import matplotlib.dates
 
 # bring all the  symbols in so folks can import them from
 # pylab in one fell swoop
@@ -252,36 +242,9 @@ from matplotlib.mlab import window_hanning, window_none, conv, detrend, demean, 
 
 
 
-# old style--if True, override standard numpy with oldnumeric
-if False:
-    from numpy.oldnumeric import array, zeros, shape, rank, size, fromstring,\
-            take, put, putmask, reshape, repeat, choose, searchsorted,\
-            cumsum, product, cumproduct, alltrue, sometrue, allclose,\
-            arrayrange, arange, asarray, convolve, swapaxes, concatenate,\
-            transpose, sort, argsort, argmax, argmin, innerproduct, dot,\
-            outerproduct, resize, indices, fromfunction, diagonal, trace,\
-            ravel, nonzero, shape, where, compress, clip, zeros, ones,\
-            identity, add, logical_or, exp, subtract, logical_xor,\
-            log, multiply, logical_not, log10, divide, maximum, sin,\
-            minimum, sinh, conjugate, bitwise_and, sqrt, power, bitwise_or,\
-            tan, absolute, bitwise_xor, tanh, negative, ceil, greater, fabs,\
-            greater_equal, floor, less, arccos, arctan2, less_equal, arcsin,\
-            fmod, equal, arctan, hypot, not_equal, cos, around, logical_and,\
-            cosh, arccosh, arcsinh, arctanh, cross_correlate,\
-            pi, ArrayType, matrixmultiply
-
-    from numpy.oldnumeric import sum as asum
-
-    from numpy.oldnumeric import Int8, UInt8, Int16, UInt16, Int32, UInt32, Float32,\
-            Float64, Complex32, Complex64, Float, Int, Complex
-
-    pymin, pymax = min, max
-    from numpy.oldnumeric.mlab import *
-    min, max = pymin, pymax
-    from numpy import amin, amax
-    from numpy.oldnumeric.linear_algebra import eigenvectors
-            # not quite the same as linalg.eig
-    from numpy.linalg import inv as inverse
-
 
 from matplotlib.pyplot import *
+
+# provide the recommended module abbrevs in the pylab namespace
+import matplotlib.pyplot as plt
+import numpy as np

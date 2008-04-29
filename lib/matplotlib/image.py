@@ -6,7 +6,7 @@ operations.
 from __future__ import division
 import os, warnings
 
-import numpy as npy
+import numpy as np
 from numpy import ma
 
 from matplotlib import rcParams
@@ -168,7 +168,7 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
             self._oldyslice = yslice
 
         if self._imcache is None:
-            if self._A.dtype == npy.uint8 and len(self._A.shape) == 3:
+            if self._A.dtype == np.uint8 and len(self._A.shape) == 3:
                 im = _image.frombyte(self._A[xslice,yslice,:], 0)
                 im.is_grayscale = False
             else:
@@ -388,9 +388,9 @@ class NonUniformImage(AxesImage):
         return im
 
     def set_data(self, x, y, A):
-        x = npy.asarray(x,npy.float32)
-        y = npy.asarray(y,npy.float32)
-        A = npy.asarray(A)
+        x = np.asarray(x,np.float32)
+        y = np.asarray(y,np.float32)
+        A = np.asarray(A)
         if len(x.shape) != 1 or len(y.shape) != 1\
            or A.shape[0:2] != (y.shape[0], x.shape[0]):
             raise TypeError("Axes don't match array shape")
@@ -401,16 +401,16 @@ class NonUniformImage(AxesImage):
         if len(A.shape) == 3 and A.shape[2] == 1:
             A.shape = A.shape[0:2]
         if len(A.shape) == 2:
-            if A.dtype != npy.uint8:
-                A = (self.cmap(self.norm(A))*255).astype(npy.uint8)
+            if A.dtype != np.uint8:
+                A = (self.cmap(self.norm(A))*255).astype(np.uint8)
             else:
-                A = npy.repeat(A[:,:,npy.newaxis], 4, 2)
+                A = np.repeat(A[:,:,np.newaxis], 4, 2)
                 A[:,:,3] = 255
         else:
-            if A.dtype != npy.uint8:
-                A = (255*A).astype(npy.uint8)
+            if A.dtype != np.uint8:
+                A = (255*A).astype(np.uint8)
             if A.shape[2] == 3:
-                B = zeros(tuple(list(A.shape[0:2]) + [4]), npy.uint8)
+                B = zeros(tuple(list(A.shape[0:2]) + [4]), np.uint8)
                 B[:,:,0:3] = A
                 B[:,:,3] = 255
                 A = B
@@ -485,7 +485,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
             raise RuntimeError('You must first set the image array')
         fc = self.axes.get_frame().get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
-        bg = (npy.array(bg)*255).astype(npy.uint8)
+        bg = (np.array(bg)*255).astype(np.uint8)
         width = self.axes.bbox.width * magnification
         height = self.axes.bbox.height * magnification
         if self.check_update('array'):
@@ -517,13 +517,13 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
     def set_data(self, x, y, A):
         A = ma.asarray(A)
         if x is None:
-            x = npy.arange(0, A.shape[1]+1, dtype=npy.float64)
+            x = np.arange(0, A.shape[1]+1, dtype=np.float64)
         else:
-            x = npy.asarray(x, npy.float64).ravel()
+            x = np.asarray(x, np.float64).ravel()
         if y is None:
-            y = npy.arange(0, A.shape[0]+1, dtype=npy.float64)
+            y = np.arange(0, A.shape[0]+1, dtype=np.float64)
         else:
-            y = npy.asarray(y, npy.float64).ravel()
+            y = np.asarray(y, np.float64).ravel()
 
         if A.shape[:2] != (y.size-1, x.size-1):
             print A.shape
@@ -674,6 +674,6 @@ def pil_to_array( pilImage ):
             raise RuntimeError('Unknown image mode')
 
     x_str = im.tostring('raw',im.mode,0,-1)
-    x = npy.fromstring(x_str,npy.uint8)
+    x = np.fromstring(x_str,np.uint8)
     x.shape = im.size[1], im.size[0], 4
     return x

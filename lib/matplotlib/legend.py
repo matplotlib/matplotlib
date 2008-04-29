@@ -23,7 +23,7 @@ up the legend
 from __future__ import division
 import warnings
 
-import numpy as npy
+import numpy as np
 
 from matplotlib import rcParams
 from artist import Artist
@@ -240,16 +240,16 @@ The following dimensions are in axes coords
 
         for handle, label in zip(handles, texts):
             if self.numpoints > 1:
-                xdata = npy.linspace(left, left + self.handlelen, self.numpoints)
+                xdata = np.linspace(left, left + self.handlelen, self.numpoints)
             elif self.numpoints == 1:
-                xdata = npy.linspace(left, left + self.handlelen, 2)
+                xdata = np.linspace(left, left + self.handlelen, 2)
 
             x, y = label.get_position()
             x -= self.handlelen + self.handletextsep
             if isinstance(handle, Line2D):
                 if self.numpoints == 1 and handle._marker != 'None':
-                    xdata = npy.array([left + self.handlelen*0.5])
-                ydata = (y-HEIGHT/2)*npy.ones(xdata.shape, float)
+                    xdata = np.array([left + self.handlelen*0.5])
+                ydata = (y-HEIGHT/2)*np.ones(xdata.shape, float)
                 legline = Line2D(xdata, ydata)
                 legline.update_from(handle)
                 self._set_artist_props(legline) # after update
@@ -268,7 +268,7 @@ The following dimensions are in axes coords
                 p.set_clip_path(None)
                 ret.append(p)
             elif isinstance(handle, LineCollection):
-                ydata = (y-HEIGHT/2)*npy.ones(xdata.shape, float)
+                ydata = (y-HEIGHT/2)*np.ones(xdata.shape, float)
                 legline = Line2D(xdata, ydata)
                 self._set_artist_props(legline)
                 legline.set_clip_box(None)
@@ -283,7 +283,7 @@ The following dimensions are in axes coords
 
             elif isinstance(handle, RegularPolyCollection):
                 if self.numpoints == 1:
-                    xdata = npy.array([left])
+                    xdata = np.array([left])
                 p = Rectangle(xy=(min(xdata), y-3/4*HEIGHT),
                               width = self.handlelen, height=HEIGHT/2,
                               )
@@ -494,7 +494,7 @@ The following dimensions are in axes coords
         for handle, tup in zip(self.legendHandles, hpos):
             y,h = tup
             if isinstance(handle, Line2D):
-                ydata = y*npy.ones(handle.get_xdata().shape, float)
+                ydata = y*np.ones(handle.get_xdata().shape, float)
                 handle.set_ydata(ydata+h/2)
             elif isinstance(handle, Rectangle):
                 handle.set_y(y+1/4*h)

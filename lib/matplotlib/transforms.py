@@ -23,7 +23,7 @@ assumed to occur after the non-affine.  For any transform:
 2007 Michael Droettboom
 """
 
-import numpy as npy
+import numpy as np
 from numpy import ma
 from matplotlib._path import affine_transform
 from numpy.linalg import inv
@@ -211,7 +211,7 @@ class BboxBase(TransformNode):
         def _check(points):
             if ma.isMaskedArray(points):
                 warnings.warn("Bbox bounds are a masked array.")
-            points = npy.asarray(points)
+            points = np.asarray(points)
             if (points[1,0] - points[0,0] == 0 or
                 points[1,1] - points[0,1] == 0):
                 warnings.warn("Singular Bbox.")
@@ -500,12 +500,12 @@ class BboxBase(TransformNode):
         """
         if len(vertices) == 0:
             return 0
-        vertices = npy.asarray(vertices)
+        vertices = np.asarray(vertices)
         x0, y0, x1, y1 = self._get_extents()
-        dx0 = npy.sign(vertices[:, 0] - x0)
-        dy0 = npy.sign(vertices[:, 1] - y0)
-        dx1 = npy.sign(vertices[:, 0] - x1)
-        dy1 = npy.sign(vertices[:, 1] - y1)
+        dx0 = np.sign(vertices[:, 0] - x0)
+        dy0 = np.sign(vertices[:, 1] - y0)
+        dx1 = np.sign(vertices[:, 0] - x1)
+        dy1 = np.sign(vertices[:, 1] - y1)
         inside = (abs(dx0 + dx1) + abs(dy0 + dy1)) <= 2
         return N.sum(inside)
 
@@ -526,7 +526,7 @@ class BboxBase(TransformNode):
         height = self.height
         deltaw = (sw * width - width) / 2.0
         deltah = (sh * height - height) / 2.0
-        a = npy.array([[-deltaw, -deltah], [deltaw, deltah]])
+        a = np.array([[-deltaw, -deltah], [deltaw, deltah]])
         return Bbox(self._points + a)
 
     def padded(self, p):
@@ -549,7 +549,7 @@ class BboxBase(TransformNode):
         rectangle.
         """
         l, b, r, t = self.get_points().flatten()
-        return npy.array([[l, b], [l, t], [r, b], [r, t]])
+        return np.array([[l, b], [l, t], [r, b], [r, t]])
 
     def rotated(self, radians):
         """
@@ -573,19 +573,19 @@ class BboxBase(TransformNode):
         if len(bboxes) == 1:
             return bboxes[0]
 
-        x0 = npy.inf
-        y0 = npy.inf
-        x1 = -npy.inf
-        y1 = -npy.inf
+        x0 = np.inf
+        y0 = np.inf
+        x1 = -np.inf
+        y1 = -np.inf
 
         for bbox in bboxes:
             points = bbox.get_points()
             xs = points[:, 0]
             ys = points[:, 1]
-            x0 = min(x0, npy.min(xs))
-            y0 = min(y0, npy.min(ys))
-            x1 = max(x1, npy.max(xs))
-            y1 = max(y1, npy.max(ys))
+            x0 = min(x0, np.min(xs))
+            y0 = min(y0, np.min(ys))
+            x1 = max(x1, np.max(xs))
+            y1 = max(y1, np.max(ys))
 
         return Bbox.from_extents(x0, y0, x1, y1)
     union = staticmethod(union)
@@ -602,8 +602,8 @@ class Bbox(BboxBase):
         class methods unit, from_bounds and from_extents.
         """
         BboxBase.__init__(self)
-        self._points = npy.asarray(points, npy.float_)
-        self._minpos = npy.array([0.0000001, 0.0000001])
+        self._points = np.asarray(points, np.float_)
+        self._minpos = np.array([0.0000001, 0.0000001])
         self._ignore = True
 
     if DEBUG:
@@ -616,7 +616,7 @@ class Bbox(BboxBase):
             self._check(self._points)
             TransformNode.invalidate(self)
 
-    _unit_values = npy.array([[0.0, 0.0], [1.0, 1.0]], npy.float_)
+    _unit_values = np.array([[0.0, 0.0], [1.0, 1.0]], np.float_)
     #@staticmethod
     def unit():
         """
@@ -642,7 +642,7 @@ class Bbox(BboxBase):
 
         The y-axis increases upwards.
         """
-        points = npy.array(args, dtype=npy.float_).reshape(2, 2)
+        points = np.array(args, dtype=np.float_).reshape(2, 2)
         return Bbox(points)
     from_extents = staticmethod(from_extents)
 
@@ -675,7 +675,7 @@ class Bbox(BboxBase):
            when None, use the last value passed to Bbox.ignore().
         """
         warnings.warn("update_from_data requires a memory copy -- please replace with update_from_data_xy")
-        xy = npy.hstack((x.reshape((len(x), 1)), y.reshape((len(y), 1))))
+        xy = np.hstack((x.reshape((len(x), 1)), y.reshape((len(y), 1))))
         return self.update_from_data_xy(xy, ignore)
 
     def update_from_data_xy(self, xy, ignore=None):
@@ -747,8 +747,8 @@ class Bbox(BboxBase):
 
     def _set_bounds(self, bounds):
         l, b, w, h = bounds
-        points = npy.array([[l, b], [l+w, b+h]], npy.float_)
-        if npy.any(self._points != points):
+        points = np.array([[l, b], [l+w, b+h]], np.float_)
+        if np.any(self._points != points):
             self._points = points
             self.invalidate()
     bounds = property(BboxBase._get_bounds, _set_bounds)
@@ -779,7 +779,7 @@ class Bbox(BboxBase):
         of the form: [[x0, y0], [x1, y1]].  No error checking
         is performed, as this method is mainly for internal use.
         """
-        if npy.any(self._points != points):
+        if np.any(self._points != points):
             self._points = points
             self.invalidate()
 
@@ -787,7 +787,7 @@ class Bbox(BboxBase):
         """
         Set this bounding box from the "frozen" bounds of another Bbox.
         """
-        if npy.any(self._points != other.get_points()):
+        if np.any(self._points != other.get_points()):
             self._points = other.get_points()
             self.invalidate()
 
@@ -823,7 +823,7 @@ class TransformedBbox(BboxBase):
             points = self._transform.transform(self._bbox.get_points())
             if ma.isMaskedArray(points):
                 points.putmask(0.0)
-                points = npy.asarray(points)
+                points = np.asarray(points)
             self._points = points
             self._invalid = 0
         return self._points
@@ -954,7 +954,7 @@ class Transform(TransformNode):
         self.output_dims.
         """
         assert len(point) == 2
-        return self.transform(npy.asarray([point]))[0]
+        return self.transform(np.asarray([point]))[0]
 
     def transform_path(self, path):
         """
@@ -1103,7 +1103,7 @@ class AffineBase(Transform):
         Concatenates two transformation matrices (represented as numpy
         arrays) together.
         """
-        return npy.dot(b, a)
+        return np.dot(b, a)
     _concat = staticmethod(_concat)
 
     def get_matrix(self):
@@ -1181,7 +1181,7 @@ class Affine2DBase(AffineBase):
           b d f
           0 0 1
         """
-        return npy.array([[a, c, e], [b, d, f], [0.0, 0.0, 1.0]], npy.float_)
+        return np.array([[a, c, e], [b, d, f], [0.0, 0.0, 1.0]], np.float_)
     matrix_from_values = staticmethod(matrix_from_values)
 
     def transform(self, points):
@@ -1202,7 +1202,7 @@ class Affine2DBase(AffineBase):
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
             if (not ma.isMaskedArray(points) and
-                not isinstance(points, npy.ndarray)):
+                not isinstance(points, np.ndarray)):
                 warnings.warn(
                     ('A non-numpy array of type %s was passed in for ' +
                      'transformation.  Please correct this.')
@@ -1235,9 +1235,9 @@ class Affine2D(Affine2DBase):
         """
         Affine2DBase.__init__(self)
         if matrix is None:
-            matrix = npy.identity(3)
+            matrix = np.identity(3)
         elif DEBUG:
-            matrix = npy.asarray(matrix, npy.float_)
+            matrix = np.asarray(matrix, np.float_)
             assert matrix.shape == (3, 3)
         self._mtx = matrix
         self._invalid = 0
@@ -1262,7 +1262,7 @@ class Affine2D(Affine2DBase):
           0 0 1
         """
         return Affine2D(
-            npy.array([a, c, e, b, d, f, 0.0, 0.0, 1.0], npy.float_)
+            np.array([a, c, e, b, d, f, 0.0, 0.0, 1.0], np.float_)
             .reshape((3,3)))
     from_values = staticmethod(from_values)
 
@@ -1305,14 +1305,14 @@ class Affine2D(Affine2DBase):
         Unless this transform will be mutated later on, consider using
         the faster IdentityTransform class instead.
         """
-        return Affine2D(npy.identity(3))
+        return Affine2D(np.identity(3))
     identity = staticmethod(identity)
 
     def clear(self):
         """
         Reset the underlying matrix to the identity transform.
         """
-        self._mtx = npy.identity(3)
+        self._mtx = np.identity(3)
         self.invalidate()
         return self
 
@@ -1323,12 +1323,12 @@ class Affine2D(Affine2DBase):
         Returns self, so this method can easily be chained with more
         calls to rotate(), rotate_deg(), translate() and scale().
         """
-        a = npy.cos(theta)
-        b = npy.sin(theta)
-        rotate_mtx = npy.array(
+        a = np.cos(theta)
+        b = np.sin(theta)
+        rotate_mtx = np.array(
             [[a, -b, 0.0], [b, a, 0.0], [0.0, 0.0, 1.0]],
-            npy.float_)
-        self._mtx = npy.dot(rotate_mtx, self._mtx)
+            np.float_)
+        self._mtx = np.dot(rotate_mtx, self._mtx)
         self.invalidate()
         return self
 
@@ -1339,7 +1339,7 @@ class Affine2D(Affine2DBase):
         Returns self, so this method can easily be chained with more
         calls to rotate(), rotate_deg(), translate() and scale().
         """
-        return self.rotate(degrees*npy.pi/180.)
+        return self.rotate(degrees*np.pi/180.)
 
     def rotate_around(self, x, y, theta):
         """
@@ -1366,10 +1366,10 @@ class Affine2D(Affine2DBase):
         Returns self, so this method can easily be chained with more
         calls to rotate(), rotate_deg(), translate() and scale().
         """
-        translate_mtx = npy.array(
+        translate_mtx = np.array(
             [[1.0, 0.0, tx], [0.0, 1.0, ty], [0.0, 0.0, 1.0]],
-            npy.float_)
-        self._mtx = npy.dot(translate_mtx, self._mtx)
+            np.float_)
+        self._mtx = np.dot(translate_mtx, self._mtx)
         self.invalidate()
         return self
 
@@ -1385,10 +1385,10 @@ class Affine2D(Affine2DBase):
         """
         if sy is None:
             sy = sx
-        scale_mtx = npy.array(
+        scale_mtx = np.array(
             [[sx, 0.0, 0.0], [0.0, sy, 0.0], [0.0, 0.0, 1.0]],
-            npy.float_)
-        self._mtx = npy.dot(scale_mtx, self._mtx)
+            np.float_)
+        self._mtx = np.dot(scale_mtx, self._mtx)
         self.invalidate()
         return self
 
@@ -1403,7 +1403,7 @@ class IdentityTransform(Affine2DBase):
     A special class that does on thing, the identity transform, in a
     fast way.
     """
-    _mtx = npy.identity(3)
+    _mtx = np.identity(3)
 
     def frozen(self):
         return self
@@ -1510,7 +1510,7 @@ class BlendedGenericTransform(Transform):
         if isinstance(x_points, MaskedArray) or isinstance(y_points, MaskedArray):
             return ma.concatenate((x_points, y_points), 1)
         else:
-            return npy.concatenate((x_points, y_points), 1)
+            return np.concatenate((x_points, y_points), 1)
     transform.__doc__ = Transform.transform.__doc__
 
     def transform_affine(self, points):
@@ -1538,7 +1538,7 @@ class BlendedGenericTransform(Transform):
                     # This works because we already know the transforms are
                     # separable, though normally one would want to set b and
                     # c to zero.
-                    mtx = npy.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
+                    mtx = np.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
                     self._affine = Affine2D(mtx)
             else:
                 self._affine = IdentityTransform()
@@ -1596,7 +1596,7 @@ class BlendedAffine2D(Affine2DBase):
                 # This works because we already know the transforms are
                 # separable, though normally one would want to set b and
                 # c to zero.
-                self._mtx = npy.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
+                self._mtx = np.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
             self._inverted = None
             self._invalid = 0
         return self._mtx
@@ -1699,7 +1699,7 @@ class CompositeGenericTransform(Transform):
 
     def get_affine(self):
         if self._a.is_affine and self._b.is_affine:
-            return Affine2D(npy.dot(self._b.get_affine().get_matrix(),
+            return Affine2D(np.dot(self._b.get_affine().get_matrix(),
                                     self._a.get_affine().get_matrix()))
         else:
             return self._b.get_affine()
@@ -1747,7 +1747,7 @@ class CompositeAffine2D(Affine2DBase):
 
     def get_matrix(self):
         if self._invalid:
-            self._mtx = npy.dot(
+            self._mtx = np.dot(
                 self._b.get_matrix(),
                 self._a.get_matrix())
             self._inverted = None
@@ -1811,10 +1811,10 @@ class BboxTransform(Affine2DBase):
             y_scale = outh / inh
             if DEBUG and (x_scale == 0 or y_scale == 0):
                 raise ValueError("Transforming from or to a singular bounding box.")
-            self._mtx = npy.array([[x_scale, 0.0    , (-inl*x_scale+outl)],
+            self._mtx = np.array([[x_scale, 0.0    , (-inl*x_scale+outl)],
                                    [0.0    , y_scale, (-inb*y_scale+outb)],
                                    [0.0    , 0.0    , 1.0        ]],
-                                  npy.float_)
+                                  np.float_)
             self._inverted = None
             self._invalid = 0
         return self._mtx
@@ -1850,10 +1850,10 @@ class BboxTransformTo(Affine2DBase):
             outl, outb, outw, outh = self._boxout.bounds
             if DEBUG and (outw == 0 or outh == 0):
                 raise ValueError("Transforming to a singular bounding box.")
-            self._mtx = npy.array([[outw,  0.0, outl],
+            self._mtx = np.array([[outw,  0.0, outl],
                                    [ 0.0, outh, outb],
                                    [ 0.0,  0.0,  1.0]],
-                                  npy.float_)
+                                  np.float_)
             self._inverted = None
             self._invalid = 0
         return self._mtx
@@ -1891,10 +1891,10 @@ class BboxTransformFrom(Affine2DBase):
                 raise ValueError("Transforming from a singular bounding box.")
             x_scale = 1.0 / inw
             y_scale = 1.0 / inh
-            self._mtx = npy.array([[x_scale, 0.0    , (-inl*x_scale)],
+            self._mtx = np.array([[x_scale, 0.0    , (-inl*x_scale)],
                                    [0.0    , y_scale, (-inb*y_scale)],
                                    [0.0    , 0.0    , 1.0        ]],
-                                  npy.float_)
+                                  np.float_)
             self._inverted = None
             self._invalid = 0
         return self._mtx
@@ -1917,10 +1917,10 @@ class ScaledTranslation(Affine2DBase):
     def get_matrix(self):
         if self._invalid:
             xt, yt = self._scale_trans.transform_point(self._t)
-            self._mtx = npy.array([[1.0, 0.0, xt],
+            self._mtx = np.array([[1.0, 0.0, xt],
                                    [0.0, 1.0, yt],
                                    [0.0, 0.0, 1.0]],
-                                  npy.float_)
+                                  np.float_)
             self._invalid = 0
             self._inverted = None
         return self._mtx
@@ -2023,17 +2023,17 @@ if __name__ == '__main__':
     assert bbox.x1 == 20
     assert bbox.y1 == 25
 
-    assert npy.all(bbox.min == [10, 15])
-    assert npy.all(bbox.max == [20, 25])
-    assert npy.all(bbox.intervalx == (10, 20))
-    assert npy.all(bbox.intervaly == (15, 25))
+    assert np.all(bbox.min == [10, 15])
+    assert np.all(bbox.max == [20, 25])
+    assert np.all(bbox.intervalx == (10, 20))
+    assert np.all(bbox.intervaly == (15, 25))
 
     assert bbox.width == 10
     assert bbox.height == 10
 
     assert bbox.bounds == (10, 15, 10, 10)
 
-    assert tuple(npy.asarray(bbox).flatten()) == (10, 15, 20, 25)
+    assert tuple(np.asarray(bbox).flatten()) == (10, 15, 20, 25)
 
     bbox.intervalx = (11, 21)
     bbox.intervaly = (16, 26)
@@ -2071,7 +2071,7 @@ if __name__ == '__main__':
                                    -0.49999999999999994, 0.86602540378443871,
                                    0.0, 0.0)
 
-    points = npy.array([[1, 2], [3, 4], [5, 6], [7, 8]], npy.float_)
+    points = np.array([[1, 2], [3, 4], [5, 6], [7, 8]], np.float_)
     translated_points = translation.transform(points)
     assert (translated_points == [[11., 22.], [13., 24.], [15., 26.], [17., 28.]]).all()
     scaled_points = scale.transform(points)
@@ -2088,6 +2088,6 @@ if __name__ == '__main__':
     print points
 
     # Here are some timing tests
-    points = npy.asarray([(random(), random()) for i in xrange(10000)])
+    points = np.asarray([(random(), random()) for i in xrange(10000)])
     t = timeit.Timer("trans_sum.transform(points)", "from __main__ import trans_sum, points")
     print "Time to transform 10000 x 10 points:", t.timeit(10)

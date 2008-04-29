@@ -142,7 +142,7 @@ Keyword arguments (default given first):
     of the arrow+label key object.
 """
 
-import numpy as npy
+import numpy as np
 from numpy import ma
 import matplotlib.collections as collections
 import matplotlib.transforms as transforms
@@ -201,8 +201,8 @@ class QuiverKey(artist.Artist):
             self._set_transform()
             _pivot = self.Q.pivot
             self.Q.pivot = self.pivot[self.labelpos]
-            self.verts = self.Q._make_verts(npy.array([self.U]),
-                                                        npy.zeros((1,)))
+            self.verts = self.Q._make_verts(np.array([self.U]),
+                                                        np.zeros((1,)))
             self.Q.pivot = _pivot
             kw = self.Q.polykw
             kw.update(self.kw)
@@ -278,7 +278,7 @@ class Quiver(collections.PolyCollection):
         X, Y, U, V, C = self._parse_args(*args)
         self.X = X
         self.Y = Y
-        self.XY = npy.hstack((X[:,npy.newaxis], Y[:,npy.newaxis]))
+        self.XY = np.hstack((X[:,np.newaxis], Y[:,np.newaxis]))
         self.N = len(X)
         self.scale = kw.pop('scale', None)
         self.headwidth = kw.pop('headwidth', 3)
@@ -324,18 +324,18 @@ class Quiver(collections.PolyCollection):
             C = ma.asarray(args.pop(-1)).ravel()
         V = ma.asarray(args.pop(-1))
         U = ma.asarray(args.pop(-1))
-        nn = npy.shape(U)
+        nn = np.shape(U)
         nc = nn[0]
         nr = 1
         if len(nn) > 1:
             nr = nn[1]
         if len(args) == 2: # remaining after removing U,V,C
-            X, Y = [npy.array(a).ravel() for a in args]
+            X, Y = [np.array(a).ravel() for a in args]
             if len(X) == nc and len(Y) == nr:
-                X, Y = [a.ravel() for a in npy.meshgrid(X, Y)]
+                X, Y = [a.ravel() for a in np.meshgrid(X, Y)]
         else:
-            indexgrid = npy.meshgrid(npy.arange(nc), npy.arange(nr))
-            X, Y = [npy.ravel(a) for a in indexgrid]
+            indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
+            X, Y = [np.ravel(a) for a in indexgrid]
         return X, Y, U, V, C
 
     def _init(self):
@@ -404,9 +404,9 @@ class Quiver(collections.PolyCollection):
         # There seems to be a ma bug such that indexing
         # a masked array with one element converts it to
         # an ndarray.
-        theta = npy.angle(ma.asarray(uv[..., npy.newaxis]).filled(0))
-        xy = (X+Y*1j) * npy.exp(1j*theta)*self.width
-        xy = xy[:,:,npy.newaxis]
+        theta = np.angle(ma.asarray(uv[..., np.newaxis]).filled(0))
+        xy = (X+Y*1j) * np.exp(1j*theta)*self.width
+        xy = xy[:,:,np.newaxis]
         XY = ma.concatenate((xy.real, xy.imag), axis=2)
         return XY
 
@@ -420,15 +420,15 @@ class Quiver(collections.PolyCollection):
         N = len(length)
         length = length.reshape(N, 1)
         # x, y: normal horizontal arrow
-        x = npy.array([0, -self.headaxislength,
-                        -self.headlength, 0], npy.float64)
-        x = x + npy.array([0,1,1,1]) * length
-        y = 0.5 * npy.array([1, 1, self.headwidth, 0], npy.float64)
-        y = npy.repeat(y[npy.newaxis,:], N, axis=0)
+        x = np.array([0, -self.headaxislength,
+                        -self.headlength, 0], np.float64)
+        x = x + np.array([0,1,1,1]) * length
+        y = 0.5 * np.array([1, 1, self.headwidth, 0], np.float64)
+        y = np.repeat(y[np.newaxis,:], N, axis=0)
         # x0, y0: arrow without shaft, for short vectors
-        x0 = npy.array([0, minsh-self.headaxislength,
-                        minsh-self.headlength, minsh], npy.float64)
-        y0 = 0.5 * npy.array([1, 1, self.headwidth, 0], npy.float64)
+        x0 = np.array([0, minsh-self.headaxislength,
+                        minsh-self.headlength, minsh], np.float64)
+        y0 = 0.5 * np.array([1, 1, self.headwidth, 0], np.float64)
         ii = [0,1,2,3,2,1,0]
         X = x.take(ii, 1)
         Y = y.take(ii, 1)
@@ -437,27 +437,27 @@ class Quiver(collections.PolyCollection):
         Y0 = y0.take(ii)
         Y0[3:] *= -1
         shrink = length/minsh
-        X0 = shrink * X0[npy.newaxis,:]
-        Y0 = shrink * Y0[npy.newaxis,:]
-        short = npy.repeat(length < minsh, 7, axis=1)
+        X0 = shrink * X0[np.newaxis,:]
+        Y0 = shrink * Y0[np.newaxis,:]
+        short = np.repeat(length < minsh, 7, axis=1)
         #print 'short', length < minsh
         # Now select X0, Y0 if short, otherwise X, Y
         X = ma.where(short, X0, X)
         Y = ma.where(short, Y0, Y)
         if self.pivot[:3] == 'mid':
-            X -= 0.5 * X[:,3, npy.newaxis]
+            X -= 0.5 * X[:,3, np.newaxis]
         elif self.pivot[:3] == 'tip':
-            X = X - X[:,3, npy.newaxis]   #numpy bug? using -= does not
+            X = X - X[:,3, np.newaxis]   #numpy bug? using -= does not
                                          # work here unless we multiply
                                          # by a float first, as with 'mid'.
         tooshort = length < self.minlength
         if tooshort.any():
             # Use a heptagonal dot:
-            th = npy.arange(0,7,1, npy.float64) * (npy.pi/3.0)
-            x1 = npy.cos(th) * self.minlength * 0.5
-            y1 = npy.sin(th) * self.minlength * 0.5
-            X1 = npy.repeat(x1[npy.newaxis, :], N, axis=0)
-            Y1 = npy.repeat(y1[npy.newaxis, :], N, axis=0)
+            th = np.arange(0,7,1, np.float64) * (np.pi/3.0)
+            x1 = np.cos(th) * self.minlength * 0.5
+            y1 = np.sin(th) * self.minlength * 0.5
+            X1 = np.repeat(x1[np.newaxis, :], N, axis=0)
+            Y1 = np.repeat(y1[np.newaxis, :], N, axis=0)
             tooshort = ma.repeat(tooshort, 7, 1)
             X = ma.where(tooshort, X1, X)
             Y = ma.where(tooshort, Y1, Y)

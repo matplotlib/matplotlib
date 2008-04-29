@@ -105,7 +105,7 @@ examples of using date locators and formatters.
 
 from __future__ import division
 import math
-import numpy as npy
+import numpy as np
 from matplotlib import rcParams
 from matplotlib import cbook
 from matplotlib import transforms as mtransforms
@@ -359,16 +359,16 @@ class ScalarFormatter(Formatter):
         if locs is None or not len(locs) or range == 0:
             self.offset = 0
             return
-        ave_loc = npy.mean(locs)
+        ave_loc = np.mean(locs)
         if ave_loc: # dont want to take log10(0)
-            ave_oom = math.floor(math.log10(npy.mean(npy.absolute(locs))))
+            ave_oom = math.floor(math.log10(np.mean(np.absolute(locs))))
             range_oom = math.floor(math.log10(range))
 
-            if npy.absolute(ave_oom-range_oom) >= 3: # four sig-figs
+            if np.absolute(ave_oom-range_oom) >= 3: # four sig-figs
                 if ave_loc < 0:
-                    self.offset = math.ceil(npy.max(locs)/10**range_oom)*10**range_oom
+                    self.offset = math.ceil(np.max(locs)/10**range_oom)*10**range_oom
                 else:
-                    self.offset = math.floor(npy.min(locs)/10**(range_oom))*10**(range_oom)
+                    self.offset = math.floor(np.min(locs)/10**(range_oom))*10**(range_oom)
             else: self.offset = 0
 
     def _set_orderOfMagnitude(self,range):
@@ -377,7 +377,7 @@ class ScalarFormatter(Formatter):
         if not self._scientific:
             self.orderOfMagnitude = 0
             return
-        locs = npy.absolute(self.locs)
+        locs = np.absolute(self.locs)
         if self.offset: oom = math.floor(math.log10(range))
         else:
             if locs[0] > locs[-1]: val = locs[0]
@@ -395,7 +395,7 @@ class ScalarFormatter(Formatter):
         # set the format string to format all the ticklabels
         # The floating point black magic (adding 1e-15 and formatting
         # to 8 digits) may warrant review and cleanup.
-        locs = (npy.asarray(self.locs)-self.offset) / 10**self.orderOfMagnitude+1e-15
+        locs = (np.asarray(self.locs)-self.offset) / 10**self.orderOfMagnitude+1e-15
         sigfigs = [len(str('%1.8f'% loc).split('.')[1].rstrip('0')) \
                    for loc in locs]
         sigfigs.sort()
@@ -407,7 +407,7 @@ class ScalarFormatter(Formatter):
 
     def pprint_val(self, x):
         xp = (x-self.offset)/10**self.orderOfMagnitude
-        if npy.absolute(xp) < 1e-8: xp = 0
+        if np.absolute(xp) < 1e-8: xp = 0
         return self.format % xp
 
     def _formatSciNotation(self, s):
@@ -465,7 +465,7 @@ class LogFormatter(Formatter):
         b=self._base
         if x == 0.0:
             return '0'
-        sign = npy.sign(x)
+        sign = np.sign(x)
         # only label the decades
         fx = math.log(abs(x))/math.log(b)
         isDecade = self.is_decade(fx)
@@ -527,7 +527,7 @@ class LogFormatterExponent(LogFormatter):
         b=self._base
         if x == 0:
             return '0'
-        sign = npy.sign(x)
+        sign = np.sign(x)
         # only label the decades
         fx = math.log(abs(x))/math.log(b)
         isDecade = self.is_decade(fx)
@@ -554,7 +554,7 @@ class LogFormatterMathtext(LogFormatter):
         # only label the decades
         if x == 0:
             return '$0$'
-        sign = npy.sign(x)
+        sign = np.sign(x)
         fx = math.log(abs(x))/math.log(b)
         isDecade = self.is_decade(fx)
 
@@ -638,7 +638,7 @@ class IndexLocator(Locator):
     def __call__(self):
         'Return the locations of the ticks'
         dmin, dmax = self.axis.get_data_interval()
-        return npy.arange(dmin + self.offset, dmax+1, self._base)
+        return np.arange(dmin + self.offset, dmax+1, self._base)
 
 
 class FixedLocator(Locator):
@@ -711,7 +711,7 @@ class LinearLocator(Locator):
 
 
         if self.numticks==0: return []
-        ticklocs = npy.linspace(vmin, vmax, self.numticks)
+        ticklocs = np.linspace(vmin, vmax, self.numticks)
 
         return ticklocs
 
@@ -802,7 +802,7 @@ class MultipleLocator(Locator):
         vmin = self._base.ge(vmin)
         base = self._base.get_base()
         n = (vmax - vmin + 0.001*base)//base
-        locs = vmin + npy.arange(n+1) * base
+        locs = vmin + np.arange(n+1) * base
         return locs
 
     def autoscale(self):
@@ -884,7 +884,7 @@ class MaxNLocator(Locator):
         if self._trim:
             extra_bins = int(divmod((best_vmax - vmax), step)[0])
             nbins -= extra_bins
-        return (npy.arange(nbins+1) * step + best_vmin + offset)
+        return (np.arange(nbins+1) * step + best_vmin + offset)
 
 
     def __call__(self):
@@ -899,7 +899,7 @@ class MaxNLocator(Locator):
             dmin = -maxabs
             dmax = maxabs
         dmin, dmax = mtransforms.nonsingular(dmin, dmax, expander = 0.05)
-        return npy.take(self.bin_boundaries(dmin, dmax), [0,-1])
+        return np.take(self.bin_boundaries(dmin, dmax), [0,-1])
 
 
 def decade_down(x, base=10):
@@ -943,7 +943,7 @@ class LogLocator(Locator):
         if subs is None:
             self._subs = None  # autosub
         else:
-            self._subs = npy.asarray(subs)+0.0
+            self._subs = np.asarray(subs)+0.0
 
     def _set_numticks(self):
         self.numticks = 15  # todo; be smart here; this is just for dev
@@ -968,9 +968,9 @@ class LogLocator(Locator):
         numdec = math.floor(vmax)-math.ceil(vmin)
 
         if self._subs is None: # autosub
-            if numdec>10: subs = npy.array([1.0])
-            elif numdec>6: subs = npy.arange(2.0, b, 2.0)
-            else: subs = npy.arange(2.0, b)
+            if numdec>10: subs = np.array([1.0])
+            elif numdec>6: subs = np.arange(2.0, b, 2.0)
+            else: subs = np.arange(2.0, b)
         else:
             subs = self._subs
 
@@ -978,7 +978,7 @@ class LogLocator(Locator):
         while numdec/stride+1 > self.numticks:
             stride += 1
 
-        decades = npy.arange(math.floor(vmin),
+        decades = np.arange(math.floor(vmin),
                              math.ceil(vmax)+stride, stride)
         if len(subs) > 1 or subs[0] != 1.0:
             ticklocs = []
@@ -987,7 +987,7 @@ class LogLocator(Locator):
         else:
             ticklocs = b**decades
 
-        return npy.array(ticklocs)
+        return np.array(ticklocs)
 
     def autoscale(self):
         'Try to choose the view limits intelligently'
@@ -1040,24 +1040,24 @@ class SymmetricalLogLocator(Locator):
         numdec = math.floor(vmax)-math.ceil(vmin)
 
         if self._subs is None:
-            if numdec>10: subs = npy.array([1.0])
-            elif numdec>6: subs = npy.arange(2.0, b, 2.0)
-            else: subs = npy.arange(2.0, b)
+            if numdec>10: subs = np.array([1.0])
+            elif numdec>6: subs = np.arange(2.0, b, 2.0)
+            else: subs = np.arange(2.0, b)
         else:
-            subs = npy.asarray(self._subs)
+            subs = np.asarray(self._subs)
 
         stride = 1
         while numdec/stride+1 > self.numticks:
             stride += 1
 
-        decades = npy.arange(math.floor(vmin), math.ceil(vmax)+stride, stride)
+        decades = np.arange(math.floor(vmin), math.ceil(vmax)+stride, stride)
         if len(subs) > 1 or subs[0] != 1.0:
             ticklocs = []
             for decade in decades:
-                ticklocs.extend(subs * (npy.sign(decade) * b ** npy.abs(decade)))
+                ticklocs.extend(subs * (np.sign(decade) * b ** np.abs(decade)))
         else:
-            ticklocs = npy.sign(decades) * b ** npy.abs(decades)
-        return npy.array(ticklocs)
+            ticklocs = np.sign(decades) * b ** np.abs(decades)
+        return np.array(ticklocs)
 
     def autoscale(self):
         'Try to choose the view limits intelligently'

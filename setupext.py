@@ -591,6 +591,7 @@ def add_ft2font_flags(module):
             if os.path.exists(p): module.library_dirs.append(p)
     else:
         add_base_flags(module)
+        module.libraries.append('z')
 
     if sys.platform == 'win32' and win32_compiler == 'mingw32':
         module.libraries.append('gw32c')

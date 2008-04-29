@@ -6,7 +6,7 @@ graphics contexts must implement to serve as a matplotlib backend
 from __future__ import division
 import os
 
-import numpy as npy
+import numpy as np
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 import matplotlib._image as _image
@@ -122,10 +122,10 @@ class RendererBase:
             meshWidth, meshHeight, coordinates)
 
         if showedges:
-            edgecolors = npy.array([[0.0, 0.0, 0.0, 1.0]], npy.float_)
+            edgecolors = np.array([[0.0, 0.0, 0.0, 1.0]], np.float_)
         else:
             edgecolors = facecolors
-        linewidths = npy.array([1.0], npy.float_)
+        linewidths = np.array([1.0], np.float_)
 
         return self.draw_path_collection(
             master_transform, cliprect, clippath, clippath_trans,
@@ -1569,7 +1569,7 @@ class NavigationToolbar2:
                 a.set_ylim((y0, y1))
             elif self._button_pressed == 3:
                 if a.get_xscale()=='log':
-                    alpha=npy.log(Xmax/Xmin)/npy.log(x1/x0)
+                    alpha=np.log(Xmax/Xmin)/np.log(x1/x0)
                     rx1=pow(Xmin/x0,alpha)*Xmin
                     rx2=pow(Xmax/x0,alpha)*Xmin
                 else:
@@ -1577,7 +1577,7 @@ class NavigationToolbar2:
                     rx1=alpha*(Xmin-x0)+Xmin
                     rx2=alpha*(Xmax-x0)+Xmin
                 if a.get_yscale()=='log':
-                    alpha=npy.log(Ymax/Ymin)/npy.log(y1/y0)
+                    alpha=np.log(Ymax/Ymin)/np.log(y1/y0)
                     ry1=pow(Ymin/y0,alpha)*Ymin
                     ry2=pow(Ymax/y0,alpha)*Ymin
                 else:

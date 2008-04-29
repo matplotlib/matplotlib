@@ -2,7 +2,7 @@ from __future__ import division
 import math
 
 import matplotlib as mpl
-import numpy as npy
+import numpy as np
 import matplotlib.cbook as cbook
 import matplotlib.artist as artist
 import matplotlib.colors as colors
@@ -603,7 +603,7 @@ class Arrow(Patch):
         %(Patch)s
         """
         Patch.__init__(self, **kwargs)
-        L = npy.sqrt(dx**2+dy**2) or 1 # account for div by zero
+        L = np.sqrt(dx**2+dy**2) or 1 # account for div by zero
         cx = float(dx)/L
         sx = float(dy)/L
 
@@ -650,7 +650,7 @@ class FancyArrow(Polygon):
         if head_length is None:
             head_length = 1.5 * head_width
 
-        distance = npy.sqrt(dx**2 + dy**2)
+        distance = np.sqrt(dx**2 + dy**2)
         if length_includes_head:
             length=distance
         else:
@@ -660,7 +660,7 @@ class FancyArrow(Polygon):
         else:
             #start by drawing horizontal arrow, point at (0,0)
             hw, hl, hs, lw = head_width, head_length, overhang, width
-            left_half_arrow = npy.array([
+            left_half_arrow = np.array([
                 [0.0,0.0],                  #tip
                 [-hl, -hw/2.0],             #leftmost
                 [-hl*(1-hs), -lw/2.0], #meets stem
@@ -681,13 +681,13 @@ class FancyArrow(Polygon):
                 if shape == 'right':
                     coords = right_half_arrow
                 elif shape == 'full':
-                    coords=npy.concatenate([left_half_arrow,right_half_arrow[::-1]])
+                    coords=np.concatenate([left_half_arrow,right_half_arrow[::-1]])
                 else:
                     raise ValueError, "Got unknown shape: %s" % shape
             cx = float(dx)/distance
             sx = float(dy)/distance
-            M = npy.array([[cx, sx],[-sx,cx]])
-            verts = npy.dot(coords, M) + (x+dx, y+dy)
+            M = np.array([[cx, sx],[-sx,cx]])
+            verts = np.dot(coords, M) + (x+dx, y+dy)
 
         Polygon.__init__(self, map(tuple, verts), **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
@@ -987,15 +987,15 @@ class Arc(Ellipse):
                 yield x, y
             elif discrim > 0.0:
                 # The definition of "sign" here is different from
-                # npy.sign: we never want to get 0.0
+                # np.sign: we never want to get 0.0
                 if dy < 0.0:
                     sign_dy = -1.0
                 else:
                     sign_dy = 1.0
-                sqrt_discrim = npy.sqrt(discrim)
+                sqrt_discrim = np.sqrt(discrim)
                 for sign in (1., -1.):
                     x = (D*dy + sign * sign_dy * dx * sqrt_discrim) / dr2
-                    y = (-D*dx + sign * npy.abs(dy) * sqrt_discrim) / dr2
+                    y = (-D*dx + sign * np.abs(dy) * sqrt_discrim) / dr2
                     yield x, y
 
         def iter_circle_intersect_on_line_seg(x0, y0, x1, y1):
@@ -1024,7 +1024,7 @@ class Arc(Ellipse):
             self.get_transform().inverted()
         box_path = box_path.transformed(box_path_transform)
 
-        PI = npy.pi
+        PI = np.pi
         TWOPI = PI * 2.0
         RAD2DEG = 180.0 / PI
         DEG2RAD = PI / 180.0
@@ -1036,7 +1036,7 @@ class Arc(Ellipse):
             x0, y0 = p0
             x1, y1 = p1
             for x, y in iter_circle_intersect_on_line_seg(x0, y0, x1, y1):
-                theta = npy.arccos(x)
+                theta = np.arccos(x)
                 if y < 0:
                     theta = TWOPI - theta
                 # Convert radians to angles
@@ -1050,7 +1050,7 @@ class Arc(Ellipse):
 
         last_theta = theta1
         theta1_rad = theta1 * DEG2RAD
-        inside = box_path.contains_point((npy.cos(theta1_rad), npy.sin(theta1_rad)))
+        inside = box_path.contains_point((np.cos(theta1_rad), np.sin(theta1_rad)))
         for theta in thetas:
             if inside:
                 self._path = Path.arc(last_theta, theta, 8)
