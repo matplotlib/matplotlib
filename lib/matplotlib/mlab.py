@@ -1901,7 +1901,7 @@ def rank(x):
 def sqrtm(x):
     """
     Returns the square root of a square matrix.
-    This means that s=sqrtm(x) implies s*s = x.
+    This means that s=sqrtm(x) implies dot(s,s) = x.
     Note that s and x are matrices.
     """
     return mfuncC(npy.sqrt, x)
@@ -1914,9 +1914,10 @@ def mfuncC(f, x):
     """
 
     x      = npy.asarray(x)
-    (v, u) = npy.linalg.eig(x)
-    uT     = u.transpose()
+    (v,uT) = npy.linalg.eig(x)
     V      = npy.diag(f(v+0j))
+    # todo: warning: this is not exactly what matlab does
+    #       MATLAB "B/A is roughly the same as B*inv(A)"
     y      = npy.dot(uT, npy.dot(V, npy.linalg.inv(uT)))
     return approx_real(y)
 
