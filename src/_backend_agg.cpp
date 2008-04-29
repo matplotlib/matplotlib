@@ -1300,12 +1300,16 @@ RendererAgg::write_rgba(const Py::Tuple& args) {
     const char *file_name = fileName.c_str();
     if ((fp = fopen(file_name, "wb")) == NULL)
       throw Py::RuntimeError( Printf("Could not open file %s", file_name).str() );
-    fwrite(pixBuffer, 1, NUMBYTES, fp);
+    if (fwrite(pixBuffer, 1, NUMBYTES, fp) != NUMBYTES) {
+      fclose(fp);
+      throw Py::RuntimeError( Printf("Error writing to file %s", file_name).str() );
+    }
     close_file = true;
-    fclose(fp);
   } else if (PyFile_CheckExact(py_fileobj.ptr())) {
     fp = PyFile_AsFile(py_fileobj.ptr());
-    fwrite(pixBuffer, 1, NUMBYTES, fp);
+    if (fwrite(pixBuffer, 1, NUMBYTES, fp) != NUMBYTES) {
+      throw Py::RuntimeError( "Error writing to file" );
+    }
   } else {
     PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(), "write");
     if (!(write_method && PyCallable_Check(write_method))) {
