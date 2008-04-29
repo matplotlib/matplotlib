@@ -1,3 +1,5 @@
+2008-04-29 Fix bug in mlab.sqrtm - MM
+
 2008-04-28 Fix bug in SVG text with Mozilla-based viewers (the symbol
            tag is not supported) - MGD
 
