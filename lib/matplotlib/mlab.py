@@ -2384,6 +2384,8 @@ class FormatObj:
     def toval(self, x):
         return str(x)
 
+    def fromstr(self, s):
+        return s
 
 class FormatString(FormatObj):
     def tostr(self, x):
@@ -2402,6 +2404,7 @@ class FormatFormatStr(FormatObj):
         if x is None: return 'None'
         return self.fmt%self.toval(x)
 
+
 class FormatFloat(FormatFormatStr):
     def __init__(self, precision=4, scale=1.):
         FormatFormatStr.__init__(self, '%%1.%df'%precision)
@@ -2413,9 +2416,16 @@ class FormatFloat(FormatFormatStr):
             x = x * self.scale
         return x
 
+    def fromstr(self, s):
+        return float(s)/self.scale
+
+
 class FormatInt(FormatObj):
     def toval(self, x):
         return x
+
+    def fromstr(self, s):
+        return int(s)
 
 class FormatPercent(FormatFloat):
     def __init__(self, precision=4):
@@ -2424,6 +2434,7 @@ class FormatPercent(FormatFloat):
 class FormatThousands(FormatFloat):
     def __init__(self, precision=4):
         FormatFloat.__init__(self, precision, scale=1e-3)
+
 
 class FormatMillions(FormatFloat):
     def __init__(self, precision=4):
@@ -2438,9 +2449,19 @@ class FormatDate(FormatObj):
         if x is None: return 'None'
         return x.strftime(self.fmt)
 
+    def fromstr(self, x):
+        import dateutil.parser
+        return dateutil.parser.parse(x).date()
+
 class FormatDatetime(FormatDate):
     def __init__(self, fmt='%Y-%m-%d %H:%M:%S'):
         FormatDate.__init__(self, fmt)
+
+    def fromstr(self, x):
+        import dateutil.parser
+        return dateutil.parser.parse(x)
+
+
 
 
 defaultformatd = {
