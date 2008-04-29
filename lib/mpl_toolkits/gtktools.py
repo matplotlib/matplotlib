@@ -8,7 +8,7 @@ Example usage
 
     import matplotlib.mlab as mlab
     import mpl_toolkits.gtktools as gtktools
-    
+
     r = mlab.csv2rec('somefile.csv', checkrows=0)
 
     formatd = dict(
@@ -46,7 +46,7 @@ def gtkformat_factory(format, colnum):
     cell = None
 
     """
-
+    if format is None: return None
     format = copy.copy(format)
     format.xalign = 0.
     format.cell = None
@@ -148,6 +148,8 @@ class SortedStringsScrolledWindow(gtk.ScrolledWindow):
 
             column = gtk.TreeViewColumn(header, renderer, text=i)
             renderer.set_property('xalign', formatter.xalign)
+            renderer.set_property('editable', True)
+            renderer.connect("edited", self.position_edited, i)
             column.connect('clicked', Clicked(self, i))
             column.set_property('clickable', True)
 
@@ -163,6 +165,10 @@ class SortedStringsScrolledWindow(gtk.ScrolledWindow):
         self.add(treeview)
         self.treeview = treeview
         self.clear()
+
+    def position_edited(self, renderer, path, newtext, position):
+        #print path, position
+        self.model[path][position] = newtext
 
     def clear(self):
         self.iterd = dict()
@@ -291,9 +297,108 @@ def rec2gtk(r, formatd=None, rownum=0, autowin=True):
     if autowin:
         win = gtk.Window()
         win.set_default_size(800,600)
+        #win.set_geometry_hints(scroll)
         win.add(scroll)
         win.show_all()
         scroll.win = win
 
     return scroll
 
+
+class RecListStore(gtk.ListStore):
+    """
+    A liststore as a model of an editable record array.
+
+    attributes:
+
+     * r - the record array with the edited values
+
+     * callbacks - a matplotlib.cbook.CallbackRegistry.  Connect to the cell_changed with
+
+        def mycallback(liststore, rownum, colname, oldval, newval):
+           print 'verify: old=%s, new=%s, rec=%s'%(oldval, newval, liststore.r[rownum][colname])
+
+        cid = liststore.callbacks.connect('cell_changed', mycallback)
+
+    """
+    def __init__(self, r, formatd=None):
+        if formatd is None:
+            formatd = mlab.get_formatd(r)
+
+        self.callbacks = cbook.CallbackRegistry(['cell_changed'])
+
+        self.r = r
+        gtk.ListStore.__init__(self, *([gobject.TYPE_STRING]*len(r.dtype)))
+        self.headers = r.dtype.names
+        self.formats = [gtkformat_factory(formatd.get(name, mlab.FormatObj()),i)
+                        for i,name in enumerate(self.headers)]
+        for row in r:
+            self.append([func.tostr(val) for func, val in zip(self.formats, row)])
+
+
+    def position_edited(self, renderer, path, newtext, position):
+        self[path][position] = newtext
+        format = self.formats[int(position)]
+
+        rownum = int(path)
+        colname = self.headers[int(position)]
+        oldval = self.r[rownum][colname]
+        newval = format.fromstr(newtext)
+        self.r[rownum][colname] = newval
+        self.callbacks.process('cell_changed', self, rownum, colname, oldval, newval)
+
+def editable_recarray(r, formatd=None):
+    """
+    return a (gtk.TreeView, RecListStore) from record array t and
+    format dictionary formatd where the keys are record array dtype
+    names and the values are matplotlib.mlab.FormatObj instances
+
+    Example:
+
+        formatd = mlab.get_formatd(r)
+        formatd['date'] = mlab.FormatDate('%Y-%m-%d')
+        formatd['volume'] = mlab.FormatMillions(precision=1)
+
+        treeview, liststore = gtktools.editable_recarray(r, formatd=formatd)
+
+        def mycallback(liststore, rownum, colname, oldval, newval):
+            print 'verify: old=%s, new=%s, rec=%s'%(oldval, newval, liststore.r[rownum][colname])
+
+        liststore.callbacks.connect('cell_changed', mycallback)
+
+
+        win = gtk.Window()
+        win.show()
+        win.connect('destroy', lambda x: gtk.main_quit())
+        win.add(treeview)
+        gtk.main()
+
+    """
+    liststore = RecListStore(r, formatd=formatd)
+    treeview = gtk.TreeView()
+    if formatd is None:
+        formatd = mlab.get_formatd(r)
+    for i, header in enumerate(liststore.headers):
+        renderer = gtk.CellRendererText()
+        renderer.connect("edited", liststore.position_edited, i)
+        renderer.set_property('editable', True)
+
+        formatter = gtkformat_factory(formatd.get(header), i)
+
+        if formatter is not None:
+            renderer.set_property('xalign', formatter.xalign)
+
+        tvcol = gtk.TreeViewColumn(header)
+        treeview.append_column(tvcol)
+        tvcol.pack_start(renderer, True)
+        tvcol.add_attribute(renderer, 'text', i)
+        if formatter is not None and formatter.cell is not None:
+            tvcol.set_cell_data_func(renderer, formatter.cell)
+
+
+    treeview.set_model(liststore)
+    treeview.show()
+    treeview.set_grid_lines(gtk.TREE_VIEW_GRID_LINES_BOTH)
+
+
+    return treeview, liststore
