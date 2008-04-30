@@ -2170,7 +2170,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     data type.  When set to zero all rows are validated.
 
     converterd, if not None, is a dictionary mapping column number or
-    munged column name to a converter function
+    munged column name to a converter function.
 
     names, if not None, is a list of header names.  In this case, no
     header will be read from the file
@@ -2256,11 +2256,18 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
                 return func(val)
         return newfunc
 
+
+    def mybool(x):
+        if x=='True': return True
+        elif x=='False': return False
+        else: raise ValueError('invalid bool')
+        
     dateparser = dateutil.parser.parse
     mydateparser = with_default_value(dateparser, datetime.date(1,1,1))
     myfloat = with_default_value(float, np.nan)
     myint = with_default_value(int, -1)
     mystr = with_default_value(str, '')
+    mybool = with_default_value(mybool, None)
 
     def mydate(x):
         # try and return a date object
@@ -2273,7 +2280,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     def get_func(name, item, func):
         # promote functions in this order
-        funcmap = {myint:myfloat, myfloat:mydate, mydate:mydateparser, mydateparser:mystr}
+        funcmap = {mybool:myint,myint:myfloat, myfloat:mydate, mydate:mydateparser, mydateparser:mystr}
         try: func(name, item)
         except:
             if func==mystr:
@@ -2294,7 +2301,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
         converters = None
         for i, row in enumerate(reader):
             if i==0:
-                converters = [myint]*len(row)
+                converters = [mybool]*len(row)
             if checkrows and i>checkrows:
                 break
             #print i, len(names), len(row)
@@ -2308,6 +2315,9 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
                     func = converters[j]
                     if len(item.strip()):
                         func = get_func(name, item, func)
+                else:
+                    # how should we handle custom converters and defaults?
+                    func = with_default_value(func, None)
                 converters[j] = func
         return converters
 
@@ -2427,6 +2437,13 @@ class FormatInt(FormatObj):
     def fromstr(self, s):
         return int(s)
 
+class FormatBool(FormatObj):
+    def toval(self, x):
+        return x
+
+    def fromstr(self, s):
+        return bool(s)
+
 class FormatPercent(FormatFloat):
     def __init__(self, precision=4):
         FormatFloat.__init__(self, precision, scale=100.)
@@ -2465,6 +2482,7 @@ class FormatDatetime(FormatDate):
 
 
 defaultformatd = {
+    np.bool_ : FormatBool(),
     np.int16 : FormatInt(),
     np.int32 : FormatInt(),
     np.int64 : FormatInt(),
