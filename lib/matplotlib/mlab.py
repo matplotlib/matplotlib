@@ -2261,7 +2261,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
         if x=='True': return True
         elif x=='False': return False
         else: raise ValueError('invalid bool')
-        
+
     dateparser = dateutil.parser.parse
     mydateparser = with_default_value(dateparser, datetime.date(1,1,1))
     myfloat = with_default_value(float, np.nan)
