@@ -260,7 +260,7 @@ void RendererAgg::create_alpha_buffers() {
     alphaMask		   = new alpha_mask_type(*alphaMaskRenderingBuffer);
 
     pixfmtAlphaMask	   = new agg::pixfmt_gray8(*alphaMaskRenderingBuffer);
-    rendererBaseAlphaMask	   = new renderer_base_alpha_mask_type(*pixfmtAlphaMask);
+    rendererBaseAlphaMask  = new renderer_base_alpha_mask_type(*pixfmtAlphaMask);
     rendererAlphaMask	   = new renderer_alpha_mask_type(*rendererBaseAlphaMask);
     scanlineAlphaMask	   = new agg::scanline_p8();
   }
@@ -423,7 +423,6 @@ RendererAgg::restore_region(const Py::Tuple& args) {
   if (region->data==NULL)
     return Py::Object();
   //throw Py::ValueError("Cannot restore_region from NULL data");
-
 
   agg::rendering_buffer rbuf;
   rbuf.attach(region->data,
@@ -1434,14 +1433,14 @@ RendererAgg::write_png(const Py::Tuple& args)
     png_write_image(png_ptr, row_pointers);
     png_write_end(png_ptr, info_ptr);
 
-    /* Changed calls to png_destroy_write_struct to follow
-       http://www.libpng.org/pub/png/libpng-manual.txt.
-       This ensures the info_ptr memory is released.
-    */
 
   } catch (...) {
       if (fp && close_file) fclose(fp);
       delete [] row_pointers;
+      /* Changed calls to png_destroy_write_struct to follow
+         http://www.libpng.org/pub/png/libpng-manual.txt.
+         This ensures the info_ptr memory is released.
+      */
       if (png_ptr && info_ptr) png_destroy_write_struct(&png_ptr, &info_ptr);
       throw;
   }
@@ -1477,9 +1476,7 @@ RendererAgg::tostring_rgb(const Py::Tuple& args) {
 
 
   //todo: how to do this with native CXX
-  PyObject* o = Py_BuildValue("s#",
-			      buf_tmp,
-			      row_len * height);
+  PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * height);
   delete [] buf_tmp;
   return Py::asObject(o);
 }
@@ -1499,18 +1496,13 @@ RendererAgg::tostring_argb(const Py::Tuple& args) {
     throw Py::MemoryError("RendererAgg::tostring_argb could not allocate memory");
   }
   agg::rendering_buffer renderingBufferTmp;
-  renderingBufferTmp.attach(buf_tmp,
-			    width,
-			    height,
-			    row_len);
+  renderingBufferTmp.attach(buf_tmp, width, height, row_len);
 
   agg::color_conv(&renderingBufferTmp, renderingBuffer, agg::color_conv_rgba32_to_argb32());
 
 
   //todo: how to do this with native CXX
-  PyObject* o = Py_BuildValue("s#",
-			      buf_tmp,
-			      row_len * height);
+  PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * height);
   delete [] buf_tmp;
   return Py::asObject(o);
 }
