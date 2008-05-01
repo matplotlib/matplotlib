@@ -4,6 +4,8 @@
  * Michael Droettboom
  */
 
+#include <stdio.h>
+
 /*
 ** ~ppr/src/include/typetype.h
 **
