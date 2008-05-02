@@ -8,9 +8,7 @@ from __future__ import division
 try:
     import pyemf
 except ImportError:
-    import sys
-    print >>sys.stderr, 'You must first install pyemf from http://pyemf.sf.net'
-    sys.exit()
+    raise ImportError('You must first install pyemf from http://pyemf.sf.net')
 
 import os,sys,math,re
 
@@ -600,7 +598,7 @@ class FigureCanvasEMF(FigureCanvasBase):
         pass
 
     filetypes = {'emf': 'Enhanced Metafile'}
-    
+
     def print_emf(self, filename, dpi=300, **kwargs):
         width, height = self.figure.get_size_inches()
         renderer = RendererEMF(filename,width,height,dpi)
@@ -609,7 +607,7 @@ class FigureCanvasEMF(FigureCanvasBase):
 
     def get_default_filetype(self):
         return 'emf'
-        
+
 class FigureManagerEMF(FigureManagerBase):
     """
     Wrap everything up into a window for the pylab interface
