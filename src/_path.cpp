@@ -657,7 +657,8 @@ struct bisectx
 
     bisectx(double x) : m_x(x) {}
 
-    void bisect(double sx, double sy, double px, double py, double* bx, double* by) const
+    inline void bisect(double sx, double sy, double px, double py,
+                       double* bx, double* by) const
     {
         *bx = m_x;
         double dx = px - sx;
@@ -670,7 +671,7 @@ struct xlt : public bisectx
 {
     xlt(double x) : bisectx(x) {}
 
-    bool is_inside(double x, double y) const
+    inline bool is_inside(double x, double y) const
     {
         return x <= m_x;
     }
@@ -680,7 +681,7 @@ struct xgt : public bisectx
 {
     xgt(double x) : bisectx(x) {}
 
-    bool is_inside(double x, double y) const
+    inline bool is_inside(double x, double y) const
     {
         return x >= m_x;
     }
@@ -692,7 +693,7 @@ struct bisecty
 
     bisecty(double y) : m_y(y) {}
 
-    void bisect(double sx, double sy, double px, double py, double* bx, double* by) const
+    inline void bisect(double sx, double sy, double px, double py, double* bx, double* by) const
     {
         *by = m_y;
         double dx = px - sx;
@@ -705,7 +706,7 @@ struct ylt : public bisecty
 {
     ylt(double y) : bisecty(y) {}
 
-    bool is_inside(double x, double y) const
+    inline bool is_inside(double x, double y) const
     {
         return y <= m_y;
     }
@@ -715,7 +716,7 @@ struct ygt : public bisecty
 {
     ygt(double y) : bisecty(y) {}
 
-    bool is_inside(double x, double y) const
+    inline bool is_inside(double x, double y) const
     {
         return y >= m_y;
     }
@@ -723,7 +724,7 @@ struct ygt : public bisecty
 }
 
 template<class Filter>
-void clip_to_rect_one_step(const Polygon& polygon, Polygon& result, const Filter& filter)
+inline void clip_to_rect_one_step(const Polygon& polygon, Polygon& result, const Filter& filter)
 {
     double sx, sy, px, py, bx, by;
     bool sinside, pinside;
@@ -899,8 +900,9 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args)
 
         transform = (PyArrayObject*) PyArray_FromObject
                     (transform_obj.ptr(), PyArray_DOUBLE, 2, 2);
-        if (!transform || PyArray_NDIM(transform) != 2 ||
-	    PyArray_DIM(transform, 0) != 3 || PyArray_DIM(transform, 1) != 3)
+        if (!transform ||
+	    PyArray_DIM(transform, 0) != 3 ||
+            PyArray_DIM(transform, 1) != 3)
             throw Py::ValueError("Invalid transform.");
 
         double a, b, c, d, e, f;
@@ -964,6 +966,7 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args)
         Py_XDECREF(vertices);
         Py_XDECREF(transform);
         Py_XDECREF(result);
+        throw;
     }
 
     Py_XDECREF(vertices);
@@ -1020,10 +1023,10 @@ Py::Object _path_module::count_bboxes_overlapping_bbox(const Py::Tuple& args)
     return Py::Int(count);
 }
 
-bool segments_intersect(const double& x1, const double& y1,
-                        const double& x2, const double& y2,
-                        const double& x3, const double& y3,
-                        const double& x4, const double& y4)
+inline bool segments_intersect(const double& x1, const double& y1,
+                               const double& x2, const double& y2,
+                               const double& x3, const double& y3,
+                               const double& x4, const double& y4)
 {
     double den = ((y4-y3)*(x2-x1)) - ((x4-x3)*(y2-y1));
     if (den == 0.0)
