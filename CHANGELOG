@@ -1,3 +1,7 @@
+2008-05-02 Update _subprocess.c from upstream Python 2.5.2 to get a
+           few memory and reference-counting-related bugfixes.  See
+           bug 1949978. - MGD
+
 2008-04-30 Added some record array editing widgets for gtk -- see
            examples/rec_edit*.py - JDH
 
