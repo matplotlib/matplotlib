@@ -100,20 +100,20 @@ AGG_VERSION = 'agg23'
 numpy_inc_dirs = []
 
 # matplotlib build options, which can be altered using setup.cfg
-options = {'display_status': True, 
-           'verbose': False, 
-           'provide_pytz': 'auto', 
-           'provide_dateutil': 'auto', 
-           'provide_configobj': 'auto', 
-           'provide_traits': 'auto', 
-           'build_agg': True, 
-           'build_gtk': 'auto', 
-           'build_gtkagg': 'auto', 
-           'build_tkagg': 'auto', 
-           'build_wxagg': 'auto', 
-           'build_image': True, 
-           'build_windowing': True, 
-           'backend': None, 
+options = {'display_status': True,
+           'verbose': False,
+           'provide_pytz': 'auto',
+           'provide_dateutil': 'auto',
+           'provide_configobj': 'auto',
+           'provide_traits': 'auto',
+           'build_agg': True,
+           'build_gtk': 'auto',
+           'build_gtkagg': 'auto',
+           'build_tkagg': 'auto',
+           'build_wxagg': 'auto',
+           'build_image': True,
+           'build_windowing': True,
+           'backend': None,
            'numerix': None}
 
 # Based on the contents of setup.cfg, determine the build options
@@ -351,8 +351,13 @@ def check_for_qt():
         print_status("Qt", "no")
         return False
     else:
+        try:
+            qt_version = pyqtconfig.Configuration().qt_version
+            qt_version = convert_qt_version(qt_version)
+        except AttributeError:
+            qt_version = "<unknown>"
         print_status("Qt", "Qt: %s, PyQt: %s" %
-                     (convert_qt_version(pyqtconfig.Configuration().qt_version),
+                     (qt_version,
                       pyqtconfig.Configuration().pyqt_version_str))
         return True
 
@@ -813,7 +818,7 @@ def check_for_tk():
             explanation = "Tcl/Tk v8.3 or later required"
         else:
             gotit = True
-            
+
     if gotit:
         module = Extension('test', [])
         try:
@@ -830,7 +835,7 @@ def check_for_tk():
                 else:
                     explanation = message
                 gotit = False
-                
+
     if gotit:
         print_status("Tkinter", "Tkinter: %s, Tk: %s, Tcl: %s" %
                      (Tkinter.__version__.split()[-2], Tkinter.TkVersion, Tkinter.TclVersion))
@@ -849,7 +854,7 @@ def query_tcltk():
     # Use cached values if they exist, which ensures this function only executes once
     if TCL_TK_CACHE is not None:
         return TCL_TK_CACHE
-    
+
     # By this point, we already know that Tkinter imports correctly
     import Tkinter
     tcl_lib_dir = ''
@@ -875,14 +880,14 @@ def query_tcltk():
         tk.withdraw()
         tcl_lib_dir = str(tk.getvar('tcl_library'))
         tk_lib_dir = str(tk.getvar('tk_library'))
-    
+
     # Save directories and version string to cache
     TCL_TK_CACHE = tcl_lib_dir, tk_lib_dir, str(Tkinter.TkVersion)[:3]
     return TCL_TK_CACHE
 
 def add_tk_flags(module):
     'Add the module flags to build extensions which use tk'
-    message = None    
+    message = None
     if sys.platform == 'win32':
         major, minor1, minor2, s, tmp = sys.version_info
         if major == 2 and minor1 in [3, 4, 5]:
@@ -894,11 +899,11 @@ def add_tk_flags(module):
         else:
             raise RuntimeError('No tk/win32 support for this python version yet')
         module.library_dirs.extend([os.path.join(sys.prefix, 'dlls')])
-        
+
     elif sys.platform == 'darwin':
         # this config section lifted directly from Imaging - thanks to
         # the effbot!
-        
+
         # First test for a MacOSX/darwin framework install
         from os.path import join, exists
         framework_dirs = [
@@ -906,7 +911,7 @@ def add_tk_flags(module):
             '/Library/Frameworks',
             '/System/Library/Frameworks/',
         ]
-        
+
         # Find the directory that contains the Tcl.framework and Tk.framework
         # bundles.
         # XXX distutils should support -F!
@@ -931,7 +936,7 @@ def add_tk_flags(module):
                 for fw in 'Tcl', 'Tk'
                 for H in 'Headers', 'Versions/Current/PrivateHeaders'
             ]
-            
+
             # For 8.4a2, the X11 headers are not included. Rather than include a
             # complicated search, this is a hard-coded path. It could bail out
             # if X11 libs are not found...
@@ -940,31 +945,31 @@ def add_tk_flags(module):
             module.include_dirs.extend(tk_include_dirs)
             module.extra_link_args.extend(frameworks)
             module.extra_compile_args.extend(frameworks)
-            
+
     # you're still here? ok we'll try it this way...
     else:
         # Query Tcl/Tk system for library paths and version string
         tcl_lib_dir, tk_lib_dir, tk_ver = query_tcltk() # todo: try/except
-        
+
         # Process base directories to obtain include + lib dirs
-        if tcl_lib_dir != '' and tk_lib_dir != '':    
+        if tcl_lib_dir != '' and tk_lib_dir != '':
             tcl_lib = os.path.normpath(os.path.join(tcl_lib_dir, '../'))
             tk_lib = os.path.normpath(os.path.join(tk_lib_dir, '../'))
-            tcl_inc = os.path.normpath(os.path.join(tcl_lib_dir, 
+            tcl_inc = os.path.normpath(os.path.join(tcl_lib_dir,
                                        '../../include/tcl' + tk_ver))
             if not os.path.exists(tcl_inc):
-                tcl_inc = os.path.normpath(os.path.join(tcl_lib_dir, 
+                tcl_inc = os.path.normpath(os.path.join(tcl_lib_dir,
                                            '../../include'))
-            tk_inc = os.path.normpath(os.path.join(tk_lib_dir, 
+            tk_inc = os.path.normpath(os.path.join(tk_lib_dir,
                                       '../../include/tk' + tk_ver))
             if not os.path.exists(tk_inc):
-                tk_inc = os.path.normpath(os.path.join(tk_lib_dir, 
+                tk_inc = os.path.normpath(os.path.join(tk_lib_dir,
                                           '../../include'))
-            
+
             if ((not os.path.exists(os.path.join(tk_inc,'tk.h'))) and
                 os.path.exists(os.path.join(tcl_inc,'tk.h'))):
                 tk_inc = tcl_inc
-            
+
             if not os.path.exists(tcl_inc):
                 # this is a hack for suse linux, which is broken
                 if (sys.platform.startswith('linux') and
@@ -986,7 +991,7 @@ so that setup can determine where your libraries are located."""
         module.include_dirs.extend([tcl_inc, tk_inc])
         module.library_dirs.extend([tcl_lib, tk_lib])
         module.libraries.extend(['tk' + tk_ver, 'tcl' + tk_ver])
-    
+
     return message
 
 def add_windowing_flags(module):
