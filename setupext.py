@@ -351,8 +351,13 @@ def check_for_qt():
         print_status("Qt", "no")
         return False
     else:
+        try:
+            qt_version = pyqtconfig.Configuration().qt_version
+            qt_version = convert_qt_version(qt_version)
+        except AttributeError:
+            qt_version = "<unknown>"
         print_status("Qt", "Qt: %s, PyQt: %s" %
-                     (convert_qt_version(pyqtconfig.Configuration().qt_version),
+                     (qt_version,
                       pyqtconfig.Configuration().pyqt_version_str))
         return True
 
