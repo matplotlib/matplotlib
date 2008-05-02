@@ -5406,11 +5406,11 @@ class Axes(martist.Artist):
     #### Data analysis
 
 
-    def hist(self, x, bins=10, normed=0, bottom=None,
+    def hist(self, x, bins=10, normed=0, bottom=None, histtype='bar',
              align='edge', orientation='vertical', width=None,
              log=False, **kwargs):
         """
-        HIST(x, bins=10, normed=0, bottom=None,
+        HIST(x, bins=10, normed=0, bottom=None, histtype='bar',
              align='edge', orientation='vertical', width=None,
              log=False, **kwargs)
 
@@ -5429,6 +5429,10 @@ class Axes(martist.Artist):
           pdf, bins, patches = ax.hist(...)
           print np.trapz(pdf, bins)
 
+        histtype = 'bar' | 'step'. The type of histogram to draw.
+        'bar' is a traditional bar-type histogram, 'step' generates
+        a lineplot.
+
         align = 'edge' | 'center'.  Interprets bins either as edge
         or center values
 
@@ -5436,7 +5440,7 @@ class Axes(martist.Artist):
         will be used and the "bottom" kwarg will be the left edges.
 
         width: the width of the bars.  If None, automatically compute
-        the width.
+        the width. Ignored for 'step' histtype.
 
         log: if True, the histogram axis will be set to a log scale
 
@@ -5446,15 +5450,44 @@ class Axes(martist.Artist):
         """
         if not self._hold: self.cla()
         n, bins = np.histogram(x, bins, range=None, normed=normed)
-        if width is None: width = 0.9*(bins[1]-bins[0])
-        if orientation == 'horizontal':
-            patches = self.barh(bins, n, height=width, left=bottom,
-                                align=align, log=log)
-        elif orientation == 'vertical':
-            patches = self.bar(bins, n, width=width, bottom=bottom,
-                                align=align, log=log)
+        if width is None:
+            if histtype == 'bar':
+                width = 0.9*(bins[1]-bins[0])
+            elif histtype == 'step':
+                width = bins[1]-bins[0]
+            else:
+                raise ValueError, 'invalid histtype: %s' % histtype
+
+        if histtype == 'bar':
+            if orientation == 'horizontal':
+                patches = self.barh(bins, n, height=width, left=bottom,
+                                    align=align, log=log)
+            elif orientation == 'vertical':
+                patches = self.bar(bins, n, width=width, bottom=bottom,
+                                    align=align, log=log)
+            else:
+                raise ValueError, 'invalid orientation: %s' % orientation
+
+        elif histtype == 'step':
+            binedges = np.concatenate((bins,bins[-1:]+width))
+            if align == 'center':
+                binedges -= 0.5*width
+            x = np.zeros( 2*len(binedges), np.float_ )
+            y = np.zeros( 2*len(binedges), np.float_ )
+
+            x[0:-1:2],x[1::2] = binedges, binedges
+            y[1:-1:2],y[2::2] = n, n
+            
+            if orientation == 'horizontal':
+                x,y = y,x
+            elif orientation == 'vertical':
+                pass
+            else:
+                raise ValueError, 'invalid orientation: %s' % orientation
+            patches = self.fill(x,y)
         else:
-            raise ValueError, 'invalid orientation: %s' % orientation
+            raise ValueError, 'invalid histtype: %s' % histtype
+
         for p in patches:
             p.update(kwargs)
         return n, bins, cbook.silent_list('Patch', patches)

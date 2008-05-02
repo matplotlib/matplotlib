@@ -1,3 +1,5 @@
+2008-05-02 Added step histograms, based on patch by Erik Tollerud. - MM
+
 2008-05-02 On PyQt <= 3.14 there is no way to determine the underlying
            Qt version. [1851364] - MGD
 
