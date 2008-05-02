@@ -1,3 +1,9 @@
+2008-05-02 On PyQt <= 3.14 there is no way to determine the underlying
+           Qt version. [1851364] - MGD
+
+2008-05-02 Don't call sys.exit() when pyemf is not found [1924199] -
+           MGD
+
 2008-05-02 Update _subprocess.c from upstream Python 2.5.2 to get a
            few memory and reference-counting-related bugfixes.  See
            bug 1949978. - MGD
