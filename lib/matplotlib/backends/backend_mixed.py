@@ -36,7 +36,7 @@ class MixedModeRenderer(object):
         self._vector_renderer = vector_renderer
 
         self._raster_renderer = None
-        self._rasterizing = False
+        self._rasterizing = 0
 
         self._set_current_renderer(vector_renderer)
 
@@ -65,11 +65,11 @@ class MixedModeRenderer(object):
         If start_rasterizing is called multiple times before
         stop_rasterizing is called, this method has no effect.
         """
-        if not self._rasterizing:
+        if self._rasterizing == 0:
             self._raster_renderer = self._raster_renderer_class(
                 self._width*self.dpi, self._height*self.dpi, self.dpi)
             self._set_current_renderer(self._raster_renderer)
-            self._rasterizing = True
+        self._rasterizing += 1
 
     def stop_rasterizing(self):
         """
@@ -80,7 +80,8 @@ class MixedModeRenderer(object):
         If stop_rasterizing is called multiple times before
         start_rasterizing is called, this method has no effect.
         """
-        if self._rasterizing:
+        self._rasterizing -= 1
+        if self._rasterizing == 0:
             self._set_current_renderer(self._vector_renderer)
 
             width, height = self._width * self.dpi, self._height * self.dpi
