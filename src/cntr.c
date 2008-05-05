@@ -1688,7 +1688,7 @@ static PyMethodDef Cntr_methods[] = {
      "    Optional argument: nchunk; approximate number of grid points\n"
      "        per chunk. 0 (default) for no chunking.\n"
     },
-    {NULL}  /* Sentinel */
+    {0, 0, 0, 0}  /* Sentinel */
 };
 
 static PyTypeObject CntrType = {

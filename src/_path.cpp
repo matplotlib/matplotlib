@@ -1161,4 +1161,4 @@ extern "C"
 
     static _path_module* _path = NULL;
     _path = new _path_module;
-};
+}

@@ -27,7 +27,7 @@ extern "C" {
 #else
 #  include <tk.h>
 #endif
-};
+}
 
 
 

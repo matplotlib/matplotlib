@@ -153,8 +153,7 @@ FT2Image::py_write_bitmap(const Py::Tuple & args) {
 void
 FT2Image::draw_rect(unsigned long x0, unsigned long y0,
 		    unsigned long x1, unsigned long y1) {
-  if ( x0<0 || y0<0 || x1<0 || y1<0 ||
-       x0>_width || x1>_width ||
+  if ( x0>_width || x1>_width ||
        y0>_height || y1>_height )
     throw Py::ValueError("Rect coords outside image bounds");
 
@@ -197,10 +196,10 @@ FT2Image::py_draw_rect(const Py::Tuple & args) {
 
 void FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0,
 				unsigned long x1, unsigned long y1) {
-  x0 = CLAMP(x0, 0, _width);
-  y0 = CLAMP(y0, 0, _height);
-  x1 = CLAMP(x1, 0, _width);
-  y1 = CLAMP(y1, 0, _height);
+  x0 = std::min(x0, _width);
+  y0 = std::min(y0, _height);
+  x1 = std::min(x1, _width);
+  y1 = std::min(y1, _height);
 
   for (size_t j=y0; j<y1+1; j++) {
     for (size_t i=x0; i<x1+1; i++) {
@@ -1207,7 +1206,7 @@ char FT2Font::draw_glyph_to_bitmap__doc__[] =
 "draw_glyphs_to_bitmap.  This function is intended for people who\n"
 "want to render individual glyphs at precise locations, eg, a\n"
 "a glyph returned by load_char\n";
-;
+
 Py::Object
 FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args) {
   _VERBOSE("FT2Font::draw_glyph_to_bitmap");
@@ -1768,7 +1767,7 @@ FT2Font::init_type() {
 
   behaviors().supportGetattr();
   behaviors().supportSetattr();
-};
+}
 
 //todo add module docs strings
 
