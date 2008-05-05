@@ -238,7 +238,7 @@ class FigureManagerQT( FigureManagerBase ):
         def notify_axes_change( fig ):
            # This will be called whenever the current axes is changed
            if self.toolbar != None: self.toolbar.update()
-           self.canvas.figure.add_axobserver( notify_axes_change )
+        self.canvas.figure.add_axobserver( notify_axes_change )
 
     def _widgetclosed( self ):
         if self.window._destroying: return
