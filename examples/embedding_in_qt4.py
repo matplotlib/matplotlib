@@ -23,14 +23,15 @@ progversion = "0.1"
 class MyMplCanvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
     def __init__(self, parent=None, width=5, height=4, dpi=100):
-        self.fig = Figure(figsize=(width, height), dpi=dpi)
-        self.axes = self.fig.add_subplot(111)
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
         # We want the axes cleared every time plot() is called
         self.axes.hold(False)
 
         self.compute_initial_figure()
 
-        FigureCanvas.__init__(self, self.fig)
+        #
+        FigureCanvas.__init__(self, fig)
         self.setParent(parent)
 
         FigureCanvas.setSizePolicy(self,
@@ -38,12 +39,8 @@ class MyMplCanvas(FigureCanvas):
                                    QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-    def sizeHint(self):
-        w, h = self.get_width_height()
-        return QtCore.QSize(w, h)
-
-    def minimumSizeHint(self):
-        return QtCore.QSize(10, 10)
+    def compute_initial_figure(self):
+        pass
 
 
 class MyStaticMplCanvas(MyMplCanvas):
