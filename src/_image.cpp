@@ -826,7 +826,7 @@ _image_module::from_images(const Py::Tuple& args) {
       for (size_t i=0; i<thisim->colsOut; i++) {
 	thisx = i+ox;
 	thisy = j+oy;
-	if (thisx<0 || thisx>=numcols || thisy<0 || thisy>=numrows) {
+	if (thisx>=numcols || thisy>=numrows) {
 	  ind +=4;
 	  continue;
 	}

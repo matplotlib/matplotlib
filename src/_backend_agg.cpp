@@ -249,7 +249,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   //theRasterizer->filling_rule(agg::fill_even_odd);
   //theRasterizer->filling_rule(agg::fill_non_zero);
 
-};
+}
 
 void RendererAgg::create_alpha_buffers() {
   if (!alphaBuffer) {
@@ -1762,4 +1762,4 @@ DL_EXPORT(void)
   static _backend_agg_module* _backend_agg = NULL;
   _backend_agg = new _backend_agg_module;
 
-};
+}

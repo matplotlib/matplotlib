@@ -8,6 +8,10 @@ code only works on doubles.
 
 */
 
+#ifdef _ISOC99_SOURCE
+#include <stdint.h>
+#endif
+
 #if defined(SIZEOF_VOID_P)
 #if SIZEOF_VOID_P == 8
 #define MPL_LP64 1
@@ -24,7 +28,11 @@ typedef long int                 MPL_Int64;
 #if defined(_MSC_VER)
 typedef __int64                  MPL_Int64;
 #else
+#if defined(_ISOC99_SOURCE)
+typedef int64_t                  MPL_Int64;
+#else
 typedef long long                MPL_Int64;
+#endif
 #endif
 #endif
 

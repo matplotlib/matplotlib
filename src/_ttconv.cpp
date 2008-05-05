@@ -204,7 +204,7 @@ static PyMethodDef ttconv_methods[] = {
    "the values are the stream content needed to render that glyph.  This\n"
    "is useful to generate the CharProcs dictionary in a PDF Type 3 font.\n"
   },
-  {NULL}  /* Sentinel */
+  {0, 0, 0, 0}  /* Sentinel */
 };
 
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
