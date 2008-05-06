@@ -90,6 +90,34 @@ Py::Object BufferRegion::to_string(const Py::Tuple &args) {
   return Py::String(PyString_FromStringAndSize((const char*)data, height*stride), true);
 }
 
+Py::Object BufferRegion::to_string_argb(const Py::Tuple &args) {
+  // owned=true to prevent memory leak
+  Py_ssize_t length;
+  char* pix;
+  char* begin;
+  char* end;
+  char tmp;
+
+  PyObject* str = PyString_FromStringAndSize((const char*)data, height*stride);
+  if (PyString_AsStringAndSize(str, &begin, &length)) {
+    throw Py::TypeError("Could not create memory for blit");
+  }
+
+  pix = begin;
+  end = begin + (height * stride);
+  while (pix != end) {
+    // Convert rgba to argb
+    tmp = pix[3];
+    pix[3] = pix[2];
+    pix[2] = pix[1];
+    pix[1] = pix[0];
+    pix[0] = pix[3];
+    pix += 4;
+  }
+
+  return Py::String(str, true);
+}
+
 GCAgg::GCAgg(const Py::Object &gc, double dpi) :
   dpi(dpi), isaa(true), linewidth(1.0), alpha(1.0),
   dashOffset(0.0)
@@ -209,7 +237,6 @@ GCAgg::_set_clip_path( const Py::Object& gc) {
     clippath_trans = py_to_agg_transformation_matrix(path_and_transform[1]);
   }
 }
-
 
 const size_t
 RendererAgg::PIXELS_PER_INCH(96);
@@ -1707,6 +1734,8 @@ void BufferRegion::init_type() {
 
   add_varargs_method("to_string", &BufferRegion::to_string,
 		     "to_string()");
+  add_varargs_method("to_string_argb", &BufferRegion::to_string_argb,
+		     "to_string_argb()");
 }
 
 

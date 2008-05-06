@@ -114,7 +114,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             h = int(t) - int(b)
             t = int(b) + h
             reg = self.copy_from_bbox(bbox)
-            stringBuffer = reg.to_string()
+            stringBuffer = reg.to_string_argb()
             qImage = QtGui.QImage(stringBuffer, w, h, QtGui.QImage.Format_ARGB32)
             pixmap = QtGui.QPixmap.fromImage(qImage)
             p = QtGui.QPainter( self )
