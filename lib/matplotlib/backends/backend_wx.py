@@ -1392,6 +1392,24 @@ def _load_bitmap(filename):
     bmp =wx.Bitmap(bmpFilename, wx.BITMAP_TYPE_XPM)
     return bmp
 
+def _load_pngicon(filename):
+    """
+    Load a png icon file from the backends/images subdirectory in which the
+    matplotlib library is installed. The filename parameter should not
+    contain any path information as this is determined automatically.
+
+    Returns a wx.Bitmap object
+    """
+
+    basedir = os.path.join(rcParams['datapath'],'images')
+
+    pngFilename = os.path.normpath(os.path.join(basedir, filename))
+    if not os.path.exists(pngFilename):
+        raise IOError('Could not find bitmap file "%s"; dying'%pngFilename)
+
+    png =wx.Bitmap(pngFilename, wx.BITMAP_TYPE_PNG)
+    return png
+
 class MenuButtonWx(wx.Button):
     """
     wxPython does not permit a menu to be incorporated directly into a toolbar.
@@ -1552,24 +1570,24 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
         self.SetToolBitmapSize(wx.Size(24,24))
 
-        self.AddSimpleTool(_NTB2_HOME, _load_bitmap('home.xpm'),
+        self.AddSimpleTool(_NTB2_HOME, _load_pngicon('home.png'),
                            'Home', 'Reset original view')
-        self.AddSimpleTool(self._NTB2_BACK, _load_bitmap('back.xpm'),
+        self.AddSimpleTool(self._NTB2_BACK, _load_pngicon('back.png'),
                            'Back', 'Back navigation view')
-        self.AddSimpleTool(self._NTB2_FORWARD, _load_bitmap('forward.xpm'),
+        self.AddSimpleTool(self._NTB2_FORWARD, _load_pngicon('forward.png'),
                            'Forward', 'Forward navigation view')
         # todo: get new bitmap
-        self.AddCheckTool(self._NTB2_PAN, _load_bitmap('move.xpm'),
+        self.AddCheckTool(self._NTB2_PAN, _load_pngicon('move.png'),
                            shortHelp='Pan',
                            longHelp='Pan with left, zoom with right')
-        self.AddCheckTool(self._NTB2_ZOOM, _load_bitmap('zoom_to_rect.xpm'),
+        self.AddCheckTool(self._NTB2_ZOOM, _load_pngicon('zoom_to_rect.png'),
                            shortHelp='Zoom', longHelp='Zoom to rectangle')
 
         self.AddSeparator()
-        self.AddSimpleTool(_NTB2_SUBPLOT, _load_bitmap('subplots.xpm'),
+        self.AddSimpleTool(_NTB2_SUBPLOT, _load_pngicon('subplots.png'),
                            'Configure subplots', 'Configure subplot parameters')
 
-        self.AddSimpleTool(_NTB2_SAVE, _load_bitmap('filesave.xpm'),
+        self.AddSimpleTool(_NTB2_SAVE, _load_pngicon('filesave.png'),
                            'Save', 'Save plot contents to file')
 
         if wx.VERSION_STRING >= '2.5':

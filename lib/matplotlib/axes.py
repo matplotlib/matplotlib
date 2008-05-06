@@ -6017,4 +6017,5 @@ martist.kwdocd['Axes'] = martist.kwdocd['Subplot'] = martist.kwdoc(Axes)
                     maxx = max(posx)
                     # warning, probably breaks inverted axis
                     self.set_xlim((0.1*minx, maxx))
+
 """
