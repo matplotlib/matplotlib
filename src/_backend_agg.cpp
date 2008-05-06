@@ -93,26 +93,28 @@ Py::Object BufferRegion::to_string(const Py::Tuple &args) {
 Py::Object BufferRegion::to_string_argb(const Py::Tuple &args) {
   // owned=true to prevent memory leak
   Py_ssize_t length;
-  char* pix;
-  char* begin;
-  char* end;
-  char tmp;
+  unsigned char* pix;
+  unsigned char* begin;
+  unsigned char* end;
+  unsigned char tmp;
+  size_t i, j;
 
   PyObject* str = PyString_FromStringAndSize((const char*)data, height*stride);
-  if (PyString_AsStringAndSize(str, &begin, &length)) {
+  if (PyString_AsStringAndSize(str, (char**)&begin, &length)) {
     throw Py::TypeError("Could not create memory for blit");
   }
 
   pix = begin;
   end = begin + (height * stride);
-  while (pix != end) {
-    // Convert rgba to argb
-    tmp = pix[3];
-    pix[3] = pix[2];
-    pix[2] = pix[1];
-    pix[1] = pix[0];
-    pix[0] = pix[3];
-    pix += 4;
+  for (i = 0; i < (size_t)height; ++i) {
+    pix = begin + i * stride;
+    for (j = 0; j < (size_t)width; ++j) {
+      // Convert rgba to argb
+      tmp = pix[2];
+      pix[2] = pix[0];
+      pix[0] = tmp;
+      pix += 4;
+    }
   }
 
   return Py::String(str, true);
