@@ -103,6 +103,7 @@ public:
   bool freemem;
 
   Py::Object to_string(const Py::Tuple &args);
+  Py::Object to_string_argb(const Py::Tuple &args);
   static void init_type(void);
 
   virtual ~BufferRegion() {
@@ -138,7 +139,7 @@ public:
   double dashOffset;
   dash_t dashes;
 
- protected:
+protected:
   agg::rgba get_color(const Py::Object& gc);
   double points_to_pixels( const Py::Object& points);
   void _set_linecap(const Py::Object& gc) ;
