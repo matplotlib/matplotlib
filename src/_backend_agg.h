@@ -67,7 +67,7 @@ public:
   SafeSnap() : first(true), xsnap(0.0), lastx(0.0), lastxsnap(0.0),
 	       ysnap(0.0), lasty(0.0), lastysnap(0.0)  {}
   SnapData snap (const float& x, const float& y);
-      
+
 private:
   bool first;
   float xsnap, lastx, lastxsnap, ysnap, lasty, lastysnap;
@@ -85,6 +85,7 @@ public:
   agg::rect rect;
   bool freemem;
   Py::Object to_string(const Py::Tuple &args);
+  Py::Object to_string_argb(const Py::Tuple &args);
 
   static void init_type(void);
   virtual ~BufferRegion() {
@@ -125,7 +126,7 @@ public:
   double dashOffset;
   double *dasha;
 
-  
+
 protected:
   agg::rgba get_color(const Py::Object& gc);
   double points_to_pixels( const Py::Object& points);
@@ -141,7 +142,7 @@ protected:
 
 
 //struct AMRenderer {
-//  
+//
 //}
 
 // the renderer
