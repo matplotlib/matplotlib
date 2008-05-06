@@ -224,7 +224,33 @@ Py::Object BufferRegion::to_string(const Py::Tuple &args) {
   return Py::String(PyString_FromStringAndSize((const char*)aggbuf.data,aggbuf.height*aggbuf.stride), true);
 }
 
+Py::Object BufferRegion::to_string_argb(const Py::Tuple &args) {
+  // owned=true to prevent memory leak
+  Py_ssize_t length;
+  char* pix;
+  char* begin;
+  char* end;
+  char tmp;
 
+  PyObject* str = PyString_FromStringAndSize((const char*)aggbuf.data, aggbuf.height*aggbuf.stride);
+  if (PyString_AsStringAndSize(str, &begin, &length)) {
+    throw Py::TypeError("Could not create memory for blit");
+  }
+
+  pix = begin;
+  end = begin + (aggbuf.height * aggbuf.stride);
+  while (pix != end) {
+    // Convert rgba to argb
+    tmp = pix[3];
+    pix[3] = pix[2];
+    pix[2] = pix[1];
+    pix[1] = pix[0];
+    pix[0] = pix[3];
+    pix += 4;
+  }
+
+  return Py::String(str, true);
+}
 
 
 const size_t
@@ -2612,7 +2638,8 @@ void BufferRegion::init_type() {
 
   add_varargs_method("to_string", &BufferRegion::to_string,
 		     "to_string()");
-
+  add_varargs_method("to_string_argb", &BufferRegion::to_string_argb,
+		     "to_string_argb()");
 }
 
 
