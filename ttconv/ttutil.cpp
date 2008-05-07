@@ -8,9 +8,9 @@
 /* (c) Frank Siegert 1996 */
 
 #include "global_defines.h"
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdarg>
+#include <cstdlib>
 #include "pprdrv.h"
 
 #if DEBUG_TRUETYPE
