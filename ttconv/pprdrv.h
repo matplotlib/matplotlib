@@ -20,10 +20,10 @@
 */
 
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 /*
- * Encapsulates all of the output to write to an arbitrary output 
+ * Encapsulates all of the output to write to an arbitrary output
  * function.  This both removes the hardcoding of output to go to stdout
  * and makes output thread-safe.  Michael Droettboom [06-07-07]
  */
@@ -36,7 +36,7 @@ class TTStreamWriter {
  public:
   TTStreamWriter() { }
   virtual ~TTStreamWriter() { }
-  
+
   virtual void write(const char*) = 0;
 
   virtual void printf(const char* format, ...);
@@ -73,9 +73,9 @@ class TTException {
   const char* getMessage() { return message; }
 };
 
-/* 
+/*
 ** No debug code will be included if this
-** is not defined: 
+** is not defined:
 */
 /* #define DEBUG 1 */
 
