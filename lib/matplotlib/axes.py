@@ -5406,11 +5406,11 @@ class Axes(martist.Artist):
     #### Data analysis
 
 
-    def hist(self, x, bins=10, normed=0, bottom=None, histtype='bar',
+    def hist(self, x, bins=10, normed=False, bottom=None, histtype='bar',
              align='edge', orientation='vertical', width=None,
              log=False, **kwargs):
         """
-        HIST(x, bins=10, normed=0, bottom=None, histtype='bar',
+        HIST(x, bins=10, normed=False, bottom=None, histtype='bar',
              align='edge', orientation='vertical', width=None,
              log=False, **kwargs)
 
@@ -5449,40 +5449,35 @@ class Axes(martist.Artist):
         %(Rectangle)s
         """
         if not self._hold: self.cla()
-        n, bins = np.histogram(x, bins, range=None, normed=normed)
-        if width is None:
-            if histtype == 'bar':
-                width = 0.9*(bins[1]-bins[0])
-            elif histtype == 'step':
-                width = bins[1]-bins[0]
-            else:
-                raise ValueError, 'invalid histtype: %s' % histtype
+        n, bins = np.histogram(x, bins, range=None,
+            normed=bool(normed), new=True)
 
         if histtype == 'bar':
+            if width is None:
+                width = 0.9*(bins[1]-bins[0])
+
             if orientation == 'horizontal':
-                patches = self.barh(bins, n, height=width, left=bottom,
+                patches = self.barh(bins[:-1], n, height=width, left=bottom,
                                     align=align, log=log)
             elif orientation == 'vertical':
-                patches = self.bar(bins, n, width=width, bottom=bottom,
+                patches = self.bar(bins[:-1], n, width=width, bottom=bottom,
                                     align=align, log=log)
             else:
                 raise ValueError, 'invalid orientation: %s' % orientation
 
         elif histtype == 'step':
-            binedges = np.concatenate((bins,bins[-1:]+width))
-            if align == 'center':
-                binedges -= 0.5*width
-            x = np.zeros( 2*len(binedges), np.float_ )
-            y = np.zeros( 2*len(binedges), np.float_ )
+            x = np.zeros( 2*len(bins), np.float_ )
+            y = np.zeros( 2*len(bins), np.float_ )
 
-            x[0:-1:2],x[1::2] = binedges, binedges
-            y[1:-1:2],y[2::2] = n, n
-            
+            x[0::2], x[1::2] = bins, bins
+            y[1:-1:2], y[2::2] = n, n
+
+            if align == 'center':
+                x -= 0.5*(bins[1]-bins[0])
+
             if orientation == 'horizontal':
                 x,y = y,x
-            elif orientation == 'vertical':
-                pass
-            else:
+            elif orientation != 'vertical':
                 raise ValueError, 'invalid orientation: %s' % orientation
             patches = self.fill(x,y)
         else:

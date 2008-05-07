@@ -1,3 +1,9 @@
+    In numpy 1.0 bins are specified by the left edges only.  The axes
+    method "hist" now uses future numpy 1.3 semantic for histograms. 
+    Providing binedges, the last value gives the upper-right edge now,
+    which was implicitly set to +infinity in numpy 1.0.  This also means
+    that the last bin doesn't contain upper outliers any more by default.
+
     New axes method and pyplot function, hexbin, is an alternative
     to scatter for large datasets.  It makes something like a
     pcolor of a 2-D histogram, but uses hexagonal bins.

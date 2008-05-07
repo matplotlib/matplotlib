@@ -1,3 +1,5 @@
+2008-05-07 Switched to future numpy histogram semantic in hist - MM
+
 2008-05-06 Fix strange colors when blitting in QtAgg and Qt4Agg - MGD
 
 2008-05-05 pass notify_axes_change to the figure's add_axobserver
