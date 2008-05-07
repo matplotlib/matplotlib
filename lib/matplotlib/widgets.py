@@ -459,7 +459,7 @@ class RadioButtons(Widget):
     def _clicked(self, event):
         if event.button !=1 : return
         if event.inaxes != self.ax: return
-        xy = self.ax.transAxes.inverse_xy_tup((event.x, event.y))
+        xy = self.ax.transAxes.inverted().transform_point((event.x, event.y))
         pclicked = np.array([xy[0], xy[1]])
         def inside(p):
             pcirc = np.array([p.center[0], p.center[1]])
