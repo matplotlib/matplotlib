@@ -16,14 +16,14 @@
 ** documentation.  This software is provided "as is" without express or
 ** implied warranty.
 **
-** TrueType font support.  These functions allow PPR to generate 
+** TrueType font support.  These functions allow PPR to generate
 ** PostScript fonts from Microsoft compatible TrueType font files.
 **
 ** The functions in this file do most of the work to convert a
 ** TrueType font to a type 3 PostScript font.
 **
 ** Most of the material in this file is derived from a program called
-** "ttf2ps" which L. S. Ng posted to the usenet news group 
+** "ttf2ps" which L. S. Ng posted to the usenet news group
 ** "comp.sources.postscript".  The author did not provide a copyright
 ** notice or indicate any restrictions on use.
 **
@@ -31,11 +31,11 @@
 */
 
 #include "global_defines.h"
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <memory.h>
-#include "pprdrv.h" 
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
+#include <memory>
+#include "pprdrv.h"
 #include "truetype.h"
 #include <algorithm>
 #include <stack>
@@ -59,7 +59,7 @@ private:
     int *ctrset;  		/* in contour index followed by out contour index */
 
     int stack_depth;            /* A book-keeping variable for keeping track of the depth of the PS stack */
-    
+
     bool pdf_mode;
 
     void load_char(TTFONT* font, BYTE *glyph);
@@ -88,7 +88,7 @@ double area(FWord *x, FWord *y, int n);
 
 /*
 ** This routine is used to break the character
-** procedure up into a number of smaller 
+** procedure up into a number of smaller
 ** procedures.  This is necessary so as not to
 ** overflow the stack on certain level 1 interpreters.
 **
@@ -131,21 +131,21 @@ void GlyphToType3::stack_end(TTStreamWriter& stream)			/* called at end */
 ** Find the area of a contour?
 */
 double area(FWord *x, FWord *y, int n)
-     { 
+     {
      int i;
      double sum;
-      
+
      sum=x[n-1]*y[0]-y[n-1]*x[0];
      for (i=0; i<=n-2; i++) sum += x[i]*y[i+1] - y[i]*x[i+1];
      return sum;
-     }   
+     }
 
 /*
 ** We call this routine to emmit the PostScript code
 ** for the character we have loaded with load_char().
 */
 void GlyphToType3::PSConvert(TTStreamWriter& stream)
-    {    
+    {
     int i,j,k,fst,start_offpt;
     int end_offpt = 0;
 
@@ -162,10 +162,10 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
     check_ctr[0]=1;
     area_ctr[0]=area(xcoor, ycoor, epts_ctr[0]+1);
 
-    for (i=1; i<num_ctr; i++) 
+    for (i=1; i<num_ctr; i++)
      	area_ctr[i]=area(xcoor+epts_ctr[i-1]+1, ycoor+epts_ctr[i-1]+1, epts_ctr[i]-epts_ctr[i-1]);
 
-    for (i=0; i<num_ctr; i++) 
+    for (i=0; i<num_ctr; i++)
 	{
      	if (area_ctr[i]>0)
 	    {
@@ -254,26 +254,26 @@ int GlyphToType3::nextoutctr(int co)
 	{
 	int j;
 
-	for(j=0; j<num_ctr; j++) 
+	for(j=0; j<num_ctr; j++)
 	   if (check_ctr[j]==0 && area_ctr[j] < 0) {
 	   	check_ctr[j]=1;
 	   	return j;
 	   }
-	   
+
 	return NOMOREOUTCTR;
 	} /* end of nextoutctr() */
 
 int GlyphToType3::nextinctr(int co, int ci)
 	{
 	int j;
-	
+
 	for(j=0; j<num_ctr; j++)
-           if (ctrset[2*j+1]==co) 
+           if (ctrset[2*j+1]==co)
            if (check_ctr[ctrset[2*j]]==0) {
 		check_ctr[ctrset[2*j]]=1;
 	   	return ctrset[2*j];
 	   }
-	   
+
 	return NOMOREINCTR;
 	}
 
@@ -285,8 +285,8 @@ int GlyphToType3::nearout(int ci)
     int k = 0;			/* !!! is this right? */
     int co;
     double a, a1=0;
-	
-    for (co=0; co < num_ctr; co++) 
+
+    for (co=0; co < num_ctr; co++)
 	{
 	if(area_ctr[co] < 0)
 	    {
@@ -303,7 +303,7 @@ int GlyphToType3::nearout(int ci)
 		}
 	    }
 	}
-			
+
     return k;
     } /* end of nearout() */
 
@@ -312,14 +312,14 @@ double GlyphToType3::intest(int co, int ci)
 	int i, j, start, end;
 	double r1, r2, a;
 	FWord xi[3], yi[3];
-	
+
 	j=start=(co==0)?0:(epts_ctr[co-1]+1);
 	end=epts_ctr[co];
 	i=(ci==0)?0:(epts_ctr[ci-1]+1);
 	xi[0] = xcoor[i];
 	yi[0] = ycoor[i];
 	r1=sqr(xcoor[start] - xi[0]) + sqr(ycoor[start] - yi[0]);
-	
+
 	for (i=start; i<=end; i++) {
 		r2 = sqr(xcoor[i] - xi[0])+sqr(ycoor[i] - yi[0]);
 		if (r2 < r1) {
@@ -331,17 +331,17 @@ double GlyphToType3::intest(int co, int ci)
         if (j==start) { xi[1]=xcoor[end]; yi[1]=ycoor[end]; }
 	if (j==end) { xi[2]=xcoor[start]; yi[2]=ycoor[start]; }
 	a=area(xi, yi, 3);
-	
+
 	return a;
 	} /* end of intest() */
 
 void GlyphToType3::PSMoveto(TTStreamWriter& stream, int x, int y) {
-    stream.printf(pdf_mode ? "%d %d m\n" : "%d %d _m\n", 
+    stream.printf(pdf_mode ? "%d %d m\n" : "%d %d _m\n",
 		  x, y);
 }
 
 void GlyphToType3::PSLineto(TTStreamWriter& stream, int x, int y) {
-    stream.printf(pdf_mode ? "%d %d l\n" : "%d %d _l\n", 
+    stream.printf(pdf_mode ? "%d %d l\n" : "%d %d _l\n",
 		  x, y);
 }
 
@@ -369,8 +369,8 @@ void GlyphToType3::PSCurveto(TTStreamWriter& stream, FWord x, FWord y, int s, in
 	cx[2] = (sx[2]+2*sx[1])/3;
 	cy[2] = (sy[2]+2*sy[1])/3;
 
-	stream.printf(pdf_mode ? 
-		         "%d %d %d %d %d %d c\n" : 
+	stream.printf(pdf_mode ?
+		         "%d %d %d %d %d %d c\n" :
 		         "%d %d %d %d %d %d _c\n",
 		      (int)cx[1], (int)cy[1], (int)cx[2], (int)cy[2],
 		      (int)cx[3], (int)cy[3]);
@@ -513,22 +513,22 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
     USHORT yscale;
     USHORT scale01;
     USHORT scale10;
-    
+
     /* Once around this loop for each component. */
     do	{
-	flags = getUSHORT(glyph);	/* read the flags word */ 
+	flags = getUSHORT(glyph);	/* read the flags word */
 	glyph += 2;
 
 	glyphIndex = getUSHORT(glyph);	/* read the glyphindex word */
 	glyph += 2;
-	
+
 	if(flags & ARG_1_AND_2_ARE_WORDS)
 	    {			/* The tt spec. seems to say these are signed. */
 	    arg1 = getSHORT(glyph);
 	    glyph += 2;
 	    arg2 = getSHORT(glyph);
 	    glyph += 2;
-	    } 
+	    }
     	else			/* The tt spec. does not clearly indicate */
     	    {			/* whether these values are signed or not. */
     	    arg1 = *(glyph++);
@@ -538,7 +538,7 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
 	if(flags & WE_HAVE_A_SCALE)
 	    {
 	    xscale = yscale = getUSHORT(glyph);
-	    glyph += 2;	    
+	    glyph += 2;
 	    scale01 = scale10 = 0;
 	    }
 	else if(flags & WE_HAVE_AN_X_AND_Y_SCALE)
@@ -548,7 +548,7 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
 	    yscale = getUSHORT(glyph);
 	    glyph += 2;
 	    scale01 = scale10 = 0;
-	    }    
+	    }
 	else if(flags & WE_HAVE_A_TWO_BY_TWO)
 	    {
 	    xscale = getUSHORT(glyph);
@@ -597,20 +597,20 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
 		{
 		    stream.printf("%% unimplemented shift, arg1=%d, arg2=%d\n",arg1,arg2);
 		}
-	    
+
 	    /* Invoke the CharStrings procedure to print the component. */
 	    stream.printf("false CharStrings /%s get exec\n",
 			  ttfont_CharStrings_getname(font,glyphIndex));
-	    
+
 	    /* If we translated the coordinate system, */
 	    /* put it back the way it was. */
 	    if( flags & ARGS_ARE_XY_VALUES && (arg1 != 0 || arg2 != 0) ) {
 		stream.puts("grestore ");
 	    }
 	}
-	    
+
 	} while(flags & MORE_COMPONENTS);
-    
+
     } /* end of do_composite() */
 
 /*
@@ -676,7 +676,7 @@ GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int char
 	llx = getFWord(glyph + 2);
 	lly = getFWord(glyph + 4);
 	urx = getFWord(glyph + 6);
-	ury = getFWord(glyph + 8);     
+	ury = getFWord(glyph + 8);
 
 	/* Advance the pointer. */
 	glyph += 10;
@@ -691,7 +691,7 @@ GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int char
     /* Consult the horizontal metrics table to determine */
     /* the character width. */
     if( charindex < font->numberOfHMetrics )
-	advance_width = getuFWord( font->hmtx_table + (charindex * 4) );    	
+	advance_width = getuFWord( font->hmtx_table + (charindex * 4) );
     else
     	advance_width = getuFWord( font->hmtx_table + ((font->numberOfHMetrics-1) * 4) );
 
@@ -718,7 +718,7 @@ GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int char
 	{
 	  do_composite(stream, font, glyph);
 	}
-	
+
     stack_end(stream);
 }
 
@@ -763,16 +763,16 @@ void ttfont_add_glyph_dependencies(struct TTFONT *font, std::vector<int>& glyph_
 		    gind = (int)getUSHORT(glyph);
 		    glyph += 2;
 
-		    std::vector<int>::iterator insertion = 
+		    std::vector<int>::iterator insertion =
 			std::lower_bound(glyph_ids.begin(), glyph_ids.end(), gind);
 		    if (*insertion != gind) {
 			glyph_ids.insert(insertion, gind);
 			glyph_stack.push(gind);
 		    }
-		    
+
 		    if (flags & ARG_1_AND_2_ARE_WORDS)
 			glyph += 4;
-		    else 
+		    else
 			glyph += 2;
 
 		    if (flags & WE_HAVE_A_SCALE)
