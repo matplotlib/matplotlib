@@ -484,13 +484,11 @@ class QuadMesh(Collection):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
-        renderer.start_rasterizing()
         renderer.draw_quad_mesh(
             transform.frozen(), self.clipbox, clippath, clippath_trans,
             self._meshWidth, self._meshHeight, self._coordinates,
             offsets, transOffset, self._facecolors, self._antialiased,
             self._showedges)
-        renderer.stop_rasterizing()
         renderer.close_group(self.__class__.__name__)
 
 class PolyCollection(Collection):
