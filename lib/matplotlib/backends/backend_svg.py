@@ -193,11 +193,20 @@ class RendererSVG(RendererBase):
             write('<defs><path id="%s" d="%s"/></defs>\n' % (name, key))
             self._markers[key] = name
 
+        clipid = self._get_gc_clip_svg(gc)
+        if clipid is None:
+            clippath = ''
+        else:
+            clippath = 'clip-path="url(#%s)"' % clipid
+
+        write('<g %s>' % clippath)
         trans_and_flip = self._make_flip_transform(trans)
         tpath = trans_and_flip.transform_path(path)
         for x, y in tpath.vertices:
             details = 'xlink:href="#%s" x="%f" y="%f"' % (name, x, y)
-            self._draw_svg_element('use', details, gc, rgbFace)
+            style = self._get_style(gc, rgbFace)
+            self._svgwriter.write ('<use style="%s" %s/>\n' % (style, details))
+        write('</g>')
 
     def draw_path_collection(self, master_transform, cliprect, clippath,
                              clippath_trans, paths, all_transforms, offsets,
@@ -221,8 +230,14 @@ class RendererSVG(RendererBase):
             path_codes, cliprect, clippath, clippath_trans,
             offsets, offsetTrans, facecolors, edgecolors,
             linewidths, linestyles, antialiaseds):
+            clipid = self._get_gc_clip_svg(gc)
+            if clipid is not None:
+                write('<g clip-path="url(#%s)">' % clipid)
             details = 'xlink:href="#%s" x="%f" y="%f"' % (path_id, xo, self.height - yo)
-            self._draw_svg_element('use', details, gc, rgbFace)
+            style = self._get_style(gc, rgbFace)
+            self._svgwriter.write ('<use style="%s" %s/>\n' % (style, details))
+            if clipid is not None:
+                write('</g>')
 
         self._path_collection_id += 1
 
@@ -309,7 +324,12 @@ class RendererSVG(RendererBase):
                     write(path)
                 write('</defs>\n')
 
-            svg = ['<g style="fill: %s; opacity: %s" transform="' % (color, gc.get_alpha())]
+            svg = []
+            clipid = self._get_gc_clip_svg(gc)
+            if clipid is not None:
+                svg.append('<g clip-path="url(#%s)">\n' % clipid)
+
+            svg.append('<g style="fill: %s; opacity: %s" transform="' % (color, gc.get_alpha()))
             if angle != 0:
                 svg.append('translate(%s,%s)rotate(%1.1f)' % (x,y,-angle))
             elif x != 0 or y != 0:
@@ -332,16 +352,19 @@ class RendererSVG(RendererBase):
                     kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
                 else:
                     kern = 0
-                lastgind = gind
-                currx += kern/64.0
+                currx += (kern / 64.0) / (self.FONT_SCALE / fontsize)
 
                 svg.append('<use xlink:href="#%s"' % charnum)
                 if currx != 0:
                     svg.append(' x="%s"' %
                                (currx * (self.FONT_SCALE / fontsize)))
                 svg.append('/>\n')
+
                 currx += (glyph.linearHoriAdvance / 65536.0) / (self.FONT_SCALE / fontsize)
+                lastgind = gind
             svg.append('</g>\n')
+            if clipid is not None:
+                svg.append('</g>\n')
             svg = ''.join(svg)
         else:
             thetext = escape_xml_text(s)
