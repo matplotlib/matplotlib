@@ -322,7 +322,7 @@ class RendererSVG(RendererBase):
                 else:
                     kern = 0
                 lastgind = gind
-                currx += kern/64.0
+                currx += kern/64.0 / (self.FONT_SCALE / fontsize)
 
                 svg.append('<use xlink:href="#%s"' % charnum)
                 if currx != 0:
