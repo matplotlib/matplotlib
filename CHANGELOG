@@ -1,3 +1,5 @@
+2008-05-08 Fix kerning in SVG when embedding character outlines - MGD
+
 2008-05-06 Fix strange colors when blitting in QtAgg and Qt4Agg - MGD
 
 2008-05-02 On PyQt <= 3.14 there is no way to determine the underlying
