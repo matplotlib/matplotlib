@@ -4552,7 +4552,7 @@ class Axes(martist.Artist):
         d2 = (x-ix2-0.5)**2 + 3.0 * (y-iy2-0.5)**2
         bdist = (d1<d2)
 
-        for i in xrange(len(x)):
+        for i in range(len(x)):
             if bdist[i]:
                 lattice1[ix1[i], iy1[i]]+=1
             else:
