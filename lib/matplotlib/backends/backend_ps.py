@@ -96,6 +96,7 @@ def quote_ps_string(s):
     s=s.replace("\\", "\\\\")
     s=s.replace("(", "\\(")
     s=s.replace(")", "\\)")
+    s=s.replace("'", "\\251")
     s=re.sub(r"[^ -~\n]", lambda x: r"\%03o"%ord(x.group()), s)
     return s
 
