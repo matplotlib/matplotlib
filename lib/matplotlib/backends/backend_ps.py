@@ -744,68 +744,6 @@ grestore
 """ % locals()
         self._pswriter.write(ps)
 
-    def _draw_ps_oldstyle(self, ps, gc, rgbFace, fill=True, stroke=True, command=None):
-        """
-        Emit the PostScript sniplet 'ps' with all the attributes from 'gc'
-        applied.  'ps' must consist of PostScript commands to construct a path.
-
-        This is the JDH-modified version of the original.  It is kept
-        here now to facilitate checking the version below until we converge.
-
-        """
-        # local variable eliminates all repeated attribute lookups
-        write = self._pswriter.write
-        if debugPS and command:
-            write("% "+command+"\n")
-
-        stroke = (stroke and gc.get_linewidth() > 0.0 and
-                  (len(gc.get_rgb()) <= 3 or gc.get_rgb()[3] != 0.0))
-        fill = (fill and rgbFace is not None and
-                (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
-
-        if stroke or gc.get_linewidth() > 0.0:
-            self.set_linewidth(gc.get_linewidth())
-            jint = gc.get_joinstyle()
-            self.set_linejoin(jint)
-            cint = gc.get_capstyle()
-            self.set_linecap(cint)
-            self.set_linedash(*gc.get_dashes())
-            self.set_color(*gc.get_rgb()[:3])
-
-        cliprect = gc.get_clip_rectangle()
-        if cliprect:
-            x,y,w,h=cliprect.bounds
-            write('gsave\n%1.4g %1.4g %1.4g %1.4g clipbox\n' % (w,h,x,y))
-        clippath, clippath_trans = gc.get_clip_path()
-        if clippath:
-            id = self._get_clip_path(clippath, clippath_trans)
-            write('gsave\n%s\n' % id)
-
-        # Jochen, is the strip necessary? - this could be a honking big string
-        write(ps.strip())
-        write("\n")
-
-        hatch = gc.get_hatch()
-        if hatch:
-            self.set_hatch(hatch)
-
-        if fill:
-            #print 'rgbface', rgbFace
-            write("gsave\n")
-            self.set_color(store=0, *rgbFace[:3])
-            write("fill\ngrestore\n")
-
-        if stroke or gc.get_linewidth() > 0.0:
-            write("stroke\n")
-        else:
-            write("newpath\n")
-
-        if clippath:
-            write("grestore\n")
-        if cliprect:
-            write("grestore\n")
-
-
     def _draw_ps(self, ps, gc, rgbFace, fill=True, stroke=True, command=None):
         """
         Emit the PostScript sniplet 'ps' with all the attributes from 'gc'
@@ -820,13 +758,13 @@ grestore
         write = self._pswriter.write
         if debugPS and command:
             write("% "+command+"\n")
-        write('gsave\n')
-        stroke = (stroke and gc.get_linewidth() > 0.0 and
+        mightstroke = (gc.get_linewidth() > 0.0 and
                   (len(gc.get_rgb()) <= 3 or gc.get_rgb()[3] != 0.0))
+        stroke = stroke and mightstroke
         fill = (fill and rgbFace is not None and
                 (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
 
-        if stroke:
+        if mightstroke:
             self.set_linewidth(gc.get_linewidth())
             jint = gc.get_joinstyle()
             self.set_linejoin(jint)
@@ -834,6 +772,7 @@ grestore
             self.set_linecap(cint)
             self.set_linedash(*gc.get_dashes())
             self.set_color(*gc.get_rgb()[:3])
+        write('gsave\n')
 
         cliprect = gc.get_clip_rectangle()
         if cliprect:
@@ -851,7 +790,6 @@ grestore
         hatch = gc.get_hatch()
         if hatch:
             self.set_hatch(hatch)
-
 
         if fill:
             if stroke:

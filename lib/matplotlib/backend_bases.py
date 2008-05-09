@@ -123,9 +123,10 @@ class RendererBase:
 
         if showedges:
             edgecolors = np.array([[0.0, 0.0, 0.0, 1.0]], np.float_)
+            linewidths = np.array([1.0], np.float_)
         else:
             edgecolors = facecolors
-        linewidths = np.array([1.0], np.float_)
+            linewidths = np.array([0.0], np.float_)
 
         return self.draw_path_collection(
             master_transform, cliprect, clippath, clippath_trans,
