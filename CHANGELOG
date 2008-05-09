@@ -1,3 +1,7 @@
+2008-05-09 Fix /singlequote (') in Postscript backend - MGD
+
+2008-05-08 Fix kerning in SVG when embedding character outlines - MGD
+
 2008-05-07 Switched to future numpy histogram semantic in hist - MM
 
 2008-05-06 Fix strange colors when blitting in QtAgg and Qt4Agg - MGD
