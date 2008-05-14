@@ -1083,7 +1083,7 @@ class Annotation(Text):
             dx, dy = self._get_xy(dx, dy, self.xycoords)
 
             # convert the offset
-            dpi = self.figure.dpi.get()
+            dpi = self.figure.get_dpi()
             x *= dpi/72.
             y *= dpi/72.
 
@@ -1095,7 +1095,7 @@ class Annotation(Text):
         elif s=='polar':
             theta, r = x, y
             x = r*np.cos(theta)
-            y = r*np.cosmsin(theta)
+            y = r*np.sin(theta)
             trans = self.axes.transData
             return trans.transform_point((x,y))
         elif s=='figure points':

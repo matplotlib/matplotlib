@@ -5,7 +5,7 @@ matplotlib event handling to interact with objects on the canvas
 """
 from matplotlib.artist import Artist
 from matplotlib.patches import Polygon, CirclePolygon
-from numpy import sqrt, nonzero, equal, asarray, dot, amin
+from numpy import sqrt, nonzero, equal, array, asarray, dot, amin, cos, sin
 from matplotlib.mlab import dist_point_to_segment
 
 
@@ -69,7 +69,7 @@ class PolygonInteractor:
         'get the index of the vertex under point if within epsilon tolerance'
 
         # display coords
-        xy = npy.asarray(self.poly.xy)
+        xy = asarray(self.poly.xy)
         xyt = self.poly.get_transform().transform(xy)
         xt, yt = xyt[:, 0], xyt[:, 1]
         d = sqrt((xt-event.x)**2 + (yt-event.y)**2)
@@ -114,7 +114,7 @@ class PolygonInteractor:
                 s1 = xys[i+1]
                 d = dist_point_to_segment(p, s0, s1)
                 if d<=self.epsilon:
-                    self.poly.xy = npy.array(
+                    self.poly.xy = array(
                         list(self.poly.xy[:i]) +
                         [(event.xdata, event.ydata)] +
                         list(self.poly.xy[i:]))
@@ -152,8 +152,8 @@ fig = figure()
 theta = arange(0, 2*pi, 0.1)
 r = 1.5
 
-xs = r*npy.cos(theta)
-ys = r*npy.sin(theta)
+xs = r*cos(theta)
+ys = r*sin(theta)
 
 poly = Polygon(zip(xs, ys,), animated=True)
 
