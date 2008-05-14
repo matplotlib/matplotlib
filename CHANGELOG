@@ -1,3 +1,5 @@
+2008-05-14 Don't use stat on Windows (fixes font embedding problem) - MGD
+
 2008-05-09 Fix /singlequote (') in Postscript backend - MGD
 
 2008-05-08 Fix kerning in SVG when embedding character outlines - MGD
