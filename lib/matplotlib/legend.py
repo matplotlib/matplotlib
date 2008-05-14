@@ -288,7 +288,7 @@ The following dimensions are in axes coords
                               width = self.handlelen, height=HEIGHT/2,
                               )
                 p.set_facecolor(handle._facecolors[0])
-                if handle._edgecolors != 'None':
+                if handle._edgecolors != 'none' and len(handle._edgecolors):
                     p.set_edgecolor(handle._edgecolors[0])
                 self._set_artist_props(p)
                 p.set_clip_box(None)

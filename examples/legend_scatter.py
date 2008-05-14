@@ -3,7 +3,7 @@ from pylab import *
 
 N=1000
 
-props = dict( alpha=0.5, faceted=False )
+props = dict( alpha=0.5, edgecolors='none' )
 
 handles = []
 colours = ['red', 'green', 'blue', 'magenta', 'cyan', 'yellow']

@@ -7,6 +7,8 @@ from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
     BboxTransformTo, IdentityTransform, Transform, TransformWrapper
 from matplotlib.projections import register_projection
 
+import numpy as npy
+
 # This example projection class is rather long, but it is designed to
 # illustrate many features, not all of which will be used every time.
 # It is also common to factor out a lot of these methods into common
