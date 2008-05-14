@@ -10,5 +10,7 @@ ax = fig.add_subplot(111)
 ax.plot(a.date, a.adj_close, '-')
 fig.autofmt_xdate()
 
-mlab.rec2excel(a, 'test.xls', colnum=4)
+# if you have pyExcelerator installed, you can output excel
+#import mpl_toolkits.exceltools as exceltools
+#exceltools.rec2excel(a, 'test.xls', colnum=4)
 show()
