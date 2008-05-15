@@ -11,6 +11,7 @@
 
 #include <Python.h>
 #include <stdlib.h>
+#include <sstream>
 
 #include "agg_basics.h"
 #include "_backend_agg.h"
@@ -50,6 +51,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     agg::int8u *destbuffer;
     double l,b,r,t;
     int destx, desty, destwidth, destheight, deststride;
+    unsigned long tmp_ptr;
 
     long mode;
     long nval;
@@ -71,7 +73,10 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
         return TCL_ERROR;
     }
     /* get array (or object that can be converted to array) pointer */
-    aggo = (PyObject*)atol(argv[2]);
+    std::stringstream agg_ptr_ss;
+    agg_ptr_ss.str(argv[2]);
+    agg_ptr_ss >> tmp_ptr;
+    aggo = (PyObject*)tmp_ptr;
     RendererAgg *aggRenderer = (RendererAgg *)aggo;
     int srcheight = (int)aggRenderer->get_height();
 
@@ -85,7 +90,10 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     }
 
     /* check for bbox/blitting */
-    bboxo = (PyObject*)atol(argv[4]);
+    std::stringstream bbox_ptr_ss;
+    bbox_ptr_ss.str(argv[4]);
+    bbox_ptr_ss >> tmp_ptr;
+    bboxo = (PyObject*)tmp_ptr;
     if (py_convert_bbox(bboxo, l, b, r, t)) {
       has_bbox = true;
 
