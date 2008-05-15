@@ -11,6 +11,7 @@
 
 #include <Python.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <sstream>
 
 #include "agg_basics.h"
@@ -47,6 +48,8 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
 
     // vars for blitting
     PyObject* bboxo;
+
+    unsigned long aggl, bboxl;
     bool has_bbox;
     agg::int8u *destbuffer;
     double l,b,r,t;
@@ -73,10 +76,14 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
         return TCL_ERROR;
     }
     /* get array (or object that can be converted to array) pointer */
-    std::stringstream agg_ptr_ss;
-    agg_ptr_ss.str(argv[2]);
-    agg_ptr_ss >> tmp_ptr;
-    aggo = (PyObject*)tmp_ptr;
+    sscanf (argv[2],"%lu",&aggl);
+    aggo = (PyObject*)aggl;
+    //aggo = (PyObject*)atol(argv[2]);
+
+    //std::stringstream agg_ptr_ss;
+    //agg_ptr_ss.str(argv[2]);
+    //agg_ptr_ss >> tmp_ptr;
+    //aggo = (PyObject*)tmp_ptr;
     RendererAgg *aggRenderer = (RendererAgg *)aggo;
     int srcheight = (int)aggRenderer->get_height();
 
@@ -90,10 +97,14 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     }
 
     /* check for bbox/blitting */
-    std::stringstream bbox_ptr_ss;
-    bbox_ptr_ss.str(argv[4]);
-    bbox_ptr_ss >> tmp_ptr;
-    bboxo = (PyObject*)tmp_ptr;
+    sscanf (argv[4],"%lu",&bboxl);
+    bboxo = (PyObject*)bboxl;
+
+    //bboxo = (PyObject*)atol(argv[4]);
+    //std::stringstream bbox_ptr_ss;
+    //bbox_ptr_ss.str(argv[4]);
+    //bbox_ptr_ss >> tmp_ptr;
+    //bboxo = (PyObject*)tmp_ptr;
     if (py_convert_bbox(bboxo, l, b, r, t)) {
       has_bbox = true;
 
