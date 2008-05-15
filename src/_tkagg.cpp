@@ -10,8 +10,8 @@
 #define USE_COMPOSITELESS_PHOTO_PUT_BLOCK
 
 #include <Python.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstdio>
 #include <sstream>
 
 #include "agg_basics.h"
