@@ -2449,9 +2449,14 @@ class Axes(martist.Artist):
         %(Line2D)s
         """
 
+        ymin, ymax = self.get_ylim()
+        if ymax<ymin: ymin, ymax = ymax, ymin
+        scaley = (y<ymin) or (y>ymax)
+
         trans = mtransforms.blended_transform_factory(
             self.transAxes, self.transData)
-        l, = self.plot([xmin,xmax], [y,y], transform=trans, scalex=False, **kwargs)
+        l, = self.plot([xmin,xmax], [y,y], transform=trans, scalex=False, scaley=scaley, **kwargs)
+
         return l
 
     axhline.__doc__ = cbook.dedent(axhline.__doc__) % martist.kwdocd
@@ -2486,9 +2491,14 @@ class Axes(martist.Artist):
         %(Line2D)s
         """
 
+        xmin, xmax = self.get_xlim()
+        if xmax<xmin: xmin, xmax = xmax, xmin
+        scalex = (x<xmin) or (x>xmax)
+
         trans = mtransforms.blended_transform_factory(
             self.transData, self.transAxes)
-        l, = self.plot([x,x], [ymin,ymax] , transform=trans, scaley=False, **kwargs)
+        l, = self.plot([x,x], [ymin,ymax] , transform=trans, scalex=scalex, scaley=False, **kwargs)
+
         return l
 
     axvline.__doc__ = cbook.dedent(axvline.__doc__) % martist.kwdocd
