@@ -5,7 +5,7 @@ import sys
 
 import matplotlib
 from matplotlib import verbose
-from matplotlib.cbook import is_string_like, enumerate, onetrue
+from matplotlib.cbook import is_string_like, onetrue
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
 from matplotlib._pylab_helpers import Gcf

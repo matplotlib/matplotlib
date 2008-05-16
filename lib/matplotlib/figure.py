@@ -7,7 +7,7 @@ import time
 import artist
 from artist import Artist
 from axes import Axes, SubplotBase, subplot_class_factory
-from cbook import flatten, allequal, Stack, iterable, dedent, set
+from cbook import flatten, allequal, Stack, iterable, dedent
 import _image
 import colorbar as cbar
 from image import FigureImage

@@ -14,7 +14,7 @@ from matplotlib.afm import AFM
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
-from matplotlib.cbook import is_string_like, izip, get_realpath_and_stat, \
+from matplotlib.cbook import is_string_like, get_realpath_and_stat, \
     is_writable_file_like, maxdict
 from matplotlib.figure import Figure
 

@@ -6,7 +6,6 @@ from __future__ import division
 import os, sys
 import matplotlib
 from matplotlib import verbose
-from matplotlib.cbook import enumerate
 from matplotlib.figure import Figure
 
 from backend_agg import FigureCanvasAgg
