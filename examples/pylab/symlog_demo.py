@@ -19,7 +19,7 @@ ylabel('symlogy')
 
 
 subplot(313)
-plot(x, npy.sin(x / 3.0))
+plot(x, np.sin(x / 3.0))
 xscale('symlog')
 yscale('symlog')
 grid(True)

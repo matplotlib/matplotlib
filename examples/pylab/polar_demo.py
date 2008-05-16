@@ -39,7 +39,7 @@
 # See the pylab rgrids and thetagrids functions for
 # information on how to customize the grid locations and labels
 
-import numpy as npy
+import numpy as np
 from matplotlib.pyplot import figure, show, rc, grid
 
 # radar green, solid grid lines
@@ -51,8 +51,8 @@ rc('ytick', labelsize=15)
 fig = figure(figsize=(8,8))
 ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True, axisbg='#d5de9c')
 
-r = npy.arange(0, 3.0, 0.01)
-theta = 2*npy.pi*r
+r = np.arange(0, 3.0, 0.01)
+theta = 2*np.pi*r
 ax.plot(theta, r, color='#ee8d18', lw=3)
 ax.set_rmax(2.0)
 grid(True)

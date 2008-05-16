@@ -3,7 +3,7 @@
 Use matplotlib's internal LaTex parser and layout engine.  For true
 latex rendering, see the text.usetex option
 """
-import numpy as npy
+import numpy as np
 from matplotlib.pyplot import figure, show
 
 fig = figure()
@@ -11,7 +11,7 @@ fig.subplots_adjust(bottom=0.2)
 
 ax = fig.add_subplot(111, axisbg='y')
 ax.plot([1,2,3], 'r')
-x = npy.arange(0.0, 3.0, 0.1)
+x = np.arange(0.0, 3.0, 0.1)
 
 ax.grid(True)
 ax.set_xlabel(r'$\Delta_i^j$', fontsize=20)

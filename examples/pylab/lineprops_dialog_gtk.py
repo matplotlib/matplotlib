@@ -2,17 +2,17 @@ import matplotlib
 matplotlib.use('GTKAgg')
 from matplotlib.backends.backend_gtk import DialogLineprops
 
-import numpy as npy
+import numpy as np
 from pylab import figure, show
 
 def f(t):
-    s1 = npy.cos(2*npy.pi*t)
-    e1 = npy.exp(-t)
-    return npy.multiply(s1,e1)
+    s1 = np.cos(2*np.pi*t)
+    e1 = np.exp(-t)
+    return np.multiply(s1,e1)
 
-t1 = npy.arange(0.0, 5.0, 0.1)
-t2 = npy.arange(0.0, 5.0, 0.02)
-t3 = npy.arange(0.0, 2.0, 0.01)
+t1 = np.arange(0.0, 5.0, 0.1)
+t2 = np.arange(0.0, 5.0, 0.02)
+t3 = np.arange(0.0, 2.0, 0.01)
 
 fig = figure()
 ax = fig.add_subplot(111)

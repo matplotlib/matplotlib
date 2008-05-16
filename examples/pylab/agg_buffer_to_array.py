@@ -1,7 +1,7 @@
 import matplotlib
 matplotlib.use('Agg')
 from pylab import figure, show
-import numpy as npy
+import numpy as np
 
 # make an agg figure
 fig = figure()
@@ -13,7 +13,7 @@ fig.canvas.draw()
 # grab rhe pixel buffer and dumpy it into a numpy array
 buf = fig.canvas.buffer_rgba(0,0)
 l, b, w, h = fig.bbox.bounds
-X = npy.fromstring(buf, npy.uint8)
+X = np.fromstring(buf, np.uint8)
 X.shape = h,w,4
 
 # now display the array X as an Axes in a new figure

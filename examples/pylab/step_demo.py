@@ -1,9 +1,9 @@
-import numpy as npy
+import numpy as np
 from numpy import ma
 from matplotlib.pyplot import step, legend, xlim, ylim, show
 
-x = npy.arange(1, 7, 0.4)
-y0 = npy.sin(x)
+x = np.arange(1, 7, 0.4)
+y0 = np.sin(x)
 y = y0.copy() + 2.5
 
 step(x, y, label='pre (default)')
