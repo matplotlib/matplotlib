@@ -1,3 +1,7 @@
+2008-05-16 Added 'cumulative' keyword arg to hist to plot cumulative
+           histograms. For normed hists, this is normalized to one
+           assuming equally spaced bins - MM
+
 2008-05-15 Fix Tk backend segfault on some machines - MGD
 
 2008-05-14 Don't use stat on Windows (fixes font embedding problem) - MGD
