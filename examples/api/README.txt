@@ -1,3 +1,6 @@
+matplotlib API
+==============
+
 These examples use the matplotlib api rather than the pylab/pyplot
 procedural state machine.  For robust, production level scripts, or
 for applications or web application servers, we recommend you use the
