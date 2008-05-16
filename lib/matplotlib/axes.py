@@ -3752,13 +3752,13 @@ class Axes(martist.Artist):
 
 
     def errorbar(self, x, y, yerr=None, xerr=None,
-                 fmt='-', ecolor=None, capsize=3,
+                 fmt='-', ecolor=None, elinewidth=None, capsize=3,
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, **kwargs):
         """
         ERRORBAR(x, y, yerr=None, xerr=None,
-                 fmt='b-', ecolor=None, capsize=3, barsabove=False,
-                 lolims=False, uplims=False,
+                 fmt='b-', ecolor=None, elinewidth=None, capsize=3, 
+                 barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False)
 
         Plot x versus y with error deltas in yerr and xerr.
@@ -3782,6 +3782,9 @@ class Axes(martist.Artist):
 
             ecolor is a matplotlib color arg which gives the color the
             errorbar lines; if None, use the marker color.
+
+            elinewidth is the linewidth of the errorbar lines;
+            if None, use the linewidth.
 
             capsize is the size of the error bar caps in points
 
@@ -3842,10 +3845,13 @@ class Axes(martist.Artist):
         caplines = []
 
         lines_kw = {'label':'_nolegend_'}
-        if 'linewidth' in kwargs:
-            lines_kw['linewidth']=kwargs['linewidth']
-        if 'lw' in kwargs:
-            lines_kw['lw']=kwargs['lw']
+        if elinewidth:
+            lines_kw['linewidth'] = elinewidth
+        else:
+            if 'linewidth' in kwargs:
+                lines_kw['linewidth']=kwargs['linewidth']
+            if 'lw' in kwargs:
+                lines_kw['lw']=kwargs['lw']
         if 'transform' in kwargs:
             lines_kw['transform'] = kwargs['transform']
 
@@ -5432,8 +5438,7 @@ class Axes(martist.Artist):
         If normed is true, the first element of the return tuple will
         be the counts normalized to form a probability density, ie,
         n/(len(x)*dbin).  In a probability density, the integral of
-        the histogram should be one (we assume equally spaced bins);
-        you can verify that with
+        the histogram should be one; you can verify that with
 
           # trapezoidal integration of the probability density function
           pdf, bins, patches = ax.hist(...)

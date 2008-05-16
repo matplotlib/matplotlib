@@ -1,6 +1,8 @@
+2008-05-16 Added 'elinewidth' keyword arg to errorbar, based on patch
+           by Christopher Brown - MM
+
 2008-05-16 Added 'cumulative' keyword arg to hist to plot cumulative
-           histograms. For normed hists, this is normalized to one
-           assuming equally spaced bins - MM
+           histograms. For normed hists, this is normalized to one - MM
 
 2008-05-15 Fix Tk backend segfault on some machines - MGD
 
