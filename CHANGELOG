@@ -1,3 +1,5 @@
+2008-05-16 Reorganized examples dir
+
 2008-05-16 Added 'elinewidth' keyword arg to errorbar, based on patch
            by Christopher Brown - MM
 
