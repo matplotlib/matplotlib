@@ -13,7 +13,7 @@ from matplotlib.mlab import csv2rec
 from pylab import figure, show
 from matplotlib.ticker import Formatter
 
-r = csv2rec('data/msft.csv')[-40:]
+r = csv2rec('../data/msft.csv')[-40:]
 
 class MyFormatter(Formatter):
     def __init__(self, dates, fmt='%Y-%m-%d'):

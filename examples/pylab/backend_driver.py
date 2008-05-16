@@ -19,7 +19,7 @@ from __future__ import division
 import os, time, sys
 import matplotlib.backends as mplbe
 
-files = (
+pylab_files = 'pylab', [
     'alignment_test.py',
     'arctest.py',
     'arrow_demo.py',
@@ -32,7 +32,6 @@ files = (
     'broken_barh.py',
     'barh_demo.py',
     'color_demo.py',
-    'colorbar_only.py',
     'cohere_demo.py',
     'contour_demo.py',
     'contourf_demo.py',
@@ -105,7 +104,12 @@ files = (
     'vline_demo.py',
     'xcorr_demo.py',
     'zorder_demo.py',
-    )
+    ]
+
+
+pyplot_files = 'pyplot', [
+    'colorbar_only.py',
+]
 
 
 # tests known to fail on a given backend
