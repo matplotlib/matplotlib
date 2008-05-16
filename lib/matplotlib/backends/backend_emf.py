@@ -17,7 +17,6 @@ from matplotlib import verbose, __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import enumerate
 from matplotlib.figure import Figure
 from matplotlib.transforms import Bbox
 

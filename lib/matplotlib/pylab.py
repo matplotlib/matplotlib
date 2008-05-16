@@ -195,7 +195,7 @@ __end
 import sys, warnings
 
 from cbook import flatten, is_string_like, exception_to_str, popd, \
-     silent_list, iterable, enumerate, dedent
+     silent_list, iterable, dedent
 
 import numpy as np
 from numpy import ma

@@ -10,7 +10,7 @@ from matplotlib import cbook
 from matplotlib import rcParams
 import artist
 from artist import Artist
-from cbook import enumerate, is_string_like, maxdict
+from cbook import is_string_like, maxdict
 from font_manager import FontProperties
 from patches import bbox_artist, YAArrow
 from transforms import Affine2D, Bbox

@@ -25,7 +25,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.backends.backend_mixed import MixedModeRenderer
-from matplotlib.cbook import Bunch, enumerate, is_string_like, reverse_dict, \
+from matplotlib.cbook import Bunch, is_string_like, reverse_dict, \
     get_realpath_and_stat, is_writable_file_like, maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font

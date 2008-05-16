@@ -4,7 +4,7 @@ Classes for the ticks and x and y axis
 from __future__ import division
 
 from artist import Artist, setp
-from cbook import enumerate, silent_list, popall, CallbackRegistry
+from cbook import silent_list, popall, CallbackRegistry
 from lines import Line2D, TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN
 from matplotlib import rcParams
 from patches import bbox_artist

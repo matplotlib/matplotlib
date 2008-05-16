@@ -1,4 +1,10 @@
-2008-05-16 Reorganized examples dir
+2008-05-16 removed some unneeded code w/ the python 2.4 requirement.
+           cbook no longer provides compatibility for reversed,
+           enumerate, set or izip.  removed lib/subprocess, mpl1,
+           sandbox/units, and the swig code.  This stuff should remain
+           on the maintenance branch for archival purposes. JDH
+
+2008-05-16 Reorganized examples dir - JDH
 
 2008-05-16 Added 'elinewidth' keyword arg to errorbar, based on patch
            by Christopher Brown - MM

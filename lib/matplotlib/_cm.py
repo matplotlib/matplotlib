@@ -11,7 +11,6 @@ etc.) and a dictionary, 'datad', including all of these objects.
 
 import matplotlib as mpl
 import matplotlib.colors as colors
-from matplotlib.cbook import reversed
 LUTSIZE = mpl.rcParams['image.lut']
 
 _binary_data = {

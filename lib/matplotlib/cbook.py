@@ -7,11 +7,6 @@ import re, os, errno, sys, StringIO, traceback, locale
 import time, datetime
 import numpy as np
 
-try:
-    set = set
-except NameError:
-    from sets import Set as set
-
 major, minor1, minor2, s, tmp = sys.version_info
 
 
@@ -461,46 +456,6 @@ class RingBuffer:
     def __get_item__(self, i):
         return self.data[i % len(self.data)]
 
-
-# use enumerate builtin if available, else use python version
-try:
-    import __builtin__
-    enumerate = __builtin__.enumerate
-except:
-    def enumerate(seq):
-        """Python equivalent to the enumerate builtin function
-        enumerate() is new in Python 2.3
-        """
-        for i in range(len(seq)):
-            yield i, seq[i]
-
-
-# use reversed builtin if available, else use python version
-try:
-    import __builtin__
-    reversed = __builtin__.reversed
-except:
-    def reversed(seq):
-        """Python equivalent to the enumerate builtin function
-        enumerate() is new in Python 2.3
-        """
-        for i in range(len(seq)-1,-1,-1):
-            yield seq[i]
-
-
-# use itertools.izip if available, else use python version
-try:
-    import itertools
-    izip = itertools.izip
-except:
-    def izip(*iterables):
-        """Python equivalent to itertools.izip
-        itertools module - new in Python 2.3
-        """
-        iterables = map(iter, iterables)
-        while iterables:
-            result = [i.next() for i in iterables]
-            yield tuple(result)
 
 
 def get_split_ind(seq, N):
