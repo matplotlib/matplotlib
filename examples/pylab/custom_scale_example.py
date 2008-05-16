@@ -36,8 +36,8 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         thresh: The degree above which to crop the data.
         """
         mscale.ScaleBase.__init__(self)
-        thresh = kwargs.pop("thresh", (85 / 180.0) * npy.pi)
-        if thresh >= npy.pi / 2.0:
+        thresh = kwargs.pop("thresh", (85 / 180.0) * np.pi)
+        if thresh >= np.pi / 2.0:
             raise ValueError("thresh must be less than pi/2")
         self.thresh = thresh
 
@@ -67,11 +67,11 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         class DegreeFormatter(Formatter):
             def __call__(self, x, pos=None):
                 # \u00b0 : degree symbol
-                return u"%d\u00b0" % ((x / npy.pi) * 180.0)
+                return u"%d\u00b0" % ((x / np.pi) * 180.0)
 
-        deg2rad = npy.pi / 180.0
+        deg2rad = np.pi / 180.0
         axis.set_major_locator(FixedLocator(
-                npy.arange(-90, 90, 10) * deg2rad))
+                np.arange(-90, 90, 10) * deg2rad))
         axis.set_major_formatter(DegreeFormatter())
         axis.set_minor_formatter(DegreeFormatter())
 
@@ -118,9 +118,9 @@ class MercatorLatitudeScale(mscale.ScaleBase):
             """
             masked = ma.masked_where((a < -self.thresh) | (a > self.thresh), a)
             if masked.mask.any():
-                return ma.log(npy.abs(ma.tan(masked) + 1.0 / ma.cos(masked)))
+                return ma.log(np.abs(ma.tan(masked) + 1.0 / ma.cos(masked)))
             else:
-                return npy.log(npy.abs(npy.tan(a) + 1.0 / npy.cos(a)))
+                return np.log(np.abs(np.tan(a) + 1.0 / np.cos(a)))
 
         def inverted(self):
             """
@@ -139,7 +139,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
             self.thresh = thresh
 
         def transform(self, a):
-            return npy.arctan(npy.sinh(a))
+            return np.arctan(np.sinh(a))
 
         def inverted(self):
             return MercatorLatitudeScale.MercatorLatitudeTransform(self.thresh)
@@ -149,10 +149,10 @@ class MercatorLatitudeScale(mscale.ScaleBase):
 mscale.register_scale(MercatorLatitudeScale)
 
 from pylab import *
-import numpy as npy
+import numpy as np
 
 t = arange(-180.0, 180.0, 0.1)
-s = t / 360.0 * npy.pi
+s = t / 360.0 * np.pi
 
 plot(t, s, '-', lw=2)
 gca().set_yscale('mercator')

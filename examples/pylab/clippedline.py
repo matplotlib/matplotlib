@@ -4,7 +4,7 @@ style when zoomed in
 """
 
 from matplotlib.lines import Line2D
-import numpy as npy
+import numpy as np
 from pylab import figure, show
 
 class ClippedLine(Line2D):
@@ -19,13 +19,13 @@ class ClippedLine(Line2D):
 
     def set_data(self, *args, **kwargs):
         Line2D.set_data(self, *args, **kwargs)
-        self.xorig = npy.array(self._x)
-        self.yorig = npy.array(self._y)
+        self.xorig = np.array(self._x)
+        self.yorig = np.array(self._y)
 
     def draw(self, renderer):
         xlim = self.ax.get_xlim()
 
-        ind0, ind1 = npy.searchsorted(self.xorig, xlim)
+        ind0, ind1 = np.searchsorted(self.xorig, xlim)
         self._x = self.xorig[ind0:ind1]
         self._y = self.yorig[ind0:ind1]
         N = len(self._x)
@@ -43,8 +43,8 @@ class ClippedLine(Line2D):
 fig = figure()
 ax = fig.add_subplot(111, autoscale_on=False)
 
-t = npy.arange(0.0, 100.0, 0.01)
-s = npy.sin(2*npy.pi*t)
+t = np.arange(0.0, 100.0, 0.01)
+s = np.sin(2*np.pi*t)
 line = ClippedLine(ax, t, s, color='g', ls='-', lw=2)
 ax.add_line(line)
 ax.set_xlim(10,30)

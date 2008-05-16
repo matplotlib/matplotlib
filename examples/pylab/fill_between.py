@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 import matplotlib.mlab as mlab
 from pylab import figure, show
-import numpy as npy
+import numpy as np
 
-x = npy.arange(0, 2, 0.01)
-y1 = npy.sin(2*npy.pi*x)
-y2 = npy.sin(4*npy.pi*x) + 2
+x = np.arange(0, 2, 0.01)
+y1 = np.sin(2*np.pi*x)
+y2 = np.sin(4*np.pi*x) + 2
 
 fig = figure()
 ax = fig.add_subplot(311)

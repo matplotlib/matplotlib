@@ -1,10 +1,10 @@
-import numpy as npy
+import numpy as np
 from pylab import figure, show
 
 
-X = npy.random.rand(100, 200)
-xs = npy.mean(X, axis=1)
-ys = npy.std(X, axis=1)
+X = np.random.rand(100, 200)
+xs = np.mean(X, axis=1)
+ys = np.std(X, axis=1)
 
 fig = figure()
 ax = fig.add_subplot(211)
@@ -25,18 +25,18 @@ class PointBrowser:
                             transform=ax.transAxes, va='top')
         self.selected,  = ax.plot([xs[0]], [ys[0]], 'o', ms=12, alpha=0.4,
                                   color='yellow', visible=False)
-        
+
     def onpress(self, event):
         if self.lastind is None: return
         if event.key not in ('n', 'p'): return
         if event.key=='n': inc = 1
         else:  inc = -1
-        
+
 
         self.lastind += inc
-        self.lastind = npy.clip(self.lastind, 0, len(xs)-1)
+        self.lastind = np.clip(self.lastind, 0, len(xs)-1)
         self.update()
-        
+
     def onpick(self, event):
 
        if event.artist!=line: return True
@@ -49,7 +49,7 @@ class PointBrowser:
        y = event.mouseevent.ydata
 
 
-       distances = npy.hypot(x-xs[event.ind], y-ys[event.ind])
+       distances = np.hypot(x-xs[event.ind], y-ys[event.ind])
        indmin = distances.argmin()
        dataind = event.ind[indmin]
 

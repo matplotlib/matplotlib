@@ -181,7 +181,7 @@ def drive(backend, python=['python'], switches = []):
             line_lstrip = line.lstrip()
             if (line_lstrip.startswith('from __future__ import division') or
                 line_lstrip.startswith('matplotlib.use') or
-                line_lstrip.find('savefig')>=0 or
+                line_lstrip.startswith('savefig') or
                 line_lstrip.startswith('show')):
                 continue
             tmpfile.write(line)

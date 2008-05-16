@@ -35,7 +35,7 @@ analogous to negative indexing of sequences.
 
 from matplotlib.pyplot import figure, show
 from matplotlib.patches import Ellipse
-import numpy as npy
+import numpy as np
 
 
 if 1:
@@ -44,8 +44,8 @@ if 1:
     fig = figure()
     ax = fig.add_subplot(111, autoscale_on=False, xlim=(-1,5), ylim=(-3,5))
 
-    t = npy.arange(0.0, 5.0, 0.01)
-    s = npy.cos(2*npy.pi*t)
+    t = np.arange(0.0, 5.0, 0.01)
+    s = np.cos(2*np.pi*t)
     line, = ax.plot(t, s, lw=3, color='purple')
 
     ax.annotate('axes center', xy=(.5, .5),  xycoords='axes fraction',
@@ -94,8 +94,8 @@ if 1:
     # respected
     fig = figure()
     ax = fig.add_subplot(111, polar=True)
-    r = npy.arange(0,1,0.001)
-    theta = 2*2*npy.pi*r
+    r = np.arange(0,1,0.001)
+    theta = 2*2*np.pi*r
     line, = ax.plot(theta, r, color='#ee8d18', lw=3)
 
     ind = 800
@@ -124,8 +124,8 @@ if 1:
     ax.add_artist(el)
     el.set_clip_box(ax.bbox)
     ax.annotate('the top',
-                xy=(npy.pi/2., 10.),      # theta, radius
-                xytext=(npy.pi/3, 20.),   # theta, radius
+                xy=(np.pi/2., 10.),      # theta, radius
+                xytext=(np.pi/3, 20.),   # theta, radius
                 xycoords='polar',
                 textcoords='polar',
                 arrowprops=dict(facecolor='black', shrink=0.05),
