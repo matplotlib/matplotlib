@@ -1,3 +1,6 @@
+matplotlib event handling
+=========================
+
 matplotlib supports event handling with a GUI neutral event model.  So
 you can connect to matplotlib events w/o knowledge of what user
 interface matplotlib will ultimately be plugged in to.  This has two
