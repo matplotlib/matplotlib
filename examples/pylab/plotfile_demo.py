@@ -1,6 +1,6 @@
 from pylab import plotfile, show
 
-fname = 'data/msft.csv'    
+fname = '../data/msft.csv'
 
 # test 1; use ints
 plotfile(fname, (0,5,6))
