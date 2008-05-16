@@ -5420,9 +5420,9 @@ class Axes(martist.Artist):
              bottom=None, histtype='bar', align='edge',
              orientation='vertical', width=None, log=False, **kwargs):
         """
-        HIST(x, bins=10, normed=False, bottom=None, histtype='bar',
-             align='edge', orientation='vertical', width=None,
-             log=False, **kwargs)
+        HIST(x, bins=10, normed=False, cumulative=False,
+             bottom=None, histtype='bar', align='edge',
+             orientation='vertical', width=None, log=False, **kwargs)
 
         Compute the histogram of x.  bins is either an integer number of
         bins or a sequence giving the bins.  x are the data to be binned.
@@ -5437,13 +5437,13 @@ class Axes(martist.Artist):
 
           # trapezoidal integration of the probability density function
           pdf, bins, patches = ax.hist(...)
-          print np.trapz(pdf, bins)
+          print np.sum(pdf * np.diff(bins))
 
-        If cumulative is True then histogram is computed where each bin
+        If cumulative is True then a histogram is computed where each bin
         gives the counts in that bin plus all bins for smaller values.
         The last bins gives the total number of datapoints.  If normed is
         also True then the histogram is normalized such that the last bin
-        equals one (assuming equally spaced bins).
+        equals one.
 
         histtype = 'bar' | 'step'. The type of histogram to draw.
         'bar' is a traditional bar-type histogram, 'step' generates
@@ -5469,10 +5469,10 @@ class Axes(martist.Artist):
             normed=bool(normed), new=True)
         
         if cumulative:
-            n = n.cumsum()
             if normed:
-                # normalize to 1
-                n *= (bins[1]-bins[0])
+                n = (n * np.diff(bins)).cumsum()
+            else:
+                n = n.cumsum()
 
         if histtype == 'bar':
             if width is None:
