@@ -181,7 +181,7 @@ def drive(backend, python=['python'], switches = []):
             line_lstrip = line.lstrip()
             if (line_lstrip.startswith('from __future__ import division') or
                 line_lstrip.startswith('matplotlib.use') or
-                line_lstrip.startswith('savefig') or
+                line_lstrip.find('savefig')>=0 or
                 line_lstrip.startswith('show')):
                 continue
             tmpfile.write(line)
@@ -202,6 +202,12 @@ def drive(backend, python=['python'], switches = []):
 if __name__ == '__main__':
     times = {}
     default_backends = ['Agg', 'PS', 'SVG', 'PDF', 'Template']
+    if len(sys.argv)==2 and sys.argv[1]=='--clean':
+        for b in default_backends:
+            # todo: implement python recursive remove
+            os.system('rm -rf %s'%b)
+            print 'all clean...'
+            raise SystemExit
     if '--coverage' in sys.argv:
         python = ['coverage.py', '-x']
         sys.argv.remove('--coverage')
