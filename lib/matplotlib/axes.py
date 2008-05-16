@@ -5416,9 +5416,9 @@ class Axes(martist.Artist):
     #### Data analysis
 
 
-    def hist(self, x, bins=10, normed=False, bottom=None, histtype='bar',
-             align='edge', orientation='vertical', width=None,
-             log=False, **kwargs):
+    def hist(self, x, bins=10, normed=False, cumulative=False,
+             bottom=None, histtype='bar', align='edge',
+             orientation='vertical', width=None, log=False, **kwargs):
         """
         HIST(x, bins=10, normed=False, bottom=None, histtype='bar',
              align='edge', orientation='vertical', width=None,
@@ -5438,6 +5438,12 @@ class Axes(martist.Artist):
           # trapezoidal integration of the probability density function
           pdf, bins, patches = ax.hist(...)
           print np.trapz(pdf, bins)
+
+        If cumulative is True then histogram is computed where each bin
+        gives the counts in that bin plus all bins for smaller values.
+        The last bins gives the total number of datapoints.  If normed is
+        also True then the histogram is normalized such that the last bin
+        equals one (assuming equally spaced bins).
 
         histtype = 'bar' | 'step'. The type of histogram to draw.
         'bar' is a traditional bar-type histogram, 'step' generates
@@ -5461,6 +5467,12 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
         n, bins = np.histogram(x, bins, range=None,
             normed=bool(normed), new=True)
+        
+        if cumulative:
+            n = n.cumsum()
+            if normed:
+                # normalize to 1
+                n *= (bins[1]-bins[0])
 
         if histtype == 'bar':
             if width is None:
