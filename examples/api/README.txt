@@ -11,7 +11,7 @@ resources for the API
   - the matplotlib artist tutorial :
     http://matplotlib.sourceforge.net/pycon/artist_api_tut.pdf
 
-  - the "leftwich tutorial" -
+  - the "leftwich tutorial" :
     http://matplotlib.sourceforge.net/leftwich_tut.txt
 
  The example agg_oo.py is the simplest example of using the Agg
@@ -22,3 +22,27 @@ resources for the API
  the API for everything else.  This is a good solution for production
  quality scripts.  For full fledged GUI applications, see the
  user_interfaces examples.
+
+Example style guide
+===================
+
+If you are creating new examples, you cannot import pylab or import *
+from any module in your examples.  The only three functions allowed
+from pyplot are "figure", "show" and "close", which you can use as
+convenience functions for managing figures.  All other matplotlib
+functionality must illustrate the API.
+
+A simple example of the recommended style is::
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111) # or add_axes
+    ax.plot(np.random.rand(10))
+    ax.set_xlabel('some x data')
+    ax.set_ylabel('some y data')
+    ax.set_title('some title')
+    ax.grid(True)
+    fig.savefig('myfig')
+    plt.show()
