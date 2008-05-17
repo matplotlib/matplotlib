@@ -16,7 +16,7 @@ tested.
 """
 
 from __future__ import division
-import os, time, sys
+import os, time, sys, glob
 import matplotlib.backends as mplbe
 
 pylab_dir = os.path.join('..', 'pylab')
@@ -203,10 +203,15 @@ if __name__ == '__main__':
     times = {}
     default_backends = ['Agg', 'PS', 'SVG', 'PDF', 'Template']
     if len(sys.argv)==2 and sys.argv[1]=='--clean':
-        for b in default_backends:
-            # todo: implement python recursive remove
-            print 'executing: %s'%command
-            os.system(command)
+        localdirs = [d for d in glob.glob('*') if os.path.isdir(d)]
+        backends_lower = set([b.lower() for b in default_backends])
+        for d in localdirs:
+            if d.lower() in backends_lower:
+                command = 'rm -rf %s'%d
+                # todo: implement python recursive remove
+                print 'executing: %s'%command
+                os.system(command)
+        os.system('rm -rf _tmp*.py')
         print 'all clean...'
         raise SystemExit
     if '--coverage' in sys.argv:
