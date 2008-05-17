@@ -41,10 +41,12 @@ in mind.
     MANIFEST.in.  This file determines what goes into the src
     distribution of the mpl build.
 
-  * Keep the maintenance branch and trunk in sync here it makes sense.
+  * Keep the maintenance branch and trunk in sync where it makes sense.
     If there is a bug on both that needs fixing, use svnmerge.py to
-    fix them.  http://www.orcaware.com/svn/wiki/Svnmerge.py.  The
+    keep them in sync.  http://www.orcaware.com/svn/wiki/Svnmerge.py.  The
     basic procedure is:
+
+      - install svnmerge.py in your PATH
 
       - get a svn copy of the branch (svn co
         https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v0_91_maint)
@@ -55,8 +57,9 @@ in mind.
         it.  Make sure you svn upped on the trunk and have no local
         modifications, and then from the svn trunk do
 
-	# where these are the revision numbers.  ranges also acceptable
+	# where the NNN are the revision numbers.  ranges also acceptable
         > svnmerge.py merge -rNNN1,NNN2
+
 	# this file is automatically created by the merge command
         > svn commit -F svnmerge-commit-message.txt
 
