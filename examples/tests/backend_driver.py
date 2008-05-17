@@ -19,6 +19,9 @@ from __future__ import division
 import os, time, sys, glob
 import matplotlib.backends as mplbe
 
+all_backends = [b.lower() for b in mplbe.all_backends]
+all_backends.extend(['cairo.png', 'cairo.ps', 'cairo.pdf', 'cairo.svg'])
+
 pylab_dir = os.path.join('..', 'pylab')
 pylab_files = [
     'alignment_test.py',
@@ -204,9 +207,9 @@ if __name__ == '__main__':
     default_backends = ['Agg', 'PS', 'SVG', 'PDF', 'Template']
     if len(sys.argv)==2 and sys.argv[1]=='--clean':
         localdirs = [d for d in glob.glob('*') if os.path.isdir(d)]
-        backends_lower = set([b.lower() for b in default_backends])
+        all_backends_set = set(all_backends)
         for d in localdirs:
-            if d.lower() in backends_lower:
+            if d.lower() in all_backends_set:
                 command = 'rm -rf %s'%d
                 # todo: implement python recursive remove
                 print 'executing: %s'%command
@@ -225,8 +228,6 @@ if __name__ == '__main__':
         python = [r'c:\Python24\python.exe']
     else:
         python = ['python']
-    all_backends = [b.lower() for b in mplbe.all_backends]
-    all_backends.extend(['cairo.png', 'cairo.ps', 'cairo.pdf', 'cairo.svg'])
     backends = []
     switches = []
     if sys.argv[1:]:
