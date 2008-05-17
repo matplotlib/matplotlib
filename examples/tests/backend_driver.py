@@ -209,12 +209,14 @@ if __name__ == '__main__':
         localdirs = [d for d in glob.glob('*') if os.path.isdir(d)]
         all_backends_set = set(all_backends)
         for d in localdirs:
-            if d.lower() in all_backends_set:
-                command = 'rm -rf %s'%d
-                # todo: implement python recursive remove
-                print 'executing: %s'%command
-                os.system(command)
-        os.system('rm -rf _tmp*.py')
+            if d.lower() not in all_backends_set: continue
+            print 'removing %s'%d
+            for fname in glob.glob(os.path.join(d, '*')):
+                os.remove(fname)
+            os.rmdir(d)
+        for fname in glob.glob('_tmp*.py'):
+            os.remove(fname)
+
         print 'all clean...'
         raise SystemExit
     if '--coverage' in sys.argv:
