@@ -205,9 +205,10 @@ if __name__ == '__main__':
     if len(sys.argv)==2 and sys.argv[1]=='--clean':
         for b in default_backends:
             # todo: implement python recursive remove
-            os.system('rm -rf %s'%b)
-            print 'all clean...'
-            raise SystemExit
+            print 'executing: %s'%command
+            os.system(command)
+        print 'all clean...'
+        raise SystemExit
     if '--coverage' in sys.argv:
         python = ['coverage.py', '-x']
         sys.argv.remove('--coverage')
