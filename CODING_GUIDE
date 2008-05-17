@@ -12,7 +12,7 @@ svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk matplotli
 # checking out the main src
 svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib --username=youruser --password=yourpass
 
-# branch checkouts, eg the transforms branch 
+# branch checkouts, eg the transforms branch
 svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/transforms transbranch
 
 == Committing changes ==
@@ -41,13 +41,32 @@ in mind.
     MANIFEST.in.  This file determines what goes into the src
     distribution of the mpl build.
 
+  * Keep the maintenance branch and trunk in sync here it makes sense.
+    If there is a bug on both that needs fixing, use svnmerge.py to
+    fix them.  http://www.orcaware.com/svn/wiki/Svnmerge.py.  The
+    basic procedure is:
+
+      - get a svn copy of the branch (svn co
+        https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v0_91_maint)
+        and the trunk (svn co
+        https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib)
+
+      - Michael advises making the change on the branch and committing
+        it.  Make sure you svn upped on the trunk and have no local
+        modifications, and then from the svn trunk do
+
+	# where these are the revision numbers.  ranges also acceptable
+        > svnmerge.py merge -rNNN1,NNN2
+	# this file is automatically created by the merge command
+        > svn commit -F svnmerge-commit-message.txt
+
 == Importing and name spaces ==
 
 For numpy, use:
 
     import numpy as npy
     a = npy.array([1,2,3])
-    
+
 
 For masked arrays, use:
     import matplotlib.numerix.npyma as ma
@@ -64,8 +83,8 @@ For matplotlib main module, use:
 
 For matplotlib modules (or any other modules), use:
 
-    import matplotlib.cbook as cbook 
-    
+    import matplotlib.cbook as cbook
+
     if cbook.iterable(z):
         pass
 
@@ -125,7 +144,7 @@ for older versions of emacs (emacs<22) you need to do
 
 (add-hook 'python-mode-hook
           (lambda ()
-          (add-hook 'local-write-file-hooks 'delete-trailing-whitespace)))	
+          (add-hook 'local-write-file-hooks 'delete-trailing-whitespace)))
 
 
 
