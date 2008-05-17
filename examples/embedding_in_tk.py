@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-import matplotlib
-matplotlib.use('TkAgg')
-
 from numpy import arange, sin, pi
 from matplotlib.axes import Subplot
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
