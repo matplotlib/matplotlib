@@ -331,7 +331,6 @@ class _process_plot_var_args:
                 self.set_patchprops(seg, **kwargs)
                 ret.append(seg)
 
-
             if self.command == 'plot': func = makeline
             else:                      func = makefill
             if multicol:
@@ -2818,7 +2817,6 @@ class Axes(martist.Artist):
         autoscaled; default True.  See Axes.autoscale_view for more
         information
         """
-
         scalex = kwargs.pop( 'scalex', True)
         scaley = kwargs.pop( 'scaley', True)
 
@@ -3757,7 +3755,7 @@ class Axes(martist.Artist):
                  xlolims=False, xuplims=False, **kwargs):
         """
         ERRORBAR(x, y, yerr=None, xerr=None,
-                 fmt='b-', ecolor=None, elinewidth=None, capsize=3, 
+                 fmt='b-', ecolor=None, elinewidth=None, capsize=3,
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False)
 
@@ -5472,7 +5470,7 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
         n, bins = np.histogram(x, bins, range=None,
             normed=bool(normed), new=True)
-        
+
         if cumulative:
             if normed:
                 n = (n * np.diff(bins)).cumsum()
