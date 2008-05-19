@@ -362,6 +362,7 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
     def get_filterrad(self):
         'return the filterrad setting'
+        return self._filterrad
 
 
 class NonUniformImage(AxesImage):
