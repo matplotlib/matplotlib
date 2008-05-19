@@ -1,3 +1,6 @@
+2008-05-19 Fix crash when Windows can not access the registry to
+           determine font path [Bug 1966974, thanks Patrik Simons] - MGD
+
 2008-05-16 removed some unneeded code w/ the python 2.4 requirement.
            cbook no longer provides compatibility for reversed,
            enumerate, set or izip.  removed lib/subprocess, mpl1,

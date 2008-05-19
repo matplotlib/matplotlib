@@ -107,14 +107,17 @@ def win32FontDirectory():
     except ImportError:
         pass # Fall through to default
     else:
-        user = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, MSFolders)
         try:
+            user = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, MSFolders)
             try:
-                return _winreg.QueryValueEx(user, 'Fonts')[0]
-            except OSError:
-                pass # Fall through to default
-        finally:
-            _winreg.CloseKey(user)
+                try:
+                    return _winreg.QueryValueEx(user, 'Fonts')[0]
+                except OSError:
+                    pass # Fall through to default
+            finally:
+                _winreg.CloseKey(user)
+        except OSError:
+            pass # Fall through to default
     return os.path.join(os.environ['WINDIR'], 'Fonts')
 
 def win32InstalledFonts(directory=None, fontext='ttf'):
