@@ -290,7 +290,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         original_dpi = renderer.dpi
         renderer.dpi = self.figure.dpi
         if is_string_like(filename_or_obj):
-            filename_or_obj = opefile(filename_or_obj, 'wb')
+            filename_or_obj = file(filename_or_obj, 'wb')
         renderer._renderer.write_rgba(filename_or_obj)
         renderer.dpi = original_dpi
     print_rgba = print_raw
