@@ -997,7 +997,7 @@ class DateConverter(units.ConversionInterface):
             return units.AxisInfo(
                 majloc = majloc,
                 majfmt = majfmt,
-                label='date',
+                label='',
                 )
         else: return None
     axisinfo = staticmethod(axisinfo)

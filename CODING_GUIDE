@@ -46,7 +46,8 @@ in mind.
     keep them in sync.  http://www.orcaware.com/svn/wiki/Svnmerge.py.  The
     basic procedure is:
 
-      - install svnmerge.py in your PATH
+      - install svnmerge.py in your PATH:
+	wget http://svn.collab.net/repos/svn/trunk/contrib/client-side/svnmerge/svnmerge.py
 
       - get a svn copy of the branch (svn co
         https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v0_91_maint)
