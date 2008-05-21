@@ -1953,14 +1953,39 @@ def safe_isinf(x):
 
 def rec_append_field(rec, name, arr, dtype=None):
     'return a new record array with field name populated with data from array arr'
-    arr = np.asarray(arr)
-    if dtype is None:
-        dtype = arr.dtype
-    newdtype = np.dtype(rec.dtype.descr + [(name, dtype)])
+    warnings.warn("use rec_append_fields", DeprecationWarning)
+    return rec_append_fields(rec, name, arr, dtype)
+
+def rec_append_fields(rec, names, arrs, dtypes=None):
+    """
+    return a new record array with field names populated with data
+    from arrays in arrs.  If appending a single field then names, arrs
+    and dtypes do not have to be lists. They can just be the values themselves.
+    """
+    if (not cbook.is_string_like(names) and cbook.iterable(names) \
+            and len(names) and cbook.is_string_like(names[0])):
+        if len(names) != len(arrs):
+            raise ValueError, "number of arrays do not match number of names"
+    else: # we have only 1 name and 1 array
+        names = [names]
+        arrs = [arrs]
+    arrs = map(np.asarray, arrs)
+    if dtypes is None:
+        dtypes = [a.dtype for a in arrs]
+    elif not cbook.iterable(dtypes):
+        dtypes = [dtypes]
+    if len(arrs) != len(dtypes):
+        if len(dtypes) == 1:
+            dtypes = dtypes * len(arrs)
+        else:
+            raise ValueError, "dtypes must be None, a single dtype or a list"
+
+    newdtype = np.dtype(rec.dtype.descr + zip(names, dtypes))
     newrec = np.empty(rec.shape, dtype=newdtype)
     for field in rec.dtype.fields:
         newrec[field] = rec[field]
-    newrec[name] = arr
+    for name, arr in zip(names, arrs):
+        newrec[name] = arr
     return newrec.view(np.recarray)
 
 
