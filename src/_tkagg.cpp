@@ -76,7 +76,10 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
         return TCL_ERROR;
     }
     /* get array (or object that can be converted to array) pointer */
-    sscanf (argv[2],"%lu",&aggl);
+    if (sscanf (argv[2],"%lu",&aggl) != 1) {
+        Tcl_AppendResult(interp, "error casting pointer", (char *) NULL);
+        return TCL_ERROR;
+    }
     aggo = (PyObject*)aggl;
     //aggo = (PyObject*)atol(argv[2]);
 
@@ -97,7 +100,10 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     }
 
     /* check for bbox/blitting */
-    sscanf (argv[4],"%lu",&bboxl);
+    if (sscanf (argv[4],"%lu",&bboxl) != 1) {
+        Tcl_AppendResult(interp, "error casting pointer", (char *) NULL);
+        return TCL_ERROR;
+    }
     bboxo = (PyObject*)bboxl;
 
     //bboxo = (PyObject*)atol(argv[4]);
