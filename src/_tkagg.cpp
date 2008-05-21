@@ -50,6 +50,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     agg::int8u *destbuffer;
     double l,b,r,t;
     int destx, desty, destwidth, destheight, deststride;
+    unsigned long aggl, bboxl;
 
     long mode;
     long nval;
@@ -71,7 +72,11 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
         return TCL_ERROR;
     }
     /* get array (or object that can be converted to array) pointer */
-    aggo = (PyObject*)atol(argv[2]);
+    if (sscanf (argv[2],"%lu",&aggl) != 1) {
+        Tcl_AppendResult(interp, "error casting pointer", (char *) NULL);
+        return TCL_ERROR;
+    }
+    aggo = (PyObject*)aggl;
     RendererAgg *aggRenderer = (RendererAgg *)aggo;
     int srcheight = (int)aggRenderer->get_height();
 
@@ -85,7 +90,11 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     }
 
     /* check for bbox/blitting */
-    bboxo = (PyObject*)atol(argv[4]);
+    if (sscanf(argv[4], "%lu", &bboxl) != 1) {
+      Tcl_AppendResult(interp, "error casting pointer", (char *) NULL);
+      return TCL_ERROR;
+    }
+    bboxo = (PyObject*)bboxl;
     if (bboxo != Py_None) {
       bbox = (Bbox*)bboxo;
       l = bbox->ll_api()->x_api()->val();
