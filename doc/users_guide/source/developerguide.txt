@@ -8,4 +8,5 @@ Matplotlib Developers Guide
    :maxdepth: 3
 
    coding_guide
+   documenting_mpl
    add_new_projection
