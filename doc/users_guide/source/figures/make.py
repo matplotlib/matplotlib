@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys, os, glob
 import matplotlib
+matplotlib.rcdefaults()
 matplotlib.use('Agg')
 
 def figs():
