@@ -1,3 +1,10 @@
+2008-05-22 Added support for ReST-based doumentation using Sphinx.
+           Documents are located in doc/, and are broken up into
+           a users guide and an API reference. To build, run the
+           make.py files. Sphinx-0.4 is needed to build generate xml,
+           which will be useful for rendering equations with mathml,
+           use sphinx from svn until 0.4 is released - DSD
+
 2008-05-21 Fix segfault in TkAgg backend - MGD
 
 2008-05-21 Fix a "local variable unreferenced" bug in plotfile - MM
