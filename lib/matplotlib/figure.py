@@ -414,6 +414,7 @@ class Figure(Artist):
         from the shell
 
         WARNING: forward=True is broken on all backends except GTK*
+        and WX*
 
         ACCEPTS: a w,h tuple with w,h in inches
         """
