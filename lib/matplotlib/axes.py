@@ -2722,9 +2722,7 @@ class Axes(martist.Artist):
     #### Basic plotting
     def plot(self, *args, **kwargs):
         """
-        PLOT(*args, **kwargs)
-
-        Plot lines and/or markers to the Axes.  *args is a variable length
+        Plot lines and/or markers to the Axes.  ``*args`` is a variable length
         argument, allowing for multiple x,y pairs with an optional format
         string.  For example, each of the following is legal
 
@@ -2744,32 +2742,32 @@ class Axes(martist.Artist):
 
         The following line styles are supported:
 
-            -     : solid line
-            --    : dashed line
-            -.    : dash-dot line
-            :     : dotted line
-            .     : points
-            ,     : pixels
-            o     : circle symbols
-            ^     : triangle up symbols
-            v     : triangle down symbols
-            <     : triangle left symbols
-            >     : triangle right symbols
-            s     : square symbols
-            +     : plus symbols
-            x     : cross symbols
-            D     : diamond symbols
-            d     : thin diamond symbols
-            1     : tripod down symbols
-            2     : tripod up symbols
-            3     : tripod left symbols
-            4     : tripod right symbols
-            h     : hexagon symbols
-            H     : rotated hexagon symbols
-            p     : pentagon symbols
-            |     : vertical line symbols
-            _     : horizontal line symbols
-            steps : use gnuplot style 'steps' # kwarg only
+        * -     : solid line
+        * --    : dashed line
+        * -.    : dash-dot line
+        * :     : dotted line
+        * .     : points
+        * ,     : pixels
+        * o     : circle symbols
+        * ^     : triangle up symbols
+        * v     : triangle down symbols
+        * <     : triangle left symbols
+        * >     : triangle right symbols
+        * s     : square symbols
+        * +     : plus symbols
+        * x     : cross symbols
+        * D     : diamond symbols
+        * d     : thin diamond symbols
+        * 1     : tripod down symbols
+        * 2     : tripod up symbols
+        * 3     : tripod left symbols
+        * 4     : tripod right symbols
+        * h     : hexagon symbols
+        * H     : rotated hexagon symbols
+        * p     : pentagon symbols
+        * |     : vertical line symbols
+        * _     : horizontal line symbols
+        * steps : use gnuplot style 'steps' # kwarg only
 
         The following color abbreviations are supported
 
@@ -2792,8 +2790,8 @@ class Axes(martist.Artist):
         Line styles and colors are combined in a single format string, as in
         'bo' for blue circles.
 
-        The **kwargs can be used to set line properties (any property that has
-        a set_* method).  You can use this to set a line label (for auto
+        The ``**kwargs`` can be used to set line properties (any property that has
+        a ``set_*`` method).  You can use this to set a line label (for auto
         legends), linewidth, anitialising, marker face color, etc.  Here is an
         example:
 
