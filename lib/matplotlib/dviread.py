@@ -3,17 +3,18 @@ An experimental module for reading dvi files output by TeX. Several
 limitations make this not (currently) useful as a general-purpose dvi
 preprocessor.
 
-Interface:
+Interface::
 
-    dvi = Dvi(filename, 72)
-    for page in dvi:          # iterate over pages
-        w, h, d = page.width, page.height, page.descent
-        for x,y,font,glyph,width in page.text:
-            fontname = font.texname
-            pointsize = font.size
-            ...
-        for x,y,height,width in page.boxes:
-            ...
+  dvi = Dvi(filename, 72)
+  for page in dvi:          # iterate over pages
+      w, h, d = page.width, page.height, page.descent
+      for x,y,font,glyph,width in page.text:
+          fontname = font.texname
+          pointsize = font.size
+          ...
+      for x,y,height,width in page.boxes:
+          ...
+
 """
 
 import matplotlib
@@ -419,12 +420,13 @@ class DviFont(object):
 
 class Vf(Dvi):
     """
-    A virtual font (*.vf file) containing subroutines for dvi files.
+    A virtual font (\*.vf file) containing subroutines for dvi files.
 
-    Usage:
-    vf = Vf(filename)
-    glyph = vf[code]
-    glyph.text, glyph.boxes, glyph.width
+    Usage::
+
+      vf = Vf(filename)
+      glyph = vf[code]
+      glyph.text, glyph.boxes, glyph.width
     """
 
     def __init__(self, filename):
@@ -526,12 +528,16 @@ class Tfm(object):
     minimum needed by the Dvi class.
 
     Attributes:
+
       checksum: for verifying against dvi file
+
       design_size: design size of the font (in what units?)
-      width[i]: width of character #i, needs to be scaled
+
+      width[i]: width of character \#i, needs to be scaled
         by the factor specified in the dvi file
         (this is a dict because indexing may not start from 0)
-      height[i], depth[i]: height and depth of character #i
+
+      height[i], depth[i]: height and depth of character \#i
     """
     __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
 
@@ -665,13 +671,14 @@ class PsfontsMap(object):
 
 class Encoding(object):
     """
-    Parses a *.enc file referenced from a psfonts.map style file.
+    Parses a \*.enc file referenced from a psfonts.map style file.
     The format this class understands is a very limited subset of
     PostScript.
 
-    Usage (subject to change):
-    for name in Encoding(filename):
-        whatever(name)
+    Usage (subject to change)::
+
+      for name in Encoding(filename):
+          whatever(name)
     """
     __slots__ = ('encoding',)
 
