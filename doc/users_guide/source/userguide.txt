@@ -1,0 +1,12 @@
+############
+User's Guide
+############
+
+.. _contents:
+
+.. toctree::
+   :maxdepth: 3
+
+   introduction
+   artist_api_tut
+   event_handling_tut

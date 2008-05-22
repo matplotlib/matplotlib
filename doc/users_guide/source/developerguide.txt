@@ -1,0 +1,11 @@
+############################
+Matplotlib Developers Guide
+############################
+
+.. _contents:
+
+.. toctree::
+   :maxdepth: 3
+
+   coding_guide
+   add_new_projection
