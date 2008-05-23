@@ -10,5 +10,5 @@ Matplotlib
 .. toctree::
    :maxdepth: 4
 
-   userguide
-   developerguide
+   users_guide
+   developers_guide
