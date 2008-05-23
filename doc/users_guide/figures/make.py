@@ -20,7 +20,7 @@ def figs():
             continue
         else:
             print '    building %s'%fname
-        plt.gcf().clf() # we need to clear between runs
+        plt.close('all')    # we need to clear between runs
         mplshell.magic_run(basename)
         plt.savefig('%s.png'%basename)
     print 'all figures made'
