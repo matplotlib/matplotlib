@@ -61,7 +61,9 @@ fig.add_subplot call above (remember Subplot is just a subclass of
 Axes) and when you call ax.plot, it creates a Line2D instance and adds
 it the the Axes.lines list.  In the interactive ipython session below,
 you can see that Axes.lines list is length one and contains the same
-line that was returned by the "line, ax.plot(x, y, 'o')" call::
+line that was returned by the "line, ax.plot(x, y, 'o')" call:
+
+.. sourcecode:: ipython
 
     In [101]: ax.lines[0]
     Out[101]: <matplotlib.lines.Line2D instance at 0x19a95710>
@@ -159,8 +161,9 @@ If you are working interactively at the python shell, a handy way to
 inspect the artist properties is to use the matplotlib.artist.getp
 method, which lists the properties and their values (simply "getp") in
 pylab.  This works for classes derived from Artist as well, eg Figure
-and Rectangle.  Here are the Figure rectangle properties mentioned above::
+and Rectangle.  Here are the Figure rectangle properties mentioned above:
 
+.. sourcecode:: ipython
 
     In [149]: matplotlib.artist.getp(fig.figurePatch)
 	alpha = 1.0
@@ -218,7 +221,9 @@ contains everything in the figure.  The background of the figure is a
 Rectangle which is stored in fig.figurePatch (where fig is your Figure
 instance).  As you add subplots (fig.add_subplot) and axes
 (ax.add_axes)to the figure these will be appended to the fig.axes
-list.  These are also returned by the methods that create them::
+list.  These are also returned by the methods that create them:
+
+.. sourcecode:: ipython
 
     In [156]: fig = plt.figure()
 
@@ -231,7 +236,6 @@ list.  These are also returned by the methods that create them::
 
     In [160]: print fig.axes
     [<matplotlib.axes.Subplot instance at 0xd54b26c>, <matplotlib.axes.Axes instance at 0xd3f0b2c>]
-
 
 Because the figure maintains the concept of the "current axes" (see
 Figure.gca and Figure.sca) to support the pylab/pyplot state machine,
@@ -253,7 +257,9 @@ want) but you can control this by setting the transform property of
 the Artist you are adding to the figure.  More useful is "figure
 coordinates" where 0,0 is the bottom, left of the figure and 1,1 is
 the top, right of the figure which you can obtain by setting the
-Artist transform to fig.transFigure::
+Artist transform to fig.transFigure:
+
+.. sourcecode:: ipython
 
     In [191]: fig = plt.figure()
 
@@ -303,7 +309,9 @@ When you call a plotting method, eg the canonical "ax.plot" and pass
 in arrays or list of values, the method will a matplotlib.lines.Line2D
 instance, update the line with all the Line2D properties passed as
 keyword arguments, add the line to the Axes.lines container, and
-returns it to you::
+returns it to you:
+
+.. sourcecode:: ipython
 
     In [213]: x, y = np.random.rand(2, 100)
 
@@ -312,14 +320,17 @@ returns it to you::
 ax.plot returns a list of lines because you can pass in multiple x, y
 pairs to plot, and we are unpacking the first element of the length
 one list into the line variable.  The line has been added to the
-ax.lines list::
+ax.lines list:
 
+.. sourcecode:: ipython
 
     In [229]: print ax.lines
     [<matplotlib.lines.Line2D instance at 0xd378b0c>]
 
 Similarly, methods that create patches, like ax.bar creates a list of
-rectangles, will add the patches to the ax.patches list::
+rectangles, will add the patches to the ax.patches list:
+
+.. sourcecode:: ipython
 
     In [233]: n, bins, rectangles = ax.hist(np.random.randn(1000), 50, facecolor='yellow')
 
@@ -338,7 +349,9 @@ auto-scaling, so that the view limits can be adjusted to contain the
 plotted data.  You can, nonetheless, create objects yourself and add
 them directly to the Axes using helper methods like ax.add_line and
 ax.add_patch.  Here is an annotated interactive session illustrating
-what is going on::
+what is going on:
+
+.. sourcecode:: ipython
 
     In [261]: fig = plt.figure()
 
@@ -460,7 +473,9 @@ and zooming), you should access the lists of major and minor ticks
 through their accessor methods axis.get_major_ticks() and
 axis.get_minor_ticks().  Although the ticks contain all the primitives
 and will be covered below, the Axis methods contain accessor methods
-to return the tick lines, tick labels, tick locations etc....::
+to return the tick lines, tick labels, tick locations etc....:
+
+.. sourcecode:: ipython
 
     In [285]: axis = ax.xaxis
 
