@@ -14,7 +14,7 @@ matplotlib artists
 
 .. automodule:: matplotlib.lines
    :members:
-
+   :undoc-members:
 
 :mod:`matplotlib.patches`
 =============================
