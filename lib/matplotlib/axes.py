@@ -2723,85 +2723,85 @@ class Axes(martist.Artist):
     def plot(self, *args, **kwargs):
         """
         Plot lines and/or markers to the Axes.  ``*args`` is a variable length
-        argument, allowing for multiple x,y pairs with an optional format
-        string.  For example, each of the following is legal
+        argument, allowing for multiple *x*, *y* pairs with an optional format
+        string.  For example, each of the following is legal::
 
-            plot(x,y)            # plot x and y using the default line style and color
-            plot(x,y, 'bo')      # plot x and y using blue circle markers
+            plot(x, y)           # plot x and y using the default line style and color
+            plot(x, y, 'bo')     # plot x and y using blue circle markers
             plot(y)              # plot y using x as index array 0..N-1
             plot(y, 'r+')        # ditto, but with red plusses
 
-        If x and/or y is 2-Dimensional, then the corresponding columns
+        If ``x`` and/or ``y`` is 2-dimensional, then the corresponding columns
         will be plotted.
 
-        An arbitrary number of x, y, fmt groups can be specified, as in
+        An arbitrary number of ``x``, ``y``, ``fmt`` groups can be specified, as in::
 
-        a.plot(x1, y1, 'g^', x2, y2, 'g-')
+            a.plot(x1, y1, 'g^', x2, y2, 'g-')
 
         Return value is a list of lines that were added.
 
-        The following line styles are supported:
+        The following line styles are supported::
 
-        * -     : solid line
-        * --    : dashed line
-        * -.    : dash-dot line
-        * :     : dotted line
-        * .     : points
-        * ,     : pixels
-        * o     : circle symbols
-        * ^     : triangle up symbols
-        * v     : triangle down symbols
-        * <     : triangle left symbols
-        * >     : triangle right symbols
-        * s     : square symbols
-        * +     : plus symbols
-        * x     : cross symbols
-        * D     : diamond symbols
-        * d     : thin diamond symbols
-        * 1     : tripod down symbols
-        * 2     : tripod up symbols
-        * 3     : tripod left symbols
-        * 4     : tripod right symbols
-        * h     : hexagon symbols
-        * H     : rotated hexagon symbols
-        * p     : pentagon symbols
-        * |     : vertical line symbols
-        * _     : horizontal line symbols
-        * steps : use gnuplot style 'steps' # kwarg only
+            -     # solid line
+            --    # dashed line
+            -.    # dash-dot line
+            :     # dotted line
+            .     # points
+            ,     # pixels
+            o     # circle symbols
+            ^     # triangle up symbols
+            v     # triangle down symbols
+            <     # triangle left symbols
+            >     # triangle right symbols
+            s     # square symbols
+            +     # plus symbols
+            x     # cross symbols
+            D     # diamond symbols
+            d     # thin diamond symbols
+            1     # tripod down symbols
+            2     # tripod up symbols
+            3     # tripod left symbols
+            4     # tripod right symbols
+            h     # hexagon symbols
+            H     # rotated hexagon symbols
+            p     # pentagon symbols
+            |     # vertical line symbols
+            _     # horizontal line symbols
+            steps # use gnuplot style 'steps' # kwarg only
 
-        The following color abbreviations are supported
+        The following color abbreviations are supported::
 
-            b  : blue
-            g  : green
-            r  : red
-            c  : cyan
-            m  : magenta
-            y  : yellow
-            k  : black
-            w  : white
+            b  # blue
+            g  # green
+            r  # red
+            c  # cyan
+            m  # magenta
+            y  # yellow
+            k  # black
+            w  # white
 
         In addition, you can specify colors in many weird and
-        wonderful ways, including full names 'green', hex strings
-        '#008000', RGB or RGBA tuples (0,1,0,1) or grayscale
-        intensities as a string '0.8'.  Of these, the string
-        specifications can be used in place of a fmt group, but the
-        tuple forms can be used only as kwargs.
+        wonderful ways, including full names (``'green'``), hex strings
+        (``'#008000'``), RGB or RGBA tuples (``(0,1,0,1)``) or grayscale
+        intensities as a string (``'0.8'``).  Of these, the string
+        specifications can be used in place of a ``fmt`` group, but the
+        tuple forms can be used only as ``kwargs``.
 
         Line styles and colors are combined in a single format string, as in
-        'bo' for blue circles.
+        ``'bo'`` for blue circles.
 
         The ``**kwargs`` can be used to set line properties (any property that has
         a ``set_*`` method).  You can use this to set a line label (for auto
         legends), linewidth, anitialising, marker face color, etc.  Here is an
-        example:
+        example::
 
             plot([1,2,3], [1,2,3], 'go-', label='line 1', linewidth=2)
             plot([1,2,3], [1,4,9], 'rs',  label='line 2')
             axis([0, 4, 0, 10])
             legend()
 
-        If you make multiple lines with one plot command, the kwargs apply
-        to all those lines, eg
+        If you make multiple lines with one plot command, the ``kwargs`` apply
+        to all those lines, e.g.::
 
             plot(x1, y1, x2, y2, antialised=False)
 
@@ -2810,10 +2810,9 @@ class Axes(martist.Artist):
         The kwargs are Line2D properties:
         %(Line2D)s
 
-        kwargs scalex and scaley, if defined, are passed on
-        to autoscale_view to determine whether the x and y axes are
-        autoscaled; default True.  See Axes.autoscale_view for more
-        information
+        kwargs ``scalex`` and ``scaley``, if defined, are passed on to
+        :meth:`autoscale_view` to determine whether the *x* and *y* axes
+        are autoscaled; the default is ``True``.
         """
         scalex = kwargs.pop( 'scalex', True)
         scaley = kwargs.pop( 'scaley', True)
@@ -5493,7 +5492,7 @@ class Axes(martist.Artist):
             n, bins = np.histogram(x, bins, range=None,
                 normed=bool(normed), new=True)
             n = [n,]
-        
+
         if cumulative:
             if normed:
                 n = [(m * np.diff(bins)).cumsum() for m in n]
@@ -5577,7 +5576,7 @@ class Axes(martist.Artist):
                 patches.append( self.fill(x,y) )
         else:
             raise ValueError, 'invalid histtype: %s' % histtype
-        
+
         for patch in patches:
             for p in patch:
                 p.update(kwargs)
