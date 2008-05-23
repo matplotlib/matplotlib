@@ -7,7 +7,7 @@ matplotlib artists
 
 .. automodule:: matplotlib.artist
    :members:
-
+   :undoc-members:
 
 :mod:`matplotlib.lines`
 =============================
@@ -21,10 +21,11 @@ matplotlib artists
 
 .. automodule:: matplotlib.patches
    :members:
+   :undoc-members:
 
 :mod:`matplotlib.text`
 =============================
 
 .. automodule:: matplotlib.text
    :members:
-
+   :undoc-members:
