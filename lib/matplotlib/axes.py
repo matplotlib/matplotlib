@@ -5484,8 +5484,15 @@ class Axes(martist.Artist):
                 'hist now uses the rwidth to give relative width and not absolute width')
 
         # todo: make hist() work with list of arrays with different lengths
-        x = np.asarray(x)
+        x = np.asarray(x).copy()
+        if len(x.shape)==2 and min(x.shape)==1:
+            x.shape = max(x.shape),
+
+        if len(x.shape)==2 and x.shape[0]<x.shape[1]:
+            warnings.warn('2D hist should be nsamples x nvariables; this looks transposed')
+
         if len(x.shape)==2:
+
             n = []
             for i in xrange(x.shape[1]):
                 # this will automatically overwrite bins,
