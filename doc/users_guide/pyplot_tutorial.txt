@@ -95,7 +95,7 @@ several ways to set line properties
       plt.setp(lines, 'color', 'r', 'linewidth', 2.0)
 
 
-Here are the available :class:`matplotlib.lines.Line2D` properties.
+Here are the available :class:`~matplotlib.lines.Line2D` properties.
 
 ======================  ==================================================
 Property                Value Type
