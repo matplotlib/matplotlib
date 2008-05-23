@@ -8,6 +8,5 @@ Matplotlib API
    :maxdepth: 3
 
    api_introduction
-   api_pyplot
    api_artists
 
