@@ -5392,7 +5392,8 @@ class Axes(martist.Artist):
         right
         """
 
-        ax2 = self.figure.add_axes(self.get_position(True), sharex=self, frameon=False)
+        ax2 = self.figure.add_axes(self.get_position(True), sharex=self,
+            frameon=False)
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
         self.yaxis.tick_left()
@@ -5408,7 +5409,8 @@ class Axes(martist.Artist):
         top
         """
 
-        ax2 = self.figure.add_axes(self.get_position(True), sharey=self, frameon=False)
+        ax2 = self.figure.add_axes(self.get_position(True), sharey=self,
+            frameon=False)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
         self.xaxis.tick_bottom()
@@ -5420,16 +5422,19 @@ class Axes(martist.Artist):
 
     def hist(self, x, bins=10, normed=False, cumulative=False,
              bottom=None, histtype='bar', align='edge',
-             orientation='vertical', width=None, log=False, **kwargs):
+             orientation='vertical', rwidth=None, log=False, **kwargs):
         """
         HIST(x, bins=10, normed=False, cumulative=False,
              bottom=None, histtype='bar', align='edge',
-             orientation='vertical', width=None, log=False, **kwargs)
+             orientation='vertical', rwidth=None, log=False, **kwargs)
 
         Compute the histogram of x.  bins is either an integer number of
         bins or a sequence giving the bins.  x are the data to be binned.
+        x can be an array or a 2D array with multiple data in its columns.
 
-        The return values is (n, bins, patches)
+        The return values is (n, bins, patches) or
+        ([n0,n1,...], bins, [patches0,patches1,...]) if the input
+        contains multiple data.
 
         If normed is true, the first element of the return tuple will
         be the counts normalized to form a probability density, ie,
@@ -5442,22 +5447,25 @@ class Axes(martist.Artist):
 
         If cumulative is True then a histogram is computed where each bin
         gives the counts in that bin plus all bins for smaller values.
-        The last bins gives the total number of datapoints.  If normed is
+        The last bin gives the total number of datapoints.  If normed is
         also True then the histogram is normalized such that the last bin
         equals one.
 
-        histtype = 'bar' | 'step'. The type of histogram to draw.
-        'bar' is a traditional bar-type histogram, 'step' generates
-        a lineplot.
+        histtype = 'bar' | 'barstacked' | 'step'. The type of histogram
+        to draw.  'bar' is a traditional bar-type histogram, 'barstacked'
+        is a bar-type histogram where multiple data are stacked on top
+        of each other, and 'step' generates a lineplot.
 
-        align = 'edge' | 'center'.  Interprets bins either as edge
-        or center values
+        align controles how the histogram is plotted
+         - 'edge'  : bars are centered between the bin edges
+         - 'center': bars are centered on the left bin edges
 
         orientation = 'horizontal' | 'vertical'.  If horizontal, barh
         will be used and the "bottom" kwarg will be the left edges.
 
-        width: the width of the bars.  If None, automatically compute
-        the width. Ignored for 'step' histtype.
+        rwidth: the relative width of the bars as fraction of the bin
+        width.  If None, automatically compute the width. Ignored
+        for 'step' histtype.
 
         log: if True, the histogram axis will be set to a log scale
 
@@ -5466,25 +5474,86 @@ class Axes(martist.Artist):
         %(Rectangle)s
         """
         if not self._hold: self.cla()
-        n, bins = np.histogram(x, bins, range=None,
-            normed=bool(normed), new=True)
 
+        if kwargs.get('width') is not None:
+            raise DeprecationWarning(
+                'hist now uses the rwidth to give relative width and not absolute width')
+
+        # todo: make hist() work with list of arrays with different lengths
+        x = np.asarray(x)
+        if len(x.shape)==2:
+            n = []
+            for i in xrange(x.shape[1]):
+                # this will automatically overwrite bins,
+                # so that each histogram uses the same bins
+                m, bins = np.histogram(x[:,i], bins, range=None,
+                    normed=bool(normed), new=True)
+                n.append(m)
+        else:
+            n, bins = np.histogram(x, bins, range=None,
+                normed=bool(normed), new=True)
+            n = [n,]
+        
         if cumulative:
             if normed:
-                n = (n * np.diff(bins)).cumsum()
+                n = [(m * np.diff(bins)).cumsum() for m in n]
             else:
-                n = n.cumsum()
+                n = [m.cumsum() for m in n]
 
-        if histtype == 'bar':
-            if width is None:
-                width = 0.9*(bins[1]-bins[0])
+        ccount = 0
+        colors = _process_plot_var_args.defaultColors[:]
+        patches = []
+
+        if histtype.startswith('bar'):
+            totwidth = np.diff(bins)
+            stacked = False
+
+            if rwidth is not None: dr = min(1., max(0., rwidth))
+            elif len(n)>1: dr = 0.8
+            else: dr = 1.0
+
+            if histtype=='bar':
+                width = dr*totwidth/len(n)
+                dw = width
+
+                if len(n)>1:
+                    boffset = -0.5*dr*totwidth*(1.-1./len(n))
+                else:
+                    boffset = 0.0
+            elif histtype=='barstacked':
+                width = dr*totwidth
+                boffset, dw = 0.0, 0.0
+
+                stacked = True
+                if bottom is None: bottom = 0.0
+            else:
+                raise ValueError, 'invalid histtype: %s' % histtype
+
+            if align=='edge':
+                boffset += 0.5*totwidth
+            elif align != 'center':
+                raise ValueError, 'invalid align: %s' % align
 
             if orientation == 'horizontal':
-                patches = self.barh(bins[:-1], n, height=width, left=bottom,
-                                    align=align, log=log)
+                for m in n:
+                    color = colors[ccount % len(colors)]
+                    patch = self.barh(bins[:-1]+boffset, m, height=width,
+                                      left=bottom, align='center', log=log,
+                                      color=color)
+                    patches.append(patch)
+                    if stacked: bottom += m
+                    boffset += dw
+                    ccount += 1
             elif orientation == 'vertical':
-                patches = self.bar(bins[:-1], n, width=width, bottom=bottom,
-                                    align=align, log=log)
+                for m in n:
+                    color = colors[ccount % len(colors)]
+                    patch = self.bar(bins[:-1]+boffset, m, width=width,
+                                     bottom=bottom, align='center', log=log,
+                                     color=color)
+                    patches.append(patch)
+                    if stacked: bottom += m
+                    boffset += dw
+                    ccount += 1
             else:
                 raise ValueError, 'invalid orientation: %s' % orientation
 
@@ -5493,22 +5562,29 @@ class Axes(martist.Artist):
             y = np.zeros( 2*len(bins), np.float_ )
 
             x[0::2], x[1::2] = bins, bins
-            y[1:-1:2], y[2::2] = n, n
 
             if align == 'center':
                 x -= 0.5*(bins[1]-bins[0])
+            elif align != 'edge':
+                raise ValueError, 'invalid align: %s' % align
 
-            if orientation == 'horizontal':
-                x,y = y,x
-            elif orientation != 'vertical':
-                raise ValueError, 'invalid orientation: %s' % orientation
-            patches = self.fill(x,y)
+            for m in n:
+                y[1:-1:2], y[2::2] = m, m
+                if orientation == 'horizontal':
+                    x,y = y,x
+                elif orientation != 'vertical':
+                    raise ValueError, 'invalid orientation: %s' % orientation
+                patches.append( self.fill(x,y) )
         else:
             raise ValueError, 'invalid histtype: %s' % histtype
-
-        for p in patches:
-            p.update(kwargs)
-        return n, bins, cbook.silent_list('Patch', patches)
+        
+        for patch in patches:
+            for p in patch:
+                p.update(kwargs)
+        if len(n)==1:
+            return n[0], bins, cbook.silent_list('Patch', patches[0])
+        else:
+            return n, bins, cbook.silent_list('Lists of Patches', patches)
     hist.__doc__ = cbook.dedent(hist.__doc__) % martist.kwdocd
 
     def psd(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
