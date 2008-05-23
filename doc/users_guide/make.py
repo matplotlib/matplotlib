@@ -7,7 +7,7 @@ import sys
 
 def check_build():
     build_dirs = ['build', 'build/doctrees', 'build/html', 'build/latex', 
-                  'source/_static', 'source/_templates']
+                  '_static', '_templates']
     for d in build_dirs:
         try:
             os.mkdir(d)
@@ -15,16 +15,16 @@ def check_build():
             pass
 
 def figs():
-    os.system('cd source/figures/ && python make.py')
+    os.system('cd figures/ && python make.py')
 
 def html():
     check_build()
-    os.system('sphinx-build -b html -d build/doctrees source build/html')
+    os.system('sphinx-build -b html -d build/doctrees . build/html')
 
 def latex():
     if sys.platform != 'win32':
         # LaTeX format.
-        os.system('sphinx-build -b latex -d build/doctrees source build/latex')
+        os.system('sphinx-build -b latex -d build/doctrees . build/latex')
     
         # Produce pdf.
         os.chdir('build/latex')
