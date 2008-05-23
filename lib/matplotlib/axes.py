@@ -2399,12 +2399,14 @@ class Axes(martist.Artist):
 
     def annotate(self, *args, **kwargs):
         """
-        annotate(s, xy,
-                 xytext=None,
-                 xycoords='data',
-                 textcoords='data',
-                 arrowprops=None,
-                 **props)
+        call signature::
+
+          annotate(s, xy,
+                   xytext=None,
+                   xycoords='data',
+                   textcoords='data',
+                   arrowprops=None,
+                   **props)
 
         %(Annotation)s
         """
@@ -2996,13 +2998,16 @@ class Axes(martist.Artist):
 
     def acorr(self, x, **kwargs):
         """
-        ACORR(x, normed=False, detrend=mlab.detrend_none, usevlines=False,
-              maxlags=None, **kwargs)
+        call signature::
+
+          acorr(x, normed=False, detrend=mlab.detrend_none, usevlines=False,
+                maxlags=None, **kwargs)
+
         Plot the autocorrelation of x.  If normed=True, normalize the
         data but the autocorrelation at 0-th lag.  x is detrended by
         the detrend callable (default no normalization.
 
-        data are plotted as plot(lags, c, **kwargs)
+        data are plotted as ``plot(lags, c, **kwargs)``
 
         return value is lags, c, line where lags are a length
         2*maxlags+1 lag vector, c is the 2*maxlags+1 auto correlation
@@ -3032,17 +3037,17 @@ class Axes(martist.Artist):
     def xcorr(self, x, y, normed=False, detrend=mlab.detrend_none, usevlines=False,
               maxlags=None, **kwargs):
         """
-        XCORR(x, y, normed=False, detrend=mlab.detrend_none, usevlines=False, **kwargs):
+        XCORR(x, y, normed=False, detrend=mlab.detrend_none, usevlines=False, \*\*kwargs):
 
         Plot the cross correlation between x and y.  If normed=True,
         normalize the data but the cross correlation at 0-th lag.  x
         and y are detrended by the detrend callable (default no
         normalization.  x and y must be equal length
 
-        data are plotted as plot(lags, c, **kwargs)
+        data are plotted as ``plot(lags, c, **kwargs)``
 
         return value is lags, c, line where lags are a length
-        2*maxlags+1 lag vector, c is the 2*maxlags+1 auto correlation
+        ``2*maxlags+1`` lag vector, c is the ``2*maxlags+1`` auto correlation
         vector, and line is a Line2D instance returned by plot.  The
         default linestyle is None and the default marker is 'o',
         though these can be overridden with keyword args.  The cross
@@ -3059,7 +3064,7 @@ class Axes(martist.Artist):
         if usevlines=False, kwargs are passed onto Axes.plot
 
         maxlags is a positive integer detailing the number of lags to show.
-        The default value of None will return all (2*len(x)-1) lags.
+        The default value of None will return all ``(2*len(x)-1)`` lags.
 
         See the respective function for documentation on valid kwargs
         """
