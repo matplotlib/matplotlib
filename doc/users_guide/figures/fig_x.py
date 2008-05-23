@@ -9,5 +9,4 @@ l2 = lines.Line2D([0, 1], [1, 0], transform=fig.transFigure, figure=fig)
 
 fig.lines.extend([l1, l2])
 
-fig.savefig('fig_x')
-plt.show()
+

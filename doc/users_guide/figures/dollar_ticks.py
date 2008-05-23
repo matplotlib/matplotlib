@@ -14,7 +14,4 @@ for tick in ax.yaxis.get_major_ticks():
     tick.label2On = True
     tick.label2.set_color('green')
 
-fig.savefig('dollar_ticks')
-plt.show()
-
 

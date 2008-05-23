@@ -16,6 +16,4 @@ n, bins, patches = ax2.hist(np.random.randn(1000), 50,
     facecolor='yellow', edgecolor='yellow')
 ax2.set_xlabel('time (s)')
 
-fig.savefig('fig_axes_labels_simple')
 
-plt.show()
