@@ -1,6 +1,6 @@
-**********************************
-The matplotlib Artist API tutorial
-**********************************
+***************
+Artist tutorial
+***************
 
 There are three layers to the matplotlib API.  The FigureCanvas is the
 area onto which the figure is drawn, the Renderer is the object which
@@ -198,8 +198,8 @@ docs at http://matplotlib.sourceforge.net/classdocs.html or PDF documentation
 at http://matplotlib.sourceforge.net/api.pdf for a listing of
 properties for a give object.
 
-Getting at the objects to customize them
-========================================
+Object containers
+=================
 
 Now that we know how to inspect set the properties of a given
 object we want to configure, we need to now how to get at that
@@ -213,8 +213,8 @@ xscale to control whether the xaxis is 'linear' or 'log'.  In this
 section we'll review where the various container objects store the
 Artists that you want to get at.
 
-The Figure container
---------------------
+Figure container
+----------------
 
 The top level container Artist is the matplotlib.figure.Figure, and it
 contains everything in the figure.  The background of the figure is a
@@ -263,9 +263,11 @@ Artist transform to fig.transFigure:
 
     In [191]: fig = plt.figure()
 
-    In [192]: l1 = matplotlib.lines.Line2D([0, 1], [0, 1], transform=fig.transFigure, figure=fig)
+    In [192]: l1 = matplotlib.lines.Line2D([0, 1], [0, 1], 
+               transform=fig.transFigure, figure=fig)
 
-    In [193]: l2 = matplotlib.lines.Line2D([0, 1], [1, 0], transform=fig.transFigure, figure=fig)
+    In [193]: l2 = matplotlib.lines.Line2D([0, 1], [1, 0], 
+               transform=fig.transFigure, figure=fig)
 
     In [194]: fig.lines.extend([l1, l2])
 
@@ -290,8 +292,8 @@ texts                 A list Figure Text instances
 ================      ===============================================================
 
 
-The Axes container
-------------------
+Axes container
+--------------
 
 The matplotlib.axes.Axes is the center of the matplotlib universe --
 it contains the vast majority of all the Artists used in a figure with
@@ -523,46 +525,18 @@ get_minor_ticks         A list of Tick instances for minor ticks
 grid                    Turn the grid on or off for the major or minor ticks
 ======================  =========================================================
 
-Try creating the figure below
+Here is an example, not recommended for its beauty, which customizes
+the axes and tick properties
+
+.. literalinclude:: figures/fig_axes_customize_simple.py
 
 .. image:: figures/fig_axes_customize_simple.png
    :scale: 75
 
-Exercise solution::
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-
-    # plt.figure creates a matplotlib.figure.Figure instance
-    fig = plt.figure()
-    rect = fig.figurePatch # a rectangle instance
-    rect.set_facecolor('lightgoldenrodyellow')
-
-    ax1 = fig.add_axes([0.1, 0.3, 0.4, 0.4])
-    rect = ax1.axesPatch
-    rect.set_facecolor('lightslategray')
 
 
-    for label in ax1.xaxis.get_ticklabels():
-        # label is a Text instance
-        label.set_color('red')
-        label.set_rotation(45)
-        label.set_fontsize(16)
-
-    for line in ax1.yaxis.get_ticklines():
-        # line is a Line2D instance
-        line.set_color('green')
-        line.set_markersize(25)
-        line.set_markeredgewidth(3)
-
-    fig.savefig('figures/fig_axes_customize_simple.png', dpi=150)
-    fig.savefig('figures/fig_axes_customize_simple.eps')
-    plt.show()
-
-
-
-The Tick containers
--------------------
+Tick containers
+---------------
 
 The matplotlib.axis.Tick is the final container object in our descent
 from the Figure to the Axes to the Axis to the Tick.  The Tick
@@ -588,26 +562,9 @@ label2On         boolean which determines whether to draw tick label
 ==============   ==========================================================
 
 Here is an example which sets the formatter for the upper ticks with
-dollar signs and colors them green on the right side of the yaxis::
+dollar signs and colors them green on the right side of the yaxis
 
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import matplotlib.ticker as ticker
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(100*np.random.rand(20))
-
-    formatter = ticker.FormatStrFormatter('$%1.2f')
-    ax.yaxis.set_major_formatter(formatter)
-
-    for tick in ax.yaxis.get_major_ticks():
-    tick.label1On = False
-    tick.label2On = True
-    tick.label2.set_color('green')
-
-    plt.show()
-
+.. literalinclude:: figures/dollar_ticks.py
 
 .. image:: figures/dollar_ticks.png
    :scale: 75
