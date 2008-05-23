@@ -514,9 +514,12 @@ class ArtistInspector:
     def get_aliases(self):
         """
         get a dict mapping fullname -> alias for each alias in o.
-        Eg for lines: {'markerfacecolor': 'mfc',
-                       'linewidth'      : 'lw',
-                       }
+        Eg for lines::
+
+          {'markerfacecolor': 'mfc',
+           'linewidth'      : 'lw',
+          }
+
         """
         names = [name for name in dir(self.o) if
                  (name.startswith('set_') or name.startswith('get_'))
