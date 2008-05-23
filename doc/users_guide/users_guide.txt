@@ -8,5 +8,8 @@ User's Guide
    :maxdepth: 3
 
    introduction
+   pyplot_tutorial
+   navigation_toolbar
+   customizing
    artist_api_tut
    event_handling_tut

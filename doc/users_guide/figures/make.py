@@ -1,22 +1,33 @@
 #!/usr/bin/env python
 import sys, os, glob
 import matplotlib
+import IPython.Shell
 matplotlib.rcdefaults()
 matplotlib.use('Agg')
 
-def figs():
-    # each one of these will make a figure when imported
-    import dollar_ticks
-    import fig_axes_customize_simple
-    import fig_axes_labels_simple
-    import fig_x
+mplshell = IPython.Shell.MatplotlibShell('mpl')
 
+def figs():
+    print 'making figs'
+    import matplotlib.pyplot as plt
+    for fname in glob.glob('*.py'):
+        if fname==__file__: continue
+        basename, ext = os.path.splitext(fname)
+        outfile = '%s.png'%basename
+
+        if os.path.exists(outfile):
+            print '    already have %s'%outfile
+            continue
+        else:
+            print '    building %s'%fname
+        plt.gcf().clf() # we need to clear between runs
+        mplshell.magic_run(basename)
+        plt.savefig('%s.png'%basename)
     print 'all figures made'
-    for fname in glob.glob('*.pyc'):
-        os.remove(fname)
+
 
 def clean():
-    patterns = ['#*', '*~', '*.png']
+    patterns = ['#*', '*~', '*.png', '*pyc']
     for pattern in patterns:
         for fname in glob.glob(pattern):
             os.remove(fname)

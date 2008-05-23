@@ -24,6 +24,4 @@ for line in ax1.yaxis.get_ticklines():
     line.set_markeredgewidth(3)
 
 
-fig.savefig('fig_axes_customize_simple')
 
-plt.show()
