@@ -12,3 +12,4 @@ Matplotlib
 
    users_guide
    developers_guide
+   api

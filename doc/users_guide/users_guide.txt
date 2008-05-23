@@ -13,3 +13,4 @@ User's Guide
    customizing
    artist_api_tut
    event_handling_tut
+   
