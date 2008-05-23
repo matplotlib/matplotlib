@@ -1,4 +1,4 @@
-***************
+**************
 Artist tutorial
 ***************
 
@@ -455,8 +455,8 @@ xaxis             matplotlib.axis.XAxis instance
 yaxis             matplotlib.axis.YAxis instance
 ==============    ======================================
 
-The Axis containers
--------------------
+Axis containers
+---------------
 
 The matplotlib.axis.Axis instances handle the drawing of the tick lines, the grid
 lines, the tick labels and the axis label.  You can configure the left
