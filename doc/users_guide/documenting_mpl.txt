@@ -4,8 +4,7 @@ Documenting Matplotlib
 
 The documentation for matplotlib is generated from ReStructured Text
 using the Sphinx_ documentation generation tool. Sphinx-0.4 or later 
-is required to generate xml files to render mathematical expressions 
-with mathml. Currently this means we need to install from the svn 
+is required. Currently this means we need to install from the svn 
 repository by doing::
 
   svn co http://svn.python.org/projects/doctools/trunk sphinx
@@ -33,6 +32,21 @@ coding_guide, which automatically inserts coding_guide.txt.
 coding_guide.txt is just a placeholder, it contains one line only to 
 gets its contents from the CODING_GUIDE file in the trunk: 
 ``.. include:: ../../CODING_GUIDE``.
+
+Mathematical expressions can be rendered as png images in html, and in 
+the usual way by latex. For example:
+
+``math:`sin(x_n^2)`` yields: :math:`sin(x_n^2)`, and::
+
+  .. math::
+
+     \int_{-\infty}^{\infty}\frac{e^{i\phi}}{1+x^2\frac{e^{i\phi}}{1+x^2}}``
+
+yields:
+
+.. math::
+
+   \int_{-\infty}^{\infty}\frac{e^{i\phi}}{1+x^2\frac{e^{i\phi}}{1+x^2}} 
 
 The output produced by Sphinx can be configured by editing the conf.py
 files located in the documentation source directories.
