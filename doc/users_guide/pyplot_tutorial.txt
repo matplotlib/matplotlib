@@ -1,6 +1,6 @@
-****************************
-A matplotlib.pyplot tutorial
-****************************
+***************
+pyplot tutorial
+***************
 
 :mod:`matplotlib.pyplot` is a collection of functions that make
 matplotlib work like matlab.  Each ``pyplot`` function makes some
