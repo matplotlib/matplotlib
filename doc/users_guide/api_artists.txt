@@ -1,0 +1,30 @@
+******************
+matplotlib artists
+******************
+
+:mod:`matplotlib.artist`
+=============================
+
+.. automodule:: matplotlib.artist
+   :members:
+
+
+:mod:`matplotlib.lines`
+=============================
+
+.. automodule:: matplotlib.lines
+   :members:
+
+
+:mod:`matplotlib.patches`
+=============================
+
+.. automodule:: matplotlib.patches
+   :members:
+
+:mod:`matplotlib.text`
+=============================
+
+.. automodule:: matplotlib.text
+   :members:
+
