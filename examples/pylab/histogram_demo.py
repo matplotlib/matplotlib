@@ -1,23 +1,23 @@
 #!/usr/bin/env python
-from pylab import *
+import pylab as P
 
 mu, sigma = 100, 15
-x = mu + sigma*randn(10000)
+x = mu + sigma*P.randn(10000)
 
 # the histogram of the data
-n, bins, patches = hist(x, 50, normed=1)
-setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+n, bins, patches = P.hist(x, 50, normed=1)
+P.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
 
 # add a 'best fit' line
-y = normpdf( bins, mu, sigma)
-l = plot(bins, y, 'r--')
-setp(l, 'linewidth', 1)
+y = P.normpdf( bins, mu, sigma)
+l = P.plot(bins, y, 'r--')
+P.setp(l, 'linewidth', 1)
 
-xlabel('Smarts')
-ylabel('Probability')
-title(r'$\mathrm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$')
-axis([40, 160, 0, 0.03])
-grid(True)
+P.xlabel('Smarts')
+P.ylabel('Probability')
+P.title(r'$\mathrm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$')
+P.axis([40, 160, 0, 0.03])
+P.grid(True)
 
-#savefig('histogram_demo',dpi=72)
-show()
+#P.savefig('histogram_demo',dpi=72)
+P.show()

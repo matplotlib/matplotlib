@@ -1,3 +1,8 @@
+2008-05-23 Major revision of hist(). Can handle 2D arrays and create
+           stacked histogram plots; keyword 'width' deprecated and
+           rwidth (relative width) introduced; align='edge' changed
+           to center of bin - MM
+
 2008-05-22 Added support for ReST-based doumentation using Sphinx.
            Documents are located in doc/, and are broken up into
            a users guide and an API reference. To build, run the
