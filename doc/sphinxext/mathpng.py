@@ -95,7 +95,11 @@ def latex2html(node, source):
         os.system('latex --interaction=nonstopmode math.tex > /dev/null')
         os.system('dvipng -bgTransparent -Ttight --noghostscript -l10 ' +
                   '-o _static/%s.png math.dvi > /dev/null' % name)
-    path = source.split('/doc/')[-1].count('/') * '../' + '_static'
+    path = '_static'
+    count = source.split('/doc/')[-1].count('/')
+    for i in range(count):
+        if os.path.exists(path): break
+        path = '../'+path
     if inline and '_' in latex:
         align = 'align="absmiddle" '
     else:
