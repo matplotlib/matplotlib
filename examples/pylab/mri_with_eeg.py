@@ -27,7 +27,6 @@ if 1:  # plot the histogram of MRI intensity
     im = take(im, nonzero(im)) # ignore the background
     im = im/(2.0**15) # normalize
     hist(im, 100)
-    print im.shape
     xticks([-1, -.5, 0, .5, 1])
     yticks([])
     xlabel('intensity')
@@ -84,8 +83,5 @@ if 1:   # plot the EEG
 
 
     xlabel('time (s)')
-
-if 1:
-    savefig('mri_with_eeg')
 
 show()
