@@ -1,3 +1,6 @@
+2008-05-24 Added PIL support for loading images to imread (if PIL is
+           available) - JDH
+
 2008-05-23 Provided a function and a method for controlling the
            plot color cycle. - EF
 

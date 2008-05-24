@@ -11,8 +11,8 @@ import matplotlib.artist as artist
 from matplotlib.path import Path
 
 # these are not available for the object inspector until after the
-# class is build so we define an initial set here for the init
-# function and they will be overridden after object defn
+# class is built so we define an initial set here for the init
+# function and they will be overridden after object definition
 artist.kwdocd['Patch'] = """\
           alpha: float
           animated: [True | False]
@@ -31,7 +31,6 @@ artist.kwdocd['Patch'] = """\
           visible: [True | False]
           zorder: any number
           """
-
 class Patch(artist.Artist):
     """
     A patch is a 2D thingy with a face color and an edge color
@@ -1109,7 +1108,6 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     r.draw(renderer)
 
 artist.kwdocd['Patch'] = patchdoc = artist.kwdoc(Patch)
-
 for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
           'FancyArrow', 'YAArrow', 'CirclePolygon', 'Ellipse'):
     artist.kwdocd[k] = patchdoc
