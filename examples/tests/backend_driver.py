@@ -114,6 +114,7 @@ pylab_files = [
 api_dir = os.path.join('..', 'api')
 api_files = [
     'colorbar_only.py',
+    'color_cycle.py',
 ]
 
 

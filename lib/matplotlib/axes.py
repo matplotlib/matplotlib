@@ -135,6 +135,18 @@ def _process_plot_format(fmt):
 
     return linestyle, marker, color
 
+def set_default_color_cycle(clist):
+    """
+    Change the default cycle of colors that will be used by the plot
+    command.  This must be called before creating the Axes to which
+    it will apply; it will apply to all future Axes.
+
+    clist is a sequence of mpl color specifiers
+
+    """
+    _process_plot_var_args.defaultColors = clist[:]
+    rcParams['lines.color'] = clist[0]
+
 class _process_plot_var_args:
     """
 
@@ -168,6 +180,12 @@ class _process_plot_var_args:
 
         self.Ncolors = len(self.colors)
 
+        self.count = 0
+
+    def set_color_cycle(self, clist):
+        self.colors = clist[:]
+        self.firstColor = self.colors[0]
+        self.Ncolors = len(self.colors)
         self.count = 0
 
     def _get_next_cycle_color(self):
@@ -827,6 +845,15 @@ class Axes(martist.Artist):
     def clear(self):
         'clear the axes'
         self.cla()
+
+    def set_color_cycle(self, clist):
+        """
+        Set the color cycle for any future plot commands on this Axes.
+
+        clist is a list of mpl color specifiers.
+        """
+        self._get_lines.set_color_cycle(clist)
+
 
     def ishold(self):
         'return the HOLD status of the axes'
