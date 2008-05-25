@@ -11,6 +11,7 @@ Contents:
    :maxdepth: 2
 
    users/index.rst
+   faq/index.rst
    devel/index.rst
    api/index.rst
 
