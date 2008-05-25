@@ -609,13 +609,29 @@ def imread(fname):
 
     Return value is a MxNx4 array of 0-1 normalized floats
 
+    matplotlib can only read PNGs natively, but if PIL is installed,
+    it will use it to load the image and return an RGBA if possible
+    which can be used with imshow
     """
+
+    def pilread():
+        'try to load the image with PIL or return None'
+        try: import Image
+        except ImportError: return None
+        image = Image.open( fname )
+        return pil_to_array(image)
+
+
     handlers = {'png' :_image.readpng,
                 }
     basename, ext = os.path.splitext(fname)
     ext = ext.lower()[1:]
+
     if ext not in handlers.keys():
-        raise ValueError('Only know how to handled extensions: %s' % handlers.keys())
+        im = pilread()
+        if im is None:
+            raise ValueError('Only know how to handle extensions: %s; with PIL installed matplotlib can handle more images' % handlers.keys())
+        return im
 
     handler = handlers[ext]
     return handler(fname)
@@ -632,6 +648,6 @@ def pil_to_array( pilImage ):
             raise RuntimeError('Unknown image mode')
 
     x_str = im.tostring('raw',im.mode,0,-1)
-    x = npy.fromstring(x_str,npy.uint8)
+    x = np.fromstring(x_str,np.uint8)
     x.shape = im.size[1], im.size[0], 4
     return x
