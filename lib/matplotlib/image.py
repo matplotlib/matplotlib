@@ -648,6 +648,6 @@ def pil_to_array( pilImage ):
             raise RuntimeError('Unknown image mode')
 
     x_str = im.tostring('raw',im.mode,0,-1)
-    x = np.fromstring(x_str,np.uint8)
+    x = npy.fromstring(x_str,npy.uint8)
     x.shape = im.size[1], im.size[0], 4
     return x
