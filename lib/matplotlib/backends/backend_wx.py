@@ -1383,9 +1383,6 @@ def _load_bitmap(filename):
     matplotlib library is installed. The filename parameter should not
     contain any path information as this is determined automatically.
 
-    Bitmaps should be in XPM format, and of size 16x16 (unless you change
-    the code!). I have converted the stock GTK2 16x16 icons to XPM format.
-
     Returns a wx.Bitmap object
     """
 
@@ -1395,26 +1392,8 @@ def _load_bitmap(filename):
     if not os.path.exists(bmpFilename):
         raise IOError('Could not find bitmap file "%s"; dying'%bmpFilename)
 
-    bmp =wx.Bitmap(bmpFilename, wx.BITMAP_TYPE_XPM)
+    bmp = wx.Bitmap(bmpFilename)
     return bmp
-
-def _load_pngicon(filename):
-    """
-    Load a png icon file from the backends/images subdirectory in which the
-    matplotlib library is installed. The filename parameter should not
-    contain any path information as this is determined automatically.
-
-    Returns a wx.Bitmap object
-    """
-
-    basedir = os.path.join(rcParams['datapath'],'images')
-
-    pngFilename = os.path.normpath(os.path.join(basedir, filename))
-    if not os.path.exists(pngFilename):
-        raise IOError('Could not find bitmap file "%s"; dying'%pngFilename)
-
-    png =wx.Bitmap(pngFilename, wx.BITMAP_TYPE_PNG)
-    return png
 
 class MenuButtonWx(wx.Button):
     """
@@ -1576,24 +1555,24 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
         self.SetToolBitmapSize(wx.Size(24,24))
 
-        self.AddSimpleTool(_NTB2_HOME, _load_pngicon('home.png'),
+        self.AddSimpleTool(_NTB2_HOME, _load_bitmap('home.png'),
                            'Home', 'Reset original view')
-        self.AddSimpleTool(self._NTB2_BACK, _load_pngicon('back.png'),
+        self.AddSimpleTool(self._NTB2_BACK, _load_bitmap('back.png'),
                            'Back', 'Back navigation view')
-        self.AddSimpleTool(self._NTB2_FORWARD, _load_pngicon('forward.png'),
+        self.AddSimpleTool(self._NTB2_FORWARD, _load_bitmap('forward.png'),
                            'Forward', 'Forward navigation view')
         # todo: get new bitmap
-        self.AddCheckTool(self._NTB2_PAN, _load_pngicon('move.png'),
+        self.AddCheckTool(self._NTB2_PAN, _load_bitmap('move.png'),
                            shortHelp='Pan',
                            longHelp='Pan with left, zoom with right')
-        self.AddCheckTool(self._NTB2_ZOOM, _load_pngicon('zoom_to_rect.png'),
+        self.AddCheckTool(self._NTB2_ZOOM, _load_bitmap('zoom_to_rect.png'),
                            shortHelp='Zoom', longHelp='Zoom to rectangle')
 
         self.AddSeparator()
-        self.AddSimpleTool(_NTB2_SUBPLOT, _load_pngicon('subplots.png'),
+        self.AddSimpleTool(_NTB2_SUBPLOT, _load_bitmap('subplots.png'),
                            'Configure subplots', 'Configure subplot parameters')
 
-        self.AddSimpleTool(_NTB2_SAVE, _load_pngicon('filesave.png'),
+        self.AddSimpleTool(_NTB2_SAVE, _load_bitmap('filesave.png'),
                            'Save', 'Save plot contents to file')
 
         if wx.VERSION_STRING >= '2.5':
