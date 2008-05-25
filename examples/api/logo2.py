@@ -14,9 +14,12 @@ fig.figurePatch.set_facecolor(figcolor)
 ax = fig.add_axes([0.05, 0.05, 0.2, 01], polar=True)
 ax.axesPatch.set_alpha(axalpha)
 N = 20
-theta = np.arange(0.0, 2*np.pi, 2*np.pi/N)
+theta = np.arange(0.0, 2*np.pi, 2*np.pi/N) + np.pi
 radii = 10*np.random.rand(N)
-width = np.pi/4*np.random.rand(N)
+width = np.pi/6*np.random.rand(N)
+#radii = np.log(np.arange(1,N+1))
+#width = np.arange(N, dtype=float)/N*np.pi/8
+
 bars = ax.bar(theta, radii, width=width, bottom=0.0)
 for r,bar in zip(radii, bars):
     bar.set_facecolor( cm.jet(r/10.))
@@ -33,7 +36,8 @@ mu, sigma = 100, 15
 x = mu + sigma*np.random.randn(10000)
 
 # the histogram of the data
-n, bins, patches = axhist.hist(x, 50, normed=1, facecolor='green', edgecolor='green', alpha=0.75)
+n, bins, patches = axhist.hist(x, 50, normed=1,
+    facecolor='green', edgecolor='green', alpha=0.75)
 
 
 y = mlab.normpdf( bins, mu, sigma)
@@ -51,8 +55,10 @@ axback = fig.add_axes([0., 0., 1., 1.])
 
 #the math background
 tex = r"$W^{3\beta}_{\delta_1 \rho_1 \sigma_2} = U^{3\beta}_{\delta_1 \rho_1} + \frac{1}{8 \pi 2} \int^{\alpha_2}_{\alpha_2} d \alpha^\prime_2 \left[\frac{ U^{2\beta}_{\delta_1 \rho_1} - \alpha^\prime_2U^{1\beta}_{\rho_1 \sigma_2} }{U^{0\beta}_{\rho_1 \sigma_2}}\right]$"
+radargreen = '#d5de9c'
+orange = '#ee8d18'
 axback.text(0.5, 0.5, tex,
-            transform=axback.transAxes, color="0.5", alpha=0.5, fontsize=40,
+            transform=axback.transAxes, color='black', alpha=0.25, fontsize=40,
             ha='center', va='center')
 axback.set_axis_off()
 
