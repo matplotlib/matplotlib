@@ -4,7 +4,7 @@ graphics contexts must implement to serve as a matplotlib backend
 """
 
 from __future__ import division
-import os
+import os, warnings
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -1201,8 +1201,17 @@ class FigureManagerBase:
             event.inaxes.grid()
             self.canvas.draw()
         elif event.key == 'l':
-            event.inaxes.toggle_log_lineary()
-            self.canvas.draw()
+            warnings.warn('log scale toggling under construction')
+            if 0:
+                ax = event.inaxes
+                scale = ax.get_yscale()
+                if scale=='log':
+                    ax.set_yscale('linear')
+                    ax.figure.canvas.draw()
+                elif scale=='linear':
+                    ax.set_yscale('log')
+                    ax.figure.canvas.draw()
+
         elif event.key is not None and (event.key.isdigit() and event.key!='0') or event.key=='a':
             # 'a' enables all axes
             if event.key!='a':
