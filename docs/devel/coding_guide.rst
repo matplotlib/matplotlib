@@ -13,12 +13,12 @@ Checking out everything in the trunk (matplotlib and toolkits)::
 Checking out the main source::
 
    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/\
-   matplotlib matplotlib --username=youruser --password=yourpass
+   matplotlib mpl --username=youruser --password=yourpass
 
 Branch checkouts, eg the maintenance branch::
 
    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/\
-   v0_91_maint mplv0_91_maint
+   v0_91_maint mpl91
 
 Committing changes
 ==================
