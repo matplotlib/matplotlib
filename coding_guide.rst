@@ -1,0 +1,1 @@
+doc/devel/coding_guide.rst
