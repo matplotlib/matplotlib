@@ -141,7 +141,7 @@ latex_font_size = '11pt'
 # (source start file, target name, title, author, document class [howto/manual]).
 
 latex_documents = [
-  ('index', 'Matplotlib.tex', 'Matplotlib', 'John Hunter, Darren Dale, Michael Droettboom', 'manual'),
+  ('index', 'Matplotlib.tex', 'Matplotlib', 'Darren Dale, Michael Droettboom, Eric Firing, John Hunter', 'manual'),
 ]
 
 
