@@ -4,9 +4,11 @@ import matplotlib.cm as cm
 import matplotlib.mlab as mlab
 
 axalpha = 0.05
-fig = plt.figure(figsize=(8, 2),dpi=80)
-fig.figurePatch.set_edgecolor('#FFFFCC')
-fig.figurePatch.set_facecolor('#FFFFCC')
+figcolor = '#FFFFCC'
+dpi = 80
+fig = plt.figure(figsize=(8, 2),dpi=dpi)
+fig.figurePatch.set_edgecolor(figcolor)
+fig.figurePatch.set_facecolor(figcolor)
 
 # the polar bar plot
 ax = fig.add_axes([0.05, 0.05, 0.2, 01], polar=True)
@@ -60,6 +62,6 @@ axback.text(0.3, 0.95, 'matplotlib', color='black', fontsize=75,
            transform=axback.transAxes)
 
 
-
+fig.savefig('logo2.png', facecolor=figcolor, edgecolor=figcolor, dpi=dpi)
 plt.show()
 
