@@ -529,6 +529,7 @@ class Line2D(Artist):
 
     def get_markersize(self): return self._markersize
 
+
     def get_xdata(self, orig=True):
         """
         return the xdata; if orig is true return the original data,

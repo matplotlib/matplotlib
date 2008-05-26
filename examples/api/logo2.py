@@ -36,7 +36,7 @@ mu, sigma = 100, 15
 x = mu + sigma*np.random.randn(10000)
 
 # the histogram of the data
-n, bins, patches = axhist.hist(x, 50, normed=1,
+n, bins, patches = axhist.hist(x, 20, normed=1,
     facecolor='green', edgecolor='green', alpha=0.75)
 
 
