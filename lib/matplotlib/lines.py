@@ -529,6 +529,10 @@ class Line2D(Artist):
 
     def get_markersize(self): return self._markersize
 
+    def get_data(self, orig=True):
+        'return the xdata, ydata; if orig is True, return the original data'
+        return self.get_xdata(orig=orig), self.get_ydata(orig=orig)
+
 
     def get_xdata(self, orig=True):
         """
@@ -1177,6 +1181,82 @@ class Line2D(Artist):
         'return True if line is dashstyle'
         return self._linestyle in ('--', '-.', ':')
 
+class VertexSelector:
+    """
+    manage the callbacks to maintain a list of selected vertices for
+    matplotlib.lines.Line2D. Derived classes should override
+    process_selected to do something with the picks
+
+    Here is an example which highlights the selected verts with red
+    circles::
+
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import matplotlib.lines as lines
+
+        class HighlightSelected(lines.VertexSelector):
+            def __init__(self, line, fmt='ro', **kwargs):
+                lines.VertexSelector.__init__(self, line)
+                self.markers, = self.axes.plot([], [], fmt, **kwargs)
+
+            def process_selected(self, ind, xs, ys):
+                self.markers.set_data(xs, ys)
+                self.canvas.draw()
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        x, y = np.random.rand(2, 30)
+        line, = ax.plot(x, y, 'bs-', picker=5)
+
+        selector = HighlightSelected(line)
+        plt.show()
+
+    """
+    def __init__(self, line):
+        """
+        Initialize the class with a matplotlib.lines.Line2D instance.
+        The line should already be added to some matplotlib.axes.Axes
+        instance and should have the picker property set.
+        """
+        if not hasattr(line, 'axes'):
+            raise RuntimeError('You must first add the line to the Axes')
+
+        if line.get_picker() is None:
+            raise RuntimeError('You must first set the picker property of the line')
+
+        self.axes = line.axes
+        self.line = line
+        self.canvas = self.axes.figure.canvas
+        self.cid = self.canvas.mpl_connect('pick_event', self.onpick)
+
+        self.ind = set()
+
+
+    def process_selected(self, ind, xs, ys):
+        """
+        Default do nothing implementation of the process_selected method.
+
+        ind are the indices of the selected vertices.  xs and ys are
+        the coordinates of the selected vertices.
+        """
+        pass
+
+    def onpick(self, event):
+        'when the line is picked, update the set of selected indicies'
+        if event.artist is not self.line: return
+
+        for i in event.ind:
+            if i in self.ind:
+                self.ind.remove(i)
+            else:
+                self.ind.add(i)
+
+
+        ind = list(self.ind)
+        ind.sort()
+
+        xdata, ydata = self.line.get_data()
+        self.process_selected(ind, xdata[ind], ydata[ind])
 
 lineStyles = Line2D._lineStyles
 lineMarkers = Line2D._markers
