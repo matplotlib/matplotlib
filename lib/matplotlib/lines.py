@@ -1254,7 +1254,6 @@ class VertexSelector:
 
         ind = list(self.ind)
         ind.sort()
-
         xdata, ydata = self.line.get_data()
         self.process_selected(ind, xdata[ind], ydata[ind])
 
