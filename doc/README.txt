@@ -3,9 +3,8 @@ maptlotlib documentation
 
 This is the top level build directory for the matplotlib
 documentation.  All of the documentation is written using sphinx, a
-python documentation system built on top of ReST.
+python documentation system built on top of ReST.  This directory contains
 
-If you are looking for plain text documentation, you can read the following
 
 * users - the user documentation, eg plotting tutorials, configuration
   tips, etc.
