@@ -1537,7 +1537,6 @@ class VertexSelector:
 
         ind = list(self.ind)
         ind.sort()
-        ind = npy.array(ind)
         xdata, ydata = self.line.get_data()
         self.process_selected(ind, xdata[ind], ydata[ind])
 
