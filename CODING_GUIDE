@@ -9,12 +9,6 @@ and standards.  Please edit and extend this document.
 svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk matplotlib --username=youruser --password=yourpass
 
 
-# checking out the main src
-svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib --username=youruser --password=yourpass
-
-# branch checkouts, eg the transforms branch
-svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/transforms transbranch
-
 == Committing changes ==
 
 When committing changes to matplotlib, there are a few things to bear
