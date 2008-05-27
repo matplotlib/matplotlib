@@ -69,6 +69,7 @@ from textwrap import fill
 from distutils.core import Extension
 import glob
 import ConfigParser
+import cStringIO
 
 major, minor1, minor2, s, tmp = sys.version_info
 if major<2 or (major==2 and minor1<3):
@@ -888,6 +889,105 @@ def query_tcltk():
     TCL_TK_CACHE = tcl_lib_dir, tk_lib_dir, str(Tkinter.TkVersion)[:3]
     return TCL_TK_CACHE
 
+def parse_tcl_config(tcl_lib_dir, tk_lib_dir):
+    # This is where they live on Ubuntu Hardy (at least)
+    tcl_config = os.path.join(tcl_lib_dir, "tclConfig.sh")
+    tk_config = os.path.join(tk_lib_dir, "tkConfig.sh")
+    if not (os.path.exists(tcl_config) and os.path.exists(tk_config)):
+        # This is where they live on RHEL4 (at least)
+        tcl_config = "/usr/lib/tclConfig.sh"
+        tk_config = "/usr/lib/tkConfig.sh"
+        if not (os.path.exists(tcl_config) and os.path.exists(tk_config)):
+            return None
+
+    # These files are shell scripts that set a bunch of
+    # environment variables.  To actually get at the
+    # values, we use ConfigParser, which supports almost
+    # the same format, but requires at least one section.
+    # So, we push a "[default]" section to a copy of the
+    # file in a StringIO object.
+    try:
+        tcl_vars_str = cStringIO.StringIO(
+            "[default]\n" + open(tcl_config, "r").read())
+        tk_vars_str = cStringIO.StringIO(
+            "[default]\n" + open(tk_config, "r").read())
+    except IOError:
+        # if we can't read the file, that's ok, we'll try
+        # to guess instead
+        return None
+
+    tcl_vars_str.seek(0)
+    tcl_vars = ConfigParser.RawConfigParser()
+    tk_vars_str.seek(0)
+    tk_vars = ConfigParser.RawConfigParser()
+    try:
+        tcl_vars.readfp(tcl_vars_str)
+        tk_vars.readfp(tk_vars_str)
+    except ConfigParser.ParsingError:
+        # if we can't read the file, that's ok, we'll try
+        # to guess instead
+        return None
+
+    try:
+        tcl_lib = tcl_vars.get("default", "TCL_LIB_SPEC")[1:-1].split()[0][2:]
+        tcl_inc = tcl_vars.get("default", "TCL_INCLUDE_SPEC")[3:-1]
+        tk_lib = tk_vars.get("default", "TK_LIB_SPEC")[1:-1].split()[0][2:]
+        if tk_vars.has_option("default", "TK_INCLUDE_SPEC"):
+            # On Ubuntu 8.04
+            tk_inc = tk_vars.get("default", "TK_INCLUDE_SPEC")[3:-1]
+        else:
+            # On RHEL4
+            tk_inc = tcl_inc
+    except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        return None
+
+    if not os.path.exists(os.path.join(tk_inc, 'tk.h')):
+        return None
+
+    return tcl_lib, tcl_inc, tk_lib, tk_inc
+
+def guess_tcl_config(tcl_lib_dir, tk_lib_dir, tk_ver):
+    if not (os.path.exists(tcl_lib_dir) and os.path.exists(tk_lib_dir)):
+        return None
+
+    tcl_lib = os.path.normpath(os.path.join(tcl_lib_dir, '../'))
+    tk_lib = os.path.normpath(os.path.join(tk_lib_dir, '../'))
+
+    tcl_inc = os.path.normpath(os.path.join(tcl_lib_dir,
+                                                    '../../include/tcl' + tk_ver))
+    if not os.path.exists(tcl_inc):
+        tcl_inc = os.path.normpath(os.path.join(tcl_lib_dir,
+                                                '../../include'))
+
+    tk_inc = os.path.normpath(os.path.join(tk_lib_dir,
+                                           '../../include/tk' + tk_ver))
+    if not os.path.exists(tk_inc):
+        tk_inc = os.path.normpath(os.path.join(tk_lib_dir,
+                                                       '../../include'))
+
+    if not os.path.exists(os.path.join(tk_inc, 'tk.h')):
+        tk_inc = tcl_inc
+
+    if not os.path.exists(tcl_inc):
+        # this is a hack for suse linux, which is broken
+        if (sys.platform.startswith('linux') and
+            os.path.exists('/usr/include/tcl.h') and
+            os.path.exists('/usr/include/tk.h')):
+            tcl_inc = '/usr/include'
+            tk_inc = '/usr/include'
+
+    if not os.path.exists(os.path.join(tk_inc, 'tk.h')):
+        return None
+
+    return tcl_lib, tcl_inc, tk_lib, tk_inc
+
+def hardcoded_tcl_config():
+    tcl_inc = "/usr/local/include"
+    tk_inc = "/usr/local/include"
+    tcl_lib = "/usr/local/lib"
+    tk_lib = "/usr/local/lib"
+    return tcl_lib, tcl_inc, tk_lib, tk_inc
+
 def add_tk_flags(module):
     'Add the module flags to build extensions which use tk'
     message = None
@@ -951,46 +1051,39 @@ def add_tk_flags(module):
 
     # you're still here? ok we'll try it this way...
     else:
+        success = False
+        # There are 3 methods to try, in decreasing order of "smartness"
+        #
+        #   1. Parse the tclConfig.sh and tkConfig.sh files that have
+        #      all the information we need
+        #
+        #   2. Guess the include and lib dirs based on the location of
+        #      Tkinter's 'tcl_library' and 'tk_library' variables.
+        #
+        #   3. Use some hardcoded locations that seem to work on a lot
+        #      of distros.
+
         # Query Tcl/Tk system for library paths and version string
-        tcl_lib_dir, tk_lib_dir, tk_ver = query_tcltk() # todo: try/except
-
-        # Process base directories to obtain include + lib dirs
-        if tcl_lib_dir != '' and tk_lib_dir != '':
-            tcl_lib = os.path.normpath(os.path.join(tcl_lib_dir, '../'))
-            tk_lib = os.path.normpath(os.path.join(tk_lib_dir, '../'))
-            tcl_inc = os.path.normpath(os.path.join(tcl_lib_dir,
-                                       '../../include/tcl' + tk_ver))
-            if not os.path.exists(tcl_inc):
-                tcl_inc = os.path.normpath(os.path.join(tcl_lib_dir,
-                                           '../../include'))
-            tk_inc = os.path.normpath(os.path.join(tk_lib_dir,
-                                      '../../include/tk' + tk_ver))
-            if not os.path.exists(tk_inc):
-                tk_inc = os.path.normpath(os.path.join(tk_lib_dir,
-                                          '../../include'))
-
-            if ((not os.path.exists(os.path.join(tk_inc,'tk.h'))) and
-                os.path.exists(os.path.join(tcl_inc,'tk.h'))):
-                tk_inc = tcl_inc
-
-            if not os.path.exists(tcl_inc):
-                # this is a hack for suse linux, which is broken
-                if (sys.platform.startswith('linux') and
-                    os.path.exists('/usr/include/tcl.h') and
-                    os.path.exists('/usr/include/tk.h')):
-                    tcl_inc = '/usr/include'
-                    tk_inc = '/usr/include'
+        try:
+            tcl_lib_dir, tk_lib_dir, tk_ver = query_tcltk()
+        except:
+            result = hardcoded_tcl_config()
         else:
-            message = """\
+            result = parse_tcl_config(tcl_lib_dir, tk_lib_dir)
+            if result is None:
+                message = """\
+Guessing the library and include directories for Tcl and Tk because the
+tclConfig.sh and tkConfig.sh could not be found and/or parsed."""
+                result = guess_tcl_config(tcl_lib_dir, tk_lib_dir, tk_ver)
+                if result is None:
+                    message = """\
 Using default library and include directories for Tcl and Tk because a
 Tk window failed to open.  You may need to define DISPLAY for Tk to work
 so that setup can determine where your libraries are located."""
-            tcl_inc = "/usr/local/include"
-            tk_inc = "/usr/local/include"
-            tcl_lib = "/usr/local/lib"
-            tk_lib = "/usr/local/lib"
-            tk_ver = ""
+                    result = hardcoded_tcl_config()
+
         # Add final versions of directories and libraries to module lists
+        tcl_lib, tcl_inc, tk_lib, tk_inc = result
         module.include_dirs.extend([tcl_inc, tk_inc])
         module.library_dirs.extend([tcl_lib, tk_lib])
         module.libraries.extend(['tk' + tk_ver, 'tcl' + tk_ver])
