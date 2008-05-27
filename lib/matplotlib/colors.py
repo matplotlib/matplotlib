@@ -501,6 +501,7 @@ class Colormap:
         raise NotImplementedError("Abstract class only")
 
     def is_gray(self):
+        if not self._isinit: self._init()
         return (np.alltrue(self._lut[:,0] == self._lut[:,1])
                     and np.alltrue(self._lut[:,0] == self._lut[:,2]))
 
