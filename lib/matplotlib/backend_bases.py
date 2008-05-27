@@ -1201,16 +1201,14 @@ class FigureManagerBase:
             event.inaxes.grid()
             self.canvas.draw()
         elif event.key == 'l':
-            warnings.warn('log scale toggling under construction')
-            if 0:
-                ax = event.inaxes
-                scale = ax.get_yscale()
-                if scale=='log':
-                    ax.set_yscale('linear')
-                    ax.figure.canvas.draw()
-                elif scale=='linear':
-                    ax.set_yscale('log')
-                    ax.figure.canvas.draw()
+            ax = event.inaxes
+            scale = ax.get_yscale()
+            if scale=='log':
+                ax.set_yscale('linear')
+                ax.figure.canvas.draw()
+            elif scale=='linear':
+                ax.set_yscale('log')
+                ax.figure.canvas.draw()
 
         elif event.key is not None and (event.key.isdigit() and event.key!='0') or event.key=='a':
             # 'a' enables all axes
