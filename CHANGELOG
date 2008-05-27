@@ -1,3 +1,6 @@
+2008-05-27 Fix TkAgg build on Ubuntu 8.04 (and hopefully a more
+           general solution for other platforms, too.)
+
 2008-05-24 Added PIL support for loading images to imread (if PIL is
            available) - JDH
 
