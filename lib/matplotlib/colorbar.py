@@ -597,12 +597,11 @@ class Colorbar(ColorbarBase):
         #print 'tlinewidths:', tlinewidths
         ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths)
 
-    def notify(self, mappable):
+    def update_bruteforce(self, mappable):
         '''Manually change any contour line colors.  This is called
         when the image or contour plot to which this colorbar belongs
         is changed.
         '''
-        cm.ScalarMappable.notify(self, mappable)
         # We are using an ugly brute-force method: clearing and
         # redrawing the whole thing.  The problem is that if any
         # properties have been changed by methods other than the

@@ -8,7 +8,7 @@ A *= 1.0/max(A)
 A.shape = w, h
 
 extent = (0, 25, 0, 25)
-im = imshow(A, cmap=cm.jet, origin='upper', extent=extent)
+im = imshow(A, cmap=cm.hot, origin='upper', extent=extent)
 
 markers = [(15.9, 14.5), (16.8, 15)]
 x,y = zip(*markers)

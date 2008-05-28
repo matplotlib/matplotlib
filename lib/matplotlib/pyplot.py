@@ -1123,6 +1123,9 @@ from matplotlib.colorbar import colorbar_doc
 def colorbar(mappable=None, cax=None, ax=None, **kw):
     if mappable is None:
         mappable = gci()
+    if ax is None:
+        ax = gca()
+
     ret = gcf().colorbar(mappable, cax = cax, ax=ax, **kw)
     draw_if_interactive()
     return ret

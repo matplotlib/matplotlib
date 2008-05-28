@@ -1,3 +1,8 @@
+    Rewrote the cm.ScalarMappable callback infrastructure to use
+    cbook.CallbackRegistry rather than custom callback handling.  Amy
+    users of add_observer/notify of the cm.ScalarMappable should uae
+    the cm.ScalarMappable.callbacksSM CallbackRegistry instead.
+
     New axes function and Axes method provide control over the plot
     color cycle: axes.set_default_color_cycle(clist) and
     Axes.set_color_cycle(clist).
