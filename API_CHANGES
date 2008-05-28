@@ -1,3 +1,4 @@
+
     Rewrote the cm.ScalarMappable callback infrastructure to use
     cbook.CallbackRegistry rather than custom callback handling.  Amy
     users of add_observer/notify of the cm.ScalarMappable should uae

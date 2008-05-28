@@ -1,3 +1,7 @@
+2008-05-28 zero width/height Rectangles no longer influence the
+           autoscaler.  Useful for log histograms with empty bins -
+           JDH
+
 2008-05-28 Fix rendering of composite glyphs in Type 3 conversion
            (particularly as evidenced in the Eunjin.ttf Korean font)
            Thanks Jae-Joon Lee for finding this!
