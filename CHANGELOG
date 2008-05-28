@@ -1,4 +1,5 @@
-2008-05-28 Replaced '-' with u'\u2212' for minus sign as requested in
+2008-05-28 REVERTING due to PDF problem.  Replaced '-' with u'\u2212'
+           for minus sign as requested in
            http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720
 
 2008-05-28 zero width/height Rectangles no longer influence the
