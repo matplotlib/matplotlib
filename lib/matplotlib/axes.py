@@ -1230,10 +1230,18 @@ class Axes(martist.Artist):
 
     def _update_patch_limits(self, p):
         'update the datalimits for patch p'
+        # hist can add zero height Rectangles, which is useful to keep
+        # the bins, counts and patches lined up, but it throws off log
+        # scaling.  We'll ignore rects with zero height or width in
+        # the auto-scaling
+        if isinstance(p, mpatches.Rectangle) and p.get_width()==0. or p.get_height()==0.:
+            return
+
         vertices = p.get_patch_transform().transform(p.get_path().vertices)
         if p.get_data_transform() != self.transData:
             transform = p.get_data_transform() + self.transData.inverted()
             xys = transform.transform(vertices)
+
         self.update_datalim(vertices)
 
     def add_table(self, tab):
@@ -3509,14 +3517,15 @@ class Axes(martist.Artist):
 
         if adjust_xlim:
             xmin, xmax = self.dataLim.intervalx
-            xmin = np.amin(width)
+            xmin = np.amin(width[width!=0]) # filter out the 0 width rects
             if xerr is not None:
                 xmin = xmin - np.amax(xerr)
             xmin = max(xmin*0.9, 1e-100)
             self.dataLim.intervalx = (xmin, xmax)
+
         if adjust_ylim:
             ymin, ymax = self.dataLim.intervaly
-            ymin = np.amin(height)
+            ymin = np.amin(height[height!=0]) # filter out the 0 height rects
             if yerr is not None:
                 ymin = ymin - np.amax(yerr)
             ymin = max(ymin*0.9, 1e-100)
@@ -5501,7 +5510,10 @@ class Axes(martist.Artist):
         width.  If None, automatically compute the width. Ignored
         for 'step' histtype.
 
-        log: if True, the histogram axis will be set to a log scale
+        log: if True, the histogram axis will be set to a log scale.
+        If log is true and x is a 1D array, empty bins will be
+        filtered out and only the non-empty n, bins, patches will be
+        returned.
 
         kwargs are used to update the properties of the
         hist Rectangles:
@@ -5587,6 +5599,7 @@ class Axes(martist.Artist):
                     ccount += 1
             elif orientation == 'vertical':
                 for m in n:
+
                     color = colors[ccount % len(colors)]
                     patch = self.bar(bins[:-1]+boffset, m, width=width,
                                      bottom=bottom, align='center', log=log,
