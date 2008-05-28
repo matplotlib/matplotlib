@@ -12,8 +12,8 @@ axcolor = 'lightgoldenrodyellow'
 axfreq = axes([0.125, 0.1, 0.775, 0.03], axisbg=axcolor)
 axamp  = axes([0.125, 0.15, 0.775, 0.03], axisbg=axcolor)
 
-sfreq = Slider(axfreq, 'Freq', 0.1, 30.0, valinit=1)
-samp = Slider(axamp, 'Amp', 0.1, 10.0, valinit=1)
+sfreq = Slider(axfreq, 'Freq', 0.1, 30.0, valinit=1, facecolor='blue', alpha=0.5)
+samp = Slider(axamp, 'Amp', 0.1, 10.0, valinit=1, facecolor='red', alpha=0.5)
 
 def update(val):
     amp = samp.val

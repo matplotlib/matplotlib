@@ -171,7 +171,7 @@ class Slider(Widget):
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
                  closedmin=True, closedmax=True, slidermin=None, slidermax=None,
-                 dragging=True):
+                 dragging=True, **kwargs):
         """
         Create a slider from valmin to valmax in axes ax;
 
@@ -185,6 +185,11 @@ class Slider(Widget):
 
         slidermin and slidermax - be used to contrain the value of
           this slider to the values of other sliders.
+
+        additional kwargs are passed on to self.poly which is the
+        matplotlib.patches.Rectangle which draws the slider.  See the
+        matplotlib.patches.Rectangle documentation for legal property
+        names (eg facecolor, edgecolor, alpha, ...)
           """
         self.ax = ax
 
@@ -192,7 +197,7 @@ class Slider(Widget):
         self.valmax = valmax
         self.val = valinit
         self.valinit = valinit
-        self.poly = ax.axvspan(valmin,valinit,0,1)
+        self.poly = ax.axvspan(valmin,valinit,0,1, **kwargs)
 
         self.vline = ax.axvline(valinit,0,1, color='r', lw=1)
 
