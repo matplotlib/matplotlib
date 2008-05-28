@@ -175,6 +175,23 @@ class Formatter(TickHelper):
     def set_locs(self, locs):
         self.locs = locs
 
+    def fix_minus(self, s):
+        """
+        some classes may want to replace a hyphen for minus with the
+        proper unicode symbol as described here
+        
+          http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720.
+        The default is to do nothing
+
+        Note, if you use this method, eg in format_data or call, you
+        probably don't want to use it for format_data_short since the
+        toolbar uses this for interative coord reporting and I doubt
+        we can expect GUIs across platforms will handle the unicode
+        correctly.  So for now the classes that override fix_minus
+        should have an explicit format_data_short method
+        """
+        return s
+    
 class NullFormatter(Formatter):
     'Always return the empty string'
     def __call__(self, x, pos=None):
@@ -270,6 +287,7 @@ class ScalarFormatter(Formatter):
     such that the tick labels are meaningful. Scientific notation is used for
     data < 1e-3 or data >= 1e4.
     """
+
     def __init__(self, useOffset=True, useMathText=False):
         # useOffset allows plotting small data ranges with large offsets:
         # for example: [1+1e-9,1+2e-9,1+3e-9]
@@ -283,12 +301,17 @@ class ScalarFormatter(Formatter):
         self._scientific = True
         self._powerlimits = rcParams['axes.formatter.limits']
 
+    def fix_minus(self, s):
+        'use a unicode minus rather than hyphen'
+        return s.replace('-', u'\u2212') 
+
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'
         if len(self.locs)==0:
             return ''
         else:
-            return self.pprint_val(x)
+            s = self.pprint_val(x)
+            return self.fix_minus(s)
 
     def set_scientific(self, b):
         '''True or False to turn scientific notation on or off
@@ -314,11 +337,14 @@ class ScalarFormatter(Formatter):
 
     def format_data(self,value):
         'return a formatted string representation of a number'
-        return self._formatSciNotation('%1.10e'% value)
+        s =  self._formatSciNotation('%1.10e'% value)
+        return self.fix_minus(s)
+
 
     def get_offset(self):
         """Return scientific notation, plus offset"""
         if len(self.locs)==0: return ''
+        s = ''
         if self.orderOfMagnitude or self.offset:
             offsetStr = ''
             sciNotStr = ''
@@ -333,14 +359,15 @@ class ScalarFormatter(Formatter):
             if self._useMathText:
                 if sciNotStr != '':
                     sciNotStr = r'\times\mathdefault{%s}' % sciNotStr
-                return ''.join(('$',sciNotStr,r'\mathdefault{',offsetStr,'}$'))
+                s = ''.join(('$',sciNotStr,r'\mathdefault{',offsetStr,'}$'))
             elif self._usetex:
                 if sciNotStr != '':
                     sciNotStr = r'\times%s' % sciNotStr
-                return ''.join(('$',sciNotStr,offsetStr,'$'))
+                s =  ''.join(('$',sciNotStr,offsetStr,'$'))
             else:
-                return ''.join((sciNotStr,offsetStr))
-        else: return ''
+                s =  ''.join((sciNotStr,offsetStr))
+                
+        return self.fix_minus(s)
 
     def set_locs(self, locs):
         'set the locations of the ticks'
@@ -408,7 +435,6 @@ class ScalarFormatter(Formatter):
     def pprint_val(self, x):
         xp = (x-self.offset)/10**self.orderOfMagnitude
         if np.absolute(xp) < 1e-8: xp = 0
-        #return (self.format % xp).replace('-', u'\u2212')  # crashes PDF
         return self.format % xp
 
     def _formatSciNotation(self, s):
@@ -429,8 +455,8 @@ class ScalarFormatter(Formatter):
                 else:
                     return r'%s%s'%(significand, exponent)
             else:
-                #sign = sign.replace('-', u'\u2212') # crashes PDF
-                return ('%se%s%s' %(significand, sign, exponent)).rstrip('e')
+                s = ('%se%s%s' %(significand, sign, exponent)).rstrip('e')
+                return s
         except IndexError, msg:
             return s
 
@@ -476,14 +502,19 @@ class LogFormatter(Formatter):
         elif x<1: s =  '%1.0e'%x
         else        : s =  self.pprint_val(x,d)
         if sign == -1:
-            return '-%s' % s
-        return s
+            s =  '-%s' % s
+
+        return self.fix_minus(s)
 
     def format_data(self,value):
         self.labelOnlyBase = False
         value = cbook.strip_math(self.__call__(value))
         self.labelOnlyBase = True
         return value
+
+    def format_data_short(self,value):
+        'return a short formatted string representation of a number'
+        return '%1.3g'%value
 
     def is_decade(self, x):
         n = self.nearest_long(x)
@@ -541,8 +572,9 @@ class LogFormatterExponent(LogFormatter):
         elif fx<1: s =  '%1.0e'%fx
         else        : s =  self.pprint_val(fx,d)
         if sign == -1:
-            return '-%s' % s
-        return s
+            s =  '-%s' % s
+
+        return self.fix_minus(s)
 
 
 class LogFormatterMathtext(LogFormatter):
@@ -580,8 +612,6 @@ class LogFormatterMathtext(LogFormatter):
                 s = r'$\mathdefault{%s%d^{%d}}$'% (sign_string, b, self.nearest_long(fx))
 
         return s
-
-
 
 
 class Locator(TickHelper):
