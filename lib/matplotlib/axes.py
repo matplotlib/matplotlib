@@ -1234,7 +1234,7 @@ class Axes(martist.Artist):
         # the bins, counts and patches lined up, but it throws off log
         # scaling.  We'll ignore rects with zero height or width in
         # the auto-scaling
-        if isinstance(p, mpatches.Rectangle) and p.get_width()==0. or p.get_height()==0.:
+        if isinstance(p, mpatches.Rectangle) and p.get_width()==0. and p.get_height()==0.:
             return
 
         vertices = p.get_patch_transform().transform(p.get_path().vertices)
