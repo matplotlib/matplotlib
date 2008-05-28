@@ -408,7 +408,7 @@ class ScalarFormatter(Formatter):
     def pprint_val(self, x):
         xp = (x-self.offset)/10**self.orderOfMagnitude
         if np.absolute(xp) < 1e-8: xp = 0
-        return self.format % xp
+        return (self.format % xp).replace('-', u'\u2212')
 
     def _formatSciNotation(self, s):
         # transform 1e+004 into 1e4, for example
@@ -422,13 +422,13 @@ class ScalarFormatter(Formatter):
                     # reformat 1x10^y as 10^y
                     significand = ''
                 if exponent:
-                    exponent = '10^{%s%s}'%(sign, exponent)
+                    exponent = u'10^{%s%s}'%(sign, exponent)
                 if significand and exponent:
                     return r'%s{\times}%s'%(significand, exponent)
                 else:
                     return r'%s%s'%(significand, exponent)
             else:
-                return ('%se%s%s' %(significand, sign, exponent)).rstrip('e')
+                return (u'%se%s%s' %(significand, sign.replace('-', u'\u2212'), exponent)).rstrip('e')
         except IndexError, msg:
             return s
 
