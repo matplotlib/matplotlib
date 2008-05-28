@@ -1,3 +1,6 @@
+2008-05-28 Replaced '-' with u'\u2212' for minus sign as requested in
+           http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720
+
 2008-05-28 zero width/height Rectangles no longer influence the
            autoscaler.  Useful for log histograms with empty bins -
            JDH
