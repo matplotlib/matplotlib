@@ -719,6 +719,13 @@ end"""
                     charprocDict['Type'] = Name('XObject')
                     charprocDict['Subtype'] = Name('Form')
                     charprocDict['BBox'] = bbox
+                    # Each glyph includes bounding box information,
+                    # but xpdf and ghostscript can't handle it in a
+                    # Form XObject (they segfault!!!), so we remove it
+                    # from the stream here.  It's not needed anyway,
+                    # since the Form XObject includes it in its BBox
+                    # value.
+                    stream = stream[stream.find("d1") + 2:]
                 charprocObject = self.reserveObject('charProc')
                 self.beginStream(charprocObject.id, None, charprocDict)
                 self.currentstream.write(stream)

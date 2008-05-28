@@ -1,3 +1,11 @@
+2008-05-28 Fix crashing of PDFs in xpdf and ghostscript when two-byte
+           characters are used with Type 3 fonts - MGD
+
+2008-05-28 Allow keyword args to configure widget properties as
+           requested in
+           http://sourceforge.net/tracker/index.php?func=detail&aid=1866207&group_id=80706&atid=560722
+           - JDH
+
 2008-05-28 REVERTING due to PDF problem.  Replaced '-' with u'\u2212'
            for minus sign as requested in
            http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720
