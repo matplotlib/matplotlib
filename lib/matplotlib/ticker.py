@@ -429,7 +429,7 @@ class ScalarFormatter(Formatter):
                 else:
                     return r'%s%s'%(significand, exponent)
             else:
-                sign = sign.replace('-', u'\u2212') # crashes PDF
+                #sign = sign.replace('-', u'\u2212') # crashes PDF
                 return ('%se%s%s' %(significand, sign, exponent)).rstrip('e')
         except IndexError, msg:
             return s
