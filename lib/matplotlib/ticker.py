@@ -408,7 +408,8 @@ class ScalarFormatter(Formatter):
     def pprint_val(self, x):
         xp = (x-self.offset)/10**self.orderOfMagnitude
         if np.absolute(xp) < 1e-8: xp = 0
-        return (self.format % xp).replace('-', u'\u2212')
+        #return (self.format % xp).replace('-', u'\u2212')  # crashes PDF
+        return self.format % xp
 
     def _formatSciNotation(self, s):
         # transform 1e+004 into 1e4, for example
@@ -428,7 +429,8 @@ class ScalarFormatter(Formatter):
                 else:
                     return r'%s%s'%(significand, exponent)
             else:
-                return (u'%se%s%s' %(significand, sign.replace('-', u'\u2212'), exponent)).rstrip('e')
+                sign = sign.replace('-', u'\u2212') # crashes PDF
+                return ('%se%s%s' %(significand, sign, exponent)).rstrip('e')
         except IndexError, msg:
             return s
 
