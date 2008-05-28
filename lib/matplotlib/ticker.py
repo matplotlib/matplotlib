@@ -423,7 +423,7 @@ class ScalarFormatter(Formatter):
                     # reformat 1x10^y as 10^y
                     significand = ''
                 if exponent:
-                    exponent = u'10^{%s%s}'%(sign, exponent)
+                    exponent = '10^{%s%s}'%(sign, exponent)
                 if significand and exponent:
                     return r'%s{\times}%s'%(significand, exponent)
                 else:
