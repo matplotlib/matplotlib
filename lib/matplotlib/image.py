@@ -116,6 +116,7 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         update state
         """
         self._imcache = None
+        self._rgbacache = None
         cm.ScalarMappable.changed(self)
 
 
@@ -424,7 +425,6 @@ class NonUniformImage(AxesImage):
         raise NotImplementedError('Method not supported')
 
     def set_interpolation(self, s):
-        print s
         if s != None and s != 'nearest':
             raise NotImplementedError('Only nearest neighbor supported')
         AxesImage.set_interpolation(self, s)
