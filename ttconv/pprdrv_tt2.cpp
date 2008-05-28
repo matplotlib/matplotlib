@@ -531,8 +531,8 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
 	    }
     	else			/* The tt spec. does not clearly indicate */
     	    {			/* whether these values are signed or not. */
-    	    arg1 = *(glyph++);
-    	    arg2 = *(glyph++);
+              arg1 = *(signed char *)(glyph++);
+              arg2 = *(signed char *)(glyph++);
 	    }
 
 	if(flags & WE_HAVE_A_SCALE)
