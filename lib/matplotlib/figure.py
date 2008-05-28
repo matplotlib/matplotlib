@@ -954,7 +954,14 @@ class Figure(Artist):
             cax, kw = cbar.make_axes(ax, **kw)
         cax.hold(True)
         cb = cbar.Colorbar(cax, mappable, **kw)
-        mappable.add_observer(cb)
+
+        def on_changed(m):
+            #print 'calling on changed', m.get_cmap().name
+            cb.set_cmap(m.get_cmap())
+            cb.set_clim(m.get_clim())
+            cb.update_bruteforce(m)
+
+        self.cbid = mappable.callbacksSM.connect('changed', on_changed)
         mappable.set_colorbar(cb, cax)
         self.sca(ax)
         return cb
