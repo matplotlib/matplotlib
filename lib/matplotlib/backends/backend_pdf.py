@@ -713,6 +713,7 @@ end"""
                     charprocDict['Type'] = Name('XObject')
                     charprocDict['Subtype'] = Name('Form')
                     charprocDict['BBox'] = bbox
+                    stream = stream[stream.find("d1") + 2:]
                 charprocObject = self.reserveObject('charProc')
                 self.beginStream(charprocObject.id, None, charprocDict)
                 self.currentstream.write(stream)
