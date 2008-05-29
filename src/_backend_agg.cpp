@@ -679,8 +679,11 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
   typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
   typedef agg::span_interpolator_linear<> interpolator_type;
   typedef agg::image_accessor_clip<agg::pixfmt_gray8> image_accessor_type;
-  typedef agg::span_image_filter_gray_2x2<image_accessor_type, interpolator_type>
+  //typedef agg::span_image_filter_gray_2x2<image_accessor_type, interpolator_type>
+  //  image_span_gen_type;
+  typedef agg::span_image_filter_gray<image_accessor_type, interpolator_type>
     image_span_gen_type;
+
   typedef font_to_rgba<image_span_gen_type> span_gen_type;
   typedef agg::renderer_scanline_aa<renderer_base, color_span_alloc_type, span_gen_type>
     renderer_type;
