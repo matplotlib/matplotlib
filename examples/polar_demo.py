@@ -57,4 +57,6 @@ ax.plot(theta, r, color='#ee8d18', lw=3)
 ax.set_rmax(2.0)
 
 ax.set_title("And there was much rejoicing!", fontsize=20)
+
+fig.savefig('polar_demo')
 show()
