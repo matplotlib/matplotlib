@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 
 Path = mpath.Path
 
+fig = plt.figure()
+ax = fig.add_subplot(111)
+
 pathdata = [
     (Path.MOVETO, (0, 0)),
     (Path.CURVE4, (-1, 0)),
@@ -19,12 +22,9 @@ pathdata = [
 
 codes, verts = zip(*pathdata)
 path = mpath.Path(verts, codes)
-
 patch = mpatches.PathPatch(path, facecolor='green', edgecolor='yellow', alpha=0.5)
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
 ax.add_patch(patch)
+
 
 ax.set_xlim(-5,5)
 ax.set_ylim(-5,5)
