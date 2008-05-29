@@ -3,8 +3,6 @@
                fixed a bug introduced when get_grey method was added
            - DSD
 
-2008-05-29 Implement path clipping in SVG backend - MGD
-
 2008-05-28 Fix crashing of PDFs in xpdf and ghostscript when two-byte
            characters are used with Type 3 fonts - MGD
 
