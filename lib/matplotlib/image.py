@@ -650,11 +650,15 @@ def imread(fname):
     """
     return image file in fname as numpy array
 
-    Return value is a MxNx4 array of 0-1 normalized floats
+    return value is a numpy array.  For grayscale images, the return
+    array is MxN.  For RGB images, the return value is MxNx3.  For
+    RGBA images the return value is MxNx4
 
     matplotlib can only read PNGs natively, but if PIL is installed,
-    it will use it to load the image and return an RGBA if possible
+    it will use it to load the image and return an array (if possible)
     which can be used with imshow
+
+    TODO: support RGB and grayscale return values in _image.readpng
     """
 
     def pilread():
@@ -682,15 +686,39 @@ def imread(fname):
 
 
 def pil_to_array( pilImage ):
+    """
+    load a PIL image and return it as a numpy array of uint8.  For
+    grayscale images, the return array is MxN.  For RGB images, the
+    return value is MxNx3.  For RGBA images the return value is MxNx4
+    """
+    def toarray(im)
+        'return a 1D array of floats'
+        x_str = im.tostring('raw',im.mode,0,-1)
+        x = np.fromstring(x_str,np.uint8)
+        return x
+
     if pilImage.mode in ('RGBA', 'RGBX'):
-        im = pilImage # no need to convert images in rgba format
+        im = pilImage # no need to convert images
+    elif pilImage.mode=='L':
+        im = pilImage # no need to luminance images
+        # return MxN luminance array
+        x = toarray(im)
+        x.shape = im.size[1], im.size[0]
+        return x
+    elif pilImage.mode=='RGB':
+        #return MxNx3 RGB array
+        im = pilImage # no need to RGB images
+        x = toarray(im)
+        x.shape = im.size[1], im.size[0], 3
+        return x
+
     else: # try to convert to an rgba image
         try:
             im = pilImage.convert('RGBA')
         except ValueError:
             raise RuntimeError('Unknown image mode')
 
-    x_str = im.tostring('raw',im.mode,0,-1)
-    x = np.fromstring(x_str,np.uint8)
+    # return MxNx4 RGBA array
+    x = toarray(im)
     x.shape = im.size[1], im.size[0], 4
     return x
