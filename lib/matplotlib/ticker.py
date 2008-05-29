@@ -301,6 +301,7 @@ class ScalarFormatter(Formatter):
         self._scientific = True
         self._powerlimits = rcParams['axes.formatter.limits']
 
+
     def fix_minus(self, s):
         'use a unicode minus rather than hyphen'
         if rcParams['text.usetex']: return s
