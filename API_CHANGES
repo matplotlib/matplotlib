@@ -1,4 +1,8 @@
 
+    matplotlib.image.imread now no longer always returns RGBA -- if
+    the image is luminance or RGB, it will return a MxN or MxNx3 array
+    if possible.  Also uint8 is no longer always forced to float.
+
     Rewrote the cm.ScalarMappable callback infrastructure to use
     cbook.CallbackRegistry rather than custom callback handling.  Amy
     users of add_observer/notify of the cm.ScalarMappable should uae
@@ -196,6 +200,9 @@ TRANSFORMS REFACTORING
 		draw_regpoly_collection
 
 END OF TRANSFORMS REFACTORING
+
+
+
 
 0.91.2 Released
 
