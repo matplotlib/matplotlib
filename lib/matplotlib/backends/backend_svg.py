@@ -56,6 +56,37 @@ class RendererSVG(RendererBase):
         self._svgwriter.write ('%s<%s style="%s" %s %s/>\n' % (
             cliprect, element, style, clippath, details))
 
+    def _path_commands(self, path):
+        cmd = []
+        while 1:
+            code, xp, yp = path.vertex()
+            yp = self.height - yp
+
+            if code == agg.path_cmd_stop:
+                cmd.append('z') # Hack, path_cmd_end_poly not found
+                break
+            elif code == agg.path_cmd_move_to:
+                cmd.append('M%g %g' % (xp, yp))
+            elif code == agg.path_cmd_line_to:
+                cmd.append('L%g %g' % (xp, yp))
+            elif code == agg.path_cmd_curve3:
+                verts = [xp, yp]
+                verts.extent(path.vertex()[1:])
+                verts[-1] = self.height - verts[-1]
+                cmd.append('Q%g %g %g %g' % tuple(verts))
+            elif code == agg.path_cmd_curve4:
+                verts = [xp, yp]
+                verts.extend(path.vertex()[1:])
+                verts[-1] = self.height - verts[-1]
+                verts.extend(path.vertex()[1:])
+                verts[-1] = self.height - verts[-1]
+                cmd.append('C%g %g %g %g %g %g'%tuple(verts))
+            elif code == agg.path_cmd_end_poly:
+                cmd.append('z')
+
+        path_data = "".join(cmd)
+        return path_data
+
     def _get_font(self, prop):
         key = hash(prop)
         font = self.fontd.get(key)
@@ -108,9 +139,27 @@ class RendererSVG(RendererBase):
 
     def _get_gc_clip_svg(self, gc):
         cliprect = gc.get_clip_rectangle()
-        if cliprect is None:
+        clippath = gc.get_clip_path()
+        if cliprect is None and clippath is None:
             return '', None
-        else:
+        elif clippath is not None:
+            # See if we've already seen this clip rectangle
+            key = hash(clippath)
+            if self._clipd.get(key) is None:  # If not, store a new clipPath
+                self._clipd[key] = clippath
+                style = "stroke: gray; fill: none;"
+                path_data = self._path_commands(clippath)
+                path = """\
+<defs>
+    <clipPath id="%(key)s">
+    <path d="%(path_data)s"/>
+    </clipPath>
+</defs>
+""" % locals()
+                return path, key
+            else:
+                return '', key
+        elif cliprect is not None:
             # See if we've already seen this clip rectangle
             key = hash(cliprect)
             if self._clipd.get(key) is None:  # If not, store a new clipPath
@@ -139,35 +188,7 @@ class RendererSVG(RendererBase):
         self._svgwriter.write('</g>\n')
 
     def draw_path(self, gc, rgbFace, path):
-        cmd = []
-
-        while 1:
-            code, xp, yp = path.vertex()
-            yp = self.height - yp
-
-            if code == agg.path_cmd_stop:
-                cmd.append('z') # Hack, path_cmd_end_poly not found
-                break
-            elif code == agg.path_cmd_move_to:
-                cmd.append('M%g %g' % (xp, yp))
-            elif code == agg.path_cmd_line_to:
-                cmd.append('L%g %g' % (xp, yp))
-            elif code == agg.path_cmd_curve3:
-                verts = [xp, yp]
-                verts.extent(path.vertex()[1:])
-                verts[-1] = self.height - verts[-1]
-                cmd.append('Q%g %g %g %g' % tuple(verts))
-            elif code == agg.path_cmd_curve4:
-                verts = [xp, yp]
-                verts.extend(path.vertex()[1:])
-                verts[-1] = self.height - verts[-1]
-                verts.extend(path.vertex()[1:])
-                verts[-1] = self.height - verts[-1]
-                cmd.append('C%g %g %g %g %g %g'%tuple(verts))
-            elif code == agg.path_cmd_end_poly:
-                cmd.append('z')
-
-        path_data = "".join(cmd)
+        path_data = self._path_commands(path)
         self._draw_svg_element("path", 'd="%s"' % path_data, gc, rgbFace)
 
     def draw_arc(self, gc, rgbFace, x, y, width, height, angle1, angle2, rotation):
