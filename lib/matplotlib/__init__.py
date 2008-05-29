@@ -55,7 +55,7 @@ gmail.com and a host of others).
 """
 from __future__ import generators
 
-__version__  = '0.91.2svn'
+__version__  = '0.91.3svn'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
