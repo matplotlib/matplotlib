@@ -691,7 +691,7 @@ def pil_to_array( pilImage ):
     grayscale images, the return array is MxN.  For RGB images, the
     return value is MxNx3.  For RGBA images the return value is MxNx4
     """
-    def toarray(im)
+    def toarray(im):
         'return a 1D array of floats'
         x_str = im.tostring('raw',im.mode,0,-1)
         x = np.fromstring(x_str,np.uint8)
