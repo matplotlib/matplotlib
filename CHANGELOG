@@ -1,3 +1,8 @@
+2008-05-29 matplotlib.image.imread now no longer always returns RGBA
+           -- if the image is luminance or RGB, it will return a MxN
+           or MxNx3 array if possible.  Also uint8 is no longer always
+           forced to float.
+
 2008-05-29 Implement path clipping in PS backend - JDH
 
 2008-05-29 Fixed two bugs in texmanager.py:
