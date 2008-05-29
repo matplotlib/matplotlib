@@ -150,6 +150,8 @@ class RendererPS(RendererBase):
         self.used_characters = {}
         self.mathtext_parser = MathTextParser("PS")
 
+        self._clip_paths = dict()
+        
     def track_characters(self, font, s):
         """Keeps track of which characters are required from
         each font."""
@@ -445,6 +447,49 @@ grestore
         ps = '%1.4g %1.4g m %1.4g %1.4g l'%(x0, y0, x1, y1)
         self._draw_ps(ps, gc, None, "line")
 
+    def _get_clippath_command(self, clippath):
+        id = self._clip_paths.get(clippath)
+        if id is None:
+            id = 'c%x' % len(self._clip_paths)
+            ps_cmd = ['/%s {' % id]
+            ps_cmd.append(self._get_path(clippath))
+            ps_cmd.extend(['clip', 'newpath', '} bind def\n'])
+            self._pswriter.write('\n'.join(ps_cmd))
+            self._clip_paths[clippath] = id
+
+        return '%s\n'%id
+
+    def _get_path(self, path):
+        cmd = []
+        while 1:
+            code, xp, yp = path.vertex()
+
+
+            if code == agg.path_cmd_stop:
+                cmd.append('closepath\n')
+                break
+            elif code == agg.path_cmd_move_to:
+                cmd.append('%g %g m' % (xp, yp))
+            elif code == agg.path_cmd_line_to:
+                cmd.append('%g %g l' % (xp, yp))
+            elif code == agg.path_cmd_curve3:
+                verts = [xp, yp]
+                verts.extend(path.vertex()[1:])
+                cmd.append('%g %g %g %g %g %g c' % (verts[0], verts[1],
+                           verts[0], verts[1],
+                           verts[2], verts[3]))
+            elif code == agg.path_cmd_curve4:
+                verts = [xp, yp]
+                verts.extend(path.vertex()[1:])
+                verts.extend(path.vertex()[1:])
+                cmd.append('%g %g %g %g %g %g c'%tuple(verts))
+            elif code == agg.path_cmd_end_poly:
+                cmd.append('cl\n')
+
+        if len(cmd)==0:
+            return None
+        return '\n'.join(cmd)
+
     def draw_markers(self, gc, path, rgbFace, x, y, transform):
         """
         Draw the markers defined by path at each of the positions in x
@@ -515,10 +560,17 @@ grestore
         mask = npy.where(npy.isnan(x) + npy.isnan(y), 0, 1)
 
         cliprect = gc.get_clip_rectangle()
+        clippath = gc.get_clip_path()
         if cliprect:
             write('gsave\n')
             xc,yc,wc,hc=cliprect
             write('%g %g %g %g clipbox\n' % (wc,hc,xc,yc))
+        if clippath:
+            write('gsave\n')
+            cmd = self._get_clippath_command(clippath)
+            write(cmd)
+
+
         write(' '.join(['/o {', ps_cmd, '} bind def\n']))
         # Now evaluate the marker command at each marker location:
         while start < len(x):
@@ -527,7 +579,10 @@ grestore
             write('\n'.join(ps)+'\n')
             start = end
             end += step
+
         if cliprect: write('grestore\n')
+        if clippath: write('grestore\n')
+
 
     def draw_path(self, gc, rgbFace, path):
 
@@ -594,10 +649,17 @@ grestore
 
         self.push_gc(gc, store=1)
         cliprect = gc.get_clip_rectangle()
+        clippath = gc.get_clip_path()
+
         if cliprect:
             write('gsave\n')
             xc,yc,wc,hc=cliprect
             write('%g %g %g %g clipbox\n' % (wc,hc,xc,yc))
+        if clippath:
+            write('gsave\n')
+            cmd = self._get_clippath_command(clippath)
+            write(cmd)
+
         while start < len(points):
             drawone.state = 'm'
             ps = [i for i in [drawone(x,y,s) for x,y,s in points[start:end+1]]\
@@ -607,7 +669,7 @@ grestore
             start = end
             end += step
         if cliprect: write('grestore\n')
-
+        if clippath: write('grestore\n')
 
     def draw_lines_old(self, gc, x, y, transform=None):
         """
@@ -633,10 +695,17 @@ grestore
             self.push_gc(gc, store=1)
 
             cliprect = gc.get_clip_rectangle()
+            clippath = gc.get_clip_path()
+
             if cliprect:
                 write('gsave\n')
                 xc,yc,wc,hc=cliprect
                 write('%g %g %g %g clipbox\n' % (wc,hc,xc,yc))
+
+            if clippath:
+                write('gsave\n')
+                cmd = self._get_clippath_command(clippath)
+                write(cmd)
 
         steps  = 50
         start  = 0
@@ -672,7 +741,7 @@ grestore
             end   += steps
         if transform:
             if cliprect: write("grestore\n")
-
+            if clippath: write('grestore\n')
     def draw_point(self, gc, x, y):
         """
         Draw a single point at x,y
@@ -930,6 +999,7 @@ grestore
             write("% "+command+"\n")
 
         cliprect = gc.get_clip_rectangle()
+        clippath = gc.get_clip_path()
         self.set_color(*gc.get_rgb())
         self.set_linewidth(gc.get_linewidth())
         jint = gc.get_joinstyle()
@@ -941,6 +1011,13 @@ grestore
         if cliprect:
             x,y,w,h=cliprect
             write('gsave\n%1.4g %1.4g %1.4g %1.4g clipbox\n' % (w,h,x,y))
+
+        if clippath:
+            write('gsave\n')
+            cmd = self._get_clippath_command(clippath)
+            write(cmd)
+
+
         # Jochen, is the strip necessary? - this could be a honking big string
         write(ps.strip())
         write("\n")
@@ -961,6 +1038,9 @@ grestore
 
         if cliprect:
             write("grestore\n")
+
+        if clippath:
+            write('grestore\n')
 
     def push_gc(self, gc, store=1):
         """

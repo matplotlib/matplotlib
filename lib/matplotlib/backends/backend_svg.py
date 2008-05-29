@@ -71,7 +71,7 @@ class RendererSVG(RendererBase):
                 cmd.append('L%g %g' % (xp, yp))
             elif code == agg.path_cmd_curve3:
                 verts = [xp, yp]
-                verts.extent(path.vertex()[1:])
+                verts.extend(path.vertex()[1:])
                 verts[-1] = self.height - verts[-1]
                 cmd.append('Q%g %g %g %g' % tuple(verts))
             elif code == agg.path_cmd_curve4:
