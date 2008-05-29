@@ -179,7 +179,7 @@ class Formatter(TickHelper):
         """
         some classes may want to replace a hyphen for minus with the
         proper unicode symbol as described here
-        
+
           http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720.
         The default is to do nothing
 
@@ -191,7 +191,7 @@ class Formatter(TickHelper):
         should have an explicit format_data_short method
         """
         return s
-    
+
 class NullFormatter(Formatter):
     'Always return the empty string'
     def __call__(self, x, pos=None):
@@ -303,7 +303,8 @@ class ScalarFormatter(Formatter):
 
     def fix_minus(self, s):
         'use a unicode minus rather than hyphen'
-        return s.replace('-', u'\u2212') 
+        if rcParams['text.usetex']: return s
+        else: return s.replace('-', u'\u2212')
 
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'
@@ -366,7 +367,7 @@ class ScalarFormatter(Formatter):
                 s =  ''.join(('$',sciNotStr,offsetStr,'$'))
             else:
                 s =  ''.join((sciNotStr,offsetStr))
-                
+
         return self.fix_minus(s)
 
     def set_locs(self, locs):
