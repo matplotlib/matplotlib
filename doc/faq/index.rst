@@ -12,5 +12,6 @@ Frequently asked questions about matplotlib
 .. toctree::
 
    installing_faq.rst
+   troubleshooting_faq.rst
    plotting_faq.rst
 
