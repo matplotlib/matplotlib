@@ -9,8 +9,8 @@
 
 matplotlib is a library for making 2D plots of arrays in `Python
 <http://www.python.org>`_.  Although it has its origins in emulating
-the `Matlab (TM) <http://www.mathworks.com>`_ graphics commands, it does
-not require MATLAB (TM), and can be used in a Pythonic, object oriented
+the `MATLAB™ <http://www.mathworks.com>`_ graphics commands, it does
+not require MATLAB, and can be used in a Pythonic, object oriented
 way.  Although matplotlib is written primarily in pure Python, it
 makes heavy use of `NumPy <http://www.numpy.org>`_ and other extension
 code to provide good performance even for large arrays.
@@ -22,14 +22,14 @@ instantiate objects, call methods, set properties, and so on; it
 should just work.
 
 For years, I used to use MATLAB exclusively for data analysis and
-visualization.  Matlab excels at making nice looking plots easy.  When
+visualization.  MATLAB excels at making nice looking plots easy.  When
 I began working with EEG data, I found that I needed to write
 applications to interact with my data, and developed and EEG analysis
-application in Matlab.  As the application grew in complexity,
+application in MATLAB.  As the application grew in complexity,
 interacting with databases, http servers, manipulating complex data
-structures, I began to strain against the limitations of Matlab as a
+structures, I began to strain against the limitations of MATLAB as a
 programming language, and decided to start over in Python.  Python
-more than makes up for all of matlab's deficiencies as a programming
+more than makes up for all of MATLAB's deficiencies as a programming
 language, but I was having difficulty finding a 2D plotting package
 (for 3D `VTK <http://www.vtk.org/>`_) more than exceeds all of my needs).
 
@@ -52,9 +52,9 @@ requirements:
 Finding no package that suited me just right, I did what any
 self-respecting Python programmer would do: rolled up my sleeves and
 dived in.  Not having any real experience with computer graphics, I
-decided to emulate Matlab's plotting capabilities because that is
-something Matlab does very well.  This had the added advantage that
-many people have a lot of Matlab experience, and thus they can
+decided to emulate MATLAB's plotting capabilities because that is
+something MATLAB does very well.  This had the added advantage that
+many people have a lot of MATLAB experience, and thus they can
 quickly get up to steam plotting in python.  From a developer's
 perspective, having a fixed user interface (the pylab interface) has
 been very useful, because the guts of the code base can be redesigned
@@ -63,7 +63,7 @@ without affecting user code.
 The matplotlib code is conceptually divided into three parts: the
 *pylab interface* is the set of functions provided by
 :mod:`matplotlib.pylab` which allow the user to create plots with code
-quite similar to Matlab figure generating code.  The *matplotlib
+quite similar to MATLAB figure generating code.  The *matplotlib
 frontend* or *matplotlib API* is the set of classes that do the heavy
 lifting, creating and managing figures, text, lines, plots and so on.
 This is an abstract interface that knows nothing about output.  The
@@ -86,7 +86,7 @@ people want to automatically generate PostScript® files to send
 to a printer or publishers.  Others deploy matplotlib on a web
 application server to generate PNG output for inclusion in
 dynamically-generated web pages.  Some use matplotlib interactively
-from the Python shell in Tkinter on Windows (TM) My primary use is to
+from the Python shell in Tkinter on Windows™. My primary use is to
 embed matplotlib in a Gtk+ EEG application that runs on Windows, Linux
 and Macintosh OS X.
 
