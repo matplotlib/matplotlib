@@ -202,7 +202,7 @@ Symbols
 -------
 
 You can also use a large number of the TeX symbols, as in ``\infty``,
-``\leftarrow``, ``\sum``, ``\int``; see :class:`matplotlib.mathtext` for a
+``\leftarrow``, ``\sum``, ``\int``; see :mod:`matplotlib.mathtext` for a
 complete list.
 
 If a particular symbol does not have a name (as is true of many of the
