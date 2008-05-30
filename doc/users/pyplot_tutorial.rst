@@ -76,7 +76,7 @@ several ways to set line properties
 
 * Use the setter methods of the ``Line2D`` instance.  ``plot`` returns a list
   of lines; eg ``line1, line2 = plot(x1,y1,x2,x2)``.  Below I have only
-  one line so it is a list of length 1.  I use tuple unpacking in the
+  one line so it is a list of7 length 1.  I use tuple unpacking in the
   ``line, = plot(x, y, 'o')`` to get the first element of the list::
 
       line, = plt.plot(x, y, 'o')
@@ -262,80 +262,6 @@ zorder			    any number
 
 See `align_text <http://matplotlib.sf.net/screenshots.html#align_text>`_ for
 examples of how to control the alignment and orientation of text.
-
-
-
-
-Writing mathematical expressions
-================================
-
-You may have noticed in the histogram example above that we slipped a
-little TeX markup into the expression ``r'$\mu=100,\ \sigma=15$')``
-You can use TeX markup in any matplotlib text string; see the
-:mod:`matplotlib.mathtext` module documentation for details.  Note
-that you do not need to have TeX installed, since matplotlib ships
-its own TeX expression parser, layout engine and fonts.  Michael
-Droettboom has implemented the Knuth layout algorithms in python, so
-the quality is quite good (matplotlib also provides a ``usetex`` option
-for those who do want to call out to TeX to generate their text).
-
-Any text element can use math text.  You need to use raw strings
-(preceed the quotes with an ``'r'``), and surround the string text
-with dollar signs, as in TeX.  Regular text and mathtext can be
-interleaved within the same string.  Mathtext can use the Bakoma
-Computer Modern fonts, STIX fonts or a Unicode font that you provide.
-The mathtext font can be selected with the customization variable
-``mathtext.fontset``::
-
-    # plain text
-    plt.title('alpha > beta')
-
-    # math text
-    plt.title(r'$\alpha > \beta$')
-
-
-To make subscripts and superscripts use the '_' and '^' symbols::
-
-    plt.title(r'$\alpha_i > \beta_i$')
-
-You can also use a large number of the TeX symbols, as in ``\infty,
-\leftarrow, \sum, \int``; see :class:`matplotlib.mathtext` for a
-complete list.  The over/under subscript/superscript style is also
-supported.  To write the sum of x_i from 0 to infinity, you could do::
-
-    plt.text(1, -0.6, r'$\sum_{i=0}^\infty x_i$')
-
-The default font is *italics* for mathematical symbols.  To change
-fonts, eg, to write "sin" in a Roman font, enclose the text in a font
-command::
-
-    plt.text(1,2, r's(t) = $\mathcal{A}\mathrm{sin}(2 \omega t)$')
-
-
-Even better, many commonly used function names that are typeset in a
-Roman font have shortcuts.  So the expression above could be written
-as follows::
-
-    plt.text(1,2, r's(t) = $\mathcal{A}\sin(2 \omega t)$')
-
-
-Here "s" and "t" are variable in italics font (default), "sin" is in
-Roman font, and the amplitude "A" is in caligraphy font. The font
-choices are Roman ``\mathrm``, italics ``\mathit``, caligraphy
-``\mathcal``, and typewriter ``\mathtt``.  If using the STIX fonts,
-you also have the choice of blackboard (double-struck) ``\mathbb``,
-circled ``\mathcircled``, Fraktur ``\mathfrak``, script (cursive)
-``\mathscr`` and sans-serif ``\mathsf``.
-
-The following accents are provided: ``\hat``, ``\breve``, ``\grave``,
-``\bar``, ``\acute``, ``\tilde``, ``\vec``, ``\dot``, ``\ddot``.  All
-of them have the same syntax, eg to make an overbar you do ``\bar{o}``
-or to make an o umlaut you do ``\ddot{o}``.
-
-.. literalinclude:: figures/pyplot_mathtext.py
-
-.. image:: figures/pyplot_mathtext.png
-   :scale: 50
 
 
 
