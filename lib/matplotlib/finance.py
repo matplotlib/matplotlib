@@ -335,7 +335,7 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
 
     scale = ax.figure.dpi * (1.0/72.0)
 
-    tickTransform = Affine2D().scaled(scale, 0.0)
+    tickTransform = Affine2D().scale(scale, 0.0)
 
     r,g,b = colorConverter.to_rgb(colorup)
     colorup = r,g,b,1
@@ -411,21 +411,11 @@ def candlestick2(ax, opens, closes, highs, lows, width=4,
 
     # note this code assumes if any value open, close, low, high is
     # missing they all are missing
-    right = width/2.0
-    left = -width/2.0
-
-    barVerts = [ ( (left, 0), (left, close-open), (right, close-open), (right, 0) ) for open, close in zip(opens, closes) if open != -1 and close!=-1 ]
+    
+    delta = width/2.
+    barVerts = [ ( (i-delta, open), (i-delta, close), (i+delta, close), (i+delta, open) ) for i, open, close in zip(xrange(len(opens)), opens, closes) if open != -1 and close!=-1 ]
 
     rangeSegments = [ ((i, low), (i, high)) for i, low, high in zip(xrange(len(lows)), lows, highs) if low != -1 ]
-
-
-
-    offsetsBars = [ (i, open) for i,open in zip(xrange(len(opens)), opens) if open != -1 ]
-
-    sx = ax.figure.dpi * (1.0/72.0)  # scale for points
-    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y())
-
-    barTransform = Affine2D().scaled(sx,sy)
 
 
 
@@ -440,8 +430,6 @@ def candlestick2(ax, opens, closes, highs, lows, width=4,
 
 
     assert(len(barVerts)==len(rangeSegments))
-    assert(len(rangeSegments)==len(offsetsBars))
-    assert(len(offsetsBars)==len(colors))
 
     useAA = 0,  # use tuple here
     lw = 0.5,   # and here
@@ -457,19 +445,13 @@ def candlestick2(ax, opens, closes, highs, lows, width=4,
                                    edgecolors   = ( (0,0,0,1), ),
                                    antialiaseds = useAA,
                                    linewidths   = lw,
-                                   offsets      = offsetsBars,
-                                   transOffset  = ax.transData,
                                    )
-    barCollection.set_transform(barTransform)
 
-
-
-
-    minpy, maxx = (0, len(rangeSegments))
+    minx, maxx = 0, len(rangeSegments)
     miny = min([low for low in lows if low !=-1])
     maxy = max([high for high in highs if high != -1])
 
-    corners = (minpy, miny), (maxx, maxy)
+    corners = (minx, miny), (maxx, maxy)
     ax.update_datalim(corners)
     ax.autoscale_view()
 
@@ -504,38 +486,17 @@ def volume_overlay(ax, opens, closes, volumes,
                }
     colors = [colord[open<close] for open, close in zip(opens, closes) if open!=-1 and close !=-1]
 
-    right = width/2.0
-    left = -width/2.0
-
-
-    bars = [ ( (left, 0), (left, v), (right, v), (right, 0)) for v in volumes if v != -1 ]
-
-    sx = ax.figure.dpi * (1.0/72.0)  # scale for points
-    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y())
-
-    barTransform = Affine2D().scaled(sx,sy)
-
-    offsetsBars = [ (i, 0) for i,v in enumerate(volumes) if v != -1 ]
+    delta = width/2.
+    bars = [ ( (i-delta, 0), (i-delta, v), (i+delta, v), (i+delta, 0)) for i, v in enumerate(volumes) if v != -1 ]
 
     barCollection = PolyCollection(bars,
                                    facecolors   = colors,
                                    edgecolors   = ( (0,0,0,1), ),
                                    antialiaseds = (0,),
                                    linewidths   = (0.5,),
-                                   offsets      = offsetsBars,
-                                   transOffset  = ax.transData,
                                    )
-    barCollection.set_transform(barTransform)
 
-
-
-
-
-
-    minpy, maxx = (0, len(offsetsBars))
-    miny = 0
-    maxy = max([v for v in volumes if v!=-1])
-    corners = (minpy, miny), (maxx, maxy)
+    corners = (0, 0), (len(bars), max(volumes))
     ax.update_datalim(corners)
     ax.autoscale_view()
 
@@ -601,9 +562,9 @@ def volume_overlay3(ax, quotes,
     bars = [ ( (left, 0), (left, volume), (right, volume), (right, 0)) for d, open, close, high, low, volume in quotes]
 
     sx = ax.figure.dpi * (1.0/72.0)  # scale for points
-    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y())
+    sy = ax.bbox.height / ax.viewLim.height
 
-    barTransform = Affine2D().scaled(sx,sy)
+    barTransform = Affine2D().scale(sx,sy)
 
     dates = [d for d, open, close, high, low, volume in quotes]
     offsetsBars = [(d, 0) for d in dates]
@@ -661,9 +622,9 @@ def index_bar(ax, vals,
     bars = [ ( (left, 0), (left, v), (right, v), (right, 0)) for v in vals if v != -1 ]
 
     sx = ax.figure.dpi * (1.0/72.0)  # scale for points
-    sy = (ax.bbox.ur().y() - ax.bbox.ll().y()) / (ax.viewLim.ur().y() - ax.viewLim.ll().y())
+    sy = ax.bbox.height / ax.viewLim.height
 
-    barTransform = Affine2D().scaled(sx,sy)
+    barTransform = Affine2D().scale(sx,sy)
 
     offsetsBars = [ (i, 0) for i,v in enumerate(vals) if v != -1 ]
 
