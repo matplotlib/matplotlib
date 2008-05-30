@@ -100,6 +100,7 @@ def latex2html(node, source):
     for i in range(count):
         if os.path.exists(path): break
         path = '../'+path
+    path = '../'+path #specifically added for matplotlib
     if inline and '_' in latex:
         align = 'align="absmiddle" '
     else:
