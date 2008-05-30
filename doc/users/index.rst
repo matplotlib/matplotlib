@@ -93,6 +93,7 @@ and Macintosh OS X.
 .. toctree::
 
     pyplot_tutorial.rst
+    mathtext.rst
     navigation_toolbar.rst
     customizing.rst
     artists.rst
