@@ -13,5 +13,5 @@ Frequently asked questions about matplotlib
 
    installing_faq.rst
    troubleshooting_faq.rst
-   plotting_faq.rst
+   howto_faq.rst
 
