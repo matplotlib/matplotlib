@@ -2,50 +2,69 @@
 Artist tutorial
 ***************
 
-There are three layers to the matplotlib API.  The FigureCanvas is the
-area onto which the figure is drawn, the Renderer is the object which
-knows how to draw on the FigureCanvas, and the Artist is the object
-that knows how to use a renderer to paint onto the canvas.  The
-FigureCanvas and Renderer handle all the details of talking to user
-interface toolkits like wxpython or drawing languages like postscript,
-and the Artist handles all the high level constructs like
-representing and laying out the figure, text, and lines.  The typical
-user will spend 95% of his time working with the Artists.
+There are three layers to the matplotlib API.  The
+:class:`matplotlib.backend_bases.FigureCanvas` is the area onto which
+the figure is drawn, the :class:`matplotlib.backend_bases.Renderer` is
+the object which knows how to draw on the
+:class:`~matplotlib.backend_bases.FigureCanvas`, and the
+:class:`matplotlib.artist.Artist` is the object that knows how to use
+a renderer to paint onto the canvas.  The
+:class:`~matplotlib.backend_bases.FigureCanvas` and
+:class:`~matplotlib.backend_bases.Renderer` handle all the details of
+talking to user interface toolkits like `wxPython
+<http://www.wxpython.org>`_ or drawing languages like PostScript®, and
+the ``Artist`` handles all the high level constructs like representing
+and laying out the figure, text, and lines.  The typical user will
+spend 95% of his time working with the ``Artists``.
 
-There are two types Artists: primitives and containers.  The
+There are two types of ``Artists``: primitives and containers.  The
 primitives represent the standard graphical objects we want to paint
-onto our canvas: Line2D, Rectangle, Text, AxesImage, etc, and the
-containers are places to put them (Axis, Axes and Figure).  The
-standard use is to create a Figure instance, use the Figure to create
-one or more Axes or Subplot instances, and use the Axes instance
-helper methods to create the primitives.  In the example below, we
-create a Figure instance using pyplot.figure, which is a convenience
-method for instantiating Figure instances and connecting them with
-your user interface or drawing toolkit FigureCanvas.  As we will
-discuss below, this is not necessary, and you can work directly with
-postscript, pdf gtk, or wxpython FigureCanvas es, instantiate your
-Figures directly and connect them yourselves, but since we are
-focusing here on the Artist API we'll let pyplot handle some of those
-details for us::
+onto our canvas: :class:`~matplotlib.lines.Line2D`,
+:class:`~matplotlib.patches.Rectangle`,
+:class:`~matplotlib.text.Text`, :class:`~matplotlib.image.AxesImage`,
+etc., and the containers are places to put them
+(:class:`~matplotlib.axis.Axis`, :class:`~matplotlib.axes.Axes` and
+:class:`~matplotlib.figure.Figure`).  The standard use is to create a
+:class:`~matplotlib.figure.Figure` instance, use the ``Figure`` to
+create one or more :class:`~matplotlib.axes.Axes` or
+:class:`~matplotlib.axes.Subplot` instances, and use the ``Axes``
+instance helper methods to create the primitives.  In the example
+below, we create a ``Figure`` instance using
+:func:`matplotlib.pyplot.figure`, which is a convenience method for
+instantiating ``Figure`` instances and connecting them with your user
+interface or drawing toolkit ``FigureCanvas``.  As we will discuss
+below, this is not necessary, and you can work directly with
+PostScript, PDF Gtk+, or wxPython ``FigureCanvas`` instances.  For
+example, instantiate your ``Figures`` directly and connect them
+yourselves, but since we are focusing here on the ``Artist`` API we'll let
+:mod:`~matplotlib.pyplot` handle some of those details for us::
 
     import matplotlib.pyplot as plt
     fig = plt.figure()
     ax = fig.add_subplot(2,1,1) # two rows, one column, first plot
 
-The Axes is probably the most important class in the matplotlib API,
-and the one you will be working with most of the time.  This is
-because the Axes is the plotting area into which most of the objects
-go, and the Axes has many special helper methods (ax.plot, ax.text,
-ax.hist, ax.imshow) to create the most common graphics primitives
-(Line2D, Text, Rectangle, Image, respectively).  These helper methods
-will take your data (eg numpy arrays and strings) create primitive
-Artist instances as needed (eg Line2D), add them to the relevant
-containers, and draw them when requested.  Most of you are probably
-familiar with the Subplot, which is just a special case of an Axes
-that lives on a regular rows by columns grid of Subplot instances.  If
-you want to create an Axes at an arbitrary location, simply use the
-add_axes method which takes a list of [left, bottom, width, height]
-values in 0-1 relative figure coordinates::
+The :class:`~matplotlib.axes.Axes` is probably the most important
+class in the matplotlib API, and the one you will be working with most
+of the time.  This is because the ``Axes`` is the plotting area into
+which most of the objects go, and the ``Axes`` has many special helper
+methods (:meth:`~matplotlib.axes.Axes.plot`,
+:meth:`~matplotlib.axes.Axes.text`,
+:meth:`~matplotlib.axes.Axes.hist`,
+:meth:`~matplotlib.axes.Axes.imshow`) to create the most common
+graphics primitives (:class:`~matplotlib.lines.Line2D`,
+:class:`~matplotlib.text.Text`,
+:class:`~matplotlib.patches.Rectangle`,
+:class:`~matplotlib.image.Image`, respectively).  These helper methods
+will take your data (eg. ``numpy`` arrays and strings) create
+primitive ``Artist`` instances as needed (eg. ``Line2D``), add them to
+the relevant containers, and draw them when requested.  Most of you
+are probably familiar with the :class:`~matplotlib.axes.Subplot`,
+which is just a special case of an ``Axes`` that lives on a regular
+rows by columns grid of ``Subplot`` instances.  If you want to create
+an ``Axes`` at an arbitrary location, simply use the
+:meth:`~matplotlib.figure.Figure.add_axes` method which takes a list
+of ``[left, bottom, width, height]`` values in 0-1 relative figure
+coordinates::
 
     ax2 = fig.add_axes([0.15, 0.1, 0.7, 0.3])
 
@@ -56,12 +75,14 @@ Continuing with our example::
     s = np.sin(2*np.pi*t)
     line, = ax1.plot(t, s, color='blue', lw=2)
 
-In this example, ax is the Axes instance created by the
-fig.add_subplot call above (remember Subplot is just a subclass of
-Axes) and when you call ax.plot, it creates a Line2D instance and adds
-it the the Axes.lines list.  In the interactive ipython session below,
-you can see that Axes.lines list is length one and contains the same
-line that was returned by the "line, ax.plot(x, y, 'o')" call:
+In this example, ``ax`` is the ``Axes`` instance created by the
+``fig.add_subplot`` call above (remember ``Subplot`` is just a
+subclass of ``Axes``) and when you call ``ax.plot``, it creates a
+``Line2D`` instance and adds it the the :attr:`Axes.lines
+<matplotlib.axes.Axes.lines>` list.  In the interactive `ipython
+<http://ipython.scipy.org/>`_ session below, you can see that
+``Axes.lines`` list is length one and contains the same line that was
+returned by the ``line, = ax.plot(x, y, 'o')`` call:
 
 .. sourcecode:: ipython
 
@@ -71,7 +92,7 @@ line that was returned by the "line, ax.plot(x, y, 'o')" call:
     In [102]: line
     Out[102]: <matplotlib.lines.Line2D instance at 0x19a95710>
 
-If you make subsequent calls to ax.plot (and the hold state is "on"
+If you make subsequent calls to ``ax.plot`` (and the hold state is "on"
 which is the default) then additional lines will be added to the list.
 You can remove lines later simply by calling the list methods; either
 of these will work::
@@ -79,33 +100,38 @@ of these will work::
     del ax.lines[0]
     ax.lines.remove(line)  # one or the other, not both!
 
-The Axes also has helper methods to configure and decorate the xaxis
-and yaxis tick, ticklabels and axis labels::
+The Axes also has helper methods to configure and decorate the x-axis
+and y-axis tick, ticklabels and axis labels::
 
     xtext = ax.set_xlabel('my xdata') # returns a Text instance
     ytext = ax.set_ylabel('my xdata')
 
-When you call ax.set_xlabel, it passes the information on the Text
-instance of the XAxis.  Each Axes instance contains an xaxis and a
-yaxis instance, which handle the layout and drawing of the ticks, tick
-labels and axis labels.
+When you call :meth:`ax.set_xlabel <matplotlib.axes.Axes.set_xlabel>`,
+it passes the information on the :class:`~matplotlib.text.Text`
+instance of the :class:`~matplotlib.axis.XAxis`.  Each ``Axes``
+instance contains an :class:`~matplotlib.axis.XAxis` and a
+:class:`~matplotlib.axis.YAxis` instance, which handle the layout and
+drawing of the ticks, tick labels and axis labels.
 
-Here are the most important matplotlib modules that contain the
-classes referenced above
+.. I'm commenting this out, since the new Sphinx cross-references
+.. sort of take care of this above - MGD
 
-===============   ==================
-Artist            Module
-===============   ==================
-Artist            matplotlib.artist
-Rectangle         matplotlib.patches
-Line2D            matplotlib.lines
-Axes              matplotlib.axes
-XAxis and YAxis   matplotlib.axis
-Figure            matplotlib.figure
-Text	          matplotlib.text
-===============   ==================
+.. Here are the most important matplotlib modules that contain the
+.. classes referenced above
 
-Try creating the figure below
+.. ===============   ==================
+.. Artist            Module
+.. ===============   ==================
+.. Artist            matplotlib.artist
+.. Rectangle         matplotlib.patches
+.. Line2D            matplotlib.lines
+.. Axes              matplotlib.axes
+.. XAxis and YAxis   matplotlib.axis
+.. Figure            matplotlib.figure
+.. Text	          matplotlib.text
+.. ===============   ==================
+
+Try creating the figure below.
 
 .. image:: figures/fig_axes_labels_simple.png
    :scale: 75
@@ -113,18 +139,21 @@ Try creating the figure below
 Customizing your objects
 ========================
 
-Every element in the figure is represented by a matplotlib Artist, and
-each has an extensive list of properties to configure its appearance.
-The figure itself contains a Rectangle exactly the size of the figure,
+Every element in the figure is represented by a matplotlib
+:class:`~matplotlib.artist.Artist`, and each has an extensive list of
+properties to configure its appearance.  The figure itself contains a
+:class:`~matplotlib.patches.Rectangle` exactly the size of the figure,
 which you can use to set the background color and transparency of the
-figures.  Likewise, each Axes bounding box (the standard white box
-with black edges in the typical matplotlib plot, has a Rectangle
-instance that determines the color, transparency, and other properties
-of the Axes.  These instances are stored as member variables
-Figure.figurePatch and Axes.axesPatch ("Patch" is a name inherited
-from Matlab, and is a 2D "patch" of color on the figure, eg
-rectangles, circles and polygons).  Every matplotlib Artist has the
-following properties
+figures.  Likewise, each :class:`~matplotlib.axes.Axes` bounding box
+(the standard white box with black edges in the typical matplotlib
+plot, has a ``Rectangle`` instance that determines the color,
+transparency, and other properties of the Axes.  These instances are
+stored as member variables :attr:`Figure.figurePatch
+<matplotlib.figure.Figure.figurePatch>` and :attr:`Axes.axesPatch
+<matplotlib.axes.Axes.axesPatch>` ("Patch" is a name inherited from
+MATLAB™, and is a 2D "patch" of color on the figure, eg. rectangles,
+circles and polygons).  Every matplotlib ``Artist`` has the following
+properties
 
 ==========   ======================================================================
 Property     Description
@@ -145,7 +174,7 @@ zorder       A number which determines the drawing order
 ==========   ======================================================================
 
 Each of the properties is accessed with an old-fashioned setter or
-getter (yes we know this irritates pythonistas and we plan to support
+getter (yes we know this irritates Pythonistas and we plan to support
 direct access via properties or traits but it hasn't been done yet).
 For example, to multiply the current alpha by a half::
 
@@ -153,15 +182,17 @@ For example, to multiply the current alpha by a half::
     o.set_alpha(0.5*a)
 
 If you want to set a number of properties at once, you can also use
-the "set" method with keyword arguments.  For example::
+the ``set`` method with keyword arguments.  For example::
 
     o.set(alpha=0.5, zorder=2)
 
 If you are working interactively at the python shell, a handy way to
-inspect the artist properties is to use the matplotlib.artist.getp
-method, which lists the properties and their values (simply "getp") in
-pylab.  This works for classes derived from Artist as well, eg Figure
-and Rectangle.  Here are the Figure rectangle properties mentioned above:
+inspect the ``Artist`` properties is to use the
+:func:`matplotlib.artist.getp` function (simply
+:func:`~matplotlib.pylab.getp` in pylab), which lists the properties
+and their values.  This works for classes derived from ``Artist`` as
+well, eg. ``Figure`` and ``Rectangle``.  Here are the ``Figure`` rectangle
+properties mentioned above:
 
 .. sourcecode:: ipython
 
@@ -192,7 +223,9 @@ and Rectangle.  Here are the Figure rectangle properties mentioned above:
 	y = 0
 	zorder = 1
 
-The docstrings for all of the classes also contain the artist
+.. TODO: Update these URLs
+
+The docstrings for all of the classes also contain the ``Artist``
 properties, so you can consult the interactive "help", the online html
 docs at http://matplotlib.sourceforge.net/classdocs.html or PDF documentation
 at http://matplotlib.sourceforge.net/api.pdf for a listing of
@@ -201,27 +234,32 @@ properties for a give object.
 Object containers
 =================
 
-Now that we know how to inspect set the properties of a given
-object we want to configure, we need to now how to get at that
-object.  As mentioned in the introduction, there are two kinds of
-objects: primitives and containers.  The primitives are usually the
-things you want to configure (the font of a Text instance, the width
-of a Line2D) although the containers also have some properties as
-well -- for example the Axes Artist is a container that contains many
-of the primitives in your plot, but it also has properties like the
-xscale to control whether the xaxis is 'linear' or 'log'.  In this
-section we'll review where the various container objects store the
-Artists that you want to get at.
+Now that we know how to inspect set the properties of a given object
+we want to configure, we need to now how to get at that object.  As
+mentioned in the introduction, there are two kinds of objects:
+primitives and containers.  The primitives are usually the things you
+want to configure (the font of a :class:`~matplotlib.text.Text`
+instance, the width of a :class:`~matplotlib.lines.Line2D`) although
+the containers also have some properties as well -- for example the
+:class:`~matplotlib.axes.Axes` :class:`~matplotlib.artist.Artist` is a
+container that contains many of the primitives in your plot, but it
+also has properties like the ``xscale`` to control whether the xaxis is
+'linear' or 'log'.  In this section we'll review where the various
+container objects store the ``Artists`` that you want to get at.
 
 Figure container
 ----------------
 
-The top level container Artist is the matplotlib.figure.Figure, and it
-contains everything in the figure.  The background of the figure is a
-Rectangle which is stored in fig.figurePatch (where fig is your Figure
-instance).  As you add subplots (fig.add_subplot) and axes
-(ax.add_axes)to the figure these will be appended to the fig.axes
-list.  These are also returned by the methods that create them:
+The top level container ``Artist`` is the
+:class:`matplotlib.figure.Figure`, and it contains everything in the
+figure.  The background of the figure is a
+:class:`~matplotlib.patches.Rectangle` which is stored in
+:attr:`Figure.figurePatch <matplotlib.figure.Figure.figurePatch>`.  As
+you add subplots (:meth:`~matplotlib.figure.Figure.add_subplot`) and
+axes (:meth:`~matplotlib.figure.Figure.add_axes`) to the figure
+these will be appended to the :attr:`Figure.axes
+<matplotlib.figure.Figure.axes>`.  These are also returned by the
+methods that create them:
 
 .. sourcecode:: ipython
 
@@ -238,13 +276,16 @@ list.  These are also returned by the methods that create them:
     [<matplotlib.axes.Subplot instance at 0xd54b26c>, <matplotlib.axes.Axes instance at 0xd3f0b2c>]
 
 Because the figure maintains the concept of the "current axes" (see
-Figure.gca and Figure.sca) to support the pylab/pyplot state machine,
-you should not insert or remove axes directly from the axes list, but
-rather use the Figure.add_axes and Figure.add_subplot method to
-insert, and the Figure.delaxes methods to delete.  You are free
-however, to iterate over the list of axes or index into it to get
-access to Axes instances you want to customize.  Here is an example
-which turns all the axes grids on::
+:meth:`Figure.gca <matplotlib.figure.Figure.gca>` and
+:meth:`Figure.sca <matplotlib.figure.Figure.sca>`) to support the
+pylab/pyplot state machine, you should not insert or remove axes
+directly from the axes list, but rather use the
+:meth:`~matplotlib.figure.Figure.add_subplot` and
+:meth:`~matplotlib.figure.Figure.add_axes` methods to insert, and the
+:meth:`~matplotlib.figure.Figure.delaxes` method to delete.  You are
+free however, to iterate over the list of axes or index into it to get
+access to ``Axes`` instances you want to customize.  Here is an
+example which turns all the axes grids on::
 
     for ax in fig.axes:
         ax.grid(True)
@@ -252,21 +293,25 @@ which turns all the axes grids on::
 
 The figure also has its own text, lines, patches and images, which you
 can use to add primitives directly.  The default coordinate system for
-the Figure will simply be in pixels (which is not usually what you
+the ``Figure`` will simply be in pixels (which is not usually what you
 want) but you can control this by setting the transform property of
-the Artist you are adding to the figure.  More useful is "figure
-coordinates" where 0,0 is the bottom, left of the figure and 1,1 is
-the top, right of the figure which you can obtain by setting the
-Artist transform to fig.transFigure:
+the ``Artist`` you are adding to the figure.
+
+.. TODO: Is that still true?
+
+More useful is "figure coordinates" where (0, 0) is the bottom-left of
+the figure and (1, 1) is the top-right of the figure which you can
+obtain by setting the ``Artist`` transform to :attr:`fig.transFigure
+<matplotlib.figure.Figure.transFigure>`:
 
 .. sourcecode:: ipython
 
     In [191]: fig = plt.figure()
 
-    In [192]: l1 = matplotlib.lines.Line2D([0, 1], [0, 1], 
+    In [192]: l1 = matplotlib.lines.Line2D([0, 1], [0, 1],
                transform=fig.transFigure, figure=fig)
 
-    In [193]: l2 = matplotlib.lines.Line2D([0, 1], [1, 0], 
+    In [193]: l2 = matplotlib.lines.Line2D([0, 1], [1, 0],
                transform=fig.transFigure, figure=fig)
 
     In [194]: fig.lines.extend([l1, l2])
@@ -278,6 +323,8 @@ Artist transform to fig.transFigure:
 
 
 Here is a summary of the Artists the figure contains
+
+.. TODO: Add xrefs to this table
 
 ================      ===============================================================
 Figure attribute      Description
@@ -295,23 +342,28 @@ texts                 A list Figure Text instances
 Axes container
 --------------
 
-The matplotlib.axes.Axes is the center of the matplotlib universe --
-it contains the vast majority of all the Artists used in a figure with
-many helper methods to create and these Artists to itself, as well as
-helper methods to access and customize the Artists it contains.  Like
-the Figure, it contains a Patch ax.axesPatch which is Rectangle for
-Cartesian coordinates and a Circle for polar coordinates; this patch
+The :class:`matplotlib.axes.Axes` is the center of the matplotlib
+universe -- it contains the vast majority of all the ``Artists`` used
+in a figure with many helper methods to create and add these
+``Artists`` to itself, as well as helper methods to access and
+customize the ``Artists`` it contains.  Like the
+:class:`~matplotlib.figure.Figure`, it contains a
+:class:`~matplotlib.patches.Patch`
+:attr:`~matplotlib.axes.Axes.axesPatch` which is a
+:class:`~matplotlib.patches.Rectangle` for Cartesian coordinates and a
+:class:`~matplotlib.patches.Circle` for polar coordinates; this patch
 determines the shape, background and border of the plotting region::
 
     ax = fig.add_subplot(111)
     rect = ax.axesPatch  # a Rectangle instance
     rect.set_facecolor('green')
 
-When you call a plotting method, eg the canonical "ax.plot" and pass
-in arrays or list of values, the method will a matplotlib.lines.Line2D
-instance, update the line with all the Line2D properties passed as
-keyword arguments, add the line to the Axes.lines container, and
-returns it to you:
+When you call a plotting method, eg. the canonical
+:meth:`~matplotlib.axes.Axes.plot` and pass in arrays or lists of
+values, the method will create a :meth:`matplotlib.lines.Line2D`
+instance, update the line with all the ``Line2D`` properties passed as
+keyword arguments, add the line to the :attr:`Axes.lines
+<matplotlib.axes.Axes.lines>` container, and returns it to you:
 
 .. sourcecode:: ipython
 
@@ -319,18 +371,20 @@ returns it to you:
 
     In [214]: line, = ax.plot(x, y, '-', color='blue', linewidth=2)
 
-ax.plot returns a list of lines because you can pass in multiple x, y
+``plot`` returns a list of lines because you can pass in multiple x, y
 pairs to plot, and we are unpacking the first element of the length
 one list into the line variable.  The line has been added to the
-ax.lines list:
+``Axes.lines`` list:
 
 .. sourcecode:: ipython
 
     In [229]: print ax.lines
     [<matplotlib.lines.Line2D instance at 0xd378b0c>]
 
-Similarly, methods that create patches, like ax.bar creates a list of
-rectangles, will add the patches to the ax.patches list:
+Similarly, methods that create patches, like
+:meth:`~matplotlib.axes.Axes.bar` creates a list of rectangles, will
+add the patches to the :attr:`Axes.patches
+<matplotlib.axes.Axes.patches>` list:
 
 .. sourcecode:: ipython
 
@@ -341,17 +395,19 @@ rectangles, will add the patches to the ax.patches list:
 
     In [235]: print len(ax.patches)
 
-You should not add objects directly to the ax.lines or ax.patches
-unless you know exactly what you are doing, because the Axes needs to
-do a few things when it creates and adds an object.  It sets the figure
-and axes property of the Artist, as well as the default Axes
-transformation (unless a transformation is set).  It also inspects the
-data contained in the Artist to update the data structures controlling
-auto-scaling, so that the view limits can be adjusted to contain the
-plotted data.  You can, nonetheless, create objects yourself and add
-them directly to the Axes using helper methods like ax.add_line and
-ax.add_patch.  Here is an annotated interactive session illustrating
-what is going on:
+You should not add objects directly to the ``Axes.lines`` or
+``Axes.patches`` lists unless you know exactly what you are doing,
+because the ``Axes`` needs to do a few things when it creates and adds
+an object.  It sets the figure and axes property of the ``Artist``, as
+well as the default ``Axes`` transformation (unless a transformation
+is set).  It also inspects the data contained in the ``Artist`` to
+update the data structures controlling auto-scaling, so that the view
+limits can be adjusted to contain the plotted data.  You can,
+nonetheless, create objects yourself and add them directly to the
+``Axes`` using helper methods like
+:meth:`~matplotlib.axes.Axes.add_line` and
+:meth:`~matplotlib.axes.Axes.add_patch`.  Here is an annotated
+interactive session illustrating what is going on:
 
 .. sourcecode:: ipython
 
@@ -405,9 +461,9 @@ what is going on:
     In [274]: ax.figure.canvas.draw()
 
 
-There are many, many Axes helper methods for creating primitive
-Artists and adding them to their respective containers.  The table
-below summarizes a small sampling of them, the kinds of Artist they
+There are many, many ``Axes`` helper methods for creating primitive
+``Artists`` and adding them to their respective containers.  The table
+below summarizes a small sampling of them, the kinds of ``Artist`` they
 create, and where they store them
 
 ==============================   ====================  =======================
@@ -426,14 +482,18 @@ ax.text - text                   Text                  ax.texts
 ==============================   ====================  =======================
 
 
-In addition to all of these Artists, the Axes contains two important
-Artist containers: the XAxis and YAxis, which handle the drawing of
-the ticks and labels.  These are stored as instance variables xaxis
-and yaxis.  The XAxis and YAxis containers will be detailed below, but
-note that the Axes contains many helper methods which forward calls on
-to the Axis instances so you often do not need to work with them
-directly unless you want to.  For example, you can set the fontsize of
-the XAxis ticklabels using the Axes helper method::
+In addition to all of these ``Artists``, the ``Axes`` contains two
+important ``Artist`` containers: the :class:`~matplotlib.axis.XAxis`
+and :class:`~matplotlib.axis.YAxis`, which handle the drawing of the
+ticks and labels.  These are stored as instance variables
+:attr:`~matplotlib.axes.Axes.xaxis` and
+:attr:`~matplotlib.axes.Axes.yaxis`.  The ``XAxis`` and ``YAxis``
+containers will be detailed below, but note that the ``Axes`` contains
+many helper methods which forward calls on to the
+:class:`~matplotlib.axis.Axis` instances so you often do not need to
+work with them directly unless you want to.  For example, you can set
+the font size of the ``XAxis`` ticklabels using the ``Axes`` helper
+method::
 
     for label in ax.get_xticklabels():
         label.set_color('orange')
@@ -458,24 +518,29 @@ yaxis             matplotlib.axis.YAxis instance
 Axis containers
 ---------------
 
-The matplotlib.axis.Axis instances handle the drawing of the tick lines, the grid
-lines, the tick labels and the axis label.  You can configure the left
-and right ticks separately for the y axis, and the upper and lower
-ticks separately for the x axis.  The axis also stores the data and view
-intervals used in auto-scaling, panning and zooming, as well as the
-locator and formatter instances which control where the ticks are
-placed and how they are represented as strings.
+The :class:`matplotlib.axis.Axis` instances handle the drawing of the
+tick lines, the grid lines, the tick labels and the axis label.  You
+can configure the left and right ticks separately for the y-axis, and
+the upper and lower ticks separately for the x-axis.  The ``Axis``
+also stores the data and view intervals used in auto-scaling, panning
+and zooming, as well as the :class:`~matplotlib.ticker.Locator` and
+:class:`~matplotlib.ticker.Formatter` instances which control where
+the ticks are placed and how they are represented as strings.
 
-Each axis object contains a label attribute (this is what the pylab
-calls to xlabel and ylabel set) as well as a list of major and minor
-ticks.  The ticks are XTick and YTick instances, which contain the
-actual line and text primitives that render the ticks and ticklabels.
-Because the ticks are dynamically created as needed (eg when panning
-and zooming), you should access the lists of major and minor ticks
-through their accessor methods axis.get_major_ticks() and
-axis.get_minor_ticks().  Although the ticks contain all the primitives
-and will be covered below, the Axis methods contain accessor methods
-to return the tick lines, tick labels, tick locations etc....:
+Each ``Axis`` object contains a :attr:`~matplotlib.axis.Axis.label`
+attribute (this is what the :mod:`~matplotlib.pylab` calls to
+:func:`~matplotlib.pylab.xlabel` and :func:`~matplotlib.pylab.ylabel`
+set) as well as a list of major and minor ticks.  The ticks are
+:class:`~matplotlib.axis.XTick` and :class:`~matplotlib.axis.YTick`
+instances, which contain the actual line and text primitives that
+render the ticks and ticklabels.  Because the ticks are dynamically
+created as needed (eg. when panning and zooming), you should access
+the lists of major and minor ticks through their accessor methods
+:meth:`~matplotlib.axis.Axis.get_major_ticks` and
+:meth:`~matplotlib.axis.Axis.get_minor_ticks`.  Although the ticks
+contain all the primitives and will be covered below, the ``Axis`` methods
+contain accessor methods to return the tick lines, tick labels, tick
+locations etc.:
 
 .. sourcecode:: ipython
 
@@ -501,7 +566,7 @@ to return the tick lines, tick labels, tick locations etc....:
     In [292]: axis.get_ticklines(minor=True)
     Out[292]: <a list of 0 Line2D ticklines objects>
 
-Here is a summary of some of the useful accessor methods of the Axis
+Here is a summary of some of the useful accessor methods of the ``Axis``
 (these have corresponding setters where useful, such as
 set_major_formatter)
 
@@ -538,13 +603,15 @@ the axes and tick properties
 Tick containers
 ---------------
 
-The matplotlib.axis.Tick is the final container object in our descent
-from the Figure to the Axes to the Axis to the Tick.  The Tick
-contains the tick and grid line instances, as well as the label
-instances for the upper and lower ticks.  Each of these is accessible
-directly as an attribute of the Tick.  In addition, there are boolean
-variables that determine whether the upper labels and ticks are on for
-the xaxis and whether the right labels and ticks are on for the yaxis.
+The :class:`matplotlib.axis.Tick` is the final container object in our
+descent from the :class:`~matplotlib.figure.Figure` to the
+:class:`~matplotlib.axes.Axes` to the :class:`~matplotlib.axis.Axis`
+to the :class:`~matplotlib.axis.Tick`.  The ``Tick`` contains the tick
+and grid line instances, as well as the label instances for the upper
+and lower ticks.  Each of these is accessible directly as an attribute
+of the ``Tick``.  In addition, there are boolean variables that determine
+whether the upper labels and ticks are on for the x-axis and whether
+the right labels and ticks are on for the y-axis.
 
 ==============   ==========================================================
 Tick attribute   Description

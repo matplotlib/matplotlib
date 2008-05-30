@@ -27,7 +27,7 @@ same length as y but starts with 0.  Hence the x data are
 :func:`~matplotlib.pyplot.plot` is a versatile command, and will take
 an arbitrary number of arguments.  For example, to plot x versus y,
 you can issue the command::
-    
+
     plt.plot([1,2,3,4], [1,4,9,16])
 
 For every x, y pair of arguments, there is a optional third argument
@@ -70,7 +70,7 @@ antialiased, etc; see :class:`matplotlib.lines.Line2D`.  There are
 several ways to set line properties
 
 * Use keyword args::
- 
+
       plt.plot(x, y, linewidth=2.0)
 
 
@@ -208,7 +208,7 @@ Working with text
 The :func:`~matplotlib.pyplot.text` command can be used to add text in
 an arbitrary location, and the :func:`~matplotlib.pyplot.xlabel`,
 :func:`~matplotlib.pyplot.ylabel` and :func:`~matplotlib.pyplot.title`
-are used to add text in the indicated locations. 
+are used to add text in the indicated locations.
 
 .. literalinclude:: figures/pyplot_text.py
 
@@ -339,4 +339,4 @@ or to make an o umlaut you do ``\ddot{o}``.
 
 
 
-    
+
