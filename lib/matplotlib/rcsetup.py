@@ -43,6 +43,16 @@ def validate_bool(b):
     else:
         raise ValueError('Could not convert "%s" to boolean' % b)
 
+def validate_bool_maybe_none(b):
+    'Convert b to a boolean or raise'
+    if type(b) is str:
+        b = b.lower()
+    if b=='none': return None
+    if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True): return True
+    elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False): return False
+    else:
+        raise ValueError('Could not convert "%s" to boolean' % b)
+
 def validate_float(s):
     'convert s to float or raise'
     try: return float(s)
@@ -338,7 +348,7 @@ defaultParams = {
     'text.usetex'         : [False, validate_bool],
     'text.latex.unicode'  : [False, validate_bool],
     'text.latex.preamble' : [[''], validate_stringlist],
-    'text.dvipnghack'     : [False, validate_bool],
+    'text.dvipnghack'     : [None, validate_bool_maybe_none],
     'text.fontstyle'      : ['normal', str],
     'text.fontangle'      : ['normal', str],
     'text.fontvariant'    : ['normal', str],

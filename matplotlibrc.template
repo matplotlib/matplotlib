@@ -147,9 +147,14 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
                             # beware of package collisions: color, geometry, graphicx,
                             # type1cm, textcomp. Adobe Postscript (PSSNFS) font packages
                             # may also be loaded, depending on your font settings
-#text.dvipnghack     : False  # some versions of dvipng don't handle
-                             # alpha channel properly.  Use True to correct and flush
-                             # ~/.matplotlib/tex.cache before testing
+
+#text.dvipnghack : None      # some versions of dvipng don't handle alpha
+                             # channel properly.  Use True to correct
+                             # and flush ~/.matplotlib/tex.cache
+                             # before testing and False to force
+                             # correction off.  None will try and
+                             # guess based on your dvipng version
+
 #text.markup         : 'plain'  # Affects how text, such as titles and labels, are
                                 # interpreted by default.
                                 # 'plain': As plain, unformatted text

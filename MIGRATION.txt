@@ -31,7 +31,7 @@ To check out the trunk with the latest transforms changes:
 If you already have a working copy of the trunk, your next "svn up" will
 include the latest transforms changes.  
 
-Before installing, make sure you completely remove the old matplotlib
+IMPORTANT: Before installing, make sure you completely remove the old matplotlib
 build and install directories, eg: 
 
     > cd matplotlib
