@@ -656,7 +656,7 @@ class TruetypeFonts(Fonts):
 
     def get_underline_thickness(self, font, fontsize, dpi):
         cached_font = self._get_font(font)
-        return cached_font.font.underline_thickness / 64.0 / fontsize * (10.0 * dpi / 100.0)
+        return (cached_font.font.underline_thickness / 64.0 / fontsize) * (dpi)
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
                  font2, fontclass2, sym2, fontsize2, dpi):
