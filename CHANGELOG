@@ -1,4 +1,5 @@
-===============================================================                                                                        2008-01-06 Released 0.91.3 at revision 5312
+===============================================================
+2008-05-29 Released 0.91.3 at revision 5313
 
 2008-05-29 matplotlib.image.imread now no longer always returns RGBA
            -- if the image is luminance or RGB, it will return a MxN
