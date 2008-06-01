@@ -6,4 +6,4 @@ matplotlib pyplot
 =============================
 
 .. automodule:: matplotlib.pyplot
-   :members:
+   :members: acorr
