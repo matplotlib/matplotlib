@@ -3888,7 +3888,7 @@ class Axes(martist.Artist):
         call signature::
 
           errorbar(x, y, yerr=None, xerr=None,
-                   fmt='b-', ecolor=None, elinewidth=None, capsize=3,
+                   fmt='-', ecolor=None, elinewidth=None, capsize=3,
                    barsabove=False, lolims=False, uplims=False,
                    xlolims=False, xuplims=False)
 
@@ -3901,38 +3901,30 @@ class Axes(martist.Artist):
 
         Optional keyword arguments:
 
-          +------------+------------------------------------------------------+
-          | Keyword    | Description                                          |
-          +============+======================================================+
-          | xerr       | a rank-0 or Nx1 Numpy array yields symmetric         |
-          | yerr       | errorbars +/- value                                  |
-          |            +------------------------------------------------------+
-          |            | an N-element list or tuple yields symmetric          |
-          |            | errorbars +/- value                                  |
-          |            +------------------------------------------------------+
-          |            | a rank-1, Nx2 Numpy array yields asymmetric          |
-          |            | errorbars: -column1/+column2                         |
-          +------------+------------------------------------------------------+
-          | fmt        | the plot format symbol for y. If fmt is None, just   |
-          |            | plot the errorbars with no line symbols.  This can   |
-          |            | be useful for creating a bar plot with errorbars     |
-          +------------+------------------------------------------------------+
-          | ecolor     | a matplotlib color arg which gives the color the     |
-          |            | errorbar lines; if None, use the marker color.       |
-          +------------+------------------------------------------------------+
-          | elinewidth | the linewidth of the errorbar lines. If None, use    |
-          |            | the linewidth.                                       |
-          +------------+------------------------------------------------------+
-          | capsize    | the size of the error bar caps in points             |
-          +------------+------------------------------------------------------+
-          | barsabove  | if True, will plot the errorbars above the plot      |
-          |            | symbols. Default is below.                           |
-          +------------+------------------------------------------------------+
-          | lolims     | These arguments can be used to indicate that a value |
-          | uplims     | gives only upper/lower limits. In that case a caret  |
-          | xlolims    | symbol is used to indicate this. lims-arguments may  |
-          | xuplims    | be of the same type as xerr and yerr.                |
-          +------------+------------------------------------------------------+
+          xerr/yerr: [ scalar | N, Nx1, Nx2 array-like ]
+            If a scalar number, len(N) array-like object, or an Nx1 array-like
+            object, errorbars are drawn +/- value.
+
+            If a rank-1, Nx2 Numpy array, errorbars are drawn at -column1 and
+            +column2
+          fmt: '-'
+            The plot format symbol for y. If fmt is None, just plot the
+            errorbars with no line symbols.  This can be useful for creating a
+            bar plot with errorbars.
+          ecolor: [ None | mpl color ]
+            a matplotlib color arg which gives the color the errorbar lines; if
+            None, use the marker color.
+          elinewidth: scalar
+            the linewidth of the errorbar lines. If None, use the linewidth.
+          capsize: scalar
+            the size of the error bar caps in points
+          barsabove: [ True | False ]
+            if True, will plot the errorbars above the plot symbols. Default is
+            below.
+          lolims/uplims/xlolims/xuplims: [ False | True ]
+            These arguments can be used to indicate that a value gives only
+            upper/lower limits. In that case a caret symbol is used to indicate
+            this. lims-arguments may be of the same type as xerr and yerr.
 
         All other keyword arguments are passed on to the plot command for the
         markers, so you can add additional key=value pairs to control the
@@ -4594,73 +4586,61 @@ class Axes(martist.Artist):
 
         Optional keyword arguments:
 
-          +----------+---------------------------------------------------------+
-          | Keyword  | Description                                             |
-          +==========+=========================================================+
-          | gridsize | The number of hexagons in the x-direction, default is   |
-          |          | 100. The corresponding number of hexagons in the        |
-          |          | y-direction is chosen such that the hexagons are        |
-          |          | approximately regular. Alternatively, gridsize can be a |
-          |          | tuple with two elements specifying the number of        |
-          |          | hexagons in the x-direction and the y-direction.        |
-          +----------+---------------------------------------------------------+
-          | bins     | If None, no binning is applied; the color of each       |
-          |          | hexagon directly corresponds to its count value.        |
-          |          +---------------------------------------------------------+
-          |          | If 'log', use a logarithmic scale for the color         |
-          |          | map. Internally, log10(count+1) is used to determine    |
-          |          | the hexagon color.                                      |
-          |          +---------------------------------------------------------+
-          |          | If an integer, divide the counts in the specified       |
-          |          | number of bins, and color the hexagons accordingly      |
-          |          +---------------------------------------------------------+
-          |          | I a sequence of values, the values of the lower bound   |
-          |          | of the bins to be used.                                 |
-          +----------+---------------------------------------------------------+
-          | xscale   | [ 'linear' | 'log' ]                                    |
-          |          | Use a log10 scale on the horizontal axis.               |
-          +----------+---------------------------------------------------------+
-          | yscale   | [ 'linear' | 'log' ]                                    |
-          |          | Use a log10 scale on the vertical axis.                 |
-          +----------+---------------------------------------------------------+
+          gridsize: [ 100 | integer ]
+            The number of hexagons in the x-direction, default is 100. The
+            corresponding number of hexagons in the y-direction is chosen such
+            that the hexagons are approximately regular. Alternatively,
+            gridsize can be a tuple with two elements specifying the number of
+            hexagons in the x-direction and the y-direction.
+          bins: [ None | 'log' | integer | sequence ]
+            If None, no binning is applied; the color of each hexagon directly
+            corresponds to its count value.
+
+            If 'log', use a logarithmic scale for the color map. Internally,
+            log10(count+1) is used to determine the hexagon color.
+
+            If an integer, divide the counts in the specified number of bins,
+            and color the hexagons accordingly.
+
+            I a sequence of values, the values of the lower bound of the bins
+            to be used.
+          xscale: [ 'linear' | 'log' ]
+            Use a linear or log10 scale on the horizontal axis.
+          scale: [ 'linear' | 'log' ]
+            Use a linear or log10 scale on the vertical axis.
 
         Other keyword arguments controlling color mapping and normalization
         arguments:
 
-          ==========   ======================================================
-          Keyword      Description
-          ==========   ======================================================
-          cmap         a colors.Colormap instance from cm. defaults to rc
-                       image.cmap
-          norm         colors.Normalize instance is used to scale luminance
-                       data to 0,1.
-          vmin/vmax    vmin and vmax are used in conjunction with norm to
-                       normalize luminance data.  If either are None, the
-                       min and max of the color array C is used.  Note if you
-                       pass a norm instance, your settings for vmin and vmax
-                       will be ignored
-          alpha        the alpha value for the patches
-          linewidths   if None, defaults to (lines.linewidth,).  Note
-                       that this is a tuple, and if you set the linewidths
-                       argument you must set it as a sequence of floats, as
-                       required by RegularPolyCollection -- see
-                       collections.RegularPolyCollection for details
-          ==========   ======================================================
+          cmap: [ None | Colormap ]
+            a colors.Colormap instance from cm. If None, defaults to rc
+            image.cmap.
+          norm: [ None | Normalize ]
+            colors.Normalize instance is used to scale luminance data to 0,1.
+          vmin/vmax: scalar
+            vmin and vmax are used in conjunction with norm to normalize
+            luminance data.  If either are None, the min and max of the color
+            array C is used.  Note if you pass a norm instance, your settings
+            for vmin and vmax will be ignored.
+          alpha: scalar
+            the alpha value for the patches
+          linewidths: [ None | scalar ]
+            If None, defaults to rc lines.linewidth. Note that this is a tuple,
+            and if you set the linewidths argument you must set it as a
+            sequence of floats, as required by RegularPolyCollection -- see
+            collections.RegularPolyCollection for details.
 
         Other keyword arguments controlling the Collection properties:
 
-          ==========   ======================================================
-          Keyword      Description
-          ==========   ======================================================
-          edgecolors   if 'none', draws the edges in the same color as the
-                       fill color. This is the default, as it avoids
-                       unsightly unpainted pixels between the hexagons.
+          edgecolors: [ None | mpl color | color sequence ]
+            If 'none', draws the edges in the same color as the fill color.
+            This is the default, as it avoids unsightly unpainted pixels
+            between the hexagons.
 
-                       if None, draws the outlines in the default color.
+            If None, draws the outlines in the default color.
 
-                       if a matplotlib color arg or sequence of rgba tuples,
-                       draws the outlines in the specified color.
-          ==========   ======================================================
+            If a matplotlib color arg or sequence of rgba tuples, draws the
+            outlines in the specified color.
 
         Here are the standard descriptions of all the Collection kwargs:
         %(Collection)s
