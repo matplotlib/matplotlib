@@ -344,45 +344,49 @@ class Figure(Artist):
                  vmax=None,
                  origin=None):
         """
-        FIGIMAGE(X) # add non-resampled array to figure
+        call signatures::
 
-        FIGIMAGE(X, xo, yo) # with pixel offsets
+          figimage(X, **kwargs)
 
-        FIGIMAGE(X, **kwargs) # control interpolation ,scaling, etc
+        adds non-resampled array to the figure.
 
-        Add a nonresampled figure to the figure from array X.  xo and yo are
-        offsets in pixels
+        ::
 
-        X must be a float array
+          figimage(X, xo, yo)
 
-            If X is MxN, assume luminance (grayscale)
-            If X is MxNx3, assume RGB
-            If X is MxNx4, assume RGBA
+        with pixel offsets xo, yo,
 
-        The following kwargs are allowed:
+        X must be a float array:
 
-          * cmap is a cm colormap instance, eg cm.jet.  If None, default to
-            the rc image.cmap valuex
+        * If X is MxN, assume luminance (grayscale)
+        * If X is MxNx3, assume RGB
+        * If X is MxNx4, assume RGBA
 
-          * norm is a matplotlib.colors.Normalize instance; default is
-            normalization().  This scales luminance -> 0-1
+        Optional keyword arguments:
 
-          * vmin and vmax are used to scale a luminance image to 0-1.  If
-            either is None, the min and max of the luminance values will be
-            used.  Note if you pass a norm instance, the settings for vmin and
-            vmax will be ignored.
+          =========   ==========================================================
+          Keyword     Description
+          =========   ==========================================================
+          xo or yo    An integer, the x and y image offset in pixels
+          cmap        a cm colormap instance, eg cm.jet.  If None, default to
+                      the rc image.cmap value
+          norm        a matplotlib.colors.Normalize instance. The default is
+                      normalization().  This scales luminance -> 0-1
+          vmin|vmax   are used to scale a luminance image to 0-1.  If either is
+                      None, the min and max of the luminance values will be
+                      used.  Note if you pass a norm instance, the settings for
+                      vmin and vmax will be ignored.
+          alpha       the alpha blending value, default is 1.0
+          origin      [ 'upper' | 'lower' ] Indicates where the [0,0] index of
+                      the array is in the upper left or lower left corner of
+                      the axes. Defaults to the rc image.origin value
+          =========   ==========================================================
 
-          * alpha = 1.0 : the alpha blending value
+        figimage complements the axes image (Axes.imshow) which will be
+        resampled to fit the current axes.  If you want a resampled image to
+        fill the entire figure, you can define an Axes with size [0,1,0,1].
 
-          * origin is either 'upper' or 'lower', which indicates where the [0,0]
-            index of the array is in the upper left or lower left corner of
-            the axes.  Defaults to the rc image.origin value
-
-        This complements the axes image (Axes.imshow) which will be resampled
-        to fit the current axes.  If you want a resampled image to fill the
-        entire figure, you can define an Axes with size [0,1,0,1].
-
-        A image.FigureImage instance is returned.
+        An image.FigureImage instance is returned.
         """
 
         if not self._hold: self.clf()
@@ -996,7 +1000,9 @@ class Figure(Artist):
 
     def ginput(self, n=1, timeout=30, verbose=False, show_clicks=True):
         """
-        ginput(self, n=1, timeout=30, verbose=False, show_clicks=True)
+        call signature::
+
+          ginput(self, n=1, timeout=30, verbose=False, show_clicks=True)
 
         Blocking call to interact with the figure.
 

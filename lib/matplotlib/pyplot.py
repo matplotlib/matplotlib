@@ -99,7 +99,7 @@ gci._current = None
 
 def sci(im):
     """
-    Set the current image (the target of colormap commands like jet, hot or clim)
+    Set the current image (target of colormap commands like jet, hot or clim)
     """
     gci._current = im
 
@@ -132,7 +132,9 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
            **kwargs
            ):
     """
-    figure(num = None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
+    call signature::
+
+      figure(num = None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
 
 
     Create a new figure and return a handle to it.  If num=None, the figure
@@ -141,7 +143,7 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
 
     If num is an integer, and figure(num) already exists, make it
     active and return the handle to it.  If figure(num) does not exist
-    it will be created.  Numbering starts at 1, matlab style
+    it will be created.  Numbering starts at 1, matlab style::
 
       figure(1)
 
@@ -149,14 +151,19 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     on the figures you are not using, because this will enable pylab
     to properly clean up the memory.
 
-    kwargs:
+    Optional keyword arguments:
 
-      figsize - width x height in inches; defaults to rc figure.figsize
-      dpi     - resolution; defaults to rc figure.dpi
-      facecolor - the background color; defaults to rc figure.facecolor
-      edgecolor - the border color; defaults to rc figure.edgecolor
+      =========   =======================================================
+      Keyword     Description
+      =========   =======================================================
+      figsize     width x height in inches; defaults to rc figure.figsize
+      dpi         resolution; defaults to rc figure.dpi
+      facecolor   the background color; defaults to rc figure.facecolor
+      edgecolor   the border color; defaults to rc figure.edgecolor
+      =========   =======================================================
 
-    rcParams gives the default values from the matplotlibrc file
+    rcParams defines the default values, which can be modified in the
+    matplotlibrc file
 
     FigureClass is a Figure or derived class that will be passed on to
     new_figure_manager in the backends which allows you to hook custom
@@ -313,10 +320,11 @@ def figlegend(handles, labels, loc, **kwargs):
     loc can be a string r an integer specifying the legend
     location
 
-    USAGE:
-      legend( (line1, line2, line3),
-              ('label1', 'label2', 'label3'),
-              'upper right')
+    Example::
+
+      figlegend( (line1, line2, line3),
+                 ('label1', 'label2', 'label3'),
+                 'upper right' )
 
     See help(legend) for information about the location codes
 
@@ -379,7 +387,7 @@ def over(func, *args, **kwargs):
 
 def axes(*args, **kwargs):
     """
-    Add an axes at positon rect specified by::
+    Add an axes at positon rect specified by:
 
     axes() by itself creates a default full subplot(111) window axis
 
@@ -390,18 +398,20 @@ def axes(*args, **kwargs):
     axes(h) where h is an axes instance makes h the
     current axis An Axes instance is returned
 
-    kwargs:
+    =======   ============   ================================================
+    kwarg     Accepts        Desctiption
+    =======   ============   ================================================
+    axisbg    color          the axes background color
+    frameon   [True|False]   display the frame?
+    sharex    otherax        current axes shares xaxis attribute with otherax
+    sharey    otherax        current axes shares yaxis attribute with otherax
+    polar     [True|False]   use a polar axes?
+    =======   ============   ================================================
 
-      axisbg=color   : the axes background color
-      frameon=False  : don't display the frame
-      sharex=otherax : the current axes shares xaxis attribute with otherax
-      sharey=otherax : the current axes shares yaxis attribute with otherax
-      polar=True|False : use a polar axes or not
+    Examples:
 
-    Examples
-
-      examples/axes_demo.py places custom axes.
-      examples/shared_axis_demo.py uses sharex and sharey
+    * examples/axes_demo.py places custom axes.
+    * examples/shared_axis_demo.py uses sharex and sharey
 
 
     """
@@ -441,18 +451,18 @@ def delaxes(*args):
 def gca(**kwargs):
     """
     Return the current axis instance.  This can be used to control
-    axis properties either using set or the Axes methods.
-
-    Example:
+    axis properties either using set or the Axes methods, for example,
+    setting the xaxis range::
 
       plot(t,s)
-      set(gca(), 'xlim', [0,10])  # set the x axis limits
+      set(gca(), 'xlim', [0,10])
 
-    or
+    or::
 
       plot(t,s)
       a = gca()
-      a.set_xlim([0,10])          # does the same
+      a.set_xlim([0,10])
+
     """
 
     ax =  gcf().gca(**kwargs)
@@ -619,40 +629,48 @@ def title(s, *args, **kwargs):
 
 def axis(*v, **kwargs):
     """
-    Set/Get the axis properties::
+    Set/Get the axis properties:
 
-        v = axis()  returns the current axes as v = [xmin, xmax, ymin, ymax]
+    +--------------------+-----------------------------------------------------+
+    |     Use            |              Description                            |
+    +====================+=====================================================+
+    | >>> axis()         | returns the current axes limits                     |
+    |                    | [xmin, xmax, ymin, ymax]                            |
+    +--------------------+-----------------------------------------------------+
+    | >>> axis(v)        | sets the min and max of the x and y axes            |
+    |                    | v = [xmin, xmax, ymin, ymax]                        |
+    +--------------------+-----------------------------------------------------+
+    | >>> axis('off')    | turns off the axis lines and labels                 |
+    +--------------------+-----------------------------------------------------+
+    | >>> axis('equal')  | changes limits of x or y axis so that equal         |
+    |                    | increments of x and y have the same length;         |
+    |                    | a circle is circular.                               |
+    +--------------------+-----------------------------------------------------+
+    | >>> axis('scaled') | achieves the same result by changing the            |
+    |                    | dimensions of the plot box instead of the axis data |
+    |                    | limits.                                             |
+    +--------------------+-----------------------------------------------------+
+    | >>> axis('tight')  | changes x and y axis limits such that all data is   |
+    |                    | shown. If all data is already shown, it will move   |
+    |                    | it to the center of the figure without modifying    |
+    |                    | (xmax-xmin) or (ymax-ymin). Note this is slightly   |
+    |                    | different than in matlab.                           |
+    +--------------------+-----------------------------------------------------+
+    | >>> axis('image')  | is 'scaled' with the axis limits equal to the       |
+    |                    | data limits.                                        |
+    +--------------------+-----------------------------------------------------+
+    | >>> axis('auto')   | (deprecated) restores default behavior; axis        |
+    | >>> axis('normal') | limits are automatically scaled to make the data    |
+    |                    | fit comfortably within the plot box.                |
+    +--------------------+-----------------------------------------------------+
 
-        axis(v) where v = [xmin, xmax, ymin, ymax] sets the min and max
-          of the x and y axes
 
-        axis('off') turns off the axis lines and labels
 
-        axis('equal') changes limits of x or y axis so that equal
-          increments of x and y have the same length; a circle
-          is circular.
+    if ``len(*v)==0``, you can pass in xmin, xmax, ymin, ymax as kwargs
+    selectively to alter just those limits w/o changing the others.
+    See help(xlim) and help(ylim) for more information
 
-        axis('scaled') achieves the same result by changing the
-          dimensions of the plot box instead of the axis data
-          limits.
-
-        axis('tight') changes x and y axis limits such that all data is
-          shown. If all data is already shown, it will move it to the center
-          of the figure without modifying (xmax-xmin) or (ymax-ymin). Note
-          this is slightly different than in matlab.
-
-        axis('image') is 'scaled' with the axis limits equal to the
-          data limits.
-
-        axis('auto') or 'normal' (deprecated) restores default behavior;
-          axis limits are automatically scaled to make the data fit
-          comfortably within the plot box.
-
-       if len(*v)==0, you can pass in xmin, xmax, ymin, ymax as kwargs
-       selectively to alter just those limits w/o changing the others.
-       See help(xlim) and help(ylim) for more information
-
-       The xmin, xmax, ymin, ymax tuple is returned
+    The xmin, xmax, ymin, ymax tuple is returned
 
     """
     ax = gca()
@@ -1057,33 +1075,39 @@ def colors():
     specify the colors.  For the basic builtin colors, you can use a
     single letter
 
-      b  : blue
-      g  : green
-      r  : red
-      c  : cyan
-      m  : magenta
-      y  : yellow
-      k  : black
-      w  : white
-
+      =====   =======
+      Alias   Color
+      =====   =======
+      'b'     blue
+      'g'     green
+      'r'     red
+      'c'     cyan
+      'm'     magenta
+      'y'     yellow
+      'k'     black
+      'w'     white
+      =====   =======
 
     For a greater range of colors, you have two options.  You can
-    specify the color using an html hex string, as in
+    specify the color using an html hex string, as in::
 
       color = '#eeefff'
 
     or you can pass an R,G,B tuple, where each of R,G,B are in the
     range [0,1].
 
-    You can also use any legal html name for a color, like 'red',
-    'burlywood' and 'chartreuse'
+    You can also use any legal html name for a color, for example::
+
+      color = 'red',
+      color = 'burlywood'
+      color = 'chartreuse'
 
     The example below creates a subplot with a dark
     slate gray background
 
        subplot(111, axisbg=(0.1843, 0.3098, 0.3098))
 
-    Here is an example that creates a pale turqoise title
+    Here is an example that creates a pale turqoise title::
 
       title('Is this the best color?', color='#afeeee')
 
@@ -1096,19 +1120,32 @@ def colormaps():
     """
     matplotlib provides the following colormaps.
 
-      autumn bone cool copper flag gray hot hsv jet pink prism
-      spring summer winter spectral
+    * autumn
+    * bone
+    * cool
+    * copper
+    * flag
+    * gray
+    * hot
+    * hsv
+    * jet
+    * pink
+    * prism
+    * spring
+    * summer
+    * winter
+    * spectral
 
     You can set the colormap for an image, pcolor, scatter, etc,
-    either as a keyword argumentdef con
+    either as a keyword argument::
 
-    >>> imshow(X, cmap=cm.hot)
+      imshow(X, cmap=cm.hot)
 
-    or post-hoc using the corresponding pylab interface function
+    or post-hoc using the corresponding pylab interface function::
 
-    >>> imshow(X)
-    >>> hot()
-    >>> jet()
+      imshow(X)
+      hot()
+      jet()
 
     In interactive mode, this will update the colormap allowing you to
     see which one works best for your data.
@@ -1135,16 +1172,18 @@ def clim(vmin=None, vmax=None):
     """
     Set the color limits of the current image
 
-    To apply clim to all axes images do
+    To apply clim to all axes images do::
 
-    clim(0, 0.5)
+      clim(0, 0.5)
 
     If either vmin or vmax is None, the image min/max respectively
     will be used for color scaling.
 
     If you want to set the clim of multiple images,
-    use, for example for im in gca().get_images(): im.set_clim(0,
-    0.05)
+    use, for example::
+
+      for im in gca().get_images():
+          im.set_clim(0, 0.05)
 
     """
     im = gci()
@@ -1511,6 +1550,7 @@ def broken_barh(*args, **kwargs):
     return ret
 if Axes.broken_barh.__doc__ is not None:
     broken_barh.__doc__ = dedent(Axes.broken_barh.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1553,6 +1593,7 @@ def cohere(*args, **kwargs):
     return ret
 if Axes.cohere.__doc__ is not None:
     cohere.__doc__ = dedent(Axes.cohere.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1574,6 +1615,7 @@ def clabel(*args, **kwargs):
     return ret
 if Axes.clabel.__doc__ is not None:
     clabel.__doc__ = dedent(Axes.clabel.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1595,6 +1637,7 @@ def contour(*args, **kwargs):
     return ret
 if Axes.contour.__doc__ is not None:
     contour.__doc__ = dedent(Axes.contour.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1616,6 +1659,7 @@ def contourf(*args, **kwargs):
     return ret
 if Axes.contourf.__doc__ is not None:
     contourf.__doc__ = dedent(Axes.contourf.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1721,6 +1765,7 @@ def hlines(*args, **kwargs):
     return ret
 if Axes.hlines.__doc__ is not None:
     hlines.__doc__ = dedent(Axes.hlines.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as

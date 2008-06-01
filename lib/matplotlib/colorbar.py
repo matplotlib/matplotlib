@@ -27,42 +27,53 @@ import matplotlib.collections as collections
 import matplotlib.contour as contour
 
 make_axes_kw_doc = '''
-        fraction    = 0.15; fraction of original axes to use for colorbar
-        pad         = 0.05 if vertical, 0.15 if horizontal; fraction
-                              of original axes between colorbar and
-                              new image axes
-        shrink      = 1.0; fraction by which to shrink the colorbar
-        aspect      = 20; ratio of long to short dimensions
+
+    ========   ====================================================
+    Property   Description
+    ========   ====================================================
+    fraction   0.15; fraction of original axes to use for colorbar
+    pad        0.05 if vertical, 0.15 if horizontal; fraction
+               of original axes between colorbar and new image axes
+    shrink     1.0; fraction by which to shrink the colorbar
+    aspect     20; ratio of long to short dimensions
+    ========   ====================================================
 
 '''
 
 colormap_kw_doc = '''
-        extend='neither', 'both', 'min', 'max'
+
+    =========   ===============================================================
+    Property    Description
+    =========   ===============================================================
+    extend      [ 'neither' | 'both' | 'min' | 'max' ]
                 If not 'neither', make pointed end(s) for out-of-range
                 values.  These are set for a given colormap using the
                 colormap set_under and set_over methods.
-        spacing='uniform', 'proportional'
+    spacing     [ 'uniform' | 'proportional' ]
                 Uniform spacing gives each discrete color the same space;
                 proportional makes the space proportional to the data interval.
-        ticks=None, list of ticks, Locator object
+    ticks       [ None | list of ticks | Locator object ]
                 If None, ticks are determined automatically from the input.
-        format=None, format string, Formatter object
+    format      [ None | format string | Formatter object ]
                 If none, the ScalarFormatter is used.
                 If a format string is given, e.g. '%.3f', that is used.
                 An alternative Formatter object may be given instead.
-        drawedges=False, True
-                If true, draw lines at color boundaries.
+    drawedges   [ False | True ] If true, draw lines at color boundaries.
+    =========   ===============================================================
 
-        The following will probably be useful only in the context of
-        indexed colors (that is, when the mappable has norm=NoNorm()),
-        or other unusual circumstances.
+    The following will probably be useful only in the context of
+    indexed colors (that is, when the mappable has norm=NoNorm()),
+    or other unusual circumstances.
 
-        boundaries=None or a sequence
-        values=None or a sequence which must be of length 1 less than the
-                sequence of boundaries.
-                For each region delimited by adjacent entries in
-                boundaries, the color mapped to the corresponding
-                value in values will be used.
+    ==========   ===============================================================
+    Property     Description
+    ==========   ===============================================================
+    boundaries   None or a sequence
+    values       None or a sequence which must be of length 1 less than the
+                 sequence of boundaries. For each region delimited by adjacent
+                 entries in boundaries, the color mapped to the corresponding
+                 value in values will be used.
+    ==========   ===============================================================
 
 '''
 
@@ -70,29 +81,32 @@ colorbar_doc = '''
 Add a colorbar to a plot.
 
 Function signatures for the pyplot interface; all but the first are
-also method signatures for the Figure.colorbar method:
+also method signatures for the Figure.colorbar method::
 
-    colorbar(**kwargs)
-    colorbar(mappable, **kwargs)
-    colorbar(mappable, cax=cax, **kwargs)
-    colorbar(mappable, ax=ax, **kwargs)
+  colorbar(**kwargs)
+  colorbar(mappable, **kwargs)
+  colorbar(mappable, cax=cax, **kwargs)
+  colorbar(mappable, ax=ax, **kwargs)
 
-    arguments:
-        mappable: the image, ContourSet, etc. to which the colorbar applies;
-                    this argument is mandatory for the Figure.colorbar
-                    method but optional for the pyplot.colorbar function,
-                    which sets the default to the current image.
+arguments:
+  mappable:
+    the image, ContourSet, etc. to which the colorbar applies;
+    this argument is mandatory for the Figure.colorbar
+    method but optional for the pyplot.colorbar function,
+    which sets the default to the current image.
 
-    keyword arguments:
-        cax: None | axes object into which the colorbar will be drawn
-        ax:  None | parent axes object from which space for a new
-                     colorbar axes will be stolen
+keyword arguments:
+  cax:
+    None | axes object into which the colorbar will be drawn
+  ax:
+    None | parent axes object from which space for a new
+    colorbar axes will be stolen
 
 
-**kwargs are in two groups:
-    axes properties:
+Additional keyword arguments are of two kinds:
+  axes properties:
 %s
-    colorbar properties:
+  colorbar properties:
 %s
 
 If mappable is a ContourSet, its extend kwarg is included automatically.
