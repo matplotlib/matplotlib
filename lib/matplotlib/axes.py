@@ -2995,27 +2995,24 @@ class Axes(martist.Artist):
 
     def loglog(self, *args, **kwargs):
         """
-        LOGLOG(*args, **kwargs)
+        call signature::
 
-        Make a loglog plot with log scaling on the a and y axis.  The args
-        to semilog x are the same as the args to plot.  See help plot for
-        more info.
+          loglog(*args, **kwargs)
 
-        Optional keyword args supported are any of the kwargs
-        supported by plot or set_xscale or set_yscale.  Notable, for
-        log scaling:
+        Make a plot with log scaling on the a and y axis. The args to loglog
+        are the same as the args to ``plot``.  See ``plot`` for more info.
 
-          * basex: base of the x logarithm
+        loglog supports all the keyword arguments of ``plot`` and
+        Axes.set_xscale/Axes.set_yscale.
 
-          * subsx: the location of the minor ticks; None defaults to
+        Notable keyword arguments:
+
+          basex/basey: scalar > 1
+            base of the x/y logarithm
+          subsx/subsy: [ None | sequence ]
+            the location of the minor x/yticks; None defaults to
             autosubs, which depend on the number of decades in the
-            plot; see set_xscale for details
-
-          * basey: base of the y logarithm
-
-          * subsy: the location of the minor yticks; None defaults to
-            autosubs, which depend on the number of decades in the
-            plot; see set_yscale for details
+            plot; see set_xscale/set_yscale for details
 
         The remaining valid kwargs are Line2D properties:
         %(Line2D)s
@@ -3214,68 +3211,92 @@ class Axes(martist.Artist):
 
     def legend(self, *args, **kwargs):
         """
-        LEGEND(*args, **kwargs)
+        call signature::
+
+          legend(*args, **kwargs)
 
         Place a legend on the current axes at location loc.  Labels are a
         sequence of strings and loc can be a string or an integer specifying
         the legend location
 
-        USAGE:
+        To make a legend with existing lines::
 
-          Make a legend with existing lines
+          legend()
 
-          >>> legend()
+        legend by itself will try and build a legend using the label
+        property of the lines/patches/collections.  You can set the label of
+        a line by doing plot(x, y, label='my data') or line.set_label('my
+        data'). If label is set to '_nolegend_', the item will not be shown
+        in legend.
 
-          legend by itself will try and build a legend using the label
-          property of the lines/patches/collections.  You can set the label of
-          a line by doing plot(x, y, label='my data') or line.set_label('my
-          data'). If label is set to '_nolegend_', the item will not be shown
-          in legend.
+        To automatically generate the legend from labels::
 
-            # automatically generate the legend from labels
-            legend( ('label1', 'label2', 'label3') )
+          legend( ('label1', 'label2', 'label3') )
 
-            # Make a legend for a list of lines and labels
-            legend( (line1, line2, line3), ('label1', 'label2', 'label3') )
+        To make a legend for a list of lines and labels::
 
-            # Make a legend at a given location, using a location argument
-            # legend( LABELS, LOC )  or
-            # legend( LINES, LABELS, LOC )
-            legend( ('label1', 'label2', 'label3'), loc='upper left')
-            legend( (line1, line2, line3),  ('label1', 'label2', 'label3'), loc=2)
+          legend( (line1, line2, line3), ('label1', 'label2', 'label3') )
+
+        To make a legend at a given location, using a location argument::
+
+          legend( ('label1', 'label2', 'label3'), loc='upper left')
+
+        or::
+
+          legend( (line1, line2, line3),  ('label1', 'label2', 'label3'), loc=2)
 
         The location codes are
 
-          'best'         : 0,
-          'upper right'  : 1,
-          'upper left'   : 2,
-          'lower left'   : 3,
-          'lower right'  : 4,
-          'right'        : 5,
-          'center left'  : 6,
-          'center right' : 7,
-          'lower center' : 8,
-          'upper center' : 9,
-          'center'       : 10,
+          ===============   =============
+          Location String   Location Code
+          ===============   =============
+          'best'            0
+          'upper right'     1
+          'upper left'      2
+          'lower left'      3
+          'lower right'     4
+          'right'           5
+          'center left'     6
+          'center right'    7
+          'lower center'    8
+          'upper center'    9
+          'center'          10
+          ===============   =============
 
-        If none of these are suitable, loc can be a 2-tuple giving x,y
-        in axes coords, ie,
+        If none of these are locations are suitable, loc can be a 2-tuple
+        giving x,y in axes coords, ie::
 
-          loc = 0, 1 is left top
-          loc = 0.5, 0.5 is center, center
+          loc = 0, 1 # left top
+          loc = 0.5, 0.5 # center
 
-        and so on.  The following kwargs are supported:
+        Keyword arguments:
 
-        isaxes=True           # whether this is an axes legend
-        numpoints = 4         # the number of points in the legend line
-        prop = FontProperties(size='smaller')  # the font property
-        pad = 0.2             # the fractional whitespace inside the legend border
-        markerscale = 0.6     # the relative size of legend markers vs. original
-        shadow                # if True, draw a shadow behind legend
-        labelsep = 0.005     # the vertical space between the legend entries
-        handlelen = 0.05     # the length of the legend lines
-        handletextsep = 0.02 # the space between the legend line and legend text
-        axespad = 0.02       # the border between the axes and legend edge
+          isaxes: [ True | False ]
+            Indicates that this is an axes legend
+          numpoints: integer
+            The number of points in the legend line, default is 4
+          prop: [ None | FontProperties ]
+            A FontProperties instance, or None to use rc settings.
+            see :class:`~matplotlib.font_manager.FontProperties`
+          pad: [ None | scalar ]
+            The fractional whitespace inside the legend border, between 0 and 1.
+            If None, use rc settings
+          markerscale: [ None | scalar ]
+            The relative size of legend markers vs. original. If None, use rc
+            settings
+          shadow: [ None | False | True ]
+            If True, draw a shadow behind legend. If None, use rc settings.
+          labelsep: [ None | scalar ]
+            The vertical space between the legend entries. If None, use rc
+            settings
+          handlelen: [ None | scalar ]
+            The length of the legend lines. If None, use rc settings.
+          handletextsep: [ None | scalar ]
+            The space between the legend line and legend text. If None, use rc
+            settings.
+          axespad: [ None | scalar ]
+            The border between the axes and legend edge. If None, use rc
+            settings.
         """
 
         def get_handles():
@@ -4863,102 +4884,86 @@ class Axes(martist.Artist):
     #### plotting z(x,y): imshow, pcolor and relatives, contour
 
 
-    def imshow(self, X,
-               cmap = None,
-               norm = None,
-               aspect=None,
-               interpolation=None,
-               alpha=1.0,
-               vmin = None,
-               vmax = None,
-               origin=None,
-               extent=None,
-               shape=None,
-               filternorm=1,
-               filterrad=4.0,
-               imlim=None,
-               **kwargs):
+    def imshow(self, X, cmap=None, norm=None, aspect=None,
+               interpolation=None, alpha=1.0, vmin=None, vmax=None,
+               origin=None, extent=None, shape=None, filternorm=1,
+               filterrad=4.0, imlim=None, **kwargs):
         """
+        call signature::
 
-        IMSHOW(X, cmap=None, norm=None, aspect=None, interpolation=None,
-               alpha=1.0, vmin=None, vmax=None, origin=None, extent=None)
-
-        IMSHOW(X) - plot image X to current axes, resampling to scale to axes
-                    size (X may be numarray/Numeric array or PIL image)
-
-        IMSHOW(X, **kwargs) - Use keyword args to control image scaling,
-        colormapping etc. See below for details
-
+          imshow(X, cmap=None, norm=None, aspect=None, interpolation=None,
+                 alpha=1.0, vmin=None, vmax=None, origin=None, extent=None,
+                 **kwargs)
 
         Display the image in X to current axes.  X may be a float array, a
         uint8 array or a PIL image. If X is an array, X can have the following
         shapes:
 
-            MxN    : luminance (grayscale, float array only)
-
-            MxNx3  : RGB (float or uint8 array)
-
-            MxNx4  : RGBA (float or uint8 array)
+        * MxN -- luminance (grayscale, float array only)
+        * MxNx3 -- RGB (float or uint8 array)
+        * MxNx4 -- RGBA (float or uint8 array)
 
         The value for each component of MxNx3 and MxNx4 float arrays should be
         in the range 0.0 to 1.0; MxN float arrays may be normalised.
 
-        A image.AxesImage instance is returned
+        An image.AxesImage instance is returned.
 
-        The following kwargs are allowed:
+        Keyword arguments:
 
-          * cmap is a cm colormap instance, eg cm.jet.  If None, default to rc
-            image.cmap value (Ignored when X has RGB(A) information)
+          cmap: [ None | Colormap ]
+            A cm colormap instance, eg cm.jet.  If None, default to rc
+            image.cmap value
 
-          * aspect is one of: auto, equal, or a number.  If None, default to rc
-            image.aspect value
+            cmap is ignored when X has RGB(A) information
+          aspect: [ None | 'auto' | 'equal' | scalar ]
+            If 'auto', changes the image aspect ratio to match that of the axes
 
-          * interpolation is one of:
+            If 'equal', and extent is None, changes the axes aspect ratio to
+            match that of the image. If extent is not None, the axes aspect
+            ratio is changed to match that of the extent.
 
-            'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36',
-            'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
-            'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
+            If None, default to rc image.aspect value.
+          interpolation:
+            Acceptable values are None, 'nearest', 'bilinear', 'bicubic',
+            'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser',
+            'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
             'lanczos', 'blackman'
 
-            if interpolation is None, default to rc
-            image.interpolation.  See also th the filternorm and
-            filterrad parameters
+            If interpolation is None, default to rc image.interpolation. See
+            also th the filternorm and filterrad parameters
+          norm: [ None | Normalize ]
+            An mcolors.Normalize instance; if None, default is normalization().
+            This scales luminance -> 0-1
 
-          * norm is a mcolors.Normalize instance; default is
-            normalization().  This scales luminance -> 0-1 (only used for an
-            MxN float array).
+            norm is only used for an MxN float array.
+          vmin/vmax: [ None | scalar ]
+            Used to scale a luminance image to 0-1.  If either is None, the min
+            and max of the luminance values will be used.  Note if you pass a
+            norm instance, the settings for vmin and vmax will be ignored.
+          alpha: scalar
+            the alpha blending value, between 0 (transparent) and 1 (opaque)
+          origin: [ None | 'upper' | 'lower' ]
+            Place the [0,0] index of the array in the upper left or lower left
+            corner of the axes. If None, default to rc image.origin
+          extent: [ None | scalars (left, right, bottom, top) ]
+            data values of the axes.  The default assigns zero-based row,
+            column indices to the x, y centers of the pixels.
+          shape: [ None | scalars (columns, rows) ]
+            for raw buffer images
+          filternorm:
+            A parameter for the antigrain image resize filter.  From the
+            antigrain documentation, if normalize=1, the filter normalizes
+            integer values and corrects the rounding errors. It doesn't do
+            anything with the source floating point values, it corrects only
+            integers according to the rule of 1.0 which means that any sum of
+            pixel weights must be equal to 1.0.  So, the filter function must
+            produce a graph of the proper shape.
+          filterrad:
+            the filter radius for filters that have a radius parameter, ie when
+            interpolation is one of: 'sinc', 'lanczos' or 'blackman'
 
-          * vmin and vmax are used to scale a luminance image to 0-1.  If
-            either is None, the min and max of the luminance values will be
-            used.  Note if you pass a norm instance, the settings for vmin and
-            vmax will be ignored.
-
-          * alpha = 1.0 : the alpha blending value
-
-          * origin is 'upper' or 'lower', to place the [0,0]
-            index of the array in the upper left or lower left corner of
-            the axes.  If None, default to rc image.origin
-
-          * extent is (left, right, bottom, top) data values of the
-            axes.  The default assigns zero-based row, column indices
-            to the x, y centers of the pixels.
-
-          * shape is for raw buffer images
-
-          * filternorm is a parameter for the antigrain image resize
-            filter.  From the antigrain documentation, if normalize=1,
-            the filter normalizes integer values and corrects the
-            rounding errors. It doesn't do anything with the source
-            floating point values, it corrects only integers according
-            to the rule of 1.0 which means that any sum of pixel
-            weights must be equal to 1.0.  So, the filter function
-            must produce a graph of the proper shape.
-
-         * filterrad: the filter radius for filters that have a radius
-           parameter, ie when interpolation is one of: 'sinc',
-           'lanczos' or 'blackman'
-
-        Additional kwargs are martist properties
+        Additional kwargs are Artist properties:
+        %(Artist)s
         """
 
         if not self._hold: self.cla()
@@ -4992,6 +4997,7 @@ class Axes(martist.Artist):
         self.images.append(im)
 
         return im
+    imshow.__doc__ = cbook.dedent(imshow.__doc__) % martist.kwdocd
 
 
     def _pcolorargs(self, funcname, *args):
@@ -6054,7 +6060,7 @@ class Axes(martist.Artist):
 
     def matshow(self, Z, **kwargs):
         '''
-        Plot a matrix as an image.
+        Plot a matrix or array as an image.
 
         The matrix will be shown the way it would be printed,
         with the first row at the top.  Row and column numbering
