@@ -30,6 +30,9 @@ possible to include other documents through the use of an include
 statement. For example, in the Developers Guide, index.rst lists
 coding_guide, which automatically inserts coding_guide.rst.
 
+Sphinx does not support tables with column- or row-spanning cells for
+latex output. Such tables can not be used when documenting matplotlib.
+
 Mathematical expressions can be rendered as png images in html, and in
 the usual way by latex. For example:
 

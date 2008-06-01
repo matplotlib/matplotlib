@@ -214,7 +214,7 @@ class Line2D(Artist):
           linestyle or ls: [ '-' | '--' | '-.' | ':' | 'steps' | 'steps-pre' | 'steps-mid' | 'steps-post' | 'None' | ' ' | '' ]
           linewidth or lw: float value in points
           lod: [True | False]
-          marker: [ '+' | ',' | '.' | '1' | '2' | '3' | '4'
+          marker: [ '+' | ',' | '.' | '1' | '2' | '3' | '4' ]
           markeredgecolor or mec: any matplotlib color
           markeredgewidth or mew: float value in points (default 5)
           markerfacecolor or mfc: any matplotlib color
