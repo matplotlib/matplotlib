@@ -156,16 +156,16 @@ The choices available with all fonts are:
     ``\mathcal``    :math:`\mathcal{CALLIGRAPHY}`
     =============== =================================
 
-When using the STIX fonts, you also have the choice of:
-
-    ================ =================================
-    Command          Result
-    ================ =================================
-    ``\mathbb``      :math:`\mathbb{Blackboard}`
-    ``\mathcircled`` :math:`\mathcircled{Circled}`
-    ``\mathfrak``    :math:`\mathfrak{Fraktur}`
-    ``\mathsf``      :math:`\mathsf{sans-serif}`
-    ================ =================================
+.. When using the STIX fonts, you also have the choice of:
+..
+..    ================ =================================
+..    Command          Result
+..    ================ =================================
+..    ``\mathbb``      :math:`\mathbb{Blackboard}`
+..    ``\mathcircled`` :math:`\mathcircled{Circled}`
+..    ``\mathfrak``    :math:`\mathfrak{Fraktur}`
+..    ``\mathsf``      :math:`\mathsf{sans-serif}`
+..    ================ =================================
 
 Accents
 -------
