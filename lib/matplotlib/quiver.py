@@ -10,50 +10,57 @@ the Quiver code.
 """
 
 
+import numpy as np
+from numpy import ma
+import matplotlib.collections as collections
+import matplotlib.transforms as transforms
+import matplotlib.text as mtext
+import matplotlib.artist as martist
+import matplotlib.font_manager as font_manager
+import math
+
+
 _quiver_doc = """
 Plot a 2-D field of arrows.
 
-Function signatures:
+call signatures::
 
-    quiver(U, V, **kw)
-    quiver(U, V, C, **kw)
-    quiver(X, Y, U, V, **kw)
-    quiver(X, Y, U, V, C, **kw)
+  quiver(U, V, **kw)
+  quiver(U, V, C, **kw)
+  quiver(X, Y, U, V, **kw)
+  quiver(X, Y, U, V, C, **kw)
 
 Arguments:
 
-    X, Y give the x and y coordinates of the arrow locations
-        (default is tail of arrow; see 'pivot' kwarg)
-    U, V give the x and y components of the arrow vectors
-    C is an optional array used to map colors to the arrows
+  X, Y:
+    The x and y coordinates of the arrow locations
+    (default is tail of arrow; see 'pivot' kwarg)
+  U, V:
+    give the x and y components of the arrow vectors
+  C:
+    an optional array used to map colors to the arrows
 
-    All arguments may be 1-D or 2-D arrays or sequences.
-    If X and Y are absent, they will be generated as a uniform grid.
-    If U and V are 2-D arrays but X and Y are 1-D, and if
-        len(X) and len(Y) match the column and row dimensions
-        of U, then X and Y will be expanded with meshgrid.
-    U, V, C may be masked arrays, but masked X, Y are not
-        supported at present.
+All arguments may be 1-D or 2-D arrays or sequences. If X
+and Y are absent, they will be generated as a uniform grid.
+If U and V are 2-D arrays but X and Y are 1-D, and if
+len(X) and len(Y) match the column and row dimensions
+of U, then X and Y will be expanded with meshgrid.
 
-Keyword arguments (default given first):
+U, V, C may be masked arrays, but masked X, Y are not
+supported at present.
 
-  * units = 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y'
-            arrow units; the arrow dimensions *except for length*
-            are in multiples of this unit.
-  * scale = None | float
-            data units per arrow unit, e.g. m/s per plot width;
-            a smaller scale parameter makes the arrow longer.
-            If None, a simple autoscaling algorithm is used, based
-            on the average vector length and the number of vectors.
+Keyword arguments:
 
-    Arrow dimensions and scales can be in any of several units:
+  units: ['width' | 'height' | 'dots' | 'inches' | 'x' | 'y' ]
+    arrow units; the arrow dimensions *except for length* are
+    in multiples of this unit.
 
-    'width' or 'height': the width or height of the axes
-    'dots' or 'inches':  pixels or inches, based on the figure dpi
-    'x' or 'y': X or Y data units
+    * 'width' or 'height': the width or height of the axes
+    * 'dots' or 'inches':  pixels or inches, based on the figure dpi
+    * 'x' or 'y': X or Y data units
 
-    In all cases the arrow aspect ratio is 1, so that if U==V the angle
-    of the arrow on the plot is 45 degrees CCW from the X-axis.
+    In all cases the arrow aspect ratio is 1, so that if U==V the
+    angle of the arrow on the plot is 45 degrees CCW from the X-axis.
 
     The arrows scale differently depending on the units, however.
     For 'x' or 'y', the arrows get larger as one zooms in; for other
@@ -61,98 +68,105 @@ Keyword arguments (default given first):
     'width or 'height', the arrow size increases with the width and
     height of the axes, respectively, when the the window is resized;
     for 'dots' or 'inches', resizing does not change the arrows.
+  scale: [ None | float ]
+    data units per arrow unit, e.g. m/s per plot width;
+    a smaller scale parameter makes the arrow longer.
+    If None, a simple autoscaling algorithm is used, based
+    on the average vector length and the number of vectors.
+  width:
+    shaft width in arrow units; default depends on choice of units,
+    above, and number of vectors; a typical starting value is about
+    0.005 times the width of the plot.
+  headwidth: scalar
+    head width as multiple of shaft width, default is 3
+  headlength: scalar
+    head length as multiple of shaft width, default is 5
+  headaxislength: scalar
+    head length at shaft intersection, default is 4.5
+  minshaft: scalar
+    length below which arrow scales, in units of head length. Do not
+    set this to less than 1, or small arrows will look terrible!
+    Default is 1
+  minlength: scalar
+    minimum length as a multiple of shaft width; if an arrow length
+    is less than this, plot a dot (hexagon) of this diameter instead.
+    Default is 1.
+  pivot: [ 'tail' | 'middle' | 'tip' ]
+    The part of the arrow that is at the grid point; the arrow
+    rotates about this point, hence the name 'pivot'.
 
+  color = [ color | color sequence ]
+    This is a synonym for the PolyCollection facecolor kwarg.
+    If C has been set, 'color' has no effect.
 
-  * width = ?       shaft width in arrow units; default depends on
-                        choice of units, above, and number of vectors;
-                        a typical starting value is about
-                        0.005 times the width of the plot.
-  * headwidth = 3    head width as multiple of shaft width
-  * headlength = 5   head length as multiple of shaft width
-  * headaxislength = 4.5  head length at shaft intersection
-  * minshaft = 1     length below which arrow scales, in units
-                        of head length. Do not set this to less
-                        than 1, or small arrows will look terrible!
-  * minlength = 1    minimum length as a multiple of shaft width;
-                     if an arrow length is less than this, plot a
-                     dot (hexagon) of this diameter instead.
+The defaults give a slightly swept-back arrow; to make the head a
+triangle, make headaxislength the same as headlength. To make the
+arrow more pointed, reduce headwidth or increase headlength and
+headaxislength. To make the head smaller relative to the shaft, scale
+down all the head parameters. You will probably do best to leave
+minshaft alone.
 
-    The defaults give a slightly swept-back arrow; to make the
-    head a triangle, make headaxislength the same as headlength.
-    To make the arrow more pointed, reduce headwidth or increase
-    headlength and headaxislength.
-    To make the head smaller relative to the shaft, scale down
-    all the head* parameters.
-    You will probably do best to leave minshaft alone.
-
-  * pivot = 'tail' | 'middle' | 'tip'
-        The part of the arrow that is at the grid point; the arrow
-        rotates about this point, hence the name 'pivot'.
-
-  * color = 'k' | any matplotlib color spec or sequence of color specs.
-        This is a synonym for the PolyCollection facecolor kwarg.
-        If C has been set, 'color' has no effect.
-
-   * All PolyCollection kwargs are valid, in the sense that they
-        will be passed on to the PolyCollection constructor.
-        In particular, one might want to use, for example:
-            linewidths = (1,), edgecolors = ('g',)
-        to make the arrows have green outlines of unit width.
-
-"""
+Additional keyword arguments will be passed on to the PolyCollection
+constructor. linewidths and edgecolors can be used to customize the
+arrow outlines. Additional PolyCollection keyword arguments:
+%(PolyCollection)s
+""" % martist.kwdocd
 
 _quiverkey_doc = """
 Add a key to a quiver plot.
 
-Function signature:
-    quiverkey(Q, X, Y, U, label, **kw)
+call signature::
+
+  quiverkey(Q, X, Y, U, label, **kw)
 
 Arguments:
-    Q is the Quiver instance returned by a call to quiver.
-    X, Y give the location of the key; additional explanation follows.
-    U is the length of the key
-    label is a string with the length and units of the key
 
-Keyword arguments (default given first):
-  * coordinates = 'axes' | 'figure' | 'data' | 'inches'
-        Coordinate system and units for X, Y: 'axes' and 'figure'
-        are normalized coordinate systems with 0,0 in the lower
-        left and 1,1 in the upper right; 'data' are the axes
-        data coordinates (used for the locations of the vectors
-        in the quiver plot itself); 'inches' is position in the
-        figure in inches, with 0,0 at the lower left corner.
-  * color overrides face and edge colors from Q.
-  * labelpos = 'N' | 'S' | 'E' | 'W'
-        Position the label above, below, to the right, to the left
-        of the arrow, respectively.
-  * labelsep = 0.1 inches distance between the arrow and the label
-  * labelcolor (defaults to default Text color)
-  * fontproperties is a dictionary with keyword arguments accepted
-        by the FontProperties initializer: family, style, variant,
-        size, weight
+  Q:
+    The Quiver instance returned by a call to quiver.
+  X, Y:
+    The location of the key; additional explanation follows.
+  U:
+    The length of the key
+  label:
+    a string with the length and units of the key
 
-    Any additional keyword arguments are used to override vector
-    properties taken from Q.
+Keyword arguments:
 
-    The positioning of the key depends on X, Y, coordinates, and
-    labelpos.  If labelpos is 'N' or 'S', X,Y give the position
-    of the middle of the key arrow.  If labelpos is 'E', X,Y
-    positions the head, and if labelpos is 'W', X,Y positions the
-    tail; in either of these two cases, X,Y is somewhere in the middle
-    of the arrow+label key object.
+  coordinates = [ 'axes' | 'figure' | 'data' | 'inches' ]
+    Coordinate system and units for X, Y: 'axes' and 'figure'
+    are normalized coordinate systems with 0,0 in the lower
+    left and 1,1 in the upper right; 'data' are the axes
+    data coordinates (used for the locations of the vectors
+    in the quiver plot itself); 'inches' is position in the
+    figure in inches, with 0,0 at the lower left corner.
+  color:
+    overrides face and edge colors from Q.
+  labelpos = [ 'N' | 'S' | 'E' | 'W' ]
+    Position the label above, below, to the right, to the left
+    of the arrow, respectively.
+  labelsep:
+    Distance in inches between the arrow and the label.
+    Default is 0.1
+  labelcolor:
+    defaults to default Text color
+  fontproperties:
+    A dictionary with keyword arguments accepted by the
+    FontProperties initializer: family, style, variant, size,
+    weight
+
+Any additional keyword arguments are used to override vector
+properties taken from Q.
+
+The positioning of the key depends on X, Y, coordinates, and
+labelpos.  If labelpos is 'N' or 'S', X,Y give the position
+of the middle of the key arrow.  If labelpos is 'E', X,Y
+positions the head, and if labelpos is 'W', X,Y positions the
+tail; in either of these two cases, X,Y is somewhere in the middle
+of the arrow+label key object.
 """
 
-import numpy as np
-from numpy import ma
-import matplotlib.collections as collections
-import matplotlib.transforms as transforms
-import matplotlib.text as text
-import matplotlib.artist as artist
-import matplotlib.font_manager as font_manager
-import math
 
-
-class QuiverKey(artist.Artist):
+class QuiverKey(martist.Artist):
     """ Labelled arrow for use as a quiver plot scale key.
     """
     halign = {'N': 'center', 'S': 'center', 'E': 'left',   'W': 'right'}
@@ -160,7 +174,7 @@ class QuiverKey(artist.Artist):
     pivot  = {'N': 'mid',    'S': 'mid',    'E': 'tip',    'W': 'tail'}
 
     def __init__(self, Q, X, Y, U, label, **kw):
-        artist.Artist.__init__(self)
+        martist.Artist.__init__(self)
         self.Q = Q
         self.X = X
         self.Y = Y
@@ -185,7 +199,7 @@ class QuiverKey(artist.Artist):
         self.kw = kw
         _fp = self.fontproperties
         #boxprops = dict(facecolor='red')
-        self.text = text.Text(text=label,  #      bbox=boxprops,
+        self.text = mtext.Text(text=label,  #      bbox=boxprops,
                        horizontalalignment=self.halign[self.labelpos],
                        verticalalignment=self.valign[self.labelpos],
                        fontproperties=font_manager.FontProperties(**_fp))

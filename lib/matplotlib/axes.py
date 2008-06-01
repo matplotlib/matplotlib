@@ -2419,38 +2419,40 @@ class Axes(martist.Artist):
     def text(self, x, y, s, fontdict=None,
              withdash=False, **kwargs):
         """
-        TEXT(x, y, s, fontdict=None, **kwargs)
+        call signature::
+
+          text(x, y, s, fontdict=None, **kwargs)
 
         Add text in string s to axis at location x,y (data coords)
 
-          fontdict is a dictionary to override the default text properties.
-          If fontdict is None, the defaults are determined by your rc
-          parameters.
+        Keyword arguments:
 
-          withdash=True will create a TextWithDash instance instead
-          of a Text instance.
+          fontdict:
+            a dictionary to override the default text properties.
+            If fontdict is None, the defaults are determined by your rc
+            parameters.
+          withdash: [ False | True ]
+            creates a TextWithDash instance instead of a Text instance.
 
         Individual keyword arguments can be used to override any given
-        parameter
+        parameter::
 
             text(x, y, s, fontsize=12)
 
         The default transform specifies that text is in data coords,
         alternatively, you can specify text in axis coords (0,0 lower left and
         1,1 upper right).  The example below places text in the center of the
-        axes
+        axes::
 
             text(0.5, 0.5,'matplotlib',
                  horizontalalignment='center',
                  verticalalignment='center',
-                 transform = ax.transAxes,
-            )
-
+                 transform = ax.transAxes)
 
        You can put a rectangular box around the text instance (eg to
        set a background color) by using the keyword bbox.  bbox is a
        dictionary of patches.Rectangle properties (see help
-       for Rectangle for a list of these).  For example
+       for Rectangle for a list of these).  For example::
 
          text(x, y, s, bbox=dict(facecolor='red', alpha=0.5))
 
@@ -2946,21 +2948,30 @@ class Axes(martist.Artist):
     def plot_date(self, x, y, fmt='bo', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
-        PLOT_DATE(x, y, fmt='bo', tz=None, xdate=True, ydate=False, **kwargs)
+        call signature::
+
+          plot_date(x, y, fmt='bo', tz=None, xdate=True, ydate=False, **kwargs)
 
         Similar to the plot() command, except the x or y (or both) data
         is considered to be dates, and the axis is labeled accordingly.
 
-        x or y (or both) can be a sequence of dates represented as
-        float days since 0001-01-01 UTC.
+        x and/or y can be a sequence of dates represented as float days since
+        0001-01-01 UTC.
 
-        fmt is a plot format string.
+        See dates for helper functions date2num, num2date
+        and drange for help on creating the required floating point dates
 
-        tz is the time zone to use in labelling dates.  Defaults to rc value.
+        Keyword arguments:
 
-        If xdate is True, the x-axis will be labeled with dates.
-
-        If ydate is True, the y-axis will be labeled with dates.
+          fmt: string
+            The plot format string.
+          tz: [ None | timezone string ]
+            The time zone to use in labeling dates. If None, defaults to rc
+            value.
+          xdate: [ True | False ]
+            If True, the x-axis will be labeled with dates.
+          ydate: [ False | True ]
+            If True, the y-axis will be labeled with dates.
 
         Note if you are using custom date tickers and formatters, it
         may be necessary to set the formatters/locators after the call
@@ -2973,9 +2984,6 @@ class Axes(martist.Artist):
         Valid kwargs are Line2D properties:
         %(Line2D)s
 
-
-        See dates for helper functions date2num, num2date
-        and drange for help on creating the required floating point dates
         """
 
         if not self._hold: self.cla()
@@ -2999,10 +3007,10 @@ class Axes(martist.Artist):
 
           loglog(*args, **kwargs)
 
-        Make a plot with log scaling on the a and y axis. The args to loglog
-        are the same as the args to ``plot``.  See ``plot`` for more info.
+        Make a plot with log scaling on the x and y axis. The args to loglog
+        are the same as the args to plot.  See plot for more info.
 
-        loglog supports all the keyword arguments of ``plot`` and
+        loglog supports all the keyword arguments of plot and
         Axes.set_xscale/Axes.set_yscale.
 
         Notable keyword arguments:
@@ -3039,20 +3047,25 @@ class Axes(martist.Artist):
 
     def semilogx(self, *args, **kwargs):
         """
-        SEMILOGX(*args, **kwargs)
+        call signature::
 
-        Make a semilog plot with log scaling on the x axis.  The args to
-        semilog x are the same as the args to plot.  See help plot for more
-        info.
+          semilogx(*args, **kwargs)
 
-        Optional keyword args supported are any of the kwargs supported by
-        plot or set_xscale.  Notable, for log scaling:
+        Make a plot with log scaling on the x axis. The args to
+        semilogx are the same as the args to plot.  See plot for
+        more info.
 
-            * basex: base of the logarithm
+        semilogx supports all the keyword arguments of plot and
+        Axes.set_xscale.
 
-            * subsx: the location of the minor ticks; None defaults to
-              autosubs, which depend on the number of decades in the
-              plot; see set_xscale for details
+        Notable keyword arguments:
+
+          basex: scalar > 1
+            base of the x logarithm
+          subsx: [ None | sequence ]
+            the location of the minor xticks; None defaults to
+            autosubs, which depend on the number of decades in the
+            plot; see set_xscale for details
 
         The remaining valid kwargs are Line2D properties:
         %(Line2D)s
@@ -3072,24 +3085,28 @@ class Axes(martist.Artist):
 
     def semilogy(self, *args, **kwargs):
         """
-        SEMILOGY(*args, **kwargs):
+        call signature::
 
-        Make a semilog plot with log scaling on the y axis.  The args to
-        semilogy are the same as the args to plot.  See help plot for more
-        info.
+          semilogy(*args, **kwargs)
 
-        Optional keyword args supported are any of the kwargs supported by
-        plot or set_yscale.  Notable, for log scaling:
+        Make a plot with log scaling on the y axis. The args to
+        semilogy are the same as the args to plot.  See plot for
+        more info.
 
-            * basey: base of the logarithm
+        semilogy supports all the keyword arguments of plot and
+        Axes.set_yscale.
 
-            * subsy: a sequence of the location of the minor ticks;
-              None defaults to autosubs, which depend on the number of
-              decades in the plot; see set_yscale for details
+        Notable keyword arguments:
+
+          basey: scalar > 1
+            base of the y logarithm
+          subsy: [ None | sequence ]
+            the location of the minor yticks; None defaults to
+            autosubs, which depend on the number of decades in the
+            plot; see set_yscale for details
 
         The remaining valid kwargs are Line2D properties:
         %(Line2D)s
-
         """
         if not self._hold: self.cla()
         d = {'basey': kwargs.pop('basey', 10),
@@ -3352,21 +3369,25 @@ class Axes(martist.Artist):
 
     def step(self, x, y, *args, **kwargs):
         '''
-        step(x, y, *args, **kwargs)
+        call signature::
+
+          step(x, y, *args, **kwargs)
 
         x and y must be 1-D sequences, and it is assumed, but not checked,
         that x is uniformly increasing.
 
-        Make a step plot. The args and keyword args to step are the same
-        as the args to plot. See help plot for more info.
+        Keyword arguments:
 
-        Additional keyword args for step:
+        where: [ 'pre' | 'post' | 'mid'  ]
+          if 'pre', the interval from x[i] to x[i+1] has level y[i]
 
-        * where: can be 'pre', 'post' or 'mid'; if 'pre', the
-                    interval from x[i] to x[i+1] has level y[i];
-                    if 'post', that interval has level y[i+1];
-                    and if 'mid', the jumps in y occur half-way
-                    between the x-values.  Default is 'pre'.
+          if 'post', that interval has level y[i+1]
+
+          if 'mid', the jumps in y occur half-way between the x-values.
+
+        Make a step plot. Additional keyword args to step are the same
+        as those for plot. See plot for more info.
+
         '''
 
         where = kwargs.pop('where', 'pre')
@@ -3733,7 +3754,9 @@ class Axes(martist.Artist):
 
     def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-'):
         """
-        STEM(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
+        call signature::
+
+          stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
 
         A stem plot plots vertical lines (using linefmt) at each x location
         from the baseline to y, and places a marker there using markerfmt.  A
@@ -3763,51 +3786,51 @@ class Axes(martist.Artist):
         return markerline, stemlines, baseline
 
 
-    def pie(self, x, explode=None, labels=None,
-            colors=None,
-            autopct=None,
-            pctdistance=0.6,
-            shadow=False,
-            labeldistance=1.1,
-            ):
+    def pie(self, x, explode=None, labels=None, colors=None,
+            autopct=None, pctdistance=0.6, shadow=False,
+            labeldistance=1.1):
         """
-        PIE(x, explode=None, labels=None,
-            colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
-            autopct=None, pctdistance=0.6, labeldistance=1.1, shadow=False)
+        call signature::
+
+          pie(x, explode=None, labels=None,
+              colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
+              autopct=None, pctdistance=0.6, labeldistance=1.1, shadow=False)
 
         Make a pie chart of array x.  The fractional area of each wedge is
         given by x/sum(x).  If sum(x)<=1, then the values of x give the
         fractional area directly and the array will not be normalized.
 
-          - explode, if not None, is a len(x) array which specifies the
-            fraction of the radius to offset that wedge.
+        Keyword arguments:
 
-          - colors is a sequence of matplotlib color args that the pie chart
+          explode: [ None | len(x) sequence ]
+            If not None, is a len(x) array which specifies the
+            fraction of the radius with which to offset each wedge.
+          colors: [ None | color sequence ]
+            A sequence of matplotlib color args through which the pie chart
             will cycle.
-
-          - labels, if not None, is a len(x) list of labels.
-
-          - autopct, if not None, is a string or function used to label the
+          labels: [ None | len(x) sequence of strings ]
+            A sequence of strings providing the labels for each wedge
+          autopct: [ None | format string | format function ]
+            If not None, is a string or function used to label the
             wedges with their numeric value.  The label will be placed inside
             the wedge.  If it is a format string, the label will be fmt%pct.
             If it is a function, it will be called
-
-          - pctdistance is the ratio between the center of each pie slice
-            and the start of the text generated by autopct.  Ignored if autopct
-            is None; default is 0.6.
-
-          - labeldistance is the radial distance at which the pie labels are drawn
-
-          - shadow, if True, will draw a shadow beneath the pie.
+          pctdistance: scalar
+            The ratio between the center of each pie slice and the start of the
+            text generated by autopct.  Ignored if autopct is None; default is
+            0.6.
+          labeldistance: scalar
+            The radial distance at which the pie labels are drawn
+          shadow: [ False | True ]
+            Draw a shadow beneath the pie.
 
         The pie chart will probably look best if the figure and axes are
-        square.  Eg,
+        square.  Eg::
 
           figure(figsize=(8,8))
           ax = axes([0.1, 0.1, 0.8, 0.8])
 
         Return value:
-
           If autopct is None, return a list of (patches, texts), where patches
           is a sequence of mpatches.Wedge instances and texts is a
           list of the label Text instnaces
@@ -3815,6 +3838,7 @@ class Axes(martist.Artist):
           If autopct is not None, return (patches, texts, autotexts), where
           patches and texts are as above, and autotexts is a list of text
           instances for the numeric labels
+
         """
         self.set_frame_on(False)
 
@@ -4314,97 +4338,109 @@ class Axes(martist.Artist):
                     faceted=True, verts=None,
                     **kwargs):
         """
-        SCATTER(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
-            vmin=None, vmax=None, alpha=1.0, linewidths=None,
-            verts=None, **kwargs)
-        Supported function signatures:
+        call signatures::
 
-            SCATTER(x, y, **kwargs)
-            SCATTER(x, y, s, **kwargs)
-            SCATTER(x, y, s, c, **kwargs)
+          scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
+                  vmin=None, vmax=None, alpha=1.0, linewidths=None,
+                  verts=None, **kwargs)
 
         Make a scatter plot of x versus y, where x, y are 1-D sequences
         of the same length, N.
 
-        Arguments s and c can also be given as kwargs; this is encouraged
-        for readability.
+        Keyword arguments:
 
-            s is a size in points^2.  It is a scalar
-              or an array of the same length as x and y.
+          s:
+            size in points^2.  It is a scalar or an array of the same
+            length as x and y.
+          c:
+            a color. c can be a single color format string, or a
+            sequence of color specifications of length N, or a sequence
+            of N numbers to be mapped to colors using the cmap and norm
+            specified via kwargs (see below). Note that c should not be
+            a single numeric RGB or RGBA sequence because that is
+            indistinguishable from an array of values to be colormapped.
+            c can be a 2-D array in which the rows are RGB or RGBA,
+            however.
+          marker:
+            can be one of:
 
-            c is a color and can be a single color format string,
-              or a sequence of color specifications of length N,
-              or a sequence of N numbers to be mapped to colors
-              using the cmap and norm specified via kwargs (see below).
-              Note that c should not be a single numeric RGB or RGBA
-              sequence because that is indistinguishable from an array
-              of values to be colormapped. c can be a 2-D array in which
-              the rows are RGB or RGBA, however.
+            =====   ==============
+            Value   Description
+            =====   ==============
+            's'     square
+            'o'     circle
+            '^'     triangle up
+            '>'     triangle right
+            'v'     triangle down
+            '<'     triangle left
+            'd'     diamond
+            'p'     pentagram
+            'h'     hexagon
+            '8'     octagon
+            '+'     plus
+            'x'     cross
+            =====   ==============
 
-        The marker can be one of
+            The marker can also be a tuple (numsides, style, angle), which will
+            create a custom, regular symbol.
 
-            's' : square
-            'o' : circle
-            '^' : triangle up
-            '>' : triangle right
-            'v' : triangle down
-            '<' : triangle left
-            'd' : diamond
-            'p' : pentagram
-            'h' : hexagon
-            '8' : octagon
-            '+' : plus
-            'x' : cross
+            numsides:
+              the number of sides
+            style:
+              the style of the regular symbol:
 
-        The marker can also be a tuple (numsides, style, angle), which will
-        create a custom, regular symbol.
+              =====   ==================
+              Value   Description
+              =====   ==================
+              0       a regular polygon
+              1       a star-like symbol
+              2       an asterisk
+              =====   ==================
 
-            numsides is the number of sides
+            angle:
+              the angle of rotation of the symbol
 
-            style is the style of the regular symbol:
-              0 : a regular polygon
-              1 : a star-like symbol
-              2 : an asterisk
-
-            angle is the angle of rotation of the symbol
-
-        Finally, marker can be (verts, 0), verts is a sequence of (x,y)
-        vertices for a custom scatter symbol.  Alternatively, use the
-        kwarg combination marker=None,verts=verts.
+            Finally, marker can be (verts, 0), verts is a sequence of (x,y)
+            vertices for a custom scatter symbol.  Alternatively, use the
+            kwarg combination marker=None, verts=verts.
 
         Any or all of x, y, s, and c may be masked arrays, in which
         case all masks will be combined and only unmasked points
         will be plotted.
 
-        Other keyword args; the color mapping and normalization arguments will
-        be used only if c is an array of floats
+        Other keyword arguments: the color mapping and normalization
+        arguments will be used only if c is an array of floats.
 
-          * cmap = cm.jet : a colors.Colormap instance from cm.
-            defaults to rc image.cmap
-
-          * norm = colors.Normalize() : colors.Normalize instance
-            is used to scale luminance data to 0,1.
-
-          * vmin=None and vmax=None : vmin and vmax are used in conjunction
-            with norm to normalize luminance data.  If either are None, the
-            min and max of the color array C is used.  Note if you pass a norm
-            instance, your settings for vmin and vmax will be ignored
-
-          * alpha =1.0 : the alpha value for the patches
-
-          * linewidths, if None, defaults to (lines.linewidth,).  Note
+          cmap: [ None | Colormap ]
+            a colors.Colormap instance from cm. If None, defaults to rc
+            image.cmap. cmap is only used if c is an array of floats.
+          norm: [ None | Normalize ]
+            a colors.Normalize instance is used to scale luminance data
+            to 0,1. If None, use the default normalize(). norm is only
+            used if c is an array of floats.
+          vmin/vmax:
+            vmin and vmax are used in conjunction with norm to normalize
+            luminance data.  If either are None, the min and max of the
+            color array C is used.  Note if you pass a norm instance, your
+            settings for vmin and vmax will be ignored.
+          alpha: 0 <= scalar <= 1
+            the alpha value for the patches
+          linewidths: [ None | scalar | sequence ]
+            if None, defaults to (lines.linewidth,).  Note
             that this is a tuple, and if you set the linewidths
             argument you must set it as a sequence of floats, as
             required by RegularPolyCollection -- see
             collections.RegularPolyCollection for details
 
-           Optional kwargs control the Collection properties; in
-           particular:
+        Optional kwargs control the Collection properties; in
+        particular:
 
-            edgecolors='none' : to plot faces with no outlines
-            facecolors='none' : to plot unfilled outlines
+          edgecolors:
+            'none' to plot faces with no outlines
+          facecolors:
+            'none' to plot unfilled outlines
 
-           Here are the standard descriptions of all the Collection kwargs:
+        Here are the standard descriptions of all the Collection kwargs:
         %(Collection)s
 
         A Collection instance is returned
@@ -4829,9 +4865,6 @@ class Axes(martist.Artist):
     quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
 
     def quiver(self, *args, **kw):
-        """
-        TODO: Document me
-        """
         q = mquiver.Quiver(self, *args, **kw)
         self.add_collection(q, False)
         self.update_datalim(q.XY)
@@ -5026,9 +5059,9 @@ class Axes(martist.Artist):
 
     def pcolor(self, *args, **kwargs):
         """
-        pcolor(*args, **kwargs): pseudocolor plot of a 2-D array
+        Create a pseudocolor plot of a 2-D array
 
-        Function signatures
+        call signatures::
 
           pcolor(C, **kwargs)
           pcolor(X, Y, C, **kwargs)
@@ -5054,72 +5087,73 @@ class Axes(martist.Artist):
         of the vertices surrounding C[i,j] (X or Y at [i,j],[i+1,j],
         [i,j+1],[i=1,j+1]) is masked, nothing is plotted.
 
-        Optional keyword args are shown with their defaults below (you must
-        use kwargs for these):
+        Keyword arguments:
 
-          * cmap = cm.jet : a cm Colormap instance from cm
+          cmap: [ None | Colormap ]
+            A cm Colormap instance from cm. If None, use rc settings.
+          norm: [ None | Normalize ]
+            An mcolors.Normalize instance is used to scale luminance data to
+            0,1. If None, defaults to normalize()
+          vmin/vmax: [ None | scalar ]
+            vmin and vmax are used in conjunction with norm to normalize
+            luminance data.  If either are None, the min and max of the color
+            array C is used.  If you pass a norm instance, vmin and vmax will
+            be None.
+          shading: [ 'flat' | 'faceted' ]
+            If 'faceted', a black grid is drawn around each rectangle; if
+            'flat', edges are not drawn. Default is 'flat', contrary to
+            Matlab(TM).
 
-          * norm = Normalize() : mcolors.Normalize instance
-            is used to scale luminance data to 0,1.
+            This kwarg is deprecated; please use 'edgecolors' instead:
+              * shading='flat' -- edgecolors='None'
+              * shading='faceted  -- edgecolors='k'
+          edgecolors: [ None | 'None' | color | color sequence]
+            If None, the rc setting is used by default.
+            If 'None', edges will not be visible.
+            An mpl color or sequence of colors will set the edge color
+          alpha: 0 <= scalar <= 1
+            the alpha blending value
 
-          * vmin=None and vmax=None : vmin and vmax are used in conjunction
-            with norm to normalize luminance data.  If either are None, the
-            min and max of the color array C is used.  If you pass a norm
-            instance, vmin and vmax will be None
+        Return value is a matplotlib.collection.Collection object
 
-          * shading = 'flat' : or 'faceted'.  If 'faceted', a black grid is
-            drawn around each rectangle; if 'flat', edges are not drawn.
-            Default is 'flat', contrary to Matlab(TM).
-            This kwarg is deprecated;
-            please use the edgecolors kwarg instead:
-                shading='flat'    --> edgecolors='None'
-                shading='faceted  --> edgecolors='k'
-            edgecolors can also be None to specify the rcParams
-            default, or any mpl color or sequence of colors.
+        The grid orientation follows the Matlab(TM) convention: an
+        array C with shape (nrows, ncolumns) is plotted with
+        the column number as X and the row number as Y, increasing
+        up; hence it is plotted the way the array would be printed,
+        except that the Y axis is reversed.  That is, C is taken
+        as C(y,x).
 
-          * alpha=1.0 : the alpha blending value
+        Similarly for meshgrid::
 
-        Return value is a mcoll.Collection
-        object
+          x = np.arange(5)
+          y = np.arange(3)
+          X, Y = meshgrid(x,y)
 
-        Grid Orientation
+        is equivalent to:
 
-            The orientation follows the Matlab(TM) convention: an
-            array C with shape (nrows, ncolumns) is plotted with
-            the column number as X and the row number as Y, increasing
-            up; hence it is plotted the way the array would be printed,
-            except that the Y axis is reversed.  That is, C is taken
-            as C(y,x).
+          X = array([[0, 1, 2, 3, 4],
+                     [0, 1, 2, 3, 4],
+                     [0, 1, 2, 3, 4]])
 
-            Similarly for meshgrid:
+          Y = array([[0, 0, 0, 0, 0],
+                     [1, 1, 1, 1, 1],
+                     [2, 2, 2, 2, 2]])
 
-                x = np.arange(5)
-                y = np.arange(3)
-                X, Y = meshgrid(x,y)
+        so if you have::
 
-            is equivalent to
+          C = rand( len(x), len(y))
 
-                X = array([[0, 1, 2, 3, 4],
-                          [0, 1, 2, 3, 4],
-                          [0, 1, 2, 3, 4]])
+        then you need::
 
-                Y = array([[0, 0, 0, 0, 0],
-                          [1, 1, 1, 1, 1],
-                          [2, 2, 2, 2, 2]])
+          pcolor(X, Y, C.T)
 
-            so if you have
-                C = rand( len(x), len(y))
-            then you need
-                pcolor(X, Y, C.T)
-            or
-                pcolor(C.T)
+        or::
 
-        Dimensions
+          pcolor(C.T)
 
-            Matlab pcolor always discards
-            the last row and column of C, but matplotlib displays
-            the last row and column if X and Y are not specified, or
-            if X and Y have one more row and column than C.
+        Matlab pcolor always discards the last row and column of C, but
+        matplotlib displays the last row and column if X and Y are not
+        specified, or if X and Y have one more row and column than C.
 
 
         kwargs can be used to control the PolyCollection properties:
@@ -5214,48 +5248,44 @@ class Axes(martist.Artist):
 
     def pcolormesh(self, *args, **kwargs):
         """
-        PCOLORMESH(*args, **kwargs)
+        call signatures::
 
-        Function signatures
-
-          PCOLORMESH(C) - make a pseudocolor plot of matrix C
-
-          PCOLORMESH(X, Y, C) - a pseudo color plot of C on the matrices X and Y
-
-          PCOLORMESH(C, **kwargs) - Use keyword args to control colormapping and
-                                scaling; see below
+          pcolormesh(C)
+          pcolormesh(X, Y, C)
+          pcolormesh(C, **kwargs)
 
         C may be a masked array, but X and Y may not.  Masked array support
         is implemented via cmap and norm; in contrast, pcolor simply does
         not draw quadrilaterals with masked colors or vertices.
 
-        Optional keyword args are shown with their defaults below (you must
-        use kwargs for these):
+        Keyword arguments:
 
-          * cmap = cm.jet : a cm Colormap instance from cm.
+          cmap: [ None | Colormap ]
+            A cm Colormap instance from cm. If None, use rc settings.
+          norm: [ None | Normalize ]
+            An mcolors.Normalize instance is used to scale luminance data to
+            0,1. If None, defaults to normalize()
+          vmin/vmax: [ None | scalar ]
+            vmin and vmax are used in conjunction with norm to normalize
+            luminance data.  If either are None, the min and max of the color
+            array C is used.  If you pass a norm instance, vmin and vmax will
+            be None.
+          shading: [ 'flat' | 'faceted' ]
+            If 'faceted', a black grid is drawn around each rectangle; if
+            'flat', edges are not drawn. Default is 'flat', contrary to
+            Matlab(TM).
 
-          * norm = Normalize() : colors.Normalize instance
-            is used to scale luminance data to 0,1.  Instantiate it
-            with clip=False if C is a masked array.
+            This kwarg is deprecated; please use 'edgecolors' instead:
+              * shading='flat' -- edgecolors='None'
+              * shading='faceted  -- edgecolors='k'
+          edgecolors: [ None | 'None' | color | color sequence]
+            If None, the rc setting is used by default.
+            If 'None', edges will not be visible.
+            An mpl color or sequence of colors will set the edge color
+          alpha: 0 <= scalar <= 1
+            the alpha blending value
 
-          * vmin=None and vmax=None : vmin and vmax are used in conjunction
-            with norm to normalize luminance data.  If either are None, the
-            min and max of the color array C is used.
-
-          * shading = 'flat' : or 'faceted'.  If 'faceted', a black grid is
-            drawn around each rectangle; if 'flat', edges are not drawn.
-            Default is 'flat', contrary to Matlab(TM).
-            This kwarg is deprecated;
-            please use the edgecolors kwarg instead:
-                shading='flat'    --> edgecolors='None'
-                shading='faceted  --> edgecolors='k'
-            More flexible specification of edgecolors, as in pcolor,
-            is not presently supported.
-
-          * alpha=1.0 : the alpha blending value
-
-        Return value is a collections.Collection
-        object
+        Return value is a matplotlib.collection.Collection object
 
         See pcolor for an explantion of the grid orientation and the
         expansion of 1-D X and/or Y to 2-D arrays.
@@ -5754,8 +5784,10 @@ class Axes(martist.Artist):
     def psd(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0, **kwargs):
         """
-        PSD(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-            window=mlab.window_hanning, noverlap=0, **kwargs)
+        call signature::
+
+          psd(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
+              window=mlab.window_hanning, noverlap=0, **kwargs)
 
         The power spectral density by Welches average periodogram method.  The
         vector x is divided into NFFT length segments.  Each segment is
@@ -5765,35 +5797,37 @@ class Axes(martist.Artist):
         with a scaling to correct for power loss due to windowing.  Fs is the
         sampling frequency.
 
-            * NFFT is the length of the fft segment; must be a power of 2
+        Keyword arguments::
 
-            * Fs is the sampling frequency.
-
-            * Fc is the center frequency of x (defaults to 0), which offsets
-              the yextents of the image to reflect the frequency range used
-              when a signal is acquired and then filtered and downsampled to
-              baseband.
-
-            * detrend - the function applied to each segment before fft-ing,
-              designed to remove the mean or linear trend.  Unlike in matlab,
-              where the detrend parameter is a vector, in matplotlib is it a
-              function.  The mlab module defines detrend_none, detrend_mean,
-              detrend_linear, but you can use a custom function as well.
-
-            * window - the function used to window the segments.  window is a
-              function, unlike in matlab(TM) where it is a vector.  mlab defines
-              window_none, window_hanning, but you can use a custom function
-              as well.
-
-            * noverlap gives the length of the overlap between segments.
+          NFFT: integer
+            The length of the fft segment, must be a power of 2
+          Fs: integer
+            The sampling frequency.
+          Fc: integer
+            The center frequency of x (defaults to 0), which offsets
+            the yextents of the image to reflect the frequency range used
+            when a signal is acquired and then filtered and downsampled to
+            baseband.
+          detrend:
+            The function applied to each segment before fft-ing,
+            designed to remove the mean or linear trend.  Unlike in matlab,
+            where the detrend parameter is a vector, in matplotlib is it a
+            function.  The mlab module defines detrend_none, detrend_mean,
+            detrend_linear, but you can use a custom function as well.
+          window:
+            The function used to window the segments.  window is a
+            function, unlike in matlab where it is a vector.  mlab defines
+            window_none, window_hanning, but you can use a custom function
+            as well.
+          noverlap: integer
+            Gives the length of the overlap between segments.
 
         Returns the tuple Pxx, freqs
 
         For plotting, the power is plotted as 10*np.log10(pxx) for decibels,
         though pxx itself is returned
 
-        Refs:
-
+        References:
           Bendat & Piersol -- Random Data: Analysis and Measurement
           Procedures, John Wiley & Sons (1986)
 
@@ -5917,35 +5951,35 @@ class Axes(martist.Artist):
                  window=mlab.window_hanning, noverlap=128,
                  cmap = None, xextent=None):
         """
-        SPECGRAM(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-                 window = mlab.window_hanning, noverlap=128,
-                 cmap=None, xextent=None)
+        call signature::
+
+          specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
+                   window = mlab.window_hanning, noverlap=128,
+                   cmap=None, xextent=None)
 
         Compute a spectrogram of data in x.  Data are split into NFFT length
         segements and the PSD of each section is computed.  The windowing
         function window is applied to each segment, and the amount of overlap
         of each segment is specified with noverlap.
 
-            * cmap is a colormap; if None use default determined by rc
+        Keyword arguments:
 
-            * xextent is the image extent in the xaxes xextent=xmin, xmax -
-              default 0, max(bins), 0, max(freqs) where bins is the return
-              value from mlab.specgram
+          cmap:
+            a colormap; if None use default determined by rc
+          xextent:
+            the image extent in the xaxes xextent=xmin, xmax
+            default 0, max(bins), 0, max(freqs) where bins is the return
+            value from mlab.specgram
 
-            * See help(psd) for information on the other keyword arguments.
+        See help(psd) for information on the other keyword arguments.
 
-        Return value is (Pxx, freqs, bins, im), where
+        Return value is (Pxx, freqs, bins, im), where bins are the time
+        points the spectrogram is calculated over, freqs is an array of
+        frequencies, Pxx is a len(times) x len(freqs) array of power, and
+        im is a image.AxesImage.
 
-            bins are the time points the spectrogram is calculated over
-
-            freqs is an array of frequencies
-
-            Pxx is a len(times) x len(freqs) array of power
-
-            im is a image.AxesImage.
-
-        Note: If x is real (i.e. non-complex) only the positive spectrum is
-        shown.  If x is complex both positive and negative parts of the
+        Note: If x is real (i.e. non-complex), only the positive spectrum
+        is shown.  If x is complex both positive and negative parts of the
         spectrum are shown.
         """
         if not self._hold: self.cla()
@@ -5967,8 +6001,13 @@ class Axes(martist.Artist):
         return Pxx, freqs, bins, im
 
     def spy(self, Z, precision=None, marker=None, markersize=None,
-                                    aspect='equal', **kwargs):
+            aspect='equal', **kwargs):
         """
+        call signature::
+
+          spy(Z, precision=None, marker=None, markersize=None,
+              aspect='equal', **kwargs)
+
         spy(Z) plots the sparsity pattern of the 2-D array Z
 
         If precision is None, any non-zero value will be plotted;
@@ -5995,23 +6034,31 @@ class Axes(martist.Artist):
         kwargs passed to the axes plot method.
 
         If marker and markersize are None, useful kwargs include:
-            cmap
-            alpha
+
+        * cmap
+        * alpha
+
         See documentation for imshow() for details.
-        For controlling colors, e.g. cyan background and red marks, use:
-            cmap = mcolors.ListedColormap(['c','r'])
+
+        For controlling colors, e.g. cyan background and red marks,
+        use::
+
+          cmap = mcolors.ListedColormap(['c','r'])
 
         If marker or markersize is not None, useful kwargs include:
-            marker
-            markersize
-            color
+
+        * marker
+        * markersize
+        * color
+
         See documentation for plot() for details.
 
         Useful values for marker include:
-            's'  square (default)
-            'o'  circle
-            '.'  point
-            ','  pixel
+
+        * 's'  square (default)
+        * 'o'  circle
+        * '.'  point
+        * ','  pixel
 
         """
         if marker is None and markersize is None:

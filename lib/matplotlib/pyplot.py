@@ -374,7 +374,11 @@ def ishold():
 
 def over(func, *args, **kwargs):
     """
-    Call func(*args, **kwargs) with hold(True) and then restore the hold state
+    over calls::
+
+      func(*args, **kwargs)
+
+    with hold(True) and then restores the hold state.
     """
     h = ishold()
     hold(True)
@@ -607,12 +611,11 @@ def title(s, *args, **kwargs):
     """
     Set the title of the current axis to s
 
-    Default font override is:
-      override = {
-        'fontsize'            : 'medium',
-        'verticalalignment'   : 'bottom',
-        'horizontalalignment' : 'center'
-      }
+    Default font override is::
+
+      override = {'fontsize': 'medium',
+                  'verticalalignment': 'bottom',
+                  'horizontalalignment': 'center'}
 
     See the text docstring for information of how override and the
     optional args work
@@ -891,29 +894,24 @@ def rgrids(*args, **kwargs):
     """
     Set/Get the radial locations of the gridlines and ticklabels
 
-    With no args, simply return lines, labels where lines is an
-    array of radial gridlines (Line2D instances) and labels is an
-    array of tick labels (Text instances).
+    call signatures::
 
       lines, labels = rgrids()
-
-    With arguments, the syntax is
-
       lines, labels = RGRIDS(radii, labels=None, angle=22.5, **kwargs)
 
-    The labels will appear at radial distances radii at angle
+    When called with no arguments, rgrid simply returns (lines, labels),
+    where lines is an array of radial gridlines (Line2D instances) and
+    labels is an array of tick labels (Text instances). When called
+    with arguments, the labels will appear at the specified radial
+    distances and angles.
 
-      labels, if not None, is a len(radii) list of strings of the
-      labels to use at each angle.
+    labels, if not None, is a len(radii) list of strings of the
+    labels to use at each angle.
 
-      if labels is None, the self.rformatter will be used
+    if labels is None, the self.rformatter will be used
 
-    Return value is a list of lines, labels where the lines are
-    matplotlib.Line2D instances and the labels are matplotlib.Text
-    instances.  Note that on input the labels argument is a list of
-    strings, and on output it is a list of Text instances
+    Examples::
 
-    Examples
       # set the locations of the radial gridlines and labels
       lines, labels = rgrids( (0.25, 0.5, 1.0) )
 
@@ -993,73 +991,80 @@ def thetagrids(*args, **kwargs):
 def plotting():
     """
     Plotting commands
-    axes     - Create a new axes
-    axis     - Set or return the current axis limits
-    bar      - make a bar chart
-    boxplot  - make a box and whiskers chart
-    cla      - clear current axes
-    clabel   - label a contour plot
-    clf      - clear a figure window
-    close    - close a figure window
-    colorbar - add a colorbar to the current figure
-    cohere   - make a plot of coherence
-    contour  - make a contour plot
-    contourf  - make a filled contour plot
-    csd      - make a plot of cross spectral density
-    draw     - force a redraw of the current figure
-    errorbar - make an errorbar graph
-    figlegend - add a legend to the figure
-    figimage - add an image to the figure, w/o resampling
-    figtext  - add text in figure coords
-    figure   - create or change active figure
-    fill     - make filled polygons
-    gca      - return the current axes
-    gcf      - return the current figure
-    gci      - get the current image, or None
-    getp     - get a handle graphics property
-    hist     - make a histogram
-    hold     - set the hold state on current axes
-    legend   - add a legend to the axes
-    loglog   - a log log plot
-    imread   - load image file into array
-    imshow   - plot image data
-    matshow  - display a matrix in a new figure preserving aspect
-    pcolor   - make a pseudocolor plot
-    plot     - make a line plot
-    plotfile - plot data from a flat file
-    psd      - make a plot of power spectral density
-    quiver   - make a direction field (arrows) plot
-    rc       - control the default params
-    savefig  - save the current figure
-    scatter  - make a scatter plot
-    setp     - set a handle graphics property
-    semilogx - log x axis
-    semilogy - log y axis
-    show     - show the figures
-    specgram - a spectrogram plot
-    stem     - make a stem plot
-    subplot  - make a subplot (numrows, numcols, axesnum)
-    table    - add a table to the axes
-    text     - add some text at location x,y to the current axes
-    title    - add a title to the current axes
-    xlabel   - add an xlabel to the current axes
-    ylabel   - add a ylabel to the current axes
 
-    autumn - set the default colormap to autumn
-    bone   - set the default colormap to bone
-    cool   - set the default colormap to cool
-    copper - set the default colormap to copper
-    flag   - set the default colormap to flag
-    gray   - set the default colormap to gray
-    hot    - set the default colormap to hot
-    hsv    - set the default colormap to hsv
-    jet    - set the default colormap to jet
-    pink   - set the default colormap to pink
-    prism  - set the default colormap to prism
-    spring - set the default colormap to spring
-    summer - set the default colormap to summer
-    winter - set the default colormap to winter
-    spectral - set the default colormap to spectral
+    =========   =================================================
+    Command     Description
+    =========   =================================================
+    axes        Create a new axes
+    axis        Set or return the current axis limits
+    bar         make a bar chart
+    boxplot     make a box and whiskers chart
+    cla         clear current axes
+    clabel      label a contour plot
+    clf         clear a figure window
+    close       close a figure window
+    colorbar    add a colorbar to the current figure
+    cohere      make a plot of coherence
+    contour     make a contour plot
+    contourf    make a filled contour plot
+    csd         make a plot of cross spectral density
+    draw        force a redraw of the current figure
+    errorbar    make an errorbar graph
+    figlegend   add a legend to the figure
+    figimage    add an image to the figure, w/o resampling
+    figtext     add text in figure coords
+    figure      create or change active figure
+    fill        make filled polygons
+    gca         return the current axes
+    gcf         return the current figure
+    gci         get the current image, or None
+    getp        get a handle graphics property
+    hist        make a histogram
+    hold        set the hold state on current axes
+    legend      add a legend to the axes
+    loglog      a log log plot
+    imread      load image file into array
+    imshow      plot image data
+    matshow     display a matrix in a new figure preserving aspect
+    pcolor      make a pseudocolor plot
+    plot        make a line plot
+    plotfile    plot data from a flat file
+    psd         make a plot of power spectral density
+    quiver      make a direction field (arrows) plot
+    rc          control the default params
+    savefig     save the current figure
+    scatter     make a scatter plot
+    setp        set a handle graphics property
+    semilogx    log x axis
+    semilogy    log y axis
+    show        show the figures
+    specgram    a spectrogram plot
+    stem        make a stem plot
+    subplot     make a subplot (numrows, numcols, axesnum)
+    table       add a table to the axes
+    text        add some text at location x,y to the current axes
+    title       add a title to the current axes
+    xlabel      add an xlabel to the current axes
+    ylabel      add a ylabel to the current axes
+    =========   =================================================
+
+    The following commands will set the default colormap accordingly:
+
+    * autumn
+    * bone
+    * cool
+    * copper
+    * flag
+    * gray
+    * hot
+    * hsv
+    * jet
+    * pink
+    * prism
+    * spring
+    * summer
+    * winter
+    * spectral
 
     """
     pass
@@ -1248,7 +1253,9 @@ def matshow(A, fignum=None, **kw):
 
 def polar(*args, **kwargs):
     """
-    POLAR(theta, r)
+    call signature::
+
+      polar(theta, r, **kwargs)
 
     Make a polar plot.  Multiple theta, r arguments are supported,
     with format strings, as in plot.
@@ -1378,6 +1385,7 @@ def acorr(*args, **kwargs):
     return ret
 if Axes.acorr.__doc__ is not None:
     acorr.__doc__ = dedent(Axes.acorr.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1399,6 +1407,7 @@ def arrow(*args, **kwargs):
     return ret
 if Axes.arrow.__doc__ is not None:
     arrow.__doc__ = dedent(Axes.arrow.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1420,6 +1429,7 @@ def axhline(*args, **kwargs):
     return ret
 if Axes.axhline.__doc__ is not None:
     axhline.__doc__ = dedent(Axes.axhline.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1441,6 +1451,7 @@ def axhspan(*args, **kwargs):
     return ret
 if Axes.axhspan.__doc__ is not None:
     axhspan.__doc__ = dedent(Axes.axhspan.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1462,6 +1473,7 @@ def axvline(*args, **kwargs):
     return ret
 if Axes.axvline.__doc__ is not None:
     axvline.__doc__ = dedent(Axes.axvline.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1483,6 +1495,7 @@ def axvspan(*args, **kwargs):
     return ret
 if Axes.axvspan.__doc__ is not None:
     axvspan.__doc__ = dedent(Axes.axvspan.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1504,6 +1517,7 @@ def bar(*args, **kwargs):
     return ret
 if Axes.bar.__doc__ is not None:
     bar.__doc__ = dedent(Axes.bar.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1525,6 +1539,7 @@ def barh(*args, **kwargs):
     return ret
 if Axes.barh.__doc__ is not None:
     barh.__doc__ = dedent(Axes.barh.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1568,6 +1583,7 @@ def boxplot(*args, **kwargs):
     return ret
 if Axes.boxplot.__doc__ is not None:
     boxplot.__doc__ = dedent(Axes.boxplot.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1677,6 +1693,7 @@ def csd(*args, **kwargs):
     return ret
 if Axes.csd.__doc__ is not None:
     csd.__doc__ = dedent(Axes.csd.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1698,6 +1715,7 @@ def errorbar(*args, **kwargs):
     return ret
 if Axes.errorbar.__doc__ is not None:
     errorbar.__doc__ = dedent(Axes.errorbar.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1719,6 +1737,7 @@ def fill(*args, **kwargs):
     return ret
 if Axes.fill.__doc__ is not None:
     fill.__doc__ = dedent(Axes.fill.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1740,6 +1759,7 @@ def hist(*args, **kwargs):
     return ret
 if Axes.hist.__doc__ is not None:
     hist.__doc__ = dedent(Axes.hist.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1783,6 +1803,7 @@ def imshow(*args, **kwargs):
     return ret
 if Axes.imshow.__doc__ is not None:
     imshow.__doc__ = dedent(Axes.imshow.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1804,6 +1825,7 @@ def loglog(*args, **kwargs):
     return ret
 if Axes.loglog.__doc__ is not None:
     loglog.__doc__ = dedent(Axes.loglog.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1825,6 +1847,7 @@ def pcolor(*args, **kwargs):
     return ret
 if Axes.pcolor.__doc__ is not None:
     pcolor.__doc__ = dedent(Axes.pcolor.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1846,6 +1869,7 @@ def pcolormesh(*args, **kwargs):
     return ret
 if Axes.pcolormesh.__doc__ is not None:
     pcolormesh.__doc__ = dedent(Axes.pcolormesh.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1867,6 +1891,7 @@ def pie(*args, **kwargs):
     return ret
 if Axes.pie.__doc__ is not None:
     pie.__doc__ = dedent(Axes.pie.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1888,6 +1913,7 @@ def plot(*args, **kwargs):
     return ret
 if Axes.plot.__doc__ is not None:
     plot.__doc__ = dedent(Axes.plot.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1909,6 +1935,7 @@ def plot_date(*args, **kwargs):
     return ret
 if Axes.plot_date.__doc__ is not None:
     plot_date.__doc__ = dedent(Axes.plot_date.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1930,6 +1957,7 @@ def psd(*args, **kwargs):
     return ret
 if Axes.psd.__doc__ is not None:
     psd.__doc__ = dedent(Axes.psd.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1951,6 +1979,7 @@ def quiver(*args, **kwargs):
     return ret
 if Axes.quiver.__doc__ is not None:
     quiver.__doc__ = dedent(Axes.quiver.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1972,6 +2001,7 @@ def quiverkey(*args, **kwargs):
     return ret
 if Axes.quiverkey.__doc__ is not None:
     quiverkey.__doc__ = dedent(Axes.quiverkey.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -1993,6 +2023,7 @@ def scatter(*args, **kwargs):
     return ret
 if Axes.scatter.__doc__ is not None:
     scatter.__doc__ = dedent(Axes.scatter.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -2014,6 +2045,7 @@ def hexbin(*args, **kwargs):
     return ret
 if Axes.hexbin.__doc__ is not None:
     hexbin.__doc__ = dedent(Axes.hexbin.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -2035,6 +2067,7 @@ def semilogx(*args, **kwargs):
     return ret
 if Axes.semilogx.__doc__ is not None:
     semilogx.__doc__ = dedent(Axes.semilogx.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -2056,6 +2089,7 @@ def semilogy(*args, **kwargs):
     return ret
 if Axes.semilogy.__doc__ is not None:
     semilogy.__doc__ = dedent(Axes.semilogy.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -2077,6 +2111,7 @@ def specgram(*args, **kwargs):
     return ret
 if Axes.specgram.__doc__ is not None:
     specgram.__doc__ = dedent(Axes.specgram.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -2098,6 +2133,7 @@ def spy(*args, **kwargs):
     return ret
 if Axes.spy.__doc__ is not None:
     spy.__doc__ = dedent(Axes.spy.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -2119,6 +2155,7 @@ def stem(*args, **kwargs):
     return ret
 if Axes.stem.__doc__ is not None:
     stem.__doc__ = dedent(Axes.stem.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -2140,6 +2177,7 @@ def step(*args, **kwargs):
     return ret
 if Axes.step.__doc__ is not None:
     step.__doc__ = dedent(Axes.step.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -2161,6 +2199,7 @@ def vlines(*args, **kwargs):
     return ret
 if Axes.vlines.__doc__ is not None:
     vlines.__doc__ = dedent(Axes.vlines.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -2182,6 +2221,7 @@ def xcorr(*args, **kwargs):
     return ret
 if Axes.xcorr.__doc__ is not None:
     xcorr.__doc__ = dedent(Axes.xcorr.__doc__) + """
+
 Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
