@@ -653,38 +653,42 @@ def rc(group, **kwargs):
     for lines.linewidth the group is 'lines', for axes.facecolor, the
     group is 'axes', and so on.  Group may also be a list or tuple
     of group names, eg ('xtick','ytick').  kwargs is a list of
-    attribute name/value pairs, eg
+    attribute name/value pairs, eg::
 
       rc('lines', linewidth=2, color='r')
 
-    sets the current rc params and is equivalent to
+    sets the current rc params and is equivalent to::
 
       rcParams['lines.linewidth'] = 2
       rcParams['lines.color'] = 'r'
 
     The following aliases are available to save typing for interactive
-    users
-        'lw'  : 'linewidth'
-        'ls'  : 'linestyle'
-        'c'   : 'color'
-        'fc'  : 'facecolor'
-        'ec'  : 'edgecolor'
-        'mew' : 'markeredgewidth'
-        'aa'  : 'antialiased'
+    users:
 
-    Thus you could abbreviate the above rc command as
+    =====   =================
+    Alias   Property
+    =====   =================
+    'lw'    'linewidth'
+    'ls'    'linestyle'
+    'c'     'color'
+    'fc'    'facecolor'
+    'ec'    'edgecolor'
+    'mew'   'markeredgewidth'
+    'aa'    'antialiased'
+    =====   =================
+
+    Thus you could abbreviate the above rc command as::
 
           rc('lines', lw=2, c='r')
 
 
     Note you can use python's kwargs dictionary facility to store
     dictionaries of default parameters.  Eg, you can customize the
-    font rc as follows
+    font rc as follows::
 
       font = {'family' : 'monospace',
               'weight' : 'bold',
-              'size'   : 'larger',
-             }
+              'size'   : 'larger'}
 
       rc('font', **font)  # pass in the font dict as kwargs
 

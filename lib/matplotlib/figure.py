@@ -917,32 +917,37 @@ class Figure(Artist):
 
     def savefig(self, *args, **kwargs):
         """
-        SAVEFIG(fname, dpi=None, facecolor='w', edgecolor='w',
-        orientation='portrait', papertype=None, format=None):
+        call signature::
+
+          savefig(fname, dpi=None, facecolor='w', edgecolor='w',
+                  orientation='portrait', papertype=None, format=None):
 
         Save the current figure.
 
-        fname - the filename to save the current figure to.  The
-                output formats supported depend on the backend being
-                used.  and are deduced by the extension to fname.
-                Possibilities are eps, jpeg, pdf, png, ps, svg.  fname
-                can also be a file or file-like object - cairo backend
-                only.
+        Arguments:
 
-        dpi - is the resolution in dots per inch.  If
-              None it will default to the value savefig.dpi in the
-              matplotlibrc file
+          fname:
+            the filename to save the current figure to.  The output
+            formats supported depend on the backend being used.  and
+            are deduced by the extension to fname. Possibilities are eps,
+            jpeg, pdf, png, ps, svg.  fname can also be a file or file-like
+            object - cairo backend only.
 
-        facecolor and edgecolor are the colors of the figure rectangle
+        Keyword arguments:
 
-        orientation is either 'landscape' or 'portrait' - not supported on
-        all backends; currently only on postscript output
-
-        papertype is is one of 'letter', 'legal', 'executive', 'ledger', 'a0'
-        through 'a10', or 'b0' through 'b10' - only supported for postscript
-        output
-
-        format - one of the file extensions supported by the active backend.
+          dpi: [ None | scalar > 0 ]
+            The resolution in dots per inch.  If None it will default to
+            the value savefig.dpi in the matplotlibrc file.
+          facecolor, edgecolor:
+            the colors of the figure rectangle
+          orientation: [ 'landscape' | 'portrait' ]
+            not supported on all backends; currently only on postscript output
+          papertype:
+            One of 'letter', 'legal', 'executive', 'ledger', 'a0' through
+            'a10', 'b0' through 'b10'. Only supported for postscript
+            output
+          format:
+            one of the file extensions supported by the active backend.
         """
 
         for key in ('dpi', 'facecolor', 'edgecolor'):

@@ -28,6 +28,7 @@ def %(func)s(*args, **kwargs):
     return ret
 if Axes.%(func)s.__doc__ is not None:
     %(func)s.__doc__ = dedent(Axes.%(func)s.__doc__) + \"\"\"
+
 Additional kwargs: hold = [True|False] overrides default hold state\"\"\"
 """
 

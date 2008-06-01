@@ -724,9 +724,8 @@ def setp(h, *args, **kwargs):
     If you want to see all the properties that can be set, and their
     possible values, you can do
 
-
       >>> setp(line)
-          ... long output listing omitted'
+          ... long output listing omitted
 
     setp operates on a single instance or a list of instances.  If you
     are in query mode introspecting the possible values, only the first
@@ -734,17 +733,18 @@ def setp(h, *args, **kwargs):
     all the instances will be set.  Eg, suppose you have a list of two
     lines, the following will make both lines thicker and red
 
-        >>> x = arange(0,1.0,0.01)
-        >>> y1 = sin(2*pi*x)
-        >>> y2 = sin(4*pi*x)
-        >>> lines = plot(x, y1, x, y2)
-        >>> setp(lines, linewidth=2, color='r')
+      >>> x = arange(0,1.0,0.01)
+      >>> y1 = sin(2*pi*x)
+      >>> y2 = sin(4*pi*x)
+      >>> lines = plot(x, y1, x, y2)
+      >>> setp(lines, linewidth=2, color='r')
 
     setp works with the matlab(TM) style string/value pairs or with
     python kwargs.  For example, the following are equivalent
 
-        >>> setp(lines, 'linewidth', 2, 'color', r')  # matlab style
-        >>> setp(lines, linewidth=2, color='r')       # python style
+      >>> setp(lines, 'linewidth', 2, 'color', r')  # matlab style
+      >>> setp(lines, linewidth=2, color='r')       # python style
+
     """
 
     insp = ArtistInspector(h)
