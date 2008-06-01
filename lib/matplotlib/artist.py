@@ -617,6 +617,28 @@ class ArtistInspector:
         attrs.sort()
         lines = []
 
+        ########
+        names = [self.aliased_name(prop) for prop in attrs]
+        accepts = [self.get_valid_values(prop) for prop in attrs]
+
+        col0_len = max([len(n) for n in names])
+        col1_len = max([len(a) for a in accepts])
+        table_formatstr = pad + '='*col0_len + '   ' + '='*col1_len
+
+        lines.append('')
+        lines.append(table_formatstr)
+        lines.append(pad + 'Property'.ljust(col0_len+3) + \
+                     'Description'.ljust(col1_len))
+        lines.append(table_formatstr)
+
+        lines.extend([pad + n.ljust(col0_len+3) + a.ljust(col1_len)
+                      for n, a in zip(names, accepts)])
+
+        lines.append(table_formatstr)
+        lines.append('')
+        return lines
+        ########
+
         for prop in attrs:
             accepts = self.get_valid_values(prop)
             name = self.aliased_name(prop)
@@ -757,7 +779,7 @@ def setp(h, *args, **kwargs):
     return [x for x in flatten(ret)]
 
 def kwdoc(a):
-    return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=4))
+    return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
 
 kwdocd = dict()
 kwdocd['Artist'] = kwdoc(Artist)

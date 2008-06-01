@@ -14,22 +14,26 @@ from matplotlib.path import Path
 # class is built so we define an initial set here for the init
 # function and they will be overridden after object definition
 artist.kwdocd['Patch'] = """\
-          alpha: float
-          animated: [True | False]
-          antialiased or aa: [True | False]
-          clip_box: a matplotlib.transform.Bbox instance
-          clip_on: [True | False]
-          edgecolor or ec: any matplotlib color
-          facecolor or fc: any matplotlib color
-          figure: a matplotlib.figure.Figure instance
-          fill: [True | False]
-          hatch: unknown
-          label: any string
-          linewidth or lw: float
-          lod: [True | False]
-          transform: a matplotlib.transform transformation instance
-          visible: [True | False]
-          zorder: any number
+          =================   ==============================================
+          Property            Description
+          =================   ==============================================
+          alpha               float
+          animated            [True | False]
+          antialiased or aa   [True | False]
+          clip_box            a matplotlib.transform.Bbox instance
+          clip_on             [True | False]
+          edgecolor or ec     any matplotlib color
+          facecolor or fc     any matplotlib color
+          figure              a matplotlib.figure.Figure instance
+          fill                [True | False]
+          hatch               unknown
+          label               any string
+          linewidth or lw     float
+          lod                 [True | False]
+          transform           a matplotlib.transform transformation instance
+          visible             [True | False]
+          zorder              any number
+          =================   ==============================================
           """
 class Patch(artist.Artist):
     """

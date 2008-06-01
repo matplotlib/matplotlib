@@ -1117,22 +1117,21 @@ class FigureCanvasBase:
 
     def mpl_connect(self, s, func):
         """
-        Connect event with string s to func.  The signature of func is
+        Connect event with string s to func.  The signature of func is::
 
           def func(event)
 
         where event is a MplEvent.  The following events are recognized
 
-        'resize_event',
-        'draw_event',
-        'key_press_event',
-        'key_release_event',
-        'button_press_event',
-        'button_release_event',
-        'scroll_event',
-        'motion_notify_event',
-        'pick_event',
-
+        * 'resize_event'
+        * 'draw_event'
+        * 'key_press_event'
+        * 'key_release_event'
+        * 'button_press_event'
+        * 'button_release_event'
+        * 'scroll_event'
+        * 'motion_notify_event'
+        * 'pick_event'
 
         For the three events above, if the mouse is over the axes,
         the variable event.inaxes will be set to the axes it is over,
@@ -1141,7 +1140,8 @@ class FigureCanvasBase:
         See backend_bases.MplEvent.
 
         return value is a connection id that can be used with
-        mpl_disconnect """
+        mpl_disconnect
+        """
 
         return self.callbacks.connect(s, func)
 

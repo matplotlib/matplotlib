@@ -12,4 +12,5 @@ Introduction to developer's guide here **TODO**.
 .. toctree::
 
    artist_api.rst
+   pyplot_api.rst
 

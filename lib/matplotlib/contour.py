@@ -30,31 +30,41 @@ class ContourLabeler:
 
     def clabel(self, *args, **kwargs):
         """
-        clabel(CS, **kwargs) - add labels to line contours in CS,
-               where CS is a ContourSet object returned by contour.
+        call signature::
 
-        clabel(CS, V, **kwargs) - only label contours listed in V
+          clabel(CS, **kwargs)
 
-        keyword arguments:
+        adds labels to line contours in CS, where CS is a ContourSet object
+        returned by contour.
 
-        * fontsize = None: as described in http://matplotlib.sf.net/fonts.html
+        call signature::
 
-        * colors = None:
+          clabel(CS, V, **kwargs)
 
-           - a tuple of matplotlib color args (string, float, rgb, etc),
-             different labels will be plotted in different colors in the order
-             specified
+        only labels contours listed in V
 
-           - one string color, e.g. colors = 'r' or colors = 'red', all labels
-             will be plotted in this color
+        Optional keyword arguments:
 
-           - if colors == None, the color of each label matches the color
-             of the corresponding contour
-
-        * inline = True: controls whether the underlying contour is removed
-                     (inline = True) or not (False)
-
-        * fmt = '%1.3f': a format string for the label
+          +----------+--------------------------------------------------------+
+          | Keyword  |                      Description                       |
+          +==========+========================================================+
+          | fontsize | See http://matplotlib.sf.net/fonts.html                |
+          +----------+--------------------------------------------------------+
+          |          | a tuple of matplotlib color args (string, float, rgb,  |
+          |          | etc). Different labels will be plotted in different    |
+          |          | colors in the order specified                          |
+          |          +--------------------------------------------------------+
+          | colors   | one string color, e.g. colors = 'r' or colors = 'red'  |
+          |          | all labels will be plotted in this color               |
+          |          +--------------------------------------------------------+
+          |          | None, the color of each label matches the color        |
+          |          | of the corresponding contour                           |
+          +----------+--------------------------------------------------------+
+          |  inline  | controls whether the underlying contour is removed     |
+          |          | (inline = True) or not (False). Default is True        |
+          +----------+--------------------------------------------------------+
+          | fmt      | a format string for the label. Default is '%1.3f'      |
+          +----------+--------------------------------------------------------+
 
         """
         fontsize = kwargs.get('fontsize', None)
@@ -742,104 +752,157 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             add line contours with calls to contour.
 
 
-        Function signatures
+        call signatures::
 
-        contour(Z) - make a contour plot of an array Z. The level
-                 values are chosen automatically.
+          contour(Z)
 
-        contour(X,Y,Z) - X,Y specify the (x,y) coordinates of the surface
+        make a contour plot of an array Z. The level values are chosen
+        automatically.
 
-        contour(Z,N) and contour(X,Y,Z,N) - contour N automatically-chosen
-                 levels.
+        ::
 
-        contour(Z,V) and contour(X,Y,Z,V) - draw len(V) contour lines,
-                 at the values specified in sequence V
+          contour(X,Y,Z)
 
-        contourf(..., V) - fill the (len(V)-1) regions between the
-                 values in V
+        X,Y specify the (x,y) coordinates of the surface
 
-        contour(Z, **kwargs) - Use keyword args to control colors, linewidth,
-                    origin, cmap ... see below
+        ::
+
+          contour(Z,N)
+          contour(X,Y,Z,N)
+
+        contour N automatically-chosen levels.
+
+        ::
+
+          contour(Z,V)
+          contour(X,Y,Z,V)
+
+        draw contour lines at the values specified in sequence V
+
+        ::
+
+          contourf(..., V)
+
+        fill the (len(V)-1) regions between the values in V
+
+        ::
+
+          contour(Z, **kwargs)
+
+        Use keyword args to control colors, linewidth, origin, cmap ... see
+        below for more details.
 
         X, Y, and Z must be arrays with the same dimensions.
+
         Z may be a masked array, but filled contouring may not handle
-                   internal masked regions correctly.
+        internal masked regions correctly.
 
-        C = contour(...) returns a ContourSet object.
+        ``C = contour(...)`` returns a ContourSet object.
 
+        Optional keyword arguments:
 
-        Optional keyword args are shown with their defaults below (you must
-        use kwargs for these):
+          +---------+-----------+----------------------------------------------+
+          | Keyword | Default   | Description                                  |
+          +=========+===========+==============================================+
+          | colors  | None      | a tuple of matplotlib color args (string,    |
+          |         |           | float, rgb, etc), different levels will be   |
+          |         |           | plotted in different colors in the order     |
+          |         |           | specified                                    |
+          |         |           +----------------------------------------------+
+          |         |           | one string color, e.g.:                      |
+          |         |           |                                              |
+          |         |           |   >>> colors = 'r'                           |
+          |         |           |                                              |
+          |         |           | all levels will be plotted in this color     |
+          |         |           +----------------------------------------------+
+          |         |           | if colors is None, the colormap specified by |
+          |         |           | cmap will be used                            |
+          +---------+-----------+----------------------------------------------+
+          | alpha   | 1.0       | the alpha blending value                     |
+          +---------+-----------+----------------------------------------------+
+          | cmap    | None      | a cm Colormap instance from matplotlib.cm.   |
+          |         |           | if cmap is None and colors is None, a        |
+          |         |           | default Colormap is used.                    |
+          +---------+-----------+----------------------------------------------+
+          | norm    | None      | a matplotlib.colors.Normalize instance for   |
+          |         |           | scaling data values to colors. If norm is    |
+          |         |           | None and colors is None, the default linear  |
+          |         |           | scaling is used.                             |
+          +---------+-----------+----------------------------------------------+
+          | origin  | None      | [ 'upper' | 'lower' | 'image' | None ]       |
+          |         |           | If 'image', the rc value for image.origin    |
+          |         |           | will be used. If None, the first value of Z  |
+          |         |           | will correspond to the lower left corner,    |
+          |         |           | location (0,0).                              |
+          |         |           |                                              |
+          |         |           | This keyword is not active if X and Y are    |
+          |         |           | specified in the call to contour.            |
+          +---------+-----------+----------------------------------------------+
+          | extent  | None      | (x0,x1,y0,y1) If origin is not None, then    |
+          |         |           | extent is interpreted as in imshow: it gives |
+          |         |           | the outer pixel boundaries. In this case,    |
+          |         |           | the position of Z[0,0] is the center of the  |
+          |         |           | pixel, not a corner. If origin is None, then |
+          |         |           | (x0,y0) is the position of Z[0,0], and       |
+          |         |           | (x1,y1) is the position of Z[-1,-1].         |
+          |         |           |                                              |
+          |         |           | This keyword is not active if X and Y are    |
+          |         |           | specified in the call to contour.            |
+          +---------+-----------+----------------------------------------------+
+          | locator | None      | an instance of a ticker.Locator subclass.    |
+          |         |           | If locator is None, the default MaxNLocator  |
+          |         |           | is used. The locator is used to determine    |
+          |         |           | the contour levels if they are not given     |
+          |         |           | explicitly via the V argument.               |
+          +---------+-----------+----------------------------------------------+
+          | extend  | 'neither' | ['neither' | 'both' | 'min' | 'max' ]        |
+          |         |           | Unless this is 'neither', contour levels are |
+          |         |           | automatically added to one or both ends of   |
+          |         |           | the range so that all data are included.     |
+          |         |           | These added ranges are then mapped to the    |
+          |         |           | special colormap values which default to the |
+          |         |           | ends of the colormap range, but can be set   |
+          |         |           | via Colormap.set_under() and                 |
+          |         |           | Colormap.set_over() methods.                 |
+          +---------+-----------+----------------------------------------------+
 
-            * colors = None; or one of the following:
-              - a tuple of matplotlib color args (string, float, rgb, etc),
-              different levels will be plotted in different colors in the order
-              specified
+        contour only keyword arguments:
 
-              -  one string color, e.g. colors = 'r' or colors = 'red', all levels
-              will be plotted in this color
+          +------------+---------+---------------------------------------------+
+          | Keyword    | Default | Description                                 |
+          +============+=========+=============================================+
+          | linewidths | None    | a number: all levels will be plotted with   |
+          |            |         | this linewidth, e.g.:                       |
+          |            |         |                                             |
+          |            |         |   >>> linewidths = 0.6                      |
+          |            |         |                                             |
+          |            |         +---------------------------------------------+
+          |            |         | a tuple of numbers, e.g.:                   |
+          |            |         |                                             |
+          |            |         |   >>> linewidths = (0.4, 0.8, 1.2)          |
+          |            |         |                                             |
+          |            |         | different levels will be plotted with       |
+          |            |         | different linewidths in the order specified |
+          |            |         +---------------------------------------------+
+          |            |         | if linewidths is None, the default width in |
+          |            |         | lines.linewidth in matplotlibrc is used     |
+          +------------+---------+---------------------------------------------+
 
-              - if colors == None, the colormap specified by cmap will be used
+        contour only keyword arguments:
 
-            * alpha=1.0 : the alpha blending value
+          +-------------+---------+--------------------------------------------+
+          | Keyword     | Default | Description                                |
+          +=============+=========+============================================+
+          | antialiased | True    | [ True | False ]                           |
+          +-------------+---------+--------------------------------------------+
+          | nchunk      | 0       | 0 for no subdivision of the domain         |
+          |             |         | specify a positive integer to divide the   |
+          |             |         | domain into subdomains of roughly nchunk   |
+          |             |         | by nchunk points. This may never actually  |
+          |             |         | be advantageous, so this option may be     |
+          |             |         | removed. Chunking introduces artifacts at  |
+          |             |         | the chunk boundaries unless antialiased    |
+          |             |         | is False                                   |
+          +-------------+---------+--------------------------------------------+
 
-            * cmap = None: a cm Colormap instance from matplotlib.cm.
-              - if cmap == None and colors == None, a default Colormap is used.
-
-            * norm = None: a matplotlib.colors.Normalize instance for
-              scaling data values to colors.
-              - if norm == None, and colors == None, the default
-                linear scaling is used.
-
-            * origin = None: 'upper'|'lower'|'image'|None.
-              If 'image', the rc value for image.origin will be used.
-              If None (default), the first value of Z will correspond
-              to the lower left corner, location (0,0).
-              This keyword is active only if contourf is called with
-              one or two arguments, that is, without explicitly
-              specifying X and Y.
-
-            * extent = None: (x0,x1,y0,y1); also active only if X and Y
-              are not specified.  If origin is not None, then extent is
-              interpreted as in imshow: it gives the outer pixel boundaries.
-              In this case, the position of Z[0,0] is the center of the
-              pixel, not a corner.
-              If origin is None, then (x0,y0) is the position of Z[0,0],
-              and (x1,y1) is the position of Z[-1,-1].
-
-            * locator = None: an instance of a ticker.Locator subclass;
-              default is MaxNLocator.  It is used to determine the
-              contour levels if they are not given explicitly via the
-              V argument.
-
-            * extend = 'neither', 'both', 'min', 'max'
-              Unless this is 'neither' (default), contour levels are
-              automatically added to one or both ends of the range so that
-              all data are included.  These added ranges are then
-              mapped to the special colormap values which default to
-              the ends of the colormap range, but can be set via
-              Colormap.set_under() and Colormap.set_over() methods.
-
-            ****************
-
-            contour only:
-            * linewidths = None: or one of these:
-              - a number - all levels will be plotted with this linewidth,
-                e.g. linewidths = 0.6
-
-              - a tuple of numbers, e.g. linewidths = (0.4, 0.8, 1.2) different
-                levels will be plotted with different linewidths in the order
-                specified
-
-              - if linewidths == None, the default width in lines.linewidth in
-                matplotlibrc is used
-
-            contourf only:
-            * antialiased = True (default) or False
-            * nchunk = 0 (default) for no subdivision of the domain;
-              specify a positive integer to divide the domain into
-              subdomains of roughly nchunk by nchunk points. This may
-              never actually be advantageous, so this option may be
-              removed.  Chunking introduces artifacts at the chunk
-              boundaries unless antialiased = False
         """

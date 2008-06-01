@@ -70,11 +70,11 @@ def _process_plot_format(fmt):
     """
     Process a matlab(TM) style color/line style format string.  Return a
     linestyle, color tuple as a result of the processing.  Default
-    values are ('-', 'b').  Example format strings include
+    values are ('-', 'b').  Example format strings include:
 
-    'ko'    : black circles
-    '.b'    : blue dots
-    'r--'   : red dashed lines
+    * 'ko': black circles
+    * '.b': blue dots
+    * 'r--': red dashed lines
 
     See Line2D.lineStyles and GraphicsContext.colors for all possible
     styles and color format string.
@@ -151,7 +151,7 @@ class _process_plot_var_args:
     """
 
     Process variable length arguments to the plot command, so that
-    plot commands like the following are supported
+    plot commands like the following are supported::
 
       plot(t, s)
       plot(t1, s1, t2, s2)
@@ -462,38 +462,45 @@ class Axes(martist.Artist):
                  **kwargs
                  ):
         """
-        Build an Axes instance in Figure with
-        rect=[left, bottom, width,height in Figure coords
+        Build an Axes instance in Figure fig with
+        rect=[left, bottom, width, height] in Figure coords
 
-        adjustable: ['box' | 'datalim']
-        alpha: the alpha transparency
-        anchor: ['C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W']
-        aspect: ['auto' | 'equal' | aspect_ratio]
-        autoscale_on: boolean - whether or not to autoscale the viewlim
-        axis_bgcolor: any matplotlib color - see help(colors)
-        axisbelow: draw the grids and ticks below the other artists
-        cursor_props: a (float, color) tuple
-        figure: a Figure instance
-        frame_on: a boolean - draw the axes frame
-        label: the axes label
-        navigate: True|False
-        navigate_mode: the navigation toolbar button status: 'PAN', 'ZOOM', or None
-        position: [left, bottom, width,height in Figure coords
-        sharex: an Axes instance to share the x-axis with
-        sharey: an Axes instance to share the y-axis with
-        title: the title string
-        visible: a boolean - whether the axes is visible
-        xlabel: the xlabel
-        xlim: (xmin, xmax) view limits
-        xscale: [%(scale)s]
-        xticklabels: sequence of strings
-        xticks: sequence of floats
-        ylabel: the ylabel strings
-        ylim: (ymin, ymax) view limits
-        yscale: [%(scale)s]
-        yticklabels: sequence of strings
-        yticks: sequence of floats
+        Optional keyword arguments:
 
+          ==============   ====================================================
+          Keyword          Description
+          ==============   ====================================================
+          adjustable       [ 'box' | 'datalim' ]
+          alpha            float: the alpha transparency
+          anchor           [ 'C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W' ]
+          aspect           [ 'auto' | 'equal' | aspect_ratio ]
+          autoscale_on     [ True | False ] whether or not to autoscale the
+                           viewlim
+          axis_bgcolor     any matplotlib color - see help(colors)
+          axisbelow        draw the grids and ticks below the other artists
+          cursor_props     a (float, color) tuple
+          figure           a Figure instance
+          frame_on         a boolean - draw the axes frame
+          label            the axes label
+          navigate         [ True | False ]
+          navigate_mode    [ 'PAN' | 'ZOOM' | None ] the navigation toolbar
+                           button status
+          position         [left, bottom, width, height] in Figure coords
+          sharex           an Axes instance to share the x-axis with
+          sharey           an Axes instance to share the y-axis with
+          title            the title string
+          visible          [ True | False ] whether the axes is visible
+          xlabel           the xlabel
+          xlim             (xmin, xmax) view limits
+          xscale           [%(scale)s]
+          xticklabels      sequence of strings
+          xticks           sequence of floats
+          ylabel           the ylabel strings
+          ylim             (ymin, ymax) view limits
+          yscale           [%(scale)s]
+          yticklabels      sequence of strings
+          yticks           sequence of floats
+          ==============   ====================================================
         """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
         martist.Artist.__init__(self)
         if isinstance(rect, mtransforms.Bbox):
@@ -561,7 +568,7 @@ class Axes(martist.Artist):
         """
         Set the Axes figure
 
-        ACCEPTS: a Figure instance
+        accepts a Figure instance
         """
         martist.Artist.set_figure(self, fig)
 
@@ -618,7 +625,7 @@ class Axes(martist.Artist):
         will add the given amount of padding (in points) between the
         axes and the label.  The x-direction is in data coordinates
         and the y-direction is in axis coordinates.  Returns a 3-tuple
-        of the form:
+        of the form::
 
           (transform, valign, halign)
 
@@ -639,7 +646,7 @@ class Axes(martist.Artist):
         labels, which will add the given amount of padding (in points)
         between the axes and the label.  The x-direction is in data
         coordinates and the y-direction is in axis coordinates.
-        Returns a 3-tuple of the form:
+        Returns a 3-tuple of the form::
 
           (transform, valign, halign)
 
@@ -672,7 +679,7 @@ class Axes(martist.Artist):
         will add the given amount of padding (in points) between the
         axes and the label.  The x-direction is in axis coordinates
         and the y-direction is in data coordinates.  Returns a 3-tuple
-        of the form:
+        of the form::
 
           (transform, valign, halign)
 
@@ -693,7 +700,7 @@ class Axes(martist.Artist):
         labels, which will add the given amount of padding (in points)
         between the axes and the label.  The x-direction is in axis
         coordinates and the y-direction is in data coordinates.
-        Returns a 3-tuple of the form:
+        Returns a 3-tuple of the form::
 
           (transform, valign, halign)
 
@@ -733,11 +740,19 @@ class Axes(martist.Artist):
         used, but which may be modified by apply_aspect, and a second
         which is the starting point for apply_aspect.
 
-        which = 'active' to change the first;
-                'original' to change the second;
-                'both' to change both
+        Required arguments:
+          pos:
+            len(4) sequence of floats, or a Bbox object
 
-        ACCEPTS: len(4) sequence of floats, or a Bbox object
+        Optional keyword arguments:
+          which:
+
+            ==========   ====================
+            'active'     to change the first
+            'original'   to change the second
+            'both'       to change both
+            ==========   ====================
+
         """
         if not isinstance(pos, mtransforms.BboxBase):
             pos = mtransforms.Bbox.from_bounds(*pos)
@@ -864,15 +879,21 @@ class Axes(martist.Artist):
 
     def hold(self, b=None):
         """
-        HOLD(b=None)
+        call signature::
+
+          hold(b=None)
 
         Set the hold state.  If hold is None (default), toggle the
         hold state.  Else set the hold state to boolean value b.
 
-        Eg
-            hold()      # toggle hold
-            hold(True)  # hold is on
-            hold(False) # hold is off
+        Examples:
+
+        * toggle hold:
+          >>> hold()
+        * turn hold on:
+          >>> hold(True)
+        * turn hold off
+          >>> hold(False)
 
 
         When hold is True, subsequent plot commands will be added to
@@ -891,25 +912,33 @@ class Axes(martist.Artist):
     def set_aspect(self, aspect, adjustable=None, anchor=None):
         """
         aspect:
-           'auto'   -  automatic; fill position rectangle with data
-           'normal' -  same as 'auto'; deprecated
-           'equal'  -  same scaling from data to plot units for x and y
-            num     -  a circle will be stretched such that the height
-                       is num times the width. aspect=1 is the same as
-                       aspect='equal'.
+
+          ========   ================================================
+          'auto'     automatic; fill position rectangle with data
+          'normal'   same as 'auto'; deprecated
+          'equal'    same scaling from data to plot units for x and y
+           num       a circle will be stretched such that the height
+                     is num times the width. aspect=1 is the same as
+                     aspect='equal'.
+          ========   ================================================
 
         adjustable:
-            'box'      - change physical size of axes
-            'datalim'  - change xlim or ylim
+
+          ========   ============================
+          'box'      change physical size of axes
+          'datalim'  change xlim or ylim
+          ========   ============================
 
         anchor:
-            'C'     - centered
-            'SW'    - lower left corner
-            'S'     - middle of bottom edge
-            'SE'    - lower right corner
-                 etc.
 
-        ACCEPTS: ['auto' | 'equal' | aspect_ratio]
+          ====   =====================
+          'C'    centered
+          'SW'   lower left corner
+          'S'    middle of bottom edge
+          'SE'   lower right corner
+          etc.
+          ====   =====================
+
         """
         if aspect in ('normal', 'auto'):
             self._aspect = 'auto'
@@ -940,7 +969,20 @@ class Axes(martist.Artist):
 
     def set_anchor(self, anchor):
         """
-        ACCEPTS: ['C', 'SW', 'S', 'SE', 'E', 'NE', 'N', 'NW', 'W']
+        anchor:
+
+          ====   ============
+          'C'    Center
+          'SW'   bottom left
+          'S'    bottom
+          'SE'   bottom right
+          'E'    right
+          'NE'   top right
+          'N'    top
+          'NW'   top left
+          'W'    left
+          ====   ============
+
         """
         if anchor in mtransforms.Bbox.coefs.keys() or len(anchor) == 2:
             self._anchor = anchor
@@ -1325,7 +1367,7 @@ class Axes(martist.Artist):
         """
         Set whether autoscaling is applied on plot commands
 
-        ACCEPTS: True|False
+        accepts: True|False
         """
         self._autoscaleon = b
 
@@ -1518,14 +1560,17 @@ class Axes(martist.Artist):
 
     def grid(self, b=None, **kwargs):
         """
-        GRID(self, b=None, **kwargs)
+        call signature::
+
+          grid(self, b=None, **kwargs)
+
         Set the axes grids on or off; b is a boolean
 
         if b is None and len(kwargs)==0, toggle the grid state.  if
         kwargs are supplied, it is assumed that you want a grid and b
         is thus set to True
 
-        kawrgs are used to set the grid line properties, eg
+        kawrgs are used to set the grid line properties, eg::
 
           ax.grid(color='r', linestyle='-', linewidth=2)
 
@@ -1542,10 +1587,15 @@ class Axes(martist.Artist):
         Convenience method for manipulating the ScalarFormatter
         used by default for linear axes.
 
-        kwargs:
-            style = 'sci' (or 'scientific') or 'plain';
-                        plain turns off scientific notation
-            axis = 'x', 'y', or 'both'
+        Optional keyword arguments:
+
+          =======   =====================================
+          Keyword   Description
+          =======   =====================================
+          style     [ 'sci' (or 'scientific') | 'plain' ]
+                    plain turns off scientific notation
+          axis      [ 'x' | 'y' | 'both' ]
+          =======   =====================================
 
         Only the major ticks are affected.
         If the method is called when the ScalarFormatter is not
@@ -1577,19 +1627,11 @@ class Axes(martist.Artist):
                 self.yaxis.major.formatter.set_scientific(sb)
 
     def set_axis_off(self):
-        """
-        turn off the axis
-
-        ACCEPTS: void
-        """
+        """turn off the axis"""
         self.axison = False
 
     def set_axis_on(self):
-        """
-        turn on the axis
-
-        ACCEPTS: void
-        """
+        """turn on the axis"""
         self.axison = True
 
     def get_axis_bgcolor(self):
@@ -1619,7 +1661,12 @@ class Axes(martist.Artist):
         return right < left
 
     def get_xbound(self):
-        "Returns the x-axis numerical bounds in the form of lowerBound < upperBound"
+        """
+        Returns the x-axis numerical bounds where::
+
+          lowerBound < upperBound
+
+        """
         left, right = self.get_xlim()
         if left < right:
             return left, right
@@ -1627,8 +1674,9 @@ class Axes(martist.Artist):
             return right, left
 
     def set_xbound(self, lower=None, upper=None):
-        """Set the lower and upper numerical bounds of the x-axis.
-           This method will honor axes inversion regardless of parameter order.
+        """
+        Set the lower and upper numerical bounds of the x-axis.
+        This method will honor axes inversion regardless of parameter order.
         """
         if upper is None and iterable(lower):
             lower,upper = lower
@@ -1657,23 +1705,30 @@ class Axes(martist.Artist):
 
     def set_xlim(self, xmin=None, xmax=None, emit=True, **kwargs):
         """
-        set_xlim(self, *args, **kwargs):
+        call signature::
 
-        Set the limits for the xaxis; v = [xmin, xmax]
+          set_xlim(self, *args, **kwargs)
 
-        set_xlim((valmin, valmax))
-        set_xlim(valmin, valmax)
-        set_xlim(xmin=1) # xmax unchanged
-        set_xlim(xmax=1) # xmin unchanged
+        Set the limits for the xaxis
 
-        Valid kwargs:
+        Returns the current xlimits as a length 2 tuple: [xmin, xmax]
 
-        xmin : the min of the xlim
-        xmax : the max of the xlim
-        emit : notify observers of lim change
+        Examples::
 
+          set_xlim((valmin, valmax))
+          set_xlim(valmin, valmax)
+          set_xlim(xmin=1) # xmax unchanged
+          set_xlim(xmax=1) # xmin unchanged
 
-        Returns the current xlimits as a length 2 tuple
+        Valid keyword arguments:
+
+          =======   ==============================
+          Keyword   Description
+          =======   ==============================
+          xmin      the min of the xlim
+          xmax      the max of the xlim
+          emit      notify observers of lim change
+          =======   ==============================
 
         ACCEPTS: len(2) sequence of floats
         """
@@ -1714,7 +1769,9 @@ class Axes(martist.Artist):
 
     def set_xscale(self, value, **kwargs):
         """
-        SET_XSCALE(value)
+        call signature::
+
+          set_xscale(value)
 
         Set the scaling of the x-axis: %(scale)s
 
@@ -2460,7 +2517,9 @@ class Axes(martist.Artist):
 
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
-        AXHLINE(y=0, xmin=0, xmax=1, **kwargs)
+        call signature::
+
+          axhline(y=0, xmin=0, xmax=1, **kwargs)
 
         Axis Horizontal Line
 
@@ -2474,15 +2533,18 @@ class Axes(martist.Artist):
         Return value is the Line2D instance.  kwargs are the same as kwargs to
         plot, and can be used to control the line properties.  Eg
 
-          # draw a thick red hline at y=0 that spans the xrange
-          axhline(linewidth=4, color='r')
+        * draw a thick red hline at y=0 that spans the xrange
 
-          # draw a default hline at y=1 that spans the xrange
-          axhline(y=1)
+            >>> axhline(linewidth=4, color='r')
 
-          # draw a default hline at y=.5 that spans the the middle half of
-          # the xrange
-          axhline(y=.5, xmin=0.25, xmax=0.75)
+        * draw a default hline at y=1 that spans the xrange
+
+            >>> axhline(y=1)
+
+        * draw a default hline at y=.5 that spans the the middle half of
+          the xrange
+
+            >>> axhline(y=.5, xmin=0.25, xmax=0.75)
 
         Valid kwargs are Line2D properties
         %(Line2D)s
@@ -2502,7 +2564,9 @@ class Axes(martist.Artist):
 
     def axvline(self, x=0, ymin=0, ymax=1, **kwargs):
         """
-        AXVLINE(x=0, ymin=0, ymax=1, **kwargs)
+        call signature::
+
+          axvline(x=0, ymin=0, ymax=1, **kwargs)
 
         Axis Vertical Line
 
@@ -2516,15 +2580,18 @@ class Axes(martist.Artist):
         Return value is the Line2D instance.  kwargs are the same as
         kwargs to plot, and can be used to control the line properties.  Eg
 
-            # draw a thick red vline at x=0 that spans the yrange
-            l = axvline(linewidth=4, color='r')
+        * draw a thick red vline at x=0 that spans the yrange
 
-            # draw a default vline at x=1 that spans the yrange
-            l = axvline(x=1)
+            >>> axvline(linewidth=4, color='r')
 
-            # draw a default vline at x=.5 that spans the the middle half of
-            # the yrange
-            axvline(x=.5, ymin=0.25, ymax=0.75)
+        * draw a default vline at x=1 that spans the yrange
+
+            >>> axvline(x=1)
+
+        * draw a default vline at x=.5 that spans the the middle half of
+          the yrange
+
+            >>> axvline(x=.5, ymin=0.25, ymax=0.75)
 
         Valid kwargs are Line2D properties
         %(Line2D)s
@@ -2544,7 +2611,9 @@ class Axes(martist.Artist):
 
     def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
         """
-        AXHSPAN(ymin, ymax, xmin=0, xmax=1, **kwargs)
+        call signature::
+
+          axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs)
 
         Axis Horizontal Span.  ycoords are in data units and x
         coords are in axes (relative 0-1) units
@@ -2556,20 +2625,14 @@ class Axes(martist.Artist):
         0=left, 0.5=middle, 1.0=right but the y location is in data
         coordinates.
 
-        kwargs are the kwargs to Patch, eg
-
-          antialiased, aa
-          linewidth,   lw
-          edgecolor,   ec
-          facecolor,   fc
-
-        the terms on the right are aliases
-
         Return value is the patches.Polygon instance.
 
-            #draws a gray rectangle from y=0.25-0.75 that spans the horizontal
-            #extent of the axes
-            axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
+        Examples:
+
+        * draw a gray rectangle from y=0.25-0.75 that spans the horizontal
+          extent of the axes
+
+            >>> axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
 
         Valid kwargs are Polygon properties
         %(Polygon)s
@@ -2586,9 +2649,11 @@ class Axes(martist.Artist):
 
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
         """
-        AXVSPAN(xmin, xmax, ymin=0, ymax=1, **kwargs)
+        call signature::
 
-        axvspan : Axis Vertical Span.  xcoords are in data units and y coords
+          axvspan(xmin, xmax, ymin=0, ymax=1, **kwargs)
+
+        Axis Vertical Span.  xcoords are in data units and y coords
         are in axes (relative 0-1) units
 
         Draw a vertical span (regtangle) from xmin to xmax.  With the default
@@ -2597,22 +2662,16 @@ class Axes(martist.Artist):
         command.  That is, the vertical extent is in axes coords: 0=bottom,
         0.5=middle, 1.0=top but the y location is in data coordinates.
 
-        kwargs are the kwargs to Patch, eg
-
-          antialiased, aa
-          linewidth,   lw
-          edgecolor,   ec
-          facecolor,   fc
-
-        the terms on the right are aliases
-
         return value is the patches.Polygon instance.
 
-            # draw a vertical green translucent rectangle from x=1.25 to 1.55 that
-            # spans the yrange of the axes
-            axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
+        Examples:
 
-        Valid kwargs are Polygon properties
+        * draw a vertical green translucent rectangle from x=1.25 to 1.55 that
+          spans the yrange of the axes
+
+            >>> axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
+
+        Valid kwargs are Polygon properties:
         %(Polygon)s
         """
         # convert x axis units
@@ -2629,19 +2688,33 @@ class Axes(martist.Artist):
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
                      label='', **kwargs):
         """
-        HLINES(y, xmin, xmax, colors='k', linestyle='solid', **kwargs)
+        call signature::
 
-        plot horizontal lines at each y from xmin to xmax.  xmin or xmax can
-        be scalars or len(x) numpy arrays.  If they are scalars, then the
-        respective values are constant, else the widths of the lines are
-        determined by xmin and xmax
+          hlines(y, xmin, xmax, colors='k', linestyle='solid', **kwargs)
 
-        colors is a line collections color args, either a single color
-        or a len(x) list of colors
-
-        linestyle is one of solid|dashed|dashdot|dotted
+        plot horizontal lines at each y from xmin to xmax.
 
         Returns the LineCollection that was added
+
+        Required arguments:
+
+          y:
+            a 1-D numpy array or iterable.
+
+          xmin and xmax:
+            can be scalars or len(x) numpy arrays.  If they are scalars, then
+            the respective values are constant, else the widths of the lines
+            are determined by xmin and xmax
+
+        Optional keyword arguments:
+
+          colors:
+            a line collections color argument, either a single color
+            or a len(y) list of colors
+
+          linestyle:
+            [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
+
         """
         if kwargs.get('fmt') is not None:
             raise DeprecationWarning(
@@ -3290,12 +3363,14 @@ class Axes(martist.Artist):
             **kwargs
             ):
         """
-        BAR(left, height, width=0.8, bottom=0,
-            color=None, edgecolor=None, linewidth=None,
-            yerr=None, xerr=None, ecolor=None, capsize=3,
-            align='edge', orientation='vertical', log=False)
+        call signature::
 
-        Make a bar plot with rectangles bounded by
+          bar(left, height, width=0.8, bottom=0,
+              color=None, edgecolor=None, linewidth=None,
+              yerr=None, xerr=None, ecolor=None, capsize=3,
+              align='edge', orientation='vertical', log=False)
+
+        Make a bar plot with rectangles bounded by:
 
           left, left+width, bottom, bottom+height
                 (left, right, bottom and top edges)
@@ -3304,37 +3379,36 @@ class Axes(martist.Artist):
 
         Return value is a list of Rectangle patch instances
 
-            left - the x coordinates of the left sides of the bars
+        Required arguments:
 
-            height - the heights of the bars
+          ========   ===============================================
+          Argument   Description
+          ========   ===============================================
+          left       the x coordinates of the left sides of the bars
+          height     the heights of the bars
+          ========   ===============================================
 
-        Optional arguments:
+        Optional keyword arguments:
 
-            width - the widths of the bars
-
-            bottom - the y coordinates of the bottom edges of the bars
-
-            color - the colors of the bars
-
-            edgecolor - the colors of the bar edges
-
-            linewidth - width of bar edges; None means use default
-                linewidth; 0 means don't draw edges.
-
-            xerr and yerr, if not None, will be used to generate errorbars
-            on the bar chart
-
-            ecolor specifies the color of any errorbar
-
-            capsize (default 3) determines the length in points of the error
-            bar caps
-
-            align = 'edge' (default) | 'center'
-
-            orientation = 'vertical' | 'horizontal'
-
-            log = False | True - False (default) leaves the orientation
-                    axis as-is; True sets it to log scale
+          =============   ===================================================
+          Keyword         Description
+          =============   ===================================================
+          width           the widths of the bars
+          bottom          the y coordinates of the bottom edges of the bars
+          color           the colors of the bars
+          edgecolor       the colors of the bar edges
+          linewidth       width of bar edges; None means use default
+                          linewidth; 0 means don't draw edges.
+          xerr and yerr   if not None, will be used to generate errorbars
+                          on the bar chart
+          ecolor          specifies the color of any errorbar
+          capsize         (default 3) determines the length in points of the
+                          error bar caps
+          align           'edge' (default) | 'center'
+          orientation     'vertical' | 'horizontal'
+          log             [False|True] False (default) leaves the orientation
+                          axis as-is; True sets it to log scale
+          =============   ===================================================
 
         For vertical bars, align='edge' aligns bars by their left edges in
         left, while 'center' interprets these values as the x coordinates of
@@ -3347,7 +3421,7 @@ class Axes(martist.Artist):
         This enables you to use bar as the basis for stacked bar charts, or
         candlestick plots.
 
-        Optional kwargs:
+        Other optional kwargs:
         %(Rectangle)s
         """
         if not self._hold: self.cla()
@@ -3536,9 +3610,11 @@ class Axes(martist.Artist):
 
     def barh(self, bottom, width, height=0.8, left=None, **kwargs):
         """
-        BARH(bottom, width, height=0.8, left=0, **kwargs)
+        call signature::
 
-        Make a horizontal bar plot with rectangles bounded by
+          barh(bottom, width, height=0.8, left=0, **kwargs)
+
+        Make a horizontal bar plot with rectangles bounded by:
 
           left, left+width, bottom, bottom+height
                 (left, right, bottom and top edges)
@@ -3547,35 +3623,35 @@ class Axes(martist.Artist):
 
         Return value is a list of Rectangle patch instances
 
-            bottom - the vertical positions of the bottom edges of the bars
+        Required arguments:
 
-            width - the lengths of the bars
+          ========   ======================================================
+          Argument   Description
+          ========   ======================================================
+          bottom     the vertical positions of the bottom edges of the bars
+          width      the lengths of the bars
+          ========   ======================================================
 
-        Optional arguments:
+        Optional keyword arguments:
 
-            height - the heights (thicknesses) of the bars
-
-            left - the x coordinates of the left edges of the bars
-
-            color - the colors of the bars
-
-            edgecolor - the colors of the bar edges
-
-            linewidth - width of bar edges; None means use default
-                linewidth; 0 means don't draw edges.
-
-            xerr and yerr, if not None, will be used to generate errorbars
-            on the bar chart
-
-            ecolor specifies the color of any errorbar
-
-            capsize (default 3) determines the length in points of the error
-            bar caps
-
-            align = 'edge' (default) | 'center'
-
-            log = False | True - False (default) leaves the horizontal
-                    axis as-is; True sets it to log scale
+          =============   ===================================================
+          Keyword         Description
+          =============   ===================================================
+          height          the heights (thicknesses) of the bars
+          left            the x coordinates of the left edges of the bars
+          color           the colors of the bars
+          edgecolor       the colors of the bar edges
+          linewidth       width of bar edges; None means use default
+                          linewidth; 0 means don't draw edges.
+          xerr and yerr   if not None, will be used to generate errorbars
+                          on the bar chart
+          ecolor          specifies the color of any errorbar
+          capsize         (default 3) determines the length in points of the
+                          error bar caps
+          align           'edge' (default) | 'center'
+          log             [False|True] False (default) leaves the horizontal
+                          axis as-is; True sets it to log scale
+          =============   ===================================================
 
         Setting align='edge' aligns bars by their bottom edges in bottom,
         while 'center' interprets these values as the y coordinates of the bar
@@ -3586,7 +3662,7 @@ class Axes(martist.Artist):
         This enables you to use barh as the basis for stacked bar charts, or
         candlestick plots.
 
-        Optional kwargs:
+        other optional kwargs:
         %(Rectangle)s
         """
 
@@ -3598,18 +3674,32 @@ class Axes(martist.Artist):
 
     def broken_barh(self, xranges, yrange, **kwargs):
         """
+        call signature::
+
+          broken_barh(self, xranges, yrange, **kwargs)
+
         A collection of horizontal bars spanning yrange with a sequence of
         xranges
 
-        xranges : sequence of (xmin, xwidth)
-        yrange  : (ymin, ywidth)
+        Required arguments:
 
-        kwargs are collections.BrokenBarHCollection properties
+          ========   ==========================
+          Argument   Description
+          ========   ==========================
+          xranges    sequence of (xmin, xwidth)
+          yrange     sequence of (ymin, ywidth)
+          ========   ==========================
+
+        kwargs are collections.BrokenBarHCollection properties:
         %(BrokenBarHCollection)s
 
-        these can either be a single argument, ie facecolors='black'
-        or a sequence of arguments for the various bars, ie
-        facecolors='black', 'red', 'green'
+        these can either be a single argument, ie::
+
+          facecolors = 'black'
+
+        or a sequence of arguments for the various bars, ie::
+
+          facecolors = 'black', 'red', 'green'
 
         """
         col = mcoll.BrokenBarHCollection(xranges, yrange, **kwargs)
@@ -3795,58 +3885,66 @@ class Axes(martist.Artist):
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, **kwargs):
         """
-        ERRORBAR(x, y, yerr=None, xerr=None,
-                 fmt='b-', ecolor=None, elinewidth=None, capsize=3,
-                 barsabove=False, lolims=False, uplims=False,
-                 xlolims=False, xuplims=False)
+        call signature::
+
+          errorbar(x, y, yerr=None, xerr=None,
+                   fmt='b-', ecolor=None, elinewidth=None, capsize=3,
+                   barsabove=False, lolims=False, uplims=False,
+                   xlolims=False, xuplims=False)
 
         Plot x versus y with error deltas in yerr and xerr.
-        Vertical errorbars are plotted if yerr is not None
-        Horizontal errorbars are plotted if xerr is not None
+        Vertical errorbars are plotted if yerr is not None.
+        Horizontal errorbars are plotted if xerr is not None.
 
-        xerr and yerr may be any of:
+        x, y, xerr, and yerr can all be scalars, which plots a single error bar
+        at x, y.
 
-            a rank-0, Nx1 Numpy array  - symmetric errorbars +/- value
+        Optional keyword arguments:
 
-            an N-element list or tuple - symmetric errorbars +/- value
+          +------------+------------------------------------------------------+
+          | Keyword    | Description                                          |
+          +============+======================================================+
+          | xerr       | a rank-0 or Nx1 Numpy array yields symmetric         |
+          | yerr       | errorbars +/- value                                  |
+          |            +------------------------------------------------------+
+          |            | an N-element list or tuple yields symmetric          |
+          |            | errorbars +/- value                                  |
+          |            +------------------------------------------------------+
+          |            | a rank-1, Nx2 Numpy array yields asymmetric          |
+          |            | errorbars: -column1/+column2                         |
+          +------------+------------------------------------------------------+
+          | fmt        | the plot format symbol for y. If fmt is None, just   |
+          |            | plot the errorbars with no line symbols.  This can   |
+          |            | be useful for creating a bar plot with errorbars     |
+          +------------+------------------------------------------------------+
+          | ecolor     | a matplotlib color arg which gives the color the     |
+          |            | errorbar lines; if None, use the marker color.       |
+          +------------+------------------------------------------------------+
+          | elinewidth | the linewidth of the errorbar lines. If None, use    |
+          |            | the linewidth.                                       |
+          +------------+------------------------------------------------------+
+          | capsize    | the size of the error bar caps in points             |
+          +------------+------------------------------------------------------+
+          | barsabove  | if True, will plot the errorbars above the plot      |
+          |            | symbols. Default is below.                           |
+          +------------+------------------------------------------------------+
+          | lolims     | These arguments can be used to indicate that a value |
+          | uplims     | gives only upper/lower limits. In that case a caret  |
+          | xlolims    | symbol is used to indicate this. lims-arguments may  |
+          | xuplims    | be of the same type as xerr and yerr.                |
+          +------------+------------------------------------------------------+
 
-            a rank-1, Nx2 Numpy array  - asymmetric errorbars -column1/+column2
+        All other keyword arguments are passed on to the plot command for the
+        markers, so you can add additional key=value pairs to control the
+        errorbar markers.  For example, this code makes big red squares with
+        thick green edges::
 
-        Alternatively, x, y, xerr, and yerr can all be scalars, which
-        plots a single error bar at x, y.
+          x,y,yerr = rand(3,10)
+          errorbar(x, y, yerr, marker='s',
+                   mfc='red', mec='green', ms=20, mew=4)
 
-            fmt is the plot format symbol for y.  if fmt is None, just
-            plot the errorbars with no line symbols.  This can be useful
-            for creating a bar plot with errorbars
-
-            ecolor is a matplotlib color arg which gives the color the
-            errorbar lines; if None, use the marker color.
-
-            elinewidth is the linewidth of the errorbar lines;
-            if None, use the linewidth.
-
-            capsize is the size of the error bar caps in points
-
-            barsabove, if True, will plot the errorbars above the plot symbols
-            - default is below
-
-            lolims, uplims, xlolims, xuplims: These arguments can be used
-             to indicate that a value gives only upper/lower limits. In
-             that case a caret symbol is used to indicate this. lims-arguments
-             may be of the same type as xerr and yerr.
-
-            kwargs are passed on to the plot command for the markers.
-              So you can add additional key=value pairs to control the
-              errorbar markers.  For example, this code makes big red
-              squares with thick green edges
-
-              >>> x,y,yerr = rand(3,10)
-              >>> errorbar(x, y, yerr, marker='s',
-                           mfc='red', mec='green', ms=20, mew=4)
-
-             mfc, mec, ms and mew are aliases for the longer property
-             names, markerfacecolor, markeredgecolor, markersize and
-             markeredgewith.
+        where mfc, mec, ms and mew are aliases for the longer property names,
+        markerfacecolor, markeredgecolor, markersize and markeredgewith.
 
         valid kwargs for the marker properties are
         %(Line2D)s
@@ -4018,8 +4116,10 @@ class Axes(martist.Artist):
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
                 positions=None, widths=None):
         """
-        boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
-                positions=None, widths=None)
+        call signature::
+
+          boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
+                  positions=None, widths=None)
 
         Make a box and whisker plot for each column of x or
         each vector in sequence x.
@@ -4028,27 +4128,27 @@ class Axes(martist.Artist):
         extend from the box to show the range of the data.  Flier
         points are those past the end of the whiskers.
 
-        notch = 0 (default) produces a rectangular box plot.
-        notch = 1 will produce a notched box plot
+        ``notch = 0`` (default) produces a rectangular box plot.
+        ``notch = 1`` will produce a notched box plot
 
         sym (default 'b+') is the default symbol for flier points.
         Enter an empty string ('') if you don't want to show fliers.
 
-        vert = 1 (default) makes the boxes vertical.
-        vert = 0 makes horizontal boxes.  This seems goofy, but
+        ``vert = 1`` (default) makes the boxes vertical.
+        ``vert = 0`` makes horizontal boxes.  This seems goofy, but
         that's how Matlab did it.
 
         whis (default 1.5) defines the length of the whiskers as
         a function of the inner quartile range.  They extend to the
-        most extreme data point within ( whis*(75%-25%) ) data range.
+        most extreme data point within ( ``whis*(75%-25%)`` ) data range.
 
         positions (default 1,2,...,n) sets the horizontal positions of
         the boxes. The ticks and limits are automatically set to match
         the positions.
 
         widths is either a scalar or a vector and sets the width of
-        each box. The default is 0.5, or 0.15*(distance between extreme
-        positions) if that is smaller.
+        each box. The default is 0.5, or ``0.15*(distance between extreme
+        positions)`` if that is smaller.
 
         x is an array or a sequence of vectors.
 
@@ -4478,77 +4578,91 @@ class Axes(martist.Artist):
                     alpha=1.0, linewidths=None, edgecolors='none',
                     **kwargs):
         """
-        HEXBIN(x, y, gridsize = 100, bins = None,
-            xscale = 'linear', yscale = 'linear',
-            cmap=None, norm=None, vmin=None, vmax=None,
-            alpha=1.0, linewidths=None, edgecolors='none'
-            **kwargs)
+        call signature::
+
+          hexbin(x, y, gridsize = 100, bins = None,
+                 xscale = 'linear', yscale = 'linear',
+                 cmap=None, norm=None, vmin=None, vmax=None,
+                 alpha=1.0, linewidths=None, edgecolors='none'
+                 **kwargs)
 
         Make a hexagonal binning plot of x versus y, where x, y are 1-D
         sequences of the same length, N.
 
-        Either or both of x and y may be masked arrays, in which case all
-        masks will be combined and only unmasked points will be plotted.
+        x and/or y may be masked arrays, in which case only unmasked points will
+        be plotted.
 
-          * gridsize=100 : The number of hexagons in the x-direction. The
-                           corresponding number of hexagons in the
-                           y-direction is chosen such that the hexagons are
-                           approximately regular.
-                           Alternatively, gridsize can be a tuple with two
-                           elements specifying the number of hexagons in
-                           the x-direction and the y-direction.
+        Optional keyword arguments:
 
-          * bins=None      : If None, no binning is applied; the color of
-                             each hexagon directly corresponds to its count
-                             value.
-            bins='log'     : Use a logarithmic scale for the color map.
-                             Internally, log10(count+1) is used to determine
-                             the hexagon color.
-            bins=<integer> : Divide the counts in the specified number of
-                             bins, and color the hexagons accordingly
-            bins=<a sequence of values> :
-                             The values of the lower bound of the bins
-                             to be used.
+          +----------+---------------------------------------------------------+
+          | Keyword  | Description                                             |
+          +==========+=========================================================+
+          | gridsize | The number of hexagons in the x-direction, default is   |
+          |          | 100. The corresponding number of hexagons in the        |
+          |          | y-direction is chosen such that the hexagons are        |
+          |          | approximately regular. Alternatively, gridsize can be a |
+          |          | tuple with two elements specifying the number of        |
+          |          | hexagons in the x-direction and the y-direction.        |
+          +----------+---------------------------------------------------------+
+          | bins     | If None, no binning is applied; the color of each       |
+          |          | hexagon directly corresponds to its count value.        |
+          |          +---------------------------------------------------------+
+          |          | If 'log', use a logarithmic scale for the color         |
+          |          | map. Internally, log10(count+1) is used to determine    |
+          |          | the hexagon color.                                      |
+          |          +---------------------------------------------------------+
+          |          | If an integer, divide the counts in the specified       |
+          |          | number of bins, and color the hexagons accordingly      |
+          |          +---------------------------------------------------------+
+          |          | I a sequence of values, the values of the lower bound   |
+          |          | of the bins to be used.                                 |
+          +----------+---------------------------------------------------------+
+          | xscale   | [ 'linear' | 'log' ]                                    |
+          |          | Use a log10 scale on the horizontal axis.               |
+          +----------+---------------------------------------------------------+
+          | yscale   | [ 'linear' | 'log' ]                                    |
+          |          | Use a log10 scale on the vertical axis.                 |
+          +----------+---------------------------------------------------------+
 
-          * xscale = 'linear' | 'log':
-                             Use a log10 scale on the horizontal axis.
+        Other keyword arguments controlling color mapping and normalization
+        arguments:
 
-          * yscale = 'linear' | 'log':
-                             Use a log10 scale on the vertical axis.
+          ==========   ======================================================
+          Keyword      Description
+          ==========   ======================================================
+          cmap         a colors.Colormap instance from cm. defaults to rc
+                       image.cmap
+          norm         colors.Normalize instance is used to scale luminance
+                       data to 0,1.
+          vmin/vmax    vmin and vmax are used in conjunction with norm to
+                       normalize luminance data.  If either are None, the
+                       min and max of the color array C is used.  Note if you
+                       pass a norm instance, your settings for vmin and vmax
+                       will be ignored
+          alpha        the alpha value for the patches
+          linewidths   if None, defaults to (lines.linewidth,).  Note
+                       that this is a tuple, and if you set the linewidths
+                       argument you must set it as a sequence of floats, as
+                       required by RegularPolyCollection -- see
+                       collections.RegularPolyCollection for details
+          ==========   ======================================================
 
-        Other keyword args; the color mapping and normalization arguments.
+        Other keyword arguments controlling the Collection properties:
 
-          * cmap = cm.jet : a colors.Colormap instance from cm.
-            defaults to rc image.cmap
+          ==========   ======================================================
+          Keyword      Description
+          ==========   ======================================================
+          edgecolors   if 'none', draws the edges in the same color as the
+                       fill color. This is the default, as it avoids
+                       unsightly unpainted pixels between the hexagons.
 
-          * norm = colors.Normalize() : colors.Normalize instance
-            is used to scale luminance data to 0,1.
+                       if None, draws the outlines in the default color.
 
-          * vmin=None and vmax=None : vmin and vmax are used in conjunction
-            with norm to normalize luminance data.  If either are None, the
-            min and max of the color array C is used.  Note if you pass a norm
-            instance, your settings for vmin and vmax will be ignored
+                       if a matplotlib color arg or sequence of rgba tuples,
+                       draws the outlines in the specified color.
+          ==========   ======================================================
 
-          * alpha =1.0 : the alpha value for the patches
-
-          * linewidths, if None, defaults to (lines.linewidth,).  Note
-            that this is a tuple, and if you set the linewidths
-            argument you must set it as a sequence of floats, as
-            required by RegularPolyCollection -- see
-            collections.RegularPolyCollection for details
-
-           Optional kwargs control the Collection properties; in
-           particular:
-
-            edgecolors='none'    : Draw the edges in the same color
-                                   as the fill color. This is the default, as
-                                   it avoids unsightly unpainted pixels
-                                   between the hexagons.
-            edgecolors=None      : Draw the outlines in the default color.
-            edgecolors=<a matplotlib color arg or sequence of rgba tuples>
-                                 : Draw the outlines in the specified color.
-
-           Here are the standard descriptions of all the Collection kwargs:
+        Here are the standard descriptions of all the Collection kwargs:
         %(Collection)s
 
         The return value is a PolyCollection instance; use get_array() on
@@ -4726,26 +4840,28 @@ class Axes(martist.Artist):
 
     def fill(self, *args, **kwargs):
         """
-        FILL(*args, **kwargs)
+        call signature::
 
-        plot filled polygons.  *args is a variable length argument, allowing
+          fill(*args, **kwargs)
+
+        plot filled polygons.  ``*args`` is a variable length argument, allowing
         for multiple x,y pairs with an optional color format string; see plot
-        for details on the argument parsing.  For example, all of the
-        following are legal, assuming ax is an Axes instance:
+        for details on the argument parsing.  For example, to plot a polygon
+        with vertices at x,y in blue.::
 
-          ax.fill(x,y)            # plot polygon with vertices at x,y
-          ax.fill(x,y, 'b' )      # plot polygon with vertices at x,y in blue
+          ax.fill(x,y, 'b' )
 
-        An arbitrary number of x, y, color groups can be specified, as in
+        An arbitrary number of x, y, color groups can be specified::
+
           ax.fill(x1, y1, 'g', x2, y2, 'r')
 
-        Return value is a list of patches that were added
+        Return value is a list of patches that were added.
 
         The same color strings that plot supports are supported by the fill
         format string.
 
         If you would like to fill below a curve, eg shade a region
-        between 0 and y along x, use mlab.poly_between, eg
+        between 0 and y along x, use mlab.poly_between, eg::
 
           xs, ys = poly_between(x, 0, y)
           axes.fill(xs, ys, facecolor='red', alpha=0.5)
@@ -5387,9 +5503,6 @@ class Axes(martist.Artist):
         self.autoscale_view(tight=True)
         return ret
 
-
-
-
     def contour(self, *args, **kwargs):
         kwargs['filled'] = False
         return mcontour.ContourSet(self, *args, **kwargs)
@@ -5403,7 +5516,6 @@ class Axes(martist.Artist):
     def clabel(self, CS, *args, **kwargs):
         return CS.clabel(*args, **kwargs)
     clabel.__doc__ = mcontour.ContourSet.clabel.__doc__
-
 
     def table(self, **kwargs):
         """
@@ -5467,53 +5579,65 @@ class Axes(martist.Artist):
              bottom=None, histtype='bar', align='edge',
              orientation='vertical', rwidth=None, log=False, **kwargs):
         """
-        HIST(x, bins=10, normed=False, cumulative=False,
-             bottom=None, histtype='bar', align='edge',
-             orientation='vertical', rwidth=None, log=False, **kwargs)
+        call signature::
 
-        Compute the histogram of x.  bins is either an integer number of
-        bins or a sequence giving the bins.  x are the data to be binned.
-        x can be an array or a 2D array with multiple data in its columns.
+          hist(x, bins=10, normed=False, cumulative=False,
+               bottom=None, histtype='bar', align='edge',
+               orientation='vertical', rwidth=None, log=False, **kwargs)
 
-        The return values is (n, bins, patches) or
-        ([n0,n1,...], bins, [patches0,patches1,...]) if the input
-        contains multiple data.
+        Compute the histogram of x. The return value is (n, bins, patches) or
+        ([n0,n1,...], bins, [patches0,patches1,...]) if the input contains
+        multiple data.
 
-        If normed is true, the first element of the return tuple will
-        be the counts normalized to form a probability density, ie,
-        n/(len(x)*dbin).  In a probability density, the integral of
-        the histogram should be one; you can verify that with
+        Keyword arguments:
 
-          # trapezoidal integration of the probability density function
-          pdf, bins, patches = ax.hist(...)
-          print np.sum(pdf * np.diff(bins))
+          bins:
+            either an integer number of bins or a sequence giving the
+            bins.  x are the data to be binned. x can be an array or a 2D
+            array with multiple data in its columns.
 
-        If cumulative is True then a histogram is computed where each bin
-        gives the counts in that bin plus all bins for smaller values.
-        The last bin gives the total number of datapoints.  If normed is
-        also True then the histogram is normalized such that the last bin
-        equals one.
+          normed:
+            if True, the first element of the return tuple will
+            be the counts normalized to form a probability density, ie,
+            n/(len(x)*dbin).  In a probability density, the integral of
+            the histogram should be one; you can verify that with a
+            trapezoidal integration of the probability density function::
 
-        histtype = 'bar' | 'barstacked' | 'step'. The type of histogram
-        to draw.  'bar' is a traditional bar-type histogram, 'barstacked'
-        is a bar-type histogram where multiple data are stacked on top
-        of each other, and 'step' generates a lineplot.
+              pdf, bins, patches = ax.hist(...)
+              print np.sum(pdf * np.diff(bins))
 
-        align controles how the histogram is plotted
-         - 'edge'  : bars are centered between the bin edges
-         - 'center': bars are centered on the left bin edges
+          cumulative:
+            if True then a histogram is computed where each bin
+            gives the counts in that bin plus all bins for smaller values.
+            The last bin gives the total number of datapoints.  If normed is
+            also True then the histogram is normalized such that the last bin
+            equals one.
 
-        orientation = 'horizontal' | 'vertical'.  If horizontal, barh
-        will be used and the "bottom" kwarg will be the left edges.
+          histtype:
+            [ 'bar' | 'barstacked' | 'step' ] The type of histogram
+            to draw.  'bar' is a traditional bar-type histogram,
+            'barstacked' is a bar-type histogram where multiple data are
+            stacked on top of each other, and 'step' generates a lineplot.
 
-        rwidth: the relative width of the bars as fraction of the bin
-        width.  If None, automatically compute the width. Ignored
-        for 'step' histtype.
+          align:
+            ['edge' | 'center' ] Controles how the histogram is plotted.
+            If 'edge, bars are centered between the bin edges.
+            If 'center', bars are centered on the left bin edges
 
-        log: if True, the histogram axis will be set to a log scale.
-        If log is true and x is a 1D array, empty bins will be
-        filtered out and only the non-empty n, bins, patches will be
-        returned.
+          orientation:
+            [ 'horizontal' | 'vertical' ]  If horizontal, barh will be used
+            and the "bottom" kwarg will be the left edges.
+
+          rwidth:
+            the relative width of the bars as fraction of the bin
+            width.  If None, automatically compute the width. Ignored
+            for 'step' histtype.
+
+          log:
+            if True, the histogram axis will be set to a log scale.
+            If log is true and x is a 1D array, empty bins will be
+            filtered out and only the non-empty n, bins, patches will be
+            returned.
 
         kwargs are used to update the properties of the
         hist Rectangles:
@@ -5714,8 +5838,10 @@ class Axes(martist.Artist):
     def csd(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0, **kwargs):
         """
-        CSD(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-            window=window_hanning, noverlap=0, **kwargs)
+        call signature::
+
+          csd(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
+              window=window_hanning, noverlap=0, **kwargs)
 
         The cross spectral density Pxy by Welches average periodogram method.
         The vectors x and y are divided into NFFT length segments.  Each
@@ -5727,11 +5853,11 @@ class Axes(martist.Artist):
         See the PSD help for a description of the optional parameters.
 
         Returns the tuple Pxy, freqs.  Pxy is the cross spectrum (complex
-        valued), and 10*np.log10(|Pxy|) is plotted
+        valued), and ``10*np.log10(|Pxy|)`` is plotted
 
-        Refs:
+        References:
           Bendat & Piersol -- Random Data: Analysis and Measurement
-            Procedures, John Wiley & Sons (1986)
+          Procedures, John Wiley & Sons (1986)
 
         kwargs control the Line2D properties:
         %(Line2D)s
@@ -5760,13 +5886,17 @@ class Axes(martist.Artist):
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                window=mlab.window_hanning, noverlap=0, **kwargs):
         """
-        COHERE(x, y, NFFT=256, Fs=2, Fc=0, detrend = mlab.detrend_none,
-              window = mlab.window_hanning, noverlap=0, **kwargs)
+        call signature::
+
+          cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend = mlab.detrend_none,
+                 window = mlab.window_hanning, noverlap=0, **kwargs)
 
         cohere the coherence between x and y.  Coherence is the normalized
         cross spectral density
 
-          Cxy = |Pxy|^2/(Pxx*Pyy)
+        .. math::
+
+          C_{xy} = \\frac{|P_{xy}|^2}{P_{xx}*P_{yy}}
 
         The return value is (Cxy, f), where f are the frequencies of the
         coherence vector.
@@ -5777,8 +5907,10 @@ class Axes(martist.Artist):
 
         Returns the tuple Cxy, freqs
 
-        Refs: Bendat & Piersol -- Random Data: Analysis and Measurement
-          Procedures, John Wiley & Sons (1986)
+        References:
+
+          * Bendat & Piersol -- Random Data: Analysis and Measurement
+            Procedures, John Wiley & Sons (1986)
 
         kwargs control the Line2D properties of the coherence plot:
         %(Line2D)s
