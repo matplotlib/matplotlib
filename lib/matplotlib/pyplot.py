@@ -1209,7 +1209,8 @@ if _imread.__doc__ is not None:
     imread.__doc__ = dedent(_imread.__doc__)
 
 def matshow(A, fignum=None, **kw):
-    """Display an array as a matrix in a new figure window.
+    """
+    Display an array as a matrix in a new figure window.
 
     The origin is set at the upper left hand corner and rows (first dimension
     of the array) are displayed horizontally.  The aspect ratio of the figure
@@ -1218,12 +1219,12 @@ def matshow(A, fignum=None, **kw):
 
     Tick labels for the xaxis are placed on top.
 
-    With one exception, keyword arguments are passed to
+    With the exception of fignum, keyword arguments are passed to
     imshow().
 
-    Special keyword argument which is NOT passed to imshow():
 
-      - fignum(None): by default, matshow() creates a new figure window with
+    fignum: [ None | integer | False ]
+      by default, matshow() creates a new figure window with
       automatic numbering.  If fignum is given as an integer, the created
       figure will use this figure number.  Because of how matshow() tries to
       set the figure aspect ratio to be the one of the array, if you provide
@@ -1231,19 +1232,6 @@ def matshow(A, fignum=None, **kw):
 
       if fignum is False or 0, a new figure window will NOT be created.
 
-    Example usage:
-
-    def samplemat(dims):
-        aa = zeros(dims)
-        for i in range(min(dims)):
-            aa[i,i] = i
-        return aa
-
-    dimlist = [(12,12),(128,64),(64,512),(2048,256)]
-
-    for d in dimlist:
-        im = matshow(samplemat(d))
-    show()
     """
     if fignum is False or fignum is 0:
         ax = gca()
