@@ -52,10 +52,10 @@ def switch_backend(newbackend):
     """
     close('all')
     global new_figure_manager, draw_if_interactive, show
-    matplotlib.use(newbackend)
-    reload(backends)
-    from backends import new_figure_manager, draw_if_interactive, show
-
+    matplotlib.use(newbackend, warn=False)
+    reload(matplotlib.backends)
+    from matplotlib.backends import pylab_setup
+    new_figure_manager, draw_if_interactive, show = pylab_setup()
 
 
 def isinteractive():
