@@ -1,8 +1,8 @@
+.. _installing-faq:
+
 ==================
  Installation FAQ
 ==================
-
-
 
 How do I report a compilation problem?
 ======================================
@@ -22,7 +22,13 @@ install directory.  To cleanly rebuild:
     * delete the ``build`` directory in the source tree 
     * delete ``site-packages/matplotlib`` directory in the Python
       installation.  The location of ``site-packages`` is
-      platform-specific.
+      platform-specific.  You can find out where matplotlib is installed by doing::
+
+          > python -c 'import matplotlib; print matplotlib.__file__'
+
+      and then making sure you remove the matplotlib directory (and
+      any matplotlib*.egg files) you find there.
+
     * you may also want to clear some of the cache data that
       matplotlib stores in your ``.matplotlib`` directory.  You can
       find the location of this directory by doing::
@@ -55,7 +61,7 @@ make image files (PNG, SVG, PDF, PS).
 
 There are a two primary ways to configure your backend.  One is to set
 the ``backend`` parameter in you ``matplotlibrc`` file (see
-link:Configuring)::
+:ref:`customizing-matplotlib`)::
 
     backend : WXAgg   # use wxpython with antigrain (agg) rendering  
 

@@ -1,3 +1,5 @@
+.. _pyplot-tutorial:
+
 ***************
 pyplot tutorial
 ***************
@@ -61,6 +63,8 @@ using arrays.
    :scale: 50
 
 
+
+.. _controlling-line-properties:
 
 Controlling line properties
 ===========================
@@ -147,6 +151,8 @@ as argument
       antialiased or aa: [True | False]
       ...snip
 
+.. _multiple-figs-axes:
+
 Working with multiple figure and axes
 =====================================
 
@@ -201,6 +207,8 @@ as your heart desires::
 
 You can clear the current figure with :func:`~matplotlib.pyplot.clf`
 and the current axes with :func:`~matplotlib.pyplot.cla`.
+
+.. _working-with-text:
 
 Working with text
 =================

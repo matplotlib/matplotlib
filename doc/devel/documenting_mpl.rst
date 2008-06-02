@@ -1,3 +1,5 @@
+.. _documenting-matplotlib:
+
 **********************
 Documenting Matplotlib
 **********************
@@ -56,6 +58,8 @@ markup and working with Sphinx in general.
 
 .. _documentation: http://sphinx.pocoo.org/contents.html
 
+.. _referring-to-mpl-docs:
+
 Referring to mpl documents
 ==========================
 
@@ -77,6 +81,8 @@ In the ``users`` subdirectory, if I want to refer to a file in the mpl-data dire
 
    .. literalinclude:: ../mpl_data/matplotlibrc
 
+
+.. _internal-section-refs:
 
 Internal section references
 ===========================
@@ -103,4 +109,39 @@ is better than::
 
 In addition, since underscores are widely used by Sphinx itself, let's prefer hyphens to separate words.
 
+.. _emacs-helpers:
+
+Emacs helpers
+=============
+
+There is an emacs mode `rst.el
+<http://docutils.sourceforge.net/tools/editors/emacs/rst.el>`_ which
+automates many important ReST tasks like building and updateing
+table-of-contents, and promoting or demoting section headings.  Here
+is the basic ``.emacs`` configuration::
+
+    (require 'rst)
+    (setq auto-mode-alist
+          (append '(("\\.txt$" . rst-mode)
+                    ("\\.rst$" . rst-mode)
+                    ("\\.rest$" . rst-mode)) auto-mode-alist))
+
+
+Some helpful functions::
+
+    C-c TAB - rst-toc-insert
+
+      Insert table of contents at point
+    
+    C-c C-u - rst-toc-update
+
+        Update the table of contents at point
+
+    C-c C-l rst-shift-region-left
+
+        Shift region to the left
+
+    C-c C-r rst-shift-region-right
+
+        Shift region to the right
 

@@ -1,3 +1,5 @@
+.. _event-handling-tutorial:
+
 ***********************************
 Event Handling and Picking Tutorial
 ***********************************
@@ -15,6 +17,7 @@ events, including information like which Axes the event occurred in.
 The events also understand the matplotlib coordinate system, and
 report event locations in both pixel and data coordinates.
 
+.. _event-connections:
 
 Event connections
 =================
@@ -58,6 +61,7 @@ resize_event           ResizeEvent  figure canvas is resized
 scroll_event           MouseEvent   mouse scroll wheel is rolled
 =====================  ===========  ===================================
 
+.. _event-attributes:
 
 Event attributes
 ================
@@ -315,6 +319,8 @@ Extra credit solution::
 
     plt.show()
 
+
+.. _object-picking:
 
 Object Picking
 ==============

@@ -1,3 +1,5 @@
+.. _navigation-toolbar:
+
 Interactive navigation
 ======================
 

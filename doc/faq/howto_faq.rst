@@ -1,3 +1,5 @@
+.._ howto-faq:
+
 *****
 HOWTO
 *****
@@ -25,7 +27,7 @@ is controlled by the "markeredgewidth" property::
 The other properties that control the tick marker, and all markers,
 are ``markerfacecolor``, ``markeredgecolor``, ``markeredgewidth``,
 ``markersize``.  For more information on configuring ticks, see
-:ref:`artist-tut-axis` and :ref:`artist-tut-tick`.
+:ref:`axis-container` and :ref:`tick-container`.
 
 .. _howto-webapp:
 

@@ -1,6 +1,9 @@
+.. _troubleshooting-faq:
+
 ===================
 Troubleshooting FAQ
 ===================
+
 
 .. _reporting-problems:
 
@@ -16,16 +19,26 @@ If not, please provide the following information in your e-mail to the
 <http://lists.sourceforge.net/mailman/listinfo/matplotlib-users>`_:
 
   * your operating system; on Linux/UNIX post the output of ``uname -a``
-  * matplotlib version  : ``import matplotlib; print matplotlib.__version__``
+
+  * matplotlib version::
+
+        python -c `import matplotlib; print matplotlib.__version__`
+
   * where you obtained matplotlib (e.g. your Linux distribution's
     packages or the matplotlib Sourceforge site)
-  * any customizations to your ``matplotlibrc`` file
+
+  * any customizations to your ``matplotlibrc`` file (see
+    :ref:`customizing-matplotlib`).
+
   * if the problem is reproducible, please try to provide a *minimal*,
     standalone Python script that demonstrates the problem
+
   * you can get very helpful debugging output from matlotlib by
     running your script with a ``verbose-helpful`` or
     ``--verbose-debug`` flags and posting the verbose output the
-    lists.
+    lists::
+
+        > python simple_plot.py --verbose-helpful > output.txt
 
 If you compiled matplotlib yourself, please also provide 
 

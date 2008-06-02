@@ -1,3 +1,5 @@
+.. _artist-tutorial:
+
 ***************
 Artist tutorial
 ***************
@@ -136,6 +138,8 @@ Try creating the figure below.
 .. image:: figures/fig_axes_labels_simple.png
    :scale: 75
 
+.. _customizing-artists:
+
 Customizing your objects
 ========================
 
@@ -230,6 +234,8 @@ properties, so you can consult the interactive "help", the online html
 docs at http://matplotlib.sourceforge.net/classdocs.html or PDF documentation
 at http://matplotlib.sourceforge.net/api.pdf for a listing of
 properties for a give object.
+
+.. _object-containers:
 
 Object containers
 =================

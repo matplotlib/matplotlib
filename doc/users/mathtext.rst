@@ -1,5 +1,8 @@
+.. _mathtext-tutorial:
+
 Writing mathematical expressions
 ================================
+
 
 You can use TeX markup in any matplotlib text string; see the
 :mod:`matplotlib.mathtext` module documentation for details.  Note
@@ -34,6 +37,7 @@ Whereas this::
 produces ":math:`\alpha > \beta`".
 
 .. TODO: Include a complete list here
+
 
 Subscripts and superscripts
 ---------------------------
