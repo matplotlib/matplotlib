@@ -890,18 +890,18 @@ class StixFonts(UnicodeFonts):
     A font handling class for the STIX fonts
     """
     _fontmap = { 'rm'  : 'STIXGeneral',
-                 'it'  : 'STIXGeneralItalic',
-                 'bf'  : 'STIXGeneralBol',
-                 'nonunirm' : 'STIXNonUni',
-                 'nonuniit' : 'STIXNonUniIta',
-                 'nonunibf' : 'STIXNonUniBol',
+                 'it'  : 'STIXGeneral:italic',
+                 'bf'  : 'STIXGeneral:weight=bold',
+                 'nonunirm' : 'STIXNonUnicode',
+                 'nonuniit' : 'STIXNonUnicode:italic',
+                 'nonunibf' : 'STIXNonUnicode:weight=bold',
 
                  0 : 'STIXGeneral',
-                 1 : 'STIXSiz1Sym',
-                 2 : 'STIXSiz2Sym',
-                 3 : 'STIXSiz3Sym',
-                 4 : 'STIXSiz4Sym',
-                 5 : 'STIXSiz5Sym'
+                 1 : 'STIXSize1',
+                 2 : 'STIXSize2',
+                 3 : 'STIXSize3',
+                 4 : 'STIXSize4',
+                 5 : 'STIXSize5'
                  }
     fontmap = {}
     use_cmex = False
