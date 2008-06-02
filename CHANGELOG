@@ -1,4 +1,6 @@
-===============================================================
+2008-06-02 Fix crash in Agg when drawing collections with no fill and/or
+           edge color - MGD
+
 2008-05-29 Released 0.91.3 at revision 5313
 
 2008-05-29 matplotlib.image.imread now no longer always returns RGBA

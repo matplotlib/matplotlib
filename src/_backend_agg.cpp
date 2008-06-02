@@ -690,6 +690,9 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
   size_t N = Nsegments;
   size_t Ndash = 0;
 
+  if (Nsegments == 0)
+    throw Py::ValueError("segments must have non-zero length");
+
   Py::SeqBase<Py::Object> dashtup(linestyle);
   bool useDashes = dashtup[0].ptr() != Py_None;
 
@@ -791,49 +794,53 @@ RendererAgg::draw_line_collection(const Py::Tuple& args) {
       else       path.line_to(thisx, height-thisy);
     }
 
+    if (Nc != 0 && Nlw != 0) {
+      double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
 
+      if (! useDashes ) {
 
-    double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
+        agg::conv_stroke<agg::path_storage> stroke(path);
+        //stroke.line_cap(cap);
+        //stroke.line_join(join);
+        stroke.width(lw);
+        theRasterizer->add_path(stroke);
+      }
+      else {
 
-    if (! useDashes ) {
+        dash_t dash(path);
+        //dash.dash_start(offset);
+        for (size_t idash=0; idash<Ndash/2; idash++)
+          dash.add_dash(dasha[2*idash], dasha[2*idash+1]);
 
-      agg::conv_stroke<agg::path_storage> stroke(path);
-      //stroke.line_cap(cap);
-      //stroke.line_join(join);
-      stroke.width(lw);
-      theRasterizer->add_path(stroke);
-    }
-    else {
+        agg::conv_stroke<dash_t> stroke(dash);
+        //stroke.line_cap(cap);
+        //stroke.line_join(join);
+        stroke.width(lw);
+        theRasterizer->add_path(stroke);
+      }
 
-      dash_t dash(path);
-      //dash.dash_start(offset);
-      for (size_t idash=0; idash<Ndash/2; idash++)
-	dash.add_dash(dasha[2*idash], dasha[2*idash+1]);
+      // get the color and render
+      Py::SeqBase<Py::Object> rgba(colors[ i%Nc]);
+      double r = Py::Float(rgba[0]);
+      double g = Py::Float(rgba[1]);
+      double b = Py::Float(rgba[2]);
+      double a = Py::Float(rgba[3]);
+      agg::rgba color(r, g, b, a);
 
-      agg::conv_stroke<dash_t> stroke(dash);
-      //stroke.line_cap(cap);
-      //stroke.line_join(join);
-      stroke.width(lw);
-      theRasterizer->add_path(stroke);
-    }
-
-    // get the color and render
-    Py::SeqBase<Py::Object> rgba(colors[ i%Nc]);
-    double r = Py::Float(rgba[0]);
-    double g = Py::Float(rgba[1]);
-    double b = Py::Float(rgba[2]);
-    double a = Py::Float(rgba[3]);
-    agg::rgba color(r, g, b, a);
-
-    // render antialiased or not
-    int isaa = Py::Int(antialiaseds[i%Naa]);
-    if ( isaa ) {
-      rendererAA->color(color);
-      agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-    }
-    else {
-      rendererBin->color(color);
-      agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+      // render antialiased or not
+      int isaa;
+      if (Naa != 0)
+        isaa = Py::Int(antialiaseds[i%Naa]);
+      else
+        isaa = true;
+      if ( isaa ) {
+        rendererAA->color(color);
+        agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+      }
+      else {
+        rendererBin->color(color);
+        agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+      }
     }
   } //for every segment
   if (useDashes) delete [] dasha;
@@ -1219,6 +1226,9 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
 
   size_t N = (Noffsets>Nverts) ? Noffsets : Nverts;
 
+  if (Nverts == 0)
+    throw Py::ValueError("Must have at least one set of vertices");
+
   std::pair<double, double> xyo, xy;
   Py::SeqBase<Py::Object> thisverts;
   size_t i, j;
@@ -1302,55 +1312,64 @@ RendererAgg::draw_poly_collection(const Py::Tuple& args) {
     }
 
     path.close_polygon();
-    int isaa = Py::Int(antialiaseds[i%Naa]);
+    int isaa;
+    if (Naa != 0)
+      isaa = Py::Int(antialiaseds[i%Naa]);
+    else
+      isaa = true;
+
     // get the facecolor and render
-    Py::SeqBase<Py::Object>  rgba = Py::SeqBase<Py::Object>(facecolors[ i%Nface]);
-    double r = Py::Float(rgba[0]);
-    double g = Py::Float(rgba[1]);
-    double b = Py::Float(rgba[2]);
-    double a = Py::Float(rgba[3]);
-    if (a>0) { //only render if alpha>0
-      agg::rgba facecolor(r, g, b, a);
+    if (Nface != 0) {
+      Py::SeqBase<Py::Object>  rgba = Py::SeqBase<Py::Object>(facecolors[ i%Nface]);
+      double r = Py::Float(rgba[0]);
+      double g = Py::Float(rgba[1]);
+      double b = Py::Float(rgba[2]);
+      double a = Py::Float(rgba[3]);
+      if (a>0) { //only render if alpha>0
+        agg::rgba facecolor(r, g, b, a);
 
-      theRasterizer->add_path(path);
+        theRasterizer->add_path(path);
 
-      if (isaa) {
-	rendererAA->color(facecolor);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-      }
-      else {
-	rendererBin->color(facecolor);
-	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
-      }
-    } //renderer face
+        if (isaa) {
+          rendererAA->color(facecolor);
+          agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+        }
+        else {
+          rendererBin->color(facecolor);
+          agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+        }
+      } //renderer face
+    }
 
+    if (Nedge != 0 && Nlw != 0) {
       // get the edgecolor and render
-    rgba = Py::SeqBase<Py::Object>(edgecolors[ i%Nedge]);
-    r = Py::Float(rgba[0]);
-    g = Py::Float(rgba[1]);
-    b = Py::Float(rgba[2]);
-    a = Py::Float(rgba[3]);
+      Py::SeqBase<Py::Object>  rgba = Py::SeqBase<Py::Object>(edgecolors[ i%Nedge]);
+      double r = Py::Float(rgba[0]);
+      double g = Py::Float(rgba[1]);
+      double b = Py::Float(rgba[2]);
+      double a = Py::Float(rgba[3]);
 
-    double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
-    if ((a>0) && lw) { //only render if alpha>0 and linewidth !=0
-      agg::rgba edgecolor(r, g, b, a);
+      double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
+      if ((a>0) && lw) { //only render if alpha>0 and linewidth !=0
+        agg::rgba edgecolor(r, g, b, a);
 
-      agg::conv_stroke<agg::path_storage> stroke(path);
-      //stroke.line_cap(cap);
-      //stroke.line_join(join);
-      stroke.width(lw);
-      theRasterizer->add_path(stroke);
+        agg::conv_stroke<agg::path_storage> stroke(path);
+        //stroke.line_cap(cap);
+        //stroke.line_join(join);
+        stroke.width(lw);
+        theRasterizer->add_path(stroke);
 
-      // render antialiased or not
-      if ( isaa ) {
-	rendererAA->color(edgecolor);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-      }
-      else {
-	rendererBin->color(edgecolor);
-	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
-      }
-    } //rendered edge
+        // render antialiased or not
+        if ( isaa ) {
+          rendererAA->color(edgecolor);
+          agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+        }
+        else {
+          rendererBin->color(edgecolor);
+          agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+        }
+      } //rendered edge
+    }
 
     delete [] xs;
     delete [] ys;
@@ -1429,8 +1448,12 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
     }
 
 
-
-    double scale = Py::Float(sizes[i%Nsizes]);
+    double scale;
+    if (Nsizes != 0) {
+      scale = Py::Float(sizes[i%Nsizes]);
+    } else {
+      scale = 1.0;
+    }
 
 
     agg::path_storage path;
@@ -1445,54 +1468,63 @@ RendererAgg::draw_regpoly_collection(const Py::Tuple& args) {
 
     }
     path.close_polygon();
-    int isaa = Py::Int(antialiaseds[i%Naa]);
-    // get the facecolor and render
-    Py::SeqBase<Py::Object> rgba = Py::SeqBase<Py::Object>(facecolors[ i%Nface]);
-    double r = Py::Float(rgba[0]);
-    double g = Py::Float(rgba[1]);
-    double b = Py::Float(rgba[2]);
-    double a = Py::Float(rgba[3]);
-    if (a>0) { //only render if alpha>0
-      agg::rgba facecolor(r, g, b, a);
+    int isaa;
+    if (Naa != 0)
+      isaa = Py::Int(antialiaseds[i%Naa]);
+    else
+      isaa = true;
 
-      theRasterizer->add_path(path);
+    if (Nface != 0) {
+      // get the facecolor and render
+      Py::SeqBase<Py::Object> rgba = Py::SeqBase<Py::Object>(facecolors[ i%Nface]);
+      double r = Py::Float(rgba[0]);
+      double g = Py::Float(rgba[1]);
+      double b = Py::Float(rgba[2]);
+      double a = Py::Float(rgba[3]);
+      if (a>0) { //only render if alpha>0
+        agg::rgba facecolor(r, g, b, a);
 
-      if (isaa) {
-	rendererAA->color(facecolor);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-      }
-      else {
-	rendererBin->color(facecolor);
-	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
-      }
-    } //renderer face
+        theRasterizer->add_path(path);
 
+        if (isaa) {
+          rendererAA->color(facecolor);
+          agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+        }
+        else {
+          rendererBin->color(facecolor);
+          agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+        }
+      } //renderer face
+    }
+
+    if (Nedge != 0 && Nlw != 0) {
       // get the edgecolor and render
-    rgba = Py::SeqBase<Py::Object>(edgecolors[ i%Nedge]);
-    r = Py::Float(rgba[0]);
-    g = Py::Float(rgba[1]);
-    b = Py::Float(rgba[2]);
-    a = Py::Float(rgba[3]);
-    double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
-    if ((a>0) && lw) { //only render if alpha>0
-      agg::rgba edgecolor(r, g, b, a);
+      Py::SeqBase<Py::Object> rgba = Py::SeqBase<Py::Object>(edgecolors[ i%Nedge]);
+      double r = Py::Float(rgba[0]);
+      double g = Py::Float(rgba[1]);
+      double b = Py::Float(rgba[2]);
+      double a = Py::Float(rgba[3]);
+      double lw = points_to_pixels ( Py::Float( linewidths[i%Nlw] ) );
+      if ((a>0) && lw) { //only render if alpha>0
+        agg::rgba edgecolor(r, g, b, a);
 
-      agg::conv_stroke<agg::path_storage> stroke(path);
-      //stroke.line_cap(cap);
-      //stroke.line_join(join);
-      stroke.width(lw);
-      theRasterizer->add_path(stroke);
+        agg::conv_stroke<agg::path_storage> stroke(path);
+        //stroke.line_cap(cap);
+        //stroke.line_join(join);
+        stroke.width(lw);
+        theRasterizer->add_path(stroke);
 
-      // render antialiased or not
-      if ( isaa ) {
-	rendererAA->color(edgecolor);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
-      }
-      else {
-	rendererBin->color(edgecolor);
-	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
-      }
-    } //rendered edge
+        // render antialiased or not
+        if ( isaa ) {
+          rendererAA->color(edgecolor);
+          agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+        }
+        else {
+          rendererBin->color(edgecolor);
+          agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+        }
+      } //rendered edge
+    }
 
   } // for every poly
   delete [] xverts;
