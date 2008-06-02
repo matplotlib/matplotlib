@@ -5739,7 +5739,6 @@ class Axes(martist.Artist):
                     ccount += 1
             elif orientation == 'vertical':
                 for m in n:
-
                     color = colors[ccount % len(colors)]
                     patch = self.bar(bins[:-1]+boffset, m, width=width,
                                      bottom=bottom, align='center', log=log,
@@ -5762,6 +5761,13 @@ class Axes(martist.Artist):
             elif align != 'edge':
                 raise ValueError, 'invalid align: %s' % align
 
+            if log:
+                y[0],y[-1] = 1e-100, 1e-100
+                if orientation == 'horizontal':
+                    self.set_xscale('log')
+                elif orientation == 'vertical':
+                    self.set_yscale('log')
+
             for m in n:
                 y[1:-1:2], y[2::2] = m, m
                 if orientation == 'horizontal':
@@ -5769,6 +5775,22 @@ class Axes(martist.Artist):
                 elif orientation != 'vertical':
                     raise ValueError, 'invalid orientation: %s' % orientation
                 patches.append( self.fill(x,y) )
+
+            # adopted from adjust_x/ylim part of the bar method
+            if orientation == 'horizontal':
+                xmin, xmax = 0, self.dataLim.intervalx[1]
+                for m in n:
+                    xmin = np.amin(m[m!=0]) # filter out the 0 height bins
+                xmin = max(xmin*0.9, 1e-100)
+                self.dataLim.intervalx = (xmin, xmax)
+            elif orientation == 'vertical':
+                ymin, ymax = 0, self.dataLim.intervaly[1]
+                for m in n:
+                    ymin = np.amin(m[m!=0]) # filter out the 0 height bins
+                ymin = max(ymin*0.9, 1e-100)
+                self.dataLim.intervaly = (ymin, ymax)
+            self.autoscale_view()
+
         else:
             raise ValueError, 'invalid histtype: %s' % histtype
 
