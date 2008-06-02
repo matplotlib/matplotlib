@@ -1,3 +1,5 @@
+.. _customizing-matplotlib:
+
 Customizing matplotlib
 ======================
 
@@ -19,6 +21,8 @@ do::
     import matplotlib
     matplotlib.rc('lines', linewidth=2, color='r')
 
+
+.. _matplotlibrc-sample:
 
 A sample matplotlibrc file
 --------------------------

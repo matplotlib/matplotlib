@@ -1,4 +1,4 @@
-.. _api-index:
+.. _faq-index:
 
 ####################
   The Matplotlib FAQ

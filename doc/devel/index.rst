@@ -7,8 +7,6 @@
 :Release: |version|
 :Date: |today|
 
-Introduction to developer's guide here **TODO**.
-
 .. toctree::
 
    coding_guide.rst

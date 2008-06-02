@@ -1,9 +1,16 @@
-***************
+.. _coding-guide:
+
+************
+Coding Guide
+************
+
+.. _version-control:
+
 Version Control
-***************
+===============
 
 svn checkouts
-=============
+-------------
 
 Checking out everything in the trunk (matplotlib and toolkits)::
 
@@ -21,7 +28,7 @@ Branch checkouts, eg the maintenance branch::
    v0_91_maint mpl91 --username=youruser --password=yourpass
 
 Committing changes
-==================
+------------------
 
 When committing changes to matplotlib, there are a few things to bear
 in mind.
@@ -74,12 +81,14 @@ in mind.
 
        > svn commit -F svnmerge-commit-message.txt
 
-***********
+
+.. _style-guide:
+
 Style Guide
-***********
+===========
 
 Importing and name spaces
-=========================
+-------------------------
 
 For `numpy <http://www.numpy.org>`_, use::
 
@@ -115,7 +124,7 @@ function to the new developer.  The former makes it explcit that
 you are importing a module or package.
 
 Naming, spacing, and formatting conventions
-===========================================
+-------------------------------------------
 
 In general, we want to hew as closely as possible to the standard
 coding guidelines for python written by Guido in `PEP 0008
@@ -172,7 +181,7 @@ for older versions of emacs (emacs<22) you need to do:
             (add-hook 'local-write-file-hooks 'delete-trailing-whitespace)))
 
 Keyword argument processing
-===========================
+---------------------------
 
 Matplotlib makes extensive use of ``**kwargs`` for pass through
 customizations from one function to another.  A typical example is in
@@ -255,6 +264,8 @@ forced to use ``**kwargs``.  An example is
       elif len(args) == 1:
          ...etc...
 
+.. _docstrings:
+
 Documentation and Docstrings
 ============================
 
@@ -327,9 +338,11 @@ made some manual hacks in this case which violates the "single entry
 point" requirement above; hopefully we'll find a more elegant solution
 before too long.
 
-********
+
+.. _licenses:
+
 Licenses
-********
+========
 
 Matplotlib only uses BSD compatible code.  If you bring in code from
 another project make sure it has a PSF, BSD, MIT or compatible

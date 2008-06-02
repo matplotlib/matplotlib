@@ -7,6 +7,16 @@
 :Release: |version|
 :Date: |today|
 
+.. toctree::
+
+    pyplot_tutorial.rst
+    mathtext.rst
+    navigation_toolbar.rst
+    customizing.rst
+    artists.rst
+    event_handling.rst
+
+
 matplotlib is a library for making 2D plots of arrays in `Python
 <http://www.python.org>`_.  Although it has its origins in emulating
 the `MATLAB™ <http://www.mathworks.com>`_ graphics commands, it does
@@ -89,13 +99,4 @@ dynamically-generated web pages.  Some use matplotlib interactively
 from the Python shell in Tkinter on Windows™. My primary use is to
 embed matplotlib in a Gtk+ EEG application that runs on Windows, Linux
 and Macintosh OS X.
-
-.. toctree::
-
-    pyplot_tutorial.rst
-    mathtext.rst
-    navigation_toolbar.rst
-    customizing.rst
-    artists.rst
-    event_handling.rst
 

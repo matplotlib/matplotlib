@@ -1,3 +1,5 @@
+.. _adding-new-scales:
+
 ***********************************************
 Adding new scales and projections to matplotlib
 ***********************************************
@@ -28,6 +30,7 @@ code for scales and projections can be included anywhere: directly
 within a plot script, in third-party code, or in the matplotlib source
 tree itself.
 
+.. _creating-new-scale:
 
 Creating a new scale
 ====================
@@ -62,6 +65,8 @@ A full-fledged and heavily annotated example is in
 :file:`examples/api/custom_scale_example.py`.  There are also some classes
 in :mod:`matplotlib.scale` that may be used as starting points.
 
+
+.. _creating-new-projection:
 
 Creating a new projection
 =========================
