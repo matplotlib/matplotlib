@@ -160,6 +160,20 @@ When using the STIX fonts, you also have the choice of:
 
 .. image:: ../_static/stix_fonts.png
 
+There are also three global "font sets" to choose from, which are
+selected using the ``mathtext.fontset`` parameter in ``matplotibrc``.
+
+``cm``: **Computer Modern (TeX)**
+
+.. image:: ../_static/cm_fontset.png
+
+``stix``: **STIX** (designed to blend well with Times)
+
+.. image:: ../_static/stix_fontset.png
+
+``stixsans``: **STIX sans-serif**
+
+.. image:: ../_static/stixsans_fontset.png
 
 Accents
 -------
