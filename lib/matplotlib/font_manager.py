@@ -755,6 +755,7 @@ class FontProperties(object):
         if style not in ('normal', 'italic', 'oblique', None):
             raise ValueError("style must be normal, italic or oblique")
         self._slant = style
+    set_slant = set_style
 
     def set_variant(self, variant):
         """Set the font variant.  Values are: normal or small-caps."""
@@ -807,7 +808,10 @@ class FontProperties(object):
 
     def set_fontconfig_pattern(self, pattern):
         for key, val in self._parse_fontconfig_pattern(pattern).items():
-            getattr(self, "set_" + key)(val)
+            if type(val) == list:
+                getattr(self, "set_" + key)(val[0])
+            else:
+                getattr(self, "set_" + key)(val)
 
     def copy(self):
         """Return a deep copy of self"""
@@ -951,7 +955,7 @@ class FontManager:
         fname = prop.get_file()
         if fname is not None:
             verbose.report('findfont returning %s'%fname, 'debug')
-            return fname
+            return fname[0]
 
         if fontext == 'afm':
             fontdict = self.afmdict
