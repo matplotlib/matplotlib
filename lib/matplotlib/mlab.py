@@ -1200,7 +1200,7 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
 
 
 def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
-         usecols=None, unpack=False):
+         usecols=None, unpack=False, dtype=np.float_):
     """
     Load ASCII data from fname into an array and return the array.
 
@@ -1230,8 +1230,9 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     a separator.
 
     converters, if not None, is a dictionary mapping column number to
-    a function that will convert that column to a float.  Eg, if
-    column 0 is a date string: converters={0:datestr2num}
+    a function that will convert that column to a float (or the optional
+    dtype if specified).  Eg, if column 0 is a date string: 
+    converters={0:datestr2num}
 
     skiprows is the number of rows from the top to skip
 
@@ -1244,6 +1245,8 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
 
         t,y = load('test.dat', unpack=True) # for  two column data
         x,y,z = load('somefile.dat', usecols=(3,5,7), unpack=True)
+
+    dtype, the array will have this dtype.  default: numpy.float_
 
     See examples/load_demo.py which exeercises many of these options.
     """
@@ -1270,7 +1273,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
             converterseq = [converters.get(j,float)
                                for j,val in enumerate(splitfunc(line))]
         if usecols is not None:
-            vals = line.split(delimiter)
+            vals = splitfunc(line)
             row = [converterseq[j](vals[j]) for j in usecols]
         else:
             row = [converterseq[j](val)
@@ -1278,7 +1281,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
         thisLen = len(row)
         X.append(row)
 
-    X = np.array(X, np.float_)
+    X = np.array(X, dtype)
     r,c = X.shape
     if r==1 or c==1:
         X.shape = max(r,c),
