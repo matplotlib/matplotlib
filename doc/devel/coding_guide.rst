@@ -172,7 +172,7 @@ emacs to strip trailing white space upon saving for python, C and C++:
             (lambda ()
 	    (add-hook 'write-file-functions 'delete-trailing-whitespace)))
 
-for older versions of emacs (emacs<22) you need to do:
+for older versions of emacs (emacs<22) you need to do: 
 
 .. code-block:: cl
 

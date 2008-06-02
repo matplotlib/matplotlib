@@ -19,7 +19,7 @@ Unfortunately::
 does not properly clean the build directory, and does nothing to the
 install directory.  To cleanly rebuild:
 
-    * delete the ``build`` directory in the source tree 
+    * delete the ``build`` directory in the source tree
     * delete ``site-packages/matplotlib`` directory in the Python
       installation.  The location of ``site-packages`` is
       platform-specific.  You can find out where matplotlib is installed by doing::
@@ -63,7 +63,7 @@ There are a two primary ways to configure your backend.  One is to set
 the ``backend`` parameter in you ``matplotlibrc`` file (see
 :ref:`customizing-matplotlib`)::
 
-    backend : WXAgg   # use wxpython with antigrain (agg) rendering  
+    backend : WXAgg   # use wxpython with antigrain (agg) rendering
 
 The other is to use the matplotlib :func:`~matplotlib.use` directive::
 
@@ -74,7 +74,7 @@ If you use the ``use`` directive, this must be done before importing
 :mod:`matplotlib.pyplot` or :mod:`matplotlib.pylab`.
 
 If you are unsure what to do, and just want to get cranking, just set
-your backend to `TkAgg`.  This will do the right thing for 95% of the
+your backend to ``TkAgg``.  This will do the right thing for 95% of the
 users.  It gives you the option of running your scripts in batch or
 working interactively from the python shell, with the least amount of
 hassles, and is smart enough to do the right thing when you ask for
@@ -100,7 +100,8 @@ from this point to this point" and hence are scale free, and raster
 backends generate a pixel represenation of the line whose accuracy
 depends on a DPI setting.
 
-Here is a summary of the matplotlib rendering backends:
+Here is a summary of the matplotlib renders (there is an eponymous
+backed for each):
 
 ===============================   =====================================================================================
 Renderer (Filetypes)              Description
@@ -116,7 +117,7 @@ GDK (png, jpg, tiff..)            raster - the GDK drawing API for GTK
 And here are the user interfaces and renderer combinations supported:
 
 ============   ===================================================================================================
-Backend        Description  
+Backend        Description
 ============   ===================================================================================================
 GTKAgg         Agg rendering to a GTK canvas (`pygtk <http://www.pygtk.org>`_)
 GTK            GDK rendering to a GTK canvas (not recommended) (`pygtk <http://www.pygtk.org>`_)
@@ -129,3 +130,30 @@ Qt4Agg         Agg rendering to a Qt4 canvas (`pyqt <http://www.riverbankcomputi
 FLTKAgg        Agg rendering to a FLTK canvas (`pyfltk <http://pyfltk.sourceforge.net>`)_
 ============   ===================================================================================================
 
+
+OS X Questions
+==============
+
+.. _easy-install-osx-egg:
+
+How can I easy_install my egg?
+------------------------------
+
+I downloaded the egg for 0.98 from the matplotlib webpages,
+and I am trying to ``easy_install`` it, but I am getting an error::
+
+    > easy_install ./matplotlib-0.98.0-py2.5-macosx-10.3-fat.egg
+    Processing matplotlib-0.98.0-py2.5-macosx-10.3-fat.egg
+    removing '/Library/Python/2.5/site-packages/matplotlib-0.98.0-py2.5-
+    ...snip...
+    Reading http://matplotlib.sourceforge.net
+    Reading http://cheeseshop.python.org/pypi/matplotlib/0.91.3
+    No local packages or download links found for matplotlib==0.98.0
+    error: Could not find suitable distribution for
+    Requirement.parse('matplotlib==0.98.0')
+
+If you rename ``matplotlib-0.98.0-py2.5-macosx-10.3-fat.egg`` to
+``matplotlib-0.98.0-py2.5.egg``, ``easy_install`` will install it from
+the disk.  Many Mac OS X eggs with cruft at the end of the filename,
+which prevents their installation through easy_install.  Renaming is
+all it takes to install them; still, it's annoying.
