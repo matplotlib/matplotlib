@@ -5637,7 +5637,7 @@ class Axes(martist.Artist):
 
           align:
             ['edge' | 'center' ] Controles how the histogram is plotted.
-            If 'edge, bars are centered between the bin edges.
+            If 'edge', bars are centered between the bin edges.
             If 'center', bars are centered on the left bin edges
 
           orientation:
@@ -5718,7 +5718,6 @@ class Axes(martist.Artist):
                 boffset, dw = 0.0, 0.0
 
                 stacked = True
-                if bottom is None: bottom = 0.0
             else:
                 raise ValueError, 'invalid histtype: %s' % histtype
 
@@ -5734,7 +5733,9 @@ class Axes(martist.Artist):
                                       left=bottom, align='center', log=log,
                                       color=color)
                     patches.append(patch)
-                    if stacked: bottom += m
+                    if stacked:
+                        if bottom is None: bottom = 0.0
+                        bottom += m
                     boffset += dw
                     ccount += 1
             elif orientation == 'vertical':
@@ -5744,7 +5745,9 @@ class Axes(martist.Artist):
                                      bottom=bottom, align='center', log=log,
                                      color=color)
                     patches.append(patch)
-                    if stacked: bottom += m
+                    if stacked:
+                        if bottom is None: bottom = 0.0
+                        bottom += m
                     boffset += dw
                     ccount += 1
             else:
