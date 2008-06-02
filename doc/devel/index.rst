@@ -1,4 +1,4 @@
-.. _developers_guide-index:
+.. _developers-guide-index:
 
 ###################################
   The Matplotlib Developers's Guide

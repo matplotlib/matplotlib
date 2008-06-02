@@ -2,7 +2,7 @@
 Troubleshooting FAQ
 ===================
 
-.. _reporting_problems:
+.. _reporting-problems:
 
 How do I report a problem?
 ==========================

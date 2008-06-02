@@ -1,4 +1,4 @@
-.. _users_guide-index:
+.. _users-guide-index:
 
 #############################
   The Matplotlib User's Guide

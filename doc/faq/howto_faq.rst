@@ -2,6 +2,33 @@
 HOWTO
 *****
 
+.. _howto-ticks:
+
+How do I configure the tick linewidths?
+=======================================
+
+In matplotlib, the ticks are *markers*.  All
+:class:`~matplotlib.lines.Line2D` objects support a line (solid,
+dashed, etc) and a marker (circle, square, tick).  The tick linewidth
+is controlled by the "markeredgewidth" property::
+
+    import matplotlib.pyplot as plt
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(range(10))
+
+    for line in ax.get_xticklines() + ax.get_yticklines():
+        line.set_markersize(10)
+
+    plt.show()
+
+The other properties that control the tick marker, and all markers,
+are ``markerfacecolor``, ``markeredgecolor``, ``markeredgewidth``,
+``markersize``.  For more information on configuring ticks, see
+:ref:`artist-tut-axis` and :ref:`artist-tut-tick`.
+
+.. _howto-webapp:
+
 How do I use matplotlib in a web application server?
 ====================================================
 
@@ -23,6 +50,9 @@ Agg is to call::
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+
+For more on configuring your backend, see
+:ref:`what-is-a-backend`.
 
 Alternatively, you can avoid pylab/pyplot altogeher, which will give
 you a little more control, by calling the API directly as shown in
@@ -50,7 +80,7 @@ How do I use matplotlib with apache?
 
 TODO
 
-How do I use matplotlib with dhango?
+How do I use matplotlib with django?
 ------------------------------------
 
 TODO

@@ -247,6 +247,8 @@ also has properties like the ``xscale`` to control whether the xaxis is
 'linear' or 'log'.  In this section we'll review where the various
 container objects store the ``Artists`` that you want to get at.
 
+.. _figure-container:
+
 Figure container
 ----------------
 
@@ -338,6 +340,7 @@ patches               A list of Figure patches (rarely used, see Axes.patches)
 texts                 A list Figure Text instances
 ================      ===============================================================
 
+.. _axes-container:
 
 Axes container
 --------------
@@ -515,6 +518,8 @@ xaxis             matplotlib.axis.XAxis instance
 yaxis             matplotlib.axis.YAxis instance
 ==============    ======================================
 
+.. _axis-container:
+
 Axis containers
 ---------------
 
@@ -599,6 +604,7 @@ the axes and tick properties
    :scale: 75
 
 
+.. _tick-container:
 
 Tick containers
 ---------------
