@@ -77,3 +77,30 @@ In the ``users`` subdirectory, if I want to refer to a file in the mpl-data dire
 
    .. literalinclude:: ../mpl_data/matplotlibrc
 
+
+Internal section references
+===========================
+
+To maximize internal consistency in section labeling and references,
+use hypen separated, descriptive labels for section references, eg::
+
+    .. _howto-webapp:
+
+and refer to it using  the standard reference syntax::
+
+    See :ref:`howto-webapp`
+
+Keep in mind that we may want to reorganize the contents later, so
+let's avoid top level names in references like ``user`` or ``devel``
+or ``faq`` unless necesssary, because for example the FAQ "what is a
+backend?" could later become part of the users guide, so the label::
+
+    .. _what-is-a-backend
+
+is better than::
+
+    .. _faq-backend
+
+In addition, since underscores are widely used by Sphinx itself, let's prefer hyphens to separate words.
+
+

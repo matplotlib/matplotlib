@@ -2,10 +2,12 @@
  Installation FAQ
 ==================
 
+
+
 How do I report a compilation problem?
 ======================================
 
-See :ref:`reporting_problems`.
+See :ref:`reporting-problems`.
 
 How do I cleanly rebuild and reinstall everything?
 ==================================================
@@ -27,3 +29,97 @@ install directory.  To cleanly rebuild:
 
           import matplotlib
           print matplotlib.get_configdir()
+
+.. _what-is-a-backend:
+
+What is a backend?
+==================
+
+A lot of documentation on the website and in the mailing lists refers
+to the "backend" and many new users are confused by this term.
+matplotlib targets many different use cases and output formats.  Some
+people use matplotlib interactively from the python shell and have
+plotting windows pop up when they type commands.  Some people embed
+matplotlib into graphical user interfaces like wxpython or pygtk to
+build rich applications.  Others use matplotlib in batch scripts, to
+generate postscript images from some numerical simulations, and still
+others in web application servers to dynamically serve up graphs.
+
+To support all of these use cases, matplotlib can target different
+outputs, and each of these capabililities is called a backend (the
+"frontend" is the user facing code, ie the plotting code, whereas the
+"backend" does all the dirty work behind the scenes to make the
+figure.  There are two types of backends: user interface backends (for
+use in pygtk, wxpython, tkinter, qt or fltk) and hardcopy backends to
+make image files (PNG, SVG, PDF, PS).
+
+There are a two primary ways to configure your backend.  One is to set
+the ``backend`` parameter in you ``matplotlibrc`` file (see
+link:Configuring)::
+
+    backend : WXAgg   # use wxpython with antigrain (agg) rendering  
+
+The other is to use the matplotlib :func:`~matplotlib.use` directive::
+
+    import matplotlib
+    matplotlib.use('PS')   # generate postscript output by default
+
+If you use the ``use`` directive, this must be done before importing
+:mod:`matplotlib.pyplot` or :mod:`matplotlib.pylab`.
+
+If you are unsure what to do, and just want to get cranking, just set
+your backend to `TkAgg`.  This will do the right thing for 95% of the
+users.  It gives you the option of running your scripts in batch or
+working interactively from the python shell, with the least amount of
+hassles, and is smart enough to do the right thing when you ask for
+postscript, or pdf, or other image formats.
+
+If however, you want to write graphical user interfaces, or a web
+application server (:ref:`howto-webapp`), or need a better
+understanding of what is going on, read on. To make things a little
+more customizable for graphical user interfaces, matplotlib separates
+the concept of the renderer (the thing that actually does the drawing)
+from the canvas (the place where the drawing goes).  The canonical
+renderer for user interfaces is ``Agg`` which uses the `antigrain
+<http://antigrain.html>`_ C++ library to make a raster (pixel) image
+of the figure.  All of the user interfaces can be used with agg
+rendering, eg ``WXAgg``, ``GTKAgg``, ``QTAgg``, ``TkAgg``.  In
+addition, some of the user interfaces support other rendering engines.
+For example, with GTK, you can also select GDK rendering (backend
+``GTK``) or Cairo rendering (backend ``GTKCairo``).
+
+For the rendering engines, one can also distinguish between vector or
+raster renderers.  Vector issue drawing commands like "draw a line
+from this point to this point" and hence are scale free, and raster
+backends generate a pixel represenation of the line whose accuracy
+depends on a DPI setting.
+
+Here is a summary of the matplotlib rendering backends:
+
+===============================   =====================================================================================
+Renderer (Filetypes)              Description
+===============================   =====================================================================================
+Agg (png)                         raster - high quality images using the `antigrain <http://antigrain.html>`_  engine
+PS  (ps, eps)                     vector - postscript output
+PDF (pdf)                         vector - portable document format
+SVG (svg)                         vector - scalar vector graphics
+Cairo (png, ps, pdf, svn, ...)    vector - `cairo graphics <http://cairographics.org>`_
+GDK (png, jpg, tiff..)            raster - the GDK drawing API for GTK
+===============================   =====================================================================================
+
+And here are the user interfaces and renderer combinations supported:
+
+============   ===================================================================================================
+Backend        Description  
+============   ===================================================================================================
+GTKAgg         Agg rendering to a GTK canvas (`pygtk <http://www.pygtk.org>`_)
+GTK            GDK rendering to a GTK canvas (not recommended) (`pygtk <http://www.pygtk.org>`_)
+GTKCairo       Cairo rendering to a GTK Canvas (`pygtk <http://www.pygtk.org>`_)
+WXAgg          Agg rendering to to a WX canvas (`wxpython <http://www.wxpython.org>`_)
+WX             Native WX drawing to a WX Canvas (not recommended) (`wxpython <http://www.wxpython.org>`_)
+TkAgg          Agg rendering to a Tkinter canvas (`tkinter <http://wiki.python.org/moin/TkInter>`_)
+QtAgg          Agg rendering to a Qt canvas (`pyqt <http://www.riverbankcomputing.co.uk/software/pyqt/intro>`_)
+Qt4Agg         Agg rendering to a Qt4 canvas (`pyqt <http://www.riverbankcomputing.co.uk/software/pyqt/intro>`_)
+FLTKAgg        Agg rendering to a FLTK canvas (`pyfltk <http://pyfltk.sourceforge.net>`)_
+============   ===================================================================================================
+
