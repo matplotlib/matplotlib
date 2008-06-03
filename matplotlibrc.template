@@ -1,27 +1,22 @@
 ### MATPLOTLIBRC FORMAT
 
-# This is a sample matplotlib configuration file.  It should be placed
-# in HOME/.matplotlib/matplotlibrc (unix/linux like systems) and
-# C:\Documents and Settings\yourname\.matplotlib (win32 systems)
-#
-# By default, the installer will overwrite the existing file in the
-# install path, so if you want to preserve your's, please move it to
-# your HOME dir and set the environment variable if necessary.
+# This is a sample matplotlib configuration file - you can find a copy
+# of it on your system in
+# site-packages/matplotlib/mpl-data/matplotlibrc.  If you edit it
+# there, please note that it will be overridden in your next install.
+# If you want to keep a permanent local bopy that will not be
+# over-written, place it in HOME/.matplotlib/matplotlibrc (unix/linux
+# like systems) and C:\Documents and Settings\yourname\.matplotlib
+# (win32 systems).
 #
 # This file is best viewed in a editor which supports python mode
-# syntax highlighting
-#
-# Blank lines, or lines starting with a comment symbol, are ignored,
-# as are trailing comments.  Other lines must have the format
-#
-#   key : val   # optional comment
-#
-# Colors: for the color values below, you can either use
-#  - a matplotlib color string, such as r, k, or b
-#  - an rgb tuple, such as (1.0, 0.5, 0.0)
-#  - a hex string, such as ff00ff or #ff00ff
-#  - a scalar grayscale intensity such as 0.75
-#  - a legal html color name, eg red, blue, darkslategray
+# syntax highlighting # Blank lines, or lines starting with a comment
+# symbol, are ignored, as are trailing comments.  Other lines must
+# have the format # key : val # optional comment # Colors: for the
+# color values below, you can either use - a matplotlib color string,
+# such as r, k, or b - an rgb tuple, such as (1.0, 0.5, 0.0) - a hex
+# string, such as ff00ff or #ff00ff - a scalar grayscale intensity
+# such as 0.75 - a legal html color name, eg red, blue, darkslategray
 
 #### CONFIGURATION BEGINS HERE
 # the default backend; one of GTK GTKAgg GTKCairo FltkAgg QtAgg TkAgg
