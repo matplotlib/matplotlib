@@ -88,8 +88,8 @@ import csv, warnings, copy, os
 import numpy as np
 
 
-from matplotlib import nxutils
-from matplotlib import cbook
+import matplotlib.nxutils as nxutils
+import matplotlib.cbook as cbook
 
 # set is a new builtin function in 2.4; delete the following when
 # support for 2.3 is dropped.
@@ -1231,7 +1231,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
 
     converters, if not None, is a dictionary mapping column number to
     a function that will convert that column to a float (or the optional
-    dtype if specified).  Eg, if column 0 is a date string: 
+    dtype if specified).  Eg, if column 0 is a date string:
     converters={0:datestr2num}
 
     skiprows is the number of rows from the top to skip
