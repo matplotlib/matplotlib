@@ -47,6 +47,11 @@ The ``Pan/Zoom`` button
     modifier keys 'x', 'y' or 'CONTROL' to constrain the zoom to the x
     axes, the y axes, or aspect ratio preserve, respectively.
 
+    With polar plots, the pan and zoom functionality behaves
+    differently.  The radius axis labels can be dragged using the left
+    mouse button.  The radius scale can be zoomed in and out using the
+    right mouse button.
+
 .. image:: ../mpl_data/images/zoom_to_rect.png
    :scale: 100
 
