@@ -244,9 +244,7 @@ class FormatStrFormatter(Formatter):
 
 class OldScalarFormatter(Formatter):
     """
-    Tick location is a plain old number.  If viewInterval is set, the
-    formatter will use %d, %1.#f or %1.ef as appropriate.  If it is
-    not set, the formatter will do str conversion
+    Tick location is a plain old number.
     """
 
     def __call__(self, x, pos=None):
@@ -557,8 +555,11 @@ class LogFormatterExponent(LogFormatter):
 
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos'
-        self.verify_intervals()
-        d = abs(self.viewInterval.span())
+
+
+        vmin, vmax = self.axis.get_view_interval()
+        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
+        d = abs(vmax-vmin)
         b=self._base
         if x == 0:
             return '0'
@@ -641,16 +642,27 @@ class Locator(TickHelper):
         if numticks>2:
             step = numsteps*abs(ticks[0]-ticks[1])
         else:
-            step = numsteps*self.viewInterval.span()/6
+            vmin, vmax = self.axis.get_view_interval()
+            vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
+            d = abs(vmax-vmin)
+            step = numsteps*d/6.
 
-        self.viewInterval.shift(step)
+        vmin += step
+        vmax += step
+        self.axis.set_view_interval(vmin, vmax)
+
 
     def zoom(self, direction):
         "Zoom in/out on axis; if direction is >0 zoom in, else zoom out"
-        vmin, vmax = self.viewInterval.get_bounds()
+
+        vmin, vmax = self.axis.get_view_interval()
+        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
+        interval = abs(vmax-vmin)
         interval = self.viewInterval.span()
         step = 0.1*interval*direction
-        self.viewInterval.set_bounds(vmin + step, vmax - step)
+
+
+        self.axis.set_view_interval(vmin + step, vmax - step)
 
     def refresh(self):
         'refresh internal information based on current lim'
@@ -731,8 +743,8 @@ class LinearLocator(Locator):
     def __call__(self):
         'Return the locations of the ticks'
 
-        self.verify_intervals()
-        vmin, vmax = self.viewInterval.get_bounds()
+        vmin, vmax = self.axis.get_view_interval()
+        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
         if vmax<vmin:
             vmin, vmax = vmax, vmin
 
@@ -755,8 +767,8 @@ class LinearLocator(Locator):
 
     def autoscale(self):
         'Try to choose the view limits intelligently'
-        self.verify_intervals()
-        vmin, vmax = self.dataInterval.get_bounds()
+
+        vmin, vmax = self.axis.get_data_interval()
 
         if vmax<vmin:
             vmin, vmax = vmax, vmin
@@ -822,7 +834,7 @@ class Base:
 class MultipleLocator(Locator):
     """
     Set a tick on every integer that is multiple of base in the
-    viewInterval
+    view interval
     """
 
     def __init__(self, base=1.0):
@@ -1141,14 +1153,16 @@ class OldAutoLocator(Locator):
 
     def refresh(self):
         'refresh internal information based on current lim'
-        d = self.viewInterval.span()
+        vmin, vmax = self.axis.get_view_interval()
+        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
+        d = abs(vmax-vmin)
         self._locator = self.get_locator(d)
 
     def autoscale(self):
         'Try to choose the view limits intelligently'
 
-        self.verify_intervals()
-        d = abs(self.dataInterval.span())
+        vmin, vmax = self.axis.get_data_interval()
+        d = abs(vmax-vmin)
         self._locator = self.get_locator(d)
         return self._locator.autoscale()
 
@@ -1161,7 +1175,7 @@ class OldAutoLocator(Locator):
 
             try: ld = math.log10(d)
             except OverflowError:
-                raise RuntimeError('AutoLocator illegal dataInterval range')
+                raise RuntimeError('AutoLocator illegal data interval range')
 
 
             fld = math.floor(ld)
@@ -1173,13 +1187,9 @@ class OldAutoLocator(Locator):
             if   d >= 5*base : ticksize = base
             elif d >= 2*base : ticksize = base/2.0
             else             : ticksize = base/5.0
-            #print 'base, ticksize, d', base, ticksize, d, self.viewInterval
-
-            #print self.dataInterval, d, ticksize
             locator = MultipleLocator(ticksize)
 
-        locator.set_view_interval(self.viewInterval)
-        locator.set_data_interval(self.dataInterval)
+
         return locator
 
 
