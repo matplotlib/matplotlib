@@ -1,6 +1,6 @@
 from __future__ import division
 import re, warnings
-from cbook import iterable, flatten
+import matplotlib.cbook as cbook
 from transforms import Bbox, IdentityTransform, TransformedBbox, TransformedPath
 from path import Path
 
@@ -507,7 +507,7 @@ class ArtistInspector:
         sequence (all Artists are of the same type) and it is your
         responsibility to make sure this is so.
         """
-        if iterable(o) and len(o): o = o[0]
+        if cbook.iterable(o) and len(o): o = o[0]
         self.o = o
         self.aliasd = self.get_aliases()
 
@@ -757,8 +757,8 @@ def setp(h, *args, **kwargs):
         print insp.pprint_setters(prop=args[0])
         return
 
-    if not iterable(h): h = [h]
-    else: h = flatten(h)
+    if not cbook.iterable(h): h = [h]
+    else: h = cbook.flatten(h)
 
 
     if len(args)%2:
@@ -776,7 +776,7 @@ def setp(h, *args, **kwargs):
             funcName = "set_%s"%s
             func = getattr(o,funcName)
             ret.extend( [func(val)] )
-    return [x for x in flatten(ret)]
+    return [x for x in cbook.flatten(ret)]
 
 def kwdoc(a):
     return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))

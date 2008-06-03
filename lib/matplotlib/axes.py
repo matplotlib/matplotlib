@@ -7,25 +7,25 @@ from numpy import ma
 import matplotlib
 rcParams = matplotlib.rcParams
 
-from matplotlib import artist as martist
-from matplotlib import axis as maxis
-from matplotlib import cbook
-from matplotlib import collections as mcoll
-from matplotlib import colors as mcolors
-from matplotlib import contour as mcontour
-from matplotlib import dates as mdates
-from matplotlib import font_manager
-from matplotlib import image as mimage
-from matplotlib import legend as mlegend
-from matplotlib import lines as mlines
-from matplotlib import mlab
-from matplotlib import patches as mpatches
-from matplotlib import quiver as mquiver
-from matplotlib import scale as mscale
-from matplotlib import table as mtable
-from matplotlib import text as mtext
-from matplotlib import ticker as mticker
-from matplotlib import transforms as mtransforms
+import matplotlib.artist as martist
+import matplotlib.axis as maxis
+import matplotlib.cbook as cbook
+import matplotlib.collections as mcoll
+import matplotlib.colors as mcolors
+import matplotlib.contour as mcontour
+import matplotlib.dates as mdates
+import matplotlib.font_manager as font_manager
+import matplotlib.image as mimage
+import matplotlib.legend as mlegend
+import matplotlib.lines as mlines
+import matplotlib.mlab as mlab
+import matplotlib.patches as mpatches
+import matplotlib.quiver as mquiver
+import matplotlib.scale as mscale
+import matplotlib.table as mtable
+import matplotlib.text as mtext
+import matplotlib.ticker as mticker
+import matplotlib.transforms as mtransforms
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
