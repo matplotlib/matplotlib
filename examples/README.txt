@@ -7,7 +7,7 @@ illustrated in the examples in this directory.
 Probably the most common way people use matplotlib is with the
 procedural interface, which follows the matlab/IDL/mathematica
 approach of using simple procedures like "plot" or "title" to modify
-the current figure.  These examples are included in the "pylab"
+the current figure.  These examples are included in the "pylab_examples"
 directory.  If you want to write more robust scripts, eg for
 production use or in a web application server, you will probably want
 to use the matplotlib API for full control.  These examples are found
@@ -31,7 +31,7 @@ directories found here:
   * misc - some miscellaneous examples.  some demos for loading and
     working with record arrays
 
-  * pylab - the  interface to matplotlib similar to matlab
+  * pylab_examples - the  interface to matplotlib similar to matlab
 
   * tests - tests used by matplotlib developers to check functionality
 
