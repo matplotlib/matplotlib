@@ -1,5 +1,5 @@
 from __future__ import division, generators
-import math, warnings, new
+import math, sys, warnings, datetime, new
 
 import numpy as np
 from numpy import ma
@@ -1309,6 +1309,8 @@ class Axes(martist.Artist):
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
+
+        if iterable(xys) and not len(xys): return
         if not ma.isMaskedArray(xys):
             xys = np.asarray(xys)
         self.dataLim.update_from_data_xy(xys, self.ignore_existing_data_limits)
@@ -1320,6 +1322,7 @@ class Axes(martist.Artist):
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
+        if iterable(x) and not len(x): return
         self.dataLim.update_from_data(x, y, self.ignore_existing_data_limits)
         self.ignore_existing_data_limits = False
 
@@ -1985,10 +1988,23 @@ class Axes(martist.Artist):
         tz is the time zone to use in labeling dates.  Defaults to rc value.
         """
 
+        if self.ignore_existing_data_limits:
+            # no data has been added - let's set the default datalim.
+            # We should probably use a better proxy for the datalim
+            # have been updated than the ignore setting
+            dmax = today = datetime.date.today()
+            dmin = today-datetime.timedelta(days=10)
+            self._process_unit_info(xdata=(dmin, dmax))
+            dmin, dmax = self.convert_xunits([dmin, dmax])
+            self.viewLim.intervalx = dmin, dmax
+            self.dataLim.intervalx = dmin, dmax
+
         locator = self.xaxis.get_major_locator()
         if not isinstance(locator, mdates.DateLocator):
             locator = mdates.AutoDateLocator(tz)
             self.xaxis.set_major_locator(locator)
+
+        locator.refresh()
 
         formatter = self.xaxis.get_major_formatter()
         if not isinstance(formatter, mdates.DateFormatter):
@@ -2000,11 +2016,24 @@ class Axes(martist.Artist):
 
         tz is the time zone to use in labeling dates.  Defaults to rc value.
         """
+        if self.ignore_existing_data_limits:
+            # no data has been added - let's set the default datalim.
+            # We should probably use a better proxy for the datalim
+            # have been updated than the ignore setting
+            dmax = today = datetime.date.today()
+            dmin = today-datetime.timedelta(days=10)
+            self._process_unit_info(ydata=(dmin, dmax))
+
+            dmin, dmax = self.convert_yunits([dmin, dmax])
+            self.viewLim.intervaly = dmin, dmax
+            self.dataLim.intervaly = dmin, dmax
+
 
         locator = self.yaxis.get_major_locator()
         if not isinstance(locator, mdates.DateLocator):
             locator = mdates.AutoDateLocator(tz)
             self.yaxis.set_major_locator(locator)
+        locator.refresh()
 
         formatter = self.xaxis.get_major_formatter()
         if not isinstance(formatter, mdates.DateFormatter):
