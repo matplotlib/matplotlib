@@ -1174,9 +1174,8 @@ class Axes(martist.Artist):
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
+        if iterable(xys) and not len(xys): return
         xys = npy.asarray(xys)
-
-
         self.dataLim.update_numerix_xy(xys, -1)
 
 
@@ -1187,6 +1186,7 @@ class Axes(martist.Artist):
         # Otherwise, it will compute the bounds of it's current data
         # and the data in xydata
         #print type(x), type(y)
+        if iterable(x) and not len(x): return
         self.dataLim.update_numerix(x, y, -1)
 
     def _get_verts_in_data_coords(self, trans, xys):
@@ -1869,14 +1869,15 @@ class Axes(martist.Artist):
             dmin, dmax = self.convert_xunits([dmin, dmax])
 
             self.viewLim.intervalx().set_bounds(dmin, dmax)
-            self.viewLim.intervalx().set_bounds(dmin, dmax)
+            self.dataLim.intervalx().set_bounds(dmin, dmax)
 
 
         locator = self.xaxis.get_major_locator()
         if not isinstance(locator, mdates.DateLocator):
             locator = mdates.AutoDateLocator(tz)
             self.xaxis.set_major_locator(locator)
-            locator.refresh()
+
+        locator.refresh()
 
         formatter = self.xaxis.get_major_formatter()
         if not isinstance(formatter, mdates.DateFormatter):
@@ -1894,18 +1895,19 @@ class Axes(martist.Artist):
             # have been updated than the ignore setting
             dmax = today = datetime.date.today()
             dmin = today-datetime.timedelta(days=10)
-            self._process_unit_info(xdata=(dmin, dmax))
+            self._process_unit_info(ydata=(dmin, dmax))
 
-            dmin, dmax = self.convert_xunits([dmin, dmax])
+            dmin, dmax = self.convert_yunits([dmin, dmax])
             self.viewLim.intervaly().set_bounds(dmin, dmax)
-            self.viewLim.intervaly().set_bounds(dmin, dmax)
+            self.dataLim.intervaly().set_bounds(dmin, dmax)
 
 
         locator = self.yaxis.get_major_locator()
         if not isinstance(locator, mdates.DateLocator):
             locator = mdates.AutoDateLocator(tz)
             self.yaxis.set_major_locator(locator)
-            locator.refresh()
+
+        locator.refresh()
 
         formatter = self.xaxis.get_major_formatter()
         if not isinstance(formatter, mdates.DateFormatter):
