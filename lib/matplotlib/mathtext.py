@@ -2024,7 +2024,7 @@ class Parser(object):
 
         lbrace       = Literal('{').suppress()
         rbrace       = Literal('}').suppress()
-        start_group  = (Optional(latexfont) + lbrace)
+        start_group  = (Optional(latexfont) - lbrace)
         start_group.setParseAction(self.start_group)
         end_group    = rbrace.copy()
         end_group.setParseAction(self.end_group)
@@ -2049,9 +2049,9 @@ class Parser(object):
                       ).setParseAction(self.space).setName('space')
 
         customspace  =(Literal(r'\hspace')
-                     + (( lbrace
-                        + float
-                        + rbrace
+                     - (( lbrace
+                        - float
+                        - rbrace
                        ) | Error(r"Expected \hspace{n}"))
                      ).setParseAction(self.customspace).setName('customspace')
 
@@ -2070,7 +2070,7 @@ class Parser(object):
         accent       = Group(
                          Suppress(bslash)
                        + accent
-                       + placeable
+                       - placeable
                      ).setParseAction(self.accent).setName("accent")
 
         function     =(Suppress(bslash)
@@ -2082,7 +2082,7 @@ class Parser(object):
                        + ZeroOrMore(
                            autoDelim
                          | simple)
-                       + end_group
+                       - end_group
                      ).setParseAction(self.group).setName("group")
 
         font        <<(Suppress(bslash)
@@ -2101,12 +2101,22 @@ class Parser(object):
                        Suppress(Literal(r"\sqrt"))
                      + Optional(
                          Suppress(Literal("["))
-                       + Regex("[0-9]+")
-                       + Suppress(Literal("]")),
+                       - Regex("[0-9]+")
+                       - Suppress(Literal("]")),
                          default = None
                        )
                      + (group | Error("Expected \sqrt{value}"))
                      ).setParseAction(self.sqrt).setName("sqrt")
+
+        print (accent
+         ^ function
+         ^ (c_over_c | symbol)
+         ^ group
+         ^ frac
+         ^ sqrt
+         ) | Error("Expected symbol or group")
+
+        print Error("Expected symbol or group")
 
         placeable   <<(accent
                      ^ function
@@ -2114,7 +2124,7 @@ class Parser(object):
                      ^ group
                      ^ frac
                      ^ sqrt
-                     ) | Error("Expected symbol or group")
+                     )
 
         simple      <<(space
                      | customspace
@@ -2128,7 +2138,7 @@ class Parser(object):
                          ( Optional(placeable)
                          + OneOrMore(
                              subsuperop
-                           + placeable
+                           - placeable
                            )
                          )
                        | placeable
@@ -2160,7 +2170,7 @@ class Parser(object):
             non_math
           + ZeroOrMore(
                 Suppress(math_delim)
-              + math
+              + Optional(math)
               + (Suppress(math_delim)
                  | Error("Expected end of math '$'"))
               + non_math
