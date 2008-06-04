@@ -22,7 +22,7 @@ import matplotlib.backends as mplbe
 all_backends = [b.lower() for b in mplbe.all_backends]
 all_backends.extend(['cairo.png', 'cairo.ps', 'cairo.pdf', 'cairo.svg'])
 
-pylab_dir = os.path.join('..', 'pylab')
+pylab_dir = os.path.join('..', 'pylab_examples')
 pylab_files = [
     'alignment_test.py',
     'arctest.py',
