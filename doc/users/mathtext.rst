@@ -193,7 +193,7 @@ There are long and short forms for some of them.
     ``\breve a``                   :math:`\breve a`
     ``\ddot a`` or ``\"a``         :math:`\ddot a`
     ``\dot a`` or ``\.a``          :math:`\dot a`
-    ``\grave a`` or ``\\`a``       :math:`\grave a`
+    ``\grave a`` or ``\`a``        :math:`\grave a`
     ``\hat a`` or ``\^a``          :math:`\hat a`
     ``\tilde a`` or ``\~a``        :math:`\tilde a`
     ``\vec a``                     :math:`\vec a`
