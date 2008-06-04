@@ -2108,16 +2108,6 @@ class Parser(object):
                      + (group | Error("Expected \sqrt{value}"))
                      ).setParseAction(self.sqrt).setName("sqrt")
 
-        print (accent
-         ^ function
-         ^ (c_over_c | symbol)
-         ^ group
-         ^ frac
-         ^ sqrt
-         ) | Error("Expected symbol or group")
-
-        print Error("Expected symbol or group")
-
         placeable   <<(accent
                      ^ function
                      ^ (c_over_c | symbol)
