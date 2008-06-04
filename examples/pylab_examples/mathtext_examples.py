@@ -5,7 +5,7 @@ import os, sys, re
 import gc
 
 stests = [
-    r'Kerning: AVA $AVA$',
+    r'Kerning: AVA $AVA$ $$',
     r'\$100.00 $\alpha \_$',
     r'$\frac{\$100.00}{y}$',
     r'$x   y$',
