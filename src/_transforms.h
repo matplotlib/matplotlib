@@ -357,6 +357,9 @@ public:
   //set the ignore attr
   Py::Object ignore(const Py::Tuple &args);
 
+  //return the ignore setting
+  Py::Object is_ignore(const Py::Tuple &args);
+
 
 
   Point* ll_api() {return _ll;}

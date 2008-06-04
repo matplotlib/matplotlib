@@ -348,6 +348,13 @@ Bbox::ignore(const Py::Tuple &args) {
 }
 
 Py::Object
+Bbox::is_ignore(const Py::Tuple &args) {
+  _VERBOSE("Bbox::ignore");
+  args.verify_length(0);
+  return Py::Int(_ignore);
+}
+
+Py::Object
 Bbox::overlapsx(const Py::Tuple &args, const Py::Dict &kwargs) {
   _VERBOSE("Bbox::overlapsx");
   args.verify_length(1);
@@ -2349,6 +2356,7 @@ Bbox::init_type()
   add_varargs_method("ymin", 	&Bbox::ymin, "ymin()\n");
 
   add_varargs_method("ignore", 	 &Bbox::ignore, "ignore(int)");
+  add_varargs_method("is_ignore", 	 &Bbox::is_ignore, "is_ignore()");
   add_varargs_method("scale", 	 &Bbox::scale, "scale(sx,sy)");
   add_varargs_method("deepcopy", &Bbox::deepcopy, "deepcopy()\n");
 }
