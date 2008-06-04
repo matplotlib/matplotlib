@@ -16,10 +16,7 @@ subplot(121)
 plot(t1, f(t1), 'bo', t2, f(t2), 'k')
 title('subplot 1')
 ylabel('Damped oscillation')
-figtitle = 'This is a somewhat long figure title'
-t = gcf().text(0.5, 0.95, figtitle,
-               horizontalalignment='center',
-               fontproperties=FontProperties(size=16))
+suptitle('This is a somewhat long figure title', fontsize=16)
 
 
 subplot(122)

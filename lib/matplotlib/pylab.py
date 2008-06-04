@@ -78,6 +78,7 @@ _Plotting commands
   subplot  - make a subplot (numrows, numcols, axesnum)
   subplots_adjust - change the params controlling the subplot positions of current figure
   subplot_tool - launch the subplot configuration tool
+  suptitle   - add a figure title
   table    - add a table to the plot
   text     - add some text at location x,y to the current axes
   thetagrids - customize the radial theta grids and labels for polar

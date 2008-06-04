@@ -1,3 +1,6 @@
+2006-06-04 Added a figure title command subtitle as a Figure method
+           and pyplot command -- see examples/figure_title.py - JDH
+
 2008-06-02 Added support for log to hist with histtype='step' and fixed
            a bug for log-scale stacked histograms - MM
 

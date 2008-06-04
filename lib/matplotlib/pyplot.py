@@ -303,6 +303,13 @@ def figtext(*args, **kwargs):
 if Figure.text.__doc__ is not None:
     figtext.__doc__ = dedent(Figure.text.__doc__)
 
+def suptitle(*args, **kwargs):
+    ret =  gcf().suptitle(*args, **kwargs)
+    draw_if_interactive()
+    return ret
+if Figure.suptitle.__doc__ is not None:
+    suptitle.__doc__ = dedent(Figure.suptitle.__doc__)
+
 def figimage(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     ret =  gcf().figimage(*args, **kwargs)

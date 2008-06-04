@@ -313,6 +313,35 @@ class Figure(Artist):
         'get the figure bounding box in display space; kwargs are void'
         return self.bbox
 
+    def suptitle(self, t, **kwargs):
+        """
+        add a centered title to the figure
+
+        kwargs are matplotlib.text.Text properties.  Using figure
+        coordinates, the defaults are
+
+          x = 0.5
+          y = 0.98
+          horizontalalignment = 'center'
+          verticalalignment = 'top'
+
+        The matplotlib.text.Text instance is returned
+
+        Example:
+
+          fig.subtitle('this is the figure title', fontsize=12)
+        """
+        x = kwargs.pop('x', 0.5)
+        y = kwargs.pop('y', 0.98)
+        if ('horizontalalignment' not in kwargs) and ('ha' not in kwargs):
+            kwargs['horizontalalignment'] = 'center'
+
+        if ('verticalalignment' not in kwargs) and ('va' not in kwargs):
+            kwargs['verticalalignment'] = 'top'
+
+        t = self.text(x, y, t, **kwargs)
+        return t
+
     def set_canvas(self, canvas):
         """
         Set the canvas the contains the figure
