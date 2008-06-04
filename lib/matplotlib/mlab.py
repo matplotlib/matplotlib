@@ -48,7 +48,7 @@ commands with the same names.
    * rec2txt          : pretty print a record array
    * rec2csv          : store record array in CSV file
    * csv2rec          : import record array from CSV file with type inspection
-   * rec_append_field : add a field/array to record array
+   * rec_append_fields: adds  field(s)/array(s) to record array
    * rec_drop_fields  : drop fields from record array
    * rec_join         : join two record arrays on sequence of fields
    * rec_groupby      : summarize data by groups (similar to SQL GROUP BY)
@@ -1952,7 +1952,10 @@ def safe_isinf(x):
     else: return b
 
 def rec_append_field(rec, name, arr, dtype=None):
-    'return a new record array with field name populated with data from array arr'
+    """
+    return a new record array with field name populated with data from array arr.
+    This function is Depreacted. Please use rec_append_fields.
+    """
     warnings.warn("use rec_append_fields", DeprecationWarning)
     return rec_append_fields(rec, name, arr, dtype)
 
