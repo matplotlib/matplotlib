@@ -1,3 +1,6 @@
+2008-06-05 Fix image drawing so there is no extra space to the right
+           or bottom - MGD
+
 2006-06-04 Added a figure title command subtitle as a Figure method
            and pyplot command -- see examples/figure_title.py - JDH
 
