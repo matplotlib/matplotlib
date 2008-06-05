@@ -1,0 +1,21 @@
+==============================
+ Working with transformations
+==============================
+
+:mod:`matplotlib.transforms`
+=============================
+
+.. automodule:: matplotlib.transforms
+   :members: TransformNode, BboxBase, Bbox, TransformedBbox, Transform,
+       TransformWrapper, AffineBase, Affine2DBase, Affine2D, IdentityTransform,
+       BlendedGenericTransform, BlendedAffine2D, blended_transform_factory,
+       CompositeGenericTransform, CompositeAffine2D,
+       composite_transform_factory, BboxTransform, BboxTransformTo,
+       BboxTransformFrom, ScaledTranslation, TransformedPath, nonsingular,
+       interval_contains, interval_contains_open
+
+:mod:`matplotlib.path`
+=============================
+
+.. automodule:: matplotlib.path
+   :members: Path, get_path_collection_extents

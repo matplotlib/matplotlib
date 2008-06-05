@@ -159,3 +159,7 @@ latex_appendices = []
 latex_use_modindex = True
 
 latex_use_parts = True
+
+# Show both class-level docstring and __init__ docstring in class
+# documentation
+autoclass_content = 'both'
