@@ -386,13 +386,13 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def get_default_filetype(self):
         return 'png'
 
+
     def flush_events(self):
         gtk.gdk.threads_enter()
         while gtk.events_pending():
             gtk.main_iteration(True)
         gtk.gdk.flush()
         gtk.gdk.threads_leave()
-
 
 class FigureManagerGTK(FigureManagerBase):
     """
@@ -949,6 +949,7 @@ class NavigationToolbar(gtk.Toolbar):
                 self.canvas.print_figure(fname, format=format)
             except Exception, e:
                 error_msg_gtk(str(e), parent=self)
+
 
 if gtk.pygtk_version >= (2,4,0):
     class FileChooserDialog(gtk.FileChooserDialog):
