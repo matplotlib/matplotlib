@@ -353,12 +353,12 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             # for self.window(for pixmap) and has a side effect of altering
             # figure width,height (via configure-event?)
             gtk.DrawingArea.realize(self)
-        
+
         width, height = self.get_width_height()
         pixmap = gdk.Pixmap (self.window, width, height)
         self._renderer.set_pixmap (pixmap)
         self._render_figure(pixmap, width, height)
-        
+
         # jpg colors don't match the display very well, png colors match
         # better
         pixbuf = gdk.Pixbuf(gdk.COLORSPACE_RGB, 0, 8, width, height)
@@ -382,18 +382,18 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                 raise ValueError("Saving to a Python file-like object is only supported by PyGTK >= 2.8")
         else:
             raise ValueError("filename must be a path or a file-like object")
-            
+
     def get_default_filetype(self):
         return 'png'
 
     def flush_events(self):
-        gtk.gdk.threads_enter()        
+        gtk.gdk.threads_enter()
         while gtk.events_pending():
             gtk.main_iteration(True)
         gtk.gdk.flush()
         gtk.gdk.threads_leave()
-        
-            
+
+
 class FigureManagerGTK(FigureManagerBase):
     """
     Public attributes
@@ -410,7 +410,7 @@ class FigureManagerGTK(FigureManagerBase):
 
         self.window = gtk.Window()
         self.window.set_title("Figure %d" % num)
-        
+
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
         self.vbox.show()
@@ -462,7 +462,7 @@ class FigureManagerGTK(FigureManagerBase):
     def show(self):
         # show the figure window
         self.window.show()
-        
+
     def full_screen_toggle (self):
         self._full_screen_flag = not self._full_screen_flag
         if self._full_screen_flag:
@@ -742,8 +742,8 @@ class NavigationToolbar(gtk.Toolbar):
             self.fileselect = FileChooserDialog(
                 title='Save the figure',
                 parent=self.win,
-                formats=self.canvas.get_supported_filetypes(),
-                default_type=self.canvas.get_default_filetype())
+                filetypes=self.canvas.get_supported_filetypes(),
+                default_filetype=self.canvas.get_default_filetype())
         else:
             self._create_toolitems_2_2()
             self.update = self._update_2_2
@@ -912,53 +912,32 @@ class NavigationToolbar(gtk.Toolbar):
         self._ind = ind
         self._active = [ self._axes[i] for i in self._ind ]
 
-    def panx(self, button, arg):
-        """arg is either user callback data or a scroll event
-        """
-        try:
-            if arg.direction == gdk.SCROLL_UP: direction=1
-            else: direction=-1
-        except AttributeError:
-            direction = arg
+    def panx(self, button, direction):
+        'panx in direction'
 
         for a in self._active:
-            a.panx(direction)
+            a.xaxis.pan(direction)
         self.canvas.draw()
         return True
 
-    def pany(self, button, arg):
-        try:
-            if arg.direction == gdk.SCROLL_UP: direction=1
-            else: direction=-1
-        except AttributeError:
-            direction = arg
-
+    def pany(self, button, direction):
+        'pany in direction'
         for a in self._active:
-            a.pany(direction)
+            a.yaxis.pan(direction)
         self.canvas.draw()
         return True
 
-    def zoomx(self, button, arg):
-        try:
-            if arg.direction == gdk.SCROLL_UP: direction=1
-            else: direction=-1
-        except AttributeError:
-            direction = arg
-
+    def zoomx(self, button, direction):
+        'zoomx in direction'
         for a in self._active:
-            a.zoomx(direction)
+            a.xaxis.zoom(direction)
         self.canvas.draw()
         return True
 
-    def zoomy(self, button, arg):
-        try:
-            if arg.direction == gdk.SCROLL_UP: direction=1
-            else: direction=-1
-        except AttributeError:
-            direction = arg
-
+    def zoomy(self, button, direction):
+        'zoomy in direction'
         for a in self._active:
-            a.zoomy(direction)
+            a.yaxis.zoom(direction)
         self.canvas.draw()
         return True
 
@@ -1043,7 +1022,7 @@ if gtk.pygtk_version >= (2,4,0):
                     break
                 filename = self.get_filename()
                 break
-                
+
             self.hide()
             return filename, self.ext
 else:
@@ -1075,7 +1054,7 @@ else:
                 if ext.startswith('.'):
                     ext = ext[1:]
             return filename, ext
-        
+
 
 class DialogLineprops:
     """

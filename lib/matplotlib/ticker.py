@@ -639,17 +639,17 @@ class Locator(TickHelper):
         ticks = self()
         numticks = len(ticks)
 
+        vmin, vmax = self.axis.get_view_interval()
+        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
         if numticks>2:
             step = numsteps*abs(ticks[0]-ticks[1])
         else:
-            vmin, vmax = self.axis.get_view_interval()
-            vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
             d = abs(vmax-vmin)
             step = numsteps*d/6.
 
         vmin += step
         vmax += step
-        self.axis.set_view_interval(vmin, vmax)
+        self.axis.set_view_interval(vmin, vmax, ignore=True)
 
 
     def zoom(self, direction):
@@ -658,11 +658,8 @@ class Locator(TickHelper):
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
         interval = abs(vmax-vmin)
-        interval = self.viewInterval.span()
         step = 0.1*interval*direction
-
-
-        self.axis.set_view_interval(vmin + step, vmax - step)
+        self.axis.set_view_interval(vmin + step, vmax - step, ignore=True)
 
     def refresh(self):
         'refresh internal information based on current lim'
