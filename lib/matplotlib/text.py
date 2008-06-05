@@ -1024,7 +1024,7 @@ class Annotation(Text):
                             in cartesian plots.  Note that if you
                             are using a polar axes, you do not need
                             to specify polar for the coordinate
-                            system since that is the native"data" coordinate
+                            system since that is the native "data" coordinate
                             system.
         =================   ===================================================
 
