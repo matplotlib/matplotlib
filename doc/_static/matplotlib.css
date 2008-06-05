@@ -1,0 +1,9 @@
+@import "default.css";
+
+dl.class, dl.function {
+    border-top: 2px solid #888;
+}
+
+dl.method, dl.attribute {
+    border-top: 1px solid #aaa;
+}
