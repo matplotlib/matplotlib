@@ -14,8 +14,8 @@ from matplotlib.backends.backend_gtk import FigureCanvasGTK as FigureCanvas
 #from matplotlib.backends.backend_gtkcairo import FigureCanvasGTKCairo as FigureCanvas
 
 # or NavigationToolbar for classic
-from matplotlib.backends.backend_gtk import NavigationToolbar2GTK as NavigationToolbar
-#from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
+#from matplotlib.backends.backend_gtk import NavigationToolbar2GTK as NavigationToolbar
+from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
 
 
 win = gtk.Window()
