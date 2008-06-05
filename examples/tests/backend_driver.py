@@ -48,7 +48,7 @@ pylab_files = [
     'errorbar_limits.py',
     'figimage_demo.py',
     'figlegend_demo.py',
-    'figtext.py',
+    'figure_title.py',
     'fill_demo.py',
     'finance_demo.py',
     'fonts_demo_kw.py',
