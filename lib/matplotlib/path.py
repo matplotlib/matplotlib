@@ -1,7 +1,5 @@
 """
 Contains a class for managing paths (polylines).
-
-October 2007 Michael Droettboom
 """
 
 import math
@@ -21,42 +19,42 @@ class Path(object):
     closed, line and curve segments.
 
     The underlying storage is made up of two parallel numpy arrays:
-      vertices: an Nx2 float array of vertices
-      codes: an N-length uint8 array of vertex types
+      - vertices: an Nx2 float array of vertices
+      - codes: an N-length uint8 array of vertex types
 
     These two arrays always have the same length in the first
-    dimension.  Therefore, to represent a cubic curve, you must
+    dimension.  For example, to represent a cubic curve, you must
     provide three vertices as well as three codes "CURVE3".
 
     The code types are:
 
-       STOP   :  1 vertex (ignored)
-          A marker for the end of the entire path (currently not
-          required and ignored)
+       - ``STOP``   :  1 vertex (ignored)
+           A marker for the end of the entire path (currently not
+           required and ignored)
 
-       MOVETO :  1 vertex
-          Pick up the pen and move to the given vertex.
+       - ``MOVETO`` :  1 vertex
+            Pick up the pen and move to the given vertex.
 
-       LINETO :  1 vertex
-          Draw a line from the current position to the given vertex.
+       - ``LINETO`` :  1 vertex
+            Draw a line from the current position to the given vertex.
 
-       CURVE3 :  1 control point, 1 endpoint
+       - ``CURVE3`` :  1 control point, 1 endpoint
           Draw a quadratic Bezier curve from the current position,
           with the given control point, to the given end point.
 
-       CURVE4 :  2 control points, 1 endpoint
+       - ``CURVE4`` :  2 control points, 1 endpoint
           Draw a cubic Bezier curve from the current position, with
           the given control points, to the given end point.
 
-       CLOSEPOLY : 1 vertex (ignored)
+       - ``CLOSEPOLY`` : 1 vertex (ignored)
           Draw a line segment to the start point of the current
           polyline.
 
     Users of Path objects should not access the vertices and codes
-    arrays directly.  Instead, they should use iter_segments to get
-    the vertex/code pairs.  This is important since many Paths do not
-    store a codes array at all, but have a default one provided for
-    them by iter_segments.
+    arrays directly.  Instead, they should use :meth:`iter_segments`
+    to get the vertex/code pairs.  This is important since many Paths,
+    as an optimization, do not store a codes array at all, but have a
+    default one provided for them by :meth:`iter_segments`.
     """
 
     # Path codes
@@ -80,9 +78,6 @@ class Path(object):
 
         codes is an N-length numpy array or Python sequence of type
         Path.code_type.
-
-        See the docstring of Path for a description of the various
-        codes.
 
         These two arrays must have the same length in the first
         dimension.
@@ -133,8 +128,8 @@ class Path(object):
     #@staticmethod
     def make_compound_path(*args):
         """
-        Make a compound path from a list of Path objects.  Only
-        polygons (not curves) are supported.
+        (staticmethod) Make a compound path from a list of Path
+        objects.  Only polygons (not curves) are supported.
         """
         for p in args:
             assert p.codes is None
@@ -162,7 +157,10 @@ class Path(object):
 
     def iter_segments(self):
         """
-        Iterates over all of the curve segments in the path.
+        Iterates over all of the curve segments in the path.  Each
+        iteration returns a 2-tuple ``(vertices, code)``, where
+        vertices is a sequence of 1 - 3 coordinate pairs, and code is
+        one of the ``Path`` codes.
         """
         vertices = self.vertices
         if not len(vertices):
@@ -213,9 +211,9 @@ class Path(object):
         """
         Return a transformed copy of the path.
 
-        See transforms.TransformedPath for a path that will cache the
-        transformed result and automatically update when the transform
-        changes.
+        See :class:`matplotlib.transforms.TransformedPath` for a path
+        that will cache the transformed result and automatically
+        update when the transform changes.
         """
         return Path(transform.transform(self.vertices), self.codes)
 
@@ -233,6 +231,9 @@ class Path(object):
     def contains_path(self, path, transform=None):
         """
         Returns True if this path completely contains the given path.
+
+        If transform is not None, the path will be transformed before
+        performing the test.
         """
         if transform is not None:
             transform = transform.frozen()
@@ -259,7 +260,8 @@ class Path(object):
 
     def intersects_bbox(self, bbox):
         """
-        Returns True if this path intersects a given Bbox.
+        Returns True if this path intersects a given
+        :class:`~matplotlib.transforms.Bbox`.
         """
         from transforms import BboxTransformTo
         rectangle = self.unit_rectangle().transformed(
@@ -285,7 +287,9 @@ class Path(object):
         """
         Convert this path to a list of polygons.  Each polygon is an
         Nx2 array of vertices.  In other words, each polygon has no
-        "move to" instructions or curves.
+        ``MOVETO`` instructions or curves.  This is useful for
+        displaying in backends that do not support compound paths or
+        Bezier curves, such as GDK.
         """
         if transform is not None:
             transform = transform.frozen()
@@ -302,7 +306,8 @@ class Path(object):
     #@classmethod
     def unit_rectangle(cls):
         """
-        Returns a Path of the unit rectangle from (0, 0) to (1, 1).
+        (staticmethod) Returns a :class:`Path` of the unit rectangle
+        from (0, 0) to (1, 1).
         """
         if cls._unit_rectangle is None:
             cls._unit_rectangle = \
@@ -314,8 +319,9 @@ class Path(object):
     #@classmethod
     def unit_regular_polygon(cls, numVertices):
         """
-        Returns a Path for a unit regular polygon with the given
-        numVertices and radius of 1.0, centered at (0, 0).
+        (staticmethod) Returns a :class:`Path` for a unit regular
+        polygon with the given numVertices and radius of 1.0, centered
+        at (0, 0).
         """
         if numVertices <= 16:
             path = cls._unit_regular_polygons.get(numVertices)
@@ -337,8 +343,9 @@ class Path(object):
     #@classmethod
     def unit_regular_star(cls, numVertices, innerCircle=0.5):
         """
-        Returns a Path for a unit regular star with the given
-        numVertices and radius of 1.0, centered at (0, 0).
+        (staticmethod) Returns a :class:`Path` for a unit regular star
+        with the given numVertices and radius of 1.0, centered at (0,
+        0).
         """
         if numVertices <= 16:
             path = cls._unit_regular_stars.get((numVertices, innerCircle))
@@ -361,8 +368,9 @@ class Path(object):
     #@classmethod
     def unit_regular_asterisk(cls, numVertices):
         """
-        Returns a Path for a unit regular asterisk with the given
-        numVertices and radius of 1.0, centered at (0, 0).
+        (staticmethod) Returns a :class:`Path` for a unit regular
+        asterisk with the given numVertices and radius of 1.0,
+        centered at (0, 0).
         """
         return cls.unit_regular_star(numVertices, 0.0)
     unit_regular_asterisk = classmethod(unit_regular_asterisk)
@@ -371,14 +379,13 @@ class Path(object):
     #@classmethod
     def unit_circle(cls):
         """
-        Returns a Path of the unit circle.  The circle is approximated
-        using cubic Bezier curves.  This uses 8 splines around the
-        circle using the approach presented here:
+        (staticmethod) Returns a :class:`Path` of the unit circle.
+        The circle is approximated using cubic Bezier curves.  This
+        uses 8 splines around the circle using the approach presented
+        here:
 
-        Lancaster, Don.  Approximating a Circle or an Ellipse Using Four
-        Bezier Cubic Splines.
-
-        http://www.tinaja.com/glib/ellipse4.pdf
+          Lancaster, Don.  `Approximating a Circle or an Ellipse Using Four
+          Bezier Cubic Splines <http://www.tinaja.com/glib/ellipse4.pdf>`_.
         """
         if cls._unit_circle is None:
             MAGIC = 0.2652031
@@ -434,18 +441,17 @@ class Path(object):
     #@classmethod
     def arc(cls, theta1, theta2, n=None, is_wedge=False):
         """
-        Returns an arc on the unit circle from angle theta1 to angle
-        theta2 (in degrees).
+        (staticmethod) Returns an arc on the unit circle from angle
+        theta1 to angle theta2 (in degrees).
 
         If n is provided, it is the number of spline segments to make.
-        If n is not provided, the number of spline segments is determined
-        based on the delta between theta1 and theta2.
-        """
-        # From Masionobe, L.  2003.  "Drawing an elliptical arc using
-        # polylines, quadratic or cubic Bezier curves".
-        #
-        # http://www.spaceroots.org/documents/ellipse/index.html
+        If n is not provided, the number of spline segments is
+        determined based on the delta between theta1 and theta2.
 
+           Masionobe, L.  2003.  `Drawing an elliptical arc using
+           polylines, quadratic or cubic Bezier curves
+           <http://www.spaceroots.org/documents/ellipse/index.html>`_.
+        """
         # degrees to radians
         theta1 *= np.pi / 180.0
         theta2 *= np.pi / 180.0
@@ -514,14 +520,18 @@ class Path(object):
     #@classmethod
     def wedge(cls, theta1, theta2, n=None):
         """
-        Returns a wedge of the unit circle from angle theta1 to angle
-        theta2 (in degrees).
+        (staticmethod) Returns a wedge of the unit circle from angle
+        theta1 to angle theta2 (in degrees).
         """
         return cls.arc(theta1, theta2, n, True)
     wedge = classmethod(wedge)
 
 _get_path_collection_extents = get_path_collection_extents
 def get_path_collection_extents(*args):
+    """
+    Given a sequence of :class:`Path` objects, returns the bounding
+    box that encapsulates all of them.
+    """
     from transforms import Bbox
     if len(args[1]) == 0:
         raise ValueError("No paths provided")
