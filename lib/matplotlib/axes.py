@@ -4603,15 +4603,8 @@ class Axes(martist.Artist):
             rescale = np.sqrt(max(verts[:,0]**2+verts[:,1]**2))
             verts /= rescale
 
-            scales = np.asarray(scales)
-            scales = np.sqrt(scales * self.figure.dpi / 72.)
-            if len(scales)==1:
-                verts = [scales[0]*verts]
-            else:
-                # todo -- make this nx friendly
-                verts = [verts*s for s in scales]
             collection = mcoll.PolyCollection(
-                verts,
+                verts, scales,
                 facecolors = colors,
                 edgecolors = edgecolors,
                 linewidths = linewidths,
