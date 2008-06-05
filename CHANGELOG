@@ -1,3 +1,6 @@
+2008-06-05 Fix some dpi-changing-related problems with PolyCollection,
+           as called by Axes.scatter() - MGD
+
 2008-06-05 Fix image drawing so there is no extra space to the right
            or bottom - MGD
 

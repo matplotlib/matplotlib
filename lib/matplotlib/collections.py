@@ -492,15 +492,19 @@ class QuadMesh(Collection):
         renderer.close_group(self.__class__.__name__)
 
 class PolyCollection(Collection):
-    def __init__(self, verts, **kwargs):
+    def __init__(self, verts, sizes = (1, ), **kwargs):
         """
         verts is a sequence of ( verts0, verts1, ...) where verts_i is
         a sequence of xy tuples of vertices, or an equivalent
         numpy array of shape (nv,2).
 
+        sizes gives the area of the circle circumscribing the
+        polygon in points^2
+
         %(Collection)s
         """
         Collection.__init__(self,**kwargs)
+        self._sizes = sizes
         self.set_verts(verts)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
@@ -510,6 +514,15 @@ class PolyCollection(Collection):
 
     def get_paths(self):
         return self._paths
+
+    def draw(self, renderer):
+        # sizes is the area of the circle circumscribing the polygon
+        # in points^2
+        self._transforms = [
+            transforms.Affine2D().scale(
+                (np.sqrt(x) * renderer.dpi / 72.0))
+            for x in self._sizes]
+        return Collection.draw(self, renderer)
 
 class BrokenBarHCollection(PolyCollection):
     """
