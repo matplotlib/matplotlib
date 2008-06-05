@@ -486,46 +486,26 @@ class NavigationToolbar(Tk.Frame):
         self._ind = ind
         self._active = [ self._axes[i] for i in self._ind ]
 
-    def panx(self, arg):
-        try: arg.direction
-        except AttributeError: direction = arg
-        else:
-            if arg.direction == Tk.SCROLL_UP: direction=1
-            else: direction=-1
+    def panx(self, direction):
         for a in self._active:
-            a.panx(direction)
+            a.xaxis.pan(direction)
         self.canvas.draw()
 
-    def pany(self, arg):
-        try: arg.direction
-        except AttributeError: direction = arg
-        else:
-            if arg.direction == Tk.SCROLL_UP: direction=1
-            else: direction=-1
+    def pany(self, direction):
         for a in self._active:
-            a.pany(direction)
+            a.yaxis.pan(direction)
         self.canvas.draw()
 
-    def zoomx(self, arg):
-        try: arg.direction
-        except AttributeError: direction = arg
-        else:
-            if arg.direction == Tk.SCROLL_UP: direction=1
-            else: direction=-1
+    def zoomx(self, direction):
 
         for a in self._active:
-            a.zoomx(direction)
+            a.xaxis.zoom(direction)
         self.canvas.draw()
 
-    def zoomy(self, arg):
-        try: arg.direction
-        except AttributeError: direction = arg
-        else:
-            if arg.direction == Tk.SCROLL_UP: direction=1
-            else: direction=-1
+    def zoomy(self, direction):
 
         for a in self._active:
-            a.zoomy(direction)
+            a.yaxis.zoom(direction)
         self.canvas.draw()
 
     def save_figure(self):
@@ -665,14 +645,14 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         # so we just have to put it first
         default_filetype_name = filetypes[default_filetype]
         del filetypes[default_filetype]
-        
+
         sorted_filetypes = filetypes.items()
         sorted_filetypes.sort()
         sorted_filetypes.insert(0, (default_filetype, default_filetype_name))
-        
+
         tk_filetypes = [
             (name, '*.%s' % ext) for (ext, name) in sorted_filetypes]
-        
+
         fname = asksaveasfilename(
             master=self.window,
             title='Save the figure',
