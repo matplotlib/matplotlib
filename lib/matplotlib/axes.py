@@ -748,6 +748,8 @@ class Axes(martist.Artist):
           which:
 
             ==========   ====================
+            value        description
+            ==========   ====================
             'active'     to change the first
             'original'   to change the second
             'both'       to change both
@@ -914,6 +916,8 @@ class Axes(martist.Artist):
         aspect:
 
           ========   ================================================
+          value      description
+          ========   ================================================
           'auto'     automatic; fill position rectangle with data
           'normal'   same as 'auto'; deprecated
           'equal'    same scaling from data to plot units for x and y
@@ -925,12 +929,16 @@ class Axes(martist.Artist):
         adjustable:
 
           ========   ============================
+          value      description
+          ========   ============================
           'box'      change physical size of axes
           'datalim'  change xlim or ylim
           ========   ============================
 
         anchor:
 
+          ====   =====================
+          value      description
           ====   =====================
           'C'    centered
           'SW'   lower left corner
@@ -971,7 +979,9 @@ class Axes(martist.Artist):
         """
         anchor:
 
-          ====   ============
+          =====  ============
+          value  description
+          =====  ============
           'C'    Center
           'SW'   bottom left
           'S'    bottom
@@ -981,7 +991,7 @@ class Axes(martist.Artist):
           'N'    top
           'NW'   top left
           'W'    left
-          ====   ============
+          =====  ============
 
         """
         if anchor in mtransforms.Bbox.coefs.keys() or len(anchor) == 2:
