@@ -86,7 +86,7 @@ a.set_title('PolyCollection using offsets')
 
 a = fig.add_subplot(2,2,3)
 
-col = collections.RegularPolyCollection(fig.dpi, 7,
+col = collections.RegularPolyCollection(7,
                                         sizes = N.fabs(xx)*10.0, offsets=xyo,
                                         transOffset=a.transData)
 trans = transforms.Affine2D().scale(fig.dpi/72.0)

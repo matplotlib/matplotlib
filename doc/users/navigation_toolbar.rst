@@ -3,6 +3,9 @@
 Interactive navigation
 ======================
 
+.. image:: ../_static/toolbar.png
+   :scale: 100
+
 All figure windows come with a navigation toolbar, which can be used
 to navigate through the data set.  Here is a description of each of
 the buttons at the bottom of the toolbar
