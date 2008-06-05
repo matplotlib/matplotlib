@@ -540,6 +540,9 @@ class Polygon(Patch):
         See Patch documentation for additional kwargs
         """
         Patch.__init__(self, **kwargs)
+        xy = np.asarray(xy, np.float_)
+        if len(xy) and xy[0] != xy[-1]:
+                xy = np.concatenate([xy, [xy[0]]])
         self._path = Path(xy)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
