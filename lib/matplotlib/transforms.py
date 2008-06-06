@@ -2043,7 +2043,7 @@ class ScaledTranslation(Affine2DBase):
         self._inverted = None
 
     def __repr__(self):
-        return "ScaledTranslation(%s)" % (self._t)
+        return "ScaledTranslation(%s)" % (self._t,)
     __str__ = __repr__
 
     def get_matrix(self):
