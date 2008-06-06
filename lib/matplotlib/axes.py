@@ -345,12 +345,16 @@ class _process_plot_var_args:
                 seg = mpatches.Polygon(zip(x, y),
                               facecolor = facecolor,
                               fill=True,
+                              closed=closed
                               )
                 self.set_patchprops(seg, **kwargs)
                 ret.append(seg)
 
-            if self.command == 'plot': func = makeline
-            else:                      func = makefill
+            if self.command == 'plot':
+                func = makeline
+            else:
+                closed = kwargs.pop("closed")
+                func = makefill
             if multicol:
                 for j in range(y.shape[1]):
                     func(x[:,j], y[:,j])
@@ -387,12 +391,16 @@ class _process_plot_var_args:
             seg = mpatches.Polygon(zip(x, y),
                           facecolor = facecolor,
                           fill=True,
+                          closed=closed
                           )
             self.set_patchprops(seg, **kwargs)
             ret.append(seg)
 
-        if self.command == 'plot': func = makeline
-        else:                      func = makefill
+        if self.command == 'plot':
+            func = makeline
+        else:
+            closed = kwargs.pop('closed')
+            func = makefill
 
         if multicol:
             for j in range(y.shape[1]):
@@ -4934,6 +4942,8 @@ class Axes(martist.Artist):
 
         See examples/fill_between.py for more examples.
 
+        The closed kwarg will close the polygon when True (default).
+
         kwargs control the Polygon properties:
         %(Polygon)s
         """
@@ -5809,7 +5819,7 @@ class Axes(martist.Artist):
                     x,y = y,x
                 elif orientation != 'vertical':
                     raise ValueError, 'invalid orientation: %s' % orientation
-                patches.append( self.fill(x,y) )
+                patches.append( self.fill(x,y,closed=False) )
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':
