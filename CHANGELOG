@@ -1,3 +1,6 @@
+2008-06-06 Fix closed polygon patch and also provide the option to
+           not close the polygon - MGD
+
 2008-06-05 Fix some dpi-changing-related problems with PolyCollection,
            as called by Axes.scatter() - MGD
 
