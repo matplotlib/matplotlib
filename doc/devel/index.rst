@@ -13,4 +13,4 @@
    documenting_mpl.rst
    transformations.rst
    add_new_projection.rst
-
+   outline.rst
