@@ -827,8 +827,8 @@ class Axes(martist.Artist):
         props = font_manager.FontProperties(size=rcParams['axes.titlesize'])
 
 
-        self.titleOffsetTrans = mtransforms.Affine2D().translate(
-            0.0, 5.0*self.figure.dpi/72.)
+        self.titleOffsetTrans = mtransforms.ScaledTranslation(
+            0.0, 5.0 / 72.0, self.figure.dpi_scale_trans)
         self.title =  mtext.Text(
             x=0.5, y=1.0, text='',
             fontproperties=props,
@@ -858,16 +858,6 @@ class Axes(martist.Artist):
 
         self.xaxis.set_clip_path(self.axesPatch)
         self.yaxis.set_clip_path(self.axesPatch)
-
-        self.titleOffsetTrans.clear().translate(
-            0.0, 5.0*self.figure.dpi/72.)
-
-        def on_dpi_change(fig):
-            self.titleOffsetTrans.clear().translate(
-                0.0, 5.0*fig.dpi/72.)
-
-        self.figure.callbacks.connect('dpi_changed', on_dpi_change)
-
 
 
     def clear(self):
