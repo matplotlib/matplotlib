@@ -5634,7 +5634,7 @@ class Axes(martist.Artist):
 
 
     def hist(self, x, bins=10, normed=False, cumulative=False,
-             bottom=None, histtype='bar', align='edge',
+             bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False, **kwargs):
         """
         call signature::
@@ -5667,20 +5667,26 @@ class Axes(martist.Artist):
           cumulative:
             if True then a histogram is computed where each bin
             gives the counts in that bin plus all bins for smaller values.
-            The last bin gives the total number of datapoints.  If normed is
-            also True then the histogram is normalized such that the last bin
-            equals one.
+            The last bin gives the total number of datapoints.  If normed
+            is also True then the histogram is normalized such that the
+            last bin equals one. If cumulative evaluates to less that one
+            (e.g. -1), the direction of accumulation is reversed.  In this
+            case, If normed is also True then the histogram is normalized
+            such that the first bin equals one.
 
           histtype:
-            [ 'bar' | 'barstacked' | 'step' ] The type of histogram
-            to draw.  'bar' is a traditional bar-type histogram,
+            [ 'bar' | 'barstacked' | 'step' | 'stepfilled' ] The type of
+            histogram to draw.  'bar' is a traditional bar-type histogram,
             'barstacked' is a bar-type histogram where multiple data are
-            stacked on top of each other, and 'step' generates a lineplot.
+            stacked on top of each other. step' generates a lineplot that
+            is by default unfilled, and 'stepfilled' generates a lineplot
+            that this by default filled.
 
           align:
-            ['edge' | 'center' ] Controles how the histogram is plotted.
-            If 'edge', bars are centered between the bin edges.
-            If 'center', bars are centered on the left bin edges
+            ['left' | 'mid' | 'right' ] Controles how the histogram is
+            plotted. If 'left', bars are centered on the left bin edges.
+            If 'mid', bars are centered between the bin edges. If 'right',
+            bars are centered on the right bin edges.
 
           orientation:
             [ 'horizontal' | 'vertical' ]  If horizontal, barh will be used
@@ -5716,7 +5722,6 @@ class Axes(martist.Artist):
             warnings.warn('2D hist should be nsamples x nvariables; this looks transposed')
 
         if len(x.shape)==2:
-
             n = []
             for i in xrange(x.shape[1]):
                 # this will automatically overwrite bins,
@@ -5730,13 +5735,16 @@ class Axes(martist.Artist):
             n = [n,]
 
         if cumulative:
-            if normed:
-                n = [(m * np.diff(bins)).cumsum() for m in n]
-            else:
-                n = [m.cumsum() for m in n]
+            slc = slice(None)
+            if cbook.is_numlike(cumulative):
+                if cumulative < 0:
+                    slc = slice(None,None,-1)
 
-        ccount = 0
-        colors = _process_plot_var_args.defaultColors[:]
+            if normed:
+                n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
+            else:
+                n = [m[slc].cumsum()[slc] for m in n]
+
         patches = []
 
         if histtype.startswith('bar'):
@@ -5763,14 +5771,16 @@ class Axes(martist.Artist):
             else:
                 raise ValueError, 'invalid histtype: %s' % histtype
 
-            if align=='edge':
+            if align == 'mid' or align == 'edge':
                 boffset += 0.5*totwidth
-            elif align != 'center':
+            elif align == 'right':
+                boffset += totwidth
+            elif align != 'left' and align != 'center':
                 raise ValueError, 'invalid align: %s' % align
 
             if orientation == 'horizontal':
                 for m in n:
-                    color = colors[ccount % len(colors)]
+                    color = self._get_lines._get_next_cycle_color()
                     patch = self.barh(bins[:-1]+boffset, m, height=width,
                                       left=bottom, align='center', log=log,
                                       color=color)
@@ -5779,10 +5789,9 @@ class Axes(martist.Artist):
                         if bottom is None: bottom = 0.0
                         bottom += m
                     boffset += dw
-                    ccount += 1
             elif orientation == 'vertical':
                 for m in n:
-                    color = colors[ccount % len(colors)]
+                    color = self._get_lines._get_next_cycle_color()
                     patch = self.bar(bins[:-1]+boffset, m, width=width,
                                      bottom=bottom, align='center', log=log,
                                      color=color)
@@ -5791,19 +5800,20 @@ class Axes(martist.Artist):
                         if bottom is None: bottom = 0.0
                         bottom += m
                     boffset += dw
-                    ccount += 1
             else:
                 raise ValueError, 'invalid orientation: %s' % orientation
 
-        elif histtype == 'step':
+        elif histtype.startswith('step'):
             x = np.zeros( 2*len(bins), np.float_ )
             y = np.zeros( 2*len(bins), np.float_ )
 
             x[0::2], x[1::2] = bins, bins
 
-            if align == 'center':
+            if align == 'left' or align == 'center':
                 x -= 0.5*(bins[1]-bins[0])
-            elif align != 'edge':
+            elif align == 'right':
+                x += 0.5*(bins[1]-bins[0])
+            elif align != 'mid' and align != 'edge':
                 raise ValueError, 'invalid align: %s' % align
 
             if log:
@@ -5812,6 +5822,12 @@ class Axes(martist.Artist):
                     self.set_xscale('log')
                 elif orientation == 'vertical':
                     self.set_yscale('log')
+            
+            fill = False
+            if histtype == 'stepfilled':
+                fill = True
+            elif histtype != 'step':
+                raise ValueError, 'invalid histtype: %s' % histtype
 
             for m in n:
                 y[1:-1:2], y[2::2] = m, m
@@ -5819,7 +5835,14 @@ class Axes(martist.Artist):
                     x,y = y,x
                 elif orientation != 'vertical':
                     raise ValueError, 'invalid orientation: %s' % orientation
-                patches.append( self.fill(x,y,closed=False) )
+                
+                color = self._get_lines._get_next_cycle_color()
+                if fill:
+                    patches.append( self.fill(x, y, 
+                        closed=False, facecolor=color) )
+                else:
+                    patches.append( self.fill(x, y,
+                        closed=False, edgecolor=color, fill=False) )
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':

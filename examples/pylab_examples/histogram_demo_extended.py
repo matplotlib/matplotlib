@@ -12,7 +12,7 @@ mu, sigma = 200, 25
 x = mu + sigma*P.randn(10000)
 
 # the histogram of the data with histtype='step'
-n, bins, patches = P.hist(x, 50, normed=1, histtype='step')
+n, bins, patches = P.hist(x, 50, normed=1, histtype='stepfilled')
 P.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
 
 # add a line showing the expected distribution
@@ -35,7 +35,6 @@ n, bins, patches = P.hist(x, bins, normed=1, histtype='bar', rwidth=0.8)
 P.figure()
 
 n, bins, patches = P.hist(x, 50, normed=1, histtype='step', cumulative=True)
-P.setp(patches, 'facecolor', 'b', 'alpha', 0.75)
 
 # add a line showing the expected distribution
 y = P.normpdf( bins, mu, sigma).cumsum()
@@ -47,12 +46,16 @@ sigma2 = 15.
 x = mu + sigma2*P.randn(10000)
 
 n, bins, patches = P.hist(x, bins=bins, normed=1, histtype='step', cumulative=True)
-P.setp(patches, 'facecolor', 'r', 'alpha', 0.5)
 
 # add a line showing the expected distribution
 y = P.normpdf( bins, mu, sigma2).cumsum()
 y /= y[-1]
 l = P.plot(bins, y, 'r--', linewidth=1.5)
+
+# finally overplot a reverted cumulative histogram
+n, bins, patches = P.hist(x, bins=bins, normed=1,
+    histtype='step', cumulative=-1)
+
 
 P.grid(True)
 P.ylim(0, 1.05)
