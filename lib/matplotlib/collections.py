@@ -492,7 +492,7 @@ class QuadMesh(Collection):
         renderer.close_group(self.__class__.__name__)
 
 class PolyCollection(Collection):
-    def __init__(self, verts, sizes = (1, ), **kwargs):
+    def __init__(self, verts, sizes = None, **kwargs):
         """
         verts is a sequence of ( verts0, verts1, ...) where verts_i is
         a sequence of xy tuples of vertices, or an equivalent
@@ -518,10 +518,11 @@ class PolyCollection(Collection):
     def draw(self, renderer):
         # sizes is the area of the circle circumscribing the polygon
         # in points^2
-        self._transforms = [
-            transforms.Affine2D().scale(
-                (np.sqrt(x) * renderer.dpi / 72.0))
-            for x in self._sizes]
+        if self._sizes is not None:
+            self._transforms = [
+                transforms.Affine2D().scale(
+                    (np.sqrt(x) * renderer.dpi / 72.0))
+                for x in self._sizes]
         return Collection.draw(self, renderer)
 
 class BrokenBarHCollection(PolyCollection):
