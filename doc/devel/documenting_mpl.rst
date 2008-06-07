@@ -31,7 +31,7 @@ you can also pass a ``latex`` flag to make.py to build a pdf, or pass no
 arguments to build everything.
 
 The output produced by Sphinx can be configured by editing the `conf.py`
-file located in the `doc\`.
+file located in the `doc/`.
 
 Organization of Matplotlib's Documentation
 ==========================================
@@ -81,9 +81,9 @@ working with Sphinx in general. Here are a few additional things to keep in mind
 
       In [69]: lines = plot([1,2,3])
 
-which would yield::
+  which would yield:
 
-.. sourcecode:: ipython
+  .. sourcecode:: ipython
 
     In [69]: lines = plot([1,2,3])
 
