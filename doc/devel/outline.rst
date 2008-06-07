@@ -32,12 +32,12 @@ collections                      ?                    no author    ?
 mathtext                         Michael ?            submitted    John
 fonts et al                      Michael ?            no author    ?
 pyplot tut                       John                 submitted    Eric ?
-usetex                           Darren ?             no author    ?
-configuration                    Darren ?             preliminary  ?
+usetex                           Darren               has author   ?
+configuration                    Darren               preliminary  ?
 colormapping                     Perry ?              no author    Eric ?
 win32 install                    Charlie ?            no author    ?
 os x install                     Charlie ?            no author    ?
-linux install                    ?                    no author    ?
+linux install                    Darren               has author   ?
 artist api                       John                 submitted    ?
 event handling                   John                 submitted    ?
 navigation                       John                 submitted    ?
@@ -46,9 +46,9 @@ widgets                          ?                    no author    ?
 ui - gtk                         ?                    no author    ?
 ui - wx                          ?                    no author    ?
 ui - tk                          ?                    no author    ?
-ui - qt                          Darren ?             no author    ?
+ui - qt                          Darren               has author   ?
 backend - pdf                    Jouni ?              no author    ?
-backend - ps                     Darren ?             no author    ?
+backend - ps                     Darren               has author   ?
 backend - svg                    ?                    no author    ?
 backend - agg                    ?                    no author    ?
 backend - cairo                  ?                    no author    ?
@@ -64,7 +64,8 @@ the canvas                       John                 has author   ?
 the artist                       John                 has author   ?
 transforms                       Michael              submitted    John
 documenting mpl                  Darren               submitted    ?
-coding guide                     John                 submitted    ?
+coding guide                     John                 submitted    Eric (Darren
+suggests)?
 and_much_more                    ?                    ?            ?
 ===============================  ==================== ===========  ===================
 
