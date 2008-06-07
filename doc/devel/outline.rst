@@ -15,13 +15,13 @@ User's guide unit                Author               Status       Reviewer
 contouring                       Eric ?               no author    Perry ?
 quiver plots                     Eric ?               no author    ?
 quadmesh                         ?                    no author    ?
-images                           ?                    no author    ?
+images                           ?                    no author    Darren
 histograms                       Manuel ?             no author    Erik Tollerud ?
 bar / errorbar                   ?                    no author    ?
-x-y plots                        ?                    no author    ?
+x-y plots                        ?                    no author    Darren
 time series plots                ?                    no author    ?
 date plots                       John                 has author   ?
-working with data                John                 has author   ?
+working with data                John                 has author   Darren
 custom ticking                   ?                    no author    ?
 masked data                      Eric ?               no author    ?
 text                             ?                    no author    ?
@@ -30,12 +30,12 @@ legends                          ?                    no author    ?
 animation                        John                 has author   ?
 collections                      ?                    no author    ?
 mathtext                         Michael ?            submitted    John
-fonts et al                      Michael ?            no author    ?
+fonts et al                      Michael ?            no author    Darren
 pyplot tut                       John                 submitted    Eric ?
 usetex                           Darren               has author   ?
 configuration                    Darren               preliminary  ?
 colormapping                     Perry ?              no author    Eric ?
-win32 install                    Charlie ?            no author    ?
+win32 install                    Charlie ?            no author    Darren
 os x install                     Charlie ?            no author    ?
 linux install                    Darren               has author   ?
 artist api                       John                 submitted    ?
