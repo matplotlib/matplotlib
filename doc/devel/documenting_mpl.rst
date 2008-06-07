@@ -62,11 +62,11 @@ working with Sphinx in general. Here are a few additional things to keep in mind
 * Mathematical expressions can be rendered as png images in html, and in
   the usual way by latex. For example:
 
-  ``math:`sin(x_n^2)`` yields: :math:`sin(x_n^2)`, and::
+  ``math:`sin(x_n^2)``` yields: :math:`sin(x_n^2)`, and::
 
-  .. math::
+    .. math::
 
-     \int_{-\infty}^{\infty}\frac{e^{i\phi}}{1+x^2\frac{e^{i\phi}}{1+x^2}}``
+      \int_{-\infty}^{\infty}\frac{e^{i\phi}}{1+x^2\frac{e^{i\phi}}{1+x^2}}
 
   yields:
 
@@ -93,7 +93,7 @@ working with Sphinx in general. Here are a few additional things to keep in mind
 Figures
 =======
 
-Each guide will have its own figures directory for scripts to generate images
+Each guide will have its own `figures/` directory for scripts to generate images
 to be included in the dcoumentation. It is not necessary to explicitly save
 the figure in the script, a figure will be saved with the same name as the
 filename when the documentation is generated.
@@ -111,13 +111,13 @@ Referring to mpl documents
 ==========================
 
 In the documentation, you may want to include to a document in the
-matplotlib src, eg a license file, an image file from `mpl-data`, or an
+matplotlib src, e.g. a license file, an image file from `mpl-data`, or an
 example.  When you include these files, include them using a symbolic
 link from the documentation parent directory.  This way, if we
 relocate the mpl documentation directory, all of the internal pointers
 to files will not have to change, just the top level symlinks.  For
 example, In the top level doc directory we have symlinks pointing to
-the mpl ``examples`` and ``mpl-data``::
+the mpl `examples` and `mpl-data`::
 
     home:~/mpl/doc2> ls -l mpl_*
     mpl_data -> ../lib/matplotlib/mpl-data
@@ -126,7 +126,7 @@ the mpl ``examples`` and ``mpl-data``::
 
 In the `users` subdirectory, if I want to refer to a file in the mpl-data
 directory, I use the symlink directory.  For example, from
-``customizing.rst``::
+`customizing.rst`::
 
    .. literalinclude:: ../mpl_data/matplotlibrc
 
