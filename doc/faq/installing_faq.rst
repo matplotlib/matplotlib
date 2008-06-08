@@ -1,8 +1,8 @@
 .. _installing-faq:
 
-==================
+******************
  Installation FAQ
-==================
+******************
 
 How do I report a compilation problem?
 ======================================
