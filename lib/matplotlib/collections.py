@@ -527,7 +527,7 @@ class PolyCollection(Collection):
 
 class BrokenBarHCollection(PolyCollection):
     """
-    A colleciton of horizontal bars spanning yrange with a sequence of
+    A collection of horizontal bars spanning yrange with a sequence of
     xranges
     """
     def __init__(self, xranges, yrange, **kwargs):
