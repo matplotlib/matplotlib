@@ -4602,7 +4602,7 @@ class Axes(martist.Artist):
             verts /= rescale
 
             collection = mcoll.PolyCollection(
-                verts, scales,
+                (verts,), scales,
                 facecolors = colors,
                 edgecolors = edgecolors,
                 linewidths = linewidths,
