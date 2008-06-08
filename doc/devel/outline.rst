@@ -32,7 +32,7 @@ collections                      ?                    no author    ?
 mathtext                         Michael ?            submitted    John
 fonts et al                      Michael ?            no author    Darren
 pyplot tut                       John                 submitted    Eric ?
-usetex                           Darren               has author   ?
+usetex                           Darren               submitted    ?
 configuration                    Darren               preliminary  ?
 colormapping                     Perry ?              no author    Eric ?
 win32 install                    Charlie ?            no author    Darren
@@ -64,8 +64,7 @@ the canvas                       John                 has author   ?
 the artist                       John                 has author   ?
 transforms                       Michael              submitted    John
 documenting mpl                  Darren               submitted    ?
-coding guide                     John                 submitted    Eric (Darren
-suggests)?
+coding guide                     John                 submitted    Eric ?
 and_much_more                    ?                    ?            ?
 ===============================  ==================== ===========  ===================
 

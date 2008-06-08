@@ -1,0 +1,1 @@
+../mpl_examples/pylab_examples/tex_demo.py

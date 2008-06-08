@@ -16,5 +16,6 @@
     customizing.rst
     artists.rst
     event_handling.rst
+    usetex.rst
 
 

@@ -11,9 +11,9 @@ def figs():
     print 'making figs'
     import matplotlib.pyplot as plt
     for fname in glob.glob('*.py'):
-        if fname==__file__: continue
+        if fname.split('/')[-1] == __file__.split('/')[-1]: continue
         basename, ext = os.path.splitext(fname)
-        outfile = '%s.png'%basename
+        outfile = '../_static/%s.png'%basename
 
         if os.path.exists(outfile):
             print '    already have %s'%outfile

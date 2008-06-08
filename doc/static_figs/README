@@ -1,4 +1,9 @@
-Scripts that require optional system configurations to generate scripts should go here. The 
-figures will be generated in doc/_static, and will be named based on the name of the script, 
-so we can avoid unintentionally overwriting any existing figures. Please add a line to this 
-file for any additional requirements necessary to generate a new figure.
+Scripts that require optional system configurations to generate scripts should
+go here. The  figures will be generated in doc/_static, and will be named based
+on the name of the script, so we can avoid unintentionally overwriting any
+existing figures. Please add a line to this file for any additional
+requirements necessary to generate a new figure.
+
+tex demos:
+  latex
+  dvipng
