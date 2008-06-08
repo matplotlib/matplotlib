@@ -353,7 +353,7 @@ class _process_plot_var_args:
             if self.command == 'plot':
                 func = makeline
             else:
-                closed = kwargs.pop("closed")
+                closed = kwargs.get('closed', True)
                 func = makefill
             if multicol:
                 for j in range(y.shape[1]):
@@ -399,7 +399,7 @@ class _process_plot_var_args:
         if self.command == 'plot':
             func = makeline
         else:
-            closed = kwargs.pop('closed')
+            closed = kwargs.get('closed', True)
             func = makefill
 
         if multicol:
@@ -5812,7 +5812,7 @@ class Axes(martist.Artist):
                     self.set_xscale('log')
                 elif orientation == 'vertical':
                     self.set_yscale('log')
-            
+
             fill = False
             if histtype == 'stepfilled':
                 fill = True
@@ -5825,10 +5825,10 @@ class Axes(martist.Artist):
                     x,y = y,x
                 elif orientation != 'vertical':
                     raise ValueError, 'invalid orientation: %s' % orientation
-                
+
                 color = self._get_lines._get_next_cycle_color()
                 if fill:
-                    patches.append( self.fill(x, y, 
+                    patches.append( self.fill(x, y,
                         closed=False, facecolor=color) )
                 else:
                     patches.append( self.fill(x, y,
