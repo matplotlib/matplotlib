@@ -763,6 +763,7 @@ def use(arg, warn=True):
     """
     if 'matplotlib.backends' in sys.modules:
         if warn: warnings.warn(_use_error_msg)
+        return
     arg = arg.lower()
     be_parts = arg.split('.')
     name = validate_backend(be_parts[0])

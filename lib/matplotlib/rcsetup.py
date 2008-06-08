@@ -12,10 +12,10 @@ import os
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
-interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'QtAgg', 'Qt4Agg',
-                  'TkAgg', 'WX', 'WXAgg', 'CocoaAgg']
-non_interactive_bk = ['Agg', 'Cairo', 'EMF', 'GDK',
-                      'Pdf', 'PS', 'SVG', 'Template']
+interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'fltkagg', 'qtagg', 'qt4agg',
+                  'tkagg', 'wx', 'wxagg', 'cocoaagg']
+non_interactive_bk = ['agg', 'cairo', 'emv', 'gdk',
+                      'pdf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
 
 
