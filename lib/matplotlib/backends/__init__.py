@@ -1,25 +1,19 @@
-import sys
+
 import matplotlib
-import time
+from matplotlib.rcsetup import interactive_bk
+from matplotlib.rcsetup import validate_backend
 
 __all__ = ['backend','show','draw_if_interactive',
            'new_figure_manager', 'backend_version']
 
-interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'QtAgg', 'Qt4Agg',
-                  'TkAgg', 'WX', 'WXAgg', 'CocoaAgg']
-non_interactive_bk = ['Agg2', 'Agg', 'Cairo', 'EMF', 'GDK',
-                      'Pdf', 'PS', 'SVG', 'Template']
-all_backends = interactive_bk + non_interactive_bk
-
-backend = matplotlib.get_backend()
-if backend not in all_backends:
-    raise ValueError, 'Unrecognized backend %s' % backend
+backend = matplotlib.get_backend()   # makes sure it is lower case
+validate_backend(backend)
 
 def pylab_setup():
     'return new_figure_manager, draw_if_interactive and show for pylab'
     # Import the requested backend into a generic module object
 
-    backend_name = 'backend_'+backend.lower()
+    backend_name = 'backend_'+backend
     backend_mod = __import__('matplotlib.backends.'+backend_name,
                              globals(),locals(),[backend_name])
 
@@ -42,7 +36,7 @@ def pylab_setup():
 
     # Additional imports which only happen for certain backends.  This section
     # should probably disappear once all backends are uniform.
-    if backend in ['WX','WXAgg']:
+    if backend in ['wx','wxagg']:
         Toolbar = backend_mod.Toolbar
         __all__.append('Toolbar')
 

@@ -12,6 +12,13 @@ import os
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
+interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'QtAgg', 'Qt4Agg',
+                  'TkAgg', 'WX', 'WXAgg', 'CocoaAgg']
+non_interactive_bk = ['Agg', 'Cairo', 'EMF', 'GDK',
+                      'Pdf', 'PS', 'SVG', 'Template']
+all_backends = interactive_bk + non_interactive_bk
+
+
 class ValidateInStrings:
     def __init__(self, key, valid, ignorecase=False):
         'valid is a list of legal strings'
@@ -80,11 +87,7 @@ def validate_fonttype(s):
             raise ValueError('Supported Postscript/PDF font types are %s' % fonttypes.values())
         return fonttype
 
-validate_backend = ValidateInStrings('backend',[
-    'Agg2', 'Agg', 'Aqt', 'Cairo', 'CocoaAgg', 'EMF', 'GD', 'GDK',
-    'GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'Paint', 'Pdf', 'PS',
-    'QtAgg', 'Qt4Agg', 'SVG', 'Template', 'TkAgg', 'WX', 'WXAgg',
-    ], ignorecase=True)
+validate_backend = ValidateInStrings('backend', all_backends, ignorecase=True)
 
 validate_numerix = ValidateInStrings('numerix',[
     'Numeric','numarray','numpy',
