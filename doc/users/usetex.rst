@@ -103,7 +103,7 @@ Illustrator, and searched text in pdf documents.
     installation may be the only external dependency.
 
 = In the event that things dont work =
-  * Try deleting `tex.cache` from your :envvar:`MATPLOTLIBDATA` directory
+  * Try deleting `tex.cache` from your `~/.matplotlib` directory
 
   * Make sure LaTeX, dvipng and ghostscript are each working and on your PATH.
 
