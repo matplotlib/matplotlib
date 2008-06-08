@@ -763,14 +763,15 @@ def use(arg, warn=True):
     """
     if 'matplotlib.backends' in sys.modules:
         if warn: warnings.warn(_use_error_msg)
+    arg = arg.lower()
     be_parts = arg.split('.')
     name = validate_backend(be_parts[0])
     rcParams['backend'] = name
-    if name == 'Cairo' and len(be_parts) > 1:
+    if name == 'cairo' and len(be_parts) > 1:
         rcParams['cairo.format'] = validate_cairo_format(be_parts[1])
 
 def get_backend():
-    return rcParams['backend']
+    return rcParams['backend'].lower()
 
 def interactive(b):
     """

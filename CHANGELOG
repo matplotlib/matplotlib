@@ -1,4 +1,8 @@
-2008-06-06 hist() revision, applied ideas proposed by Erik Tollerud and 
+2008=06-07 Moved list of backends to rcsetup.py; made use of lower
+           case for backend names consistent; use validate_backend
+           when importing backends subpackage - EF
+
+2008-06-06 hist() revision, applied ideas proposed by Erik Tollerud and
            Olle Engdegard: make histtype='step' unfilled by default
            and introduce histtype='stepfilled'; use default color
            cycle; introduce reverse cumulative histogram; new align
