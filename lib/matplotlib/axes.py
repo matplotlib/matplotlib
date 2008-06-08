@@ -452,7 +452,6 @@ class Axes(martist.Artist):
     connect to are 'xlim_changed' and 'ylim_changed' and the callback
     will be called with func(ax) where ax is the Axes instance
 
-
     """
     name = "rectilinear"
 
@@ -574,7 +573,7 @@ class Axes(martist.Artist):
 
     def set_figure(self, fig):
         """
-        Set the Axes figure
+        Set the Axes' figure
 
         accepts a Figure instance
         """
@@ -926,24 +925,24 @@ class Axes(martist.Artist):
 
         adjustable:
 
-          ========   ============================
-          value      description
-          ========   ============================
-          'box'      change physical size of axes
-          'datalim'  change xlim or ylim
-          ========   ============================
+          =========   ============================
+          value       description
+          =========   ============================
+          'box'       change physical size of axes
+          'datalim'   change xlim or ylim
+          =========   ============================
 
         anchor:
 
-          ====   =====================
-          value      description
-          ====   =====================
-          'C'    centered
-          'SW'   lower left corner
-          'S'    middle of bottom edge
-          'SE'   lower right corner
+          =====   =====================
+          value   description
+          =====   =====================
+          'C'     centered
+          'SW'    lower left corner
+          'S'     middle of bottom edge
+          'SE'    lower right corner
           etc.
-          ====   =====================
+          =====   =====================
 
         """
         if aspect in ('normal', 'auto'):
@@ -963,7 +962,7 @@ class Axes(martist.Artist):
 
     def set_adjustable(self, adjustable):
         """
-        ACCEPTS: ['box' | 'datalim']
+        ACCEPTS: [ 'box' | 'datalim' ]
         """
         if adjustable in ('box', 'datalim'):
             self._adjustable = adjustable
@@ -1105,8 +1104,6 @@ class Axes(martist.Artist):
             #print 'New x0, x1:', x0, x1
             #print 'New xsize, ysize/xsize', x1-x0, ysize/(x1-x0)
 
-
-
     def axis(self, *v, **kwargs):
         '''
         Convenience method for manipulating the x and y view limits
@@ -1164,7 +1161,6 @@ class Axes(martist.Artist):
         self.set_ylim([v[2], v[3]])
 
         return v
-
 
     def get_child_artists(self):
         """
@@ -1434,6 +1430,7 @@ class Axes(martist.Artist):
         self.set_position(new_position, 'active')
 
     #### Drawing
+
     def draw(self, renderer=None, inframe=False):
         "Draw everything (plot lines, axes, labels)"
         if renderer is None:
@@ -1551,7 +1548,7 @@ class Axes(martist.Artist):
         """
         Set whether the axes rectangle patch is drawn
 
-        ACCEPTS: True|False
+        ACCEPTS: [ True | False ]
         """
         self._frameon = b
 
@@ -1565,7 +1562,7 @@ class Axes(martist.Artist):
         """
         Set whether the axis ticks and gridlines are above or below most artists
 
-        ACCEPTS: True|False
+        ACCEPTS: [ True | False ]
         """
         self._axisbelow = b
 
@@ -1822,7 +1819,9 @@ class Axes(martist.Artist):
 
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        set_xticklabels(labels, fontdict=None, minor=False, **kwargs)
+        call signature::
+
+          set_xticklabels(labels, fontdict=None, minor=False, **kwargs)
 
         Set the xtick labels with list of strings labels Return a list of axis
         text instances.
@@ -1884,20 +1883,25 @@ class Axes(martist.Artist):
 
     def set_ylim(self, ymin=None, ymax=None, emit=True, **kwargs):
         """
-        set_ylim(self, *args, **kwargs):
+        call signature::
 
-        Set the limits for the yaxis; v = [ymin, ymax]
+          set_ylim(self, *args, **kwargs):
 
-        set_ylim((valmin, valmax))
-        set_ylim(valmin, valmax)
-        set_ylim(ymin=1) # ymax unchanged
-        set_ylim(ymax=1) # ymin unchanged
+        Set the limits for the yaxis; v = [ymin, ymax]::
 
-        Valid kwargs:
+          set_ylim((valmin, valmax))
+          set_ylim(valmin, valmax)
+          set_ylim(ymin=1) # ymax unchanged
+          set_ylim(ymax=1) # ymin unchanged
 
-        ymin : the min of the ylim
-        ymax : the max of the ylim
-        emit : notify observers of lim change
+        Keyword arguments:
+
+        ymin: scalar
+            the min of the ylim
+        ymax: scalar
+            the max of the ylim
+        emit: [ True | False ]
+            notify observers of lim change
 
         Returns the current ylimits as a length 2 tuple
 
@@ -1937,7 +1941,9 @@ class Axes(martist.Artist):
 
     def set_yscale(self, value, **kwargs):
         """
-        SET_YSCALE(value)
+        call signature::
+
+          set_yscale(value)
 
         Set the scaling of the y-axis: %(scale)s
 
@@ -1960,6 +1966,11 @@ class Axes(martist.Artist):
         Set the y ticks with list of ticks
 
         ACCEPTS: sequence of floats
+
+        Keyword arguments:
+
+          minor: [ False | True ]
+            Sets the minor ticks if True
         """
         return self.yaxis.set_ticks(ticks, minor=minor)
 
@@ -1977,7 +1988,9 @@ class Axes(martist.Artist):
 
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
-        set_yticklabels(labels, fontdict=None, minor=False, **kwargs)
+        call signature::
+
+          set_yticklabels(labels, fontdict=None, minor=False, **kwargs)
 
         Set the ytick labels with list of strings labels.  Return a list of
         Text instances.
@@ -2100,7 +2113,7 @@ class Axes(martist.Artist):
         """
         Set whether the axes responds to navigation toolbar commands
 
-        ACCEPTS: True|False
+        ACCEPTS: [ True | False ]
         """
         self._navigate = b
 
@@ -2124,9 +2137,10 @@ class Axes(martist.Artist):
 
         x, y are the mouse coordinates in display coords.
         button is the mouse button number:
-           1: LEFT
-           2: MIDDLE
-           3: RIGHT
+
+        * 1: LEFT
+        * 2: MIDDLE
+        * 3: RIGHT
 
         Intended to be overridden by new projection types.
         """
@@ -2153,9 +2167,10 @@ class Axes(martist.Artist):
         Called when the mouse moves during a pan operation.
 
         button is the mouse button number:
-           1: LEFT
-           2: MIDDLE
-           3: RIGHT
+
+        * 1: LEFT
+        * 2: MIDDLE
+        * 3: RIGHT
 
         key is a "shift" key
 
@@ -2221,9 +2236,13 @@ class Axes(martist.Artist):
 
     def set_cursor_props(self, *args):
         """
-        Set the cursor property as
-        ax.set_cursor_props(linewidth, color)  OR
-        ax.set_cursor_props((linewidth, color))
+        Set the cursor property as::
+
+          ax.set_cursor_props(linewidth, color)
+
+        or::
+
+          ax.set_cursor_props((linewidth, color))
 
         ACCEPTS: a (float, color) tuple
         """
@@ -2240,7 +2259,7 @@ class Axes(martist.Artist):
         """
         Register observers to be notified when certain events occur.  Register
         with callback functions with the following signatures.  The function
-        has the following signature
+        has the following signature::
 
             func(ax)  # where ax is the instance making the callback.
 
@@ -2365,8 +2384,6 @@ class Axes(martist.Artist):
         ds.sort()
         return ds[0][1]
 
-
-
     #### Labelling
 
     def get_title(self):
@@ -2377,7 +2394,9 @@ class Axes(martist.Artist):
 
     def set_title(self, label, fontdict=None, **kwargs):
         """
-        SET_TITLE(label, fontdict=None, **kwargs):
+        call signature::
+
+          set_title(label, fontdict=None, **kwargs):
 
         Set the title for the axes.  See the text docstring for information
         of how override and the optional args work
@@ -2409,7 +2428,9 @@ class Axes(martist.Artist):
 
     def set_xlabel(self, xlabel, fontdict=None, **kwargs):
         """
-        SET_XLABEL(xlabel, fontdict=None, **kwargs)
+        call signature::
+
+          set_xlabel(xlabel, fontdict=None, **kwargs)
 
         Set the label for the xaxis.  See the text docstring for information
         of how override and the optional args work.
@@ -2435,7 +2456,9 @@ class Axes(martist.Artist):
 
     def set_ylabel(self, ylabel, fontdict=None, **kwargs):
         """
-        SET_YLABEL(ylabel, fontdict=None, **kwargs)
+        call signature::
+
+          set_ylabel(ylabel, fontdict=None, **kwargs)
 
         Set the label for the yaxis
 
@@ -2535,13 +2558,10 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          annotate(s, xy,
-                   xytext=None,
-                   xycoords='data',
-                   textcoords='data',
-                   arrowprops=None,
-                   **props)
+          annotate(s, xy, xytext=None, xycoords='data',
+                   textcoords='data', arrowprops=None, **kwargs)
 
+        Keyword arguments:
         %(Annotation)s
         """
         a = mtext.Annotation(*args, **kwargs)
@@ -2802,7 +2822,9 @@ class Axes(martist.Artist):
     def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
                      label='', **kwargs):
         """
-        VLINES(x, ymin, ymax, color='k')
+        call signature::
+
+          vlines(x, ymin, ymax, color='k')
 
         Plot vertical lines at each x from ymin to ymax.  ymin or ymax can be
         scalars or len(x) numpy arrays.  If they are scalars, then the
@@ -2813,7 +2835,7 @@ class Axes(martist.Artist):
         colors is a line collections color args, either a single color
         or a len(x) list of colors
 
-        linestyle is one of solid|dashed|dashdot|dotted
+        linestyle is one of [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
 
         Returns the collections.LineCollection that was added
 
@@ -3199,7 +3221,10 @@ class Axes(martist.Artist):
     def xcorr(self, x, y, normed=False, detrend=mlab.detrend_none, usevlines=False,
               maxlags=None, **kwargs):
         """
-        XCORR(x, y, normed=False, detrend=mlab.detrend_none, usevlines=False, \*\*kwargs):
+        call signature::
+
+          xcorr(x, y, normed=False, detrend=mlab.detrend_none,
+                usevlines=False, **kwargs):
 
         Plot the cross correlation between x and y.  If normed=True,
         normalize the data but the cross correlation at 0-th lag.  x
@@ -3220,10 +3245,11 @@ class Axes(martist.Artist):
         to draw vertical lines from the origin to the acorr.
         Otherwise the plotstyle is determined by the kwargs, which are
         Line2D properties.  If usevlines, the return value is lags, c,
-        linecol, b where linecol is the collections.LineCollection and b is the x-axis
+        linecol, b where linecol is the collections.LineCollection and b is the
+        x-axis
 
-        if usevlines=True, kwargs are passed onto Axes.vlines
-        if usevlines=False, kwargs are passed onto Axes.plot
+        if ``usevlines=True``, kwargs are passed onto Axes.vlines
+        if ``usevlines=False``, kwargs are passed onto Axes.plot
 
         maxlags is a positive integer detailing the number of lags to show.
         The default value of None will return all ``(2*len(x)-1)`` lags.
@@ -3400,7 +3426,6 @@ class Axes(martist.Artist):
         handles = cbook.flatten(handles)
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         return self.legend_
-
 
     #### Specialized plotting
 
@@ -3958,9 +3983,6 @@ class Axes(martist.Artist):
 
         if autopct is None: return slices, texts
         else: return slices, texts, autotexts
-
-
-
 
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='-', ecolor=None, elinewidth=None, capsize=3,
@@ -4946,8 +4968,8 @@ class Axes(martist.Artist):
         self.autoscale_view()
         return patches
     fill.__doc__ = cbook.dedent(fill.__doc__) % martist.kwdocd
-    #### plotting z(x,y): imshow, pcolor and relatives, contour
 
+    #### plotting z(x,y): imshow, pcolor and relatives, contour
 
     def imshow(self, X, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=1.0, vmin=None, vmax=None,
@@ -5384,14 +5406,14 @@ class Axes(martist.Artist):
 
     def pcolorfast(self, *args, **kwargs):
         """
+        pseudocolor plot of a 2-D array
+
         Experimental; this is a version of pcolor that
         does not draw lines, that provides the fastest
         possible rendering with the Agg backend, and that
         can handle any quadrilateral grid.
 
-        pcolor(*args, **kwargs): pseudocolor plot of a 2-D array
-
-        Function signatures
+        Call signatures::
 
           pcolor(C, **kwargs)
           pcolor(xr, yr, C, **kwargs)
@@ -5401,8 +5423,8 @@ class Axes(martist.Artist):
         C is the 2D array of color values corresponding to quadrilateral
         cells. Let (nr, nc) be its shape.  C may be a masked array.
 
-        pcolor(C, **kwargs) is equivalent to
-        pcolor([0,nc], [0,nr], C, **kwargs)
+        ``pcolor(C, **kwargs)`` is equivalent to
+        ``pcolor([0,nc], [0,nr], C, **kwargs)``
 
         xr, yr specify the ranges of x and y corresponding to the rectangular
         region bounding C.  If xr = [x0, x1] and yr = [y0,y1] then
@@ -5430,20 +5452,20 @@ class Axes(martist.Artist):
         and the row index corresponds to y; for details, see
         the "Grid Orientation" section below.
 
-        Optional keyword args are shown with their defaults below (you must
-        use kwargs for these):
+        Optional keyword arguments:
 
-          * cmap = cm.jet : a cm Colormap instance from cm
-
-          * norm = Normalize() : mcolors.Normalize instance
-            is used to scale luminance data to 0,1.
-
-          * vmin=None and vmax=None : vmin and vmax are used in conjunction
-            with norm to normalize luminance data.  If either are None, the
-            min and max of the color array C is used.  If you pass a norm
-            instance, vmin and vmax will be None
-
-          * alpha=1.0 : the alpha blending value
+          cmap: [ None | Colormap ]
+            A cm Colormap instance from cm. If None, use rc settings.
+          norm: [ None | Normalize ]
+            An mcolors.Normalize instance is used to scale luminance data to
+            0,1. If None, defaults to normalize()
+          vmin/vmax: [ None | scalar ]
+            vmin and vmax are used in conjunction with norm to normalize
+            luminance data.  If either are None, the min and max of the color
+            array C is used.  If you pass a norm instance, vmin and vmax will
+            be None.
+          alpha: 0 <= scalar <= 1
+            the alpha blending value
 
         Return value is an image if a regular or rectangular grid
         is specified, and a QuadMesh collection in the general
@@ -5567,11 +5589,13 @@ class Axes(martist.Artist):
 
     def table(self, **kwargs):
         """
-        TABLE(cellText=None, cellColours=None,
-              cellLoc='right', colWidths=None,
-              rowLabels=None, rowColours=None, rowLoc='left',
-              colLabels=None, colColours=None, colLoc='center',
-              loc='bottom', bbox=None):
+        call signature::
+
+          table(cellText=None, cellColours=None,
+                cellLoc='right', colWidths=None,
+                rowLabels=None, rowColours=None, rowLoc='left',
+                colLabels=None, colColours=None, colLoc='center',
+                loc='bottom', bbox=None):
 
         Add a table to the current axes.  Returns a table instance.  For
         finer grained control over tables, use the Table class and add it
@@ -5587,7 +5611,9 @@ class Axes(martist.Artist):
 
     def twinx(self):
         """
-        ax = twinx()
+        call signature::
+
+          ax = twinx()
 
         create a twin of Axes for generating a plot with a sharex
         x-axis but independent y axis.  The y-axis of self will have
@@ -5604,7 +5630,9 @@ class Axes(martist.Artist):
 
     def twiny(self):
         """
-        ax = twiny()
+        call signature::
+
+          ax = twiny()
 
         create a twin of Axes for generating a plot with a shared
         y-axis but independent x axis.  The x-axis of self will have
@@ -5619,9 +5647,7 @@ class Axes(martist.Artist):
         self.xaxis.tick_bottom()
         return ax2
 
-
     #### Data analysis
-
 
     def hist(self, x, bins=10, normed=False, cumulative=False,
              bottom=None, histtype='bar', align='mid',
@@ -6238,13 +6264,13 @@ class SubplotBase:
         fig is a figure instance
 
         args is numRows, numCols, plotNum
-            where the array of subplots in the figure has dimensions
-            numRows, numCols, and where plotNum is the number of the
-            subplot being created.  plotNum starts at 1 in the upper
-            right corner and increases to the right.
+        where the array of subplots in the figure has dimensions
+        numRows, numCols, and where plotNum is the number of the
+        subplot being created.  plotNum starts at 1 in the upper
+        right corner and increases to the right.
 
-            If numRows<=numCols<=plotNum<10, args can be the decimal
-            integer numRows*100 + numCols*10 + plotNum.
+        If numRows<=numCols<=plotNum<10, args can be the decimal
+        integer numRows*100 + numCols*10 + plotNum.
         """
 
         self.figure = fig
