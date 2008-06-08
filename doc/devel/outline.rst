@@ -12,10 +12,9 @@ a chapter.
 ===============================  ==================== ===========  ===================
 User's guide unit                Author               Status       Reviewer
 ===============================  ==================== ===========  ===================
-contouring                       Eric ?               no author    Perry ?
-quiver plots                     Eric ?               no author    ?
-quadmesh                         ?                    no author    ?
-images                           ?                    no author    Darren
+plotting 2-D arrays              Eric                 has author   Perry ? Darren
+colormapping                     Eric                 has author   ?
+quiver plots                     Eric                 has author   ?
 histograms                       Manuel ?             no author    Erik Tollerud ?
 bar / errorbar                   ?                    no author    ?
 x-y plots                        ?                    no author    Darren
@@ -23,7 +22,7 @@ time series plots                ?                    no author    ?
 date plots                       John                 has author   ?
 working with data                John                 has author   Darren
 custom ticking                   ?                    no author    ?
-masked data                      Eric ?               no author    ?
+masked data                      Eric                 has author    ?
 text                             ?                    no author    ?
 patches                          ?                    no author    ?
 legends                          ?                    no author    ?
@@ -31,10 +30,9 @@ animation                        John                 has author   ?
 collections                      ?                    no author    ?
 mathtext                         Michael ?            submitted    John
 fonts et al                      Michael ?            no author    Darren
-pyplot tut                       John                 submitted    Eric ?
+pyplot tut                       John                 submitted    Eric
 usetex                           Darren               submitted    ?
 configuration                    Darren               preliminary  ?
-colormapping                     Perry ?              no author    Eric ?
 win32 install                    Charlie ?            no author    Darren
 os x install                     Charlie ?            no author    ?
 linux install                    Darren               has author   ?
@@ -64,7 +62,7 @@ the canvas                       John                 has author   ?
 the artist                       John                 has author   ?
 transforms                       Michael              submitted    John
 documenting mpl                  Darren               submitted    ?
-coding guide                     John                 submitted    Eric ?
+coding guide                     John                 submitted    Eric
 and_much_more                    ?                    ?            ?
 ===============================  ==================== ===========  ===================
 
