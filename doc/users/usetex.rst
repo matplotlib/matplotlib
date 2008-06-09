@@ -1,7 +1,7 @@
 .. _usetex-tutorial:
 
 *************************
-Text Rendering With LaTeX
+Text rendering With LaTeX
 *************************
 
 Matplotlib has the option to use LaTeX to manage all text layout.  This

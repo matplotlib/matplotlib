@@ -11,11 +11,12 @@
 
     intro.rst
     pyplot_tutorial.rst
-    mathtext.rst
     navigation_toolbar.rst
     customizing.rst
+    index_text.rst
     artists.rst
     event_handling.rst
-    usetex.rst
+
+
 
 

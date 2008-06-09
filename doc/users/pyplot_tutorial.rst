@@ -273,4 +273,46 @@ examples of how to control the alignment and orientation of text.
 
 
 
+Using mathematical expressions in text
+--------------------------------------
 
+matplotlib accepts TeX equation expressions in any text expression.
+For example to write the expression :math:`\sigma_i=15` in the title,
+you can write a TeX expression surrounded by dollar signs::
+
+    plt.title(r'$\sigma_i=15$')
+
+The ``r`` preceeding the title string is important -- it signifies
+that the string is a *raw* string and not to treate backslashes and
+python escapes.  matplotlib has a built-in TeX expression parser and
+layout engine, and ships its own math fonts -- for details see
+:ref:`mathtext-tutorial`.  Thus you can use mathematical text across platforms
+without requiring a TeX installation.  For those who have LaTeX and
+dvipng installed, you can also use LaTeX to format your text and
+incorporate the output directly into your display figures or saved
+postscript -- see :ref:`usetex-tutorial`.
+
+
+Annotating text
+---------------
+
+The uses of the basic :func:`~matplotlib.pyplot.text` command above
+place text at an arbitrary position on the Axes.  A common use case of
+text is to annotate some feature of the plot, and the
+:func:`~matplotlib.pyplot.annotate` method provides helper
+functionality to make annotations easy.  In an annotation, there are
+two points to consider: the location being annotated represented by
+the argument ``xy`` and the location of the text ``xytext``.  Both of
+these arguments are ``(x,y)`` tuples.
+
+.. literalinclude:: figures/pyplot_annotate.py
+
+.. image:: figures/pyplot_annotate.png
+   :scale: 50
+
+In this basic example, both the ``xy`` (arrow tip) and ``xytext``
+locations (text location) are in data coordinates.  There are a
+variety of other coordinate systems one can choose -- see
+:ref:`annotations-tutorial` for details.  More examples can be found
+in the `annotations demo
+<http://matplotlib.sf.net/examples/pylab_examples/annotation_demo.py>`_

@@ -23,15 +23,15 @@ date plots                       John                 has author   ?
 working with data                John                 has author   Darren
 custom ticking                   ?                    no author    ?
 masked data                      Eric                 has author   ?
-text                             ?                    no author    ?
 patches                          ?                    no author    ?
 legends                          ?                    no author    ?
 animation                        John                 has author   ?
 collections                      ?                    no author    ?
-mathtext                         Michael              in review    John
+text - mathtext                  Michael              in review    John
+text - usetex                    Darren               submitted    ?
+text - annotations               John                 submitted    ?
 fonts et al                      Michael ?            no author    Darren
 pyplot tut                       John                 submitted    Eric
-usetex                           Darren               submitted    ?
 configuration                    Darren               preliminary  ?
 win32 install                    Charlie ?            no author    Darren
 os x install                     Charlie ?            no author    ?

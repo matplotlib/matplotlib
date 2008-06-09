@@ -104,28 +104,28 @@ in dates on the x-xaxis, you get large horizontal gaps on periods when
 there is not data. The solution is to pass in some proxy x-data, eg
 evenly sampled indicies, and then use a custom formatter to format
 these as dates. The example below shows how to use an 'index formatter'
-to achieve the desired plot
+to achieve the desired plot::
 
-  import numpy as np
-  import matplotlib.pyplot as plt
-  import matplotlib.mlab as mlab
-  import matplotlib.ticker as ticker
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import matplotlib.mlab as mlab
+    import matplotlib.ticker as ticker
 
-  r = mlab.csv2rec('../data/aapl.csv')
-  r.sort()
-  r = r[-30:]  # get the last 30 days
+    r = mlab.csv2rec('../data/aapl.csv')
+    r.sort()
+    r = r[-30:]  # get the last 30 days
 
-  N = len(r)
-  ind = np.arange(N)  # the evenly spaced plot indices
+    N = len(r)
+    ind = np.arange(N)  # the evenly spaced plot indices
 
-  def format_date(x, pos=None):
-      thisind = np.clip(int(x+0.5), 0, N-1)
-      return r.date[thisind].strftime('%Y-%m-%d')
+    def format_date(x, pos=None):
+	thisind = np.clip(int(x+0.5), 0, N-1)
+	return r.date[thisind].strftime('%Y-%m-%d')
 
-  fig = plt.figure()
-  ax = fig.add_subplot(111)
-  ax.plot(ind, r.adj_close, 'o-')
-  ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
-  fig.autofmt_xdate()
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(ind, r.adj_close, 'o-')
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
+    fig.autofmt_xdate()
 
-  plt.show()
+    plt.show()
