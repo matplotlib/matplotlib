@@ -12,8 +12,15 @@ import os
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
-interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'fltkagg', 'qtagg', 'qt4agg',
-                  'tkagg', 'wx', 'wxagg', 'cocoaagg']
+#interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'fltkagg', 'qtagg', 'qt4agg',
+#                  'tkagg', 'wx', 'wxagg', 'cocoaagg']
+# The capitalized forms seem to be needed for ipython at present;
+# this is mysterious to me (EF).
+
+interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'QtAgg', 'Qt4Agg',
+                  'TkAgg', 'WX', 'WXAgg', 'CocoaAgg']
+
+
 non_interactive_bk = ['agg', 'cairo', 'emf', 'gdk',
                       'pdf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
