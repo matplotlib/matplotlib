@@ -716,7 +716,7 @@ def hist(y, bins=10, normed=0):
 def normpdf(x, *args):
     "Return the normal pdf evaluated at x; args provides mu, sigma"
     mu, sigma = args
-    return 1/(np.sqrt(2*np.pi)*sigma)*np.exp(-0.5 * (1/sigma*(x - mu))**2)
+    return 1./(np.sqrt(2*np.pi)*sigma)*np.exp(-0.5 * (1./sigma*(x - mu))**2)
 
 
 def levypdf(x, gamma, alpha):

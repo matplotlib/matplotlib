@@ -4974,7 +4974,7 @@ class Axes(martist.Artist):
     def imshow(self, X, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=1.0, vmin=None, vmax=None,
                origin=None, extent=None, shape=None, filternorm=1,
-               filterrad=4.0, imlim=None, **kwargs):
+               filterrad=4.0, imlim=None, resample=None, **kwargs):
         """
         call signature::
 
@@ -5061,7 +5061,7 @@ class Axes(martist.Artist):
         self.set_aspect(aspect)
         im = mimage.AxesImage(self, cmap, norm, interpolation, origin, extent,
                        filternorm=filternorm,
-                       filterrad=filterrad, **kwargs)
+                       filterrad=filterrad, resample=resample, **kwargs)
 
         im.set_data(X)
         im.set_alpha(alpha)
@@ -5666,9 +5666,13 @@ class Axes(martist.Artist):
         Keyword arguments:
 
           bins:
+
             either an integer number of bins or a sequence giving the
-            bins.  x are the data to be binned. x can be an array or a 2D
-            array with multiple data in its columns.
+            bins.  x are the data to be binned. x can be an array or a
+            2D array with multiple data in its columns.  Note, if bins
+            is an integer input argument=numbins, numbins+1 bin edges
+            will be returned, compatabile with the semantics of
+            np.histogram with the new=True argument.
         
           range:
             The lower and upper range of the bins. Lower and upper outliers
@@ -5726,6 +5730,45 @@ class Axes(martist.Artist):
         kwargs are used to update the properties of the
         hist Rectangles:
         %(Rectangle)s
+
+
+        Here is an example which generates a histogram of normally
+        distributed random numbers and plot the analytic PDF over it::
+
+
+            import numpy as np
+            import matplotlib.pyplot as plt
+            import matplotlib.mlab as mlab
+
+            mu, sigma = 100, 15
+            x = mu + sigma * np.random.randn(10000)
+
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+
+            # the histogram of the data
+            n, bins, patches = ax.hist(x, 50, normed=1, facecolor='green', alpha=0.75)
+
+            # hist uses np.histogram under the hood to create 'n' and 'bins'.
+            # np.histogram returns the bin edges, so there will be 50 probability
+            # density values in n, 51 bin edges in bins and 50 patches.  To get
+            # everything lined up, we'll compute the bin centers
+            bincenters = 0.5*(bins[1:]+bins[:-1])
+
+            # add a 'best fit' line for the normal PDF
+            y = mlab.normpdf( bincenters, mu, sigma)
+            l = ax.plot(bincenters, y, 'r--', linewidth=1)
+
+            ax.set_xlabel('Smarts')
+            ax.set_ylabel('Probability')
+            ax.set_title(r'$\mathrm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$')
+            ax.set_xlim(40, 160)
+            ax.set_ylim(0, 0.03)
+            ax.grid(True)
+
+            #fig.savefig('histogram_demo',dpi=72)
+            plt.show()
+
         """
         if not self._hold: self.cla()
 

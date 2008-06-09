@@ -426,11 +426,22 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
           case HAMMING:  filter.calculate(agg::image_filter_hamming(), norm); break;
           case HERMITE:  filter.calculate(agg::image_filter_hermite(), norm); break;
         }
-	typedef agg::span_image_filter_rgba_2x2<img_accessor_type, interpolator_type> span_gen_type;
-	typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
-	span_gen_type sg(ia, interpolator, filter);
-	renderer_type ri(rb, sa, sg);
-	agg::render_scanlines(ras, sl, ri);
+	if (resample)
+	  {
+	    typedef agg::span_image_resample_rgba_affine<img_accessor_type> span_gen_type;
+	    typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+	    span_gen_type sg(ia, interpolator, filter);
+	    renderer_type ri(rb, sa, sg);
+	    agg::render_scanlines(ras, sl, ri);
+	  }
+	else
+	  {
+	    typedef agg::span_image_filter_rgba_2x2<img_accessor_type, interpolator_type> span_gen_type;
+	    typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+	    span_gen_type sg(ia, interpolator, filter);
+	    renderer_type ri(rb, sa, sg);
+	    agg::render_scanlines(ras, sl, ri);
+	  }
       }
       break;
     case BILINEAR:
@@ -464,11 +475,22 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
           case LANCZOS: filter.calculate(agg::image_filter_lanczos(radius), norm); break;
           case BLACKMAN: filter.calculate(agg::image_filter_blackman(radius), norm); break;
           }
-	typedef agg::span_image_filter_rgba<img_accessor_type, interpolator_type> span_gen_type;
-	typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
-	span_gen_type sg(ia, interpolator, filter);
-	renderer_type ri(rb, sa, sg);
-	agg::render_scanlines(ras, sl, ri);
+	if (resample)
+	  {
+	    typedef agg::span_image_resample_rgba_affine<img_accessor_type> span_gen_type;
+	    typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+	    span_gen_type sg(ia, interpolator, filter);
+	    renderer_type ri(rb, sa, sg);
+	    agg::render_scanlines(ras, sl, ri);
+	  }
+	else
+	  {
+	    typedef agg::span_image_filter_rgba<img_accessor_type, interpolator_type> span_gen_type;
+	    typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+	    span_gen_type sg(ia, interpolator, filter);
+	    renderer_type ri(rb, sa, sg);
+	    agg::render_scanlines(ras, sl, ri);
+	  }
       }
       break;
 
@@ -528,6 +550,20 @@ Image::get_size(const Py::Tuple& args) {
   ret[1] = Py::Int((long)colsIn);
   return ret;
 
+}
+
+char Image::get_resample__doc__[] =
+"get_resample()\n"
+"\n"
+"Get the resample flag."
+;
+
+Py::Object
+Image::get_resample(const Py::Tuple& args) {
+  _VERBOSE("Image::get_resample");
+
+  args.verify_length(0);
+  return Py::Int((int)resample);
 }
 
 char Image::get_size_out__doc__[] =
@@ -591,6 +627,21 @@ Image::set_interpolation(const Py::Tuple& args) {
   interpolation = (unsigned)method;
   return Py::Object();
 
+}
+
+char Image::set_resample__doc__[] =
+"set_resample(boolean)\n"
+"\n"
+"Set the resample flag."
+;
+
+Py::Object
+Image::set_resample(const Py::Tuple& args) {
+  _VERBOSE("Image::set_resample");
+  args.verify_length(1);
+  int flag = Py::Int(args[0]);
+  resample = (bool)flag;
+  return Py::Object();
 }
 
 static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t length) {
@@ -752,12 +803,14 @@ Image::init_type() {
   add_varargs_method( "buffer_rgba", &Image::buffer_rgba, Image::buffer_rgba__doc__);
   add_varargs_method( "get_aspect", &Image::get_aspect, Image::get_aspect__doc__);
   add_varargs_method( "get_interpolation", &Image::get_interpolation, Image::get_interpolation__doc__);
+  add_varargs_method( "get_resample", &Image::get_resample, Image::get_resample__doc__);
   add_varargs_method( "get_size", &Image::get_size, Image::get_size__doc__);
   add_varargs_method( "get_size_out", &Image::get_size_out, Image::get_size_out__doc__);
   add_varargs_method( "reset_matrix", &Image::reset_matrix, Image::reset_matrix__doc__);
   add_varargs_method( "get_matrix", &Image::get_matrix, Image::get_matrix__doc__);
   add_keyword_method( "resize", &Image::resize, Image::resize__doc__);
   add_varargs_method( "set_interpolation", &Image::set_interpolation, Image::set_interpolation__doc__);
+  add_varargs_method( "set_resample", &Image::set_resample, Image::set_resample__doc__);
   add_varargs_method( "set_aspect", &Image::set_aspect, Image::set_aspect__doc__);
   add_varargs_method( "write_png", &Image::write_png, Image::write_png__doc__);
   add_varargs_method( "set_bg", &Image::set_bg, Image::set_bg__doc__);

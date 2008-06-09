@@ -34,6 +34,7 @@ artist.kwdocd['Patch'] = """\
           visible             [True | False]
           zorder              any number
           =================   ==============================================
+
           """
 class Patch(artist.Artist):
     """

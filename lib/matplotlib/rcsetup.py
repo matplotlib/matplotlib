@@ -379,6 +379,7 @@ defaultParams = {
     'image.cmap'          : ['jet', str],        # one of gray, jet, etc
     'image.lut'           : [256, validate_int],  # lookup table
     'image.origin'        : ['upper', str],  # lookup table
+    'image.resample'      : [False, validate_bool],
 
     'contour.negative_linestyle' : ['dashed', validate_negative_linestyle_legacy],
 

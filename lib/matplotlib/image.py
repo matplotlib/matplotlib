@@ -57,6 +57,7 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
                  extent=None,
                  filternorm=1,
                  filterrad=4.0,
+                 resample = False,
                  **kwargs
                  ):
 
@@ -86,6 +87,7 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
 
         self.set_interpolation(interpolation)
+        self.set_resample(resample)
         self.axes = ax
 
 
@@ -200,6 +202,7 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
         im.set_interpolation(self._interpd[self._interpolation])
 
+        im.set_resample(self._resample)
 
         # the viewport translation
         tx = (xmin-self.axes.viewLim.x0)/dxintv * numcols
@@ -324,6 +327,13 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         if not self._interpd.has_key(s):
             raise ValueError('Illegal interpolation string')
         self._interpolation = s
+
+    def set_resample(self, v):
+        if v is None: v = rcParams['image.resample']
+        self._resample = v
+
+    def get_interpolation(self):
+        return self._resample
 
     def get_extent(self):
         'get the image extent: left, right, bottom, top'
