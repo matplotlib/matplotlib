@@ -11,7 +11,7 @@ own TeX expression parser, layout engine and fonts.  The layout engine
 is a fairly direct adaptation of the layout algorithms in Donald
 Knuth's TeX, so the quality is quite good (matplotlib also provides a
 ``usetex`` option for those who do want to call out to TeX to generate
-their text).
+their text (see :ref:`usetex-tutorial`).
 
 Any text element can use math text.  You need to use raw strings
 (preceed the quotes with an ``'r'``), and surround the string text
@@ -20,7 +20,8 @@ interleaved within the same string.  Mathtext can use the Computer
 Modern fonts (from (La)TeX), `STIX <http://www.aip.org/stixfonts/>`_
 fonts (with are designed to blend well with Times) or a Unicode font
 that you provide.  The mathtext font can be selected with the
-customization variable ``mathtext.fontset``.
+customization variable ``mathtext.fontset`` (see
+:ref:`customizing-matplotlib`)
 
 Here is a simple example::
 
@@ -165,7 +166,8 @@ When using the STIX fonts, you also have the choice of:
 .. image:: ../_static/stix_fonts.png
 
 There are also three global "font sets" to choose from, which are
-selected using the ``mathtext.fontset`` parameter in ``matplotibrc``.
+selected using the ``mathtext.fontset`` parameter in
+::ref:`matplotlibrc <matplotlibrc-sample>`.
 
 ``cm``: **Computer Modern (TeX)**
 

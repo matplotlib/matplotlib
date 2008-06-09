@@ -7,16 +7,17 @@ Text Rendering With LaTeX
 Matplotlib has the option to use LaTeX to manage all text layout.  This
 option is available with the following backends:
 
-* \*Agg
+* Agg
 * PS
 * PDF
 
-The LaTeX option is activated by setting text.usetex : true in your rc
-settings.  Text handling with matplotlib's LaTeX support is slower than
-matplotlib's very capable :ref:`mathtext <mathtext-tutorial>`, but is more
-flexible, since different LaTeX packages (font packages, math packages, etc.)
-can be used. The results can be striking, especially when you take care to use
-the same fonts in your figures as in the main document.
+The LaTeX option is activated by setting ``text.usetex : True`` in
+your rc settings.  Text handling with matplotlib's LaTeX support is
+slower than matplotlib's very capable :ref:`mathtext
+<mathtext-tutorial>`, but is more flexible, since different LaTeX
+packages (font packages, math packages, etc.)  can be used. The
+results can be striking, especially when you take care to use the same
+fonts in your figures as in the main document.
 
 Matplotlib's LaTeX support requires a working LaTeX_ installation, dvipng_
 (which may be included with your LaTeX installation), and Ghostscript_
