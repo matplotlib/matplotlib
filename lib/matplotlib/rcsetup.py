@@ -14,7 +14,7 @@ from matplotlib.colors import is_color_like
 
 interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'fltkagg', 'qtagg', 'qt4agg',
                   'tkagg', 'wx', 'wxagg', 'cocoaagg']
-non_interactive_bk = ['agg', 'cairo', 'emv', 'gdk',
+non_interactive_bk = ['agg', 'cairo', 'emf', 'gdk',
                       'pdf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
 
