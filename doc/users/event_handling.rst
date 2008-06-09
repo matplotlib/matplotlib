@@ -1,8 +1,8 @@
 .. _event-handling-tutorial:
 
-***********************************
-Event Handling and Picking Tutorial
-***********************************
+**************************
+Event handling and picking
+**************************
 
 matplotlib works with 5 user interface toolkits (wxpython, tkinter,
 qt, gtk and fltk) and in order to support features like interactive
