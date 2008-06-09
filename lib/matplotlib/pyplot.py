@@ -424,7 +424,6 @@ def axes(*args, **kwargs):
     * examples/axes_demo.py places custom axes.
     * examples/shared_axis_demo.py uses sharex and sharey
 
-
     """
 
     nargs = len(args)

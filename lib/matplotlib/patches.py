@@ -13,7 +13,8 @@ from matplotlib.path import Path
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
 # function and they will be overridden after object definition
-artist.kwdocd['Patch'] = """\
+artist.kwdocd['Patch'] = """
+
           =================   ==============================================
           Property            Description
           =================   ==============================================
@@ -36,6 +37,7 @@ artist.kwdocd['Patch'] = """\
           =================   ==============================================
 
           """
+
 class Patch(artist.Artist):
     """
     A patch is a 2D thingy with a face color and an edge color
