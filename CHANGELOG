@@ -1,3 +1,8 @@
+2008-06-09 Don't install Enthought.Traits along with matplotlib. For
+           matplotlib developers convenience, it can still be
+           installed by setting an option in setup.cfg while we figure
+           decide if there is a future for the traited config - DSD
+
 2008-06-02 Fix crash in Agg when drawing collections with no fill and/or
            edge color - MGD
 
