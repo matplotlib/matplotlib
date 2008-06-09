@@ -105,7 +105,7 @@ options = {'display_status': True,
            'provide_pytz': 'auto',
            'provide_dateutil': 'auto',
            'provide_configobj': 'auto',
-           'provide_traits': 'auto',
+           'provide_traits': False,
            'build_agg': True,
            'build_gtk': 'auto',
            'build_gtkagg': 'auto',
@@ -140,7 +140,7 @@ if os.path.exists("setup.cfg"):
 
     try: options['provide_traits'] = config.getboolean("provide_packages",
                                                        "enthought.traits")
-    except: options['provide_traits'] = 'auto'
+    except: options['provide_traits'] = False
 
     try: options['build_gtk'] = config.getboolean("gui_support", "gtk")
     except: options['build_gtk'] = 'auto'
@@ -461,9 +461,11 @@ def check_provide_configobj():
             return False
 
 def check_provide_traits():
-    if options['provide_traits'] is True:
-        print_status("enthought.traits", "matplotlib will provide")
-        return True
+    # Let's not install traits by default for now, unless it is specifically
+    # asked for in setup.cfg AND it is not already installed
+#    if options['provide_traits'] is True:
+#        print_status("enthought.traits", "matplotlib will provide")
+#        return True
     try:
         from enthought import traits
         try:
@@ -477,12 +479,16 @@ def check_provide_traits():
                 version = version.version
             except AttributeError:
                 version = version.__version__
-            if version.endswith('mpl'):
-                print_status("enthought.traits", "matplotlib will provide")
-                return True
-            else:
-                print_status("enthought.traits", version)
-                return False
+            # next 2 lines added temporarily while we figure out what to do
+            # with traits:
+            print_status("enthought.traits", version)
+            return False
+#            if version.endswith('mpl'):
+#                print_status("enthought.traits", "matplotlib will provide")
+#                return True
+#            else:
+#                print_status("enthought.traits", version)
+#                return False
     except ImportError:
         if options['provide_traits']:
             print_status("enthought.traits", "matplotlib will provide")
