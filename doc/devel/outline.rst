@@ -22,7 +22,7 @@ time series plots                ?                    no author    ?
 date plots                       John                 has author   ?
 working with data                John                 has author   Darren
 custom ticking                   ?                    no author    ?
-masked data                      Eric                 has author    ?
+masked data                      Eric                 has author   ?
 text                             ?                    no author    ?
 patches                          ?                    no author    ?
 legends                          ?                    no author    ?

@@ -14,6 +14,10 @@ def check_build():
         except OSError:
             pass
 
+def sf():
+    'push a copy to the sf site'
+    os.system('cd build; rsync -avz html jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/doc/ -essh')
+
 def figs():
     os.system('cd users/figures/ && python make.py')
 
@@ -56,6 +60,7 @@ funcd = {'figs':figs,
          'html':html,
          'latex':latex,
          'clean':clean,
+         'sf':sf,
          'all':all,
          }
 
