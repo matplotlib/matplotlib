@@ -1,7 +1,12 @@
+2008-06-09 Committed Gregor's image resample patch to downsampling
+           images with new rcparam image.resample - JDH
+
+
 2008-06-09 Don't install Enthought.Traits along with matplotlib. For 
            matplotlib developers convenience, it can still be 
            installed by setting an option in setup.cfg while we figure
            decide if there is a future for the traited config - DSD
+
 
 2008-06-09 Added range keyword arg to hist() - MM
 

@@ -42,6 +42,8 @@ public:
   Py::Object set_bg(const Py::Tuple& args);
   Py::Object flipud_out(const Py::Tuple& args);
   Py::Object flipud_in(const Py::Tuple& args);
+  Py::Object set_resample(const Py::Tuple& args);
+  Py::Object get_resample(const Py::Tuple& args);
 
 
   std::pair<agg::int8u*, bool> _get_output_buffer();
@@ -78,6 +80,7 @@ public:
 
   unsigned interpolation, aspect;
   agg::rgba bg;
+  bool resample;
 private:
   Py::Dict __dict__;
   agg::trans_affine srcMatrix, imageMatrix;
@@ -101,6 +104,8 @@ private:
   static char set_bg__doc__[];
   static char flipud_out__doc__[];
   static char flipud_in__doc__[];
+  static char get_resample__doc__[];
+  static char set_resample__doc__[];
 
 };
 
