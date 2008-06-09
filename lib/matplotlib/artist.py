@@ -179,7 +179,7 @@ class Artist(object):
     def set_contains(self,picker):
         """Replace the contains test used by this artist. The new picker should
         be a callable function which determines whether the artist is hit by the
-        mouse event:
+        mouse event::
 
             hit, props = picker(artist, mouseevent)
 
