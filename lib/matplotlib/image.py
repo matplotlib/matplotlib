@@ -170,7 +170,7 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
         if self._imcache is None:
             if self._A.dtype == np.uint8 and len(self._A.shape) == 3:
-                im = _image.frombyte(self._A[xslice,yslice,:], 0)
+                im = _image.frombyte(self._A[yslice,xslice,:], 0)
                 im.is_grayscale = False
             else:
                 if self._rgbacache is None:
