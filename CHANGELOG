@@ -1,4 +1,6 @@
-2008=06-07 Moved list of backends to rcsetup.py; made use of lower
+2008-06-09 Added range keyword arg to hist() - MM
+
+2008-06-07 Moved list of backends to rcsetup.py; made use of lower
            case for backend names consistent; use validate_backend
            when importing backends subpackage - EF
 

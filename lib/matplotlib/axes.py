@@ -5649,7 +5649,7 @@ class Axes(martist.Artist):
 
     #### Data analysis
 
-    def hist(self, x, bins=10, normed=False, cumulative=False,
+    def hist(self, x, bins=10, range=None, normed=False, cumulative=False,
              bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False, **kwargs):
         """
@@ -5669,6 +5669,10 @@ class Axes(martist.Artist):
             either an integer number of bins or a sequence giving the
             bins.  x are the data to be binned. x can be an array or a 2D
             array with multiple data in its columns.
+        
+          range:
+            The lower and upper range of the bins. Lower and upper outliers
+            are ignored. If not provided, range is (x.min(), x.max()). 
 
           normed:
             if True, the first element of the return tuple will
@@ -5742,11 +5746,11 @@ class Axes(martist.Artist):
             for i in xrange(x.shape[1]):
                 # this will automatically overwrite bins,
                 # so that each histogram uses the same bins
-                m, bins = np.histogram(x[:,i], bins, range=None,
+                m, bins = np.histogram(x[:,i], bins, range=range,
                     normed=bool(normed), new=True)
                 n.append(m)
         else:
-            n, bins = np.histogram(x, bins, range=None,
+            n, bins = np.histogram(x, bins, range=range,
                 normed=bool(normed), new=True)
             n = [n,]
 
