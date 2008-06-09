@@ -28,7 +28,7 @@ patches                          ?                    no author    ?
 legends                          ?                    no author    ?
 animation                        John                 has author   ?
 collections                      ?                    no author    ?
-mathtext                         Michael ?            submitted    John
+mathtext                         Michael              in review    John
 fonts et al                      Michael ?            no author    Darren
 pyplot tut                       John                 submitted    Eric
 usetex                           Darren               submitted    ?
@@ -95,3 +95,28 @@ produce and checking their work, so don't be shy.  You *do not* need
 to be an expert in the subject you are editing -- you should know
 something about it and be willing to read, test, give feedback and
 pester!
+
+Reviewer notes
+==============
+
+If you want to make notes for the authorwhen you have reviewed a
+submission, you can put them here.  As the author cleans them up or
+addresses them, they should be removed.
+
+mathtext user's guide (reviewd by JDH)
+--------------------------------------
+
+This looks good -- there are a few minor things to close the book on
+this chapter.
+
+#. The main thing to wrap this up is getting the mathtext module
+ported over to rest and included in the API so the links from the
+user's guide tutorial work.
+
+#. This section might also benefit from a little more detail on the
+customizations that are possible (eg an example fleshing out the rc
+options a little bit).  Admittedly, this is pretty clear from readin
+ghte rc file, but it might be helpful to a newbie.
+
+#. There is still a TODO in the file to include a complete list of symbols
+
