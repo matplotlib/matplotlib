@@ -120,3 +120,61 @@ ghte rc file, but it might be helpful to a newbie.
 
 #. There is still a TODO in the file to include a complete list of symbols
 
+coding guide (reviewed by EF)
+-----------------------------
+
+Mostly fine, just a few comments.  Also, there are a couple
+of typos, but I would rather just edit those directly in
+another pass (if you don't happen to find them) than include
+them as formal review notes.
+
+#. Import recommendation for ma: given that the trunk is
+   requiring numpy 1.1, perhaps we should be consistent and
+   recommend the form::
+
+     import numpy.ma as ma
+
+   for use in the trunk.
+   A note about the difference between the two forms and the
+   history can stay in place, and the alternative form would
+   still be required for the maintenance branch, I presume.
+
+#. This is peripheral, but regarding the example::
+
+      mpl.rcParams['xtick.major.pad'] = 6
+
+   At least at the application level, I think we should move
+   towards using validation routinely when setting rcParams,
+   to reduce a source of hard-to-find bugs.  I don't know to
+   what extent Darren's traits-based system takes care of
+   this, but if it does, that is a big point in its favor.
+   There are alternatives (e.g. building validation into the
+   rc() function and using that instead of setting the
+   dictionary entries directly), if necessary.
+
+#. You give the example::
+
+        import matplotlib.cbook as cbook
+
+   Should there also be a list of the standard variants like
+   ``mtransforms``?  (And, again peripherally, I would
+   shorten that one to ``mtrans``.)
+
+#. The treatment of whitespace is split into two parts
+   separated by paragraphs on docstrings and line length;
+   this can be consolidated.  It might be worth mentioning
+   the ``reindent.py`` and ``tabnanny.py`` utilities here.
+
+#. Minor question of literary style: should use of the first
+   person be avoided in most places?  It is used, for
+   example, in the discussion of the automatic kwarg doc
+   generation.  I don't mind leaving the first person in,
+   with the general understanding that it means you.
+
+#. Licenses: you might want to add a link to your
+   explanation of your BSD choice.  Peripheral question: is
+   there any problem with basemap's inclusion of
+   sub-packages with the gamut of licenses, GPL to MIT?
+
+
+
