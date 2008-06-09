@@ -185,7 +185,7 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
 
     figManager = _pylab_helpers.Gcf.get_fig_manager(num)
     if figManager is None:
-        if get_backend()=='PS':  dpi = 72
+        if get_backend().lower() == 'ps':  dpi = 72
 
         figManager = new_figure_manager(num, figsize=figsize,
                                              dpi=dpi,

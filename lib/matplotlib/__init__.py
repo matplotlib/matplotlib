@@ -772,7 +772,10 @@ def use(arg, warn=True):
         rcParams['cairo.format'] = validate_cairo_format(be_parts[1])
 
 def get_backend():
-    return rcParams['backend'].lower()
+    # Validation is needed because the rcParams entry might have
+    # been set directly rather than via "use()".
+    return validate_backend(rcParams['backend'])
+    #return rcParams['backend'].lower()
 
 def interactive(b):
     """
