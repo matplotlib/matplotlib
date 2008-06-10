@@ -640,6 +640,10 @@ class Event:
     ``canvas``
         the FigureCanvas instance generating the event
 
+    ``guiEvent``
+        the GUI event that triggered the matplotlib event
+
+
     """
     def __init__(self, name, canvas,guiEvent=None):
         self.name = name

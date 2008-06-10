@@ -103,20 +103,20 @@ If you want to make notes for the authorwhen you have reviewed a
 submission, you can put them here.  As the author cleans them up or
 addresses them, they should be removed.
 
-mathtext user's guide-- reviewd by JDH
---------------------------------------
+mathtext user's guide-- reviewed by JDH
+---------------------------------------
 
 This looks good (see :ref:`mathtext-tutorial`) -- there are a few
-minor things to close the book on this chapter.
+minor things to close the book on this chapter:
 
 #. The main thing to wrap this up is getting the mathtext module
-ported over to rest and included in the API so the links from the
-user's guide tutorial work.
+    ported over to rest and included in the API so the links from the
+    user's guide tutorial work.
 
 #. This section might also benefit from a little more detail on the
-customizations that are possible (eg an example fleshing out the rc
-options a little bit).  Admittedly, this is pretty clear from readin
-ghte rc file, but it might be helpful to a newbie.
+   customizations that are possible (eg an example fleshing out the rc
+   options a little bit).  Admittedly, this is pretty clear from
+   readin ghte rc file, but it might be helpful to a newbie.
 
 #. There is still a TODO in the file to include a complete list of symbols
 

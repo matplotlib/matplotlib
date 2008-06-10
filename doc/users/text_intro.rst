@@ -58,5 +58,5 @@ these commands in action.
 .. literalinclude:: figures/text_commands.py
 
 .. image:: figures/text_commands.png
-   :scale: 50
+   :scale: 75
 
