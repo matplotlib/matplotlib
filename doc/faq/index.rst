@@ -10,6 +10,7 @@
 Frequently asked questions about matplotlib
 
 .. toctree::
+   :maxdepth: 2
 
    installing_faq.rst
    troubleshooting_faq.rst

@@ -8,6 +8,7 @@
 :Date: |today|
 
 .. toctree::
+   :maxdepth: 2
 
    coding_guide.rst
    documenting_mpl.rst
