@@ -34,7 +34,7 @@ interface
 * :func:`~matplotlib.pyplot.xlabel` - add an axis label to the x-axis;
   :meth:`matplotlib.axes.Axes.set_xlabel` in the API.
 
-* :func:`~matplotlib.pyplot.ylabel` - add an axis label to the y-axis;;
+* :func:`~matplotlib.pyplot.ylabel` - add an axis label to the y-axis;
   :meth:`matplotlib.axes.Axes.set_ylabel` in the API.
 
 * :func:`~matplotlib.pyplot.title` - add a title to the ``Axes``;
@@ -52,4 +52,11 @@ interface
 
 All of these functions create and return a
 :func:`matplotlib.text.Text` instance, which can bew configured with a
-variety of font and other properties.
+variety of font and other properties.  The example below shows all of
+these commands in action.
+
+.. literalinclude:: figures/text_commands.py
+
+.. image:: figures/text_commands.png
+   :scale: 50
+

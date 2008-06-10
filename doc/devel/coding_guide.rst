@@ -54,27 +54,30 @@ in mind.
 
   * install ``svnmerge.py`` in your PATH::
 
-      wget http://svn.collab.net/repos/svn/trunk/contrib/client-side/\
-      svnmerge/svnmerge.py
+      > wget http://svn.collab.net/repos/svn/trunk/contrib/client-side/\
+        svnmerge/svnmerge.py
 
   * get a svn copy of the maintenance branch and the trunk (see above)
   * Michael advises making the change on the branch and committing
     it.  Make sure you svn upped on the trunk and have no local
     modifications, and then from the svn trunk do::
 
-       > svnmerge.py merge
+        > svnmerge.py merge
 
     If you wish to merge only specific revisions (in an unusual
     situation), do::
 
-       > svnmerge.py merge -rNNN1-NNN2
+        > svnmerge.py merge -rNNN1-NNN2
 
     where the ``NNN`` are the revision numbers.  Ranges are also
     acceptable.
 
     The merge may have found some conflicts (code that must be
     manually resolved).  Correct those conflicts, build matplotlib and
-    test your choices.
+    test your choices.  If you have resolved any conflicts, you can
+    let svn clean up the conflict files for you::
+
+        > svn -R resolved .
 
     ``svnmerge.py`` automatically creates a file containing the commit
     messages, so you are ready to make the commit::
@@ -97,14 +100,7 @@ For `numpy <http://www.numpy.org>`_, use::
 
 For masked arrays, use::
 
-  from numpy import ma
-
-(The earlier recommendation, :samp:`import matplotlib.numerix.npyma as ma`,
-was needed temporarily during the development of the maskedarray
-implementation as a separate package.  As of numpy 1.1, it replaces the
-old implementation. Note: ``from numpy import ma`` works with numpy < 1.1
-*and* with numpy >= 1.1.  ``import numpy.ma as ma`` works *only* with
-numpy >= 1.1, so for now we must not use it.)
+  import numpy.ma as ma
 
 For matplotlib main module, use::
 
@@ -120,8 +116,17 @@ For matplotlib modules (or any other modules), use::
 
 We prefer this over the equivalent ``from matplotlib import cbook``
 because the latter is ambiguous whether ``cbook`` is a module or a
-function to the new developer.  The former makes it explcit that
-you are importing a module or package.
+function to the new developer.  The former makes it explicit that you
+are importing a module or package.  There are some modules whose names
+may be ambiguous in the context of local variables, eg
+:mod:`matplotlib.lines` or :mod:`matplotlib.colors`.  When you want to
+disambiguate, use the prefix 'm' with the ``import some.thing as
+mthing`` syntax, eg::
+
+    import matplotlib.lines as mlines
+    import matplotlib.transforms as transforms   # OK
+    import matplotlib.transforms as mtransforms  # OK, if you want to disambiguate
+    import matplotlib.transforms as mtrans       # OK, if you want to abbreviate
 
 Naming, spacing, and formatting conventions
 -------------------------------------------
@@ -138,15 +143,26 @@ throughout.
 
 * classes: ``Upper`` or ``MixedCase``
 
-Personally, I prefer the shortest names that are still readable.
+Prefer the shortest names that are still readable.
 
 Also, use an editor that does not put tabs in files.  Four spaces
 should be used for indentation everywhere and if there is a file with
-tabs or more or less spaces it is a bug -- please fix it.
+tabs or more or less spaces it is a bug -- please fix it.  There are
+some tools to help automate this checking, such as `tabnanny
+<http://effbot.org/librarybook/tabnanny.htm>`_, which is part of the
+standard library::
 
-Please avoid spurious invisible spaces at the ends of lines.
-(Tell your editor to strip whitespace from line ends when saving
-a file.)
+    In [3]: cd /home/titan/johnh/mpl/lib/matplotlib/
+    /home/titan/johnh/python/svn/matplotlib.trunk/matplotlib/lib/matplotlib
+
+    In [4]: import tabnanny
+
+    In [5]: tabnanny.check('axis.py')
+
+There is also `reindent.py
+<http://svn.python.org/projects/doctools/trunk/utils/reindent.py>`_
+which can be used to automatically change python files to use 4-space
+indents with no hard tab characters.
 
 Keep docstrings uniformly indented as in the example below, with
 nothing to the left of the triple quotes.  The
@@ -160,10 +176,10 @@ It may be preferable to use a temporary variable to replace a single
 long line with two shorter and more readable lines.
 
 Please do not commit lines with trailing white space, as it causes
-noise in svn diffs.
-
-If you are an emacs user, the following in your ``.emacs`` will cause
-emacs to strip trailing white space upon saving for python, C and C++:
+noise in svn diffs.  Tell your editor to strip whitespace from line
+ends when saving a file.  If you are an emacs user, the following in
+your ``.emacs`` will cause emacs to strip trailing white space upon
+saving for python, C and C++:
 
 .. code-block:: cl
 
@@ -172,7 +188,7 @@ emacs to strip trailing white space upon saving for python, C and C++:
             (lambda ()
 	    (add-hook 'write-file-functions 'delete-trailing-whitespace)))
 
-for older versions of emacs (emacs<22) you need to do: 
+for older versions of emacs (emacs<22) you need to do:
 
 .. code-block:: cl
 
@@ -218,17 +234,17 @@ artist constructor which looks for suitably named methods and calls
 them with the value.
 
 As a general rule, the use of ``**kwargs`` should be reserved for
-pass-through keyword arguments, as in the examaple above.  If I intend
-for all the keyword args to be used in some function and not passed
-on, I just use the key/value keyword args in the function definition
-rather than the ``**kwargs`` idiom.
+pass-through keyword arguments, as in the example above.  If all the
+keyword args to be used in the function being declared, and not passed
+on, use the key/value keyword args in the function definition rather
+than the ``**kwargs`` idiom.
 
-In some cases I want to consume some keys and pass through the others,
-in which case I pop the ones I want to use locally and pass on the
-rest, eg., I pop ``scalex`` and ``scaley`` in
-:meth:`~matplotlib.axes.Axes.plot` and assume the rest are
-:meth:`~matplotlib.lines.Line2D` keyword arguments.  As an example of
-a pop, passthrough usage, see :meth:`~matplotlib.axes.Axes.plot`::
+In some cases, you may want to consume some keys in the local
+function, and let others pass through.  You can ``pop`` the ones to be
+used locally and pass on the rest.  For example, in
+:meth:`~matplotlib.axes.Axes.plot`, ``scalex`` and ``scaley`` are
+local arguments and the rest are passed on as
+:meth:`~matplotlib.lines.Line2D` keyword arguments::
 
   # in axes.py
   def plot(self, *args, **kwargs):
@@ -239,10 +255,6 @@ a pop, passthrough usage, see :meth:`~matplotlib.axes.Axes.plot`::
       for line in self._get_lines(*args, **kwargs):
           self.add_line(line)
           lines.append(line)
-
-The :mod:`matplotlib.cbook` function :func:`~matplotlib.cbook.popd` is rendered
-obsolete by the :func:`~dict.pop` dictionary method introduced in Python 2.3,
-so it should not be used for new code.
 
 Note there is a use case when ``kwargs`` are meant to be used locally
 in the function (not passed on), but you still need the ``**kwargs``
@@ -269,7 +281,7 @@ forced to use ``**kwargs``.  An example is
 Documentation and Docstrings
 ============================
 
-matplotlib uses artist instrospection of docstrings to support
+matplotlib uses artist introspection of docstrings to support
 properties.  All properties that you want to support through ``setp``
 and ``getp`` should have a ``set_property`` and ``get_property``
 method in the :class:`~matplotlib.artist.Artist` class.  Yes, this is
@@ -290,8 +302,8 @@ Since matplotlib uses a lot of pass through ``kwargs``, eg. in every
 function that creates a line (:func:`~matplotlib.pyplot.plot`,
 :func:`~matplotlib.pyplot.semilogx`,
 :func:`~matplotlib.pyplot.semilogy`, etc...), it can be difficult for
-the new user to know which ``kwargs`` are supported.  I have developed a
-docstring interpolation scheme to support documentation of every
+the new user to know which ``kwargs`` are supported.  matplotlib uses
+a docstring interpolation scheme to support documentation of every
 function that takes a ``**kwargs``.  The requirements are:
 
 1. single point of configuration so changes to the properties don't
@@ -300,12 +312,13 @@ function that takes a ``**kwargs``.  The requirements are:
 2. as automated as possible so that as properties change the docs
    are updated automagically.
 
-I have added a :attr:`matplotlib.artist.kwdocd` and
-:func:`matplotlib.artist.kwdoc` to faciliate this.  They combine
+The functions :attr:`matplotlib.artist.kwdocd` and
+:func:`matplotlib.artist.kwdoc` to facilitate this.  They combine
 python string interpolation in the docstring with the matplotlib
-artist introspection facility that underlies ``setp`` and ``getp``.  The
-``kwdocd`` is a single dictionary that maps class name to a docstring of
-``kwargs``.  Here is an example from :mod:`matplotlib.lines`::
+artist introspection facility that underlies ``setp`` and ``getp``.
+The ``kwdocd`` is a single dictionary that maps class name to a
+docstring of ``kwargs``.  Here is an example from
+:mod:`matplotlib.lines`::
 
   # in lines.py
   artist.kwdocd['Line2D'] = artist.kwdoc(Line2D)
@@ -331,12 +344,12 @@ passthrough ``kwargs``, eg. :meth:`matplotlib.axes.Axes.plot`::
 
 Note there is a problem for :class:`~matplotlib.artist.Artist`
 ``__init__`` methods, eg. :meth:`matplotlib.patches.Patch.__init__`,
-which supports ``Patch`` ``kwargs``, since the artist inspector cannot work
-until the class is fully defined and we can't modify the
-``Patch.__init__.__doc__`` docstring outside the class definition.  I have
-made some manual hacks in this case which violates the "single entry
-point" requirement above; hopefully we'll find a more elegant solution
-before too long.
+which supports ``Patch`` ``kwargs``, since the artist inspector cannot
+work until the class is fully defined and we can't modify the
+``Patch.__init__.__doc__`` docstring outside the class definition.
+There are some some manual hacks in this case which violates theqq
+"single entry point" requirement above -- see the
+``artist.kwdocd['Patch']`` setting in :mod:`matplotlib.patches`.
 
 
 .. _licenses:
@@ -345,11 +358,66 @@ Licenses
 ========
 
 Matplotlib only uses BSD compatible code.  If you bring in code from
-another project make sure it has a PSF, BSD, MIT or compatible
-license.  If not, you may consider contacting the author and asking
-them to relicense it.  GPL and LGPL code are not acceptible in the
-main code base, though we are considering an alternative way of
+another project make sure it has a PSF, BSD, MIT or compatible license
+(see the Open Source Initiative `licenses page
+<http://www.opensource.org/licenses>`_ for details on individual
+licenses).  If it doesn't, you may consider contacting the author and
+asking them to relicense it.  GPL and LGPL code are not acceptable in
+the main code base, though we are considering an alternative way of
 distributing L/GPL code through an separate channel, possibly a
 toolkit.  If you include code, make sure you include a copy of that
 code's license in the license directory if the code's license requires
-you to distribute the license with it.
+you to distribute the license with it.  Non-BSD compatible licenses
+are acceptable in matplotlib toolkits (eg basemap), but make sure you
+clearly state the licenses you are using.
+
+Why BSD compatible?
+-------------------
+
+The two dominant license variants in the wild are GPL-style and
+BSD-style. There are countless other licenses that place specific
+restrictions on code reuse, but there is an important different to be
+considered in the GPL and BSD variants.  The best known and perhaps
+most widely used license is the GPL, which in addition to granting you
+full rights to the source code including redistribution, carries with
+it an extra obligation. If you use GPL code in your own code, or link
+with it, your product must be released under a GPL compatible
+license. I.e., you are required to give the source code to other
+people and give them the right to redistribute it as well. Many of the
+most famous and widely used open source projects are released under
+the GPL, including sagemath, linux, gcc and emacs.
+
+The second major class are the BSD-style licenses (which includes MIT
+and the python PSF license). These basically allow you to do whatever
+you want with the code: ignore it, include it in your own open source
+project, include it in your proprietary product, sell it,
+whatever. python itself is released under a BSD compatible license, in
+the sense that, quoting from the PSF license page::
+
+    There is no GPL-like "copyleft" restriction. Distributing
+    binary-only versions of Python, modified or not, is allowed. There
+    is no requirement to release any of your source code. You can also
+    write extension modules for Python and provide them only in binary
+    form.
+
+Famous projects released under a BSD-style license in the permissive
+sense of the last paragraph are the BSD operating system, python and
+TeX.
+
+There are two primary reasons why early matplotlib developers selected
+a BSD compatible license. We wanted to attract as many users and
+developers as possible, and many software companies will not use GPL code
+in software they plan to distribute, even those that are highly
+committed to open source development, such as `enthought
+<http://enthought.com>`_, out of legitimate concern that use of the
+GPL will "infect" their code base by its viral nature. In effect, they
+want to retain the right to release some proprietary code. Companies,
+and institutions in general, who use matplotlib often make significant
+contributions, since they have the resources to get a job done, even a
+boring one, if they need it in their code. Two of the matplotlib
+backends (FLTK and WX) were contributed by private companies.
+
+The other reason is licensing compatibility with the other python
+extensions for scientific computing: ipython, numpy, scipy, the
+enthought tool suite and python itself are all distributed under BSD
+compatible licenses.
