@@ -5773,6 +5773,16 @@ class Axes(martist.Artist):
             #fig.savefig('histogram_demo',dpi=72)
             plt.show()
 
+
+        You can use labels for your histogram, and only the first
+        Rectangle gets the label (the others get the magic string
+        '_nolegend_'.  This will make the histograms work in the
+        intuitive way for bar charts::
+
+            ax.hist(10+2*np.random.randn(1000), label='men')
+            ax.hist(12+3*np.random.randn(1000), label='women', alpha=0.5)
+            ax.legend()
+
         """
         if not self._hold: self.cla()
 
