@@ -1,3 +1,7 @@
+2008-06-10 Bar now applies the label only to the frist patch, and
+           sets _nolegend_ for the other patch labels.  This let's
+           autolegend work as expected for hist and bar
+
 2008-06-10 Fix text baseline alignment bug.  [ 1985420 ] Repair of
            baseline alignment in Text._get_layout.  Thanks Stan West -
            MGD

@@ -3530,6 +3530,7 @@ class Axes(martist.Artist):
         """
         if not self._hold: self.cla()
 
+        label = kwargs.pop('label', '')
         def make_iterable(x):
             if not iterable(x):
                 return [x]
@@ -3667,8 +3668,11 @@ class Axes(martist.Artist):
                 facecolor=c,
                 edgecolor=e,
                 linewidth=lw,
+                label=label
                 )
+            label = '_nolegend_'
             r.update(kwargs)
+            #print r.get_label(), label, 'label' in kwargs
             self.add_patch(r)
             patches.append(r)
 
@@ -5673,10 +5677,10 @@ class Axes(martist.Artist):
             is an integer input argument=numbins, numbins+1 bin edges
             will be returned, compatabile with the semantics of
             np.histogram with the new=True argument.
-        
+
           range:
             The lower and upper range of the bins. Lower and upper outliers
-            are ignored. If not provided, range is (x.min(), x.max()). 
+            are ignored. If not provided, range is (x.min(), x.max()).
 
           normed:
             if True, the first element of the return tuple will
@@ -5925,9 +5929,15 @@ class Axes(martist.Artist):
         else:
             raise ValueError, 'invalid histtype: %s' % histtype
 
+        label = kwargs.pop('label', '')
+
         for patch in patches:
             for p in patch:
                 p.update(kwargs)
+                p.set_label(label)
+                label = '_nolegend'
+
+
         if len(n)==1:
             return n[0], bins, cbook.silent_list('Patch', patches[0])
         else:
