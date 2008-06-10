@@ -70,15 +70,17 @@ Event attributes
 ================
 
 All matplotlib events inherit from the base class
-:class:`matplotlib.backend_bases.Event`, which store the attributes
+:class:`matplotlib.backend_bases.Event`, which store the attributes:
 
-===============  =================================================
-Event attribute  Description
-===============  =================================================
-``name``         the event name
-``canvas``       the FigureCanvas instance generating the event
-``guiEvent``     the GUI event that triggered the matplotlib event
-===============  =================================================
+    ``name``
+	the event name
+
+    ``canvas``
+	the FigureCanvas instance generating the event
+
+    ``guiEvent``
+	the GUI event that triggered the matplotlib event
+
 
 The most common events that are the bread and butter of event handling
 are key press/release events and mouse press/release and movement
@@ -87,16 +89,20 @@ events.  The :class:`~matplotlib.backend_bases.KeyEvent` and
 these events are both derived from the LocationEvent, which has the
 following attributes
 
-=======================   ========================================
-LocationEvent attribute   Description
-=======================   ========================================
-``x``                     x position - pixels from left of canvas
-``y``                     y position - pixels from right of canvas
-``button``                button pressed None, 1, 2, 3
-``inaxes``                the Axes instance if mouse us over axes
-``xdata``                 x coord of mouse in data coords
-``ydata``                 y coord of mouse in data coords
-=======================   ========================================
+    ``x``
+        x position - pixels from left of canvas
+
+    ``y``
+        y position - pixels from bottom of canvas
+
+    ``inaxes``
+        the :class:`~matplotlib.axes.Axes` instance if mouse is over axes
+
+    ``xdata``
+        x coord of mouse in data coords
+
+    ``ydata``
+        y coord of mouse in data coords
 
 Let's look a simple example of a canvas, where a simple line segment
 is created every time a mouse is pressed::
@@ -129,12 +135,11 @@ The :class:`~matplotlib.backend_bases.MouseEvent` that we just used is a
 the data and pixel coordinates in event.x and event.xdata.  In
 addition to the ``LocationEvent`` attributes, it has
 
-====================   ==============================================================
-MouseEvent attribute   Description
-====================   ==============================================================
-``button``             button pressed None, 1, 2, 3
-``key``                the key pressed: None, chr(range(255)), shift, win, or control
-====================   ==============================================================
+    ``button``
+        button pressed None, 1, 2, 3, 'up', 'down' (up and down are used for scroll events)
+
+    ``key``
+        the key pressed: None, chr(range(255), 'shift', 'win', or 'control'
 
 Draggable Rectangle Exercise
 ----------------------------
@@ -281,7 +286,6 @@ Extra credit solution::
             self.rect.set_x(x0+dx)
             self.rect.set_y(y0+dy)
 
-
             canvas = self.rect.figure.canvas
             axes = self.rect.axes
             # restore the background region
@@ -292,8 +296,6 @@ Extra credit solution::
 
             # blit just the redrawn area
             canvas.blit(axes.bbox)
-
-
 
         def on_release(self, event):
             'on release we reset the press data'
@@ -309,6 +311,7 @@ Extra credit solution::
 
             # redraw the full figure
             self.rect.figure.canvas.draw()
+
         def disconnect(self):
             'disconnect all the stored connection ids'
             self.rect.figure.canvas.mpl_disconnect(self.cidpress)
@@ -340,24 +343,29 @@ You can enable picking by setting the ``picker`` property of an
 
 There are a variety of meanings of the ``picker`` property:
 
-- ``None`` :  picking is disabled for this artist (default)
+    ``None``
+	picking is disabled for this artist (default)
 
-- ``boolean`` : if True then picking will be enabled and the artist will
-  fire a pick event if the mouse event is over the artist
+    ``boolean``
+	if True then picking will be enabled and the artist will fire a
+	pick event if the mouse event is over the artist
 
-- ``float`` : if picker is a number it is interpreted as an epsilon
-  tolerance in points and the the artist will fire off an event if its
-  data is within epsilon of the mouse event.  For some artists like
-  lines and patch collections, the artist may provide additional data
-  to the pick event that is generated, eg the indices of the data
-  within epsilon of the pick event.
+    ``float``
+	if picker is a number it is interpreted as an epsilon tolerance in
+	points and the the artist will fire off an event if its data is
+	within epsilon of the mouse event.  For some artists like lines
+	and patch collections, the artist may provide additional data to
+	the pick event that is generated, eg the indices of the data
+	within epsilon of the pick event.
 
-- ``function`` : if picker is callable, it is a user supplied function
-  which determines whether the artist is hit by the mouse event.  The
-  signature is ``hit, props = picker(artist, mouseevent)`` to
-  determine the hit test.  If the mouse event is over the artist,
-  return ``hit=True`` and props is a dictionary of properties you want
-  added to the :class:`~matplotlib.backend_bases.PickEvent` attributes
+    ``function``
+	if picker is callable, it is a user supplied function which
+	determines whether the artist is hit by the mouse event.  The
+	signature is ``hit, props = picker(artist, mouseevent)`` to
+	determine the hit test.  If the mouse event is over the artist,
+	return ``hit=True`` and props is a dictionary of properties you
+	want added to the :class:`~matplotlib.backend_bases.PickEvent`
+	attributes
 
 
 After you have enabled an artist for picking by setting the ``picker``
@@ -373,16 +381,18 @@ pick callbacks on mouse press events.  Eg::
 The :class:`~matplotlib.backend_bases.PickEvent` which is passed to
 your callback is always fired with two attributes:
 
-- ``mouseevent`` : the mouse event that generate the pick event.  The
-  mouse event in turn has attributes like ``x`` and ``y`` (the coords in
-  display space, eg pixels from left, bottom) and xdata, ydata (the
-  coords in data space).  Additionally, you can get information about
-  which buttons were pressed, which keys were pressed, which Axes the
-  mouse is over, etc.  See :class:`matplotlib.backend_bases.MouseEvent` for
-  details.
+    ``mouseevent`` the mouse event that generate the pick event.  The
+	mouse event in turn has attributes like ``x`` and ``y`` (the
+	coords in display space, eg pixels from left, bottom) and xdata,
+	ydata (the coords in data space).  Additionally, you can get
+	information about which buttons were pressed, which keys were
+	pressed, which :class:`~matplotlib.axes.Axes` the mouse is over,
+	etc.  See :class:`matplotlib.backend_bases.MouseEvent` for
+	details.
 
-- ``artist`` : the :class:`matplotlib.artist.Artist` that generated
-  the pick event.
+    ``artist``
+	the :class:`~matplotlib.artist.Artist` that generated the pick
+	event.
 
 Additionally, certain artists like :class:`~matplotlib.lines.Line2D`
 and :class:`~matplotlib.collections.PatchCollection` may attach

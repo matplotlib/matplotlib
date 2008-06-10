@@ -2,7 +2,7 @@
 import sys, os, glob
 import matplotlib
 import IPython.Shell
-matplotlib.rcdefaults()
+#matplotlib.rcdefaults()
 matplotlib.use('Agg')
 
 mplshell = IPython.Shell.MatplotlibShell('mpl')

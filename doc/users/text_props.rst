@@ -60,4 +60,4 @@ upper right.
 .. literalinclude:: figures/text_layout.py
 
 .. image:: figures/text_layout.png
-   :scale: 50
+   :scale: 75

@@ -4,18 +4,18 @@
 pyplot tutorial
 ***************
 
-:mod:`matplotlib.pyplot` is a collection of functions that make
-matplotlib work like matlab.  Each ``pyplot`` function makes some
-change to a figure: eg, create a figure, create a plotting area in a
-figure, plot some lines in a plotting area, decorate the plot with
-labels, etc....  :mod:`matplotlib.pyplot` is stateful, in that it
+:mod:`matplotlib.pyplot` is a collection of command style functions
+that make matplotlib work like matlab.  Each ``pyplot`` function makes
+some change to a figure: eg, create a figure, create a plotting area
+in a figure, plot some lines in a plotting area, decorate the plot
+with labels, etc....  :mod:`matplotlib.pyplot` is stateful, in that it
 keeps track of the current figure and plotting area, and the plotting
 functions are directed to the current axes
 
 .. literalinclude:: figures/pyplot_simple.py
 
 .. image:: figures/pyplot_simple.png
-   :scale: 50
+   :scale: 75
 
 
 You may be wondering why the x-axis ranges from 0-3 and the y-axis
@@ -42,7 +42,7 @@ example, to plot the above with red circles, you would issue
 .. literalinclude:: figures/pyplot_formatstr.py
 
 .. image:: figures/pyplot_formatstr.png
-   :scale: 50
+   :scale: 75
 
 See the :func:`~matplotlib.pyplot.plot` documentation for a complete
 list of line styles and format strings.  The
@@ -60,9 +60,7 @@ using arrays.
 .. literalinclude:: figures/pyplot_three.py
 
 .. image:: figures/pyplot_three.png
-   :scale: 50
-
-
+   :scale: 75
 
 .. _controlling-line-properties:
 
@@ -169,7 +167,7 @@ scenes.  Below is an script to create two subplots.
 .. literalinclude:: figures/pyplot_two_subplots.py
 
 .. image:: figures/pyplot_two_subplots.png
-   :scale: 50
+   :scale: 75
 
 The :func:`~matplotlib.pyplot.figure` command here is optional because
 ``figure(1)`` will be created by default, just as a ``subplot(111)``
@@ -230,7 +228,7 @@ for a more detailed example)
 .. literalinclude:: figures/pyplot_text.py
 
 .. image:: figures/pyplot_text.png
-   :scale: 50
+   :scale: 75
 
 
 All of the :func:`~matplotlib.pyplot.text` commands return an
@@ -278,7 +276,7 @@ these arguments are ``(x,y)`` tuples.
 .. literalinclude:: figures/pyplot_annotate.py
 
 .. image:: figures/pyplot_annotate.png
-   :scale: 50
+   :scale: 75
 
 In this basic example, both the ``xy`` (arrow tip) and ``xytext``
 locations (text location) are in data coordinates.  There are a
