@@ -42,35 +42,38 @@ def get_rotation(rotation):
 # class is build so we define an initial set here for the init
 # function and they will be overridden after object defn
 artist.kwdocd['Text'] =  """\
-    alpha: float
-    animated: [True | False]
-    backgroundcolor: any matplotlib color
-    bbox: rectangle prop dict plus key 'pad' which is a pad in points
-    clip_box: a matplotlib.transform.Bbox instance
-    clip_on: [True | False]
-    color: any matplotlib color
-    family: [ 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]
-    figure: a matplotlib.figure.Figure instance
-    fontproperties: a matplotlib.font_manager.FontProperties instance
-    horizontalalignment or ha: [ 'center' | 'right' | 'left' ]
-    label: any string
-    linespacing: float
-    lod: [True | False]
-    multialignment: ['left' | 'right' | 'center' ]
-    name or fontname: string eg, ['Sans' | 'Courier' | 'Helvetica' ...]
-    position: (x,y)
-    rotation: [ angle in degrees 'vertical' | 'horizontal'
-    size or fontsize: [ size in points | relative size eg 'smaller', 'x-large' ]
-    style or fontstyle: [ 'normal' | 'italic' | 'oblique']
-    text: string
-    transform: a matplotlib.transform transformation instance
-    variant: [ 'normal' | 'small-caps' ]
-    verticalalignment or va: [ 'center' | 'top' | 'bottom' | 'baseline' ]
-    visible: [True | False]
-    weight or fontweight: [ 'normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight']
-    x: float
-    y: float
-    zorder: any number
+    ========================== =========================================================================
+    alpha                      float
+    ========================== =========================================================================
+    animated                   [True | False]
+    backgroundcolor            any matplotlib color
+    bbox                       rectangle prop dict plus key 'pad' which is a pad in points
+    clip_box                   a matplotlib.transform.Bbox instance
+    clip_on                    [True | False]
+    color                      any matplotlib color
+    family                     [ 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]
+    figure                     a matplotlib.figure.Figure instance
+    fontproperties             a matplotlib.font_manager.FontProperties instance
+    horizontalalignment or ha  [ 'center' | 'right' | 'left' ]
+    label                      any string
+    linespacing                float
+    lod                        [True | False]
+    multialignment             ['left' | 'right' | 'center' ]
+    name or fontname           string eg, ['Sans' | 'Courier' | 'Helvetica' ...]
+    position                   (x,y)
+    rotation                   [ angle in degrees 'vertical' | 'horizontal'
+    size or fontsize           [ size in points | relative size eg 'smaller', 'x-large' ]
+    style or fontstyle         [ 'normal' | 'italic' | 'oblique']
+    text                       string
+    transform                  a matplotlib.transform transformation instance
+    variant                    [ 'normal' | 'small-caps' ]
+    verticalalignment or va    [ 'center' | 'top' | 'bottom' | 'baseline' ]
+    visible                    [True | False]
+    weight or fontweight       [ 'normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight']
+    x                          float
+    y                          float
+    zorder                     any number
+    ========================== =========================================================================
     """
 
 class Text(Artist):
