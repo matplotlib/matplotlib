@@ -8,6 +8,7 @@
 :Date: |today|
 
 .. toctree::
+    :maxdepth: 2
 
     intro.rst
     pyplot_tutorial.rst

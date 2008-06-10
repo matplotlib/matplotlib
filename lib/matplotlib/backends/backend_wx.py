@@ -1234,7 +1234,13 @@ class FigureFrameWx(wx.Frame):
         statbar = StatusBarWx(self)
         self.SetStatusBar(statbar)
         self.canvas = self.get_canvas(fig)
-        self.canvas.SetInitialSize(wx.Size(fig.bbox.width, fig.bbox.height))
+
+        def do_nothing(*args, **kwargs): pass
+
+        # try to find the set size func across wx versions
+        self.SetSizeFunc = getattr(self.canvas, 'SetInitialSize',
+                                   getattr(self.canvas, 'SetBestFittingSize', do_nothing))
+        self.SetSizeFunc(wx.Size(fig.bbox.width, fig.bbox.height))
         self.sizer =wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
         # By adding toolbar in sizer, we are able to put it at the bottom
@@ -1355,7 +1361,7 @@ class FigureManagerWx(FigureManagerBase):
 
     def resize(self, width, height):
         'Set the canvas size in pixels'
-        self.canvas.SetInitialSize(wx.Size(width, height))
+        self.canvas.SetSizeFunc(wx.Size(width, height))
         self.window.GetSizer().Fit(self.window)
 
 # Identifiers for toolbar controls - images_wx contains bitmaps for the images

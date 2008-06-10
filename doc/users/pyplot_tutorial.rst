@@ -197,16 +197,24 @@ as your heart desires::
 
     import matplotlib.pyplot as plt
     plt.figure(1)                # the first figure
+    plt.subplot(211)             # the first subplot in the first figure
     plt.plot([1,2,3])
-
-    plt.figure(2)                # a second figure
+    plt.subplot(212)             # the second subplot in the first figure
     plt.plot([4,5,6])
 
-    plt.figure(1)                # figure 1 current
-    plt.title('Easy as 1,2,3')   # figure 1 title
+
+    plt.figure(2)                # a second figure
+    plt.plot([4,5,6])            # creates a subplot(111) by default
+
+    plt.figure(1)                # figure 1 current; subplot(212) still current
+    plt.subplot(211)             # make subplot(211) in figure1 current
+    plt.title('Easy as 1,2,3')   # subplot 211 title
 
 You can clear the current figure with :func:`~matplotlib.pyplot.clf`
-and the current axes with :func:`~matplotlib.pyplot.cla`.
+and the current axes with :func:`~matplotlib.pyplot.cla`.  If you find
+this statefulness, annoying, don't despair, this is just a thin
+stateful wrapper around an object oriented API, which you can use
+instead (see :ref:`artist-tutorial`)
 
 .. _working-with-text:
 
@@ -216,7 +224,8 @@ Working with text
 The :func:`~matplotlib.pyplot.text` command can be used to add text in
 an arbitrary location, and the :func:`~matplotlib.pyplot.xlabel`,
 :func:`~matplotlib.pyplot.ylabel` and :func:`~matplotlib.pyplot.title`
-are used to add text in the indicated locations.
+are used tox add text in the indicated locations (see :ref:`text-intro`
+for a more detailed example)
 
 .. literalinclude:: figures/pyplot_text.py
 
@@ -224,11 +233,10 @@ are used to add text in the indicated locations.
    :scale: 50
 
 
-All of the text commands The :func:`~matplotlib.pyplot.text` commands
-return an :class:`matplotlib.text.Text` instance.  Just as with with
-lines above, you can customize the properties by passing keyword
-arguments into the text functions or using
-:func:`~matplotlib.pyplot.setp`::
+All of the :func:`~matplotlib.pyplot.text` commands return an
+:class:`matplotlib.text.Text` instance.  Just as with with lines
+above, you can customize the properties by passing keyword arguments
+into the text functions or using :func:`~matplotlib.pyplot.setp`::
 
   t = plt.xlabel('my data', fontsize=14, color='red')
 
