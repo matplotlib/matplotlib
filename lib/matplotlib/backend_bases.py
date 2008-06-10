@@ -19,6 +19,7 @@ graphics contexts must implement to serve as a matplotlib backend
     :class:`MouseEvent` store the meta data like keys and buttons
     pressed, x and y locations in pixel and
     :class:`~matplotlib.axes.Axes` coordinates.
+
 """
 
 from __future__ import division
@@ -38,17 +39,17 @@ class RendererBase:
 
     The following methods *must* be implemented in the backend:
 
-    * draw_path
-    * draw_image
-    * draw_text
-    * get_text_width_height_descent
+    * :meth:`draw_path`
+    * :meth:`draw_image`
+    * :meth:`draw_text`
+    * :meth:`get_text_width_height_descent`
 
     The following methods *should* be implemented in the backend for
     optimization reasons:
 
-    * draw_markers
-    * draw_path_collection
-    * draw_quad_mesh
+    * :meth:`draw_markers`
+    * :meth:`draw_path_collection`
+    * :meth:`draw_quad_mesh`
     """
     def __init__(self):
         self._texmanager = None
@@ -81,8 +82,14 @@ class RendererBase:
         that behavior, those vertices should be removed before calling
         this function.
 
-        ``marker_trans`` is an affine transform applied to the marker.
-        ``trans`` is an affine transform applied to the path.
+        ``gc``
+            the :class:`GraphicsContextBase` instance
+
+        ``marker_trans``
+            is an affine transform applied to the marker.
+
+        ``trans``
+             is an affine transform applied to the path.
 
         This provides a fallback implementation of draw_markers that
         makes multiple calls to
@@ -271,14 +278,23 @@ class RendererBase:
 
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         """
-        Draw the :class:`~matplotlib.image.Image` instance into the
-        current axes; ``x`` is the distance in pixels from the left
-        hand side of the canvas. ``y`` is the distance from the
-        origin.  That is, if origin is upper, y is the distance from
-        top.  If origin is lower, y is the distance from bottom
+        Draw the image instance into the current axes;
 
-        bbox is a :class:`~matplotlib.transforms.Bbox` instance for clipping, or
-        None
+        ``x``
+            is the distance in pixels from the left hand side of the canvas.
+
+        ``y``
+            the distance from the origin.  That is, if origin is
+            upper, y is the distance from top.  If origin is lower, y
+            is the distance from bottom
+
+        ``im``
+            the :class:`matplotlib._image.Image` instance
+
+        ``bbox``
+            a :class:`matplotlib.transforms.Bbox` instance for clipping, or
+            None
+
         """
         raise NotImplementedError
 
@@ -294,18 +310,33 @@ class RendererBase:
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         """
-        Draw the :class:`~matplotlib.text.Text` instance s at ``x``,
-        ``y`` (display coords) with
-        :class:`~matplotlib.font_manager.FontProperties` instance
-        ``prop`` at ``angle`` in degrees, using :class:`GraphicsContextBase` gc
+        Draw the text instance
+
+        ``gc``
+            the :class:`GraphicsContextBase` instance
+
+        ``x``
+            the x location of the text in display coords
+
+        ``y``
+            the y location of the text in display coords
+
+        ``s``
+             a :class:`matplotlib.text.Text` instance
+
+        ``prop``
+          a :class:`matplotlib.font_manager.FontProperties` instance
+
+        ``angle``
+            the rotation angle in degrees
 
         **backend implementers note**
 
         When you are trying to determine if you have gotten your bounding box
         right (which is what enables the text layout/alignment to work
-        properly), it helps to change the line in text.py
+        properly), it helps to change the line in text.py::
 
-                  if 0: bbox_artist(self, renderer)
+            if 0: bbox_artist(self, renderer)
 
         to if 1, and then the actual bounding box will be blotted along with
         your text.
@@ -326,7 +357,7 @@ class RendererBase:
 
     def get_texmanager(self):
         """
-        return the :class:matplotlib.texmanager.TexManager` instance
+        return the :class:`matplotlib.texmanager.TexManager` instance
         """
         if self._texmanager is None:
             from matplotlib.texmanager import TexManager
@@ -350,12 +381,15 @@ class RendererBase:
     def points_to_pixels(self, points):
         """
         Convert points to display units
-        points - a float or a numpy array of float
+
+        ``points``
+            a float or a numpy array of float
+
         return points converted to pixels
 
-        You need to override this function (unless your backend doesn't have a
-        dpi, eg, postscript or svg).
-        Some imaging systems assume some value for pixels per inch""
+        You need to override this function (unless your backend
+        doesn't have a dpi, eg, postscript or svg).  Some imaging
+        systems assume some value for pixels per inch::
 
             points to pixels = points * pixels_per_inch/72.0 * dpi/72.0
         """
@@ -530,6 +564,7 @@ class GraphicsContextBase:
 
         ``dash_list``
             specifies the on-off sequence as points.  ``(None, None)`` specifies a solid line
+
         """
         self._dashes = dash_offset, dash_list
 
@@ -620,6 +655,7 @@ class DrawEvent(Event):
 
     ``renderer``
         the :class:`RendererBase` instance for the draw event
+
     """
     def __init__(self, name, canvas, renderer):
         Event.__init__(self, name, canvas)
@@ -636,6 +672,7 @@ class ResizeEvent(Event):
 
     ``height``
         height of the canvas in pixels
+
     """
     def __init__(self, name, canvas):
         Event.__init__(self, name, canvas)
@@ -716,8 +753,17 @@ class MouseEvent(LocationEvent):
 
     ``button``
         button pressed None, 1, 2, 3, 'up', 'down' (up and down are used for scroll events)
+
     ``key``
-        the key pressed: None, chr(range(255), shift, win, or control
+        the key pressed: None, chr(range(255), 'shift', 'win', or 'control'
+
+
+    Example usage::
+
+        def on_press(event):
+            print 'you pressed', event.button, event.xdata, event.ydata
+
+        cid = fig.canvas.mpl_connect('button_press_event', on_press)
 
     """
     x      = None       # x position - pixels from left of canvas
@@ -750,10 +796,25 @@ class PickEvent(Event):
     ``artist``
         the :class:`~matplotlib.artist.Artist` picked
 
-    extra class dependent attrs -- eg a
-    :class:`~matplotlib.lines.Line2D` pick may define different extra
-    attributes than a :class:`~matplotlib.collections.PatchCollection`
-    pick event
+    other
+        extra class dependent attrs -- eg a
+        :class:`~matplotlib.lines.Line2D` pick may define different
+        extra attributes than a
+        :class:`~matplotlib.collections.PatchCollection` pick event
+
+
+    Example usage::
+
+        line, = ax.plot(rand(100), 'o', picker=5)  # 5 points tolerance
+
+        def on_pick(event):
+            thisline = event.artist
+            xdata, ydata = thisline.get_data()
+            ind = event.ind
+            print 'on pick line:', zip(xdata[ind], ydata[ind])
+
+        cid = fig.canvas.mpl_connect('pick_event', on_pick)
+
     """
     def __init__(self, name, canvas, mouseevent, artist, guiEvent=None, **kwargs):
         Event.__init__(self, name, canvas, guiEvent)
@@ -776,7 +837,16 @@ class KeyEvent(LocationEvent):
         the key pressed: None, chr(range(255), shift, win, or control
 
     This interface may change slightly when better support for
-    modifier keys is included
+    modifier keys is included.
+
+
+    Example usage::
+
+        def on_key(event):
+            print 'you pressed', event.key, event.xdata, event.ydata
+
+        cid = fig.canvas.mpl_connect('key_press_event', on_key)
+
     """
     def __init__(self, name, canvas, key, x=0, y=0, guiEvent=None):
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
@@ -1001,8 +1071,17 @@ class FigureCanvasBase:
     def button_release_event(self, x, y, button, guiEvent=None):
         """
         Backend derived classes should call this function on any mouse
-        button release.  x,y are the canvas coords: 0,0 is lower, left.
-        button and key are as defined in :class:`MouseEvent`
+        button release.
+
+        ``x``
+            the canvas coordinates where 0=left
+
+        ``y``
+            the canvas coordinates where 0=bottom
+
+        ``guiEvent``
+            the native UI event that generated the mpl event
+
 
         This method will be call all functions connected to the
         'button_release_event' with a :class:`MouseEvent` instance.
@@ -1016,8 +1095,17 @@ class FigureCanvasBase:
     def motion_notify_event(self, x, y, guiEvent=None):
         """
         Backend derived classes should call this function on any
-        motion-notify-event. x,y are the canvas coords: 0,0 is lower, left.
-        button and key are as defined in MouseEvent
+        motion-notify-event.
+
+        ``x``
+            the canvas coordinates where 0=left
+
+        ``y``
+            the canvas coordinates where 0=bottom
+
+        ``guiEvent``
+            the native UI event that generated the mpl event
+
 
         This method will be call all functions connected to the
         'motion_notify_event' with a :class:`MouseEvent` instance.
@@ -1241,14 +1329,23 @@ class FigureCanvasBase:
         - 'resize_event'
         - 'scroll_event'
 
-        For the three events above, if the mouse is over the axes,
-        the variable event.inaxes will be set to the axes it is over,
-        and additionally, the variables event.xdata and event.ydata
-        will be defined.  This is the mouse location in data coords.
-        See :class`MplEvent`
+        For the location events (button and key press/release), if the
+        mouse is over the axes, the variable event.inaxes will be set
+        to the :class:`~matplotlib.axes.Axes` the event occurs is
+        over, and additionally, the variables ``event.xdata`` and
+        ``event.ydata`` will be defined.  This is the mouse location in
+        data coords.  See :class:`KeyEvent` and:class:`MouseEvent` for more info.
 
         return value is a connection id that can be used with
-        :meth:`mpl_disconnect`
+        :meth:`mpl_disconnect`.
+
+        Example usage::
+
+            def on_press(event):
+                print 'you pressed', event.button, event.xdata, event.ydata
+
+            cid = canvas.mpl_connect('button_press_event', on_press)
+
         """
 
         return self.callbacks.connect(s, func)
@@ -1256,11 +1353,18 @@ class FigureCanvasBase:
     def mpl_disconnect(self, cid):
         """
         disconnect callback id cid
+
+        Example usage::
+
+            cid = canvas.mpl_connect('button_press_event', on_press)
+            #...later
+            canvas.mpl_disconnect(cid)
         """
         return self.callbacks.disconnect(cid)
 
     def flush_events(self):
-        """ Flush the GUI events for the figure. Implemented only for
+        """
+        Flush the GUI events for the figure. Implemented only for
         backends with GUIs.
         """
         raise NotImplementedError
@@ -1365,28 +1469,33 @@ class NavigationToolbar2:
 
     They must also define
 
-     * save_figure - save the current figure
+     :meth:`save_figure`
+         save the current figure
 
-     * set_cursor - if you want the pointer icon to change
+     :meth:`set_cursor`
+         if you want the pointer icon to change
 
-     * _init_toolbar - create your toolbar widget
+     :meth:`_init_toolbar`
+         create your toolbar widget
 
-     * draw_rubberband (optional) : draw the zoom to rect
-       "rubberband" rectangle
+     :meth:`draw_rubberband` (optional)
+         draw the zoom to rect "rubberband" rectangle
 
-     * press : (optional) whenever a mouse button is pressed, you'll be
-       notified with the event
+     :meth:`press`  (optional)
+         whenever a mouse button is pressed, you'll be
+         notified with the event
 
-     * release : (optional) whenever a mouse button is released,
-        you'll be notified with the event
+      :meth:`release` (optional)
+          whenever a mouse button is released, you'll be notified with the event
 
-     * dynamic_update (optional) dynamically update the window while
-       navigating
+     :meth:`dynamic_update` ptional)
+         dynamically update the window while navigating
 
-     * set_message (optional) - display message
+     :meth:`set_message` ptional)
+          display message
 
-     * set_history_buttons (optional) - you can change the history
-       back / forward buttons to indicate disabled / enabled state.
+     :meth:`set_history_buttons` (optional)
+         you can change the history back / forward buttons to indicate disabled / enabled state.
 
     That's it, we'll do the rest!
     """
