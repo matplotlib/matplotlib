@@ -7,11 +7,9 @@
 :Release: |version|
 :Date: |today|
 
-Introduction to developer's guide here **TODO**.
-
 .. toctree::
 
    artist_api.rst
    axes_api.rst
    pyplot_api.rst
-
+   backend_api.rst
