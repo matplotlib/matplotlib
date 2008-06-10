@@ -94,7 +94,7 @@ Examples which work on this release:
 
 cvs_id = '$Id$'
 
-import sys, os, os.path, math, StringIO, weakref
+import sys, os, os.path, math, StringIO, weakref, warnings
 
 # Debugging settings here...
 # Debug level set here. If the debug level is less than 5, information
@@ -1235,7 +1235,9 @@ class FigureFrameWx(wx.Frame):
         self.SetStatusBar(statbar)
         self.canvas = self.get_canvas(fig)
 
-        def do_nothing(*args, **kwargs): pass
+        def do_nothing(*args, **kwargs):
+            warnings.warn('could not find a SetSizeFunc for backend_wx; please report your wxpython version=%s to the matplotlib developers list'%backend_version)
+            pass
 
         # try to find the set size func across wx versions
         self.SetSizeFunc = getattr(self.canvas, 'SetInitialSize',
