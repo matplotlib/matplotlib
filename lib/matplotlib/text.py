@@ -246,7 +246,7 @@ class Text(Artist):
 
         if valign=='center': offsety = (ymin + height/2.0)
         elif valign=='top': offsety  = (ymin + height)
-        elif valign=='baseline': offsety = (ymin + height) + baseline
+        elif valign=='baseline': offsety = (ymin + height) - baseline
         else: offsety = ymin
 
         xmin -= offsetx
