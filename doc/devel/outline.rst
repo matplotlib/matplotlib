@@ -62,7 +62,7 @@ the canvas                       John                 has author   ?
 the artist                       John                 has author   ?
 transforms                       Michael              submitted    John
 documenting mpl                  Darren               submitted    ?
-coding guide                     John                 submitted    Eric
+coding guide                     John                 in review    Eric
 and_much_more                    ?                    ?            ?
 ===============================  ==================== ===========  ===================
 
@@ -103,11 +103,11 @@ If you want to make notes for the authorwhen you have reviewed a
 submission, you can put them here.  As the author cleans them up or
 addresses them, they should be removed.
 
-mathtext user's guide (reviewd by JDH)
+mathtext user's guide-- reviewd by JDH
 --------------------------------------
 
-This looks good -- there are a few minor things to close the book on
-this chapter.
+This looks good (see :ref:`mathtext-tutorial`) -- there are a few
+minor things to close the book on this chapter.
 
 #. The main thing to wrap this up is getting the mathtext module
 ported over to rest and included in the API so the links from the
@@ -123,12 +123,12 @@ ghte rc file, but it might be helpful to a newbie.
 coding guide (reviewed by EF)
 -----------------------------
 
-Mostly fine, just a few comments.  Also, there are a couple
-of typos, but I would rather just edit those directly in
-another pass (if you don't happen to find them) than include
-them as formal review notes.
+Mostly fine (see :ref:`coding-guide`), just a few comments.
+Also, there are a couple of typos, but I would rather just edit those
+directly in another pass (if you don't happen to find them) than
+include them as formal review notes.
 
-#. Import recommendation for ma: given that the trunk is
+#. DONE - Import recommendation for ma: given that the trunk is
    requiring numpy 1.1, perhaps we should be consistent and
    recommend the form::
 
@@ -152,7 +152,7 @@ them as formal review notes.
    rc() function and using that instead of setting the
    dictionary entries directly), if necessary.
 
-#. You give the example::
+#. DONE - You give the example::
 
         import matplotlib.cbook as cbook
 
@@ -160,18 +160,18 @@ them as formal review notes.
    ``mtransforms``?  (And, again peripherally, I would
    shorten that one to ``mtrans``.)
 
-#. The treatment of whitespace is split into two parts
+#. DONE - The treatment of whitespace is split into two parts
    separated by paragraphs on docstrings and line length;
    this can be consolidated.  It might be worth mentioning
    the ``reindent.py`` and ``tabnanny.py`` utilities here.
 
-#. Minor question of literary style: should use of the first
-   person be avoided in most places?  It is used, for
-   example, in the discussion of the automatic kwarg doc
-   generation.  I don't mind leaving the first person in,
-   with the general understanding that it means you.
+#. DONE - (removed first person usage) - Minor question of literary
+   style: should use of the first person be avoided in most places?
+   It is used, for example, in the discussion of the automatic kwarg
+   doc generation.  I don't mind leaving the first person in, with the
+   general understanding that it means you.
 
-#. Licenses: you might want to add a link to your
+#. DONE - Licenses: you might want to add a link to your
    explanation of your BSD choice.  Peripheral question: is
    there any problem with basemap's inclusion of
    sub-packages with the gamut of licenses, GPL to MIT?
