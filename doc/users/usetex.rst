@@ -52,7 +52,7 @@ matplotlibrc use::
 
 Here is the standard example, `tex_demo.py`:
 
-  .. literalinclude:: ../mpl_examples/pylab_examples/tex_demo.py
+.. literalinclude:: ../mpl_examples/pylab_examples/tex_demo.py
 
 .. image:: ../_static/tex_demo.png
 
@@ -60,12 +60,21 @@ Note that display math mode (``$$ e=mc^2 $$``) is  not supported, but adding the
 command ``\displaystyle``, as in `tex_demo.py`, will produce the same
 results.
 
+.. _usetex-unicode:
+
+usetex with unicode
+===================
 It is also possible to use unicode strings with the LaTeX text manager, here is
 an example taken from `tex_unicode_demo.py`:
 
-  .. literalinclude:: ../mpl_examples/pylab_examples/tex_unicode_demo.py
+.. literalinclude:: ../mpl_examples/pylab_examples/tex_unicode_demo.py
 
 .. image:: ../_static/tex_unicode_demo.png
+
+.. _usetex-postscript:
+
+Postscript options
+==================
 
 In order to produce encapsulated postscript files that can be embedded in a new
 LaTeX document, the default behavior of matplotlib is to distill the output,
@@ -77,50 +86,59 @@ activated by changing the ``ps.usedistiller`` rc setting to ``xpdf``. This
 alternative produces postscript with text that can be edited in Adobe
 Illustrator, and searched text in pdf documents.
 
+.. _usetex-hangups:
 
-= Possible Hangups =
+Possible hangups
+================
 
-  * On Windows, the PATH environment variable may need to be modified to find
-    the latex, dvipng and ghostscript executables. This is done by going to the
-    control panel, selecting the "system" icon, selecting the "advanced" tab,
-    and clicking the "environment variables" button (and people think Linux is
-    complicated. Sheesh.) Select the PATH variable, and add the appropriate
-    directories.
+* On Windows, the PATH environment variable may need to be modified to
+  find the latex, dvipng and ghostscript executables. This is done by
+  going to the control panel, selecting the "system" icon, selecting
+  the "advanced" tab, and clicking the "environment variables" button
+  (and people think Linux is complicated. Sheesh.) Select the PATH
+  variable, and add the appropriate directories.
 
-  * Using MiKTeX with Computer Modern fonts, if you get odd -Agg and PNG
-    results, go to MiKTeX/Options and update your format files
+* Using MiKTeX with Computer Modern fonts, if you get odd -Agg and PNG
+  results, go to MiKTeX/Options and update your format files
 
-  * The fonts look terrible on screen. You are probably running Mac OS, and
-    there is some funny business with dvipng on the mac. Set text.dvipnghack :
-    True in your matplotlibrc file.
+* The fonts look terrible on screen. You are probably running Mac OS,
+  and there is some funny business with dvipng on the mac. Set
+  text.dvipnghack : True in your matplotlibrc file.
 
-  * On Ubuntu and Gentoo, the base texlive install does not ship with the
-    type1cm package. You may need to install some of the extra packages to get
-    all the goodies that come bundled with other latex distributions.
+* On Ubuntu and Gentoo, the base texlive install does not ship with
+  the type1cm package. You may need to install some of the extra
+  packages to get all the goodies that come bundled with other latex
+  distributions.
 
-  * Some progress has been made so Matplotlib uses the dvi files directly for
-    text layout. This allows latex to be used for text layout with the pdf and
-    svg backends, as well as the \*Agg and PS backends. In the future, a latex
-    installation may be the only external dependency.
+* Some progress has been made so Matplotlib uses the dvi files
+  directly for text layout. This allows latex to be used for text
+  layout with the pdf and svg backends, as well as the \*Agg and PS
+  backends. In the future, a latex installation may be the only
+  external dependency.
 
-= In the event that things dont work =
-  * Try deleting `tex.cache` from your `~/.matplotlib` directory
+.. _usetex-troubleshooting:
 
-  * Make sure LaTeX, dvipng and ghostscript are each working and on your PATH.
+Trouble shooting
+================
 
-  * Make sure what you are trying to do is possible in a LaTeX document, that
-    your LaTeX syntax is valid and that you are using raw strings if necessary
-    to avoid unintended escape sequences.
+* Try deleting `tex.cache` from your `~/.matplotlib` directory
 
-  * Most problems reported on the mailing list have been cleared up by
-    upgrading Ghostscript_. If possible, please try upgrading to the latest
-    release before reporting problems to the list.
+* Make sure LaTeX, dvipng and ghostscript are each working and on your PATH.
 
-  * The text.latex.preample rc setting is not officially supported. This option
-    provides lots of flexibility, and lots of ways to cause problems. Please
-    disable this option before reporting problems to the mailing list.
+* Make sure what you are trying to do is possible in a LaTeX document,
+  that your LaTeX syntax is valid and that you are using raw strings
+  if necessary to avoid unintended escape sequences.
 
-  * If you still need help, please see :ref:`reporting-problems`
+* Most problems reported on the mailing list have been cleared up by
+  upgrading Ghostscript_. If possible, please try upgrading to the
+  latest release before reporting problems to the list.
+
+* The text.latex.preample rc setting is not officially supported. This
+  option provides lots of flexibility, and lots of ways to cause
+  problems. Please disable this option before reporting problems to
+  the mailing list.
+
+* If you still need help, please see :ref:`reporting-problems`
 
 .. _LaTeX: http://www.tug.org
 .. _dvipng: http://sourceforge.net/projects/dvipng
