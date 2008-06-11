@@ -213,8 +213,7 @@ class ParseSyntaxException(ParseFatalException):
        ErrorStop indicates that parsing is to stop immediately because
        an unbacktrackable syntax error has been found"""
     def __init__(self, pe):
-        super(ParseSyntaxException, self).__init__(
-                                    pe.pstr, pe.loc, pe.msg, pe.parserElement)
+        ParseFatalException.__init__(self, pe.pstr, pe.loc, pe.msg, pe.parserElement)
 
 #~ class ReparseException(ParseBaseException):
     #~ """Experimental class - parse actions can raise this exception to cause
@@ -3481,16 +3480,16 @@ def nestedExpr(opener="(", closer=")", content=None, ignoreExpr=quotedString):
     return ret
 
 def indentedBlock(blockStatementExpr, indentStack, indent=True):
-    """Helper method for defining space-delimited indentation blocks, such as 
+    """Helper method for defining space-delimited indentation blocks, such as
        those used to define block statements in Python source code.
-       
+
        Parameters:
-        - blockStatementExpr - expression defining syntax of statement that 
+        - blockStatementExpr - expression defining syntax of statement that
             is repeated within the indented block
         - indentStack - list created by caller to manage indentation stack
             (multiple statementWithIndentedBlock expressions within a single grammar
             should share a common indentStack)
-        - indent - boolean indicating whether block must be indented beyond the 
+        - indent - boolean indicating whether block must be indented beyond the
             the current level; set to False for block of left-most statements
             (default=True)
 
