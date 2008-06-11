@@ -1,10 +1,10 @@
 .. _documenting-matplotlib:
 
 **********************
-Documenting Matplotlib
+Documenting matplotlib
 **********************
 
-Getting Started
+Getting started
 ===============
 
 The documentation for matplotlib is generated from ReStructured Text
@@ -33,7 +33,7 @@ arguments to build everything.
 The output produced by Sphinx can be configured by editing the `conf.py`
 file located in the `doc/`.
 
-Organization of Matplotlib's Documentation
+Organization of matplotlib's documentation
 ==========================================
 
 The actual ReStructured Text files are kept in `doc/users`, `doc/devel`,
@@ -96,7 +96,13 @@ Figures
 Each guide will have its own `figures/` directory for scripts to generate images
 to be included in the dcoumentation. It is not necessary to explicitly save
 the figure in the script, a figure will be saved with the same name as the
-filename when the documentation is generated.
+filename when the documentation is generated.  For example, use::
+
+    .. literalinclude:: figures/pyplot_simple.py
+
+    .. image:: figures/pyplot_simple.png
+    :scale: 75
+
 
 Any figures that rely on optional system configurations should be generated
 with a script residing in doc/static_figs. The resulting figures will be saved
@@ -104,6 +110,8 @@ to doc/_static, and will be named based on the name of the script, so we can
 avoid unintentionally overwriting any existing figures. Please add a line to
 the README in doc/static-figs for any additional requirements necessary to
 generate a new figure.
+
+
 
 .. _referring-to-mpl-docs:
 
@@ -129,6 +137,8 @@ directory, I use the symlink directory.  For example, from
 `customizing.rst`::
 
    .. literalinclude:: ../mpl_data/matplotlibrc
+
+
 
 
 .. _internal-section-refs:
@@ -161,6 +171,13 @@ hyphens to separate words.
 
 .. _emacs-helpers:
 
+Section names, etc
+==================
+
+For everything but top level chapters, please use ``Upper lower`` for
+section titles, eg ``Possible hangups`` rather than ``Possible
+Hangups``
+
 Emacs helpers
 =============
 
@@ -182,7 +199,7 @@ Some helpful functions::
     C-c TAB - rst-toc-insert
 
       Insert table of contents at point
-    
+
     C-c C-u - rst-toc-update
 
         Update the table of contents at point

@@ -28,7 +28,7 @@ legends                          ?                    no author    ?
 animation                        John                 has author   ?
 collections                      ?                    no author    ?
 text - mathtext                  Michael              in review    John
-text - usetex                    Darren               submitted    ?
+text - usetex                    Darren               in review    John
 text - annotations               John                 submitted    ?
 fonts et al                      Michael ?            no author    Darren
 pyplot tut                       John                 submitted    Eric
@@ -177,4 +177,40 @@ include them as formal review notes.
    sub-packages with the gamut of licenses, GPL to MIT?
 
 
+usetex user's guide-- reviewed by JDH
+-------------------------------------
 
+Review of :ref:`usetex-tutorial`:
+
+#. In the section on the ps distiller, you might mention that it is
+   the rasterization which some users find objectionable, and the
+   distiller pram (eg 6000) is a dpi setting for the rasterizer.  Not
+   everyone will immediately grasp the controversy surrounding dumping
+   high res bitmaps into a ps file.
+
+#. ``= Possible Hangups =`` - this is moin, not rest.  I have fixed
+    this already, just wanted to point it out.  Also, for everything
+    but top level chapters, I refer ``Upper lower`` for section
+    titles, eg ``Possible hangups``.
+
+#. in the troubleshooting section, could you add a FAQ showing how to
+   find their .matplotlib dir (matplotlib.get_data_path) and link to
+   it.  Also link to the PATH var and properly format
+   ``text.latex.preample``.  For the dirs, do we want `tex.cache` or
+   ``tex.cache``?  I've been using the latter.  We could use rest
+   specific markup for files and dirs, but I've been resisting goin
+   whle hog onthe markup...  But we may eventually decide that is the
+   better choice.
+
+#. try and use internal reference links for every section and be
+   generous with the sections.  Eg, I added a section headers and
+   internal linka for the postscript and unicode sections (we will
+   want to be able to refer people to these easily from FAQs and mail
+   list posts, etc)::
+
+    .. _usetex-postscript:
+
+    Postscript options
+    ==================
+
+Looks good!

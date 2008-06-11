@@ -1,12 +1,12 @@
 .. _coding-guide:
 
 ************
-Coding Guide
+Coding guide
 ************
 
 .. _version-control:
 
-Version Control
+Version control
 ===============
 
 svn checkouts
@@ -35,18 +35,25 @@ in mind.
 
 * if your changes are non-trivial, please make an entry in the
   :file:`CHANGELOG`
-* if you change the API, please document it in :file:`API_CHANGES`, and
-  consider posting to mpl-devel
-* Are your changes python2.4 compatible?  We are still trying to
-  support 2.4, so avoid features new to 2.5
+
+* if you change the API, please document it in :file:`API_CHANGES`,
+  and consider posting to `mpl-devel
+  <http://lists.sourceforge.net/mailman/listinfo/matplotlib-devel>`_
+
+* Are your changes python2.4 compatible?  We still support 2.4, so
+  avoid features new to 2.5
+
 * Can you pass :file:`examples/tests/backend_driver.py`?  This is our
   poor man's unit test.
+
 * If you have altered extension code, do you pass
   :file:`unit/memleak_hawaii.py`?
+
 * if you have added new files or directories, or reorganized existing
   ones, are the new files included in the match patterns in
   :file:`MANIFEST.in`.  This file determines what goes into the source
   distribution of the mpl build.
+
 * Keep the maintenance branch and trunk in sync where it makes sense.
   If there is a bug on both that needs fixing, use `svnmerge.py
   <http://www.orcaware.com/svn/wiki/Svnmerge.py>`_ to keep them in
@@ -58,6 +65,7 @@ in mind.
         svnmerge/svnmerge.py
 
   * get a svn copy of the maintenance branch and the trunk (see above)
+
   * Michael advises making the change on the branch and committing
     it.  Make sure you svn upped on the trunk and have no local
     modifications, and then from the svn trunk do::
@@ -87,7 +95,7 @@ in mind.
 
 .. _style-guide:
 
-Style Guide
+Style guide
 ===========
 
 Importing and name spaces
@@ -278,7 +286,7 @@ forced to use ``**kwargs``.  An example is
 
 .. _docstrings:
 
-Documentation and Docstrings
+Documentation and docstrings
 ============================
 
 matplotlib uses artist introspection of docstrings to support
