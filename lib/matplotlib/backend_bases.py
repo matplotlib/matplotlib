@@ -631,8 +631,8 @@ class GraphicsContextBase:
 class Event:
     """
     A matplotlib event.  Attach additional attributes as defined in
-    :meth:`FigureCanvasBase.connect`.  The following attributes are defined and
-    shown with their default values
+    :meth:`FigureCanvasBase.mpl_connect`.  The following attributes
+    are defined and shown with their default values
 
     ``name``
         the event name
@@ -655,7 +655,7 @@ class DrawEvent(Event):
     """
     An event triggered by a draw operation on the canvas
 
-    In addition to the :class`Event` attributes, the following event attributes are defined:
+    In addition to the :class:`Event` attributes, the following event attributes are defined:
 
     ``renderer``
         the :class:`RendererBase` instance for the draw event
@@ -669,7 +669,7 @@ class ResizeEvent(Event):
     """
     An event triggered by a canvas resize
 
-    In addition to the :class`Event` attributes, the following event attributes are defined:
+    In addition to the :class:`Event` attributes, the following event attributes are defined:
 
     ``width``
         width of the canvas in pixels
@@ -689,7 +689,7 @@ class LocationEvent(Event):
     The following additional attributes are defined and shown with
     their default values
 
-    In addition to the :class`Event` attributes, the following event attributes are defined:
+    In addition to the :class:`Event` attributes, the following event attributes are defined:
 
     ``x``
         x position - pixels from left of canvas
@@ -752,7 +752,7 @@ class MouseEvent(LocationEvent):
     A mouse event ('button_press_event', 'button_release_event', 'scroll_event',
     'motion_notify_event').
 
-    In addition to the :class`Event` and :class:`LocationEvent`
+    In addition to the :class:`Event` and :class:`LocationEvent`
     attributes, the following attributes are defined:
 
     ``button``
@@ -832,9 +832,9 @@ class KeyEvent(LocationEvent):
     A key event (key press, key release).
 
     Attach additional attributes as defined in
-    :meth:`FigureCanvasBase.connect`.
+    :meth:`FigureCanvasBase.mpl_connect`.
 
-    In addition to the :class`Event` and :class:`LocationEvent`
+    In addition to the :class:`Event` and :class:`LocationEvent`
     attributes, the following attributes are defined:
 
     ``key``
@@ -1468,38 +1468,40 @@ class NavigationToolbar2:
 
     backends must implement a canvas that handles connections for
     'button_press_event' and 'button_release_event'.  See
-    :meth:`FigureCanvasBase.connect` for more information
+    :meth:`FigureCanvasBase.mpl_connect` for more information
 
 
     They must also define
 
-     :meth:`save_figure`
-         save the current figure
+      :meth:`save_figure`
+	  save the current figure
 
-     :meth:`set_cursor`
-         if you want the pointer icon to change
+      :meth:`set_cursor`
+	  if you want the pointer icon to change
 
-     :meth:`_init_toolbar`
-         create your toolbar widget
+      :meth:`_init_toolbar`
+	  create your toolbar widget
 
-     :meth:`draw_rubberband` (optional)
-         draw the zoom to rect "rubberband" rectangle
+      :meth:`draw_rubberband` (optional)
+	  draw the zoom to rect "rubberband" rectangle
 
-     :meth:`press`  (optional)
-         whenever a mouse button is pressed, you'll be
-         notified with the event
+      :meth:`press`  (optional)
+	  whenever a mouse button is pressed, you'll be
+	  notified with the event
 
       :meth:`release` (optional)
-          whenever a mouse button is released, you'll be notified with the event
+	  whenever a mouse button is released, you'll be notified with
+	  the event
 
-     :meth:`dynamic_update` ptional)
-         dynamically update the window while navigating
+      :meth:`dynamic_update` (optional)
+	  dynamically update the window while navigating
 
-     :meth:`set_message` ptional)
-          display message
+      :meth:`set_message` (optional)
+	   display message
 
-     :meth:`set_history_buttons` (optional)
-         you can change the history back / forward buttons to indicate disabled / enabled state.
+      :meth:`set_history_buttons` (optional)
+	  you can change the history back / forward buttons to
+	  indicate disabled / enabled state.
 
     That's it, we'll do the rest!
     """
