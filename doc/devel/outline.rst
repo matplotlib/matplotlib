@@ -113,12 +113,28 @@ minor things to close the book on this chapter:
     ported over to rest and included in the API so the links from the
     user's guide tutorial work.
 
+   - There's nothing in the mathtext module that I really consider a
+     "public" API (i.e. that would be useful to people just doing
+     plots).  If mathtext.py were to be documented, I would put it in
+     the developer's docs.  Maybe I should just take the link in the
+     user's guide out. - MGD
+
 #. This section might also benefit from a little more detail on the
    customizations that are possible (eg an example fleshing out the rc
    options a little bit).  Admittedly, this is pretty clear from
    readin ghte rc file, but it might be helpful to a newbie.
 
+   - The only rcParam that is currently useful is mathtext.fontset,
+     which is documented here.  The others only apply when
+     mathtext.fontset == 'custom', which I'd like to declare
+     "unsupported".  It's really hard to get a good set of math fonts
+     working that way, though it might be useful in a bind when
+     someone has to use a specific wacky font for mathtext and only
+     needs basics, like sub/superscripts. - MGD
+
 #. There is still a TODO in the file to include a complete list of symbols
+
+   - Done.  It's pretty extensive, thanks to STIX... - MGD
 
 coding guide (reviewed by EF)
 -----------------------------

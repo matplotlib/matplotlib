@@ -3,13 +3,11 @@
 Writing mathematical expressions
 ================================
 
-
-You can use TeX markup in any matplotlib text string; see the
-:mod:`matplotlib.mathtext` module documentation for details.  Note
-that you do not need to have TeX installed, since matplotlib ships its
-own TeX expression parser, layout engine and fonts.  The layout engine
-is a fairly direct adaptation of the layout algorithms in Donald
-Knuth's TeX, so the quality is quite good (matplotlib also provides a
+You can use TeX markup in any matplotlib text string.  Note that you
+do not need to have TeX installed, since matplotlib ships its own TeX
+expression parser, layout engine and fonts.  The layout engine is a
+fairly direct adaptation of the layout algorithms in Donald Knuth's
+TeX, so the quality is quite good (matplotlib also provides a
 ``usetex`` option for those who do want to call out to TeX to generate
 their text (see :ref:`usetex-tutorial`).
 
@@ -36,9 +34,6 @@ Whereas this::
     plt.title(r'$\alpha > \beta$')
 
 produces ":math:`\alpha > \beta`".
-
-.. TODO: Include a complete list here
-
 
 Subscripts and superscripts
 ---------------------------
@@ -106,7 +101,7 @@ to inform the parser that those brackets encompass the entire object::
 Radicals
 --------
 
-Radicals can be produced with the ``\sqrt[]{}`` command.  For example:
+Radicals can be produced with the ``\sqrt[]{}`` command.  For example::
 
     r'$\sqrt{2}$'
 
@@ -116,7 +111,7 @@ Radicals can be produced with the ``\sqrt[]{}`` command.  For example:
 
 Any base can (optionally) be provided inside square brackets.  Note
 that the base must be a simple expression, and can not contain layout
-commands such as fractions or sub/superscripts.
+commands such as fractions or sub/superscripts::
 
     r'$\sqrt[3]{x}$'
 
@@ -181,6 +176,42 @@ selected using the ``mathtext.fontset`` parameter in
 
 .. image:: ../_static/stixsans_fontset.png
 
+Custom fonts
+~~~~~~~~~~~~
+
+mathtext also provides a way to use custom fonts for math.  This
+method is fairly tricky to use, and should be considered an
+experimental feature for patient users only.  By setting the rcParam
+``mathtext.fontset`` to ``custom``, you can then set the following
+parameters, which control which font file to use for a particular set
+of math characters.
+
+    ============================== =================================
+    Parameter                      Corresponds to
+    ============================== =================================
+    ``mathtext.it``                ``\mathit{}`` or default italic
+    ``mathtext.rm``                ``\mathrm{}`` Roman (upright)
+    ``mathtext.tt``                ``\mathtt{}`` Typewriter (monospace)
+    ``mathtext.bf``                ``\mathbf{}`` bold italic
+    ``mathtext.cal``               ``\mathcal{}`` calligraphic
+    ``mathtext.sf``                ``\mathsf{}`` sans-serif
+    ============================== =================================
+
+Each parameter should be set to a fontconfig font descriptor (as
+defined in the yet-to-be-written font chapter).
+
+.. TODO: Link to font chapter
+
+The fonts used should have a Unicode mapping in order to find any
+non-Latin characters, such as Greek.  If you want to use a math symbol
+that is not contained in your custom fonts, you can set the rcParam
+``mathtext.fallback_to_cm`` to ``True`` which will cause the mathtext
+system to use characters from the default Computer Modern fonts
+whenever a particular character can not be found in the custom font.
+
+Note that the math glyphs specified in Unicode have evolved over time,
+and many fonts may not have glyphs in the correct place for mathtext.
+
 Accents
 -------
 
@@ -211,19 +242,29 @@ to the width of the symbols below:
     ``\widetilde{xyz}``            :math:`\widetilde{xyz}`
     ============================== =================================
 
+Care should be taken when putting accents on lower-case i's and j's.
+Note that in the following ``\mathi`` is used to avoid the extra dot
+over the i::
+
+    r"$\hat i\ \ \hat \imath$"
+
+.. math::
+
+    \hat i\ \ \hat \imath
 
 Symbols
 -------
 
 You can also use a large number of the TeX symbols, as in ``\infty``,
-``\leftarrow``, ``\sum``, ``\int``; see :mod:`matplotlib.mathtext` for a
-complete list.
+``\leftarrow``, ``\sum``, ``\int``.
+
+.. math_symbol_table::
 
 If a particular symbol does not have a name (as is true of many of the
 more obscure symbols in the STIX fonts), Unicode characters can
 also be used::
 
-   ur'Generic symbol: $\u23ce$'
+   ur'$\u23ce$'
 
 Example
 -------

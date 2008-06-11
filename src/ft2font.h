@@ -66,7 +66,7 @@ public:
   void makeRgbCopy();
   void makeRgbaCopy();
 
-  void resize(unsigned long width, unsigned long height);
+  void resize(long width, long height);
 };
 
 

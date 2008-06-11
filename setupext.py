@@ -79,6 +79,7 @@ else:
     True = True
     False = False
 
+BUILT_PNG       = False
 BUILT_AGG       = False
 BUILT_FT2FONT   = False
 BUILT_TTCONV    = False
@@ -248,9 +249,6 @@ def get_pkgconfig(module,
 
     status, output = commands.getstatusoutput(
         "%s %s %s" % (pkg_config_exec, flags, packages))
-    #if packages.startswith('pygtk'):
-    #    print 'status', status, output
-    #    raise SystemExit
     if status == 0:
         for token in output.split():
             attr = _flags.get(token[:2], None)
@@ -570,12 +568,18 @@ def add_numpy_flags(module):
     import numpy
     module.include_dirs.append(numpy.get_include())
 
+def add_png_flags(module):
+    try_pkgconfig(module, 'libpng', 'png')
+    add_base_flags(module)
+    add_numpy_flags(module)
+    module.libraries.append('z')
+    module.include_dirs.extend(['.'])
+    module.libraries.extend(std_libs)
+
 def add_agg_flags(module):
     'Add the module flags to build extensions which use agg'
 
     # before adding the freetype flags since -z comes later
-    try_pkgconfig(module, 'libpng', 'png')
-    module.libraries.append('z')
     add_base_flags(module)
     add_numpy_flags(module)
     module.include_dirs.extend(['src', '%s/include'%AGG_VERSION, '.'])
@@ -1200,6 +1204,25 @@ def build_wxagg(ext_modules, packages):
 
      ext_modules.append(module)
      BUILT_WXAGG = True
+
+def build_png(ext_modules, packages):
+    global BUILT_PNG
+    if BUILT_PNG: return # only build it if you you haven't already
+
+    deps = ['src/_png.cpp', 'src/mplutils.cpp']
+    deps.extend(glob.glob('CXX/*.cxx'))
+    deps.extend(glob.glob('CXX/*.c'))
+
+    module = Extension(
+        'matplotlib._png',
+        deps,
+        include_dirs=numpy_inc_dirs,
+        )
+
+    add_png_flags(module)
+    ext_modules.append(module)
+
+    BUILT_PNG = True
 
 
 def build_agg(ext_modules, packages):

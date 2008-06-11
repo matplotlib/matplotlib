@@ -176,7 +176,6 @@ public:
 
 
   Py::Object write_rgba(const Py::Tuple & args);
-  Py::Object write_png(const Py::Tuple & args);
   Py::Object tostring_rgb(const Py::Tuple & args);
   Py::Object tostring_argb(const Py::Tuple & args);
   Py::Object tostring_bgra(const Py::Tuple & args);

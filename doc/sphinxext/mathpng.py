@@ -3,7 +3,7 @@ try:
     from hashlib import md5
 except ImportError:
     from md5 import md5
-    
+
 from docutils import nodes
 from docutils.writers.html4css1 import HTMLTranslator
 from sphinx.latexwriter import LaTeXTranslator
@@ -39,7 +39,7 @@ except ImportError:
 else:
     class math_directive(Directive):
         has_content = True
-        def run(self): 
+        def run(self):
             latex = ' '.join(self.content)
             node = latex_math(self.block_text)
             node['latex'] = latex
@@ -75,26 +75,44 @@ def setup(app):
     LaTeXTranslator.depart_latex_math = depart_latex_math_latex
 
 from os.path import isfile
+
+# This calls out to LaTeX to render the expression
+def latex2png(latex, name):
+    f = open('math.tex', 'w')
+    f.write(r"""\documentclass[12pt]{article}
+                \pagestyle{empty}
+                \begin{document}""")
+    if inline:
+        f.write('$%s$' % latex)
+    else:
+        f.write(r'\[ %s \]' % latex)
+    f.write('\end{document}')
+    f.close()
+    os.system('latex --interaction=nonstopmode math.tex > /dev/null')
+    os.system('dvipng -bgTransparent -Ttight --noghostscript -l10 ' +
+              '-o %s math.dvi > /dev/null' % name)
+
+# This uses mathtext to render the expression
+def latex2png(latex, filename):
+    from matplotlib import rcParams
+    from matplotlib import _png
+    from matplotlib.mathtext import MathTextParser
+    rcParams['mathtext.fontset'] = 'cm'
+    mathtext_parser = MathTextParser("Bitmap")
+    ftimage = mathtext_parser.parse("$%s$" % latex, 120)
+    _png.write_png(ftimage.as_rgba_str(), ftimage.get_width(),
+                   ftimage.get_height(), filename)
+
 # LaTeX to HTML translation stuff:
 def latex2html(node, source):
     inline = isinstance(node.parent, nodes.TextElement)
     latex = node['latex']
-    print latex
-    name = 'math-' + md5(latex).hexdigest()[-10:]
-    if not isfile('_static/%s.png' % name):
-        f = open('math.tex', 'w')
-        f.write(r"""\documentclass[12pt]{article}
-                    \pagestyle{empty}
-                    \begin{document}""")
-        if inline:
-            f.write('$%s$' % latex)
-        else:
-            f.write(r'\[ %s \]' % latex)
-        f.write('\end{document}')
-        f.close()
-        os.system('latex --interaction=nonstopmode math.tex > /dev/null')
-        os.system('dvipng -bgTransparent -Ttight --noghostscript -l10 ' +
-                  '-o _static/%s.png math.dvi > /dev/null' % name)
+    print latex.encode("ascii", "backslashreplace")
+    name = 'math-%s' % md5(latex).hexdigest()[-10:]
+    dest = '_static/%s.png' % name
+    if not isfile(dest):
+        latex2png(latex, dest)
+
     path = '_static'
     count = source.split('/doc/')[-1].count('/')
     for i in range(count):
@@ -110,3 +128,4 @@ def latex2html(node, source):
     else:
         cls = 'class="center" '
     return '<img src="%s/%s.png" %s%s/>' % (path, name, align, cls)
+

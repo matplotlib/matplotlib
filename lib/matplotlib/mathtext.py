@@ -655,8 +655,9 @@ class TruetypeFonts(Fonts):
         return xHeight
 
     def get_underline_thickness(self, font, fontsize, dpi):
-        cached_font = self._get_font(font)
-        return (cached_font.font.underline_thickness / 64.0 / fontsize) * (dpi)
+        # This function used to grab underline thickness from the font,
+        # but that information is just too un-reliable, so it is now hardcoded.
+        return ((0.75 / 12.0) * fontsize * dpi) / 72.0
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
                  font2, fontclass2, sym2, fontsize2, dpi):
@@ -682,12 +683,15 @@ class BakomaFonts(TruetypeFonts):
     fontmap = {}
 
     def __init__(self, *args, **kwargs):
+        self._stix_fallback = StixFonts(*args, **kwargs)
+
         TruetypeFonts.__init__(self, *args, **kwargs)
         if not len(self.fontmap):
             for key, val in self._fontmap.iteritems():
                 fullpath = findfont(val)
                 self.fontmap[key] = fullpath
                 self.fontmap[val] = fullpath
+
 
     _slanted_symbols = Set(r"\int \oint".split())
 
@@ -717,6 +721,7 @@ class BakomaFonts(TruetypeFonts):
                         cached_font.charmap[num])
 
         if symbol_name is None:
+            return self._stix_fallback._get_glyph(fontname, font_class, sym, fontsize)
             warn("Unrecognized symbol '%s'. Substituting with a dummy symbol."
                  % sym.encode('ascii', 'backslashreplace'), MathTextWarning)
             fontname = 'it'
@@ -868,6 +873,8 @@ class UnicodeFonts(TruetypeFonts):
                 return self.cm_fallback._get_glyph(
                     fontname, 'it', sym, fontsize)
             else:
+                if fontname == 'it' and isinstance(self, StixFonts):
+                    return self._get_glyph('rm', font_class, sym, fontsize)
                 warn("Substituting with a dummy symbol.", MathTextWarning)
                 fontname = 'rm'
                 new_fontname = fontname
@@ -2031,7 +2038,8 @@ class Parser(object):
 
         bslash       = Literal('\\')
 
-        accent       = oneOf(self._accent_map.keys() + list(self._wide_accents))
+        accent       = oneOf(self._accent_map.keys() +
+                             list(self._wide_accents))
 
         function     = oneOf(list(self._function_names))
 
@@ -2057,10 +2065,10 @@ class Parser(object):
 
         unicode_range = u"\U00000080-\U0001ffff"
         symbol       =(Regex(UR"([a-zA-Z0-9 +\-*/<>=:,.;!'@()\[\]|%s])|(\\[%%${}\[\]_|])" % unicode_range)
-                     | Combine(
+                     | (Combine(
                          bslash
                        + oneOf(tex2uni.keys())
-                       )
+                       ) + FollowedBy(Regex("[^a-zA-Z]")))
                      ).setParseAction(self.symbol).leaveWhitespace()
 
         c_over_c     =(Suppress(bslash)
@@ -2486,14 +2494,14 @@ class Parser(object):
             if super is not None:
                 hlist = HCentered([super])
                 hlist.hpack(width, 'exactly')
-                vlist.extend([hlist, Kern(rule_thickness * 2.0)])
+                vlist.extend([hlist, Kern(rule_thickness * 3.0)])
             hlist = HCentered([nucleus])
             hlist.hpack(width, 'exactly')
             vlist.append(hlist)
             if sub is not None:
                 hlist = HCentered([sub])
                 hlist.hpack(width, 'exactly')
-                vlist.extend([Kern(rule_thickness * 2.0), hlist])
+                vlist.extend([Kern(rule_thickness * 3.0), hlist])
                 shift = hlist.height + hlist.depth + rule_thickness * 2.0
             vlist = Vlist(vlist)
             vlist.shift_amount = shift + nucleus.depth * 0.5

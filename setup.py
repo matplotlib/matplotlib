@@ -34,7 +34,7 @@ from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      check_for_cairo, check_provide_traits, check_provide_pytz, \
      check_provide_dateutil, check_provide_configobj, check_for_dvipng, \
      check_for_ghostscript, check_for_latex, check_for_pdftops, \
-     check_for_datetime, options
+     check_for_datetime, options, build_png
 #import distutils.sysconfig
 
 # jdh
@@ -100,15 +100,19 @@ build_path(ext_modules, packages)
 
 print_raw("")
 print_raw("OPTIONAL BACKEND DEPENDENCIES")
+has_libpng = check_for_libpng()
 
-if check_for_libpng() and options['build_agg']:
+if has_libpng and options['build_agg']:
     build_agg(ext_modules, packages)
     rc['backend'] = 'Agg'
 else:
     rc['backend'] = 'SVG'
 
-if options['build_image']:
+if has_libpng and options['build_image']:
     build_image(ext_modules, packages)
+
+if has_libpng and options['build_agg'] or options['build_image']:
+    build_png(ext_modules, packages)
 
 if options['build_windowing'] and sys.platform=='win32':
    build_windowing(ext_modules, packages)

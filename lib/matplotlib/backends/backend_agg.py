@@ -40,6 +40,7 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D, Bbox
 
 from _backend_agg import RendererAgg as _RendererAgg
+from matplotlib import _png
 
 backend_version = 'v2.2'
 
@@ -302,5 +303,9 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer.dpi = self.figure.dpi
         if is_string_like(filename_or_obj):
             filename_or_obj = file(filename_or_obj, 'wb')
-        self.get_renderer()._renderer.write_png(filename_or_obj, self.figure.dpi)
+        renderer = self.get_renderer()
+        x = renderer._renderer.buffer_rgba(0, 0)
+        _png.write_png(renderer._renderer.buffer_rgba(0, 0),
+                       renderer.width, renderer.height,
+                       filename_or_obj, self.figure.dpi)
         renderer.dpi = original_dpi

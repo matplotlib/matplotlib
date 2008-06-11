@@ -1,6 +1,6 @@
 from __future__ import division
 
-import os, codecs, base64, tempfile, urllib, gzip, md5
+import os, codecs, base64, tempfile, urllib, gzip, md5, cStringIO
 
 from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -14,6 +14,7 @@ from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
+from matplotlib import _png
 
 from xml.sax.saxutils import escape as escape_xml_text
 
@@ -46,6 +47,7 @@ class RendererSVG(RendererBase):
         self._char_defs = {}
         self._markers = {}
         self._path_collection_id = 0
+        self._imaged = {}
         self.mathtext_parser = MathTextParser('SVG')
         svgwriter.write(svgProlog%(width,height,width,height))
 
@@ -267,33 +269,20 @@ class RendererSVG(RendererBase):
             )
 
         if rcParams['svg.image_inline']:
-            class Base64Writer(object):
-                def __init__(self, write_method):
-                    self._write_method = write_method
-                    self._buffer = ''
-                def write(self, data):
-                    self._buffer += data
-                    while len(self._buffer) >= 64:
-                        self._write_method(base64.encodestring(buffer[:64]))
-                        self._write_method('\n')
-                        self._buffer = self._buffer[64:]
-                def flush(self):
-                    self._write_method(base64.encodestring(self._buffer))
-                    self._write_method('\n')
-
             self._svgwriter.write("data:image/png;base64,\n")
-            base64writer = Base64Writer(self._svgwriter.write)
-
+            stringio = cStringIO.StringIO()
             im.flipud_out()
-            im.write_png(base64writer)
+            rows, cols, buffer = im.as_rgba_str()
+            _png.write_png(buffer, cols, rows, stringio)
             im.flipud_out()
-            base64writer.flush()
+            self._svgwriter.write(base64.encodestring(stringio.getvalue()))
         else:
             self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
             filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
             verbose.report( 'Writing image file for inclusion: %s' % filename)
             im.flipud_out()
-            im.write_png(filename)
+            rows, cols, buffer = im.as_rgba_str()
+            _png.write_png(buffer, cols, rows, filename)
             im.flipud_out()
             self._svgwriter.write(filename)
 
