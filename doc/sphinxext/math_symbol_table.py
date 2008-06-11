@@ -100,47 +100,60 @@ symbols = [
      \iiint \iint \iint \oiiint"""]
 ]
 
-from docutils import nodes, statemachine
-from docutils.parsers.rst import Directive
-class math_symbol_table_directive(Directive):
-    has_content = True
-    def run(self):
-        def get_n(n, l):
-            part = []
-            for x in l:
-                part.append(x)
-                if len(part) == n:
-                    yield part
-                    part = []
-            yield part
+def run(state_machine):
+    def get_n(n, l):
+        part = []
+        for x in l:
+            part.append(x)
+            if len(part) == n:
+                yield part
+                part = []
+        yield part
 
-        lines = []
-        for category, columns, syms in symbols:
-            syms = syms.split()
-            syms.sort()
-            lines.append("**%s**" % category)
+    lines = []
+    for category, columns, syms in symbols:
+        syms = syms.split()
+        syms.sort()
+        lines.append("**%s**" % category)
+        lines.append('')
+        max_width = 0
+        for sym in syms:
+            max_width = max(max_width, len(sym))
+        max_width = max_width * 2 + 16
+        header = "    " + (('=' * max_width) + ' ') * columns
+        format = '%%%ds' % max_width
+        for chunk in get_n(20, get_n(columns, syms)):
+            lines.append(header)
+            for part in chunk:
+                line = []
+                for sym in part:
+                    line.append(format % (":math:`%s` ``%s``" % (sym, sym)))
+                lines.append("    " + " ".join(line))
+            lines.append(header)
             lines.append('')
-            max_width = 0
-            for sym in syms:
-                max_width = max(max_width, len(sym))
-            max_width = max_width * 2 + 16
-            header = "    " + (('=' * max_width) + ' ') * columns
-            format = '%%%ds' % max_width
-            for chunk in get_n(20, get_n(columns, syms)):
-                lines.append(header)
-                for part in chunk:
-                    line = []
-                    for sym in part:
-                        line.append(format % (":math:`%s` ``%s``" % (sym, sym)))
-                    lines.append("    " + " ".join(line))
-                lines.append(header)
-                lines.append('')
-        self.state_machine.insert_input(lines, "Symbol table")
-        return []
 
-from docutils.parsers.rst import directives
-directives.register_directive('math_symbol_table',
-                              math_symbol_table_directive)
+    state_machine.insert_input(lines, "Symbol table")
+    return []
+
+try:
+    from docutils.parsers.rst import Directive
+except ImportError:
+    from docutils.parsers.rst.directives import _directives
+    def math_symbol_table_directive(name, arguments, options, content, lineno,
+                                    content_offset, block_text, state, state_machine):
+        return run(state_machine)
+    math_symbol_table_directive.arguments = None
+    math_symbol_table_directive.options = {}
+    math_symbol_table_directive.content = False
+    _directives['math_symbol_table'] = math_symbol_table_directive
+else:
+    class math_symbol_table_directive(Directive):
+        has_content = False
+        def run(self):
+            return run(self.state_machine)
+    from docutils.parsers.rst import directives
+    directives.register_directive('math_symbol_table',
+                                  math_symbol_table_directive)
 
 if __name__ == "__main__":
     # Do some verification of the tables
