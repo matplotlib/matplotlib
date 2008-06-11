@@ -32,7 +32,6 @@ private:
 };
 
 static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t length) {
-  printf("%x %x %d %x\n", png_ptr, data, *data, length);
   PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
   PyObject* write_method = PyObject_GetAttrString(py_file_obj, "write");
   PyObject* result = NULL;
