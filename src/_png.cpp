@@ -19,7 +19,7 @@ public:
     {
         add_varargs_method("write_png", &_png_module::write_png,
                            "write_png(buffer, width, height, fileobj, dpi=None)");
-        add_varargs_method("read_png", &_png_module::write_png,
+        add_varargs_method("read_png", &_png_module::read_png,
                            "read_png(fileobj)");
         initialize("Module to write PNG files");
     }
