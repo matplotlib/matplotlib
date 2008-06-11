@@ -162,6 +162,8 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 # The following settings allow you to select the fonts in math mode.
 # They map from a TeX font name to a fontconfig font pattern.
 # These settings are only used if mathtext.fontset is 'custom'.
+# Note that this "custom" mode is unsupported and may go away in the
+# future.
 #mathtext.cal : cursive
 #mathtext.rm  : serif
 #mathtext.tt  : monospace

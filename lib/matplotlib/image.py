@@ -16,6 +16,7 @@ from matplotlib import cm
 
 # For clarity, names from _image are given explicitly in this module:
 from matplotlib import _image
+from matplotlib import _png
 
 # For user convenience, the names from _image are also imported into
 # the image namespace:
@@ -256,12 +257,13 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         """Write the image to png file with fname"""
         im = self.make_image()
         if noscale:
-            numrows,numcols = im.get_size()
+            numrows, numcols = im.get_size()
             im.reset_matrix()
             im.set_interpolation(0)
             im.resize(numcols, numrows)
         im.flipud_out()
-        im.write_png(fname)
+        rows, cols, buffer = im.as_rgba_str()
+        _png.write_png(buffer, cols, rows, fname)
 
     def set_data(self, A, shape=None):
         """
@@ -661,7 +663,8 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
     def write_png(self, fname):
         """Write the image to png file with fname"""
         im = self.make_image()
-        im.write_png(fname)
+        rows, cols, buffer = im.as_rgba_str()
+        _png.write_png(buffer, cols, rows, fname)
 
 def imread(fname):
     """
@@ -686,7 +689,7 @@ def imread(fname):
         return pil_to_array(image)
 
 
-    handlers = {'png' :_image.readpng,
+    handlers = {'png' :_png.read_png,
                 }
     basename, ext = os.path.splitext(fname)
     ext = ext.lower()[1:]

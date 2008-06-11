@@ -1,3 +1,13 @@
+2008-06-11 Use matplotlib.mathtext to render math expressions in
+           online docs - MGD
+
+2008-06-11 Move PNG loading/saving to its own extension module, and
+           remove duplicate code in _backend_agg.cpp and _image.cpp
+           that does the same thing - MGD
+
+2008-06-11 Numerous mathtext bugfixes, primarily related to
+           dpi-independence - MGD
+
 2008-06-10 Bar now applies the label only to the first patch only, and
            sets '_nolegend_' for the other patch labels.  This lets
            autolegend work as expected for hist and bar - see

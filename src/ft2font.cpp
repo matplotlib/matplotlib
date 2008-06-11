@@ -69,7 +69,9 @@ FT2Image::~FT2Image() {
   delete _rgbaCopy;
 }
 
-void FT2Image::resize(unsigned long width, unsigned long height) {
+void FT2Image::resize(long width, long height) {
+  if (width < 0) width = 1;
+  if (height < 0) height = 1;
   size_t numBytes = width*height;
 
   if (width != _width || height != _height) {

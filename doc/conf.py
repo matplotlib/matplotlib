@@ -27,7 +27,7 @@ import ipython_console_highlighting
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['mathpng', 'sphinx.ext.autodoc']
+extensions = ['mathpng', 'math_symbol_table', 'sphinx.ext.autodoc']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -150,7 +150,11 @@ latex_documents = [
 latex_logo = None
 
 # Additional stuff for the LaTeX preamble.
-latex_preamble = ''
+latex_preamble = """
+   \usepackage{amsmath}
+   \usepackage{amsfonts}
+   \usepackage{amssymb}
+"""
 
 # Documents to append as an appendix to all manuals.
 latex_appendices = []
