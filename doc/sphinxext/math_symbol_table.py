@@ -21,12 +21,12 @@ symbols = [
      5,
      r"""\bigcap \bigcup \bigodot \bigoplus \bigotimes \biguplus
          \bigvee \bigwedge \coprod \oint \prod \sum \int"""],
-    ["Standard Function Names",
+    ["Standard function names",
      4,
      r"""\arccos \csc \ker \min \arcsin \deg \lg \Pr \arctan \det \lim
          \gcd \ln \sup \cot \hom \log \tan \coth \inf \max \tanh
          \sec \arg \dim \liminf \sin \cos \exp \limsup \sinh \cosh"""],
-    ["Binary Operation and Relation Symbols",
+    ["Binary operation and relation symbols",
      3,
      r"""\ast \pm \slash \cap \star \mp \cup \cdot \uplus
      \triangleleft \circ \odot \sqcap \triangleright \bullet \ominus
@@ -61,7 +61,7 @@ symbols = [
      \backcong \Doteq \eqdef \wedgeq \questeq \eqgtr \cupdot
      \veeeq \nsubset \eqcolon \ne
      """],
-    ["Arrow Symbols",
+    ["Arrow symbols",
      2,
      r"""\leftarrow \longleftarrow \uparrow \Leftarrow \Longleftarrow
      \Uparrow \rightarrow \longrightarrow \downarrow \Rightarrow
@@ -86,7 +86,7 @@ symbols = [
      \twoheaduparrow \updownarrowbar \leftsquigarrow \rightzigzagarrow
      \twoheaddownarrow \downzigzagarrow
      """],
-    ["Miscellaneous Symbols",
+    ["Miscellaneous symbols",
      3,
      r"""\neg \invnot \turnednot \infty \forall \wp \exists \bigstar
      \angle \partial \nexists \measuredangle \eth \emptyset
