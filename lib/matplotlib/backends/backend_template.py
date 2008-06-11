@@ -1,4 +1,4 @@
-M"""
+"""
 This is a fully functional do nothing backend to provide a template to
 backend writers.  It is fully functional in that you can select it as
 a backend with
