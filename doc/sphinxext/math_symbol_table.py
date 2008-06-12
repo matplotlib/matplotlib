@@ -55,11 +55,8 @@ symbols = [
      \succnapprox \subsetneqq \nvDash \precnsim \succnsim \supsetneqq
      \nvdash \lnapprox \gnapprox \ntriangleleft \ntrianglelefteq
      \lneqq \gneqq \ntriangleright \lnsim \gnsim \ntrianglerighteq
-     \approxident \origof \imageof \coloneq \triangleeq \stareq \nsime
-     \dotminus \eqsim \nequiv \Equiv \measeq \napprox \eqless
-     \kernelcontraction \nsupset \doublebarwedge \nVdash \arceq
-     \backcong \Doteq \eqdef \wedgeq \questeq \eqgtr \cupdot
-     \veeeq \nsubset \eqcolon \ne
+     \coloneq \eqsim \nequiv \napprox \nsupset \doublebarwedge \nVdash
+     \Doteq \nsubset \eqcolon \ne
      """],
     ["Arrow symbols",
      2,
@@ -82,21 +79,17 @@ symbols = [
      \upharpoonright \downharpoonright \rightsquigarrow \nleftarrow
      \nrightarrow \nLeftarrow \nRightarrow \nleftrightarrow
      \nLeftrightarrow \to \Swarrow \Searrow \Nwarrow \Nearrow
-     \barleftarrow \mapsup \mapsdown \mapsfrom \rightarrowbar
-     \twoheaduparrow \updownarrowbar \leftsquigarrow \rightzigzagarrow
-     \twoheaddownarrow \downzigzagarrow
+     \leftsquigarrow
      """],
     ["Miscellaneous symbols",
      3,
-     r"""\neg \invnot \turnednot \infty \forall \wp \exists \bigstar
-     \angle \partial \nexists \measuredangle \eth \emptyset
-     \sphericalangle \clubsuit \varnothing \complement \diamondsuit
-     \imath \Finv \triangledown \heartsuit \jmath \Game \spadesuit
-     \ell \hbar \vartriangle \cdots \hslash \vdots \blacksquare \ldots
-     \blacktriangle \ddots \sharp \prime \blacktriangledown \Im \flat
-     \backprime \Re \natural \circledS \P \O \copyright \ss \Ldsh
-     \frakZ \l \carriagereturn \circledR \S \sterling \L \yen \danger
-     \d \OE \AA \AE \scurel \oe \o \checkmark \Rdsh \ae \ac \prurel \$
+     r"""\neg \infty \forall \wp \exists \bigstar \angle \partial
+     \nexists \measuredangle \eth \emptyset \sphericalangle \clubsuit
+     \varnothing \complement \diamondsuit \imath \Finv \triangledown
+     \heartsuit \jmath \Game \spadesuit \ell \hbar \vartriangle \cdots
+     \hslash \vdots \blacksquare \ldots \blacktriangle \ddots \sharp
+     \prime \blacktriangledown \Im \flat \backprime \Re \natural
+     \circledS \P \copyright \ss \circledR \S \yen \AA \checkmark \$
      \iiint \iint \iint \oiiint"""]
 ]
 

@@ -154,6 +154,7 @@ latex_preamble = """
    \usepackage{amsmath}
    \usepackage{amsfonts}
    \usepackage{amssymb}
+   \usepackage{txfonts}
 """
 
 # Documents to append as an appendix to all manuals.
