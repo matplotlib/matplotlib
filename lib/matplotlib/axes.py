@@ -5653,6 +5653,14 @@ class Axes(martist.Artist):
         ax2.xaxis.set_label_position('top')
         self.xaxis.tick_bottom()
         return ax2
+    
+    def get_shared_x_axes(self):
+        'Return a copy of the shared axes Grouper object for x axes'
+        return self._shared_x_axes
+
+    def get_shared_y_axes(self):
+        'Return a copy of the shared axes Grouper object for y axes'
+        return self._shared_y_axes
 
     #### Data analysis
 
@@ -5662,8 +5670,8 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          hist(x, bins=10, normed=False, cumulative=False,
-               bottom=None, histtype='bar', align='edge',
+          hist(x, bins=10, range=None, normed=False, cumulative=False,
+               bottom=None, histtype='bar', align='mid',
                orientation='vertical', rwidth=None, log=False, **kwargs)
 
         Compute the histogram of x. The return value is (n, bins, patches) or
@@ -5673,7 +5681,6 @@ class Axes(martist.Artist):
         Keyword arguments:
 
           bins:
-
             either an integer number of bins or a sequence giving the
             bins.  x are the data to be binned. x can be an array or a
             2D array with multiple data in its columns.  Note, if bins
@@ -5884,8 +5891,8 @@ class Axes(martist.Artist):
                 raise ValueError, 'invalid orientation: %s' % orientation
 
         elif histtype.startswith('step'):
-            x = np.zeros( 2*len(bins), np.float_ )
-            y = np.zeros( 2*len(bins), np.float_ )
+            x = np.zeros( 2*len(bins), np.float )
+            y = np.zeros( 2*len(bins), np.float )
 
             x[0::2], x[1::2] = bins, bins
 
