@@ -22,10 +22,10 @@ Environment Variables
   This is the directory used to store user customizations to matplotlib, as
   well as some caches to improve performance. If :envvar:`MPLCONFIGDIR` is not
   defined, :file:`{HOME}/.matplotlib` is used by default.
-   
+
 .. _setting-linux-osx-environment-variables:
 
-Setting Environment Variables in Linux and OS-X
+Setting environment variables in Linux and OS-X
 ===============================================
 
 To list the current value of :envvar:`PYTHONPATH`, which may be empty, try::
@@ -37,7 +37,7 @@ shell is. BASH seems to be the most common, but CSH is also common. You
 should be able to determine which by running at the command prompt::
 
   echo $SHELL
-  
+
 
 BASH/KSH
 --------
@@ -50,13 +50,14 @@ To prepend to an existing environment variable::
 
   export PATH=~/bin:${PATH}
 
-The search order may be important to you, do you want `~/bin` to be searched
-first or last? To append to an existing environment variable::
+The search order may be important to you, do you want :file:`~/bin` to
+be searched first or last? To append to an existing environment
+variable::
 
   export PATH=${PATH}:~/bin
 
 To make your changes available in the future, add the commands to your
-`~/.bashrc` file.
+:file:`~/.bashrc` file.
 
 
 CSH/TCSH
@@ -70,17 +71,17 @@ To prepend to an existing environment variable::
 
   setenv PATH ~/bin:${PATH}
 
-The search order may be important to you, do you want `~/bin` to be searched
+The search order may be important to you, do you want :file:`~/bin` to be searched
 first or last? To append to an existing environment variable::
 
   setenv PATH ${PATH}:~/bin
 
 To make your changes available in the future, add the commands to your
-`~/.cshrc` file.
+:file:`~/.cshrc` file.
 
 .. _setting-windows-environment-variables:
 
-Setting Environment Variables in Windows
+Setting environment variables in windows
 ========================================
 
 Go to the Windows start menu, select `Control Panel`, then select the `System`

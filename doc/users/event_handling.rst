@@ -141,7 +141,7 @@ addition to the ``LocationEvent`` attributes, it has
     ``key``
         the key pressed: None, chr(range(255), 'shift', 'win', or 'control'
 
-Draggable Rectangle Exercise
+Draggable rectangle exercise
 ----------------------------
 
 Write draggable rectangle class that is initialized with a
@@ -332,7 +332,7 @@ Extra credit solution::
 
 .. _object-picking:
 
-Object Picking
+Object picking
 ==============
 
 You can enable picking by setting the ``picker`` property of an
@@ -436,7 +436,7 @@ properties of the line.  Here is the code::
     plt.show()
 
 
-Picking Exercise
+Picking exercise
 ----------------
 
 Create a data set of 100 arrays of 1000 Gaussian random numbers and

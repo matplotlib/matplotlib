@@ -20,18 +20,20 @@ locations, in the following order:
    specific customizations that you do not want to apply elsewhere.
 2. :file:`.matplotlib/matplotlibrc`, for the user's default customizations. See
    :ref:`locating-matplotlib-config-dir`.
-3. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where :file:`{INSTALL}`
-   is something like :file:`/usr/lib/python2.5/site-packages` on Linux, and
-   maybe :file:`C:\Python25\Lib\site-packages` on Windows. Every time you
-   install matplotlib, this file will be overwritten, so if you want your
-   customizations to be saved, please move this file to
-   :file:`{HOME}/.matplotlib/matplotlibrc`.
+3. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where
+   :file:`{INSTALL}` is something like
+   :file:`/usr/lib/python2.5/site-packages` on Linux, and maybe
+   :file:`C:\Python25\Lib\site-packages` on Windows. Every time you
+   install matplotlib, this file will be overwritten, so if you want
+   your customizations to be saved, please move this file to you
+   :file:`.matplotlib` directory.
+
 
 See below for a sample :ref:`matplotlibrc file<matplotlibrc-sample>`.
 
 .. _customizing-with-dynamic-rc-settings:
 
-Dynamic rc Settings
+Dynamic rc settings
 ===================
 
 You can also dynamically change the default rc settings in a python script or
