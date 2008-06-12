@@ -32,4 +32,14 @@ build_osx105:
 	CFLAGS="-Os -arch i386 -arch ppc" LDFLAGS="-Os -arch i386 -arch ppc" python setup.py build
 
 
+jdh_doc_snapshot:
+	svn up;\
+	python setup.py install --prefix=~/dev;\
+	cd doc;\
+	rm -rf build;\
+	python make.py html;\
+	python make.py sf
+
+
+
 
