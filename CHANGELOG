@@ -2,7 +2,7 @@
            return bitmap arrays or write pngs to make it easier to use
            mathtext outside the context of an mpl figure.  modified
            the mathpng sphinxext to use the mathtext png save
-           functionality
+           functionality - see examples/api/mathtext_asarray.py - JDH
 
 2008-06-11 Use matplotlib.mathtext to render math expressions in
            online docs - MGD
