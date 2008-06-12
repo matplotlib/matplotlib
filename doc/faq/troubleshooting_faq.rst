@@ -77,13 +77,21 @@ If not, please provide the following information in your e-mail to the
         python -c `import matplotlib; print matplotlib.__version__`
 
   * where you obtained matplotlib (e.g. your Linux distribution's
-    packages or the matplotlib Sourceforge site)
+    packages or the matplotlib Sourceforge site, or the enthought
+    python distribution `EPD
+    <http://www.enthought.com/products/epd.php>`_.
 
   * any customizations to your ``matplotlibrc`` file (see
     :ref:`customizing-matplotlib`).
 
   * if the problem is reproducible, please try to provide a *minimal*,
-    standalone Python script that demonstrates the problem
+    standalone Python script that demonstrates the problem.  This is
+    *the* critical step.  If you can't post a piece of code that we
+    can run and reproduce your error, the chances of getting help are
+    significantly diminished.  Very often, the mere act of trying to
+    minimize your code to the smallest bit that produces the error
+    will help you find a bug in *your* code that is causing the
+    problem.
 
   * you can get very helpful debugging output from matlotlib by
     running your script with a ``verbose-helpful`` or
@@ -116,3 +124,27 @@ a bug and can not be quickly solved, you may be asked to file a bug in
 the tracker so the issue doesn't get lost.
 
 
+.. _svn-trouble:
+
+I am having trouble with a recent svn update, what should I do?
+===============================================================
+
+First make sure you have a clean build and install (see
+:ref:`clean-install`), get the latest svn update, install it and run a
+simple test script in debug mode::
+
+    rm -rf build
+    rm -rf /path/to/site-packages/matplotlib*
+    svn up
+    python setup.py install > build.out
+    python examples/pylab_examples/simple_plot.py --verbose-debug > run.out
+
+and post :file:`build.out` and :file:`run.out` to the
+`matplotlib-devel
+<http://lists.sourceforge.net/mailman/listinfo/matplotlib-devel>`_
+mailing list (please do not post svn problems to the `users list
+<http://lists.sourceforge.net/mailman/listinfo/matplotlib-users>`_).
+
+Of course, you will want to clearly describe your problem, what you
+are expecting and what you are getting, but often a clean build and
+install will help.  See also :ref:`reporting-problems`.
