@@ -9,6 +9,7 @@
 
 .. toctree::
 
+   matplotlib_configuration_api.rst
    artist_api.rst
    axes_api.rst
    pyplot_api.rst
