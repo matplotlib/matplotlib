@@ -589,6 +589,7 @@ def add_agg_flags(module):
 
 def add_ft2font_flags(module):
     'Add the module flags to ft2font extension'
+    add_numpy_flags(module)
     if not get_pkgconfig(module, 'freetype2'):
         module.libraries.extend(['freetype', 'z'])
         add_base_flags(module)

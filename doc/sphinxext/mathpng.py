@@ -92,16 +92,19 @@ def latex2png(latex, name):
     os.system('dvipng -bgTransparent -Ttight --noghostscript -l10 ' +
               '-o %s math.dvi > /dev/null' % name)
 
+
+from matplotlib import rcParams
+from matplotlib.mathtext import MathTextParser
+rcParams['mathtext.fontset'] = 'cm'
+mathtext_parser = MathTextParser("Bitmap")
+
+
 # This uses mathtext to render the expression
 def latex2png(latex, filename):
-    from matplotlib import rcParams
-    from matplotlib import _png
-    from matplotlib.mathtext import MathTextParser
-    rcParams['mathtext.fontset'] = 'cm'
-    mathtext_parser = MathTextParser("Bitmap")
-    ftimage = mathtext_parser.parse("$%s$" % latex, 120)
-    _png.write_png(ftimage.as_rgba_str(), ftimage.get_width(),
-                   ftimage.get_height(), filename)
+    if os.path.exists(filename):
+        return
+    mathtext_parser.to_png(filename, "$%s$" % latex, dpi=120)
+
 
 # LaTeX to HTML translation stuff:
 def latex2html(node, source):

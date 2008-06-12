@@ -180,7 +180,7 @@ import unicodedata
 from warnings import warn
 
 from numpy import inf, isinf
-
+import numpy as np
 from matplotlib.pyparsing import Combine, Group, Optional, Forward, \
     Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
     ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
@@ -197,6 +197,10 @@ from matplotlib._mathtext_data import latex_to_bakoma, \
         latex_to_standard, tex2uni, latex_to_cmex, stix_virtual_fonts
 from matplotlib import get_data_path, rcParams
 
+
+
+import matplotlib.colors as mcolors
+import matplotlib._png as _png
 ####################
 
 
@@ -2724,3 +2728,74 @@ class MathTextParser(object):
         font_output.mathtext_backend = None
 
         return result
+
+    def to_mask(self, texstr, dpi=120, fontsize=14):
+        """
+        return an NxM uint8 alpha ubyte mask array of rasterized tex
+
+        ''texstr''
+            A valid mathtext string, eg r'IQ: $\sigma_i=15$'
+
+        ''dpi''
+            The dots-per-inch to render the text
+
+        ''fontsize''
+            The font size in points
+        """
+        assert(self._output=="bitmap")
+        prop = FontProperties(size=fontsize)
+        ftimage = self.parse(texstr, dpi=dpi, prop=prop)
+
+        x = ftimage.as_array()
+        return x
+
+    def to_rgba(self, texstr, color='black', dpi=120, fontsize=14):
+        """
+        return an NxMx4 RGBA array of ubyte rasterized tex
+
+        ''texstr''
+            A valid mathtext string, eg r'IQ: $\sigma_i=15$'
+
+        ''color''
+            A valid matplotlib color argument
+
+        ''dpi''
+            The dots-per-inch to render the text
+
+        ''fontsize''
+            The font size in points
+        """
+        x = self.to_mask(texstr, dpi=dpi, fontsize=fontsize)
+
+        r, g, b = mcolors.colorConverter.to_rgb(color)
+        RGBA = np.zeros((x.shape[0], x.shape[1], 4), dtype=np.uint8)
+        RGBA[:,:,0] = int(255*r)
+        RGBA[:,:,1] = int(255*g)
+        RGBA[:,:,2] = int(255*b)
+        RGBA[:,:,3] = x
+        return RGBA
+
+    def to_png(self, filename, texstr, color='black', dpi=120, fontsize=14):
+        """
+
+        ''filename''
+            A writable filename or fileobject
+
+        ''texstr''
+            A valid mathtext string, eg r'IQ: $\sigma_i=15$'
+
+        ''color''
+            A valid matplotlib color argument
+
+        ''dpi''
+            The dots-per-inch to render the text
+
+        ''fontsize''
+            The font size in points
+
+            """
+
+        rgba = self.to_rgba(texstr, color=color, dpi=dpi, fontsize=fontsize)
+        numrows, numcols, tmp = rgba.shape
+        return _png.write_png(rgba.tostring(), numcols, numrows, filename)
+
