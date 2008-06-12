@@ -678,6 +678,17 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         h = int(math.ceil(h))
 
         wx.Panel.__init__(self, parent, id, size=wx.Size(w, h))
+
+        def do_nothing(*args, **kwargs):
+            warnings.warn('could not find a setinitialsize function for backend_wx; please report your wxpython version=%s to the matplotlib developers list'%backend_version)
+            pass
+
+        # try to find the set size func across wx versions
+        try:
+            getattr(self, 'SetInitialSize')
+        except AttributeError:
+            self.SetInitialSize = getattr(self, 'SetBestFittingSize', do_nothing)
+
         # Create the drawing bitmap
         self.bitmap =wx.EmptyBitmap(w, h)
         DEBUG_MSG("__init__() - bitmap w:%d h:%d" % (w,h), 2, self)
@@ -1234,15 +1245,7 @@ class FigureFrameWx(wx.Frame):
         statbar = StatusBarWx(self)
         self.SetStatusBar(statbar)
         self.canvas = self.get_canvas(fig)
-
-        def do_nothing(*args, **kwargs):
-            warnings.warn('could not find a SetSizeFunc for backend_wx; please report your wxpython version=%s to the matplotlib developers list'%backend_version)
-            pass
-
-        # try to find the set size func across wx versions
-        self.SetSizeFunc = getattr(self.canvas, 'SetInitialSize',
-                                   getattr(self.canvas, 'SetBestFittingSize', do_nothing))
-        self.SetSizeFunc(wx.Size(fig.bbox.width, fig.bbox.height))
+        self.canvas.SetInitialSize(wx.Size(fig.bbox.width, fig.bbox.height))
         self.sizer =wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
         # By adding toolbar in sizer, we are able to put it at the bottom
@@ -1363,7 +1366,7 @@ class FigureManagerWx(FigureManagerBase):
 
     def resize(self, width, height):
         'Set the canvas size in pixels'
-        self.canvas.SetSizeFunc(wx.Size(width, height))
+        self.canvas.SetInitialSize(wx.Size(width, height))
         self.window.GetSizer().Fit(self.window)
 
 # Identifiers for toolbar controls - images_wx contains bitmaps for the images
