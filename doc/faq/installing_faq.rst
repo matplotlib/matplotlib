@@ -4,6 +4,8 @@
  Installation FAQ
 ******************
 
+
+
 How do I report a compilation problem?
 ======================================
 
@@ -131,7 +133,7 @@ FLTKAgg        Agg rendering to a FLTK canvas (`pyfltk <http://pyfltk.sourceforg
 ============   ===================================================================================================
 
 
-OS X Questions
+OS-X questions
 ==============
 
 .. _easy-install-osx-egg:

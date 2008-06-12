@@ -27,8 +27,8 @@ patches                          ?                    no author    ?
 legends                          ?                    no author    ?
 animation                        John                 has author   ?
 collections                      ?                    no author    ?
-text - mathtext                  Michael              in review    John
-text - usetex                    Darren               in review    John
+text - mathtext                  Michael              accepted     John
+text - usetex                    Darren               accepted     John
 text - annotations               John                 submitted    ?
 fonts et al                      Michael ?            no author    Darren
 pyplot tut                       John                 submitted    Eric
@@ -173,7 +173,7 @@ include them as formal review notes.
    Validation is actually built into RcParams. This was done
    just prior to development of the traited config, validation is done using
    the mechanisms developed in rcsetup. For example::
-  
+
      >>> rcParams['a.b']=1
      ---------------------------------------------------------------------------
      KeyError                                  Traceback (most recent call last)
@@ -214,7 +214,7 @@ include them as formal review notes.
      ValueError: Could not convert "" to boolean
 
 
-  
+
 #. DONE - You give the example::
 
         import matplotlib.cbook as cbook
@@ -285,6 +285,8 @@ Review of :ref:`usetex-tutorial`:
    which is formatted most
    similarly to the :file: directive in html. Let me know if you don't want to
    use the file directive.
+
+   - JDH: let's go with the file directive.
 
 #. DONE - try and use internal reference links for every section and be
    generous with the sections.  Eg, I added a section headers and
