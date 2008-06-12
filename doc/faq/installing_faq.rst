@@ -11,6 +11,8 @@ How do I report a compilation problem?
 
 See :ref:`reporting-problems`.
 
+.. _clean-install:
+
 How do I cleanly rebuild and reinstall everything?
 ==================================================
 
@@ -102,7 +104,7 @@ from this point to this point" and hence are scale free, and raster
 backends generate a pixel represenation of the line whose accuracy
 depends on a DPI setting.
 
-Here is a summary of the matplotlib renders (there is an eponymous
+Here is a summary of the matplotlib renderers (there is an eponymous
 backed for each):
 
 ===============================   =====================================================================================
@@ -159,3 +161,30 @@ If you rename ``matplotlib-0.98.0-py2.5-macosx-10.3-fat.egg`` to
 the disk.  Many Mac OS X eggs with cruft at the end of the filename,
 which prevents their installation through easy_install.  Renaming is
 all it takes to install them; still, it's annoying.
+
+Windows questions
+=================
+
+.. _windows-installers:
+
+Where can I get binary installers for windows?
+----------------------------------------------
+
+If you have already installed python, you can use one of the
+matplotlib binary installers for windows -- you can get these from the
+`sourceforge download
+<http://sourceforge.net/project/platformdownload.php?group_id=80706>`_
+site.  Choose the files that match your version of python (eg
+``py2.5`` if you instaslled Python 2.5) and have the ``exe``
+extension.  If you haven't already installed python, you can get the
+official version from the `python web site
+<http://python.org/download/>`_.  There are also two packaged
+distributions of python that come preloaded with matplotlib and many
+other tools like ipython, numpy, scipy, vtk and user interface
+toolkits.  These packages are quite large because they come with so
+much, but you get everything with a single click installer.
+
+* the enthought python distribution `EPD
+  <http://www.enthought.com/products/epd.php>`_
+
+* `python (x, y) <http://www.pythonxy.com/foreword.php>`_
