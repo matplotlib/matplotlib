@@ -4,6 +4,8 @@
 Customizing matplotlib
 **********************
 
+.. _customizing-with-matplotlibrc-files:
+
 The matplotlibrc File
 =====================
 
@@ -16,8 +18,8 @@ locations, in the following order:
 
 1. :file:`matplotlibrc` in the current working directory, usually used for
    specific customizations that you do not want to apply elsewhere.
-2. :file:`{HOME}/.matplotlib/matplotlibrc`, for the user's default
-   customizations
+2. :file:`.matplotlib/matplotlibrc`, for the user's default customizations. See
+   :ref:`locating-matplotlib-config-dir`.
 3. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where :file:`{INSTALL}`
    is something like :file:`/usr/lib/python2.5/site-packages` on Linux, and
    maybe :file:`C:\Python25\Lib\site-packages` on Windows. Every time you
@@ -26,6 +28,8 @@ locations, in the following order:
    :file:`{HOME}/.matplotlib/matplotlibrc`.
 
 See below for a sample :ref:`matplotlibrc file<matplotlibrc-sample>`.
+
+.. _customizing-with-dynamic-rc-settings:
 
 Dynamic rc Settings
 ===================

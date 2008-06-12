@@ -79,38 +79,40 @@ Postscript options
 In order to produce encapsulated postscript files that can be embedded in a new
 LaTeX document, the default behavior of matplotlib is to distill the output,
 which removes some postscript operators used by LaTeX that are illegal in an
-eps file. This step produces fonts which may be unacceptable to some users. One
-workaround is to to set ``ps.distiller.res`` to a higher value (perhaps 6000) in
-your rc settings. A better workaround, which requires Poppler_ or Xpdf_, can be
+eps file. This step produces results which may be unacceptable to some users,
+because the text is coarsely rasterized and converted to bitmaps, which are not
+scalable like standard postscript, and the text is not searchable. One
+workaround is to to set ``ps.distiller.res`` to a higher value (perhaps 6000)
+in your rc settings, which will produce larger files but may look better and
+scale reasonably. A better workaround, which requires Poppler_ or Xpdf_, can be
 activated by changing the ``ps.usedistiller`` rc setting to ``xpdf``. This
-alternative produces postscript with text that can be edited in Adobe
-Illustrator, and searched text in pdf documents.
+alternative produces postscript without rasterizing text, so it scales
+properly, can be edited in Adobe Illustrator, and searched text in pdf
+documents.
 
 .. _usetex-hangups:
 
 Possible hangups
 ================
 
-* On Windows, the PATH environment variable may need to be modified to
-  find the latex, dvipng and ghostscript executables. This is done by
-  going to the control panel, selecting the "system" icon, selecting
-  the "advanced" tab, and clicking the "environment variables" button
-  (and people think Linux is complicated. Sheesh.) Select the PATH
-  variable, and add the appropriate directories.
+* On Windows, the :envvar:`PATH` environment variable may need to be modified
+  to include the directories containing the latex, dvipng and ghostscript
+  executables. See :ref:`environment-variables` and
+  :ref:`setting-windows-environment-variables` for details.
 
-* Using MiKTeX with Computer Modern fonts, if you get odd -Agg and PNG
+* Using MiKTeX with Computer Modern fonts, if you get odd \*Agg and PNG
   results, go to MiKTeX/Options and update your format files
 
-* The fonts look terrible on screen. You are probably running Mac OS,
-  and there is some funny business with dvipng on the mac. Set
-  text.dvipnghack : True in your matplotlibrc file.
+* The fonts look terrible on screen. You are probably running Mac OS, and there
+  is some funny business with older versions of dvipng on the mac. Set
+  ``text.dvipnghack : True`` in your matplotlibrc file.
 
 * On Ubuntu and Gentoo, the base texlive install does not ship with
   the type1cm package. You may need to install some of the extra
   packages to get all the goodies that come bundled with other latex
   distributions.
 
-* Some progress has been made so Matplotlib uses the dvi files
+* Some progress has been made so matplotlib uses the dvi files
   directly for text layout. This allows latex to be used for text
   layout with the pdf and svg backends, as well as the \*Agg and PS
   backends. In the future, a latex installation may be the only
@@ -118,12 +120,15 @@ Possible hangups
 
 .. _usetex-troubleshooting:
 
-Trouble shooting
-================
+Troubleshooting
+===============
 
-* Try deleting `tex.cache` from your `~/.matplotlib` directory
+* Try deleting your :file:`.matplotlib/tex.cache` directory. If you don't know
+  where to find :file:`.matplotlib`, see
+  :ref:`locating-matplotlib-config-dir`.
 
-* Make sure LaTeX, dvipng and ghostscript are each working and on your PATH.
+* Make sure LaTeX, dvipng and ghostscript are each working and on your
+  :envvar:`PATH`.
 
 * Make sure what you are trying to do is possible in a LaTeX document,
   that your LaTeX syntax is valid and that you are using raw strings
@@ -133,7 +138,7 @@ Trouble shooting
   upgrading Ghostscript_. If possible, please try upgrading to the
   latest release before reporting problems to the list.
 
-* The text.latex.preample rc setting is not officially supported. This
+* The ``text.latex.preamble`` rc setting is not officially supported. This
   option provides lots of flexibility, and lots of ways to cause
   problems. Please disable this option before reporting problems to
   the mailing list.

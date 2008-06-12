@@ -17,9 +17,16 @@ Environment Variables
   The list of directories that is added to Python's standard search list when
   importing packages and modules
 
+.. envvar:: MPLCONFIGDIR
 
-Setting Environment Variables in Linux
-======================================
+  This is the directory used to store user customizations to matplotlib, as
+  well as some caches to improve performance. If :envvar:`MPLCONFIGDIR` is not
+  defined, :file:`{HOME}/.matplotlib` is used by default.
+   
+.. _setting-linux-osx-environment-variables:
+
+Setting Environment Variables in Linux and OS-X
+===============================================
 
 To list the current value of :envvar:`PYTHONPATH`, which may be empty, try::
 
@@ -71,6 +78,7 @@ first or last? To append to an existing environment variable::
 To make your changes available in the future, add the commands to your
 `~/.cshrc` file.
 
+.. _setting-windows-environment-variables:
 
 Setting Environment Variables in Windows
 ========================================
