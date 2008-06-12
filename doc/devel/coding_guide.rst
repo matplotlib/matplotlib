@@ -37,7 +37,7 @@ in mind.
   :file:`CHANGELOG`
 
 * if you change the API, please document it in :file:`API_CHANGES`,
-  and consider posting to `mpl-devel
+  and consider posting to `matplotlib-devel
   <http://lists.sourceforge.net/mailman/listinfo/matplotlib-devel>`_
 
 * Are your changes python2.4 compatible?  We still support 2.4, so
@@ -123,12 +123,12 @@ For matplotlib modules (or any other modules), use::
       pass
 
 We prefer this over the equivalent ``from matplotlib import cbook``
-because the latter is ambiguous whether ``cbook`` is a module or a
-function to the new developer.  The former makes it explicit that you
-are importing a module or package.  There are some modules whose names
-may be ambiguous in the context of local variables, eg
-:mod:`matplotlib.lines` or :mod:`matplotlib.colors`.  When you want to
-disambiguate, use the prefix 'm' with the ``import some.thing as
+because the latter is ambiguous as to whether ``cbook`` is a module or a
+function.  The former makes it explicit that you
+are importing a module or package.  There are some modules with names
+that match commonly used local variable names, eg
+:mod:`matplotlib.lines` or :mod:`matplotlib.colors`. To avoid the clash,
+use the prefix 'm' with the ``import some.thing as
 mthing`` syntax, eg::
 
     import matplotlib.lines as mlines
@@ -153,30 +153,22 @@ throughout.
 
 Prefer the shortest names that are still readable.
 
-Also, use an editor that does not put tabs in files.  Four spaces
-should be used for indentation everywhere and if there is a file with
-tabs or more or less spaces it is a bug -- please fix it.  There are
-some tools to help automate this checking, such as `tabnanny
-<http://effbot.org/librarybook/tabnanny.htm>`_, which is part of the
-standard library::
+Configure your editor to use spaces, not hard tabs. The standard
+indentation unit is always four spaces;
+if there is a file with
+tabs or a different number of spaces it is a bug -- please fix it.
+To detect and fix these and other whitespace errors (see below),
+use `reindent.py
+<http://svn.python.org/projects/doctools/trunk/utils/reindent.py>`_ as
+a command-line script.  Unless you are sure your editor always
+does the right thing, please use reindent.py before checking changes into
+svn.
 
-    In [3]: cd /home/titan/johnh/mpl/lib/matplotlib/
-    /home/titan/johnh/python/svn/matplotlib.trunk/matplotlib/lib/matplotlib
-
-    In [4]: import tabnanny
-
-    In [5]: tabnanny.check('axis.py')
-
-There is also `reindent.py
-<http://svn.python.org/projects/doctools/trunk/utils/reindent.py>`_
-which can be used to automatically change python files to use 4-space
-indents with no hard tab characters.
-
-Keep docstrings uniformly indented as in the example below, with
+Keep docstrings_ uniformly indented as in the example below, with
 nothing to the left of the triple quotes.  The
 :func:`matplotlib.cbook.dedent` function is needed to remove excess
 indentation only if something will be interpolated into the docstring,
-again as in the example above.
+again as in the example below.
 
 Limit line length to 80 characters.  If a logical line needs to be
 longer, use parentheses to break it; do not use an escaped newline.
@@ -194,7 +186,7 @@ saving for python, C and C++:
   ; and similarly for c++-mode-hook and c-mode-hook
   (add-hook 'python-mode-hook
             (lambda ()
-	    (add-hook 'write-file-functions 'delete-trailing-whitespace)))
+            (add-hook 'write-file-functions 'delete-trailing-whitespace)))
 
 for older versions of emacs (emacs<22) you need to do:
 
@@ -207,7 +199,7 @@ for older versions of emacs (emacs<22) you need to do:
 Keyword argument processing
 ---------------------------
 
-Matplotlib makes extensive use of ``**kwargs`` for pass through
+Matplotlib makes extensive use of ``**kwargs`` for pass-through
 customizations from one function to another.  A typical example is in
 :func:`matplotlib.pylab.text`.  The definition of the pylab text
 function is a simple pass-through to
@@ -220,7 +212,8 @@ function is a simple pass-through to
       return ret
 
 :meth:`~matplotlib.axes.Axes.text` in simplified form looks like this,
-i.e., it just passes them on to :meth:`matplotlib.text.Text.__init__`::
+i.e., it just passes all ``args`` and ``kwargs`` on to
+:meth:`matplotlib.text.Text.__init__`::
 
   # in axes.py
   def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
@@ -243,7 +236,7 @@ them with the value.
 
 As a general rule, the use of ``**kwargs`` should be reserved for
 pass-through keyword arguments, as in the example above.  If all the
-keyword args to be used in the function being declared, and not passed
+keyword args are to be used in the function, and not passed
 on, use the key/value keyword args in the function definition rather
 than the ``**kwargs`` idiom.
 
@@ -264,7 +257,7 @@ local arguments and the rest are passed on as
           self.add_line(line)
           lines.append(line)
 
-Note there is a use case when ``kwargs`` are meant to be used locally
+Note: there is a use case when ``kwargs`` are meant to be used locally
 in the function (not passed on), but you still need the ``**kwargs``
 idiom.  That is when you want to use ``*args`` to allow variable
 numbers of non-keyword args.  In this case, python will not allow you
@@ -289,7 +282,7 @@ forced to use ``**kwargs``.  An example is
 Documentation and docstrings
 ============================
 
-matplotlib uses artist introspection of docstrings to support
+Matplotlib uses artist introspection of docstrings to support
 properties.  All properties that you want to support through ``setp``
 and ``getp`` should have a ``set_property`` and ``get_property``
 method in the :class:`~matplotlib.artist.Artist` class.  Yes, this is
@@ -306,18 +299,18 @@ Eg. in :class:`matplotlib.lines.Line2D`::
       ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'None' | ' ' | '' ]
       """
 
-Since matplotlib uses a lot of pass through ``kwargs``, eg. in every
+Since matplotlib uses a lot of pass-through ``kwargs``, eg. in every
 function that creates a line (:func:`~matplotlib.pyplot.plot`,
 :func:`~matplotlib.pyplot.semilogx`,
 :func:`~matplotlib.pyplot.semilogy`, etc...), it can be difficult for
-the new user to know which ``kwargs`` are supported.  matplotlib uses
+the new user to know which ``kwargs`` are supported.  Matplotlib uses
 a docstring interpolation scheme to support documentation of every
 function that takes a ``**kwargs``.  The requirements are:
 
 1. single point of configuration so changes to the properties don't
    require multiple docstring edits.
 
-2. as automated as possible so that as properties change the docs
+2. as automated as possible so that as properties change, the docs
    are updated automagically.
 
 The functions :attr:`matplotlib.artist.kwdocd` and
@@ -332,7 +325,7 @@ docstring of ``kwargs``.  Here is an example from
   artist.kwdocd['Line2D'] = artist.kwdoc(Line2D)
 
 Then in any function accepting :class:`~matplotlib.lines.Line2D`
-passthrough ``kwargs``, eg. :meth:`matplotlib.axes.Axes.plot`::
+pass-through ``kwargs``, eg. :meth:`matplotlib.axes.Axes.plot`::
 
   # in axes.py
   def plot(self, *args, **kwargs):
@@ -355,7 +348,7 @@ Note there is a problem for :class:`~matplotlib.artist.Artist`
 which supports ``Patch`` ``kwargs``, since the artist inspector cannot
 work until the class is fully defined and we can't modify the
 ``Patch.__init__.__doc__`` docstring outside the class definition.
-There are some some manual hacks in this case which violates theqq
+There are some some manual hacks in this case, violating the
 "single entry point" requirement above -- see the
 ``artist.kwdocd['Patch']`` setting in :mod:`matplotlib.patches`.
 
