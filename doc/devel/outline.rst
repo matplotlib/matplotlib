@@ -168,6 +168,53 @@ include them as formal review notes.
    rc() function and using that instead of setting the
    dictionary entries directly), if necessary.
 
+   Darren notes:
+
+   Validation is actually built into RcParams. This was done
+   just prior to development of the traited config, validation is done using
+   the mechanisms developed in rcsetup. For example::
+  
+     >>> rcParams['a.b']=1
+     ---------------------------------------------------------------------------
+     KeyError                                  Traceback (most recent call last)
+
+     /home/darren/<ipython console> in <module>()
+
+     /usr/lib64/python2.5/site-packages/matplotlib/__init__.pyc in __setitem__(self, key, val)
+         555         except KeyError:
+         556             raise KeyError('%s is not a valid rc parameter.\
+     --> 557 See rcParams.keys() for a list of valid parameters.'%key)
+         558
+         559
+
+     KeyError: 'a.b is not a valid rc parameter.See rcParams.keys() for a list of valid parameters.'
+
+   also::
+
+     rcParams['text.usetex']=''
+     ---------------------------------------------------------------------------
+     ValueError                                Traceback (most recent call last)
+
+     /home/darren/<ipython console> in <module>()
+
+     /usr/lib64/python2.5/site-packages/matplotlib/__init__.pyc in __setitem__(self, key, val)
+         551 instead.'% (key, alt))
+         552                 key = alt
+     --> 553             cval = self.validate[key](val)
+         554             dict.__setitem__(self, key, cval)
+         555         except KeyError:
+
+     /usr/lib64/python2.5/site-packages/matplotlib/rcsetup.pyc in validate_bool(b)
+          56     elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False): return False
+          57     else:
+     ---> 58         raise ValueError('Could not convert "%s" to boolean' % b)
+          59
+          60 def validate_bool_maybe_none(b):
+
+     ValueError: Could not convert "" to boolean
+
+
+  
 #. DONE - You give the example::
 
         import matplotlib.cbook as cbook
