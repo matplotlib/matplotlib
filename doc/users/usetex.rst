@@ -124,8 +124,7 @@ Troubleshooting
 ===============
 
 * Try deleting your :file:`.matplotlib/tex.cache` directory. If you don't know
-  where to find :file:`.matplotlib`, see
-  :ref:`locating-matplotlib-config-dir`.
+  where to find :file:`.matplotlib`, see :ref:`locating-matplotlib-config-dir`.
 
 * Make sure LaTeX, dvipng and ghostscript are each working and on your
   :envvar:`PATH`.
