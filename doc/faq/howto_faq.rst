@@ -4,6 +4,25 @@
 HOWTO
 *****
 
+.. _locating-matplotlib-config-dir:
+
+Where is my .matplotlib directory?
+==================================
+
+Each user has a :file:`.matplotlib/` directory which may contain a
+:ref:`matplotlibrc <customizing-with-matplotlibrc-files>` file and various
+caches to improve matplotlib's performance. To locate your :file:`.matplotlib/`
+directory, use :func:`matplotlib.get_configdir`:
+
+    >>> import matplotlib as mpl
+    >>> mpl.get_configdir()
+    '/home/darren/.matplotlib'
+
+This directory is generally located in your :envvar:`HOME` directory, but if
+you would like to use a configuration directory other than
+:file:`{HOME}/.matplotlib/`, you can do so by specifying the location in your
+:envvar:`MPLCONFIGDIR` environment variable.
+
 .. _howto-ticks:
 
 How do I configure the tick linewidths?

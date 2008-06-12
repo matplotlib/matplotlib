@@ -32,7 +32,7 @@ text - usetex                    Darren               in review    John
 text - annotations               John                 submitted    ?
 fonts et al                      Michael ?            no author    Darren
 pyplot tut                       John                 submitted    Eric
-configuration                    Darren               preliminary  ?
+configuration                    Darren               submitted    ?
 win32 install                    Charlie ?            no author    Darren
 os x install                     Charlie ?            no author    ?
 linux install                    Darren               has author   ?
@@ -245,27 +245,48 @@ usetex user's guide-- reviewed by JDH
 
 Review of :ref:`usetex-tutorial`:
 
-#. In the section on the ps distiller, you might mention that it is
-   the rasterization which some users find objectionable, and the
-   distiller pram (eg 6000) is a dpi setting for the rasterizer.  Not
-   everyone will immediately grasp the controversy surrounding dumping
-   high res bitmaps into a ps file.
+#. DONE - In the section on the ps distiller, you might mention that it is the
+   rasterization which some users find objectionable, and the distiller pram
+   (eg 6000) is a dpi setting for the rasterizer.  Not everyone will
+   immediately grasp the controversy surrounding dumping high res bitmaps into
+   a ps file.
 
-#. ``= Possible Hangups =`` - this is moin, not rest.  I have fixed
-    this already, just wanted to point it out.  Also, for everything
-    but top level chapters, I refer ``Upper lower`` for section
-    titles, eg ``Possible hangups``.
+#. DONE - ``= Possible Hangups =`` - this is moin, not rest.  I have
+    fixed this already, just wanted to point it out.  Also, for everything but
+    top level chapters, I refer ``Upper lower`` for section titles, eg
+    ``Possible hangups``.
 
-#. in the troubleshooting section, could you add a FAQ showing how to
+#. DONE - in the troubleshooting section, could you add a FAQ showing how to
    find their .matplotlib dir (matplotlib.get_data_path) and link to
-   it.  Also link to the PATH var and properly format
-   ``text.latex.preample``.  For the dirs, do we want `tex.cache` or
+   it.
+
+   I think you mean mpl.get_configdir. I added this to the faq/HOWTO, and
+   linked to it from usetex.rst and customizing.rst. I also added the
+   MPLCONFIGDIR environment variable to environment_variables_faq.rst.
+
+   DONE - Also link to the PATH var and properly format
+   ``text.latex.preample``.
+
+   DONE - For the dirs, do we want `tex.cache` or
    ``tex.cache``?  I've been using the latter.  We could use rest
    specific markup for files and dirs, but I've been resisting goin
    whle hog onthe markup...  But we may eventually decide that is the
    better choice.
 
-#. try and use internal reference links for every section and be
+   I think we should use the directive provided by sphinx::
+
+     :file:`tex.cache`
+
+   I don't think that looks too ugly in ascii, its clear what it means. If you
+   don't like it, I think we should use::
+
+     ``tex.cache``
+
+   which is formatted most
+   similarly to the :file: directive in html. Let me know if you don't want to
+   use the file directive.
+
+#. DONE - try and use internal reference links for every section and be
    generous with the sections.  Eg, I added a section headers and
    internal linka for the postscript and unicode sections (we will
    want to be able to refer people to these easily from FAQs and mail
@@ -277,3 +298,5 @@ Review of :ref:`usetex-tutorial`:
     ==================
 
 Looks good!
+
+Thanks!
