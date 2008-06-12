@@ -1,3 +1,9 @@
+2008-06-12 Added some helper functions to the mathtext parser to
+           return bitmap arrays or write pngs to make it easier to use
+           mathtext outside the context of an mpl figure.  modified
+           the mathpng sphinxext to use the mathtext png save
+           functionality
+
 2008-06-11 Use matplotlib.mathtext to render math expressions in
            online docs - MGD
 
