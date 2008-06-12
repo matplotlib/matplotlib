@@ -4334,6 +4334,7 @@ class Axes(martist.Artist):
     quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
 
     def quiver(self, *args, **kw):
+        if not self._hold: self.cla()
         q = mquiver.Quiver(self, *args, **kw)
         self.add_collection(q)
         self.update_datalim_numerix(q.X, q.Y)
@@ -5002,11 +5003,13 @@ class Axes(martist.Artist):
 
 
     def contour(self, *args, **kwargs):
+        if not self._hold: self.cla()
         kwargs['filled'] = False
         return mcontour.ContourSet(self, *args, **kwargs)
     contour.__doc__ = mcontour.ContourSet.contour_doc
 
     def contourf(self, *args, **kwargs):
+        if not self._hold: self.cla()
         kwargs['filled'] = True
         return mcontour.ContourSet(self, *args, **kwargs)
     contourf.__doc__ = mcontour.ContourSet.contour_doc
