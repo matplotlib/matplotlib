@@ -74,15 +74,15 @@ void FT2Image::resize(long width, long height) {
   if (height < 0) height = 1;
   size_t numBytes = width*height;
 
-  if (width != _width || height != _height) {
+  if ((unsigned long)width != _width || (unsigned long)height != _height) {
     if (numBytes > _width*_height) {
       delete [] _buffer;
       _buffer = NULL;
       _buffer = new unsigned char [numBytes];
     }
 
-    _width = width;
-    _height = height;
+    _width = (unsigned long)width;
+    _height = (unsigned long)height;
   }
 
   memset(_buffer, 0, numBytes);
