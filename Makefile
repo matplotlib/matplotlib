@@ -37,8 +37,8 @@ jdh_doc_snapshot:
 	python setup.py install --prefix=~/dev;\
 	cd doc;\
 	rm -rf build;\
-	python make.py html;\
-	python make.py sf
+	python make.py clean html latex sf;
+
 
 
 

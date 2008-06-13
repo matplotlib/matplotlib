@@ -8,7 +8,7 @@ right = left + width
 top = bottom + height
 
 fig = plt.figure()
-ax = fig.add_subplot(111)
+ax = fig.add_axes([0,0,1,1])
 
 # axes coordinates are 0,0 is bottom left and 1,1 is upper right
 p = patches.Rectangle(

@@ -40,6 +40,12 @@ install directory.  To cleanly rebuild:
           import matplotlib
           print matplotlib.get_configdir()
 
+      A typical location for the config directory is :file:`.matplotlib`, and the following
+      caches may need to be cleared after a major update::
+
+          rm -rf ~/.matplotlib/tex.cache
+	  rm -rf ~/.matplotlib/fontManager.cache
+
 .. _what-is-a-backend:
 
 What is a backend?
@@ -175,7 +181,7 @@ matplotlib binary installers for windows -- you can get these from the
 `sourceforge download
 <http://sourceforge.net/project/platformdownload.php?group_id=80706>`_
 site.  Choose the files that match your version of python (eg
-``py2.5`` if you instaslled Python 2.5) and have the ``exe``
+``py2.5`` if you installed Python 2.5) which have the ``exe``
 extension.  If you haven't already installed python, you can get the
 official version from the `python web site
 <http://python.org/download/>`_.  There are also two packaged
