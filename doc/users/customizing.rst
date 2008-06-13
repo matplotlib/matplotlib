@@ -6,8 +6,8 @@ Customizing matplotlib
 
 .. _customizing-with-matplotlibrc-files:
 
-The matplotlibrc File
-=====================
+The :file:`matplotlibrc` file
+=============================
 
 matplotlib uses :file:`matplotlibrc` configuration files to customize all kinds
 of properties, which we call `rc settings` or `rc parameters`. You can control
