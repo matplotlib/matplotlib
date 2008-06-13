@@ -1031,6 +1031,19 @@ def simple_linear_interpolation(a, steps):
 
     return result
 
+def recursive_remove(path):
+    if os.path.isdir(path):
+        for fname in glob.glob(os.path.join(path, '*')) + glob.glob(os.path.join(path, '.*')):
+            if os.path.isdir(fname):
+                recursive_remove(fname)
+                os.removedirs(fname)
+            else:
+                os.remove(fname)
+        #os.removedirs(path)
+    else:
+        os.remove(path)
+
+
 
 # a dict to cross-map linestyle arguments
 _linestyles = [('-', 'solid'),

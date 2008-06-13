@@ -17,6 +17,7 @@ def check_build():
 def sf():
     'push a copy to the sf site'
     os.system('cd build; rsync -avz html jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/doc/ -essh')
+    os.system('cd build/latex; scp Matplotlib.pdf jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/doc/')
 
 def figs():
     os.system('cd users/figures/ && python make.py')
@@ -56,7 +57,8 @@ def latex():
         print 'latex build has not been tested on windows'
 
 def clean():
-    shutil.rmtree('build')
+    if os.path.exists('build'):
+        shutil.rmtree('build')
     for fname in glob.glob('pyplots/*.png') + glob.glob('pyplots/*.pdf'):
         os.remove(fname)
 

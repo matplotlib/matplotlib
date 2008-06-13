@@ -5,6 +5,8 @@
 Welcome to matplotlib's documentation!
 ======================================
 
+Download `PDF <http://matplotlib.sf.net/doc/Matplotlib.pdf>`_
+
 Contents:
 
 .. toctree::
@@ -22,3 +24,8 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+
+.. _ipython: http://ipython.scipy.org
+.. _numpy: http://numpy.scipy.org
+.. _scipy: http://scipy.org
+.. _vtk: http://www.vtk.org

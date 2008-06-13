@@ -106,7 +106,6 @@ def makefig(fullpath, outdir):
     for format, dpi in formats:
         outname = os.path.join(outdir, '%s.%s' % (basename, format))
         plt.savefig(outname, dpi=dpi)
-    print '    all figures made'
 
 def run(arguments, options, state_machine, lineno):
     reference = directives.uri(arguments[0])
