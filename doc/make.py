@@ -24,24 +24,32 @@ def figs():
 def html():
     check_build()
     figs()
-    os.system('sphinx-build -b html -d build/doctrees . build/html')
+    if os.system('sphinx-build -b html -d build/doctrees . build/html'):
+        raise SystemExit("Building HTML failed.")
+
+    figures_dest_path = 'build/html/users/figures'
+    if os.path.exists(figures_dest_path):
+        shutil.rmtree(figures_dest_path)
+    shutil.copytree('users/figures', figures_dest_path)
 
 def latex():
     check_build()
     figs()
     if sys.platform != 'win32':
         # LaTeX format.
-        os.system('sphinx-build -b latex -d build/doctrees . build/latex')
+        if os.system('sphinx-build -b latex -d build/doctrees . build/latex'):
+            raise SystemExit("Building LaTeX failed.")
 
         # Produce pdf.
         os.chdir('build/latex')
 
         # Copying the makefile produced by sphinx...
-        os.system('pdflatex Matplotlib.tex')
-        os.system('pdflatex Matplotlib.tex')
-        os.system('makeindex -s python.ist Matplotlib.idx')
-        os.system('makeindex -s python.ist modMatplotlib.idx')
-        os.system('pdflatex Matplotlib.tex')
+        if (os.system('pdflatex Matplotlib.tex') or
+            os.system('pdflatex Matplotlib.tex') or
+            os.system('makeindex -s python.ist Matplotlib.idx') or
+            os.system('makeindex -s python.ist modMatplotlib.idx') or
+            os.system('pdflatex Matplotlib.tex')):
+            raise SystemExit("Rendering LaTeX failed.")
 
         os.chdir('../..')
     else:

@@ -57,7 +57,5 @@ code indicates that the coordinates are given relative to the axes
 bounding box, with 0,0 being the lower left of the axes and 1,1 the
 upper right.
 
-.. literalinclude:: figures/text_layout.py
-
-.. image:: figures/text_layout.png
+.. plot:: figures/text_layout.py
    :scale: 75

@@ -55,8 +55,6 @@ All of these functions create and return a
 variety of font and other properties.  The example below shows all of
 these commands in action.
 
-.. literalinclude:: figures/text_commands.py
-
-.. image:: figures/text_commands.png
+.. plot:: figures/text_commands.py
    :scale: 75
 
