@@ -131,7 +131,7 @@ WX             Native WX drawing to a WX Canvas (not recommended) (`wxpython <ht
 TkAgg          Agg rendering to a Tkinter canvas (`tkinter <http://wiki.python.org/moin/TkInter>`_)
 QtAgg          Agg rendering to a Qt canvas (`pyqt <http://www.riverbankcomputing.co.uk/software/pyqt/intro>`_)
 Qt4Agg         Agg rendering to a Qt4 canvas (`pyqt <http://www.riverbankcomputing.co.uk/software/pyqt/intro>`_)
-FLTKAgg        Agg rendering to a FLTK canvas (`pyfltk <http://pyfltk.sourceforge.net>`)_
+FLTKAgg        Agg rendering to a FLTK canvas (`pyfltk <http://pyfltk.sourceforge.net>`_)
 ============   ===================================================================================================
 
 
