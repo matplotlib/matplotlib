@@ -12,11 +12,8 @@ with labels, etc....  :mod:`matplotlib.pyplot` is stateful, in that it
 keeps track of the current figure and plotting area, and the plotting
 functions are directed to the current axes
 
-.. literalinclude:: figures/pyplot_simple.py
-
-.. image:: figures/pyplot_simple.png
+.. plot:: figures/pyplot_simple
    :scale: 75
-
 
 You may be wondering why the x-axis ranges from 0-3 and the y-axis
 from 1-4.  If you provide a single list or array to the
@@ -39,9 +36,7 @@ matlab, and you concatenate a color string with a line style string.
 The default format string is 'b-', which is a solid blue line.  For
 example, to plot the above with red circles, you would issue
 
-.. literalinclude:: figures/pyplot_formatstr.py
-
-.. image:: figures/pyplot_formatstr.png
+.. plot:: figures/pyplot_formatstr.py
    :scale: 75
 
 See the :func:`~matplotlib.pyplot.plot` documentation for a complete
@@ -57,9 +52,7 @@ converted to numpy arrays internally.  The example below illustrates a
 plotting several lines with different format styles in one command
 using arrays.
 
-.. literalinclude:: figures/pyplot_three.py
-
-.. image:: figures/pyplot_three.png
+.. plot:: figures/pyplot_three.py
    :scale: 75
 
 .. _controlling-line-properties:
@@ -164,9 +157,7 @@ current axes (a :class:`matplotlib.axes.Axes` instance), and
 to worry about this, because it is all taken care of behind the
 scenes.  Below is an script to create two subplots.
 
-.. literalinclude:: figures/pyplot_two_subplots.py
-
-.. image:: figures/pyplot_two_subplots.png
+.. plot:: figures/pyplot_two_subplots.py
    :scale: 75
 
 The :func:`~matplotlib.pyplot.figure` command here is optional because
@@ -225,9 +216,7 @@ an arbitrary location, and the :func:`~matplotlib.pyplot.xlabel`,
 are used tox add text in the indicated locations (see :ref:`text-intro`
 for a more detailed example)
 
-.. literalinclude:: figures/pyplot_text.py
-
-.. image:: figures/pyplot_text.png
+.. plot:: figures/pyplot_text.py
    :scale: 75
 
 
@@ -273,9 +262,7 @@ two points to consider: the location being annotated represented by
 the argument ``xy`` and the location of the text ``xytext``.  Both of
 these arguments are ``(x,y)`` tuples.
 
-.. literalinclude:: figures/pyplot_annotate.py
-
-.. image:: figures/pyplot_annotate.png
+.. plot:: figures/pyplot_annotate.py
    :scale: 75
 
 In this basic example, both the ``xy`` (arrow tip) and ``xytext``

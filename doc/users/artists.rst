@@ -604,9 +604,7 @@ grid                    Turn the grid on or off for the major or minor ticks
 Here is an example, not recommended for its beauty, which customizes
 the axes and tick properties
 
-.. literalinclude:: figures/fig_axes_customize_simple.py
-
-.. image:: figures/fig_axes_customize_simple.png
+.. plot:: figures/fig_axes_customize_simple.py
    :scale: 75
 
 
@@ -643,7 +641,5 @@ label2On         boolean which determines whether to draw tick label
 Here is an example which sets the formatter for the upper ticks with
 dollar signs and colors them green on the right side of the yaxis
 
-.. literalinclude:: figures/dollar_ticks.py
-
-.. image:: figures/dollar_ticks.png
+.. plot:: figures/dollar_ticks.py
    :scale: 75
