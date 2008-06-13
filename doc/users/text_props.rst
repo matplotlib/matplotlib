@@ -59,3 +59,4 @@ upper right.
 
 .. plot:: figures/text_layout.py
    :scale: 75
+   :include-source:

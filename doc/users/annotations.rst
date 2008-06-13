@@ -13,6 +13,7 @@ consider: the location being annotated represented by the argument
 arguments are ``(x,y)`` tuples.
 
 .. plot:: figures/annotation_basic.py
+   :include-source:
    :scale: 75
 
 In this example, both the ``xy`` (arrow tip) and ``xytext`` locations
@@ -73,6 +74,7 @@ keyword args like ``horizontalalignment``, ``verticalalignment`` and
 
 .. plot:: figures/annotation_polar.py
    :scale: 75
+   :include-source:
 
 See the `annotations demo
 <http://matplotlib.sf.net/examples/pylab_examples/annotation_demo.py>`_ for more

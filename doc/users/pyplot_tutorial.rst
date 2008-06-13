@@ -14,6 +14,7 @@ functions are directed to the current axes
 
 .. plot:: figures/pyplot_simple
    :scale: 75
+   :include-source:
 
 You may be wondering why the x-axis ranges from 0-3 and the y-axis
 from 1-4.  If you provide a single list or array to the
@@ -38,6 +39,7 @@ example, to plot the above with red circles, you would issue
 
 .. plot:: figures/pyplot_formatstr.py
    :scale: 75
+   :include-source:
 
 See the :func:`~matplotlib.pyplot.plot` documentation for a complete
 list of line styles and format strings.  The
@@ -54,6 +56,7 @@ using arrays.
 
 .. plot:: figures/pyplot_three.py
    :scale: 75
+   :include-source:
 
 .. _controlling-line-properties:
 
@@ -159,6 +162,7 @@ scenes.  Below is an script to create two subplots.
 
 .. plot:: figures/pyplot_two_subplots.py
    :scale: 75
+   :include-source:
 
 The :func:`~matplotlib.pyplot.figure` command here is optional because
 ``figure(1)`` will be created by default, just as a ``subplot(111)``
@@ -218,7 +222,7 @@ for a more detailed example)
 
 .. plot:: figures/pyplot_text.py
    :scale: 75
-
+   :include-source:
 
 All of the :func:`~matplotlib.pyplot.text` commands return an
 :class:`matplotlib.text.Text` instance.  Just as with with lines
@@ -264,6 +268,7 @@ these arguments are ``(x,y)`` tuples.
 
 .. plot:: figures/pyplot_annotate.py
    :scale: 75
+   :include-source:
 
 In this basic example, both the ``xy`` (arrow tip) and ``xytext``
 locations (text location) are in data coordinates.  There are a

@@ -3,10 +3,14 @@
 Given a path to a .py file, it includes the source code inline, then:
 
 - On HTML, will include a .png with a link to a high-res .png.
-  Underneath that, a [source] link will go to a plain text .py of
-  the source.
 
 - On LaTeX, will include a .pdf
+
+This directive supports all of the options of the `image` directive,
+except for `target` (since plot will add its own target).
+
+Additionally, if the :include-source: option is provided, the literal
+source will be included inline, as well as a link to the source.
 """
 
 from docutils.parsers.rst import directives
@@ -25,9 +29,23 @@ options = {'alt': directives.unchanged,
            'width': directives.length_or_percentage_or_unitless,
            'scale': directives.nonnegative_int,
            'align': align,
-           'class': directives.class_option}
+           'class': directives.class_option,
+           'include-source': directives.flag }
 
-template = """
+template_no_source = """
+.. htmlonly::
+
+   .. image:: %(reference)s.png
+      :target: %(reference)s.hires.png
+%(options)s
+
+.. latexonly::
+   .. image:: %(reference)s.pdf
+%(options)s
+
+"""
+
+template_source = """
 .. literalinclude:: %(reference)s.py
 
 .. htmlonly::
@@ -36,7 +54,7 @@ template = """
       :target: %(reference)s.hires.png
 %(options)s
 
-   `[original %(basename)s.py] <%(reference)s.py>`_
+   `[%(basename)s.py] <%(reference)s.py>`_
 
 .. latexonly::
    .. image:: %(reference)s.pdf
@@ -46,8 +64,16 @@ template = """
 
 def run(arguments, options, state_machine, lineno):
     reference = directives.uri(arguments[0])
-    if reference.endswith('.py'):
-        reference = reference[:-3]
+    print reference
+    for ext in ('.py', '.png', '.pdf'):
+        if reference.endswith(ext):
+            reference = reference[:-len(ext)]
+            break
+    if options.has_key('include-source'):
+        template = template_source
+        del options['include-source']
+    else:
+        template = template_no_source
     options = ['      :%s: %s' % (key, val) for key, val in
                options.items()]
     options = "\n".join(options)
