@@ -265,14 +265,14 @@ FT2Image::py_as_array(const Py::Tuple & args) {
   _VERBOSE("FT2Image::as_array");
   args.verify_length(0);
 
-  int dimensions[2];
+  npy_intp dimensions[2];
   dimensions[0] = get_height();  //numrows
   dimensions[1] = get_width();   //numcols
 
 
-  //PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNewFromData(2, dimensions, PyArray_UBYTE, _buffer);
+  PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNewFromData(2, dimensions, PyArray_UBYTE, _buffer);
 
-
+  /*
 
   PyArrayObject *A = (PyArrayObject *) PyArray_FromDims(2, dimensions, PyArray_UBYTE);
 
@@ -284,7 +284,7 @@ FT2Image::py_as_array(const Py::Tuple & args) {
   while (src != src_end) {
     *dst++ = *src++;
   }
-
+  */
 
   return Py::asObject((PyObject*)A);
 }
