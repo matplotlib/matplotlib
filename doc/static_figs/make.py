@@ -2,10 +2,14 @@
 import sys, os, glob
 import matplotlib
 import IPython.Shell
-matplotlib.rcdefaults()
+#matplotlib.rcdefaults()
 matplotlib.use('Agg')
 
 mplshell = IPython.Shell.MatplotlibShell('mpl')
+
+formats = [('png', 100),
+           ('hires.png', 200),
+           ('pdf', 72)]
 
 def figs():
     print 'making figs'
@@ -13,21 +17,28 @@ def figs():
     for fname in glob.glob('*.py'):
         if fname.split('/')[-1] == __file__.split('/')[-1]: continue
         basename, ext = os.path.splitext(fname)
-        outfile = '../_static/%s.png'%basename
+        imagefiles = dict([('../_static/%s.%s'%(basename, format), dpi)
+                           for format, dpi in formats])
+        all_exists = True
+        for imagefile in imagefiles:
+            if not os.path.exists(imagefile):
+                all_exists = False
+                break
 
-        if os.path.exists(outfile):
-            print '    already have %s'%outfile
-            continue
+        if all_exists:
+            print '    already have %s'%fname
         else:
             print '    building %s'%fname
-        plt.close('all')    # we need to clear between runs
-        mplshell.magic_run(basename)
-        plt.savefig(outfile)
+            plt.close('all')    # we need to clear between runs
+            mplshell.magic_run(basename)
+            for imagefile, dpi in imagefiles.iteritems():
+                plt.savefig(imagefile, dpi=dpi)
     print 'all figures made'
 
 
 def clean():
-    patterns = ['#*', '*~', '*.png', '*pyc']
+    patterns = (['#*', '*~', '*pyc'] +
+                ['*.%s' % format for format, dpi in formats])
     for pattern in patterns:
         for fname in glob.glob(pattern):
             os.remove(fname)

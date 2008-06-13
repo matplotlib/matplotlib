@@ -17,10 +17,11 @@ def figs():
     for fname in glob.glob('*.py'):
         if fname==__file__: continue
         basename, ext = os.path.splitext(fname)
-        outfiles = ['%s.%s' % (basename, format) for format, dpi in formats]
+        imagefiles = dict([('../_static/%s.%s'%(basename, format), dpi)
+                           for format, dpi in formats])
         all_exists = True
-        for format, dpi in formats:
-            if not os.path.exists('%s.%s' % (basename, format)):
+        for imagefile in imagefiles:
+            if not os.path.exists(imagefile):
                 all_exists = False
                 break
 
@@ -30,8 +31,8 @@ def figs():
             print '    building %s'%fname
             plt.close('all')    # we need to clear between runs
             mplshell.magic_run(basename)
-            for format, dpi in formats:
-                plt.savefig('%s.%s' % (basename, format), dpi=dpi)
+            for imagefile, dpi in imagefiles.iteritems():
+                plt.savefig(imagefile, dpi=dpi)
     print 'all figures made'
 
 
