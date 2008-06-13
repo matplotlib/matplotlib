@@ -102,14 +102,19 @@ Figures
 Dynamically generated figures
 -----------------------------
 
-Each guide will have its own `figures/` directory for scripts to generate images
-to be included in the documentation. It is not necessary to explicitly save
-the figure in the script, a figure will be saved with the same name as the
-filename when the documentation is generated.  Matplotlib includes a Sphinx
-extension for generating the images from the python script and including either
-a png copy for html or a pdf for latex::
+The top level :file:`doc` dir has a folder called :file:`pyplots` in
+which you should include any pyplot plotting scripts that you want to
+generate figures for the documentation.  It is not necessary to
+explicitly save the figure in the script, this will be done
+automatically at build time to insure that the code that is included
+runs and produces the advertised figure.  Several figures will be
+saved with the same basnename as the filename when the documentation
+is generated (low and high res PNGs, a PDF).  Matplotlib includes a
+Sphinx extension (file:`sphinxext/plot_directive.py`) for generating
+the images from the python script and including either a png copy for
+html or a pdf for latex::
 
-   .. plot:: figures/pyplot_simple
+   .. plot:: pyplot_simple.py
       :scale: 75
       :include-source:
 
