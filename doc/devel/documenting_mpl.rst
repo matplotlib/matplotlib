@@ -56,11 +56,16 @@ Formatting
 The Sphinx website contains plenty of documentation_ concerning ReST markup and
 working with Sphinx in general. Here are a few additional things to keep in mind:
 
+* Please familiarize yourself with the Sphinx directives for `inline
+  markup`_. Matplotlib's documentation makes heavy use of cross-referencing and
+  other semantic markup. For example, when referring to external files, use the
+  ``:file:`` directive.
+
 * Sphinx does not support tables with column- or row-spanning cells for
   latex output. Such tables can not be used when documenting matplotlib.
 
-* Mathematical expressions can be rendered as png images in html, and in
-  the usual way by latex. For example:
+* Mathematical expressions can be rendered as png images in html, and in the
+  usual way by latex. For example:
 
   ``math:`sin(x_n^2)``` yields: :math:`sin(x_n^2)`, and::
 
@@ -88,28 +93,47 @@ working with Sphinx in general. Here are a few additional things to keep in mind
     In [69]: lines = plot([1,2,3])
 
 .. _documentation: http://sphinx.pocoo.org/contents.html
+.. _`inline markup`: http://sphinx.pocoo.org/markup/inline.html
 
 
 Figures
 =======
 
+Dynamically generated figures
+-----------------------------
+
 Each guide will have its own `figures/` directory for scripts to generate images
-to be included in the dcoumentation. It is not necessary to explicitly save
+to be included in the documentation. It is not necessary to explicitly save
 the figure in the script, a figure will be saved with the same name as the
-filename when the documentation is generated.  For example, use::
+filename when the documentation is generated.  Matplotlib includes a Sphinx
+extension for generating the images from the python script and including either
+a png copy for html or a pdf for latex::
 
-    .. literalinclude:: figures/pyplot_simple.py
+   .. plot:: figures/pyplot_simple
+      :scale: 75
+      :include-source:
 
-    .. image:: figures/pyplot_simple.png
-    :scale: 75
+The ``:scale:`` directive rescales the image to some percentage of the original
+size. ``:include-source:`` will present the contents of the file, marked up as
+source code.
 
+Static figures
+--------------
 
 Any figures that rely on optional system configurations should be generated
 with a script residing in doc/static_figs. The resulting figures will be saved
 to doc/_static, and will be named based on the name of the script, so we can
-avoid unintentionally overwriting any existing figures. Please add a line to
+avoid unintentionally overwriting any existing figures. Please run the
+:file:`doc/static_figs/make.py` file when adding additional figures, and commit
+the script **and** the images to svn. Please also add a line to
 the README in doc/static-figs for any additional requirements necessary to
-generate a new figure.
+generate a new figure. These figures are not to be generated during the
+documentation build. Please use something like the following to include the
+source code and the image::
+
+  .. literalinclude:: ../mpl_examples/pylab_examples/tex_unicode_demo.py
+
+  .. image:: ../_static/tex_unicode_demo.png
 
 
 
