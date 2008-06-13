@@ -5,9 +5,12 @@
 Welcome to matplotlib's documentation!
 ======================================
 
-Download `PDF <http://matplotlib.sf.net/doc/Matplotlib.pdf>`_
+.. htmlonly::
 
-Contents:
+    :Release: |version|
+    :Date: |today|
+
+    Download `PDF <http://matplotlib.sf.net/doc/Matplotlib.pdf>`_
 
 .. toctree::
    :maxdepth: 2

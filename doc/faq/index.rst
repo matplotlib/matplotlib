@@ -4,10 +4,12 @@
   The Matplotlib FAQ
 ####################
 
-:Release: |version|
-:Date: |today|
+.. htmlonly::
 
-Frequently asked questions about matplotlib
+   :Release: |version|
+   :Date: |today|
+
+   Frequently asked questions about matplotlib
 
 .. toctree::
    :maxdepth: 2

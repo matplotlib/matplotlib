@@ -4,8 +4,10 @@
   The Matplotlib API
 ####################
 
-:Release: |version|
-:Date: |today|
+.. htmlonly::
+
+   :Release: |version|
+   :Date: |today|
 
 .. toctree::
 
