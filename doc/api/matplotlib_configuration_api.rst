@@ -17,7 +17,7 @@ matplotlib configuration
 
 
 :mod:`matplotlib.rcsetup`
-=============================
+=========================
 
 .. automodule:: matplotlib.rcsetup
    :members:

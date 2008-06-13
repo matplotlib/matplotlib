@@ -213,7 +213,7 @@ Working with text
 The :func:`~matplotlib.pyplot.text` command can be used to add text in
 an arbitrary location, and the :func:`~matplotlib.pyplot.xlabel`,
 :func:`~matplotlib.pyplot.ylabel` and :func:`~matplotlib.pyplot.title`
-are used tox add text in the indicated locations (see :ref:`text-intro`
+are used to add text in the indicated locations (see :ref:`text-intro`
 for a more detailed example)
 
 .. plot:: pyplot_text.py
