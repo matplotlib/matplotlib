@@ -98,7 +98,7 @@ def makefig(fullpath, outdir):
         print '    already have %s'%fullpath
         return
 
-    print '    building %s'%fullpath, type(fullpath)
+    print '    building %s'%fullpath
     plt.close('all')    # we need to clear between runs
 
     mplshell.magic_run(fullpath)
