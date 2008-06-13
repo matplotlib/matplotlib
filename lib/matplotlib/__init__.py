@@ -534,10 +534,11 @@ _deprecated_map = {
 
 class RcParams(dict):
 
-    """A dictionary object including validation
+    """
+    A dictionary object including validation
 
     validating functions are defined and associated with rc parameters in
-    rcsetup.py
+    :mod:`matplotlib.rcsetup`
     """
 
     validate = dict([ (key, converter) for key, (default, converter) in \

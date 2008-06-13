@@ -126,20 +126,17 @@ present the contents of the file, marked up as source code.
 Static figures
 --------------
 
-Any figures that rely on optional system configurations should be generated
-with a script residing in doc/static_figs. The resulting figures will be saved
-to doc/_static, and will be named based on the name of the script, so we can
-avoid unintentionally overwriting any existing figures. Please run the
-:file:`doc/static_figs/make.py` file when adding additional figures, and commit
-the script **and** the images to svn. Please also add a line to
-the README in doc/static-figs for any additional requirements necessary to
-generate a new figure. These figures are not to be generated during the
-documentation build. Please use something like the following to include the
-source code and the image::
+Any figures that rely on optional system configurations need to be handled a
+little differently. These figures are not to be generated during the
+documentation build, in order to keep the prerequisites to the documentation
+effort as low as possible. Please run the :file:`doc/pyplots/make.py` script
+when adding such figures, and commit the script **and** the images to
+svn. Please also add a line to the README in doc/pyplots for any additional
+requirements necessary to generate a new figure. Once these steps have been
+taken, these figures can be included in the usual way::
 
-  .. literalinclude:: ../mpl_examples/pylab_examples/tex_unicode_demo.py
-
-  .. image:: ../_static/tex_unicode_demo.png
+   .. plot:: tex_unicode_demo.py
+      :include-source
 
 
 
