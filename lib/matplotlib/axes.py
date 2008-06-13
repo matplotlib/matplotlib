@@ -3953,10 +3953,11 @@ class Axes(martist.Artist):
 
             xt = x + labeldistance*radius*math.cos(thetam)
             yt = y + labeldistance*radius*math.sin(thetam)
+            label_alignment = xt > 0 and 'left' or 'right'
 
             t = self.text(xt, yt, label,
                           size=rcParams['xtick.labelsize'],
-                          horizontalalignment='center',
+                          horizontalalignment=label_alignment,
                           verticalalignment='center')
 
             texts.append(t)

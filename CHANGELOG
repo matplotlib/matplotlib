@@ -1,3 +1,6 @@
+2008-06-13 Change pie chart label alignment to avoid having labels
+           overwrite the pie - MGD
+
 2008-06-12 Added some helper functions to the mathtext parser to
            return bitmap arrays or write pngs to make it easier to use
            mathtext outside the context of an mpl figure.  modified
