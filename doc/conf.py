@@ -49,7 +49,7 @@ copyright = '2008, John Hunter, Darren Dale, Michael Droettboom'
 # The short X.Y version.
 version = '0.98'
 # The full version, including alpha/beta/rc tags.
-release = '0.98pre'
+release = '0.98'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:

@@ -4,8 +4,10 @@
   The Matplotlib Developers's Guide
 ###################################
 
-:Release: |version|
-:Date: |today|
+.. htmlonly::
+
+   :Release: |version|
+   :Date: |today|
 
 .. toctree::
    :maxdepth: 2
