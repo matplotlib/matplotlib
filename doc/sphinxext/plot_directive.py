@@ -10,6 +10,7 @@ Given a path to a .py file, it includes the source code inline, then:
 """
 
 from docutils.parsers.rst import directives
+import os.path
 
 try:
     # docutils 0.4
@@ -35,7 +36,7 @@ template = """
       :target: %(reference)s.hires.png
 %(options)s
 
-   `[source] <%(reference)s.py>`_
+   `[original %(basename)s.py] <%(reference)s.py>`_
 
 .. latexonly::
    .. image:: %(reference)s.pdf
@@ -50,6 +51,7 @@ def run(arguments, options, state_machine, lineno):
     options = ['      :%s: %s' % (key, val) for key, val in
                options.items()]
     options = "\n".join(options)
+    basename = os.path.basename(reference)
     lines = template % locals()
     lines = lines.split('\n')
 
