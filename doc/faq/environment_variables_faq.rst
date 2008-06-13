@@ -33,8 +33,9 @@ To list the current value of :envvar:`PYTHONPATH`, which may be empty, try::
   echo $PYTHONPATH
 
 The procedure for setting environment variables in depends on what your default
-shell is. BASH seems to be the most common, but CSH is also common. You
-should be able to determine which by running at the command prompt::
+shell is. :program:`BASH` seems to be the most common, but :program:`CSH` is
+also common. You should be able to determine which by running at the command
+prompt::
 
   echo $SHELL
 
@@ -84,6 +85,7 @@ To make your changes available in the future, add the commands to your
 Setting environment variables in windows
 ========================================
 
-Go to the Windows start menu, select `Control Panel`, then select the `System`
-icon, click the `Advanced` tab, and select the `Environment Variables`
-button. You can edit or add to the `user variables`.
+Open the :program:`Control Panel` (:menuselection:`Start --> Control Panel`),
+start the :program:`System` program. Click the :guilabel:`Advanced` tab
+and select the :guilabel:`Environment Variables` button. You can edit or add to
+the :guilabel:`User Variables`.
