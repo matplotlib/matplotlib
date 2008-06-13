@@ -13,7 +13,6 @@ keeps track of the current figure and plotting area, and the plotting
 functions are directed to the current axes
 
 .. plot:: pyplot_simple.py
-   :scale: 75
    :include-source:
 
 You may be wondering why the x-axis ranges from 0-3 and the y-axis
@@ -38,7 +37,6 @@ The default format string is 'b-', which is a solid blue line.  For
 example, to plot the above with red circles, you would issue
 
 .. plot:: pyplot_formatstr.py
-   :scale: 75
    :include-source:
 
 See the :func:`~matplotlib.pyplot.plot` documentation for a complete
@@ -55,7 +53,6 @@ plotting several lines with different format styles in one command
 using arrays.
 
 .. plot:: pyplot_three.py
-   :scale: 75
    :include-source:
 
 .. _controlling-line-properties:
@@ -161,7 +158,6 @@ to worry about this, because it is all taken care of behind the
 scenes.  Below is an script to create two subplots.
 
 .. plot:: pyplot_two_subplots.py
-   :scale: 75
    :include-source:
 
 The :func:`~matplotlib.pyplot.figure` command here is optional because
@@ -221,8 +217,8 @@ are used tox add text in the indicated locations (see :ref:`text-intro`
 for a more detailed example)
 
 .. plot:: pyplot_text.py
-   :scale: 75
    :include-source:
+
 
 All of the :func:`~matplotlib.pyplot.text` commands return an
 :class:`matplotlib.text.Text` instance.  Just as with with lines
@@ -265,9 +261,8 @@ functionality to make annotations easy.  In an annotation, there are
 two points to consider: the location being annotated represented by
 the argument ``xy`` and the location of the text ``xytext``.  Both of
 these arguments are ``(x,y)`` tuples.
-  
+
 .. plot:: pyplot_annotate.py
-   :scale: 75
    :include-source:
 
 In this basic example, both the ``xy`` (arrow tip) and ``xytext``

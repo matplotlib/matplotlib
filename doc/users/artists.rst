@@ -136,7 +136,6 @@ drawing of the ticks, tick labels and axis labels.
 Try creating the figure below.
 
 .. plot:: fig_axes_labels_simple.py
-   :scale: 75
 
 .. _customizing-artists:
 
@@ -327,7 +326,6 @@ obtain by setting the ``Artist`` transform to :attr:`fig.transFigure
     In [195]: fig.canvas.draw()
 
 .. plot:: fig_x.py
-   :scale: 75
 
 
 Here is a summary of the Artists the figure contains
@@ -605,7 +603,6 @@ Here is an example, not recommended for its beauty, which customizes
 the axes and tick properties
 
 .. plot:: fig_axes_customize_simple.py
-   :scale: 75
    :include-source:
 
 
@@ -643,5 +640,4 @@ Here is an example which sets the formatter for the upper ticks with
 dollar signs and colors them green on the right side of the yaxis
 
 .. plot:: dollar_ticks.py
-   :scale: 75
    :include-source:

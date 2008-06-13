@@ -115,12 +115,13 @@ the images from the python script and including either a png copy for
 html or a pdf for latex::
 
    .. plot:: pyplot_simple.py
-      :scale: 75
       :include-source:
 
-The ``:scale:`` directive rescales the image to some percentage of the original
-size. ``:include-source:`` will present the contents of the file, marked up as
-source code.
+The ``:scale:`` directive rescales the image to some percentage of the
+original size, though we don't recommend using this in most cases
+since it is probably better to choose the correct figure size and dpi
+in mpl and let it handle the scaling. ``:include-source:`` will
+present the contents of the file, marked up as source code.
 
 Static figures
 --------------

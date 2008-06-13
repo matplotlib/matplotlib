@@ -43,12 +43,13 @@ options = {'alt': directives.unchanged,
 template_no_source = """
 .. htmlonly::
 
+   [ `<../%(srcdir)s/%(reference)s>`__,
+    `png <../%(srcdir)s/%(basename)s.hires.png>`__,
+    `pdf <../%(srcdir)s/%(basename)s.pdf>`__ ]
+
    .. image:: ../%(srcdir)s/%(basename)s.png
 %(options)s
 
-   `[%(basename)s source py] <../%(srcdir)s/%(reference)s>`_
-   `[%(basename)s highres png] <../%(srcdir)s/%(basename)s.hires.png>`_
-   `[%(basename)s pdf] <../%(srcdir)s/%(basename)s.pdf>`_
 
 .. latexonly::
    .. image:: ../%(srcdir)s/%(basename)s.pdf
@@ -61,12 +62,12 @@ template_source = """
 
 .. htmlonly::
 
+   [ `py <../%(srcdir)s/%(reference)s>`__,
+   `png <../%(srcdir)s/%(basename)s.hires.png>`__,
+   `pdf <../%(srcdir)s/%(basename)s.pdf>`__ ]
+
    .. image:: ../%(srcdir)s/%(basename)s.png
 %(options)s
-
-   `[%(basename)s source py] <../%(srcdir)s/%(reference)s>`_
-   `[%(basename)s highres png] <../%(srcdir)s/%(basename)s.hires.png>`_
-   `[%(basename)s pdf] <../%(srcdir)s/%(basename)s.pdf>`_
 
 .. latexonly::
    .. image:: ../%(srcdir)s/%(basename)s.pdf
@@ -103,15 +104,11 @@ def makefig(fullpath, outdir):
 
     mplshell.magic_run(fullpath)
     for format, dpi in formats:
-        #print 'saving', outdir, basename, format
         outname = os.path.join(outdir, '%s.%s' % (basename, format))
         plt.savefig(outname, dpi=dpi)
     print '    all figures made'
 
 def run(arguments, options, state_machine, lineno):
-    #print 'arguments', arguments
-    #print 'options', options
-
     reference = directives.uri(arguments[0])
     basename, ext = os.path.splitext(reference)
 

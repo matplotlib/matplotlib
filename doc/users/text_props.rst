@@ -58,5 +58,4 @@ bounding box, with 0,0 being the lower left of the axes and 1,1 the
 upper right.
 
 .. plot:: text_layout.py
-   :scale: 75
    :include-source:
