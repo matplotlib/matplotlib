@@ -57,4 +57,4 @@ these commands in action.
 
 .. plot:: figures/text_commands.py
    :scale: 75
-
+   :include-source:

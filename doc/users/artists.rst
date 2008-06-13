@@ -135,7 +135,7 @@ drawing of the ticks, tick labels and axis labels.
 
 Try creating the figure below.
 
-.. image:: figures/fig_axes_labels_simple.png
+.. plot:: figures/fig_axes_labels_simple
    :scale: 75
 
 .. _customizing-artists:
@@ -326,7 +326,7 @@ obtain by setting the ``Artist`` transform to :attr:`fig.transFigure
 
     In [195]: fig.canvas.draw()
 
-.. image:: figures/fig_x.png
+.. plot:: figures/fig_x
    :scale: 75
 
 
@@ -606,6 +606,7 @@ the axes and tick properties
 
 .. plot:: figures/fig_axes_customize_simple.py
    :scale: 75
+   :include-source:
 
 
 .. _tick-container:
@@ -643,3 +644,4 @@ dollar signs and colors them green on the right side of the yaxis
 
 .. plot:: figures/dollar_ticks.py
    :scale: 75
+   :include-source:
