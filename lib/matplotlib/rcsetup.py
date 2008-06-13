@@ -1,11 +1,16 @@
 """
-This file contains the default values and the validation code for the options.
+The rcsetup module contains the default values and the validation code for
+customization using matplotlib's rc settings.
 
-The code for parsing the matplotlibrc file and setting the values of rcParams
-uses the values from this file to set default values.
+Each rc setting is assigned a default value and a function used to validate any
+attempted changes to that setting. The default values and validation functions
+are defined in the rcsetup module, and are used to construct the rcParams global
+object which stores the settings and is referenced throughout matplotlib.
 
-Ultimately, the setup code should also use these values to write a default
-matplotlibrc file that actually reflects the values given here.
+These default values should be consistent with the default matplotlibrc file
+that actually reflects the values given here. Any additions or deletions to the
+parameter set listed here should also be visited to the
+:file:`matplotlibrc.template` in matplotlib's root source directory.
 """
 
 import os
