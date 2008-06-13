@@ -61,7 +61,7 @@ the renderer                     John                 has author   Michael ?
 the canvas                       John                 has author   ?
 the artist                       John                 has author   ?
 transforms                       Michael              submitted    John
-documenting mpl                  Darren               submitted    ?
+documenting mpl                  Darren               submitted    John, Eric, Mike?
 coding guide                     John                 in review    Eric
 and_much_more                    ?                    ?            ?
 ===============================  ==================== ===========  ===================
@@ -238,67 +238,3 @@ include them as formal review notes.
    explanation of your BSD choice.  Peripheral question: is
    there any problem with basemap's inclusion of
    sub-packages with the gamut of licenses, GPL to MIT?
-
-
-usetex user's guide-- reviewed by JDH
--------------------------------------
-
-Review of :ref:`usetex-tutorial`:
-
-#. DONE - In the section on the ps distiller, you might mention that it is the
-   rasterization which some users find objectionable, and the distiller pram
-   (eg 6000) is a dpi setting for the rasterizer.  Not everyone will
-   immediately grasp the controversy surrounding dumping high res bitmaps into
-   a ps file.
-
-#. DONE - ``= Possible Hangups =`` - this is moin, not rest.  I have
-    fixed this already, just wanted to point it out.  Also, for everything but
-    top level chapters, I refer ``Upper lower`` for section titles, eg
-    ``Possible hangups``.
-
-#. DONE - in the troubleshooting section, could you add a FAQ showing how to
-   find their .matplotlib dir (matplotlib.get_data_path) and link to
-   it.
-
-   I think you mean mpl.get_configdir. I added this to the faq/HOWTO, and
-   linked to it from usetex.rst and customizing.rst. I also added the
-   MPLCONFIGDIR environment variable to environment_variables_faq.rst.
-
-   DONE - Also link to the PATH var and properly format
-   ``text.latex.preample``.
-
-   DONE - For the dirs, do we want `tex.cache` or
-   ``tex.cache``?  I've been using the latter.  We could use rest
-   specific markup for files and dirs, but I've been resisting goin
-   whle hog onthe markup...  But we may eventually decide that is the
-   better choice.
-
-   I think we should use the directive provided by sphinx::
-
-     :file:`tex.cache`
-
-   I don't think that looks too ugly in ascii, its clear what it means. If you
-   don't like it, I think we should use::
-
-     ``tex.cache``
-
-   which is formatted most
-   similarly to the :file: directive in html. Let me know if you don't want to
-   use the file directive.
-
-   - JDH: let's go with the file directive.
-
-#. DONE - try and use internal reference links for every section and be
-   generous with the sections.  Eg, I added a section headers and
-   internal linka for the postscript and unicode sections (we will
-   want to be able to refer people to these easily from FAQs and mail
-   list posts, etc)::
-
-    .. _usetex-postscript:
-
-    Postscript options
-    ==================
-
-Looks good!
-
-Thanks!
