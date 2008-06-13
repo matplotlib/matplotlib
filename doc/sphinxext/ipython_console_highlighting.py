@@ -13,7 +13,7 @@ class IPythonConsoleLexer(Lexer):
 
     Tracebacks are not currently supported.
 
-    .. sourcecode:: pycon
+    .. sourcecode:: ipython
 
       In [1]: a = 'foo'
 
