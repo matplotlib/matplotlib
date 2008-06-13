@@ -23,18 +23,18 @@ def figs():
 
 def html():
     check_build()
-    figs()
+    #figs()
     if os.system('sphinx-build -b html -d build/doctrees . build/html'):
         raise SystemExit("Building HTML failed.")
 
-    figures_dest_path = 'build/html/users/figures'
+    figures_dest_path = 'build/html/pyplots'
     if os.path.exists(figures_dest_path):
         shutil.rmtree(figures_dest_path)
-    shutil.copytree('users/figures', figures_dest_path)
+    shutil.copytree('pyplots', figures_dest_path)
 
 def latex():
     check_build()
-    figs()
+    #figs()
     if sys.platform != 'win32':
         # LaTeX format.
         if os.system('sphinx-build -b latex -d build/doctrees . build/latex'):
@@ -57,9 +57,11 @@ def latex():
 
 def clean():
     shutil.rmtree('build')
+    for fname in glob.glob('pyplots/*.png') + glob.glob('pyplots/*.pdf'):
+        os.remove(fname)
 
 def all():
-    figs()
+    #figs()
     html()
     latex()
 

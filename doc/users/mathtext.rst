@@ -271,7 +271,7 @@ Example
 
 Here is an example illustrating many of these features in context.
 
-.. plot:: figures/pyplot_mathtext.py
+.. plot:: pyplot_mathtext.py
    :scale: 75
    :include-source:
 

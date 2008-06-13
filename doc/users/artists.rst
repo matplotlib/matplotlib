@@ -135,7 +135,7 @@ drawing of the ticks, tick labels and axis labels.
 
 Try creating the figure below.
 
-.. plot:: figures/fig_axes_labels_simple
+.. plot:: fig_axes_labels_simple.py
    :scale: 75
 
 .. _customizing-artists:
@@ -326,7 +326,7 @@ obtain by setting the ``Artist`` transform to :attr:`fig.transFigure
 
     In [195]: fig.canvas.draw()
 
-.. plot:: figures/fig_x
+.. plot:: fig_x.py
    :scale: 75
 
 
@@ -604,7 +604,7 @@ grid                    Turn the grid on or off for the major or minor ticks
 Here is an example, not recommended for its beauty, which customizes
 the axes and tick properties
 
-.. plot:: figures/fig_axes_customize_simple.py
+.. plot:: fig_axes_customize_simple.py
    :scale: 75
    :include-source:
 
@@ -642,6 +642,6 @@ label2On         boolean which determines whether to draw tick label
 Here is an example which sets the formatter for the upper ticks with
 dollar signs and colors them green on the right side of the yaxis
 
-.. plot:: figures/dollar_ticks.py
+.. plot:: dollar_ticks.py
    :scale: 75
    :include-source:

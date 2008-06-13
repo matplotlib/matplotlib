@@ -55,6 +55,6 @@ All of these functions create and return a
 variety of font and other properties.  The example below shows all of
 these commands in action.
 
-.. plot:: figures/text_commands.py
+.. plot:: text_commands.py
    :scale: 75
    :include-source:
