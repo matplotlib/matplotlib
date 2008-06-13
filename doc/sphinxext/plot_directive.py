@@ -45,7 +45,7 @@ template_no_source = """
 
    [ `<../%(srcdir)s/%(reference)s>`__,
     `png <../%(srcdir)s/%(basename)s.hires.png>`__,
-    `pdf <../%(srcdir)s/%(basename)s.pdf>`__ ]
+    `pdf <../%(srcdir)s/%(basename)s.pdf>`__]
 
    .. image:: ../%(srcdir)s/%(basename)s.png
 %(options)s
@@ -64,7 +64,7 @@ template_source = """
 
    [ `py <../%(srcdir)s/%(reference)s>`__,
    `png <../%(srcdir)s/%(basename)s.hires.png>`__,
-   `pdf <../%(srcdir)s/%(basename)s.pdf>`__ ]
+   `pdf <../%(srcdir)s/%(basename)s.pdf>`__]
 
    .. image:: ../%(srcdir)s/%(basename)s.png
 %(options)s
@@ -83,7 +83,8 @@ def makefig(fullpath, outdir):
     fullpath = str(fullpath)  # todo, why is unicode breaking this
     formats = [('png', 100),
                ('hires.png', 200),
-               ('pdf', 72)]
+               ('pdf', 72),
+               ]
 
     basedir, fname = os.path.split(fullpath)
     basename, ext = os.path.splitext(fname)
@@ -105,7 +106,9 @@ def makefig(fullpath, outdir):
     mplshell.magic_run(fullpath)
     for format, dpi in formats:
         outname = os.path.join(outdir, '%s.%s' % (basename, format))
+        if os.path.exists(outname): continue
         plt.savefig(outname, dpi=dpi)
+
 
 def run(arguments, options, state_machine, lineno):
     reference = directives.uri(arguments[0])
