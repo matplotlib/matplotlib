@@ -110,7 +110,7 @@ automatically at build time to insure that the code that is included
 runs and produces the advertised figure.  Several figures will be
 saved with the same basnename as the filename when the documentation
 is generated (low and high res PNGs, a PDF).  Matplotlib includes a
-Sphinx extension (file:`sphinxext/plot_directive.py`) for generating
+Sphinx extension (:file:`sphinxext/plot_directive.py`) for generating
 the images from the python script and including either a png copy for
 html or a pdf for latex::
 
