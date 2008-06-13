@@ -56,5 +56,4 @@ variety of font and other properties.  The example below shows all of
 these commands in action.
 
 .. plot:: text_commands.py
-   :scale: 75
    :include-source:

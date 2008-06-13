@@ -272,7 +272,6 @@ Example
 Here is an example illustrating many of these features in context.
 
 .. plot:: pyplot_mathtext.py
-   :scale: 75
    :include-source:
 
 

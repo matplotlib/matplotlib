@@ -14,7 +14,7 @@ arguments are ``(x,y)`` tuples.
 
 .. plot:: annotation_basic.py
    :include-source:
-   :scale: 75
+
 
 In this example, both the ``xy`` (arrow tip) and ``xytext`` locations
 (text location) are in data coordinates.  There are a variety of other
@@ -73,7 +73,6 @@ keyword args like ``horizontalalignment``, ``verticalalignment`` and
 ``Text`` instance
 
 .. plot:: annotation_polar.py
-   :scale: 75
    :include-source:
 
 See the `annotations demo

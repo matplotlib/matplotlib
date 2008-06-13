@@ -4,20 +4,16 @@ Interactive navigation
 ======================
 
 .. image:: ../_static/toolbar.png
-   :scale: 100
 
 All figure windows come with a navigation toolbar, which can be used
 to navigate through the data set.  Here is a description of each of
 the buttons at the bottom of the toolbar
 
 .. image:: ../mpl_data/images/home.png
-   :scale: 100
 
 .. image:: ../mpl_data/images/back.png
-   :scale: 100
 
 .. image:: ../mpl_data/images/forward.png
-   :scale: 100
 
 The ``Forward`` and ``Back`` buttons
     These are akin to the web browser forward and back buttons.  They
@@ -31,7 +27,6 @@ The ``Forward`` and ``Back`` buttons
     the pan and zoom to rectangle to define new views.
 
 .. image:: ../mpl_data/images/move.png
-   :scale: 100
 
 The ``Pan/Zoom`` button
     This button has two modes: pan and zoom.  Click the toolbar button
@@ -56,7 +51,6 @@ The ``Pan/Zoom`` button
     right mouse button.
 
 .. image:: ../mpl_data/images/zoom_to_rect.png
-   :scale: 100
 
 The ``Zoom-to-rectangle`` button
     Click this toolbar button to activate this mode.  Put your mouse
@@ -68,7 +62,6 @@ The ``Zoom-to-rectangle`` button
     region defined by the zoom out rectangle.
 
 .. image:: ../mpl_data/images/subplots.png
-   :scale: 100
 
 The ``Subplot-configuration`` button
     Use this tool to configure the parameters of the subplot: the
@@ -76,7 +69,6 @@ The ``Subplot-configuration`` button
     the columns.
 
 .. image:: ../mpl_data/images/filesave.png
-   :scale: 100
 
 The ``Save`` button
     Click this button to launch a file save dialog.  You can save
