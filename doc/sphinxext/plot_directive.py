@@ -46,7 +46,9 @@ template_no_source = """
    .. image:: ../%(srcdir)s/%(basename)s.png
 %(options)s
 
-   `[%(basename)s source py] `[%(basename)s highres png] <../%(srcdir)s/%(basename)s.hires.png>`_  `[%(basename)s pdf] <../%(srcdir)s/%(basename)s.pdf>`_
+   `[%(basename)s source py] <../%(srcdir)s/%(reference)s>`_
+   `[%(basename)s highres png] <../%(srcdir)s/%(basename)s.hires.png>`_
+   `[%(basename)s pdf] <../%(srcdir)s/%(basename)s.pdf>`_
 
 .. latexonly::
    .. image:: ../%(srcdir)s/%(basename)s.pdf
@@ -62,7 +64,9 @@ template_source = """
    .. image:: ../%(srcdir)s/%(basename)s.png
 %(options)s
 
-   `[%(basename)s source py] <../%(srcdir)s/%(reference)s>`_    `[%(basename)s highres png] <../%(srcdir)s/%(basename)s.hires.png>`_  `[%(basename)s pdf] <../%(srcdir)s/%(basename)s.pdf>`_
+   `[%(basename)s source py] <../%(srcdir)s/%(reference)s>`_
+   `[%(basename)s highres png] <../%(srcdir)s/%(basename)s.hires.png>`_
+   `[%(basename)s pdf] <../%(srcdir)s/%(basename)s.pdf>`_
 
 .. latexonly::
    .. image:: ../%(srcdir)s/%(basename)s.pdf
