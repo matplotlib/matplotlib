@@ -7,8 +7,8 @@ Glossary
   raster graphics
       Raster graphics, or bitmaps, represent an image as an array of pixels
       which is resolution dependent. Raster graphics are generally most
-      practical for photo-realistic images, but do not easily without loss of
-      quality.
+      practical for photo-realistic images, but do not scale easily without
+      loss of quality.
 
   vector graphics
       The use of geometrical primitives based upon mathematical equations to
