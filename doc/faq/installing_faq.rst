@@ -43,7 +43,30 @@ If you are still having trouble, see :ref:`reporting-problems`.
 How do I cleanly rebuild and reinstall everything?
 ==================================================
 
-# TODO: include for binary installs 
+1. Delete the caches from your :ref:`.matplotlib configuration directory
+<locating-matplotlib-config-dir>`.
+
+The next steps depend on your platform and installation method.
+
+Easy Install
+------------
+
+2. Run::
+
+     easy_install -m PackageName
+
+3. Delete any .egg files or directories from your `installation directory
+   <locating-matplotlib-install>`.
+
+
+Windows installer
+-----------------
+
+2. Use :menuselection:`Start --> Control Panel` to start the :program:`Add and
+Remove Software` utility.
+
+Source install
+--------------
 
 Unfortunately::
 
@@ -52,28 +75,10 @@ Unfortunately::
 does not properly clean the build directory, and does nothing to the
 install directory.  To cleanly rebuild:
 
-    * delete the ``build`` directory in the source tree
-    * delete ``site-packages/matplotlib`` directory in the Python
-      installation.  The location of ``site-packages`` is
-      platform-specific.  You can find out where matplotlib is installed by doing::
+2. Delete the ``build`` directory in the source tree
+3. Delete any matplotlib directories or eggs from your `installation directory
+   <locating-matplotlib-install>`
 
-          > python -c 'import matplotlib; print matplotlib.__file__'
-
-      and then making sure you remove the matplotlib directory (and
-      any matplotlib*.egg files) you find there.
-
-    * you may also want to clear some of the cache data that
-      matplotlib stores in your ``.matplotlib`` directory.  You can
-      find the location of this directory by doing::
-
-          import matplotlib
-          print matplotlib.get_configdir()
-
-      A typical location for the config directory is :file:`.matplotlib`, and the following
-      caches may need to be cleared after a major update::
-
-          rm -rf ~/.matplotlib/tex.cache
-	  rm -rf ~/.matplotlib/fontManager.cache
 
 Backends
 ========
