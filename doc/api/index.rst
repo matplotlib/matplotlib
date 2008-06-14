@@ -15,4 +15,4 @@
    artist_api.rst
    axes_api.rst
    pyplot_api.rst
-   backend_api.rst
+   index_backend_api.rst
