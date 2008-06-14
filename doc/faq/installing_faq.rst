@@ -44,13 +44,13 @@ If you are still having trouble, see :ref:`reporting-problems`.
 How do I cleanly rebuild and reinstall everything?
 ==================================================
 
-1. Delete the caches from your :ref:`.matplotlib configuration directory
-<locating-matplotlib-config-dir>`.
-
-The next steps depend on your platform and installation method.
+The steps depend on your platform and installation method.
 
 Easy Install
 ------------
+
+1. Delete the caches from your :ref:`.matplotlib configuration directory
+   <locating-matplotlib-config-dir>`.
 
 2. Run::
 
@@ -63,8 +63,11 @@ Easy Install
 Windows installer
 -----------------
 
+1. Delete the caches from your :ref:`.matplotlib configuration directory
+   <locating-matplotlib-config-dir>`.
+
 2. Use :menuselection:`Start --> Control Panel` to start the :program:`Add and
-Remove Software` utility.
+   Remove Software` utility.
 
 Source install
 --------------
@@ -76,7 +79,11 @@ Unfortunately::
 does not properly clean the build directory, and does nothing to the
 install directory.  To cleanly rebuild:
 
+1. Delete the caches from your :ref:`.matplotlib configuration directory
+   <locating-matplotlib-config-dir>`.
+
 2. Delete the ``build`` directory in the source tree
+
 3. Delete any matplotlib directories or eggs from your `installation directory
    <locating-matplotlib-install>`
 
