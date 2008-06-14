@@ -196,14 +196,14 @@ FLTKAgg        Agg rendering to a FLTK canvas (requires pyFLTK_)
 How do I compile matplotlib with PyGTK-2.4?
 -------------------------------------------
 
-There is a `bug <pygtk-2.4-bug>`_ in PyGTK-2.4. You need to edit
+There is a `bug in PyGTK-2.4`_. You need to edit
 :file:`pygobject.h` to add the :cmacro:`G_BEGIN_DECLS` and :cmacro:`G_END_DECLS`
 macros, and rename :cdata:`typename` parameter to :cdata:`typename_`::
 
   -			  const char *typename,
   +			  const char *typename_,
 
-.. _`bug <pygtk-2.4-bug>`: http://bugzilla.gnome.org/show_bug.cgi?id=155304
+.. _`bug in PyGTK-2.4`: http://bugzilla.gnome.org/show_bug.cgi?id=155304
 
 
 OS-X questions
