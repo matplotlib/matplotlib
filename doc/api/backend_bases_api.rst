@@ -1,7 +1,3 @@
-*******************
-matplotlib backends
-*******************
-
 
 :mod:`matplotlib.backend_bases`
 ================================
