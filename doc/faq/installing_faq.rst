@@ -4,6 +4,7 @@
  Installation FAQ
 ******************
 
+.. contents::
 
 
 How do I report a compilation problem?
