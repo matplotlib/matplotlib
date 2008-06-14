@@ -1,57 +1,91 @@
 """
 This is an object-orient plotting library.
 
-A procedural interface is provided by the companion pylab
-module, which may be imported directly, e.g.
+A procedural interface is provided by the companion pylab module,
+which may be imported directly, e.g::
 
     from pylab import *
 
-or using ipython:
+or using ipython::
 
     ipython -pylab
 
-For the most part, direct use of the object-oriented library
-is encouraged when programming rather than working
-interactively.  The exceptions are the pylab commands
-figure(), subplot(), show(), and savefig(), which can
-greatly simplify scripting.
+For the most part, direct use of the object-oriented library is
+encouraged when programming rather than working interactively.  The
+exceptions are the pylab commands :func:`~matplotlib.pyplot.figure`,
+:func:`~matplotlib.pyplot.subplot`,
+:func:`~matplotlib.backends.backend_qt4agg.show`, and
+:func:`~pyplot.savefig`, which can greatly simplify scripting.
 
 Modules include:
-    axes: defines the Axes class.  Most pylab commands are
-        wrappers for Axes methods.  The axes module is the
-        highest level of OO access to the library.
-    figure: defines Figure class.
-    artist: defines the Artist base class for all classes
-        that draw things.
-    line: defines Line2D class for drawing lines and markers
-    patches: defines classes for drawing polygons
-    text: defines Text, TextWithDash, and Annotate classes
-    image: defines AxesImage and FigureImage classes
-    collections: classes for efficient drawing of groups of
-        lines or polygons
-    colors: classes for interpreting color specifications
-        and for making colormaps
-    cm: colormaps and the ScalarMappable mixin class for
-        providing color mapping functionality to other
+
+    :mod:`matplotlib.axes`
+        defines the :class:`~matplotlib.axes.Axes` class.  Most pylab
+        commands are wrappers for :class:`~matplotlib.axes.Axes`
+        methods.  The axes module is the highest level of OO access to
+        the library.
+
+    :mod:`matplotlib.figure`
+        defines the :class:`~matplotlib.figure.Figure` class.
+
+    :mod:`matplotlib.artist`
+        defines the :class:`~matplotlib.artist.Artist` base class for
+        all classes that draw things.
+
+    :mod:`matplotlib.lines`
+        defines the :class:`~matplotlib.lines.Line2D` class for
+        drawing lines and markers
+
+    :mod`matplotlib.patches`
+        defines classes for drawing polygons
+
+    :mod:`matplotlib.text`
+        defines the :class:`~matplotlib.text.Text`,
+        :class:`~matplotlib.text.TextWithDash`, and
+        :class:`~matplotlib.text.Annotate` classes
+
+    :mod:`matplotlib.image`
+        defines the :class:`~matplotlib.image.AxesImage` and
+        :class:`~matplotlib.image.FigureImage` classes
+
+    :mod:`matplotlib.collections`
+        classes for efficient drawing of groups of lines or polygons
+
+    :mod:`matplotlib.colors`
+        classes for interpreting color specifications and for making
+        colormaps
+
+    :mod:`matplotlib.cm`
+        colormaps and the :class:`~matplotlib.image.ScalarMappable`
+        mixin class for providing color mapping functionality to other
         classes
-    ticker: classes for calculating tick mark locations and
-        for formatting tick labels
-    backends: a subpackage with modules for various gui
-        libraries and output formats
+
+    :mod:`matplotlib.ticker`
+        classes for calculating tick mark locations and for formatting
+        tick labels
+
+    :mod:`matplotlib.backends`
+        a subpackage with modules for various gui libraries and output
+        formats
 
 The base matplotlib namespace includes:
-    rcParams: a dictionary of default configuration
-        settings.  It is initialized by code which may be
-        overridded by a matplotlibrc file.
-    rc(): a function for setting groups of rcParams values
-    use(): a function for setting the matplotlib backend.
-        If used, this function must be called immediately
-        after importing matplotlib for the first time.  In
-        particular, it must be called *before* importing
-        pylab (if pylab is imported).
 
-matplotlib is written by John D. Hunter (jdh2358 at
-gmail.com and a host of others).
+    :data:`~matplotlib.rcParams`
+        a global dictionary of default configuration settings.  It is
+        initialized by code which may be overridded by a matplotlibrc
+        file.
+
+    :func:`~matplotlib.rc`
+        a function for setting groups of rcParams values
+
+    :func:`~matplotlib.use`
+        a function for setting the matplotlib backend.  If used, this
+        function must be called immediately after importing matplotlib
+        for the first time.  In particular, it must be called
+        **before** importing pylab (if pylab is imported).
+
+matplotlib is written by John D. Hunter (jdh2358 at gmail.com) and a
+host of others.
 """
 from __future__ import generators
 
@@ -773,10 +807,8 @@ def use(arg, warn=True):
         rcParams['cairo.format'] = validate_cairo_format(be_parts[1])
 
 def get_backend():
-    # Validation is needed because the rcParams entry might have
-    # been set directly rather than via "use()".
-    return validate_backend(rcParams['backend'])
-    #return rcParams['backend'].lower()
+    "Returns the current backend"
+    return rcParams['backend']
 
 def interactive(b):
     """
