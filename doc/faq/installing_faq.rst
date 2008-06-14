@@ -11,10 +11,39 @@ How do I report a compilation problem?
 
 See :ref:`reporting-problems`.
 
+matplotlib compiled fine, but I can't get anything to plot
+==========================================================
+
+The first thing to try is a :ref:`clean install <clean-install>` and see if
+that helps.  If not, the best way to test your install is by running a script,
+rather than working interactively from a python shell or an integrated
+development environment such as :program:`IDLE` which add additional
+complexities. Open up a UNIX shell or a DOS command prompt and cd into a
+directory containing a minimal example in a file. Something like
+:file:`simple_plot.py`, or for example::
+
+  from pylab import *
+  plot([1,2,3])
+  show()
+
+and run it with::
+
+  python simple_plot.py --verbose-helpful
+
+This will give you additional information about which backends matplotlib is
+loading, version information, and more. At this point you might want to make
+sure you understand matplotlib's :ref:`configuration <customizing-matplotlib>`
+process, governed by the :file:`matplotlibrc` configuration file which contains
+instructions within and the concept of the matplotlib backend.
+
+If you are still having trouble, see :ref:`reporting-problems`.
+
 .. _clean-install:
 
 How do I cleanly rebuild and reinstall everything?
 ==================================================
+
+# TODO: include for binary installs 
 
 Unfortunately::
 
@@ -46,10 +75,13 @@ install directory.  To cleanly rebuild:
           rm -rf ~/.matplotlib/tex.cache
 	  rm -rf ~/.matplotlib/fontManager.cache
 
+Backends
+========
+
 .. _what-is-a-backend:
 
 What is a backend?
-==================
+------------------
 
 A lot of documentation on the website and in the mailing lists refers
 to the "backend" and many new users are confused by this term.
@@ -152,6 +184,21 @@ FLTKAgg        Agg rendering to a FLTK canvas (requires pyFLTK_)
 .. _PyQt: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 .. _PyQt4: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 .. _pyFLTK: http://pyfltk.sourceforge.net
+
+
+.. _pygtk-2.4:
+
+How do I compile matplotlib with PyGTK-2.4?
+-------------------------------------------
+
+There is a `bug <pygtk-2.4-bug>`_ in PyGTK-2.4. You need to edit
+:file:`pygobject.h` to add the :cmacro:`G_BEGIN_DECLS` and :cmacro:`G_END_DECLS`
+macros, and rename :cdata:`typename` parameter to :cdata:`typename_`::
+
+  -			  const char *typename,
+  +			  const char *typename_,
+
+.. _`bug <pygtk-2.4-bug>`: http://bugzilla.gnome.org/show_bug.cgi?id=155304
 
 
 OS-X questions
