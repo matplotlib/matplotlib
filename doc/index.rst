@@ -1,6 +1,4 @@
-.. matplotlib documentation master file, created by sphinx-quickstart on Sat May 24 15:37:00 2008.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+
 
 Welcome to matplotlib's documentation!
 ======================================
@@ -19,16 +17,10 @@ Welcome to matplotlib's documentation!
    faq/index.rst
    devel/index.rst
    api/index.rst
+   glossary/index.rst
 
-Indices and tables
-==================
+.. htmlonly::
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
-.. _ipython: http://ipython.scipy.org
-.. _numpy: http://numpy.scipy.org
-.. _scipy: http://scipy.org
-.. _vtk: http://www.vtk.org
+  * :ref:`genindex`
+  * :ref:`modindex`
+  * :ref:`search`
