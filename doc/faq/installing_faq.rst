@@ -113,32 +113,45 @@ depends on a DPI setting.
 Here is a summary of the matplotlib renderers (there is an eponymous
 backed for each):
 
-===============================   =====================================================================================
-Renderer (Filetypes)              Description
-===============================   =====================================================================================
-Agg (png)                         raster - high quality images using the `antigrain <http://antigrain.html>`_  engine
-PS  (ps, eps)                     vector - postscript output
-PDF (pdf)                         vector - portable document format
-SVG (svg)                         vector - scalar vector graphics
-Cairo (png, ps, pdf, svn, ...)    vector - `cairo graphics <http://cairographics.org>`_
-GDK (png, jpg, tiff..)            raster - the GDK drawing API for GTK
-===============================   =====================================================================================
+========   ======================   ======================================================================================
+Renderer   Filetypes                Description
+========   ======================   ======================================================================================
+AGG        png                      :term:`raster graphics` -- high quality images using the `Anti-Grain Geometry`_ engine
+PS         ps, eps                  :term:`vector graphics` -- Postscript_ output
+PDF        pdf                      :term:`vector graphics` -- `Portable Document Format`_
+SVG        svg                      :term:`vector graphics` -- `Scalable Vector Graphics`_
+Cairo      png, ps, pdf, svn, ...   :term:`vector graphics` -- `Cairo graphics`_
+GDK        png, jpg, tiff, ...      :term:`raster graphics` -- the `Gimp Drawing Kit`_ for GTK
+========   ======================   ======================================================================================
 
 And here are the user interfaces and renderer combinations supported:
 
-============   ===================================================================================================
+============   =====================================================================================
 Backend        Description
-============   ===================================================================================================
-GTKAgg         Agg rendering to a GTK canvas (`pygtk <http://www.pygtk.org>`_)
-GTK            GDK rendering to a GTK canvas (not recommended) (`pygtk <http://www.pygtk.org>`_)
-GTKCairo       Cairo rendering to a GTK Canvas (`pygtk <http://www.pygtk.org>`_)
-WXAgg          Agg rendering to to a WX canvas (`wxpython <http://www.wxpython.org>`_)
-WX             Native WX drawing to a WX Canvas (not recommended) (`wxpython <http://www.wxpython.org>`_)
-TkAgg          Agg rendering to a Tkinter canvas (`tkinter <http://wiki.python.org/moin/TkInter>`_)
-QtAgg          Agg rendering to a Qt canvas (`pyqt <http://www.riverbankcomputing.co.uk/software/pyqt/intro>`_)
-Qt4Agg         Agg rendering to a Qt4 canvas (`pyqt <http://www.riverbankcomputing.co.uk/software/pyqt/intro>`_)
-FLTKAgg        Agg rendering to a FLTK canvas (`pyfltk <http://pyfltk.sourceforge.net>`_)
-============   ===================================================================================================
+============   =====================================================================================
+GTKAgg         Agg rendering to a GTK canvas (requires PyGTK_)
+GTK            GDK rendering to a GTK canvas (not recommended) (requires PyGTK_)
+GTKCairo       Cairo rendering to a GTK Canvas (requires PyGTK_)
+WXAgg          Agg rendering to to a wxWidgets canvas (requires wxPython_)
+WX             Native wxWidgets drawing to a wxWidgets Canvas (not recommended) (requires wxPython_)
+TkAgg          Agg rendering to a Tk canvas (requires TkInter_)
+QtAgg          Agg rendering to a Qt canvas (requires PyQt_)
+Qt4Agg         Agg rendering to a Qt4 canvas (requires PyQt4_)
+FLTKAgg        Agg rendering to a FLTK canvas (requires pyFLTK_)
+============   =====================================================================================
+
+.. _`Anti-Grain Geometry`: http://www.antigrain.com/
+.. _Postscript: http://en.wikipedia.org/wiki/PostScript
+.. _`Portable Document Format`: http://en.wikipedia.org/wiki/Portable_Document_Format
+.. _`Scalable Vector Graphics`: http://en.wikipedia.org/wiki/Scalable_Vector_Graphics
+.. _`Cairo graphics`: http://en.wikipedia.org/wiki/Cairo_(graphics)
+.. _`Gimp Drawing Kit`: http://en.wikipedia.org/wiki/GDK
+.. _PyGTK: http://www.pygtk.org
+.. _wxPython: http://www.wxpython.org/
+.. _TkInter: http://wiki.python.org/moin/TkInter
+.. _PyQt: http://www.riverbankcomputing.co.uk/software/pyqt/intro
+.. _PyQt4: http://www.riverbankcomputing.co.uk/software/pyqt/intro
+.. _pyFLTK: http://pyfltk.sourceforge.net
 
 
 OS-X questions
