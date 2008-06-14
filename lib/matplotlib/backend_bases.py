@@ -1474,34 +1474,34 @@ class NavigationToolbar2:
     They must also define
 
       :meth:`save_figure`
-	  save the current figure
+         save the current figure
 
       :meth:`set_cursor`
-	  if you want the pointer icon to change
+         if you want the pointer icon to change
 
       :meth:`_init_toolbar`
-	  create your toolbar widget
+         create your toolbar widget
 
       :meth:`draw_rubberband` (optional)
-	  draw the zoom to rect "rubberband" rectangle
+         draw the zoom to rect "rubberband" rectangle
 
       :meth:`press`  (optional)
-	  whenever a mouse button is pressed, you'll be
-	  notified with the event
+         whenever a mouse button is pressed, you'll be notified with
+         the event
 
       :meth:`release` (optional)
-	  whenever a mouse button is released, you'll be notified with
-	  the event
+         whenever a mouse button is released, you'll be notified with
+         the event
 
       :meth:`dynamic_update` (optional)
-	  dynamically update the window while navigating
+         dynamically update the window while navigating
 
       :meth:`set_message` (optional)
-	   display message
+         display message
 
       :meth:`set_history_buttons` (optional)
-	  you can change the history back / forward buttons to
-	  indicate disabled / enabled state.
+         you can change the history back / forward buttons to
+         indicate disabled / enabled state.
 
     That's it, we'll do the rest!
     """
