@@ -1,9 +1,8 @@
 .. _howto-faq:
 
-*****
-HOWTO
-*****
-
+*********
+HOWTO FAQ
+*********
 
 .. _howto-ticks:
 
