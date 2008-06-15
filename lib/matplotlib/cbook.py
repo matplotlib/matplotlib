@@ -40,7 +40,7 @@ class tostr(converter):
 class todatetime(converter):
     'convert to a datetime or None'
     def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
-        'use a time.strptime format string for conversion'
+        'use a :func:`time.strptime` format string for conversion'
         converter.__init__(self, missing, missingval)
         self.fmt = fmt
 
@@ -54,7 +54,7 @@ class todatetime(converter):
 class todate(converter):
     'convert to a date or None'
     def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
-        'use a time.strptime format string for conversion'
+        'use a :func:`time.strptime` format string for conversion'
         converter.__init__(self, missing, missingval)
         self.fmt = fmt
     def __call__(self, s):
@@ -84,7 +84,7 @@ class toint(converter):
 class CallbackRegistry:
     """
     Handle registering and disconnecting for a set of signals and
-    callbacks
+    callbacks::
 
        signals = 'eat', 'drink', 'be merry'
 
@@ -109,7 +109,7 @@ class CallbackRegistry:
 
     """
     def __init__(self, signals):
-        'signals is a sequence of valid signals'
+        '*signals* is a sequence of valid signals'
         self.signals = set(signals)
         # callbacks is a dict mapping the signal to a dictionary
         # mapping callback id to the callback function
@@ -117,7 +117,7 @@ class CallbackRegistry:
         self._cid = 0
 
     def _check_signal(self, s):
-        'make sure s is a valid signal or raise a ValueError'
+        'make sure *s* is a valid signal or raise a ValueError'
         if s not in self.signals:
             signals = list(self.signals)
             signals.sort()
@@ -125,7 +125,7 @@ class CallbackRegistry:
 
     def connect(self, s, func):
         """
-        register func to be called when a signal s is generated
+        register *func* to be called when a signal *s* is generated
         func will be called
         """
         self._check_signal(s)
@@ -135,7 +135,7 @@ class CallbackRegistry:
 
     def disconnect(self, cid):
         """
-        disconnect the callback registered with callback id cid
+        disconnect the callback registered with callback id *cid*
         """
         for eventname, callbackd in self.callbacks.items():
             try: del callbackd[cid]
@@ -144,8 +144,8 @@ class CallbackRegistry:
 
     def process(self, s, *args, **kwargs):
         """
-        process signal s.  All of the functions registered to receive
-        callbacks on s will be called with *args and **kwargs
+        process signal *s*.  All of the functions registered to receive
+        callbacks on *s* will be called with *\*args* and *\*\*kwargs*
         """
         self._check_signal(s)
         for func in self.callbacks[s].values():
@@ -194,42 +194,42 @@ class Bunch:
 
 
 def unique(x):
-    'Return a list of unique elements of x'
+    'Return a list of unique elements of *x*'
     return dict([ (val, 1) for val in x]).keys()
 
 def iterable(obj):
-    'return true if obj is iterable'
+    'return true if *obj* is iterable'
     try: len(obj)
     except: return 0
     return 1
 
 
 def is_string_like(obj):
-    'return true if obj looks like a string'
+    'return true if *obj* looks like a string'
     if hasattr(obj, 'shape'): return 0
     try: obj + ''
     except (TypeError, ValueError): return 0
     return 1
 
 def is_writable_file_like(obj):
-    'return true if obj looks like a file object'
+    'return true if *obj* looks like a file object'
     return hasattr(obj, 'write') and callable(obj.write)
 
 def is_scalar(obj):
-    'return true if ob is not string like and is not iterable'
+    'return true if *obj* is not string like and is not iterable'
     return is_string_like(obj) or not iterable(obj)
 
 def is_numlike(obj):
-    'return true if obj looks like a number'
+    'return true if *obj* looks like a number'
     try: obj+1
     except TypeError: return False
     else: return True
 
 def to_filehandle(fname, flag='r', return_opened=False):
     """
-    fname can be a filename or a file handle.  Support for gzipped
-    files is automatic, if the filename ends in .gz.  flag is a
-    read/write flag for file
+    *fname* can be a filename or a file handle.  Support for gzipped
+    files is automatic, if the filename ends in .gz.  *flag* is a
+    read/write flag for :func:`file`
     """
     if is_string_like(fname):
         if fname.endswith('.gz'):
@@ -275,17 +275,18 @@ class Sorter:
 
     Sort by attribute or item
 
-    Example usage:
-    sort = Sorter()
+    Example usage::
 
-    list = [(1, 2), (4, 8), (0, 3)]
-    dict = [{'a': 3, 'b': 4}, {'a': 5, 'b': 2}, {'a': 0, 'b': 0},
-    {'a': 9, 'b': 9}]
+      sort = Sorter()
+
+      list = [(1, 2), (4, 8), (0, 3)]
+      dict = [{'a': 3, 'b': 4}, {'a': 5, 'b': 2}, {'a': 0, 'b': 0},
+              {'a': 9, 'b': 9}]
 
 
-    sort(list)       # default sort
-    sort(list, 1)    # sort by index 1
-    sort(dict, 'a')  # sort a list of dicts by key 'a'
+      sort(list)       # default sort
+      sort(list, 1)    # sort by index 1
+      sort(dict, 'a')  # sort a list of dicts by key 'a'
 
     """
 
@@ -324,19 +325,19 @@ class Xlator(dict):
     """
     All-in-one multiple-string-substitution class
 
-    Example usage:
+    Example usage::
 
-    text = "Larry Wall is the creator of Perl"
-    adict = {
-    "Larry Wall" : "Guido van Rossum",
-    "creator" : "Benevolent Dictator for Life",
-    "Perl" : "Python",
-    }
+      text = "Larry Wall is the creator of Perl"
+      adict = {
+      "Larry Wall" : "Guido van Rossum",
+      "creator" : "Benevolent Dictator for Life",
+      "Perl" : "Python",
+      }
 
-    print multiple_replace(adict, text)
+      print multiple_replace(adict, text)
 
-    xlat = Xlator(adict)
-    print xlat.xlat(text)
+      xlat = Xlator(adict)
+      print xlat.xlat(text)
     """
 
     def _make_regex(self):
@@ -344,11 +345,11 @@ class Xlator(dict):
         return re.compile("|".join(map(re.escape, self.keys())))
 
     def __call__(self, match):
-        """ Handler invoked for each regex match """
+        """ Handler invoked for each regex *match* """
         return self[match.group(0)]
 
     def xlat(self, text):
-        """ Translate text, returns the modified text. """
+        """ Translate *text*, returns the modified text. """
         return self._make_regex().sub(self, text)
 
 
@@ -424,7 +425,7 @@ class GetRealpathAndStat:
 get_realpath_and_stat = GetRealpathAndStat()
 
 def dict_delall(d, keys):
-    'delete all of the keys from the dict d'
+    'delete all of the *keys* from the :class:`dict` *d*'
     for key in keys:
         try: del d[key]
         except KeyError: pass
@@ -464,8 +465,11 @@ class RingBuffer:
 
 
 def get_split_ind(seq, N):
-    """seq is a list of words.  Return the index into seq such that
-    len(' '.join(seq[:ind])<=N
+    """
+    *seq* is a list of words.  Return the index into seq such that::
+
+        len(' '.join(seq[:ind])<=N
+
     """
 
     sLen = 0
@@ -477,7 +481,7 @@ def get_split_ind(seq, N):
 
 
 def wrap(prefix, text, cols):
-    'wrap text with prefix at length cols'
+    'wrap *text* with *prefix* at length *cols*'
     pad = ' '*len(prefix.expandtabs())
     available = cols - len(pad)
 
@@ -504,14 +508,13 @@ _find_dedent_regex = re.compile("(?:(?:\n\r?)|^)( *)\S")
 _dedent_regex = {}
 def dedent(s):
     """
-    Remove excess indentation from docstrings.
+    Remove excess indentation from docstring *s*.
 
-    Discards any leading blank lines, then removes up to
-    n whitespace characters from each line, where n is
-    the number of leading whitespace characters in the
-    first line. It differs from textwrap.dedent in its
-    deletion of leading blank lines and its use of the
-    first non-blank line to determine the indentation.
+    Discards any leading blank lines, then removes up to n whitespace
+    characters from each line, where n is the number of leading
+    whitespace characters in the first line. It differs from
+    textwrap.dedent in its deletion of leading blank lines and its use
+    of the first non-blank line to determine the indentation.
 
     It is also faster in most cases.
     """
@@ -546,6 +549,7 @@ def dedent(s):
 def listFiles(root, patterns='*', recurse=1, return_folders=0):
     """
     Recursively list files
+
     from Parmar and Martelli in the Python Cookbook
     """
     import os.path, fnmatch
@@ -575,8 +579,8 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
 
 def get_recursive_filelist(args):
     """
-    Recurs all the files and dirs in args ignoring symbolic links and
-    return the files as a list of strings
+    Recurs all the files and dirs in *args* ignoring symbolic links
+    and return the files as a list of strings
     """
     files = []
 
@@ -593,7 +597,7 @@ def get_recursive_filelist(args):
 
 
 def pieces(seq, num=2):
-    "Break up the seq into num tuples"
+    "Break up the *seq* into *num* tuples"
     start = 0
     while 1:
         item = seq[start:start+num]
@@ -611,8 +615,8 @@ def exception_to_str(s = None):
 
 def allequal(seq):
     """
-    return true if all elements of seq compare equal.  If seq is 0 or
-    1 length, return True
+    return true if all elements of *seq* compare equal.  If *seq* is 0
+    or 1 length, return *True*
     """
     if len(seq)<2: return True
     val = seq[0]
@@ -637,10 +641,11 @@ def onetrue(seq):
 
 def allpairs(x):
     """
-    return all possible pairs in sequence x
+    return all possible pairs in sequence *x*
 
-    Condensed by Alex Martelli from this thread on c.l.python
-    http://groups.google.com/groups?q=all+pairs+group:*python*&hl=en&lr=&ie=UTF-8&selm=mailman.4028.1096403649.5135.python-list%40python.org&rnum=1
+    Condensed by Alex Martelli from this thread_ on c.l.python
+
+    .. _thread: http://groups.google.com/groups?q=all+pairs+group:*python*&hl=en&lr=&ie=UTF-8&selm=mailman.4028.1096403649.5135.python-list%40python.org&rnum=1
     """
     return [ (s, f) for i, f in enumerate(x) for s in x[i+1:] ]
 
@@ -650,15 +655,17 @@ def allpairs(x):
 # python 2.2 dicts don't have pop--but we don't support 2.2 any more
 def popd(d, *args):
     """
-    Should behave like python2.3 pop method; d is a dict
+    Should behave like python2.3 :meth:`dict.pop` method; *d* is a
+    :class:`dict`::
 
-    # returns value for key and deletes item; raises a KeyError if key
-    # is not in dict
-    val = popd(d, key)
+      # returns value for key and deletes item; raises a KeyError if key
+      # is not in dict
+      val = popd(d, key)
 
-    # returns value for key if key exists, else default.  Delete key,
-    # val item if it exists.  Will not raise a KeyError
-    val = popd(d, key, default)
+      # returns value for key if key exists, else default.  Delete key,
+      # val item if it exists.  Will not raise a KeyError
+      val = popd(d, key, default)
+
     """
     if len(args)==1:
         key = args[0]
@@ -744,8 +751,8 @@ class Stack:
 
     def bubble(self, o):
         """
-        raise o to the top of the stack and return o.  o must be in
-        the stack
+        raise *o* to the top of the stack and return *o*.  *o* must be
+        in the stack
         """
 
         if o not in self._elements:
@@ -761,7 +768,7 @@ class Stack:
         return o
 
     def remove(self, o):
-        'remove element o from the stack'
+        'remove element *o* from the stack'
         if o not in self._elements:
             raise ValueError('Unknown element o')
         old = self._elements[:]
@@ -776,7 +783,7 @@ def popall(seq):
 
 def finddir(o, match, case=False):
     """
-    return all attributes of o which match string in match.  if case
+    return all attributes of *o* which match string in match.  if case
     is True require an exact case match.
     """
     if case:
@@ -787,7 +794,7 @@ def finddir(o, match, case=False):
     return [orig for name, orig in names if name.find(match)>=0]
 
 def reverse_dict(d):
-    'reverse the dictionary -- may lose data if values are not uniq!'
+    'reverse the dictionary -- may lose data if values are not unique!'
     return dict([(v,k) for k,v in d.items()])
 
 
@@ -808,7 +815,7 @@ def report_memory(i=0):  # argument may go away
 
 _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
 def safezip(*args):
-    'make sure args are equal len before zipping'
+    'make sure *args* are equal len before zipping'
     Nx = len(args[0])
     for i, arg in enumerate(args[1:]):
         if len(arg) != Nx:
@@ -870,12 +877,16 @@ class MemoryMonitor:
 
 def print_cycles(objects, outstream=sys.stdout, show_progress=False):
     """
-    objects:       A list of objects to find cycles in.  It is often useful
-                   to pass in gc.garbage to find the cycles that are
-                   preventing some objects from being garbage collected.
-    outstream:     The stream for output.
-    show_progress: If True, print the number of objects reached as they are
-                   found.
+    *objects*
+        A list of objects to find cycles in.  It is often useful to
+        pass in gc.garbage to find the cycles that are preventing some
+        objects from being garbage collected.
+
+    *outstream*
+        The stream for output.
+
+    *show_progress*
+        If True, print the number of objects reached as they are found.
     """
     import gc
     from types import FrameType
@@ -936,9 +947,9 @@ class Grouper(object):
     together into disjoint sets when a full-blown graph data structure
     would be overkill.
 
-    Objects can be joined using .join(), tested for connectedness
-    using .joined(), and all disjoint sets can be retreived using
-    .get().
+    Objects can be joined using :meth:`join`, tested for connectedness
+    using :meth:`joined`, and all disjoint sets can be retreived using
+    :meth:`get`.
 
     The objects being joined must be hashable.
 
@@ -987,7 +998,7 @@ class Grouper(object):
 
     def joined(self, a, b):
         """
-        Returns True if a and b are members of the same set.
+        Returns True if *a* and *b* are members of the same set.
         """
         mapping = self._mapping
         try:

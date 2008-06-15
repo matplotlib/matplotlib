@@ -14,5 +14,7 @@
    matplotlib_configuration_api.rst
    artist_api.rst
    axes_api.rst
+   axis_api.rst
+   cbook_api.rst
    pyplot_api.rst
    index_backend_api.rst

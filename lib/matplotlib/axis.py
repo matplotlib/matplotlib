@@ -23,18 +23,37 @@ class Tick(artist.Artist):
     1 refers to the bottom of the plot for xticks and the left for yticks
     2 refers to the top of the plot for xticks and the right for yticks
 
-    Publicly accessible attributes
+    Publicly accessible attributes:
 
-      tick1line  : a Line2D instance
-      tick2line  : a Line2D instance
-      gridline   : a Line2D instance
-      label1     : a Text instance
-      label2     : a Text instance
-      gridOn     : a boolean which determines whether to draw the tickline
-      tick1On    : a boolean which determines whether to draw the 1st tickline
-      tick2On    : a boolean which determines whether to draw the 2nd tickline
-      label1On   : a boolean which determines whether to draw tick label
-      label2On   : a boolean which determines whether to draw tick label
+      :attr:`tick1line`
+          a Line2D instance
+
+      :attr:`tick2line`
+          a Line2D instance
+
+      :attr:`gridline`
+          a Line2D instance
+
+      :attr:`label1`
+          a Text instance
+
+      :attr:`label2`
+          a Text instance
+
+      :attr:`gridOn`
+          a boolean which determines whether to draw the tickline
+
+      :attr:`tick1On`
+          a boolean which determines whether to draw the 1st tickline
+
+      :attr:`tick2On`
+          a boolean which determines whether to draw the 2nd tickline
+
+      :attr:`label1On`
+          a boolean which determines whether to draw tick label
+
+      :attr:`label2On`
+          a boolean which determines whether to draw tick label
 
     """
     def __init__(self, axes, loc, label,
@@ -111,7 +130,8 @@ class Tick(artist.Artist):
         return self.figure.dpi * self._pad / 72.0
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occured in the Tick marks.
+        """
+        Test whether the mouse event occured in the Tick marks.
 
         This function always returns false.  It is more useful to test if the
         axis as a whole contains the mouse rather than the set of tick marks.
