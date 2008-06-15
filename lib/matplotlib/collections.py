@@ -1,10 +1,11 @@
 """
 Classes for the efficient drawing of large collections of objects that
-share most properties, eg a large number of line segments or polygons
+share most properties, e.g. a large number of line segments or
+polygons.
 
 The classes are not meant to be as flexible as their single element
-counterparts (eg you may not be able to select all line styles) but
-they are meant to be fast for common use cases (eg a bunch of solid
+counterparts (e.g. you may not be able to select all line styles) but
+they are meant to be fast for common use cases (e.g. a bunch of solid
 line segemnts)
 """
 import math, warnings
@@ -24,32 +25,34 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     All properties in a collection must be sequences or scalars;
     if scalars, they will be converted to sequences.  The
-    property of the ith element of the collection is the
+    property of the ith element of the collection is::
 
-      prop[i % len(props)].
+      prop[i % len(props)]
 
-    kwargs are:
+    Keyword arguments and default values:
 
-          edgecolors=None,
-          facecolors=None,
-          linewidths=None,
-          antialiaseds = None,
-          offsets = None,
-          transOffset = transforms.IdentityTransform(),
-          norm = None,  # optional for cm.ScalarMappable
-          cmap = None,  # ditto
+        * *edgecolors*: None
+        * *facecolors*: None
+        * *linewidths*: None
+        * *antialiaseds*: None
+        * *offsets*: None
+        * *transOffset*: transforms.IdentityTransform()
+        * *norm*: None (optional for
+          :class:`matplotlib.cm.ScalarMappable`)
+        * *cmap*: None (optional for
+          :class:`matplotlib.cm.ScalarMappable`)
 
-    offsets and transOffset are used to translate the patch after
-    rendering (default no offsets)
+    *offsets* and *transOffset* are used to translate the patch after
+    rendering (default no offsets).
 
-    If any of edgecolors, facecolors, linewidths, antialiaseds are
-    None, they default to their patch.* rc params setting, in sequence
-    form.
+    If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds*
+    are None, they default to their :data:`matplotlib.rcParams` patch
+    setting, in sequence form.
 
-    The use of ScalarMappable is optional.  If the ScalarMappable
-    matrix _A is not None (ie a call to set_array has been made), at
-    draw time a call to scalar mappable will be made to set the face
-    colors.
+    The use of :class:`~matplotlib.cm.ScalarMappable` is optional.  If
+    the :class:`~matplotlib.cm.ScalarMappable` matrix _A is not None
+    (ie a call to set_array has been made), at draw time a call to
+    scalar mappable will be made to set the face colors.
     """
     _offsets = np.array([], np.float_)
     _transOffset = transforms.IdentityTransform()
@@ -193,7 +196,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Test whether the mouse event occurred in the collection.
 
-        Returns T/F, dict(ind=itemlist), where every item in itemlist contains the event.
+        Returns True | False, ``dict(ind=itemlist)``, where every
+        item in itemlist contains the event.
         """
         if callable(self._contains): return self._contains(self,mouseevent)
 
@@ -215,9 +219,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_linewidths(self, lw):
         """
-        Set the linewidth(s) for the collection.  lw can be a scalar or a
-        sequence; if it is a sequence the patches will cycle through the
-        sequence
+        Set the linewidth(s) for the collection.  *lw* can be a scalar
+        or a sequence; if it is a sequence the patches will cycle
+        through the sequence
 
         ACCEPTS: float or sequence of floats
         """
@@ -228,7 +232,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def set_linestyles(self, ls):
         """
         Set the linestyles(s) for the collection.
-        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |  (offset, on-off-dash-seq) ]
+        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' | (offset, on-off-dash-seq) ]
         """
         try:
             dashd = backend_bases.GraphicsContextBase.dashd
@@ -280,7 +284,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def set_color(self, c):
         """
         Set both the edgecolor and the facecolor.
-        See set_facecolor and set_edgecolor.
+        See :meth:`set_facecolor` and :meth:`set_edgecolor`.
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
@@ -289,10 +293,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_facecolor(self, c):
         """
-        Set the facecolor(s) of the collection.  c can be a matplotlib
-        color arg (all patches have same color), or a a sequence or
-        rgba tuples; if it is a sequence the patches will cycle
-        through the sequence
+        Set the facecolor(s) of the collection.  *c* can be a
+        matplotlib color arg (all patches have same color), or a
+        sequence or rgba tuples; if it is a sequence the patches will
+        cycle through the sequence
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
@@ -307,9 +311,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_edgecolor(self, c):
         """
-        Set the edgecolor(s) of the collection. c can be a matplotlib color
-        arg (all patches have same color), or a a sequence or rgba tuples; if
-        it is a sequence the patches will cycle through the sequence
+        Set the edgecolor(s) of the collection. *c* can be a
+        matplotlib color arg (all patches have same color), or a
+        sequence or rgba tuples; if it is a sequence the patches will
+        cycle through the sequence
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
@@ -320,7 +325,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_alpha(self, alpha):
         """
-        Set the alpha tranparencies of the collection.  Alpha must be
+        Set the alpha tranparencies of the collection.  *alpha* must be
         a float.
 
         ACCEPTS: float
@@ -364,23 +369,25 @@ class Collection(artist.Artist, cm.ScalarMappable):
 # class is built so we define an initial set here for the init
 # function and they will be overridden after object defn
 artist.kwdocd['Collection'] = """\
-    Valid Collection kwargs are:
+    Valid Collection keyword arguments:
 
-      edgecolors=None,
-      facecolors=None,
-      linewidths=None,
-      antialiaseds = None,
-      offsets = None,
-      transOffset = transforms.IdentityTransform(),
-      norm = None,  # optional for cm.ScalarMappable
-      cmap = None,  # ditto
+        * *edgecolors*: None
+        * *facecolors*: None
+        * *linewidths*: None
+        * *antialiaseds*: None
+        * *offsets*: None
+        * *transOffset*: transforms.IdentityTransform()
+        * *norm*: None (optional for
+          :class:`matplotlib.cm.ScalarMappable`)
+        * *cmap*: None (optional for
+          :class:`matplotlib.cm.ScalarMappable`)
 
-    offsets and transOffset are used to translate the patch after
+    *offsets* and *transOffset* are used to translate the patch after
     rendering (default no offsets)
 
-    If any of edgecolors, facecolors, linewidths, antialiaseds are
-    None, they default to their patch.* rc params setting, in sequence
-    form.
+    If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds*
+    are None, they default to their :data:`matplotlib.rcParams` patch
+    setting, in sequence form.
 """
 
 class QuadMesh(Collection):
@@ -494,11 +501,11 @@ class QuadMesh(Collection):
 class PolyCollection(Collection):
     def __init__(self, verts, sizes = None, **kwargs):
         """
-        verts is a sequence of ( verts0, verts1, ...) where verts_i is
-        a sequence of xy tuples of vertices, or an equivalent
-        numpy array of shape (nv,2).
+        *verts* is a sequence of ( *verts0*, *verts1*, ...) where
+        *verts_i* is a sequence of xy tuples of vertices, or an
+        equivalent :mod:`numpy` array of shape (nv,2).
 
-        sizes gives the area of the circle circumscribing the
+        *sizes* gives the area of the circle circumscribing the
         polygon in points^2
 
         %(Collection)s
@@ -532,8 +539,11 @@ class BrokenBarHCollection(PolyCollection):
     """
     def __init__(self, xranges, yrange, **kwargs):
         """
-        xranges : sequence of (xmin, xwidth)
-        yrange  : ymin, ywidth
+        *xranges*
+            sequence of (xmin, xwidth)
+
+        *yrange*
+            ymin, ywidth
 
         %(Collection)s
         """
@@ -554,34 +564,38 @@ class RegularPolyCollection(Collection):
         """
         Draw a regular polygon with numsides.
 
-        * dpi is the figure dpi instance, and is required to do the
-          area scaling.
+        *dpi*
+            the figure dpi instance, and is required to do the
+            area scaling.
 
-        * numsides: the number of sides of the polygon
+        *numsides*
+            the number of sides of the polygon
 
-        * sizes gives the area of the circle circumscribing the
-          regular polygon in points^2
+        *sizes*
+            gives the area of the circle circumscribing the
+            regular polygon in points^2
 
-        * rotation is the rotation of the polygon in radians
+        *rotation*
+            the rotation of the polygon in radians
 
         %(Collection)s
 
-        Example: see examples/dynamic_collection.py for complete example
+        Example: see :file:`examples/dynamic_collection.py` for
+        complete example::
 
-        offsets = np.random.rand(20,2)
-        facecolors = [cm.jet(x) for x in np.random.rand(20)]
-        black = (0,0,0,1)
+            offsets = np.random.rand(20,2)
+            facecolors = [cm.jet(x) for x in np.random.rand(20)]
+            black = (0,0,0,1)
 
-        collection = RegularPolyCollection(
-            numsides=5, # a pentagon
-            rotation=0,
-            sizes=(50,),
-            facecolors = facecolors,
-            edgecolors = (black,),
-            linewidths = (1,),
-            offsets = offsets,
-            transOffset = ax.transData,
-            )
+            collection = RegularPolyCollection(
+                numsides=5, # a pentagon
+                rotation=0, sizes=(50,),
+                facecolors = facecolors,
+                edgecolors = (black,),
+                linewidths = (1,),
+                offsets = offsets,
+                transOffset = ax.transData,
+                )
         """
         Collection.__init__(self,**kwargs)
         self._sizes = sizes
@@ -633,42 +647,57 @@ class LineCollection(Collection, cm.ScalarMappable):
                  **kwargs
                  ):
         """
-        segments is a sequence of ( line0, line1, line2), where
-        linen = (x0, y0), (x1, y1), ... (xm, ym), or the
-        equivalent numpy array with two columns.
-        Each line can be a different length.
+        *segments*
+            a sequence of ( *line0*, *line1*, *line2*), where::
 
-        colors must be a tuple of RGBA tuples (eg arbitrary color
-        strings, etc, not allowed).
+                linen = (x0, y0), (x1, y1), ... (xm, ym)
 
-        antialiaseds must be a sequence of ones or zeros
+            or the equivalent numpy array with two columns. Each line
+            can be a different length.
 
-        linestyles is a string or dash tuple. Legal string values are
-          solid|dashed|dashdot|dotted.  The dash tuple is (offset, onoffseq)
-          where onoffseq is an even length tuple of on and off ink in points.
+        *colors*
+            must be a tuple of RGBA tuples (eg arbitrary color
+            strings, etc, not allowed).
 
-        If linewidths, colors_, or antialiaseds is None, they default to
-        their rc params setting, in sequence form.
+        *antialiaseds*
+            must be a sequence of ones or zeros
 
-        If offsets and transOffset are not None, then
-        offsets are transformed by transOffset and applied after
+        *linestyles* [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
+            a string or dash tuple. The dash tuple is::
+
+                (offset, onoffseq),
+
+            where *onoffseq* is an even length tuple of on and off ink
+            in points.
+
+        If *linewidths*, *colors*, or *antialiaseds* is None, they
+        default to their rcParams setting, in sequence form.
+
+        If *offsets* and *transOffset* are not None, then
+        *offsets* are transformed by *transOffset* and applied after
         the segments have been transformed to display coordinates.
 
-        If offsets is not None but transOffset is None, then the
-        offsets are added to the segments before any transformation.
-        In this case, a single offset can be specified as offsets=(xo,yo),
-        and this value will be
-        added cumulatively to each successive segment, so as
-        to produce a set of successively offset curves.
+        If *offsets* is not None but *transOffset* is None, then the
+        *offsets* are added to the segments before any transformation.
+        In this case, a single offset can be specified as::
 
-        norm = None,  # optional for ScalarMappable
-        cmap = None,  # ditto
+            offsets=(xo,yo)
 
-        pickradius is the tolerance for mouse clicks picking a line.  The
-        default is 5 pt.
+        and this value will be added cumulatively to each successive
+        segment, so as to produce a set of successively offset curves.
 
-        The use of ScalarMappable is optional.  If the ScalarMappable
-        matrix _A is not None (ie a call to set_array has been made), at
+        *norm*
+            None (optional for :class:`matplotlib.cm.ScalarMappable`)
+        *cmap*
+            None (optional for :class:`matplotlib.cm.ScalarMappable`)
+
+        *pickradius* is the tolerance for mouse clicks picking a line.
+        The default is 5 pt.
+
+        The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
+        If the :class:`~matplotlib.cm.ScalarMappable` matrix
+        :attr:`~matplotlib.cm.ScalarMappable._A` is not None (ie a call to
+        :meth:`~matplotlib.cm.ScalarMappable.set_array` has been made), at
         draw time a call to scalar mappable will be made to set the colors.
         """
         if colors is None: colors = mpl.rcParams['lines.color']
@@ -721,8 +750,8 @@ class LineCollection(Collection, cm.ScalarMappable):
 
     def set_color(self, c):
         """
-        Set the color(s) of the line collection.  c can be a
-        matplotlib color arg (all patches have same color), or a a
+        Set the color(s) of the line collection.  *c* can be a
+        matplotlib color arg (all patches have same color), or a
         sequence or rgba tuples; if it is a sequence the patches will
         cycle through the sequence
 
@@ -732,8 +761,8 @@ class LineCollection(Collection, cm.ScalarMappable):
 
     def color(self, c):
         """
-        Set the color(s) of the line collection.  c can be a
-        matplotlib color arg (all patches have same color), or a a
+        Set the color(s) of the line collection.  *c* can be a
+        matplotlib color arg (all patches have same color), or a
         sequence or rgba tuples; if it is a sequence the patches will
         cycle through the sequence
 

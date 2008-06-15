@@ -13,7 +13,7 @@ from matplotlib._cm import *
 
 def get_cmap(name=None, lut=None):
     """
-    Get a colormap instance, defaulting to rc values if name is None
+    Get a colormap instance, defaulting to rc values if *name* is None
     """
     if name is None: name = mpl.rcParams['image.cmap']
     if lut is None: lut = mpl.rcParams['image.lut']
@@ -29,8 +29,9 @@ class ScalarMappable:
 
     def __init__(self, norm=None, cmap=None):
         """
-        norm is a colors.normalize instance to map luminance to 0-1
-        cmap is a cm colormap instance
+        *norm* is an instance of :class:`colors.Normalize` or one of
+        its subclasses, used to map luminance to 0-1. *cmap* is a
+        :mod:`cm` colormap instance, for example :data:`cm.jet`
         """
 
         self.callbacksSM = cbook.CallbackRegistry((
@@ -50,10 +51,10 @@ class ScalarMappable:
         self.colorbar = im, ax
 
     def to_rgba(self, x, alpha=1.0, bytes=False):
-        '''Return a normalized rgba array corresponding to x.
-        If x is already an rgb array, insert alpha; if it is
-        already rgba, return it unchanged.
-        If bytes is True, return rgba as 4 uint8s instead of 4 floats.
+        '''Return a normalized rgba array corresponding to *x*. If *x*
+        is already an rgb array, insert *alpha*; if it is already
+        rgba, return it unchanged. If *bytes* is True, return rgba as
+        4 uint8s instead of 4 floats.
         '''
         try:
             if x.ndim == 3:
@@ -79,7 +80,7 @@ class ScalarMappable:
         return x
 
     def set_array(self, A):
-        'Set the image array from numpy array A'
+        'Set the image array from numpy array *A*'
         self._A = A
         self.update_dict['array'] = True
 
@@ -97,8 +98,8 @@ class ScalarMappable:
 
     def set_clim(self, vmin=None, vmax=None):
         """
-        set the norm limits for image scaling; if vmin is a length2
-        sequence, interpret it as (vmin, vmax) which is used to
+        set the norm limits for image scaling; if *vmin* is a length2
+        sequence, interpret it as ``(vmin, vmax)`` which is used to
         support setp
 
         ACCEPTS: a length 2 sequence of floats
