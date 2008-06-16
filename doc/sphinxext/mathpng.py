@@ -5,6 +5,7 @@ except ImportError:
     from md5 import md5
 
 from docutils import nodes
+from docutils.parsers.rst import directives
 from docutils.writers.html4css1 import HTMLTranslator
 from sphinx.latexwriter import LaTeXTranslator
 
@@ -12,14 +13,27 @@ from sphinx.latexwriter import LaTeXTranslator
 class latex_math(nodes.General, nodes.Element):
     pass
 
+def fontset_choice(arg):
+    return directives.choice(arg, ['cm', 'stix', 'stixsans'])
+
+options_spec = {'fontset': fontset_choice}
+
 def math_role(role, rawtext, text, lineno, inliner,
               options={}, content=[]):
     i = rawtext.find('`')
     latex = rawtext[i+1:-1]
     node = latex_math(rawtext)
     node['latex'] = latex
+    node['fontset'] = options.get('fontset', 'cm')
     return [node], []
+math_role.options = options_spec
 
+def math_directive_run(content, block_text, options):
+    latex = ''.join(content)
+    node = latex_math(block_text)
+    node['latex'] = latex
+    node['fontset'] = options.get('fontset', 'cm')
+    return [node]
 
 try:
     from docutils.parsers.rst import Directive
@@ -28,22 +42,19 @@ except ImportError:
     from docutils.parsers.rst.directives import _directives
     def math_directive(name, arguments, options, content, lineno,
                        content_offset, block_text, state, state_machine):
-        latex = ''.join(content)
-        node = latex_math(block_text)
-        node['latex'] = latex
-        return [node]
+        return math_directive_run(content, block_text, options)
     math_directive.arguments = None
-    math_directive.options = {}
+    math_directive.options = options_spec
     math_directive.content = 1
     _directives['math'] = math_directive
 else:
     class math_directive(Directive):
         has_content = True
+        option_spec = options_spec
+
         def run(self):
-            latex = ' '.join(self.content)
-            node = latex_math(self.block_text)
-            node['latex'] = latex
-            return [node]
+            return math_directive_run(self.content, self.block_text,
+                                      self.options)
     from docutils.parsers.rst import directives
     directives.register_directive('math', math_directive)
 
@@ -100,11 +111,13 @@ mathtext_parser = MathTextParser("Bitmap")
 
 
 # This uses mathtext to render the expression
-def latex2png(latex, filename):
+def latex2png(latex, filename, fontset='cm'):
     if os.path.exists(filename):
         return
+    orig_fontset = rcParams['mathtext.fontset']
+    rcParams['mathtext.fontset'] = fontset
     mathtext_parser.to_png(filename, "$%s$" % latex, dpi=120)
-
+    rcParams['mathtext.fontset'] = orig_fontset
 
 # LaTeX to HTML translation stuff:
 def latex2html(node, source):
@@ -114,7 +127,7 @@ def latex2html(node, source):
     name = 'math-%s' % md5(latex).hexdigest()[-10:]
     dest = '_static/%s.png' % name
     if not isfile(dest):
-        latex2png(latex, dest)
+        latex2png(latex, dest, node['fontset'])
 
     path = '_static'
     count = source.split('/doc/')[-1].count('/')

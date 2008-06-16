@@ -147,22 +147,39 @@ Roman font, and the amplitude "A" is in calligraphy font.
 
 The choices available with all fonts are:
 
-    =============== =================================
-    Command         Result
-    =============== =================================
-    ``\mathrm``     :math:`\mathrm{Roman}`
-    ``\mathit``     :math:`\mathit{Italic}`
-    ``\mathtt``     :math:`\mathtt{Typewriter}`
-    ``\mathcal``    :math:`\mathcal{CALLIGRAPHY}`
-    =============== =================================
+    ============================ ==================================
+    Command                      Result
+    ============================ ==================================
+    ``\mathrm{Roman}``           :math:`\mathrm{Roman}`
+    ``\mathit{Italic}``          :math:`\mathit{Italic}`
+    ``\mathtt{Typewriter}``      :math:`\mathtt{Typewriter}`
+    ``\mathcal{CALLIGRAPHY}``    :math:`\mathcal{CALLIGRAPHY}`
+    ============================ ==================================
+
+.. role:: math-stix(math)
+   :fontset: stix
 
 When using the STIX fonts, you also have the choice of:
 
-.. image:: ../_static/stix_fonts.png
+    ====================================== =========================================
+    Command                                Result
+    ====================================== =========================================
+    ``\mathbb{blackboard}``                :math-stix:`\mathbb{blackboard}`
+    ``\mathrm{\mathbb{blackboard}}``       :math-stix:`\mathrm{\mathbb{blackboard}}`
+    ``\mathfrak{Fraktur}``                 :math-stix:`\mathfrak{Fraktur}`
+    ``\mathsf{sansserif}``                 :math-stix:`\mathsf{sansserif}`
+    ``\mathrm{\mathsf{sansserif}}``        :math-stix:`\mathrm{\mathsf{sansserif}}`
+    ====================================== =========================================
+
+.. htmlonly::
+
+    ====================================== =========================================
+    ``\mathcircled{circled}``              :math-stix:`\mathcircled{circled}`
+    ====================================== =========================================
 
 There are also three global "font sets" to choose from, which are
 selected using the ``mathtext.fontset`` parameter in
-::ref:`matplotlibrc <matplotlibrc-sample>`.
+:ref:`matplotlibrc <matplotlibrc-sample>`.
 
 ``cm``: **Computer Modern (TeX)**
 
