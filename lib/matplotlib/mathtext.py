@@ -725,15 +725,8 @@ class BakomaFonts(TruetypeFonts):
                         cached_font.charmap[num])
 
         if symbol_name is None:
-            return self._stix_fallback._get_glyph(fontname, font_class, sym, fontsize)
-            warn("Unrecognized symbol '%s'. Substituting with a dummy symbol."
-                 % sym.encode('ascii', 'backslashreplace'), MathTextWarning)
-            fontname = 'it'
-            cached_font = self._get_font(fontname)
-            num = 0x3F # currency character, for lack of anything better
-            gid = cached_font.charmap[num]
-            symbol_name = cached_font.font.get_glyph_name(gid)
-            slanted = False
+            return self._stix_fallback._get_glyph(
+                fontname, font_class, sym, fontsize)
 
         return cached_font, num, symbol_name, fontsize, slanted
 
@@ -865,10 +858,7 @@ class UnicodeFonts(TruetypeFonts):
                     glyphindex = cached_font.charmap[uniindex]
                     found_symbol = True
                 except KeyError:
-                    warn("Font '%s' does not have a glyph for '%s'" %
-                         (cached_font.font.postscript_name,
-                          sym.encode('ascii', 'backslashreplace')),
-                         MathTextWarning)
+                    pass
 
         if not found_symbol:
             if self.cm_fallback:
@@ -879,6 +869,10 @@ class UnicodeFonts(TruetypeFonts):
             else:
                 if fontname == 'it' and isinstance(self, StixFonts):
                     return self._get_glyph('rm', font_class, sym, fontsize)
+                warn("Font '%s' does not have a glyph for '%s'" %
+                     (cached_font.font.postscript_name,
+                      sym.encode('ascii', 'backslashreplace')),
+                     MathTextWarning)
                 warn("Substituting with a dummy symbol.", MathTextWarning)
                 fontname = 'rm'
                 new_fontname = fontname
