@@ -176,6 +176,8 @@ class PolarAxes(Axes):
     def cla(self):
         Axes.cla(self)
 
+        self.title.set_y(1.05)
+
         self.xaxis.set_major_formatter(self.ThetaFormatter())
         angles = npy.arange(0.0, 360.0, 45.0)
         self.set_thetagrids(angles)
@@ -240,14 +242,6 @@ class PolarAxes(Axes):
             Affine2D().scale(1.0 / 360.0, 1.0) +
             self._yaxis_transform
             )
-
-    def update_layout(self, renderer):
-        t_text, b_text = self.xaxis.get_text_heights(renderer)
-        l_text, r_text = self.yaxis.get_text_widths(renderer)
-        originalPosition = self.get_position(True)
-        title_offset = (b_text - originalPosition.transformed(
-                self.figure.transFigure).height) / 2.0
-        self.titleOffsetTrans.clear().translate(0, title_offset)
 
     def get_xaxis_transform(self):
         return self._xaxis_transform
