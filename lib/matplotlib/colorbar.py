@@ -1,17 +1,21 @@
 '''
 Colorbar toolkit with two classes and a function:
 
-    ColorbarBase is the base class with full colorbar drawing functionality.
+    :class:`ColorbarBase`
+        the base class with full colorbar drawing functionality.
         It can be used as-is to make a colorbar for a given colormap;
         a mappable object (e.g., image) is not needed.
 
-    Colorbar is the derived class for use with images or contour plots.
+    :class:`Colorbar`
+        the derived class for use with images or contour plots.
 
-    make_axes is a function for resizing an axes and adding a second axes
+    :func:`make_axes`
+        a function for resizing an axes and adding a second axes
         suitable for a colorbar
 
-The Figure.colorbar() method uses make_axes and Colorbar; the pylab.colorbar()
-function is a thin wrapper over Figure.colorbar().
+The :meth:`matplotlib.Figure.colorbar` method uses :func:`make_axes`
+and :class:`Colorbar`; the :func:`matplotlib.pyplot.colorbar` function
+is a thin wrapper over :meth:`matplotlib.Figure.colorbar`.
 
 '''
 
@@ -28,60 +32,68 @@ import matplotlib.contour as contour
 
 make_axes_kw_doc = '''
 
-    ========   ====================================================
-    Property   Description
-    ========   ====================================================
-    fraction   0.15; fraction of original axes to use for colorbar
-    pad        0.05 if vertical, 0.15 if horizontal; fraction
-               of original axes between colorbar and new image axes
-    shrink     1.0; fraction by which to shrink the colorbar
-    aspect     20; ratio of long to short dimensions
-    ========   ====================================================
+    ==========   ====================================================
+    Property     Description
+    ==========   ====================================================
+    *fraction*   0.15; fraction of original axes to use for colorbar
+    *pad*        0.05 if vertical, 0.15 if horizontal; fraction
+                 of original axes between colorbar and new image axes
+    *shrink*     1.0; fraction by which to shrink the colorbar
+    *aspect*     20; ratio of long to short dimensions
+    ==========   ====================================================
 
 '''
 
 colormap_kw_doc = '''
 
-    =========   ===============================================================
-    Property    Description
-    =========   ===============================================================
-    extend      [ 'neither' | 'both' | 'min' | 'max' ]
-                If not 'neither', make pointed end(s) for out-of-range
-                values.  These are set for a given colormap using the
-                colormap set_under and set_over methods.
-    spacing     [ 'uniform' | 'proportional' ]
-                Uniform spacing gives each discrete color the same space;
-                proportional makes the space proportional to the data interval.
-    ticks       [ None | list of ticks | Locator object ]
-                If None, ticks are determined automatically from the input.
-    format      [ None | format string | Formatter object ]
-                If none, the ScalarFormatter is used.
-                If a format string is given, e.g. '%.3f', that is used.
-                An alternative Formatter object may be given instead.
-    drawedges   [ False | True ] If true, draw lines at color boundaries.
-    =========   ===============================================================
+    ===========   ====================================================
+    Property      Description
+    ===========   ====================================================
+    *extend*      [ 'neither' | 'both' | 'min' | 'max' ]
+                  If not 'neither', make pointed end(s) for out-of-
+                  range values.  These are set for a given colormap
+                  using the colormap set_under and set_over methods.
+    *spacing*     [ 'uniform' | 'proportional' ]
+                  Uniform spacing gives each discrete color the same
+                  space; proportional makes the space proportional to
+                  the data interval.
+    *ticks*       [ None | list of ticks | Locator object ]
+                  If None, ticks are determined automatically from the
+                  input.
+    *format*      [ None | format string | Formatter object ]
+                  If None, the
+                  :class:`~matplotlib.ticker.ScalarFormatter` is used.
+                  If a format string is given, e.g. '%.3f', that is
+                  used. An alternative
+                  :class:`~matplotlib.ticker.Formatter` object may be
+                  given instead.
+    *drawedges*   [ False | True ] If true, draw lines at color
+                  boundaries.
+    ===========   ====================================================
 
     The following will probably be useful only in the context of
     indexed colors (that is, when the mappable has norm=NoNorm()),
     or other unusual circumstances.
 
-    ==========   ===============================================================
-    Property     Description
-    ==========   ===============================================================
-    boundaries   None or a sequence
-    values       None or a sequence which must be of length 1 less than the
-                 sequence of boundaries. For each region delimited by adjacent
-                 entries in boundaries, the color mapped to the corresponding
-                 value in values will be used.
-    ==========   ===============================================================
+    ============   ===================================================
+    Property       Description
+    ============   ===================================================
+    *boundaries*   None or a sequence
+    *values*       None or a sequence which must be of length 1 less
+                   than the sequence of *boundaries*. For each region
+                   delimited by adjacent entries in *boundaries*, the
+                   color mapped to the corresponding value in values
+                   will be used.
+    ============   ===================================================
 
 '''
 
 colorbar_doc = '''
 Add a colorbar to a plot.
 
-Function signatures for the pyplot interface; all but the first are
-also method signatures for the Figure.colorbar method::
+Function signatures for the :mod:`~matplotlib.pyplot` interface; all
+but the first are also method signatures for the
+:meth:`matplotlib.Figure.colorbar` method::
 
   colorbar(**kwargs)
   colorbar(mappable, **kwargs)
@@ -89,16 +101,17 @@ also method signatures for the Figure.colorbar method::
   colorbar(mappable, ax=ax, **kwargs)
 
 arguments:
-  mappable:
-    the image, ContourSet, etc. to which the colorbar applies;
-    this argument is mandatory for the Figure.colorbar
-    method but optional for the pyplot.colorbar function,
-    which sets the default to the current image.
+  *mappable*
+    the image, :class:`~matplotlib.contours.ContourSet`, etc. to
+    which the colorbar applies; this argument is mandatory for the
+    :meth:`matplotlib.Figure.colorbar` method but optional for the
+    :func:`matplotlib.pyplot.colorbar` function, which sets the
+    default to the current image.
 
 keyword arguments:
-  cax:
+  *cax*
     None | axes object into which the colorbar will be drawn
-  ax:
+  *ax*
     None | parent axes object from which space for a new
     colorbar axes will be stolen
 
@@ -109,19 +122,18 @@ Additional keyword arguments are of two kinds:
   colorbar properties:
 %s
 
-If mappable is a ContourSet, its extend kwarg is included automatically.
+If mappable is a :class:`~matplotlib.contours.ContourSet`, its *extend*
+kwarg is included automatically.
 
-Note that the shrink kwarg provides a simple way to keep
-a vertical colorbar, for example, from being taller than
-the axes of the mappable to which the colorbar is attached;
-but it is a manual method requiring some trial and error.
-If the colorbar is too tall (or a horizontal colorbar is
-too wide) use a smaller value of shrink.
+Note that the *shrink* kwarg provides a simple way to keep a vertical
+colorbar, for example, from being taller than the axes of the mappable
+to which the colorbar is attached; but it is a manual method requiring
+some trial and error. If the colorbar is too tall (or a horizontal
+colorbar is too wide) use a smaller value of *shrink*.
 
-For more precise control, you can manually specify the
-positions of the axes objects in which the mappable and
-the colorbar are drawn.  In this case, do not use any of the
-axes properties kwargs.
+For more precise control, you can manually specify the positions of
+the axes objects in which the mappable and the colorbar are drawn.  In
+this case, do not use any of the axes properties kwargs.
 ''' % (make_axes_kw_doc, colormap_kw_doc)
 
 
@@ -130,16 +142,22 @@ class ColorbarBase(cm.ScalarMappable):
     '''
     Draw a colorbar in an existing axes.
 
-    This is a base class for the Colorbar class, which is
-    the basis for the colorbar method and pylab function.
+    This is a base class for the :class:`Colorbar` class, which is the
+    basis for the :func:`~matplotlib.pyplot.colorbar` method and pylab
+    function.
 
-    It is also useful by itself for showing a colormap.  If
-    the cmap kwarg is given but boundaries and values are left
-    as None, then the colormap will be displayed on a 0-1 scale.
-    To show the under- and over-value colors, specify the norm
-    as colors.Normalize(clip=False).
+    It is also useful by itself for showing a colormap.  If the *cmap*
+    kwarg is given but *boundaries* and *values* are left as None,
+    then the colormap will be displayed on a 0-1 scale. To show the
+    under- and over-value colors, specify the *norm* as::
+
+        colors.Normalize(clip=False)
+
     To show the colors versus index instead of on the 0-1 scale,
-    use norm=colors.NoNorm.
+    use::
+
+        norm=colors.NoNorm.
+
     '''
     _slice_dict = {'neither': slice(0,1000000),
                    'both': slice(1,-1),
@@ -257,7 +275,7 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _outline(self, X, Y):
         '''
-        Return x, y arrays of colorbar bounding polygon,
+        Return *x*, *y* arrays of colorbar bounding polygon,
         taking orientation into account.
         '''
         N = X.shape[0]
@@ -284,7 +302,8 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _add_solids(self, X, Y, C):
         '''
-        Draw the colors using pcolor; optionally add separators.
+        Draw the colors using :meth:`~matplotlib.axes.Axes.pcolor`;
+        optionally add separators.
         '''
         ## Change to pcolorfast after fixing bugs in some backends...
         if self.orientation == 'vertical':
@@ -371,9 +390,9 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _process_values(self, b=None):
         '''
-        Set the _boundaries and _values attributes based on
-        the input boundaries and values.  Input boundaries can
-        be self.boundaries or the argument b.
+        Set the :attr:`_boundaries` and :attr:`_values` attributes
+        based on the input boundaries and values.  Input boundaries
+        can be *self.boundaries* or the argument *b*.
         '''
         if b is None:
             b = self.boundaries
@@ -441,15 +460,15 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _find_range(self):
         '''
-        Set vmin and vmax attributes to the first and last
-        boundary excluding extended end boundaries.
+        Set :attr:`vmin` and :attr:`vmax` attributes to the first and
+        last boundary excluding extended end boundaries.
         '''
         b = self._boundaries[self._inside]
         self.vmin = b[0]
         self.vmax = b[-1]
 
     def _central_N(self):
-        '''number of boundaries *before* extension of ends'''
+        '''number of boundaries **before** extension of ends'''
         nb = len(self._boundaries)
         if self.extend == 'both':
             nb -= 2
@@ -471,7 +490,7 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _uniform_y(self, N):
         '''
-        Return colorbar data coordinates for N uniformly
+        Return colorbar data coordinates for *N* uniformly
         spaced boundaries, plus ends if required.
         '''
         if self.extend == 'neither':
@@ -595,7 +614,8 @@ class Colorbar(ColorbarBase):
 
     def add_lines(self, CS):
         '''
-        Add the lines from a non-filled ContourSet to the colorbar.
+        Add the lines from a non-filled
+        :class:`~matplotlib.contour.ContourSet` to the colorbar.
         '''
         if not isinstance(CS, contour.ContourSet) or CS.filled:
             raise ValueError('add_lines is only for a ContourSet of lines')
@@ -612,7 +632,8 @@ class Colorbar(ColorbarBase):
         ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths)
 
     def update_bruteforce(self, mappable):
-        '''Manually change any contour line colors.  This is called
+        '''
+        Manually change any contour line colors.  This is called
         when the image or contour plot to which this colorbar belongs
         is changed.
         '''
@@ -666,12 +687,15 @@ def make_axes(parent, **kw):
     return cax, kw
 make_axes.__doc__ ='''
     Resize and reposition a parent axes, and return a child
-    axes suitable for a colorbar.
+    axes suitable for a colorbar::
 
-    cax, kw = make_axes(parent, **kw)
+        cax, kw = make_axes(parent, **kw)
 
     Keyword arguments may include the following (with defaults):
-        orientation = 'vertical'  or 'horizontal'
+
+        *orientation*
+            'vertical'  or 'horizontal'
+
     %s
 
     All but the first of these are stripped from the input kw set.
