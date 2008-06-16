@@ -109,14 +109,6 @@ class GeoAxes(Axes):
             .scale(0.5 / xscale, 0.5 / yscale) \
             .translate(0.5, 0.5)
 
-    def update_layout(self, renderer):
-        t_text, b_text = self.xaxis.get_text_heights(renderer)
-        l_text, r_text = self.yaxis.get_text_widths(renderer)
-        originalPosition = self.get_position(True)
-        title_offset = (b_text - originalPosition.transformed(
-                self.figure.transFigure).height) / 2.0
-        self.titleOffsetTrans.clear().translate(0, title_offset)
-
     def get_xaxis_transform(self):
         return self._xaxis_transform
 

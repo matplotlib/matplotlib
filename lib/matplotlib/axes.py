@@ -1403,32 +1403,6 @@ class Axes(martist.Artist):
             YL = self.yaxis.get_major_locator().autoscale()
             self.set_ybound(YL)
 
-    def update_layout(self, renderer):
-        pad_pixels = rcParams['xtick.major.pad'] * self.figure.dpi / 72.0
-        inverse_transFigure = self.figure.transFigure.inverted()
-        t_text, b_text = self.xaxis.get_text_heights(renderer)
-        l_text, r_text = self.yaxis.get_text_widths(renderer)
-        title_height = self.title.get_window_extent(renderer).height
-        title_height += pad_pixels * 2.0
-        original_t_text = t_text
-
-        ((l_text, t_text),
-         (r_text, b_text),
-         (dummy, title_height)) = inverse_transFigure.transform(
-            ((l_text, t_text),
-             (r_text, b_text),
-             (0.0, title_height)))
-        x0, y0, x1, y1 = self.get_position(True).extents
-        # Adjust the title
-        self.titleOffsetTrans.clear().translate(
-            0, original_t_text + pad_pixels * 2.0)
-
-        new_position = mtransforms.Bbox.from_extents(
-            x0 + l_text, y0 + b_text,
-            x1 - r_text, y1 - t_text - title_height)
-
-        self.set_position(new_position, 'active')
-
     #### Drawing
 
     def draw(self, renderer=None, inframe=False):
@@ -5654,7 +5628,7 @@ class Axes(martist.Artist):
         ax2.xaxis.set_label_position('top')
         self.xaxis.tick_bottom()
         return ax2
-    
+
     def get_shared_x_axes(self):
         'Return a copy of the shared axes Grouper object for x axes'
         return self._shared_x_axes
