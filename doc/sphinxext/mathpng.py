@@ -142,10 +142,6 @@ def latex2html(node, source):
         if os.path.exists(path): break
         path = '../'+path
     path = '../'+path #specifically added for matplotlib
-    if inline and '_' in latex:
-        align = 'align="absmiddle" '
-    else:
-        align = ''
     if inline:
         cls = ''
     else:
@@ -155,5 +151,5 @@ def latex2html(node, source):
     else:
         style = ''
 
-    return '<img src="%s/%s.png" %s%s%s/>' % (path, name, align, cls, style)
+    return '<img src="%s/%s.png" %s%s/>' % (path, name, cls, style)
 
