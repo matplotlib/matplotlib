@@ -301,7 +301,7 @@ class Path(object):
         if transform is not None:
             transform = transform.frozen()
 
-        if self.codes is None and width == 0 or height == 0:
+        if self.codes is None and (width == 0 or height == 0):
             if transform is None:
                 return [self.vertices]
             else:
