@@ -8,6 +8,7 @@ from docutils import nodes
 from docutils.parsers.rst import directives
 from docutils.writers.html4css1 import HTMLTranslator
 from sphinx.latexwriter import LaTeXTranslator
+import warnings
 
 # Define LaTeX math node:
 class latex_math(nodes.General, nodes.Element):
@@ -116,7 +117,11 @@ def latex2png(latex, filename, fontset='cm'):
         return
     orig_fontset = rcParams['mathtext.fontset']
     rcParams['mathtext.fontset'] = fontset
-    mathtext_parser.to_png(filename, "$%s$" % latex, dpi=120)
+    try:
+        mathtext_parser.to_png(filename, "$%s$" % latex, dpi=120)
+    except:
+        warnings.warn("Could not render math expression $%s$" % latex,
+                      warnings.Warning)
     rcParams['mathtext.fontset'] = orig_fontset
 
 # LaTeX to HTML translation stuff:
