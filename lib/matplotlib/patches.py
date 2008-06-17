@@ -80,6 +80,14 @@ class Patch(artist.Artist):
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
+    def get_verts(self):
+        """
+        return a copy of the vertices used in this patch
+        """
+        trans = self.get_transform()
+        path = self.get_path()
+        tverts = trans.transform(path.vertices)
+        return tverts
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred in the patch.
