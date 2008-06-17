@@ -52,7 +52,7 @@ public:
         add_varargs_method("path_intersects_path", &_path_module::path_intersects_path,
                            "path_intersects_path(p1, p2)");
         add_varargs_method("convert_path_to_polygons", &_path_module::convert_path_to_polygons,
-                           "convert_path_to_polygons(path, trans)");
+                           "convert_path_to_polygons(path, trans, width, height)");
 
         initialize("Helper functions for paths");
     }
@@ -1115,7 +1115,7 @@ Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
     double width = Py::Float(args[2]);
     double height = Py::Float(args[3]);
 
-    bool simplify = !path.has_curves();
+    bool simplify = !path.has_curves() && width != 0.0 && height != 0.0;
 
     transformed_path_t tpath(path, trans);
     simplify_t simplified(tpath, false, simplify, width, height);

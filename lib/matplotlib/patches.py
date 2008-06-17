@@ -83,11 +83,17 @@ class Patch(artist.Artist):
     def get_verts(self):
         """
         return a copy of the vertices used in this patch
+
+        If the patch contains Bezier curves, the curves will be
+        interpolated by line segments.  To access the curves as
+        curves, use :meth:`get_path`.
         """
         trans = self.get_transform()
         path = self.get_path()
-        tverts = trans.transform(path.vertices)
-        return tverts
+        polygons = path.to_polygons(trans)
+        if len(polygons):
+            return polygons[0]
+        return []
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred in the patch.

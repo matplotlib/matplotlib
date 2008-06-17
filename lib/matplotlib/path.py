@@ -290,14 +290,21 @@ class Path(object):
         ``MOVETO`` instructions or curves.  This is useful for
         displaying in backends that do not support compound paths or
         Bezier curves, such as GDK.
+
+        If width and height are both non-zero then the lines will be
+        simplified so that vertices outside of (0, 0), (width, height)
+        will be clipped.
         """
+        if len(self.vertices) == 0:
+            return []
+
         if transform is not None:
             transform = transform.frozen()
-        # Deal with the common and simple case
-        if self.codes is None and len(self.vertices) < 100:
-            if len(self.vertices):
+            if self.codes is None:
                 return [transform.transform(self.vertices)]
-            return []
+        else:
+            if self.codes is None:
+                return [self.vertices]
         # Deal with the case where there are curves and/or multiple
         # subpaths (using extension code)
         return convert_path_to_polygons(self, transform, width, height)
