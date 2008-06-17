@@ -526,7 +526,7 @@ class Fonts(object):
         realpath, stat_key = get_realpath_and_stat(info.font.fname)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, Set()))
-        used_characters[1].update(unichr(info.num))
+        used_characters[1].add(info.num)
         self.mathtext_backend.render_glyph(ox, oy, info)
 
     def render_rect_filled(self, x1, y1, x2, y2):
