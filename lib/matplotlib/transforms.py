@@ -3,13 +3,13 @@ matplotlib includes a framework for arbitrary geometric
 transformations that is used determine the final position of all
 elements drawn on the canvas.
 
-Transforms are composed into trees of ``TransformNode`` objects whose
-actual value depends on their children.  When the contents of children
-change, their parents are automatically invalidated.  The next time an
-invalidated transform is accessed, it is recomputed to reflect those
-changes.  This invalidation/caching approach prevents unnecessary
-recomputations of transforms, and contributes to better interactive
-performance.
+Transforms are composed into trees of :class:`TransformNode` objects
+whose actual value depends on their children.  When the contents of
+children change, their parents are automatically invalidated.  The
+next time an invalidated transform is accessed, it is recomputed to
+reflect those changes.  This invalidation/caching approach prevents
+unnecessary recomputations of transforms, and contributes to better
+interactive performance.
 
 For example, here is a graph of the transform tree used to plot data
 to the graph:
@@ -395,7 +395,7 @@ class BboxBase(TransformNode):
     def overlaps(self, other):
         """
         Returns True if this bounding box overlaps with the given
-        bounding box ``other``.
+        bounding box *other*.
         """
         ax1, ay1, ax2, ay2 = self._get_extents()
         bx1, by1, bx2, by2 = other._get_extents()
@@ -445,7 +445,7 @@ class BboxBase(TransformNode):
     def fully_overlaps(self, other):
         """
         Returns True if this bounding box overlaps with the given
-        bounding box ``other``, but not on its edge alone."""
+        bounding box *other*, but not on its edge alone."""
         ax1, ay1, ax2, ay2 = self._get_extents()
         bx1, by1, bx2, by2 = other._get_extents()
 
@@ -503,7 +503,7 @@ class BboxBase(TransformNode):
             - E for left
             - etc.
 
-        Optional argument ``container`` is the box within which the :class:`Bbox`
+        Optional argument *container* is the box within which the :class:`Bbox`
         is positioned; it defaults to the initial :class:`Bbox`.
         """
         if container is None:
@@ -533,10 +533,10 @@ class BboxBase(TransformNode):
         """
         Return a copy of the :class:`Bbox`, shrunk so that it is as
         large as it can be while having the desired aspect ratio,
-        ``box_aspect``.  If the box coordinates are relative---that
+        *box_aspect*.  If the box coordinates are relative---that
         is, fractions of a larger box such as a figure---then the
         physical aspect ratio of that figure is specified with
-        ``fig_aspect``, so that ``box_aspect`` can also be given as a
+        *fig_aspect*, so that *box_aspect* can also be given as a
         ratio of the absolute dimensions, not the relative dimensions.
         """
         assert box_aspect > 0 and fig_aspect > 0
@@ -558,7 +558,7 @@ class BboxBase(TransformNode):
 
         Returns a list of new :class:`Bbox` objects formed by
         splitting the original one with vertical lines at fractional
-        positions f1, f2, ...
+        positions *f1*, *f2*, ...
         """
         boxes = []
         xf = [0] + list(args) + [1]
@@ -574,7 +574,7 @@ class BboxBase(TransformNode):
 
         Returns a list of new :class:`Bbox` objects formed by
         splitting the original one with horizontal lines at fractional
-        positions f1, f2, ...
+        positions *f1*, *f2*, ...
         """
         boxes = []
         yf = [0] + list(args) + [1]
@@ -612,8 +612,8 @@ class BboxBase(TransformNode):
     def expanded(self, sw, sh):
         """
         Return a new :class:`Bbox` which is this :class:`Bbox`
-        expanded around its center by the given factors ``sw`` and
-        ``sh``.
+        expanded around its center by the given factors *sw* and
+        *sh*.
         """
         width = self.width
         height = self.height
@@ -641,8 +641,8 @@ class BboxBase(TransformNode):
         """
         Return an array of points which are the four corners of this
         rectangle.  For example, if this :class:`Bbox` is defined by
-        the points (a, b) and (c, d), ``corners`` returns (a, b), (a,
-        d), (c, b) and (c, d).
+        the points (*a*, *b*) and (*c*, *d*), :meth:`corners` returns
+        (*a*, *b*), (*a*, *d*), (*c*, *b*) and (*c*, *d*).
         """
         l, b, r, t = self.get_points().flatten()
         return np.array([[l, b], [l, t], [r, b], [r, t]])

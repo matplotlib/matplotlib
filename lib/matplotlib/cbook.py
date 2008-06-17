@@ -212,7 +212,7 @@ def is_string_like(obj):
     return 1
 
 def is_writable_file_like(obj):
-    'return true if *obj* looks like a file object'
+    'return true if *obj* looks like a file object with a *write* method'
     return hasattr(obj, 'write') and callable(obj.write)
 
 def is_scalar(obj):
@@ -615,8 +615,8 @@ def exception_to_str(s = None):
 
 def allequal(seq):
     """
-    return true if all elements of *seq* compare equal.  If *seq* is 0
-    or 1 length, return *True*
+    Return *True* if all elements of *seq* compare equal.  If *seq* is
+    0 or 1 length, return *True*
     """
     if len(seq)<2: return True
     val = seq[0]
@@ -626,14 +626,20 @@ def allequal(seq):
     return True
 
 def alltrue(seq):
-    #return true if all elements of seq are true.  If seq is empty return false
+    """
+    Return *True* if all elements of *seq* evaluate to *True*.  If
+    *seq* is empty, return *False*.
+    """
     if not len(seq): return False
     for val in seq:
         if not val: return False
     return True
 
 def onetrue(seq):
-    #return true if one element of seq is true.  If seq is empty return false
+    """
+    Return *True* if one element of *seq* is *True*.  It *seq* is
+    empty, return *False*.
+    """
     if not len(seq): return False
     for val in seq:
         if val: return True
@@ -948,8 +954,8 @@ class Grouper(object):
     would be overkill.
 
     Objects can be joined using :meth:`join`, tested for connectedness
-    using :meth:`joined`, and all disjoint sets can be retreived using
-    :meth:`get`.
+    using :meth:`joined`, and all disjoint sets can be retreived by
+    using the object as an iterator.
 
     The objects being joined must be hashable.
 
@@ -978,8 +984,8 @@ class Grouper(object):
 
     def join(self, a, *args):
         """
-        Join given arguments into the same set.
-        Accepts one or more arguments.
+        Join given arguments into the same set.  Accepts one or more
+        arguments.
         """
         mapping = self._mapping
         set_a = mapping.setdefault(a, [a])
@@ -1018,8 +1024,7 @@ class Grouper(object):
 
     def get_siblings(self, a):
         """
-        Returns all of the items joined with the given item, including
-        itself.
+        Returns all of the items joined with *a*, including itself.
         """
         return self._mapping.get(a, [a])
 
