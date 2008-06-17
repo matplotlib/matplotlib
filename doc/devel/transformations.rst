@@ -13,9 +13,11 @@
        composite_transform_factory, BboxTransform, BboxTransformTo,
        BboxTransformFrom, ScaledTranslation, TransformedPath, nonsingular,
        interval_contains, interval_contains_open
+   :show-inheritance:
 
 :mod:`matplotlib.path`
 =============================
 
 .. automodule:: matplotlib.path
    :members: Path, get_path_collection_extents
+   :show-inheritance:

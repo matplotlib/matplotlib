@@ -8,6 +8,7 @@ matplotlib artists
 .. automodule:: matplotlib.artist
    :members:
    :undoc-members:
+   :show-inheritance:
 
 :mod:`matplotlib.lines`
 =============================
@@ -15,6 +16,7 @@ matplotlib artists
 .. automodule:: matplotlib.lines
    :members:
    :undoc-members:
+   :show-inheritance:
 
 :mod:`matplotlib.patches`
 =============================
@@ -22,6 +24,7 @@ matplotlib artists
 .. automodule:: matplotlib.patches
    :members:
    :undoc-members:
+   :show-inheritance:
 
 :mod:`matplotlib.text`
 =============================
@@ -29,3 +32,4 @@ matplotlib artists
 .. automodule:: matplotlib.text
    :members:
    :undoc-members:
+   :show-inheritance:

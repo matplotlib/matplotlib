@@ -9,3 +9,4 @@ matplotlib collections
 .. automodule:: matplotlib.collections
    :members:
    :undoc-members:
+   :show-inheritance:
