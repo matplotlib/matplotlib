@@ -683,7 +683,7 @@ end"""
             differences = []
             two_byte_chars = Set()
             for c in characters:
-                ccode = ord(c)
+                ccode = c
                 gind = cmap.get(ccode) or 0
                 glyph_ids.append(gind)
                 glyph_name = font.get_glyph_name(gind)
@@ -799,7 +799,7 @@ end"""
             widths = []
             max_ccode = 0
             for c in characters:
-                ccode = ord(c)
+                ccode = c
                 gind = cmap.get(ccode) or 0
                 glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
                 widths.append((ccode, glyph.horiAdvance / 6))
@@ -1194,7 +1194,7 @@ class RendererPdf(RendererBase):
         realpath, stat_key = get_realpath_and_stat(fname)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, Set()))
-        used_characters[1].update(s)
+        used_characters[1].update([ord(x) for x in s])
 
     def merge_used_characters(self, other):
         for stat_key, (realpath, set) in other.items():
