@@ -21,7 +21,7 @@ IS_MAC = 'wxMac' in wx.PlatformInfo
 from matplotlib.mathtext import MathTextParser
 mathtext_parser = MathTextParser("Bitmap")
 def mathtext_to_wxbitmap(s):
-    ftimage = mathtext_parser.parse(s, 150)
+    ftimage, depth = mathtext_parser.parse(s, 150)
     return wx.BitmapFromBufferRGBA(
         ftimage.get_width(), ftimage.get_height(),
         ftimage.as_rgba_str())

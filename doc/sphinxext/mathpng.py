@@ -113,16 +113,19 @@ mathtext_parser = MathTextParser("Bitmap")
 
 # This uses mathtext to render the expression
 def latex2png(latex, filename, fontset='cm'):
+    latex = "$%s$" % latex
     if os.path.exists(filename):
-        return
+        return mathtext_parser.get_depth(latex, dpi=120)
     orig_fontset = rcParams['mathtext.fontset']
     rcParams['mathtext.fontset'] = fontset
     try:
-        mathtext_parser.to_png(filename, "$%s$" % latex, dpi=120)
+        depth = mathtext_parser.to_png(filename, latex, dpi=120)
     except:
-        warnings.warn("Could not render math expression $%s$" % latex,
-                      warnings.Warning)
+        warnings.warn("Could not render math expression %s" % latex,
+                      Warning)
+        depth = 0
     rcParams['mathtext.fontset'] = orig_fontset
+    return depth
 
 # LaTeX to HTML translation stuff:
 def latex2html(node, source):
@@ -131,8 +134,7 @@ def latex2html(node, source):
     print latex.encode("ascii", "backslashreplace")
     name = 'math-%s' % md5(latex).hexdigest()[-10:]
     dest = '_static/%s.png' % name
-    if not isfile(dest):
-        latex2png(latex, dest, node['fontset'])
+    depth = latex2png(latex, dest, node['fontset'])
 
     path = '_static'
     count = source.split('/doc/')[-1].count('/')
@@ -148,5 +150,10 @@ def latex2html(node, source):
         cls = ''
     else:
         cls = 'class="center" '
-    return '<img src="%s/%s.png" %s%s/>' % (path, name, align, cls)
+    if inline and depth != 0:
+        style = 'style="position: relative; bottom: -%dpx"' % (depth + 1)
+    else:
+        style = ''
+
+    return '<img src="%s/%s.png" %s%s%s/>' % (path, name, align, cls, style)
 
