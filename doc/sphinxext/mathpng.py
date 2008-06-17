@@ -114,16 +114,18 @@ mathtext_parser = MathTextParser("Bitmap")
 # This uses mathtext to render the expression
 def latex2png(latex, filename, fontset='cm'):
     latex = "$%s$" % latex
-    if os.path.exists(filename):
-        return mathtext_parser.get_depth(latex, dpi=120)
     orig_fontset = rcParams['mathtext.fontset']
     rcParams['mathtext.fontset'] = fontset
-    try:
-        depth = mathtext_parser.to_png(filename, latex, dpi=120)
-    except:
-        warnings.warn("Could not render math expression %s" % latex,
-                      Warning)
-        depth = 0
+    if os.path.exists(filename):
+        depth = mathtext_parser.get_depth(latex, dpi=120)
+    else:
+        print latex.encode("ascii", "backslashreplace")
+        try:
+            depth = mathtext_parser.to_png(filename, latex, dpi=120)
+        except:
+            warnings.warn("Could not render math expression %s" % latex,
+                          Warning)
+            depth = 0
     rcParams['mathtext.fontset'] = orig_fontset
     return depth
 
@@ -131,7 +133,6 @@ def latex2png(latex, filename, fontset='cm'):
 def latex2html(node, source):
     inline = isinstance(node.parent, nodes.TextElement)
     latex = node['latex']
-    print latex.encode("ascii", "backslashreplace")
     name = 'math-%s' % md5(latex).hexdigest()[-10:]
     dest = '_static/%s.png' % name
     depth = latex2png(latex, dest, node['fontset'])
