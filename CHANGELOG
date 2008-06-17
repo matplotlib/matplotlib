@@ -1,3 +1,6 @@
+2008-06-17 Add a generic PatchCollection class that can contain any
+           kind of patch. - MGD
+
 2008-06-13 Change pie chart label alignment to avoid having labels
            overwrite the pie - MGD
 
