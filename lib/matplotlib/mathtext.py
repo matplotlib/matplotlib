@@ -341,7 +341,7 @@ def MathtextBackendAgg():
 
 class MathtextBackendBitmapRender(MathtextBackendAggRender):
     def get_results(self, box):
-        return self.image
+        return self.image, self.depth
 
 def MathtextBackendBitmap():
     return MathtextBackendBbox(MathtextBackendBitmapRender())
@@ -2726,7 +2726,13 @@ class MathTextParser(object):
 
     def to_mask(self, texstr, dpi=120, fontsize=14):
         """
-        return an NxM uint8 alpha ubyte mask array of rasterized tex
+        Returns a tuple (*array*, *depth*)
+
+          - *array* is an NxM uint8 alpha ubyte mask array of
+            rasterized tex.
+
+          - depth is the offset of the baseline from the bottom of the
+            image in pixels.
 
         ''texstr''
             A valid mathtext string, eg r'IQ: $\sigma_i=15$'
@@ -2739,14 +2745,22 @@ class MathTextParser(object):
         """
         assert(self._output=="bitmap")
         prop = FontProperties(size=fontsize)
-        ftimage = self.parse(texstr, dpi=dpi, prop=prop)
+        ftimage, depth = self.parse(texstr, dpi=dpi, prop=prop)
 
         x = ftimage.as_array()
-        return x
+        return x, depth
 
     def to_rgba(self, texstr, color='black', dpi=120, fontsize=14):
         """
-        return an NxMx4 RGBA array of ubyte rasterized tex
+        Returns a tuple (*array*, *depth*)
+
+          - *array* is an NxMx4 RGBA array of ubyte rasterized tex.
+
+          - depth is the offset of the baseline from the bottom of the
+            image in pixels.
+
+        Returns a tuple (array, depth), where depth is the offset of
+        the baseline from the bottom of the image.
 
         ''texstr''
             A valid mathtext string, eg r'IQ: $\sigma_i=15$'
@@ -2760,7 +2774,7 @@ class MathTextParser(object):
         ''fontsize''
             The font size in points
         """
-        x = self.to_mask(texstr, dpi=dpi, fontsize=fontsize)
+        x, depth = self.to_mask(texstr, dpi=dpi, fontsize=fontsize)
 
         r, g, b = mcolors.colorConverter.to_rgb(color)
         RGBA = np.zeros((x.shape[0], x.shape[1], 4), dtype=np.uint8)
@@ -2768,10 +2782,14 @@ class MathTextParser(object):
         RGBA[:,:,1] = int(255*g)
         RGBA[:,:,2] = int(255*b)
         RGBA[:,:,3] = x
-        return RGBA
+        return RGBA, depth
 
     def to_png(self, filename, texstr, color='black', dpi=120, fontsize=14):
         """
+        Writes a tex expression to a PNG file.
+
+        Returns the offset of the baseline from the bottom of the
+        image in pixels.
 
         ''filename''
             A writable filename or fileobject
@@ -2790,7 +2808,27 @@ class MathTextParser(object):
 
             """
 
-        rgba = self.to_rgba(texstr, color=color, dpi=dpi, fontsize=fontsize)
+        rgba, depth = self.to_rgba(texstr, color=color, dpi=dpi, fontsize=fontsize)
         numrows, numcols, tmp = rgba.shape
-        return _png.write_png(rgba.tostring(), numcols, numrows, filename)
+        _png.write_png(rgba.tostring(), numcols, numrows, filename)
+        return depth
 
+    def get_depth(self, texstr, dpi=120, fontsize=14):
+        """
+        Returns the offset of the baseline from the bottom of the
+        image in pixels.
+
+        ''texstr''
+            A valid mathtext string, eg r'IQ: $\sigma_i=15$'
+
+        ''dpi''
+            The dots-per-inch to render the text
+
+        ''fontsize''
+            The font size in points
+
+            """
+        assert(self._output=="bitmap")
+        prop = FontProperties(size=fontsize)
+        ftimage, depth = self.parse(texstr, dpi=dpi, prop=prop)
+        return depth
