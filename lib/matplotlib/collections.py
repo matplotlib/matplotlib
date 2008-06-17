@@ -393,27 +393,31 @@ artist.kwdocd['Collection'] = """\
 class QuadMesh(Collection):
     """
     Class for the efficient drawing of a quadrilateral mesh.
-    A quadrilateral mesh consists of a grid of vertices. The dimensions
-    of this array are (meshWidth+1, meshHeight+1). Each vertex in
-    the mesh has a different set of "mesh coordinates" representing
-    its position in the topology of the mesh. For any values (m, n)
-    such that 0 <= m <= meshWidth and 0 <= n <= meshHeight, the
-    vertices at mesh coordinates (m, n), (m, n+1), (m+1, n+1), and
-    (m+1, n) form one of the quadrilaterals in the mesh. There are
-    thus (meshWidth * meshHeight) quadrilaterals in the mesh.
-    The mesh need not be regular and the polygons need not be convex.
-    A quadrilateral mesh is represented by a
-    (2 x ((meshWidth + 1) * (meshHeight + 1))) numpy array
-    'coordinates' where each row is the X and Y coordinates of one
-    of the vertices.
-    To define the function that maps from a data point to
-    its corresponding color, use the set_cmap() function.
-    Each of these arrays is indexed in row-major order by the
-    mesh coordinates of the vertex (or the mesh coordinates of
-    the lower left vertex, in the case of the colors). For example,
-    the first entry in coordinates is the coordinates of the vertex
-    at mesh coordinates (0, 0), then the one at (0, 1), then at
-    (0, 2) .. (0, meshWidth), (1, 0), (1, 1), and so on.
+
+    A quadrilateral mesh consists of a grid of vertices. The
+    dimensions of this array are (*meshWidth* + 1, *meshHeight* +
+    1). Each vertex in the mesh has a different set of "mesh
+    coordinates" representing its position in the topology of the
+    mesh. For any values (*m*, *n*) such that 0 <= *m* <= *meshWidth*
+    and 0 <= *n* <= *meshHeight*, the vertices at mesh coordinates
+    (*m*, *n*), (*m*, *n* + 1), (*m* + 1, *n* + 1), and (*m* + 1, *n*)
+    form one of the quadrilaterals in the mesh. There are thus
+    (*meshWidth* * *meshHeight*) quadrilaterals in the mesh.  The mesh
+    need not be regular and the polygons need not be convex.
+
+    A quadrilateral mesh is represented by a (2 x ((*meshWidth* + 1) *
+    (*meshHeight* + 1))) numpy array *coordinates*, where each row is
+    the *x* and *y* coordinates of one of the vertices.  To define the
+    function that maps from a data point to its corresponding color,
+    use the :meth:`set_cmap` method.  Each of these arrays is indexed in
+    row-major order by the mesh coordinates of the vertex (or the mesh
+    coordinates of the lower left vertex, in the case of the
+    colors).
+
+    For example, the first entry in *coordinates* is the
+    coordinates of the vertex at mesh coordinates (0, 0), then the one
+    at (0, 1), then at (0, 2) .. (0, meshWidth), (1, 0), (1, 1), and
+    so on.
     """
     def __init__(self, meshWidth, meshHeight, coordinates, showedges, antialiased=True):
         Collection.__init__(self)
@@ -441,6 +445,13 @@ class QuadMesh(Collection):
 
     #@staticmethod
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
+        """
+        Converts a given mesh into a sequence of
+        :class:`matplotlib.path.Path` objects for easier rendering by
+        backends that do not directly support quadmeshes.
+
+        This function is primarily of use to backend implementers.
+        """
         Path = mpath.Path
 
         c = coordinates
@@ -502,11 +513,11 @@ class PolyCollection(Collection):
     def __init__(self, verts, sizes = None, **kwargs):
         """
         *verts* is a sequence of ( *verts0*, *verts1*, ...) where
-        *verts_i* is a sequence of xy tuples of vertices, or an
-        equivalent :mod:`numpy` array of shape (nv,2).
+        *verts_i* is a sequence of *xy* tuples of vertices, or an
+        equivalent :mod:`numpy` array of shape (*nv*, 2).
 
         *sizes* gives the area of the circle circumscribing the
-        polygon in points^2
+        polygon in points^2.
 
         %(Collection)s
         """
@@ -534,16 +545,16 @@ class PolyCollection(Collection):
 
 class BrokenBarHCollection(PolyCollection):
     """
-    A collection of horizontal bars spanning yrange with a sequence of
-    xranges
+    A collection of horizontal bars spanning *yrange* with a sequence of
+    *xranges*.
     """
     def __init__(self, xranges, yrange, **kwargs):
         """
         *xranges*
-            sequence of (xmin, xwidth)
+            sequence of (*xmin*, *xwidth*)
 
         *yrange*
-            ymin, ywidth
+            *ymin*, *ywidth*
 
         %(Collection)s
         """
@@ -554,6 +565,7 @@ class BrokenBarHCollection(PolyCollection):
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 class RegularPolyCollection(Collection):
+    """Draw a collection of regular polygons with *numsides*."""
     _path_generator = mpath.Path.unit_regular_polygon
 
     def __init__(self,
@@ -562,21 +574,15 @@ class RegularPolyCollection(Collection):
                  sizes = (1,),
                  **kwargs):
         """
-        Draw a regular polygon with numsides.
-
-        *dpi*
-            the figure dpi instance, and is required to do the
-            area scaling.
-
         *numsides*
             the number of sides of the polygon
+
+        *rotation*
+            the rotation of the polygon in radians
 
         *sizes*
             gives the area of the circle circumscribing the
             regular polygon in points^2
-
-        *rotation*
-            the rotation of the polygon in radians
 
         %(Collection)s
 
@@ -619,10 +625,16 @@ class RegularPolyCollection(Collection):
 
 
 class StarPolygonCollection(RegularPolyCollection):
+    """
+    Draw a collection of regular stars with *numsides* points."""
+
     _path_generator = mpath.Path.unit_regular_star
 
 
 class AsteriskPolygonCollection(RegularPolyCollection):
+    """
+    Draw a collection of regular asterisks with *numsides* points."""
+
     _path_generator = mpath.Path.unit_regular_asterisk
 
 
@@ -630,8 +642,12 @@ class LineCollection(Collection, cm.ScalarMappable):
     """
     All parameters must be sequences or scalars; if scalars, they will
     be converted to sequences.  The property of the ith line
-    segment is the prop[i % len(props)], ie the properties cycle if
-    the len of props is less than the number of sements
+    segment is::
+
+       prop[i % len(props)]
+
+    i.e., the properties cycle if the ``len`` of props is less than the
+    number of segments.
     """
     zorder = 2
     def __init__(self, segments,     # Can be None.
@@ -648,7 +664,7 @@ class LineCollection(Collection, cm.ScalarMappable):
                  ):
         """
         *segments*
-            a sequence of ( *line0*, *line1*, *line2*), where::
+            a sequence of (*line0*, *line1*, *line2*), where::
 
                 linen = (x0, y0), (x1, y1), ... (xm, ym)
 
@@ -656,7 +672,7 @@ class LineCollection(Collection, cm.ScalarMappable):
             can be a different length.
 
         *colors*
-            must be a tuple of RGBA tuples (eg arbitrary color
+            must be a sequence of RGBA tuples (eg arbitrary color
             strings, etc, not allowed).
 
         *antialiaseds*
@@ -792,8 +808,9 @@ class PatchCollection(Collection):
             a sequence of Patch objects.  This list may include
             a heterogeneous assortment of different patch types.
 
-        *match_original* If True, use the colors and linewidths of the
-            original patches.  If False, new colors may be assigned by
+        *match_original*
+            If True, use the colors and linewidths of the original
+            patches.  If False, new colors may be assigned by
             providing the standard collection arguments, facecolor,
             edgecolor, linewidths, norm or cmap.
 

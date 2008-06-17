@@ -158,9 +158,9 @@ class Path(object):
     def iter_segments(self):
         """
         Iterates over all of the curve segments in the path.  Each
-        iteration returns a 2-tuple ``(vertices, code)``, where
-        vertices is a sequence of 1 - 3 coordinate pairs, and code is
-        one of the ``Path`` codes.
+        iteration returns a 2-tuple (*vertices*, *code*), where
+        *vertices* is a sequence of 1 - 3 coordinate pairs, and *code* is
+        one of the :class:`Path` codes.
         """
         vertices = self.vertices
         if not len(vertices):
