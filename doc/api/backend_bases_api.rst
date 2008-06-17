@@ -5,3 +5,4 @@
 .. automodule:: matplotlib.backend_bases
    :members:
    :undoc-members:
+   :show-inheritance:
