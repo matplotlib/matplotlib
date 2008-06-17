@@ -300,11 +300,13 @@ class Path(object):
 
         if transform is not None:
             transform = transform.frozen()
-            if self.codes is None:
-                return [transform.transform(self.vertices)]
-        else:
-            if self.codes is None:
+
+        if self.codes is None and width == 0 or height == 0:
+            if transform is None:
                 return [self.vertices]
+            else:
+                return [transform.transform(self.vertices)]
+
         # Deal with the case where there are curves and/or multiple
         # subpaths (using extension code)
         return convert_path_to_polygons(self, transform, width, height)
