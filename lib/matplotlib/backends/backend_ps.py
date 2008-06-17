@@ -151,14 +151,14 @@ class RendererPS(RendererBase):
         self.mathtext_parser = MathTextParser("PS")
 
         self._clip_paths = dict()
-        
+
     def track_characters(self, font, s):
         """Keeps track of which characters are required from
         each font."""
         realpath, stat_key = get_realpath_and_stat(font.fname)
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, Set()))
-        used_characters[1].update(s)
+        used_characters[1].update([ord(x) for x in s])
 
     def merge_used_characters(self, other):
         for stat_key, (realpath, set) in other.items():
@@ -1231,7 +1231,7 @@ class FigureCanvasPS(FigureCanvasBase):
                     cmap = font.get_charmap()
                     glyph_ids = []
                     for c in chars:
-                        gind = cmap.get(ord(c)) or 0
+                        gind = cmap.get(c) or 0
                         glyph_ids.append(gind)
                     # The ttf to ps (subsetting) support doesn't work for
                     # OpenType fonts that are Postscript inside (like the
