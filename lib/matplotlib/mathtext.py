@@ -842,10 +842,11 @@ class UnicodeFonts(TruetypeFonts):
             new_fontname = fontname
 
             if fontname == 'it':
-                unistring = unichr(uniindex)
-                if (not unicodedata.category(unistring)[0] == "L"
-                    or unicodedata.name(unistring).startswith("GREEK CAPITAL")):
-                    new_fontname = 'rm'
+                if uniindex < 0x10000:
+                    unistring = unichr(uniindex)
+                    if (not unicodedata.category(unistring)[0] == "L"
+                        or unicodedata.name(unistring).startswith("GREEK CAPITAL")):
+                        new_fontname = 'rm'
 
             slanted = (new_fontname == 'it') or sym in self._slanted_symbols
             found_symbol = False
