@@ -83,7 +83,7 @@ working with Sphinx in general. Here are a few additional things to keep in mind
 * Mathematical expressions can be rendered as png images in html, and in the
   usual way by latex. For example:
 
-  ``math:`\sin(x_n^2)``` yields: :math:`\sin(x_n^2)`, and::
+  ``:math:`\sin(x_n^2)``` yields: :math:`\sin(x_n^2)`, and::
 
     .. math::
 
