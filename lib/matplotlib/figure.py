@@ -1008,7 +1008,9 @@ class Figure(Artist):
     colorbar.__doc__ =  '''
         Create a colorbar for a ScalarMappable instance.
 
-        Documentation for the pylab thin wrapper: %s
+        Documentation for the pylab thin wrapper:
+        %s
+
         '''% cbar.colorbar_doc
 
     def subplots_adjust(self, *args, **kwargs):

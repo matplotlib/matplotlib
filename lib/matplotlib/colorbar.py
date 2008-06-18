@@ -89,6 +89,7 @@ colormap_kw_doc = '''
 '''
 
 colorbar_doc = '''
+
 Add a colorbar to a plot.
 
 Function signatures for the :mod:`~matplotlib.pyplot` interface; all
