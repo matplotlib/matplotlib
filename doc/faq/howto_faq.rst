@@ -1,8 +1,58 @@
 .. _howto-faq:
 
-*********
-HOWTO FAQ
-*********
+*****
+Howto
+*****
+
+.. _howto-subplots-adjust:
+
+How do I move the edge of my axes area over to make room for my tick labels?
+============================================================================
+
+For subplots, you can control the default spacing on the left, right,
+bottom, and top as well as the horizontal and vertical spacing between
+multiple rows and columns using the
+:meth:`matplotlib.figure.Figure.subplots_adjust` method (in pyplot it
+is :func:`~matplotlib.pyplot.subplots_adjust`).  For example, to move
+the bottom of the subplots up to make room for some rotated x tick
+labels::
+
+    fig = plt.figure()
+    fig.subplots_adjust(bottom=0.2)
+    ax = fig.add_subplot(111)
+
+You can control the defaults for these parameters in your
+:file:`matplotlibrc` file; see :ref:`customizing-matplotlib`.  For
+example, to make the above setting permanent, you would set::
+
+    figure.subplot.bottom : 0.2   # the bottom of the subplots of the figure
+
+The other parameters you can configure are, with their defaults
+
+*left*  = 0.125
+    the left side of the subplots of the figure
+*right* = 0.9
+    the right side of the subplots of the figure
+*bottom* = 0.1
+    the bottom of the subplots of the figure
+*top* = 0.9
+    the top of the subplots of the figure
+*wspace* = 0.2
+    the amount of width reserved for blank space between subplots
+*hspace* = 0.2
+    the amount of height reserved for white space between subplots
+
+If you want additional control, you can create an
+:class:`~matplotlib.axes.Axes` using the
+:func:`~matplotlib.pyplot.axes` command (or equivalently the figure
+:meth:`matplotlib.figure.Figure.add_axes` method), which allows you to
+specify the location explicitly::
+
+    ax = fig.add_axes([left, bottom, width, height])
+
+where all values are in fractional (0 to 1) coordinates.  See
+`axes_demo.py <http://matplotlib.sf.net/examples/axes_demo.py>`_ for
+an example of placing axes manually.
 
 .. _howto-ticks:
 
