@@ -101,6 +101,7 @@ but the first are also method signatures for the
   colorbar(mappable, ax=ax, **kwargs)
 
 arguments:
+
   *mappable*
     the image, :class:`~matplotlib.contours.ContourSet`, etc. to
     which the colorbar applies; this argument is mandatory for the
@@ -109,6 +110,7 @@ arguments:
     default to the current image.
 
 keyword arguments:
+
   *cax*
     None | axes object into which the colorbar will be drawn
   *ax*
@@ -117,6 +119,7 @@ keyword arguments:
 
 
 Additional keyword arguments are of two kinds:
+
   axes properties:
 %s
   colorbar properties:
