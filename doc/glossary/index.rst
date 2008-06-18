@@ -13,14 +13,14 @@ Glossary
 
   Cairo
       The Cairo graphics engine
-      
+
   EPS
       Encapsulated Postscript
 
   FLTK
       FLTK (pronounced "fulltick") is a cross-platform C++ GUI toolkit for
       UNIX/Linux (X11), Microsoft Windows, and MacOS X
-      
+
   GDK
       The Gimp Drawing Kit for GTK+
 
@@ -32,7 +32,7 @@ Glossary
 
   PDF
       Adobe's Portable Document Format
-      
+
   PNG
       PNG stands for Portable Network Graphics, a raster graphics format that
       employs lossless data compression which is more suitable for line art
@@ -45,16 +45,16 @@ Glossary
   Qt
       Qt is a cross-platform application framework for desktop and embedded
       development.
-  
+
   Qt4
       Qt4 is the most recent version of Qt cross-platform application framework
       for desktop and embedded development.
-      
+
   raster graphics
       Raster graphics, or bitmaps, represent an image as an array of pixels
       which is resolution dependent. Raster graphics are generally most
       practical for photo-realistic images, but do not scale easily without
-      loss of quality.
+      loss of quality.  See `raster graphics <http://en.wikipedia.org/wiki/Raster_graphics>`_
 
   SVG
       The Scalable Vector Graphics format.
@@ -69,7 +69,7 @@ Glossary
 
   wxWidgets
       A cross-platform GUI and tools library for GTK, MS Windows, and MacOS.
-      
+
   vector graphics
       The use of geometrical primitives based upon mathematical equations to
       represent images in computer graphics. Primitives can include points,
@@ -77,4 +77,4 @@ Glossary
       which means that they can be resized without suffering from issues
       related to inherent resolution like are seen in raster graphics. Vector
       graphics are generally most practical for typesetting and graphic design
-      applications.
+      applications.  See `vector graphics <http://en.wikipedia.org/wiki/Vector_graphics>`_

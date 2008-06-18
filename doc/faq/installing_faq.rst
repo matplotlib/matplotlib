@@ -1,8 +1,9 @@
 .. _installing-faq:
 
-******************
- Installation FAQ
-******************
+*************
+ Installation
+*************
+
 
 
 How do I report a compilation problem?
@@ -147,11 +148,13 @@ addition, some of the user interfaces support other rendering engines.
 For example, with GTK, you can also select GDK rendering (backend
 ``GTK``) or Cairo rendering (backend ``GTKCairo``).
 
-For the rendering engines, one can also distinguish between vector or
-raster renderers.  Vector issue drawing commands like "draw a line
-from this point to this point" and hence are scale free, and raster
-backends generate a pixel represenation of the line whose accuracy
-depends on a DPI setting.
+For the rendering engines, one can also distinguish between `vector
+<http://en.wikipedia.org/wiki/Vector_graphics>`_ or `raster
+<http://en.wikipedia.org/wiki/Raster_graphics>`_ renderers.  Vector
+graphics languages issue drawing commands like "draw a line from this
+point to this point" and hence are scale free, and raster backends
+generate a pixel represenation of the line whose accuracy depends on a
+DPI setting.
 
 Here is a summary of the matplotlib renderers (there is an eponymous
 backed for each):
@@ -172,7 +175,7 @@ SVG             :term:`svg`    :term:`vector graphics` --
 	        :term:`pdf`
 	        :term:`svg`
 	        ...
-:term:`GDK`     :term:`png`    :term:`raster graphics` -- 
+:term:`GDK`     :term:`png`    :term:`raster graphics` --
                 :term:`jpg`    the `Gimp Drawing Kit`_
 	        :term:`tiff`
 	        ...

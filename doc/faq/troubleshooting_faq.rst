@@ -1,8 +1,8 @@
 .. _troubleshooting-faq:
 
-*******************
-Troubleshooting FAQ
-*******************
+***************
+Troubleshooting
+***************
 
 .. _matplotlib-version:
 
