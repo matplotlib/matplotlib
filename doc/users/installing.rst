@@ -14,18 +14,18 @@ installing matplotlib. Windows users only need the first two (python
 and numpy) since the others are built into the matplotlib windows
 installers available for download at the sourceforge site.
 
-python 2.4 (or later but not python3)
-    matplotlib requires python 2.4 or later
+:term:`python` 2.4 (or later but not python3)
+    matplotlib requires python 2.4 or later (`download <http://www.python.org/download/>`__)
 
-numpy 1.1 (or later)
-    array support for python
+:term:`numpy` 1.1 (or later)
+    array support for python (`download <http://sourceforge.net/project/showfiles.php?group_id=1369&package_id=175103>`__)
 
 libpng 1.1 (or later)
-    library for loading and saving PNG files. libpng requires zlib. If
+    library for loading and saving :term:`PNG` files (`download <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires zlib. If
     you are a windows user, you can ignore this since we build support
-    into the matplotlib single click installer.
+    into the matplotlib single click installer
 
-freetype 1.4 (or later)
+:term:`freetype` 1.4 (or later)
     library for reading true type font files. If you are a windows
     user, you can ignore this since we build support into the
     matplotlib single click installer.
@@ -37,25 +37,25 @@ matplotlib with a user interface toolkit. See
 :ref:`what-is-a-backend` for more details on the optional matplotlib
 backends and the capabilities they provide
 
-tk 8.3 or later
+:term:`tk` 8.3 or later
     The TCL/Tk widgets library used by the TkAgg backend
 
-pyqt 3.1 or later
+:term:`pyqt` 3.1 or later
     The Qt3 widgets library python wrappers for the QtAgg backend
 
-pyqt 4.0 or later
+:term:`pyqt` 4.0 or later
     The Qt4 widgets library python wrappersfor the Qt4Agg backend
 
-pygtk 2.2 or later
+:term:`pygtk` 2.2 or later
     The python wrappers for the GTK widgets library for use with the GTK or GTKAgg backend
 
-wxpython 2.6 or later
+:term:`wxpython` 2.6 or later
     The python wrappers for the wx widgets library for use with the WXAgg backend
 
-wxpython 2.8 or later
+:term:`wxpython` 2.8 or later
     The python wrappers for the wx widgets library for use with the WX backend
 
-pyfltk 1.0 or later
+:term:`pyfltk` 1.0 or later
     The python wrappers of the FLTK widgets library for use with FLTKAgg
 
 **Required libraries that ship with matplotlib**
@@ -65,7 +65,7 @@ subversion, you can ignore this section. This is useful for matplotlib
 developers and packagers who may want to disable the matplotlib
 version and ship a packaged version.
 
-agg2.4
+:term:`agg` 2.4
     The antigrain C++ rendering engine
 
 pytz 2007g or later

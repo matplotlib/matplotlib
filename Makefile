@@ -39,7 +39,7 @@ jdh_doc_snapshot:
 	rm -rf build;\
 	python make.py clean;\
 	svn up;\
-	python make.py html latex sf;
+	python make.py html latex sf sfpdf;
 
 
 
