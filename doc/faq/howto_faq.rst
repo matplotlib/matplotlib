@@ -113,6 +113,24 @@ are ``markerfacecolor``, ``markeredgecolor``, ``markeredgewidth``,
 ``markersize``.  For more information on configuring ticks, see
 :ref:`axis-container` and :ref:`tick-container`.
 
+
+.. _howto-align-label:
+
+How do I align my ylabels across multiple subplots?
+===================================================
+
+If you have multiple subplots over one another, and the y data have
+different scales, you can often get ylabels that do not align
+vertically across the multiple subplots, which can be unattractive.
+By default, matplotlib positions the x location of the ylabel so that
+it does not overlap any of the y ticks.  You can override this default
+behavior by specifying the coordinates of the label.  The example
+below shows the default behavior in the left subplots, and the manual
+setting in the right subplots.
+
+.. plot:: align_ylabels.py
+   :include-source:
+
 .. _howto-webapp:
 
 How do I use matplotlib in a web application server?
