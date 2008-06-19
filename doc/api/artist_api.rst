@@ -2,6 +2,8 @@
 matplotlib artists
 *******************
 
+.. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
+
 :mod:`matplotlib.artist`
 =============================
 

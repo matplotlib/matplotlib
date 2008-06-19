@@ -2,6 +2,8 @@
  Working with transformations
 ==============================
 
+.. inheritance-diagram:: matplotlib.transforms matplotlib.path
+
 :mod:`matplotlib.transforms`
 =============================
 
