@@ -13,6 +13,7 @@
     :maxdepth: 2
 
     intro.rst
+    installing.rst
     pyplot_tutorial.rst
     navigation_toolbar.rst
     customizing.rst
