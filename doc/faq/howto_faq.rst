@@ -4,6 +4,9 @@
 Howto
 *****
 
+.. contents::
+
+
 .. _howto-subplots-adjust:
 
 How do I move the edge of my axes area over to make room for my tick labels?
