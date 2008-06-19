@@ -4,6 +4,8 @@
 Troubleshooting
 ***************
 
+.. contents::
+
 .. _matplotlib-version:
 
 What is my matplotlib version?

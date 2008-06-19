@@ -4,6 +4,8 @@
 Environment Variables
 *********************
 
+.. contents::
+
 .. envvar:: HOME
 
   The user's home directory. On linux, :envvar:`~ <HOME>` is shorthand for :envvar:`HOME`.

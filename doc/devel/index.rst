@@ -14,6 +14,7 @@
 
    coding_guide.rst
    documenting_mpl.rst
+   release_guide.rst
    transformations.rst
    add_new_projection.rst
    outline.rst
