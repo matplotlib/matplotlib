@@ -17,7 +17,11 @@ def check_build():
 def sf():
     'push a copy to the sf site'
     os.system('cd build; rsync -avz html jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/doc/ -essh')
-    os.system('cd build/latex; scp Matplotlib.pdf jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/doc/')
+
+def sfpdf():
+    'push a copy to the sf site'
+
+    #os.system('cd build/latex; scp Matplotlib.pdf jdh2358@matplotlib.sf.net:/home/groups/m/ma/matplotlib/htdocs/doc/')
 
 def figs():
     os.system('cd users/figures/ && python make.py')
@@ -73,6 +77,7 @@ funcd = {'figs':figs,
          'latex':latex,
          'clean':clean,
          'sf':sf,
+         'sfpdf':sfpdf,
          'all':all,
          }
 

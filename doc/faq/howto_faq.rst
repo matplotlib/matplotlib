@@ -54,6 +54,40 @@ where all values are in fractional (0 to 1) coordinates.  See
 `axes_demo.py <http://matplotlib.sf.net/examples/axes_demo.py>`_ for
 an example of placing axes manually.
 
+.. _howto-auto-adjust:
+
+How do I automatically make room for my tick labels?
+====================================================
+
+In most use cases, it is enought to simpy change the subplots adjust
+parameters as described in :ref:`howto-subplots-adjust`.  But in some
+cases, you don't know ahead of time what your tick labels will be, or
+how large they will be (data and labels outside your control may be
+being fed into your graphing application), and you may need to
+automatically adjust your subplot parameters based on the size of the
+tick labels.  Any :class:`matplotlib.text.Text` instance can report
+its extent in window coordinates (a negative x coordinate is outside
+the window), but there is a rub.
+
+The :class:`matplotlib.backend_bases.RendererBase` instance, which is
+used to calculate the text size, is not known until the figure is
+drawn (:meth:`matplotlib.figure.Figure.draw`).  After the window is
+drawn and the text instance knows its renderer, you can call
+:meth:`matplotlib.text.Text.get_window_extent``.  One way to solve
+this chicken and egg problem is to wait until the figure is draw by
+connecting
+(:meth:`matplotlib.backend_bases.FigureCanvasBase.mpl_connect`) to the
+"on_draw" signal (:class:`~matplotlib.backend_bases.DrawEvent`) and
+get the window extent there, and then do something with it, eg move
+the left of the canvas over; see :ref:`event-handling-tutorial`.
+
+Here is a recursive, iterative solution that will gradually move the
+left of the subplot over until the label fits w/o going outside the
+figure border (requires matplotlib 0.98)
+
+.. plot:: auto_subplots_adjust.py
+   :include-source:
+
 .. _howto-ticks:
 
 How do I configure the tick linewidths?
