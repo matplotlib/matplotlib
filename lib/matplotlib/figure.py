@@ -354,10 +354,10 @@ class Figure(Artist):
 
     def suptitle(self, t, **kwargs):
         """
-        add a centered title to the figure
+        Add a centered title to the figure.
 
         kwargs are :class:`matplotlib.text.Text` properties.  Using figure
-        coordinates, the defaults are
+        coordinates, the defaults are::
 
           *x* = 0.5
               the x location of text in figure coords
@@ -368,7 +368,7 @@ class Figure(Artist):
           *verticalalignment* = 'top'
               the vertical alignment of the text
 
-        The :class:`matplotlib.text.Text` instance is returned
+        A :class:`matplotlib.text.Text` instance is returned.
 
         Example::
 
@@ -421,43 +421,45 @@ class Figure(Artist):
 
           figimage(X, **kwargs)
 
-        adds non-resampled array to the figure.
+        adds a non-resampled array *X* to the figure.
 
         ::
 
           figimage(X, xo, yo)
 
-        with pixel offsets xo, yo,
+        with pixel offsets *xo*, *yo*,
 
-        X must be a float array:
+        *X* must be a float array:
 
-        * If X is MxN, assume luminance (grayscale)
-        * If X is MxNx3, assume RGB
-        * If X is MxNx4, assume RGBA
+        * If *X* is MxN, assume luminance (grayscale)
+        * If *X* is MxNx3, assume RGB
+        * If *X* is MxNx4, assume RGBA
 
         Optional keyword arguments:
 
           =========   ==========================================================
           Keyword     Description
           =========   ==========================================================
-          xo or yo    An integer, the x and y image offset in pixels
-          cmap        a cm colormap instance, eg cm.jet.  If None, default to
-                      the rc image.cmap value
-          norm        a matplotlib.colors.Normalize instance. The default is
-                      normalization().  This scales luminance -> 0-1
+          xo or yo    An integer, the *x* and *y* image offset in pixels
+          cmap        a :class:`matplotlib.cm.ColorMap` instance, eg cm.jet.
+                      If None, default to the rc ``image.cmap`` value
+          norm        a :class:`matplotlib.colors.Normalize` instance. The
+                      default is normalization().  This scales luminance -> 0-1
           vmin|vmax   are used to scale a luminance image to 0-1.  If either is
                       None, the min and max of the luminance values will be
                       used.  Note if you pass a norm instance, the settings for
-                      vmin and vmax will be ignored.
+                      *vmin* and *vmax* will be ignored.
           alpha       the alpha blending value, default is 1.0
           origin      [ 'upper' | 'lower' ] Indicates where the [0,0] index of
                       the array is in the upper left or lower left corner of
                       the axes. Defaults to the rc image.origin value
           =========   ==========================================================
 
-        figimage complements the axes image (Axes.imshow) which will be
-        resampled to fit the current axes.  If you want a resampled image to
-        fill the entire figure, you can define an Axes with size [0,1,0,1].
+        figimage complements the axes image
+        (:meth:`~matplotlib.axes.Axes.imshow`) which will be resampled
+        to fit the current axes.  If you want a resampled image to
+        fill the entire figure, you can define an
+        :class:`~matplotlib.axes.Axes` with size [0,1,0,1].
 
         An :class:`matplotlib.image.FigureImage` instance is returned.
         """
@@ -900,10 +902,12 @@ class Figure(Artist):
 
     def text(self, x, y, s, *args, **kwargs):
         """
-        Add text to figure at location x,y (relative 0-1 coords) See
-        the help for Axis text for the meaning of the other arguments
+        Add text to figure at location *x*, *y* (relative 0-1
+        coords). See :func:`~matplotlib.pyplot.text` for the meaning
+        of the other arguments.
 
         kwargs control the :class:`~matplotlib.text.Text` properties:
+
         %(Text)s
         """
 
@@ -955,30 +959,36 @@ class Figure(Artist):
 
         Save the current figure.
 
+        The output formats available depend on the backend being used.
+
         Arguments:
 
-          fname:
-            the filename to save the current figure to.  The output
-            formats supported depend on the backend being used.  and
-            are deduced by the extension to fname. Possibilities are eps,
-            jpeg, pdf, png, ps, svg.  fname can also be a file or file-like
-            object - cairo backend only.
+          *fname*:
+            A string containing a path to a filename, or a Python file-like object.
+
+            If *format* is *None* and *fname* is a string, the output
+            format is deduced from the extension of the filename.
 
         Keyword arguments:
 
-          dpi: [ None | scalar > 0 ]
-            The resolution in dots per inch.  If None it will default to
-            the value savefig.dpi in the matplotlibrc file.
-          facecolor, edgecolor:
+          *dpi*: [ None | scalar > 0 ]
+            The resolution in dots per inch.  If *None* it will default to
+            the value ``savefig.dpi`` in the matplotlibrc file.
+
+          *facecolor*, *edgecolor*:
             the colors of the figure rectangle
-          orientation: [ 'landscape' | 'portrait' ]
+
+          *orientation*: [ 'landscape' | 'portrait' ]
             not supported on all backends; currently only on postscript output
-          papertype:
+
+          *papertype*:
             One of 'letter', 'legal', 'executive', 'ledger', 'a0' through
             'a10', 'b0' through 'b10'. Only supported for postscript
-            output
-          format:
-            one of the file extensions supported by the active backend.
+            output.
+
+          *format*:
+            One of the file extensions supported by the active
+            backend.  Most backends support png, pdf, ps, eps and svg.
         """
 
         for key in ('dpi', 'facecolor', 'edgecolor'):
@@ -1044,10 +1054,15 @@ class Figure(Artist):
 
         Blocking call to interact with the figure.
 
-        This will wait for n clicks from the user and return a list of the
-        coordinates of each click. If timeout is negative, does not
-        timeout. If n is negative, accumulate clicks until a middle
-        click terminates the input. Right clicking cancels last input.
+        This will wait for *n* clicks from the user and return a list of the
+        coordinates of each click.
+
+        If *timeout* is negative, does not timeout.
+
+        If *n* is negative, accumulate clicks until a middle click
+        terminates the input.
+
+        Right clicking cancels last input.
         """
 
         blocking_mouse_input = BlockingMouseInput(self)

@@ -668,15 +668,16 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
 
 def imread(fname):
     """
-    return image file in fname as numpy array
+    Return image file in *fname* as :class:`numpy.array`.
 
-    return value is a numpy array.  For grayscale images, the return
-    array is MxN.  For RGB images, the return value is MxNx3.  For
-    RGBA images the return value is MxNx4
+    Return value is a :class:`numpy.array`.  For grayscale images, the
+    return array is MxN.  For RGB images, the return value is MxNx3.
+    For RGBA images the return value is MxNx4.
 
-    matplotlib can only read PNGs natively, but if PIL is installed,
-    it will use it to load the image and return an array (if possible)
-    which can be used with imshow
+    matplotlib can only read PNGs natively, but if `PIL
+    <http://www.pythonware.com/products/pil/>`_ is installed, it will
+    use it to load the image and return an array (if possible) which
+    can be used with :func:`~matplotlib.pyplot.imshow`.
 
     TODO: support RGB and grayscale return values in _image.readpng
     """

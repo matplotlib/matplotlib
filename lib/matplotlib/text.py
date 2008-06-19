@@ -985,12 +985,12 @@ class Annotation(Text):
                  arrowprops=None,
                  **kwargs):
         """
-        Annotate the x,y point xy with text s at x,y location xytext
-        (xytext if None defaults to xy and textcoords if None defaults
-        to xycoords).
+        Annotate the *x*, *y* point *xy* with text *s* at *x*, *y* location *xytext*.
+        (If *xytext* = *None*, defaults to *xy*, and if *textcoords* = *None*, defaults
+        to *xycoords*).
 
-        arrowprops, if not None, is a dictionary of line properties
-        (see matplotlib.lines.Line2D) for the arrow that connects
+        *arrowprops*, if not *None*, is a dictionary of line properties
+        (see :class:`matplotlib.lines.Line2D`) for the arrow that connects
         annotation to the point.   Valid keys are
 
         =========   ===========================================================
@@ -999,17 +999,17 @@ class Annotation(Text):
         width       the width of the arrow in points
         frac        the fraction of the arrow length occupied by the head
         headwidth   the width of the base of the arrow head in points
-        shrink      often times it is convenient to have the arrowtip
+        shrink      oftentimes it is convenient to have the arrowtip
                     and base a bit away from the text and point being
-                    annotated.  If d is the distance between the text and
+                    annotated.  If *d* is the distance between the text and
                     annotated point, shrink will shorten the arrow so the tip
-                    and base are shink percent of the distance d away from the
-                    endpoints.  ie, shrink=0.05 is 5%%
-        ?           any key for matplotlib.patches.polygon
+                    and base are shink percent of the distance *d* away from the
+                    endpoints.  ie, ``shrink=0.05 is 5%%``
+        ?           any key for :class:`matplotlib.patches.polygon`
         =========   ===========================================================
 
-        xycoords and textcoords are strings that indicate the
-        coordinates of xy and xytext.
+        *xycoords* and *textcoords* are strings that indicate the
+        coordinates of *xy* and *xytext*.
 
         =================   ===================================================
              Property                           Description
@@ -1022,18 +1022,19 @@ class Annotation(Text):
         'axes fraction'     0,1 is lower left of axes and 1,1 is upper right
         'data'              use the coordinate system of the object being
                             annotated (default)
-        'offset points'     Specify an offset (in points) from the xy value
-        'polar'             you can specify theta, r for the annotation, even
-                            in cartesian plots.  Note that if you
+        'offset points'     Specify an offset (in points) from the *xy* value
+
+        'polar'             you can specify *theta*, *r* for the annotation,
+                            even in cartesian plots.  Note that if you
                             are using a polar axes, you do not need
                             to specify polar for the coordinate
                             system since that is the native "data" coordinate
                             system.
         =================   ===================================================
 
-        If a points or pixels option is specified, values will be
-        added to the left, bottom and if negative, values will be
-        subtracted from the top, right.  Eg::
+        If a 'points' or 'pixels' option is specified, values will be
+        added to the bottom-left and if negative, values will be
+        subtracted from the top-right.  Eg::
 
           # 10 points to the right of the left border of the axes and
           # 5 points below the top border

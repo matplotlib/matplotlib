@@ -684,11 +684,11 @@ rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
 
 def rc(group, **kwargs):
     """
-    Set the current rc params.  Group is the grouping for the rc, eg
-    for lines.linewidth the group is 'lines', for axes.facecolor, the
-    group is 'axes', and so on.  Group may also be a list or tuple
-    of group names, eg ('xtick','ytick').  kwargs is a list of
-    attribute name/value pairs, eg::
+    Set the current rc params.  Group is the grouping for the rc, eg.
+    for ``lines.linewidth`` the group is ``lines``, for
+    ``axes.facecolor``, the group is ``axes``, and so on.  Group may
+    also be a list or tuple of group names, eg. (*xtick*, *ytick*).
+    *kwargs* is a dictionary attribute name/value pairs, eg::
 
       rc('lines', linewidth=2, color='r')
 
@@ -728,7 +728,8 @@ def rc(group, **kwargs):
       rc('font', **font)  # pass in the font dict as kwargs
 
     This enables you to easily switch between several configurations.
-    Use rcdefaults to restore the default rc params after changes.
+    Use :func:`~matplotlib.pyplot.rcdefaults` to restore the default
+    rc params after changes.
     """
 
     aliases = {
@@ -756,7 +757,7 @@ def rc(group, **kwargs):
 def rcdefaults():
     """
     Restore the default rc params - the ones that were created at
-    matplotlib load time
+    matplotlib load time.
     """
     rcParams.update(rcParamsDefault)
 

@@ -55,8 +55,8 @@ Easy Install
 
      easy_install -m PackageName
 
-3. Delete any .egg files or directories from your `installation directory
-   <locating-matplotlib-install>`.
+3. Delete any .egg files or directories from your :ref:`installation
+   directory <locating-matplotlib-install>`.
 
 
 Windows installer

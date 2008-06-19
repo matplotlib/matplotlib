@@ -41,12 +41,12 @@ new_figure_manager, draw_if_interactive, show = pylab_setup()
 def switch_backend(newbackend):
     """
     Switch the default backend to newbackend.  This feature is
-    EXPERIMENTAL, and is only expected to work switching to an image
-    backend.  Eg, if you have a bunch of PS scripts that you want to
-    run from an interactive ipython session, you may want to switch to
-    the PS backend before running them to avoid having a bunch of GUI
-    windows popup.  If you try to interactively switch from one GUI
-    backend to another, you will explode.
+    **experimental**, and is only expected to work switching to an
+    image backend.  Eg, if you have a bunch of PostScript scripts that
+    you want to run from an interactive ipython session, you may want
+    to switch to the PS backend before running them to avoid having a
+    bunch of GUI windows popup.  If you try to interactively switch
+    from one GUI backend to another, you will explode.
 
     Calling this command will close all open windows.
     """
@@ -65,11 +65,11 @@ def isinteractive():
     return matplotlib.is_interactive()
 
 def ioff():
-    'turn interactive mode off'
+    'Turn interactive mode off.'
     matplotlib.interactive(False)
 
 def ion():
-    'turn interactive mode on'
+    'Turn interactive mode on.'
     matplotlib.interactive(True)
 
 def rc(*args, **kwargs):
@@ -87,11 +87,15 @@ if matplotlib.rcdefaults.__doc__ is not None:
 # per-pylab-session basis:
 def gci():
     """
-    get the current ScalarMappable instance (image or patch
-    collection), or None if no images or patch collections have been
-    defined.  The commands imshow and figimage create images
-    instances, and the commands pcolor and scatter create patch
-    collection instances
+    Get the current :class:`~matplotlib.cm.ScalarMappable` instance
+    (image or patch collection), or *None* if no images or patch
+    collections have been defined.  The commands
+    :func:`~matplotlib.pyplot.imshow` and
+    :func:`~matplotlib.pyplot.figimage` create
+    :class:`~matplotlib.image.Image` instances, and the commands
+    :func:`~matplotlib.pyplot.pcolor` and
+    :func:`~matplotlib.pyplot.scatter` create
+    :class:`~matplotlib.collections.Collection` instances.
     """
     return gci._current
 gci._current = None
@@ -99,7 +103,9 @@ gci._current = None
 
 def sci(im):
     """
-    Set the current image (target of colormap commands like jet, hot or clim)
+    Set the current image (target of colormap commands like
+    :func:`~matplotlib.pyplot.jet`, :func:`~matplotlib.pyplot.hot` or
+    :func:`~matplotlib.pyplot.clim`).
     """
     gci._current = im
 
@@ -137,12 +143,13 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
       figure(num = None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
 
 
-    Create a new figure and return a handle to it.  If num=None, the figure
-    number will be incremented and a new figure will be created.  The returned
-    figure objects have a .number attribute holding this number.
+    Create a new figure and return a :class:`matplotlib.figure.Figure`
+    instance.  If *num* = *None*, the figure number will be incremented and
+    a new figure will be created.  The returned figure objects have a
+    *number* attribute holding this number.
 
-    If num is an integer, and figure(num) already exists, make it
-    active and return the handle to it.  If figure(num) does not exist
+    If *num* is an integer, and ``figure(num)`` already exists, make it
+    active and return the handle to it.  If ``figure(num)`` does not exist
     it will be created.  Numbering starts at 1, matlab style::
 
       figure(1)
@@ -165,10 +172,11 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     rcParams defines the default values, which can be modified in the
     matplotlibrc file
 
-    FigureClass is a Figure or derived class that will be passed on to
-    new_figure_manager in the backends which allows you to hook custom
-    Figureclasses into the pylab interface.  Additional kwargs will be
-    passed on to your figure init function
+    *FigureClass* is a :class:`~matplotlib.figure.Figure` or derived
+    class that will be passed on to :meth:`new_figure_manager` in the
+    backends which allows you to hook custom Figure classes into the
+    pylab interface.  Additional kwargs will be passed on to your
+    figure init function.
     """
 
     if figsize is None   : figsize   = rcParams['figure.figsize']
@@ -201,7 +209,7 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     return figManager.canvas.figure
 
 def gcf():
-    "Return a handle to the current figure"
+    "Return a handle to the current figure."
 
     figManager = _pylab_helpers.Gcf.get_active()
     if figManager is not None:
@@ -232,13 +240,13 @@ def close(*args):
     """
     Close a figure window
 
-    close() by itself closes the current figure
+    ``close()`` by itself closes the current figure
 
-    close(num) closes figure number num
+    ``close(num)`` closes figure number *num*
 
-    close(h) where h is a figure handle(instance) closes that figure
+    ``close(h)`` where *h* is a :class:`Figure` instance, closes that figure
 
-    close('all') closes all the figure windows
+    ``close('all')`` closes all the figure windows
     """
 
     if len(args)==0:
@@ -283,10 +291,10 @@ def ginput(*args, **kwargs):
     """
     Blocking call to interact with the figure.
 
-    This will wait for n clicks from the user and return a list of the
+    This will wait for *n* clicks from the user and return a list of the
     coordinates of each click.
 
-    If timeout is negative, does not timeout.
+    If *timeout* is negative, does not timeout.
     """
     return gcf().ginput(*args, **kwargs)
 if Figure.ginput.__doc__ is not None:
@@ -322,10 +330,18 @@ Addition kwargs: hold = [True|False] overrides default hold state"""
 
 def figlegend(handles, labels, loc, **kwargs):
     """
-    Place a legend in the figure.  Labels are a sequence of
-    strings, handles is a sequence of line or patch instances, and
-    loc can be a string r an integer specifying the legend
-    location
+    Place a legend in the figure.
+
+    *labels*
+      a sequence of strings
+
+    *handles*
+      a sequence of :class:`~matplotlib.lines.Line2D` or
+      :class:`~matplotlib.patches.Patch` instances
+
+    *loc*
+      can be a string or an integer specifying the legend
+      location
 
     Example::
 
@@ -333,9 +349,10 @@ def figlegend(handles, labels, loc, **kwargs):
                  ('label1', 'label2', 'label3'),
                  'upper right' )
 
-    See help(legend) for information about the location codes
+    See :func:`~matplotlib.pyplot.legend` for information about the
+    location codes
 
-    A matplotlib.legend.Legend instance is returned
+    A :class:`matplotlib.legend.Legend` instance is returned.
     """
     l = gcf().legend(handles, labels, loc, **kwargs)
     draw_if_interactive()
@@ -347,17 +364,16 @@ def figlegend(handles, labels, loc, **kwargs):
 
 def hold(b=None):
     """
-    Set the hold state.  If hold is None (default), toggle the
-    hold state.  Else set the hold state to boolean value b.
+    Set the hold state.  If *b* is None (default), toggle the
+    hold state, else set the hold state to boolean value *b*::
 
-    Eg
-    hold()      # toggle hold
-    hold(True)  # hold is on
-    hold(False) # hold is off
+      hold()      # toggle hold
+      hold(True)  # hold is on
+      hold(False) # hold is off
 
-    When hold is True, subsequent plot commands will be added to the
-    current axes.  When hold is False, the current axes and figure
-    will be cleared on the next plot command
+    When *hold* is *True*, subsequent plot commands will be added to
+    the current axes.  When *hold* is *False*, the current axes and
+    figure will be cleared on the next plot command.
     """
 
     fig = gcf()
@@ -385,7 +401,7 @@ def over(func, *args, **kwargs):
 
       func(*args, **kwargs)
 
-    with hold(True) and then restores the hold state.
+    with ``hold(True)`` and then restores the hold state.
     """
     h = ishold()
     hold(True)
@@ -398,16 +414,16 @@ def over(func, *args, **kwargs):
 
 def axes(*args, **kwargs):
     """
-    Add an axes at positon rect specified by:
+    Add an axes at position rect specified by:
 
-    axes() by itself creates a default full subplot(111) window axis
+    - ``axes()`` by itself creates a default full ``subplot(111)`` window axis.
 
-    axes(rect, axisbg='w') where rect=[left, bottom, width, height] in
-    normalized (0,1) units.  axisbg is the background color for the
-    axis, default white
+    - ``axes(rect, axisbg='w')`` where *rect* = [left, bottom, width,
+      height] in normalized (0, 1) units.  *axisbg* is the background
+      color for the axis, default white.
 
-    axes(h) where h is an axes instance makes h the
-    current axis An Axes instance is returned
+    - ``axes(h)`` where *h* is an axes instance makes *h* the current
+      axis.  An :class:`~matplotlib.axes.Axes` instance is returned.
 
     =======   ============   ================================================
     kwarg     Accepts        Desctiption
@@ -421,8 +437,9 @@ def axes(*args, **kwargs):
 
     Examples:
 
-    * examples/axes_demo.py places custom axes.
-    * examples/shared_axis_demo.py uses sharex and sharey
+    * :file:`examples/pylab_examples/axes_demo.py` places custom axes.
+    * :file:`examples/pylab_examples/shared_axis_demo.py` uses
+      *sharex* and *sharey*.
 
     """
 
@@ -442,10 +459,10 @@ def axes(*args, **kwargs):
 
 def delaxes(*args):
     """
-    delaxes(ax) - remove ax from the current figure.  If ax doesn't
-    exist an error will be raised.
+    ``delaxes(ax)``: remove *ax* from the current figure.  If *ax*
+    doesn't exist, an error will be raised.
 
-    delaxes(): delete the current axes
+    ``delaxes()``: delete the current axes
     """
     if not len(args):
         ax = gca()
@@ -461,8 +478,9 @@ def delaxes(*args):
 def gca(**kwargs):
     """
     Return the current axis instance.  This can be used to control
-    axis properties either using set or the Axes methods, for example,
-    setting the xaxis range::
+    axis properties either using set or the
+    :class:`~matplotlib.axes.Axes` methods, for example, setting the
+    xaxis range::
 
       plot(t,s)
       set(gca(), 'xlim', [0,10])
@@ -482,30 +500,32 @@ def gca(**kwargs):
 
 def subplot(*args, **kwargs):
     """
-    Create a subplot command, creating axes with
+    Create a subplot command, creating axes with::
 
       subplot(numRows, numCols, plotNum)
 
-    where plotNum=1 is the first plot number and increasing plotNums
-    fill rows first.  max(plotNum)==numRows*numCols
+    where *plotNum* = 1 is the first plot number and increasing *plotNums*
+    fill rows first.  max(*plotNum*) == *numRows* * *numCols*
 
-    You can leave out the commas if numRows<=numCols<=plotNum<10, as
-    in
+    You can leave out the commas if *numRows* <= *numCols* <=
+    *plotNum* < 10, as in::
 
       subplot(211)    # 2 rows, 1 column, first (upper) plot
 
-    subplot(111) is the default axis
+    ``subplot(111)`` is the default axis.
 
     The background color of the subplot can be specified via keyword
-    argument 'axisbg', which takes a color string or gdk.Color as value, as in
+    argument *axisbg*, which takes a color string as value, as in::
 
-    subplot(211, axisbg='y')
+      subplot(211, axisbg='y')
 
-    See help(axes) for additional information on axes and subplot
-    keyword arguments.
+    See :func:`~matplotlib.pyplot.axes` for additional information on
+    :func:`axes` and :func:`subplot` keyword arguments.
 
     New subplots that overlap old will delete the old axes.  If you do
-    not want this behavior, use fig.add_subplot or the axes command.  Eg
+    not want this behavior, use
+    :meth:`matplotlib.figure.Figure.add_subplot` or the
+    :func:`~matplotlib.pyplot.axes` command.  Eg.::
 
       from pylab import *
       plot([1,2,3])  # implicitly creates subplot(111)
@@ -531,9 +551,11 @@ def subplot(*args, **kwargs):
 
 def twinx(ax=None):
     """
-    Make a second axes overlay ax (or the current axes if ax is None)
-    sharing the xaxis.  The ticks for ax2 will be placed on the right,
-    and the ax2 instance is returned.  See examples/two_scales.py
+    Make a second axes overlay *ax* (or the current axes if *ax* is
+    *None*) sharing the xaxis.  The ticks for *ax2* will be placed on
+    the right, and the *ax2* instance is returned.
+
+    See :file:`examples/pylab_examples/two_scales.py`
     """
     if ax is None:
         ax=gca()
@@ -543,9 +565,9 @@ def twinx(ax=None):
 
 def twiny(ax=None):
     """
-    Make a second axes overlay ax (or the current axes if ax is None)
-    sharing the yaxis.  The ticks for ax2 will be placed on the top,
-    and the ax2 instance is returned.
+    Make a second axes overlay *ax* (or the current axes if *ax* is
+    *None*) sharing the yaxis.  The ticks for *ax2* will be placed on
+    the top, and the *ax2* instance is returned.
     """
     if ax is None:
         ax=gca()
@@ -556,11 +578,14 @@ def twiny(ax=None):
 
 def subplots_adjust(*args, **kwargs):
     """
-    subplots_adjust(left=None, bottom=None, right=None, top=None,
-                    wspace=None, hspace=None)
+    call signature::
 
-    Tune the subplot layout via the figure.SubplotParams mechanism.
-    The parameter meanings (and suggested defaults) are
+      subplots_adjust(left=None, bottom=None, right=None, top=None,
+                      wspace=None, hspace=None)
+
+    Tune the subplot layout via the
+    :class:`matplotlib.figure.SubplotParams` mechanism.  The parameter
+    meanings (and suggested defaults) are::
 
       left  = 0.125  # the left side of the subplots of the figure
       right = 0.9    # the right side of the subplots of the figure
@@ -578,9 +603,9 @@ def subplots_adjust(*args, **kwargs):
 
 def subplot_tool(targetfig=None):
     """
-    Launch a subplot tool window for targetfig (default gcf)
+    Launch a subplot tool window for *targetfig* (default gcf).
 
-    A matplotlib.widgets.SubplotTool instance is returned
+    A :class:`matplotlib.widgets.SubplotTool` instance is returned.
     """
     tbar = rcParams['toolbar'] # turn off the navigation toolbar for the toolfig
     rcParams['toolbar'] = 'None'
@@ -603,9 +628,9 @@ def subplot_tool(targetfig=None):
 
 def box(on=None):
     """
-    Turn the axes box on or off according to 'on'
+    Turn the axes box on or off according to *on*.
 
-    If on is None, toggle state
+    If *on* is *None*, toggle state.
     """
     ax = gca()
     if on is None:
@@ -615,7 +640,7 @@ def box(on=None):
 
 def title(s, *args, **kwargs):
     """
-    Set the title of the current axis to s
+    Set the title of the current axis to *s*.
 
     Default font override is::
 
@@ -623,9 +648,8 @@ def title(s, *args, **kwargs):
                   'verticalalignment': 'bottom',
                   'horizontalalignment': 'center'}
 
-    See the text docstring for information of how override and the
-    optional args work
-
+    See the :func:`~matplotlib.pyplot.text` docstring for information
+    of how override and the optional args work.
     """
     l =  gca().set_title(s, *args, **kwargs)
     draw_if_interactive()
@@ -655,8 +679,8 @@ def axis(*v, **kwargs):
 
       >>> axis('equal')
 
-    changes limits of x or y axis so that equal increments of x and y have the
-    same length; a circle is circular.
+    changes limits of *x* or *y* axis so that equal increments of *x*
+    and *y* have the same length; a circle is circular.
 
       >>> axis('scaled')
 
@@ -665,10 +689,10 @@ def axis(*v, **kwargs):
 
       >>> axis('tight')
 
-    changes x and y axis limits such that all data is shown. If all data is
-    already shown, it will move it to the center of the figure without
-    modifying (xmax-xmin) or (ymax-ymin). Note this is slightly different than
-    in matlab.
+    changes *x* and *y* axis limits such that all data is shown. If
+    all data is already shown, it will move it to the center of the
+    figure without modifying (*xmax* - *xmin*) or (*ymax* -
+    *ymin*). Note this is slightly different than in matlab.
 
       >>> axis('image')
 
@@ -683,9 +707,9 @@ def axis(*v, **kwargs):
     are deprecated. They restore default behavior; axis limits are automatically
     scaled to make the data fit comfortably within the plot box.
 
-    if ``len(*v)==0``, you can pass in xmin, xmax, ymin, ymax as kwargs
-    selectively to alter just those limits w/o changing the others.
-    See help(xlim) and help(ylim) for more information
+    if ``len(*v)==0``, you can pass in *xmin*, *xmax*, *ymin*, *ymax*
+    as kwargs selectively to alter just those limits without changing
+    the others.  See :func:`xlim` and :func:`ylim` for more information
 
     The xmin, xmax, ymin, ymax tuple is returned
 
@@ -697,9 +721,9 @@ def axis(*v, **kwargs):
 
 def xlabel(s, *args, **kwargs):
     """
-    Set the x axis label of the current axis to s
+    Set the *x* axis label of the current axis to *s*
 
-    Default override is
+    Default override is::
 
       override = {
           'fontsize'            : 'small',
@@ -707,8 +731,8 @@ def xlabel(s, *args, **kwargs):
           'horizontalalignment' : 'center'
           }
 
-    See the text docstring for information of how override and
-    the optional args work
+    See :func:`~matplotlib.pyplot.text` for information of how
+    override and the optional args work
 
     """
     l =  gca().set_xlabel(s, *args, **kwargs)
@@ -717,9 +741,9 @@ def xlabel(s, *args, **kwargs):
 
 def ylabel(s, *args, **kwargs):
     """
-    Set the y axis label of the current axis to s
+    Set the *y* axis label of the current axis to *s*.
 
-    Defaults override is
+    Defaults override is::
 
         override = {
            'fontsize'            : 'small',
@@ -727,8 +751,8 @@ def ylabel(s, *args, **kwargs):
            'horizontalalignment' : 'right',
            'rotation'='vertical' : }
 
-    See the text docstring for information of how override and the
-    optional args work
+    See :func:`~matplotlib.pyplot.text` for information on how
+    override and the optional args work.
 
     """
     l = gca().set_ylabel(s, *args, **kwargs)
@@ -741,19 +765,19 @@ def ylabel(s, *args, **kwargs):
 
 def xlim(*args, **kwargs):
     """
-    Set/Get the xlimits of the current axes
+    Set/Get the xlimits of the current axes::
 
-    xmin, xmax = xlim()   : return the current xlim
-    xlim( (xmin, xmax) )  : set the xlim to xmin, xmax
-    xlim( xmin, xmax )    : set the xlim to xmin, xmax
+      xmin, xmax = xlim()   # return the current xlim
+      xlim( (xmin, xmax) )  # set the xlim to xmin, xmax
+      xlim( xmin, xmax )    # set the xlim to xmin, xmax
 
     If you do not specify args, you can pass the xmin and xmax as
-    kwargs, eg
+    kwargs, eg.::
 
       xlim(xmax=3) # adjust the max leaving min unchanged
       xlim(xmin=1) # adjust the min leaving max unchanged
 
-    The new axis limits are returned as a length 2 tuple
+    The new axis limits are returned as a length 2 tuple.
 
     """
     ax = gca()
@@ -764,20 +788,19 @@ def xlim(*args, **kwargs):
 
 def ylim(*args, **kwargs):
     """
-    Set/Get the ylimits of the current axes
+    Set/Get the ylimits of the current axes::
 
-    ymin, ymax = ylim()   : return the current ylim
-    ylim( (ymin, ymax) )  : set the ylim to ymin, ymax
-    ylim( ymin, ymax )    : set the ylim to ymin, ymax
+      ymin, ymax = ylim()   # return the current ylim
+      ylim( (ymin, ymax) )  # set the ylim to ymin, ymax
+      ylim( ymin, ymax )    # set the ylim to ymin, ymax
 
-    If you do not specify args, you can pass the ymin and ymax as
-    kwargs, eg
+    If you do not specify args, you can pass the *ymin* and *ymax* as
+    kwargs, eg.::
 
       ylim(ymax=3) # adjust the max leaving min unchanged
       ylim(ymin=1) # adjust the min leaving max unchanged
 
-    The new axis limits are returned as a length 2 tuple
-
+    The new axis limits are returned as a length 2 tuple.
     """
     ax = gca()
     ret = ax.set_ylim(*args, **kwargs)
@@ -787,8 +810,6 @@ def ylim(*args, **kwargs):
 
 def xscale(*args, **kwargs):
     """
-    SET_XSCALE(value)
-
     Set the scaling for the x-axis: %(scale)s
 
     Different keywords may be accepted, depending on the scale:
@@ -804,8 +825,6 @@ def xscale(*args, **kwargs):
 
 def yscale(*args, **kwargs):
     """
-    SET_YSCALE(value)
-
     Set the scaling for the y-axis: %(scale)s
 
     Different keywords may be accepted, depending on the scale:
@@ -821,20 +840,20 @@ def yscale(*args, **kwargs):
 
 def xticks(*args, **kwargs):
     """
-    Set/Get the xlimits of the current ticklocs, labels
+    Set/Get the xlimits of the current ticklocs and labels::
 
-    # return locs, labels where locs is an array of tick locations and
-    # labels is an array of tick labels.
-    locs, labels = xticks()
+      # return locs, labels where locs is an array of tick locations and
+      # labels is an array of tick labels.
+      locs, labels = xticks()
 
-    # set the locations of the xticks
-    xticks( arange(6) )
+      # set the locations of the xticks
+      xticks( arange(6) )
 
-    # set the locations and labels of the xticks
-    xticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
+      # set the locations and labels of the xticks
+      xticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
 
-    The keyword args, if any, are text properties; see text for more
-    information on text properties.
+    The keyword args, if any, are :class:`~matplotlib.text.Text`
+    properties.
     """
     ax = gca()
 
@@ -857,20 +876,20 @@ def xticks(*args, **kwargs):
 
 def yticks(*args, **kwargs):
     """
-    Set/Get the ylimits of the current ticklocs, labels
+    Set/Get the ylimits of the current ticklocs and labels::
 
-    # return locs, labels where locs is an array of tick locations and
-    # labels is an array of tick labels.
-    locs, labels = yticks()
+      # return locs, labels where locs is an array of tick locations and
+      # labels is an array of tick labels.
+      locs, labels = yticks()
 
-    # set the locations of the yticks
-    yticks( arange(6) )
+      # set the locations of the yticks
+      yticks( arange(6) )
 
-    # set the locations and labels of the yticks
-    yticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
+      # set the locations and labels of the yticks
+      yticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
 
-    The keyword args, if any, are text properties; see text for more
-    information on text properties.
+    The keyword args, if any, are :class:`~matplotlib.text.Text`
+    properties.
     """
     ax = gca()
 
@@ -898,23 +917,26 @@ def yticks(*args, **kwargs):
 
 def rgrids(*args, **kwargs):
     """
-    Set/Get the radial locations of the gridlines and ticklabels
+    Set/Get the radial locations of the gridlines and ticklabels on a
+    polar plot.
 
     call signatures::
 
       lines, labels = rgrids()
-      lines, labels = RGRIDS(radii, labels=None, angle=22.5, **kwargs)
+      lines, labels = rgrids(radii, labels=None, angle=22.5, **kwargs)
 
-    When called with no arguments, rgrid simply returns (lines, labels),
-    where lines is an array of radial gridlines (Line2D instances) and
-    labels is an array of tick labels (Text instances). When called
-    with arguments, the labels will appear at the specified radial
+    When called with no arguments, :func:`rgrid` simply returns the
+    tuple (*lines*, *labels*), where *lines* is an array of radial
+    gridlines (:class:`~matplotlib.lines.Line2D` instances) and
+    *labels* is an array of tick labels
+    (:class:`~matplotlib.text.Text` instances). When called with
+    arguments, the labels will appear at the specified radial
     distances and angles.
 
-    labels, if not None, is a len(radii) list of strings of the
+    *labels*, if not *None*, is a len(*radii*) list of strings of the
     labels to use at each angle.
 
-    if labels is None, the self.rformatter will be used
+    If *labels* is None, the rformatter will be used
 
     Examples::
 
@@ -940,36 +962,44 @@ def rgrids(*args, **kwargs):
 
 def thetagrids(*args, **kwargs):
     """
-    Set/Get the theta locations of the gridlines and ticklabels
+    Set/Get the theta locations of the gridlines and ticklabels.
 
-    If no arguments are passed, return lines, labels where lines is an
-    array of radial gridlines (Line2D instances) and labels is an
-    array of tick labels (Text instances).
+    If no arguments are passed, return a tuple (*lines*, *labels*)
+    where *lines* is an array of radial gridlines
+    (:class:`~matplotlib.lines.Line2D` instances) and *labels* is an
+    array of tick labels (:class:`~matplotlib.text.Text` instances)::
 
       lines, labels = thetagrids()
 
-    Otherwise the syntax is
+    Otherwise the syntax is::
 
-      lines, labels = THETAGRIDS(angles, labels=None, fmt='%d', frac = 1.1)
+      lines, labels = thetagrids(angles, labels=None, fmt='%d', frac = 1.1)
 
     set the angles at which to place the theta grids (these gridlines
-    are equal along the theta dimension).  angles is in degrees
+    are equal along the theta dimension).
 
-      labels, if not None, is a len(angles) list of strings of the
-      labels to use at each angle.
+    *angles* is in degrees.
 
-      if labels is None, the labels with be fmt%angle
+    *labels*, if not *None*, is a len(angles) list of strings of the
+    labels to use at each angle.
 
-      frac is the fraction of the polar axes radius at which to place
-      the label (1 is the edge).Eg 1.05 isd outside the axes and 0.95
-      is inside the axes
+    If *labels* is *None*, the labels will be ``fmt%angle``.
 
-    Return value is a list of lines, labels where the lines are
-    matplotlib.Line2D instances and the labels are matplotlib.Text
-    instances.  Note that on input the labels argument is a list of
-    strings, and on output it is a list of Text instances
+    *frac* is the fraction of the polar axes radius at which to place
+    the label (1 is the edge). Eg. 1.05 is outside the axes and 0.95
+    is inside the axes.
 
-    Examples:
+    Return value is a list of tuples (*lines*, *labels*):
+
+      - *lines* are :class:`~matplotlib.lines.Line2D` instances
+
+      - *labels* are :class:`~matplotlib.text.Text` instances.
+
+    Note that on input, the *labels* argument is a list of strings,
+    and on output it is a list of :class:`~matplotlib.text.Text`
+    instances.
+
+    Examples::
 
       # set the locations of the radial gridlines and labels
       lines, labels = thetagrids( range(45,360,90) )
@@ -1195,7 +1225,7 @@ def clim(vmin=None, vmax=None):
 
       clim(0, 0.5)
 
-    If either vmin or vmax is None, the image min/max respectively
+    If either *vmin* or *vmax* is None, the image min/max respectively
     will be used for color scaling.
 
     If you want to set the clim of multiple images,
@@ -1223,26 +1253,26 @@ def matshow(A, fignum=None, **kw):
     """
     Display an array as a matrix in a new figure window.
 
-    The origin is set at the upper left hand corner and rows (first dimension
-    of the array) are displayed horizontally.  The aspect ratio of the figure
-    window is that of the array, unless this would make an excessively
-    short or narrow figure.
+    The origin is set at the upper left hand corner and rows (first
+    dimension of the array) are displayed horizontally.  The aspect
+    ratio of the figure window is that of the array, unless this would
+    make an excessively short or narrow figure.
 
     Tick labels for the xaxis are placed on top.
 
     With the exception of fignum, keyword arguments are passed to
-    imshow().
+    :func:`~matplotlib.pyplot.imshow`.
 
 
-    fignum: [ None | integer | False ]
-      by default, matshow() creates a new figure window with
-      automatic numbering.  If fignum is given as an integer, the created
-      figure will use this figure number.  Because of how matshow() tries to
-      set the figure aspect ratio to be the one of the array, if you provide
-      the number of an already existing figure, strange things may happen.
+    *fignum*: [ None | integer | False ]
+      By default, :func:`matshow` creates a new figure window with
+      automatic numbering.  If *fignum* is given as an integer, the
+      created figure will use this figure number.  Because of how
+      :func:`matshow` tries to set the figure aspect ratio to be the
+      one of the array, if you provide the number of an already
+      existing figure, strange things may happen.
 
-      if fignum is False or 0, a new figure window will NOT be created.
-
+      If *fignum* is *False* or 0, a new figure window will **NOT** be created.
     """
     if fignum is False or fignum is 0:
         ax = gca()
@@ -1263,8 +1293,8 @@ def polar(*args, **kwargs):
 
       polar(theta, r, **kwargs)
 
-    Make a polar plot.  Multiple theta, r arguments are supported,
-    with format strings, as in plot.
+    Make a polar plot.  Multiple *theta*, *r* arguments are supported,
+    with format strings, as in :func:`~matplotlib.pyplot.plot`.
     """
     ax = gca(polar=True)
     ret = ax.plot(*args, **kwargs)
@@ -1275,34 +1305,34 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
              comments='#', skiprows=0, checkrows=5, delimiter=',',
              **kwargs):
     """
-    plot the data in fname
+    Plot the data in *fname*
 
-    cols is a sequence of column identifiers to plot.  An identifier
-    is either an int or a string.  if it is an int, it indicates the
+    *cols* is a sequence of column identifiers to plot.  An identifier
+    is either an int or a string.  If it is an int, it indicates the
     column number.  If it is a string, it indicates the column header.
-    mpl will make column headers lower case, replace spaces with
-    underscores, and remove all illegal characters; so 'Adj Close*'
-    will have name 'adj_close'
+    matplotlib will make column headers lower case, replace spaces with
+    underscores, and remove all illegal characters; so ``'Adj Close*'``
+    will have name ``'adj_close'``.
 
-    if len(cols)==1, only that column will be plotted on the y axis.
-    if len(cols)>1, the first element will be an identifier for data
-    for the x axis and the remaining elements will be the column
-    indexes for multiple subplots
+    - If len(*cols*) == 1, only that column will be plotted on the *y* axis.
 
-    plotfuncs, if not None, is a dictionary mapping identifier to an
-    Axes plotting function as a string.  Default is 'plot', other
-    choices are 'semilogy', 'fill', 'bar', etc...  You must use the
-    same type of identifier in the cols vector as you use in the
-    plotfuncs dictionary, eg integer column numbers in both or column
-    names in both.
+    - If len(*cols*) > 1, the first element will be an identifier for
+      data for the *x* axis and the remaining elements will be the
+      column indexes for multiple subplots
 
-    comments, skiprows, checkrows, and delimiter are all passed on to
-    matplotlib.mlab.csv2rec to load the data into a record array.  See
-    the help there fore more information.
+    *plotfuncs*, if not *None*, is a dictionary mapping identifier to
+    an :class:`~matplotlib.axes.Axes` plotting function as a string.
+    Default is 'plot', other choices are 'semilogy', 'fill', 'bar',
+    etc.  You must use the same type of identifier in the *cols*
+    vector as you use in the *plotfuncs* dictionary, eg., integer
+    column numbers in both or column names in both.
 
-    kwargs are passed on to plotting functions
+    *comments*, *skiprows*, *checkrows*, and *delimiter* are all passed on to
+    :func:`matplotlib.pylab.csv2rec` to load the data into a record array.
 
-    Example usage:
+    kwargs are passed on to plotting functions.
+
+    Example usage::
 
       # plot the 2nd and 4th column against the 1st in two subplots
       plotfile(fname, (0,1,3))
@@ -2294,8 +2324,8 @@ if Axes.annotate.__doc__ is not None:
 # changes will be lost
 def autumn():
     '''
-    set the default colormap to autumn and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to *autumn* and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='autumn')
     im = gci()
@@ -2309,8 +2339,8 @@ def autumn():
 # changes will be lost
 def bone():
     '''
-    set the default colormap to bone and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to bone and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='bone')
     im = gci()
@@ -2324,8 +2354,8 @@ def bone():
 # changes will be lost
 def cool():
     '''
-    set the default colormap to cool and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to cool and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='cool')
     im = gci()
@@ -2339,8 +2369,8 @@ def cool():
 # changes will be lost
 def copper():
     '''
-    set the default colormap to copper and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to copper and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='copper')
     im = gci()
@@ -2354,8 +2384,8 @@ def copper():
 # changes will be lost
 def flag():
     '''
-    set the default colormap to flag and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to flag and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='flag')
     im = gci()
@@ -2369,8 +2399,8 @@ def flag():
 # changes will be lost
 def gray():
     '''
-    set the default colormap to gray and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to gray and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='gray')
     im = gci()
@@ -2384,8 +2414,8 @@ def gray():
 # changes will be lost
 def hot():
     '''
-    set the default colormap to hot and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to hot and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='hot')
     im = gci()
@@ -2399,8 +2429,8 @@ def hot():
 # changes will be lost
 def hsv():
     '''
-    set the default colormap to hsv and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to hsv and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='hsv')
     im = gci()
@@ -2414,8 +2444,8 @@ def hsv():
 # changes will be lost
 def jet():
     '''
-    set the default colormap to jet and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to jet and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='jet')
     im = gci()
@@ -2429,8 +2459,8 @@ def jet():
 # changes will be lost
 def pink():
     '''
-    set the default colormap to pink and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to pink and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='pink')
     im = gci()
@@ -2444,8 +2474,8 @@ def pink():
 # changes will be lost
 def prism():
     '''
-    set the default colormap to prism and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to prism and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='prism')
     im = gci()
@@ -2459,8 +2489,8 @@ def prism():
 # changes will be lost
 def spring():
     '''
-    set the default colormap to spring and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to spring and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='spring')
     im = gci()
@@ -2474,8 +2504,8 @@ def spring():
 # changes will be lost
 def summer():
     '''
-    set the default colormap to summer and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to summer and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='summer')
     im = gci()
@@ -2489,8 +2519,8 @@ def summer():
 # changes will be lost
 def winter():
     '''
-    set the default colormap to winter and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to winter and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='winter')
     im = gci()
@@ -2504,8 +2534,8 @@ def winter():
 # changes will be lost
 def spectral():
     '''
-    set the default colormap to spectral and apply to current image if any.
-    See help(colormaps) for more information
+    Set the default colormap to spectral and apply to current image if any.
+    See :func:`colormaps` for more information.
     '''
     rc('image', cmap='spectral')
     im = gci()
