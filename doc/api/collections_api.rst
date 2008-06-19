@@ -2,6 +2,7 @@
 matplotlib collections
 **********************
 
+.. inheritance-diagram:: matplotlib.collections
 
 :mod:`matplotlib.collections`
 =============================
