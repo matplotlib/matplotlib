@@ -23,7 +23,8 @@ from path import Path
 
 class Artist(object):
     """
-    Abstract base class for someone who renders into a FigureCanvas
+    Abstract base class for someone who renders into a
+    :class:`FigureCanvas`.
     """
 
     aname = 'Artist'
@@ -52,12 +53,15 @@ class Artist(object):
 
     def remove(self):
         """
-        Remove the artist from the figure if possible.  The effect will not
-        be visible until the figure is redrawn, e.g., with ax.draw_idle().
-        Call ax.relim() to update the axes limits if desired.
+        Remove the artist from the figure if possible.  The effect
+        will not be visible until the figure is redrawn, e.g., with
+        :meth:`matplotlib.axes.Axes.draw_idle`.  Call
+        :meth:`matplotlib.axes.Axes.relim` to update the axes limits
+        if desired.
 
-        Note: relim() will not see collections even if the collection
-        was added to axes with autolim=True.
+        Note: :meth:`~matplotlib.axes.Axes.relim` will not see
+        collections even if the collection was added to axes with
+        *autolim* = True.
 
         Note: there is no support for removing the artist's legend entry.
         """
@@ -134,16 +138,18 @@ class Artist(object):
 
     def set_transform(self, t):
         """
-        set the Transformation instance used by this artist
-
-        ACCEPTS: a matplotlib.transform transformation instance
+        Set the :class:`~matplotlib.transforms.Transform` instance
+        used by this artist.
         """
         self._transform = t
         self._transformSet = True
         self.pchanged()
 
     def get_transform(self):
-        'return the Transformation instance used by this artist'
+        """
+        Return the :class:`~matplotlib.transforms.Transform`
+        instance used by this artist.
+        """
         if self._transform is None:
             self._transform = IdentityTransform()
         return self._transform
@@ -228,26 +234,26 @@ class Artist(object):
           None -  picking is disabled for this artist (default)
 
           boolean - if True then picking will be enabled and the
-            artist will fire a pick event if the mouse event is over
-            the artist
+          artist will fire a pick event if the mouse event is over
+          the artist
 
           float - if picker is a number it is interpreted as an
-            epsilon tolerance in points and the the artist will fire
-            off an event if it's data is within epsilon of the mouse
-            event.  For some artists like lines and patch collections,
-            the artist may provide additional data to the pick event
-            that is generated, eg the indices of the data within
-            epsilon of the pick event
+          epsilon tolerance in points and the the artist will fire
+          off an event if it's data is within epsilon of the mouse
+          event.  For some artists like lines and patch collections,
+          the artist may provide additional data to the pick event
+          that is generated, eg the indices of the data within
+          epsilon of the pick event
 
           function - if picker is callable, it is a user supplied
-            function which determines whether the artist is hit by the
-            mouse event.
+          function which determines whether the artist is hit by the
+          mouse event::
 
               hit, props = picker(artist, mouseevent)
 
-            to determine the hit test.  if the mouse event is over the
-            artist, return hit=True and props is a dictionary of
-            properties you want added to the PickEvent attributes
+          to determine the hit test.  if the mouse event is over the
+          artist, return hit=True and props is a dictionary of
+          properties you want added to the PickEvent attributes.
 
         ACCEPTS: [None|float|boolean|callable]
         """
@@ -288,17 +294,18 @@ class Artist(object):
         """
         Set the artist's clip path, which may be:
 
-          a) a Patch (or subclass) instance
+          a) a :class:`~matplotlib.patches.Patch` (or subclass) instance
 
-          b) a Path instance, in which cas aoptional transform may
-             be provided, which will be applied to the path before using it
-             for clipping.
+          b) a :class:`~matplotlib.path.Path` instance, in which case
+             an optional :class:`~matplotlib.transforms.Transform`
+             instance may be provided, which will be applied to the
+             path before using it for clipping.
 
-          c) None, to remove the clipping path
+          c) *None*, to remove the clipping path
 
         For efficiency, if the path happens to be an axis-aligned
         rectangle, this method will set the clipping box to the
-        corresponding rectangle and set the clipping path to None.
+        corresponding rectangle and set the clipping path to *None*.
 
         ACCEPTS: a Path instance and a Transform instance, a Patch
         instance, or None
