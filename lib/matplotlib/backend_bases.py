@@ -1315,11 +1315,12 @@ class FigureCanvasBase:
 
     def mpl_connect(self, s, func):
         """
-        Connect event with string s to func.  The signature of func is::
+        Connect event with string *s* to *func*.  The signature of *func* is::
 
           def func(event)
 
-        where event is a MplEvent.  The following events are recognized
+        where event is a :class:`matplotlib.backend_bases.Event`.  The
+        following events are recognized
 
         - 'button_press_event'
         - 'button_release_event'
@@ -1332,14 +1333,16 @@ class FigureCanvasBase:
         - 'scroll_event'
 
         For the location events (button and key press/release), if the
-        mouse is over the axes, the variable event.inaxes will be set
-        to the :class:`~matplotlib.axes.Axes` the event occurs is
+        mouse is over the axes, the variable ``event.inaxes`` will be
+        set to the :class:`~matplotlib.axes.Axes` the event occurs is
         over, and additionally, the variables ``event.xdata`` and
-        ``event.ydata`` will be defined.  This is the mouse location in
-        data coords.  See :class:`KeyEvent` and:class:`MouseEvent` for more info.
+        ``event.ydata`` will be defined.  This is the mouse location
+        in data coords.  See
+        :class:`~matplotlib.backend_bases.KeyEvent` and
+        :class:`~matplotlib.backend_bases.MouseEvent` for more info.
 
-        return value is a connection id that can be used with
-        :meth:`mpl_disconnect`.
+        Return value is a connection id that can be used with
+        :meth:`~matplotlib.backend_bases.Event.mpl_disconnect`.
 
         Example usage::
 

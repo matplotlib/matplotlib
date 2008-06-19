@@ -1546,17 +1546,18 @@ class Axes(martist.Artist):
 
           grid(self, b=None, **kwargs)
 
-        Set the axes grids on or off; b is a boolean
+        Set the axes grids on or off; *b* is a boolean
 
-        if b is None and len(kwargs)==0, toggle the grid state.  if
-        kwargs are supplied, it is assumed that you want a grid and b
-        is thus set to True
+        If *b* is *None* and len(kwargs)==0, toggle the grid state.  If
+        kwargs are supplied, it is assumed that you want a grid and *b*
+        is thus set to *True*
 
         kawrgs are used to set the grid line properties, eg::
 
           ax.grid(color='r', linestyle='-', linewidth=2)
 
-        Valid Line2D kwargs are
+        Valid :class:`~matplotlib.lines.Line2D` kwargs are
+
         %(Line2D)s
         """
         if len(kwargs): b = True
@@ -2457,16 +2458,19 @@ class Axes(martist.Artist):
 
           text(x, y, s, fontdict=None, **kwargs)
 
-        Add text in string s to axis at location x,y (data coords)
+        Add text in string *s* to axis at location *x*, *y*, data
+        coordinates.
 
         Keyword arguments:
 
-          fontdict:
-            a dictionary to override the default text properties.
-            If fontdict is None, the defaults are determined by your rc
+          *fontdict*:
+            A dictionary to override the default text properties.
+            If *fontdict* is *None*, the defaults are determined by your rc
             parameters.
-          withdash: [ False | True ]
-            creates a TextWithDash instance instead of a Text instance.
+
+          *withdash*: [ False | True ]
+            Creates a :class:`~matplotlib.text.TextWithDash` instance
+            instead of a :class:`~matplotlib.text.Text` instance.
 
         Individual keyword arguments can be used to override any given
         parameter::
@@ -2474,23 +2478,24 @@ class Axes(martist.Artist):
             text(x, y, s, fontsize=12)
 
         The default transform specifies that text is in data coords,
-        alternatively, you can specify text in axis coords (0,0 lower left and
-        1,1 upper right).  The example below places text in the center of the
-        axes::
+        alternatively, you can specify text in axis coords (0,0 is
+        lower-left and 1,1 is upper-right).  The example below places
+        text in the center of the axes::
 
             text(0.5, 0.5,'matplotlib',
                  horizontalalignment='center',
                  verticalalignment='center',
                  transform = ax.transAxes)
 
-       You can put a rectangular box around the text instance (eg to
-       set a background color) by using the keyword bbox.  bbox is a
-       dictionary of patches.Rectangle properties (see help
-       for Rectangle for a list of these).  For example::
+       You can put a rectangular box around the text instance (eg. to
+       set a background color) by using the keyword *bbox*.  *bbox* is
+       a dictionary of :class:`matplotlib.patches.Rectangle`
+       properties.  For example::
 
          text(x, y, s, bbox=dict(facecolor='red', alpha=0.5))
 
-       Valid kwargs are Text properties
+       Valid kwargs are :class:`matplotlib.text.Text` properties:
+
        %(Text)s
         """
         default = {
@@ -2536,6 +2541,7 @@ class Axes(martist.Artist):
                    textcoords='data', arrowprops=None, **kwargs)
 
         Keyword arguments:
+
         %(Annotation)s
         """
         a = mtext.Annotation(*args, **kwargs)
@@ -2556,30 +2562,33 @@ class Axes(martist.Artist):
 
         Axis Horizontal Line
 
-        Draw a horizontal line at y from xmin to xmax.  With the default
-        values of xmin=0 and xmax=1, this line will always span the horizontal
-        extent of the axes, regardless of the xlim settings, even if you
-        change them, eg with the xlim command.  That is, the horizontal extent
-        is in axes coords: 0=left, 0.5=middle, 1.0=right but the y location is
-        in data coordinates.
+        Draw a horizontal line at *y* from *xmin* to *xmax*.  With the
+        default values of *xmin* = 0 and *xmax* = 1, this line will
+        always span the horizontal extent of the axes, regardless of
+        the xlim settings, even if you change them, eg. with the
+        :meth:`set_xlim` command.  That is, the horizontal extent is
+        in axes coords: 0=left, 0.5=middle, 1.0=right but the *y*
+        location is in data coordinates.
 
-        Return value is the Line2D instance.  kwargs are the same as kwargs to
-        plot, and can be used to control the line properties.  Eg
+        Return value is the :class:`~matplotlib.lines.Line2D`
+        instance.  kwargs are the same as kwargs to plot, and can be
+        used to control the line properties.  Eg.,
 
-        * draw a thick red hline at y=0 that spans the xrange
+        * draw a thick red hline at *y* = 0 that spans the xrange
 
             >>> axhline(linewidth=4, color='r')
 
-        * draw a default hline at y=1 that spans the xrange
+        * draw a default hline at *y* = 1 that spans the xrange
 
             >>> axhline(y=1)
 
-        * draw a default hline at y=.5 that spans the the middle half of
+        * draw a default hline at *y* = .5 that spans the the middle half of
           the xrange
 
             >>> axhline(y=.5, xmin=0.25, xmax=0.75)
 
-        Valid kwargs are Line2D properties
+        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties:
+
         %(Line2D)s
         """
 
@@ -2603,30 +2612,33 @@ class Axes(martist.Artist):
 
         Axis Vertical Line
 
-        Draw a vertical line at x from ymin to ymax.  With the default values
-        of ymin=0 and ymax=1, this line will always span the vertical extent
-        of the axes, regardless of the xlim settings, even if you change them,
-        eg with the xlim command.  That is, the vertical extent is in axes
-        coords: 0=bottom, 0.5=middle, 1.0=top but the x location is in data
-        coordinates.
+        Draw a vertical line at *x* from *ymin* to *ymax*.  With the
+        default values of *ymin* = 0 and *ymax* = 1, this line will
+        always span the vertical extent of the axes, regardless of the
+        xlim settings, even if you change them, eg. with the
+        :meth:`set_xlim` command.  That is, the vertical extent is in
+        axes coords: 0=bottom, 0.5=middle, 1.0=top but the *x* location
+        is in data coordinates.
 
-        Return value is the Line2D instance.  kwargs are the same as
-        kwargs to plot, and can be used to control the line properties.  Eg
+        Return value is the :class:`~matplotlib.lines.Line2D`
+        instance.  kwargs are the same as kwargs to plot, and can be
+        used to control the line properties.  Eg.,
 
-        * draw a thick red vline at x=0 that spans the yrange
+        * draw a thick red vline at *x* = 0 that spans the yrange
 
             >>> axvline(linewidth=4, color='r')
 
-        * draw a default vline at x=1 that spans the yrange
+        * draw a default vline at *x* = 1 that spans the yrange
 
             >>> axvline(x=1)
 
-        * draw a default vline at x=.5 that spans the the middle half of
+        * draw a default vline at *x* = .5 that spans the the middle half of
           the yrange
 
             >>> axvline(x=.5, ymin=0.25, ymax=0.75)
 
-        Valid kwargs are Line2D properties
+        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties:
+
         %(Line2D)s
         """
 
@@ -2648,26 +2660,31 @@ class Axes(martist.Artist):
 
           axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs)
 
-        Axis Horizontal Span.  ycoords are in data units and x
-        coords are in axes (relative 0-1) units
+        Axis Horizontal Span.
 
-        Draw a horizontal span (regtangle) from ymin to ymax.  With the
-        default values of xmin=0 and xmax=1, this always span the xrange,
-        regardless of the xlim settings, even if you change them, eg with the
-        xlim command.  That is, the horizontal extent is in axes coords:
-        0=left, 0.5=middle, 1.0=right but the y location is in data
+        *y* coords are in data units and *x* coords are in axes (relative
+        0-1) units.
+
+        Draw a horizontal span (rectangle) from *ymin* to *ymax*.
+        With the default values of *xmin* = 0 and *xmax* = 1, this
+        always span the xrange, regardless of the xlim settings, even
+        if you change them, eg. with the :meth:`set_xlim` command.
+        That is, the horizontal extent is in axes coords: 0=left,
+        0.5=middle, 1.0=right but the *y* location is in data
         coordinates.
 
-        Return value is the patches.Polygon instance.
+        Return value is a :class:`matplotlib.patches.Polygon`
+        instance.
 
         Examples:
 
-        * draw a gray rectangle from y=0.25-0.75 that spans the horizontal
-          extent of the axes
+        * draw a gray rectangle from *y* = 0.25-0.75 that spans the
+          horizontal extent of the axes
 
             >>> axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
 
-        Valid kwargs are Polygon properties
+        Valid kwargs are :class:`~matplotlib.patches.Polygon` properties:
+
         %(Polygon)s
         """
         # convert y axis units
@@ -2686,16 +2703,20 @@ class Axes(martist.Artist):
 
           axvspan(xmin, xmax, ymin=0, ymax=1, **kwargs)
 
-        Axis Vertical Span.  xcoords are in data units and y coords
-        are in axes (relative 0-1) units
+        Axis Vertical Span.
 
-        Draw a vertical span (regtangle) from xmin to xmax.  With the default
-        values of ymin=0 and ymax=1, this always span the yrange, regardless
-        of the ylim settings, even if you change them, eg with the ylim
-        command.  That is, the vertical extent is in axes coords: 0=bottom,
-        0.5=middle, 1.0=top but the y location is in data coordinates.
+        *x* coords are in data units and *y* coords are in axes (relative
+        0-1) units.
 
-        return value is the patches.Polygon instance.
+        Draw a vertical span (rectangle) from *xmin* to *xmax*.  With
+        the default values of *ymin* = 0 and *ymax* = 1, this always
+        span the yrange, regardless of the ylim settings, even if you
+        change them, eg. with the :meth:`set_ylim` command.  That is,
+        the vertical extent is in axes coords: 0=bottom, 0.5=middle,
+        1.0=top but the *y* location is in data coordinates.
+
+        Return value is the :class:`matplotlib.patches.Polygon`
+        instance.
 
         Examples:
 
@@ -2704,7 +2725,9 @@ class Axes(martist.Artist):
 
             >>> axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
 
-        Valid kwargs are Polygon properties:
+        Valid kwargs are :class:`~matplotlib.patches.Polygon`
+        properties:
+
         %(Polygon)s
         """
         # convert x axis units
@@ -2725,27 +2748,28 @@ class Axes(martist.Artist):
 
           hlines(y, xmin, xmax, colors='k', linestyle='solid', **kwargs)
 
-        plot horizontal lines at each y from xmin to xmax.
+        Plot horizontal lines at each *y* from *xmin* to *xmax*.
 
-        Returns the LineCollection that was added
+        Returns the :class:`~matplotlib.collections.LineCollection`
+        that was added.
 
         Required arguments:
 
-          y:
+          *y*:
             a 1-D numpy array or iterable.
 
-          xmin and xmax:
-            can be scalars or len(x) numpy arrays.  If they are scalars, then
-            the respective values are constant, else the widths of the lines
-            are determined by xmin and xmax
+          *xmin* and *xmax*:
+            can be scalars or ``len(x)`` numpy arrays.  If they are
+            scalars, then the respective values are constant, else the
+            widths of the lines are determined by *xmin* and *xmax*.
 
         Optional keyword arguments:
 
-          colors:
+          *colors*:
             a line collections color argument, either a single color
-            or a len(y) list of colors
+            or a ``len(y)`` list of colors
 
-          linestyle:
+          *linestyle*:
             [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
 
         """
@@ -2800,20 +2824,21 @@ class Axes(martist.Artist):
 
           vlines(x, ymin, ymax, color='k')
 
-        Plot vertical lines at each x from ymin to ymax.  ymin or ymax can be
-        scalars or len(x) numpy arrays.  If they are scalars, then the
-        respective values are constant, else the heights of the lines are
-        determined by ymin and ymax
+        Plot vertical lines at each *x* from *ymin* to *ymax*.  *ymin*
+        or *ymax* can be scalars or len(*x*) numpy arrays.  If they are
+        scalars, then the respective values are constant, else the
+        heights of the lines are determined by *ymin* and *ymax*.
 
+        *colors* is a line collections color args, either a single color
+        or a len(*x*) list of colors
 
-        colors is a line collections color args, either a single color
-        or a len(x) list of colors
+        *linestyle* is one of [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
 
-        linestyle is one of [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
+        Returns the :class:`matplotlib.collections.LineCollection`
+        that was added.
 
-        Returns the collections.LineCollection that was added
+        kwargs are :class:`~matplotlib.collections.LineCollection` properties:
 
-        kwargs are collections.LineCollection properties:
         %(LineCollection)s
         """
 
@@ -2870,19 +2895,22 @@ class Axes(martist.Artist):
     #### Basic plotting
     def plot(self, *args, **kwargs):
         """
-        Plot lines and/or markers to the Axes.  ``*args`` is a variable length
-        argument, allowing for multiple *x*, *y* pairs with an optional format
-        string.  For example, each of the following is legal::
+        Plot lines and/or markers to the
+        :class:`~matplotlib.axes.Axes`.  *args* is a variable length
+        argument, allowing for multiple *x*, *y* pairs with an
+        optional format string.  For example, each of the following is
+        legal::
 
             plot(x, y)           # plot x and y using the default line style and color
             plot(x, y, 'bo')     # plot x and y using blue circle markers
             plot(y)              # plot y using x as index array 0..N-1
             plot(y, 'r+')        # ditto, but with red plusses
 
-        If ``x`` and/or ``y`` is 2-dimensional, then the corresponding columns
+        If *x* and/or *y* is 2-dimensional, then the corresponding columns
         will be plotted.
 
-        An arbitrary number of ``x``, ``y``, ``fmt`` groups can be specified, as in::
+        An arbitrary number of *x*, *y*, *fmt* groups can be
+        specified, as in::
 
             a.plot(x1, y1, 'g^', x2, y2, 'g-')
 
@@ -2929,16 +2957,16 @@ class Axes(martist.Artist):
             w  # white
 
         In addition, you can specify colors in many weird and
-        wonderful ways, including full names (``'green'``), hex strings
-        (``'#008000'``), RGB or RGBA tuples (``(0,1,0,1)``) or grayscale
-        intensities as a string (``'0.8'``).  Of these, the string
-        specifications can be used in place of a ``fmt`` group, but the
-        tuple forms can be used only as ``kwargs``.
+        wonderful ways, including full names (``'green'``), hex
+        strings (``'#008000'``), RGB or RGBA tuples (``(0,1,0,1)``) or
+        grayscale intensities as a string (``'0.8'``).  Of these, the
+        string specifications can be used in place of a ``fmt`` group,
+        but the tuple forms can be used only as ``kwargs``.
 
         Line styles and colors are combined in a single format string, as in
         ``'bo'`` for blue circles.
 
-        The ``**kwargs`` can be used to set line properties (any property that has
+        The *kwargs* can be used to set line properties (any property that has
         a ``set_*`` method).  You can use this to set a line label (for auto
         legends), linewidth, anitialising, marker face color, etc.  Here is an
         example::
@@ -2948,19 +2976,21 @@ class Axes(martist.Artist):
             axis([0, 4, 0, 10])
             legend()
 
-        If you make multiple lines with one plot command, the ``kwargs`` apply
-        to all those lines, e.g.::
+        If you make multiple lines with one plot command, the kwargs
+        apply to all those lines, e.g.::
 
             plot(x1, y1, x2, y2, antialised=False)
 
         Neither line will be antialiased.
 
-        The kwargs are Line2D properties:
+        The kwargs are :class:`~matplotlib.lines.Line2D` properties:
+
         %(Line2D)s
 
-        kwargs ``scalex`` and ``scaley``, if defined, are passed on to
-        :meth:`autoscale_view` to determine whether the *x* and *y* axes
-        are autoscaled; the default is ``True``.
+        kwargs *scalex* and *scaley*, if defined, are passed on to
+        :meth:`~matplotlib.axes.Axes.autoscale_view` to determine
+        whether the *x* and *y* axes are autoscaled; the default is
+        *True*.
         """
         scalex = kwargs.pop( 'scalex', True)
         scaley = kwargs.pop( 'scaley', True)
@@ -2985,36 +3015,48 @@ class Axes(martist.Artist):
 
           plot_date(x, y, fmt='bo', tz=None, xdate=True, ydate=False, **kwargs)
 
-        Similar to the plot() command, except the x or y (or both) data
-        is considered to be dates, and the axis is labeled accordingly.
+        Similar to the :func:`~matplotlib.pyplot.plot` command, except
+        the *x* or *y* (or both) data is considered to be dates, and the
+        axis is labeled accordingly.
 
-        x and/or y can be a sequence of dates represented as float days since
+        *x* and/or *y* can be a sequence of dates represented as float days since
         0001-01-01 UTC.
 
-        See dates for helper functions date2num, num2date
-        and drange for help on creating the required floating point dates
+        See :mod:`~matplotlib.dates` for helper functions
+        :func:`~matplotlib.dates.date2num`,
+        :func:`~matplotlib.dates.num2date` and
+        :func:`~matplotlib.dates.drange` for help on creating the
+        required floating point dates.
 
         Keyword arguments:
 
-          fmt: string
+          *fmt*: string
             The plot format string.
-          tz: [ None | timezone string ]
-            The time zone to use in labeling dates. If None, defaults to rc
+
+          *tz*: [ None | timezone string ]
+            The time zone to use in labeling dates. If *None*, defaults to rc
             value.
-          xdate: [ True | False ]
-            If True, the x-axis will be labeled with dates.
-          ydate: [ False | True ]
-            If True, the y-axis will be labeled with dates.
+
+          *xdate*: [ True | False ]
+            If *True*, the *x*-axis will be labeled with dates.
+
+          *ydate*: [ False | True ]
+            If *True*, the *y*-axis will be labeled with dates.
 
         Note if you are using custom date tickers and formatters, it
         may be necessary to set the formatters/locators after the call
-        to plot_date since plot_date will set the default tick locator
-        to ticker.AutoDateLocator (if the tick locator is not already set to
-        a ticker.DateLocator instance) and the default tick formatter to
-        AutoDateFormatter (if the tick formatter is not already set to
-        a DateFormatter instance).
+        to :meth:`plot_date` since :meth:`plot_date` will set the
+        default tick locator to
+        :class:`matplotlib.ticker.AutoDateLocator` (if the tick
+        locator is not already set to a
+        :class:`matplotlib.ticker.DateLocator` instance) and the
+        default tick formatter to
+        :class:`matplotlib.ticker.AutoDateFormatter` (if the tick
+        formatter is not already set to a
+        :class:`matplotlib.ticker.DateFormatter` instance).
 
-        Valid kwargs are Line2D properties:
+        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties:
+
         %(Line2D)s
 
         """
@@ -3040,22 +3082,27 @@ class Axes(martist.Artist):
 
           loglog(*args, **kwargs)
 
-        Make a plot with log scaling on the x and y axis. The args to loglog
-        are the same as the args to plot.  See plot for more info.
+        Make a plot with log scaling on the *x* and *y* axis.
 
-        loglog supports all the keyword arguments of plot and
-        Axes.set_xscale/Axes.set_yscale.
+        :func:`~matplotlib.pyplot.loglog` supports all the keyword
+        arguments of :func:`~matplotlib.pyplot.plot` and
+        :meth:`matplotlib.axes.Axes.set_xscale`/:meth:`matplotlib.axes.Axes.set_yscale`.
 
         Notable keyword arguments:
 
-          basex/basey: scalar > 1
-            base of the x/y logarithm
-          subsx/subsy: [ None | sequence ]
-            the location of the minor x/yticks; None defaults to
-            autosubs, which depend on the number of decades in the
-            plot; see set_xscale/set_yscale for details
+          *basex*/*basey*: scalar > 1
+            base of the *x*/*y* logarithm
 
-        The remaining valid kwargs are Line2D properties:
+          *subsx*/*subsy*: [ None | sequence ]
+            the location of the minor *x*/*y* ticks; *None* defaults
+            to autosubs, which depend on the number of decades in the
+            plot; see
+            :meth:`matplotlib.axes.Axes.set_xscale`/:meth:`matplotlib.axes.Axes.set_yscale`
+            for details
+
+        The remaining valid kwargs are
+        :class:`~matplotlib.lines.Line2D` properties:
+
         %(Line2D)s
         """
         if not self._hold: self.cla()
@@ -3084,23 +3131,26 @@ class Axes(martist.Artist):
 
           semilogx(*args, **kwargs)
 
-        Make a plot with log scaling on the x axis. The args to
-        semilogx are the same as the args to plot.  See plot for
-        more info.
+        Make a plot with log scaling on the *x* axis.
 
-        semilogx supports all the keyword arguments of plot and
-        Axes.set_xscale.
+        :func:`semilogx` supports all the keyword arguments of
+        :func:`~matplotlib.pyplot.plot` and
+        :meth:`matplotlib.axes.Axes.set_xscale`.
 
         Notable keyword arguments:
 
-          basex: scalar > 1
-            base of the x logarithm
-          subsx: [ None | sequence ]
-            the location of the minor xticks; None defaults to
-            autosubs, which depend on the number of decades in the
-            plot; see set_xscale for details
+          *basex*: scalar > 1
+            base of the *x* logarithm
 
-        The remaining valid kwargs are Line2D properties:
+          *subsx*: [ None | sequence ]
+            The location of the minor xticks; *None* defaults to
+            autosubs, which depend on the number of decades in the
+            plot; see :meth:`~matplotlib.axes.Axes.set_xscale` for
+            details.
+
+        The remaining valid kwargs are
+        :class:`~matplotlib.lines.Line2D` properties:
+
         %(Line2D)s
         """
         if not self._hold: self.cla()
@@ -3122,23 +3172,26 @@ class Axes(martist.Artist):
 
           semilogy(*args, **kwargs)
 
-        Make a plot with log scaling on the y axis. The args to
-        semilogy are the same as the args to plot.  See plot for
-        more info.
+        Make a plot with log scaling on the *y* axis.
 
-        semilogy supports all the keyword arguments of plot and
-        Axes.set_yscale.
+        :func:`semilogy` supports all the keyword arguments of
+        :func:`~matplotlib.pylab.plot` and
+        :meth:`matplotlib.axes.Axes.set_yscale`.
 
         Notable keyword arguments:
 
-          basey: scalar > 1
-            base of the y logarithm
-          subsy: [ None | sequence ]
-            the location of the minor yticks; None defaults to
-            autosubs, which depend on the number of decades in the
-            plot; see set_yscale for details
+          *basey*: scalar > 1
+            Base of the *y* logarithm
 
-        The remaining valid kwargs are Line2D properties:
+          *subsy*: [ None | sequence ]
+            The location of the minor yticks; *None* defaults to
+            autosubs, which depend on the number of decades in the
+            plot; see :meth:`~matplotlib.axes.Axes.set_yscale` for
+            details.
+
+        The remaining valid kwargs are
+        :class:`~matplotlib.lines.Line2D` properties:
+
         %(Line2D)s
         """
         if not self._hold: self.cla()
@@ -3161,33 +3214,47 @@ class Axes(martist.Artist):
           acorr(x, normed=False, detrend=mlab.detrend_none, usevlines=False,
                 maxlags=None, **kwargs)
 
-        Plot the autocorrelation of x.  If normed=True, normalize the
-        data but the autocorrelation at 0-th lag.  x is detrended by
-        the detrend callable (default no normalization.
+        Plot the autocorrelation of *x*.  If *normed* = *True*,
+        normalize the data but the autocorrelation at 0-th lag.  *x* is
+        detrended by the *detrend* callable (default no normalization).
 
-        data are plotted as ``plot(lags, c, **kwargs)``
+        Data are plotted as ``plot(lags, c, **kwargs)``
 
-        return value is lags, c, line where lags are a length
-        2*maxlags+1 lag vector, c is the 2*maxlags+1 auto correlation
-        vector, and line is a Line2D instance returned by plot.  The
-        default linestyle is None and the default marker is 'o',
-        though these can be overridden with keyword args.  The cross
-        correlation is performed with numpy correlate with
-        mode=2.
+        Return value is a tuple (*lags*, *c*, *line*) where:
 
-        If usevlines is True, Axes.vlines rather than Axes.plot is used
-        to draw vertical lines from the origin to the acorr.
-        Otherwise the plotstyle is determined by the kwargs, which are
-        Line2D properties.  If usevlines, the return value is lags, c,
-        linecol, b where linecol is the collections.LineCollection and b is the x-axis
+          - *lags* are a length 2*maxlags+1 lag vector
 
-        if usevlines=True, kwargs are passed onto Axes.vlines
-        if usevlines=False, kwargs are passed onto Axes.plot
+          - *c* is the 2*maxlags+1 auto correlation vector
 
-        maxlags is a positive integer detailing the number of lags to show.
-        The default value of None will return all (2*len(x)-1) lags.
+          - *line* is a :class:`~matplotlib.lines.Line2D` instance
+             returned by :meth:`plot`
 
-        See the respective function for documentation on valid kwargs
+        The default *linestyle* is None and the default *marker* is
+        ``'o'``, though these can be overridden with keyword args.
+        The cross correlation is performed with :func:`numpy.correlate` with
+        *mode* = 2.
+
+        If *usevlines* is *True*:
+
+            :meth:`~matplotlib.axes.Axes.vlines` rather than
+            :meth:`~matplotlib.axes.Axes.plot` is used to draw
+            vertical lines from the origin to the acorr.  Otherwise,
+            the plot style is determined by the kwargs, which are
+            :class:`~matplotlib.lines.Line2D` properties.  The return
+            value is a tuple (*lags*, *c*, *linecol*, *b*) where
+
+              - *linecol* is the
+                :class:`~matplotlib.collections.LineCollection`
+
+              - *b* is the *x*-axis.
+
+        *maxlags* is a positive integer detailing the number of lags
+        to show.  The default value of *None* will return all
+        ``(2*len(x)-1)`` lags.
+
+        See the respective :meth:`~matplotlib.axes.Axes.plot` or
+        :meth:`~matplotlib.axes.Axes.vlines` functions for
+        documentation on valid kwargs.
         """
         return self.xcorr(x, x, **kwargs)
     acorr.__doc__ = cbook.dedent(acorr.__doc__) % martist.kwdocd
@@ -3200,35 +3267,42 @@ class Axes(martist.Artist):
           xcorr(x, y, normed=False, detrend=mlab.detrend_none,
                 usevlines=False, **kwargs):
 
-        Plot the cross correlation between x and y.  If normed=True,
-        normalize the data but the cross correlation at 0-th lag.  x
-        and y are detrended by the detrend callable (default no
-        normalization.  x and y must be equal length
+        Plot the cross correlation between *x* and *y*.  If *normed* =
+        *True*, normalize the data but the cross correlation at 0-th
+        lag.  *x* and y are detrended by the *detrend* callable
+        (default no normalization).  *x* and *y* must be equal length.
 
-        data are plotted as ``plot(lags, c, **kwargs)``
+        Data are plotted as ``plot(lags, c, **kwargs)``
 
-        return value is lags, c, line where lags are a length
-        ``2*maxlags+1`` lag vector, c is the ``2*maxlags+1`` auto correlation
-        vector, and line is a Line2D instance returned by plot.  The
-        default linestyle is None and the default marker is 'o',
-        though these can be overridden with keyword args.  The cross
-        correlation is performed with numpy correlate with
-        mode=2.
+        Return value is a tuple (*lags*, *c*, *line*) where:
 
-        If usevlines is True, Axes.vlines rather than Axes.plot is used
-        to draw vertical lines from the origin to the acorr.
-        Otherwise the plotstyle is determined by the kwargs, which are
-        Line2D properties.  If usevlines, the return value is lags, c,
-        linecol, b where linecol is the collections.LineCollection and b is the
-        x-axis
+          - *lags* are a length ``2*maxlags+1`` lag vector
 
-        if ``usevlines=True``, kwargs are passed onto Axes.vlines
-        if ``usevlines=False``, kwargs are passed onto Axes.plot
+          - *c* is the ``2*maxlags+1`` auto correlation vector
 
-        maxlags is a positive integer detailing the number of lags to show.
-        The default value of None will return all ``(2*len(x)-1)`` lags.
+          - *line* is a :class:`~matplotlib.lines.Line2D` instance
+             returned by :func:`~matplotlib.pyplot.plot`.
 
-        See the respective function for documentation on valid kwargs
+        The default *linestyle* is *None* and the default *marker* is
+        'o', though these can be overridden with keyword args.  The
+        cross correlation is performed with :func:`numpy.correlate`
+        with *mode* = 2.
+
+        If *usevlines* is *True*:
+
+           :func:`~matplotlib.pyplot.vlines`
+           rather than :func:`~matplotlib.pyplot.plot` is used to draw
+           vertical lines from the origin to the xcorr.  Otherwise the
+           plotstyle is determined by the kwargs, which are
+           :class:`~matplotlib.lines.Line2D` properties.
+
+           The return value is a tuple (*lags*, *c*, *linecol*, *b*)
+           where *linecol* is the
+           :class:`matplotlib.collections.LineCollection` instance and
+           *b* is the *x*-axis.
+
+        *maxlags* is a positive integer detailing the number of lags to show.
+        The default value of *None* will return all ``(2*len(x)-1)`` lags.
         """
 
         Nx = len(x)
@@ -3269,19 +3343,26 @@ class Axes(martist.Artist):
 
           legend(*args, **kwargs)
 
-        Place a legend on the current axes at location loc.  Labels are a
-        sequence of strings and loc can be a string or an integer specifying
-        the legend location
+        Place a legend on the current axes at location *loc*.  Labels are a
+        sequence of strings and *loc* can be a string or an integer specifying
+        the legend location.
 
         To make a legend with existing lines::
 
           legend()
 
-        legend by itself will try and build a legend using the label
+        :meth:`legend` by itself will try and build a legend using the label
         property of the lines/patches/collections.  You can set the label of
-        a line by doing plot(x, y, label='my data') or line.set_label('my
-        data'). If label is set to '_nolegend_', the item will not be shown
-        in legend.
+        a line by doing::
+
+          plot(x, y, label='my data')
+
+        or::
+
+          line.set_label('my data').
+
+        If label is set to '_nolegend_', the item will not be shown in
+        legend.
 
         To automatically generate the legend from labels::
 
@@ -3325,31 +3406,40 @@ class Axes(martist.Artist):
 
         Keyword arguments:
 
-          isaxes: [ True | False ]
+          *isaxes*: [ True | False ]
             Indicates that this is an axes legend
-          numpoints: integer
+
+          *numpoints*: integer
             The number of points in the legend line, default is 4
-          prop: [ None | FontProperties ]
-            A FontProperties instance, or None to use rc settings.
-            see :class:`~matplotlib.font_manager.FontProperties`
-          pad: [ None | scalar ]
+
+          *prop*: [ None | FontProperties ]
+            A :class:`matplotlib.font_manager.FontProperties`
+            instance, or *None* to use rc settings.
+
+          *pad*: [ None | scalar ]
             The fractional whitespace inside the legend border, between 0 and 1.
-            If None, use rc settings
-          markerscale: [ None | scalar ]
-            The relative size of legend markers vs. original. If None, use rc
-            settings
-          shadow: [ None | False | True ]
-            If True, draw a shadow behind legend. If None, use rc settings.
-          labelsep: [ None | scalar ]
-            The vertical space between the legend entries. If None, use rc
-            settings
-          handlelen: [ None | scalar ]
-            The length of the legend lines. If None, use rc settings.
-          handletextsep: [ None | scalar ]
-            The space between the legend line and legend text. If None, use rc
+            If *None*, use rc settings.
+
+          *markerscale*: [ None | scalar ]
+            The relative size of legend markers vs. original. If *None*, use rc
             settings.
-          axespad: [ None | scalar ]
-            The border between the axes and legend edge. If None, use rc
+
+          *shadow*: [ None | False | True ]
+            If *True*, draw a shadow behind legend. If *None*, use rc settings.
+
+          *labelsep*: [ None | scalar ]
+            The vertical space between the legend entries. If *None*, use rc
+            settings.
+
+          *handlelen*: [ None | scalar ]
+            The length of the legend lines. If *None*, use rc settings.
+
+          *handletextsep*: [ None | scalar ]
+            The space between the legend line and legend text. If *None*, use rc
+            settings.
+
+          *axespad*: [ None | scalar ]
+            The border between the axes and legend edge. If *None*, use rc
             settings.
         """
 
@@ -3409,21 +3499,21 @@ class Axes(martist.Artist):
 
           step(x, y, *args, **kwargs)
 
-        x and y must be 1-D sequences, and it is assumed, but not checked,
-        that x is uniformly increasing.
+        Make a step plot. Additional keyword args to :func:`step` are the same
+        as those for :func:`~matplotlib.pyplot.plot`.
+
+        *x* and *y* must be 1-D sequences, and it is assumed, but not checked,
+        that *x* is uniformly increasing.
 
         Keyword arguments:
 
-        where: [ 'pre' | 'post' | 'mid'  ]
-          if 'pre', the interval from x[i] to x[i+1] has level y[i]
+        *where*: [ 'pre' | 'post' | 'mid'  ]
+          If 'pre', the interval from x[i] to x[i+1] has level y[i]
 
-          if 'post', that interval has level y[i+1]
+          If 'post', that interval has level y[i+1]
 
-          if 'mid', the jumps in y occur half-way between the x-values.
-
-        Make a step plot. Additional keyword args to step are the same
-        as those for plot. See plot for more info.
-
+          If 'mid', the jumps in *y* occur half-way between the
+          *x*-values.
         '''
 
         where = kwargs.pop('where', 'pre')
@@ -3450,12 +3540,14 @@ class Axes(martist.Artist):
 
         Make a bar plot with rectangles bounded by:
 
-          left, left+width, bottom, bottom+height
+          *left*, *left* + *width*, *bottom*, *bottom* + *height*
                 (left, right, bottom and top edges)
 
-        left, height, width, and bottom can be either scalars or sequences
+        *left*, *height*, *width*, and *bottom* can be either scalars
+        or sequences
 
-        Return value is a list of Rectangle patch instances
+        Return value is a list of
+        :class:`matplotlib.patches.Rectangle` instances.
 
         Required arguments:
 
@@ -3488,18 +3580,20 @@ class Axes(martist.Artist):
                           axis as-is; True sets it to log scale
           =============   ===================================================
 
-        For vertical bars, align='edge' aligns bars by their left edges in
-        left, while 'center' interprets these values as the x coordinates of
-        the bar centers. For horizontal bars, 'edge' aligns bars by their
-        bottom edges in bottom, while 'center' interprets these values as the
-        y coordinates of the bar centers.
+        For vertical bars, *align* = 'edge' aligns bars by their left
+        edges in left, while *align* = 'center' interprets these
+        values as the *x* coordinates of the bar centers. For
+        horizontal bars, *align* = 'edge' aligns bars by their bottom
+        edges in bottom, while *align* = 'center' interprets these
+        values as the *y* coordinates of the bar centers.
 
-        The optional arguments color, edgecolor, linewidth, xerr, and yerr can
-        be either scalars or sequences of length equal to the number of bars.
-        This enables you to use bar as the basis for stacked bar charts, or
-        candlestick plots.
+        The optional arguments *color*, *edgecolor*, *linewidth*,
+        *xerr*, and *yerr* can be either scalars or sequences of
+        length equal to the number of bars.  This enables you to use
+        bar as the basis for stacked bar charts, or candlestick plots.
 
         Other optional kwargs:
+
         %(Rectangle)s
         """
         if not self._hold: self.cla()
@@ -3698,12 +3792,14 @@ class Axes(martist.Artist):
 
         Make a horizontal bar plot with rectangles bounded by:
 
-          left, left+width, bottom, bottom+height
+          *left*, *left* + *width*, *bottom*, *bottom* + *height*
                 (left, right, bottom and top edges)
 
-        bottom, width, height, and left can be either scalars or sequences
+        *bottom*, *width*, *height*, and *left* can be either scalars
+        or sequences
 
-        Return value is a list of Rectangle patch instances
+        Return value is a list of
+        :class:`matplotlib.patches.Rectangle` instances.
 
         Required arguments:
 
@@ -3735,16 +3831,18 @@ class Axes(martist.Artist):
                           axis as-is; True sets it to log scale
           =============   ===================================================
 
-        Setting align='edge' aligns bars by their bottom edges in bottom,
-        while 'center' interprets these values as the y coordinates of the bar
-        centers.
+        Setting *align* = 'edge' aligns bars by their bottom edges in
+        bottom, while *align* = 'center' interprets these values as
+        the *y* coordinates of the bar centers.
 
-        The optional arguments color, edgecolor, linewidth, xerr, and yerr can
-        be either scalars or sequences of length equal to the number of bars.
-        This enables you to use barh as the basis for stacked bar charts, or
-        candlestick plots.
+        The optional arguments *color*, *edgecolor*, *linewidth*,
+        *xerr*, and *yerr* can be either scalars or sequences of
+        length equal to the number of bars.  This enables you to use
+        barh as the basis for stacked bar charts, or candlestick
+        plots.
 
         other optional kwargs:
+
         %(Rectangle)s
         """
 
@@ -3760,8 +3858,8 @@ class Axes(martist.Artist):
 
           broken_barh(self, xranges, yrange, **kwargs)
 
-        A collection of horizontal bars spanning yrange with a sequence of
-        xranges
+        A collection of horizontal bars spanning *yrange* with a sequence of
+        *xranges*.
 
         Required arguments:
 
@@ -3772,7 +3870,10 @@ class Axes(martist.Artist):
           yrange     sequence of (ymin, ywidth)
           ========   ==========================
 
-        kwargs are collections.BrokenBarHCollection properties:
+        kwargs are
+        :class:`matplotlib.collections.BrokenBarHCollection`
+        properties:
+
         %(BrokenBarHCollection)s
 
         these can either be a single argument, ie::
@@ -3781,8 +3882,7 @@ class Axes(martist.Artist):
 
         or a sequence of arguments for the various bars, ie::
 
-          facecolors = 'black', 'red', 'green'
-
+          facecolors = ('black', 'red', 'green')
         """
         col = mcoll.BrokenBarHCollection(xranges, yrange, **kwargs)
         self.add_collection(col, autolim=True)
@@ -3798,15 +3898,17 @@ class Axes(martist.Artist):
 
           stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
 
-        A stem plot plots vertical lines (using linefmt) at each x location
-        from the baseline to y, and places a marker there using markerfmt.  A
-        horizontal line at 0 is is plotted using basefmt
+        A stem plot plots vertical lines (using *linefmt*) at each *x*
+        location from the baseline to *y*, and places a marker there
+        using *markerfmt*.  A horizontal line at 0 is is plotted using
+        *basefmt*.
 
-        Return value is (markerline, stemlines, baseline) .
+        Return value is a tuple (*markerline*, *stemlines*,
+        *baseline*).
 
-        See
-        http://www.mathworks.com/access/helpdesk/help/techdoc/ref/stem.html
-        for details and examples/stem_plot.py for a demo.
+        See `this document
+        <http://www.mathworks.com/access/helpdesk/help/techdoc/ref/stem.html>`_
+        for details and :file:`examples/pylab_examples/stem_plot.py` for a demo.
         """
         remember_hold=self._hold
         if not self._hold: self.cla()
@@ -3829,56 +3931,68 @@ class Axes(martist.Artist):
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False,
             labeldistance=1.1):
-        """
+        r"""
         call signature::
 
           pie(x, explode=None, labels=None,
               colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
               autopct=None, pctdistance=0.6, labeldistance=1.1, shadow=False)
 
-        Make a pie chart of array x.  The fractional area of each wedge is
-        given by x/sum(x).  If sum(x)<=1, then the values of x give the
-        fractional area directly and the array will not be normalized.
+        Make a pie chart of array *x*.  The fractional area of each
+        wedge is given by x/sum(x).  If sum(x) <= 1, then the values
+        of x give the fractional area directly and the array will not
+        be normalized.
 
         Keyword arguments:
 
-          explode: [ None | len(x) sequence ]
-            If not None, is a len(x) array which specifies the
+          *explode*: [ None | len(x) sequence ]
+            If not *None*, is a len(*x*) array which specifies the
             fraction of the radius with which to offset each wedge.
-          colors: [ None | color sequence ]
+
+          *colors*: [ None | color sequence ]
             A sequence of matplotlib color args through which the pie chart
             will cycle.
-          labels: [ None | len(x) sequence of strings ]
+
+          *labels*: [ None | len(x) sequence of strings ]
             A sequence of strings providing the labels for each wedge
-          autopct: [ None | format string | format function ]
-            If not None, is a string or function used to label the
+
+          *autopct*: [ None | format string | format function ]
+            If not *None*, is a string or function used to label the
             wedges with their numeric value.  The label will be placed inside
-            the wedge.  If it is a format string, the label will be fmt%pct.
-            If it is a function, it will be called
-          pctdistance: scalar
-            The ratio between the center of each pie slice and the start of the
-            text generated by autopct.  Ignored if autopct is None; default is
-            0.6.
-          labeldistance: scalar
+            the wedge.  If it is a format string, the label will be ``fmt%pct``.
+            If it is a function, it will be called.
+
+          *pctdistance*: scalar
+            The ratio between the center of each pie slice and the
+            start of the text generated by *autopct*.  Ignored if
+            *autopct* is *None*; default is 0.6.
+
+          *labeldistance*: scalar
             The radial distance at which the pie labels are drawn
-          shadow: [ False | True ]
+
+          *shadow*: [ False | True ]
             Draw a shadow beneath the pie.
 
         The pie chart will probably look best if the figure and axes are
-        square.  Eg::
+        square.  Eg.::
 
           figure(figsize=(8,8))
           ax = axes([0.1, 0.1, 0.8, 0.8])
 
         Return value:
-          If autopct is None, return a list of (patches, texts), where patches
-          is a sequence of mpatches.Wedge instances and texts is a
-          list of the label Text instnaces
+          If *autopct* is None, return the tuple (*patches*, *texts*):
 
-          If autopct is not None, return (patches, texts, autotexts), where
-          patches and texts are as above, and autotexts is a list of text
-          instances for the numeric labels
+            - *patches* is a sequence of
+              :class:`matplotlib.patches.Wedge` instances
 
+            - *texts* is a list of the label
+              :class:`matplotlib.text.Text` instances.
+
+          If *autopct* is not *None*, return the tuple (*patches*,
+          *texts*, *autotexts*), where *patches* and *texts* are as
+          above, and *autotexts* is a list of
+          :class:`~matplotlib.text.Text` instances for the numeric
+          labels.
         """
         self.set_frame_on(False)
 
@@ -3975,39 +4089,46 @@ class Axes(martist.Artist):
                    barsabove=False, lolims=False, uplims=False,
                    xlolims=False, xuplims=False)
 
-        Plot x versus y with error deltas in yerr and xerr.
-        Vertical errorbars are plotted if yerr is not None.
-        Horizontal errorbars are plotted if xerr is not None.
+        Plot *x* versus *y* with error deltas in *yerr* and *xerr*.
+        Vertical errorbars are plotted if *yerr* is not *None*.
+        Horizontal errorbars are plotted if *xerr* is not *None*.
 
-        x, y, xerr, and yerr can all be scalars, which plots a single error bar
-        at x, y.
+        *x*, *y*, *xerr*, and *yerr* can all be scalars, which plots a
+        single error bar at *x*, *y*.
 
         Optional keyword arguments:
 
-          xerr/yerr: [ scalar | N, Nx1, Nx2 array-like ]
+          *xerr*/*yerr*: [ scalar | N, Nx1, Nx2 array-like ]
             If a scalar number, len(N) array-like object, or an Nx1 array-like
             object, errorbars are drawn +/- value.
 
             If a rank-1, Nx2 Numpy array, errorbars are drawn at -column1 and
             +column2
-          fmt: '-'
-            The plot format symbol for y. If fmt is None, just plot the
+
+          *fmt*: '-'
+            The plot format symbol for *y*. If *fmt* is *None*, just plot the
             errorbars with no line symbols.  This can be useful for creating a
             bar plot with errorbars.
-          ecolor: [ None | mpl color ]
+
+          *ecolor*: [ None | mpl color ]
             a matplotlib color arg which gives the color the errorbar lines; if
-            None, use the marker color.
-          elinewidth: scalar
-            the linewidth of the errorbar lines. If None, use the linewidth.
-          capsize: scalar
+            *None*, use the marker color.
+
+          *elinewidth*: scalar
+            the linewidth of the errorbar lines. If *None*, use the linewidth.
+
+          *capsize*: scalar
             the size of the error bar caps in points
-          barsabove: [ True | False ]
-            if True, will plot the errorbars above the plot symbols. Default is
-            below.
-          lolims/uplims/xlolims/xuplims: [ False | True ]
-            These arguments can be used to indicate that a value gives only
-            upper/lower limits. In that case a caret symbol is used to indicate
-            this. lims-arguments may be of the same type as xerr and yerr.
+
+          *barsabove*: [ True | False ]
+            if *True*, will plot the errorbars above the plot
+            symbols. Default is below.
+
+          *lolims*/*uplims*/*xlolims*/*xuplims*: [ False | True ]
+            These arguments can be used to indicate that a value gives
+            only upper/lower limits. In that case a caret symbol is
+            used to indicate this. lims-arguments may be of the same
+            type as *xerr* and *yerr*.
 
         All other keyword arguments are passed on to the plot command for the
         markers, so you can add additional key=value pairs to control the
@@ -4018,16 +4139,20 @@ class Axes(martist.Artist):
           errorbar(x, y, yerr, marker='s',
                    mfc='red', mec='green', ms=20, mew=4)
 
-        where mfc, mec, ms and mew are aliases for the longer property names,
-        markerfacecolor, markeredgecolor, markersize and markeredgewith.
+        where *mfc*, *mec*, *ms* and *mew* are aliases for the longer
+        property names, *markerfacecolor*, *markeredgecolor*, *markersize*
+        and *markeredgewith*.
 
         valid kwargs for the marker properties are
+
         %(Line2D)s
 
         Return value is a length 3 tuple.  The first element is the
-        Line2D instance for the y symbol lines.  The second element is
-        a list of error bar cap lines, the third element is a list of
-        line collections for the horizontal and vertical error ranges
+        :class:`~matplotlib.lines.Line2D` instance for the *y* symbol
+        lines.  The second element is a list of error bar cap lines,
+        the third element is a list of
+        :class:`~matplotlib.collections.LineCollection` instances for
+        the horizontal and vertical error ranges.
         """
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
@@ -4196,38 +4321,38 @@ class Axes(martist.Artist):
           boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
                   positions=None, widths=None)
 
-        Make a box and whisker plot for each column of x or
-        each vector in sequence x.
-        The box extends from the lower to upper quartile values
-        of the data, with a line at the median.  The whiskers
-        extend from the box to show the range of the data.  Flier
-        points are those past the end of the whiskers.
+        Make a box and whisker plot for each column of *x* or each
+        vector in sequence *x*.  The box extends from the lower to
+        upper quartile values of the data, with a line at the median.
+        The whiskers extend from the box to show the range of the
+        data.  Flier points are those past the end of the whiskers.
 
-        ``notch = 0`` (default) produces a rectangular box plot.
-        ``notch = 1`` will produce a notched box plot
+        - *notch* = 0 (default) produces a rectangular box plot.
+        - *notch* = 1 will produce a notched box plot
 
-        sym (default 'b+') is the default symbol for flier points.
+        *sym* (default 'b+') is the default symbol for flier points.
         Enter an empty string ('') if you don't want to show fliers.
 
-        ``vert = 1`` (default) makes the boxes vertical.
-        ``vert = 0`` makes horizontal boxes.  This seems goofy, but
-        that's how Matlab did it.
+        - *vert* = 1 (default) makes the boxes vertical.
+        - *vert* = 0 makes horizontal boxes.  This seems goofy, but
+          that's how Matlab did it.
 
-        whis (default 1.5) defines the length of the whiskers as
+        *whis* (default 1.5) defines the length of the whiskers as
         a function of the inner quartile range.  They extend to the
         most extreme data point within ( ``whis*(75%-25%)`` ) data range.
 
-        positions (default 1,2,...,n) sets the horizontal positions of
+        *positions* (default 1,2,...,n) sets the horizontal positions of
         the boxes. The ticks and limits are automatically set to match
         the positions.
 
-        widths is either a scalar or a vector and sets the width of
+        *widths* is either a scalar or a vector and sets the width of
         each box. The default is 0.5, or ``0.15*(distance between extreme
         positions)`` if that is smaller.
 
-        x is an array or a sequence of vectors.
+        *x* is an array or a sequence of vectors.
 
-        Returns a list of the lines added.
+        Returns a list of the :class:`matplotlib.lines.Line2D`
+        instances added.
 
         """
         if not self._hold: self.cla()
@@ -4382,24 +4507,26 @@ class Axes(martist.Artist):
                   vmin=None, vmax=None, alpha=1.0, linewidths=None,
                   verts=None, **kwargs)
 
-        Make a scatter plot of x versus y, where x, y are 1-D sequences
-        of the same length, N.
+        Make a scatter plot of *x* versus *y*, where *x*, *y* are 1-D
+        sequences of the same length, *N*.
 
         Keyword arguments:
 
-          s:
+          *s*:
             size in points^2.  It is a scalar or an array of the same
-            length as x and y.
-          c:
-            a color. c can be a single color format string, or a
-            sequence of color specifications of length N, or a sequence
-            of N numbers to be mapped to colors using the cmap and norm
-            specified via kwargs (see below). Note that c should not be
-            a single numeric RGB or RGBA sequence because that is
-            indistinguishable from an array of values to be colormapped.
-            c can be a 2-D array in which the rows are RGB or RGBA,
-            however.
-          marker:
+            length as *x* and *y*.
+
+          *c*:
+            a color. *c* can be a single color format string, or a
+            sequence of color specifications of length *N*, or a
+            sequence of *N* numbers to be mapped to colors using the
+            *cmap* and *norm* specified via kwargs (see below). Note
+            that *c* should not be a single numeric RGB or RGBA
+            sequence because that is indistinguishable from an array
+            of values to be colormapped.  *c* can be a 2-D array in
+            which the rows are RGB or RGBA, however.
+
+          *marker*:
             can be one of:
 
             =====   ==============
@@ -4419,12 +4546,13 @@ class Axes(martist.Artist):
             'x'     cross
             =====   ==============
 
-            The marker can also be a tuple (numsides, style, angle), which will
-            create a custom, regular symbol.
+            The marker can also be a tuple (*numsides*, *style*,
+            *angle*), which will create a custom, regular symbol.
 
-            numsides:
+            *numsides*:
               the number of sides
-            style:
+
+            *style*:
               the style of the regular symbol:
 
               =====   ==================
@@ -4435,53 +4563,65 @@ class Axes(martist.Artist):
               2       an asterisk
               =====   ==================
 
-            angle:
+            *angle*:
               the angle of rotation of the symbol
 
-            Finally, marker can be (verts, 0), verts is a sequence of (x,y)
-            vertices for a custom scatter symbol.  Alternatively, use the
-            kwarg combination marker=None, verts=verts.
+            Finally, *marker* can be (*verts*, 0): *verts* is a
+            sequence of (*x*, *y*) vertices for a custom scatter
+            symbol.  Alternatively, use the kwarg combination
+            *marker* = *None*, *verts* = *verts*.
 
-        Any or all of x, y, s, and c may be masked arrays, in which
-        case all masks will be combined and only unmasked points
+        Any or all of *x*, *y*, *s*, and *c* may be masked arrays, in
+        which case all masks will be combined and only unmasked points
         will be plotted.
 
         Other keyword arguments: the color mapping and normalization
-        arguments will be used only if c is an array of floats.
+        arguments will be used only if *c* is an array of floats.
 
-          cmap: [ None | Colormap ]
-            a colors.Colormap instance from cm. If None, defaults to rc
-            image.cmap. cmap is only used if c is an array of floats.
-          norm: [ None | Normalize ]
-            a colors.Normalize instance is used to scale luminance data
-            to 0,1. If None, use the default normalize(). norm is only
-            used if c is an array of floats.
-          vmin/vmax:
-            vmin and vmax are used in conjunction with norm to normalize
-            luminance data.  If either are None, the min and max of the
-            color array C is used.  Note if you pass a norm instance, your
-            settings for vmin and vmax will be ignored.
-          alpha: 0 <= scalar <= 1
-            the alpha value for the patches
-          linewidths: [ None | scalar | sequence ]
-            if None, defaults to (lines.linewidth,).  Note
-            that this is a tuple, and if you set the linewidths
-            argument you must set it as a sequence of floats, as
-            required by RegularPolyCollection -- see
-            collections.RegularPolyCollection for details
+          *cmap*: [ None | Colormap ]
+            A :class:`matplotlib.cm.Colormap` instance. If *None*,
+            defaults to rc ``image.cmap``. *cmap* is only used if *c*
+            is an array of floats.
 
-        Optional kwargs control the Collection properties; in
+          *norm*: [ None | Normalize ]
+            A :class:`matplotlib.colors.Normalize` instance is used to
+            scale luminance data to 0, 1. If *None*, use the default
+            :func:`normalize`. *norm* is only used if *c* is an array
+            of floats.
+
+          *vmin*/*vmax*:
+            *vmin* and *vmax* are used in conjunction with norm to
+            normalize luminance data.  If either are None, the min and
+            max of the color array *C* is used.  Note if you pass a
+            *norm* instance, your settings for *vmin* and *vmax* will
+            be ignored.
+
+          *alpha*: 0 <= scalar <= 1
+            The alpha value for the patches
+
+          *linewidths*: [ None | scalar | sequence ]
+            If *None*, defaults to (lines.linewidth,).  Note that this
+            is a tuple, and if you set the linewidths argument you
+            must set it as a sequence of floats, as required by
+            :class:`~matplotlib.collections.RegularPolyCollection`.
+
+        Optional kwargs control the
+        :class:`~matplotlib.collections.Collection` properties; in
         particular:
 
-          edgecolors:
+          *edgecolors*:
             'none' to plot faces with no outlines
-          facecolors:
+
+          *facecolors*:
             'none' to plot unfilled outlines
 
-        Here are the standard descriptions of all the Collection kwargs:
+        Here are the standard descriptions of all the
+        :class:`~matplotlib.collections.Collection` kwargs:
+
         %(Collection)s
 
-        A Collection instance is returned
+        A :class:`~matplotlib.collections.Collection` instance is
+        returned.
         """
 
         if not self._hold: self.cla()
@@ -4666,75 +4806,90 @@ class Axes(martist.Artist):
                  alpha=1.0, linewidths=None, edgecolors='none'
                  **kwargs)
 
-        Make a hexagonal binning plot of x versus y, where x, y are 1-D
-        sequences of the same length, N.
+        Make a hexagonal binning plot of *x* versus *y*, where *x*,
+        *y* are 1-D sequences of the same length, *N*.
 
-        x and/or y may be masked arrays, in which case only unmasked points will
-        be plotted.
+        *x* and/or *y* may be masked arrays, in which case only
+        unmasked points will be plotted.
 
         Optional keyword arguments:
 
-          gridsize: [ 100 | integer ]
-            The number of hexagons in the x-direction, default is 100. The
-            corresponding number of hexagons in the y-direction is chosen such
-            that the hexagons are approximately regular. Alternatively,
-            gridsize can be a tuple with two elements specifying the number of
-            hexagons in the x-direction and the y-direction.
-          bins: [ None | 'log' | integer | sequence ]
-            If None, no binning is applied; the color of each hexagon directly
-            corresponds to its count value.
+          *gridsize*: [ 100 | integer ]
+            The number of hexagons in the *x*-direction, default is
+            100. The corresponding number of hexagons in the
+            *y*-direction is chosen such that the hexagons are
+            approximately regular. Alternatively, gridsize can be a
+            tuple with two elements specifying the number of hexagons
+            in the *x*-direction and the *y*-direction.
 
-            If 'log', use a logarithmic scale for the color map. Internally,
-            log10(count+1) is used to determine the hexagon color.
+          *bins*: [ None | 'log' | integer | sequence ]
+            If *None*, no binning is applied; the color of each hexagon
+            directly corresponds to its count value.
 
-            If an integer, divide the counts in the specified number of bins,
-            and color the hexagons accordingly.
+            If 'log', use a logarithmic scale for the color
+            map. Internally, :math:`log_{10}(i+1)` is used to
+            determine the hexagon color.
 
-            I a sequence of values, the values of the lower bound of the bins
-            to be used.
-          xscale: [ 'linear' | 'log' ]
+            If an integer, divide the counts in the specified number
+            of bins, and color the hexagons accordingly.
+
+            If a sequence of values, the values of the lower bound of
+            the bins to be used.
+
+          *xscale*: [ 'linear' | 'log' ]
             Use a linear or log10 scale on the horizontal axis.
-          scale: [ 'linear' | 'log' ]
+
+          *scale*: [ 'linear' | 'log' ]
             Use a linear or log10 scale on the vertical axis.
 
         Other keyword arguments controlling color mapping and normalization
         arguments:
 
-          cmap: [ None | Colormap ]
-            a colors.Colormap instance from cm. If None, defaults to rc
-            image.cmap.
-          norm: [ None | Normalize ]
-            colors.Normalize instance is used to scale luminance data to 0,1.
-          vmin/vmax: scalar
-            vmin and vmax are used in conjunction with norm to normalize
-            luminance data.  If either are None, the min and max of the color
-            array C is used.  Note if you pass a norm instance, your settings
-            for vmin and vmax will be ignored.
-          alpha: scalar
+          *cmap*: [ None | Colormap ]
+            a :class:`matplotlib.cm.Colormap` instance. If *None*,
+            defaults to rc ``image.cmap``.
+
+          *norm*: [ None | Normalize ]
+            :class:`matplotlib.colors.Normalize` instance is used to
+            scale luminance data to 0,1.
+
+          *vmin*/*vmax*: scalar
+            *vmin* and *vmax* are used in conjunction with *norm* to normalize
+            luminance data.  If either are *None*, the min and max of the color
+            array *C* is used.  Note if you pass a norm instance, your settings
+            for *vmin* and *vmax* will be ignored.
+
+          *alpha*: scalar
             the alpha value for the patches
-          linewidths: [ None | scalar ]
-            If None, defaults to rc lines.linewidth. Note that this is a tuple,
-            and if you set the linewidths argument you must set it as a
-            sequence of floats, as required by RegularPolyCollection -- see
-            collections.RegularPolyCollection for details.
+
+          *linewidths*: [ None | scalar ]
+            If *None*, defaults to rc lines.linewidth. Note that this
+            is a tuple, and if you set the linewidths argument you
+            must set it as a sequence of floats, as required by
+            :class:`~matplotlib.collections.RegularPolyCollection`.
 
         Other keyword arguments controlling the Collection properties:
 
-          edgecolors: [ None | mpl color | color sequence ]
+          *edgecolors*: [ None | mpl color | color sequence ]
             If 'none', draws the edges in the same color as the fill color.
             This is the default, as it avoids unsightly unpainted pixels
             between the hexagons.
 
-            If None, draws the outlines in the default color.
+            If *None*, draws the outlines in the default color.
 
             If a matplotlib color arg or sequence of rgba tuples, draws the
             outlines in the specified color.
 
-        Here are the standard descriptions of all the Collection kwargs:
+        Here are the standard descriptions of all the
+        :class:`~matplotlib.collections.Collection` kwargs:
+
         %(Collection)s
 
-        The return value is a PolyCollection instance; use get_array() on
-        this PolyCollection to get the counts in each hexagon.
+        The return value is a
+        :class:`~matplotlib.collections.PolyCollection` instance; use
+        :meth:`~matplotlib.collection.PolyCollection.get_array` on
+        this :class:`~matplotlib.collections.PolyCollection` to get
+        the counts in each hexagon.
         """
 
         if not self._hold: self.cla()
@@ -4879,7 +5034,12 @@ class Axes(martist.Artist):
 
     def arrow(self, x, y, dx, dy, **kwargs):
         """
-        Draws arrow on specified axis from (x,y) to (x+dx,y+dy).
+        call signature::
+
+           arrow(x, y, dx, dy, **kwargs)
+
+        Draws arrow on specified axis from (*x*, *y*) to (*x* + *dx*,
+        *y* + *dy*).
 
         Optional kwargs control the arrow properties:
         %(FancyArrow)s
@@ -4910,33 +5070,37 @@ class Axes(martist.Artist):
 
           fill(*args, **kwargs)
 
-        plot filled polygons.  ``*args`` is a variable length argument, allowing
-        for multiple x,y pairs with an optional color format string; see plot
-        for details on the argument parsing.  For example, to plot a polygon
-        with vertices at x,y in blue.::
+        Plot filled polygons.  *args* is a variable length argument,
+        allowing for multiple *x*, *y* pairs with an optional color
+        format string; see :func:`~matplotlib.pyplot.plot` for details
+        on the argument parsing.  For example, to plot a polygon with
+        vertices at *x*, *y* in blue.::
 
           ax.fill(x,y, 'b' )
 
-        An arbitrary number of x, y, color groups can be specified::
+        An arbitrary number of *x*, *y*, *color* groups can be specified::
 
           ax.fill(x1, y1, 'g', x2, y2, 'r')
 
-        Return value is a list of patches that were added.
+        Return value is a list of :class:`~matplotlib.patches.Patch`
+        instances that were added.
 
-        The same color strings that plot supports are supported by the fill
-        format string.
+        The same color strings that :func:`~matplotlib.pyplot.plot`
+        supports are supported by the fill format string.
 
-        If you would like to fill below a curve, eg shade a region
-        between 0 and y along x, use mlab.poly_between, eg::
+        If you would like to fill below a curve, eg. shade a region
+        between 0 and *y* along *x*, use
+        :func:`~matplotlib.pylab.poly_between`, eg.::
 
           xs, ys = poly_between(x, 0, y)
           axes.fill(xs, ys, facecolor='red', alpha=0.5)
 
-        See examples/fill_between.py for more examples.
+        See :file:`examples/pylab_examples/fill_between.py` for more examples.
 
-        The closed kwarg will close the polygon when True (default).
+        The *closed* kwarg will close the polygon when *True* (default).
 
         kwargs control the Polygon properties:
+
         %(Polygon)s
         """
         if not self._hold: self.cla()
@@ -4962,9 +5126,9 @@ class Axes(martist.Artist):
                  alpha=1.0, vmin=None, vmax=None, origin=None, extent=None,
                  **kwargs)
 
-        Display the image in X to current axes.  X may be a float array, a
-        uint8 array or a PIL image. If X is an array, X can have the following
-        shapes:
+        Display the image in *X* to current axes.  *X* may be a float
+        array, a uint8 array or a PIL image. If *X* is an array, *X*
+        can have the following shapes:
 
         * MxN -- luminance (grayscale, float array only)
         * MxNx3 -- RGB (float or uint8 array)
@@ -4973,63 +5137,79 @@ class Axes(martist.Artist):
         The value for each component of MxNx3 and MxNx4 float arrays should be
         in the range 0.0 to 1.0; MxN float arrays may be normalised.
 
-        An image.AxesImage instance is returned.
+        An :class:`matplotlib.image.AxesImage` instance is returned.
 
         Keyword arguments:
 
-          cmap: [ None | Colormap ]
-            A cm colormap instance, eg cm.jet.  If None, default to rc
-            image.cmap value
+          *cmap*: [ None | Colormap ]
+            A :class:`matplotlib.cm.Colormap` instance, eg. cm.jet.
+            If *None*, default to rc ``image.cmap`` value.
 
-            cmap is ignored when X has RGB(A) information
-          aspect: [ None | 'auto' | 'equal' | scalar ]
+            *cmap* is ignored when *X* has RGB(A) information
+
+          *aspect*: [ None | 'auto' | 'equal' | scalar ]
             If 'auto', changes the image aspect ratio to match that of the axes
 
-            If 'equal', and extent is None, changes the axes aspect ratio to
-            match that of the image. If extent is not None, the axes aspect
-            ratio is changed to match that of the extent.
+            If 'equal', and *extent* is *None*, changes the axes
+            aspect ratio to match that of the image. If *extent* is
+            not *None*, the axes aspect ratio is changed to match that
+            of the extent.
 
-            If None, default to rc image.aspect value.
-          interpolation:
-            Acceptable values are None, 'nearest', 'bilinear', 'bicubic',
+            If *None*, default to rc ``image.aspect`` value.
+
+          *interpolation*:
+            Acceptable values are *None*, 'nearest', 'bilinear', 'bicubic',
             'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser',
             'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
             'lanczos', 'blackman'
 
-            If interpolation is None, default to rc image.interpolation. See
-            also th the filternorm and filterrad parameters
-          norm: [ None | Normalize ]
-            An mcolors.Normalize instance; if None, default is normalization().
-            This scales luminance -> 0-1
+            If *interpolation* is *None*, default to rc
+            ``image.interpolation``. See also the *filternorm* and
+            *filterrad* parameters
 
-            norm is only used for an MxN float array.
-          vmin/vmax: [ None | scalar ]
-            Used to scale a luminance image to 0-1.  If either is None, the min
-            and max of the luminance values will be used.  Note if you pass a
-            norm instance, the settings for vmin and vmax will be ignored.
-          alpha: scalar
-            the alpha blending value, between 0 (transparent) and 1 (opaque)
-          origin: [ None | 'upper' | 'lower' ]
+          *norm*: [ None | Normalize ]
+            An :class:`matplotlib.colors.Normalize` instance; if
+            *None*, default is ``normalization()``.  This scales
+            luminance -> 0-1
+
+            *norm* is only used for an MxN float array.
+
+          *vmin*/*vmax*: [ None | scalar ]
+            Used to scale a luminance image to 0-1.  If either is
+            *None*, the min and max of the luminance values will be
+            used.  Note if *norm* is not *None*, the settings for
+            *vmin* and *vmax* will be ignored.
+
+          *alpha*: scalar
+            The alpha blending value, between 0 (transparent) and 1 (opaque)
+
+          *origin*: [ None | 'upper' | 'lower' ]
             Place the [0,0] index of the array in the upper left or lower left
-            corner of the axes. If None, default to rc image.origin
-          extent: [ None | scalars (left, right, bottom, top) ]
-            data values of the axes.  The default assigns zero-based row,
-            column indices to the x, y centers of the pixels.
-          shape: [ None | scalars (columns, rows) ]
-            for raw buffer images
-          filternorm:
+            corner of the axes. If *None*, default to rc ``image.origin``.
+
+          *extent*: [ None | scalars (left, right, bottom, top) ]
+            Eata values of the axes.  The default assigns zero-based row,
+            column indices to the *x*, *y* centers of the pixels.
+
+          *shape*: [ None | scalars (columns, rows) ]
+            For raw buffer images
+
+          *filternorm*:
             A parameter for the antigrain image resize filter.  From the
-            antigrain documentation, if normalize=1, the filter normalizes
+            antigrain documentation, if *filternorm* = 1, the filter normalizes
             integer values and corrects the rounding errors. It doesn't do
             anything with the source floating point values, it corrects only
             integers according to the rule of 1.0 which means that any sum of
             pixel weights must be equal to 1.0.  So, the filter function must
             produce a graph of the proper shape.
-          filterrad:
-            the filter radius for filters that have a radius parameter, ie when
-            interpolation is one of: 'sinc', 'lanczos' or 'blackman'
 
-        Additional kwargs are Artist properties:
+          *filterrad*:
+            The filter radius for filters that have a radius
+            parameter, i.e. when interpolation is one of: 'sinc',
+            'lanczos' or 'blackman'
+
+        Additional kwargs are :class:`~matplotlib.artist.Artist` properties:
+
         %(Artist)s
         """
 
@@ -5093,47 +5273,59 @@ class Axes(martist.Artist):
 
     def pcolor(self, *args, **kwargs):
         """
-        Create a pseudocolor plot of a 2-D array
-
         call signatures::
 
           pcolor(C, **kwargs)
           pcolor(X, Y, C, **kwargs)
 
-        C is the array of color values
+        Create a pseudocolor plot of a 2-D array.
 
-        X and Y, if given, specify the (x,y) coordinates of the colored
-        quadrilaterals; the quadrilateral for C[i,j] has corners at
-        (X[i,j],Y[i,j]), (X[i,j+1],Y[i,j+1]), (X[i+1,j],Y[i+1,j]),
-        (X[i+1,j+1],Y[i+1,j+1]).  Ideally the dimensions of X and Y
-        should be one greater than those of C; if the dimensions are the
-        same, then the last row and column of C will be ignored.
+        *C* is the array of color values.
 
-        Note that the the column index corresponds to the x-coordinate,
-        and the row index corresponds to y; for details, see
-        the "Grid Orientation" section below.
+        *X* and *Y*, if given, specify the (*x*, *y*) coordinates of
+        the colored quadrilaterals; the quadrilateral for C[i,j] has
+        corners at::
 
-        If either or both of X and Y are 1-D arrays or column vectors,
+          (X[i,   j],   Y[i,   j]),
+          (X[i,   j+1], Y[i,   j+1]),
+          (X[i+1, j],   Y[i+1, j]),
+          (X[i+1, j+1], Y[i+1, j+1]).
+
+        Ideally the dimensions of *X* and *Y* should be one greater
+        than those of *C*; if the dimensions are the same, then the
+        last row and column of *C* will be ignored.
+
+        Note that the the column index corresponds to the
+        *x*-coordinate, and the row index corresponds to *y*; for
+        details, see the :ref:`Grid Orientation
+        <axes-pcolor-grid-orientation>` section below.
+
+        If either or both of *X* and *Y* are 1-D arrays or column vectors,
         they will be expanded as needed into the appropriate 2-D arrays,
         making a rectangular grid.
 
-        X,Y and C may be masked arrays.  If either C[i,j], or one
-        of the vertices surrounding C[i,j] (X or Y at [i,j],[i+1,j],
-        [i,j+1],[i=1,j+1]) is masked, nothing is plotted.
+        *X*, *Y* and *C* may be masked arrays.  If either C[i, j], or one
+        of the vertices surrounding C[i,j] (*X* or *Y* at [i, j], [i+1, j],
+        [i, j+1],[i+1, j+1]) is masked, nothing is plotted.
 
         Keyword arguments:
 
-          cmap: [ None | Colormap ]
-            A cm Colormap instance from cm. If None, use rc settings.
+          *cmap*: [ None | Colormap ]
+            A :class:`matplotlib.cm.Colormap` instance. If *None*, use
+            rc settings.
+
           norm: [ None | Normalize ]
-            An mcolors.Normalize instance is used to scale luminance data to
-            0,1. If None, defaults to normalize()
-          vmin/vmax: [ None | scalar ]
-            vmin and vmax are used in conjunction with norm to normalize
-            luminance data.  If either are None, the min and max of the color
-            array C is used.  If you pass a norm instance, vmin and vmax will
-            be None.
-          shading: [ 'flat' | 'faceted' ]
+            An :class:`matplotlib.colors.Normalize` instance is used
+            to scale luminance data to 0,1. If *None*, defaults to
+            :func:`normalize`.
+
+          *vmin*/*vmax*: [ None | scalar ]
+            *vmin* and *vmax* are used in conjunction with *norm* to
+            normalize luminance data.  If either are *None*, the min
+            and max of the color array *C* is used.  If you pass a
+            *norm* instance, *vmin* and *vmax* will be ignored.
+
+          *shading*: [ 'flat' | 'faceted' ]
             If 'faceted', a black grid is drawn around each rectangle; if
             'flat', edges are not drawn. Default is 'flat', contrary to
             Matlab(TM).
@@ -5141,23 +5333,30 @@ class Axes(martist.Artist):
             This kwarg is deprecated; please use 'edgecolors' instead:
               * shading='flat' -- edgecolors='None'
               * shading='faceted  -- edgecolors='k'
-          edgecolors: [ None | 'None' | color | color sequence]
-            If None, the rc setting is used by default.
+
+          *edgecolors*: [ None | 'None' | color | color sequence]
+            If *None*, the rc setting is used by default.
+
             If 'None', edges will not be visible.
+
             An mpl color or sequence of colors will set the edge color
-          alpha: 0 <= scalar <= 1
+
+          *alpha*: 0 <= scalar <= 1
             the alpha blending value
 
-        Return value is a matplotlib.collection.Collection object
+        Return value is a :class:`matplotlib.collection.Collection`
+        instance.
+
+        .. _axes-pcolor-grid-orientation:
 
         The grid orientation follows the Matlab(TM) convention: an
-        array C with shape (nrows, ncolumns) is plotted with
-        the column number as X and the row number as Y, increasing
+        array *C* with shape (*nrows*, *ncolumns*) is plotted with
+        the column number as *X* and the row number as *Y*, increasing
         up; hence it is plotted the way the array would be printed,
-        except that the Y axis is reversed.  That is, C is taken
-        as C(y,x).
+        except that the *Y* axis is reversed.  That is, *C* is taken
+        as *C*(*y*, *x*).
 
-        Similarly for meshgrid::
+        Similarly for :func:`~matplotlib.pyplot.meshgrid`::
 
           x = np.arange(5)
           y = np.arange(3)
@@ -5185,12 +5384,14 @@ class Axes(martist.Artist):
 
           pcolor(C.T)
 
-        Matlab pcolor always discards the last row and column of C, but
-        matplotlib displays the last row and column if X and Y are not
-        specified, or if X and Y have one more row and column than C.
+        Matlab :func:`pcolor` always discards the last row and column
+        of *C*, but matplotlib displays the last row and column if *X* and
+        *Y* are not specified, or if *X* and *Y* have one more row and
+        column than *C*.
 
+        kwargs can be used to control the
+        :class:`~matplotlib.collection.PolyCollection` properties:
 
-        kwargs can be used to control the PolyCollection properties:
         %(PolyCollection)s
         """
 
@@ -5288,23 +5489,29 @@ class Axes(martist.Artist):
           pcolormesh(X, Y, C)
           pcolormesh(C, **kwargs)
 
-        C may be a masked array, but X and Y may not.  Masked array support
-        is implemented via cmap and norm; in contrast, pcolor simply does
-        not draw quadrilaterals with masked colors or vertices.
+        *C* may be a masked array, but *X* and *Y* may not.  Masked
+        array support is implemented via *cmap* and *norm*; in
+        contrast, *pcolor* simply does not draw quadrilaterals with
+        masked colors or vertices.
 
         Keyword arguments:
 
-          cmap: [ None | Colormap ]
-            A cm Colormap instance from cm. If None, use rc settings.
-          norm: [ None | Normalize ]
-            An mcolors.Normalize instance is used to scale luminance data to
-            0,1. If None, defaults to normalize()
-          vmin/vmax: [ None | scalar ]
-            vmin and vmax are used in conjunction with norm to normalize
-            luminance data.  If either are None, the min and max of the color
-            array C is used.  If you pass a norm instance, vmin and vmax will
-            be None.
-          shading: [ 'flat' | 'faceted' ]
+          *cmap*: [ None | Colormap ]
+            A :class:`matplotlib.cm.Colormap` instance. If None, use
+            rc settings.
+
+          *norm*: [ None | Normalize ]
+            A :class:`matplotlib.colors.Normalize` instance is used to
+            scale luminance data to 0,1. If None, defaults to
+            :func:`normalize`.
+
+          *vmin*/*vmax*: [ None | scalar ]
+            *vmin* and *vmax* are used in conjunction with *norm* to
+            normalize luminance data.  If either are *None*, the min
+            and max of the color array *C* is used.  If you pass a
+            *norm* instance, *vmin* and *vmax* will be ignored.
+
+          *shading*: [ 'flat' | 'faceted' ]
             If 'faceted', a black grid is drawn around each rectangle; if
             'flat', edges are not drawn. Default is 'flat', contrary to
             Matlab(TM).
@@ -5312,20 +5519,27 @@ class Axes(martist.Artist):
             This kwarg is deprecated; please use 'edgecolors' instead:
               * shading='flat' -- edgecolors='None'
               * shading='faceted  -- edgecolors='k'
-          edgecolors: [ None | 'None' | color | color sequence]
+
+          *edgecolors*: [ None | 'None' | color | color sequence]
             If None, the rc setting is used by default.
+
             If 'None', edges will not be visible.
+
             An mpl color or sequence of colors will set the edge color
-          alpha: 0 <= scalar <= 1
+
+          *alpha*: 0 <= scalar <= 1
             the alpha blending value
 
-        Return value is a matplotlib.collection.Collection object
+        Return value is a :class:`matplotlib.collection.Collection`
+        object.
 
-        See pcolor for an explantion of the grid orientation and the
-        expansion of 1-D X and/or Y to 2-D arrays.
+        See :func:`~matplotlib.pyplot.pcolor` for an explanation of
+        the grid orientation and the expansion of 1-D *X* and/or *Y*
+        to 2-D arrays.
 
-        kwargs can be used to control the collections.QuadMesh polygon
-        collection properties:
+        kwargs can be used to control the
+        :class:`matplotlib.collections.QuadMesh`
+        properties:
 
         %(QuadMesh)s
         """
@@ -5579,13 +5793,17 @@ class Axes(martist.Artist):
                 colLabels=None, colColours=None, colLoc='center',
                 loc='bottom', bbox=None):
 
-        Add a table to the current axes.  Returns a table instance.  For
-        finer grained control over tables, use the Table class and add it
-        to the axes with add_table.
+        Add a table to the current axes.  Returns a
+        :class:`matplotlib.table.Table` instance.  For finer grained
+        control over tables, use the :class:`~matplotlib.table.Table`
+        class and add it to the axes with
+        :meth:`~matplotlib.axes.Axes.add_table`.
 
         Thanks to John Gill for providing the class and table.
 
-        kwargs control the Table properties:
+        kwargs control the :class:`~matplotlib.table.Table`
+        properties:
+
         %(Table)s
         """
         return mtable.table(self, **kwargs)
@@ -5649,81 +5867,91 @@ class Axes(martist.Artist):
                bottom=None, histtype='bar', align='mid',
                orientation='vertical', rwidth=None, log=False, **kwargs)
 
-        Compute the histogram of x. The return value is (n, bins, patches) or
-        ([n0,n1,...], bins, [patches0,patches1,...]) if the input contains
-        multiple data.
+        Compute the histogram of *x*. The return value is a tuple
+        (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*,
+        [*patches0*, *patches1*,...]) if the input contains multiple
+        data.
 
         Keyword arguments:
 
-          bins:
+          *bins*:
             either an integer number of bins or a sequence giving the
-            bins.  x are the data to be binned. x can be an array or a
-            2D array with multiple data in its columns.  Note, if bins
-            is an integer input argument=numbins, numbins+1 bin edges
-            will be returned, compatabile with the semantics of
-            np.histogram with the new=True argument.
+            bins.  *x* are the data to be binned. *x* can be an array or a
+            2D array with multiple data in its columns.  Note, if *bins*
+            is an integer input argument=numbins, *bins* + 1 bin edges
+            will be returned, compatible with the semantics of
+            :func:`numpy.histogram` with the *new* = True argument.
 
-          range:
+          *range*:
             The lower and upper range of the bins. Lower and upper outliers
-            are ignored. If not provided, range is (x.min(), x.max()).
+            are ignored. If not provided, *range* is (x.min(), x.max()).
 
-          normed:
-            if True, the first element of the return tuple will
-            be the counts normalized to form a probability density, ie,
-            n/(len(x)*dbin).  In a probability density, the integral of
-            the histogram should be one; you can verify that with a
+          *normed*:
+            If *True*, the first element of the return tuple will
+            be the counts normalized to form a probability density, i.e.,
+            ``n/(len(x)*dbin)``.  In a probability density, the integral of
+            the histogram should be 1; you can verify that with a
             trapezoidal integration of the probability density function::
 
               pdf, bins, patches = ax.hist(...)
               print np.sum(pdf * np.diff(bins))
 
-          cumulative:
-            if True then a histogram is computed where each bin
+          *cumulative*:
+            If *True*, then a histogram is computed where each bin
             gives the counts in that bin plus all bins for smaller values.
-            The last bin gives the total number of datapoints.  If normed
-            is also True then the histogram is normalized such that the
-            last bin equals one. If cumulative evaluates to less that one
+            The last bin gives the total number of datapoints.  If *normed*
+            is also *True* then the histogram is normalized such that the
+            last bin equals one. If *cumulative* evaluates to less that 1
             (e.g. -1), the direction of accumulation is reversed.  In this
-            case, If normed is also True then the histogram is normalized
-            such that the first bin equals one.
+            case, if *normed* is also *True*, then the histogram is normalized
+            such that the first bin equals 1.
 
-          histtype:
-            [ 'bar' | 'barstacked' | 'step' | 'stepfilled' ] The type of
-            histogram to draw.  'bar' is a traditional bar-type histogram,
-            'barstacked' is a bar-type histogram where multiple data are
-            stacked on top of each other. step' generates a lineplot that
-            is by default unfilled, and 'stepfilled' generates a lineplot
-            that this by default filled.
+          *histtype*: [ 'bar' | 'barstacked' | 'step' | 'stepfilled' ]
+            The type of histogram to draw.
 
-          align:
-            ['left' | 'mid' | 'right' ] Controles how the histogram is
-            plotted. If 'left', bars are centered on the left bin edges.
-            If 'mid', bars are centered between the bin edges. If 'right',
-            bars are centered on the right bin edges.
+              - 'bar' is a traditional bar-type histogram
 
-          orientation:
-            [ 'horizontal' | 'vertical' ]  If horizontal, barh will be used
-            and the "bottom" kwarg will be the left edges.
+              - 'barstacked' is a bar-type histogram where multiple
+                 data are stacked on top of each other.
 
-          rwidth:
-            the relative width of the bars as fraction of the bin
-            width.  If None, automatically compute the width. Ignored
-            for 'step' histtype.
+              - 'step' generates a lineplot that is by default
+                unfilled
 
-          log:
-            if True, the histogram axis will be set to a log scale.
-            If log is true and x is a 1D array, empty bins will be
-            filtered out and only the non-empty n, bins, patches will be
-            returned.
+              - 'stepfilled' generates a lineplot that this by default
+                filled.
 
-        kwargs are used to update the properties of the
-        hist Rectangles:
+          *align*: ['left' | 'mid' | 'right' ]
+            Controls how the histogram is
+            plotted.
+
+              - 'left': bars are centered on the left bin edges
+
+              - 'mid': bars are centered between the bin edges
+
+              - 'right': bars are centered on the right bin edges.
+
+          *orientation*: [ 'horizontal' | 'vertical' ]
+            If 'horizontal', :func:`~matplotlib.pyplot.barh` will be
+            used and the *bottom* kwarg will be the left edges.
+
+          *rwidth*:
+            the relative width of the bars as a fraction of the bin
+            width.  If *None*, automatically compute the width. Ignored
+            if *histtype* = 'step'.
+
+          *log*:
+            If *True*, the histogram axis will be set to a log scale.
+            If *log* is *True* and *x* is a 1D array, empty bins will
+            be filtered out and only the non-empty (*n*, *bins*,
+            *patches*) will be returned.
+
+        kwargs are used to update the properties of the hist
+        :class:`~matplotlib.patches.Rectangle` instances:
+
         %(Rectangle)s
-
 
         Here is an example which generates a histogram of normally
         distributed random numbers and plot the analytic PDF over it::
-
 
             import numpy as np
             import matplotlib.pyplot as plt
@@ -5758,11 +5986,10 @@ class Axes(martist.Artist):
             #fig.savefig('histogram_demo',dpi=72)
             plt.show()
 
-
         You can use labels for your histogram, and only the first
-        Rectangle gets the label (the others get the magic string
-        '_nolegend_'.  This will make the histograms work in the
-        intuitive way for bar charts::
+        :class:`~matplotlib.patches.Rectangle` gets the label (the
+        others get the magic string '_nolegend_'.  This will make the
+        histograms work in the intuitive way for bar charts::
 
             ax.hist(10+2*np.random.randn(1000), label='men')
             ax.hist(12+3*np.random.randn(1000), label='women', alpha=0.5)
@@ -5947,49 +6174,62 @@ class Axes(martist.Artist):
           psd(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
               window=mlab.window_hanning, noverlap=0, **kwargs)
 
-        The power spectral density by Welches average periodogram method.  The
-        vector x is divided into NFFT length segments.  Each segment is
-        detrended by function detrend and windowed by function window.
-        noperlap gives the length of the overlap between segments.  The
-        absolute(fft(segment))**2 of each segment are averaged to compute Pxx,
-        with a scaling to correct for power loss due to windowing.  Fs is the
+        The power spectral density by Welches average periodogram
+        method.  The vector *x* is divided into *NFFT* length
+        segments.  Each segment is detrended by function *detrend* and
+        windowed by function *window*.  *noperlap* gives the length of
+        the overlap between segments.  The :math:`|\mathrm{fft}(i)|^2`
+        of each segment :math:`i` are averaged to compute *Pxx*, with a
+        scaling to correct for power loss due to windowing.  *Fs* is the
         sampling frequency.
 
-        Keyword arguments::
+        Keyword arguments:
 
-          NFFT: integer
+          *NFFT*: integer
             The length of the fft segment, must be a power of 2
-          Fs: integer
+
+          *Fs*: integer
             The sampling frequency.
-          Fc: integer
-            The center frequency of x (defaults to 0), which offsets
+
+          *Fc*: integer
+            The center frequency of *x* (defaults to 0), which offsets
             the yextents of the image to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
-          detrend:
+
+          *detrend*:
             The function applied to each segment before fft-ing,
-            designed to remove the mean or linear trend.  Unlike in matlab,
-            where the detrend parameter is a vector, in matplotlib is it a
-            function.  The mlab module defines detrend_none, detrend_mean,
-            detrend_linear, but you can use a custom function as well.
-          window:
-            The function used to window the segments.  window is a
-            function, unlike in matlab where it is a vector.  mlab defines
-            window_none, window_hanning, but you can use a custom function
-            as well.
-          noverlap: integer
+            designed to remove the mean or linear trend.  Unlike in
+            matlab, where the *detrend* parameter is a vector, in
+            matplotlib is it a function.  The :mod:`~matplotlib.pylab`
+            module defines :func:`~matplotlib.pylab.detrend_none`,
+            :func:`~matplotlib.pylab.detrend_mean`, and
+            :func:`~matplotlib.pylab.detrend_linear`, but you can use
+            a custom function as well.
+
+          *window*:
+            The function used to window the segments.  *window* is a
+            function, unlike in matlab where it is a vector.
+            :mod:`~matplotlib.pylab` defines
+            :func:`~matplotlib.pylab.window_none`, and
+            :func:`~matplotlib.pylab.window_hanning`, but you can use
+            a custom function as well.
+
+          *noverlap*: integer
             Gives the length of the overlap between segments.
 
-        Returns the tuple Pxx, freqs
+        Returns the tuple (*Pxx*, *freqs*).
 
-        For plotting, the power is plotted as 10*np.log10(pxx) for decibels,
-        though pxx itself is returned
+        For plotting, the power is plotted as
+        :math:`10\log_{10}(P_{xx})` for decibels, though *Pxx* itself
+        is returned.
 
         References:
           Bendat & Piersol -- Random Data: Analysis and Measurement
           Procedures, John Wiley & Sons (1986)
 
-        kwargs control the Line2D properties:
+        kwargs control the :class:`~matplotlib.lines.Line2D` properties:
+
         %(Line2D)s
         """
         if not self._hold: self.cla()
@@ -6021,23 +6261,26 @@ class Axes(martist.Artist):
           csd(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
               window=window_hanning, noverlap=0, **kwargs)
 
-        The cross spectral density Pxy by Welches average periodogram method.
-        The vectors x and y are divided into NFFT length segments.  Each
-        segment is detrended by function detrend and windowed by function
-        window.  The product of the direct FFTs of x and y are averaged over
-        each segment to compute Pxy, with a scaling to correct for power loss
-        due to windowing.
+        The cross spectral density :math:`P_{xy}` by Welches average
+        periodogram method.  The vectors *x* and *y* are divided into
+        *NFFT* length segments.  Each segment is detrended by function
+        *detrend* and windowed by function *window*.  The product of
+        the direct FFTs of *x* and *y* are averaged over each segment
+        to compute :math:`P_{xy}`, with a scaling to correct for power
+        loss due to windowing.
 
-        See the PSD help for a description of the optional parameters.
+        See :meth:`psd` for a description of the optional parameters.
 
-        Returns the tuple Pxy, freqs.  Pxy is the cross spectrum (complex
-        valued), and ``10*np.log10(|Pxy|)`` is plotted
+        Returns the tuple (*Pxy*, *freqs*).  *P* is the cross spectrum
+        (complex valued), and :math:`10\log_{10}|P_{xy}|` is
+        plotted.
 
         References:
           Bendat & Piersol -- Random Data: Analysis and Measurement
           Procedures, John Wiley & Sons (1986)
 
         kwargs control the Line2D properties:
+
         %(Line2D)s
         """
         if not self._hold: self.cla()
@@ -6069,28 +6312,28 @@ class Axes(martist.Artist):
           cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend = mlab.detrend_none,
                  window = mlab.window_hanning, noverlap=0, **kwargs)
 
-        cohere the coherence between x and y.  Coherence is the normalized
-        cross spectral density
+        cohere the coherence between *x* and *y*.  Coherence is the normalized
+        cross spectral density:
 
         .. math::
 
           C_{xy} = \\frac{|P_{xy}|^2}{P_{xx}*P_{yy}}
 
-        The return value is (Cxy, f), where f are the frequencies of the
-        coherence vector.
+        The return value is a tuple (*Cxy*, *f*), where *f* are the
+        frequencies of the coherence vector.
 
-        See the PSD help for a description of the optional parameters.
+        See the :meth:`psd` for a description of the optional parameters.
 
-        kwargs are applied to the lines
-
-        Returns the tuple Cxy, freqs
+        kwargs are applied to the lines.
 
         References:
 
           * Bendat & Piersol -- Random Data: Analysis and Measurement
             Procedures, John Wiley & Sons (1986)
 
-        kwargs control the Line2D properties of the coherence plot:
+        kwargs control the :class:`~matplotlib.lines.Line2D`
+        properties of the coherence plot:
+
         %(Line2D)s
         """
         if not self._hold: self.cla()
@@ -6115,30 +6358,36 @@ class Axes(martist.Artist):
                    window = mlab.window_hanning, noverlap=128,
                    cmap=None, xextent=None)
 
-        Compute a spectrogram of data in x.  Data are split into NFFT length
-        segements and the PSD of each section is computed.  The windowing
-        function window is applied to each segment, and the amount of overlap
-        of each segment is specified with noverlap.
+        Compute a spectrogram of data in *x*.  Data are split into
+        *NFFT* length segments and the PSD of each section is
+        computed.  The windowing function *window* is applied to each
+        segment, and the amount of overlap of each segment is
+        specified with *noverlap*.
 
         Keyword arguments:
 
-          cmap:
-            a colormap; if None use default determined by rc
-          xextent:
-            the image extent in the xaxes xextent=xmin, xmax
+          *cmap*:
+            A :class:`matplotlib.cm.Colormap` instance; if *None* use
+            default determined by rc
+
+          *xextent*:
+            The image extent in the xaxes xextent=xmin, xmax
             default 0, max(bins), 0, max(freqs) where bins is the return
             value from mlab.specgram
 
-        See help(psd) for information on the other keyword arguments.
+        See :meth:`~matplotlib.axes.Axes.psd` for information on the
+        other keyword arguments.
 
-        Return value is (Pxx, freqs, bins, im), where bins are the time
-        points the spectrogram is calculated over, freqs is an array of
-        frequencies, Pxx is a len(times) x len(freqs) array of power, and
-        im is a image.AxesImage.
+        Return value is (*Pxx*, *freqs*, *bins*, *im*):
 
-        Note: If x is real (i.e. non-complex), only the positive spectrum
-        is shown.  If x is complex both positive and negative parts of the
-        spectrum are shown.
+          - *bins* are the time points the spectrogram is calculated over
+          - *freqs* is an array of frequencies
+          - *Pxx* is a len(times) x len(freqs) array of power
+          - *im* is a :class:`matplotlib.image.AxesImage` instance
+
+        Note: If *x* is real (i.e. non-complex), only the positive
+        spectrum is shown.  If *x* is complex, both positive and
+        negative parts of the spectrum are shown.
         """
         if not self._hold: self.cla()
 
@@ -6166,16 +6415,16 @@ class Axes(martist.Artist):
           spy(Z, precision=None, marker=None, markersize=None,
               aspect='equal', **kwargs)
 
-        spy(Z) plots the sparsity pattern of the 2-D array Z
+        ``spy(Z)`` plots the sparsity pattern of the 2-D array *Z*.
 
-        If precision is None, any non-zero value will be plotted;
-        else, values of absolute(Z)>precision will be plotted.
+        If *precision* is *None*, any non-zero value will be plotted;
+        else, values of :math:`|Z| > precision` will be plotted.
 
         The array will be plotted as it would be printed, with
         the first index (row) increasing down and the second
         index (column) increasing to the right.
 
-        By default aspect is 'equal' so that each array element
+        By default aspect is 'equal', so that each array element
         occupies a square space; set the aspect kwarg to 'auto'
         to allow the plot to fill the plot box, or to any scalar
         number to specify the aspect ratio of an array element
@@ -6183,35 +6432,37 @@ class Axes(martist.Artist):
 
         Two plotting styles are available: image or marker. Both
         are available for full arrays, but only the marker style
-        works for scipy.sparse.spmatrix instances.
+        works for :class:`scipy.sparse.spmatrix` instances.
 
-        If marker and markersize are None, an image will be
-        returned and any remaining kwargs are passed to imshow;
-        else, a Line2D object will be returned with the value
-        of marker determining the marker type, and any remaining
-        kwargs passed to the axes plot method.
+        If *marker* and *markersize* are *None*, an image will be
+        returned and any remaining kwargs are passed to
+        :func:`~matplotlib.pyplot.imshow`; else, a
+        :class:`~matplotlib.lines.Line2D` object will be returned with
+        the value of marker determining the marker type, and any
+        remaining kwargs passed to the
+        :meth:`~matplotlib.axes.Axes.plot` method.
 
-        If marker and markersize are None, useful kwargs include:
+        If *marker* and *markersize* are *None*, useful kwargs include:
 
-        * cmap
-        * alpha
+        * *cmap*
+        * *alpha*
 
-        See documentation for imshow() for details.
+        See documentation for :func:`~matplotlib.pyplot.imshow` for details.
 
         For controlling colors, e.g. cyan background and red marks,
         use::
 
           cmap = mcolors.ListedColormap(['c','r'])
 
-        If marker or markersize is not None, useful kwargs include:
+        If *marker* or *markersize* is not *None*, useful kwargs include:
 
-        * marker
-        * markersize
-        * color
+        * *marker*
+        * *markersize*
+        * *color*
 
-        See documentation for plot() for details.
+        See documentation for :func:`~matplotlib.pyplot.plot` for details.
 
-        Useful values for marker include:
+        Useful values for *marker* include:
 
         * 's'  square (default)
         * 'o'  circle
@@ -6272,17 +6523,16 @@ class Axes(martist.Artist):
         is zero-based.
 
         Argument:
-            Z   anything that can be interpreted as a 2-D array
+            *Z*   anything that can be interpreted as a 2-D array
 
-        kwargs: all are passed to imshow.  matshow sets defaults
-        for extent, origin, interpolation, and aspect; use care
-        in overriding the extent and origin kwargs, because they
-        interact.  (Also, if you want to change them, you probably
-        should be using imshow directly in your own version of
-        matshow.)
+        kwargs all are passed to :meth:`~matplotlib.axes.Axes.imshow`.
+        :meth:`matshow` sets defaults for *extent*, *origin*,
+        *interpolation*, and *aspect*; use care in overriding the
+        *extent* and *origin* kwargs, because they interact.  (Also,
+        if you want to change them, you probably should be using
+        imshow directly in your own version of matshow.)
 
-        Returns: an image.AxesImage instance
-
+        Returns: an :class:`matplotlib.image.AxesImage` instance.
         '''
         Z = np.asarray(Z)
         nr, nc = Z.shape

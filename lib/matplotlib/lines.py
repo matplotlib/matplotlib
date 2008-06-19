@@ -837,7 +837,7 @@ class Line2D(Artist):
     def _draw_thin_diamond(self, renderer, gc, path, path_trans):
         offset = renderer.points_to_pixels(self._markersize)
         transform = Affine2D().translate(-0.5, -0.5) \
-            .rot<ate_deg(45).scale(offset * 0.6, offset)
+            .rotate_deg(45).scale(offset * 0.6, offset)
         rgbFace = self._get_rgb_face()
         renderer.draw_markers(gc, Path.unit_rectangle(), transform,
                               path, path_trans, rgbFace)

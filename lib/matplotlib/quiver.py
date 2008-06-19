@@ -32,35 +32,37 @@ call signatures::
 
 Arguments:
 
-  X, Y:
+  *X*, *Y*:
     The x and y coordinates of the arrow locations
-    (default is tail of arrow; see 'pivot' kwarg)
-  U, V:
-    give the x and y components of the arrow vectors
-  C:
+    (default is tail of arrow; see *pivot* kwarg)
+
+  *U*, *V*:
+    give the *x* and *y* components of the arrow vectors
+
+  *C*:
     an optional array used to map colors to the arrows
 
-All arguments may be 1-D or 2-D arrays or sequences. If X
-and Y are absent, they will be generated as a uniform grid.
-If U and V are 2-D arrays but X and Y are 1-D, and if
-len(X) and len(Y) match the column and row dimensions
-of U, then X and Y will be expanded with meshgrid.
+All arguments may be 1-D or 2-D arrays or sequences. If *X* and *Y*
+are absent, they will be generated as a uniform grid.  If *U* and *V*
+are 2-D arrays but *X* and *Y* are 1-D, and if len(*X*) and len(*Y*)
+match the column and row dimensions of *U*, then *X* and *Y* will be
+expanded with :func:`numpy.meshgrid`.
 
-U, V, C may be masked arrays, but masked X, Y are not
+*U*, *V*, *C* may be masked arrays, but masked *X*, ** are not
 supported at present.
 
 Keyword arguments:
 
-  units: ['width' | 'height' | 'dots' | 'inches' | 'x' | 'y' ]
+  *units*: ['width' | 'height' | 'dots' | 'inches' | 'x' | 'y' ]
     arrow units; the arrow dimensions *except for length* are
     in multiples of this unit.
 
     * 'width' or 'height': the width or height of the axes
     * 'dots' or 'inches':  pixels or inches, based on the figure dpi
-    * 'x' or 'y': X or Y data units
+    * 'x' or 'y': *X* or *Y* data units
 
-    In all cases the arrow aspect ratio is 1, so that if U==V the
-    angle of the arrow on the plot is 45 degrees CCW from the X-axis.
+    In all cases the arrow aspect ratio is 1, so that if *U*==*V* the
+    angle of the arrow on the plot is 45 degrees CCW from the *x*-axis.
 
     The arrows scale differently depending on the units, however.
     For 'x' or 'y', the arrows get larger as one zooms in; for other
@@ -68,47 +70,57 @@ Keyword arguments:
     'width or 'height', the arrow size increases with the width and
     height of the axes, respectively, when the the window is resized;
     for 'dots' or 'inches', resizing does not change the arrows.
-  scale: [ None | float ]
+
+  *scale*: [ None | float ]
     data units per arrow unit, e.g. m/s per plot width;
     a smaller scale parameter makes the arrow longer.
-    If None, a simple autoscaling algorithm is used, based
+    If *None*, a simple autoscaling algorithm is used, based
     on the average vector length and the number of vectors.
-  width:
+
+  *width*:
     shaft width in arrow units; default depends on choice of units,
     above, and number of vectors; a typical starting value is about
     0.005 times the width of the plot.
-  headwidth: scalar
+
+  *headwidth*: scalar
     head width as multiple of shaft width, default is 3
-  headlength: scalar
+
+  *headlength*: scalar
     head length as multiple of shaft width, default is 5
-  headaxislength: scalar
+
+  *headaxislength*: scalar
     head length at shaft intersection, default is 4.5
-  minshaft: scalar
+
+  *minshaft*: scalar
     length below which arrow scales, in units of head length. Do not
     set this to less than 1, or small arrows will look terrible!
     Default is 1
-  minlength: scalar
+
+  *minlength*: scalar
     minimum length as a multiple of shaft width; if an arrow length
     is less than this, plot a dot (hexagon) of this diameter instead.
     Default is 1.
-  pivot: [ 'tail' | 'middle' | 'tip' ]
-    The part of the arrow that is at the grid point; the arrow
-    rotates about this point, hence the name 'pivot'.
 
-  color = [ color | color sequence ]
-    This is a synonym for the PolyCollection facecolor kwarg.
-    If C has been set, 'color' has no effect.
+  *pivot*: [ 'tail' | 'middle' | 'tip' ]
+    The part of the arrow that is at the grid point; the arrow
+    rotates about this point, hence the name *pivot*.
+
+  *color*: [ color | color sequence ]
+    This is a synonym for the
+    :class:`~matplotlib.collections.PolyCollection` facecolor kwarg.
+    If *C* has been set, *color* has no effect.
 
 The defaults give a slightly swept-back arrow; to make the head a
-triangle, make headaxislength the same as headlength. To make the
-arrow more pointed, reduce headwidth or increase headlength and
-headaxislength. To make the head smaller relative to the shaft, scale
-down all the head parameters. You will probably do best to leave
+triangle, make *headaxislength* the same as *headlength*. To make the
+arrow more pointed, reduce *headwidth* or increase *headlength* and
+*headaxislength*. To make the head smaller relative to the shaft,
+scale down all the head parameters. You will probably do best to leave
 minshaft alone.
 
-Additional keyword arguments will be passed on to the PolyCollection
-constructor. linewidths and edgecolors can be used to customize the
-arrow outlines. Additional PolyCollection keyword arguments:
+linewidths and edgecolors can be used to customize the arrow
+outlines. Additional :class:`~matplotlib.collections.PolyCollection`
+keyword arguments:
+
 %(PolyCollection)s
 """ % martist.kwdocd
 
@@ -121,48 +133,56 @@ call signature::
 
 Arguments:
 
-  Q:
+  *Q*:
     The Quiver instance returned by a call to quiver.
-  X, Y:
+
+  *X*, *Y*:
     The location of the key; additional explanation follows.
-  U:
+
+  *U*:
     The length of the key
-  label:
+
+  *label*:
     a string with the length and units of the key
 
 Keyword arguments:
 
-  coordinates = [ 'axes' | 'figure' | 'data' | 'inches' ]
-    Coordinate system and units for X, Y: 'axes' and 'figure'
+  *coordinates* = [ 'axes' | 'figure' | 'data' | 'inches' ]
+    Coordinate system and units for *X*, *Y*: 'axes' and 'figure'
     are normalized coordinate systems with 0,0 in the lower
     left and 1,1 in the upper right; 'data' are the axes
     data coordinates (used for the locations of the vectors
     in the quiver plot itself); 'inches' is position in the
     figure in inches, with 0,0 at the lower left corner.
-  color:
-    overrides face and edge colors from Q.
-  labelpos = [ 'N' | 'S' | 'E' | 'W' ]
+
+  *color*:
+    overrides face and edge colors from *Q*.
+
+  *labelpos* = [ 'N' | 'S' | 'E' | 'W' ]
     Position the label above, below, to the right, to the left
     of the arrow, respectively.
-  labelsep:
+
+  *labelsep*:
     Distance in inches between the arrow and the label.
     Default is 0.1
-  labelcolor:
-    defaults to default Text color
-  fontproperties:
+
+  *labelcolor*:
+    defaults to default :class:`~matplotlib.text.Text` color.
+
+  *fontproperties*:
     A dictionary with keyword arguments accepted by the
-    FontProperties initializer: family, style, variant, size,
-    weight
+    :class:`~matplotlib.font_manager.FontProperties` initializer:
+    *family*, *style*, *variant*, *size*, *weight*
 
 Any additional keyword arguments are used to override vector
-properties taken from Q.
+properties taken from *Q*.
 
-The positioning of the key depends on X, Y, coordinates, and
-labelpos.  If labelpos is 'N' or 'S', X,Y give the position
-of the middle of the key arrow.  If labelpos is 'E', X,Y
-positions the head, and if labelpos is 'W', X,Y positions the
-tail; in either of these two cases, X,Y is somewhere in the middle
-of the arrow+label key object.
+The positioning of the key depends on *X*, *Y*, *coordinates*, and
+*labelpos*.  If *labelpos* is 'N' or 'S', *X*, *Y* give the position
+of the middle of the key arrow.  If *labelpos* is 'E', *X*, *Y*
+positions the head, and if *labelpos* is 'W', *X*, *Y* positions the
+tail; in either of these two cases, *X*, *Y* is somewhere in the
+middle of the arrow+label key object.
 """
 
 
