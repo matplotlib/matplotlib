@@ -503,9 +503,9 @@ class Axis(artist.Artist):
 
     """
     Public attributes
-      transData - transform data coords to display coords
-      transAxis - transform axis coords to display coords
 
+    * transData - transform data coords to display coords
+    * transAxis - transform axis coords to display coords
 
     """
     LABELPAD = 5
@@ -533,6 +533,7 @@ class Axis(artist.Artist):
         #self.major = dummy()
         #self.minor = dummy()
 
+        self._autolabelpos = True
         self.label = self._get_label()
         self.offsetText = self._get_offset_text()
         self.majorTicks = []
@@ -541,6 +542,29 @@ class Axis(artist.Artist):
 
         self.cla()
         self.set_scale('linear')
+
+
+    def set_label_coords(self, x, y, transform=None):
+        """
+        Set the coordinates of the label.  By default, the x
+        coordinate of the y label is determined by the tick label
+        bounding boxes, but this can lead to poor alignment of
+        multiple ylabels if there are multiple axes.  Ditto for the y
+        coodinate of the x label.
+
+        You can also specify the coordinate system of the label with
+        the transform.  If None, the default coordinate system will be
+        the axes coordinate system (0,0) is (left,bottom), (0.5, 0.5)
+        is middle, etc
+
+        """
+
+        self._autolabelpos = False
+        if transform is None:
+            transform = self.axes.transAxes
+
+        self.label.set_transform(transform)
+        self.label.set_position((x, y))
 
     def get_transform(self):
         return self._scale.get_transform()
@@ -703,7 +727,9 @@ class Axis(artist.Artist):
         # just the tick labels that actually overlap note we need a
         # *copy* of the axis label box because we don't wan't to scale
         # the actual bbox
+
         self._update_label_position(ticklabelBoxes, ticklabelBoxes2)
+
         self.label.draw(renderer)
 
         self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
@@ -1139,8 +1165,9 @@ class XAxis(Axis):
             verticalalignment='top',
             horizontalalignment='center',
             )
+
         label.set_transform( mtransforms.blended_transform_factory(
-                self.axes.transAxes, mtransforms.IdentityTransform() ))
+            self.axes.transAxes, mtransforms.IdentityTransform() ))
 
         self._set_artist_props(label)
         self.label_position='bottom'
@@ -1184,7 +1211,7 @@ class XAxis(Axis):
         Update the label position based on the sequence of bounding
         boxes of all the ticklabels
         """
-
+        if not self._autolabelpos: return
         x,y = self.label.get_position()
         if self.label_position == 'bottom':
             if not len(bboxes):
@@ -1374,7 +1401,7 @@ class YAxis(Axis):
             rotation='vertical',
             )
         label.set_transform( mtransforms.blended_transform_factory(
-                mtransforms.IdentityTransform(), self.axes.transAxes) )
+            mtransforms.IdentityTransform(), self.axes.transAxes) )
 
         self._set_artist_props(label)
         self.label_position='left'
@@ -1418,7 +1445,7 @@ class YAxis(Axis):
         Update the label position based on the sequence of bounding
         boxes of all the ticklabels
         """
-
+        if not self._autolabelpos: return
         x,y = self.label.get_position()
         if self.label_position == 'left':
             if not len(bboxes):
