@@ -316,6 +316,7 @@ class PolarAxes(Axes):
             self._theta_label2_position.clear().translate(0.0, 1.0 / frac)
         for t in self.xaxis.get_ticklabels():
             t.update(kwargs)
+        return self.xaxis.get_ticklines(), self.xaxis.get_ticklabels()
     set_thetagrids.__doc__ = cbook.dedent(set_thetagrids.__doc__) % kwdocd
 
     def set_rgrids(self, radii, labels=None, angle=None, rpad=None, **kwargs):
@@ -358,6 +359,7 @@ class PolarAxes(Axes):
         self._r_label2_position.clear().translate(angle, -self._rpad * rmax)
         for t in self.yaxis.get_ticklabels():
             t.update(kwargs)
+        return self.yaxis.get_ticklines(), self.yaxis.get_ticklabels()
 
     set_rgrids.__doc__ = cbook.dedent(set_rgrids.__doc__) % kwdocd
 
