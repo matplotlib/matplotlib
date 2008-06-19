@@ -4,7 +4,7 @@ Writing mathematical expressions
 ================================
 
 You can use TeX markup in any matplotlib text string.  Note that you
-do not need to have TeX installed, since matplotlib ships its own` TeX
+do not need to have TeX installed, since matplotlib ships its own TeX
 expression parser, layout engine and fonts.  The layout engine is a
 fairly direct adaptation of the layout algorithms in Donald Knuth's
 TeX, so the quality is quite good (matplotlib also provides a
