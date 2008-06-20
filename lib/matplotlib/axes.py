@@ -1765,11 +1765,14 @@ class Axes(martist.Artist):
 
         Different kwargs are accepted, depending on the scale:
         %(scale_docs)s
-        """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()]),
-               'scale_docs': mscale.get_scale_docs().strip()}
+        """
         self.xaxis.set_scale(value, **kwargs)
         self.autoscale_view()
         self._update_transScale()
+
+    set_xscale.__doc__ = cbook.dedent(set_xscale.__doc__) % {
+        'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()]),
+        'scale_docs': mscale.get_scale_docs().strip()}
 
     def get_xticks(self, minor=False):
         'Return the x ticks as a list of locations'
@@ -1929,11 +1932,14 @@ class Axes(martist.Artist):
 
         Different kwargs are accepted, depending on the scale:
         %(scale_docs)s
-        """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()]),
-               'scale_docs': mscale.get_scale_docs().strip()}
+        """
         self.yaxis.set_scale(value, **kwargs)
         self.autoscale_view()
         self._update_transScale()
+
+    set_yscale.__doc__ = cbook.dedent(set_yscale.__doc__) % {
+        'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()]),
+        'scale_docs': mscale.get_scale_docs().strip()}
 
     def get_yticks(self, minor=False):
         'Return the y ticks as a list of locations'

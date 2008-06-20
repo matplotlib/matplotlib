@@ -810,33 +810,43 @@ def ylim(*args, **kwargs):
 
 def xscale(*args, **kwargs):
     """
+    call signature::
+
+      xscale(scale, **kwargs)
+
     Set the scaling for the x-axis: %(scale)s
 
     Different keywords may be accepted, depending on the scale:
 
     %(scale_docs)s
-    """ % {'scale': ' | '.join([repr(x) for x in get_scale_names()]),
-           'scale_docs': get_scale_docs()}
+    """
     ax = gca()
     ret = ax.set_xscale(*args, **kwargs)
     draw_if_interactive()
     return ret
-
+xscale.__doc__ = dedent(xscale.__doc__) % {
+    'scale': ' | '.join([repr(x) for x in get_scale_names()]),
+    'scale_docs': get_scale_docs()}
 
 def yscale(*args, **kwargs):
     """
+    call signature::
+
+      xscale(scale, **kwargs)
+
     Set the scaling for the y-axis: %(scale)s
 
     Different keywords may be accepted, depending on the scale:
 
     %(scale_docs)s
-    """ % {'scale': ' | '.join([repr(x) for x in get_scale_names()]),
-           'scale_docs': get_scale_docs()}
+    """
     ax = gca()
     ret = ax.set_yscale(*args, **kwargs)
     draw_if_interactive()
     return ret
-
+yscale.__doc__ = dedent(yscale.__doc__) % {
+    'scale': ' | '.join([repr(x) for x in get_scale_names()]),
+    'scale_docs': get_scale_docs()}
 
 def xticks(*args, **kwargs):
     """

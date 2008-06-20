@@ -1,3 +1,5 @@
+2008-06-20 [ 1978629 ] scale documentation missing/incorrect for log - MGD
+
 2008-06-20 Added closed kwarg to PolyCollection.  Fixes bug [ 1994535
            ] still missing lines on graph with svn (r 5548). - MGD
 
