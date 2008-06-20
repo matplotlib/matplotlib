@@ -10,6 +10,7 @@ matplotlib.rc('image', origin='upper')
 
 parser = mathtext.MathTextParser("Bitmap")
 
+
 parser.to_png('test2.png', r'$\left[\left\lfloor\frac{5}{\frac{\left(3\right)}{4}} y\right)\right]$', color='green', fontsize=14, dpi=100)
 
 
@@ -19,6 +20,5 @@ rgba2, depth2 = parser.to_rgba(r'some other string', color='red', fontsize=20, d
 fig = plt.figure()
 fig.figimage(rgba1.astype(float)/255., 100, 100)
 fig.figimage(rgba2.astype(float)/255., 100, 300)
-
 
 plt.show()

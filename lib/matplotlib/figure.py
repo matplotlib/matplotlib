@@ -807,6 +807,9 @@ class Figure(Artist):
             im = _image.from_images(self.bbox.height * mag,
                                     self.bbox.width * mag,
                                     ims)
+            if self.images[0].origin=='upper':
+                im.flipud_out()
+
             im.is_grayscale = False
             l, b, w, h = self.bbox.bounds
             clippath, affine = self.get_transformed_clip_path_and_affine()
