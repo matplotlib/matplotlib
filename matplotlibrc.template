@@ -185,8 +185,8 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 #axes.edgecolor      : black   # axes edge color
 #axes.linewidth      : 1.0     # edge linewidth
 #axes.grid           : False   # display grid or not
-#axes.titlesize      : 14      # fontsize of the axes title
-#axes.labelsize      : 12      # fontsize of the x any y labels
+#axes.titlesize      : large   # fontsize of the axes title
+#axes.labelsize      : medium  # fontsize of the x any y labels
 #axes.labelcolor     : black
 #axes.axisbelow      : False   # whether axis gridlines and ticks are below
                               # the axes elements (lines, text, etc)
@@ -203,7 +203,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 #xtick.major.pad      : 4      # distance to major tick label in points
 #xtick.minor.pad      : 4      # distance to the minor tick label in points
 #xtick.color          : k      # color of the tick labels
-#xtick.labelsize      : 12     # fontsize of the tick labels
+#xtick.labelsize      : medium # fontsize of the tick labels
 #xtick.direction      : in     # direction: in or out
 
 #ytick.major.size     : 4      # major tick size in points
@@ -211,7 +211,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 #ytick.major.pad      : 4      # distance to major tick label in points
 #ytick.minor.pad      : 4      # distance to the minor tick label in points
 #ytick.color          : k      # color of the tick labels
-#ytick.labelsize      : 12     # fontsize of the tick labels
+#ytick.labelsize      : medium # fontsize of the tick labels
 #ytick.direction      : in     # direction: in or out
 
 
@@ -223,7 +223,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 ### Legend
 #legend.isaxes        : True
 #legend.numpoints     : 2      # the number of points in the legend line
-#legend.fontsize      : 14
+#legend.fontsize      : large
 #legend.pad           : 0.2    # the fractional whitespace inside the legend border
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
 # the following dimensions are in axes coords
