@@ -94,7 +94,8 @@ private:
       destrbuf.attach(destbuffer, destwidth, destheight, deststride);
       pixfmt destpf(destrbuf);
       renderer_base destrb(destpf);
-      //destrb.clear(agg::rgba(1, 0, 0));
+
+      //destrb.clear(agg::rgba(1, 1, 1, 0));
 
       agg::rect_base<int> region(destx, desty, (int)r, srcheight-(int)b);
       destrb.copy_from(*aggRenderer->renderingBuffer, &region,

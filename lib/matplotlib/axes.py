@@ -1442,6 +1442,9 @@ class Axes(martist.Artist):
             im = mimage.from_images(height,
                                     width,
                                     ims)
+            if self.images[0].origin=='upper':
+                im.flipud_out()
+
             im.is_grayscale = False
             l, b, w, h = self.bbox.bounds
             # composite images need special args so they will not
