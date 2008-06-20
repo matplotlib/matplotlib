@@ -642,7 +642,7 @@ class AsteriskPolygonCollection(RegularPolyCollection):
     _path_generator = mpath.Path.unit_regular_asterisk
 
 
-class LineCollection(Collection, cm.ScalarMappable):
+class LineCollection(Collection):
     """
     All parameters must be sequences or scalars; if scalars, they will
     be converted to sequences.  The property of the ith line
