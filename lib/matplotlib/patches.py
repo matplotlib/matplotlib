@@ -577,7 +577,7 @@ class Polygon(Patch):
                 xy = np.concatenate([xy, [xy[0]]])
         else:
             if len(xy)>2 and (xy[0]==xy[-1]).all():
-                xy = xy[0:-2]
+                xy = xy[0:-1]
         self._set_xy(xy)
 
     def _get_xy(self):
