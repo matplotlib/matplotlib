@@ -1,3 +1,6 @@
+2008-06-20 Added set/get_closed method to Polygon; fixes error
+           in hist - MM
+
 2008-06-19 Use relative font sizes (e.g. 'medium' and 'large') in
            rcsetup.py and matplotlibrc.template so that text will
            be scaled by default when changing rcParams['font.size'] -

@@ -558,13 +558,27 @@ class Polygon(Patch):
         """
         Patch.__init__(self, **kwargs)
         xy = np.asarray(xy, np.float_)
-        if closed and len(xy) and (xy[0] != xy[-1]).any():
-                xy = np.concatenate([xy, [xy[0]]])
         self._path = Path(xy)
+        self.set_closed(closed)
+
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
         return self._path
+
+    def get_closed(self):
+        return self._closed
+
+    def set_closed(self, closed):
+        self._closed = closed
+        xy = self._get_xy()
+        if closed:
+            if len(xy) and (xy[0] != xy[-1]).any():
+                xy = np.concatenate([xy, [xy[0]]])
+        else:
+            if len(xy)>2 and (xy[0]==xy[-1]).all():
+                xy = xy[0:-2]
+        self._set_xy(xy)
 
     def _get_xy(self):
         return self._path.vertices
