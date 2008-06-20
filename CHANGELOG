@@ -1,3 +1,6 @@
+2008-06-20 Added closed kwarg to PolyCollection.  Fixes bug [ 1994535
+           ] still missing lines on graph with svn (r 5548). - MGD
+
 2008-06-20 Added set/get_closed method to Polygon; fixes error
            in hist - MM
 
