@@ -97,7 +97,8 @@ class Text(Artist):
                  **kwargs
                  ):
         """
-        Create a Text instance at x,y with string text.
+        Create a :class:`~matplotlib.text.Text` instance at *x*, *y*
+        with string *text*.
 
         Valid kwargs are
         %(Text)s
@@ -648,50 +649,51 @@ artist.kwdocd['Text'] = artist.kwdoc(Text)
 
 class TextWithDash(Text):
     """
-    This is basically a Text with a dash (drawn with a Line2D)
-    before/after it. It is intended to be a drop-in replacement
-    for Text, and should behave identically to Text when
-    dashlength=0.0.
+    This is basically a :class:`~matplotlib.text.Text` with a dash
+    (drawn with a :class:`~matplotlib.lines.Line2D`) before/after
+    it. It is intended to be a drop-in replacement for
+    :class:`~matplotlib.text.Text`, and should behave identically to
+    it when *dashlength* = 0.0.
 
     The dash always comes between the point specified by
-    set_position() and the text. When a dash exists, the
-    text alignment arguments (horizontalalignment,
-    verticalalignment) are ignored.
+    :meth:`~matplotlib.text.Text.set_position` and the text. When a
+    dash exists, the text alignment arguments (*horizontalalignment*,
+    *verticalalignment*) are ignored.
 
-    dashlength is the length of the dash in canvas units.
-    (default=0.0).
+    *dashlength* is the length of the dash in canvas units.
+    (default = 0.0).
 
-    dashdirection is one of 0 or 1, np.where 0 draws the dash
-    after the text and 1 before.
-    (default=0).
+    *dashdirection* is one of 0 or 1, where 0 draws the dash after the
+    text and 1 before.  (default = 0).
 
-    dashrotation specifies the rotation of the dash, and
-    should generally stay None. In this case
-    self.get_dashrotation() returns self.get_rotation().
-    (I.e., the dash takes its rotation from the text's
-    rotation). Because the text center is projected onto
-    the dash, major deviations in the rotation cause
+    *dashrotation* specifies the rotation of the dash, and should
+    generally stay *None*. In this case
+    :meth:`~matplotlib.text.TextWithDash.get_dashrotation` returns
+    :meth:`~matplotlib.text.Text.get_rotation`.  (I.e., the dash takes
+    its rotation from the text's rotation). Because the text center is
+    projected onto the dash, major deviations in the rotation cause
     what may be considered visually unappealing results.
-    (default=None).
+    (default = *None*)
 
-    dashpad is a padding length to add (or subtract) space
+    *dashpad* is a padding length to add (or subtract) space
     between the text and the dash, in canvas units.
-    (default=3).
+    (default = 3)
 
-    dashpush "pushes" the dash and text away from the point
-    specified by set_position() by the amount in canvas units.
-    (default=0)
+    *dashpush* "pushes" the dash and text away from the point
+    specified by :meth:`~matplotlib.text.Text.set_position` by the
+    amount in canvas units.  (default = 0)
 
-    NOTE: The alignment of the two objects is based on the
-    bbox of the Text, as obtained by get_window_extent().
-    This, in turn, appears to depend on the font metrics
-    as given by the rendering backend. Hence the quality
-    of the "centering" of the label text with respect to
-    the dash varies depending on the backend used.
+    *NOTE*: The alignment of the two objects is based on the bounding
+    box of the :class:`~matplotlib.text.Text`, as obtained by
+    :meth:`~matplotlib.artist.Artist.get_window_extent`.  This, in
+    turn, appears to depend on the font metrics as given by the
+    rendering backend. Hence the quality of the "centering" of the
+    label text with respect to the dash varies depending on the
+    backend used.
 
-    NOTE2: I'm not sure that I got the get_window_extent()
-    right, or whether that's sufficient for providing the
-    object bbox.
+    *NOTE 2*: I'm not sure that I got the
+    :meth:`~matplotlib.text.TextWithDash.get_window_extent` right, or
+    whether that's sufficient for providing the object bounding box.
     """
     __name__ = 'textwithdash'
 
@@ -749,11 +751,11 @@ class TextWithDash(Text):
 
     def get_prop_tup(self):
         """
-        Return a hashable tuple of properties
+        Return a hashable tuple of properties.
 
         Not intended to be human readable, but useful for backends who
         want to cache derived information about text (eg layouts) and
-        need to know if the text has changed
+        need to know if the text has changed.
         """
         props = [p for p in Text.get_prop_tup(self)]
         props.extend([self._x, self._y, self._dashlength, self._dashdirection, self._dashrotation, self._dashpad, self._dashpush])
@@ -973,8 +975,10 @@ artist.kwdocd['TextWithDash'] = artist.kwdoc(TextWithDash)
 
 class Annotation(Text):
     """
-    A Text class to make annotating things in the figure: Figure,
-    Axes, Point, Rectangle, etc... easier
+    A :class:`~matplotlib.text.Text` class to make annotating things
+    in the figure, such as :class:`~matplotlib.figure.Figure`,
+    :class:`~matplotlib.axes.Axes`,
+    :class:`~matplotlib.patches.Rectangle`, etc., easier.
     """
     def __str__(self):
         return "Annotation(%g,%g,%s)"%(self.xy[0],self.xy[1],self._text)
@@ -985,9 +989,9 @@ class Annotation(Text):
                  arrowprops=None,
                  **kwargs):
         """
-        Annotate the *x*, *y* point *xy* with text *s* at *x*, *y* location *xytext*.
-        (If *xytext* = *None*, defaults to *xy*, and if *textcoords* = *None*, defaults
-        to *xycoords*).
+        Annotate the *x*, *y* point *xy* with text *s* at *x*, *y*
+        location *xytext*.  (If *xytext* = *None*, defaults to *xy*,
+        and if *textcoords* = *None*, defaults to *xycoords*).
 
         *arrowprops*, if not *None*, is a dictionary of line properties
         (see :class:`matplotlib.lines.Line2D`) for the arrow that connects

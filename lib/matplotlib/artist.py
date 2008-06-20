@@ -268,12 +268,16 @@ class Artist(object):
         return self.figure is not None
 
     def get_figure(self):
-        'return the figure instance'
+        """
+        Return the :class:`~matplotlib.figure.Figure` instance the
+        artist belongs to.
+        """
         return self.figure
 
     def set_figure(self, fig):
         """
-        Set the figure instance the artist belong to
+        Set the :class:`~matplotlib.figure.Figure` instance the artist
+        belongs to.
 
         ACCEPTS: a matplotlib.figure.Figure instance
         """
@@ -476,7 +480,7 @@ class Artist(object):
         self.pchanged()
 
     def update_from(self, other):
-        'copy properties from other to self'
+        'Copy properties from *other* to *self*.'
         self._transform = other._transform
         self._transformSet = other._transformSet
         self._visible = other._visible
@@ -504,15 +508,17 @@ class Artist(object):
 
 class ArtistInspector:
     """
-    A helper class to inspect an Artist and return information about
-    it's settable properties and their current values
+    A helper class to inspect an :class:`~matplotlib.artist.Artist`
+    and return information about it's settable properties and their
+    current values.
     """
     def __init__(self, o):
         """
-        Initialize the artist inspector with an artist or sequence of
-        artists.  Id a sequence is used, we assume it is a homogeneous
-        sequence (all Artists are of the same type) and it is your
-        responsibility to make sure this is so.
+        Initialize the artist inspector with an
+        :class:`~matplotlib.artist.Artist` or sequence of
+        :class:`Artists`.  If a sequence is used, we assume it is a
+        homogeneous sequence (all :class:`Artists` are of the same
+        type) and it is your responsibility to make sure this is so.
         """
         if cbook.iterable(o) and len(o): o = o[0]
         self.o = o
@@ -520,8 +526,10 @@ class ArtistInspector:
 
     def get_aliases(self):
         """
-        get a dict mapping fullname -> alias for each alias in o.
-        Eg for lines::
+        Get a dict mapping *fullname* -> *alias* for each alias in the
+        :class:`~matplotlib.artist.ArtistInspector`.
+
+        Eg., for lines::
 
           {'markerfacecolor': 'mfc',
            'linewidth'      : 'lw',
@@ -543,12 +551,12 @@ class ArtistInspector:
     _get_valid_values_regex = re.compile(r"\n\s*ACCEPTS:\s*(.*)\n")
     def get_valid_values(self, attr):
         """
-        get the legal arguments for the setter associated with attr
+        Get the legal arguments for the setter associated with *attr*.
 
-        This is done by querying the doc string of the function set_attr
+        This is done by querying the docstring of the function set_ *attr*
         for a line that begins with ACCEPTS:
 
-        Eg, for a line linestyle, return
+        Eg., for a line linestyle, return
         [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
         """
 
@@ -570,8 +578,8 @@ class ArtistInspector:
 
     def get_setters(self):
         """
-        Get the attribute strings with setters for object h.  Eg, for a line,
-        return ['markerfacecolor', 'linewidth', ....]
+        Get the attribute strings with setters for object.  Eg., for a line,
+        return ``['markerfacecolor', 'linewidth', ....]``.
         """
 
         setters = []
@@ -585,7 +593,10 @@ class ArtistInspector:
         return setters
 
     def is_alias(self, o):
-        'return true if method object o is an alias for another function'
+        """
+        Return *True* if method object *o* is an alias for another
+        function.
+        """
         ds = o.__doc__
         if ds is None: return False
         return ds.startswith('alias for ')
@@ -605,12 +616,12 @@ class ArtistInspector:
 
     def pprint_setters(self, prop=None, leadingspace=2):
         """
-        if prop is None, return a list of strings of all settable properies
-        and their valid values
+        If *prop* is *None*, return a list of strings of all settable properies
+        and their valid values.
 
-        if prop is not None, it is a valid property name and that
+        If *prop* is not *None*, it is a valid property name and that
         property will be returned as a string of property : valid
-        values
+        values.
         """
         if leadingspace:
             pad = ' '*leadingspace
@@ -655,7 +666,7 @@ class ArtistInspector:
 
     def pprint_getters(self):
         """
-        return the getters and actual values as list of strings'
+        Return the getters and actual values as list of strings.
         """
         getters = [name for name in dir(self.o)
                    if name.startswith('get_')
@@ -678,6 +689,8 @@ class ArtistInspector:
 
 def getp(o, *args):
     """
+    .. TODO: What are 's' and 'h' arguments described below?
+
     Return the value of handle property s
 
     h is an instance of a class, eg a Line2D or an Axes or Text.
@@ -751,8 +764,8 @@ def setp(h, *args, **kwargs):
     with python kwargs.  For example, the following are equivalent
 
       >>> setp(lines, 'linewidth', 2, 'color', r')  # matlab style
-      >>> setp(lines, linewidth=2, color='r')       # python style
 
+      >>> setp(lines, linewidth=2, color='r')       # python style
     """
 
     insp = ArtistInspector(h)
