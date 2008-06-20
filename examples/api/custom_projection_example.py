@@ -63,25 +63,6 @@ class HammerAxes(Axes):
         Axes.set_xlim(self, -np.pi, np.pi)
         Axes.set_ylim(self, -np.pi / 2.0, np.pi / 2.0)
 
-    def cla(self):
-        """
-        Initialize the Axes object to reasonable defaults.
-        """
-        Axes.cla(self)
-
-        self.set_longitude_grid(30)
-        self.set_latitude_grid(15)
-        self.set_longitude_grid_ends(75)
-        self.xaxis.set_minor_locator(NullLocator())
-        self.yaxis.set_minor_locator(NullLocator())
-        self.xaxis.set_ticks_position('none')
-        self.yaxis.set_ticks_position('none')
-
-        # self.grid(rcParams['axes.grid'])
-
-        Axes.set_xlim(self, -np.pi, np.pi)
-        Axes.set_ylim(self, -np.pi / 2.0, np.pi / 2.0)
-
     def _set_lim_and_transforms(self):
         """
         This is called once when the plot is created to set up all the
