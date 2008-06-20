@@ -309,6 +309,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._facecolors
     get_facecolors = get_facecolor
 
+    def get_edgecolor(self):
+        return self._edgecolors
+    get_edgecolors = get_edgecolor
+
     def set_edgecolor(self, c):
         """
         Set the edgecolor(s) of the collection. *c* can be a
