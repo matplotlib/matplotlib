@@ -172,10 +172,18 @@ class LogScale(ScaleBase):
 
     def __init__(self, axis, **kwargs):
         """
-        basex/basey: The base of the logarithm
+        *basex*/*basey*:
+           The base of the logarithm
 
-        subsx/subsy: The number of subticks to draw between each major
-        tick
+        *subsx*/*subsy*:
+           Where to place the subticks between each major tick.
+           Should be a sequence of integers.  For example, in a log10
+           scale::
+
+             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+           will place 10 logarithmically spaced minor ticks between
+           each major tick.
         """
         if axis.axis_name == 'x':
             base = kwargs.pop('basex', 10.0)
@@ -273,14 +281,22 @@ class SymmetricalLogScale(ScaleBase):
 
     def __init__(self, axis, **kwargs):
         """
-        basex/basey: The base of the logarithm
+        *basex*/*basey*:
+           The base of the logarithm
 
-        linthreshx/linthreshy: The range (-x, x) within which the plot
-        is linear (to avoid having the plot go to infinity around
-        zero).
+        *linthreshx*/*linthreshy*:
+          The range (-*x*, *x*) within which the plot is linear (to
+          avoid having the plot go to infinity around zero).
 
-        subsx/subsy: The number of subticks to render between each
-        major tick.
+        *subsx*/*subsy*:
+           Where to place the subticks between each major tick.
+           Should be a sequence of integers.  For example, in a log10
+           scale::
+
+             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+           will place 10 logarithmically spaced minor ticks between
+           each major tick.
         """
         if axis.axis_name == 'x':
             base = kwargs.pop('basex', 10.0)
@@ -340,9 +356,8 @@ def get_scale_docs():
         scale_class = _scale_mapping[name]
         docs.append("    '%s'" % name)
         docs.append("")
-        class_docs = textwrap.wrap(
-            dedent(scale_class.__init__.__doc__), initial_indent=" " * 8,
-            subsequent_indent = " " * 8)
-        docs.extend(class_docs)
+        class_docs = dedent(scale_class.__init__.__doc__)
+        class_docs = "".join(["        %s\n" % x for x in class_docs.split("\n")])
+        docs.append(class_docs)
         docs.append("")
     return "\n".join(docs)
