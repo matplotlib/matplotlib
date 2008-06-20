@@ -796,7 +796,6 @@ class Figure(Artist):
 
         if len(self.images)<=1 or renderer.option_image_nocomposite() or not allequal([im.origin for im in self.images]):
             for im in self.images:
-                print 'drawing', im
                 im.draw(renderer)
         else:
             # make a composite image blending alpha
@@ -811,9 +810,6 @@ class Figure(Artist):
             im.is_grayscale = False
             l, b, w, h = self.bbox.bounds
             clippath, affine = self.get_transformed_clip_path_and_affine()
-            print 'compodite'
-            print 'clippath', affine
-            print 'affine', affine
             renderer.draw_image(l, b, im, self.bbox,
                                 clippath, affine)
 
