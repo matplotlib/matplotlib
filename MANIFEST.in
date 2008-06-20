@@ -14,8 +14,8 @@ include lib/matplotlib/mpl-data/fonts/ttf/*
 include lib/matplotlib/mpl-data/fonts/pdfcorefonts/*
 include lib/matplotlib/mpl-data/fonts/afm/*
 recursive-include license LICENSE*
-recursive-include examples README *.py
-prune examples/_tmp_*
+recursive-include examples *
+recursive-include doc *
 recursive-include src  *.cpp *.c *.h
 recursive-include CXX  *.cxx *.hxx *.c *.h
 recursive-include agg24 *

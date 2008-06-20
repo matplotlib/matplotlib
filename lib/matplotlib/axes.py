@@ -1436,15 +1436,18 @@ class Axes(martist.Artist):
                    for im in self.images if im.get_visible()]
 
 
-            im = mimage.from_images(self.bbox.height*mag,
-                                    self.bbox.width*mag,
+            l, b, r, t = self.bbox.extents
+            width = mag*((round(r) + 0.5) - (round(l) - 0.5))
+            height = mag*((round(t) + 0.5) - (round(b) - 0.5))
+            im = mimage.from_images(height,
+                                    width,
                                     ims)
             im.is_grayscale = False
             l, b, w, h = self.bbox.bounds
             # composite images need special args so they will not
             # respect z-order for now
             renderer.draw_image(
-                l, b, im, self.bbox,
+                round(l), round(b), im, self.bbox,
                 self.axesPatch.get_path(),
                 self.axesPatch.get_transform())
 
