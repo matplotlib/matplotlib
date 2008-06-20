@@ -925,7 +925,7 @@ class FontManager:
 
     def set_default_size(self, size):
         "Set the default font size in points.  The initial value is set by font.size in rc."
-        self.__default_size = size
+        self.default_size = size
 
     def update_fonts(self, filenames):
         """
