@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import division
 import math
 
@@ -40,11 +42,10 @@ artist.kwdocd['Patch'] = """
 
 class Patch(artist.Artist):
     """
-    A patch is a 2D thingy with a face color and an edge color
+    A patch is a 2D thingy with a face color and an edge color.
 
-    If any of edgecolor, facecolor, linewidth, or antialiased are
-    None, they default to their rc params setting
-
+    If any of *edgecolor*, *facecolor*, *linewidth*, or *antialiased*
+    are *None*, they default to their rc params setting.
     """
     zorder = 1
     def __str__(self):
@@ -82,9 +83,9 @@ class Patch(artist.Artist):
 
     def get_verts(self):
         """
-        return a copy of the vertices used in this patch
+        Return a copy of the vertices used in this patch
 
-        If the patch contains Bezier curves, the curves will be
+        If the patch contains Bézier curves, the curves will be
         interpolated by line segments.  To access the curves as
         curves, use :meth:`get_path`.
         """
@@ -205,23 +206,24 @@ class Patch(artist.Artist):
         """
         Set the hatching pattern
 
-        hatch can be one of:
-        /   - diagonal hatching
-        \   - back diagonal
-        |   - vertical
-        -   - horizontal
-        #   - crossed
-        x   - crossed diagonal
-        letters can be combined, in which case all the specified
-        hatchings are done
-        if same letter repeats, it increases the density of hatching
-        in that direction
+        hatch can be one of::
+
+          /   - diagonal hatching
+          \   - back diagonal
+          |   - vertical
+          -   - horizontal
+          #   - crossed
+          x   - crossed diagonal
+
+        Letters can be combined, in which case all the specified
+        hatchings are done.  If same letter repeats, it increases the
+        density of hatching in that direction.
 
         CURRENT LIMITATIONS:
-        1. Hatching is supported in the PostScript
-        backend only.
 
-        2. Hatching is done with solid black lines of width 0.
+          1. Hatching is supported in the PostScript backend only.
+
+          2. Hatching is done with solid black lines of width 0.
         """
         self._hatch = h
 
@@ -280,9 +282,10 @@ class Shadow(Patch):
 
     def __init__(self, patch, ox, oy, props=None, **kwargs):
         """
-        Create a shadow of the patch offset by ox, oy.  props, if not None is
-        a patch property update dictionary.  If None, the shadow will have
-        have the same color as the face, but darkened
+        Create a shadow of the given *patch* offset by *ox*, *oy*.
+        *props*, if not *None*, is a patch property update dictionary.
+        If *None*, the shadow will have have the same color as the face,
+        but darkened.
 
         kwargs are
         %(Patch)s
@@ -332,9 +335,8 @@ class Shadow(Patch):
 
 class Rectangle(Patch):
     """
-    Draw a rectangle with lower left at xy=(x,y) with specified
+    Draw a rectangle with lower left at *xy*=(*x*, *y*) with specified
     width and height
-
     """
 
     def __str__(self):
@@ -343,11 +345,7 @@ class Rectangle(Patch):
 
     def __init__(self, xy, width, height, **kwargs):
         """
-        xy is an x,y tuple lower, left
-
-        width and height are width and height of rectangle
-
-        fill is a boolean indicating whether to fill the rectangle
+        *fill* is a boolean indicating whether to fill the rectangle
 
         Valid kwargs are:
         %(Patch)s
@@ -462,10 +460,17 @@ class RegularPolygon(Patch):
     def __init__(self, xy, numVertices, radius=5, orientation=0,
                  **kwargs):
         """
-        xy is a length 2 tuple (the center)
-        numVertices is the number of vertices.
-        radius is the distance from the center to each of the vertices.
-        orientation is in radians and rotates the polygon.
+        *xy*
+          A length 2 tuple (*x*, *y*) of the center.
+
+        *numVertices*
+          the number of vertices.
+
+        *radius*
+          The distance from the center to each of the vertices.
+
+        *orientation*
+          rotates the polygon (in radians).
 
         Valid kwargs are:
         %(Patch)s
@@ -528,7 +533,7 @@ class PathPatch(Patch):
 
     def __init__(self, path, **kwargs):
         """
-        path is a Path object
+        *path* is a :class:`matplotlib.path.Path` object.
 
         Valid kwargs are:
         %(Patch)s
@@ -550,7 +555,10 @@ class Polygon(Patch):
 
     def __init__(self, xy, closed=True, **kwargs):
         """
-        xy is a numpy array with shape Nx2
+        *xy* is a numpy array with shape Nx2.
+
+        If *closed* is *True*, the polygon will be closed so the
+        starting and ending points are the same.
 
         Valid kwargs are:
         %(Patch)s
@@ -580,23 +588,30 @@ class Polygon(Patch):
                 xy = xy[0:-1]
         self._set_xy(xy)
 
-    def _get_xy(self):
+    def get_xy(self):
         return self._path.vertices
-    def _set_xy(self, vertices):
+    def set_xy(self, vertices):
         self._path = Path(vertices)
-    xy = property(_get_xy, _set_xy)
+    xy = property(
+        get_xy, set_xy, None,
+        """Set/get the vertices of the polygon.  This property is
+           provided for backward compatibility with matplotlib 0.91.x
+           only.  New code should use
+           :meth:`~matplotlib.patches.Polygon.get_xy` and
+           :meth:`~matplotlib.patches.Polygon.set_xy` instead.""")
 
 class Wedge(Patch):
     def __str__(self):
         return "Wedge(%g,%g)"%self.xy[0]
+
     def __init__(self, center, r, theta1, theta2, **kwargs):
         """
-        Draw a wedge centered at x,y tuple center with radius r that
-        sweeps theta1 to theta2 (angles)
+        Draw a wedge centered at *x*, *y* center with radius *r* that
+        sweeps *theta1* to *theta2* (in degrees).
 
         Valid kwargs are:
-        %(Patch)s
 
+        %(Patch)s
         """
         Patch.__init__(self, **kwargs)
         self.center = center
@@ -621,7 +636,7 @@ class Wedge(Patch):
 # COVERAGE NOTE: Not used internally or from examples
 class Arrow(Patch):
     """
-    An arrow patch
+    An arrow patch.
     """
     def __str__(self):
         return "Arrow()"
@@ -633,8 +648,9 @@ class Arrow(Patch):
             [ 0.8,  0.1 ], [ 0.0,  0.1] ] )
 
     def __init__( self, x, y, dx, dy, width=1.0, **kwargs ):
-        """Draws an arrow, starting at (x,y), direction and length
-        given by (dx,dy) the width of the arrow is scaled by width
+        """
+        Draws an arrow, starting at (*x*, *y*), direction and length
+        given by (*dx*, *dy*) the width of the arrow is scaled by *width*.
 
         Valid kwargs are:
         %(Patch)s
@@ -658,7 +674,9 @@ class Arrow(Patch):
         return self._patch_transform
 
 class FancyArrow(Polygon):
-    """Like Arrow, but lets you set head width and head height independently."""
+    """
+    Like Arrow, but lets you set head width and head height independently.
+    """
 
     def __str__(self):
         return "FancyArrow()"
@@ -666,17 +684,19 @@ class FancyArrow(Polygon):
     def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False, \
         head_width=None, head_length=None, shape='full', overhang=0, \
         head_starts_at_zero=False,**kwargs):
-        """Returns a new Arrow.
+        """
+        *length_includes_head*:
+           *True* if head is counted in calculating the length.
 
-        length_includes_head: True if head is counted in calculating the length.
+        *shape*: ['full', 'left', 'right']
 
-        shape: ['full', 'left', 'right']
+        *overhang*:
+          distance that the arrow is swept back (0 overhang means
+          triangular shape).
 
-        overhang: distance that the arrow is swept back (0 overhang means
-        triangular shape).
-
-        head_starts_at_zero: if True, the head starts being drawn at coordinate
-        0 instead of ending at coordinate 0.
+        *head_starts_at_zero*:
+          If *True*, the head starts being drawn at coordinate 0
+          instead of ending at coordinate 0.
 
         Valid kwargs are:
         %(Patch)s
@@ -731,22 +751,34 @@ class FancyArrow(Polygon):
 
 class YAArrow(Patch):
     """
-    Yet another arrow class
+    Yet another arrow class.
 
     This is an arrow that is defined in display space and has a tip at
-    x1,y1 and a base at x2, y2.
+    *x1*, *y1* and a base at *x2*, *y2*.
     """
     def __str__(self):
         return "YAArrow()"
 
     def __init__(self, figure, xytip, xybase, width=4, frac=0.1, headwidth=12, **kwargs):
         """
-        xytip : (x,y) location of arrow tip
-        xybase : (x,y) location the arrow base mid point
-        figure : the figure instance (fig.dpi)
-        width : the width of the arrow in points
-        frac  : the fraction of the arrow length occupied by the head
-        headwidth : the width of the base of the arrow head in points
+        *xytip*
+          (*x*, *y*) location of arrow tip
+
+        *xybase*
+          (*x*, *y*) location the arrow base mid point
+
+        *figure*
+          The :class:`~matplotlib.figure.Figure` instance
+          (fig.dpi)
+
+        *width*
+          The width of the arrow in points
+
+        *frac*
+          The fraction of the arrow length occupied by the head
+
+        *headwidth*
+          The width of the base of the arrow head in points
 
         Valid kwargs are:
         %(Patch)s
@@ -790,9 +822,10 @@ class YAArrow(Patch):
 
     def getpoints(self, x1,y1,x2,y2, k):
         """
-        for line segment defined by x1,y1 and x2,y2, return the points on
-        the line that is perpendicular to the line and intersects x2,y2
-        and the distance from x2,y2 ot the returned points is k
+        For line segment defined by (*x1*, *y1*) and (*x2*, *y2*)
+        return the points on the line that is perpendicular to the
+        line and intersects (*x2*, *y2*) and the distance from (*x2*,
+        *y2*) of the returned points is *k*.
         """
         x1,y1,x2,y2,k = map(float, (x1,y1,x2,y2,k))
         m = (y2-y1)/(x2-x1)
@@ -811,7 +844,7 @@ class YAArrow(Patch):
 
 class CirclePolygon(RegularPolygon):
     """
-    A circle patch
+    A polygon-approximation of a circle patch.
     """
     def __str__(self):
         return "CirclePolygon(%d,%d)"%self.center
@@ -820,7 +853,10 @@ class CirclePolygon(RegularPolygon):
                  resolution=20,  # the number of vertices
                  **kwargs):
         """
-        Create a circle at xy=(x,y) with radius given by 'radius'
+        Create a circle at *xy* = (*x*, *y*) with given *radius*.
+        This circle is approximated by a regular polygon with
+        *resolution* sides.  For a smoother circle drawn with splines,
+        see :class:`~matplotlib.patches.Circle`.
 
         Valid kwargs are:
         %(Patch)s
@@ -836,17 +872,24 @@ class CirclePolygon(RegularPolygon):
 
 class Ellipse(Patch):
     """
-    A scale-free ellipse
+    A scale-free ellipse.
     """
     def __str__(self):
         return "Ellipse(%s,%s;%sx%s)"%(self.center[0],self.center[1],self.width,self.height)
 
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
         """
-        xy - center of ellipse
-        width - length of horizontal axis
-        height - length of vertical axis
-        angle - rotation in degrees (anti-clockwise)
+        *xy*
+          center of ellipse
+
+        *width*
+          length of horizontal axis
+
+        *height*
+          length of vertical axis
+
+        *angle*
+          rotation in degrees (anti-clockwise)
 
         Valid kwargs are:
         %(Patch)s
@@ -888,16 +931,17 @@ class Ellipse(Patch):
 
 class Circle(Ellipse):
     """
-    A circle patch
+    A circle patch.
     """
     def __str__(self):
         return "Circle((%g,%g),r=%g)"%(self.center[0],self.center[1],self.radius)
 
     def __init__(self, xy, radius=5, **kwargs):
         """
-        Create true circle at center xy=(x,y) with given radius;
-        unlike circle polygon which is a polygonal approcimation, this
-        uses splines and is much closer to a scale free circle
+        Create true circle at center *xy* = (*x*, *y*) with given
+        *radius*.  Unlike :class:`~matplotlib.patches.CirclePolygon`
+        which is a polygonal approximation, this uses Bézier splines
+        and is much closer to a scale-free circle.
 
         Valid kwargs are:
         %(Patch)s
@@ -917,27 +961,40 @@ class Arc(Ellipse):
     An elliptical arc.  Because it performs various optimizations, it
     can not be filled.
 
-    The arc must be used in an Axes instance it cannot be added
-    directly to a Figure) because it is optimized to only render the
-    segments that are inside the axes bounding box with high
-    resolution.
+    The arc must be used in an :class:`~matplotlib.axes.Axes`
+    instance---it cannot be added directly to a
+    :class:`~matplotlib.figure.Figure`---because it is optimized to
+    only render the segments that are inside the axes bounding box
+    with high resolution.
     """
     def __str__(self):
         return "Arc(%s,%s;%sx%s)"%(self.center[0],self.center[1],self.width,self.height)
 
     def __init__(self, xy, width, height, angle=0.0, theta1=0.0, theta2=360.0, **kwargs):
         """
-        xy - center of ellipse
-        width - length of horizontal axis
-        height - length of vertical axis
-        angle - rotation in degrees (anti-clockwise)
-        theta1 - starting angle of the arc in degrees
-        theta2 - ending angle of the arc in degrees
+        *xy*
+          center of ellipse
 
-        If theta1 and theta2 are not provided, the arc will form a
+        *width*
+          length of horizontal axis
+
+        *height*
+          length of vertical axis
+
+        *angle*
+          rotation in degrees (anti-clockwise)
+
+        *theta1*
+          starting angle of the arc in degrees
+
+        *theta2*
+          ending angle of the arc in degrees
+
+        If *theta1* and *theta2* are not provided, the arc will form a
         complete ellipse.
 
         Valid kwargs are:
+
         %(Patch)s
         """
         fill = kwargs.pop('fill')
@@ -974,24 +1031,26 @@ class Arc(Ellipse):
         (8).  The algorithm proceeds as follows:
 
           1. The points where the ellipse intersects the axes bounding
-          box are located.  (This is done be performing an inverse
-          transformation on the axes bbox such that it is relative to
-          the unit circle -- this makes the intersection calculation
-          much easier than doing rotated ellipse intersection
-          directly).
+             box are located.  (This is done be performing an inverse
+             transformation on the axes bbox such that it is relative
+             to the unit circle -- this makes the intersection
+             calculation much easier than doing rotated ellipse
+             intersection directly).
 
-          This uses the "line intersecting a circle" algorithm from:
+             This uses the "line intersecting a circle" algorithm
+             from:
 
-            Vince, John.  Geometry for Computer Graphics: Formulae,
-            Examples & Proofs.  London: Springer-Verlag, 2005.
+               Vince, John.  Geometry for Computer Graphics: Formulae,
+               Examples & Proofs.  London: Springer-Verlag, 2005.
 
           2. The angles of each of the intersection points are
-          calculated.
+             calculated.
 
           3. Proceeding counterclockwise starting in the positive
-          x-direction, each of the visible arc-segments between the
-          pairs of vertices are drawn using the bezier arc
-          approximation technique implemented in Path.arc().
+             x-direction, each of the visible arc-segments between the
+             pairs of vertices are drawn using the bezier arc
+             approximation technique implemented in
+             :meth:`matplotlib.path.Path.arc`.
         """
         if not hasattr(self, 'axes'):
             raise RuntimeError('Arcs can only be used in Axes instances')
@@ -1100,11 +1159,12 @@ class Arc(Ellipse):
 def bbox_artist(artist, renderer, props=None, fill=True):
     """
     This is a debug function to draw a rectangle around the bounding
-    box returned by get_window_extent of an artist, to test whether
-    the artist is returning the correct bbox
+    box returned by
+    :meth:`~matplotlib.artist.Artist.get_window_extent` of an artist,
+    to test whether the artist is returning the correct bbox.
 
-    props is a dict of rectangle props with the additional property
-    'pad' that sets the padding around the bbox in points
+    *props* is a dict of rectangle props with the additional property
+    'pad' that sets the padding around the bbox in points.
     """
     if props is None: props = {}
     props = props.copy() # don't want to alter the pad externally
@@ -1130,8 +1190,9 @@ def bbox_artist(artist, renderer, props=None, fill=True):
 def draw_bbox(bbox, renderer, color='k', trans=None):
     """
     This is a debug function to draw a rectangle around the bounding
-    box returned by get_window_extent of an artist, to test whether
-    the artist is returning the correct bbox
+    box returned by
+    :meth:`~matplotlib.artist.Artist.get_window_extent` of an artist,
+    to test whether the artist is returning the correct bbox.
     """
 
     l,b,w,h = bbox.get_bounds()
@@ -1147,5 +1208,5 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
 
 artist.kwdocd['Patch'] = patchdoc = artist.kwdoc(Patch)
 for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
-          'FancyArrow', 'YAArrow', 'CirclePolygon', 'Ellipse'):
+          'FancyArrow', 'YAArrow', 'CirclePolygon', 'Ellipse', 'Arc'):
     artist.kwdocd[k] = patchdoc

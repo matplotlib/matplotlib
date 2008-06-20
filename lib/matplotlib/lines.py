@@ -11,7 +11,7 @@ from numpy import ma
 from matplotlib import verbose
 import artist
 from artist import Artist
-from cbook import iterable, is_string_like, is_numlike, ls_mapper
+from cbook import iterable, is_string_like, is_numlike, ls_mapper, dedent
 from colors import colorConverter
 from path import Path
 from transforms import Affine2D, Bbox, TransformedPath
@@ -25,34 +25,34 @@ from matplotlib import rcParams
 # COVERAGE NOTE: Never called internally or from examples
 def unmasked_index_ranges(mask, compressed = True):
     '''
-    Calculate the good data ranges in a masked 1-D np.array, based on mask.
+    Calculate the good data ranges in a masked 1-D np.array, based on
+    mask.
 
-    Returns Nx2 np.array with each row the start and stop indices
-    for slices of the compressed np.array corresponding to each of N
-    uninterrupted runs of unmasked values.
-    If optional argument compressed is False, it returns the
-    start and stop indices into the original np.array, not the
-    compressed np.array.
-    Returns None if there are no unmasked values.
+    Returns Nx2 :class:`numpy.array` with each row the start and stop
+    indices for slices of the compressed :class:`numpy.array`
+    corresponding to each of *N* uninterrupted runs of unmasked
+    values.  If optional argument *compressed* is *False*, it returns
+    the start and stop indices into the original :class:`numpy.array`,
+    not the compressed :class:`numpy.array`.  Returns *None* if there
+    are no unmasked values.
 
-    Example:
+    Example::
 
-    y = ma.array(np.arange(5), mask = [0,0,1,0,0])
-    #ii = unmasked_index_ranges(y.mask())
-    ii = unmasked_index_ranges(ma.getmask(y))
-    # returns [[0,2,] [2,4,]]
+      y = ma.array(np.arange(5), mask = [0,0,1,0,0])
+      #ii = unmasked_index_ranges(y.mask())
+      ii = unmasked_index_ranges(ma.getmask(y))
+      # returns [[0,2,] [2,4,]]
 
-    y.compressed().filled()[ii[1,0]:ii[1,1]]
-    # returns np.array [3,4,]
-    # (The 'filled()' method converts the masked np.array to a numerix np.array.)
+      y.compressed().filled()[ii[1,0]:ii[1,1]]
+      # returns np.array [3,4,]
+      # (The 'filled()' method converts the masked np.array to a numerix np.array.)
 
-    #i0, i1 = unmasked_index_ranges(y.mask(), compressed=False)
-    i0, i1 = unmasked_index_ranges(ma.getmask(y), compressed=False)
-    # returns [[0,3,] [2,5,]]
+      #i0, i1 = unmasked_index_ranges(y.mask(), compressed=False)
+      i0, i1 = unmasked_index_ranges(ma.getmask(y), compressed=False)
+      # returns [[0,3,] [2,5,]]
 
-    y.filled()[ii[1,0]:ii[1,1]]
-    # returns np.array [3,4,]
-
+      y.filled()[ii[1,0]:ii[1,1]]
+      # returns np.array [3,4,]
     '''
     m = np.concatenate(((1,), mask, (1,)))
     indices = np.arange(len(mask) + 1)
@@ -195,38 +195,11 @@ class Line2D(Artist):
                  **kwargs
                  ):
         """
-        Create a Line2D instance with x and y data in sequences xdata,
-        ydata
+        Create a :class:`~matplotlib.lines.Line2D` instance with *x*
+        and *y* data in sequences *xdata*, *ydata*.
 
         The kwargs are Line2D properties:
-          alpha: float
-          animated: [True | False]
-          antialiased or aa: [True | False]
-          clip_box: a matplotlib.transform.Bbox instance
-          clip_on: [True | False]
-          color or c: any matplotlib color
-          dash_capstyle: ['butt' | 'round' | 'projecting']
-          dash_joinstyle: ['miter' | 'round' | 'bevel']
-          dashes: sequence of on/off ink in points
-          data: (np.array xdata, np.array ydata)
-          figure: a matplotlib.figure.Figure instance
-          label: any string
-          linestyle or ls: [ '-' | '--' | '-.' | ':' | 'steps' | 'steps-pre' | 'steps-mid' | 'steps-post' | 'None' | ' ' | '' ]
-          linewidth or lw: float value in points
-          lod: [True | False]
-          marker: [ '+' | ',' | '.' | '1' | '2' | '3' | '4' ]
-          markeredgecolor or mec: any matplotlib color
-          markeredgewidth or mew: float value in points (default 5)
-          markerfacecolor or mfc: any matplotlib color
-          markersize or ms: float
-          pickradius: mouse event radius for pick items in points (default 5)
-          solid_capstyle: ['butt' | 'round' |  'projecting']
-          solid_joinstyle: ['miter' | 'round' | 'bevel']
-          transform: a matplotlib.transform transformation instance
-          visible: [True | False]
-          xdata: np.array
-          ydata: np.array
-          zorder: any number
+        %(Line2D)s
         """
         Artist.__init__(self)
 
@@ -290,12 +263,16 @@ class Line2D(Artist):
         self.set_data(xdata, ydata)
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occurred on the line.  The pick radius determines
-        the precision of the location test (usually within five points of the value).  Use
-        get/set pickradius() to view or modify it.
+        """
+        Test whether the mouse event occurred on the line.  The pick
+        radius determines the precision of the location test (usually
+        within five points of the value).  Use
+        :meth:`~matplotlib.lines.Line2D.get_pickradius`/:meth:`~matplotlib.lines.Line2D.set_pickradius`
+        to view or modify it.
 
-        Returns True if any values are within the radius along with {'ind': pointlist},
-        np.where pointlist is the set of points within the radius.
+        Returns *True* if any values are within the radius along with
+        ``{'ind': pointlist}``, where *pointlist* is the set of points
+        within the radius.
 
         TODO: sort returned indices by distance
         """
@@ -530,14 +507,20 @@ class Line2D(Artist):
     def get_markersize(self): return self._markersize
 
     def get_data(self, orig=True):
-        'return the xdata, ydata; if orig is True, return the original data'
+        """
+        Return the xdata, ydata.
+
+        If *orig* is *True*, return the original data
+        """
         return self.get_xdata(orig=orig), self.get_ydata(orig=orig)
 
 
     def get_xdata(self, orig=True):
         """
-        return the xdata; if orig is true return the original data,
-        else the processed data
+        Return the xdata.
+
+        If *orig* is *True*, return the original data, else the
+        processed data.
         """
         if orig:
             return self._xorig
@@ -547,8 +530,10 @@ class Line2D(Artist):
 
     def get_ydata(self, orig=True):
         """
-        return the ydata; if orig is true return the original data,
-        else the processed data
+        Return the ydata.
+
+        If *orig* is *True*, return the original data, else the
+        processed data.
         """
         if orig:
             return self._yorig
@@ -558,13 +543,17 @@ class Line2D(Artist):
 
     def get_path(self):
         """
-        Return the Path object associated with this line.
+        Return the :class:`~matplotlib.path.Path` object associated
+        with this line.
         """
         if self._invalid:
             self.recache()
         return self._path
 
     def get_xydata(self):
+        """
+        Return the *xy* data as a Nx2 numpy array.
+        """
         if self._invalid:
             self.recache()
         return self._xy
@@ -1140,6 +1129,7 @@ class Line2D(Artist):
     def set_dash_capstyle(self, s):
         """
         Set the cap style for dashed linestyles
+
         ACCEPTS: ['butt' | 'round' | 'projecting']
         """
         s = s.lower()
@@ -1153,6 +1143,7 @@ class Line2D(Artist):
     def set_solid_capstyle(self, s):
         """
         Set the cap style for solid linestyles
+
         ACCEPTS: ['butt' | 'round' |  'projecting']
         """
         s = s.lower()
@@ -1183,9 +1174,10 @@ class Line2D(Artist):
 
 class VertexSelector:
     """
-    manage the callbacks to maintain a list of selected vertices for
-    matplotlib.lines.Line2D. Derived classes should override
-    process_selected to do something with the picks
+    Manage the callbacks to maintain a list of selected vertices for
+    :class:`matplotlib.lines.Line2D`. Derived classes should override
+    :meth:`~matplotlib.lines.VertexSelector.process_selected` to do
+    something with the picks.
 
     Here is an example which highlights the selected verts with red
     circles::
@@ -1214,9 +1206,10 @@ class VertexSelector:
     """
     def __init__(self, line):
         """
-        Initialize the class with a matplotlib.lines.Line2D instance.
-        The line should already be added to some matplotlib.axes.Axes
-        instance and should have the picker property set.
+        Initialize the class with a :class:`matplotlib.lines.Line2D`
+        instance.  The line should already be added to some
+        :class:`matplotlib.axes.Axes` instance and should have the
+        picker property set.
         """
         if not hasattr(line, 'axes'):
             raise RuntimeError('You must first add the line to the Axes')
@@ -1234,15 +1227,16 @@ class VertexSelector:
 
     def process_selected(self, ind, xs, ys):
         """
-        Default do nothing implementation of the process_selected method.
+        Default "do nothing" implementation of the
+        :meth:`process_selected` method.
 
-        ind are the indices of the selected vertices.  xs and ys are
-        the coordinates of the selected vertices.
+        *ind* are the indices of the selected vertices.  *xs* and *ys*
+        are the coordinates of the selected vertices.
         """
         pass
 
     def onpick(self, event):
-        'when the line is picked, update the set of selected indicies'
+        'When the line is picked, update the set of selected indicies.'
         if event.artist is not self.line: return
 
         for i in event.ind:
@@ -1261,3 +1255,7 @@ lineStyles = Line2D._lineStyles
 lineMarkers = Line2D._markers
 
 artist.kwdocd['Line2D'] = artist.kwdoc(Line2D)
+
+# You can not set the docstring of an instancemethod,
+# but you can on the underlying function.  Go figure.
+Line2D.__init__.im_func.__doc__ = dedent(Line2D.__init__.__doc__) % artist.kwdocd
