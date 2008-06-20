@@ -304,6 +304,30 @@ For everything but top level chapters, please use ``Upper lower`` for
 section titles, eg ``Possible hangups`` rather than ``Possible
 Hangups``
 
+Inheritance diagrams
+====================
+
+Class inheritance diagrams can be generated with the
+``inheritance-diagram`` directive.  To use it, you provide the
+directive with a number of class or module names (separated by
+whitespace).  If a module name is provided, all classes in that module
+will be used.  All of the ancestors of these classes will be included
+in the inheritance diagram.
+
+A single option is available: *parts* controls how many of parts in
+the path to the class are shown.  For example, if *parts* == 1, the
+class ``matplotlib.patches.Patch`` is shown as ``Patch``.  If *parts*
+== 2, it is shown as ``patches.Patch``.  If *parts* == 0, the full
+path is shown.
+
+Example::
+
+    .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
+       :parts: 2
+
+.. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
+   :parts: 2
+
 
 .. _emacs-helpers:
 

@@ -75,17 +75,17 @@ class InheritanceGraph(object):
             path, base, signature = py_sig_re.match(name).groups()
         except:
             raise ValueError(
-                "Invalid class '%s' specified for inheritance diagram" % name)
+                "Invalid class or module '%s' specified for inheritance diagram" % name)
         fullname = (path or '') + base
         path = path and path.rstrip('.')
         if not path:
             raise ValueError(
-                "Invalid class '%s' specified for inheritance diagram" % name)
+                "Invalid class or module '%s' specified for inheritance diagram" % name)
         try:
             module = __import__(path, None, None, [])
         except ImportError:
             raise ValueError(
-                "Could not import class '%s' specified for inheritance diagram" % name)
+                "Could not import class or module '%s' specified for inheritance diagram" % name)
 
         try:
             todoc = module
@@ -93,7 +93,7 @@ class InheritanceGraph(object):
                 todoc = getattr(todoc, comp)
         except AttributeError:
             raise ValueError(
-                "Could not find class '%s' specified for inheritance diagram" % name)
+                "Could not find class or module '%s' specified for inheritance diagram" % name)
 
         # If a class, just return it
         if inspect.isclass(todoc):
@@ -133,7 +133,7 @@ class InheritanceGraph(object):
 
         return all_classes.keys()
 
-    def class_name(self, cls):
+    def class_name(self, cls, parts=0):
         """
         Given a class object, return a fully-qualified name.  This
         works for things I've tested in matplotlib so far, but may
@@ -142,7 +142,11 @@ class InheritanceGraph(object):
         module = cls.__module__
         if module == '__builtin__':
             return cls.__name__
-        return '.'.join([module, cls.__name__])
+        fullname = '.'.join([module, cls.__name__])
+        if parts == 0:
+            return fullname
+        name_parts = fullname.split('.')
+        return '.'.join(name_parts[-parts:])
 
     def get_all_class_names(self):
         """
@@ -159,7 +163,7 @@ class InheritanceGraph(object):
         "shape": "box",
         "fontsize": 10,
         "height": 0.25,
-        "fontname": "sans",
+        "fontname": "Vera Sans, DejaVu Sans, Liberation Sans, Arial, Helvetica, sans",
         "style": '"setlinewidth(0.5)"'
         }
     default_edge_options = {
@@ -172,7 +176,7 @@ class InheritanceGraph(object):
     def _format_graph_options(self, options):
         return ''.join(["%s=%s;\n" % x for x in options.items()])
 
-    def generate_dot(self, fd, name, urls={},
+    def generate_dot(self, fd, name, parts=0, urls={},
                      graph_options={}, node_options={},
                      edge_options={}):
         """
@@ -203,11 +207,11 @@ class InheritanceGraph(object):
             if not self.show_builtins and cls in __builtins__.values():
                 continue
 
-            name = self.class_name(cls)
+            name = self.class_name(cls, parts)
 
             # Write the node
             this_node_options = n_options.copy()
-            url = urls.get(name)
+            url = urls.get(self.class_name(cls))
             if url is not None:
                 this_node_options['URL'] = '"%s"' % url
             fd.write('  "%s" [%s];\n' %
@@ -218,13 +222,13 @@ class InheritanceGraph(object):
                 if not self.show_builtins and base in __builtins__.values():
                     continue
 
-                base_name = self.class_name(base)
+                base_name = self.class_name(base, parts)
                 fd.write('  "%s" -> "%s" [%s];\n' %
-                         (self.class_name(base), name,
+                         (base_name, name,
                           self._format_node_options(e_options)))
         fd.write('}\n')
 
-    def run_dot(self, args, name, urls={},
+    def run_dot(self, args, name, parts=0, urls={},
                 graph_options={}, node_options={}, edge_options={}):
         """
         Run graphviz 'dot' over this graph, returning whatever 'dot'
@@ -250,8 +254,8 @@ class InheritanceGraph(object):
         except:
             raise DotException("Unexpected error calling 'dot'")
 
-        self.generate_dot(dot.stdin, name, urls, graph_options, node_options,
-                          edge_options)
+        self.generate_dot(dot.stdin, name, parts, urls, graph_options,
+                          node_options, edge_options)
         dot.stdin.close()
         result = dot.stdout.read()
         returncode = dot.wait()
@@ -266,14 +270,14 @@ class inheritance_diagram(Body, Element):
     """
     pass
 
-def inheritance_diagram_directive_run(clstexts, state):
+def inheritance_diagram_directive_run(class_names, options, state):
     """
     Run when the inheritance_diagram directive is first encountered.
     """
     node = inheritance_diagram()
 
     # Create a graph starting with the list of classes
-    graph = InheritanceGraph(clstexts)
+    graph = InheritanceGraph(class_names)
 
     # Create xref nodes for each target of the graph's image map and
     # add them to the doc tree so that Sphinx can resolve the
@@ -287,7 +291,8 @@ def inheritance_diagram_directive_run(clstexts, state):
     # dot file later
     node['graph'] = graph
     # Store the original content for use as a hash
-    node['content'] = " ".join(clstexts)
+    node['parts'] = options.get('parts', 0)
+    node['content'] = " ".join(class_names)
     return [node]
 
 def html_output_graph(self, node):
@@ -296,10 +301,12 @@ def html_output_graph(self, node):
     image map.
     """
     graph = node['graph']
+    parts = node['parts']
 
     # Determine where to write the PNG to.  This follows
     # the same procedure as mathpng.py
-    name = 'inheritance%s' % md5(node['content']).hexdigest()[-10:]
+    name = 'inheritance%s' % md5(
+        node['content'] + str(node['parts'])).hexdigest()[-10:]
     png_path = '_static/%s.png' % name
 
     path = '_static'
@@ -324,8 +331,8 @@ def html_output_graph(self, node):
     # These arguments to dot will save a PNG file to disk and write
     # an HTML image map to stdout.
     image_map = graph.run_dot(['-Tpng', '-o%s' % png_path, '-Tcmapx'],
-                              name, urls)
-    return ('<img src="%s/%s.png" usemap="#%s"/>%s' %
+                              name, parts, urls)
+    return ('<img src="%s/%s.png" usemap="#%s" class="inheritance"/>%s' %
             (path, name, name, image_map))
 
 def latex_output_graph(self, node):
@@ -333,10 +340,12 @@ def latex_output_graph(self, node):
     Output the graph for LaTeX.  This will insert a PDF.
     """
     graph = node['graph']
+    parts = node['parts']
 
     # Determine where to write the PNG to.  This follows
     # the same procedure as mathpng.py
-    name = 'inheritance%s' % md5(node['content']).hexdigest()[-10:]
+    name = 'inheritance%s' % md5(
+        node['content'] + str(node['parts'])).hexdigest()[-10:]
     pdf_path = '_static/%s.pdf' % name
 
     path = '_static'
@@ -347,7 +356,7 @@ def latex_output_graph(self, node):
         path = '../'+path
     path = '../'+path #specifically added for matplotlib
 
-    graph.run_dot(['-Tpdf', '-o%s' % pdf_path], name,
+    graph.run_dot(['-Tpdf', '-o%s' % pdf_path], name, parts,
                   graph_options={'size': '"6.0,6.0"'})
     return '\\includegraphics{../../_static/%s.pdf}' % name
 
@@ -373,6 +382,10 @@ def visit_inheritance_diagram(inner_func):
 def do_nothing(self, node):
     pass
 
+options_spec = {
+    'parts': directives.nonnegative_int
+    }
+
 # Deal with the old and new way of registering directives
 try:
     from docutils.parsers.rst import Directive
@@ -381,10 +394,10 @@ except ImportError:
     def inheritance_diagram_directive(name, arguments, options, content, lineno,
                                       content_offset, block_text, state,
                                       state_machine):
-        return inheritance_diagram_directive_run(arguments, state)
+        return inheritance_diagram_directive_run(arguments, options, state)
     inheritance_diagram_directive.__doc__ = __doc__
     inheritance_diagram_directive.arguments = (1, 100, 0)
-    inheritance_diagram_directive.options = {}
+    inheritance_diagram_directive.options = options_spec
     inheritance_diagram_directive.content = 0
     _directives['inheritance-diagram'] = inheritance_diagram_directive
 else:
@@ -393,10 +406,11 @@ else:
         required_arguments = 1
         optional_arguments = 100
         final_argument_whitespace = False
-        option_spec = {}
+        option_spec = options_spec
 
         def run(self):
-            return inheritance_diagram_directive_run(self.arguments, self.state)
+            return inheritance_diagram_directive_run(
+                self.arguments, self.options, self.state)
     inheritance_diagram_directive.__doc__ = __doc__
 
     directives.register_directive('inheritance-diagram',

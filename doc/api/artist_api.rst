@@ -3,6 +3,7 @@ matplotlib artists
 *******************
 
 .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
+   :parts: 2
 
 :mod:`matplotlib.artist`
 =============================
