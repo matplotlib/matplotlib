@@ -157,7 +157,7 @@ class InheritanceGraph(object):
     # These are the default options for
     default_graph_options = {
         "rankdir": "LR",
-        "size": '"11.0, 11.0"'
+        "size": '"8.0, 12.0"'
         }
     default_node_options = {
         "shape": "box",
