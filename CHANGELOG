@@ -1,3 +1,8 @@
+2008-06-19 Use relative font sizes (e.g. 'medium' and 'large') in
+           rcsetup.py and matplotlibrc.template so that text will
+           be scaled by default when changing rcParams['font.size'] -
+           EF
+
 2008-06-17 Add a generic PatchCollection class that can contain any
            kind of patch. - MGD
 
@@ -24,7 +29,7 @@
            sets '_nolegend_' for the other patch labels.  This lets
            autolegend work as expected for hist and bar - see
            https://sourceforge.net/tracker/index.php?func=detail&aid=1986597&group_id=80706&atid=560720
-	   JDH
+           JDH
 
 2008-06-10 Fix text baseline alignment bug.  [ 1985420 ] Repair of
            baseline alignment in Text._get_layout.  Thanks Stan West -

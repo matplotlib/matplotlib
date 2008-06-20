@@ -394,9 +394,9 @@ defaultParams = {
     'axes.facecolor'        : ['w', validate_color],    # background color; white
     'axes.edgecolor'        : ['k', validate_color],    # edge color; black
     'axes.linewidth'        : [1.0, validate_float],    # edge linewidth
-    'axes.titlesize'        : [14, validate_fontsize], # fontsize of the axes title
+    'axes.titlesize'        : ['large', validate_fontsize], # fontsize of the axes title
     'axes.grid'             : [False, validate_bool],   # display grid or not
-    'axes.labelsize'        : [12, validate_fontsize], # fontsize of the x any y labels
+    'axes.labelsize'        : ['medium', validate_fontsize], # fontsize of the x any y labels
     'axes.labelcolor'       : ['k', validate_color],    # color of axis label
     'axes.formatter.limits' : [[-7, 7], validate_nseq_int(2)],
                                # use scientific notation if log10
@@ -409,7 +409,7 @@ defaultParams = {
     'legend.loc'         : ['upper right',validate_legend_loc], # at some point, this should be changed to 'best'
     'legend.isaxes'      : [True,validate_bool],  # this option is internally ignored - it never served any useful purpose
     'legend.numpoints'   : [2, validate_int],     # the number of points in the legend line
-    'legend.fontsize'    : [14, validate_fontsize],
+    'legend.fontsize'    : ['large', validate_fontsize],
     'legend.pad'         : [0.2, validate_float], # the fractional whitespace inside the legend border
     'legend.markerscale' : [1.0, validate_float], # the relative size of legend markers vs. original
 
@@ -427,7 +427,7 @@ defaultParams = {
     'xtick.major.pad'  : [4, validate_float],      # distance to label in points
     'xtick.minor.pad'  : [4, validate_float],      # distance to label in points
     'xtick.color'      : ['k', validate_color],    # color of the xtick labels
-    'xtick.labelsize'  : [12, validate_fontsize], # fontsize of the xtick labels
+    'xtick.labelsize'  : ['medium', validate_fontsize], # fontsize of the xtick labels
     'xtick.direction'  : ['in', str],            # direction of xticks
 
     'ytick.major.size' : [4, validate_float],      # major ytick size in points
@@ -435,7 +435,7 @@ defaultParams = {
     'ytick.major.pad'  : [4, validate_float],      # distance to label in points
     'ytick.minor.pad'  : [4, validate_float],      # distance to label in points
     'ytick.color'      : ['k', validate_color],    # color of the ytick labels
-    'ytick.labelsize'  : [12, validate_fontsize], # fontsize of the ytick labels
+    'ytick.labelsize'  : ['medium', validate_fontsize], # fontsize of the ytick labels
     'ytick.direction'  : ['in', str],            # direction of yticks
 
     'grid.color'       : ['k', validate_color],       # grid color
