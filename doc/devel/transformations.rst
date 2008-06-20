@@ -3,6 +3,7 @@
 ==============================
 
 .. inheritance-diagram:: matplotlib.transforms matplotlib.path
+   :parts: 1
 
 :mod:`matplotlib.transforms`
 =============================
