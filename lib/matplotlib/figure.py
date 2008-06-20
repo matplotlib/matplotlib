@@ -211,7 +211,11 @@ class Figure(Artist):
 
     *figurePatch*
        a :class:`matplotlib.patches.Rectangle` instance
-
+    *suppressComposite
+       for multiple figure images, the figure will make composite
+       images depending on the renderer option_image_nocomposite
+       function.  If suppressComposite is True|False, this will
+       override the renderer
     """
 
     def __str__(self):
@@ -278,7 +282,6 @@ class Figure(Artist):
         self._axstack = Stack()  # maintain the current axes
         self.axes = []
         self.clf()
-
         self._cachedRenderer = None
 
     def _get_dpi(self):
@@ -328,6 +331,7 @@ class Figure(Artist):
     def get_children(self):
         'get a list of artists contained in the figure'
         children = [self.figurePatch]
+        children.extend(self.artists)
         children.extend(self.axes)
         children.extend(self.lines)
         children.extend(self.patches)
@@ -755,7 +759,7 @@ class Figure(Artist):
         """
         Clear the figure
         """
-
+        self.suppressComposite = None
         self.callbacks = cbook.CallbackRegistry(('dpi_changed', ))
 
         for ax in tuple(self.axes):  # Iterate over the copy.
@@ -767,6 +771,7 @@ class Figure(Artist):
             toolbar.update()
         self._axstack.clear()
         self._seen = {}
+        self.artists = []        
         self.lines = []
         self.patches = []
         self.texts=[]
@@ -791,16 +796,23 @@ class Figure(Artist):
 
         if self.frameon: self.figurePatch.draw(renderer)
 
+        # todo: respect zorder
         for p in self.patches: p.draw(renderer)
         for l in self.lines: l.draw(renderer)
+        for a in self.artists: a.draw(renderer)
+        
+        # override the renderer default if self.suppressComposite
+        # is not None
+        composite = renderer.option_image_nocomposite()
+        if self.suppressComposite is not None:
+            composite = self.suppressComposite
 
-        if len(self.images)<=1 or renderer.option_image_nocomposite() or not allequal([im.origin for im in self.images]):
+        if len(self.images)<=1 or composite or not allequal([im.origin for im in self.images]):
             for im in self.images:
                 im.draw(renderer)
         else:
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
-
             mag = renderer.get_image_magnification()
             ims = [(im.make_image(mag), im.ox*mag, im.oy*mag)
                    for im in self.images]
