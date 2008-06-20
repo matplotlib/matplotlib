@@ -514,7 +514,7 @@ class QuadMesh(Collection):
         renderer.close_group(self.__class__.__name__)
 
 class PolyCollection(Collection):
-    def __init__(self, verts, sizes = None, **kwargs):
+    def __init__(self, verts, sizes = None, closed = True, **kwargs):
         """
         *verts* is a sequence of ( *verts0*, *verts1*, ...) where
         *verts_i* is a sequence of *xy* tuples of vertices, or an
@@ -523,16 +523,26 @@ class PolyCollection(Collection):
         *sizes* gives the area of the circle circumscribing the
         polygon in points^2.
 
+        *closed*, when *True*, will explicitly close the polygon.
+
         %(Collection)s
         """
         Collection.__init__(self,**kwargs)
         self._sizes = sizes
-        self.set_verts(verts)
+        self.set_verts(verts, closed)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-    def set_verts(self, verts):
+    def set_verts(self, verts, closed=True):
         '''This allows one to delay initialization of the vertices.'''
-        self._paths = [mpath.Path(v) for v in verts]
+        if closed:
+            self._paths = []
+            for xy in verts:
+                xy = np.asarray(xy)
+                if len(xy) and (xy[0] != xy[-1]).any():
+                    xy = np.concatenate([xy, [xy[0]]])
+                self._paths.append(mpath.Path(xy))
+        else:
+            self._paths = [mpath.Path(xy) for xy in verts]
 
     def get_paths(self):
         return self._paths
