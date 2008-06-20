@@ -656,7 +656,9 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
 
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
+        # todo: we should be able to do some cacheing here
         im = self.make_image()
+
         renderer.draw_image(round(self.ox), round(self.oy), im, self.figure.bbox,
                             *self.get_transformed_clip_path_and_affine())
 
