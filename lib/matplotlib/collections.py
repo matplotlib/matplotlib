@@ -760,6 +760,8 @@ class LineCollection(Collection, cm.ScalarMappable):
         transoffset.freeze()
 
         segments = self._segments
+        if not segments:
+            return
         offsets = self._offsets
 
         if self.have_units():
