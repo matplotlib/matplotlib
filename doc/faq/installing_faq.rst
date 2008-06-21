@@ -104,7 +104,7 @@ matplotlib targets many different use cases and output formats.  Some
 people use matplotlib interactively from the python shell and have
 plotting windows pop up when they type commands.  Some people embed
 matplotlib into graphical user interfaces like wxpython or pygtk to
-build rich applications.  Others use matplotlib in batch scripts, to
+build rich applications.  Others use matplotlib in batch scripts to
 generate postscript images from some numerical simulations, and still
 others in web application servers to dynamically serve up graphs.
 
