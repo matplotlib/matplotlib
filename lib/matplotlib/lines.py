@@ -53,6 +53,7 @@ def unmasked_index_ranges(mask, compressed = True):
 
       y.filled()[ii[1,0]:ii[1,1]]
       # returns np.array [3,4,]
+
     '''
     m = np.concatenate(((1,), mask, (1,)))
     indices = np.arange(len(mask) + 1)

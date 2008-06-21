@@ -221,9 +221,10 @@ class Patch(artist.Artist):
 
         CURRENT LIMITATIONS:
 
-          1. Hatching is supported in the PostScript backend only.
+        1. Hatching is supported in the PostScript backend only.
 
-          2. Hatching is done with solid black lines of width 0.
+        2. Hatching is done with solid black lines of width 0.
+
         """
         self._hatch = h
 
@@ -345,6 +346,7 @@ class Rectangle(Patch):
 
     def __init__(self, xy, width, height, **kwargs):
         """
+
         *fill* is a boolean indicating whether to fill the rectangle
 
         Valid kwargs are:
@@ -460,6 +462,8 @@ class RegularPolygon(Patch):
     def __init__(self, xy, numVertices, radius=5, orientation=0,
                  **kwargs):
         """
+        Constructor arguments:
+
         *xy*
           A length 2 tuple (*x*, *y*) of the center.
 
@@ -685,18 +689,20 @@ class FancyArrow(Polygon):
         head_width=None, head_length=None, shape='full', overhang=0, \
         head_starts_at_zero=False,**kwargs):
         """
-        *length_includes_head*:
-           *True* if head is counted in calculating the length.
+        Constructor arguments
 
-        *shape*: ['full', 'left', 'right']
+            *length_includes_head*:
+               *True* if head is counted in calculating the length.
 
-        *overhang*:
-          distance that the arrow is swept back (0 overhang means
-          triangular shape).
+            *shape*: ['full', 'left', 'right']
 
-        *head_starts_at_zero*:
-          If *True*, the head starts being drawn at coordinate 0
-          instead of ending at coordinate 0.
+            *overhang*:
+              distance that the arrow is swept back (0 overhang means
+              triangular shape).
+
+            *head_starts_at_zero*:
+              If *True*, the head starts being drawn at coordinate 0
+              instead of ending at coordinate 0.
 
         Valid kwargs are:
         %(Patch)s
@@ -761,6 +767,8 @@ class YAArrow(Patch):
 
     def __init__(self, figure, xytip, xybase, width=4, frac=0.1, headwidth=12, **kwargs):
         """
+        Constructor arguments:
+
         *xytip*
           (*x*, *y*) location of arrow tip
 
@@ -972,6 +980,8 @@ class Arc(Ellipse):
 
     def __init__(self, xy, width, height, angle=0.0, theta1=0.0, theta2=360.0, **kwargs):
         """
+        The following args are supported:
+
         *xy*
           center of ellipse
 
