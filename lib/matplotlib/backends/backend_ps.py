@@ -501,7 +501,7 @@ grestore
 
         tpath = trans.transform_path(path)
         for x, y in tpath.vertices:
-            ps_cmd.append("%1.3g %1.3g o" % (x, y))
+            ps_cmd.append("%g %g o" % (x, y))
 
         ps = '\n'.join(ps_cmd)
         self._draw_ps(ps, gc, rgbFace, fill=False, stroke=False)
