@@ -596,6 +596,8 @@ class Polygon(Patch):
         return self._path.vertices
     def set_xy(self, vertices):
         self._path = Path(vertices)
+    _get_xy = get_xy
+    _set_xy = set_xy
     xy = property(
         get_xy, set_xy, None,
         """Set/get the vertices of the polygon.  This property is
