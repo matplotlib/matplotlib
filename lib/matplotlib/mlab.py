@@ -1237,14 +1237,14 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     skiprows is the number of rows from the top to skip
 
     usecols, if not None, is a sequence of integer column indexes to
-    extract where 0 is the first column, eg usecols=(1,4,5) to extract
+    extract where 0 is the first column, eg usecols=[1,4,5] to extract
     just the 2nd, 5th and 6th columns
 
     unpack, if True, will transpose the matrix allowing you to unpack
     into named arguments on the left hand side
 
         t,y = load('test.dat', unpack=True) # for  two column data
-        x,y,z = load('somefile.dat', usecols=(3,5,7), unpack=True)
+        x,y,z = load('somefile.dat', usecols=[3,5,7], unpack=True)
 
     dtype, the array will have this dtype.  default: numpy.float_
 
