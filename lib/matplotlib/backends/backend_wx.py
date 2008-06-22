@@ -94,6 +94,7 @@ Examples which work on this release:
 
 cvs_id = '$Id$'
 
+
 import sys, os, os.path, math, StringIO, weakref, warnings
 
 # Debugging settings here...
@@ -1646,8 +1647,14 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             filename = dlg.GetFilename()
             DEBUG_MSG('Save file dir:%s name:%s' % (dirname, filename), 3, self)
             format = exts[dlg.GetFilterIndex()]
-            # Explicitly pass in the selected filetype to override the
-            # actual extension if necessary
+            basename, ext = os.path.splitext(filename)
+            if ext.startswith('.'):
+                ext = ext[1:]
+            if ext in ('svg', 'pdf', 'ps', 'eps', 'png') and format!=ext:
+                #looks like they forgot to set the image type drop
+                #down, going with the extension.
+                warnings.warn('extension %s did not match the selected image type %s; going with %s'%(ext, format, ext), stacklevel=0)
+                format = ext
             try:
                 self.canvas.print_figure(
                     os.path.join(dirname, filename), format=format)
