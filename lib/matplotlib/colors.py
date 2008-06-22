@@ -540,18 +540,19 @@ class LinearSegmentedColormap(Colormap):
         self._set_extremes()
 
 
-class ListedColormap(LinearSegmentedColormap):
+class ListedColormap(Colormap):
     """Colormap object generated from a list of colors.
 
-    Color boundaries are evenly spaced.  This is intended for simulating
-    indexed color selection, but may be useful for generating
-    special colormaps also.
+    This may be most useful when indexing directly into a colormap,
+    but it can also be used to generate special colormaps for ordinary
+    mapping.
     """
     def __init__(self, colors, name = 'from_list', N = None):
         """
         Make a colormap from a list of colors.
 
-        colors is a list of matplotlib color specifications
+        colors is a list of matplotlib color specifications,
+            or an equivalent Nx3 floating point array (N rgb values)
         name is a string to identify the colormap
         N is the number of entries in the map.  The default is None,
             in which case there is one colormap entry for each
