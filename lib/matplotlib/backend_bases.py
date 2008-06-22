@@ -262,6 +262,9 @@ class RendererBase:
                     gc.set_linewidth(linewidths[i % Nlinewidths])
                 if Nlinestyles:
                     gc.set_dashes(*linestyles[i % Nlinestyles])
+            if len(rgbFace)==4:
+                gc.set_alpha(rgbFace[-1])
+                rgbFace = rgbFace[:3]
             gc.set_antialiased(antialiaseds[i % Naa])
 
             yield xo, yo, path_id, gc, rgbFace
