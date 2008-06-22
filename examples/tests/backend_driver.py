@@ -132,9 +132,11 @@ try:
     import subprocess
     def run(arglist):
         try:
-            subprocess.call(arglist)
+            ret = subprocess.call(arglist)
         except KeyboardInterrupt:
             sys.exit()
+        else:
+            return ret
 except ImportError:
     def run(arglist):
         os.system(' '.join(arglist))
@@ -198,11 +200,12 @@ def drive(backend, python=['python'], switches = []):
         tmpfile.close()
         start_time = time.time()
         program = [x % {'name': basename} for x in python]
-        run(program + [tmpfile_name, switchstring])
+        ret = run(program + [tmpfile_name, switchstring])
         end_time = time.time()
-        print (end_time - start_time)
+        print (end_time - start_time), ret
         #os.system('%s %s %s' % (python, tmpfile_name, switchstring))
         os.remove(tmpfile_name)
+
 
 if __name__ == '__main__':
     times = {}
