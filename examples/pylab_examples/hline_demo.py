@@ -17,5 +17,6 @@ plot(s+nse, t, 'b^')
 hlines(t, [0], s)
 xlabel('time (s)')
 title('Comparison of model with data')
+savefig('test')
 show()
 
