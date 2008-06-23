@@ -4567,7 +4567,7 @@ class Axes(martist.Artist):
               *style*:
                 the style of the regular symbol:
 
-                =====   ==================
+                =====   =========================================
                 Value   Description
                 =====   =========================================
                 0       a regular polygon

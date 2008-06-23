@@ -211,7 +211,8 @@ class Figure(Artist):
 
     *figurePatch*
        a :class:`matplotlib.patches.Rectangle` instance
-    *suppressComposite
+
+    *suppressComposite*
        for multiple figure images, the figure will make composite
        images depending on the renderer option_image_nocomposite
        function.  If suppressComposite is True|False, this will
@@ -771,7 +772,7 @@ class Figure(Artist):
             toolbar.update()
         self._axstack.clear()
         self._seen = {}
-        self.artists = []        
+        self.artists = []
         self.lines = []
         self.patches = []
         self.texts=[]
@@ -800,7 +801,7 @@ class Figure(Artist):
         for p in self.patches: p.draw(renderer)
         for l in self.lines: l.draw(renderer)
         for a in self.artists: a.draw(renderer)
-        
+
         # override the renderer default if self.suppressComposite
         # is not None
         composite = renderer.option_image_nocomposite()
