@@ -820,6 +820,7 @@ class CircleCollection(Collection):
         self._sizes = sizes
         self.set_transform(transforms.IdentityTransform())
         self._paths = [mpath.Path.unit_circle()]
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def draw(self, renderer):
         # sizes is the area of the circle circumscribing the polygon
