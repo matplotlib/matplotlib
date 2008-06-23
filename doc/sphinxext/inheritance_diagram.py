@@ -31,6 +31,7 @@ LaTeX.
 
 import inspect
 import os
+import re
 import subprocess
 try:
     from hashlib import md5
@@ -42,7 +43,6 @@ from docutils.writers.html4css1 import HTMLTranslator
 from sphinx.latexwriter import LaTeXTranslator
 from docutils.parsers.rst import directives
 from sphinx.roles import xfileref_role
-from sphinx.directives.desc import py_sig_re
 
 class DotException(Exception):
     pass
@@ -67,12 +67,16 @@ class InheritanceGraph(object):
             raise ValueError("No classes found for inheritance diagram")
         self.show_builtins = show_builtins
 
+    py_sig_re = re.compile(r'''^([\w.]*\.)?    # class names
+                           (\w+)  \s* $        # optionally arguments
+                           ''', re.VERBOSE)
+
     def _import_class_or_module(self, name):
         """
         Import a class using its fully-qualified *name*.
         """
         try:
-            path, base, signature = py_sig_re.match(name).groups()
+            path, base = self.py_sig_re.match(name).groups()
         except:
             raise ValueError(
                 "Invalid class or module '%s' specified for inheritance diagram" % name)
