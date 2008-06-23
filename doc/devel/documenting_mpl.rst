@@ -52,6 +52,8 @@ statement, such as::
   .. include:: ../../TODO
 
 
+.. _formatting-mpl-docs:
+
 Formatting
 ==========
 
