@@ -805,6 +805,32 @@ class LineCollection(Collection):
         return self._edgecolors
     get_colors = get_color  # for compatibility with old versions
 
+class CircleCollection(Collection):
+    """
+    A collection of circles, drawn using splines.
+    """
+    def __init__(self, sizes):
+        """
+        *sizes*
+            Gives the area of the circle in points^2
+
+        %(Collection)s
+        """
+        Collection.__init__(self,**kwargs)
+        self._sizes = sizes
+        self.set_transform(transforms.IdentityTransform())
+        self._paths = [mpath.Path.unit_circle()]
+
+    def draw(self, renderer):
+        # sizes is the area of the circle circumscribing the polygon
+        # in points^2
+        self._transforms = [
+            transforms.Affine2D().scale(
+                (np.sqrt(x) * renderer.dpi / 72.0) / np.sqrt(np.pi))
+            for x in self._sizes]
+        return Collection.draw(self, renderer)
+
+
 class PatchCollection(Collection):
     """
     A generic collection of patches.
@@ -870,6 +896,6 @@ class PatchCollection(Collection):
 
 artist.kwdocd['Collection'] = patchstr = artist.kwdoc(Collection)
 for k in ('QuadMesh', 'PolyCollection', 'BrokenBarHCollection', 'RegularPolyCollection',
-          'StarPolygonCollection'):
+          'StarPolygonCollection', 'PatchCollection', 'CircleCollection'):
     artist.kwdocd[k] = patchstr
 artist.kwdocd['LineCollection'] = artist.kwdoc(LineCollection)
