@@ -19,8 +19,8 @@ class Path(object):
     closed, line and curve segments.
 
     The underlying storage is made up of two parallel numpy arrays:
-      - vertices: an Nx2 float array of vertices
-      - codes: an N-length uint8 array of vertex types
+      - *vertices*: an Nx2 float array of vertices
+      - *codes*: an N-length uint8 array of vertex types
 
     These two arrays always have the same length in the first
     dimension.  For example, to represent a cubic curve, you must
@@ -52,9 +52,10 @@ class Path(object):
 
     Users of Path objects should not access the vertices and codes
     arrays directly.  Instead, they should use :meth:`iter_segments`
-    to get the vertex/code pairs.  This is important since many Paths,
-    as an optimization, do not store a codes array at all, but have a
-    default one provided for them by :meth:`iter_segments`.
+    to get the vertex/code pairs.  This is important, since many
+    :class:`Path`s, as an optimization, do not store a codes array at
+    all, but have a default one provided for them by
+    :meth:`iter_segments`.
     """
 
     # Path codes
@@ -73,19 +74,20 @@ class Path(object):
         """
         Create a new path with the given vertices and codes.
 
-        vertices is an Nx2 numpy float array, masked array or Python
+        *vertices* is an Nx2 numpy float array, masked array or Python
         sequence.
 
-        codes is an N-length numpy array or Python sequence of type
-        Path.code_type.
+        *codes* is an N-length numpy array or Python sequence of type
+        :attr:`matplotlib.path.Path.code_type`.
 
         These two arrays must have the same length in the first
         dimension.
 
-        If codes is None, vertices will be treated as a series of line
-        segments.  If vertices contains masked values, the resulting
-        path will be compressed, with MOVETO codes inserted in the
-        correct places to jump over the masked regions.
+        If *codes* is None, *vertices* will be treated as a series of
+        line segments.  If *vertices* contains masked values, the
+        resulting path will be compressed, with ``MOVETO`` codes
+        inserted in the correct places to jump over the masked
+        regions.
         """
         if ma.isMaskedArray(vertices):
             is_mask = True
@@ -219,10 +221,10 @@ class Path(object):
 
     def contains_point(self, point, transform=None):
         """
-        Returns True if the path contains the given point.
+        Returns *True* if the path contains the given point.
 
-        If transform is not None, the path will be transformed before
-        performing the test.
+        If *transform* is not *None*, the path will be transformed
+        before performing the test.
         """
         if transform is not None:
             transform = transform.frozen()
@@ -230,10 +232,10 @@ class Path(object):
 
     def contains_path(self, path, transform=None):
         """
-        Returns True if this path completely contains the given path.
+        Returns *True* if this path completely contains the given path.
 
-        If transform is not None, the path will be transformed before
-        performing the test.
+        If *transform* is not *None*, the path will be transformed
+        before performing the test.
         """
         if transform is not None:
             transform = transform.frozen()
@@ -241,9 +243,10 @@ class Path(object):
 
     def get_extents(self, transform=None):
         """
-        Returns the extents (xmin, ymin, xmax, ymax) of the path.
+        Returns the extents (*xmin*, *ymin*, *xmax*, *ymax*) of the
+        path.
 
-        Unlike computing the extents on the vertices alone, this
+        Unlike computing the extents on the *vertices* alone, this
         algorithm will take into account the curves and deal with
         control points appropriately.
         """
@@ -254,13 +257,13 @@ class Path(object):
 
     def intersects_path(self, other):
         """
-        Returns True if this path intersects another given path.
+        Returns *True* if this path intersects another given path.
         """
         return path_intersects_path(self, other)
 
     def intersects_bbox(self, bbox):
         """
-        Returns True if this path intersects a given
+        Returns *True* if this path intersects a given
         :class:`~matplotlib.transforms.Bbox`.
         """
         from transforms import BboxTransformTo
@@ -271,8 +274,8 @@ class Path(object):
 
     def interpolated(self, steps):
         """
-        Returns a new path resampled to length N x steps.
-        Does not currently handle interpolating curves.
+        Returns a new path resampled to length N x steps.  Does not
+        currently handle interpolating curves.
         """
         vertices = simple_linear_interpolation(self.vertices, steps)
         codes = self.codes
@@ -291,9 +294,9 @@ class Path(object):
         displaying in backends that do not support compound paths or
         Bezier curves, such as GDK.
 
-        If width and height are both non-zero then the lines will be
-        simplified so that vertices outside of (0, 0), (width, height)
-        will be clipped.
+        If *width* and *height* are both non-zero then the lines will
+        be simplified so that vertices outside of (0, 0), (width,
+        height) will be clipped.
         """
         if len(self.vertices) == 0:
             return []
@@ -329,8 +332,8 @@ class Path(object):
     def unit_regular_polygon(cls, numVertices):
         """
         (staticmethod) Returns a :class:`Path` for a unit regular
-        polygon with the given numVertices and radius of 1.0, centered
-        at (0, 0).
+        polygon with the given *numVertices* and radius of 1.0,
+        centered at (0, 0).
         """
         if numVertices <= 16:
             path = cls._unit_regular_polygons.get(numVertices)
@@ -451,11 +454,11 @@ class Path(object):
     def arc(cls, theta1, theta2, n=None, is_wedge=False):
         """
         (staticmethod) Returns an arc on the unit circle from angle
-        theta1 to angle theta2 (in degrees).
+        *theta1* to angle *theta2* (in degrees).
 
-        If n is provided, it is the number of spline segments to make.
-        If n is not provided, the number of spline segments is
-        determined based on the delta between theta1 and theta2.
+        If *n* is provided, it is the number of spline segments to make.
+        If *n* is not provided, the number of spline segments is
+        determined based on the delta between *theta1* and *theta2*.
 
            Masionobe, L.  2003.  `Drawing an elliptical arc using
            polylines, quadratic or cubic Bezier curves
@@ -530,7 +533,11 @@ class Path(object):
     def wedge(cls, theta1, theta2, n=None):
         """
         (staticmethod) Returns a wedge of the unit circle from angle
-        theta1 to angle theta2 (in degrees).
+        *theta1* to angle *theta2* (in degrees).
+
+        If *n* is provided, it is the number of spline segments to make.
+        If *n* is not provided, the number of spline segments is
+        determined based on the delta between *theta1* and *theta2*.
         """
         return cls.arc(theta1, theta2, n, True)
     wedge = classmethod(wedge)
