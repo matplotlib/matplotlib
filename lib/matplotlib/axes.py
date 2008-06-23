@@ -4561,22 +4561,23 @@ class Axes(martist.Artist):
             The marker can also be a tuple (*numsides*, *style*,
             *angle*), which will create a custom, regular symbol.
 
-            *numsides*:
-              the number of sides
+              *numsides*:
+                the number of sides
 
-            *style*:
-              the style of the regular symbol:
+              *style*:
+                the style of the regular symbol:
 
-              =====   ==================
-              Value   Description
-              =====   ==================
-              0       a regular polygon
-              1       a star-like symbol
-              2       an asterisk
-              =====   ==================
+                =====   ==================
+                Value   Description
+                =====   =========================================
+                0       a regular polygon
+                1       a star-like symbol
+                2       an asterisk
+                3       a circle (numsides and angle is ignored)
+                =====   =========================================
 
-            *angle*:
-              the angle of rotation of the symbol
+              *angle*:
+                the angle of rotation of the symbol
 
             Finally, *marker* can be (*verts*, 0): *verts* is a
             sequence of (*x*, *y*) vertices for a custom scatter
@@ -4640,7 +4641,7 @@ class Axes(martist.Artist):
 
         syms =  { # a dict from symbol to (numsides, angle)
             's' : (4,math.pi/4.0,0),   # square
-            'o' : (20,0,0),            # circle
+            'o' : (20,3,0),            # circle
             '^' : (3,0,0),             # triangle up
             '>' : (3,math.pi/2.0,0),   # triangle right
             'v' : (3,math.pi,0),       # triangle down
@@ -4748,9 +4749,16 @@ class Axes(martist.Artist):
                     offsets = zip(x,y),
                     transOffset = self.transData,
                     )
+            elif symstyle==3:
+                collection = mcoll.CircleCollection(
+                    scales,
+                    facecolors = colors,
+                    edgecolors = edgecolors,
+                    linewidths = linewidths,
+                    offsets = zip(x,y),
+                    transOffset = self.transData,
+                    )
         else:
-            # MGDTODO: This has dpi problems
-            # rescale verts
             rescale = np.sqrt(max(verts[:,0]**2+verts[:,1]**2))
             verts /= rescale
 
