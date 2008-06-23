@@ -113,7 +113,7 @@ projections/geo                      needs conversion
 projections/polar                    needs conversion
 afm                                  converted
 artist                               converted
-axes                                 needs conversion
+axes                                 converted
 axis                                 needs conversion
 backend_bases                        needs conversion
 cbook                                needs conversion
