@@ -12,6 +12,7 @@
 .. toctree::
 
    matplotlib_configuration_api.rst
+   afm_api.rst
    artist_api.rst
    figure_api.rst
    axes_api.rst
