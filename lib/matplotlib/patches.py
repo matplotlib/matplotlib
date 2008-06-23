@@ -55,6 +55,7 @@ class Patch(artist.Artist):
                  edgecolor=None,
                  facecolor=None,
                  linewidth=None,
+                 linestyle=None,
                  antialiased = None,
                  hatch = None,
                  fill=True,
@@ -67,11 +68,13 @@ class Patch(artist.Artist):
         artist.Artist.__init__(self)
 
         if linewidth is None: linewidth = mpl.rcParams['patch.linewidth']
+        if linestyle is None: linestyle = "solid"
         if antialiased is None: antialiased = mpl.rcParams['patch.antialiased']
 
         self.set_edgecolor(edgecolor)
         self.set_facecolor(facecolor)
         self.set_linewidth(linewidth)
+        self.set_linestyle(linestyle)
         self.set_antialiased(antialiased)
         self.set_hatch(hatch)
         self.fill = fill
@@ -118,6 +121,7 @@ class Patch(artist.Artist):
         self.set_fill(other.get_fill())
         self.set_hatch(other.get_hatch())
         self.set_linewidth(other.get_linewidth())
+        self.set_linestyle(other.get_linestyle)
         self.set_transform(other.get_data_transform())
         self.set_figure(other.get_figure())
         self.set_alpha(other.get_alpha())
@@ -149,6 +153,10 @@ class Patch(artist.Artist):
     def get_linewidth(self):
         return self._linewidth
     get_lw = get_linewidth
+ 
+    def get_linestyle(self):
+        return self._linestyle
+    get_ls = get_linestyle
 
     def set_antialiased(self, aa):
         """
@@ -189,6 +197,16 @@ class Patch(artist.Artist):
         if w is None: w = mpl.rcParams['patch.linewidth']
         self._linewidth = w
     set_lw = set_linewidth
+ 
+    def set_linestyle(self, ls):
+        """
+        Set the patch linestyle
+
+        ACCEPTS: ['solid' | 'dashed' | 'dashdot' | 'dotted']
+        """
+        if ls is None: ls = "solid"
+        self._linestyle = ls
+    set_ls = set_linestyle
 
     def set_fill(self, b):
         """
@@ -243,6 +261,7 @@ class Patch(artist.Artist):
         else:
             gc.set_foreground(self._edgecolor)
             gc.set_linewidth(self._linewidth)
+            gc.set_linestyle(self._linestyle)
 
         gc.set_alpha(self._alpha)
         gc.set_antialiased(self._antialiased)
