@@ -114,13 +114,13 @@ projections/polar                    needs conversion
 afm                                  converted
 artist                               converted
 axes                                 converted
-axis                                 needs conversion
-backend_bases                        needs conversion
-cbook                                needs conversion
-cm                                   needs conversion
-collections                          needs conversion
-colorbar                             needs conversion
-colors                 Darren        needs conversion
+axis                                 converted
+backend_bases                        converted
+cbook                                converted
+cm                                   converted
+collections                          converted
+colorbar                             converted
+colors                               converted
 contour                              needs conversion
 dates                  Darren        needs conversion
 dviread                Darren        needs conversion
@@ -137,7 +137,7 @@ mpl                                  needs conversion
 patches                              needs conversion
 path                                 needs conversion
 pylab                                needs conversion
-pyplot                               needs conversion
+pyplot                               converted
 quiver                               needs conversion
 rcsetup                              needs conversion
 scale                                needs conversion

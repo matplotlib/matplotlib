@@ -315,7 +315,7 @@ class XTick(Tick):
         return l
 
     def update_position(self, loc):
-        'Set the location of tick in data coords with scalar loc'
+        'Set the location of tick in data coords with scalar *loc*'
         x = loc
 
         nonlinear = (hasattr(self.axes, 'yaxis') and
@@ -504,8 +504,8 @@ class Axis(artist.Artist):
     """
     Public attributes
 
-    * transData - transform data coords to display coords
-    * transAxis - transform axis coords to display coords
+    * :attr:`transData` - transform data coords to display coords
+    * :attr:`transAxis` - transform axis coords to display coords
 
     """
     LABELPAD = 5
@@ -909,14 +909,14 @@ class Axis(artist.Artist):
 
     def grid(self, b=None, which='major', **kwargs):
         """
-        Set the axis grid on or off; b is a boolean use which =
+        Set the axis grid on or off; b is a boolean use *which* =
         'major' | 'minor' to set the grid for major or minor ticks
 
-        if b is None and len(kwargs)==0, toggle the grid state.  If
-        kwargs are supplied, it is assumed you want the grid on and b
+        if *b* is *None* and len(kwargs)==0, toggle the grid state.  If
+        *kwargs* are supplied, it is assumed you want the grid on and *b*
         will be set to True
 
-        kwargs are used to set the line properties of the grids, eg,
+        *kwargs* are used to set the line properties of the grids, eg,
 
           xax.grid(color='r', linestyle='-', linewidth=2)
         """
@@ -939,8 +939,8 @@ class Axis(artist.Artist):
 
     def update_units(self, data):
         """
-        introspect data for units converter and update the
-        axis.converter instance if necessary. Return true is data is
+        introspect *data* for units converter and update the
+        axis.converter instance if necessary. Return *True* is *data* is
         registered for unit conversion
         """
 
@@ -1022,7 +1022,7 @@ class Axis(artist.Artist):
         """
         Set the formatter of the major ticker
 
-        ACCEPTS: A Formatter instance
+        ACCEPTS: A :class:`~matplotlib.ticker.Formatter` instance
         """
         self.major.formatter = formatter
         formatter.set_axis(self)
@@ -1032,7 +1032,7 @@ class Axis(artist.Artist):
         """
         Set the formatter of the minor ticker
 
-        ACCEPTS: A Formatter instance
+        ACCEPTS: A :class:`~matplotlib.ticker.Formatter` instance
         """
         self.minor.formatter = formatter
         formatter.set_axis(self)
@@ -1042,7 +1042,7 @@ class Axis(artist.Artist):
         """
         Set the locator of the major ticker
 
-        ACCEPTS: a Locator instance
+        ACCEPTS: a :class:`~matplotlib.ticker.Locator` instance
         """
         self.major.locator = locator
         locator.set_axis(self)
@@ -1052,7 +1052,7 @@ class Axis(artist.Artist):
         """
         Set the locator of the minor ticker
 
-        ACCEPTS: a Locator instance
+        ACCEPTS: a :class:`~matplotlib.ticker.Locator` instance
         """
         self.minor.locator = locator
         locator.set_axis(self)
@@ -1069,7 +1069,7 @@ class Axis(artist.Artist):
     def set_ticklabels(self, ticklabels, *args, **kwargs):
         """
         Set the text values of the tick labels. Return a list of Text
-        instances.  Use kwarg minor=True to select minor ticks.
+        instances.  Use *kwarg* *minor=True* to select minor ticks.
 
         ACCEPTS: sequence of strings
         """
@@ -1128,11 +1128,11 @@ class Axis(artist.Artist):
         raise NotImplementedError('Derived must override')
 
     def pan(self, numsteps):
-        'Pan numticks (can be positive or negative)'
+        'Pan *numsteps* (can be positive or negative)'
         self.major.locator.pan(numsteps)
 
     def zoom(self, direction):
-        "Zoom in/out on axis; if direction is >0 zoom in, else zoom out"
+        "Zoom in/out on axis; if *direction* is >0 zoom in, else zoom out"
         self.major.locator.zoom(direction)
 
 class XAxis(Axis):
@@ -1372,7 +1372,7 @@ class YAxis(Axis):
     def contains(self,mouseevent):
         """Test whether the mouse event occurred in the y axis.
 
-        Returns T/F, {}
+        Returns *True* | *False*
         """
         if callable(self._contains): return self._contains(self,mouseevent)
 
