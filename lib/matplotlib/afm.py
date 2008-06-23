@@ -11,7 +11,7 @@ either
   3) Did more than I needed and it was easier to write my own than
      figure out how to just get what I needed from theirs
 
-It is pretty easy to use, and requires only built-in python libs
+It is pretty easy to use, and requires only built-in python libs:
 
     >>> from afm import AFM
     >>> fh = file('ptmr8a.afm')
@@ -31,7 +31,7 @@ It is pretty easy to use, and requires only built-in python libs
 
 
 AUTHOR:
-  John D. Hunter <jdhunter@ace.bsd.uchicago.edu>
+  John D. Hunter <jdh2358@gmail.com>
 """
 
 import sys, os
@@ -56,7 +56,7 @@ def _to_bool(s):
 def _sanity_check(fh):
     """
     Check if the file at least looks like AFM.
-    If not, raise RuntimeError.
+    If not, raise :exc:`RuntimeError`.
     """
 
     # Remember the file position in case the caller wants to
@@ -77,9 +77,12 @@ def _sanity_check(fh):
 def _parse_header(fh):
     """
     Reads the font metrics header (up to the char metrics) and returns
-    a dictionary mapping key to val.  val will be converted to the
-    appropriate python type as necessary; eg 'False'->False, '0'->0,
-    '-168 -218 1000 898'-> [-168, -218, 1000, 898]
+    a dictionary mapping *key* to *val*.  *val* will be converted to the
+    appropriate python type as necessary; eg:
+
+        * 'False'->False
+        * '0'->0
+        * '-168 -218 1000 898'-> [-168, -218, 1000, 898]
 
     Dictionary keys are
 
@@ -142,14 +145,12 @@ def _parse_header(fh):
 def _parse_char_metrics(fh):
     """
     Return a character metric dictionary.  Keys are the ASCII num of
-    the character, values are a (wx, name, bbox) tuple, where
+    the character, values are a (*wx*, *name*, *bbox*) tuple, where
+    *wx* is the character width, *name* is the postscript language
+    name, and *bbox* is a (*llx*, *lly*, *urx*, *ury*) tuple.
 
-      wx is the character width
-      name is the postscript language name
-      bbox (llx, lly, urx, ury)
-
-    This function is incomplete per the standard, but thus far parse
-    all the sample afm files I have
+    This function is incomplete per the standard, but thus far parses
+    all the sample afm files tried.
     """
 
     ascii_d = {}
@@ -176,12 +177,11 @@ def _parse_char_metrics(fh):
 
 def _parse_kern_pairs(fh):
     """
-    Return a kern pairs dictionary; keys are (char1, char2) tuples and
+    Return a kern pairs dictionary; keys are (*char1*, *char2*) tuples and
     values are the kern pair value.  For example, a kern pairs line like
+    ``KPX A y -50``
 
-      KPX A y -50
-
-    will be represented as
+    will be represented as::
 
       d[ ('A', 'y') ] = -50
 
@@ -210,13 +210,13 @@ def _parse_kern_pairs(fh):
 def _parse_composites(fh):
     """
     Return a composites dictionary.  Keys are the names of the
-    composites.  vals are a num parts list of composite information,
-    with each element being a (name, dx, dy) tuple.  Thus if a
+    composites.  Values are a num parts list of composite information,
+    with each element being a (*name*, *dx*, *dy*) tuple.  Thus a
     composites line reading:
 
       CC Aacute 2 ; PCC A 0 0 ; PCC acute 160 170 ;
 
-    will be represented as
+    will be represented as::
 
       d['Aacute'] = [ ('A', 0, 0), ('acute', 160, 170) ]
 
@@ -245,9 +245,10 @@ def _parse_optional(fh):
     """
     Parse the optional fields for kern pair data and composites
 
-    return value is a kernDict, compositeDict which are the return
-    values from parse_kern_pairs, and parse_composites if the data
-    exists, or empty dicts otherwise
+    return value is a (*kernDict*, *compositeDict*) which are the
+    return values from :func:`_parse_kern_pairs`, and
+    :func:`_parse_composites` if the data exists, or empty dicts
+    otherwise
     """
     optional = {
         'StartKernData' : _parse_kern_pairs,
@@ -269,13 +270,12 @@ def _parse_optional(fh):
 
 def parse_afm(fh):
     """
-    Parse the Adobe Font Metics file in file handle fh
-    Return value is a (dhead, dcmetrics, dkernpairs, dcomposite) tuple where
-
-    dhead : a parse_header dict
-    dcmetrics :  a parse_composites dict
-    dkernpairs : a parse_kern_pairs dict, possibly {}
-    dcomposite : a parse_composites dict , possibly {}
+    Parse the Adobe Font Metics file in file handle *fh*. Return value
+    is a (*dhead*, *dcmetrics*, *dkernpairs*, *dcomposite*) tuple where
+    *dhead* is a :func:`_parse_header` dict, *dcmetrics* is a
+    :func:`_parse_composites` dict, *dkernpairs* is a
+    :func:`_parse_kern_pairs` dict (possibly {}), and *dcomposite* is a
+    :func:`_parse_composites` dict (possibly {})
     """
     _sanity_check(fh)
     dhead =  _parse_header(fh)
@@ -288,7 +288,7 @@ class AFM:
 
     def __init__(self, fh):
         """
-        Parse the AFM file in file object fh
+        Parse the AFM file in file object *fh*
         """
         (dhead, dcmetrics_ascii, dcmetrics_name, dkernpairs, dcomposite) = \
             parse_afm(fh)
@@ -307,7 +307,7 @@ class AFM:
     def string_width_height(self, s):
         """
         Return the string width (including kerning) and string height
-        as a w,h tuple
+        as a (*w*, *h*) tuple.
         """
         if not len(s): return 0,0
         totalw = 0
@@ -404,8 +404,8 @@ class AFM:
 
     def get_height_char(self, c, isord=False):
         """
-        Get the height of character c from the bounding box.  This is
-        the ink height (space is 0)
+        Get the height of character *c* from the bounding box.  This
+        is the ink height (space is 0)
         """
         if not isord: c=ord(c)
         wx, name, bbox = self._metrics[c]
@@ -413,30 +413,30 @@ class AFM:
 
     def get_kern_dist(self, c1, c2):
         """
-        Return the kerning pair distance (possibly 0) for chars c1 and
-        c2
+        Return the kerning pair distance (possibly 0) for chars *c1*
+        and *c2*
         """
         name1, name2 = self.get_name_char(c1), self.get_name_char(c2)
         return self.get_kern_dist_from_name(name1, name2)
 
     def get_kern_dist_from_name(self, name1, name2):
         """
-        Return the kerning pair distance (possibly 0) for chars c1 and
-        c2
+        Return the kerning pair distance (possibly 0) for chars
+        *name1* and *name2*
         """
         try: return self._kern[ (name1, name2) ]
         except: return 0
 
     def get_fontname(self):
-        "Return the font name, eg, Times-Roman"
+        "Return the font name, eg, 'Times-Roman'"
         return self._header['FontName']
 
     def get_fullname(self):
-        "Return the font full name, eg, Times-Roman"
+        "Return the font full name, eg, 'Times-Roman'"
         return self._header['FullName']
 
     def get_familyname(self):
-        "Return the font family name, eg, Times"
+        "Return the font family name, eg, 'Times'"
         return self._header['FamilyName']
 
     def get_weight(self):
@@ -461,14 +461,14 @@ class AFM:
 
     def get_horizontal_stem_width(self):
         """
-        Return the standard horizontal stem width as float, or None if
+        Return the standard horizontal stem width as float, or *None* if
         not specified in AFM file.
         """
         return self._header.get('StdHW', None)
 
     def get_vertical_stem_width(self):
         """
-        Return the standard vertical stem width as float, or None if
+        Return the standard vertical stem width as float, or *None* if
         not specified in AFM file.
         """
         return self._header.get('StdVW', None)

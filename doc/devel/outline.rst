@@ -111,7 +111,7 @@ numerix/__init__                     needs conversion
 projections/__init__                 needs conversion
 projections/geo                      needs conversion
 projections/polar                    needs conversion
-afm                                  needs conversion
+afm                                  converted
 artist                               needs conversion
 axes                                 needs conversion
 axis                                 needs conversion
