@@ -172,6 +172,8 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self.set_flags(gtk.CAN_FOCUS)
         self._renderer_init()
 
+        # maps idle/timeout func -> id, remove_func for later removal
+        self.sourced = dict()
 
     def scroll_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
@@ -393,6 +395,53 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             gtk.main_iteration(True)
         gtk.gdk.flush()
         gtk.gdk.threads_leave()
+
+
+    def mpl_idle_add(self, func, *args, **kwargs):
+        """
+        add func to idle handler.  The signature of func is::
+
+          func(canvas, *args, **kwargs)
+
+        use :meth:`mpl_source_remove` to remove func from the idle handler.
+        """
+        idle_add = getattr(gobject, 'idle_add', getattr(gtk, 'idle_add'))
+        remove = getattr(gobject, 'source_remove', getattr(gtk, 'idle_remove'))
+
+        def wrap():
+            b = func(self, *args, **kwargs)
+            return True
+
+        id = idle_add(wrap)
+        self.sourced[func] = id, remove
+
+
+    def mpl_timeout_add(self, millisec, func, *args, **kwargs):
+        """
+        add func to timeout handler; func will be called every
+        millisec.  The signature of func is::
+
+          func(canvas, *args, **kwargs)
+
+        use :meth:`mpl_source_remove` to remove func from the timeout handler.
+        """
+        timeout_add = getattr(gobject, 'timeout_add', getattr(gtk, 'timeout_add'))
+        remove = getattr(gobject, 'source_remove', getattr(gtk, 'timeout_remove'))
+        def wrap():
+            b = func(self, *args, **kwargs)
+            return True
+
+        id = timeout_add(millisec, wrap)
+        self.sourced[func] = id, remove
+
+
+    def mpl_source_remove(self, func):
+        """
+        remove func from idle or timeout handler
+        """
+        id, remove = self.sourced[func]
+        remove(id)
+        del self.sourced[func]
 
 class FigureManagerGTK(FigureManagerBase):
     """
