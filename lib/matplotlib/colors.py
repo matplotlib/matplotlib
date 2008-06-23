@@ -18,17 +18,17 @@ the colors.  For the basic builtin colors, you can use a single letter
       w  : white
 
 Gray shades can be given as a string encoding a float in the 0-1
-range, e.g.,
+range, e.g.::
 
     color = '0.75'
 
 For a greater range of colors, you have two options.  You can specify
-the color using an html hex string, as in
+the color using an html hex string, as in::
 
       color = '#eeefff'
 
-or you can pass an R,G,B tuple, where each of R,G,B are in the range
-[0,1].
+or you can pass an *R* , *G* , *B* tuple, where each of *R* , *G* , *B*
+are in the range [0,1].
 
 Finally, legal html names for colors, like 'red', 'burlywood' and
 'chartreuse' are supported.
@@ -203,7 +203,7 @@ hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
 
 def hex2color(s):
     """
-    Take a hex string 's' and return the corresponding rgb 3-tuple
+    Take a hex string *s* and return the corresponding rgb 3-tuple
     Example: #efefef -> (0.93725, 0.93725, 0.93725)
     """
     if not isinstance(s, basestring):
@@ -227,15 +227,17 @@ class ColorConverter:
     cache = {}
     def to_rgb(self, arg):
         """
-        Returns an RGB tuple of three floats from 0-1.
+        Returns an *RGB* tuple of three floats from 0-1.
 
-        arg can be an RGB or RGBA sequence or a string in any of several forms:
+        *arg* can be an *RGB* or *RGBA* sequence or a string in any of
+        several forms:
+
             1) a letter from the set 'rgbcmykw'
             2) a hex color string, like '#00FFFF'
             3) a standard name, like 'aqua'
             4) a float, like '0.4', indicating gray on a 0-1 scale
 
-        if arg is RGBA, the A will simply be discarded.
+        if *arg* is *RGBA*, the *A* will simply be discarded.
         """
         try: return self.cache[arg]
         except KeyError: pass
@@ -283,11 +285,11 @@ class ColorConverter:
 
     def to_rgba(self, arg, alpha=None):
         """
-        Returns an RGBA tuple of four floats from 0-1.
+        Returns an *RGBA* tuple of four floats from 0-1.
 
-        For acceptable values of arg, see to_rgb.
-        If arg is an RGBA sequence and alpha is not None,
-        alpha will replace the original A.
+        For acceptable values of *arg*, see :meth:`to_rgb`.
+        If *arg* is an *RGBA* sequence and *alpha* is not *None*,
+        *alpha* will replace the original *A*.
         """
         try:
             if not cbook.is_string_like(arg) and cbook.iterable(arg):
@@ -313,13 +315,13 @@ class ColorConverter:
 
     def to_rgba_array(self, c, alpha=None):
         """
-        Returns an Numpy array of rgba tuples.
+        Returns an Numpy array of *RGBA* tuples.
 
         Accepts a single mpl color spec or a sequence of specs.
         If the sequence is a list or array, the items are changed in place,
         but an array copy is still returned.
 
-        Special case to handle "no color": if c is "none" (case-insensitive),
+        Special case to handle "no color": if *c* is "none" (case-insensitive),
         then an empty array will be returned.  Same for an empty list.
         """
         try:
@@ -345,9 +347,9 @@ class ColorConverter:
 colorConverter = ColorConverter()
 
 def makeMappingArray(N, data):
-    """Create an N-element 1-d lookup table
+    """Create an *N* -element 1-d lookup table
 
-    data represented by a list of x,y0,y1 mapping correspondences.
+    *data* represented by a list of x,y0,y1 mapping correspondences.
     Each element in this list represents how a value between 0 and 1
     (inclusive) represented by x is mapped to a corresponding value
     between 0 and 1 (inclusive). The two values of y are to allow
@@ -358,7 +360,7 @@ def makeMappingArray(N, data):
     all values of x must be in increasing order. Values between
     the given mapping points are determined by simple linear interpolation.
 
-    The function returns an array "result" where result[x*(N-1)]
+    The function returns an array "result" where ``result[x*(N-1)]``
     gives the closest value for values of x between 0 and 1.
     """
     try:
@@ -400,14 +402,16 @@ class Colormap:
     """Base class for all scalar to rgb mappings
 
         Important methods:
-            set_bad()
-            set_under()
-            set_over()
+
+            * :meth:`set_bad`
+            * :meth:`set_under`
+            * :meth:`set_over`
     """
     def __init__(self, name, N=256):
-        """Public class attributes:
-            self.N:       number of rgb quantization levels
-            self.name:    name of colormap
+        """
+        Public class attributes:
+            :attr:`N` : number of rgb quantization levels
+            :attr:`name` : name of colormap
 
         """
         self.name = name
@@ -423,7 +427,7 @@ class Colormap:
 
     def __call__(self, X, alpha=1.0, bytes=False):
         """
-        X is either a scalar or an array (of any dimension).
+        *X* is either a scalar or an array (of any dimension).
         If scalar, a tuple of rgba values is returned, otherwise
         an array with the new shape = oldshape+(4,). If the X-values
         are integers, then they are used as indices into the array.
@@ -551,13 +555,22 @@ class ListedColormap(Colormap):
         """
         Make a colormap from a list of colors.
 
-        colors is a list of matplotlib color specifications,
-            or an equivalent Nx3 floating point array (N rgb values)
-        name is a string to identify the colormap
-        N is the number of entries in the map.  The default is None,
+        *colors*
+            a list of matplotlib color specifications,
+            or an equivalent Nx3 floating point array (*N* rgb values)
+        *name*
+            a string to identify the colormap
+        *N*
+            the number of entries in the map.  The default is *None*,
             in which case there is one colormap entry for each
-            element in the list of colors.  If N < len(colors)
-            the list will be truncated at N.  If N > len(colors),
+            element in the list of colors.  If::
+
+                N < len(colors)
+
+            the list will be truncated at *N*.  If::
+
+                N > len(colors)
+
             the list will be extended by repetition.
         """
         self.colors = colors
@@ -600,16 +613,19 @@ class Normalize:
     """
     def __init__(self, vmin=None, vmax=None, clip=False):
         """
-        If vmin or vmax is not given, they are taken from the input's
-        minimum and maximum value respectively.  If clip is True and
+        If *vmin* or *vmax* is not given, they are taken from the input's
+        minimum and maximum value respectively.  If *clip* is *True* and
         the given value falls outside the range, the returned value
-        will be 0 or 1, whichever is closer. Returns 0 if vmin==vmax.
+        will be 0 or 1, whichever is closer. Returns 0 if::
+
+            vmin==vmax
+
         Works with scalars or arrays, including masked arrays.  If
-        clip is True, masked values are set to 1; otherwise they
+        *clip* is *True*, masked values are set to 1; otherwise they
         remain masked.  Clipping silently defeats the purpose of setting
         the over, under, and masked colors in the colormap, so it is
         likely to lead to surprises; therefore the default is
-        clip=False.
+        *clip* = *False*.
         """
         self.vmin = vmin
         self.vmax = vmax
@@ -656,7 +672,7 @@ class Normalize:
 
     def autoscale(self, A):
         '''
-        Set vmin, vmax to min, max of A.
+        Set *vmin*, *vmax* to min, max of *A*.
         '''
         self.vmin = ma.minimum(A)
         self.vmax = ma.maximum(A)
@@ -718,8 +734,9 @@ class BoundaryNorm(Normalize):
     '''
     Generate a colormap index based on discrete intervals.
 
-    Unlike Normalize or LogNorm, BoundaryNorm maps values
-    to integers instead of to the interval 0-1.
+    Unlike :class:`Normalize` or :class:`LogNorm`,
+    :class:`BoundaryNorm` maps values to integers instead of to the
+    interval 0-1.
 
     Mapping to the 0-1 interval could have been done via
     piece-wise linear interpolation, but using integers seems
@@ -728,17 +745,22 @@ class BoundaryNorm(Normalize):
     '''
     def __init__(self, boundaries, ncolors, clip=False):
         '''
-        args:
-            boundaries: a monotonically increasing sequence
-            ncolors: number of colors in the colormap to be used
+        *boundaries*
+            a monotonically increasing sequence
+        *ncolors*
+            number of colors in the colormap to be used
 
-        If b[i] <= v < b[i+1] then v is mapped to color j;
+        If::
+
+            b[i] <= v < b[i+1]
+
+        then v is mapped to color j;
         as i varies from 0 to len(boundaries)-2,
         j goes from 0 to ncolors-1.
 
         Out-of-range values are mapped to -1 if low and ncolors
         if high; these are converted to valid indices by
-        Colormap.__call__.
+        :meth:`Colormap.__call__` .
         '''
         self.clip = clip
         self.vmin = boundaries[0]
@@ -778,7 +800,8 @@ class BoundaryNorm(Normalize):
 class NoNorm(Normalize):
     '''
     Dummy replacement for Normalize, for the case where we
-    want to use indices directly in a ScalarMappable.
+    want to use indices directly in a
+    :class:`~matplotlib.cm.ScalarMappable` .
     '''
     def __call__(self, value, clip=None):
         return value
