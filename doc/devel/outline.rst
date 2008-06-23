@@ -112,7 +112,7 @@ projections/__init__                 needs conversion
 projections/geo                      needs conversion
 projections/polar                    needs conversion
 afm                                  converted
-artist                               needs conversion
+artist                               converted
 axes                                 needs conversion
 axis                                 needs conversion
 backend_bases                        needs conversion
