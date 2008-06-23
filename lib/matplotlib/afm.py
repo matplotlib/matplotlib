@@ -11,7 +11,7 @@ either
   3) Did more than I needed and it was easier to write my own than
      figure out how to just get what I needed from theirs
 
-It is pretty easy to use, and requires only built-in python libs:
+It is pretty easy to use, and requires only built-in python libs::
 
     >>> from afm import AFM
     >>> fh = file('ptmr8a.afm')
