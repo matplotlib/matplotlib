@@ -9,62 +9,147 @@ who reviews them.  The "unit" doesn't have to be a full chapter
 (though in some cases it will be), it may be a chapter or a section in
 a chapter.
 
-===============================  ==================== ===========  ===================
-User's guide unit                Author               Status       Reviewer
-===============================  ==================== ===========  ===================
-plotting 2-D arrays              Eric                 has author   Perry ? Darren
-colormapping                     Eric                 has author   ?
-quiver plots                     Eric                 has author   ?
-histograms                       Manuel ?             no author    Erik Tollerud ?
-bar / errorbar                   ?                    no author    ?
-x-y plots                        ?                    no author    Darren
-time series plots                ?                    no author    ?
-date plots                       John                 has author   ?
-working with data                John                 has author   Darren
-custom ticking                   ?                    no author    ?
-masked data                      Eric                 has author   ?
-patches                          ?                    no author    ?
-legends                          ?                    no author    ?
-animation                        John                 has author   ?
-collections                      ?                    no author    ?
-text - mathtext                  Michael              accepted     John
-text - usetex                    Darren               accepted     John
-text - annotations               John                 submitted    ?
-fonts et al                      Michael ?            no author    Darren
-pyplot tut                       John                 submitted    Eric
-configuration                    Darren               submitted    ?
-win32 install                    Charlie ?            no author    Darren
-os x install                     Charlie ?            no author    ?
-linux install                    Darren               has author   ?
-artist api                       John                 submitted    ?
-event handling                   John                 submitted    ?
-navigation                       John                 submitted    ?
-interactive usage                ?                    no author    ?
-widgets                          ?                    no author    ?
-ui - gtk                         ?                    no author    ?
-ui - wx                          ?                    no author    ?
-ui - tk                          ?                    no author    ?
-ui - qt                          Darren               has author   ?
-backend - pdf                    Jouni ?              no author    ?
-backend - ps                     Darren               has author   ?
-backend - svg                    ?                    no author    ?
-backend - agg                    ?                    no author    ?
-backend - cairo                  ?                    no author    ?
-===============================  ==================== ===========  ===================
+========================   ==================   ==========   ===================
+User's guide unit          Author               Status       Reviewer
+========================   ==================   ==========   ===================
+plotting 2-D arrays        Eric                 has author   Perry ? Darren
+colormapping               Eric                 has author   ?
+quiver plots               Eric                 has author   ?
+histograms                 Manuel ?             no author    Erik Tollerud ?
+bar / errorbar             ?                    no author    ?
+x-y plots                  ?                    no author    Darren
+time series plots          ?                    no author    ?
+date plots                 John                 has author   ?
+working with data          John                 has author   Darren
+custom ticking             ?                    no author    ?
+masked data                Eric                 has author   ?
+patches                    ?                    no author    ?
+legends                    ?                    no author    ?
+animation                  John                 has author   ?
+collections                ?                    no author    ?
+text - mathtext            Michael              accepted     John
+text - usetex              Darren               accepted     John
+text - annotations         John                 submitted    ?
+fonts et al                Michael ?            no author    Darren
+pyplot tut                 John                 submitted    Eric
+configuration              Darren               submitted    ?
+win32 install              Charlie ?            no author    Darren
+os x install               Charlie ?            no author    ?
+linux install              Darren               has author   ?
+artist api                 John                 submitted    ?
+event handling             John                 submitted    ?
+navigation                 John                 submitted    ?
+interactive usage          ?                    no author    ?
+widgets                    ?                    no author    ?
+ui - gtk                   ?                    no author    ?
+ui - wx                    ?                    no author    ?
+ui - tk                    ?                    no author    ?
+ui - qt                    Darren               has author   ?
+backend - pdf              Jouni ?              no author    ?
+backend - ps               Darren               has author   ?
+backend - svg              ?                    no author    ?
+backend - agg              ?                    no author    ?
+backend - cairo            ?                    no author    ?
+========================   ==================   ==========   ===================
 
 Here is the ouline for the dev guide, much less fleshed out
 
-===============================  ==================== ===========  ===================
-Developer's guide unit           Author               Status       Reviewer
-===============================  ==================== ===========  ===================
-the renderer                     John                 has author   Michael ?
-the canvas                       John                 has author   ?
-the artist                       John                 has author   ?
-transforms                       Michael              submitted    John
-documenting mpl                  Darren               submitted    John, Eric, Mike?
-coding guide                     John                 complete     Eric
-and_much_more                    ?                    ?            ?
-===============================  ==================== ===========  ===================
+==========================   ===============   ===========   ==================
+Developer's guide unit       Author            Status        Reviewer
+==========================   ===============   ===========   ==================
+the renderer                 John              has author    Michael ?
+the canvas                   John              has author    ?
+the artist                   John              has author    ?
+transforms                   Michael           submitted     John
+documenting mpl              Darren            submitted     John, Eric, Mike?
+coding guide                 John              complete      Eric
+and_much_more                ?                 ?             ?
+==========================   ===============   ===========   ==================
+
+We also have some work to do converting docstrings to ReST for the API
+Reference. Please be sure to follow the few guidelines described in
+:ref:`formatting-mpl-docs`. Once it is converted, please include the module in
+the API documentation and update the status in the table to "converted". Once
+docstring conversion is complete and all the modules are available in the docs,
+we can figure out how best to organize the API Reference and continue from
+there.
+
+====================   ===========   ===================
+Module                 Author        Status             
+====================   ===========   ===================
+backend_agg                          needs conversion
+backend_cairo                        needs conversion
+backend_cocoa                        needs conversion
+backend_emf                          needs conversion
+backend_fltkagg                      needs conversion
+backend_gdk                          needs conversion
+backend_gtk                          needs conversion
+backend_gtkagg                       needs conversion
+backend_gtkcairo                     needs conversion
+backend_mixed                        needs conversion
+backend_pdf                          needs conversion
+backend_ps             Darren        needs conversion
+backend_qt             Darren        needs conversion
+backend_qtagg          Darren        needs conversion
+backend_qt4            Darren        needs conversion
+backend_qt4agg         Darren        needs conversion
+backend_svg                          needs conversion
+backend_template                     needs conversion
+backend_tkagg                        needs conversion
+backend_wx                           needs conversion
+backend_wxagg                        needs conversion
+backends/tkagg                       needs conversion
+config/checkdep        Darren        needs conversion
+config/cutils          Darren        needs conversion
+config/mplconfig       Darren        needs conversion
+config/mpltraits       Darren        needs conversion
+config/rcparams        Darren        needs conversion
+config/rcsetup         Darren        needs conversion
+config/tconfig         Darren        needs conversion
+config/verbose         Darren        needs conversion
+numerix/__init__                     needs conversion
+projections/__init__                 needs conversion
+projections/geo                      needs conversion
+projections/polar                    needs conversion
+afm                                  needs conversion
+artist                               needs conversion
+axes                                 needs conversion
+axis                                 needs conversion
+backend_bases                        needs conversion
+cbook                                needs conversion
+cm                                   needs conversion
+collections                          needs conversion
+colorbar                             needs conversion
+colors                 Darren        needs conversion
+contour                              needs conversion
+dates                  Darren        needs conversion
+dviread                Darren        needs conversion
+figure                 Darren        needs conversion
+finance                Darren        needs conversion
+font_manager           Mike          needs conversion
+fontconfig_pattern     Mike          needs conversion
+image                                needs conversion
+legend                               needs conversion
+lines                                needs conversion
+mathtext                             needs conversion
+mlab                                 needs conversion
+mpl                                  needs conversion
+patches                              needs conversion
+path                                 needs conversion
+pylab                                needs conversion
+pyplot                               needs conversion
+quiver                               needs conversion
+rcsetup                              needs conversion
+scale                                needs conversion
+table                                needs conversion
+texmanager             Darren        needs conversion
+text                   Mike          needs conversion
+ticker                 Mike          needs conversion
+transforms                           needs conversion
+type1font                            needs conversion
+units                                needs conversion
+widgets                              needs conversion
+====================   ===========   ===================
 
 And we might want to do a similar table for the FAQ, but that may also be overkill...
 
