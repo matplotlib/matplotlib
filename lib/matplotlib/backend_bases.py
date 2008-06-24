@@ -1330,37 +1330,6 @@ class FigureCanvasBase:
         newCanvas = FigureCanvasClass(self.figure)
         return newCanvas
 
-    def mpl_idle_add(self, func, *args, **kwargs):
-        """
-        add func to idle handler.  The signature of func is::
-
-          b = func(canvas, *args, **kwargs)
-
-        The function will continue to be called until func returns
-        False or a call to ``canvas.mpl_remove_source(func)``
-
-        use :meth:`mpl_source_remove` to remove func from the idle handler.
-        """
-        raise NotImplementedError('GUI backend must override')
-
-    def mpl_timeout_add(self, millisec, func, *args, **kwargs):
-        """
-        add func to timeout handler; func will be called every
-        millisec.  The signature of func is::
-
-        The function will continue to be called until func returns
-        False or a call to ``canvas.mpl_remove_source(func)``
-
-        use :meth:`mpl_source_remove` to remove func from the timeout handler.
-        """
-        raise NotImplementedError('GUI backend must override')
-
-    def mpl_source_remove(self, func):
-        """
-        remove func from idle or timeout handler
-        """
-        raise NotImplementedError('GUI backend must override')
-
     def mpl_connect(self, s, func):
         """
         Connect event with string *s* to *func*.  The signature of *func* is::
