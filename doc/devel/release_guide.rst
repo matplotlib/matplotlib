@@ -55,10 +55,17 @@ Uploading
 
 * ftp the source and binaries to the anonymous FTP site::
 
-    local> cd dist
-    local> ncftp upload.sourceforge.net
-    ncftp> cd incoming
-    ncftp> put tar.gz, zip exe
+    mpl> svn-clean
+    mpl> python setup.py sdist
+    mpl> cd dist/
+    dist> sftp jdh2358@frs.sourceforge.net
+    Connecting to frs.sourceforge.net...
+    sftp> cd uploads
+    sftp> ls
+    sftp> lls
+    matplotlib-0.98.2.tar.gz
+    sftp> put matplotlib-0.98.2.tar.gz
+    Uploading matplotlib-0.98.2.tar.gz to /incoming/j/jd/jdh2358/uploads/matplotlib-0.98.2.tar.gz
 
 * go https://sourceforge.net/project/admin/?group_id=80706 and do a
   file release.  Click on the "Admin" tab to log in as an admin, and
