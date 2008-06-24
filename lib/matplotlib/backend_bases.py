@@ -651,6 +651,12 @@ class Event:
         self.canvas = canvas
         self.guiEvent = guiEvent
 
+class IdleEvent(Event):
+    """
+    An event triggered by the GUI backend when it is idel -- useful
+    for passive animation
+    """
+    pass
 
 class DrawEvent(Event):
     """
@@ -869,7 +875,7 @@ class FigureCanvasBase:
             A :class:`matplotlib.figure.Figure` instance
 
       """
-    events = (
+    events = [
         'resize_event',
         'draw_event',
         'key_press_event',
@@ -879,7 +885,8 @@ class FigureCanvasBase:
         'scroll_event',
         'motion_notify_event',
         'pick_event',
-        )
+        'idle_event',
+        ]
 
 
     def __init__(self, figure):
@@ -1122,6 +1129,13 @@ class FigureCanvasBase:
                            guiEvent=guiEvent)
         self.callbacks.process(s, event)
 
+    def idle_event(self, guiEvent=None):
+        'call when GUI is idle'
+        s = 'idle_event'
+        event = IdleEvent(s, self, guiEvent=guiEvent)
+        self.callbacks.process(s, event)
+
+
     def draw(self, *args, **kwargs):
         """
         Render the :class:`~matplotlib.figure.Figure`
@@ -1320,7 +1334,10 @@ class FigureCanvasBase:
         """
         add func to idle handler.  The signature of func is::
 
-          func(canvas, *args, **kwargs)
+          b = func(canvas, *args, **kwargs)
+
+        The function will continue to be called until func returns
+        False or a call to ``canvas.mpl_remove_source(func)``
 
         use :meth:`mpl_source_remove` to remove func from the idle handler.
         """
@@ -1331,7 +1348,8 @@ class FigureCanvasBase:
         add func to timeout handler; func will be called every
         millisec.  The signature of func is::
 
-          func(canvas, *args, **kwargs)
+        The function will continue to be called until func returns
+        False or a call to ``canvas.mpl_remove_source(func)``
 
         use :meth:`mpl_source_remove` to remove func from the timeout handler.
         """

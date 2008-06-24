@@ -713,6 +713,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             self.Bind(wx.EVT_LEFT_UP, self._onLeftButtonUp)
             self.Bind(wx.EVT_MOTION, self._onMotion)
             self.Bind(wx.EVT_LEAVE_WINDOW, self._onLeave)
+            self.Bind(wx.EVT_IDLE, self._onIdle)
         else:
             # Event handlers 2.4
             wx.EVT_SIZE(self, self._onSize)
@@ -728,6 +729,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
             wx.EVT_LEFT_UP(self, self._onLeftButtonUp)
             wx.EVT_MOTION(self, self._onMotion)
             wx.EVT_LEAVE_WINDOW(self, self._onLeave)
+            wx.EVT_IDLE(self, self._onIdle)
 
 
         self.macros = {} # dict from wx id to seq of macros
@@ -1077,6 +1079,11 @@ The current aspect ration will be kept."""
         if key is not None: key = key.lower()
 
         return key
+
+    def _onIdle(self, evt):
+        'a GUI idle event'
+        evt.Skip()
+        FigureCanvasBase.idle_event(self, guiEvent=evt)
 
     def _onKeyDown(self, evt):
         """Capture key press."""

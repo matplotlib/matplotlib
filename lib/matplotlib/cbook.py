@@ -3,7 +3,7 @@ A collection of utility functions and classes.  Many (but not all)
 from the Python Cookbook -- hence the name cbook
 """
 from __future__ import generators
-import re, os, errno, sys, StringIO, traceback, locale
+import re, os, errno, sys, StringIO, traceback, locale, threading
 import time, datetime
 import numpy as np
 
@@ -152,6 +152,64 @@ class CallbackRegistry:
             func(*args, **kwargs)
 
 
+class Scheduler(threading.Thread):
+    """
+    Base class for timeout and idle scheduling
+    """
+    idlelock = threading.Lock()
+    id = 0
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.id = Scheduler.id
+        self._stopped = False
+        Scheduler.id += 1
+        self._stopevent = threading.Event()
+
+    def stop(self):
+        if self._stopped: return
+        self._stopevent.set()
+        self.join()
+        self._stopped = True
+
+class Timeout(Scheduler):
+    """
+    Schedule recurring events with a wait time in seconds
+    """
+    def __init__(self, wait, func):
+        Scheduler.__init__(self)
+        self.wait = wait
+        self.func = func
+
+    def run(self):
+
+        while not self._stopevent.isSet():
+            self._stopevent.wait(self.wait)
+            Scheduler.idlelock.acquire()
+            b = self.func(self)
+            Scheduler.idlelock.release()
+            if not b: break
+
+class Idle(Scheduler):
+    """
+    Schedule callbacks when scheduler is idle
+    """
+    # the prototype impl is a bit of a poor man's idle handler.  It
+    # just implements a short wait time.  But it will provide a
+    # placeholder for a proper impl ater
+    waittime = 0.05
+    def __init__(self, func):
+        Scheduler.__init__(self)
+        self.func = func
+
+    def run(self):
+
+        while not self._stopevent.isSet():
+            self._stopevent.wait(Idle.waittime)
+            Scheduler.idlelock.acquire()
+            b = self.func(self)
+            Scheduler.idlelock.release()
+            if not b: break
 
 class silent_list(list):
     """

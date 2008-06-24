@@ -21,6 +21,8 @@ from matplotlib._pylab_helpers import Gcf
 import matplotlib.windowing as windowing
 from matplotlib.widgets import SubplotTool
 
+import matplotlib.cbook as cbook
+
 rcParams = matplotlib.rcParams
 verbose = matplotlib.verbose
 
@@ -37,6 +39,7 @@ cursord = {
     cursors.POINTER: "arrow",
     cursors.SELECT_REGION: "tcross",
     }
+
 
 def round(x):
     return int(math.floor(x+0.5))
@@ -168,6 +171,16 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         self._master = master
         self._tkcanvas.focus_set()
 
+        # a dict from func-> cbook.Scheduler threads
+        self.sourced = dict()
+
+        # call the idle handler
+        def on_idle(*ignore):
+            self.idle_event()
+            return True
+        t = cbook.Idle(on_idle)
+
+        self._tkcanvas.after_idle(lambda *ignore: t.start())
 
     def resize(self, event):
         width, height = event.width, event.height
@@ -220,6 +233,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
+
 
     def button_press_event(self, event):
         x = event.x
