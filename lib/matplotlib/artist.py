@@ -690,37 +690,43 @@ class ArtistInspector:
         return lines
 
 
-def getp(o, *args):
+def getp(o, property=None):
     """
-    .. TODO: What are 's' and 'h' arguments described below?
+    Return the value of handle property.  property is an optional string
+    for the property you want to return
 
-    Return the value of handle property s
+    Example usage::
 
-    h is an instance of a class, eg a Line2D or an Axes or Text.
-    if s is 'somename', this function returns
+        getp(o)  # get all the object properties
+        getp(o, 'linestyle')  # get the linestyle property
+
+
+    o is a :class:`Artist` instance, eg
+    :class:`~matplotllib.lines.Line2D` or an instance of a
+    :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
+    If the *property* is 'somename', this function returns
 
       o.get_somename()
 
     getp can be used to query all the gettable properties with getp(o)
     Many properties have aliases for shorter typing, eg 'lw' is an
     alias for 'linewidth'.  In the output, aliases and full property
-    names will be listed as:
+    names will be listed as::
 
       property or  alias = value
 
-    e.g.:
+    e.g.::
 
       linewidth or lw = 2
     """
 
     insp = ArtistInspector(o)
 
-    if len(args)==0:
+    if property is None:
         print '\n'.join(insp.pprint_getters())
         return
 
-    name = args[0]
-    func = getattr(o, 'get_' + name)
+    func = getattr(o, 'get_' + property)
     return func()
 
 def get(o, *args, **kwargs):
