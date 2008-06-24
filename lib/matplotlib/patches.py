@@ -153,7 +153,7 @@ class Patch(artist.Artist):
     def get_linewidth(self):
         return self._linewidth
     get_lw = get_linewidth
- 
+
     def get_linestyle(self):
         return self._linestyle
     get_ls = get_linestyle
@@ -197,7 +197,7 @@ class Patch(artist.Artist):
         if w is None: w = mpl.rcParams['patch.linewidth']
         self._linewidth = w
     set_lw = set_linewidth
- 
+
     def set_linestyle(self, ls):
         """
         Set the patch linestyle
@@ -645,6 +645,7 @@ class Wedge(Patch):
         self.theta2 = theta2
         self._patch_transform = transforms.IdentityTransform()
         self._path = Path.wedge(self.theta1, self.theta2)
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
         return self._path
@@ -931,6 +932,7 @@ class Ellipse(Patch):
         self._path = Path.unit_circle()
         self._patch_transform = transforms.IdentityTransform()
         self._recompute_transform()
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def _recompute_transform(self):
         center = (self.convert_xunits(self.center[0]),
@@ -1037,6 +1039,7 @@ class Arc(Ellipse):
 
         self.theta1 = theta1
         self.theta2 = theta2
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def draw(self, renderer):
         """
