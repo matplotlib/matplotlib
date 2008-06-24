@@ -972,7 +972,8 @@ class Figure(Artist):
         call signature::
 
           savefig(fname, dpi=None, facecolor='w', edgecolor='w',
-                  orientation='portrait', papertype=None, format=None):
+                  orientation='portrait', papertype=None, format=None,
+                  transparent=False):
 
         Save the current figure.
 
@@ -1006,13 +1007,35 @@ class Figure(Artist):
           *format*:
             One of the file extensions supported by the active
             backend.  Most backends support png, pdf, ps, eps and svg.
+
+          *transparent*:
+            If *True*, the figure patch and axes patches will all be
+            transparent.  This is useful, for example, for displaying
+            a plot on top of a colored background on a web page.  The
+            transparency of these patches will be restored to their
+            original values upon exit of this function.
         """
 
         for key in ('dpi', 'facecolor', 'edgecolor'):
             if not kwargs.has_key(key):
                 kwargs[key] = rcParams['savefig.%s'%key]
 
+        transparent = kwargs.pop('transparent', False)
+        if transparent:
+            original_figure_alpha = self.figurePatch.get_alpha()
+            self.figurePatch.set_alpha(0.0)
+            original_axes_alpha = []
+            for ax in self.axes:
+                axesPatch = ax.get_frame()
+                original_axes_alpha.append(axesPatch.get_alpha())
+                axesPatch.set_alpha(0.0)
+
         self.canvas.print_figure(*args, **kwargs)
+
+        if transparent:
+            self.figurePatch.set_alpha(original_figure_alpha)
+            for ax, alpha in zip(self.axes, original_axes_alpha):
+                ax.get_frame().set_alpha(alpha)
 
     def colorbar(self, mappable, cax=None, ax=None, **kw):
         if ax is None:
