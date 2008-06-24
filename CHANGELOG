@@ -1,4 +1,6 @@
-2006-08-24 Applied Stefan's patch to draw a sinle centered marker over
+2006-06-24 Added "transparent" kwarg to savefig. - MGD
+
+2006-06-24 Applied Stefan's patch to draw a sinle centered marker over
            a line with numpoints==1 - JDH
 
 2008-06-23 Use splines to render circles in scatter plots - MGD
