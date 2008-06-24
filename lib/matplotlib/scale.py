@@ -178,9 +178,7 @@ class LogScale(ScaleBase):
         *subsx*/*subsy*:
            Where to place the subticks between each major tick.
            Should be a sequence of integers.  For example, in a log10
-           scale::
-
-             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+           scale: ``[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]``
 
            will place 10 logarithmically spaced minor ticks between
            each major tick.
@@ -291,9 +289,7 @@ class SymmetricalLogScale(ScaleBase):
         *subsx*/*subsy*:
            Where to place the subticks between each major tick.
            Should be a sequence of integers.  For example, in a log10
-           scale::
-
-             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+           scale: ``[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]``
 
            will place 10 logarithmically spaced minor ticks between
            each major tick.
