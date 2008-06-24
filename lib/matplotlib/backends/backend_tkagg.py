@@ -178,9 +178,10 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         def on_idle(*ignore):
             self.idle_event()
             return True
-        t = cbook.Idle(on_idle)
 
-        self._tkcanvas.after_idle(lambda *ignore: t.start())
+        # disable until you figure out how to handle threads and interrupts
+        #t = cbook.Idle(on_idle)
+        #self._tkcanvas.after_idle(lambda *ignore: t.start())
 
     def resize(self, event):
         width, height = event.width, event.height

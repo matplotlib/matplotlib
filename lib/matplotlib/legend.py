@@ -271,7 +271,7 @@ The following dimensions are in axes coords
                 legline_marker.set_linestyle('None')
                 self._set_artist_props(legline_marker)
                 # we don't want to add this to the return list because
-                # the texts and handles are assumed to be in one to ne
+                # the texts and handles are assumed to be in one-to-one
                 # correpondence.
                 legline._legmarker = legline_marker
 
