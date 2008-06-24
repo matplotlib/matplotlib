@@ -27,7 +27,7 @@ import numpy as np
 
 from matplotlib import rcParams
 from artist import Artist
-from cbook import is_string_like, iterable, silent_list
+from cbook import is_string_like, iterable, silent_list, safezip
 from font_manager import FontProperties
 from lines import Line2D
 from mlab import segments_intersect
@@ -118,7 +118,7 @@ The following dimensions are in axes coords
 
         proplist=[numpoints, pad, markerscale, labelsep, handlelen, handletextsep, axespad, shadow]
         propnames=['numpoints', 'pad', 'markerscale', 'labelsep', 'handlelen', 'handletextsep', 'axespad', 'shadow']
-        for name, value in zip(propnames,proplist):
+        for name, value in safezip(propnames,proplist):
             if value is None:
                 value=rcParams["legend."+name]
             setattr(self,name,value)
@@ -206,6 +206,8 @@ The following dimensions are in axes coords
         for h in self.legendHandles:
             if h is not None:
                 h.draw(renderer)
+                if hasattr(h, '_legmarker'):
+                    h._legmarker.draw(renderer)
                 if 0: bbox_artist(h, renderer)
 
         for t in self.texts:
@@ -233,31 +235,46 @@ The following dimensions are in axes coords
         return ibox
 
     def _get_handles(self, handles, texts):
+        handles = list(handles)
+        texts = list(texts)
         HEIGHT = self._approx_text_height()
         left = 0.5
 
         ret = []   # the returned legend lines
 
-        for handle, label in zip(handles, texts):
+        # we need to pad the text with empties for the numpoints=1
+        # centered marker proxy
+
+        for handle, label in safezip(handles, texts):
             if self.numpoints > 1:
                 xdata = np.linspace(left, left + self.handlelen, self.numpoints)
+                xdata_marker = xdata
             elif self.numpoints == 1:
                 xdata = np.linspace(left, left + self.handlelen, 2)
+                xdata_marker = [left + 0.5*self.handlelen]
 
             x, y = label.get_position()
             x -= self.handlelen + self.handletextsep
             if isinstance(handle, Line2D):
-                if self.numpoints == 1 and handle._marker != 'None':
-                    xdata = np.array([left + self.handlelen*0.5])
                 ydata = (y-HEIGHT/2)*np.ones(xdata.shape, float)
                 legline = Line2D(xdata, ydata)
+
                 legline.update_from(handle)
                 self._set_artist_props(legline) # after update
                 legline.set_clip_box(None)
                 legline.set_clip_path(None)
-                legline.set_markersize(self.markerscale*legline.get_markersize())
-
                 ret.append(legline)
+                legline.set_marker('None')
+
+                legline_marker = Line2D(xdata_marker, ydata[:len(xdata_marker)])
+                legline_marker.update_from(handle)
+                legline_marker.set_linestyle('None')
+                self._set_artist_props(legline_marker)
+                # we don't want to add this to the return list because
+                # the texts and handles are assumed to be in one to ne
+                # correpondence.
+                legline._legmarker = legline_marker
+
             elif isinstance(handle, Patch):
                 p = Rectangle(xy=(min(xdata), y-3/4*HEIGHT),
                               width = self.handlelen, height=HEIGHT/2,
@@ -477,7 +494,7 @@ The following dimensions are in axes coords
             return bboxa.bounds
 
         hpos = []
-        for t, tabove in zip(self.texts[1:], self.texts[:-1]):
+        for t, tabove in safezip(self.texts[1:], self.texts[:-1]):
             x,y = t.get_position()
             l,b,w,h = get_tbounds(tabove)
             b -= self.labelsep
@@ -486,16 +503,18 @@ The following dimensions are in axes coords
             t.set_position( (x, b-0.1*h) )
 
         # now do the same for last line
+
         l,b,w,h = get_tbounds(self.texts[-1])
         b -= self.labelsep
         h += 2*self.labelsep
         hpos.append( (b,h) )
 
-        for handle, tup in zip(self.legendHandles, hpos):
+        for handle, tup in safezip(self.legendHandles, hpos):
             y,h = tup
             if isinstance(handle, Line2D):
                 ydata = y*np.ones(handle.get_xdata().shape, float)
-                handle.set_ydata(ydata+h/2)
+                handle.set_ydata(ydata+h/2.)
+                handle._legmarker.set_ydata(ydata+h/2.)
             elif isinstance(handle, Rectangle):
                 handle.set_y(y+1/4*h)
                 handle.set_height(h/2)
