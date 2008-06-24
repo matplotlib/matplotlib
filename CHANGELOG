@@ -1,3 +1,6 @@
+=================================================================
+2006-02-24 Released 0.98.2 at svn r5667 - (source only for debian) JDH
+
 2006-06-24 Added "transparent" kwarg to savefig. - MGD
 
 2006-06-24 Applied Stefan's patch to draw a sinle centered marker over
