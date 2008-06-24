@@ -1,5 +1,7 @@
 """
 Demonstrate/test the idle and timeout API
+
+This is only tested on gtk so far and is a prototype implementation
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,23 +23,12 @@ def on_idle(event):
     event.canvas.draw()
     # test boolean return removal
     if on_idle.count==N:
-        fig.canvas.mpl_disconnect(on_idle.cid)
+        return False
+    return True
 on_idle.cid = None
 on_idle.count = 0
 
-def on_timeout(canvas):
-    on_timeout.count +=1
-    line2.set_ydata(np.cos(2*np.pi*t*(N-on_idle.count)/float(N)))
-    line2.figure.canvas.draw()
-    print 'timeout', on_timeout.count
-    # test explicit removal
-    if on_timeout.count==N:
-        return False
-    return True
-on_timeout.count = 0
-
-on_idle.cid = fig.canvas.mpl_connect('idle_event', on_idle)
-#fig.canvas.mpl_timeout_add(100, on_timeout)
+fig.canvas.mpl_connect('idle_event', on_idle)
 
 plt.show()
 
