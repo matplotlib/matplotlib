@@ -2381,6 +2381,10 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
                 names.append(item)
             seen[item] = cnt+1
 
+    else:
+        if cbook.is_string_like(names):
+            names = [n.strip() for n in names.split(',')]
+
     # get the converter functions by inspecting checkrows
     converters = get_converters(reader)
     if converters is None:
