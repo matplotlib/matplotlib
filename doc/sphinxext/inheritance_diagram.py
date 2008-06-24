@@ -140,8 +140,8 @@ class InheritanceGraph(object):
     def class_name(self, cls, parts=0):
         """
         Given a class object, return a fully-qualified name.  This
-        works for things I've tested in matplotlib so far, but may
-        not be completely general.
+        works for things I've tested in matplotlib so far, but may not
+        be completely general.
         """
         module = cls.__module__
         if module == '__builtin__':
@@ -158,7 +158,7 @@ class InheritanceGraph(object):
         """
         return [self.class_name(x) for x in self.all_classes]
 
-    # These are the default options for
+    # These are the default options for graphviz
     default_graph_options = {
         "rankdir": "LR",
         "size": '"8.0, 12.0"'
