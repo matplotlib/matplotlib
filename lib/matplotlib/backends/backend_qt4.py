@@ -7,7 +7,7 @@ import matplotlib
 from matplotlib import verbose
 from matplotlib.cbook import is_string_like, onetrue
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, IdleEvent, cursors
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
@@ -94,9 +94,14 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         FigureCanvasBase.__init__( self, figure )
         self.figure = figure
         self.setMouseTracking( True )
-
+        # hide until we can test and fix
+        #self.startTimer(backend_IdleEvent.milliseconds)
         w,h = self.get_width_height()
         self.resize( w, h )
+
+    def __timerEvent(self, event):
+        # hide until we can test and fix
+        self.mpl_idle_event(event)
 
     def mousePressEvent( self, event ):
         x = event.pos().x()
