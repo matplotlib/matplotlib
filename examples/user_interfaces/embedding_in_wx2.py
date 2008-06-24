@@ -15,6 +15,7 @@ import matplotlib
 # comment out the following to use wx rather than wxagg
 matplotlib.use('WXAgg')
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
+
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 
 from matplotlib.figure import Figure
