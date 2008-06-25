@@ -5563,8 +5563,8 @@ class Axes(martist.Artist):
             edgecolors = (0,0,0,1),
             linewidths = (0.25,)
         else:
-            edgecolors = 'None'
-            linewidths = (0.0,)
+            edgecolors = 'face'
+            linewidths = (1.0,)
         kwargs.setdefault('edgecolors', edgecolors)
         kwargs.setdefault('antialiaseds', (0,))
         kwargs.setdefault('linewidths', linewidths)
@@ -5607,8 +5607,8 @@ class Axes(martist.Artist):
 
         *C* may be a masked array, but *X* and *Y* may not.  Masked
         array support is implemented via *cmap* and *norm*; in
-        contrast, *pcolor* simply does not draw quadrilaterals with
-        masked colors or vertices.
+        contrast, :func:`~matplotlib.pyplot.pcolor` simply does not
+        draw quadrilaterals with masked colors or vertices.
 
         Keyword arguments:
 
@@ -5646,7 +5646,7 @@ class Axes(martist.Artist):
           *alpha*: 0 <= scalar <= 1
             the alpha blending value
 
-        Return value is a :class:`matplotlib.collection.Collection`
+        Return value is a :class:`matplotlib.collection.QuadMesh`
         object.
 
         See :func:`~matplotlib.pyplot.pcolor` for an explanation of
