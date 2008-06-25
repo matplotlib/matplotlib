@@ -112,9 +112,9 @@ connecting
 get the window extent there, and then do something with it, eg move
 the left of the canvas over; see :ref:`event-handling-tutorial`.
 
-Here is a recursive, iterative solution that will gradually move the
-left of the subplot over until the label fits w/o going outside the
-figure border (requires matplotlib 0.98)
+Here is that gets a bounding box in relative figure coordinates (0..1)
+of each of the labels and uses it to move the left of the subplots
+over so that the tick labels fit in the figure
 
 .. plot:: auto_subplots_adjust.py
    :include-source:
