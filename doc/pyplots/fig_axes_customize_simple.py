@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 
 # plt.figure creates a matplotlib.figure.Figure instance
 fig = plt.figure()
-rect = fig.figurePatch # a rectangle instance
+rect = fig.patch # a rectangle instance
 rect.set_facecolor('lightgoldenrodyellow')
 
 ax1 = fig.add_axes([0.1, 0.3, 0.4, 0.4])
-rect = ax1.axesPatch
+rect = ax1.patch
 rect.set_facecolor('lightslategray')
 
 

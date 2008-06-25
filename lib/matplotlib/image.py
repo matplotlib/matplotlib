@@ -193,7 +193,7 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         else:
             im = self._imcache
 
-        fc = self.axes.get_frame().get_facecolor()
+        fc = self.axes.patch.get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
         im.set_bg( *bg)
 
@@ -400,7 +400,7 @@ class NonUniformImage(AxesImage):
         im = _image.pcolor(self._Ax, self._Ay, self._A,
                            height, width,
                            (x0, x0+v_width, y0, y0+v_height))
-        fc = self.axes.get_frame().get_facecolor()
+        fc = self.axes.patch.get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
         im.set_bg(*bg)
         return im
@@ -500,7 +500,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
     def make_image(self, magnification=1.0):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
-        fc = self.axes.get_frame().get_facecolor()
+        fc = self.axes.patch.get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
         bg = (np.array(bg)*255).astype(np.uint8)
         l, b, r, t = self.axes.bbox.extents

@@ -83,9 +83,9 @@ print 'Line getters'
 getp(l1)
 
 print 'Rectangle setters'
-setp(gca().axesPatch)
+setp(gca().patch)
 print 'Rectangle getters'
-getp(gca().axesPatch)
+getp(gca().patch)
 
 t = title('Hi mom')
 print 'Text setters'

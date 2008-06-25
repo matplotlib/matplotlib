@@ -7,12 +7,12 @@ axalpha = 0.05
 figcolor = '#FFFFCC'
 dpi = 80
 fig = plt.figure(figsize=(8, 2),dpi=dpi)
-fig.figurePatch.set_edgecolor(figcolor)
-fig.figurePatch.set_facecolor(figcolor)
+fig.patch.set_edgecolor(figcolor)
+fig.patch.set_facecolor(figcolor)
 
 # the polar bar plot
 ax = fig.add_axes([0.05, 0.05, 0.2, 01], polar=True)
-ax.axesPatch.set_alpha(axalpha)
+ax.patch.set_alpha(axalpha)
 N = 20
 theta = np.arange(0.0, 2*np.pi, 2*np.pi/N) + np.pi
 radii = 10*np.random.rand(N)
@@ -31,7 +31,7 @@ for label in ax.get_xticklabels() + ax.get_yticklabels():
 
 # the histogram
 axhist = fig.add_axes([0.275, 0.075, 0.2, 0.4])
-axhist.axesPatch.set_alpha(axalpha)
+axhist.patch.set_alpha(axalpha)
 mu, sigma = 100, 15
 x = mu + sigma*np.random.randn(10000)
 

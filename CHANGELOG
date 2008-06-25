@@ -1,3 +1,8 @@
+2008-06-25 Figure.figurePatch renamed Figure.patch, Axes.axesPatch
+           renamed Axes.patch, Axes.axesFrame renamed Axes.frame,
+           Axes.get_frame, which returns Axes.patch, is deprecated.
+           Examples and users guide updated - JDH
+
 2008-06-25 Fix rendering quality of pcolor - MGD
 
 =================================================================
