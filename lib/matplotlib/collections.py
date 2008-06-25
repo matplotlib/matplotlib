@@ -184,11 +184,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
+        if self._edgecolors == 'face':
+            edgecolors = self._facecolors
+        else:
+            edgecolors = self._edgecolors
+
         renderer.draw_path_collection(
             transform.frozen(), self.clipbox, clippath, clippath_trans,
             paths, self.get_transforms(),
             offsets, transOffset,
-            self._facecolors, self._edgecolors, self._linewidths,
+            self._facecolors, edgecolors, self._linewidths,
             self._linestyles, self._antialiaseds)
         renderer.close_group(self.__class__.__name__)
 
@@ -318,12 +323,18 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Set the edgecolor(s) of the collection. *c* can be a
         matplotlib color arg (all patches have same color), or a
         sequence or rgba tuples; if it is a sequence the patches will
-        cycle through the sequence
+        cycle through the sequence.
+
+        If *c* is 'face', the edge color will always be the same as
+        the face color.
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        if c is None: c = mpl.rcParams['patch.edgecolor']
-        self._edgecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
+        if c == 'face':
+            self._edgecolors = 'face'
+        else:
+            if c is None: c = mpl.rcParams['patch.edgecolor']
+            self._edgecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
 
     set_edgecolors = set_edgecolor
 

@@ -1,9 +1,11 @@
+2008-06-25 Fix rendering quality of pcolor - MGD
+
 =================================================================
-2006-02-24 Released 0.98.2 at svn r5667 - (source only for debian) JDH
+2008-06-24 Released 0.98.2 at svn r5667 - (source only for debian) JDH
 
-2006-06-24 Added "transparent" kwarg to savefig. - MGD
+2008-06-24 Added "transparent" kwarg to savefig. - MGD
 
-2006-06-24 Applied Stefan's patch to draw a sinle centered marker over
+2008-06-24 Applied Stefan's patch to draw a sinle centered marker over
            a line with numpoints==1 - JDH
 
 2008-06-23 Use splines to render circles in scatter plots - MGD
