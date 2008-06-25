@@ -1,3 +1,10 @@
+Changes for 0.98.x
+==================
+
+* Figure.figurePatch renamed Figure.patch, Axes.axesPatch renamed
+  Axes.patch, Axes.axesFrame renamed Axes.frame, Axes.get_frame, which
+  returns Axes.patch, is deprecated.  Examples and users guide updated
+
 Changes for 0.98.1
 ==================
 

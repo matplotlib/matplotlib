@@ -17,15 +17,15 @@ backgrounds transparent when saving, but will not affect the displayed
 image on the screen.  If you need finer grained control, eg you do not
 want full transparency or you to affect the screen displayed version
 as well, you can set the alpha properties directly.  The figure has a
-:class:`matplotlib.patches.Rectangle` instance called *figurePatch*
-and the axes has a Rectangle instance called *axesPatch*.  You can set
+:class:`matplotlib.patches.Rectangle` instance called *patch*
+and the axes has a Rectangle instance called *patch*.  You can set
 any property on them directly (*facecolor*, *edgecolor*, *linewidth*,
 *linestyle*, *alpha*).  Eg::
 
     fig = plt.figure()
-    fig.figurePatch.set_alpha(0.5)
+    fig.patch.set_alpha(0.5)
     ax = fig.add_subplot(111)
-    ax.axesPatch.set_alpha(0.5)
+    ax.patch.set_alpha(0.5)
 
 If you need *all* the figure elements to be transparent, there is
 currently no global alpha setting, but you can set the alpha channel

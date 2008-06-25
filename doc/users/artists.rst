@@ -151,9 +151,9 @@ figures.  Likewise, each :class:`~matplotlib.axes.Axes` bounding box
 (the standard white box with black edges in the typical matplotlib
 plot, has a ``Rectangle`` instance that determines the color,
 transparency, and other properties of the Axes.  These instances are
-stored as member variables :attr:`Figure.figurePatch
-<matplotlib.figure.Figure.figurePatch>` and :attr:`Axes.axesPatch
-<matplotlib.axes.Axes.axesPatch>` ("Patch" is a name inherited from
+stored as member variables :attr:`Figure.patch
+<matplotlib.figure.Figure.patch>` and :attr:`Axes.patch
+<matplotlib.axes.Axes.patch>` ("Patch" is a name inherited from
 MATLAB™, and is a 2D "patch" of color on the figure, eg. rectangles,
 circles and polygons).  Every matplotlib ``Artist`` has the following
 properties
@@ -199,7 +199,7 @@ properties mentioned above:
 
 .. sourcecode:: ipython
 
-    In [149]: matplotlib.artist.getp(fig.figurePatch)
+    In [149]: matplotlib.artist.getp(fig.patch)
 	alpha = 1.0
 	animated = False
 	antialiased or aa = True
@@ -261,7 +261,7 @@ The top level container ``Artist`` is the
 :class:`matplotlib.figure.Figure`, and it contains everything in the
 figure.  The background of the figure is a
 :class:`~matplotlib.patches.Rectangle` which is stored in
-:attr:`Figure.figurePatch <matplotlib.figure.Figure.figurePatch>`.  As
+:attr:`Figure.patch <matplotlib.figure.Figure.patch>`.  As
 you add subplots (:meth:`~matplotlib.figure.Figure.add_subplot`) and
 axes (:meth:`~matplotlib.figure.Figure.add_axes`) to the figure
 these will be appended to the :attr:`Figure.axes
@@ -336,7 +336,7 @@ Here is a summary of the Artists the figure contains
 Figure attribute      Description
 ================      ===============================================================
 axes                  A list of Axes instances (includes Subplot)
-figurePatch           The Rectangle background
+patch                 The Rectangle background
 images                A list of FigureImages patches - useful for raw pixel display
 legends               A list of Figure Legend instances (different from Axes.legends)
 lines                 A list of Figure Line2D instances (rarely used, see Axes.lines)
@@ -356,13 +356,13 @@ in a figure with many helper methods to create and add these
 customize the ``Artists`` it contains.  Like the
 :class:`~matplotlib.figure.Figure`, it contains a
 :class:`~matplotlib.patches.Patch`
-:attr:`~matplotlib.axes.Axes.axesPatch` which is a
+:attr:`~matplotlib.axes.Axes.patch` which is a
 :class:`~matplotlib.patches.Rectangle` for Cartesian coordinates and a
 :class:`~matplotlib.patches.Circle` for polar coordinates; this patch
 determines the shape, background and border of the plotting region::
 
     ax = fig.add_subplot(111)
-    rect = ax.axesPatch  # a Rectangle instance
+    rect = ax.patch  # a Rectangle instance
     rect.set_facecolor('green')
 
 When you call a plotting method, eg. the canonical
@@ -511,7 +511,7 @@ Below is a summary of the Artists that the Axes contains
 Axes attribute    Description
 ==============    ======================================
 artists           A list of Artist instances
-axesPatch         Rectangle instance for Axes background
+patch             Rectangle instance for Axes background
 collections       A list of Collection instances
 images            A list of AxesImage
 legends           A list of Legend instances

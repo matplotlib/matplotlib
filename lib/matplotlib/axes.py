@@ -815,7 +815,7 @@ class Axes(martist.Artist):
             a.set_transform(self.transData)
         a.axes = self
 
-    def get_axes_patch(self):
+    def _gen_axes_patch(self):
         """
         Returns the patch used to draw the background of the axes.  It
         is also used as the clipping path for any data elements on the
@@ -878,24 +878,30 @@ class Axes(martist.Artist):
 
         self._set_artist_props(self.title)
 
-        self.axesPatch = self.get_axes_patch()
-        self.axesPatch.set_figure(self.figure)
-        self.axesPatch.set_facecolor(self._axisbg)
-        self.axesPatch.set_edgecolor(rcParams['axes.edgecolor'])
-        self.axesPatch.set_linewidth(rcParams['axes.linewidth'])
-        self.axesPatch.set_transform(self.transAxes)
+        # the patch draws the background of the axes.  we want this to
+        # be below the other artists; the axesPatch name is deprecated
+        self.patch = self.axesPatch = self._gen_axes_patch()
+        self.patch.set_figure(self.figure)
+        self.patch.set_facecolor(self._axisbg)
+        self.patch.set_edgecolor(rcParams['axes.edgecolor'])
+        self.patch.set_linewidth(rcParams['axes.linewidth'])
+        self.patch.set_transform(self.transAxes)
 
-        self.axesFrame = self.get_axes_patch()
-        self.axesFrame.set_figure(self.figure)
-        self.axesFrame.set_facecolor('none')
-        self.axesFrame.set_edgecolor(rcParams['axes.edgecolor'])
-        self.axesFrame.set_linewidth(rcParams['axes.linewidth'])
-        self.axesFrame.set_transform(self.transAxes)
-        self.axesFrame.set_zorder(2.5)
+        # the frame draws the border around the axes and we want this
+        # above.  this is a place holder for a more sophisticated
+        # artist that might just draw a left, bottom frame, or a
+        # centered frame, etc the axesFrame name is deprecated
+        self.frame = self.axesFrame = self._gen_axes_patch()
+        self.frame.set_figure(self.figure)
+        self.frame.set_facecolor('none')
+        self.frame.set_edgecolor(rcParams['axes.edgecolor'])
+        self.frame.set_linewidth(rcParams['axes.linewidth'])
+        self.frame.set_transform(self.transAxes)
+        self.frame.set_zorder(2.5)
         self.axison = True
 
-        self.xaxis.set_clip_path(self.axesPatch)
-        self.yaxis.set_clip_path(self.axesPatch)
+        self.xaxis.set_clip_path(self.patch)
+        self.yaxis.set_clip_path(self.patch)
 
 
     def clear(self):
@@ -1211,7 +1217,8 @@ class Axes(martist.Artist):
 
     def get_frame(self):
         'Return the axes Rectangle frame'
-        return self.axesPatch
+        warnings.warn('use ax.patch instead', DeprecationWarning)
+        return self.patch
 
     def get_legend(self):
         'Return the legend.Legend instance, or None if no legend is defined'
@@ -1271,7 +1278,7 @@ class Axes(martist.Artist):
         a.set_axes(self)
         self.artists.append(a)
         self._set_artist_props(a)
-        a.set_clip_path(self.axesPatch)
+        a.set_clip_path(self.patch)
         a._remove_method = lambda h: self.artists.remove(h)
 
     def add_collection(self, collection, autolim=True):
@@ -1284,7 +1291,7 @@ class Axes(martist.Artist):
             collection.set_label('collection%d'%len(self.collections))
         self.collections.append(collection)
         self._set_artist_props(collection)
-        collection.set_clip_path(self.axesPatch)
+        collection.set_clip_path(self.patch)
         if autolim:
             if collection._paths and len(collection._paths):
                 self.update_datalim(collection.get_datalim(self.transData))
@@ -1296,7 +1303,7 @@ class Axes(martist.Artist):
         lines
         '''
         self._set_artist_props(line)
-        line.set_clip_path(self.axesPatch)
+        line.set_clip_path(self.patch)
 
         self._update_line_limits(line)
         if not line.get_label():
@@ -1317,7 +1324,7 @@ class Axes(martist.Artist):
         """
 
         self._set_artist_props(p)
-        p.set_clip_path(self.axesPatch)
+        p.set_clip_path(self.patch)
         self._update_patch_limits(p)
         self.patches.append(p)
         p._remove_method = lambda h: self.patches.remove(h)
@@ -1345,7 +1352,7 @@ class Axes(martist.Artist):
         '''
         self._set_artist_props(tab)
         self.tables.append(tab)
-        tab.set_clip_path(self.axesPatch)
+        tab.set_clip_path(self.patch)
         tab._remove_method = lambda h: self.tables.remove(h)
 
     def relim(self):
@@ -1419,7 +1426,7 @@ class Axes(martist.Artist):
         return *True* if the given *mouseevent* (in display coords)
         is in the Axes
         '''
-        return self.axesPatch.contains(mouseevent)[0]
+        return self.patch.contains(mouseevent)[0]
 
     def get_autoscale_on(self):
         """
@@ -1475,7 +1482,7 @@ class Axes(martist.Artist):
         self.apply_aspect(self.get_position(True))
 
         if self.axison and self._frameon:
-            self.axesPatch.draw(renderer)
+            self.patch.draw(renderer)
 
         artists = []
 
@@ -1508,8 +1515,8 @@ class Axes(martist.Artist):
             # respect z-order for now
             renderer.draw_image(
                 round(l), round(b), im, self.bbox,
-                self.axesPatch.get_path(),
-                self.axesPatch.get_transform())
+                self.patch.get_path(),
+                self.patch.get_transform())
 
         artists.extend(self.collections)
         artists.extend(self.patches)
@@ -1529,7 +1536,7 @@ class Axes(martist.Artist):
         if self.legend_ is not None:
             artists.append(self.legend_)
         if self.axison and self._frameon:
-            artists.append(self.axesFrame)
+            artists.append(self.frame)
 
         dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
                 if not a.get_animated() ]
@@ -1696,7 +1703,7 @@ class Axes(martist.Artist):
         """
 
         self._axisbg = color
-        self.axesPatch.set_facecolor(color)
+        self.patch.set_facecolor(color)
 
     ### data limits, ticks, tick labels, and formatting
 
@@ -2364,8 +2371,8 @@ class Axes(martist.Artist):
             children.append(self.legend_)
         children.extend(self.collections)
         children.append(self.title)
-        children.append(self.axesPatch)
-        children.append(self.axesFrame)
+        children.append(self.patch)
+        children.append(self.frame)
         return children
 
     def contains(self,mouseevent):
@@ -2375,7 +2382,7 @@ class Axes(martist.Artist):
         """
         if callable(self._contains): return self._contains(self,mouseevent)
 
-        inside = self.axesPatch.contains(mouseevent.x, mouseevent.y)
+        inside = self.patch.contains(mouseevent.x, mouseevent.y)
         return inside,{}
 
     def pick(self, *args):
@@ -2647,7 +2654,7 @@ class Axes(martist.Artist):
         a = mtext.Annotation(*args, **kwargs)
         a.set_transform(mtransforms.IdentityTransform())
         self._set_artist_props(a)
-        if kwargs.has_key('clip_on'):  a.set_clip_path(self.axesPatch)
+        if kwargs.has_key('clip_on'):  a.set_clip_path(self.patch)
         self.texts.append(a)
         return a
     annotate.__doc__ = cbook.dedent(annotate.__doc__) % martist.kwdocd
@@ -5342,7 +5349,7 @@ class Axes(martist.Artist):
         im.set_data(X)
         im.set_alpha(alpha)
         self._set_artist_props(im)
-        im.set_clip_path(self.axesPatch)
+        im.set_clip_path(self.patch)
         #if norm is None and shape is None:
         #    im.set_clim(vmin, vmax)
         if vmin is not None or vmax is not None:

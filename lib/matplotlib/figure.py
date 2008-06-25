@@ -209,7 +209,7 @@ class Figure(Artist):
 
     The figure patch is drawn by a the attribute
 
-    *figurePatch*
+    *patch*
        a :class:`matplotlib.patches.Rectangle` instance
 
     *suppressComposite*
@@ -265,12 +265,13 @@ class Figure(Artist):
 
         self.transFigure = BboxTransformTo(self.bbox)
 
-        self.figurePatch = Rectangle(
+        # the figurePatch name is deprecated
+        self.patch = self.figurePatch = Rectangle(
             xy=(0,0), width=1, height=1,
             facecolor=facecolor, edgecolor=edgecolor,
             linewidth=linewidth,
             )
-        self._set_artist_props(self.figurePatch)
+        self._set_artist_props(self.patch)
 
         self._hold = rcParams['axes.hold']
         self.canvas = None
@@ -331,7 +332,7 @@ class Figure(Artist):
 
     def get_children(self):
         'get a list of artists contained in the figure'
-        children = [self.figurePatch]
+        children = [self.patch]
         children.extend(self.artists)
         children.extend(self.axes)
         children.extend(self.lines)
@@ -527,11 +528,11 @@ class Figure(Artist):
 
     def get_edgecolor(self):
         'Get the edge color of the Figure rectangle'
-        return self.figurePatch.get_edgecolor()
+        return self.patch.get_edgecolor()
 
     def get_facecolor(self):
         'Get the face color of the Figure rectangle'
-        return self.figurePatch.get_facecolor()
+        return self.patch.get_facecolor()
 
     def get_figwidth(self):
         'Return the figwidth as a float'
@@ -555,7 +556,7 @@ class Figure(Artist):
 
         ACCEPTS: any matplotlib color - see help(colors)
         """
-        self.figurePatch.set_edgecolor(color)
+        self.patch.set_edgecolor(color)
 
     def set_facecolor(self, color):
         """
@@ -563,7 +564,7 @@ class Figure(Artist):
 
         ACCEPTS: any matplotlib color - see help(colors)
         """
-        self.figurePatch.set_facecolor(color)
+        self.patch.set_facecolor(color)
 
     def set_dpi(self, val):
         """
@@ -795,7 +796,7 @@ class Figure(Artist):
         if not self.get_visible(): return
         renderer.open_group('figure')
 
-        if self.frameon: self.figurePatch.draw(renderer)
+        if self.frameon: self.patch.draw(renderer)
 
         # todo: respect zorder
         for p in self.patches: p.draw(renderer)
@@ -1022,20 +1023,20 @@ class Figure(Artist):
 
         transparent = kwargs.pop('transparent', False)
         if transparent:
-            original_figure_alpha = self.figurePatch.get_alpha()
-            self.figurePatch.set_alpha(0.0)
+            original_figure_alpha = self.patch.get_alpha()
+            self.patch.set_alpha(0.0)
             original_axes_alpha = []
             for ax in self.axes:
-                axesPatch = ax.get_frame()
-                original_axes_alpha.append(axesPatch.get_alpha())
-                axesPatch.set_alpha(0.0)
+                patch = ax.patch
+                original_axes_alpha.append(patch.get_alpha())
+                patch.set_alpha(0.0)
 
         self.canvas.print_figure(*args, **kwargs)
 
         if transparent:
-            self.figurePatch.set_alpha(original_figure_alpha)
+            self.patch.set_alpha(original_figure_alpha)
             for ax, alpha in zip(self.axes, original_axes_alpha):
-                ax.get_frame().set_alpha(alpha)
+                ax.patch.set_alpha(alpha)
 
     def colorbar(self, mappable, cax=None, ax=None, **kw):
         if ax is None:
