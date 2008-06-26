@@ -1,10 +1,9 @@
-
 """
 Make a "broken" horizontal bar plot, ie one with gaps
 """
-from matplotlib.pyplot import figure, show
+import matplotlib.pyplot as plt
 
-fig = figure()
+fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.broken_barh([ (110, 30), (150, 10) ] , (10, 9), facecolors='blue')
 ax.broken_barh([ (10, 50), (100, 20),  (130, 10)] , (20, 9),
@@ -22,4 +21,4 @@ ax.annotate('race interrupted', (61, 25),
             horizontalalignment='right', verticalalignment='top')
 
 #fig.savefig('broken_barh', dpi=100)
-show()
+plt.show()
