@@ -2,36 +2,35 @@
 """
 Compute the coherence of two signals
 """
-import numpy as n
+import numpy as np
+import matplotlib.pyplot as plt
 
-from pylab import figure, show
+# make a little extra space between the subplots
+plt.subplots_adjust(wspace=0.5)
 
 dt = 0.01
-t = n.arange(0, 30, dt)
-Nt = len(t)
-nse1 = n.random.randn(Nt)                 # white noise 1
-nse2 = n.random.randn(Nt)                 # white noise 2
-r = n.exp(-t/0.05)
+t = np.arange(0, 30, dt)
+nse1 = np.random.randn(len(t))                 # white noise 1
+nse2 = np.random.randn(len(t))                 # white noise 2
+r = np.exp(-t/0.05)
 
-cnse1 = n.convolve(nse1, r)*dt   # colored noise 1
-cnse1 = cnse1[:Nt]
-cnse2 = n.convolve(nse2, r)*dt   # colored noise 2
-cnse2 = cnse2[:Nt]
+cnse1 = np.convolve(nse1, r, mode='same')*dt   # colored noise 1
+cnse2 = np.convolve(nse2, r, mode='same')*dt   # colored noise 2
 
 # two signals with a coherent part and a random part
-s1 = 0.01*n.sin(2*n.pi*10*t) + cnse1
-s2 = 0.01*n.sin(2*n.pi*10*t) + cnse2
+s1 = 0.01*np.sin(2*np.pi*10*t) + cnse1
+s2 = 0.01*np.sin(2*np.pi*10*t) + cnse2
 
-fig = figure()
-ax = fig.add_subplot(211)
-ax.plot(t, s1, 'b-', t, s2, 'g-')
-ax.set_xlim(0,5)
-ax.set_xlabel('time')
-ax.set_ylabel('s1 and s2')
+plt.subplot(211)
+plt.plot(t, s1, 'b-', t, s2, 'g-')
+plt.xlim(0,5)
+plt.xlabel('time')
+plt.ylabel('s1 and s2')
+plt.grid(True)
 
-ax = fig.add_subplot(212)
-cxy, f = ax.cohere(s1, s2, 256, 1./dt)
-
-show()
+plt.subplot(212)
+cxy, f = plt.cohere(s1, s2, 256, 1./dt)
+plt.ylabel('coherence')
+plt.show()
 
 
