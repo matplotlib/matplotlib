@@ -254,7 +254,7 @@ class RendererPS(RendererBase):
    hatchr cvi hatchgap idiv hatchgap mul
    {hatcht m 0 hatchb hatcht sub r }
    for
-   strokeCHAN
+   stroke
   grestore
  """ % (angle, 12/density)
         self._pswriter.write("gsave\n")
