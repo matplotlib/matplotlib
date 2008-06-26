@@ -2879,6 +2879,9 @@ class Axes(martist.Artist):
           *linestyle*:
             [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
 
+        **Example:**
+
+        .. plot:: ../mpl_examples/pylab_examples/hline_demo.py
         """
         if kwargs.get('fmt') is not None:
             raise DeprecationWarning(
@@ -3362,6 +3365,13 @@ class Axes(martist.Artist):
         See the respective :meth:`~matplotlib.axes.Axes.plot` or
         :meth:`~matplotlib.axes.Axes.vlines` functions for
         documentation on valid kwargs.
+
+        **Example:**
+
+        :func:`~matplotlib.pyplot.xcorr` above, and
+        :func:`~matplotlib.pyplot.acorr` below.
+
+        .. plot:: ../mpl_examples/pylab_examples/xcorr_demo.py
         """
         return self.xcorr(x, x, **kwargs)
     acorr.__doc__ = cbook.dedent(acorr.__doc__) % martist.kwdocd
@@ -3410,6 +3420,13 @@ class Axes(martist.Artist):
 
         *maxlags* is a positive integer detailing the number of lags to show.
         The default value of *None* will return all ``(2*len(x)-1)`` lags.
+
+        **Example:**
+
+        :func:`~matplotlib.pyplot.xcorr` above, and
+        :func:`~matplotlib.pyplot.acorr` below.
+
+        .. plot:: ../mpl_examples/pylab_examples/xcorr_demo.py
         """
 
         Nx = len(x)
@@ -3706,6 +3723,12 @@ class Axes(martist.Artist):
         Other optional kwargs:
 
         %(Rectangle)s
+
+        **Example:**
+
+        A stacked bar chart.
+
+        .. plot:: ../mpl_examples/pylab_examples/bar_stacked.py
         """
         if not self._hold: self.cla()
 
@@ -3998,6 +4021,10 @@ class Axes(martist.Artist):
         or a sequence of arguments for the various bars, ie::
 
           facecolors = ('black', 'red', 'green')
+
+        **Example:**
+
+        .. plot:: ../mpl_examples/pylab_examples/broken_barh.py
         """
         col = mcoll.BrokenBarHCollection(xranges, yrange, **kwargs)
         self.add_collection(col, autolim=True)
@@ -5013,6 +5040,10 @@ class Axes(martist.Artist):
         :meth:`~matplotlib.collection.PolyCollection.get_array` on
         this :class:`~matplotlib.collections.PolyCollection` to get
         the counts in each hexagon.
+
+        **Example:**
+
+        .. plot:: ../mpl_examples/pylab_examples/hexbin_demo.py
         """
 
         if not self._hold: self.cla()
@@ -5166,6 +5197,10 @@ class Axes(martist.Artist):
 
         Optional kwargs control the arrow properties:
         %(FancyArrow)s
+
+        **Example:**
+
+        .. plot:: ../mpl_examples/pylab_examples/arrow_demo.py
         """
         a = mpatches.FancyArrow(x, y, dx, dy, **kwargs)
         self.add_artist(a)
@@ -5225,6 +5260,10 @@ class Axes(martist.Artist):
         kwargs control the Polygon properties:
 
         %(Polygon)s
+
+        **Example:**
+
+        .. plot:: ../mpl_examples/pylab_examples/fill_demo.py
         """
         if not self._hold: self.cla()
 
@@ -5334,6 +5373,10 @@ class Axes(martist.Artist):
         Additional kwargs are :class:`~matplotlib.artist.Artist` properties:
 
         %(Artist)s
+
+        **Example:**
+
+        .. plot:: ../mpl_examples/pylab_examples/image_demo.py
         """
 
         if not self._hold: self.cla()
@@ -6081,42 +6124,6 @@ class Axes(martist.Artist):
 
         %(Rectangle)s
 
-        Here is an example which generates a histogram of normally
-        distributed random numbers and plot the analytic PDF over it::
-
-            import numpy as np
-            import matplotlib.pyplot as plt
-            import matplotlib.mlab as mlab
-
-            mu, sigma = 100, 15
-            x = mu + sigma * np.random.randn(10000)
-
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-
-            # the histogram of the data
-            n, bins, patches = ax.hist(x, 50, normed=1, facecolor='green', alpha=0.75)
-
-            # hist uses np.histogram under the hood to create 'n' and 'bins'.
-            # np.histogram returns the bin edges, so there will be 50 probability
-            # density values in n, 51 bin edges in bins and 50 patches.  To get
-            # everything lined up, we'll compute the bin centers
-            bincenters = 0.5*(bins[1:]+bins[:-1])
-
-            # add a 'best fit' line for the normal PDF
-            y = mlab.normpdf( bincenters, mu, sigma)
-            l = ax.plot(bincenters, y, 'r--', linewidth=1)
-
-            ax.set_xlabel('Smarts')
-            ax.set_ylabel('Probability')
-            ax.set_title(r'$\mathrm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$')
-            ax.set_xlim(40, 160)
-            ax.set_ylim(0, 0.03)
-            ax.grid(True)
-
-            #fig.savefig('histogram_demo',dpi=72)
-            plt.show()
-
         You can use labels for your histogram, and only the first
         :class:`~matplotlib.patches.Rectangle` gets the label (the
         others get the magic string '_nolegend_'.  This will make the
@@ -6126,6 +6133,9 @@ class Axes(martist.Artist):
             ax.hist(12+3*np.random.randn(1000), label='women', alpha=0.5)
             ax.legend()
 
+        **Example:**
+
+        .. plot:: ../mpl_examples/pylab_examples/histogram_demo.py
         """
         if not self._hold: self.cla()
 
@@ -6413,6 +6423,10 @@ class Axes(martist.Artist):
         kwargs control the Line2D properties:
 
         %(Line2D)s
+
+        **Example:**
+
+        .. plot:: ../mpl_examples/pylab_examples/csd_demo.py
         """
         if not self._hold: self.cla()
         pxy, freqs = mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap)
@@ -6466,6 +6480,10 @@ class Axes(martist.Artist):
         properties of the coherence plot:
 
         %(Line2D)s
+
+        **Example:**
+
+        .. plot:: ../mpl_examples/pylab_examples/cohere_demo.py
         """
         if not self._hold: self.cla()
         cxy, freqs = mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap)
