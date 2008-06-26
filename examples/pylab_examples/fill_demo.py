@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-from pylab import *
-t = arange(0.0, 1.01, 0.01)
-s = sin(2*2*pi*t)
+import numpy as np
+import matplotlib.pyplot as plt
 
-fill(t, s*exp(-5*t), 'r')
-grid(True)
-show()
+t = np.arange(0.0, 1.01, 0.01)
+s = np.sin(2*2*np.pi*t)
+
+plt.fill(t, s*np.exp(-5*t), 'r')
+plt.grid(True)
+plt.show()
