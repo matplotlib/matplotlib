@@ -636,13 +636,15 @@ class Figure(Artist):
 
     def add_axes(self, *args, **kwargs):
         """
-        Add an a axes with axes rect [left, bottom, width, height] where all
-        quantities are in fractions of figure width and height.  kwargs are
-        legal Axes kwargs plus "projection" which sets the projection type
-        of the axes.  (For backward compatibility, *polar=True* may also be
-        provided, which is equivalent to *projection='polar'*).
-        Valid values for "projection" are: %s.  Some of these projections
-        support additional kwargs, which may be provided to add_axes::
+        Add an a axes with axes rect [*left*, *bottom*, *width*,
+        *height*] where all quantities are in fractions of figure
+        width and height.  kwargs are legal
+        :class:`~matplotlib.axes.Axes` kwargs plus *projection* which
+        sets the projection type of the axes.  (For backward
+        compatibility, ``polar=True`` may also be provided, which is
+        equivalent to ``projection='polar'``).  Valid values for
+        *projection* are: %s.  Some of these projections support
+        additional kwargs, which may be provided to :meth:`add_axes`::
 
             rect = l,b,w,h
             fig.add_axes(rect)
@@ -651,13 +653,14 @@ class Figure(Artist):
             fig.add_axes(rect, projection='polar')
             fig.add_axes(ax)   # add an Axes instance
 
-        If the figure already has an axes with key *args, *kwargs then it will
-        simply make that axes current and return it.  If you do not want this
-        behavior, eg you want to force the creation of a new axes, you must
-        use a unique set of args and kwargs.  The artist "label" attribute has
-        been exposed for this purpose.  Eg, if you want two axes that are
-        otherwise identical to be added to the figure, make sure you give them
-        unique labels::
+        If the figure already has an axes with the same parameters,
+        then it will simply make that axes current and return it.  If
+        you do not want this behavior, eg. you want to force the
+        creation of a new axes, you must use a unique set of args and
+        kwargs.  The axes :attr:`~matplotlib.axes.Axes.label`
+        attribute has been exposed for this purpose.  Eg., if you want
+        two axes that are otherwise identical to be added to the
+        figure, make sure you give them unique labels::
 
             fig.add_axes(rect, label='axes1')
             fig.add_axes(rect, label='axes2')
@@ -665,8 +668,9 @@ class Figure(Artist):
         The :class:`~matplotlib.axes.Axes` instance will be returned.
 
         The following kwargs are supported:
+
         %s
-        """ % (", ".join(get_projection_names()), '%(Axes)s')
+        """
 
         key = self._make_key(*args, **kwargs)
 
@@ -699,6 +703,7 @@ class Figure(Artist):
         self._seen[key] = a
         return a
 
+    add_axes.__doc__ = add_axes.__doc__ % (", ".join(get_projection_names()), '%(Axes)s')
     add_axes.__doc__ = dedent(add_axes.__doc__) % artist.kwdocd
 
     def add_subplot(self, *args, **kwargs):
