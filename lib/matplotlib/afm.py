@@ -4,7 +4,7 @@ number of other python implementations exist (and may be more complete
 than mine) I decided not to go with them because either they were
 either
 
-  1) copyighted or used a non-BSD compatible license
+  1) copyrighted or used a non-BSD compatible license
 
   2) had too many dependencies and I wanted a free standing lib
 
