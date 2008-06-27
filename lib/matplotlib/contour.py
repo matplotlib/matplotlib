@@ -69,6 +69,7 @@ class ContourLabeler:
           *fmt*:
             a format string for the label. Default is '%1.3f'
 
+
         """
         fontsize = kwargs.get('fontsize', None)
         inline = kwargs.get('inline', 1)
@@ -892,4 +893,5 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             be removed. Chunking introduces artifacts at the chunk boundaries
             unless *antialiased* is *False*.
 
+        .. plot:: contour_demo.py
         """

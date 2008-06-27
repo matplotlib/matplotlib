@@ -2697,6 +2697,8 @@ class Axes(martist.Artist):
         Valid kwargs are :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
+
+        See :meth:`axhspan` for example plot and source code
         """
 
         ymin, ymax = self.get_ylim()
@@ -2747,6 +2749,8 @@ class Axes(martist.Artist):
         Valid kwargs are :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
+
+        See :meth:`axhspan` for example plot and source code
         """
 
         xmin, xmax = self.get_xlim()
@@ -2793,6 +2797,11 @@ class Axes(martist.Artist):
         Valid kwargs are :class:`~matplotlib.patches.Polygon` properties:
 
         %(Polygon)s
+
+        **Example:**
+
+        .. plot:: ../mpl_examples/pylab_examples/axhspan_demo.py
+
         """
         # convert y axis units
         trans = mtransforms.blended_transform_factory(
@@ -2836,6 +2845,8 @@ class Axes(martist.Artist):
         properties:
 
         %(Polygon)s
+
+        See :meth:`axhspan` for example plot and source code
         """
         # convert x axis units
         trans = mtransforms.blended_transform_factory(
@@ -3214,6 +3225,11 @@ class Axes(martist.Artist):
         :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
+
+        **Example:**
+
+        .. plot:: ../mpl_examples/pylab_examples/log_demo.py
+
         """
         if not self._hold: self.cla()
 
@@ -3262,6 +3278,8 @@ class Axes(martist.Artist):
         :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
+
+        See :meth:`loglog` for example code and figure
         """
         if not self._hold: self.cla()
         d = {'basex': kwargs.pop( 'basex', 10),
@@ -3303,6 +3321,8 @@ class Axes(martist.Artist):
         :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
+
+        See :meth:`loglog` for example code and figure
         """
         if not self._hold: self.cla()
         d = {'basey': kwargs.pop('basey', 10),
@@ -3371,6 +3391,8 @@ class Axes(martist.Artist):
         :func:`~matplotlib.pyplot.xcorr` above, and
         :func:`~matplotlib.pyplot.acorr` below.
 
+        **Example:**
+
         .. plot:: ../mpl_examples/pylab_examples/xcorr_demo.py
         """
         return self.xcorr(x, x, **kwargs)
@@ -3425,6 +3447,8 @@ class Axes(martist.Artist):
 
         :func:`~matplotlib.pyplot.xcorr` above, and
         :func:`~matplotlib.pyplot.acorr` below.
+
+        **Example:**
 
         .. plot:: ../mpl_examples/pylab_examples/xcorr_demo.py
         """
@@ -3565,6 +3589,10 @@ class Axes(martist.Artist):
           *axespad*: [ None | scalar ]
             The border between the axes and legend edge. If *None*, use rc
             settings.
+
+        **Example:**
+
+        .. plot:: legend_demo.py
         """
 
         def get_handles():
@@ -3724,9 +3752,7 @@ class Axes(martist.Artist):
 
         %(Rectangle)s
 
-        **Example:**
-
-        A stacked bar chart.
+        **Example:** A stacked bar chart.
 
         .. plot:: ../mpl_examples/pylab_examples/bar_stacked.py
         """
@@ -4295,6 +4321,11 @@ class Axes(martist.Artist):
         the third element is a list of
         :class:`~matplotlib.collections.LineCollection` instances for
         the horizontal and vertical error ranges.
+
+        **Example:**
+
+        .. plot:: errorbar_demo.py
+
         """
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
@@ -4496,6 +4527,9 @@ class Axes(martist.Artist):
         Returns a list of the :class:`matplotlib.lines.Line2D`
         instances added.
 
+        **Example:**
+
+        .. plot:: boxplot_demo.py
         """
         if not self._hold: self.cla()
         holdStatus = self._hold

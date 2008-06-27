@@ -1,26 +1,25 @@
-#!/usr/bin/env python
-from pylab import *
+import numpy as np
+import matplotlib.pyplot as plt
 
-dt = 0.01
-t = arange(dt, 20.0, dt)
+plt.subplots_adjust(hspace=0.4)
+t = np.arange(0.01, 20.0, 0.01)
 
-subplot(311)
-semilogy(t, exp(-t/5.0))
-ylabel('semilogy')
-grid(True)
+# log y axis
+plt.subplot(311)
+plt.semilogy(t, np.exp(-t/5.0))
+plt.ylabel('semilogy')
+plt.grid(True)
 
-subplot(312)
-semilogx(t, sin(2*pi*t))
-ylabel('semilogx')
+# log x axis
+plt.subplot(312)
+plt.semilogx(t, np.sin(2*np.pi*t))
+plt.ylabel('semilogx')
+plt.grid(True)
 
+# log x and y axis
+plt.subplot(313)
+plt.loglog(t, 20*np.exp(-t/10.0), basex=4)
+plt.grid(True)
+plt.ylabel('loglog base 4 on x')
 
-
-grid(True)
-gca().xaxis.grid(True, which='minor')  # minor grid on too
-
-subplot(313)
-loglog(t, 20*exp(-t/10.0), basex=4)
-grid(True)
-ylabel('loglog base 4 on x')
-savefig('log_demo')
-show()
+plt.show()
