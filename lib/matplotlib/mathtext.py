@@ -2087,7 +2087,7 @@ class Parser(object):
                          start_group
                        + ZeroOrMore(
                            autoDelim
-                         | simple)
+                         ^ simple)
                        + end_group
                      ).setParseAction(self.group).setName("group")
 
