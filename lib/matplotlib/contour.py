@@ -893,5 +893,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             be removed. Chunking introduces artifacts at the chunk boundaries
             unless *antialiased* is *False*.
 
+        **Example:**
+
         .. plot:: contour_demo.py
         """

@@ -43,7 +43,7 @@ options = {'alt': directives.unchanged,
 template = """
 .. htmlonly::
 
-   [`py <../%(srcdir)s/%(basename)s.py>`__,
+   [`source code <../%(srcdir)s/%(basename)s.py>`__,
    `png <../%(srcdir)s/%(basename)s.hires.png>`__,
    `pdf <../%(srcdir)s/%(basename)s.pdf>`__]
 
