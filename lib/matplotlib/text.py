@@ -745,8 +745,8 @@ class TextWithDash(Text):
 
     def get_position(self):
         "Return x, y as tuple"
-        x = float(self.convert_xunits(self._dashx))
-        y = float(self.convert_yunits(self._dashy))
+        x = float(self.convert_xunits(self._x))
+        y = float(self.convert_yunits(self._y))
         return x, y
 
     def get_prop_tup(self):

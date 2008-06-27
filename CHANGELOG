@@ -1,3 +1,6 @@
+2008-06-27 Fix dashed text bug where text was at the wrong end of the
+           dash - MGD
+
 2008-06-26 Fix mathtext bug for expressions like $x_{\leftarrow}$ - MGD
 
 2008-06-26 Fix direction of horizontal/vertical hatches - MGD
