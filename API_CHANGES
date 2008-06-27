@@ -55,6 +55,11 @@ TRANSFORMS REFACTORING
     See transforms.py for a description of the design of the new
     transformation framework.
 
+    For efficiency, many of these functions return views into Numpy
+    arrays.  This means that if you hold on to a reference to them,
+    their contents may change.  If you want to store a snapshot of
+    their current values, use the Numpy array method copy().
+
     The view intervals are now stored only in one place -- in the Axes
     instance, not in the formatter instances as well.  This means
     formatters must get their limits from their Axis, which in turn
@@ -121,6 +126,8 @@ TRANSFORMS REFACTORING
       Transform.seq_xy_tup(points)		Transform.transform(points)
 
       Transform.inverse_xy_tup(points)		Transform.inverted().transform(points)
+
+      offset_copy(trans, x, y)                  trans + Affine2D().translate(x, y)
 
     axes.py
       Axes.get_position()			Axes.get_position()
