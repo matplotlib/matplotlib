@@ -1,3 +1,5 @@
+2008-06-26 Fix mathtext bug for expressions like $x_{\leftarrow}$ - MGD
+
 2008-06-26 Fix direction of horizontal/vertical hatches - MGD
 
 ===============================================================
