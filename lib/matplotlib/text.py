@@ -939,7 +939,8 @@ class TextWithDash(Text):
 
         ACCEPTS: float
         """
-        self._dashx = float(x)
+        self._x = float(x)
+        self._dashx = self._x
 
     def set_y(self, y):
         """
@@ -947,7 +948,8 @@ class TextWithDash(Text):
 
         ACCEPTS: float
         """
-        self._dashy = float(y)
+        self._y = float(y)
+        self._dashy = self._y
 
     def set_transform(self, t):
         """
