@@ -745,8 +745,8 @@ class TextWithDash(Text):
 
     def get_position(self):
         "Return x, y as tuple"
-        x = float(self.convert_xunits(self._x))
-        y = float(self.convert_yunits(self._y))
+        x = float(self.convert_xunits(self._dashx))
+        y = float(self.convert_yunits(self._dashy))
         return x, y
 
     def get_prop_tup(self):
@@ -939,8 +939,7 @@ class TextWithDash(Text):
 
         ACCEPTS: float
         """
-        self._x = float(x)
-        self._dashx = self._x
+        self._dashx = float(x)
 
     def set_y(self, y):
         """
@@ -948,8 +947,7 @@ class TextWithDash(Text):
 
         ACCEPTS: float
         """
-        self._y = float(y)
-        self._dashy = self._y
+        self._dashy = float(y)
 
     def set_transform(self, t):
         """
