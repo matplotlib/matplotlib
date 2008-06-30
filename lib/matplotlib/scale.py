@@ -134,7 +134,7 @@ class LogScale(ScaleBase):
             return ma.power(np.e, a) / np.e
 
         def inverted(self):
-            return LogScale.Log2Transform()
+            return LogScale.NaturalLogTransform()
 
     class LogTransform(Transform):
         input_dims = 1
