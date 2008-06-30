@@ -1,3 +1,5 @@
+2008-06-30 Another attempt to fix TextWithDash - DSD
+
 2008-06-30 Removed Qt4 NavigationToolbar2.destroy -- it appears to 
            have been unnecessary and caused a bug reported by P. 
            Raybaut - DSD 

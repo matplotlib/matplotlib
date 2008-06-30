@@ -298,7 +298,12 @@ class Text(Artist):
 
         bbox, info = self._get_layout(renderer)
         trans = self.get_transform()
-        posx, posy = self.get_position()
+
+        # don't use self.get_position here, which refers to text position
+        # in Text, and dash position in TextWithDash:
+        posx = float(self.convert_xunits(self._x))
+        posy = float(self.convert_yunits(self._y))
+
         posx, posy = trans.transform_point((posx, posy))
         canvasw, canvash = renderer.get_canvas_width_height()
 
