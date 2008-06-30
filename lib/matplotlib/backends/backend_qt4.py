@@ -311,13 +311,6 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         # reference holder for subplots_adjust window
         self.adj_window = None
 
-    def destroy( self ):
-        for text, tooltip_text, image_file, callback in self.toolitems:
-            if text is not None:
-                QtCore.QObject.disconnect( self.buttons[ text ],
-                                           QtCore.SIGNAL( 'clicked()' ),
-                                           getattr( self, callback ) )
-
     def dynamic_update( self ):
         self.canvas.draw()
 

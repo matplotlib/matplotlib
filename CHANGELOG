@@ -1,3 +1,7 @@
+2008-06-30 Removed Qt4 NavigationToolbar2.destroy -- it appears to 
+           have been unnecessary and caused a bug reported by P. 
+           Raybaut - DSD 
+
 2008-06-27 Fixed tick positioning bug - MM
 
 2008-06-27 Fix dashed text bug where text was at the wrong end of the
