@@ -24,7 +24,7 @@ class Path(object):
 
     These two arrays always have the same length in the first
     dimension.  For example, to represent a cubic curve, you must
-    provide three vertices as well as three codes "CURVE3".
+    provide three vertices as well as three codes ``CURVE3``.
 
     The code types are:
 
@@ -53,8 +53,8 @@ class Path(object):
     Users of Path objects should not access the vertices and codes
     arrays directly.  Instead, they should use :meth:`iter_segments`
     to get the vertex/code pairs.  This is important, since many
-    :class:`Path`s, as an optimization, do not store a codes array at
-    all, but have a default one provided for them by
+    :class:`Path` objects, as an optimization, do not store a *codes*
+    at all, but have a default one provided for them by
     :meth:`iter_segments`.
     """
 
@@ -168,16 +168,16 @@ class Path(object):
         if not len(vertices):
             return
 
-        codes = self.codes
+        codes        = self.codes
         len_vertices = len(vertices)
-        isnan = np.isnan
-        any = np.any
+        isnan        = np.isnan
+        any          = np.any
 
         NUM_VERTICES = self.NUM_VERTICES
-        MOVETO = self.MOVETO
-        LINETO = self.LINETO
-        CLOSEPOLY = self.CLOSEPOLY
-        STOP = self.STOP
+        MOVETO       = self.MOVETO
+        LINETO       = self.LINETO
+        CLOSEPOLY    = self.CLOSEPOLY
+        STOP         = self.STOP
 
         if codes is None:
             next_code = MOVETO
