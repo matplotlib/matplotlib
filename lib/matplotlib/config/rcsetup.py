@@ -83,6 +83,10 @@ validate_toolbar = ValidateInStrings('toolbar',[
     'None','classic','toolbar2',
     ], ignorecase=True)
 
+def validate_autolayout(v):
+    if v:
+        warnings.warn("figure.autolayout is not currently supported")
+
 class validate_nseq_float:
     def __init__(self, n):
         self.n = n
@@ -439,6 +443,7 @@ defaultParams = {
     'figure.dpi'        : [80, validate_float],   # DPI
     'figure.facecolor'  : ['0.75', validate_color], # facecolor; scalar gray
     'figure.edgecolor'  : ['w', validate_color],  # edgecolor; white
+    'figure.autolayout' : [False, validate_autolayout],
 
     'figure.subplot.left'   : [0.125, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
     'figure.subplot.right'  : [0.9, ValidateInterval(0, 1, closedmin=False, closedmax=False)],
