@@ -3,32 +3,32 @@
 # This is a sample matplotlib configuration file.  It should be placed
 # in HOME/.matplotlib (unix/linux like systems) and
 # C:\Documents and Settings\yourname\.matplotlib (win32 systems)
-# 
+#
 # By default, the installer will overwrite the existing file in the install
 # path, so if you want to preserve yours, please move it to your HOME dir and
 # set the environment variable if necessary.
-# 
+#
 # This file is best viewed in a editor which supports ini or conf mode syntax
 # highlighting.
-# 
+#
 # Blank lines, or lines starting with a comment symbol, are ignored,
 # as are trailing comments.  Other lines must have the format
-# 
+#
 #   key = val   optional comment
-# 
+#
 # val should be valid python syntax, just as you would use when setting
 # properties using rcParams. This should become more obvious by inspecting
 # the default values listed herein.
-# 
+#
 # Colors: for the color values below, you can either use
 #  - a matplotlib color string, such as r | k | b
 #  - an rgb tuple, such as (1.0, 0.5, 0.0)
 #  - a hex string, such as #ff00ff or ff00ff
 #  - a scalar grayscale intensity such as 0.75
 #  - a legal html color name, eg red | blue | darkslategray
-# 
+#
 # Interactivity: see http://matplotlib.sourceforge.net/interactive.html.
-# 
+#
 # ### CONFIGURATION BEGINS HERE ###
 
 # a value of type 'str'
@@ -42,7 +42,7 @@ numerix = 'numpy'
 # 'Africa/Abidjan' or 'Africa/Accra' or 'Africa/Addis_Ababa' or
 # 'Africa/Algiers' or 'Africa/Asmara' or 'Africa/Asmera' or 'Africa/Bamako' or
 # 'Africa/Bangui' or 'Africa/Banjul' or 'Africa/Bissau' or 'Africa/Blantyre'
-#  <...snipped 156 lines...> 
+#  <...snipped 156 lines...>
 # 'US/Michigan' or 'US/Mountain' or 'US/Pacific' or 'US/Pacific-New' or
 # 'US/Samoa' or 'UTC' or 'Universal' or 'W-SU' or 'WET' or 'Zulu' or
 # 'posixrules'
@@ -145,8 +145,6 @@ units = False
     negative_linestyle = 'dashed'
 
 [figure]
-    # a boolean
-    autolayout = False
     # a float
     dpi = 80
     # any valid matplotlib color, eg an abbreviation like 'r' for red, a full
@@ -219,7 +217,7 @@ units = False
     # 'Accent' or 'Accent_r' or 'Blues' or 'Blues_r' or 'BrBG' or 'BrBG_r' or
     # 'BuGn' or 'BuGn_r' or 'BuPu' or 'BuPu_r' or 'Dark2' or 'Dark2_r' or
     # 'GnBu' or 'GnBu_r' or 'Greens' or 'Greens_r' or 'Greys' or 'Greys_r' or
-    #  <...snipped 16 lines...> 
+    #  <...snipped 16 lines...>
     # 'pink_r' or 'prism' or 'prism_r' or 'spectral' or 'spectral_r' or
     # 'spring' or 'spring_r' or 'summer' or 'summer_r' or 'winter' or
     # 'winter_r'
