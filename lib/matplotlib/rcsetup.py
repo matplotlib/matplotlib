@@ -14,6 +14,7 @@ parameter set listed here should also be visited to the
 """
 
 import os
+import warnings
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
@@ -108,6 +109,10 @@ validate_numerix = ValidateInStrings('numerix',[
 validate_toolbar = ValidateInStrings('toolbar',[
     'None','classic','toolbar2',
     ], ignorecase=True)
+
+def validate_autolayout(v):
+    if v:
+        warnings.warn("figure.autolayout is not currently supported")
 
 class validate_nseq_float:
     def __init__(self, n):
@@ -449,6 +454,7 @@ defaultParams = {
     'figure.dpi'        : [ 80, validate_float],   # DPI
     'figure.facecolor'  : [ '0.75', validate_color], # facecolor; scalar gray
     'figure.edgecolor'  : [ 'w', validate_color],  # edgecolor; white
+    'figure.autolayout' : [ False, validate_autolayout],
 
     'figure.subplot.left'   : [0.125, ValidateInterval(0, 1, closedmin=True, closedmax=True)],
     'figure.subplot.right'  : [0.9, ValidateInterval(0, 1, closedmin=True, closedmax=True)],
