@@ -375,11 +375,11 @@ The following dimensions are in axes coords
 
         for handle in ax.collections:
             if isinstance(handle, LineCollection):
-                hlines = handle.get_lines()
+                hlines = handle._segments
                 trans = handle.get_transform()
                 for line in hlines:
                     tline = trans.seq_xy_tups(line)
-                    aline = [inv(v) for v in tline]
+                    aline = [inv(tuple(v)) for v in tline]
                     lines.append(aline)
 
         return [vertices, bboxes, lines]
