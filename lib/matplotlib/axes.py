@@ -3592,7 +3592,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: legend_demo.py
+        .. plot:: ../mpl_examples/api/legend_demo.py
         """
 
         def get_handles():
