@@ -1030,7 +1030,7 @@ class Grouper(object):
     >>> g.join('a', 'b')
     >>> g.join('b', 'c')
     >>> g.join('d', 'e')
-    >>> list(g.get())
+    >>> list(g)
     [['a', 'b', 'c'], ['d', 'e']]
     >>> g.joined('a', 'b')
     True
@@ -1079,13 +1079,24 @@ class Grouper(object):
 
     def __iter__(self):
         """
-        Returns an iterator yielding each of the disjoint sets as a list.
+        Iterate over each of the disjoint sets as a list.
+
+        The iterator is invalid if interleaved with calls to join().
         """
-        seen = set()
-        for elem, group in self._mapping.iteritems():
-            if elem not in seen:
+        class Token: pass
+        token = Token()
+
+        # Mark each group as we come across if by appending a token,
+        # and don't yield it twice
+        for group in self._mapping.itervalues():
+            if not group[-1] is token:
                 yield group
-                seen.update(group)
+                group.append(token)
+
+        # Cleanup the tokens
+        for group in self._mapping.itervalues():
+            if group[-1] is token:
+                del group[-1]
 
     def get_siblings(self, a):
         """
