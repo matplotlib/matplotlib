@@ -1,3 +1,6 @@
+"""
+Recursuvely find all objects that match some criteria
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.text as text
