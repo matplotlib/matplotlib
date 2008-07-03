@@ -90,6 +90,20 @@ Py::Object BufferRegion::to_string(const Py::Tuple &args) {
   return Py::String(PyString_FromStringAndSize((const char*)data, height*stride), true);
 }
 
+Py::Object BufferRegion::set_x(const Py::Tuple &args) {
+    args.verify_length(1);
+    size_t x = Py::Int( args[0] );
+    rect.x1 = x;
+    return Py::Object();
+}
+
+Py::Object BufferRegion::set_y(const Py::Tuple &args) {
+    args.verify_length(1);
+    size_t y = Py::Int( args[0] );
+    rect.y1 = y;
+    return Py::Object();
+}
+
 Py::Object BufferRegion::to_string_argb(const Py::Tuple &args) {
   // owned=true to prevent memory leak
   Py_ssize_t length;
@@ -1607,6 +1621,13 @@ Py::Object _backend_agg_module::new_renderer (const Py::Tuple &args,
 void BufferRegion::init_type() {
   behaviors().name("BufferRegion");
   behaviors().doc("A wrapper to pass agg buffer objects to and from the python level");
+
+
+  add_varargs_method("set_x", &BufferRegion::set_x,
+		     "set_x(x)");
+
+  add_varargs_method("set_y", &BufferRegion::set_y,
+		     "set_y(y)");
 
   add_varargs_method("to_string", &BufferRegion::to_string,
 		     "to_string()");

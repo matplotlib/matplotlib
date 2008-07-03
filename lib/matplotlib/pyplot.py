@@ -202,6 +202,14 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
                                              frameon=frameon,
                                              FigureClass=FigureClass,
                                              **kwargs)
+
+        # make this figure current on button press event
+        def make_active(event):
+            _pylab_helpers.Gcf.set_active(figManager)
+
+        cid = figManager.canvas.mpl_connect('button_press_event', make_active)
+        figManager._cidgcf = cid
+
         _pylab_helpers.Gcf.set_active(figManager)
         figManager.canvas.figure.number = num
 
@@ -252,17 +260,21 @@ def close(*args):
     if len(args)==0:
         figManager = _pylab_helpers.Gcf.get_active()
         if figManager is None: return
-        else: _pylab_helpers.Gcf.destroy(figManager.num)
+        else:
+            figManager.canvas.mpl_disconnect(figManager._cidgcf)
+            _pylab_helpers.Gcf.destroy(figManager.num)
     elif len(args)==1:
         arg = args[0]
         if arg=='all':
             for manager in _pylab_helpers.Gcf.get_all_fig_managers():
+                manager.canvas.mpl_disconnect(manager._cidgcf)
                 _pylab_helpers.Gcf.destroy(manager.num)
         elif isinstance(arg, int):
             _pylab_helpers.Gcf.destroy(arg)
         elif isinstance(arg, Figure):
             for manager in _pylab_helpers.Gcf.get_all_fig_managers():
                 if manager.canvas.figure==arg:
+                    manager.canvas.mpl_disconnect(manager._cidgcf)
                     _pylab_helpers.Gcf.destroy(manager.num)
         else:
             raise TypeError('Unrecognized argument type %s to close'%type(arg))
