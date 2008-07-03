@@ -363,6 +363,12 @@ The following dimensions are in axes coords
         'b is a boolean.  Set draw frame to b'
         self._drawFrame = b
 
+    def get_children(self):
+        children = []
+        children.extend(self.legendHandles)
+        children.extend(self.texts)
+        return children
+
     def get_frame(self):
         'return the Rectangle instance used to frame the legend'
         return self.legendPatch

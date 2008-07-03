@@ -38,6 +38,7 @@ _Plotting commands
   figtext   - add text in figure coords
   figure   - create or change active figure
   fill     - make filled polygons
+  findobj  - recursively find all objects matching some criteria
   gca      - return the current axes
   gcf      - return the current figure
   gci      - get the current image, or None

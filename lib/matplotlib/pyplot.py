@@ -38,6 +38,29 @@ from ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
 from matplotlib.backends import pylab_setup
 new_figure_manager, draw_if_interactive, show = pylab_setup()
 
+
+
+def findobj(o=None, match=None):
+    """
+    recursively find all :class:matplotlib.artist.Artist instances
+    contained in artist instance *p*.  if *o* is None, use
+    current figure
+
+    *match* can be
+
+      - None: return all objects contained in artist (including artist)
+
+      - function with signature ``boolean = match(artist)`` used to filter matches
+
+      - class instance: eg Line2D.  Only return artists of class type
+
+    """
+
+    if o is None:
+        o = gcf()
+    return o.findobj(match)
+
+
 def switch_backend(newbackend):
     """
     Switch the default backend to newbackend.  This feature is

@@ -508,6 +508,46 @@ class Artist(object):
             ret.extend( [func(v)] )
         return ret
 
+    def findobj(self, match=None):
+        """
+        recursively find all :class:matplotlib.artist.Artist instances
+        contained in self
+
+        *match* can be
+
+          - None: return all objects contained in artist (including artist)
+
+          - function with signature ``boolean = match(artist)`` used to filter matches
+
+          - class instance: eg Line2D.  Only return artists of class type
+        """
+
+        if match is None: # always return True
+            def matchfunc(x): return True
+        elif cbook.issubclass_safe(match, Artist):
+            def matchfunc(x):
+                return isinstance(x, match)
+        elif callable(match):
+            matchfunc = match
+        else:
+            raise ValueError('match must be None, an matplotlib.artist.Artist subclass, or a callable')
+
+
+        artists = []
+        if hasattr(self, 'get_children'):
+            for c in self.get_children():
+                if matchfunc(c):
+                    artists.append(c)
+                artists.extend([thisc for thisc in c.findobj(matchfunc) if matchfunc(thisc)])
+        else:
+            if matchfunc(self):
+                artists.append(self)
+        return artists
+
+
+
+
+
 
 class ArtistInspector:
     """
@@ -688,6 +728,48 @@ class ArtistInspector:
             name = self.aliased_name(name[4:])
             lines.append('    %s = %s' %(name, s))
         return lines
+
+
+
+    def findobj(self, match=None):
+        """
+        recursively find all :class:matplotlib.artist.Artist instances
+        contained in self
+
+        if *match* is not None, it can be
+
+          - function with signature ``boolean = match(artist)``
+
+          - class instance: eg Line2D
+
+        used to filter matches
+        """
+
+        if match is None: # always return True
+            def matchfunc(x): return True
+        elif issubclass(match, Artist):
+            def matchfunc(x):
+                return isinstance(x, match)
+        elif callable(match):
+            matchfunc = func
+        else:
+            raise ValueError('match must be None, an matplotlib.artist.Artist subclass, or a callable')
+
+
+        artists = []
+        if hasattr(self, 'get_children'):
+            for c in self.get_children():
+                if matchfunc(c):
+                    artists.append(c)
+                artists.extend([thisc for thisc in c.findobj(matchfunc) if matchfunc(thisc)])
+        else:
+            if matchfunc(self):
+                artists.append(self)
+        return artists
+
+
+
+
 
 
 def getp(o, property=None):

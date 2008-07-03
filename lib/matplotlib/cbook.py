@@ -886,6 +886,13 @@ def safezip(*args):
             raise ValueError(_safezip_msg % (Nx, i+1, len(arg)))
     return zip(*args)
 
+def issubclass_safe(x, klass):
+    'return issubclass(x, klass) and return False on a TypeError'
+
+    try:
+        return issubclass(x, klass)
+    except TypeError:
+        return False
 
 class MemoryMonitor:
     def __init__(self, nmax=20000):

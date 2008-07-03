@@ -1,3 +1,6 @@
+2007-07-03 Implemented findobj method for artist and pyplot - see
+           examples/pylab_examples/findobj_demo.py - JDH
+
 2008-06-30 Another attempt to fix TextWithDash - DSD
 
 2008-06-30 Removed Qt4 NavigationToolbar2.destroy -- it appears to 
