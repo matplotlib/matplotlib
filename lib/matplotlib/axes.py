@@ -813,7 +813,8 @@ class Axes(martist.Artist):
         a.set_figure(self.figure)
         if not a.is_transform_set():
             a.set_transform(self.transData)
-        a.axes = self
+
+        a.set_axes(self)
 
     def _gen_axes_patch(self):
         """

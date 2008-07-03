@@ -102,6 +102,10 @@ public:
 
   bool freemem;
 
+  // set the x and y corners of the rectangle
+  Py::Object set_x(const Py::Tuple &args);
+  Py::Object set_y(const Py::Tuple &args);
+
   Py::Object to_string(const Py::Tuple &args);
   Py::Object to_string_argb(const Py::Tuple &args);
   static void init_type(void);

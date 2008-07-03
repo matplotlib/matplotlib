@@ -2,15 +2,15 @@
 
 import os, sys, time, gc
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('PDF')
 
 from matplotlib.cbook import report_memory
-import matplotlib.numerix as nx
+import numpy as np
 from pylab import figure, show, close
 
 # take a memory snapshot on indStart and compare it with indEnd
 
-rand = nx.mlab.rand
+rand = np.mlab.rand
 
 indStart, indEnd = 200, 401
 for i in range(indEnd):
@@ -19,8 +19,8 @@ for i in range(indEnd):
     fig.clf()
 
 
-    t1 = nx.arange(0.0, 2.0, 0.01)
-    y1 = nx.sin(2*nx.pi*t1)
+    t1 = np.arange(0.0, 2.0, 0.01)
+    y1 = np.sin(2*np.pi*t1)
     y2 = rand(len(t1))
     X = rand(50,50)
 
