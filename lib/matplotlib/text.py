@@ -135,17 +135,15 @@ class Text(Artist):
         """
         if callable(self._contains): return self._contains(self,mouseevent)
 
-        try:
-            l,b,w,h = self.get_window_extent().get_bounds()
-        except:
-            # TODO: why does this error occur
-            #print str(self),"error looking at get_window_extent"
-            return False,{}
+
+        l,b,w,h = self.get_window_extent().bounds
+
         r = l+w
         t = b+h
         xyverts = (l,b), (l, t), (r, t), (r, b)
         x, y = mouseevent.x, mouseevent.y
         inside = nxutils.pnpoly(x, y, xyverts)
+
         return inside,{}
 
     def _get_xy_display(self):
