@@ -86,6 +86,7 @@ def makefig(fullpath, outdir):
 
     print '    building %s'%fullpath
     plt.close('all')    # we need to clear between runs
+    matplotlib.rcdefaults()
 
     mplshell.magic_run(fullpath)
     for format, dpi in formats:
