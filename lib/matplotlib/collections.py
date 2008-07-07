@@ -512,14 +512,24 @@ class QuadMesh(Collection):
         if clippath_trans is not None:
             clippath_trans = clippath_trans.frozen()
 
-        assert transform.is_affine
+        if not transform.is_affine:
+            coordinates = self._coordinates.reshape(
+                (self._coordinates.shape[0] *
+                 self._coordinates.shape[1],
+                 2))
+            coordinates = transform.transform(coordinates)
+            coordinates = coordinates.reshape(self._coordinates.shape)
+            transform = transforms.IdentityTransform()
+        else:
+            coordinates = self._coordinates
+
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
         renderer.draw_quad_mesh(
             transform.frozen(), self.clipbox, clippath, clippath_trans,
-            self._meshWidth, self._meshHeight, self._coordinates,
+            self._meshWidth, self._meshHeight, coordinates,
             offsets, transOffset, self._facecolors, self._antialiased,
             self._showedges)
         renderer.close_group(self.__class__.__name__)
