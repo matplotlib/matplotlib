@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.mlab as mlab
 
 
-r = mlab.csv2rec('data/aapl.csv')
+r = mlab.csv2rec('../data/aapl.csv')
 r.sort()
 r1 = r[-10:]
 
