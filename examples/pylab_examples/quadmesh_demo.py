@@ -29,6 +29,8 @@ fig = figure()
 ax = fig.add_subplot(121)
 ax.set_axis_bgcolor("#bdb76b")
 ax.pcolormesh(Qx,Qz,Z)
+ax.set_xscale('log')
+ax.set_yscale('log')
 ax.set_title('Without masked values')
 
 ax = fig.add_subplot(122)
