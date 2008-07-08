@@ -1167,7 +1167,7 @@ SCRIPT_SPACE    = 0.2
 # Percentage of x-height that sub/superscripts drop below the baseline
 SUBDROP         = 0.3
 # Percentage of x-height that superscripts drop below the baseline
-SUP1            = 0.7
+SUP1            = 0.5
 # Percentage of x-height that subscripts drop below the baseline
 SUB1            = 0.0
 # Percentage of x-height that superscripts are offset relative to the subscript
