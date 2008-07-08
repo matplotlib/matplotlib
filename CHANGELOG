@@ -1,3 +1,5 @@
+2008-07-08 Improve mathtext superscript placement - MGD
+
 2008-07-07 Fix custom scales in pcolormesh (thanks Matthew Turk) - MGD
 
 2008-07-03 Implemented findobj method for artist and pyplot - see
