@@ -127,7 +127,7 @@ class GeoAxes(Axes):
     def get_yaxis_text2_transform(self, pad):
         return self._yaxis_text2_transform, 'center', 'left'
 
-    def get_axes_patch(self):
+    def _gen_axes_patch(self):
         return Circle((0.5, 0.5), 0.5)
 
     def set_yscale(self, *args, **kwargs):
