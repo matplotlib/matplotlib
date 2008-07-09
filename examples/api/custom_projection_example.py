@@ -217,7 +217,7 @@ class HammerAxes(Axes):
         """
         return self._yaxis_text2_transform, 'center', 'left'
 
-    def get_axes_patch(self):
+    def _gen_axes_patch(self):
         """
         Override this method to define the shape that is used for the
         background of the plot.  It should be a subclass of Patch.
