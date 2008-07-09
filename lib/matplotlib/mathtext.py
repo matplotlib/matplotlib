@@ -322,7 +322,13 @@ class MathtextBackendAggRender(MathtextBackend):
             self.image, ox, oy - info.metrics.ymax, info.glyph)
 
     def render_rect_filled(self, x1, y1, x2, y2):
-        self.image.draw_rect_filled(x1, y1, x2, max(y2 - 1, y1))
+        height = max(int(y2 - y1) - 1, 0)
+        if height == 0:
+            center = (y2 + y1) / 2.0
+            y = int(center - (height + 1) / 2.0)
+        else:
+            y = int(y1)
+        self.image.draw_rect_filled(int(x1), y, ceil(x2), y + height)
 
     def get_results(self, box):
         return (self.ox,
@@ -481,8 +487,8 @@ class Fonts(object):
         to be destroyed."""
         self.used_characters = None
 
-    def get_kern(self, font1, sym1, fontsize1,
-                 font2, sym2, fontsize2, dpi):
+    def get_kern(self, font1, fontclass1, sym1, fontsize1,
+                 font2, fontclass2, sym2, fontsize2, dpi):
         """
         Get the kerning distance for font between sym1 and sym2.
 
@@ -670,7 +676,8 @@ class TruetypeFonts(Fonts):
             info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
             return font.get_kerning(info1.num, info2.num, KERNING_DEFAULT) / 64.0
-        return 0.0
+        return Fonts.get_kern(self, font1, fontclass1, sym1, fontsize1,
+                              font2, fontclass2, sym2, fontsize2, dpi)
 
 class BakomaFonts(TruetypeFonts):
     """
@@ -1123,7 +1130,8 @@ class StandardPsFonts(Fonts):
             font = info1.font
             return (font.get_kern_dist(info1.glyph, info2.glyph)
                     * 0.001 * fontsize1)
-        return 0.0
+        return Fonts.get_kern(self, font1, fontclass1, sym1, fontsize1,
+                              font2, fontclass2, sym2, fontsize2, dpi)
 
     def get_xheight(self, font, fontsize, dpi):
         cached_font = self._get_font(font)
@@ -1432,6 +1440,19 @@ class Hlist(List):
                     kern = Kern(kerning_distance)
                     new_children.append(kern)
             self.children = new_children
+
+    # This is a failed experiment to fake cross-font kerning.
+#     def get_kerning(self, next):
+#         if len(self.children) >= 2 and isinstance(self.children[-2], Char):
+#             if isinstance(next, Char):
+#                 print "CASE A"
+#                 return self.children[-2].get_kerning(next)
+#             elif isinstance(next, Hlist) and len(next.children) and isinstance(next.children[0], Char):
+#                 print "CASE B"
+#                 result = self.children[-2].get_kerning(next.children[0])
+#                 print result
+#                 return result
+#         return 0.0
 
     def hpack(self, w=0., m='additional'):
         """The main duty of hpack is to compute the dimensions of the
@@ -2593,13 +2614,6 @@ class Parser(object):
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
 
-        if root is None:
-            root = Box(0., 0., 0.)
-        else:
-            root = Hlist([Char(x, state) for x in root])
-            root.shrink()
-            root.shrink()
-
         # Determine the height of the body, and add a little extra to
         # the height so it doesn't seem cramped
         height = body.height - body.shift_amount + thickness * 5.0
@@ -2616,10 +2630,18 @@ class Parser(object):
                            Fill(),
                            padded_body])
         # Stretch the glue between the hrule and the body
-        rightside.vpack(height + 1.0, depth, 'exactly')
+        rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
+                        depth, 'exactly')
 
         # Add the root and shift it upward so it is above the tick.
         # The value of 0.6 is a hard-coded hack ;)
+        if root is None:
+            root = Box(check.width * 0.5, 0., 0.)
+        else:
+            root = Hlist([Char(x, state) for x in root])
+            root.shrink()
+            root.shrink()
+
         root_vlist = Vlist([Hlist([root])])
         root_vlist.shift_amount = -height * 0.6
 
