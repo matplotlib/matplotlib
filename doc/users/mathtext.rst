@@ -260,7 +260,7 @@ to the width of the symbols below:
     ============================== =================================
 
 Care should be taken when putting accents on lower-case i's and j's.
-Note that in the following ``\mathi`` is used to avoid the extra dot
+Note that in the following ``\imath`` is used to avoid the extra dot
 over the i::
 
     r"$\hat i\ \ \hat \imath$"
