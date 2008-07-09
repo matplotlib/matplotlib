@@ -190,7 +190,7 @@ from matplotlib.pyparsing import Literal, Word, OneOrMore, ZeroOrMore, Combine, 
 
 from matplotlib.afm import AFM
 from matplotlib.cbook import enumerate, iterable, Bunch, get_realpath_and_stat, \
-    is_string_like
+    is_string_like, maxdict
 from matplotlib.ft2font import FT2Font, FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, \
@@ -318,7 +318,13 @@ class MathtextBackendAggRender(MathtextBackend):
             self.image, ox, oy - info.metrics.ymax, info.glyph)
 
     def render_rect_filled(self, x1, y1, x2, y2):
-        self.image.draw_rect_filled(x1, y1, x2, max(y2 - 1, y1))
+        height = max(int(y2 - y1) - 1, 0)
+        if height == 0:
+            center = (y2 + y1) / 2.0
+            y = int(center - (height + 1) / 2.0)
+        else:
+            y = int(y1)
+        self.image.draw_rect_filled(int(x1), y, ceil(x2), y + height)
 
     def get_results(self, box):
         return (self.ox,
@@ -477,8 +483,8 @@ class Fonts(object):
         to be destroyed."""
         self.used_characters = None
 
-    def get_kern(self, font1, sym1, fontsize1,
-                 font2, sym2, fontsize2, dpi):
+    def get_kern(self, font1, fontclass1, sym1, fontsize1,
+                 font2, fontclass2, sym2, fontsize2, dpi):
         """
         Get the kerning distance for font between sym1 and sym2.
 
@@ -666,7 +672,8 @@ class TruetypeFonts(Fonts):
             info2 = self._get_info(font2, fontclass2, sym2, fontsize2, dpi)
             font = info1.font
             return font.get_kerning(info1.num, info2.num, KERNING_DEFAULT) / 64.0
-        return 0.0
+        return Fonts.get_kern(self, font1, fontclass1, sym1, fontsize1,
+                              font2, fontclass2, sym2, fontsize2, dpi)
 
 class BakomaFonts(TruetypeFonts):
     """
@@ -1121,7 +1128,8 @@ class StandardPsFonts(Fonts):
             font = info1.font
             return (font.get_kern_dist(info1.glyph, info2.glyph)
                     * 0.001 * fontsize1)
-        return 0.0
+        return Fonts.get_kern(self, font1, fontclass1, sym1, fontsize1,
+                              font2, fontclass2, sym2, fontsize2, dpi)
 
     def get_xheight(self, font, fontsize, dpi):
         cached_font = self._get_font(font)
@@ -1431,6 +1439,19 @@ class Hlist(List):
                     new_children.append(kern)
             self.children = new_children
 
+    # This is a failed experiment to fake cross-font kerning.
+#     def get_kerning(self, next):
+#         if len(self.children) >= 2 and isinstance(self.children[-2], Char):
+#             if isinstance(next, Char):
+#                 print "CASE A"
+#                 return self.children[-2].get_kerning(next)
+#             elif isinstance(next, Hlist) and len(next.children) and isinstance(next.children[0], Char):
+#                 print "CASE B"
+#                 result = self.children[-2].get_kerning(next.children[0])
+#                 print result
+#                 return result
+#         return 0.0
+
     def hpack(self, w=0., m='additional'):
         """The main duty of hpack is to compute the dimensions of the
         resulting boxes, and to adjust the glue if one of those dimensions is
@@ -1442,8 +1463,8 @@ class Hlist(List):
         w: specifies a width
         m: is either 'exactly' or 'additional'.
 
-        Thus, hpack(w, exactly) produces a box whose width is exactly w, while
-        hpack (w, additional ) yields a box whose width is the natural width
+        Thus, hpack(w, 'exactly') produces a box whose width is exactly w, while
+        hpack (w, 'additional') yields a box whose width is the natural width
         plus w.  The default values produce a box with the natural width.
         node644, node649"""
         # I don't know why these get reset in TeX.  Shift_amount is pretty
@@ -1506,8 +1527,8 @@ class Vlist(List):
         m: is either 'exactly' or 'additional'.
         l: a maximum height
 
-        Thus, vpack(h, exactly) produces a box whose width is exactly w, while
-        vpack(w, additional) yields a box whose width is the natural width
+        Thus, vpack(h, 'exactly') produces a box whose width is exactly w, while
+        vpack(w, 'additional') yields a box whose width is the natural width
         plus w.  The default values produce a box with the natural width.
         node644, node668"""
         # I don't know why these get reset in TeX.  Shift_amount is pretty
@@ -2603,13 +2624,6 @@ class Parser(object):
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
 
-        if root is None:
-            root = Box(0., 0., 0.)
-        else:
-            root = Hlist([Char(x, state) for x in root])
-            root.shrink()
-            root.shrink()
-
         # Determine the height of the body, and add a little extra to
         # the height so it doesn't seem cramped
         height = body.height - body.shift_amount + thickness * 5.0
@@ -2626,10 +2640,18 @@ class Parser(object):
                            Fill(),
                            padded_body])
         # Stretch the glue between the hrule and the body
-        rightside.vpack(height + 1.0, depth, 'exactly')
+        rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
+                        depth, 'exactly')
 
         # Add the root and shift it upward so it is above the tick.
         # The value of 0.6 is a hard-coded hack ;)
+        if root is None:
+            root = Box(check.width * 0.5, 0., 0.)
+        else:
+            root = Hlist([Char(x, state) for x in root])
+            root.shrink()
+            root.shrink()
+
         root_vlist = Vlist([Hlist([root])])
         root_vlist.shift_amount = -height * 0.6
 
@@ -2673,12 +2695,12 @@ class MathTextParser(object):
     _parser = None
 
     _backend_mapping = {
-        'Bitmap': MathtextBackendBitmap,
-        'Agg'   : MathtextBackendAgg,
-        'PS'    : MathtextBackendPs,
-        'Pdf'   : MathtextBackendPdf,
-        'SVG'   : MathtextBackendSvg,
-        'Cairo' : MathtextBackendCairo
+        'bitmap': MathtextBackendBitmap,
+        'agg'   : MathtextBackendAgg,
+        'ps'    : MathtextBackendPs,
+        'pdf'   : MathtextBackendPdf,
+        'svg'   : MathtextBackendSvg,
+        'cairo' : MathtextBackendCairo
         }
 
     _font_type_mapping = {
@@ -2689,8 +2711,8 @@ class MathTextParser(object):
         }
 
     def __init__(self, output):
-        self._output = output
-        self._cache = {}
+        self._output = output.lower()
+        self._cache = maxdict(50)
 
     def parse(self, s, dpi = 72, prop = None):
         if prop is None:
@@ -2706,7 +2728,7 @@ class MathTextParser(object):
         else:
             backend = self._backend_mapping[self._output]()
             fontset = rcParams['mathtext.fontset']
-            fontset_class = self._font_type_mapping.get(fontset)
+            fontset_class = self._font_type_mapping.get(fontset.lower())
             if fontset_class is not None:
                 font_output = fontset_class(prop, backend)
             else:
