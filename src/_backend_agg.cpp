@@ -1611,10 +1611,26 @@ Py::Object _backend_agg_module::new_renderer (const Py::Tuple &args,
   if ( kws.hasKey("debug") ) debug = Py::Int( kws["debug"] );
   else debug=0;
 
-  int width = Py::Int(args[0]);
-  int height = Py::Int(args[1]);
+  unsigned int width = (unsigned int)Py::Int(args[0]);
+  unsigned int height = (unsigned int)Py::Int(args[1]);
   double dpi = Py::Float(args[2]);
-  return Py::asObject(new RendererAgg(width, height, dpi, debug));
+
+  if (width > 1 << 15 || height > 1 << 15) {
+    throw Py::ValueError("width and height must each be below 32768");
+  }
+
+  if (dpi <= 0.0) {
+    throw Py::ValueError("dpi must be positive");
+  }
+
+  RendererAgg* renderer = NULL;
+  try {
+    renderer = new RendererAgg(width, height, dpi, debug);
+  } catch (std::bad_alloc) {
+    throw Py::RuntimeError("Could not allocate memory for image");
+  }
+
+  return Py::asObject(renderer);
 }
 
 
