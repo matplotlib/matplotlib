@@ -1394,7 +1394,7 @@ class Axes(martist.Artist):
         Update the datalim to include the given
         :class:`~matplotlib.transforms.Bbox` *bounds*
         '''
-        self.dataLim.set(Bbox.union([self.dataLim, bounds]))
+        self.dataLim.set(mtransforms.Bbox.union([self.dataLim, bounds]))
 
     def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
         'look for unit *kwargs* and update the axis instances as necessary'
