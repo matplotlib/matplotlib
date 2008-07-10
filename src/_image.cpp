@@ -742,7 +742,7 @@ _image_module::from_images(const Py::Tuple& args) {
   //clear the background of the rendering buffer with alpha 1 and the
   //gtkagg screen noise problem in figimage_demo.py goes away -- see
   //comment backend_gtkagg.py _render_figure method JDH
-  //rb.clear(agg::rgba(1, 1, 1, 1));
+  rb.clear(agg::rgba(1, 1, 1, 1));
 
   for (size_t imnum=0; imnum< N; imnum++) {
     tup = Py::Tuple(tups[imnum]);
