@@ -123,23 +123,23 @@ class FontconfigPatternParser:
         return props
 
     def _family(self, s, loc, tokens):
-        return [family_unescape(r'\1', tokens[0])]
+        return [family_unescape(r'\1', str(tokens[0]))]
 
     def _size(self, s, loc, tokens):
         return [float(tokens[0])]
 
     def _name(self, s, loc, tokens):
-        return [tokens[0]]
+        return [str(tokens[0])]
 
     def _value(self, s, loc, tokens):
-        return [value_unescape(r'\1', tokens[0])]
+        return [value_unescape(r'\1', str(tokens[0]))]
 
     def _families(self, s, loc, tokens):
-        self._properties['family'] = tokens
+        self._properties['family'] = [str(x) for x in tokens]
         return []
 
     def _point_sizes(self, s, loc, tokens):
-        self._properties['size'] = tokens
+        self._properties['size'] = [str(x) for x in tokens]
         return []
 
     def _property(self, s, loc, tokens):
@@ -161,10 +161,13 @@ def generate_fontconfig_pattern(d):
     props = []
     families = ''
     size = ''
-    for key, val in d.items():
+    for key in 'family style variant weight stretch file size'.split():
+        val = getattr(d, 'get_' + key)()
         if val is not None and val != []:
-            val = [value_escape(r'\\\1', str(x)) for x in val if x is not None]
-            if val != []:
-                val = ','.join(val)
-                props.append(":%s=%s" % (key, val))
+            if type(val) == list:
+                val = [value_escape(r'\\\1', str(x)) for x in val if x is not None]
+                if val != []:
+                    val = ','.join(val)
+            props.append(":%s=%s" % (key, val))
+    print parse_fontconfig_pattern(''.join(props))
     return ''.join(props)
