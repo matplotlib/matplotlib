@@ -18,8 +18,9 @@ repository by doing::
 
 .. _Sphinx: http://sphinx.pocoo.org/
 
-The documentation sources are found in the `doc/` directory in the trunk.
-To build the users guide in html format, cd into `doc/users_guide` and do::
+The documentation sources are found in the :file:`doc/` directory in the trunk.
+To build the users guide in html format, cd into :file:`doc/` and
+do::
 
   python make.py html
 
@@ -30,19 +31,20 @@ or::
 you can also pass a ``latex`` flag to make.py to build a pdf, or pass no
 arguments to build everything.
 
-The output produced by Sphinx can be configured by editing the `conf.py`
-file located in the `doc/`.
+The output produced by Sphinx can be configured by editing the :file:`conf.py`
+file located in the :file:`doc/`.
 
 
 Organization of matplotlib's documentation
 ==========================================
 
-The actual ReStructured Text files are kept in `doc/users`, `doc/devel`,
-`doc/api` and `doc/faq`. The main entry point is `doc/index.rst`, which pulls
-in the `index.rst` file for the users guide, developers guide, api reference,
-and faqs. The documentation suite is built as a single document in order to
-make the most effective use of cross referencing, we want to make navigating
-the Matplotlib documentation as easy as possible.
+The actual ReStructured Text files are kept in :file:`doc/users`,
+:file:`doc/devel`, :file:`doc/api` and :file:`doc/faq`. The main entry point is
+:file:`doc/index.rst`, which pulls in the :file:`index.rst` file for the users
+guide, developers guide, api reference, and faqs. The documentation suite is
+built as a single document in order to make the most effective use of cross
+referencing, we want to make navigating the Matplotlib documentation as easy as
+possible.
 
 Additional files can be added to the various guides by including their base
 file name (the .rst extension is not necessary) in the table of contents.
