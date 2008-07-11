@@ -1,3 +1,6 @@
+2008-07-11 Fix memory leak related to shared axes.  Grouper should
+           store weak references. - MGD
+
 2008-07-10 Bugfix: crash displaying fontconfig pattern - MGD
 
 2008-07-10 Bugfix: [ 2013963 ] update_datalim_bounds in Axes not works - MGD

@@ -6,6 +6,7 @@ from __future__ import generators
 import re, os, errno, sys, StringIO, traceback, locale, threading
 import time, datetime
 import numpy as np
+from weakref import ref
 
 major, minor1, minor2, s, tmp = sys.version_info
 
@@ -1042,10 +1043,20 @@ class Grouper(object):
     def __init__(self, init=[]):
         mapping = self._mapping = {}
         for x in init:
-            mapping[x] = [x]
+            mapping[ref(x)] = [ref(x)]
 
     def __contains__(self, item):
-        return item in self._mapping
+        return ref(item) in self._mapping
+
+    def clean(self):
+        """
+        Clean dead weak references from the dictionary
+        """
+        mapping = self._mapping
+        for key, val in mapping.items():
+            if key() is None:
+                del mapping[key]
+                val.remove(key)
 
     def join(self, a, *args):
         """
@@ -1053,13 +1064,13 @@ class Grouper(object):
         arguments.
         """
         mapping = self._mapping
-        set_a = mapping.setdefault(a, [a])
+        set_a = mapping.setdefault(ref(a), [ref(a)])
 
         for arg in args:
-            set_b = mapping.get(arg)
+            set_b = mapping.get(ref(arg))
             if set_b is None:
-                set_a.append(arg)
-                mapping[arg] = set_a
+                set_a.append(ref(arg))
+                mapping[ref(arg)] = set_a
             elif set_b is not set_a:
                 if len(set_b) > len(set_a):
                     set_a, set_b = set_b, set_a
@@ -1067,13 +1078,17 @@ class Grouper(object):
                 for elem in set_b:
                     mapping[elem] = set_a
 
+        self.clean()
+
     def joined(self, a, b):
         """
         Returns True if *a* and *b* are members of the same set.
         """
+        self.clean()
+
         mapping = self._mapping
         try:
-            return mapping[a] is mapping[b]
+            return mapping[ref(a)] is mapping[ref(b)]
         except KeyError:
             return False
 
@@ -1083,6 +1098,8 @@ class Grouper(object):
 
         The iterator is invalid if interleaved with calls to join().
         """
+        self.clean()
+
         class Token: pass
         token = Token()
 
@@ -1090,7 +1107,7 @@ class Grouper(object):
         # and don't yield it twice
         for group in self._mapping.itervalues():
             if not group[-1] is token:
-                yield group
+                yield [x() for x in group]
                 group.append(token)
 
         # Cleanup the tokens
@@ -1102,7 +1119,10 @@ class Grouper(object):
         """
         Returns all of the items joined with *a*, including itself.
         """
-        return self._mapping.get(a, [a])
+        self.clean()
+
+        siblings = self._mapping.get(ref(a), [ref(a)])
+        return [x() for x in siblings]
 
 
 def simple_linear_interpolation(a, steps):
