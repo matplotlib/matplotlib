@@ -68,19 +68,20 @@ an ``Axes`` at an arbitrary location, simply use the
 of ``[left, bottom, width, height]`` values in 0-1 relative figure
 coordinates::
 
-    ax2 = fig.add_axes([0.15, 0.1, 0.7, 0.3])
+    fig2 = plt.figure()
+    ax2 = fig2.add_axes([0.15, 0.1, 0.7, 0.3])
 
 Continuing with our example::
 
     import numpy as np
     t = np.arange(0.0, 1.0, 0.01)
     s = np.sin(2*np.pi*t)
-    line, = ax1.plot(t, s, color='blue', lw=2)
+    line, = ax.plot(t, s, color='blue', lw=2)
 
 In this example, ``ax`` is the ``Axes`` instance created by the
 ``fig.add_subplot`` call above (remember ``Subplot`` is just a
-subclass of ``Axes``) and when you call ``ax.plot``, it creates a
-``Line2D`` instance and adds it the the :attr:`Axes.lines
+subclass of ``Axes``) and when you call ``ax.plot``, it createsa
+``Line2D`` instance and adds it the :attr:`Axes.lines
 <matplotlib.axes.Axes.lines>` list.  In the interactive `ipython
 <http://ipython.scipy.org/>`_ session below, you can see that
 ``Axes.lines`` list is length one and contains the same line that was
