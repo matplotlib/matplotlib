@@ -904,6 +904,8 @@ class Axes(martist.Artist):
         self.xaxis.set_clip_path(self.patch)
         self.yaxis.set_clip_path(self.patch)
 
+        self._shared_x_axes.clear()
+        self._shared_y_axes.clear()
 
     def clear(self):
         'clear the axes'
