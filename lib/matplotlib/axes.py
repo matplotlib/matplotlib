@@ -904,8 +904,8 @@ class Axes(martist.Artist):
         self.xaxis.set_clip_path(self.patch)
         self.yaxis.set_clip_path(self.patch)
 
-        self._shared_x_axes.clear()
-        self._shared_y_axes.clear()
+        self._shared_x_axes.clean()
+        self._shared_y_axes.clean()
 
     def clear(self):
         'clear the axes'
@@ -6032,7 +6032,7 @@ class Axes(martist.Artist):
         right
         """
 
-        ax2 = self.figure.add_axes(self.get_position(True), sharex=self,
+        ax2 = self.figure.add_axes(self.get_position(True), # sharex=self,
             frameon=False)
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
