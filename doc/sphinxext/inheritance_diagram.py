@@ -145,8 +145,9 @@ class InheritanceGraph(object):
         """
         module = cls.__module__
         if module == '__builtin__':
-            return cls.__name__
-        fullname = '.'.join([module, cls.__name__])
+            fullname = cls.__name__
+        else:
+            fullname = "%s.%s" % (module, cls.__name__)
         if parts == 0:
             return fullname
         name_parts = fullname.split('.')
@@ -299,6 +300,9 @@ def inheritance_diagram_directive_run(class_names, options, state):
     node['content'] = " ".join(class_names)
     return [node]
 
+def get_graph_hash(node):
+    return md5(node['content'] + str(node['parts'])).hexdigest()[-10:]
+
 def html_output_graph(self, node):
     """
     Output the graph for HTML.  This will insert a PNG with clickable
@@ -307,11 +311,9 @@ def html_output_graph(self, node):
     graph = node['graph']
     parts = node['parts']
 
-    # Determine where to write the PNG to.  This follows
-    # the same procedure as mathpng.py
-    name = 'inheritance%s' % md5(
-        node['content'] + str(node['parts'])).hexdigest()[-10:]
-    png_path = '_static/%s.png' % name
+    graph_hash = get_graph_hash(node)
+    name = "inheritance%s" % graph_hash
+    png_path = os.path.join('_static', name + ".png")
 
     path = '_static'
     source = self.document.attributes['source']
@@ -346,23 +348,13 @@ def latex_output_graph(self, node):
     graph = node['graph']
     parts = node['parts']
 
-    # Determine where to write the PNG to.  This follows
-    # the same procedure as mathpng.py
-    name = 'inheritance%s' % md5(
-        node['content'] + str(node['parts'])).hexdigest()[-10:]
-    pdf_path = '_static/%s.pdf' % name
+    graph_hash = get_graph_hash(node)
+    name = "inheritance%s"
+    pdf_path = os.path.join('_static', name + ".pdf")
 
-    path = '_static'
-    source = self.document.attributes['source']
-    count = source.split('/doc/')[-1].count('/')
-    for i in range(count):
-        if os.path.exists(path): break
-        path = '../'+path
-    path = '../'+path #specifically added for matplotlib
-
-    graph.run_dot(['-Tpdf', '-o%s' % pdf_path], name, parts,
-                  graph_options={'size': '"6.0,6.0"'})
-    return '\\includegraphics{../../_static/%s.pdf}' % name
+    graph.run_dot(['-Tpdf', '-o%s' % pdf_path],
+                  name, parts, graph_options={'size': '"6.0,6.0"'})
+    return '\\includegraphics{../../%s}' % pdf_path
 
 def visit_inheritance_diagram(inner_func):
     """
