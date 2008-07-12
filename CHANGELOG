@@ -1,3 +1,6 @@
+2008-07-12 Added support for external backends with the
+           "module://my_backend" syntax - JDH
+
 2008-07-11 Fix memory leak related to shared axes.  Grouper should
            store weak references. - MGD
 

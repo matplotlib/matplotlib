@@ -17,13 +17,24 @@ Copy this to backend_xxx.py and replace all instances of 'template'
 with 'xxx'.  Then implement the class methods and functions below, and
 add 'xxx' to the switchyard in matplotlib/backends/__init__.py and
 'xxx' to the backends list in the validate_backend methon in
-matplotlib/__init__.py and you're off.  You can use your backend with
+matplotlib/__init__.py and you're off.  You can use your backend with::
 
   import matplotlib
   matplotlib.use('xxx')
   from pylab import *
   plot([1,2,3])
   show()
+
+matplotlib also supports external backends, so you can place you can
+use any module in your PYTHONPATH with the syntax::
+
+  import matplotlib
+  matplotlib.use('module://my_backend')
+
+where my_backend.py is your module name.  Thus syntax is also
+recognized in the rc file and in the -d argument in pylab, eg::
+
+  python simple_plot.py -dmodule://my_backend
 
 The files that are most relevant to backend_writers are
 

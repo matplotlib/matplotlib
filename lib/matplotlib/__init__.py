@@ -801,8 +801,11 @@ def use(arg, warn=True):
         if warn: warnings.warn(_use_error_msg)
         return
     arg = arg.lower()
-    be_parts = arg.split('.')
-    name = validate_backend(be_parts[0])
+    if arg.startswith('module://'):
+        name = arg
+    else:
+        be_parts = arg.split('.')
+        name = validate_backend(be_parts[0])
     rcParams['backend'] = name
     if name == 'cairo' and len(be_parts) > 1:
         rcParams['cairo.format'] = validate_cairo_format(be_parts[1])
