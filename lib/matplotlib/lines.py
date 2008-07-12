@@ -238,12 +238,6 @@ class Line2D(Artist):
         if linestyle is None   : linestyle=rcParams['lines.linestyle']
         if marker is None      : marker=rcParams['lines.marker']
         if color is None       : color=rcParams['lines.color']
-        if markeredgecolor is None :
-            markeredgecolor='auto'
-        if markerfacecolor is None :
-            markerfacecolor='auto'
-        if markeredgewidth is None :
-            markeredgewidth=rcParams['lines.markeredgewidth']
 
         if markersize is None  : markersize=rcParams['lines.markersize']
         if antialiased is None : antialiased=rcParams['lines.antialiased']
@@ -654,6 +648,8 @@ class Line2D(Artist):
 
         ACCEPTS: any matplotlib color
         """
+        if ec is None:
+            ec = 'auto'
         self._markeredgecolor = ec
 
     def set_markeredgewidth(self, ew):
@@ -662,6 +658,8 @@ class Line2D(Artist):
 
         ACCEPTS: float value in points
         """
+        if ew is None:
+            ew = rcParams['lines.markeredgewidth']
         self._markeredgewidth = ew
 
     def set_markerfacecolor(self, fc):
@@ -670,6 +668,8 @@ class Line2D(Artist):
 
         ACCEPTS: any matplotlib color
         """
+        if fc is None:
+            fc = 'auto'
         self._markerfacecolor = fc
 
     def set_markersize(self, sz):
