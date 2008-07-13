@@ -888,7 +888,7 @@ class PatchCollection(Collection):
 
         if match_original:
             def determine_facecolor(patch):
-                if patch.fill():
+                if patch.fill:
                     return patch.get_facecolor()
                 return [0, 0, 0, 0]
 
