@@ -979,7 +979,7 @@ class RectangleSelector:
     """
     Select a min/max range of the x axes for a matplotlib Axes
 
-    Example usage:
+    Example usage::
 
         from matplotlib.widgets import  RectangleSelector
         from pylab import *
@@ -1011,7 +1011,7 @@ class RectangleSelector:
     """
     def __init__(self, ax, onselect, drawtype='box',
                  minspanx=None, minspany=None, useblit=False,
-                 lineprops=None, rectprops=None):
+                 lineprops=None, rectprops=None, spancoords='data'):
 
         """
         Create a selector in ax.  When a selection is made, clear
@@ -1035,7 +1035,12 @@ class RectangleSelector:
 
         Use type if you want the mouse to draw a line, a box or nothing
         between click and actual position ny setting
+
         drawtype = 'line', drawtype='box' or drawtype = 'none'.
+
+        spancoords is one of 'data' or 'pixels'.  If 'data', minspanx
+        and minspanx will be interpreted in the same coordinates as
+        the x and ya axis, if 'pixels', they are in pixels
         """
         self.ax = ax
         self.visible = True
@@ -1072,6 +1077,10 @@ class RectangleSelector:
         self.useblit = useblit
         self.minspanx = minspanx
         self.minspany = minspany
+
+        assert(spancoords in ('data', 'pixels'))
+
+        self.spancoords = spancoords
         self.drawtype = drawtype
         # will save the data (position at mouseclick)
         self.eventpress = None
@@ -1125,14 +1134,21 @@ class RectangleSelector:
         self.canvas.draw()
         # release coordinates, button, ...
         self.eventrelease = event
-        xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
-        xmax, ymax = self.eventrelease.xdata, self.eventrelease.ydata
-        # calculate dimensions of box or line get values in the right
-        # order
+
+        if self.spancoords=='data':
+            xmin, ymin = self.eventpress.xdata, self.eventpress.ydata
+            xmax, ymax = self.eventrelease.xdata, self.eventrelease.ydata
+            # calculate dimensions of box or line get values in the right
+            # order
+        elif self.spancoords=='pixels':
+            xmin, ymin = self.eventpress.x, self.eventpress.y
+            xmax, ymax = self.eventrelease.x, self.eventrelease.y
+        else:
+            raise ValueError('spancoords must be "data" or "pixels"')
+
+
         if xmin>xmax: xmin, xmax = xmax, xmin
         if ymin>ymax: ymin, ymax = ymax, ymin
-
-
 
         spanx = xmax - xmin
         spany = ymax - ymin

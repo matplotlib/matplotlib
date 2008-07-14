@@ -29,5 +29,6 @@ print "\n      click  -->  release"
 
 # drawtype is 'box' or 'line' or 'none'
 LS = RectangleSelector(current_ax, line_select_callback,
-                      drawtype='box',useblit=True)
+                       drawtype='box',useblit=True,
+                       minspanx=5,minspany=5,spancoords='pixels')
 show()
