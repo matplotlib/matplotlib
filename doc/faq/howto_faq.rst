@@ -6,6 +6,33 @@ Howto
 
 .. contents::
 
+
+.. _howto-findobj:
+
+How do I find all the objects in my figure of a certain type?
+=============================================================
+
+Every matplotlib artist (see :ref:`artist-tutorial`) has a method
+called :meth:`~matplotlib.artist.Artist.findobj` that can be used to
+recursively search the artist for any artists it may contain that meet
+some criteria (eg match all :class:`~matplotlib.lines.Line2D`
+instances or match some arbitrary filter function).  For example, the
+following snippet finds every object in the figure which has a
+`set_color` property and makes the object blue::
+
+    def myfunc(x):
+	return hasattr(x, 'set_color')
+
+    for o in fig.findobj(myfunc):
+	o.set_color('blue')
+
+You can also filter on class instances::
+
+    import matplotlib.text as text
+    for o in fig.findobj(text.Text):
+	o.set_fontstyle('italic')
+
+
 .. _howto-transparent:
 
 How do I save transparent figures?

@@ -7,7 +7,7 @@ from matplotlib.figure import Figure, figaspect
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.image import imread as _imread
 from matplotlib import rcParams, rcParamsDefault, get_backend
-from matplotlib.artist import getp, get
+from matplotlib.artist import getp, get, Artist
 from matplotlib.artist import setp as _setp
 from matplotlib.axes import Axes
 from matplotlib.projections import PolarAxes
@@ -41,25 +41,10 @@ new_figure_manager, draw_if_interactive, show = pylab_setup()
 
 
 def findobj(o=None, match=None):
-    """
-    recursively find all :class:matplotlib.artist.Artist instances
-    contained in artist instance *p*.  if *o* is None, use
-    current figure
-
-    *match* can be
-
-      - None: return all objects contained in artist (including artist)
-
-      - function with signature ``boolean = match(artist)`` used to filter matches
-
-      - class instance: eg Line2D.  Only return artists of class type
-
-    """
-
     if o is None:
         o = gcf()
     return o.findobj(match)
-
+findobj.__doc__ = Artist.findobj.__doc__
 
 def switch_backend(newbackend):
     """

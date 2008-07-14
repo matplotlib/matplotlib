@@ -510,6 +510,9 @@ class Artist(object):
 
     def findobj(self, match=None):
         """
+        pyplot signature:
+          findobj(o=gcf(), match=None) 
+
         recursively find all :class:matplotlib.artist.Artist instances
         contained in self
 
@@ -520,6 +523,8 @@ class Artist(object):
           - function with signature ``boolean = match(artist)`` used to filter matches
 
           - class instance: eg Line2D.  Only return artists of class type
+
+        .. plot:: ../mpl_examples/pylab_examples/findobj_demo.py
         """
 
         if match is None: # always return True
