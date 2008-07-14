@@ -93,7 +93,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             if len(offsets.shape) == 1:
                 offsets = offsets[np.newaxis,:]  # Make it Nx2.
             if transOffset is not None:
-                Affine2D = transforms.Affine2D
                 self._offsets = offsets
                 self._transOffset = transOffset
             else:
