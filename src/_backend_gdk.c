@@ -28,7 +28,7 @@ pixbuf_get_pixels_array(PyObject *self, PyObject *args)
     PyGObject *py_pixbuf;
     GdkPixbuf *gdk_pixbuf;
     PyArrayObject *array;
-    int dims[3] = { 0, 0, 3 };
+    npy_intp dims[3] = { 0, 0, 3 };
 
     if (!PyArg_ParseTuple(args, "O!:pixbuf_get_pixels_array",
 			  &PyGdkPixbuf_Type, &py_pixbuf))

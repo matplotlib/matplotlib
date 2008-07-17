@@ -40,6 +40,7 @@ ax.set_axis_bgcolor("#bdb76b")
 #  Or use the default, which is transparent:
 col = ax.pcolormesh(Qx,Qz,Zm)
 ax.set_title('With masked values')
-show()
+
 
 savefig("quadmesh_demo")
+show()
