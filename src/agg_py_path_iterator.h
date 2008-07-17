@@ -75,11 +75,13 @@ public:
     {
         if (m_iterator >= m_total_vertices) return agg::path_cmd_stop;
         unsigned code = vertex_with_code(m_iterator++, x, y);
-        while ((MPL_isnan64(*x) || MPL_isnan64(*y)) &&
-                m_iterator < m_total_vertices)
-        {
+        if (MPL_isnan64(*x) || MPL_isnan64(*y)) {
+          do {
             vertex(m_iterator++, x, y);
-            code = agg::path_cmd_move_to;
+          } while ((MPL_isnan64(*x) || MPL_isnan64(*y)) &&
+                   m_iterator < m_total_vertices);
+          return (m_iterator >= m_total_vertices) ? agg::path_cmd_stop :
+                                                    agg::path_cmd_move_to;
         }
         return code;
     }
