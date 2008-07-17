@@ -274,7 +274,7 @@ FT2Image::py_as_array(const Py::Tuple & args) {
 
   /*
 
-  PyArrayObject *A = (PyArrayObject *) PyArray_FromDims(2, dimensions, PyArray_UBYTE);
+  PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNew(2, dimensions, PyArray_UBYTE);
 
 
   unsigned char *src		= _buffer;

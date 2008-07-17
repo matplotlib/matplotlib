@@ -254,7 +254,7 @@ _png_module::read_png(const Py::Tuple& args) {
   dimensions[1] = width;   //numcols
   dimensions[2] = 4;
 
-  PyArrayObject *A = (PyArrayObject *) PyArray_FromDims(3, dimensions, PyArray_FLOAT);
+  PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNew(3, dimensions, PyArray_FLOAT);
 
 
   for (png_uint_32 y = 0; y < height; y++) {
