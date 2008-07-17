@@ -108,7 +108,7 @@ points_inside_poly(PyObject *self, PyObject *args)
   PyObject *xypointsarg, *vertsarg, *ret;
   PyArrayObject *xypoints, *verts;
   PyArrayObject *mask;
-  int dimensions[1];
+  npy_intp dimensions[1];
 
   if (! PyArg_ParseTuple(args, "OO", &xypointsarg, &vertsarg))
     return NULL;
@@ -187,7 +187,7 @@ points_inside_poly(PyObject *self, PyObject *args)
   npoints = xypoints->dimensions[0];
   dimensions[0] = npoints;
 
-  mask = (PyArrayObject *)PyArray_FromDims(1,dimensions,PyArray_INT);
+  mask = (PyArrayObject *)PyArray_SimpleNew(1,dimensions,PyArray_INT);
   if (mask==NULL) {
     Py_XDECREF(verts);
     Py_XDECREF(xypoints);

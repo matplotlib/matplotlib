@@ -846,7 +846,7 @@ Py::Object _path_module::clip_path_to_rect(const Py::Tuple &args)
 
     ::clip_to_rect(path, x0, y0, x1, y1, inside, results);
 
-    int dims[2];
+    npy_intp dims[2];
     dims[1] = 2;
     PyObject* py_results = PyList_New(results.size());
     if (!py_results)

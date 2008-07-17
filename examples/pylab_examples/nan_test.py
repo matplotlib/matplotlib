@@ -22,8 +22,7 @@ t[-1] = NaN
 plot(t, s, '-', lw=2)
 
 xlabel('time (s)')
-ylabel('voltage (mV)')
-title('More NaNs at 0.0 and 1.0')
+ylabel('more nans')
 grid(True)
 
 show()

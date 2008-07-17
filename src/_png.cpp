@@ -249,7 +249,7 @@ _png_module::read_png(const Py::Tuple& args) {
 
 
 
-  int dimensions[3];
+  npy_intp dimensions[3];
   dimensions[0] = height;  //numrows
   dimensions[1] = width;   //numcols
   dimensions[2] = 4;
