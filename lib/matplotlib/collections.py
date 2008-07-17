@@ -10,6 +10,7 @@ line segemnts)
 """
 import math, warnings
 import numpy as np
+import numpy.ma as ma
 import matplotlib as mpl
 import matplotlib.cbook as cbook
 import matplotlib.colors as _colors # avoid conflict with kwarg
@@ -468,7 +469,11 @@ class QuadMesh(Collection):
         """
         Path = mpath.Path
 
-        c = coordinates
+        if ma.isMaskedArray(coordinates):
+            c = coordinates.data
+        else:
+            c = coordinates
+
         # We could let the Path constructor generate the codes for us,
         # but this is faster, since we know they'll always be the same
         codes = np.array(
