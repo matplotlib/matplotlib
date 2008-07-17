@@ -320,6 +320,20 @@ def ginput(*args, **kwargs):
 if Figure.ginput.__doc__ is not None:
     ginput.__doc__ = dedent(Figure.ginput.__doc__)
 
+def waitforbuttonpress(*args, **kwargs):
+    """
+    Blocking call to interact with the figure.
+
+    This will wait for *n* key or mouse clicks from the user and
+    return a list containing True's for keyboard clicks and False's
+    for mouse clicks.
+
+    If *timeout* is negative, does not timeout.
+    """
+    return gcf().waitforbuttonpress(*args, **kwargs)
+if Figure.waitforbuttonpress.__doc__ is not None:
+    waitforbuttonpress.__doc__ = dedent(Figure.waitforbuttonpress.__doc__)
+
 
 # Putting things in figures
 
