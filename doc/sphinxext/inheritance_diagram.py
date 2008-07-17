@@ -326,13 +326,10 @@ def html_output_graph(self, node):
     # Create a mapping from fully-qualified class names to URLs.
     urls = {}
     for child in node:
-        try:
+        if 'refuri' in child:
             urls[child['reftitle']] = child['refuri']
-        except KeyError:
-            try:
-                urls[child['reftitle']] = '#' + child['refid']
-            except KeyError:
-                pass
+        elif 'refid' in child:
+            urls[child['reftitle']] = '#' + child['refid']
 
     # These arguments to dot will save a PNG file to disk and write
     # an HTML image map to stdout.
