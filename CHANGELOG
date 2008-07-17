@@ -1,3 +1,6 @@
+2008-07-16 Improve error handling in texmanager, thanks to Ian Henry 
+           for reporting - DSD
+
 2008-07-09 Improve mathtext radical rendering - MGD
 
 2008-07-08 Improve mathtext superscript placement - MGD
