@@ -2095,7 +2095,7 @@ class Axes(martist.Artist):
 
         formatter = self.xaxis.get_major_formatter()
         if not isinstance(formatter, mdates.DateFormatter):
-            formatter = mdates.AutoDateFormatter(locator)
+            formatter = mdates.AutoDateFormatter(locator, tz)
             self.xaxis.set_major_formatter(formatter)
 
     def yaxis_date(self, tz=None):
@@ -2132,7 +2132,7 @@ class Axes(martist.Artist):
 
         formatter = self.xaxis.get_major_formatter()
         if not isinstance(formatter, mdates.DateFormatter):
-            formatter = mdates.AutoDateFormatter(locator)
+            formatter = mdates.AutoDateFormatter(locator, tz)
             self.yaxis.set_major_formatter(formatter)
 
     def format_xdata(self, x):
