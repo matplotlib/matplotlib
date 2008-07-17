@@ -857,7 +857,7 @@ Py::Object _path_module::clip_path_to_rect(const Py::Tuple &args)
         {
             size_t size = p->size();
             dims[0] = p->size();
-            PyArrayObject* pyarray = (PyArrayObject*)PyArray_FromDims(2, dims, PyArray_DOUBLE);
+            PyArrayObject* pyarray = (PyArrayObject*)PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
             for (size_t i = 0; i < size; ++i)
             {
                 ((double *)pyarray->data)[2*i]	 = (*p)[i].x;

@@ -5,7 +5,7 @@ Example usage:
 
     import matplotlib.mlab as mlab
     import mpl_toolkits.exceltools as exceltools
-    
+
     r = mlab.csv2rec('somefile.csv', checkrows=0)
 
     formatd = dict(
@@ -52,7 +52,7 @@ def xlformat_factory(format):
 
     return format
 
-def rec2excel(r, ws, formatd=None, rownum=0, colnum=0):
+def rec2excel(r, ws, formatd=None, rownum=0, colnum=0, nanstr='NaN'):
     """
     save record array r to excel pyExcelerator worksheet ws
     starting at rownum.  if ws is string like, assume it is a
@@ -62,6 +62,7 @@ def rec2excel(r, ws, formatd=None, rownum=0, colnum=0):
 
     formatd is a dictionary mapping dtype name -> mlab.Format instances
 
+    nanstr is the string that mpl will put into excel for np.nan value
     The next rownum after writing is returned
     """
 
@@ -106,7 +107,7 @@ def rec2excel(r, ws, formatd=None, rownum=0, colnum=0):
                 ws.write(rownum, colnum+i, val)
             else:
                 if mlab.safe_isnan(val):
-                    ws.write(rownum, colnum+i, 'NaN')
+                    ws.write(rownum, colnum+i, nanstr)
                 else:
                     ws.write(rownum, colnum+i, val, format.xlstyle)
         rownum += 1

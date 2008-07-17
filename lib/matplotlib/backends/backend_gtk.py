@@ -459,7 +459,8 @@ class FigureManagerGTK(FigureManagerBase):
         if Gcf.get_num_fig_managers()==0 and \
                not matplotlib.is_interactive() and \
                gtk.main_level() >= 1:
-            gtk.main_quit()
+            #gtk.main_quit()
+            pass
 
     def show(self):
         # show the figure window
