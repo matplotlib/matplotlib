@@ -81,13 +81,6 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         w = int(ren.width)
         h = int(ren.height)
 
-        # There apparently is a bug here on some versions of pygtk
-        # (2.6) that crops up in corner cases.  Eg, in
-        # figimage_demo.py, there is background pixel noise because
-        # the figure frame is off and the blended image background has
-        # alpha 0. and you see the uninitialzed data ("screen noise").
-        # If in _image.cpp Image:from_image you fill the background
-        # with a non transparent value, it goes away.
         pixbuf = gtk.gdk.pixbuf_new_from_data(
             buf, gtk.gdk.COLORSPACE_RGB,  True, 8, w, h, w*4)
         pixmap.draw_pixbuf(pixmap.new_gc(), pixbuf, 0, 0, 0, 0, w, h,
