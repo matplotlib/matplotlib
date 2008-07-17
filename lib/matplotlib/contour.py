@@ -17,6 +17,9 @@ import matplotlib.font_manager as font_manager
 import matplotlib.text as text
 import matplotlib.cbook as cbook
 
+# Import needed for adding manual selection capability to clabel
+from matplotlib.blocking_input import BlockingContourLabeler
+
 # We can't use a single line collection for contour because a line
 # collection can have only a single line style, and we want to be able to have
 # dashed negative contours, for example, and solid positive contours.
@@ -69,6 +72,13 @@ class ContourLabeler:
           *fmt*:
             a format string for the label. Default is '%1.3f'
 
+          *manual*:
+            if *True*, contour labels will be placed manually using
+            mouse clicks.  Click the first button near a contour to
+            add a label, click the second button (or potentially both
+            mouse buttons at once) to finish adding labels.  The third
+            button can be used to remove the last label added, but
+            only if labels are not inline.
 
         """
         fontsize = kwargs.get('fontsize', None)
@@ -76,7 +86,8 @@ class ContourLabeler:
         self.fmt = kwargs.get('fmt', '%1.3f')
         _colors = kwargs.get('colors', None)
 
-
+        # Detect if manual selection is desired and remove from argument list
+        self.manual_select=kwargs.get('manual',False)
 
         if len(args) == 0:
             levels = self.levels
@@ -126,10 +137,16 @@ class ContourLabeler:
         #self.cl_cvalues = [] # same
         self.cl_xy = []
 
-        self.labels(inline)
+        if self.manual_select:
+            print 'Select label locations manually using first mouse button.'
+            print 'End manual selection with second mouse button.'
+            if not inline:
+                print 'Remove last label by clicking third mouse button.'
 
-        for label in self.cl:
-            self.ax.add_artist(label)
+            blocking_contour_labeler = BlockingContourLabeler(self)
+            blocking_contour_labeler(inline)
+        else:
+            self.labels(inline)
 
         self.label_list =  cbook.silent_list('text.Text', self.cl)
         return self.label_list
@@ -335,19 +352,85 @@ class ContourLabeler:
 
         return x,y, rotation, dind
 
+    def add_label(self,x,y,rotation,icon):
+        dx,dy = self.ax.transData.inverted().transform_point((x,y))
+        t = text.Text(dx, dy, rotation = rotation,
+                      horizontalalignment='center',
+                      verticalalignment='center')
+
+        color = self.label_mappable.to_rgba(self.label_cvalues[icon],
+                                            alpha=self.alpha)
+
+        _text = self.get_text(self.label_levels[icon],self.fmt)
+        self.set_label_props(t, _text, color)
+        self.cl.append(t)
+        self.cl_cvalues.append(self.label_cvalues[icon])
+        
+        # Add label to plot here - useful for manual mode label selection
+        self.ax.add_artist(t)
+
+    def pop_label(self,index=-1):
+        '''Defaults to removing last label, but any index can be supplied'''
+        self.cl_cvalues.pop(index)
+        t = self.cl.pop(index)
+        t.remove()
+
+    def find_nearest_contour( self, x, y, pixel=True ):
+        """
+        Finds contour that is closest to a point.  Defaults to
+        measuring distance in pixels (screen space - useful for manual
+        contour labeling), but this can be controlled via a keyword
+        argument.
+
+        Returns a tuple containing the contour, segment, index of
+        segment, x & y of segment point and distance to minimum point.
+        """
+
+        # This function uses a method that is probably quite
+        # inefficient based on converting each contour segment to
+        # pixel coordinates and then comparing the given point to
+        # those coordinates for each contour.  This will probably be
+        # quite slow for complex contours, but for normal use it works
+        # sufficiently well that the time is not noticeable.
+        # Nonetheless, improvements could probably be made.
+
+        dmin = 1e10
+        conmin = None
+        segmin = None
+        xmin = None
+        ymin = None
+
+        for icon in self.label_indices:
+            con = self.collections[icon]
+            paths = con.get_paths()
+            for segNum, linepath in enumerate(paths):
+                lc = linepath.vertices
+
+                # transfer all data points to screen coordinates if desired
+                if pixel:
+                    lc = self.ax.transData.transform(lc)
+                
+                ds = (lc[:,0]-x)**2 + (lc[:,1]-y)**2
+                d = min( ds )
+                if d < dmin:
+                    dmin = d
+                    conmin = icon
+                    segmin = segNum
+                    imin = mpl.mlab.find( ds == d )[0]
+                    xmin = lc[imin,0]
+                    ymin = lc[imin,1]
+
+        return (conmin,segmin,imin,xmin,ymin,dmin)
+
     def labels(self, inline):
         levels = self.label_levels
         fslist = self.fslist
         trans = self.ax.transData
-        _colors = self.label_mappable.to_rgba(self.label_cvalues,
-                                                        alpha=self.alpha)
-        fmt = self.fmt
-        for icon, lev, color, cvalue, fsize in zip(self.label_indices,
-                                          self.label_levels,
-                                          _colors,
-                                          self.label_cvalues, fslist):
+
+        for icon, lev, fsize in zip(self.label_indices,
+                                    self.label_levels, fslist):
             con = self.collections[icon]
-            lw = self.get_label_width(lev, fmt, fsize)
+            lw = self.get_label_width(lev, self.fmt, fsize)
             additions = []
             paths = con.get_paths()
             for segNum, linepath in enumerate(paths):
@@ -362,16 +445,8 @@ class ContourLabeler:
                 slc = trans.transform(linecontour)
                 if self.print_label(slc,lw):
                     x,y, rotation, ind  = self.locate_label(slc, lw)
-                    # transfer the location of the label back to
-                    # data coordinates
-                    dx,dy = trans.inverted().transform_point((x,y))
-                    t = text.Text(dx, dy, rotation = rotation,
-                             horizontalalignment='center',
-                             verticalalignment='center')
-                    _text = self.get_text(lev,fmt)
-                    self.set_label_props(t, _text, color)
-                    self.cl.append(t)
-                    self.cl_cvalues.append(cvalue)
+                    self.add_label(x,y,rotation,icon)
+
                     if inline:
                         new = self.break_linecontour(linecontour, rotation, lw, ind)
                         if len(new[0]):

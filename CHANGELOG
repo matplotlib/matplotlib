@@ -1,3 +1,6 @@
+2008-07-17 Added ability to manually select contour label locations.
+	   Also added a waitforbuttonpress function. - DMK
+
 2008-07-17 Fix bug with NaNs at end of path (thanks, Andrew Straw for
            the report) - MGD
 
