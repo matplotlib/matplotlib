@@ -929,6 +929,10 @@ class Figure(Artist):
 
     def text(self, x, y, s, *args, **kwargs):
         """
+        Call signature:
+
+        figtext(x, y, s, fontdict=None, **kwargs)
+
         Add text to figure at location *x*, *y* (relative 0-1
         coords). See :func:`~matplotlib.pyplot.text` for the meaning
         of the other arguments.
