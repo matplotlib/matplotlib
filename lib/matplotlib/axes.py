@@ -1,5 +1,5 @@
 from __future__ import division, generators
-import math, sys, warnings, datetime, new
+import math, sys, warnings, datetime, new, types
 
 import numpy as np
 from numpy import ma
@@ -36,6 +36,8 @@ def delete_masked_points(*args):
     Find all masked points in a set of arguments, and return
     the arguments with only the unmasked points remaining.
 
+    This will also delete any points that are not finite (nan or inf).
+
     The overall mask is calculated from any masks that are present.
     If a mask is found, any argument that does not have the same
     dimensions is left unchanged; therefore the argument list may
@@ -49,9 +51,11 @@ def delete_masked_points(*args):
     useful.
     """
     masks = [ma.getmaskarray(x) for x in args if hasattr(x, 'mask')]
+    isfinite = [np.isfinite(x) for x in args]
+    masks.extend( [~x for x in isfinite if not isinstance(x,types.NotImplementedType)] )
     if len(masks) == 0:
         return args
-    mask = reduce(ma.mask_or, masks)
+    mask = reduce(np.logical_or, masks)
     margs = []
     for x in args:
         if (not is_string_like(x)
