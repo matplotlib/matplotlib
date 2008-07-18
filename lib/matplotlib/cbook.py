@@ -275,6 +275,7 @@ def is_sequence_of_strings(obj):
     Returns true if *obj* is iterable and contains strings
     """
     if not iterable(obj): return False
+    if is_string_like(obj): return False
     for o in obj:
         if not is_string_like(o): return False
     return True
