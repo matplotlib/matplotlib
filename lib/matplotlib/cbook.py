@@ -270,6 +270,15 @@ def is_string_like(obj):
     except (TypeError, ValueError): return 0
     return 1
 
+def is_sequence_of_strings(obj):
+    """
+    Returns true if *obj* is iterable and contains strings
+    """
+    if not iterable(obj): return False
+    for o in obj:
+        if not is_string_like(o): return False
+    return True
+
 def is_writable_file_like(obj):
     'return true if *obj* looks like a file object with a *write* method'
     return hasattr(obj, 'write') and callable(obj.write)
