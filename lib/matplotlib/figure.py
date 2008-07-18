@@ -1017,11 +1017,11 @@ class Figure(Artist):
                 ax.update_params()
                 ax.set_position(ax.figbox)
 
-    def ginput(self, n=1, timeout=30, verbose=False, show_clicks=True):
+    def ginput(self, n=1, timeout=30, show_clicks=True):
         """
         call signature::
 
-          ginput(self, n=1, timeout=30, verbose=False, show_clicks=True)
+          ginput(self, n=1, timeout=30, show_clicks=True)
 
         Blocking call to interact with the figure.
 
@@ -1038,7 +1038,7 @@ class Figure(Artist):
 
         blocking_mouse_input = BlockingMouseInput(self)
         return blocking_mouse_input(n=n, timeout=timeout,
-                                          verbose=verbose, show_clicks=show_clicks)
+                                    show_clicks=show_clicks)
 
     def waitforbuttonpress(self, timeout=-1):
         """

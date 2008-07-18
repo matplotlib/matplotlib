@@ -19,7 +19,8 @@ This provides several classes used for blocking interaction with figure windows:
 
 import time
 import numpy as np
-import matplotlib.path as path
+from matplotlib import path, verbose
+from cbook import is_sequence_of_strings
 
 class BlockingInput(object):
     """
@@ -28,7 +29,7 @@ class BlockingInput(object):
     """
     def __init__(self, fig, eventslist=()):
         self.fig = fig
-        assert isinstance(eventslist, tuple), "Requires a tuple of event name strings"
+        assert is_sequence_of_strings(eventslist), "Requires a sequence of event name strings"
         self.eventslist = eventslist
 
     def on_event(self, event):
@@ -41,8 +42,7 @@ class BlockingInput(object):
         # subclasses
         self.add_event(event)
 
-        if self.verbose:
-            print "Event %i" % len(self.events)
+        verbose.report("Event %i" % len(self.events))
 
         # This will extract info from events
         self.post_event()
@@ -80,7 +80,7 @@ class BlockingInput(object):
         self.pop_event(index)
     pop.__doc__=pop_event.__doc__
 
-    def __call__(self, n=1, timeout=30, verbose=False ):
+    def __call__(self, n=1, timeout=30 ):
         """
         Blocking call to retrieve n events
         """
@@ -90,7 +90,6 @@ class BlockingInput(object):
 
         self.events = []
         self.done = False
-        self.verbose = verbose
         self.callbacks = []
 
         # Ensure that the figure is shown
@@ -112,11 +111,9 @@ class BlockingInput(object):
                 if timeout > 0 and counter > timeout/0.01:
                     print "Timeout reached";
                     break;
-        finally: # Activated on exception like ctrl-c
+        finally: # Run even on exception like ctrl-c
+            # Disconnect the callbacks
             self.cleanup()
-
-        # Disconnect the callbacks
-        self.cleanup()
 
         # Return the events in this case
         return self.events
@@ -196,9 +193,9 @@ class BlockingMouseInput(BlockingInput):
         This add the coordinates of an event to the list of clicks
         """
         self.clicks.append((event.xdata,event.ydata))
-        if self.verbose:
-            print "input %i: %f,%f" % (len(self.clicks),
-                                       event.xdata, event.ydata)
+
+        verbose.report("input %i: %f,%f" % 
+                       (len(self.clicks),event.xdata, event.ydata))
 
         # If desired plot up click
         if self.show_clicks:
@@ -238,7 +235,7 @@ class BlockingMouseInput(BlockingInput):
         # Call base class to remove callbacks
         BlockingInput.cleanup(self)
         
-    def __call__(self, n=1, timeout=30, verbose=False, show_clicks=True):
+    def __call__(self, n=1, timeout=30, show_clicks=True):
         """
         Blocking call to retrieve n coordinate pairs through mouse
         clicks.
@@ -246,7 +243,7 @@ class BlockingMouseInput(BlockingInput):
         self.show_clicks = show_clicks
         self.clicks      = []
         self.marks       = []
-        BlockingInput.__call__(self,n=n,timeout=timeout,verbose=verbose)
+        BlockingInput.__call__(self,n=n,timeout=timeout)
 
         return self.clicks
 
@@ -324,7 +321,7 @@ class BlockingContourLabeler( BlockingMouseInput ):
 
     def __call__(self,inline,n=-1,timeout=-1):
         self.inline=inline
-        BlockingMouseInput.__call__(self,n=n,timeout=timeout,verbose=False,
+        BlockingMouseInput.__call__(self,n=n,timeout=timeout,
                                     show_clicks=False)
 
 class BlockingKeyMouseInput(BlockingInput):
@@ -343,198 +340,13 @@ class BlockingKeyMouseInput(BlockingInput):
 
         self.keyormouse = self.events[-1].name == 'key_press_event'
 
-    def __call__(self, timeout=30, verbose=False):
+    def __call__(self, timeout=30):
         """
         Blocking call to retrieve a single mouse or key click
         Returns True if key click, False if mouse, or None if timeout
         """
         self.keyormouse = None
-        BlockingInput.__call__(self,n=1,timeout=timeout,verbose=verbose)
-
-        return self.keyormouse
-
-"""
-This provides several classes used for interaction with figure windows:
-
-:class:`BlockingInput`
-    creates a callable object to retrieve events in a blocking way for interactive sessions
-
-:class:`BlockingKeyMouseInput`
-    creates a callable object to retrieve key or mouse clicks in a blocking way for interactive sessions.  
-    Note: Subclass of BlockingInput. Used by waitforbuttonpress
-
-:class:`BlockingMouseInput`
-    creates a callable object to retrieve mouse clicks in a blocking way for interactive sessions.  
-    Note: Subclass of BlockingInput.  Used by ginput
-"""
-
-import time
-
-class BlockingInput(object):
-    """
-    Class that creates a callable object to retrieve events in a
-    blocking way.
-    """
-    def __init__(self, fig, eventslist=()):
-        self.fig = fig
-        assert isinstance(eventslist, tuple), \
-            "Requires a tuple of event name strings"
-        self.eventslist = eventslist
-
-    def on_event(self, event):
-        """
-        Event handler that will be passed to the current figure to
-        retrieve events.
-        """
-        self.events.append(event)
-
-        if self.verbose:
-            print "Event %i" % len(self.events)
-
-        # This will extract info from events
-        self.post_event()
-        
-        if len(self.events) >= self.n and self.n > 0:
-            self.done = True
-
-    def post_event(self):
-        """For baseclass, do nothing but collect events"""
-        pass
-
-    def cleanup(self):
-        """Remove callbacks"""
-        for cb in self.callbacks:
-            self.fig.canvas.mpl_disconnect(cb)
-
-        self.callbacks=[]
-
-    def __call__(self, n=1, timeout=30, verbose=False ):
-        """
-        Blocking call to retrieve n events
-        """
-        
-        assert isinstance(n, int), "Requires an integer argument"
-        self.n = n
-
-        self.events = []
-        self.done = False
-        self.verbose = verbose
-        self.callbacks = []
-
-        # Ensure that the figure is shown
-        self.fig.show()
-        
-        # connect the events to the on_event function call
-        for n in self.eventslist:
-            self.callbacks.append( self.fig.canvas.mpl_connect(n, self.on_event) )
-
-        try:
-            # wait for n clicks
-            counter = 0
-            while not self.done:
-                self.fig.canvas.flush_events()
-                time.sleep(0.01)
-
-                # check for a timeout
-                counter += 1
-                if timeout > 0 and counter > timeout/0.01:
-                    print "Timeout reached";
-                    break;
-        finally: # Activated on exception like ctrl-c
-            self.cleanup()
-
-        # Disconnect the callbacks
-        self.cleanup()
-
-        # Return the events in this case
-        return self.events
-
-class BlockingMouseInput(BlockingInput):
-    """
-    Class that creates a callable object to retrieve mouse clicks in a
-    blocking way.
-    """
-    def __init__(self, fig):
-        BlockingInput.__init__(self, fig=fig, eventslist=('button_press_event',) )
-
-    def post_event(self):
-        """
-        This will be called to process events
-        """
-        assert len(self.events)>0, "No events yet"
-
-        event = self.events[-1]
-
-        if event.button == 3:
-            # If it's a right click, pop the last coordinates.
-            if len(self.clicks) > 0:
-                self.clicks.pop()
-                del self.events[-2:] # Remove button=3 event and previous event
-
-                if self.show_clicks:
-                    mark = self.marks.pop()
-                    mark.remove()
-                    self.fig.canvas.draw()
-        elif event.button == 2 and self.n < 0:
-            # If it's a middle click, and we are in infinite mode, finish
-            self.done = True
-        elif event.inaxes:
-            # If it's a valid click, append the coordinates to the list
-            self.clicks.append((event.xdata, event.ydata))
-            if self.verbose:
-                print "input %i: %f,%f" % (len(self.clicks),
-                                    event.xdata, event.ydata)
-            if self.show_clicks:
-                self.marks.extend(
-                    event.inaxes.plot([event.xdata,], [event.ydata,], 'r+') )
-                self.fig.canvas.draw()
-
-    def cleanup(self):
-        # clean the figure
-        if self.show_clicks:
-            for mark in self.marks:
-                mark.remove()
-            self.marks = []
-            self.fig.canvas.draw()
-
-        # Call base class to remove callbacks
-        BlockingInput.cleanup(self)
-        
-    def __call__(self, n=1, timeout=30, verbose=False, show_clicks=True):
-        """
-        Blocking call to retrieve n coordinate pairs through mouse
-        clicks.
-        """
-        self.show_clicks = show_clicks
-        self.clicks      = []
-        self.marks       = []
-        BlockingInput.__call__(self,n=n,timeout=timeout,verbose=verbose)
-
-        return self.clicks
-
-class BlockingKeyMouseInput(BlockingInput):
-    """
-    Class that creates a callable object to retrieve a single mouse or
-    keyboard click
-    """
-    def __init__(self, fig):
-        BlockingInput.__init__(self, fig=fig, eventslist=('button_press_event','key_press_event') )
-
-    def post_event(self):
-        """
-        Determines if it is a key event
-        """
-        assert len(self.events)>0, "No events yet"
-
-        self.keyormouse = self.events[-1].name == 'key_press_event'
-
-    def __call__(self, timeout=30, verbose=False):
-        """
-        Blocking call to retrieve a single mouse or key click
-        Returns True if key click, False if mouse, or None if timeout
-        """
-        self.keyormouse = None
-        BlockingInput.__call__(self,n=1,timeout=timeout,verbose=verbose)
+        BlockingInput.__call__(self,n=1,timeout=timeout)
 
         return self.keyormouse
 

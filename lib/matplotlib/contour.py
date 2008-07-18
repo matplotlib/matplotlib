@@ -71,6 +71,9 @@ class ContourLabeler:
 
           *fmt*:
             a format string for the label. Default is '%1.3f'
+            Alternatively, this can be a dictionary matching contour
+            levels with arbitrary strings to use for each contour level
+            (i.e., fmt[level]=string)
 
           *manual*:
             if *True*, contour labels will be placed manually using
@@ -158,10 +161,10 @@ class ContourLabeler:
         if lcsize > 10 * labelwidth:
             return 1
 
-        xmax = np.amax(np.array(linecontour)[:,0])
-        xmin = np.amin(np.array(linecontour)[:,0])
-        ymax = np.amax(np.array(linecontour)[:,1])
-        ymin = np.amin(np.array(linecontour)[:,1])
+        xmax = np.amax(linecontour[:,0])
+        xmin = np.amin(linecontour[:,0])
+        ymax = np.amax(linecontour[:,1])
+        ymin = np.amin(linecontour[:,1])
 
         lw = labelwidth
         if (xmax - xmin) > 1.2* lw or (ymax - ymin) > 1.2 * lw:
@@ -210,7 +213,7 @@ class ContourLabeler:
         if cbook.is_string_like(lev):
             lw = (len(lev)) * fsize
         else:
-            lw = (len(fmt%lev)) * fsize
+            lw = (len(self.get_text(lev,fmt))) * fsize
 
         return lw
 
@@ -227,8 +230,10 @@ class ContourLabeler:
         if cbook.is_string_like(lev):
             return lev
         else:
-            return fmt%lev
-
+            if isinstance(fmt,dict):
+                return fmt[lev]
+            else:
+                return fmt%lev
 
     def break_linecontour(self, linecontour, rot, labelwidth, ind):
         "break a contour in two contours at the location of the label"
@@ -243,8 +248,8 @@ class ContourLabeler:
 
         slc = trans.transform(linecontour)
         x,y = slc[ind]
-        xx= np.asarray(slc)[:,0].copy()
-        yy=np.asarray(slc)[:,1].copy()
+        xx=slc[:,0].copy()
+        yy=slc[:,1].copy()
 
         #indices which are under the label
         inds, = np.nonzero(((xx < x+xlabel) & (xx > x-xlabel)) &
@@ -325,8 +330,8 @@ class ContourLabeler:
         else:
             ysize = labelwidth
 
-        XX = np.resize(np.asarray(linecontour)[:,0],(xsize, ysize))
-        YY = np.resize(np.asarray(linecontour)[:,1],(xsize, ysize))
+        XX = np.resize(linecontour[:,0],(xsize, ysize))
+        YY = np.resize(linecontour[:,1],(xsize, ysize))
         #I might have fouled up the following:
         yfirst = YY[:,0].reshape(xsize, 1)
         ylast = YY[:,-1].reshape(xsize, 1)
