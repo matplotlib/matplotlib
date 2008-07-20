@@ -1,5 +1,5 @@
 from __future__ import division, generators
-import math, sys, warnings, datetime, new, types
+import math, sys, warnings, datetime, new
 
 import numpy as np
 from numpy import ma
@@ -30,45 +30,6 @@ import matplotlib.transforms as mtransforms
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
 
-
-def delete_masked_points(*args):
-    """
-    Find all masked points in a set of arguments, and return
-    the arguments with only the unmasked points remaining.
-
-    This will also delete any points that are not finite (nan or inf).
-
-    The overall mask is calculated from any masks that are present.
-    If a mask is found, any argument that does not have the same
-    dimensions is left unchanged; therefore the argument list may
-    include arguments that can take string or array values, for
-    example.
-
-    Array arguments must have the same length; masked arguments must
-    be one-dimensional.
-
-    Written as a helper for scatter, but may be more generally
-    useful.
-    """
-    masks = [ma.getmaskarray(x) for x in args if hasattr(x, 'mask')]
-    isfinite = [np.isfinite(x) for x in args]
-    masks.extend( [~x for x in isfinite if not isinstance(x,types.NotImplementedType)] )
-    if len(masks) == 0:
-        return args
-    mask = reduce(np.logical_or, masks)
-    margs = []
-    for x in args:
-        if (not is_string_like(x)
-            and iterable(x)
-            and len(x) == len(mask)):
-            if (hasattr(x, 'get_compressed_copy')):
-                compressed_x = x.get_compressed_copy(mask)
-            else:
-                compressed_x = ma.masked_array(x, mask=mask).compressed()
-            margs.append(compressed_x)
-        else:
-            margs.append(x)
-    return margs
 
 def _process_plot_format(fmt):
     """
@@ -4827,7 +4788,7 @@ class Axes(martist.Artist):
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
-        x, y, s, c = delete_masked_points(x, y, s, c)
+        x, y, s, c = cbook.delete_masked_points(x, y, s, c)
 
         # The inherent ambiguity is resolved in favor of color
         # mapping, not interpretation as rgb or rgba.
@@ -5091,7 +5052,7 @@ class Axes(martist.Artist):
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
-        x, y = delete_masked_points(x, y)
+        x, y = cbook.delete_masked_points(x, y)
 
         # Set the size of the hexagon grid
         if iterable(gridsize):
