@@ -184,16 +184,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
-        if self._edgecolors == 'face':
-            edgecolors = self._facecolors
-        else:
-            edgecolors = self._edgecolors
 
         renderer.draw_path_collection(
             transform.frozen(), self.clipbox, clippath, clippath_trans,
             paths, self.get_transforms(),
             offsets, transOffset,
-            self._facecolors, edgecolors, self._linewidths,
+            self.get_facecolor(), self.get_edgecolor(), self._linewidths,
             self._linestyles, self._antialiaseds)
         renderer.close_group(self.__class__.__name__)
 
@@ -315,7 +311,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
     get_facecolors = get_facecolor
 
     def get_edgecolor(self):
-        return self._edgecolors
+        if self._edgecolors == 'face':
+            return self.get_facecolors()
+        else:
+            return self._edgecolors
     get_edgecolors = get_edgecolor
 
     def set_edgecolor(self, c):
@@ -534,7 +533,7 @@ class QuadMesh(Collection):
         renderer.draw_quad_mesh(
             transform.frozen(), self.clipbox, clippath, clippath_trans,
             self._meshWidth, self._meshHeight, coordinates,
-            offsets, transOffset, self._facecolors, self._antialiased,
+            offsets, transOffset, self.get_facecolor(), self._antialiased,
             self._showedges)
         renderer.close_group(self.__class__.__name__)
 
