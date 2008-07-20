@@ -1,8 +1,13 @@
+
+2008-07-20 Renamed unit/axes_unit.py to cbook_unit.py and modified
+           in accord with Ryan's move of delete_masked_points from
+           axes to cbook. - EF
+
 2008-07-18 Check for nan and inf in axes.delete_masked_points().
-	   This should help hexbin and scatter deal with nans. - ADS
+           This should help hexbin and scatter deal with nans. - ADS
 
 2008-07-17 Added ability to manually select contour label locations.
-	   Also added a waitforbuttonpress function. - DMK
+           Also added a waitforbuttonpress function. - DMK
 
 2008-07-17 Fix bug with NaNs at end of path (thanks, Andrew Straw for
            the report) - MGD
