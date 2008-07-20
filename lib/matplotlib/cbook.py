@@ -3,9 +3,10 @@ A collection of utility functions and classes.  Many (but not all)
 from the Python Cookbook -- hence the name cbook
 """
 from __future__ import generators
-import re, os, errno, sys, StringIO, traceback, locale, threading
+import re, os, errno, sys, StringIO, traceback, locale, threading, types
 import time, datetime
 import numpy as np
+from numpy import ma
 from weakref import ref
 
 major, minor1, minor2, s, tmp = sys.version_info
@@ -1165,6 +1166,44 @@ def recursive_remove(path):
     else:
         os.remove(path)
 
+def delete_masked_points(*args):
+    """
+    Find all masked points in a set of arguments, and return
+    the arguments with only the unmasked points remaining.
+
+    This will also delete any points that are not finite (nan or inf).
+
+    The overall mask is calculated from any masks that are present.
+    If a mask is found, any argument that does not have the same
+    dimensions is left unchanged; therefore the argument list may
+    include arguments that can take string or array values, for
+    example.
+
+    Array arguments must have the same length; masked arguments must
+    be one-dimensional.
+
+    Written as a helper for scatter, but may be more generally
+    useful.
+    """
+    masks = [ma.getmaskarray(x) for x in args if hasattr(x, 'mask')]
+    isfinite = [np.isfinite(x) for x in args]
+    masks.extend( [~x for x in isfinite if not isinstance(x,types.NotImplementedType)] )
+    if len(masks) == 0:
+        return args
+    mask = reduce(np.logical_or, masks)
+    margs = []
+    for x in args:
+        if (not is_string_like(x)
+            and iterable(x)
+            and len(x) == len(mask)):
+            if (hasattr(x, 'get_compressed_copy')):
+                compressed_x = x.get_compressed_copy(mask)
+            else:
+                compressed_x = ma.masked_array(x, mask=mask).compressed()
+            margs.append(compressed_x)
+        else:
+            margs.append(x)
+    return margs
 
 
 # a dict to cross-map linestyle arguments
