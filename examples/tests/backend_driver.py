@@ -39,6 +39,7 @@ pylab_files = [
     'color_demo.py',
     'cohere_demo.py',
     'contour_demo.py',
+    'contour_label_demo.py',
     'contourf_demo.py',
     'csd_demo.py',
     'custom_ticker1.py',

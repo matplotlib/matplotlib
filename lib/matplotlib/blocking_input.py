@@ -5,11 +5,11 @@ This provides several classes used for blocking interaction with figure windows:
     creates a callable object to retrieve events in a blocking way for interactive sessions
 
 :class:`BlockingKeyMouseInput`
-    creates a callable object to retrieve key or mouse clicks in a blocking way for interactive sessions.  
+    creates a callable object to retrieve key or mouse clicks in a blocking way for interactive sessions.
     Note: Subclass of BlockingInput. Used by waitforbuttonpress
 
 :class:`BlockingMouseInput`
-    creates a callable object to retrieve mouse clicks in a blocking way for interactive sessions.  
+    creates a callable object to retrieve mouse clicks in a blocking way for interactive sessions.
     Note: Subclass of BlockingInput.  Used by ginput
 
 :class:`BlockingContourLabeler`
@@ -46,7 +46,7 @@ class BlockingInput(object):
 
         # This will extract info from events
         self.post_event()
-        
+
         # Check if we have enough events already
         if len(self.events) >= self.n and self.n > 0:
             self.done = True
@@ -84,7 +84,7 @@ class BlockingInput(object):
         """
         Blocking call to retrieve n events
         """
-        
+
         assert isinstance(n, int), "Requires an integer argument"
         self.n = n
 
@@ -94,7 +94,7 @@ class BlockingInput(object):
 
         # Ensure that the figure is shown
         self.fig.show()
-        
+
         # connect the events to the on_event function call
         for n in self.eventslist:
             self.callbacks.append( self.fig.canvas.mpl_connect(n, self.on_event) )
@@ -124,7 +124,7 @@ class BlockingMouseInput(BlockingInput):
     blocking way.
     """
     def __init__(self, fig):
-        BlockingInput.__init__(self, fig=fig, 
+        BlockingInput.__init__(self, fig=fig,
                                eventslist=('button_press_event',) )
 
     def post_event(self):
@@ -194,7 +194,7 @@ class BlockingMouseInput(BlockingInput):
         """
         self.clicks.append((event.xdata,event.ydata))
 
-        verbose.report("input %i: %f,%f" % 
+        verbose.report("input %i: %f,%f" %
                        (len(self.clicks),event.xdata, event.ydata))
 
         # If desired plot up click
@@ -209,7 +209,7 @@ class BlockingMouseInput(BlockingInput):
         removing the last click.
         """
         self.clicks.pop(index)
-        
+
         if self.show_clicks:
             mark = self.marks.pop(index)
             mark.remove()
@@ -234,7 +234,7 @@ class BlockingMouseInput(BlockingInput):
 
         # Call base class to remove callbacks
         BlockingInput.cleanup(self)
-        
+
     def __call__(self, n=1, timeout=30, show_clicks=True):
         """
         Blocking call to retrieve n coordinate pairs through mouse
@@ -261,11 +261,18 @@ class BlockingContourLabeler( BlockingMouseInput ):
         This will be called if an event involving a button other than
         2 or 3 occcurs.  This will add a label to a contour.
         """
-        if event.inaxes == self.cs.ax:
-            conmin,segmin,imin,xmin,ymin = self.cs.find_nearest_contour(
-                event.x, event.y)[:5]
 
-            paths = self.cs.collections[conmin].get_paths()
+        # Shorthand
+        cs = self.cs
+
+        if event.inaxes == cs.ax:
+            conmin,segmin,imin,xmin,ymin = cs.find_nearest_contour(
+                event.x, event.y, cs.label_indices)[:5]
+
+            # Get index of nearest level in subset of levels used for labeling
+            lmin = cs.label_indices.index(conmin)
+
+            paths = cs.collections[conmin].get_paths()
             lc = paths[segmin].vertices
 
             # Figure out label rotation.  This is very cludgy.
@@ -287,15 +294,15 @@ class BlockingContourLabeler( BlockingMouseInput ):
             if rotation < -90:
                 rotation = 180 + rotation
 
-            self.cs.add_label(xmin,ymin,rotation,conmin)
+            cs.add_label(xmin,ymin,rotation,cs.label_levels[lmin],
+                         cs.label_cvalues[lmin])
 
             if self.inline:
                 # Get label width for breaking contours
-                lw = self.cs.get_label_width(self.cs.label_levels[conmin], 
-                                             self.cs.fmt, 
-                                             self.cs.fslist[conmin])
+                lw = cs.get_label_width(cs.label_levels[lmin],
+                                        cs.fmt, cs.fslist[lmin])
                 # Break contour
-                new=self.cs.break_linecontour(lc,rotation,lw,imin)
+                new=cs.break_linecontour(lc,rotation,lw,imin)
                 if len(new[0]):
                     paths[segmin] = path.Path(new[0])
                 if len(new[1]):
@@ -304,7 +311,7 @@ class BlockingContourLabeler( BlockingMouseInput ):
             self.fig.canvas.draw()
         else: # Remove event if not valid
             BlockingInput.pop(self)
-            
+
     def button3(self,event):
         """
         This will be called if button 3 is clicked.  This will remove
