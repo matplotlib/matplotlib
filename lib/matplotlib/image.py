@@ -272,10 +272,11 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         ACCEPTS: numpy/PIL Image A"""
         # check if data is PIL Image without importing Image
         if hasattr(A,'getpixel'):
-            X = pil_to_array(A)
+            self._A = pil_to_array(A)
+        elif ma.isMA(A):
+            self._A = A
         else:
-            X = ma.asarray(A) # assume array
-        self._A = X
+            self._A = np.asarray(A) # assume array
 
         self._imcache =None
         self._rgbacache = None
@@ -408,7 +409,8 @@ class NonUniformImage(AxesImage):
     def set_data(self, x, y, A):
         x = np.asarray(x,np.float32)
         y = np.asarray(y,np.float32)
-        A = np.asarray(A)
+        if not ma.isMA(A):
+            A = np.asarray(A)
         if len(x.shape) != 1 or len(y.shape) != 1\
            or A.shape[0:2] != (y.shape[0], x.shape[0]):
             raise TypeError("Axes don't match array shape")
@@ -535,7 +537,8 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
 
 
     def set_data(self, x, y, A):
-        A = ma.asarray(A)
+        if not ma.isMA(A):
+            A = np.asarray(A)
         if x is None:
             x = np.arange(0, A.shape[1]+1, dtype=np.float64)
         else:

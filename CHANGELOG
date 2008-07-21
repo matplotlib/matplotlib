@@ -1,3 +1,7 @@
+2008-07-21 Changed the "asarray" strategy in image.py so that
+           colormapping of masked input should work for all
+           image types (thanks Klaus Zimmerman) - EF
+
 2008-07-20 Rewrote cbook.delete_masked_points and corresponding
            unit test to support rgb color array inputs, datetime
            inputs, etc. - EF
