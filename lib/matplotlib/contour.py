@@ -85,7 +85,7 @@ class ContourLabeler:
 
         """
 
-        """"
+        """
         NOTES on how this all works:
 
         clabel basically takes the input arguments and uses them to
@@ -103,7 +103,7 @@ class ContourLabeler:
 
         Once these attributes are set, clabel passes control to the
         labels method (case of automatic label placement) or
-        BlockingContourLabeler (case of manual label placement.
+        BlockingContourLabeler (case of manual label placement).
         """
 
         fontsize = kwargs.get('fontsize', None)
