@@ -90,7 +90,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._uniform_offsets = None
         self._offsets = np.array([], np.float_)
         if offsets is not None:
-            offsets = np.asarray(offsets, np.float_)
+            offsets = np.asarray(offsets)
             if len(offsets.shape) == 1:
                 offsets = offsets[np.newaxis,:]  # Make it Nx2.
             if transOffset is not None:

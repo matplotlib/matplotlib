@@ -1,3 +1,6 @@
+2008-07-20 Rewrote cbook.delete_masked_points and corresponding
+           unit test to support rgb color array inputs, datetime
+           inputs, etc. - EF
 
 2008-07-20 Renamed unit/axes_unit.py to cbook_unit.py and modified
            in accord with Ryan's move of delete_masked_points from

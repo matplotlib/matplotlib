@@ -6,7 +6,7 @@ from __future__ import generators
 import re, os, errno, sys, StringIO, traceback, locale, threading, types
 import time, datetime
 import numpy as np
-from numpy import ma
+import numpy.ma as ma
 from weakref import ref
 
 major, minor1, minor2, s, tmp = sys.version_info
@@ -1168,41 +1168,82 @@ def recursive_remove(path):
 
 def delete_masked_points(*args):
     """
-    Find all masked points in a set of arguments, and return
-    the arguments with only the unmasked points remaining.
+    Find all masked and/or non-finite points in a set of arguments,
+    and return the arguments with only the unmasked points remaining.
 
-    This will also delete any points that are not finite (nan or inf).
+    Arguments can be in any of 5 categories:
 
-    The overall mask is calculated from any masks that are present.
-    If a mask is found, any argument that does not have the same
-    dimensions is left unchanged; therefore the argument list may
-    include arguments that can take string or array values, for
-    example.
+    1) 1-D masked arrays
+    2) 1-D ndarrays
+    3) ndarrays with more than one dimension
+    4) other non-string iterables
+    5) anything else
 
-    Array arguments must have the same length; masked arguments must
-    be one-dimensional.
+    The first argument must be in one of the first four categories;
+    any argument with a length differing from that of the first
+    argument (and hence anything in category 5) then will be
+    passed through unchanged.
 
-    Written as a helper for scatter, but may be more generally
-    useful.
+    Masks are obtained from all arguments of the correct length
+    in categories 1, 2, and 4; a point is bad if masked in a masked
+    array or if it is a nan or inf.  No attempt is made to
+    extract a mask from categories 2, 3, and 4 if *np.isfinite()*
+    does not yield a Boolean array.
+
+    All input arguments that are not passed unchanged are returned
+    as ndarrays after removing the points or rows corresponding to
+    masks in any of the arguments.
+
+    A vastly simpler version of this function was originally
+    written as a helper for Axes.scatter().
+
     """
-    masks = [ma.getmaskarray(x) for x in args if hasattr(x, 'mask')]
-    isfinite = [np.isfinite(x) for x in args]
-    masks.extend( [~x for x in isfinite if not isinstance(x,types.NotImplementedType)] )
-    if len(masks) == 0:
-        return args
-    mask = reduce(np.logical_or, masks)
+    if not len(args):
+        return ()
+    if (is_string_like(args[0]) or not iterable(args[0])):
+        raise ValueError("First argument must be a sequence")
+    nrecs = len(args[0])
     margs = []
-    for x in args:
-        if (not is_string_like(x)
-            and iterable(x)
-            and len(x) == len(mask)):
-            if (hasattr(x, 'get_compressed_copy')):
-                compressed_x = x.get_compressed_copy(mask)
+    seqlist = [False] * len(args)
+    for i, x in enumerate(args):
+        if (not is_string_like(x)) and iterable(x) and len(x) == nrecs:
+            seqlist[i] = True
+            if ma.isMA(x):
+                if x.ndim > 1:
+                    raise ValueError("Masked arrays must be 1-D")
             else:
-                compressed_x = ma.masked_array(x, mask=mask).compressed()
-            margs.append(compressed_x)
-        else:
-            margs.append(x)
+                x = np.asarray(x)
+        margs.append(x)
+    masks = []    # list of masks that are True where good
+    for i, x in enumerate(margs):
+        if seqlist[i]:
+            if x.ndim > 1:
+                continue  # Don't try to get nan locations unless 1-D.
+            if ma.isMA(x):
+                masks.append(~ma.getmaskarray(x))  # invert the mask
+                xd = x.data
+            else:
+                xd = x
+            try:
+                mask = np.isfinite(xd)
+                if isinstance(mask, np.ndarray):
+                    masks.append(mask)
+            except: #Fixme: put in tuple of possible exceptions?
+                pass
+    if len(masks):
+        mask = reduce(np.logical_and, masks)
+        igood = mask.nonzero()[0]
+        if len(igood) < nrecs:
+            for i, x in enumerate(margs):
+                if seqlist[i]:
+                    if (hasattr(x, 'get_compressed_copy')):
+                        compressed_x = x.get_compressed_copy(~mask)
+                    else:
+                        compressed_x = x.take(igood, axis=0)
+                    margs[i] = compressed_x
+    for i, x in enumerate(margs):
+        if seqlist[i] and ma.isMA(x):
+            margs[i] = x.filled()
     return margs
 
 
