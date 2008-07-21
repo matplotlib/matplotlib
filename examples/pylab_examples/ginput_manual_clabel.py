@@ -4,8 +4,10 @@ This provides examples of uses of interactive functions, such as ginput,
 waitforbuttonpress and manual clabel placement.
 
 This script must be run interactively using a backend that has a
-graphical user interface (for example, from inside ipython using
-GTKAgg backend, but not PS backend).
+graphical user interface (for example, using GTKAgg backend, but not
+PS backend).
+
+See also ginput_demo.py
 """
 import time
 import matplotlib
@@ -86,3 +88,6 @@ while not happy:
 
     pts = np.sort(pts,axis=0)
     plt.axis( pts.T.ravel() )
+
+tellme('All Done!')
+plt.show()
