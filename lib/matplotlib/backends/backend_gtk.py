@@ -67,7 +67,8 @@ def show(mainloop=True):
     for manager in Gcf.get_all_fig_managers():
         manager.window.show()
 
-    if mainloop and gtk.main_level() == 0:
+    if mainloop and gtk.main_level() == 0 and \
+                            len(Gcf.get_all_fig_managers())>0:
         gtk.main()
 
 def new_figure_manager(num, *args, **kwargs):

@@ -23,7 +23,9 @@ def pylab_setup():
     # Things we pull in from all backends
     new_figure_manager = backend_mod.new_figure_manager
 
-
+    # image backends like pdf, agg or svg do not need to do anything
+    # for "show" or "draw_if_interactive", so if they are not defined
+    # by the backend, just do nothing
     def do_nothing(*args, **kwargs): pass
     backend_version = getattr(backend_mod,'backend_version', 'unknown')
     show = getattr(backend_mod, 'show', do_nothing)
