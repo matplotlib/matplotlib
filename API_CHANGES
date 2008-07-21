@@ -130,8 +130,6 @@ TRANSFORMS REFACTORING
 
       Transform.inverse_xy_tup(points)		Transform.inverted().transform(points)
 
-      offset_copy(trans, x, y)                  trans + Affine2D().translate(x, y)
-
     axes.py
       Axes.get_position()			Axes.get_position()
         [Axes.get_position() used to return a list of points, not it

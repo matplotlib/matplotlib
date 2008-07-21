@@ -1,3 +1,6 @@
+2008-07-21 Re-introduced offset_copy that works in the context of the
+           new transforms. - MGD
+
 2008-07-21 Committed patch by Ryan May to add get_offsets and
            set_offsets to Collections base class - EF
 
