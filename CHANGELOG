@@ -1,3 +1,6 @@
+2008-07-21 Committed patch by Ryan May to add get_offsets and
+           set_offsets to Collections base class - EF
+
 2008-07-21 Changed the "asarray" strategy in image.py so that
            colormapping of masked input should work for all
            image types (thanks Klaus Zimmerman) - EF

@@ -218,6 +218,32 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def set_pickradius(self,pickradius): self.pickradius = 5
     def get_pickradius(self): return self.pickradius
 
+    def set_offsets(self, offsets):
+        """
+        Set the offsets for the collection.  *offsets* can be a scalar
+        or a sequence.
+        
+        ACCEPTS: float or sequence of floats
+        """
+        offsets = np.asarray(offsets, np.float_)
+        if len(offsets.shape) == 1:
+            offsets = offsets[np.newaxis,:]  # Make it Nx2.
+        #This decision is based on how they are initialized above
+        if self._uniform_offsets is None:
+            self._offsets = offsets
+        else:
+            self._uniform_offsets = offsets
+
+    def get_offsets(self):
+        """
+        Return the offsets for the collection.
+        """
+        #This decision is based on how they are initialized above in __init__()
+        if self._uniform_offsets is None:
+            return self._offsets
+        else:
+            return self._uniform_offsets
+
     def set_linewidths(self, lw):
         """
         Set the linewidth(s) for the collection.  *lw* can be a scalar
