@@ -305,6 +305,7 @@ class ValidateInterval:
 # a map from key -> value, converter
 defaultParams = {
     'backend'           : ['Agg', validate_backend], # agg is certainly present
+    'backend_fallback'  : [True, validate_bool], # agg is certainly present
     'numerix'           : ['numpy', validate_numerix],
     'maskedarray'       : [False, validate_bool],
     'toolbar'           : ['toolbar2', validate_toolbar],

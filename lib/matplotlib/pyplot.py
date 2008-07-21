@@ -1,12 +1,13 @@
 import sys
 
 import matplotlib
-from matplotlib import _pylab_helpers
+from matplotlib import _pylab_helpers, interactive
 from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
 from matplotlib.figure import Figure, figaspect
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.image import imread as _imread
 from matplotlib import rcParams, rcParamsDefault, get_backend
+from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import getp, get, Artist
 from matplotlib.artist import setp as _setp
 from matplotlib.axes import Axes
@@ -32,6 +33,41 @@ from ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            MaxNLocator
 
 
+## Backend detection ##
+def _backend_selection():
+    """ If rcParams['backend_fallback'] is true, check to see if the
+        current backend is compatible with the current running event
+        loop, and if not switches to a compatible one.
+    """
+    backend = rcParams['backend']
+    if not rcParams['backend_fallback'] or \
+                     backend not in _interactive_bk:
+        return
+    is_agg_backend = rcParams['backend'].endswith('Agg')
+    if 'wx' in sys.modules and not backend in ('WX', 'WXAgg'):
+        import wx
+        if wx.App.IsMainLoopRunning():
+            rcParams['backend'] = 'wx' + 'Agg' * is_agg_backend
+    elif 'qt' in sys.modules and not backend == 'QtAgg':
+        import qt
+        if not qt.qApp.startingUp():
+            # The mainloop is running.
+            rcParams['backend'] = 'qtAgg'
+    elif 'PyQt4.QtCore' in sys.modules and not backend == 'Qt4Agg':
+        import PyQt4.QtGui
+        if not PyQt4.QtGui.qApp.startingUp():
+            # The mainloop is running.
+            rcParams['backend'] = 'qt4Agg'
+    elif 'gtk' in sys.modules and not backend in ('GTK', 'GTKAgg',
+                                                            'GTKCairo'):
+        import gobject
+        if gobject.MainLoop().is_running():
+            rcParams['backend'] = 'gtk' + 'Agg' * is_agg_backend
+    elif 'Tkinter' in sys.modules and not backend == 'TkAgg':
+        #import Tkinter
+        pass #what if anything do we need to do for tkinter?
+
+_backend_selection()
 
 ## Global ##
 
