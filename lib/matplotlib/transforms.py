@@ -2144,6 +2144,27 @@ def interval_contains_open(interval, val):
         ((a < b) and (a < val and b > val))
         or (b < val and a > val))
 
+def offset_copy(trans, fig, x=0.0, y=0.0, units='inches'):
+    '''
+    Return a new transform with an added offset.
+      args:
+        trans is any transform
+      kwargs:
+        fig is the current figure; it can be None if units are 'dots'
+        x, y give the offset
+        units is 'inches', 'points' or 'dots'
+    '''
+    if units == 'dots':
+        return trans + Affine2D().translate(x, y)
+    if fig is None:
+        raise ValueError('For units of inches or points a fig kwarg is needed')
+    if units == 'points':
+        x /= 72.0
+        y /= 72.0
+    elif not units == 'inches':
+        raise ValueError('units must be dots, points, or inches')
+    return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)
+
 if __name__ == '__main__':
     import copy
     from random import random
