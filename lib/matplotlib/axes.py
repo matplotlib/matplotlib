@@ -4724,7 +4724,7 @@ class Axes(martist.Artist):
         arguments will be used only if *c* is an array of floats.
 
           *cmap*: [ None | Colormap ]
-            A :class:`matplotlib.cm.Colormap` instance. If *None*,
+            A :class:`matplotlib.colors.Colormap` instance. If *None*,
             defaults to rc ``image.cmap``. *cmap* is only used if *c*
             is an array of floats.
 
