@@ -1244,6 +1244,56 @@ def delete_masked_points(*args):
             margs[i] = x.filled()
     return margs
 
+def unmasked_index_ranges(mask, compressed = True):
+    '''
+    Find index ranges where *mask* is *False*.
+
+    *mask* will be flattened if it is not already 1-D.
+
+    Returns Nx2 :class:`numpy.ndarray` with each row the start and stop
+    indices for slices of the compressed :class:`numpy.ndarray`
+    corresponding to each of *N* uninterrupted runs of unmasked
+    values.  If optional argument *compressed* is *False*, it returns
+    the start and stop indices into the original :class:`numpy.ndarray`,
+    not the compressed :class:`numpy.ndarray`.  Returns *None* if there
+    are no unmasked values.
+
+    Example::
+
+      y = ma.array(np.arange(5), mask = [0,0,1,0,0])
+      ii = unmasked_index_ranges(ma.getmaskarray(y))
+      # returns array [[0,2,] [2,4,]]
+
+      y.compressed()[ii[1,0]:ii[1,1]]
+      # returns array [3,4,]
+
+      ii = unmasked_index_ranges(ma.getmaskarray(y), compressed=False)
+      # returns array [[0, 2], [3, 5]]
+
+      y.filled()[ii[1,0]:ii[1,1]]
+      # returns array [3,4,]
+
+    Prior to the transforms refactoring, this was used to support
+    masked arrays in Line2D.
+
+    '''
+    mask = mask.reshape(mask.size)
+    m = np.concatenate(((1,), mask, (1,)))
+    indices = np.arange(len(mask) + 1)
+    mdif = m[1:] - m[:-1]
+    i0 = np.compress(mdif == -1, indices)
+    i1 = np.compress(mdif == 1, indices)
+    assert len(i0) == len(i1)
+    if len(i1) == 0:
+        return None  # Maybe this should be np.zeros((0,2), dtype=int)
+    if not compressed:
+        return np.concatenate((i0[:, np.newaxis], i1[:, np.newaxis]), axis=1)
+    seglengths = i1 - i0
+    breakpoints = np.cumsum(seglengths)
+    ic0 = np.concatenate(((0,), breakpoints[:-1]))
+    ic1 = breakpoints
+    return np.concatenate((ic0[:, np.newaxis], ic1[:, np.newaxis]), axis=1)
+
 
 # a dict to cross-map linestyle arguments
 _linestyles = [('-', 'solid'),
