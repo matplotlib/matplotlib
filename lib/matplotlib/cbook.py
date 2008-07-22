@@ -743,6 +743,8 @@ def popd(d, *args):
       val = popd(d, key, default)
 
     """
+    warnings.warn("Use native python dict.pop method", DeprecationWarning)
+    # warning added 2008/07/22
     if len(args)==1:
         key = args[0]
         val = d[key]
