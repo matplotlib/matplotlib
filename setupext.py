@@ -89,6 +89,7 @@ BUILT_TKAGG     = False
 BUILT_WXAGG     = False
 BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
+BUILT_DELAUNAY   = False
 BUILT_NXUTILS   = False
 BUILT_TRAITS = False
 BUILT_CONTOUR   = False
@@ -1337,6 +1338,22 @@ def build_traits(ext_modules, packages):
                      'enthought/traits/ui/tk',
                      ])
     BUILT_TRAITS = True
+
+def build_delaunay(ext_modules, packages):
+    global BUILT_DELAUNAY
+    if BUILT_DELAUNAY:
+        return # only build it if you you haven't already
+
+    sourcefiles=["_delaunay.cpp", "VoronoiDiagramGenerator.cpp",
+                 "delaunay_utils.cpp", "natneighbors.cpp"]
+    sourcefiles = [os.path.join('lib/matplotlib/delaunay',s) for s in sourcefiles]
+    delaunay = Extension('matplotlib._delaunay',sourcefiles,
+                         include_dirs=numpy_inc_dirs)
+    add_numpy_flags(delaunay)
+    add_base_flags(delaunay)
+    ext_modules.append(delaunay)
+    packages.extend(['matplotlib.delaunay'])
+    BUILT_DELAUNAY = True
 
 
 def build_contour(ext_modules, packages):

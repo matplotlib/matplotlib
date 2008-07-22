@@ -41,6 +41,7 @@ pylab_files = [
     'contour_demo.py',
     'contour_label_demo.py',
     'contourf_demo.py',
+    'griddata_demo.py',
     'csd_demo.py',
     'custom_ticker1.py',
     'customize_rc.py',
