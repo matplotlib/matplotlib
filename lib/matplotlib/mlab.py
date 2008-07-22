@@ -90,6 +90,12 @@ import numpy as np
 
 import matplotlib.nxutils as nxutils
 import matplotlib.cbook as cbook
+try:
+    import mpl_tookits._natgrid as _natgrid
+    _use_natgrid = True
+except ImportError:
+    import matplotlib.delaunay as delaunay
+    _use_natgrid = False
 
 # set is a new builtin function in 2.4; delete the following when
 # support for 2.3 is dropped.
@@ -2691,3 +2697,55 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
                          in zip(funcs, row, rowmask, mvals)])
     if opened:
         fh.close()
+
+def griddata(x,y,z,xi,yi):
+    """
+    zi = griddata(x,y,z,xi,yi) fits a surface of the form z = f(x,y)
+    to the data in the (usually) nonuniformly spaced vectors (x,y,z).
+    griddata interpolates this surface at the points specified by (xi,yi)
+    to produce zi. xi and yi must describe a regular grid, can be
+    either 1D or 2D, but must be monotonically increasing.
+    
+    A masked array is returned if any grid points are outside convex 
+    hull defined by input data (no extrapolation is done).
+
+    Uses natural neighbor interpolation based on Delaunay triangulation.
+    """
+    if xi.ndim != yi.ndim:
+        raise TypeError("inputs xi and yi must have same number of dimensions (1 or 2)")
+    if xi.ndim != 1 and xi.ndim != 2:
+        raise TypeError("inputs xi and yi must be 1D or 2D.")
+    if _use_natgrid: # use natgrid toolkit if available.
+        if xi.ndim == 2:
+            xi = xi[0,:]
+            yi = yi[:,0]
+        # override default natgrid internal parameters.
+        _natgrid.seti('ext',0)
+        _natgrid.setr('nul',np.nan)
+        # cast input arrays to doubles (this makes a copy)
+        x = x.astype(np.float)
+        y = y.astype(np.float)
+        z = z.astype(np.float)
+        xo = xi.astype(np.float)
+        yo = yi.astype(np.float)
+        if min(xo[1:]-xo[0:-1]) < 0 or min(yo[1:]-yo[0:-1]) < 0:
+            raise ValueError, 'output grid defined by xi,yi must be monotone increasing'
+        # allocate array for output (buffer will be overwritten by nagridd)
+        zo = np.empty((yo.shape[0],xo.shape[0]), np.float)
+        _natgrid.natgridd(x,y,z,xo,yo,zo)
+    else: # use Robert Kern's delaunay package from scikits (default)
+        if xi.ndim != yi.ndim:
+            raise TypeError("inputs xi and yi must have same number of dimensions (1 or 2)")
+        if xi.ndim != 1 and xi.ndim != 2:
+            raise TypeError("inputs xi and yi must be 1D or 2D.")
+        if xi.ndim == 1:
+            xi,yi = np.meshgrid(xi,yi)
+        # triangulate data
+        tri = delaunay.Triangulation(x,y)
+        # interpolate data
+        interp = tri.nn_interpolator(z)
+        zo = interp(xi,yi)
+    # mask points on grid outside convex hull of input data.
+    if np.any(np.isnan(zo)):
+        zo = np.ma.masked_where(np.isnan(zo),zo)
+    return zo
