@@ -1187,7 +1187,7 @@ def delete_masked_points(*args):
     Masks are obtained from all arguments of the correct length
     in categories 1, 2, and 4; a point is bad if masked in a masked
     array or if it is a nan or inf.  No attempt is made to
-    extract a mask from categories 2, 3, and 4 if *np.isfinite()*
+    extract a mask from categories 2, 3, and 4 if :meth:`np.isfinite`
     does not yield a Boolean array.
 
     All input arguments that are not passed unchanged are returned
@@ -1236,11 +1236,7 @@ def delete_masked_points(*args):
         if len(igood) < nrecs:
             for i, x in enumerate(margs):
                 if seqlist[i]:
-                    if (hasattr(x, 'get_compressed_copy')):
-                        compressed_x = x.get_compressed_copy(~mask)
-                    else:
-                        compressed_x = x.take(igood, axis=0)
-                    margs[i] = compressed_x
+                    margs[i] = x.take(igood, axis=0)
     for i, x in enumerate(margs):
         if seqlist[i] and ma.isMA(x):
             margs[i] = x.filled()
