@@ -91,7 +91,7 @@ import numpy as np
 import matplotlib.nxutils as nxutils
 import matplotlib.cbook as cbook
 try:
-    import mpl_tookits._natgrid as _natgrid
+    from mpl_toolkits.natgrid import _natgrid
     _use_natgrid = True
 except ImportError:
     import matplotlib.delaunay as delaunay
