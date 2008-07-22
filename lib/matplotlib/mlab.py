@@ -2710,6 +2710,15 @@ def griddata(x,y,z,xi,yi):
     hull defined by input data (no extrapolation is done).
 
     Uses natural neighbor interpolation based on Delaunay triangulation.
+    By default, this algorithm is provided by the matplotlib.delaunay
+    package, written by Robert Kern.  The triangulation algorithm in this
+    package is known to fail on some nearly pathological cases. For
+    this reason, a separate toolkit (mpl_tookits.natgrid) has been created
+    that provides a more robust algorithm fof triangulation and interpolation.
+    This toolkit is based on the NCAR natgrid library, which contains code 
+    that is not redistributable under a BSD-compatible license.  When installed,
+    this function will use the mpl_toolkits.natgrid algorithm, otherwise it
+    will use the built-in matplotlib.delaunay package.
     """
     if xi.ndim != yi.ndim:
         raise TypeError("inputs xi and yi must have same number of dimensions (1 or 2)")
