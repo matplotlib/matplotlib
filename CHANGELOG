@@ -1,3 +1,8 @@
+2008-07-21 Added scikits.delaunay as matplotlib.delaunay.  Added griddata
+           function in matplotlib.mlab, with example (griddata_demo.py) in
+           pylab_examples. griddata function will use mpl_toolkits._natgrid 
+           if installed (haven't yet created the toolkit).  - JSW
+
 2008-07-21 Re-introduced offset_copy that works in the context of the
            new transforms. - MGD
 

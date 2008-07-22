@@ -27,7 +27,7 @@ import glob
 from distutils.core import setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_ft2font, build_image, build_windowing, build_path, \
-     build_contour, build_nxutils, build_traits, build_gdk, \
+     build_contour, build_delaunay, build_nxutils, build_traits, build_gdk, \
      build_ttconv, print_line, print_status, print_message, \
      print_raw, check_for_freetype, check_for_libpng, check_for_gtk, \
      check_for_tk, check_for_wx, check_for_numpy, check_for_qt, check_for_qt4, \
@@ -95,6 +95,7 @@ if not check_for_freetype():
 build_ft2font(ext_modules, packages)
 build_ttconv(ext_modules, packages)
 build_contour(ext_modules, packages)
+build_delaunay(ext_modules, packages)
 build_nxutils(ext_modules, packages)
 build_path(ext_modules, packages)
 
