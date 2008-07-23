@@ -287,7 +287,7 @@ def is_writable_file_like(obj):
 
 def is_scalar(obj):
     'return true if *obj* is not string like and is not iterable'
-    return not is_string_like(obj) or not iterable(obj)
+    return not is_string_like(obj) and not iterable(obj)
 
 def is_numlike(obj):
     'return true if *obj* looks like a number'
@@ -1156,6 +1156,46 @@ def simple_linear_interpolation(a, steps):
 
     return result
 
+def less_simple_linear_interpolation( x, y, xi, extrap=False ):
+    """
+    This function provides simple (but somewhat less so than
+    simple_linear_interpolation) linear interpolation.  This is very
+    inefficient linear interpolation meant to be used only for a small
+    number of points in relatively non-intensive use cases.
+
+    Call signature::
+
+    yi = less_simple_linear_interpolation(x,y,xi)
+    """
+    if is_scalar(xi): xi = [xi]
+
+    x = np.asarray(x)
+    y = np.asarray(y)
+    xi = np.asarray(xi)
+
+    s = list(y.shape)
+    s[0] = len(xi)
+    yi = np.tile( np.nan, s )
+
+    for ii,xx in enumerate(xi):
+        bb = x == xx
+        if np.any(bb):
+            jj, = np.nonzero(bb)
+            yi[ii] = y[jj[0]]
+        elif xx<x[0]:
+            if extrap:
+                yi[ii] = y[0]
+        elif xx>x[-1]:
+            if extrap:
+                yi[ii] = y[-1]
+        else:
+            jj, = np.nonzero(x<xx)
+            jj = max(jj)
+
+            yi[ii] = y[jj] + (xx-x[jj])/(x[jj+1]-x[jj]) * (y[jj+1]-y[jj])
+
+    return yi
+
 def recursive_remove(path):
     if os.path.isdir(path):
         for fname in glob.glob(os.path.join(path, '*')) + glob.glob(os.path.join(path, '.*')):
@@ -1294,6 +1334,75 @@ def unmasked_index_ranges(mask, compressed = True):
     ic1 = breakpoints
     return np.concatenate((ic0[:, np.newaxis], ic1[:, np.newaxis]), axis=1)
 
+def isvector(X):
+    """
+    Like the Matlab (TM) function with the same name, returns true if
+    the supplied numpy array or matrix looks like a vector, meaning it
+    has a one non-singleton axis (i.e., it can have multiple axes, but
+    all must have length 1, except for one of them).
+
+    If you just want to see if the array has 1 axis, use X.ndim==1
+
+    Call signature::
+    isvector(X)
+    """
+    return np.prod(X.shape)==np.max(X.shape)
+
+def vector_lengths( X, P=2., axis=None ):
+    """
+    Finds the length of a set of vectors in n dimensions.  This is
+    like the mlab.norm function for vectors, but has the ability to
+    work over a particular axis of the supplied array or matrix.
+
+    Call signature::
+
+    vector_lengths( X, P=2., axis=None )
+
+    Computes (sum((x_i)^P))^(1/P) for each {x_i} being the elements of X along
+    the given axis.  If *axis* is *None*, compute over all elements of X.
+    """
+    X = np.asarray(X)
+    return (np.sum(X**(P),axis=axis))**(1./P)
+
+def distances_along_curve( X ):
+    """
+    Computes the distance between a set of successive points in N dimensions.
+
+    Call signature::
+
+    distances_along_curve(X)
+
+    where X is an MxN array or matrix.  The distances between successive rows
+    is computed.  Distance is the standard Euclidean distance.
+    """
+    X = np.diff( X, axis=0 )
+    return vector_lengths(X,axis=1)
+
+def path_length(X):
+    """
+    Computes the distance travelled along a polygonal curve in N dimensions.
+
+    Call signature::
+
+    path_length(X)
+
+    where X is an MxN array or matrix.  Returns an array of length M consisting
+    of the distance along the curve at each point (i.e., the rows of X).
+    """
+    X = distances_along_curve(X)
+    return np.concatenate( (np.zeros(1), np.cumsum(X)) )
+
+def is_closed_polygon(X):
+    """
+    Tests whether first and last object in a sequence are the same.  These are
+    presumably coordinates on a polygonal curve, in which case this function
+    tests if that curve is closed.
+
+    Call signature::
+
+    is_closed_polygon(X)
+    """
+    return np.all(X[0] == X[-1])
 
 # a dict to cross-map linestyle arguments
 _linestyles = [('-', 'solid'),
