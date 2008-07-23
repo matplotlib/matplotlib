@@ -1,6 +1,8 @@
 
 import matplotlib
 
+# ipython relies on interactive_bk being defined here
+from matplotlib.rcsetup import interactive_bk
 
 __all__ = ['backend','show','draw_if_interactive',
            'new_figure_manager', 'backend_version']
