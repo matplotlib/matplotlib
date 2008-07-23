@@ -1052,7 +1052,7 @@ class Transform(TransformNode):
         Accepts a numpy array of shape (N x :attr:`input_dims`) and
         returns a numpy array of shape (N x :attr:`output_dims`).
         """
-        return self.transform(points)
+        return self.transform(values)
 
     def get_affine(self):
         """
