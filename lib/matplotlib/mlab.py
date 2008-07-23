@@ -14,6 +14,8 @@ commands with the same names.
     * find - Return the indices where some condition is true;
              numpy.nonzero is similar but more general.
 
+    * griddata - interpolate irregularly distributed data to a
+                 regular grid.
 
     * prctile - find the percentiles of a sequence
 
@@ -90,12 +92,6 @@ import numpy as np
 
 import matplotlib.nxutils as nxutils
 import matplotlib.cbook as cbook
-try:
-    from mpl_toolkits.natgrid import _natgrid
-    _use_natgrid = True
-except ImportError:
-    import matplotlib.delaunay as delaunay
-    _use_natgrid = False
 
 # set is a new builtin function in 2.4; delete the following when
 # support for 2.3 is dropped.
@@ -2720,6 +2716,12 @@ def griddata(x,y,z,xi,yi):
     this function will use the mpl_toolkits.natgrid algorithm, otherwise it
     will use the built-in matplotlib.delaunay package.
     """
+    try:
+        from mpl_toolkits.natgrid import _natgrid
+        _use_natgrid = True
+    except ImportError:
+        import matplotlib.delaunay as delaunay
+        _use_natgrid = False
     if xi.ndim != yi.ndim:
         raise TypeError("inputs xi and yi must have same number of dimensions (1 or 2)")
     if xi.ndim != 1 and xi.ndim != 2:

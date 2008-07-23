@@ -184,6 +184,7 @@ _Dates
 _Other
 
   angle     - the angle of a complex array
+  griddata - interpolate irregularly distributed data to a regular grid
   load     - load ASCII data into array
   polyfit   - fit x, y to an n-th order polynomial
   polyval   - evaluate an n-th order polynomial
@@ -219,7 +220,7 @@ import matplotlib.dates
 
 from matplotlib.mlab import  window_hanning, window_none,\
         conv, detrend, detrend_mean, detrend_none, detrend_linear,\
-        polyfit, polyval, entropy, normpdf,\
+        polyfit, polyval, entropy, normpdf, griddata,\
         levypdf, find, trapz, prepca, fix, rem, norm, orth, rank,\
         sqrtm, prctile, center_matrix, rk4, exp_safe, amap,\
         sum_flat, mean_flat, rms_flat, l1norm, l2norm, norm, frange,\
