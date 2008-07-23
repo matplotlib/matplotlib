@@ -1,8 +1,13 @@
 """
-Support for plotting fields of arrows.
+Support for plotting vector fields.
 
-Presently this contains a single class, Quiver, but it
-might make sense to consolidate other arrow plotting here.
+Presently this contains Quiver and Barb. Quiver plots an arrow in the
+direction of the vector, with the size of the arrow related to the
+magnitude of the vector.
+
+Barbs are like quiver in that they point along a vector, but
+the magnitude of the vector is given schematically by the presence of barbs
+or flags on the barb.
 
 This will also become a home for things such as standard
 deviation ellipses, which can and will be derived very easily from
@@ -17,6 +22,8 @@ import matplotlib.transforms as transforms
 import matplotlib.text as mtext
 import matplotlib.artist as martist
 import matplotlib.font_manager as font_manager
+from matplotlib.cbook import delete_masked_points
+from matplotlib.patches import CirclePolygon
 import math
 
 
@@ -498,3 +505,388 @@ class Quiver(collections.PolyCollection):
         return X, Y
 
     quiver_doc = _quiver_doc
+
+_barbs_doc = """
+Plot a 2-D field of barbs.
+
+call signatures::
+
+  barb(U, V, **kw)
+  barb(U, V, C, **kw)
+  barb(X, Y, U, V, **kw)
+  barb(X, Y, U, V, C, **kw)
+
+Arguments:
+
+  *X*, *Y*:
+    The x and y coordinates of the barb locations
+    (default is head of barb; see *pivot* kwarg)
+
+  *U*, *V*:
+    give the *x* and *y* components of the barb shaft
+
+  *C*:
+    an optional array used to map colors to the barbs
+
+All arguments may be 1-D or 2-D arrays or sequences. If *X* and *Y*
+are absent, they will be generated as a uniform grid.  If *U* and *V*
+are 2-D arrays but *X* and *Y* are 1-D, and if len(*X*) and len(*Y*)
+match the column and row dimensions of *U*, then *X* and *Y* will be
+expanded with :func:`numpy.meshgrid`.
+
+*U*, *V*, *C* may be masked arrays, but masked *X*, *Y* are not
+supported at present.
+
+Keyword arguments:
+
+  *length*:
+    Length of the barb in points; the other parts of the barb
+    are scaled against this.
+    Default is 9
+
+  *pivot*: [ 'tip' | 'middle' ]
+    The part of the arrow that is at the grid point; the arrow
+    rotates about this point, hence the name *pivot*.
+    Default is 'tip'
+
+  *barbcolor*: [ color | color sequence ]
+    Specifies the color all parts of the barb except any flags.
+    This parameter is analagous to the *edgecolor* parameter
+    for polygons, which can be used instead. However this parameter
+    will override facecolor.
+
+  *flagcolor*: [ color | color sequence ]
+    Specifies the color of any flags on the barb.
+    This parameter is analagous to the *facecolor* parameter
+    for polygons, which can be used instead. However this parameter
+    will override facecolor.  If this is not set (and *C* has not either)
+    then *flagcolor* will be set to match *barbcolor* so that the barb
+    has a uniform color. If *C* has been set, *flagcolor* has no effect.
+
+  *sizes*:
+    A dictionary of coefficients specifying the ratio of a given feature
+    to the length of the barb. Only those values one wishes to override
+    need to be included.  These features include:
+        'spacing' - space between features (flags, full/half barbs)
+        'height' - height (distance from shaft to top) of a flag or full barb
+        'width' - width of a flag, twice the width of a full barb
+        'emptybarb' - radius of the circle used for low magnitudes
+
+  *fill_empty*:
+    A flag on whether the empty barbs (circles) that are drawn should be filled
+    with the flag color.  If they are not filled, they will be drawn such that
+    no color is applied to the center.
+    Default is False
+
+  *rounding*:
+    A flag to indicate whether the vector magnitude should be rounded when
+    allocating barb components.  If True, the magnitude is rounded to the
+    nearest multiple of the half-barb increment.  If False, the magnitude
+    is simply truncated to the next lowest multiple.
+    Default is True
+
+  *barb_increments*:
+    A dictionary of increments specifying values to associate with different
+    parts of the barb. Only those values one wishes to override need to be
+    included.  
+        'half' - half barbs (Default is 5)
+        'full' - full barbs (Default is 10)
+        'flag' - flags (default is 50)
+
+Barbs are traditionally used in meteorology as a way to plot the speed
+and direction of wind observations, but can technically be used to plot
+any two dimensional vector quantity.  As opposed to arrows, which give
+vector magnitude by the length of the arrow, the barbs give more quantitative
+information about the vector magnitude by putting slanted lines or a triangle
+for various increments in magnitude, as show schematically below:
+
+   /\    \
+  /  \    \
+ /    \    \    \
+/      \    \    \
+------------------------------
+
+The largest increment is given by a triangle (or "flag"). After those come full
+lines (barbs). The smallest increment is a half line.  There is only, of
+course, ever at most 1 half line.  If the magnitude is small and only needs a
+single half-line and no full lines or triangles, the half-line is offset from
+the end of the barb so that it can be easily distinguished from barbs with a
+single full line.  The magnitude for the barb shown above would nominally be
+65, using the standard increments of 50, 10, and 5.
+
+linewidths and edgecolors can be used to customize the barb.
+Additional :class:`~matplotlib.collections.PolyCollection`
+keyword arguments:
+
+%(PolyCollection)s
+""" % martist.kwdocd
+
+class Barbs(collections.PolyCollection):
+    '''
+    Specialized PolyCollection for barbs.
+
+    The only API method is set_UVC(), which can be used
+    to change the size, orientation, and color of the
+    arrows.  Locations are changed using the set_offsets() collection
+    method.Possibly this method will be useful in animations.
+
+    There is one internal function _find_tails() which finds exactly
+    what should be put on the barb given the vector magnitude.  From there
+    _make_barbs() is used to find the vertices of the polygon to represent the
+    barb based on this information.
+    '''
+    #This may be an abuse of polygons here to render what is essentially maybe
+    #1 triangle and a series of lines.  It works fine as far as I can tell
+    #however.
+    def __init__(self, ax, *args, **kw):
+        self._pivot = kw.pop('pivot', 'tip')
+        self._length = kw.pop('length', 7)
+        barbcolor = kw.pop('barbcolor', None)
+        flagcolor = kw.pop('flagcolor', None)
+        self.sizes = kw.pop('sizes', dict())
+        self.fill_empty = kw.pop('fill_empty', False)
+        self.barb_increments = kw.pop('barb_increments', dict())
+        self.rounding = kw.pop('rounding', True)
+
+        #Flagcolor and and barbcolor provide convenience parameters for setting
+        #the facecolor and edgecolor, respectively, of the barb polygon.  We
+        #also work here to make the flag the same color as the rest of the barb
+        #by default
+        if None in (barbcolor, flagcolor):
+            kw['edgecolors'] = 'face'
+            if flagcolor:
+                kw['facecolors'] = flagcolor
+            elif barbcolor:
+                kw['facecolors'] = barbcolor
+            else:
+                #Set to facecolor passed in or default to black
+                kw.setdefault('facecolors', 'k')
+        else:
+            kw['edgecolors'] = barbcolor
+            kw['facecolors'] = flagcolor
+
+        #Parse out the data arrays from the various configurations supported
+        x, y, u, v, c = self._parse_args(*args)
+        self.x = x
+        self.y = y
+        xy = np.hstack((x[:,np.newaxis], y[:,np.newaxis]))
+
+        #Make a collection
+        barb_size = self._length**2 / 4 #Empirically determined
+        collections.PolyCollection.__init__(self, [], (barb_size,), offsets=xy,
+            transOffset=ax.transData, **kw)
+        self.set_transform(transforms.IdentityTransform())
+
+        self.set_UVC(u, v, c)
+
+    __init__.__doc__ = """
+        The constructor takes one required argument, an Axes
+        instance, followed by the args and kwargs described
+        by the following pylab interface documentation:
+        %s""" % _barbs_doc
+
+    def _find_tails(self, mag, rounding=True, half=5, full=10, flag=50):
+        '''Find how many of each of the tail pieces is necessary.  Flag
+        specifies the increment for a flag, barb for a full barb, and half for
+        half a barb. Mag should be the magnitude of a vector (ie. >= 0).
+
+        This returns a tuple of:
+            (number of flags, number of barbs, half_flag, empty_flag)
+        half_flag is a boolean whether half of a barb is needed, since there
+        should only ever be one half on a given barb. Empty flag is an array
+        of flags to easily tell if a barb is empty (too low to plot any
+        barbs/flags.'''
+
+        #If rounding, round to the nearest multiple of half, the smallest
+        #increment
+        if rounding:
+            mag = half * (mag / half + 0.5).astype(np.int)
+
+        num_flags = np.floor(mag / flag).astype(np.int)
+        mag = np.mod(mag, flag)
+
+        num_barb = np.floor(mag / full).astype(np.int)
+        mag = np.mod(mag, full)
+
+        half_flag = mag >= half
+        empty_flag = ~(half_flag | (num_flags > 0) | (num_barb > 0))
+            
+        return num_flags, num_barb, half_flag, empty_flag
+
+    def _make_barbs(self, u, v, nflags, nbarbs, half_barb, empty_flag, length,
+        pivot, sizes, fill_empty):
+        '''This function actually creates the wind barbs.  u and v are
+        components of the vector in the x and y directions, respectively.
+        nflags, nbarbs, and half_barb, empty_flag are, respectively, the number
+        of flags, number of barbs, flag for half a barb, and flag for empty
+        barb, ostensibly obtained from _find_tails. length is the length of
+        the barb staff in points.  pivot specifies the point on the barb around
+        which the entire barb should be rotated.  Right now valid options are
+        'head' and 'middle'. sizes is a dictionary of coefficients specifying
+        the ratio of a given feature to the length of the barb. These features
+        include:
+            
+            spacing - space between features (flags, full/half barbs)
+            height - height (distance from shaft of top) of a flag or full barb
+            width - width of a flag, twice the width of a full barb
+            emptybarb - radius of the circle used for low magnitudes
+
+        This function returns list of arrays of vertices, defining a polygon for
+        each of the wind barbs.  These polygons have been rotated to properly
+        align with the vector direction.'''
+          
+        #These control the spacing and size of barb elements relative to the
+        #length of the shaft
+        spacing = length * sizes.get('spacing', 0.125)
+        full_height = length * sizes.get('height', 0.4)
+        full_width = length * sizes.get('width', 0.25)
+        empty_rad = length * sizes.get('emptybarb', 0.15)
+
+        #Controls y point where to pivot the barb.
+        pivot_points = dict(tip=0.0, middle=-length/2.)
+
+        endx = 0.0
+        endy = pivot_points[pivot.lower()]
+
+        #Get the appropriate angle for the vector components.  The offset is due
+        #to the way the barb is initially drawn, going down the y-axis.  This
+        #makes sense in a meteorological mode of thinking since there 0 degrees
+        #corresponds to north (the y-axis traditionally)
+        angles = -(ma.arctan2(v, u) + np.pi/2)
+
+        #Used for low magnitude.  We just get the vertices, so if we make it
+        #out here, it can be reused.  The center set here should put the
+        #center of the circle at the location(offset), rather than at the
+        #same point as the barb pivot; this seems more sensible.
+        circ = CirclePolygon((0,0), radius=empty_rad).get_verts()
+        if fill_empty:
+            empty_barb = circ
+        else:
+            #If we don't want the empty one filled, we make a degenerate polygon
+            #that wraps back over itself
+            empty_barb = np.concatenate((circ, circ[::-1]))
+
+        barb_list = []
+        for index, angle in np.ndenumerate(angles):
+            #If the vector magnitude is too weak to draw anything, plot an
+            #empty circle instead
+            if empty_flag[index]:
+                #We can skip the transform since the circle has no preferred
+                #orientation
+                barb_list.append(empty_barb)
+                continue
+                
+            poly_verts = [(endx, endy)]
+            offset = length
+
+            #Add vertices for each flag
+            for i in range(nflags[index]):
+                #The spacing that works for the barbs is a little to much for
+                #the flags, but this only occurs when we have more than 1 flag.
+                if offset != length: offset += spacing / 2.
+                poly_verts.extend([[endx, endy + offset],
+                    [endx + full_height, endy - full_width/2 + offset],
+                    [endx, endy - full_width + offset]])
+
+                offset -= full_width + spacing
+
+            #Add vertices for each barb.  These really are lines, but works
+            #great adding 3 vertices that basically pull the polygon out and
+            #back down the line
+            for i in range(nbarbs[index]):
+                poly_verts.extend([(endx, endy + offset),
+                    (endx + full_height, endy + offset + full_width/2),
+                    (endx, endy + offset)])
+
+                offset -= spacing
+
+            #Add the vertices for half a barb, if needed
+            if half_barb[index]:
+                #If the half barb is the first on the staff, traditionally it is
+                #offset from the end to make it easy to distinguish from a barb
+                #with a full one
+                if offset == length:
+                    poly_verts.append((endx, endy + offset))
+                    offset -= 1.5 * spacing
+                poly_verts.extend([(endx, endy + offset),
+                    (endx + full_height/2, endy + offset + full_width/4),
+                    (endx, endy + offset)])
+
+            #Rotate the barb according the angle. Making the barb first and then
+            #rotating it made the math for drawing the barb really easy.  Also,
+            #the transform framework makes doing the rotation simple.
+            poly_verts = transforms.Affine2D().rotate(-angle).transform(
+                poly_verts)
+            barb_list.append(poly_verts)
+
+        return barb_list
+
+    #Taken shamelessly from Quiver
+    def _parse_args(self, *args):
+        X, Y, U, V, C = [None]*5
+        args = list(args)
+        if len(args) == 3 or len(args) == 5:
+            C = ma.asarray(args.pop(-1)).ravel()
+        V = ma.asarray(args.pop(-1))
+        U = ma.asarray(args.pop(-1))
+        nn = np.shape(U)
+        nc = nn[0]
+        nr = 1
+        if len(nn) > 1:
+            nr = nn[1]
+        if len(args) == 2: # remaining after removing U,V,C
+            X, Y = [np.array(a).ravel() for a in args]
+            if len(X) == nc and len(Y) == nr:
+                X, Y = [a.ravel() for a in np.meshgrid(X, Y)]
+        else:
+            indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
+            X, Y = [np.ravel(a) for a in indexgrid]
+        return X, Y, U, V, C
+
+    def set_UVC(self, U, V, C=None):
+        self.u = ma.asarray(U).ravel()
+        self.v = ma.asarray(V).ravel()
+        if C is not None:
+            c = ma.asarray(C).ravel()
+            x,y,u,v,c = delete_masked_points(self.x.ravel(), self.y.ravel(),
+                self.u, self.v, c)
+        else:
+            x,y,u,v = delete_masked_points(self.x.ravel(), self.y.ravel(),
+                self.u, self.v)
+
+        magnitude = np.sqrt(u*u + v*v)
+        flags, barbs, halves, empty = self._find_tails(magnitude,
+            self.rounding, **self.barb_increments)
+
+        #Get the vertices for each of the barbs
+        
+        plot_barbs = self._make_barbs(u, v, flags, barbs, halves, empty,
+            self._length, self._pivot, self.sizes, self.fill_empty)
+        self.set_verts(plot_barbs)
+        
+        #Set the color array
+        if C is not None:
+            self.set_array(c)
+        
+        #Update the offsets in case the masked data changed
+        xy = np.hstack((x[:,np.newaxis], y[:,np.newaxis]))
+        self._offsets = xy
+
+    def set_offsets(self, xy):
+        '''
+        Set the offsets for the barb polygons.  This saves the offets passed in
+        and actually sets version masked as appropriate for the existing U/V
+        data. *offsets* should be a sequence.
+            
+        ACCEPTS: sequence of pairs of floats
+        '''
+        self.x = xy[:,0]
+        self.y = xy[:,1]
+        x,y,u,v = delete_masked_points(self.x.ravel(), self.y.ravel(), self.u,
+            self.v)
+        xy = np.hstack((x[:,np.newaxis], y[:,np.newaxis]))
+        collections.PolyCollection.set_offsets(self, xy)
+    set_offsets.__doc__ = collections.PolyCollection.set_offsets.__doc__
+
+    barbs_doc = _barbs_doc
+

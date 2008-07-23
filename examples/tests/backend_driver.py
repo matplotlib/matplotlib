@@ -33,6 +33,7 @@ pylab_files = [
     'axhspan_demo.py',
     'bar_stacked.py',
     'barchart_demo.py',
+    'barb_demo.py',
     'boxplot_demo.py',
     'broken_barh.py',
     'barh_demo.py',

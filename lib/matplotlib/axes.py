@@ -5224,6 +5224,15 @@ class Axes(martist.Artist):
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
 
+    def barbs(self, *args, **kw):
+        if not self._hold: self.cla()
+        b = mquiver.Barbs(self, *args, **kw)
+        self.add_collection(b)
+        self.update_datalim(b.get_offsets())
+        self.autoscale_view()
+        return b
+    barbs.__doc__ = mquiver.Barbs.barbs_doc
+
     def fill(self, *args, **kwargs):
         """
         call signature::
