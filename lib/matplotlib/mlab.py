@@ -89,6 +89,7 @@ import csv, warnings, copy, os
 
 import numpy as np
 
+from matplotlib import verbose
 
 import matplotlib.nxutils as nxutils
 import matplotlib.cbook as cbook
@@ -2715,13 +2716,23 @@ def griddata(x,y,z,xi,yi):
     that is not redistributable under a BSD-compatible license.  When installed,
     this function will use the mpl_toolkits.natgrid algorithm, otherwise it
     will use the built-in matplotlib.delaunay package.
+
+    The natgrid matplotlib toolkit can be checked out through SVN with the
+    following command:
+
+    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/toolkits/natgrid natgrid
     """
     try:
-        from mpl_toolkits.natgrid import _natgrid
+        from mpl_toolkits.natgrid import _natgrid, __version__
         _use_natgrid = True
     except ImportError:
         import matplotlib.delaunay as delaunay
+        from matplotlib.delaunay import  __version__
         _use_natgrid = False
+    if _use_natgrid:
+        verbose.report('using natgrid version %s' % __version__)
+    else:
+        verbose.report('using delaunay version %s' % __version__)
     if xi.ndim != yi.ndim:
         raise TypeError("inputs xi and yi must have same number of dimensions (1 or 2)")
     if xi.ndim != 1 and xi.ndim != 2:
