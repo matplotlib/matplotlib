@@ -86,6 +86,7 @@ _plotcommands = (
     'step',
     'vlines',
     'xcorr',
+    'barbs',
     )
 
 _misccommands = (
