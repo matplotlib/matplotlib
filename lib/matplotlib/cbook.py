@@ -287,7 +287,7 @@ def is_writable_file_like(obj):
 
 def is_scalar(obj):
     'return true if *obj* is not string like and is not iterable'
-    return is_string_like(obj) or not iterable(obj)
+    return not is_string_like(obj) or not iterable(obj)
 
 def is_numlike(obj):
     'return true if *obj* looks like a number'
