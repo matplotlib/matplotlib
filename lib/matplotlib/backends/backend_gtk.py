@@ -181,10 +181,10 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
         if event.direction==gdk.SCROLL_UP:
-            direction = 'up'
+            step = 1
         else:
-            direction = 'down'
-        FigureCanvasBase.scroll_event(self, x, y, direction)
+            step = -1
+        FigureCanvasBase.scroll_event(self, x, y, step)
         return False  # finish event propagation?
 
     def button_press_event(self, widget, event):

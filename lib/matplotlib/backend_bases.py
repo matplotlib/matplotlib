@@ -768,6 +768,9 @@ class MouseEvent(LocationEvent):
     *key*
         the key pressed: None, chr(range(255), 'shift', 'win', or 'control'
 
+    *step*
+        number of scroll steps (positive for 'up', negative for 'down')
+
 
     Example usage::
 
@@ -783,16 +786,18 @@ class MouseEvent(LocationEvent):
     inaxes = None       # the Axes instance if mouse us over axes
     xdata  = None       # x coord of mouse in data coords
     ydata  = None       # y coord of mouse in data coords
+    step   = None       # scroll steps for scroll events
 
     def __init__(self, name, canvas, x, y, button=None, key=None,
-                 guiEvent=None):
+                 step=0, guiEvent=None):
         """
         x, y in figure coords, 0,0 = bottom, left
-        button pressed None, 1, 2, 3
+        button pressed None, 1, 2, 3, 'up', 'down'
         """
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
         self.button = button
         self.key = key
+        self.step = step
 
 class PickEvent(Event):
     """
@@ -1050,7 +1055,7 @@ class FigureCanvasBase:
         event = PickEvent(s, self, mouseevent, artist, **kwargs)
         self.callbacks.process(s, event)
 
-    def scroll_event(self, x, y, button, guiEvent=None):
+    def scroll_event(self, x, y, step, guiEvent=None):
         """
         Backend derived classes should call this function on any
         scroll wheel event.  x,y are the canvas coords: 0,0 is lower,
@@ -1059,9 +1064,13 @@ class FigureCanvasBase:
         This method will be call all functions connected to the
         'scroll_event' with a :class:`MouseEvent` instance.
         """
-        self._button = button
+        if step >= 0:
+            self._button = 'up'
+        else:
+            self._button = 'down'
         s = 'scroll_event'
-        mouseevent = MouseEvent(s, self, x, y, button, self._key, guiEvent=guiEvent)
+        mouseevent = MouseEvent(s, self, x, y, self._button, self._key, 
+                                step=step, guiEvent=guiEvent)
         self.callbacks.process(s, mouseevent)
 
 
