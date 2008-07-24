@@ -1765,177 +1765,55 @@ def fromfunction_kw(function, dimensions, **kwargs):
 
 ### end fperez numutils code
 
-### begin mlab2 functions
-# From MLab2: http://pdilib.sourceforge.net/MLab2.py
-readme = \
-       """
-MLab2.py, release 1
-
-Created on February 2003 by Thomas Wendler as part of the Emotionis Project.
-This script is supposed to implement Matlab functions that were left out in
-numerix.mlab.py (part of Numeric Python).
-For further information on the Emotionis Project or on this script, please
-contact their authors:
-Rodrigo Benenson, rodrigob at elo dot utfsm dot cl
-Thomas Wendler,   thomasw at elo dot utfsm dot cl
-Look at: http://pdilib.sf.net for new releases.
-"""
-## mlab2 functions numpified and checked 2007/08/04
-_eps_approx = 1e-13
-
-#from numpy import fix
-def fix(x):
-    """
-    Rounds towards zero.
-    x_rounded = fix(x) rounds the elements of x to the nearest integers
-    towards zero.
-    For negative numbers is equivalent to ceil and for positive to floor.
-    """
-    warnings.warn("Use numpy.fix()", DeprecationWarning)
-    return np.fix(x)
 
 def rem(x,y):
     """
-    Remainder after division.
-    rem(x,y) is equivalent to x - y.*fix(x./y) in case y is not zero.
-    By convention (but contrary to numpy), rem(x,0) returns None.
-    This also differs from numpy.remainder, which uses floor instead of
-    fix.
+    Deprecated -- see numpy.remainder
     """
-    x,y = np.asarray(x), np.asarray(y)
-    if np.any(y == 0):
-        return None
-    return x - y * np.fix(x/y)
-
+    raise NotImplementedError('Deprecated - see numpy.remainder')
 
 def norm(x,y=2):
     """
-    Norm of a matrix or a vector according to Matlab.
-    The description is taken from Matlab:
-
-        For matrices...
-          NORM(X) is the largest singular value of X, max(svd(X)).
-          NORM(X,2) is the same as NORM(X).
-          NORM(X,1) is the 1-norm of X, the largest column sum,
-                          = max(sum(abs((X)))).
-          NORM(X,inf) is the infinity norm of X, the largest row sum,
-                          = max(sum(abs((X')))).
-          NORM(X,'fro') is the Frobenius norm, sqrt(sum(diag(X'*X))).
-          NORM(X,P) is available for matrix X only if P is 1, 2, inf or 'fro'.
-
-        For vectors...
-          NORM(V,P) = sum(abs(V).^P)^(1/P).
-          NORM(V) = norm(V,2).
-          NORM(V,inf) = max(abs(V)).
-          NORM(V,-inf) = min(abs(V)).
+    Deprecated -- see numpy.linalg.norm
     """
+    raise NotImplementedError('Deprecated - see numpy.linalg.norm')
 
-    x = np.asarray(x)
-    if x.ndim == 2:
-        if y==2:
-            return np.max(np.linalg.svd(x)[1])
-        elif y==1:
-            return np.max(np.sum(np.absolute((x)), axis=0))
-        elif y=='inf':
-            return np.max(np.sum(np.absolute((np.transpose(x))), axis=0))
-        elif y=='fro':
-            xx = np.dot(x.transpose(), x)
-            return np.sqrt(np.sum(np.diag(xx), axis=0))
-        else:
-            raise ValueError('Second argument not permitted for matrices')
-
-    else:
-        xa = np.absolute(x)
-        if y == 'inf':
-            return np.max(xa)
-        elif y == '-inf':
-            return np.min(xa)
-        else:
-            return np.power(np.sum(np.power(xa,y)),1/float(y))
 
 
 def orth(A):
     """
-    Orthogonalization procedure by Matlab.
-    The description is taken from its help:
-
-        Q = ORTH(A) is an orthonormal basis for the range of A.
-        That is, Q'*Q = I, the columns of Q span the same space as
-        the columns of A, and the number of columns of Q is the
-        rank of A.
+    Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you
+    need this function
     """
-
-    A     = np.asarray(A)
-    U,S,V = np.linalg.svd(A)
-
-    m,n = A.shape
-    if m > 1:
-        s = S
-    elif m == 1:
-        s = S[0]
-    else:
-        s = 0
-
-    tol = max(m,n) * np.max(s) * _eps_approx
-    r = np.sum(s > tol)
-    Q = np.take(U,range(r),1)
-
-    return Q
+    raise NotImplementedError('Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you need this function')
 
 def rank(x):
     """
-    Returns the rank of a matrix.
-    The rank is understood here as the an estimation of the number of
-    linearly independent rows or columns (depending on the size of the
-    matrix).
-    Note that numerix.mlab.rank() is not equivalent to Matlab's rank.
-    This function is!
+    Deprecated -- see numpy.rank
     """
-    x      = np.asarray(x)
-    s      = np.linalg.svd(x, compute_uv=False)
-    maxabs = np.max(np.absolute(s))
-    maxdim = max(x.shape)
-    tol    = maxabs * maxdim * _eps_approx
-    return np.sum(s > tol)
+    raise NotImplementedError('Deprecated - see numpy.rank')
 
 def sqrtm(x):
     """
-    Returns the square root of a square matrix.
-    This means that s=sqrtm(x) implies dot(s,s) = x.
-    Note that s and x are matrices.
+    Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you
+    need this function
     """
-    return mfuncC(np.sqrt, x)
+    raise NotImplementedError('Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you need this function')
 
 
 def mfuncC(f, x):
     """
-    mfuncC(f, x) : matrix function with possibly complex eigenvalues.
-    Note: Numeric defines (v,u) = eig(x) => x*u.T = u.T * Diag(v)
-    This function is needed by sqrtm and allows further functions.
+    Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you
+    need this function
     """
-
-    x      = np.asarray(x)
-    (v,uT) = np.linalg.eig(x)
-    V      = np.diag(f(v+0j))
-    # todo: warning: this is not exactly what matlab does
-    #       MATLAB "B/A is roughly the same as B*inv(A)"
-    y      = np.dot(uT, np.dot(V, np.linalg.inv(uT)))
-    return approx_real(y)
+    raise NotImplementedError('Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you need this function')
 
 def approx_real(x):
-
     """
-    approx_real(x) : returns x.real if |x.imag| < |x.real| * _eps_approx.
-    This function is needed by sqrtm and allows further functions.
+    Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you
+    need this function
     """
-    ai = np.absolute(x.imag)
-    ar = np.absolute(x.real)
-    if np.max(ai) <= np.max(ar) * _eps_approx:
-        return x.real
-    else:
-        return x
-
-### end mlab2 functions
+    raise NotImplementedError('Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you need this function')
 
 #helpers for loading, saving, manipulating and viewing numpy record arrays
 
