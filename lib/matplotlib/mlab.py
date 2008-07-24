@@ -1768,52 +1768,47 @@ def fromfunction_kw(function, dimensions, **kwargs):
 
 def rem(x,y):
     """
-    Deprecated -- see numpy.remainder
+    Deprecated - see numpy.remainder
     """
     raise NotImplementedError('Deprecated - see numpy.remainder')
 
 def norm(x,y=2):
     """
-    Deprecated -- see numpy.linalg.norm
+    Deprecated - see numpy.linalg.norm
     """
     raise NotImplementedError('Deprecated - see numpy.linalg.norm')
 
 
-
 def orth(A):
     """
-    Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you
-    need this function
+    Deprecated - needs clean room implementation
     """
-    raise NotImplementedError('Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you need this function')
+    raise NotImplementedError('Deprecated - needs clean room implementation')
 
 def rank(x):
     """
-    Deprecated -- see numpy.rank
+    Deprecated - see numpy.rank
     """
     raise NotImplementedError('Deprecated - see numpy.rank')
 
 def sqrtm(x):
     """
-    Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you
-    need this function
+    Deprecated - needs clean room implementation
     """
-    raise NotImplementedError('Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you need this function')
+    raise NotImplementedError('Deprecated - needs clean room implementation')
 
 
 def mfuncC(f, x):
     """
-    Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you
-    need this function
+    Deprecated
     """
-    raise NotImplementedError('Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you need this function')
+    raise NotImplementedError('Deprecated - needs clean room implementation')
 
 def approx_real(x):
     """
-    Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you
-    need this function
+    Deprecated - needs clean room implementation
     """
-    raise NotImplementedError('Deprecated -- use http://pdilib.sourceforge.net/MLab2.py if you need this function')
+    raise NotImplementedError('Deprecated - needs clean room implementation')
 
 #helpers for loading, saving, manipulating and viewing numpy record arrays
 
