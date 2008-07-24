@@ -96,7 +96,9 @@ class PlotPanel(Panel):
 
 class MyApp(App):
     def OnInit(self):
-        self.res = XmlResource("data/embedding_in_wx3.xrc")
+        xrcfile = os.path.join(os.path.dirname(__file__),"..","data",
+                               "embedding_in_wx3.xrc")      
+        self.res = XmlResource(xrcfile)
 
         # main frame and panel ---------
 
