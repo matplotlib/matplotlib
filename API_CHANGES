@@ -1,4 +1,4 @@
-    Removed mlab2 functions from mlab
+    Deprecated all mlab2 functions in mlab
 
     matplotlib.image.imread now no longer always returns RGBA -- if
     the image is luminance or RGB, it will return a MxN or MxNx3 array
