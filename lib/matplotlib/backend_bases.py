@@ -1391,7 +1391,7 @@ class FigureCanvasBase:
         """
         raise NotImplementedError
 
-    def start_event_loop(self,*args,**kwargs):
+    def start_event_loop(self,timeout):
         """
         Start an event loop.  This is used to start a blocking event
         loop so that interactive functions, such as ginput and
@@ -1403,7 +1403,7 @@ class FigureCanvasBase:
         """
         raise NotImplementedError
 
-    def stop_event_loop(self,*args,**kwargs):
+    def stop_event_loop(self):
         """
         Stop an event loop.  This is used to stop a blocking event
         loop so that interactive functions, such as ginput and

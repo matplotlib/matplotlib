@@ -283,12 +283,10 @@ class BlockingContourLabeler( BlockingMouseInput ):
             """
             # Figure out label rotation.
             if self.inline: lcarg = lc
-            else: lcarg = []
+            else: lcarg = None
             rotation,nlc = cs.calc_label_rot_and_inline(
                 slc, imin, lw, lcarg,
                 self.inline_spacing )
-
-
 
             cs.add_label(xmin,ymin,rotation,cs.labelLevelList[lmin],
                          cs.labelCValueList[lmin])
