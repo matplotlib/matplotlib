@@ -485,7 +485,7 @@ class ContourLabeler:
                     x,y,ind  = self.locate_label(slc, lw)
 
                     if inline: lcarg = lc
-                    else: lcarg = []
+                    else: lcarg = None
                     rotation,new=self.calc_label_rot_and_inline(
                         slc0, ind, lw, lcarg,
                         inline_spacing )

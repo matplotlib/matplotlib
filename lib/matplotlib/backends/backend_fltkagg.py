@@ -247,12 +247,12 @@ class FigureCanvasFltkAgg(FigureCanvasAgg):
     def widget(self):
         return self.canvas
 
-    def start_event_loop(self,*args,**kwargs):
-        FigureCanvasBase.start_event_loop_default(self,*args,**kwargs)
+    def start_event_loop(self,timeout):
+        FigureCanvasBase.start_event_loop_default(self,timeout)
     start_event_loop.__doc__=FigureCanvasBase.start_event_loop_default.__doc__
 
-    def stop_event_loop(self,*args,**kwargs):
-        FigureCanvasBase.stop_event_loop_default(self,*args,**kwargs)
+    def stop_event_loop(self):
+        FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
 def destroy_figure(ptr,figman):
