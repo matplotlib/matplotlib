@@ -41,7 +41,7 @@ class FigureFrameWxAgg(FigureFrameWx):
             toolbar = None
         return toolbar
 
-class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
+class FigureCanvasWxAgg(FigureCanvasWx, FigureCanvasAgg):
     """
     The FigureCanvas contains the figure and does event handling.
 
