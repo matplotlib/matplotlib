@@ -1,9 +1,8 @@
 import math
-
+import numpy as np
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
-import matplotlib.numerix as nx
 from matplotlib.axes import Axes
 from matplotlib.cbook import iterable
 
@@ -122,7 +121,7 @@ class TaggedValue (object):
     self.proxy_target = self.value
 
   def get_compressed_copy(self, mask):
-    compressed_value = nx.ma.masked_array(self.value, mask=mask).compressed()
+    compressed_value = np.ma.masked_array(self.value, mask=mask).compressed()
     return TaggedValue(compressed_value, self.unit)
 
   def  __getattribute__(self, name):
@@ -135,9 +134,9 @@ class TaggedValue (object):
 
   def __array__(self, t = None, context = None):
     if t is not None:
-      return nx.asarray(self.value).astype(t)
+      return np.asarray(self.value).astype(t)
     else:
-      return nx.asarray(self.value, 'O')
+      return np.asarray(self.value, 'O')
 
   def __array_wrap__(self, array, context):
     return TaggedValue(array, self.unit)
@@ -159,7 +158,7 @@ class TaggedValue (object):
     return IteratorProxy(iter(self.value), self.unit)
 
   def get_compressed_copy(self, mask):
-    new_value = nx.ma.masked_array(self.value, mask=mask).compressed()
+    new_value = np.ma.masked_array(self.value, mask=mask).compressed()
     return TaggedValue(new_value, self.unit)
 
   def convert_to(self, unit):
@@ -211,7 +210,7 @@ class BasicUnit(object):
     return TaggedValue(array, self)
 
   def __array__(self, t=None, context=None):
-    ret = nx.array([1])
+    ret = np.array([1])
     if t is not None:
       return ret.astype(t)
     else:
@@ -275,8 +274,8 @@ cm.add_conversion_factor(inch, 1/2.54)
 
 radians = BasicUnit('rad', 'radians')
 degrees = BasicUnit('deg', 'degrees')
-radians.add_conversion_factor(degrees, 180.0/nx.pi)
-degrees.add_conversion_factor(radians, nx.pi/180.0)
+radians.add_conversion_factor(degrees, 180.0/np.pi)
+degrees.add_conversion_factor(radians, np.pi/180.0)
 
 secs = BasicUnit('s', 'seconds')
 hertz = BasicUnit('Hz', 'Hertz')
@@ -287,7 +286,7 @@ secs.add_conversion_factor(minutes, 1/60.0)
 
 # radians formatting
 def rad_fn(x,pos=None):
-  n = int((x / nx.pi) * 2.0 + 0.25)
+  n = int((x / np.pi) * 2.0 + 0.25)
   if n == 0:
     return '0'
   elif n == 1:
@@ -307,7 +306,7 @@ class BasicUnitConverter(units.ConversionInterface):
 
         if unit==radians:
             return units.AxisInfo(
-              majloc=ticker.MultipleLocator(base=nx.pi/2),
+              majloc=ticker.MultipleLocator(base=np.pi/2),
               majfmt=ticker.FuncFormatter(rad_fn),
               label=unit.fullname,
                 )

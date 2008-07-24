@@ -14,8 +14,8 @@ import matplotlib.collections as collections
 import matplotlib.units as units
 
 from basic_units import cm, inch
-
-from pylab import figure, show, nx
+import numpy as np
+from pylab import figure, show
 
 fig = figure()
 ax = fig.add_subplot(111)
@@ -26,7 +26,7 @@ ax.yaxis.set_units(cm)
 verts = []
 for i in range(10):
     # a random line segment in inches
-    verts.append(zip(*inch*10*nx.mlab.rand(2, random.randint(2,15))))
+    verts.append(zip(*inch*10*np.random.rand(2, random.randint(2,15))))
 lc = collections.LineCollection(verts, axes=ax)
 ax.add_collection(lc)
 

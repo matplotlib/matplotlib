@@ -8,13 +8,15 @@ must provide to matplotlib.
 The example below shows support for unit conversions over masked
 arrays.
 """
+import numpy as np
 from basic_units import secs, hertz, minutes
-from matplotlib.pylab import figure, show, nx
+from matplotlib.pylab import figure, show
 
 # create masked array
 
-xsecs = secs*nx.ma.MaskedArray((1,2,3,4,5,6,7,8), nx.Float, mask=(1,0,1,0,0,0,1,0))
-#xsecs = secs*nx.arange(1,10.)
+
+xsecs = secs*np.ma.MaskedArray((1,2,3,4,5,6,7,8), (1,0,1,0,0,0,1,0), np.float)
+#xsecs = secs*np.arange(1,10.)
 
 fig = figure()
 ax1 = fig.add_subplot(3,1,1)
