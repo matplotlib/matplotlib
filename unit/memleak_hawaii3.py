@@ -2,7 +2,7 @@
 
 import os, sys, time, gc
 import matplotlib
-matplotlib.use('PDF')
+matplotlib.use('Agg')
 
 from matplotlib.cbook import report_memory
 import numpy as np

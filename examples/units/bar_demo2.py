@@ -7,10 +7,11 @@ assumed) or units (conversions applied to get the numbers to current
 units)
 
 """
+import numpy as np
 from basic_units import cm, inch
-from pylab import figure, show, nx
+from pylab import figure, show
 
-cms = cm *nx.arange(0, 10, 2)
+cms = cm *np.arange(0, 10, 2)
 bottom=0*cm
 width=0.8*cm
 

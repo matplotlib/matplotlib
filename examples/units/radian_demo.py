@@ -1,7 +1,8 @@
+import numpy as np
 from basic_units import radians, degrees, cos
-from pylab import figure, show, nx
+from pylab import figure, show
 
-x = nx.arange(0, 15, 0.01) * radians
+x = np.arange(0, 15, 0.01) * radians
 
 fig = figure()
 fig.subplots_adjust(hspace=0.3)

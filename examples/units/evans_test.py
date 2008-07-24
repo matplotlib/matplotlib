@@ -11,7 +11,7 @@ matplotlib.rcParams['units'] = True
 from matplotlib.cbook import iterable
 import matplotlib.units as units
 import matplotlib.ticker as ticker
-from pylab import figure, show, nx
+from pylab import figure, show
 
 class Foo:
     def __init__( self, val, unit=1.0 ):

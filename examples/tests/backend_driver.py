@@ -121,9 +121,23 @@ api_files = [
     'color_cycle.py',
 ]
 
+units_dir = os.path.join('..', 'units')
+units_files = [
+    'annotate_with_units.py',
+    #'artist_tests.py',  # broken, fixme
+    'bar_demo2.py',
+    #'bar_unit_demo.py', # broken, fixme
+    #'ellipse_with_units.py',  # broken, fixme
+    'radian_demo.py',
+    'units_sample.py',
+    #'units_scatter.py', # broken, fixme
+
+    ]
 
 files = [os.path.join(pylab_dir, fname) for fname in pylab_files] +\
-    [os.path.join(api_dir, fname) for fname in api_files]
+    [os.path.join(api_dir, fname) for fname in api_files] +\
+    [os.path.join(units_dir, fname) for fname in units_files]
+
 # tests known to fail on a given backend
 
 

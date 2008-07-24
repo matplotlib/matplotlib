@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+import numpy as np
 from basic_units import cm, inch
-from pylab import figure, show,nx
+from pylab import figure, show
 
 N = 5
 menMeans = (150*cm, 160*cm, 146*cm, 172*cm, 155*cm)
@@ -9,7 +10,7 @@ menStd =   ( 20*cm,  30*cm,  32*cm,  10*cm,  20*cm)
 fig = figure()
 ax = fig.add_subplot(111)
 
-ind = nx.arange(N)    # the x locations for the groups
+ind = np.arange(N)    # the x locations for the groups
 width = 0.35         # the width of the bars
 p1 = ax.bar(ind, menMeans, width, color='r', bottom=0*cm, yerr=menStd)
 
