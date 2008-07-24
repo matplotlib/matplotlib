@@ -145,6 +145,16 @@ class fake_stderr:
 #    WxLogger =wx.LogStderr()
 #    sys.stderr = fake_stderr
 
+# Event binding code changed after version 2.5
+if wx.VERSION_STRING >= '2.5':
+    def bind(actor,event,action,**kw):
+        actor.Bind(event,action,**kw)
+else:
+    def bind(actor,event,action,id=None):
+        if id is not None:
+            event(actor, id, action)
+        else:
+            event(actor,action)
 
 import matplotlib
 from matplotlib import verbose
@@ -160,10 +170,6 @@ from matplotlib.text import _process_text_args, Text
 from matplotlib.transforms import Affine2D
 from matplotlib.widgets import SubplotTool
 from matplotlib import rcParams
-
-##import wx
-##backend_version = wx.VERSION_STRING
-
 
 # the True dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
@@ -698,39 +704,20 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         self._isConfigured = False
         self._printQued = []
 
-        if wx.VERSION_STRING >= '2.5':
-            # Event handlers 2.5
-            self.Bind(wx.EVT_SIZE, self._onSize)
-            self.Bind(wx.EVT_PAINT, self._onPaint)
-            self.Bind(wx.EVT_KEY_DOWN, self._onKeyDown)
-            self.Bind(wx.EVT_KEY_UP, self._onKeyUp)
-            self.Bind(wx.EVT_RIGHT_DOWN, self._onRightButtonDown)
-            self.Bind(wx.EVT_RIGHT_DCLICK, self._onRightButtonDown)
-            self.Bind(wx.EVT_RIGHT_UP, self._onRightButtonUp)
-            self.Bind(wx.EVT_MOUSEWHEEL, self._onMouseWheel)
-            self.Bind(wx.EVT_LEFT_DOWN, self._onLeftButtonDown)
-            self.Bind(wx.EVT_LEFT_DCLICK, self._onLeftButtonDown)
-            self.Bind(wx.EVT_LEFT_UP, self._onLeftButtonUp)
-            self.Bind(wx.EVT_MOTION, self._onMotion)
-            self.Bind(wx.EVT_LEAVE_WINDOW, self._onLeave)
-            self.Bind(wx.EVT_IDLE, self._onIdle)
-        else:
-            # Event handlers 2.4
-            wx.EVT_SIZE(self, self._onSize)
-            wx.EVT_PAINT(self, self._onPaint)
-            wx.EVT_KEY_DOWN(self, self._onKeyDown)
-            wx.EVT_KEY_UP(self, self._onKeyUp)
-            wx.EVT_RIGHT_DOWN(self, self._onRightButtonDown)
-            wx.EVT_RIGHT_DCLICK(self, self._onRightButtonDown)
-            wx.EVT_RIGHT_UP(self, self._onRightButtonUp)
-            wx.EVT_MOUSEWHEEL(self, self._onMouseWheel)
-            wx.EVT_LEFT_DOWN(self, self._onLeftButtonDown)
-            wx.EVT_LEFT_DCLICK(self, self._onLeftButtonDown)
-            wx.EVT_LEFT_UP(self, self._onLeftButtonUp)
-            wx.EVT_MOTION(self, self._onMotion)
-            wx.EVT_LEAVE_WINDOW(self, self._onLeave)
-            wx.EVT_IDLE(self, self._onIdle)
-
+        bind(self, wx.EVT_SIZE, self._onSize)
+        bind(self, wx.EVT_PAINT, self._onPaint)
+        bind(self, wx.EVT_KEY_DOWN, self._onKeyDown)
+        bind(self, wx.EVT_KEY_UP, self._onKeyUp)
+        bind(self, wx.EVT_RIGHT_DOWN, self._onRightButtonDown)
+        bind(self, wx.EVT_RIGHT_DCLICK, self._onRightButtonDown)
+        bind(self, wx.EVT_RIGHT_UP, self._onRightButtonUp)
+        bind(self, wx.EVT_MOUSEWHEEL, self._onMouseWheel)
+        bind(self, wx.EVT_LEFT_DOWN, self._onLeftButtonDown)
+        bind(self, wx.EVT_LEFT_DCLICK, self._onLeftButtonDown)
+        bind(self, wx.EVT_LEFT_UP, self._onLeftButtonUp)
+        bind(self, wx.EVT_MOTION, self._onMotion)
+        bind(self, wx.EVT_LEAVE_WINDOW, self._onLeave)
+        bind(self, wx.EVT_IDLE, self._onIdle)
 
         self._event_loop = wx.EventLoop()
 
@@ -1225,17 +1212,6 @@ def draw_if_interactive():
         if figManager is not None:
             figManager.canvas.draw()
 
-# Event binding code changed after version 2.5
-if wx.VERSION_STRING >= '2.5':
-    def bind(actor,event,action,**kw):
-        actor.Bind(event,action,**kw)
-else:
-    def bind(actor,event,action,id=None):
-        if id is not None:
-            event(actor, id, action)
-        else:
-            event(actor,action)
-
 def show():
     """
     Current implementation assumes that matplotlib is executed in a PyCrust
@@ -1333,12 +1309,7 @@ class FigureFrameWx(wx.Frame):
 
         self.figmgr = FigureManagerWx(self.canvas, num, self)
 
-        if wx.VERSION_STRING >= '2.5':
-            # Event handlers 2.5
-            self.Bind(wx.EVT_CLOSE, self._onClose)
-        else:
-            # Event handlers 2.4
-            wx.EVT_CLOSE(self, self._onClose)
+        bind(self, wx.EVT_CLOSE, self._onClose)
 
     def _get_toolbar(self, statbar):
         if matplotlib.rcParams['toolbar']=='classic':
@@ -1485,14 +1456,9 @@ class MenuButtonWx(wx.Button):
         self._menu.Append(self._invertId, "Invert", "Invert axes selected", False)
         self._menu.AppendSeparator()
 
-        if wx.VERSION_STRING >= '2.5':
-            self.Bind(wx.EVT_BUTTON, self._onMenuButton, id=_NTB_AXISMENU_BUTTON)
-            self.Bind(wx.EVT_MENU, self._handleSelectAllAxes, id=self._allId)
-            self.Bind(wx.EVT_MENU, self._handleInvertAxesSelected, id=self._invertId)
-        else:
-            wx.EVT_BUTTON(self, _NTB_AXISMENU_BUTTON, self._onMenuButton)
-            wx.EVT_MENU(self, self._allId, self._handleSelectAllAxes)
-            wx.EVT_MENU(self, self._invertId, self._handleInvertAxesSelected)
+        bind(self, wx.EVT_BUTTON, self._onMenuButton, id=_NTB_AXISMENU_BUTTON)
+        bind(self, wx.EVT_MENU, self._handleSelectAllAxes, id=self._allId)
+        bind(self, wx.EVT_MENU, self._handleInvertAxesSelected, id=self._invertId)
 
     def Destroy(self):
         self._menu.Destroy()
@@ -1546,11 +1512,7 @@ class MenuButtonWx(wx.Button):
                 self._axisId.append(menuId)
                 self._menu.Append(menuId, "Axis %d" % i, "Select axis %d" % i, True)
                 self._menu.Check(menuId, True)
-
-                if wx.VERSION_STRING >= '2.5':
-                    self.Bind(wx.EVT_MENU, self._onMenuItemSelected, id=menuId)
-                else:
-                    wx.EVT_MENU(self, menuId, self._onMenuItemSelected)
+                bind(self, wx.EVT_MENU, self._onMenuItemSelected, id=menuId)
         self._toolbar.set_active(range(len(self._axisId)))
 
     def getActiveAxes(self):
@@ -1645,22 +1607,13 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.AddSimpleTool(_NTB2_SAVE, _load_bitmap('filesave.png'),
                            'Save', 'Save plot contents to file')
 
-        if wx.VERSION_STRING >= '2.5':
-            self.Bind(wx.EVT_TOOL, self.home, id=_NTB2_HOME)
-            self.Bind(wx.EVT_TOOL, self.forward, id=self._NTB2_FORWARD)
-            self.Bind(wx.EVT_TOOL, self.back, id=self._NTB2_BACK)
-            self.Bind(wx.EVT_TOOL, self.zoom, id=self._NTB2_ZOOM)
-            self.Bind(wx.EVT_TOOL, self.pan, id=self._NTB2_PAN)
-            self.Bind(wx.EVT_TOOL, self.configure_subplot, id=_NTB2_SUBPLOT)
-            self.Bind(wx.EVT_TOOL, self.save, id=_NTB2_SAVE)
-        else:
-            wx.EVT_TOOL(self, _NTB2_HOME, self.home)
-            wx.EVT_TOOL(self, self._NTB2_FORWARD, self.forward)
-            wx.EVT_TOOL(self, self._NTB2_BACK, self.back)
-            wx.EVT_TOOL(self, self._NTB2_ZOOM, self.zoom)
-            wx.EVT_TOOL(self, self._NTB2_PAN, self.pan)
-            wx.EVT_TOOL(self, _NTB2_SUBPLOT, self.configure_subplot)
-            wx.EVT_TOOL(self, _NTB2_SAVE, self.save)
+        bind(self, wx.EVT_TOOL, self.home, id=_NTB2_HOME)
+        bind(self, wx.EVT_TOOL, self.forward, id=self._NTB2_FORWARD)
+        bind(self, wx.EVT_TOOL, self.back, id=self._NTB2_BACK)
+        bind(self, wx.EVT_TOOL, self.zoom, id=self._NTB2_ZOOM)
+        bind(self, wx.EVT_TOOL, self.pan, id=self._NTB2_PAN)
+        bind(self, wx.EVT_TOOL, self.configure_subplot, id=_NTB2_SUBPLOT)
+        bind(self, wx.EVT_TOOL, self.save, id=_NTB2_SAVE)
 
         self.Realize()
 
@@ -1859,34 +1812,19 @@ class NavigationToolbarWx(wx.ToolBar):
                            'Save', 'Save plot contents as images')
         self.AddSeparator()
 
-        if wx.VERSION_STRING >= '2.5':
-            self.Bind(wx.EVT_TOOL, self._onLeftScroll, id=_NTB_X_PAN_LEFT)
-            self.Bind(wx.EVT_TOOL, self._onRightScroll, id=_NTB_X_PAN_RIGHT)
-            self.Bind(wx.EVT_TOOL, self._onXZoomIn, id=_NTB_X_ZOOMIN)
-            self.Bind(wx.EVT_TOOL, self._onXZoomOut, id=_NTB_X_ZOOMOUT)
-            self.Bind(wx.EVT_TOOL, self._onUpScroll, id=_NTB_Y_PAN_UP)
-            self.Bind(wx.EVT_TOOL, self._onDownScroll, id=_NTB_Y_PAN_DOWN)
-            self.Bind(wx.EVT_TOOL, self._onYZoomIn, id=_NTB_Y_ZOOMIN)
-            self.Bind(wx.EVT_TOOL, self._onYZoomOut, id=_NTB_Y_ZOOMOUT)
-            self.Bind(wx.EVT_TOOL, self._onSave, id=_NTB_SAVE)
-            self.Bind(wx.EVT_TOOL_ENTER, self._onEnterTool, id=self.GetId())
-            if can_kill:
-                self.Bind(wx.EVT_TOOL, self._onClose, id=_NTB_CLOSE)
-            self.Bind(wx.EVT_MOUSEWHEEL, self._onMouseWheel)
-        else:
-            wx.EVT_TOOL(self, _NTB_X_PAN_LEFT, self._onLeftScroll)
-            wx.EVT_TOOL(self, _NTB_X_PAN_RIGHT, self._onRightScroll)
-            wx.EVT_TOOL(self, _NTB_X_ZOOMIN, self._onXZoomIn)
-            wx.EVT_TOOL(self, _NTB_X_ZOOMOUT, self._onXZoomOut)
-            wx.EVT_TOOL(self, _NTB_Y_PAN_UP, self._onUpScroll)
-            wx.EVT_TOOL(self, _NTB_Y_PAN_DOWN, self._onDownScroll)
-            wx.EVT_TOOL(self, _NTB_Y_ZOOMIN, self._onYZoomIn)
-            wx.EVT_TOOL(self, _NTB_Y_ZOOMOUT, self._onYZoomOut)
-            wx.EVT_TOOL(self, _NTB_SAVE, self._onSave)
-            wx.EVT_TOOL_ENTER(self, self.GetId(), self._onEnterTool)
-            if can_kill:
-                wx.EVT_TOOL(self, _NTB_CLOSE, self._onClose)
-            wx.EVT_MOUSEWHEEL(self, self._onMouseWheel)
+        bind(self, wx.EVT_TOOL, self._onLeftScroll, id=_NTB_X_PAN_LEFT)
+        bind(self, wx.EVT_TOOL, self._onRightScroll, id=_NTB_X_PAN_RIGHT)
+        bind(self, wx.EVT_TOOL, self._onXZoomIn, id=_NTB_X_ZOOMIN)
+        bind(self, wx.EVT_TOOL, self._onXZoomOut, id=_NTB_X_ZOOMOUT)
+        bind(self, wx.EVT_TOOL, self._onUpScroll, id=_NTB_Y_PAN_UP)
+        bind(self, wx.EVT_TOOL, self._onDownScroll, id=_NTB_Y_PAN_DOWN)
+        bind(self, wx.EVT_TOOL, self._onYZoomIn, id=_NTB_Y_ZOOMIN)
+        bind(self, wx.EVT_TOOL, self._onYZoomOut, id=_NTB_Y_ZOOMOUT)
+        bind(self, wx.EVT_TOOL, self._onSave, id=_NTB_SAVE)
+        bind(self, wx.EVT_TOOL_ENTER, self._onEnterTool, id=self.GetId())
+        if can_kill:
+            bind(self, wx.EVT_TOOL, self._onClose, id=_NTB_CLOSE)
+        bind(self, wx.EVT_MOUSEWHEEL, self._onMouseWheel)
 
     def set_active(self, ind):
         """
