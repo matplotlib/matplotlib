@@ -221,7 +221,7 @@ import matplotlib.dates
 from matplotlib.mlab import  window_hanning, window_none,\
         conv, detrend, detrend_mean, detrend_none, detrend_linear,\
         polyfit, polyval, entropy, normpdf, griddata,\
-        levypdf, find, trapz, prepca, fix, rem, norm, orth, rank,\
+        levypdf, find, trapz, prepca, rem, norm, orth, rank,\
         sqrtm, prctile, center_matrix, rk4, exp_safe, amap,\
         sum_flat, mean_flat, rms_flat, l1norm, l2norm, norm, frange,\
         diagonal_matrix, base_repr, binary_repr, log2, ispower2,\
