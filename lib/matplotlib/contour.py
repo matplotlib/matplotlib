@@ -329,15 +329,15 @@ class ContourLabeler:
 
         return x, y, dind
 
-    def calc_label_rot_and_inline( self, slc, ind, lw, lc=[], spacing=5 ):
+    def calc_label_rot_and_inline( self, slc, ind, lw, lc=None, spacing=5 ):
         """
         This function calculates the appropriate label rotation given
         the linecontour coordinates in screen units, the index of the
         label location and the label width.
 
         It will also break contour and calculate inlining if *lc* is
-        not empty.  *spacing* is the space around the label in pixels
-        to leave empty.
+        not empty (lc defaults to the empty list if None).  *spacing*
+        is the space around the label in pixels to leave empty.
 
         Do both of these tasks at once to avoid calling cbook.path_length
         multiple times, which is relatively costly.
@@ -348,6 +348,7 @@ class ContourLabeler:
         determine rotation and then to break contour if desired.
         """
 
+        if lc is None: lc = []
         # Half the label width
         hlw = lw/2.0
 
@@ -483,8 +484,10 @@ class ContourLabeler:
                 if self.print_label(slc,lw):
                     x,y,ind  = self.locate_label(slc, lw)
 
+                    if inline: lcarg = lc
+                    else: lcarg = []
                     rotation,new=self.calc_label_rot_and_inline(
-                        slc0, ind, lw, lc if inline else [],
+                        slc0, ind, lw, lcarg,
                         inline_spacing )
 
                     # Actually add the label
