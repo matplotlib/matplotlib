@@ -1951,9 +1951,11 @@ def rec_summarize(r, summaryfuncs):
 def rec_join(key, r1, r2, jointype='inner', defaults=None):
     """
     join record arrays r1 and r2 on key; key is a tuple of field
-    names.  if r1 and r2 have equal values on all the keys in the key
+    names. If r1 and r2 have equal values on all the keys in the key
     tuple, then their fields will be merged into a new record array
-    containing the intersection of the fields of r1 and r2
+    containing the intersection of the fields of r1 and r2.
+
+    r1 (also r2) must not have any duplicate keys.
 
     The jointype keyword can be 'inner', 'outer', 'leftouter'.
     To do a rightouter join just reverse r1 and r2.
@@ -1993,9 +1995,6 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None):
         right_ind = np.array([r2d[k] for k in right_keys])
         right_len = len(right_ind)
 
-    r2 = rec_drop_fields(r2, r1.dtype.names)
-
-
     def key_desc(name):
         'if name is a string key, use the larger size of r1 or r2 before merging'
         dt1 = r1.dtype[name]
@@ -2027,21 +2026,18 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None):
                 newrec[k] = v
 
     for field in r1.dtype.names:
-        newrec[field][:common_len] = r1[field][r1ind]
-        if jointype == "outer" or jointype == "leftouter":
+        if common_len:
+            newrec[field][:common_len] = r1[field][r1ind]
+        if (jointype == "outer" or jointype == "leftouter") and left_len:
             newrec[field][common_len:(common_len+left_len)] = r1[field][left_ind]
 
     for field in r2.dtype.names:
-        newrec[field][:common_len] = r2[field][r2ind]
-        if jointype == "outer":
-            newrec[field][-right_len:] = r2[field][right_ind[right_ind.argsort()]]
+        if field not in key and common_len:
+            newrec[field][:common_len] = r2[field][r2ind]
+        if jointype == "outer" and right_len:
+            newrec[field][-right_len:] = r2[field][right_ind]
 
-    # sort newrec using the same order as r1
-    sort_indices = r1ind.copy()
-    if jointype == "outer" or jointype == "leftouter":
-        sort_indices = np.append(sort_indices, left_ind)
-    newrec[:(common_len+left_len)] = newrec[sort_indices.argsort()]
-
+    newrec.sort(order=key)
 
     return newrec.view(np.recarray)
 
