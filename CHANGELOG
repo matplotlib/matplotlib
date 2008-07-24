@@ -1,3 +1,7 @@
+2008-07-24 Deprecated (raise NotImplementedError) all the mlab2
+           functions from matplotlib.mlab out of concern that some of
+           them were not clean room implementations. JDH
+
 2008-07-16 Improve error handling in texmanager, thanks to Ian Henry 
            for reporting - DSD
 
