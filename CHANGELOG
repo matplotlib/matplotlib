@@ -1,10 +1,13 @@
+2008-07-24 Rewrite of a significant portion of the clabel code (class
+	   ContourLabeler) to improve inlining. - DMK
+
 2008-07-22 Added Barbs polygon collection (similar to Quiver) for plotting
            wind barbs.  Added corresponding helpers to Axes and pyplot as
            well. (examples/pylab_examples/barb_demo.py shows it off.) - RMM
 
 2008-07-21 Added scikits.delaunay as matplotlib.delaunay.  Added griddata
            function in matplotlib.mlab, with example (griddata_demo.py) in
-           pylab_examples. griddata function will use mpl_toolkits._natgrid 
+           pylab_examples. griddata function will use mpl_toolkits._natgrid
            if installed (haven't yet created the toolkit).  - JSW
 
 2008-07-21 Re-introduced offset_copy that works in the context of the

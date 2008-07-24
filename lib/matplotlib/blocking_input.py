@@ -19,8 +19,9 @@ This provides several classes used for blocking interaction with figure windows:
 
 import time
 import numpy as np
+
 from matplotlib import path, verbose
-from cbook import is_sequence_of_strings
+from matplotlib.cbook import is_sequence_of_strings
 
 class BlockingInput(object):
     """
@@ -267,46 +268,38 @@ class BlockingContourLabeler( BlockingMouseInput ):
 
         if event.inaxes == cs.ax:
             conmin,segmin,imin,xmin,ymin = cs.find_nearest_contour(
-                event.x, event.y, cs.label_indices)[:5]
+                event.x, event.y, cs.labelIndiceList)[:5]
 
             # Get index of nearest level in subset of levels used for labeling
-            lmin = cs.label_indices.index(conmin)
+            lmin = cs.labelIndiceList.index(conmin)
 
+            # Coordinates of contour
             paths = cs.collections[conmin].get_paths()
             lc = paths[segmin].vertices
 
-            # Figure out label rotation.  This is very cludgy.
-            # Ideally, there would be one method in ContourLabeler
-            # that would figure out the best rotation for a label at a
-            # point, but the way automatic label rotation is done is
-            # quite mysterious to me and doesn't seem easy to
-            # generalize to non-automatic label placement.  The method
-            # used below is not very robust!  It basically looks one
-            # point before and one point after label location on
-            # contour and takes mean of angles of two vectors formed.
-            # This produces "acceptable" results, but not nearly as
-            # nice as automatic method.
-            ll = lc[max(0,imin-1):imin+2] # Get points around point
-            dd = np.diff(ll,axis=0)
-            rotation = np.mean( np.arctan2(dd[:,1], dd[:,0]) ) * 180 / np.pi
-            if rotation > 90:
-                rotation = rotation -180
-            if rotation < -90:
-                rotation = 180 + rotation
+            # In pixel/screen space
+            slc = cs.ax.transData.transform(lc)
 
-            cs.add_label(xmin,ymin,rotation,cs.label_levels[lmin],
-                         cs.label_cvalues[lmin])
+            # Get label width for rotating labels and breaking contours
+            lw = cs.get_label_width(cs.labelLevelList[lmin],
+                                    cs.labelFmt, cs.labelFontSizeList[lmin])
+
+            # Figure out label rotation.
+            rotation,nlc = cs.calc_label_rot_and_inline(
+                slc, imin, lw, lc if self.inline else [],
+                self.inline_spacing )
+
+            cs.add_label(xmin,ymin,rotation,cs.labelLevelList[lmin],
+                         cs.labelCValueList[lmin])
 
             if self.inline:
-                # Get label width for breaking contours
-                lw = cs.get_label_width(cs.label_levels[lmin],
-                                        cs.fmt, cs.fslist[lmin])
-                # Break contour
-                new=cs.break_linecontour(lc,rotation,lw,imin)
-                if len(new[0]):
-                    paths[segmin] = path.Path(new[0])
-                if len(new[1]):
-                    paths.extend([path.Path(new[1])])
+                # Remove old, not looping over paths so we can do this up front
+                paths.pop(segmin)
+
+                # Add paths if not empty or single point
+                for n in nlc:
+                    if len(n)>1:
+                        paths.append( path.Path(n) )
 
             self.fig.canvas.draw()
         else: # Remove event if not valid
@@ -320,14 +313,21 @@ class BlockingContourLabeler( BlockingMouseInput ):
         broken contour - once humpty-dumpty is broken, he can't be put
         back together.  In inline mode, this does nothing.
         """
+        # Remove this last event - not too important for clabel use
+        # since clabel normally doesn't have a maximum number of
+        # events, but best for cleanliness sake.
+        BlockingInput.pop(self)
+
         if self.inline:
             pass
         else:
             self.cs.pop_label()
             self.cs.ax.figure.canvas.draw()
 
-    def __call__(self,inline,n=-1,timeout=-1):
+    def __call__(self,inline,inline_spacing=5,n=-1,timeout=-1):
         self.inline=inline
+        self.inline_spacing=inline_spacing
+
         BlockingMouseInput.__call__(self,n=n,timeout=timeout,
                                     show_clicks=False)
 
