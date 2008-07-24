@@ -1816,25 +1816,25 @@ def rem(x,y):
 
 def norm(x,y=2):
     """
-    Norm of a matrix or a vector according to Matlab.
-    The description is taken from Matlab:
+    This function is deprecated - use numpy.linalg.norm instead.
 
-        For matrices...
-          NORM(X) is the largest singular value of X, max(svd(X)).
-          NORM(X,2) is the same as NORM(X).
-          NORM(X,1) is the 1-norm of X, the largest column sum,
-                          = max(sum(abs((X)))).
-          NORM(X,inf) is the infinity norm of X, the largest row sum,
-                          = max(sum(abs((X')))).
-          NORM(X,'fro') is the Frobenius norm, sqrt(sum(diag(X'*X))).
-          NORM(X,P) is available for matrix X only if P is 1, 2, inf or 'fro'.
+    Norm of a matrix or a vector.  Functions similar to the Matlab (TM)
+    function of the same name.
 
-        For vectors...
-          NORM(V,P) = sum(abs(V).^P)^(1/P).
-          NORM(V) = norm(V,2).
-          NORM(V,inf) = max(abs(V)).
-          NORM(V,-inf) = min(abs(V)).
+    Call signature::
+
+    norm(x,y=2)
+
+    This function behaves differently for vectors and matrices.  For vectors,
+    it returns the y'th norm of x (i.e. (sum(abs(x)**y))**(1.0/y).
+
+    For matrices, if y=2, then it returns the largest singular value
+    of X, namely max(linalg.svd(x)).  If y=1, returns the largest
+    column sum of x (i.e., max(sum(abs(x),axis=0)) ).  If y=inf,
+    returns the largest row sum.  If y='fro', returns the Frobenius
+    norm, sqrt(sum(diag(dot(x.transpose(),x)))).
     """
+    warnings.warn( "Use numpy.linalg.norm instead", DeprecationWarning )
 
     x = np.asarray(x)
     if x.ndim == 2:
@@ -1862,13 +1862,16 @@ def norm(x,y=2):
 
 def orth(A):
     """
-    Orthogonalization procedure by Matlab.
-    The description is taken from its help:
+    Orthogonalization procedure similar to Matlab (TM) function of the same
+    name.
 
-        Q = ORTH(A) is an orthonormal basis for the range of A.
-        That is, Q'*Q = I, the columns of Q span the same space as
-        the columns of A, and the number of columns of Q is the
-        rank of A.
+    Call signature::
+
+    Q = orth(A)
+
+    Returns an orthonormal basis with the range of A.  Q is an orthonormal
+    matrix (i.e., dot( Q.transpose(), Q ) is an identity matrix) and the
+    columns of Q span the same space as the columns of A.
     """
 
     A     = np.asarray(A)
@@ -2086,9 +2089,9 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None):
     join record arrays r1 and r2 on key; key is a tuple of field
     names. If r1 and r2 have equal values on all the keys in the key
     tuple, then their fields will be merged into a new record array
-    containing the intersection of the fields of r1 and r2. 
+    containing the intersection of the fields of r1 and r2.
 
-    r1 (also r2) must not have any duplicate keys. 
+    r1 (also r2) must not have any duplicate keys.
 
     The jointype keyword can be 'inner', 'outer', 'leftouter'.
     To do a rightouter join just reverse r1 and r2.
@@ -2702,8 +2705,8 @@ def griddata(x,y,z,xi,yi):
     griddata interpolates this surface at the points specified by (xi,yi)
     to produce zi. xi and yi must describe a regular grid, can be
     either 1D or 2D, but must be monotonically increasing.
-    
-    A masked array is returned if any grid points are outside convex 
+
+    A masked array is returned if any grid points are outside convex
     hull defined by input data (no extrapolation is done).
 
     Uses natural neighbor interpolation based on Delaunay triangulation.
@@ -2712,7 +2715,7 @@ def griddata(x,y,z,xi,yi):
     package is known to fail on some nearly pathological cases. For
     this reason, a separate toolkit (mpl_tookits.natgrid) has been created
     that provides a more robust algorithm fof triangulation and interpolation.
-    This toolkit is based on the NCAR natgrid library, which contains code 
+    This toolkit is based on the NCAR natgrid library, which contains code
     that is not redistributable under a BSD-compatible license.  When installed,
     this function will use the mpl_toolkits.natgrid algorithm, otherwise it
     will use the built-in matplotlib.delaunay package.
