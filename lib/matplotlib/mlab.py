@@ -2032,12 +2032,13 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None):
                 newrec[k] = v
 
     for field in r1.dtype.names:
-        newrec[field][:common_len] = r1[field][r1ind]
+        if common_len:
+            newrec[field][:common_len] = r1[field][r1ind]
         if (jointype == "outer" or jointype == "leftouter") and left_len:
             newrec[field][common_len:(common_len+left_len)] = r1[field][left_ind]
 
     for field in r2.dtype.names:
-        if field not in key:
+        if field not in key and common_len:
             newrec[field][:common_len] = r2[field][r2ind]
         if jointype == "outer" and right_len:
             newrec[field][-right_len:] = r2[field][right_ind]
