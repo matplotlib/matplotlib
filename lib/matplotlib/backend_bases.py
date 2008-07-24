@@ -23,7 +23,7 @@ graphics contexts must implement to serve as a matplotlib backend
 """
 
 from __future__ import division
-import os, warnings
+import os, warnings, time
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -1390,6 +1390,75 @@ class FigureCanvasBase:
         backends with GUIs.
         """
         raise NotImplementedError
+
+    def start_event_loop(self,*args,**kwargs):
+        """
+        Start an event loop.  This is used to start a blocking event
+        loop so that interactive functions, such as ginput and
+        waitforbuttonpress, can wait for events.  This should not be
+        confused with the main GUI event loop, which is always running
+        and has nothing to do with this.
+
+        This is implemented only for backends with GUIs.
+        """
+        raise NotImplementedError
+
+    def stop_event_loop(self,*args,**kwargs):
+        """
+        Stop an event loop.  This is used to stop a blocking event
+        loop so that interactive functions, such as ginput and
+        waitforbuttonpress, can wait for events.
+
+        This is implemented only for backends with GUIs.
+        """
+        raise NotImplementedError
+
+    def start_event_loop_default(self,timeout=0):
+        """
+        Start an event loop.  This is used to start a blocking event
+        loop so that interactive functions, such as ginput and
+        waitforbuttonpress, can wait for events.  This should not be
+        confused with the main GUI event loop, which is always running
+        and has nothing to do with this.
+
+        This function provides default event loop functionality based
+        on time.sleep that is meant to be used until event loop
+        functions for each of the GUI backends can be written.  As
+        such, it throws a deprecated warning.
+
+        Call signature::
+
+        start_event_loop_default(self,timeout=0)
+
+        This call blocks until a callback function triggers
+        stop_event_loop() or *timeout* is reached.  If *timeout* is
+        <=0, never timeout.
+        """
+        str = "Using default event loop until function specific"
+        str += " to this GUI is implemented"
+        warnings.warn(str,DeprecationWarning)
+
+        if timeout <= 0: timeout = np.inf
+        timestep = 0.01
+        counter = 0
+        self._looping = True
+        while self._looping and counter*timestep < timeout:
+            self.flush_events()
+            time.sleep(timestep)
+            counter += 1
+
+    def stop_event_loop_default(self):
+        """
+        Stop an event loop.  This is used to stop a blocking event
+        loop so that interactive functions, such as ginput and
+        waitforbuttonpress, can wait for events.
+
+        Call signature::
+
+        stop_event_loop_default(self)
+        """
+        self._looping = False
+
 
 
 class FigureManagerBase:

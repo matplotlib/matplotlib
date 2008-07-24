@@ -287,6 +287,14 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
     def flush_events(self):
         self._master.update()
 
+    def start_event_loop(self,*args,**kwargs):
+        FigureCanvasBase.start_event_loop_default(self,*args,**kwargs)
+    start_event_loop.__doc__=FigureCanvasBase.start_event_loop_default.__doc__
+
+    def stop_event_loop(self,*args,**kwargs):
+        FigureCanvasBase.stop_event_loop_default(self,*args,**kwargs)
+    stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
+
 class FigureManagerTkAgg(FigureManagerBase):
     """
     Public attributes

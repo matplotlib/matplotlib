@@ -247,6 +247,14 @@ class FigureCanvasFltkAgg(FigureCanvasAgg):
     def widget(self):
         return self.canvas
 
+    def start_event_loop(self,*args,**kwargs):
+        FigureCanvasBase.start_event_loop_default(self,*args,**kwargs)
+    start_event_loop.__doc__=FigureCanvasBase.start_event_loop_default.__doc__
+
+    def stop_event_loop(self,*args,**kwargs):
+        FigureCanvasBase.stop_event_loop_default(self,*args,**kwargs)
+    stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
+
 def destroy_figure(ptr,figman):
     figman.window.hide()
     Gcf.destroy(figman._num)
@@ -491,7 +499,7 @@ def save_figure(ptr,base):
     default_filetype = base.canvas.get_default_filetype()
     sorted_filetypes = filetypes.items()
     sorted_filetypes.sort()
-    
+
     selected_filter = 0
     filters = []
     for i, (ext, name) in enumerate(sorted_filetypes):
@@ -518,7 +526,7 @@ def save_figure(ptr,base):
     lastDir = os.path.dirname(fname)
     file_chooser.directory(lastDir)
     format = sorted_filetypes[file_chooser.filter_value()][0]
-    
+
     try:
         base.canvas.print_figure(fname, format=format)
     except IOError, msg:

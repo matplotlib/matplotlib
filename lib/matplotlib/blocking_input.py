@@ -50,7 +50,7 @@ class BlockingInput(object):
 
         # Check if we have enough events already
         if len(self.events) >= self.n and self.n > 0:
-            self.done = True
+            self.fig.canvas.stop_event_loop()
 
     def post_event(self):
         """For baseclass, do nothing but collect events"""
@@ -90,7 +90,6 @@ class BlockingInput(object):
         self.n = n
 
         self.events = []
-        self.done = False
         self.callbacks = []
 
         # Ensure that the figure is shown
@@ -101,17 +100,8 @@ class BlockingInput(object):
             self.callbacks.append( self.fig.canvas.mpl_connect(n, self.on_event) )
 
         try:
-            # wait for n clicks
-            counter = 0
-            while not self.done:
-                self.fig.canvas.flush_events()
-                time.sleep(0.01)
-
-                # check for a timeout
-                counter += 1
-                if timeout > 0 and counter > timeout/0.01:
-                    print "Timeout reached";
-                    break;
+            # Start event loop
+            self.fig.canvas.start_event_loop(timeout=timeout)
         finally: # Run even on exception like ctrl-c
             # Disconnect the callbacks
             self.cleanup()
@@ -175,7 +165,7 @@ class BlockingMouseInput(BlockingInput):
         # consistent with matlab and sometimes quite useful, but will
         # require the user to test how many points were actually
         # returned before using data.
-        self.done = True
+        self.fig.canvas.stop_event_loop()
 
     def button3( self, event ):
         """
