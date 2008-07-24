@@ -10,7 +10,7 @@ from pylab import figure, show, close
 
 # take a memory snapshot on indStart and compare it with indEnd
 
-rand = np.mlab.rand
+rand = np.random.rand
 
 indStart, indEnd = 200, 401
 for i in range(indEnd):
