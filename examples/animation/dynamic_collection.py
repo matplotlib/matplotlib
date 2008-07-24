@@ -34,6 +34,8 @@ def onpress(event):
         color = cm.jet(rand())
         offsets.append((x,y))
         facecolors.append(color)
+        collection.set_offsets(offsets)
+        collection.set_facecolors(facecolors)
         fig.canvas.draw()
     elif event.key=='d':
         N = len(offsets)
@@ -41,6 +43,8 @@ def onpress(event):
             ind = random.randint(0,N-1)
             offsets.pop(ind)
             facecolors.pop(ind)
+            collection.set_offsets(offsets)
+            collection.set_facecolors(facecolors)
             fig.canvas.draw()
 
 fig.canvas.mpl_connect('key_press_event', onpress)
