@@ -1,5 +1,5 @@
 """
-A simple example of an animated plot using a gtk backends
+A simple example of an animated plot using a gtk backend
 """
 import time
 import numpy as np
