@@ -1185,6 +1185,56 @@ def draw_if_interactive():
         if figManager is not None:
             figManager.canvas.draw()
 
+    def start_event_loop(self, timeout=0):
+        """
+        Start an event loop.  This is used to start a blocking event
+        loop so that interactive functions, such as ginput and
+        waitforbuttonpress, can wait for events.  This should not be
+        confused with the main GUI event loop, which is always running
+        and has nothing to do with this.
+
+        Call signature::
+
+        start_event_loop(self,timeout=0)
+
+        This call blocks until a callback function triggers
+        stop_event_loop() or *timeout* is reached.  If *timeout* is
+        <=0, never timeout.
+        """
+        root = self.GetTopLevelParent()
+        bind(root, wx.EVT_CLOSE, self.stop_event_loop)
+
+        id = wx.NewId()
+        timer = wx.Timer(self, id=id)
+        if timeout > 0:
+            timer.Start(timeout*1000, oneShot=True)
+            bind(self, wx.EVT_TIMER, self.stop_event_loop, id=id)
+        self._event_loop.Run()
+        timer.Stop()
+
+    def stop_event_loop(self, event=None):
+        """
+        Stop an event loop.  This is used to stop a blocking event
+        loop so that interactive functions, such as ginput and
+        waitforbuttonpress, can wait for events.
+
+        Call signature::
+
+        stop_event_loop_default(self)
+        """
+        if self._event_loop.IsRunning():
+            self._event_loop.Exit()
+
+# Event binding code changed after version 2.5
+if wx.VERSION_STRING >= '2.5':
+    def bind(actor,event,action,**kw):
+        actor.Bind(event,action,**kw)
+else:
+    def bind(actor,event,action,id=None):
+        if id is not None:
+            event(actor, id, action)
+        else:
+            event(actor,action)
 
 def show():
     """
