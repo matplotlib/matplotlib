@@ -1159,9 +1159,14 @@ def simple_linear_interpolation(a, steps):
 def less_simple_linear_interpolation( x, y, xi, extrap=False ):
     """
     This function provides simple (but somewhat less so than
-    simple_linear_interpolation) linear interpolation.  This is very
-    inefficient linear interpolation meant to be used only for a small
-    number of points in relatively non-intensive use cases.
+    simple_linear_interpolation) linear interpolation.
+    simple_linear_interpolation will give a list of point between a
+    start and an end, while this does true linear interpolation at an
+    arbitrary set of points.
+
+    This is very inefficient linear interpolation meant to be used
+    only for a small number of points in relatively non-intensive use
+    cases.
 
     Call signature::
 
