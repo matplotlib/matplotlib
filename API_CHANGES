@@ -1,5 +1,10 @@
+
 Changes for 0.98.x
 ==================
+
+* Deprecated (raise NotImplementedError) all the mlab2 functions from
+  matplotlib.mlab out of concern that some of them were not clean room
+  implementations.
 
 * Methods get_offsets and set_offsets added to Collections base
   class.
