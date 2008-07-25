@@ -6006,7 +6006,7 @@ class Axes(martist.Artist):
         right
         """
 
-        ax2 = self.figure.add_axes(self.get_position(True), # sharex=self,
+        ax2 = self.figure.add_axes(self.get_position(True), sharex=self,
             frameon=False)
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
