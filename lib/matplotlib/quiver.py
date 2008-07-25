@@ -593,6 +593,16 @@ Keyword arguments:
         'full' - full barbs (Default is 10)
         'flag' - flags (default is 50)
 
+  *flip_barb*:
+    Either a single boolean flag or an array of booleans.  Single boolean
+    indicates whether the lines and flags should point opposite to normal
+    for all barbs.  An array (which should be the same size as the other
+    data arrays) indicates whether to flip for each individual barb.
+    Normal behavior is for the barbs and lines to point right (comes from
+    wind barbs having these features point towards low pressure in the
+    Northern Hemisphere.)
+    Default is False
+
 Barbs are traditionally used in meteorology as a way to plot the speed
 and direction of wind observations, but can technically be used to plot
 any two dimensional vector quantity.  As opposed to arrows, which give
@@ -647,6 +657,7 @@ class Barbs(collections.PolyCollection):
         self.fill_empty = kw.pop('fill_empty', False)
         self.barb_increments = kw.pop('barb_increments', dict())
         self.rounding = kw.pop('rounding', True)
+        self.flip = kw.pop('flip_barb', False)
 
         #Flagcolor and and barbcolor provide convenience parameters for setting
         #the facecolor and edgecolor, respectively, of the barb polygon.  We
@@ -714,7 +725,7 @@ class Barbs(collections.PolyCollection):
         return num_flags, num_barb, half_flag, empty_flag
 
     def _make_barbs(self, u, v, nflags, nbarbs, half_barb, empty_flag, length,
-        pivot, sizes, fill_empty):
+        pivot, sizes, fill_empty, flip):
         '''This function actually creates the wind barbs.  u and v are
         components of the vector in the x and y directions, respectively.
         nflags, nbarbs, and half_barb, empty_flag are, respectively, the number
@@ -730,7 +741,13 @@ class Barbs(collections.PolyCollection):
             height - height (distance from shaft of top) of a flag or full barb
             width - width of a flag, twice the width of a full barb
             emptybarb - radius of the circle used for low magnitudes
-
+        
+        fill_empty specifies whether the circle representing an empty barb
+        should be filled or not (this changes the drawing of the polygon).
+        flip is a flag indicating whether the features should be flipped to
+        the other side of the barb (useful for winds in the southern
+        hemisphere.
+        
         This function returns list of arrays of vertices, defining a polygon for
         each of the wind barbs.  These polygons have been rotated to properly
         align with the vector direction.'''
@@ -744,6 +761,9 @@ class Barbs(collections.PolyCollection):
 
         #Controls y point where to pivot the barb.
         pivot_points = dict(tip=0.0, middle=-length/2.)
+
+        #Check for flip
+        if flip: full_height = -full_height
 
         endx = 0.0
         endy = pivot_points[pivot.lower()]
@@ -861,7 +881,7 @@ class Barbs(collections.PolyCollection):
         #Get the vertices for each of the barbs
         
         plot_barbs = self._make_barbs(u, v, flags, barbs, halves, empty,
-            self._length, self._pivot, self.sizes, self.fill_empty)
+            self._length, self._pivot, self.sizes, self.fill_empty, self.flip)
         self.set_verts(plot_barbs)
         
         #Set the color array
