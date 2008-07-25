@@ -588,7 +588,7 @@ Keyword arguments:
   *barb_increments*:
     A dictionary of increments specifying values to associate with different
     parts of the barb. Only those values one wishes to override need to be
-    included.  
+    included.
         'half' - half barbs (Default is 5)
         'full' - full barbs (Default is 10)
         'flag' - flags (default is 50)
@@ -721,7 +721,7 @@ class Barbs(collections.PolyCollection):
 
         half_flag = mag >= half
         empty_flag = ~(half_flag | (num_flags > 0) | (num_barb > 0))
-            
+
         return num_flags, num_barb, half_flag, empty_flag
 
     def _make_barbs(self, u, v, nflags, nbarbs, half_barb, empty_flag, length,
@@ -736,22 +736,22 @@ class Barbs(collections.PolyCollection):
         'head' and 'middle'. sizes is a dictionary of coefficients specifying
         the ratio of a given feature to the length of the barb. These features
         include:
-            
+
             spacing - space between features (flags, full/half barbs)
             height - height (distance from shaft of top) of a flag or full barb
             width - width of a flag, twice the width of a full barb
             emptybarb - radius of the circle used for low magnitudes
-        
+
         fill_empty specifies whether the circle representing an empty barb
         should be filled or not (this changes the drawing of the polygon).
         flip is a flag indicating whether the features should be flipped to
         the other side of the barb (useful for winds in the southern
         hemisphere.
-        
+
         This function returns list of arrays of vertices, defining a polygon for
         each of the wind barbs.  These polygons have been rotated to properly
         align with the vector direction.'''
-          
+
         #These control the spacing and size of barb elements relative to the
         #length of the shaft
         spacing = length * sizes.get('spacing', 0.125)
@@ -795,7 +795,7 @@ class Barbs(collections.PolyCollection):
                 #orientation
                 barb_list.append(empty_barb)
                 continue
-                
+
             poly_verts = [(endx, endy)]
             offset = length
 
@@ -879,15 +879,15 @@ class Barbs(collections.PolyCollection):
             self.rounding, **self.barb_increments)
 
         #Get the vertices for each of the barbs
-        
+
         plot_barbs = self._make_barbs(u, v, flags, barbs, halves, empty,
             self._length, self._pivot, self.sizes, self.fill_empty, self.flip)
         self.set_verts(plot_barbs)
-        
+
         #Set the color array
         if C is not None:
             self.set_array(c)
-        
+
         #Update the offsets in case the masked data changed
         xy = np.hstack((x[:,np.newaxis], y[:,np.newaxis]))
         self._offsets = xy
@@ -897,7 +897,7 @@ class Barbs(collections.PolyCollection):
         Set the offsets for the barb polygons.  This saves the offets passed in
         and actually sets version masked as appropriate for the existing U/V
         data. *offsets* should be a sequence.
-            
+
         ACCEPTS: sequence of pairs of floats
         '''
         self.x = xy[:,0]
@@ -909,4 +909,3 @@ class Barbs(collections.PolyCollection):
     set_offsets.__doc__ = collections.PolyCollection.set_offsets.__doc__
 
     barbs_doc = _barbs_doc
-
