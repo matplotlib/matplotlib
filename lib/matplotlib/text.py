@@ -135,6 +135,8 @@ class Text(Artist):
         """
         if callable(self._contains): return self._contains(self,mouseevent)
 
+        if not self.get_visible() or self._renderer is None: 
+            return False,{}
 
         l,b,w,h = self.get_window_extent().bounds
 

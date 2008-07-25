@@ -2350,8 +2350,7 @@ class Axes(martist.Artist):
         """
         if callable(self._contains): return self._contains(self,mouseevent)
 
-        inside = self.patch.contains(mouseevent.x, mouseevent.y)
-        return inside,{}
+        return self.patch.contains(mouseevent)
 
     def pick(self, *args):
         """
