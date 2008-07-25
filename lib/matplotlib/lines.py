@@ -17,59 +17,19 @@ from path import Path
 from transforms import Affine2D, Bbox, TransformedPath
 
 from matplotlib import rcParams
-
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = range(8)
 
+
 # COVERAGE NOTE: Never called internally or from examples
 def unmasked_index_ranges(mask, compressed = True):
-    '''
-    Calculate the good data ranges in a masked 1-D np.array, based on
-    mask.
+    warnings.warn("Import this directly from matplotlib.cbook",
+                   DeprecationWarning)
+    # Warning added 2008/07/22
+    from matplotlib.cbook import unmasked_index_ranges as _unmasked_index_ranges
+    return _unmasked_index_ranges(mask, compressed=compressed)
 
-    Returns Nx2 :class:`numpy.array` with each row the start and stop
-    indices for slices of the compressed :class:`numpy.array`
-    corresponding to each of *N* uninterrupted runs of unmasked
-    values.  If optional argument *compressed* is *False*, it returns
-    the start and stop indices into the original :class:`numpy.array`,
-    not the compressed :class:`numpy.array`.  Returns *None* if there
-    are no unmasked values.
-
-    Example::
-
-      y = ma.array(np.arange(5), mask = [0,0,1,0,0])
-      #ii = unmasked_index_ranges(y.mask())
-      ii = unmasked_index_ranges(ma.getmask(y))
-      # returns [[0,2,] [2,4,]]
-
-      y.compressed().filled()[ii[1,0]:ii[1,1]]
-      # returns np.array [3,4,]
-      # (The 'filled()' method converts the masked np.array to a numerix np.array.)
-
-      #i0, i1 = unmasked_index_ranges(y.mask(), compressed=False)
-      i0, i1 = unmasked_index_ranges(ma.getmask(y), compressed=False)
-      # returns [[0,3,] [2,5,]]
-
-      y.filled()[ii[1,0]:ii[1,1]]
-      # returns np.array [3,4,]
-
-    '''
-    m = np.concatenate(((1,), mask, (1,)))
-    indices = np.arange(len(mask) + 1)
-    mdif = m[1:] - m[:-1]
-    i0 = np.compress(mdif == -1, indices)
-    i1 = np.compress(mdif == 1, indices)
-    assert len(i0) == len(i1)
-    if len(i1) == 0:
-        return None
-    if not compressed:
-        return np.concatenate((i0[:, np.newaxis], i1[:, np.newaxis]), axis=1)
-    seglengths = i1 - i0
-    breakpoints = np.cumsum(seglengths)
-    ic0 = np.concatenate(((0,), breakpoints[:-1]))
-    ic1 = breakpoints
-    return np.concatenate((ic0[:, np.newaxis], ic1[:, np.newaxis]), axis=1)
 
 def segment_hits(cx,cy,x,y,radius):
     """Determine if any line segments are within radius of a point. Returns
