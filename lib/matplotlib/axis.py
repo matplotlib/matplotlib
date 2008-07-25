@@ -1144,13 +1144,17 @@ class XAxis(Axis):
         """
         if callable(self._contains): return self._contains(self,mouseevent)
 
-        xpixel,ypixel = mouseevent.x,mouseevent.y
+        x,y = mouseevent.x,mouseevent.y
         try:
-            xaxes,yaxes = self.axes.transAxes.inverse_xy_tup((xpixel,ypixel))
-            xorigin,yorigin = self.axes.transAxes.xy_tup((0,0))
+            trans = self.axes.transAxes.inverted()
+            xaxes,yaxes = trans.transform_point((x,y))
         except ValueError:
             return False, {}
-        inaxis = xaxes>=0 and xaxes<=1 and ypixel<yorigin and ypixel>yorigin-self.pickradius
+        l,b = self.axes.transAxes.transform_point((0,0))
+        r,t = self.axes.transAxes.transform_point((1,1))
+        inaxis = xaxes>=0 and xaxes<=1 and (
+                   (y<b and y>b-self.pickradius) or
+                   (y>t and y<t+self.pickradius))
         return inaxis, {}
 
     def _get_tick(self, major):
@@ -1376,13 +1380,17 @@ class YAxis(Axis):
         """
         if callable(self._contains): return self._contains(self,mouseevent)
 
-        xpixel,ypixel = mouseevent.x,mouseevent.y
+        x,y = mouseevent.x,mouseevent.y
         try:
-            xaxes,yaxes = self.axes.transAxes.inverse_xy_tup((xpixel,ypixel))
-            xorigin,yorigin = self.axes.transAxes.xy_tup((0,0))
+            trans = self.axes.transAxes.inverted()
+            xaxes,yaxes = trans.transform_point((x,y))
         except ValueError:
             return False, {}
-        inaxis = yaxes>=0 and yaxes<=1 and xpixel<xorigin and xpixel>xorigin-self.pickradius
+        l,b = self.axes.transAxes.transform_point((0,0))
+        r,t = self.axes.transAxes.transform_point((1,1))
+        inaxis = yaxes>=0 and yaxes<=1 and (
+                   (x<l and x>l-self.pickradius) or
+                   (x>r and x<r+self.pickradius))
         return inaxis, {}
 
     def _get_tick(self, major):
