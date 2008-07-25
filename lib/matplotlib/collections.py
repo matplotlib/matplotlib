@@ -222,7 +222,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Set the offsets for the collection.  *offsets* can be a scalar
         or a sequence.
-        
+
         ACCEPTS: float or sequence of floats
         """
         offsets = np.asarray(offsets, np.float_)
@@ -603,7 +603,7 @@ class PolyCollection(Collection):
         if self._sizes is not None:
             self._transforms = [
                 transforms.Affine2D().scale(
-                    (np.sqrt(x) * renderer.dpi / 72.0))
+                    (np.sqrt(x) * self.figure.dpi / 72.0))
                 for x in self._sizes]
         return Collection.draw(self, renderer)
 
@@ -680,7 +680,7 @@ class RegularPolyCollection(Collection):
         # in points^2
         self._transforms = [
             transforms.Affine2D().rotate(-self._rotation).scale(
-                (np.sqrt(x) * renderer.dpi / 72.0) / np.sqrt(np.pi))
+                (np.sqrt(x) * self.figure.dpi / 72.0) / np.sqrt(np.pi))
             for x in self._sizes]
         return Collection.draw(self, renderer)
 
@@ -877,7 +877,7 @@ class CircleCollection(Collection):
         # in points^2
         self._transforms = [
             transforms.Affine2D().scale(
-                (np.sqrt(x) * renderer.dpi / 72.0) / np.sqrt(np.pi))
+                (np.sqrt(x) * self.figure.dpi / 72.0) / np.sqrt(np.pi))
             for x in self._sizes]
         return Collection.draw(self, renderer)
 

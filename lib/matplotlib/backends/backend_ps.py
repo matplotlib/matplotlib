@@ -126,7 +126,12 @@ class RendererPS(RendererBase):
     fontd = maxdict(50)
     afmfontd = maxdict(50)
 
-    def __init__(self, width, height, pswriter, dpi=72):
+    def __init__(self, width, height, pswriter, imagedpi=72):
+        """
+        Although postscript itself is dpi independent, we need to
+        imform the image code about a requested dpi to generate high
+        res images and them scale them before embeddin them
+        """
         RendererBase.__init__(self)
         self.width = width
         self.height = height
@@ -134,7 +139,7 @@ class RendererPS(RendererBase):
         if rcParams['text.usetex']:
             self.textcnt = 0
             self.psfrag = []
-        self.dpi = dpi
+        self.imagedpi = imagedpi
 
         # current renderer state (None=uninitialised)
         self.color = None
@@ -145,7 +150,7 @@ class RendererPS(RendererBase):
         self.fontname = None
         self.fontsize = None
         self.hatch = None
-        self.image_magnification = dpi/72.0
+        self.image_magnification = imagedpi/72.0
         self._clip_paths = {}
         self._path_collection_id = 0
 
@@ -857,15 +862,15 @@ class FigureCanvasPS(FigureCanvasBase):
         else: raise RuntimeError('Orientation must be "portrait" or "landscape"')
 
         self.figure.set_dpi(72) # Override the dpi kwarg
-        dpi = kwargs.get("dpi", 72)
+        imagedpi = kwargs.get("dpi", 72)
         facecolor = kwargs.get("facecolor", "w")
         edgecolor = kwargs.get("edgecolor", "w")
 
         if rcParams['text.usetex']:
-            self._print_figure_tex(outfile, format, dpi, facecolor, edgecolor,
+            self._print_figure_tex(outfile, format, imagedpi, facecolor, edgecolor,
                                    orientation, isLandscape, papertype)
         else:
-            self._print_figure(outfile, format, dpi, facecolor, edgecolor,
+            self._print_figure(outfile, format, imagedpi, facecolor, edgecolor,
                                orientation, isLandscape, papertype)
 
     def _print_figure(self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
@@ -939,7 +944,7 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_edgecolor(edgecolor)
 
         self._pswriter = StringIO()
-        renderer = RendererPS(width, height, self._pswriter, dpi=dpi)
+        renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
         self.figure.draw(renderer)
 
         self.figure.set_facecolor(origfacecolor)
@@ -1050,7 +1055,7 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_edgecolor(edgecolor)
 
         self._pswriter = StringIO()
-        renderer = RendererPS(width, height, self._pswriter, dpi=dpi)
+        renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
         self.figure.draw(renderer)
 
         self.figure.set_facecolor(origfacecolor)
