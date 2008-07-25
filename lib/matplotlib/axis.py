@@ -147,7 +147,7 @@ class Tick(artist.Artist):
         """
         self._pad = val
 
-    def get_pad(self, val):
+    def get_pad(self):
         'Get the value of the tick label pad in points'
         return self._pad
 

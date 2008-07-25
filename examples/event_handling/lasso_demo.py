@@ -69,7 +69,7 @@ class LassoManager:
         # acquire a lock on the widget drawing
         self.canvas.widgetlock(self.lasso)
 
-if 0:
+if __name__ == '__main__':
 
     data = [Datum(*xy) for xy in rand(100, 2)]
 
