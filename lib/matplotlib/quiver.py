@@ -235,6 +235,7 @@ class QuiverKey(martist.Artist):
         self._initialized = False
         self.zorder = Q.zorder + 0.1
 
+
     __init__.__doc__ = _quiverkey_doc
 
     def _init(self):
@@ -293,6 +294,10 @@ class QuiverKey(martist.Artist):
         else:
             raise ValueError('unrecognized coordinates')
     quiverkey_doc = _quiverkey_doc
+
+    def set_figure(self, fig):
+        Artist.set_figure(self, fig)
+        self.text.set_figure(fig)
 
 class Quiver(collections.PolyCollection):
     """
