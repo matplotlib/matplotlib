@@ -1167,10 +1167,6 @@ def less_simple_linear_interpolation( x, y, xi, extrap=False ):
     This is very inefficient linear interpolation meant to be used
     only for a small number of points in relatively non-intensive use
     cases.
-
-    Call signature::
-
-    yi = less_simple_linear_interpolation(x,y,xi)
     """
     if is_scalar(xi): xi = [xi]
 
@@ -1348,20 +1344,14 @@ def isvector(X):
 
     If you just want to see if the array has 1 axis, use X.ndim==1
 
-    Call signature::
-    isvector(X)
     """
     return np.prod(X.shape)==np.max(X.shape)
 
 def vector_lengths( X, P=2., axis=None ):
     """
     Finds the length of a set of vectors in n dimensions.  This is
-    like the mlab.norm function for vectors, but has the ability to
+    like the numpy norm function for vectors, but has the ability to
     work over a particular axis of the supplied array or matrix.
-
-    Call signature::
-
-    vector_lengths( X, P=2., axis=None )
 
     Computes (sum((x_i)^P))^(1/P) for each {x_i} being the elements of X along
     the given axis.  If *axis* is *None*, compute over all elements of X.
@@ -1373,10 +1363,6 @@ def distances_along_curve( X ):
     """
     Computes the distance between a set of successive points in N dimensions.
 
-    Call signature::
-
-    distances_along_curve(X)
-
     where X is an MxN array or matrix.  The distances between successive rows
     is computed.  Distance is the standard Euclidean distance.
     """
@@ -1387,9 +1373,6 @@ def path_length(X):
     """
     Computes the distance travelled along a polygonal curve in N dimensions.
 
-    Call signature::
-
-    path_length(X)
 
     where X is an MxN array or matrix.  Returns an array of length M consisting
     of the distance along the curve at each point (i.e., the rows of X).
@@ -1403,9 +1386,6 @@ def is_closed_polygon(X):
     presumably coordinates on a polygonal curve, in which case this function
     tests if that curve is closed.
 
-    Call signature::
-
-    is_closed_polygon(X)
     """
     return np.all(X[0] == X[-1])
 
