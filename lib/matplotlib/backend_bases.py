@@ -1069,7 +1069,7 @@ class FigureCanvasBase:
         else:
             self._button = 'down'
         s = 'scroll_event'
-        mouseevent = MouseEvent(s, self, x, y, self._button, self._key, 
+        mouseevent = MouseEvent(s, self, x, y, self._button, self._key,
                                 step=step, guiEvent=guiEvent)
         self.callbacks.process(s, mouseevent)
 
@@ -1437,7 +1437,7 @@ class FigureCanvasBase:
 
         Call signature::
 
-        start_event_loop_default(self,timeout=0)
+            start_event_loop_default(self,timeout=0)
 
         This call blocks until a callback function triggers
         stop_event_loop() or *timeout* is reached.  If *timeout* is
