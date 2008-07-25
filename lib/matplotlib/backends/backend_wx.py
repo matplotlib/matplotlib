@@ -719,11 +719,19 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         bind(self, wx.EVT_LEAVE_WINDOW, self._onLeave)
         bind(self, wx.EVT_IDLE, self._onIdle)
 
+        # Event loop handler for start/stop event loop
         self._event_loop = wx.EventLoop()
 
         self.macros = {} # dict from wx id to seq of macros
 
         self.Printer_Init()
+
+        # Create an timer for handling draw_idle requests
+        # If there are events pending when the timer is
+        # complete, reset the timer and continue.  The
+        # alternative approach, binding to wx.EVT_IDLE,
+        # doesn't behave as nicely.
+        self.idletimer = wx.CallLater(1,self._onDrawIdle)
 
     def Destroy(self, *args, **kwargs):
         wx.Panel.Destroy(self, *args, **kwargs)
@@ -880,7 +888,17 @@ The current aspect ration will be kept."""
 
 
     def draw_idle(self, *args, **kwargs):
-        pass
+        """
+        Delay rendering until the GUI is idle.
+        """
+        DEBUG_MSG("draw_idle()", 1, self)
+        self.idletimer.Restart(50, *args, **kwargs)  # Delay by 50 ms
+
+    def _onDrawIdle(self, *args, **kwargs):
+        if False and wx.GetApp().Pending():
+            self.idletimer.Restart(5, *args, **kwargs)
+        else:
+            self.draw(*args, **kwargs)
 
     def draw(self, repaint=True):
         """
@@ -960,13 +978,15 @@ The current aspect ration will be kept."""
         redraw the image.
         """
         DEBUG_MSG("gui_repaint()", 1, self)
-        if drawDC is None:
-            drawDC=wx.ClientDC(self)
+        if self.IsShownOnScreen():
 
-        drawDC.BeginDrawing()
-        drawDC.DrawBitmap(self.bitmap, 0, 0)
-        drawDC.EndDrawing()
-        #wx.GetApp().Yield()
+            if drawDC is None:
+                drawDC=wx.ClientDC(self)
+
+            drawDC.BeginDrawing()
+            drawDC.DrawBitmap(self.bitmap, 0, 0)
+            drawDC.EndDrawing()
+            #wx.GetApp().Yield()
 
     filetypes = FigureCanvasBase.filetypes.copy()
     filetypes['bmp'] = 'Windows bitmap'
@@ -1031,6 +1051,10 @@ The current aspect ration will be kept."""
         # Restore everything to normal
         self.bitmap = origBitmap
 
+        # Note: draw is required here since bits of state about the 
+        # last renderer are strewn about the artist draw methods.  Do
+        # not remove the draw without first verifying that these have
+        # been cleaned up.
         self.draw()
         self.Refresh()
 
@@ -1089,7 +1113,7 @@ The current aspect ration will be kept."""
         self.figure.set_size_inches(winch, hinch)
 
         if self._isRealized:
-            self.draw()
+            self.draw_idle()
         evt.Skip()
 
     def _get_key(self, evt):
