@@ -36,6 +36,7 @@ ax.barbs(X, Y, U, V, np.sqrt(U*U + V*V), fill_empty=True, rounding=False,
 #Change colors as well as the increments for parts of the barbs
 ax = plt.subplot(2,2,4)
 ax.barbs(data['x'], data['y'], data['u'], data['v'], flagcolor='r',
-    barbcolor=['b','g'], barb_increments=dict(half=10, full=20, flag=100))
+    barbcolor=['b','g'], barb_increments=dict(half=10, full=20, flag=100),
+    flip_barb=True)
 
 plt.show()
