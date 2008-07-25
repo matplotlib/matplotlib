@@ -289,10 +289,7 @@ class QuiverKey(martist.Artist):
         elif self.coord == 'figure':
             self.set_transform(self.Q.ax.figure.transFigure)
         elif self.coord == 'inches':
-            dx = ax.figure.dpi
-            bb = transforms.Bbox.from_extents(0, 0, dx, dy)
-            trans = transforms.BboxTransformTo(bb)
-            self.set_transform(trans)
+            self.set_transform(self.Q.ax.figure.dpi_scale_trans)
         else:
             raise ValueError('unrecognized coordinates')
     quiverkey_doc = _quiverkey_doc
