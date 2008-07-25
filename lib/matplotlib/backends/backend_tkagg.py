@@ -291,6 +291,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         if w == self._tkcanvas:
             x = event.x_root - w.winfo_rootx()
             y = event.y_root - w.winfo_rooty()
+            y = self.figure.bbox.height - y
             step = event.delta/120.
             FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
 
