@@ -164,9 +164,18 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         self._tkcanvas.bind("<KeyRelease>", self.key_release)
         for name in "<Button-1>", "<Button-2>", "<Button-3>":
             self._tkcanvas.bind(name, self.button_press_event)
-
         for name in "<ButtonRelease-1>", "<ButtonRelease-2>", "<ButtonRelease-3>":
             self._tkcanvas.bind(name, self.button_release_event)
+
+        # Mouse wheel on Linux generates button 4/5 events
+        for name in "<Button-4>", "<Button-5>":
+            self._tkcanvas.bind(name, self.scroll_event)
+        # Mouse wheel for windows goes to the window with the focus.
+        # Since the canvas won't usually have the focus, bind the
+        # event to the window containing the canvas instead.
+        # See http://wiki.tcl.tk/3893 (mousewheel) for details
+        root = self._tkcanvas.winfo_toplevel()
+        root.bind("<MouseWheel>", self.scroll_event_windows)
 
         self._master = master
         self._tkcanvas.focus_set()
@@ -264,6 +273,26 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             elif num==3: num=2
 
         FigureCanvasBase.button_release_event(self, x, y, num, guiEvent=event)
+
+    def scroll_event(self, event):
+        x = event.x
+        y = self.figure.bbox.height - event.y
+        num = getattr(event, 'num', None)
+        if   num==4: step = -1
+        elif num==5: step = +1
+        else:        step =  0
+
+        FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
+
+    def scroll_event_windows(self, event):
+        """MouseWheel event processor"""
+        # need to find the window that contains the mouse
+        w = event.widget.winfo_containing(event.x_root, event.y_root)
+        if w == self._tkcanvas:
+            x = event.x_root - w.winfo_rootx()
+            y = event.y_root - w.winfo_rooty()
+            step = event.delta/120.
+            FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
 
     def _get_key(self, event):
         val = event.keysym_num
