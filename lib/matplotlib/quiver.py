@@ -296,7 +296,7 @@ class QuiverKey(martist.Artist):
     quiverkey_doc = _quiverkey_doc
 
     def set_figure(self, fig):
-        Artist.set_figure(self, fig)
+        martist.Artist.set_figure(self, fig)
         self.text.set_figure(fig)
 
 class Quiver(collections.PolyCollection):
