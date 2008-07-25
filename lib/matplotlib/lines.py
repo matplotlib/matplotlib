@@ -236,10 +236,11 @@ class Line2D(Artist):
         if not is_numlike(self.pickradius):
             raise ValueError,"pick radius should be a distance"
 
-        # transform in backend
+        if self._invalid:
+            self.recache()
         if len(self._xy)==0: return False,{}
-
-        xyt = self._transformed_path.get_fully_transformed_path().vertices
+        tpath, _ = self._transformed_path.get_transformed_path_and_affine()
+        xyt = tpath.vertices
         xt = xyt[:, 0]
         yt = xyt[:, 1]
 
