@@ -236,33 +236,43 @@ class Line2D(Artist):
         if not is_numlike(self.pickradius):
             raise ValueError,"pick radius should be a distance"
 
+        # Make sure we have data to plot
         if self._invalid:
             self.recache()
         if len(self._xy)==0: return False,{}
-        tpath = self._transformed_path.get_fully_transformed_path()
-        xyt = tpath.vertices
-        xt = xyt[:, 0]
-        yt = xyt[:, 1]
 
+        # Convert points to pixels
+        path, affine = self._transformed_path.get_transformed_path_and_affine()
+        path = affine.transform_path(path)
+        xy = path.vertices
+        xt = xy[:, 0]
+        yt = xy[:, 1]
+
+        # Convert pick radius from points to pixels
         if self.figure == None:
-            print str(self),' has no figure set'
+            warning.warn('no figure set when check if mouse is on line')
             pixels = self.pickradius
         else:
             pixels = self.figure.dpi/72. * self.pickradius
 
+        # Check for collision
         if self._linestyle in ['None',None]:
             # If no line, return the nearby point(s)
-            d = np.sqrt((xt-mouseevent.x)**2 + (yt-mouseevent.y)**2)
-            ind, = np.nonzero(np.less_equal(d, pixels))
+            d = (xt-mouseevent.x)**2 + (yt-mouseevent.y)**2
+            ind, = np.nonzero(np.less_equal(d, pixels**2))
         else:
             # If line, return the nearby segment(s)
             ind = segment_hits(mouseevent.x,mouseevent.y,xt,yt,pixels)
-        if 0:
-            print 'linestyle',self._linestyle
-            print 'xt', xt, mouseevent.x
-            print 'yt', yt, mouseevent.y
-            print 'dx,dy', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
+
+        # Debugging message
+        if False and self._label != u'':
+            print "Checking line",self._label,"at",mouseevent.x,mouseevent.y
+            print 'xt', xt
+            print 'yt', yt
+            #print 'dx,dy', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
             print 'ind',ind
+
+        # Return the point(s) within radius
         return len(ind)>0,dict(ind=ind)
 
     def get_pickradius(self):
