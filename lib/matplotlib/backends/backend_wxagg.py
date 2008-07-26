@@ -41,7 +41,7 @@ class FigureFrameWxAgg(FigureFrameWx):
             toolbar = None
         return toolbar
 
-class FigureCanvasWxAgg(FigureCanvasWx, FigureCanvasAgg):
+class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
     """
     The FigureCanvas contains the figure and does event handling.
 
@@ -95,11 +95,11 @@ class FigureCanvasWxAgg(FigureCanvasWx, FigureCanvasAgg):
         self.gui_repaint()
 
     filetypes = FigureCanvasAgg.filetypes
-        
+
     def print_figure(self, filename, *args, **kwargs):
         FigureCanvasAgg.print_figure(self, filename, *args, **kwargs)
         self.draw()
-        
+
 class NavigationToolbar2WxAgg(NavigationToolbar2Wx):
     def get_canvas(self, frame, fig):
         return FigureCanvasWxAgg(frame, -1, fig)
