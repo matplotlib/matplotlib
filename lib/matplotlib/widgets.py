@@ -864,9 +864,9 @@ class SpanSelector:
 
             self.cids.append(self.canvas.mpl_connect('motion_notify_event', self.onmove))
             self.cids.append(self.canvas.mpl_connect('button_press_event', self.press))
-	    self.cids.append(self.canvas.mpl_connect('button_release_event', self.release))
-	    self.cids.append(self.canvas.mpl_connect('draw_event', self.update_background))
-	if self.direction == 'horizontal':
+            self.cids.append(self.canvas.mpl_connect('button_release_event', self.release))
+            self.cids.append(self.canvas.mpl_connect('draw_event', self.update_background))
+        if self.direction == 'horizontal':
             trans = blended_transform_factory(self.ax.transData, self.ax.transAxes)
             w,h = 0,1
         else:
