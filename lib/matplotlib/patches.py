@@ -627,7 +627,7 @@ class Polygon(Patch):
 
 class Wedge(Patch):
     def __str__(self):
-        return "Wedge(%g,%g)"%self.xy[0]
+        return "Wedge(%g,%g)"%(self.theta1,self.theta2)
 
     def __init__(self, center, r, theta1, theta2, **kwargs):
         """
