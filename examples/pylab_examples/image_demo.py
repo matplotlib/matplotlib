@@ -14,6 +14,5 @@ Z = Z2-Z1  # difference of Gaussians
 im = plt.imshow(Z, interpolation='bilinear', cmap=cm.gray,
                 origin='lower', extent=[-3,3,-3,3])
 
-plt.savefig('test.ps', dpi=300)
 plt.show()
 
