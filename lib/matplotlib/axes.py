@@ -1503,8 +1503,6 @@ class Axes(martist.Artist):
         artists.extend(self.tables)
         if self.legend_ is not None:
             artists.append(self.legend_)
-        if self.axison and self._frameon:
-            artists.append(self.frame)
 
         dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
                 if not a.get_animated() ]
