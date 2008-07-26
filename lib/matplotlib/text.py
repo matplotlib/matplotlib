@@ -83,7 +83,7 @@ class Text(Artist):
     """
     zorder = 3
     def __str__(self):
-        return "Text(%g,%g,%s)"%(self._y,self._y,self._text)
+        return "Text(%g,%g,%s)"%(self._y,self._y,repr(self._text))
 
     def __init__(self,
                  x=0, y=0, text='',
@@ -135,7 +135,7 @@ class Text(Artist):
         """
         if callable(self._contains): return self._contains(self,mouseevent)
 
-        if not self.get_visible() or self._renderer is None: 
+        if not self.get_visible() or self._renderer is None:
             return False,{}
 
         l,b,w,h = self.get_window_extent().bounds
@@ -703,7 +703,7 @@ class TextWithDash(Text):
     __name__ = 'textwithdash'
 
     def __str__(self):
-        return "TextWithDash(%g,%g,%s)"%(self._x,self._y,self._text)
+        return "TextWithDash(%g,%g,%s)"%(self._x,self._y,repr(self._text))
     def __init__(self,
                  x=0, y=0, text='',
                  color=None,          # defaults to rc params
@@ -986,7 +986,7 @@ class Annotation(Text):
     :class:`~matplotlib.patches.Rectangle`, etc., easier.
     """
     def __str__(self):
-        return "Annotation(%g,%g,%s)"%(self.xy[0],self.xy[1],self._text)
+        return "Annotation(%g,%g,%s)"%(self.xy[0],self.xy[1],repr(self._text))
     def __init__(self, s, xy,
                  xytext=None,
                  xycoords='data',
