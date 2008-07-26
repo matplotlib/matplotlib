@@ -50,6 +50,9 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
     interpnames = _interpd.keys()
 
+    def __str__(self):
+        return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
+
     def __init__(self, ax,
                  cmap = None,
                  norm = None,
@@ -243,11 +246,15 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         # collection on nonlinear transformed coordinates.
         # TODO: consider returning image coordinates (shouldn't
         # be too difficult given that the image is rectilinear
+        x, y = mouseevent.xdata, mouseevent.ydata
         xmin, xmax, ymin, ymax = self.get_extent()
-        xdata, ydata = mouseevent.xdata, mouseevent.ydata
-        #print xdata, ydata, xmin, xmax, ymin, ymax
-        if xdata is not None and ydata is not None:
-            inside = xdata>=xmin and xdata<=xmax and ydata>=ymin and ydata<=ymax
+        if xmin > xmax:
+            xmin,xmax = xmax,xmin
+        if ymin > ymax:
+            ymin,ymax = ymax,ymin
+        #print x, y, xmin, xmax, ymin, ymax
+        if x is not None and y is not None:
+            inside = x>=xmin and x<=xmax and y>=ymin and y<=ymax
         else:
             inside = False
 
