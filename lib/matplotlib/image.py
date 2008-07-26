@@ -638,7 +638,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
     def make_image(self, magnification=1.0):
         # had to introduce argument magnification to satisfy the unit test
         # figimage_demo.py. I have no idea, how magnification should be used
-        # within the function. It should be !=1.0 only for non-default DPI
+        # within the function. It should be !=1.0 only for non-default DPI<
         # settings in the PS backend, as introduced by patch #1562394
         # Probably Nicholas Young should look over this code and see, how
         # magnification should be handled correctly.
