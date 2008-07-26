@@ -3,8 +3,13 @@ A PostScript backend, which can produce both PostScript .ps and .eps
 """
 
 from __future__ import division
-import glob, math, md5, os, shutil, sys, time
+import glob, math, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
+
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5 #Deprecated in 2.5
 
 from tempfile import gettempdir
 from cStringIO import StringIO
@@ -892,10 +897,10 @@ class FigureCanvasPS(FigureCanvasBase):
         passed_in_file_object = False
         if is_string_like(outfile):
             title = outfile
-            tmpfile = os.path.join(gettempdir(), md5.md5(outfile).hexdigest())
+            tmpfile = os.path.join(gettempdir(), md5(outfile).hexdigest())
         elif is_writable_file_like(outfile):
             title = None
-            tmpfile = os.path.join(gettempdir(), md5.md5(str(hash(outfile))).hexdigest())
+            tmpfile = os.path.join(gettempdir(), md5(str(hash(outfile))).hexdigest())
             passed_in_file_object = True
         else:
             raise ValueError("outfile must be a path or a file-like object")
@@ -1033,7 +1038,7 @@ class FigureCanvasPS(FigureCanvasBase):
         title = outfile
 
         # write to a temp file, we'll move it to outfile when done
-        tmpfile = os.path.join(gettempdir(), md5.md5(outfile).hexdigest())
+        tmpfile = os.path.join(gettempdir(), md5(outfile).hexdigest())
         fh = file(tmpfile, 'w')
 
         self.figure.dpi = 72 # ignore the dpi kwarg

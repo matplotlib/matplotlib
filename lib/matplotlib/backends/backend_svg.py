@@ -1,6 +1,11 @@
 from __future__ import division
 
-import os, codecs, base64, tempfile, urllib, gzip, md5, cStringIO
+import os, codecs, base64, tempfile, urllib, gzip, cStringIO
+
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5 #Deprecated in 2.5
 
 from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -127,7 +132,7 @@ class RendererSVG(RendererBase):
 
         id = self._clipd.get(path)
         if id is None:
-            id = 'p%s' % md5.new(path).hexdigest()
+            id = 'p%s' % md5(path).hexdigest()
             self._svgwriter.write('<defs>\n  <clipPath id="%s">\n' % id)
             self._svgwriter.write(path)
             self._svgwriter.write('\n  </clipPath>\n</defs>')
@@ -191,7 +196,7 @@ class RendererSVG(RendererBase):
         key = self._convert_path(marker_path, marker_trans + Affine2D().scale(1.0, -1.0))
         name = self._markers.get(key)
         if name is None:
-            name = 'm%s' % md5.new(key).hexdigest()
+            name = 'm%s' % md5(key).hexdigest()
             write('<defs><path id="%s" d="%s"/></defs>\n' % (name, key))
             self._markers[key] = name
 
@@ -223,7 +228,7 @@ class RendererSVG(RendererBase):
             transform = Affine2D(transform.get_matrix()).scale(1.0, -1.0)
             d = self._convert_path(path, transform)
             name = 'coll%x_%x_%s' % (self._path_collection_id, i,
-                                     md5.new(d).hexdigest())
+                                     md5(d).hexdigest())
             write('<path id="%s" d="%s"/>\n' % (name, d))
             path_codes.append(name)
         write('</defs>\n')
@@ -412,7 +417,7 @@ class RendererSVG(RendererBase):
             if step[0] != 4:
                 currx, curry = step[-2], -step[-1]
         path_data = ''.join(path_data)
-        char_num = 'c_%s' % md5.new(path_data).hexdigest()
+        char_num = 'c_%s' % md5(path_data).hexdigest()
         path_element = '<path id="%s" d="%s"/>\n' % (char_num, ''.join(path_data))
         self._char_defs[char_id] = char_num
         return path_element

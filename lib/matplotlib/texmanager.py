@@ -33,7 +33,13 @@ or include these two lines in your script::
 
 """
 
-import copy, glob, md5, os, shutil, sys, warnings
+import copy, glob, os, shutil, sys, warnings
+
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5 #Deprecated in 2.5
+
 import distutils.version
 import numpy as np
 import matplotlib as mpl
@@ -166,7 +172,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                      self.get_custom_preamble(), str(dpi or '')])
         # make sure hash is consistent for all strings, regardless of encoding:
         bytes = unicode(s).encode('utf-8')
-        return os.path.join(self.texcache, md5.md5(bytes).hexdigest())
+        return os.path.join(self.texcache, md5(bytes).hexdigest())
 
     def get_font_config(self):
         """Reinitializes self if relevant rcParams on have changed."""
