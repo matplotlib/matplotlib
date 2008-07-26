@@ -4,9 +4,13 @@ financial data.   User contributions welcome!
 
 """
 #from __future__ import division
-import os, time, warnings, md5
+import os, time, warnings
 from urllib import urlopen
 
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5 #Deprecated in 2.5
 
 try: import datetime
 except ImportError:
@@ -111,7 +115,7 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
 
 
     if cachename is None:
-        cachename = os.path.join(cachedir, md5.md5(url).hexdigest())
+        cachename = os.path.join(cachedir, md5(url).hexdigest())
     if os.path.exists(cachename):
         fh = file(cachename)
         verbose.report('Using cachefile %s for %s'%(cachename, ticker))
