@@ -148,9 +148,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         result = result.inverse_transformed(transData)
         return result
 
-    def draw(self, renderer):
-        if not self.get_visible(): return
-        renderer.open_group(self.__class__.__name__)
+    def _prepare_points(self):
+        """Point prep for drawing and hit testing"""
+
         transform = self.get_transform()
         transOffset = self._transOffset
         offsets = self._offsets
@@ -171,12 +171,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         offsets = np.asarray(offsets, np.float_)
 
-        self.update_scalarmappable()
-
-        clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
-        if clippath_trans is not None:
-            clippath_trans = clippath_trans.frozen()
-
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(path) for path in paths]
             transform = transform.get_affine()
@@ -184,6 +178,19 @@ class Collection(artist.Artist, cm.ScalarMappable):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
+        return transform, transOffset, offsets, paths
+
+    def draw(self, renderer):
+        if not self.get_visible(): return
+        renderer.open_group(self.__class__.__name__)
+
+        self.update_scalarmappable()
+
+        clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
+        if clippath_trans is not None:
+            clippath_trans = clippath_trans.frozen()
+
+        transform, transOffset, offsets, paths = self._prepare_points()
 
         renderer.draw_path_collection(
             transform.frozen(), self.clipbox, clippath, clippath_trans,
@@ -201,18 +208,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
         item in itemlist contains the event.
         """
         if callable(self._contains): return self._contains(self,mouseevent)
+        if not self.get_visible(): return False,{}
 
-        transform = self.get_transform()
-        paths = self.get_paths()
-        if not transform.is_affine:
-            paths = [transform.transform_path_non_affine(path) for path in paths]
-            transform = transform.get_affine()
+        transform, transOffset, offsets, paths = self._prepare_points()
 
         ind = mpath.point_in_path_collection(
             mouseevent.x, mouseevent.y, self._pickradius,
             transform.frozen(), paths, self.get_transforms(),
-            np.asarray(self._offsets, np.float_),
-            self._transOffset.frozen(), len(self._facecolors))
+            offsets, transOffset, len(self._facecolors)>0)
         return len(ind)>0,dict(ind=ind)
 
     def set_pickradius(self,pickradius): self.pickradius = 5
