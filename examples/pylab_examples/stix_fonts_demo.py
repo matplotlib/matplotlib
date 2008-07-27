@@ -14,14 +14,14 @@ stests = [
     r'$\mathbf{\mathbb{Blackboard \pi}}$',
     r'$\mathfrak{Fraktur} \mathbf{\mathfrak{Fraktur}}$',
     r'$\mathscr{Script}$',
-    ur'Direct Unicode: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
+#    ur'Direct Unicode: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
     ]
 
 from pylab import *
 
 def doall():
     tests = stests
-    
+
     figure(figsize=(8, (len(tests) * 1) + 2))
     plot([0, 0], 'r')
     grid(False)
@@ -34,7 +34,7 @@ def doall():
     savefig('stix_fonts_example')
     #close('all')
     show()
-    
+
 if '--latex' in sys.argv:
     fd = open("stix_fonts_examples.ltx", "w")
     fd.write("\\documentclass{article}\n")
