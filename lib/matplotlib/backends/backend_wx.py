@@ -731,7 +731,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         # complete, reset the timer and continue.  The
         # alternative approach, binding to wx.EVT_IDLE,
         # doesn't behave as nicely.
-        self.idletimer = wx.CallLater(1,self._onDrawIdle)
+        #self.idletimer = wx.CallLater(1,self._onDrawIdle)
+        self.idletimer = wx.FutureCall(1,self._onDrawIdle)
+        # FutureCall is a backwards-compatible alias;
+        # CallLater became available in 2.7.1.1.
 
     def Destroy(self, *args, **kwargs):
         wx.Panel.Destroy(self, *args, **kwargs)
@@ -1051,7 +1054,7 @@ The current aspect ration will be kept."""
         # Restore everything to normal
         self.bitmap = origBitmap
 
-        # Note: draw is required here since bits of state about the 
+        # Note: draw is required here since bits of state about the
         # last renderer are strewn about the artist draw methods.  Do
         # not remove the draw without first verifying that these have
         # been cleaned up.
