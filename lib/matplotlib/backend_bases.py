@@ -472,7 +472,7 @@ class GraphicsContextBase:
     def get_clip_path(self):
         """
         Return the clip path in the form (path, transform), where path
-        is a :class:`~matplotlib.path.Path` instance, and transform as
+        is a :class:`~matplotlib.path.Path` instance, and transform is
         an affine transform to apply to the path before clipping.
         """
         if self._clippath is not None:
@@ -653,7 +653,7 @@ class Event:
 
 class IdleEvent(Event):
     """
-    An event triggered by the GUI backend when it is idel -- useful
+    An event triggered by the GUI backend when it is idle -- useful
     for passive animation
     """
     pass
