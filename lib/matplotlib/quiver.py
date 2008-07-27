@@ -293,11 +293,21 @@ class QuiverKey(martist.Artist):
             self.set_transform(self.Q.ax.figure.dpi_scale_trans)
         else:
             raise ValueError('unrecognized coordinates')
-    quiverkey_doc = _quiverkey_doc
 
     def set_figure(self, fig):
         martist.Artist.set_figure(self, fig)
         self.text.set_figure(fig)
+
+    def contains(self, mouseevent):
+        # Maybe the dictionary should allow one to
+        # distinguish between a text hit and a vector hit.
+        if (self.text.contains(mouseevent)[0]
+                or self.vector.contains(mouseevent)[0]):
+            return True, {}
+        return False, {}
+
+    quiverkey_doc = _quiverkey_doc
+
 
 class Quiver(collections.PolyCollection):
     """
