@@ -573,8 +573,14 @@ class PolyCollection(Collection):
         *verts_i* is a sequence of *xy* tuples of vertices, or an
         equivalent :mod:`numpy` array of shape (*nv*, 2).
 
-        *sizes* gives the area of the circle circumscribing the
-        polygon in points^2.
+        *sizes* is *None* (default) or a sequence of floats that
+        scale the corresponding *verts_i*.  The scaling is applied
+        before the Artist master transform; if the latter is an identity
+        transform, then the overall scaling is such that if
+        *verts_i* specify a unit square, then *sizes_i* is the area
+        of that square in points^2.
+        If len(*sizes*) < *nv*, the additional values will be
+        taken cyclically from the array.
 
         *closed*, when *True*, will explicitly close the polygon.
 
@@ -601,8 +607,6 @@ class PolyCollection(Collection):
         return self._paths
 
     def draw(self, renderer):
-        # sizes is the area of the circle circumscribing the polygon
-        # in points^2
         if self._sizes is not None:
             self._transforms = [
                 transforms.Affine2D().scale(
@@ -679,8 +683,6 @@ class RegularPolyCollection(Collection):
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def draw(self, renderer):
-        # sizes is the area of the circle circumscribing the polygon
-        # in points^2
         self._transforms = [
             transforms.Affine2D().rotate(-self._rotation).scale(
                 (np.sqrt(x) * self.figure.dpi / 72.0) / np.sqrt(np.pi))
