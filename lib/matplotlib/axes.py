@@ -4941,24 +4941,35 @@ class Axes(martist.Artist):
 
     scatter.__doc__ = cbook.dedent(scatter.__doc__) % martist.kwdocd
 
-    def hexbin(self, x, y, gridsize = 100, bins = None,
+    def hexbin(self, x, y, C = None, gridsize = 100, bins = None,
                     xscale = 'linear', yscale = 'linear',
                     cmap=None, norm=None, vmin=None, vmax=None,
                     alpha=1.0, linewidths=None, edgecolors='none',
+                    reduce_C_function = np.mean,
                     **kwargs):
         """
         call signature::
 
-          hexbin(x, y, gridsize = 100, bins = None,
+          hexbin(x, y, C = None, gridsize = 100, bins = None,
                  xscale = 'linear', yscale = 'linear',
                  cmap=None, norm=None, vmin=None, vmax=None,
                  alpha=1.0, linewidths=None, edgecolors='none'
+                 reduce_C_function = np.mean,
                  **kwargs)
 
         Make a hexagonal binning plot of *x* versus *y*, where *x*,
-        *y* are 1-D sequences of the same length, *N*.
+        *y* are 1-D sequences of the same length, *N*. If *C* is None
+        (the default), this is a histogram of the number of occurences
+        of the observations at (x[i],y[i]).
 
-        *x* and/or *y* may be masked arrays, in which case only
+        If *C* is specified, it specifies values at the coordinate
+        (x[i],y[i]). These values are accumulated for each hexagonal
+        bin and then reduced according to *reduce_C_function*, which
+        defaults to numpy's mean function (np.mean). (If *C* is
+        specified, it must also be a 1-D sequence of the same length
+        as *x* and *y*.)
+
+        *x*, *y* and/or *C* may be masked arrays, in which case only
         unmasked points will be plotted.
 
         Optional keyword arguments:
@@ -5049,7 +5060,7 @@ class Axes(martist.Artist):
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
-        x, y = cbook.delete_masked_points(x, y)
+        x, y, C = cbook.delete_masked_points(x, y, C)
 
         # Set the size of the hexagon grid
         if iterable(gridsize):
@@ -5087,21 +5098,58 @@ class Axes(martist.Artist):
         nx2 = nx
         ny2 = ny
         n = nx1*ny1+nx2*ny2
-        counts = np.zeros(n)
-        lattice1 = counts[:nx1*ny1]
-        lattice2 = counts[nx1*ny1:]
-        lattice1.shape = (nx1,ny1)
-        lattice2.shape = (nx2,ny2)
 
         d1 = (x-ix1)**2 + 3.0 * (y-iy1)**2
         d2 = (x-ix2-0.5)**2 + 3.0 * (y-iy2-0.5)**2
         bdist = (d1<d2)
 
-        for i in range(len(x)):
-            if bdist[i]:
-                lattice1[ix1[i], iy1[i]]+=1
-            else:
-                lattice2[ix2[i], iy2[i]]+=1
+        if C is None:
+            accum = np.zeros(n)
+            # Create appropriate views into "accum" array.
+            lattice1 = accum[:nx1*ny1]
+            lattice2 = accum[nx1*ny1:]
+            lattice1.shape = (nx1,ny1)
+            lattice2.shape = (nx2,ny2)
+
+            for i in range(len(x)):
+                if bdist[i]:
+                    lattice1[ix1[i], iy1[i]]+=1
+                else:
+                    lattice2[ix2[i], iy2[i]]+=1
+        else:
+            # create accumulation arrays
+            lattice1 = np.empty((nx1,ny1),dtype=object)
+            for i in range(nx1):
+                for j in range(ny1):
+                    lattice1[i,j] = []
+            lattice2 = np.empty((nx2,ny2),dtype=object)
+            for i in range(nx2):
+                for j in range(ny2):
+                    lattice2[i,j] = []
+
+            for i in range(len(x)):
+                if bdist[i]:
+                    lattice1[ix1[i], iy1[i]].append( C[i] )
+                else:
+                    lattice2[ix2[i], iy2[i]].append( C[i] )
+
+            for i in range(nx1):
+                for j in range(ny1):
+                    vals = lattice1[i,j]
+                    if len(vals):
+                        lattice1[i,j] = reduce( reduce_C_function, vals )
+                    else:
+                        lattice1[i,j] = np.nan
+            for i in range(nx2):
+                for j in range(ny2):
+                    vals = lattice2[i,j]
+                    if len(vals):
+                        lattice2[i,j] = reduce( reduce_C_function, vals )
+                    else:
+                        lattice2[i,j] = np.nan
+
+            accum = np.hstack(( lattice1.astype(float).ravel(), lattice2.astype(float).ravel() ))
+            good_idxs = ~np.isnan(accum)
 
         px = xmin + sx * np.array([ 0.5, 0.5, 0.0, -0.5, -0.5,  0.0])
         py = ymin + sy * np.array([-0.5, 0.5, 1.0,  0.5, -0.5, -1.0]) / 3.0
@@ -5111,6 +5159,11 @@ class Axes(martist.Artist):
         polygons[:,:nx1*ny1,1] = np.tile(np.arange(ny1), nx1)
         polygons[:,nx1*ny1:,0] = np.repeat(np.arange(nx2) + 0.5, ny2)
         polygons[:,nx1*ny1:,1] = np.tile(np.arange(ny2), nx2) + 0.5
+
+        if C is not None:
+            # remove accumulation bins with no data
+            polygons = polygons[:,good_idxs,:]
+            accum = accum[good_idxs]
 
         polygons = np.transpose(polygons, axes=[1,0,2])
         polygons[:,:,0] *= sx
@@ -5150,20 +5203,20 @@ class Axes(martist.Artist):
                         transOffset = self.transData,
                         )
 
-        # Transform the counts if needed
+        # Transform accum if needed
         if bins=='log':
-            counts = np.log10(counts+1)
+            accum = np.log10(accum+1)
         elif bins!=None:
             if not iterable(bins):
-                minimum, maximum = min(counts), max(counts)
+                minimum, maximum = min(accum), max(accum)
                 bins-=1 # one less edge than bins
                 bins = minimum + (maximum-minimum)*np.arange(bins)/bins
             bins = np.sort(bins)
-            counts = bins.searchsorted(counts)
+            accum = bins.searchsorted(accum)
 
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
         if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
-        collection.set_array(counts)
+        collection.set_array(accum)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_alpha(alpha)

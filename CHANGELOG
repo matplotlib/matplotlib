@@ -1,3 +1,8 @@
+2008-07-26 Added optional C and reduce_C_function arguments to
+	   axes.hexbin().  This allows hexbin to accumulate the values
+	   of C based on the x,y coordinates and display in hexagonal
+	   bins. - ADS
+
 2008-07-24 Deprecated (raise NotImplementedError) all the mlab2
            functions from matplotlib.mlab out of concern that some of
            them were not clean room implementations. JDH
