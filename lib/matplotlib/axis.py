@@ -218,7 +218,7 @@ class Tick(artist.Artist):
         #if isinstance(a, mlines.Line2D): a.set_clip_box(self.axes.bbox)
 
     def get_view_interval(self):
-        'return the view Interval instance for the axis tjis tick is ticking'
+        'return the view Interval instance for the axis this tick is ticking'
         raise NotImplementedError('Derived must override')
 
     def set_view_interval(self, vmin, vmax, ignore=False):
