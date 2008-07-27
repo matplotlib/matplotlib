@@ -719,9 +719,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         bind(self, wx.EVT_LEAVE_WINDOW, self._onLeave)
         bind(self, wx.EVT_IDLE, self._onIdle)
 
-        # Event loop handler for start/stop event loop
-        self._event_loop = wx.EventLoop()
-
         self.macros = {} # dict from wx id to seq of macros
 
         self.Printer_Init()
@@ -932,12 +929,19 @@ The current aspect ration will be kept."""
         This call blocks until a callback function triggers
         stop_event_loop() or *timeout* is reached.  If *timeout* is
         <=0, never timeout.
+
+        Raises RuntimeError if event loop is already running.
         """
+        if hasattr(self, '_event_loop'):
+            raise RuntimeError("Event loop already running")
         id = wx.NewId()
         timer = wx.Timer(self, id=id)
         if timeout > 0:
             timer.Start(timeout*1000, oneShot=True)
             bind(self, wx.EVT_TIMER, self.stop_event_loop, id=id)
+
+        # Event loop handler for start/stop event loop
+        self._event_loop = wx.EventLoop()
         self._event_loop.Run()
         timer.Stop()
 
@@ -951,8 +955,10 @@ The current aspect ration will be kept."""
 
         stop_event_loop_default(self)
         """
-        if self._event_loop.IsRunning():
-            self._event_loop.Exit()
+        if hasattr(self,'_event_loop'):
+            if self._event_loop.IsRunning():
+                self._event_loop.Exit()
+            del self._event_loop
 
 
     def _get_imagesave_wildcards(self):
