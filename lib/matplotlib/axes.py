@@ -5137,14 +5137,14 @@ class Axes(martist.Artist):
                 for j in range(ny1):
                     vals = lattice1[i,j]
                     if len(vals):
-                        lattice1[i,j] = reduce( reduce_C_function, vals )
+                        lattice1[i,j] = reduce_C_function( vals )
                     else:
                         lattice1[i,j] = np.nan
             for i in range(nx2):
                 for j in range(ny2):
                     vals = lattice2[i,j]
                     if len(vals):
-                        lattice2[i,j] = reduce( reduce_C_function, vals )
+                        lattice2[i,j] = reduce_C_function( vals )
                     else:
                         lattice2[i,j] = np.nan
 
