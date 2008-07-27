@@ -59,6 +59,7 @@ pylab_files = [
     'finance_demo.py',
     'fonts_demo_kw.py',
     'hexbin_demo.py',
+    'hexbin_demo2.py',
     'histogram_demo.py',
     'hline_demo.py',
     'image_demo.py',
@@ -138,6 +139,34 @@ units_files = [
     #'units_scatter.py', # broken, fixme
 
     ]
+
+# dict from dir to files we know we don't want to test (eg examples
+# not using pyplot, examples requiring user input, animation examples,
+# examples that may only work in certain environs (usetex examples?),
+# examples that generate multiple figures
+
+excluded = {
+    pylab_dir : ['__init__.py', 'toggle_images.py',],
+    units_dir : ['__init__.py', 'date_support.py',],
+}
+
+def report_missing(dir, flist):
+    'report the py files in dir that are not in flist'
+    globstr = os.path.join(dir, '*.py')
+    fnames = glob.glob(globstr)
+
+    pyfiles = set([os.path.split(fullpath)[-1] for fullpath in set(fnames)])
+
+    exclude = set(excluded.get(dir, []))
+    flist = set(flist)
+    missing = list(pyfiles-flist-exclude)
+    missing.sort()
+    print '%s files not tested: %s'%(dir, ', '.join(missing))
+
+
+report_missing(pylab_dir, pylab_files)
+report_missing(api_dir, api_files)
+report_missing(units_dir, units_files)
 
 files = [os.path.join(pylab_dir, fname) for fname in pylab_files] +\
     [os.path.join(api_dir, fname) for fname in api_files] +\

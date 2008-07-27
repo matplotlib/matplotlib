@@ -21,6 +21,6 @@ x.shape = 1, len(x)
 ax = fig.add_axes([0.3, 0.1, 0.6, 0.1], **axprops)
 ax.imshow(x, **barprops)
 
-fig.savefig('barcode.png', dpi=100)
+#fig.savefig('barcode.png', dpi=100)
 show()
 
