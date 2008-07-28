@@ -845,12 +845,14 @@ class Axes(martist.Artist):
         self._set_artist_props(self.title)
 
         # the patch draws the background of the axes.  we want this to
-        # be below the other artists; the axesPatch name is deprecated
+        # be below the other artists; the axesPatch name is
+        # deprecated.  We use the frame to draw the edges so we are
+        # setting the edgecolor to None
         self.patch = self.axesPatch = self._gen_axes_patch()
         self.patch.set_figure(self.figure)
         self.patch.set_facecolor(self._axisbg)
-        self.patch.set_edgecolor(rcParams['axes.edgecolor'])
-        self.patch.set_linewidth(rcParams['axes.linewidth'])
+        self.patch.set_edgecolor('None')
+        self.patch.set_linewidth(0)
         self.patch.set_transform(self.transAxes)
 
         # the frame draws the border around the axes and we want this
@@ -1503,6 +1505,10 @@ class Axes(martist.Artist):
         artists.extend(self.tables)
         if self.legend_ is not None:
             artists.append(self.legend_)
+
+        if self.axison and self._frameon:
+            artists.append(self.frame)
+
 
         dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
                 if not a.get_animated() ]
