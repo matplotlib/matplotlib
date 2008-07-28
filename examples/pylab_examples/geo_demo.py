@@ -1,5 +1,5 @@
 import numpy as np
-np.seterr("raise")
+#np.seterr("raise")
 
 from pylab import *
 
