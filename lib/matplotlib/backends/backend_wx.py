@@ -700,12 +700,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         self.bitmap =wx.EmptyBitmap(w, h)
         DEBUG_MSG("__init__() - bitmap w:%d h:%d" % (w,h), 2, self)
         # TODO: Add support for 'point' inspection and plot navigation.
-        self._isRealized = False
-        self._isConfigured = False
-        self._printQued = []
+        self._isDrawn = False
 
         bind(self, wx.EVT_SIZE, self._onSize)
         bind(self, wx.EVT_PAINT, self._onPaint)
+        bind(self, wx.EVT_ERASE_BACKGROUND, self._onEraseBackground)
         bind(self, wx.EVT_KEY_DOWN, self._onKeyDown)
         bind(self, wx.EVT_KEY_UP, self._onKeyUp)
         bind(self, wx.EVT_RIGHT_DOWN, self._onRightButtonDown)
@@ -718,20 +717,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         bind(self, wx.EVT_MOTION, self._onMotion)
         bind(self, wx.EVT_LEAVE_WINDOW, self._onLeave)
         bind(self, wx.EVT_IDLE, self._onIdle)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
 
         self.macros = {} # dict from wx id to seq of macros
 
         self.Printer_Init()
-
-        # Create an timer for handling draw_idle requests
-        # If there are events pending when the timer is
-        # complete, reset the timer and continue.  The
-        # alternative approach, binding to wx.EVT_IDLE,
-        # doesn't behave as nicely.
-        #self.idletimer = wx.CallLater(1,self._onDrawIdle)
-        self.idletimer = wx.FutureCall(1,self._onDrawIdle)
-        # FutureCall is a backwards-compatible alias;
-        # CallLater became available in 2.7.1.1.
 
     def Destroy(self, *args, **kwargs):
         wx.Panel.Destroy(self, *args, **kwargs)
@@ -887,20 +877,35 @@ The current aspect ration will be kept."""
         self.gui_repaint()
 
 
-    def draw_idle(self, *args, **kwargs):
+    def draw_idle(self):
         """
         Delay rendering until the GUI is idle.
         """
         DEBUG_MSG("draw_idle()", 1, self)
-        self.idletimer.Restart(50, *args, **kwargs)  # Delay by 50 ms
+        self._isDrawn = False  # Force redraw
+        # Create a timer for handling draw_idle requests
+        # If there are events pending when the timer is
+        # complete, reset the timer and continue.  The
+        # alternative approach, binding to wx.EVT_IDLE,
+        # doesn't behave as nicely.
+        if hasattr(self,'_idletimer'):
+            self._idletimer.Restart(50)
+        else:
+            self._idletimer = wx.FutureCall(50,self._onDrawIdle)
+            # FutureCall is a backwards-compatible alias;
+            # CallLater became available in 2.7.1.1.
 
     def _onDrawIdle(self, *args, **kwargs):
-        if False and wx.GetApp().Pending():
-            self.idletimer.Restart(5, *args, **kwargs)
+        if wx.GetApp().Pending():
+            self._idletimer.Restart(50, *args, **kwargs)
         else:
-            self.draw(*args, **kwargs)
+            del self._idletimer
+            # GUI event or explicit draw call may already
+            # have caused the draw to take place
+            if not self._isDrawn:
+                self.draw(*args, **kwargs)
 
-    def draw(self, repaint=True):
+    def draw(self, drawDC=None):
         """
         Render the figure using RendererWx instance renderer, or using a
         previously defined renderer if none is specified.
@@ -908,8 +913,8 @@ The current aspect ration will be kept."""
         DEBUG_MSG("draw()", 1, self)
         self.renderer = RendererWx(self.bitmap, self.figure.dpi)
         self.figure.draw(self.renderer)
-        if repaint:
-            self.gui_repaint()
+        self._isDrawn = True
+        self.gui_repaint(drawDC=drawDC)
 
     def flush_events(self):
         wx.Yield()
@@ -988,7 +993,6 @@ The current aspect ration will be kept."""
         """
         DEBUG_MSG("gui_repaint()", 1, self)
         if self.IsShownOnScreen():
-
             if drawDC is None:
                 drawDC=wx.ClientDC(self)
 
@@ -996,6 +1000,8 @@ The current aspect ration will be kept."""
             drawDC.DrawBitmap(self.bitmap, 0, 0)
             drawDC.EndDrawing()
             #wx.GetApp().Yield()
+        else:
+            pass
 
     filetypes = FigureCanvasBase.filetypes.copy()
     filetypes['bmp'] = 'Windows bitmap'
@@ -1006,6 +1012,16 @@ The current aspect ration will be kept."""
     filetypes['tif'] = 'Tagged Image Format File'
     filetypes['tiff'] = 'Tagged Image Format File'
     filetypes['xpm'] = 'X pixmap'
+
+    def print_figure(self, filename, *args, **kwargs):
+        # Use pure Agg renderer to draw
+        FigureCanvasBase.print_figure(self, filename, *args, **kwargs)
+        # Restore the current view; this is needed because the
+        # artist contains methods rely on particular attributes
+        # of the rendered figure for determining things like
+        # bounding boxes.
+        if self._isDrawn:
+            self.draw()
 
     def print_bmp(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_BMP, *args, **kwargs)
@@ -1034,8 +1050,6 @@ The current aspect ration will be kept."""
         width = int(math.ceil(width))
         height = int(math.ceil(height))
 
-        # Following performs the same function as realize(), but without
-        # setting GUI attributes - so GUI draw() will render correctly
         self.bitmap = wx.EmptyBitmap(width, height)
         renderer = RendererWx(self.bitmap, self.figure.dpi)
 
@@ -1048,9 +1062,6 @@ The current aspect ration will be kept."""
         if is_string_like(filename):
             if not self.bitmap.SaveFile(filename, filetype):
                 DEBUG_MSG('print_figure() file save error', 4, self)
-                # note the error must be displayed here because trapping
-                # the error on a call or print_figure may not work because
-                # printing can be qued and called from realize
                 raise RuntimeError('Could not save figure to %s\n' % (filename))
         elif is_writable_file_like(filename):
             if not self.bitmap.ConvertToImage().SaveStream(filename, filetype):
@@ -1063,25 +1074,14 @@ The current aspect ration will be kept."""
         # Note: draw is required here since bits of state about the
         # last renderer are strewn about the artist draw methods.  Do
         # not remove the draw without first verifying that these have
-        # been cleaned up.
-        self.draw()
+        # been cleaned up.  The artist contains() methods will fail
+        # otherwise.
+        if self._isDrawn:
+            self.draw()
         self.Refresh()
 
     def get_default_filetype(self):
         return 'png'
-
-    def realize(self):
-        """
-        This method will be called when the system is ready to draw,
-        eg when a GUI window is realized
-        """
-        DEBUG_MSG("realize()", 1, self)
-        self._isRealized = True
-        for fname, dpi, facecolor, edgecolor in self._printQued:
-            self.print_figure(fname, dpi, facecolor, edgecolor)
-        self._printQued = []
-
-
 
     def _onPaint(self, evt):
         """
@@ -1089,13 +1089,19 @@ The current aspect ration will be kept."""
         """
 
         DEBUG_MSG("_onPaint()", 1, self)
-        if not self._isRealized:
-            self.realize()
-        # Render to the bitmap
-        self.draw(repaint=False)
-        # Update the display using a PaintDC
-        self.gui_repaint(drawDC=wx.PaintDC(self))
+        drawDC = wx.PaintDC(self)
+        if not self._isDrawn:
+            self.draw(drawDC=drawDC)
+        else:
+            self.gui_repaint(drawDC=drawDC)
         evt.Skip()
+
+    def _onEraseBackground(self, evt):
+        """
+        Called when window is redrawn; since we are blitting the entire
+        image, we can leave this blank to suppress flicker.
+        """
+        pass
 
     def _onSize(self, evt):
         """
@@ -1109,21 +1115,19 @@ The current aspect ration will be kept."""
         # Create a new, correctly sized bitmap
         self._width, self._height = self.GetClientSize()
         self.bitmap =wx.EmptyBitmap(self._width, self._height)
+        self._isDrawn = False
 
         if self._width <= 1 or self._height <= 1: return # Empty figure
-
-        # Scale the displayed image (but don't update self.figsize)
-        if not self._isConfigured:
-            self._isConfigured = True
 
         dpival = self.figure.dpi
         winch = self._width/dpival
         hinch = self._height/dpival
         self.figure.set_size_inches(winch, hinch)
 
-        if self._isRealized:
-            self.draw_idle()
-        evt.Skip()
+        # Rendering will happen on the associated paint event
+        # so no need to do anything here except to make sure
+        # the whole background is repainted.
+        self.Refresh(eraseBackground=False)
 
     def _get_key(self, evt):
 
@@ -1288,8 +1292,6 @@ def show():
 
     for figwin in Gcf.get_all_fig_managers():
         figwin.frame.Show()
-        figwin.canvas.realize()
-        figwin.canvas.draw()
 
     if show._needmain and not matplotlib.is_interactive():
         # start the wxPython gui event if there is not already one running
@@ -1316,7 +1318,6 @@ def new_figure_manager(num, *args, **kwargs):
     frame = FigureFrameWx(num, fig)
     figmgr = frame.get_figure_manager()
     if matplotlib.is_interactive():
-        figmgr.canvas.realize()
         figmgr.frame.Show()
 
     return figmgr
@@ -1436,8 +1437,6 @@ class FigureManagerWx(FigureManagerBase):
 
         def showfig(*args):
             frame.Show()
-            canvas.realize()
-            canvas.draw()
 
         # attach a show method to the figure
         self.canvas.figure.show = showfig
@@ -1732,7 +1731,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             except Exception, e:
                 error_msg_wx(str(e))
 
-
     def set_cursor(self, cursor):
         cursor =wx.StockCursor(cursord[cursor])
         self.canvas.SetCursor( cursor )
@@ -1998,9 +1996,6 @@ class NavigationToolbarWx(wx.ToolBar):
         else:
             direction = -1
         self.button_fn(direction)
-
-    def _onRedraw(self, evt):
-        self.canvas.draw()
 
     _onSave = NavigationToolbar2Wx.save
 

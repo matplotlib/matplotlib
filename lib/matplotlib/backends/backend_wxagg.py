@@ -52,7 +52,7 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
     size.
     """
 
-    def draw(self, repaint=True):
+    def draw(self, drawDC=None):
         """
         Render the figure using agg.
         """
@@ -60,8 +60,8 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
         FigureCanvasAgg.draw(self)
 
         self.bitmap = _convert_agg_to_wx_bitmap(self.get_renderer(), None)
-        if repaint:
-            self.gui_repaint()
+        self._isDrawn = True
+        self.gui_repaint(drawDC=drawDC)
 
     def blit(self, bbox=None):
         """
@@ -97,8 +97,14 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
     filetypes = FigureCanvasAgg.filetypes
 
     def print_figure(self, filename, *args, **kwargs):
+        # Use pure Agg renderer to draw
         FigureCanvasAgg.print_figure(self, filename, *args, **kwargs)
-        self.draw()
+        # Restore the current view; this is needed because the
+        # artist contains methods rely on particular attributes
+        # of the rendered figure for determining things like
+        # bounding boxes.
+        if self._isDrawn:
+            self.draw()
 
 class NavigationToolbar2WxAgg(NavigationToolbar2Wx):
     def get_canvas(self, frame, fig):
@@ -119,7 +125,6 @@ def new_figure_manager(num, *args, **kwargs):
     frame = FigureFrameWxAgg(num, fig)
     figmgr = frame.get_figure_manager()
     if matplotlib.is_interactive():
-        figmgr.canvas.realize()
         figmgr.frame.Show()
     return figmgr
 
