@@ -1451,6 +1451,8 @@ class Axes(martist.Artist):
 
         self.apply_aspect(self.get_position(True))
 
+        # the patch draws the background rectangle -- the frame below
+        # will draw the edges
         if self.axison and self._frameon:
             self.patch.draw(renderer)
 
@@ -1506,6 +1508,9 @@ class Axes(martist.Artist):
         if self.legend_ is not None:
             artists.append(self.legend_)
 
+        # the frame draws the edges around the axes patch -- we
+        # decouple these so the patch can be in the background and the
+        # frame in the foreground.
         if self.axison and self._frameon:
             artists.append(self.frame)
 
