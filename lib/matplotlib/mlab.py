@@ -2603,10 +2603,12 @@ def griddata(x,y,z,xi,yi):
         import matplotlib.delaunay as delaunay
         from matplotlib.delaunay import  __version__
         _use_natgrid = False
-    if _use_natgrid:
-        verbose.report('using natgrid version %s' % __version__)
-    else:
-        verbose.report('using delaunay version %s' % __version__)
+    if not griddata._reported:
+        if _use_natgrid:
+            verbose.report('using natgrid version %s' % __version__)
+        else:
+            verbose.report('using delaunay version %s' % __version__)
+        griddata._reported = True
     if xi.ndim != yi.ndim:
         raise TypeError("inputs xi and yi must have same number of dimensions (1 or 2)")
     if xi.ndim != 1 and xi.ndim != 2:
@@ -2645,3 +2647,4 @@ def griddata(x,y,z,xi,yi):
     if np.any(np.isnan(zo)):
         zo = np.ma.masked_where(np.isnan(zo),zo)
     return zo
+griddata._reported = False
