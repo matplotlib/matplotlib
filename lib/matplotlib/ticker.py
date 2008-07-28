@@ -1077,7 +1077,8 @@ class SymmetricalLogLocator(Locator):
         b = self._transform.base
 
         vmin, vmax = self.axis.get_view_interval()
-        vmin, vmax = self._transform.transform_point((vmin, vmax))
+        vmin, vmax = self._transform.transform((vmin, vmax))
+
         if vmax<vmin:
             vmin, vmax = vmax, vmin
         numdec = math.floor(vmax)-math.ceil(vmin)
