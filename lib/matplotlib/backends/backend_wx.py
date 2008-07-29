@@ -696,6 +696,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         except AttributeError:
             self.SetInitialSize = getattr(self, 'SetBestFittingSize', do_nothing)
 
+
+        if not hasattr(self,'IsShownOnScreen'):
+            self.IsShownOnScreen = self.IsVisible
+
         # Create the drawing bitmap
         self.bitmap =wx.EmptyBitmap(w, h)
         DEBUG_MSG("__init__() - bitmap w:%d h:%d" % (w,h), 2, self)
