@@ -6127,10 +6127,12 @@ class Axes(martist.Artist):
             is an integer input argument=numbins, *bins* + 1 bin edges
             will be returned, compatible with the semantics of
             :func:`numpy.histogram` with the *new* = True argument.
+            Unequally spaced bins are supported if *bins* is a sequence.
 
           *range*:
             The lower and upper range of the bins. Lower and upper outliers
             are ignored. If not provided, *range* is (x.min(), x.max()).
+            Range has no effect if *bins* is a sequence.
 
           *normed*:
             If *True*, the first element of the return tuple will
@@ -6147,7 +6149,7 @@ class Axes(martist.Artist):
             gives the counts in that bin plus all bins for smaller values.
             The last bin gives the total number of datapoints.  If *normed*
             is also *True* then the histogram is normalized such that the
-            last bin equals one. If *cumulative* evaluates to less that 1
+            last bin equals one. If *cumulative* evaluates to less than 0
             (e.g. -1), the direction of accumulation is reversed.  In this
             case, if *normed* is also *True*, then the histogram is normalized
             such that the first bin equals 1.
@@ -6167,8 +6169,7 @@ class Axes(martist.Artist):
                 filled.
 
           *align*: ['left' | 'mid' | 'right' ]
-            Controls how the histogram is
-            plotted.
+            Controls how the histogram is plotted.
 
               - 'left': bars are centered on the left bin edges
 
@@ -6178,7 +6179,8 @@ class Axes(martist.Artist):
 
           *orientation*: [ 'horizontal' | 'vertical' ]
             If 'horizontal', :func:`~matplotlib.pyplot.barh` will be
-            used and the *bottom* kwarg will be the left edges.
+            used for bar-type histograms and the *bottom* kwarg will be
+            the left edges.
 
           *rwidth*:
             the relative width of the bars as a fraction of the bin
