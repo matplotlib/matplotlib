@@ -3317,7 +3317,7 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          acorr(x, normed=False, detrend=mlab.detrend_none, usevlines=False,
+            acorr(x, normed=False, detrend=mlab.detrend_none, usevlines=False,
                 maxlags=None, **kwargs)
 
         Plot the autocorrelation of *x*.  If *normed* = *True*,
@@ -3328,31 +3328,29 @@ class Axes(martist.Artist):
 
         Return value is a tuple (*lags*, *c*, *line*) where:
 
-          - *lags* are a length 2*maxlags+1 lag vector
+        - *lags* are a length 2*maxlags+1 lag vector
 
-          - *c* is the 2*maxlags+1 auto correlation vector
+        - *c* is the 2*maxlags+1 auto correlation vector
 
-          - *line* is a :class:`~matplotlib.lines.Line2D` instance
-            returned by :meth:`plot`
+        - *line* is a :class:`~matplotlib.lines.Line2D` instance
+           returned by :meth:`plot`
 
         The default *linestyle* is None and the default *marker* is
         ``'o'``, though these can be overridden with keyword args.
         The cross correlation is performed with :func:`numpy.correlate` with
         *mode* = 2.
 
-        If *usevlines* is *True*:
+        If *usevlines* is *True*, :meth:`~matplotlib.axes.Axes.vlines`
+        rather than :meth:`~matplotlib.axes.Axes.plot` is used to draw
+        vertical lines from the origin to the acorr.  Otherwise, the
+        plot style is determined by the kwargs, which are
+        :class:`~matplotlib.lines.Line2D` properties.  The return
+        value is a tuple (*lags*, *c*, *linecol*, *b*) where
 
-            :meth:`~matplotlib.axes.Axes.vlines` rather than
-            :meth:`~matplotlib.axes.Axes.plot` is used to draw
-            vertical lines from the origin to the acorr.  Otherwise,
-            the plot style is determined by the kwargs, which are
-            :class:`~matplotlib.lines.Line2D` properties.  The return
-            value is a tuple (*lags*, *c*, *linecol*, *b*) where
+        - *linecol* is the
+          :class:`~matplotlib.collections.LineCollection`
 
-              - *linecol* is the
-                :class:`~matplotlib.collections.LineCollection`
-
-              - *b* is the *x*-axis.
+        - *b* is the *x*-axis.
 
         *maxlags* is a positive integer detailing the number of lags
         to show.  The default value of *None* will return all
