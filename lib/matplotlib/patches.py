@@ -401,6 +401,10 @@ class Rectangle(Patch):
         return self._rect_transform
 
     def contains(self, mouseevent):
+        # special case the degernate rectangle
+        if self._width==0 or self._height==0:
+            return False, {}
+
         x, y = self.get_transform().inverted().transform_point(
             (mouseevent.x, mouseevent.y))
         return (x >= 0.0 and x <= 1.0 and y >= 0.0 and y <= 1.0), {}
