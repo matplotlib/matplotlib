@@ -698,7 +698,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
 
         if not hasattr(self,'IsShownOnScreen'):
-            self.IsShownOnScreen = getattr(self, 'IsVisible', lambda self: True)
+            self.IsShownOnScreen = getattr(self, 'IsVisible', lambda *args: True)
 
 
         # Create the drawing bitmap
