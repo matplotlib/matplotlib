@@ -2591,10 +2591,8 @@ def griddata(x,y,z,xi,yi):
     this function will use the mpl_toolkits.natgrid algorithm, otherwise it
     will use the built-in matplotlib.delaunay package.
 
-    The natgrid matplotlib toolkit can be checked out through SVN with the
-    following command:
-
-    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/toolkits/natgrid natgrid
+    The natgrid matplotlib toolkit can be downloaded from
+    http://sourceforge.net/project/showfiles.php?group_id=80706&package_id=142792
     """
     try:
         from mpl_toolkits.natgrid import _natgrid, __version__
