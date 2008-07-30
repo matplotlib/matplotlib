@@ -5120,7 +5120,7 @@ class Axes(martist.Artist):
             lattice1.shape = (nx1,ny1)
             lattice2.shape = (nx2,ny2)
 
-            for i in range(len(x)):
+            for i in xrange(len(x)):
                 if bdist[i]:
                     lattice1[ix1[i], iy1[i]]+=1
                 else:
@@ -5128,29 +5128,29 @@ class Axes(martist.Artist):
         else:
             # create accumulation arrays
             lattice1 = np.empty((nx1,ny1),dtype=object)
-            for i in range(nx1):
-                for j in range(ny1):
+            for i in xrange(nx1):
+                for j in xrange(ny1):
                     lattice1[i,j] = []
             lattice2 = np.empty((nx2,ny2),dtype=object)
-            for i in range(nx2):
-                for j in range(ny2):
+            for i in xrange(nx2):
+                for j in xrange(ny2):
                     lattice2[i,j] = []
 
-            for i in range(len(x)):
+            for i in xrange(len(x)):
                 if bdist[i]:
                     lattice1[ix1[i], iy1[i]].append( C[i] )
                 else:
                     lattice2[ix2[i], iy2[i]].append( C[i] )
 
-            for i in range(nx1):
-                for j in range(ny1):
+            for i in xrange(nx1):
+                for j in xrange(ny1):
                     vals = lattice1[i,j]
                     if len(vals):
                         lattice1[i,j] = reduce_C_function( vals )
                     else:
                         lattice1[i,j] = np.nan
-            for i in range(nx2):
-                for j in range(ny2):
+            for i in xrange(nx2):
+                for j in xrange(ny2):
                     vals = lattice2[i,j]
                     if len(vals):
                         lattice2[i,j] = reduce_C_function( vals )
