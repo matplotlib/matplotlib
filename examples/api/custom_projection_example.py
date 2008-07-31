@@ -451,6 +451,7 @@ register_projection(HammerAxes)
 from pylab import *
 
 subplot(111, projection="hammer")
+p = plot([-1, 1, 1], [-1, -1, 1], "o-")
 grid(True)
 
 show()
