@@ -432,7 +432,7 @@ class Line2D(Artist):
             gc.set_alpha(self._alpha)
             funcname = self._markers.get(self._marker, '_draw_nothing')
             if funcname != '_draw_nothing':
-                tpath, affine = self._transformed_path.get_transformed_path_and_affine()
+                tpath, affine = self._transformed_path.get_transformed_points_and_affine()
                 markerFunc = getattr(self, funcname)
                 markerFunc(renderer, gc, tpath, affine.frozen())
 
