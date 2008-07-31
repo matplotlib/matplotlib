@@ -2611,6 +2611,13 @@ def griddata(x,y,z,xi,yi):
         raise TypeError("inputs xi and yi must have same number of dimensions (1 or 2)")
     if xi.ndim != 1 and xi.ndim != 2:
         raise TypeError("inputs xi and yi must be 1D or 2D.")
+    if not len(x)==len(y)==len(z):
+        raise TypeError("inputs x,y,z must all be 1D arrays of the same length")
+    # remove masked points.
+    if hasattr(z,'mask'):
+        x = x.compress(z.mask == False)
+        y = y.compress(z.mask == False)
+        z = z.compressed()
     if _use_natgrid: # use natgrid toolkit if available.
         if xi.ndim == 2:
             xi = xi[0,:]
