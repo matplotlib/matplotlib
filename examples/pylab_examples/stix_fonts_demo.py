@@ -13,9 +13,12 @@ stests = [
     r'$\mathrm{\mathbb{Blackboard \pi}}$',
     r'$\mathbf{\mathbb{Blackboard \pi}}$',
     r'$\mathfrak{Fraktur} \mathbf{\mathfrak{Fraktur}}$',
-    r'$\mathscr{Script}$',
-#    ur'Direct Unicode: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
-    ]
+    r'$\mathscr{Script}$']
+
+if sys.maxunicode > 0xffff:
+    stests.append(
+        ur'Direct Unicode: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
+    )
 
 from pylab import *
 
@@ -28,7 +31,7 @@ def doall():
     axis([0, 3, -len(tests), 0])
     yticks(arange(len(tests)) * -1)
     for i, s in enumerate(tests):
-        print (i, s)
+        print (i, s.encode("ascii", "backslashreplace"))
         text(0.1, -i, s, fontsize=32)
 
     savefig('stix_fonts_example')
