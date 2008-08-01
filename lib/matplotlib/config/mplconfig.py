@@ -64,6 +64,7 @@ class MPLConfig(TConfig):
 
     class backend(TConfig):
         use = T.Trait('Agg', mplT.BackendHandler())
+        fallback = T.Trait(True, mplT.BoolHandler())
 
         class cairo(TConfig):
             format = T.Trait('png', 'png', 'ps', 'pdf', 'svg')
@@ -284,6 +285,7 @@ class RcParamsWrapper(dict):
 
         self.tconfig_map = {
         'backend' : (self.tconfig.backend, 'use'),
+        'backend_fallback' : (self.tconfig.backend, 'fallback'),
         'numerix' : (self.tconfig, 'numerix'),
         'maskedarray' : (self.tconfig, 'maskedarray'),
         'toolbar' : (self.tconfig, 'toolbar'),
