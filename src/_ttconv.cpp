@@ -25,22 +25,23 @@ public:
   }
 
   ~PythonFileWriter() {
-    if (_write_method)
-      Py_DECREF(_write_method);
+    Py_XDECREF(_write_method);
   }
 
   void set(PyObject* write_method) {
-    if (_write_method)
-      Py_DECREF(_write_method);
+    Py_XDECREF(_write_method);
     _write_method = write_method;
-    if (_write_method)
-      Py_INCREF(_write_method);
+    Py_XINCREF(_write_method);
   }
 
   virtual void write(const char* a) {
-    if (_write_method)
-      if (! PyObject_CallFunction(_write_method, (char *)"s", a))
+    PyObject* result = NULL;
+    if (_write_method) {
+      result = PyObject_CallFunction(_write_method, (char *)"s", a);
+      if (! result)
 	throw PythonExceptionOccurred();
+      Py_DECREF(result);
+    }
   }
 };
 
@@ -54,6 +55,7 @@ int fileobject_to_PythonFileWriter(PyObject* object, void* address) {
   }
 
   file_writer->set(write_method);
+  Py_DECREF(write_method);
 
   return 1;
 }
@@ -68,10 +70,13 @@ int pyiterable_to_vector_int(PyObject* object, void* address) {
   PyObject* item;
   while ( (item = PyIter_Next(iterator)) ) {
     long value = PyInt_AsLong(item);
+    Py_DECREF(item);
     if (value == -1 && PyErr_Occurred())
       return 0;
     result->push_back(value);
   }
+
+  Py_DECREF(iterator);
 
   return 1;
 }
@@ -83,11 +88,11 @@ convert_ttf_to_ps(PyObject* self, PyObject* args, PyObject* kwds) {
   int			fonttype;
   std::vector<int>	glyph_ids;
 
-  static const char *kwlist[] = { 
+  static const char *kwlist[] = {
     "filename", "output", "fonttype", "glyph_ids", NULL };
   if (! PyArg_ParseTupleAndKeywords
-      (args, kwds, 
-       "sO&i|O&:convert_ttf_to_ps", 
+      (args, kwds,
+       "sO&i|O&:convert_ttf_to_ps",
        (char**)kwlist,
        &filename,
        fileobject_to_PythonFileWriter,
@@ -96,9 +101,9 @@ convert_ttf_to_ps(PyObject* self, PyObject* args, PyObject* kwds) {
        pyiterable_to_vector_int,
        &glyph_ids))
     return NULL;
-  
+
   if (fonttype != 3 && fonttype != 42) {
-    PyErr_SetString(PyExc_ValueError, 
+    PyErr_SetString(PyExc_ValueError,
 		    "fonttype must be either 3 (raw Postscript) or 42 "
 		    "(embedded Truetype)");
     return NULL;
@@ -109,7 +114,7 @@ convert_ttf_to_ps(PyObject* self, PyObject* args, PyObject* kwds) {
   } catch (TTException& e) {
     PyErr_SetString(PyExc_RuntimeError, e.getMessage());
     return NULL;
-  } catch (PythonExceptionOccurred& e) {
+  } catch (PythonExceptionOccurred& ) {
     return NULL;
   } catch (...) {
     PyErr_SetString(PyExc_RuntimeError, "Unknown C++ exception");
@@ -130,9 +135,13 @@ public:
 
   virtual void add_pair(const char* a, const char* b) {
     PyObject* value = PyString_FromString(b);
-    if (value)
-      if (PyDict_SetItemString(_dict, a, value))
+    if (value) {
+      if (PyDict_SetItemString(_dict, a, value)) {
+        Py_DECREF(value);
 	throw PythonExceptionOccurred();
+      }
+    }
+    Py_DECREF(value);
   }
 };
 
@@ -144,8 +153,8 @@ py_get_pdf_charprocs(PyObject* self, PyObject* args, PyObject* kwds) {
 
   static const char *kwlist[] = { "filename", "glyph_ids", NULL };
   if (! PyArg_ParseTupleAndKeywords
-      (args, kwds, 
-       "s|O&:convert_ttf_to_ps", 
+      (args, kwds,
+       "s|O&:get_pdf_charprocs",
        (char **)kwlist,
        &filename,
        pyiterable_to_vector_int,
@@ -161,11 +170,14 @@ py_get_pdf_charprocs(PyObject* self, PyObject* args, PyObject* kwds) {
   try {
     ::get_pdf_charprocs( filename, glyph_ids, dict );
   } catch (TTException& e) {
+    Py_DECREF(result);
     PyErr_SetString(PyExc_RuntimeError, e.getMessage());
     return NULL;
-  } catch (PythonExceptionOccurred& e) {
+  } catch (PythonExceptionOccurred& ) {
+    Py_DECREF(result);
     return NULL;
   } catch (...) {
+    Py_DECREF(result);
     PyErr_SetString(PyExc_RuntimeError, "Unknown C++ exception");
     return NULL;
   }
@@ -174,7 +186,7 @@ py_get_pdf_charprocs(PyObject* self, PyObject* args, PyObject* kwds) {
 }
 
 static PyMethodDef ttconv_methods[] = {
-  {"convert_ttf_to_ps", (PyCFunction)convert_ttf_to_ps, METH_KEYWORDS, 
+  {"convert_ttf_to_ps", (PyCFunction)convert_ttf_to_ps, METH_KEYWORDS,
    "convert_ttf_to_ps(filename, output, fonttype, glyph_ids)\n"
    "\n"
    "Converts the Truetype font into a Type 3 or Type 42 Postscript font, "
@@ -191,7 +203,7 @@ static PyMethodDef ttconv_methods[] = {
    "then all glyphs will be included.  If any of the glyphs specified are "
    "composite glyphs, then the component glyphs will also be included."
   },
-  {"get_pdf_charprocs", (PyCFunction)py_get_pdf_charprocs, METH_KEYWORDS, 
+  {"get_pdf_charprocs", (PyCFunction)py_get_pdf_charprocs, METH_KEYWORDS,
    "get_pdf_charprocs(filename, glyph_ids)\n"
    "\n"
    "Given a Truetype font file, returns a dictionary containing the PDF Type 3\n"
@@ -204,14 +216,14 @@ static PyMethodDef ttconv_methods[] = {
    "the values are the stream content needed to render that glyph.  This\n"
    "is useful to generate the CharProcs dictionary in a PDF Type 3 font.\n"
   },
-  {NULL}  /* Sentinel */
+  {0, 0, 0, 0}  /* Sentinel */
 };
 
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
 PyMODINIT_FUNC
-initttconv(void) 
+initttconv(void)
 {
     PyObject* m;
 
