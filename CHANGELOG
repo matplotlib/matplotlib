@@ -1,3 +1,5 @@
+2008-08-01 Backported memory leak fixes in _ttconv.cpp - MGD
+
 2008-07-31 Added masked array support to griddata. - JSW
 
 2008-07-26 Added optional C and reduce_C_function arguments to
@@ -47,6 +49,9 @@
 
 2008-07-17 Fix bug with NaNs at end of path (thanks, Andrew Straw for
            the report) - MGD
+
+2008-07-16 Improve error handling in texmanager, thanks to Ian Henry
+           for reporting - DSD
 
 2008-07-12 Added support for external backends with the
            "module://my_backend" syntax - JDH
