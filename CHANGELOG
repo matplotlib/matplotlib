@@ -1,3 +1,6 @@
+=================================================================
+2008-08-03 Released 0.98.3 at svn r5947
+
 2008-08-01 Backported memory leak fixes in _ttconv.cpp - MGD
 
 2008-07-31 Added masked array support to griddata. - JSW
