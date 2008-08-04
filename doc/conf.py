@@ -98,7 +98,7 @@ html_static_path = ['_static']
 
 # If nonempty, this is the file name suffix for generated HTML files.  The
 # default is ``".html"``.
-#html_file_suffix = '.xhtml'
+html_file_suffix = '.html'
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
