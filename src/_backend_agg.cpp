@@ -1214,8 +1214,8 @@ class QuadMeshGenerator {
 
   private:
     inline unsigned vertex(unsigned idx, double* x, double* y) {
-      size_t m = (idx   & 0x2) ? (m_m + 1) : m_m;
-      size_t n = (idx+1 & 0x2) ? (m_n + 1) : m_n;
+      size_t m = m_m + ((idx   & 0x2) >> 1);
+      size_t n = m_n + ((idx+1 & 0x2) >> 1);
       double* pair = (double*)PyArray_GETPTR2(m_coordinates, n, m);
       *x = *pair++;
       *y = *pair;
@@ -1243,7 +1243,7 @@ public:
 
   inline QuadMeshGenerator(size_t meshWidth, size_t meshHeight, PyObject* coordinates) :
     m_meshWidth(meshWidth), m_meshHeight(meshHeight), m_coordinates(NULL) {
-    PyArrayObject* coordinates_array = (PyArrayObject*)PyArray_FromObject(coordinates, PyArray_DOUBLE, 3, 3);
+    PyArrayObject* coordinates_array = (PyArrayObject*)PyArray_ContiguousFromObject(coordinates, PyArray_DOUBLE, 3, 3);
     if (!coordinates_array) {
       throw Py::ValueError("Invalid coordinates array.");
     }
@@ -1310,23 +1310,27 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
     }
   }
 
-  _draw_path_collection_generic<QuadMeshGenerator, 0, 0>
-    (master_transform,
-     cliprect,
-     clippath,
-     clippath_trans,
-     path_generator,
-     transforms_obj,
-     offsets_obj,
-     offset_trans,
-     facecolors_obj,
-     edgecolors_obj,
-     linewidths,
-     linestyles_obj,
-     antialiaseds);
+  try {
+    _draw_path_collection_generic<QuadMeshGenerator, 0, 0>
+      (master_transform,
+       cliprect,
+       clippath,
+       clippath_trans,
+       path_generator,
+       transforms_obj,
+       offsets_obj,
+       offset_trans,
+       facecolors_obj,
+       edgecolors_obj,
+       linewidths,
+       linestyles_obj,
+       antialiaseds);
+  } catch (...) {
+    if (free_edgecolors) Py_XDECREF(edgecolors_obj.ptr());
+    throw;
+  }
 
-  if (free_edgecolors)
-    Py_XDECREF(edgecolors_obj.ptr());
+  if (free_edgecolors) Py_XDECREF(edgecolors_obj.ptr());
 
   return Py::Object();
 }
