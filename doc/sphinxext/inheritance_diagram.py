@@ -346,7 +346,7 @@ def latex_output_graph(self, node):
     parts = node['parts']
 
     graph_hash = get_graph_hash(node)
-    name = "inheritance%s"
+    name = "inheritance%s" % graph_hash
     pdf_path = os.path.join('_static', name + ".pdf")
 
     graph.run_dot(['-Tpdf', '-o%s' % pdf_path],
