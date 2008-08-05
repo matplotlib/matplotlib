@@ -337,11 +337,21 @@ class ColorConverter:
             # If c is a list it must be maintained as the same list
             # with modified items so that items can be appended to
             # it. This is needed for examples/dynamic_collections.py.
-            if not isinstance(c, (list, np.ndarray)): # specific; don't need duck-typing
-                c = list(c)
+            if isinstance(c, np.ndarray):
+                if len(c.shape) != 2:
+                    raise ValueError("Color array must be two-dimensional")
+                if c.shape[1] != 4:
+                    output = np.zeros((c.shape[0], 4))
+                else:
+                    output = c
+            elif not isinstance(c, list):
+                output = list(c)
+            else:
+                output = c
+
             for i, cc in enumerate(c):
-                c[i] = self.to_rgba(cc, alpha)  # change in place
-            result = c
+                output[i] = self.to_rgba(cc, alpha)  # change in place
+            result = output
         return np.asarray(result, np.float_)
 
 colorConverter = ColorConverter()
