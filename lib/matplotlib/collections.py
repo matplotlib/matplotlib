@@ -332,6 +332,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         if c is None: c = mpl.rcParams['patch.facecolor']
         self._facecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
+        self._facecolors_original = c
 
     set_facecolors = set_facecolor
 
@@ -363,6 +364,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             if c is None: c = mpl.rcParams['patch.edgecolor']
             self._edgecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
+            self._edgecolors_original = c
 
     set_edgecolors = set_edgecolor
 
@@ -378,11 +380,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             artist.Artist.set_alpha(self, alpha)
             try:
-                self._facecolors[:, 3] = alpha
+                self._facecolors = _colors.colorConverter.to_rgba_array(
+                    self._facecolors_original, self._alpha)
             except (AttributeError, TypeError, IndexError):
                 pass
             try:
-                self._edgecolors[:, 3] = alpha
+                self._edgecolors = _colors.colorConverter.to_rgba_array(
+                    self._edgecolors_original, self._alpha)
             except (AttributeError, TypeError, IndexError):
                 pass
 

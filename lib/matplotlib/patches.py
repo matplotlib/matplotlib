@@ -263,7 +263,6 @@ class Patch(artist.Artist):
             gc.set_linewidth(self._linewidth)
             gc.set_linestyle(self._linestyle)
 
-        gc.set_alpha(self._alpha)
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)
         gc.set_capstyle('projecting')
@@ -271,8 +270,11 @@ class Patch(artist.Artist):
         if (not self.fill or self._facecolor is None or
             (cbook.is_string_like(self._facecolor) and self._facecolor.lower()=='none')):
             rgbFace = None
+            gc.set_alpha(1.0)
         else:
-            rgbFace = colors.colorConverter.to_rgb(self._facecolor)
+            r, g, b, a = colors.colorConverter.to_rgba(self._facecolor, self._alpha)
+            rgbFace = (r, g, b)
+            gc.set_alpha(a)
 
         if self._hatch:
             gc.set_hatch(self._hatch )
