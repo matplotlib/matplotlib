@@ -647,7 +647,7 @@ class Text(Artist):
         """
         if is_string_like(fp):
             fp = FontProperties(fp)
-        self._fontproperties = fp
+        self._fontproperties = fp.copy()
 
 artist.kwdocd['Text'] = artist.kwdoc(Text)
 
