@@ -3797,14 +3797,18 @@ class Axes(martist.Artist):
         # if color looks like a color string, an RGB tuple or a
         # scalar, then repeat it by nbars
         if (is_string_like(color) or
-            (iterable(color) and len(color)==3 and nbars!=3) or
+            (iterable(color) and
+             len(color) in (3, 4) and
+             nbars != len(color)) or
             not iterable(color)):
             color = [color]*nbars
 
         # if edgecolor looks like a color string, an RGB tuple or a
         # scalar, then repeat it by nbars
         if (is_string_like(edgecolor) or
-            (iterable(edgecolor) and len(edgecolor)==3 and nbars!=3) or
+            (iterable(edgecolor) and
+             len(edgecolor) in (3, 4) and
+             nbars != len(edgecolor)) or
             not iterable(edgecolor)):
             edgecolor = [edgecolor]*nbars
 
