@@ -332,7 +332,7 @@ class ColorConverter:
         if len(c) == 0:
             return np.zeros((0,4), dtype=np.float_)
         try:
-            result = [self.to_rgba(c, alpha)]
+            result = np.array([self.to_rgba(c, alpha)], dtype=np.float_)
         except ValueError:
             # If c is a list it must be maintained as the same list
             # with modified items so that items can be appended to
@@ -340,18 +340,10 @@ class ColorConverter:
             if isinstance(c, np.ndarray):
                 if len(c.shape) != 2:
                     raise ValueError("Color array must be two-dimensional")
-                if c.shape[1] != 4:
-                    output = np.zeros((c.shape[0], 4))
-                else:
-                    output = c
-            elif not isinstance(c, list):
-                output = list(c)
-            else:
-                output = c
 
+            result = np.zeros((len(c), 4))
             for i, cc in enumerate(c):
-                output[i] = self.to_rgba(cc, alpha)  # change in place
-            result = output
+                result[i] = self.to_rgba(cc, alpha)  # change in place
         return np.asarray(result, np.float_)
 
 colorConverter = ColorConverter()

@@ -8,7 +8,7 @@ counterparts (e.g. you may not be able to select all line styles) but
 they are meant to be fast for common use cases (e.g. a bunch of solid
 line segemnts)
 """
-import math, warnings
+import copy, math, warnings
 import numpy as np
 import numpy.ma as ma
 import matplotlib as mpl
@@ -331,8 +331,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
         if c is None: c = mpl.rcParams['patch.facecolor']
-        self._facecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
         self._facecolors_original = c
+        self._facecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
 
     set_facecolors = set_facecolor
 
@@ -361,10 +361,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         if c == 'face':
             self._edgecolors = 'face'
+            self._edgecolors_original = 'face'
         else:
             if c is None: c = mpl.rcParams['patch.edgecolor']
-            self._edgecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
             self._edgecolors_original = c
+            self._edgecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
 
     set_edgecolors = set_edgecolor
 
@@ -385,8 +386,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
             except (AttributeError, TypeError, IndexError):
                 pass
             try:
-                self._edgecolors = _colors.colorConverter.to_rgba_array(
-                    self._edgecolors_original, self._alpha)
+                if self._edgecolors_original != 'face':
+                    self._edgecolors = _colors.colorConverter.to_rgba_array(
+                        self._edgecolors_original, self._alpha)
             except (AttributeError, TypeError, IndexError):
                 pass
 
@@ -809,7 +811,7 @@ class LineCollection(Collection):
             pickradius=pickradius,
             **kwargs)
 
-        self._facecolors = np.array([])
+        self.set_facecolors([])
         self.set_segments(segments)
 
     def get_paths(self):
