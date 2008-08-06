@@ -5195,26 +5195,14 @@ class Axes(martist.Artist):
             ymax = 10**ymax
             self.set_yscale('log')
 
-        class HexagonBinCollection(mcoll.PolyCollection):
-            """A HexagonBinCollection is a PolyCollection where the edge
-               colors are always kept equal to the fill colors"""
-            def update_scalarmappable(self):
-                mcoll.PolyCollection.update_scalarmappable(self)
-                self._edgecolors = self._facecolors
-
         if edgecolors=='none':
-            collection = HexagonBinCollection(
-                        polygons,
-                        linewidths = linewidths,
-                        transOffset = self.transData,
-                        )
-        else:
-            collection = mcoll.PolyCollection(
-                        polygons,
-                        edgecolors = edgecolors,
-                        linewidths = linewidths,
-                        transOffset = self.transData,
-                        )
+            edgecolors = 'face'
+        collection = mcoll.PolyCollection(
+            polygons,
+            edgecolors = edgecolors,
+            linewidths = linewidths,
+            transOffset = self.transData,
+            )
 
         # Transform accum if needed
         if bins=='log':
