@@ -280,6 +280,8 @@ void get_path_extents(PathIterator& path, const agg::trans_affine& trans,
     {
         if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
             continue;
+        if (MPL_notisfinite64(x) || MPL_notisfinite64(y))
+            continue;
         if (x < *x0) *x0 = x;
         if (y < *y0) *y0 = y;
         if (x > *x1) *x1 = x;
