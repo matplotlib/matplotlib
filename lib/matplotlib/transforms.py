@@ -808,7 +808,7 @@ class Bbox(BboxBase):
             return
 
         points, minpos, changed = update_path_extents(
-            Path(xy), None, self._points, self._minpos, ignore)
+            Path(xym), None, self._points, self._minpos, ignore)
 
         if changed:
             self._points = points
