@@ -52,7 +52,7 @@ def xlformat_factory(format):
 
     return format
 
-def rec2excel(r, ws, formatd=None, rownum=0, colnum=0, nanstr='NaN'):
+def rec2excel(r, ws, formatd=None, rownum=0, colnum=0, nanstr='NaN', infstr='Inf'):
     """
     save record array r to excel pyExcelerator worksheet ws
     starting at rownum.  if ws is string like, assume it is a
@@ -103,13 +103,17 @@ def rec2excel(r, ws, formatd=None, rownum=0, colnum=0, nanstr='NaN'):
             val = row[i]
             format = formats[i]
             val = format.toval(val)
-            if format.xlstyle is None:
+            if mlab.safe_isnan(val):
+                ws.write(rownum, colnum+i, nanstr)
+            elif mlab.safe_isinf(val):
+                sgn = np.sign(val)
+                if sgn<0: s = infstr
+                else: s = '-%s'%infstr
+                ws.write(rownum, colnum+i, s)
+            elif format.xlstyle is None:
                 ws.write(rownum, colnum+i, val)
             else:
-                if mlab.safe_isnan(val):
-                    ws.write(rownum, colnum+i, nanstr)
-                else:
-                    ws.write(rownum, colnum+i, val, format.xlstyle)
+                ws.write(rownum, colnum+i, val, format.xlstyle)
         rownum += 1
 
     if autosave:
