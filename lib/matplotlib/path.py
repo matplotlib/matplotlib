@@ -170,8 +170,7 @@ class Path(object):
 
         codes        = self.codes
         len_vertices = len(vertices)
-        isnan        = np.isnan
-        any          = np.any
+        isfinite     = np.isfinite
 
         NUM_VERTICES = self.NUM_VERTICES
         MOVETO       = self.MOVETO
@@ -182,7 +181,7 @@ class Path(object):
         if codes is None:
             next_code = MOVETO
             for v in vertices:
-                if any(isnan(v)):
+                if (~isfinite(v)).any():
                     next_code = MOVETO
                 else:
                     yield v, next_code
@@ -200,7 +199,7 @@ class Path(object):
                 else:
                     num_vertices = NUM_VERTICES[int(code)]
                     curr_vertices = vertices[i:i+num_vertices].flatten()
-                    if any(isnan(curr_vertices)):
+                    if (~isfinite(curr_vertices)).any():
                         was_nan = True
                     elif was_nan:
                         yield curr_vertices[-2:], MOVETO
