@@ -73,10 +73,10 @@ typedef long long                MPL_Int64;
 #if !defined(MPL_notisfinite64)
 #if !defined(_MSC_VER)
 #define MPL_notisfinite64(u) \
-  ( (( MPL_U64(u) & 0x7ff0000000000000LL)  != 0x7ff0000000000000LL)) ? 0:1
+  ( (( MPL_U64(u) & 0x7ff0000000000000LL)  == 0x7ff0000000000000LL)) ? 1:0
 #else
 #define MPL_notisfinite64(u) \
-  ( (( MPL_U64(u) & 0x7ff0000000000000i64) != 0x7ff0000000000000i64)) ? 0:1
+  ( (( MPL_U64(u) & 0x7ff0000000000000i64) == 0x7ff0000000000000i64)) ? 1:0
 #endif
 #endif /* MPL_notisfinite64 */
 
