@@ -387,7 +387,7 @@ bool should_snap(Path& path, const agg::trans_affine& trans) {
   double x0, y0, x1, y1;
   unsigned code;
 
-  if (path.total_vertices() > 15)
+  if (!path.should_simplify() || path.total_vertices() > 15)
     return false;
 
   code = path.vertex(&x0, &y0);
@@ -418,11 +418,6 @@ bool should_snap(Path& path, const agg::trans_affine& trans) {
 
   path.rewind(0);
   return true;
-}
-
-template<class Path>
-bool should_simplify(Path& path) {
-  return !path.has_curves() && path.total_vertices() >= 128;
 }
 
 Py::Object
@@ -938,7 +933,7 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   trans *= agg::trans_affine_scaling(1.0, -1.0);
   trans *= agg::trans_affine_translation(0.0, (double)height);
   bool snap = should_snap(path, trans);
-  bool simplify = should_simplify(path) && !face.first;
+  bool simplify = path.should_simplify() && !face.first;
 
   transformed_path_t tpath(path, trans);
   simplify_t simplified(tpath, snap, simplify, width, height);
@@ -1235,6 +1230,10 @@ class QuadMeshGenerator {
 
     inline unsigned total_vertices() {
       return 5;
+    }
+
+    inline bool should_simplify() {
+      return false;
     }
   };
 
