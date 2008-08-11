@@ -1282,8 +1282,9 @@ class Axes(martist.Artist):
         line._remove_method = lambda h: self.lines.remove(h)
 
     def _update_line_limits(self, line):
-        xydata = line.get_xydata()
-        self.update_datalim( xydata )
+        self.dataLim.update_from_path(line.get_path(),
+                    self.ignore_existing_data_limits)
+        self.ignore_existing_data_limits = False
 
     def add_patch(self, p):
         """
@@ -1307,12 +1308,11 @@ class Axes(martist.Artist):
         # the auto-scaling
         if isinstance(p, mpatches.Rectangle) and (p.get_width()==0. or p.get_height()==0.):
             return
-
         vertices = p.get_patch_transform().transform(p.get_path().vertices)
         if p.get_data_transform() != self.transData:
             transform = p.get_data_transform() + self.transData.inverted()
             xys = transform.transform(vertices)
-
+            # Something is wrong--xys is never used.
         self.update_datalim(vertices)
 
     def add_table(self, tab):
@@ -1327,6 +1327,8 @@ class Axes(martist.Artist):
 
     def relim(self):
         'recompute the data limits based on current artists'
+        # Collections are deliberately not supported (yet); see
+        # the TODO note in artists.py.
         self.dataLim.ignore(True)
         self.ignore_existing_data_limits = True
         for line in self.lines:

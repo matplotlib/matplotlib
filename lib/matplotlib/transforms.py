@@ -786,6 +786,30 @@ class Bbox(BboxBase):
         xy = np.hstack((x.reshape((len(x), 1)), y.reshape((len(y), 1))))
         return self.update_from_data_xy(xy, ignore)
 
+    def update_from_path(self, path, ignore=None):
+        """
+        Update the bounds of the :class:`Bbox` based on the passed in
+        data.
+
+        path: a Path instance
+
+        ignore:
+           - when True, ignore the existing bounds of the Bbox.
+           - when False, include the existing bounds of the Bbox.
+           - when None, use the last value passed to :meth:`ignore`.
+        """
+        if ignore is None:
+            ignore = self._ignore
+
+        points, minpos, changed = update_path_extents(
+            path, None, self._points, self._minpos, ignore)
+
+        if changed:
+            self._points = points
+            self._minpos = minpos
+            self.invalidate()
+
+
     def update_from_data_xy(self, xy, ignore=None):
         """
         Update the bounds of the :class:`Bbox` based on the passed in
@@ -798,22 +822,11 @@ class Bbox(BboxBase):
            - when False, include the existing bounds of the Bbox.
            - when None, use the last value passed to :meth:`ignore`.
         """
-        if ignore is None:
-            ignore = self._ignore
-
         if len(xy) == 0:
             return
-        xym = ma.masked_invalid(xy) # maybe add copy=False
-        if (xym.count(axis=1)!=2).all():
-            return
 
-        points, minpos, changed = update_path_extents(
-            Path(xym), None, self._points, self._minpos, ignore)
-
-        if changed:
-            self._points = points
-            self._minpos = minpos
-            self.invalidate()
+        path = Path(xy)
+        self.update_from_path(path, ignore=ignore)
 
     def _set_x0(self, val):
         self._points[0, 0] = val
