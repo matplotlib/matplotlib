@@ -56,6 +56,11 @@ class Path(object):
     :class:`Path` objects, as an optimization, do not store a *codes*
     at all, but have a default one provided for them by
     :meth:`iter_segments`.
+
+    Note also that the vertices and codes arrays should be treated as
+    immutable -- there are a number of optimizations and assumptions
+    made up front in the constructor that will not change when the
+    data changes.
     """
 
     # Path codes
@@ -84,46 +89,29 @@ class Path(object):
         dimension.
 
         If *codes* is None, *vertices* will be treated as a series of
-        line segments.  If *vertices* contains masked values, the
-        resulting path will be compressed, with ``MOVETO`` codes
-        inserted in the correct places to jump over the masked
-        regions.
+        line segments.
+
+        If *vertices* contains masked values, they will be converted
+        to NaNs which are then handled correctly by the Agg
+        PathIterator and other consumers of path data, such as
+        :meth:`iter_segments`.
         """
         if ma.isMaskedArray(vertices):
-            is_mask = True
-            mask = ma.getmask(vertices)
+            vertices = vertices.astype(np.float_).filled(np.nan)
         else:
-            is_mask = False
             vertices = np.asarray(vertices, np.float_)
-            mask = ma.nomask
 
         if codes is not None:
             codes = np.asarray(codes, self.code_type)
             assert codes.ndim == 1
             assert len(codes) == len(vertices)
 
-        # The path being passed in may have masked values.  However,
-        # the backends (and any affine transformations in matplotlib
-        # itself), are not expected to deal with masked arrays, so we
-        # must remove them from the array (using compressed), and add
-        # MOVETO commands to the codes array accordingly.
-        if is_mask:
-            if mask is not ma.nomask:
-                mask1d = np.logical_or.reduce(mask, axis=1)
-                gmask1d = np.invert(mask1d)
-                if codes is None:
-                    codes = np.empty((len(vertices)), self.code_type)
-                    codes.fill(self.LINETO)
-                    codes[0] = self.MOVETO
-                vertices = vertices[gmask1d].filled() # ndarray
-                codes[np.roll(mask1d, 1)] = self.MOVETO
-                codes = codes[gmask1d] # np.compress is much slower
-            else:
-                vertices = np.asarray(vertices, np.float_)
-
         assert vertices.ndim == 2
         assert vertices.shape[1] == 2
 
+        self.should_simplify = (codes is None and
+                                np.all(np.isfinite(vertices)) and
+                                len(vertices) >= 128)
         self.codes = codes
         self.vertices = vertices
 

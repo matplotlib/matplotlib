@@ -15,6 +15,7 @@ class PathIterator
     PyArrayObject* m_codes;
     size_t m_iterator;
     size_t m_total_vertices;
+    bool m_should_simplify;
 
 public:
     PathIterator(const Py::Object& path_obj) :
@@ -22,6 +23,7 @@ public:
     {
         Py::Object vertices_obj = path_obj.getAttr("vertices");
         Py::Object codes_obj = path_obj.getAttr("codes");
+        Py::Object should_simplify_obj = path_obj.getAttr("should_simplify");
 
         m_vertices = (PyArrayObject*)PyArray_FromObject
                      (vertices_obj.ptr(), PyArray_DOUBLE, 2, 2);
@@ -38,6 +40,7 @@ public:
                 throw Py::ValueError("Invalid codes array.");
         }
 
+        m_should_simplify = bool(Py::Int(should_simplify_obj));
         m_total_vertices = m_vertices->dimensions[0];
     }
 
@@ -100,9 +103,9 @@ public:
         return m_total_vertices;
     }
 
-    inline bool has_curves()
+    inline bool should_simplify()
     {
-        return m_codes;
+        return m_should_simplify;
     }
 };
 

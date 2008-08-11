@@ -1,3 +1,9 @@
+2008-08-11 Fix more bugs in NaN/inf handling.  In particular, path simplification
+           (which does not handle NaNs or infs) will be turned off automatically
+           when infs or NaNs are present.  Also masked arrays are now converted
+           to arrays with NaNs for consistent handling of masks and NaNs
+            - MGD and EF
+
 =================================================================
 2008-08-03 Released 0.98.3 at svn r5947
 

@@ -1120,7 +1120,7 @@ Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
     double width = Py::Float(args[2]);
     double height = Py::Float(args[3]);
 
-    bool simplify = !path.has_curves() && width != 0.0 && height != 0.0;
+    bool simplify = path.should_simplify() && width != 0.0 && height != 0.0;
 
     transformed_path_t tpath(path, trans);
     simplify_t simplified(tpath, false, simplify, width, height);
