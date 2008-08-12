@@ -6364,7 +6364,7 @@ class Axes(martist.Artist):
             for p in patch:
                 p.update(kwargs)
                 p.set_label(label)
-                label = '_nolegend'
+                label = '_nolegend_'
 
 
         if len(n)==1:

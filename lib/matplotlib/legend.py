@@ -520,7 +520,8 @@ The following dimensions are in axes coords
             if isinstance(handle, Line2D):
                 ydata = y*np.ones(handle.get_xdata().shape, float)
                 handle.set_ydata(ydata+h/2.)
-                handle._legmarker.set_ydata(ydata+h/2.)
+                if hasattr(handle, '_legmarker'):
+                    handle._legmarker.set_ydata(ydata+h/2.)
             elif isinstance(handle, Rectangle):
                 handle.set_y(y+1/4*h)
                 handle.set_height(h/2)
