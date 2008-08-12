@@ -81,10 +81,9 @@ class InheritanceGraph(object):
             raise ValueError(
                 "Invalid class or module '%s' specified for inheritance diagram" % name)
         fullname = (path or '') + base
-        path = path and path.rstrip('.')
+        path = (path and path.rstrip('.'))
         if not path:
-            raise ValueError(
-                "Invalid class or module '%s' specified for inheritance diagram" % name)
+            path = base
         try:
             module = __import__(path, None, None, [])
         except ImportError:
