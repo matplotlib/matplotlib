@@ -86,25 +86,6 @@ def setup(app):
     LaTeXTranslator.visit_latex_math = visit_latex_math_latex
     LaTeXTranslator.depart_latex_math = depart_latex_math_latex
 
-from os.path import isfile
-
-# This calls out to LaTeX to render the expression
-def latex2png(latex, name):
-    f = open('math.tex', 'w')
-    f.write(r"""\documentclass[12pt]{article}
-                \pagestyle{empty}
-                \begin{document}""")
-    if inline:
-        f.write('$%s$' % latex)
-    else:
-        f.write(r'\[ %s \]' % latex)
-    f.write('\end{document}')
-    f.close()
-    os.system('latex --interaction=nonstopmode math.tex > /dev/null')
-    os.system('dvipng -bgTransparent -Ttight --noghostscript -l10 ' +
-              '-o %s math.dvi > /dev/null' % name)
-
-
 from matplotlib import rcParams
 from matplotlib.mathtext import MathTextParser
 rcParams['mathtext.fontset'] = 'cm'
