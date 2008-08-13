@@ -100,7 +100,6 @@ def latex2png(latex, filename, fontset='cm'):
     if os.path.exists(filename):
         depth = mathtext_parser.get_depth(latex, dpi=100)
     else:
-        print latex.encode("ascii", "backslashreplace")
         try:
             depth = mathtext_parser.to_png(filename, latex, dpi=100)
         except:
