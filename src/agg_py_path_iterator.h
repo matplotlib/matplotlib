@@ -40,7 +40,7 @@ public:
                 throw Py::ValueError("Invalid codes array.");
         }
 
-        m_should_simplify = bool(Py::Int(should_simplify_obj));
+        m_should_simplify = should_simplify_obj.isTrue();
         m_total_vertices = m_vertices->dimensions[0];
     }
 
