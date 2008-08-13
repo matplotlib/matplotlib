@@ -8,7 +8,7 @@ import gtk; gdk = gtk.gdk
 import pango
 pygtk_version_required = (2,2,0)
 if gtk.pygtk_version < pygtk_version_required:
-    raise SystemExit ("PyGTK %d.%d.%d is installed\n"
+    raise ImportError ("PyGTK %d.%d.%d is installed\n"
                       "PyGTK %d.%d.%d or later is required"
                       % (gtk.pygtk_version + pygtk_version_required))
 del pygtk_version_required

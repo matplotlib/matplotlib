@@ -14,7 +14,7 @@ except ImportError:
 
 try: import datetime
 except ImportError:
-    raise SystemExit('The finance module requires datetime support (python2.3)')
+    raise ImportError('The finance module requires datetime support (python2.3)')
 
 import numpy as np
 
@@ -415,7 +415,7 @@ def candlestick2(ax, opens, closes, highs, lows, width=4,
 
     # note this code assumes if any value open, close, low, high is
     # missing they all are missing
-    
+
     delta = width/2.
     barVerts = [ ( (i-delta, open), (i-delta, close), (i+delta, close), (i+delta, open) ) for i, open, close in zip(xrange(len(opens)), opens, closes) if open != -1 and close!=-1 ]
 

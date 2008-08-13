@@ -144,12 +144,12 @@ else: _havedate = True
 #else: _have_pkg_resources = True
 
 if not _python24:
-    raise SystemExit('matplotlib requires Python 2.4 or later')
+    raise ImportError('matplotlib requires Python 2.4 or later')
 
 import numpy
 nn = numpy.__version__.split('.')
 if not (int(nn[0]) >= 1 and int(nn[1]) >= 1):
-    raise SystemExit(
+    raise ImportError(
             'numpy 1.1 or later is required; you have %s' % numpy.__version__)
 
 def is_string_like(obj):
