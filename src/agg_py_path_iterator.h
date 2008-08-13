@@ -19,7 +19,7 @@ class PathIterator
 
 public:
     PathIterator(const Py::Object& path_obj) :
-            m_vertices(NULL), m_codes(NULL), m_iterator(0)
+    m_vertices(NULL), m_codes(NULL), m_iterator(0), m_should_simplify(false)
     {
         Py::Object vertices_obj = path_obj.getAttr("vertices");
         Py::Object codes_obj = path_obj.getAttr("codes");
@@ -28,9 +28,10 @@ public:
         m_vertices = (PyArrayObject*)PyArray_FromObject
                      (vertices_obj.ptr(), PyArray_DOUBLE, 2, 2);
         if (!m_vertices ||
-            PyArray_NDIM(m_vertices) != 2 ||
             PyArray_DIM(m_vertices, 1) != 2)
+        {
             throw Py::ValueError("Invalid vertices array.");
+        }
 
         if (codes_obj.ptr() != Py_None)
         {
@@ -38,6 +39,8 @@ public:
                       (codes_obj.ptr(), PyArray_UINT8, 1, 1);
             if (!m_codes)
                 throw Py::ValueError("Invalid codes array.");
+            if (PyArray_DIM(m_codes, 0) != PyArray_DIM(m_vertices, 1))
+                throw Py::ValueError("Codes array is wrong length");
         }
 
         m_should_simplify = should_simplify_obj.isTrue();
@@ -79,11 +82,16 @@ public:
         if (m_iterator >= m_total_vertices) return agg::path_cmd_stop;
         unsigned code = vertex_with_code(m_iterator++, x, y);
 
-        if (MPL_notisfinite64(*x) || MPL_notisfinite64(*y)) {
-            do {
-                if (m_iterator < m_total_vertices) {
+        if (MPL_notisfinite64(*x) || MPL_notisfinite64(*y))
+        {
+            do
+            {
+                if (m_iterator < m_total_vertices)
+                {
                     vertex(m_iterator++, x, y);
-                } else {
+                }
+                else
+                {
                     return agg::path_cmd_stop;
                 }
             } while (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
@@ -207,7 +215,8 @@ public:
         // If the queue is now empty, and the path was fully consumed
         // in the last call to the main loop, return agg::path_cmd_stop to
         // signal that there are no more points to emit.
-        if (m_done) {
+        if (m_done)
+        {
 #if DEBUG_SIMPLIFY
             printf(".\n");
 #endif
@@ -376,21 +385,26 @@ public:
             //direction we are drawing in, move back to we start drawing from
             //back there.
             if (m_haveMin)
-              m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_minX, m_minY);
+            {
+                m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_minX, m_minY);
+            }
             m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_maxX, m_maxY);
 
             //if we clipped some segments between this line and the next line
             //we are starting, we also need to move to the last point.
-            if (m_clipped)
-              m_queue[m_queue_write++].set(agg::path_cmd_move_to, m_lastx, m_lasty);
+            if (m_clipped) {
+                m_queue[m_queue_write++].set(agg::path_cmd_move_to, m_lastx, m_lasty);
+            }
             else if (!m_lastMax)
+            {
                 //if the last line was not the longest line, then move back to
                 //the end point of the last line in the sequence. Only do this
                 //if not clipped, since in that case lastx,lasty is not part of
                 //the line just drawn.
 
                 //Would be move_to if not for the artifacts
-              m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_lastx, m_lasty);
+                m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_lastx, m_lasty);
+            }
 
             //now reset all the variables to get ready for the next line
             m_origdx = *x - m_lastx;
@@ -421,7 +435,9 @@ public:
             if (m_origdNorm2 != 0)
             {
                 if (m_haveMin)
+                {
                     m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_minX, m_minY);
+                }
                 m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_maxX, m_maxY);
             }
             m_done = true;
@@ -458,7 +474,8 @@ private:
     struct item
     {
         item() {}
-        inline void set(const unsigned cmd_, const double& x_, const double& y_) {
+        inline void set(const unsigned cmd_, const double& x_, const double& y_)
+        {
           cmd = cmd_;
           x = x_;
           y = y_;
