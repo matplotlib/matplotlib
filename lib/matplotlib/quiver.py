@@ -40,10 +40,12 @@ call signatures::
 Arguments:
 
   *X*, *Y*:
-    The x and y coordinates of the arrow locations
-    (default is tail of arrow; see *pivot* kwarg)
+
+    The x and y coordinates of the arrow locations (default is tail of
+    arrow; see *pivot* kwarg)
 
   *U*, *V*:
+
     give the *x* and *y* components of the arrow vectors
 
   *C*:
@@ -61,28 +63,31 @@ supported at present.
 Keyword arguments:
 
   *units*: ['width' | 'height' | 'dots' | 'inches' | 'x' | 'y' ]
-    arrow units; the arrow dimensions *except for length* are
-    in multiples of this unit.
+    arrow units; the arrow dimensions *except for length* are in
+    multiples of this unit.
 
     * 'width' or 'height': the width or height of the axes
-    * 'dots' or 'inches':  pixels or inches, based on the figure dpi
+
+    * 'dots' or 'inches': pixels or inches, based on the figure dpi
+
     * 'x' or 'y': *X* or *Y* data units
 
     In all cases the arrow aspect ratio is 1, so that if *U*==*V* the
-    angle of the arrow on the plot is 45 degrees CCW from the *x*-axis.
+    angle of the arrow on the plot is 45 degrees CCW from the
+    *x*-axis.
 
-    The arrows scale differently depending on the units, however.
-    For 'x' or 'y', the arrows get larger as one zooms in; for other
+    The arrows scale differently depending on the units, however.  For
+    'x' or 'y', the arrows get larger as one zooms in; for other
     units, the arrow size is independent of the zoom state.  For
     'width or 'height', the arrow size increases with the width and
     height of the axes, respectively, when the the window is resized;
     for 'dots' or 'inches', resizing does not change the arrows.
 
   *scale*: [ None | float ]
-    data units per arrow unit, e.g. m/s per plot width;
-    a smaller scale parameter makes the arrow longer.
-    If *None*, a simple autoscaling algorithm is used, based
-    on the average vector length and the number of vectors.
+    data units per arrow unit, e.g. m/s per plot width; a smaller
+    scale parameter makes the arrow longer.  If *None*, a simple
+    autoscaling algorithm is used, based on the average vector length
+    and the number of vectors.
 
   *width*:
     shaft width in arrow units; default depends on choice of units,
@@ -109,8 +114,8 @@ Keyword arguments:
     Default is 1.
 
   *pivot*: [ 'tail' | 'middle' | 'tip' ]
-    The part of the arrow that is at the grid point; the arrow
-    rotates about this point, hence the name *pivot*.
+    The part of the arrow that is at the grid point; the arrow rotates
+    about this point, hence the name *pivot*.
 
   *color*: [ color | color sequence ]
     This is a synonym for the
@@ -155,23 +160,23 @@ Arguments:
 Keyword arguments:
 
   *coordinates* = [ 'axes' | 'figure' | 'data' | 'inches' ]
-    Coordinate system and units for *X*, *Y*: 'axes' and 'figure'
-    are normalized coordinate systems with 0,0 in the lower
-    left and 1,1 in the upper right; 'data' are the axes
-    data coordinates (used for the locations of the vectors
-    in the quiver plot itself); 'inches' is position in the
-    figure in inches, with 0,0 at the lower left corner.
+    Coordinate system and units for *X*, *Y*: 'axes' and 'figure' are
+    normalized coordinate systems with 0,0 in the lower left and 1,1
+    in the upper right; 'data' are the axes data coordinates (used for
+    the locations of the vectors in the quiver plot itself); 'inches'
+    is position in the figure in inches, with 0,0 at the lower left
+    corner.
 
   *color*:
     overrides face and edge colors from *Q*.
 
   *labelpos* = [ 'N' | 'S' | 'E' | 'W' ]
-    Position the label above, below, to the right, to the left
-    of the arrow, respectively.
+    Position the label above, below, to the right, to the left of the
+    arrow, respectively.
 
   *labelsep*:
-    Distance in inches between the arrow and the label.
-    Default is 0.1
+    Distance in inches between the arrow and the label.  Default is
+    0.1
 
   *labelcolor*:
     defaults to default :class:`~matplotlib.text.Text` color.
@@ -557,88 +562,100 @@ Keyword arguments:
     Default is 9
 
   *pivot*: [ 'tip' | 'middle' ]
-    The part of the arrow that is at the grid point; the arrow
-    rotates about this point, hence the name *pivot*.
-    Default is 'tip'
+    The part of the arrow that is at the grid point; the arrow rotates
+    about this point, hence the name *pivot*.  Default is 'tip'
 
   *barbcolor*: [ color | color sequence ]
-    Specifies the color all parts of the barb except any flags.
-    This parameter is analagous to the *edgecolor* parameter
-    for polygons, which can be used instead. However this parameter
-    will override facecolor.
+    Specifies the color all parts of the barb except any flags.  This
+    parameter is analagous to the *edgecolor* parameter for polygons,
+    which can be used instead. However this parameter will override
+    facecolor.
 
   *flagcolor*: [ color | color sequence ]
-    Specifies the color of any flags on the barb.
-    This parameter is analagous to the *facecolor* parameter
-    for polygons, which can be used instead. However this parameter
-    will override facecolor.  If this is not set (and *C* has not either)
-    then *flagcolor* will be set to match *barbcolor* so that the barb
-    has a uniform color. If *C* has been set, *flagcolor* has no effect.
+    Specifies the color of any flags on the barb.  This parameter is
+    analagous to the *facecolor* parameter for polygons, which can be
+    used instead. However this parameter will override facecolor.  If
+    this is not set (and *C* has not either) then *flagcolor* will be
+    set to match *barbcolor* so that the barb has a uniform color. If
+    *C* has been set, *flagcolor* has no effect.
 
   *sizes*:
-    A dictionary of coefficients specifying the ratio of a given feature
-    to the length of the barb. Only those values one wishes to override
-    need to be included.  These features include:
-        'spacing' - space between features (flags, full/half barbs)
-        'height' - height (distance from shaft to top) of a flag or full barb
-        'width' - width of a flag, twice the width of a full barb
-        'emptybarb' - radius of the circle used for low magnitudes
+    A dictionary of coefficients specifying the ratio of a given
+    feature to the length of the barb. Only those values one wishes to
+    override need to be included.  These features include:
+
+        - 'spacing' - space between features (flags, full/half barbs)
+
+        - 'height' - height (distance from shaft to top) of a flag or
+          full barb
+
+        - 'width' - width of a flag, twice the width of a full barb
+
+        - 'emptybarb' - radius of the circle used for low magnitudes
 
   *fill_empty*:
-    A flag on whether the empty barbs (circles) that are drawn should be filled
-    with the flag color.  If they are not filled, they will be drawn such that
-    no color is applied to the center.
-    Default is False
+    A flag on whether the empty barbs (circles) that are drawn should
+    be filled with the flag color.  If they are not filled, they will
+    be drawn such that no color is applied to the center.  Default is
+    False
 
   *rounding*:
-    A flag to indicate whether the vector magnitude should be rounded when
-    allocating barb components.  If True, the magnitude is rounded to the
-    nearest multiple of the half-barb increment.  If False, the magnitude
-    is simply truncated to the next lowest multiple.
-    Default is True
+    A flag to indicate whether the vector magnitude should be rounded
+    when allocating barb components.  If True, the magnitude is
+    rounded to the nearest multiple of the half-barb increment.  If
+    False, the magnitude is simply truncated to the next lowest
+    multiple.  Default is True
 
   *barb_increments*:
-    A dictionary of increments specifying values to associate with different
-    parts of the barb. Only those values one wishes to override need to be
-    included.
-        'half' - half barbs (Default is 5)
-        'full' - full barbs (Default is 10)
-        'flag' - flags (default is 50)
+    A dictionary of increments specifying values to associate with
+    different parts of the barb. Only those values one wishes to
+    override need to be included.
+
+        - 'half' - half barbs (Default is 5)
+
+        - 'full' - full barbs (Default is 10)
+
+        - 'flag' - flags (default is 50)
 
   *flip_barb*:
-    Either a single boolean flag or an array of booleans.  Single boolean
-    indicates whether the lines and flags should point opposite to normal
-    for all barbs.  An array (which should be the same size as the other
-    data arrays) indicates whether to flip for each individual barb.
-    Normal behavior is for the barbs and lines to point right (comes from
-    wind barbs having these features point towards low pressure in the
-    Northern Hemisphere.)
-    Default is False
+    Either a single boolean flag or an array of booleans.  Single
+    boolean indicates whether the lines and flags should point
+    opposite to normal for all barbs.  An array (which should be the
+    same size as the other data arrays) indicates whether to flip for
+    each individual barb.  Normal behavior is for the barbs and lines
+    to point right (comes from wind barbs having these features point
+    towards low pressure in the Northern Hemisphere.)  Default is
+    False
 
 Barbs are traditionally used in meteorology as a way to plot the speed
-and direction of wind observations, but can technically be used to plot
-any two dimensional vector quantity.  As opposed to arrows, which give
-vector magnitude by the length of the arrow, the barbs give more quantitative
-information about the vector magnitude by putting slanted lines or a triangle
-for various increments in magnitude, as show schematically below:
+and direction of wind observations, but can technically be used to
+plot any two dimensional vector quantity.  As opposed to arrows, which
+give vector magnitude by the length of the arrow, the barbs give more
+quantitative information about the vector magnitude by putting slanted
+lines or a triangle for various increments in magnitude, as show
+schematically below::
 
-   /\    \
-  /  \    \
- /    \    \    \
-/      \    \    \
-------------------------------
+ :     /\    \\
+ :    /  \    \\
+ :   /    \    \    \\
+ :  /      \    \    \\
+ : ------------------------------
 
-The largest increment is given by a triangle (or "flag"). After those come full
-lines (barbs). The smallest increment is a half line.  There is only, of
-course, ever at most 1 half line.  If the magnitude is small and only needs a
-single half-line and no full lines or triangles, the half-line is offset from
-the end of the barb so that it can be easily distinguished from barbs with a
-single full line.  The magnitude for the barb shown above would nominally be
-65, using the standard increments of 50, 10, and 5.
+.. note the double \\ at the end of each line to make the figure
+.. render correctly
+
+The largest increment is given by a triangle (or "flag"). After those
+come full lines (barbs). The smallest increment is a half line.  There
+is only, of course, ever at most 1 half line.  If the magnitude is
+small and only needs a single half-line and no full lines or
+triangles, the half-line is offset from the end of the barb so that it
+can be easily distinguished from barbs with a single full line.  The
+magnitude for the barb shown above would nominally be 65, using the
+standard increments of 50, 10, and 5.
 
 linewidths and edgecolors can be used to customize the barb.
-Additional :class:`~matplotlib.collections.PolyCollection`
-keyword arguments:
+Additional :class:`~matplotlib.collections.PolyCollection` keyword
+arguments:
 
 %(PolyCollection)s
 """ % martist.kwdocd
@@ -647,15 +664,15 @@ class Barbs(collections.PolyCollection):
     '''
     Specialized PolyCollection for barbs.
 
-    The only API method is set_UVC(), which can be used
-    to change the size, orientation, and color of the
-    arrows.  Locations are changed using the set_offsets() collection
-    method.Possibly this method will be useful in animations.
+    The only API method is :meth:`set_UVC`, which can be used to
+    change the size, orientation, and color of the arrows.  Locations
+    are changed using the :meth:`set_offsets` collection method.
+    Possibly this method will be useful in animations.
 
-    There is one internal function _find_tails() which finds exactly
-    what should be put on the barb given the vector magnitude.  From there
-    _make_barbs() is used to find the vertices of the polygon to represent the
-    barb based on this information.
+    There is one internal function :meth:`_find_tails` which finds
+    exactly what should be put on the barb given the vector magnitude.
+    From there :meth:`_make_barbs` is used to find the vertices of the
+    polygon to represent the barb based on this information.
     '''
     #This may be an abuse of polygons here to render what is essentially maybe
     #1 triangle and a series of lines.  It works fine as far as I can tell
@@ -714,11 +731,14 @@ class Barbs(collections.PolyCollection):
         half a barb. Mag should be the magnitude of a vector (ie. >= 0).
 
         This returns a tuple of:
-            (number of flags, number of barbs, half_flag, empty_flag)
-        half_flag is a boolean whether half of a barb is needed, since there
-        should only ever be one half on a given barb. Empty flag is an array
-        of flags to easily tell if a barb is empty (too low to plot any
-        barbs/flags.'''
+
+            (*number of flags*, *number of barbs*, *half_flag*, *empty_flag*)
+
+        *half_flag* is a boolean whether half of a barb is needed,
+        since there should only ever be one half on a given
+        barb. *empty_flag* flag is an array of flags to easily tell if
+        a barb is empty (too low to plot any barbs/flags.
+        '''
 
         #If rounding, round to the nearest multiple of half, the smallest
         #increment
@@ -738,25 +758,41 @@ class Barbs(collections.PolyCollection):
 
     def _make_barbs(self, u, v, nflags, nbarbs, half_barb, empty_flag, length,
         pivot, sizes, fill_empty, flip):
-        '''This function actually creates the wind barbs.  u and v are
-        components of the vector in the x and y directions, respectively.
-        nflags, nbarbs, and half_barb, empty_flag are, respectively, the number
-        of flags, number of barbs, flag for half a barb, and flag for empty
-        barb, ostensibly obtained from _find_tails. length is the length of
-        the barb staff in points.  pivot specifies the point on the barb around
-        which the entire barb should be rotated.  Right now valid options are
-        'head' and 'middle'. sizes is a dictionary of coefficients specifying
-        the ratio of a given feature to the length of the barb. These features
+        '''This function actually creates the wind barbs.  *u* and *v*
+        are components of the vector in the *x* and *y* directions,
+        respectively.
+
+        *nflags*, *nbarbs*, and *half_barb*, empty_flag* are,
+        *respectively, the number of flags, number of barbs, flag for
+        *half a barb, and flag for empty barb, ostensibly obtained
+        *from :meth:`_find_tails`.
+
+        *length* is the length of the barb staff in points.
+
+        *pivot* specifies the point on the barb around which the
+        entire barb should be rotated.  Right now, valid options are
+        'head' and 'middle'.
+
+        *sizes* is a dictionary of coefficients specifying the ratio
+        of a given feature to the length of the barb. These features
         include:
 
-            spacing - space between features (flags, full/half barbs)
-            height - height (distance from shaft of top) of a flag or full barb
-            width - width of a flag, twice the width of a full barb
-            emptybarb - radius of the circle used for low magnitudes
+            - *spacing*: space between features (flags, full/half
+               barbs)
 
-        fill_empty specifies whether the circle representing an empty barb
-        should be filled or not (this changes the drawing of the polygon).
-        flip is a flag indicating whether the features should be flipped to
+            - *height*: distance from shaft of top of a flag or full
+               barb
+
+            - *width* - width of a flag, twice the width of a full barb
+
+            - *emptybarb* - radius of the circle used for low
+               magnitudes
+
+        *fill_empty* specifies whether the circle representing an
+        empty barb should be filled or not (this changes the drawing
+        of the polygon).
+
+        *flip* is a flag indicating whether the features should be flipped to
         the other side of the barb (useful for winds in the southern
         hemisphere.
 

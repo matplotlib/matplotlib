@@ -1464,7 +1464,7 @@ class FigureCanvasBase:
 
         Call signature::
 
-        stop_event_loop_default(self)
+          stop_event_loop_default(self)
         """
         self._looping = False
 
