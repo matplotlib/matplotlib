@@ -12,15 +12,6 @@
 static PyTypeObject *_PyGdkPixbuf_Type;
 #define PyGdkPixbuf_Type (*_PyGdkPixbuf_Type)
 
-/* Implement the equivalent to gtk.gdk.Pixbuf.get_pixels_array()
- * To solve these problems with the pygtk version:
- * 1) It works for Numeric, but not numarray
- * 2) Its only available if pygtk is compiled with Numeric support
- * Fedora 1,2,3 has PyGTK, but not Numeric and so does not have
- * Pixbuf.get_pixels_array().
- * Fedora 4 does have PyGTK, Numeric and Pixbuf.get_pixels_array()
- */
-
 static PyObject *
 pixbuf_get_pixels_array(PyObject *self, PyObject *args)
 {
@@ -45,7 +36,7 @@ pixbuf_get_pixels_array(PyObject *self, PyObject *args)
     if (gdk_pixbuf_get_has_alpha(gdk_pixbuf))
         dims[2] = 4;
 
-    array = (PyArrayObject *)PyArray_FromDimsAndData(3, dims, PyArray_UBYTE,
+    array = (PyArrayObject *)PyArray_SimpleNewFromData(3, dims, PyArray_UBYTE,
 			     (char *)gdk_pixbuf_get_pixels(gdk_pixbuf));
     if (array == NULL)
         return NULL;
