@@ -39,7 +39,7 @@ public:
                       (codes_obj.ptr(), PyArray_UINT8, 1, 1);
             if (!m_codes)
                 throw Py::ValueError("Invalid codes array.");
-            if (PyArray_DIM(m_codes, 0) != PyArray_DIM(m_vertices, 1))
+            if (PyArray_DIM(m_codes, 0) != PyArray_DIM(m_vertices, 0))
                 throw Py::ValueError("Codes array is wrong length");
         }
 
