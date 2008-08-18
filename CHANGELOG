@@ -1,3 +1,5 @@
+2008-08-18 improve interactive pan/zoom in qt4 backend on windows - DSD
+
 2008-08-11 Fix more bugs in NaN/inf handling.  In particular, path simplification
            (which does not handle NaNs or infs) will be turned off automatically
            when infs or NaNs are present.  Also masked arrays are now converted
