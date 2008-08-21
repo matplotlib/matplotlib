@@ -5,6 +5,7 @@ from the Python Cookbook -- hence the name cbook
 from __future__ import generators
 import re, os, errno, sys, StringIO, traceback, locale, threading, types
 import time, datetime
+import warnings
 import numpy as np
 import numpy.ma as ma
 from weakref import ref
