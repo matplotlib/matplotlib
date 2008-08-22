@@ -334,6 +334,12 @@ class Quiver(collections.PolyCollection):
     def __init__(self, ax, *args, **kw):
         self.ax = ax
         X, Y, U, V, C = self._parse_args(*args)
+        if C is not None:
+            X, Y, U, V, C = delete_masked_points(X.ravel(),Y.ravel(),U.ravel(),
+                                                 V.ravel(),C.ravel())
+        else:
+            X, Y, U, V = delete_masked_points(X.ravel(),Y.ravel(),U.ravel(),
+                                              V.ravel())
         self.X = X
         self.Y = Y
         self.XY = np.hstack((X[:,np.newaxis], Y[:,np.newaxis]))
