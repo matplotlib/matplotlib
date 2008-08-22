@@ -1,3 +1,5 @@
+2008-08-22 fix quiver so masked values are not plotted - JSW
+
 2008-08-18 improve interactive pan/zoom in qt4 backend on windows - DSD
 
 2008-08-11 Fix more bugs in NaN/inf handling.  In particular, path simplification
