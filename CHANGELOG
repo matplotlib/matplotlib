@@ -1,3 +1,5 @@
+2008-08-25 Fix locale problems in SVG backend - MGD
+
 2008-08-22 fix quiver so masked values are not plotted - JSW
 
 2008-08-18 improve interactive pan/zoom in qt4 backend on windows - DSD
