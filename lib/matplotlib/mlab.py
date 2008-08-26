@@ -1818,16 +1818,23 @@ def approx_real(x):
 
 #helpers for loading, saving, manipulating and viewing numpy record arrays
 
+
 def safe_isnan(x):
     'isnan for arbitrary types'
+    if cbook.is_string_like(x):
+        return False
     try: b = np.isnan(x)
     except NotImplementedError: return False
+    except TypeError: return False
     else: return b
 
 def safe_isinf(x):
     'isnan for arbitrary types'
+    if cbook.is_string_like(x):
+        return False
     try: b = np.isinf(x)
     except NotImplementedError: return False
+    except TypeError: return False
     else: return b
 
 def rec_append_field(rec, name, arr, dtype=None):

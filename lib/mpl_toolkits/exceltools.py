@@ -20,7 +20,7 @@ Example usage:
 
 """
 import copy
-import numpy as npy
+import numpy as np
 import pyExcelerator as excel
 import matplotlib.cbook as cbook
 import matplotlib.mlab as mlab
@@ -97,7 +97,7 @@ def rec2excel(r, ws, formatd=None, rownum=0, colnum=0, nanstr='NaN', infstr='Inf
     rownum+=1
 
 
-    ind = npy.arange(len(r.dtype.names))
+    ind = np.arange(len(r.dtype.names))
     for row in r:
         for i in ind:
             val = row[i]
