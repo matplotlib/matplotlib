@@ -209,10 +209,12 @@ class RendererSVG(RendererBase):
         write('<g %s>' % clippath)
         trans_and_flip = self._make_flip_transform(trans)
         tpath = trans_and_flip.transform_path(path)
-        for x, y in tpath.vertices:
-            details = 'xlink:href="#%s" x="%f" y="%f"' % (name, x, y)
-            style = self._get_style(gc, rgbFace)
-            self._svgwriter.write ('<use style="%s" %s/>\n' % (style, details))
+        for vertices, code in tpath.iter_segments():
+            if len(vertices):
+                x, y = vertices[-2:]
+                details = 'xlink:href="#%s" x="%f" y="%f"' % (name, x, y)
+                style = self._get_style(gc, rgbFace)
+                self._svgwriter.write ('<use style="%s" %s/>\n' % (style, details))
         write('</g>')
 
     def draw_path_collection(self, master_transform, cliprect, clippath,

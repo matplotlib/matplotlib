@@ -510,8 +510,10 @@ grestore
         ps_cmd.extend(['stroke', 'grestore', '} bind def'])
 
         tpath = trans.transform_path(path)
-        for x, y in tpath.vertices:
-            ps_cmd.append("%g %g o" % (x, y))
+        for vertices, code in tpath.iter_segments():
+            if len(vertices):
+                x, y = vertices[-2:]
+                ps_cmd.append("%g %g o" % (x, y))
 
         ps = '\n'.join(ps_cmd)
         self._draw_ps(ps, gc, rgbFace, fill=False, stroke=False)
