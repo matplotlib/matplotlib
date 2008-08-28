@@ -14,7 +14,7 @@ from artist import Artist
 from cbook import iterable, is_string_like, is_numlike, ls_mapper, dedent
 from colors import colorConverter
 from path import Path
-from transforms import Affine2D, Bbox, TransformedPath
+from transforms import Affine2D, Bbox, TransformedPath, IdentityTransform
 
 from matplotlib import rcParams
 # special-purpose marker identifiers:
@@ -675,7 +675,8 @@ class Line2D(Artist):
         steps[0::2, 1], steps[1:-1:2, 1] = vertices[:, 1], vertices[1:, 1]
 
         path = Path(steps)
-        self._draw_solid(renderer, gc, path, trans)
+        path = path.transformed(self.get_transform())
+        self._draw_solid(renderer, gc, path, IdentityTransform())
 
 
     def _draw_steps_post(self, renderer, gc, path, trans):
@@ -686,7 +687,8 @@ class Line2D(Artist):
         steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:-1, 1]
 
         path = Path(steps)
-        self._draw_solid(renderer, gc, path, trans)
+        path = path.transformed(self.get_transform())
+        self._draw_solid(renderer, gc, path, IdentityTransform())
 
 
     def _draw_steps_mid(self, renderer, gc, path, trans):
@@ -700,7 +702,8 @@ class Line2D(Artist):
         steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:, 1]
 
         path = Path(steps)
-        self._draw_solid(renderer, gc, path, trans)
+        path = path.transformed(self.get_transform())
+        self._draw_solid(renderer, gc, path, IdentityTransform())
 
 
     def _draw_dashed(self, renderer, gc, path, trans):
