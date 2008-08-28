@@ -39,7 +39,7 @@ class Artist(object):
         self._alpha = 1.0
         self.clipbox = None
         self._clippath = None
-        self._clipon = False
+        self._clipon = True
         self._lod = False
         self._label = ''
         self._picker = None
@@ -292,7 +292,6 @@ class Artist(object):
         ACCEPTS: a :class:`matplotlib.transform.Bbox` instance
         """
         self.clipbox = clipbox
-        self._clipon = clipbox is not None or self._clippath is not None
         self.pchanged()
 
     def set_clip_path(self, path, transform=None):
@@ -341,7 +340,6 @@ class Artist(object):
             print type(path), type(transform)
             raise TypeError("Invalid arguments to set_clip_path")
 
-        self._clipon = self.clipbox is not None or self._clippath is not None
         self.pchanged()
 
     def get_alpha(self):
@@ -361,7 +359,7 @@ class Artist(object):
 
     def get_clip_on(self):
         'Return whether artist uses clipping'
-        return self._clipon and (self.clipbox is not None or self._clippath is not None)
+        return self._clipon
 
     def get_clip_box(self):
         'Return artist clipbox'
@@ -388,16 +386,17 @@ class Artist(object):
         ACCEPTS: [True | False]
         """
         self._clipon = b
-        if not b:
-            self.clipbox = None
-            self._clippath = None
         self.pchanged()
 
     def _set_gc_clip(self, gc):
         'set the clip properly for the gc'
-        if self.clipbox is not None:
-            gc.set_clip_rectangle(self.clipbox)
-        gc.set_clip_path(self._clippath)
+        if self._clipon:
+            if self.clipbox is not None:
+                gc.set_clip_rectangle(self.clipbox)
+            gc.set_clip_path(self._clippath)
+        else:
+            gc.set_clip_rectangle(None)
+            gc.set_clip_path(None)
 
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'
@@ -511,7 +510,7 @@ class Artist(object):
     def findobj(self, match=None):
         """
         pyplot signature:
-          findobj(o=gcf(), match=None) 
+          findobj(o=gcf(), match=None)
 
         recursively find all :class:matplotlib.artist.Artist instances
         contained in self
