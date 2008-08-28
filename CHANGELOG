@@ -1,3 +1,5 @@
+2008-08-28 Fix masked arrays with markers in non-Agg backends - MGD
+
 2008-08-28 Fix clip_on kwarg so it actually works correctly - MGD
 
 2008-08-25 Fix locale problems in SVG backend - MGD

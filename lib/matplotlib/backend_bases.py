@@ -97,10 +97,12 @@ class RendererBase:
         once and reuse it multiple times.
         """
         tpath = trans.transform_path(path)
-        for x, y in tpath.vertices:
-            self.draw_path(gc, marker_path,
-                           marker_trans + transforms.Affine2D().translate(x, y),
-                           rgbFace)
+        for vertices, codes in tpath.iter_segments():
+            if len(vertices):
+                x,y = vertices[-2:]
+                self.draw_path(gc, marker_path,
+                               marker_trans + transforms.Affine2D().translate(x, y),
+                               rgbFace)
 
     def draw_path_collection(self, master_transform, cliprect, clippath,
                              clippath_trans, paths, all_transforms, offsets,

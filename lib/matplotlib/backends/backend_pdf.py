@@ -1247,11 +1247,13 @@ class RendererPdf(RendererBase):
 
         output(Op.gsave)
         lastx, lasty = 0, 0
-        for x, y in tpath.vertices:
-            dx, dy = x - lastx, y - lasty
-            output(1, 0, 0, 1, dx, dy, Op.concat_matrix,
-                   marker, Op.use_xobject)
-            lastx, lasty = x, y
+        for vertices, code in tpath.iter_segments():
+            if len(vertices):
+                x, y = vertices[-2:]
+                dx, dy = x - lastx, y - lasty
+                output(1, 0, 0, 1, dx, dy, Op.concat_matrix,
+                       marker, Op.use_xobject)
+                lastx, lasty = x, y
         output(Op.grestore)
 
     def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
