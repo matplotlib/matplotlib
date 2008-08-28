@@ -6157,7 +6157,7 @@ class Axes(martist.Artist):
               - 'step' generates a lineplot that is by default
                 unfilled
 
-              - 'stepfilled' generates a lineplot that this by default
+              - 'stepfilled' generates a lineplot that is by default
                 filled.
 
           *align*: ['left' | 'mid' | 'right' ]
@@ -6209,26 +6209,27 @@ class Axes(martist.Artist):
             raise DeprecationWarning(
                 'hist now uses the rwidth to give relative width and not absolute width')
 
-        # todo: make hist() work with list of arrays with different lengths
-        x = np.asarray(x).copy()
-        if len(x.shape)==2 and min(x.shape)==1:
-            x.shape = max(x.shape),
+        try:
+            x = np.transpose(np.asarray(x).copy())
+            if len(x.shape)==1:
+                x.shape = (1,x.shape[0])
+            elif len(x.shape)==2 and x.shape[1]<x.shape[0]:
+                warnings.warn('2D hist should be nsamples x nvariables; this looks transposed')
+        except ValueError:
+            # multiple hist with data of different length 
+            if iterable(x[0]) and not is_string_like(x[0]):
+                tx = []
+                for i in xrange(len(x)):
+                    tx.append( np.asarray(x[i]).copy() )
+                x = tx
 
-        if len(x.shape)==2 and x.shape[0]<x.shape[1]:
-            warnings.warn('2D hist should be nsamples x nvariables; this looks transposed')
-
-        if len(x.shape)==2:
-            n = []
-            for i in xrange(x.shape[1]):
-                # this will automatically overwrite bins,
-                # so that each histogram uses the same bins
-                m, bins = np.histogram(x[:,i], bins, range=range,
-                    normed=bool(normed), new=True)
-                n.append(m)
-        else:
-            n, bins = np.histogram(x, bins, range=range,
+        n = []
+        for i in xrange(len(x)):
+            # this will automatically overwrite bins,
+            # so that each histogram uses the same bins
+            m, bins = np.histogram(x[i], bins, range=range,
                 normed=bool(normed), new=True)
-            n = [n,]
+            n.append(m)
 
         if cumulative:
             slc = slice(None)
