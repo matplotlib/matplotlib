@@ -78,5 +78,16 @@ P.figure()
 
 n, bins, patches = P.hist(x, 10, normed=1, histtype='barstacked')
 
+#
+# finally: make a multiple-histogram of data-sets with different length
+#
+x0 = mu + sigma*P.randn(10000)
+x1 = mu + sigma*P.randn(7000)
+x2 = mu + sigma*P.randn(3000)
+
+P.figure()
+
+n, bins, patches = P.hist( [x0,x1,x2], 10, histtype='bar')
+
 
 P.show()
