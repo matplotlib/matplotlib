@@ -24,7 +24,7 @@ if 1: # plot the MRI in pcolor
 if 1:  # plot the histogram of MRI intensity
     subplot(222)
     im = ravel(im)
-    im = take(im, nonzero(im)) # ignore the background
+    im = ravel(take(im, nonzero(im))) # ignore the background
     im = im/(2.0**15) # normalize
     hist(im, 100)
     xticks([-1, -.5, 0, .5, 1])
