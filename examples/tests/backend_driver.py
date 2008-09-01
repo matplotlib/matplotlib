@@ -66,6 +66,7 @@ pylab_files = [
     'image_demo2.py',
     'image_masked.py',
     'image_origin.py',
+    'image_nonuniform.py',
     'invert_axes.py',
     'layer_images.py',
     'legend_auto.py',

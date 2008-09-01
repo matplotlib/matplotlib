@@ -392,13 +392,14 @@ class NonUniformImage(AxesImage):
     def __init__(self, ax,
                  **kwargs
                 ):
+        interp = kwargs.pop('interpolation', 'nearest')
         AxesImage.__init__(self, ax,
                            **kwargs)
+        AxesImage.set_interpolation(self, interp)
 
     def make_image(self, magnification=1.0):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
-
         x0, y0, v_width, v_height = self.axes.viewLim.bounds
         l, b, r, t = self.axes.bbox.extents
         width = (round(r) + 0.5) - (round(l) - 0.5)
@@ -407,10 +408,13 @@ class NonUniformImage(AxesImage):
         height *= magnification
         im = _image.pcolor(self._Ax, self._Ay, self._A,
                            height, width,
-                           (x0, x0+v_width, y0, y0+v_height))
+                           (x0, x0+v_width, y0, y0+v_height),
+                           self._interpd[self._interpolation])
+
         fc = self.axes.patch.get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
         im.set_bg(*bg)
+        im.is_grayscale = self.is_grayscale
         return im
 
     def set_data(self, x, y, A):
@@ -430,9 +434,11 @@ class NonUniformImage(AxesImage):
         if len(A.shape) == 2:
             if A.dtype != np.uint8:
                 A = (self.cmap(self.norm(A))*255).astype(np.uint8)
+                self.is_grayscale = self.cmap.is_gray()
             else:
                 A = np.repeat(A[:,:,np.newaxis], 4, 2)
                 A[:,:,3] = 255
+                self.is_grayscale = True
         else:
             if A.dtype != np.uint8:
                 A = (255*A).astype(np.uint8)
@@ -441,6 +447,7 @@ class NonUniformImage(AxesImage):
                 B[:,:,0:3] = A
                 B[:,:,3] = 255
                 A = B
+            self.is_grayscale = False
         self._A = A
         self._Ax = x
         self._Ay = y
@@ -450,8 +457,8 @@ class NonUniformImage(AxesImage):
         raise NotImplementedError('Method not supported')
 
     def set_interpolation(self, s):
-        if s != None and s != 'nearest':
-            raise NotImplementedError('Only nearest neighbor supported')
+        if s != None and not s in ('nearest','bilinear'):
+            raise NotImplementedError('Only nearest neighbor and bilinear interpolations are supported')
         AxesImage.set_interpolation(self, s)
 
     def get_extent(self):
