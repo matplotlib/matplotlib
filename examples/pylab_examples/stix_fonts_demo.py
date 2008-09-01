@@ -31,7 +31,7 @@ def doall():
     axis([0, 3, -len(tests), 0])
     yticks(arange(len(tests)) * -1)
     for i, s in enumerate(tests):
-        print (i, s.encode("ascii", "backslashreplace"))
+        #print (i, s.encode("ascii", "backslashreplace"))
         text(0.1, -i, s, fontsize=32)
 
     savefig('stix_fonts_example')

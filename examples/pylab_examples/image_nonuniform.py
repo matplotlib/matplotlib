@@ -13,7 +13,7 @@ interp='nearest'
 x = np.linspace(-4, 4, 9)
 x2 = x**3
 y = np.linspace(-4, 4, 9)
-print 'Size %d points' % (len(x) * len(y))
+#print 'Size %d points' % (len(x) * len(y))
 z = np.sqrt(x[np.newaxis,:]**2 + y[:,np.newaxis]**2)
 
 fig = figure()
