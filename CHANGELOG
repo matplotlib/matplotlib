@@ -1,3 +1,6 @@
+2008-09-01 Added support for bilinear interpolation in
+           NonUniformImage; patch by Gregory Lielens. - EF
+
 2008-08-28 Added support for multiple histograms with data of
            different length - MM
 

@@ -6216,7 +6216,7 @@ class Axes(martist.Artist):
             elif len(x.shape)==2 and x.shape[1]<x.shape[0]:
                 warnings.warn('2D hist should be nsamples x nvariables; this looks transposed')
         except ValueError:
-            # multiple hist with data of different length 
+            # multiple hist with data of different length
             if iterable(x[0]) and not is_string_like(x[0]):
                 tx = []
                 for i in xrange(len(x)):

@@ -2354,7 +2354,7 @@ def barbs(*args, **kwargs):
     except:
         hold(b)
         raise
-    
+
     hold(b)
     return ret
 if Axes.barbs.__doc__ is not None:
