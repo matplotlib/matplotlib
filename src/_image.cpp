@@ -711,7 +711,7 @@ _image_module::from_images(const Py::Tuple& args) {
   size_t numrows = (size_t)Py::Int(args[0]);
   size_t numcols = (size_t)Py::Int(args[1]);
 
-  if (numrows > 1 << 15 || numcols > 1 << 15) {
+  if (numrows >= 32768 || numcols >= 32768) {
     throw Py::RuntimeError("numrows and numcols must both be less than 32768");
   }
 
@@ -1088,7 +1088,7 @@ _image_module::frombuffer(const Py::Tuple& args) {
   size_t x = Py::Int(args[1]);
   size_t y = Py::Int(args[2]);
 
-  if (x > 1 << 15 || y > 1 << 15) {
+  if (x >= 32768 || y >= 32768) {
     throw Py::ValueError("x and y must both be less than 32768");
   }
 
@@ -1335,7 +1335,7 @@ void _pcolor_cleanup(PyArrayObject* x, PyArrayObject* y,  PyArrayObject *d,
       PyMem_Free(arows);
     return;
 }
-    
+
 Py::Object
 _image_module::pcolor(const Py::Tuple& args) {
   _VERBOSE("_image_module::pcolor");
@@ -1352,7 +1352,7 @@ _image_module::pcolor(const Py::Tuple& args) {
   Py::Tuple bounds = args[5];
   unsigned int interpolation = Py::Int(args[6]);
 
-  if (rows > 1 << 15 || cols > 1 << 15) {
+  if (rows >= 32768 || cols >= 32768) {
     throw Py::ValueError("rows and cols must both be less than 32768");
   }
 
@@ -1370,11 +1370,11 @@ _image_module::pcolor(const Py::Tuple& args) {
   // Check we have something to output to
   if (rows == 0 || cols ==0)
       throw Py::ValueError("Cannot scale to zero size");
-  
+
   PyArrayObject *x = NULL; PyArrayObject *y = NULL; PyArrayObject *d = NULL;
   unsigned int * rowstarts = NULL; unsigned int*colstarts = NULL;
   float *acols = NULL; float *arows = NULL;
-  
+
   // Get numpy arrays
   x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(), PyArray_FLOAT, 1, 1);
   if (x == NULL) {
@@ -1406,14 +1406,12 @@ _image_module::pcolor(const Py::Tuple& args) {
 
   // Allocate memory for pointer arrays
   rowstarts = reinterpret_cast<unsigned int*>(PyMem_Malloc(sizeof(unsigned int)*rows));
-  arows = reinterpret_cast<float *>(PyMem_Malloc(sizeof(float)*rows));
-  if (rowstarts == NULL || arows == NULL ) {
+  if (rowstarts == NULL) {
      _pcolor_cleanup(x,y,d,rowstarts,colstarts,acols,arows);
       throw Py::MemoryError("Cannot allocate memory for lookup table");
   }
   colstarts = reinterpret_cast<unsigned int*>(PyMem_Malloc(sizeof(unsigned int)*cols));
-  acols = reinterpret_cast<float*>(PyMem_Malloc(sizeof(float)*cols));
-  if (colstarts == NULL || acols == NULL) {
+  if (colstarts == NULL) {
      _pcolor_cleanup(x,y,d,rowstarts,colstarts,acols,arows);
       throw Py::MemoryError("Cannot allocate memory for lookup table");
   }
@@ -1430,7 +1428,7 @@ _image_module::pcolor(const Py::Tuple& args) {
      _pcolor_cleanup(x,y,d,rowstarts,colstarts,acols,arows);
       throw Py::MemoryError("Could not allocate memory for image");
   }
-  
+
 
   // Calculate the pointer arrays to map input x to output x
   unsigned int i, j;
@@ -1451,7 +1449,7 @@ _image_module::pcolor(const Py::Tuple& args) {
   start = reinterpret_cast<unsigned char*>(d->data);
     int s0 = d->strides[0];
     int s1 = d->strides[1];
-  
+
   if(interpolation == Image::NEAREST) {
       _bin_indices_middle(colstart, cols, xs1,  nx,dx,x_min);
       _bin_indices_middle(rowstart, rows, ys1,  ny, dy,y_min);
@@ -1473,11 +1471,22 @@ _image_module::pcolor(const Py::Tuple& args) {
       }
   }
   else if(interpolation == Image::BILINEAR) {
+      arows = reinterpret_cast<float *>(PyMem_Malloc(sizeof(float)*rows));
+      if (arows == NULL ) {
+         _pcolor_cleanup(x,y,d,rowstarts,colstarts,acols,arows);
+          throw Py::MemoryError("Cannot allocate memory for lookup table");
+      }
+      acols = reinterpret_cast<float*>(PyMem_Malloc(sizeof(float)*cols));
+      if (acols == NULL) {
+         _pcolor_cleanup(x,y,d,rowstarts,colstarts,acols,arows);
+          throw Py::MemoryError("Cannot allocate memory for lookup table");
+      }
+
       _bin_indices_middle_linear(acols, colstart, cols, xs1,  nx,dx,x_min);
       _bin_indices_middle_linear(arows, rowstart, rows, ys1,  ny, dy,y_min);
       double a00,a01,a10,a11,alpha,beta;
-      
-      
+
+
         agg::int8u * start00;
         agg::int8u * start01;
         agg::int8u * start10;
@@ -1489,12 +1498,12 @@ _image_module::pcolor(const Py::Tuple& args) {
             {
                 alpha=arows[i];
                 beta=acols[j];
-                
+
                 a00=alpha*beta;
                 a01=alpha*(1.0-beta);
                 a10=(1.0-alpha)*beta;
                 a11=1.0-a00-a01-a10;
-                
+
                 start00=(agg::int8u *)(start + s0*rowstart[i] + s1*colstart[j]);
                 start01=start00+s1;
                 start10=start00+s0;
@@ -1506,22 +1515,18 @@ _image_module::pcolor(const Py::Tuple& args) {
                 position += 4;
             }
         }
-        
+
     }
 
-
-  // Attatch output buffer to output buffer
+  // Attach output buffer to output buffer
   imo->rbufOut = new agg::rendering_buffer;
   imo->bufferOut = buffer;
   imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
 
-  
    _pcolor_cleanup(x,y,d,rowstarts,colstarts,acols,arows);
 
   return Py::asObject(imo);
-    
 
-  
 }
 
 
@@ -1548,7 +1553,7 @@ _image_module::pcolor2(const Py::Tuple& args) {
     Py::Tuple bounds = args[5];
     Py::Object bgp = args[6];
 
-    if (rows > 1 << 15 || cols > 1 << 15) {
+    if (rows >= 32768 || cols >= 32768) {
       throw Py::ValueError("rows and cols must both be less than 32768");
     }
 
