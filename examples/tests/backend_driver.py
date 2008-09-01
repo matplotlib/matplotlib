@@ -204,7 +204,7 @@ def drive(backend, python=['python'], switches = []):
             os.unlink(os.path.join(path,fname))
     else:
         os.mkdir(backend)
-
+    failures = []
     for fullpath in files:
 
         print ('\tdriving %-40s' % (fullpath)),
@@ -257,10 +257,14 @@ def drive(backend, python=['python'], switches = []):
         print (end_time - start_time), ret
         #os.system('%s %s %s' % (python, tmpfile_name, switchstring))
         os.remove(tmpfile_name)
+        if ret:
+            failures.append(fullpath)
+    return failures
 
 
 if __name__ == '__main__':
     times = {}
+    failures = {}
     default_backends = ['agg', 'ps', 'svg', 'pdf', 'template']
     if len(sys.argv)==2 and sys.argv[1]=='--clean':
         localdirs = [d for d in glob.glob('*') if os.path.isdir(d)]
@@ -299,13 +303,16 @@ if __name__ == '__main__':
         switchstring = ' '.join(switches)
         print 'testing %s %s' % (backend, switchstring)
         t0 = time.time()
-        drive(backend, python, switches)
+        failures[backend] = drive(backend, python, switches)
         t1 = time.time()
         times[backend] = (t1-t0)/60.0
 
     # print times
     for backend, elapsed in times.items():
         print 'Backend %s took %1.2f minutes to complete' % ( backend, elapsed)
+        failed = failures[backend]
+        if failed:
+            print '  Failures: ', failed
         if 'Template' in times:
             print '\ttemplate ratio %1.3f, template residual %1.3f' % (
                 elapsed/times['Template'], elapsed-times['Template'])
