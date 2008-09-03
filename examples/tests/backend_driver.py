@@ -126,6 +126,8 @@ api_dir = os.path.join('..', 'api')
 api_files = [
     'colorbar_only.py',
     'color_cycle.py',
+    'donut_demo.py',
+    'path_patch_demo.py'
 ]
 
 units_dir = os.path.join('..', 'units')
