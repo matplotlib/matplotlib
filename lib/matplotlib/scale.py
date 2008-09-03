@@ -91,7 +91,7 @@ class LogScale(ScaleBase):
         def transform(self, a):
             a = _mask_non_positives(a * 2.0)
             if isinstance(a, MaskedArray):
-                return ma.log2(a)
+                return ma.log(a) / np.log(2)
             return np.log2(a)
 
         def inverted(self):
