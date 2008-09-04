@@ -284,7 +284,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                                 dashes.append(dashd[cbook.ls_mapper[x]])
                             else:
                                 raise ValueError()
-                        elif cbook.iterator(x) and len(x) == 2:
+                        elif cbook.iterable(x) and len(x) == 2:
                             dashes.append(x)
                         else:
                             raise ValueError()
