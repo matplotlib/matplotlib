@@ -998,12 +998,25 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
           *linewidths*: [ None | number | tuple of numbers ]
             If *linewidths* is *None*, the default width in
-            ``lines.linewidth`` in ``matplotlibrc`` is used
+            ``lines.linewidth`` in ``matplotlibrc`` is used.
 
             If a number, all levels will be plotted with this linewidth.
 
             If a tuple, different levels will be plotted with different
             linewidths in the order specified
+
+          *linestyles*: [None | 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
+            If *linestyles* is *None*, the 'solid' is used.
+            
+            *linestyles* can also be an iterable of the above strings
+            specifying a set of linestyles to be used. If this
+            iterable is shorter than the number of contour levels
+            it will be repeated as necessary.
+            
+            If contour is using a monochrome colormap and the contour
+            level is less than 0, then the linestyle specified
+            in ``contour.negative_linestyle`` in ``matplotlibrc``
+            will be used.
 
         contourf-only keyword arguments:
 
