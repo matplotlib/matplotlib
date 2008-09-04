@@ -4504,8 +4504,9 @@ class Axes(martist.Artist):
 
         *x* is an array or a sequence of vectors.
 
-        Returns a list of the :class:`matplotlib.lines.Line2D`
-        instances added.
+        Returns a dictionary mapping each component of the boxplot
+        to a list of the :class:`matplotlib.lines.Line2D`
+        instances created.
 
         **Example:**
 
