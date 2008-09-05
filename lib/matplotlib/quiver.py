@@ -57,7 +57,7 @@ are 2-D arrays but *X* and *Y* are 1-D, and if len(*X*) and len(*Y*)
 match the column and row dimensions of *U*, then *X* and *Y* will be
 expanded with :func:`numpy.meshgrid`.
 
-*U*, *V*, *C* may be masked arrays, but masked *X*, ** are not
+*U*, *V*, *C* may be masked arrays, but masked *X*, *Y* are not
 supported at present.
 
 Keyword arguments:
@@ -334,12 +334,6 @@ class Quiver(collections.PolyCollection):
     def __init__(self, ax, *args, **kw):
         self.ax = ax
         X, Y, U, V, C = self._parse_args(*args)
-        if C is not None:
-            X, Y, U, V, C = delete_masked_points(X.ravel(),Y.ravel(),U.ravel(),
-                                                 V.ravel(),C.ravel())
-        else:
-            X, Y, U, V = delete_masked_points(X.ravel(),Y.ravel(),U.ravel(),
-                                              V.ravel())
         self.X = X
         self.Y = Y
         self.XY = np.hstack((X[:,np.newaxis], Y[:,np.newaxis]))
@@ -357,7 +351,9 @@ class Quiver(collections.PolyCollection):
         kw.setdefault('facecolors', self.color)
         kw.setdefault('linewidths', (0,))
         collections.PolyCollection.__init__(self, [], offsets=self.XY,
-                                            transOffset=ax.transData, **kw)
+                                            transOffset=ax.transData,
+                                            closed=False,
+                                            **kw)
         self.polykw = kw
         self.set_UVC(U, V, C)
         self._initialized = False
@@ -420,7 +416,7 @@ class Quiver(collections.PolyCollection):
         self._init()
         if self._new_UV:
             verts = self._make_verts(self.U, self.V)
-            self.set_verts(verts)
+            self.set_verts(verts, closed=False)
             self._new_UV = False
         collections.PolyCollection.draw(self, renderer)
 

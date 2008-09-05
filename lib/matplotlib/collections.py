@@ -602,9 +602,13 @@ class PolyCollection(Collection):
         if closed:
             self._paths = []
             for xy in verts:
-                xy = np.asarray(xy)
-                if len(xy) and (xy[0] != xy[-1]).any():
-                    xy = np.concatenate([xy, [xy[0]]])
+                if np.ma.isMaskedArray(xy):
+                    if len(xy) and (xy[0] != xy[-1]).any():
+                        xy = np.ma.concatenate([xy, [xy[0]]])
+                else:
+                    xy = np.asarray(xy)
+                    if len(xy) and (xy[0] != xy[-1]).any():
+                        xy = np.concatenate([xy, [xy[0]]])
                 self._paths.append(mpath.Path(xy))
         else:
             self._paths = [mpath.Path(xy) for xy in verts]
@@ -819,10 +823,14 @@ class LineCollection(Collection):
 
     def set_segments(self, segments):
         if segments is None: return
-        segments = [np.asarray(seg, np.float_) for seg in segments]
+        _segments = []
+        for seg in segments:
+            if not np.ma.isMaskedArray(seg):
+                seg = np.asarray(seg, np.float_)
+            _segments.append(seg)
         if self._uniform_offsets is not None:
-            segments = self._add_offsets(segments)
-        self._paths = [mpath.Path(seg) for seg in segments]
+            _segments = self._add_offsets(_segments)
+        self._paths = [mpath.Path(seg) for seg in _segments]
 
     set_verts = set_segments # for compatibility with PolyCollection
 
