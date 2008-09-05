@@ -1,3 +1,5 @@
+2008-09-05 Fix hatching in PS backend - MGD
+
 2008-09-03 Fix log with base 2 - MGD
 
 2008-09-01 Added support for bilinear interpolation in

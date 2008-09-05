@@ -800,10 +800,6 @@ grestore
         write(ps.strip())
         write("\n")
 
-        hatch = gc.get_hatch()
-        if hatch:
-            self.set_hatch(hatch)
-
         if fill:
             if stroke:
                 write("gsave\n")
@@ -812,6 +808,11 @@ grestore
             else:
                 self.set_color(store=0, *rgbFace[:3])
                 write("fill\n")
+
+        hatch = gc.get_hatch()
+        if hatch:
+            self.set_hatch(hatch)
+
         if stroke:
             write("stroke\n")
 
