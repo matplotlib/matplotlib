@@ -3030,6 +3030,7 @@ class Axes(martist.Artist):
             >     # triangle right symbols
             s     # square symbols
             +     # plus symbols
+            *     # star symbols
             x     # cross symbols
             D     # diamond symbols
             d     # thin diamond symbols
