@@ -1,26 +1,36 @@
 #!/usr/bin/env python
-from pylab import *
+# This should probably be replaced with a demo that shows all
+# line and marker types in a single panel, with labels.
 
-t = arange(0.0, 3.0, 0.05)
-s = sin(2*pi*t)
-styles = ('-', '--', ':', '.', 'o', '^', 'v', '<', '>', 's', '+')
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+import numpy as np
+
+t = np.arange(0.0, 1.0, 0.1)
+s = np.sin(2*np.pi*t)
+linestyles = ['_', '-', '--', ':']
+markers = []
+for m in Line2D.markers:
+    try:
+        if len(m) == 1 and m != ' ':
+            markers.append(m)
+    except TypeError:
+        pass
+
+styles = linestyles + markers
+
 colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k')
 
 
 axisNum = 0
 for row in range(5):
-    for col in range(4):
-        s = sin(2*pi*t)
+    for col in range(5):
         axisNum += 1
-        subplot(5,4,axisNum)
+        ax = plt.subplot(5, 5, axisNum)
         style = styles[axisNum % len(styles) ]
         color = colors[axisNum % len(colors) ]
-        plot(t,s, style + color)
-        # turn off the ticklabels if not first row or first col
-        if not gca().is_first_col():
-            setp(gca(), 'yticklabels', [])
-        if not gca().is_last_row():
-            setp(gca(), 'xticklabels', [])
+        plt.plot(t,s, style + color, markersize=10)
+        ax.set_yticklabels([])
+        ax.set_xticklabels([])
 
-#savefig('line_styles', dpi=300)
-show()
+plt.show()

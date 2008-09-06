@@ -99,6 +99,7 @@ class Line2D(Artist):
         '4'  : '_draw_tri_right',
         's'  : '_draw_square',
         'p'  : '_draw_pentagon',
+        '*'  : '_draw_star',
         'h'  : '_draw_hexagon1',
         'H'  : '_draw_hexagon2',
         '+'  : '_draw_plus',
@@ -120,7 +121,8 @@ class Line2D(Artist):
         '' : '_draw_nothing',
     }
 
-    filled_markers = ('o', '^', 'v', '<', '>', 's', 'd', 'D', 'h', 'H', 'p')
+    filled_markers = ('o', '^', 'v', '<', '>',
+                        's', 'd', 'D', 'h', 'H', 'p', '*')
 
     zorder = 2
     validCap = ('butt', 'round', 'projecting')
@@ -573,7 +575,7 @@ class Line2D(Artist):
         """
         Set the line marker
 
-        ACCEPTS: [ '+' | ',' | '.' | '1' | '2' | '3' | '4'
+        ACCEPTS: [ '+' | '*' | ',' | '.' | '1' | '2' | '3' | '4'
                  | '<' | '>' | 'D' | 'H' | '^' | '_' | 'd'
                  | 'h' | 'o' | 'p' | 's' | 'v' | 'x' | '|'
                  | TICKUP | TICKDOWN | TICKLEFT | TICKRIGHT
@@ -813,6 +815,14 @@ class Line2D(Artist):
         transform = Affine2D().scale(offset)
         rgbFace = self._get_rgb_face()
         renderer.draw_markers(gc, Path.unit_regular_polygon(5), transform,
+                              path, path_trans, rgbFace)
+
+    def _draw_star(self, renderer, gc, path, path_trans):
+        offset = 0.5 * renderer.points_to_pixels(self._markersize)
+        transform = Affine2D().scale(offset)
+        rgbFace = self._get_rgb_face()
+        _starpath = Path.unit_regular_star(5, innerCircle=0.381966)
+        renderer.draw_markers(gc, _starpath, transform,
                               path, path_trans, rgbFace)
 
 
