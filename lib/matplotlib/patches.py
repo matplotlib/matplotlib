@@ -634,7 +634,11 @@ class FancyArrow(Polygon):
                 if shape == 'right':
                     coords = right_half_arrow
                 elif shape == 'full':
-                    coords=npy.concatenate([left_half_arrow,right_half_arrow[::-1]])
+                    # The half-arrows contain the midpoint of the stem,
+                    # which we can omit from the full arrow. Including it
+                    # twice caused a problem with xpdf.
+                    coords=npy.concatenate([left_half_arrow[:-1],
+                                            right_half_arrow[-2::-1]])
                 else:
                     raise ValueError, "Got unknown shape: %s" % shape
             cx = float(dx)/distance
