@@ -1,3 +1,6 @@
+2008-09-07 Fix conversion of quadratic to cubic Bezier curves in PDF 
+           and PS backends. Patch by Jae-Joon Lee. - JKS
+
 2008-09-06 Added 5-point star marker to plot command - EF
 
 2008-09-05 Fix hatching in PS backend - MGD

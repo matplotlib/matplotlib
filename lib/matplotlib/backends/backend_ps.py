@@ -20,7 +20,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 
 from matplotlib.cbook import is_string_like, get_realpath_and_stat, \
-    is_writable_file_like, maxdict
+    is_writable_file_like, maxdict, quad2cubic
 from matplotlib.figure import Figure
 
 from matplotlib.font_manager import findfont, is_opentype_cff_font
@@ -448,22 +448,23 @@ grestore
         path = transform.transform_path(path)
 
         ps = []
+        last_points = None
         for points, code in path.iter_segments():
             if code == Path.MOVETO:
                 ps.append("%g %g m" % tuple(points))
             elif code == Path.LINETO:
                 ps.append("%g %g l" % tuple(points))
             elif code == Path.CURVE3:
+                points = quad2cubic(*(list(last_points[-2:]) + list(points)))
                 ps.append("%g %g %g %g %g %g c" %
-                          (points[0], points[1],
-                           points[0], points[1],
-                           points[2], points[3]))
+                          tuple(points[2:]))
             elif code == Path.CURVE4:
                 ps.append("%g %g %g %g %g %g c" % tuple(points))
             elif code == Path.CLOSEPOLY:
                 ps.append("cl")
+            last_points = points
+            
         ps = "\n".join(ps)
-
         return ps
 
     def _get_clip_path(self, clippath, clippath_transform):

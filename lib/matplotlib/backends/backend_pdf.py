@@ -26,7 +26,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.cbook import Bunch, is_string_like, reverse_dict, \
-    get_realpath_and_stat, is_writable_file_like, maxdict
+    get_realpath_and_stat, is_writable_file_like, maxdict, quad2cubic
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, is_opentype_cff_font
 from matplotlib.afm import AFM
@@ -1096,6 +1096,7 @@ end"""
         tpath = transform.transform_path(path)
 
         cmds = []
+        last_points = None
         for points, code in tpath.iter_segments():
             if code == Path.MOVETO:
                 cmds.extend(points)
@@ -1104,15 +1105,15 @@ end"""
                 cmds.extend(points)
                 cmds.append(Op.lineto)
             elif code == Path.CURVE3:
-                cmds.extend([points[0], points[1],
-                             points[0], points[1],
-                             points[2], points[3],
-                             Op.curveto])
+                points = quad2cubic(*(list(last_points[-2:]) + list(points)))
+                cmds.extend(points)
+                cmds.append(Op.curveto)
             elif code == Path.CURVE4:
                 cmds.extend(points)
                 cmds.append(Op.curveto)
             elif code == Path.CLOSEPOLY:
                 cmds.append(Op.closepath)
+            last_points = points
         return cmds
     pathOperations = staticmethod(pathOperations)
 
