@@ -1,3 +1,6 @@
+2008-09-07 Changed full arrows slightly to avoid an xpdf rendering
+           problem reported by Friedrich Hagedorn. - JKS
+
 2008-08-25 Fix locale issues in SVG backend - MGD
 
 2008-08-01 Backported memory leak fixes in _ttconv.cpp - MGD
