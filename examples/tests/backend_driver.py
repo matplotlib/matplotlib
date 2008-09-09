@@ -124,6 +124,7 @@ pylab_files = [
 
 api_dir = os.path.join('..', 'api')
 api_files = [
+    'bbox_intersect.py',
     'colorbar_only.py',
     'color_cycle.py',
     'donut_demo.py',
