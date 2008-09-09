@@ -380,8 +380,8 @@ class Rectangle(Patch):
         self._y = xy[1]
         self._width = width
         self._height = height
+        # Note: This cannot be calculated until this is added to an Axes
         self._rect_transform = transforms.IdentityTransform()
-        self._update_patch_transform()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
@@ -391,6 +391,11 @@ class Rectangle(Patch):
         return Path.unit_rectangle()
 
     def _update_patch_transform(self):
+        """NOTE: This cannot be called until after this has been added
+                 to an Axes, otherwise unit conversion will fail. This
+                 maxes it very important to call the accessor method and
+                 not directly access the transformation member variable.
+        """
         x = self.convert_xunits(self._x)
         y = self.convert_yunits(self._y)
         width = self.convert_xunits(self._width)
@@ -946,11 +951,16 @@ class Ellipse(Patch):
         self.width, self.height = width, height
         self.angle = angle
         self._path = Path.unit_circle()
+        # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = transforms.IdentityTransform()
-        self._recompute_transform()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def _recompute_transform(self):
+        """NOTE: This cannot be called until after this has been added
+                 to an Axes, otherwise unit conversion will fail. This
+                 maxes it very important to call the accessor method and
+                 not directly access the transformation member variable.
+        """
         center = (self.convert_xunits(self.center[0]),
                   self.convert_yunits(self.center[1]))
         width = self.convert_xunits(self.width)

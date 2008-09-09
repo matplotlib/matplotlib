@@ -2679,9 +2679,11 @@ class Axes(martist.Artist):
         See :meth:`axhspan` for example plot and source code
         """
 
-        ymin, ymax = self.get_ylim()
-        if ymax<ymin: ymin, ymax = ymax, ymin
-        scaley = (y<ymin) or (y>ymax)
+        ymin, ymax = self.get_ybound()
+
+        # We need to strip away the units for comparison with non-unitized bounds
+        yy = self.convert_yunits( y )
+        scaley = (yy<ymin) or (yy>ymax)
 
         trans = mtransforms.blended_transform_factory(
             self.transAxes, self.transData)
@@ -2731,9 +2733,11 @@ class Axes(martist.Artist):
         See :meth:`axhspan` for example plot and source code
         """
 
-        xmin, xmax = self.get_xlim()
-        if xmax<xmin: xmin, xmax = xmax, xmin
-        scalex = (x<xmin) or (x>xmax)
+        xmin, xmax = self.get_xbound()
+
+        # We need to strip away the units for comparison with non-unitized bounds
+        xx = self.convert_xunits( x )
+        scalex = (xx<xmin) or (xx>xmax)
 
         trans = mtransforms.blended_transform_factory(
             self.transData, self.transAxes)
@@ -2876,9 +2880,15 @@ class Axes(martist.Artist):
             raise DeprecationWarning(
                 'hlines now uses a collections.LineCollection and not a list of Line2D to draw; see API_CHANGES')
 
+        # We do the conversion first since not all unitized data is uniform
+        y = self.convert_yunits( y )
+        xmin = self.convert_xunits( xmin )
+        xmax = self.convert_xunits( xmax )
+
         if not iterable(y): y = [y]
         if not iterable(xmin): xmin = [xmin]
         if not iterable(xmax): xmax = [xmax]
+
         y = np.asarray(y)
         xmin = np.asarray(xmin)
         xmax = np.asarray(xmax)
@@ -2905,8 +2915,6 @@ class Axes(martist.Artist):
         miny = y.min()
         maxy = y.max()
 
-        minx, maxx = self.convert_xunits((minx, maxx))
-        miny, maxy = self.convert_yunits((miny, maxy))
         corners = (minx, miny), (maxx, maxy)
 
         self.update_datalim(corners)
@@ -2947,9 +2955,15 @@ class Axes(martist.Artist):
 
         self._process_unit_info(xdata=x, ydata=ymin, kwargs=kwargs)
 
+        # We do the conversion first since not all unitized data is uniform
+        x = self.convert_xunits( x )
+        ymin = self.convert_yunits( ymin )
+        ymax = self.convert_yunits( ymax )
+
         if not iterable(x): x = [x]
         if not iterable(ymin): ymin = [ymin]
         if not iterable(ymax): ymax = [ymax]
+
         x = np.asarray(x)
         ymin = np.asarray(ymin)
         ymax = np.asarray(ymax)
@@ -2973,16 +2987,11 @@ class Axes(martist.Artist):
         self.add_collection(coll)
         coll.update(kwargs)
 
-        # We do the conversion first since not all unitized data is uniform
-        xx = self.convert_xunits( x )
-        yymin = self.convert_yunits( ymin )
-        yymax = self.convert_yunits( ymax )
+        minx = min( x )
+        maxx = max( x )
 
-        minx = min( xx )
-        maxx = max( xx )
-
-        miny = min( min(yymin), min(yymax) )
-        maxy = max( max(yymin), max(yymax) )
+        miny = min( min(ymin), min(ymax) )
+        maxy = max( max(ymin), max(ymax) )
 
         corners = (minx, miny), (maxx, maxy)
         self.update_datalim(corners)
