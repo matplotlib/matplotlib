@@ -1106,7 +1106,7 @@ end"""
                 cmds.append(Op.lineto)
             elif code == Path.CURVE3:
                 points = quad2cubic(*(list(last_points[-2:]) + list(points)))
-                cmds.extend(points)
+                cmds.extend(points[2:])
                 cmds.append(Op.curveto)
             elif code == Path.CURVE4:
                 cmds.extend(points)
