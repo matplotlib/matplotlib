@@ -145,12 +145,24 @@ class Path(object):
     def __len__(self):
         return len(self.vertices)
 
-    def iter_segments(self):
+    def iter_segments(self, simplify=None):
         """
         Iterates over all of the curve segments in the path.  Each
         iteration returns a 2-tuple (*vertices*, *code*), where
         *vertices* is a sequence of 1 - 3 coordinate pairs, and *code* is
         one of the :class:`Path` codes.
+
+        If *simplify* is provided, it must be a tuple (*width*,
+        *height*) defining the size of the figure, in native units
+        (e.g. pixels or points).  Simplification implies both removing
+        adjacent line segments that are very close to parallel, and
+        removing line segments outside of the figure.  The path will
+        be simplified *only* if :attr:`should_simplify` is True, which
+        is determined in the constructor by this criteria:
+
+           - No *codes* array
+           - No nonfinite values
+           - More than 128 vertices
         """
         vertices = self.vertices
         if not len(vertices):
@@ -166,7 +178,13 @@ class Path(object):
         CLOSEPOLY    = self.CLOSEPOLY
         STOP         = self.STOP
 
-        if codes is None:
+        if simplify is not None and self.should_simplify:
+            polygons = self.to_polygons(None, *simplify)
+            for vertices in polygons:
+                yield vertices[0], MOVETO
+                for v in vertices[1:]:
+                    yield v, LINETO
+        elif codes is None:
             next_code = MOVETO
             for v in vertices:
                 if (~isfinite(v)).any():

@@ -1,3 +1,10 @@
+2008-09-10 [ 2089958 ] Path simplification for vector output backends
+           Leverage the simplification code exposed through
+           path_to_polygons to simplify certain well-behaved paths in
+           the vector backends (PDF, PS and SVG).  "path.simplify"
+           must be set to True in matplotlibrc for this to work.  -
+           MGD
+
 2008-09-10 Add "filled" kwarg to Path.intersects_path and
            Path.intersects_bbox. - MGD
 

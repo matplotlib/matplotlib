@@ -117,6 +117,9 @@ class MPLConfig(TConfig):
         markersize = T.Float(6)
         antialiased = T.true
 
+    class path(TConfig):
+        simplify = T.false
+
     class patch(TConfig):
         linewidth = T.Float(1.0)
         facecolor = T.Trait('blue', mplT.ColorHandler())
@@ -439,6 +442,8 @@ class RcParamsWrapper(dict):
         'svg.image_noscale' : (self.tconfig.backend.svg, 'image_noscale'),
         'svg.embed_char_paths' : (self.tconfig.backend.svg, 'embed_char_paths'),
 
+        # Path properties
+        'path.simplify' : (self.tconfig.path, 'simplify')
         }
 
     def __setitem__(self, key, val):
