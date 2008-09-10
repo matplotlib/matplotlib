@@ -331,6 +331,10 @@ class PdfFile:
     def __init__(self, width, height, dpi, filename):
         self.width, self.height = width, height
         self.dpi = dpi
+        if rcParams['path.simplify']:
+            self.simplify = (width * dpi, height * dpi)
+        else:
+            self.simplify = None
         self.nextObject = 1     # next free object id
         self.xrefTable = [ [0, 65535, 'the zero object'] ]
         self.passed_in_file_object = False
@@ -1092,12 +1096,12 @@ end"""
             self.endStream()
 
     #@staticmethod
-    def pathOperations(path, transform):
+    def pathOperations(path, transform, simplify=None):
         tpath = transform.transform_path(path)
 
         cmds = []
         last_points = None
-        for points, code in tpath.iter_segments():
+        for points, code in tpath.iter_segments(simplify):
             if code == Path.MOVETO:
                 cmds.extend(points)
                 cmds.append(Op.moveto)
@@ -1118,7 +1122,8 @@ end"""
     pathOperations = staticmethod(pathOperations)
 
     def writePath(self, path, transform):
-        cmds = self.pathOperations(path, transform)
+        cmds = self.pathOperations(
+            path, transform, self.simplify)
         self.output(*cmds)
 
     def reserveObject(self, name=''):

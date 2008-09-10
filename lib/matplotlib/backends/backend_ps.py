@@ -145,6 +145,10 @@ class RendererPS(RendererBase):
             self.textcnt = 0
             self.psfrag = []
         self.imagedpi = imagedpi
+        if rcParams['path.simplify']:
+            self.simplify = (width * imagedpi, height * imagedpi)
+        else:
+            self.simplify = None
 
         # current renderer state (None=uninitialised)
         self.color = None
@@ -444,12 +448,12 @@ grestore
         # unflip
         im.flipud_out()
 
-    def _convert_path(self, path, transform):
+    def _convert_path(self, path, transform, simplify=None):
         path = transform.transform_path(path)
 
         ps = []
         last_points = None
-        for points, code in path.iter_segments():
+        for points, code in path.iter_segments(simplify):
             if code == Path.MOVETO:
                 ps.append("%g %g m" % tuple(points))
             elif code == Path.LINETO:
@@ -463,7 +467,7 @@ grestore
             elif code == Path.CLOSEPOLY:
                 ps.append("cl")
             last_points = points
-            
+
         ps = "\n".join(ps)
         return ps
 
@@ -482,7 +486,7 @@ grestore
         """
         Draws a Path instance using the given affine transform.
         """
-        ps = self._convert_path(path, transform)
+        ps = self._convert_path(path, transform, self.simplify)
         self._draw_ps(ps, gc, rgbFace)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
