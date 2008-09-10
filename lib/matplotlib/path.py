@@ -242,21 +242,29 @@ class Path(object):
             transform = transform.frozen()
         return Bbox(get_path_extents(self, transform))
 
-    def intersects_path(self, other):
+    def intersects_path(self, other, filled=True):
         """
         Returns *True* if this path intersects another given path.
-        """
-        return path_intersects_path(self, other)
 
-    def intersects_bbox(self, bbox):
+        *filled*, when True, treats the paths as if they were filled.
+         That is, if one path completely encloses the other,
+         :meth:`intersects_path` will return True.
+        """
+        return path_intersects_path(self, other, filled)
+
+    def intersects_bbox(self, bbox, filled=True):
         """
         Returns *True* if this path intersects a given
         :class:`~matplotlib.transforms.Bbox`.
+
+        *filled*, when True, treats the path as if it was filled.
+        That is, if one path completely encloses the other,
+        :meth:`intersects_path` will return True.
         """
         from transforms import BboxTransformTo
         rectangle = self.unit_rectangle().transformed(
             BboxTransformTo(bbox))
-        result = self.intersects_path(rectangle)
+        result = self.intersects_path(rectangle, filled)
         return result
 
     def interpolated(self, steps):
