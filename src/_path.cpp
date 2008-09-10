@@ -1081,14 +1081,22 @@ bool path_intersects_path(PathIterator& p1, PathIterator& p2)
 
 Py::Object _path_module::path_intersects_path(const Py::Tuple& args)
 {
-    args.verify_length(2);
+    args.verify_length(2, 3);
 
     PathIterator p1(args[0]);
     PathIterator p2(args[1]);
+    bool filled = false;
+    if (args.size() == 3) {
+      filled = args[2].isTrue();
+    }
 
-    return Py::Int(::path_intersects_path(p1, p2)
-                   || ::path_in_path(p1, agg::trans_affine(), p2, agg::trans_affine())
-                   || ::path_in_path(p2, agg::trans_affine(), p1, agg::trans_affine()));
+    if (!filled) {
+      return Py::Int(::path_intersects_path(p1, p2));
+    } else {
+      return Py::Int(::path_intersects_path(p1, p2)
+        || ::path_in_path(p1, agg::trans_affine(), p2, agg::trans_affine())
+        || ::path_in_path(p2, agg::trans_affine(), p1, agg::trans_affine()));
+    }
 }
 
 void _add_polygon(Py::List& polygons, const std::vector<double>& polygon) {
