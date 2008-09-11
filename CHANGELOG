@@ -1,3 +1,5 @@
+2008-09-11 Fix backtick in Postscript output. - MGD
+
 2008-09-10 [ 2089958 ] Path simplification for vector output backends
            Leverage the simplification code exposed through
            path_to_polygons to simplify certain well-behaved paths in
