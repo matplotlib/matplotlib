@@ -166,9 +166,14 @@ class Artist(object):
             traceback.print_exc()
             print "while checking",self.__class__
 
-        if hasattr(self,'get_children'):
-            for a in self.get_children(): L.extend(a.hitlist(event))
+
+        for a in self.get_children():
+            L.extend(a.hitlist(event))
         return L
+
+    def get_children(self):
+        'return a list of the child artist this artist contains'
+        return []
 
     def contains(self, mouseevent):
         """Test whether the artist contains the mouse event.
@@ -224,8 +229,8 @@ class Artist(object):
                 self.figure.canvas.pick_event(mouseevent, self, **prop)
 
         # Pick children
-        if hasattr(self,'get_children'):
-            for a in self.get_children(): a.pick(mouseevent)
+        for a in self.get_children():
+            a.pick(mouseevent)
 
     def set_picker(self, picker):
         """
@@ -538,14 +543,14 @@ class Artist(object):
 
 
         artists = []
-        if hasattr(self, 'get_children'):
-            for c in self.get_children():
-                if matchfunc(c):
-                    artists.append(c)
-                artists.extend([thisc for thisc in c.findobj(matchfunc) if matchfunc(thisc)])
-        else:
-            if matchfunc(self):
-                artists.append(self)
+
+        for c in self.get_children():
+            if matchfunc(c):
+                artists.append(c)
+            artists.extend([thisc for thisc in c.findobj(matchfunc) if matchfunc(thisc)])
+
+        if matchfunc(self):
+            artists.append(self)
         return artists
 
 
@@ -761,14 +766,14 @@ class ArtistInspector:
 
 
         artists = []
-        if hasattr(self, 'get_children'):
-            for c in self.get_children():
-                if matchfunc(c):
-                    artists.append(c)
-                artists.extend([thisc for thisc in c.findobj(matchfunc) if matchfunc(thisc)])
-        else:
-            if matchfunc(self):
-                artists.append(self)
+
+        for c in self.get_children():
+            if matchfunc(c):
+                artists.append(c)
+            artists.extend([thisc for thisc in c.findobj(matchfunc) if matchfunc(thisc)])
+
+        if matchfunc(self):
+            artists.append(self)
         return artists
 
 
