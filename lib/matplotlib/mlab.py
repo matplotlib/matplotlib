@@ -2346,14 +2346,16 @@ class FormatFloat(FormatFormatStr):
 
 class FormatInt(FormatObj):
     def toval(self, x):
-        return x
+        return int(x)
 
     def fromstr(self, s):
         return int(s)
 
 class FormatBool(FormatObj):
+
+
     def toval(self, x):
-        return x
+        return str(x)
 
     def fromstr(self, s):
         return bool(s)

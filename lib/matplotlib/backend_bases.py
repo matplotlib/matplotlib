@@ -944,7 +944,7 @@ class FigureCanvasBase:
                 break
             parent = None
             for p in under:
-                if hasattr(p,'getchildren') and h in p.get_children():
+                if h in p.get_children():
                     parent = p
                     break
             h = parent
