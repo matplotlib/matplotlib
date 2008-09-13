@@ -41,10 +41,11 @@ def get_rotation(rotation):
 # these are not available for the object inspector until after the
 # class is build so we define an initial set here for the init
 # function and they will be overridden after object defn
-artist.kwdocd['Text'] =  """\
+artist.kwdocd['Text'] =  """
+    ========================== =========================================================================
+    Property                   Value
     ========================== =========================================================================
     alpha                      float
-    ========================== =========================================================================
     animated                   [True | False]
     backgroundcolor            any matplotlib color
     bbox                       rectangle prop dict plus key 'pad' which is a pad in points
@@ -1003,7 +1004,7 @@ class Annotation(Text):
         annotation to the point.   Valid keys are
 
         =========   ===========================================================
-           Key                            Description
+        Key         Description
         =========   ===========================================================
         width       the width of the arrow in points
         frac        the fraction of the arrow length occupied by the head
@@ -1021,7 +1022,7 @@ class Annotation(Text):
         coordinates of *xy* and *xytext*.
 
         =================   ===================================================
-             Property                           Description
+        Property            Description
         =================   ===================================================
         'figure points'     points from the lower left corner of the figure
         'figure pixels'     pixels from the lower left corner of the figure
