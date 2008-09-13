@@ -13,7 +13,7 @@ Additionally, if the :include-source: option is provided, the literal
 source will be included inline, as well as a link to the source.
 """
 
-import sys, os, glob, shutil
+import sys, os, glob, shutil, code
 from docutils.parsers.rst import directives
 
 try:
@@ -26,11 +26,16 @@ except ImportError:
 
 
 import matplotlib
-import IPython.Shell
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-mplshell = IPython.Shell.MatplotlibShell('mpl')
+#import IPython.Shell
+#mplshell = IPython.Shell.MatplotlibShell('mpl')
+console = code.InteractiveConsole()
+def runfile(fname):
+    source = file(fname).read()
+    return console.runsource(source)
 
 options = {'alt': directives.unchanged,
            'height': directives.length_or_unitless,
@@ -58,7 +63,7 @@ template = """
 
 def makefig(fullpath, outdir):
     """
-    run a pyplot script and save the low and high res PNGs and a PDF in _static
+    run a pyplot script<t and save the low and high res PNGs and a PDF in _static
     """
 
     fullpath = str(fullpath)  # todo, why is unicode breaking this
@@ -88,7 +93,8 @@ def makefig(fullpath, outdir):
     plt.close('all')    # we need to clear between runs
     matplotlib.rcdefaults()
 
-    mplshell.magic_run(fullpath)
+    runfile(fullpath)
+
     for format, dpi in formats:
         outname = os.path.join(outdir, '%s.%s' % (basename, format))
         if os.path.exists(outname): continue
