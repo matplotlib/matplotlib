@@ -1028,12 +1028,18 @@ class Figure(Artist):
         This will wait for *n* clicks from the user and return a list of the
         coordinates of each click.
 
-        If *timeout* is negative, does not timeout.
+        If *timeout* is zero or negative, does not timeout.
 
-        If *n* is negative, accumulate clicks until a middle click
-        terminates the input.
+        If *n* is zero or negative, accumulate clicks until a middle click
+        (or potentially both mouse buttons at once) terminates the input.
 
         Right clicking cancels last input.
+
+        The keyboard can also be used to select points in case your mouse
+        does not have one or more of the buttons.  The delete and backspace
+        keys act like right clicking (i.e., remove last point), the enter key
+        terminates input and any other key (not already used by the window
+        manager) selects a point.
         """
 
         blocking_mouse_input = BlockingMouseInput(self)

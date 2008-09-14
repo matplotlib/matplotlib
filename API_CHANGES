@@ -19,6 +19,10 @@ Changes for 0.98.x
   maintained for the moment (in addition to their renamed versions), but they
   are depricated and will eventually be removed.
 
+* Moved several function in mlab.py and cbook.py into a separate module 
+  numerical_methods.py because they were unrelated to the initial purpose of
+  mlab or cbook and appeared more coherent elsewhere.
+
 Changes for 0.98.1
 ==================
 

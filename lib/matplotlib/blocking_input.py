@@ -113,10 +113,15 @@ class BlockingMouseInput(BlockingInput):
     """
     Class that creates a callable object to retrieve mouse clicks in a
     blocking way.
+
+    This class will also retrieve keyboard clicks and treat them like 
+    appropriate mouse clicks (delete and backspace are like mouse button 3,
+    enter is like mouse button 2 and all others are like mouse button 1).
     """
     def __init__(self, fig):
         BlockingInput.__init__(self, fig=fig,
-                               eventslist=('button_press_event',) )
+                               eventslist=('button_press_event',
+                                           'key_press_event') )
 
     def post_event(self):
         """
@@ -124,20 +129,36 @@ class BlockingMouseInput(BlockingInput):
         """
         assert len(self.events)>0, "No events yet"
 
+        if self.events[-1].name == 'key_press_event':
+            self.key_event()
+        else:
+            self.mouse_event()
+            
+    def mouse_event(self):
+        '''Process a mouse click event'''
+
         event = self.events[-1]
         button = event.button
 
-        # Using additional methods for each button is a bit overkill
-        # for this class, but it allows for easy overloading.  Also,
-        # this would make it easy to attach other type of non-mouse
-        # events to these "mouse" actions.  For example, the matlab
-        # version of ginput also allows you to add points with
-        # keyboard clicks.  This could easily be added to this class
-        # with relatively minor modification to post_event and
-        # __init__.
         if button == 3:
             self.button3(event)
         elif button == 2:
+            self.button2(event)
+        else:
+            self.button1(event)
+
+    def key_event(self):
+        '''
+        Process a key click event.  This maps certain keys to appropriate
+        mouse click events.
+        '''
+        
+        event = self.events[-1]
+        key = event.key
+
+        if key == 'backspace' or key == 'delete':
+            self.button3(event)
+        elif key == 'enter':
             self.button2(event)
         else:
             self.button1(event)
@@ -240,8 +261,8 @@ class BlockingMouseInput(BlockingInput):
 
 class BlockingContourLabeler( BlockingMouseInput ):
     """
-    Class that creates a callable object that uses mouse clicks on a
-    figure window to place contour labels.
+    Class that creates a callable object that uses mouse clicks or key
+    clicks on a figure window to place contour labels.
     """
     def __init__(self,cs):
         self.cs = cs
