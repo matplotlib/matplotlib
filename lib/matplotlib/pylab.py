@@ -225,7 +225,11 @@ from matplotlib.mlab import  window_hanning, window_none,\
         sqrtm, prctile, center_matrix, rk4, exp_safe, amap,\
         sum_flat, mean_flat, rms_flat, l1norm, l2norm, norm, frange,\
         diagonal_matrix, base_repr, binary_repr, log2, ispower2,\
-        bivariate_normal, load, save, stineman_interp
+        bivariate_normal, load, save
+
+from matplotlib.numerical_methods import stineman_interp, slopes, \
+    stineman_interp, inside_poly, poly_below, poly_between, \
+    is_closed_polygon, path_length, distances_along_curve, vector_lengths
 
 from numpy import *
 from numpy.fft import *
@@ -237,10 +241,10 @@ from matplotlib.mlab import window_hanning, window_none, conv, detrend, demean, 
      find, longest_contiguous_ones, longest_ones, prepca, prctile, prctile_rank, \
      center_matrix, rk4, bivariate_normal, get_xyz_where, get_sparse_matrix, dist, \
      dist_point_to_segment, segments_intersect, fftsurr, liaupunov, movavg, \
-     save, load, slopes, stineman_interp, inside_poly, poly_below, poly_between, exp_safe, \
+     save, load, exp_safe, \
      amap, rms_flat, l1norm, l2norm, norm_flat, frange, diagonal_matrix, identity, \
      base_repr, binary_repr, log2, ispower2, fromfunction_kw, rem, norm, orth, rank, sqrtm,\
-     mfuncC, approx_real, rec_append_field, rec_drop_fields, rec_join, csv2rec, rec2csv
+     mfuncC, approx_real, rec_append_field, rec_drop_fields, rec_join, csv2rec, rec2csv, isvector
 
 
 

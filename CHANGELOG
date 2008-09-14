@@ -1,3 +1,10 @@
+2008-09-14 Reorganized cbook and mlab methods related to numerical
+	   calculations that have little to do with the goals of those two
+	   modules into a separate module numerical_methods.py 
+	   Also, added ability to select points and stop point selection
+	   with keyboard in ginput and manual contour labeling code.
+	   Finally, fixed contour labeling bug. - DMK
+
 2008-09-11 Fix backtick in Postscript output. - MGD
 
 2008-09-10 [ 2089958 ] Path simplification for vector output backends
