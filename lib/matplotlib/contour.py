@@ -724,8 +724,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         Possible change: I think we should make and use an ArgumentError
         Exception class (here and elsewhere).
         '''
-        x = np.asarray(args[0], dtype=np.float64)
-        y = np.asarray(args[1], dtype=np.float64)
+        # We can strip away the x and y units
+        x = self.ax.convert_xunits( args[0] )
+        y = self.ax.convert_yunits( args[1] )
+
+        x = np.asarray(x, dtype=np.float64)
+        y = np.asarray(y, dtype=np.float64)
         z = ma.asarray(args[2], dtype=np.float64)
         if z.ndim != 2:
             raise TypeError("Input z must be a 2D array.")
