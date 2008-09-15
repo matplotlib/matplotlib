@@ -175,6 +175,9 @@ from matplotlib import rcParams
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 75
 
+# Delay time for idle checks
+IDLE_DELAY = 5
+
 def error_msg_wx(msg, parent=None):
     """
     Signal an error condition -- in a GUI, popup a error dialog
@@ -896,15 +899,15 @@ The current aspect ration will be kept."""
         # alternative approach, binding to wx.EVT_IDLE,
         # doesn't behave as nicely.
         if hasattr(self,'_idletimer'):
-            self._idletimer.Restart(50)
+            self._idletimer.Restart(IDLE_DELAY)
         else:
-            self._idletimer = wx.FutureCall(50,self._onDrawIdle)
+            self._idletimer = wx.FutureCall(IDLE_DELAY,self._onDrawIdle)
             # FutureCall is a backwards-compatible alias;
             # CallLater became available in 2.7.1.1.
 
     def _onDrawIdle(self, *args, **kwargs):
         if wx.GetApp().Pending():
-            self._idletimer.Restart(50, *args, **kwargs)
+            self._idletimer.Restart(IDLE_DELAY, *args, **kwargs)
         else:
             del self._idletimer
             # GUI event or explicit draw call may already
