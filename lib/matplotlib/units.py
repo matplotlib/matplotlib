@@ -128,11 +128,8 @@ class Registry(dict):
 
         if converter is None and iterable(x):
             for thisx in x:
-                classx = getattr(thisx, '__class__', None)
-                break
-            if classx is not None:
-                converter = self.get(classx)
-
+                converter = self.get_converter( thisx )
+                if converter: break
 
         #DISABLED self._cached[idx] = converter
         return converter
