@@ -1374,11 +1374,15 @@ class Axes(martist.Artist):
 
         #print 'processing', self.get_geometry()
         if xdata is not None:
-            self.xaxis.update_units(xdata)
+            # we only need to update if there is nothing set yet.
+            if not self.xaxis.have_units():
+               self.xaxis.update_units(xdata)
             #print '\tset from xdata', self.xaxis.units
 
         if ydata is not None:
-            self.yaxis.update_units(ydata)
+            # we only need to update if there is nothing set yet.
+            if not self.yaxis.have_units():
+               self.yaxis.update_units(ydata)
             #print '\tset from ydata', self.yaxis.units
 
         # process kwargs 2nd since these will override default units
