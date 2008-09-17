@@ -401,7 +401,7 @@ class Text(Artist):
         return (x, y, self._text, self._color,
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties), self._rotation,
-                self.figure.dpi, id(self._renderer), self._renderer.dpi
+                self.figure.dpi, id(self._renderer), 
                 )
 
     def get_text(self):
