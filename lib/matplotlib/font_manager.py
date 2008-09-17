@@ -955,7 +955,7 @@ class FontManager:
         fname = prop.get_file()
         if fname is not None:
             verbose.report('findfont returning %s'%fname, 'debug')
-            return fname[0]
+            return fname
 
         if fontext == 'afm':
             fontdict = self.afmdict
