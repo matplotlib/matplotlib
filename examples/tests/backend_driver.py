@@ -52,6 +52,8 @@ pylab_files = [
     'date_demo2.py',
     'equal_aspect_ratio.py',
     'errorbar_limits.py',
+    'fancybox_demo.py',
+    'fancytextbox_demo.py',
     'figimage_demo.py',
     'figlegend_demo.py',
     'figure_title.py',
