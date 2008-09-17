@@ -1391,11 +1391,17 @@ class Axes(martist.Artist):
             if xunits!=self.xaxis.units:
                 #print '\tkw setting xunits', xunits
                 self.xaxis.set_units(xunits)
+                # If the units being set imply a different converter, we need to update.
+                if xdata is not None:
+                    self.xaxis.update_units(xdata)
 
             yunits = kwargs.pop('yunits', self.yaxis.units)
             if yunits!=self.yaxis.units:
                 #print '\tkw setting yunits', yunits
                 self.yaxis.set_units(yunits)
+                # If the units being set imply a different converter, we need to update.
+                if ydata is not None:
+                    self.yaxis.update_units(ydata)
 
     def in_axes(self, mouseevent):
         '''
