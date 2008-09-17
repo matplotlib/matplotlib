@@ -13,9 +13,9 @@ Colorbar toolkit with two classes and a function:
         a function for resizing an axes and adding a second axes
         suitable for a colorbar
 
-The :meth:`matplotlib.Figure.colorbar` method uses :func:`make_axes`
-and :class:`Colorbar`; the :func:`matplotlib.pyplot.colorbar` function
-is a thin wrapper over :meth:`matplotlib.Figure.colorbar`.
+The :meth:`~matplotlib.figure.Figure.colorbar` method uses :func:`make_axes`
+and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
+is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 
 '''
 
@@ -94,7 +94,7 @@ Add a colorbar to a plot.
 
 Function signatures for the :mod:`~matplotlib.pyplot` interface; all
 but the first are also method signatures for the
-:meth:`matplotlib.Figure.colorbar` method::
+:meth:`~matplotlib.figure.Figure.colorbar` method::
 
   colorbar(**kwargs)
   colorbar(mappable, **kwargs)
@@ -104,9 +104,10 @@ but the first are also method signatures for the
 arguments:
 
   *mappable*
-    the image, :class:`~matplotlib.contours.ContourSet`, etc. to
+    the :class:`matplotlib.image.Image`,
+    :class:`matplotlib.contour.ContourSet`, etc. to
     which the colorbar applies; this argument is mandatory for the
-    :meth:`matplotlib.Figure.colorbar` method but optional for the
+    :meth:`matplotlib.figure.Figure.colorbar` method but optional for the
     :func:`matplotlib.pyplot.colorbar` function, which sets the
     default to the current image.
 
@@ -126,7 +127,7 @@ Additional keyword arguments are of two kinds:
   colorbar properties:
 %s
 
-If mappable is a :class:`~matplotlib.contours.ContourSet`, its *extend*
+If *mappable* is a :class:`~matplotlib.contours.ContourSet`, its *extend*
 kwarg is included automatically.
 
 Note that the *shrink* kwarg provides a simple way to keep a vertical
@@ -138,6 +139,12 @@ colorbar is too wide) use a smaller value of *shrink*.
 For more precise control, you can manually specify the positions of
 the axes objects in which the mappable and the colorbar are drawn.  In
 this case, do not use any of the axes properties kwargs.
+
+returns:
+    :class:`Colorbar` instance; see also its base class,
+    :class:`ColorbarBase`.  Call the :meth:`set_label` method
+    to label the colorbar
+
 ''' % (make_axes_kw_doc, colormap_kw_doc)
 
 
@@ -161,6 +168,19 @@ class ColorbarBase(cm.ScalarMappable):
     use::
 
         norm=colors.NoNorm.
+
+    Useful attributes:
+
+        :attr:`ax`
+            the Axes instance in which the colorbar is drawn
+
+        :attr:`lines`
+            a LineCollection if lines were drawn, otherwise None
+
+        :attr:`dividers`
+            a LineCollection if *drawedges* is True, otherwise None
+
+    Useful public methods are :meth:`set_label` and :meth:`add_lines`.
 
     '''
     _slice_dict = {'neither': slice(0,1000000),
@@ -196,6 +216,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.filled = filled
         self.solids = None
         self.lines = None
+        self.dividers = None
         self.set_label('')
         if cbook.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
@@ -272,6 +293,9 @@ class ColorbarBase(cm.ScalarMappable):
             self.ax.set_xlabel(self._label, **self._labelkw)
 
     def set_label(self, label, **kw):
+        '''
+        Label the long axis of the colorbar
+        '''
         self._label = label
         self._labelkw = kw
         self._set_label()
