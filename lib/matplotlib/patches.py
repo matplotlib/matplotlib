@@ -1270,3 +1270,429 @@ artist.kwdocd['Patch'] = patchdoc = artist.kwdoc(Patch)
 for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
           'FancyArrow', 'YAArrow', 'CirclePolygon', 'Ellipse', 'Arc'):
     artist.kwdocd[k] = patchdoc
+
+
+
+
+
+
+
+class BboxTransmuterBase(object):
+    """
+    Bbox Transmuter Base class
+
+    BBoxTransmuterBase and its derivatives are used to make a fancy box
+    around a given rectangle. The __call__ method returns the Path of
+    the fancy box. This class is not an artist and actual drawing of the
+    fancy box is done by the FancyBboxPatch class.
+
+    """
+
+    # The derived classes are required to be able to be initialized
+    # w/o arguments, i.e., all its argument (except self) must have
+    # the default values.
+
+    def __init__(self):
+        super(BboxTransmuterBase, self).__init__()
+
+
+
+
+    def transmute(self, x0, y0, width, height, mutation_size):
+        """
+        The transmute method is a very core of the BboxTransmuter class
+        and must be overriden in the subclasses. It receives the
+        location and size of the rectangle, and the mutation_size, with
+        which the amound padding and etc. will be scaled. It returns a
+        Path instance.
+        """
+        raise NotImplementedError('Derived must override')
+
+
+
+    def __call__(self, x0, y0, width, height, mutation_size,
+                 aspect_ratio=1.):
+        """
+        The __call__ method a thin wrapper around the transmute method
+        and take care of the aspect.
+        """
+        if aspect_ratio is not None:
+            # Squeeze the given height by the aspect_ratio
+            y0, height = y0/aspect_ratio, height/aspect_ratio
+            # call transmute method with squeezed height.
+            path = self.transmute(x0, y0, width, height, mutation_size)
+            vertices, codes = path.vertices, path.codes
+            # Restore the height
+            vertices[:,1] = vertices[:,1] * aspect_ratio
+            return Path(vertices, codes)
+        else:
+            return self.transmute(x0, y0, width, height, mutation_size)
+
+
+
+class SquareBoxTransmuter(BboxTransmuterBase):
+    """
+    Simple square box.
+
+    'pad' :an amount of padding.
+    """
+
+    def __init__(self, pad=0.3):
+        self.pad = pad
+        super(SquareBoxTransmuter, self).__init__()
+
+    def transmute(self, x0, y0, width, height, mutation_size):
+
+        # padding
+        pad = mutation_size * self.pad
+
+        # width and height with padding added.
+        width, height = width + 2.*pad, \
+                        height + 2.*pad,
+
+        # boundary of the padded box
+        x0, y0 = x0-pad, y0-pad,
+        x1, y1 = x0+width, y0 + height
+
+        cp = [(x0, y0), (x1, y0), (x1, y1), (x0, y1),
+              (x0, y0), (x0, y0)]
+
+        com = [Path.MOVETO,
+               Path.LINETO,
+               Path.LINETO,
+               Path.LINETO,
+               Path.LINETO,
+               Path.CLOSEPOLY]
+
+        path = Path(cp, com)
+
+        return path
+
+
+class RoundBoxTransmuter(BboxTransmuterBase):
+    """
+    A box with round corners.
+    """
+
+    def __init__(self, pad=0.3, rounding_size=None):
+        self.pad = pad
+        self.rounding_size = rounding_size
+        BboxTransmuterBase.__init__(self)
+
+    def transmute(self, x0, y0, width, height, mutation_size):
+
+        # padding
+        pad = mutation_size * self.pad
+
+        # size of the roudning corner
+        if self.rounding_size:
+            dr = mutation_size * self.rounding_size
+        else:
+            dr = pad
+
+        width, height = width + 2.*pad, \
+                        height + 2.*pad,
+
+
+        x0, y0 = x0-pad, y0-pad,
+        x1, y1 = x0+width, y0 + height
+
+        # Round corners are implemented as quadratic bezier. eg.
+        # [(x0, y0-dr), (x0, y0), (x0+dr, y0)] for lower left corner.
+        cp = [(x0+dr, y0),
+              (x1-dr, y0),
+              (x1, y0), (x1, y0+dr),
+              (x1, y1-dr),
+              (x1, y1), (x1-dr, y1),
+              (x0+dr, y1),
+              (x0, y1), (x0, y1-dr),
+              (x0, y0+dr),
+              (x0, y0), (x0+dr, y0),
+              (x0+dr, y0)]
+
+        com = [Path.MOVETO,
+               Path.LINETO,
+               Path.CURVE3, Path.CURVE3,
+               Path.LINETO,
+               Path.CURVE3, Path.CURVE3,
+               Path.LINETO,
+               Path.CURVE3, Path.CURVE3,
+               Path.LINETO,
+               Path.CURVE3, Path.CURVE3,
+               Path.CLOSEPOLY]
+
+        path = Path(cp, com)
+
+        return path
+
+
+
+def _list_available_boxstyles(transmuters):
+    """ a helper function of the FancyBboxPatch to list the available
+    box styles. It inspects the arguments of the __init__ methods of
+    each classes and report them
+    """
+    import inspect
+    s = []
+    for name, cls in transmuters.items():
+        args, varargs, varkw, defaults =  inspect.getargspec(cls.__init__)
+        args_string = ["%s=%s" % (argname, str(argdefault)) \
+                       for argname, argdefault in zip(args[1:], defaults)]
+        s.append(",".join([name]+args_string))
+    return s
+
+
+
+
+
+class FancyBboxPatch(Patch):
+    """
+    Draw a fancy box around a rectangle with lower left at *xy*=(*x*,
+    *y*) with specified width and height.
+
+    FancyBboxPatch class is similar to Rectangle class, but it draws a
+    fancy box around the rectangle. The transfomation of the rectangle
+    box to the fancy box is delgated to the BoxTransmuterBase and its
+    derived classes. The "boxstyle" argument determins what kind of
+    fancy box will be drawn. In other words, it selects the
+    BboxTransmuter class to use, and sets optional attributes.  A
+    custom BboxTransmuter can be used with bbox_transmuter argument
+    (should be an instance, not a class). mutation_scale determines
+    the overall size of the mutation (by which I mean the
+    transformation of the rectangle to the fancy path) and the
+    mutation_aspect determines the aspect-ratio of the mutation.
+
+    """
+
+    _fancy_bbox_transmuters = {"square":SquareBoxTransmuter,
+                               "round":RoundBoxTransmuter,
+                               }
+
+    def __str__(self):
+        return self.__class__.__name__ \
+            + "FancyBboxPatch(%g,%g;%gx%g)" % (self._x, self._y, self._width, self._height)
+
+    def __init__(self, xy, width, height,
+                 boxstyle="round",
+                 bbox_transmuter=None,
+                 mutation_scale=1.,
+                 mutation_aspect=None,
+                 **kwargs):
+        """
+        *xy*=lower left corner
+        *width*, *height*
+
+        The *boxstyle* describes how the fancy box will be drawn. It
+        should be one of the available boxstyle names, with optional
+        comma-separated attributes. These attributes are meant to be
+        scaled with the *mutation_scale*. Following box styles are
+        available.
+
+        %(AvailableBoxstyles)s
+
+        The boxstyle name can be "custom", in which case the
+          bbox_transmuter needs to be set, which should be an instance
+          of BboxTransmuterBase (or its derived).
+
+        *mutation_scale* : a value with which attributes of boxstyle
+            (e.g., pad) will be scaled. default=1.
+
+        *mutation_aspect* : The height of the rectangle will be
+            squeezed by this value before the mutation and the mutated
+            box will be stretched by the inverse of it. default=None.
+
+        Valid kwargs are:
+        %(Patch)s
+        """
+
+        Patch.__init__(self, **kwargs)
+
+        self._x = xy[0]
+        self._y = xy[1]
+        self._width = width
+        self._height = height
+
+        if boxstyle == "custom":
+            if bbox_transmuter is None:
+                raise ValueError("bbox_transmuter argument is needed with custom boxstyle")
+            self._bbox_transmuter = bbox_transmuter
+        else:
+            self.set_boxstyle(boxstyle)
+
+        self._mutation_scale=mutation_scale
+        self._mutation_aspect=mutation_aspect
+
+
+    kwdoc = dict()
+    kwdoc["AvailableBoxstyles"]="\n".join(["  - " + l \
+        for l in _list_available_boxstyles(_fancy_bbox_transmuters)])
+    kwdoc.update(artist.kwdocd)
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % kwdoc
+    del kwdoc
+
+    def list_available_boxstyles(cls):
+        return _list_available_boxstyles(cls._fancy_bbox_transmuters)
+
+
+    def set_boxstyle(self, boxstyle=None, **kw):
+        """
+        Set the box style.
+
+        *boxstyle* can be a string with boxstyle name with optional
+         comma-separated attributes. Alternatively, the attrs can
+         be probided as kewords.
+
+         set_boxstyle("round,pad=0.2")
+         set_boxstyle("round", pad=0.2)
+
+        Olf attrs simply are forgotten.
+
+        Without argument (or with boxstyle=None), it prints out
+        available box styles.
+        """
+
+        if boxstyle==None:
+            # print out available boxstyles and return.
+            print "  Following box styles are available."
+            for l in self.list_available_boxstyles():
+                print "    - " + l
+            return
+
+        # parse the boxstyle descrption (e.g. "round,pad=0.3")
+        bs_list = boxstyle.replace(" ","").split(",")
+        boxstyle_name = bs_list[0]
+        try:
+            bbox_transmuter_cls = self._fancy_bbox_transmuters[boxstyle_name]
+        except KeyError:
+            raise ValueError("Unknown Boxstyle : %s" % boxstyle_name)
+        try:
+            boxstyle_args_pair = [bs.split("=") for bs in bs_list[1:]]
+            boxstyle_args = dict([(k, float(v)) for k, v in boxstyle_args_pair])
+        except ValueError:
+            raise ValueError("Incorrect Boxstyle argument : %s" % boxstyle)
+
+        boxstyle_args.update(kw)
+        self._bbox_transmuter = bbox_transmuter_cls(**boxstyle_args)
+
+
+    def set_mutation_scale(self, scale):
+        """
+        Set the mutation scale.
+
+        ACCEPTS: float
+        """
+        self._mutation_scale=scale
+
+    def get_mutation_scale(self):
+        """
+        Return the mutation scale.
+        """
+        return self._mutation_scale
+
+    def set_mutation_aspect(self, aspect):
+        """
+        Set the aspect ratio of the bbox mutation.
+
+        ACCEPTS: float
+        """
+        self._mutation_aspect=aspect
+
+    def get_mutation_aspect(self):
+        """
+        Return the aspect ratio of the bbox mutation.
+        """
+        return self._mutation_aspect
+
+    def set_bbox_transmuter(self, bbox_transmuter):
+        """
+        Set the transmuter object
+
+        ACCEPTS: BboxTransmuterBase (or its derivatives) instance
+        """
+        self._bbox_transmuter = bbox_transmuter
+
+    def get_bbox_transmuter(self):
+        "Return the current transmuter object"
+        return self._bbox_transmuter
+
+    def get_path(self):
+        """
+        Return the mutated path of the rectangle
+        """
+
+        _path = self.get_bbox_transmuter()(self._x, self._y,
+                                           self._width, self._height,
+                                           self.get_mutation_scale(),
+                                           self.get_mutation_aspect())
+        return _path
+
+
+    # Followong methods are borrowed from the Rectangle class.
+
+    def get_x(self):
+        "Return the left coord of the rectangle"
+        return self._x
+
+    def get_y(self):
+        "Return the bottom coord of the rectangle"
+        return self._y
+
+    def get_width(self):
+        "Return the width of the  rectangle"
+        return self._width
+
+    def get_height(self):
+        "Return the height of the rectangle"
+        return self._height
+
+    def set_x(self, x):
+        """
+        Set the left coord of the rectangle
+
+        ACCEPTS: float
+        """
+        self._x = x
+
+    def set_y(self, y):
+        """
+        Set the bottom coord of the rectangle
+
+        ACCEPTS: float
+        """
+        self._y = y
+
+    def set_width(self, w):
+        """
+        Set the width rectangle
+
+        ACCEPTS: float
+        """
+        self._width = w
+
+    def set_height(self, h):
+        """
+        Set the width rectangle
+
+        ACCEPTS: float
+        """
+        self._height = h
+
+    def set_bounds(self, *args):
+        """
+        Set the bounds of the rectangle: l,b,w,h
+
+        ACCEPTS: (left, bottom, width, height)
+        """
+        if len(args)==0:
+            l,b,w,h = args[0]
+        else:
+            l,b,w,h = args
+        self._x = l
+        self._y = b
+        self._width = w
+        self._height = h
+
+
+    def get_bbox(self):
+        return transforms.Bbox.from_bounds(self._x, self._y, self._width, self._height)
+

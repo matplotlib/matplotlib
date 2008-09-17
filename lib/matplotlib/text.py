@@ -12,7 +12,8 @@ import artist
 from artist import Artist
 from cbook import is_string_like, maxdict
 from font_manager import FontProperties
-from patches import bbox_artist, YAArrow
+from patches import bbox_artist, YAArrow, FancyBboxPatch
+import transforms as mtransforms
 from transforms import Affine2D, Bbox
 from lines import Line2D
 
@@ -77,6 +78,50 @@ artist.kwdocd['Text'] =  """
     ========================== =========================================================================
     """
 
+
+
+
+# TODO : This function may move into the Text class as a method. As a
+# matter of fact, The information from the _get_textbox function
+# should be available during the Text._get_layout() call, which is
+# called within the _get_textbox. So, it would better to move this
+# function as a method with some refactoring of _get_layout method.
+
+def _get_textbox(text, renderer):
+    """
+    figure out the bounding box of the text. Unlike get_extents()
+    method, The bbox size of the text before the rotation is
+    calculated.
+    """
+
+    projected_xs = []
+    projected_ys = []
+
+    theta = text.get_rotation()/180.*math.pi
+    tr = mtransforms.Affine2D().rotate(-theta)
+
+    for t, wh, x, y in text._get_layout(renderer)[1]:
+        w, h = wh
+
+
+        xt1, yt1 = tr.transform_point((x, y))
+        xt2, yt2 = xt1+w, yt1+h
+
+        projected_xs.extend([xt1, xt2])
+        projected_ys.extend([yt1, yt2])
+
+
+    xt_box, yt_box = min(projected_xs), min(projected_ys)
+    w_box, h_box = max(projected_xs) - xt_box, max(projected_ys) - yt_box
+
+    tr = mtransforms.Affine2D().rotate(theta)
+
+    x_box, y_box = tr.transform_point((xt_box, yt_box))
+
+    return x_box, y_box, w_box, h_box
+
+
+
 class Text(Artist):
     """
     Handle storing and drawing of text in window or data coordinates
@@ -121,6 +166,7 @@ class Text(Artist):
         self._rotation = rotation
         self._fontproperties = fontproperties
         self._bbox = None
+        self._bbox_patch = None # a FanceBboxPatch instance
         self._renderer = None
         if linespacing is None:
             linespacing = 1.2   # Maybe use rcParam later.
@@ -271,14 +317,64 @@ class Text(Artist):
 
     def set_bbox(self, rectprops):
         """
-        Draw a bounding box around self.  rect props are any settable
+        Draw a bounding box around self.  rectprops are any settable
         properties for a rectangle, eg facecolor='red', alpha=0.5.
 
           t.set_bbox(dict(facecolor='red', alpha=0.5))
 
-        ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in points
+        If rectprops has "boxstyle" key. A FancyBboxPatch
+        is initiallized with rectprops and will be drawn. The mutation
+        scale of the FancyBboxPath is set to the fontsize.
+
+        ACCEPTS: rectangle prop dict plus key 'pad' which is a pad in
+          points. If "boxstyle" key exists, the input dictionary should
+          be a valid input for the FancyBboxPatch class.
+
         """
-        self._bbox = rectprops
+
+        # The self._bbox_patch object is created only if rectprops has
+        # boxstyle key. Otherwise, self._bbox will be set to the
+        # rectprops and the bbox will be drawn using bbox_artist
+        # function. This is to keep the backward compatibility.
+
+        if rectprops is not None and rectprops.has_key("boxstyle"):
+            props = rectprops.copy()
+            boxstyle = props.pop("boxstyle")
+            bbox_transmuter = props.pop("bbox_transmuter", None)
+
+            self._bbox_patch = FancyBboxPatch((0., 0.),
+                                              1., 1.,
+                                              boxstyle=boxstyle,
+                                              bbox_transmuter=bbox_transmuter,
+                                              transform=mtransforms.IdentityTransform(),
+                                              **props)
+            self._bbox = None
+        else:
+            self._bbox_patch = None
+            self._bbox = rectprops
+
+
+    def get_bbox_patch(self):
+        """
+        Retrun the bbox Patch object. Returns None if the the
+        FancyBboxPatch is not made.
+        """
+        return self._bbox_patch
+
+
+    def _draw_bbox(self, renderer, posx, posy):
+        """ Update the location and the size of the bbox, and draw.
+        """
+        x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
+        self._bbox_patch.set_bounds(0., 0.,
+                                    w_box, h_box)
+        theta = self.get_rotation()/180.*math.pi
+        tr = mtransforms.Affine2D().rotate(theta)
+        tr = tr.translate(posx+x_box, posy+y_box)
+        self._bbox_patch.set_transform(tr)
+        self._bbox_patch.set_mutation_scale(self.get_size())
+        self._bbox_patch.draw(renderer)
+
 
     def draw(self, renderer):
         #return
@@ -286,6 +382,22 @@ class Text(Artist):
             self._renderer = renderer
         if not self.get_visible(): return
         if self._text=='': return
+
+        bbox, info = self._get_layout(renderer)
+        trans = self.get_transform()
+
+
+        # don't use self.get_position here, which refers to text position
+        # in Text, and dash position in TextWithDash:
+        posx = float(self.convert_xunits(self._x))
+        posy = float(self.convert_yunits(self._y))
+
+        posx, posy = trans.transform_point((posx, posy))
+        canvasw, canvash = renderer.get_canvas_width_height()
+
+        # draw the FancyBboxPatch
+        if self._bbox_patch:
+            self._draw_bbox(renderer, posx, posy)
 
         gc = renderer.new_gc()
         gc.set_foreground(self._color)
@@ -297,16 +409,7 @@ class Text(Artist):
             bbox_artist(self, renderer, self._bbox)
         angle = self.get_rotation()
 
-        bbox, info = self._get_layout(renderer)
-        trans = self.get_transform()
 
-        # don't use self.get_position here, which refers to text position
-        # in Text, and dash position in TextWithDash:
-        posx = float(self.convert_xunits(self._x))
-        posy = float(self.convert_yunits(self._y))
-
-        posx, posy = trans.transform_point((posx, posy))
-        canvasw, canvash = renderer.get_canvas_width_height()
 
         if rcParams['text.usetex']:
             for line, wh, x, y in info:
@@ -401,7 +504,7 @@ class Text(Artist):
         return (x, y, self._text, self._color,
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties), self._rotation,
-                self.figure.dpi, id(self._renderer), 
+                self.figure.dpi, id(self._renderer),
                 )
 
     def get_text(self):
