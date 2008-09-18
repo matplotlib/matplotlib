@@ -172,7 +172,7 @@ if hasdatetime: # dates require python23 datetime
                 basepath = dirpath.split(os.path.sep, 1)[1]
                 resources.extend([os.path.join(basepath, filename)
                                   for filename in filenames])
-        package_data = {'pytz': resources}
+        package_data['pytz'] = resources
 
         assert len(resources) > 10, 'zoneinfo files not found!'
 
