@@ -166,7 +166,7 @@ if hasdatetime: # dates require python23 datetime
     def add_pytz():
         packages = ['pytz']
         resources = ['zone.tab', 'locales/pytz.pot']
-        for dirpath, dirnames, filenames in os.walk(os.path.join('pytz', 'zoneinfo')):
+        for dirpath, dirnames, filenames in os.walk(os.path.join('lib', 'pytz', 'zoneinfo')):
             # remove the 'pytz' part of the path
             if '.svn' not in dirpath:
                 basepath = dirpath.split(os.path.sep, 1)[1]

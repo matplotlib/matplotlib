@@ -73,7 +73,7 @@
 
 2008-07-24 Rewrite of a significant portion of the clabel code (class
 	   ContourLabeler) to improve inlining. - DMK
-
+ 
 2008-07-22 Added Barbs polygon collection (similar to Quiver) for plotting
            wind barbs.  Added corresponding helpers to Axes and pyplot as
            well. (examples/pylab_examples/barb_demo.py shows it off.) - RMM
@@ -163,7 +163,7 @@
 
 2008-06-24 Added "transparent" kwarg to savefig. - MGD
 
-2008-06-24 Applied Stefan's patch to draw a sinle centered marker over
+2008-06-24 Applied Stefan's patch to draw a single centered marker over
            a line with numpoints==1 - JDH
 
 2008-06-23 Use splines to render circles in scatter plots - MGD
