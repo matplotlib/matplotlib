@@ -164,7 +164,7 @@ if hasdatetime: # dates require python23 datetime
     # only install pytz and dateutil if the user hasn't got them
 
     def add_pytz():
-        packages = ['pytz']
+        packages.append('pytz')
         resources = ['zone.tab', 'locales/pytz.pot']
         for dirpath, dirnames, filenames in os.walk(os.path.join('lib', 'pytz', 'zoneinfo')):
             # remove the 'pytz' part of the path
@@ -229,6 +229,8 @@ for mod in ext_modules:
     if options['verbose']:
         mod.extra_compile_args.append('-DVERBOSE')
 
+print 'pymods', py_modules
+print 'packages', packages
 distrib = setup(name="matplotlib",
       version= __version__,
       description = "Python plotting package",
