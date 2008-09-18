@@ -72,16 +72,20 @@ Keyword arguments:
 
     * 'x' or 'y': *X* or *Y* data units
 
-    In all cases the arrow aspect ratio is 1, so that if *U*==*V* the
-    angle of the arrow on the plot is 45 degrees CCW from the
-    *x*-axis.
-
-    The arrows scale differently depending on the units, however.  For
+    The arrows scale differently depending on the units.  For
     'x' or 'y', the arrows get larger as one zooms in; for other
     units, the arrow size is independent of the zoom state.  For
     'width or 'height', the arrow size increases with the width and
     height of the axes, respectively, when the the window is resized;
     for 'dots' or 'inches', resizing does not change the arrows.
+
+   *angles*: ['uv' | 'xy' | array]
+    With the default 'uv', the arrow aspect ratio is 1, so that
+    if *U*==*V* the angle of the arrow on the plot is 45 degrees
+    CCW from the *x*-axis.
+    With 'xy', the arrow points from (x,y) to (x+u, y+v).
+    Alternatively, arbitrary angles may be specified as an array
+    of values in radians, CCW from the *x*-axis.
 
   *scale*: [ None | float ]
     data units per arrow unit, e.g. m/s per plot width; a smaller
@@ -244,7 +248,7 @@ class QuiverKey(martist.Artist):
     __init__.__doc__ = _quiverkey_doc
 
     def _init(self):
-        if not self._initialized:
+        if True: ##not self._initialized:
             self._set_transform()
             _pivot = self.Q.pivot
             self.Q.pivot = self.pivot[self.labelpos]
@@ -345,6 +349,7 @@ class Quiver(collections.PolyCollection):
         self.minshaft = kw.pop('minshaft', 1)
         self.minlength = kw.pop('minlength', 1)
         self.units = kw.pop('units', 'width')
+        self.angles = kw.pop('angles', 'uv')
         self.width = kw.pop('width', None)
         self.color = kw.pop('color', 'k')
         self.pivot = kw.pop('pivot', 'tail')
@@ -402,7 +407,9 @@ class Quiver(collections.PolyCollection):
         """initialization delayed until first draw;
         allow time for axes setup.
         """
-        if not self._initialized:
+        # It seems that there are not enough event notifications
+        # available to have this work on an as-needed basis at present.
+        if True: ##not self._initialized:
             trans = self._set_transform()
             ax = self.ax
             sx, sy = trans.inverted().transform_point(
@@ -414,7 +421,7 @@ class Quiver(collections.PolyCollection):
 
     def draw(self, renderer):
         self._init()
-        if self._new_UV:
+        if self._new_UV or self.angles == 'xy':
             verts = self._make_verts(self.U, self.V)
             self.set_verts(verts, closed=False)
             self._new_UV = False
@@ -452,6 +459,14 @@ class Quiver(collections.PolyCollection):
         self.set_transform(trans)
         return trans
 
+    def _angles(self, U, V, eps=0.001):
+        xy = self.ax.transData.transform(self.XY)
+        uv = ma.hstack((U[:,np.newaxis], V[:,np.newaxis])).filled(0)
+        xyp = self.ax.transData.transform(self.XY + eps * uv)
+        dxy = xyp - xy
+        ang = ma.arctan2(dxy[:,1], dxy[:,0])
+        return ang
+
     def _make_verts(self, U, V):
         uv = ma.asarray(U+V*1j)
         a = ma.absolute(uv)
@@ -461,10 +476,12 @@ class Quiver(collections.PolyCollection):
             self.scale = scale
         length = a/(self.scale*self.width)
         X, Y = self._h_arrows(length)
-        # There seems to be a ma bug such that indexing
-        # a masked array with one element converts it to
-        # an ndarray.
-        theta = np.angle(ma.asarray(uv[..., np.newaxis]).filled(0))
+        if self.angles == 'xy':
+            theta = self._angles(U, V).filled(0)
+        elif self.angles == 'uv':
+            theta = np.angle(ma.asarray(uv[..., np.newaxis]).filled(0))
+        else:
+            theta = ma.asarray(self.angles).filled(0)
         xy = (X+Y*1j) * np.exp(1j*theta)*self.width
         xy = xy[:,:,np.newaxis]
         XY = ma.concatenate((xy.real, xy.imag), axis=2)
