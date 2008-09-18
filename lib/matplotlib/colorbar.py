@@ -104,11 +104,11 @@ but the first are also method signatures for the
 arguments:
 
   *mappable*
-    the :class:`matplotlib.image.Image`,
-    :class:`matplotlib.contour.ContourSet`, etc. to
+    the :class:`~matplotlib.image.Image`,
+    :class:`~matplotlib.contour.ContourSet`, etc. to
     which the colorbar applies; this argument is mandatory for the
-    :meth:`matplotlib.figure.Figure.colorbar` method but optional for the
-    :func:`matplotlib.pyplot.colorbar` function, which sets the
+    :meth:`~matplotlib.figure.Figure.colorbar` method but optional for the
+    :func:`~matplotlib.pyplot.colorbar` function, which sets the
     default to the current image.
 
 keyword arguments:
@@ -141,9 +141,10 @@ the axes objects in which the mappable and the colorbar are drawn.  In
 this case, do not use any of the axes properties kwargs.
 
 returns:
-    :class:`Colorbar` instance; see also its base class,
-    :class:`ColorbarBase`.  Call the :meth:`set_label` method
-    to label the colorbar
+    :class:`~matplotlib.colorbar.Colorbar` instance; see also its base class,
+    :class:`~matplotlib.colorbar.ColorbarBase`.  Call the
+    :meth:`~matplotlib.colorbar.ColorbarBase.set_label` method
+    to label the colorbar.
 
 ''' % (make_axes_kw_doc, colormap_kw_doc)
 
