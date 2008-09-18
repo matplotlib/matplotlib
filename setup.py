@@ -164,19 +164,18 @@ if hasdatetime: # dates require python23 datetime
     # only install pytz and dateutil if the user hasn't got them
 
     def add_pytz():
-        packages.append('pytz')
+        packages = ['pytz']
         resources = ['zone.tab', 'locales/pytz.pot']
-        # install pytz subdirs
-        for dirpath, dirname, filenames in os.walk(os.path.join('lib', 'pytz',
-                                                                'zoneinfo')):
+        for dirpath, dirnames, filenames in os.walk(os.path.join('pytz', 'zoneinfo')):
+            # remove the 'pytz' part of the path
             if '.svn' not in dirpath:
-                # remove the 'lib/pytz' part of the path
-                basepath = dirpath.split(os.path.sep, 2)[2]
+                basepath = dirpath.split(os.path.sep, 1)[1]
                 resources.extend([os.path.join(basepath, filename)
                                   for filename in filenames])
-        package_data['pytz'] = resources
-        assert len(resources) > 10, 'pytz zoneinfo files not found!'
-#                packages.append('/'.join(dirpath.split(os.sep)[1:]))
+        package_data = {'pytz': resources}
+
+        assert len(resources) > 10, 'zoneinfo files not found!'
+
 
     def add_dateutil():
         packages.append('dateutil')

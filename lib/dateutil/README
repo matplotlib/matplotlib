@@ -1,13 +1,3 @@
-The dateutil module packaged with matplotlib is copied from
-    http://labix.org/python-dateutil
-
-Do not make any changes in this copy of the code. They may be
-overwritten with the next update from the original source.
-
-Below is the original README text from the distribution.
-
------------------------------------------------------------------
-
 ## This file is in the moin format. The latest version is found
 ## at https://moin.conectiva.com.br/DateUtil
 
