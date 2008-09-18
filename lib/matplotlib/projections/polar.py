@@ -56,6 +56,8 @@ class PolarAxes(Axes):
 
         def transform_path(self, path):
             vertices = path.vertices
+            t = vertices[:, 0:1]
+            t[t != (npy.pi * 2.0)] %= (npy.pi * 2.0)
             if len(vertices) == 2 and vertices[0, 0] == vertices[1, 0]:
                 return Path(self.transform(vertices), path.codes)
             ipath = path.interpolated(self._resolution)
@@ -168,6 +170,7 @@ class PolarAxes(Axes):
         """
 
         self._rpad = 0.05
+        self.resolution = kwargs.pop('resolution', self.RESOLUTION)
         Axes.__init__(self, *args, **kwargs)
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
@@ -195,7 +198,7 @@ class PolarAxes(Axes):
         self.transScale = TransformWrapper(IdentityTransform())
 
         # A (possibly non-linear) projection on the (already scaled) data
-        self.transProjection = self.PolarTransform(self.RESOLUTION)
+        self.transProjection = self.PolarTransform(self.resolution)
 
         # An affine transformation on the data, generally to limit the
         # range of the axes

@@ -1,6 +1,8 @@
+2008-09-18 Fix polar interpolation to handle negative values of theta - MGD
+
 2008-09-14 Reorganized cbook and mlab methods related to numerical
 	   calculations that have little to do with the goals of those two
-	   modules into a separate module numerical_methods.py 
+	   modules into a separate module numerical_methods.py
 	   Also, added ability to select points and stop point selection
 	   with keyboard in ginput and manual contour labeling code.
 	   Finally, fixed contour labeling bug. - DMK
