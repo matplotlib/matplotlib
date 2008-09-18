@@ -184,7 +184,7 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     """
     call signature::
 
-      figure(num = None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
+      figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
 
 
     Create a new figure and return a :class:`matplotlib.figure.Figure`
@@ -234,6 +234,9 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
             num = max(allnums) + 1
         else:
             num = 1
+    else:
+        num = int(num)  # crude validation of num argument
+
 
     figManager = _pylab_helpers.Gcf.get_fig_manager(num)
     if figManager is None:
