@@ -10,7 +10,7 @@ line segemnts)
 """
 import copy, math, warnings
 import numpy as np
-import numpy.ma as ma
+from numpy import ma
 import matplotlib as mpl
 import matplotlib.cbook as cbook
 import matplotlib.colors as _colors # avoid conflict with kwarg
@@ -878,7 +878,7 @@ class CircleCollection(Collection):
     """
     A collection of circles, drawn using splines.
     """
-    def __init__(self, sizes):
+    def __init__(self, sizes, **kwargs):
         """
         *sizes*
             Gives the area of the circle in points^2
@@ -900,6 +900,92 @@ class CircleCollection(Collection):
             for x in self._sizes]
         return Collection.draw(self, renderer)
 
+    def get_paths(self):
+        return self._paths
+
+class EllipseCollection(Collection):
+    """
+    A collection of ellipses, drawn using splines.
+    """
+    def __init__(self, widths, heights, angles, units='points', **kwargs):
+        """
+        *widths*: sequence
+            half-lengths of first axes (e.g., semi-major axis lengths)
+
+        *heights*: sequence
+            half-lengths of second axes
+
+        *angles*: sequence
+            angles of first axes, degrees CCW from the X-axis
+
+        *units*: ['points' | 'inches' | 'dots' | 'width' | 'height' | 'x' | 'y']
+            units in which majors and minors are given; 'width' and 'height'
+            refer to the dimensions of the axes, while 'x' and 'y'
+            refer to the *offsets* data units.
+
+        Additional kwargs inherited from the base :class:`Collection`:
+
+        %(Collection)s
+        """
+        Collection.__init__(self,**kwargs)
+        self._widths = np.asarray(widths).ravel()
+        self._heights = np.asarray(heights).ravel()
+        self._angles = np.asarray(angles).ravel() *(np.pi/180.0)
+        self._units = units
+        self.set_transform(transforms.IdentityTransform())
+        self._transforms = []
+        self._paths = [mpath.Path.unit_circle()]
+        self._initialized = False
+
+
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
+
+    def _init(self):
+        def on_dpi_change(fig):
+            self._transforms = []
+        self.figure.callbacks.connect('dpi_changed', on_dpi_change)
+        self._initialized = True
+
+    def set_transforms(self):
+        if not self._initialized:
+            self._init()
+        self._transforms = []
+        ax = self.axes
+        fig = self.figure
+        if self._units in ('x', 'y'):
+            if self._units == 'x':
+                dx0 = ax.viewLim.width
+                dx1 = ax.bbox.width
+            else:
+                dx0 = ax.viewLim.height
+                dx1 = ax.bbox.height
+            sc = dx1/dx0
+        else:
+            if self._units == 'inches':
+                sc = fig.dpi
+            elif self._units == 'points':
+                sc = fig.dpi / 72.0
+            elif self._units == 'width':
+                sc = ax.bbox.width
+            elif self._units == 'height':
+                sc = ax.bbox.height
+            elif self._units == 'dots':
+                sc = 1.0
+            else:
+                raise ValueError('unrecognized units: %s' % self._units)
+
+        _affine = transforms.Affine2D
+        for x, y, a in zip(self._widths, self._heights, self._angles):
+            trans = _affine().scale(x * sc, y * sc).rotate(a)
+            self._transforms.append(trans)
+
+    def draw(self, renderer):
+        if True: ###not self._transforms:
+            self.set_transforms()
+        return Collection.draw(self, renderer)
+
+    def get_paths(self):
+        return self._paths
 
 class PatchCollection(Collection):
     """
