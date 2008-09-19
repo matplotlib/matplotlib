@@ -85,7 +85,7 @@ Keyword arguments:
     CCW from the *x*-axis.
     With 'xy', the arrow points from (x,y) to (x+u, y+v).
     Alternatively, arbitrary angles may be specified as an array
-    of values in radians, CCW from the *x*-axis.
+    of values in degrees, CCW from the *x*-axis.
 
   *scale*: [ None | float ]
     data units per arrow unit, e.g. m/s per plot width; a smaller
@@ -481,7 +481,7 @@ class Quiver(collections.PolyCollection):
         elif self.angles == 'uv':
             theta = np.angle(ma.asarray(uv[..., np.newaxis]).filled(0))
         else:
-            theta = ma.asarray(self.angles).filled(0)
+            theta = ma.asarray(self.angles*np.pi/180.0).filled(0)
         xy = (X+Y*1j) * np.exp(1j*theta)*self.width
         xy = xy[:,:,np.newaxis]
         XY = ma.concatenate((xy.real, xy.imag), axis=2)
