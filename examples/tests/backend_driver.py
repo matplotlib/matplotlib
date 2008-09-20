@@ -50,6 +50,7 @@ pylab_files = [
     'customize_rc.py',
     'date_demo1.py',
     'date_demo2.py',
+    'ellipse_collection.py',
     'equal_aspect_ratio.py',
     'errorbar_limits.py',
     'fancybox_demo.py',
