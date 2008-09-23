@@ -227,7 +227,7 @@ from matplotlib.mlab import  window_hanning, window_none,\
         diagonal_matrix, base_repr, binary_repr, log2, ispower2,\
         bivariate_normal, load, save
 
-from matplotlib.numerical_methods import stineman_interp, slopes, \
+from matplotlib.mlab import stineman_interp, slopes, \
     stineman_interp, inside_poly, poly_below, poly_between, \
     is_closed_polygon, path_length, distances_along_curve, vector_lengths
 
