@@ -16,7 +16,7 @@ import matplotlib.collections as collections
 import matplotlib.font_manager as font_manager
 import matplotlib.text as text
 import matplotlib.cbook as cbook
-import matplotlib.numerical_methods as numerical_methods
+import matplotlib.mlab as mlab
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
@@ -335,7 +335,7 @@ class ContourLabeler:
         not empty (lc defaults to the empty list if None).  *spacing*
         is the space around the label in pixels to leave empty.
 
-        Do both of these tasks at once to avoid calling numerical_methods.path_length
+        Do both of these tasks at once to avoid calling mlab.path_length
         multiple times, which is relatively costly.
 
         The method used here involves calculating the path length
@@ -349,7 +349,7 @@ class ContourLabeler:
         hlw = lw/2.0
 
         # Check if closed and, if so, rotate contour so label is at edge
-        closed = numerical_methods.is_closed_polygon(slc)
+        closed = mlab.is_closed_polygon(slc)
         if closed:
             slc = np.r_[ slc[ind:-1], slc[:ind+1] ]
 
@@ -359,7 +359,7 @@ class ContourLabeler:
             ind = 0
 
         # Path length in pixel space
-        pl = numerical_methods.path_length(slc)
+        pl = mlab.path_length(slc)
         pl = pl-pl[ind]
 
         # Use linear interpolation to get points around label
@@ -369,7 +369,7 @@ class ContourLabeler:
         else:
             dp = np.zeros_like(xi)
 
-        ll = numerical_methods.less_simple_linear_interpolation( pl, slc, dp+xi,
+        ll = mlab.less_simple_linear_interpolation( pl, slc, dp+xi,
                                                      extrap=True )
 
         # get vector in pixel space coordinates from one point to other
@@ -395,16 +395,16 @@ class ContourLabeler:
             xi = dp + xi + np.array([-spacing,spacing])
 
             # Get indices near points of interest
-            I = numerical_methods.less_simple_linear_interpolation(
+            I = mlab.less_simple_linear_interpolation(
                 pl, np.arange(len(pl)), xi, extrap=False )
 
             # If those indices aren't beyond contour edge, find x,y
             if (not np.isnan(I[0])) and int(I[0])<>I[0]:
-                xy1 = numerical_methods.less_simple_linear_interpolation(
+                xy1 = mlab.less_simple_linear_interpolation(
                     pl, lc, [ xi[0] ] )
 
             if (not np.isnan(I[1])) and int(I[1])<>I[1]:
-                xy2 = numerical_methods.less_simple_linear_interpolation(
+                xy2 = mlab.less_simple_linear_interpolation(
                     pl, lc, [ xi[1] ] )
 
             # Make integer
@@ -472,7 +472,7 @@ class ContourLabeler:
                 # zero in print_label and locate_label.  Other than these
                 # functions, this is not necessary and should probably be
                 # eventually removed.
-                if numerical_methods.is_closed_polygon( lc ):
+                if mlab.is_closed_polygon( lc ):
                     slc = np.r_[ slc0, slc0[1:2,:] ]
                 else:
                     slc = slc0
@@ -1009,12 +1009,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
           *linestyles*: [None | 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
             If *linestyles* is *None*, the 'solid' is used.
-            
+
             *linestyles* can also be an iterable of the above strings
             specifying a set of linestyles to be used. If this
             iterable is shorter than the number of contour levels
             it will be repeated as necessary.
-            
+
             If contour is using a monochrome colormap and the contour
             level is less than 0, then the linestyle specified
             in ``contour.negative_linestyle`` in ``matplotlibrc``
