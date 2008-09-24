@@ -11,7 +11,8 @@ from numpy import ma
 from matplotlib import verbose
 import artist
 from artist import Artist
-from cbook import iterable, is_string_like, is_numlike, ls_mapper, dedent
+from cbook import iterable, is_string_like, is_numlike, ls_mapper, dedent,\
+flatten
 from colors import colorConverter
 from path import Path
 from transforms import Affine2D, Bbox, TransformedPath, IdentityTransform
@@ -76,14 +77,24 @@ class Line2D(Artist):
         '--'         : '_draw_dashed',
         '-.'         : '_draw_dash_dot',
         ':'          : '_draw_dotted',
-        'steps'      : '_draw_steps_pre',
-        'steps-mid'  : '_draw_steps_mid',
-        'steps-pre'  : '_draw_steps_pre',
-        'steps-post' : '_draw_steps_post',
         'None'       : '_draw_nothing',
         ' '          : '_draw_nothing',
         ''           : '_draw_nothing',
     }
+    
+    _drawStyles_l = {
+        'default'    : '_draw_lines',
+        'steps-mid'  : '_draw_steps_mid',
+        'steps-pre'  : '_draw_steps_pre',
+        'steps-post' : '_draw_steps_post',
+    }
+    
+    _drawStyles_s = {
+        'steps'      : '_draw_steps_pre',
+    }
+    drawStyles = {}
+    drawStyles.update(_drawStyles_l)
+    drawStyles.update(_drawStyles_s)
 
     markers = _markers =  {  # hidden names deprecated
         '.'  : '_draw_point',
@@ -155,6 +166,7 @@ class Line2D(Artist):
                  dash_joinstyle  = None,
                  solid_joinstyle = None,
                  pickradius      = 5,
+                 drawstyle       = None,
                  **kwargs
                  ):
         """
@@ -185,6 +197,8 @@ class Line2D(Artist):
         if solid_capstyle is None : solid_capstyle=rcParams['lines.solid_capstyle']
         if solid_joinstyle is None : solid_joinstyle=rcParams['lines.solid_joinstyle']
 
+        if drawstyle is None : drawstyle='default'
+
         self.set_dash_capstyle(dash_capstyle)
         self.set_dash_joinstyle(dash_joinstyle)
         self.set_solid_capstyle(solid_capstyle)
@@ -192,6 +206,7 @@ class Line2D(Artist):
 
 
         self.set_linestyle(linestyle)
+        self.set_drawstyle(drawstyle)
         self.set_linewidth(linewidth)
         self.set_color(color)
         self.set_marker(marker)
@@ -423,8 +438,10 @@ class Line2D(Artist):
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         if funcname != '_draw_nothing':
             tpath, affine = self._transformed_path.get_transformed_path_and_affine()
-            lineFunc = getattr(self, funcname)
-            lineFunc(renderer, gc, tpath, affine.frozen())
+            self._lineFunc = getattr(self, funcname)
+            funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
+            drawFunc = getattr(self, funcname)
+            drawFunc(renderer, gc, tpath, affine.frozen())
 
         if self._marker is not None:
             gc = renderer.new_gc()
@@ -442,6 +459,7 @@ class Line2D(Artist):
 
     def get_antialiased(self): return self._antialiased
     def get_color(self): return self._color
+    def get_drawstyle(self): return self._drawstyle
     def get_linestyle(self): return self._linestyle
 
     def get_linewidth(self): return self._linewidth
@@ -543,6 +561,18 @@ class Line2D(Artist):
         """
         self._color = color
 
+    def set_drawstyle(self, drawstyle):
+        """
+        Set the drawstyle of the plot
+
+        'default' connects the points with lines. The steps variants
+        produce step-plots. 'steps' is equivalent to 'steps-pre' and
+        is maintained for backward-compatibility.
+
+        ACCEPTS: [ 'default' | 'steps' | 'steps-pre' | 'steps-mid' | 'steps-post' ]
+        """
+        self._drawstyle = drawstyle
+
     def set_linewidth(self, w):
         """
         Set the line width in points
@@ -558,8 +588,20 @@ class Line2D(Artist):
         'steps' is equivalent to 'steps-pre' and is maintained for
         backward-compatibility.
 
-        ACCEPTS: [ '-' | '--' | '-.' | ':' | 'steps' | 'steps-pre' | 'steps-mid' | 'steps-post' | 'None' | ' ' | '' ]
+        ACCEPTS: [ '-' | '--' | '-.' | ':' | 'None' | ' ' | '' ] and
+        any drawstyle in combination with a linestyle, e.g. 'steps--'.
         """
+
+        # handle long drawstyle names before short ones !
+        for ds in flatten([k.keys() for k in (self._drawStyles_l,
+                self._drawStyles_s)], is_string_like):
+            if linestyle.startswith(ds):
+                self.set_drawstyle(ds)
+                if len(linestyle) > len(ds):
+                    linestyle = linestyle[len(ds):]
+                else:
+                    linestyle = '-'
+
         if linestyle not in self._lineStyles:
             if ls_mapper.has_key(linestyle):
                 linestyle = ls_mapper[linestyle]
@@ -569,7 +611,6 @@ class Line2D(Artist):
         if linestyle in [' ','']:
             linestyle = 'None'
         self._linestyle = linestyle
-        self._lineFunc = self._lineStyles[linestyle]
 
     def set_marker(self, marker):
         """
@@ -660,14 +701,9 @@ class Line2D(Artist):
             self.set_linestyle('--')
         self._dashSeq = seq  # TODO: offset ignored for now
 
-    def _draw_nothing(self, *args, **kwargs):
-        pass
 
-
-    def _draw_solid(self, renderer, gc, path, trans):
-        gc.set_linestyle('solid')
-        renderer.draw_path(gc, path, trans)
-
+    def _draw_lines(self, renderer, gc, path, trans):
+        self._lineFunc(renderer, gc, path, trans)
 
     def _draw_steps_pre(self, renderer, gc, path, trans):
         vertices = self._xy
@@ -678,8 +714,7 @@ class Line2D(Artist):
 
         path = Path(steps)
         path = path.transformed(self.get_transform())
-        self._draw_solid(renderer, gc, path, IdentityTransform())
-
+        self._lineFunc(renderer, gc, path, IdentityTransform())
 
     def _draw_steps_post(self, renderer, gc, path, trans):
         vertices = self._xy
@@ -690,8 +725,7 @@ class Line2D(Artist):
 
         path = Path(steps)
         path = path.transformed(self.get_transform())
-        self._draw_solid(renderer, gc, path, IdentityTransform())
-
+        self._lineFunc(renderer, gc, path, IdentityTransform())
 
     def _draw_steps_mid(self, renderer, gc, path, trans):
         vertices = self._xy
@@ -705,8 +739,15 @@ class Line2D(Artist):
 
         path = Path(steps)
         path = path.transformed(self.get_transform())
-        self._draw_solid(renderer, gc, path, IdentityTransform())
+        self._lineFunc(renderer, gc, path, IdentityTransform())
 
+
+    def _draw_nothing(self, *args, **kwargs):
+        pass
+
+    def _draw_solid(self, renderer, gc, path, trans):
+        gc.set_linestyle('solid')
+        renderer.draw_path(gc, path, trans)
 
     def _draw_dashed(self, renderer, gc, path, trans):
         gc.set_linestyle('dashed')
@@ -990,6 +1031,7 @@ class Line2D(Artist):
 
         self._linestyle = other._linestyle
         self._marker = other._marker
+        self._drawstyle = other._drawstyle
 
 
     def _get_rgb_face(self):
@@ -1239,6 +1281,7 @@ class VertexSelector:
 
 lineStyles = Line2D._lineStyles
 lineMarkers = Line2D._markers
+drawStyles = Line2D.drawStyles
 
 artist.kwdocd['Line2D'] = artist.kwdoc(Line2D)
 
