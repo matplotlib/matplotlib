@@ -263,6 +263,7 @@ The following dimensions are in axes coords
                 self._set_artist_props(legline) # after update
                 legline.set_clip_box(None)
                 legline.set_clip_path(None)
+                legline.set_drawstyle('default')
                 ret.append(legline)
                 legline.set_marker('None')
 

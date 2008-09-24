@@ -1,3 +1,7 @@
+2008-09-24 Introduce drawstyles for lines. Transparently split linestyles
+           like 'steps--' into drawstyle 'steps' and linestyle '--'.
+           Legends always use drawstyle 'default'. - MM
+
 2008-09-18 Fixed quiver and quiverkey bugs (failure to scale properly
            when resizing) and added additional methods for determining
            the arrow angles - EF
