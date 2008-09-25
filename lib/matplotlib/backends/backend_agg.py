@@ -308,8 +308,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer.dpi = self.figure.dpi
         if is_string_like(filename_or_obj):
             filename_or_obj = file(filename_or_obj, 'wb')
-        renderer = self.get_renderer()
-        x = renderer._renderer.buffer_rgba(0, 0)
         _png.write_png(renderer._renderer.buffer_rgba(0, 0),
                        renderer.width, renderer.height,
                        filename_or_obj, self.figure.dpi)
