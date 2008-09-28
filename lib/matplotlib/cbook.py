@@ -318,7 +318,10 @@ def to_filehandle(fname, flag='r', return_opened=False):
         return fh, opened
     return fh
 
-def flatten(seq, scalarp=is_scalar):
+def is_scalar_or_string(val):
+    return is_string_like(val) or not iterable(val)
+
+def flatten(seq, scalarp=is_scalar_or_string):
     """
     this generator flattens nested containers such as
 
