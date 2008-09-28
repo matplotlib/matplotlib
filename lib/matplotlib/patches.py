@@ -408,7 +408,7 @@ class Rectangle(Patch):
         return self._rect_transform
 
     def contains(self, mouseevent):
-        # special case the degernate rectangle
+        # special case the degenerate rectangle
         if self._width==0 or self._height==0:
             return False, {}
 

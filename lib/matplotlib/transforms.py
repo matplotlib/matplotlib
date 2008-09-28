@@ -801,6 +801,9 @@ class Bbox(BboxBase):
         if ignore is None:
             ignore = self._ignore
 
+        if path.vertices.size == 0:
+            return
+
         points, minpos, changed = update_path_extents(
             path, None, self._points, self._minpos, ignore)
 

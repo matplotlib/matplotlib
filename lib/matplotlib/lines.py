@@ -81,14 +81,14 @@ class Line2D(Artist):
         ' '          : '_draw_nothing',
         ''           : '_draw_nothing',
     }
-    
+
     _drawStyles_l = {
         'default'    : '_draw_lines',
         'steps-mid'  : '_draw_steps_mid',
         'steps-pre'  : '_draw_steps_pre',
         'steps-post' : '_draw_steps_post',
     }
-    
+
     _drawStyles_s = {
         'steps'      : '_draw_steps_pre',
     }
