@@ -4,16 +4,18 @@ This now uses the imshow command instead of pcolor which *is much
 faster*
 """
 from __future__ import division
-from pylab import *
-from matplotlib.lines import Line2D
-from matplotlib.transforms import Bbox, BboxTransform, BboxTransformTo, Affine2D
+
+import numpy as np
+
+from matplotlib.pyplot import *
+from matplotlib.collections import LineCollection
 
 # I use if 1 to break up the different regions of code visually
 
 if 1:   # load the data
     # data are 256x256 16 bit integers
     dfile = '../data/s1045.ima'
-    im = fromstring(file(dfile, 'rb').read(), uint16).astype(float)
+    im = np.fromstring(file(dfile, 'rb').read(), np.uint16).astype(float)
     im.shape = 256, 256
 
 if 1: # plot the MRI in pcolor
@@ -23,8 +25,8 @@ if 1: # plot the MRI in pcolor
 
 if 1:  # plot the histogram of MRI intensity
     subplot(222)
-    im = ravel(im)
-    im = ravel(take(im, nonzero(im))) # ignore the background
+    im = np.ravel(im)
+    im = im[np.nonzero(im)] # ignore the background
     im = im/(2.0**15) # normalize
     hist(im, 100)
     xticks([-1, -.5, 0, .5, 1])
@@ -36,51 +38,37 @@ if 1:   # plot the EEG
     # load the data
 
     numSamples, numRows = 800,4
-    data = fromstring(file('../data/eeg.dat', 'rb').read(), float)
+    data = np.fromstring(file('../data/eeg.dat', 'rb').read(), float)
     data.shape = numSamples, numRows
-    t = arange(numSamples)/float(numSamples)*10.0
+    t = 10.0 * np.arange(numSamples, dtype=float)/numSamples
     ticklocs = []
     ax = subplot(212)
     xlim(0,10)
-    xticks(arange(10))
+    xticks(np.arange(10))
+    dmin = data.min()
+    dmax = data.max()
+    dr = (dmax - dmin)*0.7 # Crowd them a bit.
+    y0 = dmin
+    y1 = (numRows-1) * dr + dmax
+    ylim(y0, y1)
 
-    boxin = Bbox.from_extents(ax.viewLim.x0, -20, ax.viewLim.x1, 20)
-
-    height = ax.bbox.height
-    boxout = Bbox.from_extents(ax.bbox.x0, -1.0 * height,
-                               ax.bbox.x1,  1.0 * height)
-
-    transOffset = BboxTransformTo(
-        Bbox.from_extents(0.0, ax.bbox.y0, 1.0, ax.bbox.y1))
-
-
+    segs = []
     for i in range(numRows):
-        # effectively a copy of transData
-        trans = BboxTransform(boxin, boxout)
-        offset = (i+1)/(numRows+1)
+        segs.append(np.hstack((t[:,np.newaxis], data[:,i,np.newaxis])))
+        ticklocs.append(i*dr)
 
-        trans += Affine2D().translate(*transOffset.transform_point((0, offset)))
+    offsets = np.zeros((numRows,2), dtype=float)
+    offsets[:,1] = ticklocs
 
-        thisLine = Line2D(
-            t, data[:,i]-data[0,i],
-            )
+    lines = LineCollection(segs, offsets=offsets,
+                           transOffset=None,
+                           )
 
-        thisLine.set_transform(trans)
-
-        ax.add_line(thisLine)
-        ticklocs.append(offset)
-
-    setp(gca(), 'yticklabels', ['PG3', 'PG5', 'PG7', 'PG9'])
+    ax.add_collection(lines)
 
     # set the yticks to use axes coords on the y axis
     ax.set_yticks(ticklocs)
-    for tick in ax.yaxis.get_major_ticks():
-        tick.label1.set_transform(ax.transAxes)
-        tick.label2.set_transform(ax.transAxes)
-        tick.tick1line.set_transform(ax.transAxes)
-        tick.tick2line.set_transform(ax.transAxes)
-        tick.gridline.set_transform(ax.transAxes)
-
+    ax.set_yticklabels(['PG3', 'PG5', 'PG7', 'PG9'])
 
     xlabel('time (s)')
 
