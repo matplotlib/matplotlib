@@ -309,7 +309,8 @@ class _process_plot_var_args:
                 x = self.axes.convert_xunits(x)
                 y = self.axes.convert_yunits(y)
                 facecolor = self._get_next_cycle_color()
-                seg = mpatches.Polygon(zip(x, y),
+                seg = mpatches.Polygon(np.hstack(
+                                    (x[:,np.newaxis],y[:,np.newaxis])),
                               facecolor = facecolor,
                               fill=True,
                               closed=closed
@@ -355,7 +356,8 @@ class _process_plot_var_args:
             facecolor = color
             x = self.axes.convert_xunits(x)
             y = self.axes.convert_yunits(y)
-            seg = mpatches.Polygon(zip(x, y),
+            seg = mpatches.Polygon(np.hstack(
+                                    (x[:,np.newaxis],y[:,np.newaxis])),
                           facecolor = facecolor,
                           fill=True,
                           closed=closed
@@ -1282,9 +1284,10 @@ class Axes(martist.Artist):
         line._remove_method = lambda h: self.lines.remove(h)
 
     def _update_line_limits(self, line):
-        self.dataLim.update_from_path(line.get_path(),
-                    self.ignore_existing_data_limits)
-        self.ignore_existing_data_limits = False
+        p = line.get_path()
+        if p.vertices.size > 0:
+            self.dataLim.update_from_path(p, self.ignore_existing_data_limits)
+            self.ignore_existing_data_limits = False
 
     def add_patch(self, p):
         """
@@ -1300,20 +1303,25 @@ class Axes(martist.Artist):
         self.patches.append(p)
         p._remove_method = lambda h: self.patches.remove(h)
 
-    def _update_patch_limits(self, p):
+    def _update_patch_limits(self, patch):
         'update the data limits for patch *p*'
         # hist can add zero height Rectangles, which is useful to keep
         # the bins, counts and patches lined up, but it throws off log
         # scaling.  We'll ignore rects with zero height or width in
         # the auto-scaling
-        if isinstance(p, mpatches.Rectangle) and (p.get_width()==0. or p.get_height()==0.):
+
+        if (isinstance(patch, mpatches.Rectangle) and
+                    (patch.get_width()==0 or patch.get_height()==0)):
             return
-        vertices = p.get_patch_transform().transform(p.get_path().vertices)
-        if p.get_data_transform() != self.transData:
-            transform = p.get_data_transform() + self.transData.inverted()
-            xys = transform.transform(vertices)
-            # Something is wrong--xys is never used.
-        self.update_datalim(vertices)
+        vertices = patch.get_path().vertices
+        if vertices.size > 0:
+            xys = patch.get_patch_transform().transform(vertices)
+            if patch.get_data_transform() != self.transData:
+                transform = (patch.get_data_transform() +
+                                    self.transData.inverted())
+                xys = transform.transform(xys)
+            self.update_datalim(xys)
+
 
     def add_table(self, tab):
         '''
@@ -6645,7 +6653,7 @@ class Axes(martist.Artist):
         return Pxx, freqs, bins, im
 
     def spy(self, Z, precision=None, marker=None, markersize=None,
-            aspect='equal', **kwargs):
+            aspect='equal',  **kwargs):
         """
         call signature::
 
@@ -6656,6 +6664,10 @@ class Axes(martist.Artist):
 
         If *precision* is *None*, any non-zero value will be plotted;
         else, values of :math:`|Z| > precision` will be plotted.
+
+        For :class:`scipy.sparse.spmatrix` instances, there is a
+        special case: if *precision* is 0, any value present in
+        the array will be plotted, even if it is identically zero.
 
         The array will be plotted as it would be printed, with
         the first index (row) increasing down and the second
@@ -6707,9 +6719,9 @@ class Axes(martist.Artist):
         * ','  pixel
 
         """
+        if marker is None and markersize is None and hasattr(Z, 'tocoo'):
+            marker = 's'
         if marker is None and markersize is None:
-            if hasattr(Z, 'tocoo'):
-                raise TypeError, "Image mode does not support scipy.sparse arrays"
             Z = np.asarray(Z)
             if precision is None: mask = Z!=0.
             else:                 mask = np.absolute(Z)>precision
@@ -6723,23 +6735,33 @@ class Axes(martist.Artist):
         else:
             if hasattr(Z, 'tocoo'):
                 c = Z.tocoo()
-                y = c.row
-                x = c.col
-                z = c.data
+                if precision == 0:
+                    y = c.row
+                    x = c.col
+                else:
+                    if precision is None:
+                        nonzero = c.data != 0.
+                    else:
+                        nonzero = np.absolute(c.data) > precision
+                    y = c.row[nonzero]
+                    x = c.col[nonzero]
             else:
                 Z = np.asarray(Z)
-                if precision is None: mask = Z!=0.
-                else:                 mask = np.absolute(Z)>precision
-                y,x,z = mlab.get_xyz_where(mask, mask)
+                if precision is None:
+                    nonzero = Z!=0.
+                else:
+                    nonzero = np.absolute(Z)>precision
+                y, x = np.nonzero(nonzero)
             if marker is None: marker = 's'
             if markersize is None: markersize = 10
-            lines = self.plot(x, y, linestyle='None',
+            marks = mlines.Line2D(x, y, linestyle='None',
                          marker=marker, markersize=markersize, **kwargs)
+            self.add_line(marks)
             nr, nc = Z.shape
             self.set_xlim(xmin=-0.5, xmax=nc-0.5)
             self.set_ylim(ymin=nr-0.5, ymax=-0.5)
             self.set_aspect(aspect)
-            ret = lines
+            ret = marks
         self.title.set_y(1.05)
         self.xaxis.tick_top()
         self.xaxis.set_ticks_position('both')

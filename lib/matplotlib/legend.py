@@ -264,13 +264,15 @@ The following dimensions are in axes coords
                 legline.set_clip_box(None)
                 legline.set_clip_path(None)
                 legline.set_drawstyle('default')
-                ret.append(legline)
                 legline.set_marker('None')
+                ret.append(legline)
 
                 legline_marker = Line2D(xdata_marker, ydata[:len(xdata_marker)])
                 legline_marker.update_from(handle)
-                legline_marker.set_linestyle('None')
                 self._set_artist_props(legline_marker)
+                legline_marker.set_clip_box(None)
+                legline_marker.set_clip_path(None)
+                legline_marker.set_linestyle('None')
                 # we don't want to add this to the return list because
                 # the texts and handles are assumed to be in one-to-one
                 # correpondence.
