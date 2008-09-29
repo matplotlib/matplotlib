@@ -166,7 +166,7 @@ class Text(Artist):
         self._rotation = rotation
         self._fontproperties = fontproperties
         self._bbox = None
-        self._bbox_patch = None # a FanceBboxPatch instance
+        self._bbox_patch = None # a FancyBboxPatch instance
         self._renderer = None
         if linespacing is None:
             linespacing = 1.2   # Maybe use rcParam later.
@@ -356,7 +356,7 @@ class Text(Artist):
 
     def get_bbox_patch(self):
         """
-        Retrun the bbox Patch object. Returns None if the the
+        Return the bbox Patch object. Returns None if the the
         FancyBboxPatch is not made.
         """
         return self._bbox_patch
@@ -519,9 +519,32 @@ class Text(Artist):
         "Return the vertical alignment as string"
         return self._verticalalignment
 
-    def get_window_extent(self, renderer=None):
+    def get_window_extent(self, renderer=None, dpi=None):
+        '''
+        Return a Bbox bounding the text, in display units (dots).
+
+        In addition to being used internally,
+        this is useful for specifying clickable regions in
+        a png file on a web page.
+
+        *renderer* defaults to the _renderer attribute of the
+        text object.  This is not assigned until the first execution
+        of the draw() method, so you must use this kwarg if you
+        want to call get_window_extent() prior to the first draw().
+        For getting web page regions, it is simpler to call the
+        method after saving the figure.
+
+        *dpi* defaults to self.figure.dpi; the renderer dpi is
+        irrelevant.  For the web application, if figure.dpi is not
+        the value used when saving the figure, then the value that
+        was used must be specified as the *dpi* argument.
+
+        '''
         #return _unit_box
         if not self.get_visible(): return Bbox.unit()
+        if dpi is not None:
+            dpi_orig = self.figure.dpi
+            self.figure.dpi = dpi
         if self._text == '':
             tx, ty = self._get_xy_display()
             return Bbox.from_bounds(tx,ty,0,0)
@@ -531,11 +554,12 @@ class Text(Artist):
         if self._renderer is None:
             raise RuntimeError('Cannot get window extent w/o renderer')
 
-        angle = self.get_rotation()
         bbox, info = self._get_layout(self._renderer)
         x, y = self.get_position()
         x, y = self.get_transform().transform_point((x, y))
         bbox = bbox.translated(x, y)
+        if dpi is not None:
+            self.figure.dpi = dpi_orig
         return bbox
 
     def set_backgroundcolor(self, color):
