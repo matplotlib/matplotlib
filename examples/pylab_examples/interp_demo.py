@@ -1,6 +1,6 @@
 from matplotlib.pyplot import figure, show
 from numpy import pi, sin, linspace
-from matplotlib.numerical_methods import stineman_interp
+from matplotlib.mlab import stineman_interp
 
 x = linspace(0,2*pi,20);
 y = sin(x); yp = None

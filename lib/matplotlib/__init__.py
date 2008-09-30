@@ -131,12 +131,9 @@ from rcsetup import validate_cairo_format
 major, minor1, minor2, s, tmp = sys.version_info
 _python24 = major>=2 and minor1>=4
 
-try:
-    import datetime
-    import dateutil
-    import pytz
-except ImportError: _havedate = False
-else: _havedate = True
+# the havedate check was a legacy from old matplotlib which preceeded
+# datetime support
+_havedate = True
 
 #try:
 #    import pkg_resources # pkg_resources is part of setuptools
