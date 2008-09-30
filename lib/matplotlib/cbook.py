@@ -1307,6 +1307,77 @@ _linestyles = [('-', 'solid'),
 ls_mapper = dict(_linestyles)
 ls_mapper.update([(ls[1], ls[0]) for ls in _linestyles])
 
+def less_simple_linear_interpolation( x, y, xi, extrap=False ):
+    """
+    This function has been moved to matplotlib.mlab -- please import
+    it from there
+    """
+    # deprecated from cbook in 0.98.4  
+    warnings.warn('less_simple_linear_interpolation has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    import matplotlib.mlab as mlab
+    return mlab.less_simple_linear_interpolation( x, y, xi, extrap=extrap )
+
+def isvector(X):
+    """
+    This function has been moved to matplotlib.mlab -- please import
+    it from there
+    """
+    # deprecated from cbook in 0.98.4  
+    warnings.warn('isvector has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    import matplotlib.mlab as mlab
+    return mlab.isvector( x, y, xi, extrap=extrap )
+
+def vector_lengths( X, P=2., axis=None ):
+    """
+    This function has been moved to matplotlib.mlab -- please import
+    it from there
+    """
+    # deprecated from cbook in 0.98.4  
+    warnings.warn('vector_lengths has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    import matplotlib.mlab as mlab
+    return mlab.vector_lengths( X, P=2., axis=axis )
+
+def distances_along_curve( X ):
+    """
+    This function has been moved to matplotlib.mlab -- please import
+    it from there
+    """
+    # deprecated from cbook in 0.98.4  
+    warnings.warn('distances_along_curve has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    import matplotlib.mlab as mlab
+    return mlab.distances_along_curve( X )
+
+def path_length(X):
+    """
+    This function has been moved to matplotlib.mlab -- please import
+    it from there
+    """
+    # deprecated from cbook in 0.98.4  
+    warnings.warn('path_length has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    import matplotlib.mlab as mlab
+    return mlab.path_length(X)
+
+def is_closed_polygon(X):
+    """
+    This function has been moved to matplotlib.mlab -- please import
+    it from there
+    """
+    # deprecated from cbook in 0.98.4  
+    warnings.warn('is_closed_polygon has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    import matplotlib.mlab as mlab
+    return mlab.is_closed_polygon(X)
+
+def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
+    """
+    This function has been moved to matplotlib.mlab -- please import
+    it from there
+    """
+    # deprecated from cbook in 0.98.4  
+    warnings.warn('quad2cubic has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    import matplotlib.mlab as mlab
+    return mlab.quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y)
+
+
 if __name__=='__main__':
     assert( allequal([1,1,1]) )
     assert(not  allequal([1,1,0]) )

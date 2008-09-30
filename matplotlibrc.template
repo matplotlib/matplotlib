@@ -251,12 +251,12 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 
 # The figure subplot parameters.  All dimensions are fraction of the
 # figure width or height
-#figure.subplot.left  : 0.125  # the left side of the subplots of the figure
-#figure.subplot.right : 0.9    # the right side of the subplots of the figure
-#figure.subplot.bottom : 0.1   # the bottom of the subplots of the figure
-#figure.subplot.top : 0.9      # the top of the subplots of the figure
-#figure.subplot.wspace : 0.2   # the amount of width reserved for blank space between subplots
-#figure.subplot.hspace : 0.2   # the amount of height reserved for white space between subplots
+#figure.subplot.left	: 0.125  # the left side of the subplots of the figure
+#figure.subplot.right	: 0.9    # the right side of the subplots of the figure
+#figure.subplot.bottom	: 0.1    # the bottom of the subplots of the figure
+#figure.subplot.top	: 0.9    # the top of the subplots of the figure
+#figure.subplot.wspace	: 0.2    # the amount of width reserved for blank space between subplots
+#figure.subplot.hspace	: 0.2    # the amount of height reserved for white space between subplots
 
 ### IMAGES
 #image.aspect : equal             # equal | auto | a number
@@ -272,7 +272,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 ### SAVING FIGURES
 #path.simplify : False  # When True, simplify paths in vector backends, such as PDF, PS and SVG
 
-# the default savefig params can be different for the GUI backends.
+# the default savefig params can be different from the display params
 # Eg, you may want a higher resolution, or to make the figure
 # background white
 #savefig.dpi       : 100      # figure dots per inch
@@ -308,12 +308,12 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 # Set the verbose flags.  This controls how much information
 # matplotlib gives you at runtime and where it goes.  The verbosity
 # levels are: silent, helpful, debug, debug-annoying.  Any level is
-# inclusive of all the levels below it.  If you setting is debug,
+# inclusive of all the levels below it.  If your setting is "debug",
 # you'll get all the debug and helpful messages.  When submitting
-# problems to the mailing-list, please set verbose to helpful or debug
+# problems to the mailing-list, please set verbose to "helpful" or "debug"
 # and paste the output into your report.
 #
-# The fileo gives the destination for any calls to verbose.report.
+# The "fileo" gives the destination for any calls to verbose.report.
 # These objects can a filename, or a filehandle like sys.stdout.
 #
 # You can override the rc default verbosity from the command line by

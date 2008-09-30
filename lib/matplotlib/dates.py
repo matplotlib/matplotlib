@@ -79,6 +79,14 @@ Date formatters
 import re, time, math, datetime
 
 import pytz
+
+# compatability for 2008c and older versions
+try:
+   import pytz.zoneinfo
+except ImportError:
+   pytz.zoneinfo = pytz.tzinfo
+   pytz.zoneinfo.UTC = pytz.UTC
+
 import matplotlib
 import numpy as np
 

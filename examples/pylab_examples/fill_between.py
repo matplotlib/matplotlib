@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import matplotlib.numerical_methods as numerical_methods
+import matplotlib.mlab as mlab
 from pylab import figure, show
 import numpy as np
 
@@ -13,15 +13,15 @@ ax2 = fig.add_subplot(312)
 ax3 = fig.add_subplot(313)
 
 
-xs, ys = numerical_methods.poly_between(x, 0, y1)
+xs, ys = mlab.poly_between(x, 0, y1)
 ax.fill(xs, ys)
 ax.set_ylabel('between y1 and 0')
 
-xs, ys = numerical_methods.poly_between(x, y1, 1)
+xs, ys = mlab.poly_between(x, y1, 1)
 ax2.fill(xs, ys)
 ax2.set_ylabel('between y1 and 1')
 
-xs, ys = numerical_methods.poly_between(x, y1, y2)
+xs, ys = mlab.poly_between(x, y1, y2)
 ax3.fill(xs, ys)
 ax3.set_ylabel('between y1 and y2')
 ax3.set_xlabel('x')
