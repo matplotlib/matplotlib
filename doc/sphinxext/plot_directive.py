@@ -13,7 +13,7 @@ Additionally, if the :include-source: option is provided, the literal
 source will be included inline, as well as a link to the source.
 """
 
-import sys, os, glob, shutil, code
+import sys, os, glob, shutil, imp
 from docutils.parsers.rst import directives
 
 try:
@@ -30,12 +30,10 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-#import IPython.Shell
-#mplshell = IPython.Shell.MatplotlibShell('mpl')
-console = code.InteractiveConsole()
 def runfile(fname):
-    source = file(fname).read()
-    return console.runsource(source)
+    fd = open(fname)
+    module = imp.load_module("__main__", fd, fname, ('py', 'r', imp.PY_SOURCE))
+    return module
 
 options = {'alt': directives.unchanged,
            'height': directives.length_or_unitless,

@@ -633,21 +633,23 @@ class Figure(Artist):
             fig.add_subplot(111, polar=True)  # add a polar subplot
             fig.add_subplot(sub)              # add Subplot instance sub
 
-        *kwargs* are legal :class:`!matplotlib.axes.Axes` kwargs plus *projection*, which chooses
-        a projection type for the axes.  (For backward compatibility,
-        *polar=True* may also be provided, which is equivalent to
-        *projection='polar'*).  Valid values for *projection* are: %s.
-        Some of these projections support additional *kwargs*, which may
-        be provided to :meth:`add_axes`.
+        *kwargs* are legal :class:`!matplotlib.axes.Axes` kwargs plus
+        *projection*, which chooses a projection type for the axes.
+        (For backward compatibility, *polar=True* may also be
+        provided, which is equivalent to *projection='polar'*). Valid
+        values for *projection* are: %s.  Some of these projections
+        support additional *kwargs*, which may be provided to
+        :meth:`add_axes`.
 
         The :class:`~matplotlib.axes.Axes` instance will be returned.
 
-        If the figure already has a subplot with key *args*, *kwargs* then it will
-        simply make that subplot current and return it
+        If the figure already has a subplot with key (*args*,
+        *kwargs*) then it will simply make that subplot current and
+        return it.
 
         The following kwargs are supported:
         %s
-        """ % (", ".join(get_projection_names()), "%(Axes)s")
+        """
 
         key = self._make_key(*args, **kwargs)
         if self._seen.has_key(key):
@@ -680,7 +682,8 @@ class Figure(Artist):
         self.sca(a)
         self._seen[key] = a
         return a
-    add_subplot.__doc__ = dedent(add_subplot.__doc__) % artist.kwdocd
+    add_subplot.__doc__ = dedent(add_subplot.__doc__) % (
+        ", ".join(get_projection_names()), "%(Axes)s") % artist.kwdocd
 
     def clf(self):
         """
