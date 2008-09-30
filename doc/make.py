@@ -85,7 +85,7 @@ if len(sys.argv)>1:
     for arg in sys.argv[1:]:
         func = funcd.get(arg)
         if func is None:
-            raise SystemExit('Do not know how to handle %s; valid args are'%(
+            raise SystemExit('Do not know how to handle %s; valid args are %s'%(
                     arg, funcd.keys()))
         func()
 else:

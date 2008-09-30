@@ -117,7 +117,7 @@ an example of placing axes manually.
 How do I automatically make room for my tick labels?
 ====================================================
 
-In most use cases, it is enought to simpy change the subplots adjust
+In most use cases, it is enough to simpy change the subplots adjust
 parameters as described in :ref:`howto-subplots-adjust`.  But in some
 cases, you don't know ahead of time what your tick labels will be, or
 how large they will be (data and labels outside your control may be
