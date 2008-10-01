@@ -239,14 +239,12 @@ class XTick(Tick):
         #t =  mtext.Text(
         trans, vert, horiz = self.axes.get_xaxis_text1_transform(self._pad)
         size = rcParams['xtick.labelsize']
-        t = mtext.TextWithDash(
+        t = mtext.Text(
             x=0, y=0,
             fontproperties=font_manager.FontProperties(size=size),
             color=rcParams['xtick.color'],
             verticalalignment=vert,
             horizontalalignment=horiz,
-            dashdirection=0,
-            xaxis=True,
             )
 
         t.set_transform(trans)
@@ -261,13 +259,11 @@ class XTick(Tick):
         #t =  mtext.Text(
         trans, vert, horiz = self.axes.get_xaxis_text2_transform(self._pad)
 
-        t = mtext.TextWithDash(
+        t = mtext.Text(
             x=0, y=1,
             fontproperties=font_manager.FontProperties(size=rcParams['xtick.labelsize']),
             color=rcParams['xtick.color'],
             verticalalignment=vert,
-            dashdirection=1,
-            xaxis=True,
             horizontalalignment=horiz,
             )
         t.set_transform(trans)
@@ -374,14 +370,12 @@ class YTick(Tick):
         #t =  mtext.Text(
         trans, vert, horiz = self.axes.get_yaxis_text1_transform(self._pad)
 
-        t = mtext.TextWithDash(
+        t = mtext.Text(
             x=0, y=0,
             fontproperties=font_manager.FontProperties(size=rcParams['ytick.labelsize']),
             color=rcParams['ytick.color'],
             verticalalignment=vert,
             horizontalalignment=horiz,
-            dashdirection=0,
-            xaxis=False,
             )
         t.set_transform(trans)
         #t.set_transform( self.axes.transData )
@@ -394,13 +388,11 @@ class YTick(Tick):
         #t =  mtext.Text(
         trans, vert, horiz = self.axes.get_yaxis_text2_transform(self._pad)
 
-        t = mtext.TextWithDash(
+        t = mtext.Text(
             x=1, y=0,
             fontproperties=font_manager.FontProperties(size=rcParams['ytick.labelsize']),
             color=rcParams['ytick.color'],
             verticalalignment=vert,
-            dashdirection=1,
-            xaxis=False,
             horizontalalignment=horiz,
             )
         t.set_transform(trans)

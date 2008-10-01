@@ -846,7 +846,6 @@ class TextWithDash(Text):
                  dashrotation=None,
                  dashpad=3,
                  dashpush=0,
-                 xaxis=True,
                  ):
 
         Text.__init__(self, x=x, y=y, text=text, color=color,
