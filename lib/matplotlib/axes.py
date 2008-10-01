@@ -3822,25 +3822,22 @@ class Axes(martist.Artist):
         #width = np.asarray(width)
         #bottom = np.asarray(bottom)
 
-        if len(linewidth) == 1: linewidth = linewidth * nbars
+        if len(linewidth) < nbars:
+            linewidth *= nbars
 
-        # if color looks like a color string, an RGB tuple or a
-        # scalar, then repeat it by nbars
-        if (is_string_like(color) or
-            (iterable(color) and
-             len(color) in (3, 4) and
-             nbars != len(color)) or
-            not iterable(color)):
-            color = [color]*nbars
+        if color is None:
+            color = [None] * nbars
+        else:
+            color = list(mcolors.colorConverter.to_rgba_array(color))
+            if len(color) < nbars:
+                color *= nbars
 
-        # if edgecolor looks like a color string, an RGB tuple or a
-        # scalar, then repeat it by nbars
-        if (is_string_like(edgecolor) or
-            (iterable(edgecolor) and
-             len(edgecolor) in (3, 4) and
-             nbars != len(edgecolor)) or
-            not iterable(edgecolor)):
-            edgecolor = [edgecolor]*nbars
+        if edgecolor is None:
+            edgecolor = [None] * nbars
+        else:
+            edgecolor = list(mcolors.colorConverter.to_rgba_array(edgecolor))
+            if len(edgecolor) < nbars:
+                edgecolor *= nbars
 
         if yerr is not None:
             if not iterable(yerr):
@@ -3850,13 +3847,12 @@ class Axes(martist.Artist):
             if not iterable(xerr):
                 xerr = [xerr]*nbars
 
+        # FIXME: convert the following to proper input validation
+        # raising ValueError; don't use assert for this.
         assert len(left)==nbars, "argument 'left' must be %d or scalar" % nbars
         assert len(height)==nbars, "argument 'height' must be %d or scalar" % nbars
         assert len(width)==nbars, "argument 'width' must be %d or scalar" % nbars
         assert len(bottom)==nbars, "argument 'bottom' must be %d or scalar" % nbars
-        assert len(color)==nbars, "argument 'color' must be %d or scalar" % nbars
-        assert len(edgecolor)==nbars, "argument 'edgecolor' must be %d or scalar" % nbars
-        assert len(linewidth)==nbars, "argument 'linewidth' must be %d or scalar" % nbars
 
         if yerr is not None and len(yerr)!=nbars:
             raise ValueError("bar() argument 'yerr' must be len(%s) or scalar" % nbars)
