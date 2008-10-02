@@ -114,7 +114,7 @@ cmappable = {
 
 
 for func in _plotcommands:
-    if cmappable.has_key(func):
+    if func in cmappable:
         mappable = cmappable[func]
     else:
         mappable = ''

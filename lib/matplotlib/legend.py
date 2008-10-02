@@ -148,7 +148,7 @@ The following dimensions are in axes coords
             if not self.isaxes and loc in [0,'best']:
                 loc = 'upper right'
         if is_string_like(loc):
-            if not self.codes.has_key(loc):
+            if loc not in self.codes:
                 if self.isaxes:
                     warnings.warn('Unrecognized location "%s". Falling back on "best"; '
                                   'valid locations are\n\t%s\n'

@@ -297,7 +297,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
     def _get_key(self, event):
         val = event.keysym_num
-        if self.keyvald.has_key(val):
+        if val in self.keyvald:
             key = self.keyvald[val]
         elif val<256:
             key = chr(val)

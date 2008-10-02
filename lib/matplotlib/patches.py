@@ -1004,7 +1004,7 @@ class Circle(Ellipse):
         %(Patch)s
 
         """
-        if kwargs.has_key('resolution'):
+        if 'resolution' in kwargs:
             import warnings
             warnings.warn('Circle is now scale free.  Use CirclePolygon instead!', DeprecationWarning)
             kwargs.pop('resolution')

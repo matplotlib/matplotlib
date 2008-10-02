@@ -711,7 +711,7 @@ class BakomaFonts(TruetypeFonts):
 
     def _get_glyph(self, fontname, font_class, sym, fontsize):
         symbol_name = None
-        if fontname in self.fontmap and latex_to_bakoma.has_key(sym):
+        if fontname in self.fontmap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
             slanted = (basename == "cmmi10") or sym in self._slanted_symbols
             try:
@@ -1064,7 +1064,7 @@ class StandardPsFonts(Fonts):
 
         found_symbol = False
 
-        if latex_to_standard.has_key(sym):
+        if sym in latex_to_standard:
             fontname, num = latex_to_standard[sym]
             glyph = chr(num)
             found_symbol = True

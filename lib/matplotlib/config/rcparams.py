@@ -19,16 +19,16 @@ _deprecated_map = {
 
 
 class RcParams(dict):
-    
+
     """A dictionary object including validation
-    
+
     validating functions are defined and associated with rc parameters in
     rcsetup.py
     """
-    
+
     validate = dict([ (key, converter) for key, (default, converter) in \
                      defaultParams.iteritems() ])
-    
+
     def __setitem__(self, key, val):
         try:
             if key in _deprecated_map.keys():
@@ -89,7 +89,7 @@ def rc_params(fail_on_error=False):
     verbose.set_fileo(ret['verbose.fileo'])
 
     for key, (val, line, cnt) in rc_temp.iteritems():
-        if defaultParams.has_key(key):
+        if key in defaultParams:
             if fail_on_error:
                 ret[key] = val # try to convert to proper type or raise
             else:
@@ -109,7 +109,7 @@ distribution""" % (key, cnt, fname)
         ret['datapath'] = get_data_path()
 
     verbose.report('loaded rc file %s'%fname)
-    
+
     return ret
 
 
@@ -183,7 +183,7 @@ def rc(group, **kwargs):
         for k,v in kwargs.items():
             name = aliases.get(k) or k
             key = '%s.%s' % (g, name)
-            if not rcParams.has_key(key):
+            if key not in rcParams:
                 raise KeyError('Unrecognized key "%s" for group "%s" and name "%s"' %
                                (key, g, name))
 

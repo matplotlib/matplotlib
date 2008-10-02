@@ -31,7 +31,7 @@ class Gcf(object):
     destroy = staticmethod(destroy)
 
     def has_fignum(num):
-        return Gcf.figs.has_key(num)
+        return num in Gcf.figs
     has_fignum = staticmethod(has_fignum)
 
     def get_all_fig_managers():

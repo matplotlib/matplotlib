@@ -174,7 +174,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     def _get_key( self, event ):
         if event.key() < 256:
             key = str(event.text())
-        elif self.keyvald.has_key( event.key() ):
+        elif event.key() in self.keyvald:
             key = self.keyvald[ event.key() ]
         else:
             key = None

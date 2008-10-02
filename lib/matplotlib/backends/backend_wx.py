@@ -1141,7 +1141,7 @@ The current aspect ration will be kept."""
     def _get_key(self, evt):
 
         keyval = evt.m_keyCode
-        if self.keyvald.has_key(keyval):
+        if keyval in self.keyvald:
             key = self.keyvald[keyval]
         elif keyval <256:
             key = chr(keyval)

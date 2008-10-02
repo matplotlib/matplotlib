@@ -181,7 +181,7 @@ class Table(Artist):
 
         Artist.__init__(self)
 
-        if is_string_like(loc) and not self.codes.has_key(loc):
+        if is_string_like(loc) and loc not in self.codes:
             warnings.warn('Unrecognized location %s. Falling back on bottom; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.keys())))
             loc = 'bottom'
         if is_string_like(loc): loc = self.codes.get(loc, 1)

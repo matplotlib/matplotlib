@@ -591,7 +591,7 @@ class Figure(Artist):
 
         key = self._make_key(*args, **kwargs)
 
-        if self._seen.has_key(key):
+        if key in self._seen:
             ax = self._seen[key]
             self.sca(ax)
             return ax
@@ -652,7 +652,7 @@ class Figure(Artist):
         """
 
         key = self._make_key(*args, **kwargs)
-        if self._seen.has_key(key):
+        if key in self._seen:
             ax = self._seen[key]
             self.sca(ax)
             return ax
@@ -951,7 +951,7 @@ class Figure(Artist):
         """
 
         for key in ('dpi', 'facecolor', 'edgecolor'):
-            if not kwargs.has_key(key):
+            if key not in kwargs:
                 kwargs[key] = rcParams['savefig.%s'%key]
 
         transparent = kwargs.pop('transparent', False)

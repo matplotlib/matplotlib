@@ -234,7 +234,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def _get_key(self, event):
-        if self.keyvald.has_key(event.keyval):
+        if event.keyval in self.keyvald:
             key = self.keyvald[event.keyval]
         elif event.keyval <256:
             key = chr(event.keyval)

@@ -93,7 +93,7 @@ get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
 def _get_data_path():
     'get the path to matplotlib data'
 
-    if os.environ.has_key('MATPLOTLIBDATA'):
+    if 'MATPLOTLIBDATA' in os.environ:
         path = os.environ['MATPLOTLIBDATA']
         if not os.path.isdir(path):
             raise RuntimeError('Path in environment MATPLOTLIBDATA not a directory')
@@ -167,7 +167,7 @@ def get_config_file(tconfig=False):
     fname = os.path.join( os.getcwd(), filename)
     if os.path.exists(fname): return fname
 
-    if os.environ.has_key('MATPLOTLIBRC'):
+    if 'MATPLOTLIBRC' in os.environ:
         path =  os.environ['MATPLOTLIBRC']
         if os.path.exists(path):
             fname = os.path.join(path, filename)

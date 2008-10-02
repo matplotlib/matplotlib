@@ -330,7 +330,7 @@ def scale_factory(scale, axis, **kwargs):
     if scale is None:
         scale = 'linear'
 
-    if not _scale_mapping.has_key(scale):
+    if scale not in _scale_mapping:
         raise ValueError("Unknown scale type '%s'" % scale)
 
     return _scale_mapping[scale](axis, **kwargs)
