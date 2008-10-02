@@ -2,7 +2,10 @@
 
 from datetime import datetime, timedelta, tzinfo
 from bisect import bisect_right
-from sets import Set
+try:
+    set
+except NameError:
+    from sets import Set as set
 
 import pytz
 
@@ -71,7 +74,7 @@ class StaticTzInfo(BaseTzInfo):
     def fromutc(self, dt):
         '''See datetime.tzinfo.fromutc'''
         return (dt + self._utcoffset).replace(tzinfo=self)
-    
+
     def utcoffset(self,dt):
         '''See datetime.tzinfo.utcoffset'''
         return self._utcoffset
@@ -101,16 +104,16 @@ class StaticTzInfo(BaseTzInfo):
 
     def __reduce__(self):
         # Special pickle to zone remains a singleton and to cope with
-        # database changes. 
+        # database changes.
         return pytz._p, (self.zone,)
 
 
 class DstTzInfo(BaseTzInfo):
     '''A timezone that has a variable offset from UTC
-   
+
     The offset might change if daylight savings time comes into effect,
-    or at a point in history when the region decides to change their 
-    timezone definition. 
+    or at a point in history when the region decides to change their
+    timezone definition.
 
     '''
     # Overridden in subclass
@@ -191,13 +194,13 @@ class DstTzInfo(BaseTzInfo):
 
     def localize(self, dt, is_dst=False):
         '''Convert naive time to local time.
-        
+
         This method should be used to construct localtimes, rather
         than passing a tzinfo argument to a datetime constructor.
 
         is_dst is used to determine the correct timezone in the ambigous
         period at the end of daylight savings time.
-        
+
         >>> from pytz import timezone
         >>> fmt = '%Y-%m-%d %H:%M:%S %Z (%z)'
         >>> amdam = timezone('Europe/Amsterdam')
@@ -226,7 +229,7 @@ class DstTzInfo(BaseTzInfo):
         AmbiguousTimeError: 2004-10-31 02:00:00
 
         is_dst defaults to False
-        
+
         >>> amdam.localize(dt) == amdam.localize(dt, False)
         True
 
@@ -238,7 +241,7 @@ class DstTzInfo(BaseTzInfo):
         # but we might end up with two if we are in the end-of-DST
         # transition period. Or possibly more in some particularly confused
         # location...
-        possible_loc_dt = Set()
+        possible_loc_dt = set()
         for tzinfo in self._tzinfos.values():
             loc_dt = tzinfo.normalize(dt.replace(tzinfo=tzinfo))
             if loc_dt.replace(tzinfo=None) == dt:
@@ -281,7 +284,7 @@ class DstTzInfo(BaseTzInfo):
                     )
         filtered_possible_loc_dt.sort(mycmp)
         return filtered_possible_loc_dt[0]
-        
+
     def utcoffset(self, dt):
         '''See datetime.tzinfo.utcoffset'''
         return self._utcoffset
@@ -328,11 +331,11 @@ class AmbiguousTimeError(Exception):
 
     See DstTzInfo.normalize() for more info
     '''
-       
+
 
 def unpickler(zone, utcoffset=None, dstoffset=None, tzname=None):
     """Factory function for unpickling pytz tzinfo instances.
-    
+
     This is shared for both StaticTzInfo and DstTzInfo instances, because
     database changes could cause a zones implementation to switch between
     these two base classes and we can't break pickles on a pytz version

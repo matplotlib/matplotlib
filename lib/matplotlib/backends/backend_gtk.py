@@ -3,9 +3,13 @@ from __future__ import division
 import os, sys
 def fn_name(): return sys._getframe(1).f_code.co_name
 
-import gobject
-import gtk; gdk = gtk.gdk
-import pango
+try:
+    import gobject
+    import gtk; gdk = gtk.gdk
+    import pango
+except ImportError:
+    raise ImportError("Gtk* backend requires pygtk to be installed.")
+
 pygtk_version_required = (2,2,0)
 if gtk.pygtk_version < pygtk_version_required:
     raise ImportError ("PyGTK %d.%d.%d is installed\n"

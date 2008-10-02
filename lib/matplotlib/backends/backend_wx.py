@@ -112,8 +112,7 @@ try:
     import wx
     backend_version = wx.VERSION_STRING
 except:
-    print >>sys.stderr, "Matplotlib backend_wx requires wxPython be installed"
-    sys.exit()
+    raise ImportError("Matplotlib backend_wx requires wxPython be installed")
 
 #!!! this is the call that is causing the exception swallowing !!!
 #wx.InitAllImageHandlers()

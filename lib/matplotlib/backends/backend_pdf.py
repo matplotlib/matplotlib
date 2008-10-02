@@ -17,7 +17,10 @@ import numpy as npy
 from cStringIO import StringIO
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin
-from sets import Set
+try:
+    set
+except NameError:
+    from sets import Set as set
 
 import matplotlib
 from matplotlib import __version__, rcParams, get_data_path
@@ -692,7 +695,7 @@ end"""
             cmap = font.get_charmap()
             glyph_ids = []
             differences = []
-            multi_byte_chars = Set()
+            multi_byte_chars = set()
             for c in characters:
                 ccode = c
                 gind = cmap.get(ccode) or 0
@@ -1215,14 +1218,14 @@ class RendererPdf(RendererBase):
             fname = font.fname
         realpath, stat_key = get_realpath_and_stat(fname)
         used_characters = self.used_characters.setdefault(
-            stat_key, (realpath, Set()))
+            stat_key, (realpath, set()))
         used_characters[1].update([ord(x) for x in s])
 
     def merge_used_characters(self, other):
-        for stat_key, (realpath, set) in other.items():
+        for stat_key, (realpath, charset) in other.items():
             used_characters = self.used_characters.setdefault(
-                stat_key, (realpath, Set()))
-            used_characters[1].update(set)
+                stat_key, (realpath, set()))
+            used_characters[1].update(charset)
 
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         #print >>sys.stderr, "draw_image called"

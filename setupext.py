@@ -43,7 +43,7 @@ WIN32 - VISUAL STUDIO 7.1 (2003)
 
 import os
 import re
-
+import subprocess
 
 basedir = {
     'win32'  : ['win32_static',],
@@ -64,7 +64,6 @@ basedir = {
 import sys, os, stat
 if sys.platform != 'win32':
     import commands
-from sets import Set
 from textwrap import fill
 from distutils.core import Extension
 import glob
@@ -187,6 +186,14 @@ else:
     def print_line(*args, **kwargs):
         pass
     print_status = print_message = print_raw = print_line
+
+def run_child_process(cmd):
+    p = subprocess.Popen(cmd, shell=True,
+                         stdin=subprocess.PIPE,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT,
+                         close_fds=True)
+    return p.stdin, p.stdout
 
 class CleanUpFile:
     """CleanUpFile deletes the specified filename when self is destroyed."""
@@ -499,7 +506,7 @@ def check_provide_traits():
 
 def check_for_dvipng():
     try:
-        stdin, stdout = os.popen4('dvipng -version')
+        stdin, stdout = run_child_process('dvipng -version')
         print_status("dvipng", stdout.readlines()[1].split()[-1])
         return True
     except (IndexError, ValueError):
@@ -512,7 +519,7 @@ def check_for_ghostscript():
             command = 'gswin32c --version'
         else:
             command = 'gs --version'
-        stdin, stdout = os.popen4(command)
+        stdin, stdout = run_child_process(command)
         print_status("ghostscript", stdout.read()[:-1])
         return True
     except (IndexError, ValueError):
@@ -521,7 +528,7 @@ def check_for_ghostscript():
 
 def check_for_latex():
     try:
-        stdin, stdout = os.popen4('latex -version')
+        stdin, stdout = run_child_process('latex -version')
         line = stdout.readlines()[0]
         pattern = '3\.1\d+'
         match = re.search(pattern, line)
@@ -533,7 +540,7 @@ def check_for_latex():
 
 def check_for_pdftops():
     try:
-        stdin, stdout = os.popen4('pdftops -v')
+        stdin, stdout = run_child_process('pdftops -v')
         for line in stdout.readlines():
             if 'version' in line:
                 print_status("pdftops", line.split()[-1])

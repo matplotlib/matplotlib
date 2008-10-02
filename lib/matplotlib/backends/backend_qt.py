@@ -13,7 +13,10 @@ from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.widgets import SubplotTool
 
-import qt
+try:
+    import qt
+except ImportError:
+    raise ImportError("Qt backend requires pyqt to be installed.")
 
 backend_version = "0.9.1"
 def fn_name(): return sys._getframe(1).f_code.co_name

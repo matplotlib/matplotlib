@@ -36,7 +36,10 @@ from matplotlib.transforms import IdentityTransform
 import numpy as npy
 import binascii
 import re
-from sets import Set
+try:
+    set
+except NameError:
+    from sets import Set as set
 
 if sys.platform.startswith('win'): cmd_split = '&'
 else: cmd_split = ';'
@@ -173,14 +176,14 @@ class RendererPS(RendererBase):
         each font."""
         realpath, stat_key = get_realpath_and_stat(font.fname)
         used_characters = self.used_characters.setdefault(
-            stat_key, (realpath, Set()))
+            stat_key, (realpath, set()))
         used_characters[1].update([ord(x) for x in s])
 
     def merge_used_characters(self, other):
-        for stat_key, (realpath, set) in other.items():
+        for stat_key, (realpath, charset) in other.items():
             used_characters = self.used_characters.setdefault(
-                stat_key, (realpath, Set()))
-            used_characters[1].update(set)
+                stat_key, (realpath, set()))
+            used_characters[1].update(charset)
 
     def set_color(self, r, g, b, store=1):
         if (r,g,b) != self.color:

@@ -1,10 +1,8 @@
 import warnings
-# 2.3 compatibility
 try:
     set
 except NameError:
-    import sets
-    set = sets.Set
+    from sets import Set as set
 
 import numpy as np
 
@@ -98,7 +96,7 @@ class Triangulation(object):
         # Find the indices of the unique entries
         j_sorted = np.lexsort(keys=(self.x, self.y))
         mask_unique = np.hstack([
-            True, 
+            True,
             (np.diff(self.x[j_sorted]) != 0) | (np.diff(self.y[j_sorted]) != 0),
         ])
         return j_sorted[mask_unique]
