@@ -263,7 +263,7 @@ def _parse_optional(fh):
         if len(line)==0: continue
         key = line.split()[0]
 
-        if optional.has_key(key): d[key] = optional[key](fh)
+        if key in optional: d[key] = optional[key](fh)
 
     l = ( d['StartKernData'], d['StartComposites'] )
     return l

@@ -334,7 +334,7 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         """
         if s is None: s = rcParams['image.interpolation']
         s = s.lower()
-        if not self._interpd.has_key(s):
+        if s not in self._interpd:
             raise ValueError('Illegal interpolation string')
         self._interpolation = s
 

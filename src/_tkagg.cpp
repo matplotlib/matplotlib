@@ -54,7 +54,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     agg::int8u *destbuffer;
     double l,b,r,t;
     int destx, desty, destwidth, destheight, deststride;
-    unsigned long tmp_ptr;
+    //unsigned long tmp_ptr;
 
     long mode;
     long nval;

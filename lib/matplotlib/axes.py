@@ -73,17 +73,17 @@ def _process_plot_format(fmt):
     chars = [c for c in fmt]
 
     for c in chars:
-        if mlines.lineStyles.has_key(c):
+        if c in mlines.lineStyles:
             if linestyle is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two linestyle symbols' % fmt)
             linestyle = c
-        elif mlines.lineMarkers.has_key(c):
+        elif c in mlines.lineMarkers:
             if marker is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two marker symbols' % fmt)
             marker = c
-        elif mcolors.colorConverter.colors.has_key(c):
+        elif c in mcolors.colorConverter.colors:
             if color is not None:
                 raise ValueError(
                     'Illegal format string "%s"; two color symbols' % fmt)
@@ -2632,7 +2632,7 @@ class Axes(martist.Artist):
 
 
         #if t.get_clip_on():  t.set_clip_box(self.bbox)
-        if kwargs.has_key('clip_on'):  t.set_clip_box(self.bbox)
+        if 'clip_on' in kwargs:  t.set_clip_box(self.bbox)
         return t
     text.__doc__ = cbook.dedent(text.__doc__) % martist.kwdocd
 

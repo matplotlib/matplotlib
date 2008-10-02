@@ -222,7 +222,7 @@ class Text(Artist):
 
     def _get_layout(self, renderer):
         key = self.get_prop_tup()
-        if self.cached.has_key(key): return self.cached[key]
+        if key in self.cached: return self.cached[key]
 
         horizLayout = []
 
@@ -337,7 +337,7 @@ class Text(Artist):
         # rectprops and the bbox will be drawn using bbox_artist
         # function. This is to keep the backward compatibility.
 
-        if rectprops is not None and rectprops.has_key("boxstyle"):
+        if rectprops is not None and "boxstyle" in rectprops:
             props = rectprops.copy()
             boxstyle = props.pop("boxstyle")
             bbox_transmuter = props.pop("bbox_transmuter", None)

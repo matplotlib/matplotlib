@@ -603,7 +603,7 @@ class Line2D(Artist):
                     linestyle = '-'
 
         if linestyle not in self._lineStyles:
-            if ls_mapper.has_key(linestyle):
+            if linestyle in ls_mapper:
                 linestyle = ls_mapper[linestyle]
             else:
                 verbose.report('Unrecognized line style %s, %s' %

@@ -461,8 +461,8 @@ See rcParams.keys() for a list of valid parameters.'%key)
     def keys(self):
         return self.tconfig_map.keys()
 
-    def has_key(self, val):
-        return self.tconfig_map.has_key(val)
+    def __contains__(self, val):
+        return val in self.tconfig_map
 
     def update(self, arg, **kwargs):
         try:

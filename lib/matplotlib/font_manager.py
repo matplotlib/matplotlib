@@ -505,7 +505,7 @@ def createFontDict(fontfiles, fontext='ttf'):
     for fpath in fontfiles:
         verbose.report('createFontDict: %s' % (fpath), 'debug')
         fname = os.path.split(fpath)[1]
-        if seen.has_key(fname):  continue
+        if fname in seen:  continue
         else: seen[fname] = 1
         if fontext == 'afm':
             try:
@@ -552,33 +552,33 @@ def setWeights(font):
         for j in range(100, 1000, 100):
             font[j] = temp[wgt]
 
-    if temp.has_key(400):
+    if 400 in temp:
         for j in range(100, 1000, 100):
             font[j] = temp[400]
-    if temp.has_key(500):
-        if temp.has_key(400):
+    if 500 in temp:
+        if 400 in temp:
             for j in range(500, 1000, 100):
                 font[j] = temp[500]
         else:
             for j in range(100, 1000, 100):
                 font[j] = temp[500]
 
-    if temp.has_key(300):
+    if 300 in temp:
         for j in [100, 200, 300]:
             font[j] = temp[300]
-    if temp.has_key(200):
-        if temp.has_key(300):
+    if 200 in temp:
+        if 300 in temp:
             for j in [100, 200]:
                 font[j] = temp[200]
         else:
             for j in [100, 200, 300]:
                 font[j] = temp[200]
 
-    if temp.has_key(800):
+    if 800 in temp:
         for j in [600, 700, 800, 900]:
             font[j] = temp[800]
-    if temp.has_key(700):
-        if temp.has_key(800):
+    if 700 in temp:
+        if 800 in temp:
             for j in [600, 700]:
                 font[j] = temp[700]
         else:
@@ -872,7 +872,7 @@ class FontManager:
         #  Create list of font paths
 
         for pathname in ['TTFPATH', 'AFMPATH']:
-            if os.environ.has_key(pathname):
+            if pathname in os.environ:
                 ttfpath = os.environ[pathname]
                 if ttfpath.find(';') >= 0: #win32 style
                     paths.extend(ttfpath.split(';'))
@@ -983,50 +983,50 @@ class FontManager:
 
             fname = None
             font = fontdict
-            if font.has_key(name):
+            if name in font:
                 font = font[name]
             else:
                 verbose.report('\tfindfont failed %(name)s'%locals(), 'debug')
                 return None
 
-            if font.has_key(style):
+            if style in font:
                 font = font[style]
-            elif style == 'italic' and font.has_key('oblique'):
+            elif style == 'italic' and 'oblique' in font:
                 font = font['oblique']
-            elif style == 'oblique' and font.has_key('italic'):
+            elif style == 'oblique' and 'italic' in font:
                 font = font['italic']
             else:
                 verbose.report('\tfindfont failed %(name)s, %(style)s'%locals(), 'debug')
                 return None
 
-            if font.has_key(variant):
+            if variant in font:
                 font = font[variant]
             else:
                 verbose.report('\tfindfont failed %(name)s, %(style)s, %(variant)s'%locals(), 'debug')
                 return None
 
-            if not font.has_key(weight):
+            if weight in font:
                 setWeights(font)
-            if not font.has_key(weight):
+            if weight not in font:
                 return None
             font = font[weight]
 
-            if font.has_key(stretch):
+            if stretch in font:
                 stretch_font = font[stretch]
-                if stretch_font.has_key('scalable'):
+                if 'scalable' in stretch_font:
                     fname = stretch_font['scalable']
-                elif stretch_font.has_key(size):
+                elif size in stretch_font:
                     fname = stretch_font[size]
 
             if fname is None:
                 for val in font.values():
-                    if val.has_key('scalable'):
+                    if 'scalable' in val:
                         fname = val['scalable']
                         break
 
             if fname is None:
                 for val in font.values():
-                    if val.has_key(size):
+                    if size in val:
                         fname = val[size]
                         break
 

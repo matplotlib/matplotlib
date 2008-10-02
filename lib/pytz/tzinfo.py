@@ -136,7 +136,7 @@ class DstTzInfo(BaseTzInfo):
             self._utcoffset, self._dst, self._tzname = self._transition_info[0]
             _tzinfos[self._transition_info[0]] = self
             for inf in self._transition_info[1:]:
-                if not _tzinfos.has_key(inf):
+                if inf not in _tzinfos:
                     _tzinfos[inf] = self.__class__(inf, _tzinfos)
 
     def fromutc(self, dt):

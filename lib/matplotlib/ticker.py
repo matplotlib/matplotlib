@@ -745,7 +745,7 @@ class LinearLocator(Locator):
         if vmax<vmin:
             vmin, vmax = vmax, vmin
 
-        if self.presets.has_key((vmin, vmax)):
+        if (vmin, vmax) in self.presets:
             return self.presets[(vmin, vmax)]
 
         if self.numticks is None:

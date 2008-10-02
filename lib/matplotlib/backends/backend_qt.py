@@ -170,7 +170,7 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
     def _get_key( self, event ):
         if event.key() < 256:
             key = event.text().latin1()
-        elif self.keyvald.has_key( event.key() ):
+        elif event.key() in self.keyvald.has_key:
             key = self.keyvald[ event.key() ]
         else:
             key = None

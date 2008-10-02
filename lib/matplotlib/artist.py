@@ -662,7 +662,7 @@ class ArtistInspector:
         alias, return 'markerfacecolor or mfc' and for the transform
         property, which does not, return 'transform'
         """
-        if self.aliasd.has_key(s):
+        if s in self.aliasd:
             return '%s or %s' % (s, self.aliasd[s])
         else: return s
 

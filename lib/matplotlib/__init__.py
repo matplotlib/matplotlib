@@ -443,7 +443,7 @@ get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
 def _get_data_path():
     'get the path to matplotlib data'
 
-    if os.environ.has_key('MATPLOTLIBDATA'):
+    if 'MATPLOTLIBDATA' in os.environ:
         path = os.environ['MATPLOTLIBDATA']
         if not os.path.isdir(path):
             raise RuntimeError('Path in environment MATPLOTLIBDATA not a directory')
@@ -535,7 +535,7 @@ WARNING: Old rc filename "%s" found and renamed to
     fname = os.path.join( os.getcwd(), 'matplotlibrc')
     if os.path.exists(fname): return fname
 
-    if os.environ.has_key('MATPLOTLIBRC'):
+    if 'MATPLOTLIBRC' in os.environ:
         path =  os.environ['MATPLOTLIBRC']
         if os.path.exists(path):
             fname = os.path.join(path, 'matplotlibrc')
@@ -637,7 +637,7 @@ def rc_params(fail_on_error=False):
     verbose.set_fileo(ret['verbose.fileo'])
 
     for key, (val, line, cnt) in rc_temp.iteritems():
-        if defaultParams.has_key(key):
+        if key in defaultParams:
             if fail_on_error:
                 ret[key] = val # try to convert to proper type or raise
             else:
@@ -745,7 +745,7 @@ def rc(group, **kwargs):
         for k,v in kwargs.items():
             name = aliases.get(k) or k
             key = '%s.%s' % (g, name)
-            if not rcParams.has_key(key):
+            if key not in rcParams:
                 raise KeyError('Unrecognized key "%s" for group "%s" and name "%s"' %
                                (key, g, name))
 

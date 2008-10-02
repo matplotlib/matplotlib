@@ -267,9 +267,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         try:
             dashd = backend_bases.GraphicsContextBase.dashd
             if cbook.is_string_like(ls):
-                if dashd.has_key(ls):
+                if ls in dashd:
                     dashes = [dashd[ls]]
-                elif cbook.ls_mapper.has_key(ls):
+                elif ls in cbook.ls_mapper:
                     dashes = [dashd[cbook.ls_mapper[ls]]]
                 else:
                     raise ValueError()
@@ -278,9 +278,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     dashes = []
                     for x in ls:
                         if cbook.is_string_like(x):
-                            if dashd.has_key(x):
+                            if x in dashd:
                                 dashes.append(dashd[x])
-                            elif cbook.ls_mapper.has_key(x):
+                            elif x in cbook.ls_mapper:
                                 dashes.append(dashd[cbook.ls_mapper[x]])
                             else:
                                 raise ValueError()

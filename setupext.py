@@ -70,14 +70,6 @@ import glob
 import ConfigParser
 import cStringIO
 
-major, minor1, minor2, s, tmp = sys.version_info
-if major<2 or (major==2 and minor1<3):
-    True = 1
-    False = 0
-else:
-    True = True
-    False = False
-
 BUILT_PNG       = False
 BUILT_AGG       = False
 BUILT_FT2FONT   = False
@@ -88,9 +80,9 @@ BUILT_TKAGG     = False
 BUILT_WXAGG     = False
 BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
-BUILT_DELAUNAY   = False
+BUILT_DELAUNAY  = False
 BUILT_NXUTILS   = False
-BUILT_TRAITS = False
+BUILT_TRAITS    = False
 BUILT_CONTOUR   = False
 BUILT_GDK       = False
 BUILT_PATH      = False
@@ -696,7 +688,7 @@ def add_pygtk_flags(module):
 
         add_base_flags(module)
 
-        if not os.environ.has_key('PKG_CONFIG_PATH'):
+        if 'PKG_CONFIG_PATH' not in os.environ:
             # If Gtk+ is installed, pkg-config is required to be installed
             os.environ['PKG_CONFIG_PATH'] = 'C:\GTK\lib\pkgconfig'
 
