@@ -175,7 +175,10 @@ from __future__ import division
 import os
 from cStringIO import StringIO
 from math import ceil
-from sets import Set
+try:
+    set
+except NameError:
+    from sets import Set as set
 import unicodedata
 from warnings import warn
 
@@ -531,7 +534,7 @@ class Fonts(object):
         info = self._get_info(facename, font_class, sym, fontsize, dpi)
         realpath, stat_key = get_realpath_and_stat(info.font.fname)
         used_characters = self.used_characters.setdefault(
-            stat_key, (realpath, Set()))
+            stat_key, (realpath, set()))
         used_characters[1].add(info.num)
         self.mathtext_backend.render_glyph(ox, oy, info)
 
@@ -704,7 +707,7 @@ class BakomaFonts(TruetypeFonts):
                 self.fontmap[val] = fullpath
 
 
-    _slanted_symbols = Set(r"\int \oint".split())
+    _slanted_symbols = set(r"\int \oint".split())
 
     def _get_glyph(self, fontname, font_class, sym, fontsize):
         symbol_name = None
@@ -816,7 +819,7 @@ class UnicodeFonts(TruetypeFonts):
             font = findfont(prop)
             self.fontmap['ex'] = font
 
-    _slanted_symbols = Set(r"\int \oint".split())
+    _slanted_symbols = set(r"\int \oint".split())
 
     def _map_virtual_font(self, fontname, font_class, uniindex):
         return fontname, uniindex
@@ -1967,7 +1970,7 @@ def Error(msg):
     return empty
 
 class Parser(object):
-    _binary_operators = Set(r'''
+    _binary_operators = set(r'''
       + *
       \pm             \sqcap                   \rhd
       \mp             \sqcup                   \unlhd
@@ -1982,7 +1985,7 @@ class Parser(object):
       \cup            \triangleright           \ddagger
       \uplus          \lhd                     \amalg'''.split())
 
-    _relation_symbols = Set(r'''
+    _relation_symbols = set(r'''
       = < > :
       \leq            \geq             \equiv           \models
       \prec           \succ            \sim             \perp
@@ -1995,7 +1998,7 @@ class Parser(object):
       \in             \ni              \propto
       \vdash          \dashv'''.split())
 
-    _arrow_symbols = Set(r'''
+    _arrow_symbols = set(r'''
       \leftarrow              \longleftarrow           \uparrow
       \Leftarrow              \Longleftarrow           \Uparrow
       \rightarrow             \longrightarrow          \downarrow
@@ -2010,32 +2013,32 @@ class Parser(object):
 
     _spaced_symbols = _binary_operators | _relation_symbols | _arrow_symbols
 
-    _punctuation_symbols = Set(r', ; . ! \ldotp \cdotp'.split())
+    _punctuation_symbols = set(r', ; . ! \ldotp \cdotp'.split())
 
-    _overunder_symbols = Set(r'''
+    _overunder_symbols = set(r'''
        \sum \prod \coprod \bigcap \bigcup \bigsqcup \bigvee
        \bigwedge \bigodot \bigotimes \bigoplus \biguplus
        '''.split())
 
-    _overunder_functions = Set(
+    _overunder_functions = set(
         r"lim liminf limsup sup max min".split())
 
-    _dropsub_symbols = Set(r'''\int \oint'''.split())
+    _dropsub_symbols = set(r'''\int \oint'''.split())
 
-    _fontnames = Set("rm cal it tt sf bf default bb frak circled scr".split())
+    _fontnames = set("rm cal it tt sf bf default bb frak circled scr".split())
 
-    _function_names = Set("""
+    _function_names = set("""
       arccos csc ker min arcsin deg lg Pr arctan det lim sec arg dim
       liminf sin cos exp limsup sinh cosh gcd ln sup cot hom log tan
       coth inf max tanh""".split())
 
-    _ambiDelim = Set(r"""
+    _ambiDelim = set(r"""
       | \| / \backslash \uparrow \downarrow \updownarrow \Uparrow
       \Downarrow \Updownarrow .""".split())
 
-    _leftDelim = Set(r"( [ { \lfloor \langle \lceil".split())
+    _leftDelim = set(r"( [ { \lfloor \langle \lceil".split())
 
-    _rightDelim = Set(r") ] } \rfloor \rangle \rceil".split())
+    _rightDelim = set(r") ] } \rfloor \rangle \rceil".split())
 
     def __init__(self):
         # All forward declarations are here
@@ -2381,7 +2384,7 @@ class Parser(object):
         r'^'     : r'\circumflexaccent'
         }
 
-    _wide_accents = Set(r"widehat widetilde".split())
+    _wide_accents = set(r"widehat widetilde".split())
 
     def accent(self, s, loc, toks):
         assert(len(toks)==1)

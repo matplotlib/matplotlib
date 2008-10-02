@@ -93,7 +93,7 @@ __version__  = '0.98.3'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
-import md5, os, re, shutil, sys, warnings
+import os, re, shutil, sys, warnings
 import distutils.sysconfig
 
 
@@ -234,7 +234,7 @@ class Verbose:
         if always is True, the report will occur on every function
         call; otherwise only on the first time the function is called
         """
-        assert(callable, func)
+        assert callable(func)
         def wrapper(*args, **kwargs):
             ret = func(*args, **kwargs)
 

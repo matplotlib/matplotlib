@@ -34,7 +34,10 @@ License   : matplotlib license (PSF compatible)
 """
 
 import os, sys, glob
-from sets import Set
+try:
+    set
+except NameError:
+    from sets import Set as set
 import matplotlib
 from matplotlib import afm
 from matplotlib import ft2font
@@ -1036,7 +1039,7 @@ class FontManager:
                 verbose.report('findfont returning %s'%fname, 'debug')
             return fname
 
-        font_family_aliases = Set(['serif', 'sans-serif', 'cursive',
+        font_family_aliases = set(['serif', 'sans-serif', 'cursive',
                                    'fantasy', 'monospace', 'sans'])
 
         for name in prop.get_family():

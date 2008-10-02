@@ -36,7 +36,10 @@ from numpy.linalg import inv
 
 from weakref import WeakKeyDictionary
 import warnings
-import sets
+try:
+    set
+except NameError:
+    from sets import Set as set
 
 import cbook
 from path import Path
@@ -161,7 +164,7 @@ class TransformNode(object):
 
             fobj: A Python file-like object
             """
-            seen = sets.Set()
+            seen = set()
 
             def recurse(root):
                 if root in seen:

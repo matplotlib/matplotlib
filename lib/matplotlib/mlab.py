@@ -96,7 +96,8 @@ import matplotlib.cbook as cbook
 
 # set is a new builtin function in 2.4; delete the following when
 # support for 2.3 is dropped.
-try: set
+try:
+    set
 except NameError:
     from sets import Set as set
 
