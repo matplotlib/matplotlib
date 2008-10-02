@@ -2347,7 +2347,7 @@ stix_virtual_fonts = {
         'it':
             [
             (0x0030, 0x0039, 'rm', 0x1d7d8), # 0-9
-            (0x0041, 0x0041, 'it', 0xe154),  # A-B
+            (0x0041, 0x0042, 'it', 0xe154),  # A-B
             (0x0043, 0x0043, 'it', 0x2102),  # C (missing in beta STIX fonts)
             (0x0044, 0x0044, 'it', 0x2145),  # D
             (0x0045, 0x0047, 'it', 0xe156),  # E-G
