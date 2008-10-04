@@ -2,6 +2,11 @@
 Changes for 0.98.x
 ==================
 
+* Changed precision kwarg in spy; default is 0, and the string value
+  'present' is used for sparse arrays only to show filled locations.
+
+* EllipseCollection added.
+
 * Added angles kwarg to quiver for more flexible specification of
   the arrow angles.
 

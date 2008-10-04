@@ -6648,21 +6648,21 @@ class Axes(martist.Artist):
 
         return Pxx, freqs, bins, im
 
-    def spy(self, Z, precision=None, marker=None, markersize=None,
+    def spy(self, Z, precision=0, marker=None, markersize=None,
             aspect='equal',  **kwargs):
         """
         call signature::
 
-          spy(Z, precision=None, marker=None, markersize=None,
+          spy(Z, precision=0, marker=None, markersize=None,
               aspect='equal', **kwargs)
 
         ``spy(Z)`` plots the sparsity pattern of the 2-D array *Z*.
 
-        If *precision* is *None*, any non-zero value will be plotted;
+        If *precision* is 0, any non-zero value will be plotted;
         else, values of :math:`|Z| > precision` will be plotted.
 
         For :class:`scipy.sparse.spmatrix` instances, there is a
-        special case: if *precision* is 0, any value present in
+        special case: if *precision* is 'present', any value present in
         the array will be plotted, even if it is identically zero.
 
         The array will be plotted as it would be printed, with
@@ -6715,12 +6715,15 @@ class Axes(martist.Artist):
         * ','  pixel
 
         """
+        if precision is None:
+            precision = 0
+            warnings.DeprecationWarning("Use precision=0 instead of None")
+            # 2008/10/03
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
         if marker is None and markersize is None:
             Z = np.asarray(Z)
-            if precision is None: mask = Z!=0.
-            else:                 mask = np.absolute(Z)>precision
+            mask = np.absolute(Z)>precision
 
             if 'cmap' not in kwargs:
                 kwargs['cmap'] = mcolors.ListedColormap(['w', 'k'], name='binary')
@@ -6731,22 +6734,16 @@ class Axes(martist.Artist):
         else:
             if hasattr(Z, 'tocoo'):
                 c = Z.tocoo()
-                if precision == 0:
+                if precision == 'present':
                     y = c.row
                     x = c.col
                 else:
-                    if precision is None:
-                        nonzero = c.data != 0.
-                    else:
-                        nonzero = np.absolute(c.data) > precision
+                    nonzero = np.absolute(c.data) > precision
                     y = c.row[nonzero]
                     x = c.col[nonzero]
             else:
                 Z = np.asarray(Z)
-                if precision is None:
-                    nonzero = Z!=0.
-                else:
-                    nonzero = np.absolute(Z)>precision
+                nonzero = np.absolute(Z)>precision
                 y, x = np.nonzero(nonzero)
             if marker is None: marker = 's'
             if markersize is None: markersize = 10
