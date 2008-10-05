@@ -1,3 +1,7 @@
+2008-10-04 Added 'scilimits' kwarg to Axes.ticklabel_format() method,
+           for easy access to the set_powerlimits method of the
+           major ScalarFormatter. - EF
+
 2008-10-04 Experimental new kwarg borderpad to replace pad in legend,
            based on suggestion by Jae-Joon Lee.  - EF
 
