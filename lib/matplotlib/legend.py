@@ -85,6 +85,7 @@ class Legend(Artist):
                  numpoints = None,     # the number of points in the legend line
                  prop = None,
                  pad = None,           # the fractional whitespace inside the legend border
+                 borderpad = None,
                  markerscale = None,   # the relative size of legend markers vs. original
                  # the following dimensions are in axes coords
                  labelsep = None,      # the vertical space between the legend entries
@@ -116,12 +117,15 @@ The following dimensions are in axes coords
 
         Artist.__init__(self)
 
-        proplist=[numpoints, pad, markerscale, labelsep, handlelen, handletextsep, axespad, shadow]
-        propnames=['numpoints', 'pad', 'markerscale', 'labelsep', 'handlelen', 'handletextsep', 'axespad', 'shadow']
+        proplist=[numpoints, pad, borderpad, markerscale, labelsep, handlelen, handletextsep, axespad, shadow]
+        propnames=['numpoints', 'pad', 'borderpad', 'markerscale', 'labelsep', 'handlelen', 'handletextsep', 'axespad', 'shadow']
         for name, value in safezip(propnames,proplist):
             if value is None:
                 value=rcParams["legend."+name]
             setattr(self,name,value)
+        if pad:
+            warnings.DeprecationWarning("Use 'borderpad' instead of 'pad'.")
+            # 2008/10/04
         if self.numpoints <= 0:
             raise ValueError("numpoints must be >= 0; it was %d"% numpoints)
         if prop is None:
@@ -532,8 +536,14 @@ The following dimensions are in axes coords
         # Set the data for the legend patch
         bbox = self._get_handle_text_bbox(renderer)
 
-        bbox = bbox.expanded(1 + self.pad, 1 + self.pad)
+        if self.pad:
+            bbox = bbox.expanded(1 + self.pad, 1 + self.pad)
+        else:
+            bbox = bbox.transformed(self.get_transform())
+            bbox = bbox.padded(self.borderpad*self.fontsize)
+            bbox = bbox.inverse_transformed(self.get_transform())
         l, b, w, h = bbox.bounds
+
         self.legendPatch.set_bounds(l, b, w, h)
 
         ox, oy = 0, 0                           # center

@@ -416,7 +416,8 @@ defaultParams = {
     'legend.isaxes'      : [True,validate_bool],  # this option is internally ignored - it never served any useful purpose
     'legend.numpoints'   : [2, validate_int],     # the number of points in the legend line
     'legend.fontsize'    : ['large', validate_fontsize],
-    'legend.pad'         : [0.2, validate_float], # the fractional whitespace inside the legend border
+    'legend.pad'         : [0,   validate_float], # was 0.2, deprecated; the fractional whitespace inside the legend border
+    'legend.borderpad'   : [0.5, validate_float], # units are fontsize
     'legend.markerscale' : [1.0, validate_float], # the relative size of legend markers vs. original
 
     # the following dimensions are in axes coords
