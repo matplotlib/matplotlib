@@ -1639,26 +1639,34 @@ class Axes(martist.Artist):
 
         Optional keyword arguments:
 
-          =======   =====================================
-          Keyword   Description
-          =======   =====================================
-          *style*   [ 'sci' (or 'scientific') | 'plain' ]
-                    plain turns off scientific notation
-          *axis*    [ 'x' | 'y' | 'both' ]
-          =======   =====================================
+          ============   =====================================
+          Keyword        Description
+          ============   =====================================
+          *style*        [ 'sci' (or 'scientific') | 'plain' ]
+                         plain turns off scientific notation
+          *scilimits*    (m, n), pair of integers; if *style*
+                         is 'sci', scientific notation will
+                         be used for numbers outside the range
+                         10`-m`:sup: to 10`n`:sup:.
+                         Use (0,0) to include all numbers.
+          *axis*         [ 'x' | 'y' | 'both' ]
+          ============   =====================================
 
         Only the major ticks are affected.
         If the method is called when the
         :class:`~matplotlib.ticker.ScalarFormatter` is not the
         :class:`~matplotlib.ticker.Formatter` being used, an
-        :exc:`AttributeError` will be raised with no additional error
-        message.
-
-        Additional capabilities and/or friendlier error checking may
-        be added.
+        :exc:`AttributeError` will be raised.
 
         """
         style = kwargs.pop('style', '').lower()
+        scilimits = kwargs.pop('scilimits', None)
+        if scilimits is not None:
+            try:
+                m, n = scilimits
+                m+n+1  # check that both are numbers
+            except (ValueError, TypeError):
+                raise ValueError("scilimits must be a sequence of 2 integers")
         axis = kwargs.pop('axis', 'both').lower()
         if style[:3] == 'sci':
             sb = True
@@ -1673,11 +1681,20 @@ class Axes(martist.Artist):
             sb = None
         else:
             raise ValueError, "%s is not a valid style value"
-        if sb is not None:
-            if axis == 'both' or axis == 'x':
-                self.xaxis.major.formatter.set_scientific(sb)
-            if axis == 'both' or axis == 'y':
-                self.yaxis.major.formatter.set_scientific(sb)
+        try:
+            if sb is not None:
+                if axis == 'both' or axis == 'x':
+                    self.xaxis.major.formatter.set_scientific(sb)
+                if axis == 'both' or axis == 'y':
+                    self.yaxis.major.formatter.set_scientific(sb)
+            if scilimits is not None:
+                if axis == 'both' or axis == 'x':
+                    self.xaxis.major.formatter.set_powerlimits(scilimits)
+                if axis == 'both' or axis == 'y':
+                    self.yaxis.major.formatter.set_powerlimits(scilimits)
+        except AttributeError:
+            raise AttributeError(
+                "This method only works with the ScalarFormatter.")
 
     def set_axis_off(self):
         """turn off the axis"""
