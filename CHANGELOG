@@ -1,3 +1,6 @@
+2008-10-05 Fix problem with AFM files that don't specify the font's
+           full name or family name. - JKS
+
 2008-09-11 Fix use of backticks in PS - MGD
 
 2008-09-07 Changed full arrows slightly to avoid an xpdf rendering

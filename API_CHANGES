@@ -1,3 +1,8 @@
+    AFM.get_fullname() and get_familyname() no longer raise an 
+    exception if the AFM file does not specify these optional
+    attributes, but returns a guess based on the required FontName
+    attribute.
+
     Deprecated all mlab2 functions in mlab
 
     matplotlib.image.imread now no longer always returns RGBA -- if
