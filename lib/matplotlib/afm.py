@@ -34,7 +34,7 @@ AUTHOR:
   John D. Hunter <jdhunter@ace.bsd.uchicago.edu>
 """
 
-import sys, os
+import sys, os, re
 from _mathtext_data import uni2type1
 
 #Convert string the a python type
@@ -433,11 +433,21 @@ class AFM:
 
     def get_fullname(self):
         "Return the font full name, eg, Times-Roman"
-        return self._header['FullName']
+        name = self._header.get('FullName')
+        if name is None: # use FontName as a substitute
+            name = self._header['FontName']
+        return name
 
     def get_familyname(self):
         "Return the font family name, eg, Times"
-        return self._header['FamilyName']
+        name = self._header.get('FamilyName')
+        if name is not None:
+            return name
+
+        # FamilyName not specified so we'll make a guess
+        name = self.get_fullname()
+        extras = r'(?i)([ -](regular|plain|italic|oblique|bold|semibold|light|ultralight|extra|condensed))+$'
+        return re.sub(extras, '', name)
 
     def get_weight(self):
         "Return the font weight, eg, 'Bold' or 'Roman'"
