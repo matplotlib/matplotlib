@@ -1,6 +1,10 @@
 
 Changes for 0.98.x
 ==================
+    
+* AFM.get_fullname() and get_familyname() no longer raise an
+  exception if the AFM file does not specify these optional attributes,
+  but returns a guess based on the required FontName attribute.
 
 * Changed precision kwarg in spy; default is 0, and the string value
   'present' is used for sparse arrays only to show filled locations.
