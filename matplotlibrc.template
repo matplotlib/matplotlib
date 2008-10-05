@@ -233,7 +233,8 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 #legend.isaxes        : True
 #legend.numpoints     : 2      # the number of points in the legend line
 #legend.fontsize      : large
-#legend.pad           : 0.2    # the fractional whitespace inside the legend border
+#legend.pad           : 0.0    # deprecated; the fractional whitespace inside the legend border
+#legend.borderpad     : 0.5    # border whitspace in fontsize units
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
 # the following dimensions are in axes coords
 #legend.labelsep      : 0.010  # the vertical space between the legend entries

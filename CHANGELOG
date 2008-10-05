@@ -1,3 +1,6 @@
+2008-10-04 Experimental new kwarg borderpad to replace pad in legend,
+           based on suggestion by Jae-Joon Lee.  - EF
+
 2008-09-27 Allow spy to ignore zero values in sparse arrays, based
            on patch by Tony Yu.  Also fixed plot to handle empty
            data arrays, and fixed handling of markers in figlegend. - EF
