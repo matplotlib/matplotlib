@@ -711,7 +711,7 @@ class Figure(Artist):
 
     def clear(self):
         """
-        Clear the figure
+        Clear the figure -- synonym for fig.clf
         """
         self.clf()
 
