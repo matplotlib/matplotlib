@@ -135,7 +135,7 @@ class Registry(dict):
 
             for thisx in x:
                 converter = self.get_converter( thisx )
-                if converter: break
+                return converter
 
         #DISABLED self._cached[idx] = converter
         return converter
