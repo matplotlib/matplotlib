@@ -941,7 +941,11 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   if (snap)
     gc.isaa = false;
 
-  _draw_path(curve, has_clippath, face, gc);
+  try {
+    _draw_path(curve, has_clippath, face, gc);
+  } catch (const char* e) {
+    throw Py::RuntimeError(e);
+  }
 
   return Py::Object();
 }
@@ -1175,20 +1179,24 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
 
   PathListGenerator path_generator(paths);
 
-  _draw_path_collection_generic<PathListGenerator, 1, 1>
-    (master_transform,
-     cliprect,
-     clippath,
-     clippath_trans,
-     path_generator,
-     transforms_obj,
-     offsets_obj,
-     offset_trans,
-     facecolors_obj,
-     edgecolors_obj,
-     linewidths,
-     linestyles_obj,
-     antialiaseds);
+  try {
+    _draw_path_collection_generic<PathListGenerator, 1, 1>
+      (master_transform,
+       cliprect,
+       clippath,
+       clippath_trans,
+       path_generator,
+       transforms_obj,
+       offsets_obj,
+       offset_trans,
+       facecolors_obj,
+       edgecolors_obj,
+       linewidths,
+       linestyles_obj,
+       antialiaseds);
+  } catch (const char *e) {
+    throw Py::RuntimeError(e);
+  }
 
   return Py::Object();
 }
@@ -1310,20 +1318,24 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
   }
 
   try {
-    _draw_path_collection_generic<QuadMeshGenerator, 0, 0>
-      (master_transform,
-       cliprect,
-       clippath,
-       clippath_trans,
-       path_generator,
-       transforms_obj,
-       offsets_obj,
-       offset_trans,
-       facecolors_obj,
-       edgecolors_obj,
-       linewidths,
-       linestyles_obj,
-       antialiaseds);
+    try {
+      _draw_path_collection_generic<QuadMeshGenerator, 0, 0>
+        (master_transform,
+         cliprect,
+         clippath,
+         clippath_trans,
+         path_generator,
+         transforms_obj,
+         offsets_obj,
+         offset_trans,
+         facecolors_obj,
+         edgecolors_obj,
+         linewidths,
+         linestyles_obj,
+         antialiaseds);
+    } catch (const char* e) {
+      throw Py::RuntimeError(e);
+    }
   } catch (...) {
     if (free_edgecolors) Py_XDECREF(edgecolors_obj.ptr());
     throw;
