@@ -124,7 +124,7 @@ The following dimensions are in axes coords
                 value=rcParams["legend."+name]
             setattr(self,name,value)
         if pad:
-            warnings.DeprecationWarning("Use 'borderpad' instead of 'pad'.")
+            warnings.warn("Use 'borderpad' instead of 'pad'.", DeprecationWarning)
             # 2008/10/04
         if self.numpoints <= 0:
             raise ValueError("numpoints must be >= 0; it was %d"% numpoints)
