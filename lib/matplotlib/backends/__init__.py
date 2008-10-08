@@ -1,5 +1,6 @@
 
 import matplotlib
+import warnings
 
 # ipython relies on interactive_bk being defined here
 from matplotlib.rcsetup import interactive_bk
@@ -28,9 +29,15 @@ def pylab_setup():
     # image backends like pdf, agg or svg do not need to do anything
     # for "show" or "draw_if_interactive", so if they are not defined
     # by the backend, just do nothing
+    def do_nothing_show(*args, **kwargs):
+        warnings.warn("""
+Your currently selected backend, '%s' does not support show().
+Please select a GUI backend in your matplotlibrc file ('%s')
+or with matplotlib.use()""" %
+                      (backend, matplotlib.matplotlib_fname()))
     def do_nothing(*args, **kwargs): pass
     backend_version = getattr(backend_mod,'backend_version', 'unknown')
-    show = getattr(backend_mod, 'show', do_nothing)
+    show = getattr(backend_mod, 'show', do_nothing_show)
     draw_if_interactive = getattr(backend_mod, 'draw_if_interactive', do_nothing)
 
     # Additional imports which only happen for certain backends.  This section
