@@ -29,6 +29,7 @@
 #ifndef AGG_RASTERIZER_CELLS_AA_INCLUDED
 #define AGG_RASTERIZER_CELLS_AA_INCLUDED
 
+#include <exception>
 #include <string.h>
 #include <math.h>
 #include "agg_math.h"
@@ -183,7 +184,9 @@ namespace agg
         {
             if((m_num_cells & cell_block_mask) == 0)
             {
-                if(m_num_blocks >= cell_block_limit) return;
+                if(m_num_blocks >= cell_block_limit) {
+                    throw "Agg rendering complexity exceeded.";
+                }
                 allocate_block();
             }
             *m_curr_cell_ptr++ = m_curr_cell;
