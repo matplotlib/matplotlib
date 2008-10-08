@@ -1665,6 +1665,14 @@ def safe_isinf(x):
     except TypeError: return False
     else: return b
 
+def rec_view(rec):
+    """ Return a view of an ndarray as a recarray
+        http://projects.scipy.org/pipermail/numpy-discussion/2008-August/036429.html
+        Reverting Travis' fix because it doesn't work for object arrays
+    """
+    return rec.view(np.recarray)
+    #return rec.view(dtype=(np.record, rec.dtype), type=np.recarray)
+
 def rec_append_field(rec, name, arr, dtype=None):
     """
     return a new record array with field name populated with data from array arr.
@@ -1703,7 +1711,7 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
         newrec[field] = rec[field]
     for name, arr in zip(names, arrs):
         newrec[name] = arr
-    return newrec.view(np.recarray)
+    return rec_view(newrec)
 
 
 def rec_drop_fields(rec, names):
@@ -1719,7 +1727,7 @@ def rec_drop_fields(rec, names):
     for field in newdtype.names:
         newrec[field] = rec[field]
 
-    return newrec.view(np.recarray)
+    return rec_view(newrec)
 
 
 
@@ -1789,7 +1797,7 @@ def rec_summarize(r, summaryfuncs):
     return np.rec.fromarrays(arrays, names=names)
 
 
-def rec_join(key, r1, r2, jointype='inner', defaults=None):
+def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2postfix='2'):
     """
     join record arrays r1 and r2 on key; key is a tuple of field
     names. If r1 and r2 have equal values on all the keys in the key
@@ -1803,6 +1811,9 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None):
 
     The defaults keyword is a dictionary filled with
     {column_name:default_value} pairs.
+
+    The keywords r1postfix and r2postfix are postfixed to column names 
+    (other than keys) that are both in r1 and r2.
     """
 
     for name in key:
@@ -1850,13 +1861,21 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None):
             return (name, dt2.descr[0][1])
 
 
-
     keydesc = [key_desc(name) for name in key]
+    
+    def mapped_r1field(name):
+        """ the column name in newrec that corresponds to the colmn in r1 """
+        if name in key or name not in r2.dtype.names: return name
+        else: return name + r1postfix
 
-    newdtype = np.dtype(keydesc +
-                         [desc for desc in r1.dtype.descr if desc[0] not in key ] +
-                         [desc for desc in r2.dtype.descr if desc[0] not in key ] )
+    def mapped_r2field(name):
+        """ the column name in newrec that corresponds to the colmn in r2 """
+        if name in key or name not in r1.dtype.names: return name
+        else: return name + r2postfix
 
+    r1desc = [(mapped_r1field(desc[0]), desc[1]) for desc in r1.dtype.descr if desc[0] not in key]
+    r2desc = [(mapped_r2field(desc[0]), desc[1]) for desc in r2.dtype.descr if desc[0] not in key]
+    newdtype = np.dtype(keydesc + r1desc + r2desc)
 
     newrec = np.empty(common_len + left_len + right_len, dtype=newdtype)
 
@@ -1867,20 +1886,22 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None):
                 newrec[k] = v
 
     for field in r1.dtype.names:
+        newfield = mapped_r1field(field)
         if common_len:
-            newrec[field][:common_len] = r1[field][r1ind]
+            newrec[newfield][:common_len] = r1[field][r1ind]
         if (jointype == "outer" or jointype == "leftouter") and left_len:
-            newrec[field][common_len:(common_len+left_len)] = r1[field][left_ind]
+            newrec[newfield][common_len:(common_len+left_len)] = r1[field][left_ind]
 
     for field in r2.dtype.names:
+        newfield = mapped_r2field(field)
         if field not in key and common_len:
-            newrec[field][:common_len] = r2[field][r2ind]
+            newrec[newfield][:common_len] = r2[field][r2ind]
         if jointype == "outer" and right_len:
-            newrec[field][-right_len:] = r2[field][right_ind]
+            newrec[newfield][-right_len:] = r2[field][right_ind]
 
     newrec.sort(order=key)
 
-    return newrec.view(np.recarray)
+    return rec_view(newrec)
 
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
