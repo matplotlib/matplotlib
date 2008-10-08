@@ -1799,8 +1799,9 @@ def rec_summarize(r, summaryfuncs):
 
 def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2postfix='2'):
     """
-    join record arrays r1 and r2 on key; key is a tuple of field
-    names. If r1 and r2 have equal values on all the keys in the key
+    join record arrays r1 and r2 on key; key is a tuple of field names
+    -- if key is a string it is assumed to be a single attribute
+    name. If r1 and r2 have equal values on all the keys in the key
     tuple, then their fields will be merged into a new record array
     containing the intersection of the fields of r1 and r2.
 
@@ -1812,9 +1813,12 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
     The defaults keyword is a dictionary filled with
     {column_name:default_value} pairs.
 
-    The keywords r1postfix and r2postfix are postfixed to column names 
+    The keywords r1postfix and r2postfix are postfixed to column names
     (other than keys) that are both in r1 and r2.
     """
+
+    if cbook.is_string_like(key):
+        key = (key, )
 
     for name in key:
         if name not in r1.dtype.names:
@@ -1862,7 +1866,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
 
 
     keydesc = [key_desc(name) for name in key]
-    
+
     def mapped_r1field(name):
         """ the column name in newrec that corresponds to the colmn in r1 """
         if name in key or name not in r2.dtype.names: return name
