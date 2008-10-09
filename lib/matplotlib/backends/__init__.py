@@ -1,5 +1,6 @@
 
 import matplotlib
+import inspect
 import warnings
 
 # ipython relies on interactive_bk being defined here
@@ -30,11 +31,14 @@ def pylab_setup():
     # for "show" or "draw_if_interactive", so if they are not defined
     # by the backend, just do nothing
     def do_nothing_show(*args, **kwargs):
-        warnings.warn("""
+        frame = inspect.currentframe()
+        fname = inspect.getframeinfo(frame.f_back)[0]
+        if fname in ('<stdin>', '<ipython console>'):
+            warnings.warn("""
 Your currently selected backend, '%s' does not support show().
 Please select a GUI backend in your matplotlibrc file ('%s')
 or with matplotlib.use()""" %
-                      (backend, matplotlib.matplotlib_fname()))
+                          (backend, matplotlib.matplotlib_fname()))
     def do_nothing(*args, **kwargs): pass
     backend_version = getattr(backend_mod,'backend_version', 'unknown')
     show = getattr(backend_mod, 'show', do_nothing_show)
