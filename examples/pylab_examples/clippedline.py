@@ -19,7 +19,7 @@ class ClippedLine(Line2D):
 
     def set_data(self, *args, **kwargs):
         Line2D.set_data(self, *args, **kwargs)
-        if self._invalid: 
+        if self._invalid:
             self.recache()
         self.xorig = np.array(self._x)
         self.yorig = np.array(self._y)

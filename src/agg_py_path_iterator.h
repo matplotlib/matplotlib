@@ -137,7 +137,8 @@ public:
                  double width = 0.0, double height = 0.0) :
             m_source(&source), m_quantize(quantize), m_simplify(simplify),
             m_width(width + 1.0), m_height(height + 1.0), m_queue_read(0), m_queue_write(0),
-            m_moveto(true), m_lastx(0.0), m_lasty(0.0), m_clipped(false),
+            m_moveto(true), m_after_moveto(false),
+            m_lastx(0.0), m_lasty(0.0), m_clipped(false),
             m_do_clipping(width > 0.0 && height > 0.0),
             m_origdx(0.0), m_origdy(0.0),
             m_origdNorm2(0.0), m_dnorm2Max(0.0), m_dnorm2Min(0.0),
@@ -205,6 +206,7 @@ public:
             *y = front.y;
 #if DEBUG_SIMPLIFY
             printf((cmd == agg::path_cmd_move_to) ? "|" : "-");
+            printf(" 1 %f %f\n", *x, *y);
 #endif
             return cmd;
         }
@@ -239,18 +241,40 @@ public:
 
             //if we are starting a new path segment, move to the first point
             // + init
-            if (m_moveto)
+
+#if DEBUG_SIMPLIFY
+            printf("x, y, code: %f, %f, %d\n", *x, *y, cmd);
+#endif
+            if (m_moveto || cmd == agg::path_cmd_move_to)
             {
+                // m_moveto check is not generally needed because
+                // m_source generates an initial moveto; but it
+                // is retained for safety in case circumstances
+                // arise where this is not true.
+                if (m_origdNorm2 && !m_after_moveto)
+                {
+                    // m_origdNorm2 is nonzero only if we have a vector;
+                    // the m_after_moveto check ensures we push this
+                    // vector to the queue only once.
+                    _push(x,y);
+                }
+                m_after_moveto = true;
                 m_lastx = *x;
                 m_lasty = *y;
                 m_moveto = false;
                 m_origdNorm2 = 0.0;
-#if DEBUG_SIMPLIFY
-                m_pushed++;
-                printf("|");
-#endif
-                return agg::path_cmd_move_to;
+                // A moveto resulting from a nan yields a missing
+                // line segment, hence a break in the line, just
+                // like clipping, so we treat it the same way.
+                m_clipped = true;
+                if (m_queue_read < m_queue_write)
+                {
+                    // If we did a push, empty the queue now.
+                    break;
+                }
+                continue;
             }
+            m_after_moveto = false;
 
             // Don't render line segments less than one pixel long
             if (fabs(*x - m_lastx) < 1.0 && fabs(*y - m_lasty) < 1.0)
@@ -295,7 +319,7 @@ public:
                 m_origdy = *y - m_lasty;
                 m_origdNorm2 = m_origdx*m_origdx + m_origdy*m_origdy;
 
-                //set all the variables to reflect this new orig vecor
+                //set all the variables to reflect this new orig vector
                 m_dnorm2Max = m_origdNorm2;
                 m_dnorm2Min = 0.0;
                 m_haveMin = false;
@@ -376,7 +400,6 @@ public:
 #endif
                 continue;
             }
-
             //if we get here, then this vector was not similar enough to the
             //line we are building, so we need to draw that line and start the
             //next one.
@@ -384,46 +407,9 @@ public:
             //if the line needs to extend in the opposite direction from the
             //direction we are drawing in, move back to we start drawing from
             //back there.
-            if (m_haveMin)
-            {
-                m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_minX, m_minY);
-            }
-            m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_maxX, m_maxY);
 
-            //if we clipped some segments between this line and the next line
-            //we are starting, we also need to move to the last point.
-            if (m_clipped) {
-                m_queue[m_queue_write++].set(agg::path_cmd_move_to, m_lastx, m_lasty);
-            }
-            else if (!m_lastMax)
-            {
-                //if the last line was not the longest line, then move back to
-                //the end point of the last line in the sequence. Only do this
-                //if not clipped, since in that case lastx,lasty is not part of
-                //the line just drawn.
+            _push(x, y);
 
-                //Would be move_to if not for the artifacts
-                m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_lastx, m_lasty);
-            }
-
-            //now reset all the variables to get ready for the next line
-            m_origdx = *x - m_lastx;
-            m_origdy = *y - m_lasty;
-            m_origdNorm2 = m_origdx*m_origdx + m_origdy*m_origdy;
-
-            m_dnorm2Max = m_origdNorm2;
-            m_dnorm2Min = 0.0;
-            m_haveMin = false;
-            m_lastMax = true;
-            m_lastx = m_maxX = *x;
-            m_lasty = m_maxY = *y;
-            m_lastWrittenX = m_minX = m_lastx;
-            m_lastWrittenY = m_minY = m_lasty;
-
-            m_clipped = false;
-#if DEBUG_SIMPLIFY
-            m_pushed += m_queue_write - m_queue_read;
-#endif
             break;
         }
 
@@ -453,6 +439,8 @@ public:
             *y = front.y;
 #if DEBUG_SIMPLIFY
             printf((cmd == agg::path_cmd_move_to) ? "|" : "-");
+            printf(" 3 %f %f\n", *x, *y);
+
 #endif
             return cmd;
         }
@@ -489,6 +477,7 @@ private:
     item m_queue[6];
 
     bool m_moveto;
+    bool m_after_moveto;
     double m_lastx, m_lasty;
     bool m_clipped;
     bool m_do_clipping;
@@ -512,6 +501,52 @@ private:
     unsigned m_pushed;
     unsigned m_skipped;
 #endif
+
+    void _push(double* x, double* y)
+    {
+        if (m_haveMin)
+        {
+            m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_minX, m_minY);
+        }
+        m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_maxX, m_maxY);
+
+        //if we clipped some segments between this line and the next line
+        //we are starting, we also need to move to the last point.
+        if (m_clipped) {
+            m_queue[m_queue_write++].set(agg::path_cmd_move_to, m_lastx, m_lasty);
+        }
+        else if (!m_lastMax)
+        {
+            //if the last line was not the longest line, then move back to
+            //the end point of the last line in the sequence. Only do this
+            //if not clipped, since in that case lastx,lasty is not part of
+            //the line just drawn.
+
+            //Would be move_to if not for the artifacts
+            m_queue[m_queue_write++].set(agg::path_cmd_line_to, m_lastx, m_lasty);
+        }
+
+        //now reset all the variables to get ready for the next line
+        m_origdx = *x - m_lastx;
+        m_origdy = *y - m_lasty;
+        m_origdNorm2 = m_origdx*m_origdx + m_origdy*m_origdy;
+
+        m_dnorm2Max = m_origdNorm2;
+        m_dnorm2Min = 0.0;
+        m_haveMin = false;
+        m_lastMax = true;
+        m_lastx = m_maxX = *x;
+        m_lasty = m_maxY = *y;
+        m_lastWrittenX = m_minX = m_lastx;
+        m_lastWrittenY = m_minY = m_lasty;
+
+        m_clipped = false;
+#if DEBUG_SIMPLIFY
+        m_pushed += m_queue_write - m_queue_read;
+#endif
+
+    }
+
 };
 
 #endif // __AGG_PY_PATH_ITERATOR_H__

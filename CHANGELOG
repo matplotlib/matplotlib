@@ -1,3 +1,5 @@
+2008-10-08 Add path simplification support to paths with gaps. - EF
+
 2008-10-05 Fix problem with AFM files that don't specify the font's
            full name or family name. - JKS
 
