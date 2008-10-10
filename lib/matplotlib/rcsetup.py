@@ -488,7 +488,10 @@ defaultParams = {
     'svg.embed_char_paths' : [True, validate_bool],  # True to save all characters as paths in the SVG
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
-    'path.simplify' : [False, validate_bool]
+    'path.simplify' : [False, validate_bool],
+    'agg.path.chunksize' : [0, validate_int]       # 0 to disable chunking;
+                                                   # recommend about 20000 to
+                                                   # enable. Experimental.
 }
 
 if __name__ == '__main__':
