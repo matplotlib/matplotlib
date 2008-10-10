@@ -497,7 +497,7 @@ private:
 
     inline bool flush_queue(unsigned *cmd, double *x, double *y)
     {
-        if (!queue_nonempty())
+        if (queue_nonempty())
         {
             #if DEBUG_SIMPLIFY
                 if (m_queue_read >= m_queue_size)
