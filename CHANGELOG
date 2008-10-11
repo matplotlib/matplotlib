@@ -1,3 +1,7 @@
+2008-10-11 Fixed bug in pdf backend: if you pass a file object for 
+           output instead of a filename, e.g. in a wep app, we now 
+           flush the object at the end. - JKS
+
 2008-10-08 Add path simplification support to paths with gaps. - EF
 
 2008-10-05 Fix problem with AFM files that don't specify the font's
