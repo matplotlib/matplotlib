@@ -446,7 +446,9 @@ class PdfFile:
         self.writeMarkers()
         self.writeXref()
         self.writeTrailer()
-        if not self.passed_in_file_object:
+        if self.passed_in_file_object:
+            self.fh.flush()
+        else:
             self.fh.close()
 
     def write(self, data):
