@@ -41,8 +41,11 @@ def xlformat_factory(format):
        xlstyle.num_format_str = '0.%s%%;[RED]-0.%s%%'%(zeros, zeros)
        format.scale = 1.
     elif isinstance(format, mlab.FormatFloat):
-        zeros = ''.join(['0']*format.precision)
-        xlstyle.num_format_str = '#,##0.%s;[RED]-#,##0.%s'%(zeros, zeros)
+        if format.precision>0:
+            zeros = ''.join(['0']*format.precision)
+            xlstyle.num_format_str = '#,##0.%s;[RED]-#,##0.%s'%(zeros, zeros)
+        else:
+            xlstyle.num_format_str = '#,##;[RED]-#,##'
     elif isinstance(format, mlab.FormatInt):
         xlstyle.num_format_str = '#,##;[RED]-#,##'
     else:
@@ -99,11 +102,11 @@ def rec2excel(r, ws, formatd=None, rownum=0, colnum=0, nanstr='NaN', infstr='Inf
 
     ind = np.arange(len(r.dtype.names))
     for row in r:
-        #print 'row',
+
         for i in ind:
             val = row[i]
             format = formats[i]
-
+            val = format.toval(val)
             if mlab.safe_isnan(val):
                 ws.write(rownum, colnum+i, nanstr)
             elif mlab.safe_isinf(val):
@@ -112,11 +115,8 @@ def rec2excel(r, ws, formatd=None, rownum=0, colnum=0, nanstr='NaN', infstr='Inf
                 else: s = '-%s'%infstr
                 ws.write(rownum, colnum+i, s)
             elif format.xlstyle is None:
-                val = format.toval(val)
                 ws.write(rownum, colnum+i, val)
             else:
-                val = format.toval(val)
-                #print (i, r.dtype.names[i], val, format.toval(val)),
                 ws.write(rownum, colnum+i, val, format.xlstyle)
         rownum += 1
 
