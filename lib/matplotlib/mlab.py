@@ -2173,13 +2173,17 @@ class FormatString(FormatObj):
 #    def tostr(self, x):
 #        return '"%r"'%self.toval(x)
 
+
+
 class FormatFormatStr(FormatObj):
     def __init__(self, fmt):
         self.fmt = fmt
 
     def tostr(self, x):
         if x is None: return 'None'
-        return self.fmt%self.toval(x)
+        return (self.fmt%self.toval(x)).rstrip('.')
+
+
 
 
 class FormatFloat(FormatFormatStr):
@@ -2198,6 +2202,10 @@ class FormatFloat(FormatFormatStr):
 
 
 class FormatInt(FormatObj):
+
+    def tostr(self, x):
+        return '%d'%int(x)
+
     def toval(self, x):
         return int(x)
 
