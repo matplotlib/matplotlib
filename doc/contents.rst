@@ -1,7 +1,7 @@
 
 
-Welcome to matplotlib's documentation!
-======================================
+Overview
+========
 
 .. htmlonly::
 
