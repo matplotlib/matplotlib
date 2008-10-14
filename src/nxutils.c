@@ -45,7 +45,7 @@ pnpoly(PyObject *self, PyObject *args)
   if (! PyArg_ParseTuple(args, "ddO", &x, &y, &vertsarg))
     return NULL;
 
-  verts = (PyArrayObject *) PyArray_FromObject(vertsarg,PyArray_DOUBLE, 2, 2);
+  verts = (PyArrayObject *) PyArray_FromObject(vertsarg,NPY_DOUBLE, 2, 2);
 
   if (verts == NULL)
     {
@@ -113,7 +113,7 @@ points_inside_poly(PyObject *self, PyObject *args)
   if (! PyArg_ParseTuple(args, "OO", &xypointsarg, &vertsarg))
     return NULL;
 
-  verts = (PyArrayObject *) PyArray_FromObject(vertsarg,PyArray_DOUBLE, 2, 2);
+  verts = (PyArrayObject *) PyArray_FromObject(vertsarg, NPY_DOUBLE, 2, 2);
 
   if (verts == NULL)
     {
@@ -158,7 +158,7 @@ points_inside_poly(PyObject *self, PyObject *args)
     //printf("adding vert: %1.3f, %1.3f\n", xv[i], yv[i]);
   }
 
-  xypoints = (PyArrayObject *) PyArray_FromObject(xypointsarg,PyArray_DOUBLE, 2, 2);
+  xypoints = (PyArrayObject *) PyArray_FromObject(xypointsarg, NPY_DOUBLE, 2, 2);
 
   if (xypoints == NULL)
     {
@@ -187,7 +187,7 @@ points_inside_poly(PyObject *self, PyObject *args)
   npoints = xypoints->dimensions[0];
   dimensions[0] = npoints;
 
-  mask = (PyArrayObject *)PyArray_SimpleNew(1,dimensions,PyArray_INT);
+  mask = (PyArrayObject *)PyArray_SimpleNew(1,dimensions, NPY_BOOL);
   if (mask==NULL) {
     Py_XDECREF(verts);
     Py_XDECREF(xypoints);
@@ -200,7 +200,7 @@ points_inside_poly(PyObject *self, PyObject *args)
     y = *(double *)(xypoints->data +  i*xypoints->strides[0] + xypoints->strides[1]);
     b = pnpoly_api(npol, xv, yv, x, y);
     //printf("checking %d, %d, %1.3f, %1.3f, %d\n", npol, npoints, x, y, b);
-    *(int *)(mask->data+i*mask->strides[0]) = b;
+    *(char *)(mask->data + i*mask->strides[0]) = b;
 
   }
 
