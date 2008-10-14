@@ -37,7 +37,7 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = 'contents'
 
 # General substitutions.
 project = 'Matplotlib'
@@ -47,9 +47,10 @@ copyright = '2008, John Hunter, Darren Dale, Michael Droettboom'
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '0.98'
+import matplotlib
+version = matplotlib.__version__
 # The full version, including alpha/beta/rc tags.
-release = '0.98'
+release = version
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
@@ -81,7 +82,8 @@ pygments_style = 'sphinx'
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
-html_style = 'matplotlib.css'
+#html_style = 'matplotlib.css'
+html_style = 'mpl.css'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -108,12 +110,20 @@ html_last_updated_fmt = '%b %d, %Y'
 # typographically correct entities.
 #html_use_smartypants = True
 
+# Content template for the index page.
+html_index = 'index.html'
+
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
 
+# Custom sidebar templates, maps page names to templates.
+html_sidebars = {'index': 'indexsidebar.html',
+                 }
+
+
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
-#html_additional_pages = {}
+html_additional_pages = {'index': 'index.html'}
 
 # If false, no module index is generated.
 #html_use_modindex = True

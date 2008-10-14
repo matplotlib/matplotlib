@@ -1,0 +1,1141 @@
+{% extends "layout.html" %}
+{% set title = 'Overview' %}
+{% block body %}
+  <h1>Welcome</h1>
+
+  matplotlib is a python 2D plotting library which produces
+  publication quality figures in a variety of hardcopy formats and
+  interactive environments across platforms.  matplotlib can be used
+  in python scripts, the python and <a
+  href=http://ipython.scipy.org>ipython</a> shell (ala matlab or
+  mathematica), web application servers, and six graphical user
+  interface toolkits. <p>
+
+  matplotlib tries to make easy things easy and hard things possible.
+  You can generate plots, histograms, power spectra, bar charts,
+  errorcharts, scatterplots, etc, with just a few lines of code.  For
+  example, to make a histogram of data in x, you simply need to type
+
+  <pre>
+  >>> hist(x, 100)   # use 100 bins
+  </pre>
+
+  For the power user, you have full control of line styles, font
+  properties, axes properties, etc, via an object oriented interface
+  or via a handle graphics interface familiar to matlab users.  A
+  summary of the goals of matplotlib and the progress so far can be
+  found <a href=goals.html>here</a>.<p>
+
+  The plotting functions in the <a href=api/pyplot_api.html>pyplot
+  interface</a> have a high degree of Matlab&reg compatibility.<p>
+
+  <br>
+  <table border=1 cellpadding=3 cellspacing=2>
+  <caption><h3>Plotting commands</h3></caption>
+  <tr><th>Function</th><th>Description</th></tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.acorr>acorr</a>
+
+      </th>
+
+      <td align="left">
+        plot the autocorrelation function
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.annotate>annotate</a>
+
+      </th>
+
+      <td align="left">
+        annotate something in the figure
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.arrow>arrow</a>
+
+      </th>
+
+      <td align="left">
+        add an arrow to the axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.axes>axes</a>
+
+      </th>
+
+      <td align="left">
+        Create a new axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.axhline>axhline</a>
+
+      </th>
+
+      <td align="left">
+        draw a horizontal line across axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.axvline>axvline</a>
+
+      </th>
+
+      <td align="left">
+        draw a vertical line across axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.axhspan>axhspan</a>
+
+      </th>
+
+      <td align="left">
+        draw a horizontal bar across axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.axvspan>axvspan</a>
+
+      </th>
+
+      <td align="left">
+        draw a vertical bar across axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.axis>axis</a>
+
+      </th>
+
+      <td align="left">
+        Set or return the current axis limits
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.bar>bar</a>
+
+      </th>
+
+      <td align="left">
+        make a bar chart
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.barh>barh</a>
+
+      </th>
+
+      <td align="left">
+        a horizontal bar chart
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.broken_barh>broken_barh</a>
+
+      </th>
+
+      <td align="left">
+        a set of horizontal bars with gaps
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.box>box</a>
+
+      </th>
+
+      <td align="left">
+        set the axes frame on/off state
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.boxplot>boxplot</a>
+
+      </th>
+
+      <td align="left">
+        make a box and whisker plot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.cla>cla</a>
+
+      </th>
+
+      <td align="left">
+        clear current axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.clabel>clabel</a>
+
+      </th>
+
+      <td align="left">
+        label a contour plot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.clf>clf</a>
+
+      </th>
+
+      <td align="left">
+        clear a figure window
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.clim>clim</a>
+
+      </th>
+
+      <td align="left">
+        adjust the color limits of the current image
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.close>close</a>
+
+      </th>
+
+      <td align="left">
+        close a figure window
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.colorbar>colorbar</a>
+
+      </th>
+
+      <td align="left">
+        add a colorbar to the current figure
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.cohere>cohere</a>
+
+      </th>
+
+      <td align="left">
+        make a plot of coherence
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.contour>contour</a>
+
+      </th>
+
+      <td align="left">
+        make a contour plot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.contourf>contourf</a>
+
+      </th>
+
+      <td align="left">
+        make a filled contour plot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.csd>csd</a>
+
+      </th>
+
+      <td align="left">
+        make a plot of cross spectral density
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.delaxes>delaxes</a>
+
+      </th>
+
+      <td align="left">
+        delete an axes from the current figure
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.draw>draw</a>
+
+      </th>
+
+      <td align="left">
+        Force a redraw of the current figure
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.errorbar>errorbar</a>
+
+      </th>
+
+      <td align="left">
+        make an errorbar graph
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.figlegend>figlegend</a>
+
+      </th>
+
+      <td align="left">
+        make legend on the figure rather than the axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.figimage>figimage</a>
+
+      </th>
+
+      <td align="left">
+        make a figure image
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.figtext>figtext</a>
+
+      </th>
+
+      <td align="left">
+        add text in figure coords
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.figure>figure</a>
+
+      </th>
+
+      <td align="left">
+        create or change active figure
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.fill>fill</a>
+
+      </th>
+
+      <td align="left">
+        make filled polygons
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.findobj>findobj</a>
+
+      </th>
+
+      <td align="left">
+        recursively find all objects matching some criteria
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.gca>gca</a>
+
+      </th>
+
+      <td align="left">
+        return the current axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.gcf>gcf</a>
+
+      </th>
+
+      <td align="left">
+        return the current figure
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.gci>gci</a>
+
+      </th>
+
+      <td align="left">
+        get the current image, or None
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.getp>getp</a>
+
+      </th>
+
+      <td align="left">
+        get a handle graphics property
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.grid>grid</a>
+
+      </th>
+
+      <td align="left">
+        set whether gridding is on
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.hist>hist</a>
+
+      </th>
+
+      <td align="left">
+        make a histogram
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.hold>hold</a>
+
+      </th>
+
+      <td align="left">
+        set the axes hold state
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.ioff>ioff</a>
+
+      </th>
+
+      <td align="left">
+        turn interaction mode off
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.ion>ion</a>
+
+      </th>
+
+      <td align="left">
+        turn interaction mode on
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.isinteractive>isinteractive</a>
+
+      </th>
+
+      <td align="left">
+        return True if interaction mode is on
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.imread>imread</a>
+
+      </th>
+
+      <td align="left">
+        load image file into array
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.imshow>imshow</a>
+
+      </th>
+
+      <td align="left">
+        plot image data
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.ishold>ishold</a>
+
+      </th>
+
+      <td align="left">
+        return the hold state of the current axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.legend>legend</a>
+
+      </th>
+
+      <td align="left">
+        make an axes legend
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.loglog>loglog</a>
+
+      </th>
+
+      <td align="left">
+        a log log plot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.matshow>matshow</a>
+
+      </th>
+
+      <td align="left">
+        display a matrix in a new figure preserving aspect
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.pcolor>pcolor</a>
+
+      </th>
+
+      <td align="left">
+        make a pseudocolor plot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.pcolormesh>pcolormesh</a>
+
+      </th>
+
+      <td align="left">
+        make a pseudocolor plot using a quadrilateral mesh
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.pie>pie</a>
+
+      </th>
+
+      <td align="left">
+        make a pie chart
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.plot>plot</a>
+
+      </th>
+
+      <td align="left">
+        make a line plot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.plot_date>plot_date</a>
+
+      </th>
+
+      <td align="left">
+        plot dates
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.plotfile>plotfile</a>
+
+      </th>
+
+      <td align="left">
+        plot column data from an ASCII tab/space/comma delimited file
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.pie>pie</a>
+
+      </th>
+
+      <td align="left">
+        pie charts
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.polar>polar</a>
+
+      </th>
+
+      <td align="left">
+        make a polar plot on a PolarAxes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.psd>psd</a>
+
+      </th>
+
+      <td align="left">
+        make a plot of power spectral density
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.quiver>quiver</a>
+
+      </th>
+
+      <td align="left">
+        make a direction field (arrows) plot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.rc>rc</a>
+
+      </th>
+
+      <td align="left">
+        control the default params
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.rgrids>rgrids</a>
+
+      </th>
+
+      <td align="left">
+        customize the radial grids and labels for polar
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.savefig>savefig</a>
+
+      </th>
+
+      <td align="left">
+        save the current figure
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.scatter>scatter</a>
+
+      </th>
+
+      <td align="left">
+        make a scatter plot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.setp>setp</a>
+
+      </th>
+
+      <td align="left">
+        set a handle graphics property
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.semilogx>semilogx</a>
+
+      </th>
+
+      <td align="left">
+        log x axis
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.semilogy>semilogy</a>
+
+      </th>
+
+      <td align="left">
+        log y axis
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.show>show</a>
+
+      </th>
+
+      <td align="left">
+        show the figures
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.specgram>specgram</a>
+
+      </th>
+
+      <td align="left">
+        a spectrogram plot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.spy>spy</a>
+
+      </th>
+
+      <td align="left">
+        plot sparsity pattern using markers or image
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.stem>stem</a>
+
+      </th>
+
+      <td align="left">
+        make a stem plot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.subplot>subplot</a>
+
+      </th>
+
+      <td align="left">
+        make a subplot (numrows, numcols, axesnum)
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.subplots_adjust>subplots_adjust</a>
+
+      </th>
+
+      <td align="left">
+        change the params controlling the subplot positions of current figure
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.subplot_tool>subplot_tool</a>
+
+      </th>
+
+      <td align="left">
+        launch the subplot configuration tool
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.suptitle>suptitle</a>
+
+      </th>
+
+      <td align="left">
+        add a figure title
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.table>table</a>
+
+      </th>
+
+      <td align="left">
+        add a table to the plot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.text>text</a>
+
+      </th>
+
+      <td align="left">
+        add some text at location x,y to the current axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.thetagrids>thetagrids</a>
+
+      </th>
+
+      <td align="left">
+        customize the radial theta grids and labels for polar
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.title>title</a>
+
+      </th>
+
+      <td align="left">
+        add a title to the current axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.xcorr>xcorr</a>
+
+      </th>
+
+      <td align="left">
+        plot the autocorrelation function of x and y
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.xlim>xlim</a>
+
+      </th>
+
+      <td align="left">
+        set/get the xlimits
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.ylim>ylim</a>
+
+      </th>
+
+      <td align="left">
+        set/get the ylimits
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.xticks>xticks</a>
+
+      </th>
+
+      <td align="left">
+        set/get the xticks
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.yticks>yticks</a>
+
+      </th>
+
+      <td align="left">
+        set/get the yticks
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.xlabel>xlabel</a>
+
+      </th>
+
+      <td align="left">
+        add an xlabel to the current axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.ylabel>ylabel</a>
+
+      </th>
+
+      <td align="left">
+        add a ylabel to the current axes
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.autumn>autumn</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to autumn
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.bone>bone</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to bone
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.cool>cool</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to cool
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.copper>copper</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to copper
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.flag>flag</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to flag
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.gray>gray</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to gray
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.hot>hot</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to hot
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.hsv>hsv</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to hsv
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.jet>jet</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to jet
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.pink>pink</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to pink
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.prism>prism</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to prism
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.spring>spring</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to spring
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.summer>summer</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to summer
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.winter>winter</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to winter
+      </td>
+
+    </tr>
+    <tr>
+      <th align="left">
+        <a href=api/pyplot_api.html#matplotlib.pyplot.spectral>spectral</a>
+
+      </th>
+
+      <td align="left">
+        set the default colormap to spectral
+      </td>
+
+    </tr>
+  </table>
+    </td>
+    </tr>
+
+</table>
+{% endblock %}
