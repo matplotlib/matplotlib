@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.mlab as mlab
 
 
-r = mlab.csv2rec('data/aapl.csv')
+r = mlab.csv2rec('../data/intc.csv')
 r.sort()
 
 def daily_return(prices):
