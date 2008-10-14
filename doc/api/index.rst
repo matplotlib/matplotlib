@@ -22,5 +22,6 @@
    collections_api.rst
    colorbar_api.rst
    colors_api.rst
+   path_api.rst
    pyplot_api.rst
    index_backend_api.rst

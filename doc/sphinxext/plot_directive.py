@@ -90,6 +90,8 @@ def makefig(fullpath, outdir):
     print '    building %s'%fullpath
     plt.close('all')    # we need to clear between runs
     matplotlib.rcdefaults()
+    # Set a figure size that doesn't overflow typical browser windows
+    matplotlib.rcParams['figure.figsize'] = (6,4)
 
     runfile(fullpath)
 

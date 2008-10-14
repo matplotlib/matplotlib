@@ -240,9 +240,9 @@ figure.figsize   : 6, 4    # figure size in inches
 
 # The figure subplot parameters.  All dimensions are fraction of the
 # figure width or height
-#figure.subplot.left  : 0.125  # the left side of the subplots of the figure
+figure.subplot.left  : 0.2  # the left side of the subplots of the figure
 #figure.subplot.right : 0.9    # the right side of the subplots of the figure
-#figure.subplot.bottom : 0.1   # the bottom of the subplots of the figure
+figure.subplot.bottom : 0.1   # the bottom of the subplots of the figure
 #figure.subplot.top : 0.9      # the top of the subplots of the figure
 #figure.subplot.wspace : 0.2   # the amount of width reserved for blank space between subplots
 #figure.subplot.hspace : 0.2   # the amount of height reserved for white space between subplots
@@ -264,7 +264,7 @@ figure.figsize   : 6, 4    # figure size in inches
 # the default savefig params can be different for the GUI backends.
 # Eg, you may want a higher resolution, or to make the figure
 # background white
-#savefig.dpi       : 100      # figure dots per inch
+savefig.dpi       : 80      # figure dots per inch
 #savefig.facecolor : white    # figure facecolor when saving
 #savefig.edgecolor : white    # figure edgecolor when saving
 
