@@ -25,7 +25,7 @@ The Locator subclasses defined here are
 
   * FixedLocator    - Tick locations are fixed
 
-  * IndexLocator    - locator for index plots (eg where x = range(len(y))
+  * IndexLocator    - locator for index plots (eg. where x = range(len(y)))
 
   * LinearLocator   - evenly spaced ticks from min to max
 
