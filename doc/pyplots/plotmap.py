@@ -31,7 +31,7 @@ m = Basemap(llcrnrlon=-145.5,llcrnrlat=1.,urcrnrlon=-2.566,urcrnrlat=46.352,\
 nx = int((m.xmax-m.xmin)/40000.)+1; ny = int((m.ymax-m.ymin)/40000.)+1
 topodat,x,y = m.transform_scalar(topoin,lons,lats,nx,ny,returnxy=True)
 # create the figure.
-fig=figure(figsize=(8,8))
+fig=figure(figsize=(6,6))
 # add an axes, leaving room for colorbar on the right.
 ax = fig.add_axes([0.1,0.1,0.7,0.7])
 # plot image over map with imshow.
@@ -46,8 +46,8 @@ cax = axes([l+w+0.075, b, 0.05, h])
 colorbar(cax=cax) # draw colorbar
 axes(ax)  # make the original axes current again
 # plot blue dot on boulder, colorado and label it as such.
-xpt,ypt = m(-104.237,40.125) 
-m.plot([xpt],[ypt],'bo') 
+xpt,ypt = m(-104.237,40.125)
+m.plot([xpt],[ypt],'bo')
 text(xpt+100000,ypt+100000,'Boulder')
 # draw coastlines and political boundaries.
 m.drawcoastlines()

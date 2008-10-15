@@ -229,6 +229,26 @@ since it is probably better to choose the correct figure size and dpi
 in mpl and let it handle the scaling. ``:include-source:`` will
 present the contents of the file, marked up as source code.
 
+You can also point to local files with relative path.  Use the
+sym-link for mpl_examples in case we do a reorganization of the doc
+directory at some point, eg::
+
+  .. plot:: ../mpl_examples/pylab_examples/simple_plot.py
+
+If the example file needs to access data, it is easy to get screwed up
+with relative paths since the python example may be run from a diffent
+location in the plot directive build framework.  To work around this,
+you can add your example data to mpl-data/example and refer to it in
+the example file like so::
+
+  import matplotlib
+  # datafile is a file object
+  datafile = matplotlib.get_example_data('goog.npy')
+  r = np.load(datafile).view(np.recarray)
+
+Try to keep the example datafiles relatively few and relatively small
+to control the size of the binaries we ship.
+
 Static figures
 --------------
 

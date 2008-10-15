@@ -1,5 +1,5 @@
 """
-You will need to have freetype, libpng and zlib installed to compile
+You will need to have freetype, libpng and zlib installed to comile
 matplotlib, inlcuding the *-devel versions of these libraries if you
 are using a package manager like RPM or debian.
 
@@ -80,6 +80,7 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               'mpl-data/images/*.svg',
                               'mpl-data/images/*.png',
                               'mpl-data/images/*.ppm',
+                              'mpl-data/example/*.npy',
                               'mpl-data/matplotlibrc',
                               'mpl-data/matplotlib.conf',
                               'mpl-data/*.glade',

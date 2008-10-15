@@ -482,6 +482,22 @@ def _get_data_path_cached():
 get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path_cached,
                              always=False)
 
+
+def get_example_data(fname):
+    """
+    return a filehandle to one of the example files in mpl-data/example
+
+    *fname*
+        the name of one of the files in mpl-data/example
+    """
+    datadir = os.path.join(get_data_path(), 'example')
+    fullpath = os.path.join(datadir, fname)
+    if not os.path.exists(fullpath):
+        raise IOError('could not find matplotlib example file "%s" in data directory "%s"'%(
+            fname, datadir))
+    return file(fullpath, 'rb')
+
+
 def get_py2exe_datafiles():
     datapath = get_data_path()
     head, tail = os.path.split(datapath)

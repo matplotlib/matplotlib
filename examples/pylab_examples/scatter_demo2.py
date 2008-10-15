@@ -1,17 +1,24 @@
 """
 make a scatter plot with varying color and size arguments
 """
+import matplotlib 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
 
-intc = mlab.csv2rec('mpl_examples/data/intc.csv')
+# load a numpy record array from yahoo csv data with fields date,
+# open, close, volume, adj_close from the mpl-data/example directory.
+# The record array stores python datetime.date as an object array in
+# the date column
+datafile = matplotlib.get_example_data('goog.npy')
+r = np.load(datafile).view(np.recarray)
+r = r[-250:] # get the most recent 250 trading days
 
-delta1 = np.diff(intc.adj_close)/intc.adj_close[:-1]
+delta1 = np.diff(r.adj_close)/r.adj_close[:-1]
 
 # size in points ^2
-volume = (15*intc.volume[:-2]/intc.volume[0])**2
-close = 0.003*intc.close[:-2]/0.003*intc.open[:-2]
+volume = (15*r.volume[:-2]/r.volume[0])**2
+close = 0.003*r.close[:-2]/0.003*r.open[:-2]
 
 fig = plt.figure()
 ax = fig.add_subplot(111)

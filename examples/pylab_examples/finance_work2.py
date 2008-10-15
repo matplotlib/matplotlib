@@ -11,6 +11,7 @@ in the same dir as this file
 """
 
 import time, os, sys, datetime
+
 from matplotlib import rcParams
 from matplotlib.ticker import  IndexLocator, FuncFormatter, NullFormatter, MultipleLocator
 from matplotlib.dates import IndexDateFormatter, date2num
@@ -20,34 +21,6 @@ from pylab import *
 
 rcParams['timezone'] = 'US/Eastern'
 rc('grid', color='0.75', linestyle='-', linewidth=0.5)
-
-
-
-def load_quotes(fname, maxq=None):
-    """
-    Load quotes from the representative data files vineet sent If any
-    of the values are missing I force all missing.  Quotes are sorted
-    in increasing time.  Return value is a list of tuples
-
-      (epoch, open, high, low, close, volume )
-    """
-    quotes = []
-    
-    for i, line in enumerate(file(fname)):
-        if maxq is not None and i>maxq: break
-        ts,o,h,l,c,v = line.split(',')
-
-        dt = datetime.datetime(*time.strptime(ts.strip('"'), '%Y%m%d%H%M%S')[:6]) # convert to float days
-        d = date2num(dt)
-        o,h,l,c,v = [float(val) for val in o,h,l,c,v]
-
-        if o==-1 or h==-1 or l==-1 or c==-1 or v==-1:
-            o,h,l,c,v = -1, -1, -1, -1,-1
-        quotes.append((d,o,h,l,c,v))
-
-    quotes.sort()  # increasing time
-    return quotes
-
 
 def ema(s, n):
     """
@@ -78,7 +51,7 @@ def ema(s, n):
 def movavg(s, n):
     """
     returns an n period moving average for the time series s
-       
+
     s is a list ordered from oldest (index 0) to most recent (index -1)
     n is an integer
 
@@ -97,13 +70,13 @@ def fill_over(ax, x, y, val, color, over=True):
     """
     ybase = asarray(y)-val
     crossings = nonzero(less(ybase[:-1] * ybase[1:],0))
-    
+
     if ybase[0]>=0: fillon = over
     else:           fillon = not over
 
 
     indLast = 0
-    for ind in crossings:        
+    for ind in crossings:
         if fillon:
             thisX = x[indLast:ind+1]
             thisY = y[indLast:ind+1]
@@ -113,7 +86,7 @@ def fill_over(ax, x, y, val, color, over=True):
         fillon = not fillon
         indLast = ind
 
-    
+
 def random_signal(N, tau):
     'generate a length N  random signal with time constant tau'
     t = arange(float(N))
@@ -121,27 +94,17 @@ def random_signal(N, tau):
     return convolve( randn(N), filter, mode=2)[:len(t)]
 
 
+# load a numpy record array from yahoo csv data with fields date,
+# open, close, volume, adj_close from the mpl-data/example directory.
+# The record array stores python datetime.date as an object array in
+# the date column
+datafile = matplotlib.get_example_data('goog.npy')
+r = np.load(datafile).view(np.recarray)
+r = r[-250:]
 
+N = len(r)
 
-fname = '../data/msft_nasdaq_d.csv'
-quotes = load_quotes(fname, 200)
-times, opens, highs, lows, closes, volumes = zip(*quotes)
-
-def get_valid(x):
-    return array([thisx for thisx in x if thisx!=-1])
-#valid opens, etc
-vopens   = get_valid(opens)
-vcloses  = get_valid(closes)
-vlows    = get_valid(lows)
-vhighs   = get_valid(highs)
-vvolumes = get_valid(volumes)
-vind = array([i for i, o in enumerate(opens) if o!=-1])
-
-assert(len(vopens)==len(vcloses)==len(vlows)==len(vhighs)==len(vvolumes))
-
-N = len(vopens)
-
-
+vind = np.arange(N)
 
 figBG   = 'w'        # the figure background color
 axesBG  = '#f6f6f6'  # the axies background color
@@ -159,11 +122,11 @@ def get_locator():
     the axes cannot share the same locator, so this is a helper
     function to generate locators that have identical functionality
     """
-    
+
     return IndexLocator(10, 1)
 
 
-formatter =  IndexDateFormatter(times, '%b %d %y')
+formatter =  IndexDateFormatter(date2num(r.date), '%b %d %y')
 
 nullfmt   = NullFormatter()         # no labels
 
@@ -179,7 +142,7 @@ rect2 = [left, 0.3, width, 0.4]
 rect3 = [left, 0.1, width, 0.2]
 axUpper      = axes(rect1, axisbg=axesBG)  #left, bottom, width, height
 axMiddle     = axes(rect2, axisbg=axesBG, sharex=axUpper)
-axMiddleVol  = axes(rect2, axisbg=axesBG, frameon=False, sharex=axUpper)  # the volume overlay
+axMiddleVol  = axMiddle.twinx()
 axLower      = axes(rect3, axisbg=axesBG, sharex=axUpper)
 
 
@@ -189,15 +152,10 @@ axUpper.grid(True)
 
 # set up two scales on middle axes with left and right ticks
 axMiddle.yaxis.tick_left()
-axMiddle.xaxis.set_major_locator( get_locator() )
-axMiddle.yaxis.set_major_locator( MultipleLocator(5) )
 axMiddle.xaxis.set_major_formatter(nullfmt)
 
-axMiddleVol.yaxis.tick_right()    
-axMiddleVol.xaxis.set_major_locator( get_locator() )
-axMiddleVol.xaxis.set_major_formatter(nullfmt)
 axMiddleVol.yaxis.set_major_formatter(volumeFmt)
-axMiddle.grid(True)    
+axMiddle.grid(True)
 
 axLower.xaxis.set_major_locator( get_locator() )
 axLower.xaxis.set_major_formatter( formatter )
@@ -207,7 +165,7 @@ if 1: ############### Upper axes #################
 
     # make up a pseudo signal
     purple = '#660033'
-    s = random_signal(len(vind), tau=20)
+    s = random_signal(N, tau=20)
     thresh = 4
     axUpper.plot(s, color=purple)
     # upper horiz line
@@ -216,15 +174,14 @@ if 1: ############### Upper axes #################
 
     axUpper.plot( (0, N), [thresh, thresh], color=purple, linewidth=1)
     # lower horiz line
-    axUpper.plot( (0, N), [-thresh, -thresh], color=purple, linewidth=1)  
+    axUpper.plot( (0, N), [-thresh, -thresh], color=purple, linewidth=1)
 
 
     # fill above threshold
     fill_over(axUpper, vind, s,  thresh,  purple, over=True)
     fill_over(axUpper, vind, s, -thresh,  purple,  over=False)
 
-    t = axUpper.set_title('Microsoft Corp (MSFT)',
-                          fontsize=12)
+    t = axUpper.set_title('Google (GOOG)',  fontsize=12)
     t.set_y(1.05)  # move it up a bit higher than the default
     t.set_x(0)  # align the title left, axes coords
     t.set_horizontalalignment('left')  # align the title left, axes coords
@@ -235,13 +192,13 @@ if 1: ############### Upper axes #################
     # now add some text
     left, height, top = 0.025, 0.06, 0.85
     t = axUpper.text(left, top, 'RSI(14) 51.0', fontsize=textsize,
-                     transform=axUpper.transAxes)                
+                     transform=axUpper.transAxes)
 
 
 if 1:  ############### Middle axes #################
 
-    #plot_day_summary2(axMiddle, opens, closes, highs, lows)
-    candlestick2(axMiddle, opens, closes, highs, lows, width=0.9)
+
+    candlestick2(axMiddle, r.open, r.close, r.high, r.low, width=0.9)
 
     # specify the text in axes (0,1) coords.  0,0 is lower left and 1,1 is
     # upper right
@@ -256,36 +213,37 @@ if 1:  ############### Middle axes #################
 
     s = '%s O:%1.2f H:%1.2f L:%1.2f C:%1.2f, V:%1.1fM Chg:%+1.2f' %(
         time.strftime('%d-%b-%Y'),
-        vopens[-1], vhighs[-1],
-        vlows[-1], vcloses[-1],
-        vvolumes[-1]*1e-6,
-        vcloses[-1]-vopens[-1])
+        r.open[-1], r.high[-1],
+        r.low[-1], r.close[-1],
+        r.volume[-1]*1e-6,
+        r.close[-1]-r.open[-1])
     t4 = axMiddle.text(0.4, top, s, fontsize=textsize,
                        transform=axMiddle.transAxes)
 
 
     # now do the moviing average.  I'll use a convolution to simulate a
     # real moving average
-    ma5  = movavg(vopens, 5)
-    ma20 = movavg(vopens, 20)
+    ma5  = movavg(r.adj_close, 5)
+    ma20 = movavg(r.adj_close, 20)
     axMiddle.plot(vind[5-1:], ma5,   'b', linewidth=1)
     axMiddle.plot(vind[20-1:], ma20, 'r', linewidth=1)
-    
-    axMiddle.set_ylim((20, 32))
-    axMiddle.set_yticks((25,30))
+
+    axMiddle.set_ylim((300, 800))
+    axMiddle.set_yticks(np.arange(800, 800, 100))
 
     # Now do the volume overlay
 
-    bars = volume_overlay(axMiddleVol, opens, closes, volumes, alpha=0.5)
-    axMiddleVol.set_ylim((0, 3*max(vvolumes)))  # use only a third of the viewlim
+    # todo - this is broken
+    bars = volume_overlay(axMiddleVol, r.open, r.close, r.volume, alpha=0.5)
+    #axMiddleVol.set_ylim(0, 3*r.volume.max())  # use only a third of the viewlim
 
 
 if 1:  ############### Lower axes #################
 
     # make up two signals; I don't know what the signals are in real life
     # so I'll just illustrate the plotting stuff
-    s1 = random_signal(len(vind), 10)
-    s2 = random_signal(len(vind), 20)
+    s1 = random_signal(N, 10)
+    s2 = random_signal(N, 20)
 
     axLower.plot(vind, s1, color=purple)
     axLower.plot(vind, s2, color='k', linewidth=1.0)
@@ -309,12 +267,11 @@ if 1:  ############### Lower axes #################
 
 # force all the axes to have the same x data limits
 allAxes = (axUpper, axMiddle, axMiddleVol, axLower)
-xlim = 0, len(quotes)
+xlim = 0, N
 for a in allAxes:
-    #a.dataLim.intervalx = xlim
     a.set_xlim(xlim)
 
-for ax in axUpper, axMiddle:
+for ax in axUpper, axMiddle, axMiddleVol:
     for ticklabel in ax.get_xticklabels():
         ticklabel.set_visible(False)
 
