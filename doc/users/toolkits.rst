@@ -12,7 +12,8 @@ Basemap
 =======
 
 Plots data on map projections, with continental and political
-boundaries, `see <http://matplotlib.sf.net/basemap/doc/html>`_
+boundaries, see `basemap <http://matplotlib.sf.net/basemap/doc/html>`_
+docs.
 
 .. _toolkit_gtk:
 

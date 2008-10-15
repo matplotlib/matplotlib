@@ -16,11 +16,11 @@ def check_build():
 
 def sf():
     'push a copy to the sf site'
-    os.system('cd build; rsync -avz html jdh2358@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/doc/ -essh')
+    os.system('cd build/html; rsync -avz . jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/ -essh')
 
 def sfpdf():
     'push a copy to the sf site'
-    os.system('cd build/latex; scp Matplotlib.pdf jdh2358@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/doc/')
+    os.system('cd build/latex; scp Matplotlib.pdf jdh2358@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/')
 
 def figs():
     os.system('cd users/figures/ && python make.py')
