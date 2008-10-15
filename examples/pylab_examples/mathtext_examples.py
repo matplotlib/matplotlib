@@ -49,7 +49,7 @@ stests = [
     r'$\widehat{abc}\widetilde{def}$',
     r'$\Gamma \Delta \Theta \Lambda \Xi \Pi \Sigma \Upsilon \Phi \Psi \Omega$',
     r'$\alpha \beta \gamma \delta \epsilon \zeta \eta \theta \iota \lambda \mu \nu \xi \pi \kappa \rho \sigma \tau \upsilon \phi \chi \psi$',
-    ur'Generic symbol: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
+    #ur'Generic symbol: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
     ]
 
 from pylab import *
@@ -66,7 +66,7 @@ def doall():
         print (i, s)
         text(0.1, -i, s, fontsize=20)
 
-    savefig('mathtext_examples')
+    #savefig('mathtext_examples')
     #close('all')
     show()
 

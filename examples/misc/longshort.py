@@ -41,7 +41,7 @@ tr = (1+g).cumprod()  # the total return
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(r.date, tr)
-ax.set_title('total return: long appl, short goog')
+ax.set_title('total return: long APPL, short GOOG')
 ax.grid()
 fig.autofmt_xdate()
 plt.show()

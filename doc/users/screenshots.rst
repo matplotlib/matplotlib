@@ -158,13 +158,14 @@ Financial charts
 ================
 
 You can make much more sophisticated financial plots.  This example
-emulates one of the `ChartDirector <http://www.advsofteng.com/gallery_finance.html>`
-financial plots.  Some of the data in the plot, are real financial
-data, some are random traces that I used since the goal was to
-illustrate plotting techniques, not market analysis!
+emulates one of the `ChartDirector
+<http://www.advsofteng.com/gallery_finance.html>` financial plots.
+Some of the data in the plot, are real financial data, some are random
+traces that I used since the goal was to illustrate plotting
+techniques, not market analysis!
 
 
-plot:: ../mpl_examples/pylab_examples/finance_work2.py
+.. plot:: ../mpl_examples/pylab_examples/finance_work2.py
 
 
 .. _screenshots_basemap_demo:
@@ -178,7 +179,7 @@ collection of lines over a colormap image using the
 proj4 library: cylindrical equidistant, mercator, lambert conformal
 conic, lambert azimuthal equal area, albers equal area conic and
 stereographic.  See the `tutorial
-<http://www.scipy.org/wikis/topical_software/Maps>` entry on the wiki.
+<http://www.scipy.org/wikis/topical_software/Maps>`_ entry on the wiki.
 
 .. plot:: plotmap.py
 
@@ -197,7 +198,7 @@ infrastructure.
 
 
 
-plot:: ../mpl_examples/pylab_examples/log_demo.py
+.. plot:: ../mpl_examples/pylab_examples/log_demo.py
 
 .. _screenshots_polar_demo:
 
@@ -206,7 +207,7 @@ Polar plots
 
 The :func:`~matplotlib.pyplot.polar` command generates polar plots.
 
-plot:: ../mpl_examples/pylab_examples/polar_demo.py
+.. plot:: ../mpl_examples/pylab_examples/polar_demo.py
 
 .. _screenshots_legend_demo:
 
@@ -218,7 +219,7 @@ generates figure legends, with Matlab compatible legend placement
 commands.  Thanks to Charles Twardy for input on the legend
 command
 
-plot:: ../mpl_examples/pylab_examples/legend_demo.py
+.. plot:: ../mpl_examples/pylab_examples/legend_demo.py
 
 .. _screenshots_mathtext_examples_demo:
 
@@ -231,9 +232,9 @@ mathematical expressions using freetype2 and the BaKoMa computer
 modern or STIX fonts.  See the matplotlib.mathtext module for
 additional.  matplotlib mathtext is an independent implementation, and
 does not required TeX or any external packages installed on your
-computer. 
+computer.
 
-plot:: ../mpl_examples/pylab_examples/mathtext_examples.py
+.. plot:: ../mpl_examples/pylab_examples/mathtext_examples.py
 
 .. _screenshots_tex_demo:
 
@@ -242,9 +243,9 @@ Native TeX rendering
 
 Although matplotlib's internal math rendering engine is quite
 powerful, sometimes you need TeX, and matplotlib supports external TeX
-rendering of strings with the *usetex* option. 
+rendering of strings with the *usetex* option.
 
-plot:: tex_demo.py
+.. plot:: tex_demo.py
 
 .. _screenshots_eeg_demo:
 
