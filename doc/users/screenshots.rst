@@ -126,7 +126,7 @@ user interface you are using, allowing you to write cross GUI figures
 and widgets.  See matplotlib.widgets and the widget `examples
 <examples/widgets>`
 
-[.. plot:: ../mpl_examples/widgets/slider_demo.py
+.. plot:: ../mpl_examples/widgets/sliders.py
 
 
 .. _screenshots_fill_demo:
