@@ -165,15 +165,18 @@ if hasdatetime: # dates require python23 datetime
 
     def add_pytz():
         packages.append('pytz')
+
         resources = ['zone.tab', 'locales/pytz.pot']
         for dirpath, dirnames, filenames in os.walk(os.path.join('lib', 'pytz', 'zoneinfo')):
-            # remove the 'pytz' part of the path
-            if '.svn' not in dirpath:
-                basepath = dirpath.split(os.path.sep, 1)[1]
-                resources.extend([os.path.join(basepath, filename)
-                                  for filename in filenames])
-        package_data['pytz'] = resources
 
+            if '.svn' in dirpath: continue
+            # remove the 'pytz' part of the path
+            basepath = os.path.join(*dirpath.split(os.path.sep)[2:])
+            #print dirpath, basepath
+            resources.extend([os.path.join(basepath, filename)
+                              for filename in filenames])
+        package_data['pytz'] = resources
+        #print resources
         assert len(resources) > 10, 'zoneinfo files not found!'
 
 
@@ -188,7 +191,9 @@ if hasdatetime: # dates require python23 datetime
         add_dateutil()
     else:
         # only add them if we need them
-        if provide_pytz: add_pytz()
+        if provide_pytz:
+            add_pytz()
+            print 'adding pytz'
         if provide_dateutil: add_dateutil()
 
 print_raw("")
