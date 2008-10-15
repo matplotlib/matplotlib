@@ -1,3 +1,9 @@
+.. _matplotlibscreenshots:
+
+**********************
+matplotlib screenshots
+**********************
+
 Here you will find a host of example figures with the code that
 generated them
 
