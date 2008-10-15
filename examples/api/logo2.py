@@ -1,73 +1,73 @@
+"""
+Thanks to Tony Yu <tsyu80@gmail.com> for the logo design
+"""
+
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.mlab as mlab
+from pylab import rand
+
+mpl.rcParams['xtick.labelsize'] = 6
+mpl.rcParams['ytick.labelsize'] = 6
+mpl.rcParams['axes.edgecolor'] = 'gray'
+
 
 axalpha = 0.05
-figcolor = '#FFFFCC'
+#figcolor = '#EFEFEF'
+figcolor = 'white'
 dpi = 80
-fig = plt.figure(figsize=(8, 2),dpi=dpi)
-fig.patch.set_edgecolor(figcolor)
-fig.patch.set_facecolor(figcolor)
-
-# the polar bar plot
-ax = fig.add_axes([0.05, 0.05, 0.2, 01], polar=True)
-ax.patch.set_alpha(axalpha)
-N = 20
-theta = np.arange(0.0, 2*np.pi, 2*np.pi/N) + np.pi
-radii = 10*np.random.rand(N)
-width = np.pi/6*np.random.rand(N)
-#radii = np.log(np.arange(1,N+1))
-#width = np.arange(N, dtype=float)/N*np.pi/8
-
-bars = ax.bar(theta, radii, width=width, bottom=0.0)
-for r,bar in zip(radii, bars):
-    bar.set_facecolor( cm.jet(r/10.))
-    bar.set_alpha(0.5)
-
-for label in ax.get_xticklabels() + ax.get_yticklabels():
-    label.set_visible(False)
+fig = plt.figure(figsize=(6, 1.),dpi=dpi)
+fig.figurePatch.set_edgecolor(figcolor)
+fig.figurePatch.set_facecolor(figcolor)
 
 
-# the histogram
-axhist = fig.add_axes([0.275, 0.075, 0.2, 0.4])
-axhist.patch.set_alpha(axalpha)
-mu, sigma = 100, 15
-x = mu + sigma*np.random.randn(10000)
+def add_math_background():
+    ax = fig.add_axes([0., 0., 1., 1.])
 
-# the histogram of the data
-n, bins, patches = axhist.hist(x, 20, normed=1,
-    facecolor='green', edgecolor='green', alpha=0.75)
+    text = []
+    text.append((r"$W^{3\beta}_{\delta_1 \rho_1 \sigma_2} = U^{3\beta}_{\delta_1 \rho_1} + \frac{1}{8 \pi 2} \int^{\alpha_2}_{\alpha_2} d \alpha^\prime_2 \left[\frac{ U^{2\beta}_{\delta_1 \rho_1} - \alpha^\prime_2U^{1\beta}_{\rho_1 \sigma_2} }{U^{0\beta}_{\rho_1 \sigma_2}}\right]$", (0.7, 0.2), 20))
+    text.append((r"$\frac{d\rho}{d t} + \rho \vec{v}\cdot\nabla\vec{v} = -\nabla p + \mu\nabla^2 \vec{v} + \rho \vec{g}$",
+                (0.35, 0.9), 20))
+    text.append((r"$\int_{-\infty}^\infty e^{-x^2}dx=\sqrt{\pi}$",
+                (0.15, 0.3), 25))
+    #text.append((r"$E = mc^2 = \sqrt{{m_0}^2c^4 + p^2c^2}$",
+    #            (0.7, 0.42), 30))
+    text.append((r"$F_G = G\frac{m_1m_2}{r^2}$",
+                (0.85, 0.7), 30))
+    for eq, (x, y), size in text:
+        ax.text(x, y, eq, ha='center', va='center', color="#11557c", alpha=0.25,
+                transform=ax.transAxes, fontsize=size)
+    ax.set_axis_off()
+    return ax
 
+def add_matplotlib_text(ax):
+    ax.text(0.975, 0.5, 'matplotlib', color='#11557c', fontsize=65,
+               ha='right', va='center', alpha=1.0, transform=ax.transAxes)
 
-y = mlab.normpdf( bins, mu, sigma)
-l = axhist.plot(bins, y, 'r', lw=1)
+def add_polar_bar():
+    ax = fig.add_axes([0.05, 0.1, 0.2, 0.8], polar=True)
+    ax.axesPatch.set_alpha(axalpha)
+    N = 7
+    arc = 2. * np.pi
+    theta = np.arange(0.0, arc, arc/N)
+    radii = 10 * np.array([0.2, 0.6, 1.0, 0.7, 0.4, 0.5, 0.8])
+    width = np.pi / 4 * np.array([0.4, 0.4, 0.6, 0.8, 0.2, 0.5, 0.3])
+    bars = ax.bar(theta, radii, width=width, bottom=0.0)
+    for r, bar in zip(radii, bars):
+        bar.set_facecolor(cm.jet(r/10.))
+        bar.set_alpha(0.6)
 
-axhist.set_title('Density of IQ',fontsize=6)
-axhist.set_xlabel('IQ', fontsize=6)
-axhist.set_ylabel('P(IQ)', fontsize=6)
-ax.set_xlim(-2*sigma, 2*sigma)
-for label in axhist.get_xticklabels() + axhist.get_yticklabels():
-    label.set_visible(False)
+if __name__ == '__main__':
+    main_axes = add_math_background()
+    add_polar_bar()
+#    add_histogram()
+#    add_scatter()
+# add_pcolor()
+    #add_pcolor2()
+    add_matplotlib_text(main_axes)
+    fig.savefig('logo2.png', facecolor=figcolor, edgecolor=figcolor, dpi=dpi)
+    plt.show()
 
-
-axback = fig.add_axes([0., 0., 1., 1.])
-
-#the math background
-tex = r"$W^{3\beta}_{\delta_1 \rho_1 \sigma_2} = U^{3\beta}_{\delta_1 \rho_1} + \frac{1}{8 \pi 2} \int^{\alpha_2}_{\alpha_2} d \alpha^\prime_2 \left[\frac{ U^{2\beta}_{\delta_1 \rho_1} - \alpha^\prime_2U^{1\beta}_{\rho_1 \sigma_2} }{U^{0\beta}_{\rho_1 \sigma_2}}\right]$"
-radargreen = '#d5de9c'
-orange = '#ee8d18'
-axback.text(0.5, 0.5, tex,
-            transform=axback.transAxes, color='black', alpha=0.25, fontsize=40,
-            ha='center', va='center')
-axback.set_axis_off()
-
-# the matplotlib title
-axback.text(0.3, 0.95, 'matplotlib', color='black', fontsize=75,
-           ha='left', va='top', alpha=1.0,
-           transform=axback.transAxes)
-
-
-fig.savefig('logo2.png', facecolor=figcolor, edgecolor=figcolor, dpi=dpi)
-plt.show()
 
