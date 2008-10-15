@@ -281,6 +281,10 @@ public:
                  (*y < -1.0 && m_lasty < -1.0) ||
                  (*y > m_height && m_lasty > m_height)))
             {
+                if (!m_clipped)
+                {
+                    queue_push(agg::path_cmd_line_to, m_lastx, m_lasty);
+                }
                 m_lastx = *x;
                 m_lasty = *y;
                 m_clipped = true;
@@ -451,7 +455,7 @@ private:
     bool          m_simplify;
     double        m_width, m_height;
 
-    static const int m_queue_size = 6;
+    static const int m_queue_size = 7;
     int  m_queue_read;
     int  m_queue_write;
     item m_queue[m_queue_size];
