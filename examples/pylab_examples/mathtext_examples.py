@@ -50,6 +50,11 @@ stests = [
     r'$\Gamma \Delta \Theta \Lambda \Xi \Pi \Sigma \Upsilon \Phi \Psi \Omega$',
     r'$\alpha \beta \gamma \delta \epsilon \zeta \eta \theta \iota \lambda \mu \nu \xi \pi \kappa \rho \sigma \tau \upsilon \phi \chi \psi$',
     #ur'Generic symbol: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
+    ur'Generic symbol: $\u23ce$',
+   ]
+
+if sys.maxunicode > 0xffff:
+    stests.append('$\mathrm{\ue0f2 \U0001D538}$')
     ]
 
 from pylab import *
