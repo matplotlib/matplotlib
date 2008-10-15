@@ -90,6 +90,20 @@ install directory.  To cleanly rebuild:
    <locating-matplotlib-install>`
 
 
+.. _install_svn:
+
+How to install from svn
+=======================
+
+Checking out the main source::
+
+   svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk matplotlib
+
+and build and install as usual with::
+
+  > cd matplotlib
+  > python setup.py install
+
 Backends
 ========
 
