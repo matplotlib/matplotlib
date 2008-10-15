@@ -360,7 +360,7 @@ public:
                 double paradNorm2 = paradx*paradx + parady*parady;
 
                 m_lastMax = false;
-                if (totdot >= 0)
+                if (totdot >= 0.0)
                 {
                     if (paradNorm2 > m_dnorm2Max)
                     {
@@ -388,6 +388,7 @@ public:
                 #endif
                 continue;
             }
+
             //if we get here, then this vector was not similar enough to the
             //line we are building, so we need to draw that line and start the
             //next one.
@@ -395,7 +396,6 @@ public:
             //if the line needs to extend in the opposite direction from the
             //direction we are drawing in, move back to we start drawing from
             //back there.
-
             _push(x, y);
 
             break;
@@ -406,7 +406,7 @@ public:
         // m_source->vertex again and segfault.
         if (cmd == agg::path_cmd_stop)
         {
-            if (m_origdNorm2 != 0)
+            if (m_origdNorm2 != 0.0)
             {
                 if (m_haveMin)
                 {
@@ -432,12 +432,6 @@ public:
     }
 
 private:
-    VertexSource* m_source;
-    bool m_quantize;
-    bool m_simplify;
-    double m_width, m_height;
-
-    static const int m_queue_size = 6;
     struct item
     {
         item() {}
@@ -451,30 +445,37 @@ private:
         double x;
         double y;
     };
-    int m_queue_read;
-    int m_queue_write;
+
+    VertexSource* m_source;
+    bool          m_quantize;
+    bool          m_simplify;
+    double        m_width, m_height;
+
+    static const int m_queue_size = 6;
+    int  m_queue_read;
+    int  m_queue_write;
     item m_queue[m_queue_size];
 
-    bool m_moveto;
-    bool m_after_moveto;
+    bool   m_moveto;
+    bool   m_after_moveto;
     double m_lastx, m_lasty;
-    bool m_clipped;
-    bool m_do_clipping;
+    bool   m_clipped;
+    bool   m_do_clipping;
 
     double m_origdx;
     double m_origdy;
     double m_origdNorm2;
     double m_dnorm2Max;
     double m_dnorm2Min;
-    bool m_haveMin;
-    bool m_lastMax;
+    bool   m_haveMin;
+    bool   m_lastMax;
     double m_maxX;
     double m_maxY;
     double m_minX;
     double m_minY;
     double m_lastWrittenX;
     double m_lastWrittenY;
-    bool m_done;
+    bool   m_done;
 
     #if DEBUG_SIMPLIFY
         unsigned m_pushed;
