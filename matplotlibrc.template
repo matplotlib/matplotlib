@@ -4,7 +4,7 @@
 # of it on your system in
 # site-packages/matplotlib/mpl-data/matplotlibrc.  If you edit it
 # there, please note that it will be overridden in your next install.
-# If you want to keep a permanent local bopy that will not be
+# If you want to keep a permanent local copy that will not be
 # over-written, place it in HOME/.matplotlib/matplotlibrc (unix/linux
 # like systems) and C:\Documents and Settings\yourname\.matplotlib
 # (win32 systems).
