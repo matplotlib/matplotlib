@@ -4,3 +4,12 @@ generate a new figure.
 tex_demo.py and tex_unicode_demo.py:
   latex
   dvipng
+
+
+plotmap.py:
+    basemap toolkit
+
+    some data files - do a svn co
+      https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/htdocs/screenshots/data/
+      to get the data and then set the datadir variable in the
+      plotmap.py file to point to this data direcotry

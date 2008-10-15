@@ -20,6 +20,7 @@ User's Guide
     index_text.rst
     artists.rst
     event_handling.rst
+    toolkits.rst
     screenshots.rst
 
 
