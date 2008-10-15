@@ -17,6 +17,7 @@ User's Guide
     pyplot_tutorial.rst
     navigation_toolbar.rst
     customizing.rst
+    shell.rst
     index_text.rst
     artists.rst
     event_handling.rst

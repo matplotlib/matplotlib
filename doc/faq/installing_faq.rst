@@ -90,10 +90,10 @@ install directory.  To cleanly rebuild:
    <locating-matplotlib-install>`
 
 
-.. _install_svn:
+.. _install-svn:
 
-How to install from svn
-=======================
+How to install from svn?
+========================
 
 Checking out the main source::
 
@@ -248,6 +248,21 @@ macros, and rename :cdata:`typename` parameter to :cdata:`typename_`::
 
 OS-X questions
 ==============
+
+.. _which-python-for-osx:
+
+Which python for OS X?
+----------------------
+
+Apple ships with its own python, many users have had trouble
+with it so there are alternatives.  If it is feasible for you, we
+recommend the enthought python distribution `EPD
+<http://www.enthought.com/products/epd.php>`_ for OS X (which comes
+with matplotlib and much more) or the
+`MacPython <http://wiki.python.org/moin/MacPython/Leopard>`_ or the
+official OS X version from `python.org
+<http://www.python.org/download/>`_.
+
 
 .. _easy-install-osx-egg:
 
