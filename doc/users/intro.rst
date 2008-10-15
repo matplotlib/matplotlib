@@ -2,11 +2,11 @@ Introduction
 ============
 
 matplotlib is a library for making 2D plots of arrays in `Python
-<http://www.python.org>`_.  Although it has its origins in emulating
-the `MATLAB™ <http://www.mathworks.com>`_ graphics commands, it does
-not require MATLAB, and can be used in a Pythonic, object oriented
+<http://www.python.org>`.  Although it has its origins in emulating
+the `MATLAB™ <http://www.mathworks.com>` graphics commands, it is
+independent of MATLAB, and can be used in a Pythonic, object oriented
 way.  Although matplotlib is written primarily in pure Python, it
-makes heavy use of `NumPy <http://www.numpy.org>`_ and other extension
+makes heavy use of `NumPy <http://www.numpy.org>` and other extension
 code to provide good performance even for large arrays.
 
 matplotlib is designed with the philosophy that you should be able to
@@ -25,7 +25,8 @@ structures, I began to strain against the limitations of MATLAB as a
 programming language, and decided to start over in Python.  Python
 more than makes up for all of MATLAB's deficiencies as a programming
 language, but I was having difficulty finding a 2D plotting package
-(for 3D `VTK <http://www.vtk.org/>`_) more than exceeds all of my needs).
+(for 3D `VTK <http://www.vtk.org/>` more than exceeds all of my
+needs).
 
 When I went searching for a Python plotting package, I had several
 requirements:
@@ -57,26 +58,28 @@ without affecting user code.
 The matplotlib code is conceptually divided into three parts: the
 *pylab interface* is the set of functions provided by
 :mod:`matplotlib.pylab` which allow the user to create plots with code
-quite similar to MATLAB figure generating code.  The *matplotlib
-frontend* or *matplotlib API* is the set of classes that do the heavy
-lifting, creating and managing figures, text, lines, plots and so on.
-This is an abstract interface that knows nothing about output.  The
-*backends* are device dependent drawing devices, aka renderers, that
-transform the frontend representation to hardcopy or a display device.
-Example backends: PS creates `PostScript®
-<http://http://www.adobe.com/products/postscript/>`_ hardcopy, SVG
-creates `Scalable Vector Graphics <http://www.w3.org/Graphics/SVG/>`_
+quite similar to MATLAB figure generating code
+(:ref:`pyplot-tutorial`).  The *matplotlib frontend* or *matplotlib
+API* is the set of classes that do the heavy lifting, creating and
+managing figures, text, lines, plots and so on
+(:ref:`artist-tutorial`).  This is an abstract interface that knows
+nothing about output.  The *backends* are device dependent drawing
+devices, aka renderers, that transform the frontend representation to
+hardcopy or a display device (:ref:`what-is-a-backend`).  Example
+backends: PS creates `PostScript®
+<http://http://www.adobe.com/products/postscript/>` hardcopy, SVG
+creates `Scalable Vector Graphics <http://www.w3.org/Graphics/SVG/>`
 hardcopy, Agg creates PNG output using the high quality `Anti-Grain
-Geometry <http://www.antigrain.com>`_ library that ships with
-matplotlib, GTK embeds matplotlib in a `Gtk+ <http://www.gtk.org/>`_
+Geometry <http://www.antigrain.com>` library that ships with
+matplotlib, GTK embeds matplotlib in a `Gtk+ <http://www.gtk.org/>`
 application, GTKAgg uses the Anti-Grain renderer to create a figure
 and embed it a Gtk+ application, and so on for `PDF
-<http://www.adobe.com/products/acrobat/adobepdf.html>`_, `WxWidgets
-<http://www.wxpython.org/>`_, `Tkinter
-<http://docs.python.org/lib/module-Tkinter.html>`_ etc.
+<http://www.adobe.com/products/acrobat/adobepdf.html>`, `WxWidgets
+<http://www.wxpython.org/>`, `Tkinter
+<http://docs.python.org/lib/module-Tkinter.html>` etc.
 
 matplotlib is used by many people in many different contexts.  Some
-people want to automatically generate PostScript® files to send
+people want to automatically generate PostScript files to send
 to a printer or publishers.  Others deploy matplotlib on a web
 application server to generate PNG output for inclusion in
 dynamically-generated web pages.  Some use matplotlib interactively
