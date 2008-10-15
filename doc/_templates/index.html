@@ -22,10 +22,13 @@
   matplotlib tries to make easy things easy and hard things possible.
   You can generate plots, histograms, power spectra, bar charts,
   errorcharts, scatterplots, etc, with just a few lines of code.  For
-  example, to make a histogram of data in x, you simply need to type
+  example, to generate 10,000 gaussian random numbers and make a
+  histogram plot binning the data into 100 bins, you simply need to type
 
   <pre>
-  >>> hist(x, 100)   # use 100 bins
+  >>> from pylab import randn, hist
+  >>> x = randn(10000)
+  >>> hist(x, 100)    
   </pre>
 
   For the power user, you have full control of line styles, font
