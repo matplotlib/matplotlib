@@ -11,8 +11,9 @@ you.  The dates module provides several converter functions date2num
 and num2date
 
 """
-
 import datetime
+import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.mlab as mlab
@@ -21,18 +22,26 @@ years    = mdates.YearLocator()   # every year
 months   = mdates.MonthLocator()  # every month
 yearsFmt = mdates.DateFormatter('%Y')
 
-r = mlab.csv2rec('../data/goog.csv')
-r.sort()
+# load a numpy record array from yahoo csv data with fields date,
+# open, close, volume, adj_close from the mpl-data/example directory.
+# The record array stores python datetime.date as an object array in
+# the date column
+datafile = matplotlib.get_example_data('goog.npy')
+r = np.load(datafile).view(np.recarray)
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(r.date, r.adj_close)
 
+
 # format the ticks
 ax.xaxis.set_major_locator(years)
 ax.xaxis.set_major_formatter(yearsFmt)
 ax.xaxis.set_minor_locator(months)
-ax.autoscale_view()
+
+datemin = datetime.date(r.date.min().year, 1, 1)
+datemax = datetime.date(r.date.max().year+1, 1, 1)
+ax.set_xlim(datemin, datemax)
 
 # format the coords message box
 def price(x): return '$%1.2f'%x
