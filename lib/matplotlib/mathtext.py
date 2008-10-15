@@ -565,8 +565,6 @@ class TruetypeFonts(Fonts):
     A generic base class for all font setups that use Truetype fonts
     (through ft2font)
     """
-    _fonts = {}
-
     class CachedFont:
         def __init__(self, font):
             self.font     = font
@@ -579,13 +577,12 @@ class TruetypeFonts(Fonts):
 
     def __init__(self, default_font_prop, mathtext_backend):
         Fonts.__init__(self, default_font_prop, mathtext_backend)
-        self.glyphd           = {}
+        self.glyphd = {}
+        self._fonts = {}
 
-        if self._fonts == {}:
-            filename = findfont(default_font_prop)
-            default_font = self.CachedFont(FT2Font(str(filename)))
-
-            self._fonts['default'] = default_font
+        filename = findfont(default_font_prop)
+        default_font = self.CachedFont(FT2Font(str(filename)))
+        self._fonts['default'] = default_font
 
     def destroy(self):
         self.glyphd = None
