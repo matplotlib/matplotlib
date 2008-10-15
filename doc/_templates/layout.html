@@ -1,15 +1,10 @@
 {% extends "!layout.html" %}
 
 {% block rootrellink %}
-        <li><a href="{{ pathto('index') }}">matplotlib home </a> |&nbsp;</li>
-        <li><a href="{{ pathto('contents') }}">documentation </a> &raquo;</li>
-{% endblock %}
-
-{% block relbar1 %}
-<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
-<img src="{{ pathto("_static/logo2.png", 1) }}">
-</div>
-{{ super() }}
+        <li><a href="{{ pathto('index') }}">
+            <img style="border: none; vertical-align: middle;" src="{{ pathto('_static/icon.png', 1) }}" width="16" height="16"/>
+            matplotlib home</a>&nbsp;|&nbsp;</li>
+        <li><a href="{{ pathto('contents') }}">documentation</a> &raquo;</li>
 {% endblock %}
 
 {# put the sidebar before the body #}
@@ -17,4 +12,4 @@
 {% block sidebar2 %}{% endblock %}
 
 
- 
+

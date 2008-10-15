@@ -1,5 +1,13 @@
 {% extends "layout.html" %}
 {% set title = 'Overview' %}
+
+{% block relbar1 %}
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+<img src="{{ pathto("_static/logo2.png", 1) }}">
+</div>
+{{ super() }}
+{% endblock %}
+
 {% block body %}
   <h1>Welcome</h1>
 
@@ -22,10 +30,10 @@
 
   For the power user, you have full control of line styles, font
   properties, axes properties, etc, via an object oriented interface
-  or via a handle graphics interface familiar to matlab users.  
+  or via a handle graphics interface familiar to Matlab&reg; users.
 
   The plotting functions in the <a href=api/pyplot_api.html>pyplot</a>
-  interface have a high degree of Matlab&reg compatibility.<p>
+  interface have a high degree of Matlab&reg; compatibility.<p>
 
   <br>
   <table border=1 cellpadding=3 cellspacing=2>
