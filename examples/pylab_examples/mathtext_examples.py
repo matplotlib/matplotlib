@@ -53,7 +53,7 @@ stests = [
    ]
 
 if sys.maxunicode > 0xffff:
-    stests.append('$\mathrm{\ue0f2 \U0001D538}$')
+    stests.append(ur'$\mathrm{\ue0f2 \U0001D538}$')
 
 
 from pylab import *
