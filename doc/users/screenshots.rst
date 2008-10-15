@@ -126,7 +126,7 @@ user interface you are using, allowing you to write cross GUI figures
 and widgets.  See matplotlib.widgets and the widget `examples
 <examples/widgets>`
 
-.. plot:: ../mpl_examples/widgets/sliders.py
+.. plot:: ../mpl_examples/widgets/slider_demo.py
 
 
 .. _screenshots_fill_demo:
@@ -150,7 +150,36 @@ You can plot date data with major and minor ticks and custom tick
 formatters for both the major and minor ticks; see matplotlib.ticker
 and matplotlib.dates for details and usage.
 
-.. plot:: ../mpl_examples/api/date_demo.py
+todoplot:: ../mpl_examples/api/date_demo.py
 
+.. _screenshots_jdh_demo:
+
+Financial charts
+================
+
+You can make much more sophisticated financial plots.  This example
+emulates one of the `ChartDirector`<http://www.advsofteng.com/gallery_finance.html>
+financial plots.  Some of the data in the plot, are real financial
+data, some are random traces that I used since the goal was to
+illustrate plotting techniques, not market analysis!
+
+
+todoplot:: ../mpl_examples/pylab_examples/finance_work2.py
+
+
+.. _screenshots_basemap_demo:
+
+Basemap demo
+============
+
+Jeff Whitaker provided this example showing how to efficiently plot a
+collection of lines over a colormap image using the
+:ref:`toolkit_basemap` .  Many map projections are handled via the
+proj4 library: cylindrical equidistant, mercator, lambert conformal
+conic, lambert azimuthal equal area, albers equal area conic and
+stereographic.  See the `tutorial
+<http://www.scipy.org/wikis/topical_software/Maps>` entry on the wiki.
+
+.. plot:: plotmap.py
 
 

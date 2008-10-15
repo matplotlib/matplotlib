@@ -32,6 +32,10 @@ def figs():
             plt.close('all')    # we need to clear between runs
             mplshell.magic_run(basename)
             for imagefile, dpi in imagefiles.iteritems():
+                # todo: this will get called even if the run script
+                # fails and exits, thus creating a stub pdf and png
+                # iles preventing them from getting built successfully
+                # later
                 plt.savefig(imagefile, dpi=dpi)
     print 'all figures made'
 
