@@ -898,7 +898,7 @@ def xscale(*args, **kwargs):
     draw_if_interactive()
     return ret
 xscale.__doc__ = dedent(xscale.__doc__) % {
-    'scale': ' | '.join([repr(x) for x in get_scale_names()]),
+    'scale': ' | '.join([repr(_x) for _x in get_scale_names()]),
     'scale_docs': get_scale_docs()}
 
 def yscale(*args, **kwargs):
@@ -918,7 +918,7 @@ def yscale(*args, **kwargs):
     draw_if_interactive()
     return ret
 yscale.__doc__ = dedent(yscale.__doc__) % {
-    'scale': ' | '.join([repr(x) for x in get_scale_names()]),
+    'scale': ' | '.join([repr(_x) for _x in get_scale_names()]),
     'scale_docs': get_scale_docs()}
 
 def xticks(*args, **kwargs):
