@@ -8,7 +8,8 @@
 
 {% block relbar1 %}
 <div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
-<img src="{{ pathto("_static/logo2.png", 1) }}">
+<a href="{{ pathto('index') }}"><img src="{{
+pathto("_static/logo2.png", 1) }}" border="0"></a>
 </div>
 {{ super() }}
 {% endblock %}
