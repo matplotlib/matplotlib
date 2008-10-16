@@ -23,6 +23,7 @@ User's Guide
     event_handling.rst
     toolkits.rst
     screenshots.rst
-
+    license.rst
+    credits.rst
 
 
