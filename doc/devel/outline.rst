@@ -108,9 +108,9 @@ config/rcsetup         Darren        needs conversion
 config/tconfig         Darren        needs conversion
 config/verbose         Darren        needs conversion
 numerix/__init__                     needs conversion
-projections/__init__                 needs conversion
-projections/geo                      needs conversion
-projections/polar                    needs conversion
+projections/__init__   Mike          converted
+projections/geo        Mike          converted (not included--experimental)
+projections/polar      Mike          converted
 afm                                  converted
 artist                               converted
 axes                                 converted
@@ -134,18 +134,18 @@ lines                                needs conversion
 mathtext                             needs conversion
 mlab                                 needs conversion
 mpl                                  needs conversion
-patches                              needs conversion
-path                                 needs conversion
-pylab                                needs conversion
+patches                Mike          converted
+path                   Mike          converted
+pylab                                no docstrings
 pyplot                               converted
 quiver                               needs conversion
 rcsetup                              needs conversion
-scale                                needs conversion
+scale                  Mike          converted
 table                                needs conversion
 texmanager             Darren        needs conversion
 text                   Mike          converted
 ticker                 Mike          needs conversion
-transforms                           needs conversion
+transforms             Mike          converted
 type1font                            needs conversion
 units                                needs conversion
 widgets                              needs conversion

@@ -8,14 +8,14 @@ values in the range 0-1.
 Commands which take color arguments can use several formats to specify
 the colors.  For the basic builtin colors, you can use a single letter
 
-      b  : blue
-      g  : green
-      r  : red
-      c  : cyan
-      m  : magenta
-      y  : yellow
-      k  : black
-      w  : white
+    - b  : blue
+    - g  : green
+    - r  : red
+    - c  : cyan
+    - m  : magenta
+    - y  : yellow
+    - k  : black
+    - w  : white
 
 Gray shades can be given as a string encoding a float in the 0-1
 range, e.g.::

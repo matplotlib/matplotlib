@@ -82,6 +82,9 @@ class Patch(artist.Artist):
         return inside, {}
 
     def update_from(self, other):
+        """
+        Updates this :class:`Patch` from the properties of *other*.
+        """
         artist.Artist.update_from(self, other)
         self.set_edgecolor(other.get_edgecolor())
         self.set_facecolor(other.get_facecolor())
@@ -94,9 +97,17 @@ class Patch(artist.Artist):
         self.set_alpha(other.get_alpha())
 
     def get_extents(self):
+        """
+        Return a :class:`~matplotlib.transforms.Bbox` object defining
+        the axis-aligned extents of the :class:`Patch`.
+        """
         return self.get_path().get_extents(self.get_transform())
 
     def get_transform(self):
+        """
+        Return the :class:`~matplotlib.transforms.Transform` applied
+        to the :class:`Patch`.
+        """
         return self.get_patch_transform() + artist.Artist.get_transform(self)
 
     def get_data_transform(self):
@@ -106,22 +117,38 @@ class Patch(artist.Artist):
         return transforms.IdentityTransform()
 
     def get_antialiased(self):
+        """
+        Returns True if the :class:`Patch` is to be drawn with antialiasing.
+        """
         return self._antialiased
     get_aa = get_antialiased
 
     def get_edgecolor(self):
+        """
+        Return the edge color of the :class:`Patch`.
+        """
         return self._edgecolor
     get_ec = get_edgecolor
 
     def get_facecolor(self):
+        """
+        Return the face color of the :class:`Patch`.
+        """
         return self._facecolor
     get_fc = get_facecolor
 
     def get_linewidth(self):
+        """
+        Return the line width in points.
+        """
         return self._linewidth
     get_lw = get_linewidth
 
     def get_linestyle(self):
+        """
+        Return the linestyle.  Will be one of ['solid' | 'dashed' |
+        'dashdot' | 'dotted']
+        """
         return self._linestyle
     get_ls = get_linestyle
 
@@ -133,7 +160,10 @@ class Patch(artist.Artist):
         """
         if aa is None: aa = mpl.rcParams['patch.antialiased']
         self._antialiased = aa
-    set_aa = set_antialiased
+
+    def set_aa(self, aa):
+        """alias for set_antialiased"""
+        return self.set_antialiased(aa)
 
     def set_edgecolor(self, color):
         """
@@ -222,15 +252,18 @@ class Patch(artist.Artist):
 
         2. Hatching is done with solid black lines of width 0.
 
+
+        ACCEPTS: [ '/' | '\\' | '|' | '-' | '#' | 'x' ]
         """
         self._hatch = h
 
     def get_hatch(self):
-        'return the current hatching pattern'
+        'Return the current hatching pattern'
         return self._hatch
 
 
     def draw(self, renderer):
+        'Draw the :class:`Patch` to the given *renderer*.'
         if not self.get_visible(): return
         #renderer.open_group('patch')
         gc = renderer.new_gc()
@@ -378,8 +411,8 @@ class Shadow(Patch):
 
 class Rectangle(Patch):
     """
-    Draw a rectangle with lower left at *xy*=(*x*, *y*) with specified
-    width and height
+    Draw a rectangle with lower left at *xy* = (*x*, *y*) with
+    specified *width* and *height*.
     """
 
     def __str__(self):
@@ -1296,13 +1329,11 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
 
 class BboxTransmuterBase(object):
     """
-    Bbox Transmuter Base class
-
-    BBoxTransmuterBase and its derivatives are used to make a fancy box
-    around a given rectangle. The __call__ method returns the Path of
-    the fancy box. This class is not an artist and actual drawing of the
-    fancy box is done by the :class:`FancyBboxPatch` class.
-
+    :class:`BBoxTransmuterBase` and its derivatives are used to make a
+    fancy box around a given rectangle. The :meth:`__call__` method
+    returns the :class:`~matplotlib.path.Path` of the fancy box. This
+    class is not an artist and actual drawing of the fancy box is done
+    by the :class:`FancyBboxPatch` class.
     """
 
     # The derived classes are required to be able to be initialized
@@ -1317,11 +1348,12 @@ class BboxTransmuterBase(object):
 
     def transmute(self, x0, y0, width, height, mutation_size):
         """
-        The transmute method is a very core of the BboxTransmuter class
-        and must be overriden in the subclasses. It receives the
-        location and size of the rectangle, and the mutation_size, with
-        which the amound padding and etc. will be scaled. It returns a
-        Path instance.
+        The transmute method is a very core of the
+        :class:`BboxTransmuter` class and must be overriden in the
+        subclasses. It receives the location and size of the
+        rectangle, and the mutation_size, with which the amount of
+        padding and etc. will be scaled. It returns a
+        :class:`~matplotlib.path.Path` instance.
         """
         raise NotImplementedError('Derived must override')
 
@@ -1501,7 +1533,8 @@ class FancyBboxPatch(Patch):
                  mutation_aspect=None,
                  **kwargs):
         """
-        *xy*=lower left corner
+        *xy* = lower left corner
+
         *width*, *height*
 
         *boxstyle* describes how the fancy box will be drawn. It
@@ -1636,7 +1669,7 @@ class FancyBboxPatch(Patch):
         """
         Set the transmuter object
 
-        ACCEPTS: BboxTransmuterBase (or its derivatives) instance
+        ACCEPTS: :class:`BboxTransmuterBase` (or its derivatives) instance
         """
         self._bbox_transmuter = bbox_transmuter
 
