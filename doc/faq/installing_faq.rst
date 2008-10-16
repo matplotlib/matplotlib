@@ -1,8 +1,9 @@
 .. _installing-faq:
 
-*************
- Installation
-*************
+*****************
+ Installation FAQ
+*****************
+
 
 .. contents::
 

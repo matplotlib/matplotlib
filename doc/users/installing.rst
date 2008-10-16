@@ -45,7 +45,7 @@ matplotlib requires numpy version 1.1 or later.  Although it is not a
 requirement to use matplotlib, we strongly encourage you to install
 `ipython <http://ipython.scipy.org/dist>`_, which is an interactive
 shell for python that is matplotlib aware.  Once you have ipython,
-numpy and matplotlib installed, ipython's "pylab" mode you have a
+numpy and matplotlib installed, in ipython's "pylab" mode you have a
 matlab-like environment that automatically handles most of the
 configuration details for you, so you can get up and running quickly::
 
@@ -83,7 +83,7 @@ Installing from source
 
 If you are interested perhaps in contributing to matplotlib
 development, or just like to build everything yourself, it is not
-difficult to build matplotlib from source.  Grab the lattest *tar.gz*
+difficult to build matplotlib from source.  Grab the latest *tar.gz*
 release file from `sourceforge
 <http://sourceforge.net/project/showfiles.php?group_id=80706>`_, or if
 you want to develop matplotlib or just need the latest bugfixed
