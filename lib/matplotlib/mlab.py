@@ -1271,7 +1271,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     dtype, the array will have this dtype.  default: numpy.float_
 
     .. seealso::
-        See :file:`examples/load_demo.py` in the source tree:
+        See :file:`examples/pylab_examples/load_converter.py` in the source tree:
            Exercises many of these options.
     """
 
@@ -2414,7 +2414,7 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
     files is automatic, if the filename ends in .gz
 
     .. seealso::
-        :func:`csv2rec` and :func:`rec2csv`:
+        :func:`csv2rec`:
             For information about *missing* and *missingd*, which can
             be used to fill in masked values into your CSV file.
     """
