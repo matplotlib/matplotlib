@@ -17,7 +17,8 @@ def check_build():
 def sf():
     'push a copy to the sf site'
     os.system('cd build/html; rsync -avz . jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/ -essh')
-    os.system('cd ~/mpl/examples; svn-clean; cd ..; rsync -avz examples jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/ -essh --cvs-exclude --delete')
+    # we are now doing this in the doc/examples build 
+    #os.system('cd ~/mpl/examples; svn-clean; cd ..; rsync -avz examples jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/ -essh --cvs-exclude --delete')
 
 def sfpdf():
     'push a copy to the sf site'
@@ -28,6 +29,11 @@ def figs():
 
 def html():
     check_build()
+    # build the literal include examples for searchable examples
+    os.system('cd examples; python gen_rst.py')
+
+
+
     #figs()
     if os.system('sphinx-build -b html -d build/doctrees . build/html'):
         raise SystemExit("Building HTML failed.")
