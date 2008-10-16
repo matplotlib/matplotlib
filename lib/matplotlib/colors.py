@@ -530,7 +530,9 @@ class LinearSegmentedColormap(Colormap):
 
         segmentdata argument is a dictionary with a red, green and blue
         entries. Each entry should be a list of x, y0, y1 tuples.
-        See makeMappingArray for details
+
+        .. seealso::
+            :func:`makeMappingArray`
         """
         self.monochrome = False  # True only if all colors in map are identical;
                                  # needed for contouring.

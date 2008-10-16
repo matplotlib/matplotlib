@@ -794,9 +794,9 @@ class Bbox(BboxBase):
         Update the bounds of the :class:`Bbox` based on the passed in
         data.
 
-        path: a Path instance
+        *path*: a Path instance
 
-        ignore:
+        *ignore*:
            - when True, ignore the existing bounds of the Bbox.
            - when False, include the existing bounds of the Bbox.
            - when None, use the last value passed to :meth:`ignore`.

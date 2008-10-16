@@ -416,16 +416,17 @@ def figlegend(handles, labels, loc, **kwargs):
       can be a string or an integer specifying the legend
       location
 
+    A :class:`matplotlib.legend.Legend` instance is returned.
+
     Example::
 
       figlegend( (line1, line2, line3),
                  ('label1', 'label2', 'label3'),
                  'upper right' )
 
-    See :func:`~matplotlib.pyplot.legend` for information about the
-    location codes
-
-    A :class:`matplotlib.legend.Legend` instance is returned.
+    .. seealso::
+       :func:`~matplotlib.pyplot.legend`:
+         For information about the location codes
     """
     l = gcf().legend(handles, labels, loc, **kwargs)
     draw_if_interactive()
@@ -592,9 +593,6 @@ def subplot(*args, **kwargs):
 
       subplot(211, axisbg='y')
 
-    See :func:`~matplotlib.pyplot.axes` for additional information on
-    :func:`axes` and :func:`subplot` keyword arguments.
-
     New subplots that overlap old will delete the old axes.  If you do
     not want this behavior, use
     :meth:`matplotlib.figure.Figure.add_subplot` or the
@@ -605,6 +603,10 @@ def subplot(*args, **kwargs):
       subplot(211)   # overlaps, subplot(111) is killed
       plot(rand(12), rand(12))
 
+    .. seealso::
+        :func:`~matplotlib.pyplot.axes`:
+            For additional information on :func:`axes` and
+            :func:`subplot` keyword arguments.
     """
 
 
@@ -628,7 +630,8 @@ def twinx(ax=None):
     *None*) sharing the xaxis.  The ticks for *ax2* will be placed on
     the right, and the *ax2* instance is returned.
 
-    See :file:`examples/pylab_examples/two_scales.py`
+    .. seealso::
+       :file:`examples/pylab_examples/two_scales.py`
     """
     if ax is None:
         ax=gca()
@@ -721,8 +724,9 @@ def title(s, *args, **kwargs):
                   'verticalalignment': 'bottom',
                   'horizontalalignment': 'center'}
 
-    See the :func:`~matplotlib.pyplot.text` docstring for information
-    of how override and the optional args work.
+    .. seealso::
+       :func:`~matplotlib.pyplot.text`:
+           for information on how override and the optional args work.
     """
     l =  gca().set_title(s, *args, **kwargs)
     draw_if_interactive()
@@ -782,10 +786,12 @@ def axis(*v, **kwargs):
 
     if ``len(*v)==0``, you can pass in *xmin*, *xmax*, *ymin*, *ymax*
     as kwargs selectively to alter just those limits without changing
-    the others.  See :func:`xlim` and :func:`ylim` for more information
+    the others.
 
     The xmin, xmax, ymin, ymax tuple is returned
 
+    .. seealso::
+        :func:`xlim`, :func:`ylim`
     """
     ax = gca()
     v = ax.axis(*v, **kwargs)
@@ -804,9 +810,9 @@ def xlabel(s, *args, **kwargs):
           'horizontalalignment' : 'center'
           }
 
-    See :func:`~matplotlib.pyplot.text` for information of how
-    override and the optional args work
-
+    .. seealso::
+        :func:`~matplotlib.pyplot.text`:
+            For information on how override and the optional args work
     """
     l =  gca().set_xlabel(s, *args, **kwargs)
     draw_if_interactive()
@@ -824,9 +830,10 @@ def ylabel(s, *args, **kwargs):
            'horizontalalignment' : 'right',
            'rotation'='vertical' : }
 
-    See :func:`~matplotlib.pyplot.text` for information on how
-    override and the optional args work.
-
+    .. seealso::
+        :func:`~matplotlib.pyplot.text`:
+            For information on how override and the optional args
+            work.
     """
     l = gca().set_ylabel(s, *args, **kwargs)
     draw_if_interactive()
@@ -2430,7 +2437,9 @@ if Axes.annotate.__doc__ is not None:
 def autumn():
     '''
     Set the default colormap to *autumn* and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='autumn')
     im = gci()
@@ -2445,7 +2454,9 @@ def autumn():
 def bone():
     '''
     Set the default colormap to bone and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='bone')
     im = gci()
@@ -2460,7 +2471,9 @@ def bone():
 def cool():
     '''
     Set the default colormap to cool and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='cool')
     im = gci()
@@ -2475,7 +2488,9 @@ def cool():
 def copper():
     '''
     Set the default colormap to copper and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='copper')
     im = gci()
@@ -2490,7 +2505,9 @@ def copper():
 def flag():
     '''
     Set the default colormap to flag and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='flag')
     im = gci()
@@ -2505,7 +2522,9 @@ def flag():
 def gray():
     '''
     Set the default colormap to gray and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='gray')
     im = gci()
@@ -2520,7 +2539,9 @@ def gray():
 def hot():
     '''
     Set the default colormap to hot and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='hot')
     im = gci()
@@ -2535,7 +2556,9 @@ def hot():
 def hsv():
     '''
     Set the default colormap to hsv and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='hsv')
     im = gci()
@@ -2550,7 +2573,9 @@ def hsv():
 def jet():
     '''
     Set the default colormap to jet and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='jet')
     im = gci()
@@ -2565,7 +2590,9 @@ def jet():
 def pink():
     '''
     Set the default colormap to pink and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='pink')
     im = gci()
@@ -2580,7 +2607,9 @@ def pink():
 def prism():
     '''
     Set the default colormap to prism and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='prism')
     im = gci()
@@ -2595,7 +2624,9 @@ def prism():
 def spring():
     '''
     Set the default colormap to spring and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='spring')
     im = gci()
@@ -2610,7 +2641,9 @@ def spring():
 def summer():
     '''
     Set the default colormap to summer and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='summer')
     im = gci()
@@ -2625,7 +2658,9 @@ def summer():
 def winter():
     '''
     Set the default colormap to winter and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='winter')
     im = gci()
@@ -2640,7 +2675,9 @@ def winter():
 def spectral():
     '''
     Set the default colormap to spectral and apply to current image if any.
-    See :func:`colormaps` for more information.
+
+    .. seealso::
+        :func:`colormaps`
     '''
     rc('image', cmap='spectral')
     im = gci()

@@ -95,11 +95,9 @@ following methods::
   ax.yaxis.set_major_formatter( ymajorFormatter )
   ax.yaxis.set_minor_formatter( yminorFormatter )
 
-See examples/major_minor_demo1.py for an example of setting major an
-minor ticks.  See the matplotlib.dates module for more information and
-examples of using date locators and formatters.
-
-
+See :file:`examples/major_minor_demo1.py` for an example of setting
+major an minor ticks.  See the :module:`matplotlib.dates` module for
+more information and examples of using date locators and formatters.
 """
 
 
@@ -326,7 +324,7 @@ class ScalarFormatter(Formatter):
         e.g. xaxis.set_powerlimits((-3, 4)) sets the pre-2007 default in
         which scientific notation is used for numbers less than
         1e-3 or greater than 1e4.
-        See also set_scientific().
+        See also :meth:`set_scientific`.
         '''
         assert len(lims) == 2, "argument must be a sequence of length 2"
         self._powerlimits = lims

@@ -330,7 +330,9 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         """
         Set the interpolation method the image uses when resizing.
 
-        ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' | 'blackman64', 'nearest' | 'sinc144' | 'sinc256' | 'sinc64' | 'spline16' | 'spline36']
+        ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' |
+        'blackman64', 'nearest' | 'sinc144' | 'sinc256' | 'sinc64' |
+        'spline16' | 'spline36']
         """
         if s is None: s = rcParams['image.interpolation']
         s = s.lower()

@@ -51,39 +51,6 @@ class Patch(artist.Artist):
     def __str__(self):
         return str(self.__class__).split('.')[-1]
 
-    def __init__(self,
-                 edgecolor=None,
-                 facecolor=None,
-                 linewidth=None,
-                 linestyle=None,
-                 antialiased = None,
-                 hatch = None,
-                 fill=True,
-                 **kwargs
-                 ):
-        """
-        The following kwarg properties are supported
-        %(Patch)s
-        """
-        artist.Artist.__init__(self)
-
-        if linewidth is None: linewidth = mpl.rcParams['patch.linewidth']
-        if linestyle is None: linestyle = "solid"
-        if antialiased is None: antialiased = mpl.rcParams['patch.antialiased']
-
-        self.set_edgecolor(edgecolor)
-        self.set_facecolor(facecolor)
-        self.set_linewidth(linewidth)
-        self.set_linestyle(linestyle)
-        self.set_antialiased(antialiased)
-        self.set_hatch(hatch)
-        self.fill = fill
-        self._combined_transform = transforms.IdentityTransform()
-
-        if len(kwargs): artist.setp(self, **kwargs)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
-
-
     def get_verts(self):
         """
         Return a copy of the vertices used in this patch
@@ -176,7 +143,10 @@ class Patch(artist.Artist):
         """
         if color is None: color = mpl.rcParams['patch.edgecolor']
         self._edgecolor = color
-    set_ec = set_edgecolor
+
+    def set_ec(self, color):
+        """alias for set_edgecolor"""
+        return self.set_edgecolor(color)
 
     def set_facecolor(self, color):
         """
@@ -186,7 +156,10 @@ class Patch(artist.Artist):
         """
         if color is None: color = mpl.rcParams['patch.facecolor']
         self._facecolor = color
-    set_fc = set_facecolor
+
+    def set_fc(self, color):
+        """alias for set_facecolor"""
+        return self.set_facecolor(color)
 
     def set_linewidth(self, w):
         """
@@ -196,7 +169,10 @@ class Patch(artist.Artist):
         """
         if w is None: w = mpl.rcParams['patch.linewidth']
         self._linewidth = w
-    set_lw = set_linewidth
+
+    def set_lw(self, lw):
+        """alias for set_linewidth"""
+        return self.set_linewidth(lw)
 
     def set_linestyle(self, ls):
         """
@@ -206,7 +182,10 @@ class Patch(artist.Artist):
         """
         if ls is None: ls = "solid"
         self._linestyle = ls
-    set_ls = set_linestyle
+
+    def set_ls(self, ls):
+        """alias for set_linestyle"""
+        return self.set_linestyle(ls)
 
     def set_fill(self, b):
         """
@@ -297,6 +276,48 @@ class Patch(artist.Artist):
     def get_window_extent(self, renderer=None):
         return self.get_path().get_extents(self.get_transform())
 
+artist.kwdocd['Patch'] = patchdoc = artist.kwdoc(Patch)
+for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
+          'FancyArrow', 'YAArrow', 'CirclePolygon', 'Ellipse', 'Arc',
+          'FancyBboxPatch'):
+    artist.kwdocd[k] = patchdoc
+
+# define Patch.__init__ after the class so that the docstring can be
+# auto-generated.
+def __patch__init__(self,
+                    edgecolor=None,
+                    facecolor=None,
+                    linewidth=None,
+                    linestyle=None,
+                    antialiased = None,
+                    hatch = None,
+                    fill=True,
+                    **kwargs
+                    ):
+    """
+    The following kwarg properties are supported
+
+    %(Patch)s
+    """
+    artist.Artist.__init__(self)
+
+    if linewidth is None: linewidth = mpl.rcParams['patch.linewidth']
+    if linestyle is None: linestyle = "solid"
+    if antialiased is None: antialiased = mpl.rcParams['patch.antialiased']
+
+    self.set_edgecolor(edgecolor)
+    self.set_facecolor(facecolor)
+    self.set_linewidth(linewidth)
+    self.set_linestyle(linestyle)
+    self.set_antialiased(antialiased)
+    self.set_hatch(hatch)
+    self.fill = fill
+    self._combined_transform = transforms.IdentityTransform()
+
+    if len(kwargs): artist.setp(self, **kwargs)
+
+__patch__init__.__doc__ = cbook.dedent(__patch__init__.__doc__) % artist.kwdocd
+Patch.__init__ = __patch__init__
 
 class Shadow(Patch):
     def __str__(self):
@@ -571,7 +592,10 @@ class PathPatch(Patch):
 
         Valid kwargs are:
         %(Patch)s
-        See Patch documentation for additional kwargs
+
+        .. seealso::
+            :class:`Patch`:
+                For additional kwargs
         """
         Patch.__init__(self, **kwargs)
         self._path = path
@@ -596,7 +620,10 @@ class Polygon(Patch):
 
         Valid kwargs are:
         %(Patch)s
-        See Patch documentation for additional kwargs
+
+        .. seealso::
+            :class:`Patch`:
+                For additional kwargs
         """
         Patch.__init__(self, **kwargs)
         xy = np.asarray(xy, np.float_)
@@ -1019,7 +1046,7 @@ class Arc(Ellipse):
     can not be filled.
 
     The arc must be used in an :class:`~matplotlib.axes.Axes`
-    instance---it cannot be added directly to a
+    instance---it can not be added directly to a
     :class:`~matplotlib.figure.Figure`---because it is optimized to
     only render the segments that are inside the axes bounding box
     with high resolution.
@@ -1266,16 +1293,6 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     r.set_clip_on( False )
     r.draw(renderer)
 
-artist.kwdocd['Patch'] = patchdoc = artist.kwdoc(Patch)
-for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
-          'FancyArrow', 'YAArrow', 'CirclePolygon', 'Ellipse', 'Arc'):
-    artist.kwdocd[k] = patchdoc
-
-
-
-
-
-
 
 class BboxTransmuterBase(object):
     """
@@ -1284,7 +1301,7 @@ class BboxTransmuterBase(object):
     BBoxTransmuterBase and its derivatives are used to make a fancy box
     around a given rectangle. The __call__ method returns the Path of
     the fancy box. This class is not an artist and actual drawing of the
-    fancy box is done by the FancyBboxPatch class.
+    fancy box is done by the :class:`FancyBboxPatch` class.
 
     """
 
@@ -1428,7 +1445,7 @@ class RoundBoxTransmuter(BboxTransmuterBase):
 
 
 def _list_available_boxstyles(transmuters):
-    """ a helper function of the FancyBboxPatch to list the available
+    """ a helper function of the :class:`FancyBboxPatch` to list the available
     box styles. It inspects the arguments of the __init__ methods of
     each classes and report them
     """
@@ -1450,18 +1467,23 @@ class FancyBboxPatch(Patch):
     Draw a fancy box around a rectangle with lower left at *xy*=(*x*,
     *y*) with specified width and height.
 
-    FancyBboxPatch class is similar to Rectangle class, but it draws a
-    fancy box around the rectangle. The transfomation of the rectangle
-    box to the fancy box is delgated to the BoxTransmuterBase and its
-    derived classes. The "boxstyle" argument determins what kind of
-    fancy box will be drawn. In other words, it selects the
-    BboxTransmuter class to use, and sets optional attributes.  A
-    custom BboxTransmuter can be used with bbox_transmuter argument
-    (should be an instance, not a class). mutation_scale determines
-    the overall size of the mutation (by which I mean the
-    transformation of the rectangle to the fancy path) and the
-    mutation_aspect determines the aspect-ratio of the mutation.
+    :class:`FancyBboxPatch` class is similar to :class:`Rectangle`
+    class, but it draws a fancy box around the rectangle. The
+    transformation of the rectangle box to the fancy box is delegated
+    to the :class:`BoxTransmuterBase` and its derived classes.
 
+    *boxstyle* determines what kind of fancy box will be drawn. In
+    other words, it selects the :class:`BboxTransmuter` class to use,
+    and sets optional attributes.
+
+    *bbox_transmuter* can specify a custom :class:`BboxTransmuter`
+    instance.
+
+    *mutation_scale* determines the overall size of the mutation (by
+    which I mean the transformation of the rectangle to the fancy
+    path)
+
+    *mutation_aspect* determines the aspect-ratio of the mutation.
     """
 
     _fancy_bbox_transmuters = {"square":SquareBoxTransmuter,
@@ -1482,7 +1504,7 @@ class FancyBboxPatch(Patch):
         *xy*=lower left corner
         *width*, *height*
 
-        The *boxstyle* describes how the fancy box will be drawn. It
+        *boxstyle* describes how the fancy box will be drawn. It
         should be one of the available boxstyle names, with optional
         comma-separated attributes. These attributes are meant to be
         scaled with the *mutation_scale*. Following box styles are
@@ -1490,16 +1512,16 @@ class FancyBboxPatch(Patch):
 
         %(AvailableBoxstyles)s
 
-        The boxstyle name can be "custom", in which case the
-          bbox_transmuter needs to be set, which should be an instance
-          of BboxTransmuterBase (or its derived).
+        The *boxstyle* name can be "custom", in which case the
+        *bbox_transmuter* argument needs to be set, which should be an
+        instance of :class:`BboxTransmuterBase` (or its derived).
 
         *mutation_scale* : a value with which attributes of boxstyle
-            (e.g., pad) will be scaled. default=1.
+        (e.g., pad) will be scaled. default=1.
 
         *mutation_aspect* : The height of the rectangle will be
-            squeezed by this value before the mutation and the mutated
-            box will be stretched by the inverse of it. default=None.
+        squeezed by this value before the mutation and the mutated
+        box will be stretched by the inverse of it. default=None.
 
         Valid kwargs are:
         %(Patch)s
@@ -1539,16 +1561,18 @@ class FancyBboxPatch(Patch):
         Set the box style.
 
         *boxstyle* can be a string with boxstyle name with optional
-         comma-separated attributes. Alternatively, the attrs can
-         be probided as kewords.
+        comma-separated attributes. Alternatively, the attrs can
+        be provided as keywords::
 
          set_boxstyle("round,pad=0.2")
          set_boxstyle("round", pad=0.2)
 
-        Olf attrs simply are forgotten.
+        Old attrs simply are forgotten.
 
-        Without argument (or with boxstyle=None), it prints out
+        Without argument (or with *boxstyle* = None), it prints out
         available box styles.
+
+        ACCEPTS: [ %(AvailableBoxstyles)s ]
         """
 
         if boxstyle==None:
@@ -1573,7 +1597,12 @@ class FancyBboxPatch(Patch):
 
         boxstyle_args.update(kw)
         self._bbox_transmuter = bbox_transmuter_cls(**boxstyle_args)
-
+    kwdoc = dict()
+    kwdoc["AvailableBoxstyles"]=" | ".join([l \
+        for l in _list_available_boxstyles(_fancy_bbox_transmuters)])
+    kwdoc.update(artist.kwdocd)
+    set_boxstyle.__doc__ = set_boxstyle.__doc__ % kwdoc
+    del kwdoc
 
     def set_mutation_scale(self, scale):
         """
