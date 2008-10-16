@@ -3414,7 +3414,7 @@ class Axes(martist.Artist):
 
         *maxlags* is a positive integer detailing the number of lags
         to show.  The default value of *None* will return all
-        :math:`2 \mathrm{len}(x) - 1`` lags.
+        :math:`2 \mathrm{len}(x) - 1` lags.
 
         The return value is a tuple (*lags*, *c*, *linecol*, *b*)
         where
@@ -3425,9 +3425,8 @@ class Axes(martist.Artist):
         - *b* is the *x*-axis.
 
         .. seealso::
-            :meth:`~matplotlib.axes.Axes.plot` or
-            :meth:`~matplotlib.axes.Axes.vlines`:
-                For documentation on valid kwargs.
+            :meth:`~matplotlib.axes.Axes.plot` or :meth:`~matplotlib.axes.Axes.vlines`:
+            For documentation on valid kwargs.
 
         **Example:**
 
