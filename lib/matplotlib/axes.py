@@ -243,7 +243,7 @@ class _process_plot_var_args:
         x, y, multicol = self._xy_from_y(y)
 
         if multicol:
-            for j in range(y.shape[1]):
+            for j in xrange(y.shape[1]):
                 color = self._get_next_cycle_color()
                 seg = mlines.Line2D(x, y[:,j],
                              color = color,
@@ -285,7 +285,7 @@ class _process_plot_var_args:
                 ret.append(seg)
 
             if multicol:
-                for j in range(y.shape[1]):
+                for j in xrange(y.shape[1]):
                     makeline(x[:,j], y[:,j])
             else:
                 makeline(x, y)
@@ -324,7 +324,7 @@ class _process_plot_var_args:
                 closed = kwargs.get('closed', True)
                 func = makefill
             if multicol:
-                for j in range(y.shape[1]):
+                for j in xrange(y.shape[1]):
                     func(x[:,j], y[:,j])
             else:
                 func(x, y)
@@ -372,7 +372,7 @@ class _process_plot_var_args:
             func = makefill
 
         if multicol:
-            for j in range(y.shape[1]):
+            for j in xrange(y.shape[1]):
                 func(x[:,j], y[:,j])
         else:
             func(x, y)
@@ -3897,9 +3897,9 @@ class Axes(martist.Artist):
             pass
         elif align == 'center':
             if orientation == 'vertical':
-                left = [left[i] - width[i]/2. for i in range(len(left))]
+                left = [left[i] - width[i]/2. for i in xrange(len(left))]
             elif orientation == 'horizontal':
-                bottom = [bottom[i] - height[i]/2. for i in range(len(bottom))]
+                bottom = [bottom[i] - height[i]/2. for i in xrange(len(bottom))]
 
         else:
             raise ValueError, 'invalid alignment: %s' % align
@@ -4571,7 +4571,7 @@ class Axes(martist.Artist):
                 elif nc == 1:
                     x = [x.ravel()]
                 else:
-                    x = [x[:,i] for i in range(nc)]
+                    x = [x[:,i] for i in xrange(nc)]
             else:
                 raise ValueError, "input x can have no more than 2 dimensions"
         if not hasattr(x[0], '__len__'):
@@ -4665,7 +4665,7 @@ class Axes(martist.Artist):
             else:
                 def doplot(*args):
                     shuffled = []
-                    for i in range(0, len(args), 3):
+                    for i in xrange(0, len(args), 3):
                         shuffled.extend([args[i+1], args[i], args[i+2]])
                     return self.plot(*shuffled)
 
