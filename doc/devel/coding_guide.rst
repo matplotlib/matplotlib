@@ -353,7 +353,7 @@ There are some some manual hacks in this case, violating the
 ``artist.kwdocd['Patch']`` setting in :mod:`matplotlib.patches`.
 
 
-.. _licenses:
+.. _license-discussion:
 
 Licenses
 ========
