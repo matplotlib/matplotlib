@@ -262,7 +262,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def set_linestyles(self, ls):
         """
         Set the linestyles(s) for the collection.
-        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' | (offset, on-off-dash-seq) ]
+
+        ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |
+        (offset, on-off-dash-seq) ]
         """
         try:
             dashd = backend_bases.GraphicsContextBase.dashd
@@ -314,9 +316,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def set_color(self, c):
         """
         Set both the edgecolor and the facecolor.
-        See :meth:`set_facecolor` and :meth:`set_edgecolor`.
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
+
+        .. seealso::
+            :meth:`set_facecolor`, :meth:`set_edgecolor`
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)

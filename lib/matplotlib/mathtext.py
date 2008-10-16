@@ -60,8 +60,8 @@ LICENSING:
 
 USAGE:
 
-  See http://matplotlib.sourceforge.net/tutorial.html#mathtext for a
-  tutorial introduction.
+  See http://matplotlib.sf.net/users/mathtext.html for a tutorial
+  introduction.
 
   Any text element (xlabel, ylabel, title, text, etc) can use TeX
   markup, as in

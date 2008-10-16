@@ -75,7 +75,7 @@ we can figure out how best to organize the API Reference and continue from
 there.
 
 ====================   ===========   ===================
-Module                 Author        Status             
+Module                 Author        Status
 ====================   ===========   ===================
 backend_agg                          needs conversion
 backend_cairo                        needs conversion
@@ -143,7 +143,7 @@ rcsetup                              needs conversion
 scale                                needs conversion
 table                                needs conversion
 texmanager             Darren        needs conversion
-text                   Mike          needs conversion
+text                   Mike          converted
 ticker                 Mike          needs conversion
 transforms                           needs conversion
 type1font                            needs conversion

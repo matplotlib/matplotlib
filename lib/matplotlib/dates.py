@@ -9,9 +9,9 @@ functions date2num, num2date and drange are used to facilitate easy
 conversion to and from datetime and numeric ranges.
 
 A wide range of specific and general purpose date tick locators and
-formatters are provided in this module.  See matplotlib.tickers for
-general information on tick locators and formatters.  These are
-described below.
+formatters are provided in this module.  See
+:module:`matplotlib.ticker` for general information on tick locators
+and formatters.  These are described below.
 
 All the matplotlib date converters, tickers and formatters are
 timezone aware, and the default timezone is given by the timezone

@@ -41,10 +41,10 @@ def _process_plot_format(fmt):
     * '.b': blue dots
     * 'r--': red dashed lines
 
-    See :func:`~matplotlib.Line2D.lineStyles` and
-    :func:`~matplotlib.pyplot.colors` for all possible styles and
-    color format string.
-
+    .. seealso::
+        :func:`~matplotlib.Line2D.lineStyles` and
+        :func:`~matplotlib.pyplot.colors`:
+            for all possible styles and color format string.
     """
 
     linestyle = None
@@ -419,12 +419,11 @@ class Axes(martist.Artist):
     :class:`~matplotlib.patches.Polygon`, etc., and sets the
     coordinate system.
 
-    The :class:`Axes` instance supports callbacks through a callbacks attribute
-    which is a :class:`~matplotlib.cbook.CallbackRegistry` instance.
-    The events you can connect to are :meth:`xlim_changed` and
-    :meth:`ylim_changed` and the callback will be called with
-    func(*ax() where *ax* is the :class:`Axes` instance.
-
+    The :class:`Axes` instance supports callbacks through a callbacks
+    attribute which is a :class:`~matplotlib.cbook.CallbackRegistry`
+    instance.  The events you can connect to are 'xlim_changed' and
+    'ylim_changed' and the callback will be called with func(*ax*)
+    where *ax* is the :class:`Axes` instance.
     """
     name = "rectilinear"
 
@@ -2493,13 +2492,16 @@ class Axes(martist.Artist):
 
           set_title(label, fontdict=None, **kwargs):
 
-        Set the title for the axes.  See the :meth:`text` for
-        information of how override and the optional args work
+        Set the title for the axes.
 
         kwargs are Text properties:
         %(Text)s
 
         ACCEPTS: str
+
+        .. seealso::
+            :meth:`text`:
+                for information on how override and the optional args work
         """
         default = {
             'fontsize':rcParams['axes.titlesize'],
@@ -2527,12 +2529,15 @@ class Axes(martist.Artist):
 
           set_xlabel(xlabel, fontdict=None, **kwargs)
 
-        Set the label for the xaxis.  See the :meth:`text` docstring
-        for information of how override and the optional args work.
+        Set the label for the xaxis.
 
         Valid kwargs are Text properties:
         %(Text)s
         ACCEPTS: str
+
+        .. seealso::
+            :meth:`text`:
+                for information on how override and the optional args work
         """
 
         label = self.xaxis.get_label()
@@ -2557,12 +2562,13 @@ class Axes(martist.Artist):
 
         Set the label for the yaxis
 
-        See the :meth:`text` doctstring for information of how
-        override and the optional args work
-
         Valid kwargs are Text properties:
         %(Text)s
         ACCEPTS: str
+
+        .. seealso::
+            :meth:`text`:
+                for information on how override and the optional args work
         """
         label = self.yaxis.get_label()
         label.set_text(ylabel)
@@ -2711,7 +2717,9 @@ class Axes(martist.Artist):
 
         %(Line2D)s
 
-        See :meth:`axhspan` for example plot and source code
+        .. seealso::
+            :meth:`axhspan`:
+                for example plot and source code
         """
 
         ymin, ymax = self.get_ybound()
@@ -2765,7 +2773,9 @@ class Axes(martist.Artist):
 
         %(Line2D)s
 
-        See :meth:`axhspan` for example plot and source code
+        .. seealso::
+            :meth:`axhspan`:
+                for example plot and source code
         """
 
         xmin, xmax = self.get_xbound()
@@ -2863,7 +2873,9 @@ class Axes(martist.Artist):
 
         %(Polygon)s
 
-        See :meth:`axhspan` for example plot and source code
+        .. seealso::
+            :meth:`axhspan`:
+                for example plot and source code
         """
         # convert x axis units
         trans = mtransforms.blended_transform_factory(
@@ -3166,12 +3178,6 @@ class Axes(martist.Artist):
         *x* and/or *y* can be a sequence of dates represented as float days since
         0001-01-01 UTC.
 
-        See :mod:`~matplotlib.dates` for helper functions
-        :func:`~matplotlib.dates.date2num`,
-        :func:`~matplotlib.dates.num2date` and
-        :func:`~matplotlib.dates.drange` for help on creating the
-        required floating point dates.
-
         Keyword arguments:
 
           *fmt*: string
@@ -3203,6 +3209,15 @@ class Axes(martist.Artist):
 
         %(Line2D)s
 
+        .. seealso::
+            :mod:`~matplotlib.dates`:
+                for helper functions
+
+            :func:`~matplotlib.dates.date2num`,
+            :func:`~matplotlib.dates.num2date` and
+            :func:`~matplotlib.dates.drange`:
+                for help on creating the required floating point
+                dates.
         """
 
         if not self._hold: self.cla()
@@ -3302,7 +3317,9 @@ class Axes(martist.Artist):
 
         %(Line2D)s
 
-        See :meth:`loglog` for example code and figure
+        .. seealso::
+            :meth:`loglog`:
+                For example code and figure
         """
         if not self._hold: self.cla()
         d = {'basex': kwargs.pop( 'basex', 10),
@@ -3345,7 +3362,9 @@ class Axes(martist.Artist):
 
         %(Line2D)s
 
-        See :meth:`loglog` for example code and figure
+        .. seealso::
+            :meth:`loglog`:
+                For example code and figure
         """
         if not self._hold: self.cla()
         d = {'basey': kwargs.pop('basey', 10),
@@ -3365,7 +3384,7 @@ class Axes(martist.Artist):
         call signature::
 
             acorr(x, normed=False, detrend=mlab.detrend_none, usevlines=False,
-                maxlags=None, **kwargs)
+                  maxlags=None, **kwargs)
 
         Plot the autocorrelation of *x*.  If *normed* = *True*,
         normalize the data but the autocorrelation at 0-th lag.  *x* is
@@ -3375,37 +3394,40 @@ class Axes(martist.Artist):
 
         Return value is a tuple (*lags*, *c*, *line*) where:
 
-        - *lags* are a length 2*maxlags+1 lag vector
+          - *lags* are a length 2*maxlags+1 lag vector
 
-        - *c* is the 2*maxlags+1 auto correlation vector
+          - *c* is the 2*maxlags+1 auto correlation vector
 
-        - *line* is a :class:`~matplotlib.lines.Line2D` instance
-           returned by :meth:`plot`
+          - *line* is a :class:`~matplotlib.lines.Line2D` instance
+            returned by :meth:`plot`
 
         The default *linestyle* is None and the default *marker* is
         ``'o'``, though these can be overridden with keyword args.
-        The cross correlation is performed with :func:`numpy.correlate` with
-        *mode* = 2.
+        The cross correlation is performed with
+        :func:`numpy.correlate` with *mode* = 2.
 
         If *usevlines* is *True*, :meth:`~matplotlib.axes.Axes.vlines`
         rather than :meth:`~matplotlib.axes.Axes.plot` is used to draw
         vertical lines from the origin to the acorr.  Otherwise, the
         plot style is determined by the kwargs, which are
-        :class:`~matplotlib.lines.Line2D` properties.  The return
-        value is a tuple (*lags*, *c*, *linecol*, *b*) where
+        :class:`~matplotlib.lines.Line2D` properties.
+
+        *maxlags* is a positive integer detailing the number of lags
+        to show.  The default value of *None* will return all
+        :math:`2 \mathrm{len}(x) - 1`` lags.
+
+        The return value is a tuple (*lags*, *c*, *linecol*, *b*)
+        where
 
         - *linecol* is the
           :class:`~matplotlib.collections.LineCollection`
 
         - *b* is the *x*-axis.
 
-        *maxlags* is a positive integer detailing the number of lags
-        to show.  The default value of *None* will return all
-        ``(2*len(x)-1)`` lags.
-
-        See the respective :meth:`~matplotlib.axes.Axes.plot` or
-        :meth:`~matplotlib.axes.Axes.vlines` functions for
-        documentation on valid kwargs.
+        .. seealso::
+            :meth:`~matplotlib.axes.Axes.plot` or
+            :meth:`~matplotlib.axes.Axes.vlines`:
+                For documentation on valid kwargs.
 
         **Example:**
 
@@ -4095,9 +4117,13 @@ class Axes(martist.Artist):
         Return value is a tuple (*markerline*, *stemlines*,
         *baseline*).
 
-        See `this document
-        <http://www.mathworks.com/access/helpdesk/help/techdoc/ref/stem.html>`_
-        for details and :file:`examples/pylab_examples/stem_plot.py` for a demo.
+        .. seealso::
+            `this document
+            <http://www.mathworks.com/access/helpdesk/help/techdoc/ref/stem.html>`_:
+                for details
+
+            :file:`examples/pylab_examples/stem_plot.py`:
+                for a demo
         """
         remember_hold=self._hold
         if not self._hold: self.cla()
@@ -5359,8 +5385,6 @@ class Axes(martist.Artist):
           xs, ys = poly_between(x, 0, y)
           axes.fill(xs, ys, facecolor='red', alpha=0.5)
 
-        See :file:`examples/pylab_examples/fill_between.py` for more examples.
-
         The *closed* kwarg will close the polygon when *True* (default).
 
         kwargs control the Polygon properties:
@@ -5370,6 +5394,10 @@ class Axes(martist.Artist):
         **Example:**
 
         .. plot:: ../mpl_examples/pylab_examples/fill_demo.py
+
+        .. seealso::
+            :file:`examples/pylab_examples/fill_between.py`:
+                For more examples.
         """
         if not self._hold: self.cla()
 
@@ -5805,15 +5833,16 @@ class Axes(martist.Artist):
         Return value is a :class:`matplotlib.collection.QuadMesh`
         object.
 
-        See :func:`~matplotlib.pyplot.pcolor` for an explanation of
-        the grid orientation and the expansion of 1-D *X* and/or *Y*
-        to 2-D arrays.
-
         kwargs can be used to control the
         :class:`matplotlib.collections.QuadMesh`
         properties:
 
         %(QuadMesh)s
+
+        .. seealso::
+            :func:`~matplotlib.pyplot.pcolor`:
+                For an explanation of the grid orientation and the
+                expansion of 1-D *X* and/or *Y* to 2-D arrays.
         """
         if not self._hold: self.cla()
 
@@ -6519,8 +6548,6 @@ class Axes(martist.Artist):
         to compute :math:`P_{xy}`, with a scaling to correct for power
         loss due to windowing.
 
-        See :meth:`psd` for a description of the optional parameters.
-
         Returns the tuple (*Pxy*, *freqs*).  *P* is the cross spectrum
         (complex valued), and :math:`10\log_{10}|P_{xy}|` is
         plotted.
@@ -6536,6 +6563,10 @@ class Axes(martist.Artist):
         **Example:**
 
         .. plot:: ../mpl_examples/pylab_examples/csd_demo.py
+
+        .. seealso:
+            :meth:`psd`
+                For a description of the optional parameters.
         """
         if not self._hold: self.cla()
         pxy, freqs = mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap)
@@ -6576,8 +6607,6 @@ class Axes(martist.Artist):
         The return value is a tuple (*Cxy*, *f*), where *f* are the
         frequencies of the coherence vector.
 
-        See the :meth:`psd` for a description of the optional parameters.
-
         kwargs are applied to the lines.
 
         References:
@@ -6593,6 +6622,10 @@ class Axes(martist.Artist):
         **Example:**
 
         .. plot:: ../mpl_examples/pylab_examples/cohere_demo.py
+
+        .. seealso:
+            :meth:`psd`
+                For a description of the optional parameters.
         """
         if not self._hold: self.cla()
         cxy, freqs = mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap)
@@ -6633,9 +6666,6 @@ class Axes(martist.Artist):
             default 0, max(bins), 0, max(freqs) where bins is the return
             value from mlab.specgram
 
-        See :meth:`~matplotlib.axes.Axes.psd` for information on the
-        other keyword arguments.
-
         Return value is (*Pxx*, *freqs*, *bins*, *im*):
 
           - *bins* are the time points the spectrogram is calculated over
@@ -6646,6 +6676,10 @@ class Axes(martist.Artist):
         Note: If *x* is real (i.e. non-complex), only the positive
         spectrum is shown.  If *x* is complex, both positive and
         negative parts of the spectrum are shown.
+
+        .. seealso:
+            :meth:`psd`
+                For a description of the optional parameters.
         """
         if not self._hold: self.cla()
 
@@ -6709,7 +6743,8 @@ class Axes(martist.Artist):
         * *cmap*
         * *alpha*
 
-        See documentation for :func:`~matplotlib.pyplot.imshow` for details.
+        .. seealso::
+            :func:`~matplotlib.pyplot.imshow`
 
         For controlling colors, e.g. cyan background and red marks,
         use::
@@ -6722,8 +6757,6 @@ class Axes(martist.Artist):
         * *markersize*
         * *color*
 
-        See documentation for :func:`~matplotlib.pyplot.plot` for details.
-
         Useful values for *marker* include:
 
         * 's'  square (default)
@@ -6731,6 +6764,8 @@ class Axes(martist.Artist):
         * '.'  point
         * ','  pixel
 
+        .. seealso::
+            :func:`~matplotlib.pyplot.plot`
         """
         if precision is None:
             precision = 0

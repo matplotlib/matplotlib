@@ -217,9 +217,10 @@ class Path(object):
         """
         Return a transformed copy of the path.
 
-        See :class:`matplotlib.transforms.TransformedPath` for a path
-        that will cache the transformed result and automatically
-        update when the transform changes.
+        .. seealso::
+            :class:`matplotlib.transforms.TransformedPath`:
+                A path class that will cache the transformed result
+                and automatically update when the transform changes.
         """
         return Path(transform.transform(self.vertices), self.codes)
 

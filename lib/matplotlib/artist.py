@@ -81,14 +81,14 @@ class Artist(object):
         # TODO: add legend support
 
     def have_units(self):
-        'return *True* if units are set on the x or y axes'
+        'Return *True* if units are set on the *x* or *y* axes'
         ax = self.axes
         if ax is None or ax.xaxis is None:
             return False
         return ax.xaxis.have_units() or ax.yaxis.have_units()
 
     def convert_xunits(self, x):
-        """for artists in an axes, if the xaxis as units support,
+        """For artists in an axes, if the xaxis has units support,
         convert *x* using xaxis unit type
         """
         ax = getattr(self, 'axes', None)
@@ -98,7 +98,7 @@ class Artist(object):
         return ax.xaxis.convert_units(x)
 
     def convert_yunits(self, y):
-        """for artists in an axes, if the yaxis as units support,
+        """For artists in an axes, if the yaxis has units support,
         convert *y* using yaxis unit type
         """
         ax = getattr(self, 'axes', None)
@@ -107,39 +107,64 @@ class Artist(object):
 
     def set_axes(self, axes):
         """
-        set the axes instance in which the artist resides, if any
+        Set the :class:`~matplotlib.axes.Axes` instance in which the
+        artist resides, if any.
 
-        ACCEPTS: an axes instance
+        ACCEPTS: an :class:`~matplotlib.axes.Axes` instance
         """
         self.axes = axes
 
     def get_axes(self):
-        'return the axes instance the artist resides in, or *None*'
+        """
+        Return the :class:`~matplotlib.axes.Axes` instance the artist
+        resides in, or *None*
+        """
         return self.axes
 
     def add_callback(self, func):
+        """
+        Adds a callback function that will be called whenever one of
+        the :class:`Artist`'s properties changes.
+
+        Returns an *id* that is useful for removing the callback with
+        :meth:`remove_callback` later.
+        """
         oid = self._oid
         self._propobservers[oid] = func
         self._oid += 1
         return oid
 
     def remove_callback(self, oid):
+        """
+        Remove a callback based on its *id*.
+
+        .. seealso::
+            :meth:`add_callback`
+        """
         try: del self._propobservers[oid]
         except KeyError: pass
 
     def pchanged(self):
-        'fire event when property changed'
+        """
+        Fire an event when property changed, calling all of the
+        registered callbacks.
+        """
         for oid, func in self._propobservers.items():
             func(self)
 
     def is_transform_set(self):
-        'Artist has transform explicity let'
+        """
+        Returns *True* if :class:`Artist` has a transform explicitly
+        set.
+        """
         return self._transformSet
 
     def set_transform(self, t):
         """
         Set the :class:`~matplotlib.transforms.Transform` instance
         used by this artist.
+
+        ACCEPTS: :class:`~matplotlib.transforms.Transform` instance
         """
         self._transform = t
         self._transformSet = True
@@ -154,8 +179,10 @@ class Artist(object):
             self._transform = IdentityTransform()
         return self._transform
 
-    def hitlist(self,event):
-        """List the children of the artist which contain the mouse event"""
+    def hitlist(self, event):
+        """
+        List the children of the artist which contain the mouse event *event*.
+        """
         import traceback
         L = []
         try:
@@ -172,7 +199,10 @@ class Artist(object):
         return L
 
     def get_children(self):
-        'return a list of the child artist this artist contains'
+        """
+        Return a list of the child :class:`Artist`s this
+        :class:`Artist` contains.
+        """
         return []
 
     def contains(self, mouseevent):
@@ -188,23 +218,29 @@ class Artist(object):
         return False,{}
 
     def set_contains(self,picker):
-        """Replace the contains test used by this artist. The new picker should
-        be a callable function which determines whether the artist is hit by the
-        mouse event::
+        """
+        Replace the contains test used by this artist. The new picker
+        should be a callable function which determines whether the
+        artist is hit by the mouse event::
 
             hit, props = picker(artist, mouseevent)
 
-        If the mouse event is over the artist, return *hit=True* and *props*
-        is a dictionary of properties you want returned with the contains test.
+        If the mouse event is over the artist, return *hit* = *True*
+        and *props* is a dictionary of properties you want returned
+        with the contains test.
+
+        ACCEPTS: a callable function
         """
         self._contains = picker
 
     def get_contains(self):
-        'return the _contains test used by the artist, or *None* for default.'
+        """
+        Return the _contains test used by the artist, or *None* for default.
+        """
         return self._contains
 
     def pickable(self):
-        'return *True* if self is pickable'
+        'Return *True* if :class:`Artist` is pickable.'
         return (self.figure is not None and
                 self.figure.canvas is not None and
                 self._picker is not None)
@@ -234,7 +270,7 @@ class Artist(object):
 
     def set_picker(self, picker):
         """
-        set the epsilon for picking used by this artist
+        Set the epsilon for picking used by this artist
 
         *picker* can be one of the following:
 
@@ -267,10 +303,14 @@ class Artist(object):
         self._picker = picker
 
     def get_picker(self):
-        'return the Pickeration instance used by this artist'
+        'Return the picker object used by this artist'
         return self._picker
 
     def is_figure_set(self):
+        """
+        Returns True if the artist is assigned to a
+        :class:`~matplotlib.figure.Figure`.
+        """
         return self.figure is not None
 
     def get_figure(self):
@@ -292,9 +332,9 @@ class Artist(object):
 
     def set_clip_box(self, clipbox):
         """
-        Set the artist's clip Bbox
+        Set the artist's clip :class:`~matplotlib.transforms.Bbox`.
 
-        ACCEPTS: a :class:`matplotlib.transform.Bbox` instance
+        ACCEPTS: a :class:`matplotlib.transforms.Bbox` instance
         """
         self.clipbox = clipbox
         self.pchanged()
@@ -316,9 +356,9 @@ class Artist(object):
         rectangle, this method will set the clipping box to the
         corresponding rectangle and set the clipping path to *None*.
 
-        ACCEPTS: a :class:`~matplotlib.path.Path` instance and a
-        :class:`~matplotlib.transforms.Transform` instance, a
-        :class:`~matplotlib.patches.Patch` instance, or *None*.
+        ACCEPTS: [ (:class:`~matplotlib.path.Path`,
+        :class:`~matplotlib.transforms.Transform`) |
+        :class:`~matplotlib.patches.Patch` | None ]
         """
         from patches import Patch, Rectangle
 
@@ -355,11 +395,11 @@ class Artist(object):
         return self._alpha
 
     def get_visible(self):
-        "return the artist's visiblity"
+        "Return the artist's visiblity"
         return self._visible
 
     def get_animated(self):
-        "return the artist's animated state"
+        "Return the artist's animated state"
         return self._animated
 
     def get_clip_on(self):
@@ -386,7 +426,7 @@ class Artist(object):
 
     def set_clip_on(self, b):
         """
-        Set  whether artist uses clipping
+        Set whether artist uses clipping.
 
         ACCEPTS: [True | False]
         """
@@ -394,7 +434,7 @@ class Artist(object):
         self.pchanged()
 
     def _set_gc_clip(self, gc):
-        'set the clip properly for the gc'
+        'Set the clip properly for the gc'
         if self._clipon:
             if self.clipbox is not None:
                 gc.set_clip_rectangle(self.clipbox)
@@ -412,7 +452,7 @@ class Artist(object):
         Set the alpha value used for blending - not supported on
         all backends
 
-        ACCEPTS: float
+        ACCEPTS: float (0.0 transparent through 1.0 opaque)
         """
         self._alpha = alpha
         self.pchanged()
@@ -430,7 +470,7 @@ class Artist(object):
 
     def set_visible(self, b):
         """
-        set the artist's visiblity
+        Set the artist's visiblity.
 
         ACCEPTS: [True | False]
         """
@@ -440,7 +480,7 @@ class Artist(object):
 
     def set_animated(self, b):
         """
-        set the artist's animation state
+        Set the artist's animation state.
 
         ACCEPTS: [True | False]
         """
@@ -448,6 +488,10 @@ class Artist(object):
         self.pchanged()
 
     def update(self, props):
+        """
+        Update the properties of this :class:`Artist` from the
+        dictionary *prop*.
+        """
         store = self.eventson
         self.eventson = False
         changed = False
@@ -462,11 +506,14 @@ class Artist(object):
 
 
     def get_label(self):
+        """
+        Get the label used for this artist in the legend.
+        """
         return self._label
 
     def set_label(self, s):
         """
-        Set the line label to *s* for auto legend
+        Set the label to *s* for auto legend.
 
         ACCEPTS: any string
         """
@@ -475,11 +522,16 @@ class Artist(object):
 
 
 
-    def get_zorder(self): return self.zorder
+    def get_zorder(self):
+        """
+        Return the :class:`Artist`'s zorder.
+        """
+        return self.zorder
 
     def set_zorder(self, level):
         """
-        Set the zorder for the artist
+        Set the zorder for the artist.  Artists with lower zorder
+        values are drawn first.
 
         ACCEPTS: any number
         """
@@ -600,7 +652,7 @@ class ArtistInspector:
             aliases[fullname[4:]] = name[4:]
         return aliases
 
-    _get_valid_values_regex = re.compile(r"\n\s*ACCEPTS:\s*(.*)\n")
+    _get_valid_values_regex = re.compile(r"\n\s*ACCEPTS:\s*((?:.|\n)*?)(?:$|(?:\n\n))")
     def get_valid_values(self, attr):
         """
         Get the legal arguments for the setter associated with *attr*.
@@ -625,8 +677,29 @@ class ArtistInspector:
 
         match = self._get_valid_values_regex.search(docstring)
         if match is not None:
-            return match.group(1)
+            return match.group(1).replace('\n', ' ')
         return 'unknown'
+
+    def _get_setters_and_targets(self):
+        """
+        Get the attribute strings and a full path to where the setter
+        is defined for all setters in an object.
+        """
+
+        setters = []
+        for name in dir(self.o):
+            if not name.startswith('set_'): continue
+            o = getattr(self.o, name)
+            if not callable(o): continue
+            func = o
+            if self.is_alias(func): continue
+            source_class = self.o.__module__ + "." + self.o.__name__
+            for cls in self.o.mro():
+                if name in cls.__dict__:
+                    source_class = cls.__module__ + "." + cls.__name__
+                    break
+            setters.append((name[4:], source_class + "." + name))
+        return setters
 
     def get_setters(self):
         """
@@ -634,15 +707,7 @@ class ArtistInspector:
         return ``['markerfacecolor', 'linewidth', ....]``.
         """
 
-        setters = []
-        for name in dir(self.o):
-            if not name.startswith('set_'): continue
-            o = getattr(self.o,name)
-            if not callable(o): continue
-            func = o
-            if self.is_alias(func): continue
-            setters.append(name[4:])
-        return setters
+        return [prop for prop, target in self._get_setters_and_targets()]
 
     def is_alias(self, o):
         """
@@ -653,7 +718,7 @@ class ArtistInspector:
         if ds is None: return False
         return ds.startswith('alias for ')
 
-    def aliased_name(self, s):
+    def aliased_name(self, s, target):
         """
         return 'PROPNAME or alias' if *s* has an alias, else return
         PROPNAME.
@@ -662,9 +727,10 @@ class ArtistInspector:
         alias, return 'markerfacecolor or mfc' and for the transform
         property, which does not, return 'transform'
         """
+
         if s in self.aliasd:
-            return '%s or %s' % (s, self.aliasd[s])
-        else: return s
+            return ':meth:`%s <%s>` or %s' % (s, target, self.aliasd[s])
+        else: return ':meth:`%s <%s>`' % (s, target)
 
     def pprint_setters(self, prop=None, leadingspace=2):
         """
@@ -683,13 +749,13 @@ class ArtistInspector:
             accepts = self.get_valid_values(prop)
             return '%s%s: %s' %(pad, prop, accepts)
 
-        attrs = self.get_setters()
+        attrs = self._get_setters_and_targets()
         attrs.sort()
         lines = []
 
         ########
-        names = [self.aliased_name(prop) for prop in attrs]
-        accepts = [self.get_valid_values(prop) for prop in attrs]
+        names = [self.aliased_name(prop, target) for prop, target in attrs]
+        accepts = [self.get_valid_values(prop) for prop, target in attrs]
 
         col0_len = max([len(n) for n in names])
         col1_len = max([len(a) for a in accepts])
@@ -709,9 +775,9 @@ class ArtistInspector:
         return lines
         ########
 
-        for prop in attrs:
+        for prop, path in attrs:
             accepts = self.get_valid_values(prop)
-            name = self.aliased_name(prop)
+            name = self.aliased_name(prop, path)
 
             lines.append('%s%s: %s' %(pad, name, accepts))
         return lines
@@ -792,17 +858,17 @@ def getp(o, property=None):
         getp(o, 'linestyle')  # get the linestyle property
 
 
-    o is a :class:`Artist` instance, eg
+    *o* is a :class:`Artist` instance, eg
     :class:`~matplotllib.lines.Line2D` or an instance of a
     :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
     If the *property* is 'somename', this function returns
 
       o.get_somename()
 
-    getp can be used to query all the gettable properties with getp(o)
-    Many properties have aliases for shorter typing, eg 'lw' is an
-    alias for 'linewidth'.  In the output, aliases and full property
-    names will be listed as::
+    :func:`getp` can be used to query all the gettable properties with
+    ``getp(o)``. Many properties have aliases for shorter typing, e.g.
+    'lw' is an alias for 'linewidth'.  In the output, aliases and full
+    property names will be listed as::
 
       property or  alias = value
 

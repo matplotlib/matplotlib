@@ -25,8 +25,9 @@ Ipython to the rescue
 
 Fortunately, `ipython <http://ipython.scipy.org/dist>`_, an enhanced
 interactive python shell, has figured out all of these tricks, and is
-matplotlib aware, so when you start ipython in the *pylab* mode::
+matplotlib aware, so when you start ipython in the *pylab* mode.
 
+.. sourcecode:: ipython
 
     johnh@flag:~> ipython -pylab
     Python 2.4.5 (#4, Apr 12 2008, 09:09:16)

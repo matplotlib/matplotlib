@@ -330,21 +330,25 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
     window vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
     scipy.signal, scipy.signal.get_window etc.
 
-    See psd for more info. (psd differs in the default overlap;
-    in returning the mean of the segment periodograms; and in not
-    returning times.)
+    If *x* is real (i.e. non-complex) only the positive spectrum is
+    given.  If *x* is complex then the complete spectrum is given.
 
-    If x is real (i.e. non-Complex) only the positive spectrum is
-    given.  If x is Complex then the complete spectrum is given.
+    Returns a tuple (*Pxx*, *freqs*, *t*):
 
-    returns:
-         Pxx -  2-D array, columns are the periodograms of
-              successive segments
-         freqs - 1-D array of frequencies corresponding to
-              the rows in Pxx
-         t - 1-D array of times corresponding to midpoints of
-              segments.
+         - *Pxx*: 2-D array, columns are the periodograms of
+           successive segments
 
+         - *freqs*: 1-D array of frequencies corresponding to the rows
+           in Pxx
+
+         - *t*: 1-D array of times corresponding to midpoints of
+           segments.
+
+    .. seealso::
+        :func:`psd`:
+            :func:`psd` differs in the default overlap; in returning
+            the mean of the segment periodograms; and in not returning
+            times.
     """
     x = np.asarray(x)
     assert(NFFT>noverlap)
@@ -407,15 +411,19 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     The coherence between x and y.  Coherence is the normalized
     cross spectral density
 
-    Cxy = |Pxy|^2/(Pxx*Pyy)
+    .. math::
 
-    The return value is (Cxy, f), where f are the frequencies of the
-    coherence vector.  See the docs for psd and csd for information
-    about the function arguments NFFT, detrend, window, noverlap, as
-    well as the methods used to compute Pxy, Pxx and Pyy.
+        C_{xy} = \frac{|P_{xy}|^2}/{P_{xx}P_{yy}}
 
-    Returns the tuple Cxy, freqs
+    The return value is the tuple (*Cxy*, *f*), where *f* are the
+    frequencies of the coherence vector.
 
+    .. seealso::
+        :func:`psd` and :func:`csd`:
+            For information about the function arguments *NFFT*,
+            *detrend*, *window*, *noverlap*, as well as the methods
+            used to compute :math:`P_{xy}`, :math:`P_{xx}` and
+            :math:`P_{yy}`.
     """
 
     if len(x)<2*NFFT:
@@ -483,8 +491,8 @@ def polyfit(*args, **kwargs):
     but note that the k's and n's in the superscripts and subscripts
     on that page.  The linear algebra is correct, however.
 
-    See also polyval
-
+    .. seealso::
+        :func:`polyval`
     """
     warnings.warn("use numpy.poyfit", DeprecationWarning)
     return np.polyfit(*args, **kwargs)
@@ -505,8 +513,8 @@ def polyval(*args, **kwargs):
       trend = polyval(p, x)
       resid = y - trend
 
-    See also polyfit
-
+    .. seealso::
+        :func:`polyfit`
     """
     warnings.warn("use numpy.polyval", DeprecationWarning)
     return np.polyval(*args, **kwargs)
@@ -590,10 +598,11 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     10x faster than naievly crunching all possible pairs through
     cohere.
 
-    See test/cohere_pairs_test.py in the src tree for an example
-    script that shows that this cohere_pairs and cohere give the same
-    results for a given pair.
-
+    .. seealso::
+        :file:`test/cohere_pairs_test.py` in the src tree:
+            For an example script that shows that this
+            :func:`cohere_pairs` and :func:`cohere` give the same
+            results for a given pair.
     """
     numRows, numCols = X.shape
 
@@ -1062,13 +1071,22 @@ def fftsurr(x, detrend=detrend_none, window=window_none):
 
 def liaupunov(x, fprime):
     """
-    x is a very long trajectory from a map, and fprime returns the
-    derivative of x.  Return lambda = 1/n\sum ln|fprime(x_i)|.  See Sec
-    10.5 Strogatz (1994)"Nonlinear Dynamics and Chaos".
-    See also http://en.wikipedia.org/wiki/Lyapunov_exponent.
-    What the function here calculates may not be what you really want;
-    caveat emptor.
-    It also seems that this function's name is badly misspelled.
+    *x* is a very long trajectory from a map, and *fprime* returns the
+    derivative of *x*.
+
+    Returns :math:`\lambda = \frac{1}{n}\sum \ln|f^'(x_i)|`
+
+    .. seealso::
+        Sec 10.5 Strogatz (1994) "Nonlinear Dynamics and Chaos".
+
+        `Wikipedia article on Lyapunov Exponent
+        http://en.wikipedia.org/wiki/Lyapunov_exponent`_.
+
+    .. note::
+        What the function here calculates may not be what you really want;
+        *caveat emptor*.
+
+       It also seems that this function's name is badly misspelled.
     """
     return np.mean(np.log(np.absolute(fprime(x))))
 
@@ -1252,7 +1270,9 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
 
     dtype, the array will have this dtype.  default: numpy.float_
 
-    See examples/load_demo.py which exeercises many of these options.
+    .. seealso::
+        See :file:`examples/load_demo.py` in the source tree:
+           Exercises many of these options.
     """
 
     if converters is None: converters = {}
@@ -2393,9 +2413,10 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
     fname - can be a filename or a file handle.  Support for gzipped
     files is automatic, if the filename ends in .gz
 
-    See csv2rec and rec2csv for information about missing and
-    missingd, which can be used to fill in masked values into your CSV
-    file.
+    .. seealso::
+        :func:`csv2rec` and :func:`rec2csv`:
+            For information about *missing* and *missingd*, which can
+            be used to fill in masked values into your CSV file.
     """
 
     if missingd is None:

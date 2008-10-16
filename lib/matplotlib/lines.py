@@ -299,14 +299,15 @@ class Line2D(Artist):
     def set_pickradius(self,d):
         """Sets the pick radius used for containment tests
 
-        Accepts: float distance in points.
+        ACCEPTS: float distance in points
         """
         self.pickradius = d
 
     def set_picker(self,p):
         """Sets the event picker details for the line.
 
-        Accepts: float distance in points or callable pick function fn(artist,event)
+        ACCEPTS: float distance in points or callable pick function
+        ``fn(artist, event)``
         """
         if callable(p):
             self._contains = p
@@ -330,12 +331,13 @@ class Line2D(Artist):
             self._xcid = ax.xaxis.callbacks.connect('units', self.recache)
         if ax.yaxis is not None:
             self._ycid = ax.yaxis.callbacks.connect('units', self.recache)
+    set_axes.__doc__ = Artist.set_axes.__doc__
 
     def set_data(self, *args):
         """
         Set the x and y data
 
-        ACCEPTS: (np.array xdata, np.array ydata)
+        ACCEPTS: 2D array
         """
         if len(args)==1:
             x, y = args[0]
@@ -401,7 +403,7 @@ class Line2D(Artist):
         """
         set the Transformation instance used by this artist
 
-        ACCEPTS: a matplotlib.transforms.Transform instance
+        ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
         """
         Artist.set_transform(self, t)
         self._invalid = True
@@ -673,7 +675,7 @@ class Line2D(Artist):
         """
         Set the data np.array for x
 
-        ACCEPTS: np.array
+        ACCEPTS: 1D array
         """
         x = np.asarray(x)
         self.set_data(x, self._yorig)
@@ -682,7 +684,7 @@ class Line2D(Artist):
         """
         Set the data np.array for y
 
-        ACCEPTS: np.array
+        ACCEPTS: 1D array
         """
         y = np.asarray(y)
         self.set_data(self._xorig, y)
