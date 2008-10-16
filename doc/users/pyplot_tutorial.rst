@@ -1,7 +1,7 @@
 .. _pyplot-tutorial:
 
 ***************
-pyplot tutorial
+Pyplot tutorial
 ***************
 
 :mod:`matplotlib.pyplot` is a collection of command style functions

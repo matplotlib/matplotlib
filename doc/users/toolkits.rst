@@ -1,7 +1,7 @@
 .. _toolkits:
 
 *******************
-matplotlib toolkits
+Toolkits
 *******************
 
 Toolkits are collections of application-specific functions that extend matplotlib.
