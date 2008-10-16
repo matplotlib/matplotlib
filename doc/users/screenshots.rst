@@ -1,7 +1,7 @@
 .. _matplotlibscreenshots:
 
 **********************
-matplotlib screenshots
+Screenshots
 **********************
 
 Here you will find a host of example figures with the code that

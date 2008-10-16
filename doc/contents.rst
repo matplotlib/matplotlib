@@ -10,6 +10,7 @@ Overview
 
     Download `PDF <http://matplotlib.sf.net/doc/Matplotlib.pdf>`_
 
+
 .. toctree::
    :maxdepth: 2
 
