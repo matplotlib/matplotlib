@@ -108,3 +108,27 @@ A full-fledged and heavily annotated example is in
 :file:`examples/api/custom_projection_example.py`.  The polar plot
 functionality in :mod:`matplotlib.projections.polar` may also be of
 interest.
+
+API documentation
+=================
+
+matplotlib.scale
+----------------
+
+.. automodule:: matplotlib.scale
+   :members:
+   :show-inheritance:
+
+matplotlib.projections
+----------------------
+
+.. automodule:: matplotlib.projections
+   :members:
+   :show-inheritance:
+
+matplotlib.projections.polar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule:: matplotlib.projections.polar
+   :members:
+   :show-inheritance:

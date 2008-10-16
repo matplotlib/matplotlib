@@ -15,7 +15,7 @@ from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
 
 class PolarAxes(Axes):
     """
-    A polar graph projection, where the input dimensions are theta, r.
+    A polar graph projection, where the input dimensions are *theta*, *r*.
 
     Theta starts pointing east and goes anti-clockwise.
     """
@@ -23,9 +23,10 @@ class PolarAxes(Axes):
 
     class PolarTransform(Transform):
         """
-        The base polar transform.  This handles projection theta and r into
-        Cartesian coordinate space, but does not perform the ultimate affine
-        transformation into the correct position.
+        The base polar transform.  This handles projection *theta* and
+        *r* into Cartesian coordinate space *x* and *y*, but does not
+        perform the ultimate affine transformation into the correct
+        position.
         """
         input_dims = 2
         output_dims = 2
@@ -77,9 +78,10 @@ class PolarAxes(Axes):
         that maximum radius rests on the edge of the axes circle.
         """
         def __init__(self, scale_transform, limits):
-            """
-            limits is the view limit of the data.  The only part of
+            u"""
+            *limits* is the view limit of the data.  The only part of
             its bounds that is used is ymax (for the radius maximum).
+            The theta range is always fixed to (0, 2\u03c0).
             """
             Affine2DBase.__init__(self)
             self._scale_transform = scale_transform
@@ -103,7 +105,7 @@ class PolarAxes(Axes):
     class InvertedPolarTransform(Transform):
         """
         The inverse of the polar transform, mapping Cartesian
-        coordinate space back to t and r.
+        coordinate space *x* and *y* back to *theta* and *r*.
         """
         input_dims = 2
         output_dims = 2
@@ -127,9 +129,10 @@ class PolarAxes(Axes):
         inverted.__doc__ = Transform.inverted.__doc__
 
     class ThetaFormatter(Formatter):
-        """
-        Used to format the theta tick labels.  Converts the native
-        unit of radians into degrees and adds a degree symbol.
+        u"""
+        Used to format the *theta* tick labels.  Converts the
+        native unit of radians into degrees and adds a degree symbol
+        (\u00b0).
         """
         def __call__(self, x, pos=None):
             # \u00b0 : degree symbol
@@ -140,8 +143,9 @@ class PolarAxes(Axes):
         Used to locate radius ticks.
 
         Ensures that all ticks are strictly positive.  For all other
-        tasks, it delegates to the base Locator (which may be
-        different depending on the scale of the r-axis.
+        tasks, it delegates to the base
+        :class:`~matplotlib.ticker.Locator` (which may be different
+        depending on the scale of the *r*-axis.
         """
         def __init__(self, base):
             self.base = base
@@ -290,24 +294,26 @@ class PolarAxes(Axes):
                        **kwargs):
         """
         Set the angles at which to place the theta grids (these
-        gridlines are equal along the theta dimension).  angles is in
-        degrees
+        gridlines are equal along the theta dimension).  *angles* is in
+        degrees.
 
-        labels, if not None, is a len(angles) list of strings of the
-        labels to use at each angle.
+        *labels*, if not None, is a ``len(angles)`` list of strings of
+        the labels to use at each angle.
 
-        if labels is None, the labels with be fmt%%angle
+        If *labels* is None, the labels will be ``fmt %% angle``
 
-        frac is the fraction of the polar axes radius at which to
-        place the label (1 is the edge).Eg 1.05 isd outside the axes
-        and 0.95 is inside the axes
+        *frac* is the fraction of the polar axes radius at which to
+        place the label (1 is the edge). Eg. 1.05 is outside the axes
+        and 0.95 is inside the axes.
 
-        Return value is a list of lines, labels where the lines are
-        lines.Line2D instances and the labels are Text
-        instances:
+        Return value is a list of tuples (*line*, *label*), where
+        *line* is :class:`~matplotlib.lines.Line2D` instances and the
+        *label* is :class:`~matplotlib.text.Text` instances.
 
-        kwargs are optional text properties for the labels
+        kwargs are optional text properties for the labels:
+
         %(Text)s
+
         ACCEPTS: sequence of floats
         """
         angles = npy.asarray(angles, npy.float_)
@@ -324,23 +330,25 @@ class PolarAxes(Axes):
 
     def set_rgrids(self, radii, labels=None, angle=None, rpad=None, **kwargs):
         """
-        set the radial locations and labels of the r grids
+        Set the radial locations and labels of the *r* grids.
 
-        The labels will appear at radial distances radii at angle
+        The labels will appear at radial distances *radii* at the
+        given *angle* in degrees.
 
-        labels, if not None, is a len(radii) list of strings of the
-        labels to use at each angle.
+        *labels*, if not None, is a ``len(radii)`` list of strings of the
+        labels to use at each radius.
 
-        if labels is None, the self.rformatter will be used
+        If *labels* is None, the built-in formatter will be used.
 
-        rpad is a fraction of the max of radii which will pad each of
+        *rpad* is a fraction of the max of *radii* which will pad each of
         the radial labels in the radial direction.
 
-        Return value is a list of lines, labels where the lines are
-        lines.Line2D instances and the labels are text.Text
-        instances
+        Return value is a list of tuples (*line*, *label*), where
+        *line* is :class:`~matplotlib.lines.Line2D` instances and the
+        *label* is :class:`~matplotlib.text.Text` instances.
 
-        kwargs control the rgrid Text label properties:
+        kwargs are optional text properties for the labels:
+
         %(Text)s
 
         ACCEPTS: sequence of floats
@@ -375,7 +383,10 @@ class PolarAxes(Axes):
         self.viewLim.intervalx = (0.0, npy.pi * 2.0)
 
     def format_coord(self, theta, r):
-        'return a format string formatting the coordinate'
+        """
+        Return a format string formatting the coordinate using Unicode
+        characters.
+        """
         theta /= math.pi
         # \u03b8: lower-case theta
         # \u03c0: lower-case pi

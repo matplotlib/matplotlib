@@ -15,8 +15,8 @@ from matplotlib.cbook import simple_linear_interpolation
 
 class Path(object):
     """
-    Path represents a series of possibly disconnected, possibly
-    closed, line and curve segments.
+    :class:`Path` represents a series of possibly disconnected,
+    possibly closed, line and curve segments.
 
     The underlying storage is made up of two parallel numpy arrays:
       - *vertices*: an Nx2 float array of vertices
@@ -159,8 +159,7 @@ class Path(object):
         be simplified *only* if :attr:`should_simplify` is True, which
         is determined in the constructor by this criteria:
 
-           - No *codes* array
-           - No nonfinite values
+           - No curves
            - More than 128 vertices
         """
         vertices = self.vertices
@@ -219,8 +218,9 @@ class Path(object):
 
         .. seealso::
             :class:`matplotlib.transforms.TransformedPath`:
-                A path class that will cache the transformed result
-                and automatically update when the transform changes.
+                A specialized path class that will cache the
+                transformed result and automatically update when the
+                transform changes.
         """
         return Path(transform.transform(self.vertices), self.codes)
 
@@ -265,8 +265,8 @@ class Path(object):
         Returns *True* if this path intersects another given path.
 
         *filled*, when True, treats the paths as if they were filled.
-         That is, if one path completely encloses the other,
-         :meth:`intersects_path` will return True.
+        That is, if one path completely encloses the other,
+        :meth:`intersects_path` will return True.
         """
         return path_intersects_path(self, other, filled)
 
