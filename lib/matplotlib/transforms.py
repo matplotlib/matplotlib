@@ -2157,7 +2157,7 @@ class TransformedPath(TransformNode):
 
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     '''
-    Ensure the endpoints of a range are not too close together.
+    Ensure the endpoints of a range are finite and not too close together.
 
     "too close" means the interval is smaller than 'tiny' times
     the maximum absolute value.
@@ -2165,7 +2165,11 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     If they are too close, each will be moved by the 'expander'.
     If 'increasing' is True and vmin > vmax, they will be swapped,
     regardless of whether they are too close.
+
+    If either is inf or -inf or nan, return - expander, expander.
     '''
+    if (not np.isfinite(vmin)) or (not np.isfinite(vmax)):
+        return -expander, expander
     swapped = False
     if vmax < vmin:
         vmin, vmax = vmax, vmin
