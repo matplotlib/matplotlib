@@ -14,10 +14,10 @@ rootdir = '../mpl_examples'
 datad = {}
 for root, subFolders, files in os.walk(rootdir):
     for fname in files:
-        if ( fname.startswith('.') or fname.startswith('#') or 
-             fname.find('.svn')>=0 or not fname.endswith('.py') ): 
+        if ( fname.startswith('.') or fname.startswith('#') or
+             fname.find('.svn')>=0 or not fname.endswith('.py') ):
             continue
-        
+
         fullpath = os.path.join(root,fname)
         contents = file(fullpath).read()
         # indent
@@ -28,13 +28,13 @@ for root, subFolders, files in os.walk(rootdir):
 subdirs = datad.keys()
 subdirs.sort()
 
-fhindex = file('index.rst')
-fh.index.write("""\
+fhindex = file('index.rst', 'w')
+fhindex.write("""\
 .. _examples-index:
 
 ####################
 Matplotlib Examples
-###################
+####################
 
 .. htmlonly::
 
@@ -59,7 +59,7 @@ for subdir in subdirs:
     fh.write('*'*len(title) + '\n')
     fh.write(title + '\n')
     fh.write('*'*len(title) + '\n\n')
-    
+
     for fname, contents in datad[subdir]:
         print '    ', fname
         basename, ext = os.path.splitext(fname)
@@ -73,6 +73,6 @@ for subdir in subdirs:
         fh.write('\n\n')
     fh.close()
 
-     
+
 
 fhindex.close()

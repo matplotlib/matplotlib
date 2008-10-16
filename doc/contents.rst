@@ -21,6 +21,7 @@ Overview
    glossary/index.rst
 
 .. htmlonly::
+   examples/index.rst
 
   * :ref:`genindex`
   * :ref:`modindex`
