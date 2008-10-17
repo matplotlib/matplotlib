@@ -8,13 +8,13 @@ pos = arange(5)+.5    # the bar centers on the y axis
 figure(1)
 barh(pos,val, align='center')
 yticks(pos, ('Tom', 'Dick', 'Harry', 'Slim', 'Jim'))
-xlabel('Perfomance')
+xlabel('Performance')
 title('How fast do you want to go today?')
 grid(True)
 
 figure(2)
 barh(pos,val, xerr=rand(5), ecolor='r', align='center')
 yticks(pos, ('Tom', 'Dick', 'Harry', 'Slim', 'Jim'))
-xlabel('Perfomance')
+xlabel('Performance')
 
 show()

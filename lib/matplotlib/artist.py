@@ -580,7 +580,7 @@ class Artist(object):
 
           - class instance: eg Line2D.  Only return artists of class type
 
-        .. plot:: ../mpl_examples/pylab_examples/findobj_demo.py
+        .. plot:: mpl_examples/pylab_examples/findobj_demo.py
         """
 
         if match is None: # always return True
@@ -625,6 +625,8 @@ class ArtistInspector:
         type) and it is your responsibility to make sure this is so.
         """
         if cbook.iterable(o) and len(o): o = o[0]
+        if not isinstance(o, type):
+            o = type(o)
         self.o = o
         self.aliasd = self.get_aliases()
 
@@ -868,11 +870,11 @@ def getp(o, property=None):
     :func:`getp` can be used to query all the gettable properties with
     ``getp(o)``. Many properties have aliases for shorter typing, e.g.
     'lw' is an alias for 'linewidth'.  In the output, aliases and full
-    property names will be listed as::
+    property names will be listed as:
 
-      property or  alias = value
+      property or alias = value
 
-    e.g.::
+    e.g.:
 
       linewidth or lw = 2
     """
@@ -927,7 +929,7 @@ def setp(h, *args, **kwargs):
       >>> setp(lines, linewidth=2, color='r')
 
     :func:`setp` works with the matlab(TM) style string/value pairs or
-    with python kwargs.  For example, the following are equivalent
+    with python kwargs.  For example, the following are equivalent::
 
       >>> setp(lines, 'linewidth', 2, 'color', r')  # matlab style
 

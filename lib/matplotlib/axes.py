@@ -2827,7 +2827,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/axhspan_demo.py
+        .. plot:: mpl_examples/pylab_examples/axhspan_demo.py
 
         """
         # convert y axis units
@@ -2921,7 +2921,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/hline_demo.py
+        .. plot:: mpl_examples/pylab_examples/hline_demo.py
         """
         if kwargs.get('fmt') is not None:
             raise DeprecationWarning(
@@ -3266,7 +3266,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/log_demo.py
+        .. plot:: mpl_examples/pylab_examples/log_demo.py
 
         """
         if not self._hold: self.cla()
@@ -3435,7 +3435,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/xcorr_demo.py
+        .. plot:: mpl_examples/pylab_examples/xcorr_demo.py
         """
         return self.xcorr(x, x, **kwargs)
     acorr.__doc__ = cbook.dedent(acorr.__doc__) % martist.kwdocd
@@ -3449,7 +3449,7 @@ class Axes(martist.Artist):
                 usevlines=False, **kwargs):
 
         Plot the cross correlation between *x* and *y*.  If *normed* =
-        *True*, normalize the data but the cross correlation at 0-th
+        *True*, normalize the data by the cross correlation at 0-th
         lag.  *x* and y are detrended by the *detrend* callable
         (default no normalization).  *x* and *y* must be equal length.
 
@@ -3492,7 +3492,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/xcorr_demo.py
+        .. plot:: mpl_examples/pylab_examples/xcorr_demo.py
         """
 
         Nx = len(x)
@@ -3634,7 +3634,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/api/legend_demo.py
+        .. plot:: mpl_examples/api/legend_demo.py
         """
 
         def get_handles():
@@ -3796,7 +3796,7 @@ class Axes(martist.Artist):
 
         **Example:** A stacked bar chart.
 
-        .. plot:: ../mpl_examples/pylab_examples/bar_stacked.py
+        .. plot:: mpl_examples/pylab_examples/bar_stacked.py
         """
         if not self._hold: self.cla()
 
@@ -4092,7 +4092,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/broken_barh.py
+        .. plot:: mpl_examples/pylab_examples/broken_barh.py
         """
         col = mcoll.BrokenBarHCollection(xranges, yrange, **kwargs)
         self.add_collection(col, autolim=True)
@@ -4370,7 +4370,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: errorbar_demo.py
+        .. plot:: mpl_examples/pyplot_examples/errorbar_demo.py
 
         """
 
@@ -4576,7 +4576,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: boxplot_demo.py
+        .. plot:: pyplots/boxplot_demo.py
         """
         if not self._hold: self.cla()
         holdStatus = self._hold
@@ -5135,7 +5135,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/hexbin_demo.py
+        .. plot:: mpl_examples/pylab_examples/hexbin_demo.py
         """
 
         if not self._hold: self.cla()
@@ -5322,7 +5322,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/arrow_demo.py
+        .. plot:: mpl_examples/pylab_examples/arrow_demo.py
         """
         a = mpatches.FancyArrow(x, y, dx, dy, **kwargs)
         self.add_artist(a)
@@ -5392,7 +5392,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/fill_demo.py
+        .. plot:: mpl_examples/pylab_examples/fill_demo.py
 
         .. seealso::
             :file:`examples/pylab_examples/fill_between.py`:
@@ -5509,7 +5509,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/image_demo.py
+        .. plot:: mpl_examples/pylab_examples/image_demo.py
         """
 
         if not self._hold: self.cla()
@@ -6273,7 +6273,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/histogram_demo.py
+        .. plot:: mpl_examples/pylab_examples/histogram_demo.py
         """
         if not self._hold: self.cla()
 
@@ -6564,7 +6564,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/csd_demo.py
+        .. plot:: mpl_examples/pylab_examples/csd_demo.py
 
         .. seealso:
             :meth:`psd`
@@ -6623,7 +6623,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: ../mpl_examples/pylab_examples/cohere_demo.py
+        .. plot:: mpl_examples/pylab_examples/cohere_demo.py
 
         .. seealso:
             :meth:`psd`

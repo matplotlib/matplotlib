@@ -3,6 +3,7 @@
 Example: simple line plot.
 Show how to make and save a simple line plot with labels, title and grid
 """
+# -*- noplot -*-
 from pylab import *
 
 ion()

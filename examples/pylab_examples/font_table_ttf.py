@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- noplot -*-
 """
 matplotlib has support for freetype fonts.  Here's a little example
 using the 'table' command to build a font table that shows the glyphs

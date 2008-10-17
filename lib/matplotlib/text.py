@@ -924,7 +924,7 @@ class TextWithDash(Text):
         if self.get_dashlength() > 0.0:
             self.dashline.draw(renderer)
 
-    def _update_coords(self, renderer):
+    def update_coords(self, renderer):
         """
         Computes the actual *x*, *y* coordinates for text based on the
         input *x*, *y* and the *dashlength*. Since the rotation is
@@ -1023,7 +1023,7 @@ class TextWithDash(Text):
         :meth:`draw`.  For getting web page regions, it is
         simpler to call the method after saving the figure.
         '''
-        self._update_coords(renderer)
+        self.update_coords(renderer)
         if self.get_dashlength() == 0.0:
             return Text.get_window_extent(self, renderer=renderer)
         else:

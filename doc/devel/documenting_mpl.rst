@@ -208,46 +208,37 @@ Figures
 Dynamically generated figures
 -----------------------------
 
-The top level :file:`doc` dir has a folder called :file:`pyplots` in
-which you should include any pyplot plotting scripts that you want to
-generate figures for the documentation.  It is not necessary to
-explicitly save the figure in the script, this will be done
-automatically at build time to insure that the code that is included
-runs and produces the advertised figure.  Several figures will be
-saved with the same basnename as the filename when the documentation
-is generated (low and high res PNGs, a PDF).  Matplotlib includes a
-Sphinx extension (:file:`sphinxext/plot_directive.py`) for generating
-the images from the python script and including either a png copy for
-html or a pdf for latex::
+Figures can be automatically generated from scripts and included in
+the docs.  It is not necessary to explicitly save the figure in the
+script, this will be done automatically at build time to ensure that
+the code that is included runs and produces the advertised figure.
+Several figures will be saved with the same basename as the filename
+when the documentation is generated (low and high res PNGs, a PDF).
+Matplotlib includes a Sphinx extension
+(:file:`sphinxext/plot_directive.py`) for generating the images from
+the python script and including either a png copy for html or a pdf
+for latex::
 
-   .. plot:: pyplot_simple.py
+   .. plot:: pyplots/pyplot_simple.py
       :include-source:
+
+If the script produces multiple figures (through multiple calls to
+:func:`pyplot.figure`), each will be given a numbered file name and
+included.
+
+The path should be relative to the ``doc`` directory.  Any plots
+specific to the documentation should be added to the ``doc/pyplots``
+directory and committed to SVN.  Plots from the ``examples`` directory
+may be referenced through the symlink ``mpl_examples`` in the ``doc``
+directory.  eg.::
+
+  .. plot:: mpl_examples/pylab_examples/simple_plot.py
 
 The ``:scale:`` directive rescales the image to some percentage of the
 original size, though we don't recommend using this in most cases
 since it is probably better to choose the correct figure size and dpi
 in mpl and let it handle the scaling. ``:include-source:`` will
 present the contents of the file, marked up as source code.
-
-You can also point to local files with relative path.  Use the
-sym-link for mpl_examples in case we do a reorganization of the doc
-directory at some point, eg::
-
-  .. plot:: ../mpl_examples/pylab_examples/simple_plot.py
-
-If the example file needs to access data, it is easy to get screwed up
-with relative paths since the python example may be run from a diffent
-location in the plot directive build framework.  To work around this,
-you can add your example data to mpl-data/example and refer to it in
-the example file like so::
-
-  import matplotlib
-  # datafile is a file object
-  datafile = matplotlib.get_example_data('goog.npy')
-  r = np.load(datafile).view(np.recarray)
-
-Try to keep the example datafiles relatively few and relatively small
-to control the size of the binaries we ship.
 
 Static figures
 --------------
@@ -261,9 +252,19 @@ svn. Please also add a line to the README in doc/pyplots for any additional
 requirements necessary to generate a new figure. Once these steps have been
 taken, these figures can be included in the usual way::
 
-   .. plot:: tex_unicode_demo.py
+   .. plot:: pyplots/tex_unicode_demo.py
       :include-source
 
+Examples
+--------
+
+The source of the files in the ``examples`` directory are
+automatically included in the HTML docs.  An image is generated and
+included for all examples in the ``api`` and ``pylab_examples``
+directories.  To exclude the example from having an image rendered,
+insert the following special comment anywhere in the script::
+
+  # -*- noplot -*-
 
 .. _referring-to-mpl-docs:
 

@@ -3,6 +3,7 @@ connect the data limits on the axes in one figure with the axes in
 another.  This is not the right way to do this for two axes in the
 same figure -- use the sharex and sharey property in that case
 """
+# -*- noplot -*-
 import numpy
 from pylab import figure, show
 

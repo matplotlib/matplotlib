@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- noplot -*-
 import time
 from pylab import *
 

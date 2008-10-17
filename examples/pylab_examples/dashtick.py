@@ -1,4 +1,5 @@
 # Matplotlib xaxis label tweak
+# -*- noplot -*-
 
 import sys
 import matplotlib
