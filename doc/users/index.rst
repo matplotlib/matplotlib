@@ -21,6 +21,7 @@ User's Guide
     index_text.rst
     artists.rst
     event_handling.rst
+    plotting.rst
     toolkits.rst
     screenshots.rst
     license.rst
