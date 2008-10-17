@@ -299,7 +299,7 @@ The :mod:`matplotlib.nxutils` provides two high performance methods:
 for a single point use :func:`~matplotlib.nxutils.pnpoly` and for an
 array of points use :func:`~matplotlib.nxutils.points_inside_poly`.
 For a discussion of the implementation see `pnpoly
-<http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html>`_.  
+<http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html>`_.
 
 .. sourcecode:: ipython
 
@@ -334,5 +334,140 @@ For a discussion of the implementation see `pnpoly
     Out[32]: array([False, False, False, False, False, False, False,  True, False, True], dtype=bool)
 
 .. htmlonly::
- 
+
     For a complete example, see :ref:`event_handling-lasso_demo`.
+
+
+.. _how-to-submit-patch:
+
+How do I submit a patch?
+========================
+
+First obtain a copy of matplotlib svn (see :ref:`install-svn`) and
+make your changes to the matplotlib source code or documentation and
+apply a `svn diff`.  If it is feasible, do your diff from the top
+level directory, the one that contains :file:`setup.py`.  Eg,::
+
+    > cd /path/to/matplotlib/source
+    > svn diff > mypatch.diff
+
+and then post your patch to the `matplotlib-devel
+<http://sourceforge.net/mail/?group_id=80706>`_ mailing list.  If you
+do not get a response within 24 hours, post your patch to the
+sourceforge patch `tracker
+<http://sourceforge.net/tracker2/?atid=560722&group_id=80706&func=browse>`_,
+and follow up on the mailing list with a link to the sourceforge patch
+submissions.  If you still do not hear anything within a week (this
+shouldn't happen!), send us a kind and gentle reminder on the mailing
+list.
+
+If you have made lots of local changes and do not want to a diff
+against the entire tree, but rather against a single directory or
+file, that is fine, but we do prefer svn diffs against HEAD.
+
+You should check out the guide to developing matplotlib to make sure
+your patch abides by our coding conventions
+:ref:`developers-guide-index`.
+
+
+.. _howto-click-maps:
+
+Clickable images for HTML
+=========================
+
+Andrew Dalke of `Dalke Scientific <http://www.dalkescientific.com>`_
+has written a nice `article
+<http://www.dalkescientific.com/writings/diary/archive/2005/04/24/interactive_html.html>`_
+on how to make html click maps with matplotlib agg PNGs.  We would
+also like to add this functionality to SVG and add a SWF backend to
+support these kind of images.  If you are interested in contributing
+to these efforts that would be great.
+
+.. _howto-set-zorder:
+
+How do I control the depth of plot elements?
+=============================================
+
+Within an axes, the order that the various lines, markers, text,
+collections, etc appear is determined by the
+:meth:`matplotlib.artist.Artist.set_zorder` property.  The default
+order is patches, lines, text, with collections of lines and
+collections of patches appearing at the same level as regular lines
+and patches, respectively::
+
+    line, = ax.plot(x, y, zorder=10)
+
+
+
+.. htmlonly::
+
+    See :ref:`pylab_examples-zorder_demo` for a complete example.
+
+You can also use the Axes property
+:meth:`matplotlib.axes.Axes.set_axisbelow` to control whether the grid
+lines are placed above or below your other plot elements.
+
+.. _howto-axis-equal:
+
+How to I make the aspect ratio for plots equal?
+===============================================
+
+The Axes property :meth:`matplotlib.axes.Axes.set_aspect` controls the
+aspect ratio of the axes.  You can set it to be 'auto', 'equal', or
+some ratio which controls the ratio::
+
+  ax = fig.add_subplot(111, aspect='equal')
+
+
+
+.. htmlonly::
+
+    See :ref:`pylab_examples-equal_aspect_ratio` for a complete example.
+
+
+.. _howto-movie:
+
+How do I make a movie?
+======================
+
+
+If you want to take an animated plot and turn it into a movie, the
+best approach is to save a series of image files (eg PNG) and use an
+external tool to convert them to a movie.  You can use ` mencoder
+<http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html>`_,
+which is part of the `mplayer <http://www.mplayerhq.hu>`_ suite
+for this::
+
+
+    #fps (frames per second) controls the play speed
+    mencoder 'mf://*.png' -mf type=png:fps=10 -ovc \\
+       lavc -lavcopts vcodec=wmv2 -oac copy -o animation.avi
+
+The swiss army knife of image tools, ImageMagick's `convert
+<http://www.imagemagick.org/script/convert.php>`_ works for this as
+well.<p>
+
+Here is a simple example script that saves some PNGs, makes them into
+a movie, and then cleans up::
+
+    import os, sys
+    import matplotlib.pyplot as plt
+
+    files = []
+    fig = plt.figure(figsize=(5,5))
+    ax = fig.add_subplot(111)
+    for i in range(50):  # 50 frames
+        ax.cla()
+        ax.imshow(rand(5,5), interpolation='nearest')
+        fname = '_tmp%03d.png'%i
+        print 'Saving frame', fname
+        fig.savefig(fname)
+        files.append(fname)
+
+    print 'Making movie animation.mpg - this make take a while'
+    os.system("mencoder 'mf://_tmp*.png' -mf type=png:fps=10 \\
+      -ovc lavc -lavcopts vcodec=wmv2 -oac copy -o animation.mpg")
+
+.. htmlonly::
+
+    See :ref:`animation-movie_demo` for a complete example.
