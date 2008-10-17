@@ -1,15 +1,15 @@
 import matplotlib
 matplotlib.rc('text', usetex = True)
 import pylab
-import Numeric
+import numpy as np
 
 ## interface tracking profiles
 N = 500
 delta = 0.6
-X = -1 + 2. * Numeric.arange(N) / (N - 1)
-pylab.plot(X, (1 - Numeric.tanh(4. * X / delta)) / 2,     ## phase field tanh profiles
+X = -1 + 2. * np.arange(N) / (N - 1)
+pylab.plot(X, (1 - np.tanh(4. * X / delta)) / 2,     ## phase field tanh profiles
            X, (X + 1) / 2,                           ## level set distance function
-           X, (1.4 + Numeric.tanh(4. * X / delta)) / 4,   ## composition profile
+           X, (1.4 + np.tanh(4. * X / delta)) / 4,   ## composition profile
            X, X < 0, 'k--',                               ## sharp interface
            linewidth = 5)
 
@@ -53,7 +53,8 @@ pylab.text(1.01, 0.48, "0", {'color' : 'k', 'fontsize' : 20})
 pylab.text(0.1, 0.85, r'$|\nabla\phi| = 1,$ \newline $ \frac{\partial \phi}{\partial t} + U|\nabla \phi| = 0$', {'color' : 'g', 'fontsize' : 20})
 
 ## phase field equations
-pylab.text(0.2, 0.15, r'$\mathcal{F} = \int f\left( \phi, c \right) dV,$ \newline $ \frac{ \partial \phi } { \partial t } = -M_{ \phi } \frac{ \delta \mathcal{F} } { \delta \phi }$', {'color' : 'b', 'fontsize' : 20})
+pylab.text(0.2, 0.15, r'$\mathcal{F} = \int f\left( \phi, c \right) dV,$ \newline $ \frac{ \partial \phi } { \partial t } = -M_{ \phi } \frac{ \delta \mathcal{F} } { \delta \phi }$',
+           {'color' : 'b', 'fontsize' : 20})
 
 pylab.savefig('pfm-lsm.png')
 pylab.show()

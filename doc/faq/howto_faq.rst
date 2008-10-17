@@ -148,7 +148,7 @@ Here is that gets a bounding box in relative figure coordinates (0..1)
 of each of the labels and uses it to move the left of the subplots
 over so that the tick labels fit in the figure
 
-.. plot:: auto_subplots_adjust.py
+.. plot:: pyplots/auto_subplots_adjust.py
    :include-source:
 
 .. _howto-ticks:
@@ -191,7 +191,7 @@ behavior by specifying the coordinates of the label.  The example
 below shows the default behavior in the left subplots, and the manual
 setting in the right subplots.
 
-.. plot:: align_ylabels.py
+.. plot:: pyplots/align_ylabels.py
    :include-source:
 
 .. _date-index-plots:

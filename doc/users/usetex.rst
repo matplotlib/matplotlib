@@ -52,7 +52,7 @@ matplotlibrc use::
 
 Here is the standard example, `tex_demo.py`:
 
-.. plot:: tex_demo.py
+.. plot:: pyplots/tex_demo.py
    :include-source:
 
 Note that display math mode (``$$ e=mc^2 $$``) is  not supported, but adding the
@@ -66,7 +66,7 @@ usetex with unicode
 It is also possible to use unicode strings with the LaTeX text manager, here is
 an example taken from `tex_unicode_demo.py`:
 
-.. plot:: tex_unicode_demo.py
+.. plot:: pyplots/tex_unicode_demo.py
    :include-source:
 
 .. _usetex-postscript:

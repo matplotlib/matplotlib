@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- noplot -*-
 """
 
 This example shows how to use matplotlib to provide a data cursor.  It

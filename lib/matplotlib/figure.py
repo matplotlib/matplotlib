@@ -386,7 +386,7 @@ class Figure(Artist):
 
         An :class:`matplotlib.image.FigureImage` instance is returned.
 
-        .. plot:: ../mpl_examples/pylab_examples/figimage_demo.py
+        .. plot:: mpl_examples/pylab_examples/figimage_demo.py
 
         """
 
@@ -840,7 +840,7 @@ class Figure(Artist):
         *axespad*
             the border between the axes and legend edge
 
-        .. plot:: ../mpl_examples/pylab_examples/figlegend_demo.py
+        .. plot:: mpl_examples/pylab_examples/figlegend_demo.py
         """
         handles = flatten(handles)
         l = Legend(self, handles, labels, *args, **kwargs)

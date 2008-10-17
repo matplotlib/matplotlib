@@ -1,3 +1,5 @@
+# -*- noplot -*-
+
 from pylab import arange, plot, sin, ginput, show
 t = arange(10)
 plot(t, sin(t))

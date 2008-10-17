@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- noplot -*-
 import matplotlib
 matplotlib.use('PS')
 from pylab import *

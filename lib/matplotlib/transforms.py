@@ -971,8 +971,8 @@ class TransformedBbox(BboxBase):
 
 class Transform(TransformNode):
     """
-    The base class of all :class:`TransformNode`s that actually
-    perform a transformation.
+    The base class of all :class:`TransformNode` instances that
+    actually perform a transformation.
 
     All non-affine transformations should be subclasses of this class.
     New affine transformations should be subclasses of

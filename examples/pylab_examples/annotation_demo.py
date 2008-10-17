@@ -1,7 +1,9 @@
 """
 Some examples of how to annotate points in figures.  You specify an
 annotation point xy=(x,y) and a text point xytext=(x,y) for the
-annotated points and text location, respectively.  Optionally, you can specify the coordinate system of xy and xytext with one of the following strings for xycoords and textcoords (default is 'data')
+annotated points and text location, respectively.  Optionally, you can
+specify the coordinate system of xy and xytext with one of the
+following strings for xycoords and textcoords (default is 'data')
 
 
   'figure points'   : points from the lower left corner of the figure

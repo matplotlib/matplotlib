@@ -20,9 +20,8 @@ Overview
    api/index.rst
    glossary/index.rst
 
-
 .. htmlonly::
-   examples/index.rst
+   - `Examples <examples/index.html>`_
 
   * :ref:`genindex`
   * :ref:`modindex`

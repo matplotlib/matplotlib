@@ -12,7 +12,7 @@ Simple Plot
 
 The most basic :func:`~matplotlib.pyplot.plot`, with text labels
 
-.. plot:: ../mpl_examples/pylab_examples/simple_plot.py
+.. plot:: mpl_examples/pylab_examples/simple_plot.py
 
 .. _screenshots_subplot_demo:
 
@@ -22,7 +22,7 @@ Subplot demo
 Multiple regular axes (numrows by numcolumns) are created with the
 :func:`~matplotlib.pyplot.subplot` command.
 
-.. plot:: ../mpl_examples/pylab_examples/subplot_demo.py
+.. plot:: mpl_examples/pylab_examples/subplot_demo.py
 
 .. _screenshots_histogram_demo:
 
@@ -32,7 +32,7 @@ Histograms
 The :func:`~matplotlib.pyplot.hist` command automatically generates
 histograms and will return the bin counts or probabilities
 
-.. plot:: ../mpl_examples/pylab_examples/histogram_demo.py
+.. plot:: mpl_examples/pylab_examples/histogram_demo.py
 
 
 .. _screenshots_path_demo:
@@ -43,7 +43,7 @@ Path demo
 You can add aribitrary paths in matplotlib as of release 0.98.  See
 the :mod:`matplotlib.path`.
 
-.. plot:: ../mpl_examples/api/path_patch_demo.py
+.. plot:: mpl_examples/api/path_patch_demo.py
 
 .. _screenshots_ellipse_demo:
 
@@ -59,7 +59,7 @@ extremely accurate 8-spline approximation to elliptical arcs (see
 provides a scale free, accurate graph of the arc regardless of zoom
 level
 
-.. plot:: ../mpl_examples/pylab_examples/ellipse_demo.py
+.. plot:: mpl_examples/pylab_examples/ellipse_demo.py
 
 .. _screenshots_barchart_demo:
 
@@ -73,7 +73,7 @@ and down bars, stacked bars, candlestick bars, etc, ... See
 You can make horizontal bar charts with the
 :func:`~matplotlib.pyplot.barh` command.
 
-.. plot:: ../mpl_examples/pylab_examples/barchart_demo.py
+.. plot:: mpl_examples/pylab_examples/barchart_demo.py
 
 .. _screenshots_pie_demo:
 
@@ -88,7 +88,7 @@ or more wedges out from the center of the pie, and a shadow effect.
 Take a close look at the attached code that produced this figure; nine
 lines of code.
 
-.. plot:: ../mpl_examples/pylab_examples/pie_demo.py
+.. plot:: mpl_examples/pylab_examples/pie_demo.py
 
 .. _screenshots_table_demo:
 
@@ -98,7 +98,7 @@ Table demo
 The :func:`~matplotlib.pyplot.table` command will place a text table
 on the axes
 
-.. plot:: ../mpl_examples/pylab_examples/table_demo.py
+.. plot:: mpl_examples/pylab_examples/table_demo.py
 
 
 .. _screenshots_scatter_demo:
@@ -113,7 +113,7 @@ trading volume and the colors coding price change in day i.  Here the
 alpha attribute is used to make semitransparent circle markers with
 the Agg backend (see :ref:`what-is-a-backend`)
 
-.. plot:: ../mpl_examples/pylab_examples/scatter_demo2.py
+.. plot:: mpl_examples/pylab_examples/scatter_demo2.py
 
 
 .. _screenshots_slider_demo:
@@ -126,7 +126,7 @@ user interface you are using, allowing you to write cross GUI figures
 and widgets.  See matplotlib.widgets and the widget `examples
 <examples/widgets>`
 
-.. plot:: ../mpl_examples/widgets/slider_demo.py
+.. plot:: mpl_examples/widgets/slider_demo.py
 
 
 .. _screenshots_fill_demo:
@@ -138,7 +138,7 @@ The :func:`~matplotlib.pyplot.fill` command lets you
 plot filled polygons.  Thanks to Andrew Straw for providing this
 function
 
-.. plot:: ../mpl_examples/pylab_examples/fill_demo.py
+.. plot:: mpl_examples/pylab_examples/fill_demo.py
 
 
 .. _screenshots_date_demo:
@@ -165,7 +165,7 @@ traces that I used since the goal was to illustrate plotting
 techniques, not market analysis!
 
 
-.. plot:: ../mpl_examples/pylab_examples/finance_work2.py
+.. plot:: mpl_examples/pylab_examples/finance_work2.py
 
 
 .. _screenshots_basemap_demo:
@@ -181,7 +181,7 @@ conic, lambert azimuthal equal area, albers equal area conic and
 stereographic.  See the `tutorial
 <http://www.scipy.org/wikis/topical_software/Maps>`_ entry on the wiki.
 
-.. plot:: plotmap.py
+.. plot:: pyplots/plotmap.py
 
 .. _screenshots_log_demo:
 
@@ -198,7 +198,7 @@ infrastructure.
 
 
 
-.. plot:: ../mpl_examples/pylab_examples/log_demo.py
+.. plot:: mpl_examples/pylab_examples/log_demo.py
 
 .. _screenshots_polar_demo:
 
@@ -207,7 +207,7 @@ Polar plots
 
 The :func:`~matplotlib.pyplot.polar` command generates polar plots.
 
-.. plot:: ../mpl_examples/pylab_examples/polar_demo.py
+.. plot:: mpl_examples/pylab_examples/polar_demo.py
 
 .. _screenshots_legend_demo:
 
@@ -219,7 +219,7 @@ generates figure legends, with Matlab compatible legend placement
 commands.  Thanks to Charles Twardy for input on the legend
 command
 
-.. plot:: ../mpl_examples/pylab_examples/legend_demo.py
+.. plot:: mpl_examples/pylab_examples/legend_demo.py
 
 .. _screenshots_mathtext_examples_demo:
 
@@ -234,7 +234,7 @@ additional.  matplotlib mathtext is an independent implementation, and
 does not required TeX or any external packages installed on your
 computer.
 
-.. plot:: ../mpl_examples/pylab_examples/mathtext_examples.py
+.. plot:: mpl_examples/pylab_examples/mathtext_examples.py
 
 .. _screenshots_tex_demo:
 
@@ -245,7 +245,7 @@ Although matplotlib's internal math rendering engine is quite
 powerful, sometimes you need TeX, and matplotlib supports external TeX
 rendering of strings with the *usetex* option.
 
-.. plot:: tex_demo.py
+.. plot:: pyplots/tex_demo.py
 
 .. _screenshots_eeg_demo:
 

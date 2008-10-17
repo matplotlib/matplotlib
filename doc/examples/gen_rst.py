@@ -5,11 +5,21 @@ import os, glob
 
 import matplotlib.cbook as cbook
 
-
 import os
+import re
 import sys
 fileList = []
 rootdir = '../mpl_examples'
+
+def out_of_date(original, derived):
+    """
+    Returns True if derivative is out-of-date wrt original,
+    both of which are full file paths.
+    """
+    return (not os.path.exists(derived) or
+            os.stat(derived).st_mtime < os.stat(original).st_mtime)
+
+noplot_regex = re.compile(r"#\s*-\*-\s*noplot\s*-\*-")
 
 datad = {}
 for root, subFolders, files in os.walk(rootdir):
@@ -22,7 +32,7 @@ for root, subFolders, files in os.walk(rootdir):
         contents = file(fullpath).read()
         # indent
         relpath = os.path.split(root)[-1]
-        datad.setdefault(relpath, []).append((fname, contents))
+        datad.setdefault(relpath, []).append((fullpath, fname, contents))
 
 subdirs = datad.keys()
 subdirs.sort()
@@ -48,7 +58,7 @@ Matplotlib Examples
 for subdir in subdirs:
     if not os.path.exists(subdir):
         os.makedirs(subdir)
-        
+
     static_dir = os.path.join('..', '_static', 'examples')
     if not os.path.exists(static_dir):
         os.makedirs(static_dir)
@@ -83,37 +93,48 @@ for subdir in subdirs:
 
     print subdir
 
-    
+
     data = datad[subdir]
     data.sort()
-    for fname, contents in data:
-
+    for fullname, fname, contents in data:
         static_file = os.path.join(static_dir, fname)
-        fhstatic = file(static_file, 'w')
-        fhstatic.write(contents)
-        fhstatic.close()
-
         basename, ext = os.path.splitext(fname)
         rstfile = '%s.rst'%basename
         outfile = os.path.join(subdir, rstfile)
         fhsubdirIndex.write('    %s\n'%rstfile)
+
+        if (not out_of_date(fullname, static_file) and
+            not out_of_date(fullname, outfile)):
+            continue
+
+        print '    %s'%fname
+
+        fhstatic = file(static_file, 'w')
+        fhstatic.write(contents)
+        fhstatic.close()
+
         fh = file(outfile, 'w')
         fh.write('.. _%s-%s:\n\n'%(subdir, basename))
         title = '%s example code: %s'%(subdir, fname)
 
         fh.write(title + '\n')
         fh.write('='*len(title) + '\n\n')
-        
 
-        print '    %s'%fname
+        do_plot = (subdir in ('api',
+                              'pylab_examples',
+                              'units') and
+                   not noplot_regex.search(contents))
 
-        linkname = os.path.join('..', '..', '_static', 'examples', subdir, fname)
-        fh.write('%s (`link to source <%s>`_)::\n\n'%(fname, linkname))
+        if do_plot:
+            fh.write("\n\n.. plot:: %s\n\n::\n\n" % fullname[3:])
+        else:
+            linkname = os.path.join('..', '..', '_static', 'examples', subdir, fname)
+            fh.write("[`source code <%s>`_]\n\n::\n\n" % linkname)
 
         # indent the contents
         contents = '\n'.join(['    %s'%row.rstrip() for row in contents.split('\n')])
-
         fh.write(contents)
+
         fh.write('\n\nKeyword: codex (see :ref:`how-to-search-examples`)')
         fh.close()
 

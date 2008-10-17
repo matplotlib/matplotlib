@@ -93,6 +93,7 @@ class ContourLabeler:
             placement, delete or backspace act like the third mouse button,
             and any other key will select a label location).
 
+        .. plot:: mpl_examples/pylab_examples/contour_demo.py
         """
 
         """
@@ -1034,7 +1035,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         **Example:**
 
-        .. plot:: contour_demo.py
+        .. plot:: mpl_examples/pylab_examples/contour_demo.py
         """
 
     def find_nearest_contour( self, x, y, indices=None, pixel=True ):

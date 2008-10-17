@@ -12,7 +12,7 @@ consider: the location being annotated represented by the argument
 ``xy`` and the location of the text ``xytext``.  Both of these
 arguments are ``(x,y)`` tuples.
 
-.. plot:: annotation_basic.py
+.. plot:: pyplots/annotation_basic.py
    :include-source:
 
 
@@ -72,7 +72,7 @@ keyword args like ``horizontalalignment``, ``verticalalignment`` and
 ``fontsize are passed from the `~matplotlib.Axes.annotate` to the
 ``Text`` instance
 
-.. plot:: annotation_polar.py
+.. plot:: pyplots/annotation_polar.py
    :include-source:
 
 See the `annotations demo

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- noplot -*-
 # print png to standard out
 # usage: python print_stdout.py > somefile.png
 import sys

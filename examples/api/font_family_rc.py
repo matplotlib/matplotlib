@@ -13,8 +13,10 @@ in order::
 
   rcParams['font.sans-serif'] = ['Tahoma', 'Bitstream Vera Sans', 'Lucida Grande', 'Verdana']
 
-
 """
+
+# -*- noplot -*-
+
 from matplotlib import rcParams
 rcParams['font.family'] = 'sans-serif'
 rcParams['font.sans-serif'] = ['Tahoma']

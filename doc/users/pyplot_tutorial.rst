@@ -12,7 +12,7 @@ with labels, etc....  :mod:`matplotlib.pyplot` is stateful, in that it
 keeps track of the current figure and plotting area, and the plotting
 functions are directed to the current axes
 
-.. plot:: pyplot_simple.py
+.. plot:: pyplots/pyplot_simple.py
    :include-source:
 
 You may be wondering why the x-axis ranges from 0-3 and the y-axis
@@ -36,7 +36,7 @@ matlab, and you concatenate a color string with a line style string.
 The default format string is 'b-', which is a solid blue line.  For
 example, to plot the above with red circles, you would issue
 
-.. plot:: pyplot_formatstr.py
+.. plot:: pyplots/pyplot_formatstr.py
    :include-source:
 
 See the :func:`~matplotlib.pyplot.plot` documentation for a complete
@@ -52,7 +52,7 @@ converted to numpy arrays internally.  The example below illustrates a
 plotting several lines with different format styles in one command
 using arrays.
 
-.. plot:: pyplot_three.py
+.. plot:: pyplots/pyplot_three.py
    :include-source:
 
 .. _controlling-line-properties:
@@ -157,7 +157,7 @@ current axes (a :class:`matplotlib.axes.Axes` instance), and
 to worry about this, because it is all taken care of behind the
 scenes.  Below is an script to create two subplots.
 
-.. plot:: pyplot_two_subplots.py
+.. plot:: pyplots/pyplot_two_subplots.py
    :include-source:
 
 The :func:`~matplotlib.pyplot.figure` command here is optional because
@@ -216,7 +216,7 @@ an arbitrary location, and the :func:`~matplotlib.pyplot.xlabel`,
 are used to add text in the indicated locations (see :ref:`text-intro`
 for a more detailed example)
 
-.. plot:: pyplot_text.py
+.. plot:: pyplots/pyplot_text.py
    :include-source:
 
 
@@ -262,7 +262,7 @@ two points to consider: the location being annotated represented by
 the argument ``xy`` and the location of the text ``xytext``.  Both of
 these arguments are ``(x,y)`` tuples.
 
-.. plot:: pyplot_annotate.py
+.. plot:: pyplots/pyplot_annotate.py
    :include-source:
 
 In this basic example, both the ``xy`` (arrow tip) and ``xytext``

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- noplot -*-
 """
 This provides examples of uses of interactive functions, such as ginput,
 waitforbuttonpress and manual clabel placement.

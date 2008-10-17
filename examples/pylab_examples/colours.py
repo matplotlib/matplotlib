@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- noplot -*-
 """
 Some simple functions to generate colours.
 """
