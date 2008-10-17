@@ -470,4 +470,127 @@ a movie, and then cleans up::
 
 .. htmlonly::
 
-    See :ref:`animation-movie_demo` for a complete example.
+    Josh Lifton provided this example :ref:`animation-movie_demo`, which is possibly dated since it was written in 2004.
+
+
+.. _howto-twoscale:
+
+Can I have multiple y-axis scales?
+==================================
+
+A frequent request is to have two scales for the left and right
+y-axis, which is possible using :func:`~matplotlib.pyplot.twinx` (more
+than two scales are not currently supported, though it is on the wishq
+list).  This works pretty well, though there are some quirks when you
+are trying to interactively pan and zoom, since both scales do not get
+the signals.
+
+The approach :func:`~matplotlib.pyplot.twinx` (and its sister
+:func:`~matplotlib.pyplot.twiny`) uses is to use *2 different axes*,
+turning the axes rectangular frame off on the 2nd axes to keep it from
+obscuring the first, and manually setting the tick locs and labels as
+desired.  You can use separate matplotlib.ticker formatters and
+locators as desired since the two axes are independent::
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111)
+    t = np.arange(0.01, 10.0, 0.01)
+    s1 = np.exp(t)
+    ax1.plot(t, s1, 'b-')
+    ax1.set_xlabel('time (s)')
+    ax1.set_ylabel('exp')
+
+    ax2 = ax1.twinx()
+    s2 = np.sin(2*np.pi*t)
+    ax2.plot(t, s2, 'r.')
+    ax2.set_ylabel('sin')
+    plt.show()
+
+
+.. htmlonly::
+
+    See :ref:`api-two_scales` for a complete example
+
+.. _howto-batchmode:
+
+Can I just generate images without having a window popup?
+=====================================================
+
+The easiest way to do this is use an image backend (see
+:ref:`what-is-a-backend`) such as Agg (for PNGs), PDF, SVG or PS.  In
+your figure generating script, just place call
+:func:`matplotlib.use` directive before importing pylab or
+pyplot::
+
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    plt.plot([1,2,3])
+    plt.savefig('myfig')
+
+
+.. seealso::
+    :ref:`howto-webapp`
+
+    ('SHOW',
+     "What's up with 'show'?  Do I have to use it?",
+     """
+
+.. _howto-show
+
+How should I use :func:`~matplotlib.pyplot.show`?
+=================================================
+
+The user interface backends need to start the GUI mainloop, and this
+is what :func:`~matplotlib.pyplot.show` does.  It tells matplotlib to
+raise all of the figure windows and start the mainloop.  Because the
+mainloop is blocking, you should only call this once per script, at
+the end.  If you are using matplotlib to generate images only and do
+not want a user interface window, you can skip it (see
+:ref:`howto-batch` and :ref:`what-is-a-backend`).
+
+
+Because it is expensive to draw, matplotlib does not want to redrawing the figure
+many times in a script such as the following::
+
+    plot([1,2,3])            # draw here ?
+    xlabel('time')           # and here ?
+    ylabel('volts')          # and here ?
+    title('a simple plot')   # and here ?
+    show()
+
+
+It is *possible* to force matplotlib to draw after every command,
+which is what you usually want when working interactively at the
+python console, but in a script you want to defer all drawing until
+the script has executed (see :ref:`mpl-shell`).  This is especially
+important for complex figures that take some time to draw.
+:func:`~matplotlib.pyplot.show` is designed to tell matplotlib that
+you're all done issuing commands and you want to draw the figure now.
+
+.. note::
+
+    :func:`~matplotlib.pyplot.show` should be called at most once per
+    script and it should be the last line of your script.  At that
+    point, the GUI takes control of the interpreter.  If you want to
+    force a figure draw, use :func:`~matplotlib.pyplot.draw` instead.
+
+Many users are frustrated by show because they want it to be a
+blocking call that raises the figure, pauses the script until the
+figure is closed, and then allows the script to continue running until
+the next figure is created and the next show is made.  Something like
+this::
+
+   # WARNING : illustrating how NOT to use show
+   for i in range(10):
+       # make figure i
+       show()
+
+This is not what show does and unfortunately, because doing blocking
+calls across user interfaces can be tricky, is currently unsupported,
+though we have made some pregress towards supporting blocking events.
+
+

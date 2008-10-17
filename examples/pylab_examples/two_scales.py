@@ -19,20 +19,22 @@ tick_left and tick_right.)
 
 """
 
-from pylab import *
+import numpy as np
+import matplotlib.pyplot as plt
 
-ax1 = subplot(111)
-t = arange(0.01, 10.0, 0.01)
-s1 = exp(t)
-plot(t, s1, 'b-')
-xlabel('time (s)')
-ylabel('exp')
+fig = plt.figure()
+ax1 = fig.add_subplot(111)
+t = np.arange(0.01, 10.0, 0.01)
+s1 = np.exp(t)
+ax1.plot(t, s1, 'b-')
+ax1.set_xlabel('time (s)')
+ax1.set_ylabel('exp')
 
 
 # turn off the 2nd axes rectangle with frameon kwarg
-ax2 = twinx()
-s2 = sin(2*pi*t)
-plot(t, s2, 'r.')
-ylabel('sin')
-ax2.yaxis.tick_right()
-show()
+ax2 = ax1.twinx()
+s2 = np.sin(2*np.pi*t)
+ax2.plot(t, s2, 'r.')
+ax2.set_ylabel('sin')
+plt.show()
+
