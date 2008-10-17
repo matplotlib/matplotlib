@@ -80,10 +80,10 @@ Continuing with our example::
 
 In this example, ``ax`` is the ``Axes`` instance created by the
 ``fig.add_subplot`` call above (remember ``Subplot`` is just a
-subclass of ``Axes``) and when you call ``ax.plot``, it createsa
-``Line2D`` instance and adds it the :attr:`Axes.lines
+subclass of ``Axes``) and when you call ``ax.plot``, it creates a
+``Line2D`` instance and adds it to the :attr:`Axes.lines
 <matplotlib.axes.Axes.lines>` list.  In the interactive `ipython
-<http://ipython.scipy.org/>`_ session below, you can see that
+<http://ipython.scipy.org/>`_ session below, you can see that the
 ``Axes.lines`` list is length one and contains the same line that was
 returned by the ``line, = ax.plot(x, y, 'o')`` call:
 
@@ -104,7 +104,7 @@ of these will work::
     ax.lines.remove(line)  # one or the other, not both!
 
 The Axes also has helper methods to configure and decorate the x-axis
-and y-axis tick, ticklabels and axis labels::
+and y-axis tick, tick labels and axis labels::
 
     xtext = ax.set_xlabel('my xdata') # returns a Text instance
     ytext = ax.set_ylabel('my xdata')
@@ -169,8 +169,8 @@ clip_box     The bounding box that clips the Artist
 clip_on      Whether clipping is enabled
 clip_path    The path the artist is clipped to
 contains     A picking function to test whether the artist contains the pick point
-figure       The figure instance the aritst lives in, possibly None
-label        A text label (eg for auto-labeling)
+figure       The figure instance the artist lives in, possibly None
+label        A text label (eg. for auto-labeling)
 picker       A python object that controls object picking
 transform    The transformation
 visible      A boolean whether the artist should be drawn
@@ -240,17 +240,18 @@ properties for a give object.
 Object containers
 =================
 
-Now that we know how to inspect set the properties of a given object
-we want to configure, we need to now how to get at that object.  As
-mentioned in the introduction, there are two kinds of objects:
+
+Now that we know how to inspect and set the properties of a given
+object we want to configure, we need to now how to get at that object.
+As mentioned in the introduction, there are two kinds of objects:
 primitives and containers.  The primitives are usually the things you
 want to configure (the font of a :class:`~matplotlib.text.Text`
 instance, the width of a :class:`~matplotlib.lines.Line2D`) although
 the containers also have some properties as well -- for example the
 :class:`~matplotlib.axes.Axes` :class:`~matplotlib.artist.Artist` is a
 container that contains many of the primitives in your plot, but it
-also has properties like the ``xscale`` to control whether the xaxis is
-'linear' or 'log'.  In this section we'll review where the various
+also has properties like the ``xscale`` to control whether the xaxis
+is 'linear' or 'log'.  In this section we'll review where the various
 container objects store the ``Artists`` that you want to get at.
 
 .. _figure-container:
