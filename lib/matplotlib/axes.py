@@ -3387,7 +3387,7 @@ class Axes(martist.Artist):
                   maxlags=None, **kwargs)
 
         Plot the autocorrelation of *x*.  If *normed* = *True*,
-        normalize the data but the autocorrelation at 0-th lag.  *x* is
+        normalize the data by the autocorrelation at 0-th lag.  *x* is
         detrended by the *detrend* callable (default no normalization).
 
         Data are plotted as ``plot(lags, c, **kwargs)``
@@ -4370,7 +4370,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: mpl_examples/pyplot_examples/errorbar_demo.py
+        .. plot:: mpl_examples/pylab_examples/errorbar_demo.py
 
         """
 

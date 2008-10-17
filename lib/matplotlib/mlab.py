@@ -3,65 +3,93 @@
 Numerical python functions written for compatability with matlab(TM)
 commands with the same names.
 
-  Matlab(TM) compatible functions:
+Matlab(TM) compatible functions
+-------------------------------
 
-    * cohere - Coherence (normalized cross spectral density)
+:func:`cohere`
+  Coherence (normalized cross spectral density)
 
-    * csd - Cross spectral density uing Welch's average periodogram
+:func:`csd`
+  Cross spectral density uing Welch's average periodogram
 
-    * detrend -- Remove the mean or best fit line from an array
+:func:`detrend`
+  Remove the mean or best fit line from an array
 
-    * find - Return the indices where some condition is true;
-             numpy.nonzero is similar but more general.
+:func:`find`
+  Return the indices where some condition is true;
+         numpy.nonzero is similar but more general.
 
-    * griddata - interpolate irregularly distributed data to a
-                 regular grid.
+:func:`griddata`
+  interpolate irregularly distributed data to a
+             regular grid.
 
-    * prctile - find the percentiles of a sequence
+:func:`prctile`
+  find the percentiles of a sequence
 
-    * prepca - Principal Component Analysis
+:func:`prepca`
+  Principal Component Analysis
 
-    * psd - Power spectral density uing Welch's average periodogram
+:func:`psd`
+  Power spectral density uing Welch's average periodogram
 
-    * rk4 - A 4th order runge kutta integrator for 1D or ND systems
+:func:`rk4`
+  A 4th order runge kutta integrator for 1D or ND systems
 
 
-  The following are deprecated; please import directly from numpy
-  (with care--function signatures may differ):
+Miscellaneous functions
+-------------------------
 
-    * conv     - convolution  (numpy.convolve)
-    * corrcoef - The matrix of correlation coefficients
-    * hist -- Histogram (numpy.histogram)
-    * linspace -- Linear spaced array from min to max
-    * meshgrid
-    * polyfit - least squares best polynomial fit of x to y
-    * polyval - evaluate a vector for a vector of polynomial coeffs
-    * trapz - trapeziodal integration (trapz(x,y) -> numpy.trapz(y,x))
-    * vander - the Vandermonde matrix
+Functions that don't exist in matlab(TM), but are useful anyway:
 
-  Functions that don't exist in matlab(TM), but are useful anyway:
+:meth:`cohere_pairs`
+    Coherence over all pairs.  This is not a matlab function, but we
+    compute coherence a lot in my lab, and we compute it for a lot of
+    pairs.  This function is optimized to do this efficiently by
+    caching the direct FFTs.
 
-    * cohere_pairs - Coherence over all pairs.  This is not a matlab
-      function, but we compute coherence a lot in my lab, and we
-      compute it for a lot of pairs.  This function is optimized to do
-      this efficiently by caching the direct FFTs.
+:meth:`rk4`
+    A 4th order Runge-Kutta ODE integrator in case you ever find
+    yourself stranded without scipy (and the far superior
+    scipy.integrate tools)
 
-= record array helper functions =
-   * rec2txt          : pretty print a record array
-   * rec2csv          : store record array in CSV file
-   * csv2rec          : import record array from CSV file with type inspection
-   * rec_append_fields: adds  field(s)/array(s) to record array
-   * rec_drop_fields  : drop fields from record array
-   * rec_join         : join two record arrays on sequence of fields
-   * rec_groupby      : summarize data by groups (similar to SQL GROUP BY)
-   * rec_summarize    : helper code to filter rec array fields into new fields
+record array helper functions
+-------------------------------
+
+A collection of helper methods for numpyrecord arrays
+
+.. _htmlonly::
+
+    See :ref:`misc-examples-index`
+
+:meth:`rec2txt`
+    pretty print a record array
+
+:meth:`rec2csv`
+    store record array in CSV file
+
+:meth:`csv2rec`
+    import record array from CSV file with type inspection
+
+:meth:`rec_append_fields`
+    adds  field(s)/array(s) to record array
+
+:meth:`rec_drop_fields`
+    drop fields from record array
+
+:meth:`rec_join`
+    join two record arrays on sequence of fields
+
+:meth:`rec_groupby`
+    summarize data by groups (similar to SQL GROUP BY)
+
+:meth:`rec_summarize`
+    helper code to filter rec array fields into new fields
 
 For the rec viewer functions(e rec2csv), there are a bunch of Format
 objects you can pass into the functions that will do things like color
 negative values red, set percent formatting and scaling, etc.
 
-
-Example usage:
+Example usage::
 
     r = csv2rec('somefile.csv', checkrows=0)
 
@@ -81,6 +109,40 @@ Example usage:
     win.add(scroll)
     win.show_all()
     gtk.main()
+
+
+Deprecated functions
+---------------------
+
+The following are deprecated; please import directly from numpy (with
+care--function signatures may differ):
+
+:meth:`conv`
+    convolution  (numpy.convolve)
+
+:meth:`corrcoef`
+    The matrix of correlation coefficients
+
+:meth:`hist`
+    Histogram (numpy.histogram)
+
+:meth:`linspace`
+    Linear spaced array from min to max
+
+:meth:`meshgrid`
+    Make a 2D grid from 2 1 arrays (numpy.meshgrid)
+
+:meth:`polyfit`
+    least squares best polynomial fit of x to y (numpy.polyfit)
+
+:meth:`polyval`
+    evaluate a vector for a vector of polynomial coeffs (numpy.polyval)
+
+:meth:`trapz`
+    trapeziodal integration (trapz(x,y) -> numpy.trapz(y,x))
+
+:meth:`vander`
+    the Vandermonde matrix (numpy.vander) 
 
 """
 
@@ -185,19 +247,22 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
     to calculate the Fourier frequencies, freqs, in cycles per time
     unit.
 
-    -- NFFT must be even; a power 2 is most efficient.
-    -- detrend is a functions, unlike in matlab where it is a vector.
-    -- window can be a function or a vector of length NFFT. To create window
-       vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
-       scipy.signal, scipy.signal.get_window etc.
-    -- if length x < NFFT, it will be zero padded to NFFT
+    *NFFT* 
+        The length of the FFT window.  Must be even; a power 2 is most efficient.
 
+    *detrend* 
+        is a function, unlike in matlab where it is a vector.
 
-    Returns the tuple Pxx, freqs
+    *window* 
+        can be a function or a vector of length NFFT. To create window
+        vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
+        scipy.signal, scipy.signal.get_window etc.
 
-    Refs:
-      Bendat & Piersol -- Random Data: Analysis and Measurement
-        Procedures, John Wiley & Sons (1986)
+    If length x < NFFT, it will be zero padded to NFFT
+
+    Returns the tuple (*Pxx*, *freqs*)
+
+    Refs: Bendat & Piersol -- Random Data: Analysis and Measurement Procedures, John Wiley & Sons (1986)
 
     """
     # I think we could remove this condition without hurting anything.
@@ -409,7 +474,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
            window=window_hanning, noverlap=0):
     """
     The coherence between x and y.  Coherence is the normalized
-    cross spectral density
+    cross spectral density:
 
     .. math::
 
@@ -470,7 +535,7 @@ def polyfit(*args, **kwargs):
 
 
     Method: if X is a the Vandermonde Matrix computed from x (see
-    http://mathworld.wolfram.com/VandermondeMatrix.html), then the
+    `vandermonds <http://mathworld.wolfram.com/VandermondeMatrix.html>`_), then the
     polynomial least squares solution is given by the 'p' in
 
       X*p = y
@@ -487,7 +552,7 @@ def polyfit(*args, **kwargs):
     numpy.linalg.lstsq.
 
     For more info, see
-    http://mathworld.wolfram.com/LeastSquaresFittingPolynomial.html,
+    `least squares fitting <http://mathworld.wolfram.com/LeastSquaresFittingPolynomial.html>`_,
     but note that the k's and n's in the superscripts and subscripts
     on that page.  The linear algebra is correct, however.
 
@@ -898,13 +963,20 @@ def center_matrix(M, dim=0):
 
 def rk4(derivs, y0, t):
     """
-    Integrate 1D or ND system of ODEs from initial state y0 at sample
-    times t.  derivs returns the derivative of the system and has the
-    signature
+    Integrate 1D or ND system of ODEs using 4-th order Runge-Kutta.  This is a toy implementation which may be useful if you find yourself stranded on a system w/o scipy.  Otherwise use ``scipy.integrate``
 
-     dy = derivs(yi, ti)
+    *y0*
+        initial state vector
+     
+    *t*
+        sample times    
 
-    Example 1 :
+    *derivs* 
+        returns the derivative of the system and has the
+        signature ``dy = derivs(yi, ti)``
+
+
+    Example 1 ::
 
         ## 2D system
 
@@ -917,7 +989,7 @@ def rk4(derivs, y0, t):
         y0 = (1,2)
         yout = rk4(derivs6, y0, t)
 
-    Example 2:
+    Example 2::
 
         ## 1D system
         alpha = 2
@@ -963,7 +1035,7 @@ def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,
     """
     Bivariate gaussan distribution for equal shape X, Y
 
-    http://mathworld.wolfram.com/BivariateNormalDistribution.html
+    See `bivariate normal <http://mathworld.wolfram.com/BivariateNormalDistribution.html>`_ at mathworld.
     """
     Xmu = X-mux
     Ymu = Y-muy
@@ -1074,13 +1146,16 @@ def liaupunov(x, fprime):
     *x* is a very long trajectory from a map, and *fprime* returns the
     derivative of *x*.
 
-    Returns :math:`\lambda = \frac{1}{n}\sum \ln|f^'(x_i)|`
+    Returns :
+    .. math::
+
+        \lambda = \frac{1}{n}\sum \ln|f^'(x_i)|
 
     .. seealso::
         Sec 10.5 Strogatz (1994) "Nonlinear Dynamics and Chaos".
 
         `Wikipedia article on Lyapunov Exponent
-        http://en.wikipedia.org/wiki/Lyapunov_exponent`_.
+        <http://en.wikipedia.org/wiki/Lyapunov_exponent>`_.
 
     .. note::
         What the function here calculates may not be what you really want;
@@ -1510,13 +1585,14 @@ def diagonal_matrix(diag):
     return np.diag(diag)
 
 def identity(n, rank=2, dtype='l', typecode=None):
-    """identity(n,r) returns the identity matrix of shape (n,n,...,n) (rank r).
+    """Returns the identity matrix of shape (n,n,...,n) (rank r).
 
     For ranks higher than 2, this object is simply a multi-index Kronecker
-    delta:
-                        /  1  if i0=i1=...=iR,
-    id[i0,i1,...,iR] = -|
-                        \  0  otherwise.
+    delta::
+
+                            /  1  if i0=i1=...=iR,
+        id[i0,i1,...,iR] = -|
+                            \  0  otherwise.
 
     Optionally a dtype (or typecode) may be given (it defaults to 'l').
 
