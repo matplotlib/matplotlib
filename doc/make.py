@@ -27,13 +27,14 @@ def sfpdf():
 def figs():
     os.system('cd users/figures/ && python make.py')
 
+def examples():
+    'make the rest examples'
+    os.system('cd examples; svn-clean; python gen_rst.py')
+
 def html():
     check_build()
-    # build the literal include examples for searchable examples
-    os.system('cd examples; python gen_rst.py')
-
-
-
+    if not os.path.exists('examples/index.rst'):
+        examples()
     #figs()
     if os.system('sphinx-build -b html -d build/doctrees . build/html'):
         raise SystemExit("Building HTML failed.")
@@ -67,13 +68,11 @@ def latex():
         print 'latex build has not been tested on windows'
 
 def clean():
-    if os.path.exists('build'):
-        shutil.rmtree('build')
-    for fname in glob.glob('pyplots/*.png') + glob.glob('pyplots/*.pdf'):
-        os.remove(fname)
+    os.system('svn-clean')
 
 def all():
     #figs()
+    examples()
     html()
     latex()
 
@@ -84,6 +83,7 @@ funcd = {'figs':figs,
          'clean':clean,
          'sf':sf,
          'sfpdf':sfpdf,
+         'examples':examples,
          'all':all,
          }
 

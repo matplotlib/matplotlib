@@ -7,10 +7,15 @@ Howto
 .. contents::
 
 
+.. _howto-plotting:
+
+Plotting: howto
+=================
+
 .. _howto-findobj:
 
 Find all objects in figure of a certain type
-=============================================================
+-------------------------------------------------------------
 
 Every matplotlib artist (see :ref:`artist-tutorial`) has a method
 called :meth:`~matplotlib.artist.Artist.findobj` that can be used to
@@ -36,7 +41,7 @@ You can also filter on class instances::
 .. _howto-transparent:
 
 Save transparent figures
-==================================
+----------------------------------
 
 The :meth:`~matplotlib.pyplot.savefig` command has a keyword argument
 *transparent* which, if True, will make the figure and axes
@@ -65,7 +70,7 @@ on individual elements, eg::
 .. _howto-subplots-adjust:
 
 Move the edge of an axes to make room for tick labels
-============================================================================
+----------------------------------------------------------------------------
 
 For subplots, you can control the default spacing on the left, right,
 bottom, and top as well as the horizontal and vertical spacing between
@@ -115,7 +120,7 @@ an example of placing axes manually.
 .. _howto-auto-adjust:
 
 Automatically make room for tick labels
-====================================================
+----------------------------------------------------
 
 In most use cases, it is enough to simpy change the subplots adjust
 parameters as described in :ref:`howto-subplots-adjust`.  But in some
@@ -149,7 +154,7 @@ over so that the tick labels fit in the figure
 .. _howto-ticks:
 
 Configure the tick linewidths
-=======================================
+---------------------------------------
 
 In matplotlib, the ticks are *markers*.  All
 :class:`~matplotlib.lines.Line2D` objects support a line (solid,
@@ -175,7 +180,7 @@ are ``markerfacecolor``, ``markeredgecolor``, ``markeredgewidth``,
 .. _howto-align-label:
 
 Align my ylabels across multiple subplots
-===================================================
+---------------------------------------------------
 
 If you have multiple subplots over one another, and the y data have
 different scales, you can often get ylabels that do not align
@@ -188,6 +193,382 @@ setting in the right subplots.
 
 .. plot:: align_ylabels.py
    :include-source:
+
+.. _date-index-plots:
+
+Skip dates where there is no data
+-------------------------------------
+
+When plotting time series, eg financial time series, one often wants
+to leave out days on which there is no data, eg weekends.  By passing
+in dates on the x-xaxis, you get large horizontal gaps on periods when
+there is not data. The solution is to pass in some proxy x-data, eg
+evenly sampled indicies, and then use a custom formatter to format
+these as dates. The example below shows how to use an 'index formatter'
+to achieve the desired plot::
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import matplotlib.mlab as mlab
+    import matplotlib.ticker as ticker
+
+    r = mlab.csv2rec('../data/aapl.csv')
+    r.sort()
+    r = r[-30:]  # get the last 30 days
+
+    N = len(r)
+    ind = np.arange(N)  # the evenly spaced plot indices
+
+    def format_date(x, pos=None):
+	thisind = np.clip(int(x+0.5), 0, N-1)
+	return r.date[thisind].strftime('%Y-%m-%d')
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(ind, r.adj_close, 'o-')
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
+    fig.autofmt_xdate()
+
+    plt.show()
+
+.. _point-in-poly:
+
+Test whether a point is inside a polygon
+-------------------------------------------
+
+The :mod:`matplotlib.nxutils` provides two high performance methods:
+for a single point use :func:`~matplotlib.nxutils.pnpoly` and for an
+array of points use :func:`~matplotlib.nxutils.points_inside_poly`.
+For a discussion of the implementation see `pnpoly
+<http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html>`_.
+
+.. sourcecode:: ipython
+
+    In [25]: import numpy as np
+
+    In [26]: import matplotlib.nxutils as nx
+
+    In [27]: verts = np.array([ [0,0], [0, 1], [1, 1], [1,0]], float)
+
+    In [28]: nx.pnpoly( 0.5, 0.5, verts)
+    Out[28]: 1
+
+    In [29]: nx.pnpoly( 0.5, 1.5, verts)
+    Out[29]: 0
+
+    In [30]: points = np.random.rand(10,2)*2
+
+    In [31]: points
+    Out[31]:
+    array([[ 1.03597426,  0.61029911],
+           [ 1.94061056,  0.65233947],
+           [ 1.08593748,  1.16010789],
+           [ 0.9255139 ,  1.79098751],
+           [ 1.54564936,  1.15604046],
+           [ 1.71514397,  1.26147554],
+           [ 1.19133536,  0.56787764],
+           [ 0.40939549,  0.35190339],
+           [ 1.8944715 ,  0.61785408],
+           [ 0.03128518,  0.48144145]])
+
+    In [32]: nx.points_inside_poly(points, verts)
+    Out[32]: array([False, False, False, False, False, False, False,  True, False, True], dtype=bool)
+
+.. htmlonly::
+
+    For a complete example, see :ref:`event_handling-lasso_demo`.
+
+.. _howto-set-zorder:
+
+Control the depth of plot elements
+---------------------------------------
+
+
+Within an axes, the order that the various lines, markers, text,
+collections, etc appear is determined by the
+:meth:`matplotlib.artist.Artist.set_zorder` property.  The default
+order is patches, lines, text, with collections of lines and
+collections of patches appearing at the same level as regular lines
+and patches, respectively::
+
+    line, = ax.plot(x, y, zorder=10)
+
+.. htmlonly::
+
+    See :ref:`pylab_examples-zorder_demo` for a complete example.
+
+You can also use the Axes property
+:meth:`matplotlib.axes.Axes.set_axisbelow` to control whether the grid
+lines are placed above or below your other plot elements.
+
+.. _howto-axis-equal:
+
+Make the aspect ratio for plots equal
+-------------------------------------------
+
+The Axes property :meth:`matplotlib.axes.Axes.set_aspect` controls the
+aspect ratio of the axes.  You can set it to be 'auto', 'equal', or
+some ratio which controls the ratio::
+
+  ax = fig.add_subplot(111, aspect='equal')
+
+
+
+.. htmlonly::
+
+    See :ref:`pylab_examples-equal_aspect_ratio` for a complete example.
+
+
+.. _howto-movie:
+
+Make a movie
+-----------------------------------------------
+
+
+If you want to take an animated plot and turn it into a movie, the
+best approach is to save a series of image files (eg PNG) and use an
+external tool to convert them to a movie.  You can use `mencoder
+<http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html>`_,
+which is part of the `mplayer <http://www.mplayerhq.hu>`_ suite
+for this::
+
+
+    #fps (frames per second) controls the play speed
+    mencoder 'mf://*.png' -mf type=png:fps=10 -ovc \\
+       lavc -lavcopts vcodec=wmv2 -oac copy -o animation.avi
+
+The swiss army knife of image tools, ImageMagick's `convert
+<http://www.imagemagick.org/script/convert.php>`_ works for this as
+well.<p>
+
+Here is a simple example script that saves some PNGs, makes them into
+a movie, and then cleans up::
+
+    import os, sys
+    import matplotlib.pyplot as plt
+
+    files = []
+    fig = plt.figure(figsize=(5,5))
+    ax = fig.add_subplot(111)
+    for i in range(50):  # 50 frames
+        ax.cla()
+        ax.imshow(rand(5,5), interpolation='nearest')
+        fname = '_tmp%03d.png'%i
+        print 'Saving frame', fname
+        fig.savefig(fname)
+        files.append(fname)
+
+    print 'Making movie animation.mpg - this make take a while'
+    os.system("mencoder 'mf://_tmp*.png' -mf type=png:fps=10 \\
+      -ovc lavc -lavcopts vcodec=wmv2 -oac copy -o animation.mpg")
+
+.. htmlonly::
+
+    Josh Lifton provided this example :ref:`animation-movie_demo`, which is possibly dated since it was written in 2004.
+
+
+.. _howto-twoscale:
+
+Multiple y-axis scales
+-------------------------------
+
+A frequent request is to have two scales for the left and right
+y-axis, which is possible using :func:`~matplotlib.pyplot.twinx` (more
+than two scales are not currently supported, though it is on the wishq
+list).  This works pretty well, though there are some quirks when you
+are trying to interactively pan and zoom, since both scales do not get
+the signals.
+
+The approach :func:`~matplotlib.pyplot.twinx` (and its sister
+:func:`~matplotlib.pyplot.twiny`) uses is to use *2 different axes*,
+turning the axes rectangular frame off on the 2nd axes to keep it from
+obscuring the first, and manually setting the tick locs and labels as
+desired.  You can use separate matplotlib.ticker formatters and
+locators as desired since the two axes are independent::
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(111)
+    t = np.arange(0.01, 10.0, 0.01)
+    s1 = np.exp(t)
+    ax1.plot(t, s1, 'b-')
+    ax1.set_xlabel('time (s)')
+    ax1.set_ylabel('exp')
+
+    ax2 = ax1.twinx()
+    s2 = np.sin(2*np.pi*t)
+    ax2.plot(t, s2, 'r.')
+    ax2.set_ylabel('sin')
+    plt.show()
+
+
+.. htmlonly::
+
+    See :ref:`api-two_scales` for a complete example
+
+.. _howto-batch:
+
+Generate images without having a window popup
+--------------------------------------------------
+
+The easiest way to do this is use an image backend (see
+:ref:`what-is-a-backend`) such as Agg (for PNGs), PDF, SVG or PS.  In
+your figure generating script, just place call
+:func:`matplotlib.use` directive before importing pylab or
+pyplot::
+
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    plt.plot([1,2,3])
+    plt.savefig('myfig')
+
+
+.. seealso::
+    :ref:`howto-webapp`
+
+.. _howto-show
+
+Use :func:`~matplotlib.pyplot.show` 
+------------------------------------------
+
+The user interface backends need to start the GUI mainloop, and this
+is what :func:`~matplotlib.pyplot.show` does.  It tells matplotlib to
+raise all of the figure windows and start the mainloop.  Because the
+mainloop is blocking, you should only call this once per script, at
+the end.  If you are using matplotlib to generate images only and do
+not want a user interface window, you do not need to call ``show``  (see
+:ref:`howto-batch` and :ref:`what-is-a-backend`).
+
+
+Because it is expensive to draw, matplotlib does not want to redrawing the figure
+many times in a script such as the following::
+
+    plot([1,2,3])            # draw here ?
+    xlabel('time')           # and here ?
+    ylabel('volts')          # and here ?
+    title('a simple plot')   # and here ?
+    show()
+
+
+It is *possible* to force matplotlib to draw after every command,
+which is what you usually want when working interactively at the
+python console (see :ref:`mpl-shell`), but in a script you want to
+defer all drawing until the script has executed.  This is especially
+important for complex figures that take some time to draw.
+:func:`~matplotlib.pyplot.show` is designed to tell matplotlib that
+you're all done issuing commands and you want to draw the figure now.
+
+.. note::
+
+    :func:`~matplotlib.pyplot.show` should be called at most once per
+    script and it should be the last line of your script.  At that
+    point, the GUI takes control of the interpreter.  If you want to
+    force a figure draw, use :func:`~matplotlib.pyplot.draw` instead.
+
+Many users are frustrated by show because they want it to be a
+blocking call that raises the figure, pauses the script until the
+figure is closed, and then allows the script to continue running until
+the next figure is created and the next show is made.  Something like
+this::
+
+   # WARNING : illustrating how NOT to use show
+   for i in range(10):
+       # make figure i
+       show()
+
+This is not what show does and unfortunately, because doing blocking
+calls across user interfaces can be tricky, is currently unsupported,
+though we have made some pregress towards supporting blocking events.
+
+
+.. _howto-contribute:
+
+Contributing: howto
+=====================
+
+.. _how-to-submit-patch:
+
+Submit a patch
+-----------------
+
+First obtain a copy of matplotlib svn (see :ref:`install-svn`) and
+make your changes to the matplotlib source code or documentation and
+apply a `svn diff`.  If it is feasible, do your diff from the top
+level directory, the one that contains :file:`setup.py`.  Eg,::
+
+    > cd /path/to/matplotlib/source
+    > svn diff > mypatch.diff
+
+and then post your patch to the `matplotlib-devel
+<http://sourceforge.net/mail/?group_id=80706>`_ mailing list.  If you
+do not get a response within 24 hours, post your patch to the
+sourceforge patch `tracker
+<http://sourceforge.net/tracker2/?atid=560722&group_id=80706&func=browse>`_,
+and follow up on the mailing list with a link to the sourceforge patch
+submissions.  If you still do not hear anything within a week (this
+shouldn't happen!), send us a kind and gentle reminder on the mailing
+list.
+
+If you have made lots of local changes and do not want to a diff
+against the entire tree, but rather against a single directory or
+file, that is fine, but we do prefer svn diffs against HEAD.
+
+You should check out the guide to developing matplotlib to make sure
+your patch abides by our coding conventions
+:ref:`developers-guide-index`.
+
+
+.. _how-to-contribute-docs:
+
+Contribute to matplotlib documentation
+-----------------------------------------
+
+matplotlib is a big library, which is used in many ways, and the
+documentation we have only scratches the surface of everything it can
+do.  So far, the place most people have learned all these features are
+through studying the examples (:ref:`how-to-search-examples`), which is a
+recommended and great way to learn, but it would be nice to have more
+official narrative documentation guiding people through all the dark
+corners.  This is where you come in.
+
+There is a good chance you know more about matplotlib usage in some
+areas, the stuff you do every day, than many of the core developers
+who write most of the documentation.  Just pulled your hair out
+compiling matplotlib for windows?  Write a FAQ or a section for the
+:ref:`installing` page.  Are you a digital signal processing wizard?
+Write a tutorial on the signal analysis plotting functions like
+:func:`~matplotlib.pyplot.xcorr`, :func:`~matplotlib.pyplot.psd` and
+:func:`~matplotlib.pyplot.specgram`.  Do you use matplotlib with
+`django <http://www.djangoproject.com>`_ or other popular web
+application servers?  Write a FAQ or tutorial and we'll find a place
+for it in the :ref:`users-guide-index`.  Bundle matplotlib in a
+`py2exe <http://www.py2exe.org/>`_ app?  ... I think you get the idea.
+
+matplotlib is documented using the `sphinx
+<http://sphinx.pocoo.org/index.html>`_ extensions to restructured text
+`ReST <http://docutils.sourceforge.net/rst.html>`_.  sphinx is a
+extensible python framework for documentation projects which generates
+HTML and PDF, and is pretty easy to write; you can see the source for this
+document or any page on this site by clicking on *Show Source* link
+at the end of the page in the sidebar (or `here
+<../_sources/faq/howto_faq.txt>`_ for this document).
+
+The sphinx website is a good resource for learning sphinx, but we have
+put together a cheat-sheet at :ref:`documenting-matplotlib` which
+shows you how to get started, and outlines the matplotlib conventions
+and extensions, eg for including plots directly from external code in
+your documents.
+
+Once your documentation contributions are working (and hopefully
+tested by actually *building* the docs) you can submit them as a patch
+against svn.  See :ref:`install-svn` and :ref:`how-to-submit-patch`.
+Looking for something to do?  Search for `TODO <../search.html?q=todo>`_.
+
+
+
 
 .. _howto-webapp:
 
@@ -240,181 +621,30 @@ or by saving to a file handle::
 matplotlib with apache
 ------------------------------------
 
-TODO
+TODO; see :ref:`how-to-contribute-docs`.
 
 matplotlib with django
 ------------------------------------
 
-TODO
+TODO; see :ref:`how-to-contribute-docs`.
 
 matplotlib with zope
 ----------------------------------
 
-TODO
+TODO; see :ref:`how-to-contribute-docs`.
 
+.. _howto-click-maps:
 
-.. _date-index-plots:
+Clickable images for HTML
+-------------------------
 
-Skip dates where there is no data
-===========================================
-
-When plotting time series, eg financial time series, one often wants
-to leave out days on which there is no data, eg weekends.  By passing
-in dates on the x-xaxis, you get large horizontal gaps on periods when
-there is not data. The solution is to pass in some proxy x-data, eg
-evenly sampled indicies, and then use a custom formatter to format
-these as dates. The example below shows how to use an 'index formatter'
-to achieve the desired plot::
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-    import matplotlib.mlab as mlab
-    import matplotlib.ticker as ticker
-
-    r = mlab.csv2rec('../data/aapl.csv')
-    r.sort()
-    r = r[-30:]  # get the last 30 days
-
-    N = len(r)
-    ind = np.arange(N)  # the evenly spaced plot indices
-
-    def format_date(x, pos=None):
-	thisind = np.clip(int(x+0.5), 0, N-1)
-	return r.date[thisind].strftime('%Y-%m-%d')
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(ind, r.adj_close, 'o-')
-    ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_date))
-    fig.autofmt_xdate()
-
-    plt.show()
-
-.. _point-in-poly:
-
-Test whether a point is inside a polygon
-==================================================
-
-The :mod:`matplotlib.nxutils` provides two high performance methods:
-for a single point use :func:`~matplotlib.nxutils.pnpoly` and for an
-array of points use :func:`~matplotlib.nxutils.points_inside_poly`.
-For a discussion of the implementation see `pnpoly
-<http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html>`_.
-
-.. sourcecode:: ipython
-
-    In [25]: import numpy as np
-
-    In [26]: import matplotlib.nxutils as nx
-
-    In [27]: verts = np.array([ [0,0], [0, 1], [1, 1], [1,0]], float)
-
-    In [28]: nx.pnpoly( 0.5, 0.5, verts)
-    Out[28]: 1
-
-    In [29]: nx.pnpoly( 0.5, 1.5, verts)
-    Out[29]: 0
-
-    In [30]: points = np.random.rand(10,2)*2
-
-    In [31]: points
-    Out[31]:
-    array([[ 1.03597426,  0.61029911],
-           [ 1.94061056,  0.65233947],
-           [ 1.08593748,  1.16010789],
-           [ 0.9255139 ,  1.79098751],
-           [ 1.54564936,  1.15604046],
-           [ 1.71514397,  1.26147554],
-           [ 1.19133536,  0.56787764],
-           [ 0.40939549,  0.35190339],
-           [ 1.8944715 ,  0.61785408],
-           [ 0.03128518,  0.48144145]])
-
-    In [32]: nx.points_inside_poly(points, verts)
-    Out[32]: array([False, False, False, False, False, False, False,  True, False, True], dtype=bool)
-
-.. htmlonly::
-
-    For a complete example, see :ref:`event_handling-lasso_demo`.
-
-
-.. _how-to-submit-patch:
-
-Submit a patch
-========================
-
-First obtain a copy of matplotlib svn (see :ref:`install-svn`) and
-make your changes to the matplotlib source code or documentation and
-apply a `svn diff`.  If it is feasible, do your diff from the top
-level directory, the one that contains :file:`setup.py`.  Eg,::
-
-    > cd /path/to/matplotlib/source
-    > svn diff > mypatch.diff
-
-and then post your patch to the `matplotlib-devel
-<http://sourceforge.net/mail/?group_id=80706>`_ mailing list.  If you
-do not get a response within 24 hours, post your patch to the
-sourceforge patch `tracker
-<http://sourceforge.net/tracker2/?atid=560722&group_id=80706&func=browse>`_,
-and follow up on the mailing list with a link to the sourceforge patch
-submissions.  If you still do not hear anything within a week (this
-shouldn't happen!), send us a kind and gentle reminder on the mailing
-list.
-
-If you have made lots of local changes and do not want to a diff
-against the entire tree, but rather against a single directory or
-file, that is fine, but we do prefer svn diffs against HEAD.
-
-You should check out the guide to developing matplotlib to make sure
-your patch abides by our coding conventions
-:ref:`developers-guide-index`.
-
-
-.. _how-to-contribute-docs:
-
-Contribute to matplotlib documentation
-=========================================
-
-matplotlib is a big library, which is used in many ways, and the
-documentation we have only scratches the surface of everything it can
-do.  So far, the place most people have learned all these features are
-through studying the examples (:ref:`how-to-search-examples`), which is a
-recommended and great way to learn, but it would be nice to have more
-official narrative documentation guiding people through all the dark
-corners.  This is where you come in.
-
-There is a good chance you know more about matplotlib usage in some
-areas, the stuff you do every day, than any of the developers.  *Just
-pulled your hair out compiling matplotlib for windows?*  Write a FAQ or
-a section for the :ref:`installing` page.  *Are you a digital signal
-processing wizard?*  Write a tutorial on the signal analysis plotting
-functions like :func:`~matplotlib.pyplot.xcorr`,
-:func:`~matplotlib.pyplot.psd` and
-:func:`~matplotlib.pyplot.specgram`.  *Do you use matplotlib with
-`django <ttp://www.djangoproject.com/>`_ or other popular web
-application servers?*  Write a FAQ or tutorial and we'll find a place
-for it in the :ref:`users-guide-index`.  *Bundle matplotlib in a `py2exe
-<http://www.py2exe.org/>`_ app?*  ... I think you get the idea.
-
-matplotlib is documented using the `sphinx
-<http://sphinx.pocoo.org/index.html>`_ extensions to restructured text
-`ReST <http://docutils.sourceforge.net/rst.html>`_.  sphinx is a
-extensible python framework for documentation projects which generates
-HTML and PDF, and is pretty easy to write; you can see the source for this
-document or any page on this site by clicking on *Show Source* link
-at the end of the page in the sidebar (or `here
-<../_sources/faq/howto_faq.txt>`_ for this document).
-
-The sphinx website is a good resource for learning sphinx, but we have
-put together a cheat-sheet at :ref:`documenting-matplotlib` which
-shows you how to get started, and outlines the matplotlib conventions
-and extensions, eg for including plots directly from external code in
-your documents.
-
-Once your documentation contributions are working (and hopefully
-tested by actually *building* the docs) you can submit them as a patch
-against svn.  See :ref:`install-svn` and :ref:`how-to-submit-patch`.
-Looking for something to do?  Search for ``TODO`` at :`search`.
+Andrew Dalke of `Dalke Scientific <http://www.dalkescientific.com>`_
+has written a nice `article
+<http://www.dalkescientific.com/writings/diary/archive/2005/04/24/interactive_html.html>`_
+on how to make html click maps with matplotlib agg PNGs.  We would
+also like to add this functionality to SVG and add a SWF backend to
+support these kind of images.  If you are interested in contributing
+to these efforts that would be great.
 
 
 .. _how-to-search-examples:
@@ -436,223 +666,6 @@ example.  So if you want to search for an example that uses an ellipse,
 
 
 
-.. _howto-click-maps:
 
-Clickable images for HTML
-=========================
-
-Andrew Dalke of `Dalke Scientific <http://www.dalkescientific.com>`_
-has written a nice `article
-<http://www.dalkescientific.com/writings/diary/archive/2005/04/24/interactive_html.html>`_
-on how to make html click maps with matplotlib agg PNGs.  We would
-also like to add this functionality to SVG and add a SWF backend to
-support these kind of images.  If you are interested in contributing
-to these efforts that would be great.
-
-.. _howto-set-zorder:
-
-Control the depth of plot elements
-=============================================
-
-Within an axes, the order that the various lines, markers, text,
-collections, etc appear is determined by the
-:meth:`matplotlib.artist.Artist.set_zorder` property.  The default
-order is patches, lines, text, with collections of lines and
-collections of patches appearing at the same level as regular lines
-and patches, respectively::
-
-    line, = ax.plot(x, y, zorder=10)
-
-
-
-.. htmlonly::
-
-    See :ref:`pylab_examples-zorder_demo` for a complete example.
-
-You can also use the Axes property
-:meth:`matplotlib.axes.Axes.set_axisbelow` to control whether the grid
-lines are placed above or below your other plot elements.
-
-.. _howto-axis-equal:
-
-Make the aspect ratio for plots equal
-===============================================
-
-The Axes property :meth:`matplotlib.axes.Axes.set_aspect` controls the
-aspect ratio of the axes.  You can set it to be 'auto', 'equal', or
-some ratio which controls the ratio::
-
-  ax = fig.add_subplot(111, aspect='equal')
-
-
-
-.. htmlonly::
-
-    See :ref:`pylab_examples-equal_aspect_ratio` for a complete example.
-
-
-.. _howto-movie:
-
-Make a movie
-======================
-
-
-If you want to take an animated plot and turn it into a movie, the
-best approach is to save a series of image files (eg PNG) and use an
-external tool to convert them to a movie.  You can use `mencoder
-<http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html>`_,
-which is part of the `mplayer <http://www.mplayerhq.hu>`_ suite
-for this::
-
-
-    #fps (frames per second) controls the play speed
-    mencoder 'mf://*.png' -mf type=png:fps=10 -ovc \\
-       lavc -lavcopts vcodec=wmv2 -oac copy -o animation.avi
-
-The swiss army knife of image tools, ImageMagick's `convert
-<http://www.imagemagick.org/script/convert.php>`_ works for this as
-well.<p>
-
-Here is a simple example script that saves some PNGs, makes them into
-a movie, and then cleans up::
-
-    import os, sys
-    import matplotlib.pyplot as plt
-
-    files = []
-    fig = plt.figure(figsize=(5,5))
-    ax = fig.add_subplot(111)
-    for i in range(50):  # 50 frames
-        ax.cla()
-        ax.imshow(rand(5,5), interpolation='nearest')
-        fname = '_tmp%03d.png'%i
-        print 'Saving frame', fname
-        fig.savefig(fname)
-        files.append(fname)
-
-    print 'Making movie animation.mpg - this make take a while'
-    os.system("mencoder 'mf://_tmp*.png' -mf type=png:fps=10 \\
-      -ovc lavc -lavcopts vcodec=wmv2 -oac copy -o animation.mpg")
-
-.. htmlonly::
-
-    Josh Lifton provided this example :ref:`animation-movie_demo`, which is possibly dated since it was written in 2004.
-
-
-.. _howto-twoscale:
-
-Multiple y-axis scales
-==================================
-
-A frequent request is to have two scales for the left and right
-y-axis, which is possible using :func:`~matplotlib.pyplot.twinx` (more
-than two scales are not currently supported, though it is on the wishq
-list).  This works pretty well, though there are some quirks when you
-are trying to interactively pan and zoom, since both scales do not get
-the signals.
-
-The approach :func:`~matplotlib.pyplot.twinx` (and its sister
-:func:`~matplotlib.pyplot.twiny`) uses is to use *2 different axes*,
-turning the axes rectangular frame off on the 2nd axes to keep it from
-obscuring the first, and manually setting the tick locs and labels as
-desired.  You can use separate matplotlib.ticker formatters and
-locators as desired since the two axes are independent::
-
-    import numpy as np
-    import matplotlib.pyplot as plt
-
-    fig = plt.figure()
-    ax1 = fig.add_subplot(111)
-    t = np.arange(0.01, 10.0, 0.01)
-    s1 = np.exp(t)
-    ax1.plot(t, s1, 'b-')
-    ax1.set_xlabel('time (s)')
-    ax1.set_ylabel('exp')
-
-    ax2 = ax1.twinx()
-    s2 = np.sin(2*np.pi*t)
-    ax2.plot(t, s2, 'r.')
-    ax2.set_ylabel('sin')
-    plt.show()
-
-
-.. htmlonly::
-
-    See :ref:`api-two_scales` for a complete example
-
-.. _howto-batch:
-
-Generate images without having a window popup
-===========================================================
-
-The easiest way to do this is use an image backend (see
-:ref:`what-is-a-backend`) such as Agg (for PNGs), PDF, SVG or PS.  In
-your figure generating script, just place call
-:func:`matplotlib.use` directive before importing pylab or
-pyplot::
-
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    plt.plot([1,2,3])
-    plt.savefig('myfig')
-
-
-.. seealso::
-    :ref:`howto-webapp`
-
-.. _howto-show
-
-Use :func:`~matplotlib.pyplot.show` 
-=====================================================
-
-The user interface backends need to start the GUI mainloop, and this
-is what :func:`~matplotlib.pyplot.show` does.  It tells matplotlib to
-raise all of the figure windows and start the mainloop.  Because the
-mainloop is blocking, you should only call this once per script, at
-the end.  If you are using matplotlib to generate images only and do
-not want a user interface window, you do not need to call ``show``  (see
-:ref:`howto-batch` and :ref:`what-is-a-backend`).
-
-
-Because it is expensive to draw, matplotlib does not want to redrawing the figure
-many times in a script such as the following::
-
-    plot([1,2,3])            # draw here ?
-    xlabel('time')           # and here ?
-    ylabel('volts')          # and here ?
-    title('a simple plot')   # and here ?
-    show()
-
-
-It is *possible* to force matplotlib to draw after every command,
-which is what you usually want when working interactively at the
-python console (see :ref:`mpl-shell`), but in a script you want to
-defer all drawing until the script has executed.  This is especially
-important for complex figures that take some time to draw.
-:func:`~matplotlib.pyplot.show` is designed to tell matplotlib that
-you're all done issuing commands and you want to draw the figure now.
-
-.. note::
-
-    :func:`~matplotlib.pyplot.show` should be called at most once per
-    script and it should be the last line of your script.  At that
-    point, the GUI takes control of the interpreter.  If you want to
-    force a figure draw, use :func:`~matplotlib.pyplot.draw` instead.
-
-Many users are frustrated by show because they want it to be a
-blocking call that raises the figure, pauses the script until the
-figure is closed, and then allows the script to continue running until
-the next figure is created and the next show is made.  Something like
-this::
-
-   # WARNING : illustrating how NOT to use show
-   for i in range(10):
-       # make figure i
-       show()
-
-This is not what show does and unfortunately, because doing blocking
-calls across user interfaces can be tricky, is currently unsupported,
-though we have made some pregress towards supporting blocking events.
 
 
