@@ -6183,9 +6183,10 @@ class Axes(martist.Artist):
         Keyword arguments:
 
           *bins*:
-            either an integer number of bins or a sequence giving the
-            bins.  *x* are the data to be binned. *x* can be an array or a
-            2D array with multiple data in its columns.  Note, if *bins*
+            Either an integer number of bins or a sequence giving the
+            bins.  *x* are the data to be binned. *x* can be an array,
+            a 2D array with multiple data in its columns, or a list of
+            arrays with data of different length.  Note, if *bins*
             is an integer input argument=numbins, *bins* + 1 bin edges
             will be returned, compatible with the semantics of
             :func:`numpy.histogram` with the *new* = True argument.
@@ -6211,7 +6212,7 @@ class Axes(martist.Artist):
             gives the counts in that bin plus all bins for smaller values.
             The last bin gives the total number of datapoints.  If *normed*
             is also *True* then the histogram is normalized such that the
-            last bin equals one. If *cumulative* evaluates to less than 0
+            last bin equals 1. If *cumulative* evaluates to less than 0
             (e.g. -1), the direction of accumulation is reversed.  In this
             case, if *normed* is also *True*, then the histogram is normalized
             such that the first bin equals 1.
@@ -6219,13 +6220,14 @@ class Axes(martist.Artist):
           *histtype*: [ 'bar' | 'barstacked' | 'step' | 'stepfilled' ]
             The type of histogram to draw.
 
-              - 'bar' is a traditional bar-type histogram
+              - 'bar' is a traditional bar-type histogram.  If multiple data
+                are given the bars are aranged side by side.
 
               - 'barstacked' is a bar-type histogram where multiple
-                 data are stacked on top of each other.
+                data are stacked on top of each other.
 
               - 'step' generates a lineplot that is by default
-                unfilled
+                unfilled.
 
               - 'stepfilled' generates a lineplot that is by default
                 filled.
@@ -6233,9 +6235,9 @@ class Axes(martist.Artist):
           *align*: ['left' | 'mid' | 'right' ]
             Controls how the histogram is plotted.
 
-              - 'left': bars are centered on the left bin edges
+              - 'left': bars are centered on the left bin edges.
 
-              - 'mid': bars are centered between the bin edges
+              - 'mid': bars are centered between the bin edges.
 
               - 'right': bars are centered on the right bin edges.
 
@@ -6245,9 +6247,9 @@ class Axes(martist.Artist):
             the left edges.
 
           *rwidth*:
-            the relative width of the bars as a fraction of the bin
+            The relative width of the bars as a fraction of the bin
             width.  If *None*, automatically compute the width. Ignored
-            if *histtype* = 'step'.
+            if *histtype* = 'step' or 'stepfilled'.
 
           *log*:
             If *True*, the histogram axis will be set to a log scale.
@@ -6280,7 +6282,8 @@ class Axes(martist.Artist):
                 'hist now uses the rwidth to give relative width and not absolute width')
 
         try:
-            x = np.transpose(np.asarray(x).copy())
+            # make sure a copy is created: don't use asarray
+            x = np.transpose(np.array(x))
             if len(x.shape)==1:
                 x.shape = (1,x.shape[0])
             elif len(x.shape)==2 and x.shape[1]<x.shape[0]:
@@ -6290,7 +6293,7 @@ class Axes(martist.Artist):
             if iterable(x[0]) and not is_string_like(x[0]):
                 tx = []
                 for i in xrange(len(x)):
-                    tx.append( np.asarray(x[i]).copy() )
+                    tx.append( np.array(x[i]) )
                 x = tx
 
         n = []
