@@ -335,4 +335,4 @@ For a discussion of the implementation see `pnpoly
 
 .. htmlonly::
  
-    For a complete example, see :ref:`_event_handling-lasso_demo`.
+    For a complete example, see :ref:`event_handling-lasso_demo`.
