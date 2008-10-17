@@ -8,12 +8,12 @@
 .. contents::
 
 
-How do I report a compilation problem?
+Report a compilation problem
 ======================================
 
 See :ref:`reporting-problems`.
 
-matplotlib compiled fine, but I can't get anything to plot
+matplotlib compiled fine, but nothing shows up with plot
 ==========================================================
 
 The first thing to try is a :ref:`clean install <clean-install>` and see if
@@ -42,7 +42,7 @@ If you are still having trouble, see :ref:`reporting-problems`.
 
 .. _clean-install:
 
-How do I cleanly rebuild and reinstall everything?
+Cleanly rebuild and reinstall everything
 ==================================================
 
 The steps depend on your platform and installation method.
@@ -93,7 +93,7 @@ install directory.  To cleanly rebuild:
 
 .. _install-svn:
 
-How to install from svn?
+Install from svn
 ========================
 
 Checking out the main source::
@@ -236,7 +236,7 @@ FLTKAgg        Agg rendering to a :term:`FLTK` canvas (requires pyFLTK_)
 
 .. _pygtk-2.4:
 
-How do I compile matplotlib with PyGTK-2.4?
+Compile matplotlib with PyGTK-2.4
 -------------------------------------------
 
 There is a `bug in PyGTK-2.4`_. You need to edit
@@ -269,11 +269,11 @@ official OS X version from `python.org
 
 .. _easy-install-osx-egg:
 
-How can I easy_install my egg?
+easy_install from egg?
 ------------------------------
 
-I downloaded the egg for 0.98 from the matplotlib webpages,
-and I am trying to ``easy_install`` it, but I am getting an error::
+Some users have reported problems with the egg for 0.98 from the
+matplotlib download site, with ``easy_install``, getting an error::
 
     > easy_install ./matplotlib-0.98.0-py2.5-macosx-10.3-fat.egg
     Processing matplotlib-0.98.0-py2.5-macosx-10.3-fat.egg
@@ -296,7 +296,7 @@ Windows questions
 
 .. _windows-installers:
 
-Where can I get binary installers for windows?
+Binary installers for windows
 ----------------------------------------------
 
 If you have already installed python, you can use one of the

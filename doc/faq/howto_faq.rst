@@ -9,7 +9,7 @@ Howto
 
 .. _howto-findobj:
 
-How do I find all the objects in my figure of a certain type?
+Find all objects in figure of a certain type
 =============================================================
 
 Every matplotlib artist (see :ref:`artist-tutorial`) has a method
@@ -35,7 +35,7 @@ You can also filter on class instances::
 
 .. _howto-transparent:
 
-How do I save transparent figures?
+Save transparent figures
 ==================================
 
 The :meth:`~matplotlib.pyplot.savefig` command has a keyword argument
@@ -64,7 +64,7 @@ on individual elements, eg::
 
 .. _howto-subplots-adjust:
 
-How do I move the edge of my axes area over to make room for my tick labels?
+Move the edge of an axes to make room for tick labels
 ============================================================================
 
 For subplots, you can control the default spacing on the left, right,
@@ -114,7 +114,7 @@ an example of placing axes manually.
 
 .. _howto-auto-adjust:
 
-How do I automatically make room for my tick labels?
+Automatically make room for tick labels
 ====================================================
 
 In most use cases, it is enough to simpy change the subplots adjust
@@ -148,7 +148,7 @@ over so that the tick labels fit in the figure
 
 .. _howto-ticks:
 
-How do I configure the tick linewidths?
+Configure the tick linewidths
 =======================================
 
 In matplotlib, the ticks are *markers*.  All
@@ -174,7 +174,7 @@ are ``markerfacecolor``, ``markeredgecolor``, ``markeredgewidth``,
 
 .. _howto-align-label:
 
-How do I align my ylabels across multiple subplots?
+Align my ylabels across multiple subplots
 ===================================================
 
 If you have multiple subplots over one another, and the y data have
@@ -191,7 +191,7 @@ setting in the right subplots.
 
 .. _howto-webapp:
 
-How do I use matplotlib in a web application server?
+Matplotlib in a web application server
 ====================================================
 
 Many users report initial problems trying to use maptlotlib in web
@@ -237,17 +237,17 @@ or by saving to a file handle::
     fig.savefig(sys.stdout)
 
 
-How do I use matplotlib with apache?
+matplotlib with apache
 ------------------------------------
 
 TODO
 
-How do I use matplotlib with django?
+matplotlib with django
 ------------------------------------
 
 TODO
 
-How do I use matplotlib with zope?
+matplotlib with zope
 ----------------------------------
 
 TODO
@@ -255,7 +255,7 @@ TODO
 
 .. _date-index-plots:
 
-How do I skip dates where there is no data?
+Skip dates where there is no data
 ===========================================
 
 When plotting time series, eg financial time series, one often wants
@@ -292,7 +292,7 @@ to achieve the desired plot::
 
 .. _point-in-poly:
 
-How do I test whether a point is inside a polygon?
+Test whether a point is inside a polygon
 ==================================================
 
 The :mod:`matplotlib.nxutils` provides two high performance methods:
@@ -340,7 +340,7 @@ For a discussion of the implementation see `pnpoly
 
 .. _how-to-submit-patch:
 
-How do I submit a patch?
+Submit a patch
 ========================
 
 First obtain a copy of matplotlib svn (see :ref:`install-svn`) and
@@ -370,6 +370,72 @@ your patch abides by our coding conventions
 :ref:`developers-guide-index`.
 
 
+.. _how-to-contribute-docs:
+
+Contribute to matplotlib documentation
+=========================================
+
+matplotlib is a big library, which is used in many ways, and the
+documentation we have only scratches the surface of everything it can
+do.  So far, the place most people have learned all these features are
+through studying the examples (:ref:`how-to-search-examples`), which is a
+recommended and great way to learn, but it would be nice to have more
+official narrative documentation guiding people through all the dark
+corners.  This is where you come in.
+
+There is a good chance you know more about matplotlib usage in some
+areas, the stuff you do every day, than any of the developers.  *Just
+pulled your hair out compiling matplotlib for windows?*  Write a FAQ or
+a section for the :ref:`installing` page.  *Are you a digital signal
+processing wizard?*  Write a tutorial on the signal analysis plotting
+functions like :func:`~matplotlib.pyplot.xcorr`,
+:func:`~matplotlib.pyplot.psd` and
+:func:`~matplotlib.pyplot.specgram`.  *Do you use matplotlib with
+`django <ttp://www.djangoproject.com/>`_ or other popular web
+application servers?*  Write a FAQ or tutorial and we'll find a place
+for it in the :ref:`users-guide-index`.  *Bundle matplotlib in a `py2exe
+<http://www.py2exe.org/>`_ app?*  ... I think you get the idea.
+
+matplotlib is documented using the `sphinx
+<http://sphinx.pocoo.org/index.html>`_ extensions to restructured text
+`ReST <http://docutils.sourceforge.net/rst.html>`_.  sphinx is a
+extensible python framework for documentation projects which generates
+HTML and PDF, and is pretty easy to write; you can see the source for this
+document or any page on this site by clicking on *Show Source* link
+at the end of the page in the sidebar (or `here
+<../_sources/faq/howto_faq.txt>`_ for this document).
+
+The sphinx website is a good resource for learning sphinx, but we have
+put together a cheat-sheet at :ref:`documenting-matplotlib` which
+shows you how to get started, and outlines the matplotlib conventions
+and extensions, eg for including plots directly from external code in
+your documents.
+
+Once your documentation contributions are working (and hopefully
+tested by actually *building* the docs) you can submit them as a patch
+against svn.  See :ref:`install-svn` and :ref:`how-to-submit-patch`.
+Looking for something to do?  Search for ``TODO`` at :`search`.
+
+
+.. _how-to-search-examples:
+
+Search examples
+=========================================
+
+The nearly 300 code :ref:`examples-index` included with the matplotlib
+source distribution are full-text searchable from the :ref:`search`
+page, but sometimes when you search, you get a lot of results from the
+:ref:`api-index` or other documentation that you may not be interested in if
+you just want to find a complete, free-standing, working piece of
+example code.  To facilitate example searches, we have tagged every
+page with the keyword ``codex`` for *code example* which shouldn't
+appear anywhere else on this site except in the FAQ and in every
+example.  So if you want to search for an example that uses an ellipse,
+:ref:`search` for ``codex ellipse``.
+
+
+
+
 .. _howto-click-maps:
 
 Clickable images for HTML
@@ -385,7 +451,7 @@ to these efforts that would be great.
 
 .. _howto-set-zorder:
 
-How do I control the depth of plot elements?
+Control the depth of plot elements
 =============================================
 
 Within an axes, the order that the various lines, markers, text,
@@ -409,7 +475,7 @@ lines are placed above or below your other plot elements.
 
 .. _howto-axis-equal:
 
-How to I make the aspect ratio for plots equal?
+Make the aspect ratio for plots equal
 ===============================================
 
 The Axes property :meth:`matplotlib.axes.Axes.set_aspect` controls the
@@ -427,13 +493,13 @@ some ratio which controls the ratio::
 
 .. _howto-movie:
 
-How do I make a movie?
+Make a movie
 ======================
 
 
 If you want to take an animated plot and turn it into a movie, the
 best approach is to save a series of image files (eg PNG) and use an
-external tool to convert them to a movie.  You can use ` mencoder
+external tool to convert them to a movie.  You can use `mencoder
 <http://www.mplayerhq.hu/DOCS/HTML/en/mencoder.html>`_,
 which is part of the `mplayer <http://www.mplayerhq.hu>`_ suite
 for this::
@@ -475,7 +541,7 @@ a movie, and then cleans up::
 
 .. _howto-twoscale:
 
-Can I have multiple y-axis scales?
+Multiple y-axis scales
 ==================================
 
 A frequent request is to have two scales for the left and right
@@ -514,10 +580,10 @@ locators as desired since the two axes are independent::
 
     See :ref:`api-two_scales` for a complete example
 
-.. _howto-batchmode:
+.. _howto-batch:
 
-Can I just generate images without having a window popup?
-=====================================================
+Generate images without having a window popup
+===========================================================
 
 The easiest way to do this is use an image backend (see
 :ref:`what-is-a-backend`) such as Agg (for PNGs), PDF, SVG or PS.  In
@@ -535,21 +601,17 @@ pyplot::
 .. seealso::
     :ref:`howto-webapp`
 
-    ('SHOW',
-     "What's up with 'show'?  Do I have to use it?",
-     """
-
 .. _howto-show
 
-How should I use :func:`~matplotlib.pyplot.show`?
-=================================================
+Use :func:`~matplotlib.pyplot.show` 
+=====================================================
 
 The user interface backends need to start the GUI mainloop, and this
 is what :func:`~matplotlib.pyplot.show` does.  It tells matplotlib to
 raise all of the figure windows and start the mainloop.  Because the
 mainloop is blocking, you should only call this once per script, at
 the end.  If you are using matplotlib to generate images only and do
-not want a user interface window, you can skip it (see
+not want a user interface window, you do not need to call ``show``  (see
 :ref:`howto-batch` and :ref:`what-is-a-backend`).
 
 
@@ -565,8 +627,8 @@ many times in a script such as the following::
 
 It is *possible* to force matplotlib to draw after every command,
 which is what you usually want when working interactively at the
-python console, but in a script you want to defer all drawing until
-the script has executed (see :ref:`mpl-shell`).  This is especially
+python console (see :ref:`mpl-shell`), but in a script you want to
+defer all drawing until the script has executed.  This is especially
 important for complex figures that take some time to draw.
 :func:`~matplotlib.pyplot.show` is designed to tell matplotlib that
 you're all done issuing commands and you want to draw the figure now.

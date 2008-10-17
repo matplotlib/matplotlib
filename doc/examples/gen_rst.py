@@ -114,7 +114,7 @@ for subdir in subdirs:
         contents = '\n'.join(['    %s'%row.rstrip() for row in contents.split('\n')])
 
         fh.write(contents)
-        fh.write('\n\n')
+        fh.write('\n\nKeyword: codex (see :ref:`how-to-search-examples`)')
         fh.close()
 
     fhsubdirIndex.close()
