@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% set title = _('Search') %}
+{% set script_files = script_files + ['_static/searchtools.js'] %}
+{% block body %}
+  <h1 id="search-documentation">{{ _('Search') }}</h1>
+  <p>
+    {% trans %}From here you can search these documents. Enter your
+    search words into the box below and click "search". Note that the
+    search function will automatically search for all of the
+    words. Pages containing less words won't appear in the result
+    list.{% endtrans %}  If you want to limit your search to working code examples,
+    include the keyword "codex" (mnemonic for <i>code example</i>) in your
+    search, eg "codex ellipse"; 
+    see <a href="{{ pathto('faq/howto_faq.html#search-examples') }}">search&nbsp;examples</a>.
+  </p>
+  <form action="" method="get">
+    <input type="text" name="q" value="" />
+    <input type="submit" value="{{ _('search') }}" />
+    <span id="search-progress" style="padding-left: 10px"></span>
+  </form>
+  {% if search_performed %}
+    <h2>{{ _('Search Results') }}</h2>
+    {% if not search_results %}
+      <p>{{ _('Your search did not match any results.') }}</p>
+    {% endif %}
+  {% endif %}
+  <div id="search-results">
+  {% if search_results %}
+    <ul>
+    {% for href, caption, context in search_results %}
+      <li><a href="{{ pathto(item.href) }}">{{ caption }}</a>
+        <div class="context">{{ context|e }}</div>
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </div>
+{% endblock %}
+{% block footer %}
+  {{ super() }}
+  <script type="text/javascript" src="searchindex.js"></script>
+{% endblock %}
