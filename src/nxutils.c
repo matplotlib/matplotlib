@@ -221,17 +221,17 @@ static PyMethodDef module_methods[] = {
   {"pnpoly",  pnpoly, METH_VARARGS,
         "inside = pnpoly(x, y, xyverts)\n\n"
         "Return 1 if x,y is inside the polygon, 0 otherwise.\n\n"
-        "xyverts is a sequence of x,y vertices.\n\n"
+        "*xyverts*\n    a sequence of x,y vertices.\n\n"
         "A point on the boundary may be treated as inside or outside.\n"
-        "See http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html"},
+        "See `pnpoly <http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html>`_"},
   {"points_inside_poly",  points_inside_poly, METH_VARARGS,
         "mask = points_inside_poly(xypoints, xyverts)\n\n"
         "Return a boolean ndarray, True for points inside the polygon.\n\n"
-        "xypoints is a sequence of N x,y pairs.\n"
-        "xyverts is a sequence of x,y vertices of the polygon.\n"
-        "mask is an ndarray of length N.\n\n"
+        "*xypoints*\n    a sequence of N x,y pairs.\n"
+        "*xyverts*\n    sequence of x,y vertices of the polygon.\n"
+        "*mask*    an ndarray of length N.\n\n"
         "A point on the boundary may be treated as inside or outside.\n"
-        "See http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html"},
+        "See `pnpoly <http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html>`_\n"},
   {NULL}  /* Sentinel */
 };
 
@@ -241,7 +241,7 @@ PyMODINIT_FUNC
   PyObject* m;
 
   m = Py_InitModule3("nxutils", module_methods,
-                     "general purpose utilities (numpy).");
+                     "general purpose numerical utilities, eg for computational geometry, that are not available in `numpy <http://numpy.scipy.org>`_");
 
   if (m == NULL)
     return;
