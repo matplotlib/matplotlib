@@ -455,7 +455,10 @@ class Colormap:
             mask_bad = ma.getmask(xma)
         if xa.dtype.char in np.typecodes['Float']:
             np.putmask(xa, xa==1.0, 0.9999999) #Treat 1.0 as slightly less than 1.
-            xa = (xa * self.N).astype(int)
+            # The following clip is fast, and prevents possible
+            # conversion of large positive values to negative integers.
+            np.clip(xa * self.N, -1, self.N, out=xa)
+            xa = xa.astype(int)
         # Set the over-range indices before the under-range;
         # otherwise the under-range values get converted to over-range.
         np.putmask(xa, xa>self.N-1, self._i_over)
