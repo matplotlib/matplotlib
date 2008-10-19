@@ -38,6 +38,11 @@ import numpy as np
 from numpy import ma
 import matplotlib.cbook as cbook
 
+parts = np.__version__.split('.')
+NP_MAJOR, NP_MINOR = map(int, parts[:2])
+# true if clip supports the out kwarg
+NP_CLIP_OUT = NP_MAJOR>=1 and NP_MINOR>=2
+
 cnames = {
     'aliceblue'            : '#F0F8FF',
     'antiquewhite'         : '#FAEBD7',
@@ -457,7 +462,11 @@ class Colormap:
             np.putmask(xa, xa==1.0, 0.9999999) #Treat 1.0 as slightly less than 1.
             # The following clip is fast, and prevents possible
             # conversion of large positive values to negative integers.
-            np.clip(xa * self.N, -1, self.N, out=xa)
+
+            if NP_CLIP_OUT:
+                np.clip(xa * self.N, -1, self.N, out=xa)
+            else:
+                xa = np.clip(xa * self.N, -1, self.N)
             xa = xa.astype(int)
         # Set the over-range indices before the under-range;
         # otherwise the under-range values get converted to over-range.
