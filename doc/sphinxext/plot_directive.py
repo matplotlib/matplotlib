@@ -24,7 +24,7 @@ except ImportError:
     align = Image.align
 
 import matplotlib
-
+import matplotlib.cbook as cbook
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers
@@ -148,7 +148,8 @@ def makefig(fullpath, outdir):
     try:
         runfile(fullpath)
     except:
-        warnings.warn("Exception running plot %s" % fullpath)
+	s = cbook.exception_to_str("Exception running plot %s" % fullpath)
+        warnings.warn(s)
         return 0
 
     fig_managers = _pylab_helpers.Gcf.get_all_fig_managers()
@@ -162,7 +163,8 @@ def makefig(fullpath, outdir):
             try:
                 figman.canvas.figure.savefig(outpath, dpi=dpi)
             except:
-                warnings.warn("Exception running plot %s" % fullpath)
+                s = cbook.exception_to_str("Exception running plot %s" % fullpath)
+                warnings.warn(s)
                 return 0
 
     return len(fig_managers)
@@ -171,7 +173,7 @@ def run(arguments, options, state_machine, lineno):
     reference = directives.uri(arguments[0])
     basedir, fname = os.path.split(reference)
     basename, ext = os.path.splitext(fname)
-
+    #print 'plotdir', reference, basename, ext
     destdir = ('../' * reference.count('/')) + 'pyplots'
     num_figs = makefig(reference, 'pyplots')
 

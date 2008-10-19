@@ -2,6 +2,8 @@
 """
 A simple example of an animated plot in tkagg
 """
+import time
+import numpy as np
 import matplotlib
 matplotlib.use('TkAgg') # do this before importing pylab
 
