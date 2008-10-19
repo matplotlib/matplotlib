@@ -15,6 +15,11 @@ def out_of_date(original, derived):
     """
     Returns True if derivative is out-of-date wrt original,
     both of which are full file paths.
+
+    TODO: this check isn't adequate in some cases.  Eg, if we discover
+    a bug when building the examples, the original and erivederived
+    will be unchanged but we still want to fource a rebuild.  We can
+    manually remove from _static, but we may need another solution
     """
     return (not os.path.exists(derived) or
             os.stat(derived).st_mtime < os.stat(original).st_mtime)
@@ -135,7 +140,7 @@ for subdir in subdirs:
         contents = '\n'.join(['    %s'%row.rstrip() for row in contents.split('\n')])
         fh.write(contents)
 
-        fh.write('\n\nKeyword: codex (see :ref:`how-to-search-examples`)')
+        fh.write('\n\nKeywords: codex (see :ref:`how-to-search-examples`), python, matplotlib, pylab')
         fh.close()
 
     fhsubdirIndex.close()
