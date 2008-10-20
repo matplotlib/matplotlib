@@ -148,6 +148,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         result = result.inverse_transformed(transData)
         return result
 
+    def get_window_extent(self, renderer):
+        bbox = self.get_datalim(transforms.IdentityTransform())
+        #TODO:check to ensure that this does not fail for
+        #cases other than scatter plot legend
+        return bbox
+
     def _prepare_points(self):
         """Point prep for drawing and hit testing"""
 
@@ -417,6 +423,18 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             self._edgecolors = self.to_rgba(self._A, self._alpha)
 
+    def update_from(self, other):
+        'copy properties from other to self'
+
+        artist.Artist.update_from(self, other)
+        self._antialiaseds = other._antialiaseds
+        self._edgecolors_original = other._edgecolors_original
+        self._edgecolors = other._edgecolors
+        self._facecolors_original = other._facecolors_original
+        self._facecolors = other._facecolors
+        self._linewidths = other._linewidths
+        self._linestyles = other._linestyles
+        self._pickradius = other._pickradius
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
@@ -690,6 +708,7 @@ class RegularPolyCollection(Collection):
         """
         Collection.__init__(self,**kwargs)
         self._sizes = sizes
+        self._numsides = numsides
         self._paths = [self._path_generator(numsides)]
         self._rotation = rotation
         self.set_transform(transforms.IdentityTransform())
@@ -705,6 +724,15 @@ class RegularPolyCollection(Collection):
 
     def get_paths(self):
         return self._paths
+
+    def get_numsides(self):
+        return self._numsides
+
+    def get_rotation(self):
+        return self._rotation
+
+    def get_sizes(self):
+        return self._sizes
 
 
 class StarPolygonCollection(RegularPolyCollection):

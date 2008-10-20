@@ -92,8 +92,8 @@ class Legend(Artist):
                  handlelen = None,     # the length of the legend lines
                  handletextsep = None, # the space between the legend line and legend text
                  axespad = None,       # the border between the axes and legend edge
-
-                 shadow = None
+                 shadow = None,
+                 scatteryoffsets=None,
                  ):
         """
   parent                # the artist that contains the legend
@@ -105,6 +105,7 @@ class Legend(Artist):
   pad = 0.2             # the fractional whitespace inside the legend border
   markerscale = 0.6     # the relative size of legend markers vs. original
   shadow                # if True, draw a shadow behind legend
+  scatteryoffsets       # a list of yoffsets for scatter symbols in legend
 
 The following dimensions are in axes coords
   labelsep = 0.005     # the vertical space between the legend entries
@@ -117,8 +118,10 @@ The following dimensions are in axes coords
 
         Artist.__init__(self)
 
-        proplist=[numpoints, pad, borderpad, markerscale, labelsep, handlelen, handletextsep, axespad, shadow]
-        propnames=['numpoints', 'pad', 'borderpad', 'markerscale', 'labelsep', 'handlelen', 'handletextsep', 'axespad', 'shadow']
+        proplist=[numpoints, pad, borderpad, markerscale, labelsep,
+            handlelen, handletextsep, axespad, shadow, scatteryoffsets]
+        propnames=['numpoints', 'pad', 'borderpad', 'markerscale', 'labelsep',
+            'handlelen', 'handletextsep', 'axespad', 'shadow', 'scatteryoffsets']
         for name, value in safezip(propnames,proplist):
             if value is None:
                 value=rcParams["legend."+name]
@@ -133,6 +136,14 @@ The following dimensions are in axes coords
         else:
             self.prop=prop
         self.fontsize = self.prop.get_size_in_points()
+
+        # introduce y-offset for handles of the scatter plot
+        if scatteryoffsets is None:
+            self._scatteryoffsets = np.array([4./8., 5./8., 3./8.])
+        else:
+            self._scatteryoffsets = np.asarray(scatteryoffsets)
+        reps =  int(self.numpoints / len(self._scatteryoffsets)) + 1
+        self._scatteryoffsets = np.tile(self._scatteryoffsets, reps)[:self.numpoints]
 
         if isinstance(parent,Axes):
             self.isaxes = True
@@ -306,15 +317,26 @@ The following dimensions are in axes coords
                 ret.append(legline)
 
             elif isinstance(handle, RegularPolyCollection):
-                if self.numpoints == 1:
-                    xdata = np.array([left])
-                p = Rectangle(xy=(min(xdata), y-3/4*HEIGHT),
-                              width = self.handlelen, height=HEIGHT/2,
-                              )
-                p.set_facecolor(handle._facecolors[0])
-                if handle._edgecolors != 'none' and len(handle._edgecolors):
-                    p.set_edgecolor(handle._edgecolors[0])
-                self._set_artist_props(p)
+                # the ydata values set here have no effects as it will
+                # be updated in the _update_positions() method.
+                ydata = (y-HEIGHT/2)*np.ones(np.asarray(xdata_marker).shape, float)
+
+                size_max, size_min = max(handle.get_sizes()),\
+                                     min(handle.get_sizes())
+                # we may need to scale these sizes by "markerscale"
+                # attribute. But other handle types does not seem
+                # to care about this attribute and it is currently ignored.
+                sizes = [.5*(size_max+size_min), size_max,
+                         size_min]
+
+                p = type(handle)(handle.get_numsides(),
+                                 rotation=handle.get_rotation(),
+                                 sizes=sizes,
+                                 offsets=zip(xdata_marker,ydata),
+                                 transOffset=self.get_transform())
+
+                p.update_from(handle)
+                p.set_figure(self.figure)
                 p.set_clip_box(None)
                 p.set_clip_path(None)
                 ret.append(p)
@@ -532,6 +554,10 @@ The following dimensions are in axes coords
             elif isinstance(handle, Rectangle):
                 handle.set_y(y+1/4*h)
                 handle.set_height(h/2)
+            elif isinstance(handle,RegularPolyCollection):
+                offsets = handle.get_offsets()
+                offsets[:,1] = y+h*self._scatteryoffsets
+                handle.set_offsets(offsets)
 
         # Set the data for the legend patch
         bbox = self._get_handle_text_bbox(renderer)
