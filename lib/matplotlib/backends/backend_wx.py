@@ -96,6 +96,7 @@ cvs_id = '$Id$'
 
 
 import sys, os, os.path, math, StringIO, weakref, warnings
+import numpy as npy
 
 # Debugging settings here...
 # Debug level set here. If the debug level is less than 5, information
@@ -333,6 +334,23 @@ class RendererWx(RendererBase):
             gfx_ctx.StrokePath(wxpath)
         gc.unselect()
 
+    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
+        if bbox != None:
+            l,b,w,h = bbox.bounds
+        else:
+            l=0
+            b=0,
+            w=self.width
+            h=self.height
+        rows, cols, image_str = im.as_rgba_str()
+        image_array = npy.fromstring(image_str, npy.uint8)
+        image_array.shape = rows, cols, 4
+        bitmap = wx.BitmapFromBufferRGBA(cols,rows,image_array)
+        gc = self.get_gc()
+        gc.select()
+        gc.gfx_ctx.DrawBitmap(bitmap,int(l),int(b),int(w),int(h))
+        gc.unselect()
+
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         """
         Render the matplotlib.text.Text instance
@@ -482,7 +500,7 @@ class GraphicsContextWx(GraphicsContextBase):
         """
 
         if sys.platform=='win32':
-            self.SelectObject(self.bitmap)
+            self.dc.SelectObject(self.bitmap)
             self.IsSelected = True
 
     def unselect(self):
@@ -490,7 +508,7 @@ class GraphicsContextWx(GraphicsContextBase):
         Select a Null bitmasp into this wxDC instance
         """
         if sys.platform=='win32':
-            self.SelectObject(wx.NullBitmap)
+            self.dc.SelectObject(wx.NullBitmap)
             self.IsSelected = False
 
     def set_foreground(self, fg, isRGB=None):
