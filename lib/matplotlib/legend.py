@@ -119,9 +119,9 @@ The following dimensions are in axes coords
         Artist.__init__(self)
 
         proplist=[numpoints, pad, borderpad, markerscale, labelsep,
-            handlelen, handletextsep, axespad, shadow, scatteryoffsets]
+            handlelen, handletextsep, axespad, shadow]
         propnames=['numpoints', 'pad', 'borderpad', 'markerscale', 'labelsep',
-            'handlelen', 'handletextsep', 'axespad', 'shadow', 'scatteryoffsets']
+            'handlelen', 'handletextsep', 'axespad', 'shadow']
         for name, value in safezip(propnames,proplist):
             if value is None:
                 value=rcParams["legend."+name]
