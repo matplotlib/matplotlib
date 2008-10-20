@@ -28,7 +28,7 @@ pylab_files = [
     'alignment_test.py',
     'arctest.py',
     'arrow_demo.py',
-    'auto_layout.py',
+    #'auto_layout.py',
     'axes_demo.py',
     'axhspan_demo.py',
     'bar_stacked.py',

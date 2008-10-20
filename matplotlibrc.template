@@ -265,7 +265,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 #image.cmap   : jet               # gray | jet etc...
 #image.lut    : 256               # the size of the colormap lookup table
 #image.origin : upper             # lower | upper
-
+#image.resample  : False
 
 ### CONTOUR PLOTS
 #contour.negative_linestyle :  dashed # dashed | solid

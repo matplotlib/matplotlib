@@ -942,6 +942,7 @@ def parse_tcl_config(tcl_lib_dir, tk_lib_dir):
     try:
         tcl_lib = tcl_vars.get("default", "TCL_LIB_SPEC")[1:-1].split()[0][2:]
         tcl_inc = tcl_vars.get("default", "TCL_INCLUDE_SPEC")[3:-1]
+
         tk_lib = tk_vars.get("default", "TK_LIB_SPEC")[1:-1].split()[0][2:]
         if tk_vars.has_option("default", "TK_INCLUDE_SPEC"):
             # On Ubuntu 8.04
