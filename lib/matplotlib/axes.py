@@ -5453,10 +5453,12 @@ class Axes(martist.Artist):
             If *None*, default to rc ``image.aspect`` value.
 
           *interpolation*:
-            Acceptable values are *None*, 'nearest', 'bilinear', 'bicubic',
-            'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser',
-            'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
-            'lanczos', 'blackman'
+
+            Acceptable values are *None*, 'nearest', 'bilinear',
+              'bicubic', 'spline16', 'spline36', 'hanning', 'hamming',
+              'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
+              'bessel', 'mitchell', 'sinc', 'lanczos',
+
 
             If *interpolation* is *None*, default to rc
             ``image.interpolation``. See also the *filternorm* and

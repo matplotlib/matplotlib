@@ -319,10 +319,9 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         """
         Return the interpolation method the image uses when resizing.
 
-        One of
-
-        'bicubic', 'bilinear', 'blackman100', 'blackman256', 'blackman64',
-        'nearest', 'sinc144', 'sinc256', 'sinc64', 'spline16', 'spline36'
+        One of 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning',
+        'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
+        'bessel', 'mitchell', 'sinc', 'lanczos',
         """
         return self._interpolation
 
@@ -330,9 +329,11 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         """
         Set the interpolation method the image uses when resizing.
 
-        ACCEPTS: ['bicubic' | 'bilinear' | 'blackman100' | 'blackman256' |
-        'blackman64', 'nearest' | 'sinc144' | 'sinc256' | 'sinc64' |
-        'spline16' | 'spline36']
+        ACCEPTS: ['nearest' | 'bilinear' | 'bicubic' | 'spline16' |
+          'spline36' | 'hanning' | 'hamming' | 'hermite' | 'kaiser' |
+          'quadric' | 'catrom' | 'gaussian' | 'bessel' | 'mitchell' |
+          'sinc' | 'lanczos' | ]
+
         """
         if s is None: s = rcParams['image.interpolation']
         s = s.lower()
@@ -764,3 +765,100 @@ def pil_to_array( pilImage ):
     x = toarray(im)
     x.shape = im.size[1], im.size[0], 4
     return x
+
+def thumbnail(fname, scale=0.1, interpolation='bilinear', prefix='thumb_',
+              outdir=None, preview=False, extension='png'):
+    """
+    make a thumbnail of image in fname with output filename
+    [OUTDIR]/[PREFIX][BASENAME].EXTENSION where BASENAME is the
+    filename part of fname without the directory ar extension
+
+      *fname* the image file -- must be PNG or PIL readable if you
+         have `PIL <http://www.pythonware.com/products/pil/>`_ installed
+
+      *scale*
+        the scale factor for the thumbnail
+
+      *interpolation*
+        the interpolation scheme used in the resampling
+
+      *prefix*
+        the PREFIX of the output file name
+
+      *outdir*
+        the OUTDIR of the output filenamet - by default same as directory the source image lives in
+
+      *extension*
+        the EXTENSION for the output filename, one of 'png', 'pdf' or 'ps'
+
+      *preview*
+        if True, the default backend (presumably a user interface
+        backend) will be used which will cause a figure to be raised
+        if :func:`~matplotlib.pyplot.show` is called.  If it is False,
+        a pure image backend will be used depending on the extension,
+        'png'->FigureCanvasAgg, 'pdf'->FigureCanvasPDF,
+        'svg'->FigureCanvasSVG
+
+
+    See examples/misc/image_thumbnail.py.
+
+    .. htmlonly::
+
+        :ref:`misc-image_thumbnail`
+
+    Return value is the output filename of the thumbnail
+
+    """
+
+    basedir, basename = os.path.split(fname)
+    if outdir is None:
+        if not basedir:
+            basedir = os.curdir
+        outdir = basedir
+
+    if not os.path.exists(outdir) or not os.path.isdir(outdir):
+        raise IOError('output directory "%s" must be a directory'%outdir)
+
+    im = imread(fname)
+    rows, cols, depth = im.shape
+
+    # this doesn't really matter, it will cancel in the end, but we
+    # need it for the mpl API
+    dpi = 100
+
+
+    height = float(rows)/dpi*scale
+    width = float(cols)/dpi*scale
+
+    extension = extension.lower()
+
+    if preview:
+        # let the UI backend do everything
+        import matplotlib.pyplot as plt
+        fig = plt.figure(figsize=(width, height), dpi=dpi)
+    else:
+        if extension=='png':
+            from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+            from matplotlib.figure import Figure
+        elif extension=='pdf':
+            from matplotlib.backends.backend_pdf import FigureCanvasPDF as FigureCanvas
+            from matplotlib.figure import Figure
+        elif extension=='svg':
+            from matplotlib.backends.backend_svg import FigureCanvasSVG as FigureCanvas
+            from matplotlib.figure import Figure
+        else:
+            raise ValueError("Can only handle extension 'png', 'svg' or 'pdf'")
+
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        canvas = FigureCanvas(fig)
+
+
+
+
+    ax = fig.add_axes([0,0,1,1], aspect='auto', frameon=False, xticks=[], yticks=[])
+
+    basename, ext = os.path.splitext(basename)
+    ax.imshow(im, aspect='auto', resample=True, interpolation='bilinear')
+    outfile = os.path.join(outdir, '%s%s.%s'%(prefix, basename, extension))
+    fig.savefig(outfile, dpi=dpi)
+    return outfile

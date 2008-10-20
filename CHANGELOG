@@ -1,3 +1,7 @@
+2008-10-20 Added image thumbnail generating function
+           matplotlib.image.thumbnail.  See
+           examples/misc/image_thumbnail.py - JDH
+
 2008-10-20 Applied scatleg patch based on ideas and work by Erik
            Tollerud and Jae-Joon Lee. - MM
 
