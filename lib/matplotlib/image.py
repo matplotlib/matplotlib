@@ -285,6 +285,13 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         else:
             self._A = np.asarray(A) # assume array
 
+        if self._A.dtype != np.uint8 and not np.can_cast(self._A.dtype, np.float):
+            raise TypeError("Image data can not convert to float")
+
+        if (self._A.ndim not in (2, 3) or
+            (self._A.ndim == 3 and self._A.shape[-1] not in (3, 4))):
+            raise TypeError("Invalid dimensions for image data")
+
         self._imcache =None
         self._rgbacache = None
         self._oldxslice = None
