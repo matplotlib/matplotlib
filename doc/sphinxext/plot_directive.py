@@ -27,6 +27,7 @@ import matplotlib
 import matplotlib.cbook as cbook
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.image as image
 from matplotlib import _pylab_helpers
 
 def runfile(fullpath):
@@ -58,15 +59,15 @@ options = {'alt': directives.unchanged,
 template = """
 .. htmlonly::
 
-   [`source code <%(destdir)s/%(basename)s.py>`__,
-   `png <%(destdir)s/%(outname)s.hires.png>`__,
-   `pdf <%(destdir)s/%(outname)s.pdf>`__]
+   [`source code <%(linkdir)s/%(basename)s.py>`__,
+   `png <%(linkdir)s/%(outname)s.hires.png>`__,
+   `pdf <%(linkdir)s/%(outname)s.pdf>`__]
 
-   .. image:: %(destdir)s/%(outname)s.png
+   .. image:: %(linkdir)s/%(outname)s.png
 %(options)s
 
 .. latexonly::
-   .. image:: %(destdir)s/%(outname)s.pdf
+   .. image:: %(linkdir)s/%(outname)s.pdf
 %(options)s
 
 """
@@ -74,7 +75,7 @@ template = """
 exception_template = """
 .. htmlonly::
 
-   [`source code <%(destdir)s/%(basename)s.py>`__]
+   [`source code <%(linkdir)s/%(basename)s.py>`__]
 
 Exception occurred rendering plot.
 
@@ -95,7 +96,9 @@ def makefig(fullpath, outdir):
     """
 
     fullpath = str(fullpath)  # todo, why is unicode breaking this
-    formats = [('png', 100),
+
+    print '    makefig: fullpath=%s, outdir=%s'%( fullpath, outdir)
+    formats = [('png', 80),
                ('hires.png', 200),
                ('pdf', 50),
                ]
@@ -124,7 +127,12 @@ def makefig(fullpath, outdir):
     while True:
         all_exists = True
         for format, dpi in formats:
-            outname = os.path.join(outdir, '%s_%02d.%s' % (basename, i, format))
+            if i==0:
+                outname = basename
+            else:
+                outname = "%s_%02d" % (basename, i)
+
+            outname = os.path.join(outdir, '%s.%s' % (outname, format))
             if out_of_date(fullpath, outname):
                 all_exists = False
                 break
@@ -143,7 +151,7 @@ def makefig(fullpath, outdir):
     plt.close('all')    # we need to clear between runs
     matplotlib.rcdefaults()
     # Set a figure size that doesn't overflow typical browser windows
-    matplotlib.rcParams['figure.figsize'] = (6.5, 4.5)
+    matplotlib.rcParams['figure.figsize'] = (5.5, 4.5)
 
     try:
         runfile(fullpath)
@@ -155,7 +163,7 @@ def makefig(fullpath, outdir):
     fig_managers = _pylab_helpers.Gcf.get_all_fig_managers()
     for i, figman in enumerate(fig_managers):
         for format, dpi in formats:
-            if len(fig_managers) == 1:
+            if i==0:
                 outname = basename
             else:
                 outname = "%s_%02d" % (basename, i)
@@ -167,6 +175,15 @@ def makefig(fullpath, outdir):
                 warnings.warn(s)
                 return 0
 
+            if format=='png':
+                thumbdir = os.path.join(outdir, 'thumbnails')
+                if not os.path.exists(thumbdir):
+                    os.makedirs(thumbdir)
+                thumbfile = str('%s.png'%os.path.join(thumbdir, outname)     )
+                if not os.path.exists(thumbfile):
+                    figthumb = image.thumbnail(str(outpath), str(thumbfile), scale=0.3)
+                    print '    makefig: saved thumbnail of %s to %s'%(outpath, thumbfile)
+
     return len(fig_managers)
 
 def run(arguments, options, state_machine, lineno):
@@ -174,8 +191,22 @@ def run(arguments, options, state_machine, lineno):
     basedir, fname = os.path.split(reference)
     basename, ext = os.path.splitext(fname)
     #print 'plotdir', reference, basename, ext
-    destdir = ('../' * reference.count('/')) + 'pyplots'
-    num_figs = makefig(reference, 'pyplots')
+
+    # get the directory of the rst file
+    rstdir, rstfile = os.path.split(state_machine.document.attributes['source'])
+    reldir = rstdir[len(setup.confdir)+1:]
+    relparts = [p for p in os.path.split(reldir) if p.strip()]
+    nparts = len(relparts)
+    #print '    rstdir=%s, reldir=%s, relparts=%s, nparts=%d'%(rstdir, reldir, relparts, nparts)
+    #print 'RUN', rstdir, reldir
+    outdir = os.path.join('_static', 'plot_directive', basedir)
+    if not os.path.exists(outdir):
+        cbook.mkdirs(outdir)
+
+    linkdir = ('../' * nparts) + outdir
+    #linkdir = os.path.join('..', outdir)
+    num_figs = makefig(reference, outdir)
+    #print '    reference="%s", basedir="%s", linkdir="%s", outdir="%s"'%(reference, basedir, linkdir, outdir)
 
     if options.has_key('include-source'):
         contents = open(reference, 'r').read()
@@ -190,7 +221,7 @@ def run(arguments, options, state_machine, lineno):
         options = "\n".join(options)
 
         for i in range(num_figs):
-            if num_figs == 1:
+            if i==0:
                 outname = basename
             else:
                 outname = "%s_%02d" % (basename, i)
@@ -202,6 +233,8 @@ def run(arguments, options, state_machine, lineno):
         state_machine.insert_input(
             lines, state_machine.input_lines.source(0))
     return []
+
+
 
 try:
     from docutils.parsers.rst import Directive
@@ -228,4 +261,13 @@ else:
     plot_directive.__doc__ = __doc__
 
     directives.register_directive('plot', plot_directive)
+
+def setup(app):
+    setup.app = app
+    setup.config = app.config
+    setup.confdir = app.confdir
+
+plot_directive.__doc__ = __doc__
+
+directives.register_directive('plot', plot_directive)
 

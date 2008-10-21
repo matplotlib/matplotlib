@@ -352,6 +352,34 @@ There are some some manual hacks in this case, violating the
 "single entry point" requirement above -- see the
 ``artist.kwdocd['Patch']`` setting in :mod:`matplotlib.patches`.
 
+.. _custom_backend:
+
+Developing a new backend
+========================
+
+If you are working on a custom backend, the *backend* setting in
+:file:`matplotlibrc` (:ref:`customizing-matplotlib`) supports an
+external backend via the ``module`` directive.  if
+:file:`my_backend.py` is a matplotlib backend in your
+:envvar:`PYTHONPATH`, you can set use it on one of several ways
+
+* in matplotlibrc::
+
+    backend : module://my_backend
+
+* with the use directive is your script::
+
+    import matplotlib
+    matplotlib.use('module://my_backend')
+
+* from the command shell with the -d flag::
+
+    > python simple_plot.py -d module://my_backend
+
+
+
+
+
 
 .. _license-discussion:
 

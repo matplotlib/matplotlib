@@ -66,7 +66,7 @@ usetex with unicode
 It is also possible to use unicode strings with the LaTeX text manager, here is
 an example taken from `tex_unicode_demo.py`:
 
-.. plot:: pyplots/tex_unicode_demo.py
+.. plot:: mpl_examples/pylab_examples/tex_unicode_demo.py
    :include-source:
 
 .. _usetex-postscript:

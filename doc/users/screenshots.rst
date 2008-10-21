@@ -150,7 +150,7 @@ You can plot date data with major and minor ticks and custom tick
 formatters for both the major and minor ticks; see matplotlib.ticker
 and matplotlib.dates for details and usage.
 
-plot:: ../mpl_examples/api/date_demo.py
+plot:: mpl_examples/api/date_demo.py
 
 .. _screenshots_jdh_demo:
 
@@ -233,7 +233,7 @@ modern or STIX fonts.  See the matplotlib.mathtext module for
 additional.  matplotlib mathtext is an independent implementation, and
 does not required TeX or any external packages installed on your
 computer.
-
+ 
 .. plot:: mpl_examples/pylab_examples/mathtext_examples.py
 
 .. _screenshots_tex_demo:

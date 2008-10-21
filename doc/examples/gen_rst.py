@@ -3,8 +3,6 @@ generate the rst files for the examples by iterating over the pylab examples
 """
 import os, glob
 
-import matplotlib.cbook as cbook
-
 import os
 import re
 import sys
@@ -75,8 +73,10 @@ for subdir in subdirs:
 
     subdirIndexFile = os.path.join(subdir, 'index.rst')
     fhsubdirIndex = file(subdirIndexFile, 'w')
-    fhindex.write('    %s\n'%subdirIndexFile)
-
+    fhindex.write('    %s\n\n'%subdirIndexFile)
+    #thumbdir = '../_static/plot_directive/mpl_examples/%s/thumbnails/'%subdir
+    #for thumbname in glob.glob(os.path.join(thumbdir,'*.png')):
+    #    fhindex.write('    %s\n'%thumbname)
 
     fhsubdirIndex.write("""\
 .. _%s-examples-index:
@@ -101,15 +101,23 @@ for subdir in subdirs:
 
     data = datad[subdir]
     data.sort()
-    for fullname, fname, contents in data:
-        static_file = os.path.join(static_dir, fname)
+
+    #parts = os.path.split(static_dir)
+    #thumb_dir = ('../'*(len(parts)-1)) + os.path.join(static_dir, 'thumbnails')
+
+    for fullpath, fname, contents in data:
         basename, ext = os.path.splitext(fname)
+        static_file = os.path.join(static_dir, fname)
+        #thumbfile = os.path.join(thumb_dir, '%s.png'%basename)
+        #print '    static_dir=%s, basename=%s, fullpath=%s, fname=%s, thumb_dir=%s, thumbfile=%s'%(static_dir, basename, fullpath, fname, thumb_dir, thumbfile)
+
         rstfile = '%s.rst'%basename
         outfile = os.path.join(subdir, rstfile)
+
         fhsubdirIndex.write('    %s\n'%rstfile)
 
-        if (not out_of_date(fullname, static_file) and
-            not out_of_date(fullname, outfile)):
+        if (not out_of_date(fullpath, static_file) and
+            not out_of_date(fullpath, outfile)):
             continue
 
         print '    %s'%fname
@@ -121,6 +129,8 @@ for subdir in subdirs:
         fh = file(outfile, 'w')
         fh.write('.. _%s-%s:\n\n'%(subdir, basename))
         title = '%s example code: %s'%(subdir, fname)
+        #title = '<img src=%s> %s example code: %s'%(thumbfile, subdir, fname)
+
 
         fh.write(title + '\n')
         fh.write('='*len(title) + '\n\n')
@@ -131,7 +141,7 @@ for subdir in subdirs:
                    not noplot_regex.search(contents))
 
         if do_plot:
-            fh.write("\n\n.. plot:: %s\n\n::\n\n" % fullname[3:])
+            fh.write("\n\n.. plot:: %s\n\n::\n\n" % fullpath[3:])
         else:
             linkname = os.path.join('..', '..', '_static', 'examples', subdir, fname)
             fh.write("[`source code <%s>`_]\n\n::\n\n" % linkname)
