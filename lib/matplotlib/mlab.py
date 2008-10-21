@@ -117,6 +117,7 @@ Deprecated functions
 The following are deprecated; please import directly from numpy (with
 care--function signatures may differ):
 
+
 :meth:`conv`
     convolution  (numpy.convolve)
 
@@ -129,6 +130,9 @@ care--function signatures may differ):
 :meth:`linspace`
     Linear spaced array from min to max
 
+:meth:`load`
+    load ASCII file - use numpy.loadtxt
+
 :meth:`meshgrid`
     Make a 2D grid from 2 1 arrays (numpy.meshgrid)
 
@@ -138,11 +142,14 @@ care--function signatures may differ):
 :meth:`polyval`
     evaluate a vector for a vector of polynomial coeffs (numpy.polyval)
 
+:meth:`save`
+    save ASCII file - use numpy.savetxt
+
 :meth:`trapz`
     trapeziodal integration (trapz(x,y) -> numpy.trapz(y,x))
 
 :meth:`vander`
-    the Vandermonde matrix (numpy.vander) 
+    the Vandermonde matrix (numpy.vander)
 
 """
 
@@ -247,13 +254,13 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
     to calculate the Fourier frequencies, freqs, in cycles per time
     unit.
 
-    *NFFT* 
+    *NFFT*
         The length of the FFT window.  Must be even; a power 2 is most efficient.
 
-    *detrend* 
+    *detrend*
         is a function, unlike in matlab where it is a vector.
 
-    *window* 
+    *window*
         can be a function or a vector of length NFFT. To create window
         vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
         scipy.signal, scipy.signal.get_window etc.
@@ -478,7 +485,7 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
     .. math::
 
-        C_{xy} = \frac{|P_{xy}|^2}/{P_{xx}P_{yy}}
+        C_{xy} = \\frac{|P_{xy}|^2}{P_{xx}P_{yy}}
 
     The return value is the tuple (*Cxy*, *f*), where *f* are the
     frequencies of the coherence vector.
@@ -967,11 +974,11 @@ def rk4(derivs, y0, t):
 
     *y0*
         initial state vector
-     
-    *t*
-        sample times    
 
-    *derivs* 
+    *t*
+        sample times
+
+    *derivs*
         returns the derivative of the system and has the
         signature ``dy = derivs(yi, ti)``
 
@@ -1149,7 +1156,7 @@ def liaupunov(x, fprime):
     Returns :
     .. math::
 
-        \lambda = \frac{1}{n}\sum \ln|f^'(x_i)|
+        \lambda = \\frac{1}{n}\\sum \\ln|f^'(x_i)|
 
     .. seealso::
         Sec 10.5 Strogatz (1994) "Nonlinear Dynamics and Chaos".
