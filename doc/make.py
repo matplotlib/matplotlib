@@ -17,8 +17,6 @@ def check_build():
 def sf():
     'push a copy to the sf site'
     os.system('cd build/html; rsync -avz . jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/ -essh --cvs-exclude')
-    # we are now doing this in the doc/examples build
-    #os.system('cd ~/mpl/examples; svn-clean; cd ..; rsync -avz examples jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/ -essh --cvs-exclude --delete')
 
 def sfpdf():
     'push a copy to the sf site'

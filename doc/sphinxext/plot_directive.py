@@ -127,12 +127,7 @@ def makefig(fullpath, outdir):
     while True:
         all_exists = True
         for format, dpi in formats:
-            if i==0:
-                outname = basename
-            else:
-                outname = "%s_%02d" % (basename, i)
-
-            outname = os.path.join(outdir, '%s.%s' % (outname, format))
+            outname = os.path.join(outdir, '%s_%02d.%s' % (basename, i, format))
             if out_of_date(fullpath, outname):
                 all_exists = False
                 break
@@ -163,7 +158,7 @@ def makefig(fullpath, outdir):
     fig_managers = _pylab_helpers.Gcf.get_all_fig_managers()
     for i, figman in enumerate(fig_managers):
         for format, dpi in formats:
-            if i==0:
+            if len(fig_managers) == 1:
                 outname = basename
             else:
                 outname = "%s_%02d" % (basename, i)
@@ -221,7 +216,7 @@ def run(arguments, options, state_machine, lineno):
         options = "\n".join(options)
 
         for i in range(num_figs):
-            if i==0:
+            if num_figs == 1:
                 outname = basename
             else:
                 outname = "%s_%02d" % (basename, i)
