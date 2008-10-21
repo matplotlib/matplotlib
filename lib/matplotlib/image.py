@@ -846,21 +846,16 @@ def thumbnail(fname, scale=0.1, interpolation='bilinear', prefix='thumb_',
     else:
         if extension=='png':
             from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-            from matplotlib.figure import Figure
         elif extension=='pdf':
             from matplotlib.backends.backend_pdf import FigureCanvasPDF as FigureCanvas
-            from matplotlib.figure import Figure
         elif extension=='svg':
             from matplotlib.backends.backend_svg import FigureCanvasSVG as FigureCanvas
-            from matplotlib.figure import Figure
         else:
             raise ValueError("Can only handle extension 'png', 'svg' or 'pdf'")
 
+        from matplotlib.figure import Figure
         fig = Figure(figsize=(width, height), dpi=dpi)
         canvas = FigureCanvas(fig)
-
-
-
 
     ax = fig.add_axes([0,0,1,1], aspect='auto', frameon=False, xticks=[], yticks=[])
 

@@ -100,7 +100,11 @@ def validate_fonttype(s):
             raise ValueError('Supported Postscript/PDF font types are %s' % fonttypes.values())
         return fonttype
 
-validate_backend = ValidateInStrings('backend', all_backends, ignorecase=True)
+#validate_backend = ValidateInStrings('backend', all_backends, ignorecase=True)
+_validate_standard_backends = ValidateInStrings('backend', all_backends, ignorecase=True)
+def validate_backend(s):
+    if s.startswith('module://'): return s
+    else: return _validate_standard_backends(s)
 
 validate_numerix = ValidateInStrings('numerix',[
     'Numeric','numarray','numpy',
