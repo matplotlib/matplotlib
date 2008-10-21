@@ -98,7 +98,7 @@ Install from svn
 
 Checking out the main source::
 
-   svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk matplotlib
+   svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib
 
 and build and install as usual with::
 

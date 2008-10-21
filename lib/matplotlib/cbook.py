@@ -473,7 +473,20 @@ class Null:
 
 
 def mkdirs(newdir, mode=0777):
-    try: os.makedirs(newdir, mode)
+    """
+    make directory *newdir* recursively, and set *mode*.  Equivalent to ::
+
+        > mkdir -p NEWDIR
+        > chmod MODE NEWDIR 
+    """
+    try: 
+        if not os.path.exists(newdir):
+            parts = os.path.split(newdir)
+            for i in range(1, len(parts)+1):
+                thispart = os.path.join(*parts[:i])
+                if not os.path.exists(thispart):
+                    os.makedirs(thispart, mode)
+
     except OSError, err:
         # Reraise the error unless it's about an already existing directory
         if err.errno != errno.EEXIST or not os.path.isdir(newdir):

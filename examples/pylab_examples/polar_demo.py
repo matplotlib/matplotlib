@@ -38,7 +38,7 @@
 #
 # See the pylab rgrids and thetagrids functions for
 # information on how to customize the grid locations and labels
-
+import matplotlib
 import numpy as np
 from matplotlib.pyplot import figure, show, rc, grid
 
@@ -48,7 +48,10 @@ rc('xtick', labelsize=15)
 rc('ytick', labelsize=15)
 
 # force square figure and square axes looks better for polar, IMO
-fig = figure(figsize=(8,8))
+width, height = matplotlib.rcParams['figure.figsize'] 
+size = min(width, height)
+# make a square figure
+fig = figure(figsize=(size, size))
 ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True, axisbg='#d5de9c')
 
 r = np.arange(0, 3.0, 0.01)

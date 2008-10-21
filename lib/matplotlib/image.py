@@ -773,15 +773,17 @@ def pil_to_array( pilImage ):
     x.shape = im.size[1], im.size[0], 4
     return x
 
-def thumbnail(fname, scale=0.1, interpolation='bilinear', prefix='thumb_',
-              outdir=None, preview=False, extension='png'):
+def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear', 
+              preview=False):
     """
-    make a thumbnail of image in fname with output filename
-    [OUTDIR]/[PREFIX][BASENAME].EXTENSION where BASENAME is the
-    filename part of fname without the directory ar extension
+    make a thumbnail of image in *infile* with output filename
+    *thumbfile*.
 
-      *fname* the image file -- must be PNG or PIL readable if you
+      *infile* the image file -- must be PNG or PIL readable if you
          have `PIL <http://www.pythonware.com/products/pil/>`_ installed
+
+      *thumbfile*
+        the thumbnail filename
 
       *scale*
         the scale factor for the thumbnail
@@ -789,14 +791,6 @@ def thumbnail(fname, scale=0.1, interpolation='bilinear', prefix='thumb_',
       *interpolation*
         the interpolation scheme used in the resampling
 
-      *prefix*
-        the PREFIX of the output file name
-
-      *outdir*
-        the OUTDIR of the output filenamet - by default same as directory the source image lives in
-
-      *extension*
-        the EXTENSION for the output filename, one of 'png', 'pdf' or 'ps'
 
       *preview*
         if True, the default backend (presumably a user interface
@@ -813,20 +807,14 @@ def thumbnail(fname, scale=0.1, interpolation='bilinear', prefix='thumb_',
 
         :ref:`misc-image_thumbnail`
 
-    Return value is the output filename of the thumbnail
+    Return value is the figure instance containing the thumbnail
 
     """
 
-    basedir, basename = os.path.split(fname)
-    if outdir is None:
-        if not basedir:
-            basedir = os.curdir
-        outdir = basedir
+    basedir, basename = os.path.split(infile)
+    baseout, extout = os.path.splitext(thumbfile)
 
-    if not os.path.exists(outdir) or not os.path.isdir(outdir):
-        raise IOError('output directory "%s" must be a directory'%outdir)
-
-    im = imread(fname)
+    im = imread(infile)
     rows, cols, depth = im.shape
 
     # this doesn't really matter, it will cancel in the end, but we
@@ -837,21 +825,21 @@ def thumbnail(fname, scale=0.1, interpolation='bilinear', prefix='thumb_',
     height = float(rows)/dpi*scale
     width = float(cols)/dpi*scale
 
-    extension = extension.lower()
+    extension = extout.lower()
 
     if preview:
         # let the UI backend do everything
         import matplotlib.pyplot as plt
         fig = plt.figure(figsize=(width, height), dpi=dpi)
     else:
-        if extension=='png':
+        if extension=='.png':
             from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-        elif extension=='pdf':
+        elif extension=='.pdf':
             from matplotlib.backends.backend_pdf import FigureCanvasPDF as FigureCanvas
-        elif extension=='svg':
+        elif extension=='.svg':
             from matplotlib.backends.backend_svg import FigureCanvasSVG as FigureCanvas
         else:
-            raise ValueError("Can only handle extension 'png', 'svg' or 'pdf'")
+            raise ValueError("Can only handle extensions 'png', 'svg' or 'pdf'")
 
         from matplotlib.figure import Figure
         fig = Figure(figsize=(width, height), dpi=dpi)
@@ -861,6 +849,5 @@ def thumbnail(fname, scale=0.1, interpolation='bilinear', prefix='thumb_',
 
     basename, ext = os.path.splitext(basename)
     ax.imshow(im, aspect='auto', resample=True, interpolation='bilinear')
-    outfile = os.path.join(outdir, '%s%s.%s'%(prefix, basename, extension))
-    fig.savefig(outfile, dpi=dpi)
-    return outfile
+    fig.savefig(thumbfile, dpi=dpi)
+    return fig

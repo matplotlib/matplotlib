@@ -114,10 +114,14 @@ def latex2html(node, source):
     inline = isinstance(node.parent, nodes.TextElement)
     latex = node['latex']
     name = 'math-%s' % md5(latex).hexdigest()[-10:]
-    dest = '_static/%s.png' % name
+
+    destdir = os.path.join('_static', 'mathmpl')
+    if not os.path.exists(destdir):
+        os.makedirs(destdir)
+    dest = os.path.join(destdir, '%s.png' % name)
     depth = latex2png(latex, dest, node['fontset'])
 
-    path = '_static'
+    path = destdir
     count = source.split('/doc/')[-1].count('/')
     for i in range(count):
         if os.path.exists(path): break
