@@ -1,3 +1,6 @@
+2008-10-21 Restored 0.91 behavior of get_xlim/ylim returning a tuple
+           rather than array - JDH
+
 2008-10-20 Added image thumbnail generating function
            matplotlib.image.thumbnail.  See
            examples/misc/image_thumbnail.py - JDH
@@ -5,8 +8,8 @@
 2008-10-20 Applied scatleg patch based on ideas and work by Erik
            Tollerud and Jae-Joon Lee. - MM
 
-2008-10-11 Fixed bug in pdf backend: if you pass a file object for 
-           output instead of a filename, e.g. in a wep app, we now 
+2008-10-11 Fixed bug in pdf backend: if you pass a file object for
+           output instead of a filename, e.g. in a wep app, we now
            flush the object at the end. - JKS
 
 2008-10-08 Add path simplification support to paths with gaps. - EF

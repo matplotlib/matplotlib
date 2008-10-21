@@ -1771,7 +1771,7 @@ class Axes(martist.Artist):
         """
         Get the x-axis range [*xmin*, *xmax*]
         """
-        return self.viewLim.intervalx
+        return tuple(self.viewLim.intervalx)
 
     def set_xlim(self, xmin=None, xmax=None, emit=True, **kwargs):
         """
@@ -1944,7 +1944,7 @@ class Axes(martist.Artist):
         """
         Get the y-axis range [*ymin*, *ymax*]
         """
-        return self.viewLim.intervaly
+        return tuple(self.viewLim.intervaly)
 
     def set_ylim(self, ymin=None, ymax=None, emit=True, **kwargs):
         """
