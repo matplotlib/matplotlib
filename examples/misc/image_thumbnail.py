@@ -13,7 +13,7 @@ if len(sys.argv)!=2:
     print 'Usage: python %s IMAGEDIR'%__file__
     raise SystemExit
 indir = sys.argv[1]
-if not os.path.exists(indir):
+if not os.path.isdir(indir):
     print 'Could not find input directory "%s"'%indir
     raise SystemExit
 
