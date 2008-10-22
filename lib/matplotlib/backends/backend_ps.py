@@ -669,7 +669,8 @@ grestore
             fontsize = prop.get_size_in_points()
             scale = 0.001*fontsize
 
-            thisx, thisy = 0, 0
+            thisx = 0
+            thisy = font.get_str_bbox_and_descent(s)[4] * scale
             last_name = None
             lines = []
             for c in s:
@@ -705,16 +706,18 @@ grestore
 
         else:
             font = self._get_font_ttf(prop)
+            font.set_text(s, 0, flags=LOAD_NO_HINTING)
+            self.track_characters(font, s)
 
             self.set_color(*gc.get_rgb())
             self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
-            self.track_characters(font, s)
 
             cmap = font.get_charmap()
             lastgind = None
             #print 'text', s
             lines = []
-            thisx, thisy = 0,0
+            thisx = 0
+            thisy = font.get_descent() / 64.0
             for c in s:
                 ccode = ord(c)
                 gind = cmap.get(ccode)
@@ -739,11 +742,11 @@ grestore
 
             thetext = '\n'.join(lines)
             ps = """gsave
-    %(x)f %(y)f translate
-    %(angle)f rotate
-    %(thetext)s
-    grestore
-    """ % locals()
+%(x)f %(y)f translate
+%(angle)f rotate
+%(thetext)s
+grestore
+""" % locals()
             self._pswriter.write(ps)
 
     def draw_mathtext(self, gc,
