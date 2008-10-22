@@ -1005,7 +1005,7 @@ class FontManager:
                 verbose.report('\tfindfont failed %(name)s, %(style)s, %(variant)s'%locals(), 'debug')
                 return None
 
-            if weight in font:
+            if weight not in font:
                 setWeights(font)
             if weight not in font:
                 return None
