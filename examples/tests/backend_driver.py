@@ -117,7 +117,7 @@ pylab_files = [
     'text_rotation.py',
     'text_themes.py',
 #    'tex_demo.py',
-    'two_scales.py',
+#    'two_scales.py',
     'unicode_demo.py',
     'vline_demo.py',
     'xcorr_demo.py',
@@ -132,7 +132,8 @@ api_files = [
     'color_cycle.py',
     'donut_demo.py',
     'path_patch_demo.py',
-    'quad_bezier.py'
+    'quad_bezier.py',
+    'two_scales.py'
 ]
 
 units_dir = os.path.join('..', 'units')

@@ -11,11 +11,13 @@ Manually set the tick locs and labels as desired.  You can use
 separate matplotlib.ticker formatters and locators as desired since
 the two axes are independent.
 
-This is acheived in the following example by calling pylab's twinx()
-function, which performs this work. See the source of twinx() in
-pylab.py for an example of how to do it for different x scales. (Hint:
+This is achieved in the following example by calling the Axes.twinx()
+method, which performs this work. See the source of twinx() in
+axes.py for an example of how to do it for different x scales. (Hint:
 use the xaxis instance and call tick_bottom and tick_top in place of
 tick_left and tick_right.)
+
+The twinx and twiny methods are also exposed as pyplot functions.
 
 """
 
