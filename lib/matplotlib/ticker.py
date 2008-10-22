@@ -21,27 +21,34 @@ base.
 
 The Locator subclasses defined here are
 
-  * NullLocator     - No ticks
+:class:`NullLocator`
+    No ticks
 
-  * FixedLocator    - Tick locations are fixed
+:class:`FixedLocator`
+    Tick locations are fixed
 
-  * IndexLocator    - locator for index plots (eg. where x = range(len(y)))
+:class:`IndexLocator`
+    locator for index plots (eg. where x = range(len(y)))
 
-  * LinearLocator   - evenly spaced ticks from min to max
+:class:`LinearLocator`
+    evenly spaced ticks from min to max
 
-  * LogLocator      - logarithmically ticks from min to max
+:class:`LogLocator`
+    logarithmically ticks from min to max
 
-  * MultipleLocator - ticks and range are a multiple of base;
-                      either integer or float
+:class:`MultipleLocator`
+    ticks and range are a multiple of base;
+                  either integer or float
+:class:`OldAutoLocator`
+    choose a MultipleLocator and dyamically reassign it for
+    intelligent ticking during navigation
 
-  * OldAutoLocator  - choose a MultipleLocator and dyamically reassign
-                      it for intelligent ticking during navigation
+:class:`MaxNLocator`
+    finds up to a max number of ticks at nice  locations
 
-  * MaxNLocator     - finds up to a max number of ticks at nice
-                      locations
-
-  * AutoLocator     - MaxNLocator with simple defaults. This is the
-                      default tick locator for most plotting.
+:class:`AutoLocator`
+    :class:`MaxNLocator` with simple defaults. This is the default
+    tick locator for most plotting.
 
 There are a number of locators specialized for date locations - see
 the dates module
@@ -70,21 +77,27 @@ Tick formatting is controlled by classes derived from Formatter.  The
 formatter operates on a single tick value and returns a string to the
 axis.
 
-  * NullFormatter      - no labels on the ticks
+:clss:`NullFormatter`
+    no labels on the ticks
 
-  * FixedFormatter     - set the strings manually for the labels
+:clss:`FixedFormatter`
+    set the strings manually for the labels
 
-  * FuncFormatter      - user defined function sets the labels
+:clss:`FuncFormatter`
+    user defined function sets the labels
 
-  * FormatStrFormatter - use a sprintf format string
+:clss:`FormatStrFormatter`
+    use a sprintf format string
 
-  * ScalarFormatter    - default formatter for scalars; autopick the fmt string
+:clss:`ScalarFormatter`
+    default formatter for scalars; autopick the fmt string
 
-  * LogFormatter       - formatter for log axes
+:clss:`LogFormatter`
+    formatter for log axes
 
 
 You can derive your own formatter from the Formatter base class by
-simply overriding the __call__ method.  The formatter class has access
+simply overriding the ``__call__`` method.  The formatter class has access
 to the axis view and data limits.
 
 To control the major and minor tick label formats, use one of the
@@ -95,7 +108,7 @@ following methods::
   ax.yaxis.set_major_formatter( ymajorFormatter )
   ax.yaxis.set_minor_formatter( yminorFormatter )
 
-See :file:`examples/major_minor_demo1.py` for an example of setting
+See :ref:`pylab_examples-major_minor_demo1` for an example of setting
 major an minor ticks.  See the :module:`matplotlib.dates` module for
 more information and examples of using date locators and formatters.
 """
@@ -176,38 +189,38 @@ class Formatter(TickHelper):
     def fix_minus(self, s):
         """
         some classes may want to replace a hyphen for minus with the
-        proper unicode symbol as described here
-
-          http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720.
+        proper unicode symbol as described `here
+        <http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720>`_.
         The default is to do nothing
 
-        Note, if you use this method, eg in format_data or call, you
-        probably don't want to use it for format_data_short since the
-        toolbar uses this for interative coord reporting and I doubt
-        we can expect GUIs across platforms will handle the unicode
-        correctly.  So for now the classes that override fix_minus
-        should have an explicit format_data_short method
+        Note, if you use this method, eg in :meth`format_data` or
+        call, you probably don't want to use it for
+        :meth:`format_data_short` since the toolbar uses this for
+        interative coord reporting and I doubt we can expect GUIs
+        across platforms will handle the unicode correctly.  So for
+        now the classes that override :meth:`fix_minus` should have an
+        explicit :meth:`format_data_short` method
         """
         return s
 
 class NullFormatter(Formatter):
     'Always return the empty string'
     def __call__(self, x, pos=None):
-        'Return the format for tick val x at position pos'
+        'Return the format for tick val *x* at position *pos*'
         return ''
 
 class FixedFormatter(Formatter):
     'Return fixed strings for tick labels'
     def __init__(self, seq):
         """
-        seq is a sequence of strings.  For positions i<len(seq) return
-        seq[i] regardless of x.  Otherwise return ''
+        seq is a sequence of strings.  For positions ``i<len(seq)` return
+        *seq[i]* regardless of *x*.  Otherwise return ''
         """
         self.seq = seq
         self.offset_string = ''
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val x at position pos'
+        'Return the format for tick val *x* at position *pos*'
         if pos is None or pos>=len(self.seq): return ''
         else: return self.seq[pos]
 
@@ -225,7 +238,7 @@ class FuncFormatter(Formatter):
         self.func = func
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val x at position pos'
+        'Return the format for tick val *x* at position *pos*'
         return self.func(x, pos)
 
 
@@ -237,7 +250,7 @@ class FormatStrFormatter(Formatter):
         self.fmt = fmt
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val x at position pos'
+        'Return the format for tick val *x* at position *pos*'
         return self.fmt % x
 
 class OldScalarFormatter(Formatter):
@@ -246,7 +259,7 @@ class OldScalarFormatter(Formatter):
     """
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val x at position pos'
+        'Return the format for tick val *x* at position *pos*'
         xmin, xmax = self.axis.get_view_interval()
         d = abs(xmax - xmin)
 
@@ -304,7 +317,7 @@ class ScalarFormatter(Formatter):
         else: return s.replace('-', u'\u2212')
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val x at position pos'
+        'Return the format for tick val *x* at position *pos*'
         if len(self.locs)==0:
             return ''
         else:
@@ -313,7 +326,7 @@ class ScalarFormatter(Formatter):
 
     def set_scientific(self, b):
         '''True or False to turn scientific notation on or off
-        see also set_powerlimits()
+        see also :meth:`set_powerlimits`
         '''
         self._scientific = bool(b)
 
@@ -321,7 +334,7 @@ class ScalarFormatter(Formatter):
         '''
         Sets size thresholds for scientific notation.
 
-        e.g. xaxis.set_powerlimits((-3, 4)) sets the pre-2007 default in
+        e.g. ``xaxis.set_powerlimits((-3, 4))`` sets the pre-2007 default in
         which scientific notation is used for numbers less than
         1e-3 or greater than 1e4.
         See also :meth:`set_scientific`.
@@ -463,20 +476,20 @@ class LogFormatter(Formatter):
     """
     Format values for log axis;
 
-    if attribute decadeOnly is True, only the decades will be labelled.
+    if attribute *decadeOnly* is True, only the decades will be labelled.
     """
     def __init__(self, base=10.0, labelOnlyBase = True):
         """
-        base is used to locate the decade tick,
-        which will be the only one to be labeled if labelOnlyBase
-        is False
+        *base* is used to locate the decade tick,
+        which will be the only one to be labeled if *labelOnlyBase*
+        is ``False``
         """
         self._base = base+0.0
         self.labelOnlyBase=labelOnlyBase
         self.decadeOnly = True
 
     def base(self,base):
-        'change the base for labeling - warning: should always match the base used for LogLocator'
+        'change the *base* for labeling - warning: should always match the base used for :class:`LogLocator`'
         self._base=base
 
     def label_minor(self,labelOnlyBase):
@@ -485,7 +498,7 @@ class LogFormatter(Formatter):
 
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val x at position pos'
+        'Return the format for tick val *x* at position *pos*'
         vmin, vmax = self.axis.get_view_interval()
         d = abs(vmax - vmin)
         b=self._base
@@ -548,11 +561,11 @@ class LogFormatter(Formatter):
 
 class LogFormatterExponent(LogFormatter):
     """
-    Format values for log axis; using exponent = log_base(value)
+    Format values for log axis; using ``exponent = log_base(value)``
     """
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val x at position pos'
+        'Return the format for tick val *x* at position *pos*'
 
 
         vmin, vmax = self.axis.get_view_interval()
@@ -580,11 +593,11 @@ class LogFormatterExponent(LogFormatter):
 
 class LogFormatterMathtext(LogFormatter):
     """
-    Format values for log axis; using exponent = log_base(value)
+    Format values for log axis; using ``exponent = log_base(value)``
     """
 
     def __call__(self, x, pos=None):
-        'Return the format for tick val x at position pos'
+        'Return the format for tick val *x* at position *pos*'
         b = self._base
         # only label the decades
         if x == 0:
@@ -619,7 +632,7 @@ class Locator(TickHelper):
     """
     Determine the tick locations;
 
-    Note, you should not use the same locator between different Axis
+    Note, you should not use the same locator between different :class:`~matplotlib.axis.Axis`
     because the locator stores references to the Axis data and view
     limits
     """

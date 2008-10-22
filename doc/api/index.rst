@@ -26,4 +26,5 @@
    mlab_api.rst
    path_api.rst
    pyplot_api.rst
+   ticker_api.rst
    index_backend_api.rst
