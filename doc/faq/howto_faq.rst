@@ -431,7 +431,7 @@ pyplot::
 
 .. _howto-show
 
-Use :func:`~matplotlib.pyplot.show` 
+Use :func:`~matplotlib.pyplot.show`
 ------------------------------------------
 
 The user interface backends need to start the GUI mainloop, and this
@@ -655,13 +655,13 @@ Search examples
 The nearly 300 code :ref:`examples-index` included with the matplotlib
 source distribution are full-text searchable from the :ref:`search`
 page, but sometimes when you search, you get a lot of results from the
-:ref:`api-index` or other documentation that you may not be interested in if
-you just want to find a complete, free-standing, working piece of
-example code.  To facilitate example searches, we have tagged every
-page with the keyword ``codex`` for *code example* which shouldn't
-appear anywhere else on this site except in the FAQ and in every
-example.  So if you want to search for an example that uses an ellipse,
-:ref:`search` for ``codex ellipse``.
+:ref:`api-index` or other documentation that you may not be interested
+in if you just want to find a complete, free-standing, working piece
+of example code.  To facilitate example searches, we have tagged every
+code example page with the keyword ``codex`` for *code example* which
+shouldn't appear anywhere else on this site except in the FAQ and in
+every example.  So if you want to search for an example that uses an
+ellipse, :ref:`search` for ``codex ellipse``.
 
 
 
