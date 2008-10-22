@@ -150,7 +150,7 @@ You can plot date data with major and minor ticks and custom tick
 formatters for both the major and minor ticks; see matplotlib.ticker
 and matplotlib.dates for details and usage.
 
-plot:: mpl_examples/api/date_demo.py
+.. plot:: mpl_examples/api/date_demo.py
 
 .. _screenshots_jdh_demo:
 
@@ -159,7 +159,7 @@ Financial charts
 
 You can make much more sophisticated financial plots.  This example
 emulates one of the `ChartDirector
-<http://www.advsofteng.com/gallery_finance.html>` financial plots.
+<http://www.advsofteng.com/gallery_finance.html>`_ financial plots.
 Some of the data in the plot, are real financial data, some are random
 traces that I used since the goal was to illustrate plotting
 techniques, not market analysis!
@@ -228,12 +228,14 @@ Mathtext_examples
 
 A sampling of the many TeX expressions now supported by matplotlib's
 internal mathtext engine.  The mathtext module provides TeX style
-mathematical expressions using freetype2 and the BaKoMa computer
-modern or STIX fonts.  See the matplotlib.mathtext module for
-additional.  matplotlib mathtext is an independent implementation, and
-does not required TeX or any external packages installed on your
-computer.
- 
+mathematical expressions using `freetype2
+<http://freetype.sourceforge.net/index2.html>`_ and the BaKoMa
+computer modern or `STIX <http://www.stixfonts.org>`_ fonts.  See the
+:mod:`matplotlib.mathtext` module for additional.  matplotlib mathtext
+is an independent implementation, and does not required TeX or any
+external packages installed on your computer.  See the tutorial at
+:ref:`mathtext-tutorial`.
+
 .. plot:: mpl_examples/pylab_examples/mathtext_examples.py
 
 .. _screenshots_tex_demo:
@@ -249,21 +251,21 @@ rendering of strings with the *usetex* option.
 
 .. _screenshots_eeg_demo:
 
+EEG demo
 =========
 
 You can embed matplotlib into pygtk, wxpython, Tk, FLTK or Qt
 applications.  Here is a screenshot of an eeg viewer called pbrain
 which is part of the NeuroImaging in Python suite `NIPY
-<http://neuroimaging.scipy.org>`.  Pbrain is written in pygtk using
+<http://neuroimaging.scipy.org>`_.  Pbrain is written in pygtk using
 matplotlib.  The lower axes uses :func:`~matplotlib.pyplot.specgram`
-to plot the spectrogram of one of the EEG channels.  The code demo
-linked above is a much simpler example of embedding matplotlib in
-pygtk.  For an example of how to use the navigation toolbar in your
-applications, see examples/user_interfaces/embedding_in_gtk2.py.  If
-you want to use matplotlib in a wx application, see
-examples/user_interfaces/embedding_in_wx2.py.  If you want to work
-with `glade <http://glade.gnome.org>`_, see
-examples/user_interfaces/mpl_with_glade.py
+to plot the spectrogram of one of the EEG channels.  For an example of
+how to use the navigation toolbar in your applications, see
+:ref:`user_interfaces-embedding_in_gtk2`.  If you want to use
+matplotlib in a wx application, see
+:ref:`user_interfaces-embedding_in_wx2`.  If you want to work with
+`glade <http://glade.gnome.org>`_, see
+:ref:`user_interfaces-mpl_with_glade`.
 
 .. image:: ../_static/eeg_small.png
 
