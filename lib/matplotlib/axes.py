@@ -501,7 +501,6 @@ class Axes(martist.Artist):
         self.set_aspect('auto')
         self.set_adjustable('box')
         self.set_anchor('C')
-
         self._sharex = sharex
         self._sharey = sharey
         if sharex is not None:
@@ -523,7 +522,6 @@ class Axes(martist.Artist):
         self._hold = rcParams['axes.hold']
         self._connected = {} # a dict from events to (id, func)
         self.cla()
-
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None
         self.fmt_ydata = None
@@ -798,6 +796,7 @@ class Axes(martist.Artist):
 
     def cla(self):
         'Clear the current axes'
+        # Note: this is called by Axes.__init__()
         self.xaxis.cla()
         self.yaxis.cla()
 
@@ -805,11 +804,27 @@ class Axes(martist.Artist):
         self.callbacks = cbook.CallbackRegistry(('xlim_changed', 'ylim_changed'))
 
         if self._sharex is not None:
+            # major and minor are class instances with
+            # locator and formatter attributes
             self.xaxis.major = self._sharex.xaxis.major
             self.xaxis.minor = self._sharex.xaxis.minor
+            x0, x1 = self._sharex.get_xlim()
+            self.set_xlim(x0, x1, emit=False)
+            self.xaxis.set_scale(self._sharex.xaxis.get_scale())
+        else:
+            self.xaxis.set_scale('linear')
+
         if self._sharey is not None:
             self.yaxis.major = self._sharey.yaxis.major
             self.yaxis.minor = self._sharey.yaxis.minor
+            y0, y1 = self._sharex.get_ylim()
+            self.set_ylim(y0, y1, emit=False)
+            self.yaxis.set_scale(self._sharey.yaxis.get_scale())
+        else:
+            self.yaxis.set_scale('linear')
+
+        self._autoscaleon = True
+        self._update_transScale()         # needed?
 
         self._get_lines = _process_plot_var_args(self)
         self._get_patches_for_fill = _process_plot_var_args(self, 'fill')
@@ -823,10 +838,6 @@ class Axes(martist.Artist):
         self.images = []
         self.legend_ = None
         self.collections = []  # collection.Collection instances
-
-        self._autoscaleon = True
-        self.set_xscale('linear')
-        self.set_yscale('linear')
 
         self.grid(self._gridOn)
         props = font_manager.FontProperties(size=rcParams['axes.titlesize'])
@@ -1769,10 +1780,9 @@ class Axes(martist.Artist):
 
     def get_xlim(self):
         """
-        Get the x-axis range as a length 2 attay [*xmin*, *xmax*]
+        Get the x-axis range [*xmin*, *xmax*]
         """
-        #         # copy of the viewlim array to avoid modify inplace surprises
-        return self.viewLim.intervalx.copy()
+        return tuple(self.viewLim.intervalx)
 
     def set_xlim(self, xmin=None, xmax=None, emit=True, **kwargs):
         """
@@ -1782,7 +1792,7 @@ class Axes(martist.Artist):
 
         Set the limits for the xaxis
 
-        Returns the current xlimits as a length 2 tuple: (*xmin*, *xmax*)
+        Returns the current xlimits as a length 2 tuple: [*xmin*, *xmax*]
 
         Examples::
 
@@ -1943,10 +1953,9 @@ class Axes(martist.Artist):
 
     def get_ylim(self):
         """
-        Get the y-axis range as a length two array [*ymin*, *ymax*]
+        Get the y-axis range [*ymin*, *ymax*]
         """
-        # copy of the viewlim array to avoid modify inplace surprises
-        return self.viewLim.intervaly.copy()
+        return tuple(self.viewLim.intervaly)
 
     def set_ylim(self, ymin=None, ymax=None, emit=True, **kwargs):
         """
