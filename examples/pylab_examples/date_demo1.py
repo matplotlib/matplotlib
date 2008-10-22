@@ -49,4 +49,5 @@ ax.fmt_xdata = DateFormatter('%Y-%m-%d')
 ax.fmt_ydata = price
 ax.grid(True)
 
+fig.autofmt_xdate()
 show()

@@ -39,7 +39,7 @@ functions, and is a requirement for matplotlib.  You can test your
 progress::
 
     >>> import numpy
-    >>> print numpy.__versions__
+    >>> print numpy.__version__
 
 matplotlib requires numpy version 1.1 or later.  Although it is not a
 requirement to use matplotlib, we strongly encourage you to install

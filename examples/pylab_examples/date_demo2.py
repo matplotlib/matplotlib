@@ -14,8 +14,11 @@ from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
 date1 = datetime.date( 2002, 1, 5 )
 date2 = datetime.date( 2003, 12, 1 )
 
-mondays   = WeekdayLocator(MONDAY)    # every monday
-months    = MonthLocator(range(1,13), bymonthday=1)           # every month
+# every monday
+mondays   = WeekdayLocator(MONDAY)
+
+# every 3rd month
+months    = MonthLocator(range(1,13), bymonthday=1, interval=3)
 monthsFmt = DateFormatter("%b '%y")
 
 
