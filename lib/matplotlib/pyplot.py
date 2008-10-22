@@ -631,12 +631,13 @@ def twinx(ax=None):
     the right, and the *ax2* instance is returned.
 
     .. seealso::
-       :file:`examples/pylab_examples/two_scales.py`
+       :file:`examples/api_examples/two_scales.py`
     """
     if ax is None:
         ax=gca()
+    ax1 = ax.twinx()
     draw_if_interactive()
-    return ax.twinx()
+    return ax1
 
 
 def twiny(ax=None):
@@ -647,8 +648,9 @@ def twiny(ax=None):
     """
     if ax is None:
         ax=gca()
+    ax1 = ax.twiny()
     draw_if_interactive()
-    return ax.twiny()
+    return ax1
 
 
 
