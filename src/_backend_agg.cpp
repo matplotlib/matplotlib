@@ -788,20 +788,58 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   Py::Object box_obj = args[3];
   Py::Object clippath;
   agg::trans_affine clippath_trans;
-  if (args.size() == 6) {
-    clippath = args[4];
-    clippath_trans = py_to_agg_transformation_matrix(args[5], false);
-  }
+  bool has_clippath = false;
 
   theRasterizer->reset_clipping();
   rendererBase->reset_clipping(true);
-  set_clipbox(box_obj, rendererBase);
+  if (args.size() == 6) {
+    clippath = args[4];
+    clippath_trans = py_to_agg_transformation_matrix(args[5], false);
+    has_clippath = render_clippath(clippath, clippath_trans);
+  }
 
   Py::Tuple empty;
-  pixfmt pixf(*(image->rbufOut));
   image->flipud_out(empty);
+  pixfmt pixf(*(image->rbufOut));
 
-  rendererBase->blend_from(pixf, 0, (int)x, (int)(height-(y+image->rowsOut)));
+  if (has_clippath) {
+    agg::trans_affine mtx;
+    mtx *= agg::trans_affine_translation((int)x, (int)(height-(y+image->rowsOut)));
+
+    agg::path_storage rect;
+    rect.move_to(0, 0);
+    rect.line_to(image->colsOut, 0);
+    rect.line_to(image->colsOut, image->rowsOut);
+    rect.line_to(0, image->rowsOut);
+    rect.line_to(0, 0);
+    agg::conv_transform<agg::path_storage> rect2(rect, mtx);
+
+    agg::trans_affine inv_mtx(mtx);
+    inv_mtx.invert();
+
+    typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
+    typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
+    typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
+    typedef agg::image_accessor_clip<agg::pixfmt_rgba32> image_accessor_type;
+    typedef agg::span_interpolator_linear<> interpolator_type;
+    typedef agg::span_image_filter_rgba_nn<image_accessor_type, interpolator_type> image_span_gen_type;
+    typedef agg::renderer_scanline_aa_solid<amask_ren_type>    amask_aa_renderer_type;
+    typedef agg::renderer_scanline_aa<amask_ren_type, color_span_alloc_type, image_span_gen_type> renderer_type;
+
+    color_span_alloc_type sa;
+    image_accessor_type ia(pixf, agg::rgba8(0, 0, 0, 0));
+    interpolator_type interpolator(inv_mtx);
+    image_span_gen_type image_span_generator(ia, interpolator);
+    pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+    amask_ren_type r(pfa);
+    renderer_type ri(r, sa, image_span_generator);
+
+    theRasterizer->add_path(rect2);
+    agg::render_scanlines(*theRasterizer, *slineP8, ri);
+  } else {
+    set_clipbox(box_obj, rendererBase);
+    rendererBase->blend_from(pixf, 0, (int)x, (int)(height-(y+image->rowsOut)));
+  }
 
   image->flipud_out(empty);
 
