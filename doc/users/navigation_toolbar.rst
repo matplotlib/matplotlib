@@ -76,6 +76,30 @@ The ``Save`` button
     ``svg`` and ``pdf``.
 
 
+Navigation Keyboard Shortcuts
+-----------------------------
+
+================================== =====================
+Command                            Keyboard Shortcut(s)
+================================== =====================
+Home/Reset                         **h** or **r** or **home**
+Back                               **c** or **left arrow** or **backspace**
+Forward                            **v** or **right arrow** 
+Pan/Zoom                           **p**                                        
+Zoom-to-rect                       **o**                   
+Save                               **s**                   
+Toggle fullscreen                  **f**
+---------------------------------- ---------------------
+**Pan/Zoom mode only**             
+- constrain pan/zoom to x axis     hold **x**
+- constrain pan/zoom to y axis     hold **y**
+- preserve aspect ratio            hold **CONTROL**     
+---------------------------------- ---------------------
+**In axes only**
+- Toggle grid                      **g**
+- Toggle y axis scale (log/linear) **l**
+================================== =====================
+
 If you are using :mod:`matplotlib.pyplot` the toolbar will be created
 automatically for every figure.  If you are writing your own user
 interface code, you can add the toolbar as a widget.  The exact syntax

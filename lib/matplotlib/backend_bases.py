@@ -1513,6 +1513,23 @@ class FigureManagerBase:
 
         if event.key == 'f':
             self.full_screen_toggle()
+        
+        # *h*ome or *r*eset mnemonic
+        elif event.key == 'h' or event.key == 'r' or event.key == "home":
+            self.canvas.toolbar.home()
+        # c and v to enable left handed quick navigation
+        elif event.key == 'left' or event.key == 'c' or event.key == 'backspace':
+            self.canvas.toolbar.back()
+        elif event.key == 'right' or event.key == 'v':
+            self.canvas.toolbar.forward()
+        # *p*an mnemonic
+        elif event.key == 'p':
+            self.canvas.toolbar.pan()
+        # z*o*om mnemonic
+        elif event.key == 'o':
+            self.canvas.toolbar.zoom()
+        elif event.key == 's':
+            self.canvas.toolbar.save_figure(self.canvas.toolbar)
 
         if event.inaxes is None:
             return
