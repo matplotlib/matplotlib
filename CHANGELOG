@@ -1,5 +1,5 @@
-2008-10-21 Restored 0.91 behavior of get_xlim/ylim returning a tuple
-           rather than array - JDH
+2008-10-21 set_xlim, ylim now return a copy of the viewlim array to
+           avoid modify inplace surprises
 
 2008-10-20 Added image thumbnail generating function
            matplotlib.image.thumbnail.  See

@@ -1,8 +1,8 @@
 Changes for 0.98.x
 ==================
 
-* Restored 0.91 behavior of get_xlim/ylim returning a tuple
-  rather than array - JDH
+* set_xlim, ylim now return a copy of the viewlim array to
+  avoid modify inplace surprises
 
 * AFM.get_fullname() and get_familyname() no longer raise an
   exception if the AFM file does not specify these optional attributes,

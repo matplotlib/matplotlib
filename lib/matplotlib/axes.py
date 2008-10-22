@@ -1769,9 +1769,10 @@ class Axes(martist.Artist):
 
     def get_xlim(self):
         """
-        Get the x-axis range [*xmin*, *xmax*]
+        Get the x-axis range as a length 2 attay [*xmin*, *xmax*]
         """
-        return tuple(self.viewLim.intervalx)
+        #         # copy of the viewlim array to avoid modify inplace surprises
+        return self.viewLim.intervalx.copy()
 
     def set_xlim(self, xmin=None, xmax=None, emit=True, **kwargs):
         """
@@ -1781,7 +1782,7 @@ class Axes(martist.Artist):
 
         Set the limits for the xaxis
 
-        Returns the current xlimits as a length 2 tuple: [*xmin*, *xmax*]
+        Returns the current xlimits as a length 2 tuple: (*xmin*, *xmax*)
 
         Examples::
 
@@ -1942,9 +1943,10 @@ class Axes(martist.Artist):
 
     def get_ylim(self):
         """
-        Get the y-axis range [*ymin*, *ymax*]
+        Get the y-axis range as a length two array [*ymin*, *ymax*]
         """
-        return tuple(self.viewLim.intervaly)
+        # copy of the viewlim array to avoid modify inplace surprises
+        return self.viewLim.intervaly.copy()
 
     def set_ylim(self, ymin=None, ymax=None, emit=True, **kwargs):
         """
