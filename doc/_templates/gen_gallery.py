@@ -7,7 +7,7 @@ template = """\
 {%% block body %%}
 
 <h3>Click on any image to see full size image and source code</h3>
-<br>
+<br/>
 
 %s
 {%% endblock %%}
