@@ -77,22 +77,22 @@ Tick formatting is controlled by classes derived from Formatter.  The
 formatter operates on a single tick value and returns a string to the
 axis.
 
-:clss:`NullFormatter`
+:class:`NullFormatter`
     no labels on the ticks
 
-:clss:`FixedFormatter`
+:class:`FixedFormatter`
     set the strings manually for the labels
 
-:clss:`FuncFormatter`
+:class:`FuncFormatter`
     user defined function sets the labels
 
-:clss:`FormatStrFormatter`
+:class:`FormatStrFormatter`
     use a sprintf format string
 
-:clss:`ScalarFormatter`
+:class:`ScalarFormatter`
     default formatter for scalars; autopick the fmt string
 
-:clss:`LogFormatter`
+:class:`LogFormatter`
     formatter for log axes
 
 
@@ -109,7 +109,7 @@ following methods::
   ax.yaxis.set_minor_formatter( yminorFormatter )
 
 See :ref:`pylab_examples-major_minor_demo1` for an example of setting
-major an minor ticks.  See the :module:`matplotlib.dates` module for
+major an minor ticks.  See the :mod:`matplotlib.dates` module for
 more information and examples of using date locators and formatters.
 """
 
