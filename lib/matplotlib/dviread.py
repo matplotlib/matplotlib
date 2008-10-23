@@ -394,8 +394,12 @@ class DviFont(object):
         self._scale, self._tfm, self.texname, self._vf = \
             scale, tfm, texname, vf
         self.size = scale * (72.0 / (72.27 * 2**16))
+        try:
+            nchars = max(tfm.width.iterkeys())
+        except ValueError:
+            nchars = 0
         self.widths = [ (1000*tfm.width.get(char, 0)) >> 20
-                        for char in range(0, max(tfm.width)) ]
+                        for char in range(nchars) ]
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and \

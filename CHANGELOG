@@ -1,3 +1,5 @@
+2008-10-23 Fixed exception in dviread that happened with Minion - JKS
+
 2008-10-21 set_xlim, ylim now return a copy of the viewlim array to
            avoid modify inplace surprises
 
