@@ -332,14 +332,13 @@ external tool to convert them to a movie.  You can use `mencoder
 which is part of the `mplayer <http://www.mplayerhq.hu>`_ suite
 for this::
 
-
     #fps (frames per second) controls the play speed
     mencoder 'mf://*.png' -mf type=png:fps=10 -ovc \\
        lavc -lavcopts vcodec=wmv2 -oac copy -o animation.avi
 
 The swiss army knife of image tools, ImageMagick's `convert
 <http://www.imagemagick.org/script/convert.php>`_ works for this as
-well.<p>
+well.
 
 Here is a simple example script that saves some PNGs, makes them into
 a movie, and then cleans up::
@@ -616,6 +615,14 @@ or by saving to a file handle::
 
     import sys
     fig.savefig(sys.stdout)
+
+Here is an example using the Python Imaging Library PIL.  First the figure is saved to a StringIO objectm which is then fed to PIL for further processing::
+
+    import StringIO, Image
+    imgdata = StringIO.StringIO()
+    fig.savefig(imgdata, format='png')
+    imgdata.seek(0)  # rewind the data
+    im = Image.open(imgdata)
 
 
 matplotlib with apache
