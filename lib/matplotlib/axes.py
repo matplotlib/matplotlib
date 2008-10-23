@@ -5356,13 +5356,19 @@ class Axes(martist.Artist):
     quiver.__doc__ = mquiver.Quiver.quiver_doc
 
     def barbs(self, *args, **kw):
+        """
+        %s
+        **Example:**
+
+        .. plot:: mpl_examples/pylab_examples/barb_demo.py
+        """
         if not self._hold: self.cla()
         b = mquiver.Barbs(self, *args, **kw)
         self.add_collection(b)
         self.update_datalim(b.get_offsets())
         self.autoscale_view()
         return b
-    barbs.__doc__ = mquiver.Barbs.barbs_doc
+    barbs.__doc__ = cbook.dedent(barbs.__doc__) % mquiver.Barbs.barbs_doc
 
     def fill(self, *args, **kwargs):
         """
