@@ -15,9 +15,12 @@
 # the script to suit your own needs.
 #
 
-
-from matplotlib.matlab import *   # For plotting graphs.
-import os                         # For issuing commands to the OS.
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt   # For plotting graphs.
+import numpy as np
+import subprocess                 # For issuing commands to the OS.
+import os
 import sys                        # For determining the Python version.
 
 #
@@ -25,22 +28,27 @@ import sys                        # For determining the Python version.
 # Python interpreter, and matplotlib.  The version of
 # Mencoder is printed when it is called.
 #
-# This script is known to have worked for:
-#
-# OS version: ('Linux', 'flux-capacitor', '2.4.26', '#1 SMP Sa Apr 17 19:33:42 CEST 2004', 'i686')
-# Python version: 2.3.4 (#2, May 29 2004, 03:31:27) [GCC 3.3.3 (Debian 20040417)]
-# matplotlib version: 0.61.0
-# MEncoder version:
-# MEncoder 1.0pre4-3.3.3 (C) 2000-2004 MPlayer Team
-# CPU: Intel Celeron 2/Pentium III Coppermine,Geyserville 996.1 MHz (Family: 6, Stepping: 10)
-# Detected cache-line size is 32 bytes
-# CPUflags: Type: 6 MMX: 1 MMX2: 1 3DNow: 0 3DNow2: 0 SSE: 1 SSE2: 0
-# Compiled for x86 CPU with extensions: MMX MMX2 SSE
-#
 print 'Executing on', os.uname()
 print 'Python version', sys.version
 print 'matplotlib version', matplotlib.__version__
 
+not_found_msg = """
+The mencoder command was not found;
+mencoder is used by this script to make an avi file from a set of pngs.
+It is typically not installed by default on linux distros because of
+legal restrictions, but it is widely available.
+"""
+
+try:
+    subprocess.check_call(['mencoder'])
+except subprocess.CalledProcessError:
+    print "mencoder command was found"
+    pass # mencoder is found, but returns non-zero exit as expected
+    # This is a quick and dirty check; it leaves some spurious output
+    # for the user to puzzle over.
+except OSError:
+    print not_found_msg
+    sys.exit("quitting\n")
 
 
 #
@@ -57,16 +65,16 @@ print 'Initializing data set...'   # Let the user know what's happening.
 
 # Initialize variables needed to create and store the example data set.
 numberOfTimeSteps = 100   # Number of frames we want in the movie.
-x = arange(-10,10,0.01)   # Values to be plotted on the x-axis.
+x = np.arange(-10,10,0.01)   # Values to be plotted on the x-axis.
 mean = -6                 # Initial mean of the Gaussian.
 stddev = 0.2              # Initial standard deviation.
 meaninc = 0.1             # Mean increment.
 stddevinc = 0.1           # Standard deviation increment.
 
 # Create an array of zeros and fill it with the example data.
-y = zeros((numberOfTimeSteps,len(x)), Float64)  
+y = np.zeros((numberOfTimeSteps,len(x)), float)
 for i in range(numberOfTimeSteps) :
-    y[i] = (1/sqrt(2*pi*stddev))*exp(-((x-mean)**2)/(2*stddev))
+    y[i] = (1/np.sqrt(2*np.pi*stddev))*np.exp(-((x-mean)**2)/(2*stddev))
     mean = mean + meaninc
     stddev = stddev + stddevinc
 
@@ -81,15 +89,15 @@ for i in range(len(y)) :
     #
     # The next four lines are just like Matlab.
     #
-    plot(x,y[i],'b.')
-    axis((x[0],x[-1],-0.25,1))
-    xlabel('time (ms)')
-    ylabel('probability density function')
-    
+    plt.plot(x,y[i],'b.')
+    plt.axis((x[0],x[-1],-0.25,1))
+    plt.xlabel('time (ms)')
+    plt.ylabel('probability density function')
+
     #
     # Notice the use of LaTeX-like markup.
     #
-    title(r'$\cal{N}(\mu, \sigma^2)$', fontsize=20)
+    plt.title(r'$\cal{N}(\mu, \sigma^2)$', fontsize=20)
 
     #
     # The file name indicates how the image will be saved and the
@@ -100,7 +108,7 @@ for i in range(len(y)) :
     # images directly to a file without displaying them.
     #
     filename = str('%03d' % i) + '.png'
-    savefig(filename, dpi=100)
+    plt.savefig(filename, dpi=100)
 
     #
     # Let the user know what's happening.
@@ -110,7 +118,7 @@ for i in range(len(y)) :
     #
     # Clear the figure to make way for the next image.
     #
-    clf()
+    plt.clf()
 
 #
 # Now that we have graphed images of the dataset, we will stitch them
@@ -137,4 +145,12 @@ command = ('mencoder',
            '-o',
            'output.avi')
 
-os.spawnvp(os.P_WAIT, 'mencoder', command)
+#os.spawnvp(os.P_WAIT, 'mencoder', command)
+
+print "\n\nabout to execute:\n%s\n\n" % ' '.join(command)
+subprocess.check_call(command)
+
+print "\n\n The movie was written to 'output.avi'"
+
+print "\n\n You may want to delete *.png now.\n\n"
+
