@@ -651,7 +651,7 @@ class ArtistInspector:
             if not self.is_alias(func): continue
             docstring = func.__doc__
             fullname = docstring[10:]
-            aliases[fullname[4:]] = name[4:]
+            aliases.setdefault(fullname[4:], []).append(name[4:])
         return aliases
 
     _get_valid_values_regex = re.compile(r"\n\s*ACCEPTS:\s*((?:.|\n)*?)(?:$|(?:\n\n))")
@@ -731,8 +731,10 @@ class ArtistInspector:
         """
 
         if s in self.aliasd:
-            return ':meth:`%s <%s>` or %s' % (s, target, self.aliasd[s])
-        else: return ':meth:`%s <%s>`' % (s, target)
+            aliases = ''.join([' or %s' % x for x in self.aliasd[s]])
+        else:
+            aliases = ''
+        return ':meth:`%s <%s>`%s' % (s, target, aliases)
 
     def pprint_setters(self, prop=None, leadingspace=2):
         """
