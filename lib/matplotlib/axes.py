@@ -6623,7 +6623,7 @@ class Axes(martist.Artist):
 
         .. math::
 
-          C_{xy} = \\frac{|P_{xy}|^2}{P_{xx}*P_{yy}}
+          C_{xy} = \\frac{|P_{xy}|^2}{P_{xx}P_{yy}}
 
         The return value is a tuple (*Cxy*, *f*), where *f* are the
         frequencies of the coherence vector.
