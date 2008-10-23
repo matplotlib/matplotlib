@@ -253,7 +253,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             return self._uniform_offsets
 
-    def set_linewidths(self, lw):
+    def set_linewidth(self, lw):
         """
         Set the linewidth(s) for the collection.  *lw* can be a scalar
         or a sequence; if it is a sequence the patches will cycle
@@ -263,11 +263,18 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         if lw is None: lw = mpl.rcParams['patch.linewidth']
         self._linewidths = self._get_value(lw)
-    set_lw = set_linewidth = set_linewidths
 
-    def set_linestyles(self, ls):
+    def set_linewidths(self, lw):
+        """alias for set_linewidth"""
+        return self.set_linewidth(lw)
+
+    def set_lw(self, lw):
+        """alias for set_linewidth"""
+        return self.set_linewidth(lw)
+
+    def set_linestyle(self, ls):
         """
-        Set the linestyles(s) for the collection.
+        Set the linestyle(s) for the collection.
 
         ACCEPTS: ['solid' | 'dashed', 'dashdot', 'dotted' |
         (offset, on-off-dash-seq) ]
@@ -306,7 +313,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
         except ValueError:
             raise ValueError('Do not know how to convert %s to dashes'%ls)
         self._linestyles = dashes
-    set_dashes = set_linestyle = set_linestyles
+
+    def set_linestyles(self, ls):
+        """alias for set_linestyle"""
+        return self.set_linestyle(ls)
+
+    def set_dashes(self, ls):
+        """alias for set_linestyle"""
+        return self.set_linestyle(ls)
 
     def set_antialiased(self, aa):
         """
@@ -317,7 +331,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
         self._antialiaseds = self._get_bool(aa)
-    set_antialiaseds = set_antialiased
+
+    def set_antialiaseds(self, aa):
+        """alias for set_antialiased"""
+        return self.set_antialiased(aa)
 
     def set_color(self, c):
         """
@@ -344,7 +361,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._facecolors_original = c
         self._facecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
 
-    set_facecolors = set_facecolor
+    def set_facecolors(self, c):
+        """alias for set_facecolor"""
+        return self.set_facecolor(c)
 
     def get_facecolor(self):
         return self._facecolors
@@ -377,7 +396,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._edgecolors_original = c
             self._edgecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
 
-    set_edgecolors = set_edgecolor
+    def set_edgecolors(self, c):
+        """alias for set_edgecolor"""
+        return self.set_edgecolor(c)
 
     def set_alpha(self, alpha):
         """
