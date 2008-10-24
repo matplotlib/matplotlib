@@ -53,8 +53,6 @@ class ContourLabeler:
           *fontsize*:
             See http://matplotlib.sf.net/fonts.html
 
-        .. TODO: Update this link to new fonts document
-
           *colors*:
             - if *None*, the color of each label matches the color of
               the corresponding contour
@@ -1050,8 +1048,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         Call signature::
 
-        conmin,segmin,imin,xmin,ymin,dmin = find_nearest_contour(
-                   self, x, y, indices=None, pixel=True )
+          conmin,segmin,imin,xmin,ymin,dmin = find_nearest_contour(
+                     self, x, y, indices=None, pixel=True )
 
         Optional keyword arguments::
 
