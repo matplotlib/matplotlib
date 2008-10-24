@@ -823,7 +823,6 @@ RendererAgg::draw_image(const Py::Tuple& args) {
     typedef agg::image_accessor_clip<agg::pixfmt_rgba32> image_accessor_type;
     typedef agg::span_interpolator_linear<> interpolator_type;
     typedef agg::span_image_filter_rgba_nn<image_accessor_type, interpolator_type> image_span_gen_type;
-    typedef agg::renderer_scanline_aa_solid<amask_ren_type>    amask_aa_renderer_type;
     typedef agg::renderer_scanline_aa<amask_ren_type, color_span_alloc_type, image_span_gen_type> renderer_type;
 
     color_span_alloc_type sa;
