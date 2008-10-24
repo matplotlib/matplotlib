@@ -213,18 +213,24 @@ _png_module::read_png(const Py::Tuple& args) {
 
   png_uint_32 width = info_ptr->width;
   png_uint_32 height = info_ptr->height;
+  bool do_gray_conversion = (info_ptr->bit_depth < 8 &&
+                             info_ptr->color_type == PNG_COLOR_TYPE_GRAY);
+
+  int bit_depth = info_ptr->bit_depth;
+  if (bit_depth == 16) {
+    png_set_strip_16(png_ptr);
+  } else if (bit_depth < 8) {
+    png_set_packing(png_ptr);
+  } else {
+  }
 
   // convert misc color types to rgb for simplicity
   if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY ||
-      info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+      info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
     png_set_gray_to_rgb(png_ptr);
-  else if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
+  } else if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE) {
     png_set_palette_to_rgb(png_ptr);
-
-
-  int bit_depth = info_ptr->bit_depth;
-  if (bit_depth == 16)  png_set_strip_16(png_ptr);
-
+  }
 
   png_set_interlace_handling(png_ptr);
   png_read_update_info(png_ptr, info_ptr);
@@ -247,8 +253,6 @@ _png_module::read_png(const Py::Tuple& args) {
 
   png_read_image(png_ptr, row_pointers);
 
-
-
   npy_intp dimensions[3];
   dimensions[0] = height;  //numrows
   dimensions[1] = width;   //numcols
@@ -256,18 +260,30 @@ _png_module::read_png(const Py::Tuple& args) {
 
   PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNew(3, dimensions, PyArray_FLOAT);
 
-
-  for (png_uint_32 y = 0; y < height; y++) {
-    png_byte* row = row_pointers[y];
-    for (png_uint_32 x = 0; x < width; x++) {
-
-      png_byte* ptr = (rgba) ? &(row[x*4]) : &(row[x*3]);
-      size_t offset = y*A->strides[0] + x*A->strides[1];
-      //if ((y<10)&&(x==10)) std::cout << "r = " << ptr[0] << " " << ptr[0]/255.0 << std::endl;
-      *(float*)(A->data + offset + 0*A->strides[2]) = (float)(ptr[0]/255.0f);
-      *(float*)(A->data + offset + 1*A->strides[2]) = (float)(ptr[1]/255.0f);
-      *(float*)(A->data + offset + 2*A->strides[2]) = (float)(ptr[2]/255.0f);
-      *(float*)(A->data + offset + 3*A->strides[2]) = rgba ? (float)(ptr[3]/255.0f) : 1.0f;
+  if (do_gray_conversion) {
+    float max_value = (float)((1L << bit_depth) - 1);
+    for (png_uint_32 y = 0; y < height; y++) {
+      png_byte* row = row_pointers[y];
+      for (png_uint_32 x = 0; x < width; x++) {
+        float value = row[x] / max_value;
+        size_t offset = y*A->strides[0] + x*A->strides[1];
+        *(float*)(A->data + offset + 0*A->strides[2]) = value;
+        *(float*)(A->data + offset + 1*A->strides[2]) = value;
+        *(float*)(A->data + offset + 2*A->strides[2]) = value;
+        *(float*)(A->data + offset + 3*A->strides[2]) = 1.0f;
+      }
+    }
+  } else {
+    for (png_uint_32 y = 0; y < height; y++) {
+      png_byte* row = row_pointers[y];
+      for (png_uint_32 x = 0; x < width; x++) {
+        png_byte* ptr = (rgba) ? &(row[x*4]) : &(row[x*3]);
+        size_t offset = y*A->strides[0] + x*A->strides[1];
+        *(float*)(A->data + offset + 0*A->strides[2]) = (float)(ptr[0]/255.0);
+        *(float*)(A->data + offset + 1*A->strides[2]) = (float)(ptr[1]/255.0);
+        *(float*)(A->data + offset + 2*A->strides[2]) = (float)(ptr[2]/255.0);
+        *(float*)(A->data + offset + 3*A->strides[2]) = rgba ? (float)(ptr[3]/255.0) : 1.0f;
+      }
     }
   }
 
