@@ -23,6 +23,7 @@
    colorbar_api.rst
    colors_api.rst
    nxutils_api.rst
+   mathtext_api.rst
    mlab_api.rst
    path_api.rst
    pyplot_api.rst
