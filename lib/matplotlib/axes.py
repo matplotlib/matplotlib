@@ -499,15 +499,24 @@ class Axes(martist.Artist):
         self._originalPosition = self._position.frozen()
         self.set_axes(self)
         self.set_aspect('auto')
-        self.set_adjustable('box')
+        self._adjustable = 'box'
         self.set_anchor('C')
         self._sharex = sharex
         self._sharey = sharey
         if sharex is not None:
             self._shared_x_axes.join(self, sharex)
+            if sharex._adjustable == 'box':
+                sharex._adjustable = 'datalim'
+                #warnings.warn(
+                #    'shared axes: "adjustable" is being changed to "datalim"')
+            self._adjustable = 'datalim'
         if sharey is not None:
             self._shared_y_axes.join(self, sharey)
-
+            if sharex._adjustable == 'box':
+                sharex._adjustable = 'datalim'
+                #warnings.warn(
+                #    'shared axes: "adjustable" is being changed to "datalim"')
+            self._adjustable = 'datalim'
         self.set_label(label)
         self.set_figure(fig)
 
@@ -772,6 +781,11 @@ class Axes(martist.Artist):
         if which in ('both', 'original'):
             self._originalPosition.set(pos)
 
+    def reset_position(self):
+        'Make the original position the active position'
+        pos = self.get_position(original=True)
+        self.set_position(pos, which='active')
+
     def _set_artist_props(self, a):
         'set the boilerplate props for artists added to axes'
         a.set_figure(self.figure)
@@ -992,6 +1006,10 @@ class Axes(martist.Artist):
         ACCEPTS: [ 'box' | 'datalim' ]
         """
         if adjustable in ('box', 'datalim'):
+            if self in self._shared_x_axes or self in self._shared_y_axes:
+                if adjustable == 'box':
+                    raise ValueError(
+                        'adjustable must be "datalim" for shared axes')
             self._adjustable = adjustable
         else:
             raise ValueError('argument must be "box", or "datalim"')
@@ -1043,11 +1061,11 @@ class Axes(martist.Artist):
         axes box or the view limits.
         '''
         if position is None:
-            position = self.get_position(True)
+            position = self.get_position(original=True)
 
         aspect = self.get_aspect()
         if aspect == 'auto':
-            self.set_position( position , 'active')
+            self.set_position( position , which='active')
             return
 
         if aspect == 'equal':
@@ -1058,7 +1076,10 @@ class Axes(martist.Artist):
         #Ensure at drawing time that any Axes involved in axis-sharing
         # does not have its position changed.
         if self in self._shared_x_axes or self in self._shared_y_axes:
-            self._adjustable = 'datalim'
+            if self._adjustable == 'box':
+                self._adjustable = 'datalim'
+                warnings.warn(
+                    'shared axes: "adjustable" is being changed to "datalim"')
 
         figW,figH = self.get_figure().get_size_inches()
         fig_aspect = figH/figW
@@ -1068,6 +1089,10 @@ class Axes(martist.Artist):
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
             self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
             return
+
+        # reset active to original in case it had been changed
+        # by prior use of 'box'
+        self.set_position(position, which='active')
 
         xmin,xmax = self.get_xbound()
         xsize = max(math.fabs(xmax-xmin), 1e-30)
@@ -1489,7 +1514,7 @@ class Axes(martist.Artist):
         if not self.get_visible(): return
         renderer.open_group('axes')
 
-        self.apply_aspect(self.get_position(True))
+        self.apply_aspect()
 
         # the patch draws the background rectangle -- the frame below
         # will draw the edges
