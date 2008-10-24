@@ -221,7 +221,6 @@ _png_module::read_png(const Py::Tuple& args) {
     png_set_strip_16(png_ptr);
   } else if (bit_depth < 8) {
     png_set_packing(png_ptr);
-  } else {
   }
 
   // convert misc color types to rgb for simplicity
