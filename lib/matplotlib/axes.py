@@ -831,7 +831,7 @@ class Axes(martist.Artist):
         if self._sharey is not None:
             self.yaxis.major = self._sharey.yaxis.major
             self.yaxis.minor = self._sharey.yaxis.minor
-            y0, y1 = self._sharex.get_ylim()
+            y0, y1 = self._sharey.get_ylim()
             self.set_ylim(y0, y1, emit=False)
             self.yaxis.set_scale(self._sharey.yaxis.get_scale())
         else:
