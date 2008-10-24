@@ -1,175 +1,21 @@
 r"""
+:mod:`~matplotlib.mathtext` is a module for parsing a subset of the
+TeX math syntax and drawing them to a matplotlib backend.
 
-OVERVIEW
+For a tutorial of its usage see :ref:`mathtext-tutorial`.  This
+document is primarily concerned with implementation details.
 
-  mathtext is a module for parsing TeX expressions and drawing them
-  into a matplotlib.ft2font image buffer.  You can draw from this
-  buffer into your backend.
+The module uses pyparsing_ to parse the TeX expression.
 
-  A large set of the TeX symbols are provided (see below).
-  Subscripting and superscripting are supported, as well as the
-  over/under style of subscripting with \sum, \int, etc.
+.. _pyparsing: http://pyparsing.wikispaces.com/
 
-  The module uses pyparsing to parse the TeX expression, an so can
-  handle fairly complex TeX expressions Eg, the following renders
-  correctly
+The Bakoma distribution of the TeX Computer Modern fonts, and STIX
+fonts are supported.  There is experimental support for using
+arbitrary fonts, but results may vary without proper tweaking and
+metrics for those fonts.
 
-  s = r'$\mathcal{R}\prod_{i=\alpha\mathcal{B}}^\infty a_i\sin(2 \pi f x_i)$'
-
-  Different fonts may be selected:
-    \mathcal      Calligraphic fonts
-    \mathrm       Roman (upright) font
-    \mathit       Italic font
-    \mathtt       Typewriter (monospaced) font, similar to Courier
-
-  Additionally, if using the STIX fonts:
-    \mathbb       Blackboard (double-struck) font
-    \mathcircled  Circled characters
-    \mathfrak     Fraktur (Gothic-style) font
-    \mathscr      Script (cursive) font
-    \mathsf       Sans-serif font
-
-  The following accents are provided: \hat, \breve, \grave, \bar,
-  \acute, \tilde, \vec, \dot, \ddot.  All of them have the same
-  syntax, eg to make an overbar you do \bar{o} or to make an o umlaut
-  you do \ddot{o}.  The shortcuts are also provided, eg: \"o \'e \`e
-  \~n \.x \^y
-
-  The spacing elements \ , \/ and \hspace{num} are provided.  \/
-  inserts a small space, and \hspace{num} inserts a fraction of the
-  current fontsize.  Eg, if num=0.5 and the fontsize is 12.0,
-  hspace{0.5} inserts 6 points of space
-
-
-
-  If you find TeX expressions that don't parse or render properly,
-  please email me, but please check KNOWN ISSUES below first.
-
-REQUIREMENTS
-
-  mathtext requires matplotlib.ft2font.  Set BUILD_FT2FONT=True in
-  setup.py.  See BACKENDS below for a summary of availability by
-  backend.
-
-LICENSING:
-
-  The computer modern fonts this package uses are part of the BaKoMa
-  fonts, which are (now) free for commercial and noncommercial use and
-  redistribution; see license/LICENSE_BAKOMA in the matplotlib src
-  distribution for redistribution requirements.
-
-USAGE:
-
-  See http://matplotlib.sf.net/users/mathtext.html for a tutorial
-  introduction.
-
-  Any text element (xlabel, ylabel, title, text, etc) can use TeX
-  markup, as in
-
-    xlabel(r'$\Delta_i$')
-           ^
-        use raw strings
-
-  Math and non-math can be interpresed in the same string.  E.g.,
-
-    r'My label $x_i$'.
-
-  A large set of the TeX symbols are provided.  Subscripting and
-  superscripting are supported, as well as the over/under style of
-  subscripting with \sum, \int, etc.
-
-
-  Allowed TeX symbols:
-
-  $ \% \AA \AE \BbbC \BbbN \BbbP \BbbQ \BbbR \BbbZ \Bumpeq \Cap \Colon
-  \Cup \Delta \Doteq \Downarrow \Equiv \Finv \Gamma \H \Im \L \Lambda
-  \Ldsh \Leftarrow \Leftrightarrow \Lleftarrow \Lsh \Nearrow \Nwarrow
-  \O \OE \Omega \P \Phi \Pi \Psi \Rdsh \Re \Rightarrow \Rrightarrow
-  \Rsh \S \Searrow \Sigma \Subset \Supset \Swarrow \Theta \Uparrow
-  \Updownarrow \Upsilon \Vdash \Vert \Vvdash \Xi \_ \__sqrt__ \ac
-  \acute \acwopencirclearrow \adots \ae \aleph \alpha \angle \approx
-  \approxeq \approxident \arceq \ast \asymp \backcong \backprime
-  \backsim \backsimeq \backslash \bar \barleftarrow \barwedge \because
-  \beta \beth \between \bigcap \bigcirc \bigcup \bigodot \bigoplus
-  \bigotimes \bigstar \bigtriangledown \bigtriangleup \biguplus
-  \bigvee \bigwedge \blacksquare \blacktriangle \blacktriangledown
-  \blacktriangleleft \blacktriangleright \bot \bowtie \boxbar \boxdot
-  \boxminus \boxplus \boxtimes \breve \bullet \bumpeq \c \candra \cap
-  \carriagereturn \cdot \cdotp \cdots \check \checkmark \chi \circ
-  \circeq \circledR \circledS \circledast \circledcirc \circleddash
-  \circumflexaccent \clubsuit \clubsuitopen \colon \coloneq
-  \combiningacuteaccent \combiningbreve \combiningdiaeresis
-  \combiningdotabove \combininggraveaccent \combiningoverline
-  \combiningrightarrowabove \combiningtilde \complement \cong \coprod
-  \copyright \cup \cupdot \curlyeqprec \curlyeqsucc \curlyvee
-  \curlywedge \curvearrowleft \curvearrowright \cwopencirclearrow \d
-  \dag \daleth \danger \dashv \ddag \ddddot \dddot \ddot \ddots
-  \degree \delta \diamond \diamondsuit \digamma \div \divideontimes
-  \dot \doteq \dotminus \dotplus \dots \doublebarwedge ? \downarrow
-  \downdownarrows \downharpoonleft \downharpoonright \downzigzagarrow
-  \ell \emdash \emptyset \endash \enspace \epsilon \eqcirc \eqcolon
-  \eqdef \eqgtr \eqless \eqsim \equiv \eta \eth \exists \fallingdotseq
-  \flat \forall \frakC \frakZ \frown \gamma \geq \geqq \gg \ggg \gimel
-  \gneqq \gnsim \grave \greater \gtrdot \gtreqless \gtrless \gtrsim
-  \hat \heartsuit \hookleftarrow \hookrightarrow \i \iiint \iint
-  \imageof \imath \in \infty \int \intercal \invnot \iota \jmath \k
-  \kappa \kernelcontraction \l \lambda \lambdabar \lasp \lbrace
-  \lbrack \lceil \leftangle \leftarrow \leftarrowtail \leftbrace
-  \leftharpoonaccent \leftharpoondown \leftharpoonup \leftleftarrows
-  \leftparen \leftrightarrow \leftrightarrows \leftrightharpoons
-  \leftthreetimes \leq \leqq \less \lessdot \lesseqgtr \lessgtr
-  \lesssim \lfloor \ll \llcorner \lll \lneqq \lnsim \looparrowleft
-  \looparrowright \lq \lrcorner \ltimes \maltese \mapsdown \mapsfrom
-  \mapsto \mapsup \measeq \measuredangle \mho \mid \minus \models \mp
-  \mu \multimap \nLeftarrow \nLeftrightarrow \nRightarrow \nVDash
-  \nVdash \nabla \napprox \natural \ncong \ne \nearrow \neg \nequiv
-  \nexists \ngeq \ngtr \ni \nleftarrow \nleftrightarrow \nleq \nless
-  \nmid \not \notin \nparallel \nprec \nrightarrow \nsim \nsime
-  \nsubset \nsubseteq \nsucc \nsupset \nsupseteq \ntriangleleft
-  \ntrianglelefteq \ntriangleright \ntrianglerighteq \nu \nvDash
-  \nvdash \nwarrow \o \obar \ocirc \odot \oe \oiiint \oiint \oint
-  \omega \ominus \oplus \origof \oslash \otimes \overarc
-  \overleftarrow \overleftrightarrow \parallel \partial \phi \pi
-  \pitchfork \pm \prec \preccurlyeq \preceq \precnsim \precsim \prime
-  \prod \propto \prurel \psi \quad \questeq \rasp \rbrace \rbrack
-  \rceil \rfloor \rho \rightangle \rightarrow \rightarrowbar
-  \rightarrowtail \rightbrace \rightharpoonaccent \rightharpoondown
-  \rightharpoonup \rightleftarrows \rightleftharpoons \rightparen
-  \rightrightarrows \rightthreetimes \rightzigzagarrow \risingdotseq
-  \rq \rtimes \scrB \scrE \scrF \scrH \scrI \scrL \scrM \scrR \scre
-  \scrg \scro \scurel \searrow \sharp \sigma \sim \simeq \slash
-  \smallsetminus \smile \solbar \spadesuit \spadesuitopen
-  \sphericalangle \sqcap \sqcup \sqsubset \sqsubseteq \sqsupset
-  \sqsupseteq \ss \star \stareq \sterling \subset \subseteq \subsetneq
-  \succ \succcurlyeq \succeq \succnsim \succsim \sum \supset \supseteq
-  \supsetneq \swarrow \t \tau \textasciiacute \textasciicircum
-  \textasciigrave \textasciitilde \textexclamdown \textquestiondown
-  \textquotedblleft \textquotedblright \therefore \theta \thickspace
-  \thinspace \tilde \times \to \top \triangledown \triangleleft
-  \trianglelefteq \triangleq \triangleright \trianglerighteq
-  \turnednot \twoheaddownarrow \twoheadleftarrow \twoheadrightarrow
-  \twoheaduparrow \ulcorner \underbar \uparrow \updownarrow
-  \updownarrowbar \updownarrows \upharpoonleft \upharpoonright \uplus
-  \upsilon \upuparrows \urcorner \vDash \varepsilon \varkappa
-  \varnothing \varphi \varpi \varrho \varsigma \vartheta \vartriangle
-  \vartriangleleft \vartriangleright \vdash \vdots \vec \vee \veebar
-  \veeeq \vert \wedge \wedgeq \widehat \widetilde \wp \wr \xi \yen
-  \zeta \{ \| \}
-
-BACKENDS
-
-  mathtext currently works with all backends.
-
-KNOWN ISSUES:
-
-  - Certainly there are some...
-
-Author    : John Hunter <jdhunter@ace.bsd.uchicago.edu>
-            Michael Droettboom <mdroe@stsci.edu>
-               (rewrite based on TeX box layout algorithms)
-Copyright : John Hunter (2004,2005)
-License   : matplotlib license (PSF compatible)
-
+If you find TeX expressions that don't parse or render properly,
+please email mdroe@stsci.edu, but please check KNOWN ISSUES below first.
 """
 from __future__ import division
 import os
@@ -214,10 +60,9 @@ import matplotlib._png as _png
 def get_unicode_index(symbol):
     """get_unicode_index(symbol) -> integer
 
-Return the integer index (from the Unicode table) of symbol.
-symbol can be a single unicode character, a TeX command (i.e. r'\pi'),
-or a Type1 symbol name (i.e. 'phi').
-
+Return the integer index (from the Unicode table) of symbol.  *symbol*
+can be a single unicode character, a TeX command (i.e. r'\pi'), or a
+Type1 symbol name (i.e. 'phi').
 """
     # From UTF #25: U+2212 minus sign is the preferred
     # representation of the unary and binary minus sign rather than
@@ -239,32 +84,62 @@ TeX/Type1 symbol"""%locals()
 
 
 class MathtextBackend(object):
+    """
+    The base class for the mathtext backend-specific code.  The
+    purpose of :class:`MathtextBackend` subclasses is to interface
+    between mathtext and a specific matplotlib graphics backend.
+
+    Subclasses need to override the following:
+
+      - :meth:`render_glyph`
+      - :meth:`render_filled_rect`
+      - :meth:`get_results`
+
+    And optionally, if you need to use a Freetype hinting style:
+
+      - :meth:`get_hinting_type`
+    """
     def __init__(self):
         self.fonts_object = None
 
     def set_canvas_size(self, w, h, d):
-        'Dimension the drawing canvas; may be a noop'
+        'Dimension the drawing canvas'
         self.width  = w
         self.height = h
         self.depth  = d
 
     def render_glyph(self, ox, oy, info):
+        """
+        Draw a glyph described by *info* to the reference point (*ox*,
+        *oy*).
+        """
         raise NotImplementedError()
 
     def render_filled_rect(self, x1, y1, x2, y2):
+        """
+        Draw a filled black rectangle from (*x1*, *y1*) to (*x2*, *y2*).
+        """
         raise NotImplementedError()
 
     def get_results(self, box):
-        """Return a backend specific tuple of things to return to the
-        backend after all processing is done."""
+        """
+        Return a backend-specific tuple to return to the backend after
+        all processing is done.
+        """
         raise NotImplementedError()
 
     def get_hinting_type(self):
+        """
+        Get the Freetype hinting type to use with this particular
+        backend.
+        """
         return LOAD_NO_HINTING
 
 class MathtextBackendBbox(MathtextBackend):
-    """A backend whose only purpose is to get a precise bounding box.
-    Only required for the Agg backend."""
+    """
+    A backend whose only purpose is to get a precise bounding box.
+    Only required for the Agg backend.
+    """
 
     def __init__(self, real_backend):
         MathtextBackend.__init__(self)
@@ -310,6 +185,10 @@ class MathtextBackendBbox(MathtextBackend):
         self.real_backend.oy = self.bbox[1]
 
 class MathtextBackendAggRender(MathtextBackend):
+    """
+    Render glyphs and rectangles to an FTImage buffer, which is later
+    transferred to the Agg image by the Agg backend.
+    """
     def __init__(self):
         self.ox = 0
         self.oy = 0
@@ -353,9 +232,17 @@ class MathtextBackendBitmapRender(MathtextBackendAggRender):
         return self.image, self.depth
 
 def MathtextBackendBitmap():
+    """
+    A backend to generate standalone mathtext images.  No additional
+    matplotlib backend is required.
+    """
     return MathtextBackendBbox(MathtextBackendBitmapRender())
 
 class MathtextBackendPs(MathtextBackend):
+    """
+    Store information to write a mathtext rendering to the PostScript
+    backend.
+    """
     def __init__(self):
         self.pswriter = StringIO()
         self.lastfont = None
@@ -393,6 +280,10 @@ setfont
                 self.fonts_object.get_used_characters())
 
 class MathtextBackendPdf(MathtextBackend):
+    """
+    Store information to write a mathtext rendering to the PDF
+    backend.
+    """
     def __init__(self):
         self.glyphs = []
         self.rects = []
@@ -417,6 +308,10 @@ class MathtextBackendPdf(MathtextBackend):
                 self.fonts_object.get_used_characters())
 
 class MathtextBackendSvg(MathtextBackend):
+    """
+    Store information to write a mathtext rendering to the SVG
+    backend.
+    """
     def __init__(self):
         self.svg_glyphs = []
         self.svg_rects = []
@@ -442,6 +337,11 @@ class MathtextBackendSvg(MathtextBackend):
                 self.fonts_object.get_used_characters())
 
 class MathtextBackendCairo(MathtextBackend):
+    """
+    Store information to write a mathtext rendering to the Cairo
+    backend.
+    """
+
     def __init__(self):
         self.glyphs = []
         self.rects = []
@@ -466,7 +366,7 @@ class MathtextBackendCairo(MathtextBackend):
 
 class Fonts(object):
     """
-    An abstract base class for fonts that want to render mathtext
+    An abstract base class for a system of fonts to use for mathtext.
 
     The class must be able to take symbol keys and font file names and
     return the character metrics.  It also delegates to a backend class
@@ -474,11 +374,15 @@ class Fonts(object):
     """
 
     def __init__(self, default_font_prop, mathtext_backend):
-        """default_font_prop: A FontProperties object to use for the
-        default non-math font, or the base font for Unicode font
-        rendering.
-        mathtext_backend: A subclass of MathTextBackend used to
-        delegate the actual rendering."""
+        """
+        *default_font_prop*: A
+        :class:`~matplotlib.font_manager.FontProperties` object to use
+        for the default non-math font, or the base font for Unicode
+        (generic) font rendering.
+
+        *mathtext_backend*: A subclass of :class:`MathTextBackend`
+        used to delegate the actual rendering.
+        """
         self.default_font_prop = default_font_prop
         self.mathtext_backend = mathtext_backend
         # Make these classes doubly-linked
@@ -486,51 +390,86 @@ class Fonts(object):
         self.used_characters = {}
 
     def destroy(self):
-        """Fix any cyclical references before the object is about
-        to be destroyed."""
+        """
+        Fix any cyclical references before the object is about
+        to be destroyed.
+        """
         self.used_characters = None
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
                  font2, fontclass2, sym2, fontsize2, dpi):
         """
-        Get the kerning distance for font between sym1 and sym2.
+        Get the kerning distance for font between *sym1* and *sym2*.
 
-        fontX: one of the TeX font names, tt, it, rm, cal, sf, bf or
-               default (non-math)
-        symX:  a symbol in raw TeX form. e.g. '1', 'x' or '\sigma'
-        fontsizeX: the fontsize in points
-        dpi: the current dots-per-inch
+        *fontX*: one of the TeX font names::
 
-        sym is a single symbol(alphanum, punct) or a special symbol
-        like \sigma.
+          tt, it, rm, cal, sf, bf or default (non-math)
 
+        *fontclassX*: TODO
+
+        *symX*: a symbol in raw TeX form. e.g. '1', 'x' or '\sigma'
+
+        *fontsizeX*: the fontsize in points
+
+        *dpi*: the current dots-per-inch
         """
         return 0.
 
     def get_metrics(self, font, font_class, sym, fontsize, dpi):
         """
-        font: one of the TeX font names, tt, it, rm, cal, sf, bf or
-               default (non-math)
-        sym:  a symbol in raw TeX form. e.g. '1', 'x' or '\sigma'
-        fontsize: font size in points
-        dpi: current dots-per-inch
+        *font*: one of the TeX font names::
 
-          advance
-          height
-          width
-          xmin, xmax, ymin, ymax  - the ink rectangle of the glyph
-          iceberg - the distance from the baseline to the top of the glyph.
-             horiBearingY in Truetype parlance, height in TeX parlance
+          tt, it, rm, cal, sf, bf or default (non-math)
+
+        *font_class*: TODO
+
+        *sym*:  a symbol in raw TeX form. e.g. '1', 'x' or '\sigma'
+
+        *fontsize*: font size in points
+
+        *dpi*: current dots-per-inch
+
+        Returns an object with the following attributes:
+
+          - *advance*: The advance distance (in points) of the glyph.
+
+          - *height*: The height of the glyph in points.
+
+          - *width*: The width of the glyph in points.
+
+          - *xmin*, *xmax*, *ymin*, *ymax* - the ink rectangle of the glyph
+
+          - *iceberg* - the distance from the baseline to the top of
+            the glyph.  This corresponds to TeX's definition of
+            "height".
         """
         info = self._get_info(font, font_class, sym, fontsize, dpi)
         return info.metrics
 
     def set_canvas_size(self, w, h, d):
-        'Dimension the drawing canvas; may be a noop'
+        """
+        Set the size of the buffer used to render the math expression.
+        Only really necessary for the bitmap backends.
+        """
         self.width, self.height, self.depth = ceil(w), ceil(h), ceil(d)
         self.mathtext_backend.set_canvas_size(self.width, self.height, self.depth)
 
     def render_glyph(self, ox, oy, facename, font_class, sym, fontsize, dpi):
+        """
+        Draw a glyph at
+
+          - *ox*, *oy*: position
+
+          - *facename*: One of the TeX face names
+
+          - *font_class*:
+
+          - *sym*: TeX symbol name or single character
+
+          - *fontsize*: fontsize in points
+
+          - *dpi*: The dpi to draw at.
+        """
         info = self._get_info(facename, font_class, sym, fontsize, dpi)
         realpath, stat_key = get_realpath_and_stat(info.font.fname)
         used_characters = self.used_characters.setdefault(
@@ -539,31 +478,52 @@ class Fonts(object):
         self.mathtext_backend.render_glyph(ox, oy, info)
 
     def render_rect_filled(self, x1, y1, x2, y2):
+        """
+        Draw a filled rectangle from (*x1*, *y1*) to (*x2*, *y2*).
+        """
         self.mathtext_backend.render_rect_filled(x1, y1, x2, y2)
 
     def get_xheight(self, font, fontsize, dpi):
+        """
+        Get the xheight for the given *font* and *fontsize*.
+        """
         raise NotImplementedError()
 
     def get_underline_thickness(self, font, fontsize, dpi):
+        """
+        Get the line thickness that matches the given font.  Used as a
+        base unit for drawing lines such as in a fraction or radical.
+        """
         raise NotImplementedError()
 
     def get_used_characters(self):
+        """
+        Get the set of characters that were used in the math
+        expression.  Used by backends that need to subset fonts so
+        they know which glyphs to include.
+        """
         return self.used_characters
 
     def get_results(self, box):
+        """
+        Get the data needed by the backend to render the math
+        expression.  The return value is backend-specific.
+        """
         return self.mathtext_backend.get_results(box)
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         """
         Override if your font provides multiple sizes of the same
-        symbol.
+        symbol.  Should return a list of symbols matching *sym* in
+        various sizes.  The expression renderer will select the most
+        appropriate size for a given situation from this list.
         """
         return [(fontname, sym)]
 
 class TruetypeFonts(Fonts):
     """
     A generic base class for all font setups that use Truetype fonts
-    (through ft2font)
+    (through FT2Font).
     """
     class CachedFont:
         def __init__(self, font):
@@ -589,8 +549,6 @@ class TruetypeFonts(Fonts):
         Fonts.destroy(self)
 
     def _get_font(self, font):
-        """Looks up a CachedFont with its charmap and inverse charmap.
-        font may be a TeX font name (cal, rm, it etc.), or postscript name."""
         if font in self.fontmap:
             basename = self.fontmap[font]
         else:
@@ -611,7 +569,6 @@ class TruetypeFonts(Fonts):
         return 0.
 
     def _get_info(self, fontname, font_class, sym, fontsize, dpi):
-        'load the cmfont, metrics and glyph with caching'
         key = fontname, font_class, sym, fontsize, dpi
         bunch = self.glyphd.get(key)
         if bunch is not None:
@@ -665,8 +622,9 @@ class TruetypeFonts(Fonts):
         return xHeight
 
     def get_underline_thickness(self, font, fontsize, dpi):
-        # This function used to grab underline thickness from the font,
-        # but that information is just too un-reliable, so it is now hardcoded.
+        # This function used to grab underline thickness from the font
+        # metrics, but that information is just too un-reliable, so it
+        # is now hardcoded.
         return ((0.75 / 12.0) * fontsize * dpi) / 72.0
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
@@ -681,7 +639,10 @@ class TruetypeFonts(Fonts):
 
 class BakomaFonts(TruetypeFonts):
     """
-    Use the Bakoma true type fonts for rendering
+    Use the Bakoma TrueType fonts for rendering.
+
+    Symbols are strewn about a number of font files, each of which has
+    its own proprietary 8-bit encoding.
     """
     _fontmap = { 'cal' : 'cmsy10',
                  'rm'  : 'cmr10',
@@ -788,15 +749,19 @@ class BakomaFonts(TruetypeFonts):
         _size_alternatives[alias] = _size_alternatives[target]
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
-        alternatives = self._size_alternatives.get(sym)
-        if alternatives:
-            return alternatives
-        return [(fontname, sym)]
+        return self._size_alternatives.get(sym, [(fontname, sym)])
 
 class UnicodeFonts(TruetypeFonts):
-    """An abstract base class for handling Unicode fonts.
     """
+    An abstract base class for handling Unicode fonts.
 
+    While some reasonably complete Unicode fonts (such as DejaVu) may
+    work in some situations, the only Unicode font I'm aware of with a
+    complete set of math symbols is STIX.
+
+    This class will "fallback" on the Bakoma fonts when a required
+    symbol can not be found in the font.
+    """
     fontmap = {}
     use_cmex = True
 
@@ -900,7 +865,15 @@ class UnicodeFonts(TruetypeFonts):
 
 class StixFonts(UnicodeFonts):
     """
-    A font handling class for the STIX fonts
+    A font handling class for the STIX fonts.
+
+    In addition to what UnicodeFonts provides, this class:
+
+    - supports "virtual fonts" which are complete alpha numeric
+      character sets with different font styles at special Unicode
+      code points, such as "Blackboard".
+
+    - handles sized alternative characters for the STIXSizeX fonts.
     """
     _fontmap = { 'rm'  : 'STIXGeneral',
                  'it'  : 'STIXGeneral:italic',
@@ -994,7 +967,7 @@ class StixFonts(UnicodeFonts):
 
 class StixSansFonts(StixFonts):
     """
-    A font handling class for the STIX fonts (using sans-serif
+    A font handling class for the STIX fonts (that uses sans-serif
     characters by default).
     """
     _sans = True
@@ -1187,8 +1160,8 @@ class MathTextWarning(Warning):
     pass
 
 class Node(object):
-    """A node in the TeX box model
-    node133
+    """
+    A node in the TeX box model
     """
     def __init__(self):
         self.size = 0
@@ -1203,21 +1176,26 @@ class Node(object):
         return 0.0
 
     def shrink(self):
-        """Shrinks one level smaller.  There are only three levels of sizes,
-        after which things will no longer get smaller."""
+        """
+        Shrinks one level smaller.  There are only three levels of
+        sizes, after which things will no longer get smaller.
+        """
         self.size += 1
 
     def grow(self):
-        """Grows one level larger.  There is no limit to how big something
-        can get."""
+        """
+        Grows one level larger.  There is no limit to how big
+        something can get.
+        """
         self.size -= 1
 
     def render(self, x, y):
         pass
 
 class Box(Node):
-    """Represents any node with a physical location.
-    node135"""
+    """
+    Represents any node with a physical location.
+    """
     def __init__(self, width, height, depth):
         Node.__init__(self)
         self.width  = width
@@ -1255,15 +1233,16 @@ class Hbox(Box):
         Box.__init__(self, width, 0., 0.)
 
 class Char(Node):
-    """Represents a single character.  Unlike TeX, the font
-    information and metrics are stored with each Char to make it
-    easier to lookup the font metrics when needed.  Note that TeX
-    boxes have a width, height, and depth, unlike Type1 and Truetype
-    which use a full bounding box and an advance in the x-direction.
-    The metrics must be converted to the TeX way, and the advance (if
-    different from width) must be converted into a Kern node when the
-    Char is added to its parent Hlist.
-    node134"""
+    """
+    Represents a single character.  Unlike TeX, the font information
+    and metrics are stored with each :class:`Char` to make it easier
+    to lookup the font metrics when needed.  Note that TeX boxes have
+    a width, height, and depth, unlike Type1 and Truetype which use a
+    full bounding box and an advance in the x-direction.  The metrics
+    must be converted to the TeX way, and the advance (if different
+    from width) must be converted into a :class:`Kern` node when the
+    :class:`Char` is added to its parent :class:`Hlist`.
+    """
     def __init__(self, c, state):
         Node.__init__(self)
         self.c = c
@@ -1294,9 +1273,11 @@ class Char(Node):
         return self._metrics.slanted
 
     def get_kerning(self, next):
-        """Return the amount of kerning between this and the given
+        """
+        Return the amount of kerning between this and the given
         character.  Called when characters are strung together into
-        Hlists to create Kern nodes."""
+        :class:`Hlist` to create :class:`Kern` nodes.
+        """
         advance = self._metrics.advance - self.width
         kern = 0.
         if isinstance(next, Char):
@@ -1307,7 +1288,9 @@ class Char(Node):
         return advance + kern
 
     def render(self, x, y):
-        """Render the character to the canvas"""
+        """
+        Render the character to the canvas
+        """
         self.font_output.render_glyph(
             x, y,
             self.font, self.font_class, self.c, self.fontsize, self.dpi)
@@ -1328,9 +1311,11 @@ class Char(Node):
         self.depth    *= GROW_FACTOR
 
 class Accent(Char):
-    """The font metrics need to be dealt with differently for accents,
+    """
+    The font metrics need to be dealt with differently for accents,
     since they are already offset correctly from the baseline in
-    TrueType fonts."""
+    TrueType fonts.
+    """
     def _update_metrics(self):
         metrics = self._metrics = self.font_output.get_metrics(
             self.font, self.font_class, self.c, self.fontsize, self.dpi)
@@ -1347,14 +1332,17 @@ class Accent(Char):
         self._update_metrics()
 
     def render(self, x, y):
-        """Render the character to the canvas"""
+        """
+        Render the character to the canvas.
+        """
         self.font_output.render_glyph(
             x - self._metrics.xmin, y + self._metrics.ymin,
             self.font, self.font_class, self.c, self.fontsize, self.dpi)
 
 class List(Box):
-    """A list of nodes (either horizontal or vertical).
-    node135"""
+    """
+    A list of nodes (either horizontal or vertical).
+    """
     def __init__(self, elements):
         Box.__init__(self, 0., 0., 0.)
         self.shift_amount = 0.   # An arbitrary offset
@@ -1372,8 +1360,10 @@ class List(Box):
             ' '.join([repr(x) for x in self.children]))
 
     def _determine_order(self, totals):
-        """A helper function to determine the highest order of glue
-        used by the members of this list.  Used by vpack and hpack."""
+        """
+        A helper function to determine the highest order of glue
+        used by the members of this list.  Used by vpack and hpack.
+        """
         o = 0
         for i in range(len(totals) - 1, 0, -1):
             if totals[i] != 0.0:
@@ -1411,8 +1401,9 @@ class List(Box):
         self.glue_set     *= GROW_FACTOR
 
 class Hlist(List):
-    """A horizontal list of boxes.
-    node135"""
+    """
+    A horizontal list of boxes.
+    """
     def __init__(self, elements, w=0., m='additional', do_kern=True):
         List.__init__(self, elements)
         if do_kern:
@@ -1420,10 +1411,13 @@ class Hlist(List):
         self.hpack()
 
     def kern(self):
-        """Insert Kern nodes between Chars to set kerning.  The
-        Chars themselves determine the amount of kerning they need
-        (in get_kerning), and this function just creates the linked
-        list in the correct way."""
+        """
+        Insert :class:`Kern` nodes between :class:`Char` nodes to set
+        kerning.  The :class:`Char` nodes themselves determine the
+        amount of kerning they need (in :meth:`~Char.get_kerning`),
+        and this function just creates the linked list in the correct
+        way.
+        """
         new_children = []
         num_children = len(self.children)
         if num_children:
@@ -1455,20 +1449,24 @@ class Hlist(List):
 #         return 0.0
 
     def hpack(self, w=0., m='additional'):
-        """The main duty of hpack is to compute the dimensions of the
-        resulting boxes, and to adjust the glue if one of those dimensions is
-        pre-specified. The computed sizes normally enclose all of the material
-        inside the new box; but some items may stick out if negative glue is
-        used, if the box is overfull, or if a \vbox includes other boxes that
-        have been shifted left.
+        """
+        The main duty of :meth:`hpack` is to compute the dimensions of
+        the resulting boxes, and to adjust the glue if one of those
+        dimensions is pre-specified.  The computed sizes normally
+        enclose all of the material inside the new box; but some items
+        may stick out if negative glue is used, if the box is
+        overfull, or if a ``\\vbox`` includes other boxes that have
+        been shifted left.
 
-        w: specifies a width
-        m: is either 'exactly' or 'additional'.
+          - *w*: specifies a width
 
-        Thus, hpack(w, 'exactly') produces a box whose width is exactly w, while
-        hpack (w, 'additional') yields a box whose width is the natural width
-        plus w.  The default values produce a box with the natural width.
-        node644, node649"""
+          - *m*: is either 'exactly' or 'additional'.
+
+        Thus, ``hpack(w, 'exactly')`` produces a box whose width is
+        exactly *w*, while ``hpack(w, 'additional')`` yields a box
+        whose width is the natural width plus *w*.  The default values
+        produce a box with the natural width.
+        """
         # I don't know why these get reset in TeX.  Shift_amount is pretty
         # much useless if we do.
         #self.shift_amount = 0.
@@ -1514,25 +1512,28 @@ class Hlist(List):
             self._set_glue(x, -1, total_shrink, "Underfull")
 
 class Vlist(List):
-    """A vertical list of boxes.
-    node137"""
+    """
+    A vertical list of boxes.
+    """
     def __init__(self, elements, h=0., m='additional'):
         List.__init__(self, elements)
         self.vpack()
 
     def vpack(self, h=0., m='additional', l=float(inf)):
-        """The main duty of vpack is to compute the dimensions of the
-        resulting boxes, and to adjust the glue if one of those dimensions is
-        pre-specified.
+        """
+        The main duty of :meth:`vpack` is to compute the dimensions of
+        the resulting boxes, and to adjust the glue if one of those
+        dimensions is pre-specified.
 
-        h: specifies a height
-        m: is either 'exactly' or 'additional'.
-        l: a maximum height
+          - *h*: specifies a height
+          - *m*: is either 'exactly' or 'additional'.
+          - *l*: a maximum height
 
-        Thus, vpack(h, 'exactly') produces a box whose width is exactly w, while
-        vpack(w, 'additional') yields a box whose width is the natural width
-        plus w.  The default values produce a box with the natural width.
-        node644, node668"""
+        Thus, ``vpack(h, 'exactly')`` produces a box whose height is
+        exactly *h*, while ``vpack(h, 'additional')`` yields a box
+        whose height is the natural height plus *h*.  The default
+        values produce a box with the natural width.
+        """
         # I don't know why these get reset in TeX.  Shift_amount is pretty
         # much useless if we do.
         # self.shift_amount = 0.
@@ -1585,13 +1586,15 @@ class Vlist(List):
             self._set_glue(x, -1, total_shrink, "Underfull")
 
 class Rule(Box):
-    """A Rule node stands for a solid black rectangle; it has width,
-    depth, and height fields just as in an Hlist. However, if any of these
-    dimensions is inf, the actual value will be determined by running the
-    rule up to the boundary of the innermost enclosing box. This is called
-    a "running dimension." The width is never running in an Hlist; the
-    height and depth are never running in a Vlist.
-    node138"""
+    """
+    A :class:`Rule` node stands for a solid black rectangle; it has
+    *width*, *depth*, and *height* fields just as in an
+    :class:`Hlist`. However, if any of these dimensions is inf, the
+    actual value will be determined by running the rule up to the
+    boundary of the innermost enclosing box. This is called a "running
+    dimension." The width is never running in an :class:`Hlist`; the
+    height and depth are never running in a :class:`Vlist`.
+    """
     def __init__(self, width, height, depth, state):
         Box.__init__(self, width, height, depth)
         self.font_output = state.font_output
@@ -1600,7 +1603,9 @@ class Rule(Box):
         self.font_output.render_rect_filled(x, y, x + w, y + h)
 
 class Hrule(Rule):
-    """Convenience class to create a horizontal rule."""
+    """
+    Convenience class to create a horizontal rule.
+    """
     def __init__(self, state):
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
@@ -1608,18 +1613,21 @@ class Hrule(Rule):
         Rule.__init__(self, inf, height, depth, state)
 
 class Vrule(Rule):
-    """Convenience class to create a vertical rule."""
+    """
+    Convenience class to create a vertical rule.
+    """
     def __init__(self, state):
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
         Rule.__init__(self, thickness, inf, inf, state)
 
 class Glue(Node):
-    """Most of the information in this object is stored in the underlying
-    GlueSpec class, which is shared between multiple glue objects.  (This
+    """
+    Most of the information in this object is stored in the underlying
+    :class:`GlueSpec` class, which is shared between multiple glue objects.  (This
     is a memory optimization which probably doesn't matter anymore, but it's
     easier to stick to what TeX does.)
-    node149, node152"""
+    """
     def __init__(self, glue_type, copy=False):
         Node.__init__(self)
         self.glue_subtype   = 'normal'
@@ -1647,7 +1655,9 @@ class Glue(Node):
             self.glue_spec.width *= GROW_FACTOR
 
 class GlueSpec(object):
-    """node150, node151"""
+    """
+    See :class:`Glue`.
+    """
     def __init__(self, width=0., stretch=0., stretch_order=0, shrink=0., shrink_order=0):
         self.width         = width
         self.stretch       = stretch
@@ -1709,26 +1719,32 @@ class SsGlue(Glue):
         Glue.__init__(self, 'ss')
 
 class HCentered(Hlist):
-    """A convenience class to create an Hlist whose contents are centered
-    within its enclosing box."""
+    """
+    A convenience class to create an :class:`Hlist` whose contents are
+    centered within its enclosing box.
+    """
     def __init__(self, elements):
         Hlist.__init__(self, [SsGlue()] + elements + [SsGlue()],
                        do_kern=False)
 
 class VCentered(Hlist):
-    """A convenience class to create an Vlist whose contents are centered
-    within its enclosing box."""
+    """
+    A convenience class to create a :class:`Vlist` whose contents are
+    centered within its enclosing box.
+    """
     def __init__(self, elements):
         Vlist.__init__(self, [SsGlue()] + elements + [SsGlue()])
 
 class Kern(Node):
-    """A Kern node has a width field to specify a (normally negative)
-    amount of spacing. This spacing correction appears in horizontal lists
-    between letters like A and V when the font designer said that it looks
-    better to move them closer together or further apart. A kern node can
-    also appear in a vertical list, when its 'width' denotes additional
-    spacing in the vertical direction.
-    node155"""
+    """
+    A :class:`Kern` node has a width field to specify a (normally
+    negative) amount of spacing. This spacing correction appears in
+    horizontal lists between letters like A and V when the font
+    designer said that it looks better to move them closer together or
+    further apart. A kern node can also appear in a vertical list,
+    when its *width* denotes additional spacing in the vertical
+    direction.
+    """
     def __init__(self, width):
         Node.__init__(self)
         self.width = width
@@ -1746,11 +1762,13 @@ class Kern(Node):
         self.width *= GROW_FACTOR
 
 class SubSuperCluster(Hlist):
-    """This class is a sort of hack to get around that fact that this
-    code doesn't parse to an mlist and then an hlist, but goes directly
-    to hlists.  This lets us store enough information in the hlist itself,
-    namely the nucleas, sub- and super-script, such that if another script
-    follows that needs to be attached, it can be reconfigured on the fly."""
+    """
+    :class:`SubSuperCluster` is a sort of hack to get around that fact
+    that this code do a two-pass parse like TeX.  This lets us store
+    enough information in the hlist itself, namely the nucleus, sub-
+    and super-script, such that if another script follows that needs
+    to be attached, it can be reconfigured on the fly.
+    """
     def __init__(self):
         self.nucleus = None
         self.sub = None
@@ -1758,11 +1776,13 @@ class SubSuperCluster(Hlist):
         Hlist.__init__(self, [])
 
 class AutoHeightChar(Hlist):
-    """A class that will create a character as close to the given height
-    and depth as possible.  When using a font with multiple height versions
-    of some characters (such as the BaKoMa fonts), the correct glyph will
-    be selected, otherwise this will always just return a scaled version
-    of the glyph."""
+    """
+    :class:`AutoHeightChar` will create a character as close to the
+    given height and depth as possible.  When using a font with
+    multiple height versions of some characters (such as the BaKoMa
+    fonts), the correct glyph will be selected, otherwise this will
+    always just return a scaled version of the glyph.
+    """
     def __init__(self, c, height, depth, state, always=False):
         alternatives = state.font_output.get_sized_alternatives_for_symbol(
             state.font, c)
@@ -1784,11 +1804,13 @@ class AutoHeightChar(Hlist):
         self.shift_amount = shift
 
 class AutoWidthChar(Hlist):
-    """A class that will create a character as close to the given width
-    as possible.  When using a font with multiple width versions
-    of some characters (such as the BaKoMa fonts), the correct glyph will
-    be selected, otherwise this will always just return a scaled version
-    of the glyph."""
+    """
+    :class:`AutoWidthChar` will create a character as close to the
+    given width as possible.  When using a font with multiple width
+    versions of some characters (such as the BaKoMa fonts), the
+    correct glyph will be selected, otherwise this will always just
+    return a scaled version of the glyph.
+    """
     def __init__(self, c, width, state, always=False, char_class=Char):
         alternatives = state.font_output.get_sized_alternatives_for_symbol(
             state.font, c)
@@ -1808,13 +1830,15 @@ class AutoWidthChar(Hlist):
         self.width = char.width
 
 class Ship(object):
-    """Once the boxes have been set up, this sends them to output.
-    Since boxes can be inside of boxes inside of boxes, the main
-    work of Ship is done by two mutually recursive routines, hlist_out
-    and vlist_out , which traverse the Hlists and Vlists inside of
-    horizontal and vertical boxes.  The global variables used in TeX to
-    store state as it processes have become member variables here.
-    node592."""
+    """
+    Once the boxes have been set up, this sends them to output.  Since
+    boxes can be inside of boxes inside of boxes, the main work of
+    :class:`Ship` is done by two mutually recursive routines,
+    :meth:`hlist_out` and :meth:`vlist_out`, which traverse the
+    :class:`Hlist` nodes and :class:`Vlist` nodes inside of horizontal
+    and vertical boxes.  The global variables used in TeX to store
+    state as it processes have become member variables here.
+    """
     def __call__(self, ox, oy, box):
         self.max_push    = 0 # Deepest nesting of push commands so far
         self.cur_s       = 0
@@ -1959,6 +1983,9 @@ ship = Ship()
 # PARSER
 
 def Error(msg):
+    """
+    Helper class to raise parser errors.
+    """
     def raise_error(s, loc, toks):
         raise ParseFatalException(msg + "\n" + s)
 
@@ -1967,6 +1994,14 @@ def Error(msg):
     return empty
 
 class Parser(object):
+    """
+    This is the pyparsing-based parser for math expressions.  It
+    actually parses full strings *containing* math expressions, in
+    that raw text may also appear outside of pairs of ``$``.
+
+    The grammar is based directly on that in TeX, though it cuts a few
+    corners.
+    """
     _binary_operators = set(r'''
       + *
       \pm             \sqcap                   \rhd
@@ -2198,11 +2233,20 @@ class Parser(object):
         self.clear()
 
     def clear(self):
+        """
+        Clear any state before parsing.
+        """
         self._expr = None
         self._state_stack = None
         self._em_width_cache = {}
 
     def parse(self, s, fonts_object, fontsize, dpi):
+        """
+        Parse expression *s* using the given *fonts_object* for
+        output, at the given *fontsize* and *dpi*.
+
+        Returns the parse tree of :class:`Node` instances.
+        """
         self._state_stack = [self.State(fonts_object, 'default', 'rm', fontsize, dpi)]
         try:
             self._expression.parseString(s)
@@ -2219,6 +2263,12 @@ class Parser(object):
     # is pushed and popped accordingly.  The current state always
     # exists in the top element of the stack.
     class State(object):
+        """
+        Stores the state of the parser.
+
+        States are pushed and popped from a stack as necessary, and
+        the "current" state is always at the top of the stack.
+        """
         def __init__(self, font_output, font, font_class, fontsize, dpi):
             self.font_output = font_output
             self._font = font
@@ -2243,12 +2293,22 @@ class Parser(object):
         font = property(_get_font, _set_font)
 
     def get_state(self):
+        """
+        Get the current :class:`State` of the parser.
+        """
         return self._state_stack[-1]
 
     def pop_state(self):
+        """
+        Pop a :class:`State` off of the stack.
+        """
         self._state_stack.pop()
 
     def push_state(self):
+        """
+        Push a new :class:`State` onto the stack which is just a copy
+        of the current state.
+        """
         self._state_stack.append(self.get_state().copy())
 
     def finish(self, s, loc, toks):
@@ -2674,14 +2734,6 @@ class Parser(object):
 # MAIN
 
 class MathTextParser(object):
-    """
-    Parse the math expression s, return the (bbox, fonts) tuple needed
-    to render it.
-
-    fontsize must be in points
-
-    return is width, height, fonts
-    """
     _parser = None
 
     _backend_mapping = {
@@ -2701,10 +2753,23 @@ class MathTextParser(object):
         }
 
     def __init__(self, output):
+        """
+        Create a MathTextParser for the given backend *output*.
+        """
         self._output = output.lower()
         self._cache = maxdict(50)
 
     def parse(self, s, dpi = 72, prop = None):
+        """
+        Parse the given math expression *s* at the given *dpi*.  If
+        *prop* is provided, it is a
+        :class:`~matplotlib.font_manager.FontProperties` object
+        specifying the "default" font to use in the math expression,
+        used for all non-math text.
+
+        The results are cached, so multiple calls to :meth:`parse`
+        with the same expression should be fast.
+        """
         if prop is None:
             prop = FontProperties()
         cacheKey = (s, dpi, hash(prop))
@@ -2712,7 +2777,7 @@ class MathTextParser(object):
         if result is not None:
             return result
 
-        if self._output == 'PS' and rcParams['ps.useafm']:
+        if self._output == 'ps' and rcParams['ps.useafm']:
             font_output = StandardPsFonts(prop)
         else:
             backend = self._backend_mapping[self._output]()
@@ -2748,6 +2813,15 @@ class MathTextParser(object):
 
     def to_mask(self, texstr, dpi=120, fontsize=14):
         """
+        *texstr*
+            A valid mathtext string, eg r'IQ: $\sigma_i=15$'
+
+        *dpi*
+            The dots-per-inch to render the text
+
+        *fontsize*
+            The font size in points
+
         Returns a tuple (*array*, *depth*)
 
           - *array* is an NxM uint8 alpha ubyte mask array of
@@ -2755,15 +2829,6 @@ class MathTextParser(object):
 
           - depth is the offset of the baseline from the bottom of the
             image in pixels.
-
-        ''texstr''
-            A valid mathtext string, eg r'IQ: $\sigma_i=15$'
-
-        ''dpi''
-            The dots-per-inch to render the text
-
-        ''fontsize''
-            The font size in points
         """
         assert(self._output=="bitmap")
         prop = FontProperties(size=fontsize)
@@ -2774,27 +2839,25 @@ class MathTextParser(object):
 
     def to_rgba(self, texstr, color='black', dpi=120, fontsize=14):
         """
+        *texstr*
+            A valid mathtext string, eg r'IQ: $\sigma_i=15$'
+
+        *color*
+            Any matplotlib color argument
+
+        *dpi*
+            The dots-per-inch to render the text
+
+        *fontsize*
+            The font size in points
+
         Returns a tuple (*array*, *depth*)
 
-          - *array* is an NxMx4 RGBA array of ubyte rasterized tex.
+          - *array* is an NxM uint8 alpha ubyte mask array of
+            rasterized tex.
 
           - depth is the offset of the baseline from the bottom of the
             image in pixels.
-
-        Returns a tuple (array, depth), where depth is the offset of
-        the baseline from the bottom of the image.
-
-        ''texstr''
-            A valid mathtext string, eg r'IQ: $\sigma_i=15$'
-
-        ''color''
-            A valid matplotlib color argument
-
-        ''dpi''
-            The dots-per-inch to render the text
-
-        ''fontsize''
-            The font size in points
         """
         x, depth = self.to_mask(texstr, dpi=dpi, fontsize=fontsize)
 
@@ -2813,22 +2876,24 @@ class MathTextParser(object):
         Returns the offset of the baseline from the bottom of the
         image in pixels.
 
-        ''filename''
+        *filename*
             A writable filename or fileobject
 
-        ''texstr''
+        *texstr*
             A valid mathtext string, eg r'IQ: $\sigma_i=15$'
 
-        ''color''
+        *color*
             A valid matplotlib color argument
 
-        ''dpi''
+        *dpi*
             The dots-per-inch to render the text
 
-        ''fontsize''
+        *fontsize*
             The font size in points
 
-            """
+        Returns the offset of the baseline from the bottom of the
+        image in pixels.
+        """
 
         rgba, depth = self.to_rgba(texstr, color=color, dpi=dpi, fontsize=fontsize)
         numrows, numcols, tmp = rgba.shape
@@ -2840,16 +2905,15 @@ class MathTextParser(object):
         Returns the offset of the baseline from the bottom of the
         image in pixels.
 
-        ''texstr''
+        *texstr*
             A valid mathtext string, eg r'IQ: $\sigma_i=15$'
 
-        ''dpi''
+        *dpi*
             The dots-per-inch to render the text
 
-        ''fontsize''
+        *fontsize*
             The font size in points
-
-            """
+        """
         assert(self._output=="bitmap")
         prop = FontProperties(size=fontsize)
         ftimage, depth = self.parse(texstr, dpi=dpi, prop=prop)
