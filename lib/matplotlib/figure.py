@@ -280,15 +280,18 @@ class Figure(Artist):
         Add a centered title to the figure.
 
         kwargs are :class:`matplotlib.text.Text` properties.  Using figure
-        coordinates, the defaults are::
+        coordinates, the defaults are:
 
-          *x* = 0.5
+          - *x* = 0.5
               the x location of text in figure coords
-          *y* = 0.98
+
+          - *y* = 0.98
               the y location of the text in figure coords
-          *horizontalalignment* = 'center'
+
+          - *horizontalalignment* = 'center'
               the horizontal alignment of the text
-          *verticalalignment* = 'top'
+
+          - *verticalalignment* = 'top'
               the vertical alignment of the text
 
         A :class:`matplotlib.text.Text` instance is returned.
