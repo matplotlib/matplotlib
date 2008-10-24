@@ -641,9 +641,17 @@ class Locator(TickHelper):
         'Return the locations of the ticks'
         raise NotImplementedError('Derived must override')
 
+    def view_limits(self, vmin, vmax):
+        """
+        select a scale for the range from vmin to vmax
+
+        Normally This will be overridden.
+        """
+        return mtransforms.nonsingular(vmin, vmax)
+
     def autoscale(self):
         'autoscale the view limits'
-        return mtransforms.nonsingular(*self.axis.get_view_interval())
+        return self.view_limits(*self.axis.get_view_interval())
 
     def pan(self, numsteps):
         'Pan numticks (can be positive or negative)'
@@ -773,10 +781,8 @@ class LinearLocator(Locator):
     def _set_numticks(self):
         self.numticks = 11  # todo; be smart here; this is just for dev
 
-    def autoscale(self):
+    def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
-
-        vmin, vmax = self.axis.get_data_interval()
 
         if vmax<vmin:
             vmin, vmax = vmax, vmin
@@ -859,13 +865,11 @@ class MultipleLocator(Locator):
         locs = vmin + np.arange(n+1) * base
         return locs
 
-    def autoscale(self):
+    def view_limits(self, dmin, dmax):
         """
         Set the view limits to the nearest multiples of base that
         contain the data
         """
-        dmin, dmax = self.axis.get_data_interval()
-
         vmin = self._base.le(dmin)
         vmax = self._base.ge(dmax)
         if vmin==vmax:
@@ -946,8 +950,7 @@ class MaxNLocator(Locator):
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
         return self.bin_boundaries(vmin, vmax)
 
-    def autoscale(self):
-        dmin, dmax = self.axis.get_data_interval()
+    def view_limits(self, dmin, dmax):
         if self._symmetric:
             maxabs = max(abs(dmin), abs(dmax))
             dmin = -maxabs
@@ -1043,9 +1046,9 @@ class LogLocator(Locator):
 
         return np.array(ticklocs)
 
-    def autoscale(self):
+    def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
-        vmin, vmax = self.axis.get_data_interval()
+
         if vmax<vmin:
             vmin, vmax = vmax, vmin
 
@@ -1114,10 +1117,9 @@ class SymmetricalLogLocator(Locator):
             ticklocs = np.sign(decades) * b ** np.abs(decades)
         return np.array(ticklocs)
 
-    def autoscale(self):
+    def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
         b = self._transform.base
-        vmin, vmax = self.axis.get_data_interval()
         if vmax<vmin:
             vmin, vmax = vmax, vmin
 
@@ -1167,13 +1169,12 @@ class OldAutoLocator(Locator):
         d = abs(vmax-vmin)
         self._locator = self.get_locator(d)
 
-    def autoscale(self):
+    def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
 
-        vmin, vmax = self.axis.get_data_interval()
         d = abs(vmax-vmin)
         self._locator = self.get_locator(d)
-        return self._locator.autoscale()
+        return self._locator.view_limits(vmin, vmax)
 
     def get_locator(self, d):
         'pick the best locator based on a distance'

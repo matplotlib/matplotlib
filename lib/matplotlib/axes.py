@@ -1451,20 +1451,30 @@ class Axes(martist.Artist):
         """
         # if image data only just use the datalim
         if not self._autoscaleon: return
+        if scalex:
+            xshared = self._shared_x_axes.get_siblings(self)
+            dl = [ax.dataLim for ax in xshared]
+            bb = mtransforms.BboxBase.union(dl)
+            x0, x1 = bb.intervalx
+        if scaley:
+            yshared = self._shared_y_axes.get_siblings(self)
+            dl = [ax.dataLim for ax in yshared]
+            bb = mtransforms.BboxBase.union(dl)
+            y0, y1 = bb.intervaly
         if (tight or (len(self.images)>0 and
                       len(self.lines)==0 and
                       len(self.patches)==0)):
-
-            if scalex: self.set_xbound(self.dataLim.intervalx)
-
-            if scaley: self.set_ybound(self.dataLim.intervaly)
+            if scalex:
+                self.set_xbound(x0, x1)
+            if scaley:
+                self.set_ybound(y0, 11)
             return
 
         if scalex:
-            XL = self.xaxis.get_major_locator().autoscale()
+            XL = self.xaxis.get_major_locator().view_limits(x0, x1)
             self.set_xbound(XL)
         if scaley:
-            YL = self.yaxis.get_major_locator().autoscale()
+            YL = self.yaxis.get_major_locator().view_limits(y0, y1)
             self.set_ybound(YL)
 
     #### Drawing
