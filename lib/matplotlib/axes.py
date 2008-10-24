@@ -512,8 +512,8 @@ class Axes(martist.Artist):
             self._adjustable = 'datalim'
         if sharey is not None:
             self._shared_y_axes.join(self, sharey)
-            if sharex._adjustable == 'box':
-                sharex._adjustable = 'datalim'
+            if sharey._adjustable == 'box':
+                sharey._adjustable = 'datalim'
                 #warnings.warn(
                 #    'shared axes: "adjustable" is being changed to "datalim"')
             self._adjustable = 'datalim'
