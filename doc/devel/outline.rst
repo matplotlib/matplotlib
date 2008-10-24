@@ -131,7 +131,7 @@ fontconfig_pattern     Mike          needs conversion
 image                                needs conversion
 legend                               needs conversion
 lines                                needs conversion
-mathtext                             needs conversion
+mathtext               Mike          converted
 mlab                                 needs conversion
 mpl                                  needs conversion
 patches                Mike          converted
@@ -144,7 +144,7 @@ scale                  Mike          converted
 table                                needs conversion
 texmanager             Darren        needs conversion
 text                   Mike          converted
-ticker                 Mike          needs conversion
+ticker                 John          converted
 transforms             Mike          converted
 type1font                            needs conversion
 units                                needs conversion
