@@ -775,7 +775,6 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
 }
 
 
-// MGDTODO: Support clip paths
 Py::Object
 RendererAgg::draw_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_image");
