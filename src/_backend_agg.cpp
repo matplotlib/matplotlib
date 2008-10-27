@@ -263,63 +263,57 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   height(height),
   dpi(dpi),
   NUMBYTES(width*height*4),
+  pixBuffer(NULL),
+  renderingBuffer(),
   alphaBuffer(NULL),
-  alphaMaskRenderingBuffer(NULL),
-  alphaMask(NULL),
-  pixfmtAlphaMask(NULL),
-  rendererBaseAlphaMask(NULL),
-  rendererAlphaMask(NULL),
-  scanlineAlphaMask(NULL),
+  alphaMaskRenderingBuffer(),
+  alphaMask(alphaMaskRenderingBuffer),
+  pixfmtAlphaMask(alphaMaskRenderingBuffer),
+  rendererBaseAlphaMask(),
+  rendererAlphaMask(),
+  scanlineAlphaMask(),
+  slineP8(),
+  slineBin(),
+  pixFmt(),
+  rendererBase(),
+  rendererAA(),
+  rendererBin(),
+  theRasterizer(),
   debug(debug)
 {
   _VERBOSE("RendererAgg::RendererAgg");
   unsigned stride(width*4);
 
   pixBuffer	  = new agg::int8u[NUMBYTES];
-  renderingBuffer = new agg::rendering_buffer;
-  renderingBuffer->attach(pixBuffer, width, height, stride);
-
-  slineP8  = new scanline_p8;
-  slineBin = new scanline_bin;
-
-  pixFmt       = new pixfmt(*renderingBuffer);
-  rendererBase = new renderer_base(*pixFmt);
-  rendererBase->clear(agg::rgba(1, 1, 1, 0));
-
-  rendererAA	= new renderer_aa(*rendererBase);
-  rendererBin	= new renderer_bin(*rendererBase);
-  theRasterizer = new rasterizer();
-  //theRasterizer->filling_rule(agg::fill_even_odd);
-  //theRasterizer->filling_rule(agg::fill_non_zero);
-
+  renderingBuffer.attach(pixBuffer, width, height, stride);
+  pixFmt.attach(renderingBuffer);
+  rendererBase.attach(pixFmt);
+  rendererBase.clear(agg::rgba(1, 1, 1, 0));
+  rendererAA.attach(rendererBase);
+  rendererBin.attach(rendererBase);
 }
 
 void RendererAgg::create_alpha_buffers() {
   if (!alphaBuffer) {
     unsigned stride(width*4);
     alphaBuffer		   = new agg::int8u[NUMBYTES];
-    alphaMaskRenderingBuffer = new agg::rendering_buffer;
-    alphaMaskRenderingBuffer->attach(alphaBuffer, width, height, stride);
-    alphaMask		   = new alpha_mask_type(*alphaMaskRenderingBuffer);
-
-    pixfmtAlphaMask	   = new agg::pixfmt_gray8(*alphaMaskRenderingBuffer);
-    rendererBaseAlphaMask  = new renderer_base_alpha_mask_type(*pixfmtAlphaMask);
-    rendererAlphaMask	   = new renderer_alpha_mask_type(*rendererBaseAlphaMask);
-    scanlineAlphaMask	   = new agg::scanline_p8();
+    alphaMaskRenderingBuffer.attach(alphaBuffer, width, height, stride);
+    rendererBaseAlphaMask.attach(pixfmtAlphaMask);
+    rendererAlphaMask.attach(rendererBaseAlphaMask);
   }
 }
 
 template<class R>
 void
-RendererAgg::set_clipbox(const Py::Object& cliprect, R rasterizer) {
+RendererAgg::set_clipbox(const Py::Object& cliprect, R& rasterizer) {
   //set the clip rectangle from the gc
 
   _VERBOSE("RendererAgg::set_clipbox");
 
   double l, b, r, t;
   if (py_convert_bbox(cliprect.ptr(), l, b, r, t)) {
-    rasterizer->clip_box(int(mpl_round(l)) + 1, height - int(mpl_round(b)),
-			 int(mpl_round(r)),     height - int(mpl_round(t)));
+    rasterizer.clip_box(int(mpl_round(l)) + 1, height - int(mpl_round(b)),
+                        int(mpl_round(r)),     height - int(mpl_round(t)));
   }
 
   _VERBOSE("RendererAgg::set_clipbox done");
@@ -339,45 +333,6 @@ RendererAgg::_get_rgba_face(const Py::Object& rgbFace, double alpha) {
     face.second = rgb_to_color(rgb, alpha);
   }
   return face;
-}
-
-SnapData
-SafeSnap::snap (const float& x, const float& y) {
-  xsnap = (int)(x + 0.5f);
-  ysnap = (int)(y + 0.5f);
-
-  if ( first || ( (xsnap!=lastxsnap) || (ysnap!=lastysnap) ) ) {
-    lastxsnap = xsnap;
-    lastysnap = ysnap;
-    lastx = x;
-    lasty = y;
-    first = false;
-    return SnapData(true, xsnap, ysnap);
-  }
-
-  // ok both are equal and we need to do an offset
-  if ( (x==lastx) && (y==lasty) ) {
-    // no choice but to return equal coords; set newpoint = false
-    lastxsnap = xsnap;
-    lastysnap = ysnap;
-    lastx = x;
-    lasty = y;
-    return SnapData(false, xsnap, ysnap);
-  }
-
-  // ok the real points are not identical but the rounded ones, so do
-  // a one pixel offset
-  if (x>lastx) xsnap += 1.;
-  else if (x<lastx) xsnap -= 1.;
-
-  if (y>lasty) ysnap += 1.;
-  else if (y<lasty) ysnap -= 1.;
-
-  lastxsnap = xsnap;
-  lastysnap = ysnap;
-  lastx = x;
-  lasty = y;
-  return SnapData(true, xsnap, ysnap);
 }
 
 template<class Path>
@@ -443,12 +398,17 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
     throw Py::MemoryError("RendererAgg::copy_from_bbox could not allocate memory for buffer");
   }
 
-  agg::rendering_buffer rbuf;
-  rbuf.attach(reg->data, reg->width, reg->height, reg->stride);
+  try {
+    agg::rendering_buffer rbuf;
+    rbuf.attach(reg->data, reg->width, reg->height, reg->stride);
 
-  pixfmt pf(rbuf);
-  renderer_base rb(pf);
-  rb.copy_from(*renderingBuffer, &rect, -rect.x1, -rect.y1);
+    pixfmt pf(rbuf);
+    renderer_base rb(pf);
+    rb.copy_from(renderingBuffer, &rect, -rect.x1, -rect.y1);
+  } catch (...) {
+    delete reg;
+    throw Py::RuntimeError("An unknown error occurred in copy_from_bbox");
+  }
   return Py::asObject(reg);
 }
 
@@ -468,7 +428,7 @@ RendererAgg::restore_region(const Py::Tuple& args) {
 	      region->height,
 	      region->stride);
 
-  rendererBase->copy_from(rbuf, 0, region->rect.x1, region->rect.y1);
+  rendererBase.copy_from(rbuf, 0, region->rect.x1, region->rect.y1);
 
   return Py::Object();
 }
@@ -488,12 +448,12 @@ bool RendererAgg::render_clippath(const Py::Object& clippath, const agg::trans_a
     trans *= agg::trans_affine_translation(0.0, (double)height);
 
     PathIterator clippath_iter(clippath);
-    rendererBaseAlphaMask->clear(agg::gray8(0, 0));
+    rendererBaseAlphaMask.clear(agg::gray8(0, 0));
     transformed_path_t transformed_clippath(clippath_iter, trans);
     agg::conv_curve<transformed_path_t> curved_clippath(transformed_clippath);
-    theRasterizer->add_path(curved_clippath);
-    rendererAlphaMask->color(agg::gray8(255, 255));
-    agg::render_scanlines(*theRasterizer, *scanlineAlphaMask, *rendererAlphaMask);
+    theRasterizer.add_path(curved_clippath);
+    rendererAlphaMask.color(agg::gray8(255, 255));
+    agg::render_scanlines(theRasterizer, scanlineAlphaMask, rendererAlphaMask);
     lastclippath = clippath;
     lastclippath_transform = clippath_trans;
   }
@@ -544,24 +504,22 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
   //maxim's suggestions for cached scanlines
   agg::scanline_storage_aa8 scanlines;
-  theRasterizer->reset();
-  theRasterizer->reset_clipping();
-  rendererBase->reset_clipping(true);
+  theRasterizer.reset();
+  theRasterizer.reset_clipping();
+  rendererBase.reset_clipping(true);
 
   agg::int8u  staticFillCache[MARKER_CACHE_SIZE];
   agg::int8u  staticStrokeCache[MARKER_CACHE_SIZE];
-  agg::int8u* fillCache = NULL;
-  agg::int8u* strokeCache = NULL;
+  agg::int8u* fillCache = staticFillCache;
+  agg::int8u* strokeCache = staticStrokeCache;
 
   try {
     unsigned fillSize = 0;
     if (face.first) {
-      theRasterizer->add_path(marker_path_curve);
-      agg::render_scanlines(*theRasterizer, *slineP8, scanlines);
+      theRasterizer.add_path(marker_path_curve);
+      agg::render_scanlines(theRasterizer, slineP8, scanlines);
       fillSize = scanlines.byte_size();
-      if (fillSize < MARKER_CACHE_SIZE)
-	fillCache = staticFillCache;
-      else
+      if (fillSize >= MARKER_CACHE_SIZE)
 	fillCache = new agg::int8u[fillSize];
       scanlines.serialize(fillCache);
     }
@@ -570,18 +528,16 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     stroke.width(gc.linewidth);
     stroke.line_cap(gc.cap);
     stroke.line_join(gc.join);
-    theRasterizer->reset();
-    theRasterizer->add_path(stroke);
-    agg::render_scanlines(*theRasterizer, *slineP8, scanlines);
+    theRasterizer.reset();
+    theRasterizer.add_path(stroke);
+    agg::render_scanlines(theRasterizer, slineP8, scanlines);
     unsigned strokeSize = scanlines.byte_size();
-    if (strokeSize < MARKER_CACHE_SIZE)
-      strokeCache = staticStrokeCache;
-    else
+    if (strokeSize >= MARKER_CACHE_SIZE)
       strokeCache = new agg::int8u[strokeSize];
     scanlines.serialize(strokeCache);
 
-    theRasterizer->reset_clipping();
-    rendererBase->reset_clipping(true);
+    theRasterizer.reset_clipping();
+    rendererBase.reset_clipping(true);
     set_clipbox(gc.cliprect, rendererBase);
     bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
@@ -592,7 +548,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
     if (has_clippath) {
       while (path_transformed.vertex(&x, &y) != agg::path_cmd_stop) {
-	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	pixfmt_amask_type pfa(pixFmt, alphaMask);
 	amask_ren_type r(pfa);
 	amask_aa_renderer_type ren(r);
 
@@ -608,14 +564,14 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     } else {
       while (path_transformed.vertex(&x, &y) != agg::path_cmd_stop) {
 	if (face.first) {
-	  rendererAA->color(face.second);
+	  rendererAA.color(face.second);
 	  sa.init(fillCache, fillSize, x, y);
-	  agg::render_scanlines(sa, sl, *rendererAA);
+	  agg::render_scanlines(sa, sl, rendererAA);
 	}
 
-	rendererAA->color(gc.color);
+	rendererAA.color(gc.color);
 	sa.init(strokeCache, strokeSize, x, y);
-	agg::render_scanlines(sa, sl, *rendererAA);
+	agg::render_scanlines(sa, sl, rendererAA);
       }
     }
   } catch(...) {
@@ -734,8 +690,8 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
 
   GCAgg gc = GCAgg(args[4], dpi);
 
-  theRasterizer->reset_clipping();
-  rendererBase->reset_clipping(true);
+  theRasterizer.reset_clipping();
+  rendererBase.reset_clipping(true);
   set_clipbox(gc.cliprect, theRasterizer);
 
   agg::rendering_buffer srcbuf((agg::int8u*)buffer, width, height, width);
@@ -764,10 +720,10 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
   image_accessor_type ia(pixf_img, 0);
   image_span_gen_type image_span_generator(ia, interpolator, filter);
   span_gen_type output_span_generator(&image_span_generator, gc.color);
-  renderer_type ri(*rendererBase, sa, output_span_generator);
+  renderer_type ri(rendererBase, sa, output_span_generator);
 
-  theRasterizer->add_path(rect2);
-  agg::render_scanlines(*theRasterizer, *slineP8, ri);
+  theRasterizer.add_path(rect2);
+  agg::render_scanlines(theRasterizer, slineP8, ri);
 
   Py_XDECREF(image_array);
 
@@ -789,8 +745,8 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   agg::trans_affine clippath_trans;
   bool has_clippath = false;
 
-  theRasterizer->reset_clipping();
-  rendererBase->reset_clipping(true);
+  theRasterizer.reset_clipping();
+  rendererBase.reset_clipping(true);
   if (args.size() == 6) {
     clippath = args[4];
     clippath_trans = py_to_agg_transformation_matrix(args[5], false);
@@ -828,15 +784,15 @@ RendererAgg::draw_image(const Py::Tuple& args) {
     image_accessor_type ia(pixf, agg::rgba8(0, 0, 0, 0));
     interpolator_type interpolator(inv_mtx);
     image_span_gen_type image_span_generator(ia, interpolator);
-    pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+    pixfmt_amask_type pfa(pixFmt, alphaMask);
     amask_ren_type r(pfa);
     renderer_type ri(r, sa, image_span_generator);
 
-    theRasterizer->add_path(rect2);
-    agg::render_scanlines(*theRasterizer, *slineP8, ri);
+    theRasterizer.add_path(rect2);
+    agg::render_scanlines(theRasterizer, slineP8, ri);
   } else {
     set_clipbox(box_obj, rendererBase);
-    rendererBase->blend_from(pixf, 0, (int)x, (int)(height-(y+image->rowsOut)));
+    rendererBase.blend_from(pixf, 0, (int)x, (int)(height-(y+image->rowsOut)));
   }
 
   image->flipud_out(empty);
@@ -857,29 +813,29 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
 
   // Render face
   if (face.first) {
-    theRasterizer->add_path(path);
+    theRasterizer.add_path(path);
 
     if (gc.isaa) {
       if (has_clippath) {
-	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	pixfmt_amask_type pfa(pixFmt, alphaMask);
 	amask_ren_type r(pfa);
 	amask_aa_renderer_type ren(r);
 	ren.color(face.second);
-	agg::render_scanlines(*theRasterizer, *slineP8, ren);
+	agg::render_scanlines(theRasterizer, slineP8, ren);
       } else {
-	rendererAA->color(face.second);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+	rendererAA.color(face.second);
+	agg::render_scanlines(theRasterizer, slineP8, rendererAA);
       }
     } else {
       if (has_clippath) {
-	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	pixfmt_amask_type pfa(pixFmt, alphaMask);
 	amask_ren_type r(pfa);
 	amask_bin_renderer_type ren(r);
 	ren.color(face.second);
-	agg::render_scanlines(*theRasterizer, *slineP8, ren);
+	agg::render_scanlines(theRasterizer, slineP8, ren);
       } else {
-	rendererBin->color(face.second);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererBin);
+	rendererBin.color(face.second);
+	agg::render_scanlines(theRasterizer, slineP8, rendererBin);
       }
     }
   }
@@ -895,7 +851,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
       stroke.width(linewidth);
       stroke.line_cap(gc.cap);
       stroke.line_join(gc.join);
-      theRasterizer->add_path(stroke);
+      theRasterizer.add_path(stroke);
     } else {
       dash_t dash(path);
       for (GCAgg::dash_t::const_iterator i = gc.dashes.begin();
@@ -912,30 +868,30 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
       stroke.line_cap(gc.cap);
       stroke.line_join(gc.join);
       stroke.width(linewidth);
-      theRasterizer->add_path(stroke);
+      theRasterizer.add_path(stroke);
     }
 
     if (gc.isaa) {
       if (has_clippath) {
-	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	pixfmt_amask_type pfa(pixFmt, alphaMask);
 	amask_ren_type r(pfa);
 	amask_aa_renderer_type ren(r);
 	ren.color(gc.color);
-	agg::render_scanlines(*theRasterizer, *slineP8, ren);
+	agg::render_scanlines(theRasterizer, slineP8, ren);
       } else {
-	rendererAA->color(gc.color);
-	agg::render_scanlines(*theRasterizer, *slineP8, *rendererAA);
+	rendererAA.color(gc.color);
+	agg::render_scanlines(theRasterizer, slineP8, rendererAA);
       }
     } else {
       if (has_clippath) {
-	pixfmt_amask_type pfa(*pixFmt, *alphaMask);
+	pixfmt_amask_type pfa(pixFmt, alphaMask);
 	amask_ren_type r(pfa);
 	amask_bin_renderer_type ren(r);
 	ren.color(gc.color);
-	agg::render_scanlines(*theRasterizer, *slineP8, ren);
+	agg::render_scanlines(theRasterizer, slineP8, ren);
       } else {
-	rendererBin->color(gc.color);
-	agg::render_scanlines(*theRasterizer, *slineBin, *rendererBin);
+	rendererBin.color(gc.color);
+	agg::render_scanlines(theRasterizer, slineBin, rendererBin);
       }
     }
   }
@@ -961,8 +917,8 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   GCAgg gc = GCAgg(gc_obj, dpi);
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
 
-  theRasterizer->reset_clipping();
-  rendererBase->reset_clipping(true);
+  theRasterizer.reset_clipping();
+  rendererBase.reset_clipping(true);
   set_clipbox(gc.cliprect, theRasterizer);
   bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
@@ -1074,8 +1030,8 @@ RendererAgg::_draw_path_collection_generic
     }
 
     // Handle any clipping globally
-    theRasterizer->reset_clipping();
-    rendererBase->reset_clipping(true);
+    theRasterizer.reset_clipping();
+    rendererBase.reset_clipping(true);
     set_clipbox(cliprect, theRasterizer);
     bool has_clippath = render_clippath(clippath, clippath_trans);
 
@@ -1430,21 +1386,28 @@ RendererAgg::tostring_rgb(const Py::Tuple& args) {
   args.verify_length(0);
   int row_len = width*3;
   unsigned char* buf_tmp = new unsigned char[row_len * height];
-  if (buf_tmp ==NULL) {
+  if (buf_tmp == NULL) {
     //todo: also handle allocation throw
     throw Py::MemoryError("RendererAgg::tostring_rgb could not allocate memory");
   }
-  agg::rendering_buffer renderingBufferTmp;
-  renderingBufferTmp.attach(buf_tmp,
-			    width,
-			    height,
-			    row_len);
 
-  agg::color_conv(&renderingBufferTmp, renderingBuffer, agg::color_conv_rgba32_to_rgb24());
+  try {
+    agg::rendering_buffer renderingBufferTmp;
+    renderingBufferTmp.attach(buf_tmp,
+                              width,
+                              height,
+                              row_len);
 
+    agg::color_conv(&renderingBufferTmp, &renderingBuffer, agg::color_conv_rgba32_to_rgb24());
+
+  } catch (...) {
+    delete [] buf_tmp;
+    throw Py::RuntimeError("Unknown exception occurred in tostring_rgb");
+  }
 
   //todo: how to do this with native CXX
   PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * height);
+
   delete [] buf_tmp;
   return Py::asObject(o);
 }
@@ -1463,11 +1426,15 @@ RendererAgg::tostring_argb(const Py::Tuple& args) {
     //todo: also handle allocation throw
     throw Py::MemoryError("RendererAgg::tostring_argb could not allocate memory");
   }
-  agg::rendering_buffer renderingBufferTmp;
-  renderingBufferTmp.attach(buf_tmp, width, height, row_len);
 
-  agg::color_conv(&renderingBufferTmp, renderingBuffer, agg::color_conv_rgba32_to_argb32());
-
+  try {
+    agg::rendering_buffer renderingBufferTmp;
+    renderingBufferTmp.attach(buf_tmp, width, height, row_len);
+    agg::color_conv(&renderingBufferTmp, &renderingBuffer, agg::color_conv_rgba32_to_argb32());
+  } catch (...) {
+    delete [] buf_tmp;
+    throw Py::RuntimeError("Unknown exception occurred in tostring_argb");
+  }
 
   //todo: how to do this with native CXX
   PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * height);
@@ -1488,14 +1455,19 @@ RendererAgg::tostring_bgra(const Py::Tuple& args) {
     //todo: also handle allocation throw
     throw Py::MemoryError("RendererAgg::tostring_bgra could not allocate memory");
   }
-  agg::rendering_buffer renderingBufferTmp;
-  renderingBufferTmp.attach(buf_tmp,
-			    width,
-			    height,
-			    row_len);
 
-  agg::color_conv(&renderingBufferTmp, renderingBuffer, agg::color_conv_rgba32_to_bgra32());
+  try {
+    agg::rendering_buffer renderingBufferTmp;
+    renderingBufferTmp.attach(buf_tmp,
+                              width,
+                              height,
+                              row_len);
 
+    agg::color_conv(&renderingBufferTmp, &renderingBuffer, agg::color_conv_rgba32_to_bgra32());
+  } catch (...) {
+    delete [] buf_tmp;
+    throw Py::RuntimeError("Unknown exception occurred in tostring_bgra");
+  }
 
   //todo: how to do this with native CXX
   PyObject* o = Py_BuildValue("s#",
@@ -1557,12 +1529,17 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args) {
     int newsize	= newwidth * newheight * 4;
 
     unsigned char* buf = new unsigned char[newsize];
+    if (buf == NULL) {
+      throw Py::MemoryError("RendererAgg::tostring_minimized could not allocate memory");
+    }
+
     unsigned int*  dst = (unsigned int*)buf;
     unsigned int*  src = (unsigned int*)pixBuffer;
     for (int y = ymin; y < ymax; ++y)
       for (int x = xmin; x < xmax; ++x, ++dst)
 	*dst = src[y * width + x];
 
+    // The Py::String will take over the buffer
     data = Py::String((const char *)buf, (int)newsize);
   }
 
@@ -1586,7 +1563,7 @@ RendererAgg::clear(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::clear");
 
   args.verify_length(0);
-  rendererBase->clear(agg::rgba(1, 1, 1, 0));
+  rendererBase.clear(agg::rgba(1, 1, 1, 0));
 
   return Py::Object();
 }
@@ -1627,25 +1604,8 @@ RendererAgg::~RendererAgg() {
 
   _VERBOSE("RendererAgg::~RendererAgg");
 
-
-  delete slineP8;
-  delete slineBin;
-  delete theRasterizer;
-  delete rendererAA;
-  delete rendererBin;
-  delete rendererBase;
-  delete pixFmt;
-  delete renderingBuffer;
-
-  delete alphaMask;
-  delete alphaMaskRenderingBuffer;
   delete [] alphaBuffer;
   delete [] pixBuffer;
-  delete pixfmtAlphaMask;
-  delete rendererBaseAlphaMask;
-  delete rendererAlphaMask;
-  delete scanlineAlphaMask;
-
 }
 
 /* ------------ module methods ------------- */
@@ -1752,5 +1712,4 @@ DL_EXPORT(void)
 
   static _backend_agg_module* _backend_agg = NULL;
   _backend_agg = new _backend_agg_module;
-
 }

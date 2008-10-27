@@ -64,25 +64,6 @@ typedef agg::amask_no_clip_gray8 alpha_mask_type;
 typedef agg::renderer_base<agg::pixfmt_gray8> renderer_base_alpha_mask_type;
 typedef agg::renderer_scanline_aa_solid<renderer_base_alpha_mask_type> renderer_alpha_mask_type;
 
-struct SnapData {
-  SnapData(const bool& newpoint, const float& xsnap, const float& ysnap) :
-    newpoint(newpoint), xsnap(xsnap), ysnap(ysnap) {}
-  bool newpoint;
-  float xsnap, ysnap;
-};
-
-class SafeSnap {
-  // snap to pixel center, avoiding 0 path length rounding errors.
-public:
-  SafeSnap() : first(true), xsnap(0.0), lastx(0.0), lastxsnap(0.0),
-	       ysnap(0.0), lasty(0.0), lastysnap(0.0)  {}
-  SnapData snap (const float& x, const float& y);
-
-private:
-  bool first;
-  float xsnap, lastx, lastxsnap, ysnap, lasty, lastysnap;
-};
-
 // a helper class to pass agg::buffer objects around.  agg::buffer is
 // a class in the swig wrapper
 class BufferRegion : public Py::PythonExtension<BufferRegion> {
@@ -198,26 +179,26 @@ public:
   size_t NUMBYTES;  //the number of bytes in buffer
 
   agg::int8u *pixBuffer;
-  agg::rendering_buffer *renderingBuffer;
+  agg::rendering_buffer renderingBuffer;
 
   agg::int8u *alphaBuffer;
-  agg::rendering_buffer *alphaMaskRenderingBuffer;
-  alpha_mask_type *alphaMask;
-  agg::pixfmt_gray8 *pixfmtAlphaMask;
-  renderer_base_alpha_mask_type *rendererBaseAlphaMask;
-  renderer_alpha_mask_type *rendererAlphaMask;
-  agg::scanline_p8 *scanlineAlphaMask;
+  agg::rendering_buffer alphaMaskRenderingBuffer;
+  alpha_mask_type alphaMask;
+  agg::pixfmt_gray8 pixfmtAlphaMask;
+  renderer_base_alpha_mask_type rendererBaseAlphaMask;
+  renderer_alpha_mask_type rendererAlphaMask;
+  agg::scanline_p8 scanlineAlphaMask;
 
+  scanline_p8 slineP8;
+  scanline_bin slineBin;
+  pixfmt pixFmt;
+  renderer_base rendererBase;
+  renderer_aa rendererAA;
+  renderer_bin rendererBin;
+  rasterizer theRasterizer;
 
-
-  scanline_p8* slineP8;
-  scanline_bin* slineBin;
-  pixfmt *pixFmt;
-  renderer_base *rendererBase;
-  renderer_aa *rendererAA;
-  renderer_bin *rendererBin;
-  rasterizer *theRasterizer;
-
+  Py::Object lastclippath;
+  agg::trans_affine lastclippath_transform;
 
   const int debug;
 
@@ -227,7 +208,7 @@ protected:
   agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
   facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
   template<class R>
-  void set_clipbox(const Py::Object& cliprect, R rasterizer);
+  void set_clipbox(const Py::Object& cliprect, R& rasterizer);
   bool render_clippath(const Py::Object& clippath, const agg::trans_affine& clippath_trans);
   template<class PathIteratorType>
   void _draw_path(PathIteratorType& path, bool has_clippath,
@@ -251,8 +232,6 @@ protected:
 
 private:
   void create_alpha_buffers();
-  Py::Object lastclippath;
-  agg::trans_affine lastclippath_transform;
 };
 
 // the extension module
