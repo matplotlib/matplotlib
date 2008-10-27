@@ -1,17 +1,26 @@
 """
-A module for finding, managing, and using fonts across-platforms.
+A module for finding, managing, and using fonts across platforms.
 
-This module provides a single FontManager that can be shared across
-backends and platforms.  The findfont() function returns the best
-TrueType (TTF) font file in the local or system font path that matches
-the specified FontProperties.  The FontManager also handles Adobe Font
-Metrics (AFM) font files for use by the PostScript backend.
+This module provides a single :class:`FontManager` instance that can
+be shared across backends and platforms.  The :func:`findfont`
+function returns the best TrueType (TTF) font file in the local or
+system font path that matches the specified FontProperties.  The
+FontManager also handles Adobe Font Metrics (AFM) font files for use
+by the PostScript backend.
 
-The design is based on the W3C Cascading Style Sheet, Level 1 (CSS1)
-font specification (http://www.w3.org/TR/1998/REC-CSS2-19980512/ ).
+The design is based on the `W3C Cascading Style Sheet, Level 1 (CSS1)
+font specification <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_.
 Future versions may implement the Level 2 or 2.1 specifications.
 
+Experimental support is included for using `fontconfig
+<http://www.fontconfig.org>`_ on Unix variant plaforms (Linux, OS X,
+Solaris).  To enable it, set the constant ``USE_FONTCONFIG`` in this
+file to ``True``.  Fontconfig has the advantage that it is the
+standard way to look up fonts on X11 platforms, so if a font is
+installed, it is much more likely to be found.
+"""
 
+"""
 KNOWN ISSUES
 
   - documentation
@@ -24,9 +33,9 @@ KNOWN ISSUES
   - 'light' is an invalid weight value, remove it.
   - update_fonts not implemented
 
-
 Authors   : John Hunter <jdhunter@ace.bsd.uchicago.edu>
             Paul Barrett <Barrett@STScI.Edu>
+            Michael Droettboom <mdroe@STScI.edu>
 Copyright : John Hunter (2004,2005), Paul Barrett (2004,2005)
 License   : matplotlib license (PSF compatible)
             The font directory code is from ttfquery,
@@ -99,12 +108,21 @@ if not USE_FONTCONFIG:
         X11FontDirectories.append(path)
 
 def get_fontext_synonyms(fontext):
+    """
+    Return a list of file extensions extensions that are synonyms for
+    the given file extension *fileext*.
+    """
     return {'ttf': ('ttf', 'otf'),
+            'otf': ('ttf', 'otf'),
             'afm': ('afm',)}[fontext]
 
 def win32FontDirectory():
-    """Return the user-specified font directory for Win32."""
+    """Return the user-specified font directory for Win32.  This is
+    looked up from the registry key::
 
+      \\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders\Fonts
+
+    If the key is not found, $WINDIR/Fonts will be returned."""
     try:
         import _winreg
     except ImportError:
@@ -126,8 +144,9 @@ def win32FontDirectory():
 def win32InstalledFonts(directory=None, fontext='ttf'):
     """
     Search for fonts in the specified font directory, or use the
-    system directories if none given.  A list of TrueType fonts are
-    returned by default with AFM fonts as an option.
+    system directories if none given.  A list of TrueType font
+    filenames are returned by default, or AFM fonts if *fontext* ==
+    'afm'.
     """
 
     import _winreg
@@ -168,11 +187,16 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     return None
 
 def OSXFontDirectory():
-    """Return the system font directories for OS X."""
-
+    """
+    Return the system font directories for OS X.  This is done by
+    starting at the list of hardcoded paths in
+    :attr:`OSXFontDirectories` and returning all nested directories
+    within them.
+    """
     fontpaths = []
     def add(arg,directory,files):
         fontpaths.append(directory)
+
     for fontdir in OSXFontDirectories:
         try:
             if os.path.isdir(fontdir):
@@ -182,7 +206,9 @@ def OSXFontDirectory():
     return fontpaths
 
 def OSXInstalledFonts(directory=None, fontext='ttf'):
-    """Get list of font files on OS X - ignores font suffix by default"""
+    """
+    Get list of font files on OS X - ignores font suffix by default.
+    """
     if directory is None:
         directory = OSXFontDirectory()
 
@@ -200,7 +226,12 @@ def OSXInstalledFonts(directory=None, fontext='ttf'):
 
 
 def x11FontDirectory():
-    """Return the system font directories for X11."""
+    """
+    Return the system font directories for X11.  This is done by
+    starting at the list of hardcoded paths in
+    :attr:`X11FontDirectories` and returning all nested directories
+    within them.
+    """
     fontpaths = []
     def add(arg,directory,files):
         fontpaths.append(directory)
@@ -213,10 +244,14 @@ def x11FontDirectory():
             pass
     return fontpaths
 
+
 def get_fontconfig_fonts(fontext='ttf'):
-    """Grab a list of all the fonts that are being tracked by fontconfig.
-    This is an easy way to grab all of the fonts the user wants to be made
-    available to applications, without knowing where all of them reside."""
+    """
+    Grab a list of all the fonts that are being tracked by fontconfig
+    by making a system call to ``fc-list``.  This is an easy way to
+    grab all of the fonts the user wants to be made available to
+    applications, without needing knowing where all of them reside.
+    """
     try:
         import commands
     except ImportError:
@@ -299,9 +334,8 @@ def weight_as_number(weight):
 class FontKey(object):
     """
     A class for storing Font properties.  It is used when populating
-    the font dictionary.
+    the font lookup dictionary.
     """
-
     def __init__(self,
                  name   ='',
                  style  ='normal',
@@ -323,8 +357,10 @@ class FontKey(object):
 
 def ttfFontProperty(font):
     """
-    A function for populating the FontKey by extracting information
-    from the TrueType font file.
+    A function for populating the :class:`FontKey` by extracting
+    information from the TrueType font file.
+
+    *font* is an :class:`FT2Font` instance.
     """
     name = font.family_name
 
@@ -416,8 +452,10 @@ def ttfFontProperty(font):
 
 def afmFontProperty(font):
     """
-    A function for populating the FontKey by extracting information
-    from the AFM font file.
+    A function for populating a :class:`FontKey` instance by
+    extracting information from the AFM font file.
+
+    *font* is a class:`AFM` instance.
     """
 
     name = font.get_familyname()
@@ -475,8 +513,8 @@ def afmFontProperty(font):
 def add_filename(fontdict, prop, fname):
     """
     A function to add a font file name to the font dictionary using
-    the FontKey properties.  If a font property has no dictionary, then
-    create it.
+    the :class:`FontKey` properties.  If a font property has no
+    dictionary, then create it.
     """
     try:
         size = str(float(prop.size))
@@ -494,9 +532,9 @@ def add_filename(fontdict, prop, fname):
 
 def createFontDict(fontfiles, fontext='ttf'):
     """
-    A function to create a dictionary of font file paths.  The
-    default is to create a dictionary for TrueType fonts.  An AFM font
-    dictionary can optionally be created.
+    A function to create a font lookup dictionary.  The default is to
+    create a dictionary for TrueType fonts.  An AFM font dictionary
+    can optionally be created.
     """
 
     fontdict = {}
@@ -589,41 +627,54 @@ class FontProperties(object):
     """
     A class for storing and manipulating font properties.
 
-    The font properties are those described in the W3C Cascading Style
-    Sheet, Level 1 (CSS1; http://www.w3.org/TR/1998/REC-CSS2-19980512/)
-    font specification.  The six properties are:
+    The font properties are those described in the `W3C Cascading
+    Style Sheet, Level 1
+    <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_ font
+    specification.  The six properties are:
 
-      family  - A list of font names in decreasing order of priority.
-                The last item is the default font name and is given the
-                name of the font family, either serif, sans-serif,
-                cursive, fantasy, and monospace.
-      style   - Either normal, italic or oblique.
-      variant - Either normal or small-caps.
-      stretch - Either an absolute value of ultra-condensed, extra-
-                condensed, condensed, semi-condensed, normal, semi-
-                expanded, expanded, extra-expanded or ultra-expanded;
-                or a relative value of narrower or wider.
-                This property is currently not implemented and is set to
-                normal.
-      weight  - A numeric value in the range 100, 200, 300, ..., 900.
-      size    - Either an absolute value of xx-small, x-small, small,
-                medium, large, x-large, xx-large; or a relative value
-                of smaller or larger; or an absolute font size, e.g. 12;
-                or scalable.
+      - family: A list of font names in decreasing order of priority.
+        The last item is the default font name and is given the name
+        of the font family, either 'serif', 'sans-serif', 'cursive',
+        'fantasy', or 'monospace'.
 
-    The default font property for TrueType fonts is: sans-serif, normal,
-    normal, normal, 400, scalable.
+      - style: Either 'normal', 'italic' or 'oblique'.
 
-    The preferred usage of font sizes is to use the relative values, e.g.
-    large, instead of absolute font sizes, e.g. 12.  This approach allows
-    all text sizes to be made larger or smaller based on the font manager's
-    default font size, i.e. by using the set_default_size() method of the
-    font manager.
+      - variant: Either 'normal' or 'small-caps'.
 
-    This class will also accept a fontconfig pattern, if it is the only
-    argument provided.  fontconfig patterns are described here:
+      - stretch: Either an absolute value of 'ultra-condensed',
+        'extra- condensed', 'condensed', 'semi-condensed', 'normal',
+        'semi-expanded', 'expanded', 'extra-expanded' or
+        'ultra-expanded'; or a relative value of narrower or wider.
+        This property is currently not implemented and is set to
+        normal.
 
-      http://www.fontconfig.org/fontconfig-user.html
+      - weight: A numeric value in the range 100, 200, 300, ..., 900.
+
+      - size: Either an absolute value of 'xx-small', 'x-small', 'small',
+        'medium', 'large', 'x-large', 'xx-large'; or a relative value
+        of smaller or larger; or an absolute font size, e.g. 12;
+        or 'scalable'.
+
+    The default font property for TrueType fonts is::
+
+      sans-serif, normal, normal, normal, 400, scalable.
+
+    Alternatively, a font may be specified using an absolute path to a
+    .ttf file, by using the *fname* kwarg.
+
+    The preferred usage of font sizes is to use the relative values,
+    e.g.  'large', instead of absolute font sizes, e.g. 12.  This
+    approach allows all text sizes to be made larger or smaller based
+    on the font manager's default font size, i.e. by using the
+    :meth:`FontManager.set_default_size` method.
+
+    This class will also accept a `fontconfig
+    <http://www.fontconfig.org/>`_ pattern, if it is the only argument
+    provided.  See the documentation on `fontconfig patterns
+    <http://www.fontconfig.org/fontconfig-user.html>`_.  This support
+    does not require fontconfig to be installed or support for it to
+    be enabled.  We are merely borrowing its pattern syntax for use
+    here.
 
     Note that matplotlib's internal font manager and fontconfig use a
     different algorithm to lookup fonts, so the results of the same pattern
@@ -684,7 +735,8 @@ class FontProperties(object):
         return self.get_fontconfig_pattern()
 
     def get_family(self):
-        """Return a list of font names that comprise the font family.
+        """
+        Return a list of font names that comprise the font family.
         """
         if self._family is None:
             family = rcParams['font.family']
@@ -694,25 +746,33 @@ class FontProperties(object):
         return self._family
 
     def get_name(self):
-        """Return the name of the font that best matches the font properties."""
+        """
+        Return the name of the font that best matches the font
+        properties.
+        """
         return ft2font.FT2Font(str(findfont(self))).family_name
 
     def get_style(self):
-        """Return the font style.  Values are: normal, italic or oblique."""
+        """
+        Return the font style.  Values are: 'normal', 'italic' or
+        'oblique'.
+        """
         if self._slant is None:
             return rcParams['font.style']
         return self._slant
 
     def get_variant(self):
-        """Return the font variant.  Values are: normal or small-caps."""
+        """
+        Return the font variant.  Values are: 'normal' or
+        'small-caps'.
+        """
         if self._variant is None:
             return rcParams['font.variant']
         return self._variant
 
     def get_weight(self):
         """
-        Return the font weight.  See the FontProperties class for a
-        a list of possible values.
+        Return the font weight.
         """
         if self._weight is None:
             return rcParams['font.weight']
@@ -720,30 +780,46 @@ class FontProperties(object):
 
     def get_stretch(self):
         """
-        Return the font stretch or width.  Options are: normal,
-        narrow, condensed, or wide.
+        Return the font stretch or width.  Options are: 'normal',
+        'narrow', 'condensed', or 'wide'.
         """
         if self._stretch is None:
             return rcParams['font.stretch']
         return self._stretch
 
     def get_size(self):
-        """Return the font size."""
+        """
+        Return the font size.
+        """
         if self._size is None:
             return rcParams['font.size']
         return float(self._size)
 
     def get_file(self):
+        """
+        Return the filename of the associated font.
+        """
         return self._file
 
     def get_fontconfig_pattern(self):
+        """
+        Get a fontconfig pattern suitable for looking up the font as
+        specified with fontconfig's ``fc-match`` utility.
+
+        See the documentation on `fontconfig patterns
+        <http://www.fontconfig.org/fontconfig-user.html>`_.
+
+        This support does not require fontconfig to be installed or
+        support for it to be enabled.  We are merely borrowing its
+        pattern syntax for use here.
+        """
         return generate_fontconfig_pattern(self)
 
     def set_family(self, family):
         """
         Change the font family.  May be either an alias (generic name
-        is CSS parlance), such as: serif, sans-serif, cursive,
-        fantasy, or monospace, or a real font name.
+        is CSS parlance), such as: 'serif', 'sans-serif', 'cursive',
+        'fantasy', or 'monospace', or a real font name.
         """
         if family is None:
             self._family = None
@@ -754,22 +830,26 @@ class FontProperties(object):
     set_name = set_family
 
     def set_style(self, style):
-        """Set the font style.  Values are: normal, italic or oblique."""
+        """
+        Set the font style.  Values are: 'normal', 'italic' or
+        'oblique'.
+        """
         if style not in ('normal', 'italic', 'oblique', None):
             raise ValueError("style must be normal, italic or oblique")
         self._slant = style
     set_slant = set_style
 
     def set_variant(self, variant):
-        """Set the font variant.  Values are: normal or small-caps."""
+        """
+        Set the font variant.  Values are: 'normal' or 'small-caps'.
+        """
         if variant not in ('normal', 'small-caps', None):
             raise ValueError("variant must be normal or small-caps")
         self._variant = variant
 
     def set_weight(self, weight):
         """
-        Set the font weight.  See the FontProperties class for a
-        a list of possible values.
+        Set the font weight.
         """
         if (weight is not None and
             weight not in weight_dict and
@@ -779,15 +859,20 @@ class FontProperties(object):
 
     def set_stretch(self, stretch):
         """
-        Set the font stretch or width.  Options are: normal, narrow,
-        condensed, or wide.
+        Set the font stretch or width.  Options are: 'normal', 'narrow',
+        'condensed', or 'wide'.
         """
         if stretch not in ('normal', 'narrow', 'condensed', 'wide', None):
             raise ValueError("stretch is invalid")
         self._stretch = stretch
 
     def set_size(self, size):
-        """Set the font size."""
+        """
+        Set the font size.  Either an absolute value of 'xx-small',
+        'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large';
+        or a relative value of smaller or larger; or an absolute font
+        size, e.g. 12; or 'scalable'.
+        """
         if size is None:
             self._size = None
         else:
@@ -803,13 +888,26 @@ class FontProperties(object):
                         size = parent_size
             assert(type(size) in (int, float))
             self._size = size
-
-    def set_file(self, file):
-        self._file = file
-
     get_size_in_points = get_size
 
+    def set_file(self, file):
+        """
+        Set the filename of the fontfile to use.  In this case, all
+        other properties will be ignored.
+        """
+        self._file = file
+
     def set_fontconfig_pattern(self, pattern):
+        """
+        Set the properties by parsing a fontconfig *pattern*.
+
+        See the documentation on `fontconfig patterns
+        <http://www.fontconfig.org/fontconfig-user.html>`_.
+
+        This support does not require fontconfig to be installed or
+        support for it to be enabled.  We are merely borrowing its
+        pattern syntax for use here.
+        """
         for key, val in self._parse_fontconfig_pattern(pattern).items():
             if type(val) == list:
                 getattr(self, "set_" + key)(val[0])
@@ -821,7 +919,9 @@ class FontProperties(object):
         return FontProperties(_init = self)
 
 def ttfdict_to_fnames(d):
-    'flatten a ttfdict to all the filenames it contains'
+    """
+    flatten a ttfdict to all the filenames it contains
+    """
     fnames = []
     for named in d.values():
         for styled in named.values():
@@ -833,8 +933,10 @@ def ttfdict_to_fnames(d):
     return fnames
 
 def pickle_dump(data, filename):
-    """Equivalent to pickle.dump(data, open(filename, 'w'))
-    but closes the file to prevent filehandle leakage."""
+    """
+    Equivalent to pickle.dump(data, open(filename, 'w'))
+    but closes the file to prevent filehandle leakage.
+    """
     fh = open(filename, 'w')
     try:
         pickle.dump(data, fh)
@@ -842,8 +944,10 @@ def pickle_dump(data, filename):
         fh.close()
 
 def pickle_load(filename):
-    """Equivalent to pickle.load(open(filename, 'r'))
-    but closes the file to prevent filehandle leakage."""
+    """
+    Equivalent to pickle.load(open(filename, 'r'))
+    but closes the file to prevent filehandle leakage.
+    """
     fh = open(filename, 'r')
     try:
         data = pickle.load(fh)
@@ -853,15 +957,19 @@ def pickle_load(filename):
 
 class FontManager:
     """
-    On import, the FontManager creates a dictionary of TrueType
-    fonts based on the font properties: name, style, variant, weight,
-    stretch, and size.  The findfont() method searches this dictionary
-    for a font file name that exactly matches the font properties of the
-    specified text.  If none is found, a default font is returned.  By
-    updating the dictionary with the properties of the found font, the
-    font dictionary can act like a font cache.
-    """
+    On import, the :class:`FontManager` singleton instance creates a
+    dictionary of TrueType fonts based on the font properties: name,
+    style, variant, weight, stretch, and size.  The :meth:`findfont`
+    method searches this dictionary for a font file name that exactly
+    matches the font properties of the specified text.  If none is
+    found, a default font is returned.  By updating the dictionary
+    with the properties of the found font, the font dictionary can act
+    like a font cache.
 
+    .. note:: The font lookup mechanism is very exact and brittle.  If
+       the *exact* font specified is not found, a default font is
+       always returned.  This should be improved in the future.
+    """
     def __init__(self, size=None, weight='normal'):
         self.__default_weight = weight
         self.default_size = size
@@ -870,7 +978,6 @@ class FontManager:
                  os.path.join(rcParams['datapath'],'fonts','afm')]
 
         #  Create list of font paths
-
         for pathname in ['TTFPATH', 'AFMPATH']:
             if pathname in os.environ:
                 ttfpath = os.environ[pathname]
@@ -913,21 +1020,30 @@ class FontManager:
             self.afmdict = createFontDict(self.afmfiles, fontext='afm')
 
     def get_default_weight(self):
-        "Return the default font weight."
+        """
+        Return the default font weight.
+        """
         return self.__default_weight
 
     def get_default_size(self):
-        "Return the default font size."
+        """
+        Return the default font size.
+        """
         if self.default_size is None:
             return rcParams['font.size']
         return self.default_size
 
     def set_default_weight(self, weight):
-        "Set the default font weight.  The initial value is 'normal'."
+        """
+        Set the default font weight.  The initial value is 'normal'.
+        """
         self.__default_weight = weight
 
     def set_default_size(self, size):
-        "Set the default font size in points.  The initial value is set by font.size in rc."
+        """
+        Set the default font size in points.  The initial value is set
+        by ``font.size`` in rc.
+        """
         self.default_size = size
 
     def update_fonts(self, filenames):
@@ -941,16 +1057,17 @@ class FontManager:
     def findfont(self, prop, fontext='ttf'):
         """
         Search the font dictionary for a font that exactly or closely
-        matches the specified font properties.  See the FontProperties class
-        for a description.
+        matches the specified font properties.  See the
+        :class:`FontProperties` class for a description.
 
-        The properties are searched in the following order: name, style,
-        variant, weight, stretch, and size.  The font weight always matches
-        returning the closest weight, and the font size always matches for
-        scalable fonts.  An oblique style font will be used inplace of a
-        missing italic style font if present.  See the W3C Cascading Style
-        Sheet, Level 1 (CSS1; http://www.w3.org/TR/1998/REC-CSS2-19980512/)
-        documentation for a description of the font finding algorithm.
+        The properties are searched in the following order: name,
+        style, variant, weight, stretch, and size.  The font weight
+        always matches returning the closest weight, and the font size
+        always matches for scalable fonts.  An oblique style font will
+        be used inplace of a missing italic style font if present.
+        See the `W3C Cascading Style Sheet, Level 1
+        <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_ documentation
+        for a description of the font finding algorithm.
         """
         debug = False
         if is_string_like(prop):
@@ -1067,7 +1184,8 @@ _is_opentype_cff_font_cache = {}
 def is_opentype_cff_font(filename):
     """
     Returns True if the given font is a Postscript Compact Font Format
-    Font embedded in an OpenType wrapper.
+    Font embedded in an OpenType wrapper.  Used by the PostScript and
+    PDF backends that can not subset these fonts.
     """
     if os.path.splitext(filename)[1].lower() == '.otf':
         result = _is_opentype_cff_font_cache.get(filename)
@@ -1080,7 +1198,7 @@ def is_opentype_cff_font(filename):
         return result
     return False
 
-
+# The experimental fontconfig-based backend.
 if USE_FONTCONFIG and sys.platform != 'win32':
     import re
 
