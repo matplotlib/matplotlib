@@ -126,17 +126,17 @@ dates                  Darren        needs conversion
 dviread                Darren        needs conversion
 figure                 Darren        needs conversion
 finance                Darren        needs conversion
-font_manager           Mike          needs conversion
-fontconfig_pattern     Mike          needs conversion
+font_manager           Mike          converted
+fontconfig_pattern     Mike          converted
 image                                needs conversion
 legend                               needs conversion
-lines                                needs conversion
+lines                  Mike & ???    converted
 mathtext               Mike          converted
-mlab                                 needs conversion
-mpl                                  needs conversion
+mlab                   John/Mike     converted
+mpl                                  N/A
 patches                Mike          converted
 path                   Mike          converted
-pylab                                no docstrings
+pylab                                N/A
 pyplot                               converted
 quiver                               needs conversion
 rcsetup                              needs conversion

@@ -14,7 +14,6 @@
    matplotlib_configuration_api.rst
    afm_api.rst
    artist_api.rst
-   figure_api.rst
    axes_api.rst
    axis_api.rst
    cbook_api.rst
@@ -22,6 +21,8 @@
    collections_api.rst
    colorbar_api.rst
    colors_api.rst
+   figure_api.rst
+   font_manager_api.rst
    nxutils_api.rst
    mathtext_api.rst
    mlab_api.rst

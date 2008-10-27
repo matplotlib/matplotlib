@@ -265,9 +265,9 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
         vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
         scipy.signal, scipy.signal.get_window etc.
 
-    If length x < NFFT, it will be zero padded to NFFT
+    If len(*x*) < *NFFT*, it will be zero padded to *NFFT*.
 
-    Returns the tuple (*Pxx*, *freqs*)
+    Returns the tuple (*Pxx*, *freqs*).
 
     Refs: Bendat & Piersol -- Random Data: Analysis and Measurement Procedures, John Wiley & Sons (1986)
 
@@ -318,26 +318,26 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         window=window_hanning, noverlap=0):
     """
     The cross spectral density Pxy by Welches average periodogram
-    method.  The vectors x and y are divided into NFFT length
-    segments.  Each segment is detrended by function detrend and
-    windowed by function window.  noverlap gives the length of the
-    overlap between segments.  The product of the direct FFTs of x and
-    y are averaged over each segment to compute Pxy, with a scaling to
-    correct for power loss due to windowing.  Fs is the sampling
-    frequency.
+    method.  The vectors *x* and *y* are divided into *NFFT* length
+    segments.  Each segment is detrended by function *detrend* and
+    windowed by function *window*.  *noverlap* gives the length of the
+    overlap between segments.  The product of the direct FFTs of *x*
+    and *y* are averaged over each segment to compute *Pxy*, with a
+    scaling to correct for power loss due to windowing.  *Fs* is the
+    sampling frequency.
 
-    NFFT must be even; a power of 2 is most efficient
+    *NFFT* must be even; a power of 2 is most efficient
 
-    window can be a function or a vector of length NFFT. To create
-    window vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
-    scipy.signal, scipy.signal.get_window etc.
+    *window* can be a function or a vector of length *NFFT*. To create
+    window vectors see :func:`numpy.blackman`, :func:`numpy.hamming`,
+    :func:`numpy.bartlett`, :func:`scipy.signal`,
+    :func:`scipy.signal.get_window` etc.
 
-    Returns the tuple Pxy, freqs
+    Returns the tuple (*Pxy*, *freqs*)
 
     Refs:
       Bendat & Piersol -- Random Data: Analysis and Measurement
         Procedures, John Wiley & Sons (1986)
-
     """
 
     if NFFT % 2:
@@ -393,14 +393,15 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
              window=window_hanning, noverlap=128):
     """
-    Compute a spectrogram of data in x.  Data are split into NFFT
+    Compute a spectrogram of data in *x*.  Data are split into *NFFT*
     length segements and the PSD of each section is computed.  The
-    windowing function window is applied to each segment, and the
-    amount of overlap of each segment is specified with noverlap.
+    windowing function *window* is applied to each segment, and the
+    amount of overlap of each segment is specified with *noverlap*.
 
-    window can be a function or a vector of length NFFT. To create
-    window vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
-    scipy.signal, scipy.signal.get_window etc.
+    *window* can be a function or a vector of length *NFFT*. To create
+    window vectors see :func:`numpy.blackman`, :func:`numpy.hamming`,
+    :func:`numpy.bartlett`, :func:`scipy.signal`,
+    :func:`scipy.signal.get_window` etc.
 
     If *x* is real (i.e. non-complex) only the positive spectrum is
     given.  If *x* is complex then the complete spectrum is given.
@@ -474,13 +475,13 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
 
 
 
-_coh_error = """Coherence is calculated by averaging over NFFT
-length segments.  Your signal is too short for your choice of NFFT.
+_coh_error = """Coherence is calculated by averaging over *NFFT*
+length segments.  Your signal is too short for your choice of *NFFT*.
 """
 def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
            window=window_hanning, noverlap=0):
     """
-    The coherence between x and y.  Coherence is the normalized
+    The coherence between *x* and *y*.  Coherence is the normalized
     cross spectral density:
 
     .. math::
@@ -510,17 +511,20 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
 def corrcoef(*args):
     """
-    corrcoef(X) where X is a matrix returns a matrix of correlation
-    coefficients for the columns of X.
+    corrcoef(*X*) where *X* is a matrix returns a matrix of correlation
+    coefficients for the columns of *X*
 
-    corrcoef(x,y) where x and y are vectors returns the matrix of
-    correlation coefficients for x and y.
+    corrcoef(*x*, *y*) where *x* and *y* are vectors returns the matrix of
+    correlation coefficients for *x* and *y*.
 
-    Numpy arrays can be real or complex
+    Numpy arrays can be real or complex.
 
-    The correlation matrix is defined from the covariance matrix C as
+    The correlation matrix is defined from the covariance matrix *C*
+    as
 
-    r(i,j) = C[i,j] / sqrt(C[i,i]*C[j,j])
+    .. math::
+
+      r_{ij} = \\frac{C_{ij}}{\\sqrt{C_{ii}C_{jj}}}
     """
     warnings.warn("Use numpy.corrcoef", DeprecationWarning)
     kw = dict(rowvar=False)
@@ -528,11 +532,12 @@ def corrcoef(*args):
 
 
 def polyfit(*args, **kwargs):
-    """
-    def polyfit(x,y,N)
+    u"""
+    polyfit(*x*, *y*, *N*)
 
-    Do a best fit polynomial of order N of y to x.  Return value is a
-    vector of polynomial coefficients [pk ... p1 p0].  Eg, for N=2
+    Do a best fit polynomial of order *N* of *y* to *x*.  Return value
+    is a vector of polynomial coefficients [pk ... p1 p0].  Eg, for
+    *N*=2::
 
       p2*x0^2 +  p1*x0 + p0 = y1
       p2*x1^2 +  p1*x1 + p0 = y1
@@ -541,27 +546,31 @@ def polyfit(*args, **kwargs):
       p2*xk^2 +  p1*xk + p0 = yk
 
 
-    Method: if X is a the Vandermonde Matrix computed from x (see
-    `vandermonds <http://mathworld.wolfram.com/VandermondeMatrix.html>`_), then the
-    polynomial least squares solution is given by the 'p' in
+    Method: if *X* is a the Vandermonde Matrix computed from *x* (see
+    `vandermonds
+    <http://mathworld.wolfram.com/VandermondeMatrix.html>`_), then the
+    polynomial least squares solution is given by the '*p*' in
 
       X*p = y
 
-    where X is a len(x) x N+1 matrix, p is a N+1 length vector, and y
-    is a len(x) x 1 vector
+    where *X* is a (len(*x*) \N{MULTIPLICATION SIGN} *N* + 1) matrix,
+    *p* is a *N*+1 length vector, and *y* is a (len(*x*)
+    \N{MULTIPLICATION SIGN} 1) vector.
 
     This equation can be solved as
 
-      p = (XT*X)^-1 * XT * y
+    .. math::
 
-    where XT is the transpose of X and -1 denotes the inverse.
-    Numerically, however, this is not a good method, so we use
-    numpy.linalg.lstsq.
+      p = (X_t X)^-1 X_t y
 
-    For more info, see
-    `least squares fitting <http://mathworld.wolfram.com/LeastSquaresFittingPolynomial.html>`_,
-    but note that the k's and n's in the superscripts and subscripts
-    on that page.  The linear algebra is correct, however.
+    where :math:`X_t` is the transpose of *X* and -1 denotes the
+    inverse.  Numerically, however, this is not a good method, so we
+    use :func:`numpy.linalg.lstsq`.
+
+    For more info, see `least squares fitting
+    <http://mathworld.wolfram.com/LeastSquaresFittingPolynomial.html>`_,
+    but note that the *k*'s and *n*'s in the superscripts and
+    subscripts on that page.  The linear algebra is correct, however.
 
     .. seealso::
         :func:`polyval`
@@ -574,12 +583,12 @@ def polyfit(*args, **kwargs):
 
 def polyval(*args, **kwargs):
     """
-    y = polyval(p,x)
+    *y* = polyval(*p*, *x*)
 
-    p is a vector of polynomial coeffients and y is the polynomial
-    evaluated at x.
+    *p* is a vector of polynomial coeffients and *y* is the polynomial
+    evaluated at *x*.
 
-    Example code to remove a polynomial (quadratic) trend from y:
+    Example code to remove a polynomial (quadratic) trend from y::
 
       p = polyfit(x, y, 2)
       trend = polyval(p, x)
@@ -593,12 +602,11 @@ def polyval(*args, **kwargs):
 
 def vander(*args, **kwargs):
     """
-    X = vander(x,N=None)
+    *X* = vander(*x*, *N* = *None*)
 
-    The Vandermonde matrix of vector x.  The i-th column of X is the
-    the i-th power of x.  N is the maximum power to compute; if N is
-    None it defaults to len(x).
-
+    The Vandermonde matrix of vector *x*.  The *i*-th column of *X* is the
+    the *i*-th power of *x*.  *N* is the maximum power to compute; if *N* is
+    *None* it defaults to len(*x*).
     """
     warnings.warn("Use numpy.vander()", DeprecationWarning)
     return np.vander(*args, **kwargs)
@@ -613,61 +621,63 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
                   progressCallback=donothing_callback,
                   returnPxx=False):
 
-    """
-    Cxy, Phase, freqs = cohere_pairs( X, ij, ...)
+    u"""
+    Cxy, Phase, freqs = cohere_pairs(X, ij, ...)
 
-    Compute the coherence for all pairs in ij.  X is a
-    numSamples,numCols numpy array.  ij is a list of tuples (i,j).
-    Each tuple is a pair of indexes into the columns of X for which
-    you want to compute coherence.  For example, if X has 64 columns,
-    and you want to compute all nonredundant pairs, define ij as
+    Compute the coherence for all pairs in *ij*.  *X* is a
+    (*numSamples*, *numCols*) numpy array.  *ij* is a list of tuples
+    (*i*, *j*).  Each tuple is a pair of indexes into the columns of *X*
+    for which you want to compute coherence.  For example, if *X* has 64
+    columns, and you want to compute all nonredundant pairs, define *ij*
+    as::
 
       ij = []
       for i in range(64):
           for j in range(i+1,64):
-              ij.append( (i,j) )
+              ij.append( (i, j) )
 
-    The other function arguments, except for 'preferSpeedOverMemory'
-    (see below), are explained in the help string of 'psd'.
+    The other function arguments, except for *preferSpeedOverMemory*
+    (see below), are explained in the help string of :func:`psd`.
 
-    Return value is a tuple (Cxy, Phase, freqs).
+    Return value is a tuple (*Cxy*, *Phase*, *freqs*).
 
-      Cxy -- a dictionary of (i,j) tuples -> coherence vector for that
-        pair.  Ie, Cxy[(i,j) = cohere(X[:,i], X[:,j]).  Number of
-        dictionary keys is len(ij)
+      - *Cxy*: a dictionary of (*i*, *j*) tuples -> coherence vector for that
+        pair.  I.e., ``Cxy[(i,j)] = cohere(X[:,i], X[:,j])``.  Number of
+        dictionary keys is ``len(ij)``.
 
-      Phase -- a dictionary of phases of the cross spectral density at
-        each frequency for each pair.  keys are (i,j).
+      - *Phase*: a dictionary of phases of the cross spectral density at
+        each frequency for each pair.  The keys are ``(i,j)``.
 
-      freqs -- a vector of frequencies, equal in length to either the
-        coherence or phase vectors for any i,j key.  Eg, to make a coherence
-        Bode plot:
+      - *freqs*: a vector of frequencies, equal in length to either
+        the coherence or phase vectors for any (*i*, *j*) key..  Eg,
+        to make a coherence Bode plot::
 
           subplot(211)
           plot( freqs, Cxy[(12,19)])
           subplot(212)
           plot( freqs, Phase[(12,19)])
 
-    For a large number of pairs, cohere_pairs can be much more
-    efficient than just calling cohere for each pair, because it
-    caches most of the intensive computations.  If N is the number of
-    pairs, this function is O(N) for most of the heavy lifting,
-    whereas calling cohere for each pair is O(N^2).  However, because
-    of the caching, it is also more memory intensive, making 2
-    additional complex arrays with approximately the same number of
-    elements as X.
+    For a large number of pairs, :func:`cohere_pairs` can be much more
+    efficient than just calling :func:`cohere` for each pair, because
+    it caches most of the intensive computations.  If *N* is the
+    number of pairs, this function is O(N) for most of the heavy
+    lifting, whereas calling cohere for each pair is
+    O(N\N{SUPERSCRIPT TWO}).  However, because of the caching, it is
+    also more memory intensive, making 2 additional complex arrays
+    with approximately the same number of elements as *X*.
 
-    The parameter 'preferSpeedOverMemory', if false, limits the
+    The parameter *preferSpeedOverMemory*, if *False*, limits the
     caching by only making one, rather than two, complex cache arrays.
     This is useful if memory becomes critical.  Even when
-    preferSpeedOverMemory is false, cohere_pairs will still give
-    significant performace gains over calling cohere for each pair,
-    and will use subtantially less memory than if
-    preferSpeedOverMemory is true.  In my tests with a 43000,64 array
-    over all nonredundant pairs, preferSpeedOverMemory=1 delivered a
-    33% performace boost on a 1.7GHZ Athlon with 512MB RAM compared
-    with preferSpeedOverMemory=0.  But both solutions were more than
-    10x faster than naievly crunching all possible pairs through
+    *preferSpeedOverMemory* is *False*, :func:`cohere_pairs` will
+    still give significant performace gains over calling
+    :func:`cohere` for each pair, and will use subtantially less
+    memory than if *preferSpeedOverMemory* is *True*.  In my tests
+    with a (43000, 64) array over all non-redundant pairs,
+    *preferSpeedOverMemory* = *True* delivered a 33% performace boost
+    on a 1.7GHZ Athlon with 512MB RAM compared with
+    *preferSpeedOverMemory* = *False*.  But both solutions were more
+    than 10x faster than naievly crunching all possible pairs through
     cohere.
 
     .. seealso::
@@ -757,17 +767,21 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
 
 
 def entropy(y, bins):
-    """
-    Return the entropy of the data in y
+    r"""
+    Return the entropy of the data in *y*.
 
-    \sum p_i log2(p_i) where p_i is the probability of observing y in
-    the ith bin of bins.  bins can be a number of bins or a range of
-    bins; see numpy.histogram
+    .. math::
 
-    Compare S with analytic calculation for a Gaussian
-    x = mu + sigma*randn(200000)
-    Sanalytic = 0.5  * ( 1.0 + log(2*pi*sigma**2.0) )
+      \sum p_i \log_2(p_i)
 
+    where :math:`p_i` is the probability of observing *y* in the
+    :math:`i^{th}` bin of *bins*.  *bins* can be a number of bins or a
+    range of bins; see :func:`numpy.histogram`.
+
+    Compare *S* with analytic calculation for a Gaussian::
+
+      x = mu + sigma * randn(200000)
+      Sanalytic = 0.5 * ( 1.0 + log(2*pi*sigma**2.0) )
     """
     n,bins = np.histogram(y, bins)
     n = n.astype(np.float_)
@@ -783,29 +797,30 @@ def entropy(y, bins):
 
 def hist(y, bins=10, normed=0):
     """
-    Return the histogram of y with bins equally sized bins.  If bins
-    is an array, use the bins.  Return value is
-    (n,x) where n is the count for each bin in x
+    Return the histogram of *y* with *bins* equally sized bins.  If
+    bins is an array, use those bins.  Return value is (*n*, *x*)
+    where *n* is the count for each bin in *x*.
 
-    If normed is False, return the counts in the first element of the
-    return tuple.  If normed is True, return the probability density
-    n/(len(y)*dbin)
+    If *normed* is *False*, return the counts in the first element of
+    the returned tuple.  If *normed* is *True*, return the probability
+    density :math:`\\frac{n}{(len(y)\mathrm{dbin}}`.
 
-    If y has rank>1, it will be raveled.  If y is masked, only
-    the unmasked values will be used.
+    If *y* has rank > 1, it will be raveled.  If *y* is masked, only the
+    unmasked values will be used.
+
     Credits: the Numeric 22 documentation
     """
     warnings.warn("Use numpy.histogram()", DeprecationWarning)
     return np.histogram(y, bins=bins, range=None, normed=normed)
 
 def normpdf(x, *args):
-    "Return the normal pdf evaluated at x; args provides mu, sigma"
+    "Return the normal pdf evaluated at *x*; args provides *mu*, *sigma*"
     mu, sigma = args
     return 1./(np.sqrt(2*np.pi)*sigma)*np.exp(-0.5 * (1./sigma*(x - mu))**2)
 
 
 def levypdf(x, gamma, alpha):
-    "Returm the levy pdf evaluated at x for params gamma, alpha"
+    "Returm the levy pdf evaluated at *x* for params *gamma*, *alpha*"
 
     N = len(x)
 
@@ -835,7 +850,7 @@ def find(condition):
 
 def trapz(x, y):
     """
-    Trapezoidal integral of y(x).
+    Trapezoidal integral of *y*(*x*).
     """
     warnings.warn("Use numpy.trapz(y,x) instead of trapz(x,y)", DeprecationWarning)
     return np.trapz(y, x)
@@ -849,10 +864,9 @@ def trapz(x, y):
 
 def longest_contiguous_ones(x):
     """
-    return the indices of the longest stretch of contiguous ones in x,
-    assuming x is a vector of zeros and ones.
-    If there are two equally long stretches, pick the first
-
+    Return the indices of the longest stretch of contiguous ones in *x*,
+    assuming *x* is a vector of zeros and ones.  If there are two
+    equally long stretches, pick the first.
     """
     x = np.ravel(x)
     if len(x)==0:
@@ -880,15 +894,20 @@ def longest_ones(x):
 
 def prepca(P, frac=0):
     """
-    Compute the principal components of P.  P is a numVars x
-    numObs array.  frac is the minimum fraction of
-    variance that a component must contain to be included.
+    Compute the principal components of *P*.  *P* is a (*numVars*,
+    *numObs*) array.  *frac* is the minimum fraction of variance that a
+    component must contain to be included.
 
-    Return value are
-    Pcomponents : a numVars x numObs array
-    Trans       : the weights matrix, ie, Pcomponents = Trans*P
-    fracVar     : the fraction of the variance accounted for by each
-                  component returned
+    Return value is a tuple of the form (*Pcomponents*, *Trans*,
+    *fracVar*) where:
+
+      - *Pcomponents* : a (numVars, numObs) array
+
+      - *Trans* : the weights matrix, ie, *Pcomponents* = *Trans* *
+         *P*
+
+      - *fracVar* : the fraction of the variance accounted for by each
+         component returned
 
     A similar function of the same name was in the Matlab (TM)
     R13 Neural Network Toolbox but is not found in later versions;
@@ -907,11 +926,11 @@ def prepca(P, frac=0):
 
 def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
     """
-    Return the percentiles of x.  p can either be a sequence of
-    percentile values or a scalar.  If p is a sequence the i-th element
-    of the return sequence is the p(i)-th percentile of x.
-    If p is a scalar, the largest value of x less than or equal
-    to the p percentage point in the sequence is returned.
+    Return the percentiles of *x*.  *p* can either be a sequence of
+    percentile values or a scalar.  If *p* is a sequence, the ith
+    element of the return sequence is the *p*(i)-th percentile of *x*.
+    If *p* is a scalar, the largest value of *x* less than or equal to
+    the *p* percentage point in the sequence is returned.
     """
 
 
@@ -929,15 +948,15 @@ def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
 
 def prctile_rank(x, p):
     """
-    return the for each element in x, return the rank 0..len(p) .  Eg
-    if p=(25, 50, 75), the return value will be a len(x) array with
-    values in [0,1,2,3] where 0 indicates the value is less than the
-    25th percentile, 1 indicates the value is >= the 25th and < 50th
-    percentile, ... and 3 indicates the value is above the 75th
-    percentile cutoff
+    Return the rank for each element in *x*, return the rank
+    0..len(*p*).  Eg if *p* = (25, 50, 75), the return value will be a
+    len(*x*) array with values in [0,1,2,3] where 0 indicates the
+    value is less than the 25th percentile, 1 indicates the value is
+    >= the 25th and < 50th percentile, ... and 3 indicates the value
+    is above the 75th percentile cutoff.
 
-    p is either an array of percentiles in [0..100] or a scalar which
-    indicates how many quantiles of data you want ranked
+    *p* is either an array of percentiles in [0..100] or a scalar which
+    indicates how many quantiles of data you want ranked.
     """
 
     if not cbook.iterable(p):
@@ -953,10 +972,10 @@ def prctile_rank(x, p):
 
 def center_matrix(M, dim=0):
     """
-    Return the matrix M with each row having zero mean and unit std
+    Return the matrix *M* with each row having zero mean and unit std.
 
-    if dim=1 operate on columns instead of rows.  (dim is opposite
-    to the numpy axis kwarg.)
+    If *dim* = 1 operate on columns instead of rows.  (*dim* is
+    opposite to the numpy axis kwarg.)
     """
     M = np.asarray(M, np.float_)
     if dim:
@@ -970,7 +989,10 @@ def center_matrix(M, dim=0):
 
 def rk4(derivs, y0, t):
     """
-    Integrate 1D or ND system of ODEs using 4-th order Runge-Kutta.  This is a toy implementation which may be useful if you find yourself stranded on a system w/o scipy.  Otherwise use ``scipy.integrate``
+    Integrate 1D or ND system of ODEs using 4-th order Runge-Kutta.
+    This is a toy implementation which may be useful if you find
+    yourself stranded on a system w/o scipy.  Otherwise use
+    :func:`scipy.integrate`.
 
     *y0*
         initial state vector
@@ -1009,7 +1031,6 @@ def rk4(derivs, y0, t):
 
     If you have access to scipy, you should probably be using the
     scipy.integrate tools rather than this function.
-
     """
 
     try: Ny = len(y0)
@@ -1040,9 +1061,11 @@ def rk4(derivs, y0, t):
 def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,
                      mux=0.0, muy=0.0, sigmaxy=0.0):
     """
-    Bivariate gaussan distribution for equal shape X, Y
+    Bivariate Gaussian distribution for equal shape *X*, *Y*.
 
-    See `bivariate normal <http://mathworld.wolfram.com/BivariateNormalDistribution.html>`_ at mathworld.
+    See `bivariate normal
+    <http://mathworld.wolfram.com/BivariateNormalDistribution.html>`_
+    at mathworld.
     """
     Xmu = X-mux
     Ymu = Y-muy
@@ -1052,21 +1075,22 @@ def bivariate_normal(X, Y, sigmax=1.0, sigmay=1.0,
     denom = 2*np.pi*sigmax*sigmay*np.sqrt(1-rho**2)
     return np.exp( -z/(2*(1-rho**2))) / denom
 
-
-
-
 def get_xyz_where(Z, Cond):
     """
-    Z and Cond are MxN matrices.  Z are data and Cond is a boolean
-    matrix where some condition is satisfied.  Return value is x,y,z
-    where x and y are the indices into Z and z are the values of Z at
-    those indices.  x,y,z are 1D arrays
+    *Z* and *Cond* are *M* x *N* matrices.  *Z* are data and *Cond* is
+    a boolean matrix where some condition is satisfied.  Return value
+    is (*x*, *y*, *z*) where *x* and *y* are the indices into *Z* and
+    *z* are the values of *Z* at those indices.  *x*, *y*, and *z* are
+    1D arrays.
     """
     X,Y = np.indices(Z.shape)
     return X[Cond], Y[Cond], Z[Cond]
 
 def get_sparse_matrix(M,N,frac=0.1):
-    'return a MxN sparse matrix with frac elements randomly filled'
+    """
+    Return a *M* x *N* sparse matrix with *frac* elements randomly
+    filled.
+    """
     data = np.zeros((M,N))*0.
     for i in range(int(M*N*frac)):
         x = np.random.randint(0,M-1)
@@ -1075,15 +1099,17 @@ def get_sparse_matrix(M,N,frac=0.1):
     return data
 
 def dist(x,y):
-    'return the distance between two points'
+    """
+    Return the distance between two points.
+    """
     d = x-y
     return np.sqrt(np.dot(d,d))
 
 def dist_point_to_segment(p, s0, s1):
     """
-    get the distance of a point to a segment.
+    Get the distance of a point to a segment.
 
-    p, s0, s1 are xy sequences
+      *p*, *s0*, *s1* are *xy* sequences
 
     This algorithm from
     http://softsurfer.com/Archive/algorithm_0102/algorithm_0102.htm#Distance%20to%20Ray%20or%20Segment
@@ -1108,12 +1134,11 @@ def dist_point_to_segment(p, s0, s1):
 
 def segments_intersect(s1, s2):
     """
-    Return True if s1 and s2 intersect.
-    s1 and s2 are defined as
+    Return *True* if *s1* and *s2* intersect.
+    *s1* and *s2* are defined as::
 
-    s1: (x1, y1), (x2, y2)
-    s2: (x3, y3), (x4, y4)
-
+      s1: (x1, y1), (x2, y2)
+      s2: (x3, y3), (x4, y4)
     """
     (x1, y1), (x2, y2) = s1
     (x3, y3), (x4, y4) = s2
@@ -1135,7 +1160,7 @@ def segments_intersect(s1, s2):
 
 def fftsurr(x, detrend=detrend_none, window=window_none):
     """
-    Compute an FFT phase randomized surrogate of x
+    Compute an FFT phase randomized surrogate of *x*.
     """
     if cbook.iterable(window):
         x=window*detrend(x)
@@ -1168,30 +1193,36 @@ def liaupunov(x, fprime):
         What the function here calculates may not be what you really want;
         *caveat emptor*.
 
-       It also seems that this function's name is badly misspelled.
+        It also seems that this function's name is badly misspelled.
     """
     return np.mean(np.log(np.absolute(fprime(x))))
 
 class FIFOBuffer:
     """
-    A FIFO queue to hold incoming x, y data in a rotating buffer using
-    numpy arrays under the hood.  It is assumed that you will call
-    asarrays much less frequently than you add data to the queue --
-    otherwise another data structure will be faster
+    A FIFO queue to hold incoming *x*, *y* data in a rotating buffer
+    using numpy arrays under the hood.  It is assumed that you will
+    call asarrays much less frequently than you add data to the queue
+    -- otherwise another data structure will be faster.
 
     This can be used to support plots where data is added from a real
-    time feed and the plot object wants grab data from the buffer and
-    plot it to screen less freqeuently than the incoming
+    time feed and the plot object wants to grab data from the buffer
+    and plot it to screen less freqeuently than the incoming.
 
-    If you set the dataLim attr to a matplotlib BBox (eg ax.dataLim),
-    the dataLim will be updated as new data come in
+    If you set the *dataLim* attr to
+    :class:`~matplotlib.transforms.BBox` (eg
+    :attr:`matplotlib.Axes.dataLim`), the *dataLim* will be updated as
+    new data come in.
 
-    TODI: add a grow method that will extend nmax
+    TODO: add a grow method that will extend nmax
 
-    mlab seems like the wrong place for this class.
+    .. note::
+
+      mlab seems like the wrong place for this class.
     """
     def __init__(self, nmax):
-        'buffer up to nmax points'
+        """
+        Buffer up to *nmax* points.
+        """
         self._xa = np.zeros((nmax,), np.float_)
         self._ya = np.zeros((nmax,), np.float_)
         self._xs = np.zeros((nmax,), np.float_)
@@ -1202,11 +1233,16 @@ class FIFOBuffer:
         self.callbackd = {}
 
     def register(self, func, N):
-        'call func everytime N events are passed; func signature is func(fifo)'
+        """
+        Call *func* every time *N* events are passed; *func* signature
+        is ``func(fifo)``.
+        """
         self.callbackd.setdefault(N, []).append(func)
 
     def add(self, x, y):
-        'add scalar x and y to the queue'
+        """
+        Add scalar *x* and *y* to the queue.
+        """
         if self.dataLim is not None:
             xys = ((x,y),)
             self.dataLim.update(xys, -1) #-1 means use the default ignore setting
@@ -1223,15 +1259,17 @@ class FIFOBuffer:
         self._ind += 1
 
     def last(self):
-        'get the last x, y or None, None if no data set'
+        """
+        Get the last *x*, *y* or *None*.  *None* if no data set.
+        """
         if self._ind==0: return None, None
         ind = (self._ind-1) % self._nmax
         return self._xs[ind], self._ys[ind]
 
     def asarrays(self):
         """
-        return x and y as arrays; their length will be the len of data
-        added or nmax
+        Return *x* and *y* as arrays; their length will be the len of
+        data added or *nmax*.
         """
         if self._ind<self._nmax:
             return self._xs[:self._ind], self._ys[:self._ind]
@@ -1245,36 +1283,41 @@ class FIFOBuffer:
         return self._xa, self._ya
 
     def update_datalim_to_current(self):
-        'update the datalim in the current data in the fifo'
+        """
+        Update the *datalim* in the current data in the fifo.
+        """
         if self.dataLim is None:
             raise ValueError('You must first set the dataLim attr')
         x, y = self.asarrays()
         self.dataLim.update_numerix(x, y, True)
 
 def movavg(x,n):
-    'compute the len(n) moving average of x'
+    """
+    Compute the len(*n*) moving average of *x*.
+    """
     w = np.empty((n,), dtype=np.float_)
     w[:] = 1.0/n
     return np.convolve(x, w, mode='valid')
 
 def save(fname, X, fmt='%.18e',delimiter=' '):
     """
-    Save the data in X to file fname using fmt string to convert the
-    data to strings
+    Save the data in *X* to file *fname* using *fmt* string to convert the
+    data to strings.
 
-    fname can be a filename or a file handle.  If the filename ends in .gz,
-    the file is automatically saved in compressed gzip format.  The load()
-    command understands gzipped files transparently.
+    *fname* can be a filename or a file handle.  If the filename ends
+    in '.gz', the file is automatically saved in compressed gzip
+    format.  The :func:`load` function understands gzipped files
+    transparently.
 
-    Example usage:
+    Example usage::
 
-    save('test.out', X)         # X is an array
-    save('test1.out', (x,y,z))  # x,y,z equal sized 1D arrays
-    save('test2.out', x)        # x is 1D
-    save('test3.out', x, fmt='%1.4e')  # use exponential notation
+      save('test.out', X)         # X is an array
+      save('test1.out', (x,y,z))  # x,y,z equal sized 1D arrays
+      save('test2.out', x)        # x is 1D
+      save('test3.out', x, fmt='%1.4e')  # use exponential notation
 
-    delimiter is used to separate the fields, eg delimiter ',' for
-    comma-separated values
+    *delimiter* is used to separate the fields, eg. *delimiter* ','
+    for comma-separated values.
     """
 
     if cbook.is_string_like(fname):
@@ -1306,51 +1349,53 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
 def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
          usecols=None, unpack=False, dtype=np.float_):
     """
-    Load ASCII data from fname into an array and return the array.
+    Load ASCII data from *fname* into an array and return the array.
 
     The data must be regular, same number of values in every row
 
-    fname can be a filename or a file handle.  Support for gzipped files is
-    automatic, if the filename ends in .gz
+    *fname* can be a filename or a file handle.  Support for gzipped
+    files is automatic, if the filename ends in '.gz'.
 
-    matfile data is not supported; use scipy.io.mio module
+    matfile data is not supported; for that, use :mod:`scipy.io.mio`
+    module.
 
-    Example usage:
+    Example usage::
 
       X = load('test.dat')  # data in two columns
       t = X[:,0]
       y = X[:,1]
 
-    Alternatively, you can do the same with "unpack"; see below
+    Alternatively, you can do the same with "unpack"; see below::
 
       X = load('test.dat')    # a matrix of data
       x = load('test.dat')    # a single column of data
 
-    comments - the character used to indicate the start of a comment
-    in the file
+    - *comments*: the character used to indicate the start of a comment
+      in the file
 
-    delimiter is a string-like character used to seperate values in the
-    file. If delimiter is unspecified or none, any whitespace string is
-    a separator.
+    - *delimiter* is a string-like character used to seperate values
+      in the file. If *delimiter* is unspecified or *None*, any
+      whitespace string is a separator.
 
-    converters, if not None, is a dictionary mapping column number to
-    a function that will convert that column to a float (or the optional
-    dtype if specified).  Eg, if column 0 is a date string:
-    converters={0:datestr2num}
+    - *converters*, if not *None*, is a dictionary mapping column number to
+      a function that will convert that column to a float (or the optional
+      *dtype* if specified).  Eg, if column 0 is a date string::
 
-    skiprows is the number of rows from the top to skip
+        converters = {0:datestr2num}
 
-    usecols, if not None, is a sequence of integer column indexes to
-    extract where 0 is the first column, eg usecols=[1,4,5] to extract
-    just the 2nd, 5th and 6th columns
+    - *skiprows* is the number of rows from the top to skip.
 
-    unpack, if True, will transpose the matrix allowing you to unpack
-    into named arguments on the left hand side
+    - *usecols*, if not *None*, is a sequence of integer column indexes to
+      extract where 0 is the first column, eg ``usecols=[1,4,5]`` to extract
+      just the 2nd, 5th and 6th columns
+
+    - *unpack*, if *True*, will transpose the matrix allowing you to unpack
+      into named arguments on the left hand side::
 
         t,y = load('test.dat', unpack=True) # for  two column data
         x,y,z = load('somefile.dat', usecols=[3,5,7], unpack=True)
 
-    dtype, the array will have this dtype.  default: numpy.float_
+    - *dtype*: the array will have this dtype.  default: ``numpy.float_``
 
     .. seealso::
         See :file:`examples/pylab_examples/load_converter.py` in the source tree:
@@ -1450,11 +1495,13 @@ exp_safe_MIN = math.log(2.2250738585072014e-308)
 exp_safe_MAX = 1.7976931348623157e+308
 
 def exp_safe(x):
-    """Compute exponentials which safely underflow to zero.
+    """
+    Compute exponentials which safely underflow to zero.
 
-    Slow but convenient to use. Note that numpy provides proper
+    Slow, but convenient to use. Note that numpy provides proper
     floating point exception handling with access to the underlying
-    hardware."""
+    hardware.
+    """
 
     if type(x) is np.ndarray:
         return exp(np.clip(x,exp_safe_MIN,exp_safe_MAX))
@@ -1462,60 +1509,73 @@ def exp_safe(x):
         return math.exp(x)
 
 def amap(fn,*args):
-    """amap(function, sequence[, sequence, ...]) -> array.
+    """
+    amap(function, sequence[, sequence, ...]) -> array.
 
-    Works like map(), but it returns an array.  This is just a convenient
-    shorthand for numpy.array(map(...))
+    Works like :func:`map`, but it returns an array.  This is just a
+    convenient shorthand for ``numpy.array(map(...))``.
     """
     return np.array(map(fn,*args))
 
 
 #from numpy import zeros_like
 def zeros_like(a):
-    """Return an array of zeros of the shape and typecode of a."""
+    """
+    Return an array of zeros of the shape and typecode of *a*.
+    """
     warnings.warn("Use numpy.zeros_like(a)", DeprecationWarning)
     return np.zeros_like(a)
 
 #from numpy import sum as sum_flat
 def sum_flat(a):
-    """Return the sum of all the elements of a, flattened out.
+    """
+    Return the sum of all the elements of *a*, flattened out.
 
-    It uses a.flat, and if a is not contiguous, a call to ravel(a) is made."""
+    It uses ``a.flat``, and if *a* is not contiguous, a call to
+    ``ravel(a)`` is made.
+    """
     warnings.warn("Use numpy.sum(a) or a.sum()", DeprecationWarning)
     return np.sum(a)
 
 #from numpy import mean as mean_flat
 def mean_flat(a):
-    """Return the mean of all the elements of a, flattened out."""
+    """
+    Return the mean of all the elements of *a*, flattened out.
+    """
     warnings.warn("Use numpy.mean(a) or a.mean()", DeprecationWarning)
     return np.mean(a)
 
 def rms_flat(a):
-    """Return the root mean square of all the elements of a, flattened out."""
-
+    """
+    Return the root mean square of all the elements of *a*, flattened out.
+    """
     return np.sqrt(np.mean(np.absolute(a)**2))
 
 def l1norm(a):
-    """Return the l1 norm of a, flattened out.
+    """
+    Return the *l1* norm of *a*, flattened out.
 
-    Implemented as a separate function (not a call to norm() for speed)."""
-
+    Implemented as a separate function (not a call to :func:`norm` for speed).
+    """
     return np.sum(np.absolute(a))
 
 def l2norm(a):
-    """Return the l2 norm of a, flattened out.
+    """
+    Return the *l2* norm of *a*, flattened out.
 
-    Implemented as a separate function (not a call to norm() for speed)."""
-
+    Implemented as a separate function (not a call to :func:`norm` for speed).
+    """
     return np.sqrt(np.sum(np.absolute(a)**2))
 
 def norm_flat(a,p=2):
-    """norm(a,p=2) -> l-p norm of a.flat
+    """
+    norm(a,p=2) -> l-p norm of a.flat
 
-    Return the l-p norm of a, considered as a flat array.  This is NOT a true
+    Return the l-p norm of *a*, considered as a flat array.  This is NOT a true
     matrix norm, since arrays of arbitrary rank are always flattened.
 
-    p can be a number or the string 'Infinity' to get the L-infinity norm."""
+    *p* can be a number or the string 'Infinity' to get the L-infinity norm.
+    """
     # This function was being masked by a more general norm later in
     # the file.  We may want to simply delete it.
     if p=='Infinity':
@@ -1524,37 +1584,43 @@ def norm_flat(a,p=2):
         return (np.sum(np.absolute(a)**p))**(1.0/p)
 
 def frange(xini,xfin=None,delta=None,**kw):
-    """frange([start,] stop[, step, keywords]) -> array of floats
+    """
+    frange([start,] stop[, step, keywords]) -> array of floats
 
     Return a numpy ndarray containing a progression of floats. Similar to
-    arange(), but defaults to a closed interval.
+    :func:`numpy.arange`, but defaults to a closed interval.
 
-    frange(x0, x1) returns [x0, x0+1, x0+2, ..., x1]; start defaults to 0, and
-    the endpoint *is included*. This behavior is different from that of
-    range() and arange(). This is deliberate, since frange will probably be
-    more useful for generating lists of points for function evaluation, and
-    endpoints are often desired in this use. The usual behavior of range() can
-    be obtained by setting the keyword 'closed=0', in this case frange()
-    basically becomes arange().
+    ``frange(x0, x1)`` returns ``[x0, x0+1, x0+2, ..., x1]``; *start*
+    defaults to 0, and the endpoint *is included*. This behavior is
+    different from that of :func:`range` and
+    :func:`numpy.arange`. This is deliberate, since :func:`frange`
+    will probably be more useful for generating lists of points for
+    function evaluation, and endpoints are often desired in this
+    use. The usual behavior of :func:`range` can be obtained by
+    setting the keyword *closed* = 0, in this case, :func:`frange`
+    basically becomes :func:numpy.arange`.
 
-    When step is given, it specifies the increment (or decrement). All
-    arguments can be floating point numbers.
+    When *step* is given, it specifies the increment (or
+    decrement). All arguments can be floating point numbers.
 
-    frange(x0,x1,d) returns [x0,x0+d,x0+2d,...,xfin] where xfin<=x1.
+    ``frange(x0,x1,d)`` returns ``[x0,x0+d,x0+2d,...,xfin]`` where
+    *xfin* <= *x1*.
 
-    frange can also be called with the keyword 'npts'. This sets the number of
-    points the list should contain (and overrides the value 'step' might have
-    been given). arange() doesn't offer this option.
+    :func:`frange` can also be called with the keyword *npts*. This
+    sets the number of points the list should contain (and overrides
+    the value *step* might have been given). :func:`numpy.arange`
+    doesn't offer this option.
 
-    Examples:
-    >>> frange(3)
-    array([ 0.,  1.,  2.,  3.])
-    >>> frange(3,closed=0)
-    array([ 0.,  1.,  2.])
-    >>> frange(1,6,2)
-    array([1, 3, 5])   or 1,3,5,7, depending on floating point vagueries
-    >>> frange(1,6.5,npts=5)
-    array([ 1.   ,  2.375,  3.75 ,  5.125,  6.5  ])
+    Examples::
+
+      >>> frange(3)
+      array([ 0.,  1.,  2.,  3.])
+      >>> frange(3,closed=0)
+      array([ 0.,  1.,  2.])
+      >>> frange(1,6,2)
+      array([1, 3, 5])   or 1,3,5,7, depending on floating point vagueries
+      >>> frange(1,6.5,npts=5)
+      array([ 1.   ,  2.375,  3.75 ,  5.125,  6.5  ])
     """
 
     #defaults
@@ -1586,13 +1652,16 @@ def frange(xini,xfin=None,delta=None,**kw):
 
 #import numpy.diag as diagonal_matrix
 def diagonal_matrix(diag):
-    """Return square diagonal matrix whose non-zero elements are given by the
-    input array."""
+    """
+    Return square diagonal matrix whose non-zero elements are given by the
+    input array.
+    """
     warnings.warn("Use numpy.diag(d)", DeprecationWarning)
     return np.diag(diag)
 
 def identity(n, rank=2, dtype='l', typecode=None):
-    """Returns the identity matrix of shape (n,n,...,n) (rank r).
+    """
+    Returns the identity matrix of shape (*n*, *n*, ..., *n*) (rank *r*).
 
     For ranks higher than 2, this object is simply a multi-index Kronecker
     delta::
@@ -1601,10 +1670,10 @@ def identity(n, rank=2, dtype='l', typecode=None):
         id[i0,i1,...,iR] = -|
                             \  0  otherwise.
 
-    Optionally a dtype (or typecode) may be given (it defaults to 'l').
+    Optionally a *dtype* (or typecode) may be given (it defaults to 'l').
 
     Since rank defaults to 2, this function behaves in the default case (when
-    only n is given) like numpy.identity(n)--but surprisingly, it is
+    only *n* is given) like ``numpy.identity(n)`` -- but surprisingly, it is
     much faster.
     """
     if typecode is not None:
@@ -1618,7 +1687,9 @@ def identity(n, rank=2, dtype='l', typecode=None):
     return iden
 
 def base_repr (number, base = 2, padding = 0):
-    """Return the representation of a number in any given base."""
+    """
+    Return the representation of a *number* in any given *base*.
+    """
     chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     if number < base: \
        return (padding - 1) * chars [0] + chars [int (number)]
@@ -1630,14 +1701,16 @@ def base_repr (number, base = 2, padding = 0):
                       max (padding - 1, max_exponent))
 
 def binary_repr(number, max_length = 1025):
-    """Return the binary representation of the input number as a string.
+    """
+    Return the binary representation of the input *number* as a
+    string.
 
-    This is more efficient than using base_repr with base 2.
+    This is more efficient than using :func:`base_repr` with base 2.
 
-    Increase the value of max_length for very large numbers. Note that on
-    32-bit machines, 2**1023 is the largest integer power of 2 which can be
-    converted to a Python float."""
-
+    Increase the value of max_length for very large numbers. Note that
+    on 32-bit machines, 2**1023 is the largest integer power of 2
+    which can be converted to a Python float.
+    """
 
     #assert number < 2L << max_length
     shifts = map (operator.rshift, max_length * [number], \
@@ -1648,11 +1721,12 @@ def binary_repr(number, max_length = 1025):
     return ''.join (map (repr, digits)).replace('L','')
 
 def log2(x,ln2 = math.log(2.0)):
-    """Return the log(x) in base 2.
+    """
+    Return the log(*x*) in base 2.
 
     This is a _slow_ function but which is guaranteed to return the correct
-    integer value if the input is an integer exact power of 2."""
-
+    integer value if the input is an integer exact power of 2.
+    """
     try:
         bin_n = binary_repr(x)[1:]
     except (AssertionError,TypeError):
@@ -1664,9 +1738,11 @@ def log2(x,ln2 = math.log(2.0)):
             return len(bin_n)
 
 def ispower2(n):
-    """Returns the log base 2 of n if n is a power of 2, zero otherwise.
+    """
+    Returns the log base 2 of *n* if *n* is a power of 2, zero otherwise.
 
-    Note the potential ambiguity if n==1: 2**0==1, interpret accordingly."""
+    Note the potential ambiguity if *n* == 1: 2**0 == 1, interpret accordingly.
+    """
 
     bin_n = binary_repr(n)[1:]
     if '1' in bin_n:
@@ -1676,27 +1752,30 @@ def ispower2(n):
 
 def isvector(X):
     """
-    Like the Matlab (TM) function with the same name, returns true if
-    the supplied numpy array or matrix looks like a vector, meaning it
-    has a one non-singleton axis (i.e., it can have multiple axes, but
-    all must have length 1, except for one of them).
+    Like the Matlab (TM) function with the same name, returns *True*
+    if the supplied numpy array or matrix *X* looks like a vector,
+    meaning it has a one non-singleton axis (i.e., it can have
+    multiple axes, but all must have length 1, except for one of
+    them).
 
-    If you just want to see if the array has 1 axis, use X.ndim==1
-
+    If you just want to see if the array has 1 axis, use X.ndim == 1.
     """
     return np.prod(X.shape)==np.max(X.shape)
 
 #from numpy import fromfunction as fromfunction_kw
 def fromfunction_kw(function, dimensions, **kwargs):
-    """Drop-in replacement for fromfunction() from numpy
+    """
+    Drop-in replacement for :func:`numpy.fromfunction`.
 
     Allows passing keyword arguments to the desired function.
 
-    Call it as (keywords are optional):
-    fromfunction_kw(MyFunction, dimensions, keywords)
+    Call it as (keywords are optional)::
 
-    The function MyFunction() is responsible for handling the dictionary of
-    keywords it will receive."""
+      fromfunction_kw(MyFunction, dimensions, keywords)
+
+    The function ``MyFunction`` is responsible for handling the
+    dictionary of keywords it will receive.
+    """
     warnings.warn("Use numpy.fromfunction()", DeprecationWarning)
     return np.fromfunction(function, dimensions, **kwargs)
 
@@ -1705,13 +1784,13 @@ def fromfunction_kw(function, dimensions, **kwargs):
 
 def rem(x,y):
     """
-    Deprecated - see numpy.remainder
+    Deprecated - see :func:`numpy.remainder`
     """
     raise NotImplementedError('Deprecated - see numpy.remainder')
 
 def norm(x,y=2):
     """
-    Deprecated - see numpy.linalg.norm
+    Deprecated - see :func:`numpy.linalg.norm`
     """
     raise NotImplementedError('Deprecated - see numpy.linalg.norm')
 
@@ -1724,7 +1803,7 @@ def orth(A):
 
 def rank(x):
     """
-    Deprecated - see numpy.rank
+    Deprecated - see :func:`numpy.rank`
     """
     raise NotImplementedError('Deprecated - see numpy.rank')
 
@@ -1751,7 +1830,7 @@ def approx_real(x):
 
 
 def safe_isnan(x):
-    'isnan for arbitrary types'
+    ':func:`numpy.isnan` for arbitrary types'
     if cbook.is_string_like(x):
         return False
     try: b = np.isnan(x)
@@ -1760,7 +1839,7 @@ def safe_isnan(x):
     else: return b
 
 def safe_isinf(x):
-    'isnan for arbitrary types'
+    ':func:`numpy.isinf` for arbitrary types'
     if cbook.is_string_like(x):
         return False
     try: b = np.isinf(x)
@@ -1769,26 +1848,31 @@ def safe_isinf(x):
     else: return b
 
 def rec_view(rec):
-    """ Return a view of an ndarray as a recarray
-        http://projects.scipy.org/pipermail/numpy-discussion/2008-August/036429.html
-        Reverting Travis' fix because it doesn't work for object arrays
+    """
+    Return a view of an ndarray as a recarray
+
+    .. seealso::
+
+       http://projects.scipy.org/pipermail/numpy-discussion/2008-August/036429.html
     """
     return rec.view(np.recarray)
     #return rec.view(dtype=(np.record, rec.dtype), type=np.recarray)
 
 def rec_append_field(rec, name, arr, dtype=None):
     """
-    return a new record array with field name populated with data from array arr.
-    This function is Depreacted. Please use rec_append_fields.
+    Return a new record array with field name populated with data from
+    array *arr*.  This function is Deprecated. Please use
+    :func:`rec_append_fields`.
     """
     warnings.warn("use rec_append_fields", DeprecationWarning)
     return rec_append_fields(rec, name, arr, dtype)
 
 def rec_append_fields(rec, names, arrs, dtypes=None):
     """
-    return a new record array with field names populated with data
-    from arrays in arrs.  If appending a single field then names, arrs
-    and dtypes do not have to be lists. They can just be the values themselves.
+    Return a new record array with field names populated with data
+    from arrays in *arrs*.  If appending a single field, then *names*,
+    *arrs* and *dtypes* do not have to be lists. They can just be the
+    values themselves.
     """
     if (not cbook.is_string_like(names) and cbook.iterable(names) \
             and len(names) and cbook.is_string_like(names[0])):
@@ -1818,7 +1902,9 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
 
 
 def rec_drop_fields(rec, names):
-    'return a new numpy record array with fields in names dropped'
+    """
+    Return a new numpy record array with fields in *names* dropped.
+    """
 
     names = set(names)
     Nr = len(rec)
@@ -1836,20 +1922,21 @@ def rec_drop_fields(rec, names):
 
 def rec_groupby(r, groupby, stats):
     """
-    r is a numpy record array
+    *r* is a numpy record array
 
-    groupby is a sequence of record array attribute names that
+    *groupby* is a sequence of record array attribute names that
     together form the grouping key.  eg ('date', 'productcode')
 
-    stats is a sequence of (attr, func, outname) which will call x =
-    func(attr) and assign x to the record array output with attribute
-    outname.
-    Eg,  stats = ( ('sales', len, 'numsales'), ('sales', np.mean, 'avgsale') )
+    *stats* is a sequence of (*attr*, *func*, *outname*) tuples which
+    will call ``x = func(attr)`` and assign *x* to the record array
+    output with attribute *outname*.  For example::
 
-    return record array has dtype names for each attribute name in in
-    the the 'groupby' argument, with the associated group values, and
-    for each outname name in the stats argument, with the associated
-    stat summary output
+      stats = ( ('sales', len, 'numsales'), ('sales', np.mean, 'avgsale') )
+
+    Return record array has *dtype* names for each attribute name in
+    the the *groupby* argument, with the associated group values, and
+    for each outname name in the *stats* argument, with the associated
+    stat summary output.
     """
     # build a dictionary from groupby keys-> list of indices into r with
     # those keys
@@ -1882,12 +1969,13 @@ def rec_groupby(r, groupby, stats):
 
 def rec_summarize(r, summaryfuncs):
     """
-    r is a numpy record array
+    *r* is a numpy record array
 
-    summaryfuncs is a list of (attr, func, outname) which will
-    apply codefunc to the the array r[attr] and assign the output
-    to a new attribute name outname.  The returned record array is
-    identical to r, with extra arrays for each element in summaryfuncs
+    *summaryfuncs* is a list of (*attr*, *func*, *outname*) tuples
+    which will apply *func* to the the array *r*[attr] and assign the
+    output to a new attribute name *outname*.  The returned record
+    array is identical to *r*, with extra arrays for each element in
+    *summaryfuncs*.
     """
 
     names = list(r.dtype.names)
@@ -1902,22 +1990,23 @@ def rec_summarize(r, summaryfuncs):
 
 def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2postfix='2'):
     """
-    join record arrays r1 and r2 on key; key is a tuple of field names
-    -- if key is a string it is assumed to be a single attribute
-    name. If r1 and r2 have equal values on all the keys in the key
-    tuple, then their fields will be merged into a new record array
-    containing the intersection of the fields of r1 and r2.
+    Join record arrays *r1* and *r2* on *key*; *key* is a tuple of
+    field names -- if *key* is a string it is assumed to be a single
+    attribute name. If *r1* and *r2* have equal values on all the keys
+    in the *key* tuple, then their fields will be merged into a new
+    record array containing the intersection of the fields of *r1* and
+    *r2*.
 
-    r1 (also r2) must not have any duplicate keys.
+    *r1* (also *r2*) must not have any duplicate keys.
 
-    The jointype keyword can be 'inner', 'outer', 'leftouter'.
-    To do a rightouter join just reverse r1 and r2.
+    The *jointype* keyword can be 'inner', 'outer', 'leftouter'.  To
+    do a rightouter join just reverse *r1* and *r2*.
 
-    The defaults keyword is a dictionary filled with
-    {column_name:default_value} pairs.
+    The *defaults* keyword is a dictionary filled with
+    ``{column_name:default_value}`` pairs.
 
-    The keywords r1postfix and r2postfix are postfixed to column names
-    (other than keys) that are both in r1 and r2.
+    The keywords *r1postfix* and *r2postfix* are postfixed to column names
+    (other than keys) that are both in *r1* and *r2*.
     """
 
     if cbook.is_string_like(key):
@@ -1971,12 +2060,16 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
     keydesc = [key_desc(name) for name in key]
 
     def mapped_r1field(name):
-        """ the column name in newrec that corresponds to the colmn in r1 """
+        """
+        The column name in *newrec* that corresponds to the column in *r1*.
+        """
         if name in key or name not in r2.dtype.names: return name
         else: return name + r1postfix
 
     def mapped_r2field(name):
-        """ the column name in newrec that corresponds to the colmn in r2 """
+        """
+        The column name in *newrec* that corresponds to the column in *r2*.
+        """
         if name in key or name not in r1.dtype.names: return name
         else: return name + r2postfix
 
@@ -2014,41 +2107,42 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing='', missingd=None):
     """
-    Load data from comma/space/tab delimited file in fname into a
-    numpy (m)record array and return the record array.
+    Load data from comma/space/tab delimited file in *fname* into a
+    numpy record array and return the record array.
 
-    If names is None, a header row is required to automatically assign
-    the recarray names.  The headers will be lower cased, spaces will
-    be converted to underscores, and illegal attribute name characters
-    removed.  If names is not None, it is a sequence of names to use
-    for the column names.  In this case, it is assumed there is no header row.
+    If *names* is *None*, a header row is required to automatically
+    assign the recarray names.  The headers will be lower cased,
+    spaces will be converted to underscores, and illegal attribute
+    name characters removed.  If *names* is not *None*, it is a
+    sequence of names to use for the column names.  In this case, it
+    is assumed there is no header row.
 
 
-    fname - can be a filename or a file handle.  Support for gzipped
-    files is automatic, if the filename ends in .gz
+    - *fname*: can be a filename or a file handle.  Support for gzipped
+      files is automatic, if the filename ends in '.gz'
 
-    comments - the character used to indicate the start of a comment
-    in the file
+    - *comments*: the character used to indicate the start of a comment
+      in the file
 
-    skiprows  - is the number of rows from the top to skip
+    - *skiprows*: is the number of rows from the top to skip
 
-    checkrows - is the number of rows to check to validate the column
-    data type.  When set to zero all rows are validated.
+    - *checkrows*: is the number of rows to check to validate the column
+      data type.  When set to zero all rows are validated.
 
-    converterd, if not None, is a dictionary mapping column number or
-    munged column name to a converter function.
+    - *converted*: if not *None*, is a dictionary mapping column number or
+      munged column name to a converter function.
 
-    names, if not None, is a list of header names.  In this case, no
-    header will be read from the file
+    - *names*: if not None, is a list of header names.  In this case, no
+      header will be read from the file
 
-    missingd - is a dictionary mapping munged column names to field values
-    which signify that the field does not contain actual data and should
-    be masked, e.g. '0000-00-00' or 'unused'
+    - *missingd* is a dictionary mapping munged column names to field values
+      which signify that the field does not contain actual data and should
+      be masked, e.g. '0000-00-00' or 'unused'
 
-    missing - a string whose value signals a missing field regardless of
-    the column it appears in, e.g. 'unused'
+    - *missing*: a string whose value signals a missing field regardless of
+      the column it appears in, e.g. 'unused'
 
-    if no rows are found, None is returned -- see examples/loadrec.py
+    If no rows are found, *None* is returned -- see :file:`examples/loadrec.py`
     """
 
     if converterd is None:
@@ -2067,11 +2161,11 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     class FH:
         """
-        for space delimited files, we want different behavior than
+        For space-delimited files, we want different behavior than
         comma or tab.  Generally, we want multiple spaces to be
         treated as a single separator, whereas with comma and tab we
         want multiple commas to return multiple (empty) fields.  The
-        join/strip trick below effects this
+        join/strip trick below effects this.
         """
         def __init__(self, fh):
             self.fh = fh
@@ -2396,23 +2490,26 @@ def rec2txt(r, header=None, padding=3, precision=3):
     """
     Returns a textual representation of a record array.
 
-    r - numpy recarray
+    *r*: numpy recarray
 
-    header - list of column headers
+    *header*: list of column headers
 
-    padding - space between each column
+    *padding*: space between each column
 
-    precision - number of decimal places to use for floats.
+    *precision*: number of decimal places to use for floats.
         Set to an integer to apply to all floats.  Set to a
         list of integers to apply precision individually.
         Precision for non-floats is simply ignored.
 
-        Example:
-            precision=[0,2,3]
-        Output:
-            ID    Price   Return
-            ABC   12.54    0.234
-            XYZ    6.32   -0.076
+    Example::
+
+      precision=[0,2,3]
+
+    Output::
+
+      ID    Price   Return
+      ABC   12.54    0.234
+      XYZ    6.32   -0.076
     """
 
     if cbook.is_numlike(precision):
@@ -2488,13 +2585,12 @@ def rec2txt(r, header=None, padding=3, precision=3):
 def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
             missingd=None):
     """
-    Save the data from numpy (m)recarray r into a comma/space/tab
-    delimited file.  The record array dtype names will be used for
-    column headers.
+    Save the data from numpy recarray *r* into a
+    comma-/space-/tab-delimited file.  The record array dtype names
+    will be used for column headers.
 
-
-    fname - can be a filename or a file handle.  Support for gzipped
-    files is automatic, if the filename ends in .gz
+    *fname*: can be a filename or a file handle.  Support for gzipped
+      files is automatic, if the filename ends in '.gz'
 
     .. seealso::
         :func:`csv2rec`:
@@ -2545,25 +2641,28 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
 
 def griddata(x,y,z,xi,yi):
     """
-    zi = griddata(x,y,z,xi,yi) fits a surface of the form z = f(x,y)
-    to the data in the (usually) nonuniformly spaced vectors (x,y,z).
-    griddata interpolates this surface at the points specified by (xi,yi)
-    to produce zi. xi and yi must describe a regular grid, can be
-    either 1D or 2D, but must be monotonically increasing.
+    ``zi = griddata(x,y,z,xi,yi)`` fits a surface of the form *z* =
+    *f*(*x*, *y*) to the data in the (usually) nonuniformly spaced
+    vectors (*x*, *y*, *z*).  :func:`griddata` interpolates this
+    surface at the points specified by (*xi*, *yi*) to produce
+    *zi*. *xi* and *yi* must describe a regular grid, can be either 1D
+    or 2D, but must be monotonically increasing.
 
     A masked array is returned if any grid points are outside convex
     hull defined by input data (no extrapolation is done).
 
-    Uses natural neighbor interpolation based on Delaunay triangulation.
-    By default, this algorithm is provided by the matplotlib.delaunay
-    package, written by Robert Kern.  The triangulation algorithm in this
-    package is known to fail on some nearly pathological cases. For
-    this reason, a separate toolkit (mpl_tookits.natgrid) has been created
-    that provides a more robust algorithm fof triangulation and interpolation.
-    This toolkit is based on the NCAR natgrid library, which contains code
-    that is not redistributable under a BSD-compatible license.  When installed,
-    this function will use the mpl_toolkits.natgrid algorithm, otherwise it
-    will use the built-in matplotlib.delaunay package.
+    Uses natural neighbor interpolation based on Delaunay
+    triangulation.  By default, this algorithm is provided by the
+    :mod:`matplotlib.delaunay` package, written by Robert Kern.  The
+    triangulation algorithm in this package is known to fail on some
+    nearly pathological cases. For this reason, a separate toolkit
+    (:mod:`mpl_tookits.natgrid`) has been created that provides a more
+    robust algorithm fof triangulation and interpolation.  This
+    toolkit is based on the NCAR natgrid library, which contains code
+    that is not redistributable under a BSD-compatible license.  When
+    installed, this function will use the :mod:`mpl_toolkits.natgrid`
+    algorithm, otherwise it will use the built-in
+    :mod:`matplotlib.delaunay` package.
 
     The natgrid matplotlib toolkit can be downloaded from
     http://sourceforge.net/project/showfiles.php?group_id=80706&package_id=142792
@@ -2634,10 +2733,10 @@ griddata._reported = False
 def less_simple_linear_interpolation( x, y, xi, extrap=False ):
     """
     This function provides simple (but somewhat less so than
-    cbook.simple_linear_interpolation) linear interpolation.
-    simple_linear_interpolation will give a list of point between a
-    start and an end, while this does true linear interpolation at an
-    arbitrary set of points.
+    :func:`cbook.simple_linear_interpolation`) linear interpolation.
+    :func:`simple_linear_interpolation` will give a list of point
+    between a start and an end, while this does true linear
+    interpolation at an arbitrary set of points.
 
     This is very inefficient linear interpolation meant to be used
     only for a small number of points in relatively non-intensive use
@@ -2674,23 +2773,23 @@ def less_simple_linear_interpolation( x, y, xi, extrap=False ):
 
 def slopes(x,y):
     """
-    SLOPES calculate the slope y'(x) Given data vectors X and Y SLOPES
-    calculates Y'(X), i.e the slope of a curve Y(X). The slope is
-    estimated using the slope obtained from that of a parabola through
-    any three consecutive points.
+    :func:`slopes` calculates the slope *y*'(*x*)
+
+    The slope is estimated using the slope obtained from that of a
+    parabola through any three consecutive points.
 
     This method should be superior to that described in the appendix
     of A CONSISTENTLY WELL BEHAVED METHOD OF INTERPOLATION by Russel
     W. Stineman (Creative Computing July 1980) in at least one aspect:
 
-    Circles for interpolation demand a known aspect ratio between x-
-    and y-values.  For many functions, however, the abscissa are given
-    in different dimensions, so an aspect ratio is completely
-    arbitrary.
+      Circles for interpolation demand a known aspect ratio between
+      *x*- and *y*-values.  For many functions, however, the abscissa
+      are given in different dimensions, so an aspect ratio is
+      completely arbitrary.
 
     The parabola method gives very similar results to the circle
     method for most regular cases but behaves much better in special
-    cases
+    cases.
 
     Norbert Nemec, Institute of Theoretical Physics, University or
     Regensburg, April 2006 Norbert.Nemec at physik.uni-regensburg.de
@@ -2715,13 +2814,13 @@ def slopes(x,y):
 
 def stineman_interp(xi,x,y,yp=None):
     """
-    STINEMAN_INTERP Well behaved data interpolation.  Given data
-    vectors X and Y, the slope vector YP and a new abscissa vector XI
-    the function stineman_interp(xi,x,y,yp) uses Stineman
-    interpolation to calculate a vector YI corresponding to XI.
+    Given data vectors *x* and *y*, the slope vector *yp* and a new
+    abscissa vector *xi*, the function :func:`stineman_interp` uses
+    Stineman interpolation to calculate a vector *yi* corresponding to
+    *xi*.
 
     Here's an example that generates a coarse sine curve, then
-    interpolates over a finer abscissa:
+    interpolates over a finer abscissa::
 
       x = linspace(0,2*pi,20);  y = sin(x); yp = cos(x)
       xi = linspace(0,2*pi,40);
@@ -2732,28 +2831,27 @@ def stineman_interp(xi,x,y,yp=None):
     CONSISTENTLY WELL BEHAVED METHOD OF INTERPOLATION by Russell
     W. Stineman. The article appeared in the July 1980 issue of
     Creative Computing with a note from the editor stating that while
-    they were
+    they were:
 
       not an academic journal but once in a while something serious
       and original comes in adding that this was
       "apparently a real solution" to a well known problem.
 
-    For yp=None, the routine automatically determines the slopes using
-    the "slopes" routine.
+    For *yp* = *None*, the routine automatically determines the slopes
+    using the :func:`slopes` routine.
 
-    X is assumed to be sorted in increasing order
+    *x* is assumed to be sorted in increasing order.
 
-    For values xi[j] < x[0] or xi[j] > x[-1], the routine tries a
-    extrapolation.  The relevance of the data obtained from this, of
-    course, questionable...
+    For values ``xi[j] < x[0]`` or ``xi[j] > x[-1]``, the routine
+    tries an extrapolation.  The relevance of the data obtained from
+    this, of course, is questionable...
 
-    original implementation by Halldor Bjornsson, Icelandic
+    Original implementation by Halldor Bjornsson, Icelandic
     Meteorolocial Office, March 2006 halldor at vedur.is
 
-    completely reworked and optimized for Python by Norbert Nemec,
+    Completely reworked and optimized for Python by Norbert Nemec,
     Institute of Theoretical Physics, University or Regensburg, April
     2006 Norbert.Nemec at physik.uni-regensburg.de
-
     """
 
     # Cast key variables as float.
@@ -2809,24 +2907,25 @@ def stineman_interp(xi,x,y,yp=None):
 ##################################################
 def inside_poly(points, verts):
     """
-    points is a sequence of x,y points
-    verts is a sequence of x,y vertices of a poygon
+    *points* is a sequence of *x*, *y* points.
+    *verts* is a sequence of *x*, *y* vertices of a polygon.
 
-    return value is a sequence of indices into points for the points
-    that are inside the polygon
+    Return value is a sequence of indices into points for the points
+    that are inside the polygon.
     """
     res, =  np.nonzero(nxutils.points_inside_poly(points, verts))
     return res
 
 def poly_below(xmin, xs, ys):
     """
-    given a sequence of xs and ys, return the vertices of a polygon
-    that has a horzontal base at xmin and an upper bound at the ys.
-    xmin is a scalar.
+    Given a sequence of *xs* and *ys*, return the vertices of a
+    polygon that has a horizontal base at *xmin* and an upper bound at
+    the *ys*.  *xmin* is a scalar.
 
-    intended for use with Axes.fill, eg
-    xv, yv = poly_below(0, x, y)
-    ax.fill(xv, yv)
+    Intended for use with :meth:`matplotlib.axes.Axes.fill`, eg::
+
+      xv, yv = poly_below(0, x, y)
+      ax.fill(xv, yv)
     """
     xs = np.asarray(xs)
     ys = np.asarray(ys)
@@ -2843,11 +2942,13 @@ def poly_below(xmin, xs, ys):
 
 def poly_between(x, ylower, yupper):
     """
-    given a sequence of x, ylower and yupper, return the polygon that
-    fills the regions between them.  ylower or yupper can be scalar or
-    iterable.  If they are iterable, they must be equal in length to x
+    Given a sequence of *x*, *ylower* and *yupper*, return the polygon
+    that fills the regions between them.  *ylower* or *yupper* can be
+    scalar or iterable.  If they are iterable, they must be equal in
+    length to *x*.
 
-    return value is x, y arrays for use with Axes.fill
+    Return value is *x*, *y* arrays for use with
+    :meth:`matplotlib.axes.Axes.fill`.
     """
     Nx = len(x)
     if not cbook.iterable(ylower):
@@ -2865,7 +2966,6 @@ def is_closed_polygon(X):
     Tests whether first and last object in a sequence are the same.  These are
     presumably coordinates on a polygonal curve, in which case this function
     tests if that curve is closed.
-
     """
     return np.all(X[0] == X[-1])
 
@@ -2874,33 +2974,35 @@ def is_closed_polygon(X):
 ##################################################
 def vector_lengths( X, P=2., axis=None ):
     """
-    Finds the length of a set of vectors in n dimensions.  This is
-    like the numpy norm function for vectors, but has the ability to
+    Finds the length of a set of vectors in *n* dimensions.  This is
+    like the :func:`numpy.norm` function for vectors, but has the ability to
     work over a particular axis of the supplied array or matrix.
 
-    Computes (sum((x_i)^P))^(1/P) for each {x_i} being the elements of X along
-    the given axis.  If *axis* is *None*, compute over all elements of X.
+    Computes ``(sum((x_i)^P))^(1/P)`` for each ``{x_i}`` being the
+    elements of *X* along the given axis.  If *axis* is *None*,
+    compute over all elements of *X*.
     """
     X = np.asarray(X)
     return (np.sum(X**(P),axis=axis))**(1./P)
 
 def distances_along_curve( X ):
     """
-    Computes the distance between a set of successive points in N dimensions.
+    Computes the distance between a set of successive points in *N* dimensions.
 
-    where X is an MxN array or matrix.  The distances between successive rows
-    is computed.  Distance is the standard Euclidean distance.
+    Where *X* is an *M* x *N* array or matrix.  The distances between
+    successive rows is computed.  Distance is the standard Euclidean
+    distance.
     """
     X = np.diff( X, axis=0 )
     return vector_lengths(X,axis=1)
 
 def path_length(X):
     """
-    Computes the distance travelled along a polygonal curve in N dimensions.
+    Computes the distance travelled along a polygonal curve in *N* dimensions.
 
-
-    where X is an MxN array or matrix.  Returns an array of length M consisting
-    of the distance along the curve at each point (i.e., the rows of X).
+    Where *X* is an *M* x *N* array or matrix.  Returns an array of
+    length *M* consisting of the distance along the curve at each point
+    (i.e., the rows of *X*).
     """
     X = distances_along_curve(X)
     return np.concatenate( (np.zeros(1), np.cumsum(X)) )
@@ -2909,9 +3011,9 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     """
     Converts a quadratic Bezier curve to a cubic approximation.
 
-    The inputs are the x and y coordinates of the three control points
-    of a quadratic curve, and the output is a tuple of x and y
-    coordinates of the four control points of the cubic curve.
+    The inputs are the *x* and *y* coordinates of the three control
+    points of a quadratic curve, and the output is a tuple of *x* and
+    *y* coordinates of the four control points of the cubic curve.
     """
     # c0x, c0y = q0x, q0y
     c1x, c1y = q0x + 2./3. * (q1x - q0x), q0y + 2./3. * (q1y - q0y)

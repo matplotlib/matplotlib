@@ -1,22 +1,24 @@
 """
-A module for parsing a fontconfig pattern.
+A module for parsing and generating fontconfig patterns.
 
-This class is defined here because it must be available in:
-  - The old-style config framework (rcsetup.py)
-  - The traits-based config framework (mpltraits.py)
-  - The font manager (font_manager.py)
-
-It probably logically belongs in font_manager.py, but
-placing it in any of these places would have created cyclical
-dependency problems, or an undesired dependency on traits even
-when the traits-based config framework is not used.
-
-See here for a rough specification of these patterns:
-http://www.fontconfig.org/fontconfig-user.html
-
-Author : Michael Droettboom <mdroe@stsci.edu>
-License   : matplotlib license (PSF compatible)
+See the `fontconfig pattern specification
+<http://www.fontconfig.org/fontconfig-user.html>`_ for more
+information.
 """
+
+# Author : Michael Droettboom <mdroe@stsci.edu>
+# License : matplotlib license (PSF compatible)
+
+# This class is defined here because it must be available in:
+#   - The old-style config framework (:file:`rcsetup.py`)
+#   - The traits-based config framework (:file:`mpltraits.py`)
+#   - The font manager (:file:`font_manager.py`)
+
+# It probably logically belongs in :file:`font_manager.py`, but
+# placing it in any of these places would have created cyclical
+# dependency problems, or an undesired dependency on traits even
+# when the traits-based config framework is not used.
+
 import re
 from matplotlib.pyparsing import Literal, ZeroOrMore, \
     Optional, Regex, StringEnd, ParseException, Suppress
@@ -32,10 +34,10 @@ value_escape = re.compile(r'([%s])' % value_punc).sub
 class FontconfigPatternParser:
     """A simple pyparsing-based parser for fontconfig-style patterns.
 
-    See here for a rough specification of these patterns:
-    http://www.fontconfig.org/fontconfig-user.html
+    See the `fontconfig pattern specification
+    <http://www.fontconfig.org/fontconfig-user.html>`_ for more
+    information.
     """
-
 
     _constants = {
         'thin'           : ('weight', 'light'),
@@ -113,6 +115,11 @@ class FontconfigPatternParser:
         self.ParseException = ParseException
 
     def parse(self, pattern):
+        """
+        Parse the given fontconfig *pattern* and return a dictionary
+        of key/value pairs useful for initializing a
+        :class:`font_manager.FontProperties` object.
+        """
         props = self._properties = {}
         try:
             self._parser.parseString(pattern)
@@ -156,8 +163,10 @@ class FontconfigPatternParser:
 parse_fontconfig_pattern = FontconfigPatternParser().parse
 
 def generate_fontconfig_pattern(d):
-    """Given a dictionary of key/value pairs, generates a fontconfig pattern
-    string."""
+    """
+    Given a dictionary of key/value pairs, generates a fontconfig
+    pattern string.
+    """
     props = []
     families = ''
     size = ''

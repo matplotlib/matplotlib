@@ -1,6 +1,6 @@
 """
 This module contains all the 2D line class which can draw with a
-variety of line styles, markers and colors
+variety of line styles, markers and colors.
 """
 
 # TODO: expose cap and join style attrs
@@ -32,9 +32,11 @@ def unmasked_index_ranges(mask, compressed = True):
     return _unmasked_index_ranges(mask, compressed=compressed)
 
 
-def segment_hits(cx,cy,x,y,radius):
-    """Determine if any line segments are within radius of a point. Returns
-    the list of line segments that are within that radius.
+def segment_hits(cx, cy, x, y, radius):
+    """
+    Determine if any line segments are within radius of a
+    point. Returns the list of line segments that are within that
+    radius.
     """
     # Process single points specially
     if len(x) < 2:
@@ -173,7 +175,8 @@ class Line2D(Artist):
         Create a :class:`~matplotlib.lines.Line2D` instance with *x*
         and *y* data in sequences *xdata*, *ydata*.
 
-        The kwargs are Line2D properties:
+        The kwargs are :class:`~matplotlib.lines.Line2D` properties:
+
         %(Line2D)s
         """
         Artist.__init__(self)
@@ -239,8 +242,9 @@ class Line2D(Artist):
         Test whether the mouse event occurred on the line.  The pick
         radius determines the precision of the location test (usually
         within five points of the value).  Use
-        :meth:`~matplotlib.lines.Line2D.get_pickradius`/:meth:`~matplotlib.lines.Line2D.set_pickradius`
-        to view or modify it.
+        :meth:`~matplotlib.lines.Line2D.get_pickradius` or
+        :meth:`~matplotlib.lines.Line2D.set_pickradius` to view or
+        modify it.
 
         Returns *True* if any values are within the radius along with
         ``{'ind': pointlist}``, where *pointlist* is the set of points
