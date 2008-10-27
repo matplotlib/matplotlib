@@ -1,7 +1,7 @@
 *****************
 matplotlib pyplot
 *****************
-
+ 
 
 :mod:`matplotlib.pyplot`
 ========================
