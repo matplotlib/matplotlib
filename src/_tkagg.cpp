@@ -131,7 +131,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
       renderer_base destrb(destpf);
 
       agg::rect_base<int> region(destx, desty, (int)r, srcheight-(int)b);
-      destrb.copy_from(*aggRenderer->renderingBuffer, &region,
+      destrb.copy_from(aggRenderer->renderingBuffer, &region,
 		       -destx, -desty);
     } else {
       has_bbox = false;
