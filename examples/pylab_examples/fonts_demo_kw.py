@@ -8,7 +8,7 @@ from matplotlib.font_manager import FontProperties
 from pylab import *
 
 subplot(111, axisbg='w')
-alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
+alignment = {'horizontalalignment':'center', 'verticalalignment':'baseline'}
 ###  Show family options
 
 family = ['serif', 'sans-serif', 'cursive', 'fantasy', 'monospace']
@@ -40,7 +40,7 @@ variant= ['normal', 'small-caps']
 
 t = text(0.0, 0.9, 'variant', **alignment)
 
-for k in range(1):
+for k in range(2):
     t = text( 0.0, yp[k], variant[k], family='serif', variant=variant[k],
               **alignment)
 

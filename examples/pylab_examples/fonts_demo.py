@@ -11,7 +11,7 @@ from pylab import *
 subplot(111, axisbg='w')
 
 font0 = FontProperties()
-alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
+alignment = {'horizontalalignment':'center', 'verticalalignment':'baseline'}
 ###  Show family options
 
 family = ['serif', 'sans-serif', 'cursive', 'fantasy', 'monospace']
@@ -53,7 +53,7 @@ variant= ['normal', 'small-caps']
 t = text(0.0, 0.9, 'variant', fontproperties=font1,
          **alignment)
 
-for k in range(1):
+for k in range(2):
     font = font0.copy()
     font.set_family('serif')
     font.set_variant(variant[k])

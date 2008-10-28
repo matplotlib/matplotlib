@@ -178,5 +178,4 @@ def generate_fontconfig_pattern(d):
                 if val != []:
                     val = ','.join(val)
             props.append(":%s=%s" % (key, val))
-    print parse_fontconfig_pattern(''.join(props))
     return ''.join(props)

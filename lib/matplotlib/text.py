@@ -445,9 +445,17 @@ class Text(Artist):
         "Return the :class:`~font_manager.FontProperties` object"
         return self._fontproperties
 
+    def get_family(self):
+        "Return the list of font families used for font lookup"
+        return self._fontproperties.get_family()
+
+    def get_fontfamily(self):
+        'alias for get_family'
+        return self.get_family()
+
     def get_name(self):
         "Return the font name as string"
-        return self._fontproperties.get_family()[-1]  #  temporary hack.
+        return self._fontproperties.get_name()
 
     def get_style(self):
         "Return the font style as string"
@@ -457,25 +465,41 @@ class Text(Artist):
         "Return the font size as integer"
         return self._fontproperties.get_size_in_points()
 
+    def get_variant(self):
+        "Return the font variant as a string"
+        return self._fontproperties.get_variant()
+
+    def get_fontvariant(self):
+        'alias for get_variant'
+        return self.get_variant()
+
     def get_weight(self):
-        "Get the font weight as string"
+        "Get the font weight as string or number"
         return self._fontproperties.get_weight()
 
     def get_fontname(self):
         'alias for get_name'
-        return self._fontproperties.get_family()[-1]  #  temporary hack.
+        return self.get_name()
 
     def get_fontstyle(self):
         'alias for get_style'
-        return self._fontproperties.get_style()
+        return self.get_style()
 
     def get_fontsize(self):
         'alias for get_size'
-        return self._fontproperties.get_size_in_points()
+        return self.get_size()
 
     def get_fontweight(self):
         'alias for get_weight'
-        return self._fontproperties.get_weight()
+        return self.get_weight()
+
+    def get_stretch(self):
+        'Get the font stretch as a string or number'
+        return self._fontproperties.get_stretch()
+
+    def get_fontstretch(self):
+        'alias for get_stretch'
+        return self.get_stretch()
 
     def get_ha(self):
         'alias for get_horizontalalignment'
@@ -645,35 +669,35 @@ class Text(Artist):
 
     def set_family(self, fontname):
         """
-        Set the font family
+        Set the font family.  May be either a single string, or a list
+        of strings in decreasing priority.  Each string may be either
+        a real font name or a generic font class name.  If the latter,
+        the specific font names will be looked up in the
+        :file:`matplotlibrc` file.
 
-        ACCEPTS: [ 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]
+        ACCEPTS: [ FONTNAME | 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]
         """
         self._fontproperties.set_family(fontname)
 
     def set_variant(self, variant):
         """
-        Set the font variant, eg,
+        Set the font variant, either 'normal' or 'small-caps'.
 
         ACCEPTS: [ 'normal' | 'small-caps' ]
         """
         self._fontproperties.set_variant(variant)
 
     def set_name(self, fontname):
-        """
-        Set the font name,
-
-        ACCEPTS: string eg, ['Sans' | 'Courier' | 'Helvetica' ...]
-        """
-        self._fontproperties.set_family(fontname)
+        """alias for set_family"""
+        return self.set_family(fontname)
 
     def set_fontname(self, fontname):
-        'alias for set_name'
+        """alias for set_family"""
         self.set_family(fontname)
 
     def set_style(self, fontstyle):
         """
-        Set the font style
+        Set the font style.
 
         ACCEPTS: [ 'normal' | 'italic' | 'oblique']
         """
@@ -681,32 +705,44 @@ class Text(Artist):
 
     def set_fontstyle(self, fontstyle):
         'alias for set_style'
-        self._fontproperties.set_style(fontstyle)
+        return self.set_style(fontstyle)
 
     def set_size(self, fontsize):
         """
-        Set the font size, eg., 8, 10, 12, 14...
+        Set the font size.  May be either a size string, relative to
+        the default font size, or an absolute font size in points.
 
-        ACCEPTS: [ size in points | relative size eg 'smaller', 'x-large' ]
+        ACCEPTS: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
         """
         self._fontproperties.set_size(fontsize)
 
     def set_fontsize(self, fontsize):
         'alias for set_size'
-        self._fontproperties.set_size(fontsize)
-
-    def set_fontweight(self, weight):
-        'alias for set_weight'
-        self._fontproperties.set_weight(weight)
+        return self.set_size(fontsize)
 
     def set_weight(self, weight):
         """
-        Set the font weight
+        Set the font weight.
 
-        ACCEPTS: [ 'normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' |
-        'ultralight']
+        ACCEPTS: [ a numeric value in range 0-1000 | 'ultralight' | 'light' | 'normal' | 'regular' | 'book' | 'medium' | 'roman' | 'semibold' | 'demibold' | 'demi' | 'bold' | 'heavy' | 'extra bold' | 'black' ]
         """
         self._fontproperties.set_weight(weight)
+
+    def set_fontweight(self, weight):
+        'alias for set_weight'
+        return self.set_weight(weight)
+
+    def set_stretch(self, stretch):
+        """
+        Set the font stretch (horizontal condensation or expansion).
+
+        ACCEPTS: [ a numeric value in range 0-1000 | 'ultra-condensed' | 'extra-condensed' | 'condensed' | 'semi-condensed' | 'normal' | 'semi-expanded' | 'expanded' | 'extra-expanded' | 'ultra-expanded' ]
+        """
+        self._fontproperties.set_stretch(stretch)
+
+    def set_fontstretch(self, stretch):
+        'alias for set_stretch'
+        return self.set_stretch(stretch)
 
     def set_position(self, xy):
         """
