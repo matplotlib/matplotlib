@@ -1211,6 +1211,8 @@ class FontManager:
             if score < best_score:
                 best_score = score
                 best_font = font
+            if score == 0:
+                break
 
         if best_font is None or best_score > 10.0:
             verbose.report('findfont: Could not match %s. Returning %s' %
