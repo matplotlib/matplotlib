@@ -98,7 +98,7 @@ private:
       //destrb.clear(agg::rgba(1, 1, 1, 0));
 
       agg::rect_base<int> region(destx, desty, (int)r, srcheight-(int)b);
-      destrb.copy_from(*aggRenderer->renderingBuffer, &region,
+      destrb.copy_from(aggRenderer->renderingBuffer, &region,
 		       -destx, -desty);
     }
 
