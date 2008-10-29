@@ -563,7 +563,7 @@ class Figure(Artist):
         sets the projection type of the axes.  (For backward
         compatibility, ``polar=True`` may also be provided, which is
         equivalent to ``projection='polar'``).  Valid values for
-        *projection* are: %s.  Some of these projections support
+        *projection* are: %(list)s.  Some of these projections support
         additional kwargs, which may be provided to :meth:`add_axes`::
 
             rect = l,b,w,h
@@ -589,7 +589,7 @@ class Figure(Artist):
 
         The following kwargs are supported:
 
-        %s
+        %(Axes)s
         """
 
         key = self._make_key(*args, **kwargs)
@@ -623,8 +623,9 @@ class Figure(Artist):
         self._seen[key] = a
         return a
 
-    add_axes.__doc__ = add_axes.__doc__ % (", ".join(get_projection_names()), '%(Axes)s')
-    add_axes.__doc__ = dedent(add_axes.__doc__) % artist.kwdocd
+    add_axes.__doc__ = dedent(add_axes.__doc__) % \
+        {'list': (", ".join(get_projection_names())),
+         'Axes': artist.kwdocd['Axes']}
 
     def add_subplot(self, *args, **kwargs):
         """
@@ -640,7 +641,7 @@ class Figure(Artist):
         *projection*, which chooses a projection type for the axes.
         (For backward compatibility, *polar=True* may also be
         provided, which is equivalent to *projection='polar'*). Valid
-        values for *projection* are: %s.  Some of these projections
+        values for *projection* are: %(list)s.  Some of these projections
         support additional *kwargs*, which may be provided to
         :meth:`add_axes`.
 
@@ -651,7 +652,8 @@ class Figure(Artist):
         return it.
 
         The following kwargs are supported:
-        %s
+
+        %(Axes)s
         """
 
         key = self._make_key(*args, **kwargs)
@@ -685,8 +687,9 @@ class Figure(Artist):
         self.sca(a)
         self._seen[key] = a
         return a
-    add_subplot.__doc__ = dedent(add_subplot.__doc__) % (
-        ", ".join(get_projection_names()), "%(Axes)s") % artist.kwdocd
+    add_subplot.__doc__ = dedent(add_subplot.__doc__) % {
+        'list': ", ".join(get_projection_names()),
+        'Axes': artist.kwdocd['Axes']}
 
     def clf(self):
         """

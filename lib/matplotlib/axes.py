@@ -5392,7 +5392,7 @@ class Axes(martist.Artist):
 
     def barbs(self, *args, **kw):
         """
-        %s
+        %(barbs_doc)s
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/barb_demo.py
@@ -5403,7 +5403,8 @@ class Axes(martist.Artist):
         self.update_datalim(b.get_offsets())
         self.autoscale_view()
         return b
-    barbs.__doc__ = cbook.dedent(barbs.__doc__) % mquiver.Barbs.barbs_doc
+    barbs.__doc__ = cbook.dedent(barbs.__doc__) % {
+        'barbs_doc': mquiver.Barbs.barbs_doc}
 
     def fill(self, *args, **kwargs):
         """
