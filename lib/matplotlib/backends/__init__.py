@@ -32,7 +32,7 @@ def pylab_setup():
     # by the backend, just do nothing
     def do_nothing_show(*args, **kwargs):
         frame = inspect.currentframe()
-        fname = inspect.getframeinfo(frame.f_back)[0]
+        fname = frame.f_back.f_code.co_filename
         if fname in ('<stdin>', '<ipython console>'):
             warnings.warn("""
 Your currently selected backend, '%s' does not support show().
