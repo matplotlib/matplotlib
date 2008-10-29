@@ -178,7 +178,7 @@ static wxImage *convert_agg2image(RendererAgg *aggRenderer, Py::Object clipbox)
         rbuf.attach(srcBuffer, srcWidth, srcHeight, srcStride);
         pixfmt pf(rbuf);
         renderer_base rndr(pf);
-        rndr.copy_from(*aggRenderer->renderingBuffer, &region,
+        rndr.copy_from(aggRenderer->renderingBuffer, &region,
             (int)-l, (int)(t-h));
     }
 
