@@ -401,7 +401,7 @@ def scale_factory(scale, axis, **kwargs):
     """
     Return a scale class by name.
 
-    ACCEPTS: [ %s ]
+    ACCEPTS: [ %(names)s ]
     """
     scale = scale.lower()
     if scale is None:
@@ -411,7 +411,8 @@ def scale_factory(scale, axis, **kwargs):
         raise ValueError("Unknown scale type '%s'" % scale)
 
     return _scale_mapping[scale](axis, **kwargs)
-scale_factory.__doc__ = scale_factory.__doc__ % " | ".join(get_scale_names())
+scale_factory.__doc__ = dedent(scale_factory.__doc__) % \
+    {'names': " | ".join(get_scale_names())}
 
 def register_scale(scale_class):
     """
@@ -431,7 +432,8 @@ def get_scale_docs():
         docs.append("    '%s'" % name)
         docs.append("")
         class_docs = dedent(scale_class.__init__.__doc__)
-        class_docs = "".join(["        %s\n" % x for x in class_docs.split("\n")])
+        class_docs = "".join(["        %s\n" %
+                              x for x in class_docs.split("\n")])
         docs.append(class_docs)
         docs.append("")
     return "\n".join(docs)

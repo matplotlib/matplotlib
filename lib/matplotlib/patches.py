@@ -1634,7 +1634,7 @@ class FancyBboxPatch(Patch):
     kwdoc["AvailableBoxstyles"]=" | ".join([l \
         for l in _list_available_boxstyles(_fancy_bbox_transmuters)])
     kwdoc.update(artist.kwdocd)
-    set_boxstyle.__doc__ = set_boxstyle.__doc__ % kwdoc
+    set_boxstyle.__doc__ = cbook.dedent(set_boxstyle.__doc__) % kwdoc
     del kwdoc
 
     def set_mutation_scale(self, scale):
