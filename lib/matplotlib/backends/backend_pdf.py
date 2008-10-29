@@ -112,7 +112,7 @@ def fill(strings, linelen=75):
     result.append(' '.join(strings[lasti:]))
     return '\n'.join(result)
 
-
+_string_escape_regex = re.compile(r'([\\()])')
 def pdfRepr(obj):
     """Map Python objects to PDF syntax."""
 
@@ -138,7 +138,7 @@ def pdfRepr(obj):
     # simpler to escape them all. TODO: cut long strings into lines;
     # I believe there is some maximum line length in PDF.
     elif is_string_like(obj):
-        return '(' + re.sub(r'([\\()])', r'\\\1', obj) + ')'
+        return '(' + _string_escape_regex.sub(r'\\\1', obj) + ')'
 
     # Dictionaries. The keys must be PDF names, so if we find strings
     # there, we make Name objects from them. The values may be
@@ -207,12 +207,13 @@ class Reference:
 
 class Name:
     """PDF name object."""
+    _regex = re.compile(r'[^!-~]')
 
     def __init__(self, name):
         if isinstance(name, Name):
             self.name = name.name
         else:
-            self.name = re.sub(r'[^!-~]', Name.hexify, name)
+            self.name = self._regex.sub(Name.hexify, name)
 
     def __repr__(self):
         return "<Name %s>" % self.name
