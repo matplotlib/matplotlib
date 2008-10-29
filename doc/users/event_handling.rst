@@ -257,8 +257,8 @@ Extra credit solution::
             if DraggableRectangle.lock is not None: return
             contains, attrd = self.rect.contains(event)
             if not contains: return
-            print 'event contains', self.rect.xy
-            x0, y0 = self.rect.xy
+            x0, y0 = self.rect.get_x(), self.rect.get_y()
+            print 'event contains', x0, y0
             self.press = x0, y0, event.xdata, event.ydata
             DraggableRectangle.lock = self
 
