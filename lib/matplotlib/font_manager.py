@@ -705,7 +705,9 @@ class FontProperties(object):
         return parse_fontconfig_pattern(pattern)
 
     def __hash__(self):
-        return hash(repr(self.__dict__))
+        l = self.__dict__.items()
+        l.sort()
+        return hash(repr(l))
 
     def __str__(self):
         return self.get_fontconfig_pattern()
@@ -1192,7 +1194,7 @@ class FontManager:
             font_cache = self.ttf_lookup_cache
             fontlist = self.ttflist
 
-        cached = font_cache.get(prop)
+        cached = font_cache.get(hash(prop))
         if cached:
             return cached
 
@@ -1223,7 +1225,7 @@ class FontManager:
                            (prop, best_font.name, best_font.fname, best_score))
             result = best_font.fname
 
-        font_cache[prop] = result
+        font_cache[hash(prop)] = result
         return result
 
 
