@@ -551,12 +551,6 @@ class QuadMesh(Collection):
         else:
             c = coordinates
 
-        # We could let the Path constructor generate the codes for us,
-        # but this is faster, since we know they'll always be the same
-        codes = np.array(
-            [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY],
-            Path.code_type)
-
         points = np.concatenate((
                     c[0:-1, 0:-1],
                     c[0:-1, 1:  ],
@@ -565,7 +559,7 @@ class QuadMesh(Collection):
                     c[0:-1, 0:-1]
                     ), axis=2)
         points = points.reshape((meshWidth * meshHeight, 5, 2))
-        return [Path(x, codes) for x in points]
+        return [Path(x) for x in points]
     convert_mesh_to_paths = staticmethod(convert_mesh_to_paths)
 
     def get_datalim(self, transData):

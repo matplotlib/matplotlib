@@ -111,6 +111,7 @@ class Path(object):
 
         self.should_simplify = (len(vertices) >= 128 and
                                 (codes is None or np.all(codes <= Path.LINETO)))
+        self.has_nonfinite = not np.isfinite(vertices).all()
         self.codes = codes
         self.vertices = vertices
 
@@ -183,13 +184,18 @@ class Path(object):
                 for v in vertices[1:]:
                     yield v, LINETO
         elif codes is None:
-            next_code = MOVETO
-            for v in vertices:
-                if (~isfinite(v)).any():
-                    next_code = MOVETO
-                else:
-                    yield v, next_code
-                    next_code = LINETO
+            if self.has_nonfinite:
+                next_code = MOVETO
+                for v in vertices:
+                    if np.isfinite(v).all():
+                        yield v, next_code
+                        next_code = LINETO
+                    else:
+                        next_code = MOVETO
+            else:
+                yield vertices[0], MOVETO
+                for v in vertices[1:]:
+                    yield v, LINETO
         else:
             i = 0
             was_nan = False
@@ -203,7 +209,7 @@ class Path(object):
                 else:
                     num_vertices = NUM_VERTICES[int(code)]
                     curr_vertices = vertices[i:i+num_vertices].flatten()
-                    if (~isfinite(curr_vertices)).any():
+                    if not isfinite(curr_vertices).all():
                         was_nan = True
                     elif was_nan:
                         yield curr_vertices[-2:], MOVETO
