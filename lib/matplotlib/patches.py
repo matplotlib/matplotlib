@@ -1383,7 +1383,7 @@ class SquareBoxTransmuter(BboxTransmuterBase):
     """
     Simple square box.
 
-    'pad' :an amount of padding.
+    *pad*: an amount of padding.
     """
 
     def __init__(self, pad=0.3):

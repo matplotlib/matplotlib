@@ -176,7 +176,6 @@ class Text(Artist):
         self._linespacing = linespacing
         self.update(kwargs)
         #self.set_bbox(dict(pad=0))
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def contains(self,mouseevent):
         """Test whether the mouse event occurred in the patch.
@@ -441,9 +440,13 @@ class Text(Artist):
         "Return the color of the text"
         return self._color
 
-    def get_font_properties(self):
+    def get_fontproperties(self):
         "Return the :class:`~font_manager.FontProperties` object"
         return self._fontproperties
+
+    def get_font_properties(self):
+        'alias for get_fontproperties'
+        return self.get_fontproperties
 
     def get_family(self):
         "Return the list of font families used for font lookup"
@@ -687,6 +690,10 @@ class Text(Artist):
         """
         self._fontproperties.set_variant(variant)
 
+    def set_fontvariant(self, variant):
+        'alias for set_variant'
+        return self.set_variant(variant)
+
     def set_name(self, fontname):
         """alias for set_family"""
         return self.set_family(fontname)
@@ -832,7 +839,12 @@ class Text(Artist):
             fp = FontProperties(fp)
         self._fontproperties = fp.copy()
 
+    def set_font_properties(self, fp):
+        'alias for set_fontproperties'
+        self.set_fontproperties(fp)
+
 artist.kwdocd['Text'] = artist.kwdoc(Text)
+Text.__init__.im_func.__doc__ = cbook.dedent(Text.__init__.__doc__) % artist.kwdocd
 
 
 class TextWithDash(Text):
