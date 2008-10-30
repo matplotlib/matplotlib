@@ -5,6 +5,7 @@ Howto
 *****
 
 .. contents::
+   :backlinks: none
 
 
 .. _howto-plotting:

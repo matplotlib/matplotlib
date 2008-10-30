@@ -5,6 +5,8 @@ Environment Variables
 *********************
 
 .. contents::
+   :backlinks: none
+
 
 .. envvar:: HOME
 

@@ -5,6 +5,7 @@ Troubleshooting
 ***************
 
 .. contents::
+   :backlinks: none
 
 .. _matplotlib-version:
 
