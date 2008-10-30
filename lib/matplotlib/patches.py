@@ -1475,6 +1475,152 @@ class RoundBoxTransmuter(BboxTransmuterBase):
         return path
 
 
+class Round4BoxTransmuter(BboxTransmuterBase):
+    """
+    A box with round edges.
+    """
+
+    def __init__(self, pad=0.3, rounding_size=None):
+        self.pad = pad
+        self.rounding_size = rounding_size
+        BboxTransmuterBase.__init__(self)
+
+    def transmute(self, x0, y0, width, height, mutation_size):
+
+        # padding
+        pad = mutation_size * self.pad
+
+        # roudning size. Use a half of the pad if not set.
+        if self.rounding_size:
+            dr = mutation_size * self.rounding_size
+        else:
+            dr = pad / 2.
+
+        width, height = width + 2.*pad - 2*dr, \
+                        height + 2.*pad - 2*dr,
+
+
+        x0, y0 = x0-pad+dr, y0-pad+dr,
+        x1, y1 = x0+width, y0 + height
+
+
+        cp = [(x0, y0),
+              (x0+dr, y0-dr), (x1-dr, y0-dr), (x1, y0),
+              (x1+dr, y0+dr), (x1+dr, y1-dr), (x1, y1),
+              (x1-dr, y1+dr), (x0+dr, y1+dr), (x0, y1),
+              (x0-dr, y1-dr), (x0-dr, y0+dr), (x0, y0),
+              (x0, y0)]
+
+        com = [Path.MOVETO,
+               Path.CURVE4, Path.CURVE4, Path.CURVE4, 
+               Path.CURVE4, Path.CURVE4, Path.CURVE4, 
+               Path.CURVE4, Path.CURVE4, Path.CURVE4, 
+               Path.CURVE4, Path.CURVE4, Path.CURVE4, 
+               Path.CLOSEPOLY]
+
+        path = Path(cp, com)
+
+        return path
+
+
+
+
+class SawtoothBoxTransmuter(BboxTransmuterBase):
+    """
+    A sawtooth box.
+    """
+
+    def __init__(self, pad=0.3, tooth_size=None):
+        self.pad = pad
+        self.tooth_size = tooth_size
+        BboxTransmuterBase.__init__(self)
+
+    def _get_sawtooth_vertices(self, x0, y0, width, height, mutation_size):
+        
+
+        # padding
+        pad = mutation_size * self.pad
+
+        # size of sawtooth
+        if self.tooth_size is None:
+            tooth_size = self.pad * .5 * mutation_size
+        else:
+            tooth_size = self.tooth_size * mutation_size
+
+        tooth_size2 = tooth_size / 2.
+        width, height = width + 2.*pad - tooth_size, \
+                        height + 2.*pad - tooth_size,
+
+        # the sizes of the vertical and horizontal sawtooth are
+        # separately adjusted to fit the given box size.
+        dsx_n = int(round((width  - tooth_size) / (tooth_size * 2))) * 2
+        dsx = (width  - tooth_size) / dsx_n
+        dsy_n = int(round((height  - tooth_size) / (tooth_size * 2))) * 2
+        dsy = (height  - tooth_size) / dsy_n
+
+
+        x0, y0 = x0-pad+tooth_size2, y0-pad+tooth_size2
+        x1, y1 = x0+width, y0 + height
+
+
+        bottom_saw_x = [x0] + \
+                       [x0 + tooth_size2 + dsx*.5* i for i in range(dsx_n*2)] + \
+                       [x1 - tooth_size2]
+        bottom_saw_y = [y0] + \
+                       [y0 - tooth_size2, y0, y0 + tooth_size2, y0] * dsx_n + \
+                       [y0 - tooth_size2]
+
+        right_saw_x = [x1] + \
+                      [x1 + tooth_size2, x1, x1 - tooth_size2, x1] * dsx_n + \
+                      [x1 + tooth_size2]
+        right_saw_y = [y0] + \
+                      [y0 + tooth_size2 + dsy*.5* i for i in range(dsy_n*2)] + \
+                      [y1 - tooth_size2]
+
+        top_saw_x = [x1] + \
+                    [x1 - tooth_size2 - dsx*.5* i for i in range(dsx_n*2)] + \
+                    [x0 + tooth_size2]
+        top_saw_y = [y1] + \
+                    [y1 + tooth_size2, y1, y1 - tooth_size2, y1] * dsx_n + \
+                    [y1 + tooth_size2]
+
+        left_saw_x = [x0] + \
+                     [x0 - tooth_size2, x0, x0 + tooth_size2, x0] * dsy_n + \
+                     [x0 - tooth_size2]
+        left_saw_y = [y1] + \
+                     [y1 - tooth_size2 - dsy*.5* i for i in range(dsy_n*2)] + \
+                     [y0 + tooth_size2]
+        
+        saw_vertices = zip(bottom_saw_x, bottom_saw_y) + \
+                       zip(right_saw_x, right_saw_y) + \
+                       zip(top_saw_x, top_saw_y) + \
+                       zip(left_saw_x, left_saw_y) + \
+                       [(bottom_saw_x[0], bottom_saw_y[0])]
+        
+        return saw_vertices
+    
+
+    def transmute(self, x0, y0, width, height, mutation_size):
+
+        saw_vertices = self._get_sawtooth_vertices(x0, y0, width, height, mutation_size)
+        path = Path(saw_vertices)
+        return path
+
+
+class RoundtoothBoxTransmuter(SawtoothBoxTransmuter):
+    """
+    A roundtooth(?) box.
+    """
+
+    def transmute(self, x0, y0, width, height, mutation_size):
+
+        saw_vertices = self._get_sawtooth_vertices(x0, y0, width, height, mutation_size)
+
+        cp = [Path.MOVETO] + ([Path.CURVE3, Path.CURVE3] * ((len(saw_vertices)-1)//2))
+        path = Path(saw_vertices, cp)
+
+        return path
+
 
 def _list_available_boxstyles(transmuters):
     """ a helper function of the :class:`FancyBboxPatch` to list the available
@@ -1520,6 +1666,9 @@ class FancyBboxPatch(Patch):
 
     _fancy_bbox_transmuters = {"square":SquareBoxTransmuter,
                                "round":RoundBoxTransmuter,
+                               "round4":Round4BoxTransmuter,
+                               "sawtooth":SawtoothBoxTransmuter,
+                               "roundtooth":RoundtoothBoxTransmuter,
                                }
 
     def __str__(self):
@@ -1585,6 +1734,7 @@ class FancyBboxPatch(Patch):
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % kwdoc
     del kwdoc
 
+    @classmethod
     def list_available_boxstyles(cls):
         return _list_available_boxstyles(cls._fancy_bbox_transmuters)
 
@@ -1757,4 +1907,1124 @@ class FancyBboxPatch(Patch):
 
     def get_bbox(self):
         return transforms.Bbox.from_bounds(self._x, self._y, self._width, self._height)
+
+
+
+
+
+from matplotlib.bezier import split_bezier_intersecting_with_closedpath
+from matplotlib.bezier import get_intersection, inside_circle, get_parallels
+from matplotlib.bezier import make_wedged_bezier2
+from matplotlib.bezier import split_path_inout, inside_circle
+
+class ConnectorBase(object):
+    """ The ConnectorClass is used to define a path between a two
+    points. This class is used in the FancyArrowPatch class. It
+    creates a path between point A and point B. When optional patch
+    objects (pathcA & patchB) are provided and if they enclose the
+    point A or B, the path is clipped to the boundary of the each
+    patch. Additionally the path can be shirnked by a fixed size
+    (given in points) with shrinkA and shrinkB.
+    """
+    
+    class SimpleEvent:
+        def __init__(self, xy):
+            self.x, self.y = xy
+
+    def _clip(self, path, patchA, patchB):
+        """ Clip the path to the boundary of the patchA and patchB.
+        The starting point of the path needed to be inside of the
+        patchA and the end point inside the patch B. The contains
+        methods of each patch object is utilized to test if the point
+        is inside the path.
+        """
+        
+        if patchA:
+            def insideA(xy_display):
+                #xy_display = patchA.get_data_transform().transform_point(xy_data)
+                xy_event =  ConnectorBase.SimpleEvent(xy_display)
+                return patchA.contains(xy_event)[0]
+
+            try:
+                left, right = split_path_inout(path, insideA)
+            except ValueError:
+                right = path
+                
+            path = right
+
+        if patchB:
+            def insideB(xy_display):
+                #xy_display = patchB.get_data_transform().transform_point(xy_data)
+                xy_event =  ConnectorBase.SimpleEvent(xy_display)
+                return patchB.contains(xy_event)[0]
+
+            try:
+                left, right = split_path_inout(path, insideB)
+            except ValueError:
+                left = path
+
+            path = left
+
+        #ppp = patchB.get_patch_transform().transform_path(patchB.get_path())
+        #def insideB(xy_data):
+        #    return ppp.contains_point(xy_data)
+        ##return patchB.contains(ConnectorBase.SimpleEvent(xy))[0]
+        
+        return path
+
+    
+    def _shrink(self, path, shrinkA, shrinkB):
+        """
+        Shrink the path by fixed size (in points) with shrinkA and shrinkB
+        """
+        if shrinkA:
+            x, y = path.vertices[0]
+            insideA = inside_circle(x, y, shrinkA)
+
+            left, right = split_path_inout(path, insideA)
+            path = right
+
+        if shrinkB:
+            x, y = path.vertices[-1]
+            insideB = inside_circle(x, y, shrinkB)
+
+            left, right = split_path_inout(path, insideB)
+            path = left
+
+        return path
+    
+    def __call__(self, posA, posB,
+                 shrinkA=2., shrinkB=2., patchA=None, patchB=None):
+
+        path = self.connect(posA, posB)
+
+        clipped_path = self._clip(path, patchA, patchB)
+        shrinked_path = self._shrink(clipped_path, shrinkA, shrinkB)
+        
+        return shrinked_path
+
+
+class Arc3Connector(ConnectorBase):
+    """ Creates a simple quadratic bezier curve between two
+    points. The curve is created so that the middle contol points (C1)
+    is located at the same distance from the start (C0) and end
+    points(C2) and the distance of the C1 to the line connecting C0-C2
+    is *rad* times the distance of C0-C2.
+    """
+    def __init__(self, rad=0.):
+        self.rad = rad
+        
+    def connect(self, posA, posB):
+        x1, y1 = posA
+        x2, y2 = posB
+        x12, y12 = (x1 + x2)/2., (y1 + y2)/2.
+        dx, dy = x2 - x1, y2 - y1
+
+        f = self.rad
+        
+        cx, cy = x12 + f*dy, y12 - f*dx
+
+        vertices = [(x1, y1),
+                    (cx, cy),
+                    (x2, y2)]
+        codes = [Path.MOVETO,
+                 Path.CURVE3,
+                 Path.CURVE3]
+
+        return Path(vertices, codes)
+
+
+class Angle3Connector(ConnectorBase):
+    """ Creates a simple quadratic bezier curve between two
+    points. The middle control points is placed at the intersecting
+    point of two lines which  crosses the start (or end) point 
+    and has a angle of angleA (or angleB).
+    """
+    def __init__(self, angleA=90, angleB=0):
+        self.angleA = angleA
+        self.angleB = angleB
+
+    def connect(self, posA, posB):
+        x1, y1 = posA
+        x2, y2 = posB
+
+        cosA, sinA = math.cos(self.angleA/180.*math.pi),\
+                     math.sin(self.angleA/180.*math.pi), 
+        cosB, sinB = math.cos(self.angleB/180.*math.pi),\
+                     math.sin(self.angleB/180.*math.pi), 
+
+        cx, cy = get_intersection(x1, y1, cosA, sinA,
+                                  x2, y2, cosB, sinB)
+
+        vertices = [(x1, y1), (cx, cy), (x2, y2)]
+        codes = [Path.MOVETO, Path.CURVE3, Path.CURVE3]
+
+        return Path(vertices, codes)
+
+
+class AngleConnector(ConnectorBase):
+    """ Creates a picewise continuous quadratic bezier path between
+    two points. The path has a one passing-through point placed at the
+    intersecting point of two lines which crosses the start (or end)
+    point and has a angle of angleA (or angleB).  The connecting edges are
+    rounded with *rad*.
+    """
+
+    def __init__(self, angleA=90, angleB=0, rad=0.):
+        self.angleA = angleA
+        self.angleB = angleB
+
+        self.rad = rad
+        
+    def connect(self, posA, posB):
+        x1, y1 = posA
+        x2, y2 = posB
+
+        cosA, sinA = math.cos(self.angleA/180.*math.pi),\
+                     math.sin(self.angleA/180.*math.pi), 
+        cosB, sinB = math.cos(self.angleB/180.*math.pi),\
+                     -math.sin(self.angleB/180.*math.pi), 
+
+        cx, cy = get_intersection(x1, y1, cosA, sinA,
+                                  x2, y2, cosB, sinB)
+
+        vertices = [(x1, y1)]
+        codes = [Path.MOVETO]
+
+        if self.rad == 0.:
+            vertices.append((cx, cy))
+            codes.append(Path.LINETO)
+        else:
+            vertices.extend([(cx - self.rad * cosA, cy - self.rad * sinA),
+                             (cx, cy),
+                             (cx + self.rad * cosB, cy + self.rad * sinB)])
+            codes.extend([Path.LINETO, Path.CURVE3, Path.CURVE3])
+            
+        vertices.append((x2, y2))
+        codes.append(Path.LINETO)
+        
+        return Path(vertices, codes)
+
+
+
+class ArcConnector(ConnectorBase):
+    """ Creates a picewise continuous quadratic bezier path between
+    two points. The path can have two passing-through points, a point
+    placed at the distance of armA and angle of angleA from point A,
+    another point with respect to point B. The edges are rounded with
+    *rad*.
+    """
+
+    def __init__(self, angleA=0, angleB=0, armA=None, armB=None, rad=0.):
+        self.angleA = angleA
+        self.angleB = angleB
+        self.armA = armA
+        self.armB = armB
+
+        self.rad = rad
+        
+    def connect(self, posA, posB):
+        x1, y1 = posA
+        x2, y2 = posB
+
+        vertices = [(x1, y1)]
+        rounded = []
+        codes = [Path.MOVETO]
+        
+        if self.armA:
+            cosA = math.cos(self.angleA/180.*math.pi)
+            sinA = math.sin(self.angleA/180.*math.pi)
+            #x_armA, y_armB
+            d = self.armA - self.rad
+            rounded.append((x1 + d*cosA, y1 + d*sinA))
+            d = self.armA 
+            rounded.append((x1 + d*cosA, y1 + d*sinA))
+
+        if self.armB:
+            cosB = math.cos(self.angleB/180.*math.pi)
+            sinB = math.sin(self.angleB/180.*math.pi)
+            x_armB, y_armB = x2 + self.armB*cosB, y2 + self.armB*sinB
+
+            if rounded:
+                xp, yp = rounded[-1]
+                dx, dy = x_armB - xp, y_armB - yp
+                dd = (dx*dx + dy*dy)**.5
+            
+                rounded.append((xp + self.rad*dx/dd, yp  + self.rad*dy/dd))
+                vertices.extend(rounded)
+                codes.extend([Path.LINETO,
+                              Path.CURVE3,
+                              Path.CURVE3])
+            else:
+                xp, yp = vertices[-1]
+                dx, dy = x_armB - xp, y_armB - yp
+                dd = (dx*dx + dy*dy)**.5
+
+            d = dd - self.rad
+            rounded = [(xp + d*dx/dd, yp  + d*dy/dd),
+                       (x_armB, y_armB)]
+            
+        if rounded:
+            xp, yp = rounded[-1]
+            dx, dy = x2 - xp, y2 - yp
+            dd = (dx*dx + dy*dy)**.5
+
+            rounded.append((xp + self.rad*dx/dd, yp  + self.rad*dy/dd))
+            vertices.extend(rounded)
+            codes.extend([Path.LINETO,
+                          Path.CURVE3,
+                          Path.CURVE3])
+
+        vertices.append((x2, y2))
+        codes.append(Path.LINETO)
+        
+        return Path(vertices, codes)
+
+
+
+
+class ArrowTransmuterBase(object):
+    """
+    Arrow Transmuter Base class
+
+    ArrowTransmuterBase and its derivatives are used to make a fancy
+    arrow around a given path. The __call__ method returns a path
+    (which will be used to create a PathPatch instance) and a boolean
+    value indicating the path is open therefore is not fillable.  This
+    class is not an artist and actual drawing of the fancy arrow is
+    done by the FancyArrowPatch class.
+
+    """
+
+    # The derived classes are required to be able to be initialized
+    # w/o arguments, i.e., all its argument (except self) must have
+    # the default values.
+
+    def __init__(self):
+        super(ArrowTransmuterBase, self).__init__()
+
+    @staticmethod
+    def ensure_quadratic_bezier(path):
+        """ Some ArrowTransmuter class only wokrs with a simple
+        quaratic bezier curve (created with Arc3Connetion or
+        Angle3Connector). This static method is to check if the
+        provided path is a simple quadratic bezier curve and returns
+        its control points if true.
+        """
+        segments = list(path.iter_segments())
+        assert len(segments) == 2
+
+        assert segments[0][1] == Path.MOVETO
+        assert segments[1][1] == Path.CURVE3
+        
+        return list(segments[0][0]) + list(segments[1][0])
+
+
+    def transmute(self, path, mutation_size, linewidth):
+        """
+        The transmute method is a very core of the ArrowTransmuter
+        class and must be overriden in the subclasses. It receives the
+        path object along which the arrow will be drawn, and the
+        mutation_size, with which the amount arrow head and etc. will
+        be scaled. It returns a Path instance. The linewidth may be
+        used to adjust the the path so that it does not pass beyond
+        the given points.
+        """
+
+        raise NotImplementedError('Derived must override')
+
+
+
+    def __call__(self, path, mutation_size, linewidth,
+                 aspect_ratio=1.):
+        """
+        The __call__ method is a thin wrapper around the transmute method
+        and take care of the aspect ratio.
+        """
+
+        if aspect_ratio is not None:
+            # Squeeze the given height by the aspect_ratio
+
+            vertices, codes = path.vertices[:], path.codes[:]
+            # Squeeze the height
+            vertices[:,1] = vertices[:,1] / aspect_ratio
+            path_shrinked = Path(vertices, codes)
+            # call transmute method with squeezed height.
+            path_mutated, closed = self.transmute(path_shrinked, linewidth,
+                                                  mutation_size)
+            vertices, codes = path_mutate.vertices, path_mutate.codes
+            # Restore the height
+            vertices[:,1] = vertices[:,1] * aspect_ratio
+            return Path(vertices, codes), closed
+        else:
+            return self.transmute(path, mutation_size, linewidth)
+
+
+
+class CurveArrowTransmuter(ArrowTransmuterBase):
+    """
+    A simple arrow which will work with any path instance. The
+    returned path is simply concatenation of the original path + at
+    most two paths representing the arrow at the begin point and the
+    at the end point. The returned path is not closed and only meant
+    to be stroked.
+    """
+
+    def __init__(self, beginarrow=None, endarrow=None,
+                 head_length=.2, head_width=.1):
+        """ The arrows are drawn if *beginarrow* and/or *endarrow* are
+        true. *head_length* and *head_width* determines the size of
+        the arrow relative to the *mutation scale*.
+        """
+        self.beginarrow, self.endarrow = beginarrow, endarrow
+        self.head_length, self.head_width = \
+                head_length, head_width
+        super(CurveArrowTransmuter, self).__init__()
+
+
+    def _get_pad_projected(self, x0, y0, x1, y1, linewidth):
+        # when no arrow head is drawn
+        
+        dx, dy = x0 - x1, y0 - y1
+        cp_distance = math.sqrt(dx**2 + dy**2)
+
+        # padx_projected, pady_projected : amount of pad to account
+        # projection of the wedge
+        padx_projected = (.5*linewidth)
+        pady_projected = (.5*linewidth)
+
+        # apply pad for projected edge
+        ddx = padx_projected * dx / cp_distance
+        ddy = pady_projected * dy / cp_distance
+
+        return ddx, ddy
+    
+    def _get_arrow_wedge(self, x0, y0, x1, y1,
+                         head_dist, cos_t, sin_t, linewidth
+                         ):
+        """ Return the paths for arrow heads. Since arrow lines are
+        drawn with capstyle=projected, The arrow is goes beyond the
+        desired point. This method also returns the amount of the path
+        to be shrinked so that it does not overshoot.
+        """
+
+        # arrow from x0, y0 to x1, y1
+
+
+        dx, dy = x0 - x1, y0 - y1
+        cp_distance = math.sqrt(dx**2 + dy**2)
+
+        # padx_projected, pady_projected : amount of pad for account
+        # the overshooting of the projection of the wedge
+        padx_projected = (.5*linewidth / cos_t)
+        pady_projected = (.5*linewidth / sin_t)
+
+        # apply pad for projected edge
+        ddx = padx_projected * dx / cp_distance
+        ddy = pady_projected * dy / cp_distance
+
+        # offset for arrow wedge
+        dx, dy = dx / cp_distance * head_dist, dy / cp_distance * head_dist
+
+        dx1, dy1 = cos_t * dx + sin_t * dy, -sin_t * dx + cos_t * dy
+        dx2, dy2 = cos_t * dx - sin_t * dy, sin_t * dx + cos_t * dy
+
+        vertices_arrow = [(x1+ddx+dx1, y1+ddy+dy1),
+                          (x1+ddx, y1++ddy),
+                          (x1+ddx+dx2, y1+ddy+dy2)]
+        codes_arrow = [Path.MOVETO,
+                       Path.LINETO,
+                       Path.LINETO]
+
+        return vertices_arrow, codes_arrow, ddx, ddy
+
+                         
+    def transmute(self, path, mutation_size, linewidth):
+
+        head_length, head_width = self.head_length * mutation_size, \
+                                  self.head_width * mutation_size
+        head_dist = math.sqrt(head_length**2 + head_width**2)
+        cos_t, sin_t = head_length / head_dist, head_width / head_dist
+
+
+        # begin arrow
+        x0, y0 = path.vertices[0]
+        x1, y1 = path.vertices[1]
+
+        if self.beginarrow:
+            verticesA, codesA, ddxA, ddyA = \
+                       self._get_arrow_wedge(x1, y1, x0, y0,
+                                             head_dist, cos_t, sin_t,
+                                             linewidth)
+        else:
+            verticesA, codesA = [], []
+            #ddxA, ddyA = self._get_pad_projected(x1, y1, x0, y0, linewidth)
+            ddxA, ddyA = 0., 0., #self._get_pad_projected(x1, y1, x0, y0, linewidth)
+            
+        # end arrow
+        x2, y2 = path.vertices[-2]
+        x3, y3 = path.vertices[-1]
+
+        if self.endarrow:
+            verticesB, codesB, ddxB, ddyB = \
+                       self._get_arrow_wedge(x2, y2, x3, y3,
+                                             head_dist, cos_t, sin_t,
+                                             linewidth)
+        else:
+            verticesB, codesB = [], []
+            ddxB, ddyB = 0., 0. #self._get_pad_projected(x2, y2, x3, y3, linewidth)
+
+
+        # this simple code will not work if ddx, ddy is greater than
+        # separation bettern vertices.
+        vertices = np.concatenate([verticesA + [(x0+ddxA, y0+ddyA)],
+                                   path.vertices[1:-1],
+                                   [(x3+ddxB, y3+ddyB)] + verticesB])
+        codes = np.concatenate([codesA,
+                                path.codes,
+                                codesB])
+
+        p = Path(vertices, codes)
+
+        return p, False
+
+
+class CurveArrowATransmuter(CurveArrowTransmuter):
+    """
+    A CurveArrowTransmuter with arrow at begin point. This class is
+    only meant to be used to define the arrowstyle and users may
+    simply use the original CurveArrowTransmuter class when necesary.
+    """
+
+    def __init__(self, head_length=.4, head_width=.2):
+        super(CurveArrowATransmuter, self).__init__( \
+            beginarrow=True, endarrow=False,
+            head_length=head_length, head_width=head_width )
+
+
+class CurveArrowBTransmuter(CurveArrowTransmuter):
+    """
+    A CurveArrowTransmuter with arrow at end point. This class is
+    only meant to be used to define the arrowstyle and users may
+    simply use the original CurveArrowTransmuter class when necesary.
+    """
+
+    def __init__(self, head_length=.4, head_width=.2):
+        super(CurveArrowBTransmuter, self).__init__( \
+            beginarrow=False, endarrow=True,
+            head_length=head_length, head_width=head_width )
+
+
+class CurveArrowABTransmuter(CurveArrowTransmuter):
+    """
+    A CurveArrowTransmuter with arrows at both begin and end
+    points. This class is only meant to be used to define the
+    arrowstyle and users may simply use the original
+    CurveArrowTransmuter class when necesary.
+    """
+
+    def __init__(self, head_length=.4, head_width=.2):
+        super(CurveArrowABTransmuter, self).__init__( \
+            beginarrow=True, endarrow=True,
+            head_length=head_length, head_width=head_width )
+
+
+
+class SimpleArrowTransmuter(ArrowTransmuterBase):
+    """
+    A simple arrow. Only works with a quadratic bezier curve.
+    """
+
+    def __init__(self, head_length=.5, head_width=.5, tail_width=.2):
+        self.head_length, self.head_width, self.tail_width = \
+                head_length, head_width, tail_width
+        super(SimpleArrowTransmuter, self).__init__()
+
+    def transmute(self, path, mutation_size, linewidth):
+
+        x0, y0, x1, y1, x2, y2 = self.ensure_quadratic_bezier(path)
+        
+        # divide the path into a head and a tail 
+        head_length  = self.head_length * mutation_size
+        in_f = inside_circle(x2, y2, head_length)
+        arrow_path = [(x0, y0), (x1, y1), (x2, y2)]
+        arrow_out, arrow_in = \
+                   split_bezier_intersecting_with_closedpath(arrow_path,
+                                                             in_f,
+                                                             tolerence=0.01)
+
+        # head
+        head_width = self.head_width * mutation_size
+        head_l, head_r = make_wedged_bezier2(arrow_in, head_width/2.,
+                                             wm=.8)
+
+
+
+        # tail
+        tail_width = self.tail_width * mutation_size
+        tail_left, tail_right = get_parallels(arrow_out, tail_width/2.)
+
+        head_right, head_left = head_r, head_l
+        patch_path = [(Path.MOVETO, tail_right[0]),
+                      (Path.CURVE3, tail_right[1]),
+                      (Path.CURVE3, tail_right[2]),
+                      (Path.LINETO, head_right[0]),
+                      (Path.CURVE3, head_right[1]),
+                      (Path.CURVE3, head_right[2]),
+                      (Path.CURVE3, head_left[1]),
+                      (Path.CURVE3, head_left[0]),
+                      (Path.LINETO, tail_left[2]),
+                      (Path.CURVE3, tail_left[1]),
+                      (Path.CURVE3, tail_left[0]),
+                      (Path.LINETO, tail_right[0]),
+                      (Path.CLOSEPOLY, tail_right[0]),
+                      ]
+        path = Path([p for c, p in patch_path], [c for c, p in patch_path])
+
+        return path, True
+
+
+class FancyArrowTransmuter(ArrowTransmuterBase):
+    """
+    A fancy arrow. Only works with a quadratic bezier curve.
+    """
+
+    def __init__(self, head_length=.4, head_width=.4, tail_width=.4):
+        self.head_length, self.head_width, self.tail_width = \
+                head_length, head_width, tail_width
+        super(FancyArrowTransmuter, self).__init__()
+
+    def transmute(self, path, mutation_size, linewidth):
+
+        x0, y0, x1, y1, x2, y2 = self.ensure_quadratic_bezier(path)
+        
+        # divide the path into a head and a tail 
+        head_length  = self.head_length * mutation_size
+        arrow_path = [(x0, y0), (x1, y1), (x2, y2)]
+
+        # path for head
+        in_f = inside_circle(x2, y2, head_length)
+        path_out, path_in = \
+                   split_bezier_intersecting_with_closedpath(arrow_path,
+                                                             in_f,
+                                                             tolerence=0.01)
+        path_head = path_in
+
+        # path for head 
+        in_f = inside_circle(x2, y2, head_length*.8)
+        path_out, path_in = \
+                   split_bezier_intersecting_with_closedpath(arrow_path,
+                                                             in_f,
+                                                             tolerence=0.01)
+        path_tail = path_out
+
+
+        # head
+        head_width = self.head_width * mutation_size
+        head_l, head_r = make_wedged_bezier2(path_head, head_width/2.,
+                                             wm=.6)
+
+        # tail
+        tail_width = self.tail_width * mutation_size
+        tail_left, tail_right = make_wedged_bezier2(path_tail,
+                                                    tail_width*.5,
+                                                    w1=1., wm=0.6, w2=0.3)
+
+        # path for head 
+        in_f = inside_circle(x0, y0, tail_width*.3)
+        path_in, path_out = \
+                   split_bezier_intersecting_with_closedpath(arrow_path,
+                                                             in_f,
+                                                             tolerence=0.01)
+        tail_start = path_in[-1]
+
+        head_right, head_left = head_r, head_l
+        patch_path = [(Path.MOVETO, tail_start),
+                      (Path.LINETO, tail_right[0]),
+                      (Path.CURVE3, tail_right[1]),
+                      (Path.CURVE3, tail_right[2]),
+                      (Path.LINETO, head_right[0]),
+                      (Path.CURVE3, head_right[1]),
+                      (Path.CURVE3, head_right[2]),
+                      (Path.CURVE3, head_left[1]),
+                      (Path.CURVE3, head_left[0]),
+                      (Path.LINETO, tail_left[2]),
+                      (Path.CURVE3, tail_left[1]),
+                      (Path.CURVE3, tail_left[0]),
+                      (Path.LINETO, tail_start),
+                      (Path.CLOSEPOLY, tail_start),
+                      ]
+        patch_path2 = [(Path.MOVETO, tail_right[0]),
+                      (Path.CURVE3, tail_right[1]),
+                      (Path.CURVE3, tail_right[2]),
+                      (Path.LINETO, head_right[0]),
+                      (Path.CURVE3, head_right[1]),
+                      (Path.CURVE3, head_right[2]),
+                      (Path.CURVE3, head_left[1]),
+                      (Path.CURVE3, head_left[0]),
+                      (Path.LINETO, tail_left[2]),
+                      (Path.CURVE3, tail_left[1]),
+                      (Path.CURVE3, tail_left[0]),
+                      (Path.CURVE3, tail_start),
+                      (Path.CURVE3, tail_right[0]),
+                      (Path.CLOSEPOLY, tail_right[0]),
+                      ]
+        path = Path([p for c, p in patch_path], [c for c, p in patch_path])
+
+        return path, True
+
+
+
+
+
+class WedgeArrowTransmuter(ArrowTransmuterBase):
+    """
+    Wedge(?) shape. Only wokrs with a quadratic bezier curve.  The
+    begin point has a width of the tail_width and the end point has a
+    width of 0. At the middle, the width is shrink_factor*tail_width.
+    """
+
+    def __init__(self, tail_width=.3, shrink_factor=0.5):
+        self.tail_width = tail_width
+        self.shrink_factor = shrink_factor
+        super(WedgeArrowTransmuter, self).__init__()
+
+
+    def transmute(self, path, mutation_size, linewidth):
+
+        x0, y0, x1, y1, x2, y2 = self.ensure_quadratic_bezier(path)
+        
+        arrow_path = [(x0, y0), (x1, y1), (x2, y2)]
+        b_plus, b_minus = make_wedged_bezier2(arrow_path,
+                                              self.tail_width * mutation_size / 2.,
+                                              wm=self.shrink_factor)
+
+
+        patch_path = [(Path.MOVETO, b_plus[0]),
+                      (Path.CURVE3, b_plus[1]),
+                      (Path.CURVE3, b_plus[2]),
+                      (Path.LINETO, b_minus[2]),
+                      (Path.CURVE3, b_minus[1]),
+                      (Path.CURVE3, b_minus[0]),
+                      (Path.CLOSEPOLY, b_minus[0]),
+                      ]
+        path = Path([p for c, p in patch_path], [c for c, p in patch_path])
+
+        return path, True
+
+
+
+
+def _list_available_connectionstyles(connectors):
+    """ a helper function of the FancyArrowPatch to list the available
+    connection styles. It inspects the arguments of the __init__ methods of
+    each classes and report them
+    """
+    import inspect
+    s = []
+    for name, cls in connectors.items():
+        args, varargs, varkw, defaults =  inspect.getargspec(cls.__init__)
+        args_string = ["%s=%s" % (argname, str(argdefault)) \
+                       for argname, argdefault in zip(args[1:], defaults)]
+        s.append(",".join([name]+args_string))
+    s.sort()
+    return s
+
+def _list_available_arrowstyles(transmuters):
+    """ a helper function of the FancyArrowPatch to list the available
+    arrow styles. It inspects the arguments of the __init__ methods of
+    each classes and report them
+    """
+    import inspect
+    s = []
+    for name, cls in transmuters.items():
+        args, varargs, varkw, defaults =  inspect.getargspec(cls.__init__)
+        args_string = ["%s=%s" % (argname, str(argdefault)) \
+                       for argname, argdefault in zip(args[1:], defaults)]
+        s.append(",".join([name]+args_string))
+    s.sort()
+    return s
+
+
+
+class FancyArrowPatch(Patch):
+    """
+    Draw a fancy arrow along a path.
+
+    The "arrowstyle" argument determins what kind of
+    arrow will be drawn. In other words, it selects the
+    ArrowTransmuter class to use, and sets optional attributes.  A
+    custom ArrowTransmuter can be used with arrow_transmuter argument
+    (should be an instance, not a class). mutation_scale determines
+    the overall size of the mutation (by which I mean the
+    transformation of the path to the fancy arrow) and the
+    mutation_aspect determines the aspect-ratio of the mutation.
+
+    """
+
+    _fancy_arrow_transmuters = {"simple":SimpleArrowTransmuter,
+                                "fancy":FancyArrowTransmuter,
+                                "wedge":WedgeArrowTransmuter,
+                                "-":CurveArrowTransmuter,
+                                "->":CurveArrowBTransmuter,
+                                "<-":CurveArrowATransmuter,
+                                "<->":CurveArrowABTransmuter,
+                               }
+
+    _connectors = {"arc3":Arc3Connector,
+                   "arc":ArcConnector,
+                   "angle":AngleConnector,
+                   "angle3":Angle3Connector,
+                   }
+    
+    def __str__(self):
+        return self.__class__.__name__ \
+            + "FancyArrowPatch(%g,%g,%g,%g,%g,%g)" % tuple(self._q_bezier)
+
+    def __init__(self, posA=None, posB=None, 
+                 path=None,
+                 arrowstyle="simple",
+                 arrow_transmuter=None,
+                 connectionstyle="arc3",
+                 connector=None,
+                 patchA=None,
+                 patchB=None,
+                 shrinkA=2.,
+                 shrinkB=2.,
+                 mutation_scale=1.,
+                 mutation_aspect=None,
+                 **kwargs):
+        """
+        If *posA* and *posB* is given, a path connecting two point are
+        created according to the connectionstyle. The path will be
+        clipped with *patchA* and *patchB* and further shirnked by
+        *shrinkA* and *shrinkB*. An arrow is drawn along this
+        resulting path using the *arrowstyle* parameter. If *path*
+        provided, an arrow is drawn along this path and *patchA*,
+        *patchB*, *shrinkA*, and *shrinkB* are ignored.
+
+        The *connectionstyle* describes how *posA* and *posB* are
+        connected. It should be one of the available connectionstyle
+        names, with optional comma-separated attributes.  Following
+        connection styles are available.
+
+        %(AvailableConnectorstyles)s
+
+        The connectionstyle name can be "custom", in which case the
+        *connector* needs to be set, which should be an instance
+        of ArrowTransmuterBase (or its derived).
+
+
+        The *arrowstyle* describes how the fancy arrow will be drawn. It
+        should be one of the available arrowstyle names, with optional
+        comma-separated attributes. These attributes are meant to be
+        scaled with the *mutation_scale*. Following arrow styles are
+        available.
+
+        %(AvailableArrowstyles)s
+
+        The arrowstyle name can be "custom", in which case the
+          arrow_transmuter needs to be set, which should be an instance
+          of ArrowTransmuterBase (or its derived).
+
+        *mutation_scale* : a value with which attributes of arrowstyle
+            (e.g., head_length) will be scaled. default=1.
+
+        *mutation_aspect* : The height of the rectangle will be
+            squeezed by this value before the mutation and the mutated
+            box will be stretched by the inverse of it. default=None.
+
+        Valid kwargs are:
+        %(Patch)s
+        """
+
+        if posA is not None and posB is not None and path is None:
+            self._posA_posB = [posA, posB]
+
+            if connectionstyle == "custom":
+                if connector is None:
+                    raise ValueError("connector argument is needed with custom connectionstyle")
+                self.set_connector(connector)
+            else:
+                if connectionstyle is None:
+                    connectionstyle = "arc3"
+                self.set_connectionstyle(connectionstyle)
+
+        elif posA is None and posB is None and path is not None:
+            self._posA_posB = None
+            self._connetors = None 
+        else:
+            raise ValueError("either posA and posB, or path need to provided")
+
+        self.patchA = patchA
+        self.patchB = patchB
+        self.shrinkA = shrinkA
+        self.shrinkB = shrinkB
+        
+        Patch.__init__(self, **kwargs)
+
+        self._path_original = path
+
+        if arrowstyle == "custom":
+            if arrow_transmuter is None:
+                raise ValueError("arrow_transmuter argument is needed with custom arrowstyle")
+            self._arrow_transmuter = arrow_transmuter
+        else:
+            self.set_arrowstyle(arrowstyle)
+
+
+        self._mutation_scale=mutation_scale
+        self._mutation_aspect=mutation_aspect
+
+        #self._draw_in_display_coordinate = True
+
+    kwdoc = dict()
+    kwdoc["AvailableArrowstyles"]="\n".join(["  - " + l \
+        for l in _list_available_arrowstyles(_fancy_arrow_transmuters)])
+    kwdoc["AvailableConnectorstyles"]="\n".join(["  - " + l \
+        for l in _list_available_connectionstyles(_connectors)])
+    kwdoc.update(artist.kwdocd)
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % kwdoc
+    del kwdoc
+
+    def list_available_arrowstyles(cls):
+        return _list_available_arrowstyles(cls._fancy_arrow_transmuters)
+
+    def list_available_connectionstyles(cls):
+        return _list_available_connectionstyles(cls._connectors)
+
+    def set_positions(self, posA, posB):
+        """ set the begin end end positions of the connecting
+        path. Use current vlaue if None.
+        """
+        if posA is not None: self._posA_posB[0] = posA
+        if posB is not None: self._posA_posB[1] = posB
+
+
+    def set_patchA(self, patchA):
+        """ set the begin patche.
+        """
+        self.patchA = patchA
+
+
+    def set_patchB(self, patchB):
+        """ set the begin patche.
+        """
+        self.patchB = patchB
+
+
+    def set_connectionstyle(self, connectionstyle=None, **kw):
+        """
+        Set the connection style.
+
+        *connectionstyle* can be a string with connectionstyle name with optional
+         comma-separated attributes. Alternatively, the attrs can
+         be probided as keywords.
+
+         set_connectionstyle("arc,angleA=0,armA=30,rad=10")
+         set_connectionstyle("arc", angleA=0,armA=30,rad=10)
+
+        Old attrs simply are forgotten.
+
+        Without argument (or with connectionstyle=None), it prints out
+        available styles.
+        """
+
+        if connectionstyle==None:
+            # print out available styles and return.
+            print "  Following styles are available."
+            for l in self.list_available_connectionstyles():
+                print "    - " + l
+            return
+
+        cs_list = connectionstyle.replace(" ","").split(",")
+        connectionstyle_name = cs_list[0]
+        try:
+            connection_make_cls = self._connectors[connectionstyle_name]
+        except KeyError:
+            raise ValueError("Unknown connectionstyle : %s" % connectionstyle)
+        try:
+            connetionstyle_args_pair = [cs.split("=") for cs in cs_list[1:]]
+            connectionstyle_args = dict([(k, float(v)) for k, v in connetionstyle_args_pair])
+        except ValueError:
+            raise ValueError("Incorrect connectionstyle argument : %s" % connectionstyle)
+
+        connectionstyle_args.update(kw)
+        self._connector = connection_make_cls(**connectionstyle_args)
+
+
+    def set_connector(self, connector):
+        """
+        Set the connector.
+
+        ACCEPTS: 
+        """
+        self._connector = connector
+
+    def get_connector(self):
+        return self._connector
+
+
+    def set_arrowstyle(self, arrowstyle=None, **kw):
+        """
+        Set the arrow style.
+
+        *arrowstyle* can be a string with arrowstyle name with optional
+         comma-separated attributes. Alternatively, the attrs can
+         be probided as keywords.
+
+         set_boxstyle("simple,head_length=0.2")
+         set_boxstyle("simple", head_length=0.2)
+
+        Old attrs simply are forgotten.
+
+        Without argument (or with arrowstyle=None), it prints out
+        available box styles.
+        """
+
+        if arrowstyle==None:
+            # print out available boxstyles and return.
+            print "  Following arrow styles are available."
+            for l in self.list_available_arrowstyles():
+                print "    - " + l
+            return
+
+        # parse the style descrption
+        as_list = arrowstyle.replace(" ","").split(",")
+        arrowstyle_name = as_list[0]
+        try:
+            arrow_transmuter_cls = self._fancy_arrow_transmuters[arrowstyle_name]
+        except KeyError:
+            raise ValueError("Unknown Arrowstyle : %s" % arrowstyle_name)
+        try:
+            arrowstyle_args_pair = [as.split("=") for as in as_list[1:]]
+            arrowstyle_args = dict([(k, float(v)) for k, v in arrowstyle_args_pair])
+        except ValueError:
+            raise ValueError("Incorrect Arrowstyle argument : %s" % arrowstyle)
+
+        arrowstyle_args.update(kw)
+        self._arrow_transmuter = arrow_transmuter_cls(**arrowstyle_args)
+
+
+    def set_mutation_scale(self, scale):
+        """
+        Set the mutation scale.
+
+        ACCEPTS: float
+        """
+        self._mutation_scale=scale
+
+    def get_mutation_scale(self):
+        """
+        Return the mutation scale.
+        """
+        return self._mutation_scale
+
+    def set_mutation_aspect(self, aspect):
+        """
+        Set the aspect ratio of the bbox mutation.
+
+        ACCEPTS: float
+        """
+        self._mutation_aspect=aspect
+
+    def get_mutation_aspect(self):
+        """
+        Return the aspect ratio of the bbox mutation.
+        """
+        return self._mutation_aspect
+
+    def set_arrow_transmuter(self, arrow_transmuter):
+        """
+        Set the transmuter object
+
+        ACCEPTS: ArrowTransmuterBase (or its derivatives) instance
+        """
+        self._arrow_transmuter = arrow_transmuter
+
+    def get_arrow_transmuter(self):
+        "Return the current transmuter object"
+        return self._arrow_transmuter
+
+    def get_path(self):
+        """ return the path of the arrow in the data coordinate. Use
+        get_path_in_displaycoord() medthod to retrieve the arrow path
+        in the disaply coord.
+        """
+        _path = self.get_path_in_displaycoord()
+        return self.get_transform().inverted().transform_path(_path)
+    
+    def get_path_in_displaycoord(self):
+        """
+        Return the mutated path of the arrow in the display coord
+        """
+
+        if self._posA_posB is not None:
+            posA = self.get_transform().transform_point(self._posA_posB[0])
+            posB = self.get_transform().transform_point(self._posA_posB[1])
+            _path = self.get_connector()(posA, posB,
+                                         patchA=self.patchA,
+                                         patchB=self.patchB,
+                                         shrinkA=self.shrinkA,
+                                         shrinkB=self.shrinkB
+                                         )
+        else:
+            _path = self.get_transform().transform_path(self._path_original)
+
+
+            
+        _path, closed = self.get_arrow_transmuter()(_path,
+                                                    self.get_mutation_scale(),
+                                                    self.get_linewidth(),
+                                                    self.get_mutation_aspect()
+                                                    )
+        
+        if not closed:
+            self.fill = False
+            
+        return _path
+
+
+
+    def draw(self, renderer):
+        if not self.get_visible(): return
+        #renderer.open_group('patch')
+        gc = renderer.new_gc()
+
+        fill_orig = self.fill
+
+        path = self.get_path_in_displaycoord()
+        affine = transforms.IdentityTransform()
+
+
+        if cbook.is_string_like(self._edgecolor) and self._edgecolor.lower()=='none':
+            gc.set_linewidth(0)
+        else:
+            gc.set_foreground(self._edgecolor)
+            gc.set_linewidth(self._linewidth)
+            gc.set_linestyle(self._linestyle)
+
+        gc.set_antialiased(self._antialiased)
+        self._set_gc_clip(gc)
+        gc.set_capstyle('round')
+
+        if (not self.fill or self._facecolor is None or
+            (cbook.is_string_like(self._facecolor) and self._facecolor.lower()=='none')):
+            rgbFace = None
+            gc.set_alpha(1.0)
+        else:
+            r, g, b, a = colors.colorConverter.to_rgba(self._facecolor, self._alpha)
+            rgbFace = (r, g, b)
+            gc.set_alpha(a)
+
+
+        if self._hatch:
+            gc.set_hatch(self._hatch )
+
+
+        renderer.draw_path(gc, path, affine, rgbFace)
+
+        self.fill = fill_orig
+
+        #renderer.close_group('patch')
 

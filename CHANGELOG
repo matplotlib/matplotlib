@@ -1,3 +1,7 @@
+2008-10-24 Added Jae Joon's fancy arrow, box and annotation
+           enhancements -- see
+           examples/pylab_examples/annotation_demo2.py
+
 2008-10-23 Autoscaling is now supported with shared axes - EF
 
 2008-10-23 Fixed exception in dviread that happened with Minion - JKS

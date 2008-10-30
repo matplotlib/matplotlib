@@ -12,7 +12,8 @@ import artist
 from artist import Artist
 from cbook import is_string_like, maxdict
 from font_manager import FontProperties
-from patches import bbox_artist, YAArrow, FancyBboxPatch
+from patches import bbox_artist, YAArrow, FancyBboxPatch, \
+     FancyArrowPatch, Rectangle
 import transforms as mtransforms
 from transforms import Affine2D, Bbox
 from lines import Line2D
@@ -364,9 +365,66 @@ class Text(Artist):
         return self._bbox_patch
 
 
-    def _draw_bbox(self, renderer, posx, posy):
-        """ Update the location and the size of the bbox, and draw.
+    def update_bbox_position_size(self, renderer):
+        """ Update the location and the size of the bbox. This method
+        should be used when the position and size of the bbox needs to
+        be updated before actually drawing the bbox.
         """
+
+        # For arrow_patch, use textbox as patchA by default.
+
+        if not isinstance(self.arrow_patch, FancyArrowPatch):
+            return
+        
+        if self._bbox_patch:
+
+            trans = self.get_transform()
+
+            # don't use self.get_position here, which refers to text position
+            # in Text, and dash position in TextWithDash:
+            posx = float(self.convert_xunits(self._x))
+            posy = float(self.convert_yunits(self._y))
+
+            posx, posy = trans.transform_point((posx, posy))
+
+            x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
+            self._bbox_patch.set_bounds(0., 0.,
+                                        w_box, h_box)
+            theta = self.get_rotation()/180.*math.pi
+            tr = mtransforms.Affine2D().rotate(theta)
+            tr = tr.translate(posx+x_box, posy+y_box)
+            self._bbox_patch.set_transform(tr)
+            self._bbox_patch.set_mutation_scale(self.get_size())
+            #self._bbox_patch.draw(renderer)
+
+        else:
+            props = self._bbox
+            if props is None: props = {}
+            props = props.copy() # don't want to alter the pad externally
+            pad = props.pop('pad', 4)
+            pad = renderer.points_to_pixels(pad)
+            bbox = self.get_window_extent(renderer)
+            l,b,w,h = bbox.bounds
+            l-=pad/2.
+            b-=pad/2.
+            w+=pad
+            h+=pad
+            r = Rectangle(xy=(l,b),
+                          width=w,
+                          height=h,
+                          )
+            r.set_transform(mtransforms.IdentityTransform())
+            r.set_clip_on( False )
+            r.update(props)
+
+            self.arrow_patch.set_patchA(r)
+
+    def _draw_bbox(self, renderer, posx, posy):
+
+        """ Update the location and the size of the bbox
+        (FancyBoxPatch), and draw
+        """
+
         x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
         self._bbox_patch.set_bounds(0., 0.,
                                     w_box, h_box)
@@ -1230,7 +1288,13 @@ class Annotation(Text):
 
         *arrowprops*, if not *None*, is a dictionary of line properties
         (see :class:`matplotlib.lines.Line2D`) for the arrow that connects
-        annotation to the point.   Valid keys are
+        annotation to the point.
+
+        If the dictionary has a key *arrowstyle*, a FancyArrowPatch
+        instance is created with the given dictionary and is
+        drawn. Otherwise, a YAArow patch instance is created and
+        drawn. Valid keys for YAArow are
+        
 
         =========   ===========================================================
         Key         Description
@@ -1246,6 +1310,26 @@ class Annotation(Text):
                     endpoints.  ie, ``shrink=0.05 is 5%%``
         ?           any key for :class:`matplotlib.patches.polygon`
         =========   ===========================================================
+
+
+        Valid keys for FancyArrowPatch are
+        
+
+        ===============  ======================================================
+        Key         Description
+        ===============  ======================================================
+        arrowstyle
+        connectionstyle
+        relpos           default is (0.5, 0.5)
+        patchA           default is bounding box of the text
+        patchB           default is None
+        shrinkA          default is 2 points
+        shrinkB          default is 2 points
+        mutation_scale   default is text size (in points)
+        mutation_aspect  default is 1.
+        ?           any key for :class:`matplotlib.patches.PathPatch`
+        =========   ===========================================================
+
 
         *xycoords* and *textcoords* are strings that indicate the
         coordinates of *xy* and *xytext*.
@@ -1292,10 +1376,22 @@ class Annotation(Text):
         x,y = self.xytext = xytext
         Text.__init__(self, x, y, s, **kwargs)
         self.xy = xy
-        self.arrowprops = arrowprops
-        self.arrow = None
         self.xycoords = xycoords
         self.textcoords = textcoords
+
+        self.arrowprops = arrowprops
+
+        self.arrow = None
+        
+        if arrowprops and arrowprops.has_key("arrowstyle"):
+
+            self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
+            self.arrow_patch = FancyArrowPatch((0, 0), (1,1),
+                                               **arrowprops)
+        else:
+            self.arrow_patch = None
+
+        
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def contains(self,event):
@@ -1303,6 +1399,9 @@ class Annotation(Text):
         if self.arrow is not None:
             a,ainfo=self.arrow.contains(event)
             t = t or a
+
+        # self.arrow_patch is currently not checked as this can be a line - JJ
+        
         return t,tinfo
 
 
@@ -1310,6 +1409,8 @@ class Annotation(Text):
 
         if self.arrow is not None:
             self.arrow.set_figure(fig)
+        if self.arrow_patch is not None:
+            self.arrow_patch.set_figure(fig)
         Artist.set_figure(self, fig)
 
     def _get_xy(self, x, y, s):
@@ -1417,6 +1518,9 @@ class Annotation(Text):
         x, y = self.xy
         x, y = self._get_xy(x, y, self.xycoords)
 
+        ox0, oy0 = self._x, self._y
+        ox1, oy1 = x, y
+
         if self.arrowprops:
             x0, y0 = x, y
             l,b,w,h = self.get_window_extent(renderer).bounds
@@ -1424,43 +1528,85 @@ class Annotation(Text):
             t = b+h
             xc = 0.5*(l+r)
             yc = 0.5*(b+t)
-            # pick the x,y corner of the text bbox closest to point
-            # annotated
-            dsu = [(abs(val-x0), val) for val in l, r, xc]
-            dsu.sort()
-            d, x = dsu[0]
-
-            dsu = [(abs(val-y0), val) for val in b, t, yc]
-            dsu.sort()
-            d, y = dsu[0]
-
 
             d = self.arrowprops.copy()
-            width = d.pop('width', 4)
-            headwidth = d.pop('headwidth', 12)
-            frac = d.pop('frac', 0.1)
-            shrink = d.pop('shrink', 0.0)
 
-            theta = math.atan2(y-y0, x-x0)
-            r = math.sqrt((y-y0)**2. + (x-x0)**2.)
-            dx = shrink*r*math.cos(theta)
-            dy = shrink*r*math.sin(theta)
+            # Use FancyArrowPatch if self.arrowprops has "arrowstyle" key.
+            # Otherwise, fallback to YAArrow.
 
-            self.arrow = YAArrow(self.figure, (x0+dx,y0+dy), (x-dx, y-dy),
-                            width=width, headwidth=headwidth, frac=frac,
-                            **d)
-            self.arrow.set_clip_box(self.get_clip_box())
+            #if d.has_key("arrowstyle"):
+            if self.arrow_patch:
+
+                # adjust the starting point of the arrow relative to
+                # the textbox.
+                # TODO : Rotation needs to be accounted.
+                relpos = self._arrow_relpos
+                bbox = self.get_window_extent(renderer)
+                ox0 = bbox.x0 + bbox.width * relpos[0]
+                oy0 = bbox.y0 + bbox.height * relpos[1]
+
+                # The arrow will be drawn from (ox0, oy0) to (ox1,
+                # oy1). It will be first clipped by patchA and patchB.
+                # Then it will be shrinked by shirnkA and shrinkB
+                # (in points). If patch A is not set, self.bbox_patch
+                # is used.
+                
+                self.arrow_patch.set_positions((ox0, oy0), (ox1,oy1))
+                mutation_scale = d.pop("mutation_scale", self.get_size())
+                self.arrow_patch.set_mutation_scale(mutation_scale)
+
+                if self._bbox_patch:
+                    patchA = d.pop("patchA", self._bbox_patch)
+                    self.arrow_patch.set_patchA(patchA)
+                else:
+                    patchA = d.pop("patchA", self._bbox)
+                    self.arrow_patch.set_patchA(patchA)
+                
+            else:
+
+                # pick the x,y corner of the text bbox closest to point
+                # annotated
+                dsu = [(abs(val-x0), val) for val in l, r, xc]
+                dsu.sort()
+                _, x = dsu[0]
+
+                dsu = [(abs(val-y0), val) for val in b, t, yc]
+                dsu.sort()
+                _, y = dsu[0]
+
+                shrink = d.pop('shrink', 0.0)
+
+                theta = math.atan2(y-y0, x-x0)
+                r = math.sqrt((y-y0)**2. + (x-x0)**2.)
+                dx = shrink*r*math.cos(theta)
+                dy = shrink*r*math.sin(theta)
+
+                width = d.pop('width', 4)
+                headwidth = d.pop('headwidth', 12)
+                frac = d.pop('frac', 0.1)
+
+                self.arrow = YAArrow(self.figure, (x0+dx,y0+dy), (x-dx, y-dy),
+                                     width=width, headwidth=headwidth, frac=frac,
+                                     **d)
+
+                self.arrow.set_clip_box(self.get_clip_box())
 
     def draw(self, renderer):
         """
         Draw the :class:`Annotation` object to the given *renderer*.
         """
         self.update_positions(renderer)
+        self.update_bbox_position_size(renderer)
 
         if self.arrow is not None:
             if self.arrow.figure is None and self.figure is not None:
                 self.arrow.figure = self.figure
             self.arrow.draw(renderer)
+
+        if self.arrow_patch is not None:
+            if self.arrow_patch.figure is None and self.figure is not None:
+                self.arrow_patch.figure = self.figure
+            self.arrow_patch.draw(renderer)
 
         Text.draw(self, renderer)
 
