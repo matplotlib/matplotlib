@@ -72,7 +72,7 @@ if 1:
 
 
 
-    fig.savefig('annotation_connection')
+    #fig.savefig('annotation_connection')
 
 
 if 1:
@@ -82,7 +82,7 @@ if 1:
 
     el = Ellipse((2, -1), 0.5, 0.5)
     ax.add_patch(el)
-    
+
     ax.annotate('$->$', xy=(2., -1),  xycoords='data',
                 xytext=(-150, -140), textcoords='offset points',
                 bbox=dict(boxstyle="round", fc="0.8"),
@@ -146,6 +146,6 @@ if 1:
                                 )
                 )
 
-    fig.savefig('annotation_arrowstyle')
+    #fig.savefig('annotation_arrowstyle')
 
 show()
