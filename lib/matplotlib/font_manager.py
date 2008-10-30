@@ -1200,6 +1200,7 @@ class FontManager:
 
         best_score = 1e64
         best_font = None
+
         for font in fontlist:
             # Matching family should have highest priority, so it is multiplied
             # by 10.0
@@ -1216,7 +1217,7 @@ class FontManager:
             if score == 0:
                 break
 
-        if best_font is None or best_score > 10.0:
+        if best_font is None or best_score >= 10.0:
             verbose.report('findfont: Could not match %s. Returning %s' %
                            (prop, self.defaultFont))
             result = self.defaultFont
