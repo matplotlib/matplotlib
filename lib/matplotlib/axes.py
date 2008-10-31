@@ -2876,9 +2876,16 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/pylab_examples/axhspan_demo.py
 
         """
-        # convert y axis units
         trans = mtransforms.blended_transform_factory(
             self.transAxes, self.transData)
+
+        # process the unit information
+        self._process_unit_info( [xmin, xmax], [ymin, ymax], **kwargs )
+
+        # first we need to strip away the units
+        xmin, xmax = self.convert_xunits( [xmin, xmax] )
+        ymin, ymax = self.convert_yunits( [ymin, ymax] )
+
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
@@ -2923,9 +2930,16 @@ class Axes(martist.Artist):
             :meth:`axhspan`:
                 for example plot and source code
         """
-        # convert x axis units
         trans = mtransforms.blended_transform_factory(
             self.transData, self.transAxes)
+
+        # process the unit information
+        self._process_unit_info( [xmin, xmax], [ymin, ymax], **kwargs )
+
+        # first we need to strip away the units
+        xmin, xmax = self.convert_xunits( [xmin, xmax] )
+        ymin, ymax = self.convert_yunits( [ymin, ymax] )
+
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
