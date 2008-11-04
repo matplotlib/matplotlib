@@ -1811,7 +1811,7 @@ def sqrtm(x):
     """
     Deprecated - needs clean room implementation
     """
-    raise NotImplementedError('Deprecated - needs clean room implementation')
+    raise NotImplementedError('Deprecated - see scipy.linalg.sqrtm')
 
 
 def mfuncC(f, x):
