@@ -478,6 +478,10 @@ class Rectangle(Patch):
         "Return the bottom coord of the rectangle"
         return self._y
 
+    def get_xy(self):
+        "Return the left and bottom coords of the rectangle"
+        return self._x, self._y
+
     def get_width(self):
         "Return the width of the  rectangle"
         return self._width
@@ -501,6 +505,14 @@ class Rectangle(Patch):
         ACCEPTS: float
         """
         self._y = y
+
+    def set_xy(self, xy):
+        """
+        Set the left and bottom coords of the rectangle
+
+        ACCEPTS: 2-item sequence
+        """
+        self._x, self._y = xy
 
     def set_width(self, w):
         """
@@ -535,6 +547,8 @@ class Rectangle(Patch):
 
     def get_bbox(self):
         return transforms.Bbox.from_bounds(self._x, self._y, self._width, self._height)
+
+    xy = property(get_xy, set_xy)
 
 class RegularPolygon(Patch):
     """
