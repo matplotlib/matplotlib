@@ -1,3 +1,5 @@
+2008-11-05 Fix bug with zoom to rectangle and twin axes - MGD
+
 2008-10-05 Fix problem with AFM files that don't specify the font's
            full name or family name. - JKS
 
