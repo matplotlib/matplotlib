@@ -6931,23 +6931,23 @@ class Axes(martist.Artist):
 
 class SubplotBase:
     """
-    Base class for subplots, which are Axes instances with additional
-    methods to facilitate generating and manipulating a set of Axes
-    within a figure.
+    Base class for subplots, which are :class:`Axes` instances with
+    additional methods to facilitate generating and manipulating a set
+    of :class:`Axes` within a figure.
     """
 
     def __init__(self, fig, *args, **kwargs):
         """
-        fig is a figure instance
+        *fig* is a :class:`matplotlib.figure.Figure` instance.
 
-        args is numRows, numCols, plotNum
-        where the array of subplots in the figure has dimensions
-        numRows, numCols, and where plotNum is the number of the
-        subplot being created.  plotNum starts at 1 in the upper
-        right corner and increases to the right.
+        *args* is the tuple (*numRows*, *numCols*, *plotNum*), where
+        the array of subplots in the figure has dimensions *numRows*,
+        *numCols*, and where *plotNum* is the number of the subplot
+        being created.  *plotNum* starts at 1 in the upper right
+        corner and increases to the right.
 
-        If numRows<=numCols<=plotNum<10, args can be the decimal
-        integer numRows*100 + numCols*10 + plotNum.
+        If *numRows* <= *numCols* <= *plotNum* < 10, *args* can be the
+        decimal integer *numRows* * 100 + *numCols* * 10 + *plotNum*.
         """
 
         self.figure = fig
@@ -6982,7 +6982,7 @@ class SubplotBase:
 
     # COVERAGE NOTE: Never used internally or from examples
     def change_geometry(self, numrows, numcols, num):
-        'change subplot geometry, eg from 1,1,1 to 2,2,3'
+        'change subplot geometry, eg. from 1,1,1 to 2,2,3'
         self._rows = numrows
         self._cols = numcols
         self._num = num-1
