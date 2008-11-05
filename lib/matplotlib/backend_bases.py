@@ -903,7 +903,7 @@ class FigureCanvasBase:
         # can't delete the artist
         while h:
             print "Removing",h
-            if h.remove(): 
+            if h.remove():
                 self.draw_idle()
                 break
             parent = None
@@ -912,7 +912,7 @@ class FigureCanvasBase:
                     parent = p
                     break
             h = parent
-        
+
     def onHilite(self, ev):
         """
         Mouse event processor which highlights the artists
@@ -1087,7 +1087,7 @@ class FigureCanvasBase:
     #  a) otherwise we'd have cyclical imports, since all of these
     #     classes inherit from FigureCanvasBase
     #  b) so we don't import a bunch of stuff the user may never use
-    
+
     def print_emf(self, *args, **kwargs):
         from backends.backend_emf import FigureCanvasEMF # lazy import
         emf = self.switch_backends(FigureCanvasEMF)
@@ -1097,7 +1097,7 @@ class FigureCanvasBase:
         from backends.backend_ps import FigureCanvasPS # lazy import
         ps = self.switch_backends(FigureCanvasPS)
         return ps.print_eps(*args, **kwargs)
-    
+
     def print_pdf(self, *args, **kwargs):
         from backends.backend_pdf import FigureCanvasPdf # lazy import
         pdf = self.switch_backends(FigureCanvasPdf)
@@ -1107,7 +1107,7 @@ class FigureCanvasBase:
         from backends.backend_agg import FigureCanvasAgg # lazy import
         agg = self.switch_backends(FigureCanvasAgg)
         return agg.print_png(*args, **kwargs)
-    
+
     def print_ps(self, *args, **kwargs):
         from backends.backend_ps import FigureCanvasPS # lazy import
         ps = self.switch_backends(FigureCanvasPS)
@@ -1123,12 +1123,12 @@ class FigureCanvasBase:
         from backends.backend_svg import FigureCanvasSVG # lazy import
         svg = self.switch_backends(FigureCanvasSVG)
         return svg.print_svg(*args, **kwargs)
-    
+
     def print_svgz(self, *args, **kwargs):
         from backends.backend_svg import FigureCanvasSVG # lazy import
         svg = self.switch_backends(FigureCanvasSVG)
         return svg.print_svgz(*args, **kwargs)
-    
+
     def get_supported_filetypes(self):
         return self.filetypes
 
@@ -1138,7 +1138,7 @@ class FigureCanvasBase:
             groupings.setdefault(name, []).append(ext)
             groupings[name].sort()
         return groupings
-    
+
     def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', format=None, **kwargs):
         """
@@ -1176,7 +1176,7 @@ class FigureCanvasBase:
 
         if dpi is None:
             dpi = rcParams['savefig.dpi']
-            
+
         origDPI = self.figure.dpi.get()
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
@@ -1199,12 +1199,12 @@ class FigureCanvasBase:
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
             self.figure.canvas.draw()
-            
+
         return result
 
     def get_default_filetype(self):
         raise NotImplementedError
-    
+
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.  Note that
@@ -1696,6 +1696,8 @@ class NavigationToolbar2:
         for cur_xypress in self._xypress:
             x, y = event.x, event.y
             lastx, lasty, a, ind, lim, trans = cur_xypress
+            if a._sharex or a._sharey:
+                continue
             # ignore singular clicks - 5 pixels is a threshold
             if abs(x-lastx)<5 or abs(y-lasty)<5:
                 self._xypress = None
