@@ -238,39 +238,52 @@ def detrend_linear(y):
     a = y.mean() - b*x.mean()
     return y - (b*x + a)
 
-
-
 def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
         window=window_hanning, noverlap=0):
     """
-    The power spectral density by Welches average periodogram method.
-    The vector x is divided into NFFT length segments.  Each segment
-    is detrended by function detrend and windowed by function window.
-    noperlap gives the length of the overlap between segments.  The
-    absolute(fft(segment))**2 of each segment are averaged to compute Pxx,
-    with a scaling to correct for power loss due to windowing.
-
-    Fs is the sampling frequency (samples per time unit).  It is used
-    to calculate the Fourier frequencies, freqs, in cycles per time
-    unit.
-
-    *NFFT*
-        The length of the FFT window.  Must be even; a power 2 is most efficient.
-
-    *detrend*
-        is a function, unlike in matlab where it is a vector.
-
-    *window*
-        can be a function or a vector of length NFFT. To create window
-        vectors see numpy.blackman, numpy.hamming, numpy.bartlett,
-        scipy.signal, scipy.signal.get_window etc.
+    The power spectral density by Welch's average periodogram method.
+    The vector *x* is divided into *NFFT* length blocks.  Each block
+    is detrended by the function *detrend* and windowed by the function
+    *window*.  *noverlap* gives the length of the overlap between blocks.
+    The absolute(fft(block))**2 of each segment are averaged to compute
+    *Pxx*, with a scaling to correct for power loss due to windowing.
 
     If len(*x*) < *NFFT*, it will be zero padded to *NFFT*.
 
+    *x*
+        Array or sequence containing the data
+
+    *NFFT*
+        The number of data points used in each block for the FFT.
+        Must be even; a power 2 is most efficient.  The default value is 256.
+
+    *Fs*
+        The sampling frequency (samples per time unit).  It is used
+        to calculate the Fourier frequencies, freqs, in cycles per time
+        unit. The default value is 2.
+
+    *detrend*
+        Any callable function (unlike in matlab where it is a vector).
+        For examples, see :func:`detrend`, :func:`detrend_none`, and
+        :func:`detrend_mean`.  The default is :func:`detrend_none`.
+
+    *window*
+        A function or a vector of length *NFFT*. To create window
+        vectors see :func:`window_hanning`, :func:`window_none`,
+        :func:`numpy.blackman`, :func:`numpy.hamming`,
+        :func:`numpy.bartlett`, :func:`scipy.signal`,
+        :func:`scipy.signal.get_window`, etc. The default is
+        :func:`window_hanning`.
+
+    *noverlap*
+        The number of points of overlap between blocks.  The default value
+        is 0 (no overlap).
+
     Returns the tuple (*Pxx*, *freqs*).
 
-    Refs: Bendat & Piersol -- Random Data: Analysis and Measurement Procedures, John Wiley & Sons (1986)
-
+    Refs:
+        Bendat & Piersol -- Random Data: Analysis and Measurement
+        Procedures, John Wiley & Sons (1986)
     """
     # I think we could remove this condition without hurting anything.
     if NFFT % 2:
@@ -317,26 +330,50 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
 def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         window=window_hanning, noverlap=0):
     """
-    The cross spectral density Pxy by Welches average periodogram
+    The cross power spectral density by Welch's average periodogram
     method.  The vectors *x* and *y* are divided into *NFFT* length
-    segments.  Each segment is detrended by function *detrend* and
-    windowed by function *window*.  *noverlap* gives the length of the
-    overlap between segments.  The product of the direct FFTs of *x*
-    and *y* are averaged over each segment to compute *Pxy*, with a
-    scaling to correct for power loss due to windowing.  *Fs* is the
-    sampling frequency.
+    blocks.  Each block is detrended by the function *detrend* and
+    windowed by the function *window*.  *noverlap* gives the length
+    of the overlap between blocks.  The product of the direct FFTs
+    of *x* and *y* are averaged over each segment to compute *Pxy*,
+    with a scaling to correct for power loss due to windowing.
 
-    *NFFT* must be even; a power of 2 is most efficient
+    If len(*x*) < *NFFT* or len(*y*) < *NFFT*, they will be zero
+    padded to *NFFT*.
 
-    *window* can be a function or a vector of length *NFFT*. To create
-    window vectors see :func:`numpy.blackman`, :func:`numpy.hamming`,
-    :func:`numpy.bartlett`, :func:`scipy.signal`,
-    :func:`scipy.signal.get_window` etc.
+    *x*, *y*
+        Array or sequence containing the data
 
-    Returns the tuple (*Pxy*, *freqs*)
+    *NFFT*
+        The number of data points used in each block for the FFT.
+        Must be even; a power 2 is most efficient.  The default value is 256.
+
+    *Fs*
+        The sampling frequency (samples per time unit).  It is used
+        to calculate the Fourier frequencies, freqs, in cycles per time
+        unit. The default value is 2.
+
+    *detrend*
+        Any callable function (unlike in matlab where it is a vector).
+        For examples, see :func:`detrend`, :func:`detrend_none`, and
+        :func:`detrend_mean`.  The default is :func:`detrend_none`.
+
+    *window*
+        A function or a vector of length *NFFT*. To create window
+        vectors see :func:`window_hanning`, :func:`window_none`,
+        :func:`numpy.blackman`, :func:`numpy.hamming`,
+        :func:`numpy.bartlett`, :func:`scipy.signal`,
+        :func:`scipy.signal.get_window`, etc. The default is
+        :func:`window_hanning`.
+
+    *noverlap*
+        The number of points of overlap between blocks.  The default value
+        is 0 (no overlap).
+
+    Returns the tuple (*Pxy*, *freqs*).
 
     Refs:
-      Bendat & Piersol -- Random Data: Analysis and Measurement
+        Bendat & Piersol -- Random Data: Analysis and Measurement
         Procedures, John Wiley & Sons (1986)
     """
 
