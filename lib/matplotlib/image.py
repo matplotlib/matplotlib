@@ -88,12 +88,9 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         self.set_filterrad(filterrad)
         self._filterrad = filterrad
 
-
-
         self.set_interpolation(interpolation)
         self.set_resample(resample)
         self.axes = ax
-
 
         self._imcache = None
 
@@ -234,9 +231,11 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
             self.axes.get_yscale() != 'linear'):
             warnings.warn("Images are not supported on non-linear axes.")
         im = self.make_image(renderer.get_image_magnification())
+        im._url = self.get_url()
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
+        clippath, affine = self.get_transformed_clip_path_and_affine()
         renderer.draw_image(round(l), round(b), im, self.axes.bbox.frozen(),
-                            *self.get_transformed_clip_path_and_affine())
+                            clippath, affine)
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image.

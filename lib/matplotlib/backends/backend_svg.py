@@ -67,9 +67,13 @@ class RendererSVG(RendererBase):
         else:
             clippath = 'clip-path="url(#%s)"' % clipid
 
+        if gc.get_url() is not None:
+            self._svgwriter.write('<a xlink:href="%s">' % gc.get_url())
         style = self._get_style(gc, rgbFace)
         self._svgwriter.write ('<%s style="%s" %s %s/>\n' % (
                 element, style, clippath, details))
+        if gc.get_url() is not None:
+            self._svgwriter.write('</a>')
 
     def _get_font(self, prop):
         key = hash(prop)
@@ -224,7 +228,7 @@ class RendererSVG(RendererBase):
     def draw_path_collection(self, master_transform, cliprect, clippath,
                              clippath_trans, paths, all_transforms, offsets,
                              offsetTrans, facecolors, edgecolors, linewidths,
-                             linestyles, antialiaseds):
+                             linestyles, antialiaseds, urls):
         write = self._svgwriter.write
 
         path_codes = []
@@ -242,8 +246,11 @@ class RendererSVG(RendererBase):
         for xo, yo, path_id, gc, rgbFace in self._iter_collection(
             path_codes, cliprect, clippath, clippath_trans,
             offsets, offsetTrans, facecolors, edgecolors,
-            linewidths, linestyles, antialiaseds):
+            linewidths, linestyles, antialiaseds, urls):
             clipid = self._get_gc_clip_svg(gc)
+            url = gc.get_url()
+            if url is not None:
+                self._svgwriter.write('<a xlink:href="%s">' % url)
             if clipid is not None:
                 write('<g clip-path="url(#%s)">' % clipid)
             details = 'xlink:href="#%s" x="%f" y="%f"' % (path_id, xo, self.height - yo)
@@ -251,6 +258,8 @@ class RendererSVG(RendererBase):
             self._svgwriter.write ('<use style="%s" %s/>\n' % (style, details))
             if clipid is not None:
                 write('</g>')
+            if url is not None:
+                self._svgwriter.write('</a>')
 
         self._path_collection_id += 1
 
@@ -274,6 +283,9 @@ class RendererSVG(RendererBase):
 
         h,w = im.get_size_out()
 
+        url = getattr(im, '_url', None)
+        if url is not None:
+            self._svgwriter.write('<a xlink:href="%s">' % url)
         self._svgwriter.write (
             '<image x="%f" y="%f" width="%f" height="%f" '
             '%s xlink:href="'%(x/trans[0], (self.height-y)/trans[3]-h, w, h, transstr)
@@ -298,6 +310,8 @@ class RendererSVG(RendererBase):
             self._svgwriter.write(filename)
 
         self._svgwriter.write('"/>\n')
+        if url is not None:
+            self._svgwriter.write('</a>')
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         if ismath:

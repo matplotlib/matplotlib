@@ -50,6 +50,7 @@ class Artist(object):
         self._propobservers = {} # a dict from oids to funcs
         self.axes = None
         self._remove_method = None
+        self._url = None
 
     def remove(self):
         """
@@ -312,6 +313,18 @@ class Artist(object):
         :class:`~matplotlib.figure.Figure`.
         """
         return self.figure is not None
+
+    def get_url(self):
+        """
+        Returns the url
+        """
+        return self._url
+    
+    def set_url(self, url):
+        """
+        Sets the url for the artist
+        """
+        self._url = url
 
     def get_figure(self):
         """
