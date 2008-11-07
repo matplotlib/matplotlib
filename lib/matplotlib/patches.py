@@ -278,6 +278,7 @@ class Patch(artist.Artist):
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)
         gc.set_capstyle('projecting')
+        gc.set_url(self._url)
 
         if (not self.fill or self._facecolor is None or
             (cbook.is_string_like(self._facecolor) and self._facecolor.lower()=='none')):

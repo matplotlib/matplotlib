@@ -531,7 +531,7 @@ grestore
     def draw_path_collection(self, master_transform, cliprect, clippath,
                              clippath_trans, paths, all_transforms, offsets,
                              offsetTrans, facecolors, edgecolors, linewidths,
-                             linestyles, antialiaseds):
+                             linestyles, antialiaseds, urls):
         write = self._pswriter.write
 
         path_codes = []
@@ -548,7 +548,7 @@ grestore
         for xo, yo, path_id, gc, rgbFace in self._iter_collection(
             path_codes, cliprect, clippath, clippath_trans,
             offsets, offsetTrans, facecolors, edgecolors,
-            linewidths, linestyles, antialiaseds):
+            linewidths, linestyles, antialiaseds, urls):
 
             ps = "%g %g %s" % (xo, yo, path_id)
             self._draw_ps(ps, gc, rgbFace)

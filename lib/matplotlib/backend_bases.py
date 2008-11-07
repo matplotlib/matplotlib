@@ -107,7 +107,7 @@ class RendererBase:
     def draw_path_collection(self, master_transform, cliprect, clippath,
                              clippath_trans, paths, all_transforms, offsets,
                              offsetTrans, facecolors, edgecolors, linewidths,
-                             linestyles, antialiaseds):
+                             linestyles, antialiaseds, urls):
         """
         Draws a collection of paths, selecting drawing properties from
         the lists *facecolors*, *edgecolors*, *linewidths*,
@@ -136,7 +136,7 @@ class RendererBase:
         for xo, yo, path_id, gc, rgbFace in self._iter_collection(
             path_ids, cliprect, clippath, clippath_trans,
             offsets, offsetTrans, facecolors, edgecolors,
-            linewidths, linestyles, antialiaseds):
+            linewidths, linestyles, antialiaseds, urls):
             path, transform = path_id
             transform = transforms.Affine2D(transform.get_matrix()).translate(xo, yo)
             self.draw_path(gc, path, transform, rgbFace)
@@ -164,7 +164,7 @@ class RendererBase:
         return self.draw_path_collection(
             master_transform, cliprect, clippath, clippath_trans,
             paths, [], offsets, offsetTrans, facecolors, edgecolors,
-            linewidths, [], [antialiased])
+            linewidths, [], [antialiased], [None])
 
     def _iter_collection_raw_paths(self, master_transform, paths, all_transforms):
         """
@@ -198,7 +198,7 @@ class RendererBase:
 
     def _iter_collection(self, path_ids, cliprect, clippath, clippath_trans,
                          offsets, offsetTrans, facecolors, edgecolors,
-                         linewidths, linestyles, antialiaseds):
+                         linewidths, linestyles, antialiaseds, urls):
         """
         This is a helper method (along with
         :meth:`_iter_collection_raw_paths`) to make it easier to write
@@ -232,6 +232,7 @@ class RendererBase:
         Nlinewidths = len(linewidths)
         Nlinestyles = len(linestyles)
         Naa         = len(antialiaseds)
+        Nurls       = len(urls)
 
         if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
@@ -268,6 +269,9 @@ class RendererBase:
                 gc.set_alpha(rgbFace[-1])
                 rgbFace = rgbFace[:3]
             gc.set_antialiased(antialiaseds[i % Naa])
+            
+            if Nurls:
+                gc.set_url(urls[i % Nurls])
 
             yield xo, yo, path_id, gc, rgbFace
 
@@ -433,6 +437,7 @@ class GraphicsContextBase:
         self._linewidth = 1
         self._rgb = (0.0, 0.0, 0.0)
         self._hatch = None
+        self._url = None
 
     def copy_properties(self, gc):
         'Copy properties from gc to self'
@@ -447,6 +452,7 @@ class GraphicsContextBase:
         self._linewidth = gc._linewidth
         self._rgb = gc._rgb
         self._hatch = gc._hatch
+        self._url = gc._url
 
     def get_alpha(self):
         """
@@ -521,6 +527,12 @@ class GraphicsContextBase:
         matlab format string, a html hex color string, or a rgb tuple
         """
         return self._rgb
+    
+    def get_url(self):
+        """
+        returns a url if one is set, None otherwise
+        """
+        return self._url
 
     def set_alpha(self, alpha):
         """
@@ -621,6 +633,12 @@ class GraphicsContextBase:
             raise ValueError('Unrecognized linestyle: %s' % style)
         self._linestyle = style
         self.set_dashes(offset, dashes)
+        
+    def set_url(self, url):
+        """
+        Sets the url for links in compatible backends
+        """
+        self._url = url
 
     def set_hatch(self, hatch):
         """

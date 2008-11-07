@@ -464,6 +464,7 @@ class Text(Artist):
         gc = renderer.new_gc()
         gc.set_foreground(self._color)
         gc.set_alpha(self._alpha)
+        gc.set_url(self._url)
         if self.get_clip_on():
             gc.set_clip_rectangle(self.clipbox)
 

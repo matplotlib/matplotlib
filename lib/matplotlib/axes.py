@@ -5480,7 +5480,7 @@ class Axes(martist.Artist):
     def imshow(self, X, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=1.0, vmin=None, vmax=None,
                origin=None, extent=None, shape=None, filternorm=1,
-               filterrad=4.0, imlim=None, resample=None, **kwargs):
+               filterrad=4.0, imlim=None, resample=None, url=None, **kwargs):
         """
         call signature::
 
@@ -5601,6 +5601,7 @@ class Axes(martist.Artist):
             im.set_clim(vmin, vmax)
         else:
             im.autoscale_None()
+        im.set_url(url)
 
         xmin, xmax, ymin, ymax = im.get_extent()
 

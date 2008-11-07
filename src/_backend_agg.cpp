@@ -1154,7 +1154,7 @@ public:
 Py::Object
 RendererAgg::draw_path_collection(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_path_collection");
-  args.verify_length(13);
+  args.verify_length(14);
 
   //segments, trans, clipbox, colors, linewidths, antialiaseds
   agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0]);
@@ -1170,7 +1170,8 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   Py::SeqBase<Py::Float>  linewidths	   = args[10];
   Py::SeqBase<Py::Object> linestyles_obj   = args[11];
   Py::SeqBase<Py::Int>    antialiaseds	   = args[12];
-
+  // We don't actually care about urls for Agg, so just ignore it.
+  // Py::SeqBase<Py::Object> urls             = args[13];
   PathListGenerator path_generator(paths);
 
   try {

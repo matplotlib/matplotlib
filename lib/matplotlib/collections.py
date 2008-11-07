@@ -71,6 +71,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  norm = None,  # optional for ScalarMappable
                  cmap = None,  # ditto
                  pickradius = 5.0,
+                 urls = None,
                  **kwargs
                  ):
         """
@@ -86,6 +87,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_linewidth(linewidths)
         self.set_linestyle(linestyles)
         self.set_antialiased(antialiaseds)
+        self.set_urls(urls)
 
         self._uniform_offsets = None
         self._offsets = np.array([], np.float_)
@@ -203,7 +205,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             paths, self.get_transforms(),
             offsets, transOffset,
             self.get_facecolor(), self.get_edgecolor(), self._linewidths,
-            self._linestyles, self._antialiaseds)
+            self._linestyles, self._antialiaseds, self._urls)
         renderer.close_group(self.__class__.__name__)
 
     def contains(self, mouseevent):
@@ -226,6 +228,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_pickradius(self,pickradius): self.pickradius = 5
     def get_pickradius(self): return self.pickradius
+
+    def set_urls(self, urls):
+	if urls is None:
+            self._urls = [None,]
+        else:
+            self._urls = urls
+        
+    def get_urls(self): return self._urls
 
     def set_offsets(self, offsets):
         """
