@@ -569,8 +569,8 @@ class Artist(object):
         pyplot signature:
           findobj(o=gcf(), match=None)
 
-        recursively find all :class:matplotlib.artist.Artist instances
-        contained in self
+        Recursively find all :class:matplotlib.artist.Artist instances
+        contained in self.
 
         *match* can be
 
@@ -812,16 +812,16 @@ class ArtistInspector:
 
     def findobj(self, match=None):
         """
-        recursively find all :class:matplotlib.artist.Artist instances
-        contained in self
+        Recursively find all :class:`matplotlib.artist.Artist`
+        instances contained in *self*.
 
-        if *match* is not None, it can be
+        If *match* is not None, it can be
 
           - function with signature ``boolean = match(artist)``
 
-          - class instance: eg Line2D
+          - class instance: eg :class:`~matplotlib.lines.Line2D`
 
-        used to filter matches
+        used to filter matches.
         """
 
         if match is None: # always return True
@@ -860,7 +860,6 @@ def getp(o, property=None):
 
         getp(o)  # get all the object properties
         getp(o, 'linestyle')  # get the linestyle property
-
 
     *o* is a :class:`Artist` instance, eg
     :class:`~matplotllib.lines.Line2D` or an instance of a
