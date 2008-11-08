@@ -235,7 +235,8 @@ has_pkgconfig.cache = None
 def get_pkgconfig(module,
                   packages,
                   flags="--libs --cflags",
-                  pkg_config_exec='pkg-config'):
+                  pkg_config_exec='pkg-config',
+                  report_error=False):
     """Loosely based on an article in the Python Cookbook:
     http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/502261"""
     if not has_pkgconfig():
@@ -247,8 +248,8 @@ def get_pkgconfig(module,
               '-D': 'define_macros',
               '-U': 'undef_macros'}
 
-    status, output = commands.getstatusoutput(
-        "%s %s %s" % (pkg_config_exec, flags, packages))
+    cmd = "%s %s %s" % (pkg_config_exec, flags, packages)
+    status, output = commands.getstatusoutput(cmd)
     if status == 0:
         for token in output.split():
             attr = _flags.get(token[:2], None)
@@ -266,6 +267,9 @@ def get_pkgconfig(module,
                 if token not in module.extra_link_args:
                     module.extra_link_args.append(token)
         return True
+    if report_error:
+        print_status("pkg-config", "looking for %s" % packages)
+        print_message(output)
     return False
 
 def get_pkgconfig_version(package):
@@ -642,6 +646,7 @@ def check_for_gtk():
             explanation = (
                 "Could not find Gtk+ headers in any of %s" %
                 ", ".join(["'%s'" % x for x in module.include_dirs]))
+            gotit = False
 
     def ver2str(tup):
         return ".".join([str(x) for x in tup])
@@ -718,8 +723,10 @@ def add_pygtk_flags(module):
     if sys.platform != 'win32':
         # If Gtk+ is installed, pkg-config is required to be installed
         add_base_flags(module)
-        get_pkgconfig(module, 'pygtk-2.0 gtk+-2.0')
-
+        ok = get_pkgconfig(module, 'pygtk-2.0 gtk+-2.0', report_error=True)
+        if not ok:
+            print_message(
+                "You may need to install 'dev' package(s) to provide header files.")
     # visual studio doesn't need the math library
     if sys.platform == 'win32' and win32_compiler == 'msvc' and 'm' in module.libraries:
         module.libraries.remove('m')
