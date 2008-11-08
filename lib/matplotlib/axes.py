@@ -2880,7 +2880,7 @@ class Axes(martist.Artist):
             self.transAxes, self.transData)
 
         # process the unit information
-        self._process_unit_info( [xmin, xmax], [ymin, ymax], **kwargs )
+        self._process_unit_info( [xmin, xmax], [ymin, ymax], kwargs=kwargs )
 
         # first we need to strip away the units
         xmin, xmax = self.convert_xunits( [xmin, xmax] )
@@ -2934,7 +2934,7 @@ class Axes(martist.Artist):
             self.transData, self.transAxes)
 
         # process the unit information
-        self._process_unit_info( [xmin, xmax], [ymin, ymax], **kwargs )
+        self._process_unit_info( [xmin, xmax], [ymin, ymax], kwargs=kwargs )
 
         # first we need to strip away the units
         xmin, xmax = self.convert_xunits( [xmin, xmax] )
