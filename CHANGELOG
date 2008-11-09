@@ -1,3 +1,6 @@
+2008-11-09 Fix a possible EINTR problem in dviread, which might help 
+           when saving pdf files from the qt backend. - JKS
+
 2008-10-24 Added Jae Joon's fancy arrow, box and annotation
            enhancements -- see
            examples/pylab_examples/annotation_demo2.py

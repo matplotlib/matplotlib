@@ -689,7 +689,9 @@ class Encoding(object):
     def __init__(self, filename):
         file = open(filename, 'rt')
         try:
+            matplotlib.verbose.report('Parsing TeX encoding ' + filename, 'debug-annoying')
             self.encoding = self._parse(file)
+            matplotlib.verbose.report('Result: ' + `self.encoding`, 'debug-annoying')
         finally:
             file.close()
 
@@ -746,14 +748,32 @@ def find_tex_file(filename, format=None):
     assert "'" not in filename
     cmd += "'" + filename + "'"
 
+    matplotlib.verbose.report('find_tex_file(%s): %s' \
+                                  % (filename,cmd), 'debug')
     pipe = os.popen(cmd, 'r')
-    result = pipe.readline().rstrip()
+    result = ""
+    while True:
+        data = _read_nointr(pipe)
+        if data == "":
+            break
+        result += data
     pipe.close()
+    result = result.rstrip()
 
-    matplotlib.verbose.report('find_tex_file: %s -> %s' \
-                                  % (filename, result),
+    matplotlib.verbose.report('find_tex_file result: %s' % result,
                               'debug')
     return result
+
+def _read_nointr(pipe, bufsize=-1):
+    while True:
+        try:
+            return pipe.read(bufsize)
+        except OSError, e:
+            if e.errno == errno.EINTR:
+                continue
+            else:
+                raise
+        
 
 # With multiple text objects per figure (e.g. tick labels) we may end
 # up reading the same tfm and vf files many times, so we implement a
