@@ -753,11 +753,6 @@ class Figure(Artist):
             ims = [(im.make_image(mag), im.ox*mag, im.oy*mag)
                    for im in self.images]
 
-            for _im, (im,_,_) in zip(self.images, ims):
-                if _im.origin=="upper":
-                    im.flipud_out()
-
-
             im = _image.from_images(self.bbox.height * mag,
                                     self.bbox.width * mag,
                                     ims)

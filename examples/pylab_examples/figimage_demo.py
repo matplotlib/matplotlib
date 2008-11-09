@@ -12,12 +12,12 @@ Z = np.arange(10000.0)
 Z.shape = 100,100
 Z[:,50:] = 1.
 
-im1 = plt.figimage(Z, xo=50, yo=0, cmap=cm.jet, origin='upper')
-im2 = plt.figimage(Z, xo=100, yo=100, alpha=.8, cmap=cm.jet, origin='upper')
+im1 = plt.figimage(Z, xo=50, yo=0, cmap=cm.jet, origin='lower')
+im2 = plt.figimage(Z, xo=100, yo=100, alpha=.8, cmap=cm.jet, origin='lower')
 
-fig.savefig('figimage_demo.png')
-fig.savefig('figimage_demo.svg')
-fig.savefig('figimage_demo.pdf')
+#fig.savefig('figimage_demo.png')
+#fig.savefig('figimage_demo.svg')
+#fig.savefig('figimage_demo.pdf')
 plt.show()
 
 
