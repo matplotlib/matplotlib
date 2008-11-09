@@ -1536,15 +1536,16 @@ class Axes(martist.Artist):
             ims = [(im.make_image(mag),0,0)
                    for im in self.images if im.get_visible()]
 
-
+            #flip the images if their origin is "upper"
+            [im.flipud_out() for _im, (im,_,_) in zip(self.images, ims) \
+             if _im.origin=="upper"]
+            
             l, b, r, t = self.bbox.extents
             width = mag*((round(r) + 0.5) - (round(l) - 0.5))
             height = mag*((round(t) + 0.5) - (round(b) - 0.5))
             im = mimage.from_images(height,
                                     width,
                                     ims)
-            if self.images[0].origin=='upper':
-                im.flipud_out()
 
             im.is_grayscale = False
             l, b, w, h = self.bbox.bounds
