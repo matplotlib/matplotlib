@@ -17,6 +17,7 @@ Interface::
 
 """
 
+import errno
 import matplotlib
 import matplotlib.cbook as mpl_cbook
 import numpy as np
