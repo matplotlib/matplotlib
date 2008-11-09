@@ -6243,8 +6243,8 @@ class Axes(martist.Artist):
                bottom=None, histtype='bar', align='mid',
                orientation='vertical', rwidth=None, log=False, **kwargs)
 
-        Compute the histogram of *x*. The return value is a tuple
-        (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*,
+        Compute and draw the histogram of *x*. The return value is a
+        tuple (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*,
         [*patches0*, *patches1*,...]) if the input contains multiple
         data.
 
