@@ -104,7 +104,9 @@ Image::flipud_out(const Py::Tuple& args) {
 
   args.verify_length(0);
   int stride = rbufOut->stride();
+  //std::cout << "flip before: " << rbufOut->stride() << std::endl;
   rbufOut->attach(bufferOut, colsOut, rowsOut, -stride);
+  //std::cout << "flip after: " << rbufOut->stride() << std::endl;
   return Py::Object();
 }
 
@@ -744,18 +746,24 @@ _image_module::from_images(const Py::Tuple& args) {
 
 
   rb.clear(agg::rgba(1, 1, 1, 1));
-
   for (size_t imnum=0; imnum< N; imnum++) {
     tup = Py::Tuple(tups[imnum]);
     Image* thisim = static_cast<Image*>(tup[0].ptr());
     ox = Py::Int(tup[1]);
     oy = Py::Int(tup[2]);
-
+    bool isflip = (thisim->rbufOut->stride())<0;
+    //std::cout << "from images " << isflip << "; stride=" << thisim->rbufOut->stride() << std::endl;
     size_t ind=0;
     for (size_t j=0; j<thisim->rowsOut; j++) {
       for (size_t i=0; i<thisim->colsOut; i++) {
 	thisx = i+ox;
-	thisy = j+oy;
+
+	if (isflip)
+	  thisy = thisim->rowsOut - j + oy;
+	else
+	  thisy = j+oy;
+
+
 	if (thisx>=numcols || thisy>=numrows) {
 	  ind +=4;
 	  continue;

@@ -1536,11 +1536,6 @@ class Axes(martist.Artist):
             ims = [(im.make_image(mag),0,0)
                    for im in self.images if im.get_visible()]
 
-            #flip the images if their origin is "upper"
-            for _im, (im,_,_) in zip(self.images, ims):
-                if _im.origin=="upper":
-                    im.flipud_out()
-
 
             l, b, r, t = self.bbox.extents
             width = mag*((round(r) + 0.5) - (round(l) - 0.5))
