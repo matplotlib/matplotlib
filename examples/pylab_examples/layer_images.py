@@ -27,17 +27,19 @@ xmin, xmax, ymin, ymax = amin(x), amax(x), amin(y), amax(y)
 extent = xmin, xmax, ymin, ymax
 Z1 = array(([0,1]*4 + [1,0]*4)*4); Z1.shape = 8,8  # chessboard
 im1 = imshow(Z1, cmap=cm.gray, interpolation='nearest',
-             extent=extent)
+             extent=extent, origin='lower')
 hold(True)
 
 Z2 = func3(X, Y)
 
 im2 = imshow(Z2, cmap=cm.jet, alpha=.9, interpolation='bilinear',
-             extent=extent)
+             extent=extent, origin='lower')
 #axis([xmin, xmax, ymin, ymax])
 
 
-#savefig('layer_images')
+savefig('layer_images.png')
+savefig('layer_images.svg')
+savefig('layer_images.pdf')
 
 show()
 
