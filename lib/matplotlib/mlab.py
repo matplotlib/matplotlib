@@ -2013,6 +2013,7 @@ def rec_summarize(r, summaryfuncs):
     output to a new attribute name *outname*.  The returned record
     array is identical to *r*, with extra arrays for each element in
     *summaryfuncs*.
+
     """
 
     names = list(r.dtype.names)
@@ -2569,7 +2570,19 @@ def rec2txt(r, header=None, padding=3, precision=3):
             length = max(len(colname),np.max(map(len,map(str,column))))
             return 1, length+padding, "%d" # right justify
 
-        if ntype==np.float or ntype==np.float32 or ntype==np.float64 or ntype==np.float96 or ntype==np.float_:
+        # JDH: my powerbook does not have np.float96 using np 1.3.0
+        """
+        In [2]: np.__version__
+        Out[2]: '1.3.0.dev5948'
+
+        In [3]: !uname -a
+        Darwin Macintosh-5.local 9.4.0 Darwin Kernel Version 9.4.0: Mon Jun  9 19:30:53 PDT 2008; root:xnu-1228.5.20~1/RELEASE_I386 i386 i386
+
+        In [4]: np.float96
+        ---------------------------------------------------------------------------
+        AttributeError                            Traceback (most recent call la
+        """
+        if ntype==np.float or ntype==np.float32 or ntype==np.float64 or (hasattr(np, 'float96') and (ntype==np.float96)) or ntype==np.float_:
             fmt = "%." + str(precision) + "f"
             length = max(len(colname),np.max(map(len,map(lambda x:fmt%x,column))))
             return 1, length+padding, fmt   # right justify
