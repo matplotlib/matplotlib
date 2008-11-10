@@ -261,16 +261,16 @@ def unique(x):
 def iterable(obj):
     'return true if *obj* is iterable'
     try: len(obj)
-    except: return 0
-    return 1
+    except: return False
+    return True
 
 
 def is_string_like(obj):
     'return true if *obj* looks like a string'
-    if hasattr(obj, 'shape'): return 0
+    if hasattr(obj, 'shape'): return False
     try: obj + ''
-    except (TypeError, ValueError): return 0
-    return 1
+    except (TypeError, ValueError): return False
+    return True
 
 def is_sequence_of_strings(obj):
     """
