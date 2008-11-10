@@ -6526,7 +6526,7 @@ class Axes(martist.Artist):
         The power spectral density by Welches average periodogram
         method.  The vector *x* is divided into *NFFT* length
         segments.  Each segment is detrended by function *detrend* and
-        windowed by function *window*.  *noperlap* gives the length of
+        windowed by function *window*.  *noverlap* gives the length of
         the overlap between segments.  The :math:`|\mathrm{fft}(i)|^2`
         of each segment :math:`i` are averaged to compute *Pxx*, with a
         scaling to correct for power loss due to windowing.  *Fs* is the
@@ -6542,7 +6542,7 @@ class Axes(martist.Artist):
 
           *Fc*: integer
             The center frequency of *x* (defaults to 0), which offsets
-            the yextents of the image to reflect the frequency range used
+            the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
 
@@ -6580,6 +6580,10 @@ class Axes(martist.Artist):
         kwargs control the :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
+
+        **Example:**
+
+        .. plot:: mpl_examples/pylab_examples/psd_demo.py
         """
         if not self._hold: self.cla()
         pxx, freqs = mlab.psd(x, NFFT, Fs, detrend, window, noverlap)
