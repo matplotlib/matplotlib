@@ -6719,17 +6719,16 @@ class Axes(martist.Artist):
 
         return cxy, freqs
     cohere.__doc__ = cbook.dedent(cohere.__doc__) % psd_doc_dict
-    del psd_doc_dict #So that this does not become an Axes attribute
 
     def specgram(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                  window=mlab.window_hanning, noverlap=128,
-                 cmap = None, xextent=None):
+                 cmap=None, xextent=None, pad_to=None, sides='default'):
         """
         call signature::
 
           specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-                   window = mlab.window_hanning, noverlap=128,
-                   cmap=None, xextent=None)
+                   window=mlab.window_hanning, noverlap=128,
+                   cmap=None, xextent=None, pad_to=None, sides='default')
 
         Compute a spectrogram of data in *x*.  Data are split into
         *NFFT* length segments and the PSD of each section is
@@ -6737,16 +6736,22 @@ class Axes(martist.Artist):
         segment, and the amount of overlap of each segment is
         specified with *noverlap*.
 
-        Keyword arguments:
+        %(PSD)s
+
+          *Fc*: integer
+            The center frequency of *x* (defaults to 0), which offsets
+            the y extents of the plot to reflect the frequency range used
+            when a signal is acquired and then filtered and downsampled to
+            baseband.
 
           *cmap*:
             A :class:`matplotlib.cm.Colormap` instance; if *None* use
             default determined by rc
 
           *xextent*:
-            The image extent in the xaxes xextent=xmin, xmax
-            default 0, max(bins), 0, max(freqs) where bins is the return
-            value from mlab.specgram
+            The image extent along the x-axis. xextent = (xmin,xmax)
+            The default is (0,max(bins)), where bins is the return
+            value from :func:`mlab.specgram`
 
         Return value is (*Pxx*, *freqs*, *bins*, *im*):
 
@@ -6757,20 +6762,20 @@ class Axes(martist.Artist):
 
         Note: If *x* is real (i.e. non-complex), only the positive
         spectrum is shown.  If *x* is complex, both positive and
-        negative parts of the spectrum are shown.
+        negative parts of the spectrum are shown.  This can be
+        overridden using the *sides* keyword argument.
 
-        .. seealso:
-            :meth:`psd`
-                For a description of the optional parameters.
+        **Example:**
+
+        .. plot:: mpl_examples/pylab_examples/specgram_demo.py
         """
         if not self._hold: self.cla()
 
         Pxx, freqs, bins = mlab.specgram(x, NFFT, Fs, detrend,
-             window, noverlap)
+             window, noverlap, pad_to, sides)
 
-
-        Z = 10*np.log10(Pxx)
-        Z =  np.flipud(Z)
+        Z = 10. * np.log10(Pxx)
+        Z = np.flipud(Z)
 
         if xextent is None: xextent = 0, np.amax(bins)
         xmin, xmax = xextent
@@ -6780,6 +6785,8 @@ class Axes(martist.Artist):
         self.axis('auto')
 
         return Pxx, freqs, bins, im
+    specgram.__doc__ = cbook.dedent(specgram.__doc__) % psd_doc_dict
+    del psd_doc_dict #So that this does not become an Axes attribute
 
     def spy(self, Z, precision=0, marker=None, markersize=None,
             aspect='equal',  **kwargs):
