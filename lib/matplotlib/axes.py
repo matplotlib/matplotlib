@@ -6663,15 +6663,16 @@ class Axes(martist.Artist):
 
         return pxy, freqs
     csd.__doc__ = cbook.dedent(csd.__doc__) % psd_doc_dict
-    del psd_doc_dict #So that this does not become an Axes attribute
 
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-               window=mlab.window_hanning, noverlap=0, **kwargs):
+               window=mlab.window_hanning, noverlap=0, pad_to=None,
+               sides='default', **kwargs):
         """
         call signature::
 
           cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend = mlab.detrend_none,
-                 window = mlab.window_hanning, noverlap=0, **kwargs)
+                 window = mlab.window_hanning, noverlap=0, pad_to=None,
+                 sides='default', **kwargs)
 
         cohere the coherence between *x* and *y*.  Coherence is the normalized
         cross spectral density:
@@ -6679,6 +6680,14 @@ class Axes(martist.Artist):
         .. math::
 
           C_{xy} = \\frac{|P_{xy}|^2}{P_{xx}P_{yy}}
+
+        %(PSD)s
+
+          *Fc*: integer
+            The center frequency of *x* (defaults to 0), which offsets
+            the x extents of the plot to reflect the frequency range used
+            when a signal is acquired and then filtered and downsampled to
+            baseband.
 
         The return value is a tuple (*Cxy*, *f*), where *f* are the
         frequencies of the coherence vector.
@@ -6698,10 +6707,6 @@ class Axes(martist.Artist):
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/cohere_demo.py
-
-        .. seealso:
-            :meth:`psd`
-                For a description of the optional parameters.
         """
         if not self._hold: self.cla()
         cxy, freqs = mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap)
@@ -6713,7 +6718,8 @@ class Axes(martist.Artist):
         self.grid(True)
 
         return cxy, freqs
-    cohere.__doc__ = cbook.dedent(cohere.__doc__) % martist.kwdocd
+    cohere.__doc__ = cbook.dedent(cohere.__doc__) % psd_doc_dict
+    del psd_doc_dict #So that this does not become an Axes attribute
 
     def specgram(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                  window=mlab.window_hanning, noverlap=128,

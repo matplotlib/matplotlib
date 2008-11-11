@@ -313,7 +313,7 @@ kwdocd['PSD'] ="""
           Specifies which sides of the PSD to return.  Default gives the
           default behavior, which returns one-sided for real data and both
           for complex data.  'one' forces the return of a one-sided PSD, while
-        'both' forces two-sided.
+          'both' forces two-sided.
 """
 psd.__doc__ = psd.__doc__ % kwdocd
 
@@ -494,13 +494,11 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
 
     return Pxx, freqs, t
 
-
-
 _coh_error = """Coherence is calculated by averaging over *NFFT*
 length segments.  Your signal is too short for your choice of *NFFT*.
 """
 def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
-           window=window_hanning, noverlap=0):
+           window=window_hanning, noverlap=0, pad_to=None, sides='default'):
     """
     The coherence between *x* and *y*.  Coherence is the normalized
     cross spectral density:
@@ -509,26 +507,29 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
         C_{xy} = \\frac{|P_{xy}|^2}{P_{xx}P_{yy}}
 
+    *x*, *y*
+        Array or sequence containing the data
+    %(PSD)s
     The return value is the tuple (*Cxy*, *f*), where *f* are the
     frequencies of the coherence vector.
 
     .. seealso::
         :func:`psd` and :func:`csd`:
-            For information about the function arguments *NFFT*,
-            *detrend*, *window*, *noverlap*, as well as the methods
-            used to compute :math:`P_{xy}`, :math:`P_{xx}` and
-            :math:`P_{yy}`.
+            For information about the methods used to compute
+            :math:`P_{xy}`, :math:`P_{xx}` and :math:`P_{yy}`.
     """
 
     if len(x)<2*NFFT:
         raise ValueError(_coh_error)
-    Pxx, f = psd(x, NFFT, Fs, detrend, window, noverlap)
-    Pyy, f = psd(y, NFFT, Fs, detrend, window, noverlap)
-    Pxy, f = csd(x, y, NFFT, Fs, detrend, window, noverlap)
+    Pxx, f = psd(x, NFFT, Fs, detrend, window, noverlap, pad_to, sides)
+    Pyy, f = psd(y, NFFT, Fs, detrend, window, noverlap, pad_to, sides)
+    Pxy, f = csd(x, y, NFFT, Fs, detrend, window, noverlap, pad_to, sides)
 
     Cxy = np.divide(np.absolute(Pxy)**2, Pxx*Pyy)
     Cxy.shape = (len(f),)
     return Cxy, f
+
+cohere.__doc__ = cohere.__doc__ % kwdocd
 
 def corrcoef(*args):
     """
