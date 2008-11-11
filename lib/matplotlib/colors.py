@@ -320,11 +320,9 @@ class ColorConverter:
 
     def to_rgba_array(self, c, alpha=None):
         """
-        Returns an Numpy array of *RGBA* tuples.
+        Returns a numpy array of *RGBA* tuples.
 
         Accepts a single mpl color spec or a sequence of specs.
-        If the sequence is a list or array, the items are changed in place,
-        but an array copy is still returned.
 
         Special case to handle "no color": if *c* is "none" (case-insensitive),
         then an empty array will be returned.  Same for an empty list.
@@ -339,11 +337,8 @@ class ColorConverter:
         try:
             result = np.array([self.to_rgba(c, alpha)], dtype=np.float_)
         except ValueError:
-            # If c is a list it must be maintained as the same list
-            # with modified items so that items can be appended to
-            # it. This is needed for examples/dynamic_collections.py.
             if isinstance(c, np.ndarray):
-                if len(c.shape) != 2:
+                if c.ndim != 2 and c.dtype.kind not in 'SU':
                     raise ValueError("Color array must be two-dimensional")
 
             result = np.zeros((len(c), 4))

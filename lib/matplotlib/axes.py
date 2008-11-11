@@ -4927,17 +4927,17 @@ class Axes(martist.Artist):
 
         x, y, s, c = cbook.delete_masked_points(x, y, s, c)
 
-        # The inherent ambiguity is resolved in favor of color
-        # mapping, not interpretation as rgb or rgba.
 
-        if not is_string_like(c):
+        if is_string_like(c) or cbook.is_sequence_of_strings(c):
+            colors = mcolors.colorConverter.to_rgba_array(c, alpha)
+        else:
             sh = np.shape(c)
+            # The inherent ambiguity is resolved in favor of color
+            # mapping, not interpretation as rgb or rgba:
             if len(sh) == 1 and sh[0] == len(x):
                 colors = None  # use cmap, norm after collection is created
             else:
                 colors = mcolors.colorConverter.to_rgba_array(c, alpha)
-        else:
-            colors = mcolors.colorConverter.to_rgba_array(c, alpha)
 
         if not iterable(s):
             scales = (s,)

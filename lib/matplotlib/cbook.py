@@ -266,8 +266,14 @@ def iterable(obj):
 
 
 def is_string_like(obj):
-    'return true if *obj* looks like a string'
-    if hasattr(obj, 'shape'): return False
+    'Return True if *obj* looks like a string'
+    if isinstance(obj, (str, unicode)): return True
+    # numpy strings are subclass of str, ma strings are not
+    if ma.isMaskedArray(obj):
+        if obj.ndim == 0 and obj.dtype.kind in 'SU':
+            return True
+        else:
+            return False
     try: obj + ''
     except (TypeError, ValueError): return False
     return True
