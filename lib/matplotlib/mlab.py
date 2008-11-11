@@ -35,6 +35,8 @@ Matlab(TM) compatible functions
 :func:`rk4`
   A 4th order runge kutta integrator for 1D or ND systems
 
+:func:`specgram`
+  Spectrogram (power spectral density over segments of time)
 
 Miscellaneous functions
 -------------------------
