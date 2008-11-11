@@ -239,7 +239,7 @@ def detrend_linear(y):
     return y - (b*x + a)
 
 def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
-        window=window_hanning, noverlap=0):
+        window=window_hanning, noverlap=0, pad_to=None, sides='default'):
     """
     The power spectral density by Welch's average periodogram method.
     The vector *x* is divided into *NFFT* length blocks.  Each block
@@ -273,11 +273,29 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
         :func:`numpy.blackman`, :func:`numpy.hamming`,
         :func:`numpy.bartlett`, :func:`scipy.signal`,
         :func:`scipy.signal.get_window`, etc. The default is
-        :func:`window_hanning`.
+        :func:`window_hanning`.  If a function is passed as the
+        argument, it must take a data segment as an argument and
+        return the windowed version of the segment.
 
     *noverlap*
         The number of points of overlap between blocks.  The default value
         is 0 (no overlap).
+
+    *pad_to*
+        The number of points to which the data segment is padd when
+        performing the FFT.  This can be different from *NFFT*, which
+        specifies the number of data points used.  While not increasing
+        the actual resolution of the psd (the minimum distance between
+        resolvable peaks), this can give more points in the plot,
+        allowing for more detail. This corresponds to the *n* parameter
+        in the call to fft(). The default is None, which sets *pad_to*
+        equal to *NFFT*
+
+    *sides* [ 'default' | 'onesided' | 'twosided' ]
+        Specifies which sides of the PSD to return.  Default gives the
+        default behavior, which returns one-sided for real data and both
+        for complex data.  'one' forces the return of a one-sided PSD, while
+        'both' forces two-sided.
 
     Returns the tuple (*Pxx*, *freqs*).
 
@@ -285,10 +303,6 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
         Bendat & Piersol -- Random Data: Analysis and Measurement
         Procedures, John Wiley & Sons (1986)
     """
-    # I think we could remove this condition without hurting anything.
-    if NFFT % 2:
-        raise ValueError('NFFT must be even')
-
     x = np.asarray(x) # make sure we're dealing with a numpy array
 
     # zero pad x up to NFFT if it is shorter than NFFT
@@ -297,24 +311,34 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
         x = np.resize(x, (NFFT,))    # Can't use resize method.
         x[n:] = 0
 
+    if pad_to is None:
+        pad_to = NFFT
+
     # for real x, ignore the negative frequencies
-    if np.iscomplexobj(x): numFreqs = NFFT
-    else: numFreqs = NFFT//2+1
+    if (sides == 'default' and np.iscomplexobj(x)) or sides == 'twosided':
+        numFreqs = pad_to
+    elif sides in ('default', 'onesided'):
+        numFreqs = pad_to//2 + 1
+    else:
+        raise ValueError("sides must be one of: 'default', 'onesided', or "
+            "twosided")
 
     if cbook.iterable(window):
         assert(len(window) == NFFT)
         windowVals = window
     else:
-        windowVals = window(np.ones((NFFT,),x.dtype))
-    step = NFFT-noverlap
-    ind = range(0,len(x)-NFFT+1,step)
+        windowVals = window(np.ones((NFFT,), x.dtype))
+
+    step = NFFT - noverlap
+    ind = range(0, len(x) - NFFT + 1, step)
     n = len(ind)
     Pxx = np.zeros((numFreqs,n), np.float_)
-    # do the ffts of the slices
+
+    # do the FFTs of the slices
     for i in range(n):
         thisX = x[ind[i]:ind[i]+NFFT]
         thisX = windowVals * detrend(thisX)
-        fx = np.absolute(np.fft.fft(thisX))**2
+        fx = np.absolute(np.fft.fft(thisX, n=pad_to))**2
         Pxx[:,i] = fx[:numFreqs]
 
     if n>1:
@@ -323,7 +347,7 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
     # windowing loss; see Bendat & Piersol Sec 11.5.2
     Pxx /= (np.abs(windowVals)**2).sum()
 
-    freqs = Fs/NFFT * np.arange(numFreqs)
+    freqs = float(Fs) / pad_to * np.arange(numFreqs)
 
     return Pxx, freqs
 
