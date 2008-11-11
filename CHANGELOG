@@ -1,3 +1,7 @@
+2008-11-11 Update the axes.psd() method to reflect the new options
+           available in mlab.psd.  Add an example to show how the
+           options change things. - RM
+
 2008-11-11 Add 'pad_to' and 'sides' parameters to mlab.psd() to
            allow controlling of zero padding and returning of
            negative frequency components, respecitively.  These are
