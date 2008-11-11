@@ -6525,7 +6525,8 @@ class Axes(martist.Artist):
     hist.__doc__ = cbook.dedent(hist.__doc__) % martist.kwdocd
 
     def psd(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-            window=mlab.window_hanning, noverlap=0, **kwargs):
+            window=mlab.window_hanning, noverlap=0, pad_to=None,
+            sides='default', **kwargs):
         """
         call signature::
 
@@ -6595,7 +6596,8 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/pylab_examples/psd_demo.py
         """
         if not self._hold: self.cla()
-        pxx, freqs = mlab.psd(x, NFFT, Fs, detrend, window, noverlap)
+        pxx, freqs = mlab.psd(x, NFFT, Fs, detrend, window, noverlap, pad_to,
+            sides)
         pxx.shape = len(freqs),
         freqs += Fc
 
