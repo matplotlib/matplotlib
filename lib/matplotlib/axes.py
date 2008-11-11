@@ -6531,9 +6531,10 @@ class Axes(martist.Artist):
         call signature::
 
           psd(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-              window=mlab.window_hanning, noverlap=0, **kwargs)
+              window=mlab.window_hanning, noverlap=0, pad_to=None,
+              sides='default', **kwargs)
 
-        The power spectral density by Welches average periodogram
+        The power spectral density by Welch's average periodogram
         method.  The vector *x* is divided into *NFFT* length
         segments.  Each segment is detrended by function *detrend* and
         windowed by function *window*.  *noverlap* gives the length of
@@ -6542,40 +6543,13 @@ class Axes(martist.Artist):
         scaling to correct for power loss due to windowing.  *Fs* is the
         sampling frequency.
 
-        Keyword arguments:
-
-          *NFFT*: integer
-            The length of the fft segment, must be a power of 2
-
-          *Fs*: integer
-            The sampling frequency.
+        %(PSD)s
 
           *Fc*: integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
             when a signal is acquired and then filtered and downsampled to
             baseband.
-
-          *detrend*:
-            The function applied to each segment before fft-ing,
-            designed to remove the mean or linear trend.  Unlike in
-            matlab, where the *detrend* parameter is a vector, in
-            matplotlib is it a function.  The :mod:`~matplotlib.pylab`
-            module defines :func:`~matplotlib.pylab.detrend_none`,
-            :func:`~matplotlib.pylab.detrend_mean`, and
-            :func:`~matplotlib.pylab.detrend_linear`, but you can use
-            a custom function as well.
-
-          *window*:
-            The function used to window the segments.  *window* is a
-            function, unlike in matlab where it is a vector.
-            :mod:`~matplotlib.pylab` defines
-            :func:`~matplotlib.pylab.window_none`, and
-            :func:`~matplotlib.pylab.window_hanning`, but you can use
-            a custom function as well.
-
-          *noverlap*: integer
-            Gives the length of the overlap between segments.
 
         Returns the tuple (*Pxx*, *freqs*).
 
@@ -6615,17 +6589,24 @@ class Axes(martist.Artist):
         self.set_yticks(ticks)
 
         return pxx, freqs
-    psd.__doc__ = cbook.dedent(psd.__doc__) % martist.kwdocd
+
+    psd_doc_dict = dict()
+    psd_doc_dict.update(martist.kwdocd)
+    psd_doc_dict.update(mlab.kwdocd)
+    psd_doc_dict['PSD'] = cbook.dedent(psd_doc_dict['PSD'])
+    psd.__doc__ = cbook.dedent(psd.__doc__) % psd_doc_dict
 
     def csd(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-            window=mlab.window_hanning, noverlap=0, **kwargs):
+            window=mlab.window_hanning, noverlap=0, pad_to=None,
+            sides='default', **kwargs):
         """
         call signature::
 
           csd(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
-              window=window_hanning, noverlap=0, **kwargs)
+              window=mlab.window_hanning, noverlap=0, pad_to=None,
+              sides='default', **kwargs)
 
-        The cross spectral density :math:`P_{xy}` by Welches average
+        The cross spectral density :math:`P_{xy}` by Welch's average
         periodogram method.  The vectors *x* and *y* are divided into
         *NFFT* length segments.  Each segment is detrended by function
         *detrend* and windowed by function *window*.  The product of
@@ -6636,6 +6617,14 @@ class Axes(martist.Artist):
         Returns the tuple (*Pxy*, *freqs*).  *P* is the cross spectrum
         (complex valued), and :math:`10\log_{10}|P_{xy}|` is
         plotted.
+
+        %(PSD)s
+
+          *Fc*: integer
+            The center frequency of *x* (defaults to 0), which offsets
+            the x extents of the plot to reflect the frequency range used
+            when a signal is acquired and then filtered and downsampled to
+            baseband.
 
         References:
           Bendat & Piersol -- Random Data: Analysis and Measurement
@@ -6654,7 +6643,8 @@ class Axes(martist.Artist):
                 For a description of the optional parameters.
         """
         if not self._hold: self.cla()
-        pxy, freqs = mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap)
+        pxy, freqs = mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap,
+            pad_to, sides)
         pxy.shape = len(freqs),
         # pxy is complex
         freqs += Fc
@@ -6672,7 +6662,8 @@ class Axes(martist.Artist):
         self.set_yticks(ticks)
 
         return pxy, freqs
-    csd.__doc__ = cbook.dedent(csd.__doc__) % martist.kwdocd
+    csd.__doc__ = cbook.dedent(csd.__doc__) % psd_doc_dict
+    del psd_doc_dict #So that this does not become an Axes attribute
 
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                window=mlab.window_hanning, noverlap=0, **kwargs):

@@ -310,48 +310,55 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
 #Split out these keyword docs so that they can be used elsewhere
 kwdocd = dict()
 kwdocd['PSD'] ="""
-    *NFFT*
-        The number of data points used in each block for the FFT.
-        Must be even; a power 2 is most efficient.  The default value is 256.
+    Keyword arguments:
 
-    *Fs*
-        The sampling frequency (samples per time unit).  It is used
-        to calculate the Fourier frequencies, freqs, in cycles per time
-        unit. The default value is 2.
+      *NFFT*: integer
+          The number of data points used in each block for the FFT.
+          Must be even; a power 2 is most efficient.  The default value is 256.
 
-    *detrend*
-        Any callable function (unlike in matlab where it is a vector).
-        For examples, see :func:`detrend`, :func:`detrend_none`, and
-        :func:`detrend_mean`.  The default is :func:`detrend_none`.
+      *Fs*: scalar
+          The sampling frequency (samples per time unit).  It is used
+          to calculate the Fourier frequencies, freqs, in cycles per time
+          unit. The default value is 2.
 
-    *window*
-        A function or a vector of length *NFFT*. To create window
-        vectors see :func:`window_hanning`, :func:`window_none`,
-        :func:`numpy.blackman`, :func:`numpy.hamming`,
-        :func:`numpy.bartlett`, :func:`scipy.signal`,
-        :func:`scipy.signal.get_window`, etc. The default is
-        :func:`window_hanning`.  If a function is passed as the
-        argument, it must take a data segment as an argument and
-        return the windowed version of the segment.
+      *detrend*: callable
+          The function applied to each segment before fft-ing,
+          designed to remove the mean or linear trend.  Unlike in
+          matlab, where the *detrend* parameter is a vector, in
+          matplotlib is it a function.  The :mod:`~matplotlib.pylab`
+          module defines :func:`~matplotlib.pylab.detrend_none`,
+          :func:`~matplotlib.pylab.detrend_mean`, and
+          :func:`~matplotlib.pylab.detrend_linear`, but you can use
+          a custom function as well.
 
-    *noverlap*
-        The number of points of overlap between blocks.  The default value
-        is 0 (no overlap).
+      *window*: callable or ndarray
+          A function or a vector of length *NFFT*. To create window
+          vectors see :func:`window_hanning`, :func:`window_none`,
+          :func:`numpy.blackman`, :func:`numpy.hamming`,
+          :func:`numpy.bartlett`, :func:`scipy.signal`,
+          :func:`scipy.signal.get_window`, etc. The default is
+          :func:`window_hanning`.  If a function is passed as the
+          argument, it must take a data segment as an argument and
+          return the windowed version of the segment.
 
-    *pad_to*
-        The number of points to which the data segment is padd when
-        performing the FFT.  This can be different from *NFFT*, which
-        specifies the number of data points used.  While not increasing
-        the actual resolution of the psd (the minimum distance between
-        resolvable peaks), this can give more points in the plot,
-        allowing for more detail. This corresponds to the *n* parameter
-        in the call to fft(). The default is None, which sets *pad_to*
-        equal to *NFFT*
+      *noverlap*: integer
+          The number of points of overlap between blocks.  The default value
+          is 0 (no overlap).
 
-    *sides* [ 'default' | 'onesided' | 'twosided' ]
-        Specifies which sides of the PSD to return.  Default gives the
-        default behavior, which returns one-sided for real data and both
-        for complex data.  'one' forces the return of a one-sided PSD, while
+      *pad_to*: integer
+          The number of points to which the data segment is padd when
+          performing the FFT.  This can be different from *NFFT*, which
+          specifies the number of data points used.  While not increasing
+          the actual resolution of the psd (the minimum distance between
+          resolvable peaks), this can give more points in the plot,
+          allowing for more detail. This corresponds to the *n* parameter
+          in the call to fft(). The default is None, which sets *pad_to*
+          equal to *NFFT*
+
+      *sides*: [ 'default' | 'onesided' | 'twosided' ]
+          Specifies which sides of the PSD to return.  Default gives the
+          default behavior, which returns one-sided for real data and both
+          for complex data.  'one' forces the return of a one-sided PSD, while
         'both' forces two-sided.
 """
 psd.__doc__ = psd.__doc__ % kwdocd
