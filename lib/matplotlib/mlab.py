@@ -238,28 +238,77 @@ def detrend_linear(y):
     a = y.mean() - b*x.mean()
     return y - (b*x + a)
 
-def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
+#This is a helper function that implements the commonality between the
+#psd, csd, and spectrogram.  It is *NOT* meant to be used outside of mlab
+def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         window=window_hanning, noverlap=0, pad_to=None, sides='default'):
-    """
-    The power spectral density by Welch's average periodogram method.
-    The vector *x* is divided into *NFFT* length blocks.  Each block
-    is detrended by the function *detrend* and windowed by the function
-    *window*.  *noverlap* gives the length of the overlap between blocks.
-    The absolute(fft(block))**2 of each segment are averaged to compute
-    *Pxx*, with a scaling to correct for power loss due to windowing.
+    #The checks for if y is x are so that we can use the same function to
+    #implement the core of psd(), csd(), and spectrogram() without doing
+    #extra calculations.  We return the unaveraged Pxy, freqs, and t.
+    
+    #Make sure we're dealing with a numpy array. If y and x were the same
+    #object to start with, keep them that way
+    same_data = y is x
 
-    If len(*x*) < *NFFT*, it will be zero padded to *NFFT*.
+    x = np.asarray(x)
+    if not same_data:
+        y = np.asarray(y)
 
-    *x*
-        Array or sequence containing the data
-    %(PSD)s
-    Returns the tuple (*Pxx*, *freqs*).
+    # zero pad x and y up to NFFT if they are shorter than NFFT
+    if len(x)<NFFT:
+        n = len(x)
+        x = np.resize(x, (NFFT,))
+        x[n:] = 0
 
-    Refs:
-        Bendat & Piersol -- Random Data: Analysis and Measurement
-        Procedures, John Wiley & Sons (1986)
-    """
-    return csd(x, x, NFFT, Fs, detrend, window, noverlap, pad_to, sides)
+    if not same_data and len(y)<NFFT:
+        n = len(y)
+        y = np.resize(y, (NFFT,))
+        y[n:] = 0
+
+    if pad_to is None:
+        pad_to = NFFT
+
+    # For real x, ignore the negative frequencies unless told otherwise
+    if (sides == 'default' and np.iscomplexobj(x)) or sides == 'twosided':
+        numFreqs = pad_to
+    elif sides in ('default', 'onesided'):
+        numFreqs = pad_to//2 + 1
+    else:
+        raise ValueError("sides must be one of: 'default', 'onesided', or "
+            "'twosided'")
+
+    if cbook.iterable(window):
+        assert(len(window) == NFFT)
+        windowVals = window
+    else:
+        windowVals = window(np.ones((NFFT,), x.dtype))
+
+    step = NFFT - noverlap
+    ind = np.arange(0, len(x) - NFFT + 1, step)
+    n = len(ind)
+    Pxy = np.zeros((numFreqs,n), np.complex_)
+
+    # do the ffts of the slices
+    for i in range(n):
+        thisX = x[ind[i]:ind[i]+NFFT]
+        thisX = windowVals * detrend(thisX)
+        fx = np.fft.fft(thisX, n=pad_to)
+
+        if same_data:
+            fy = fx
+        else:
+            thisY = y[ind[i]:ind[i]+NFFT]
+            thisY = windowVals * detrend(thisY)
+            fy = np.fft.fft(thisY, n=pad_to)
+        Pxy[:,i] = np.conjugate(fx[:numFreqs]) * fy[:numFreqs]
+
+    # Scale the spectrum by the norm of the window to compensate for
+    # windowing loss; see Bendat & Piersol Sec 11.5.2
+    Pxy /= (np.abs(windowVals)**2).sum()
+    t = 1./Fs * (ind + NFFT / 2.)
+    freqs = float(Fs) / pad_to * np.arange(numFreqs)
+    
+    return Pxy, freqs, t
 
 #Split out these keyword docs so that they can be used elsewhere
 kwdocd = dict()
@@ -315,6 +364,31 @@ kwdocd['PSD'] ="""
           for complex data.  'one' forces the return of a one-sided PSD, while
           'both' forces two-sided.
 """
+
+def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
+        window=window_hanning, noverlap=0, pad_to=None, sides='default'):
+    """
+    The power spectral density by Welch's average periodogram method.
+    The vector *x* is divided into *NFFT* length blocks.  Each block
+    is detrended by the function *detrend* and windowed by the function
+    *window*.  *noverlap* gives the length of the overlap between blocks.
+    The absolute(fft(block))**2 of each segment are averaged to compute
+    *Pxx*, with a scaling to correct for power loss due to windowing.
+
+    If len(*x*) < *NFFT*, it will be zero padded to *NFFT*.
+
+    *x*
+        Array or sequence containing the data
+    %(PSD)s
+    Returns the tuple (*Pxx*, *freqs*).
+
+    Refs:
+        Bendat & Piersol -- Random Data: Analysis and Measurement
+        Procedures, John Wiley & Sons (1986)
+    """
+    Pxx,freqs = csd(x, x, NFFT, Fs, detrend, window, noverlap, pad_to, sides)
+    return Pxx.real,freqs
+
 psd.__doc__ = psd.__doc__ % kwdocd
 
 def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
@@ -340,93 +414,28 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         Bendat & Piersol -- Random Data: Analysis and Measurement
         Procedures, John Wiley & Sons (1986)
     """
+    Pxy, freqs, t = _spectral_helper(x, y, NFFT, Fs, detrend, window,
+        noverlap, pad_to, sides)
 
-    #The checks for if y is x are so that we can use csd() to implement
-    #psd() without doing extra work.
-    
-    #Make sure we're dealing with a numpy array. If y and x were the same
-    #object to start with, keep them that way
-    do_psd = y is x
-
-    x = np.asarray(x)
-    if not do_psd:
-        y = np.asarray(y)
-
-    # zero pad x and y up to NFFT if they are shorter than NFFT
-    if len(x)<NFFT:
-        n = len(x)
-        x = np.resize(x, (NFFT,))
-        x[n:] = 0
-
-    if not do_psd and len(y)<NFFT:
-        n = len(y)
-        y = np.resize(y, (NFFT,))
-        y[n:] = 0
-
-    if pad_to is None:
-        pad_to = NFFT
-
-    # For real x, ignore the negative frequencies unless told otherwise
-    if (sides == 'default' and np.iscomplexobj(x)) or sides == 'twosided':
-        numFreqs = pad_to
-    elif sides in ('default', 'onesided'):
-        numFreqs = pad_to//2 + 1
-    else:
-        raise ValueError("sides must be one of: 'default', 'onesided', or "
-            "'twosided'")
-
-    if cbook.iterable(window):
-        assert(len(window) == NFFT)
-        windowVals = window
-    else:
-        windowVals = window(np.ones((NFFT,), x.dtype))
-
-    step = NFFT - noverlap
-    ind = range(0, len(x) - NFFT + 1, step)
-    n = len(ind)
-    Pxy = np.zeros((numFreqs,n), np.complex_)
-
-    # do the ffts of the slices
-    for i in range(n):
-        thisX = x[ind[i]:ind[i]+NFFT]
-        thisX = windowVals * detrend(thisX)
-        fx = np.fft.fft(thisX, n=pad_to)
-
-        if do_psd:
-            fy = fx
-        else:
-            thisY = y[ind[i]:ind[i]+NFFT]
-            thisY = windowVals * detrend(thisY)
-            fy = np.fft.fft(thisY, n=pad_to)
-        Pxy[:,i] = np.conjugate(fx[:numFreqs]) * fy[:numFreqs]
-
-    # Scale the spectrum by the norm of the window to compensate for
-    # windowing loss; see Bendat & Piersol Sec 11.5.2
-    if n>1:
+    if len(Pxy.shape) == 2 and Pxy.shape[1]>1:
         Pxy = Pxy.mean(axis=1)
-
-    Pxy /= (np.abs(windowVals)**2).sum()
-    freqs = float(Fs) / pad_to * np.arange(numFreqs)
     return Pxy, freqs
 
 csd.__doc__ = csd.__doc__ % kwdocd
 
 def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
-             window=window_hanning, noverlap=128):
+             window=window_hanning, noverlap=128, pad_to=None,
+             sides='default'):
     """
     Compute a spectrogram of data in *x*.  Data are split into *NFFT*
     length segements and the PSD of each section is computed.  The
     windowing function *window* is applied to each segment, and the
     amount of overlap of each segment is specified with *noverlap*.
 
-    *window* can be a function or a vector of length *NFFT*. To create
-    window vectors see :func:`numpy.blackman`, :func:`numpy.hamming`,
-    :func:`numpy.bartlett`, :func:`scipy.signal`,
-    :func:`scipy.signal.get_window` etc.
-
-    If *x* is real (i.e. non-complex) only the positive spectrum is
-    given.  If *x* is complex then the complete spectrum is given.
-
+    If *x* is real (i.e. non-complex) only the spectrum of the positive
+    frequencie is returned.  If *x* is complex then the complete
+    spectrum is returned.
+    %(PSD)s
     Returns a tuple (*Pxx*, *freqs*, *t*):
 
          - *Pxx*: 2-D array, columns are the periodograms of
@@ -444,55 +453,20 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
             the mean of the segment periodograms; and in not returning
             times.
     """
-    x = np.asarray(x)
-    assert(NFFT>noverlap)
-    #if np.log(NFFT)/np.log(2) != int(np.log(NFFT)/np.log(2)):
-    #   raise ValueError, 'NFFT must be a power of 2'
-    if NFFT % 2:
-        raise ValueError('NFFT must be even')
+    assert(NFFT > noverlap)
 
+    Pxx, freqs, t = _spectral_helper(x, x, NFFT, Fs, detrend, window,
+        noverlap, pad_to, sides)
+    Pxx = Pxx.real #Needed since helper implements generically
 
-    # zero pad x up to NFFT if it is shorter than NFFT
-    if len(x)<NFFT:
-        n = len(x)
-        x = np.resize(x, (NFFT,))
-        x[n:] = 0
-
-
-    # for real x, ignore the negative frequencies
-    if np.iscomplexobj(x):
-        numFreqs=NFFT
-    else:
-        numFreqs = NFFT//2+1
-
-    if cbook.iterable(window):
-        assert(len(window) == NFFT)
-        windowVals = np.asarray(window)
-    else:
-        windowVals = window(np.ones((NFFT,),x.dtype))
-    step = NFFT-noverlap
-    ind = np.arange(0,len(x)-NFFT+1,step)
-    n = len(ind)
-    Pxx = np.zeros((numFreqs,n), np.float_)
-    # do the ffts of the slices
-
-    for i in range(n):
-        thisX = x[ind[i]:ind[i]+NFFT]
-        thisX = windowVals*detrend(thisX)
-        fx = np.absolute(np.fft.fft(thisX))**2
-        Pxx[:,i] = fx[:numFreqs]
-    # Scale the spectrum by the norm of the window to compensate for
-    # windowing loss; see Bendat & Piersol Sec 11.5.2
-    Pxx /= (np.abs(windowVals)**2).sum()
-    t = 1/Fs*(ind+NFFT/2)
-    freqs = Fs/NFFT*np.arange(numFreqs)
-
-    if np.iscomplexobj(x):
+    if (np.iscomplexobj(x) and sides == 'default') or sides == 'twosided':
         # center the frequency range at zero
         freqs = np.concatenate((freqs[NFFT/2:]-Fs,freqs[:NFFT/2]))
         Pxx   = np.concatenate((Pxx[NFFT/2:,:],Pxx[:NFFT/2,:]),0)
 
     return Pxx, freqs, t
+
+specgram.__doc__ = specgram.__doc__ % kwdocd
 
 _coh_error = """Coherence is calculated by averaging over *NFFT*
 length segments.  Your signal is too short for your choice of *NFFT*.
