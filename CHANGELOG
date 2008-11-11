@@ -1,3 +1,7 @@
+2008-11-11 Update the mlab.csd() to match the new options added to
+           mlab.psd().  Factor out the keyword argument docs so that
+           they can be shared between the two functions. - RM
+
 2008-11-11 Update the axes.psd() method to reflect the new options
            available in mlab.psd.  Add an example to show how the
            options change things. - RM
