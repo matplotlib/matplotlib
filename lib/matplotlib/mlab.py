@@ -259,53 +259,7 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
         Bendat & Piersol -- Random Data: Analysis and Measurement
         Procedures, John Wiley & Sons (1986)
     """
-    x = np.asarray(x) # make sure we're dealing with a numpy array
-
-    # zero pad x up to NFFT if it is shorter than NFFT
-    if len(x)<NFFT:
-        n = len(x)
-        x = np.resize(x, (NFFT,))    # Can't use resize method.
-        x[n:] = 0
-
-    if pad_to is None:
-        pad_to = NFFT
-
-    # For real x, ignore the negative frequencies unless told otherwise
-    if (sides == 'default' and np.iscomplexobj(x)) or sides == 'twosided':
-        numFreqs = pad_to
-    elif sides in ('default', 'onesided'):
-        numFreqs = pad_to//2 + 1
-    else:
-        raise ValueError("sides must be one of: 'default', 'onesided', or "
-            "'twosided'")
-
-    if cbook.iterable(window):
-        assert(len(window) == NFFT)
-        windowVals = window
-    else:
-        windowVals = window(np.ones((NFFT,), x.dtype))
-
-    step = NFFT - noverlap
-    ind = range(0, len(x) - NFFT + 1, step)
-    n = len(ind)
-    Pxx = np.zeros((numFreqs,n), np.float_)
-
-    # do the FFTs of the slices
-    for i in range(n):
-        thisX = x[ind[i]:ind[i]+NFFT]
-        thisX = windowVals * detrend(thisX)
-        fx = np.absolute(np.fft.fft(thisX, n=pad_to))**2
-        Pxx[:,i] = fx[:numFreqs]
-
-    if n>1:
-        Pxx = Pxx.mean(axis=1)
-    # Scale the spectrum by the norm of the window to compensate for
-    # windowing loss; see Bendat & Piersol Sec 11.5.2
-    Pxx /= (np.abs(windowVals)**2).sum()
-
-    freqs = float(Fs) / pad_to * np.arange(numFreqs)
-
-    return Pxx, freqs
+    return csd(x, x, NFFT, Fs, detrend, window, noverlap, pad_to, sides)
 
 #Split out these keyword docs so that they can be used elsewhere
 kwdocd = dict()
@@ -387,15 +341,24 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         Procedures, John Wiley & Sons (1986)
     """
 
-    x = np.asarray(x) # make sure we're dealing with a numpy array
-    y = np.asarray(y) # make sure we're dealing with a numpy array
+    #The checks for if y is x are so that we can use csd() to implement
+    #psd() without doing extra work.
+    
+    #Make sure we're dealing with a numpy array. If y and x were the same
+    #object to start with, keep them that way
+    do_psd = y is x
+
+    x = np.asarray(x)
+    if not do_psd:
+        y = np.asarray(y)
 
     # zero pad x and y up to NFFT if they are shorter than NFFT
     if len(x)<NFFT:
         n = len(x)
         x = np.resize(x, (NFFT,))
         x[n:] = 0
-    if len(y)<NFFT:
+
+    if not do_psd and len(y)<NFFT:
         n = len(y)
         y = np.resize(y, (NFFT,))
         y[n:] = 0
@@ -427,10 +390,14 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     for i in range(n):
         thisX = x[ind[i]:ind[i]+NFFT]
         thisX = windowVals * detrend(thisX)
-        thisY = y[ind[i]:ind[i]+NFFT]
-        thisY = windowVals * detrend(thisY)
         fx = np.fft.fft(thisX, n=pad_to)
-        fy = np.fft.fft(thisY, n=pad_to)
+
+        if do_psd:
+            fy = fx
+        else:
+            thisY = y[ind[i]:ind[i]+NFFT]
+            thisY = windowVals * detrend(thisY)
+            fy = np.fft.fft(thisY, n=pad_to)
         Pxy[:,i] = np.conjugate(fx[:numFreqs]) * fy[:numFreqs]
 
     # Scale the spectrum by the norm of the window to compensate for
