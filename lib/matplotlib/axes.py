@@ -1312,7 +1312,8 @@ class Axes(martist.Artist):
         self._set_artist_props(line)
         line.set_clip_path(self.patch)
 
-        self._update_line_limits(line)
+        if line.get_transform() == self.transData:
+            self._update_line_limits(line)
         if not line.get_label():
             line.set_label('_line%d'%len(self.lines))
         self.lines.append(line)
@@ -2774,7 +2775,11 @@ class Axes(martist.Artist):
 
         trans = mtransforms.blended_transform_factory(
             self.transAxes, self.transData)
-        l, = self.plot([xmin,xmax], [y,y], transform=trans, scalex=False, scaley=scaley, **kwargs)
+        l = mlines.Line2D([xmin,xmax], [y,y], transform=trans, **kwargs)
+        self.add_line(l)
+        self.dataLim.y0 = min(self.dataLim.y0, yy)
+        self.dataLim.y1 = max(self.dataLim.y1, yy)
+        self.autoscale_view(scalex=False, scaley=scaley)
 
         return l
 
@@ -2830,7 +2835,11 @@ class Axes(martist.Artist):
 
         trans = mtransforms.blended_transform_factory(
             self.transData, self.transAxes)
-        l, = self.plot([x,x], [ymin,ymax] , transform=trans, scalex=scalex, scaley=False, **kwargs)
+        l = mlines.Line2D([x,x], [ymin,ymax] , transform=trans, **kwargs)
+        self.add_line(l)
+        self.dataLim.x0 = min(self.dataLim.x0, xx)
+        self.dataLim.x1 = max(self.dataLim.x1, xx)
+        self.autoscale_view(scalex=scalex, scaley=False)
 
         return l
 
