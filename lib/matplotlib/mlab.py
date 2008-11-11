@@ -252,7 +252,64 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
 
     *x*
         Array or sequence containing the data
+    %(PSD)s
+    Returns the tuple (*Pxx*, *freqs*).
 
+    Refs:
+        Bendat & Piersol -- Random Data: Analysis and Measurement
+        Procedures, John Wiley & Sons (1986)
+    """
+    x = np.asarray(x) # make sure we're dealing with a numpy array
+
+    # zero pad x up to NFFT if it is shorter than NFFT
+    if len(x)<NFFT:
+        n = len(x)
+        x = np.resize(x, (NFFT,))    # Can't use resize method.
+        x[n:] = 0
+
+    if pad_to is None:
+        pad_to = NFFT
+
+    # For real x, ignore the negative frequencies unless told otherwise
+    if (sides == 'default' and np.iscomplexobj(x)) or sides == 'twosided':
+        numFreqs = pad_to
+    elif sides in ('default', 'onesided'):
+        numFreqs = pad_to//2 + 1
+    else:
+        raise ValueError("sides must be one of: 'default', 'onesided', or "
+            "'twosided'")
+
+    if cbook.iterable(window):
+        assert(len(window) == NFFT)
+        windowVals = window
+    else:
+        windowVals = window(np.ones((NFFT,), x.dtype))
+
+    step = NFFT - noverlap
+    ind = range(0, len(x) - NFFT + 1, step)
+    n = len(ind)
+    Pxx = np.zeros((numFreqs,n), np.float_)
+
+    # do the FFTs of the slices
+    for i in range(n):
+        thisX = x[ind[i]:ind[i]+NFFT]
+        thisX = windowVals * detrend(thisX)
+        fx = np.absolute(np.fft.fft(thisX, n=pad_to))**2
+        Pxx[:,i] = fx[:numFreqs]
+
+    if n>1:
+        Pxx = Pxx.mean(axis=1)
+    # Scale the spectrum by the norm of the window to compensate for
+    # windowing loss; see Bendat & Piersol Sec 11.5.2
+    Pxx /= (np.abs(windowVals)**2).sum()
+
+    freqs = float(Fs) / pad_to * np.arange(numFreqs)
+
+    return Pxx, freqs
+
+#Split out these keyword docs so that they can be used elsewhere
+kwdocd = dict()
+kwdocd['PSD'] ="""
     *NFFT*
         The number of data points used in each block for the FFT.
         Must be even; a power 2 is most efficient.  The default value is 256.
@@ -296,63 +353,11 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
         default behavior, which returns one-sided for real data and both
         for complex data.  'one' forces the return of a one-sided PSD, while
         'both' forces two-sided.
-
-    Returns the tuple (*Pxx*, *freqs*).
-
-    Refs:
-        Bendat & Piersol -- Random Data: Analysis and Measurement
-        Procedures, John Wiley & Sons (1986)
-    """
-    x = np.asarray(x) # make sure we're dealing with a numpy array
-
-    # zero pad x up to NFFT if it is shorter than NFFT
-    if len(x)<NFFT:
-        n = len(x)
-        x = np.resize(x, (NFFT,))    # Can't use resize method.
-        x[n:] = 0
-
-    if pad_to is None:
-        pad_to = NFFT
-
-    # for real x, ignore the negative frequencies
-    if (sides == 'default' and np.iscomplexobj(x)) or sides == 'twosided':
-        numFreqs = pad_to
-    elif sides in ('default', 'onesided'):
-        numFreqs = pad_to//2 + 1
-    else:
-        raise ValueError("sides must be one of: 'default', 'onesided', or "
-            "twosided")
-
-    if cbook.iterable(window):
-        assert(len(window) == NFFT)
-        windowVals = window
-    else:
-        windowVals = window(np.ones((NFFT,), x.dtype))
-
-    step = NFFT - noverlap
-    ind = range(0, len(x) - NFFT + 1, step)
-    n = len(ind)
-    Pxx = np.zeros((numFreqs,n), np.float_)
-
-    # do the FFTs of the slices
-    for i in range(n):
-        thisX = x[ind[i]:ind[i]+NFFT]
-        thisX = windowVals * detrend(thisX)
-        fx = np.absolute(np.fft.fft(thisX, n=pad_to))**2
-        Pxx[:,i] = fx[:numFreqs]
-
-    if n>1:
-        Pxx = Pxx.mean(axis=1)
-    # Scale the spectrum by the norm of the window to compensate for
-    # windowing loss; see Bendat & Piersol Sec 11.5.2
-    Pxx /= (np.abs(windowVals)**2).sum()
-
-    freqs = float(Fs) / pad_to * np.arange(numFreqs)
-
-    return Pxx, freqs
+"""
+psd.__doc__ = psd.__doc__ % kwdocd
 
 def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
-        window=window_hanning, noverlap=0):
+        window=window_hanning, noverlap=0, pad_to=None, sides='default'):
     """
     The cross power spectral density by Welch's average periodogram
     method.  The vectors *x* and *y* are divided into *NFFT* length
@@ -367,42 +372,13 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
     *x*, *y*
         Array or sequence containing the data
-
-    *NFFT*
-        The number of data points used in each block for the FFT.
-        Must be even; a power 2 is most efficient.  The default value is 256.
-
-    *Fs*
-        The sampling frequency (samples per time unit).  It is used
-        to calculate the Fourier frequencies, freqs, in cycles per time
-        unit. The default value is 2.
-
-    *detrend*
-        Any callable function (unlike in matlab where it is a vector).
-        For examples, see :func:`detrend`, :func:`detrend_none`, and
-        :func:`detrend_mean`.  The default is :func:`detrend_none`.
-
-    *window*
-        A function or a vector of length *NFFT*. To create window
-        vectors see :func:`window_hanning`, :func:`window_none`,
-        :func:`numpy.blackman`, :func:`numpy.hamming`,
-        :func:`numpy.bartlett`, :func:`scipy.signal`,
-        :func:`scipy.signal.get_window`, etc. The default is
-        :func:`window_hanning`.
-
-    *noverlap*
-        The number of points of overlap between blocks.  The default value
-        is 0 (no overlap).
-
+    %(PSD)s
     Returns the tuple (*Pxy*, *freqs*).
 
     Refs:
         Bendat & Piersol -- Random Data: Analysis and Measurement
         Procedures, John Wiley & Sons (1986)
     """
-
-    if NFFT % 2:
-        raise ValueError, 'NFFT must be even'
 
     x = np.asarray(x) # make sure we're dealing with a numpy array
     y = np.asarray(y) # make sure we're dealing with a numpy array
@@ -417,39 +393,49 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         y = np.resize(y, (NFFT,))
         y[n:] = 0
 
-    # for real x, ignore the negative frequencies
-    if np.iscomplexobj(x): numFreqs = NFFT
-    else: numFreqs = NFFT//2+1
+    if pad_to is None:
+        pad_to = NFFT
+
+    # For real x, ignore the negative frequencies unless told otherwise
+    if (sides == 'default' and np.iscomplexobj(x)) or sides == 'twosided':
+        numFreqs = pad_to
+    elif sides in ('default', 'onesided'):
+        numFreqs = pad_to//2 + 1
+    else:
+        raise ValueError("sides must be one of: 'default', 'onesided', or "
+            "'twosided'")
 
     if cbook.iterable(window):
         assert(len(window) == NFFT)
         windowVals = window
     else:
         windowVals = window(np.ones((NFFT,), x.dtype))
-    step = NFFT-noverlap
-    ind = range(0,len(x)-NFFT+1,step)
+
+    step = NFFT - noverlap
+    ind = range(0, len(x) - NFFT + 1, step)
     n = len(ind)
     Pxy = np.zeros((numFreqs,n), np.complex_)
 
     # do the ffts of the slices
     for i in range(n):
         thisX = x[ind[i]:ind[i]+NFFT]
-        thisX = windowVals*detrend(thisX)
+        thisX = windowVals * detrend(thisX)
         thisY = y[ind[i]:ind[i]+NFFT]
-        thisY = windowVals*detrend(thisY)
-        fx = np.fft.fft(thisX)
-        fy = np.fft.fft(thisY)
-        Pxy[:,i] = np.conjugate(fx[:numFreqs])*fy[:numFreqs]
-
-
+        thisY = windowVals * detrend(thisY)
+        fx = np.fft.fft(thisX, n=pad_to)
+        fy = np.fft.fft(thisY, n=pad_to)
+        Pxy[:,i] = np.conjugate(fx[:numFreqs]) * fy[:numFreqs]
 
     # Scale the spectrum by the norm of the window to compensate for
     # windowing loss; see Bendat & Piersol Sec 11.5.2
     if n>1:
         Pxy = Pxy.mean(axis=1)
+
     Pxy /= (np.abs(windowVals)**2).sum()
-    freqs = Fs/NFFT*np.arange(numFreqs)
+    freqs = float(Fs) / pad_to * np.arange(numFreqs)
     return Pxy, freqs
+
+csd.__doc__ = csd.__doc__ % kwdocd
 
 def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
              window=window_hanning, noverlap=128):
