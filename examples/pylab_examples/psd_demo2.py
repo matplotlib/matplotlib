@@ -31,9 +31,9 @@ plt.title('Effect of block size')
 
 #Plot the PSD with different amounts of overlap between blocks
 ax4 = fig.add_subplot(2, 3, 6, sharex=ax2, sharey=ax2)
-ax4.psd(y,NFFT=len(t)//2, pad_to=len(t), noverlap=0, Fs=fs)
-ax4.psd(y,NFFT=len(t)//2, pad_to=len(t), noverlap=int(0.05*len(t)/2.), Fs=fs)
-ax4.psd(y,NFFT=len(t)//2, pad_to=len(t), noverlap=int(0.2*len(t)/2.), Fs=fs)
+ax4.psd(y, NFFT=len(t)//2, pad_to=len(t), noverlap=0, Fs=fs)
+ax4.psd(y, NFFT=len(t)//2, pad_to=len(t), noverlap=int(0.05*len(t)/2.), Fs=fs)
+ax4.psd(y, NFFT=len(t)//2, pad_to=len(t), noverlap=int(0.2*len(t)/2.), Fs=fs)
 plt.title('Effect of overlap')
 
 plt.show()
