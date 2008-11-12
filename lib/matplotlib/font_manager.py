@@ -397,7 +397,7 @@ class FontEntry(object):
             self.size = size
 
 
-def ttfFontProperty(fontpath, font):
+def ttfFontProperty(font):
     """
     A function for populating the :class:`FontKey` by extracting
     information from the TrueType font file.
@@ -489,7 +489,7 @@ def ttfFontProperty(fontpath, font):
     #  !!!!  Incomplete
     size_adjust = None
 
-    return FontEntry(fontpath, name, style, variant, weight, stretch, size)
+    return FontEntry(font.fname, name, style, variant, weight, stretch, size)
 
 
 def afmFontProperty(fontpath, font):
