@@ -289,6 +289,8 @@ void get_path_extents(PathIterator& path, const agg::trans_affine& trans,
         if (y < *y0) *y0 = y;
         if (x > *x1) *x1 = x;
         if (y > *y1) *y1 = y;
+        /* xm and ym are the minimum positive values in the data, used
+           by log scaling */
         if (x > 0.0 && x < *xm) *xm = x;
         if (y > 0.0 && y < *ym) *ym = y;
     }
@@ -317,6 +319,8 @@ Py::Object _path_module::get_path_extents(const Py::Tuple& args)
         extents_data[1] = std::numeric_limits<double>::infinity();
         extents_data[2] = -std::numeric_limits<double>::infinity();
         extents_data[3] = -std::numeric_limits<double>::infinity();
+        /* xm and ym are the minimum positive values in the data, used
+           by log scaling */
         xm = std::numeric_limits<double>::infinity();
         ym = std::numeric_limits<double>::infinity();
 
