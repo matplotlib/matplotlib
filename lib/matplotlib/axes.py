@@ -1312,8 +1312,7 @@ class Axes(martist.Artist):
         self._set_artist_props(line)
         line.set_clip_path(self.patch)
 
-        if line.get_transform() == self.transData:
-            self._update_line_limits(line)
+        self._update_line_limits(line)
         if not line.get_label():
             line.set_label('_line%d'%len(self.lines))
         self.lines.append(line)
@@ -1322,7 +1321,9 @@ class Axes(martist.Artist):
     def _update_line_limits(self, line):
         p = line.get_path()
         if p.vertices.size > 0:
-            self.dataLim.update_from_path(p, self.ignore_existing_data_limits)
+            self.dataLim.update_from_path(p, self.ignore_existing_data_limits,
+                                            updatex=line.x_isdata,
+                                            updatey=line.y_isdata)
             self.ignore_existing_data_limits = False
 
     def add_patch(self, p):
@@ -1356,7 +1357,8 @@ class Axes(martist.Artist):
                 transform = (patch.get_data_transform() +
                                     self.transData.inverted())
                 xys = transform.transform(xys)
-            self.update_datalim(xys)
+            self.update_datalim(xys, updatex=patch.x_isdata,
+                                     updatey=patch.y_isdata)
 
 
     def add_table(self, tab):
@@ -1381,7 +1383,7 @@ class Axes(martist.Artist):
         for p in self.patches:
             self._update_patch_limits(p)
 
-    def update_datalim(self, xys):
+    def update_datalim(self, xys, updatex=True, updatey=True):
         'Update the data lim bbox with seq of xy tups or equiv. 2-D array'
         # if no data is set currently, the bbox will ignore its
         # limits and set the bound to be the bounds of the xydata.
@@ -1391,7 +1393,8 @@ class Axes(martist.Artist):
         if iterable(xys) and not len(xys): return
         if not ma.isMaskedArray(xys):
             xys = np.asarray(xys)
-        self.dataLim.update_from_data_xy(xys, self.ignore_existing_data_limits)
+        self.dataLim.update_from_data_xy(xys, self.ignore_existing_data_limits,
+                                           updatex=updatex, updatey=updatey)
         self.ignore_existing_data_limits = False
 
     def update_datalim_numerix(self, x, y):
@@ -2776,11 +2779,9 @@ class Axes(martist.Artist):
         trans = mtransforms.blended_transform_factory(
             self.transAxes, self.transData)
         l = mlines.Line2D([xmin,xmax], [y,y], transform=trans, **kwargs)
+        l.x_isdata = False
         self.add_line(l)
-        self.dataLim.y0 = min(self.dataLim.y0, yy)
-        self.dataLim.y1 = max(self.dataLim.y1, yy)
         self.autoscale_view(scalex=False, scaley=scaley)
-
         return l
 
     axhline.__doc__ = cbook.dedent(axhline.__doc__) % martist.kwdocd
@@ -2836,11 +2837,9 @@ class Axes(martist.Artist):
         trans = mtransforms.blended_transform_factory(
             self.transData, self.transAxes)
         l = mlines.Line2D([x,x], [ymin,ymax] , transform=trans, **kwargs)
+        l.y_isdata = False
         self.add_line(l)
-        self.dataLim.x0 = min(self.dataLim.x0, xx)
-        self.dataLim.x1 = max(self.dataLim.x1, xx)
         self.autoscale_view(scalex=scalex, scaley=False)
-
         return l
 
     axvline.__doc__ = cbook.dedent(axvline.__doc__) % martist.kwdocd
@@ -2858,7 +2857,7 @@ class Axes(martist.Artist):
 
         Draw a horizontal span (rectangle) from *ymin* to *ymax*.
         With the default values of *xmin* = 0 and *xmax* = 1, this
-        always span the xrange, regardless of the xlim settings, even
+        always spans the xrange, regardless of the xlim settings, even
         if you change them, eg. with the :meth:`set_xlim` command.
         That is, the horizontal extent is in axes coords: 0=left,
         0.5=middle, 1.0=right but the *y* location is in data
@@ -2896,6 +2895,7 @@ class Axes(martist.Artist):
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
+        p.x_isdata = False
         self.add_patch(p)
         return p
     axhspan.__doc__ = cbook.dedent(axhspan.__doc__) % martist.kwdocd
@@ -2913,7 +2913,7 @@ class Axes(martist.Artist):
 
         Draw a vertical span (rectangle) from *xmin* to *xmax*.  With
         the default values of *ymin* = 0 and *ymax* = 1, this always
-        span the yrange, regardless of the ylim settings, even if you
+        spans the yrange, regardless of the ylim settings, even if you
         change them, eg. with the :meth:`set_ylim` command.  That is,
         the vertical extent is in axes coords: 0=bottom, 0.5=middle,
         1.0=top but the *y* location is in data coordinates.
@@ -2950,6 +2950,7 @@ class Axes(martist.Artist):
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
+        p.y_isdata = False
         self.add_patch(p)
         return p
     axvspan.__doc__ = cbook.dedent(axvspan.__doc__) % martist.kwdocd
