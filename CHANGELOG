@@ -1,3 +1,9 @@
+2008-11-12 Add x_isdata and y_isdata attributes to Artist instances,
+           and use them to determine whether either or both
+           coordinates are used when updating dataLim.  This is
+           used to fix autoscaling problems that had been triggered
+           by axhline, axhspan, axvline, axvspan. - EF
+
 2008-11-11 Update the psd(), csd(), cohere(), and specgram() methods
            of Axes and the csd() cohere(), and specgram() functions
            in mlab to be in sync with the changes to psd().

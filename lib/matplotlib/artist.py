@@ -51,6 +51,8 @@ class Artist(object):
         self.axes = None
         self._remove_method = None
         self._url = None
+        self.x_isdata = True  # False to avoid updating Axes.dataLim with x
+        self.y_isdata = True  #                                      with y
 
     def remove(self):
         """
@@ -319,7 +321,7 @@ class Artist(object):
         Returns the url
         """
         return self._url
-    
+
     def set_url(self, url):
         """
         Sets the url for the artist
