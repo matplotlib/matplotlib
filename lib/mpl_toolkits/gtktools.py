@@ -359,7 +359,7 @@ class RecListStore(gtk.ListStore):
      * formatd - the list of mlab.FormatObj instances, with gtk attachments
 
      * stringd - a dict mapping dtype names to a list of valid strings for the combo drop downs
-     
+
      * callbacks - a matplotlib.cbook.CallbackRegistry.  Connect to the cell_changed with
 
         def mycallback(liststore, rownum, colname, oldval, newval):
@@ -377,10 +377,10 @@ class RecListStore(gtk.ListStore):
         stringd, if not None, is a dict mapping dtype names to a list of
         valid strings for a combo drop down editor
         """
-        
+
         if stringd is None:
             stringd = dict()
-            
+
         if formatd is None:
             formatd = mlab.get_formatd(r)
 
@@ -408,7 +408,7 @@ class RecListStore(gtk.ListStore):
 
             keys = stringd.keys()
             keys.sort()
-        
+
             valid = set(r.dtype.names)
             for ikey, key in enumerate(keys):
                 assert(key in valid)
@@ -417,7 +417,7 @@ class RecListStore(gtk.ListStore):
                     combostore.append([s])
                 self.combod[key] = combostore, len(self.headers)+ikey
 
-        
+
         gtk.ListStore.__init__(self, *types)
 
         for row in r:
@@ -426,7 +426,7 @@ class RecListStore(gtk.ListStore):
                 if isinstance(formatter, mlab.FormatBool):
                     vals.append(val)
                 else:
-                    vals.append(formatter.tostr(val))            
+                    vals.append(formatter.tostr(val))
             if len(stringd):
                 # todo, get correct index here?
                 vals.extend([0]*len(stringd))
@@ -483,12 +483,12 @@ class RecTreeView(gtk.TreeView):
         constant, if not None, is a list of dtype names which are not editable
         """
         self.recliststore = recliststore
-        
+
         gtk.TreeView.__init__(self, recliststore)
 
         combostrings = set(recliststore.stringd.keys())
 
-        
+
         if constant is None:
             constant = []
 
@@ -509,7 +509,7 @@ class RecTreeView(gtk.TreeView):
                  renderer.connect("edited", recliststore.position_edited, i)
                  combostore, listind = recliststore.combod[header]
                  renderer.set_property("model", combostore)
-                 renderer.set_property('editable', True)             
+                 renderer.set_property('editable', True)
             else:
                 renderer = gtk.CellRendererText()
                 if header not in constant:
@@ -530,7 +530,7 @@ class RecTreeView(gtk.TreeView):
                 tvcol.add_attribute(renderer, 'text', i)
                 if header in combostrings:
                     combostore, listind = recliststore.combod[header]
-                    tvcol.add_attribute(renderer, 'text-column', listind) 
+                    tvcol.add_attribute(renderer, 'text-column', listind)
             elif coltype == gobject.TYPE_BOOLEAN:
                 tvcol.add_attribute(renderer, 'active', i)
 
@@ -542,7 +542,8 @@ class RecTreeView(gtk.TreeView):
 
 
         self.connect("button-release-event", self.on_selection_changed)
-        self.set_grid_lines(gtk.TREE_VIEW_GRID_LINES_BOTH)
+        #self.set_grid_lines(gtk.TREE_VIEW_GRID_LINES_BOTH)
+
         self.get_selection().set_mode(gtk.SELECTION_BROWSE)
         self.get_selection().set_select_function(self.on_select)
 
@@ -576,8 +577,8 @@ def edit_recarray(r, formatd=None, stringd=None, constant=None, autowin=True):
         return liststore, treeview, win
     else:
         return liststore, treeview
-        
-    
+
+
 
 
 if __name__=='__main__':
@@ -628,4 +629,4 @@ if __name__=='__main__':
     win2.set_title('with all defaults')
 
     gtk.main()
-    
+
