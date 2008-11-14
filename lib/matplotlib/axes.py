@@ -2961,7 +2961,7 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          hlines(y, xmin, xmax, colors='k', linestyle='solid', **kwargs)
+          hlines(y, xmin, xmax, colors='k', linestyles='solid', **kwargs)
 
         Plot horizontal lines at each *y* from *xmin* to *xmax*.
 
@@ -2984,7 +2984,7 @@ class Axes(martist.Artist):
             a line collections color argument, either a single color
             or a ``len(y)`` list of colors
 
-          *linestyle*:
+          *linestyles*:
             [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
 
         **Example:**
@@ -3044,17 +3044,20 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          vlines(x, ymin, ymax, color='k')
+          vlines(x, ymin, ymax, color='k', linestyles='solid')
 
         Plot vertical lines at each *x* from *ymin* to *ymax*.  *ymin*
         or *ymax* can be scalars or len(*x*) numpy arrays.  If they are
         scalars, then the respective values are constant, else the
         heights of the lines are determined by *ymin* and *ymax*.
 
-        *colors* is a line collections color args, either a single color
-        or a len(*x*) list of colors
+        *colors*
+          a line collections color args, either a single color
+          or a len(*x*) list of colors
 
-        *linestyle* is one of [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
+        *linestyles*
+
+          one of [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
 
         Returns the :class:`matplotlib.collections.LineCollection`
         that was added.
