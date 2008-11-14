@@ -718,7 +718,7 @@ class Wedge(Patch):
     def __str__(self):
         return "Wedge(%g,%g)"%(self.theta1,self.theta2)
 
-    def __init__(self, center, r, theta1, theta2, width=0, **kwargs):
+    def __init__(self, center, r, theta1, theta2, width=None, **kwargs):
         """
         Draw a wedge centered at *x*, *y* center with radius *r* that
         sweeps *theta1* to *theta2* (in degrees).  If *width* is given,
@@ -745,7 +745,7 @@ class Wedge(Patch):
         # Form the outer ring
         arc = Path.arc(theta1,theta2)
 
-        if width != 0:
+        if width is not None:
             # Partial annulus needs to draw the outter ring
             # followed by a reversed and scaled inner ring
             v1 = arc.vertices
