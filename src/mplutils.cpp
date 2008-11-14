@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdarg>
+#include <cstdio>
 #include "mplutils.h"
 
 void _VERBOSE(const std::string& s) {
