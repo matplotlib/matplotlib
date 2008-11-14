@@ -712,13 +712,18 @@ class Polygon(Patch):
            :meth:`~matplotlib.patches.Polygon.set_xy` instead.""")
 
 class Wedge(Patch):
+    """
+    Wedge shaped patch.
+    """
     def __str__(self):
         return "Wedge(%g,%g)"%(self.theta1,self.theta2)
 
-    def __init__(self, center, r, theta1, theta2, **kwargs):
+    def __init__(self, center, r, theta1, theta2, width=0, **kwargs):
         """
         Draw a wedge centered at *x*, *y* center with radius *r* that
-        sweeps *theta1* to *theta2* (in degrees).
+        sweeps *theta1* to *theta2* (in degrees).  If *width* is given,
+        then a partial wedge is drawn from inner radius *r* - *width*
+        to outer radius *r*.
 
         Valid kwargs are:
 
@@ -726,24 +731,43 @@ class Wedge(Patch):
         """
         Patch.__init__(self, **kwargs)
         self.center = center
-        self.r = r
-        self.theta1 = theta1
-        self.theta2 = theta2
+        self.r,self.width = r,width
+        self.theta1,self.theta2 = theta1,theta2
+
+        # Inner and outer rings are connected unless the annulus is complete
+        delta=theta2-theta1
+        if abs((theta2-theta1) - 360) <= 1e-12:
+            theta1,theta2 = 0,360
+            connector = Path.MOVETO
+        else:
+            connector = Path.LINETO
+
+        # Form the outer ring
+        arc = Path.arc(theta1,theta2)
+
+        if width != 0:
+            # Partial annulus needs to draw the outter ring
+            # followed by a reversed and scaled inner ring
+            v1 = arc.vertices
+            v2 = arc.vertices[::-1]*float(r-width)/r
+            v = np.vstack([v1,v2,v1[0,:],(0,0)])
+            c = np.hstack([arc.codes,arc.codes,connector,Path.CLOSEPOLY])
+            c[len(arc.codes)]=connector
+        else:
+            # Wedge doesn't need an inner ring
+            v = np.vstack([arc.vertices,[(0,0),arc.vertices[0,:],(0,0)]])
+            c = np.hstack([arc.codes,[connector,connector,Path.CLOSEPOLY]])
+
+        # Shift and scale the wedge to the final location.
+        v *= r
+        v += np.asarray(center)
+        self._path = Path(v,c)
         self._patch_transform = transforms.IdentityTransform()
-        self._path = Path.wedge(self.theta1, self.theta2)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
         return self._path
 
-    def get_patch_transform(self):
-        x = self.convert_xunits(self.center[0])
-        y = self.convert_yunits(self.center[1])
-        rx = self.convert_xunits(self.r)
-        ry = self.convert_yunits(self.r)
-        self._patch_transform = transforms.Affine2D() \
-            .scale(rx, ry).translate(x, y)
-        return self._patch_transform
 
 # COVERAGE NOTE: Not used internally or from examples
 class Arrow(Patch):
@@ -3042,4 +3066,3 @@ class FancyArrowPatch(Patch):
         self.fill = fill_orig
 
         #renderer.close_group('patch')
-
