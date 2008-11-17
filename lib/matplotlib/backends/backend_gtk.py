@@ -162,7 +162,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self._pixmap_height = -1
         self._lastCursor    = None
 
-        self.connect('scroll_event',   self.scroll_event)
+        self.connect('scroll_event',         self.scroll_event)
         self.connect('button_press_event',   self.button_press_event)
         self.connect('button_release_event', self.button_release_event)
         self.connect('configure_event',      self.configure_event)
@@ -177,7 +177,11 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self.set_flags(gtk.CAN_FOCUS)
         self._renderer_init()
 
-        gobject.idle_add(self.idle_event)
+        self._idle_id = gobject.idle_add(self.idle_event)
+
+    def destroy(self):
+        gtk.DrawingArea.destroy(self)
+        gobject.source_remove(self._idle_id)
 
     def scroll_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
@@ -466,13 +470,16 @@ class FigureManagerGTK(FigureManagerBase):
 
     def destroy(self, *args):
         if _debug: print 'FigureManagerGTK.%s' % fn_name()
+        self.vbox.destroy()
         self.window.destroy()
+        self.canvas.destroy()
+        self.toolbar.destroy()
+        self.__dict__.clear()
 
         if Gcf.get_num_fig_managers()==0 and \
                not matplotlib.is_interactive() and \
                gtk.main_level() >= 1:
             gtk.main_quit()
-
 
     def show(self):
         # show the figure window
@@ -529,9 +536,13 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         NavigationToolbar2.__init__(self, canvas)
         self._idleId = 0
 
-        def destroy(*args):
-            self.fileselect.destroy()
-        self.connect("destroy", destroy)
+        self.connect("destroy", self.destroy)
+
+    def destroy(self, *args):
+        gtk.Toolbar.destroy(self)
+        self.fileselect.destroy()
+        self.tooltips.destroy()
+        self.canvas.destroy()
 
     def set_message(self, s):
         if self._idleId == 0:
