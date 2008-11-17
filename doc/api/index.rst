@@ -21,6 +21,7 @@
    collections_api.rst
    colorbar_api.rst
    colors_api.rst
+   dates_api.rst
    figure_api.rst
    font_manager_api.rst
    nxutils_api.rst
