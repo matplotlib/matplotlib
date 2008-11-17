@@ -625,8 +625,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         y0 = ma.minimum(y)
         y1 = ma.maximum(y)
         self.ax.update_datalim([(x0,y0), (x1,y1)])
-        self.ax.set_xlim((x0, x1))
-        self.ax.set_ylim((y0, y1))
+        self.ax.autoscale_view()
 
     def changed(self):
         tcolors = [ (tuple(rgba),) for rgba in
