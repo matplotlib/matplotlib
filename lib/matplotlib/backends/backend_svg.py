@@ -269,9 +269,6 @@ class RendererSVG(RendererBase):
         transstr = ''
         if rcParams['svg.image_noscale']:
             trans = list(im.get_matrix())
-            if im.get_interpolation() != 0:
-                trans[4] += trans[0]
-                trans[5] += trans[3]
             trans[5] = -trans[5]
             transstr = 'transform="matrix(%f %f %f %f %f %f)" '%tuple(trans)
             assert trans[1] == 0
@@ -600,8 +597,11 @@ class FigureCanvasSVG(FigureCanvasBase):
         width, height = self.figure.get_size_inches()
         w, h = width*72, height*72
 
-        renderer = MixedModeRenderer(
-            width, height, 72.0, RendererSVG(w, h, svgwriter, filename))
+        if rcParams['svg.image_noscale']:
+            renderer = RendererSVG(w, h, svgwriter, filename)
+        else:
+            renderer = MixedModeRenderer(
+                width, height, 72.0, RendererSVG(w, h, svgwriter, filename))
         self.figure.draw(renderer)
         renderer.finalize()
         if fh_to_close is not None:
