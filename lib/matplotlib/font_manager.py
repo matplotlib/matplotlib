@@ -1180,6 +1180,8 @@ class FontManager:
         for a description of the font finding algorithm.
         """
         debug = False
+        if prop is None:
+            return self.defaultFont
         if is_string_like(prop):
             prop = FontProperties(prop)
         fname = prop.get_file()
