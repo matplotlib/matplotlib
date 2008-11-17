@@ -538,16 +538,6 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         NavigationToolbar2.__init__(self, canvas)
         self._idle_draw_id = 0
 
-        self.connect("destroy", self.destroy)
-
-    def destroy(self, *args):
-        gtk.Toolbar.destroy(self)
-        self.fileselect.destroy()
-        self.tooltips.destroy()
-        self.canvas.destroy()
-        if self._idle_draw_id != 0:
-            gobject.remove_source(self._idle_draw_id)
-
     def set_message(self, s):
         if self._idle_draw_id == 0:
             self.message.set_label(s)
@@ -635,11 +625,6 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.append_widget(self.message, None, None)
         self.message.show()
 
-        self.fileselect = FileSelection(title='Save the figure',
-                                        parent=self.win,)
-
-
-
     def _init_toolbar2_4(self):
         basedir = os.path.join(matplotlib.rcParams['datapath'],'images')
         self.tooltips = gtk.Tooltips()
@@ -670,15 +655,19 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
         self.show_all()
 
-        self.fileselect = FileChooserDialog(
-            title='Save the figure',
-            parent=self.win,
-            filetypes=self.canvas.get_supported_filetypes(),
-            default_filetype=self.canvas.get_default_filetype())
-
+    def get_filechooser(self):
+        if gtk.pygtk_version >= (2,4,0):
+            return FileChooserDialog(
+                title='Save the figure',
+                parent=self.win,
+                filetypes=self.canvas.get_supported_filetypes(),
+                default_filetype=self.canvas.get_default_filetype())
+        else:
+            return FileSelection(title='Save the figure',
+                                 parent=self.win,)
 
     def save_figure(self, button):
-        fname, format = self.fileselect.get_filename_from_user()
+        fname, format = self.get_filechooser().get_filename_from_user()
         if fname:
             try:
                 self.canvas.print_figure(fname, format=format)
@@ -780,11 +769,6 @@ class NavigationToolbar(gtk.Toolbar):
                                             parent=self.win)
         self.show_all()
         self.update()
-
-        def destroy(*args):
-            self.fileselect.destroy()
-            del self.fileselect
-        self.connect("destroy", destroy)
 
     def _create_toolitems_2_4(self):
         # use the GTK+ 2.4 GtkToolbar API
@@ -970,9 +954,19 @@ class NavigationToolbar(gtk.Toolbar):
         self.canvas.draw()
         return True
 
+    def get_filechooser(self):
+        if gtk.pygtk_version >= (2,4,0):
+            return FileChooserDialog(
+                title='Save the figure',
+                parent=self.win,
+                filetypes=self.canvas.get_supported_filetypes(),
+                default_filetype=self.canvas.get_default_filetype())
+        else:
+            return FileSelection(title='Save the figure',
+                                 parent=self.win)
 
     def save_figure(self, button):
-        fname, format = self.fileselect.get_filename_from_user()
+        fname, format = self.get_filechooser().get_filename_from_user()
         if fname:
             try:
                 self.canvas.print_figure(fname, format=format)
