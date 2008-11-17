@@ -156,7 +156,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.__init__(self, figure)
         gtk.DrawingArea.__init__(self)
 
-        self._idleID        = 0
+        self._idle_draw_id  = 0
         self._need_redraw   = True
         self._pixmap_width  = -1
         self._pixmap_height = -1
@@ -177,11 +177,13 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self.set_flags(gtk.CAN_FOCUS)
         self._renderer_init()
 
-        self._idle_id = gobject.idle_add(self.idle_event)
+        self._idle_event_id = gobject.idle_add(self.idle_event)
 
     def destroy(self):
-        gtk.DrawingArea.destroy(self)
-        gobject.source_remove(self._idle_id)
+        #gtk.DrawingArea.destroy(self)
+        gobject.source_remove(self._idle_event_id)
+        if self._idle_draw_id != 0:
+            gobject.source_remove(self._idle_draw_id)
 
     def scroll_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
@@ -280,10 +282,10 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def draw_idle(self):
         def idle_draw(*args):
             self.draw()
-            self._idleID = 0
+            self._idle_draw_id = 0
             return False
-        if self._idleID == 0:
-            self._idleID = gobject.idle_add(idle_draw)
+        if self._idle_draw_id == 0:
+            self._idle_draw_id = gobject.idle_add(idle_draw)
 
 
     def _renderer_init(self):
@@ -534,7 +536,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.win = window
         gtk.Toolbar.__init__(self)
         NavigationToolbar2.__init__(self, canvas)
-        self._idleId = 0
+        self._idle_draw_id = 0
 
         self.connect("destroy", self.destroy)
 
@@ -543,9 +545,11 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.fileselect.destroy()
         self.tooltips.destroy()
         self.canvas.destroy()
+        if self._idle_draw_id != 0:
+            gobject.remove_source(self._idle_draw_id)
 
     def set_message(self, s):
-        if self._idleId == 0:
+        if self._idle_draw_id == 0:
             self.message.set_label(s)
 
     def set_cursor(self, cursor):
@@ -587,16 +591,15 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
             axrect = l,b,w,h
             self._imageBack = axrect, drawable.get_image(*axrect)
             drawable.draw_rectangle(gc, False, *rect)
-            self._idleId = 0
+            self._idle_draw_id = 0
         else:
             def idle_draw(*args):
-
                 drawable.draw_image(gc, imageBack, 0, 0, *lastrect)
                 drawable.draw_rectangle(gc, False, *rect)
-                self._idleId = 0
+                self._idle_draw_id = 0
                 return False
-            if self._idleId == 0:
-                self._idleId = gobject.idle_add(idle_draw)
+            if self._idle_draw_id == 0:
+                self._idle_draw_id = gobject.idle_add(idle_draw)
 
 
     def _init_toolbar(self):
