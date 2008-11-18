@@ -1496,7 +1496,7 @@ class Axes(martist.Artist):
             if scalex:
                 self.set_xbound(x0, x1)
             if scaley:
-                self.set_ybound(y0, 11)
+                self.set_ybound(y0, y1)
             return
 
         if scalex:
