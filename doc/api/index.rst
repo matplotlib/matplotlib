@@ -11,6 +11,7 @@
 
 .. toctree::
 
+   api_changes.rst
    matplotlib_configuration_api.rst
    afm_api.rst
    artist_api.rst

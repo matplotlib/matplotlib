@@ -1,344 +1,478 @@
+===========
+API Changes
+===========
+
+This chapter is a log of changes to matplotlib that affect the
+outward-facing API.  If updating matplotlib breaks your scripts, this
+list may help describe what changes may be necessary in your code.
+
 Changes for 0.98.x
 ==================
 
-* set_xlim, ylim now return a copy of the viewlim array to
-  avoid modify inplace surprises
+* Font lookup now uses a nearest-neighbor approach rather than an
+  exact match.  Some fonts may be different in plots, but should be
+  closer to what was requested.
 
-* AFM.get_fullname() and get_familyname() no longer raise an
-  exception if the AFM file does not specify these optional attributes,
-  but returns a guess based on the required FontName attribute.
+* :meth:`matplotlib.axes.Axes.set_xlim`,
+  :meth:`matplotlib.axes.Axes.set_ylim` now return a copy of the
+  :attr:`viewlim` array to avoid modify-in-place surprises.
 
-* Changed precision kwarg in spy; default is 0, and the string value
-  'present' is used for sparse arrays only to show filled locations.
+* :meth:`matplotlib.afm.AFM.get_fullname` and
+  :meth:`matplotlib.afm.AFM.get_familyname` no longer raise an
+  exception if the AFM file does not specify these optional
+  attributes, but returns a guess based on the required FontName
+  attribute.
 
-* EllipseCollection added.
+* Changed precision kwarg in :func:`matplotlib.pyplot.spy`; default is
+  0, and the string value 'present' is used for sparse arrays only to
+  show filled locations.
 
-* Added angles kwarg to quiver for more flexible specification of
-  the arrow angles.
+* :class:`matplotlib.collections.EllipseCollection` added.
+
+* Added ``angles`` kwarg to :func:`matplotlib.pyplot.quiver` for more
+  flexible specification of the arrow angles.
 
 * Deprecated (raise NotImplementedError) all the mlab2 functions from
-  matplotlib.mlab out of concern that some of them were not clean room
-  implementations.
+  :mod:`matplotlib.mlab` out of concern that some of them were not
+  clean room implementations.
 
-* Methods get_offsets and set_offsets added to Collections base
-  class.
+* Methods :meth:`matplotlib.collections.Collection.get_offsets` and
+  :meth:`matplotlib.collections.Collection.set_offsets` added to
+  :class:`~matplotlib.collections.Collection` base class.
 
-* Figure.figurePatch renamed Figure.patch, Axes.axesPatch renamed
-  Axes.patch, Axes.axesFrame renamed Axes.frame, Axes.get_frame, which
-  returns Axes.patch, is deprecated.  Examples and users guide updated
+* :attr:`matplotlib.figure.Figure.figurePatch` renamed
+  :attr:`matplotlib.figure.Figure.patch`;
+  :attr:`matplotlib.axes.Axes.axesPatch` renamed
+  :attr:`matplotlib.axes.Axes.patch`;
+  :attr:`matplotlib.axes.Axes.axesFrame` renamed
+  :attr:`matplotlib.axes.Axes.frame`.
+  :meth:`matplotlib.axes.Axes.get_frame`, which returns
+  :attr:`matplotlib.axes.Axes.patch`, is deprecated.
 
-* Changes in the ContourLabeler attributes (clabel function) so that they
-  all have a form like .labelAttribute.  The three attributes that are most
-  likely to be used by end users, .cl, .cl_xy and .cl_cvalues have been
-  maintained for the moment (in addition to their renamed versions), but they
-  are depricated and will eventually be removed.
+* Changes in the :class:`matplotlib.contour.ContourLabeler` attributes
+  (:func:`matplotlib.pyplot.clabel` function) so that they all have a
+  form like ``.labelAttribute``.  The three attributes that are most
+  likely to be used by end users, ``.cl``, ``.cl_xy`` and
+  ``.cl_cvalues`` have been maintained for the moment (in addition to
+  their renamed versions), but they are deprecated and will eventually
+  be removed.
 
-* Moved several function in mlab.py and cbook.py into a separate module
-  numerical_methods.py because they were unrelated to the initial purpose of
-  mlab or cbook and appeared more coherent elsewhere.
+* Moved several functions in :mod:`matplotlib.mlab` and
+  :mod:`matplotlib.cbook` into a separate module
+  :mod:`matplotlib.numerical_methods` because they were unrelated to
+  the initial purpose of mlab or cbook and appeared more coherent
+  elsewhere.
 
 Changes for 0.98.1
 ==================
 
-* Removed broken axes3d support and replaced it with a non implemented
-  error pointing to 0.91.x
+* Removed broken :mod:`matplotlib.axes3d` support and replaced it with
+  a non-implemented error pointing to 0.91.x
 
 Changes for 0.98.0
 ==================
 
-    matplotlib.image.imread now no longer always returns RGBA -- if
-    the image is luminance or RGB, it will return a MxN or MxNx3 array
-    if possible.  Also uint8 is no longer always forced to float.
-
-    Rewrote the cm.ScalarMappable callback infrastructure to use
-    cbook.CallbackRegistry rather than custom callback handling.  Amy
-    users of add_observer/notify of the cm.ScalarMappable should uae
-    the cm.ScalarMappable.callbacksSM CallbackRegistry instead.
-
-    New axes function and Axes method provide control over the plot
-    color cycle: axes.set_default_color_cycle(clist) and
-    Axes.set_color_cycle(clist).
-
-    matplotlib now requires python2.4, so matplotlib.cbook will no
-    loner provide set, enumerate, reversed or izip compatability functions
-
-    In numpy 1.0 bins are specified by the left edges only.  The axes
-    method "hist" now uses future numpy 1.3 semantic for histograms.
-    Providing binedges, the last value gives the upper-right edge now,
-    which was implicitly set to +infinity in numpy 1.0.  This also means
-    that the last bin doesn't contain upper outliers any more by default.
-
-    New axes method and pyplot function, hexbin, is an alternative
-    to scatter for large datasets.  It makes something like a
-    pcolor of a 2-D histogram, but uses hexagonal bins.
-
-    New kwarg, "symmetric", in MaxNLocator
-    allows one require an axis to be centered on zero.
-
-    toolkits must now be imported from mpl_toolkits (not matplotlib.toolkits)
-
-TRANSFORMS REFACTORING
-
-    The primary goal of this refactoring was to make it easier to
-    extend matplotlib to support new kinds of projections.  This is
-    primarily an internal improvement, and the possible user-visible
-    changes it allows are yet to come.
-
-    See transforms.py for a description of the design of the new
-    transformation framework.
-
-    For efficiency, many of these functions return views into Numpy
-    arrays.  This means that if you hold on to a reference to them,
-    their contents may change.  If you want to store a snapshot of
-    their current values, use the Numpy array method copy().
-
-    The view intervals are now stored only in one place -- in the Axes
-    instance, not in the formatter instances as well.  This means
-    formatters must get their limits from their Axis, which in turn
-    looks up its limits from the Axes.  If a Locator is used
-    temporarily and not assigned to an Axis or Axes, (e.g. in
-    contour.py), a dummy axis must be created to store its bounds.
-    Call Locator.create_dummy_axis() to do so.
-
-    The functionality of Pbox has been merged with Bbox.  Its methods
-    now all return copies rather than modifying in place.
-
-    The following lists many of the simple changes necessary to update
-    code from the old transformation framework to the new one.  In
-    particular, methods that return a copy are named with a verb in
-    the past tense, whereas methods that alter an object in place are
-    named with a very in the present tense.
-
-    transforms.py
-      Bbox.get_bounds()				Bbox.bounds
-
-      Bbox.width()				Bbox.width
-
-      Bbox.height()				Bbox.height
-
-      Bbox.intervalx().get_bounds()		Bbox.intervalx
-      Bbox.intervalx().set_bounds()
-        [Bbox.intervalx is now a property.]
-
-      Bbox.intervaly().get_bounds()		Bbox.intervaly
-      Bbox.intervaly().set_bounds()
-        [Bbox.intervaly is now a property.]
-
-      Bbox.xmin()				Bbox.x0 or Bbox.xmin
-      Bbox.ymin()				Bbox.y0 or Bbox.ymin
-      Bbox.xmax()				Bbox.x1 or Bbox.xmax
-      Bbox.ymax()				Bbox.y1 or Bbox.ymax
-        [The Bbox is bound by the points (x0, y0) to (x1, y1) and
-        there is no defined order to these points, that is, x0 is not
-        necessarily the left edge of the box.  To get the left edge of
-	the Bbox, use the read-only property xmin.]
-
-      Bbox.overlaps(bboxes)			Bbox.count_overlaps(bboxes)
-
-      bbox_all(bboxes)				Bbox.union(bboxes)
-        [Bbox.union is a staticmethod.]
-
-      lbwh_to_bbox(l, b, w, h)			Bbox.from_bounds(x0, y0, w, h)
-
-      inverse_transform_bbox(trans, bbox)  	bbox.inverse_transformed(trans)
-
-      Interval.contains_open(v)			interval_contains_open(tuple, v)
-      Interval.contains(v)			interval_contains_open(tuple, v)
-
-      identity_transform()			IdentityTransform()
-
-      blend_xy_sep_transform(xtrans, ytrans)	blended_transform_factory(xtrans, ytrans)
-
-      scale_transform(xs, ys)			Affine2D().scale(xs[, ys])
-
-      get_bbox_transform(boxin, boxout) 	BboxTransform(boxin, boxout) or
-      				 		BboxTransformFrom(boxin) or
-						BboxTransformTo(boxout)
-
-      Transform.seq_xy_tup(points)		Transform.transform(points)
-
-      Transform.inverse_xy_tup(points)		Transform.inverted().transform(points)
-
-    axes.py
-      Axes.get_position()			Axes.get_position()
-        [Axes.get_position() used to return a list of points, not it
-        returns a transforms.Bbox instance.]
-
-      Axes.set_position()			Axes.set_position()
-        [Axes.set_position() now accepts either four scalars or a
-        transforms Bbox instance.]
-
-	      					  [also returns a Bbox]
-      Axes.toggle_log_lineary()			Axes.set_yscale()
-        [Since the recfactoring allows for more than two scale types
-        ('log' or 'linear'), it no longer makes sense to have a
-        toggle.  Axes.toggle_log_lineary() has been removed.]
-
-      Axes.hlines(linestyle=)	               Axes.hlines(linestyles=)
-      Axes.vlines(linestyle=)	               Axes.vlines(linestyles=)
-        [The kwarg 'linestyle' has been replaced with 'linestyles',
-        which accepts either a single linestyle or a list of
-        linestyles to use.]
-
-      Subplot class is gone -- now there is only SubplotBase.
-
-      The Polar class has moved to projections/polar.py
-
-    artist.py
-      Artist.set_clip_path(path)		Artist.set_clip_path(path, transform)
-        [set_clip_path now accepts a path.Path instance and a
-        transformation that will be applied to the path immediately
-        before clipping.]
-
-    collections.py
-      linestyle					linestyles
-        [Linestyles are now treated like all other collection
-        attributes -- a single value or multiple values may be
-        provided.]
-
-    colors.py
-      ColorConvertor.to_rgba_list(c)		ColorConvertor.to_rgba_array(c)
-        [ColorConvertor.to_rgba_array(c) returns an Nx4 Numpy array of
-        RGBA color quadruples.]
-
-    contour.py
-      Contour._segments				Contour.get_paths()
-        [Contour.get_paths() now returns a list of path.Path instances.]
-
-    figure.py
-      Figure.dpi.get()/set()			Figure.dpi (a property)
-
-    patches.py
-      get_verts()				get_path()
-        [Patch.get_path() returns a path.Path instance.]
-
-    backend_bases.py
-      GraphicsContext.set_clip_rectangle(tuple)	GraphicsContext.set_clip_rectangle(bbox)
-
-      GraphicsContext.get_clip_path()		GraphicsContext.get_clip_path()
-        [GraphicsContext.get_clip_path() returns a tuple of the form
-        (path, affine_transform), where path is a path.Path instance
-        and affine_transform is a transforms.Affine2D instance.]
-
-      GraphicsContext.set_clip_path(clippath) 	GraphicsContext.set_clip_path(clippath)
-        [Now accepts only an instance of transforms.TransformedPath.]
-
-      RendererBase class:
-        **new methods** --->
-	  draw_path(self, gc, path, transform, rgbFace)
-
-	  draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace)
-
-	  draw_path_collection(self, master_transform, cliprect, clippath,
-                             clippath_trans, paths, all_transforms, offsets,
-                             offsetTrans, facecolors, edgecolors, linewidths,
-                             linestyles, antialiaseds) [optional]
-
-
-        **changed methods** --->
-	  draw_image(self, x, y, im, bbox)	draw_image(self, x, y, im, bbox,
-	  		      	     		           clippath, clippath_trans)
-
-	**removed methods** --->
-	        draw_arc
-		draw_line_collection
-		draw_line
-		draw_lines
-		draw_point
-		draw_quad_mesh
-		draw_poly_collection
-		draw_polygon
-		draw_rectangle
-		draw_regpoly_collection
-
-END OF TRANSFORMS REFACTORING
-
-
-
-
-0.91.2 Released
-
-    For csv2rec, checkrows=0 is the new default indicating all rows
-    will be checked for type inference
-
-    A warning is issued when an image is drawn on log-scaled
-    axes, since it will not log-scale the image data.
-
-    Moved rec2gtk to matplotlib.toolkits.gtktools
-
-    Moved rec2excel to matplotlib.toolkits.exceltools
-
-    Removed, dead/experimental ExampleInfo, Namespace and Importer
-    code from matplotlib/__init__.py
-
-0.91.1 Released
-
-0.91.0 Released
-
-    Changed cbook.is_file_like to cbook.is_writable_file_like and
-    corrected behavior.
-
-    Added ax kwarg to pyplot.colorbar and Figure.colorbar so that
-    one can specify the axes object from which space for the colorbar
-    is to be taken, if one does not want to make the colorbar axes
-    manually.
-
-    Changed cbook.reversed so it yields a tuple rather than a
-    (index, tuple). This agrees with the python reversed builtin,
-    and cbook only defines reversed if python doesnt provide the
-    builtin.
-
-    Made skiprows=1 the default on csv2rec
-
-    The gd and paint backends have been deleted.
-
-    The errorbar method and function now accept additional kwargs
-    so that upper and lower limits can be indicated by capping the
-    bar with a caret instead of a straight line segment.
-
-    The dviread.py file now has a parser for files like psfonts.map
-    and pdftex.map, to map TeX font names to external files.
-
-    The file type1font.py contains a new class for Type 1 fonts.
-    Currently it simply reads pfa and pfb format files and stores the
-    data in a way that is suitable for embedding in pdf files. In the
-    future the class might actually parse the font to allow e.g.
-    subsetting.
-
-    FT2Font now supports FT_Attach_File. In practice this can be used
-    to read an afm file in addition to a pfa/pfb file, to get metrics
-    and kerning information for a Type 1 font.
-
-    The AFM class now supports querying CapHeight and stem widths. The
-    get_name_char method now has an isord kwarg like get_width_char.
-
-    Changed pcolor default to shading='flat'; but as noted now in the
-    docstring, it is preferable to simply use the edgecolor kwarg.
-
-    The mathtext font commands (\cal, \rm, \it, \tt) now behave as TeX
-    does: they are in effect until the next font change command or the
-    end of the grouping.  Therefore uses of $\cal{R}$ should be
-    changed to ${\cal R}$.  Alternatively, you may use the new
-    LaTeX-style font commands (\mathcal, \mathrm, \mathit, \mathtt)
-    which do affect the following group, eg. $\mathcal{R}$.
-
-    Text creation commands have a new default linespacing and
-    a new linespacing kwarg, which is a multiple of the maximum
-    vertical extent of a line of ordinary text.  The default is
-    1.2; linespacing=2 would be like ordinary double spacing, for
-    example.
-
-    Changed default kwarg in colors.Normalize.__init__ to clip=False;
-    clipping silently defeats the purpose of the special over, under,
-    and bad values in the colormap, thereby leading to unexpected
-    behavior.  The new default should reduce such surprises.
-
-    Made the emit property of set_xlim and set_ylim true by default;
-    removed the Axes custom callback handling into a 'callbacks'
-    attribute which is a cbook.CallbackRegistry instance.  This now
-    supports the xlim_changed and ylim_changed Axes events.
-
-0.90.1 released
+* :func:`matplotlib.image.imread` now no longer always returns RGBA data---if
+  the image is luminance or RGB, it will return a MxN or MxNx3 array
+  if possible.  Also uint8 is no longer always forced to float.
+
+* Rewrote the :class:`matplotlib.cm.ScalarMappable` callback
+  infrastructure to use :class:`matplotlib.cbook.CallbackRegistry`
+  rather than custom callback handling.  Any users of
+  :meth:`matplotlib.cm.ScalarMappable.add_observer` of the
+  :class:`~matplotlib.cm.ScalarMappable` should use the
+  :attr:`matplotlib.cm.ScalarMappable.callbacks`
+  :class:`~matplotlib.cbook.CallbackRegistry` instead.
+
+* New axes function and Axes method provide control over the plot
+  color cycle: :func:`matplotlib.axes.set_default_color_cycle` and
+  :meth:`matplotlib.axes.Axes.set_color_cycle`.
+
+* matplotlib now requires Python 2.4, so :mod:`matplotlib.cbook` will
+  no longer provide :class:`set`, :func:`enumerate`, :func:`reversed`
+  or :func:`izip` compatibility functions.
+
+* In Numpy 1.0, bins are specified by the left edges only.  The axes
+  method :meth:`matplotlib.axes.Axes.hist` now uses future Numpy 1.3
+  semantics for histograms.  Providing ``binedges``, the last value gives
+  the upper-right edge now, which was implicitly set to +infinity in
+  Numpy 1.0.  This also means that the last bin doesn't contain upper
+  outliers any more by default.
+
+* New axes method and pyplot function,
+  :func:`~matplotlib.pyplot.hexbin`, is an alternative to
+  :func:`~matplotlib.pyplot.scatter` for large datasets.  It makes
+  something like a :func:`~matplotlib.pyplot.pcolor` of a 2-D
+  histogram, but uses hexagonal bins.
+
+* New kwarg, ``symmetric``, in :class:`matplotlib.ticker.MaxNLocator`
+  allows one require an axis to be centered around zero.
+
+* Toolkits must now be imported from ``mpl_toolkits`` (not ``matplotlib.toolkits``)
+
+Notes about the transforms refactoring
+--------------------------------------
+
+A major new feature of the 0.98 series is a more flexible and
+extensible transformation infrastructure, written in Python/Numpy
+rather than a custom C extension.
+
+The primary goal of this refactoring was to make it easier to
+extend matplotlib to support new kinds of projections.  This is
+mostly an internal improvement, and the possible user-visible
+changes it allows are yet to come.
+
+See :mod:`matplotlib.transforms` for a description of the design of
+the new transformation framework.
+
+For efficiency, many of these functions return views into Numpy
+arrays.  This means that if you hold on to a reference to them,
+their contents may change.  If you want to store a snapshot of
+their current values, use the Numpy array method copy().
+
+The view intervals are now stored only in one place -- in the
+:class:`matplotlib.axes.Axes` instance, not in the locator instances
+as well.  This means locators must get their limits from their
+:class:`matplotlib.axis.Axis`, which in turn looks up its limits from
+the :class:`~matplotlib.axes.Axes`.  If a locator is used temporarily
+and not assigned to an Axis or Axes, (e.g. in
+:mod:`matplotlib.contour`), a dummy axis must be created to store its
+bounds.  Call :meth:`matplotlib.ticker.Locator.create_dummy_axis` to
+do so.
+
+The functionality of :class:`Pbox` has been merged with
+:class:`~matplotlib.transforms.Bbox`.  Its methods now all return
+copies rather than modifying in place.
+
+The following lists many of the simple changes necessary to update
+code from the old transformation framework to the new one.  In
+particular, methods that return a copy are named with a verb in the
+past tense, whereas methods that alter an object in place are named
+with a verb in the present tense.
+
+:mod:`matplotlib.transforms`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+============================================================ ============================================================
+Old method                                                   New method
+============================================================ ============================================================
+:meth:`Bbox.get_bounds`                                      :attr:`transforms.Bbox.bounds`
+------------------------------------------------------------ ------------------------------------------------------------
+:meth:`Bbox.width`                                           :attr:`transforms.Bbox.width`
+------------------------------------------------------------ ------------------------------------------------------------
+:meth:`Bbox.height`                                          :attr:`transforms.Bbox.height`
+------------------------------------------------------------ ------------------------------------------------------------
+`Bbox.intervalx().get_bounds()`	                             :attr:`transforms.Bbox.intervalx`
+`Bbox.intervalx().set_bounds()`                              [:attr:`Bbox.intervalx` is now a property.]
+------------------------------------------------------------ ------------------------------------------------------------
+`Bbox.intervaly().get_bounds()` 	                     :attr:`transforms.Bbox.intervaly`
+`Bbox.intervaly().set_bounds()`                              [:attr:`Bbox.intervaly` is now a property.]
+------------------------------------------------------------ ------------------------------------------------------------
+:meth:`Bbox.xmin`		                             :attr:`transforms.Bbox.x0` or
+                                                             :attr:`transforms.Bbox.xmin` [1]_
+------------------------------------------------------------ ------------------------------------------------------------
+:meth:`Bbox.ymin`		                             :attr:`transforms.Bbox.y0` or
+                                                             :attr:`transforms.Bbox.ymin` [1]_
+------------------------------------------------------------ ------------------------------------------------------------
+:meth:`Bbox.xmax`		                             :attr:`transforms.Bbox.x1` or
+                                                             :attr:`transforms.Bbox.xmax` [1]_
+------------------------------------------------------------ ------------------------------------------------------------
+:meth:`Bbox.ymax`		                             :attr:`transforms.Bbox.y1` or
+                                                             :attr:`transforms.Bbox.ymax` [1]_
+------------------------------------------------------------ ------------------------------------------------------------
+`Bbox.overlaps(bboxes)`		                             `Bbox.count_overlaps(bboxes)`
+------------------------------------------------------------ ------------------------------------------------------------
+`bbox_all(bboxes)`	                                     `Bbox.union(bboxes)`
+                                                             [:meth:`transforms.Bbox.union` is a staticmethod.]
+------------------------------------------------------------ ------------------------------------------------------------
+`lbwh_to_bbox(l, b, w, h)`		                     `Bbox.from_bounds(x0, y0, w, h)`
+                                                             [:meth:`transforms.Bbox.from_bounds` is a staticmethod.]
+------------------------------------------------------------ ------------------------------------------------------------
+`inverse_transform_bbox(trans, bbox)`                        `Bbox.inverse_transformed(trans)`
+------------------------------------------------------------ ------------------------------------------------------------
+`Interval.contains_open(v)`		                     `interval_contains_open(tuple, v)`
+------------------------------------------------------------ ------------------------------------------------------------
+`Interval.contains(v)`		                             `interval_contains(tuple, v)`
+------------------------------------------------------------ ------------------------------------------------------------
+`identity_transform()`		                             :class:`matplotlib.transforms.IdentityTransform`
+------------------------------------------------------------ ------------------------------------------------------------
+`blend_xy_sep_transform(xtrans, ytrans)`                     `blended_transform_factory(xtrans, ytrans)`
+------------------------------------------------------------ ------------------------------------------------------------
+`scale_transform(xs, ys)`			             `Affine2D().scale(xs[, ys])`
+------------------------------------------------------------ ------------------------------------------------------------
+`get_bbox_transform(boxin, boxout)` 	                     `BboxTransform(boxin, boxout)` or
+      				 		             `BboxTransformFrom(boxin)` or
+						             `BboxTransformTo(boxout)`
+------------------------------------------------------------ ------------------------------------------------------------
+`Transform.seq_xy_tup(points)`        		             `Transform.transform(points)`
+------------------------------------------------------------ ------------------------------------------------------------
+`Transform.inverse_xy_tup(points)`		             `Transform.inverted().transform(points)`
+============================================================ ============================================================
+
+.. [1] The :class:`~matplotlib.transforms.Bbox` is bound by the points
+   (x0, y0) to (x1, y1) and there is no defined order to these points,
+   that is, x0 is not necessarily the left edge of the box.  To get
+   the left edge of the :class:`Bbox`, use the read-only property
+   :attr:`~matplotlib.transforms.Bbox.xmin`.
+
+:mod:`matplotlib.axes`
+~~~~~~~~~~~~~~~~~~~~~~
+
+============================================================ ============================================================
+Old method                                                   New method
+============================================================ ============================================================
+`Axes.get_position()`                                        :meth:`matplotlib.axes.Axes.get_position` [2]_
+------------------------------------------------------------ ------------------------------------------------------------
+`Axes.set_position()`                                        :meth:`matplotlib.axes.Axes.set_position` [3]_
+------------------------------------------------------------ ------------------------------------------------------------
+`Axes.toggle_log_lineary()`                                  :meth:`matplotlib.axes.Axes.set_yscale` [4]_
+------------------------------------------------------------ ------------------------------------------------------------
+`Subplot` class                                              removed.
+============================================================ ============================================================
+
+The :class:`Polar` class has moved to :mod:`matplotlib.projections.polar`.
+
+.. [2] :meth:`matplotlib.axes.Axes.get_position` used to return a list
+   of points, now it returns a :class:`matplotlib.transforms.Bbox`
+   instance.
+
+.. [3] :meth:`matplotlib.axes.Axes.set_position` now accepts either
+   four scalars or a :class:`matplotlib.transforms.Bbox` instance.
+
+.. [4] Since the recfactoring allows for more than two scale types
+   ('log' or 'linear'), it no longer makes sense to have a toggle.
+   `Axes.toggle_log_lineary()` has been removed.
+
+:mod:`matplotlib.artist`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+============================================================ ============================================================
+Old method                                                   New method
+============================================================ ============================================================
+`Artist.set_clip_path(path)`		                     `Artist.set_clip_path(path, transform)` [5]_
+============================================================ ============================================================
+
+.. [5] :meth:`matplotlib.artist.Artist.set_clip_path` now accepts a
+   :class:`matplotlib.path.Path` instance and a
+   :class:`matplotlib.transforms.Transform` that will be applied to
+   the path immediately before clipping.
+
+:mod:`matplotlib.collections`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+============================================================ ============================================================
+Old method                                                   New method
+============================================================ ============================================================
+`linestyle`                                                  `linestyles` [6]_
+============================================================ ============================================================
+
+.. [6] Linestyles are now treated like all other collection
+   attributes, i.e.  a single value or multiple values may be
+   provided.
+
+:mod:`matplotlib.colors`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+============================================================ ============================================================
+Old method                                                   New method
+============================================================ ============================================================
+`ColorConvertor.to_rgba_list(c)`		             `ColorConvertor.to_rgba_array(c)`
+                                                             [:meth:`matplotlib.colors.ColorConvertor.to_rgba_array`
+                                                             returns an Nx4 Numpy array of RGBA color quadruples.]
+============================================================ ============================================================
+
+:mod:`matplotlib.contour`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+============================================================ ============================================================
+Old method                                                   New method
+============================================================ ============================================================
+`Contour._segments`				             :meth:`matplotlib.contour.Contour.get_paths`` [Returns a
+                                                             list of :class:`matplotlib.path.Path` instances.]
+============================================================ ============================================================
+
+:mod:`matplotlib.figure`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+============================================================ ============================================================
+Old method                                                   New method
+============================================================ ============================================================
+`Figure.dpi.get()` / `Figure.dpi.set()`	                     :attr:`matplotlib.figure.Figure.dpi` *(a property)*
+============================================================ ============================================================
+
+:mod:`matplotlib.patches`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+============================================================ ============================================================
+Old method                                                   New method
+============================================================ ============================================================
+`Patch.get_verts()`                                          :meth:`matplotlib.patches.Patch.get_path` [Returns a
+                                                             :class:`matplotlib.path.Path` instance]
+============================================================ ============================================================
+
+:mod:`matplotlib.backend_bases`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+============================================================ ============================================================
+Old method                                                   New method
+============================================================ ============================================================
+`GraphicsContext.set_clip_rectangle(tuple)`                  `GraphicsContext.set_clip_rectangle(bbox)`
+------------------------------------------------------------ ------------------------------------------------------------
+`GraphicsContext.get_clip_path()`                            `GraphicsContext.get_clip_path()` [7]_
+------------------------------------------------------------ ------------------------------------------------------------
+`GraphicsContext.set_clip_path()`                            `GraphicsContext.set_clip_path()` [8]_
+============================================================ ============================================================
+
+:class:`~matplotlib.backend_bases.RendererBase`
+```````````````````````````````````````````````
+
+New methods:
+
+  * :meth:`draw_path(self, gc, path, transform, rgbFace)
+    <matplotlib.backend_bases.RendererBase.draw_path>`
+
+  * :meth:`draw_markers(self, gc, marker_path, marker_trans, path,
+    trans, rgbFace)
+    <matplotlib.backend_bases.RendererBase.draw_markers`
+
+  * :meth:`draw_path_collection(self, master_transform, cliprect,
+    clippath, clippath_trans, paths, all_transforms, offsets,
+    offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+    antialiaseds)
+    <matplotlib.backend_bases.RendererBase.draw_path_collection>`
+    *[optional]*
+
+Changed methods:
+
+  * `draw_image(self, x, y, im, bbox)` is now
+    :meth:`draw_image(self, x, y, im, bbox, clippath, clippath_trans)
+    <matplotlib.backend_bases.RendererBase.draw_image>`
+
+Removed methods:
+
+  * `draw_arc`
+
+  * `draw_line_collection`
+
+  * `draw_line`
+
+  * `draw_lines`
+
+  * `draw_point`
+
+  * `draw_quad_mesh`
+
+  * `draw_poly_collection`
+
+  * `draw_polygon`
+
+  * `draw_rectangle`
+
+  * `draw_regpoly_collection`
+
+.. [7] :meth:`matplotlib.backend_bases.GraphicsContext.get_clip_path`
+   returns a tuple of the form (*path*, *affine_transform*), where
+   *path* is a :class:`matplotlib.path.Path` instance and
+   *affine_transform* is a :class:`matplotlib.transforms.Affine2D`
+   instance.
+
+.. [8] :meth:`matplotlib.backend_bases.GraphicsContext.set_clip_path`
+   now only accepts a :class:`matplotlib.transforms.TransformedPath`
+   instance.
+
+Changes for 0.91.2
+==================
+
+* For :func:`csv2rec`, checkrows=0 is the new default indicating all rows
+  will be checked for type inference
+
+* A warning is issued when an image is drawn on log-scaled axes, since
+  it will not log-scale the image data.
+
+* Moved :func:`rec2gtk` to :mod:`matplotlib.toolkits.gtktools`
+
+* Moved :func:`rec2excel` to :mod:`matplotlib.toolkits.exceltools`
+
+* Removed, dead/experimental ExampleInfo, Namespace and Importer
+  code from :mod:`matplotlib.__init__`
+
+Changes for 0.91.1
+==================
+
+Changes for 0.91.0
+==================
+
+* Changed :func:`cbook.is_file_like` to
+  :func:`cbook.is_writable_file_like` and corrected behavior.
+
+* Added ax kwarg to :func:`pyplot.colorbar` and
+  :meth:`Figure.colorbar` so that one can specify the axes object from
+  which space for the colorbar is to be taken, if one does not want to
+  make the colorbar axes manually.
+
+* Changed :func:`cbook.reversed` so it yields a tuple rather than a
+  (index, tuple). This agrees with the python reversed builtin,
+  and cbook only defines reversed if python doesnt provide the
+  builtin.
+
+* Made skiprows=1 the default on :func:`csv2rec`
+
+* The gd and paint backends have been deleted.
+
+* The errorbar method and function now accept additional kwargs
+  so that upper and lower limits can be indicated by capping the
+  bar with a caret instead of a straight line segment.
+
+* The :mod:`matplotlib.dviread` file now has a parser for files like
+  psfonts.map and pdftex.map, to map TeX font names to external files.
+
+* The file :mod:`matplotlib.type1font` contains a new class for Type 1
+  fonts.  Currently it simply reads pfa and pfb format files and
+  stores the data in a way that is suitable for embedding in pdf
+  files. In the future the class might actually parse the font to
+  allow e.g.  subsetting.
+
+* :mod:`matplotlib.FT2Font` now supports :meth:`FT_Attach_File`. In
+  practice this can be used to read an afm file in addition to a
+  pfa/pfb file, to get metrics and kerning information for a Type 1
+  font.
+
+* The :class:`AFM` class now supports querying CapHeight and stem
+  widths. The get_name_char method now has an isord kwarg like
+  get_width_char.
+
+* Changed :func:`pcolor` default to shading='flat'; but as noted now in the
+  docstring, it is preferable to simply use the edgecolor kwarg.
+
+* The mathtext font commands (``\cal``, ``\rm``, ``\it``, ``\tt``) now
+  behave as TeX does: they are in effect until the next font change
+  command or the end of the grouping.  Therefore uses of ``$\cal{R}$``
+  should be changed to ``${\cal R}$``.  Alternatively, you may use the
+  new LaTeX-style font commands (``\mathcal``, ``\mathrm``,
+  ``\mathit``, ``\mathtt``) which do affect the following group,
+  eg. ``$\mathcal{R}$``.
+
+* Text creation commands have a new default linespacing and a new
+  ``linespacing`` kwarg, which is a multiple of the maximum vertical
+  extent of a line of ordinary text.  The default is 1.2;
+  ``linespacing=2`` would be like ordinary double spacing, for example.
+
+* Changed default kwarg in
+  :meth:`matplotlib.colors.Normalize.__init__`` to ``clip=False``;
+  clipping silently defeats the purpose of the special over, under,
+  and bad values in the colormap, thereby leading to unexpected
+  behavior.  The new default should reduce such surprises.
+
+* Made the emit property of :meth:`~matplotlib.axes.Axes.set_xlim` and
+  :meth:`~matplotlib.axes.Axes.set_ylim` ``True`` by default; removed
+  the Axes custom callback handling into a 'callbacks' attribute which
+  is a :class:`~matplotlib.cbook.CallbackRegistry` instance.  This now
+  supports the 'xlim_changed' and 'ylim_changed' Axes events.
+
+Changes for 0.90.1
+==================
+
+::
 
     The file dviread.py has a (very limited and fragile) dvi reader
     for usetex support. The API might change in the future so don't
@@ -400,7 +534,10 @@ END OF TRANSFORMS REFACTORING
     Suggest removing site-packages/matplotlib/mpl-data and
     ~/.matplotlib/ttffont.cache before installing
 
-0.90.0 released
+Changes for 0.90.0
+==================
+
+::
 
     All artists now implement a "pick" method which users should not
     call.  Rather, set the "picker" property of any artist you want to
@@ -438,7 +575,10 @@ END OF TRANSFORMS REFACTORING
     replaced them with an arrow configurable with kwarg arrowprops.
     See examples/annotation_demo.py - JDH
 
-0.87.7 released
+Changes for 0.87.7
+==================
+
+::
 
     Completely reworked the annotations API because I found the old
     API cumbersome.  The new design is much more legible and easy to
@@ -523,7 +663,10 @@ END OF TRANSFORMS REFACTORING
      argument, which you can OR together from the LOAD_XXX
      constants.
 
-API Changes in matplotlib-0.86
+Changes for 0.86
+================
+
+::
 
      Matplotlib data is installed into the matplotlib module.
      This is similar to package_data.  This should get rid of
@@ -549,8 +692,10 @@ API Changes in matplotlib-0.86
      the Colormap class to include common functionality. Added
      a clip kwarg to the normalize class.
 
+Changes for 0.85
+================
 
-API Changes in matplotlib-0.85
+::
 
     Made xtick and ytick separate props in rc
 
@@ -592,7 +737,10 @@ API Changes in matplotlib-0.85
     consistency.
 
 
-API Changes in matplotlib-0.84
+Changes for 0.84
+================
+
+::
 
     Unified argument handling between hlines and vlines.  Both now
     take optionally a fmt argument (as in plot) and a keyword args
@@ -608,7 +756,10 @@ API Changes in matplotlib-0.84
     from to_str.  Removed origin kwarg from backend.draw_image.
     origin is handled entirely by the frontend now.
 
-API Changes in matplotlib-0.83
+Changes for 0.83
+================
+
+::
 
   - Made HOME/.matplotlib the new config dir where the matplotlibrc
     file, the ttf.cache, and the tex.cache live.  The new default
@@ -630,7 +781,10 @@ API Changes in matplotlib-0.83
   - Moved Figure.get_width_height() to FigureCanvasBase. It now
     returns int instead of float.
 
-API Changes in matplotlib-0.82
+Changes for 0.82
+================
+
+::
 
   - toolbar import change in GTKAgg, GTKCairo and WXAgg
 
@@ -681,7 +835,10 @@ API Changes in matplotlib-0.82
         print mean(results)
 
 
-API CHANGES in matplotlib-0.81
+Changes for 0.81
+================
+
+::
 
   - pylab and artist "set" functions renamed to setp to avoid clash
     with python2.4 built-in set.  Current version will issue a
@@ -728,15 +885,20 @@ API CHANGES in matplotlib-0.81
          desired, the equivalent list of levels would be [0, 1, 2,
          1e38].
 
+Changes for 0.80
+================
 
-API CHANGES in matplotlib-0.80
+::
 
   - xlim/ylim/axis always return the new limits regardless of
     arguments.  They now take kwargs which allow you to selectively
     change the upper or lower limits while leaving unnamed limits
     unchanged.  See help(xlim) for example
 
-API CHANGES in matplotlib-0.73
+Changes for 0.73
+================
+
+::
 
   - Removed deprecated ColormapJet and friends
 
@@ -744,7 +906,10 @@ API CHANGES in matplotlib-0.73
 
   - figure num of zero is now allowed
 
-API CHANGES in matplotlib-0.72
+Changes for 0.72
+================
+
+::
 
   - Line2D, Text, and Patch copy_properties renamed update_from and
     moved into artist base class
@@ -775,7 +940,10 @@ API CHANGES in matplotlib-0.72
      do not want this behavior, use fig.add_subplot or the axes
      command
 
-API CHANGES in matplotlib-0.71
+Changes for 0.71
+================
+
+::
 
    Significant numerix namespace changes, introduced to resolve
    namespace clashes between python built-ins and mlab names.
@@ -787,43 +955,47 @@ API CHANGES in matplotlib-0.71
      http://sourceforge.net/mailarchive/forum.php?thread_id=6323208&forum_id=36187
 
 
-  OLD usage
+   OLD usage
 
-   from matplotlib.numerix import array, mean, fft
+     from matplotlib.numerix import array, mean, fft
 
-  NEW usage
+   NEW usage
 
-   from matplotlib.numerix import array
-   from matplotlib.numerix.mlab import mean
-   from matplotlib.numerix.fft import fft
+     from matplotlib.numerix import array
+     from matplotlib.numerix.mlab import mean
+     from matplotlib.numerix.fft import fft
 
-  numerix dir structure mirrors numarray (though it is an incomplete
-  implementation)
+   numerix dir structure mirrors numarray (though it is an incomplete
+   implementation)
 
-    numerix
-    numerix/mlab
-    numerix/linear_algebra
-    numerix/fft
-    numerix/random_array
+     numerix
+     numerix/mlab
+     numerix/linear_algebra
+     numerix/fft
+     numerix/random_array
 
-  but of course you can use 'numerix : Numeric' and still get the
-  symbols.
+   but of course you can use 'numerix : Numeric' and still get the
+   symbols.
 
-  pylab still imports most of the symbols from Numerix, MLab, fft,
-  etc, but is more cautious.  For names that clash with python names
-  (min, max, sum), pylab keeps the builtins and provides the numeric
-  versions with an a* prefix, eg (amin, amax, asum)
+   pylab still imports most of the symbols from Numerix, MLab, fft,
+   etc, but is more cautious.  For names that clash with python names
+   (min, max, sum), pylab keeps the builtins and provides the numeric
+   versions with an a* prefix, eg (amin, amax, asum)
 
+Changes for 0.70
+================
 
-
-API CHANGES in matplotlib-0.70
+::
 
    MplEvent factored into a base class Event and derived classes
    MouseEvent and KeyEvent
 
    Removed definct set_measurement in wx toolbar
 
-API CHANGES in matplotlib-0.65.1
+Changes for 0.65.1
+==================
+
+::
 
   removed add_axes and add_subplot from backend_bases.  Use
   figure.add_axes and add_subplot instead.  The figure now manages the
@@ -831,7 +1003,11 @@ API CHANGES in matplotlib-0.65.1
   have code you are porting which called, eg, figmanager.add_axes, you
   can now simply do figmanager.canvas.figure.add_axes.
 
-API CHANGES in matplotlib-0.65
+Changes for 0.65
+================
+
+::
+
 
   mpl_connect and mpl_disconnect in the matlab interface renamed to
   connect and disconnect
@@ -840,8 +1016,10 @@ API CHANGES in matplotlib-0.65
   fontangle could mean fontstyle (obligue, etc) or the rotation of the
   text.  Use style and rotation instead.
 
+Changes for 0.63
+================
 
-API CHANGES in matplotlib-0.63
+::
 
   Dates are now represented internally as float days since 0001-01-01,
   UTC.
@@ -882,42 +1060,49 @@ API CHANGES in matplotlib-0.63
 
      See examples/finance_demo.py for example usage of new API
 
+Changes for 0.61
+================
 
-API CHANGES in matplotlib-0.61
+::
 
   canvas.connect is now deprecated for event handling.  use
   mpl_connect and mpl_disconnect instead.  The callback signature is
   func(event) rather than func(widget, evet)
 
-API CHANGES in matplotlib-0.60
-
-ColormapJet and Grayscale are deprecated.  For backwards
-compatibility, they can be obtained either by doing
-
-  from matplotlib.cm import ColormapJet
-
-or
-
-  from matplotlib.matlab import *
-
-They are replaced by cm.jet and cm.grey
-
-
-API CHANGES in matplotlib-0.54.3
-
-removed the set_default_font / get_default_font scheme from the
-font_manager to unify customization of font defaults with the rest of
-the rc scheme.  See examples/font_properties_demo.py and help(rc) in
-matplotlib.matlab.
-
-
-API CHANGES in matplotlib-0.54
-
-matlab interface
+Changes for 0.60
 ================
 
+::
+
+  ColormapJet and Grayscale are deprecated.  For backwards
+  compatibility, they can be obtained either by doing
+
+    from matplotlib.cm import ColormapJet
+
+  or
+
+    from matplotlib.matlab import *
+
+  They are replaced by cm.jet and cm.grey
+
+Changes for 0.54.3
+==================
+
+::
+
+  removed the set_default_font / get_default_font scheme from the
+  font_manager to unify customization of font defaults with the rest of
+  the rc scheme.  See examples/font_properties_demo.py and help(rc) in
+  matplotlib.matlab.
+
+Changes for 0.54
+================
+
+matlab interface
+----------------
+
 dpi
----
+~~~
 
 Several of the backends used a PIXELS_PER_INCH hack that I added to
 try and make images render consistently across backends.  This just
@@ -928,7 +1113,7 @@ screen to get true sizes.
 
 
 pcolor and scatter
-------------------
+~~~~~~~~~~~~~~~~~~
 
 There are two changes to the matlab interface API, both involving the
 patch drawing commands.  For efficiency, pcolor and scatter have been
@@ -942,14 +1127,14 @@ pcolor_classic and scatter_classic.
 
 The return value from pcolor is a PolyCollection.  Most of the
 propertes that are available on rectangles or other patches are also
-available on PolyCollections, eg you can say
+available on PolyCollections, eg you can say::
 
   c = scatter(blah, blah)
   c.set_linewidth(1.0)
   c.set_facecolor('r')
   c.set_alpha(0.5)
 
-or
+or::
 
   c = scatter(blah, blah)
   set(c, 'linewidth', 1.0, 'facecolor', 'r', 'alpha', 0.5)
@@ -969,55 +1154,55 @@ Using sizes in data coords caused several problems.  So you will need
 to adjust your size arguments accordingly or use scatter_classic.
 
 mathtext spacing
-----------------
+~~~~~~~~~~~~~~~~
 
 For reasons not clear to me (and which I'll eventually fix) spacing no
 longer works in font groups.  However, I added three new spacing
 commands which compensate for this '\ ' (regular space), '\/' (small
 space) and '\hspace{frac}' where frac is a fraction of fontsize in
-points.  You will need to quote spaces in font strings, is
+points.  You will need to quote spaces in font strings, is::
 
   title(r'$\rm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$')
 
 
 
 Object interface - Application programmers
-==========================================
+------------------------------------------
 
 Autoscaling
-------------
+~~~~~~~~~~~
 
   The x and y axis instances no longer have autoscale view.  These are
   handled by axes.autoscale_view
 
 Axes creation
---------------
+~~~~~~~~~~~~~
 
     You should not instantiate your own Axes any more using the OO API.
-    Rather, create a Figure as before and in place of
+    Rather, create a Figure as before and in place of::
 
       f = Figure(figsize=(5,4), dpi=100)
       a = Subplot(f, 111)
       f.add_axis(a)
 
-    use
+    use::
 
       f = Figure(figsize=(5,4), dpi=100)
       a = f.add_subplot(111)
 
-    That is, add_axis no longer exists and is replaced by
+    That is, add_axis no longer exists and is replaced by::
 
       add_axes(rect, axisbg=defaultcolor, frameon=True)
       add_subplot(num, axisbg=defaultcolor, frameon=True)
 
 Artist methods
----------------
+~~~~~~~~~~~~~~
 
   If you define your own Artists, you need to rename the _draw method
   to draw
 
 Bounding boxes
---------------
+~~~~~~~~~~~~~~
 
    matplotlib.transforms.Bound2D is replaced by
    matplotlib.transforms.Bbox.  If you want to construct a bbox from
@@ -1029,11 +1214,11 @@ Bounding boxes
    The Bbox has a different API than the Bound2D.  Eg, if you want to
    get the width and height of the bbox
 
-     OLD
+     OLD::
         width  = fig.bbox.x.interval()
         height = fig.bbox.y.interval()
 
-     New
+     New::
         width  = fig.bbox.width()
         height = fig.bbox.height()
 
@@ -1041,7 +1226,7 @@ Bounding boxes
 
 
 Object constructors
--------------------
+~~~~~~~~~~~~~~~~~~~
 
   You no longer pass the bbox, dpi, or transforms to the various
   Artist constructors.  The old way or creating lines and rectangles
@@ -1071,7 +1256,7 @@ Object constructors
   set your own already, in which case it will eave it unchanged)
 
 Transformations
----------------
+~~~~~~~~~~~~~~~
 
   The entire transformation architecture has been rewritten.
   Previously the x and y transformations where stored in the xaxis and
@@ -1096,7 +1281,7 @@ Transformations
 
    * because they operate on x and y together, they can do the entire
      transformation in one loop.  Earlier I did something along the
-     lines of
+     lines of::
 
        xt = sx*func(x) + tx
        yt = sy*func(y) + ty
@@ -1120,8 +1305,10 @@ Transformations
   transformations.
 
 
+Changes for 0.50
+================
 
-API changes at 0.50
+::
 
   * refactored Figure class so it is no longer backend dependent.
     FigureCanvasBackend takes over the backend specific duties of the
@@ -1151,7 +1338,7 @@ API changes at 0.50
 
   * Renderer must implement points_to_pixels
 
-Migrating code:
+  Migrating code:
 
   Matlab interface:
 
@@ -1204,9 +1391,10 @@ Migrating code:
     better plotting capabilities, so I hope the inconvenience is worth
     it.
 
+Changes for 0.42
+================
 
-
-API changes at 0.42
+::
 
   * Refactoring AxisText to be backend independent.  Text drawing and
     get_window_extent functionality will be moved to the Renderer.
@@ -1241,70 +1429,69 @@ API changes at 0.42
     the GUI window attribute, eg figManager.window for GTK and
     figManager.frame for wx
 
+Changes for 0.40
+================
 
+::
 
+  - Artist
+      * __init__ takes a DPI instance and a Bound2D instance which is
+        the bounding box of the artist in display coords
+      * get_window_extent returns a Bound2D instance
+      * set_size is removed; replaced by bbox and dpi
+      * the clip_gc method is removed.  Artists now clip themselves with
+        their box
+      * added _clipOn boolean attribute.  If True, gc clip to bbox.
 
+  - AxisTextBase
+      * Initialized with a transx, transy which are Transform instances
+      * set_drawing_area removed
+      * get_left_right and get_top_bottom are replaced by get_window_extent
 
-API changes at 0.40
+  - Line2D Patches now take transx, transy
+      * Initialized with a transx, transy which are Transform instances
 
-- Artist
-    * __init__ takes a DPI instance and a Bound2D instance which is
-      the bounding box of the artist in display coords
-    * get_window_extent returns a Bound2D instance
-    * set_size is removed; replaced by bbox and dpi
-    * the clip_gc method is removed.  Artists now clip themselves with
-      their box
-    * added _clipOn boolean attribute.  If True, gc clip to bbox.
+  - Patches
+     * Initialized with a transx, transy which are Transform instances
 
-- AxisTextBase
-    * Initialized with a transx, transy which are Transform instances
-    * set_drawing_area removed
-    * get_left_right and get_top_bottom are replaced by get_window_extent
+  - FigureBase attributes dpi is a DPI intance rather than scalar and
+    new attribute bbox is a Bound2D in display coords, and I got rid
+    of the left, width, height, etc... attributes.  These are now
+    accessible as, for example, bbox.x.min is left, bbox.x.interval()
+    is width, bbox.y.max is top, etc...
 
-- Line2D Patches now take transx, transy
-    * Initialized with a transx, transy which are Transform instances
+  - GcfBase attribute pagesize renamed to figsize
 
-- Patches
-   * Initialized with a transx, transy which are Transform instances
+  - Axes
+      * removed figbg attribute
+      * added fig instance to __init__
+      * resizing is handled by figure call to resize.
 
-- FigureBase attributes dpi is a DPI intance rather than scalar and
-  new attribute bbox is a Bound2D in display coords, and I got rid of
-  the left, width, height, etc... attributes.  These are now
-  accessible as, for example, bbox.x.min is left, bbox.x.interval() is
-  width, bbox.y.max is top, etc...
+  - Subplot
+      * added fig instance to __init__
 
-- GcfBase attribute pagesize renamed to figsize
+  - Renderer methods for patches now take gcEdge and gcFace instances.
+    gcFace=None takes the place of filled=False
 
-- Axes
-    * removed figbg attribute
-    * added fig instance to __init__
-    * resizing is handled by figure call to resize.
+  - True and False symbols provided by cbook in a python2.3 compatible
+    way
 
-- Subplot
-    * added fig instance to __init__
+  - new module transforms supplies Bound1D, Bound2D and Transform
+    instances and more
 
-- Renderer methods for patches now take gcEdge and gcFace instances.
-  gcFace=None takes the place of filled=False
+  - Changes to the matlab helpers API
 
-- True and False symbols provided by cbook in a python2.3 compatible
-  way
+    * _matlab_helpers.GcfBase is renamed by Gcf.  Backends no longer
+      need to derive from this class.  Instead, they provide a factory
+      function new_figure_manager(num, figsize, dpi).  The destroy
+      method of the GcfDerived from the backends is moved to the derived
+      FigureManager.
 
-- new module transforms supplies Bound1D, Bound2D and Transform
-  instances and more
+    * FigureManagerBase moved to backend_bases
 
-- Changes to the matlab helpers API
+    * Gcf.get_all_figwins renamed to Gcf.get_all_fig_managers
 
-  * _matlab_helpers.GcfBase is renamed by Gcf.  Backends no longer
-    need to derive from this class.  Instead, they provide a factory
-    function new_figure_manager(num, figsize, dpi).  The destroy
-    method of the GcfDerived from the backends is moved to the derived
-    FigureManager.
+  Jeremy:
 
-  * FigureManagerBase moved to backend_bases
-
-  * Gcf.get_all_figwins renamed to Gcf.get_all_fig_managers
-
-Jeremy:
-
-  Make sure to self._reset = False in AxisTextWX._set_font.  This was
-  something missing in my backend code.
+    Make sure to self._reset = False in AxisTextWX._set_font.  This was
+    something missing in my backend code.
