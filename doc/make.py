@@ -16,6 +16,10 @@ def check_build():
 
 def sf():
     'push a copy to the sf site'
+    shutil.copy('../CHANGELOG', 'build/html/_static/CHANGELOG')
+    shutil.copy('../API_CHANGES', 'build/html/_static/API_CHANGES')
+    shutil.copy('../MIGRATION.txt', 'build/html/_static/MIGRATION.txt')
+
     os.system('cd build/html; rsync -avz . jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/ -essh --cvs-exclude')
 
 def sfpdf():
