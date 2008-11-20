@@ -385,7 +385,8 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
   if (!py_convert_bbox(box_obj.ptr(), l, b, r, t))
     throw Py::TypeError("Invalid bbox provided to copy_from_bbox");
 
-  agg::rect_i rect((int)l, height - (int)t, (int)r, height - (int)b);
+  //  std::cout << l << " " << b << " " << r << " " << t << " " << (height - (int)b) << " " << height - (int)t << std::endl;
+  agg::rect_i rect((int)l, height - (int)b, (int)r, height - (int)t);
 
   BufferRegion* reg = NULL;
   try {
@@ -419,8 +420,10 @@ RendererAgg::restore_region(const Py::Tuple& args) {
   BufferRegion* region  = static_cast<BufferRegion*>(args[0].ptr());
 
   if (region->data==NULL)
-    return Py::Object();
-  //throw Py::ValueError("Cannot restore_region from NULL data");
+    throw Py::ValueError("Cannot restore_region from NULL data");
+    //return Py::Object();
+
+  //std::cout << "restoring " << region->width << " " << region->height << " " << region->stride << " " << region->rect.x1 << " " << region->rect.y1 << std::endl;
 
   agg::rendering_buffer rbuf;
   rbuf.attach(region->data,

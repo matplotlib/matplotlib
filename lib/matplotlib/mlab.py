@@ -159,7 +159,7 @@ from __future__ import division
 import csv, warnings, copy, os
 
 import numpy as np
-
+ma = np.ma
 from matplotlib import verbose
 
 import matplotlib.nxutils as nxutils
@@ -247,7 +247,7 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     #The checks for if y is x are so that we can use the same function to
     #implement the core of psd(), csd(), and spectrogram() without doing
     #extra calculations.  We return the unaveraged Pxy, freqs, and t.
-    
+
     #Make sure we're dealing with a numpy array. If y and x were the same
     #object to start with, keep them that way
     same_data = y is x
@@ -309,7 +309,7 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     Pxy /= (np.abs(windowVals)**2).sum()
     t = 1./Fs * (ind + NFFT / 2.)
     freqs = float(Fs) / pad_to * np.arange(numFreqs)
-    
+
     return Pxy, freqs, t
 
 #Split out these keyword docs so that they can be used elsewhere
@@ -2104,7 +2104,8 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
 
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
-            converterd=None, names=None, missing='', missingd=None):
+            converterd=None, names=None, missing='', missingd=None,
+            use_mrecords=True):
     """
     Load data from comma/space/tab delimited file in *fname* into a
     numpy record array and return the record array.
@@ -2139,9 +2140,11 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
       be masked, e.g. '0000-00-00' or 'unused'
 
     - *missing*: a string whose value signals a missing field regardless of
-      the column it appears in, e.g. 'unused'
+      the column it appears in
 
-    If no rows are found, *None* is returned -- see :file:`examples/loadrec.py`
+    - *use_mrecords*: if True, return an mrecords.fromrecords record array if any of the data are missing
+
+      If no rows are found, *None* is returned -- see :file:`examples/loadrec.py`
     """
 
     if converterd is None:
@@ -2338,7 +2341,8 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     if not len(rows):
         return None
-    if np.any(rowmasks):
+
+    if use_mrecords and np.any(rowmasks):
         try: from numpy.ma import mrecords
         except ImportError:
             raise RuntimeError('numpy 1.05 or later is required for masked array support')
@@ -2938,17 +2942,23 @@ def poly_below(xmin, xs, ys):
       xv, yv = poly_below(0, x, y)
       ax.fill(xv, yv)
     """
-    xs = np.asarray(xs)
-    ys = np.asarray(ys)
+    if ma.isMaskedArray(xs) or ma.isMaskedArray(ys):
+        nx = ma
+    else:
+        nx = np
+
+    xs = nx.asarray(xs)
+    ys = nx.asarray(ys)
     Nx = len(xs)
     Ny = len(ys)
     assert(Nx==Ny)
-    x = xmin*np.ones(2*Nx)
-    y = np.ones(2*Nx)
+    x = xmin*nx.ones(2*Nx)
+    y = nx.ones(2*Nx)
     x[:Nx] = xs
     y[:Nx] = ys
     y[Nx:] = ys[::-1]
     return x, y
+
 
 
 def poly_between(x, ylower, yupper):
@@ -2961,16 +2971,22 @@ def poly_between(x, ylower, yupper):
     Return value is *x*, *y* arrays for use with
     :meth:`matplotlib.axes.Axes.fill`.
     """
+    if ma.isMaskedArray(ylower) or ma.isMaskedArray(yupper) or ma.isMaskedArray(x):
+        nx = ma
+    else:
+        nx = np
+
     Nx = len(x)
     if not cbook.iterable(ylower):
-        ylower = ylower*np.ones(Nx)
+        ylower = ylower*nx.ones(Nx)
 
     if not cbook.iterable(yupper):
-        yupper = yupper*np.ones(Nx)
+        yupper = yupper*nx.ones(Nx)
 
-    x = np.concatenate( (x, x[::-1]) )
-    y = np.concatenate( (yupper, ylower[::-1]) )
+    x = nx.concatenate( (x, x[::-1]) )
+    y = nx.concatenate( (yupper, ylower[::-1]) )
     return x,y
+
 
 def is_closed_polygon(X):
     """
@@ -2979,6 +2995,28 @@ def is_closed_polygon(X):
     tests if that curve is closed.
     """
     return np.all(X[0] == X[-1])
+
+
+def contiguous_regions(mask):
+    """
+    return a list of (ind0, ind1) such that mask[ind0:ind1].all() is
+    True and we cover all such regions
+
+    TODO: this is a pure python implementation which probably has a much faster numpy impl
+    """
+
+    in_region = None
+    boundaries = []
+    for i, val in enumerate(mask):
+        if in_region is None and val:
+            in_region = i
+        elif in_region is not None and not val:
+            boundaries.append((in_region, i))
+            in_region = None
+
+    if in_region is not None:
+        boundaries.append((in_region, i+1))
+    return boundaries
 
 ##################################################
 # Vector and path length geometry calculations
