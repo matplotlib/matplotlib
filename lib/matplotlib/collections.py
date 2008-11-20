@@ -19,6 +19,7 @@ import matplotlib.transforms as transforms
 import matplotlib.artist as artist
 import matplotlib.backend_bases as backend_bases
 import matplotlib.path as mpath
+import matplotlib.mlab as mlab
 
 class Collection(artist.Artist, cm.ScalarMappable):
     """
@@ -234,7 +235,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._urls = [None,]
         else:
             self._urls = urls
-        
+
     def get_urls(self): return self._urls
 
     def set_offsets(self, offsets):
@@ -671,6 +672,49 @@ class PolyCollection(Collection):
                 for x in self._sizes]
         return Collection.draw(self, renderer)
 
+
+    @staticmethod
+    def fill_between_masked(x, y, mask, yboundary=0, **kwargs):
+        """
+        Create a :class:`PolyCollection` filling the regions between *y*
+        and *yboundary7* where ``mask==True``
+
+
+        *x*
+          an N length np array of the x data
+
+        *y*
+          an N length np array of the y data
+
+        *mask*
+          an N length numpy boolean array
+
+        *yboundary*
+          a scalar to fill between *y* and the boundary
+
+        *kwargs*
+          keyword args passed on to the :class:`PolyCollection`
+
+        """
+        polys = []
+        for ind0, ind1 in mlab.contiguous_regions(mask):
+            theseverts = []
+            xslice = x[ind0:ind1]
+            yslice = y[ind0:ind1]
+            N = len(xslice)
+            X = np.zeros((2*N+2, 2), np.float)
+            X[0] = xslice[0], yboundary
+            X[N+1] = xslice[-1], yboundary
+            X[1:N+1,0] = xslice
+            X[1:N+1,1] = yslice
+            X[N+2:,0] = xslice[::-1]
+            X[N+2:,1] = yboundary
+
+            polys.append(X)
+
+        collection = PolyCollection(polys, **kwargs)
+        return collection
+
 class BrokenBarHCollection(PolyCollection):
     """
     A collection of horizontal bars spanning *yrange* with a sequence of
@@ -691,6 +735,25 @@ class BrokenBarHCollection(PolyCollection):
         verts = [ [(xmin, ymin), (xmin, ymax), (xmin+xwidth, ymax), (xmin+xwidth, ymin), (xmin, ymin)] for xmin, xwidth in xranges]
         PolyCollection.__init__(self, verts, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
+
+
+    @staticmethod
+    def span_masked(x, mask, ymin, ymax, **kwargs):
+        """
+        Create a BrokenBarHCollection to plot horizontal bars from
+        over the regions in *x* where *mask* is True.  The bars range
+        on the y-axis from *ymin* to *ymax*
+
+        A :class:`BrokenBarHCollection` is returned.
+        **kwargs are passed on to the collection
+        """
+        xranges = []
+        for ind0, ind1 in mlab.contiguous_regions(mask):
+            xslice = x[ind0:ind1]
+            xranges.append((xslice[0], xslice[-1]-xslice[0]))
+
+        collection = BrokenBarHCollection(xranges, [ymin, ymax-ymin], **kwargs)
+        return collection
 
 class RegularPolyCollection(Collection):
     """Draw a collection of regular polygons with *numsides*."""
