@@ -386,7 +386,7 @@ RendererAgg::copy_from_bbox(const Py::Tuple& args) {
     throw Py::TypeError("Invalid bbox provided to copy_from_bbox");
 
   //  std::cout << l << " " << b << " " << r << " " << t << " " << (height - (int)b) << " " << height - (int)t << std::endl;
-  agg::rect_i rect((int)l, height - (int)b, (int)r, height - (int)t);
+  agg::rect_i rect((int)l, height - (int)t, (int)r, height - (int)b);
 
   BufferRegion* reg = NULL;
   try {

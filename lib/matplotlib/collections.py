@@ -701,6 +701,9 @@ class PolyCollection(Collection):
             theseverts = []
             xslice = x[ind0:ind1]
             yslice = y[ind0:ind1]
+            if not len(xslice):
+                continue
+
             N = len(xslice)
             X = np.zeros((2*N+2, 2), np.float)
             X[0] = xslice[0], yboundary
@@ -750,6 +753,8 @@ class BrokenBarHCollection(PolyCollection):
         xranges = []
         for ind0, ind1 in mlab.contiguous_regions(mask):
             xslice = x[ind0:ind1]
+            if not len(xslice):
+                continue
             xranges.append((xslice[0], xslice[-1]-xslice[0]))
 
         collection = BrokenBarHCollection(xranges, [ymin, ymax-ymin], **kwargs)
