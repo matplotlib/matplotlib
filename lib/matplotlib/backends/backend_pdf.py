@@ -1577,7 +1577,8 @@ class RendererPdf(RendererBase):
             dvi = dviread.Dvi(dvifile, self.dpi)
             page = iter(dvi).next()
             dvi.close()
-            return page.width, page.height, page.descent
+            # A total height (including the descent) needs to be returned.
+            return page.width, page.height+page.descent, page.descent
         if ismath:
             w, h, d, glyphs, rects, used_characters = \
                 self.mathtext_parser.parse(s, self.dpi, prop)
