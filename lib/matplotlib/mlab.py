@@ -1435,9 +1435,10 @@ def poly_below(ymin, xs, ys):
     that has a horzintal base at ymin and an upper bound at the ys.
     ymin is a scalar, and xs and ys are arrays
 
-    intended for use with Axes.fill, eg
-    xv, yv = poly_below(0, x, y)
-    ax.fill(xv, yv)
+    intended for use with Axes.fill, eg::
+
+      xv, yv = poly_below(0, x, y)
+      ax.fill(xv, yv)
     """
     return poly_between(xs, ys, xmin)
 
