@@ -1429,27 +1429,17 @@ def inside_poly(points, verts):
     res, =  np.nonzero(nxutils.points_inside_poly(points, verts))
     return res
 
-def poly_below(xmin, xs, ys):
+def poly_below(ymin, xs, ys):
     """
     given a sequence of xs and ys, return the vertices of a polygon
-    that has a horzontal base at xmin and an upper bound at the ys.
-    xmin is a scalar.
+    that has a horzintal base at ymin and an upper bound at the ys.
+    ymin is a scalar, and xs and ys are arrays
 
     intended for use with Axes.fill, eg
     xv, yv = poly_below(0, x, y)
     ax.fill(xv, yv)
     """
-    xs = np.asarray(xs)
-    ys = np.asarray(ys)
-    Nx = len(xs)
-    Ny = len(ys)
-    assert(Nx==Ny)
-    x = xmin*np.ones(2*Nx)
-    y = np.ones(2*Nx)
-    x[:Nx] = xs
-    y[:Nx] = ys
-    y[Nx:] = ys[::-1]
-    return x, y
+    return poly_between(xs, ys, xmin)
 
 
 def poly_between(x, ylower, yupper):
