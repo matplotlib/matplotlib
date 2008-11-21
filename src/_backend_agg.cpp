@@ -686,9 +686,8 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
     y = Py::Int( args[2] );
   }
   catch (Py::TypeError) {
-    //x,y out of range; todo issue warning?
     Py_XDECREF(image_array);
-    return Py::Object();
+    throw Py::TypeError("Invalid input arguments to draw_text_image");
   }
 
   double angle = Py::Float( args[3] );
