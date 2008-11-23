@@ -5559,8 +5559,14 @@ class Axes(martist.Artist):
 
         collection = mcoll.PolyCollection(polys, **kwargs)
 
-        self.update_datalim_numerix(x[where], y1[where])
-        self.update_datalim_numerix(x[where], y2[where])
+        # now update the datalim and autoscale
+        XY1 = np.array([x[where], y1[where]]).T
+        XY2 = np.array([x[where], y2[where]]).T
+        self.dataLim.update_from_data_xy(XY1, self.ignore_existing_data_limits,
+                                         updatex=True, updatey=True)
+
+        self.dataLim.update_from_data_xy(XY2, self.ignore_existing_data_limits,
+                                         updatex=False, updatey=True)
         self.add_collection(collection)
         self.autoscale_view()
         return collection
