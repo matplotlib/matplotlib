@@ -673,66 +673,6 @@ class PolyCollection(Collection):
         return Collection.draw(self, renderer)
 
 
-    @staticmethod
-    def fill_between_where(x, y1, y2, where, **kwargs):
-        """
-        Create a :class:`PolyCollection` filling the regions between *y*
-        and *yboundary7* where ``where==True``
-
-
-        *x*
-          an N length np array of the x data
-
-        *y1*
-          an N length scalar or np array of the x data
-
-        *y2*
-          an N length scalar or np array of the x data
-
-        *where*
-          an N length numpy boolean array
-
-        *kwargs*
-          keyword args passed on to the :class:`PolyCollection`
-
-        """
-	if not cbook.iterable(y1):
-	    y1 = np.ones_like(x)*y1
-
-	if not cbook.iterable(y2):
-	    y2 = np.ones_like(x)*y2
-
-        assert( (len(x)==len(y1)) and (len(x)==len(y2)) )
-
-        polys = []
-        for ind0, ind1 in mlab.contiguous_regions(where):
-            theseverts = []
-            xslice = x[ind0:ind1]
-            y1slice = y1[ind0:ind1]
-            y2slice = y2[ind0:ind1]
-
-            if not len(xslice):
-                continue
-
-            N = len(xslice)
-            X = np.zeros((2*N+2, 2), np.float)
-
-            # the purpose of the next two lines is for when y2 is a
-            # scalar like 0 and we want the fill to go all the way
-            # down to 0 even if none of the y1 sample points do
-            X[0] = xslice[0], y2slice[0]
-            X[N+1] = xslice[-1], y2slice[-1]
-
-            X[1:N+1,0] = xslice
-            X[1:N+1,1] = y1slice
-            X[N+2:,0] = xslice[::-1]
-            X[N+2:,1] = y2slice[::-1]
-
-            polys.append(X)
-
-        collection = PolyCollection(polys, **kwargs)
-        return collection
-
 class BrokenBarHCollection(PolyCollection):
     """
     A collection of horizontal bars spanning *yrange* with a sequence of

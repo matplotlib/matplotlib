@@ -1120,61 +1120,62 @@ def plotting():
     """
     Plotting commands
 
-    =========   =================================================
-    Command     Description
-    =========   =================================================
-    axes        Create a new axes
-    axis        Set or return the current axis limits
-    bar         make a bar chart
-    boxplot     make a box and whiskers chart
-    cla         clear current axes
-    clabel      label a contour plot
-    clf         clear a figure window
-    close       close a figure window
-    colorbar    add a colorbar to the current figure
-    cohere      make a plot of coherence
-    contour     make a contour plot
-    contourf    make a filled contour plot
-    csd         make a plot of cross spectral density
-    draw        force a redraw of the current figure
-    errorbar    make an errorbar graph
-    figlegend   add a legend to the figure
-    figimage    add an image to the figure, w/o resampling
-    figtext     add text in figure coords
-    figure      create or change active figure
-    fill        make filled polygons
-    gca         return the current axes
-    gcf         return the current figure
-    gci         get the current image, or None
-    getp        get a handle graphics property
-    hist        make a histogram
-    hold        set the hold state on current axes
-    legend      add a legend to the axes
-    loglog      a log log plot
-    imread      load image file into array
-    imshow      plot image data
-    matshow     display a matrix in a new figure preserving aspect
-    pcolor      make a pseudocolor plot
-    plot        make a line plot
-    plotfile    plot data from a flat file
-    psd         make a plot of power spectral density
-    quiver      make a direction field (arrows) plot
-    rc          control the default params
-    savefig     save the current figure
-    scatter     make a scatter plot
-    setp        set a handle graphics property
-    semilogx    log x axis
-    semilogy    log y axis
-    show        show the figures
-    specgram    a spectrogram plot
-    stem        make a stem plot
-    subplot     make a subplot (numrows, numcols, axesnum)
-    table       add a table to the axes
-    text        add some text at location x,y to the current axes
-    title       add a title to the current axes
-    xlabel      add an xlabel to the current axes
-    ylabel      add a ylabel to the current axes
-    =========   =================================================
+    =========      =================================================
+    Command        Description
+    =========      =================================================
+    axes           Create a new axes
+    axis           Set or return the current axis limits
+    bar            make a bar chart
+    boxplot        make a box and whiskers chart
+    cla            clear current axes
+    clabel         label a contour plot
+    clf            clear a figure window
+    close          close a figure window
+    colorbar       add a colorbar to the current figure
+    cohere         make a plot of coherence
+    contour        make a contour plot
+    contourf       make a filled contour plot
+    csd            make a plot of cross spectral density
+    draw           force a redraw of the current figure
+    errorbar       make an errorbar graph
+    figlegend      add a legend to the figure
+    figimage       add an image to the figure, w/o resampling
+    figtext        add text in figure coords
+    figure         create or change active figure
+    fill           make filled polygons
+    fill_between    make filled polygons
+    gca            return the current axes
+    gcf            return the current figure
+    gci            get the current image, or None
+    getp           get a handle graphics property
+    hist           make a histogram
+    hold           set the hold state on current axes
+    legend         add a legend to the axes
+    loglog         a log log plot
+    imread         load image file into array
+    imshow         plot image data
+    matshow        display a matrix in a new figure preserving aspect
+    pcolor         make a pseudocolor plot
+    plot           make a line plot
+    plotfile       plot data from a flat file
+    psd            make a plot of power spectral density
+    quiver         make a direction field (arrows) plot
+    rc             control the default params
+    savefig        save the current figure
+    scatter        make a scatter plot
+    setp           set a handle graphics property
+    semilogx       log x axis
+    semilogy       log y axis
+    show           show the figures
+    specgram       a spectrogram plot
+    stem           make a stem plot
+    subplot        make a subplot (numrows, numcols, axesnum)
+    table          add a table to the axes
+    text           add some text at location x,y to the current axes
+    title          add a title to the current axes
+    xlabel         add an xlabel to the current axes
+    ylabel         add a ylabel to the current axes
+    =========      =================================================
 
     The following commands will set the default colormap accordingly:
 
@@ -1493,7 +1494,6 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 ## Plotting part 2: autogenerated wrappers for axes methods ##
 
 
-### Do not edit below this point
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
 def acorr(*args, **kwargs):
@@ -1870,6 +1870,50 @@ Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+def fill_between(*args, **kwargs):
+    # allow callers to override the hold state by passing hold=True|False
+    b = ishold()
+    h = kwargs.pop('hold', None)
+    if h is not None:
+        hold(h)
+    try:
+        ret =  gca().fill_between(*args, **kwargs)
+        draw_if_interactive()
+    except:
+        hold(b)
+        raise
+
+    hold(b)
+    return ret
+if Axes.fill_between.__doc__ is not None:
+    fill_between.__doc__ = dedent(Axes.fill_between.__doc__) + """
+
+Additional kwargs: hold = [True|False] overrides default hold state"""
+
+# This function was autogenerated by boilerplate.py.  Do not edit as
+# changes will be lost
+def hexbin(*args, **kwargs):
+    # allow callers to override the hold state by passing hold=True|False
+    b = ishold()
+    h = kwargs.pop('hold', None)
+    if h is not None:
+        hold(h)
+    try:
+        ret =  gca().hexbin(*args, **kwargs)
+        draw_if_interactive()
+    except:
+        hold(b)
+        raise
+    gci._current = ret
+    hold(b)
+    return ret
+if Axes.hexbin.__doc__ is not None:
+    hexbin.__doc__ = dedent(Axes.hexbin.__doc__) + """
+
+Additional kwargs: hold = [True|False] overrides default hold state"""
+
+# This function was autogenerated by boilerplate.py.  Do not edit as
+# changes will be lost
 def hist(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
@@ -2156,28 +2200,6 @@ Additional kwargs: hold = [True|False] overrides default hold state"""
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-def hexbin(*args, **kwargs):
-    # allow callers to override the hold state by passing hold=True|False
-    b = ishold()
-    h = kwargs.pop('hold', None)
-    if h is not None:
-        hold(h)
-    try:
-        ret =  gca().hexbin(*args, **kwargs)
-        draw_if_interactive()
-    except:
-        hold(b)
-        raise
-    gci._current = ret
-    hold(b)
-    return ret
-if Axes.hexbin.__doc__ is not None:
-    hexbin.__doc__ = dedent(Axes.hexbin.__doc__) + """
-
-Additional kwargs: hold = [True|False] overrides default hold state"""
-
-# This function was autogenerated by boilerplate.py.  Do not edit as
-# changes will be lost
 def semilogx(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     b = ishold()
@@ -2438,10 +2460,8 @@ if Axes.annotate.__doc__ is not None:
 # changes will be lost
 def autumn():
     '''
-    Set the default colormap to *autumn* and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to autumn and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='autumn')
     im = gci()
@@ -2455,10 +2475,8 @@ def autumn():
 # changes will be lost
 def bone():
     '''
-    Set the default colormap to bone and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to bone and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='bone')
     im = gci()
@@ -2472,10 +2490,8 @@ def bone():
 # changes will be lost
 def cool():
     '''
-    Set the default colormap to cool and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to cool and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='cool')
     im = gci()
@@ -2489,10 +2505,8 @@ def cool():
 # changes will be lost
 def copper():
     '''
-    Set the default colormap to copper and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to copper and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='copper')
     im = gci()
@@ -2506,10 +2520,8 @@ def copper():
 # changes will be lost
 def flag():
     '''
-    Set the default colormap to flag and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to flag and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='flag')
     im = gci()
@@ -2523,10 +2535,8 @@ def flag():
 # changes will be lost
 def gray():
     '''
-    Set the default colormap to gray and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to gray and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='gray')
     im = gci()
@@ -2540,10 +2550,8 @@ def gray():
 # changes will be lost
 def hot():
     '''
-    Set the default colormap to hot and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to hot and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='hot')
     im = gci()
@@ -2557,10 +2565,8 @@ def hot():
 # changes will be lost
 def hsv():
     '''
-    Set the default colormap to hsv and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to hsv and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='hsv')
     im = gci()
@@ -2574,10 +2580,8 @@ def hsv():
 # changes will be lost
 def jet():
     '''
-    Set the default colormap to jet and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to jet and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='jet')
     im = gci()
@@ -2591,10 +2595,8 @@ def jet():
 # changes will be lost
 def pink():
     '''
-    Set the default colormap to pink and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to pink and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='pink')
     im = gci()
@@ -2608,10 +2610,8 @@ def pink():
 # changes will be lost
 def prism():
     '''
-    Set the default colormap to prism and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to prism and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='prism')
     im = gci()
@@ -2625,10 +2625,8 @@ def prism():
 # changes will be lost
 def spring():
     '''
-    Set the default colormap to spring and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to spring and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='spring')
     im = gci()
@@ -2642,10 +2640,8 @@ def spring():
 # changes will be lost
 def summer():
     '''
-    Set the default colormap to summer and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to summer and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='summer')
     im = gci()
@@ -2659,10 +2655,8 @@ def summer():
 # changes will be lost
 def winter():
     '''
-    Set the default colormap to winter and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to winter and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='winter')
     im = gci()
@@ -2676,10 +2670,8 @@ def winter():
 # changes will be lost
 def spectral():
     '''
-    Set the default colormap to spectral and apply to current image if any.
-
-    .. seealso::
-        :func:`colormaps`
+    set the default colormap to spectral and apply to current image if any.
+    See help(colormaps) for more information
     '''
     rc('image', cmap='spectral')
     im = gci()
@@ -2687,3 +2679,5 @@ def spectral():
     if im is not None:
         im.set_cmap(cm.spectral)
     draw_if_interactive()
+
+
