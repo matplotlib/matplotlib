@@ -22,6 +22,10 @@ ax3.fill_between(x, y1, y2)
 ax3.set_ylabel('between y1 and y2')
 ax3.set_xlabel('x')
 
+# now fill between y1 and y2 where a logical condition is met.  Note
+# this is different than calling
+#   fill_between(x[where], y1[where],y2[where]
+# because of edge effects over multiple contiguous regions.
 fig = figure()
 ax = fig.add_subplot(111)
 ax1.plot(x, y1, x, y2, color='black')
