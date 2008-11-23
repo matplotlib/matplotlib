@@ -64,6 +64,7 @@ _plotcommands = (
     'csd',
     'errorbar',
     'fill',
+    'fill_between',
     'hexbin',
     'hist',
     'hlines',
