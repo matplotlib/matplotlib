@@ -1,6 +1,9 @@
 """
 Illustrate some helper functions for shading regions where a logical
 mask is True
+
+See :meth:`matplotlib.collections.PolyCollection.fill_between_where`
+and :meth:`matplotlib.collections.BrokenBarHCollection.span_where`
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,26 +21,26 @@ ax.plot(t, s1, t, s2)
 ax.axhline(0, color='black', lw=2)
 
 collection = collections.PolyCollection.fill_between_where(
-	   t, s1, s2, s1>=s2, color='green', alpha=0.5)
+	   t, s1, s2, where=s1>=s2, color='green', alpha=0.5)
 ax.add_collection(collection)
 
 collection = collections.PolyCollection.fill_between_where(
-	   t, s1, s2, s1<=s2, color='red', alpha=0.5)
+	   t, s1, s2, where=s1<=s2, color='red', alpha=0.5)
 ax.add_collection(collection)
 
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-ax.set_title('using span_masked')
+ax.set_title('using span_where')
 ax.plot(t, s1, '-')
 ax.axhline(0, color='black', lw=2)
 
-collection = collections.BrokenBarHCollection.span_masked(
-	   t, s1>0, ymin=0, ymax=1, facecolor='green', alpha=0.5)
+collection = collections.BrokenBarHCollection.span_where(
+	   t, ymin=0, ymax=1, where=s1>0, facecolor='green', alpha=0.5)
 ax.add_collection(collection)
 
-collection = collections.BrokenBarHCollection.span_masked(
-	   t, s1<0, ymin=-1, ymax=0, facecolor='red', alpha=0.5)
+collection = collections.BrokenBarHCollection.span_where(
+	   t, ymin=-1, ymax=0, where=s1<0, facecolor='red', alpha=0.5)
 ax.add_collection(collection)
 
 
