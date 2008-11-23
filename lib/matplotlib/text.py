@@ -375,7 +375,7 @@ class Text(Artist):
 
         if not isinstance(self.arrow_patch, FancyArrowPatch):
             return
-        
+
         if self._bbox_patch:
 
             trans = self.get_transform()
@@ -1295,7 +1295,7 @@ class Annotation(Text):
         instance is created with the given dictionary and is
         drawn. Otherwise, a YAArow patch instance is created and
         drawn. Valid keys for YAArow are
-        
+
 
         =========   ===========================================================
         Key         Description
@@ -1314,10 +1314,10 @@ class Annotation(Text):
 
 
         Valid keys for FancyArrowPatch are
-        
+
 
         ===============  ======================================================
-        Key         Description
+        Key              Description
         ===============  ======================================================
         arrowstyle
         connectionstyle
@@ -1383,7 +1383,7 @@ class Annotation(Text):
         self.arrowprops = arrowprops
 
         self.arrow = None
-        
+
         if arrowprops and arrowprops.has_key("arrowstyle"):
 
             self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
@@ -1392,7 +1392,7 @@ class Annotation(Text):
         else:
             self.arrow_patch = None
 
-        
+
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def contains(self,event):
@@ -1402,7 +1402,7 @@ class Annotation(Text):
             t = t or a
 
         # self.arrow_patch is currently not checked as this can be a line - JJ
-        
+
         return t,tinfo
 
 
@@ -1551,7 +1551,7 @@ class Annotation(Text):
                 # Then it will be shrinked by shirnkA and shrinkB
                 # (in points). If patch A is not set, self.bbox_patch
                 # is used.
-                
+
                 self.arrow_patch.set_positions((ox0, oy0), (ox1,oy1))
                 mutation_scale = d.pop("mutation_scale", self.get_size())
                 self.arrow_patch.set_mutation_scale(mutation_scale)
@@ -1562,7 +1562,7 @@ class Annotation(Text):
                 else:
                     patchA = d.pop("patchA", self._bbox)
                     self.arrow_patch.set_patchA(patchA)
-                
+
             else:
 
                 # pick the x,y corner of the text bbox closest to point
