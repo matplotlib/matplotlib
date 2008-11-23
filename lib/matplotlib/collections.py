@@ -674,10 +674,10 @@ class PolyCollection(Collection):
 
 
     @staticmethod
-    def fill_between_where(x, y1, y2, mask, **kwargs):
+    def fill_between_where(x, y1, y2, where, **kwargs):
         """
         Create a :class:`PolyCollection` filling the regions between *y*
-        and *yboundary7* where ``mask==True``
+        and *yboundary7* where ``where==True``
 
 
         *x*
@@ -689,7 +689,7 @@ class PolyCollection(Collection):
         *y2*
           an N length scalar or np array of the x data
 
-        *mask*
+        *where*
           an N length numpy boolean array
 
         *kwargs*
@@ -705,7 +705,7 @@ class PolyCollection(Collection):
         assert( (len(x)==len(y1)) and (len(x)==len(y2)) )
 
         polys = []
-        for ind0, ind1 in mlab.contiguous_regions(mask):
+        for ind0, ind1 in mlab.contiguous_regions(where):
             theseverts = []
             xslice = x[ind0:ind1]
             y1slice = y1[ind0:ind1]
@@ -756,17 +756,17 @@ class BrokenBarHCollection(PolyCollection):
 
 
     @staticmethod
-    def span_masked(x, mask, ymin, ymax, **kwargs):
+    def span_where(x, ymin, ymax, where, **kwargs):
         """
         Create a BrokenBarHCollection to plot horizontal bars from
-        over the regions in *x* where *mask* is True.  The bars range
+        over the regions in *x* where *where* is True.  The bars range
         on the y-axis from *ymin* to *ymax*
 
         A :class:`BrokenBarHCollection` is returned.
         **kwargs are passed on to the collection
         """
         xranges = []
-        for ind0, ind1 in mlab.contiguous_regions(mask):
+        for ind0, ind1 in mlab.contiguous_regions(where):
             xslice = x[ind0:ind1]
             if not len(xslice):
                 continue
