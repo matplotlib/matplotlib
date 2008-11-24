@@ -28,7 +28,7 @@ ax3.set_xlabel('x')
 # because of edge effects over multiple contiguous regions.
 fig = figure()
 ax = fig.add_subplot(111)
-ax1.plot(x, y1, x, y2, color='black')
+ax.plot(x, y1, x, y2, color='black')
 ax.fill_between(x, y1, y2, where=y2>y1, facecolor='green')
 ax.fill_between(x, y1, y2, where=y2<=y1, facecolor='red')
 ax.set_title('fill between where')
