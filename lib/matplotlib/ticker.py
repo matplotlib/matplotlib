@@ -1037,7 +1037,7 @@ class LogLocator(Locator):
 
         decades = np.arange(math.floor(vmin),
                              math.ceil(vmax)+stride, stride)
-        if len(subs) > 1 or subs[0] != 1.0:
+        if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
             ticklocs = []
             for decadeStart in b**decades:
                 ticklocs.extend( subs*decadeStart )
