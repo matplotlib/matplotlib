@@ -1,3 +1,5 @@
+2008-11-24 Fix crash in log ticking. - MGD
+
 2008-11-20 Added some static helper methods
            BrokenHBarCollection.span_masked and
            PolyCollection.fill_between_where for visualizing logical
