@@ -103,7 +103,6 @@
 =======
 2008-09-11 Fix use of backticks in PS - MGD
 
->>>>>>> .merge-right.r6086
 2008-09-07 Changed full arrows slightly to avoid an xpdf rendering
            problem reported by Friedrich Hagedorn. - JKS
 
