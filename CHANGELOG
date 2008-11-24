@@ -29,6 +29,8 @@
 2008-11-09 Fix a possible EINTR problem in dviread, which might help
            when saving pdf files from the qt backend. - JKS
 
+2008-11-05 Fix bug with zoom to rectangle and twin axes - MGD
+
 2008-10-24 Added Jae Joon's fancy arrow, box and annotation
            enhancements -- see
            examples/pylab_examples/annotation_demo2.py
@@ -53,10 +55,6 @@
 
 2008-10-08 Add path simplification support to paths with gaps. - EF
 
-=======
-2008-11-05 Fix bug with zoom to rectangle and twin axes - MGD
-
->>>>>>> .merge-right.r6428
 2008-10-05 Fix problem with AFM files that don't specify the font's
            full name or family name. - JKS
 
@@ -99,9 +97,6 @@
 
 2008-09-10 Add "filled" kwarg to Path.intersects_path and
            Path.intersects_bbox. - MGD
-
-=======
-2008-09-11 Fix use of backticks in PS - MGD
 
 2008-09-07 Changed full arrows slightly to avoid an xpdf rendering
            problem reported by Friedrich Hagedorn. - JKS
