@@ -313,7 +313,7 @@ class ScalarFormatter(Formatter):
 
     def fix_minus(self, s):
         'use a unicode minus rather than hyphen'
-        if rcParams['text.usetex']: return s
+        if rcParams['text.usetex'] or not rcParams['axes.unicode_minus']: return s
         else: return s.replace('-', u'\u2212')
 
     def __call__(self, x, pos=None):
