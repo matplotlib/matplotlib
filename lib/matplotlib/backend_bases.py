@@ -269,7 +269,7 @@ class RendererBase:
                 gc.set_alpha(rgbFace[-1])
                 rgbFace = rgbFace[:3]
             gc.set_antialiased(antialiaseds[i % Naa])
-            
+
             if Nurls:
                 gc.set_url(urls[i % Nurls])
 
@@ -527,7 +527,7 @@ class GraphicsContextBase:
         matlab format string, a html hex color string, or a rgb tuple
         """
         return self._rgb
-    
+
     def get_url(self):
         """
         returns a url if one is set, None otherwise
@@ -633,7 +633,7 @@ class GraphicsContextBase:
             raise ValueError('Unrecognized linestyle: %s' % style)
         self._linestyle = style
         self.set_dashes(offset, dashes)
-        
+
     def set_url(self, url):
         """
         Sets the url for links in compatible backends
@@ -1531,7 +1531,7 @@ class FigureManagerBase:
 
         if event.key == 'f':
             self.full_screen_toggle()
-        
+
         # *h*ome or *r*eset mnemonic
         elif event.key == 'h' or event.key == 'r' or event.key == "home":
             self.canvas.toolbar.home()
@@ -1883,8 +1883,14 @@ class NavigationToolbar2:
         for cur_xypress in self._xypress:
             x, y = event.x, event.y
             lastx, lasty, a, ind, lim, trans = cur_xypress
+            # JDH: I don't know why this is here but I expect to be
+            # able to zoomo on any axis that is shared.  This was
+            # breaking zoom-to-rect on sharex_axis_demo if the zoom
+            # happened in ax2 or ax3 so i am replacing the continue
+            # with a pass until this is sorted out
             if a._sharex or a._sharey:
-                continue
+                #continue
+                pass
             # ignore singular clicks - 5 pixels is a threshold
             if abs(x-lastx)<5 or abs(y-lasty)<5:
                 self._xypress = None
