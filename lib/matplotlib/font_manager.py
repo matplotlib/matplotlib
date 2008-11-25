@@ -592,7 +592,7 @@ def createFontList(fontfiles, fontext='ttf'):
                 verbose.report("Cannot handle unicode filenames")
                 #print >> sys.stderr, 'Bad file is', fpath
                 continue
-            try: prop = ttfFontProperty(fpath, font)
+            try: prop = ttfFontProperty(font)
             except: continue
 
         fontlist.append(prop)
