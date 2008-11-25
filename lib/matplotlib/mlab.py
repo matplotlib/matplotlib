@@ -2460,8 +2460,10 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     # Get header and remove invalid characters
     needheader = names is None
+
     if needheader:
         for row in reader:
+            #print 'csv2rec', row
             if len(row) and row[0].startswith(comments):
                 continue
             headers = row
