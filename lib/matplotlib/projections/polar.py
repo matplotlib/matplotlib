@@ -136,7 +136,7 @@ class PolarAxes(Axes):
         """
         def __call__(self, x, pos=None):
             # \u00b0 : degree symbol
-            if rcParams['text.usetex']:
+            if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
                 return r"$%d^\circ$" % ((x / npy.pi) * 180.0)
             else:
                 return u"%d\u00b0" % ((x / npy.pi) * 180.0)
