@@ -1,3 +1,6 @@
+2008-11-25 Added rcParam axes.unicode_minus which allows plain hypen
+           for minus when False - JDH
+
 2008-11-25 Added scatterpoints support in Legend. patch by Erik
            Tollerud - JJL
 

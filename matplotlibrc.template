@@ -205,6 +205,8 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 #axes.formatter.limits : -7, 7 # use scientific notation if log10
                                # of the axis range is smaller than the
                                # first or larger than the second
+#axes.unicode_minus  : True    # use unicode for the minus symbol
+                               # rather than hypen.  See http://en.wikipedia.org/wiki/Plus_sign#Plus_sign
 
 #polaraxes.grid      : True    # display grid on polar axes
 

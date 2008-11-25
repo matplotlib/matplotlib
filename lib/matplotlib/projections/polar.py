@@ -139,6 +139,11 @@ class PolarAxes(Axes):
             if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
                 return r"$%d^\circ$" % ((x / npy.pi) * 180.0)
             else:
+                # we use unicode, rather than mathtext with \circ, so
+                # that it will work correctly with any arbitrary font
+                # (assuming it has a degree sign), whereas $5\circ$
+                # will only work correctly with one of the supported
+                # math fonts (Computer Modern and STIX)
                 return u"%d\u00b0" % ((x / npy.pi) * 180.0)
 
     class RadialLocator(Locator):

@@ -412,6 +412,7 @@ defaultParams = {
                                # use scientific notation if log10
                                # of the axis range is smaller than the
                                # first or larger than the second
+    'axes.unicode_minus'        : [True, validate_bool],
 
     'polaraxes.grid'        : [True, validate_bool],   # display polar grid or not
 
