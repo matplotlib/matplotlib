@@ -1,3 +1,6 @@
+2008-11-25 Added scatterpoints support in Legend. patch by Erik
+           Tollerud - JJL
+
 2008-11-24 Fix crash in log ticking. - MGD
 
 2008-11-20 Added static helper method BrokenHBarCollection.span_where

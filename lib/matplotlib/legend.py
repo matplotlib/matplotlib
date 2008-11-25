@@ -83,6 +83,7 @@ class Legend(Artist):
     def __init__(self, parent, handles, labels,
                  loc = None,
                  numpoints = None,     # the number of points in the legend line
+                 scatterpoints = 3,    # TODO: may be an rcParam
                  prop = None,
                  pad = None,           # the fractional whitespace inside the legend border
                  borderpad = None,
@@ -101,6 +102,7 @@ class Legend(Artist):
   labels                # a list of strings to label the legend
   loc                   # a location code
   numpoints = 4         # the number of points in the legend line
+  scatterpoints = 3     # the number of points for the scatterplot legend
   prop = FontProperties(size='smaller')  # the font property
   pad = 0.2             # the fractional whitespace inside the legend border
   markerscale = 0.6     # the relative size of legend markers vs. original
@@ -118,10 +120,10 @@ The following dimensions are in axes coords
 
         Artist.__init__(self)
 
-        proplist=[numpoints, pad, borderpad, markerscale, labelsep,
+        proplist=[numpoints, scatterpoints, pad, borderpad, markerscale, labelsep,
             handlelen, handletextsep, axespad, shadow]
-        propnames=['numpoints', 'pad', 'borderpad', 'markerscale', 'labelsep',
-            'handlelen', 'handletextsep', 'axespad', 'shadow']
+        propnames=['numpoints','scatterpoints', 'pad', 'borderpad', 'markerscale',
+            'labelsep', 'handlelen', 'handletextsep', 'axespad', 'shadow']
         for name, value in safezip(propnames,proplist):
             if value is None:
                 value=rcParams["legend."+name]
@@ -130,7 +132,9 @@ The following dimensions are in axes coords
             warnings.warn("Use 'borderpad' instead of 'pad'.", DeprecationWarning)
             # 2008/10/04
         if self.numpoints <= 0:
-            raise ValueError("numpoints must be >= 0; it was %d"% numpoints)
+            raise ValueError("numpoints must be > 0; it was %d"% numpoints)
+        if self.scatterpoints <= 0:
+            raise ValueError("scatterpoints must be > 0; it was %d"% numpoints)
         if prop is None:
             self.prop=FontProperties(size=rcParams["legend.fontsize"])
         else:
@@ -142,8 +146,8 @@ The following dimensions are in axes coords
             self._scatteryoffsets = np.array([4./8., 5./8., 3./8.])
         else:
             self._scatteryoffsets = np.asarray(scatteryoffsets)
-        reps =  int(self.numpoints / len(self._scatteryoffsets)) + 1
-        self._scatteryoffsets = np.tile(self._scatteryoffsets, reps)[:self.numpoints]
+        reps =  int(self.scatterpoints / len(self._scatteryoffsets)) + 1
+        self._scatteryoffsets = np.tile(self._scatteryoffsets, reps)[:self.scatterpoints]
 
         if isinstance(parent,Axes):
             self.isaxes = True
@@ -261,10 +265,14 @@ The following dimensions are in axes coords
         # centered marker proxy
 
         for handle, label in safezip(handles, texts):
-            if self.numpoints > 1:
-                xdata = np.linspace(left, left + self.handlelen, self.numpoints)
+            if isinstance(handle, RegularPolyCollection):
+                npoints = self.scatterpoints
+            else:
+                npoints = self.numpoints
+            if npoints > 1:
+                xdata = np.linspace(left, left + self.handlelen, npoints)
                 xdata_marker = xdata
-            elif self.numpoints == 1:
+            elif npoints == 1:
                 xdata = np.linspace(left, left + self.handlelen, 2)
                 xdata_marker = [left + 0.5*self.handlelen]
 
@@ -326,8 +334,11 @@ The following dimensions are in axes coords
                 # we may need to scale these sizes by "markerscale"
                 # attribute. But other handle types does not seem
                 # to care about this attribute and it is currently ignored.
-                sizes = [.5*(size_max+size_min), size_max,
-                         size_min]
+                if self.scatterpoints < 4:
+                    sizes = [.5*(size_max+size_min), size_max,
+                             size_min]
+                else:
+                    sizes = size_max*np.linspace(0,1,self.scatterpoints)+size_min
 
                 p = type(handle)(handle.get_numsides(),
                                  rotation=handle.get_rotation(),
