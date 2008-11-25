@@ -666,7 +666,7 @@ def rc_params(fail_on_error=False):
 Bad key "%s" on line %d in
 %s.
 You probably need to get an updated matplotlibrc file from
-http://matplotlib.sf.net/matplotlibrc or from the matplotlib source
+http://matplotlib.sf.net/_static/matplotlibrc or from the matplotlib source
 distribution""" % (key, cnt, fname)
 
     if ret['datapath'] is None:

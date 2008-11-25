@@ -1,9 +1,8 @@
 2008-11-24 Fix crash in log ticking. - MGD
 
-2008-11-20 Added some static helper methods
-           BrokenHBarCollection.span_masked and
-           PolyCollection.fill_between_where for visualizing logical
-           regions.  See examples/api/fill_where_demo.py - JDH
+2008-11-20 Added static helper method BrokenHBarCollection.span_where
+           and Axes/pyplot method fill_between.  See
+           examples/pylab/fill_between.py - JDH
 
 2008-11-12 Add x_isdata and y_isdata attributes to Artist instances,
            and use them to determine whether either or both
