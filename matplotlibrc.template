@@ -10,13 +10,16 @@
 # (win32 systems).
 #
 # This file is best viewed in a editor which supports python mode
-# syntax highlighting # Blank lines, or lines starting with a comment
+# syntax highlighting. Blank lines, or lines starting with a comment
 # symbol, are ignored, as are trailing comments.  Other lines must
-# have the format # key : val # optional comment # Colors: for the
-# color values below, you can either use - a matplotlib color string,
-# such as r, k, or b - an rgb tuple, such as (1.0, 0.5, 0.0) - a hex
-# string, such as ff00ff or #ff00ff - a scalar grayscale intensity
-# such as 0.75 - a legal html color name, eg red, blue, darkslategray
+# have the format
+#    key : val # optional comment
+#
+# Colors: for the color values below, you can either use - a
+# matplotlib color string, such as r, k, or b - an rgb tuple, such as
+# (1.0, 0.5, 0.0) - a hex string, such as ff00ff or #ff00ff - a scalar
+# grayscale intensity such as 0.75 - a legal html color name, eg red,
+# blue, darkslategray
 
 #### CONFIGURATION BEGINS HERE
 

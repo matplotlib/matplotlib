@@ -61,6 +61,10 @@ There is some degree of validation when setting the values of rcParams, see
 .. _matplotlibrc-sample:
 
 A sample matplotlibrc file
---------------------------
+--------------------------------------------------------------------
+
+.. htmlonly::
+
+    `(download) <../_static/matplotlibrc>`__
 
 .. literalinclude:: ../mpl_data/matplotlibrc
