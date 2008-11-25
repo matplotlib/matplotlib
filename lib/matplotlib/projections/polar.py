@@ -136,7 +136,10 @@ class PolarAxes(Axes):
         """
         def __call__(self, x, pos=None):
             # \u00b0 : degree symbol
-            return u"%d\u00b0" % ((x / npy.pi) * 180.0)
+            if rcParams['text.usetex']:
+                return r"$%d^\circ$" % ((x / npy.pi) * 180.0)
+            else:
+                return u"%d\u00b0" % ((x / npy.pi) * 180.0)
 
     class RadialLocator(Locator):
         """
