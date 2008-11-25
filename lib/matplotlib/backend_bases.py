@@ -1883,14 +1883,7 @@ class NavigationToolbar2:
         for cur_xypress in self._xypress:
             x, y = event.x, event.y
             lastx, lasty, a, ind, lim, trans = cur_xypress
-            # JDH: I don't know why this is here but I expect to be
-            # able to zoomo on any axis that is shared.  This was
-            # breaking zoom-to-rect on sharex_axis_demo if the zoom
-            # happened in ax2 or ax3 so i am replacing the continue
-            # with a pass until this is sorted out
-            if a._sharex or a._sharey:
-                #continue
-                pass
+
             # ignore singular clicks - 5 pixels is a threshold
             if abs(x-lastx)<5 or abs(y-lasty)<5:
                 self._xypress = None
