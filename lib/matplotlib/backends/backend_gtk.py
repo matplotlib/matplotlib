@@ -170,6 +170,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self.connect('key_press_event',      self.key_press_event)
         self.connect('key_release_event',    self.key_release_event)
         self.connect('motion_notify_event',  self.motion_notify_event)
+        self.connect('leave_notify_event',   self.leave_notify_event)
 
         self.set_events(self.__class__.event_mask)
 
@@ -238,6 +239,9 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         y = self.allocation.height - y
         FigureCanvasBase.motion_notify_event(self, x, y)
         return False  # finish event propagation?
+
+    def leave_notify_event(self, widget, event):
+        FigureCanvasBase.leave_notify_event(self, event)
 
     def _get_key(self, event):
         if event.keyval in self.keyvald:
