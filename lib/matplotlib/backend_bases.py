@@ -744,7 +744,7 @@ class LocationEvent(Event):
     ydata  = None       # y coord of mouse in data coords
 
     # the last event that was triggered before this one
-    _lastevent = None
+    lastevent = None
 
     def __init__(self, name, canvas, x, y,guiEvent=None):
         """
@@ -789,11 +789,10 @@ class LocationEvent(Event):
 
     def _update_enter_leave(self):
         'process the figure/axes enter leave events'
-        if LocationEvent._lastevent is not None:
-            last = LocationEvent._lastevent
+        if LocationEvent.lastevent is not None:
+            last = LocationEvent.lastevent
             if last.canvas!=self.canvas:
                 # process figure enter/leave event
-                last.canvas.callbacks.process('figure_leave_event', last)
                 self.canvas.callbacks.process('figure_enter_event', self)
             if last.inaxes!=self.inaxes:
                 # process axes enter/leave events
@@ -810,7 +809,7 @@ class LocationEvent(Event):
                 self.canvas.callbacks.process('axes_enter_event', self)
 
 
-        LocationEvent._lastevent = self
+        LocationEvent.lastevent = self
 
 
 
@@ -1204,6 +1203,19 @@ class FigureCanvasBase:
         event = MouseEvent(s, self, x, y, self._button, self._key,
                            guiEvent=guiEvent)
         self.callbacks.process(s, event)
+
+    def leave_notify_event(self, guiEvent=None):
+        """
+        Backend derived classes should call this function when leaving
+        canvas
+
+        *guiEvent*
+            the native UI event that generated the mpl event
+
+        """
+        self.callbacks.process('figure_leave_event', LocationEvent.lastevent)
+        LocationEvent.lastevent = None
+
 
     def idle_event(self, guiEvent=None):
         'call when GUI is idle'
