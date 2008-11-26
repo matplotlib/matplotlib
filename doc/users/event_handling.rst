@@ -53,15 +53,19 @@ are sent back to you when the event occurs, and the event descriptions
 =======================  ======================================================================================
 Event name               Class and description
 =======================  ======================================================================================
-'button_press_event'     :class:`~matplotlib.backend_bases.MouseEvent`  - mouse button is pressed
-'button_release_event'   :class:`~matplotlib.backend_bases.MouseEvent`  - mouse button is released
-'draw_event'             :class:`~matplotlib.backend_bases.DrawEvent`   - canvas draw
-'key_press_event'        :class:`~matplotlib.backend_bases.KeyEvent`    - key is pressed
-'key_release_event'      :class:`~matplotlib.backend_bases.KeyEvent`    - key is released
-'motion_notify_event'    :class:`~matplotlib.backend_bases.MouseEvent`  - mouse motion
-'pick_event'             :class:`~matplotlib.backend_bases.PickEvent`   - an object in the canvas is selected
-'resize_event'           :class:`~matplotlib.backend_bases.ResizeEvent` - figure canvas is resized
-'scroll_event'           :class:`~matplotlib.backend_bases.MouseEvent`  - mouse scroll wheel is rolled
+'button_press_event'     :class:`~matplotlib.backend_bases.MouseEvent`     - mouse button is pressed
+'button_release_event'   :class:`~matplotlib.backend_bases.MouseEvent`     - mouse button is released
+'draw_event'             :class:`~matplotlib.backend_bases.DrawEvent`      - canvas draw
+'key_press_event'        :class:`~matplotlib.backend_bases.KeyEvent`       - key is pressed
+'key_release_event'      :class:`~matplotlib.backend_bases.KeyEvent`       - key is released
+'motion_notify_event'    :class:`~matplotlib.backend_bases.MouseEvent`     - mouse motion
+'pick_event'             :class:`~matplotlib.backend_bases.PickEvent`      - an object in the canvas is selected
+'resize_event'           :class:`~matplotlib.backend_bases.ResizeEvent`    - figure canvas is resized
+'scroll_event'           :class:`~matplotlib.backend_bases.MouseEvent`     - mouse scroll wheel is rolled
+'figure_enter_event'     :class:`~matplotlib.backend_bases.LocationEvent`  - mouse enters a new figure
+'figure_leave_event'     :class:`~matplotlib.backend_bases.LocationEvent`  - mouse leaves a figure
+'axes_enter_event'     :class:`~matplotlib.backend_bases.LocationEvent`    - mouse enters a new axes
+'axes_leave_event'     :class:`~matplotlib.backend_bases.LocationEvent`    - mouse leaves an axes
 =======================  ======================================================================================
 
 .. _event-attributes:
@@ -328,6 +332,66 @@ Extra credit solution::
         drs.append(dr)
 
     plt.show()
+
+
+.. _enter-leave-events:
+
+Mouse enter and leave
+======================
+
+If you want to be notified when the mouse enters or leaves a figure or
+axes, you can connect to the figure/axes enter/leave events.  Here is
+a simple example that changes the colors of the axes and figure
+background that the mouse is over::
+
+    """
+    Illustrate the figure and axes enter and leave events by changing the
+    frame colors on enter and leave
+    """
+    import matplotlib.pyplot as plt
+
+    def enter_axes(event):
+        print 'enter_axes', event.inaxes
+        event.inaxes.patch.set_facecolor('yellow')
+        event.canvas.draw()
+
+    def leave_axes(event):
+        print 'leave_axes', event.inaxes
+        event.inaxes.patch.set_facecolor('white')
+        event.canvas.draw()
+
+    def enter_figure(event):
+        print 'enter_figure', event.canvas.figure
+        event.canvas.figure.patch.set_facecolor('red')
+        event.canvas.draw()
+
+    def leave_figure(event):
+        print 'leave_figure', event.canvas.figure
+        event.canvas.figure.patch.set_facecolor('grey')
+        event.canvas.draw()
+
+    fig1 = plt.figure()
+    fig1.suptitle('mouse hover over figure or axes to trigger events')
+    ax1 = fig1.add_subplot(211)
+    ax2 = fig1.add_subplot(212)
+
+    fig1.canvas.mpl_connect('figure_enter_event', enter_figure)
+    fig1.canvas.mpl_connect('figure_leave_event', leave_figure)
+    fig1.canvas.mpl_connect('axes_enter_event', enter_axes)
+    fig1.canvas.mpl_connect('axes_leave_event', leave_axes)
+
+    fig2 = plt.figure()
+    fig2.suptitle('mouse hover over figure or axes to trigger events')
+    ax1 = fig2.add_subplot(211)
+    ax2 = fig2.add_subplot(212)
+
+    fig2.canvas.mpl_connect('figure_enter_event', enter_figure)
+    fig2.canvas.mpl_connect('figure_leave_event', leave_figure)
+    fig2.canvas.mpl_connect('axes_enter_event', enter_axes)
+    fig2.canvas.mpl_connect('axes_leave_event', leave_axes)
+
+    plt.show()
+
 
 
 .. _object-picking:

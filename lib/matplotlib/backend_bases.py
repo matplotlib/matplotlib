@@ -743,6 +743,9 @@ class LocationEvent(Event):
     xdata  = None       # x coord of mouse in data coords
     ydata  = None       # y coord of mouse in data coords
 
+    # the last event that was triggered before this one
+    _lastevent = None
+
     def __init__(self, name, canvas, x, y,guiEvent=None):
         """
         *x*, *y* in figure coords, 0,0 = bottom, left
@@ -751,8 +754,12 @@ class LocationEvent(Event):
         self.x = x
         self.y = y
 
+
+
         if x is None or y is None:
             # cannot check if event was in axes if no x,y info
+            self.inaxes = False
+            self._update_enter_leave()
             return
 
         # Find all axes containing the mouse
@@ -760,6 +767,7 @@ class LocationEvent(Event):
 
         if len(axes_list) == 0: # None found
             self.inaxes = None
+            self._update_enter_leave()
             return
         elif (len(axes_list) > 1): # Overlap, get the highest zorder
             axCmp = lambda _x,_y: cmp(_x.zorder, _y.zorder)
@@ -776,6 +784,36 @@ class LocationEvent(Event):
         else:
             self.xdata  = xdata
             self.ydata  = ydata
+
+        self._update_enter_leave()
+
+    def _update_enter_leave(self):
+        'process the figure/axes enter leave events'
+        if LocationEvent._lastevent is not None:
+            last = LocationEvent._lastevent
+            if last.canvas!=self.canvas:
+                # process figure enter/leave event
+                last.canvas.callbacks.process('figure_leave_event', last)
+                self.canvas.callbacks.process('figure_enter_event', self)
+            if last.inaxes!=self.inaxes:
+                # process axes enter/leave events
+                if last.inaxes is not None:
+                    last.canvas.callbacks.process('axes_leave_event', last)
+                if self.inaxes is not None:
+                    self.canvas.callbacks.process('axes_enter_event', self)
+
+        else:
+            # process a figure enter event
+            self.canvas.callbacks.process('figure_enter_event', self)
+            # process an axes enter event if we are over an axes
+            if self.inaxes is not None:
+                self.canvas.callbacks.process('axes_enter_event', self)
+
+
+        LocationEvent._lastevent = self
+
+
+
 
 class MouseEvent(LocationEvent):
     """
@@ -914,6 +952,12 @@ class FigureCanvasBase:
         'motion_notify_event',
         'pick_event',
         'idle_event',
+        'figure_enter_event',
+        # todo: we only process this when a mouse enters a different
+        # figure -- we need to connect to the GUI leavel event
+        'figure_leave_event',
+        'axes_enter_event',
+        'axes_leave_event'
         ]
 
 
