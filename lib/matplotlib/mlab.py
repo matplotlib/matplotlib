@@ -351,7 +351,7 @@ kwdocd['PSD'] ="""
           is 0 (no overlap).
 
       *pad_to*: integer
-          The number of points to which the data segment is padd when
+          The number of points to which the data segment is padded when
           performing the FFT.  This can be different from *NFFT*, which
           specifies the number of data points used.  While not increasing
           the actual resolution of the psd (the minimum distance between
