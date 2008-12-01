@@ -17,7 +17,7 @@ functions are directed to the current axes
 
 You may be wondering why the x-axis ranges from 0-2 and the y-axis
 from 1-3.  If you provide a single list or array to the
-:func:`~matplotlib.pyplot.plot` command, matplotlib assumes it a
+:func:`~matplotlib.pyplot.plot` command, matplotlib assumes it is a
 sequence of y values, and automatically generates the x values for
 you.  Since python ranges start with 0, the default x vector has the
 same length as y but starts with 0.  Hence the x data are
