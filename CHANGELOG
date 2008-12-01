@@ -1,3 +1,6 @@
+2008-12-01 Fixed histogram autoscaling bug when bins or range are given
+           explicitly (fixes Debian bug 503148) - MM
+
 2008-11-25 Added rcParam axes.unicode_minus which allows plain hypen
            for minus when False - JDH
 

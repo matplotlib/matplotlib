@@ -6510,6 +6510,9 @@ class Axes(martist.Artist):
         """
         if not self._hold: self.cla()
 
+        # NOTE: the range keyword overwrites the built-in func range !!!
+        #       needs to be fixed in  with numpy                     !!! 
+
         if kwargs.get('width') is not None:
             raise DeprecationWarning(
                 'hist now uses the rwidth to give relative width '
@@ -6531,6 +6534,10 @@ class Axes(martist.Artist):
                     tx.append( np.array(x[i]) )
                 x = tx
 
+        # Check whether bins or range are given explicitly. In that
+        # case do not autoscale axes.
+        binsgiven = (cbook.iterable(bins) or range != None)
+
         n = []
         for i in xrange(len(x)):
             # this will automatically overwrite bins,
@@ -6541,9 +6548,8 @@ class Axes(martist.Artist):
 
         if cumulative:
             slc = slice(None)
-            if cbook.is_numlike(cumulative):
-                if cumulative < 0:
-                    slc = slice(None,None,-1)
+            if cbook.is_numlike(cumulative) and cumulative < 0:
+                slc = slice(None,None,-1)
 
             if normed:
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
@@ -6675,6 +6681,16 @@ class Axes(martist.Artist):
                 p.set_label(label)
                 label = '_nolegend_'
 
+        if binsgiven:
+            self.set_autoscale_on(False)
+            if orientation == 'vertical':
+                self.autoscale_view(scalex=False, scaley=True)
+                XL = self.xaxis.get_major_locator().view_limits(bins[0], bins[-1])
+                self.set_xbound(XL)
+            else:
+                self.autoscale_view(scalex=True, scaley=False)
+                YL = self.yaxis.get_major_locator().view_limits(bins[0], bins[-1])
+                self.set_ybound(YL)
 
         if len(n)==1:
             return n[0], bins, cbook.silent_list('Patch', patches[0])
