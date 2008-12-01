@@ -115,12 +115,12 @@ class TransformNode(object):
             return
 
         # Invalidate all ancestors of self using pseudo-recursion.
-        parent = None
         stack = [self]
         while len(stack):
             root = stack.pop()
             # Stop at subtrees that have already been invalidated
             if root._invalid != value or root.pass_through:
+                value |= root._invalid
                 root._invalid = value
                 stack.extend(root._parents.keys())
 
