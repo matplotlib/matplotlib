@@ -493,9 +493,11 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   trans *= agg::trans_affine_translation(0.0, (double)height);
 
   PathIterator marker_path(marker_path_obj);
-  // The built-in markers look better if snapping is turned on.
-  const bool marker_snap = true;
-  // bool marker_snap = should_snap(marker_path, marker_trans);
+  // The built-in markers look better if snapping is turned on, but
+  // unfortunately, it can cause really small things to disappear.
+  // Disabling for now to revisit at a later date.
+  // const bool marker_snap = true;
+  bool marker_snap = should_snap(marker_path, marker_trans);
   transformed_path_t marker_path_transformed(marker_path, marker_trans);
   simplify_t marker_path_simplified(marker_path_transformed, marker_snap, false, width, height);
   curve_t marker_path_curve(marker_path_simplified);
