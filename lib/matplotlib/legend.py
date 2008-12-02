@@ -61,6 +61,9 @@ class Legend(Artist):
       'upper center' : 9,
       'center'       : 10,
 
+    loc can be a tuple of the noramilzed coordinate values with
+    respect its parent.
+   
     Return value is a sequence of text, line instances that make
     up the legend
     """
@@ -100,7 +103,7 @@ class Legend(Artist):
                  axespad = None,       # deprecated; use borderaxespad
 
                  # spacing & pad defined as a fractionof the font-size 
-                 borderpad = None,     # the fractional whitespace inside the legend border
+                 borderpad = None,     # the whitespace inside the legend border
                  labelspacing=None, #the vertical space between the legend entries
                  handlelength=None, # the length of the legend handles
                  handletextpad=None, # the pad between the legend handle and text
@@ -119,11 +122,11 @@ class Legend(Artist):
 
         Optional keyword arguments:
 
-        ================   =========================================
+        ================   =================================================
         Keyword            Description
-        ================   =========================================
+        ================   =================================================
 
-        loc                a location code
+        loc                a location code or a tuple of coordinates
         numpoints          the number of points in the legend line
         prop               the font property
         markerscale        the relative size of legend markers vs. original
@@ -284,14 +287,22 @@ fontsize. Values from rcParams will be used if None.
         a.set_transform(self.get_transform())
 
     def _findoffset_best(self, width, height, xdescent, ydescent):
-        "Heper function to locate the legend"
+        "Heper function to locate the legend at its best position"
         ox, oy = self._find_best_position(width, height)
         return ox+xdescent, oy+ydescent
 
     def _findoffset_loc(self, width, height, xdescent, ydescent):
-        "Heper function to locate the legend"
-        bbox = Bbox.from_bounds(0, 0, width, height)
-        x, y = self._get_anchored_bbox(self._loc, bbox, self.parent.bbox)
+        "Heper function to locate the legend using the location code"
+
+        if iterable(self._loc) and len(self._loc)==2:
+            # when loc is a tuple of axes(or figure) coordinates.
+            fx, fy = self._loc
+            bbox = self.parent.bbox
+            x, y = bbox.x0 + bbox.width * fx, bbox.y0 + bbox.height * fy
+        else:
+            bbox = Bbox.from_bounds(0, 0, width, height)
+            x, y = self._get_anchored_bbox(self._loc, bbox, self.parent.bbox)
+
         return x+xdescent, y+ydescent
 
     def draw(self, renderer):

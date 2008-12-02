@@ -1,3 +1,6 @@
+2008-12-02 Fixed a bug in the new legend class that didn't allowed 
+           a tuple of coordinate vlaues as loc. -JJL
+
 2008-12-02 Improve checks for external dependencies, using subprocess 
            (instead of deprecated popen*) and distutils (for version
            checking) - DSD
