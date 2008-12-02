@@ -102,6 +102,12 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         w,h = self.get_width_height()
         self.resize( w, h )
 
+    def enterEvent(self, event):
+        FigureCanvasBase.enter_notify_event(self, event)
+
+    def leaveEvent(self, event):
+        FigureCanvasBase.leave_notify_event(self, event)
+
     def mousePressEvent( self, event ):
         x = event.pos().x()
         # flipy so y=0 is bottom of canvas
