@@ -1237,6 +1237,7 @@ class TransformWrapper(Transform):
     of the same dimensions.
     """
     pass_through = True
+    is_affine = False
 
     def __init__(self, child):
         """
@@ -1287,10 +1288,6 @@ class TransformWrapper(Transform):
         self._invalid = 0
         self.invalidate()
         self._invalid = 0
-
-    def _get_is_affine(self):
-        return self._child.is_affine
-    is_affine = property(_get_is_affine)
 
     def _get_is_separable(self):
         return self._child.is_separable
