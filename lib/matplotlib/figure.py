@@ -656,12 +656,7 @@ class Figure(Artist):
         %(Axes)s
         """
 
-        key = self._make_key(*args, **kwargs)
-        if key in self._seen:
-            ax = self._seen[key]
-            self.sca(ax)
-            return ax
-
+        kwargs = kwargs.copy()
 
         if not len(args): return
 
@@ -680,8 +675,18 @@ class Figure(Artist):
                 projection = 'polar'
 
             projection_class = get_projection_class(projection)
-            a = subplot_class_factory(projection_class)(self, *args, **kwargs)
 
+        key = self._make_key(*args, **kwargs)
+        if key in self._seen:
+            ax = self._seen[key]
+            if isinstance(ax, projection_class):
+                self.sca(ax)
+                return ax
+            else:
+                self.axes.remove(ax)
+                self._axstack.remove(ax)
+
+        a = subplot_class_factory(projection_class)(self, *args, **kwargs)
         self.axes.append(a)
         self._axstack.push(a)
         self.sca(a)
@@ -891,7 +896,20 @@ class Figure(Artist):
         %(Axes)s
         """
         ax = self._axstack()
-        if ax is not None: return ax
+        if ax is not None:
+            ispolar = kwargs.get('polar', False)
+            projection = kwargs.get('projection', None)
+            if ispolar:
+                if projection is not None and projection != 'polar':
+                    raise ValueError(
+                        "polar=True, yet projection='%s'. " +
+                        "Only one of these arguments should be supplied." %
+                        projection)
+                projection = 'polar'
+
+            projection_class = get_projection_class(projection)
+            if isinstance(ax, projection_class):
+                return ax
         return self.add_subplot(111, **kwargs)
     gca.__doc__ = dedent(gca.__doc__) % artist.kwdocd
 
