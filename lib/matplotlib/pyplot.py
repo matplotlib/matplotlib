@@ -588,11 +588,6 @@ def subplot(*args, **kwargs):
 
     ``subplot(111)`` is the default axis.
 
-    The background color of the subplot can be specified via keyword
-    argument *axisbg*, which takes a color string as value, as in::
-
-      subplot(211, axisbg='y')
-
     New subplots that overlap old will delete the old axes.  If you do
     not want this behavior, use
     :meth:`matplotlib.figure.Figure.add_subplot` or the
@@ -602,11 +597,35 @@ def subplot(*args, **kwargs):
       plot([1,2,3])  # implicitly creates subplot(111)
       subplot(211)   # overlaps, subplot(111) is killed
       plot(rand(12), rand(12))
+      subplot(212, axisbg='y') # creates 2nd subplot with yellow background
+
+    Keyword arguments:
+
+      *axisbg*:
+        The background color of the subplot, which can be any valid
+        color specifier.  See :module:`matplotlib.colors` for more
+        information.
+
+      *polar*:
+        A boolean flag indicating whether the subplot plot should be
+        a polar projection.  Defaults to False.
+
+      *projection*:
+        A string giving the name of a custom projection to be used
+        for the subplot. This projection must have been previously
+        registered. See :func:`matplotlib.projections.register_projection`
 
     .. seealso::
         :func:`~matplotlib.pyplot.axes`:
             For additional information on :func:`axes` and
             :func:`subplot` keyword arguments.
+
+        :file:`examples/pylab_examples/polar_scatter.py`
+
+    **Example:**
+
+    .. plot:: mpl_examples/pylab_examples/subplot_demo.py
+
     """
 
 
