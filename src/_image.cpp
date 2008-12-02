@@ -1327,20 +1327,27 @@ char __image_module_pcolor__doc__[] =
 void _pcolor_cleanup(PyArrayObject* x, PyArrayObject* y,  PyArrayObject *d,
                                         unsigned int * rowstarts ,unsigned int*colstarts ,
                                         float *acols , float *arows) {
-    if (x)
+    if (x) {
       Py_XDECREF(x);
-    if (y)
+    }
+    if (y) {
       Py_XDECREF(y);
-    if(d)
+    }
+    if(d) {
       Py_XDECREF(d);
-    if(rowstarts)
+    }
+    if(rowstarts) {
       PyMem_Free(rowstarts);
-    if(colstarts)
+    }
+    if(colstarts) {
       PyMem_Free(colstarts);
-    if(acols)
+    }
+    if(acols) {
       PyMem_Free(acols);
-    if(arows)
+    }
+    if(arows) {
       PyMem_Free(arows);
+    }
     return;
 }
 
