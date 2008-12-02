@@ -79,7 +79,7 @@ class RendererAgg(RendererBase):
     def draw_path(self, gc, path, transform, rgbFace=None):
         nmax = rcParams['agg.path.chunksize'] # here at least for testing
         npts = path.vertices.shape[0]
-        if nmax > 100 and npts > nmax and path.should_simplify:
+        if nmax > 100 and npts > nmax and path.should_simplify and rgbFace is None:
             nch = npy.ceil(npts/float(nmax))
             chsize = int(npy.ceil(npts/nch))
             i0 = npy.arange(0, npts, chsize)
