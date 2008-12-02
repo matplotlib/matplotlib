@@ -1263,10 +1263,10 @@ The current aspect ration will be kept."""
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=evt)
 
     def _onLeave(self, evt):
-        """Mouse has left the window; fake a motion event."""
+        """Mouse has left the window."""
 
         evt.Skip()
-        FigureCanvasBase.motion_notify_event(self, -1, -1, guiEvent=evt)
+        FigureCanvasBase.leave_notify_event(self, guiEvent = evt)
 
 
 ########################################################################
