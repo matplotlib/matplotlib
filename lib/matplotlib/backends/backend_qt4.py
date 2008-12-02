@@ -110,7 +110,6 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         FigureCanvasBase.enter_notify_event(self, event)
 
     def leaveEvent(self, event):
-        print event
         FigureCanvasBase.leave_notify_event(self, event)
 
     def mousePressEvent( self, event ):
