@@ -312,8 +312,8 @@ RendererAgg::set_clipbox(const Py::Object& cliprect, R& rasterizer) {
 
   double l, b, r, t;
   if (py_convert_bbox(cliprect.ptr(), l, b, r, t)) {
-    rasterizer.clip_box(int(mpl_round(l)) + 1, height - int(mpl_round(b)),
-                        int(mpl_round(r)),     height - int(mpl_round(t)));
+    rasterizer.clip_box(int(mpl_round(l)), height - int(mpl_round(b)),
+                        int(mpl_round(r)), height - int(mpl_round(t)));
   }
 
   _VERBOSE("RendererAgg::set_clipbox done");
