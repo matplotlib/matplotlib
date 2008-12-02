@@ -105,8 +105,12 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     def __timerEvent(self, event):
         # hide until we can test and fix
         self.mpl_idle_event(event)
-        
+
+    def enterEvent(self, event):
+        FigureCanvasBase.enter_notify_event(self, event)
+
     def leaveEvent(self, event):
+        print event
         FigureCanvasBase.leave_notify_event(self, event)
 
     def mousePressEvent( self, event ):
