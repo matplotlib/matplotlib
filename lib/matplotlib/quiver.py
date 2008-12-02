@@ -745,7 +745,8 @@ class Barbs(collections.PolyCollection):
         %s""" % _barbs_doc
 
     def _find_tails(self, mag, rounding=True, half=5, full=10, flag=50):
-        '''Find how many of each of the tail pieces is necessary.  Flag
+        '''
+        Find how many of each of the tail pieces is necessary.  Flag
         specifies the increment for a flag, barb for a full barb, and half for
         half a barb. Mag should be the magnitude of a vector (ie. >= 0).
 
@@ -777,7 +778,8 @@ class Barbs(collections.PolyCollection):
 
     def _make_barbs(self, u, v, nflags, nbarbs, half_barb, empty_flag, length,
         pivot, sizes, fill_empty, flip):
-        '''This function actually creates the wind barbs.  *u* and *v*
+        '''
+        This function actually creates the wind barbs.  *u* and *v*
         are components of the vector in the *x* and *y* directions,
         respectively.
 
@@ -817,7 +819,8 @@ class Barbs(collections.PolyCollection):
 
         This function returns list of arrays of vertices, defining a polygon for
         each of the wind barbs.  These polygons have been rotated to properly
-        align with the vector direction.'''
+        align with the vector direction.
+        '''
 
         #These control the spacing and size of barb elements relative to the
         #length of the shaft
