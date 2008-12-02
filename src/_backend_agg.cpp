@@ -1216,8 +1216,8 @@ class QuadMeshGenerator {
 
   private:
     inline unsigned vertex(unsigned idx, double* x, double* y) {
-      size_t m = m_m + ((idx   & 0x2) >> 1);
-      size_t n = m_n + ((idx+1 & 0x2) >> 1);
+      size_t m = m_m + ((idx     & 0x2) >> 1);
+      size_t n = m_n + (((idx+1) & 0x2) >> 1);
       double* pair = (double*)PyArray_GETPTR2(m_coordinates, n, m);
       *x = *pair++;
       *y = *pair;
@@ -1336,11 +1336,15 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
       throw Py::RuntimeError(e);
     }
   } catch (...) {
-    if (free_edgecolors) Py_XDECREF(edgecolors_obj.ptr());
+    if (free_edgecolors) {
+      Py_XDECREF(edgecolors_obj.ptr());
+    }
     throw;
   }
 
-  if (free_edgecolors) Py_XDECREF(edgecolors_obj.ptr());
+  if (free_edgecolors) {
+    Py_XDECREF(edgecolors_obj.ptr());
+  }
 
   return Py::Object();
 }
