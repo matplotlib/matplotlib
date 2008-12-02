@@ -1,3 +1,7 @@
+2008-12-02 Improve checks for external dependencies, using subprocess 
+           (instead of deprecated popen*) and distutils (for version
+           checking) - DSD
+
 2008-11-30 Reimplementaion of the legend which supports baseline alignement,
 	   multi-column, and expand mode. - JJL
 

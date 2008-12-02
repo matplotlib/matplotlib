@@ -93,8 +93,9 @@ __version__  = '0.98.3'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
-import os, re, shutil, sys, warnings
+import os, re, shutil, subprocess, sys, warnings
 import distutils.sysconfig
+import distutils.version
 
 
 NEWCONFIG = False
@@ -256,10 +257,10 @@ verbose=Verbose()
 
 def checkdep_dvipng():
     try:
-        stdin, stdout = os.popen4('dvipng -version')
-        line = stdout.readlines()[1]
+        s = subprocess.Popen(['dvipng','-version'], stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        line = s.stdout.readlines()[1]
         v = line.split()[-1]
-        float(v)
         return v
     except (IndexError, ValueError):
         return None
@@ -267,47 +268,45 @@ def checkdep_dvipng():
 def checkdep_ghostscript():
     try:
         if sys.platform == 'win32':
-            command = 'gswin32c --version'
+            command_args = ['gswin32c', '--version']
         else:
-            command = 'gs --version'
-        stdin, stdout = os.popen4(command)
-        v = stdout.read()[:-1]
-        vtest = '.'.join(v.split('.')[:2]) # deal with version numbers like '7.07.1'
-        float(vtest)
-        return vtest
+            command_args = ['gs', '--version']
+        s = subprocess.Popen(command_args, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        v = s.stdout.read()[:-1]
+        return v
     except (IndexError, ValueError):
         return None
 
 def checkdep_tex():
     try:
-        stdin, stdout = os.popen4('tex -version')
-        line = stdout.readlines()[0]
+        s = subprocess.Popen(['tex','-version'], stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        line = s.stdout.readlines()[0]
         pattern = '3\.1\d+'
         match = re.search(pattern, line)
         v = match.group(0)
-        float(v)
         return v
     except (IndexError, ValueError, AttributeError):
         return None
 
 def checkdep_pdftops():
     try:
-        stdin, stdout = os.popen4('pdftops -v')
-        for line in stdout.readlines():
+        s = subprocess.Popen(['pdftops','-v'], stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        for line in s.stderr:
             if 'version' in line:
                 v = line.split()[-1]
-        float(v)
         return v
     except (IndexError, ValueError, UnboundLocalError):
         return None
 
 def compare_versions(a, b):
-    "return True if a is greater than b"
+    "return True if a is greater than or equal to b"
     if a:
-        a = [int(i) for i in a.split('.')]
-        b = [int(i) for i in b.split('.')]
-        if a[0]>b[0]: return True
-        elif (a[0]==b[0]) and (a[1]>=b[1]): return True
+        a = distutils.version.LooseVersion(a)
+        b = distutils.version.LooseVersion(b)
+        if a>=b: return True
         else: return False
     else: return False
 
@@ -330,8 +329,13 @@ def checkdep_ps_distiller(s):
 
     if s == 'xpdf':
         pdftops_req = '3.0'
+        pdftops_req_alt = '0.9' # poppler version numbers, ugh
         pdftops_v = checkdep_pdftops()
-        if compare_versions(pdftops_v, pdftops_req): pass
+        if compare_versions(pdftops_v, pdftops_req):
+            pass
+        elif compare_versions(pdftops_v, pdftops_req_alt) and not \
+            compare_versions(pdftops_v, '1.0'):
+            pass
         else:
             flag = False
             warnings.warn(('matplotlibrc ps.usedistiller can not be set to '
