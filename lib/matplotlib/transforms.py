@@ -313,7 +313,8 @@ class BboxBase(TransformNode):
         return [min(self.get_points()[:, 0]),
                 min(self.get_points()[:, 1])]
     min = property(_get_min, None, None, """
-        (property) :attr:`min` is the bottom-left corner of the bounding box.""")
+        (property) :attr:`min` is the bottom-left corner of the bounding
+        box.""")
 
     def _get_max(self):
         return [max(self.get_points()[:, 0]),
@@ -324,41 +325,44 @@ class BboxBase(TransformNode):
     def _get_intervalx(self):
         return self.get_points()[:, 0]
     intervalx = property(_get_intervalx, None, None, """
-        (property) :attr:`intervalx` is the pair of *x* coordinates that define the
-        bounding box. It is not guaranteed to be sorted from left to right.""")
+        (property) :attr:`intervalx` is the pair of *x* coordinates that define
+        the bounding box. It is not guaranteed to be sorted from left to
+        right.""")
 
     def _get_intervaly(self):
         return self.get_points()[:, 1]
     intervaly = property(_get_intervaly, None, None, """
-        (property) :attr:`intervaly` is the pair of *y* coordinates that define the
-        bounding box.  It is not guaranteed to be sorted from bottom to top.""")
+        (property) :attr:`intervaly` is the pair of *y* coordinates that define
+        the bounding box.  It is not guaranteed to be sorted from bottom to
+        top.""")
 
     def _get_width(self):
         points = self.get_points()
         return points[1, 0] - points[0, 0]
     width = property(_get_width, None, None, """
-        (property) The width of the bounding box.  It may be negative if :attr:`x1` <
-        :attr:`x0`.""")
+        (property) The width of the bounding box.  It may be negative if
+        :attr:`x1` < :attr:`x0`.""")
 
     def _get_height(self):
         points = self.get_points()
         return points[1, 1] - points[0, 1]
     height = property(_get_height, None, None, """
-        (property) The height of the bounding box.  It may be negative if :attr:`y1` <
-        :attr:`y0`.""")
+        (property) The height of the bounding box.  It may be negative if
+        :attr:`y1` < :attr:`y0`.""")
 
     def _get_size(self):
         points = self.get_points()
         return points[1] - points[0]
     size = property(_get_size, None, None, """
-        (property) The width and height of the bounding box.  May be negative, in the same
-        way as :attr:`width` and :attr:`height`.""")
+        (property) The width and height of the bounding box.  May be negative,
+        in the same way as :attr:`width` and :attr:`height`.""")
 
     def _get_bounds(self):
         x0, y0, x1, y1 = self.get_points().flatten()
         return (x0, y0, x1 - x0, y1 - y0)
     bounds = property(_get_bounds, None, None, """
-        (property) Returns (:attr:`x0`, :attr:`y0`, :attr:`width`, :attr:`height`).""")
+        (property) Returns (:attr:`x0`, :attr:`y0`, :attr:`width`,
+        :attr:`height`).""")
 
     def _get_extents(self):
         return self.get_points().flatten().copy()
@@ -788,7 +792,8 @@ class Bbox(BboxBase):
            - when False, include the existing bounds of the :class:`Bbox`.
            - when None, use the last value passed to :meth:`ignore`.
         """
-        warnings.warn("update_from_data requires a memory copy -- please replace with update_from_data_xy")
+        warnings.warn(
+            "update_from_data requires a memory copy -- please replace with update_from_data_xy")
         xy = np.hstack((x.reshape((len(x), 1)), y.reshape((len(y), 1))))
         return self.update_from_data_xy(xy, ignore)
 
