@@ -147,6 +147,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                   gdk.EXPOSURE_MASK       |
                   gdk.KEY_PRESS_MASK      |
                   gdk.KEY_RELEASE_MASK    |
+                  gdk.ENTER_NOTIFY_MASK   |
                   gdk.LEAVE_NOTIFY_MASK   |
                   gdk.POINTER_MOTION_MASK |
                   gdk.POINTER_MOTION_HINT_MASK)
@@ -171,6 +172,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self.connect('key_release_event',    self.key_release_event)
         self.connect('motion_notify_event',  self.motion_notify_event)
         self.connect('leave_notify_event',   self.leave_notify_event)
+        self.connect('enter_notify_event',   self.enter_notify_event)
 
         self.set_events(self.__class__.event_mask)
 
@@ -242,6 +244,9 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
     def leave_notify_event(self, widget, event):
         FigureCanvasBase.leave_notify_event(self, event)
+
+    def enter_notify_event(self, widget, event):
+        FigureCanvasBase.enter_notify_event(self, event)
 
     def _get_key(self, event):
         if event.keyval in self.keyvald:

@@ -791,9 +791,6 @@ class LocationEvent(Event):
         'process the figure/axes enter leave events'
         if LocationEvent.lastevent is not None:
             last = LocationEvent.lastevent
-            if last.canvas!=self.canvas:
-                # process figure enter/leave event
-                self.canvas.callbacks.process('figure_enter_event', self)
             if last.inaxes!=self.inaxes:
                 # process axes enter/leave events
                 if last.inaxes is not None:
@@ -803,8 +800,6 @@ class LocationEvent(Event):
 
         else:
             # process a figure enter event
-            self.canvas.callbacks.process('figure_enter_event', self)
-            # process an axes enter event if we are over an axes
             if self.inaxes is not None:
                 self.canvas.callbacks.process('axes_enter_event', self)
 
@@ -952,8 +947,6 @@ class FigureCanvasBase:
         'pick_event',
         'idle_event',
         'figure_enter_event',
-        # todo: we only process this when a mouse enters a different
-        # figure -- we need to connect to the GUI leavel event
         'figure_leave_event',
         'axes_enter_event',
         'axes_leave_event'
@@ -1216,6 +1209,17 @@ class FigureCanvasBase:
         self.callbacks.process('figure_leave_event', LocationEvent.lastevent)
         LocationEvent.lastevent = None
 
+    def enter_notify_event(self, guiEvent=None):
+        """
+        Backend derived classes should call this function when entering
+        canvas
+
+        *guiEvent*
+            the native UI event that generated the mpl event
+
+        """
+        event = Event('figure_enter_event', self, guiEvent)
+        self.callbacks.process('figure_enter_event', event)
 
     def idle_event(self, guiEvent=None):
         'call when GUI is idle'
