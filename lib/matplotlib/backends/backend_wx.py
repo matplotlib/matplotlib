@@ -743,6 +743,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         bind(self, wx.EVT_LEFT_UP, self._onLeftButtonUp)
         bind(self, wx.EVT_MOTION, self._onMotion)
         bind(self, wx.EVT_LEAVE_WINDOW, self._onLeave)
+        bind(self, wx.EVT_ENTER_WINDOW, self._onEnter)
         bind(self, wx.EVT_IDLE, self._onIdle)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
 
@@ -1267,6 +1268,10 @@ The current aspect ration will be kept."""
 
         evt.Skip()
         FigureCanvasBase.leave_notify_event(self, guiEvent = evt)
+
+    def _onEnter(self, evt):
+        """Mouse has entered the window."""
+        FigureCanvasBase.enter_notify_event(self, guiEvent = evt)
 
 
 ########################################################################
