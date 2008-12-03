@@ -1,3 +1,7 @@
+2008-12-02 The transmuter classes in the patches.py are reorganized as
+           subclasses of the Style classes. A few more box and arrow 
+	   styles are added. -JJL
+
 2008-12-02 Fixed a bug in the new legend class that didn't allowed 
            a tuple of coordinate vlaues as loc. -JJL
 
