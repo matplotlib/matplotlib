@@ -7,8 +7,8 @@ figheight = (len(styles)+.5)
 fig1 = plt.figure(1, (4, figheight))
 fontsize = 0.3 * fig1.dpi
 
-ax = plt.Axes(fig1, [0, 0, 1, 1], frameon=False, aspect=1.)
-fig1.add_axes(ax)
+
+ax = fig1.add_axes([0, 0, 1, 1], frameon=False, aspect=1.)
 
 ax.set_xlim(0, 4)
 ax.set_ylim(0, figheight)
@@ -17,9 +17,7 @@ for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
     y = (float(len(styles)) -0.25 - i) # /figheight
     p = mpatches.Circle((3.2, y), 0.2, fc="w")
     ax.add_patch(p)
-    #ax.plot([0.8], [y], "o", mec="b", mfc="w", ms=20, transform=fig1.transFigure)
-    #ax.scatter([0.8], [y], s=20*20, marker="o", edgecolors=["b"], facecolors=["w"],
-    #           )
+
     ax.annotate(stylename, (3.2, y),
                 (2., y),
                 #xycoords="figure fraction", textcoords="figure fraction",
