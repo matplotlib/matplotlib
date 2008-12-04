@@ -5579,14 +5579,14 @@ class Axes(martist.Artist):
 
         """
         x = np.asarray(x)
-	if not cbook.iterable(y1):
-	    y1 = np.ones_like(x)*y1
+        if not cbook.iterable(y1):
+            y1 = np.ones_like(x)*y1
 
-	if not cbook.iterable(y2):
-	    y2 = np.ones_like(x)*y2
+        if not cbook.iterable(y2):
+            y2 = np.ones_like(x)*y2
 
-	if where is None:
-	    where = np.ones(len(x), np.bool)
+        if where is None:
+            where = np.ones(len(x), np.bool)
 
         y1 = np.asarray(y1)
         y2 = np.asarray(y2)
