@@ -1,0 +1,16 @@
+To clone from the `matplotlib github mirror`_ into the directory
+``mpl.git``, enter the following commands. These instructions assume
+you already have a github login (-- they use the personal
+git@github.com clone URL instead of the git://github.com clone URL)::
+
+  # This will create your copy in the mpl.git directory             
+  git clone git@github.com:astraw/matplotlib.git mpl.git
+  cd mpl.git
+  git config --add remote.origin.fetch +refs/remotes/*:refs/remotes/*
+  git fetch
+  git svn init --trunk=trunk/matplotlib --tags=tags https://matplotlib.svn.sourceforge.net/svnroot/matplotlib
+
+  # Now just get the latest svn revisions from the SourceForge SVN repository
+  git svn fetch -r 6300:HEAD
+
+.. _matplotlib github mirror: http://github.com/astraw/matplotlib
