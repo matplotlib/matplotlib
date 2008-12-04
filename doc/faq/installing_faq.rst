@@ -110,8 +110,8 @@ Install from git
 ================
 
 There is an experimental `matplotlib github mirror`_ of the subversion
-repository. To make a local clone it the directory ``mpl.git``, enter
-the following commands::
+repository. To make a local clone of it in the directory ``mpl.git``,
+enter the following commands::
 
   # This will create your copy in the mpl.git directory             
   git clone git://github.com/astraw/matplotlib.git mpl.git
