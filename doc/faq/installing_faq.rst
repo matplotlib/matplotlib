@@ -125,6 +125,9 @@ enter the following commands::
 
 .. _matplotlib github mirror: http://github.com/astraw/matplotlib
 
+To install from this cloned repository, use the commands in the
+:ref:`svn installation <install-svn>` section.
+
 To update your git repository with the latest svn updates from SourceForge::
 
   git svn rebase
