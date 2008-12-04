@@ -106,7 +106,49 @@ and build and install as usual with::
   > cd matplotlib
   > python setup.py install
 
+Install from git
+================
 
+There is an experimental `matplotlib github mirror`_ of the subversion
+repository. To make a local clone it the directory ``mpl.git``, enter
+the following commands::
+
+  # This will create your copy in the mpl.git directory             
+  git clone git://github.com/astraw/matplotlib.git mpl.git
+  cd mpl.git
+  git config --add remote.origin.fetch +refs/remotes/*:refs/remotes/*
+  git fetch
+  git svn init --trunk=trunk/matplotlib --tags=tags https://matplotlib.svn.sourceforge.net/svnroot/matplotlib
+
+  # Now just get the latest svn revisions from the SourceForge SVN repository
+  git svn fetch -r 6300:HEAD
+
+.. _matplotlib github mirror: http://github.com/astraw/matplotlib
+
+To update your git repository with the latest svn updates from SourceForge::
+
+  git svn rebase
+
+To list what changes will be committed to svn::
+
+  git svn dcommit -n
+
+To commit your changes to svn::
+
+  git svn dcommit 
+
+A note about git write access
+-----------------------------
+
+The matplotlib developers need to figure out if there should be write
+access to the git repository. This implies using the personal URL
+(``git@github.com:astraw/matplotlib.git``) rather than the public URL
+(``git://github.com/astraw/matplotlib.git``) for the
+repository. However, doing so may make life complicated in the sense
+that then there are two writeable matplotlib repositories, which must
+be synced to prevent divergence. This is probably not an
+insurmountable problem, but it is a problem that the developers should
+reach a consensus about. Watch this space...
 
 Backends
 ========
