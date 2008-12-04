@@ -737,7 +737,9 @@ class BakomaFonts(TruetypeFonts):
         r'\widehat'  : [('rm', '\x5e'), ('ex', '\x62'), ('ex', '\x63'),
                         ('ex', '\x64')],
         r'\widetilde': [('rm', '\x7e'), ('ex', '\x65'), ('ex', '\x66'),
-                        ('ex', '\x67')]
+                        ('ex', '\x67')],
+        r'<'         : [('cal', 'h'), ('ex', 'D')],
+        r'>'         : [('cal', 'i'), ('ex', 'E')]
         }
 
     for alias, target in [('\leftparen', '('),
@@ -843,8 +845,7 @@ class UnicodeFonts(TruetypeFonts):
                 if fontname == 'it' and isinstance(self, StixFonts):
                     return self._get_glyph('rm', font_class, sym, fontsize)
                 warn("Font '%s' does not have a glyph for '%s'" %
-                     (cached_font.font.postscript_name,
-                      sym.encode('ascii', 'backslashreplace')),
+                     (fontname, sym.encode('ascii', 'backslashreplace')),
                      MathTextWarning)
                 warn("Substituting with a dummy symbol.", MathTextWarning)
                 fontname = 'rm'
@@ -955,6 +956,12 @@ class StixFonts(UnicodeFonts):
             uniindex = get_unicode_index(sym)
         except ValueError:
             return [(fontname, sym)]
+
+        fix_ups = {
+            ord('<'): 0x27e8,
+            ord('>'): 0x27e9 }
+
+        uniindex = fix_ups.get(uniindex, uniindex)
 
         for i in range(6):
             cached_font = self._get_font(i)
@@ -2068,9 +2075,9 @@ class Parser(object):
       | \| / \backslash \uparrow \downarrow \updownarrow \Uparrow
       \Downarrow \Updownarrow .""".split())
 
-    _leftDelim = set(r"( [ { \lfloor \langle \lceil".split())
+    _leftDelim = set(r"( [ { < \lfloor \langle \lceil".split())
 
-    _rightDelim = set(r") ] } \rfloor \rangle \rceil".split())
+    _rightDelim = set(r") ] } > \rfloor \rangle \rceil".split())
 
     def __init__(self):
         # All forward declarations are here
