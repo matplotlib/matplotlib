@@ -113,6 +113,7 @@ class Legend(Artist):
                  ncol=1, # number of columns
                  mode=None, # mode for horizontal distribution of columns. None, "expand"
 
+                 fancybox=True,
                  shadow = None,
                  ):
         """
@@ -130,6 +131,7 @@ class Legend(Artist):
         numpoints          the number of points in the legend line
         prop               the font property
         markerscale        the relative size of legend markers vs. original
+        fancybox           if True, draw a frame with a round fancybox.
         shadow             if True, draw a shadow behind legend
         scatteryoffsets    a list of yoffsets for scatter symbols in legend
 
@@ -263,8 +265,11 @@ fontsize. Values from rcParams will be used if None.
         # The width and height of the legendPatch will be set (in the
         # draw()) to the length that includes the padding. Thus we set
         # pad=0 here.
-        self.legendPatch.set_boxstyle("round",pad=0, #self.borderpad,
-                                      rounding_size=0.2)
+        if fancybox == True:
+            self.legendPatch.set_boxstyle("round",pad=0,
+                                          rounding_size=0.2)
+        else:
+            self.legendPatch.set_boxstyle("square",pad=0)
 
         self._set_artist_props(self.legendPatch)
 
@@ -378,7 +383,8 @@ fontsize. Values from rcParams will be used if None.
         labelboxes = []
 
         for l in labels:
-            textbox = TextArea(l, textprops=label_prop)
+            textbox = TextArea(l, textprops=label_prop
+                               multilinebaseline=True, minimumdescent=True)
             text_list.append(textbox._text)
             labelboxes.append(textbox)
 
@@ -387,8 +393,8 @@ fontsize. Values from rcParams will be used if None.
 
         # The approximate height and descent of text. These values are
         # only used for plotting the legend handle.
-        height = self._approx_text_height() * 0.6
-        descent = 0. #height/6.
+        height = self._approx_text_height() * 0.7
+        descent = 0. 
 
         # each handle needs to be drawn inside a box of
         # (x, y, w, h) = (0, -descent, width, height).
@@ -440,9 +446,9 @@ fontsize. Values from rcParams will be used if None.
                 legline._legmarker = legline_marker
 
             elif isinstance(handle, Patch):
-                p = Rectangle(xy=(0, -0.*descent),
+                p = Rectangle(xy=(0., 0.),
                               width = self.handlelength*self.fontsize,
-                              height=0.*descent+(height-descent)*.9,
+                              height=(height-descent),
                               )
                 p.update_from(handle)
                 self._set_artist_props(p)
@@ -513,12 +519,12 @@ fontsize. Values from rcParams will be used if None.
         num_smallcol = self._ncol-num_largecol
 
         # starting index of each column and number of rows in it.
-        largecol = zip(range(0, num_largecol*(nrows+1), (nrows+1)),
-                       [nrows+1] * num_largecol)
-        smallcol = zip(range(num_largecol*(nrows+1), len(handleboxes), nrows),
-                       [nrows] * num_smallcol)
+        largecol = safezip(range(0, num_largecol*(nrows+1), (nrows+1)),
+                           [nrows+1] * num_largecol)
+        smallcol = safezip(range(num_largecol*(nrows+1), len(handleboxes), nrows),
+                           [nrows] * num_smallcol)
 
-        handle_label = zip(handleboxes, labelboxes)
+        handle_label = safezip(handleboxes, labelboxes)
         columnbox = []
         for i0, di in largecol+smallcol:
             # pack handleBox and labelBox into itemBox
@@ -526,6 +532,8 @@ fontsize. Values from rcParams will be used if None.
                                     sep=self.handletextpad*self.fontsize,
                                     children=[h, t], align="baseline")
                          for h, t in handle_label[i0:i0+di]]
+            # minimumdescent=False for the text of the last row of the column
+            itemBoxes[-1].get_children()[1].set_minimumdescent(False)
             
             # pack columnBox
             columnbox.append(VPacker(pad=0,

@@ -1,3 +1,7 @@
+2008-12-04 Added fancybox keyword to legend. Also applied some changes
+	   for better look, including baseline adjustment of the
+	   multiline texts so that it is center aligned. -JJL
+
 2008-12-02 The transmuter classes in the patches.py are reorganized as
            subclasses of the Style classes. A few more box and arrow 
 	   styles are added. -JJL
