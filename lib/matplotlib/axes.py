@@ -5578,7 +5578,15 @@ class Axes(martist.Artist):
         %(PolyCollection)s
 
         """
-        x = np.asarray(x)
+        # Handle united data, such as dates
+        self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
+        self._process_unit_info(ydata=y2)
+
+        # Convert the arrays so we can work with them
+        x = np.asarray(self.convert_xunits(x))
+        y1 = np.asarray(self.convert_yunits(y1))
+        y2 = np.asarray(self.convert_yunits(y2))
+
         if not cbook.iterable(y1):
             y1 = np.ones_like(x)*y1
 
@@ -5588,8 +5596,6 @@ class Axes(martist.Artist):
         if where is None:
             where = np.ones(len(x), np.bool)
 
-        y1 = np.asarray(y1)
-        y2 = np.asarray(y2)
         where = np.asarray(where)
         assert( (len(x)==len(y1)) and (len(x)==len(y2)) and len(x)==len(where))
 
