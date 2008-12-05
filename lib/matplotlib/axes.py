@@ -6430,6 +6430,10 @@ class Axes(martist.Artist):
             are ignored. If not provided, *range* is (x.min(), x.max()).
             Range has no effect if *bins* is a sequence.
 
+            If *bins* is a sequence or *range* is specified, autoscaling is
+            set off (*autoscale_on* is set to *False*) and the xaxis limits
+            are set to encompass the full specified bin range.
+
           *normed*:
             If *True*, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
@@ -6533,6 +6537,8 @@ class Axes(martist.Artist):
                 for i in xrange(len(x)):
                     tx.append( np.array(x[i]) )
                 x = tx
+            else:
+                raise ValueError, 'Can not use providet data to create a histogram'
 
         # Check whether bins or range are given explicitly. In that
         # case do not autoscale axes.
