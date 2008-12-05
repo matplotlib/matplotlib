@@ -23,9 +23,9 @@ import numpy as np
 from matplotlib.patches import bbox_artist as mbbox_artist
 DEBUG=False
 # for debuging use
-def bbox_artist(*kl, **kw):
+def bbox_artist(*args, **kwargs):
     if DEBUG:
-        mbbox_artist(*kl, **kw)
+        mbbox_artist(*args, **kwargs)
 
 
 # _get_packed_offsets() and _get_aligned_offsets() are coded assuming
@@ -122,9 +122,9 @@ class OffsetBox(martist.Artist):
     The OffsetBox is a simple container artist. The child artist are meant
     to be drawn at a relative position to its parent.  
     """
-    def __init__(self, *kl, **kw):
+    def __init__(self, *args, **kwargs):
 
-        super(OffsetBox, self).__init__(*kl, **kw)
+        super(OffsetBox, self).__init__(*args, **kwargs)
         
         self._children = []        
         self._offset = (0, 0)
@@ -441,10 +441,18 @@ class TextArea(OffsetBox):
 
 
     
-    def __init__(self, s, textprops=None, **kw):
+    def __init__(self, s,
+                 textprops=None,
+                 multilinebaseline=None,
+                 minimumdescent=True,
+                 ):
         """
-        *s* : a string to be displayer.
-        *trnaspose* : transformation matrrix 
+        *s* : a string to be displayed.
+        *textprops* : property dictionary for the text
+        *multilinebaseline* : If True, baseline for multiline text is
+                              adjusted so that it is (approximatedly)
+                              center-aligned with singleline text.
+        *minimumdescent*  : If True, the box has a minimum descent of "p".
         """
         if textprops is None:
             textprops = {}
@@ -462,7 +470,46 @@ class TextArea(OffsetBox):
         self.offset_transform = mtransforms.Affine2D()
         self.offset_transform.clear()
         self.offset_transform.translate(0, 0)
-        self._text.set_transform(self.offset_transform)
+        self._baseline_transform = mtransforms.Affine2D()
+        self._text.set_transform(self.offset_transform+self._baseline_transform)
+
+        self._multilinebaseline = multilinebaseline
+        self._minimumdescent = minimumdescent
+        
+
+    def set_multilinebaseline(self, t):
+        """
+        Set multilinebaseline .
+
+        If True, baseline for multiline text is
+        adjusted so that it is (approximatedly) center-aligned with
+        singleline text.
+        """
+        self._multilinebaseline = t
+
+
+    def get_multilinebaseline(self):
+        """
+        get multilinebaseline .
+        """
+        return self._multilinebaseline
+
+
+    def set_minimumdescent(self, t):
+        """
+        Set minimumdescent .
+
+        If True, extent of the single line text is adjusted so that 
+        it has minimum descent of "p"
+        """
+        self._minimumdescent = t
+
+
+    def get_minimumdescent(self):
+        """
+        get minimumdescent.
+        """
+        return self._minimumdescent
 
 
     def set_transform(self, t):
@@ -507,17 +554,34 @@ class TextArea(OffsetBox):
 
         bbox, info = self._text._get_layout(renderer)
         w, h = bbox.width, bbox.height
+
         line = info[0][0] # first line
 
         _, hh, dd = renderer.get_text_width_height_descent(
             line, self._text._fontproperties, ismath=ismath)
-        d = h-(hh-dd)  # the baseline of the first line
 
-        # for multiple lines, h or d may greater than h_ or d_.
-        h_d = max(h_ - d_, h-d)
-        d = max(d, d_)
-        h = h_d + d
 
+        self._baseline_transform.clear()
+        if len(info) > 1 and self._multilinebaseline: # multi line
+            d = h-(hh-dd)  # the baseline of the first line
+            d_new = 0.5 * h  - 0.5 * (h_ - d_)
+            
+            self._baseline_transform.translate(0, d - d_new)
+            d = d_new
+            
+        else: # single line
+
+            h_d = max(h_ - d_, h-dd)
+
+            if self.get_minimumdescent():
+                ## to have a minimum descent, #i.e., "l" and "p" have same
+                ## descents. 
+                d = max(dd, d_)
+            else:
+                d = dd
+
+            h = h_d + d
+            
         return w, h, 0., d
 
 

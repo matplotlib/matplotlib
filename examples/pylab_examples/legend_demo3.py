@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pylab
 
 def myplot(ax):
     t1 = np.arange(0.0, 1.0, 0.1)
@@ -21,7 +22,7 @@ ax2.legend(loc=1, ncol=2, shadow=True)
 
 ax3 = plt.subplot(3,1,3)
 myplot(ax3)
-ax3.legend(loc=1, ncol=4, mode="expand", shadow=True)
+ax3.legend(loc=1, ncol=4, mode="expand", fancybox=False, shadow=True)
 
 
 #title('Damped oscillation')
