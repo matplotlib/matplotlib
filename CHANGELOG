@@ -1,3 +1,6 @@
+2008-12-05 Fixed a bug that the handlelength of the new legend class 
+	   set too short when numpoints=1 -JJL
+
 2008-12-04 Added support for data with units (e.g. dates) to
            Axes.fill_between. -RM
 
