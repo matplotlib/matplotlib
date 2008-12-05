@@ -1,3 +1,6 @@
+2008-12-04 Added support for data with units (e.g. dates) to
+           Axes.fill_between. -RM
+
 2008-12-04 Added fancybox keyword to legend. Also applied some changes
 	   for better look, including baseline adjustment of the
 	   multiline texts so that it is center aligned. -JJL
