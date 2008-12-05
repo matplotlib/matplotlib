@@ -418,7 +418,7 @@ fontsize. Values from rcParams will be used if None.
                                     npoints)
                 xdata_marker = xdata
             elif npoints == 1:
-                xdata = np.linspace(0, self.handlelength, 2)
+                xdata = np.linspace(0, self.handlelength*self.fontsize, 2)
                 xdata_marker = [0.5*self.handlelength*self.fontsize]
 
             if isinstance(handle, Line2D):
