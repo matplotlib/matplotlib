@@ -383,7 +383,7 @@ fontsize. Values from rcParams will be used if None.
         labelboxes = []
 
         for l in labels:
-            textbox = TextArea(l, textprops=label_prop
+            textbox = TextArea(l, textprops=label_prop,
                                multilinebaseline=True, minimumdescent=True)
             text_list.append(textbox._text)
             labelboxes.append(textbox)
