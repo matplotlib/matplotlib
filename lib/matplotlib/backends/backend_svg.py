@@ -27,7 +27,7 @@ backend_version = __version__
 
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args)
+    thisFig = FigureClass(*args, **kwargs)
     canvas  = FigureCanvasSVG(thisFig)
     manager = FigureManagerSVG(canvas, num)
     return manager

@@ -1,3 +1,6 @@
+2008-12-06 Fixed a bug in svg backend that new_figure_manager()
+	   ignores keywords arguments such as figsize, etc. -JJL
+
 2008-12-05 Fixed a bug that the handlelength of the new legend class 
 	   set too short when numpoints=1 -JJL
 
