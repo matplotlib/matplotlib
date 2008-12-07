@@ -6551,8 +6551,7 @@ class Axes(martist.Artist):
         binsgiven = (cbook.iterable(bins) or range != None)
 
         # check the version of the numpy
-        np_version = float(".".join(np.__version__.split(".")[:2]))
-        if np_version < 1.2: # version 1.1 
+        if np.__version__ < "1.2": # version 1.1 
             hist_kwargs = dict(range=range,
                                normed=bool(normed), new=True)
         else: # version 1.2 and later, drop new=True
