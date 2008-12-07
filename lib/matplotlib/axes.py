@@ -6550,12 +6550,20 @@ class Axes(martist.Artist):
         # case do not autoscale axes.
         binsgiven = (cbook.iterable(bins) or range != None)
 
+        # check the version of the numpy
+        np_version = float(".".join(np.__version__.split(".")[:2]))
+        if np_version < 1.2: # version 1.1 
+            hist_kwargs = dict(range=range,
+                               normed=bool(normed), new=True)
+        else: # version 1.2 and later, drop new=True
+            hist_kwargs = dict(range=range,
+                               normed=bool(normed))
+
         n = []
         for i in xrange(len(x)):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
-            m, bins = np.histogram(x[i], bins, range=range,
-                normed=bool(normed), new=True)
+            m, bins = np.histogram(x[i], bins, **hist_kwargs)
             n.append(m)
 
         if cumulative:
