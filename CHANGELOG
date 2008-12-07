@@ -1,3 +1,6 @@
+2008-12-07 drop the deprecated "new" keyword of np.histogram() for
+           numpy 1.2 or later.  -JJL
+
 2008-12-06 Fixed a bug in svg backend that new_figure_manager()
 	   ignores keywords arguments such as figsize, etc. -JJL
 
