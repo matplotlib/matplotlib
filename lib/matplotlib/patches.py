@@ -1429,11 +1429,12 @@ def _pprint_styles(_styles, leadingspace=2):
             args = None
 
         if args is None:
-            argstr = 'None'  # empy table entry crashed latex build
+            argstr = 'None'
         else:
             argstr =  ",".join([("%s=%s" % (an, av)) for an, av in args])
 
-        _table.append([cls.__name__, name, argstr])
+        #adding quotes for now to work around tex bug treating '-' as itemize
+        _table.append([cls.__name__, "'%s'"%name, argstr])
 
 
     return _pprint_table(_table)
@@ -3309,13 +3310,13 @@ class FancyArrowPatch(Patch):
 
 
     def set_patchA(self, patchA):
-        """ set the begin patche.
+        """ set the begin patch.
         """
         self.patchA = patchA
 
 
     def set_patchB(self, patchB):
-        """ set the begin patche.
+        """ set the begin patch
         """
         self.patchB = patchB
 
