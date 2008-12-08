@@ -10,7 +10,7 @@ x = arange(N)
 # Here are many sets of y to plot vs x
 ys = [x+i for i in x]
 
-# We need to set the plot limits, the will not autoscale
+# We need to set the plot limits, they will not autoscale
 ax = axes()
 ax.set_xlim((amin(x),amax(x)))
 ax.set_ylim((amin(amin(ys)),amax(amax(ys))))
@@ -32,5 +32,3 @@ axcb.set_label('Line Number')
 ax.set_title('Line Collection with mapped colors')
 sci(line_segments) # This allows interactive changing of the colormap.
 show()
-
-
