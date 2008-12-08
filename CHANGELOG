@@ -1,3 +1,8 @@
+2008-12-08 Updated spectral methods (psd, csd, etc.) to scale one-sided
+           densities by a factor of 2 and, optionally, scale all densities
+           by the sampling frequency.  This gives better MatLab
+           compatibility. -RM
+
 2008-12-08 Fixed alignment of ticks in colorbars. -MGD
 
 2008-12-07 drop the deprecated "new" keyword of np.histogram() for
