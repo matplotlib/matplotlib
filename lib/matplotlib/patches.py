@@ -1426,10 +1426,15 @@ def _pprint_styles(_styles, leadingspace=2):
             args = [(argname, argdefault) \
                     for argname, argdefault in zip(args[1:], defaults)]
         else:
-            args = []
+            args = None
 
-        _table.append([cls.__name__, name,
-                       ",".join([("%s=%s" % (an, av)) for an, av in args])])
+        if args is None:
+            argstr = 'None'  # empy table entry crashed latex build
+        else:
+            argstr =  ",".join([("%s=%s" % (an, av)) for an, av in args])
+
+        _table.append([cls.__name__, name, argstr])
+
 
     return _pprint_table(_table)
 
@@ -2015,8 +2020,8 @@ class FancyBboxPatch(Patch):
         comma-separated attributes. Alternatively, the attrs can
         be provided as keywords::
 
-         set_boxstyle("round,pad=0.2")
-         set_boxstyle("round", pad=0.2)
+            set_boxstyle("round,pad=0.2")
+            set_boxstyle("round", pad=0.2)
 
         Old attrs simply are forgotten.
 
@@ -2024,6 +2029,7 @@ class FancyBboxPatch(Patch):
         available box styles.
 
         ACCEPTS: [ %(AvailableBoxstyles)s ]
+
         """
 
         if boxstyle==None:
@@ -2793,6 +2799,7 @@ class ArrowStyle(_Style):
     _style_list["-"] = Curve
 
 
+
     class CurveA(_Curve):
         """
         An arrow with a head at its begin point.
@@ -2813,7 +2820,6 @@ class ArrowStyle(_Style):
 
     _style_list["<-"] = CurveA
 
-
     class CurveB(_Curve):
         """
         An arrow with a head at its end point.
@@ -2832,6 +2838,7 @@ class ArrowStyle(_Style):
                 beginarrow=False, endarrow=True,
                 head_length=head_length, head_width=head_width )
 
+    #_style_list["->"] = CurveB
     _style_list["->"] = CurveB
 
 
@@ -2853,6 +2860,7 @@ class ArrowStyle(_Style):
                 beginarrow=True, endarrow=True,
                 head_length=head_length, head_width=head_width )
 
+    #_style_list["<->"] = CurveAB
     _style_list["<->"] = CurveAB
 
 
@@ -2960,6 +2968,7 @@ class ArrowStyle(_Style):
             super(ArrowStyle.BracketB, self).__init__(None, True,
                      widthB=widthB, lengthB=lengthB, angleB=None )
 
+    #_style_list["-["] = BracketB
     _style_list["-["] = BracketB
 
 
