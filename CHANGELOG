@@ -9,31 +9,31 @@
            numpy 1.2 or later.  -JJL
 
 2008-12-06 Fixed a bug in svg backend that new_figure_manager()
-	   ignores keywords arguments such as figsize, etc. -JJL
+           ignores keywords arguments such as figsize, etc. -JJL
 
-2008-12-05 Fixed a bug that the handlelength of the new legend class 
-	   set too short when numpoints=1 -JJL
+2008-12-05 Fixed a bug that the handlelength of the new legend class
+           set too short when numpoints=1 -JJL
 
 2008-12-04 Added support for data with units (e.g. dates) to
            Axes.fill_between. -RM
 
 2008-12-04 Added fancybox keyword to legend. Also applied some changes
-	   for better look, including baseline adjustment of the
-	   multiline texts so that it is center aligned. -JJL
+           for better look, including baseline adjustment of the
+           multiline texts so that it is center aligned. -JJL
 
 2008-12-02 The transmuter classes in the patches.py are reorganized as
-           subclasses of the Style classes. A few more box and arrow 
-	   styles are added. -JJL
+           subclasses of the Style classes. A few more box and arrow
+           styles are added. -JJL
 
-2008-12-02 Fixed a bug in the new legend class that didn't allowed 
+2008-12-02 Fixed a bug in the new legend class that didn't allowed
            a tuple of coordinate vlaues as loc. -JJL
 
-2008-12-02 Improve checks for external dependencies, using subprocess 
+2008-12-02 Improve checks for external dependencies, using subprocess
            (instead of deprecated popen*) and distutils (for version
            checking) - DSD
 
 2008-11-30 Reimplementaion of the legend which supports baseline alignement,
-	   multi-column, and expand mode. - JJL
+           multi-column, and expand mode. - JJL
 
 2008-12-01 Fixed histogram autoscaling bug when bins or range are given
            explicitly (fixes Debian bug 503148) - MM
@@ -187,16 +187,16 @@
 2008-07-31 Added masked array support to griddata. - JSW
 
 2008-07-26 Added optional C and reduce_C_function arguments to
-	   axes.hexbin().  This allows hexbin to accumulate the values
-	   of C based on the x,y coordinates and display in hexagonal
-	   bins. - ADS
+           axes.hexbin().  This allows hexbin to accumulate the values
+           of C based on the x,y coordinates and display in hexagonal
+           bins. - ADS
 
 2008-07-24 Deprecated (raise NotImplementedError) all the mlab2
            functions from matplotlib.mlab out of concern that some of
            them were not clean room implementations. JDH
 
 2008-07-24 Rewrite of a significant portion of the clabel code (class
-	   ContourLabeler) to improve inlining. - DMK
+           ContourLabeler) to improve inlining. - DMK
 
 2008-07-22 Added Barbs polygon collection (similar to Quiver) for plotting
            wind barbs.  Added corresponding helpers to Axes and pyplot as
@@ -684,8 +684,8 @@
 2007-11-27 Released 0.91.0 at revision 4478
 
 2007-11-13 All backends now support writing to a file-like object, not
-	   just a regular file.  savefig() can be passed a file-like
-	   object in place of a file path. - MGD
+           just a regular file.  savefig() can be passed a file-like
+           object in place of a file path. - MGD
 
 2007-11-13 Improved the default backend selection at build time:
            SVG -> Agg -> TkAgg -> WXAgg -> GTK -> GTKAgg. The last usable
@@ -703,24 +703,24 @@
            updated on subsequent installs - DSD
 
 2007-11-12 Added support for STIX fonts.  A new rcParam,
-	   mathtext.fontset, can be used to choose between:
+           mathtext.fontset, can be used to choose between:
 
-	   'cm':
-	     The TeX/LaTeX Computer Modern fonts
+           'cm':
+             The TeX/LaTeX Computer Modern fonts
 
-	   'stix':
-	     The STIX fonts (see stixfonts.org)
+           'stix':
+             The STIX fonts (see stixfonts.org)
 
-	   'stixsans':
-	     The STIX fonts, using sans-serif glyphs by default
+           'stixsans':
+             The STIX fonts, using sans-serif glyphs by default
 
-	   'custom':
-	     A generic Unicode font, in which case the mathtext font
-	     must be specified using mathtext.bf, mathtext.it,
-	     mathtext.sf etc.
+           'custom':
+             A generic Unicode font, in which case the mathtext font
+             must be specified using mathtext.bf, mathtext.it,
+             mathtext.sf etc.
 
-	   Added a new example, stix_fonts_demo.py to show how to access
-	   different fonts and unusual symbols.
+           Added a new example, stix_fonts_demo.py to show how to access
+           different fonts and unusual symbols.
 
            - MGD
 
@@ -771,72 +771,72 @@
 
 2007-10-29 TRANSFORMS REFACTORING
 
-	   The primary goal of this refactoring was to make it easier
-	   to extend matplotlib to support new kinds of projections.
-	   This is primarily an internal improvement, and the possible
-	   user-visible changes it allows are yet to come.
+           The primary goal of this refactoring was to make it easier
+           to extend matplotlib to support new kinds of projections.
+           This is primarily an internal improvement, and the possible
+           user-visible changes it allows are yet to come.
 
-	   The transformation framework was completely rewritten in
-	   Python (with Numpy).  This will make it easier to add news
-	   kinds of transformations without writing C/C++ code.
+           The transformation framework was completely rewritten in
+           Python (with Numpy).  This will make it easier to add news
+           kinds of transformations without writing C/C++ code.
 
-	   Transforms are composed into a 'transform tree', made of
-	   transforms whose value depends on other transforms (their
-	   children).  When the contents of children change, their
-	   parents are automatically updated to reflect those changes.
-	   To do this an "invalidation" method is used: when children
-	   change, all of their ancestors are marked as "invalid".
-	   When the value of a transform is accessed at a later time,
-	   its value is recomputed only if it is invalid, otherwise a
-	   cached value may be used.  This prevents unnecessary
-	   recomputations of transforms, and contributes to better
-	   interactive performance.
+           Transforms are composed into a 'transform tree', made of
+           transforms whose value depends on other transforms (their
+           children).  When the contents of children change, their
+           parents are automatically updated to reflect those changes.
+           To do this an "invalidation" method is used: when children
+           change, all of their ancestors are marked as "invalid".
+           When the value of a transform is accessed at a later time,
+           its value is recomputed only if it is invalid, otherwise a
+           cached value may be used.  This prevents unnecessary
+           recomputations of transforms, and contributes to better
+           interactive performance.
 
-	   The framework can be used for both affine and non-affine
-	   transformations.  However, for speed, we want use the
-	   backend renderers to perform affine transformations
-	   whenever possible.  Therefore, it is possible to perform
-	   just the affine or non-affine part of a transformation on a
-	   set of data.  The affine is always assumed to occur after
-	   the non-affine.  For any transform:
+           The framework can be used for both affine and non-affine
+           transformations.  However, for speed, we want use the
+           backend renderers to perform affine transformations
+           whenever possible.  Therefore, it is possible to perform
+           just the affine or non-affine part of a transformation on a
+           set of data.  The affine is always assumed to occur after
+           the non-affine.  For any transform:
 
-	        full transform == non-affine + affine
+                full transform == non-affine + affine
 
-	   Much of the drawing has been refactored in terms of
-	   compound paths.  Therefore, many methods have been removed
-	   from the backend interface and replaced with a a handful to
-	   draw compound paths.  This will make updating the backends
-	   easier, since there is less to update.  It also should make
-	   the backends more consistent in terms of functionality.
+           Much of the drawing has been refactored in terms of
+           compound paths.  Therefore, many methods have been removed
+           from the backend interface and replaced with a a handful to
+           draw compound paths.  This will make updating the backends
+           easier, since there is less to update.  It also should make
+           the backends more consistent in terms of functionality.
 
-	   User visible changes:
+           User visible changes:
 
-	   - POLAR PLOTS: Polar plots are now interactively zoomable,
+           - POLAR PLOTS: Polar plots are now interactively zoomable,
              and the r-axis labels can be interactively rotated.
              Straight line segments are now interpolated to follow the
              curve of the r-axis.
 
-	   - Non-rectangular clipping works in more backends and with
+           - Non-rectangular clipping works in more backends and with
              more types of objects.
 
-	   - Sharing an axis across figures is now done in exactly
-	     the same way as sharing an axis between two axes in the
-	     same figure:
+           - Sharing an axis across figures is now done in exactly
+             the same way as sharing an axis between two axes in the
+             same figure:
 
-	   	   fig1 = figure()
-		   fig2 = figure()
+                      fig1 = figure()
+                   fig2 = figure()
 
-		   ax1 = fig1.add_subplot(111)
-		   ax2 = fig2.add_subplot(111, sharex=ax1, sharey=ax1)
+                   ax1 = fig1.add_subplot(111)
+                   ax2 = fig2.add_subplot(111, sharex=ax1, sharey=ax1)
 
            - linestyles now include steps-pre, steps-post and
              steps-mid.  The old step still works and is equivalent to
              step-pre.
 
-	   - Multiple line styles may be provided to a collection.
+           - Multiple line styles may be provided to a collection.
 
-	   See API_CHANGES for more low-level information about this
-	   refactoring.
+           See API_CHANGES for more low-level information about this
+           refactoring.
 
 2007-10-24 Added ax kwarg to Figure.colorbar and pyplot.colorbar - EF
 
