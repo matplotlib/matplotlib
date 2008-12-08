@@ -301,7 +301,8 @@ class SymmetricalLogScale(ScaleBase):
             self._linadjust = (np.log(linthresh) / self._log_base) / linthresh
 
         def transform(self, a):
-            sign = np.sign(np.asarray(a))
+            a = np.asarray(a)
+            sign = np.sign(a)
             masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
             log = sign * ma.log(np.abs(masked)) / self._log_base
             if masked.mask.any():
