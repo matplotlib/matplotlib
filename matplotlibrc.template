@@ -323,6 +323,9 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 #svg.image_noscale : False     # suppress scaling of raster data embedded in SVG
 #svg.embed_char_paths : True       # embed character outlines in the SVG file
 
+# docstring params
+#docstring.hardcopy = False  # set this when you want to generate hardcopy docstring
+
 # Set the verbose flags.  This controls how much information
 # matplotlib gives you at runtime and where it goes.  The verbosity
 # levels are: silent, helpful, debug, debug-annoying.  Any level is

@@ -1,5 +1,6 @@
 from __future__ import division
 import re, warnings
+import matplotlib
 import matplotlib.cbook as cbook
 from transforms import Bbox, IdentityTransform, TransformedBbox, TransformedPath
 from path import Path
@@ -640,9 +641,12 @@ class ArtistInspector:
         type) and it is your responsibility to make sure this is so.
         """
         if cbook.iterable(o) and len(o): o = o[0]
+
+        self.oorig = o
         if not isinstance(o, type):
             o = type(o)
         self.o = o
+
         self.aliasd = self.get_aliases()
 
     def get_aliases(self):
@@ -735,10 +739,26 @@ class ArtistInspector:
         if ds is None: return False
         return ds.startswith('alias for ')
 
-    def aliased_name(self, s, target):
+    def aliased_name(self, s):
         """
         return 'PROPNAME or alias' if *s* has an alias, else return
         PROPNAME.
+
+        E.g. for the line markerfacecolor property, which has an
+        alias, return 'markerfacecolor or mfc' and for the transform
+        property, which does not, return 'transform'
+        """
+
+        if s in self.aliasd:
+            return s + ''.join([' or %s' % x for x in self.aliasd[s].keys()])
+        else:
+            return s
+
+
+    def aliased_name_rest(self, s, target):
+        """
+        return 'PROPNAME or alias' if *s* has an alias, else return
+        PROPNAME formatted for ReST
 
         E.g. for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
@@ -750,6 +770,7 @@ class ArtistInspector:
         else:
             aliases = ''
         return ':meth:`%s <%s>`%s' % (s, target, aliases)
+
 
     def pprint_setters(self, prop=None, leadingspace=2):
         """
@@ -772,8 +793,36 @@ class ArtistInspector:
         attrs.sort()
         lines = []
 
+        for prop, path in attrs:
+            accepts = self.get_valid_values(prop)
+            name = self.aliased_name(prop)
+
+            lines.append('%s%s: %s' %(pad, name, accepts))
+        return lines
+
+    def pprint_setters_rest(self, prop=None, leadingspace=2):
+        """
+        If *prop* is *None*, return a list of strings of all settable properies
+        and their valid values.  Format the output for ReST
+
+        If *prop* is not *None*, it is a valid property name and that
+        property will be returned as a string of property : valid
+        values.
+        """
+        if leadingspace:
+            pad = ' '*leadingspace
+        else:
+            pad  = ''
+        if prop is not None:
+            accepts = self.get_valid_values(prop)
+            return '%s%s: %s' %(pad, prop, accepts)
+
+        attrs = self._get_setters_and_targets()
+        attrs.sort()
+        lines = []
+
         ########
-        names = [self.aliased_name(prop, target) for prop, target in attrs]
+        names = [self.aliased_name_rest(prop, target) for prop, target in attrs]
         accepts = [self.get_valid_values(prop) for prop, target in attrs]
 
         col0_len = max([len(n) for n in names])
@@ -796,7 +845,7 @@ class ArtistInspector:
 
         for prop, path in attrs:
             accepts = self.get_valid_values(prop)
-            name = self.aliased_name(prop, path)
+            name = self.aliased_name_rest(prop, path)
 
             lines.append('%s%s: %s' %(pad, name, accepts))
         return lines
@@ -805,20 +854,27 @@ class ArtistInspector:
         """
         Return the getters and actual values as list of strings.
         """
-        getters = [name for name in dir(self.o)
+
+        o = self.oorig
+        getters = [name for name in dir(o)
                    if name.startswith('get_')
-                   and callable(getattr(self.o, name))]
+                   and callable(getattr(o, name))]
+        #print getters
         getters.sort()
         lines = []
         for name in getters:
-            func = getattr(self.o, name)
+            func = getattr(o, name)
             if self.is_alias(func): continue
+
             try: val = func()
             except: continue
             if getattr(val, 'shape', ()) != () and len(val)>6:
                 s = str(val[:6]) + '...'
             else:
                 s = str(val)
+            s = s.replace('\n', ' ')
+            if len(s)>50:
+                s = s[:50] + '...'
             name = self.aliased_name(name[4:])
             lines.append('    %s = %s' %(name, s))
         return lines
@@ -898,16 +954,16 @@ def getp(o, property=None):
     insp = ArtistInspector(o)
 
     if property is None:
-        print '\n'.join(insp.pprint_getters())
+        ret = insp.pprint_getters()
+        print '\n'.join(ret)
         return
 
     func = getattr(o, 'get_' + property)
+
     return func()
 
-def get(o, *args, **kwargs):
-    return getp(o, *args, **kwargs)
-get.__doc__ = getp.__doc__
-
+# alias
+get = getp
 
 def setp(h, *args, **kwargs):
     """
@@ -984,7 +1040,11 @@ def setp(h, *args, **kwargs):
     return [x for x in cbook.flatten(ret)]
 
 def kwdoc(a):
-    return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
+    hardcopy = matplotlib.rcParams['docstring.hardcopy']
+    if hardcopy:
+        return '\n'.join(ArtistInspector(a).pprint_setters_rest(leadingspace=2))
+    else:
+        return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
 
 kwdocd = dict()
 kwdocd['Artist'] = kwdoc(Artist)

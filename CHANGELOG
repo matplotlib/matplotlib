@@ -1,3 +1,13 @@
+2008-12-08 Some of the changes Michael made to improve the output of
+           the property tables in the rest docs broke of made
+           difficult to use some of the interactive doc helpers, eg
+           setp and getp.  Having all the rest markup in the ipython
+           shell also confused the docstrings.  I added a new rc param
+           docstring.harcopy, to format the docstrings differently for
+           hardcopy and other use.  Ther ArtistInspector could use a
+           little refactoring now since there is duplication of effort
+           between the rest out put and the non-rest output - JDH
+
 2008-12-08 Updated spectral methods (psd, csd, etc.) to scale one-sided
            densities by a factor of 2 and, optionally, scale all densities
            by the sampling frequency.  This gives better MatLab
