@@ -9,6 +9,15 @@ list may help describe what changes may be necessary in your code.
 Changes for 0.98.x
 ==================
 
+* Modified :func:`matplotlib.mlab.psd`, :func:`matplotlib.mlab.csd`,
+  :func:`matplotlib.mlab.cohere`, and :func:`matplotlib.mlab.specgram`
+  to scale one-sided densities by a factor of 2.  Also, optionally
+  scale the densities by the sampling frequency, which gives true values
+  of densities that can be integrated by the returned frequency values.
+  This also gives better MatLab compatibility.  The corresponding
+  :class:`matplotlib.axes.Axes` methods and :mod:`matplotlib.pyplot`
+  functions were updated as well.
+
 * Font lookup now uses a nearest-neighbor approach rather than an
   exact match.  Some fonts may be different in plots, but should be
   closer to what was requested.
