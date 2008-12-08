@@ -243,14 +243,15 @@ def detrend_linear(y):
 #This is a helper function that implements the commonality between the
 #psd, csd, and spectrogram.  It is *NOT* meant to be used outside of mlab
 def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
-        window=window_hanning, noverlap=0, pad_to=None, sides='default'):
+        window=window_hanning, noverlap=0, pad_to=None, sides='default',
+        scale_by_freq=None):
     #The checks for if y is x are so that we can use the same function to
     #implement the core of psd(), csd(), and spectrogram() without doing
     #extra calculations.  We return the unaveraged Pxy, freqs, and t.
+    same_data = y is x
 
     #Make sure we're dealing with a numpy array. If y and x were the same
     #object to start with, keep them that way
-    same_data = y is x
 
     x = np.asarray(x)
     if not same_data:
@@ -270,14 +271,30 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     if pad_to is None:
         pad_to = NFFT
 
+    if scale_by_freq is None:
+        warnings.warn("psd, csd, and specgram have changed to scale their "
+            "densities by the sampling frequency for better MatLab "
+            "compatibility. You can pass scale_by_freq=False to disable "
+            "this behavior.  Also, one-sided densities are scaled by a "
+            "factor of 2.")
+        scale_by_freq = True
+
     # For real x, ignore the negative frequencies unless told otherwise
     if (sides == 'default' and np.iscomplexobj(x)) or sides == 'twosided':
         numFreqs = pad_to
+        scaling_factor = 1.
     elif sides in ('default', 'onesided'):
         numFreqs = pad_to//2 + 1
+        scaling_factor = 2.
     else:
         raise ValueError("sides must be one of: 'default', 'onesided', or "
             "'twosided'")
+
+    # Matlab divides by the sampling frequency so that density function
+    # has units of dB/Hz and can be integrated by the plotted frequency
+    # values. Perform the same scaling here.
+    if scale_by_freq:
+        scaling_factor /= Fs
 
     if cbook.iterable(window):
         assert(len(window) == NFFT)
@@ -305,8 +322,10 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         Pxy[:,i] = np.conjugate(fx[:numFreqs]) * fy[:numFreqs]
 
     # Scale the spectrum by the norm of the window to compensate for
-    # windowing loss; see Bendat & Piersol Sec 11.5.2
-    Pxy /= (np.abs(windowVals)**2).sum()
+    # windowing loss; see Bendat & Piersol Sec 11.5.2.  Also include
+    # scaling factors for one-sided densities and dividing by the sampling
+    # frequency, if desired.
+    Pxy *= scaling_factor / (np.abs(windowVals)**2).sum()
     t = 1./Fs * (ind + NFFT / 2.)
     freqs = float(Fs) / pad_to * np.arange(numFreqs)
 
@@ -363,12 +382,18 @@ kwdocd['PSD'] ="""
       *sides*: [ 'default' | 'onesided' | 'twosided' ]
           Specifies which sides of the PSD to return.  Default gives the
           default behavior, which returns one-sided for real data and both
-          for complex data.  'one' forces the return of a one-sided PSD, while
-          'both' forces two-sided.
+          for complex data.  'onesided' forces the return of a one-sided PSD,
+          while 'twosided' forces two-sided.
+
+      *scale_by_freq*: boolean
+          Specifies whether the resulting density values should be scaled
+          by the scaling frequency, which gives density in units of Hz^-1.
+          This allows for integration over the returned frequency values.
+          The default is True for MatLab compatibility.
 """
 
-def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
-        window=window_hanning, noverlap=0, pad_to=None, sides='default'):
+def psd(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
+        noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
     """
     The power spectral density by Welch's average periodogram method.
     The vector *x* is divided into *NFFT* length blocks.  Each block
@@ -388,13 +413,14 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none,
         Bendat & Piersol -- Random Data: Analysis and Measurement
         Procedures, John Wiley & Sons (1986)
     """
-    Pxx,freqs = csd(x, x, NFFT, Fs, detrend, window, noverlap, pad_to, sides)
+    Pxx,freqs = csd(x, x, NFFT, Fs, detrend, window, noverlap, pad_to, sides,
+        scale_by_freq)
     return Pxx.real,freqs
 
 psd.__doc__ = psd.__doc__ % kwdocd
 
-def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
-        window=window_hanning, noverlap=0, pad_to=None, sides='default'):
+def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
+        noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
     """
     The cross power spectral density by Welch's average periodogram
     method.  The vectors *x* and *y* are divided into *NFFT* length
@@ -417,7 +443,7 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         Procedures, John Wiley & Sons (1986)
     """
     Pxy, freqs, t = _spectral_helper(x, y, NFFT, Fs, detrend, window,
-        noverlap, pad_to, sides)
+        noverlap, pad_to, sides, scale_by_freq)
 
     if len(Pxy.shape) == 2 and Pxy.shape[1]>1:
         Pxy = Pxy.mean(axis=1)
@@ -425,9 +451,8 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
 csd.__doc__ = csd.__doc__ % kwdocd
 
-def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
-             window=window_hanning, noverlap=128, pad_to=None,
-             sides='default'):
+def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
+        noverlap=128, pad_to=None, sides='default', scale_by_freq=None):
     """
     Compute a spectrogram of data in *x*.  Data are split into *NFFT*
     length segements and the PSD of each section is computed.  The
@@ -458,7 +483,7 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none,
     assert(NFFT > noverlap)
 
     Pxx, freqs, t = _spectral_helper(x, x, NFFT, Fs, detrend, window,
-        noverlap, pad_to, sides)
+        noverlap, pad_to, sides, scale_by_freq)
     Pxx = Pxx.real #Needed since helper implements generically
 
     if (np.iscomplexobj(x) and sides == 'default') or sides == 'twosided':
@@ -473,8 +498,8 @@ specgram.__doc__ = specgram.__doc__ % kwdocd
 _coh_error = """Coherence is calculated by averaging over *NFFT*
 length segments.  Your signal is too short for your choice of *NFFT*.
 """
-def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
-           window=window_hanning, noverlap=0, pad_to=None, sides='default'):
+def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
+        noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
     """
     The coherence between *x* and *y*.  Coherence is the normalized
     cross spectral density:
@@ -487,7 +512,9 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         Array or sequence containing the data
     %(PSD)s
     The return value is the tuple (*Cxy*, *f*), where *f* are the
-    frequencies of the coherence vector.
+    frequencies of the coherence vector. For cohere, scaling the
+    individual densities by the sampling frequency has no effect, since
+    the factors cancel out.
 
     .. seealso::
         :func:`psd` and :func:`csd`:
@@ -497,9 +524,12 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
     if len(x)<2*NFFT:
         raise ValueError(_coh_error)
-    Pxx, f = psd(x, NFFT, Fs, detrend, window, noverlap, pad_to, sides)
-    Pyy, f = psd(y, NFFT, Fs, detrend, window, noverlap, pad_to, sides)
-    Pxy, f = csd(x, y, NFFT, Fs, detrend, window, noverlap, pad_to, sides)
+    Pxx, f = psd(x, NFFT, Fs, detrend, window, noverlap, pad_to, sides,
+        scale_by_freq)
+    Pyy, f = psd(y, NFFT, Fs, detrend, window, noverlap, pad_to, sides,
+        scale_by_freq)
+    Pxy, f = csd(x, y, NFFT, Fs, detrend, window, noverlap, pad_to, sides,
+        scale_by_freq)
 
     Cxy = np.divide(np.absolute(Pxy)**2, Pxx*Pyy)
     Cxy.shape = (len(f),)
@@ -3246,4 +3276,3 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     c2x, c2y = c1x + 1./3. * (q2x - q0x), c1y + 1./3. * (q2y - q0y)
     # c3x, c3y = q2x, q2y
     return q0x, q0y, c1x, c1y, c2x, c2y, q2x, q2y
-

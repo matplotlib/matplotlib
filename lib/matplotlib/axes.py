@@ -6719,13 +6719,13 @@ class Axes(martist.Artist):
 
     def psd(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0, pad_to=None,
-            sides='default', **kwargs):
+            sides='default', scale_by_freq=None, **kwargs):
         """
         call signature::
 
           psd(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
               window=mlab.window_hanning, noverlap=0, pad_to=None,
-              sides='default', **kwargs)
+              sides='default', scale_by_freq=None, **kwargs)
 
         The power spectral density by Welch's average periodogram
         method.  The vector *x* is divided into *NFFT* length
@@ -6764,13 +6764,18 @@ class Axes(martist.Artist):
         """
         if not self._hold: self.cla()
         pxx, freqs = mlab.psd(x, NFFT, Fs, detrend, window, noverlap, pad_to,
-            sides)
+            sides, scale_by_freq)
         pxx.shape = len(freqs),
         freqs += Fc
 
+        if scale_by_freq in (None, True):
+            psd_units = 'dB/Hz'
+        else:
+            psd_units = 'dB'
+
         self.plot(freqs, 10*np.log10(pxx), **kwargs)
         self.set_xlabel('Frequency')
-        self.set_ylabel('Power Spectrum (dB)')
+        self.set_ylabel('Power Spectral Density (%s)' % psd_units)
         self.grid(True)
         vmin, vmax = self.viewLim.intervaly
         intv = vmax-vmin
@@ -6791,13 +6796,13 @@ class Axes(martist.Artist):
 
     def csd(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0, pad_to=None,
-            sides='default', **kwargs):
+            sides='default', scale_by_freq=None, **kwargs):
         """
         call signature::
 
           csd(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
               window=mlab.window_hanning, noverlap=0, pad_to=None,
-              sides='default', **kwargs)
+              sides='default', scale_by_freq=None, **kwargs)
 
         The cross spectral density :math:`P_{xy}` by Welch's average
         periodogram method.  The vectors *x* and *y* are divided into
@@ -6837,7 +6842,7 @@ class Axes(martist.Artist):
         """
         if not self._hold: self.cla()
         pxy, freqs = mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap,
-            pad_to, sides)
+            pad_to, sides, scale_by_freq)
         pxy.shape = len(freqs),
         # pxy is complex
         freqs += Fc
@@ -6859,13 +6864,13 @@ class Axes(martist.Artist):
 
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                window=mlab.window_hanning, noverlap=0, pad_to=None,
-               sides='default', **kwargs):
+               sides='default', scale_by_freq=None, **kwargs):
         """
         call signature::
 
           cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend = mlab.detrend_none,
                  window = mlab.window_hanning, noverlap=0, pad_to=None,
-                 sides='default', **kwargs)
+                 sides='default', scale_by_freq=None, **kwargs)
 
         cohere the coherence between *x* and *y*.  Coherence is the normalized
         cross spectral density:
@@ -6902,7 +6907,8 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/pylab_examples/cohere_demo.py
         """
         if not self._hold: self.cla()
-        cxy, freqs = mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap)
+        cxy, freqs = mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap,
+            scale_by_freq)
         freqs += Fc
 
         self.plot(freqs, cxy, **kwargs)
@@ -6915,13 +6921,15 @@ class Axes(martist.Artist):
 
     def specgram(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                  window=mlab.window_hanning, noverlap=128,
-                 cmap=None, xextent=None, pad_to=None, sides='default'):
+                 cmap=None, xextent=None, pad_to=None, sides='default',
+                 scale_by_freq=None):
         """
         call signature::
 
           specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                    window=mlab.window_hanning, noverlap=128,
-                   cmap=None, xextent=None, pad_to=None, sides='default')
+                   cmap=None, xextent=None, pad_to=None, sides='default',
+                   scale_by_freq=None)
 
         Compute a spectrogram of data in *x*.  Data are split into
         *NFFT* length segments and the PSD of each section is
@@ -6965,7 +6973,7 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
 
         Pxx, freqs, bins = mlab.specgram(x, NFFT, Fs, detrend,
-             window, noverlap, pad_to, sides)
+             window, noverlap, pad_to, sides, scale_by_freq)
 
         Z = 10. * np.log10(Pxx)
         Z = np.flipud(Z)
