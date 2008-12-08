@@ -329,6 +329,7 @@ class SymmetricalLogScale(ScaleBase):
             self._linadjust = linthresh / (np.log(linthresh) / self._log_base)
 
         def transform(self, a):
+            a = np.asarray(a)
             return np.where(a <= self._log_linthresh,
                              np.where(a >= -self._log_linthresh,
                                        a * self._linadjust,
