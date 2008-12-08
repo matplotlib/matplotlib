@@ -417,6 +417,7 @@ defaultParams = {
     'polaraxes.grid'        : [True, validate_bool],   # display polar grid or not
 
     #legend properties
+    'legend.fancybox'         : [False,validate_bool],
     'legend.loc'         : ['upper right',validate_legend_loc], # at some point, this should be changed to 'best'
     'legend.isaxes'      : [True,validate_bool],  # this option is internally ignored - it never served any useful purpose
     'legend.numpoints'   : [2, validate_int],     # the number of points in the legend line

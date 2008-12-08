@@ -63,7 +63,7 @@ class Legend(Artist):
 
     loc can be a tuple of the noramilzed coordinate values with
     respect its parent.
-   
+
     Return value is a sequence of text, line instances that make
     up the legend
     """
@@ -94,15 +94,15 @@ class Legend(Artist):
                  scatterpoints = 3,    # TODO: may be an rcParam
                  scatteryoffsets=None,
                  prop = None,          # properties for the legend texts
-                 
+
                  # the following dimensions are in axes coords
                  pad = None,           # deprecated; use borderpad
-                 labelsep = None,      # deprecated; use labelspacing 
-                 handlelen = None,     # deprecated; use handlelength 
-                 handletextsep = None, # deprecated; use handletextpad 
+                 labelsep = None,      # deprecated; use labelspacing
+                 handlelen = None,     # deprecated; use handlelength
+                 handletextsep = None, # deprecated; use handletextpad
                  axespad = None,       # deprecated; use borderaxespad
 
-                 # spacing & pad defined as a fractionof the font-size 
+                 # spacing & pad defined as a fractionof the font-size
                  borderpad = None,     # the whitespace inside the legend border
                  labelspacing=None, #the vertical space between the legend entries
                  handlelength=None, # the length of the legend handles
@@ -113,7 +113,7 @@ class Legend(Artist):
                  ncol=1, # number of columns
                  mode=None, # mode for horizontal distribution of columns. None, "expand"
 
-                 fancybox=True,
+                 fancybox=None, # True use a fancy box, false use a rounded box, none use rc
                  shadow = None,
                  ):
         """
@@ -131,7 +131,7 @@ class Legend(Artist):
         numpoints          the number of points in the legend line
         prop               the font property
         markerscale        the relative size of legend markers vs. original
-        fancybox           if True, draw a frame with a round fancybox.
+        fancybox           if True, draw a frame with a round fancybox.  If None, use rc
         shadow             if True, draw a shadow behind legend
         scatteryoffsets    a list of yoffsets for scatter symbols in legend
 
@@ -144,7 +144,7 @@ class Legend(Artist):
 
 The dimensions of pad and spacing are given as a fraction of the
 fontsize. Values from rcParams will be used if None.
-  
+
         """
         from matplotlib.axes import Axes     # local import only to avoid circularity
         from matplotlib.figure import Figure # local import only to avoid circularity
@@ -172,7 +172,7 @@ fontsize. Values from rcParams will be used if None.
         # Take care the deprecated keywords
         deprecated_kwds = {"pad":"borderpad",
                            "labelsep":"labelspacing",
-                           "handlelen":"handlelength", 
+                           "handlelen":"handlelength",
                            "handletextsep":"handletextpad",
                            "axespad":"borderaxespad"}
 
@@ -182,7 +182,7 @@ fontsize. Values from rcParams will be used if None.
         # conversion factor
         bbox = parent.bbox
         axessize_fontsize = min(bbox.width, bbox.height)/self.fontsize
-        
+
         for k, v in deprecated_kwds.items():
             # use deprecated value if not None and if their newer
             # counter part is None.
@@ -199,7 +199,7 @@ fontsize. Values from rcParams will be used if None.
                 setattr(self, v, localdict[v])
 
         del localdict
-        
+
         self._ncol = ncol
 
         if self.numpoints <= 0:
@@ -265,6 +265,9 @@ fontsize. Values from rcParams will be used if None.
         # The width and height of the legendPatch will be set (in the
         # draw()) to the length that includes the padding. Thus we set
         # pad=0 here.
+        if fancybox is None:
+            fancybox = rcParams["legend.fancybox"]
+
         if fancybox == True:
             self.legendPatch.set_boxstyle("round",pad=0,
                                           rounding_size=0.2)
@@ -318,7 +321,7 @@ fontsize. Values from rcParams will be used if None.
 
         # find_offset function will be provided to _legend_box and
         # _legend_box will draw itself at the location of the return
-        # value of the find_offset. 
+        # value of the find_offset.
         if self._loc == 0:
             self._legend_box.set_offset(self._findoffset_best)
         else:
@@ -339,7 +342,7 @@ fontsize. Values from rcParams will be used if None.
             if self.shadow:
                 shadow = Shadow(self.legendPatch, 2, -2)
                 shadow.draw(renderer)
-            
+
             self.legendPatch.draw(renderer)
 
         self._legend_box.draw(renderer)
@@ -360,7 +363,7 @@ fontsize. Values from rcParams will be used if None.
         Initiallize the legend_box. The legend_box is an instance of
         the OffsetBox, which is packed with legend handles and
         texts. Once packed, their location is calculated during the
-        drawing time. 
+        drawing time.
         """
 
         # legend_box is a HPacker, horizontally packed with
@@ -371,7 +374,7 @@ fontsize. Values from rcParams will be used if None.
         # is an instance of offsetbox.TextArea which contains legend
         # text.
 
-        
+
         text_list = []  # the list of text instances
         handle_list = []  # the list of text instances
 
@@ -394,12 +397,12 @@ fontsize. Values from rcParams will be used if None.
         # The approximate height and descent of text. These values are
         # only used for plotting the legend handle.
         height = self._approx_text_height() * 0.7
-        descent = 0. 
+        descent = 0.
 
         # each handle needs to be drawn inside a box of
         # (x, y, w, h) = (0, -descent, width, height).
         # And their corrdinates should be given in the display coordinates.
-        
+
         # The transformation of each handle will be automatically set
         # to self.get_trasnform(). If the artist does not uses its
         # default trasnform (eg, Collections), you need to
@@ -413,7 +416,7 @@ fontsize. Values from rcParams will be used if None.
             if npoints > 1:
                 # we put some pad here to compensate the size of the
                 # marker
-                xdata = np.linspace(0.3*self.fontsize, 
+                xdata = np.linspace(0.3*self.fontsize,
                                     (self.handlelength-0.3)*self.fontsize,
                                     npoints)
                 xdata_marker = xdata
@@ -484,14 +487,14 @@ fontsize. Values from rcParams will be used if None.
                              size_min]
                 else:
                     sizes = (size_max-size_min)*np.linspace(0,1,self.scatterpoints)+size_min
- 
+
                 p = type(handle)(handle.get_numsides(),
                                  rotation=handle.get_rotation(),
                                  sizes=sizes,
                                  offsets=zip(xdata_marker,ydata),
                                  transOffset=self.get_transform(),
                                  )
- 
+
                 p.update_from(handle)
                 p.set_figure(self.figure)
                 p.set_clip_box(None)
@@ -534,7 +537,7 @@ fontsize. Values from rcParams will be used if None.
                          for h, t in handle_label[i0:i0+di]]
             # minimumdescent=False for the text of the last row of the column
             itemBoxes[-1].get_children()[1].set_minimumdescent(False)
-            
+
             # pack columnBox
             columnbox.append(VPacker(pad=0,
                                         sep=self.labelspacing*self.fontsize,
@@ -547,7 +550,7 @@ fontsize. Values from rcParams will be used if None.
             mode = "fixed"
 
         sep = self.columnspacing*self.fontsize
-                
+
         self._legend_box = HPacker(pad=self.borderpad*self.fontsize,
                                       sep=sep, align="baseline",
                                       mode=mode,
@@ -555,7 +558,7 @@ fontsize. Values from rcParams will be used if None.
 
         self.texts = text_list
         self.legendHandles = handle_list
-        
+
 
     def _auto_legend_data(self):
         """
@@ -655,12 +658,12 @@ fontsize. Values from rcParams will be used if None.
                       LC:"S",
                       UC:"N",
                       C:"C"}
-                      
+
         c = anchor_coefs[loc]
 
         container = parentbbox.padded(-(self.borderaxespad) * self.fontsize)
         anchored_box = bbox.anchored(c, container=container)
-        return anchored_box.x0, anchored_box.y0 
+        return anchored_box.x0, anchored_box.y0
 
 
     def _find_best_position(self, width, height, consider=None):
