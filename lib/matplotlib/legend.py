@@ -123,10 +123,9 @@ class Legend(Artist):
 
         Optional keyword arguments:
 
-        ================   =================================================
+        ================   ==================================================================
         Keyword            Description
-        ================   =================================================
-
+        ================   ==================================================================
         loc                a location code or a tuple of coordinates
         numpoints          the number of points in the legend line
         prop               the font property
@@ -134,17 +133,16 @@ class Legend(Artist):
         fancybox           if True, draw a frame with a round fancybox.  If None, use rc
         shadow             if True, draw a shadow behind legend
         scatteryoffsets    a list of yoffsets for scatter symbols in legend
-
         borderpad          the fractional whitespace inside the legend border
         labelspacing       the vertical space between the legend entries
         handlelength       the length of the legend handles
         handletextpad      the pad between the legend handle and text
         borderaxespad      the pad between the axes and legend border
         columnspacing      the spacing between columns
+        ================   ==================================================================
 
 The dimensions of pad and spacing are given as a fraction of the
 fontsize. Values from rcParams will be used if None.
-
         """
         from matplotlib.axes import Axes     # local import only to avoid circularity
         from matplotlib.figure import Figure # local import only to avoid circularity

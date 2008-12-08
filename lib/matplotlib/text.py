@@ -1297,9 +1297,9 @@ class Annotation(Text):
         drawn. Valid keys for YAArow are
 
 
-        =========   ===========================================================
+        =========   =============================================================
         Key         Description
-        =========   ===========================================================
+        =========   =============================================================
         width       the width of the arrow in points
         frac        the fraction of the arrow length occupied by the head
         headwidth   the width of the base of the arrow head in points
@@ -1310,7 +1310,7 @@ class Annotation(Text):
                     and base are shink percent of the distance *d* away from the
                     endpoints.  ie, ``shrink=0.05 is 5%%``
         ?           any key for :class:`matplotlib.patches.polygon`
-        =========   ===========================================================
+        =========   =============================================================
 
 
         Valid keys for FancyArrowPatch are
@@ -1319,8 +1319,8 @@ class Annotation(Text):
         ===============  ======================================================
         Key              Description
         ===============  ======================================================
-        arrowstyle
-        connectionstyle
+        arrowstyle       the arrow style
+        connectionstyle  the connection style
         relpos           default is (0.5, 0.5)
         patchA           default is bounding box of the text
         patchB           default is None
@@ -1328,8 +1328,8 @@ class Annotation(Text):
         shrinkB          default is 2 points
         mutation_scale   default is text size (in points)
         mutation_aspect  default is 1.
-        ?           any key for :class:`matplotlib.patches.PathPatch`
-        =========   ===========================================================
+        ?                any key for :class:`matplotlib.patches.PathPatch`
+        ===============  ======================================================
 
 
         *xycoords* and *textcoords* are strings that indicate the
