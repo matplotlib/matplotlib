@@ -294,6 +294,9 @@ savefig.dpi       : 80      # figure dots per inch
 #svg.image_noscale : False     # suppress scaling of raster data embedded in SVG
 #svg.embed_chars : True       # embed character outlines in the SVG file
 
+# docstring params
+docstring.hardcopy = True  # set this when you want to generate hardcopy docstring
+
 # Set the verbose flags.  This controls how much information
 # matplotlib gives you at runtime and where it goes.  The verbosity
 # levels are: silent, helpful, debug, debug-annoying.  Any level is
@@ -311,5 +314,6 @@ savefig.dpi       : 80      # figure dots per inch
 #
 # You can access the verbose instance in your code
 #   from matplotlib import verbose.
+
 #verbose.level  : silent      # one of silent, helpful, debug, debug-annoying
 #verbose.fileo  : sys.stdout  # a log filename, sys.stdout or sys.stderr
