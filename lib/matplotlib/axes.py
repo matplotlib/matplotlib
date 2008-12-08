@@ -6521,7 +6521,7 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
 
         # NOTE: the range keyword overwrites the built-in func range !!!
-        #       needs to be fixed in  with numpy                     !!! 
+        #       needs to be fixed in  with numpy                     !!!
 
         if kwargs.get('width') is not None:
             raise DeprecationWarning(
@@ -6551,7 +6551,7 @@ class Axes(martist.Artist):
         binsgiven = (cbook.iterable(bins) or range != None)
 
         # check the version of the numpy
-        if np.__version__ < "1.2": # version 1.1 
+        if np.__version__ < "1.2": # version 1.1
             hist_kwargs = dict(range=range,
                                normed=bool(normed), new=True)
         else: # version 1.2 and later, drop new=True
