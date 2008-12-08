@@ -1382,8 +1382,8 @@ def _pprint_table(_table, leadingspace=2):
     for row in _table:
         for column, cell in zip(columns, row):
             column.append(cell)
-            
-    
+
+
 
     col_len = [max([len(cell) for cell in column]) for column in columns]
 
@@ -1394,10 +1394,10 @@ def _pprint_table(_table, leadingspace=2):
     lines.append(table_formatstr)
     lines.append(pad + '   '.join([cell.ljust(cl) for cell, cl in zip(_table[0], col_len)]))
     lines.append(table_formatstr)
-    
+
     lines.extend([(pad + '   '.join([cell.ljust(cl) for cell, cl in zip(row, col_len)]))
                   for row in _table[1:]])
-    
+
     lines.append(table_formatstr)
     lines.append('')
     return "\n".join(lines)
@@ -1427,10 +1427,10 @@ def _pprint_styles(_styles, leadingspace=2):
                     for argname, argdefault in zip(args[1:], defaults)]
         else:
             args = []
-            
+
         _table.append([cls.__name__, name,
                        ",".join([("%s=%s" % (an, av)) for an, av in args])])
-        
+
     return _pprint_table(_table)
 
 
@@ -1448,7 +1448,7 @@ class _Style(object):
 
         # the "class" should have the _style_list attribute, which is
         # a dictionary of stylname, style class paie.
-        
+
         _list = stylename.replace(" ","").split(",")
         _name = _list[0].lower()
         try:
@@ -1492,20 +1492,20 @@ class BoxStyle(_Style):
 
            BoxStyle.Round(pad=0.2)
 
-    or 
+    or
 
            BoxStyle("Round", pad=0.2)
 
     or
-        
+
            BoxStyle("Round, pad=0.2")
 
     Following boxstyle classes are defined.
-    
+
     %(AvailableBoxstyles)s
 
     An instance of any boxstyle class is an callable object,
-    whose call signature is
+    whose call signature is::
 
        __call__(self, x0, y0, width, height, mutation_size, aspect_ratio=1.)
 
@@ -1517,7 +1517,7 @@ class BoxStyle(_Style):
     the mutation.
 
     """
-    
+
     _style_list = {}
 
 
@@ -1593,7 +1593,7 @@ class BoxStyle(_Style):
              *pad*
                 amount of padding
             """
-            
+
             self.pad = pad
             super(BoxStyle.Square, self).__init__()
 
@@ -1653,7 +1653,7 @@ class BoxStyle(_Style):
             dxx = dx*.5
             # adjust x0.  1.4 <- sqrt(2)
             x0 = x0 + pad / 1.4
-            
+
             cp = [(x0+dxx, y0), (x1, y0), (x1, y1), (x0+dxx, y1),
                   (x0+dxx, y1+dxx), (x0-dx, y0+dx), (x0+dxx, y0-dxx), # arrow
                   (x0+dxx, y0), (x0+dxx, y0)]
@@ -1687,7 +1687,7 @@ class BoxStyle(_Style):
 
             return p
 
-        
+
     _style_list["rarrow"] = RArrow
 
 
@@ -1770,7 +1770,7 @@ class BoxStyle(_Style):
             *rounding_size*
               rounding size of edges. *pad* if None
             """
-            
+
             self.pad = pad
             self.rounding_size = rounding_size
             super(BoxStyle.Round4, self).__init__()
@@ -2038,7 +2038,7 @@ class FancyBboxPatch(Patch):
             self._bbox_transmuter = boxstyle
         else:
             self._bbox_transmuter = BoxStyle(boxstyle, **kw)
-        
+
 
     kwdoc = dict()
     kwdoc["AvailableBoxstyles"]=_pprint_styles(BoxStyle._style_list)
@@ -2180,12 +2180,12 @@ class ConnectionStyle(_Style):
 
            ConnectionStyle.Arc3(rad=0.2)
 
-    or 
+    or
 
            ConnectionStyle("Arc3", rad=0.2)
 
     or
-        
+
            ConnectionStyle("Arc3, rad=0.2")
 
     Following classes are defined
@@ -2194,7 +2194,7 @@ class ConnectionStyle(_Style):
 
 
     An instance of any connection style class is an callable object,
-    whose call signature is
+    whose call signature is::
 
         __call__(self, posA, posB, patchA=None, patchB=None, shrinkA=2., shrinkB=2.)
 
@@ -2204,17 +2204,17 @@ class ConnectionStyle(_Style):
     (or end) from the boundary of the patch. The path is further
     shrinked by *shrinkA* (or *shrinkB*) which is given in points.
     """
-    
+
     _style_list = {}
 
 
     class _Base(object):
         """
         A base class for connectionstyle classes. The dervided needs
-        to implement a *connect* methods whose call signature is
+        to implement a *connect* methods whose call signature is::
 
           connect(posA, posB)
-          
+
         where posA and posB are tuples of x, y coordinates to be
         connected.  The methods needs to return a path connecting two
         points. This base class defines a __call__ method, and few
@@ -2289,7 +2289,7 @@ class ConnectionStyle(_Style):
             Calls the *connect* method to create a path between *posA*
              and *posB*. The path is clipped and shrinked.
             """
-            
+
             path = self.connect(posA, posB)
 
             clipped_path = self._clip(path, patchA, patchB)
@@ -2334,7 +2334,7 @@ class ConnectionStyle(_Style):
             return Path(vertices, codes)
 
     _style_list["arc3"] = Arc3
-    
+
 
     class Angle3(_Base):
         """
@@ -2448,16 +2448,16 @@ class ConnectionStyle(_Style):
         def __init__(self, angleA=0, angleB=0, armA=None, armB=None, rad=0.):
             """
             *angleA* :
-              starting angle of the path  
+              starting angle of the path
 
             *angleB* :
-              ending angle of the path    
+              ending angle of the path
 
             *armA* :
-              length of the starting arm  
+              length of the starting arm
 
             *armB* :
-              length of the ending arm    
+              length of the ending arm
 
             *rad* :
               rounding radius of the edges
@@ -2531,7 +2531,7 @@ class ConnectionStyle(_Style):
 
     __doc__ = cbook.dedent(__doc__) % \
            {"AvailableConnectorstyles": _pprint_styles(_style_list)}
-    
+
 
 
 class ArrowStyle(_Style):
@@ -2543,12 +2543,12 @@ class ArrowStyle(_Style):
     A arrowstyle object can be either created as
 
            ArrowStyle.Fancy(head_length=.4, head_width=.4, tail_width=.4)
-    or 
+    or
 
            ArrowStyle("Fancy", head_length=.4, head_width=.4, tail_width=.4)
 
     or
-        
+
            ArrowStyle("Fancy, head_length=.4, head_width=.4, tail_width=.4")
 
     Following classes are defined
@@ -2557,7 +2557,7 @@ class ArrowStyle(_Style):
 
 
     An instance of any arrow style class is an callable object,
-    whose call signature is
+    whose call signature is::
 
         __call__(self, path, mutation_size, linewidth, aspect_ratio=1.)
 
@@ -2795,14 +2795,14 @@ class ArrowStyle(_Style):
 
     class CurveA(_Curve):
         """
-        An arrow with a head at its begin point. 
+        An arrow with a head at its begin point.
         """
 
         def __init__(self, head_length=.4, head_width=.2):
             """
             *head_length*
               length of the arrow head
-            
+
             *head_width*
               width of the arrow head
             """
@@ -2816,14 +2816,14 @@ class ArrowStyle(_Style):
 
     class CurveB(_Curve):
         """
-        An arrow with a head at its end point. 
+        An arrow with a head at its end point.
         """
 
         def __init__(self, head_length=.4, head_width=.2):
             """
             *head_length*
               length of the arrow head
-            
+
             *head_width*
               width of the arrow head
             """
@@ -2837,14 +2837,14 @@ class ArrowStyle(_Style):
 
     class CurveAB(_Curve):
         """
-        An arrow with heads both at the begin and the end point. 
+        An arrow with heads both at the begin and the end point.
         """
 
         def __init__(self, head_length=.4, head_width=.2):
             """
             *head_length*
               length of the arrow head
-            
+
             *head_width*
               width of the arrow head
             """
@@ -2859,7 +2859,7 @@ class ArrowStyle(_Style):
     class _Bracket(_Base):
 
         def __init__(self, bracketA=None, bracketB=None,
-                     widthA=1., widthB=1., 
+                     widthA=1., widthB=1.,
                      lengthA=0.2, lengthB=0.2,
                      angleA=None, angleB=None,
                      scaleA=None, scaleB=None
@@ -2870,8 +2870,8 @@ class ArrowStyle(_Style):
             self.angleA, self.angleB = angleA, angleB
             self.scaleA, self.scaleB= scaleA, scaleB
 
-        def _get_bracket(self, x0, y0, 
-                         cos_t, sin_t, width, length, 
+        def _get_bracket(self, x0, y0,
+                         cos_t, sin_t, width, length,
                          ):
 
             # arrow from x0, y0 to x1, y1
@@ -2949,10 +2949,10 @@ class ArrowStyle(_Style):
             """
             *widthB*
               width of the bracket
-              
+
             *lengthB*
               length of the bracket
-              
+
             *angleB*
               angle between the bracket and the line
             """
@@ -2975,12 +2975,12 @@ class ArrowStyle(_Style):
 
             *head_with*
               width of the arrow head
-            
+
             *tail_width*
               width of the arrow tail
 
             """
-            
+
             self.head_length, self.head_width, self.tail_width = \
                     head_length, head_width, tail_width
             super(ArrowStyle.Simple, self).__init__()
@@ -3043,7 +3043,7 @@ class ArrowStyle(_Style):
 
             *head_with*
               width of the arrow head
-            
+
             *tail_width*
               width of the arrow tail
 
@@ -3140,7 +3140,7 @@ class ArrowStyle(_Style):
         Wedge(?) shape. Only wokrs with a quadratic bezier curve.  The
         begin point has a width of the tail_width and the end point has a
         width of 0. At the middle, the width is shrink_factor*tail_width.
-        
+
         """
 
         def __init__(self, tail_width=.3, shrink_factor=0.5):
@@ -3151,7 +3151,7 @@ class ArrowStyle(_Style):
             *shrink_factor*
               fraction of the arrow width at the middle point
             """
-            
+
             self.tail_width = tail_width
             self.shrink_factor = shrink_factor
             super(ArrowStyle.Wedge, self).__init__()
@@ -3191,7 +3191,7 @@ class FancyArrowPatch(Patch):
     A fancy arrow patch. It draws an arrow using the :class:ArrowStyle.
     """
 
-    
+
     def __str__(self):
         return self.__class__.__name__ \
             + "FancyArrowPatch(%g,%g,%g,%g,%g,%g)" % tuple(self._q_bezier)
@@ -3340,7 +3340,7 @@ class FancyArrowPatch(Patch):
             self._connector = connectionstyle
         else:
             self._connector = ConnectionStyle(connectionstyle, **kw)
-            
+
 
     def get_connectionstyle(self):
         """

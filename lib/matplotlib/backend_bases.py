@@ -758,7 +758,7 @@ class LocationEvent(Event):
 
         if x is None or y is None:
             # cannot check if event was in axes if no x,y info
-            self.inaxes = False
+            self.inaxes = None
             self._update_enter_leave()
             return
 

@@ -143,7 +143,15 @@ as follows::
     s(t) = \mathcal{A}\sin(2 \omega t)
 
 Here "s" and "t" are variable in italics font (default), "sin" is in
-Roman font, and the amplitude "A" is in calligraphy font.
+Roman font, and the amplitude "A" is in calligraphy font.  Note in the
+example above the caligraphy ``A`` is squished into the ``sin``.  You
+can use a spacing command to add a little whitespace between them::
+
+    s(t) = \mathcal{A}\/\sin(2 \omega t)
+
+.. math::
+
+    s(t) = \mathcal{A}\/\sin(2 \omega t)
 
 The choices available with all fonts are:
 
@@ -159,7 +167,7 @@ The choices available with all fonts are:
 .. role:: math-stix(math)
    :fontset: stix
 
-When using the STIX fonts, you also have the choice of:
+When using the `STIX <http://www.aip.org/stixfonts/>`_ fonts, you also have the choice of:
 
     ====================================== =========================================
     Command                                Result
