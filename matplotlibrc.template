@@ -235,6 +235,8 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 #grid.linewidth   :   0.5     # in points
 
 ### Legend
+#legend.fancybox      : False  # if True, use a rounded box for the
+                               # legend, else a rectangle
 #legend.isaxes        : True
 #legend.numpoints     : 2      # the number of points in the legend line
 #legend.fontsize      : large

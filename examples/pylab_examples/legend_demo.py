@@ -15,7 +15,7 @@ d = c[::-1]
 ax = plt.subplot(111)
 plt.plot(a,c,'k--',a,d,'k:',a,c+d,'k')
 plt.legend(('Model length', 'Data length', 'Total message length'),
-           'upper center', shadow=True)
+           'upper center', shadow=True, fancybox=True)
 plt.ylim([-1,20])
 plt.grid(False)
 plt.xlabel('Model complexity --->')

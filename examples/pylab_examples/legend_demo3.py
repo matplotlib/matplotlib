@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+import matplotlib
+matplotlib.rcParams['legend.fancybox'] = True
 import matplotlib.pyplot as plt
 import numpy as np
 import pylab
@@ -22,7 +23,7 @@ ax2.legend(loc=1, ncol=2, shadow=True)
 
 ax3 = plt.subplot(3,1,3)
 myplot(ax3)
-ax3.legend(loc=1, ncol=4, mode="expand", fancybox=False, shadow=True)
+ax3.legend(loc=1, ncol=4, mode="expand", shadow=True)
 
 
 #title('Damped oscillation')
