@@ -29,7 +29,7 @@ class Type1Font(object):
         finally:
             file.close()
         self.parts = self._split(data)
-        self._parse()
+        #self._parse()
 
     def _read(self, file):
         rawdata = file.read()
@@ -180,5 +180,5 @@ if __name__ == '__main__':
     font = Type1Font(sys.argv[1])
     parts = font.parts
     print len(parts[0]), len(parts[1]), len(parts[2])
-    print parts[0][font.enc_starts:font.enc_ends]
+    #print parts[0][font.enc_starts:font.enc_ends]
 
