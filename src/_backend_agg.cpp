@@ -555,6 +555,8 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
     if (has_clippath) {
       while (path_transformed.vertex(&x, &y) != agg::path_cmd_stop) {
+        x = mpl_round(x); y = mpl_round(y);
+
 	pixfmt_amask_type pfa(pixFmt, alphaMask);
 	amask_ren_type r(pfa);
 	amask_aa_renderer_type ren(r);
@@ -570,6 +572,8 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
       }
     } else {
       while (path_transformed.vertex(&x, &y) != agg::path_cmd_stop) {
+        x = mpl_round(x); y = mpl_round(y);
+
 	if (face.first) {
 	  rendererAA.color(face.second);
 	  sa.init(fillCache, fillSize, x, y);
@@ -1179,7 +1183,7 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   PathListGenerator path_generator(paths);
 
   try {
-    _draw_path_collection_generic<PathListGenerator, 1, 1>
+    _draw_path_collection_generic<PathListGenerator, 0, 1>
       (master_transform,
        cliprect,
        clippath,
