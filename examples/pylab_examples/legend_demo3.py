@@ -31,6 +31,5 @@ ax3.legend(loc=1, ncol=4, mode="expand", shadow=True)
 plt.draw()
 plt.show()
 
-#plt.savefig("legend_demo3")
 
 

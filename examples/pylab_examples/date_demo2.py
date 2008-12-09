@@ -43,5 +43,4 @@ ax.grid(True)
 
 fig.autofmt_xdate()
 
-#fig.savefig('date_demo2')
 show()

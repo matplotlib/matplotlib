@@ -34,5 +34,5 @@ def autolabel(rects):
 
 autolabel(rects1)
 autolabel(rects2)
-#savefig('barchart_demo')
+
 plt.show()

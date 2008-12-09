@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+
 """
 I'm not trying to make a good liking figure here, but just to show
 some examples of customizing rc params on the fly
@@ -13,7 +13,7 @@ def set_pub():
     rc('tick', labelsize=15)     # tick labels bigger
     rc('lines', lw=1, color='k') # thicker black lines (no budget for color!)
     rc('grid', c='0.5', ls='-', lw=0.5)  # solid gray grid lines
-    rc('#savefig', dpi=300)       # higher res outputs
+    rc('savefig', dpi=300)       # higher res outputs
 
 
 
@@ -22,7 +22,7 @@ Then as you are working interactively, you just need to do
 >>> set_pub()
 >>> subplot(111)
 >>> plot([1,2,3])
->>> #savefig('myfig')
+>>> savefig('myfig')
 >>> rcdefaults()  # restore the defaults
 
 """

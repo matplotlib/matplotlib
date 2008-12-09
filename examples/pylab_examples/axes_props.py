@@ -26,7 +26,7 @@ setp(yticklabels, 'color', 'r', fontsize='medium')
 setp(xticklabels, 'color', 'r', fontsize='medium')
 
 
-#savefig('axprops_demo')
+
 show()
 
 
@@ -57,7 +57,6 @@ for label in ticklabels:
     label.set_color('r')
     label.set_fontsize('medium')
 
-#savefig('axprops_demo')
 show()
 
 """

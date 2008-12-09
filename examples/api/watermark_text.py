@@ -18,7 +18,4 @@ fig.text(0.95, 0.05, 'Property of MPL',
          fontsize=50, color='gray',
          ha='right', va='bottom', alpha=0.5)
 
-#fig.savefig('watermarked_text', transparent=True)
-
-
 plt.show()

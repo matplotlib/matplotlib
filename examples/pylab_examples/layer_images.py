@@ -38,11 +38,6 @@ im2 = imshow(Z2, cmap=cm.jet, alpha=.9, interpolation='bilinear',
              extent=extent)
 #axis([xmin, xmax, ymin, ymax])
 
-
-savefig('layer_images.png')
-savefig('layer_images.svg')
-savefig('layer_images.pdf')
-
 show()
 
 

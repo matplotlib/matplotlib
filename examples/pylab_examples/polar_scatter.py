@@ -14,5 +14,5 @@ ax = subplot(111, polar=True)
 c = scatter(theta, r, c=colors, s=area)
 c.set_alpha(0.75)
 
-#savefig('polar_test2')
+
 show()

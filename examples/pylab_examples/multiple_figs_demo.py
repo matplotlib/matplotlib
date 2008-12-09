@@ -21,9 +21,9 @@ subplot(211)
 plot(t,s2, 'gs')
 setp(gca(), 'xticklabels', [])
 
-#figure(1)
-#savefig('fig1')
-#figure(2)
-#savefig('fig2')
+figure(1)
+savefig('fig1')
+figure(2)
+savefig('fig2')
 
 show()

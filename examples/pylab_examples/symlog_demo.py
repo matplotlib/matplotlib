@@ -25,5 +25,4 @@ yscale('symlog')
 grid(True)
 ylabel('symlog both')
 
-savefig('symlog_demo')
 show()

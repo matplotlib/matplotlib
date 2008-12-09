@@ -15,5 +15,5 @@ ax.xaxis.set_major_locator(MultipleLocator(1))
 
 title('INTC vs AAPL')
 legend( ('INTC', 'AAPL') )
-#savefig('stock_demo')
+
 show()

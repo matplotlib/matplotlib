@@ -43,5 +43,4 @@ ax = subplot(111)
 ax.set_yscale('log')
 errorbar(t, s+2, e, f, fmt='o')          # both symmetric
 
-#savefig('errorbar_demo')
 show()

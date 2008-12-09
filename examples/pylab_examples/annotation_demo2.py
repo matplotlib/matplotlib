@@ -72,8 +72,6 @@ if 1:
 
 
 
-    #fig.savefig('annotation_connection')
-
 
 if 1:
     fig = figure(2)
@@ -145,7 +143,5 @@ if 1:
                                 relpos=(0.2, 0.5),
                                 )
                 )
-
-    #fig.savefig('annotation_arrowstyle')
 
 show()

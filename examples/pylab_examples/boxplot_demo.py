@@ -15,32 +15,26 @@ data =concatenate((spread, center, flier_high, flier_low), 0)
 
 # basic plot
 boxplot(data)
-#savefig('box1')
 
 # notched plot
 figure()
 boxplot(data,1)
-#savefig('box2')
 
 # change outlier point symbols
 figure()
 boxplot(data,0,'gD')
-#savefig('box3')
 
 # don't show outlier points
 figure()
 boxplot(data,0,'')
-#savefig('box4')
 
 # horizontal boxes
 figure()
 boxplot(data,0,'rs',0)
-#savefig('box5')
 
 # change whisker length
 figure()
 boxplot(data,0,'rs',0,0.75)
-#savefig('box6')
 
 # fake up some more data
 spread= rand(50) * 100
@@ -59,7 +53,6 @@ data = [data, d2, d2[::2,0]]
 # multiple box plots on one figure
 figure()
 boxplot(data)
-#savefig('box7')
 
 show()
 

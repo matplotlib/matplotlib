@@ -9,5 +9,4 @@ ylabel(u'André was here!')
 text( 0.5, 2.5, u'Institut für Festkörperphysik', rotation=45)
 text( 1, 1.5, u'AVA (check kerning)')
 
-savefig('test')
 show()

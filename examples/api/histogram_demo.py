@@ -31,5 +31,4 @@ ax.set_xlim(40, 160)
 ax.set_ylim(0, 0.03)
 ax.grid(True)
 
-#fig.savefig('histogram_demo',dpi=72)
 plt.show()

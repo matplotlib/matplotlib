@@ -40,5 +40,5 @@ def toggle_images(event):
     draw()
 
 connect('key_press_event', toggle_images)
-#savefig('toggle_images')
+
 show()

@@ -52,6 +52,6 @@ ax.set_xlim(0, 200)
 ax.set_ylim(-1.5, 1.5)
 make_xaxis(ax, 0, offset=0.1, **props)
 make_yaxis(ax, 0, offset=5, **props)
-#fig.savefig('manual_axis.png', dpi=100, facecolor='white', edgecolor='white')
+
 show()
 

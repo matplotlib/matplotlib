@@ -17,7 +17,4 @@ for e in ells:
 ax.set_xlim(0, 10)
 ax.set_ylim(0, 10)
 
-#fig.savefig('ellipse_demo.eps')
-#fig.savefig('ellipse_demo.png')
-
 show()

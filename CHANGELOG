@@ -1,7 +1,7 @@
-2008-12-08 Added mdehoon's native macosx backend from sf patch 2179017
+2008-12-08 Added mdehoon's native macosx backend from sf patch 2179017 - JDH
 
 2008-12-08 Removed the prints in the set_*style commands.  Return the
-           list of pprinted strings instead
+           list of pprinted strings instead - JDH
 
 2008-12-08 Some of the changes Michael made to improve the output of
            the property tables in the rest docs broke of made

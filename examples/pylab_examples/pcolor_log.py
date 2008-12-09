@@ -24,4 +24,4 @@ colorbar()
 
 
 show()
-#savefig('pcolor_log.png')
+

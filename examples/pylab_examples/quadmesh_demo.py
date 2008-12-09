@@ -42,5 +42,4 @@ col = ax.pcolormesh(Qx,Qz,Zm)
 ax.set_title('With masked values')
 
 
-savefig("quadmesh_demo")
 show()

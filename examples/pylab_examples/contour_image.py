@@ -98,6 +98,5 @@ ylim = get(gca(), 'ylim')
 setp(gca(), ylim=ylim[::-1])
 title("Image, origin from rc, reversed y-axis")
 colorbar(im)
-#savefig('contour_image')
 
 show()
