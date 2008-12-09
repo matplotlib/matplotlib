@@ -25,7 +25,7 @@ all_backends.extend(['cairo.png', 'cairo.ps', 'cairo.pdf', 'cairo.svg'])
 
 pylab_dir = os.path.join('..', 'pylab_examples')
 pylab_files = [
-    'two_scales.py',
+
 
     'accented_text.py',
     'alignment_test.py',
@@ -191,10 +191,8 @@ pylab_files = [
     'unicode_demo.py',
     'vertical_ticklabels.py',
     'vline_demo.py',
-    'webapp_demo.py',
     'xcorr_demo.py',
     'zorder_demo.py',
-
     ]
 
 
@@ -202,13 +200,16 @@ api_dir = os.path.join('..', 'api')
 api_files = [
     'agg_oo.py',
     'barchart_demo.py',
+    'bbox_intersect.py',
     'collections_demo.py',
+    'color_cycle.py',
+    'colorbar_only.py',
     'custom_projection_example.py',
     'custom_scale_example.py',
     'date_demo.py',
     'date_index_formatter.py',
+    'donut_demo.py',
     'font_family_rc.py',
-    'font_file.py',
     'histogram_demo.py',
     'image_zcoord.py',
     'legend_demo.py',
@@ -216,19 +217,14 @@ api_files = [
     'logo2.py',
     'mathtext_asarray.py',
     'patch_collection.py',
+    'path_patch_demo.py',
+    'quad_bezier.py',
     'scatter_piecharts.py',
     'span_regions.py',
+    'two_scales.py'
     'unicode_minus.py',
     'watermark_image.py',
     'watermark_text.py',
-
-    'bbox_intersect.py',
-    'colorbar_only.py',
-    'color_cycle.py',
-    'donut_demo.py',
-    'path_patch_demo.py',
-    'quad_bezier.py',
-    'two_scales.py'
 ]
 
 units_dir = os.path.join('..', 'units')
