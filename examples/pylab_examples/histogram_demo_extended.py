@@ -89,5 +89,4 @@ P.figure()
 
 n, bins, patches = P.hist( [x0,x1,x2], 10, histtype='bar')
 
-
 P.show()
