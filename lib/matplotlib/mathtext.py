@@ -2749,7 +2749,8 @@ class MathTextParser(object):
         'ps'    : MathtextBackendPs,
         'pdf'   : MathtextBackendPdf,
         'svg'   : MathtextBackendSvg,
-        'cairo' : MathtextBackendCairo
+        'cairo' : MathtextBackendCairo,
+        'macosx': MathtextBackendAgg,
         }
 
     _font_type_mapping = {

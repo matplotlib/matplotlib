@@ -24,9 +24,9 @@
 #### CONFIGURATION BEGINS HERE
 
 # the default backend; one of GTK GTKAgg GTKCairo CocoaAgg FltkAgg
-# QtAgg Qt4Agg TkAgg WX WXAgg Agg Cairo GDK PS PDF SVG Template You
-# can also deploy your own backend outside of matplotlib by referring
-# to the module name (which must be in the PYTHONPATH) as
+# MacOSX QtAgg Qt4Agg TkAgg WX WXAgg Agg Cairo GDK PS PDF SVG Template
+# You can also deploy your own backend outside of matplotlib by
+# referring to the module name (which must be in the PYTHONPATH) as
 # 'module://my_backend'
 backend      : %(backend)s
 

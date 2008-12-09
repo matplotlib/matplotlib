@@ -1,3 +1,5 @@
+2008-12-08 Added mdehoon's native maxosx backend from sf patch 2179017
+
 2008-12-08 Removed the prints in the set_*style commands.  Return the
            list of pprinted strings instead
 
