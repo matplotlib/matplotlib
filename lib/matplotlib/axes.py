@@ -5548,7 +5548,7 @@ class Axes(martist.Artist):
 
           fill_between(x, y1, y2=0, where=None, **kwargs)
 
-        Create a :class:`~matplotlib.collectionsPolyCollection`
+        Create a :class:`~matplotlib.collections.PolyCollection`
         filling the regions between *y1* and *y2* where
         ``where==True``
 
