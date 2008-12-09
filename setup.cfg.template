@@ -32,9 +32,9 @@ tag_svn_revision = 1
 
 [gui_support]
 # Matplotlib supports multiple GUI toolkits, including Cocoa,
-# GTK, Fltk, Qt, Qt4, Tk, and WX. Support for many of these
-# toolkits requires AGG, the Anti-Grain Geometry library, which
-# is provided by matplotlib and built by default.
+# GTK, Fltk, MacOSX, Qt, Qt4, Tk, and WX. Support for many of
+# these toolkits requires AGG, the Anti-Grain Geometry library,
+# which is provided by matplotlib and built by default.
 #
 # Some backends are written in pure Python, and others require
 # extension code to be compiled. By default, matplotlib checks
@@ -59,16 +59,17 @@ tag_svn_revision = 1
 #gtkagg = False
 #tkagg = False
 #wxagg = False
+#macosx = False
 
 [rc_options]
 # User-configurable options
 #
-# Default backend, one of: Agg, Cairo, CocoaAgg, GTK, GTKAgg,
-# GTKCairo, FltkAgg, Pdf, Ps, QtAgg, Qt4Agg, SVG, TkAgg, WX, WXAgg.
+# Default backend, one of: Agg, Cairo, CocoaAgg, GTK, GTKAgg, GTKCairo,
+# FltkAgg, MacOSX, Pdf, Ps, QtAgg, Qt4Agg, SVG, TkAgg, WX, WXAgg.
 #
 # The Agg, Ps, Pdf and SVG backends do not require external
-# dependencies. Do not choose GTK, GTKAgg, GTKCairo, TkAgg or WXAgg if
-# you have disabled the relevent extension modules.  Agg will be used
+# dependencies. Do not choose GTK, GTKAgg, GTKCairo, MacOSX, TkAgg or WXAgg
+# if you have disabled the relevent extension modules.  Agg will be used
 # by default.
 #
 #backend = Agg

@@ -76,6 +76,7 @@ BUILT_FT2FONT   = False
 BUILT_TTCONV    = False
 BUILT_GTKAGG    = False
 BUILT_IMAGE     = False
+BUILT_MACOSX    = False
 BUILT_TKAGG     = False
 BUILT_WXAGG     = False
 BUILT_WINDOWING = False
@@ -105,6 +106,7 @@ options = {'display_status': True,
            'build_gtkagg': 'auto',
            'build_tkagg': 'auto',
            'build_wxagg': 'auto',
+           'build_macosx': 'auto',
            'build_image': True,
            'build_windowing': True,
            'backend': None,
@@ -867,6 +869,17 @@ def check_for_tk():
         print_message(explanation)
     return gotit
 
+def check_for_macosx():
+    gotit = False
+    import sys
+    if sys.platform=='darwin':
+        gotit = True
+    if gotit:
+        print_status("Mac OS X native", "yes")
+    else:
+        print_status("Mac OS X native", "no")
+    return gotit
+
 def query_tcltk():
     """Tries to open a Tk window in order to query the Tk object about its library paths.
        This should never be called more than once by the same process, as Tk intricacies
@@ -1213,6 +1226,19 @@ def build_wxagg(ext_modules, packages):
 
      ext_modules.append(module)
      BUILT_WXAGG = True
+
+
+def build_macosx(ext_modules, packages):
+    global BUILT_MACOSX
+    if BUILT_MACOSX: return # only build it if you you haven't already
+    module = Extension('matplotlib.backends._macosx',
+                       ['src/_macosx.m'],
+                       extra_link_args = ['-framework','Cocoa'],
+                      )
+    add_numpy_flags(module)
+    ext_modules.append(module)
+    BUILT_MACOSX = True
+
 
 def build_png(ext_modules, packages):
     global BUILT_PNG

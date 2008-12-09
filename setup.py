@@ -26,15 +26,15 @@ if major==2 and minor1<4 or major<2:
 import glob
 from distutils.core import setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
-     build_ft2font, build_image, build_windowing, build_path, \
+     build_macosx, build_ft2font, build_image, build_windowing, build_path, \
      build_contour, build_delaunay, build_nxutils, build_traits, build_gdk, \
      build_ttconv, print_line, print_status, print_message, \
      print_raw, check_for_freetype, check_for_libpng, check_for_gtk, \
-     check_for_tk, check_for_wx, check_for_numpy, check_for_qt, check_for_qt4, \
-     check_for_cairo, check_provide_traits, check_provide_pytz, \
-     check_provide_dateutil, check_provide_configobj, check_for_dvipng, \
-     check_for_ghostscript, check_for_latex, check_for_pdftops, \
-     check_for_datetime, options, build_png
+     check_for_tk, check_for_wx, check_for_macosx, check_for_numpy, \
+     check_for_qt, check_for_qt4, check_for_cairo, check_provide_traits, \
+     check_provide_pytz, check_provide_dateutil, check_provide_configobj, \
+     check_for_dvipng, check_for_ghostscript, check_for_latex, \
+     check_for_pdftops, check_for_datetime, options, build_png
 #import distutils.sysconfig
 
 # jdh
@@ -148,6 +148,11 @@ if options['build_gtkagg']:
         options['build_agg'] = 1
         build_gtkagg(ext_modules, packages)
         rc['backend'] = 'GTKAgg'
+
+if options['build_macosx']:
+    if check_for_macosx() or (options['build_macosx'] is True):
+        build_macosx(ext_modules, packages)
+        rc['backend'] = 'MacOSX'
 
 # These are informational only.  We don't build any extensions for them.
 check_for_qt()
