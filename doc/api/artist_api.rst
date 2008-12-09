@@ -1,3 +1,5 @@
+.. _artist-api:
+
 *******************
 matplotlib artists
 *******************

@@ -98,7 +98,7 @@ way::
   python setup.py install
 
 We provide a `setup.cfg
-<http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/matplotlib/setup.cfg.template?view=markup>`
+<http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/matplotlib/setup.cfg.template?view=markup>`_
 file that lives along :file:`setup.py` which you can use to customize
 the build process, for example, which default backend to use, whether
 some of the optional libraries that matplotlib ships with are
