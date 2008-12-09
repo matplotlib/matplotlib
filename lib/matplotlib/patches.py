@@ -1494,19 +1494,19 @@ class BoxStyle(_Style):
     :class:`BoxStyle` is a container class which defines several
     boxstyle classes, which are used for :class:`FancyBoxPatch`.
 
-    A style object can be created as
+    A style object can be created as::
 
            BoxStyle.Round(pad=0.2)
 
-    or
+    or::
 
            BoxStyle("Round", pad=0.2)
 
-    or
+    or::
 
            BoxStyle("Round, pad=0.2")
 
-    Following boxstyle classes are defined.
+    The following boxstyle classes are defined.
 
     %(AvailableBoxstyles)s
 
@@ -2026,7 +2026,7 @@ class FancyBboxPatch(Patch):
 
         Old attrs simply are forgotten.
 
-        Without argument (or with *boxstyle* = None), it prints out
+        Without argument (or with *boxstyle* = None), it returns
         available box styles.
 
         ACCEPTS: [ %(AvailableBoxstyles)s ]
@@ -2034,10 +2034,7 @@ class FancyBboxPatch(Patch):
         """
 
         if boxstyle==None:
-            # print out available boxstyles and return.
-            print "Following box styles are available:"
-            print BoxStyle.pprint_styles()
-            return
+            return BoxStyle.pprint_styles()
 
         if isinstance(boxstyle, BoxStyle._Base):
             self._bbox_transmuter = boxstyle
@@ -2097,7 +2094,7 @@ class FancyBboxPatch(Patch):
         return _path
 
 
-    # Followong methods are borrowed from the Rectangle class.
+    # Following methods are borrowed from the Rectangle class.
 
     def get_x(self):
         "Return the left coord of the rectangle"
@@ -2183,19 +2180,19 @@ class ConnectionStyle(_Style):
     between two points. These are mainly used with
     :class:`FancyArrowPatch`.
 
-    A connectionstyle object can be either created as
+    A connectionstyle object can be either created as::
 
            ConnectionStyle.Arc3(rad=0.2)
 
-    or
+    or::
 
            ConnectionStyle("Arc3", rad=0.2)
 
-    or
+    or::
 
            ConnectionStyle("Arc3, rad=0.2")
 
-    Following classes are defined
+    The following classes are defined
 
     %(AvailableConnectorstyles)s
 
@@ -2205,11 +2202,13 @@ class ConnectionStyle(_Style):
 
         __call__(self, posA, posB, patchA=None, patchB=None, shrinkA=2., shrinkB=2.)
 
-    and it returns a :class:`Path` instance. *posA* and *posB are tuples
-    of x,y coordinates of the two points to be connected. *patchA* (or
-    $patchB*) is given, the returned path is clipped so that it start
-    (or end) from the boundary of the patch. The path is further
-    shrinked by *shrinkA* (or *shrinkB*) which is given in points.
+    and it returns a :class:`Path` instance. *posA* and *posB* are
+    tuples of x,y coordinates of the two points to be
+    connected. *patchA* (or *patchB*) is given, the returned path is
+    clipped so that it start (or end) from the boundary of the
+    patch. The path is further shrunk by *shrinkA* (or *shrinkB*)
+    which is given in points.  
+
     """
 
     _style_list = {}
@@ -2547,18 +2546,18 @@ class ArrowStyle(_Style):
     arrowstyle classes, which is used to create an arrow path along a
     given path. These are mainly used with :class:`FancyArrowPatch`.
 
-    A arrowstyle object can be either created as
+    A arrowstyle object can be either created as::
 
            ArrowStyle.Fancy(head_length=.4, head_width=.4, tail_width=.4)
-    or
+    or::
 
            ArrowStyle("Fancy", head_length=.4, head_width=.4, tail_width=.4)
 
-    or
+    or::
 
            ArrowStyle("Fancy, head_length=.4, head_width=.4, tail_width=.4")
 
-    Following classes are defined
+    The following classes are defined
 
     %(AvailableArrowstyles)s
 
@@ -3232,7 +3231,7 @@ class FancyArrowPatch(Patch):
         connected. It can be an instance of the ConnectionStyle class
         (matplotlib.patches.ConnectionStlye) or a string of the
         connectionstyle name, with optional comma-separated
-        attributes.  Following connection styles are available.
+        attributes.  The following connection styles are available.
 
         %(AvailableConnectorstyles)s
 
@@ -3241,7 +3240,7 @@ class FancyArrowPatch(Patch):
         drawn. It can be string of the available arrowstyle names,
         with optional comma-separated attributes, or one of the
         ArrowStyle instance. The optional attributes are meant to be
-        scaled with the *mutation_scale*. Following arrow styles are
+        scaled with the *mutation_scale*. The following arrow styles are
         available.
 
         %(AvailableArrowstyles)s
@@ -3334,14 +3333,12 @@ class FancyArrowPatch(Patch):
 
         Old attrs simply are forgotten.
 
-        Without argument (or with connectionstyle=None), it prints out
-        available styles.
+        Without argument (or with connectionstyle=None), return
+        available styles as a list of strings.
         """
 
         if connectionstyle==None:
-            # print out available styles and return.
-            print "Following styles are available:"
-            print ConnectionStyle.pprint_styles()
+            return ConnectionStyle.pprint_styles()
 
         if isinstance(connectionstyle, ConnectionStyle._Base):
             self._connector = connectionstyle
@@ -3372,14 +3369,12 @@ class FancyArrowPatch(Patch):
 
         Old attrs simply are forgotten.
 
-        Without argument (or with arrowstyle=None), it prints out
-        available box styles.
+        Without argument (or with arrowstyle=None), return 
+        available box styles as a list of strings.
         """
 
         if arrowstyle==None:
-            # print out available styles and return.
-            print "Following styles are available:"
-            print ArrowStyle.pprint_styles()
+            return ArrowStyle.pprint_styles()
 
         if isinstance(arrowstyle, ConnectionStyle._Base):
             self._arrow_transmuter = arrowstyle

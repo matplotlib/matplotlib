@@ -1,3 +1,6 @@
+2008-12-08 Removed the prints in the set_*style commands.  Return the
+           list of pprinted strings instead
+
 2008-12-08 Some of the changes Michael made to improve the output of
            the property tables in the rest docs broke of made
            difficult to use some of the interactive doc helpers, eg
