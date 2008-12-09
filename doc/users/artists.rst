@@ -230,10 +230,8 @@ properties mentioned above:
 .. TODO: Update these URLs
 
 The docstrings for all of the classes also contain the ``Artist``
-properties, so you can consult the interactive "help", the online html
-docs at http://matplotlib.sourceforge.net/classdocs.html or PDF documentation
-at http://matplotlib.sourceforge.net/api.pdf for a listing of
-properties for a give object.
+properties, so you can consult the interactive "help" or the
+:ref:`artist-api` for a listing of properties for a given object.
 
 .. _object-containers:
 
