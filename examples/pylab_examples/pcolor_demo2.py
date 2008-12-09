@@ -25,7 +25,7 @@ im = imshow(Z, cmap=cm.jet)
 #im.set_interpolation('bicubic')
 im.set_interpolation('bilinear')
 #ax.set_image_extent(-3, 3, -3, 3)
-#savefig('pcolor_demo2')
+
 show()
 
 

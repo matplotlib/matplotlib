@@ -76,6 +76,5 @@ title('Listed colors')
 clabel(CS4, fmt = '%2.1f', colors = 'w', fontsize=14)
 colorbar(CS3)
 
-#savefig('contourf_demo')
 show()
 

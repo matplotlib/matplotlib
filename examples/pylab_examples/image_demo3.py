@@ -14,6 +14,5 @@ ax = axes([0,0,1,1], frameon=False)
 ax.set_axis_off()
 im = imshow(lena, origin='lower')
 
-#savefig('image_demo3')
 show()
 

@@ -20,5 +20,4 @@ X.shape = h,w,4
 fig2 = figure()
 ax2 = fig2.add_subplot(111, frameon=False)
 ax2.imshow(X)
-fig2.savefig('simple.png')
 show()

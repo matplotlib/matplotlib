@@ -50,17 +50,14 @@ from pylab import *
 A = rand(5,5)
 figure(1)
 imshow(A, interpolation='nearest')
-savefig('agg_nearest')
 grid(True)
 
 figure(2)
 imshow(A, interpolation='bilinear')
-savefig('agg_bilinear')
 grid(True)
 
 figure(3)
 imshow(A, interpolation='bicubic')
-savefig('agg_bicubic')
 grid(True)
 
 show()

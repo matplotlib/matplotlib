@@ -21,5 +21,4 @@ text(2, 0.65, r'$\cos(2 \pi t) \exp(-t)$', color='k')
 xlabel('time (s)', font, style='italic')
 ylabel('voltage (mV)', font)
 
-#savefig('text_themes')
 show()

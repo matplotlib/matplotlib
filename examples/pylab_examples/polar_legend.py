@@ -17,5 +17,5 @@ theta = 2*np.pi*r
 ax.plot(theta, r, color='#ee8d18', lw=3, label='a line')
 ax.plot(0.5*theta, r, color='blue', ls='--', lw=3, label='another line')
 ax.legend()
-fig.savefig('polar_legend')
+
 show()

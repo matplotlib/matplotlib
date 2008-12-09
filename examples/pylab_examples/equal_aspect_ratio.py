@@ -17,7 +17,4 @@ grid(True)
 axes().set_aspect('equal', 'datalim')
 
 
-#savefig('simple_plot.png')
-savefig('equal_aspect')
-
 show()

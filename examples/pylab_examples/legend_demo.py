@@ -39,7 +39,6 @@ frame.set_facecolor('0.80')      # set the frame face color to light gray
 plt.setp(ltext, fontsize='small')    # the legend text fontsize
 plt.setp(llines, linewidth=1.5)      # the legend linewidth
 #leg.draw_frame(False)           # don't draw the legend frame
-#plt.savefig('legend_demo')
 plt.show()
 
 

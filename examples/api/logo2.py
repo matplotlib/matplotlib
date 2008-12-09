@@ -67,10 +67,10 @@ def add_polar_bar():
 
     for line in ax.get_ygridlines() + ax.get_xgridlines():
         line.set_lw(0.8)
-        line.set_alpha(0.9)        
+        line.set_alpha(0.9)
         line.set_ls('-')
         line.set_color('0.5')
-        
+
     ax.set_yticks(np.arange(1, 9, 2))
     ax.set_rmax(9)
 
@@ -78,7 +78,6 @@ if __name__ == '__main__':
     main_axes = add_math_background()
     add_polar_bar()
     add_matplotlib_text(main_axes)
-    fig.savefig('logo2.png', facecolor=figcolor, edgecolor=figcolor, dpi=dpi)
     plt.show()
 
 

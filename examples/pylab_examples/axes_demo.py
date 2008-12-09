@@ -28,6 +28,5 @@ plot(t[:len(r)], r)
 title('Impulse response')
 setp(a, xlim=(0,.2), xticks=[], yticks=[])
 
-#savefig('../figures/axes_demo.eps')
-#savefig('../figures/axes_demo.png')
+
 show()

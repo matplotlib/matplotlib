@@ -123,7 +123,6 @@ pylab_files = [
     'legend_demo.py',
     'legend_demo2.py',
     'legend_demo3.py',
-    'legend_demo3.py',
     'legend_scatter.py',
     'line_collection.py',
     'line_collection2.py',

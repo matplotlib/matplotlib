@@ -10,6 +10,6 @@ text(2, 7,'this is\nyet another test',
      horizontalalignment = 'center',
      verticalalignment   = 'top',
      multialignment      = 'center')
-#savefig('multiline')
+
 grid(True)
 show()

@@ -35,7 +35,6 @@ for i in xrange(len(DATA)):
 
 ax.set_xlim((0.0, 5.0))
 ax.set_ylim((0.0, 5.0))
-#if save:
-#    pylab.savefig('dashpointlabel')
+
 pylab.show()
 

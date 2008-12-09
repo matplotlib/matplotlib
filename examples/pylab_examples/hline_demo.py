@@ -17,7 +17,7 @@ plt.plot(s+nse, t, 'b^')
 plt.hlines(t, [0], s, lw=2)
 plt.xlabel('time (s)')
 plt.title('Comparison of model with data')
-plt.savefig('test')
+
 plt.xlim(xmin=0)
 plt.show()
 

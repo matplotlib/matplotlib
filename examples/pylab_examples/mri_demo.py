@@ -9,5 +9,5 @@ im.shape = 256, 256
 #imshow(im, ColormapJet(256))
 imshow(im, cmap=cm.jet)
 axis('off')
-#savefig('mri_demo')
+
 show()

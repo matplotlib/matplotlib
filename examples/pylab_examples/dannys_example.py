@@ -56,5 +56,4 @@ pylab.text(0.1, 0.85, r'$|\nabla\phi| = 1,$ \newline $ \frac{\partial \phi}{\par
 pylab.text(0.2, 0.15, r'$\mathcal{F} = \int f\left( \phi, c \right) dV,$ \newline $ \frac{ \partial \phi } { \partial t } = -M_{ \phi } \frac{ \delta \mathcal{F} } { \delta \phi }$',
            {'color' : 'b', 'fontsize' : 20})
 
-pylab.savefig('pfm-lsm.png')
 pylab.show()

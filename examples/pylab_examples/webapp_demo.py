@@ -61,6 +61,6 @@ def make_fig():
         l.set_fontsize(12)
 
     canvas = FigureCanvasAgg(fig)
-    canvas.print_figure('webapp.png', dpi=150)
+    canvas.print_figure('webapp', dpi=150)
 
 make_fig()
