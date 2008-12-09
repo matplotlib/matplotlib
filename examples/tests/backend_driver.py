@@ -221,7 +221,7 @@ api_files = [
     'quad_bezier.py',
     'scatter_piecharts.py',
     'span_regions.py',
-    'two_scales.py'
+    'two_scales.py',
     'unicode_minus.py',
     'watermark_image.py',
     'watermark_text.py',
