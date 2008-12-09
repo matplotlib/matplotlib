@@ -7163,7 +7163,7 @@ class SubplotBase:
         *args* is the tuple (*numRows*, *numCols*, *plotNum*), where
         the array of subplots in the figure has dimensions *numRows*,
         *numCols*, and where *plotNum* is the number of the subplot
-        being created.  *plotNum* starts at 1 in the upper right
+        being created.  *plotNum* starts at 1 in the upper left
         corner and increases to the right.
 
         If *numRows* <= *numCols* <= *plotNum* < 10, *args* can be the
