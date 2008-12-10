@@ -3171,46 +3171,55 @@ class Axes(martist.Artist):
 
         Return value is a list of lines that were added.
 
-        The following line styles are supported::
+        The following format string characters are accepted to control
+        the line style or marker
 
-            -     # solid line
-            --    # dashed line
-            -.    # dash-dot line
-            :     # dotted line
-            .     # points
-            ,     # pixels
-            o     # circle symbols
-            ^     # triangle up symbols
-            v     # triangle down symbols
-            <     # triangle left symbols
-            >     # triangle right symbols
-            s     # square symbols
-            +     # plus symbols
-            *     # star symbols
-            x     # cross symbols
-            D     # diamond symbols
-            d     # thin diamond symbols
-            1     # tripod down symbols
-            2     # tripod up symbols
-            3     # tripod left symbols
-            4     # tripod right symbols
-            h     # hexagon symbols
-            H     # rotated hexagon symbols
-            p     # pentagon symbols
-            |     # vertical line symbols
-            _     # horizontal line symbols
-            steps # use gnuplot style 'steps' # kwarg only
+        ================    ===============================
+        character           description
+        ================    ===============================
+        '-'                 solid line style
+        '--'                dashed line style
+        '-.'                dash-dot line style
+        ':'                 dotted line style
+        '.'                 point marker
+        ','                 pixel marker
+        'o'                 circle marker
+        'v'                 triangle_down marker
+        '^'                 triangle_up marker
+        '<'                 triangle_left marker
+        '>'                 triangle_right marker
+        '1'                 tri_down marker
+        '2'                 tri_up marker
+        '3'                 tri_left marker
+        '4'                 tri_right marker
+        's'                 square marker
+        'p'                 pentagon marker
+        '*'                 star marker
+        'h'                 hexagon1 marker
+        'H'                 hexagon2 marker
+        '+'                 plus marker
+        'x'                 x marker
+        'D'                 diamond marker
+        'd'                 thin_diamond marker
+        '|'                 vline marker
+        '_'                 hline marker
+        ================    ===============================
+
 
         The following color abbreviations are supported::
 
-            b  # blue
-            g  # green
-            r  # red
-            c  # cyan
-            m  # magenta
-            y  # yellow
-            k  # black
-            w  # white
+        ==========  ========
+        character   color
+        ==========  ========
+        'b'         blue
+        'g'         green
+        'r'         red
+        'c'         cyan
+        'm'         magenta
+        'y'         yellow
+        'k'         black
+        'w'         white
+        ==========  ========
 
         In addition, you can specify colors in many weird and
         wonderful ways, including full names (``'green'``), hex
@@ -3238,6 +3247,15 @@ class Axes(martist.Artist):
             plot(x1, y1, x2, y2, antialised=False)
 
         Neither line will be antialiased.
+
+        You do not need to use format strings, which are just
+        abbreviations.  All of the line properties can be controlled
+        by keyword arguments.  For example, you can set the color,
+        marker, linestyle, and markercolor with::
+
+            plot(x, y, color='green', linestyle='dashed', marker='o',
+                 markerfacecolor='blue', markersize=12).  See
+                 :class:`~matplotlib.lines.Line2D` for details.
 
         The kwargs are :class:`~matplotlib.lines.Line2D` properties:
 
