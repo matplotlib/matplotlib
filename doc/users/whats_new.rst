@@ -19,8 +19,10 @@ Legend enhancements
 
 Jae-Joon has rewritten the legend class, and added support for
 multiple columns and rows, as well as fancy box drawing.  See
-:ref:`pylab_examples-legend_demo3`.
+:func:`~matplotlib.pyplot.legend` and
+:class:`matplotlib.legend.Legend`.
 
+.. plot:: pyplots/whats_new_98_4_legend.py
 
 .. _fancy-annotations:
 
@@ -29,8 +31,12 @@ Fancy annotations and arrows
 
 Jae-Joon has added lot's of support to annotations for drawing fancy
 boxes and connectors in annotations.  See
-:ref:`pylab_examples-annotation_demo2` and
-:ref:`pylab_examples-fancyarrow_demo`.
+:func:`~matplotlib.pyplot.annotate` and
+:class:`~matplotlib.patches.BoxStyle`,
+:class:`~matplotlib.patches.ArrowStyle`, and
+:class:`~matplotlib.patches.ConnectionStyle`.
+
+.. plot:: pyplots/whats_new_98_4_fancy.py
 
 .. _psd-amplitude:
 
@@ -49,8 +55,12 @@ Fill between
 ------------------
 
 Added a :func:`~matplotlib.pyplot.fill_between` function to make it
-easier to do shaded region plots in the presence of masked data.  See
-:ref:`pylab_examples-fill_between`.
+easier to do shaded region plots in the presence of masked data.  You
+can pass an *x* array and a *ylower* and *yupper* array to fill
+betweem, and an optional *where* argument which is a logical mask
+where you want to do the filling.
+
+.. plot:: pyplots/whats_new_98_4_fill_between.py
 
 Lots more
 -----------

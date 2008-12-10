@@ -1522,6 +1522,7 @@ class BoxStyle(_Style):
     the fancy box).  *mutation_aspect* determines the aspect-ratio of
     the mutation.
 
+    .. plot:: mpl_examples/pylab_examples/fancybox_demo2.py
     """
 
     _style_list = {}
@@ -2574,6 +2575,8 @@ class ArrowStyle(_Style):
     stroked. This is meant to be used to correct the location of the
     head so that it does not overshoot the destination point, but not all
     classes support it.
+
+    .. plot:: mpl_examples/pylab_examples/fancyarrow_demo.py
     """
 
 

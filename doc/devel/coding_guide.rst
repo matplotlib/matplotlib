@@ -27,6 +27,12 @@ Branch checkouts, eg the maintenance branch::
    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/\
    v0_91_maint mpl91 --username=youruser --password=yourpass
 
+The current release of the trunk is in the 0.98.4 maintenance branch::
+
+   svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/\
+   v0_98_4_maint mpl98.4 --username=youruser --password=yourpass
+
+
 Committing changes
 ------------------
 
