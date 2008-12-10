@@ -2208,7 +2208,7 @@ class ConnectionStyle(_Style):
     connected. *patchA* (or *patchB*) is given, the returned path is
     clipped so that it start (or end) from the boundary of the
     patch. The path is further shrunk by *shrinkA* (or *shrinkB*)
-    which is given in points.  
+    which is given in points.
 
     """
 
@@ -3372,7 +3372,7 @@ class FancyArrowPatch(Patch):
 
         Old attrs simply are forgotten.
 
-        Without argument (or with arrowstyle=None), return 
+        Without argument (or with arrowstyle=None), return
         available box styles as a list of strings.
         """
 
