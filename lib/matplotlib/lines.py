@@ -74,6 +74,14 @@ def segment_hits(cx, cy, x, y, radius):
     return np.concatenate((points,lines))
 
 class Line2D(Artist):
+    """
+    A line - the line can have both a solid linestyle connecting all
+    the vertices, and a marker at each vertex.  Additionally, the
+    drawing of the solid line is influenced by the drawstyle, eg one
+    can create "stepped" lines in various styles.
+
+
+    """
     lineStyles = _lineStyles =  { # hidden names deprecated
         '-'          : '_draw_solid',
         '--'         : '_draw_dashed',
@@ -178,6 +186,11 @@ class Line2D(Artist):
         The kwargs are :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
+
+        See :meth:`set_linestyle` for a decription of the line styles,
+        :meth:`set_marker` for a description of the markers, and
+        :meth:`set_drawstyle` for a description of the draw styles.
+
         """
         Artist.__init__(self)
 
@@ -589,10 +602,26 @@ class Line2D(Artist):
 
     def set_linestyle(self, linestyle):
         """
-        Set the linestyle of the line
+        Set the linestyle of the line (also accepts drawstyles)
+
+
+        ================    =================
+        linestyle           description
+        ================    =================
+        '-'                 solid
+        '--'                dashed
+        '-.'                dash_dot
+        ':'                 dotted
+        'None'              draw nothing
+        ' '                 draw nothing
+        ''                  draw nothing
+        ================    =================
 
         'steps' is equivalent to 'steps-pre' and is maintained for
         backward-compatibility.
+
+        .. seealso::
+            :meth:`set_drawstyle`
 
         ACCEPTS: [ '-' | '--' | '-.' | ':' | 'None' | ' ' | '' ] and
         any drawstyle in combination with a linestyle, e.g. 'steps--'.
@@ -621,6 +650,44 @@ class Line2D(Artist):
     def set_marker(self, marker):
         """
         Set the line marker
+
+        =========  ==========================
+        marker     description
+        =========  ==========================
+        '.'        point
+        ','        pixel
+        'o'        circle
+        'v'        triangle_down
+        '^'        triangle_up
+        '<'        triangle_left
+        '>'        triangle_right
+        '1'        tri_down
+        '2'        tri_up
+        '3'        tri_left
+        '4'        tri_right
+        's'        square
+        'p'        pentagon
+        '*'        star
+        'h'        hexagon1
+        'H'        hexagon2
+        '+'        plus
+        'x'        x
+        'D'        diamond
+        'd'        thin_diamond
+        '|'        vline
+        '_'        hline
+        TICKLEFT   tickleft
+        TICKRIGHT  tickright
+        TICKUP     tickup
+        TICKDOWN   tickdown
+        CARETLEFT  caretleft
+        CARETRIGHT caretright
+        CARETUP    caretup
+        CARETDOWN  caretdown
+        'None'     nothing
+        ' '        nothing
+        ''         nothing
+        =========  ==========================
 
         ACCEPTS: [ '+' | '*' | ',' | '.' | '1' | '2' | '3' | '4'
                  | '<' | '>' | 'D' | 'H' | '^' | '_' | 'd'
