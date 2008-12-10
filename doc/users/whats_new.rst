@@ -6,7 +6,7 @@ What's new in matplotlib
 
 .. _whats-new-0-98-4:
 
-What new in matplotlib 0.98.4
+What new in 0.98.4
 ==============================
 
 It's been four months since the last matplotlib release, and there are
@@ -40,7 +40,7 @@ psd amplitude scaling
 Ryan May did a lot of work to rationalize the amplitude scaling of
 :func:`~matplotlib.pyplot.psd` and friends.  See
 :ref:`pylab_examples-psd_demo2`. and :ref:`pylab_examples-psd_demo3`.
-The changes should increase `MATLAB™ <http://www.mathworks.com>`
+The changes should increase `MATLAB™ <http://www.mathworks.com>`_
 compatabililty and increase scaling options.
 
 .. _fill-between:
