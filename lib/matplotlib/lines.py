@@ -313,7 +313,7 @@ class Line2D(Artist):
         'return the pick radius used for containment tests'
         return self.pickradius
 
-    def set_pickradius(self,d):
+    def setpickradius(self,d):
         """Sets the pick radius used for containment tests
 
         ACCEPTS: float distance in points
@@ -688,6 +688,7 @@ class Line2D(Artist):
         ' '        nothing
         ''         nothing
         =========  ==========================
+
 
         ACCEPTS: [ '+' | '*' | ',' | '.' | '1' | '2' | '3' | '4'
                  | '<' | '>' | 'D' | 'H' | '^' | '_' | 'd'

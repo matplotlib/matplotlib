@@ -62,44 +62,11 @@ in mind.
   :file:`MANIFEST.in`.  This file determines what goes into the source
   distribution of the mpl build.
 
-* Keep the maintenance branch and trunk in sync where it makes sense.
-  If there is a bug on both that needs fixing, use `svnmerge.py
+* Keep the maintenance branch (0.91) the latest release branch (eg
+  0.98.4) and trunk in sync where it makes sense.  If there is a bug
+  on both that needs fixing, use `svnmerge.py
   <http://www.orcaware.com/svn/wiki/Svnmerge.py>`_ to keep them in
-  sync.  The basic procedure is:
-
-  * install ``svnmerge.py`` in your PATH::
-
-      > wget http://svn.collab.net/repos/svn/trunk/contrib/client-side/\
-        svnmerge/svnmerge.py
-
-  * get a svn copy of the maintenance branch and the trunk (see above)
-
-  * Michael advises making the change on the branch and committing
-    it.  Make sure you svn upped on the trunk and have no local
-    modifications, and then from the svn trunk do::
-
-        > svnmerge.py merge
-
-    If you wish to merge only specific revisions (in an unusual
-    situation), do::
-
-        > svnmerge.py merge -rNNN1-NNN2
-
-    where the ``NNN`` are the revision numbers.  Ranges are also
-    acceptable.
-
-    The merge may have found some conflicts (code that must be
-    manually resolved).  Correct those conflicts, build matplotlib and
-    test your choices.  If you have resolved any conflicts, you can
-    let svn clean up the conflict files for you::
-
-        > svn -R resolved .
-
-    ``svnmerge.py`` automatically creates a file containing the commit
-    messages, so you are ready to make the commit::
-
-       > svn commit -F svnmerge-commit-message.txt
-
+  sync.  See :ref:`svn-merge` below.
 
 .. _style-guide:
 
@@ -385,9 +352,83 @@ external backend via the ``module`` directive.  if
     > python simple_plot.py -d module://my_backend
 
 
+.. _svn-merge:
+
+Using svn-merge
+================
+
+The basic procedure is:
+
+* install ``svnmerge.py`` in your PATH::
+
+    > wget http://svn.collab.net/repos/svn/trunk/contrib/client-side/\
+      svnmerge/svnmerge.py
+
+* get a svn copy of the maintenance branch and the trunk (see above)
+
+* Michael advises making the change on the branch and committing it.
+  Make sure you svn upped on the trunk and have no local
+  modifications, and then from the svn trunk do::
+
+       svnmerge.py merge
+
+  If you wish to merge only specific revisions (in an unusual
+  situation), do::
+
+      > svnmerge.py merge -rNNN1-NNN2
+
+  where the ``NNN`` are the revision numbers.  Ranges are also
+  acceptable.
+
+  The merge may have found some conflicts (code that must be manually
+  resolved).  Correct those conflicts, build matplotlib and test your
+  choices.  If you have resolved any conflicts, you can let svn clean
+  up the conflict files for you::
+
+      > svn -R resolved .
+
+  ``svnmerge.py`` automatically creates a file containing the commit
+  messages, so you are ready to make the commit::
+
+     > svn commit -F svnmerge-commit-message.txt
 
 
+* You can add a new branch for the trunk to "track" using
+  "svnmerge.py init", e.g., from a working copy of the trunk::
 
+      > svnmerge.py init https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v0_98_4_maint
+      property 'svnmerge-integrated' set on '.'
+
+  After doing a "svn commit" on this, this merge tracking is available
+  to everyone, so there's no need for anyone else to do the "svnmerge
+  init".  I'll go ahead and commit this now.
+
+  Now, the trunk is tracking two branches for merges, 0.91.x and
+  0.98.4.  This means that when doing a merge, one must manually
+  specify which branch to merge from using the "-S" parameter.  You
+  can see which branches are available for merge using "svnmerge.py
+  avail"::
+
+       > svnmerge.py avail
+       svnmerge: multiple sources found. Explicit source argument (-S/--source) required.
+       The merge sources available are:
+       /branches/v0_91_maint
+       /branches/v0_98_4_maint
+
+  So to merge from 0.98.4, one would type::
+
+      > svnmerge.py --source v0_98_4_maint merge
+
+  (rather than the "svnmerge.py merge" we used to do).
+
+* The tracking for 0.98.4 can be removed with the "svnmerge.py
+  uninit" command, e.g.::
+
+      > svnmerge.py --source v0_9_4_maint uninit
+
+  This will make merging slightly easier, (since the -S parameter is
+  not required), and it is generally good practice in the long run to
+  not keep extra branches lying around.
 
 .. _license-discussion:
 
