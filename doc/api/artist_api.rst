@@ -15,6 +15,14 @@ matplotlib artists
    :undoc-members:
    :show-inheritance:
 
+:mod:`matplotlib.legend`
+=============================
+
+.. automodule:: matplotlib.legend
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 :mod:`matplotlib.lines`
 =============================
 

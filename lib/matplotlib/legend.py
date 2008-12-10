@@ -47,7 +47,7 @@ class Legend(Artist):
     sequence of strings and loc can be a string or an integer
     specifying the legend location
 
-    The location codes are
+    The location codes are::
 
       'best'         : 0, (only implemented for axis legends)
       'upper right'  : 1,

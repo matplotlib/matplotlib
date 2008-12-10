@@ -2742,6 +2742,8 @@ class Axes(martist.Artist):
         Keyword arguments:
 
         %(Annotation)s
+
+        .. plot:: mpl_examples/pylab_examples/annotation_demo2.py
         """
         a = mtext.Annotation(*args, **kwargs)
         a.set_transform(mtransforms.IdentityTransform())
@@ -5587,14 +5589,11 @@ class Axes(martist.Artist):
         *kwargs*
           keyword args passed on to the :class:`PolyCollection`
 
-        .. seealso::
-            :file:`examples/pylab_examples/fill_between.py`:
-                For more examples.
-
         kwargs control the Polygon properties:
 
         %(PolyCollection)s
 
+        .. plot:: mpl_examples/pylab_examples/fill_between.py        
         """
         # Handle united data, such as dates
         self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
