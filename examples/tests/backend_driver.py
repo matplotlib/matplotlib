@@ -167,7 +167,7 @@ pylab_files = [
     'scatter_masked.py',
     'scatter_profile.py',
     'scatter_star_poly.py',
-    'set_and_get.py',
+    #'set_and_get.py',
     'shared_axis_across_figures.py',
     'shared_axis_demo.py',
     'simple_plot.py',
