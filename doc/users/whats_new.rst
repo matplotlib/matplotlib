@@ -10,7 +10,16 @@ What new in 0.98.4
 ==============================
 
 It's been four months since the last matplotlib release, and there are
-a lot of new features and bug-fixes
+a lot of new features and bug-fixes.  
+
+Thanks to Charlie Moad for testing and preparing the source release,
+including binaries for OS X and Windows for python 2.4 and 2.5 (2.6
+and 3.0 will not be available until numpy is available on those
+releases).  Thanks to the many developers who contributed to this
+release, with contributions from Jae-Joon Lee, Michael Droettboom,
+Ryan May, Eric Firing, Manuel Metz, Jouni K. Seppaenen, Jeff Whitaker,
+Darren Dale, David Kaplan, Michiel de Hoon and many others who
+submitted patches
 
 .. _legend-refactor:
 
@@ -39,6 +48,22 @@ boxes and connectors in annotations.  See
 .. plot:: pyplots/whats_new_98_4_fancy.py
 
 .. _psd-amplitude:
+
+
+Native OS X backend
+--------------------
+
+Michiel de Hoon has provided a native Mac OSX backend that is almost
+completely implemented in C. The backend can therefore use Quartz
+directly and, depending on the application, can be orders of magnitude
+faster than the existing backends. In addition, no third-party
+libraries are needed other than Python and NumPy. The backend is
+interactive from the usual terminal application on Mac using regular
+Python. It hasn't been tested with ipython yet, but in principle it
+should to work there as well.  Set 'backend : macosx' in your
+matplotlibrc file, or run your script with::
+
+    > python myfile.py -dmacosx
 
 psd amplitude scaling
 -------------------------
