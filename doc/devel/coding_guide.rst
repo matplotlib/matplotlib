@@ -46,6 +46,8 @@ in mind.
 * Can you pass :file:`examples/tests/backend_driver.py`?  This is our
   poor man's unit test.
 
+* Can you add a test to file:`unit/nose_tests.py` to test your changes?
+
 * If you have altered extension code, do you pass
   :file:`unit/memleak_hawaii.py`?
 

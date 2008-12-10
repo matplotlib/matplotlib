@@ -20,6 +20,8 @@ Testing
 * Run :file:`unit/memleak_hawaii3.py` and make sure there are no
   memory leaks
 
+* Run :file:`unit/nose_tests.py` and make sure all the unit tests are passing
+
 * try some GUI examples, eg :file:`simple_plot.py` with GTKAgg, TkAgg, etc...
 
 * remove font cache and tex cache from :file:`.matplotlib` and test
