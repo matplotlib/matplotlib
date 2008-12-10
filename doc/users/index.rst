@@ -24,6 +24,7 @@ User's Guide
     plotting.rst
     toolkits.rst
     screenshots.rst
+    whats_new.rst
     license.rst
     credits.rst
 
