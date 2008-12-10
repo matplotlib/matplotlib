@@ -295,7 +295,7 @@ savefig.dpi       : 80      # figure dots per inch
 #svg.embed_chars : True       # embed character outlines in the SVG file
 
 # docstring params
-docstring.hardcopy = True  # set this when you want to generate hardcopy docstring
+docstring.hardcopy : True  # set this when you want to generate hardcopy docstring
 
 # Set the verbose flags.  This controls how much information
 # matplotlib gives you at runtime and where it goes.  The verbosity
