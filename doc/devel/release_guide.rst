@@ -46,6 +46,12 @@ Packaging
 
 * on windows, unix2dos the rc file
 
+* make a branch of the svn revision that is released, in case we need
+  to do a bug fix release.  Eg, from the top level of the mpl svn
+  tree, the one which has "branches", "tags" and "trunk", do::
+
+      > svn copy trunk/matplotlib branches/v0_98_4_maint
+
 .. _release-uploading:
 
 Uploading
