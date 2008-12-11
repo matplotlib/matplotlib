@@ -968,8 +968,6 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   transformed_path_t tpath(path, trans);
   simplify_t simplified(tpath, snap, simplify, width, height);
   curve_t curve(simplified);
-  if (snap)
-    gc.isaa = false;
 
   try {
     _draw_path(curve, has_clippath, face, gc);
@@ -1127,10 +1125,7 @@ RendererAgg::_draw_path_collection_generic
 
       if (check_snap) {
 	snap = should_snap(gc, path, trans);
-	if (snap)
-	  gc.isaa = false;
-	else
-	  gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
+        gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
 
 	transformed_path_t tpath(path, trans);
 	simplify_t simplified(tpath, snap, false, width, height);
