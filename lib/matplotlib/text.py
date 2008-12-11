@@ -575,10 +575,6 @@ class Text(Artist):
         return self._horizontalalignment
 
 
-    def _get_xy_display(self):
-        'get the (possibly unit converted) transformed x,y in display coords'
-        return self.get_transform().transform_point((self._x, self._y))
-
     def get_position(self):
         "Return the position of the text as a tuple (*x*, *y*)"
         x = float(self.convert_xunits(self._x))

@@ -9,7 +9,6 @@ import matplotlib.cbook as cbook
 import matplotlib.artist as artist
 import matplotlib.colors as colors
 import matplotlib.transforms as transforms
-import matplotlib.artist as artist
 from matplotlib.path import Path
 
 # these are not available for the object inspector until after the
@@ -2171,7 +2170,7 @@ class FancyBboxPatch(Patch):
 from matplotlib.bezier import split_bezier_intersecting_with_closedpath
 from matplotlib.bezier import get_intersection, inside_circle, get_parallels
 from matplotlib.bezier import make_wedged_bezier2
-from matplotlib.bezier import split_path_inout, inside_circle, get_cos_sin
+from matplotlib.bezier import split_path_inout, get_cos_sin
 
 
 class ConnectionStyle(_Style):
@@ -2651,7 +2650,7 @@ class ArrowStyle(_Style):
                 # call transmute method with squeezed height.
                 path_mutated, closed = self.transmute(path_shrinked, linewidth,
                                                       mutation_size)
-                vertices, codes = path_mutate.vertices, path_mutate.codes
+                vertices, codes = path_mutated.vertices, path_mutated.codes
                 # Restore the height
                 vertices[:,1] = vertices[:,1] * aspect_ratio
                 return Path(vertices, codes), closed
@@ -2914,8 +2913,6 @@ class ArrowStyle(_Style):
                 scaleB = mutation_size
             else:
                 scaleB = self.scaleB
-
-            from matplotlib.bezier import get_cos_sin
 
             vertices_list, codes_list = [], []
 
@@ -3296,12 +3293,6 @@ class FancyArrowPatch(Patch):
     kwdoc.update(artist.kwdocd)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % kwdoc
     del kwdoc
-
-    def list_available_arrowstyles(cls):
-        return _list_available_arrowstyles(cls._fancy_arrow_transmuters)
-
-    def list_available_connectionstyles(cls):
-        return _list_available_connectionstyles(cls._connectors)
 
     def set_positions(self, posA, posB):
         """ set the begin end end positions of the connecting
