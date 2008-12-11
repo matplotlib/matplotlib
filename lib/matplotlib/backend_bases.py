@@ -436,6 +436,7 @@ class GraphicsContextBase:
         self._rgb = (0.0, 0.0, 0.0)
         self._hatch = None
         self._url = None
+        self._snap = None
 
     def copy_properties(self, gc):
         'Copy properties from gc to self'
