@@ -148,6 +148,7 @@ GCAgg::GCAgg(const Py::Object &gc, double dpi) :
   _set_dashes(gc);
   _set_clip_rectangle(gc);
   _set_clip_path(gc);
+  _set_snap(gc);
 }
 
 GCAgg::GCAgg(double dpi) :
@@ -254,6 +255,24 @@ GCAgg::_set_clip_path( const Py::Object& gc) {
   }
 }
 
+void
+GCAgg::_set_snap( const Py::Object& gc) {
+  //set the snap setting
+
+  _VERBOSE("GCAgg::_set_snap");
+
+  Py::Object method_obj = gc.getAttr("get_snap");
+  Py::Callable method(method_obj);
+  Py::Object py_snap = method.apply(Py::Tuple());
+  if (py_snap.isNone()) {
+    snap = SNAP_AUTO;
+  } else if (py_snap.isTrue()) {
+    snap = SNAP_TRUE;
+  } else {
+    snap = SNAP_FALSE;
+  }
+}
+
 const size_t
 RendererAgg::PIXELS_PER_INCH(96);
 
@@ -336,43 +355,51 @@ RendererAgg::_get_rgba_face(const Py::Object& rgbFace, double alpha) {
 }
 
 template<class Path>
-bool should_snap(Path& path, const agg::trans_affine& trans) {
+bool should_snap(const GCAgg& gc, Path& path, const agg::trans_affine& trans) {
   // If this contains only straight horizontal or vertical lines, it should be
   // quantized to the nearest pixels
   double x0, y0, x1, y1;
   unsigned code;
 
-  if (path.total_vertices() > 15)
-    return false;
+  switch (gc.snap) {
+  case GCAgg::SNAP_AUTO:
+    if (path.total_vertices() > 15)
+      return false;
 
-  code = path.vertex(&x0, &y0);
-  if (code == agg::path_cmd_stop) {
-    path.rewind(0);
-    return false;
-  }
-  trans.transform(&x0, &y0);
-
-  while ((code = path.vertex(&x1, &y1)) != agg::path_cmd_stop) {
-    trans.transform(&x1, &y1);
-
-    switch (code) {
-    case agg::path_cmd_curve3:
-    case agg::path_cmd_curve4:
+    code = path.vertex(&x0, &y0);
+    if (code == agg::path_cmd_stop) {
       path.rewind(0);
       return false;
-    case agg::path_cmd_line_to:
-      if (!(fabs(x0 - x1) < 1e-4 || fabs(y0 - y1) < 1e-4)) {
-	path.rewind(0);
-	return false;
+    }
+    trans.transform(&x0, &y0);
+
+    while ((code = path.vertex(&x1, &y1)) != agg::path_cmd_stop) {
+      trans.transform(&x1, &y1);
+
+      switch (code) {
+      case agg::path_cmd_curve3:
+      case agg::path_cmd_curve4:
+        path.rewind(0);
+        return false;
+      case agg::path_cmd_line_to:
+        if (!(fabs(x0 - x1) < 1e-4 || fabs(y0 - y1) < 1e-4)) {
+          path.rewind(0);
+          return false;
+        }
       }
+
+      x0 = x1;
+      y0 = y1;
     }
 
-    x0 = x1;
-    y0 = y1;
+    path.rewind(0);
+    return true;
+  case GCAgg::SNAP_FALSE:
+    return false;
+  case GCAgg::SNAP_TRUE:
+    return true;
   }
-
-  path.rewind(0);
-  return true;
+  return false;
 }
 
 Py::Object
@@ -487,6 +514,8 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   if (args.size() == 6)
     face_obj = args[5];
 
+  GCAgg gc = GCAgg(gc_obj, dpi);
+
   // Deal with the difference in y-axis direction
   marker_trans *= agg::trans_affine_scaling(1.0, -1.0);
   trans *= agg::trans_affine_scaling(1.0, -1.0);
@@ -497,14 +526,13 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   // unfortunately, it can cause really small things to disappear.
   // Disabling for now to revisit at a later date.
   // const bool marker_snap = true;
-  bool marker_snap = should_snap(marker_path, marker_trans);
+  bool marker_snap = should_snap(gc, marker_path, marker_trans);
   transformed_path_t marker_path_transformed(marker_path, marker_trans);
   simplify_t marker_path_simplified(marker_path_transformed, marker_snap, false, width, height);
   curve_t marker_path_curve(marker_path_simplified);
 
   PathIterator path(path_obj);
   transformed_path_t path_transformed(path, trans);
-  GCAgg gc = GCAgg(gc_obj, dpi);
   path_transformed.rewind(0);
 
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
@@ -934,7 +962,7 @@ RendererAgg::draw_path(const Py::Tuple& args) {
 
   trans *= agg::trans_affine_scaling(1.0, -1.0);
   trans *= agg::trans_affine_translation(0.0, (double)height);
-  bool snap = should_snap(path, trans);
+  bool snap = should_snap(gc, path, trans);
   bool simplify = path.should_simplify() && !face.first;
 
   transformed_path_t tpath(path, trans);
@@ -1098,7 +1126,7 @@ RendererAgg::_draw_path_collection_generic
       }
 
       if (check_snap) {
-	snap = should_snap(path, trans);
+	snap = should_snap(gc, path, trans);
 	if (snap)
 	  gc.isaa = false;
 	else

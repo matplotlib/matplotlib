@@ -452,6 +452,7 @@ class GraphicsContextBase:
         self._rgb = gc._rgb
         self._hatch = gc._hatch
         self._url = gc._url
+        self._snap = gc._snap
 
     def get_alpha(self):
         """
@@ -532,6 +533,19 @@ class GraphicsContextBase:
         returns a url if one is set, None otherwise
         """
         return self._url
+
+    def get_snap(self):
+        """
+        returns the snap setting which may be:
+
+          * True: snap vertices to the nearest pixel center
+
+          * False: leave vertices as-is
+
+          * None: (auto) If the path contains only rectilinear line
+            segments, round to the nearest pixel center
+        """
+        return self._snap
 
     def set_alpha(self, alpha):
         """
@@ -638,6 +652,19 @@ class GraphicsContextBase:
         Sets the url for links in compatible backends
         """
         self._url = url
+
+    def set_snap(self, snap):
+        """
+        Sets the snap setting which may be:
+
+          * True: snap vertices to the nearest pixel center
+
+          * False: leave vertices as-is
+
+          * None: (auto) If the path contains only rectilinear line
+            segments, round to the nearest pixel center
+        """
+        self._snap = snap
 
     def set_hatch(self, hatch):
         """

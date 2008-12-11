@@ -110,7 +110,6 @@ public:
   agg::line_cap_e cap;
   agg::line_join_e join;
 
-
   double linewidth;
   double alpha;
   agg::rgba color;
@@ -124,6 +123,12 @@ public:
   double dashOffset;
   dash_t dashes;
 
+  enum {
+    SNAP_AUTO,
+    SNAP_FALSE,
+    SNAP_TRUE
+  } snap;
+
 protected:
   agg::rgba get_color(const Py::Object& gc);
   double points_to_pixels( const Py::Object& points);
@@ -133,6 +138,7 @@ protected:
   void _set_clip_rectangle( const Py::Object& gc);
   void _set_clip_path( const Py::Object& gc);
   void _set_antialiased( const Py::Object& gc);
+  void _set_snap( const Py::Object& gc);
 };
 
 
