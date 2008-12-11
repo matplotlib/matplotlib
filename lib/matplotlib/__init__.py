@@ -262,7 +262,7 @@ def checkdep_dvipng():
         line = s.stdout.readlines()[1]
         v = line.split()[-1]
         return v
-    except (IndexError, ValueError):
+    except (IndexError, ValueError, OSError):
         return None
 
 def checkdep_ghostscript():
@@ -275,7 +275,7 @@ def checkdep_ghostscript():
                              stderr=subprocess.PIPE)
         v = s.stdout.read()[:-1]
         return v
-    except (IndexError, ValueError):
+    except (IndexError, ValueError, OSError):
         return None
 
 def checkdep_tex():
@@ -287,7 +287,7 @@ def checkdep_tex():
         match = re.search(pattern, line)
         v = match.group(0)
         return v
-    except (IndexError, ValueError, AttributeError):
+    except (IndexError, ValueError, AttributeError, OSError):
         return None
 
 def checkdep_pdftops():
@@ -298,7 +298,7 @@ def checkdep_pdftops():
             if 'version' in line:
                 v = line.split()[-1]
         return v
-    except (IndexError, ValueError, UnboundLocalError):
+    except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
 
 def compare_versions(a, b):
