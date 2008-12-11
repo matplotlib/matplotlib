@@ -21,8 +21,8 @@ import errno
 import matplotlib
 import matplotlib.cbook as mpl_cbook
 import numpy as np
-import os
 import struct
+import subprocess
 
 _dvistate = mpl_cbook.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
 
@@ -742,25 +742,15 @@ def find_tex_file(filename, format=None):
     doesn't use kpathsea, so what do we do? (TODO)
     """
 
-    cmd = 'kpsewhich '
+    cmd = ['kpsewhich']
     if format is not None:
-        assert "'" not in format
-        cmd += "--format='" + format + "' "
-    assert "'" not in filename
-    cmd += "'" + filename + "'"
-
+        cmd += ['--format=' + format]
+    cmd += [filename]
+    
     matplotlib.verbose.report('find_tex_file(%s): %s' \
                                   % (filename,cmd), 'debug')
-    pipe = os.popen(cmd, 'r')
-    result = ""
-    while True:
-        data = _read_nointr(pipe)
-        if data == "":
-            break
-        result += data
-    pipe.close()
-    result = result.rstrip()
-
+    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    result = pipe.communicate()[0].rstrip()
     matplotlib.verbose.report('find_tex_file result: %s' % result,
                               'debug')
     return result
