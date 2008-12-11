@@ -340,6 +340,8 @@ class Artist(object):
 
           * None: (auto) If the path contains only rectilinear line
             segments, round to the nearest pixel center
+
+        Only supported by the Agg backends.
         """
         return self._snap
 
@@ -353,6 +355,8 @@ class Artist(object):
 
           * None: (auto) If the path contains only rectilinear line
             segments, round to the nearest pixel center
+
+        Only supported by the Agg backends.
         """
         self._snap = snap
 
