@@ -54,6 +54,7 @@ class Artist(object):
         self._url = None
         self.x_isdata = True  # False to avoid updating Axes.dataLim with x
         self.y_isdata = True  #                                      with y
+        self._snap = None
 
     def remove(self):
         """
@@ -328,6 +329,32 @@ class Artist(object):
         Sets the url for the artist
         """
         self._url = url
+
+    def get_snap(self):
+        """
+        Returns the snap setting which may be:
+
+          * True: snap vertices to the nearest pixel center
+
+          * False: leave vertices as-is
+
+          * None: (auto) If the path contains only rectilinear line
+            segments, round to the nearest pixel center
+        """
+        return self._snap
+
+    def set_snap(self, snap):
+        """
+        Sets the snap setting which may be:
+
+          * True: snap vertices to the nearest pixel center
+
+          * False: leave vertices as-is
+
+          * None: (auto) If the path contains only rectilinear line
+            segments, round to the nearest pixel center
+        """
+        self._snap = snap
 
     def get_figure(self):
         """

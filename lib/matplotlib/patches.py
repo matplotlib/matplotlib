@@ -278,6 +278,7 @@ class Patch(artist.Artist):
         self._set_gc_clip(gc)
         gc.set_capstyle('projecting')
         gc.set_url(self._url)
+        gc.set_snap(self._snap)
 
         if (not self.fill or self._facecolor is None or
             (cbook.is_string_like(self._facecolor) and self._facecolor.lower()=='none')):
@@ -1435,7 +1436,6 @@ def _pprint_styles(_styles, leadingspace=2):
         #adding quotes for now to work around tex bug treating '-' as itemize
         _table.append([cls.__name__, "'%s'"%name, argstr])
 
-
     return _pprint_table(_table)
 
 
@@ -1505,7 +1505,7 @@ class BoxStyle(_Style):
 
            BoxStyle("Round, pad=0.2")
 
-    The following boxstyle classes are defined.
+    Following boxstyle classes are defined.
 
     %(AvailableBoxstyles)s
 
@@ -2549,6 +2549,7 @@ class ArrowStyle(_Style):
     A arrowstyle object can be either created as::
 
            ArrowStyle.Fancy(head_length=.4, head_width=.4, tail_width=.4)
+
     or::
 
            ArrowStyle("Fancy", head_length=.4, head_width=.4, tail_width=.4)

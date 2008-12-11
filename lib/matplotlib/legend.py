@@ -254,6 +254,7 @@ fontsize. Values from rcParams will be used if None.
             xy=(0.0, 0.0), width=1., height=1.,
             facecolor='w', edgecolor='k',
             mutation_scale=self.fontsize,
+            snap=True
             )
 
         # The width and height of the legendPatch will be set (in the
