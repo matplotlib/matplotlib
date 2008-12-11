@@ -676,21 +676,21 @@ class Figure(Artist):
 
             projection_class = get_projection_class(projection)
 
-        key = self._make_key(*args, **kwargs)
-        if key in self._seen:
-            ax = self._seen[key]
-            if isinstance(ax, projection_class):
-                self.sca(ax)
-                return ax
-            else:
-                self.axes.remove(ax)
-                self._axstack.remove(ax)
+            key = self._make_key(*args, **kwargs)
+            if key in self._seen:
+                ax = self._seen[key]
+                if isinstance(ax, projection_class):
+                    self.sca(ax)
+                    return ax
+                else:
+                    self.axes.remove(ax)
+                    self._axstack.remove(ax)
 
-        a = subplot_class_factory(projection_class)(self, *args, **kwargs)
+            a = subplot_class_factory(projection_class)(self, *args, **kwargs)
+            self._seen[key] = a
         self.axes.append(a)
         self._axstack.push(a)
         self.sca(a)
-        self._seen[key] = a
         return a
     add_subplot.__doc__ = dedent(add_subplot.__doc__) % {
         'list': ", ".join(get_projection_names()),

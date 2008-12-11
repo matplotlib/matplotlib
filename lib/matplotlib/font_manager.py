@@ -1068,7 +1068,7 @@ class FontManager:
                 options = rcParams['font.' + family1]
                 if family2 in options:
                     idx = options.index(family2)
-                    return 0.1
+                    return 0.1 * (float(idx) / len(options))
             elif family1.lower() == family2.lower():
                 return 0.0
         return 1.0
