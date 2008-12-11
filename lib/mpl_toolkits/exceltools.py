@@ -21,7 +21,15 @@ Example usage:
 """
 import copy
 import numpy as np
-import pyExcelerator as excel
+
+try:
+    import xlwt as excel
+except ImportError:
+    try:
+        import pyExcelerator as excel
+    except ImportError:
+        raise ImportError('You must install xlwt or pyExcelterator to use the exceltools')
+
 import matplotlib.cbook as cbook
 import matplotlib.mlab as mlab
 
