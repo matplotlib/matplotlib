@@ -89,7 +89,7 @@ host of others.
 """
 from __future__ import generators
 
-__version__  = '0.98.4'
+__version__  = '0.98.5rc'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
