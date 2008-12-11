@@ -28,8 +28,6 @@ import os, warnings, time
 import numpy as np
 import matplotlib.cbook as cbook
 import matplotlib.colors as colors
-import matplotlib._image as _image
-import matplotlib.path as path
 import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
 from matplotlib import rcParams

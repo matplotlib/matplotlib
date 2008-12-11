@@ -470,7 +470,7 @@ class YTick(Tick):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervaly
 
-    def set_view_interval(self, vmin, vmax):
+    def set_view_interval(self, vmin, vmax, ignore = False):
         if ignore:
             self.axes.viewLim.intervaly = vmin, vmax
         else:

@@ -30,13 +30,9 @@ from matplotlib.artist import Artist
 from matplotlib.cbook import is_string_like, iterable, silent_list, safezip
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
-from matplotlib.mlab import segments_intersect
-from matplotlib.patches import Patch, Rectangle, Shadow, bbox_artist, FancyBboxPatch
+from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
 from matplotlib.collections import LineCollection, RegularPolyCollection
-from matplotlib.text import Text
-from matplotlib.transforms import Affine2D, Bbox, BboxTransformTo
-
-from itertools import cycle, izip
+from matplotlib.transforms import Bbox
 
 from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
 

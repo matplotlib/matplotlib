@@ -21,23 +21,19 @@ TODO:
   * integrate screen dpi w/ ppi and text
 """
 from __future__ import division
-import os, sys, weakref
 
 import numpy as npy
 
-import matplotlib
 from matplotlib import verbose, rcParams
-from matplotlib._image import fromarray
-from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase,\
-     GraphicsContextBase, FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import is_string_like, exception_to_str, maxdict
+     FigureManagerBase, FigureCanvasBase
+from matplotlib.cbook import is_string_like, maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
-from matplotlib.transforms import Affine2D, Bbox
+from matplotlib.transforms import Bbox
 
 from _backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
