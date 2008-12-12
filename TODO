@@ -1,3 +1,5 @@
+-- Test merging from multiple branches.
+
 -- ALMOST DONE : add print/save functionality.  Currently you can save by right
    clicking on the fig window, but you must have nothing in front of
    the window.  I suppose I need to first draw to a pixbuf.  I would
