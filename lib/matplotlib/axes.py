@@ -6422,9 +6422,10 @@ class Axes(martist.Artist):
 
     #### Data analysis
 
-    def hist(self, x, bins=10, range=None, normed=False, cumulative=False,
-             bottom=None, histtype='bar', align='mid',
-             orientation='vertical', rwidth=None, log=False, **kwargs):
+    def hist(self, x, bins=10, range=None, normed=False, weights=None,
+             cumulative=False, bottom=None, histtype='bar', align='mid',
+             orientation='vertical', rwidth=None, log=False, 
+             **kwargs):
         """
         call signature::
 
@@ -6467,6 +6468,13 @@ class Axes(martist.Artist):
 
               pdf, bins, patches = ax.hist(...)
               print np.sum(pdf * np.diff(bins))
+
+          *weights*
+            An array of weights, of the same shape as *x*.  Each value in
+            *x* only contributes its associated weight towards the bin
+            count (instead of 1).  If *normed* is True, the weights are
+            normalized, so that the integral of the density over the range
+            remains 1.
 
           *cumulative*:
             If *True*, then a histogram is computed where each bin
@@ -6543,7 +6551,7 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
 
         # NOTE: the range keyword overwrites the built-in func range !!!
-        #       needs to be fixed in  with numpy                     !!!
+        #       needs to be fixed in numpy                           !!!
 
         if kwargs.get('width') is not None:
             raise DeprecationWarning(
@@ -6566,7 +6574,29 @@ class Axes(martist.Artist):
                     tx.append( np.array(x[i]) )
                 x = tx
             else:
-                raise ValueError, 'Can not use providet data to create a histogram'
+                raise ValueError, 'Can not use provided data to create a histogram'
+
+        if weights is not None:
+            try:
+                w = np.transpose(np.array(weights))
+                if len(w.shape)==1:
+                    w.shape = (1, w.shape[0])
+            except:
+                if iterable(weights[0]) and not is_string_like(weights[0]):
+                    tw = []
+                    for i in xrange(len(weights)):
+                        tw.append( np.array(weights[i]) )
+                    w = tw
+                else:
+                    raise ValueError, 'Can not use provided weights to create a hist'
+
+            if len(x) != len(w):
+                raise ValueError, 'weights should have the same shape as x'
+            for i in xrange(len(x)):
+                if len(x[i]) != len(w[i]):
+                    raise ValueError, 'weights should have the same shape as x'
+        else:
+            w = [None]*len(x)
 
         # Check whether bins or range are given explicitly. In that
         # case do not autoscale axes.
@@ -6584,7 +6614,7 @@ class Axes(martist.Artist):
         for i in xrange(len(x)):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
-            m, bins = np.histogram(x[i], bins, **hist_kwargs)
+            m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
             n.append(m)
 
         if cumulative:
