@@ -29,6 +29,7 @@ import matplotlib.transforms as mtransforms
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
+is_sequence_of_strings = cbook.is_sequence_of_strings
 
 
 def _process_plot_format(fmt):
@@ -6531,6 +6532,10 @@ class Axes(martist.Artist):
             ax.hist(12+3*np.random.randn(1000), label='women', alpha=0.5)
             ax.legend()
 
+        label can also be a sequence of strings. If multiple data is
+        provided in *x*, the labels are asigned sequentially to the
+        histograms.
+
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/histogram_demo.py
@@ -6711,11 +6716,18 @@ class Axes(martist.Artist):
 
         label = kwargs.pop('label', '')
 
-        for patch in patches:
+        if is_string_like(label):
+            labels = [label] + ['_nolegend_']*(len(patches)-1)
+        elif is_sequence_of_strings:
+            labels = list(label) + ['_nolegend_']*(len(patches)-1)
+        else:
+            raise ValueError, 'invalid label: must be string or sequence of strings'
+
+        for (patch, lbl) in zip(patches, labels):
             for p in patch:
                 p.update(kwargs)
-                p.set_label(label)
-                label = '_nolegend_'
+                p.set_label(lbl)
+                lbl = '_nolegend_'
 
         if binsgiven:
             self.set_autoscale_on(False)
