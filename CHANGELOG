@@ -1,5 +1,5 @@
 =================================================================
-2008-12-09 Released 0.98.5 at svn r6573
+2008-12-11 Released 0.98.5 at svn r6573
 
 2008-12-11 Use subprocess.Popen instead of os.popen in dviread
            (Windows problem reported by Jorgen Stenarson) - JKS
