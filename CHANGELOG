@@ -1,3 +1,14 @@
+2008-12-12 Removed external packages: configobj and enthought.traits
+           which are only required by the experimental traited config
+           and are somewhat out of date. If needed, install them 
+           independently, see:
+
+           http://code.enthought.com/projects/traits
+
+           and:
+
+           http://www.voidspace.org.uk/python/configobj.html
+
 2008-12-12 Added support to asign labels to histograms of multiple
            data. - MM
 
