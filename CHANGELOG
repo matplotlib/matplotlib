@@ -1,3 +1,6 @@
+2008-12-12 Added support for the numpy.histogram() weights parameter
+           to the axes hist() method. Docs taken from numpy - MM
+
 2008-12-12 Fixed warning in hist() with numpy 1.2 - MM
 
 2008-12-12 Removed external packages: configobj and enthought.traits
