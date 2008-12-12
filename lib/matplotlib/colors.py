@@ -594,7 +594,9 @@ class LinearSegmentedColormap(Colormap):
 
 
         .. seealso::
+
             :func:`makeMappingArray`
+               For information about making a mapping array.
         """
         self.monochrome = False  # True only if all colors in map are identical;
                                  # needed for contouring.

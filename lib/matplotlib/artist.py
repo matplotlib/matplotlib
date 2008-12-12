@@ -144,7 +144,10 @@ class Artist(object):
         Remove a callback based on its *id*.
 
         .. seealso::
+
             :meth:`add_callback`
+               For adding callbacks
+
         """
         try: del self._propobservers[oid]
         except KeyError: pass
@@ -497,7 +500,7 @@ class Artist(object):
     def set_alpha(self, alpha):
         """
         Set the alpha value used for blending - not supported on
-        all backends
+        all backends.
 
         ACCEPTS: float (0.0 transparent through 1.0 opaque)
         """

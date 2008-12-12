@@ -354,7 +354,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
 
         .. seealso::
+
             :meth:`set_facecolor`, :meth:`set_edgecolor`
+               For setting the edge or face color individually.
         """
         self.set_facecolor(c)
         self.set_edgecolor(c)
@@ -702,8 +704,8 @@ class BrokenBarHCollection(PolyCollection):
         over the regions in *x* where *where* is True.  The bars range
         on the y-axis from *ymin* to *ymax*
 
-        A :class:`BrokenBarHCollection` is returned.
-        **kwargs are passed on to the collection
+        A :class:`BrokenBarHCollection` is returned.  kwargs are
+        passed on to the collection.
         """
         xranges = []
         for ind0, ind1 in mlab.contiguous_regions(where):
@@ -932,7 +934,7 @@ class LineCollection(Collection):
         Set the color(s) of the line collection.  *c* can be a
         matplotlib color arg (all patches have same color), or a
         sequence or rgba tuples; if it is a sequence the patches will
-        cycle through the sequence
+        cycle through the sequence.
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """

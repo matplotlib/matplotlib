@@ -622,7 +622,9 @@ class Line2D(Artist):
         backward-compatibility.
 
         .. seealso::
+
             :meth:`set_drawstyle`
+               To set the drawing style (stepping) of the plot.
 
         ACCEPTS: [ '-' | '--' | '-.' | ':' | 'None' | ' ' | '' ] and
         any drawstyle in combination with a linestyle, e.g. 'steps--'.

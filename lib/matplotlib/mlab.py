@@ -59,7 +59,7 @@ record array helper functions
 
 A collection of helper methods for numpyrecord arrays
 
-.. _htmlonly::
+.. _htmlonly:
 
     See :ref:`misc-examples-index`
 
@@ -475,7 +475,8 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
            segments.
 
     .. seealso::
-        :func:`psd`:
+
+        :func:`psd`
             :func:`psd` differs in the default overlap; in returning
             the mean of the segment periodograms; and in not returning
             times.
@@ -517,7 +518,8 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     the factors cancel out.
 
     .. seealso::
-        :func:`psd` and :func:`csd`:
+
+        :func:`psd` and :func:`csd`
             For information about the methods used to compute
             :math:`P_{xy}`, :math:`P_{xx}` and :math:`P_{yy}`.
     """
@@ -565,7 +567,7 @@ def polyfit(*args, **kwargs):
 
     Do a best fit polynomial of order *N* of *y* to *x*.  Return value
     is a vector of polynomial coefficients [pk ... p1 p0].  Eg, for
-    *N*=2::
+    *N* = 2::
 
       p2*x0^2 +  p1*x0 + p0 = y1
       p2*x1^2 +  p1*x1 + p0 = y1
@@ -601,7 +603,9 @@ def polyfit(*args, **kwargs):
     subscripts on that page.  The linear algebra is correct, however.
 
     .. seealso::
+
         :func:`polyval`
+           polyval function
     """
     warnings.warn("use numpy.poyfit", DeprecationWarning)
     return np.polyfit(*args, **kwargs)
@@ -623,7 +627,9 @@ def polyval(*args, **kwargs):
       resid = y - trend
 
     .. seealso::
+
         :func:`polyfit`
+           polyfit function
     """
     warnings.warn("use numpy.polyval", DeprecationWarning)
     return np.polyval(*args, **kwargs)
@@ -709,7 +715,8 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     cohere.
 
     .. seealso::
-        :file:`test/cohere_pairs_test.py` in the src tree:
+
+        :file:`test/cohere_pairs_test.py` in the src tree
             For an example script that shows that this
             :func:`cohere_pairs` and :func:`cohere` give the same
             results for a given pair.
@@ -1212,10 +1219,11 @@ def liaupunov(x, fprime):
         \lambda = \\frac{1}{n}\\sum \\ln|f^'(x_i)|
 
     .. seealso::
-        Sec 10.5 Strogatz (1994) "Nonlinear Dynamics and Chaos".
 
-        `Wikipedia article on Lyapunov Exponent
-        <http://en.wikipedia.org/wiki/Lyapunov_exponent>`_.
+        Lyapunov Exponent
+           Sec 10.5 Strogatz (1994) "Nonlinear Dynamics and Chaos".
+           `Wikipedia article on Lyapunov Exponent
+           <http://en.wikipedia.org/wiki/Lyapunov_exponent>`_.
 
     .. note::
         What the function here calculates may not be what you really want;
@@ -1426,7 +1434,8 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     - *dtype*: the array will have this dtype.  default: ``numpy.float_``
 
     .. seealso::
-        See :file:`examples/pylab_examples/load_converter.py` in the source tree:
+
+        See :file:`examples/pylab_examples/load_converter.py` in the source tree
            Exercises many of these options.
     """
 
@@ -2057,6 +2066,7 @@ def rec_view(rec):
     .. seealso::
 
        http://projects.scipy.org/pipermail/numpy-discussion/2008-August/036429.html
+          Motivation for this function
     """
     return rec.view(np.recarray)
     #return rec.view(dtype=(np.record, rec.dtype), type=np.recarray)
@@ -2815,7 +2825,8 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
       files is automatic, if the filename ends in '.gz'
 
     .. seealso::
-        :func:`csv2rec`:
+
+        :func:`csv2rec`
             For information about *missing* and *missingd*, which can
             be used to fill in masked values into your CSV file.
     """

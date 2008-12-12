@@ -425,7 +425,8 @@ def figlegend(handles, labels, loc, **kwargs):
                  'upper right' )
 
     .. seealso::
-       :func:`~matplotlib.pyplot.legend`:
+
+       :func:`~matplotlib.pyplot.legend`
          For information about the location codes
     """
     l = gcf().legend(handles, labels, loc, **kwargs)
@@ -616,11 +617,13 @@ def subplot(*args, **kwargs):
         registered. See :func:`matplotlib.projections.register_projection`
 
     .. seealso::
-        :func:`~matplotlib.pyplot.axes`:
+
+        :func:`~matplotlib.pyplot.axes`
             For additional information on :func:`axes` and
             :func:`subplot` keyword arguments.
 
         :file:`examples/pylab_examples/polar_scatter.py`
+            For an example
 
     **Example:**
 
@@ -650,7 +653,9 @@ def twinx(ax=None):
     the right, and the *ax2* instance is returned.
 
     .. seealso::
+
        :file:`examples/api_examples/two_scales.py`
+          For an example
     """
     if ax is None:
         ax=gca()
@@ -746,7 +751,8 @@ def title(s, *args, **kwargs):
                   'horizontalalignment': 'center'}
 
     .. seealso::
-       :func:`~matplotlib.pyplot.text`:
+
+       :func:`~matplotlib.pyplot.text`
            for information on how override and the optional args work.
     """
     l =  gca().set_title(s, *args, **kwargs)
@@ -812,7 +818,9 @@ def axis(*v, **kwargs):
     The xmin, xmax, ymin, ymax tuple is returned
 
     .. seealso::
+
         :func:`xlim`, :func:`ylim`
+           For setting the x- and y-limits individually.
     """
     ax = gca()
     v = ax.axis(*v, **kwargs)
@@ -832,7 +840,8 @@ def xlabel(s, *args, **kwargs):
           }
 
     .. seealso::
-        :func:`~matplotlib.pyplot.text`:
+
+        :func:`~matplotlib.pyplot.text`
             For information on how override and the optional args work
     """
     l =  gca().set_xlabel(s, *args, **kwargs)
@@ -852,7 +861,8 @@ def ylabel(s, *args, **kwargs):
            'rotation'='vertical' : }
 
     .. seealso::
-        :func:`~matplotlib.pyplot.text`:
+
+        :func:`~matplotlib.pyplot.text`
             For information on how override and the optional args
             work.
     """
@@ -1139,9 +1149,9 @@ def plotting():
     """
     Plotting commands
 
-    =========      =================================================
+    ============== =================================================
     Command        Description
-    =========      =================================================
+    ============== =================================================
     axes           Create a new axes
     axis           Set or return the current axis limits
     bar            make a bar chart
@@ -1162,7 +1172,7 @@ def plotting():
     figtext        add text in figure coords
     figure         create or change active figure
     fill           make filled polygons
-    fill_between    make filled polygons
+    fill_between   make filled polygons
     gca            return the current axes
     gcf            return the current figure
     gci            get the current image, or None
@@ -1194,7 +1204,7 @@ def plotting():
     title          add a title to the current axes
     xlabel         add an xlabel to the current axes
     ylabel         add a ylabel to the current axes
-    =========      =================================================
+    ============== =================================================
 
     The following commands will set the default colormap accordingly:
 
