@@ -99,8 +99,6 @@ options = {'display_status': True,
            'verbose': False,
            'provide_pytz': 'auto',
            'provide_dateutil': 'auto',
-           'provide_configobj': 'auto',
-           'provide_traits': False,
            'build_agg': True,
            'build_gtk': 'auto',
            'build_gtkagg': 'auto',
@@ -129,14 +127,6 @@ if os.path.exists("setup.cfg"):
     try: options['provide_dateutil'] = config.getboolean("provide_packages",
                                                          "dateutil")
     except: options['provide_dateutil'] = 'auto'
-
-    try: options['provide_configobj'] = config.getboolean("provide_packages",
-                                                          "configobj")
-    except: options['provide_configobj'] = 'auto'
-
-    try: options['provide_traits'] = config.getboolean("provide_packages",
-                                                       "enthought.traits")
-    except: options['provide_traits'] = False
 
     try: options['build_gtk'] = config.getboolean("gui_support", "gtk")
     except: options['build_gtk'] = 'auto'
@@ -444,33 +434,17 @@ def check_provide_dateutil(hasdatetime=True):
             print_status("dateutil", "present, version unknown")
             return False
 
-def check_provide_configobj():
-    if options['provide_configobj'] is True:
-        print_status("configobj", "matplotlib will provide")
-        return True
+def check_for_configobj():
     try:
         import configobj
     except ImportError:
-        if options['provide_configobj']:
-            print_status("configobj", "matplotlib will provide")
-            return True
-        else:
-            print_status("configobj", "no")
-            return False
+        print_status("configobj", "no")
+        return False
     else:
-        if configobj.__version__.endswith('mpl'):
-            print_status("configobj", "matplotlib will provide")
-            return True
-        else:
-            print_status("configobj", configobj.__version__)
-            return False
+        print_status("configobj", configobj.__version__)
+        return True
 
-def check_provide_traits():
-    # Let's not install traits by default for now, unless it is specifically
-    # asked for in setup.cfg AND it is not already installed
-#    if options['provide_traits'] is True:
-#        print_status("enthought.traits", "matplotlib will provide")
-#        return True
+def check_for_traits():
     try:
         from enthought import traits
         try:
@@ -484,23 +458,11 @@ def check_provide_traits():
                 version = version.version
             except AttributeError:
                 version = version.__version__
-            # next 2 lines added temporarily while we figure out what to do
-            # with traits:
             print_status("enthought.traits", version)
-            return False
-#            if version.endswith('mpl'):
-#                print_status("enthought.traits", "matplotlib will provide")
-#                return True
-#            else:
-#                print_status("enthought.traits", version)
-#                return False
-    except ImportError:
-        if options['provide_traits']:
-            print_status("enthought.traits", "matplotlib will provide")
             return True
-        else:
-            print_status("enthought.traits", "no")
-            return False
+    except ImportError:
+        print_status("enthought.traits", "no")
+        return False
 
 def check_for_dvipng():
     try:
