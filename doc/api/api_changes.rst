@@ -6,6 +6,13 @@ This chapter is a log of changes to matplotlib that affect the
 outward-facing API.  If updating matplotlib breaks your scripts, this
 list may help describe what changes may be necessary in your code.
 
+* Removed configobj_ and `enthought.traits`_ packages, which are only
+  required by the experimental traited config and are somewhat out of
+  date. If needed, install them independently.
+
+.. _configobj: http://www.voidspace.org.uk/python/configobj.html
+.. _`enthought.traits`: http://code.enthought.com/projects/traits
+
 Changes for 0.98.x
 ==================
 
@@ -253,7 +260,7 @@ The :class:`Polar` class has moved to :mod:`matplotlib.projections.polar`.
    `Axes.toggle_log_lineary()` has been removed.
 
 :mod:`matplotlib.artist`
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 ============================================================ ============================================================
 Old method                                                   New method
