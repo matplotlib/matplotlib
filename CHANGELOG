@@ -1,10 +1,14 @@
+=================================================================
+2008-12-09 Released 0.98.5 at svn r6573
+
 2008-12-11 Use subprocess.Popen instead of os.popen in dviread
            (Windows problem reported by Jorgen Stenarson) - JKS
 
 2008-12-10 Added Michael's font_manager fix and Jae-Joon's
            figure/subplot fix.  Bumped version number to 0.98.5 - JDH
 
-=================================================================                                                                      2008-12-09 Released 0.98.4 at svn r6536
+=================================================================
+2008-12-09 Released 0.98.4 at svn r6536
 
 2008-12-08 Added mdehoon's native macosx backend from sf patch 2179017 - JDH
 
