@@ -9,6 +9,8 @@ Coding guide
 Version control
 ===============
 
+.. _using-svn:
+
 svn checkouts
 -------------
 
@@ -52,7 +54,7 @@ in mind.
 * Can you pass :file:`examples/tests/backend_driver.py`?  This is our
   poor man's unit test.
 
-* Can you add a test to file:`unit/nose_tests.py` to test your changes?
+* Can you add a test to :file:`unit/nose_tests.py` to test your changes?
 
 * If you have altered extension code, do you pass
   :file:`unit/memleak_hawaii.py`?
@@ -67,6 +69,170 @@ in mind.
   on both that needs fixing, use `svnmerge.py
   <http://www.orcaware.com/svn/wiki/Svnmerge.py>`_ to keep them in
   sync.  See :ref:`svn-merge` below.
+
+.. _svn-merge:
+
+Using svnmerge
+--------------
+
+svnmerge is useful for making bugfixes to a maintenance branch, and
+then bringing those changes into the trunk.
+
+The basic procedure is:
+
+* install ``svnmerge.py`` in your PATH::
+
+    > wget http://svn.collab.net/repos/svn/trunk/contrib/client-side/\
+      svnmerge/svnmerge.py
+
+* get a svn checkout of the branch you'll be making bugfixes to and
+  the trunk (see above)
+
+* Create and commit the bugfix on the branch.
+
+* Then make sure you svn upped on the trunk and have no local
+  modifications, and then from your checkout of the svn trunk do::
+
+       svnmerge.py merge -S BRANCHNAME
+
+  Where BRANCHNAME is the name of the branch to merge *from*,
+  e.g. v0_98_5_maint.
+
+  If you wish to merge only specific revisions (in an unusual
+  situation), do::
+
+      > svnmerge.py merge -rNNN1-NNN2
+
+  where the ``NNN`` are the revision numbers.  Ranges are also
+  acceptable.
+
+  The merge may have found some conflicts (code that must be manually
+  resolved).  Correct those conflicts, build matplotlib and test your
+  choices.  If you have resolved any conflicts, you can let svn clean
+  up the conflict files for you::
+
+      > svn -R resolved .
+
+  ``svnmerge.py`` automatically creates a file containing the commit
+  messages, so you are ready to make the commit::
+
+     > svn commit -F svnmerge-commit-message.txt
+
+Setting up svnmerge
+~~~~~~~~~~~~~~~~~~~
+
+.. note::
+   The following applies only to release managers when there is
+   a new release.  Most developers will not have to concern themselves
+   with this.
+
+* Creating a new branch from the trunk (if the release version is
+  0.98.5 at revision 6573)::
+
+      > svn copy \
+      https://matplotlib.svn.sf.net/svnroot/matplotlib/trunk/matplotlib@6573 \
+      https://matplotlib.svn.sf.net/svnroot/matplotlib/branches/v0_98_5_maint \
+      -m "Creating maintenance branch for 0.98.5"
+
+* You can add a new branch for the trunk to "track" using
+  "svnmerge.py init", e.g., from a working copy of the trunk::
+
+      > svnmerge.py init https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v0_98_5_maint
+      property 'svnmerge-integrated' set on '.'
+
+  After doing a "svn commit" on this, this merge tracking is available
+  to everyone, so there's no need for anyone else to do the "svnmerge
+  init".
+
+* Tracking can later be removed with the "svnmerge.py uninit" command,
+  e.g.::
+
+      > svnmerge.py -S v0_9_5_maint uninit
+
+.. _using-git:
+
+Using git
+---------
+
+Some matplotlib developers are experimenting with using git on top of
+the subversion repository.  Developers are not required to use git, as
+subversion will remain the canonical central repository for the
+foreseeable future.
+
+Cloning the git mirror
+~~~~~~~~~~~~~~~~~~~~~~
+
+There is an experimental `matplotlib github mirror`_ of the subversion
+repository. To make a local clone of it in the directory ``mpl.git``,
+enter the following commands::
+
+  # This will create your copy in the mpl.git directory
+  git clone git://github.com/astraw/matplotlib.git mpl.git
+  cd mpl.git
+  git config --add remote.origin.fetch +refs/remotes/*:refs/remotes/*
+  git fetch
+  git svn init --trunk=trunk/matplotlib --tags=tags https://matplotlib.svn.sourceforge.net/svnroot/matplotlib
+
+  # Now just get the latest svn revisions from the SourceForge SVN repository
+  git svn fetch -r 6300:HEAD
+
+.. _matplotlib github mirror: http://github.com/astraw/matplotlib
+
+To install from this cloned repository, use the commands in the
+:ref:`svn installation <install-svn>` section::
+
+  > cd mpl.git
+  > python setup.py install
+
+Using git
+~~~~~~~~~
+
+The following is a suggested workflow for git/git-svn.
+
+Start with a virgin tree in sync with the svn trunk on the git branch
+"master"::
+
+  git checkout master
+  git svn rebase
+
+To create a new, local branch called "whizbang-branch"::
+
+  git checkout -b whizbang-branch
+
+Do make commits to the local branch::
+
+  # hack on a bunch of files
+  git add bunch of files
+  git commit -m "modified a bunch of files"
+  # repeat this as necessary
+
+Now, go back to the master branch and append the history of your branch
+to the master branch, which will end up as the svn trunk::
+
+  git checkout master
+  git svn rebase # Ensure we have most recent svn
+  git rebase whizbang-branch # Append whizbang changes to master branch
+  git svn dcommit -n # Check that this will apply to svn
+  git svn dcommit # Actually apply to svn
+
+Finally, you may want to continue working on your whizbang-branch, so
+rebase it to the new master::
+
+  git checkout whizbang-branch
+  git rebase master
+
+A note about git write access
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The matplotlib developers need to figure out if there should be write
+access to the git repository. This implies using the personal URL
+(``git@github.com:astraw/matplotlib.git``) rather than the public URL
+(``git://github.com/astraw/matplotlib.git``) for the
+repository. However, doing so may make life complicated in the sense
+that then there are two writeable matplotlib repositories, which must
+be synced to prevent divergence. This is probably not an
+insurmountable problem, but it is a problem that the developers should
+reach a consensus about. Watch this space...
 
 .. _style-guide:
 
@@ -352,83 +518,6 @@ external backend via the ``module`` directive.  if
     > python simple_plot.py -d module://my_backend
 
 
-.. _svn-merge:
-
-Using svn-merge
-================
-
-The basic procedure is:
-
-* install ``svnmerge.py`` in your PATH::
-
-    > wget http://svn.collab.net/repos/svn/trunk/contrib/client-side/\
-      svnmerge/svnmerge.py
-
-* get a svn copy of the maintenance branch and the trunk (see above)
-
-* Michael advises making the change on the branch and committing it.
-  Make sure you svn upped on the trunk and have no local
-  modifications, and then from the svn trunk do::
-
-       svnmerge.py merge
-
-  If you wish to merge only specific revisions (in an unusual
-  situation), do::
-
-      > svnmerge.py merge -rNNN1-NNN2
-
-  where the ``NNN`` are the revision numbers.  Ranges are also
-  acceptable.
-
-  The merge may have found some conflicts (code that must be manually
-  resolved).  Correct those conflicts, build matplotlib and test your
-  choices.  If you have resolved any conflicts, you can let svn clean
-  up the conflict files for you::
-
-      > svn -R resolved .
-
-  ``svnmerge.py`` automatically creates a file containing the commit
-  messages, so you are ready to make the commit::
-
-     > svn commit -F svnmerge-commit-message.txt
-
-
-* You can add a new branch for the trunk to "track" using
-  "svnmerge.py init", e.g., from a working copy of the trunk::
-
-      > svnmerge.py init https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v0_98_4_maint
-      property 'svnmerge-integrated' set on '.'
-
-  After doing a "svn commit" on this, this merge tracking is available
-  to everyone, so there's no need for anyone else to do the "svnmerge
-  init".  I'll go ahead and commit this now.
-
-  Now, the trunk is tracking two branches for merges, 0.91.x and
-  0.98.4.  This means that when doing a merge, one must manually
-  specify which branch to merge from using the "-S" parameter.  You
-  can see which branches are available for merge using "svnmerge.py
-  avail"::
-
-       > svnmerge.py avail
-       svnmerge: multiple sources found. Explicit source argument (-S/--source) required.
-       The merge sources available are:
-       /branches/v0_91_maint
-       /branches/v0_98_4_maint
-
-  So to merge from 0.98.4, one would type::
-
-      > svnmerge.py --source v0_98_4_maint merge
-
-  (rather than the "svnmerge.py merge" we used to do).
-
-* The tracking for 0.98.4 can be removed with the "svnmerge.py
-  uninit" command, e.g.::
-
-      > svnmerge.py --source v0_9_4_maint uninit
-
-  This will make merging slightly easier, (since the -S parameter is
-  not required), and it is generally good practice in the long run to
-  not keep extra branches lying around.
 
 .. _license-discussion:
 
