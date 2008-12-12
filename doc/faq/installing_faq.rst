@@ -106,7 +106,8 @@ and build and install as usual with::
   > cd matplotlib
   > python setup.py install
 
-For more information on Subversion usage, see :ref:`using-svn`.
+There is more information on :ref:`using Subversion <using-svn>` in
+the developer docs.
 
 Install from git
 ================
