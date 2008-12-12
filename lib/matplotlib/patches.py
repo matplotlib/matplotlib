@@ -643,8 +643,10 @@ class PathPatch(Patch):
         %(Patch)s
 
         .. seealso::
-            :class:`Patch`:
+
+            :class:`Patch`
                 For additional kwargs
+
         """
         Patch.__init__(self, **kwargs)
         self._path = path
@@ -671,8 +673,10 @@ class Polygon(Patch):
         %(Patch)s
 
         .. seealso::
-            :class:`Patch`:
+
+            :class:`Patch`
                 For additional kwargs
+
         """
         Patch.__init__(self, **kwargs)
         xy = np.asarray(xy, np.float_)

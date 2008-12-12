@@ -658,7 +658,9 @@ class Text(Artist):
         Set the background color of the text by updating the bbox.
 
         .. seealso::
+
             :meth:`set_bbox`
+               To change the position of the bounding box.
 
         ACCEPTS: any matplotlib color
         """

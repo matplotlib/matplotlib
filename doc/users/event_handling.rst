@@ -64,8 +64,8 @@ Event name               Class and description
 'scroll_event'           :class:`~matplotlib.backend_bases.MouseEvent`     - mouse scroll wheel is rolled
 'figure_enter_event'     :class:`~matplotlib.backend_bases.LocationEvent`  - mouse enters a new figure
 'figure_leave_event'     :class:`~matplotlib.backend_bases.LocationEvent`  - mouse leaves a figure
-'axes_enter_event'     :class:`~matplotlib.backend_bases.LocationEvent`    - mouse enters a new axes
-'axes_leave_event'     :class:`~matplotlib.backend_bases.LocationEvent`    - mouse leaves an axes
+'axes_enter_event'       :class:`~matplotlib.backend_bases.LocationEvent`  - mouse enters a new axes
+'axes_leave_event'       :class:`~matplotlib.backend_bases.LocationEvent`  - mouse leaves an axes
 =======================  ======================================================================================
 
 .. _event-attributes:

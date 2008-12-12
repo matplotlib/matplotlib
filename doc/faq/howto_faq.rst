@@ -428,8 +428,10 @@ pyplot::
 
 .. seealso::
     :ref:`howto-webapp`
+       For information about running matplotlib inside of a web
+       application.
 
-.. _howto-show
+.. _howto-show:
 
 Use :func:`~matplotlib.pyplot.show`
 ------------------------------------------

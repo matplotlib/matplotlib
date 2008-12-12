@@ -43,8 +43,9 @@ def _process_plot_format(fmt):
     * 'r--': red dashed lines
 
     .. seealso::
+
         :func:`~matplotlib.Line2D.lineStyles` and
-        :func:`~matplotlib.pyplot.colors`:
+        :func:`~matplotlib.pyplot.colors`
             for all possible styles and color format string.
     """
 
@@ -2574,7 +2575,8 @@ class Axes(martist.Artist):
         ACCEPTS: str
 
         .. seealso::
-            :meth:`text`:
+
+            :meth:`text`
                 for information on how override and the optional args work
         """
         default = {
@@ -2610,7 +2612,8 @@ class Axes(martist.Artist):
         ACCEPTS: str
 
         .. seealso::
-            :meth:`text`:
+
+            :meth:`text`
                 for information on how override and the optional args work
         """
 
@@ -2641,7 +2644,8 @@ class Axes(martist.Artist):
         ACCEPTS: str
 
         .. seealso::
-            :meth:`text`:
+
+            :meth:`text`
                 for information on how override and the optional args work
         """
         label = self.yaxis.get_label()
@@ -2794,7 +2798,8 @@ class Axes(martist.Artist):
         %(Line2D)s
 
         .. seealso::
-            :meth:`axhspan`:
+
+            :meth:`axhspan`
                 for example plot and source code
         """
 
@@ -2853,7 +2858,8 @@ class Axes(martist.Artist):
         %(Line2D)s
 
         .. seealso::
-            :meth:`axhspan`:
+
+            :meth:`axhspan`
                 for example plot and source code
         """
 
@@ -2964,7 +2970,8 @@ class Axes(martist.Artist):
         %(Polygon)s
 
         .. seealso::
-            :meth:`axhspan`:
+
+            :meth:`axhspan`
                 for example plot and source code
         """
         trans = mtransforms.blended_transform_factory(
@@ -3331,12 +3338,13 @@ class Axes(martist.Artist):
         %(Line2D)s
 
         .. seealso::
-            :mod:`~matplotlib.dates`:
+
+            :mod:`~matplotlib.dates`
                 for helper functions
 
             :func:`~matplotlib.dates.date2num`,
             :func:`~matplotlib.dates.num2date` and
-            :func:`~matplotlib.dates.drange`:
+            :func:`~matplotlib.dates.drange`
                 for help on creating the required floating point
                 dates.
         """
@@ -3439,7 +3447,8 @@ class Axes(martist.Artist):
         %(Line2D)s
 
         .. seealso::
-            :meth:`loglog`:
+
+            :meth:`loglog`
                 For example code and figure
         """
         if not self._hold: self.cla()
@@ -3484,7 +3493,8 @@ class Axes(martist.Artist):
         %(Line2D)s
 
         .. seealso::
-            :meth:`loglog`:
+
+            :meth:`loglog`
                 For example code and figure
         """
         if not self._hold: self.cla()
@@ -3546,9 +3556,10 @@ class Axes(martist.Artist):
         - *b* is the *x*-axis.
 
         .. seealso::
+
             :meth:`~matplotlib.axes.Axes.plot` or
-            :meth:`~matplotlib.axes.Axes.vlines`: For documentation on
-            valid kwargs.
+            :meth:`~matplotlib.axes.Axes.vlines`
+               For documentation on valid kwargs.
 
         **Example:**
 
@@ -4249,10 +4260,12 @@ class Axes(martist.Artist):
         *baseline*).
 
         .. seealso::
-            `this document`__ for details
 
-            :file:`examples/pylab_examples/stem_plot.py`:
-                for a demo
+            `this document`__
+               for details
+
+            :file:`examples/pylab_examples/stem_plot.py`
+               for a demo
 
         __ http://www.mathworks.com/access/helpdesk/help/techdoc/ref/stem.html
 
@@ -5594,7 +5607,7 @@ class Axes(martist.Artist):
 
         %(PolyCollection)s
 
-        .. plot:: mpl_examples/pylab_examples/fill_between.py        
+        .. plot:: mpl_examples/pylab_examples/fill_between.py
         """
         # Handle united data, such as dates
         self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
@@ -6093,7 +6106,8 @@ class Axes(martist.Artist):
         %(QuadMesh)s
 
         .. seealso::
-            :func:`~matplotlib.pyplot.pcolor`:
+
+            :func:`~matplotlib.pyplot.pcolor`
                 For an explanation of the grid orientation and the
                 expansion of 1-D *X* and/or *Y* to 2-D arrays.
         """
@@ -6424,7 +6438,7 @@ class Axes(martist.Artist):
 
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
-             orientation='vertical', rwidth=None, log=False, 
+             orientation='vertical', rwidth=None, log=False,
              **kwargs):
         """
         call signature::
@@ -6896,6 +6910,7 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/pylab_examples/csd_demo.py
 
         .. seealso:
+
             :meth:`psd`
                 For a description of the optional parameters.
         """
@@ -7093,7 +7108,9 @@ class Axes(martist.Artist):
         * *alpha*
 
         .. seealso::
+
             :func:`~matplotlib.pyplot.imshow`
+               For image options.
 
         For controlling colors, e.g. cyan background and red marks,
         use::
@@ -7114,7 +7131,9 @@ class Axes(martist.Artist):
         * ','  pixel
 
         .. seealso::
+
             :func:`~matplotlib.pyplot.plot`
+               For plotting options
         """
         if precision is None:
             precision = 0
