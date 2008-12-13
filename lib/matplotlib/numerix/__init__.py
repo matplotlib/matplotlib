@@ -20,7 +20,6 @@ import sys, os, struct
 from matplotlib import rcParams, verbose
 
 which = None, None
-use_maskedarray = None
 
 # First, see if --numarray or --Numeric was specified on the command
 # line:
@@ -31,10 +30,6 @@ for a in sys.argv:
              "--NumPy", "--numpy", "--NUMPY", "--Numpy",
              ]:
         which = a[2:], "command line"
-    if a == "--maskedarray":
-        use_maskedarray = True
-    if a == "--ma":
-        use_maskedarray = False
 
 try: del a
 except NameError: pass
@@ -45,11 +40,6 @@ if which[0] is None:
     except KeyError:
         pass
 
-if use_maskedarray is None:
-    try:
-        use_maskedarray = rcParams['maskedarray']
-    except KeyError:
-        use_maskedarray = False
 
 # If all the above fail, default to Numeric. Most likely not used.
 if which[0] is None:

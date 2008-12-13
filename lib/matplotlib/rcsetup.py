@@ -118,6 +118,16 @@ def validate_autolayout(v):
     if v:
         warnings.warn("figure.autolayout is not currently supported")
 
+def validate_maskedarray(v):
+    # 2008/12/12: start warning; later, remove all traces of maskedarray
+    try:
+        if v == 'obsolete':
+            return v
+    except ValueError:
+        pass
+    warnings.warn('rcParams key "maskedarray" is obsolete and has no effect;\n'
+                  ' please delete it from your matplotlibrc file')
+
 class validate_nseq_float:
     def __init__(self, n):
         self.n = n
@@ -311,7 +321,7 @@ defaultParams = {
     'backend'           : ['Agg', validate_backend], # agg is certainly present
     'backend_fallback'  : [True, validate_bool], # agg is certainly present
     'numerix'           : ['numpy', validate_numerix],
-    'maskedarray'       : [False, validate_bool],
+    'maskedarray'       : ['obsolete', validate_maskedarray], #to be removed
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [None, validate_path_exists],   # handled by _get_data_path_cached
     'units'             : [False, validate_bool],

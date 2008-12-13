@@ -296,7 +296,6 @@ class ValidateInterval:
 defaultParams = {
     'backend'           : ['WXAgg', validate_backend],
     'numerix'           : ['numpy', validate_numerix],
-    'maskedarray'       : [False, validate_bool],
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [None, validate_path_exists],   # handled by _get_data_path_cached
     'units'             : [False, validate_bool],
