@@ -42,7 +42,12 @@ Packaging
 * unpack the sdist and make sure you can build from that directory
 
 * Use :file:`setup.cfg` to set the default backends.  For windows and
-  OSX, the default backend should be TkAgg.
+  OSX, the default backend should be TkAgg.  You should also turn on
+  or off any platform specific build options you need.  Importantly,
+  you also need to make sure that you delete the :file:`build` dir
+  after any changes to file:`setup.cfg` before rebuilding since cruft
+  in the :file:`build` dir can get carried along.  I will add this to
+  the devel release notes,
 
 * on windows, unix2dos the rc file
 
