@@ -299,5 +299,8 @@ Here is an example illustrating many of these features in context.
 .. plot:: pyplots/pyplot_mathtext.py
    :include-source:
 
+.. plot:: mpl_examples/pylab_examples/mathtext_examples.py
+
+
 
 

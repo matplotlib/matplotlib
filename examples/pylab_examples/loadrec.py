@@ -11,6 +11,6 @@ ax.plot(a.date, a.adj_close, '-')
 fig.autofmt_xdate()
 
 # if you have pyExcelerator installed, you can output excel
-#import mpl_toolkits.exceltools as exceltools
-#exceltools.rec2excel(a, 'test.xls', colnum=4)
+import mpl_toolkits.exceltools as exceltools
+exceltools.rec2excel(a, 'test.xls')
 show()
