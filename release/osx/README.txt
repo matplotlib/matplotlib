@@ -21,6 +21,13 @@ Dir Contents
 How to build
 --------------
 
+* You need to make sure to unset PKG_CONFIG_PATH to make sure the
+  static linking below is respected.  Otherwise the mpl build script
+  will dynamically link using the libs from pkgconfig if you have this
+  configured on your box::
+
+      unset PKG_CONFIG_PATH
+
 * OPTIONAL: edit :file:`Makefile` so that the *VERSION variables point
   to the latest zlib, png, freetype
 
