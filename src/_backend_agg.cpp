@@ -355,7 +355,7 @@ RendererAgg::_get_rgba_face(const Py::Object& rgbFace, double alpha) {
 }
 
 template<class Path>
-bool should_snap(const GCAgg& gc, Path& path, const agg::trans_affine& trans) {
+bool should_snap(GCAgg& gc, Path& path, const agg::trans_affine& trans) {
   // If this contains only straight horizontal or vertical lines, it should be
   // quantized to the nearest pixels
   double x0, y0, x1, y1;
@@ -393,6 +393,7 @@ bool should_snap(const GCAgg& gc, Path& path, const agg::trans_affine& trans) {
     }
 
     path.rewind(0);
+    gc.isaa = false;
     return true;
   case GCAgg::SNAP_FALSE:
     return false;
