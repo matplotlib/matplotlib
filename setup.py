@@ -6,6 +6,11 @@ are using a package manager like RPM or debian.
 The matplotlib build options can be modified with a setup.cfg file. See
 setup.cfg.template for more information.
 """
+# distutils is breaking our sdists for files in symlinked dirs.
+# distutils will copy if os.link is not available, so this is a hack
+# to force copying
+import os
+del os.link
 
 # This dict will be updated as we try to select the best option during
 # the build process. However, values in setup.cfg will be used, if
