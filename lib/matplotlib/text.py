@@ -248,8 +248,9 @@ class Text(Artist):
 
         baseline = None
         for i, line in enumerate(lines):
+            clean_line, ismath = self.is_math_text(line)
             w, h, d = renderer.get_text_width_height_descent(
-                line, self._fontproperties, ismath=self.is_math_text(line))
+                clean_line, self._fontproperties, ismath=ismath)
             if baseline is None:
                 baseline = h - d
             whs[i] = w, h
@@ -480,8 +481,9 @@ class Text(Artist):
                 y = y + posy
                 if renderer.flipy():
                     y = canvash-y
+                clean_line, ismath = self.is_math_text(line)
 
-                renderer.draw_tex(gc, x, y, line,
+                renderer.draw_tex(gc, x, y, clean_line,
                                   self._fontproperties, angle)
             return
 
@@ -490,10 +492,11 @@ class Text(Artist):
             y = y + posy
             if renderer.flipy():
                 y = canvash-y
+            clean_line, ismath = self.is_math_text(line)
 
-            renderer.draw_text(gc, x, y, line,
+            renderer.draw_text(gc, x, y, clean_line,
                                self._fontproperties, angle,
-                               ismath=self.is_math_text(line))
+                               ismath=ismath)
 
     def get_color(self):
         "Return the color of the text"
@@ -873,15 +876,18 @@ class Text(Artist):
         """
         Returns True if the given string *s* contains any mathtext.
         """
-        if rcParams['text.usetex']: return 'TeX'
-
         # Did we find an even number of non-escaped dollar signs?
         # If so, treat is as math text.
         dollar_count = s.count(r'$') - s.count(r'\$')
-        if dollar_count > 0 and dollar_count % 2 == 0:
-            return True
+        even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
 
-        return False
+        if rcParams['text.usetex']:
+            return s, 'TeX'
+
+        if even_dollars:
+            return s, True
+        else:
+            return s.replace(r'\$', '$'), False
 
     def set_fontproperties(self, fp):
         """
