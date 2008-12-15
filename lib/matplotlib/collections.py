@@ -231,7 +231,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_pickradius(self): return self.pickradius
 
     def set_urls(self, urls):
-	if urls is None:
+        if urls is None:
             self._urls = [None,]
         else:
             self._urls = urls
@@ -365,11 +365,19 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Set the facecolor(s) of the collection.  *c* can be a
         matplotlib color arg (all patches have same color), or a
-        sequence or rgba tuples; if it is a sequence the patches will
-        cycle through the sequence
+        sequence of rgba tuples; if it is a sequence the patches will
+        cycle through the sequence.
+
+        If *c* is 'none', the patch will not be filled.
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
+        self._is_filled = True
+        try:
+            if c.lower() == 'none':
+                self._is_filled = False
+        except AttributeError:
+            pass
         if c is None: c = mpl.rcParams['patch.facecolor']
         self._facecolors_original = c
         self._facecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
@@ -393,14 +401,21 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         Set the edgecolor(s) of the collection. *c* can be a
         matplotlib color arg (all patches have same color), or a
-        sequence or rgba tuples; if it is a sequence the patches will
+        sequence of rgba tuples; if it is a sequence the patches will
         cycle through the sequence.
 
         If *c* is 'face', the edge color will always be the same as
-        the face color.
+        the face color.  If it is 'none', the patch boundary will not
+        be drawn.
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
+        self._is_stroked = True
+        try:
+            if c.lower() == 'none':
+                self._is_stroked = False
+        except AttributeError:
+            pass
         if c == 'face':
             self._edgecolors = 'face'
             self._edgecolors_original = 'face'
@@ -408,6 +423,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             if c is None: c = mpl.rcParams['patch.edgecolor']
             self._edgecolors_original = c
             self._edgecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
+
 
     def set_edgecolors(self, c):
         """alias for set_edgecolor"""
@@ -452,9 +468,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if self._A is None: return
         if self._A.ndim > 1:
             raise ValueError('Collections can only map rank 1 arrays')
-        if len(self._facecolors):
+        if self._is_filled:
             self._facecolors = self.to_rgba(self._A, self._alpha)
-        else:
+        elif self._is_stroked:
             self._edgecolors = self.to_rgba(self._A, self._alpha)
 
     def update_from(self, other):
@@ -887,6 +903,7 @@ class LineCollection(Collection):
         Collection.__init__(
             self,
             edgecolors=colors,
+            facecolors='none',
             linewidths=linewidths,
             linestyles=linestyles,
             antialiaseds=antialiaseds,
@@ -897,7 +914,6 @@ class LineCollection(Collection):
             pickradius=pickradius,
             **kwargs)
 
-        self.set_facecolors([])
         self.set_segments(segments)
 
     def get_paths(self):
