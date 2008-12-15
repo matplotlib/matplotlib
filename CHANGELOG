@@ -1,3 +1,6 @@
+2008-12-15 Fix \$ in non-math text with usetex off.  Document
+differences between usetex on/off - MGD
+
 2008-12-15 Fix anti-aliasing when auto-snapping - MGD
 
 2008-12-15 Fix grid lines not moving correctly during pan and zoom - MGD
