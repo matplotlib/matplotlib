@@ -3174,7 +3174,7 @@ class Axes(martist.Artist):
         Return value is a list of lines that were added.
 
         The following format string characters are accepted to control
-        the line style or marker
+        the line style or marker:
 
         ================    ===============================
         character           description
@@ -3208,7 +3208,7 @@ class Axes(martist.Artist):
         ================    ===============================
 
 
-        The following color abbreviations are supported::
+        The following color abbreviations are supported:
 
         ==========  ========
         character   color
@@ -5593,7 +5593,7 @@ class Axes(martist.Artist):
 
         %(PolyCollection)s
 
-        .. plot:: mpl_examples/pylab_examples/fill_between.py        
+        .. plot:: mpl_examples/pylab_examples/fill_between.py
         """
         # Handle united data, such as dates
         self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
