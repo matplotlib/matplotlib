@@ -1,3 +1,5 @@
+2008-12-15 Fix grid lines not moving correctly during pan and zoom - MGD
+
 2008-12-12 Fixed warning in hist() with numpy 1.2 - MM
 
 =================================================================
