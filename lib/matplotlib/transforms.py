@@ -120,8 +120,7 @@ class TransformNode(object):
             root = stack.pop()
             # Stop at subtrees that have already been invalidated
             if root._invalid != value or root.pass_through:
-                value |= root._invalid
-                root._invalid = value
+                root._invalid = self.INVALID
                 stack.extend(root._parents.keys())
 
     def set_children(self, *children):
