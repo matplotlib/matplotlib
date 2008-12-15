@@ -3182,7 +3182,7 @@ class Axes(martist.Artist):
         Return value is a list of lines that were added.
 
         The following format string characters are accepted to control
-        the line style or marker
+        the line style or marker:
 
         ================    ===============================
         character           description
@@ -3216,7 +3216,7 @@ class Axes(martist.Artist):
         ================    ===============================
 
 
-        The following color abbreviations are supported::
+        The following color abbreviations are supported:
 
         ==========  ========
         character   color
