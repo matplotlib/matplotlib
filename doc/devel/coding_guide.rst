@@ -1,4 +1,4 @@
-.. _coding-guide:
+M.. _coding-guide:
 
 ************
 Coding guide
@@ -29,10 +29,10 @@ Branch checkouts, eg the maintenance branch::
    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/\
    v0_91_maint mpl91 --username=youruser --password=yourpass
 
-The current release of the trunk is in the 0.98.4 maintenance branch::
+The current release of the trunk is in the 0.98.5 maintenance branch::
 
    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/\
-   v0_98_4_maint mpl98.4 --username=youruser --password=yourpass
+   v0_98_5_maint mpl98.5 --username=youruser --password=yourpass
 
 
 Committing changes
@@ -117,6 +117,9 @@ The basic procedure is:
   messages, so you are ready to make the commit::
 
      > svn commit -F svnmerge-commit-message.txt
+
+
+.. _setting-up-svnmerge:
 
 Setting up svnmerge
 ~~~~~~~~~~~~~~~~~~~
