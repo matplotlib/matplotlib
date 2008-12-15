@@ -59,6 +59,14 @@ Note that display math mode (``$$ e=mc^2 $$``) is  not supported, but adding the
 command ``\displaystyle``, as in `tex_demo.py`, will produce the same
 results.
 
+.. note::
+   Certain characters require special escaping in TeX, such as::
+
+     # $ % & ~ _ ^ \ { } \( \) \[ \]
+
+   Therefore, these characters will behave differently depending on
+   the rcParam ``text.usetex`` flag.
+
 .. _usetex-unicode:
 
 usetex with unicode
