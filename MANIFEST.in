@@ -1,8 +1,8 @@
-include API_CHANGES CHANGELOG KNOWN_BUGS INSTALL NUMARRAY_ISSUES
+include CHANGELOG KNOWN_BUGS INSTALL
 include INTERACTIVE TODO
 include Makefile  MANIFEST.in MANIFEST
 include matplotlibrc.template matplotlibrc setup.cfg.template
-include __init__.py setupext.py setup.py setupegg.py makeswig.py
+include __init__.py setupext.py setup.py setupegg.py
 include examples/data/*
 include lib/mpl_toolkits
 include lib/matplotlib/mpl-data/matplotlib.conf
@@ -20,5 +20,4 @@ recursive-include src  *.cpp *.c *.h
 recursive-include CXX  *.cxx *.hxx *.c *.h
 recursive-include agg24 *
 recursive-include lib *
-recursive-include swig *
 recursive-include ttconv *.cpp *.h
