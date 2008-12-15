@@ -1,7 +1,7 @@
 include CHANGELOG KNOWN_BUGS INSTALL
 include INTERACTIVE TODO
 include Makefile  MANIFEST.in MANIFEST
-include matplotlibrc.template matplotlibrc setup.cfg.template
+include matplotlibrc.template setup.cfg.template
 include __init__.py setupext.py setup.py setupegg.py
 include examples/data/*
 include lib/mpl_toolkits
