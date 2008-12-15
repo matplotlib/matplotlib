@@ -49,6 +49,7 @@ binaries and source distributions for testing as release candidates.
 Packaging
 =========
 
+
 * Make sure the :file:`MANIFEST.in` us up to date and remove
   :file:`MANIFEST` so it will be rebuilt by MANIFEST.in
 
@@ -68,11 +69,9 @@ Packaging
 
 * on windows, unix2dos the rc file
 
-* make a branch of the svn revision that is released, in case we need
-  to do a bug fix release.  Eg, from the top level of the mpl svn
-  tree, the one which has "branches", "tags" and "trunk", do::
+* We have a Makefile for the OS X builds in the mpl source dir
+  :file:`release/osx`, so use this to prepare the OS X releases.
 
-      > svn copy trunk/matplotlib branches/v0_98_4_maint
 
 
 .. _release-candidate-testing:
