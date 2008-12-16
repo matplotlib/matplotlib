@@ -10,7 +10,10 @@ setup.cfg.template for more information.
 # distutils will copy if os.link is not available, so this is a hack
 # to force copying
 import os
-del os.link
+try:
+    del os.link
+except AttributeError:
+    pass
 
 # This dict will be updated as we try to select the best option during
 # the build process. However, values in setup.cfg will be used, if
