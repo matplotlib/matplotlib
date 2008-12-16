@@ -213,7 +213,7 @@ class FixedFormatter(Formatter):
     'Return fixed strings for tick labels'
     def __init__(self, seq):
         """
-        seq is a sequence of strings.  For positions ``i<len(seq)` return
+        seq is a sequence of strings.  For positions `i<len(seq)` return
         *seq[i]* regardless of *x*.  Otherwise return ''
         """
         self.seq = seq

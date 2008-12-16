@@ -6,8 +6,6 @@ except ImportError:
 
 from docutils import nodes
 from docutils.parsers.rst import directives
-from docutils.writers.html4css1 import HTMLTranslator
-from sphinx.latexwriter import LaTeXTranslator
 import warnings
 
 # Define LaTeX math node:
@@ -69,8 +67,6 @@ def setup(app):
         self.body.append(latex2html(node, source))
     def depart_latex_math_html(self, node):
             pass
-    HTMLTranslator.visit_latex_math = visit_latex_math_html
-    HTMLTranslator.depart_latex_math = depart_latex_math_html
 
     # Add visit/depart methods to LaTeX-Translator:
     def visit_latex_math_latex(self, node):
@@ -83,8 +79,13 @@ def setup(app):
                               '\\end{equation}'])
     def depart_latex_math_latex(self, node):
             pass
-    LaTeXTranslator.visit_latex_math = visit_latex_math_latex
-    LaTeXTranslator.depart_latex_math = depart_latex_math_latex
+
+    app.add_node(latex_math, html=(visit_latex_math_html,
+                                   depart_latex_math_html))
+    app.add_node(latex_math, latex=(visit_latex_math_latex,
+                                    depart_latex_math_latex))
+    app.add_role('math', math_role)
+
 
 from matplotlib import rcParams
 from matplotlib.mathtext import MathTextParser
