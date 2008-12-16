@@ -2,17 +2,21 @@ SRCDIR=${PWD}
 ZLIBVERSION=1.2.3
 PNGVERSION=1.2.33
 FREETYPEVERSION=2.3.7
-MPLVERSION=0.98.5
-MPLSRC=matplotlib-0.98.5
+MPLVERSION=0.98.5.1
+MPLSRC=matplotlib-${MPLVERSION}
 MACOSX_DEPLOYMENT_TARGET=10.4
 
 ## You shouldn't need to configure past this point
-CFLAGS="-Os -arch ppc -arch i386 -I${SRCDIR}/zlib-1.2.3 -I${SRCDIR}/libpng-1.2.33 -I${SRCDIR}/freetype-2.3.7/include"
 
-LDFLAGS="-arch ppc -arch i386 -L${SRCDIR}/zlib-1.2.3 -L${SRCDIR}/libpng-1.2.33 -L${SRCDIR}/freetype-2.3.7"
+CFLAGS="-Os -arch ppc -arch i386 -I${SRCDIR}/zlib-${ZLIBVERSION} -I${SRCDIR}/libpng-${PNGVERSION} -I${SRCDIR}/freetype-${FREETYPEVERSION}/include"
 
-CFLAGS_DEPS="-arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk"
-LDFLAGS_DEPS="-arch i386 -arch ppc -syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"
+LDFLAGS="-arch ppc -arch i386 -L${SRCDIR}/zlib-${ZLIBVERSION} -L${SRCDIR}/libpng-${PNGVERSION} -L${SRCDIR}/freetype-${FREETYPEVERSION}"
+
+CFLAGS_ZLIB="-arch i386 -arch ppc -isysroot /Developer/SDKs/MacOSX10.4u.sdk"
+LDFLAGS_ZLIB="-arch i386 -arch ppc -syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"
+
+CFLAGS_DEPS="-arch i386 -arch ppc -I${SRCDIR}/zlib-${ZLIBVERSION} -isysroot /Developer/SDKs/MacOSX10.4u.sdk"
+LDFLAGS_DEPS="-arch i386 -arch ppc -L${SRCDIR}/zlib-${ZLIBVERSION} -syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"
 
 clean:
 	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.bz2 \
@@ -33,37 +37,62 @@ fetch_deps:
 
 
 zlib:
+	unset PKG_CONFIG_PATH &&\
 	rm -rf zlib-${ZLIBVERSION} &&\
 	tar xvfz zlib-${ZLIBVERSION}.tar.gz &&\
 	cd zlib-${ZLIBVERSION} &&\
+	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
+	export CFLAGS=${CFLAGS_DEPS} &&\
+	export LDFLAGS=${LDFLAGS_DEPS} &&\
 	./configure &&\
-	MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} CFLAGS=${CFLAGS_DEPS} LDFLAGS=${LDFLAGS_DEPS} make -j3
+	MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} CFLAGS=${CFLAGS_ZLIB} LDFLAGS=${LDFLAGS_ZLIB} make -j3&& \
+	unset MACOSX_DEPLOYMENT_TARGET
 
 png: zlib
+	unset PKG_CONFIG_PATH &&\
 	rm -rf libpng-${PNGVERSION} &&\
 	tar xvfj libpng-${PNGVERSION}.tar.bz2
 	cd libpng-${PNGVERSION} &&\
+	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
+	export CFLAGS=${CFLAGS_DEPS} &&\
+	export LDFLAGS=${LDFLAGS_DEPS} &&\
 	./configure  --disable-dependency-tracking &&\
-	MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} CFLAGS=${CFLAGS_DEPS} LDFLAGS=${LDFLAGS_DEPS} make -j3 &&\
-	cp .libs/libpng.a .
+	make -j3 &&\
+	cp .libs/libpng.a . &&\
+	unset MACOSX_DEPLOYMENT_TARGET
+
 
 freetype: zlib
+	unset PKG_CONFIG_PATH &&\
 	rm -rf ${FREETYPEVERSION} &&\
 	tar xvfj freetype-${FREETYPEVERSION}.tar.bz2 &&\
 	cd freetype-${FREETYPEVERSION} &&\
+	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
+	export CFLAGS=${CFLAGS_DEPS} &&\
+	export LDFLAGS=${LDFLAGS_DEPS} &&\
 	./configure &&\
-	MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} CFLAGS=${CFLAGS_DEPS} LDFLAGS=${LDFLAGS_DEPS} make -j3 &&\
-	cp objs/.libs/libfreetype.a .
+	make -j3 &&\
+	cp objs/.libs/libfreetype.a .  &&\
+	unset MACOSX_DEPLOYMENT_TARGET
 
 dependencies:
 	make zlib png freetype
 
 installers:
+	unset PKG_CONFIG_PATH &&\
 	tar xvfz matplotlib-${MPLVERSION}.tar.gz && \
 	cd ${MPLSRC} && \
 	rm -rf build && \
 	cp ../data/setup.cfg . &&\
-	CFLAGS=${CFLAGS} LDFLAGS=${LDFLAGS} bdist_mpkg &&\
-	CFLAGS=${CFLAGS} LDFLAGS=${LDFLAGS} python setupegg.py bdist_egg
+	export CFLAGS=${CFLAGS} &&\
+	export LDFLAGS=${LDFLAGS} &&\
+	bdist_mpkg &&\
+	python setupegg.py bdist_egg &&\
+	cd dist && \
+	zip -ro matplotlib-${MPLVERSION}-py2.5-macosx10.5.zip matplotlib-${MPLVERSION}-py2.5-macosx10.5.mpkg
+
+all:
+	make clean fetch_deps dependencies installers
+
 
 
