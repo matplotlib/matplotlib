@@ -117,6 +117,7 @@ markeredgecolor or mec	any matplotlib color
 markeredgewidth or mew	float value in points
 markerfacecolor or mfc	any matplotlib color
 markersize or ms	float
+markevery               None | integer | (startind, stride)
 picker			used in interactive line selection
 pickradius		the line pick selection radius
 solid_capstyle		['butt' | 'round' |  'projecting']

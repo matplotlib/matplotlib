@@ -177,6 +177,7 @@ class Line2D(Artist):
                  solid_joinstyle = None,
                  pickradius      = 5,
                  drawstyle       = None,
+                 markevery       = None,
                  **kwargs
                  ):
         """
@@ -226,6 +227,7 @@ class Line2D(Artist):
         self.set_linewidth(linewidth)
         self.set_color(color)
         self.set_marker(marker)
+        self.set_markevery(markevery)
         self.set_antialiased(antialiased)
         self.set_markersize(markersize)
         self._dashSeq = None
@@ -319,6 +321,32 @@ class Line2D(Artist):
         ACCEPTS: float distance in points
         """
         self.pickradius = d
+
+
+    def set_markevery(self, every):
+        """
+        Set the markevery property to subsample the plot when using
+        markers.  Eg if ``markevery=5``, every 5-th marker will be
+        plotted.  *every* can be
+
+        None
+            Every point will be plotted
+
+        an integer N
+            Every N-th marker will be plotted starting with marker 0
+
+        A length-2 tuple of integers
+            every=(start, N) will start at point start and plot every N-th marker
+
+
+        ACCEPTS: None | integer | (startind, stride)
+
+        """
+        self._markevery = every
+
+    def get_markevery(self):
+        'return the markevery setting'
+        return self._markevery
 
     def set_picker(self,p):
         """Sets the event picker details for the line.
@@ -472,6 +500,19 @@ class Line2D(Artist):
             funcname = self._markers.get(self._marker, '_draw_nothing')
             if funcname != '_draw_nothing':
                 tpath, affine = self._transformed_path.get_transformed_points_and_affine()
+
+                # subsample the markers if markevery is not None
+                markevery = self.get_markevery()
+                if markevery is not None:
+                    if iterable(markevery):
+                        startind, stride = markevery
+                    else:
+                        startind, stride = 0, markevery
+                        if tpath.codes is not None:
+                            tpath.codes = tpath.codes[startind::stride]
+                        tpath.vertices = tpath.vertices[startind::stride]
+
+
                 markerFunc = getattr(self, funcname)
                 markerFunc(renderer, gc, tpath, affine.frozen())
 
