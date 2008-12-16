@@ -11,7 +11,7 @@ from pylab import title, colorbar, show, axes, cm, load, arange, figure, \
 # read in topo data (on a regular lat/lon grid)
 # longitudes go from 20 to 380.
 # you can get this data from matplolib svn matplotlib/htdocs/screenshots/data/
-datadir = '/home/jdhunter/python/svn/matplotlib/htdocs/screenshots/data/'
+datadir = '/home/jdhunter/python/svn/matplotlib/trunk/htdocs/screenshots/data/'
 if not os.path.exists(datadir):
     raise SystemExit('You need to download the data with svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/htdocs/screenshots/data/" and set the datadir variable in %s'%__file__)
 

@@ -720,7 +720,7 @@ class BrokenBarHCollection(PolyCollection):
         over the regions in *x* where *where* is True.  The bars range
         on the y-axis from *ymin* to *ymax*
 
-        A :class:`BrokenBarHCollection` is returned.  kwargs are
+        A :class:`BrokenBarHCollection` is returned.  *kwargs* are
         passed on to the collection.
         """
         xranges = []

@@ -271,25 +271,40 @@ Referring to mpl documents
 ==========================
 
 In the documentation, you may want to include to a document in the
-matplotlib src, e.g. a license file, an image file from `mpl-data`, or an
-example.  When you include these files, include them using a symbolic
-link from the documentation parent directory.  This way, if we
-relocate the mpl documentation directory, all of the internal pointers
-to files will not have to change, just the top level symlinks.  For
-example, In the top level doc directory we have symlinks pointing to
-the mpl `examples` and `mpl-data`::
+matplotlib src, e.g. a license file or an image file from `mpl-data`,
+refer to it via a relative path from the document where the rst file
+resides, eg, in :file:`users/navigation_toolbar.rst`, we refer to the
+image icons with::
 
-    home:~/mpl/doc2> ls -l mpl_*
-    mpl_data -> ../lib/matplotlib/mpl-data
-    mpl_examples -> ../examples
-
+    .. image:: ../../lib/matplotlib/mpl-data/images/subplots.png
 
 In the `users` subdirectory, if I want to refer to a file in the mpl-data
 directory, I use the symlink directory.  For example, from
 `customizing.rst`::
 
-   .. literalinclude:: ../mpl_data/matplotlibrc
+    .. literalinclude:: ../../lib/matplotlib/mpl-data/matplotlibrc
 
+On exception to this is when referring to the examples dir.  Relative
+paths are extremely confusing in the sphinx plot extensions, so
+without getting into the dirty details, it is easier to simply include
+a symlink to the files at the top doc level directory.  This way, API
+documents like :meth:`matplotlib.pyplot.plot` can refer to the
+examples in a known location.
+
+In the top level doc directory we have symlinks pointing to
+the mpl `examples`::
+
+    home:~/mpl/doc> ls -l mpl_*
+    mpl_examples -> ../examples
+
+So we can include plots from the examples dir using the symlink::
+
+    .. plot:: mpl_examples/pylab_examples/simple_plot.py
+
+
+We used to use a symlink for :file:`mpl-data` too, but the distro
+becomes very large on platforms that do not support links (eg the font
+files are duplicated and large)
 
 .. _internal-section-refs:
 

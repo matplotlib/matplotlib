@@ -1,3 +1,10 @@
+2008-12-15 Removed mpl_data symlink in docs.  On platforms that do not
+           support symlinks, these become copies, and the font files
+           are large, so the distro becomes unneccessarily bloaded.
+           Keeping the mpl_examples dir because relative links are
+           harder for the plot directive and the *.py files are not so
+           large. - JDH
+
 2008-12-15 Fix \$ in non-math text with usetex off.  Document
            differences between usetex on/off - MGD
 
