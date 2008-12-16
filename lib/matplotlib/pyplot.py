@@ -604,7 +604,7 @@ def subplot(*args, **kwargs):
 
       *axisbg*:
         The background color of the subplot, which can be any valid
-        color specifier.  See :module:`matplotlib.colors` for more
+        color specifier.  See :mod:`matplotlib.colors` for more
         information.
 
       *polar*:
@@ -1149,62 +1149,62 @@ def plotting():
     """
     Plotting commands
 
-    ============== =================================================
-    Command        Description
-    ============== =================================================
-    axes           Create a new axes
-    axis           Set or return the current axis limits
-    bar            make a bar chart
-    boxplot        make a box and whiskers chart
-    cla            clear current axes
-    clabel         label a contour plot
-    clf            clear a figure window
-    close          close a figure window
-    colorbar       add a colorbar to the current figure
-    cohere         make a plot of coherence
-    contour        make a contour plot
-    contourf       make a filled contour plot
-    csd            make a plot of cross spectral density
-    draw           force a redraw of the current figure
-    errorbar       make an errorbar graph
-    figlegend      add a legend to the figure
-    figimage       add an image to the figure, w/o resampling
-    figtext        add text in figure coords
-    figure         create or change active figure
-    fill           make filled polygons
-    fill_between   make filled polygons
-    gca            return the current axes
-    gcf            return the current figure
-    gci            get the current image, or None
-    getp           get a handle graphics property
-    hist           make a histogram
-    hold           set the hold state on current axes
-    legend         add a legend to the axes
-    loglog         a log log plot
-    imread         load image file into array
-    imshow         plot image data
-    matshow        display a matrix in a new figure preserving aspect
-    pcolor         make a pseudocolor plot
-    plot           make a line plot
-    plotfile       plot data from a flat file
-    psd            make a plot of power spectral density
-    quiver         make a direction field (arrows) plot
-    rc             control the default params
-    savefig        save the current figure
-    scatter        make a scatter plot
-    setp           set a handle graphics property
-    semilogx       log x axis
-    semilogy       log y axis
-    show           show the figures
-    specgram       a spectrogram plot
-    stem           make a stem plot
-    subplot        make a subplot (numrows, numcols, axesnum)
-    table          add a table to the axes
-    text           add some text at location x,y to the current axes
-    title          add a title to the current axes
-    xlabel         add an xlabel to the current axes
-    ylabel         add a ylabel to the current axes
-    ============== =================================================
+    ============    =================================================
+    Command         Description
+    =========       =================================================
+    axes            Create a new axes
+    axis            Set or return the current axis limits
+    bar             make a bar chart
+    boxplot         make a box and whiskers chart
+    cla             clear current axes
+    clabel          label a contour plot
+    clf             clear a figure window
+    close           close a figure window
+    colorbar        add a colorbar to the current figure
+    cohere          make a plot of coherence
+    contour         make a contour plot
+    contourf        make a filled contour plot
+    csd             make a plot of cross spectral density
+    draw            force a redraw of the current figure
+    errorbar        make an errorbar graph
+    figlegend       add a legend to the figure
+    figimage        add an image to the figure, w/o resampling
+    figtext         add text in figure coords
+    figure          create or change active figure
+    fill            make filled polygons
+    fill_between    make filled polygons
+    gca             return the current axes
+    gcf             return the current figure
+    gci             get the current image, or None
+    getp            get a handle graphics property
+    hist            make a histogram
+    hold            set the hold state on current axes
+    legend          add a legend to the axes
+    loglog          a log log plot
+    imread          load image file into array
+    imshow          plot image data
+    matshow         display a matrix in a new figure preserving aspect
+    pcolor          make a pseudocolor plot
+    plot            make a line plot
+    plotfile        plot data from a flat file
+    psd             make a plot of power spectral density
+    quiver          make a direction field (arrows) plot
+    rc              control the default params
+    savefig         save the current figure
+    scatter         make a scatter plot
+    setp            set a handle graphics property
+    semilogx        log x axis
+    semilogy        log y axis
+    show            show the figures
+    specgram        a spectrogram plot
+    stem            make a stem plot
+    subplot         make a subplot (numrows, numcols, axesnum)
+    table           add a table to the axes
+    text            add some text at location x,y to the current axes
+    title           add a title to the current axes
+    xlabel          add an xlabel to the current axes
+    ylabel          add a ylabel to the current axes
+    ============    =================================================
 
     The following commands will set the default colormap accordingly:
 

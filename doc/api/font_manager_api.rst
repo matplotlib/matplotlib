@@ -11,7 +11,7 @@ matplotlib font_manager
    :show-inheritance:
 
 :mod:`matplotlib.fontconfig_pattern`
-====================================
+========================================
 
 .. automodule:: matplotlib.fontconfig_pattern
    :members:

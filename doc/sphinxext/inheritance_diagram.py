@@ -39,8 +39,6 @@ except ImportError:
     from md5 import md5
 
 from docutils.nodes import Body, Element
-from docutils.writers.html4css1 import HTMLTranslator
-from sphinx.latexwriter import LaTeXTranslator
 from docutils.parsers.rst import directives
 from sphinx.roles import xfileref_role
 
@@ -409,12 +407,9 @@ else:
                                   inheritance_diagram_directive)
 
 def setup(app):
-    app.add_node(inheritance_diagram)
-
-    HTMLTranslator.visit_inheritance_diagram = \
-        visit_inheritance_diagram(html_output_graph)
-    HTMLTranslator.depart_inheritance_diagram = do_nothing
-
-    LaTeXTranslator.visit_inheritance_diagram = \
-        visit_inheritance_diagram(latex_output_graph)
-    LaTeXTranslator.depart_inheritance_diagram = do_nothing
+    app.add_node(inheritance_diagram,
+                 html=(visit_inheritance_diagram(html_output_graph),
+                       do_nothing))
+    app.add_node(inheritance_diagram,
+                 latex=(visit_inheritance_diagram(latex_output_graph),
+                        do_nothing))

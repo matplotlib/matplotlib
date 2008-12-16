@@ -41,7 +41,7 @@ def html():
     check_build()
     if not os.path.exists('examples/index.rst'):
         examples()
-    shutil.copy('mpl_data/matplotlibrc', '_static/matplotlibrc')
+    shutil.copy('../lib/matplotlib/mpl-data/matplotlibrc', '_static/matplotlibrc')
     #figs()
     if os.system('sphinx-build -b html -d build/doctrees . build/html'):
         raise SystemExit("Building HTML failed.")

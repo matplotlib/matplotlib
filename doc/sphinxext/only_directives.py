@@ -4,8 +4,6 @@
 #
 
 from docutils.nodes import Body, Element
-from docutils.writers.html4css1 import HTMLTranslator
-from sphinx.latexwriter import LaTeXTranslator
 from docutils.parsers.rst import directives
 
 class html_only(Body, Element):
@@ -63,9 +61,6 @@ else:
     directives.register_directive('latexonly', LatexOnlyDirective)
 
 def setup(app):
-    app.add_node(html_only)
-    app.add_node(latex_only)
-
     # Add visit/depart methods to HTML-Translator:
     def visit_perform(self, node):
         pass
@@ -76,12 +71,7 @@ def setup(app):
     def depart_ignore(self, node):
         node.children = []
 
-    HTMLTranslator.visit_html_only = visit_perform
-    HTMLTranslator.depart_html_only = depart_perform
-    HTMLTranslator.visit_latex_only = visit_ignore
-    HTMLTranslator.depart_latex_only = depart_ignore
-
-    LaTeXTranslator.visit_html_only = visit_ignore
-    LaTeXTranslator.depart_html_only = depart_ignore
-    LaTeXTranslator.visit_latex_only = visit_perform
-    LaTeXTranslator.depart_latex_only = depart_perform
+    app.add_node(html_only, html=(visit_perform, depart_perform))
+    app.add_node(html_only, latex=(visit_ignore, depart_ignore))
+    app.add_node(latex_only, latex=(visit_perform, depart_perform))
+    app.add_node(latex_only, html=(visit_ignore, depart_ignore))
