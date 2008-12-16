@@ -703,7 +703,7 @@ class BrokenBarHCollection(PolyCollection):
         on the y-axis from *ymin* to *ymax*
 
         A :class:`BrokenBarHCollection` is returned.
-        **kwargs are passed on to the collection
+        *kwargs* are passed on to the collection
         """
         xranges = []
         for ind0, ind1 in mlab.contiguous_regions(where):

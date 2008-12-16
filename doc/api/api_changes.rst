@@ -253,7 +253,7 @@ The :class:`Polar` class has moved to :mod:`matplotlib.projections.polar`.
    `Axes.toggle_log_lineary()` has been removed.
 
 :mod:`matplotlib.artist`
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ============================================================ ============================================================
 Old method                                                   New method
