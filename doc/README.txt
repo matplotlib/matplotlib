@@ -27,9 +27,6 @@ python documentation system built on top of ReST.  This directory contains
 
 * sphinxext - Sphinx extensions for the mpl docs
 
-* mpl_data - a symbolic link to the matplotlib data for reference by
-  sphinx documentation
-
 * mpl_examples - a link to the matplotlib examples in case any
   documentation wants to literal include them
 

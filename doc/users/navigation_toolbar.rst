@@ -9,11 +9,11 @@ All figure windows come with a navigation toolbar, which can be used
 to navigate through the data set.  Here is a description of each of
 the buttons at the bottom of the toolbar
 
-.. image:: ../mpl_data/images/home.png
+.. image:: ../../lib/matplotlib/mpl-data/images/home.png
 
-.. image:: ../mpl_data/images/back.png
+.. image:: ../../lib/matplotlib/mpl-data/images/back.png
 
-.. image:: ../mpl_data/images/forward.png
+.. image:: ../../lib/matplotlib/mpl-data/images/forward.png
 
 The ``Forward`` and ``Back`` buttons
     These are akin to the web browser forward and back buttons.  They
@@ -26,7 +26,7 @@ The ``Forward`` and ``Back`` buttons
     ``Back``, think web browser where data views are web pages.  Use
     the pan and zoom to rectangle to define new views.
 
-.. image:: ../mpl_data/images/move.png
+.. image:: ../../lib/matplotlib/mpl-data/images/move.png
 
 The ``Pan/Zoom`` button
     This button has two modes: pan and zoom.  Click the toolbar button
@@ -50,7 +50,7 @@ The ``Pan/Zoom`` button
     mouse button.  The radius scale can be zoomed in and out using the
     right mouse button.
 
-.. image:: ../mpl_data/images/zoom_to_rect.png
+.. image:: ../../lib/matplotlib/mpl-data/images/zoom_to_rect.png
 
 The ``Zoom-to-rectangle`` button
     Click this toolbar button to activate this mode.  Put your mouse
@@ -61,14 +61,14 @@ The ``Zoom-to-rectangle`` button
     with the right button, which will place your entire axes in the
     region defined by the zoom out rectangle.
 
-.. image:: ../mpl_data/images/subplots.png
+.. image:: ../../lib/matplotlib/mpl-data/images/subplots.png
 
 The ``Subplot-configuration`` button
     Use this tool to configure the parameters of the subplot: the
     left, right, top, bottom, space between the rows and space between
     the columns.
 
-.. image:: ../mpl_data/images/filesave.png
+.. image:: ../../lib/matplotlib/mpl-data/images/filesave.png
 
 The ``Save`` button
     Click this button to launch a file save dialog.  You can save
@@ -84,14 +84,14 @@ Command                            Keyboard Shortcut(s)
 ================================== ==============================================
 Home/Reset                         **h** or **r** or **home**
 Back                               **c** or **left arrow** or **backspace**
-Forward                            **v** or **right arrow** 
-Pan/Zoom                           **p**                                        
-Zoom-to-rect                       **o**                   
-Save                               **s**                   
+Forward                            **v** or **right arrow**
+Pan/Zoom                           **p**
+Zoom-to-rect                       **o**
+Save                               **s**
 Toggle fullscreen                  **f**
 Constrain pan/zoom to x axis       hold **x**
 Constrain pan/zoom to y axis       hold **y**
-Preserve aspect ratio              hold **CONTROL**     
+Preserve aspect ratio              hold **CONTROL**
 Toggle grid                        **g**
 Toggle y axis scale (log/linear)   **l**
 ================================== ==============================================
