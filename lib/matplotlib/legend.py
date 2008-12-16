@@ -207,6 +207,11 @@ fontsize. Values from rcParams will be used if None.
         reps =  int(self.numpoints / len(self._scatteryoffsets)) + 1
         self._scatteryoffsets = np.tile(self._scatteryoffsets, reps)[:self.scatterpoints]
 
+        # handles & labels (which can be iterators) need to be
+        # explicitly converted to list.
+        self._handles_labels = list(handles), list(labels)
+
+
         # _legend_box is an OffsetBox instance that contains all
         # legend items and will be initialized from _init_legend_box()
         # method.
@@ -273,9 +278,9 @@ fontsize. Values from rcParams will be used if None.
 
         self._drawFrame = True
 
-        # populate the legend_box with legend items.
-        self._init_legend_box(handles, labels)
-        self._legend_box.set_figure(self.figure)
+        # init with null renderer
+        #self._init_legend_box(handles, labels, None)
+        #self._legend_box.set_figure(self.figure)
 
 
     def _set_artist_props(self, a):
@@ -294,7 +299,7 @@ fontsize. Values from rcParams will be used if None.
         ox, oy = self._find_best_position(width, height)
         return ox+xdescent, oy+ydescent
 
-    def _findoffset_loc(self, width, height, xdescent, ydescent):
+    def _findoffset_loc(self, width, height, xdescent, ydescent, renderer):
         "Heper function to locate the legend using the location code"
 
         if iterable(self._loc) and len(self._loc)==2:
@@ -304,13 +309,18 @@ fontsize. Values from rcParams will be used if None.
             x, y = bbox.x0 + bbox.width * fx, bbox.y0 + bbox.height * fy
         else:
             bbox = Bbox.from_bounds(0, 0, width, height)
-            x, y = self._get_anchored_bbox(self._loc, bbox, self.parent.bbox)
+            x, y = self._get_anchored_bbox(self._loc, bbox, self.parent.bbox, renderer)
 
         return x+xdescent, y+ydescent
 
     def draw(self, renderer):
         "Draw everything that belongs to the legend"
         if not self.get_visible(): return
+
+        # populate the legend_box with legend items.
+        handles, labels = self._handles_labels
+        self._init_legend_box(handles, labels, renderer)
+        self._legend_box.set_figure(self.figure)
 
         renderer.open_group('legend')
 
@@ -320,12 +330,16 @@ fontsize. Values from rcParams will be used if None.
         if self._loc == 0:
             self._legend_box.set_offset(self._findoffset_best)
         else:
-            self._legend_box.set_offset(self._findoffset_loc)
+            def _findoffset_loc(width, height, xdescent, ydescent):
+                return self._findoffset_loc(width, height, xdescent, ydescent, renderer)
+            self._legend_box.set_offset(_findoffset_loc)
+
+        fontsize = renderer.points_to_pixels(self.fontsize)
 
         # if mode == fill, set the width of the legend_box to the
         # width of the paret (minus pads)
         if self._mode in ["expand"]:
-            pad = 2*(self.borderaxespad+self.borderpad)*self.fontsize
+            pad = 2*(self.borderaxespad+self.borderpad)*fontsize
             self._legend_box.set_width(self.parent.bbox.width-pad)
 
         if self._drawFrame:
@@ -333,6 +347,8 @@ fontsize. Values from rcParams will be used if None.
             bbox = self._legend_box.get_window_extent(renderer)
             self.legendPatch.set_bounds(bbox.x0, bbox.y0,
                                         bbox.width, bbox.height)
+
+            self.legendPatch.set_mutation_scale(fontsize)
 
             if self.shadow:
                 shadow = Shadow(self.legendPatch, 2, -2)
@@ -353,13 +369,18 @@ fontsize. Values from rcParams will be used if None.
         return self.fontsize/72.0*self.figure.dpi
 
 
-    def _init_legend_box(self, handles, labels):
+    def _init_legend_box(self, handles, labels, renderer=None):
         """
         Initiallize the legend_box. The legend_box is an instance of
         the OffsetBox, which is packed with legend handles and
         texts. Once packed, their location is calculated during the
         drawing time.
         """
+
+        if renderer is None:
+            fontsize = self.fontsize
+        else:
+            fontsize = renderer.points_to_pixels(self.fontsize)
 
         # legend_box is a HPacker, horizontally packed with
         # columns. Each column is a VPacker, vertically packed with
@@ -411,13 +432,13 @@ fontsize. Values from rcParams will be used if None.
             if npoints > 1:
                 # we put some pad here to compensate the size of the
                 # marker
-                xdata = np.linspace(0.3*self.fontsize,
-                                    (self.handlelength-0.3)*self.fontsize,
+                xdata = np.linspace(0.3*fontsize,
+                                    (self.handlelength-0.3)*fontsize,
                                     npoints)
                 xdata_marker = xdata
             elif npoints == 1:
-                xdata = np.linspace(0, self.handlelength*self.fontsize, 2)
-                xdata_marker = [0.5*self.handlelength*self.fontsize]
+                xdata = np.linspace(0, self.handlelength*fontsize, 2)
+                xdata_marker = [0.5*self.handlelength*fontsize]
 
             if isinstance(handle, Line2D):
                 ydata = ((height-descent)/2.)*np.ones(xdata.shape, float)
@@ -445,7 +466,7 @@ fontsize. Values from rcParams will be used if None.
 
             elif isinstance(handle, Patch):
                 p = Rectangle(xy=(0., 0.),
-                              width = self.handlelength*self.fontsize,
+                              width = self.handlelength*fontsize,
                               height=(height-descent),
                               )
                 p.update_from(handle)
@@ -499,7 +520,7 @@ fontsize. Values from rcParams will be used if None.
             else:
                 handle_list.append(None)
 
-            handlebox = DrawingArea(width=self.handlelength*self.fontsize,
+            handlebox = DrawingArea(width=self.handlelength*fontsize,
                                     height=height,
                                     xdescent=0., ydescent=descent)
 
@@ -527,7 +548,7 @@ fontsize. Values from rcParams will be used if None.
         for i0, di in largecol+smallcol:
             # pack handleBox and labelBox into itemBox
             itemBoxes = [HPacker(pad=0,
-                                    sep=self.handletextpad*self.fontsize,
+                                    sep=self.handletextpad*fontsize,
                                     children=[h, t], align="baseline")
                          for h, t in handle_label[i0:i0+di]]
             # minimumdescent=False for the text of the last row of the column
@@ -535,7 +556,7 @@ fontsize. Values from rcParams will be used if None.
 
             # pack columnBox
             columnbox.append(VPacker(pad=0,
-                                        sep=self.labelspacing*self.fontsize,
+                                        sep=self.labelspacing*fontsize,
                                         align="baseline",
                                         children=itemBoxes))
 
@@ -544,9 +565,9 @@ fontsize. Values from rcParams will be used if None.
         else:
             mode = "fixed"
 
-        sep = self.columnspacing*self.fontsize
+        sep = self.columnspacing*fontsize
 
-        self._legend_box = HPacker(pad=self.borderpad*self.fontsize,
+        self._legend_box = HPacker(pad=self.borderpad*fontsize,
                                       sep=sep, align="baseline",
                                       mode=mode,
                                       children=columnbox)
@@ -627,7 +648,7 @@ fontsize. Values from rcParams will be used if None.
         return self.legendPatch.get_window_extent()
 
 
-    def _get_anchored_bbox(self, loc, bbox, parentbbox):
+    def _get_anchored_bbox(self, loc, bbox, parentbbox, renderer):
         """
         Place the *bbox* inside the *parentbbox* according to a given
         location code. Return the (x,y) coordinate of the bbox.
@@ -655,8 +676,9 @@ fontsize. Values from rcParams will be used if None.
                       C:"C"}
 
         c = anchor_coefs[loc]
-
-        container = parentbbox.padded(-(self.borderaxespad) * self.fontsize)
+        
+        fontsize = renderer.points_to_pixels(self.fontsize)
+        container = parentbbox.padded(-(self.borderaxespad) * fontsize)
         anchored_box = bbox.anchored(c, container=container)
         return anchored_box.x0, anchored_box.y0
 

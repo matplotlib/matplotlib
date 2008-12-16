@@ -395,7 +395,8 @@ class Text(Artist):
             tr = mtransforms.Affine2D().rotate(theta)
             tr = tr.translate(posx+x_box, posy+y_box)
             self._bbox_patch.set_transform(tr)
-            self._bbox_patch.set_mutation_scale(self.get_size())
+            fontsize = renderer.points_to_pixels(self.get_size())
+            self._bbox_patch.set_mutation_scale(fontsize)
             #self._bbox_patch.draw(renderer)
 
         else:
