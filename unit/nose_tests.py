@@ -3,6 +3,7 @@ import numpy as np
 import nose, nose.tools as nt
 import numpy.testing as nptest
 
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -20,20 +21,22 @@ def test_markevery():
     # check marker only plot
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(x, y, 'o')
-    ax.plot(x, y, 'd', markevery=None)
-    ax.plot(x, y, 's', markevery=10)
-    ax.plot(x, y, '+', markevery=(5, 20))
+    ax.plot(x, y, 'o', label='default')
+    ax.plot(x, y, 'd', markevery=None, label='mark all')
+    ax.plot(x, y, 's', markevery=10, label='mark every 10')
+    ax.plot(x, y, '+', markevery=(5, 20), label='mark every 5 starting at 10')
+    ax.legend()
     fig.canvas.draw()
     plt.close(fig)
 
     # check line/marker combos
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(x, y, '-o')
-    ax.plot(x, y, '-d', markevery=None)
-    ax.plot(x, y, '-s', markevery=10)
-    ax.plot(x, y, '-+', markevery=(5, 20))
+    ax.plot(x, y, '-o', label='default')
+    ax.plot(x, y, '-d', markevery=None, label='mark all')
+    ax.plot(x, y, '-s', markevery=10, label='mark every 10')
+    ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
+    ax.legend()
     fig.canvas.draw()
     plt.close(fig)
 
