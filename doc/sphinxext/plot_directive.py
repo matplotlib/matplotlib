@@ -11,6 +11,9 @@ except for `target` (since plot will add its own target).
 
 Additionally, if the :include-source: option is provided, the literal
 source will be included inline, as well as a link to the source.
+
+The set of file formats to generate can be specified with the
+plot_formats configuration variable.
 """
 
 import sys, os, glob, shutil, imp, warnings, cStringIO
@@ -22,6 +25,7 @@ except ImportError:
     # docutils 0.5
     from docutils.parsers.rst.directives.images import Image
     align = Image.align
+from docutils import nodes
 
 import matplotlib
 import matplotlib.cbook as cbook
@@ -30,23 +34,9 @@ import matplotlib.pyplot as plt
 import matplotlib.image as image
 from matplotlib import _pylab_helpers
 
-def runfile(fullpath):
-    # Change the working directory to the directory of the example, so
-    # it can get at its data files, if any.
-    pwd = os.getcwd()
-    path, fname = os.path.split(fullpath)
-    os.chdir(path)
-    stdout = sys.stdout
-    sys.stdout = cStringIO.StringIO()
-    try:
-        fd = open(fname)
-        module = imp.load_module("__main__", fd, fname, ('py', 'r', imp.PY_SOURCE))
-    except:
-        raise
-    finally:
-        os.chdir(pwd)
-        sys.stdout = stdout
-    return module
+def write_char(s):
+    sys.stdout.write(s)
+    sys.stdout.flush()
 
 options = {'alt': directives.unchanged,
            'height': directives.length_or_unitless,
@@ -59,17 +49,14 @@ options = {'alt': directives.unchanged,
 template = """
 .. htmlonly::
 
-   [`source code <%(linkdir)s/%(basename)s.py>`__,
-   `png <%(linkdir)s/%(outname)s.hires.png>`__,
-   `pdf <%(linkdir)s/%(outname)s.pdf>`__]
+   [%(links)s]
 
-   .. image:: %(linkdir)s/%(outname)s.png
-%(options)s
+   .. image:: %(tmpdir)s/%(outname)s.png
+   %(options)s
 
 .. latexonly::
-   .. image:: %(linkdir)s/%(outname)s.pdf
-%(options)s
-
+   .. image:: %(tmpdir)s/%(outname)s.pdf
+   %(options)s
 """
 
 exception_template = """
@@ -81,7 +68,6 @@ Exception occurred rendering plot.
 
 """
 
-
 def out_of_date(original, derived):
     """
     Returns True if derivative is out-of-date wrt original,
@@ -90,25 +76,40 @@ def out_of_date(original, derived):
     return (not os.path.exists(derived))
     # or os.stat(derived).st_mtime < os.stat(original).st_mtime)
 
+def runfile(fullpath):
+    """
+    Import a Python module from a path.
+    """
+    # Change the working directory to the directory of the example, so
+    # it can get at its data files, if any.
+    pwd = os.getcwd()
+    path, fname = os.path.split(fullpath)
+    sys.path.insert(0, os.path.abspath(path))
+    stdout = sys.stdout
+    sys.stdout = cStringIO.StringIO()
+    os.chdir(path)
+    try:
+        fd = open(fname)
+        module = imp.load_module("__main__", fd, fname, ('py', 'r', imp.PY_SOURCE))
+    except:
+        raise
+    finally:
+        del sys.path[0]
+        os.chdir(pwd)
+        sys.stdout = stdout
+    return module
+
 def makefig(fullpath, outdir):
     """
-    run a pyplot script<t and save the low and high res PNGs and a PDF in _static
+    run a pyplot script and save the low and high res PNGs and a PDF in _static
     """
+    formats = [('png', 80), ('hires.png', 200), ('pdf', 50)]
 
     fullpath = str(fullpath)  # todo, why is unicode breaking this
-
-    print '    makefig: fullpath=%s, outdir=%s'%( fullpath, outdir)
-    formats = [('png', 80),
-               ('hires.png', 200),
-               ('pdf', 50),
-               ]
 
     basedir, fname = os.path.split(fullpath)
     basename, ext = os.path.splitext(fname)
     all_exists = True
-
-    if basedir != outdir:
-        shutil.copyfile(fullpath, os.path.join(outdir, fname))
 
     # Look for single-figure output files first
     for format, dpi in formats:
@@ -118,7 +119,7 @@ def makefig(fullpath, outdir):
             break
 
     if all_exists:
-        print '    already have %s'%fullpath
+        write_char('.' * len(formats))
         return 1
 
     # Then look for multi-figure output files, assuming
@@ -137,12 +138,11 @@ def makefig(fullpath, outdir):
             break
 
     if i != 0:
-        print '    already have %d figures for %s' % (i, fullpath)
+        write_char('.' * i * len(formats))
         return i
 
     # We didn't find the files, so build them
 
-    print '    building %s'%fullpath
     plt.close('all')    # we need to clear between runs
     matplotlib.rcdefaults()
     # Set a figure size that doesn't overflow typical browser windows
@@ -170,38 +170,50 @@ def makefig(fullpath, outdir):
                 warnings.warn(s)
                 return 0
 
-            if format=='png':
-                thumbdir = os.path.join(outdir, 'thumbnails')
-                if not os.path.exists(thumbdir):
-                    os.makedirs(thumbdir)
-                thumbfile = str('%s.png'%os.path.join(thumbdir, outname)     )
-                if not os.path.exists(thumbfile):
-                    figthumb = image.thumbnail(str(outpath), str(thumbfile), scale=0.3)
-                    print '    makefig: saved thumbnail of %s to %s'%(outpath, thumbfile)
+            write_char('*')
 
     return len(fig_managers)
 
-def run(arguments, options, state_machine, lineno):
+def plot_directive(name, arguments, options, content, lineno,
+                   content_offset, block_text, state, state_machine):
+    """
+    Handle the plot directive.
+    """
+    formats = setup.config.plot_formats
+    if type(formats) == str:
+        formats = eval(formats)
+
     reference = directives.uri(arguments[0])
     basedir, fname = os.path.split(reference)
     basename, ext = os.path.splitext(fname)
-    #print 'plotdir', reference, basename, ext
 
-    # get the directory of the rst file
+    # Get the directory of the rst file, and determine the relative
+    # path from the resulting html file to the plot_directive links
+    # (linkdir).  This relative path is used for html links *only*,
+    # and not the embedded image.  That is given an absolute path to
+    # the temporary directory, and then sphinx moves the file to
+    # build/html/_images for us later.
     rstdir, rstfile = os.path.split(state_machine.document.attributes['source'])
     reldir = rstdir[len(setup.confdir)+1:]
     relparts = [p for p in os.path.split(reldir) if p.strip()]
     nparts = len(relparts)
-    #print '    rstdir=%s, reldir=%s, relparts=%s, nparts=%d'%(rstdir, reldir, relparts, nparts)
-    #print 'RUN', rstdir, reldir
-    outdir = os.path.join('_static', 'plot_directive', basedir)
-    if not os.path.exists(outdir):
-        cbook.mkdirs(outdir)
-
+    outdir = os.path.join('plot_directive', basedir)
     linkdir = ('../' * nparts) + outdir
-    #linkdir = os.path.join('..', outdir)
-    num_figs = makefig(reference, outdir)
-    #print '    reference="%s", basedir="%s", linkdir="%s", outdir="%s"'%(reference, basedir, linkdir, outdir)
+
+    # tmpdir is where we build all the output files.  This way the
+    # plots won't have to be redone when generating latex after html.
+    tmpdir = os.path.abspath(os.path.join('build', outdir))
+    if not os.path.exists(tmpdir):
+        cbook.mkdirs(tmpdir)
+
+    # destdir is the directory within the output to store files
+    # that we'll be linking to -- not the embedded images.
+    destdir = os.path.abspath(os.path.join(setup.app.builder.outdir, outdir))
+    if not os.path.exists(destdir):
+        cbook.mkdirs(destdir)
+
+    # Generate the figures, and return the number of them
+    num_figs = makefig(reference, tmpdir)
 
     if options.has_key('include-source'):
         contents = open(reference, 'r').read()
@@ -214,12 +226,24 @@ def run(arguments, options, state_machine, lineno):
         options = ['      :%s: %s' % (key, val) for key, val in
                    options.items()]
         options = "\n".join(options)
+        shutil.copyfile(reference, os.path.join(destdir, fname))
 
         for i in range(num_figs):
             if num_figs == 1:
                 outname = basename
             else:
                 outname = "%s_%02d" % (basename, i)
+
+            # Copy the linked-to files to the destination within the build tree,
+            # and add a link for them
+            links = ['`source code <%(linkdir)s/%(basename)s.py>`__']
+            for format in formats[1:]:
+                shutil.copyfile(os.path.join(tmpdir, outname + "." + format),
+                                os.path.join(destdir, outname + "." + format))
+                links.append('`%s <%s/%s.%s>`__' % (format, linkdir, outname, format))
+            links = ', '.join(links) % locals()
+
+            # Output the resulting reST
             lines.extend((template % locals()).split('\n'))
     else:
         lines.extend((exception_template % locals()).split('\n'))
@@ -227,42 +251,17 @@ def run(arguments, options, state_machine, lineno):
     if len(lines):
         state_machine.insert_input(
             lines, state_machine.input_lines.source(0))
+
     return []
-
-
-
-try:
-    from docutils.parsers.rst import Directive
-except ImportError:
-    from docutils.parsers.rst.directives import _directives
-
-    def plot_directive(name, arguments, options, content, lineno,
-                       content_offset, block_text, state, state_machine):
-        return run(arguments, options, state_machine, lineno)
-    plot_directive.__doc__ = __doc__
-    plot_directive.arguments = (1, 0, 1)
-    plot_directive.options = options
-
-    _directives['plot'] = plot_directive
-else:
-    class plot_directive(Directive):
-        required_arguments = 1
-        optional_arguments = 0
-        final_argument_whitespace = True
-        option_spec = options
-        def run(self):
-            return run(self.arguments, self.options,
-                       self.state_machine, self.lineno)
-    plot_directive.__doc__ = __doc__
-
-    directives.register_directive('plot', plot_directive)
 
 def setup(app):
     setup.app = app
     setup.config = app.config
     setup.confdir = app.confdir
 
-plot_directive.__doc__ = __doc__
-
-directives.register_directive('plot', plot_directive)
+    app.add_directive('plot', plot_directive, False, (1, 0, 1), **options)
+    app.add_config_value(
+        'plot_formats',
+        ['png', 'hires.png', 'pdf'],
+        True)
 

@@ -272,11 +272,15 @@ class inheritance_diagram(Body, Element):
     """
     pass
 
-def inheritance_diagram_directive_run(class_names, options, state):
+def inheritance_diagram_directive(name, arguments, options, content, lineno,
+                                  content_offset, block_text, state,
+                                  state_machine):
     """
     Run when the inheritance_diagram directive is first encountered.
     """
     node = inheritance_diagram()
+
+    class_names = arguments
 
     # Create a graph starting with the list of classes
     graph = InheritanceGraph(class_names)
@@ -310,15 +314,12 @@ def html_output_graph(self, node):
 
     graph_hash = get_graph_hash(node)
     name = "inheritance%s" % graph_hash
-    png_path = os.path.join('_static', name + ".png")
-
-    path = '_static'
-    source = self.document.attributes['source']
-    count = source.split('/doc/')[-1].count('/')
-    for i in range(count):
-        if os.path.exists(path): break
-        path = '../'+path
-    path = '../'+path #specifically added for matplotlib
+    path = '_images'
+    dest_path = os.path.join(setup.app.builder.outdir, path)
+    if not os.path.exists(dest_path):
+        os.makedirs(dest_path)
+    png_path = os.path.join(dest_path, name + ".png")
+    path = setup.app.builder.imgpath
 
     # Create a mapping from fully-qualified class names to URLs.
     urls = {}
@@ -344,11 +345,14 @@ def latex_output_graph(self, node):
 
     graph_hash = get_graph_hash(node)
     name = "inheritance%s" % graph_hash
-    pdf_path = os.path.join('_static', name + ".pdf")
+    dest_path = os.path.abspath(os.path.join(setup.app.builder.outdir, '_images'))
+    if not os.path.exists(dest_path):
+        os.makedirs(dest_path)
+    pdf_path = os.path.abspath(os.path.join(dest_path, name + ".pdf"))
 
     graph.run_dot(['-Tpdf', '-o%s' % pdf_path],
                   name, parts, graph_options={'size': '"6.0,6.0"'})
-    return '\\includegraphics{../../%s}' % pdf_path
+    return '\\includegraphics{%s}' % pdf_path
 
 def visit_inheritance_diagram(inner_func):
     """
@@ -372,44 +376,14 @@ def visit_inheritance_diagram(inner_func):
 def do_nothing(self, node):
     pass
 
-options_spec = {
-    'parts': directives.nonnegative_int
-    }
-
-# Deal with the old and new way of registering directives
-try:
-    from docutils.parsers.rst import Directive
-except ImportError:
-    from docutils.parsers.rst.directives import _directives
-    def inheritance_diagram_directive(name, arguments, options, content, lineno,
-                                      content_offset, block_text, state,
-                                      state_machine):
-        return inheritance_diagram_directive_run(arguments, options, state)
-    inheritance_diagram_directive.__doc__ = __doc__
-    inheritance_diagram_directive.arguments = (1, 100, 0)
-    inheritance_diagram_directive.options = options_spec
-    inheritance_diagram_directive.content = 0
-    _directives['inheritance-diagram'] = inheritance_diagram_directive
-else:
-    class inheritance_diagram_directive(Directive):
-        has_content = False
-        required_arguments = 1
-        optional_arguments = 100
-        final_argument_whitespace = False
-        option_spec = options_spec
-
-        def run(self):
-            return inheritance_diagram_directive_run(
-                self.arguments, self.options, self.state)
-    inheritance_diagram_directive.__doc__ = __doc__
-
-    directives.register_directive('inheritance-diagram',
-                                  inheritance_diagram_directive)
-
 def setup(app):
-    app.add_node(inheritance_diagram,
-                 html=(visit_inheritance_diagram(html_output_graph),
-                       do_nothing))
-    app.add_node(inheritance_diagram,
-                 latex=(visit_inheritance_diagram(latex_output_graph),
-                        do_nothing))
+    setup.app = app
+    setup.confdir = app.confdir
+
+    app.add_node(
+        inheritance_diagram,
+        latex=(visit_inheritance_diagram(latex_output_graph), do_nothing),
+        html=(visit_inheritance_diagram(html_output_graph), do_nothing))
+    app.add_directive(
+        'inheritance-diagram', inheritance_diagram_directive,
+        False, (1, 100, 0), parts = directives.nonnegative_int)
