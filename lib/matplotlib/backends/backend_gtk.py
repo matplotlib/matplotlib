@@ -439,6 +439,8 @@ class FigureManagerGTK(FigureManagerBase):
 
         self.window = gtk.Window()
         self.window.set_title("Figure %d" % num)
+        if (window_icon):
+            self.window.set_icon_from_file(window_icon)
 
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
@@ -694,6 +696,8 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
 
         window = gtk.Window()
+        if (window_icon):
+            window.set_icon_from_file(window_icon)
         window.set_title("Subplot Configuration Tool")
         window.set_default_size(w, h)
         vbox = gtk.VBox()
@@ -1260,9 +1264,9 @@ try:
         icon_filename = 'matplotlib.png'
     else:
         icon_filename = 'matplotlib.svg'
-    gtk.window_set_default_icon_from_file (
-        os.path.join (matplotlib.rcParams['datapath'], 'images', icon_filename))
+    window_icon = os.path.join(matplotlib.rcParams['datapath'], 'images', icon_filename)
 except:
+    window_icon = None
     verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
 
 
