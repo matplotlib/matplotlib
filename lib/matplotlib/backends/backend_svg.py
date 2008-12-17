@@ -147,9 +147,16 @@ class RendererSVG(RendererBase):
             self._clipd[path] = id
         return id
 
-    def open_group(self, s):
-        self._groupd[s] = self._groupd.get(s,0) + 1
-        self._svgwriter.write('<g id="%s%d">\n' % (s, self._groupd[s]))
+    def open_group(self, s, gid=None):
+        """
+        Open a grouping element with label *s*. If *gid* is given, use
+        *gid* as the id of the group. 
+        """
+        if gid:
+            self._svgwriter.write('<g id="%s">\n' % (gid))
+        else:
+            self._groupd[s] = self._groupd.get(s,0) + 1
+            self._svgwriter.write('<g id="%s%d">\n' % (s, self._groupd[s]))
 
     def close_group(self, s):
         self._svgwriter.write('</g>\n')

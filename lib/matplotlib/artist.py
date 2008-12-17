@@ -52,6 +52,7 @@ class Artist(object):
         self.axes = None
         self._remove_method = None
         self._url = None
+        self._gid = None
         self.x_isdata = True  # False to avoid updating Axes.dataLim with x
         self.y_isdata = True  #                                      with y
         self._snap = None
@@ -330,8 +331,25 @@ class Artist(object):
     def set_url(self, url):
         """
         Sets the url for the artist
+
+        ACCEPTS: a url string
         """
         self._url = url
+
+
+    def get_gid(self):
+        """
+        Returns the group id
+        """
+        return self._gid
+
+    def set_gid(self, gid):
+        """
+        Sets the (group) id for the artist
+
+        ACCEPTS: an id string
+        """
+        self._gid = gid
 
     def get_snap(self):
         """
