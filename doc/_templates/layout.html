@@ -1,5 +1,6 @@
 {% extends "!layout.html" %}
 
+
 {% block rootrellink %}
         <li><a href="{{ pathto('index') }}">matplotlib&nbsp;home</a>|&nbsp;</li>
         <li><a href="{{ pathto('search') }}">search</a>|&nbsp;</li>
@@ -9,6 +10,20 @@
 
 
 {% block relbar1 %}
+<!-- Piwik -->
+<script type="text/javascript">
+var pkBaseURL = (("https:" == document.location.protocol) ? "https://apps.sourceforge.net/piwik/matplotlib/" : "http://apps.sourceforge.net/piwik/matplotlib/");
+document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script type="text/javascript">
+piwik_action_name = '';
+piwik_idsite = 1;
+piwik_url = pkBaseURL + "piwik.php";
+piwik_log(piwik_action_name, piwik_idsite, piwik_url);
+</script>
+<object><noscript><p><img src="http://apps.sourceforge.net/piwik/matplotlib/piwik.php?idsite=1" alt="piwik"/></p></noscript></object>
+<!-- End Piwik Tag -->
+
+
 <div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
 <a href="{{ pathto('index') }}"><img src="{{
 pathto("_static/logo2.png", 1) }}" border="0" alt="matplotlib"/></a>
@@ -19,6 +34,4 @@ pathto("_static/logo2.png", 1) }}" border="0" alt="matplotlib"/></a>
 {# put the sidebar before the body #}
 {% block sidebar1 %}{{ sidebar() }}{% endblock %}
 {% block sidebar2 %}{% endblock %}
-
-
 
