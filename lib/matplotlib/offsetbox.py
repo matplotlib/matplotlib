@@ -164,7 +164,7 @@ class OffsetBox(martist.Artist):
 
         accepts float
         """
-        self._width = width
+        self.width = width
 
     def set_height(self, height):
         """
@@ -172,7 +172,7 @@ class OffsetBox(martist.Artist):
 
         accepts float
         """
-        self._height = height
+        self.height = height
         
     def get_children(self):
         """
@@ -215,7 +215,31 @@ class OffsetBox(martist.Artist):
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
     
 
-class VPacker(OffsetBox):
+class PackerBase(OffsetBox):
+    def __init__(self, pad=None, sep=None, width=None, height=None,
+                 align=None, mode=None,
+                 children=None):
+        """
+        *pad* : boundary pad
+        *sep* : spacing between items
+        *width*, *height* : width and height of the container box.
+           calculated if None.
+        *align* : alignment of boxes
+        *mode* : packing mode
+        """
+        super(PackerBase, self).__init__()
+
+        self.height = height
+        self.width = width
+        self.sep = sep
+        self.pad = pad
+        self.mode = mode
+        self.align = align
+
+        self._children = children
+
+
+class VPacker(PackerBase):
     """
     The VPacker has its children packed vertically. It automatically
     adjust the relative postisions of children in the drawing time.
@@ -231,17 +255,11 @@ class VPacker(OffsetBox):
         *align* : alignment of boxes
         *mode* : packing mode
         """
-        super(VPacker, self).__init__()
+        super(VPacker, self).__init__(pad, sep, width, height,
+                                      align, mode, 
+                                      children)
 
-        self._height = height
-        self._width = width
-        self._align = align
-        self._sep = sep
-        self._pad = pad
-        self._mode = mode
-        
-        self._children = children
-        
+
 
     def get_extent_offsets(self, renderer):
         """
@@ -254,12 +272,12 @@ class VPacker(OffsetBox):
 
         wd_list = [(w, xd) for w, h, xd, yd in whd_list]
         width, xdescent, xoffsets = _get_aligned_offsets(wd_list,
-                                                         self._width,
-                                                         self._align)
+                                                         self.width,
+                                                         self.align)
 
         pack_list = [(h, yd) for w,h,xd,yd in whd_list]
-        height, yoffsets_ = _get_packed_offsets(pack_list, self._height,
-                                                self._sep, self._mode)
+        height, yoffsets_ = _get_packed_offsets(pack_list, self.height,
+                                                self.sep, self.mode)
             
         yoffsets = yoffsets_  + [yd for w,h,xd,yd in whd_list]
         ydescent = height - yoffsets[0]
@@ -268,18 +286,17 @@ class VPacker(OffsetBox):
         #w, h, xd, h_yd = whd_list[-1]
         yoffsets = yoffsets - ydescent
 
-        return width + 2*self._pad, height + 2*self._pad, \
-               xdescent+self._pad, ydescent+self._pad, \
+        return width + 2*self.pad, height + 2*self.pad, \
+               xdescent+self.pad, ydescent+self.pad, \
                zip(xoffsets, yoffsets)
 
 
-
-class HPacker(OffsetBox):
+class HPacker(PackerBase):
     """
     The HPacker has its children packed horizontally. It automatically
     adjust the relative postisions of children in the drawing time.
     """
-    def __init__(self, pad=None, width=None, height=None, sep=None,
+    def __init__(self, pad=None, sep=None, width=None, height=None, 
                  align="baseline", mode="fixed",
                  children=None):
         """
@@ -290,18 +307,9 @@ class HPacker(OffsetBox):
         *align* : alignment of boxes
         *mode* : packing mode
         """
-        super(HPacker, self).__init__()
+        super(HPacker, self).__init__(pad, sep, width, height,
+                                      align, mode, children)
 
-        self._height = height
-        self._width = width
-        self._align = align
-        
-        self._sep = sep
-        self._pad = pad
-        self._mode = mode
-
-        self._children = children
-        
 
     def get_extent_offsets(self, renderer):
         """
@@ -310,30 +318,30 @@ class HPacker(OffsetBox):
 
         whd_list = [c.get_extent(renderer) for c in self.get_children()]
 
-        if self._height is None:
+        if self.height is None:
             height_descent = max([h-yd for w,h,xd,yd in whd_list])  
             ydescent = max([yd for w,h,xd,yd in whd_list])
             height = height_descent + ydescent
         else:
-            height = self._height - 2*self._pad # width w/o pad
+            height = self.height - 2*self._pad # width w/o pad
 
         hd_list = [(h, yd) for w, h, xd, yd in whd_list]
         height, ydescent, yoffsets = _get_aligned_offsets(hd_list,
-                                                          self._height,
-                                                          self._align)
+                                                          self.height,
+                                                          self.align)
 
 
         pack_list = [(w, xd) for w,h,xd,yd in whd_list]
-        width, xoffsets_ = _get_packed_offsets(pack_list, self._width,
-                                               self._sep, self._mode)
+        width, xoffsets_ = _get_packed_offsets(pack_list, self.width,
+                                               self.sep, self.mode)
 
         xoffsets = xoffsets_  + [xd for w,h,xd,yd in whd_list]
 
         xdescent=whd_list[0][2]
         xoffsets = xoffsets - xdescent
         
-        return width + 2*self._pad, height + 2*self._pad, \
-               xdescent + self._pad, ydescent + self._pad, \
+        return width + 2*self.pad, height + 2*self.pad, \
+               xdescent + self.pad, ydescent + self.pad, \
                zip(xoffsets, yoffsets)
 
         
