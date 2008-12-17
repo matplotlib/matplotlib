@@ -630,6 +630,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         self.ox = offsetx
         self.oy = offsety
         self.update(kwargs)
+        self.magnification = 1.0
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image.
@@ -659,22 +660,30 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
                 -0.5+self.oy, numrows-0.5+self.oy)
 
     def make_image(self, magnification=1.0):
-        # had to introduce argument magnification to satisfy the unit test
-        # figimage_demo.py. I have no idea, how magnification should be used
-        # within the function. It should be !=1.0 only for non-default DPI<
-        # settings in the PS backend, as introduced by patch #1562394
-        # Probably Nicholas Young should look over this code and see, how
-        # magnification should be handled correctly.
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
         x = self.to_rgba(self._A, self._alpha)
-
-        im = _image.fromarray(x, 1)
+        self.magnification = magnification
+        # if magnification is not one, we need to resize
+        ismag = magnification!=1
+        #if ismag: raise RuntimeError
+        if ismag:
+            isoutput = 0
+        else:
+            isoutput = 1
+        im = _image.fromarray(x, isoutput)
         fc = self.figure.get_facecolor()
         im.set_bg( *mcolors.colorConverter.to_rgba(fc, 0) )
         im.is_grayscale = (self.cmap.name == "gray" and
                            len(self._A.shape) == 2)
+
+        if ismag:
+            numrows, numcols = self.get_size()
+            numrows *= magnification
+            numcols *= magnification
+            im.set_interpolation(_image.NEAREST)
+            im.resize(numcols, numrows)
         if self.origin=='upper':
             im.flipud_out()
 
@@ -683,9 +692,8 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
         # todo: we should be able to do some cacheing here
-        im = self.make_image()
-
-        renderer.draw_image(round(self.ox), round(self.oy), im, self.figure.bbox,
+        im = self.make_image(renderer.get_image_magnification())
+        renderer.draw_image(round(self.ox/self.magnification), round(self.oy/self.magnification), im, self.figure.bbox,
                             *self.get_transformed_clip_path_and_affine())
 
     def write_png(self, fname):
@@ -772,7 +780,7 @@ def pil_to_array( pilImage ):
     x.shape = im.size[1], im.size[0], 4
     return x
 
-def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear', 
+def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
               preview=False):
     """
     make a thumbnail of image in *infile* with output filename

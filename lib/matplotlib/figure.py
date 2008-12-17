@@ -755,7 +755,7 @@ class Figure(Artist):
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
             mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), im.ox*mag, im.oy*mag)
+            ims = [(im.make_image(mag), im.ox, im.oy)
                    for im in self.images]
 
             im = _image.from_images(self.bbox.height * mag,
