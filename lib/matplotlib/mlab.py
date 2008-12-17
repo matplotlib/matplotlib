@@ -54,6 +54,16 @@ Functions that don't exist in matlab(TM), but are useful anyway:
     yourself stranded without scipy (and the far superior
     scipy.integrate tools)
 
+:meth:`contiguous_regions`
+    return the indices of the regions spanned by some logical mask
+
+:meth:`cross_from_below`
+    return the indices where a 1D array crosses a threshold from below
+
+:meth:`cross_from_above`
+    return the indices where a 1D array crosses a threshold from above
+
+
 record array helper functions
 -------------------------------
 
@@ -3235,6 +3245,63 @@ def contiguous_regions(mask):
     if in_region is not None:
         boundaries.append((in_region, i+1))
     return boundaries
+
+
+def cross_from_below(x, threshold):
+    """
+    return the indices into *x* where *x* crosses some threshold from
+    below, eg the i's where::
+
+      x[i-1]<threshold and x[i]>=threshold
+
+    Example code::
+
+        import matplotlib.pyplot as plt
+
+        t = np.arange(0.0, 2.0, 0.1)
+        s = np.sin(2*np.pi*t)
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.plot(t, s, '-o')
+        ax.axhline(0.5)
+        ax.axhline(-0.5)
+
+        ind = cross_from_below(s, 0.5)
+        ax.vlines(t[ind], -1, 1)
+
+        ind = cross_from_above(s, -0.5)
+        ax.vlines(t[ind], -1, 1)
+
+        plt.show()
+
+    .. seealso::
+
+        :func:`cross_from_above` and :func:`contiguous_regions`
+
+    """
+    x = np.asarray(x)
+    threshold = threshold
+    ind = np.nonzero( (x[:-1]<threshold) & (x[1:]>=threshold))[0]
+    if len(ind): return ind+1
+    else: return ind
+
+def cross_from_above(x, threshold):
+    """
+    return the indices into *x* where *x* crosses some threshold from
+    below, eg the i's where::
+
+      x[i-1]>threshold and x[i]<=threshold
+
+    .. seealso::
+
+        :func:`cross_from_below` and :func:`contiguous_regions`
+
+    """
+    x = np.asarray(x)
+    ind = np.nonzero( (x[:-1]>=threshold) & (x[1:]<threshold))[0]
+    if len(ind): return ind+1
+    else: return ind
 
 ##################################################
 # Vector and path length geometry calculations
