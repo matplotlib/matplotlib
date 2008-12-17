@@ -35,3 +35,7 @@ required), then type "python make.py html" in this directory.  Wait
 for the initial run (which builds the example gallery) to be done,
 then run "python make.py html" again. The top file of the results will
 be ./build/html/index.html
+
+To build a smaller version of the documentation (without
+high-resolution PNGs and PDF examples), type "python make.py --small
+html".
