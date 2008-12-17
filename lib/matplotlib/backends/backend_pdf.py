@@ -1184,13 +1184,14 @@ class RendererPdf(RendererBase):
     truetype_font_cache = maxdict(50)
     afm_font_cache = maxdict(50)
 
-    def __init__(self, file, dpi):
+    def __init__(self, file, dpi, image_dpi):
         RendererBase.__init__(self)
         self.file = file
         self.gc = self.new_gc()
         self.file.used_characters = self.used_characters = {}
         self.mathtext_parser = MathTextParser("Pdf")
         self.dpi = dpi
+        self.image_dpi = image_dpi
         self.tex_font_map = None
 
     def finalize(self):
@@ -1230,9 +1231,10 @@ class RendererPdf(RendererBase):
                 stat_key, (realpath, set()))
             used_characters[1].update(charset)
 
+    def get_image_magnification(self):
+        return self.image_dpi/72.0
+            
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
-        #print >>sys.stderr, "draw_image called"
-
         # MGDTODO: Support clippath here
         gc = self.new_gc()
         if bbox is not None:
@@ -1240,6 +1242,7 @@ class RendererPdf(RendererBase):
         self.check_gc(gc)
 
         h, w = im.get_size_out()
+        h, w = 72.0*h/self.image_dpi, 72.0*w/self.image_dpi
         imob = self.file.imageObject(im)
         self.file.output(Op.gsave, w, 0, 0, h, x, y, Op.concat_matrix,
                          imob, Op.use_xobject, Op.grestore)
@@ -1873,13 +1876,13 @@ class FigureCanvasPdf(FigureCanvasBase):
         return 'pdf'
 
     def print_pdf(self, filename, **kwargs):
-        dpi = 72 # there are 72 Postscript points to an inch
-        # TODO: use the dpi kwarg for images
-        self.figure.set_dpi(dpi)
+        ppi = 72 # Postscript points in an inch
+        image_dpi = kwargs.get('dpi', 72) # dpi to use for images
+        self.figure.set_dpi(ppi)
         width, height = self.figure.get_size_inches()
-        file = PdfFile(width, height, dpi, filename)
+        file = PdfFile(width, height, ppi, filename)
         renderer = MixedModeRenderer(
-            width, height, dpi, RendererPdf(file, dpi))
+            width, height, ppi, RendererPdf(file, ppi, image_dpi))
         self.figure.draw(renderer)
         renderer.finalize()
         file.close()

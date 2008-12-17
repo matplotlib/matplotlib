@@ -15,6 +15,11 @@ Z[:,50:] = 1.
 im1 = plt.figimage(Z, xo=50, yo=0, cmap=cm.jet, origin='lower')
 im2 = plt.figimage(Z, xo=100, yo=100, alpha=.8, cmap=cm.jet, origin='lower')
 
+dpi = 200
+plt.savefig('figimage.png', dpi=dpi)
+plt.savefig('figimage.pdf', dpi=dpi)
+plt.savefig('figimage.svg', dpi=dpi)
+plt.savefig('figimage.eps', dpi=dpi)
 plt.show()
 
 
