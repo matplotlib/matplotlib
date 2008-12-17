@@ -95,12 +95,12 @@ funcd = {
     }
 
 
+small_docs = False
+
 if len(sys.argv)>1:
     if '--small' in sys.argv[1:]:
         small_docs = True
         sys.argv.remove('--small')
-    else:
-        small_docs = False
     for arg in sys.argv[1:]:
         func = funcd.get(arg)
         if func is None:
