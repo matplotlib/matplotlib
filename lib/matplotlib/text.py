@@ -447,6 +447,8 @@ class Text(Artist):
         if not self.get_visible(): return
         if self._text=='': return
 
+        renderer.open_group('text', self.get_gid())
+
         bbox, info = self._get_layout(renderer)
         trans = self.get_transform()
 
@@ -498,6 +500,8 @@ class Text(Artist):
             renderer.draw_text(gc, x, y, clean_line,
                                self._fontproperties, angle,
                                ismath=ismath)
+
+        renderer.close_group('text')
 
     def get_color(self):
         "Return the color of the text"

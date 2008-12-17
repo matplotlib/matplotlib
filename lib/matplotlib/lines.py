@@ -463,7 +463,7 @@ class Line2D(Artist):
         if self._invalid:
             self.recache()
 
-        renderer.open_group('line2d')
+        renderer.open_group('line2d', self.get_gid())
 
         if not self._visible: return
         gc = renderer.new_gc()

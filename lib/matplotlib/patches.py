@@ -264,7 +264,8 @@ class Patch(artist.Artist):
     def draw(self, renderer):
         'Draw the :class:`Patch` to the given *renderer*.'
         if not self.get_visible(): return
-        #renderer.open_group('patch')
+
+        renderer.open_group('patch', self.get_gid())
         gc = renderer.new_gc()
 
         if cbook.is_string_like(self._edgecolor) and self._edgecolor.lower()=='none':
@@ -300,7 +301,7 @@ class Patch(artist.Artist):
 
         renderer.draw_path(gc, tpath, affine, rgbFace)
 
-        #renderer.close_group('patch')
+        renderer.close_group('patch')
 
     def get_path(self):
         """
