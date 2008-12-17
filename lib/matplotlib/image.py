@@ -693,7 +693,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         if not self.get_visible(): return
         # todo: we should be able to do some cacheing here
         im = self.make_image(renderer.get_image_magnification())
-        renderer.draw_image(round(self.ox/self.magnification), round(self.oy/self.magnification), im, self.figure.bbox,
+        renderer.draw_image(round(self.ox), round(self.oy), im, self.figure.bbox,
                             *self.get_transformed_clip_path_and_affine())
 
     def write_png(self, fname):
