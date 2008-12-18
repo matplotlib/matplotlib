@@ -1,3 +1,6 @@
+2008-12-17 fix dpi-dependent behavior of text bbox and arrow in annotate
+            -JJL
+
 2008-12-17 Add group id support in artist. Two examples which
            demostrate svg filter are added. -JJL
 
