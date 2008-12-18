@@ -34,15 +34,12 @@ def examples():
 
 def html():
     check_build()
-    if not os.path.exists('examples/index.rst'):
-        examples()
     shutil.copy('../lib/matplotlib/mpl-data/matplotlibrc', '_static/matplotlibrc')
-    #figs()
     if small_docs:
         options = "-D plot_formats=\"['png']\""
     else:
         options = ''
-    if os.system('sphinx-build %s -b html -d build/doctrees . build/html' % options):
+    if os.system('sphinx-build %s -P -b html -d build/doctrees . build/html' % options):
         raise SystemExit("Building HTML failed.")
 
     figures_dest_path = 'build/html/pyplots'

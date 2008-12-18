@@ -1148,10 +1148,9 @@ def thetagrids(*args, **kwargs):
 def plotting():
     """
     Plotting commands
-
-    ============    =================================================
+    =============== =========================================================
     Command         Description
-    =========       =================================================
+    =============== =========================================================
     axes            Create a new axes
     axis            Set or return the current axis limits
     bar             make a bar chart
@@ -1204,7 +1203,7 @@ def plotting():
     title           add a title to the current axes
     xlabel          add an xlabel to the current axes
     ylabel          add a ylabel to the current axes
-    ============    =================================================
+    =============== =========================================================
 
     The following commands will set the default colormap accordingly:
 
