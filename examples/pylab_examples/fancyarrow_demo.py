@@ -3,23 +3,26 @@ import matplotlib.pyplot as plt
 
 styles = mpatches.ArrowStyle.get_styles()
 
-figheight = (len(styles)+.5)
-fig1 = plt.figure(1, (4, figheight))
-fontsize = 0.3 * fig1.dpi
+ncol=2
+nrow = len(styles) // ncol + 1
+figheight = (nrow+0.5)
+fig1 = plt.figure(1, (4.*ncol/1.5, figheight/1.5))
+fontsize = 0.2 * 70
 
 
 ax = fig1.add_axes([0, 0, 1, 1], frameon=False, aspect=1.)
 
-ax.set_xlim(0, 4)
+ax.set_xlim(0, 4*ncol)
 ax.set_ylim(0, figheight)
 
 for i, (stylename, styleclass) in enumerate(sorted(styles.items())):
-    y = (float(len(styles)) -0.25 - i) # /figheight
-    p = mpatches.Circle((3.2, y), 0.2, fc="w")
+    x = 3.2 + (i//nrow)*4
+    y = (figheight - 0.7 - i%nrow) # /figheight
+    p = mpatches.Circle((x, y), 0.2, fc="w")
     ax.add_patch(p)
 
-    ax.annotate(stylename, (3.2, y),
-                (2., y),
+    ax.annotate(stylename, (x, y),
+                (x-1.2, y),
                 #xycoords="figure fraction", textcoords="figure fraction",
                 ha="right", va="center",
                 size=fontsize,

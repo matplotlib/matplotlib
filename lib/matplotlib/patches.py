@@ -2176,6 +2176,7 @@ from matplotlib.bezier import split_bezier_intersecting_with_closedpath
 from matplotlib.bezier import get_intersection, inside_circle, get_parallels
 from matplotlib.bezier import make_wedged_bezier2
 from matplotlib.bezier import split_path_inout, get_cos_sin
+from matplotlib.bezier import make_path_regular, concatenate_paths
 
 
 class ConnectionStyle(_Style):
@@ -2627,12 +2628,15 @@ class ArrowStyle(_Style):
         def transmute(self, path, mutation_size, linewidth):
             """
             The transmute method is a very core of the ArrowStyle
-            class and must be overriden in the subclasses. It receives the
-            path object along which the arrow will be drawn, and the
-            mutation_size, with which the amount arrow head and etc. will
-            be scaled. It returns a Path instance. The linewidth may be
-            used to adjust the the path so that it does not pass beyond
-            the given points.
+            class and must be overriden in the subclasses. It receives
+            the path object along which the arrow will be drawn, and
+            the mutation_size, with which the amount arrow head and
+            etc. will be scaled. The linewidth may be used to adjust
+            the the path so that it does not pass beyond the given
+            points. It returns a tuple of a Path instance and a
+            boolean. The boolean value indicate whether the path can
+            be filled or not. The return value can also be a list of paths
+            and list of booleans of a same length.
             """
 
             raise NotImplementedError('Derived must override')
@@ -2646,6 +2650,8 @@ class ArrowStyle(_Style):
             and take care of the aspect ratio.
             """
 
+            path = make_path_regular(path)
+            
             if aspect_ratio is not None:
                 # Squeeze the given height by the aspect_ratio
 
@@ -2654,12 +2660,19 @@ class ArrowStyle(_Style):
                 vertices[:,1] = vertices[:,1] / aspect_ratio
                 path_shrinked = Path(vertices, codes)
                 # call transmute method with squeezed height.
-                path_mutated, closed = self.transmute(path_shrinked, linewidth,
-                                                      mutation_size)
-                vertices, codes = path_mutated.vertices, path_mutated.codes
-                # Restore the height
-                vertices[:,1] = vertices[:,1] * aspect_ratio
-                return Path(vertices, codes), closed
+                path_mutated, fillable = self.transmute(path_shrinked,
+                                                        linewidth,
+                                                        mutation_size)
+                if cbook.iterable(fillable):
+                    path_list = []
+                    for p in zip(path_mutated):
+                        v, c = p.vertices, p.codes
+                        # Restore the height
+                        v[:,1] = v[:,1] * aspect_ratio
+                        path_list.append(Path(v, c))
+                    return path_list, fillable
+                else:
+                    return path_mutated, fillable
             else:
                 return self.transmute(path, mutation_size, linewidth)
 
@@ -2669,21 +2682,24 @@ class ArrowStyle(_Style):
         """
         A simple arrow which will work with any path instance. The
         returned path is simply concatenation of the original path + at
-        most two paths representing the arrow at the begin point and the
-        at the end point. The returned path is not closed and only meant
-        to be stroked.
+        most two paths representing the arrow head at the begin point and the
+        at the end point. The arrow heads can be either open or closed.
         """
 
         def __init__(self, beginarrow=None, endarrow=None,
+                     fillbegin=False, fillend=False,
                      head_length=.2, head_width=.1):
             """
             The arrows are drawn if *beginarrow* and/or *endarrow* are
-            true. *head_length* and *head_width* determines the size of
-            the arrow relative to the *mutation scale*.
+            true. *head_length* and *head_width* determines the size
+            of the arrow relative to the *mutation scale*.  The
+            arrowhead at the begin (or end) is closed if fillbegin (or
+            fillend) is True.
             """
             self.beginarrow, self.endarrow = beginarrow, endarrow
             self.head_length, self.head_width = \
                     head_length, head_width
+            self.fillbegin, self.fillend = fillbegin, fillend
             super(ArrowStyle._Curve, self).__init__()
 
 
@@ -2783,16 +2799,33 @@ class ArrowStyle(_Style):
 
             # this simple code will not work if ddx, ddy is greater than
             # separation bettern vertices.
-            vertices = np.concatenate([verticesA + [(x0+ddxA, y0+ddyA)],
-                                       path.vertices[1:-1],
-                                       [(x3+ddxB, y3+ddyB)] + verticesB])
-            codes = np.concatenate([codesA,
-                                    path.codes,
-                                    codesB])
-
-            p = Path(vertices, codes)
-
-            return p, False
+            _path = [Path(np.concatenate([[(x0+ddxA, y0+ddyA)],
+                                          path.vertices[1:-1],
+                                          [(x3+ddxB, y3+ddyB)]]),
+                          path.codes)]
+            _fillable = [False]
+            
+            if self.beginarrow:
+                if self.fillbegin:
+                    p = np.concatenate([verticesA, [verticesA[0], verticesA[0]], ])
+                    c = np.concatenate([codesA, [Path.LINETO, Path.CLOSEPOLY]]) 
+                    _path.append(Path(p, c))
+                    _fillable.append(True)
+                else:
+                    _path.append(Path(verticesA, codesA))
+                    _fillable.append(False)
+            
+            if self.endarrow:
+                if self.fillend:
+                    _fillable.append(True)
+                    p = np.concatenate([verticesB, [verticesB[0], verticesB[0]], ])
+                    c = np.concatenate([codesB, [Path.LINETO, Path.CLOSEPOLY]]) 
+                    _path.append(Path(p, c))
+                else:
+                    _fillable.append(False)
+                    _path.append(Path(verticesB, codesB))
+            
+            return _path, _fillable
 
 
     class Curve(_Curve):
@@ -2870,6 +2903,73 @@ class ArrowStyle(_Style):
 
     #_style_list["<->"] = CurveAB
     _style_list["<->"] = CurveAB
+
+
+
+    class CurveFilledA(_Curve):
+        """
+        An arrow with filled triangle head at the begin.
+        """
+
+        def __init__(self, head_length=.4, head_width=.2):
+            """
+            *head_length*
+              length of the arrow head
+
+            *head_width*
+              width of the arrow head
+            """
+
+            super(ArrowStyle.CurveFilledA, self).__init__( \
+                beginarrow=True, endarrow=False,
+                fillbegin=True, fillend=False, 
+                head_length=head_length, head_width=head_width )
+
+    _style_list["<|-"] = CurveFilledA
+
+
+    class CurveFilledB(_Curve):
+        """
+        An arrow with filled triangle head at the end.
+        """
+
+        def __init__(self, head_length=.4, head_width=.2):
+            """
+            *head_length*
+              length of the arrow head
+
+            *head_width*
+              width of the arrow head
+            """
+
+            super(ArrowStyle.CurveFilledB, self).__init__( \
+                beginarrow=False, endarrow=True,
+                fillbegin=False, fillend=True, 
+                head_length=head_length, head_width=head_width )
+
+    _style_list["-|>"] = CurveFilledB
+
+
+    class CurveFilledAB(_Curve):
+        """
+        An arrow with filled triangle heads both at the begin and the end point.
+        """
+
+        def __init__(self, head_length=.4, head_width=.2):
+            """
+            *head_length*
+              length of the arrow head
+
+            *head_width*
+              width of the arrow head
+            """
+
+            super(ArrowStyle.CurveFilledAB, self).__init__( \
+                beginarrow=True, endarrow=True,
+                fillbegin=True, fillend=True, 
+                head_length=head_length, head_width=head_width )
+
+    _style_list["<|-|>"] = CurveFilledAB
 
 
     class _Bracket(_Base):
@@ -3201,6 +3301,7 @@ class ArrowStyle(_Style):
 
 
 
+
 class FancyArrowPatch(Patch):
     """
     A fancy arrow patch. It draws an arrow using the :class:ArrowStyle.
@@ -3423,8 +3524,13 @@ class FancyArrowPatch(Patch):
         get_path_in_displaycoord() medthod to retrieve the arrow path
         in the disaply coord.
         """
-        _path = self.get_path_in_displaycoord()
+        _path, fillable = self.get_path_in_displaycoord()
+
+        if cbook.iterable(fillable):
+            _path = concatenate_paths(_path)
+        
         return self.get_transform().inverted().transform_path(_path)
+
 
     def get_path_in_displaycoord(self):
         """
@@ -3445,16 +3551,16 @@ class FancyArrowPatch(Patch):
 
 
 
-        _path, closed = self.get_arrowstyle()(_path,
-                                              self.get_mutation_scale(),
-                                              self.get_linewidth(),
-                                              self.get_mutation_aspect()
-                                              )
+        _path, fillable = self.get_arrowstyle()(_path,
+                                                self.get_mutation_scale(),
+                                                self.get_linewidth(),
+                                                self.get_mutation_aspect()
+                                                )
 
-        if not closed:
-            self.fill = False
+        #if not fillable:
+        #    self.fill = False
 
-        return _path
+        return _path, fillable
 
 
 
@@ -3462,11 +3568,6 @@ class FancyArrowPatch(Patch):
         if not self.get_visible(): return
         #renderer.open_group('patch')
         gc = renderer.new_gc()
-
-        fill_orig = self.fill
-
-        path = self.get_path_in_displaycoord()
-        affine = transforms.IdentityTransform()
 
 
         if cbook.is_string_like(self._edgecolor) and self._edgecolor.lower()=='none':
@@ -3494,8 +3595,22 @@ class FancyArrowPatch(Patch):
             gc.set_hatch(self._hatch )
 
 
-        renderer.draw_path(gc, path, affine, rgbFace)
+        path, fillable = self.get_path_in_displaycoord()
 
-        self.fill = fill_orig
+        if not cbook.iterable(fillable):
+            path = [path]
+            fillable = [fillable]
+            
 
-        #renderer.close_group('patch')
+        affine = transforms.IdentityTransform()
+
+        renderer.open_group('patch', self.get_gid())
+
+        for p, f in zip(path, fillable):
+            if f:
+                renderer.draw_path(gc, p, affine, rgbFace)
+            else:
+                renderer.draw_path(gc, p, affine, None)
+                
+
+        renderer.close_group('patch')
