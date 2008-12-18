@@ -10,6 +10,7 @@ from matplotlib.cbook import maxdict
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.mathtext import MathTextParser
+from matplotlib.colors import colorConverter
 
 
 
@@ -48,34 +49,47 @@ class RendererMac(RendererBase):
         self.width, self.height = width, height
 
     def draw_path(self, gc, path, transform, rgbFace=None):
-        path = transform.transform_path(path)
-        for points, code in path.iter_segments():
-            if code == Path.MOVETO:
-                gc.moveto(points)
-            elif code == Path.LINETO:
-                gc.lineto(points)
-            elif code == Path.CURVE3:
-                gc.curve3(points)
-            elif code == Path.CURVE4:
-                gc.curve4(points)
-            elif code == Path.CLOSEPOLY:
-                gc.closepoly()
         if rgbFace is not None:
             rgbFace = tuple(rgbFace)
-        gc.stroke(rgbFace)
+        if gc!=self.gc:
+            n = self.gc.level() - gc.level()
+            for i in range(n): self.gc.restore()
+            self.gc = gc
+        gc.draw_path(path, transform, rgbFace)
+
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        if rgbFace is not None:
+            rgbFace = tuple(rgbFace)
+        if gc!=self.gc:
+            n = self.gc.level() - gc.level()
+            for i in range(n): self.gc.restore()
+            self.gc = gc
+        gc.draw_markers(marker_path, marker_trans, path, trans, rgbFace)
+
+    def draw_path_collection(self, *args):
+        gc = self.gc
+        args = args[:13]
+        gc.draw_path_collection(*args)
+
+    def draw_quad_mesh(self, *args):
+        gc = self.gc
+        gc.draw_quad_mesh(*args)
 
     def new_gc(self):
         self.gc.reset()
         return self.gc
 
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
-        self.gc.set_clip_rectangle(bbox)
         im.flipud_out()
         nrows, ncols, data = im.as_rgba_str()
-        self.gc.draw_image(x, y, nrows, ncols, data)
+        self.gc.draw_image(x, y, nrows, ncols, data, bbox, clippath, clippath_trans)
         im.flipud_out()
     
     def draw_tex(self, gc, x, y, s, prop, angle):
+        if gc!=self.gc:
+            n = self.gc.level() - gc.level()
+            for i in range(n): self.gc.restore()
+            self.gc = gc
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
         texmanager = self.get_texmanager()
@@ -88,12 +102,20 @@ class RendererMac(RendererBase):
         gc.draw_mathtext(x, y, angle, Z)
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
+        if gc!=self.gc:
+            n = self.gc.level() - gc.level()
+            for i in range(n): self.gc.restore()
+            self.gc = gc
         size = prop.get_size_in_points()
         ox, oy, width, height, descent, image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
         gc.draw_mathtext(x, y, angle, 255 - image.as_array())
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+        if gc!=self.gc:
+            n = self.gc.level() - gc.level()
+            for i in range(n): self.gc.restore()
+            self.gc = gc
         if ismath:
            self._draw_mathtext(gc, x, y, s, prop, angle)
         else:
@@ -143,6 +165,11 @@ class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
         GraphicsContextBase.__init__(self)
         _macosx.GraphicsContext.__init__(self)
 
+    def set_foreground(self, fg, isRGB=False):
+        if not isRGB:
+            fg = colorConverter.to_rgb(fg)
+        _macosx.GraphicsContext.set_foreground(self, fg)
+
     def set_clip_rectangle(self, box):
         GraphicsContextBase.set_clip_rectangle(self, box)
         if not box: return
@@ -152,19 +179,7 @@ class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
         GraphicsContextBase.set_clip_path(self, path)
         if not path: return
         path = path.get_fully_transformed_path()
-        for points, code in path.iter_segments():
-            if code == Path.MOVETO:
-                self.moveto(points)
-            elif code == Path.LINETO:
-                self.lineto(points)
-            elif code == Path.CURVE3:
-                self.curve3(points)
-            elif code == Path.CURVE4:
-                self.curve4(points)
-            elif code == Path.CLOSEPOLY:
-                self.closepoly()
-        self.clip_path()
-
+        _macosx.GraphicsContext.set_clip_path(self, path)
 
 ########################################################################
 #    

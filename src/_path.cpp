@@ -403,10 +403,25 @@ Py::Object _path_module::update_path_extents(const Py::Tuple& args)
         }
         else
         {
-            extents_data[0] = std::min(x0, x1);
-            extents_data[1] = std::min(y0, y1);
-            extents_data[2] = std::max(x0, x1);
-            extents_data[3] = std::max(y0, y1);
+            if (x0 > x1)
+            {
+                extents_data[0] = std::numeric_limits<double>::infinity();
+                extents_data[2] = -std::numeric_limits<double>::infinity();
+            }
+            else
+            {
+                extents_data[0] = x0;
+                extents_data[2] = x1;
+            }
+            if (y0 > y1) {
+                extents_data[1] = std::numeric_limits<double>::infinity();
+                extents_data[3] = -std::numeric_limits<double>::infinity();
+            }
+            else
+            {
+                extents_data[1] = y0;
+                extents_data[3] = y1;
+            }
             minpos_data[0] = xm;
             minpos_data[1] = ym;
         }
