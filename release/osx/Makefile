@@ -2,7 +2,7 @@ SRCDIR=${PWD}
 ZLIBVERSION=1.2.3
 PNGVERSION=1.2.33
 FREETYPEVERSION=2.3.7
-MPLVERSION=0.98.5.1
+MPLVERSION=0.98.5.2
 MPLSRC=matplotlib-${MPLVERSION}
 MACOSX_DEPLOYMENT_TARGET=10.4
 
@@ -91,8 +91,16 @@ installers:
 	cd dist && \
 	zip -ro matplotlib-${MPLVERSION}-py2.5-macosx10.5.zip matplotlib-${MPLVERSION}-py2.5-macosx10.5.mpkg
 
+upload:
+	rm -rf upload &&\
+	mkdir upload &&\
+	cp matplotlib-${MPLVERSION}.tar.gz upload/ &&\
+	cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}_r0-py2.5-macosx-10.5-i386.egg upload/matplotlib-${MPLVERSION}-py2.5.egg &&\
+	cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}-py2.5-macosx10.5.zip upload/matplotlib-${MPLVERSION}-py2.5-mpkg.zip&&\
+	scp upload/* jdh2358@frs.sourceforge.net:uploads/
+
 all:
-	make clean fetch_deps dependencies installers
+	make clean fetch_deps dependencies installers upload
 
 
 
