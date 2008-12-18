@@ -8,6 +8,7 @@ list may help describe what changes may be necessary in your code.
 
 Changes for 0.98.x
 ==================
+* Removed the configobj and experiemtnal traits rc support
 
 * Modified :func:`matplotlib.mlab.psd`, :func:`matplotlib.mlab.csd`,
   :func:`matplotlib.mlab.cohere`, and :func:`matplotlib.mlab.specgram`
