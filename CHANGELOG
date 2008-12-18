@@ -1,8 +1,14 @@
+2008-12-18 Fix bug where a line with NULL data limits prevents
+           subsequent data limits from calculating correctly - MGD
+
+2008-12-17 Major documentation generator changes - MGD
+
 2008-12-17 Applied macosx backend patch with support for path
            collections, quadmesh, etc... - JDH
 
 2008-12-17 fix dpi-dependent behavior of text bbox and arrow in annotate
             -JJL
+
 2008-12-16 Another attempt to fix dpi-dependent behavior of Legend. -JJL
 
 ======================================================================
