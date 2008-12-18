@@ -468,11 +468,44 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
 
 
 
+def make_path_regular(p):
+    """
+    fill in the codes if None.
+    """
+    c = p.codes
+    if c is None:
+        c = np.empty(p.vertices.shape, "i")
+        c.fill(Path.LINETO)
+        c[0] = Path.MOVETO
+
+        return Path(p.vertices, c)
+    else:
+        return p
+    
+def concatenate_paths(paths):
+    """
+    concatenate list of paths into a single path.
+    """
+
+    vertices = []
+    codes = []
+    for p in paths:
+        p = make_path_regular(p)
+        vertices.append(p.vertices)
+        codes.append(p.codes)
+
+    _path = Path(np.concatenate(vertices),
+                 np.concatenate(codes))
+    return _path
+
+
+
 if 0:
     path = Path([(0, 0), (1, 0), (2, 2)],
                 [Path.MOVETO, Path.CURVE3, Path.CURVE3])
     left, right = divide_path_inout(path, inside)
     clf()
     ax = gca()
+
 
 
