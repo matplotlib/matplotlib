@@ -1,3 +1,7 @@
+=======================================================================
+Release 0.98.5.2 at r6665
+
+2008-12-18 Removed configobj and experimental traits - JDH
 
 2008-12-18 Fix bug where a line with NULL data limits prevents
            subsequent data limits from calculating correctly - MGD
