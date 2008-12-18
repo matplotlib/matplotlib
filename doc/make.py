@@ -105,4 +105,5 @@ if len(sys.argv)>1:
                     arg, funcd.keys()))
         func()
 else:
+    small_docs = False
     all()
