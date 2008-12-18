@@ -1,6 +1,8 @@
+2008-12-17 Applied macosx backend patch with support for path
+           collections, quadmesh, etc... - JDH
+
 2008-12-17 fix dpi-dependent behavior of text bbox and arrow in annotate
             -JJL
-
 2008-12-16 Another attempt to fix dpi-dependent behavior of Legend. -JJL
 
 ======================================================================
