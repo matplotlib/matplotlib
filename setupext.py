@@ -83,7 +83,6 @@ BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
 BUILT_DELAUNAY  = False
 BUILT_NXUTILS   = False
-BUILT_TRAITS    = False
 BUILT_CONTOUR   = False
 BUILT_GDK       = False
 BUILT_PATH      = False
@@ -99,8 +98,6 @@ options = {'display_status': True,
            'verbose': False,
            'provide_pytz': 'auto',
            'provide_dateutil': 'auto',
-           'provide_configobj': 'auto',
-           'provide_traits': False,
            'build_agg': True,
            'build_gtk': 'auto',
            'build_gtkagg': 'auto',
@@ -130,13 +127,6 @@ if os.path.exists("setup.cfg"):
                                                          "dateutil")
     except: options['provide_dateutil'] = 'auto'
 
-    try: options['provide_configobj'] = config.getboolean("provide_packages",
-                                                          "configobj")
-    except: options['provide_configobj'] = 'auto'
-
-    try: options['provide_traits'] = config.getboolean("provide_packages",
-                                                       "enthought.traits")
-    except: options['provide_traits'] = False
 
     try: options['build_gtk'] = config.getboolean("gui_support", "gtk")
     except: options['build_gtk'] = 'auto'
@@ -444,63 +434,6 @@ def check_provide_dateutil(hasdatetime=True):
             print_status("dateutil", "present, version unknown")
             return False
 
-def check_provide_configobj():
-    if options['provide_configobj'] is True:
-        print_status("configobj", "matplotlib will provide")
-        return True
-    try:
-        import configobj
-    except ImportError:
-        if options['provide_configobj']:
-            print_status("configobj", "matplotlib will provide")
-            return True
-        else:
-            print_status("configobj", "no")
-            return False
-    else:
-        if configobj.__version__.endswith('mpl'):
-            print_status("configobj", "matplotlib will provide")
-            return True
-        else:
-            print_status("configobj", configobj.__version__)
-            return False
-
-def check_provide_traits():
-    # Let's not install traits by default for now, unless it is specifically
-    # asked for in setup.cfg AND it is not already installed
-#    if options['provide_traits'] is True:
-#        print_status("enthought.traits", "matplotlib will provide")
-#        return True
-    try:
-        from enthought import traits
-        try:
-            from enthought.traits import version
-        except:
-            print_status("enthought.traits", "unknown and incompatible version: < 2.0")
-            return False
-        else:
-            # traits 2 and 3 store their version strings in different places:
-            try:
-                version = version.version
-            except AttributeError:
-                version = version.__version__
-            # next 2 lines added temporarily while we figure out what to do
-            # with traits:
-            print_status("enthought.traits", version)
-            return False
-#            if version.endswith('mpl'):
-#                print_status("enthought.traits", "matplotlib will provide")
-#                return True
-#            else:
-#                print_status("enthought.traits", version)
-#                return False
-    except ImportError:
-        if options['provide_traits']:
-            print_status("enthought.traits", "matplotlib will provide")
-            return True
-        else:
-            print_status("enthought.traits", "no")
-            return False
 
 def check_for_dvipng():
     try:
@@ -1354,23 +1287,6 @@ def build_image(ext_modules, packages):
     BUILT_IMAGE = True
 
 
-def build_traits(ext_modules, packages):
-    global BUILT_TRAITS
-    if BUILT_TRAITS:
-        return # only build it if you you haven't already
-
-    ctraits = Extension('enthought.traits.ctraits',
-                        ['lib/enthought/traits/ctraits.c'])
-    ext_modules.append(ctraits)
-    packages.extend(['enthought',
-                     'enthought/etsconfig',
-                     'enthought/traits',
-                     'enthought/traits/ui',
-                     'enthought/traits/ui/extras',
-                     'enthought/traits/ui/null',
-                     'enthought/traits/ui/tk',
-                     ])
-    BUILT_TRAITS = True
 
 def build_delaunay(ext_modules, packages):
     global BUILT_DELAUNAY
