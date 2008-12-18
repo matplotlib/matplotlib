@@ -35,12 +35,12 @@ import glob
 from distutils.core import setup
 from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      build_macosx, build_ft2font, build_image, build_windowing, build_path, \
-     build_contour, build_delaunay, build_nxutils, build_traits, build_gdk, \
+     build_contour, build_delaunay, build_nxutils, build_gdk, \
      build_ttconv, print_line, print_status, print_message, \
      print_raw, check_for_freetype, check_for_libpng, check_for_gtk, \
      check_for_tk, check_for_wx, check_for_macosx, check_for_numpy, \
-     check_for_qt, check_for_qt4, check_for_cairo, check_for_traits, \
-     check_provide_pytz, check_provide_dateutil, check_for_configobj, \
+     check_for_qt, check_for_qt4, check_for_cairo, \
+     check_provide_pytz, check_provide_dateutil,\
      check_for_dvipng, check_for_ghostscript, check_for_latex, \
      check_for_pdftops, check_for_datetime, options, build_png
 #import distutils.sysconfig
@@ -216,14 +216,6 @@ check_for_dvipng()
 check_for_ghostscript()
 check_for_latex()
 check_for_pdftops()
-
-# TODO: comment out for mpl release:
-print_raw("")
-print_raw("EXPERIMENTAL CONFIG PACKAGE DEPENDENCIES")
-has_configobj = check_for_configobj()
-has_traits = check_for_traits()
-if has_configobj and has_traits:
-    packages.append('matplotlib.config')
 
 print_raw("")
 print_raw("[Edit setup.cfg to suppress the above messages]")
