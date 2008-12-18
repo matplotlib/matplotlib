@@ -83,7 +83,6 @@ BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
 BUILT_DELAUNAY  = False
 BUILT_NXUTILS   = False
-BUILT_TRAITS    = False
 BUILT_CONTOUR   = False
 BUILT_GDK       = False
 BUILT_PATH      = False
@@ -433,36 +432,6 @@ def check_provide_dateutil(hasdatetime=True):
         except AttributeError:
             print_status("dateutil", "present, version unknown")
             return False
-
-def check_for_configobj():
-    try:
-        import configobj
-    except ImportError:
-        print_status("configobj", "no")
-        return False
-    else:
-        print_status("configobj", configobj.__version__)
-        return True
-
-def check_for_traits():
-    try:
-        from enthought import traits
-        try:
-            from enthought.traits import version
-        except:
-            print_status("enthought.traits", "unknown and incompatible version: < 2.0")
-            return False
-        else:
-            # traits 2 and 3 store their version strings in different places:
-            try:
-                version = version.version
-            except AttributeError:
-                version = version.__version__
-            print_status("enthought.traits", version)
-            return True
-    except ImportError:
-        print_status("enthought.traits", "no")
-        return False
 
 def check_for_dvipng():
     try:
@@ -1316,23 +1285,6 @@ def build_image(ext_modules, packages):
     BUILT_IMAGE = True
 
 
-def build_traits(ext_modules, packages):
-    global BUILT_TRAITS
-    if BUILT_TRAITS:
-        return # only build it if you you haven't already
-
-    ctraits = Extension('enthought.traits.ctraits',
-                        ['lib/enthought/traits/ctraits.c'])
-    ext_modules.append(ctraits)
-    packages.extend(['enthought',
-                     'enthought/etsconfig',
-                     'enthought/traits',
-                     'enthought/traits/ui',
-                     'enthought/traits/ui/extras',
-                     'enthought/traits/ui/null',
-                     'enthought/traits/ui/tk',
-                     ])
-    BUILT_TRAITS = True
 
 def build_delaunay(ext_modules, packages):
     global BUILT_DELAUNAY
