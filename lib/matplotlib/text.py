@@ -367,7 +367,8 @@ class Text(Artist):
 
 
     def update_bbox_position_size(self, renderer):
-        """ Update the location and the size of the bbox. This method
+        """
+        Update the location and the size of the bbox. This method
         should be used when the position and size of the bbox needs to
         be updated before actually drawing the bbox.
         """
@@ -395,8 +396,8 @@ class Text(Artist):
             tr = mtransforms.Affine2D().rotate(theta)
             tr = tr.translate(posx+x_box, posy+y_box)
             self._bbox_patch.set_transform(tr)
-            fontsize = renderer.points_to_pixels(self.get_size())
-            self._bbox_patch.set_mutation_scale(fontsize)
+            fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
+            self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
             #self._bbox_patch.draw(renderer)
 
         else:
@@ -434,7 +435,8 @@ class Text(Artist):
         tr = mtransforms.Affine2D().rotate(theta)
         tr = tr.translate(posx+x_box, posy+y_box)
         self._bbox_patch.set_transform(tr)
-        self._bbox_patch.set_mutation_scale(self.get_size())
+        fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
+        self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
         self._bbox_patch.draw(renderer)
 
 
@@ -1557,6 +1559,7 @@ class Annotation(Text):
 
                 self.arrow_patch.set_positions((ox0, oy0), (ox1,oy1))
                 mutation_scale = d.pop("mutation_scale", self.get_size())
+                mutation_scale = renderer.points_to_pixels(mutation_scale)
                 self.arrow_patch.set_mutation_scale(mutation_scale)
 
                 if self._bbox_patch:
