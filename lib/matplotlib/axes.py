@@ -545,6 +545,8 @@ class Axes(martist.Artist):
         self.set_navigate(True)
         self.set_navigate_mode(None)
 
+        self._axes_locator = None
+
         if len(kwargs): martist.setp(self, **kwargs)
 
         if self.xaxis is not None:
@@ -792,6 +794,21 @@ class Axes(martist.Artist):
         'Make the original position the active position'
         pos = self.get_position(original=True)
         self.set_position(pos, which='active')
+
+    def set_axes_locator(self, locator):
+        """
+        set axes_locator
+
+        ACCEPT : a callable object which takes an axes instance and renderer and
+                 returns a bbox.
+        """
+        self._axes_locator = locator
+
+    def get_axes_locator(self):
+        """
+        return axes_locator
+        """
+        return self._axes_locator
 
     def _set_artist_props(self, a):
         'set the boilerplate props for artists added to axes'
@@ -1531,7 +1548,12 @@ class Axes(martist.Artist):
         if not self.get_visible(): return
         renderer.open_group('axes')
 
-        self.apply_aspect()
+        locator = self.get_axes_locator()
+        if locator:
+            pos = locator(self, renderer)
+            self.apply_aspect(pos)
+        else:
+            self.apply_aspect()
 
         # the patch draws the background rectangle -- the frame below
         # will draw the edges
