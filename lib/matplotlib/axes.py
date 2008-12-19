@@ -3740,10 +3740,6 @@ class Axes(martist.Artist):
             A :class:`matplotlib.font_manager.FontProperties`
             instance, or *None* to use rc settings.
 
-          *pad*: [ None | scalar ]
-            The fractional whitespace inside the legend border, between 0 and 1.
-            If *None*, use rc settings.
-
           *markerscale*: [ None | scalar ]
             The relative size of legend markers vs. original. If *None*, use rc
             settings.
@@ -3751,20 +3747,20 @@ class Axes(martist.Artist):
           *shadow*: [ None | False | True ]
             If *True*, draw a shadow behind legend. If *None*, use rc settings.
 
-          *labelsep*: [ None | scalar ]
-            The vertical space between the legend entries. If *None*, use rc
-            settings.
+        Padding and spacing between various elements use following keywords
+        parameters. The dimensions of these values are given as a fraction
+        of the fontsize. Values from rcParams will be used if None.
 
-          *handlelen*: [ None | scalar ]
-            The length of the legend lines. If *None*, use rc settings.
-
-          *handletextsep*: [ None | scalar ]
-            The space between the legend line and legend text. If *None*, use rc
-            settings.
-
-          *axespad*: [ None | scalar ]
-            The border between the axes and legend edge. If *None*, use rc
-            settings.
+        ================   ==================================================================
+        Keyword            Description
+        ================   ==================================================================
+        borderpad          the fractional whitespace inside the legend border
+        labelspacing       the vertical space between the legend entries
+        handlelength       the length of the legend handles
+        handletextpad      the pad between the legend handle and text
+        borderaxespad      the pad between the axes and legend border
+        columnspacing      the spacing between columns
+        ================   ==================================================================
 
         **Example:**
 

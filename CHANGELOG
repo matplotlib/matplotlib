@@ -1,3 +1,7 @@
+2008-12-19 Update Axes.legend documnetation. /api/api_changes.rst is also 
+           updated to describe chages in keyword parameters. 
+           Issue a warning if old keyword parameters are used. - JJL
+
 2008-12-18 add new arrow style, a line + filled triangles. -JJL
 
 ==================================================================
