@@ -95,7 +95,7 @@ upload:
 	rm -rf upload &&\
 	mkdir upload &&\
 	cp matplotlib-${MPLVERSION}.tar.gz upload/ &&\
-	cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}_r0-py2.5-macosx-10.5-i386.egg upload/matplotlib-${MPLVERSION}-py2.5.egg &&\
+	cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}_r0-py2.5-macosx-10.3-fat.egg upload/matplotlib-${MPLVERSION}-py2.5.egg &&\
 	cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}-py2.5-macosx10.5.zip upload/matplotlib-${MPLVERSION}-py2.5-mpkg.zip&&\
 	scp upload/* jdh2358@frs.sourceforge.net:uploads/
 
