@@ -16,7 +16,7 @@ include lib/matplotlib/mpl-data/fonts/afm/*
 recursive-include license LICENSE*
 recursive-include examples *
 recursive-include doc *
-recursive-include src  *.cpp *.c *.h
+recursive-include src  *.cpp *.c *.h *.m
 recursive-include CXX  *.cxx *.hxx *.c *.h
 recursive-include agg24 *
 recursive-include lib *
