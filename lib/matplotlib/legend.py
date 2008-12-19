@@ -98,7 +98,7 @@ class Legend(Artist):
                  handletextsep = None, # deprecated; use handletextpad
                  axespad = None,       # deprecated; use borderaxespad
 
-                 # spacing & pad defined as a fractionof the font-size
+                 # spacing & pad defined as a fraction of the font-size
                  borderpad = None,     # the whitespace inside the legend border
                  labelspacing=None, #the vertical space between the legend entries
                  handlelength=None, # the length of the legend handles

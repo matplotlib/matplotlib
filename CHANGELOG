@@ -1,3 +1,6 @@
+2008-12-19 Update Axes.legend documnetation. /api/api_changes.rst is also 
+           updated to describe chages in keyword parameters. 
+           Issue a warning if old keyword parameters are used. - JJL
 
 =======================================================================
 Re-Released 0.98.5.2 at r6679

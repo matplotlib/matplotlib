@@ -582,6 +582,14 @@ _deprecated_map = {
     'tick.size' :       'tick.major.size',
     }
 
+_deprecated_ignore_map = {
+    'legend.pad' :       'legend.borderpad',
+    'legend.labelsep' :       'legend.labelspacing',
+    'legend.handlelen' :       'legend.handlelength',
+    'legend.handletextsep' :       'legend.handletextpad',
+    'legend.axespad' :       'legend.borderaxespad',
+    }
+
 
 class RcParams(dict):
 
@@ -602,6 +610,10 @@ class RcParams(dict):
                 warnings.warn('%s is deprecated in matplotlibrc. Use %s \
 instead.'% (key, alt))
                 key = alt
+            elif key in _deprecated_ignore_map:
+                alt = _deprecated_ignore_map[key]
+                warnings.warn('%s is deprecated. Use %s instead.'% (key, alt))
+                return
             cval = self.validate[key](val)
             dict.__setitem__(self, key, cval)
         except KeyError:
@@ -665,6 +677,9 @@ def rc_params(fail_on_error=False):
                 except Exception, msg:
                     warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file \
 "%s"\n\t%s' % (val, cnt, line, fname, msg))
+        elif key in _deprecated_ignore_map:
+            warnings.warn('%s is deprecated. Update your matplotlibrc to use %s instead.'% (key, _deprecated_ignore_map[key]))
+            
         else:
             print >> sys.stderr, """
 Bad key "%s" on line %d in
