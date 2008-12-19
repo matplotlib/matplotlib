@@ -233,19 +233,11 @@ units = False
     origin = 'upper'
 
 [legend]
-    # a float
-    axespad = 0.02
     # a float or 'xx-small' or 'x-small' or 'small' or 'medium' or 'large' or
     # 'x-large' or 'xx-large'
     fontsize = 'medium'
-    # a float
-    handlelen = 0.050000000000000003
-    # a float
-    handletextsep = 0.02
     # a boolean
     isaxes = True
-    # a float
-    labelsep = 0.01
     # 'best' or 'upper right' or 'upper left' or 'lower left' or 'lower right'
     # or 'right' or 'center left' or 'center right' or 'lower center' or
     # 'upper center' or 'center'
@@ -254,10 +246,21 @@ units = False
     markerscale = 1.0
     # an integer
     numpoints = 3
-    # a float
-    pad = 0.20000000000000001
     # a boolean
     shadow = False
+    # float
+    borderpad = 0.4
+    # float
+    labelspacing = 0.5
+    # float
+    handlelength = 2.
+    # float
+    handletextpad = 0.8
+    # float
+    borderaxespad = 0.5
+    # float
+    columnspacing = 2.
+
 
 [lines]
     # a boolean
