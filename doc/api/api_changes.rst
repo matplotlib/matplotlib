@@ -8,6 +8,22 @@ list may help describe what changes may be necessary in your code.
 
 Changes for 0.98.x
 ==================
+* Following keyword parameters for :class:`matplotlib.label.Label` are now
+  deprecated and new set of parameters are introduced. The new parameters 
+  are given as a fraction of the font-size. Also, *scatteryoffsets*, 
+  *fancybox* and *columnspacing* are added as keyword parameters.
+
+        ================   ================
+        Deprecated         New
+        ================   ================
+        pad                borderpad          
+        labelsep           labelspacing       
+        handlelen          handlelength       
+        handlestextsep     handletextpad      
+        axespad	           borderaxespad      
+        ================   ================   
+
+
 * Removed the configobj and experiemtnal traits rc support
 
 * Modified :func:`matplotlib.mlab.psd`, :func:`matplotlib.mlab.csd`,
