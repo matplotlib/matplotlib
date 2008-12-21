@@ -247,12 +247,12 @@ class Patch(artist.Artist):
 
         CURRENT LIMITATIONS:
 
-        1. Hatching is supported in the PostScript backend only.
+        1. Hatching is supported in the PostScript and the PDF backend only.
 
         2. Hatching is done with solid black lines of width 0.
 
 
-        ACCEPTS: [ '/' | '\\' | '|' | '-' | '#' | 'x' ]
+        ACCEPTS: [ '/' | '\\' | '|' | '-' | '#' | 'x' ] (ps & pdf backend only)
         """
         self._hatch = h
 
