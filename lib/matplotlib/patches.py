@@ -372,7 +372,7 @@ class Shadow(Patch):
         self.patch = patch
         self.props = props
         self._ox, self._oy = ox, oy
-        self._update_transform()
+        self._shadow_transform = transforms.Affine2D()
         self._update()
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
@@ -390,26 +390,30 @@ class Shadow(Patch):
             self.set_facecolor((r,g,b,0.5))
             self.set_edgecolor((r,g,b,0.5))
 
-    def _update_transform(self):
-        self._shadow_transform = transforms.Affine2D().translate(self._ox, self._oy)
+    def _update_transform(self, renderer):
+        ox = renderer.points_to_pixels(self._ox)
+        oy = renderer.points_to_pixels(self._oy)
+        self._shadow_transform.clear().translate(ox, oy)
 
     def _get_ox(self):
         return self._ox
     def _set_ox(self, ox):
         self._ox = ox
-        self._update_transform()
 
     def _get_oy(self):
         return self._oy
     def _set_oy(self, oy):
         self._oy = oy
-        self._update_transform()
 
     def get_path(self):
         return self.patch.get_path()
 
     def get_patch_transform(self):
         return self.patch.get_patch_transform() + self._shadow_transform
+
+    def draw(self, renderer):
+        self._update_transform(renderer)
+        Patch.draw(self, renderer)
 
 class Rectangle(Patch):
     """

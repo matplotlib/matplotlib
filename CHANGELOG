@@ -1,3 +1,5 @@
+2008-12-20 fix the dpi-dependent offset of Shadow. - JJL
+
 2008-12-20 fix the hatch bug in the pdf backend. minor update
            in docs and  example - JJL
 
