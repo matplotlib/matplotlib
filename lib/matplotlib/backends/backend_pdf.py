@@ -942,7 +942,7 @@ end"""
     def hatchPattern(self, lst):
         pattern = self.hatchPatterns.get(lst, None)
         if pattern is not None:
-            return pattern[0]
+            return pattern
 
         name = Name('H%d' % self.nextHatch)
         self.nextHatch += 1
@@ -1233,7 +1233,7 @@ class RendererPdf(RendererBase):
 
     def get_image_magnification(self):
         return self.image_dpi/72.0
-            
+
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         # MGDTODO: Support clippath here
         gc = self.new_gc()
