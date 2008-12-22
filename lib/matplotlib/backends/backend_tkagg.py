@@ -389,7 +389,7 @@ class FigureManagerTkAgg(FigureManagerBase):
             # anim.py requires this
             if sys.platform=='win32' : self.window.update()
         else:
-            self.canvas.draw()
+            self.canvas.draw_idle()
         self._shown = True
 
 
