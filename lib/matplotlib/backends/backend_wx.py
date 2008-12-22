@@ -1306,7 +1306,7 @@ def draw_if_interactive():
 
         figManager = Gcf.get_active()
         if figManager is not None:
-            figManager.canvas.draw()
+            figManager.canvas.draw_idle()
 
 def show():
     """
