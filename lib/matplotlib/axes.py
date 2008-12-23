@@ -5417,7 +5417,7 @@ class Axes(martist.Artist):
             for i in xrange(nx2):
                 for j in xrange(ny2):
                     vals = lattice2[i,j]
-                    if len(vals):
+                    if len(vals)>mincnt:
                         lattice2[i,j] = reduce_C_function( vals )
                     else:
                         lattice2[i,j] = np.nan
