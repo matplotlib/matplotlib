@@ -5212,7 +5212,7 @@ class Axes(martist.Artist):
                     xscale = 'linear', yscale = 'linear',
                     cmap=None, norm=None, vmin=None, vmax=None,
                     alpha=1.0, linewidths=None, edgecolors='none',
-                    reduce_C_function = np.mean,
+                    reduce_C_function = np.mean, mincnt=None,
                     **kwargs):
         """
         call signature::
@@ -5221,7 +5221,7 @@ class Axes(martist.Artist):
                  xscale = 'linear', yscale = 'linear',
                  cmap=None, norm=None, vmin=None, vmax=None,
                  alpha=1.0, linewidths=None, edgecolors='none'
-                 reduce_C_function = np.mean,
+                 reduce_C_function = np.mean, mincnt=None,
                  **kwargs)
 
         Make a hexagonal binning plot of *x* versus *y*, where *x*,
@@ -5268,6 +5268,10 @@ class Axes(martist.Artist):
 
           *scale*: [ 'linear' | 'log' ]
             Use a linear or log10 scale on the vertical axis.
+
+          *mincnt*: None | a positive integer
+            If not None, only display cells with at least *mincnt*
+            number of points in the cell
 
         Other keyword arguments controlling color mapping and normalization
         arguments:
@@ -5369,6 +5373,8 @@ class Axes(martist.Artist):
         d1 = (x-ix1)**2 + 3.0 * (y-iy1)**2
         d2 = (x-ix2-0.5)**2 + 3.0 * (y-iy2-0.5)**2
         bdist = (d1<d2)
+        if mincnt is None:
+            mincnt = 0
 
         if C is None:
             accum = np.zeros(n)
@@ -5400,10 +5406,11 @@ class Axes(martist.Artist):
                 else:
                     lattice2[ix2[i], iy2[i]].append( C[i] )
 
+
             for i in xrange(nx1):
                 for j in xrange(ny1):
                     vals = lattice1[i,j]
-                    if len(vals):
+                    if len(vals)>mincnt:
                         lattice1[i,j] = reduce_C_function( vals )
                     else:
                         lattice1[i,j] = np.nan
