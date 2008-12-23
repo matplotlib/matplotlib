@@ -5270,7 +5270,7 @@ class Axes(martist.Artist):
             Use a linear or log10 scale on the vertical axis.
 
           *mincnt*: None | a positive integer
-            If not None, only display cells with at least *mincnt*
+            If not None, only display cells with more than *mincnt*
             number of points in the cell
 
         Other keyword arguments controlling color mapping and normalization
