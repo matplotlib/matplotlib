@@ -209,6 +209,9 @@ def validate_font_properties(s):
 
 validate_fontset = ValidateInStrings('fontset', ['cm', 'stix', 'stixsans', 'custom'])
 
+validate_mathtext_default = ValidateInStrings(
+    'default', "rm cal it tt sf bf default bb frak circled scr regular".split())
+
 validate_verbose = ValidateInStrings('verbose',[
     'silent', 'helpful', 'debug', 'debug-annoying',
     ])
@@ -371,6 +374,7 @@ defaultParams = {
     'mathtext.bf'         : ['serif:bold', validate_font_properties],
     'mathtext.sf'         : ['sans\-serif', validate_font_properties],
     'mathtext.fontset'    : ['cm', validate_fontset],
+    'mathtext.default'    : ['it', validate_mathtext_default],
     'mathtext.fallback_to_cm' : [True, validate_bool],
 
     'image.aspect'        : ['equal', validate_aspect],  # equal, auto, a number

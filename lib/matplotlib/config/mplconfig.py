@@ -168,6 +168,7 @@ class MPLConfig(TConfig):
         bf  = T.Trait('serif:bold'    , mplT.FontconfigPatternHandler())
         sf  = T.Trait('sans'          , mplT.FontconfigPatternHandler())
         fontset = T.Trait('cm', 'cm', 'stix', 'stixsans', 'custom')
+        default = T.Trait(*("rm cal it tt sf bf default bb frak circled scr regular".split()))
         fallback_to_cm = T.true
 
     class axes(TConfig):
