@@ -403,7 +403,7 @@ class Fonts(object):
 
         *fontX*: one of the TeX font names::
 
-          tt, it, rm, cal, sf, bf or default (non-math)
+          tt, it, rm, cal, sf, bf or default/regular (non-math)
 
         *fontclassX*: TODO
 
@@ -419,7 +419,7 @@ class Fonts(object):
         """
         *font*: one of the TeX font names::
 
-          tt, it, rm, cal, sf, bf or default (non-math)
+          tt, it, rm, cal, sf, bf or default/regular (non-math)
 
         *font_class*: TODO
 
@@ -543,6 +543,7 @@ class TruetypeFonts(Fonts):
         filename = findfont(default_font_prop)
         default_font = self.CachedFont(FT2Font(str(filename)))
         self._fonts['default'] = default_font
+        self._fonts['regular'] = default_font
 
     def destroy(self):
         self.glyphd = None
@@ -616,7 +617,7 @@ class TruetypeFonts(Fonts):
         pclt = cached_font.font.get_sfnt_table('pclt')
         if pclt is None:
             # Some fonts don't store the xHeight, so we do a poor man's xHeight
-            metrics = self.get_metrics(font, 'it', 'x', fontsize, dpi)
+            metrics = self.get_metrics(font, rcParams['mathtext.default'], 'x', fontsize, dpi)
             return metrics.iceberg
         xHeight = (pclt['xHeight'] / 64.0) * (fontsize / 12.0) * (dpi / 100.0)
         return xHeight
@@ -936,7 +937,7 @@ class StixFonts(UnicodeFonts):
             elif not doing_sans_conversion:
                 # This will generate a dummy character
                 uniindex = 0x1
-                fontname = 'it'
+                fontname = rcParams['mathtext.default']
 
         # Handle private use area glyphs
         if (fontname in ('it', 'rm', 'bf') and
@@ -1007,6 +1008,7 @@ class StandardPsFonts(Fonts):
         default_font.fname = filename
 
         self.fonts['default'] = default_font
+        self.fonts['regular'] = default_font
         self.pswriter = StringIO()
 
     def _get_font(self, font):
@@ -2064,7 +2066,7 @@ class Parser(object):
 
     _dropsub_symbols = set(r'''\int \oint'''.split())
 
-    _fontnames = set("rm cal it tt sf bf default bb frak circled scr".split())
+    _fontnames = set("rm cal it tt sf bf default bb frak circled scr regular".split())
 
     _function_names = set("""
       arccos csc ker min arcsin deg lg Pr arctan det lim sec arg dim
@@ -2294,7 +2296,7 @@ class Parser(object):
         def _get_font(self):
             return self._font
         def _set_font(self, name):
-            if name in ('it', 'rm', 'bf'):
+            if name in Parser._fontnames:
                 self.font_class = name
             self._font = name
         font = property(_get_font, _set_font)
@@ -2336,7 +2338,7 @@ class Parser(object):
         hlist = Hlist(symbols)
         # We're going into math now, so set font to 'it'
         self.push_state()
-        self.get_state().font = 'it'
+        self.get_state().font = rcParams['mathtext.default']
         return [hlist]
 
     def _make_space(self, percentage):
@@ -2346,7 +2348,7 @@ class Parser(object):
         width = self._em_width_cache.get(key)
         if width is None:
             metrics = state.font_output.get_metrics(
-                state.font, 'it', 'm', state.fontsize, state.dpi)
+                state.font, rcParams['mathtext.default'], 'm', state.fontsize, state.dpi)
             width = metrics.advance
             self._em_width_cache[key] = width
         return Kern(width * percentage)
@@ -2665,7 +2667,7 @@ class Parser(object):
         # Shift so the fraction line sits in the middle of the
         # equals sign
         metrics = state.font_output.get_metrics(
-            state.font, 'it', '=', state.fontsize, state.dpi)
+            state.font, rcParams['mathtext.default'], '=', state.fontsize, state.dpi)
         shift = (cden.height -
                  ((metrics.ymax + metrics.ymin) / 2 -
                   thickness * 3.0))

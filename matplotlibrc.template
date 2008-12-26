@@ -185,6 +185,11 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 			         # fonts when a symbol can not be found in one of
 				 # the custom math fonts.
 
+#mathtext.default : it # The default font to use for math.
+                       # Can be any of the LaTeX font names, including
+                       # the special name "regular" for the same font
+                       # used in regular text.
+
 ### AXES
 # default face and edge color, default tick sizes,
 # default fontsizes for ticklabels, and so on.  See
