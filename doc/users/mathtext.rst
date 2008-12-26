@@ -144,9 +144,16 @@ commands such as fractions or sub/superscripts::
 Fonts
 -----
 
-The default font is *italics* for mathematical symbols.  To change
-fonts, eg, to write "sin" in a Roman font, enclose the text in a font
-command::
+The default font is *italics* for mathematical symbols.
+
+.. note::
+
+   This default can be changed using the ``mathtext.default`` rcParam.
+   This is useful, for example, to use the same font as regular
+   non-math text for math text, by setting it to ``regular``.
+
+To change fonts, eg, to write "sin" in a Roman font, enclose the text
+in a font command::
 
     r'$s(t) = \mathcal{A}\mathrm{sin}(2 \omega t)$'
 
@@ -222,6 +229,12 @@ selected using the ``mathtext.fontset`` parameter in
 ``stixsans``: **STIX sans-serif**
 
 .. image:: ../_static/stixsans_fontset.png
+
+Additionally, you can use ``\mathdefault{...}`` or its alias
+``\mathregular{...}`` to use the font used for regular text outside of
+mathtext.  There are a number of limitations to this approach, most
+notably that far fewer symbols will be available, but it can be useful
+to make math expressions blend well with other text in the plot.
 
 Custom fonts
 ~~~~~~~~~~~~
