@@ -12,6 +12,7 @@ from matplotlib._path import point_in_path, get_path_extents, \
     point_in_path_collection, get_path_collection_extents, \
     path_in_path, path_intersects_path, convert_path_to_polygons
 from matplotlib.cbook import simple_linear_interpolation, maxdict
+from matplotlib import rcParams
 
 class Path(object):
     """
@@ -109,7 +110,7 @@ class Path(object):
         assert vertices.ndim == 2
         assert vertices.shape[1] == 2
 
-        self.should_simplify = (rcParam['path.simplify'] and
+        self.should_simplify = (rcParams['path.simplify'] and
                                 (len(vertices) >= 128 and
                                 (codes is None or np.all(codes <= Path.LINETO))))
         self.has_nonfinite = not np.isfinite(vertices).all()
