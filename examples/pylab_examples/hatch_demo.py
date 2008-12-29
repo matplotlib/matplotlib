@@ -1,8 +1,6 @@
 """
-Hatching (pattern filled polygons) is supported currently on PS and PDF
-backend only.  See the set_patch method in
-http://matplotlib.sf.net/matplotlib.patches.html#Patch
-for details
+Hatching (pattern filled polygons) is supported currently in the PS,
+PDF, SVG and Agg backends only.
 """
 import matplotlib.pyplot as plt
 
