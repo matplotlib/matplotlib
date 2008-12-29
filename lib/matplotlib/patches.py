@@ -228,11 +228,11 @@ class Patch(artist.Artist):
         'return whether fill is set'
         return self.fill
 
-    def set_hatch(self, h):
+    def set_hatch(self, hatch):
         """
         Set the hatching pattern
 
-        hatch can be one of::
+        *hatch* can be one of::
 
           /   - diagonal hatching
           \   - back diagonal
@@ -247,10 +247,8 @@ class Patch(artist.Artist):
 
         CURRENT LIMITATIONS:
 
-        1. Hatching is supported in the PostScript and the PDF backend only.
-
-        2. Hatching is done with solid black lines of width 0.
-
+        1. Hatching is supported in the PostScript, PDF, SVG and Agg
+           backends only.
 
         ACCEPTS: [ '/' | '\\' | '|' | '-' | '#' | 'x' ] (ps & pdf backend only)
         """
@@ -2655,7 +2653,7 @@ class ArrowStyle(_Style):
             """
 
             path = make_path_regular(path)
-            
+
             if aspect_ratio is not None:
                 # Squeeze the given height by the aspect_ratio
 
@@ -2808,27 +2806,27 @@ class ArrowStyle(_Style):
                                           [(x3+ddxB, y3+ddyB)]]),
                           path.codes)]
             _fillable = [False]
-            
+
             if self.beginarrow:
                 if self.fillbegin:
                     p = np.concatenate([verticesA, [verticesA[0], verticesA[0]], ])
-                    c = np.concatenate([codesA, [Path.LINETO, Path.CLOSEPOLY]]) 
+                    c = np.concatenate([codesA, [Path.LINETO, Path.CLOSEPOLY]])
                     _path.append(Path(p, c))
                     _fillable.append(True)
                 else:
                     _path.append(Path(verticesA, codesA))
                     _fillable.append(False)
-            
+
             if self.endarrow:
                 if self.fillend:
                     _fillable.append(True)
                     p = np.concatenate([verticesB, [verticesB[0], verticesB[0]], ])
-                    c = np.concatenate([codesB, [Path.LINETO, Path.CLOSEPOLY]]) 
+                    c = np.concatenate([codesB, [Path.LINETO, Path.CLOSEPOLY]])
                     _path.append(Path(p, c))
                 else:
                     _fillable.append(False)
                     _path.append(Path(verticesB, codesB))
-            
+
             return _path, _fillable
 
 
@@ -2926,7 +2924,7 @@ class ArrowStyle(_Style):
 
             super(ArrowStyle.CurveFilledA, self).__init__( \
                 beginarrow=True, endarrow=False,
-                fillbegin=True, fillend=False, 
+                fillbegin=True, fillend=False,
                 head_length=head_length, head_width=head_width )
 
     _style_list["<|-"] = CurveFilledA
@@ -2948,7 +2946,7 @@ class ArrowStyle(_Style):
 
             super(ArrowStyle.CurveFilledB, self).__init__( \
                 beginarrow=False, endarrow=True,
-                fillbegin=False, fillend=True, 
+                fillbegin=False, fillend=True,
                 head_length=head_length, head_width=head_width )
 
     _style_list["-|>"] = CurveFilledB
@@ -2970,7 +2968,7 @@ class ArrowStyle(_Style):
 
             super(ArrowStyle.CurveFilledAB, self).__init__( \
                 beginarrow=True, endarrow=True,
-                fillbegin=True, fillend=True, 
+                fillbegin=True, fillend=True,
                 head_length=head_length, head_width=head_width )
 
     _style_list["<|-|>"] = CurveFilledAB
@@ -3532,7 +3530,7 @@ class FancyArrowPatch(Patch):
 
         if cbook.iterable(fillable):
             _path = concatenate_paths(_path)
-        
+
         return self.get_transform().inverted().transform_path(_path)
 
 
@@ -3604,7 +3602,7 @@ class FancyArrowPatch(Patch):
         if not cbook.iterable(fillable):
             path = [path]
             fillable = [fillable]
-            
+
 
         affine = transforms.IdentityTransform()
 
@@ -3615,6 +3613,6 @@ class FancyArrowPatch(Patch):
                 renderer.draw_path(gc, p, affine, rgbFace)
             else:
                 renderer.draw_path(gc, p, affine, None)
-                
+
 
         renderer.close_group('patch')
