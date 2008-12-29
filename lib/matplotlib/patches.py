@@ -252,7 +252,7 @@ class Patch(artist.Artist):
 
         ACCEPTS: [ '/' | '\\' | '|' | '-' | '#' | 'x' ] (ps & pdf backend only)
         """
-        self._hatch = h
+        self._hatch = hatch
 
     def get_hatch(self):
         'Return the current hatching pattern'
