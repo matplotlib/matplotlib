@@ -112,7 +112,7 @@ class Path(object):
 
         self.should_simplify = (rcParams['path.simplify'] and
                                 (len(vertices) >= 128 and
-                                (codes is None or np.all(codes <= Path.LINETO))))
+                                 (codes is None or np.all(codes <= Path.LINETO))))
         self.has_nonfinite = not np.isfinite(vertices).all()
         self.codes = codes
         self.vertices = vertices
