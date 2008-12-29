@@ -12,7 +12,7 @@ ax1.annotate("Hatch is only supported in the PS and PDF backend", (1, 1),
              xytext=(0, 5),
              xycoords="axes fraction", textcoords="offset points", ha="center"
              )
-ax1.bar(range(1,5), range(1,5), color='gray', edgecolor='red', hatch="/")
+ax1.bar(range(1,5), range(1,5), color='gray', edgecolor='black', hatch="/")
 
 
 ax2 = fig.add_subplot(122)
@@ -23,5 +23,3 @@ for bar, pattern in zip(bars, patterns):
      bar.set_hatch(pattern)
 
 plt.show()
-plt.savefig("test.pdf")
-plt.savefig("test.ps")
