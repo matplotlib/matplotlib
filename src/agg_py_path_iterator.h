@@ -353,7 +353,7 @@ public:
 
             //if the perp vector is less than some number of (squared)
             //pixels in size, then merge the current vector
-            if (perpdNorm2 < 0.25)
+            if (perpdNorm2 < (1.0 / 9.0))
             {
                 //check if the current vector is parallel or
                 //anti-parallel to the orig vector. If it is parallel, test

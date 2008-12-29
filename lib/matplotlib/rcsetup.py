@@ -518,7 +518,7 @@ defaultParams = {
     'docstring.hardcopy' : [False, validate_bool],  # set this when you want to generate hardcopy docstring
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
-    'path.simplify' : [False, validate_bool],
+    'path.simplify' : [True, validate_bool],
     'agg.path.chunksize' : [0, validate_int]       # 0 to disable chunking;
                                                    # recommend about 20000 to
                                                    # enable. Experimental.
