@@ -57,6 +57,7 @@ class RendererSVG(RendererBase):
         self._markers = {}
         self._path_collection_id = 0
         self._imaged = {}
+        self._hatchd = {}
         self.mathtext_parser = MathTextParser('SVG')
         svgwriter.write(svgProlog%(width,height,width,height))
 
@@ -90,15 +91,38 @@ class RendererSVG(RendererBase):
         font.set_size(size, 72.0)
         return font
 
+    def _get_hatch(self, gc, rgbFace):
+        """
+        Create a new hatch pattern
+        """
+        HATCH_SIZE = 144
+        dictkey = (gc.get_hatch().lower(), rgbFace, gc.get_rgb())
+        id = self._hatchd.get(dictkey)
+        if id is None:
+            id = 'h%s' % md5(str(dictkey)).hexdigest()
+            self._svgwriter.write('<defs>\n  <pattern id="%s" ' % id)
+            self._svgwriter.write('patternUnits="userSpaceOnUse" x="0" y="0" ')
+            self._svgwriter.write(' width="%d" height="%d" >\n' % (HATCH_SIZE, HATCH_SIZE))
+            path_data = self._convert_path(gc.get_hatch_path(), Affine2D().scale(144))
+            path = '<path d="%s" fill="%s" stroke="%s" stroke-width="1.0"/>' % (
+                path_data, rgb2hex(rgbFace[:3]), rgb2hex(gc.get_rgb()[:3]))
+            self._svgwriter.write(path)
+            self._svgwriter.write('\n  </pattern>\n</defs>')
+            self._hatchd[dictkey] = id
+        return id
+
     def _get_style(self, gc, rgbFace):
         """
         return the style string.
         style is generated from the GraphicsContext, rgbFace and clippath
         """
-        if rgbFace is None:
-            fill = 'none'
+        if gc.get_hatch() is not None:
+            fill = "url(#%s)" % self._get_hatch(gc, rgbFace)
         else:
-            fill = rgb2hex(rgbFace[:3])
+            if rgbFace is None:
+                fill = 'none'
+            else:
+                fill = rgb2hex(rgbFace[:3])
 
         offset, seq = gc.get_dashes()
         if seq is None:
@@ -150,7 +174,7 @@ class RendererSVG(RendererBase):
     def open_group(self, s, gid=None):
         """
         Open a grouping element with label *s*. If *gid* is given, use
-        *gid* as the id of the group. 
+        *gid* as the id of the group.
         """
         if gid:
             self._svgwriter.write('<g id="%s">\n' % (gid))

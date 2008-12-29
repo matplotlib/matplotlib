@@ -953,21 +953,20 @@ end"""
                      'CA': alpha, 'ca': alpha })
         return name
 
-    def hatchPattern(self, lst):
-        pattern = self.hatchPatterns.get(lst, None)
+    def hatchPattern(self, hatch_style):
+        pattern = self.hatchPatterns.get(hatch_style, None)
         if pattern is not None:
             return pattern
 
         name = Name('H%d' % self.nextHatch)
         self.nextHatch += 1
-        self.hatchPatterns[lst] = name
+        self.hatchPatterns[hatch_style] = name
         return name
 
     def writeHatches(self):
         hatchDict = dict()
-        sidelen = 144.0
-        density = 24.0
-        for lst, name in self.hatchPatterns.items():
+        sidelen = 72.0
+        for hatch_style, name in self.hatchPatterns.items():
             ob = self.reserveObject('hatch pattern')
             hatchDict[name] = ob
             res = { 'Procsets':
@@ -983,33 +982,21 @@ end"""
             # lst is a tuple of stroke color, fill color,
             # number of - lines, number of / lines,
             # number of | lines, number of \ lines
-            rgb = lst[0]
+            rgb = hatch_style[0]
             self.output(rgb[0], rgb[1], rgb[2], Op.setrgb_stroke)
-            if lst[1] is not None:
-                rgb = lst[1]
+            if hatch_style[1] is not None:
+                rgb = hatch_style[1]
                 self.output(rgb[0], rgb[1], rgb[2], Op.setrgb_nonstroke,
                             0, 0, sidelen, sidelen, Op.rectangle,
                             Op.fill)
-            if lst[2]:                # -
-                for j in npy.arange(0.0, sidelen, density/lst[2]):
-                    self.output(0, j, Op.moveto,
-                                sidelen, j, Op.lineto)
-            if lst[3]:                # /
-                for j in npy.arange(0.0, sidelen, density/lst[3]):
-                    self.output(0, j, Op.moveto,
-                                sidelen-j, sidelen, Op.lineto,
-                                sidelen-j, 0, Op.moveto,
-                                sidelen, j, Op.lineto)
-            if lst[4]:                # |
-                for j in npy.arange(0.0, sidelen, density/lst[4]):
-                    self.output(j, 0, Op.moveto,
-                                j, sidelen, Op.lineto)
-            if lst[5]:                # \
-                for j in npy.arange(sidelen, 0.0, -density/lst[5]):
-                    self.output(sidelen, j, Op.moveto,
-                                j, sidelen, Op.lineto,
-                                j, 0, Op.moveto,
-                                0, j, Op.lineto)
+
+            self.output(0.1, Op.setlinewidth)
+
+            # TODO: We could make this dpi-dependent, but that would be
+            # an API change
+            self.output(*self.pathOperations(
+                    Path.hatch(hatch_style[2]),
+                    Affine2D().scale(sidelen)))
             self.output(Op.stroke)
 
             self.endStream()
@@ -1735,13 +1722,8 @@ class GraphicsContextPdf(GraphicsContextBase):
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
         else:
             hatch = hatch.lower()
-            lst = ( self._rgb,
-                    self._fillcolor,
-                    hatch.count('-') + hatch.count('+'),
-                    hatch.count('/') + hatch.count('x'),
-                    hatch.count('|') + hatch.count('+'),
-                    hatch.count('\\') + hatch.count('x') )
-            name = self.file.hatchPattern(lst)
+            hatch_style = (self._rgb, self._fillcolor, hatch)
+            name = self.file.hatchPattern(hatch_style)
             return [Name('Pattern'), Op.setcolorspace_nonstroke,
                     name, Op.setcolor_nonstroke]
 

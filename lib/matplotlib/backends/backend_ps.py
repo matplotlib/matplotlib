@@ -31,7 +31,7 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.text import Text
 from matplotlib.path import Path
-from matplotlib.transforms import IdentityTransform
+from matplotlib.transforms import Affine2D
 
 import numpy as npy
 import binascii
@@ -163,7 +163,7 @@ class RendererPS(RendererBase):
         self.linedash = None
         self.fontname = None
         self.fontsize = None
-        self.hatch = None
+        self._hatches = {}
         self.image_magnification = imagedpi/72.0
         self._clip_paths = {}
         self._path_collection_id = 0
@@ -231,57 +231,35 @@ class RendererPS(RendererBase):
             if store: self.fontname = fontname
             if store: self.fontsize = fontsize
 
-    def set_hatch(self, hatch):
-        """
-        hatch can be one of:
-            /   - diagonal hatching
-            \   - back diagonal
-            |   - vertical
-            -   - horizontal
-            +   - crossed
-            X   - crossed diagonal
+    def create_hatch(self, hatch):
+        sidelen = 72
+        if self._hatches.has_key(hatch):
+            return self._hatches[hatch]
+        name = 'H%d' % len(self._hatches)
+        self._pswriter.write("""\
+  << /PatternType 1
+     /PaintType 2
+     /TilingType 2
+     /BBox[0 0 %(sidelen)d %(sidelen)d]
+     /XStep %(sidelen)d
+     /YStep %(sidelen)d
 
-        letters can be combined, in which case all the specified
-        hatchings are done
-
-        if same letter repeats, it increases the density of hatching
-        in that direction
-        """
-        hatches = {'horiz':0, 'vert':0, 'diag1':0, 'diag2':0}
-
-        for letter in hatch:
-            if   (letter == '/'):    hatches['diag2'] += 1
-            elif (letter == '\\'):   hatches['diag1'] += 1
-            elif (letter == '|'):    hatches['vert']  += 1
-            elif (letter == '-'):    hatches['horiz'] += 1
-            elif (letter == '+'):
-                hatches['horiz'] += 1
-                hatches['vert'] += 1
-            elif (letter.lower() == 'x'):
-                hatches['diag1'] += 1
-                hatches['diag2'] += 1
-
-        def do_hatch(angle, density):
-            if (density == 0): return ""
-            return """\
-  gsave
-   eoclip %s rotate 0.0 0.0 0.0 0.0 setrgbcolor 0 setlinewidth
-   /hatchgap %d def
-   pathbbox /hatchb exch def /hatchr exch def /hatcht exch def /hatchl exch def
-   hatchl cvi hatchgap idiv hatchgap mul
-   hatchgap
-   hatchr cvi hatchgap idiv hatchgap mul
-   {hatcht m 0 hatchb hatcht sub r }
-   for
-   stroke
-  grestore
- """ % (angle, 12/density)
-        self._pswriter.write("gsave\n")
-        self._pswriter.write(do_hatch(90, hatches['horiz']))
-        self._pswriter.write(do_hatch(0, hatches['vert']))
-        self._pswriter.write(do_hatch(45, hatches['diag1']))
-        self._pswriter.write(do_hatch(-45, hatches['diag2']))
-        self._pswriter.write("grestore\n")
+     /PaintProc {
+        pop
+        0 setlinewidth
+""" % locals())
+        self._pswriter.write(
+            self._convert_path(Path.hatch(hatch), Affine2D().scale(72.0)))
+        self._pswriter.write("""\
+          stroke
+     } bind
+   >>
+   matrix
+   makepattern
+   /%(name)s exch def
+""" % locals())
+        self._hatches[hatch] = name
+        return name
 
     def get_canvas_width_height(self):
         'return the canvas width and height in display coords'
@@ -816,15 +794,17 @@ grestore
         if fill:
             if stroke:
                 write("gsave\n")
-                self.set_color(store=0, *rgbFace[:3])
-                write("fill\ngrestore\n")
-            else:
-                self.set_color(store=0, *rgbFace[:3])
-                write("fill\n")
+            self.set_color(store=0, *rgbFace[:3])
+            write("fill\n")
+            if stroke:
+                write("grestore\n")
 
         hatch = gc.get_hatch()
         if hatch:
-            self.set_hatch(hatch)
+            hatch_name = self.create_hatch(hatch)
+            write("gsave\n")
+            write("[/Pattern [/DeviceRGB]] setcolorspace %f %f %f " % gc.get_rgb()[:3])
+            write("%s setcolor fill grestore\n" % hatch_name)
 
         if stroke:
             write("stroke\n")
