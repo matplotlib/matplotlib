@@ -394,10 +394,11 @@ class PdfFile:
                     'Contents': contentObject }
         self.writeObject(thePageObject, thePage)
 
-        # self.fontNames maps filenames to internal font names
-        self.fontNames = {}
+        self.fontNames = {}     # maps filenames to internal font names
         self.nextFont = 1       # next free internal font name
-        self.fontInfo = {}      # information on fonts: metrics, encoding
+        self.dviFontInfo = {}   # information on dvi fonts
+        self.type1Descriptors = {} # differently encoded Type-1 fonts may
+                                   # share the same descriptor
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self.nextAlphaState = 1
@@ -474,7 +475,7 @@ class PdfFile:
         """
         Select a font based on fontprop and return a name suitable for
         Op.selectfont. If fontprop is a string, it will be interpreted
-        as the filename of the font.
+        as the filename (or dvi name) of the font.
         """
 
         if is_string_like(fontprop):
@@ -496,17 +497,18 @@ class PdfFile:
         fonts = {}
         for filename, Fx in self.fontNames.items():
             if filename.endswith('.afm'):
+                # from pdf.use14corefonts
                 fontdictObject = self._write_afm_font(filename)
-            elif filename.endswith('.pfb') or filename.endswith('.pfa'):
-                # a Type 1 font; limited support for now
-                fontdictObject = self.embedType1(filename, self.fontInfo[Fx])
+            elif self.dviFontInfo.has_key(filename):
+                # a Type 1 font from a dvi file
+                fontdictObject = self.embedType1(filename, self.dviFontInfo[filename])
             else:
+                # a normal TrueType font
                 realpath, stat_key = get_realpath_and_stat(filename)
                 chars = self.used_characters.get(stat_key)
                 if chars is not None and len(chars[1]):
                     fontdictObject = self.embedTTF(realpath, chars[1])
             fonts[Fx] = fontdictObject
-            #print >>sys.stderr, filename
         self.writeObject(self.fontObject, fonts)
 
     def _write_afm_font(self, filename):
@@ -522,36 +524,40 @@ class PdfFile:
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
 
-    def embedType1(self, filename, fontinfo):
+    def embedType1(self, texname, fontinfo):
         # TODO: font effects such as SlantFont
-        fh = open(filename, 'rb')
         matplotlib.verbose.report(
-            'Embedding Type 1 font ' + filename, 'debug')
-        try:
-            fontdata = fh.read()
-        finally:
-            fh.close()
+            'Embedding Type 1 font ' + fontinfo.fontfile +
+            ' with encoding ' + fontinfo.encodingfile, 'debug')
 
-        font = FT2Font(filename)
+        # Use FT2Font to get several font properties
+        font = FT2Font(fontinfo.fontfile)
 
-        widthsObject, fontdescObject, fontdictObject, fontfileObject = \
-            [ self.reserveObject(n) for n in
-                ('font widths', 'font descriptor',
-                 'font dictionary', 'font file') ]
+        # Font descriptors may be shared between differently encoded
+        # Type-1 fonts, so only create a new descriptor if there is no
+        # existing descriptor for this font.
+        fontdesc = self.type1Descriptors.get(fontinfo.fontfile)
+        if fontdesc is None:
+            fontdesc = self.createType1Descriptor(font, fontinfo.fontfile)
+            self.type1Descriptors[fontinfo.fontfile] = fontdesc
 
-        firstchar = 0
-        lastchar = len(fontinfo.widths) - 1
+        # Widths
+        widthsObject = self.reserveObject('font widths')
+        self.writeObject(widthsObject, fontinfo.widths)
 
+        # Font dictionary
+        fontdictObject = self.reserveObject('font dictionary')
         fontdict = {
             'Type':           Name('Font'),
             'Subtype':        Name('Type1'),
             'BaseFont':       Name(font.postscript_name),
             'FirstChar':      0,
-            'LastChar':       lastchar,
+            'LastChar':       len(fontinfo.widths) - 1,
             'Widths':         widthsObject,
-            'FontDescriptor': fontdescObject,
+            'FontDescriptor': fontdesc,
             }
 
+        # Encoding (if needed)
         if fontinfo.encodingfile is not None:
             enc = dviread.Encoding(fontinfo.encodingfile)
             differencesArray = [ Name(ch) for ch in enc ]
@@ -560,6 +566,15 @@ class PdfFile:
                     'Encoding': { 'Type': Name('Encoding'),
                                   'Differences': differencesArray },
                     })
+
+        self.writeObject(fontdictObject, fontdict)
+        return fontdictObject
+
+    def createType1Descriptor(self, font, fontfile):
+        # Create and write the font descriptor and the font file
+        # of a Type-1 font
+        fontdescObject = self.reserveObject('font descriptor')
+        fontfileObject = self.reserveObject('font file')
 
         _, _, fullname, familyname, weight, italic_angle, fixed_pitch, \
             ul_position, ul_thickness = font.get_ps_font_info()
@@ -591,11 +606,9 @@ class PdfFile:
             #'FontWeight': a number where 400 = Regular, 700 = Bold
             }
 
-        self.writeObject(fontdictObject, fontdict)
-        self.writeObject(widthsObject, fontinfo.widths)
         self.writeObject(fontdescObject, descriptor)
 
-        t1font = type1font.Type1Font(filename)
+        t1font = type1font.Type1Font(fontfile)
         self.beginStream(fontfileObject.id, None,
                          { 'Length1': len(t1font.parts[0]),
                            'Length2': len(t1font.parts[1]),
@@ -604,7 +617,7 @@ class PdfFile:
         self.currentstream.write(t1font.parts[1])
         self.endStream()
 
-        return fontdictObject
+        return fontdescObject
 
     def _get_xobject_symbol_name(self, filename, symbol_name):
         return "%s-%s" % (
@@ -1362,13 +1375,15 @@ class RendererPdf(RendererBase):
         oldfont, seq = None, []
         for x1, y1, dvifont, glyph, width in page.text:
             if dvifont != oldfont:
-                psfont = self.tex_font_mapping(dvifont.texname)
-                pdfname = self.file.fontName(psfont.filename)
-                if self.file.fontInfo.get(pdfname, None) is None:
-                    self.file.fontInfo[pdfname] = Bunch(
+                pdfname = self.file.fontName(dvifont.texname)
+                if not self.file.dviFontInfo.has_key(dvifont.texname):
+                    psfont = self.tex_font_mapping(dvifont.texname)
+                    self.file.dviFontInfo[dvifont.texname] = Bunch(
+                        fontfile=psfont.filename,
                         encodingfile=psfont.encoding,
                         widths=dvifont.widths,
                         dvifont=dvifont)
+                    # TODO: font effects
                 seq += [['font', pdfname, dvifont.size]]
                 oldfont = dvifont
             seq += [['text', x1, y1, [chr(glyph)], x1+width]]
