@@ -109,8 +109,9 @@ class Path(object):
         assert vertices.ndim == 2
         assert vertices.shape[1] == 2
 
-        self.should_simplify = (len(vertices) >= 128 and
-                                (codes is None or np.all(codes <= Path.LINETO)))
+        self.should_simplify = (rcParam['path.simplify'] and
+                                (len(vertices) >= 128 and
+                                (codes is None or np.all(codes <= Path.LINETO))))
         self.has_nonfinite = not np.isfinite(vertices).all()
         self.codes = codes
         self.vertices = vertices
