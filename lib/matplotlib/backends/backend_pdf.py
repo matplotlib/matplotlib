@@ -528,7 +528,8 @@ class PdfFile:
         # TODO: font effects such as SlantFont
         matplotlib.verbose.report(
             'Embedding Type 1 font ' + fontinfo.fontfile +
-            ' with encoding ' + fontinfo.encodingfile, 'debug')
+            ' with encoding ' + (fontinfo.encodingfile or '(none)'),
+            'debug')
 
         # Use FT2Font to get several font properties
         font = FT2Font(fontinfo.fontfile)
