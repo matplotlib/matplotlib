@@ -73,9 +73,13 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
 
     def draw_path(self, gc, path, transform, rgbFace=None):
+        """
+        Draw the path
+        """
         nmax = rcParams['agg.path.chunksize'] # here at least for testing
         npts = path.vertices.shape[0]
-        if nmax > 100 and npts > nmax and path.should_simplify and rgbFace is None:
+        if (nmax > 100 and npts > nmax and path.should_simplify and
+            rgbFace is None and gc.get_hatch() is None):
             nch = npy.ceil(npts/float(nmax))
             chsize = int(npy.ceil(npts/nch))
             i0 = npy.arange(0, npts, chsize)
@@ -92,7 +96,6 @@ class RendererAgg(RendererBase):
                 self._renderer.draw_path(gc, p, transform, rgbFace)
         else:
             self._renderer.draw_path(gc, path, transform, rgbFace)
-
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """

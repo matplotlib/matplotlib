@@ -11,7 +11,7 @@ from numpy import ma
 from matplotlib._path import point_in_path, get_path_extents, \
     point_in_path_collection, get_path_collection_extents, \
     path_in_path, path_intersects_path, convert_path_to_polygons
-from matplotlib.cbook import simple_linear_interpolation
+from matplotlib.cbook import simple_linear_interpolation, maxdict
 
 class Path(object):
     """
@@ -115,8 +115,8 @@ class Path(object):
         self.codes = codes
         self.vertices = vertices
 
-    #@staticmethod
-    def make_compound_path(*args):
+    #@classmethod
+    def make_compound_path(cls, *args):
         """
         (staticmethod) Make a compound path from a list of Path
         objects.  Only polygons (not curves) are supported.
@@ -130,14 +130,14 @@ class Path(object):
         vertices = np.vstack([x.vertices for x in args])
         vertices.reshape((total_length, 2))
 
-        codes = Path.LINETO * np.ones(total_length)
+        codes = cls.LINETO * np.ones(total_length)
         i = 0
         for length in lengths:
-            codes[i] = Path.MOVETO
+            codes[i] = cls.MOVETO
             i += length
 
-        return Path(vertices, codes)
-    make_compound_path = staticmethod(make_compound_path)
+        return cls(vertices, codes)
+    make_compound_path = classmethod(make_compound_path)
 
     def __repr__(self):
         return "Path(%s, %s)" % (self.vertices, self.codes)
@@ -343,7 +343,7 @@ class Path(object):
         """
         if cls._unit_rectangle is None:
             cls._unit_rectangle = \
-                Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]])
+                cls([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]])
         return cls._unit_rectangle
     unit_rectangle = classmethod(unit_rectangle)
 
@@ -366,7 +366,7 @@ class Path(object):
             # "points-up"
             theta += np.pi / 2.0
             verts = np.concatenate((np.cos(theta), np.sin(theta)), 1)
-            path = Path(verts)
+            path = cls(verts)
             cls._unit_regular_polygons[numVertices] = path
         return path
     unit_regular_polygon = classmethod(unit_regular_polygon)
@@ -392,7 +392,7 @@ class Path(object):
             r = np.ones(ns2 + 1)
             r[1::2] = innerCircle
             verts = np.vstack((r*np.cos(theta), r*np.sin(theta))).transpose()
-            path = Path(verts)
+            path = cls(verts)
             cls._unit_regular_polygons[(numVertices, innerCircle)] = path
         return path
     unit_regular_star = classmethod(unit_regular_star)
@@ -466,7 +466,7 @@ class Path(object):
             codes[0] = cls.MOVETO
             codes[-1] = cls.CLOSEPOLY
 
-            cls._unit_circle = Path(vertices, codes)
+            cls._unit_circle = cls(vertices, codes)
         return cls._unit_circle
     unit_circle = classmethod(unit_circle)
 
@@ -523,19 +523,19 @@ class Path(object):
 
         if is_wedge:
             length = n * 3 + 4
-            vertices = np.zeros((length, 2), np.float_)
-            codes = Path.CURVE4 * np.ones((length, ), Path.code_type)
+            vertices = np.empty((length, 2), np.float_)
+            codes = cls.CURVE4 * np.ones((length, ), cls.code_type)
             vertices[1] = [xA[0], yA[0]]
-            codes[0:2] = [Path.MOVETO, Path.LINETO]
-            codes[-2:] = [Path.LINETO, Path.CLOSEPOLY]
+            codes[0:2] = [cls.MOVETO, cls.LINETO]
+            codes[-2:] = [cls.LINETO, cls.CLOSEPOLY]
             vertex_offset = 2
             end = length - 2
         else:
             length = n * 3 + 1
-            vertices = np.zeros((length, 2), np.float_)
-            codes = Path.CURVE4 * np.ones((length, ), Path.code_type)
+            vertices = np.empty((length, 2), np.float_)
+            codes = cls.CURVE4 * np.ones((length, ), cls.code_type)
             vertices[0] = [xA[0], yA[0]]
-            codes[0] = Path.MOVETO
+            codes[0] = cls.MOVETO
             vertex_offset = 1
             end = length
 
@@ -546,7 +546,7 @@ class Path(object):
         vertices[vertex_offset+2:end:3, 0] = xB
         vertices[vertex_offset+2:end:3, 1] = yB
 
-        return Path(vertices, codes)
+        return cls(vertices, codes)
     arc = classmethod(arc)
 
     #@classmethod
@@ -561,6 +561,94 @@ class Path(object):
         """
         return cls.arc(theta1, theta2, n, True)
     wedge = classmethod(wedge)
+
+    _hatch_dict = maxdict(8)
+    #@classmethod
+    def hatch(cls, hatchpattern, density=6):
+        """
+        Given a hatch specifier, *hatchpattern*, generates a Path that
+        can be used in a repeated hatching pattern.  *density* is the
+        number of lines per unit square.
+        """
+        if hatchpattern is None:
+            return None
+
+        hatch = hatchpattern.lower()
+        hatch_path = cls._hatch_dict.get((hatch, density))
+        if hatch_path is not None:
+            return hatch_path
+
+        size = 1.0
+        density = int(density)
+        counts = [
+            hatch.count('-') + hatch.count('+'),
+            hatch.count('/') + hatch.count('x'),
+            hatch.count('|') + hatch.count('+'),
+            hatch.count('\\') + hatch.count('x')
+            ]
+
+        if sum(counts) == 0:
+            return cls([])
+
+        counts = [x * density for x in counts]
+
+        num_vertices = (counts[0] * 2 + counts[1] * 4 +
+                        counts[2] * 2 + counts[3] * 4)
+        vertices = np.empty((num_vertices, 2))
+        codes = np.empty((num_vertices,), cls.code_type)
+        codes[0::2] = cls.MOVETO
+        codes[1::2] = cls.LINETO
+
+        cursor = 0
+
+        if counts[0]:
+            vertices_chunk = vertices[cursor:cursor + counts[0] * 2]
+            cursor += counts[0] * 2
+            steps = np.linspace(0.0, 1.0, counts[0], False)
+            vertices_chunk[0::2, 0] = 0.0
+            vertices_chunk[0::2, 1] = steps
+            vertices_chunk[1::2, 0] = size
+            vertices_chunk[1::2, 1] = steps
+
+        if counts[1]:
+            vertices_chunk = vertices[cursor:cursor + counts[1] * 4]
+            cursor += counts[1] * 4
+            steps = np.linspace(0.0, 1.0, counts[1], False)
+            vertices_chunk[0::4, 0] = 0.0
+            vertices_chunk[0::4, 1] = steps
+            vertices_chunk[1::4, 0] = size - steps
+            vertices_chunk[1::4, 1] = size
+            vertices_chunk[2::4, 0] = size - steps
+            vertices_chunk[2::4, 1] = 0.0
+            vertices_chunk[3::4, 0] = size
+            vertices_chunk[3::4, 1] = steps
+
+        if counts[2]:
+            vertices_chunk = vertices[cursor:cursor + counts[2] * 2]
+            cursor += counts[2] * 2
+            steps = np.linspace(0.0, 1.0, counts[2], False)
+            vertices_chunk[0::2, 0] = steps
+            vertices_chunk[0::2, 1] = 0.0
+            vertices_chunk[1::2, 0] = steps
+            vertices_chunk[1::2, 1] = size
+
+        if counts[3]:
+            vertices_chunk = vertices[cursor:cursor + counts[3] * 4]
+            cursor += counts[3] * 4
+            steps = np.linspace(0.0, 1.0, counts[3], False)
+            vertices_chunk[0::4, 0] = size
+            vertices_chunk[0::4, 1] = steps
+            vertices_chunk[1::4, 0] = steps
+            vertices_chunk[1::4, 1] = size
+            vertices_chunk[2::4, 0] = steps
+            vertices_chunk[2::4, 1] = 0.0
+            vertices_chunk[3::4, 0] = 0.0
+            vertices_chunk[3::4, 1] = steps
+
+        hatch_path = cls(vertices, codes)
+        cls._hatch_dict[(hatch, density)] = hatch_path
+        return hatch_path
+    hatch = classmethod(hatch)
 
 _get_path_collection_extents = get_path_collection_extents
 def get_path_collection_extents(*args):

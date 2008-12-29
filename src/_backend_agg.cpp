@@ -30,6 +30,7 @@
 #include "agg_span_image_filter_gray.h"
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
+#include "agg_span_pattern_rgba.h"
 #include "agg_conv_shorten_path.h"
 #include "util/agg_color_conv_rgb8.h"
 
@@ -149,6 +150,7 @@ GCAgg::GCAgg(const Py::Object &gc, double dpi) :
   _set_clip_rectangle(gc);
   _set_clip_path(gc);
   _set_snap(gc);
+  _set_hatch_path(gc);
 }
 
 GCAgg::GCAgg(double dpi) :
@@ -273,6 +275,15 @@ GCAgg::_set_snap( const Py::Object& gc) {
   }
 }
 
+void
+GCAgg::_set_hatch_path( const Py::Object& gc) {
+  _VERBOSE("GCAgg::_set_hatch_path");
+
+  Py::Object method_obj = gc.getAttr("get_hatch_path");
+  Py::Callable method(method_obj);
+  hatchpath = method.apply(Py::Tuple());
+}
+
 const size_t
 RendererAgg::PIXELS_PER_INCH(96);
 
@@ -310,6 +321,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
   rendererBase.clear(agg::rgba(1, 1, 1, 0));
   rendererAA.attach(rendererBase);
   rendererBin.attach(rendererBase);
+  hatchRenderingBuffer.attach(hatchBuffer, HATCH_SIZE, HATCH_SIZE, HATCH_SIZE*4);
 }
 
 void RendererAgg::create_alpha_buffers() {
@@ -877,6 +889,55 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
 	agg::render_scanlines(theRasterizer, slineP8, rendererBin);
       }
     }
+  }
+
+  // Render hatch
+  if (!gc.hatchpath.isNone()) {
+    // Reset any clipping that may be in effect, since we'll be
+    // drawing the hatch in a scratch buffer at origin (0, 0)
+    theRasterizer.reset_clipping();
+    rendererBase.reset_clipping(true);
+
+    // Create and transform the path
+    typedef agg::conv_transform<PathIterator> hatch_path_trans_t;
+    typedef SimplifyPath<hatch_path_trans_t> hatch_path_simplify_t;
+    typedef agg::conv_stroke<hatch_path_simplify_t> hatch_path_stroke_t;
+
+    PathIterator hatch_path(gc.hatchpath);
+    agg::trans_affine hatch_trans;
+    hatch_trans *= agg::trans_affine_scaling(HATCH_SIZE, HATCH_SIZE);
+    hatch_path_trans_t hatch_path_trans(hatch_path, hatch_trans);
+    hatch_path_simplify_t hatch_path_simplify
+      (hatch_path_trans, true, false, HATCH_SIZE, HATCH_SIZE);
+    hatch_path_stroke_t hatch_path_stroke(hatch_path_simplify);
+    hatch_path_stroke.width(1.0);
+    hatch_path_stroke.line_cap(agg::square_cap);
+    theRasterizer.add_path(hatch_path_stroke);
+
+    // Render the path into the hatch buffer
+    pixfmt hatch_img_pixf(hatchRenderingBuffer);
+    renderer_base rb(hatch_img_pixf);
+    renderer_aa rs(rb);
+    rb.clear(agg::rgba(0.0, 0.0, 0.0, 0.0));
+    rs.color(gc.color);
+    agg::render_scanlines(theRasterizer, slineP8, rs);
+
+    // Put clipping back on, if originally set on entry to this
+    // function
+    set_clipbox(gc.cliprect, theRasterizer);
+    if (has_clippath)
+      render_clippath(gc.clippath, gc.clippath_trans);
+
+    // Transfer the hatch to the main image buffer
+    typedef agg::image_accessor_wrap<pixfmt,
+      agg::wrap_mode_repeat_auto_pow2,
+      agg::wrap_mode_repeat_auto_pow2> img_source_type;
+    typedef agg::span_pattern_rgba<img_source_type> span_gen_type;
+    agg::span_allocator<agg::rgba8> sa;
+    img_source_type img_src(hatch_img_pixf);
+    span_gen_type sg(img_src, 0, 0);
+    theRasterizer.add_path(path);
+    agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, sa, sg);
   }
 
   // Render stroke

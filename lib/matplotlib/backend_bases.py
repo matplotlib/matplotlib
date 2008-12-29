@@ -30,6 +30,7 @@ import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
+import matplotlib.path as path
 from matplotlib import rcParams
 
 class RendererBase:
@@ -678,6 +679,14 @@ class GraphicsContextBase:
         Gets the current hatch style
         """
         return self._hatch
+
+    def get_hatch_path(self, density=6.0):
+        """
+        Returns a Path for the current hatch.
+        """
+        if self._hatch is None:
+            return None
+        return path.Path.hatch(self._hatch, density)
 
 class Event:
     """

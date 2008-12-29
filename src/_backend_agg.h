@@ -60,7 +60,6 @@ typedef agg::scanline_p8 scanline_p8;
 typedef agg::scanline_bin scanline_bin;
 typedef agg::amask_no_clip_gray8 alpha_mask_type;
 
-
 typedef agg::renderer_base<agg::pixfmt_gray8> renderer_base_alpha_mask_type;
 typedef agg::renderer_scanline_aa_solid<renderer_base_alpha_mask_type> renderer_alpha_mask_type;
 
@@ -129,6 +128,8 @@ public:
     SNAP_TRUE
   } snap;
 
+  Py::Object hatchpath;
+
 protected:
   agg::rgba get_color(const Py::Object& gc);
   double points_to_pixels( const Py::Object& points);
@@ -139,6 +140,7 @@ protected:
   void _set_clip_path( const Py::Object& gc);
   void _set_antialiased( const Py::Object& gc);
   void _set_snap( const Py::Object& gc);
+  void _set_hatch_path( const Py::Object& gc);
 };
 
 
@@ -205,6 +207,12 @@ public:
 
   Py::Object lastclippath;
   agg::trans_affine lastclippath_transform;
+
+  // HATCH_SIZE should be a power of 2, to take advantage of Agg's
+  // fast pattern rendering
+  static const size_t HATCH_SIZE = 128;
+  agg::int8u hatchBuffer[HATCH_SIZE * HATCH_SIZE * 4];
+  agg::rendering_buffer hatchRenderingBuffer;
 
   const int debug;
 
