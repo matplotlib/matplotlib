@@ -12,6 +12,7 @@ from matplotlib._path import point_in_path, get_path_extents, \
     point_in_path_collection, get_path_collection_extents, \
     path_in_path, path_intersects_path, convert_path_to_polygons
 from matplotlib.cbook import simple_linear_interpolation
+from matplotlib import rcParams
 
 class Path(object):
     """
