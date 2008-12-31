@@ -333,7 +333,7 @@ class Stream(object):
             self.file.write(compressed)
             self.compressobj = None
 
-class PdfFile:
+class PdfFile(object):
     """PDF file with one page."""
 
     def __init__(self, width, height, dpi, filename):
@@ -900,7 +900,14 @@ end"""
         # Beginning of main embedTTF function...
 
         # You are lost in a maze of TrueType tables, all different...
-        ps_name = Name(font.get_sfnt()[(1,0,0,6)])
+        sfnt = font.get_sfnt()
+        try:
+            ps_name = sfnt[(1,0,0,6)] # Macintosh scheme
+        except KeyError:
+            # Microsoft scheme:
+            ps_name = sfnt[(3,1,0x0409,6)].decode('utf-16be').encode('ascii','replace')
+            # (see freetype/ttnameid.h)
+        ps_name = Name(ps_name)
         pclt = font.get_sfnt_table('pclt') \
             or { 'capHeight': 0, 'xHeight': 0 }
         post = font.get_sfnt_table('post') \
