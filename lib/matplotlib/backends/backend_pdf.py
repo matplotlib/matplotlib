@@ -500,7 +500,7 @@ class PdfFile:
                 # from pdf.use14corefonts
                 fontdictObject = self._write_afm_font(filename)
             elif self.dviFontInfo.has_key(filename):
-                # a Type 1 font from a dvi file
+                # a Type 1 font from a dvi file; the filename is really the TeX name
                 fontdictObject = self.embedType1(filename, self.dviFontInfo[filename])
             else:
                 # a normal TrueType font
@@ -525,22 +525,25 @@ class PdfFile:
         return fontdictObject
 
     def embedType1(self, texname, fontinfo):
-        # TODO: font effects such as SlantFont
         matplotlib.verbose.report(
-            'Embedding Type 1 font ' + fontinfo.fontfile +
-            ' with encoding ' + (fontinfo.encodingfile or '(none)'),
+            'Embedding ' + texname +
+            ' which is the Type 1 font ' + fontinfo.fontfile +
+            ' with encoding ' + (fontinfo.encodingfile or '(none)') +
+            ' and effects ' + `fontinfo.effects`,
             'debug')
 
-        # Use FT2Font to get several font properties
-        font = FT2Font(fontinfo.fontfile)
+        t1font = type1font.Type1Font(fontinfo.fontfile)
+        if fontinfo.effects:
+            t1font = t1font.transform(fontinfo.effects)
 
         # Font descriptors may be shared between differently encoded
         # Type-1 fonts, so only create a new descriptor if there is no
         # existing descriptor for this font.
-        fontdesc = self.type1Descriptors.get(fontinfo.fontfile)
+        effects = (fontinfo.effects.get('slant', 0.0), fontinfo.effects.get('extend', 1.0))
+        fontdesc = self.type1Descriptors.get((fontinfo.fontfile, effects))
         if fontdesc is None:
-            fontdesc = self.createType1Descriptor(font, fontinfo.fontfile)
-            self.type1Descriptors[fontinfo.fontfile] = fontdesc
+            fontdesc = self.createType1Descriptor(t1font, fontinfo.fontfile)
+            self.type1Descriptors[(fontinfo.fontfile, effects)] = fontdesc
 
         # Widths
         widthsObject = self.reserveObject('font widths')
@@ -551,7 +554,7 @@ class PdfFile:
         fontdict = {
             'Type':           Name('Font'),
             'Subtype':        Name('Type1'),
-            'BaseFont':       Name(font.postscript_name),
+            'BaseFont':       Name(t1font.prop['FontName']),
             'FirstChar':      0,
             'LastChar':       len(fontinfo.widths) - 1,
             'Widths':         widthsObject,
@@ -571,14 +574,14 @@ class PdfFile:
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
 
-    def createType1Descriptor(self, font, fontfile):
+    def createType1Descriptor(self, t1font, fontfile):
         # Create and write the font descriptor and the font file
         # of a Type-1 font
         fontdescObject = self.reserveObject('font descriptor')
         fontfileObject = self.reserveObject('font file')
 
-        _, _, fullname, familyname, weight, italic_angle, fixed_pitch, \
-            ul_position, ul_thickness = font.get_ps_font_info()
+        italic_angle = t1font.prop['ItalicAngle']
+        fixed_pitch = t1font.prop['isFixedPitch']
 
         flags = 0
         if fixed_pitch:   flags |= 1 << 0  # fixed width
@@ -590,18 +593,20 @@ class PdfFile:
         if 0:             flags |= 1 << 17 # TODO: small caps
         if 0:             flags |= 1 << 18 # TODO: force bold
 
+        ft2font = FT2Font(fontfile)
+        
         descriptor = {
             'Type':        Name('FontDescriptor'),
-            'FontName':    Name(font.postscript_name),
+            'FontName':    Name(t1font.prop['FontName']),
             'Flags':       flags,
-            'FontBBox':    font.bbox,
+            'FontBBox':    ft2font.bbox,
             'ItalicAngle': italic_angle,
-            'Ascent':      font.ascender,
-            'Descent':     font.descender,
+            'Ascent':      ft2font.ascender,
+            'Descent':     ft2font.descender,
             'CapHeight':   1000, # TODO: find this out
             'XHeight':     500, # TODO: this one too
             'FontFile':    fontfileObject,
-            'FontFamily':  familyname,
+            'FontFamily':  t1font.prop['FamilyName'],
             'StemV':       50, # TODO
             # (see also revision 3874; but not all TeX distros have AFM files!)
             #'FontWeight': a number where 400 = Regular, 700 = Bold
@@ -609,7 +614,6 @@ class PdfFile:
 
         self.writeObject(fontdescObject, descriptor)
 
-        t1font = type1font.Type1Font(fontfile)
         self.beginStream(fontfileObject.id, None,
                          { 'Length1': len(t1font.parts[0]),
                            'Length2': len(t1font.parts[1]),
@@ -1369,14 +1373,14 @@ class RendererPdf(RendererBase):
                     self.file.dviFontInfo[dvifont.texname] = Bunch(
                         fontfile=psfont.filename,
                         encodingfile=psfont.encoding,
+                        effects=psfont.effects,
                         widths=dvifont.widths,
                         dvifont=dvifont)
-                    # TODO: font effects
                 seq += [['font', pdfname, dvifont.size]]
                 oldfont = dvifont
             seq += [['text', x1, y1, [chr(glyph)], x1+width]]
 
-        # Find consecutive text strings with constant x coordinate and
+        # Find consecutive text strings with constant y coordinate and
         # combine into a sequence of strings and kerns, or just one
         # string (if any kerns would be less than 0.1 points).
         i, curx = 0, 0
