@@ -185,7 +185,7 @@ def pdfRepr(obj):
             "Don't know a PDF representation for %s objects." \
             % type(obj)
 
-class Reference:
+class Reference(object):
     """PDF reference object.
     Use PdfFile.reserveObject() to create References.
     """
@@ -205,8 +205,9 @@ class Reference:
         write(pdfRepr(contents))
         write("\nendobj\n")
 
-class Name:
+class Name(object):
     """PDF name object."""
+    __slots__ = ('name',)
     _regex = re.compile(r'[^!-~]')
 
     def __init__(self, name):
@@ -218,15 +219,16 @@ class Name:
     def __repr__(self):
         return "<Name %s>" % self.name
 
+    @staticmethod
     def hexify(match):
         return '#%02x' % ord(match.group())
-    hexify = staticmethod(hexify)
 
     def pdfRepr(self):
         return '/' + self.name
 
-class Operator:
+class Operator(object):
     """PDF operator object."""
+    __slots__ = ('op',)
 
     def __init__(self, op):
         self.op = op
@@ -257,12 +259,13 @@ _pdfops = dict(close_fill_stroke='b', fill_stroke='B', fill='f',
 Op = Bunch(**dict([(name, Operator(value))
                    for name, value in _pdfops.items()]))
 
-class Stream:
+class Stream(object):
     """PDF stream object.
 
     This has no pdfRepr method. Instead, call begin(), then output the
     contents of the stream by calling write(), and finally call end().
     """
+    __slots__ = ('id', 'len', 'pdfFile', 'file', 'compressobj', 'extra', 'pos')
 
     def __init__(self, id, len, file, extra=None):
         """id: object id of stream; len: an unused Reference object for the
@@ -1107,7 +1110,7 @@ end"""
                 self.output(Op.stroke)
             self.endStream()
 
-    #@staticmethod
+    @staticmethod
     def pathOperations(path, transform, simplify=None):
         tpath = transform.transform_path(path)
 
@@ -1131,7 +1134,6 @@ end"""
                 cmds.append(Op.closepath)
             last_points = points
         return cmds
-    pathOperations = staticmethod(pathOperations)
 
     def writePath(self, path, transform):
         cmds = self.pathOperations(
