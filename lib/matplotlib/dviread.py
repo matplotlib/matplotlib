@@ -1,12 +1,14 @@
 """
 An experimental module for reading dvi files output by TeX. Several
 limitations make this not (currently) useful as a general-purpose dvi
-preprocessor.
+preprocessor, but it is currently used by the pdf backend for
+processing usetex text.
 
 Interface::
 
   dvi = Dvi(filename, 72)
-  for page in dvi:          # iterate over pages
+  # iterate over pages (but only one page is supported for now):
+  for page in dvi:
       w, h, d = page.width, page.height, page.descent
       for x,y,font,glyph,width in page.text:
           fontname = font.texname
@@ -49,7 +51,7 @@ class Dvi(object):
         """
         Iterate through the pages of the file.
 
-        Returns (text, pages) pairs, where:
+        Returns (text, boxes) pairs, where:
           text is a list of (x, y, fontnum, glyphnum, width) tuples
           boxes is a list of (x, y, height, width) tuples
 
@@ -131,8 +133,8 @@ class Dvi(object):
 
     def _arg(self, nbytes, signed=False):
         """
-        Read and return an integer argument "nbytes" long.
-        Signedness is determined by the "signed" keyword.
+        Read and return an integer argument *nbytes* long.
+        Signedness is determined by the *signed* keyword.
         """
         str = self.file.read(nbytes)
         value = ord(str[0])
@@ -144,7 +146,7 @@ class Dvi(object):
 
     def _dispatch(self, byte):
         """
-        Based on the opcode "byte", read the correct kinds of
+        Based on the opcode *byte*, read the correct kinds of
         arguments from the dvi file and call the method implementing
         that opcode with those arguments.
         """
@@ -385,9 +387,27 @@ class DviFont(object):
     Object that holds a font's texname and size, supports comparison,
     and knows the widths of glyphs in the same units as the AFM file.
     There are also internal attributes (for use by dviread.py) that
-    are _not_ used for comparison.
+    are *not* used for comparison.
 
     The size is in Adobe points (converted from TeX points).
+
+    .. attribute:: texname
+    
+       Name of the font as used internally by TeX and friends. This
+       is usually very different from any external font names, and
+       :class:`dviread.PsfontsMap` can be used to find the external
+       name of the font.
+
+    .. attribute:: size
+    
+       Size of the font in Adobe points, converted from the slightly
+       smaller TeX points.
+
+    .. attribute:: widths
+    
+       Widths of glyphs in glyph-space units, typically 1/1000ths of
+       the point size.
+    
     """
     __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
@@ -532,17 +552,27 @@ class Tfm(object):
     A TeX Font Metric file. This implementation covers only the bare
     minimum needed by the Dvi class.
 
-    Attributes:
+    .. attribute:: checksum
 
-      checksum: for verifying against dvi file
+       Used for verifying against the dvi file.
 
-      design_size: design size of the font (in what units?)
+    .. attribute:: design_size
 
-      width[i]: width of character \#i, needs to be scaled
-        by the factor specified in the dvi file
-        (this is a dict because indexing may not start from 0)
+       Design size of the font (in what units?)
 
-      height[i], depth[i]: height and depth of character \#i
+    .. attribute::  width
+
+       Width of each character, needs to be scaled by the factor
+       specified in the dvi file. This is a dict because indexing may
+       not start from 0.
+
+    .. attribute:: height
+
+       Height of each character.
+    
+    .. attribute:: depth
+        
+       Depth of each character.
     """
     __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
 
@@ -581,7 +611,19 @@ class Tfm(object):
 class PsfontsMap(object):
     """
     A psfonts.map formatted file, mapping TeX fonts to PS fonts.
-    Usage: map = PsfontsMap('.../psfonts.map'); map['cmr10']
+    Usage::
+
+     >>> map = PsfontsMap(find_tex_file('pdftex.map'))
+     >>> entry = map['ptmbo8r']
+     >>> entry.texname
+     'ptmbo8r'
+     >>> entry.psname
+     'Times-Bold'
+     >>> entry.encoding
+     '/usr/local/texlive/2008/texmf-dist/fonts/enc/dvips/base/8r.enc'
+     >>> entry.effects
+     {'slant': 0.16700000000000001}
+     >>> entry.filename
 
     For historical reasons, TeX knows many Type-1 fonts by different
     names than the outside world. (For one thing, the names have to
@@ -594,11 +636,12 @@ class PsfontsMap(object):
     file names.
 
     A texmf tree typically includes mapping files called e.g.
-    psfonts.map, pdftex.map,  dvipdfm.map. psfonts.map is used by
+    psfonts.map, pdftex.map, dvipdfm.map. psfonts.map is used by
     dvips, pdftex.map by pdfTeX, and dvipdfm.map by dvipdfm.
-    psfonts.map might avoid embedding the 35 PostScript fonts, while
-    the pdf-related files perhaps only avoid the "Base 14" pdf fonts.
-    But the user may have configured these files differently.
+    psfonts.map might avoid embedding the 35 PostScript fonts (i.e.,
+    have no filename for them, as in the Times-Bold example above),
+    while the pdf-related files perhaps only avoid the "Base 14" pdf
+    fonts. But the user may have configured these files differently.
     """
     __slots__ = ('_font',)
 
@@ -655,10 +698,10 @@ class PsfontsMap(object):
         subsetting, but I have no example of << in my TeX installation.
         """
         texname, psname = words[:2]
-        effects, encoding, filename = [], None, None
+        effects, encoding, filename = '', None, None
         for word in words[2:]:
             if not word.startswith('<'):
-                effects.append(word)
+                effects = word
             else:
                 word = word.lstrip('<')
                 if word.startswith('['):
@@ -670,6 +713,18 @@ class PsfontsMap(object):
                 else:
                     assert filename is None
                     filename = word
+
+        eff = effects.split()
+        effects = {}
+        try:
+            effects['slant'] = float(eff[eff.index('SlantFont')-1])
+        except ValueError:
+            pass
+        try:
+            effects['extend'] = float(eff[eff.index('ExtendFont')-1])
+        except ValueError:
+            pass
+
         self._font[texname] = mpl_cbook.Bunch(
             texname=texname, psname=psname, effects=effects,
             encoding=encoding, filename=filename)
@@ -733,13 +788,18 @@ class Encoding(object):
 
 def find_tex_file(filename, format=None):
     """
-    Call kpsewhich to find a file in the texmf tree.
-    If format is not None, it is used as the value for the --format option.
-    See the kpathsea documentation for more information.
+    Call :program:`kpsewhich` to find a file in the texmf tree. If
+    *format* is not None, it is used as the value for the
+    :option:`--format` option.
 
     Apparently most existing TeX distributions on Unix-like systems
     use kpathsea. I hear MikTeX (a popular distribution on Windows)
     doesn't use kpathsea, so what do we do? (TODO)
+
+    .. seealso::
+
+      `Kpathsea documentation <http://www.tug.org/kpathsea/>`_
+        The library that :program:`kpsewhich` is part of.
     """
 
     cmd = ['kpsewhich']

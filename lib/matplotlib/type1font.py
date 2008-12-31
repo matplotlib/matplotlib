@@ -1,37 +1,70 @@
 """
-A class representing a Type 1 font.
+This module contains a class representing a Type 1 font.
 
-This version merely reads pfa and pfb files and splits them for
-embedding in pdf files. There is no support yet for subsetting or
-anything like that.
+This version reads pfa and pfb files and splits them for embedding in
+pdf files. It also supports SlantFont and ExtendFont transformations,
+similarly to pdfTeX and friends. There is no support yet for
+subsetting.
 
-Usage (subject to change):
+Usage::
 
-   font = Type1Font(filename)
-   clear_part, encrypted_part, finale = font.parts
+   >>> font = Type1Font(filename)
+   >>> clear_part, encrypted_part, finale = font.parts
+   >>> slanted_font = font.transform({'slant': 0.167})
+   >>> extended_font = font.transform({'extend': 1.2})
 
-Source: Adobe Technical Note #5040, Supporting Downloadable PostScript
-Language Fonts.
+Sources:
 
-If extending this class, see also: Adobe Type 1 Font Format, Adobe
-Systems Incorporated, third printing, v1.1, 1993. ISBN 0-201-57044-0.
+* Adobe Technical Note #5040, Supporting Downloadable PostScript
+  Language Fonts.
+
+* Adobe Type 1 Font Format, Adobe Systems Incorporated, third printing,
+  v1.1, 1993. ISBN 0-201-57044-0.
 """
 
+import matplotlib.cbook as cbook
+import cStringIO
+import itertools
+import numpy as np
 import re
 import struct
 
 class Type1Font(object):
+    """
+    A class representing a Type-1 font, for use by backends.
 
-    def __init__(self, filename):
-        file = open(filename, 'rb')
-        try:
-            data = self._read(file)
-        finally:
-            file.close()
-        self.parts = self._split(data)
-        #self._parse()
+    .. attribute:: parts
+
+       A 3-tuple of the cleartext part, the encrypted part, and the
+       finale of zeros.
+
+    .. attribute:: prop
+
+       A dictionary of font properties.
+    """
+    __slots__ = ('parts', 'prop')
+
+    def __init__(self, input):
+        """
+        Initialize a Type-1 font. *input* can be either the file name of
+        a pfb file or a 3-tuple of already-decoded Type-1 font parts.
+        """
+        if isinstance(input, tuple) and len(input) == 3:
+            self.parts = input
+        else:
+            file = open(input, 'rb')
+            try:
+                data = self._read(file)
+            finally:
+                file.close()
+            self.parts = self._split(data)
+            
+        self._parse()
 
     def _read(self, file):
+        """
+        Read the font from a file, decoding into usable parts.
+        """
         rawdata = file.read()
         if not rawdata.startswith(chr(128)):
             return rawdata
@@ -100,85 +133,177 @@ class Type1Font(object):
         return data[:len1], binary, data[idx:]
 
     _whitespace = re.compile(r'[\0\t\r\014\n ]+')
-    _delim = re.compile(r'[()<>[]{}/%]')
     _token = re.compile(r'/{0,2}[^]\0\t\r\v\n ()<>{}/%[]+')
     _comment = re.compile(r'%[^\r\n\v]*')
     _instring = re.compile(r'[()\\]')
+    @classmethod
+    def _tokens(cls, text):
+        """
+        A PostScript tokenizer. Yield (token, value) pairs such as
+        ('whitespace', '   ') or ('name', '/Foobar').
+        """
+        pos = 0
+        while pos < len(text):
+            match = cls._comment.match(text[pos:]) or cls._whitespace.match(text[pos:])
+            if match:
+                yield ('whitespace', match.group())
+                pos += match.end()
+            elif text[pos] == '(':
+                start = pos
+                pos += 1
+                depth = 1
+                while depth:
+                    match = cls._instring.search(text[pos:])
+                    if match is None: return
+                    pos += match.end()
+                    if match.group() == '(':
+                        depth += 1
+                    elif match.group() == ')':
+                        depth -= 1
+                    else: # a backslash - skip the next character
+                        pos += 1
+                yield ('string', text[start:pos])
+            elif text[pos:pos+2] in ('<<', '>>'):
+                yield ('delimiter', text[pos:pos+2])
+                pos += 2
+            elif text[pos] == '<':
+                start = pos
+                pos += text[pos:].index('>')
+                yield ('string', text[start:pos])
+            else:
+                match = cls._token.match(text[pos:])
+                if match:
+                    try:
+                        float(match.group())
+                        yield ('number', match.group())
+                    except ValueError:
+                        yield ('name', match.group())
+                    pos += match.end()
+                else:
+                    yield ('delimiter', text[pos])
+                    pos += 1
+
     def _parse(self):
         """
-        A very limited kind of parsing to find the Encoding of the
-        font.
+        Find the values of various font properties. This limited kind
+        of parsing is described in Chapter 10 "Adobe Type Manager
+        Compatibility" of the Type-1 spec.
         """
-        def tokens(text):
-            """
-            Yield pairs (position, token), ignoring comments and
-            whitespace. Numbers count as tokens.
-            """
-            pos = 0
-            while pos < len(text):
-                match = self._comment.match(text[pos:]) or self._whitespace.match(text[pos:])
-                if match:
-                    pos += match.end()
-                elif text[pos] == '(':
-                    start = pos
-                    pos += 1
-                    depth = 1
-                    while depth:
-                        match = self._instring.search(text[pos:])
-                        if match is None: return
-                        if match.group() == '(':
-                            depth += 1
-                            pos += 1
-                        elif match.group() == ')':
-                            depth -= 1
-                            pos += 1
-                        else:
-                            pos += 2
-                    yield (start, text[start:pos])
-                elif text[pos:pos+2] in ('<<', '>>'):
-                    yield (pos, text[pos:pos+2])
-                    pos += 2
-                elif text[pos] == '<':
-                    start = pos
-                    pos += text[pos:].index('>')
-                    yield (start, text[start:pos])
-                else:
-                    match = self._token.match(text[pos:])
-                    if match:
-                        yield (pos, match.group())
-                        pos += match.end()
+        # Start with reasonable defaults
+        prop = { 'weight': 'Regular', 'ItalicAngle': 0.0, 'isFixedPitch': False,
+                 'UnderlinePosition': -100, 'UnderlineThickness': 50 }
+        tokenizer = self._tokens(self.parts[0])
+        filtered = itertools.ifilter(lambda x: x[0] != 'whitespace', tokenizer)
+        for token, value in filtered:
+            if token == 'name' and value.startswith('/'):
+                key = value[1:]
+                token, value = filtered.next()
+                if token == 'name':
+                    if value in ('true', 'false'):
+                        value = value == 'true'
                     else:
-                        yield (pos, text[pos])
-                        pos += 1
+                        value = value.lstrip('/')
+                elif token == 'string':
+                    value = value.lstrip('(').rstrip(')')
+                elif token == 'number':
+                    if '.' in value: value = float(value)
+                    else: value = int(value)
+                else: # more complicated value such as an array
+                    value = None
+                if key != 'FontInfo' and value is not None:
+                    prop[key] = value
 
-        enc_starts, enc_ends = None, None
-        state = 0
-        # State transitions:
-        # 0 -> /Encoding -> 1
-        # 1 -> StandardEncoding -> 2 -> def -> (ends)
-        # 1 -> dup -> 4 -> put -> 5
-        # 5 -> dup -> 4 -> put -> 5
-        # 5 -> def -> (ends)
-        for pos,token in tokens(self.parts[0]):
-            if state == 0 and token == '/Encoding':
-                enc_starts = pos
-                state = 1
-            elif state == 1 and token == 'StandardEncoding':
-                state = 2
-            elif state in (2,5) and token == 'def':
-                enc_ends = pos+3
-                break
-            elif state in (1,5) and token == 'dup':
-                state = 4
-            elif state == 4 and token == 'put':
-                state = 5
-        self.enc_starts, self.enc_ends = enc_starts, enc_ends
+        # Fill in the various *Name properties
+        if not prop.has_key('FontName'):
+            prop['FontName'] = prop.get('FullName') or prop.get('FamilyName') or 'Unknown'
+        if not prop.has_key('FullName'):
+            prop['FullName'] = prop['FontName']
+        if not prop.has_key('FamilyName'):
+            extras = r'(?i)([ -](regular|plain|italic|oblique|(semi)?bold|(ultra)?light|extra|condensed))+$'
+            prop['FamilyName'] = re.sub(extras, '', prop['FullName'])
                 
-    
-if __name__ == '__main__':
-    import sys
-    font = Type1Font(sys.argv[1])
-    parts = font.parts
-    print len(parts[0]), len(parts[1]), len(parts[2])
-    #print parts[0][font.enc_starts:font.enc_ends]
+        self.prop = prop
+                        
+    @classmethod
+    def _transformer(cls, tokens, slant, extend):
+        def fontname(name):
+            result = name
+            if slant: result += '_Slant_' + str(int(1000*slant))
+            if extend != 1.0: result += '_Extend_' + str(int(1000*extend))
+            return result
 
+        def italicangle(angle):
+            return str(float(angle) - np.arctan(slant)/np.pi*180)
+
+        def fontmatrix(array):
+            array = array.lstrip('[').rstrip(']').strip().split()
+            array = [ float(x) for x in array ]
+            oldmatrix = np.eye(3,3)
+            oldmatrix[0:3,0] = array[::2]
+            oldmatrix[0:3,1] = array[1::2]
+            modifier = np.array([[extend, 0, 0],
+                                 [slant, 1, 0],
+                                 [0, 0, 1]])
+            newmatrix = np.dot(modifier, oldmatrix)
+            array[::2] = newmatrix[0:3,0]
+            array[1::2] = newmatrix[0:3,1]
+            return '[' + ' '.join(str(x) for x in array) + ']'
+
+        def replace(fun):
+            def replacer(tokens):
+                token, value = tokens.next()      # name, e.g. /FontMatrix
+                yield value
+                token, value = tokens.next()      # possible whitespace
+                while token == 'whitespace':
+                    yield value
+                    token, value = tokens.next()
+                if value != '[':                  # name/number/etc.
+                    yield fun(value)
+                else:                             # array, e.g. [1 2 3]
+                    array = []
+                    while value != ']':
+                        array += value
+                        token, value = tokens.next()
+                    array += value
+                    yield fun(''.join(array))
+            return replacer
+
+        def suppress(tokens):
+            for x in itertools.takewhile(lambda x: x[1] != 'def', tokens):
+                pass
+            yield ''
+        
+        table = { '/FontName': replace(fontname),
+                  '/ItalicAngle': replace(italicangle),
+                  '/FontMatrix': replace(fontmatrix),
+                  '/UniqueID': suppress }
+
+        while True:
+            token, value = tokens.next()
+            if token == 'name' and value in table:
+                for value in table[value](itertools.chain([(token, value)], tokens)):
+                    yield value
+            else:
+                yield value
+                        
+    def transform(self, effects):
+        """
+        Transform the font by slanting or extending. *effects* should
+        be a dict where ``effects['slant']`` is the tangent of the
+        angle that the font is to be slanted to the right (so negative
+        values slant to the left) and ``effects['extend']`` is the
+        multiplier by which the font is to be extended (so values less
+        than 1.0 condense). Returns a new :class:`Type1Font` object.
+        """
+
+        buffer = cStringIO.StringIO()
+        tokenizer = self._tokens(self.parts[0])
+        for value in self._transformer(tokenizer,
+                                       slant=effects.get('slant', 0.0),
+                                       extend=effects.get('extend', 1.0)):
+            buffer.write(value)
+        result = buffer.getvalue()
+        buffer.close()
+
+        return Type1Font((result, self.parts[1], self.parts[2]))
+    

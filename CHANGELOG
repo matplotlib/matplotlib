@@ -1,3 +1,6 @@
+2008-12-31 Improve pdf usetex by adding support for font effects
+           (slanting and extending). - JKS
+
 2008-12-29 Fix a bug in pdf usetex support, which occurred if the same
            Type-1 font was used with different encodings, e.g. with
            Minion Pro and MnSymbol. - JKS
