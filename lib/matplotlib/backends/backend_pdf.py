@@ -219,6 +219,9 @@ class Name(object):
     def __repr__(self):
         return "<Name %s>" % self.name
 
+    def __str__(self):
+        return '/' + self.name
+
     @staticmethod
     def hexify(match):
         return '#%02x' % ord(match.group())
@@ -336,13 +339,7 @@ class Stream(object):
 class PdfFile(object):
     """PDF file with one page."""
 
-    def __init__(self, width, height, dpi, filename):
-        self.width, self.height = width, height
-        self.dpi = dpi
-        if rcParams['path.simplify']:
-            self.simplify = (width * dpi, height * dpi)
-        else:
-            self.simplify = None
+    def __init__(self, filename):
         self.nextObject = 1     # next free object id
         self.xrefTable = [ [0, 65535, 'the zero object'] ]
         self.passed_in_file_object = False
@@ -364,17 +361,16 @@ class PdfFile(object):
 
         self.rootObject = self.reserveObject('root')
         self.infoObject = self.reserveObject('info')
-        pagesObject = self.reserveObject('pages')
-        thePageObject = self.reserveObject('page 0')
-        contentObject = self.reserveObject('contents of page 0')
+        self.pagesObject = self.reserveObject('pages')
+        self.pageList = []
         self.fontObject = self.reserveObject('fonts')
         self.alphaStateObject = self.reserveObject('extended graphics states')
         self.hatchObject = self.reserveObject('tiling patterns')
         self.XObjectObject = self.reserveObject('external objects')
-        resourceObject = self.reserveObject('resources')
+        self.resourceObject = self.reserveObject('resources')
 
         root = { 'Type': Name('Catalog'),
-                 'Pages': pagesObject }
+                 'Pages': self.pagesObject }
         self.writeObject(self.rootObject, root)
 
         info = { 'Creator': 'matplotlib ' + __version__ \
@@ -385,23 +381,12 @@ class PdfFile(object):
         # Possible TODO: Title, Author, Subject, Keywords
         self.writeObject(self.infoObject, info)
 
-        pages = { 'Type': Name('Pages'),
-                  'Kids': [ thePageObject ],
-                  'Count': 1 }
-        self.writeObject(pagesObject, pages)
-
-        thePage = { 'Type': Name('Page'),
-                    'Parent': pagesObject,
-                    'Resources': resourceObject,
-                    'MediaBox': [ 0, 0, dpi*width, dpi*height ],
-                    'Contents': contentObject }
-        self.writeObject(thePageObject, thePage)
-
         self.fontNames = {}     # maps filenames to internal font names
         self.nextFont = 1       # next free internal font name
         self.dviFontInfo = {}   # information on dvi fonts
         self.type1Descriptors = {} # differently encoded Type-1 fonts may
                                    # share the same descriptor
+        self.used_characters = {}
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self.nextAlphaState = 1
@@ -426,16 +411,32 @@ class PdfFile(object):
                       'ExtGState': self.alphaStateObject,
                       'Pattern': self.hatchObject,
                       'ProcSet': procsets }
-        self.writeObject(resourceObject, resources)
+        self.writeObject(self.resourceObject, resources)
 
-        # Start the content stream of the page
+    def newPage(self, width, height):
+        self.endStream()
+
+        self.width, self.height = width, height
+        if rcParams['path.simplify']:
+            self.simplify = (width * 72, height * 72)
+        else:
+            self.simplify = None
+        contentObject = self.reserveObject('page contents')
+        thePage = { 'Type': Name('Page'),
+                    'Parent': self.pagesObject,
+                    'Resources': self.resourceObject,
+                    'MediaBox': [ 0, 0, 72*width, 72*height ],
+                    'Contents': contentObject }
+        pageObject = self.reserveObject('page')
+        self.writeObject(pageObject, thePage)
+        self.pageList.append(pageObject)
+
         self.beginStream(contentObject.id,
                          self.reserveObject('length of content stream'))
 
     def close(self):
-        # End the content stream and write out the various deferred
-        # objects
         self.endStream()
+        # Write out the various deferred objects
         self.writeFonts()
         self.writeObject(self.alphaStateObject,
                          dict([(val[0], val[1])
@@ -449,6 +450,12 @@ class PdfFile(object):
         self.writeObject(self.XObjectObject, xobjects)
         self.writeImages()
         self.writeMarkers()
+        self.writeObject(self.pagesObject,
+                         { 'Type': Name('Pages'),
+                           'Kids': self.pageList,
+                           'Count': len(self.pageList) })
+
+        # Finalize the file
         self.writeXref()
         self.writeTrailer()
         if self.passed_in_file_object:
@@ -471,8 +478,9 @@ class PdfFile(object):
         self.currentstream = Stream(id, len, self, extra)
 
     def endStream(self):
-        self.currentstream.end()
-        self.currentstream = None
+        if self.currentstream is not None:
+            self.currentstream.end()
+            self.currentstream = None
 
     def fontName(self, fontprop):
         """
@@ -493,20 +501,27 @@ class PdfFile(object):
             Fx = Name('F%d' % self.nextFont)
             self.fontNames[filename] = Fx
             self.nextFont += 1
+            matplotlib.verbose.report(
+                'Assigning font %s = %s' % (Fx, filename),
+                'debug')
 
         return Fx
 
     def writeFonts(self):
         fonts = {}
         for filename, Fx in self.fontNames.items():
+            matplotlib.verbose.report('Embedding font %s' % filename, 'debug')
             if filename.endswith('.afm'):
                 # from pdf.use14corefonts
+                matplotlib.verbose.report('Writing AFM font', 'debug')
                 fontdictObject = self._write_afm_font(filename)
             elif self.dviFontInfo.has_key(filename):
                 # a Type 1 font from a dvi file; the filename is really the TeX name
+                matplotlib.verbose.report('Writing Type-1 font', 'debug')
                 fontdictObject = self.embedType1(filename, self.dviFontInfo[filename])
             else:
                 # a normal TrueType font
+                matplotlib.verbose.report('Writing TrueType font', 'debug')
                 realpath, stat_key = get_realpath_and_stat(filename)
                 chars = self.used_characters.get(stat_key)
                 if chars is not None and len(chars[1]):
@@ -1143,8 +1158,7 @@ end"""
         return cmds
 
     def writePath(self, path, transform):
-        cmds = self.pathOperations(
-            path, transform, self.simplify)
+        cmds = self.pathOperations(path, transform, self.simplify)
         self.output(*cmds)
 
     def reserveObject(self, name=''):
@@ -1198,13 +1212,11 @@ class RendererPdf(RendererBase):
     truetype_font_cache = maxdict(50)
     afm_font_cache = maxdict(50)
 
-    def __init__(self, file, dpi, image_dpi):
+    def __init__(self, file, image_dpi):
         RendererBase.__init__(self)
         self.file = file
         self.gc = self.new_gc()
-        self.file.used_characters = self.used_characters = {}
         self.mathtext_parser = MathTextParser("Pdf")
-        self.dpi = dpi
         self.image_dpi = image_dpi
         self.tex_font_map = None
 
@@ -1235,13 +1247,13 @@ class RendererPdf(RendererBase):
         else:
             fname = font.fname
         realpath, stat_key = get_realpath_and_stat(fname)
-        used_characters = self.used_characters.setdefault(
+        used_characters = self.file.used_characters.setdefault(
             stat_key, (realpath, set()))
         used_characters[1].update([ord(x) for x in s])
 
     def merge_used_characters(self, other):
         for stat_key, (realpath, charset) in other.items():
-            used_characters = self.used_characters.setdefault(
+            used_characters = self.file.used_characters.setdefault(
                 stat_key, (realpath, set()))
             used_characters[1].update(charset)
 
@@ -1299,7 +1311,7 @@ class RendererPdf(RendererBase):
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
         width, height, descent, glyphs, rects, used_characters = \
-            self.mathtext_parser.parse(s, self.dpi, prop)
+            self.mathtext_parser.parse(s, 72, prop)
         self.merge_used_characters(used_characters)
 
         # When using Type 3 fonts, we can't use character codes higher
@@ -1327,7 +1339,6 @@ class RendererPdf(RendererBase):
                 self._setup_textpos(ox, oy, 0, 0, oldx, oldy)
                 oldx, oldy = ox, oy
                 if (fontname, fontsize) != prev_font:
-                    fontsize *= self.dpi/72.0
                     self.file.output(self.file.fontName(fontname), fontsize,
                                      Op.selectfont)
                     prev_font = fontname, fontsize
@@ -1338,7 +1349,6 @@ class RendererPdf(RendererBase):
         # as XObjects using the 'Do' command.
         if global_fonttype == 3:
             for ox, oy, fontname, fontsize, num, symbol_name in glyphs:
-                fontsize *= self.dpi/72.0
                 if is_opentype_cff_font(fontname):
                     fonttype = 42
                 else:
@@ -1367,7 +1377,7 @@ class RendererPdf(RendererBase):
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
-        dvi = dviread.Dvi(dvifile, self.dpi)
+        dvi = dviread.Dvi(dvifile, 72)
         page = iter(dvi).next()
         dvi.close()
 
@@ -1463,7 +1473,7 @@ class RendererPdf(RendererBase):
         self.check_gc(gc, gc._rgb)
         if ismath: return self.draw_mathtext(gc, x, y, s, prop, angle)
 
-        fontsize = prop.get_size_in_points() * self.dpi/72.0
+        fontsize = prop.get_size_in_points()
 
         if rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
@@ -1593,14 +1603,14 @@ class RendererPdf(RendererBase):
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             dvifile = texmanager.make_dvi(s, fontsize)
-            dvi = dviread.Dvi(dvifile, self.dpi)
+            dvi = dviread.Dvi(dvifile, 72)
             page = iter(dvi).next()
             dvi.close()
             # A total height (including the descent) needs to be returned.
             return page.width, page.height+page.descent, page.descent
         if ismath:
             w, h, d, glyphs, rects, used_characters = \
-                self.mathtext_parser.parse(s, self.dpi, prop)
+                self.mathtext_parser.parse(s, 72, prop)
 
         elif rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
@@ -1645,14 +1655,14 @@ class RendererPdf(RendererBase):
                 self.truetype_font_cache[filename] = font
             self.truetype_font_cache[key] = font
         font.clear()
-        font.set_size(prop.get_size_in_points(), self.dpi)
+        font.set_size(prop.get_size_in_points(), 72)
         return font
 
     def flipy(self):
         return False
 
     def get_canvas_width_height(self):
-        return self.file.width / self.dpi, self.file.height / self.dpi
+        return self.file.width / 72.0, self.file.height / 72.0
 
     def new_gc(self):
         return GraphicsContextPdf(self.file)
@@ -1887,16 +1897,22 @@ class FigureCanvasPdf(FigureCanvasBase):
         return 'pdf'
 
     def print_pdf(self, filename, **kwargs):
-        ppi = 72 # Postscript points in an inch
         image_dpi = kwargs.get('dpi', 72) # dpi to use for images
-        self.figure.set_dpi(ppi)
+        self.figure.set_dpi(72)           # there are 72 pdf points to an inch
         width, height = self.figure.get_size_inches()
-        file = PdfFile(width, height, ppi, filename)
+        if isinstance(filename, PdfFile):
+            file = filename
+        else:
+            file = PdfFile(filename)
+        file.newPage(width, height)
         renderer = MixedModeRenderer(
-            width, height, ppi, RendererPdf(file, ppi, image_dpi))
+            width, height, 72, RendererPdf(file, image_dpi))
         self.figure.draw(renderer)
         renderer.finalize()
-        file.close()
+        if file != filename:    # we opened the file
+            file.close()
+        else:                   # multipage file; just finish off the page
+            file.endStream()
 
 class FigureManagerPdf(FigureManagerBase):
     pass
