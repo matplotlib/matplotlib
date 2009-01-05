@@ -357,6 +357,8 @@ units = False
         preamble = []
         # a boolean
         unicode = False
+        # a boolean
+        preview = False
 
 [verbose]
     # a file name or 'sys.stdout'

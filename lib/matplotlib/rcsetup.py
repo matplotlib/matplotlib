@@ -386,6 +386,7 @@ defaultParams = {
     'text.usetex'         : [False, validate_bool],
     'text.latex.unicode'  : [False, validate_bool],
     'text.latex.preamble' : [[''], validate_stringlist],
+    'text.latex.preview' : [False, validate_bool],
     'text.dvipnghack'     : [None, validate_bool_maybe_none],
     'text.fontstyle'      : ['normal', str],
     'text.fontangle'      : ['normal', str],

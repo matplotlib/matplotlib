@@ -612,7 +612,7 @@ class PdfFile(object):
         if 0:             flags |= 1 << 18 # TODO: force bold
 
         ft2font = FT2Font(fontfile)
-        
+
         descriptor = {
             'Type':        Name('FontDescriptor'),
             'FontName':    Name(t1font.prop['FontName']),
@@ -1602,12 +1602,10 @@ class RendererPdf(RendererBase):
         if rcParams['text.usetex']:
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
-            dvifile = texmanager.make_dvi(s, fontsize)
-            dvi = dviread.Dvi(dvifile, 72)
-            page = iter(dvi).next()
-            dvi.close()
-            # A total height (including the descent) needs to be returned.
-            return page.width, page.height+page.descent, page.descent
+            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
+                                                               renderer=self)
+            return w, h, d
+
         if ismath:
             w, h, d, glyphs, rects, used_characters = \
                 self.mathtext_parser.parse(s, 72, prop)
