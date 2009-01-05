@@ -1,3 +1,5 @@
+2009-01-05 Fix a bug in pdf usetex: allow using non-embedded fonts. - JKS
+
 2009-01-05 optional use of preview.sty in usetex mode. - JJL
 
 2009-01-02 Allow multipage pdf files. - JKS
