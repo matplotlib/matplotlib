@@ -146,10 +146,10 @@ class RendererAgg(RendererBase):
             # todo: handle props
             size = prop.get_size_in_points()
             texmanager = self.get_texmanager()
-            Z = texmanager.get_grey(s, size, self.dpi)
-            m,n = Z.shape
-            # TODO: descent of TeX text (I am imitating backend_ps here -JKS)
-            return n, m, 0
+            fontsize = prop.get_size_in_points()
+            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
+                                                               renderer=self)
+            return w, h, d
 
         if ismath:
             ox, oy, width, height, descent, fonts, used_characters = \

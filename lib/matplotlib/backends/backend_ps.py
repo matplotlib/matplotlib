@@ -274,12 +274,9 @@ class RendererPS(RendererBase):
         if rcParams['text.usetex']:
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
-            l,b,r,t = texmanager.get_ps_bbox(s, fontsize)
-            w = (r-l)
-            h = (t-b)
-            # TODO: We need a way to get a good baseline from
-            # text.usetex
-            return w, h, 0
+            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
+                                                               renderer=self)
+            return w, h, d
 
         if ismath:
             width, height, descent, pswriter, used_characters = \
