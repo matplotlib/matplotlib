@@ -545,7 +545,7 @@ class PdfFile(object):
     def embedType1(self, texname, fontinfo):
         matplotlib.verbose.report(
             'Embedding ' + texname +
-            ' which is the Type 1 font ' + fontinfo.fontfile +
+            ' which is the Type 1 font ' + (fontinfo.fontfile or '(none)') +
             ' with encoding ' + (fontinfo.encodingfile or '(none)') +
             ' and effects ' + `fontinfo.effects`,
             'debug')
