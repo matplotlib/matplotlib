@@ -603,6 +603,7 @@ class Path(object):
 
         cursor = 0
 
+        # - horizontal
         if counts[0]:
             vertices_chunk = vertices[cursor:cursor + counts[0] * 2]
             cursor += counts[0] * 2
@@ -612,6 +613,7 @@ class Path(object):
             vertices_chunk[1::2, 0] = size
             vertices_chunk[1::2, 1] = steps
 
+        # / ne
         if counts[1]:
             vertices_chunk = vertices[cursor:cursor + counts[1] * 4]
             cursor += counts[1] * 4
@@ -625,6 +627,7 @@ class Path(object):
             vertices_chunk[3::4, 0] = size
             vertices_chunk[3::4, 1] = steps
 
+        # | vertical
         if counts[2]:
             vertices_chunk = vertices[cursor:cursor + counts[2] * 2]
             cursor += counts[2] * 2
@@ -634,6 +637,7 @@ class Path(object):
             vertices_chunk[1::2, 0] = steps
             vertices_chunk[1::2, 1] = size
 
+        # \ se
         if counts[3]:
             vertices_chunk = vertices[cursor:cursor + counts[3] * 4]
             cursor += counts[3] * 4
