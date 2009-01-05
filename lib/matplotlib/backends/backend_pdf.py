@@ -1396,7 +1396,6 @@ class RendererPdf(RendererBase):
                 pdfname = self.file.fontName(dvifont.texname)
                 if not self.file.dviFontInfo.has_key(dvifont.texname):
                     psfont = self.tex_font_mapping(dvifont.texname)
-                    fontfile = psfont.filename
                     self.file.dviFontInfo[dvifont.texname] = Bunch(
                         fontfile=psfont.filename,
                         basefont=psfont.psname,
