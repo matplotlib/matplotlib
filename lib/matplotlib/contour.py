@@ -535,7 +535,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.levels = kwargs.get('levels', None)
         self.filled = kwargs.get('filled', False)
         self.linewidths = kwargs.get('linewidths', None)
-        self.linestyles = kwargs.get('linestyles', 'solid')
+        self.linestyles = kwargs.get('linestyles', None)
 
         self.alpha = kwargs.get('alpha', 1.0)
         self.origin = kwargs.get('origin', None)
@@ -613,9 +613,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                                      linestyle = lstyle,
                                      alpha=self.alpha)
 
-                if level < 0.0 and self.monochrome:
-                    ls = mpl.rcParams['contour.negative_linestyle']
-                    col.set_linestyle(ls)
                 col.set_label('_nolegend_')
                 self.ax.add_collection(col, False)
                 self.collections.append(col)
@@ -857,6 +854,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         Nlev = len(self.levels)
         if linestyles is None:
             tlinestyles = ['solid'] * Nlev
+            if self.monochrome:
+                neg_ls = mpl.rcParams['contour.negative_linestyle']
+                for i, lev in enumerate(self.levels):
+                    if lev < 0.0:
+                        tlinestyles[i] = neg_ls
         else:
             if cbook.is_string_like(linestyles):
                 tlinestyles = [linestyles] * Nlev

@@ -1,6 +1,8 @@
+2009-01-06 Fix bug in setting of dashed negative contours. - EF
+
 2009-01-06 Be fault tolerant when len(linestyles)>NLev in contour. - MM
 
-2009-01-06 Added marginals kwarg to hexbin to plot marginal densities 
+2009-01-06 Added marginals kwarg to hexbin to plot marginal densities
            JDH
 
 2009-01-06 Change user-visible multipage pdf object to PdfPages to
