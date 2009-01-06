@@ -5212,7 +5212,7 @@ class Axes(martist.Artist):
                     xscale = 'linear', yscale = 'linear',
                     cmap=None, norm=None, vmin=None, vmax=None,
                     alpha=1.0, linewidths=None, edgecolors='none',
-                    reduce_C_function = np.mean, mincnt=None,
+                    reduce_C_function = np.mean, mincnt=None, marginals=True,
                     **kwargs):
         """
         call signature::
@@ -5221,7 +5221,7 @@ class Axes(martist.Artist):
                  xscale = 'linear', yscale = 'linear',
                  cmap=None, norm=None, vmin=None, vmax=None,
                  alpha=1.0, linewidths=None, edgecolors='none'
-                 reduce_C_function = np.mean, mincnt=None,
+                 reduce_C_function = np.mean, mincnt=None, marginals=True
                  **kwargs)
 
         Make a hexagonal binning plot of *x* versus *y*, where *x*,
@@ -5273,6 +5273,11 @@ class Axes(martist.Artist):
             If not None, only display cells with more than *mincnt*
             number of points in the cell
 
+          *marginals*: True|False
+            if marginals is True, plot the marginal density as
+            colormapped rectagles along the bottom of the x-axis and
+            left of the y-axis
+
         Other keyword arguments controlling color mapping and normalization
         arguments:
 
@@ -5320,7 +5325,10 @@ class Axes(martist.Artist):
         :class:`~matplotlib.collections.PolyCollection` instance; use
         :meth:`~matplotlib.collection.PolyCollection.get_array` on
         this :class:`~matplotlib.collections.PolyCollection` to get
-        the counts in each hexagon.
+        the counts in each hexagon..  If marginals is True, horizontal
+        bar and vertical bar (both PolyCollections) will be attached
+        to the return collection as attributes *hbar* and *vbar*
+
 
         **Example:**
 
@@ -5331,8 +5339,10 @@ class Axes(martist.Artist):
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
+        
         x, y, C = cbook.delete_masked_points(x, y, C)
 
+            
         # Set the size of the hexagon grid
         if iterable(gridsize):
             nx, ny = gridsize
@@ -5357,6 +5367,11 @@ class Axes(martist.Artist):
         xmax += padding
         sx = (xmax-xmin) / nx
         sy = (ymax-ymin) / ny
+
+        if marginals:
+            xorig = x.copy()
+            yorig = y.copy()
+
         x = (x-xmin)/sx
         y = (y-ymin)/sy
         ix1 = np.round(x).astype(int)
@@ -5496,6 +5511,93 @@ class Axes(martist.Artist):
 
         # add the collection last
         self.add_collection(collection)
+        if not marginals:
+            return collection
+
+
+        if C is None:
+            C = np.ones(len(x))
+
+        def coarse_bin(x, y, coarse):
+            ind = coarse.searchsorted(x).clip(0, len(coarse)-1)
+            mus = np.zeros(len(coarse))
+            for i in range(len(coarse)):
+                mu = reduce_C_function(y[ind==i])
+                mus[i] = mu
+            return mus
+
+        coarse = np.linspace(xmin, xmax, gridsize)
+
+        xcoarse = coarse_bin(xorig, C, coarse)
+        valid = ~np.isnan(xcoarse)
+        verts, values = [], []
+        for i,val in enumerate(xcoarse):
+            thismin = coarse[i]
+            if i<len(coarse)-1:
+                thismax = coarse[i+1]
+            else:
+                thismax = thismin + np.diff(coarse)[-1]
+
+            if not valid[i]: continue                
+
+            verts.append([(thismin, 0), (thismin, 0.05), (thismax, 0.05), (thismax, 0)])
+            values.append(val)
+
+        values = np.array(values)
+        trans = mtransforms.blended_transform_factory(
+            self.transData, self.transAxes)
+
+
+        hbar = mcoll.PolyCollection(verts, transform=trans, edgecolors='face')
+
+        hbar.set_array(values)
+        hbar.set_cmap(cmap)
+        hbar.set_norm(norm)
+        hbar.set_alpha(alpha)
+        hbar.update(kwargs)
+        self.add_collection(hbar)
+
+        coarse = np.linspace(ymin, ymax, gridsize)
+        ycoarse = coarse_bin(yorig, C, coarse)
+        valid = ~np.isnan(ycoarse)
+        verts, values = [], []
+        for i,val in enumerate(ycoarse):
+            thismin = coarse[i]
+            if i<len(coarse)-1:
+                thismax = coarse[i+1]
+            else:
+                thismax = thismin + np.diff(coarse)[-1]
+            if not valid[i]: continue
+            verts.append([(0, thismin), (0.0, thismax), (0.05, thismax), (0.05, thismin)])
+            values.append(val)
+
+        values = np.array(values)
+
+
+        trans = mtransforms.blended_transform_factory(
+            self.transAxes, self.transData)
+
+        vbar = mcoll.PolyCollection(verts, transform=trans, edgecolors='face')
+        vbar.set_array(values)
+        vbar.set_cmap(cmap)
+        vbar.set_norm(norm)
+        vbar.set_alpha(alpha)
+        vbar.update(kwargs)
+        self.add_collection(vbar)
+
+
+
+        collection.hbar = hbar
+        collection.vbar = vbar
+
+        def on_changed(collection):
+            hbar.set_cmap(collection.get_cmap())
+            hbar.set_clim(collection.get_clim())
+            vbar.set_cmap(collection.get_cmap())
+            vbar.set_clim(collection.get_clim())
+
+        collection.callbacksSM.connect('changed', on_changed)
+
         return collection
 
     hexbin.__doc__ = cbook.dedent(hexbin.__doc__) % martist.kwdocd

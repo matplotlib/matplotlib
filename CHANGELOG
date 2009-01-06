@@ -1,3 +1,6 @@
+2009-01-06 Added marginals kwarg to hexbin to plot marginal densities 
+           JDH
+
 2009-01-06 Change user-visible multipage pdf object to PdfPages to
            avoid accidents with the file-like PdfFile. - JKS
 
