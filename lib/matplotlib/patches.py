@@ -252,7 +252,7 @@ class Patch(artist.Artist):
         Hatching is supported in the PostScript, PDF, SVG and Agg
         backends only.
 
-        ACCEPTS: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
+        ACCEPTS: [ '/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
         """
         self._hatch = hatch
 
