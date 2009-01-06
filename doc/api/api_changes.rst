@@ -6,6 +6,10 @@ This chapter is a log of changes to matplotlib that affect the
 outward-facing API.  If updating matplotlib breaks your scripts, this
 list may help describe what changes may be necessary in your code.
 
+* You can now print several figures to one pdf file. See the docstrings
+  of the class :class:`matplotlib.backends.backend_pdf.PdfPages` for
+  more information.
+
 * Removed configobj_ and `enthought.traits`_ packages, which are only
   required by the experimental traited config and are somewhat out of
   date. If needed, install them independently.
