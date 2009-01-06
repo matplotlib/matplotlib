@@ -860,8 +860,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         else:
             if cbook.is_string_like(linestyles):
                 tlinestyles = [linestyles] * Nlev
-            elif cbook.iterable(linestyles) and len(linestyles) <= Nlev:
+            elif cbook.iterable(linestyles) and len(linestyles) < Nlev:
                 tlinestyles = list(linestyles) * int(np.ceil(Nlev/len(linestyles)))
+            elif cbook.iterable(linestyles): # len(linestyles) >= Nlev
+                tlinestyles = list(linestyles)[:Nlev]
         return tlinestyles
 
     def get_alpha(self):
