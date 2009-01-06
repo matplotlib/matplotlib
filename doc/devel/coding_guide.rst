@@ -171,7 +171,7 @@ enter the following commands::
   cd mpl.git
   git config --add remote.origin.fetch +refs/remotes/*:refs/remotes/*
   git fetch
-  git svn init --trunk=trunk/matplotlib --tags=tags https://matplotlib.svn.sourceforge.net/svnroot/matplotlib
+  git svn init --branches=branches --trunk=trunk/matplotlib --tags=tags https://matplotlib.svn.sourceforge.net/svnroot/matplotlib
 
   # Now just get the latest svn revisions from the SourceForge SVN repository
   git svn fetch -r 6300:HEAD
@@ -220,6 +220,37 @@ rebase it to the new master::
 
   git checkout whizbang-branch
   git rebase master
+
+Working on a maintenance branch from git
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The matplotlib maintenance branches are also available through git.
+(Note that the ``git svn init`` line in the instructions above was
+updated to make this possible.  If you created your git mirror without
+a ``--branches`` option, you will need to perform all of the steps
+again in a new directory).
+
+You can see which branches are available with::
+
+  git branch -a
+
+To switch your working copy to the 0.98.5 maintenance branch::
+
+  git checkout v0_98_5_maint
+
+Then you probably want to (as above) create a new local branch based
+on that branch::
+
+  git checkout -b whizbang-branch
+
+When you ``git svn dcommit`` from a maintenance branch, it will commit
+to that branch, not to the trunk.
+
+While it should theoretically be possible to perform merges from a git
+maintenance branch to a git trunk and then commit those changes back
+to the SVN trunk, I have yet to find the magic incantation to make
+that work.  However, svnmerge as described `above <svn-merge>`_ can be
+used and in fact works quite well.
 
 A note about git write access
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
