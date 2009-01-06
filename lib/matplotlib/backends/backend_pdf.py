@@ -1882,6 +1882,63 @@ def new_figure_manager(num, *args, **kwargs):
     manager = FigureManagerPdf(canvas, num)
     return manager
 
+class PdfPages(object):
+    """
+    A multi-page PDF file.
+
+    Use like this:
+
+      # Initialize:
+      pdf_pages = PdfPages('foo.pdf')
+
+      # As many times as you like, create a figure fig, then either:
+      fig.savefig(pdf_pages, format='pdf') # note the format argument!
+      # or:
+      pdf_pages.savefig(fig)
+
+      # Once you are done, remember to close the object:
+      pdf_pages.close()
+
+    (In reality PdfPages is a thin wrapper around PdfFile, in order to
+    avoid confusion when using savefig and forgetting the format
+    argument.)
+    """
+    __slots__ = ('_file',)
+
+    def __init__(self, filename):
+        """
+        Create a new PdfPages object that will be written to the file
+        named *filename*. The file is opened at once and any older
+        file with the same name is overwritten.
+        """
+        self._file = PdfFile(filename)
+
+    def close(self):
+        """
+        Finalize this object, making the underlying file a complete
+        PDF file.
+        """
+        self._file.close()
+        self._file = None
+
+    def savefig(self, figure=None, **kwargs):
+        """
+        Save the Figure instance *figure* to this file as a new page.
+        If *figure* is a number, the figure instance is looked up by
+        number, and if *figure* is None, the active figure is saved.
+        Any other keyword arguments are passed to Figure.savefig.
+        """
+        if isinstance(figure, Figure):
+            figure.savefig(self, format='pdf', **kwargs)
+        else:
+            if figure is None:
+                figureManager = Gcf.get_active()
+            else:
+                figureManager = Gcf.get_fig_manager(figure)
+            if figureManager is None:
+                raise ValueError, "No such figure: " + `figure`
+            else:
+                figureManager.canvas.figure.savefig(self, format='pdf')
 
 class FigureCanvasPdf(FigureCanvasBase):
     """
@@ -1905,8 +1962,8 @@ class FigureCanvasPdf(FigureCanvasBase):
         image_dpi = kwargs.get('dpi', 72) # dpi to use for images
         self.figure.set_dpi(72)           # there are 72 pdf points to an inch
         width, height = self.figure.get_size_inches()
-        if isinstance(filename, PdfFile):
-            file = filename
+        if isinstance(filename, PdfPages):
+            file = filename._file
         else:
             file = PdfFile(filename)
         file.newPage(width, height)
@@ -1914,10 +1971,10 @@ class FigureCanvasPdf(FigureCanvasBase):
             width, height, 72, RendererPdf(file, image_dpi))
         self.figure.draw(renderer)
         renderer.finalize()
-        if file != filename:    # we opened the file
-            file.close()
-        else:                   # multipage file; just finish off the page
+        if isinstance(filename, PdfPages): # finish off this page
             file.endStream()
+        else:            # we opened the file above; now finish it off
+            file.close()
 
 class FigureManagerPdf(FigureManagerBase):
     pass
