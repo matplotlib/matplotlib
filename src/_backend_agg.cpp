@@ -901,18 +901,20 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
     // Create and transform the path
     typedef agg::conv_transform<PathIterator> hatch_path_trans_t;
     typedef SimplifyPath<hatch_path_trans_t> hatch_path_simplify_t;
-    typedef agg::conv_stroke<hatch_path_simplify_t> hatch_path_stroke_t;
+    typedef agg::conv_curve<hatch_path_simplify_t> hatch_path_curve_t;
+    typedef agg::conv_stroke<hatch_path_curve_t> hatch_path_stroke_t;
 
     PathIterator hatch_path(gc.hatchpath);
     agg::trans_affine hatch_trans;
+    hatch_trans *= agg::trans_affine_scaling(1.0, -1.0);
+    hatch_trans *= agg::trans_affine_translation(0.0, 1.0);
     hatch_trans *= agg::trans_affine_scaling(HATCH_SIZE, HATCH_SIZE);
     hatch_path_trans_t hatch_path_trans(hatch_path, hatch_trans);
-    hatch_path_simplify_t hatch_path_simplify
-      (hatch_path_trans, true, false, HATCH_SIZE, HATCH_SIZE);
-    hatch_path_stroke_t hatch_path_stroke(hatch_path_simplify);
+    hatch_path_simplify_t hatch_path_simplify(hatch_path_trans, false, false, HATCH_SIZE, HATCH_SIZE);
+    hatch_path_curve_t hatch_path_curve(hatch_path_simplify);
+    hatch_path_stroke_t hatch_path_stroke(hatch_path_curve);
     hatch_path_stroke.width(1.0);
     hatch_path_stroke.line_cap(agg::square_cap);
-    theRasterizer.add_path(hatch_path_stroke);
 
     // Render the path into the hatch buffer
     pixfmt hatch_img_pixf(hatchRenderingBuffer);
@@ -920,6 +922,10 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
     renderer_aa rs(rb);
     rb.clear(agg::rgba(0.0, 0.0, 0.0, 0.0));
     rs.color(gc.color);
+
+    theRasterizer.add_path(hatch_path_curve);
+    agg::render_scanlines(theRasterizer, slineP8, rs);
+    theRasterizer.add_path(hatch_path_stroke);
     agg::render_scanlines(theRasterizer, slineP8, rs);
 
     // Put clipping back on, if originally set on entry to this

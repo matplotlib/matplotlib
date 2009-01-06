@@ -208,9 +208,7 @@ public:
   Py::Object lastclippath;
   agg::trans_affine lastclippath_transform;
 
-  // HATCH_SIZE should be a power of 2, to take advantage of Agg's
-  // fast pattern rendering
-  static const size_t HATCH_SIZE = 128;
+  static const size_t HATCH_SIZE = 72;
   agg::int8u hatchBuffer[HATCH_SIZE * HATCH_SIZE * 4];
   agg::rendering_buffer hatchRenderingBuffer;
 
