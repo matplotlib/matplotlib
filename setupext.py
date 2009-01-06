@@ -1066,8 +1066,7 @@ def build_windowing(ext_modules, packages):
     global BUILT_WINDOWING
     if BUILT_WINDOWING: return # only build it if you you haven't already
     module = Extension('matplotlib._windowing',
-                       ['src/_windowing.cpp',
-                        ],
+                       ['src/_windowing.cpp'],
                        )
     add_windowing_flags(module)
     ext_modules.append(module)
@@ -1341,7 +1340,7 @@ def build_gdk(ext_modules, packages):
     temp_copy('src/_backend_gdk.c', 'src/backend_gdk.c')
     module = Extension(
         'matplotlib.backends._backend_gdk',
-        ['src/backend_gdk.c', ],
+        ['src/backend_gdk.c'],
         libraries = [],
         include_dirs=numpy_inc_dirs,
         )
