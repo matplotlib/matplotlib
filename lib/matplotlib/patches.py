@@ -249,12 +249,10 @@ class Patch(artist.Artist):
         hatchings are done.  If same letter repeats, it increases the
         density of hatching of that pattern.
 
-        CURRENT LIMITATIONS:
+        Hatching is supported in the PostScript, PDF, SVG and Agg
+        backends only.
 
-        1. Hatching is supported in the PostScript, PDF, SVG and Agg
-           backends only.
-
-        ACCEPTS: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | ' *' ]
+        ACCEPTS: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
         """
         self._hatch = hatch
 
@@ -1444,8 +1442,8 @@ def _pprint_styles(_styles, leadingspace=2):
         else:
             argstr =  ",".join([("%s=%s" % (an, av)) for an, av in args])
 
-        #adding quotes for now to work around tex bug treating '-' as itemize
-        _table.append([cls.__name__, "'%s'"%name, argstr])
+        #adding ``quotes`` since - and | have special meaning in reST
+        _table.append([cls.__name__, "``%s``"%name, argstr])
 
     return _pprint_table(_table)
 
