@@ -572,87 +572,17 @@ class Path(object):
         can be used in a repeated hatching pattern.  *density* is the
         number of lines per unit square.
         """
+        from matplotlib.hatch import get_path
+
         if hatchpattern is None:
             return None
 
-        hatch = hatchpattern.lower()
-        hatch_path = cls._hatch_dict.get((hatch, density))
+        hatch_path = cls._hatch_dict.get((hatchpattern, density))
         if hatch_path is not None:
             return hatch_path
 
-        size = 1.0
-        density = int(density)
-        counts = [
-            hatch.count('-') + hatch.count('+'),
-            hatch.count('/') + hatch.count('x'),
-            hatch.count('|') + hatch.count('+'),
-            hatch.count('\\') + hatch.count('x')
-            ]
-
-        if sum(counts) == 0:
-            return cls([])
-
-        counts = [x * density for x in counts]
-
-        num_vertices = (counts[0] * 2 + counts[1] * 4 +
-                        counts[2] * 2 + counts[3] * 4)
-        vertices = np.empty((num_vertices, 2))
-        codes = np.empty((num_vertices,), cls.code_type)
-        codes[0::2] = cls.MOVETO
-        codes[1::2] = cls.LINETO
-
-        cursor = 0
-
-        # - horizontal
-        if counts[0]:
-            vertices_chunk = vertices[cursor:cursor + counts[0] * 2]
-            cursor += counts[0] * 2
-            steps = np.linspace(0.0, 1.0, counts[0], False)
-            vertices_chunk[0::2, 0] = 0.0
-            vertices_chunk[0::2, 1] = steps
-            vertices_chunk[1::2, 0] = size
-            vertices_chunk[1::2, 1] = steps
-
-        # / ne
-        if counts[1]:
-            vertices_chunk = vertices[cursor:cursor + counts[1] * 4]
-            cursor += counts[1] * 4
-            steps = np.linspace(0.0, 1.0, counts[1], False)
-            vertices_chunk[0::4, 0] = 0.0
-            vertices_chunk[0::4, 1] = steps
-            vertices_chunk[1::4, 0] = size - steps
-            vertices_chunk[1::4, 1] = size
-            vertices_chunk[2::4, 0] = size - steps
-            vertices_chunk[2::4, 1] = 0.0
-            vertices_chunk[3::4, 0] = size
-            vertices_chunk[3::4, 1] = steps
-
-        # | vertical
-        if counts[2]:
-            vertices_chunk = vertices[cursor:cursor + counts[2] * 2]
-            cursor += counts[2] * 2
-            steps = np.linspace(0.0, 1.0, counts[2], False)
-            vertices_chunk[0::2, 0] = steps
-            vertices_chunk[0::2, 1] = 0.0
-            vertices_chunk[1::2, 0] = steps
-            vertices_chunk[1::2, 1] = size
-
-        # \ se
-        if counts[3]:
-            vertices_chunk = vertices[cursor:cursor + counts[3] * 4]
-            cursor += counts[3] * 4
-            steps = np.linspace(0.0, 1.0, counts[3], False)
-            vertices_chunk[0::4, 0] = size
-            vertices_chunk[0::4, 1] = steps
-            vertices_chunk[1::4, 0] = steps
-            vertices_chunk[1::4, 1] = size
-            vertices_chunk[2::4, 0] = steps
-            vertices_chunk[2::4, 1] = 0.0
-            vertices_chunk[3::4, 0] = 0.0
-            vertices_chunk[3::4, 1] = steps
-
-        hatch_path = cls(vertices, codes)
-        cls._hatch_dict[(hatch, density)] = hatch_path
+        hatch_path = get_path(hatchpattern, density)
+        cls._hatch_dict[(hatchpattern, density)] = hatch_path
         return hatch_path
     hatch = classmethod(hatch)
 

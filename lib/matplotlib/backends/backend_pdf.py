@@ -557,7 +557,7 @@ class PdfFile(object):
             'FirstChar': 0,
             'LastChar':  len(fontinfo.dvifont.widths) - 1,
             'Widths':    widthsObject,
-            }            
+            }
 
         # Encoding (if needed)
         if fontinfo.encodingfile is not None:
@@ -595,7 +595,7 @@ class PdfFile(object):
             fontdesc = self.createType1Descriptor(t1font, fontinfo.fontfile)
             self.type1Descriptors[(fontinfo.fontfile, effects)] = fontdesc
         fontdict['FontDescriptor'] = fontdesc
-            
+
         self.writeObject(fontdictObject, fontdict)
         return fontdictObject
 
@@ -1749,7 +1749,6 @@ class GraphicsContextPdf(GraphicsContextBase):
             else:
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
         else:
-            hatch = hatch.lower()
             hatch_style = (self._rgb, self._fillcolor, hatch)
             name = self.file.hatchPattern(hatch_style)
             return [Name('Pattern'), Op.setcolorspace_nonstroke,

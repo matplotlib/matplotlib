@@ -238,19 +238,23 @@ class Patch(artist.Artist):
           \   - back diagonal
           |   - vertical
           -   - horizontal
-          #   - crossed
+          +   - crossed
           x   - crossed diagonal
+          o   - small circle
+          O   - large circle
+          .   - dots
+          *   - stars
 
         Letters can be combined, in which case all the specified
         hatchings are done.  If same letter repeats, it increases the
-        density of hatching in that direction.
+        density of hatching of that pattern.
 
         CURRENT LIMITATIONS:
 
         1. Hatching is supported in the PostScript, PDF, SVG and Agg
            backends only.
 
-        ACCEPTS: [ '/' | '\\' | '|' | '-' | '#' | 'x' ] (ps & pdf backend only)
+        ACCEPTS: [ '/' | '\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | ' *' ]
         """
         self._hatch = hatch
 

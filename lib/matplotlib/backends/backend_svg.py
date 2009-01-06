@@ -95,17 +95,22 @@ class RendererSVG(RendererBase):
         """
         Create a new hatch pattern
         """
-        HATCH_SIZE = 144
-        dictkey = (gc.get_hatch().lower(), rgbFace, gc.get_rgb())
+        HATCH_SIZE = 72
+        dictkey = (gc.get_hatch(), rgbFace, gc.get_rgb())
         id = self._hatchd.get(dictkey)
         if id is None:
             id = 'h%s' % md5(str(dictkey)).hexdigest()
             self._svgwriter.write('<defs>\n  <pattern id="%s" ' % id)
             self._svgwriter.write('patternUnits="userSpaceOnUse" x="0" y="0" ')
             self._svgwriter.write(' width="%d" height="%d" >\n' % (HATCH_SIZE, HATCH_SIZE))
-            path_data = self._convert_path(gc.get_hatch_path(), Affine2D().scale(144))
+            path_data = self._convert_path(
+                gc.get_hatch_path(),
+                Affine2D().scale(HATCH_SIZE).scale(1.0, -1.0).translate(0, HATCH_SIZE))
+            self._svgwriter.write(
+                '<rect x="0" y="0" width="%d" height="%d" fill="%s"/>' %
+                (HATCH_SIZE+1, HATCH_SIZE+1, rgb2hex(rgbFace)))
             path = '<path d="%s" fill="%s" stroke="%s" stroke-width="1.0"/>' % (
-                path_data, rgb2hex(rgbFace[:3]), rgb2hex(gc.get_rgb()[:3]))
+                path_data, rgb2hex(gc.get_rgb()[:3]), rgb2hex(gc.get_rgb()[:3]))
             self._svgwriter.write(path)
             self._svgwriter.write('\n  </pattern>\n</defs>')
             self._hatchd[dictkey] = id
