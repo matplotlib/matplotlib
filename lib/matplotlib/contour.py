@@ -842,10 +842,14 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if linewidths is None:
             tlinewidths = [(mpl.rcParams['lines.linewidth'],)] *Nlev
         else:
-            if cbook.iterable(linewidths) and len(linewidths) < Nlev:
-                linewidths = list(linewidths) * int(np.ceil(Nlev/len(linewidths)))
-            elif not cbook.iterable(linewidths) and type(linewidths) in [int, float]:
+            if not cbook.iterable(linewidths):
                 linewidths = [linewidths] * Nlev
+            else:
+                linewidths = list(linewidths)
+                if len(linewidths) < Nlev:
+                    linewidths = linewidths * int(np.ceil(Nlev/len(linewidths)))
+                if len(linewidths) > Nlev:
+                    linewidths = linewidths[:Nlev]
             tlinewidths = [(w,) for w in linewidths]
         return tlinewidths
 
@@ -862,10 +866,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         else:
             if cbook.is_string_like(linestyles):
                 tlinestyles = [linestyles] * Nlev
-            elif cbook.iterable(linestyles) and len(linestyles) < Nlev:
-                tlinestyles = list(linestyles) * int(np.ceil(Nlev/len(linestyles)))
-            elif cbook.iterable(linestyles): # len(linestyles) >= Nlev
-                tlinestyles = list(linestyles)[:Nlev]
+            elif cbook.iterable(linestyles):
+                tlinestyles = list(linestyles)
+                if len(tlinestyles) < Nlev:
+                    nreps = int(np.ceil(Nlev/len(linestyles)))
+                    tlinestyles = tlinestyles * nreps
+                if len(tlinestyles) > Nlev:
+                    tlinestyles = tlinestyles[:Nlev]
+            else:
+                raise ValueError("Unrecognized type for linestyles kwarg")
         return tlinestyles
 
     def get_alpha(self):
