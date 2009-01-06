@@ -2296,7 +2296,7 @@ class Parser(object):
         def _get_font(self):
             return self._font
         def _set_font(self, name):
-            if name in Parser._fontnames:
+            if name in ('rm', 'it', 'bf'):
                 self.font_class = name
             self._font = name
         font = property(_get_font, _set_font)
