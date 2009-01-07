@@ -873,8 +873,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     tlinestyles = tlinestyles * nreps
                 if len(tlinestyles) > Nlev:
                     tlinestyles = tlinestyles[:Nlev]
-            elif cbook.iterable(linestyles): # len(linestyles) >= Nlev
-                tlinestyles = list(linestyles)[:Nlev]
             else:
                 raise ValueError("Unrecognized type for linestyles kwarg")
         return tlinestyles
