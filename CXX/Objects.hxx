@@ -168,26 +168,7 @@ namespace Py
             p = 0;
         }
 
-        void validate()
-        {
-            // release pointer if not the right type
-            if (! accepts (p))
-            {
-                release ();
-                if(PyErr_Occurred())
-                { // Error message already set
-                    throw Exception();
-                }
-                // Better error message if RTTI available
-#if defined( _CPPRTTI ) || defined(__GNUG__)
-                std::string s("CXX : Error creating object of type ");
-                s += (typeid (*this)).name();
-                throw TypeError (s);
-#else
-                throw TypeError ("CXX: type error.");
-#endif
-            }
-        }
+        void validate();
 
     public:
         // Constructor acquires new ownership of pointer unless explicitly told not to.
@@ -315,7 +296,7 @@ namespace Py
 
         bool isNone() const
         {
-            return p == Py_None;
+            return p == _None();
         }
 
         bool isCallable () const
@@ -397,18 +378,19 @@ namespace Py
             // failed to link on Windows?
             throw KeyError("delItem failed.");
         }
-        // Equality and comparison use PyObject_Compare
+
+        // Equality and comparison use PyObject_RichCompareBool
 
         bool operator==(const Object& o2) const
         {
-            int k = PyObject_Compare (p, *o2);
+            int k = PyObject_RichCompareBool (p, *o2, Py_EQ);
             if (PyErr_Occurred()) throw Exception();
-            return k == 0;
+            return k != 0;
         }
 
         bool operator!=(const Object& o2) const
         {
-            int k = PyObject_Compare (p, *o2);
+            int k = PyObject_RichCompareBool (p, *o2, Py_NE);
             if (PyErr_Occurred()) throw Exception();
             return k != 0;
 
@@ -416,30 +398,30 @@ namespace Py
 
         bool operator>=(const Object& o2) const
         {
-            int k = PyObject_Compare (p, *o2);
+            int k = PyObject_RichCompareBool (p, *o2, Py_GE);
             if (PyErr_Occurred()) throw Exception();
-            return k >= 0;
+            return k != 0;
         }
 
         bool operator<=(const Object& o2) const
         {
-            int k = PyObject_Compare (p, *o2);
+            int k = PyObject_RichCompareBool (p, *o2, Py_LE);
             if (PyErr_Occurred()) throw Exception();
-            return k <= 0;
+            return k != 0;
         }
 
         bool operator<(const Object& o2) const
         {
-            int k = PyObject_Compare (p, *o2);
+            int k = PyObject_RichCompareBool (p, *o2, Py_LT);
             if (PyErr_Occurred()) throw Exception();
-            return k < 0;
+            return k != 0;
         }
 
         bool operator>(const Object& o2) const
         {
-            int k = PyObject_Compare (p, *o2);
+            int k = PyObject_RichCompareBool (p, *o2, Py_GT);
             if (PyErr_Occurred()) throw Exception();
-            return k > 0;
+            return k != 0;
         }
     };
     // End of class Object
@@ -461,6 +443,17 @@ namespace Py
     inline Object None()
     {
         return Object(Py::_None());
+    }
+
+    // Python special Boolean values
+    inline Object False()
+    {
+        return Object(Py::_False());
+    }
+
+    inline Object True()
+    {
+        return Object(Py::_True());
     }
 
     // TMM: 31May'01 - Added the #ifndef so I can exlude iostreams.
@@ -513,8 +506,67 @@ namespace Py
         return Object(p, true);
     }
 
+    // ===============================================
+    // class boolean
+    class Boolean: public Object
+    {
+    public:
+        // Constructor
+        Boolean (PyObject *pyob, bool owned = false): Object (pyob, owned)
+        {
+            validate();
+        }
 
+        Boolean (const Boolean& ob): Object(*ob)
+        {
+            validate();
+        }
 
+        // create from bool
+        Boolean (bool v=false)
+        {
+            set(PyBool_FromLong(v ? 1 : 0), true);
+            validate();
+        }
+
+        explicit Boolean (const Object& ob)
+        {
+            set(*ob, true);
+            validate();
+        }
+
+        // Assignment acquires new ownership of pointer
+
+        Boolean& operator= (const Object& rhs)
+        {
+            return (*this = *rhs);
+        }
+
+        Boolean& operator= (PyObject* rhsp)
+        {
+            if(ptr() == rhsp) return *this;
+            set (rhsp, true);
+            return *this;
+        }
+
+        // Membership
+        virtual bool accepts (PyObject *pyob) const
+        {
+            return pyob && Py::_Boolean_Check (pyob);
+        }
+
+        // convert to long
+        operator bool() const
+        {
+            return PyObject_IsTrue (ptr()) != 0;
+        }
+
+        Boolean& operator= (bool v)
+        {
+            set (PyBool_FromLong (v ? 1 : 0), true);
+            return *this;
+        }
+    };
 
     // ===============================================
     // class Int
@@ -537,19 +589,6 @@ namespace Py
         {
             validate();
         }
-
-#ifdef HAVE_LONG_LONG
-        // create from long long
-        Int (PY_LONG_LONG v): Object(PyLong_FromLongLong(v), true)
-        {
-            validate();
-        }
-        // create from unsigned long long
-        Int (unsigned PY_LONG_LONG v): Object(PyLong_FromUnsignedLongLong(v), true)
-        {
-            validate();
-        }
-#endif
 
         // create from int
         Int (int v)
@@ -753,13 +792,13 @@ namespace Py
             validate();
         }
         // create from long long
-        explicit LongLong (long long v = 0L)
+        explicit LongLong (PY_LONG_LONG v = 0L)
             : Object(PyLong_FromLongLong(v), true)
         {
             validate();
         }
         // create from unsigned long long
-        explicit LongLong (unsigned long long v)
+        explicit LongLong (unsigned PY_LONG_LONG v)
             : Object(PyLong_FromUnsignedLongLong(v), true)
         {
             validate();
@@ -778,7 +817,7 @@ namespace Py
         }
         // create from int
         explicit LongLong (int v)
-            : Object(PyLong_FromLongLong(static_cast<long long>(v)), true)
+            : Object(PyLong_FromLongLong(static_cast<PY_LONG_LONG>(v)), true)
         {
             validate();
         }
@@ -809,12 +848,12 @@ namespace Py
             return pyob && Py::_Long_Check (pyob);
         }
         // convert to long long
-        operator long long() const
+        operator PY_LONG_LONG() const
         {
             return PyLong_AsLongLong (ptr());
         }
         // convert to unsigned long
-        operator unsigned long long() const
+        operator unsigned PY_LONG_LONG() const
         {
             return PyLong_AsUnsignedLongLong (ptr());
         }
@@ -839,13 +878,13 @@ namespace Py
             return *this;
         }
         // assign from long long
-        LongLong& operator= (long long v)
+        LongLong& operator= (PY_LONG_LONG v)
         {
             set(PyLong_FromLongLong (v), true);
             return *this;
         }
         // assign from unsigned long long
-        LongLong& operator= (unsigned long long v)
+        LongLong& operator= (unsigned PY_LONG_LONG v)
         {
             set(PyLong_FromUnsignedLongLong (v), true);
             return *this;
@@ -1413,12 +1452,12 @@ namespace Py
 
             bool eql (const iterator& other) const
             {
-                return (*seq == *other.seq) && (count == other.count);
+                return (seq->ptr() == other.seq->ptr()) && (count == other.count);
             }
 
             bool neq (const iterator& other) const
             {
-                return (*seq != *other.seq) || (count != other.count);
+                return (seq->ptr() != other.seq->ptr()) || (count != other.count);
             }
 
             bool lss (const iterator& other) const
@@ -1527,6 +1566,12 @@ namespace Py
             const SeqBase<T>* seq;
             sequence_index_type count;
 
+        private:
+            const_iterator (const SeqBase<T>* s, int where)
+                : seq( s )
+                , count( where )
+            {}
+
         public:
             ~const_iterator ()
             {}
@@ -1534,11 +1579,6 @@ namespace Py
             const_iterator ()
                 : seq( 0 )
                 , count( 0 )
-            {}
-
-            const_iterator (const SeqBase<T>* s, int where)
-                : seq( s )
-                , count( where )
             {}
 
             const_iterator(const const_iterator& other)
@@ -1571,12 +1611,12 @@ namespace Py
 
             bool eql (const const_iterator& other) const
             {
-                return (*seq == *other.seq) && (count == other.count);
+                return (seq->ptr() == other.seq->ptr()) && (count == other.count);
             }
 
             bool neq (const const_iterator& other) const
             {
-                return (*seq != *other.seq) || (count != other.count);
+                return (seq->ptr() != other.seq->ptr()) || (count != other.count);
             }
 
             bool lss (const const_iterator& other) const
@@ -1662,7 +1702,7 @@ namespace Py
     template <TEMPLATE_TYPENAME T> bool operator< (const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
     template <TEMPLATE_TYPENAME T> bool operator> (const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
     template <TEMPLATE_TYPENAME T> bool operator<=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator>=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right); 
+    template <TEMPLATE_TYPENAME T> bool operator>=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
 
 
     extern bool operator==(const Sequence::iterator& left, const Sequence::iterator& right);
@@ -1677,7 +1717,7 @@ namespace Py
     extern bool operator< (const Sequence::const_iterator& left, const Sequence::const_iterator& right);
     extern bool operator> (const Sequence::const_iterator& left, const Sequence::const_iterator& right);
     extern bool operator<=(const Sequence::const_iterator& left, const Sequence::const_iterator& right);
-    extern bool operator>=(const Sequence::const_iterator& left, const Sequence::const_iterator& right); 
+    extern bool operator>=(const Sequence::const_iterator& left, const Sequence::const_iterator& right);
 
     // ==================================================
     // class Char
@@ -1979,7 +2019,7 @@ namespace Py
 
             set(PyTuple_New (limit), true);
             validate();
-            
+
             for(sequence_index_type i=0; i < limit; i++)
             {
                 if(PyTuple_SetItem (ptr(), i, new_reference_to(s[i])) == -1)
@@ -2476,39 +2516,6 @@ namespace Py
             return List(PyMapping_Items(ptr()), true);
         }
 
-        // iterators for MapBase<T>
-        // Added by TMM: 2Jul'01 - NOT COMPLETED
-        // There is still a bug.  I decided to stop, before fixing the bug, because
-        // this can't be halfway efficient until Python gets built-in iterators.
-        // My current soln is to iterate over the map by getting a copy of its keys
-        // and iterating over that.  Not a good solution.
-
-        // The iterator holds a MapBase<T>* rather than a MapBase<T> because that's
-        // how the sequence iterator is implemented and it works.  But it does seem
-        // odd to me - we are iterating over the map object, not the reference.
-
-#if 0    // here is the test code with which I found the (still existing) bug
-        typedef cxx::Dict    d_t;
-        d_t    d;
-        cxx::String    s1("blah");
-        cxx::String    s2("gorf");
-        d[ "one" ] = s1;
-        d[ "two" ] = s1;
-        d[ "three" ] = s2;
-        d[ "four" ] = s2;
-
-        d_t::iterator    it;
-        it = d.begin();        // this (using the assignment operator) is causing
-        // a problem; if I just use the copy ctor it works fine.
-        for( ; it != d.end(); ++it )
-        {
-            d_t::value_type    vt( *it );
-            cxx::String rs = vt.second.repr();
-            std::string ls = rs.operator std::string();
-            fprintf( stderr, "%s\n", ls );
-        }
-#endif // 0
-
         class iterator
         {
             // : public forward_iterator_parent( std::pair<const T,T> ) {
@@ -2523,7 +2530,14 @@ namespace Py
             //
             MapBase<T>* map;
             List    keys;            // for iterating over the map
-            List::iterator    pos;        // index into the keys
+            int         pos;        // index into the keys
+
+        private:
+            iterator( MapBase<T>* m, List k, int p )
+            : map( m )
+            , keys( k )
+            , pos( p )
+            {}
 
         public:
             ~iterator ()
@@ -2538,7 +2552,7 @@ namespace Py
             iterator (MapBase<T>* m, bool end = false )
                 : map( m )
                 , keys( m->keys() )
-                , pos( end ? keys.end() : keys.begin() )
+                , pos( end ? keys.length() : 0 )
             {}
 
             iterator (const iterator& other)
@@ -2549,7 +2563,7 @@ namespace Py
 
             reference operator*()
             {
-                Object key = *pos;
+                Object key = keys[ pos ];
                 return std::make_pair(key, mapref<T>(*map,key));
             }
 
@@ -2565,11 +2579,11 @@ namespace Py
 
             bool eql(const iterator& right) const
             {
-                return *map == *right.map && pos == right.pos;
+                return map->ptr() == right.map->ptr() && pos == right.pos;
             }
             bool neq( const iterator& right ) const
             {
-                return *map != *right.map || pos != right.pos;
+                return map->ptr() != right.map->ptr() || pos != right.pos;
             }
 
             // pointer operator->() {
@@ -2619,7 +2633,14 @@ namespace Py
             friend class MapBase<T>;
             const MapBase<T>* map;
             List    keys;    // for iterating over the map
-            List::iterator    pos;        // index into the keys
+            int             pos;    // index into the keys
+
+        private:
+            const_iterator( MapBase<T>* m, List k, int p )
+            : map( m )
+            , keys( k )
+            , pos( p )
+            {}
 
         public:
             ~const_iterator ()
@@ -2631,10 +2652,10 @@ namespace Py
                 , pos()
             {}
 
-            const_iterator (const MapBase<T>* m, List k, List::iterator p )
+            const_iterator (MapBase<T>* m, bool end = false )
                 : map( m )
-                , keys( k )
-                , pos( p )
+                , keys( m->keys() )
+                , pos( end ? keys.length() : 0 )
             {}
 
             const_iterator(const const_iterator& other)
@@ -2645,19 +2666,19 @@ namespace Py
 
             bool eql(const const_iterator& right) const
             {
-                return *map == *right.map && pos == right.pos;
+                return map->ptr() == right.map->ptr() && pos == right.pos;
             }
+
             bool neq( const const_iterator& right ) const
             {
-                return *map != *right.map || pos != right.pos;
+                return map->ptr() != right.map->ptr() || pos != right.pos;
             }
 
-
-            //            const_reference    operator*() {
-            //                Object key = *pos;
-            //                return std::make_pair( key, map->[key] );
-            // GCC < 3 barfes on this line at the '['.
-            //         }
+            const_reference operator*()
+            {
+                Object key = keys[ pos ];
+                return std::make_pair( key, mapref<T>( *map, key ) );
+            }
 
             const_iterator& operator=(const const_iterator& other)
             {
@@ -2684,12 +2705,12 @@ namespace Py
 
         const_iterator begin () const
         {
-            return const_iterator(this, 0);
+            return const_iterator(this);
         }
 
         const_iterator end () const
         {
-            return const_iterator(this, length());
+            return const_iterator(this, true);
         }
 
     };    // end of MapBase<T>
@@ -2717,7 +2738,7 @@ namespace Py
         {
             validate();
         }
-        Dict (const Dict& ob): Mapping(ob)
+        Dict (const Object& ob): Mapping(ob)
         {
             validate();
         }

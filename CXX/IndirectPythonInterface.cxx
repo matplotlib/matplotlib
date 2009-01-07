@@ -49,6 +49,7 @@ bool _File_Check( PyObject *op ) { return (op)->ob_type == _File_Type(); }
 bool _Float_Check( PyObject *op ) { return (op)->ob_type == _Float_Type(); }
 bool _Function_Check( PyObject *op ) { return (op)->ob_type == _Function_Type(); }
 bool _Instance_Check( PyObject *op ) { return (op)->ob_type == _Instance_Type(); }
+bool _Boolean_Check( PyObject *op ) { return (op)->ob_type == _Bool_Type(); }
 bool _Int_Check( PyObject *op ) { return (op)->ob_type == _Int_Type(); }
 bool _List_Check( PyObject *o ) { return o->ob_type == _List_Type(); }
 bool _Long_Check( PyObject *op ) { return (op)->ob_type == _Long_Type(); }
@@ -115,6 +116,9 @@ static PyObject *ptr__Exc_UnicodeError = NULL;
 #endif
 
 static PyObject *ptr__PyNone = NULL;
+
+static PyObject *ptr__PyFalse = NULL;
+static PyObject *ptr__PyTrue = NULL;
 
 static PyTypeObject *ptr__Buffer_Type = NULL;
 static PyTypeObject *ptr__CFunction_Type = NULL;
@@ -300,6 +304,9 @@ bool InitialisePythonIndirectInterface()
 #endif
     ptr__PyNone            = GetPyObject_As_PyObjectPointer( "_Py_NoneStruct" );
 
+    ptr__PyFalse            = GetPyObject_As_PyObjectPointer( "_Py_ZeroStruct" );
+    ptr__PyTrue            = GetPyObject_As_PyObjectPointer( "_Py_TrueStruct" );
+
     ptr__Buffer_Type        = GetPyTypeObject_As_PyTypeObjectPointer( "PyBuffer_Type" );
     ptr__CFunction_Type        = GetPyTypeObject_As_PyTypeObjectPointer( "PyCFunction_Type" );
     ptr__Class_Type            = GetPyTypeObject_As_PyTypeObjectPointer( "PyClass_Type" );
@@ -385,6 +392,8 @@ PyObject * _Exc_UnicodeError()    { return ptr__Exc_UnicodeError; }
 //
 PyObject * _None() { return ptr__PyNone; }
 
+PyObject * _False() { return ptr__PyFalse; }
+PyObject * _True() { return ptr__PyTrue; }
 
 PyTypeObject * _Buffer_Type()    { return ptr__Buffer_Type; }
 PyTypeObject * _CFunction_Type(){ return ptr__CFunction_Type; }
@@ -396,6 +405,7 @@ PyTypeObject * _File_Type()    { return ptr__File_Type; }
 PyTypeObject * _Float_Type()    { return ptr__Float_Type; }
 PyTypeObject * _Function_Type()    { return ptr__Function_Type; }
 PyTypeObject * _Instance_Type()    { return ptr__Instance_Type; }
+PyTypeObject * _Bool_Type()    { return ptr__Bool_Type; }
 PyTypeObject * _Int_Type()    { return ptr__Int_Type; }
 PyTypeObject * _List_Type()    { return ptr__List_Type; }
 PyTypeObject * _Long_Type()    { return ptr__Long_Type; }
@@ -526,6 +536,9 @@ PyObject * _Exc_UnicodeError() { return ::PyExc_UnicodeError; }
 //
 PyObject * _None() { return &::_Py_NoneStruct; }
 
+PyObject * _False() { return Py_False; }
+PyObject * _True() { return Py_True; }
+
 PyTypeObject * _Buffer_Type() { return &PyBuffer_Type; }
 PyTypeObject * _CFunction_Type() { return &PyCFunction_Type; }
 PyTypeObject * _Class_Type() { return &PyClass_Type; }
@@ -536,6 +549,7 @@ PyTypeObject * _File_Type() { return &PyFile_Type; }
 PyTypeObject * _Float_Type() { return &PyFloat_Type; }
 PyTypeObject * _Function_Type() { return &PyFunction_Type; }
 PyTypeObject * _Instance_Type() { return &PyInstance_Type; }
+PyTypeObject * _Bool_Type()    { return &PyBool_Type; }
 PyTypeObject * _Int_Type() { return &PyInt_Type; }
 PyTypeObject * _List_Type() { return &PyList_Type; }
 PyTypeObject * _Long_Type() { return &PyLong_Type; }

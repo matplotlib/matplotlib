@@ -115,4 +115,20 @@
 typedef int Py_ssize_t;
 #endif
 
+// hash_map container usage selection
+// 1) if PYCXX_USING_STD_MAP is defined PyCXX will be using std::map<> container
+//    implementation only.
+// 2) if compilers are used other than MS Visual Studio (7.1+) or GCC 3.x
+//    STANDARD_LIBRARY_HAS_HASH_MAP must be defined before compilation to
+//    make PyCXX using hash_map container.
+#if !defined( PYCXX_USING_STD_MAP )
+  #if defined( _MSC_VER ) || defined( __INTEL_COMPILER ) || defined ( __ICC ) || (defined( __GNUC__ ) && ( __GNUC__ > 3 ))
+  #  define PYCXX_USING_HASH_MAP
+  #else
+  #  if defined( STANDARD_LIBRARY_HAS_HASH_MAP ) && !defined( PYCXX_USING_HASH_MAP )
+  #     define PYCXX_USING_HASH_MAP
+  #  endif
+  #endif
+#endif
+
 #endif //  __PyCXX_config_hh__
