@@ -679,7 +679,7 @@ def rc_params(fail_on_error=False):
 "%s"\n\t%s' % (val, cnt, line, fname, msg))
         elif key in _deprecated_ignore_map:
             warnings.warn('%s is deprecated. Update your matplotlibrc to use %s instead.'% (key, _deprecated_ignore_map[key]))
-            
+
         else:
             print >> sys.stderr, """
 Bad key "%s" on line %d in
@@ -838,9 +838,12 @@ def use(arg, warn=True):
     else:
         be_parts = arg.split('.')
         name = validate_backend(be_parts[0])
+        if len(be_parts) > 1:
+            if name == 'cairo':
+                rcParams['cairo.format'] = validate_cairo_format(be_parts[1])
+            else:
+                raise ValueError('Only cairo backend has a format option')
     rcParams['backend'] = name
-    if name == 'cairo' and len(be_parts) > 1:
-        rcParams['cairo.format'] = validate_cairo_format(be_parts[1])
 
 def get_backend():
     "Returns the current backend"
