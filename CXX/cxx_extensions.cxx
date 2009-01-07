@@ -39,15 +39,50 @@
 
 #include <assert.h>
 
-namespace Py 
+namespace Py
 {
+
+void Object::validate()
+{
+    // release pointer if not the right type
+    if( !accepts( p ) )
+    {
+#if defined( _CPPRTTI ) || defined( __GNUG__ )
+        std::string s( "PyCXX: Error creating object of type " );
+        s += (typeid( *this )).name();
+
+        if( p != 0 )
+        {
+            String from_repr = repr();
+            s += " from ";
+            s += from_repr.as_std_string();
+        }
+        else
+        {
+            s += " from (nil)";
+        }
+#endif
+        release();
+        if( PyErr_Occurred() )
+        { // Error message already set
+            throw Exception();
+        }
+        // Better error message if RTTI available
+#if defined( _CPPRTTI ) || defined( __GNUG__ )
+        throw TypeError( s );
+#else
+        throw TypeError( "PyCXX: type error." );
+#endif
+    }
+}
+
 //================================================================================
 //
 //    Implementation of MethodTable
 //
 //================================================================================
 
-PyMethodDef MethodTable::method( const char* method_name, PyCFunction f, int flags, const char* doc ) 
+PyMethodDef MethodTable::method( const char* method_name, PyCFunction f, int flags, const char* doc )
 {
     PyMethodDef m;
     m.ml_name = const_cast<char*>( method_name );
@@ -81,7 +116,7 @@ void MethodTable::add( const char* method_name, PyCFunction f, const char* doc, 
 }
 
 PyMethodDef* MethodTable::table()
-{    
+{
     if( !mt )
     {
         Py_ssize_t t1size = t.size();
@@ -177,6 +212,7 @@ extern "C"
     static PyObject* getattro_handler (PyObject*, PyObject*);
     static int setattro_handler (PyObject*, PyObject*, PyObject*);
     static int compare_handler (PyObject*, PyObject*);
+    static PyObject* richcompare_handler (PyObject*, PyObject*, int op);
     static PyObject* repr_handler (PyObject*);
     static PyObject* str_handler (PyObject*);
     static long hash_handler (PyObject*);
@@ -314,7 +350,7 @@ PythonType & PythonType::supportBufferType()
     return *this;
 }
 
-// if you define one sequence method you must define 
+// if you define one sequence method you must define
 // all of them except the assigns
 
 PythonType::PythonType( size_t basic_size, int itemsize, const char *default_name )
@@ -455,6 +491,14 @@ PythonType & PythonType::supportCompare()
     return *this;
 }
 
+#if PY_MAJOR_VERSION > 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 1)
+PythonType & PythonType::supportRichCompare()
+{
+    table->tp_richcompare = richcompare_handler;
+    return *this;
+}
+#endif
+
 PythonType & PythonType::supportRepr()
 {
     table->tp_repr = repr_handler;
@@ -568,6 +612,21 @@ extern "C" int compare_handler( PyObject *self, PyObject *other )
         return -1;    // indicate error
     }
 }
+
+#if PY_MAJOR_VERSION > 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 1)
+extern "C" PyObject* richcompare_handler( PyObject *self, PyObject *other, int op )
+{
+    try
+    {
+        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        return new_reference_to( p->rich_compare( Py::Object( other ), op ) );
+    }
+    catch( Py::Exception & )
+    {
+        return NULL;    // indicate error
+    }
+}
+#endif
 
 extern "C" PyObject* repr_handler( PyObject *self )
 {
@@ -1143,6 +1202,11 @@ int PythonExtensionBase::setattro( const Py::Object &, const Py::Object & )
 int PythonExtensionBase::compare( const Py::Object & )
 { missing_method( compare ); return -1; }
 
+#if PY_MAJOR_VERSION > 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 1)
+Py::Object PythonExtensionBase::rich_compare( const Py::Object &, int op )
+{ missing_method( rich_compare ); return Py::None(); }
+#endif
+
 Py::Object PythonExtensionBase::repr()
 { missing_method( repr ); return Py::Nothing(); }
 
@@ -1377,7 +1441,7 @@ void ExtensionExceptionType::init( ExtensionModuleBase &module, const std::strin
 
     set( PyErr_NewException( const_cast<char *>( module_name.c_str() ), parent.ptr(), NULL ), true );
 }
- 
+
 ExtensionExceptionType::~ExtensionExceptionType()
 {
 }
@@ -1395,6 +1459,6 @@ Exception::Exception( ExtensionExceptionType &exception, Object &reason )
 Exception::Exception( PyObject* exception, Object &reason )
 {
     PyErr_SetObject (exception, reason.ptr());
-}        
+}
 
 }    // end of namespace Py

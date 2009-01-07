@@ -92,6 +92,8 @@ PyObject * _Exc_UnicodeError();
 //
 PyObject * _None();
 
+PyObject * _False();
+PyObject * _True();
 
 //
 //    Wrap Type variables as function calls
@@ -131,6 +133,9 @@ bool _Frame_Check( PyObject *op );
 
 PyTypeObject * _Function_Type();
 bool _Function_Check( PyObject *op );
+
+PyTypeObject * _Bool_Type();
+bool _Boolean_Check( PyObject *op );
 
 PyTypeObject * _Int_Type();
 bool _Int_Check( PyObject *op );
