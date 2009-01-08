@@ -111,6 +111,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             if cbook.iterable(val) and len(val):
                 try: float(val[0])
                 except TypeError: pass # raise below
+                except ValueError: pass
                 else: return val
 
         raise TypeError('val must be a float or nonzero sequence of floats')
