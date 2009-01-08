@@ -849,7 +849,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 if len(linewidths) < Nlev:
                     nreps = int(np.ceil(Nlev/len(linewidths)))
                     linewidths = linewidths * nreps
-                elif len(linewidths) > Nlev:
+                if len(linewidths) > Nlev:
                     linewidths = linewidths[:Nlev]
             tlinewidths = [(w,) for w in linewidths]
         return tlinewidths
@@ -872,7 +872,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 if len(tlinestyles) < Nlev:
                     nreps = int(np.ceil(Nlev/len(linestyles)))
                     tlinestyles = tlinestyles * nreps
-                elif len(tlinestyles) > Nlev:
+                if len(tlinestyles) > Nlev:
                     tlinestyles = tlinestyles[:Nlev]
             else:
                 raise ValueError("Unrecognized type for linestyles kwarg")
