@@ -37,7 +37,7 @@ def draw_if_interactive():
     if matplotlib.is_interactive():
         figManager =  Gcf.get_active()
         if figManager != None:
-            figManager.canvas.draw()
+            figManager.canvas.draw_idle()
 
 def _create_qApp():
     """
@@ -97,6 +97,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         FigureCanvasBase.__init__( self, figure )
         self.figure = figure
         self.setMouseTracking( True )
+        self._idle = True
         # hide until we can test and fix
         #self.startTimer(backend_IdleEvent.milliseconds)
         w,h = self.get_width_height()
@@ -197,6 +198,15 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     def stop_event_loop(self):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
+
+    def draw_idle(self):
+        'update drawing area only if idle'
+        d = self._idle
+        self._idle = False
+        def idle_draw(*args):
+            self.draw()
+            self._idle = True
+        if d: QtCore.QTimer.singleShot(0, idle_draw)
 
 class FigureManagerQT( FigureManagerBase ):
     """

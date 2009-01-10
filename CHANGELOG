@@ -1,5 +1,6 @@
-2009-01-10 Applied Michiel's hatch patch for macosx backend.  Closes
-           sf patch 2497785 - JDH
+2009-01-10 Applied Michiel's hatch patch for macosx backend and
+           draw_idle patch for qt.  Closes sf patched 2497785 and
+           2468809 - JDH
 
 2009-01-06 Fix bug in setting of dashed negative contours. - EF
 
