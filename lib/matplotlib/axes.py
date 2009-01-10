@@ -2830,6 +2830,7 @@ class Axes(martist.Artist):
 
         # We need to strip away the units for comparison with
         # non-unitized bounds
+        self._process_unit_info( ydata=y, kwargs=kwargs )
         yy = self.convert_yunits( y )
         scaley = (yy<ymin) or (yy>ymax)
 
@@ -2890,6 +2891,7 @@ class Axes(martist.Artist):
 
         # We need to strip away the units for comparison with
         # non-unitized bounds
+        self._process_unit_info( xdata=x, kwargs=kwargs )
         xx = self.convert_xunits( x )
         scalex = (xx<xmin) or (xx>xmax)
 
@@ -2956,6 +2958,7 @@ class Axes(martist.Artist):
         p.set_transform(trans)
         p.x_isdata = False
         self.add_patch(p)
+        self.autoscale_view(scalex=False)
         return p
     axhspan.__doc__ = cbook.dedent(axhspan.__doc__) % martist.kwdocd
 
@@ -3012,6 +3015,7 @@ class Axes(martist.Artist):
         p.set_transform(trans)
         p.y_isdata = False
         self.add_patch(p)
+        self.autoscale_view(scaley=False)
         return p
     axvspan.__doc__ = cbook.dedent(axvspan.__doc__) % martist.kwdocd
 
@@ -3057,9 +3061,11 @@ class Axes(martist.Artist):
                                      'list of Line2D to draw; see API_CHANGES')
 
         # We do the conversion first since not all unitized data is uniform
+        # process the unit information
+        self._process_unit_info( [xmin, xmax], y, kwargs=kwargs )
         y = self.convert_yunits( y )
-        xmin = self.convert_xunits( xmin )
-        xmax = self.convert_xunits( xmax )
+        xmin = self.convert_xunits(xmin)
+        xmax = self.convert_xunits(xmax)
 
         if not iterable(y): y = [y]
         if not iterable(xmin): xmin = [xmin]
@@ -3133,7 +3139,7 @@ class Axes(martist.Artist):
                                      'collections.LineCollection and not a '
                                      'list of Line2D to draw; see API_CHANGES')
 
-        self._process_unit_info(xdata=x, ydata=ymin, kwargs=kwargs)
+        self._process_unit_info(xdata=x, ydata=[ymin, ymax], kwargs=kwargs)
 
         # We do the conversion first since not all unitized data is uniform
         x = self.convert_xunits( x )
