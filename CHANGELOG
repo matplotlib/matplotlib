@@ -1,3 +1,5 @@
+2009-01-10 Fix bug in pan/zoom with log coordinates. - EF
+
 2009-01-06 Fix bug in setting of dashed negative contours. - EF
 
 2009-01-06 Be fault tolerant when len(linestyles)>NLev in contour. - MM
