@@ -2378,10 +2378,11 @@ class Axes(martist.Artist):
                     dy = dx
 
                 alpha = np.power(10.0, (dx, dy))
-                start = p.trans_inverse.transform_point((p.x, p.y))
-                lim_points = p.lim.get_points()
-                result = start + alpha * (lim_points - start)
-                result = mtransforms.Bbox(result)
+                start = np.array([p.x, p.y])
+                oldpoints = p.lim.transformed(p.trans)
+                newpoints = start + alpha * (oldpoints - start)
+                result = mtransforms.Bbox(newpoints) \
+                    .transformed(p.trans_inverse)
             except OverflowError:
                 warnings.warn('Overflow while panning')
                 return
