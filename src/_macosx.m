@@ -31,6 +31,10 @@ static ATSUTextLayout layout = NULL;
 #define CURVE3    3
 #define CURVE4    4
 #define CLOSEPOLY 5
+
+/* Hatching */
+#define HATCH_SIZE 72
+
 /* -------------------------- Helper function ---------------------------- */
 
 static void stdin_ready(CFReadStreamRef readStream, CFStreamEventType eventType, void* context)
@@ -203,6 +207,269 @@ static void _dealloc_atsui(void)
         PyErr_WarnEx(PyExc_RuntimeWarning, "ATSUDisposeTextLayout failed", 1);
 }
 
+static int
+_draw_path(CGContextRef cr, PyObject* path, CGAffineTransform affine)
+{
+    CGPoint point;
+
+    PyObject* vertices = PyObject_GetAttrString(path, "vertices");
+    if (vertices==NULL)
+    {
+        PyErr_SetString(PyExc_AttributeError, "path has no vertices");
+        return -1;
+    }
+    Py_DECREF(vertices); /* Don't keep a reference here */
+
+    PyObject* codes = PyObject_GetAttrString(path, "codes");
+    if (codes==NULL)
+    {
+        PyErr_SetString(PyExc_AttributeError, "path has no codes");
+        return -1;
+    }
+    Py_DECREF(codes); /* Don't keep a reference here */
+
+    PyArrayObject* coordinates;
+    coordinates = (PyArrayObject*)PyArray_FromObject(vertices,
+                                                     NPY_DOUBLE, 2, 2);
+    if (!coordinates)
+    {
+        PyErr_SetString(PyExc_ValueError, "failed to convert vertices array");
+        return -1;
+    }
+
+    if (PyArray_NDIM(coordinates) != 2 || PyArray_DIM(coordinates, 1) != 2)
+    {
+        Py_DECREF(coordinates);
+        PyErr_SetString(PyExc_ValueError, "invalid vertices array");
+        return -1;
+    }
+
+    npy_intp n = PyArray_DIM(coordinates, 0);
+
+    if (n==0) /* Nothing to do here */
+    {
+        Py_DECREF(coordinates);
+        return 0;
+    }
+
+    PyArrayObject* codelist = NULL;
+    if (codes != Py_None)
+    {
+        codelist = (PyArrayObject*)PyArray_FromObject(codes,
+                                                      NPY_UINT8, 1, 1);
+        if (!codelist)
+        {
+            Py_DECREF(coordinates);
+            PyErr_SetString(PyExc_ValueError, "invalid codes array");
+            return -1;
+        }
+    }
+
+    if (codelist==NULL)
+    {
+        npy_intp i;
+        npy_uint8 code = MOVETO;
+        for (i = 0; i < n; i++)
+        {
+            point.x = (CGFloat)(*(double*)PyArray_GETPTR2(coordinates, i, 0));
+            point.y = (CGFloat)(*(double*)PyArray_GETPTR2(coordinates, i, 1));
+            if (isnan(point.x) || isnan(point.y))
+            {
+                code = MOVETO;
+            }
+            else
+            {
+                point = CGPointApplyAffineTransform(point, affine);
+                switch (code)
+                {
+                    case MOVETO:
+                        CGContextMoveToPoint(cr, point.x, point.y);
+                        break;
+                    case LINETO:
+                        CGContextAddLineToPoint(cr, point.x, point.y);
+                        break;
+                }
+                code = LINETO;
+            }
+        }
+    }
+    else
+    {
+        npy_intp i = 0;
+        BOOL was_nan = false;
+        npy_uint8 code;
+        CGFloat x1, y1, x2, y2, x3, y3;
+        while (i < n)
+        {
+            code = *(npy_uint8*)PyArray_GETPTR1(codelist, i);
+            if (code == CLOSEPOLY)
+            {
+                CGContextClosePath(cr);
+                i++;
+            }
+            else if (code == STOP)
+            {
+                break;
+            }
+            else if (was_nan)
+            {
+                if (code==CURVE3) i++;
+                else if (code==CURVE4) i+=2;
+                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
+                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                i++;
+                if (isnan(x1) || isnan(y1))
+                {
+                    was_nan = true;
+                }
+                else
+                {
+                    point.x = x1;
+                    point.y = y1;
+                    point = CGPointApplyAffineTransform(point, affine);
+                    CGContextMoveToPoint(cr, point.x, point.y);
+                    was_nan = false;
+                }
+            }
+            else if (code==MOVETO)
+            {
+                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
+                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                i++;
+                if (isnan(x1) || isnan(y1))
+                {
+                    was_nan = true;
+                }
+                else
+                {
+                    point.x = x1;
+                    point.y = y1;
+                    point = CGPointApplyAffineTransform(point, affine);
+                    CGContextMoveToPoint(cr, point.x, point.y);
+                    was_nan = false;
+                }
+            }
+            else if (code==LINETO)
+            {
+                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
+                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                i++;
+                if (isnan(x1) || isnan(y1))
+                {
+                    was_nan = true;
+                }
+                else
+                {
+                    point.x = x1;
+                    point.y = y1;
+                    point = CGPointApplyAffineTransform(point, affine);
+                    CGContextAddLineToPoint(cr, point.x, point.y);
+                    was_nan = false;
+                }
+            }
+            else if (code==CURVE3)
+            {
+                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
+                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                i++;
+                x2 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
+                y2 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                i++;
+                if (isnan(x1) || isnan(y1) || isnan(x2) || isnan(y2))
+                {
+                    was_nan = true;
+                }
+                else
+                {
+                    point.x = x1;
+                    point.y = y1;
+                    point = CGPointApplyAffineTransform(point, affine);
+                    x1 = point.x;
+                    y1 = point.y;
+                    point.x = x2;
+                    point.y = y2;
+                    point = CGPointApplyAffineTransform(point, affine);
+                    x2 = point.x;
+                    y2 = point.y;
+                    CGContextAddQuadCurveToPoint(cr, x1, y1, x2, y2);
+                    was_nan = false;
+                }
+            }
+            else if (code==CURVE4)
+            {
+                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
+                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                i++;
+                x2 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
+                y2 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                i++;
+                x3 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
+                y3 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                i++;
+                if (isnan(x1) || isnan(y1) || isnan(x2) || isnan(y2) || isnan(x3) || isnan(y3))
+                {
+                    was_nan = true;
+                }
+                else
+                {
+                    point.x = x1;
+                    point.y = y1;
+                    point = CGPointApplyAffineTransform(point, affine);
+                    x1 = point.x;
+                    y1 = point.y;
+                    point.x = x2;
+                    point.y = y2;
+                    point = CGPointApplyAffineTransform(point, affine);
+                    x2 = point.x;
+                    y2 = point.y;
+                    point.x = x3;
+                    point.y = y3;
+                    point = CGPointApplyAffineTransform(point, affine);
+                    x3 = point.x;
+                    y3 = point.y;
+                    CGContextAddCurveToPoint(cr, x1, y1, x2, y2, x3, y3);
+                    was_nan = false;
+                }
+            }
+        }
+    }
+
+    Py_DECREF(coordinates);
+    Py_XDECREF(codelist);
+    return n;
+}
+
+static void _draw_hatch (void *info, CGContextRef cr)
+{
+    PyObject* hatchpath = (PyObject*)info;
+    CGAffineTransform affine = CGAffineTransformMakeScale(HATCH_SIZE, HATCH_SIZE);
+
+    int n = _draw_path(cr, hatchpath, affine);
+    if (n < 0)
+    {
+        PyGILState_STATE gstate = PyGILState_Ensure();
+        PyErr_Print();
+        PyGILState_Release(gstate);
+        return;
+    }
+    else if (n==0)
+    {
+        return;
+    }
+    else
+    {
+        CGContextSetLineWidth(cr, 1.0); 
+        CGContextSetLineCap(cr, kCGLineCapSquare); 
+        CGContextDrawPath(cr, kCGPathFillStroke);
+    }
+}
+
+static void _release_hatch(void* info)
+{
+    PyObject* hatchpath = (PyObject*)info;
+    Py_DECREF(hatchpath);
+}
+
 /* ---------------------------- Cocoa classes ---------------------------- */
 
 
@@ -274,7 +541,6 @@ static void _dealloc_atsui(void)
 typedef struct {
     PyObject_HEAD
     CGContextRef cr;
-    CGPatternRef pattern;  /* For drawing hatches */
 } GraphicsContext;
 
 static PyObject*
@@ -283,7 +549,6 @@ GraphicsContext_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
     GraphicsContext* self = (GraphicsContext*)type->tp_alloc(type, 0);
     if (!self) return NULL;
     self->cr = NULL;
-    self->pattern = NULL;
 
     if (ngc==0)
     {
@@ -301,8 +566,6 @@ GraphicsContext_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
 static void
 GraphicsContext_dealloc(GraphicsContext *self)
 {
-    CGPatternRelease(self->pattern);
-
     ngc--;
     if (ngc==0) _dealloc_atsui();
 
@@ -323,12 +586,6 @@ GraphicsContext_reset (GraphicsContext* self)
     {
         PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
         return NULL;
-    }
-
-    if (self->pattern)
-    {
-        CGPatternRelease(self->pattern);
-        self->pattern = NULL;
     }
 
     CGContextRestoreGState(cr);
@@ -431,10 +688,6 @@ GraphicsContext_set_clip_path (GraphicsContext* self, PyObject* args)
         PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
         return NULL;
     }
-#ifdef BUH
-    CGContextRestoreGState(cr); /* FIXME */
-    CGContextSaveGState(cr); /* FIXME */
-#endif
 
     PyObject* path;
 
@@ -759,115 +1012,6 @@ GraphicsContext_set_graylevel(GraphicsContext* self, PyObject* args)
     return Py_None;
 }
 
-static void _draw_hatch (void *info, CGContextRef cr)
-{
-    int i;
-
-    PyObject* string = (PyObject*)info;
-    char* hatches = PyString_AS_STRING(string);
-
-    int frequency[4] = {0, 0, 0, 0};
-    float position, distance;
-
-    const float size = 12.0;
-    const int n = strlen(hatches);
-
-    for (i = 0; i < n; i++)
-    {
-        switch(hatches[i])
-        {
-            case '/':  frequency[3]++; break;
-            case '\\': frequency[2]++; break;
-            case '|':  frequency[1]++; break;
-            case '-':  frequency[0]++; break;
-            case '+':  frequency[0]++; frequency[1]++; break;
-            case 'x':  frequency[2]++; frequency[3]++; break;
-        }
-    }
-
-    distance = size / frequency[0];
-    position = distance / 2.0;
-    for (i = 0; i < frequency[0]; i++, position += distance)
-    {
-        CGContextMoveToPoint(cr, 0.0, position);
-        CGContextAddLineToPoint(cr, size, position);
-    }
-    distance = size / frequency[1];
-    position = distance / 2.0;
-    for (i = 0; i < frequency[1]; i++, position += distance)
-    {
-        CGContextMoveToPoint(cr, position, 0.0);
-        CGContextAddLineToPoint(cr, position, size);
-    }
-    distance = size / frequency[2];
-    position = distance / 2.0;
-    for (i = 0; i < frequency[2]; i++, position += distance)
-    {
-        CGContextMoveToPoint(cr, position, 0.0);
-        CGContextAddLineToPoint(cr, 0.0, position);
-        CGContextMoveToPoint(cr, position, size);
-        CGContextAddLineToPoint(cr, size, position);
-    }
-    distance = size / frequency[3];
-    position = distance / 2.0;
-    for (i = 0; i < frequency[3]; i++, position += distance)
-    {
-        CGContextMoveToPoint(cr, position, 0.0);
-        CGContextAddLineToPoint(cr, size, size-position);
-        CGContextMoveToPoint(cr, position, size);
-        CGContextAddLineToPoint(cr, 0.0, size-position);
-    }
-    CGContextSetLineWidth(cr, 2.0); 
-    CGContextSetLineCap(cr, kCGLineCapSquare); 
-    CGContextStrokePath(cr);
-
-    Py_DECREF(string);
-}
-
-static void _release_hatch(void* info)
-{
-    PyObject* hatches = info;
-    Py_DECREF(hatches);
-}
-
-static PyObject*
-GraphicsContext_set_hatch(GraphicsContext* self, PyObject* args)
-{   PyObject* hatches;
-
-    const float size = 12.0;
-    static const CGPatternCallbacks callbacks = {0,
-                                                 &_draw_hatch,
-                                                 &_release_hatch};
-
-    CGContextRef cr = self->cr;
-    if (!cr)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
-        return NULL;
-    }
-
-    if(!PyArg_ParseTuple(args, "O", &hatches)) return NULL;
-    if(!PyString_Check(hatches)) return NULL;
-
-    Py_INCREF(hatches);
-
-    CGColorSpaceRef baseSpace = CGColorSpaceCreateDeviceRGB();
-    CGColorSpaceRef patternSpace = CGColorSpaceCreatePattern(baseSpace);
-    CGColorSpaceRelease(baseSpace);
-    CGContextSetFillColorSpace(cr, patternSpace);
-    CGColorSpaceRelease(patternSpace);
-
-    self->pattern = CGPatternCreate((void*)hatches,
-                                    CGRectMake(0, 0, size, size),
-                                    CGAffineTransformIdentity, size, size,
-                                    kCGPatternTilingNoDistortion,
-                                    false,
-                                    &callbacks);   
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 static PyObject*
 GraphicsContext_set_linewidth (GraphicsContext* self, PyObject* args)
 {   
@@ -965,238 +1109,6 @@ _convert_affine_transform(PyObject* object, CGAffineTransform* transform)
     return 1;
 }
 
-static int
-_draw_path(CGContextRef cr, PyObject* path, CGAffineTransform affine)
-{
-    CGPoint point;
-
-    PyObject* vertices = PyObject_GetAttrString(path, "vertices");
-    if (vertices==NULL)
-    {
-        PyErr_SetString(PyExc_AttributeError, "path has no vertices");
-        return -1;
-    }
-    Py_DECREF(vertices); /* Don't keep a reference here */
-
-    PyObject* codes = PyObject_GetAttrString(path, "codes");
-    if (codes==NULL)
-    {
-        PyErr_SetString(PyExc_AttributeError, "path has no codes");
-        return -1;
-    }
-    Py_DECREF(codes); /* Don't keep a reference here */
-
-    PyArrayObject* coordinates;
-    coordinates = (PyArrayObject*)PyArray_FromObject(vertices,
-                                                     NPY_DOUBLE, 2, 2);
-    if (!coordinates)
-    {
-        PyErr_SetString(PyExc_ValueError, "failed to convert vertices array");
-        return -1;
-    }
-
-    if (PyArray_NDIM(coordinates) != 2 || PyArray_DIM(coordinates, 1) != 2)
-    {
-        Py_DECREF(coordinates);
-        PyErr_SetString(PyExc_ValueError, "invalid vertices array");
-        return -1;
-    }
-
-    npy_intp n = PyArray_DIM(coordinates, 0);
-
-    if (n==0) /* Nothing to do here */
-    {
-        Py_DECREF(coordinates);
-        return 0;
-    }
-
-    PyArrayObject* codelist = NULL;
-    if (codes != Py_None)
-    {
-        codelist = (PyArrayObject*)PyArray_FromObject(codes,
-                                                      NPY_UINT8, 1, 1);
-        if (!codelist)
-        {
-            Py_DECREF(coordinates);
-            PyErr_SetString(PyExc_ValueError, "invalid codes array");
-            return -1;
-        }
-    }
-
-    if (codelist==NULL)
-    {
-        npy_intp i;
-        npy_uint8 code = MOVETO;
-        for (i = 0; i < n; i++)
-        {
-            point.x = (CGFloat)(*(double*)PyArray_GETPTR2(coordinates, i, 0));
-            point.y = (CGFloat)(*(double*)PyArray_GETPTR2(coordinates, i, 1));
-            if (isnan(point.x) || isnan(point.y))
-            {
-                code = MOVETO;
-            }
-            else
-            {
-                point = CGPointApplyAffineTransform(point, affine);
-                switch (code)
-                {
-                    case MOVETO:
-                        CGContextMoveToPoint(cr, point.x, point.y);
-                        break;
-                    case LINETO:
-                        CGContextAddLineToPoint(cr, point.x, point.y);
-                        break;
-                }
-                code = LINETO;
-            }
-        }
-    }
-    else
-    {
-        npy_intp i = 0;
-        BOOL was_nan = false;
-        npy_uint8 code;
-        CGFloat x1, y1, x2, y2, x3, y3;
-        while (i < n)
-        {
-            code = *(npy_uint8*)PyArray_GETPTR1(codelist, i);
-            if (code == CLOSEPOLY)
-            {
-                CGContextClosePath(cr);
-                i++;
-            }
-            else if (code == STOP)
-            {
-                break;
-            }
-            else if (was_nan)
-            {
-                if (code==CURVE3) i++;
-                else if (code==CURVE4) i+=2;
-                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
-                i++;
-                if (isnan(x1) || isnan(y1))
-                {
-                    was_nan = true;
-                }
-                else
-                {
-                    point.x = x1;
-                    point.y = y1;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    CGContextMoveToPoint(cr, point.x, point.y);
-                    was_nan = false;
-                }
-            }
-            else if (code==MOVETO)
-            {
-                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
-                i++;
-                if (isnan(x1) || isnan(y1))
-                {
-                    was_nan = true;
-                }
-                else
-                {
-                    point.x = x1;
-                    point.y = y1;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    CGContextMoveToPoint(cr, point.x, point.y);
-                    was_nan = false;
-                }
-            }
-            else if (code==LINETO)
-            {
-                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
-                i++;
-                if (isnan(x1) || isnan(y1))
-                {
-                    was_nan = true;
-                }
-                else
-                {
-                    point.x = x1;
-                    point.y = y1;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    CGContextAddLineToPoint(cr, point.x, point.y);
-                    was_nan = false;
-                }
-            }
-            else if (code==CURVE3)
-            {
-                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
-                i++;
-                x2 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y2 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
-                i++;
-                if (isnan(x1) || isnan(y1) || isnan(x2) || isnan(y2))
-                {
-                    was_nan = true;
-                }
-                else
-                {
-                    point.x = x1;
-                    point.y = y1;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    x1 = point.x;
-                    y1 = point.y;
-                    point.x = x2;
-                    point.y = y2;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    x2 = point.x;
-                    y2 = point.y;
-                    CGContextAddQuadCurveToPoint(cr, x1, y1, x2, y2);
-                    was_nan = false;
-                }
-            }
-            else if (code==CURVE4)
-            {
-                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
-                i++;
-                x2 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y2 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
-                i++;
-                x3 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y3 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
-                i++;
-                if (isnan(x1) || isnan(y1) || isnan(x2) || isnan(y2) || isnan(x3) || isnan(y3))
-                {
-                    was_nan = true;
-                }
-                else
-                {
-                    point.x = x1;
-                    point.y = y1;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    x1 = point.x;
-                    y1 = point.y;
-                    point.x = x2;
-                    point.y = y2;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    x2 = point.x;
-                    y2 = point.y;
-                    point.x = x3;
-                    point.y = y3;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    x3 = point.x;
-                    y3 = point.y;
-                    CGContextAddCurveToPoint(cr, x1, y1, x2, y2, x3, y3);
-                    was_nan = false;
-                }
-            }
-        }
-    }
-
-    Py_DECREF(coordinates);
-    Py_XDECREF(codelist);
-    return n;
-}
-
 static PyObject*
 GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
 {
@@ -1230,6 +1142,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
     
     if (n > 0)
     {
+        PyObject* hatchpath;
         if(rgbFace)
         {
             float r, g, b;
@@ -1239,22 +1152,60 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                 return NULL;
             }
             CGContextSaveGState(cr);
-            if(self->pattern)
-            {
-                float components[4];
-                components[0] = r;
-                components[1] = g;
-                components[2] = b;
-                components[3] = 1.0;
-                CGContextSetFillPattern(cr, self->pattern, components);
-                CGPatternRelease(self->pattern);
-                self->pattern = nil;
-            }
-            else CGContextSetRGBFillColor(cr, r, g, b, 1.0);
+            CGContextSetRGBFillColor(cr, r, g, b, 1.0);
             CGContextDrawPath(cr, kCGPathFillStroke);
             CGContextRestoreGState(cr);
         }
         else CGContextStrokePath(cr);
+
+        hatchpath = PyObject_CallMethod((PyObject*)self, "get_hatch_path", "");
+        if (!hatchpath)
+        {
+            return NULL;
+        }
+        else if (hatchpath==Py_None)
+        {
+            Py_DECREF(hatchpath);
+        }
+        else
+        {
+            float color[4] = {0, 0, 0, 1};
+            CGPatternRef pattern;
+            static const CGPatternCallbacks callbacks = {0,
+                                                         &_draw_hatch,
+                                                         &_release_hatch};
+            PyObject* rgb = PyObject_CallMethod((PyObject*)self, "get_rgb", "");
+            if (!rgb)
+            {
+                Py_DECREF(hatchpath);
+                return NULL;
+            }
+            ok = PyArg_ParseTuple(rgb, "ffff", &color[0], &color[1], &color[2], &color[3]);
+            Py_DECREF(rgb);
+            if (!ok)
+            {
+                Py_DECREF(hatchpath);
+                return NULL;
+            }
+
+            CGColorSpaceRef baseSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+            CGColorSpaceRef patternSpace = CGColorSpaceCreatePattern(baseSpace);
+            CGColorSpaceRelease(baseSpace);
+            CGContextSetFillColorSpace(cr, patternSpace);
+            CGColorSpaceRelease(patternSpace);
+
+            pattern = CGPatternCreate((void*)hatchpath,
+                                      CGRectMake(0, 0, HATCH_SIZE, HATCH_SIZE),
+                                      CGAffineTransformIdentity,
+                                      HATCH_SIZE, HATCH_SIZE,
+                                      kCGPatternTilingNoDistortion,
+                                      false,
+                                      &callbacks);
+            CGContextSetFillPattern(cr, pattern, color);
+            CGPatternRelease(pattern);
+            _draw_path(cr, path, affine);
+            CGContextFillPath(cr);
+        }
     }
 
     Py_INCREF(Py_None);
@@ -1297,18 +1248,7 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
         {
             return NULL;
         }
-        if(self->pattern)
-        {
-            float components[4];
-            components[0] = r;
-            components[1] = g;
-            components[2] = b;
-            components[3] = 1.0;
-            CGContextSetFillPattern(cr, self->pattern, components);
-            CGPatternRelease(self->pattern);
-            self->pattern = nil;
-        }
-        else CGContextSetRGBFillColor(cr, r, g, b, 1.0);
+        CGContextSetRGBFillColor(cr, r, g, b, 1.0);
     }
 
     CGAffineTransform affine;
@@ -2516,7 +2456,7 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
     const size_t nComponents = 4; /* red, green, blue, alpha */
     const size_t bitsPerPixel = bitsPerComponent * nComponents;
     const size_t bytesPerRow = nComponents * bytesPerComponent * ncols;
-    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
 
     Py_INCREF(image);
     n = PyString_GET_SIZE(image);
@@ -2626,22 +2566,6 @@ static PyMethodDef GraphicsContext_methods[] = {
      (PyCFunction)GraphicsContext_set_graylevel,
      METH_VARARGS,
      "Sets the current stroke and fill color to a value in the DeviceGray color space."
-    },
-    {"set_hatch",
-     (PyCFunction)GraphicsContext_set_hatch,
-     METH_VARARGS,
-     "\n"
-     "  hatch can be one of:\n"
-     "  /   - diagonal hatching\n"
-     "  \\   - back diagonal\n"
-     "  |   - vertical\n"
-     "  -   - horizontal\n"
-     "  #   - crossed\n"
-     "  X   - crossed diagonal\n"
-     "  letters can be combined, in which case all the specified\n"
-     "  hatchings are done\n"
-     "  if same letter repeats, it increases the density of hatching\n"
-     "  in that direction\n"
     },
     {"set_linewidth",
      (PyCFunction)GraphicsContext_set_linewidth,

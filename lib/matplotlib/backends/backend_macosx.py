@@ -77,6 +77,7 @@ class RendererMac(RendererBase):
 
     def new_gc(self):
         self.gc.reset()
+        self.gc.set_hatch(None)
         return self.gc
 
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
@@ -166,9 +167,13 @@ class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
         _macosx.GraphicsContext.__init__(self)
 
     def set_foreground(self, fg, isRGB=False):
-        if not isRGB:
-            fg = colorConverter.to_rgb(fg)
-        _macosx.GraphicsContext.set_foreground(self, fg)
+        GraphicsContextBase.set_foreground(self, fg, isRGB)
+        rgb = self.get_rgb()
+        _macosx.GraphicsContext.set_foreground(self, rgb[:3])
+
+    def set_graylevel(self, fg):
+        GraphicsContextBase.set_graylevel(self, fg)
+        _macosx.GraphicsContext.set_graylevel(self, fg)
 
     def set_clip_rectangle(self, box):
         GraphicsContextBase.set_clip_rectangle(self, box)
