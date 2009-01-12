@@ -169,8 +169,11 @@ class Divider(object):
             rs_sum += rs
             as_sum += as
 
-        k = (total_size - as_sum) / rs_sum
-        return k
+        if rs_sum != 0.:
+            k = (total_size - as_sum) / rs_sum
+            return k
+        else:
+            return 0.
 
 
     @staticmethod
@@ -257,23 +260,25 @@ class Divider(object):
             k = min(k_h, k_v)
             ox = self._calc_offsets(self._horizontal, k, renderer)
             oy = self._calc_offsets(self._vertical, k, renderer)
+
+            ww = (ox[-1] - ox[0])/figW
+            hh = (oy[-1] - oy[0])/figH
+            pb = mtransforms.Bbox.from_bounds(x, y, w, h)
+            pb1 = mtransforms.Bbox.from_bounds(x, y, ww, hh)
+            pb1_anchored = pb1.anchored(self.get_anchor(), pb)
+            x0, y0 = pb1_anchored.x0, pb1_anchored.y0
+
         else:
             ox = self._calc_offsets(self._horizontal, k_h, renderer)
             oy = self._calc_offsets(self._vertical, k_v, renderer)
+            x0, y0 = x, y
 
-
-        ww = (ox[-1] - ox[0])/figW
-        hh = (oy[-1] - oy[0])/figH
-        pb = mtransforms.Bbox.from_bounds(x, y, w, h)
-        pb1 = mtransforms.Bbox.from_bounds(x, y, ww, hh)
-        pb1_anchored = pb1.anchored(self.get_anchor(), pb)
 
         if nx1 is None:
             nx1=nx+1
         if ny1 is None:
             ny1=ny+1
 
-        x0, y0 = pb1_anchored.x0, pb1_anchored.y0
         x1, w1 = x0 + ox[nx]/figW, (ox[nx1] - ox[nx])/figW
         y1, h1 = y0 + oy[ny]/figH, (oy[ny1] - oy[ny])/figH
 
@@ -563,9 +568,9 @@ def demo_locatable_axes():
     im = ax.imshow(Z, extent=extent, interpolation="nearest")
     cb = plt.colorbar(im)
     plt.setp(cb.ax.get_yticklabels(), visible=False)
-    
 
-    ## PLOT 2 
+
+    ## PLOT 2
     # image and colorbar whose location is adjusted in the drawing time.
     # a hard way
 
@@ -611,7 +616,7 @@ def demo_locatable_axes():
 
     ax = fig1.add_subplot(2, 2, 3)
     divider = make_axes_locatable(ax)
-    
+
     ax_cb = divider.new_horizontal(size="5%", pad=0.05)
     fig1.add_axes(ax_cb)
 
@@ -634,5 +639,33 @@ def demo_locatable_axes():
     plt.setp(ax2.get_yticklabels(), visible=False)
     plt.draw()
 
+def demo_fixed_size_axes():
+    import matplotlib.pyplot as plt
+
+    fig1 = plt.figure(1, (6, 6))
+
+    # The first items are for padding and the second items are for the axes.
+    # sizes are in inch.
+    h = [Size.Fixed(1.0), Size.Fixed(5.)]
+    v = [Size.Fixed(0.7), Size.Fixed(6.)]
+
+    divider = Divider(fig1, (0.0, 0.0, 1., 1.), h, v, aspect=False)
+    # the width and height of the rectangle is ignored.
+
+    ax = LocatableAxes(fig1, divider.get_position())
+    ax.set_axes_locator(divider.new_locator(nx=1, ny=1))
+
+    fig1.add_axes(ax)
+
+    ax.plot([1,2,3])
+
+    plt.draw()
+    #plt.colorbar(im, cax=ax_cb)
+
+
+
+
+
 if __name__ == "__main__":
     demo_locatable_axes()
+    #demo_fixed_size_axes()
