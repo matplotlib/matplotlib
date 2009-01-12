@@ -5219,7 +5219,7 @@ class Axes(martist.Artist):
                     xscale = 'linear', yscale = 'linear',
                     cmap=None, norm=None, vmin=None, vmax=None,
                     alpha=1.0, linewidths=None, edgecolors='none',
-                    reduce_C_function = np.mean, mincnt=None, marginals=True,
+                    reduce_C_function = np.mean, mincnt=None, marginals=False,
                     **kwargs):
         """
         call signature::
@@ -5395,9 +5395,6 @@ class Axes(martist.Artist):
         d1 = (x-ix1)**2 + 3.0 * (y-iy1)**2
         d2 = (x-ix2-0.5)**2 + 3.0 * (y-iy2-0.5)**2
         bdist = (d1<d2)
-        if mincnt is None:
-            mincnt = 0
-
         if C is None:
             accum = np.zeros(n)
             # Create appropriate views into "accum" array.
@@ -5411,7 +5408,25 @@ class Axes(martist.Artist):
                     lattice1[ix1[i], iy1[i]]+=1
                 else:
                     lattice2[ix2[i], iy2[i]]+=1
+
+            # threshold
+            if mincnt is not None:
+                for i in xrange(nx1):
+                    for j in xrange(ny1):
+                        if lattice1[i,j]<mincnt:
+                            lattice1[i,j] = np.nan
+                for i in xrange(nx2):
+                    for j in xrange(ny2):
+                        if lattice2[i,j]<mincnt:
+                            lattice2[i,j] = np.nan
+            accum = np.hstack((
+                lattice1.astype(float).ravel(), lattice2.astype(float).ravel()))
+            good_idxs = ~np.isnan(accum)
+
         else:
+            if mincnt is None:
+                mincnt = 0
+
             # create accumulation arrays
             lattice1 = np.empty((nx1,ny1),dtype=object)
             for i in xrange(nx1):
@@ -5457,10 +5472,9 @@ class Axes(martist.Artist):
         polygons[:,nx1*ny1:,0] = np.repeat(np.arange(nx2) + 0.5, ny2)
         polygons[:,nx1*ny1:,1] = np.tile(np.arange(ny2), nx2) + 0.5
 
-        if C is not None:
-            # remove accumulation bins with no data
-            polygons = polygons[:,good_idxs,:]
-            accum = accum[good_idxs]
+        # remove accumulation bins with no data
+        polygons = polygons[:,good_idxs,:]
+        accum = accum[good_idxs]
 
         polygons = np.transpose(polygons, axes=[1,0,2])
         polygons[:,:,0] *= sx
