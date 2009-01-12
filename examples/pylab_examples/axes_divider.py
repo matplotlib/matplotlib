@@ -638,28 +638,31 @@ def demo_locatable_axes():
     ax2.imshow(Z, extent=extent, interpolation="nearest")
     plt.setp(ax2.get_yticklabels(), visible=False)
     plt.draw()
+    plt.show()
+
 
 def demo_fixed_size_axes():
     import matplotlib.pyplot as plt
 
-    fig1 = plt.figure(1, (6, 6))
+    fig2 = plt.figure(2, (6, 6))
 
     # The first items are for padding and the second items are for the axes.
     # sizes are in inch.
-    h = [Size.Fixed(1.0), Size.Fixed(5.)]
-    v = [Size.Fixed(0.7), Size.Fixed(6.)]
+    h = [Size.Fixed(1.0), Size.Fixed(4.5)]
+    v = [Size.Fixed(0.7), Size.Fixed(5.)]
 
-    divider = Divider(fig1, (0.0, 0.0, 1., 1.), h, v, aspect=False)
+    divider = Divider(fig2, (0.0, 0.0, 1., 1.), h, v, aspect=False)
     # the width and height of the rectangle is ignored.
 
-    ax = LocatableAxes(fig1, divider.get_position())
+    ax = LocatableAxes(fig2, divider.get_position())
     ax.set_axes_locator(divider.new_locator(nx=1, ny=1))
 
-    fig1.add_axes(ax)
+    fig2.add_axes(ax)
 
     ax.plot([1,2,3])
 
     plt.draw()
+    plt.show()
     #plt.colorbar(im, cax=ax_cb)
 
 
@@ -668,4 +671,4 @@ def demo_fixed_size_axes():
 
 if __name__ == "__main__":
     demo_locatable_axes()
-    #demo_fixed_size_axes()
+    demo_fixed_size_axes()
