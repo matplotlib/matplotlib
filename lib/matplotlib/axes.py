@@ -5057,6 +5057,8 @@ class Axes(martist.Artist):
             }
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
+        x = self.convert_xunits(x)
+        y = self.convert_yunits(y)
 
         x, y, s, c = cbook.delete_masked_points(x, y, s, c)
 
