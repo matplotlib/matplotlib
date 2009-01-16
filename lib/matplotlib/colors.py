@@ -611,6 +611,26 @@ class LinearSegmentedColormap(Colormap):
         self._isinit = True
         self._set_extremes()
 
+    @staticmethod
+    def from_list(name, colors, N=256):
+        """
+        Make a linear segmented colormap with *name* from a sequence
+        of *colors* which evenly transitions from colors[0] at val=1
+        to colors[-1] at val=1.  N is the number of rgb quantization
+        levels.
+        """
+
+        ncolors = len(colors)
+        vals = np.linspace(0., 1., ncolors)
+
+        cdict = dict(red=[], green=[], blue=[])
+        for val, color in zip(vals, colors):
+            r,g,b = colorConverter.to_rgb(color)
+            cdict['red'].append((val, r, r))
+            cdict['green'].append((val, g, g))
+            cdict['blue'].append((val, b, b))
+
+        return LinearSegmentedColormap(name, cdict, N)
 
 class ListedColormap(Colormap):
     """Colormap object generated from a list of colors.

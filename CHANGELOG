@@ -1,3 +1,7 @@
+2009-11-16 Added helper function LinearSegmentedColormap.from_list to
+           facilitate building simple custom colomaps.  See
+           examples/pylab_examples/custom_cmap_fromlist.py - JDH
+
 2009-01-16 Applied Michiel's patch for macosx backend to fix rounding
            bug. Closed sf bug 2508440 - JSW
 
