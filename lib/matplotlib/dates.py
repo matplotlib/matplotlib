@@ -1005,6 +1005,7 @@ def weeks(w):
 
 class DateConverter(units.ConversionInterface):
 
+    @staticmethod
     def axisinfo(unit):
         'return the unit AxisInfo'
         if unit=='date':
@@ -1016,17 +1017,16 @@ class DateConverter(units.ConversionInterface):
                 label='',
                 )
         else: return None
-    axisinfo = staticmethod(axisinfo)
 
+    @staticmethod
     def convert(value, unit):
         if units.ConversionInterface.is_numlike(value): return value
         return date2num(value)
-    convert = staticmethod(convert)
 
+    @staticmethod
     def default_units(x):
         'Return the default unit for *x* or None'
         return 'date'
-    default_units = staticmethod(default_units)
 
 
 units.registry[datetime.date] = DateConverter()

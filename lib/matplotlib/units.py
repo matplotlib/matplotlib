@@ -18,11 +18,12 @@ datetime objects
 
     class DateConverter(units.ConversionInterface):
 
+        @staticmethod
         def convert(value, unit):
             'convert value to a scalar or array'
             return dates.date2num(value)
-        convert = staticmethod(convert)
 
+        @staticmethod
         def axisinfo(unit):
             'return major and minor tick locators and formatters'
             if unit!='date': return None
@@ -31,13 +32,11 @@ datetime objects
             return AxisInfo(majloc=majloc,
                             majfmt=majfmt,
                             label='date')
-        axisinfo = staticmethod(axisinfo)
 
-
+        @staticmethod
         def default_units(x):
             'return the default unit for x or None'
             return 'date'
-        default_units = staticmethod(default_units)
 
     # finally we register our object type with a converter
     units.registry[datetime.date] = DateConverter()
@@ -69,16 +68,17 @@ class ConversionInterface:
     The minimal interface for a converter to take custom instances (or
     sequences) and convert them to values mpl can use
     """
+    @staticmethod
     def axisinfo(unit):
         'return an units.AxisInfo instance for unit'
         return None
-    axisinfo = staticmethod(axisinfo)
 
+    @staticmethod
     def default_units(x):
         'return the default unit for x or None'
         return None
-    default_units = staticmethod(default_units)
 
+    @staticmethod
     def convert(obj, unit):
         """
         convert obj using unit.  If obj is a sequence, return the
@@ -86,8 +86,8 @@ class ConversionInterface:
         that can be used by the numpy array layer
         """
         return obj
-    convert = staticmethod(convert)
 
+    @staticmethod
     def is_numlike(x):
         """
         The matplotlib datalim, autoscaling, locators etc work with
@@ -103,7 +103,6 @@ class ConversionInterface:
                 return is_numlike(thisx)
         else:
             return is_numlike(x)
-    is_numlike = staticmethod(is_numlike)
 
 class Registry(dict):
     """
