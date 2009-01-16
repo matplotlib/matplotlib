@@ -143,8 +143,7 @@ public:
             m_origdx(0.0), m_origdy(0.0),
             m_origdNorm2(0.0), m_dnorm2Max(0.0), m_dnorm2Min(0.0),
             m_haveMin(false), m_lastMax(false), m_maxX(0.0), m_maxY(0.0),
-            m_minX(0.0), m_minY(0.0), m_lastWrittenX(0.0), m_lastWrittenY(0.0),
-            m_done(false)
+            m_minX(0.0), m_minY(0.0), m_lastWrittenX(0.0), m_lastWrittenY(0.0)
                 #if DEBUG_SIMPLIFY
                 , m_pushed(0), m_skipped(0)
                 #endif
@@ -200,17 +199,6 @@ public:
         //  -- Michael Droettboom
         if (flush_queue(&cmd, x, y)) {
             return cmd;
-        }
-
-        // If the queue is now empty, and the path was fully consumed
-        // in the last call to the main loop, return agg::path_cmd_stop to
-        // signal that there are no more points to emit.
-        if (m_done)
-        {
-            #if DEBUG_SIMPLIFY
-                printf(".\n");
-            #endif
-            return agg::path_cmd_stop;
         }
 
         // The main simplification loop.  The point is to consume only as many
@@ -418,7 +406,7 @@ public:
                 }
                 queue_push(agg::path_cmd_line_to, m_maxX, m_maxY);
             }
-            m_done = true;
+            queue_push(agg::path_cmd_stop, 0.0, 0.0);
         }
 
         // Return the first item in the queue, if any, otherwise
@@ -455,7 +443,7 @@ private:
     bool          m_simplify;
     double        m_width, m_height;
 
-    static const int m_queue_size = 7;
+    static const int m_queue_size = 8;
     int  m_queue_read;
     int  m_queue_write;
     item m_queue[m_queue_size];
@@ -479,7 +467,6 @@ private:
     double m_minY;
     double m_lastWrittenX;
     double m_lastWrittenY;
-    bool   m_done;
 
     #if DEBUG_SIMPLIFY
         unsigned m_pushed;
