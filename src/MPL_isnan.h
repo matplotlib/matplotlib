@@ -12,19 +12,6 @@ code only works on doubles.
 #include <stdint.h>
 #endif
 
-#if defined(SIZEOF_VOID_P)
-#if SIZEOF_VOID_P == 8
-#define MPL_LP64 1
-#else
-#define MPL_LP64 0
-#endif
-#else
-#define MPL_LP64 0
-#endif
-
-#if MPL_LP64
-typedef long int                 MPL_Int64;
-#else                  /* 32-bit platforms */
 #if defined(_MSC_VER)
 typedef __int64                  MPL_Int64;
 #else
@@ -32,7 +19,6 @@ typedef __int64                  MPL_Int64;
 typedef int64_t                  MPL_Int64;
 #else
 typedef long long                MPL_Int64;
-#endif
 #endif
 #endif
 
