@@ -17,6 +17,23 @@ static ATSUTextLayout layout = NULL;
 #define CGFloat float
 #endif
 
+/* This is the same as CGAffineTransform, except that the data members are
+ * doubles rather than CGFloats.
+ * Matrix structure:
+ * [ a  b  0]
+ * [ c  d  0]
+ * [ tx ty 1]
+ */ 
+typedef struct
+{
+    double a;
+    double b;
+    double c;
+    double d;
+    double tx;
+    double ty;
+} AffineTransform;
+
 
 /* Various NSApplicationDefined event subtypes */
 #define STDIN_READY 0
@@ -169,6 +186,19 @@ static int wait_for_stdin(void)
     return 1;
 }
 
+static AffineTransform
+AffineTransformConcat(AffineTransform t1, AffineTransform t2)
+{
+    AffineTransform t;
+    t.a = t1.a * t2.a + t1.b * t2.c;
+    t.b = t1.a * t2.b + t1.b * t2.d;
+    t.c = t1.c * t2.a + t1.d * t2.c;
+    t.d = t1.c * t2.b + t1.d * t2.d;
+    t.tx = t1.tx * t2.a + t1.ty * t2.c + t2.tx;
+    t.ty = t1.tx * t2.b + t1.ty * t2.d + t2.ty;
+    return t;
+}
+
 static int _init_atsui(void)
 {
     OSStatus status;
@@ -208,9 +238,10 @@ static void _dealloc_atsui(void)
 }
 
 static int
-_draw_path(CGContextRef cr, PyObject* path, CGAffineTransform affine)
+_draw_path(CGContextRef cr, PyObject* path, AffineTransform affine)
 {
-    CGPoint point;
+    double x1, y1, x2, y2, x3, y3;
+    CGFloat fx1, fy1, fx2, fy2, fx3, fy3;
 
     PyObject* vertices = PyObject_GetAttrString(path, "vertices");
     if (vertices==NULL)
@@ -271,22 +302,23 @@ _draw_path(CGContextRef cr, PyObject* path, CGAffineTransform affine)
         npy_uint8 code = MOVETO;
         for (i = 0; i < n; i++)
         {
-            point.x = (CGFloat)(*(double*)PyArray_GETPTR2(coordinates, i, 0));
-            point.y = (CGFloat)(*(double*)PyArray_GETPTR2(coordinates, i, 1));
-            if (isnan(point.x) || isnan(point.y))
+            x1 = *(double*)PyArray_GETPTR2(coordinates, i, 0);
+            y1 = *(double*)PyArray_GETPTR2(coordinates, i, 1);
+            if (isnan(x1) || isnan(y1))
             {
                 code = MOVETO;
             }
             else
             {
-                point = CGPointApplyAffineTransform(point, affine);
+                fx1 = (CGFloat)(affine.a*x1 + affine.c*y1 + affine.tx);
+                fy1 = (CGFloat)(affine.b*x1 + affine.d*y1 + affine.ty);
                 switch (code)
                 {
                     case MOVETO:
-                        CGContextMoveToPoint(cr, point.x, point.y);
+                        CGContextMoveToPoint(cr, fx1, fy1);
                         break;
                     case LINETO:
-                        CGContextAddLineToPoint(cr, point.x, point.y);
+                        CGContextAddLineToPoint(cr, fx1, fy1);
                         break;
                 }
                 code = LINETO;
@@ -298,7 +330,6 @@ _draw_path(CGContextRef cr, PyObject* path, CGAffineTransform affine)
         npy_intp i = 0;
         BOOL was_nan = false;
         npy_uint8 code;
-        CGFloat x1, y1, x2, y2, x3, y3;
         while (i < n)
         {
             code = *(npy_uint8*)PyArray_GETPTR1(codelist, i);
@@ -315,8 +346,8 @@ _draw_path(CGContextRef cr, PyObject* path, CGAffineTransform affine)
             {
                 if (code==CURVE3) i++;
                 else if (code==CURVE4) i+=2;
-                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                x1 = *(double*)PyArray_GETPTR2(coordinates, i, 0);
+                y1 = *(double*)PyArray_GETPTR2(coordinates, i, 1);
                 i++;
                 if (isnan(x1) || isnan(y1))
                 {
@@ -324,17 +355,16 @@ _draw_path(CGContextRef cr, PyObject* path, CGAffineTransform affine)
                 }
                 else
                 {
-                    point.x = x1;
-                    point.y = y1;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    CGContextMoveToPoint(cr, point.x, point.y);
+                    fx1 = (CGFloat) (affine.a*x1 + affine.c*y1 + affine.tx);
+                    fy1 = (CGFloat) (affine.b*x1 + affine.d*y1 + affine.ty);
+                    CGContextMoveToPoint(cr, fx1, fy1);
                     was_nan = false;
                 }
             }
             else if (code==MOVETO)
             {
-                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                x1 = *(double*)PyArray_GETPTR2(coordinates, i, 0);
+                y1 = *(double*)PyArray_GETPTR2(coordinates, i, 1);
                 i++;
                 if (isnan(x1) || isnan(y1))
                 {
@@ -342,17 +372,16 @@ _draw_path(CGContextRef cr, PyObject* path, CGAffineTransform affine)
                 }
                 else
                 {
-                    point.x = x1;
-                    point.y = y1;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    CGContextMoveToPoint(cr, point.x, point.y);
+                    fx1 = (CGFloat) (affine.a*x1 + affine.c*y1 + affine.tx);
+                    fy1 = (CGFloat) (affine.b*x1 + affine.d*y1 + affine.ty);
+                    CGContextMoveToPoint(cr, fx1, fy1);
                     was_nan = false;
                 }
             }
             else if (code==LINETO)
             {
-                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                x1 = *(double*)PyArray_GETPTR2(coordinates, i, 0);
+                y1 = *(double*)PyArray_GETPTR2(coordinates, i, 1);
                 i++;
                 if (isnan(x1) || isnan(y1))
                 {
@@ -360,20 +389,19 @@ _draw_path(CGContextRef cr, PyObject* path, CGAffineTransform affine)
                 }
                 else
                 {
-                    point.x = x1;
-                    point.y = y1;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    CGContextAddLineToPoint(cr, point.x, point.y);
+                    fx1 = (CGFloat) (affine.a*x1 + affine.c*y1 + affine.tx);
+                    fy1 = (CGFloat) (affine.b*x1 + affine.d*y1 + affine.ty);
+                    CGContextAddLineToPoint(cr, fx1, fy1);
                     was_nan = false;
                 }
             }
             else if (code==CURVE3)
             {
-                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                x1 = *(double*)PyArray_GETPTR2(coordinates, i, 0);
+                y1 = *(double*)PyArray_GETPTR2(coordinates, i, 1);
                 i++;
-                x2 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y2 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                x2 = *(double*)PyArray_GETPTR2(coordinates, i, 0);
+                y2 = *(double*)PyArray_GETPTR2(coordinates, i, 1);
                 i++;
                 if (isnan(x1) || isnan(y1) || isnan(x2) || isnan(y2))
                 {
@@ -381,30 +409,24 @@ _draw_path(CGContextRef cr, PyObject* path, CGAffineTransform affine)
                 }
                 else
                 {
-                    point.x = x1;
-                    point.y = y1;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    x1 = point.x;
-                    y1 = point.y;
-                    point.x = x2;
-                    point.y = y2;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    x2 = point.x;
-                    y2 = point.y;
-                    CGContextAddQuadCurveToPoint(cr, x1, y1, x2, y2);
+                    fx1 = (CGFloat) (affine.a*x1 + affine.c*y1 + affine.tx);
+                    fy1 = (CGFloat) (affine.b*x1 + affine.d*y1 + affine.ty);
+                    fx2 = (CGFloat) (affine.a*x2 + affine.c*y2 + affine.tx);
+                    fy2 = (CGFloat) (affine.b*x2 + affine.d*y2 + affine.ty);
+                    CGContextAddQuadCurveToPoint(cr, fx1, fy1, fx2, fy2);
                     was_nan = false;
                 }
             }
             else if (code==CURVE4)
             {
-                x1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y1 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                x1 = *(double*)PyArray_GETPTR2(coordinates, i, 0);
+                y1 = *(double*)PyArray_GETPTR2(coordinates, i, 1);
                 i++;
-                x2 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y2 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                x2 = *(double*)PyArray_GETPTR2(coordinates, i, 0);
+                y2 = *(double*)PyArray_GETPTR2(coordinates, i, 1);
                 i++;
-                x3 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-                y3 = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
+                x3 = *(double*)PyArray_GETPTR2(coordinates, i, 0);
+                y3 = *(double*)PyArray_GETPTR2(coordinates, i, 1);
                 i++;
                 if (isnan(x1) || isnan(y1) || isnan(x2) || isnan(y2) || isnan(x3) || isnan(y3))
                 {
@@ -412,22 +434,13 @@ _draw_path(CGContextRef cr, PyObject* path, CGAffineTransform affine)
                 }
                 else
                 {
-                    point.x = x1;
-                    point.y = y1;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    x1 = point.x;
-                    y1 = point.y;
-                    point.x = x2;
-                    point.y = y2;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    x2 = point.x;
-                    y2 = point.y;
-                    point.x = x3;
-                    point.y = y3;
-                    point = CGPointApplyAffineTransform(point, affine);
-                    x3 = point.x;
-                    y3 = point.y;
-                    CGContextAddCurveToPoint(cr, x1, y1, x2, y2, x3, y3);
+                    fx1 = (CGFloat) (affine.a*x1 + affine.c*y1 + affine.tx);
+                    fy1 = (CGFloat) (affine.b*x1 + affine.d*y1 + affine.ty);
+                    fx2 = (CGFloat) (affine.a*x2 + affine.c*y2 + affine.tx);
+                    fy2 = (CGFloat) (affine.b*x2 + affine.d*y2 + affine.ty);
+                    fx3 = (CGFloat) (affine.a*x3 + affine.c*y3 + affine.tx);
+                    fy3 = (CGFloat) (affine.b*x3 + affine.d*y3 + affine.ty);
+                    CGContextAddCurveToPoint(cr, fx1, fy1, fx2, fy2, fx3, fy3);
                     was_nan = false;
                 }
             }
@@ -442,8 +455,7 @@ _draw_path(CGContextRef cr, PyObject* path, CGAffineTransform affine)
 static void _draw_hatch (void *info, CGContextRef cr)
 {
     PyObject* hatchpath = (PyObject*)info;
-    CGAffineTransform affine = CGAffineTransformMakeScale(HATCH_SIZE, HATCH_SIZE);
-
+    AffineTransform affine = {HATCH_SIZE, 0, 0, HATCH_SIZE, 0, 0};
     int n = _draw_path(cr, hatchpath, affine);
     if (n < 0)
     {
@@ -1061,9 +1073,9 @@ GraphicsContext_set_joinstyle(GraphicsContext* self, PyObject* args)
 }
 
 static int
-_convert_affine_transform(PyObject* object, CGAffineTransform* transform)
-/* Reads a Numpy affine transformation matrix and returns
- * a CGAffineTransform.
+_convert_affine_transform(PyObject* object, AffineTransform* transform)
+/* Reads a Numpy affine transformation matrix and returns an
+ * AffineTransform structure
  */
 {
     PyArrayObject* matrix = NULL;
@@ -1093,17 +1105,16 @@ _convert_affine_transform(PyObject* object, CGAffineTransform* transform)
     char* row0 = PyArray_BYTES(matrix);
     char* row1 = row0 + stride0;
 
-    double a = *(double*)(row0);
+    transform->a = *(double*)(row0);
     row0 += stride1;
-    double c = *(double*)(row0);
+    transform->c = *(double*)(row0);
     row0 += stride1;
-    double e = *(double*)(row0);
-    double b = *(double*)(row1);
+    transform->tx = *(double*)(row0);
+    transform->b = *(double*)(row1);
     row1 += stride1;
-    double d = *(double*)(row1);
+    transform->d = *(double*)(row1);
     row1 += stride1;
-    double f = *(double*)(row1);
-    *transform = CGAffineTransformMake(a, b, c, d, e, f);
+    transform->ty = *(double*)(row1);
 
     Py_DECREF(matrix);
     return 1;
@@ -1133,7 +1144,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
 
     if(rgbFace==Py_None) rgbFace = NULL;
 
-    CGAffineTransform affine;
+    AffineTransform affine;
     ok = _convert_affine_transform(transform, &affine);
     if (!ok) return NULL;
 
@@ -1223,6 +1234,7 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
 
     int ok;
     float r, g, b;
+    double x, y;
  
     CGContextRef cr = self->cr;
 
@@ -1251,11 +1263,11 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
         CGContextSetRGBFillColor(cr, r, g, b, 1.0);
     }
 
-    CGAffineTransform affine;
+    AffineTransform affine;
     ok = _convert_affine_transform(transform, &affine);
     if (!ok) return NULL;
 
-    CGAffineTransform marker_affine;
+    AffineTransform marker_affine;
     ok = _convert_affine_transform(marker_transform, &marker_affine);
     if (!ok) return NULL;
 
@@ -1285,17 +1297,15 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
 
     npy_intp i;
     npy_intp n = PyArray_DIM(coordinates, 0);
-    CGPoint point;
-    CGAffineTransform t;
+    AffineTransform t;
     int m = 0;
     for (i = 0; i < n; i++)
     {
-        point.x = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 0));
-        point.y = (CGFloat) (*(double*)PyArray_GETPTR2(coordinates, i, 1));
-        point = CGPointApplyAffineTransform(point, affine);
+        x = *(double*)PyArray_GETPTR2(coordinates, i, 0);
+        y = *(double*)PyArray_GETPTR2(coordinates, i, 1);
         t = marker_affine;
-        t.tx += point.x;
-        t.ty += point.y;
+        t.tx += affine.a*x + affine.c*y + affine.tx;
+        t.ty += affine.b*x + affine.d*y + affine.ty;
         m = _draw_path(cr, marker_path, t);
 
         if (m > 0)
@@ -1391,10 +1401,10 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
 
     CGContextSaveGState(cr);
 
-    CGAffineTransform transform;
-    CGAffineTransform master_transform;
-    CGAffineTransform offset_transform;
-    CGAffineTransform* transforms = NULL;
+    AffineTransform transform;
+    AffineTransform master_transform;
+    AffineTransform offset_transform;
+    AffineTransform* transforms = NULL;
 
     if (!_convert_affine_transform(master_transform_obj, &master_transform)) return NULL;
     if (!_convert_affine_transform(offset_transform_obj, &offset_transform)) return NULL;
@@ -1496,18 +1506,18 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
     /* Convert all of the transforms up front */
     if (Ntransforms > 0)
     {
-        transforms = malloc(Ntransforms*sizeof(CGAffineTransform));
+        transforms = malloc(Ntransforms*sizeof(AffineTransform));
         if (!transforms) goto error;
         for (i = 0; i < Ntransforms; i++)
         {
             PyObject* transform_obj = PySequence_ITEM(transforms_obj, i);
             if(!_convert_affine_transform(transform_obj, &transforms[i])) goto error;
-            transforms[i] = CGAffineTransformConcat(transforms[i], master_transform);
+            transforms[i] = AffineTransformConcat(transforms[i], master_transform);
         }
     }
 
-    CGPoint offset;
     PyObject* path;
+    double x, y;
 
     /* Preset graphics context properties if possible */
     if (Naa==1)
@@ -1574,11 +1584,10 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
 
         if (Noffsets)
         {
-            offset.x = (CGFloat) (*(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0));
-            offset.y = (CGFloat) (*(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1));
-            offset = CGPointApplyAffineTransform(offset, offset_transform);
-            transform.tx += offset.x;
-            transform.ty += offset.y;
+            x = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
+            y = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
+            transform.tx += offset_transform.a*x + offset_transform.c*y + offset_transform.tx;
+            transform.ty += offset_transform.b*x + offset_transform.d*y + offset_transform.ty;
         }
 
         if (Naa > 1)
@@ -1703,9 +1712,9 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     PyArrayObject* offsets = NULL;
     PyArrayObject* facecolors = NULL;
 
-    CGAffineTransform transform;
-    CGAffineTransform master_transform;
-    CGAffineTransform offset_transform;
+    AffineTransform transform;
+    AffineTransform master_transform;
+    AffineTransform offset_transform;
 
     if (!_convert_affine_transform(master_transform_obj, &master_transform))
         return NULL;
@@ -1772,8 +1781,6 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     size_t iw = 0;
     size_t ih = 0;
 
-    CGPoint offset;
-
     /* Preset graphics context properties if possible */
     if (antialiased) CGContextSetShouldAntialias(cr, true);
     else CGContextSetShouldAntialias(cr, false);
@@ -1798,6 +1805,7 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
         CGContextSetRGBStrokeColor(cr, 0, 0, 0, 1);
     }
 
+    double x, y;
     for (ih = 0; ih < meshHeight; ih++)
     {
         for (iw = 0; iw < meshWidth; iw++, i++)
@@ -1807,35 +1815,38 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
 
             if (Noffsets)
             {
-                offset.x = (CGFloat) (*(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0));
-                offset.y = (CGFloat) (*(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1));
-                offset = CGPointApplyAffineTransform(offset, offset_transform);
-                transform.tx += offset.x;
-                transform.ty += offset.y;
+                x = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
+                y = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
+                transform.tx += offset_transform.a*x + offset_transform.c*y + offset_transform.tx;
+                transform.ty += offset_transform.b*x + offset_transform.d*y + offset_transform.ty;
             }
 
-            CGPoint p;
+            double x, y;
             CGPoint points[4];
 
-            p.x = (CGFloat)(*(double*)PyArray_GETPTR3(coordinates, ih, iw, 0));
-            p.y = (CGFloat)(*(double*)PyArray_GETPTR3(coordinates, ih, iw, 1));
-            if (isnan(p.x) || isnan(p.y)) continue;
-            points[0] = CGPointApplyAffineTransform(p, transform);
+            x = *(double*)PyArray_GETPTR3(coordinates, ih, iw, 0);
+            y = *(double*)PyArray_GETPTR3(coordinates, ih, iw, 1);
+            if (isnan(x) || isnan(y)) continue;
+            points[0].x = (CGFloat)(transform.a*x + transform.c*y + transform.tx);
+            points[0].y = (CGFloat)(transform.b*x + transform.d*y + transform.ty);
 
-            p.x = (CGFloat)(*(double*)PyArray_GETPTR3(coordinates, ih, iw+1, 0));
-            p.y = (CGFloat)(*(double*)PyArray_GETPTR3(coordinates, ih, iw+1, 1));
-            if (isnan(p.x) || isnan(p.y)) continue;
-            points[1] = CGPointApplyAffineTransform(p, transform);
+            x = *(double*)PyArray_GETPTR3(coordinates, ih, iw+1, 0);
+            y = *(double*)PyArray_GETPTR3(coordinates, ih, iw+1, 1);
+            if (isnan(x) || isnan(y)) continue;
+            points[1].x = (CGFloat)(transform.a*x + transform.c*y + transform.tx);
+            points[1].y = (CGFloat)(transform.b*x + transform.d*y + transform.ty);
 
-            p.x = (CGFloat)(*(double*)PyArray_GETPTR3(coordinates, ih+1, iw+1, 0));
-            p.y = (CGFloat)(*(double*)PyArray_GETPTR3(coordinates, ih+1, iw+1, 1));
-            if (isnan(p.x) || isnan(p.y)) continue;
-            points[2] = CGPointApplyAffineTransform(p, transform);
+            x = *(double*)PyArray_GETPTR3(coordinates, ih+1, iw+1, 0);
+            y = *(double*)PyArray_GETPTR3(coordinates, ih+1, iw+1, 1);
+            if (isnan(x) || isnan(y)) continue;
+            points[2].x = (CGFloat)(transform.a*x + transform.c*y + transform.tx);
+            points[2].y = (CGFloat)(transform.b*x + transform.d*y + transform.ty);
 
-            p.x = (CGFloat)(*(double*)PyArray_GETPTR3(coordinates, ih+1, iw, 0));
-            p.y = (CGFloat)(*(double*)PyArray_GETPTR3(coordinates, ih+1, iw, 1));
-            if (isnan(p.x) || isnan(p.y)) continue;
-            points[3] = CGPointApplyAffineTransform(p, transform);
+            x = *(double*)PyArray_GETPTR3(coordinates, ih+1, iw, 0);
+            y = *(double*)PyArray_GETPTR3(coordinates, ih+1, iw, 1);
+            if (isnan(x) || isnan(y)) continue;
+            points[3].x = (CGFloat)(transform.a*x + transform.c*y + transform.tx);
+            points[3].y = (CGFloat)(transform.b*x + transform.d*y + transform.ty);
 
             CGContextMoveToPoint(cr, points[3].x, points[3].y);
             CGContextAddLines(cr, points, 4);
@@ -2491,7 +2502,7 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
     if (!_clip(cr, cliprect)) ok = false;
     else if (clippath!=Py_None)
     {
-        CGAffineTransform transform;
+        AffineTransform transform;
         if (!_convert_affine_transform(clippath_transform, &transform))
         {
             ok = false;
