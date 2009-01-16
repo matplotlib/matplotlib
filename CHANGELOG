@@ -1,3 +1,7 @@
+2009-11-16 Bugfix of C typedef of MPL_Int64 that was failing on
+           Windows XP 64 bit, as reported by George Goussard on numpy
+           mailing list. - ADS
+
 2009-11-16 Added helper function LinearSegmentedColormap.from_list to
            facilitate building simple custom colomaps.  See
            examples/pylab_examples/custom_cmap_fromlist.py - JDH
