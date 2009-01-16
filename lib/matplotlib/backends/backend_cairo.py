@@ -121,7 +121,7 @@ class RendererCairo(RendererBase):
         ctx.stroke()
 
 
-    #@staticmethod
+    @staticmethod
     def convert_path(ctx, tpath):
         for points, code in tpath.iter_segments():
             if code == Path.MOVETO:
@@ -136,7 +136,6 @@ class RendererCairo(RendererBase):
                 ctx.curve_to(*points)
             elif code == Path.CLOSEPOLY:
                 ctx.close_path()
-    convert_path = staticmethod(convert_path)
 
 
     def draw_path(self, gc, path, transform, rgbFace=None):

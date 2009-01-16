@@ -303,7 +303,7 @@ class RendererWx(RendererBase):
                 gfx_ctx.Clip(new_bounds[0], self.height - new_bounds[1] - new_bounds[3],
                              new_bounds[2], new_bounds[3])
 
-    #@staticmethod
+    @staticmethod
     def convert_path(gfx_ctx, tpath):
         wxpath = gfx_ctx.CreatePath()
         for points, code in tpath.iter_segments():
@@ -318,7 +318,6 @@ class RendererWx(RendererBase):
             elif code == Path.CLOSEPOLY:
                 wxpath.CloseSubpath()
         return wxpath
-    convert_path = staticmethod(convert_path)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         gc.select()
