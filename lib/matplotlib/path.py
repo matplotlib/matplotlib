@@ -117,7 +117,7 @@ class Path(object):
         self.codes = codes
         self.vertices = vertices
 
-    #@classmethod
+    @classmethod
     def make_compound_path(cls, *args):
         """
         (staticmethod) Make a compound path from a list of Path
@@ -139,7 +139,6 @@ class Path(object):
             i += length
 
         return cls(vertices, codes)
-    make_compound_path = classmethod(make_compound_path)
 
     def __repr__(self):
         return "Path(%s, %s)" % (self.vertices, self.codes)
@@ -337,7 +336,7 @@ class Path(object):
         return convert_path_to_polygons(self, transform, width, height)
 
     _unit_rectangle = None
-    #@classmethod
+    @classmethod
     def unit_rectangle(cls):
         """
         (staticmethod) Returns a :class:`Path` of the unit rectangle
@@ -347,10 +346,10 @@ class Path(object):
             cls._unit_rectangle = \
                 cls([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]])
         return cls._unit_rectangle
-    unit_rectangle = classmethod(unit_rectangle)
 
     _unit_regular_polygons = WeakValueDictionary()
-    #@classmethod
+
+    @classmethod
     def unit_regular_polygon(cls, numVertices):
         """
         (staticmethod) Returns a :class:`Path` for a unit regular
@@ -371,10 +370,10 @@ class Path(object):
             path = cls(verts)
             cls._unit_regular_polygons[numVertices] = path
         return path
-    unit_regular_polygon = classmethod(unit_regular_polygon)
 
     _unit_regular_stars = WeakValueDictionary()
-    #@classmethod
+
+    @classmethod
     def unit_regular_star(cls, numVertices, innerCircle=0.5):
         """
         (staticmethod) Returns a :class:`Path` for a unit regular star
@@ -397,9 +396,8 @@ class Path(object):
             path = cls(verts)
             cls._unit_regular_polygons[(numVertices, innerCircle)] = path
         return path
-    unit_regular_star = classmethod(unit_regular_star)
 
-    #@classmethod
+    @classmethod
     def unit_regular_asterisk(cls, numVertices):
         """
         (staticmethod) Returns a :class:`Path` for a unit regular
@@ -407,10 +405,10 @@ class Path(object):
         centered at (0, 0).
         """
         return cls.unit_regular_star(numVertices, 0.0)
-    unit_regular_asterisk = classmethod(unit_regular_asterisk)
 
     _unit_circle = None
-    #@classmethod
+
+    @classmethod
     def unit_circle(cls):
         """
         (staticmethod) Returns a :class:`Path` of the unit circle.
@@ -470,9 +468,8 @@ class Path(object):
 
             cls._unit_circle = cls(vertices, codes)
         return cls._unit_circle
-    unit_circle = classmethod(unit_circle)
 
-    #@classmethod
+    @classmethod
     def arc(cls, theta1, theta2, n=None, is_wedge=False):
         """
         (staticmethod) Returns an arc on the unit circle from angle
@@ -549,9 +546,8 @@ class Path(object):
         vertices[vertex_offset+2:end:3, 1] = yB
 
         return cls(vertices, codes)
-    arc = classmethod(arc)
 
-    #@classmethod
+    @classmethod
     def wedge(cls, theta1, theta2, n=None):
         """
         (staticmethod) Returns a wedge of the unit circle from angle
@@ -562,10 +558,10 @@ class Path(object):
         determined based on the delta between *theta1* and *theta2*.
         """
         return cls.arc(theta1, theta2, n, True)
-    wedge = classmethod(wedge)
 
     _hatch_dict = maxdict(8)
-    #@classmethod
+
+    @classmethod
     def hatch(cls, hatchpattern, density=6):
         """
         Given a hatch specifier, *hatchpattern*, generates a Path that
@@ -584,7 +580,6 @@ class Path(object):
         hatch_path = get_path(hatchpattern, density)
         cls._hatch_dict[(hatchpattern, density)] = hatch_path
         return hatch_path
-    hatch = classmethod(hatch)
 
 _get_path_collection_extents = get_path_collection_extents
 def get_path_collection_extents(*args):

@@ -565,7 +565,7 @@ class QuadMesh(Collection):
                 self._meshWidth, self._meshHeight, self._coordinates)
         return self._paths
 
-    #@staticmethod
+    @staticmethod
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
         """
         Converts a given mesh into a sequence of
@@ -590,7 +590,6 @@ class QuadMesh(Collection):
                     ), axis=2)
         points = points.reshape((meshWidth * meshHeight, 5, 2))
         return [Path(x) for x in points]
-    convert_mesh_to_paths = staticmethod(convert_mesh_to_paths)
 
     def get_datalim(self, transData):
         return self._bbox
