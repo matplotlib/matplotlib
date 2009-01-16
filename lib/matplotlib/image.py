@@ -348,10 +348,16 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         self._interpolation = s
 
     def set_resample(self, v):
+        """
+        set whether or not image resampling is used
+
+        ACCEPTS: True|False
+        """
         if v is None: v = rcParams['image.resample']
         self._resample = v
 
-    def get_interpolation(self):
+    def get_resample(self):
+        'return the image resample boolean'
         return self._resample
 
     def get_extent(self):
