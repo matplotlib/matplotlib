@@ -209,7 +209,7 @@ GCAgg::_set_joinstyle(const Py::Object& gc) {
   std::string joinstyle = Py::String( gc.getAttr("_joinstyle") );
 
   if (joinstyle=="miter")
-    join =  agg::miter_join;
+    join =  agg::miter_join_revert;
   else if (joinstyle=="round")
     join = agg::round_join;
   else if(joinstyle=="bevel")
