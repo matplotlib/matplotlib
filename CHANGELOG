@@ -1,3 +1,6 @@
+2009-01-16 Implement bbox_inches option for savefig. If bbox_inches is
+           "tight", try to determine the tight bounding box. - JJL
+
 2009-01-16 Fix bug in is_string_like so it doesn't raise an
            unnecessary exception. - EF
 
