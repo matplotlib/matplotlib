@@ -1,3 +1,6 @@
+2009-01-16 Fix bug in is_string_like so it doesn't raise an
+           unnecessary exception. - EF
+
 2009-01-16 Fix an infinite recursion in the unit registry when searching
            for a converter for a sequence of strings. Add a corresponding
            test. - RM
@@ -12,8 +15,6 @@
 
 2009-01-16 Applied Michiel's patch for macosx backend to fix rounding
            bug. Closed sf bug 2508440 - JSW
-
-2009-01-10 Fix bug in pan/zoom with log coordinates. - EF
 
 2009-01-10 Applied Michiel's hatch patch for macosx backend and
            draw_idle patch for qt.  Closes sf patched 2497785 and

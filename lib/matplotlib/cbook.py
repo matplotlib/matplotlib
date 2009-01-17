@@ -275,7 +275,7 @@ def is_string_like(obj):
         else:
             return False
     try: obj + ''
-    except (TypeError, ValueError): return False
+    except: return False
     return True
 
 def is_sequence_of_strings(obj):
