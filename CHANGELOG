@@ -1,4 +1,7 @@
-2009-11-16 Bugfix of C typedef of MPL_Int64 that was failing on
+2009-01-16 Fix bug in is_string_like so it doesn't raise an
+           unnecessary exception. - EF
+
+2009-01-16 Bugfix of C typedef of MPL_Int64 that was failing on
            Windows XP 64 bit, as reported by George Goussard on numpy
            mailing list. - ADS
 
