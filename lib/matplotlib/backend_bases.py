@@ -33,6 +33,9 @@ import matplotlib.widgets as widgets
 import matplotlib.path as path
 from matplotlib import rcParams
 
+from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
+import cStringIO
+
 class RendererBase:
     """An abstract base class to handle drawing/rendering operations.
 
@@ -1419,6 +1422,28 @@ class FigureCanvasBase:
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
+        bbox_inches = kwargs.pop("bbox_inches", None)
+
+        if bbox_inches:
+            # call adjust_bbox to save only the given area
+            if bbox_inches == "tight":
+                # save the figure to estimate the bounding box
+                result = getattr(self, method_name)(
+                    cStringIO.StringIO(),
+                    dpi=dpi,
+                    facecolor=facecolor,
+                    edgecolor=edgecolor,
+                    orientation=orientation,
+                    **kwargs)
+                renderer = self.figure._cachedRenderer
+                bbox_inches = self.figure.get_tightbbox(renderer)
+                pad = kwargs.pop("pad_inches", 0.1)
+                bbox_inches = bbox_inches.padded(pad)
+
+            restore_bbox = self._adjust_bbox(self.figure, format,
+                                             bbox_inches)
+
+
         try:
             result = getattr(self, method_name)(
                 filename,
@@ -1428,12 +1453,100 @@ class FigureCanvasBase:
                 orientation=orientation,
                 **kwargs)
         finally:
+            if bbox_inches and restore_bbox:
+                restore_bbox()
+
             self.figure.dpi = origDPI
             self.figure.set_facecolor(origfacecolor)
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
             #self.figure.canvas.draw() ## seems superfluous
         return result
+
+
+    def _adjust_bbox(self, fig, format, bbox_inches):
+        """
+        Temporarily adjust the figure so that only the specified area
+        (bbox_inches) is saved.
+
+        It modifies fig.bbox, fig.bbox_inches,
+        fig.transFigure._boxout, and fig.patch.  While the figure size
+        changes, the scale of the original figure is conserved.  A
+        function whitch restores the original values are returned.
+        """
+
+        origBbox = fig.bbox
+        origBboxInches = fig.bbox_inches
+        _boxout = fig.transFigure._boxout
+
+        def restore_bbox():
+            fig.bbox = origBbox
+            fig.bbox_inches = origBboxInches
+            fig.transFigure._boxout = _boxout
+            fig.transFigure.invalidate()
+            fig.patch.set_bounds(0, 0, 1, 1)
+
+        if format in ["png", "raw", "rgba"]:
+            self._adjust_bbox_png(fig, bbox_inches)
+            return restore_bbox
+        elif format in ["pdf", "eps"]:
+            self._adjust_bbox_pdf(fig, bbox_inches)
+            return restore_bbox
+        else:
+            warnings.warn("bbox_inches option for %s backend is not implemented yet." % (format))
+            return None
+
+
+    def _adjust_bbox_png(self, fig, bbox_inches):
+        """
+        _adjust_bbox for png (Agg) format
+        """
+
+        tr = fig.dpi_scale_trans
+
+        _bbox = TransformedBbox(bbox_inches,
+                                tr)
+        x0, y0 = _bbox.x0, _bbox.y0
+        fig.bbox_inches = Bbox.from_bounds(0, 0,
+                                           bbox_inches.width,
+                                           bbox_inches.height)
+
+        x0, y0 = _bbox.x0, _bbox.y0
+        w1, h1 = fig.bbox.width, fig.bbox.height
+        self.figure.transFigure._boxout = Bbox.from_bounds(-x0, -y0,
+                                                           w1, h1)
+        self.figure.transFigure.invalidate()
+
+        fig.bbox = TransformedBbox(fig.bbox_inches, tr)
+
+        fig.patch.set_bounds(x0/w1, y0/h1,
+                             fig.bbox.width/w1, fig.bbox.height/h1)
+
+
+    def _adjust_bbox_pdf(self, fig, bbox_inches):
+        """
+        _adjust_bbox for pdf & eps format
+        """
+
+        tr = Affine2D().scale(72)
+
+        _bbox = TransformedBbox(bbox_inches, tr)
+
+        fig.bbox_inches = Bbox.from_bounds(0, 0,
+                                           bbox_inches.width,
+                                           bbox_inches.height)
+        x0, y0 = _bbox.x0, _bbox.y0
+        f = 72. / fig.dpi
+        w1, h1 = fig.bbox.width*f, fig.bbox.height*f
+        self.figure.transFigure._boxout = Bbox.from_bounds(-x0, -y0,
+                                                           w1, h1)
+        self.figure.transFigure.invalidate()
+
+        fig.bbox = TransformedBbox(fig.bbox_inches, tr)
+
+        fig.patch.set_bounds(x0/w1, y0/h1,
+                             fig.bbox.width/w1, fig.bbox.height/h1)
+
 
     def get_default_filetype(self):
         raise NotImplementedError

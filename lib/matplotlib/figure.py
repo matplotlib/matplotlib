@@ -33,6 +33,7 @@ from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 
 import matplotlib.cbook as cbook
 
+
 class SubplotParams:
     """
     A class to hold the parameters for a subplot
@@ -971,6 +972,16 @@ class Figure(Artist):
             a plot on top of a colored background on a web page.  The
             transparency of these patches will be restored to their
             original values upon exit of this function.
+
+          *bbox_inches*:
+            Bbox in inches. Only the given portion of the figure is
+            saved. If 'tight', try to figure out the tight bbox of
+            the figure.
+
+          *pad_inches*:
+            Amount of padding around the figure when bbox_inches is
+            'tight'.
+
         """
 
         for key in ('dpi', 'facecolor', 'edgecolor'):
@@ -1089,6 +1100,41 @@ class Figure(Artist):
 
         blocking_input = BlockingKeyMouseInput(self)
         return blocking_input(timeout=timeout)
+
+
+
+    def get_tightbbox(self, renderer):
+        """
+        Return a (tight) bounding box of the figure in inches.
+
+        It only accounts axes title, axis labels, and axis
+        ticklabels. Needs improvement.
+        """
+
+        artists = []
+        bb = []
+        for ax in self.axes:
+
+            artists.append(ax.xaxis.label)
+            artists.append(ax.yaxis.label)
+            artists.append(ax.title)
+            artists.append(ax)
+
+            bbx1, bbx2 = ax.xaxis.get_ticklabel_extents(renderer)
+            bby1, bby2 = ax.yaxis.get_ticklabel_extents(renderer)
+            bb.extend([bbx1, bbx2, bby1, bby2])
+
+
+        bb.extend([c.get_window_extent(renderer) for c in artists \
+                   if c.get_visible()])
+
+        _bbox = Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
+
+        bbox_inches = TransformedBbox(_bbox,
+                                      Affine2D().scale(1./self.dpi))
+
+        return bbox_inches
+
 
 
 def figaspect(arg):
