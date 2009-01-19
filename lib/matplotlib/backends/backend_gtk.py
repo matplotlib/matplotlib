@@ -489,7 +489,8 @@ class FigureManagerGTK(FigureManagerBase):
         self.vbox.destroy()
         self.window.destroy()
         self.canvas.destroy()
-        self.toolbar.destroy()
+        if self.toolbar:
+            self.toolbar.destroy()
         self.__dict__.clear()
 
         if Gcf.get_num_fig_managers()==0 and \
