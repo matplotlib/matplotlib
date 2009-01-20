@@ -386,14 +386,13 @@ class Quiver(collections.PolyCollection):
         X, Y, U, V, C = [None]*5
         args = list(args)
         if len(args) == 3 or len(args) == 5:
-            C = ma.asarray(args.pop(-1)).ravel()
+            C = ma.asarray(args.pop(-1))
         V = ma.asarray(args.pop(-1))
         U = ma.asarray(args.pop(-1))
-        nn = np.shape(U)
-        nc = nn[0]
-        nr = 1
-        if len(nn) > 1:
-            nr = nn[1]
+        if U.ndim == 1:
+            nr, nc = 1, U.shape[0]
+        else:
+            nr, nc = U.shape
         if len(args) == 2: # remaining after removing U,V,C
             X, Y = [np.array(a).ravel() for a in args]
             if len(X) == nc and len(Y) == nr:
