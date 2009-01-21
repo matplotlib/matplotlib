@@ -1,3 +1,7 @@
+2009-01-21 Changed the defaults of acorr and xcorr to use
+           usevlines=True, maxlags=10 and normed=True since these are
+           the best defaults
+
 2009-01-19 Fix bug in quiver argument handling. - EF
 
 2009-01-19 Fix bug in backend_gtk: don't delete nonexistent toolbar. - EF

@@ -3543,8 +3543,8 @@ class Axes(martist.Artist):
         """
         call signature::
 
-            acorr(x, normed=False, detrend=mlab.detrend_none, usevlines=False,
-                  maxlags=None, **kwargs)
+            acorr(x, normed=True, detrend=mlab.detrend_none, usevlines=True,
+                  maxlags=10, **kwargs)
 
         Plot the autocorrelation of *x*.  If *normed* = *True*,
         normalize the data by the autocorrelation at 0-th lag.  *x* is
@@ -3602,13 +3602,13 @@ class Axes(martist.Artist):
         return self.xcorr(x, x, **kwargs)
     acorr.__doc__ = cbook.dedent(acorr.__doc__) % martist.kwdocd
 
-    def xcorr(self, x, y, normed=False, detrend=mlab.detrend_none,
-              usevlines=False, maxlags=None, **kwargs):
+    def xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
+              usevlines=True, maxlags=10, **kwargs):
         """
         call signature::
 
-          xcorr(x, y, normed=False, detrend=mlab.detrend_none,
-                usevlines=False, **kwargs):
+            def xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
+              usevlines=True, maxlags=10, **kwargs):
 
         Plot the cross correlation between *x* and *y*.  If *normed* =
         *True*, normalize the data by the cross correlation at 0-th

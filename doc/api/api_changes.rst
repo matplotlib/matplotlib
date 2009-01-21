@@ -19,20 +19,24 @@ list may help describe what changes may be necessary in your code.
 
 Changes for 0.98.x
 ==================
+
+* Changed the defaults of acorr and xcorr to use usevlines=True,
+  maxlags=10 and normed=True since these are the best defaults
+
 * Following keyword parameters for :class:`matplotlib.label.Label` are now
-  deprecated and new set of parameters are introduced. The new parameters 
-  are given as a fraction of the font-size. Also, *scatteryoffsets*, 
+  deprecated and new set of parameters are introduced. The new parameters
+  are given as a fraction of the font-size. Also, *scatteryoffsets*,
   *fancybox* and *columnspacing* are added as keyword parameters.
 
         ================   ================
         Deprecated         New
         ================   ================
-        pad                borderpad          
-        labelsep           labelspacing       
-        handlelen          handlelength       
-        handlestextsep     handletextpad      
-        axespad	           borderaxespad      
-        ================   ================   
+        pad                borderpad
+        labelsep           labelspacing
+        handlelen          handlelength
+        handlestextsep     handletextpad
+        axespad	           borderaxespad
+        ================   ================
 
 
 * Removed the configobj and experiemtnal traits rc support
