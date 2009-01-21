@@ -1070,7 +1070,7 @@ void ttfont_trailer(TTStreamWriter& stream, struct TTFONT *font)
     	} /* end of if Type 42 not understood. */
 
     stream.putline("FontName currentdict end definefont pop");
-    stream.putline("%%EOF");
+    /* stream.putline("%%EOF"); */
     } /* end of ttfont_trailer() */
 
 /*------------------------------------------------------------------
