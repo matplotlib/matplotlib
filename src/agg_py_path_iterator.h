@@ -142,8 +142,8 @@ public:
             m_do_clipping(width > 0.0 && height > 0.0),
             m_origdx(0.0), m_origdy(0.0),
             m_origdNorm2(0.0), m_dnorm2Max(0.0), m_dnorm2Min(0.0),
-            m_haveMin(false), m_lastMax(false), m_maxX(0.0), m_maxY(0.0),
-            m_minX(0.0), m_minY(0.0), m_lastWrittenX(0.0), m_lastWrittenY(0.0)
+            m_lastMax(false), m_nextX(0.0), m_nextY(0.0),
+            m_lastWrittenX(0.0), m_lastWrittenY(0.0)
                 #if DEBUG_SIMPLIFY
                 , m_pushed(0), m_skipped(0)
                 #endif
@@ -302,13 +302,12 @@ public:
                 //set all the variables to reflect this new orig vector
                 m_dnorm2Max = m_origdNorm2;
                 m_dnorm2Min = 0.0;
-                m_haveMin = false;
                 m_lastMax = true;
 
-                m_lastx = m_maxX = *x;
-                m_lasty = m_maxY = *y;
-                m_lastWrittenX = m_minX = m_lastx;
-                m_lastWrittenY = m_minY = m_lasty;
+                m_nextX = m_lastWrittenX = m_lastx;
+                m_nextY = m_lastWrittenY = m_lasty;
+                m_lastx = *x;
+                m_lasty = *y;
                 #if DEBUG_SIMPLIFY
                     m_skipped++;
                 #endif
@@ -358,18 +357,17 @@ public:
                     {
                         m_lastMax = true;
                         m_dnorm2Max = paradNorm2;
-                        m_maxX = m_lastWrittenX + paradx;
-                        m_maxY = m_lastWrittenY + parady;
+                        m_nextX = *x;
+                        m_nextY = *y;
                     }
                 }
                 else
                 {
-                    m_haveMin = true;
                     if (paradNorm2 > m_dnorm2Min)
                     {
                         m_dnorm2Min = paradNorm2;
-                        m_minX = m_lastWrittenX + paradx;
-                        m_minY = m_lastWrittenY + parady;
+                        m_nextX = *x;
+                        m_nextY = *y;
                     }
                 }
 
@@ -394,17 +392,12 @@ public:
         }
 
         // Fill the queue with the remaining vertices if we've finished the
-        // path in the above loop.  Mark the path as done, so we don't call
-        // m_source->vertex again and segfault.
+        // path in the above loop.
         if (cmd == agg::path_cmd_stop)
         {
             if (m_origdNorm2 != 0.0)
             {
-                if (m_haveMin)
-                {
-                    queue_push(agg::path_cmd_line_to, m_minX, m_minY);
-                }
-                queue_push(agg::path_cmd_line_to, m_maxX, m_maxY);
+                queue_push(agg::path_cmd_line_to, m_nextX, m_nextY);
             }
             queue_push(agg::path_cmd_stop, 0.0, 0.0);
         }
@@ -459,12 +452,9 @@ private:
     double m_origdNorm2;
     double m_dnorm2Max;
     double m_dnorm2Min;
-    bool   m_haveMin;
     bool   m_lastMax;
-    double m_maxX;
-    double m_maxY;
-    double m_minX;
-    double m_minY;
+    double m_nextX;
+    double m_nextY;
     double m_lastWrittenX;
     double m_lastWrittenY;
 
@@ -517,11 +507,7 @@ private:
 
     inline void _push(double* x, double* y)
     {
-        if (m_haveMin)
-        {
-            queue_push(agg::path_cmd_line_to, m_minX, m_minY);
-        }
-        queue_push(agg::path_cmd_line_to, m_maxX, m_maxY);
+        queue_push(agg::path_cmd_line_to, m_nextX, m_nextY);
 
         //if we clipped some segments between this line and the next line
         //we are starting, we also need to move to the last point.
@@ -546,12 +532,11 @@ private:
 
         m_dnorm2Max = m_origdNorm2;
         m_dnorm2Min = 0.0;
-        m_haveMin = false;
         m_lastMax = true;
-        m_lastx = m_maxX = *x;
-        m_lasty = m_maxY = *y;
-        m_lastWrittenX = m_minX = m_lastx;
-        m_lastWrittenY = m_minY = m_lasty;
+        m_lastWrittenX = m_queue[m_queue_write-1].x;
+        m_lastWrittenY = m_queue[m_queue_write-1].y;
+        m_lastx = m_nextX = *x;
+        m_lasty = m_nextY = *y;
 
         m_clipped = false;
 #if DEBUG_SIMPLIFY
