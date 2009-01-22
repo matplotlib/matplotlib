@@ -272,7 +272,7 @@ fontsize. Values from rcParams will be used if None.
         self._set_artist_props(self.legendPatch)
 
         self._drawFrame = True
-        
+
         # init with null renderer
         self._init_legend_box(handles, labels)
 
@@ -327,9 +327,9 @@ fontsize. Values from rcParams will be used if None.
 
         def findoffset(width, height, xdescent, ydescent):
             return _findoffset(width, height, xdescent, ydescent, renderer)
-        
+
         self._legend_box.set_offset(findoffset)
-        
+
         fontsize = renderer.points_to_pixels(self.fontsize)
 
         # if mode == fill, set the width of the legend_box to the
@@ -623,8 +623,11 @@ fontsize. Values from rcParams will be used if None.
                 ydata = ((height-descent)/2.)*np.ones(xdata.shape, float)
                 legline.set_data(xdata, ydata)
 
-                legline_marker = legline._legmarker
-                legline_marker.set_data(xdata_marker, ydata[:len(xdata_marker)])
+                # if a line collection is added, the legmarker attr is
+                # not set so we don't need to handle it
+                if hasattr(handle, "_legmarker"):
+                    legline_marker = legline._legmarker
+                    legline_marker.set_data(xdata_marker, ydata[:len(xdata_marker)])
 
             elif isinstance(handle, Patch):
                 p = handle
@@ -765,7 +768,7 @@ fontsize. Values from rcParams will be used if None.
                       C:"C"}
 
         c = anchor_coefs[loc]
-        
+
         fontsize = renderer.points_to_pixels(self.fontsize)
         container = parentbbox.padded(-(self.borderaxespad) * fontsize)
         anchored_box = bbox.anchored(c, container=container)
