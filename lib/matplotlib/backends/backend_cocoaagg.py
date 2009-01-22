@@ -29,7 +29,7 @@ from PyObjCTools import NibClassBuilder, AppHelper
 
 import matplotlib
 from matplotlib.figure import Figure
-from matplotlib.backend_bases import FigureManagerBase
+from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
 from backend_agg import FigureCanvasAgg
 from matplotlib._pylab_helpers import Gcf
 
