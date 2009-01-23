@@ -76,7 +76,7 @@ are going to need to understand what a matplotlib backend is
 With the TkAgg backend, that uses the Tkinter user interface toolkit,
 you can use matplotlib from an arbitrary python shell.  Just set your
 ``backend : TkAgg`` and ``interactive : True`` in your
-:file:matplotlibrc file (see :ref:`customizing-matplotlib`) and fire
+:file:`matplotlibrc` file (see :ref:`customizing-matplotlib`) and fire
 up python.  Then::
 
   >>> from pylab import *
