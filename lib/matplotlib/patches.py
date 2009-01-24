@@ -298,7 +298,8 @@ class Patch(artist.Artist):
         tpath = transform.transform_path_non_affine(path)
         affine = transform.get_affine()
 
-        renderer.draw_path(gc, tpath, affine, rgbFace)
+        if not np.isnan(tpath.vertices).any():
+            renderer.draw_path(gc, tpath, affine, rgbFace)
 
         #renderer.close_group('patch')
 
