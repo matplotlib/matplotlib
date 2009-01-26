@@ -213,7 +213,8 @@ class Path(object):
                     if not isfinite(curr_vertices).all():
                         was_nan = True
                     elif was_nan:
-                        yield curr_vertices[-2:], MOVETO
+                        yield curr_vertices[:2], MOVETO
+                        yield curr_vertices, code
                         was_nan = False
                     else:
                         yield curr_vertices, code
