@@ -15,7 +15,10 @@ class PathIterator
     PyArrayObject* m_codes;
     size_t m_iterator;
     size_t m_total_vertices;
+    size_t m_ok;
     bool m_should_simplify;
+    static const unsigned char num_extra_points_map[16];
+    static const unsigned code_map[];
 
 public:
     PathIterator(const Py::Object& path_obj) :
@@ -41,6 +44,7 @@ public:
                 throw Py::ValueError("Invalid codes array.");
             if (PyArray_DIM(m_codes, 0) != PyArray_DIM(m_vertices, 0))
                 throw Py::ValueError("Codes array is wrong length");
+            m_ok = 0;
         }
 
         m_should_simplify = should_simplify_obj.isTrue();
@@ -52,8 +56,6 @@ public:
         Py_XDECREF(m_vertices);
         Py_XDECREF(m_codes);
     }
-
-    static const unsigned code_map[];
 
 private:
     inline void vertex(const unsigned idx, double* x, double* y)
@@ -82,20 +84,86 @@ public:
         if (m_iterator >= m_total_vertices) return agg::path_cmd_stop;
         unsigned code = vertex_with_code(m_iterator++, x, y);
 
-        if (MPL_notisfinite64(*x) || MPL_notisfinite64(*y))
-        {
-            do
+        if (!m_codes) {
+            // This is the fast path for when we know we have no curves
+            if (MPL_notisfinite64(*x) || MPL_notisfinite64(*y))
             {
-                if (m_iterator < m_total_vertices)
+                do
                 {
-                    vertex(m_iterator++, x, y);
-                }
-                else
+                    if (m_iterator < m_total_vertices)
+                    {
+                        vertex(m_iterator++, x, y);
+                    }
+                    else
+                    {
+                        return agg::path_cmd_stop;
+                    }
+                } while (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
+                return agg::path_cmd_move_to;
+            }
+        }
+        else
+        {
+            // This is the slow method for when there might be curves.
+
+            /* If m_ok is 0, we look ahead to see if the next curve
+               segment has any NaNs.  If it does, we skip the whole
+               thing and return a move_to to the first point of the
+               next curve segment.  This move_to may include NaNs,
+               which is ok, since in that case, it will always be
+               followed by another non-NaN move_to before any other
+               curves are actually drawn.  If the current curve
+               segment doesn't have NaNs, we set the m_ok counter to
+               the number of points in the curve segment, which will
+               skip this check for the next N points.
+            */
+            if (m_ok == 0) {
+                if (code == agg::path_cmd_stop ||
+                    code == (agg::path_cmd_end_poly | agg::path_flags_close))
                 {
-                    return agg::path_cmd_stop;
+                    return code;
                 }
-            } while (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
-            return agg::path_cmd_move_to;
+
+                size_t num_extra_points = num_extra_points_map[code & 0xF];
+                bool has_nan = (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
+                for (size_t i = 0; !has_nan && i < num_extra_points; ++i)
+                {
+                    double x0, y0;
+                    vertex(m_iterator + i, &x0, &y0);
+                    has_nan = (MPL_notisfinite64(x0) || MPL_notisfinite64(y0));
+                }
+
+                if (has_nan)
+                {
+                    m_iterator += num_extra_points;
+                    if (m_iterator < m_total_vertices)
+                    {
+                        code = vertex_with_code(m_iterator, x, y);
+                        if (code == agg::path_cmd_stop ||
+                            code == (agg::path_cmd_end_poly | agg::path_flags_close))
+                        {
+                            return code;
+                        }
+                        else
+                        {
+                            return agg::path_cmd_move_to;
+                        }
+                    }
+                    else
+                    {
+                        return agg::path_cmd_stop;
+                    }
+                }
+                else /* !has_nan */
+                {
+                    m_ok = num_extra_points;
+                    return code;
+                }
+            }
+            else /* m_ok != 0 */
+            {
+                m_ok--;
+            }
         }
 
         return code;
@@ -126,6 +194,12 @@ const unsigned PathIterator::code_map[] =
      agg::path_cmd_curve4,
      agg::path_cmd_end_poly | agg::path_flags_close
     };
+
+const unsigned char PathIterator::num_extra_points_map[] =
+    {0, 0, 0, 1,
+     2, 0, 0, 0,
+     0, 0, 0, 0,
+     0, 0, 0, 0};
 
 #define DEBUG_SIMPLIFY 0
 
