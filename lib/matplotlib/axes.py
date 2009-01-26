@@ -7377,6 +7377,40 @@ class Axes(martist.Artist):
                                                  integer=True))
         return im
 
+
+    def get_tightbbox(self, renderer):
+        """
+        return the tight bounding box of the axes.
+        The dimension of the Bbox in canvas coordinate.
+        """
+        
+        artists = []
+        bb = []
+
+        artists.append(self)
+
+        if self.title.get_visible():
+            artists.append(self.title)
+
+        if self.xaxis.get_visible():
+            artists.append(self.xaxis.label)
+            bbx1, bbx2 = self.xaxis.get_ticklabel_extents(renderer)
+            bb.extend([bbx1, bbx2])
+        if self.yaxis.get_visible():
+            artists.append(self.yaxis.label)
+            bby1, bby2 = self.yaxis.get_ticklabel_extents(renderer)
+            bb.extend([bby1, bby2])
+
+
+        bb.extend([c.get_window_extent(renderer) for c in artists])
+
+        _bbox = mtransforms.Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
+
+        return _bbox
+
+
+
+
 class SubplotBase:
     """
     Base class for subplots, which are :class:`Axes` instances with
@@ -7513,6 +7547,8 @@ class SubplotBase:
 
         for label in self.get_yticklabels():
             label.set_visible(firstcol)
+
+
 
 _subplot_classes = {}
 def subplot_class_factory(axes_class=None):

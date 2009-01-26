@@ -1111,22 +1111,10 @@ class Figure(Artist):
         ticklabels. Needs improvement.
         """
 
-        artists = []
         bb = []
         for ax in self.axes:
-
-            artists.append(ax.xaxis.label)
-            artists.append(ax.yaxis.label)
-            artists.append(ax.title)
-            artists.append(ax)
-
-            bbx1, bbx2 = ax.xaxis.get_ticklabel_extents(renderer)
-            bby1, bby2 = ax.yaxis.get_ticklabel_extents(renderer)
-            bb.extend([bbx1, bbx2, bby1, bby2])
-
-
-        bb.extend([c.get_window_extent(renderer) for c in artists \
-                   if c.get_visible()])
+            if ax.get_visible():
+                bb.append(ax.get_tightbbox(renderer))
 
         _bbox = Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
 
