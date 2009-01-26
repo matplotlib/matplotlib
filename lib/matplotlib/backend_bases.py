@@ -1479,7 +1479,25 @@ class FigureCanvasBase:
         origBboxInches = fig.bbox_inches
         _boxout = fig.transFigure._boxout
 
+        asp_list = []
+        locator_list = []
+        for ax in fig.axes:
+            pos = ax.get_position(original=False).frozen()
+            locator_list.append(ax.get_axes_locator())
+            asp_list.append(ax.get_aspect())
+
+            def _l(a, r, pos=pos): return pos
+            ax.set_axes_locator(_l)
+            ax.set_aspect("auto")
+
+
+
         def restore_bbox():
+
+            for ax, asp, loc in zip(fig.axes, asp_list, locator_list):
+                ax.set_aspect(asp)
+                ax.set_axes_locator(loc)
+
             fig.bbox = origBbox
             fig.bbox_inches = origBboxInches
             fig.transFigure._boxout = _boxout
