@@ -349,10 +349,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             if self._need_redraw:
                 x, y, w, h = self.allocation
                 self._pixmap_prepare (w, h)
-                try:
-                    self._render_figure(self._pixmap, w, h)
-                except:
-                    pass
+                self._render_figure(self._pixmap, w, h)
                 self._need_redraw = False
 
             x, y, w, h = event.area
