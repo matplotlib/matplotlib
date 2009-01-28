@@ -302,7 +302,7 @@ def is_numlike(obj):
     except TypeError: return False
     else: return True
 
-def to_filehandle(fname, flag='r', return_opened=False):
+def to_filehandle(fname, flag='rU', return_opened=False):
     """
     *fname* can be a filename or a file handle.  Support for gzipped
     files is automatic, if the filename ends in .gz.  *flag* is a
