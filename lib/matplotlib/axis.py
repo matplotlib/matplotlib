@@ -939,7 +939,7 @@ class Axis(artist.Artist):
         converter = munits.registry.get_converter(data)
         if converter is None: return False
         self.converter = converter
-        default = self.converter.default_units(data)
+        default = self.converter.default_units(self, data)
         #print 'update units: default="%s", units=%s"'%(default, self.units)
         if default is not None and self.units is None:
             self.set_units(default)
@@ -955,7 +955,7 @@ class Axis(artist.Artist):
         if self.converter is None:
             return
 
-        info = self.converter.axisinfo(self.units)
+        info = self.converter.axisinfo(self, self.units)
         if info is None:
             return
         if info.majloc is not None and self.major.locator!=info.majloc:
@@ -982,7 +982,7 @@ class Axis(artist.Artist):
             #print 'convert_units returning identity: units=%s, converter=%s'%(self.units, self.converter)
             return x
 
-        ret =  self.converter.convert(x, self.units)
+        ret =  self.converter.convert(self, x, self.units)
         #print 'convert_units converting: axis=%s, units=%s, converter=%s, in=%s, out=%s'%(self, self.units, self.converter, x, ret)
         return ret
 

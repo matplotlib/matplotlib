@@ -69,20 +69,20 @@ class ConversionInterface:
     sequences) and convert them to values mpl can use
     """
     @staticmethod
-    def axisinfo(unit):
-        'return an units.AxisInfo instance for unit'
+    def axisinfo(axis, unit):
+        'return an units.AxisInfo instance for axis with the specified units'
         return None
 
     @staticmethod
-    def default_units(x):
-        'return the default unit for x or None'
+    def default_units(axis, x):
+        'return the default unit for x or None for the given axis'
         return None
 
     @staticmethod
-    def convert(obj, unit):
+    def convert(axis, obj, unit):
         """
-        convert obj using unit.  If obj is a sequence, return the
-        converted sequence.  The ouput must be a sequence of scalars
+        convert obj using unit for the specified axis.  If obj is a sequence,
+        return the converted sequence.  The ouput must be a sequence of scalars
         that can be used by the numpy array layer
         """
         return obj

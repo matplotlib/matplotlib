@@ -1004,29 +1004,56 @@ def weeks(w):
 
 
 class DateConverter(units.ConversionInterface):
+    """The units are equivalent to the timezone."""
 
     @staticmethod
-    def axisinfo(unit):
+    def axisinfo(axis, unit):
         'return the unit AxisInfo'
-        if unit=='date':
-            majloc = AutoDateLocator()
-            majfmt = AutoDateFormatter(majloc)
-            return units.AxisInfo(
-                majloc = majloc,
-                majfmt = majfmt,
-                label='',
-                )
-        else: return None
+        # make sure that the axis does not start at 0
+        ax = axis.axes
+
+        if axis is ax.get_xaxis():
+            xmin, xmax = ax.dataLim.intervalx
+            if xmin==0.:
+                # no data has been added - let's set the default datalim.
+                # We should probably use a better proxy for the datalim
+                # have been updated than the ignore setting
+                dmax = today = datetime.date.today()
+                dmin = today-datetime.timedelta(days=10)
+
+                ax._process_unit_info(xdata=(dmin, dmax))
+                dmin, dmax = ax.convert_xunits([dmin, dmax])
+
+                ax.viewLim.intervalx = dmin, dmax
+                ax.dataLim.intervalx = dmin, dmax
+        elif axis is ax.get_yaxis():
+            ymin, ymax = ax.dataLim.intervaly
+            if ymin==0.:
+                # no data has been added - let's set the default datalim.
+                # We should probably use a better proxy for the datalim
+                # have been updated than the ignore setting
+                dmax = today = datetime.date.today()
+                dmin = today-datetime.timedelta(days=10)
+
+                ax._process_unit_info(ydata=(dmin, dmax))
+                dmin, dmax = ax.convert_yunits([dmin, dmax])
+
+                ax.viewLim.intervaly = dmin, dmax
+                ax.dataLim.intervaly = dmin, dmax
+
+        majloc = AutoDateLocator(tz=unit)
+        majfmt = AutoDateFormatter(majloc, tz=unit)
+        return units.AxisInfo( majloc=majloc, majfmt=majfmt, label='' )
 
     @staticmethod
-    def convert(value, unit):
+    def convert(axis, value, unit):
         if units.ConversionInterface.is_numlike(value): return value
         return date2num(value)
 
     @staticmethod
-    def default_units(x):
+    def default_units(axis, x):
         'Return the default unit for *x* or None'
-        return 'date'
+        return None
 
 
 units.registry[datetime.date] = DateConverter()
