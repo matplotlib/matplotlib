@@ -182,10 +182,18 @@ class PolarAxes(Axes):
     def __init__(self, *args, **kwargs):
         """
         Create a new Polar Axes for a polar plot.
+
+        The following optional kwargs are supported:
+
+          - *resolution*: The number of points of interpolation between
+            each pair of data points.  Set to 1 to disable
+            interpolation.
         """
 
         self._rpad = 0.05
-        self.resolution = kwargs.pop('resolution', self.RESOLUTION)
+        self.resolution = kwargs.pop('resolution', None)
+        if self.resolution is None:
+            self.resolution = self.RESOLUTION
         Axes.__init__(self, *args, **kwargs)
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
