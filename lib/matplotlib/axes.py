@@ -862,7 +862,8 @@ class Axes(martist.Artist):
         else:
             self.yaxis.set_scale('linear')
 
-        self._autoscaleon = True
+        self._autoscaleXon = True
+        self._autoscaleYon = True
         self._update_transScale()         # needed?
 
         self._get_lines = _process_plot_var_args(self)
@@ -1489,9 +1490,21 @@ class Axes(martist.Artist):
 
     def get_autoscale_on(self):
         """
-        Get whether autoscaling is applied on plot commands
+        Get whether autoscaling is applied for both axes on plot commands
         """
-        return self._autoscaleon
+        return self._autoscaleXon and self._autoscaleYon
+
+    def get_autoscalex_on(self):
+        """
+        Get whether autoscaling for the x-axis is applied on plot commands
+        """
+        return self._autoscaleXon
+
+    def get_autoscaley_on(self):
+        """
+        Get whether autoscaling for the y-axis is applied on plot commands
+        """
+        return self._autoscaleYon
 
     def set_autoscale_on(self, b):
         """
@@ -1499,7 +1512,24 @@ class Axes(martist.Artist):
 
         accepts: [ *True* | *False* ]
         """
-        self._autoscaleon = b
+        self._autoscaleXon = b
+        self._autoscaleYon = b
+
+    def set_autoscalex_on(self, b):
+        """
+        Set whether autoscaling for the x-axis is applied on plot commands
+
+        accepts: [ *True* | *False* ]
+        """
+        self._autoscaleXon = b
+
+    def set_autoscaley_on(self, b):
+        """
+        Set whether autoscaling for the y-axis is applied on plot commands
+
+        accepts: [ *True* | *False* ]
+        """
+        self._autoscaleYon = b
 
     def autoscale_view(self, tight=False, scalex=True, scaley=True):
         """
@@ -1509,13 +1539,12 @@ class Axes(martist.Artist):
         axis direction reversal that has already been done.
         """
         # if image data only just use the datalim
-        if not self._autoscaleon: return
-        if scalex:
+        if scalex and self._autoscaleXon:
             xshared = self._shared_x_axes.get_siblings(self)
             dl = [ax.dataLim for ax in xshared]
             bb = mtransforms.BboxBase.union(dl)
             x0, x1 = bb.intervalx
-        if scaley:
+        if scaley and self._autoscaleYon:
             yshared = self._shared_y_axes.get_siblings(self)
             dl = [ax.dataLim for ax in yshared]
             bb = mtransforms.BboxBase.union(dl)
@@ -1523,16 +1552,16 @@ class Axes(martist.Artist):
         if (tight or (len(self.images)>0 and
                       len(self.lines)==0 and
                       len(self.patches)==0)):
-            if scalex:
+            if scalex and self._autoscaleXon:
                 self.set_xbound(x0, x1)
-            if scaley:
+            if scaley and self._autoscaleYon:
                 self.set_ybound(y0, y1)
             return
 
-        if scalex:
+        if scalex and self._autoscaleXon:
             XL = self.xaxis.get_major_locator().view_limits(x0, x1)
             self.set_xbound(XL)
-        if scaley:
+        if scaley and self._autoscaleYon:
             YL = self.yaxis.get_major_locator().view_limits(y0, y1)
             self.set_ybound(YL)
 
@@ -5953,8 +5982,9 @@ class Axes(martist.Artist):
 
         corners = (xmin, ymin), (xmax, ymax)
         self.update_datalim(corners)
-        if self._autoscaleon:
+        if self._autoscaleXon:
             self.set_xlim((xmin, xmax))
+        if self._autoscaleYon:
             self.set_ylim((ymin, ymax))
         self.images.append(im)
 
