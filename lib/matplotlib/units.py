@@ -69,17 +69,17 @@ class ConversionInterface:
     sequences) and convert them to values mpl can use
     """
     @staticmethod
-    def axisinfo(axis, unit):
+    def axisinfo(unit, axis):
         'return an units.AxisInfo instance for axis with the specified units'
         return None
 
     @staticmethod
-    def default_units(axis, x):
+    def default_units(x, axis):
         'return the default unit for x or None for the given axis'
         return None
 
     @staticmethod
-    def convert(axis, obj, unit):
+    def convert(obj, unit, axis):
         """
         convert obj using unit for the specified axis.  If obj is a sequence,
         return the converted sequence.  The ouput must be a sequence of scalars
