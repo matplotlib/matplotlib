@@ -98,6 +98,9 @@ class TaggedValue (object):
               '__sub__':ConvertAllProxy,
               '__mul__':ConvertAllProxy,
               '__rmul__':ConvertAllProxy,
+              '__cmp__':ConvertAllProxy,
+              '__lt__':ConvertAllProxy,
+              '__gt__':ConvertAllProxy,
               '__len__':PassThroughProxy}
 
   def __new__(cls, value, unit):
@@ -228,7 +231,7 @@ class BasicUnit(object):
     return self.conversions[unit]
 
   def convert_value_to(self, value, unit):
-      #print 'convert value to: value ="%s", unit="%s"'%(value, type(unit)), self.conversions
+      #print 'convert value to: value ="%s", unit="%s"'%(value, type(unit)), self.conversions  
       conversion_fn = self.conversions[unit]
       ret = conversion_fn(value)
       return ret
