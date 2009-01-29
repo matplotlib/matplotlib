@@ -479,7 +479,8 @@ defaultParams = {
     'svg.embed_char_paths' : [True, validate_bool],  # True to save all characters as paths in the SVG
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
-    'path.simplify' : [True, validate_bool]
+    'path.simplify' : [True, validate_bool],
+    'path.simplify_threshold' : [1.0 / 9.0, ValidateInterval(0.0, 1.0)]
 }
 
 if __name__ == '__main__':

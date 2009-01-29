@@ -1,5 +1,6 @@
 #include "agg_py_path_iterator.h"
 #include "agg_py_transforms.h"
+#include "path_converters.h"
 
 #include <limits>
 #include <math.h>
@@ -53,6 +54,8 @@ public:
                            "path_intersects_path(p1, p2)");
         add_varargs_method("convert_path_to_polygons", &_path_module::convert_path_to_polygons,
                            "convert_path_to_polygons(path, trans, width, height)");
+        add_varargs_method("cleanup_path", &_path_module::cleanup_path,
+                           "cleanup_path(path, trans, remove_nans, clip, quantize, simplify, curves)");
 
         initialize("Helper functions for paths");
     }
@@ -72,6 +75,7 @@ private:
     Py::Object count_bboxes_overlapping_bbox(const Py::Tuple& args);
     Py::Object path_intersects_path(const Py::Tuple& args);
     Py::Object convert_path_to_polygons(const Py::Tuple& args);
+    Py::Object cleanup_path(const Py::Tuple& args);
 };
 
 //
@@ -1105,16 +1109,20 @@ Py::Object _path_module::path_intersects_path(const Py::Tuple& args)
     PathIterator p1(args[0]);
     PathIterator p2(args[1]);
     bool filled = false;
-    if (args.size() == 3) {
-      filled = args[2].isTrue();
+    if (args.size() == 3)
+    {
+        filled = args[2].isTrue();
     }
 
-    if (!filled) {
-      return Py::Int(::path_intersects_path(p1, p2));
-    } else {
-      return Py::Int(::path_intersects_path(p1, p2)
-        || ::path_in_path(p1, agg::trans_affine(), p2, agg::trans_affine())
-        || ::path_in_path(p2, agg::trans_affine(), p1, agg::trans_affine()));
+    if (!filled)
+    {
+        return Py::Int(::path_intersects_path(p1, p2));
+    }
+    else
+    {
+        return Py::Int(::path_intersects_path(p1, p2)
+                       || ::path_in_path(p1, agg::trans_affine(), p2, agg::trans_affine())
+                       || ::path_in_path(p2, agg::trans_affine(), p1, agg::trans_affine()));
     }
 }
 
@@ -1134,9 +1142,11 @@ void _add_polygon(Py::List& polygons, const std::vector<double>& polygon) {
 
 Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
 {
-    typedef agg::conv_transform<PathIterator> transformed_path_t;
-    typedef SimplifyPath<transformed_path_t> simplify_t;
-    typedef agg::conv_curve<simplify_t> curve_t;
+    typedef agg::conv_transform<PathIterator>  transformed_path_t;
+    typedef PathNanRemover<transformed_path_t> nan_removal_t;
+    typedef PathClipper<nan_removal_t>         clipped_t;
+    typedef PathSimplifier<clipped_t>          simplify_t;
+    typedef agg::conv_curve<simplify_t>        curve_t;
 
     typedef std::vector<double> vertices_t;
 
@@ -1147,11 +1157,15 @@ Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
     double width = Py::Float(args[2]);
     double height = Py::Float(args[3]);
 
-    bool simplify = path.should_simplify() && width != 0.0 && height != 0.0;
+    bool do_clip = width != 0.0 && height != 0.0;
+
+    bool simplify = path.should_simplify();
 
     transformed_path_t tpath(path, trans);
-    simplify_t simplified(tpath, false, simplify, width, height);
-    curve_t curve(simplified);
+    nan_removal_t      nan_removed(tpath, true, path.has_curves());
+    clipped_t          clipped(nan_removed, do_clip, width, height);
+    simplify_t         simplified(clipped, simplify, path.simplify_threshold());
+    curve_t            curve(simplified);
 
     Py::List polygons;
     vertices_t polygon;
@@ -1162,7 +1176,8 @@ Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
 
     while ((code = curve.vertex(&x, &y)) != agg::path_cmd_stop)
     {
-	if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
+	if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
+        {
 	    if (polygon.size() >= 2)
 	    {
 		polygon.push_back(polygon[0]);
@@ -1170,8 +1185,11 @@ Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
 		_add_polygon(polygons, polygon);
 	    }
 	    polygon.clear();
-	} else {
-	    if (code == agg::path_cmd_move_to) {
+	}
+        else
+        {
+	    if (code == agg::path_cmd_move_to)
+            {
 		_add_polygon(polygons, polygon);
 		polygon.clear();
 	    }
@@ -1183,6 +1201,152 @@ Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
     _add_polygon(polygons, polygon);
 
     return polygons;
+}
+
+template<class VertexSource>
+void __cleanup_path(VertexSource& source,
+                    std::vector<double>& vertices,
+                    std::vector<uint8_t>& codes) {
+    unsigned code;
+    double x, y;
+    do
+    {
+        code = source.vertex(&x, &y);
+        vertices.push_back(x);
+        vertices.push_back(y);
+        codes.push_back((uint8_t)code);
+    } while (code != agg::path_cmd_stop);
+}
+
+void _cleanup_path(PathIterator& path, const agg::trans_affine& trans,
+                   bool remove_nans, bool do_clip,
+                   const agg::rect_base<double>& rect,
+                   e_quantize_mode quantize_mode, bool do_simplify,
+                   bool return_curves, std::vector<double>& vertices,
+                   std::vector<uint8_t>& codes) {
+    typedef agg::conv_transform<PathIterator>  transformed_path_t;
+    typedef PathNanRemover<transformed_path_t> nan_removal_t;
+    typedef PathClipper<nan_removal_t>         clipped_t;
+    typedef PathQuantizer<clipped_t>           quantized_t;
+    typedef PathSimplifier<quantized_t>        simplify_t;
+    typedef agg::conv_curve<simplify_t>        curve_t;
+
+    transformed_path_t tpath(path, trans);
+    nan_removal_t      nan_removed(tpath, remove_nans, path.has_curves());
+    clipped_t          clipped(nan_removed, do_clip, rect);
+    quantized_t        quantized(clipped, quantize_mode, path.total_vertices());
+    simplify_t         simplified(quantized, do_simplify, path.simplify_threshold());
+
+    vertices.reserve(path.total_vertices() * 2);
+    codes.reserve(path.total_vertices());
+
+    if (return_curves)
+    {
+        __cleanup_path(simplified, vertices, codes);
+    }
+    else
+    {
+        curve_t curve(simplified);
+        __cleanup_path(curve, vertices, codes);
+    }
+}
+
+Py::Object _path_module::cleanup_path(const Py::Tuple& args)
+{
+    args.verify_length(7);
+
+    PathIterator path(args[0]);
+    agg::trans_affine trans = py_to_agg_transformation_matrix(args[1], false);
+    bool remove_nans = args[2].isTrue();
+
+    Py::Object clip_obj = args[3];
+    bool do_clip;
+    agg::rect_base<double> clip_rect;
+    if (clip_obj.isNone())
+    {
+        do_clip = false;
+    }
+    else
+    {
+        double x1, y1, x2, y2;
+        Py::Tuple clip_tuple(clip_obj);
+        x1 = Py::Float(clip_tuple[0]);
+        y1 = Py::Float(clip_tuple[1]);
+        x2 = Py::Float(clip_tuple[2]);
+        y2 = Py::Float(clip_tuple[3]);
+        clip_rect.init(x1, y1, x2, y2);
+        do_clip = true;
+    }
+
+    Py::Object quantize_obj = args[4];
+    e_quantize_mode quantize_mode;
+    if (quantize_obj.isNone())
+    {
+        quantize_mode = QUANTIZE_AUTO;
+    }
+    else if (quantize_obj.isTrue())
+    {
+        quantize_mode = QUANTIZE_TRUE;
+    }
+    else
+    {
+        quantize_mode = QUANTIZE_FALSE;
+    }
+
+    bool simplify;
+    Py::Object simplify_obj = args[5];
+    if (simplify_obj.isNone())
+    {
+        simplify = path.should_simplify();
+    }
+    else
+    {
+        simplify = simplify_obj.isTrue();
+    }
+
+    bool return_curves = args[6].isTrue();
+
+    std::vector<double> vertices;
+    std::vector<uint8_t> codes;
+
+    _cleanup_path(path, trans, remove_nans, do_clip, clip_rect, quantize_mode,
+                  simplify, return_curves, vertices, codes);
+
+    npy_intp length = codes.size();
+    npy_intp dims[] = { length, 2, 0 };
+
+    PyArrayObject* vertices_obj = NULL;
+    PyArrayObject* codes_obj = NULL;
+    Py::Tuple result(2);
+    try {
+        vertices_obj = (PyArrayObject*)PyArray_SimpleNew
+            (2, dims, PyArray_DOUBLE);
+        if (vertices_obj == NULL)
+        {
+            throw Py::MemoryError("Could not allocate result array");
+        }
+
+        codes_obj = (PyArrayObject*)PyArray_SimpleNew
+            (1, dims, PyArray_UINT8);
+        if (codes_obj == NULL)
+        {
+            throw Py::MemoryError("Could not allocate result array");
+        }
+
+        memcpy(PyArray_DATA(vertices_obj), &vertices[0], sizeof(double) * 2 * length);
+        memcpy(PyArray_DATA(codes_obj), &codes[0], sizeof(uint8_t) * length);
+
+        result[0] = Py::Object((PyObject*)vertices_obj, true);
+        result[1] = Py::Object((PyObject*)codes_obj, true);
+    }
+    catch (...)
+    {
+        Py_XDECREF(vertices_obj);
+        Py_XDECREF(codes_obj);
+        throw;
+    }
+
+    return result;
 }
 
 extern "C"

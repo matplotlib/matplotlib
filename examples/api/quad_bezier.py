@@ -3,10 +3,13 @@ import matplotlib.path as mpath
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 
+Path = mpath.Path
+
 fig = plt.figure()
 ax = fig.add_subplot(111)
 pp1 = mpatches.PathPatch(
-    mpath.Path([(0, 0), (1, 0), (1, 1), (0, 0)], [1, 3, 3, 5]),
+    Path([(0, 0), (1, 0), (1, 1), (0, 0)],
+         [Path.MOVETO, Path.CURVE3, Path.CURVE3, Path.CLOSEPOLY]),
     fc="none", transform=ax.transData)
 
 ax.add_patch(pp1)

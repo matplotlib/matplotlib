@@ -1,4 +1,4 @@
-#include <Cocoa/Cocoa.h> 
+#include <Cocoa/Cocoa.h>
 #include <ApplicationServices/ApplicationServices.h>
 #include <sys/socket.h>
 #include <Python.h>
@@ -23,7 +23,7 @@ static ATSUTextLayout layout = NULL;
  * [ a  b  0]
  * [ c  d  0]
  * [ tx ty 1]
- */ 
+ */
 typedef struct
 {
     double a;
@@ -47,7 +47,7 @@ typedef struct
 #define LINETO    2
 #define CURVE3    3
 #define CURVE4    4
-#define CLOSEPOLY 5
+#define CLOSEPOLY 0x4f
 
 /* Hatching */
 #define HATCH_SIZE 72
@@ -132,7 +132,7 @@ static int wait_for_stdin(void)
 
             sigint_socket = CFSocketCreateWithNative(kCFAllocatorDefault,
                                                      channel[0],
-                                                     kCFSocketReadCallBack, 
+                                                     kCFSocketReadCallBack,
                                                      _callback,
                                                      NULL);
             if (sigint_socket)
@@ -470,8 +470,8 @@ static void _draw_hatch (void *info, CGContextRef cr)
     }
     else
     {
-        CGContextSetLineWidth(cr, 1.0); 
-        CGContextSetLineCap(cr, kCGLineCapSquare); 
+        CGContextSetLineWidth(cr, 1.0);
+        CGContextSetLineCap(cr, kCGLineCapSquare);
         CGContextDrawPath(cr, kCGPathFillStroke);
     }
 }
@@ -608,7 +608,7 @@ GraphicsContext_reset (GraphicsContext* self)
 
 static PyObject*
 GraphicsContext_set_alpha (GraphicsContext* self, PyObject* args)
-{   
+{
     float alpha;
     if (!PyArg_ParseTuple(args, "f", &alpha)) return NULL;
     CGContextRef cr = self->cr;
@@ -624,8 +624,8 @@ GraphicsContext_set_alpha (GraphicsContext* self, PyObject* args)
 
 static PyObject*
 GraphicsContext_set_antialiased (GraphicsContext* self, PyObject* args)
-{   
-    int shouldAntialias; 
+{
+    int shouldAntialias;
     if (!PyArg_ParseTuple(args, "i", &shouldAntialias)) return NULL;
     CGContextRef cr = self->cr;
     if (!cr)
@@ -640,7 +640,7 @@ GraphicsContext_set_antialiased (GraphicsContext* self, PyObject* args)
 
 static PyObject*
 GraphicsContext_set_capstyle (GraphicsContext* self, PyObject* args)
-{   
+{
     char* string;
     CGLineCap cap;
 
@@ -662,7 +662,7 @@ GraphicsContext_set_capstyle (GraphicsContext* self, PyObject* args)
         return NULL;
     }
     CGContextSetLineCap(cr, cap);
-   
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -964,7 +964,7 @@ _set_dashes(CGContextRef cr, PyObject* offset, PyObject* dashes)
 
 static PyObject*
 GraphicsContext_set_dashes (GraphicsContext* self, PyObject* args)
-{   
+{
     PyObject* offset;
     PyObject* dashes;
 
@@ -1026,7 +1026,7 @@ GraphicsContext_set_graylevel(GraphicsContext* self, PyObject* args)
 
 static PyObject*
 GraphicsContext_set_linewidth (GraphicsContext* self, PyObject* args)
-{   
+{
     float width;
     if (!PyArg_ParseTuple(args, "f", &width)) return NULL;
 
@@ -1067,7 +1067,7 @@ GraphicsContext_set_joinstyle(GraphicsContext* self, PyObject* args)
         return NULL;
     }
     CGContextSetLineJoin(cr, join);
-   
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1128,7 +1128,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
     PyObject* rgbFace;
 
     int ok;
- 
+
     CGContextRef cr = self->cr;
 
     if (!cr)
@@ -1150,7 +1150,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
 
     int n = _draw_path(cr, path, affine);
     if (n==-1) return NULL;
-    
+
     if (n > 0)
     {
         PyObject* hatchpath;
@@ -1235,7 +1235,7 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
     int ok;
     float r, g, b;
     double x, y;
- 
+
     CGContextRef cr = self->cr;
 
     if (!cr)
@@ -1322,7 +1322,7 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
 }
 
 static BOOL _clip(CGContextRef cr, PyObject* object)
-{   
+{
     if (object == Py_None) return true;
 
     PyArrayObject* array = NULL;
@@ -1362,8 +1362,8 @@ static BOOL _clip(CGContextRef cr, PyObject* object)
 static PyObject*
 GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
 {
-    PyObject* master_transform_obj;     
-    PyObject* cliprect;            
+    PyObject* master_transform_obj;
+    PyObject* cliprect;
     PyObject* clippath;
     PyObject* clippath_transform;
     PyObject* paths;
@@ -1538,10 +1538,10 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
     if (Nlinewidths==1)
     {
         double linewidth = PyFloat_AsDouble(PySequence_ITEM(linewidths, 0));
-        CGContextSetLineWidth(cr, (CGFloat)linewidth); 
+        CGContextSetLineWidth(cr, (CGFloat)linewidth);
     }
     else if (Nlinewidths==0)
-        CGContextSetLineWidth(cr, 0.0); 
+        CGContextSetLineWidth(cr, 0.0);
 
     if (Nlinestyles==1)
     {
@@ -1613,7 +1613,7 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         if (Nlinewidths > 1)
         {
             double linewidth = PyFloat_AsDouble(PySequence_ITEM(linewidths, i % Nlinewidths));
-            CGContextSetLineWidth(cr, (CGFloat)linewidth); 
+            CGContextSetLineWidth(cr, (CGFloat)linewidth);
         }
 
         if (Nlinestyles > 1)
@@ -2057,15 +2057,15 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
       {"Chicago",                            /* 22 */
        "",
        "",
-       ""}, 
+       ""},
       {"Charcoal",                           /* 23 */
        "",
        "",
-       ""}, 
+       ""},
       {"Impact",                             /* 24 */
        "",
        "",
-       ""}, 
+       ""},
       {"Playbill",                           /* 25 */
        "",
        "",
@@ -2073,7 +2073,7 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
       {"AndaleMono",                         /* 26 */
        "",
        "",
-       ""}, 
+       ""},
       {"BitstreamVeraSansMono-Roman",        /* 27 */
        "BitstreamVeraSansMono-Bold",
        "BitstreamVeraSansMono-Oblique",
@@ -2091,7 +2091,7 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
        "CourierNewPS-ItalicMT",
        "CourierNewPS-Bold-ItalicMT"},
     };
-    
+
     if(!PyList_Check(family)) return 0;
     n = PyList_GET_SIZE(family);
 
@@ -2106,7 +2106,7 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
                   break;
              }
         }
-        /* If the font name is not found in mapping, we assume */ 
+        /* If the font name is not found in mapping, we assume */
         /* that the user specified the Postscript name directly */
 
         /* Check if this font can be found on the system */
@@ -2135,7 +2135,7 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
 
 static PyObject*
 GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
-{   
+{
     float x;
     float y;
     const UniChar* text;
@@ -2335,7 +2335,7 @@ GraphicsContext_draw_mathtext(GraphicsContext* self, PyObject* args)
 
 static PyObject*
 GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* args)
-{   
+{
     const UniChar* text;
     int n;
     PyObject* family;
@@ -2449,7 +2449,7 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
 
     if(!PyArg_ParseTuple(args, "ffiiOOOO", &x,
                                            &y,
-                                           &nrows, 
+                                           &nrows,
                                            &ncols,
                                            &image,
                                            &cliprect,
@@ -2661,7 +2661,7 @@ static PyTypeObject GraphicsContextType = {
     0,                         /* tp_weaklistoffset */
     0,                         /* tp_iter */
     0,                         /* tp_iternext */
-    GraphicsContext_methods,   /* tp_methods */ 
+    GraphicsContext_methods,   /* tp_methods */
     0,                         /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */
@@ -2695,7 +2695,7 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
     int height;
     if(!self->view)
     {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL"); 
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return -1;
     }
 
@@ -2736,7 +2736,7 @@ FigureCanvas_invalidate(FigureCanvas* self)
     View* view = self->view;
     if(!view)
     {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL"); 
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
     }
     [view setNeedsDisplay: YES];
@@ -2752,7 +2752,7 @@ FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
     NSRect rubberband;
     if(!view)
     {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL"); 
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
     }
     if(!PyArg_ParseTuple(args, "iiii", &x0, &y0, &x1, &y1)) return NULL;
@@ -2787,7 +2787,7 @@ FigureCanvas_remove_rubberband(FigureCanvas* self)
     View* view = self->view;
     if(!view)
     {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL"); 
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
     }
     [view removeRubberband];
@@ -2845,7 +2845,7 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
 
     if(!view)
     {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL"); 
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
     }
     if(!PyArg_ParseTuple(args, "u#ff",
@@ -2891,7 +2891,7 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
 	else if ([extension isEqualToString: @"png"])
 	    filetype = NSPNGFileType;
 	else
-	{   PyErr_SetString(PyExc_ValueError, "Unknown file type"); 
+	{   PyErr_SetString(PyExc_ValueError, "Unknown file type");
 	    return NULL;
 	}
 
@@ -2914,7 +2914,7 @@ FigureCanvas_write_pdf(FigureCanvas* self, PyObject* args)
 
     if(!view)
     {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL"); 
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
     }
     if(!PyArg_ParseTuple(args, "u#", &characters, &n)) return NULL;
@@ -2960,7 +2960,7 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
         context.info = &interrupted;
         sigint_socket = CFSocketCreateWithNative(kCFAllocatorDefault,
                                                  channel[0],
-                                                 kCFSocketReadCallBack, 
+                                                 kCFSocketReadCallBack,
                                                  _callback,
                                                  &context);
         if (sigint_socket)
@@ -3100,7 +3100,7 @@ static PyTypeObject FigureCanvasType = {
     0,                         /* tp_weaklistoffset */
     0,                         /* tp_iter */
     0,                         /* tp_iternext */
-    FigureCanvas_methods,      /* tp_methods */ 
+    FigureCanvas_methods,      /* tp_methods */
     0,                         /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */
@@ -3147,7 +3147,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 
     if(!self->window)
     {
-        PyErr_SetString(PyExc_RuntimeError, "NSWindow* is NULL"); 
+        PyErr_SetString(PyExc_RuntimeError, "NSWindow* is NULL");
         return -1;
     }
 
@@ -3157,7 +3157,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     view = canvas->view;
     if (!view) /* Something really weird going on */
     {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL"); 
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return -1;
     }
 
@@ -3276,7 +3276,7 @@ static PyTypeObject FigureManagerType = {
     0,                         /* tp_weaklistoffset */
     0,                         /* tp_iter */
     0,                         /* tp_iternext */
-    FigureManager_methods,     /* tp_methods */ 
+    FigureManager_methods,     /* tp_methods */
     0,                         /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */
@@ -3471,7 +3471,7 @@ NavigationToolbar_init(NavigationToolbar *self, PyObject *args, PyObject *kwds)
     view = canvas->view;
     if(!view)
     {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL"); 
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return -1;
     }
 
@@ -3748,7 +3748,7 @@ static PyTypeObject NavigationToolbarType = {
     0,                         /* tp_weaklistoffset */
     0,                         /* tp_iter */
     0,                         /* tp_iternext */
-    NavigationToolbar_methods, /* tp_methods */ 
+    NavigationToolbar_methods, /* tp_methods */
     0,                         /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */
@@ -3902,7 +3902,7 @@ typedef struct {
     view = ((FigureCanvas*)canvas)->view;
     if (!view) /* Something really weird going on */
     {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL"); 
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         PyErr_Print();
         Py_DECREF(canvas);
         Py_DECREF(master);
@@ -4003,7 +4003,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     view = canvas->view;
     if(!view)
     {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL"); 
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return -1;
     }
 
@@ -4173,7 +4173,7 @@ static PyTypeObject NavigationToolbar2Type = {
     0,                         /* tp_weaklistoffset */
     0,                         /* tp_iter */
     0,                         /* tp_iternext */
-    NavigationToolbar2_methods, /* tp_methods */ 
+    NavigationToolbar2_methods, /* tp_methods */
     0,                         /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */

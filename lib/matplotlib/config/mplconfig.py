@@ -118,6 +118,7 @@ class MPLConfig(TConfig):
 
     class path(TConfig):
         simplify = T.false
+        simplify_threshold = T.float(1.0 / 9.0)
 
     class patch(TConfig):
         linewidth = T.Float(1.0)
@@ -442,7 +443,8 @@ class RcParamsWrapper(dict):
         'svg.embed_char_paths' : (self.tconfig.backend.svg, 'embed_char_paths'),
 
         # Path properties
-        'path.simplify' : (self.tconfig.path, 'simplify')
+        'path.simplify' : (self.tconfig.path, 'simplify'),
+        'path.simplify_threshold' : (self.tconfig.path, 'simplify_threshold')
         }
 
     def __setitem__(self, key, val):

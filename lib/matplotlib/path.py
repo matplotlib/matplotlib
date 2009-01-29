@@ -10,7 +10,8 @@ from numpy import ma
 
 from matplotlib._path import point_in_path, get_path_extents, \
     point_in_path_collection, get_path_collection_extents, \
-    path_in_path, path_intersects_path, convert_path_to_polygons
+    path_in_path, path_intersects_path, convert_path_to_polygons, \
+    cleanup_path
 from matplotlib.cbook import simple_linear_interpolation, maxdict
 from matplotlib import rcParams
 
@@ -65,14 +66,17 @@ class Path(object):
     """
 
     # Path codes
-    STOP      = 0 # 1 vertex
-    MOVETO    = 1 # 1 vertex
-    LINETO    = 2 # 1 vertex
-    CURVE3    = 3 # 2 vertices
-    CURVE4    = 4 # 3 vertices
-    CLOSEPOLY = 5 # 1 vertex
+    STOP      = 0    # 1 vertex
+    MOVETO    = 1    # 1 vertex
+    LINETO    = 2    # 1 vertex
+    CURVE3    = 3    # 2 vertices
+    CURVE4    = 4    # 3 vertices
+    CLOSEPOLY = 0x4f # 1 vertex
 
-    NUM_VERTICES = [1, 1, 1, 2, 3, 1]
+    NUM_VERTICES = [1, 1, 1, 2,
+                    3, 1, 1, 1,
+                    1, 1, 1, 1,
+                    1, 1, 1, 1]
 
     code_type = np.uint8
 
@@ -113,6 +117,7 @@ class Path(object):
         self.should_simplify = (rcParams['path.simplify'] and
                                 (len(vertices) >= 128 and
                                  (codes is None or np.all(codes <= Path.LINETO))))
+        self.simplify_threshold = rcParams['path.simplify_threshold']
         self.has_nonfinite = not np.isfinite(vertices).all()
         self.codes = codes
         self.vertices = vertices
@@ -146,31 +151,43 @@ class Path(object):
     def __len__(self):
         return len(self.vertices)
 
-    def iter_segments(self, simplify=None):
+    def iter_segments(self, transform=None, remove_nans=True, clip=None,
+                      quantize=False, simplify=None, curves=True):
         """
         Iterates over all of the curve segments in the path.  Each
         iteration returns a 2-tuple (*vertices*, *code*), where
         *vertices* is a sequence of 1 - 3 coordinate pairs, and *code* is
         one of the :class:`Path` codes.
 
-        If *simplify* is provided, it must be a tuple (*width*,
-        *height*) defining the size of the figure, in native units
-        (e.g. pixels or points).  Simplification implies both removing
-        adjacent line segments that are very close to parallel, and
-        removing line segments outside of the figure.  The path will
-        be simplified *only* if :attr:`should_simplify` is True, which
-        is determined in the constructor by this criteria:
+        Additionally, this method can provide a number of standard
+        cleanups and conversions to the path.
 
-           - No curves
-           - More than 128 vertices
+        *transform*: if not None, the given affine transformation will
+         be applied to the path.
+
+        *remove_nans*: if True, will remove all NaNs from the path and
+         insert MOVETO commands to skip over them.
+
+        *clip*: if not None, must be a four-tuple (x1, y1, x2, y2)
+         defining a rectangle in which to clip the path.
+
+        *quantize*: if None, auto-quantize.  If True, force quantize,
+         and if False, don't quantize.
+
+        *simplify*: if True, perform simplification, to remove
+         vertices that do not affect the appearance of the path.  If
+         False, perform no simplification.  If None, use the
+         should_simplify member variable.
+
+        *curves*: If True, curve segments will be returned as curve
+         segments.  If False, all curves will be converted to line
+         segments.
         """
         vertices = self.vertices
         if not len(vertices):
             return
 
         codes        = self.codes
-        len_vertices = len(vertices)
-        isfinite     = np.isfinite
 
         NUM_VERTICES = self.NUM_VERTICES
         MOVETO       = self.MOVETO
@@ -178,47 +195,20 @@ class Path(object):
         CLOSEPOLY    = self.CLOSEPOLY
         STOP         = self.STOP
 
-        if simplify is not None and self.should_simplify:
-            polygons = self.to_polygons(None, *simplify)
-            for vertices in polygons:
-                yield vertices[0], MOVETO
-                for v in vertices[1:]:
-                    yield v, LINETO
-        elif codes is None:
-            if self.has_nonfinite:
-                next_code = MOVETO
-                for v in vertices:
-                    if np.isfinite(v).all():
-                        yield v, next_code
-                        next_code = LINETO
-                    else:
-                        next_code = MOVETO
+        vertices, codes = cleanup_path(self, transform, remove_nans, clip,
+                                       quantize, simplify, curves)
+        len_vertices = len(vertices)
+
+        i = 0
+        while i < len_vertices:
+            code = codes[i]
+            if code == STOP:
+                return
             else:
-                yield vertices[0], MOVETO
-                for v in vertices[1:]:
-                    yield v, LINETO
-        else:
-            i = 0
-            was_nan = False
-            while i < len_vertices:
-                code = codes[i]
-                if code == CLOSEPOLY:
-                    yield [], code
-                    i += 1
-                elif code == STOP:
-                    return
-                else:
-                    num_vertices = NUM_VERTICES[int(code)]
-                    curr_vertices = vertices[i:i+num_vertices].flatten()
-                    if not isfinite(curr_vertices).all():
-                        was_nan = True
-                    elif was_nan:
-                        yield curr_vertices[:2], MOVETO
-                        yield curr_vertices, code
-                        was_nan = False
-                    else:
-                        yield curr_vertices, code
-                    i += num_vertices
+                num_vertices = NUM_VERTICES[int(code) & 0xf]
+                curr_vertices = vertices[i:i+num_vertices].flatten()
+                yield curr_vertices, code
+                i += num_vertices
 
     def transformed(self, transform):
         """

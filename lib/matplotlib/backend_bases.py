@@ -99,8 +99,7 @@ class RendererBase:
         want to override this method in order to draw the marker only
         once and reuse it multiple times.
         """
-        tpath = trans.transform_path(path)
-        for vertices, codes in tpath.iter_segments():
+        for vertices, codes in path.iter_segments(trans, simplify=False):
             if len(vertices):
                 x,y = vertices[-2:]
                 self.draw_path(gc, marker_path,
