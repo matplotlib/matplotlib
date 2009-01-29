@@ -1,3 +1,6 @@
+2009-01-29 Document 'resolution' kwarg for polar plots.  Support it
+           when using pyplot.polar, not just Figure.add_axes. - MGD
+
 2009-01-26 Make curves and NaNs play nice together - MGD
 
 2009-01-19 Fix bug in quiver argument handling. - EF

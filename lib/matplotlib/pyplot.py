@@ -1406,8 +1406,13 @@ def polar(*args, **kwargs):
 
     Make a polar plot.  Multiple *theta*, *r* arguments are supported,
     with format strings, as in :func:`~matplotlib.pyplot.plot`.
+
+    An optional kwarg *resolution* sets the number of vertices to
+    interpolate between each pair of points.  Set to 1 to disable
+    interpolation.
     """
-    ax = gca(polar=True)
+    resolution = kwargs.pop('resolution', None)
+    ax = gca(polar=True, resolution=resolution)
     ret = ax.plot(*args, **kwargs)
     draw_if_interactive()
     return ret
