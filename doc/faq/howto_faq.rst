@@ -137,7 +137,7 @@ The :class:`matplotlib.backend_bases.RendererBase` instance, which is
 used to calculate the text size, is not known until the figure is
 drawn (:meth:`matplotlib.figure.Figure.draw`).  After the window is
 drawn and the text instance knows its renderer, you can call
-:meth:`matplotlib.text.Text.get_window_extent``.  One way to solve
+:meth:`matplotlib.text.Text.get_window_extent`.  One way to solve
 this chicken and egg problem is to wait until the figure is draw by
 connecting
 (:meth:`matplotlib.backend_bases.FigureCanvasBase.mpl_connect`) to the
@@ -374,7 +374,7 @@ Multiple y-axis scales
 
 A frequent request is to have two scales for the left and right
 y-axis, which is possible using :func:`~matplotlib.pyplot.twinx` (more
-than two scales are not currently supported, though it is on the wishq
+than two scales are not currently supported, though it is on the wish
 list).  This works pretty well, though there are some quirks when you
 are trying to interactively pan and zoom, since both scales do not get
 the signals.
@@ -481,7 +481,7 @@ this::
 
 This is not what show does and unfortunately, because doing blocking
 calls across user interfaces can be tricky, is currently unsupported,
-though we have made some pregress towards supporting blocking events.
+though we have made some progress towards supporting blocking events.
 
 
 .. _howto-contribute:

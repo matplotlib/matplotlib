@@ -44,7 +44,7 @@ in mind.
 * if your changes are non-trivial, please make an entry in the
   :file:`CHANGELOG`
 
-* if you change the API, please document it in :file:`API_CHANGES`,
+* if you change the API, please document it in :file:`doc/api/api_changes.rst`,
   and consider posting to `matplotlib-devel
   <http://lists.sourceforge.net/mailman/listinfo/matplotlib-devel>`_
 

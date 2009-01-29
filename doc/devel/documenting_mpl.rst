@@ -252,7 +252,7 @@ requirements necessary to generate a new figure. Once these steps have been
 taken, these figures can be included in the usual way::
 
    .. plot:: pyplots/tex_unicode_demo.py
-      :include-source
+      :include-source:
 
 Examples
 --------
