@@ -150,10 +150,6 @@ class RendererPS(RendererBase):
             self.textcnt = 0
             self.psfrag = []
         self.imagedpi = imagedpi
-        if rcParams['path.simplify']:
-            self.simplify = (width * imagedpi, height * imagedpi)
-        else:
-            self.simplify = None
 
         # current renderer state (None=uninitialised)
         self.color = None
@@ -428,12 +424,15 @@ grestore
         # unflip
         im.flipud_out()
 
-    def _convert_path(self, path, transform, simplify=None):
-        path = transform.transform_path(path)
-
+    def _convert_path(self, path, transform, clip=False):
         ps = []
         last_points = None
-        for points, code in path.iter_segments(simplify):
+        if clip:
+            clip = (0.0, 0.0, self.width * self.imagedpi,
+                    self.height * self.imagedpi)
+        else:
+            clip = None
+        for points, code in path.iter_segments(transform, clip=clip):
             if code == Path.MOVETO:
                 ps.append("%g %g m" % tuple(points))
             elif code == Path.LINETO:
@@ -466,7 +465,7 @@ grestore
         """
         Draws a Path instance using the given affine transform.
         """
-        ps = self._convert_path(path, transform, self.simplify)
+        ps = self._convert_path(path, transform, clip=(rgbFace is None))
         self._draw_ps(ps, gc, rgbFace)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
@@ -494,8 +493,7 @@ grestore
 
         ps_cmd.extend(['stroke', 'grestore', '} bind def'])
 
-        tpath = trans.transform_path(path)
-        for vertices, code in tpath.iter_segments():
+        for vertices, code in path.iter_segments(trans, simplify=False):
             if len(vertices):
                 x, y = vertices[-2:]
                 ps_cmd.append("%g %g o" % (x, y))

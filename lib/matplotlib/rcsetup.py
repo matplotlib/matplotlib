@@ -520,6 +520,7 @@ defaultParams = {
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
     'path.simplify' : [True, validate_bool],
+    'path.simplify_threshold' : [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
     'agg.path.chunksize' : [0, validate_int]       # 0 to disable chunking;
                                                    # recommend about 20000 to
                                                    # enable. Experimental.

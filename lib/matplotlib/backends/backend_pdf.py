@@ -415,10 +415,6 @@ class PdfFile(object):
         self.endStream()
 
         self.width, self.height = width, height
-        if rcParams['path.simplify']:
-            self.simplify = (width * 72, height * 72)
-        else:
-            self.simplify = None
         contentObject = self.reserveObject('page contents')
         thePage = { 'Type': Name('Page'),
                     'Parent': self.pagesObject,
@@ -1140,12 +1136,10 @@ end"""
             self.endStream()
 
     @staticmethod
-    def pathOperations(path, transform, simplify=None):
-        tpath = transform.transform_path(path)
-
+    def pathOperations(path, transform, clip=None):
         cmds = []
         last_points = None
-        for points, code in tpath.iter_segments(simplify):
+        for points, code in path.iter_segments(transform, clip=clip):
             if code == Path.MOVETO:
                 cmds.extend(points)
                 cmds.append(Op.moveto)
@@ -1164,8 +1158,12 @@ end"""
             last_points = points
         return cmds
 
-    def writePath(self, path, transform):
-        cmds = self.pathOperations(path, transform, self.simplify)
+    def writePath(self, path, transform, clip=False):
+        if clip:
+            clip = (0.0, 0.0, self.width * 72, self.height * 72)
+        else:
+            clip = None
+        cmds = self.pathOperations(path, transform, clip)
         self.output(*cmds)
 
     def reserveObject(self, name=''):
@@ -1282,7 +1280,7 @@ class RendererPdf(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         self.check_gc(gc, rgbFace)
-        stream = self.file.writePath(path, transform)
+        stream = self.file.writePath(path, transform, rgbFace is None)
         self.file.output(self.gc.paint())
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
@@ -1292,11 +1290,10 @@ class RendererPdf(RendererBase):
         output = self.file.output
         marker = self.file.markerObject(
             marker_path, marker_trans, fillp, self.gc._linewidth)
-        tpath = trans.transform_path(path)
 
         output(Op.gsave)
         lastx, lasty = 0, 0
-        for vertices, code in tpath.iter_segments():
+        for vertices, code in path.iter_segments(trans, simplify=False):
             if len(vertices):
                 x, y = vertices[-2:]
                 dx, dy = x - lastx, y - lasty
@@ -1796,9 +1793,9 @@ class GraphicsContextPdf(GraphicsContextBase):
             if self._cliprect != cliprect:
                 cmds.extend([cliprect, Op.rectangle, Op.clip, Op.endpath])
             if self._clippath != clippath:
+                path, affine = clippath.get_transformed_path_and_affine()
                 cmds.extend(
-                    PdfFile.pathOperations(
-                        *clippath.get_transformed_path_and_affine()) +
+                    PdfFile.pathOperations(path, affine) +
                     [Op.clip, Op.endpath])
         return cmds
 

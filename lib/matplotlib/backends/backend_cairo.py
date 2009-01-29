@@ -122,8 +122,8 @@ class RendererCairo(RendererBase):
 
 
     @staticmethod
-    def convert_path(ctx, tpath):
-        for points, code in tpath.iter_segments():
+    def convert_path(ctx, path, transform):
+        for points, code in path.iter_segments(transform):
             if code == Path.MOVETO:
                 ctx.move_to(*points)
             elif code == Path.LINETO:
@@ -145,10 +145,9 @@ class RendererCairo(RendererBase):
         ctx = gc.ctx
         transform = transform + \
             Affine2D().scale(1.0, -1.0).translate(0, self.height)
-        tpath = transform.transform_path(path)
 
         ctx.new_path()
-        self.convert_path(ctx, tpath)
+        self.convert_path(ctx, path, transform)
 
         self._fill_and_stroke(ctx, rgbFace, gc.get_alpha())
 
@@ -343,8 +342,7 @@ class GraphicsContextCairo(GraphicsContextBase):
             ctx = self.ctx
             ctx.new_path()
             affine = affine + Affine2D().scale(1.0, -1.0).translate(0.0, self.renderer.height)
-            tpath = affine.transform_path(tpath)
-            RendererCairo.convert_path(ctx, tpath)
+            RendererCairo.convert_path(ctx, path, affine)
             ctx.clip()
 
 

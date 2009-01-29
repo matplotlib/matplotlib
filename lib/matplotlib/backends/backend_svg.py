@@ -42,10 +42,6 @@ class RendererSVG(RendererBase):
         self.width=width
         self.height=height
         self._svgwriter = svgwriter
-        if rcParams['path.simplify']:
-            self.simplify = (width, height)
-        else:
-            self.simplify = None
 
         self._groupd = {}
         if not rcParams['svg.image_inline']:
@@ -209,14 +205,16 @@ class RendererSVG(RendererBase):
                 .scale(1.0, -1.0)
                 .translate(0.0, self.height))
 
-    def _convert_path(self, path, transform, simplify=None):
-        tpath = transform.transform_path(path)
-
+    def _convert_path(self, path, transform, clip=False):
         path_data = []
         appender = path_data.append
         path_commands = self._path_commands
         currpos = 0
-        for points, code in tpath.iter_segments(simplify):
+        if clip:
+            clip = (0.0, 0.0, self.width, self.height)
+        else:
+            clip = None
+        for points, code in path.iter_segments(transform, clip=clip):
             if code == Path.CLOSEPOLY:
                 segment = 'z'
             else:
@@ -231,7 +229,7 @@ class RendererSVG(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         trans_and_flip = self._make_flip_transform(transform)
-        path_data = self._convert_path(path, trans_and_flip, self.simplify)
+        path_data = self._convert_path(path, trans_and_flip, clip=(rgbFace is None))
         self._draw_svg_element('path', 'd="%s"' % path_data, gc, rgbFace)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
@@ -252,8 +250,7 @@ class RendererSVG(RendererBase):
 
         write('<g %s>' % clippath)
         trans_and_flip = self._make_flip_transform(trans)
-        tpath = trans_and_flip.transform_path(path)
-        for vertices, code in tpath.iter_segments():
+        for vertices, code in path.iter_segments(trans_and_flip, simplify=False):
             if len(vertices):
                 x, y = vertices[-2:]
                 details = 'xlink:href="#%s" x="%f" y="%f"' % (name, x, y)

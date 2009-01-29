@@ -290,7 +290,11 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
                                   # A value of 20000 is probably a good
                                   # starting point.
 ### SAVING FIGURES
-#path.simplify : False  # When True, simplify paths in vector backends, such as PDF, PS and SVG
+#path.simplify : False  # When True, simplify paths in vector backends, such as
+                        # PDF, PS and SVG
+#path.simplify_threshold : 0.1  # The threshold of similarity below which
+                                # vertices will be removed in the simplification
+                                # process
 
 # the default savefig params can be different from the display params
 # Eg, you may want a higher resolution, or to make the figure

@@ -1,3 +1,10 @@
+2009-01-29 Rework the nan-handling/clipping/quantizing/simplification
+           framework so each is an independent part of a pipeline.
+           Expose the C++-implementation of all of this so it can be
+           used from all Python backends.  Add rcParam
+           "path.simplify_threshold" to control the threshold of
+           similarity below which vertices will be removed.
+
 2009-01-26 Improved tight bbox option of the savefig. - JJL
 
 2009-01-26 Make curves and NaNs play nice together - MGD

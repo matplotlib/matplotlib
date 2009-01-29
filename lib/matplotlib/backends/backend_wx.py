@@ -304,9 +304,9 @@ class RendererWx(RendererBase):
                              new_bounds[2], new_bounds[3])
 
     @staticmethod
-    def convert_path(gfx_ctx, tpath):
+    def convert_path(gfx_ctx, path, transform):
         wxpath = gfx_ctx.CreatePath()
-        for points, code in tpath.iter_segments():
+        for points, code in path.iter_segments(transform):
             if code == Path.MOVETO:
                 wxpath.MoveToPoint(*points)
             elif code == Path.LINETO:
@@ -324,8 +324,7 @@ class RendererWx(RendererBase):
         self.handle_clip_rectangle(gc)
         gfx_ctx = gc.gfx_ctx
         transform = transform + Affine2D().scale(1.0, -1.0).translate(0.0, self.height)
-        tpath = transform.transform_path(path)
-        wxpath = self.convert_path(gfx_ctx, tpath)
+        wxpath = self.convert_path(gfx_ctx, path, transform)
         if rgbFace is not None:
             gfx_ctx.SetBrush(wx.Brush(gc.get_wxcolour(rgbFace)))
             gfx_ctx.DrawPath(wxpath)

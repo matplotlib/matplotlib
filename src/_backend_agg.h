@@ -39,6 +39,7 @@
 #include "agg_vcgen_markers_term.h"
 
 #include "agg_py_path_iterator.h"
+#include "path_converters.h"
 
 // These are copied directly from path.py, and must be kept in sync
 #define STOP   0
@@ -121,12 +122,7 @@ public:
   typedef std::vector<std::pair<double, double> > dash_t;
   double dashOffset;
   dash_t dashes;
-
-  enum {
-    SNAP_AUTO,
-    SNAP_FALSE,
-    SNAP_TRUE
-  } snap;
+  e_quantize_mode quantize_mode;
 
   Py::Object hatchpath;
 
