@@ -311,6 +311,8 @@ def to_filehandle(fname, flag='rU', return_opened=False):
     if is_string_like(fname):
         if fname.endswith('.gz'):
             import gzip
+            # universal newline mode doesn't work for gzipped files.
+            if flag == 'rU': flag = 'r'
             fh = gzip.open(fname, flag)
         else:
             fh = file(fname, flag)
