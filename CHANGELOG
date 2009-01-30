@@ -1,3 +1,6 @@
+2009-01-30 Remove support for pyExcelerator in exceltools -- use xlwt
+           instead - JDH
+
 2009-01-29 Document 'resolution' kwarg for polar plots.  Support it
            when using pyplot.polar, not just Figure.add_axes. - MGD
 
