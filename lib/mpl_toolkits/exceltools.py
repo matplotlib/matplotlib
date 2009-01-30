@@ -1,5 +1,5 @@
 """
-Some io tools for excel -- requires pypyExcelerator
+Some io tools for excel -- requires xlwt
 
 Example usage:
 
@@ -59,7 +59,7 @@ def xlformat_factory(format):
 
 def rec2excel(r, ws, formatd=None, rownum=0, colnum=0, nanstr='NaN', infstr='Inf'):
     """
-    save record array r to excel pyExcelerator worksheet ws
+    save record array r to excel xlwt worksheet ws
     starting at rownum.  if ws is string like, assume it is a
     filename and save to it
 
