@@ -298,10 +298,6 @@ class SortedStringsScrolledWindow(gtk.ScrolledWindow):
 
 def rec2gtk(r, formatd=None, rownum=0, autowin=True):
     """
-    save record array r to excel pyExcelerator worksheet ws
-    starting at rownum.  if ws is string like, assume it is a
-    filename and save to it
-
     formatd is a dictionary mapping dtype name -> mlab.Format instances
 
     This function creates a SortedStringsScrolledWindow (derived
