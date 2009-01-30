@@ -22,13 +22,7 @@ Example usage:
 import copy
 import numpy as np
 
-try:
-    import xlwt as excel
-except ImportError:
-    try:
-        import pyExcelerator as excel
-    except ImportError:
-        raise ImportError('You must install xlwt or pyExcelterator to use the exceltools')
+import xlwt as excel
 
 import matplotlib.cbook as cbook
 import matplotlib.mlab as mlab
