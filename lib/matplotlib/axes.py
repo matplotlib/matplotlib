@@ -1326,7 +1326,9 @@ class Axes(martist.Artist):
             collection.set_label('collection%d'%len(self.collections))
         self.collections.append(collection)
         self._set_artist_props(collection)
-        collection.set_clip_path(self.patch)
+
+        if collection.get_clip_path() is None:
+            collection.set_clip_path(self.patch)
         if autolim:
             if collection._paths and len(collection._paths):
                 self.update_datalim(collection.get_datalim(self.transData))
@@ -1339,7 +1341,8 @@ class Axes(martist.Artist):
         lines
         '''
         self._set_artist_props(line)
-        line.set_clip_path(self.patch)
+        if line.get_clip_path() is None:
+            line.set_clip_path(self.patch)
 
         self._update_line_limits(line)
         if not line.get_label():
@@ -1364,7 +1367,8 @@ class Axes(martist.Artist):
         """
 
         self._set_artist_props(p)
-        p.set_clip_path(self.patch)
+        if p.get_clip_path() is None:
+            p.set_clip_path(self.patch)
         self._update_patch_limits(p)
         self.patches.append(p)
         p._remove_method = lambda h: self.patches.remove(h)
