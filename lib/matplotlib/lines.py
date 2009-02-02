@@ -509,12 +509,16 @@ class Line2D(Artist):
                     else:
                         startind, stride = 0, markevery
                         if tpath.codes is not None:
-                            tpath.codes = tpath.codes[startind::stride]
-                        tpath.vertices = tpath.vertices[startind::stride]
-
+                            codes = tpath.codes[startind::stride]
+                        else:
+                            codes = None
+                        vertices = tpath.vertices[startind::stride]
+                        subsampled = Path(vertices, codes)
+                else:
+                    subsampled = tpath
 
                 markerFunc = getattr(self, funcname)
-                markerFunc(renderer, gc, tpath, affine.frozen())
+                markerFunc(renderer, gc, subsampled, affine.frozen())
 
         renderer.close_group('line2d')
 
