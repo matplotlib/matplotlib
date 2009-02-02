@@ -2,7 +2,6 @@
 #define __AGG_PY_PATH_ITERATOR_H__
 
 #include "CXX/Objects.hxx"
-#define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
 #include "agg_path_storage.h"
 
@@ -39,7 +38,7 @@ class PathIterator
 
 public:
     /* path_obj is an instance of the class Path as defined in path.py */
-    PathIterator(const Py::Object& path_obj) :
+    inline PathIterator(const Py::Object& path_obj) :
     m_vertices(NULL), m_codes(NULL), m_iterator(0), m_should_simplify(false),
     m_simplify_threshold(1.0 / 9.0)
     {

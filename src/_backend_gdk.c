@@ -3,7 +3,6 @@
  */
 
 #include "Python.h"
-#define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
 
 #include <pygtk/pygtk.h>

@@ -39,7 +39,15 @@ public:
   Py::Object set_interpolation(const Py::Tuple& args);
   Py::Object set_aspect(const Py::Tuple& args);
   Py::Object set_bg(const Py::Tuple& args);
-  Py::Object flipud_out(const Py::Tuple& args);
+  inline Py::Object flipud_out(const Py::Tuple& args) {
+    args.verify_length(0);
+    int stride = rbufOut->stride();
+    //std::cout << "flip before: " << rbufOut->stride() << std::endl;
+    rbufOut->attach(bufferOut, colsOut, rowsOut, -stride);
+    //std::cout << "flip after: " << rbufOut->stride() << std::endl;
+    return Py::Object();
+  }
+
   Py::Object flipud_in(const Py::Tuple& args);
   Py::Object set_resample(const Py::Tuple& args);
   Py::Object get_resample(const Py::Tuple& args);
