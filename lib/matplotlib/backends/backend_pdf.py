@@ -1109,26 +1109,28 @@ end"""
 
     def markerObject(self, path, trans, fillp, lw):
         """Return name of a marker XObject representing the given path."""
-        key = (path, trans, fillp is not None, lw)
+        pathops = self.pathOperations(path, trans)
+        key = (tuple(pathops), bool(fillp))
         result = self.markers.get(key)
         if result is None:
             name = Name('M%d' % len(self.markers))
             ob = self.reserveObject('marker %d' % len(self.markers))
-            self.markers[key] = (name, ob, path, trans, fillp, lw)
+            bbox = path.get_extents(trans)
+            self.markers[key] = [name, ob, bbox, lw]
         else:
+            if result[-1] < lw:
+                result[-1] = lw
             name = result[0]
         return name
 
     def writeMarkers(self):
-        for tup in self.markers.values():
-            name, object, path, trans, fillp, lw = tup
-            bbox = path.get_extents(trans)
+        for (pathops, fillp),(name, ob, bbox, lw) in self.markers.iteritems():
             bbox = bbox.padded(lw * 0.5)
             self.beginStream(
-                object.id, None,
+                ob.id, None,
                 {'Type': Name('XObject'), 'Subtype': Name('Form'),
                  'BBox': list(bbox.extents) })
-            self.writePath(path, trans)
+            self.output(*pathops)
             if fillp:
                 self.output(Op.fill_stroke)
             else:
@@ -1280,10 +1282,17 @@ class RendererPdf(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         self.check_gc(gc, rgbFace)
-        stream = self.file.writePath(path, transform, rgbFace is None)
+        self.file.writePath(path, transform, rgbFace is None)
         self.file.output(self.gc.paint())
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        # For simple paths or small numbers of markers, don't bother
+        # making an XObject
+        if len(path) * len(marker_path) <= 10:
+            RendererBase.draw_markers(self, gc, marker_path, marker_trans,
+                                      path, trans, rgbFace)
+            return
+
         self.check_gc(gc, rgbFace)
         fillp = rgbFace is not None
 

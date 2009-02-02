@@ -1,3 +1,5 @@
+2009-02-02 Reduce number of marker XObjects in pdf output - JKS
+
 2009-02-02 Change default resolution on polar plot to 1 - MGD
 
 2009-02-02 Avoid malloc errors in ttconv for fonts that don't have
