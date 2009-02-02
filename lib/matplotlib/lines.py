@@ -508,12 +508,12 @@ class Line2D(Artist):
                         startind, stride = markevery
                     else:
                         startind, stride = 0, markevery
-                        if tpath.codes is not None:
-                            codes = tpath.codes[startind::stride]
-                        else:
-                            codes = None
-                        vertices = tpath.vertices[startind::stride]
-                        subsampled = Path(vertices, codes)
+                    if tpath.codes is not None:
+                        codes = tpath.codes[startind::stride]
+                    else:
+                        codes = None
+                    vertices = tpath.vertices[startind::stride]
+                    subsampled = Path(vertices, codes)
                 else:
                     subsampled = tpath
 
