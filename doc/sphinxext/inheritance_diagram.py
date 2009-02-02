@@ -42,6 +42,17 @@ from docutils.nodes import Body, Element
 from docutils.parsers.rst import directives
 from sphinx.roles import xfileref_role
 
+def my_import(name):
+    """Module importer - taken from the python documentation.
+
+    This function allows importing names with dots in them."""
+    
+    mod = __import__(name)
+    components = name.split('.')
+    for comp in components[1:]:
+        mod = getattr(mod, comp)
+    return mod
+
 class DotException(Exception):
     pass
 
@@ -84,6 +95,13 @@ class InheritanceGraph(object):
             path = base
         try:
             module = __import__(path, None, None, [])
+            # We must do an import of the fully qualified name.  Otherwise if a
+            # subpackage 'a.b' is requested where 'import a' does NOT provide
+            # 'a.b' automatically, then 'a.b' will not be found below.  This
+            # second call will force the equivalent of 'import a.b' to happen
+            # after the top-level import above.
+            my_import(fullname)
+            
         except ImportError:
             raise ValueError(
                 "Could not import class or module '%s' specified for inheritance diagram" % name)
