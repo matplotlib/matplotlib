@@ -1,17 +1,31 @@
-from pygments.lexer import Lexer, do_insertions
-from pygments.lexers.agile import PythonConsoleLexer, PythonLexer, \
-    PythonTracebackLexer
-from pygments.token import Comment, Generic
-from sphinx import highlighting
+"""reST directive for syntax-highlighting ipython interactive sessions.
+"""
+
+#-----------------------------------------------------------------------------
+# Needed modules
+
+# Standard library
 import re
 
+# Third party
+from pygments.lexer import Lexer, do_insertions
+from pygments.lexers.agile import (PythonConsoleLexer, PythonLexer, 
+                                   PythonTracebackLexer)
+from pygments.token import Comment, Generic
+
+from sphinx import highlighting
+
+
+#-----------------------------------------------------------------------------
+# Global constants
 line_re = re.compile('.*?\n')
+
+#-----------------------------------------------------------------------------
+# Code begins - classes and functions
 
 class IPythonConsoleLexer(Lexer):
     """
     For IPython console output or doctests, such as:
-
-    Tracebacks are not currently supported.
 
     .. sourcecode:: ipython
 
@@ -24,7 +38,14 @@ class IPythonConsoleLexer(Lexer):
       foo
 
       In [4]: 1 / 0
+
+    Notes:
+
+      - Tracebacks are not currently supported.
+
+      - It assumes the default IPython prompts, not customized ones.
     """
+    
     name = 'IPython console session'
     aliases = ['ipython']
     mimetypes = ['text/x-ipython-console']
@@ -72,4 +93,6 @@ class IPythonConsoleLexer(Lexer):
                                       pylexer.get_tokens_unprocessed(curcode)):
                 yield item
 
+#-----------------------------------------------------------------------------
+# Register the extension as a valid pygments lexer
 highlighting.lexers['ipython'] = IPythonConsoleLexer()

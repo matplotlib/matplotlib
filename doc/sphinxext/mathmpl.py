@@ -1,3 +1,25 @@
+"""matplotlib-based directive for math rendering in reST using sphinx.
+
+To use this extension, add ``mathmpl`` to the list of extensions in
+:file:`conf.py`.
+
+Note:
+
+Current SVN versions of Sphinx now include built-in support for math.
+There are two flavors:
+
+  - pngmath: uses dvipng to render the equation
+
+  - jsmath: renders the math in the browser using Javascript
+
+To use these extensions instead of the code in this module, add
+``sphinx.ext.pngmath`` or ``sphinx.ext.jsmath`` to the list of extensions in
+:file:`conf.py` instead of ``mathmpl``.
+
+All three of these options for math are designed to behave in the same
+way.
+"""
+
 import os
 import sys
 try:
