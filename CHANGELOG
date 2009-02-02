@@ -1,3 +1,6 @@
+2009-02-02 Avoid malloc errors in ttconv for fonts that don't have
+           e.g. PostName (a version of Tahoma triggered this) - JKS
+
 2009-01-30 Remove support for pyExcelerator in exceltools -- use xlwt
            instead - JDH
 
