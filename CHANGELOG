@@ -1,3 +1,5 @@
+2009-02-02 Change default resolution on polar plot to 1 - MGD
+
 2009-02-02 Avoid malloc errors in ttconv for fonts that don't have
            e.g. PostName (a version of Tahoma triggered this) - JKS
 

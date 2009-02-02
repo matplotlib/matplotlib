@@ -177,7 +177,7 @@ class PolarAxes(Axes):
             return 0, vmax
 
 
-    RESOLUTION = 75
+    RESOLUTION = 1
 
     def __init__(self, *args, **kwargs):
         """
