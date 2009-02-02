@@ -37,7 +37,6 @@
 #include "swig_runtime.h"
 #include "MPL_isnan.h"
 
-#define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
 #include "agg_py_transforms.h"
 
@@ -253,7 +252,7 @@ GCAgg::_set_clip_path( const Py::Object& gc) {
   Py::Tuple path_and_transform = method.apply(Py::Tuple());
   if (path_and_transform[0].ptr() != Py_None) {
     clippath = path_and_transform[0];
-    clippath_trans = py_to_agg_transformation_matrix(path_and_transform[1]);
+    clippath_trans = py_to_agg_transformation_matrix(path_and_transform[1].ptr());
   }
 }
 
@@ -471,9 +470,9 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
   Py::Object	    gc_obj	    = args[0];
   Py::Object	    marker_path_obj = args[1];
-  agg::trans_affine marker_trans    = py_to_agg_transformation_matrix(args[2]);
+  agg::trans_affine marker_trans    = py_to_agg_transformation_matrix(args[2].ptr());
   Py::Object	    path_obj	    = args[3];
-  agg::trans_affine trans	    = py_to_agg_transformation_matrix(args[4]);
+  agg::trans_affine trans	    = py_to_agg_transformation_matrix(args[4].ptr());
   Py::Object        face_obj;
   if (args.size() == 6)
     face_obj = args[5];
@@ -748,7 +747,7 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   rendererBase.reset_clipping(true);
   if (args.size() == 6) {
     clippath = args[4];
-    clippath_trans = py_to_agg_transformation_matrix(args[5], false);
+    clippath_trans = py_to_agg_transformation_matrix(args[5].ptr(), false);
     has_clippath = render_clippath(clippath, clippath_trans);
   }
 
@@ -963,7 +962,7 @@ RendererAgg::draw_path(const Py::Tuple& args) {
 
   Py::Object gc_obj = args[0];
   Py::Object path_obj = args[1];
-  agg::trans_affine trans = py_to_agg_transformation_matrix(args[2]);
+  agg::trans_affine trans = py_to_agg_transformation_matrix(args[2].ptr());
   Py::Object face_obj;
   if (args.size() == 4)
     face_obj = args[3];
@@ -1071,7 +1070,7 @@ RendererAgg::_draw_path_collection_generic
     transforms.reserve(Ntransforms);
     for (i = 0; i < Ntransforms; ++i) {
       agg::trans_affine trans = py_to_agg_transformation_matrix
-	(transforms_obj[i], false);
+	(transforms_obj[i].ptr(), false);
       trans *= master_transform;
 
       transforms.push_back(trans);
@@ -1212,14 +1211,14 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   args.verify_length(14);
 
   //segments, trans, clipbox, colors, linewidths, antialiaseds
-  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0]);
+  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0].ptr());
   Py::Object		  cliprect	   = args[1];
   Py::Object		  clippath	   = args[2];
-  agg::trans_affine       clippath_trans   = py_to_agg_transformation_matrix(args[3], false);
+  agg::trans_affine       clippath_trans   = py_to_agg_transformation_matrix(args[3].ptr(), false);
   Py::SeqBase<Py::Object> paths		   = args[4];
   Py::SeqBase<Py::Object> transforms_obj   = args[5];
   Py::Object              offsets_obj      = args[6];
-  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7]);
+  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7].ptr());
   Py::Object              facecolors_obj   = args[8];
   Py::Object              edgecolors_obj   = args[9];
   Py::SeqBase<Py::Float>  linewidths	   = args[10];
@@ -1328,15 +1327,15 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
 
 
   //segments, trans, clipbox, colors, linewidths, antialiaseds
-  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0]);
+  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0].ptr());
   Py::Object		  cliprect	   = args[1];
   Py::Object		  clippath	   = args[2];
-  agg::trans_affine       clippath_trans   = py_to_agg_transformation_matrix(args[3], false);
+  agg::trans_affine       clippath_trans   = py_to_agg_transformation_matrix(args[3].ptr(), false);
   size_t                  mesh_width       = Py::Int(args[4]);
   size_t                  mesh_height      = Py::Int(args[5]);
   PyObject*               coordinates	   = args[6].ptr();
   Py::Object              offsets_obj      = args[7];
-  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[8]);
+  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[8].ptr());
   Py::Object              facecolors_obj   = args[9];
   bool                    antialiased	   = (bool)Py::Int(args[10]);
   bool                    showedges        = (bool)Py::Int(args[11]);

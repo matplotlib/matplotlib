@@ -10,9 +10,8 @@
 #include <fstream>
 
 #include "agg_basics.h"
-#include "_backend_agg.h"
-#define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
+#include "_backend_agg.h"
 #include "agg_py_transforms.h"
 
 // the extension module

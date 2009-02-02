@@ -11,7 +11,6 @@
 #include <cmath>
 #include <cstdio>
 
-#define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
 
 #include "agg_color_rgba.h"
@@ -98,17 +97,6 @@ char Image::flipud_out__doc__[] =
 "\n"
 "Flip the output image upside down"
 ;
-Py::Object
-Image::flipud_out(const Py::Tuple& args) {
-  _VERBOSE("Image::flipud_out");
-
-  args.verify_length(0);
-  int stride = rbufOut->stride();
-  //std::cout << "flip before: " << rbufOut->stride() << std::endl;
-  rbufOut->attach(bufferOut, colsOut, rowsOut, -stride);
-  //std::cout << "flip after: " << rbufOut->stride() << std::endl;
-  return Py::Object();
-}
 
 char Image::flipud_in__doc__[] =
 "flipud()\n"
@@ -1756,8 +1744,6 @@ init_image(void) {
 
   d["ASPECT_FREE"] = Py::Int(Image::ASPECT_FREE);
   d["ASPECT_PRESERVE"] = Py::Int(Image::ASPECT_PRESERVE);
-
-
 }
 
 

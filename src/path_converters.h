@@ -2,7 +2,6 @@
 #define __PATH_CONVERTERS_H__
 
 #include "CXX/Objects.hxx"
-#define PY_ARRAY_TYPES_PREFIX NumPy
 #include "numpy/arrayobject.h"
 #include "agg_path_storage.h"
 #include "agg_clip_liang_barsky.h"
