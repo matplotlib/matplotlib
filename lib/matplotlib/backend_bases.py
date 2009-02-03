@@ -434,7 +434,7 @@ class GraphicsContextBase:
         self._cliprect = None
         self._clippath = None
         self._dashes = None, None
-        self._joinstyle = 'miter'
+        self._joinstyle = 'round'
         self._linestyle = 'solid'
         self._linewidth = 1
         self._rgb = (0.0, 0.0, 0.0)

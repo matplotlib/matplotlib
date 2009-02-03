@@ -317,8 +317,8 @@ defaultParams = {
     'lines.markeredgewidth' : [0.5, validate_float],
     'lines.markersize'      : [6, validate_float],       # markersize, in points
     'lines.antialiased'     : [True, validate_bool],     # antialised (no jaggies)
-    'lines.dash_joinstyle'  : ['miter', validate_joinstyle],
-    'lines.solid_joinstyle' : ['miter', validate_joinstyle],
+    'lines.dash_joinstyle'  : ['round', validate_joinstyle],
+    'lines.solid_joinstyle' : ['round', validate_joinstyle],
     'lines.dash_capstyle'   : ['butt', validate_capstyle],
     'lines.solid_capstyle'  : ['projecting', validate_capstyle],
 

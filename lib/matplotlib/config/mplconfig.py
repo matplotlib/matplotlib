@@ -105,9 +105,9 @@ class MPLConfig(TConfig):
         linewidth = T.Float(1.0)
         linestyle = T.Trait('-','--','-.', ':', 'steps', '', ' ', None)
         color = T.Trait('blue',mplT.ColorHandler())
-        solid_joinstyle = T.Trait('miter', 'miter', 'round', 'bevel')
+        solid_joinstyle = T.Trait('round', 'miter', 'round', 'bevel')
         solid_capstyle = T.Trait('butt', 'butt', 'round', 'projecting')
-        dash_joinstyle = T.Trait('miter', 'miter', 'round', 'bevel')
+        dash_joinstyle = T.Trait('round', 'miter', 'round', 'bevel')
         dash_capstyle = T.Trait('butt', 'butt', 'round', 'projecting')
         marker = T.Trait('None', 'None', 'o', '.', ',', '^', 'v', '<', '>', 's',
                          '+', 'x', 'D','d', '1', '2', '3', '4', 'h', 'H', 'p',
