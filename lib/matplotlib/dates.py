@@ -481,7 +481,20 @@ class RRuleLocator(DateLocator):
         if dmin>dmax:
             dmax, dmin = dmin, dmax
         delta = relativedelta(dmax, dmin)
-        self.rule.set(dtstart=dmin-delta, until=dmax+delta)
+
+        # We need to cap at the endpoints of valid datetime
+        try:
+            start = dmin - delta
+        except ValueError:
+            start = _from_ordinalf( 1.0 )
+
+        try:
+            stop = dmax + delta
+        except ValueError:
+            # The magic number!
+            stop = _from_ordinalf( 3652059.9999999 )
+
+        self.rule.set(dtstart=start, until=stop)
         dates = self.rule.between(dmin, dmax, True)
         return date2num(dates)
 
@@ -518,7 +531,20 @@ class RRuleLocator(DateLocator):
             dmax, dmin = dmin, dmax
 
         delta = relativedelta(dmax, dmin)
-        self.rule.set(dtstart=dmin-delta, until=dmax+delta)
+
+        # We need to cap at the endpoints of valid datetime
+        try:
+            start = dmin - delta
+        except ValueError:
+            start = _from_ordinalf( 1.0 )
+
+        try:
+            stop = dmax + delta
+        except ValueError:
+            # The magic number!
+            stop = _from_ordinalf( 3652059.9999999 )
+
+        self.rule.set(dtstart=start, until=stop)
         dmin, dmax = self.datalim_to_dt()
 
 
