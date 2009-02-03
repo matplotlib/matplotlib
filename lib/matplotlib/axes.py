@@ -2672,12 +2672,7 @@ class Axes(martist.Artist):
             :meth:`text`
                 for information on how override and the optional args work
         """
-
-        label = self.xaxis.get_label()
-        label.set_text(xlabel)
-        if fontdict is not None: label.update(fontdict)
-        label.update(kwargs)
-        return label
+        return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
     set_xlabel.__doc__ = cbook.dedent(set_xlabel.__doc__) % martist.kwdocd
 
     def get_ylabel(self):
@@ -2704,11 +2699,7 @@ class Axes(martist.Artist):
             :meth:`text`
                 for information on how override and the optional args work
         """
-        label = self.yaxis.get_label()
-        label.set_text(ylabel)
-        if fontdict is not None: label.update(fontdict)
-        label.update(kwargs)
-        return label
+        return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
     set_ylabel.__doc__ = cbook.dedent(set_ylabel.__doc__) % martist.kwdocd
 
     def text(self, x, y, s, fontdict=None,
