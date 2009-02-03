@@ -1124,12 +1124,13 @@ def build_gtkagg(ext_modules, packages):
 def build_tkagg(ext_modules, packages):
     global BUILT_TKAGG
     if BUILT_TKAGG: return # only build it if you you haven't already
-    deps = ['src/_tkagg.cpp']
+    deps = ['src/agg_py_transforms.cpp', 'src/_tkagg.cpp']
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
     module = Extension('matplotlib.backends._tkagg',
                        deps,
+                       define_macros=[('PY_ARRAY_UNIQUE_SYMBOL', 'MPL_ARRAY_API')]
                        )
 
     add_tk_flags(module) # do this first
