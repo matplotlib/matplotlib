@@ -177,7 +177,7 @@ enter the following commands::
   git svn init --branches=branches --trunk=trunk/matplotlib --tags=tags https://matplotlib.svn.sourceforge.net/svnroot/matplotlib
 
   # Now just get the latest svn revisions from the SourceForge SVN repository
-  git svn fetch -r 6300:HEAD
+  git svn fetch -r 6800:HEAD
 
 .. _matplotlib github mirror: http://github.com/astraw/matplotlib
 
