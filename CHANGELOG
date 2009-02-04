@@ -1,3 +1,5 @@
+2009-02-04 Add extent keyword arg to hexbin - ADS
+
 2009-02-04 Fix bug in mathtext related to \dots and \ldots - MGD
 
 2009-02-03 Change default joinstyle to round - MGD
