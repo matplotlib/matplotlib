@@ -5242,7 +5242,7 @@ class Axes(martist.Artist):
     scatter.__doc__ = cbook.dedent(scatter.__doc__) % martist.kwdocd
 
     def hexbin(self, x, y, C = None, gridsize = 100, bins = None,
-                    xscale = 'linear', yscale = 'linear',
+                    xscale = 'linear', yscale = 'linear', extent = None,
                     cmap=None, norm=None, vmin=None, vmax=None,
                     alpha=1.0, linewidths=None, edgecolors='none',
                     reduce_C_function = np.mean, mincnt=None, marginals=False,
@@ -5310,6 +5310,10 @@ class Axes(martist.Artist):
             if marginals is True, plot the marginal density as
             colormapped rectagles along the bottom of the x-axis and
             left of the y-axis
+
+          *extent*: [ None | scalars (left, right, bottom, top) ]
+            The limits of the bins. The default assigns the limits
+            based on gridsize, x, y, xscale and yscale.
 
         Other keyword arguments controlling color mapping and normalization
         arguments:
@@ -5389,10 +5393,13 @@ class Axes(martist.Artist):
             x = np.log10(x)
         if yscale=='log':
             y = np.log10(y)
-        xmin = np.amin(x)
-        xmax = np.amax(x)
-        ymin = np.amin(y)
-        ymax = np.amax(y)
+        if extent is not None:
+            xmin, xmax, ymin, ymax = extent
+        else:
+            xmin = np.amin(x)
+            xmax = np.amax(x)
+            ymin = np.amin(y)
+            ymax = np.amax(y)
         # In the x-direction, the hexagons exactly cover the region from
         # xmin to xmax. Need some padding to avoid roundoff errors.
         padding = 1.e-9 * (xmax - xmin)
