@@ -1,3 +1,5 @@
+2009-02-04 Fix bug in mathtext related to \dots and \ldots - MGD
+
 2009-01-29 Document 'resolution' kwarg for polar plots.  Support it
            when using pyplot.polar, not just Figure.add_axes. - MGD
 
