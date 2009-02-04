@@ -27,6 +27,12 @@ locations, in the following order:
    customizations to be saved, please move this file to you :file:`.matplotlib`
    directory.
 
+To display where the currently active :file:`matplotlibrc` file was
+loaded from, one can do the following::
+
+  >>> import matplotlib
+  >>> matplotlib.matplotlib_fname()
+  '/home/foo/.matplotlib/matplotlibrc'
 
 See below for a sample :ref:`matplotlibrc file<matplotlibrc-sample>`.
 

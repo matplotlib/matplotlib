@@ -2037,7 +2037,7 @@ class Parser(object):
       \sqsubset       \sqsupset        \neq             \smile
       \sqsubseteq     \sqsupseteq      \doteq           \frown
       \in             \ni              \propto
-      \vdash          \dashv'''.split())
+      \vdash          \dashv           \dots'''.split())
 
     _arrow_symbols = set(r'''
       \leftarrow              \longleftarrow           \uparrow
@@ -2180,9 +2180,9 @@ class Parser(object):
                      + (group | Error("Expected \sqrt{value}"))
                      ).setParseAction(self.sqrt).setName("sqrt")
 
-        placeable   <<(accent
-                     ^ function
+        placeable   <<(function
                      ^ (c_over_c | symbol)
+                     ^ accent
                      ^ group
                      ^ frac
                      ^ sqrt
