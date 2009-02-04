@@ -224,6 +224,14 @@ rebase it to the new master::
   git checkout whizbang-branch
   git rebase master
 
+If you get the dreaded "Unable to determine upstream SVN information
+from working tree history" error when running "git svn rebase", try
+creating a new git branch based on subversion trunk and cherry pick
+your patches onto that::
+
+  git checkout -b work remotes/trunk # create a new "work" branch
+  git cherry-pick <commit> # where <commit> will get applied to new branch
+
 Working on a maintenance branch from git
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
