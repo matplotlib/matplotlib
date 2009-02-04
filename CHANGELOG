@@ -1,3 +1,5 @@
+2009-02-04 Fix bug in mathtext related to \dots and \ldots - MGD
+
 2009-02-03 Change default joinstyle to round - MGD
 
 2009-02-02 Reduce number of marker XObjects in pdf output - JKS
