@@ -1,5 +1,8 @@
 from pylab import *
 import numpy as np
+from matplotlib import patches, path
+nan = np.nan
+Path = path.Path
 
 t = arange(0.0, 2.0, 0.01)
 s = sin(2*pi*t)
@@ -54,5 +57,16 @@ path = transform.transform_path(path)
 simplified = list(path.iter_segments(simplify=(800, 600)))
 
 title("Original length: %d, simplified length: %d" % (len(path.vertices), len(simplified)))
+
+figure()
+pp1 = patches.PathPatch(
+    Path([(0, 0), (1, 0), (1, 1), (nan, 1), (0, 0), (2, 0), (2, 2), (0, 0)],
+         [Path.MOVETO, Path.CURVE3, Path.CURVE3, Path.CURVE3, Path.CURVE3, Path.CURVE3, Path.CURVE3, Path.CLOSEPOLY]),
+    fc="none")
+
+gca().add_patch(pp1)
+gca().set_xlim((0, 2))
+gca().set_ylim((0, 2))
+title("Should be one line with two curves below it")
 
 show()
