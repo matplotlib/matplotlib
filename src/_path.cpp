@@ -56,10 +56,6 @@ public:
                            "convert_path_to_polygons(path, trans, width, height)");
         add_varargs_method("cleanup_path", &_path_module::cleanup_path,
                            "cleanup_path(path, trans, remove_nans, clip, quantize, simplify, curves)");
-        /* TEST CODE -- REMOVE LATER */
-        add_varargs_method("cleanup_path_test", &_path_module::cleanup_path_test,
-                           "TEST");
-        /* **************************************** */
         initialize("Helper functions for paths");
     }
 
@@ -79,8 +75,6 @@ private:
     Py::Object path_intersects_path(const Py::Tuple& args);
     Py::Object convert_path_to_polygons(const Py::Tuple& args);
     Py::Object cleanup_path(const Py::Tuple& args);
-  /* TEST CODE -- REMOVE LATER */
-    Py::Object cleanup_path_test(const Py::Tuple& args);
 };
 
 //
@@ -1353,39 +1347,6 @@ Py::Object _path_module::cleanup_path(const Py::Tuple& args)
 
     return result;
 }
-
-/************************************************************/
-/* TEST CODE */
-extern "C" {
-  void* get_path_iterator(
-                          PyObject* path, PyObject* trans, int remove_nans, int do_clip,
-                          double rect[4], e_quantize_mode quantize_mode, int do_simplify);
-
-  unsigned get_vertex(void* pipeline, double* x, double* y);
-
-  void free_path_iterator(void* pipeline);
-}
-
-Py::Object _path_module::cleanup_path_test(const Py::Tuple& args)
-{
-    args.verify_length(2);
-
-    double rect[] = { 0.0, 0.0, 640.0, 480.0 };
-
-    void* iterator = get_path_iterator(args[0].ptr(), args[1].ptr(), 1, 1, rect, QUANTIZE_AUTO, 1);
-
-    unsigned cmd;
-    double x, y;
-    while ((cmd = get_vertex(iterator, &x, &y)) != 0 /* STOP */) {
-        printf("%f %f %d\n", x, y, cmd);
-    }
-
-    free_path_iterator(iterator);
-
-    return Py::None();
-}
-/* END OF TEST CODE */
-/************************************************************/
 
 extern "C"
     DL_EXPORT(void)
