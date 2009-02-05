@@ -5,7 +5,7 @@ Using matplotlib in a python shell
 **********************************
 
 By default, matplotlib defers drawing until the end of the script
-because drawing can be an expensive opertation, and you may not want
+because drawing can be an expensive operation, and you may not want
 to update the plot every time a single property is changed, only once
 after all the properties have changed.
 
@@ -76,7 +76,7 @@ are going to need to understand what a matplotlib backend is
 With the TkAgg backend, that uses the Tkinter user interface toolkit,
 you can use matplotlib from an arbitrary python shell.  Just set your
 ``backend : TkAgg`` and ``interactive : True`` in your
-:file:matplotlibrc file (see :ref:`customizing-matplotlib`) and fire
+:file:`matplotlibrc` file (see :ref:`customizing-matplotlib`) and fire
 up python.  Then::
 
   >>> from pylab import *
@@ -103,7 +103,7 @@ Controlling interactive updating
 
 The *interactive* property of the pyplot interface controls whether a
 figure canvas is drawn on every pyplot command.  If *interactive* is
-*False*, then the figure state is updated on every plot commands, but
+*False*, then the figure state is updated on every plot command, but
 will only be drawn on explicit calls to
 :func:`~matplotlib.pyplot.draw`.  When  *interactive* is
 *True*, then every pyplot command triggers a draw.
