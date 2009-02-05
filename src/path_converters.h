@@ -149,7 +149,7 @@ class PathNanRemover : protected EmbeddedQueue<4> {
                 return code;
             }
 
-            bool skipped = false;
+            bool needs_move_to = false;
             while (true) {
                 code = m_source->vertex(x, y);
                 if (code == agg::path_cmd_stop ||
@@ -158,37 +158,37 @@ class PathNanRemover : protected EmbeddedQueue<4> {
                     return code;
                 }
 
+                if (needs_move_to) {
+                    queue_push(agg::path_cmd_move_to, *x, *y);
+                }
+
                 size_t num_extra_points = num_extra_points_map[code & 0xF];
                 bool has_nan = (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
-                double xc[2], yc[2];
+                queue_push(code, *x, *y);
                 /* Note: this test can not be short-circuited, since we need to
                    advance through the entire curve no matter what */
                 for (size_t i = 0; i < num_extra_points; ++i)
                 {
-                    m_source->vertex(&xc[i], &yc[i]);
-                    has_nan |= (MPL_notisfinite64(xc[i]) || MPL_notisfinite64(yc[i]));
+                    m_source->vertex(x, y);
+                    has_nan |= (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
+                    queue_push(code, *x, *y);
                 }
 
-                if (has_nan)
+                if (!has_nan)
                 {
-                    skipped = true;
+                    break;
+                }
+
+                queue_clear();
+
+                if (!(MPL_notisfinite64(*x) || MPL_notisfinite64(*y)))
+                {
+                    queue_push(agg::path_cmd_move_to, *x, *y);
+                    needs_move_to = false;
                 }
                 else
                 {
-                    if (skipped)
-                    {
-                        queue_push(agg::path_cmd_move_to, *x, *y);
-                    }
-
-                    if (!skipped || code != agg::path_cmd_line_to) {
-                        queue_push(code, *x, *y);
-                        for (size_t i = 0; i < num_extra_points; ++i)
-                        {
-                            queue_push(code, xc[i], yc[i]);
-                        }
-                    }
-
-                    break;
+                    needs_move_to = true;
                 }
             }
 
