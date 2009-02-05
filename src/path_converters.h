@@ -246,7 +246,7 @@ const unsigned char PathNanRemover<VertexSource>::num_extra_points_map[] =
  clipped, but are always included in their entirety.
  */
 template<class VertexSource>
-class PathClipper : protected EmbeddedQueue<2>
+class PathClipper
 {
     VertexSource*          m_source;
     bool                   m_do_clipping;
@@ -254,6 +254,9 @@ class PathClipper : protected EmbeddedQueue<2>
     double                 m_lastX;
     double                 m_lastY;
     bool                   m_moveto;
+    double                 m_nextX;
+    double                 m_nextY;
+    bool                   m_has_next;
 
  public:
     PathClipper(VertexSource& source, bool do_clipping,
@@ -274,7 +277,8 @@ class PathClipper : protected EmbeddedQueue<2>
 
     inline void rewind(unsigned path_id)
     {
-        queue_clear();
+        m_has_next = false;
+        m_moveto = true;
         m_source->rewind(path_id);
     }
 
@@ -283,18 +287,21 @@ class PathClipper : protected EmbeddedQueue<2>
         unsigned code;
 
         if (m_do_clipping) {
-            // This is the slow path where we want to do clipping
-            if (queue_flush(&code, x, y))
-            {
-                return code;
+            /* This is the slow path where we actually do clipping */
+
+            if (m_has_next) {
+                m_has_next = false;
+                *x = m_nextX;
+                *y = m_nextY;
+                return agg::path_cmd_line_to;
             }
 
-            while ((code = m_source->vertex(x, y)) != agg::path_cmd_stop)
-            {
-                if (code == agg::path_cmd_move_to || m_moveto)
+            while ((code = m_source->vertex(x, y)) != agg::path_cmd_stop) {
+                if (m_moveto)
                 {
                     m_moveto = false;
-                    queue_push(agg::path_cmd_move_to, *x, *y);
+                    code = agg::path_cmd_move_to;
+                    break;
                 }
                 else if (code == agg::path_cmd_line_to)
                 {
@@ -303,7 +310,8 @@ class PathClipper : protected EmbeddedQueue<2>
                     y0 = m_lastY;
                     x1 = *x;
                     y1 = *y;
-
+                    m_lastX = *x;
+                    m_lastY = *y;
                     unsigned moved = agg::clip_line_segment(&x0, &y0, &x1, &y1, m_cliprect);
                     // moved >= 4 - Fully clipped
                     // moved != 0 - First point has been moved
@@ -312,25 +320,26 @@ class PathClipper : protected EmbeddedQueue<2>
                     {
                         if (moved & 1)
                         {
-                            queue_push(agg::path_cmd_move_to, x0, y0);
+                            *x = x0;
+                            *y = y0;
+                            m_nextX = x1;
+                            m_nextY = y1;
+                            m_has_next = true;
+                            return agg::path_cmd_move_to;
                         }
-                        queue_push(agg::path_cmd_line_to, x1, y1);
+                        *x = x1;
+                        *y = y1;
+                        return code;
                     }
                 }
                 else
                 {
-                    queue_push(code, *x, *y);
-                }
-
-                m_lastX = *x;
-                m_lastY = *y;
-
-                if (queue_flush(&code, x, y))
-                {
-                    return code;
+                    break;
                 }
             }
 
+            m_lastX = *x;
+            m_lastY = *y;
             return code;
         }
         else
@@ -474,6 +483,7 @@ public:
     inline void rewind(unsigned path_id)
     {
         queue_clear();
+        m_moveto = true;
         m_source->rewind(path_id);
     }
 
@@ -664,6 +674,7 @@ public:
             {
                 queue_push(agg::path_cmd_line_to, m_nextX, m_nextY);
             }
+            queue_push(agg::path_cmd_line_to, m_lastx, m_lasty);
             queue_push(agg::path_cmd_stop, 0.0, 0.0);
         }
 
