@@ -38,7 +38,7 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
     total width and the x-offset positions of each items according to
     *mode*. xdescent is analagous to the usual descent, but along the
     x-direction. xdescent values are currently ignored.
-    
+
     *wd_list* : list of (width, xdescent) of boxes to be packed.
     *sep* : spacing between boxes
     *total* : Intended total length. None if not used.
@@ -47,14 +47,14 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
 
     w_list, d_list = zip(*wd_list)
     # d_list is currently not used.
-    
+
     if mode == "fixed":
         offsets_ = np.add.accumulate([0]+[w + sep for w in w_list])
         offsets = offsets_[:-1]
 
         if total is None:
             total = offsets_[-1] - sep
-            
+
         return total, offsets
 
     elif mode == "expand":
@@ -86,7 +86,7 @@ def _get_aligned_offsets(hd_list, height, align="baseline"):
     total width and the offset positions of each items according to
     *mode*. xdescent is analagous to the usual descent, but along the
     x-direction. xdescent values are currently ignored.
-    
+
     *hd_list* : list of (width, xdescent) of boxes to be aligned.
     *sep* : spacing between boxes
     *height* : Intended total length. None if not used.
@@ -120,13 +120,13 @@ def _get_aligned_offsets(hd_list, height, align="baseline"):
 class OffsetBox(martist.Artist):
     """
     The OffsetBox is a simple container artist. The child artist are meant
-    to be drawn at a relative position to its parent.  
+    to be drawn at a relative position to its parent.
     """
     def __init__(self, *args, **kwargs):
 
         super(OffsetBox, self).__init__(*args, **kwargs)
-        
-        self._children = []        
+
+        self._children = []
         self._offset = (0, 0)
 
     def set_figure(self, fig):
@@ -138,7 +138,7 @@ class OffsetBox(martist.Artist):
         martist.Artist.set_figure(self, fig)
         for c in self.get_children():
             c.set_figure(fig)
-        
+
     def set_offset(self, xy):
         """
         Set the offset
@@ -173,7 +173,7 @@ class OffsetBox(martist.Artist):
         accepts float
         """
         self.height = height
-        
+
     def get_children(self):
         """
         Return a list of artists it contains.
@@ -213,7 +213,7 @@ class OffsetBox(martist.Artist):
             c.draw(renderer)
 
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
-    
+
 
 class PackerBase(OffsetBox):
     def __init__(self, pad=None, sep=None, width=None, height=None,
@@ -224,8 +224,14 @@ class PackerBase(OffsetBox):
         *sep* : spacing between items
         *width*, *height* : width and height of the container box.
            calculated if None.
-        *align* : alignment of boxes
+        *align* : alignment of boxes. Can be one of 'top', 'bottom',
+           'left', 'right', 'center' and 'baseline'
         *mode* : packing mode
+
+        .. note::
+          *pad* and *sep* need to given in points and will be
+          scale with the renderer dpi, while *width* and *hight*
+          need to be in pixels.
         """
         super(PackerBase, self).__init__()
 
@@ -254,9 +260,14 @@ class VPacker(PackerBase):
            calculated if None.
         *align* : alignment of boxes
         *mode* : packing mode
+
+        .. note::
+          *pad* and *sep* need to given in points and will be
+          scale with the renderer dpi, while *width* and *hight*
+          need to be in pixels.
         """
         super(VPacker, self).__init__(pad, sep, width, height,
-                                      align, mode, 
+                                      align, mode,
                                       children)
 
 
@@ -265,6 +276,10 @@ class VPacker(PackerBase):
         """
         update offset of childrens and return the extents of the box
         """
+
+        dpicor = renderer.points_to_pixels(1.)
+        pad = self.pad * dpicor
+        sep = self.sep * dpicor
 
         whd_list = [c.get_extent(renderer) for c in self.get_children()]
         whd_list = [(w, h, xd, (h-yd)) for w, h, xd, yd in whd_list]
@@ -277,8 +292,8 @@ class VPacker(PackerBase):
 
         pack_list = [(h, yd) for w,h,xd,yd in whd_list]
         height, yoffsets_ = _get_packed_offsets(pack_list, self.height,
-                                                self.sep, self.mode)
-            
+                                                sep, self.mode)
+
         yoffsets = yoffsets_  + [yd for w,h,xd,yd in whd_list]
         ydescent = height - yoffsets[0]
         yoffsets = height - yoffsets
@@ -286,8 +301,9 @@ class VPacker(PackerBase):
         #w, h, xd, h_yd = whd_list[-1]
         yoffsets = yoffsets - ydescent
 
-        return width + 2*self.pad, height + 2*self.pad, \
-               xdescent+self.pad, ydescent+self.pad, \
+
+        return width + 2*pad, height + 2*pad, \
+               xdescent+pad, ydescent+pad, \
                zip(xoffsets, yoffsets)
 
 
@@ -296,7 +312,7 @@ class HPacker(PackerBase):
     The HPacker has its children packed horizontally. It automatically
     adjust the relative postisions of children in the drawing time.
     """
-    def __init__(self, pad=None, sep=None, width=None, height=None, 
+    def __init__(self, pad=None, sep=None, width=None, height=None,
                  align="baseline", mode="fixed",
                  children=None):
         """
@@ -306,6 +322,11 @@ class HPacker(PackerBase):
            calculated if None.
         *align* : alignment of boxes
         *mode* : packing mode
+
+        .. note::
+          *pad* and *sep* need to given in points and will be
+          scale with the renderer dpi, while *width* and *hight*
+          need to be in pixels.
         """
         super(HPacker, self).__init__(pad, sep, width, height,
                                       align, mode, children)
@@ -316,14 +337,18 @@ class HPacker(PackerBase):
         update offset of childrens and return the extents of the box
         """
 
+        dpicor = renderer.points_to_pixels(1.)
+        pad = self.pad * dpicor
+        sep = self.sep * dpicor
+
         whd_list = [c.get_extent(renderer) for c in self.get_children()]
 
         if self.height is None:
-            height_descent = max([h-yd for w,h,xd,yd in whd_list])  
+            height_descent = max([h-yd for w,h,xd,yd in whd_list])
             ydescent = max([yd for w,h,xd,yd in whd_list])
             height = height_descent + ydescent
         else:
-            height = self.height - 2*self._pad # width w/o pad
+            height = self.height - 2*pad # width w/o pad
 
         hd_list = [(h, yd) for w, h, xd, yd in whd_list]
         height, ydescent, yoffsets = _get_aligned_offsets(hd_list,
@@ -333,18 +358,18 @@ class HPacker(PackerBase):
 
         pack_list = [(w, xd) for w,h,xd,yd in whd_list]
         width, xoffsets_ = _get_packed_offsets(pack_list, self.width,
-                                               self.sep, self.mode)
+                                               sep, self.mode)
 
         xoffsets = xoffsets_  + [xd for w,h,xd,yd in whd_list]
 
         xdescent=whd_list[0][2]
         xoffsets = xoffsets - xdescent
-        
-        return width + 2*self.pad, height + 2*self.pad, \
-               xdescent + self.pad, ydescent + self.pad, \
+
+        return width + 2*pad, height + 2*pad, \
+               xdescent + pad, ydescent + pad, \
                zip(xoffsets, yoffsets)
 
-        
+
 
 class DrawingArea(OffsetBox):
     """
@@ -352,7 +377,7 @@ class DrawingArea(OffsetBox):
     has a fixed width and height. The position of children relative to
     the parent is fixed.
     """
-    
+
     def __init__(self, width, height, xdescent=0.,
                  ydescent=0., clip=True):
         """
@@ -371,13 +396,16 @@ class DrawingArea(OffsetBox):
         self.offset_transform.clear()
         self.offset_transform.translate(0, 0)
 
+        self.dpi_transform = mtransforms.Affine2D()
+
+
 
     def get_transform(self):
         """
         Return the :class:`~matplotlib.transforms.Transform` applied
         to the children
         """
-        return self.offset_transform
+        return self.dpi_transform + self.offset_transform
 
     def set_transform(self, t):
         """
@@ -404,7 +432,7 @@ class DrawingArea(OffsetBox):
         """
         return self._offset
 
-        
+
     def get_window_extent(self, renderer):
         '''
         get the bounding box in display space.
@@ -418,8 +446,11 @@ class DrawingArea(OffsetBox):
         """
         Return with, height, xdescent, ydescent of box
         """
-        return self.width, self.height, self.xdescent, self.ydescent
 
+        dpi_cor = renderer.points_to_pixels(1.)
+
+        return self.width*dpi_cor, self.height*dpi_cor, \
+               self.xdescent*dpi_cor, self.ydescent*dpi_cor
 
 
     def add_artist(self, a):
@@ -432,6 +463,10 @@ class DrawingArea(OffsetBox):
         """
         Draw the children
         """
+
+        dpi_cor = renderer.points_to_pixels(1.)
+        self.dpi_transform.clear()
+        self.dpi_transform.scale(dpi_cor, dpi_cor)
 
         for c in self._children:
             c.draw(renderer)
@@ -448,7 +483,7 @@ class TextArea(OffsetBox):
     """
 
 
-    
+
     def __init__(self, s,
                  textprops=None,
                  multilinebaseline=None,
@@ -473,7 +508,7 @@ class TextArea(OffsetBox):
         OffsetBox.__init__(self)
 
         self._children = [self._text]
-        
+
 
         self.offset_transform = mtransforms.Affine2D()
         self.offset_transform.clear()
@@ -483,7 +518,7 @@ class TextArea(OffsetBox):
 
         self._multilinebaseline = multilinebaseline
         self._minimumdescent = minimumdescent
-        
+
 
     def set_multilinebaseline(self, t):
         """
@@ -507,7 +542,7 @@ class TextArea(OffsetBox):
         """
         Set minimumdescent .
 
-        If True, extent of the single line text is adjusted so that 
+        If True, extent of the single line text is adjusted so that
         it has minimum descent of "p"
         """
         self._minimumdescent = t
@@ -545,7 +580,7 @@ class TextArea(OffsetBox):
         """
         return self._offset
 
-        
+
     def get_window_extent(self, renderer):
         '''
         get the bounding box in display space.

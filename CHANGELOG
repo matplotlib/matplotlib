@@ -1,3 +1,6 @@
+2009-02-04 Some reorgnization of the legend code. anchored_text.py
+           added as an example. - JJL
+
 2009-02-04 Add extent keyword arg to hexbin - ADS
 
 2009-02-04 Fix bug in mathtext related to \dots and \ldots - MGD
