@@ -36,7 +36,7 @@ Modules include:
         defines the :class:`~matplotlib.lines.Line2D` class for
         drawing lines and markers
 
-    :mod`matplotlib.patches`
+    :mod:`matplotlib.patches`
         defines classes for drawing polygons
 
     :mod:`matplotlib.text`
