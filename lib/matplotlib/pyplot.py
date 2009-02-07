@@ -1418,8 +1418,8 @@ def polar(*args, **kwargs):
     with format strings, as in :func:`~matplotlib.pyplot.plot`.
 
     An optional kwarg *resolution* sets the number of vertices to
-    interpolate between each pair of points.  Set to 1 to disable
-    interpolation.
+    interpolate between each pair of points.  The default is 1,
+    which disables interpolation.
     """
     resolution = kwargs.pop('resolution', None)
     ax = gca(polar=True, resolution=resolution)
