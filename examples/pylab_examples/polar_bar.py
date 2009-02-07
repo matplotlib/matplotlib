@@ -7,7 +7,7 @@ from matplotlib.pyplot import figure, show, rc
 
 # force square figure and square axes looks better for polar, IMO
 fig = figure(figsize=(8,8))
-ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True, resolution=50)
 
 N = 20
 theta = np.arange(0.0, 2*np.pi, 2*np.pi/N)
