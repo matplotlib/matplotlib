@@ -4094,18 +4094,12 @@ class Axes(martist.Artist):
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
         if self.xaxis is not None:
-            xconv = self.xaxis.converter
-            if xconv is not None:
-                units = self.xaxis.get_units()
-                left = xconv.convert( left, units )
-                width = xconv.convert( width, units )
+            left = self.convert_xunits( left )
+            width = self.convert_xunits( width )
 
         if self.yaxis is not None:
-            yconv = self.yaxis.converter
-            if yconv is not None :
-                units = self.yaxis.get_units()
-                bottom = yconv.convert( bottom, units )
-                height = yconv.convert( height, units )
+            bottom = self.convert_yunits( bottom )
+            height = self.convert_yunits( height )
 
         if align == 'edge':
             pass
