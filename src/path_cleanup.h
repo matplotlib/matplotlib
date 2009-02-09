@@ -12,8 +12,8 @@ enum e_quantize_mode
 
 void*
 get_path_iterator(
-  PyObject* path, PyObject* trans, int remove_nans, int do_clip,
-  double rect[4], e_quantize_mode quantize_mode, int do_simplify);
+    PyObject* path, PyObject* trans, int remove_nans, int do_clip,
+    double rect[4], e_quantize_mode quantize_mode, int do_simplify);
 
 unsigned
 get_vertex(void* pipeline, double* x, double* y);

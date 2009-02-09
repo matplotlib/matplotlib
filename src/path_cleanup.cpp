@@ -7,7 +7,8 @@
 #include "agg_py_transforms.h"
 #include "path_converters.h"
 
-class PathCleanupIterator {
+class PathCleanupIterator
+{
     typedef agg::conv_transform<PathIterator>  transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t>         clipped_t;
@@ -49,36 +50,36 @@ public:
 };
 
 extern "C" {
-  void*
-  get_path_iterator(
-    PyObject* path, PyObject* trans, int remove_nans, int do_clip,
-    double rect[4], e_quantize_mode quantize_mode, int do_simplify)
-  {
-    agg::trans_affine agg_trans = py_to_agg_transformation_matrix(trans, false);
-    agg::rect_base<double> clip_rect(rect[0], rect[1], rect[2], rect[3]);
+    void*
+    get_path_iterator(
+        PyObject* path, PyObject* trans, int remove_nans, int do_clip,
+        double rect[4], e_quantize_mode quantize_mode, int do_simplify)
+    {
+        agg::trans_affine agg_trans = py_to_agg_transformation_matrix(trans, false);
+        agg::rect_base<double> clip_rect(rect[0], rect[1], rect[2], rect[3]);
 
-    PathCleanupIterator* pipeline = new PathCleanupIterator(
-      path, agg_trans, remove_nans != 0, do_clip != 0,
-      clip_rect, quantize_mode, do_simplify != 0);
+        PathCleanupIterator* pipeline = new PathCleanupIterator(
+            path, agg_trans, remove_nans != 0, do_clip != 0,
+            clip_rect, quantize_mode, do_simplify != 0);
 
-    return (void*)pipeline;
-  }
+        return (void*)pipeline;
+    }
 
-  unsigned
-  get_vertex(void* pipeline, double* x, double* y)
-  {
-    PathCleanupIterator* pipeline_iter = (PathCleanupIterator*)pipeline;
+    unsigned
+    get_vertex(void* pipeline, double* x, double* y)
+    {
+        PathCleanupIterator* pipeline_iter = (PathCleanupIterator*)pipeline;
 
-    unsigned code = pipeline_iter->vertex(x, y);
-    return code;
-  }
+        unsigned code = pipeline_iter->vertex(x, y);
+        return code;
+    }
 
-  void
-  free_path_iterator(void* pipeline)
-  {
-    PathCleanupIterator* pipeline_iter = (PathCleanupIterator*)pipeline;
+    void
+    free_path_iterator(void* pipeline)
+    {
+        PathCleanupIterator* pipeline_iter = (PathCleanupIterator*)pipeline;
 
-    delete pipeline_iter;
-  }
+        delete pipeline_iter;
+    }
 }
 
