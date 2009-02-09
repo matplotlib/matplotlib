@@ -35,7 +35,7 @@ backend      : %(backend)s
 # you if backend_fallback is True
 #backend_fallback: True
 numerix      : %(numerix)s  # numpy, Numeric or numarray
-#interactive  : False      # see http://matplotlib.sourceforge.net/interactive.html
+#interactive  : False
 #toolbar      : toolbar2   # None | classic | toolbar2
 #timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Paris
 
@@ -45,7 +45,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 
 
 ### LINES
-# See http://matplotlib.sourceforge.net/matplotlib.lines.html for more
+# See http://matplotlib.sourceforge.net/api/artist_api.html#module-matplotlib.lines for more
 # information on line properties.
 #lines.linewidth   : 1.0     # line width in points
 #lines.linestyle   : -       # solid line
@@ -62,7 +62,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 ### PATCHES
 # Patches are graphical objects that fill 2D space, like polygons or
 # circles.  See
-# http://matplotlib.sourceforge.net/matplotlib.patches.html for more
+# http://matplotlib.sourceforge.net/api/artist_api.html#module-matplotlib.patches
 # information on patch properties
 #patch.linewidth   	: 1.0     # edge width in points
 #patch.facecolor  	: blue
@@ -72,7 +72,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 ### FONT
 #
 # font properties used by text.Text.  See
-# http://matplotlib.sourceforge.net/matplotlib.font_manager.html for more
+# http://matplotlib.sourceforge.net/api/font_manager_api.html for more
 # information on font properties.  The 6 font properties used for font
 # matching are given below with their default values.
 #
@@ -123,7 +123,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 
 ### TEXT
 # text properties used by text.Text.  See
-# http://matplotlib.sourceforge.net/matplotlib.text.html for more
+# http://matplotlib.sourceforge.net/api/artist_api.html#module-matplotlib.text for more
 # information on text properties
 
 #text.color          : black
@@ -193,7 +193,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 ### AXES
 # default face and edge color, default tick sizes,
 # default fontsizes for ticklabels, and so on.  See
-# http://matplotlib.sourceforge.net/matplotlib.axes.html#Axes
+# http://matplotlib.sourceforge.net/api/axes_api.html#module-matplotlib.axes
 #axes.hold           : True    # whether to clear the axes by default on
 #axes.facecolor      : white   # axes background color
 #axes.edgecolor      : black   # axes edge color
@@ -213,7 +213,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 #polaraxes.grid      : True    # display grid on polar axes
 
 ### TICKS
-# see http://matplotlib.sourceforge.net/matplotlib.axis.html#Ticks
+# see http://matplotlib.sourceforge.net/api/axis_api.html#matplotlib.axis.Tick
 #xtick.major.size     : 4      # major tick size in points
 #xtick.minor.size     : 2      # minor tick size in points
 #xtick.major.pad      : 4      # distance to major tick label in points
@@ -253,7 +253,7 @@ numerix      : %(numerix)s  # numpy, Numeric or numarray
 #legend.shadow        : False
 
 ### FIGURE
-# See http://matplotlib.sourceforge.net/matplotlib.figure.html#Figure
+# See http://matplotlib.sourceforge.net/api/figure_api.html#matplotlib.figure.Figure
 #figure.figsize   : 8, 6    # figure size in inches
 #figure.dpi       : 80      # figure dots per inch
 #figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
