@@ -1205,7 +1205,7 @@ Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
 template<class VertexSource>
 void __cleanup_path(VertexSource& source,
                     std::vector<double>& vertices,
-                    std::vector<uint8_t>& codes) {
+                    std::vector<npy_uint8>& codes) {
     unsigned code;
     double x, y;
     do
@@ -1213,7 +1213,7 @@ void __cleanup_path(VertexSource& source,
         code = source.vertex(&x, &y);
         vertices.push_back(x);
         vertices.push_back(y);
-        codes.push_back((uint8_t)code);
+        codes.push_back((npy_uint8)code);
     } while (code != agg::path_cmd_stop);
 }
 
@@ -1222,7 +1222,7 @@ void _cleanup_path(PathIterator& path, const agg::trans_affine& trans,
                    const agg::rect_base<double>& rect,
                    e_quantize_mode quantize_mode, bool do_simplify,
                    bool return_curves, std::vector<double>& vertices,
-                   std::vector<uint8_t>& codes) {
+                   std::vector<npy_uint8>& codes) {
     typedef agg::conv_transform<PathIterator>  transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t>         clipped_t;
@@ -1306,7 +1306,7 @@ Py::Object _path_module::cleanup_path(const Py::Tuple& args)
     bool return_curves = args[6].isTrue();
 
     std::vector<double> vertices;
-    std::vector<uint8_t> codes;
+    std::vector<npy_uint8> codes;
 
     _cleanup_path(path, trans, remove_nans, do_clip, clip_rect, quantize_mode,
                   simplify, return_curves, vertices, codes);
@@ -1333,7 +1333,7 @@ Py::Object _path_module::cleanup_path(const Py::Tuple& args)
         }
 
         memcpy(PyArray_DATA(vertices_obj), &vertices[0], sizeof(double) * 2 * length);
-        memcpy(PyArray_DATA(codes_obj), &codes[0], sizeof(uint8_t) * length);
+        memcpy(PyArray_DATA(codes_obj), &codes[0], sizeof(npy_uint8) * length);
 
         result[0] = Py::Object((PyObject*)vertices_obj, true);
         result[1] = Py::Object((PyObject*)codes_obj, true);
