@@ -366,7 +366,6 @@ enum e_quantize_mode
 template<class VertexSource>
 class PathQuantizer
 {
- public:
  private:
     VertexSource* m_source;
     bool          m_quantize;
