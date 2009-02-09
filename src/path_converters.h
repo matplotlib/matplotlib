@@ -151,6 +151,10 @@ class PathNanRemover : protected EmbeddedQueue<4> {
 
             bool needs_move_to = false;
             while (true) {
+                /* The approach here is to push each full curve
+                   segment into the queue.  If any non-finite values
+                   are found along the way, the queue is emptied, and
+                   the next curve segment is handled. */
                 code = m_source->vertex(x, y);
                 if (code == agg::path_cmd_stop ||
                     code == (agg::path_cmd_end_poly | agg::path_flags_close))
