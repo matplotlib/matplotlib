@@ -140,7 +140,8 @@ class _process_plot_var_args:
         self.colors = _process_plot_var_args.defaultColors[:]
         # if the default line color is a color format string, move it up
         # in the que
-        try: ind = self.colors.index(rcParams['lines.color'])
+        try:
+            ind = self.colors.index(rcParams['lines.color'])
         except ValueError:
             self.firstColor = rcParams['lines.color']
         else:
@@ -7415,7 +7416,7 @@ class Axes(martist.Artist):
         return the tight bounding box of the axes.
         The dimension of the Bbox in canvas coordinate.
         """
-        
+
         artists = []
         bb = []
 
