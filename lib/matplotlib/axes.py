@@ -2880,8 +2880,8 @@ class Axes(martist.Artist):
         Draw a vertical line at *x* from *ymin* to *ymax*.  With the
         default values of *ymin* = 0 and *ymax* = 1, this line will
         always span the vertical extent of the axes, regardless of the
-        xlim settings, even if you change them, eg. with the
-        :meth:`set_xlim` command.  That is, the vertical extent is in
+        ylim settings, even if you change them, eg. with the
+        :meth:`set_ylim` command.  That is, the vertical extent is in
         axes coords: 0=bottom, 0.5=middle, 1.0=top but the *x* location
         is in data coordinates.
 
