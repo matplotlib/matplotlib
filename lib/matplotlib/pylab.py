@@ -50,6 +50,7 @@ _Plotting commands
   ion      - turn interaction mode on
   isinteractive - return True if interaction mode is on
   imread   - load image file into array
+  imsave   - save array as an image file
   imshow   - plot image data
   ishold   - return the hold state of the current axes
   legend   - make an axes legend

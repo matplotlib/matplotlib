@@ -1,3 +1,6 @@
+2009-02-08 Added a new imsave function to image.py and exposed it in
+           the pyplot interface - GR
+
 2009-02-04 Some reorgnization of the legend code. anchored_text.py
            added as an example. - JJL
 

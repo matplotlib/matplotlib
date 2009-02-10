@@ -6,6 +6,7 @@ from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
 from matplotlib.figure import Figure, figaspect
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.image import imread as _imread
+from matplotlib.image import imsave as _imsave
 from matplotlib import rcParams, rcParamsDefault, get_backend
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import getp, get, Artist
@@ -1181,6 +1182,7 @@ def plotting():
     legend          add a legend to the axes
     loglog          a log log plot
     imread          load image file into array
+    imsave          save array as an image file
     imshow          plot image data
     matshow         display a matrix in a new figure preserving aspect
     pcolor          make a pseudocolor plot
@@ -1230,7 +1232,7 @@ def plotting():
 def get_plot_commands(): return ( 'axes', 'axis', 'bar', 'boxplot', 'cla', 'clf',
     'close', 'colorbar', 'cohere', 'csd', 'draw', 'errorbar',
     'figlegend', 'figtext', 'figimage', 'figure', 'fill', 'gca',
-    'gcf', 'gci', 'get', 'gray', 'barh', 'jet', 'hist', 'hold', 'imread',
+    'gcf', 'gci', 'get', 'gray', 'barh', 'jet', 'hist', 'hold', 'imread', 'imsave',
     'imshow', 'legend', 'loglog', 'quiver', 'rc', 'pcolor', 'pcolormesh', 'plot', 'psd',
     'savefig', 'scatter', 'set', 'semilogx', 'semilogy', 'show',
     'specgram', 'stem', 'subplot', 'table', 'text', 'title', 'xlabel',
@@ -1369,6 +1371,11 @@ def imread(*args, **kwargs):
     return _imread(*args, **kwargs)
 if _imread.__doc__ is not None:
     imread.__doc__ = dedent(_imread.__doc__)
+
+def imsave(*args, **kwargs):
+    return _imsave(*args, **kwargs)
+if _imsave.__doc__ is not None:
+    imsave.__doc__ = dedent(_imsave.__doc__)
 
 def matshow(A, fignum=None, **kw):
     """
