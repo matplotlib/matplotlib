@@ -162,7 +162,8 @@ class PathNanRemover : protected EmbeddedQueue<4> {
                     return code;
                 }
 
-                if (needs_move_to) {
+                if (needs_move_to)
+                {
                     queue_push(agg::path_cmd_move_to, *x, *y);
                 }
 
@@ -185,6 +186,9 @@ class PathNanRemover : protected EmbeddedQueue<4> {
 
                 queue_clear();
 
+                /* If the last point is finite, we use that for the
+                   moveto, otherwise, we'll use the first vertex of
+                   the next curve. */
                 if (!(MPL_notisfinite64(*x) || MPL_notisfinite64(*y)))
                 {
                     queue_push(agg::path_cmd_move_to, *x, *y);
@@ -318,8 +322,8 @@ class PathClipper
                     m_lastY = *y;
                     unsigned moved = agg::clip_line_segment(&x0, &y0, &x1, &y1, m_cliprect);
                     // moved >= 4 - Fully clipped
-                    // moved != 0 - First point has been moved
-                    // moved != 0 - Second point has been moved
+                    // moved & 1 != 0 - First point has been moved
+                    // moved & 2 != 0 - Second point has been moved
                     if (moved < 4)
                     {
                         if (moved & 1)
@@ -480,7 +484,7 @@ public:
         m_lastMax(false), m_nextX(0.0), m_nextY(0.0),
         m_lastWrittenX(0.0), m_lastWrittenY(0.0)
     {
-      // empty
+        // empty
     }
 
     inline void rewind(unsigned path_id)
@@ -719,7 +723,8 @@ private:
 
         /* If we clipped some segments between this line and the next line
            we are starting, we also need to move to the last point. */
-        if (m_clipped) {
+        if (m_clipped)
+        {
             queue_push(agg::path_cmd_move_to, m_lastx, m_lasty);
         }
         else if (!m_lastMax)
