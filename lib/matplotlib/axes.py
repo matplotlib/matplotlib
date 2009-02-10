@@ -613,9 +613,9 @@ class Axes(martist.Artist):
         self.transData = self.transScale + (self.transLimits + self.transAxes)
 
         self._xaxis_transform = mtransforms.blended_transform_factory(
-                self.axes.transData, self.axes.transAxes)
+                self.transData, self.transAxes)
         self._yaxis_transform = mtransforms.blended_transform_factory(
-                self.axes.transAxes, self.axes.transData)
+                self.transAxes, self.transData)
 
     def get_xaxis_transform(self):
         """
