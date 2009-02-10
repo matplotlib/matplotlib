@@ -1,3 +1,7 @@
+2009-02-10 Fixed a bug in backend_pdf so it doesn't break when the setting
+           pdf.use14corefonts=True is used. Added test case in
+           unit/test_pdf_use14corefonts.py. - NGR
+
 2009-02-08 Added a new imsave function to image.py and exposed it in
            the pyplot interface - GR
 
