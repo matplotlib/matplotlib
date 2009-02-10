@@ -594,11 +594,20 @@ class Axes(martist.Artist):
         :class:`~matplotlib.transforms.Bbox` attributes and the
         *transScale*, *transData*, *transLimits* and *transAxes*
         transformations.
+
+        .. note::
+            This method is primarily used by rectilinear projections
+            of the :class:`~matplotlib.axes.Axes` class, and is meant
+            to be overridden by new kinds of projection axes that need
+            different transformations and limits. (See
+            :class:`~matplotlib.projections.polar.PolarAxes` for an
+            example.
         """
         self.transAxes = mtransforms.BboxTransformTo(self.bbox)
 
-        # Transforms the x and y axis separately by a scale factor
+        # Transforms the x and y axis separately by a scale factor.
         # It is assumed that this part will have non-linear components
+        # (e.g. for a log scale).
         self.transScale = mtransforms.TransformWrapper(
             mtransforms.IdentityTransform())
 
