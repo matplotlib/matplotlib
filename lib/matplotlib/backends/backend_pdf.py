@@ -1465,7 +1465,7 @@ class RendererPdf(RendererBase):
             self.draw_path(boxgc, path, mytrans, gc._rgb)
 
     def encode_string(self, s, fonttype):
-        if fonttype == 3:
+        if fonttype in (1, 3):
             return s.encode('cp1252', 'replace')
         return s.encode('utf-16be', 'replace')
 
@@ -1492,7 +1492,7 @@ class RendererPdf(RendererBase):
             font = self._get_font_afm(prop)
             l, b, w, h = font.get_str_bbox(s)
             descent = -b * fontsize / 1000
-            fonttype = 42
+            fonttype = 1
         else:
             font = self._get_font_ttf(prop)
             self.track_characters(font, s)
@@ -1627,9 +1627,9 @@ class RendererPdf(RendererBase):
             font = self._get_font_afm(prop)
             l, b, w, h, d = font.get_str_bbox_and_descent(s)
             scale = prop.get_size_in_points()
-            w *= scale
-            h *= scale
-            d *= scale
+            w *= scale / 1000
+            h *= scale / 1000
+            d *= scale / 1000
         else:
             font = self._get_font_ttf(prop)
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
