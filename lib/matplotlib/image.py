@@ -747,6 +747,42 @@ def imread(fname):
     return handler(fname)
 
 
+def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None, origin=None):
+    """
+    Saves a 2D :class:`numpy.array` as an image with one pixel per element.
+    The output formats available depend on the backend being used.
+
+    Arguments:
+      *fname*:
+        A string containing a path to a filename, or a Python file-like object.
+        If *format* is *None* and *fname* is a string, the output
+        format is deduced from the extension of the filename.
+      *arr*:
+        A 2D array.
+    Keyword arguments:
+      *vmin*/*vmax*: [ None | scalar ]
+        *vmin* and *vmax* set the color scaling for the image by fixing the
+        values that map to the colormap color limits. If either *vmin* or *vmax*
+        is None, that limit is determined from the *arr* min/max value.
+      *cmap*:
+        cmap is a colors.Colormap instance, eg cm.jet.
+        If None, default to the rc image.cmap value.
+      *format*:
+        One of the file extensions supported by the active
+        backend.  Most backends support png, pdf, ps, eps and svg.
+      *origin*
+        [ 'upper' | 'lower' ] Indicates where the [0,0] index of
+        the array is in the upper left or lower left corner of
+        the axes. Defaults to the rc image.origin value.
+    """
+    from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+    from matplotlib.figure import Figure
+
+    fig = Figure(figsize=arr.shape[::-1], dpi=1, frameon=False)
+    canvas = FigureCanvas(fig)
+    fig.figimage(arr, cmap=cmap, vmin=vmin, vmax=vmax, origin=origin)
+    fig.savefig(fname, dpi=1, format=format)
+
 
 def pil_to_array( pilImage ):
     """
