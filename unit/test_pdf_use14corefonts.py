@@ -1,15 +1,30 @@
-# encoding: utf-8
+# -*- encoding: utf-8 -*-
+"""
+Test the PDF backend with the option use14corefonts=True.
 
-import matplotlib
-matplotlib.use('PDF')
+Font cache issue
+----------------
+
+The font cache doesn't record whether it was build with
+pdf.use14corefonts enabled or not, and the font name "Helvetica"
+happens to match "Helvetica Narrow", whose metrics are included with
+matplotlib, and using that AFM file without including the font itself
+breaks the output.
+
+As a workaround, please reset the font cache by deleting
+~/.matplotlib/fontList.cache each time you enable or disable
+use14corefonts.
+"""
 
 from matplotlib import rcParams
-import pylab
 
+rcParams['backend'] = 'pdf'
 rcParams['pdf.use14corefonts'] = True
 rcParams['font.family'] = 'sans-serif'
 rcParams['font.size'] = 8
 rcParams['font.sans-serif'] = ['Helvetica']
+
+import pylab
 
 title = u'Test PDF backend with option use14corefonts=True'
 
