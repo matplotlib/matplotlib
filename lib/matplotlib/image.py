@@ -317,8 +317,9 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         xmin, xmax, ymin, ymax = extent
         corners = (xmin, ymin), (xmax, ymax)
         self.axes.update_datalim(corners)
-        if self.axes._autoscaleon:
+        if self.axes._autoscaleXon:
             self.axes.set_xlim((xmin, xmax))
+        if self.axes._autoscaleYon:
             self.axes.set_ylim((ymin, ymax))
 
     def get_interpolation(self):
