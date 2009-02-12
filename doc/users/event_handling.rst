@@ -553,10 +553,3 @@ Exercise solution::
     fig.canvas.mpl_connect('pick_event', onpick)
 
     plt.show()
-
-
-
-
-
-
-
