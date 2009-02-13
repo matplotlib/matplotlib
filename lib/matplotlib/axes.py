@@ -5743,7 +5743,7 @@ class Axes(martist.Artist):
             corner of the axes. If *None*, default to rc ``image.origin``.
 
           *extent*: [ None | scalars (left, right, bottom, top) ]
-            Eata values of the axes.  The default assigns zero-based row,
+            Data limits for the axes.  The default assigns zero-based row,
             column indices to the *x*, *y* centers of the pixels.
 
           *shape*: [ None | scalars (columns, rows) ]
