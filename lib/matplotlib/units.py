@@ -44,7 +44,7 @@ datetime objects
 
 """
 import numpy as np
-from matplotlib.cbook import iterable, is_numlike
+from matplotlib.cbook import iterable, is_numlike, is_string_like
 
 class AxisInfo:
     'information to support default axis labeling and tick labeling'
@@ -127,7 +127,10 @@ class Registry(dict):
         if classx is not None:
             converter = self.get(classx)
 
-        if converter is None and iterable(x):
+        # Check explicity for strings here because they would otherwise
+        # lead to an infinite recursion, because a single character will
+        # pass the iterable() check.
+        if converter is None and iterable(x) and not is_string_like(x):
             # if this is anything but an object array, we'll assume
             # there are no custom units
             if isinstance(x, np.ndarray) and x.dtype != np.object:
