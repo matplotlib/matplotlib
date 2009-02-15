@@ -174,6 +174,12 @@ class OffsetBox(martist.Artist):
         """
         self.height = height
 
+    def get_visible_children(self):
+        """
+        Return a list of visible artists it contains.
+        """
+        return [c for c in self._children if c.get_visible()]
+
     def get_children(self):
         """
         Return a list of artists it contains.
@@ -208,7 +214,7 @@ class OffsetBox(martist.Artist):
 
         px, py = self.get_offset(width, height, xdescent, ydescent)
 
-        for c, (ox, oy) in zip(self.get_children(), offsets):
+        for c, (ox, oy) in zip(self.get_visible_children(), offsets):
             c.set_offset((px+ox, py+oy))
             c.draw(renderer)
 
@@ -281,7 +287,12 @@ class VPacker(PackerBase):
         pad = self.pad * dpicor
         sep = self.sep * dpicor
 
-        whd_list = [c.get_extent(renderer) for c in self.get_children()]
+        if self.width is not None:
+            for c in self.get_visible_children():
+                if isinstance(c, PackerBase) and c.mode == "expand":
+                    c.set_width(self.width)
+        
+        whd_list = [c.get_extent(renderer) for c in self.get_visible_children()]
         whd_list = [(w, h, xd, (h-yd)) for w, h, xd, yd in whd_list]
 
 
@@ -341,7 +352,7 @@ class HPacker(PackerBase):
         pad = self.pad * dpicor
         sep = self.sep * dpicor
 
-        whd_list = [c.get_extent(renderer) for c in self.get_children()]
+        whd_list = [c.get_extent(renderer) for c in self.get_visible_children()]
 
         if self.height is None:
             height_descent = max([h-yd for w,h,xd,yd in whd_list])
@@ -519,6 +530,14 @@ class TextArea(OffsetBox):
         self._multilinebaseline = multilinebaseline
         self._minimumdescent = minimumdescent
 
+
+    def set_text(self, s):
+        "set text"
+        self._text.set_text(s)
+
+    def get_text(self):
+        "get text"
+        return self._text.get_text()
 
     def set_multilinebaseline(self, t):
         """

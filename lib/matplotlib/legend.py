@@ -110,7 +110,8 @@ class Legend(Artist):
                  mode=None, # mode for horizontal distribution of columns. None, "expand"
 
                  fancybox=None, # True use a fancy box, false use a rounded box, none use rc
-                 shadow = None,
+                 shadow = None, 
+                 title = None, # set a title for the legend
                  ):
         """
         - *parent* : the artist that contains the legend
@@ -135,6 +136,7 @@ class Legend(Artist):
         handletextpad      the pad between the legend handle and text
         borderaxespad      the pad between the axes and legend border
         columnspacing      the spacing between columns
+        title              the legend title
         ================   ==================================================================
 
 The dimensions of pad and spacing are given as a fraction of the
@@ -276,6 +278,8 @@ _fontsize. Values from rcParams will be used if None.
         # init with null renderer
         self._init_legend_box(handles, labels)
 
+        self.set_title(title)
+
         self._last_fontsize_points = self._fontsize
 
 
@@ -315,6 +319,7 @@ _fontsize. Values from rcParams will be used if None.
 
 
         renderer.open_group('legend')
+
 
         # find_offset function will be provided to _legend_box and
         # _legend_box will draw itself at the location of the return
@@ -562,10 +567,18 @@ _fontsize. Values from rcParams will be used if None.
 
         sep = self.columnspacing*fontsize
 
-        self._legend_box = HPacker(pad=self.borderpad*fontsize,
-                                   sep=sep, align="baseline",
-                                   mode=mode,
-                                   children=columnbox)
+        self._legend_handle_box = HPacker(pad=0, 
+                                          sep=sep, align="baseline",
+                                          mode=mode,
+                                          children=columnbox)
+
+        self._legend_title_box = TextArea("")
+        
+        self._legend_box = VPacker(pad=self.borderpad*fontsize,
+                                   sep=self.labelspacing*fontsize,
+                                   align="center",
+                                   children=[self._legend_title_box,
+                                             self._legend_handle_box])
 
         self._legend_box.set_figure(self.figure)
 
@@ -639,6 +652,19 @@ _fontsize. Values from rcParams will be used if None.
     def get_texts(self):
         'return a list of text.Text instance in the legend'
         return silent_list('Text', self.texts)
+
+    def set_title(self, title):
+        'set the legend title'
+        self._legend_title_box._text.set_text(title)
+
+        if title:
+            self._legend_title_box.set_visible(True)
+        else:
+            self._legend_title_box.set_visible(False)
+
+    def get_title(self):
+        'return Text instance for the legend title'
+        return self._legend_title_box._text
 
     def get_window_extent(self):
         'return a extent of the the legend'

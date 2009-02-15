@@ -1,3 +1,5 @@
+2009-02-14 Added the legend title support - JJL
+
 2009-02-10 Fixed a bug in backend_pdf so it doesn't break when the setting
            pdf.use14corefonts=True is used. Added test case in
            unit/test_pdf_use14corefonts.py. - NGR
