@@ -18,8 +18,8 @@ ax1.legend(loc=1, ncol=3, shadow=True)
 
 ax2 = plt.subplot(3,1,2)
 myplot(ax2)
-ax2.legend(loc=1, ncol=2, shadow=True)
-
+ax2.legend(loc=1, ncol=2, shadow=True, title="Legend")
+ax2.get_legend().get_title().set_color("red")
 
 ax3 = plt.subplot(3,1,3)
 myplot(ax3)
