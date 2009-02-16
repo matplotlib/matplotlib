@@ -1,3 +1,6 @@
+2009-02-16 Move mathmpl.py to the installed source tree so it is
+           available to other projects. - MGD
+
 2009-02-04 Fix bug in mathtext related to \dots and \ldots - MGD
 
 2009-01-29 Document 'resolution' kwarg for polar plots.  Support it
