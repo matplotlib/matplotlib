@@ -1,15 +1,11 @@
-"""Sphinx directives for selective inclusion of contents.
+#
+# A pair of directives for inserting content that will only appear in
+# either html or latex.
+#
 
-A pair of directives for inserting content that will only appear in
-either html or latex.
-"""
-
-# Required modules
 from docutils.nodes import Body, Element
 from docutils.parsers.rst import directives
 
-
-# Code begins
 class only_base(Body, Element):
     def dont_traverse(self, *args, **kwargs):
         return []

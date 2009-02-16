@@ -1,3 +1,6 @@
+2009-02-16 Move mathmpl.py to the installed source tree so it is
+           available to other projects. - MGD
+
 2009-02-14 Added the legend title support - JJL
 
 2009-02-10 Fixed a bug in backend_pdf so it doesn't break when the setting
