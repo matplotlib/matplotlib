@@ -1,3 +1,6 @@
+2009-02-16 Move plot_directive.py to the installed source tree.  Add
+           support for inline code content - MGD
+
 2009-02-16 Move mathmpl.py to the installed source tree so it is
            available to other projects. - MGD
 

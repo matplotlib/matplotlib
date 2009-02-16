@@ -16,7 +16,11 @@ The set of file formats to generate can be specified with the
 plot_formats configuration variable.
 """
 
-import sys, os, glob, shutil, imp, warnings, cStringIO
+import sys, os, glob, shutil, hashlib, imp, warnings, cStringIO
+try:
+    from hashlib import md5
+except ImportError:
+    from md5 import md5
 from docutils.parsers.rst import directives
 try:
     # docutils 0.4
@@ -33,6 +37,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.image as image
 from matplotlib import _pylab_helpers
+
+import only_directives
 
 if hasattr(os.path, 'relpath'):
     relpath = os.path.relpath
@@ -134,16 +140,20 @@ def runfile(fullpath):
         sys.stdout = stdout
     return module
 
-def makefig(fullpath, outdir):
+def makefig(fullpath, code, outdir):
     """
     run a pyplot script and save the low and high res PNGs and a PDF in _static
     """
     formats = [('png', 80), ('hires.png', 200), ('pdf', 50)]
 
     fullpath = str(fullpath)  # todo, why is unicode breaking this
-
     basedir, fname = os.path.split(fullpath)
     basename, ext = os.path.splitext(fname)
+
+    if str(basename) == "None":
+        import pdb
+        pdb.set_trace()
+
     all_exists = True
 
     # Look for single-figure output files first
@@ -183,12 +193,15 @@ def makefig(fullpath, outdir):
     # Set a figure size that doesn't overflow typical browser windows
     matplotlib.rcParams['figure.figsize'] = (5.5, 4.5)
 
-    try:
-        runfile(fullpath)
-    except:
-	s = cbook.exception_to_str("Exception running plot %s" % fullpath)
-        warnings.warn(s)
-        return 0
+    if code is not None:
+        exec(code)
+    else:
+        try:
+            runfile(fullpath)
+        except:
+            s = cbook.exception_to_str("Exception running plot %s" % fullpath)
+            warnings.warn(s)
+            return 0
 
     fig_managers = _pylab_helpers.Gcf.get_all_fig_managers()
     for i, figman in enumerate(fig_managers):
@@ -218,10 +231,21 @@ def plot_directive(name, arguments, options, content, lineno,
     if type(formats) == str:
         formats = eval(formats)
 
-    reference = directives.uri(arguments[0])
-    basedir, fname = os.path.split(reference)
-    basename, ext = os.path.splitext(fname)
-    basedir = relpath(basedir, setup.app.builder.srcdir)
+    # The user may provide a filename *or* Python code content, but not both
+    if len(arguments) == 1:
+        reference = directives.uri(arguments[0])
+        basedir, fname = os.path.split(reference)
+        basename, ext = os.path.splitext(fname)
+        basedir = relpath(basedir, setup.app.builder.srcdir)
+        if len(content):
+            raise ValueError("plot directive may not specify both a filename and inline content")
+        content = None
+    else:
+        basedir = "inline"
+        content = '\n'.join(content)
+        # Since we don't have a filename, use a hash based on the content
+        reference = basename = md5(content).hexdigest()[-10:]
+        fname = None
 
     # Get the directory of the rst file, and determine the relative
     # path from the resulting html file to the plot_directive links
@@ -249,11 +273,12 @@ def plot_directive(name, arguments, options, content, lineno,
         cbook.mkdirs(destdir)
 
     # Generate the figures, and return the number of them
-    num_figs = makefig(reference, tmpdir)
+    num_figs = makefig(reference, content, tmpdir)
 
     if options.has_key('include-source'):
-        contents = open(reference, 'r').read()
-        lines = ['::', ''] + ['    %s'%row.rstrip() for row in contents.split('\n')]
+        if content is None:
+            content = open(reference, 'r').read()
+        lines = ['::', ''] + ['    %s'%row.rstrip() for row in content.split('\n')]
         del options['include-source']
     else:
         lines = []
@@ -262,7 +287,8 @@ def plot_directive(name, arguments, options, content, lineno,
         options = ['      :%s: %s' % (key, val) for key, val in
                    options.items()]
         options = "\n".join(options)
-        shutil.copyfile(reference, os.path.join(destdir, fname))
+        if fname is not None:
+            shutil.copyfile(reference, os.path.join(destdir, fname))
 
         for i in range(num_figs):
             if num_figs == 1:
@@ -272,7 +298,9 @@ def plot_directive(name, arguments, options, content, lineno,
 
             # Copy the linked-to files to the destination within the build tree,
             # and add a link for them
-            links = ['`source code <%(linkdir)s/%(basename)s.py>`__']
+            links = []
+            if fname is not None:
+                links.append('`source code <%(linkdir)s/%(basename)s.py>`__')
             for format in formats[1:]:
                 shutil.copyfile(os.path.join(tmpdir, outname + "." + format),
                                 os.path.join(destdir, outname + "." + format))
@@ -295,7 +323,7 @@ def setup(app):
     setup.config = app.config
     setup.confdir = app.confdir
 
-    app.add_directive('plot', plot_directive, False, (1, 0, 1), **options)
+    app.add_directive('plot', plot_directive, True, (0, 1, 0), **options)
     app.add_config_value(
         'plot_formats',
         ['png', 'hires.png', 'pdf'],
