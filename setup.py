@@ -58,7 +58,8 @@ packages = [
     'matplotlib.numerix.npyma',
     'matplotlib.numerix.linear_algebra',
     'matplotlib.numerix.random_array',
-    'matplotlib.numerix.fft'
+    'matplotlib.numerix.fft',
+    'matplotlib.sphinxext'
     ]
 
 py_modules = ['pylab']
