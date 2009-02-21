@@ -19,12 +19,12 @@ datetime objects
     class DateConverter(units.ConversionInterface):
 
         @staticmethod
-        def convert(value, unit):
+        def convert(value, unit, axis):
             'convert value to a scalar or array'
             return dates.date2num(value)
 
         @staticmethod
-        def axisinfo(unit):
+        def axisinfo(unit, axis):
             'return major and minor tick locators and formatters'
             if unit!='date': return None
             majloc = dates.AutoDateLocator()
@@ -34,7 +34,7 @@ datetime objects
                             label='date')
 
         @staticmethod
-        def default_units(x):
+        def default_units(x, axis):
             'return the default unit for x or None'
             return 'date'
 
