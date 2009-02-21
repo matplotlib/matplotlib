@@ -4949,8 +4949,8 @@ class Axes(martist.Artist):
                   vmin=None, vmax=None, alpha=1.0, linewidths=None,
                   verts=None, **kwargs)
 
-        Make a scatter plot of *x* versus *y*, where *x*, *y* are 1-D
-        sequences of the same length, *N*.
+        Make a scatter plot of *x* versus *y*, where *x*, *y* are
+        converted to 1-D sequences which must be of the same length, *N*.
 
         Keyword arguments:
 
@@ -5088,24 +5088,35 @@ class Axes(martist.Artist):
         x = self.convert_xunits(x)
         y = self.convert_yunits(y)
 
+        # np.ma.ravel yields an ndarray, not a masked array,
+        # unless its argument is a masked array.
+        x = np.ma.ravel(x)
+        y = np.ma.ravel(y)
+        if x.size != y.size:
+            raise ValueError("x and y must be the same size")
+
+        s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
+
+        c_is_stringy = is_string_like(c) or cbook.is_sequence_of_strings(c)
+        if not c_is_stringy:
+            c = np.asanyarray(c)
+            if c.size == x.size:
+                c = np.ma.ravel(c)
+
         x, y, s, c = cbook.delete_masked_points(x, y, s, c)
 
+        scales = s   # Renamed for readability below.
 
-        if is_string_like(c) or cbook.is_sequence_of_strings(c):
+        if c_is_stringy:
             colors = mcolors.colorConverter.to_rgba_array(c, alpha)
         else:
-            sh = np.shape(c)
             # The inherent ambiguity is resolved in favor of color
             # mapping, not interpretation as rgb or rgba:
-            if len(sh) == 1 and sh[0] == len(x):
+            if c.size == x.size:
                 colors = None  # use cmap, norm after collection is created
             else:
                 colors = mcolors.colorConverter.to_rgba_array(c, alpha)
 
-        if not iterable(s):
-            scales = (s,)
-        else:
-            scales = s
 
         if faceted:
             edgecolors = None

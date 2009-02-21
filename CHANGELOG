@@ -1,3 +1,6 @@
+2009-02-21 Improve scatter argument handling; add an early error
+           message, allow inputs to have more than one dimension. - EF
+
 2009-02-16 Move plot_directive.py to the installed source tree.  Add
            support for inline code content - MGD
 
