@@ -264,7 +264,7 @@ public:
         //are close to parallel, I calculate the distance moved perpendicular to the
         //last line. Once it gets too big, the lines cannot be combined.
 
-        // This code was originally written by someone else (John Hunter?) and I
+        // This code was originally written by Allen Haldane and I
         // have modified to work in-place -- meaning not creating an entirely
         // new path list each time.  In order to do that without too much
         // additional code complexity, it keeps a small queue around so that
