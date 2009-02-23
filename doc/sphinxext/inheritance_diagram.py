@@ -370,7 +370,7 @@ def latex_output_graph(self, node):
 
     graph.run_dot(['-Tpdf', '-o%s' % pdf_path],
                   name, parts, graph_options={'size': '"6.0,6.0"'})
-    return '\\includegraphics{%s}' % pdf_path
+    return '\n\\includegraphics{%s}\n\n' % pdf_path
 
 def visit_inheritance_diagram(inner_func):
     """
