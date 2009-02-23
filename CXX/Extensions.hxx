@@ -203,7 +203,7 @@ namespace Py
     {
         typedef PyObject *(*method_varargs_call_handler_t)( PyObject *_self, PyObject *_args );
         typedef PyObject *(*method_keyword_call_handler_t)( PyObject *_self, PyObject *_args, PyObject *_dict );
-    };
+    }
 
     template<class T>
     class MethodDefExt : public PyMethodDef
