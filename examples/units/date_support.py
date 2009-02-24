@@ -8,7 +8,8 @@ import datetime
 
 class DateConverter(units.ConversionInterface):
 
-    def axisinfo(unit):
+    @staticmethod
+    def axisinfo(unit, axis):
         'return the unit AxisInfo'
         if unit=='date':
             majloc = dates.AutoDateLocator()
@@ -19,17 +20,16 @@ class DateConverter(units.ConversionInterface):
                 label='date',
                 )
         else: return None
-    axisinfo = staticmethod(axisinfo)
 
-    def convert(value, unit):
+    @staticmethod
+    def convert(value, unit, axis):
         if units.ConversionInterface.is_numlike(value): return value
         return dates.date2num(value)
-    convert = staticmethod(convert)
 
-    def default_units(x):
+    @staticmethod
+    def default_units(x, axis):
         'return the default unit for x or None'
         return 'date'
-    default_units = staticmethod(default_units)
 
 
 units.registry[datetime.date] = DateConverter()
