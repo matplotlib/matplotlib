@@ -1,6 +1,10 @@
+"""
+And another broken test...
+"""
+
 import sys, time, os
 from matplotlib.ft2font import FT2Font
-from matplotlib.numerix import rand
+from numpy.random import rand
 from matplotlib.backend_bases import GraphicsContextBase
 from matplotlib.backends._backend_agg import RendererAgg
 
@@ -23,7 +27,7 @@ for i in range(N):
         ys = [400*int(rand()) for k in range(8)]
         rgb = (1,0,0)
         pnts = zip(xs, ys)
-        o.draw_polygon(gc, rgb, pnts)
+        o.draw_polygon(gc, rgb, pnts)   # no such method??
         o.draw_polygon(gc, None, pnts)
 
     for j in range(50):

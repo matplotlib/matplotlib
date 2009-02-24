@@ -1,7 +1,11 @@
+"""
+Broken.
+"""
+
 import os, sys, time
 
 import matplotlib.nxutils as nxutils
-import matplotlib.numerix as nx
+from numpy.random import rand
 import matplotlib.mlab
 import matplotlib.patches as patches
 if 1:
@@ -10,13 +14,14 @@ if 1:
 
     t0 = time.time()
     for i in range(numtrials):
-        points = nx.mlab.rand(numpoints,2)
+        points = rand(numpoints,2)
         mask = matplotlib.mlab._inside_poly_deprecated(points, verts)
+                    ### no such thing
     told = time.time() - t0
 
     t0 = time.time()
     for i in range(numtrials):
-        points = nx.mlab.rand(numpoints,2)
+        points = rand(numpoints,2)
         mask = nxutils.points_inside_poly(points, verts)
     tnew = time.time() - t0
     print numverts, numpoints, told, tnew, told/tnew

@@ -18,7 +18,7 @@ except AttributeError:
 # This dict will be updated as we try to select the best option during
 # the build process. However, values in setup.cfg will be used, if
 # defined.
-rc = {'backend':'Agg', 'numerix':'numpy'}
+rc = {'backend':'Agg'}
 
 # BEFORE importing disutils, remove MANIFEST. distutils doesn't properly
 # update it when the contents of directories change.
@@ -52,13 +52,6 @@ packages = [
     'matplotlib.projections',
 #   'matplotlib.toolkits',
     'mpl_toolkits',
-    'matplotlib.numerix',
-    'matplotlib.numerix.mlab',
-    'matplotlib.numerix.ma',
-    'matplotlib.numerix.npyma',
-    'matplotlib.numerix.linear_algebra',
-    'matplotlib.numerix.random_array',
-    'matplotlib.numerix.fft',
     'matplotlib.sphinxext'
     ]
 
@@ -224,14 +217,12 @@ print_line()
 
 # Write the default matplotlibrc file
 if options['backend']: rc['backend'] = options['backend']
-if options['numerix']: rc['numerix'] = options['numerix']
 template = file('matplotlibrc.template').read()
 file('lib/matplotlib/mpl-data/matplotlibrc', 'w').write(template%rc)
 
 # Write the default matplotlib.conf file
 template = file('lib/matplotlib/mpl-data/matplotlib.conf.template').read()
 template = template.replace("datapath = ", "#datapath = ")
-template = template.replace("numerix = 'numpy'", "numerix = '%s'"%rc['numerix'])
 template = template.replace("    use = 'Agg'", "    use = '%s'"%rc['backend'])
 file('lib/matplotlib/mpl-data/matplotlib.conf', 'w').write(template)
 

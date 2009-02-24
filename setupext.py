@@ -106,8 +106,7 @@ options = {'display_status': True,
            'build_macosx': 'auto',
            'build_image': True,
            'build_windowing': True,
-           'backend': None,
-           'numerix': None}
+           'backend': None}
 
 # Based on the contents of setup.cfg, determine the build options
 if os.path.exists("setup.cfg"):
@@ -140,9 +139,6 @@ if os.path.exists("setup.cfg"):
     except: options['build_wxagg'] = 'auto'
 
     try: options['backend'] = config.get("rc_options", "backend")
-    except: pass
-
-    try: options['numerix'] = config.get("rc_options", "numerix")
     except: pass
 
 

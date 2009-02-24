@@ -58,7 +58,6 @@ class MPLConfig(TConfig):
     toolbar = T.Trait('toolbar2', 'toolbar2', None)
     timezone = T.Trait('UTC', pytz.all_timezones)
     datapath = T.Trait(cutils.get_data_path())
-    numerix = T.Trait('numpy', 'numpy', 'numeric', 'numarray')
     units = T.false
 
     class backend(TConfig):
@@ -290,7 +289,6 @@ class RcParamsWrapper(dict):
         self.tconfig_map = {
         'backend' : (self.tconfig.backend, 'use'),
         'backend_fallback' : (self.tconfig.backend, 'fallback'),
-        'numerix' : (self.tconfig, 'numerix'),
         'toolbar' : (self.tconfig, 'toolbar'),
         'datapath' : (self.tconfig, 'datapath'),
         'units' : (self.tconfig, 'units'),

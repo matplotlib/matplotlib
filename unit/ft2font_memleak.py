@@ -1,7 +1,10 @@
+"""
+This appears to be obsolete as of 2009/02/24; a key import fails.
+"""
 import sys, time, os
-from matplotlib.numerix import rand
+from numpy.random import rand
 from matplotlib.ft2font import FT2Font
-from matplotlib.backends.backend_ps import encodeTTFasPS
+from matplotlib.backends.backend_ps import encodeTTFasPS # doesn't exist...
 
 fname = '/usr/local/share/matplotlib/Vera.ttf'
 

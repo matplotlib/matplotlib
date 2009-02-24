@@ -107,7 +107,6 @@ config/rcparams        Darren        needs conversion
 config/rcsetup         Darren        needs conversion
 config/tconfig         Darren        needs conversion
 config/verbose         Darren        needs conversion
-numerix/__init__                     needs conversion
 projections/__init__   Mike          converted
 projections/geo        Mike          converted (not included--experimental)
 projections/polar      Mike          converted
