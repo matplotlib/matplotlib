@@ -1,3 +1,5 @@
+2009-02-25 Remove numerix; it remains in the maintenance branches. - EF
+
 2009-02-21 Improve scatter argument handling; add an early error
            message, allow inputs to have more than one dimension. - EF
 
