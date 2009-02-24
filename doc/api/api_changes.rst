@@ -19,11 +19,13 @@ list may help describe what changes may be necessary in your code.
 
 Changes for 0.98.x
 ==================
+* Removed numerix package.
+
 * Added new :func:`matplotlib.image.imsave` and exposed it to the
   :mod:`matplotlib.pyplot` interface.
 
 * Remove support for pyExcelerator in exceltools -- use xlwt
-  instead 
+  instead
 
 * Changed the defaults of acorr and xcorr to use usevlines=True,
   maxlags=10 and normed=True since these are the best defaults

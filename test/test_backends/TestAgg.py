@@ -11,7 +11,7 @@ from mplTest import *
 
 import sys, time, os
 from matplotlib.ft2font import FT2Font
-from matplotlib.numerix import rand
+from numpy.random import rand
 from matplotlib.backend_bases import GraphicsContextBase
 from matplotlib.backends._backend_agg import RendererAgg
 
@@ -89,7 +89,7 @@ class TestAgg( MplTestCase ):
             font.set_size( 12, 72 )
             o.draw_text_image( font.get_image(), 30, 40, gc )
 
-         
+
          o.write_png( fname % i )
          val = report_memory( i )
          if i==1: start = val

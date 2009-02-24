@@ -131,7 +131,6 @@ backends = ('GTKAgg', 'Cairo', 'FltkAgg', 'GDK', 'GTK', 'Agg',
 
 class RC(traits.HasTraits):
    backend = traits.Trait(*backends)
-   numerix = traits.Trait('Numeric', 'numarray')
    interactive  = flexible_false_trait
    toolbar      = traits.Trait('toolbar2', 'classic', None)
    timezone     = traits.Trait(*timezones)

@@ -34,7 +34,6 @@ backend      : %(backend)s
 # conflicts, we will automatically try and find a compatible one for
 # you if backend_fallback is True
 #backend_fallback: True
-numerix      : %(numerix)s  # numpy, Numeric or numarray
 #interactive  : False
 #toolbar      : toolbar2   # None | classic | toolbar2
 #timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Paris

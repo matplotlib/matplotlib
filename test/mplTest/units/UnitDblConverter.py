@@ -9,9 +9,9 @@
 #===========================================================================
 # Place all imports after here.
 #
+import numpy as np
 import matplotlib.units as units
 import matplotlib.ticker as ticker
-import matplotlib.numerix as nx
 import matplotlib.projections.polar as polar
 from matplotlib.cbook import iterable
 #
@@ -27,7 +27,7 @@ __all__ = [ 'UnitDblConverter' ]
 # This was copied from matplotlib example code.
 def rad_fn(x, pos = None ):
    """Radian function formatter."""
-   n = int((x / nx.pi) * 2.0 + 0.25)
+   n = int((x / np.pi) * 2.0 + 0.25)
    if n == 0:
       return str(x)
    elif n == 1:

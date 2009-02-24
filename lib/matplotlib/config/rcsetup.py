@@ -75,10 +75,6 @@ validate_backend = ValidateInStrings('backend',[
     'QtAgg', 'Qt4Agg', 'SVG', 'Template', 'TkAgg', 'WX', 'WXAgg',
     ], ignorecase=True)
 
-validate_numerix = ValidateInStrings('numerix',[
-    'Numeric','numarray','numpy',
-    ], ignorecase=True)
-
 validate_toolbar = ValidateInStrings('toolbar',[
     'None','classic','toolbar2',
     ], ignorecase=True)
@@ -298,7 +294,6 @@ class ValidateInterval:
 # a map from key -> value, converter
 defaultParams = {
     'backend'           : ['WXAgg', validate_backend],
-    'numerix'           : ['numpy', validate_numerix],
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [None, validate_path_exists],   # handled by _get_data_path_cached
     'units'             : [False, validate_bool],

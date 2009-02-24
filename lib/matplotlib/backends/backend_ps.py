@@ -112,7 +112,7 @@ def quote_ps_string(s):
 
 def seq_allequal(seq1, seq2):
     """
-    seq1 and seq2 are either None or sequences or numerix arrays
+    seq1 and seq2 are either None or sequences or arrays
     Return True if both are None or both are seqs with identical
     elements
     """
