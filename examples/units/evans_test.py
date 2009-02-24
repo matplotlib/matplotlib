@@ -24,7 +24,8 @@ class Foo:
 
 class FooConverter:
 
-    def axisinfo(unit):
+    @staticmethod
+    def axisinfo(unit, axis):
         'return the Foo AxisInfo'
         if unit==1.0 or unit==2.0:
             return units.AxisInfo(
@@ -35,9 +36,9 @@ class FooConverter:
 
         else:
             return None
-    axisinfo = staticmethod(axisinfo)
 
-    def convert(obj, unit):
+    @staticmethod
+    def convert(obj, unit, axis):
         """
         convert obj using unit.  If obj is a sequence, return the
         converted sequence
@@ -49,16 +50,15 @@ class FooConverter:
             return [o.value(unit) for o in obj]
         else:
             return obj.value(unit)
-    convert = staticmethod(convert)
 
-    def default_units(x):
+    @staticmethod
+    def default_units(x, axis):
         'return the default unit for x or None'
         if iterable(x):
             for thisx in x:
                 return thisx.unit
         else:
             return x.unit
-    default_units = staticmethod(default_units)
 
 units.registry[Foo] = FooConverter()
 
