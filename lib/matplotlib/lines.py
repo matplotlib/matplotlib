@@ -486,10 +486,11 @@ class Line2D(Artist):
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         if funcname != '_draw_nothing':
             tpath, affine = self._transformed_path.get_transformed_path_and_affine()
-            self._lineFunc = getattr(self, funcname)
-            funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
-            drawFunc = getattr(self, funcname)
-            drawFunc(renderer, gc, tpath, affine.frozen())
+            if len(tpath.vertices):
+                self._lineFunc = getattr(self, funcname)
+                funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
+                drawFunc = getattr(self, funcname)
+                drawFunc(renderer, gc, tpath, affine.frozen())
 
         if self._marker is not None:
             gc = renderer.new_gc()
@@ -500,25 +501,25 @@ class Line2D(Artist):
             funcname = self._markers.get(self._marker, '_draw_nothing')
             if funcname != '_draw_nothing':
                 tpath, affine = self._transformed_path.get_transformed_points_and_affine()
-
-                # subsample the markers if markevery is not None
-                markevery = self.get_markevery()
-                if markevery is not None:
-                    if iterable(markevery):
-                        startind, stride = markevery
+                if len(tpath.vertices):
+                    # subsample the markers if markevery is not None
+                    markevery = self.get_markevery()
+                    if markevery is not None:
+                        if iterable(markevery):
+                            startind, stride = markevery
+                        else:
+                            startind, stride = 0, markevery
+                        if tpath.codes is not None:
+                            codes = tpath.codes[startind::stride]
+                        else:
+                            codes = None
+                        vertices = tpath.vertices[startind::stride]
+                        subsampled = Path(vertices, codes)
                     else:
-                        startind, stride = 0, markevery
-                    if tpath.codes is not None:
-                        codes = tpath.codes[startind::stride]
-                    else:
-                        codes = None
-                    vertices = tpath.vertices[startind::stride]
-                    subsampled = Path(vertices, codes)
-                else:
-                    subsampled = tpath
+                        subsampled = tpath
 
-                markerFunc = getattr(self, funcname)
-                markerFunc(renderer, gc, subsampled, affine.frozen())
+                    markerFunc = getattr(self, funcname)
+                    markerFunc(renderer, gc, subsampled, affine.frozen())
 
         renderer.close_group('line2d')
 
