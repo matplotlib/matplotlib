@@ -52,7 +52,15 @@ packages = [
     'matplotlib.projections',
 #   'matplotlib.toolkits',
     'mpl_toolkits',
-    'matplotlib.sphinxext'
+    'matplotlib.sphinxext',
+    # The following are deprecated and will be removed.
+    'matplotlib.numerix',
+    'matplotlib.numerix.mlab',
+    'matplotlib.numerix.ma',
+    'matplotlib.numerix.linear_algebra',
+    'matplotlib.numerix.random_array',
+    'matplotlib.numerix.fft',
+
     ]
 
 py_modules = ['pylab']
