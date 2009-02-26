@@ -1,4 +1,6 @@
-2009-02-25 Deprecate numerix, and strip out all but the numpy
+2009-02-25 Improve tick location subset choice in FixedLocator. - EF
+
+2009-02-24 Deprecate numerix, and strip out all but the numpy
            part of the code. - EF
 
 2009-02-21 Improve scatter argument handling; add an early error
