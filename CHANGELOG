@@ -1,3 +1,5 @@
+2009-02-26 Add optional bbox_to_anchor argument for legend class - JJL
+
 2009-02-26 Support image clipping in pdf backend. - JKS
 
 2009-02-25 Improve tick location subset choice in FixedLocator. - EF
