@@ -39,7 +39,7 @@ import matplotlib.dviread as dviread
 from matplotlib.ft2font import FT2Font, FIXED_WIDTH, ITALIC, LOAD_NO_SCALE, \
     LOAD_NO_HINTING, KERNING_UNFITTED
 from matplotlib.mathtext import MathTextParser
-from matplotlib.transforms import Affine2D, Bbox, BboxBase
+from matplotlib.transforms import Affine2D, Bbox, BboxBase, TransformedPath
 from matplotlib.path import Path
 from matplotlib import ttconv
 
@@ -1268,10 +1268,12 @@ class RendererPdf(RendererBase):
         return self.image_dpi/72.0
 
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
-        # MGDTODO: Support clippath here
         gc = self.new_gc()
         if bbox is not None:
             gc.set_clip_rectangle(bbox)
+        if clippath is not None:
+            clippath = TransformedPath(clippath, clippath_trans)
+            gc.set_clip_path(clippath)
         self.check_gc(gc)
 
         h, w = im.get_size_out()

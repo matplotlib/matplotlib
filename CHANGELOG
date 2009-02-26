@@ -1,3 +1,5 @@
+2009-02-26 Support image clipping in pdf backend. - JKS
+
 2009-02-25 Improve tick location subset choice in FixedLocator. - EF
 
 2009-02-24 Deprecate numerix, and strip out all but the numpy
