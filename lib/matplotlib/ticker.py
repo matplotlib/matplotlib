@@ -708,10 +708,14 @@ class FixedLocator(Locator):
     Tick locations are fixed.  If nbins is not None,
     the array of possible positions will be subsampled to
     keep the number of ticks <= nbins +1.
+    The subsampling will be done so as to include the smallest
+    absolute value; for example, if zero is included in the
+    array of possibilities, then it is guaranteed to be one of
+    the chosen ticks.
     """
 
     def __init__(self, locs, nbins=None):
-        self.locs = locs
+        self.locs = np.asarray(locs)
         self.nbins = nbins
         if self.nbins is not None:
             self.nbins = max(self.nbins, 2)
@@ -721,7 +725,12 @@ class FixedLocator(Locator):
         if self.nbins is None:
             return self.locs
         step = max(int(0.99 + len(self.locs) / float(self.nbins)), 1)
-        return self.locs[::step]
+        ticks = self.locs[::step]
+        for i in range(1,step):
+            ticks1 = self.locs[i::step]
+            if np.absolute(ticks1).min() < np.absolute(ticks).min():
+                ticks = ticks1
+        return ticks
 
 
 
