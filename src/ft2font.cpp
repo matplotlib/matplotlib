@@ -1256,8 +1256,14 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args) {
     throw Py::TypeError("Usage: draw_glyph_to_bitmap(bitmap, x,y,glyph)");
   FT2Image* im = static_cast<FT2Image*>(args[0].ptr());
 
-  long x = Py::Int(args[1]);
-  long y = Py::Int(args[2]);
+  double xd = Py::Float(args[1]);
+  double yd = Py::Float(args[2]);
+  long x = (long)mpl_round(xd);
+  long y = (long)mpl_round(yd);
+  FT_Vector sub_offset;
+  sub_offset.x = int((xd - (double)x) * 64.0);
+  sub_offset.y = int((yd - (double)y) * 64.0);
+
   if (!Glyph::check(args[3].ptr()))
     throw Py::TypeError("Usage: draw_glyph_to_bitmap(bitmap, x,y,glyph)");
   Glyph* glyph = static_cast<Glyph*>(args[3].ptr());
@@ -1267,7 +1273,7 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args) {
 
   error = FT_Glyph_To_Bitmap(&glyphs[glyph->glyphInd],
 			     ft_render_mode_normal,
-			     0,  //no additional translation
+			     &sub_offset,  //no additional translation
 			     1   //destroy image;
 			     );
   if (error)
