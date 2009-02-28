@@ -532,11 +532,6 @@ class Axes(martist.Artist):
         self._frameon = frameon
         self._axisbelow = rcParams['axes.axisbelow']
 
-        # Attributes for controlling whether axis objects are drawn.
-        # They are helpers for twinx and twiny.
-        self._xaxison = True
-        self._yaxison = True
-
         self._hold = rcParams['axes.hold']
         self._connected = {} # a dict from events to (id, func)
         self.cla()
@@ -1652,10 +1647,7 @@ class Axes(martist.Artist):
             else:
                 self.xaxis.set_zorder(2.5)
                 self.yaxis.set_zorder(2.5)
-            if self._xaxison:
-                artists.append(self.xaxis)
-            if self._yaxison:
-                artists.append(self.yaxis)
+            artists.extend([self.xaxis, self.yaxis])
         if not inframe: artists.append(self.title)
         artists.extend(self.tables)
         if self.legend_ is not None:
@@ -6610,7 +6602,7 @@ class Axes(martist.Artist):
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
         self.yaxis.tick_left()
-        ax2._xaxison = False
+        ax2.xaxis.set_visible(False)
         return ax2
 
     def twiny(self):
@@ -6630,7 +6622,7 @@ class Axes(martist.Artist):
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
         self.xaxis.tick_bottom()
-        ax2._yaxison = False
+        ax2.yaxis.set_visible(False)
         return ax2
 
     def get_shared_x_axes(self):
