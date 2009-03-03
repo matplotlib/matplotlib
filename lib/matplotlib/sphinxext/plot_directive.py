@@ -30,6 +30,10 @@ except ImportError:
     from docutils.parsers.rst.directives.images import Image
     align = Image.align
 from docutils import nodes
+import sphinx
+
+sphinx_version = sphinx.__version__.split(".")
+sphinx_version = tuple([int(x) for x in sphinx_version[:2]])
 
 import matplotlib
 import matplotlib.cbook as cbook
@@ -92,11 +96,11 @@ template = """
 
    [%(links)s]
 
-   .. image:: %(tmpdir)s/%(outname)s.png
+   .. image:: %(prefix)s%(tmpdir)s/%(outname)s.png
    %(options)s
 
 .. latexonly::
-   .. image:: %(tmpdir)s/%(outname)s.pdf
+   .. image:: %(prefix)s%(tmpdir)s/%(outname)s.pdf
    %(options)s
 """
 
@@ -262,7 +266,17 @@ def plot_directive(name, arguments, options, content, lineno,
 
     # tmpdir is where we build all the output files.  This way the
     # plots won't have to be redone when generating latex after html.
-    tmpdir = os.path.abspath(os.path.join('build', outdir))
+
+    # Prior to Sphinx 0.6, absolute image paths were treated as
+    # relative to the root of the filesystem.  0.6 and after, they are
+    # treated as relative to the root of the documentation tree.  We need
+    # to support both methods here.
+    tmpdir = os.path.join('build', outdir)
+    if sphinx_version < (0, 6):
+        tmpdir = os.path.abspath(tmpdir)
+        prefix = ''
+    else:
+        prefix = '/'
     if not os.path.exists(tmpdir):
         cbook.mkdirs(tmpdir)
 
