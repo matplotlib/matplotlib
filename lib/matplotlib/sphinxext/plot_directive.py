@@ -136,8 +136,6 @@ def runfile(fullpath):
     try:
         fd = open(fname)
         module = imp.load_module("__main__", fd, fname, ('py', 'r', imp.PY_SOURCE))
-    except:
-        raise
     finally:
         del sys.path[0]
         os.chdir(pwd)
