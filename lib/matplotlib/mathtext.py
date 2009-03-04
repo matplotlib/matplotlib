@@ -843,7 +843,7 @@ class UnicodeFonts(TruetypeFonts):
                 return self.cm_fallback._get_glyph(
                     fontname, 'it', sym, fontsize)
             else:
-                if fontname == 'it' and isinstance(self, StixFonts):
+                if fontname in ('it', 'regular') and isinstance(self, StixFonts):
                     return self._get_glyph('rm', font_class, sym, fontsize)
                 warn("Font '%s' does not have a glyph for '%s'" %
                      (fontname, sym.encode('ascii', 'backslashreplace')),
@@ -916,7 +916,7 @@ class StixFonts(UnicodeFonts):
 
         if mapping is not None:
             if isinstance(mapping, dict):
-                mapping = mapping[font_class]
+                mapping = mapping.get(font_class, 'rm')
 
             # Binary search for the source glyph
             lo = 0
