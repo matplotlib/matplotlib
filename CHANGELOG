@@ -1,3 +1,5 @@
+2009-02-28 hashing of FontProperties accounts current rcParams - JJL
+
 2009-02-28 Prevent double-rendering of shared axis in twinx, twiny - EF
 
 2009-02-26 Add optional bbox_to_anchor argument for legend class - JJL
