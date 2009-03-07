@@ -10,7 +10,7 @@ s = sin(2*pi*t)
 plot(t, s)
 grid(True)
 
-# matlab handle graphics style
+# matlab style
 xticklines = getp(gca(), 'xticklines')
 yticklines = getp(gca(), 'yticklines')
 xgridlines = getp(gca(), 'xgridlines')
