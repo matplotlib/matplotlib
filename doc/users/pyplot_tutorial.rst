@@ -78,10 +78,10 @@ several ways to set line properties
       line.set_antialiased(False) # turn off antialising
 
 * Use the :func:`~matplotlib.pyplot.setp` command.  The example below
-  uses matlab handle graphics style command to set multiple properties
+  uses a Matlab-style command to set multiple properties
   on a list of lines.  ``setp`` works transparently with a list of objects
   or a single object.  You can either use python keyword arguments or
-  matlab-style string/value pairs::
+  Matlab-style string/value pairs::
 
       lines = plt.plot(x1, y1, x2, y2)
       # use keyword args
