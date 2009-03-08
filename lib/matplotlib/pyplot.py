@@ -273,6 +273,14 @@ def gcf():
     else:
         return figure()
 
+fignum_exists = _pylab_helpers.Gcf.has_fignum
+
+def get_fignums():
+    "Return a list of existing figure numbers."
+    fignums = _pylab_helpers.Gcf.figs.keys()
+    fignums.sort()
+    return fignums
+
 def get_current_fig_manager():
     figManager = _pylab_helpers.Gcf.get_active()
     if figManager is None:
