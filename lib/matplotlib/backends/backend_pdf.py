@@ -427,6 +427,9 @@ class PdfFile(object):
 
         self.beginStream(contentObject.id,
                          self.reserveObject('length of content stream'))
+        # Initialize the pdf graphics state to match the default mpl
+        # graphics context: currently only the join style needs to be set
+        self.output(GraphicsContextPdf.joinstyles['round'], Op.setlinejoin)
 
     def close(self):
         self.endStream()

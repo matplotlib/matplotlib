@@ -211,6 +211,7 @@ api_files = [
     'font_family_rc.py',
     'histogram_demo.py',
     'image_zcoord.py',
+    'joinstyle.py',
     'legend_demo.py',
     'line_with_text.py',
     'logo2.py',

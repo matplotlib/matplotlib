@@ -1,3 +1,5 @@
+2009-03-10 Fix join style bug in pdf. - JKS
+
 2009-03-07 Add pyplot access to figure number list - EF
 
 2009-02-28 hashing of FontProperties accounts current rcParams - JJL
