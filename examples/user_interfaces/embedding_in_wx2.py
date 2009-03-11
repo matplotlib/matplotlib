@@ -4,6 +4,10 @@ An example of how to use wx or wxagg in an application with the new
 toolbar - comment out the setA_toolbar line for no toolbar
 """
 
+# Used to guarantee to use at least Wx2.8
+import wxversion
+wxversion.ensureMinimal('2.8')
+
 from numpy import arange, sin, pi
 
 import matplotlib
@@ -20,15 +24,15 @@ from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 
 from matplotlib.figure import Figure
 
-from wx import *
+import wx
 
-class CanvasFrame(Frame):
+class CanvasFrame(wx.Frame):
 
     def __init__(self):
-        Frame.__init__(self,None,-1,
+        wx.Frame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
 
-        self.SetBackgroundColour(NamedColor("WHITE"))
+        self.SetBackgroundColour(wx.NamedColor("WHITE"))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
@@ -38,8 +42,8 @@ class CanvasFrame(Frame):
         self.axes.plot(t,s)
         self.canvas = FigureCanvas(self, -1, self.figure)
 
-        self.sizer = BoxSizer(VERTICAL)
-        self.sizer.Add(self.canvas, 1, LEFT | TOP | GROW)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        self.sizer.Add(self.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         self.SetSizer(self.sizer)
         self.Fit()
 
@@ -49,7 +53,7 @@ class CanvasFrame(Frame):
     def add_toolbar(self):
         self.toolbar = NavigationToolbar2Wx(self.canvas)
         self.toolbar.Realize()
-        if Platform == '__WXMAC__':
+        if wx.Platform == '__WXMAC__':
             # Mac platform (OSX 10.3, MacPython) does not seem to cope with
             # having a toolbar in a sizer. This work-around gets the buttons
             # back, but at the expense of having the toolbar at the top
@@ -62,8 +66,8 @@ class CanvasFrame(Frame):
             # By adding toolbar in sizer, we are able to put it at the bottom
             # of the frame - so appearance is closer to GTK version.
             # As noted above, doesn't work for Mac.
-            self.toolbar.SetSize(Size(fw, th))
-            self.sizer.Add(self.toolbar, 0, LEFT | EXPAND)
+            self.toolbar.SetSize(wx.Size(fw, th))
+            self.sizer.Add(self.toolbar, 0, wx.LEFT | wx.EXPAND)
         # update the axes menu on the toolbar
         self.toolbar.update()
 
@@ -71,7 +75,7 @@ class CanvasFrame(Frame):
     def OnPaint(self, event):
         self.canvas.draw()
 
-class App(App):
+class App(wx.App):
 
     def OnInit(self):
         'Create the main window and insert the custom frame'

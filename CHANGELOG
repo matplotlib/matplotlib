@@ -1,3 +1,6 @@
+2009-03-11 Ensure wx version >= 2.8; thanks to Sandro Tosi and
+           Chris Barker. - EF
+
 2009-03-10 Fix join style bug in pdf. - JKS
 
 2009-03-07 Add pyplot access to figure number list - EF
