@@ -1,3 +1,6 @@
+2009-03-11 Ensure wx version >= 2.8; thanks to Sandro Tosi and
+           Chris Barker. - EF
+
 2009-02-26 Support image clipping in pdf backend. - JKS
 
 2009-02-16 Move plot_directive.py to the installed source tree.  Add
