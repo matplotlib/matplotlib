@@ -16,16 +16,15 @@ from __future__ import division
 
 """
 
-import wx
 import matplotlib
 from matplotlib.figure import Figure
 
 from backend_agg import FigureCanvasAgg
-import backend_wx
+import backend_wx    # already uses wxversion.ensureMinimal('2.8')
 from backend_wx import FigureManager, FigureManagerWx, FigureCanvasWx, \
     FigureFrameWx, DEBUG_MSG, NavigationToolbar2Wx, error_msg_wx, \
     draw_if_interactive, show, Toolbar, backend_version
-
+import wx
 
 class FigureFrameWxAgg(FigureFrameWx):
     def get_canvas(self, fig):
