@@ -1,3 +1,7 @@
+# Used to guarantee to use at least Wx2.8
+import wxversion
+wxversion.ensureMinimal('2.8')
+
 import wx
 import wx.aui
 import matplotlib as mpl

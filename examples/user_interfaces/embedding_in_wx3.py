@@ -18,6 +18,11 @@ This was derived from embedding_in_wx and dynamic_image_wxagg.
 Thanks to matplotlib and wx teams for creating such great software!
 
 """
+
+# Used to guarantee to use at least Wx2.8
+import wxversion
+wxversion.ensureMinimal('2.8')
+
 import sys, time, os, gc
 import matplotlib
 matplotlib.use('WXAgg')
@@ -26,18 +31,18 @@ from matplotlib.backends.backend_wxagg import Toolbar, FigureCanvasWxAgg
 from matplotlib.figure import Figure
 import numpy as npy
 
-from wx import *
-from wx.xrc import *
+import wx
+import wx.xrc as xrc
 
 ERR_TOL = 1e-5 # floating point slop for peak-detection
 
 
 matplotlib.rc('image', origin='lower')
 
-class PlotPanel(Panel):
+class PlotPanel(wx.Panel):
 
     def __init__(self, parent):
-        Panel.__init__(self, parent, -1)
+        wx.Panel.__init__(self, parent, -1)
 
         self.fig = Figure((5,4), 75)
         self.canvas = FigureCanvasWxAgg(self, -1, self.fig)
@@ -46,11 +51,11 @@ class PlotPanel(Panel):
         #self.toolbar.set_active([0,1])
 
         # Now put all into a sizer
-        sizer = BoxSizer(VERTICAL)
+        sizer = wx.BoxSizer(wx.VERTICAL)
         # This way of adding to sizer allows resizing
-        sizer.Add(self.canvas, 1, LEFT|TOP|GROW)
+        sizer.Add(self.canvas, 1, wx.LEFT|wx.TOP|wx.GROW)
         # Best to allow the toolbar to resize!
-        sizer.Add(self.toolbar, 0, GROW)
+        sizer.Add(self.toolbar, 0, wx.GROW)
         self.SetSizer(sizer)
         self.Fit()
 
@@ -94,43 +99,43 @@ class PlotPanel(Panel):
         # this is supposed to prevent redraw flicker on some X servers...
         pass
 
-class MyApp(App):
+class MyApp(wx.App):
     def OnInit(self):
         xrcfile = os.path.join(os.path.dirname(__file__),"..","data",
                                "embedding_in_wx3.xrc")      
-        self.res = XmlResource(xrcfile)
+        self.res = xrc.XmlResource(xrcfile)
 
         # main frame and panel ---------
 
         self.frame = self.res.LoadFrame(None,"MainFrame")
-        self.panel = XRCCTRL(self.frame,"MainPanel")
+        self.panel = xrc.XRCCTRL(self.frame,"MainPanel")
 
         # matplotlib panel -------------
 
         # container for matplotlib panel (I like to make a container
         # panel for our panel so I know where it'll go when in XRCed.)
-        plot_container = XRCCTRL(self.frame,"plot_container_panel")
-        sizer = BoxSizer(VERTICAL)
+        plot_container = xrc.XRCCTRL(self.frame,"plot_container_panel")
+        sizer = wx.BoxSizer(wx.VERTICAL)
 
         # matplotlib panel itself
         self.plotpanel = PlotPanel(plot_container)
         self.plotpanel.init_plot_data()
 
         # wx boilerplate
-        sizer.Add(self.plotpanel, 1, EXPAND)
+        sizer.Add(self.plotpanel, 1, wx.EXPAND)
         plot_container.SetSizer(sizer)
 
         # whiz button ------------------
 
-        whiz_button = XRCCTRL(self.frame,"whiz_button")
-        EVT_BUTTON(whiz_button, whiz_button.GetId(),
-                   self.plotpanel.OnWhiz)
+        whiz_button = xrc.XRCCTRL(self.frame,"whiz_button")
+        wx.EVT_BUTTON(whiz_button, whiz_button.GetId(),
+                      self.plotpanel.OnWhiz)
 
         # bang button ------------------
 
-        bang_button = XRCCTRL(self.frame,"bang_button")
-        EVT_BUTTON(bang_button, bang_button.GetId(),
-                   self.OnBang)
+        bang_button = xrc.XRCCTRL(self.frame,"bang_button")
+        wx.EVT_BUTTON(bang_button, bang_button.GetId(),
+                      self.OnBang)
 
         # final setup ------------------
 

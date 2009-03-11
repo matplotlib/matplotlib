@@ -4,6 +4,10 @@ An example of how to use wx or wxagg in an application with a custom
 toolbar
 """
 
+# Used to guarantee to use at least Wx2.8
+import wxversion
+wxversion.ensureMinimal('2.8')
+
 from numpy import arange, sin, pi
 
 import matplotlib
@@ -16,13 +20,13 @@ from matplotlib.backends.backend_wx import _load_bitmap
 from matplotlib.figure import Figure
 from numpy.random import rand
 
-from wx import *
+import wx
 
 class MyNavigationToolbar(NavigationToolbar2WxAgg):
     """
     Extend the default wx toolbar with your own event handlers
     """
-    ON_CUSTOM = NewId()
+    ON_CUSTOM = wx.NewId()
     def __init__(self, canvas, cankill):
         NavigationToolbar2WxAgg.__init__(self, canvas)
 
@@ -30,7 +34,7 @@ class MyNavigationToolbar(NavigationToolbar2WxAgg):
         # probably want to add your own.
         self.AddSimpleTool(self.ON_CUSTOM, _load_bitmap('stock_left.xpm'),
                            'Click me', 'Activate custom contol')
-        EVT_TOOL(self, self.ON_CUSTOM, self._on_custom)
+        wx.EVT_TOOL(self, self.ON_CUSTOM, self._on_custom)
 
     def _on_custom(self, evt):
         # add some text to the axes in a random location in axes (0,1)
@@ -51,13 +55,13 @@ class MyNavigationToolbar(NavigationToolbar2WxAgg):
         evt.Skip()
 
 
-class CanvasFrame(Frame):
+class CanvasFrame(wx.Frame):
 
     def __init__(self):
-        Frame.__init__(self,None,-1,
+        wx.Frame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
 
-        self.SetBackgroundColour(NamedColor("WHITE"))
+        self.SetBackgroundColour(wx.NamedColor("WHITE"))
 
         self.figure = Figure(figsize=(5,4), dpi=100)
         self.axes = self.figure.add_subplot(111)
@@ -68,14 +72,14 @@ class CanvasFrame(Frame):
 
         self.canvas = FigureCanvas(self, -1, self.figure)
 
-        self.sizer = BoxSizer(VERTICAL)
-        self.sizer.Add(self.canvas, 1, TOP | LEFT | EXPAND)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
         # Capture the paint message
-        EVT_PAINT(self, self.OnPaint)
+        wx.EVT_PAINT(self, self.OnPaint)
 
         self.toolbar = MyNavigationToolbar(self.canvas, True)
         self.toolbar.Realize()
-        if Platform == '__WXMAC__':
+        if wx.Platform == '__WXMAC__':
             # Mac platform (OSX 10.3, MacPython) does not seem to cope with
             # having a toolbar in a sizer. This work-around gets the buttons
             # back, but at the expense of having the toolbar at the top
@@ -88,8 +92,8 @@ class CanvasFrame(Frame):
             # By adding toolbar in sizer, we are able to put it at the bottom
             # of the frame - so appearance is closer to GTK version.
             # As noted above, doesn't work for Mac.
-            self.toolbar.SetSize(Size(fw, th))
-            self.sizer.Add(self.toolbar, 0, LEFT | EXPAND)
+            self.toolbar.SetSize(wx.Size(fw, th))
+            self.sizer.Add(self.toolbar, 0, wx.LEFT | wx.EXPAND)
 
         # update the axes menu on the toolbar
         self.toolbar.update()
@@ -101,7 +105,7 @@ class CanvasFrame(Frame):
         self.canvas.draw()
         event.Skip()
 
-class App(App):
+class App(wx.App):
 
     def OnInit(self):
         'Create the main window and insert the custom frame'
