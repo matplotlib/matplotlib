@@ -128,13 +128,13 @@ class RendererMac(RendererBase):
 
     def get_text_width_height_descent(self, s, prop, ismath):
         if ismath=='TeX':
-            # TODO: handle props
+            # todo: handle props
             size = prop.get_size_in_points()
             texmanager = self.get_texmanager()
-            Z = texmanager.get_grey(s, size, self.dpi)
-            m,n = Z.shape
-            # TODO: handle descent; This is based on backend_agg.py
-            return n, m, 0
+            fontsize = prop.get_size_in_points()
+            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
+                                                               renderer=self)
+            return w, h, d
         if ismath:
             ox, oy, width, height, descent, fonts, used_characters = \
                 self.mathtext_parser.parse(s, self.dpi, prop)
@@ -143,7 +143,8 @@ class RendererMac(RendererBase):
         size = prop.get_size_in_points()
         weight = prop.get_weight()
         style = prop.get_style()
-        return self.gc.get_text_width_height_descent(unicode(s), family, size, weight, style)
+        width, height, descent = self.gc.get_text_width_height_descent(unicode(s), family, size, weight, style)
+        return  width, height, 0.0*descent
 
     def flipy(self):
         return False
@@ -230,6 +231,14 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
     key_press_event, and key_release_event are called from there.
     """
 
+    filetypes = FigureCanvasBase.filetypes.copy()
+    filetypes['bmp'] = 'Windows bitmap'
+    filetypes['jpeg'] = 'JPEG'
+    filetypes['jpg'] = 'JPEG'
+    filetypes['gif'] = 'Graphics Interchange Format'
+    filetypes['tif'] = 'Tagged Image Format File'
+    filetypes['tiff'] = 'Tagged Image Format File'
+
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
         width, height = self.get_width_height()
@@ -243,53 +252,39 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
         height /= dpi
         self.figure.set_size_inches(width, height)
 
-    def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
-                     orientation='portrait', **kwargs):
-        if dpi is None: dpi = matplotlib.rcParams['savefig.dpi']
+    def _print_bitmap(self, filename, *args, **kwargs):
+        # In backend_bases.py, print_figure changes the dpi of the figure.
+        # But since we are essentially redrawing the picture, we need the
+        # original dpi. Pick it up from the renderer.
+        dpi = kwargs['dpi']
+        old_dpi = self.figure.dpi
+        self.figure.dpi = self.renderer.dpi
+        width, height = self.figure.get_size_inches()
+        width, height = width*dpi, height*dpi
         filename = unicode(filename)
-        root, ext = os.path.splitext(filename)
-        ext = ext[1:].lower()
-        if not ext:
-             ext = "png"
-             filename = root + "." + ext
-        if ext=="jpg": ext = "jpeg"
+        self.write_bitmap(filename, width, height)
+        self.figure.dpi = old_dpi
 
-        # save the figure settings
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
+    def print_bmp(self, filename, *args, **kwargs):
+        self._print_bitmap(filename, *args, **kwargs)
 
-        # set the new parameters
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
+    def print_jpg(self, filename, *args, **kwargs):
+        self._print_bitmap(filename, *args, **kwargs)
 
-        if ext in ('jpeg', 'png', 'tiff', 'gif', 'bmp'):
-            width, height = self.figure.get_size_inches()
-            width, height = width*dpi, height*dpi
-            self.write_bitmap(filename, width, height)
-        elif ext == 'pdf':
-            self.write_pdf(filename)
-        elif ext in ('ps', 'eps'):
-            from backend_ps import FigureCanvasPS
-            # Postscript backend changes figure.dpi, but doesn't change it back
-            origDPI = self.figure.dpi
-            fc = self.switch_backends(FigureCanvasPS)
-            fc.print_figure(filename, dpi, facecolor, edgecolor,
-                            orientation, **kwargs)
-            self.figure.dpi = origDPI
-            self.figure.set_canvas(self)
-        elif ext=='svg':
-            from backend_svg import FigureCanvasSVG
-            fc = self.switch_backends(FigureCanvasSVG)
-            fc.print_figure(filename, dpi, facecolor, edgecolor,
-                            orientation, **kwargs)
-            self.figure.set_canvas(self)
-        else:
-            raise ValueError("Figure format not available (extension %s)" % ext)
+    def print_jpeg(self, filename, *args, **kwargs):
+        self._print_bitmap(filename, *args, **kwargs)
 
-        # restore original figure settings
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
+    def print_tif(self, filename, *args, **kwargs):
+        self._print_bitmap(filename, *args, **kwargs)
 
+    def print_tiff(self, filename, *args, **kwargs):
+        self._print_bitmap(filename, *args, **kwargs)
+
+    def print_gif(self, filename, *args, **kwargs):
+        self._print_bitmap(filename, *args, **kwargs)
+
+    def get_default_filetype(self):
+        return 'png'
 
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
