@@ -959,7 +959,7 @@ class lightsource(object):
     """
     Create a light source coming from the specified azimuth and elevation.
     Angles are in degrees, with the azimuth measured
-    clockwise from south and elevation up from the zero plane of the surface.
+    clockwise from north and elevation up from the zero plane of the surface.
     The :meth:`shade` is used to produce rgb values for a shaded relief image
     given a data array.
     """
