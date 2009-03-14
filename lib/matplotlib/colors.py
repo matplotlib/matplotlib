@@ -951,7 +951,9 @@ def hsv_to_rgb(hsv):
     r[idx] = v[idx]; g[idx] = p[idx]; b[idx] = q[idx]
     idx = s == 0
     r[idx] = v[idx]; g[idx] = v[idx]; b[idx] = v[idx]
-    return np.array((r,g,b)).T
+    rgb = np.empty_like(hsv)
+    rgb[:,:,0]=r; rgb[:,:,1]=g; rgb[:,:,2]=b
+    return rgb
 
 class lightsource(object):
     """
