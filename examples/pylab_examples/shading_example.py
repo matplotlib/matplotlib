@@ -9,10 +9,10 @@ from matplotlib.colors import lightsource
 # (http://gmt.soest.hawaii.edu/gmt/doc/gmt/html/GMT_Docs/node145.html)
 
 # test data
-X,Y=np.mgrid[-5:5:0.1,-5:5:0.1]
-Z=X+np.sin(X**2+Y**2)
+X,Y=np.mgrid[-5:5:0.05,-5:5:0.05]
+Z=np.sqrt(X**2+Y**2)+np.sin(X**2+Y**2)
 # creat light source object.
-ls = lightsource(azdeg=270,altdeg=60)
+ls = lightsource(azdeg=0,altdeg=65)
 # shade data, creating an rgb array.
 rgb = ls.shade(Z,plt.cm.copper)
 # plot un-shaded and shaded images.
