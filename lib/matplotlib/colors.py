@@ -1018,11 +1018,11 @@ class lightsource(object):
         # modify hsv values to simulate illumination.
         hsv[:,:,1] = np.where(np.logical_and(np.abs(hsv[:,:,1])>1.e-10,intensity>0),\
                 (1.-intensity)*hsv[:,:,1]+intensity*self.hsv_max_sat, hsv[:,:,1])
-        hsv[:,:,2] = np.where(intensity > 0, (1.-intensity)*hsv[:,:,1] +\
+        hsv[:,:,2] = np.where(intensity > 0, (1.-intensity)*hsv[:,:,2] +\
                 intensity*self.hsv_max_val, hsv[:,:,2])
         hsv[:,:,1] = np.where(np.logical_and(np.abs(hsv[:,:,1])>1.e-10,intensity<0),\
                 (1.+intensity)*hsv[:,:,1]-intensity*self.hsv_min_sat, hsv[:,:,1])
-        hsv[:,:,2] = np.where(intensity < 0, (1.+intensity)*hsv[:,:,1] -\
+        hsv[:,:,2] = np.where(intensity < 0, (1.+intensity)*hsv[:,:,2] -\
                 intensity*self.hsv_min_val, hsv[:,:,2])
         hsv[:,:,1:] = np.where(hsv[:,:,1:]<0.,0,hsv[:,:,1:])
         hsv[:,:,1:] = np.where(hsv[:,:,1:]>1.,1,hsv[:,:,1:])
