@@ -88,7 +88,6 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         if DEBUG: print 'FigureCanvasGTKAgg.render_figure done'
 
     def blit(self, bbox=None):
-        if DEBUG: print 'FigureCanvasGTKAgg.blit'
         if DEBUG: print 'FigureCanvasGTKAgg.blit', self._pixmap
         agg_to_gtk_drawable(self._pixmap, self.renderer._renderer, bbox)
 
