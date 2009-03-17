@@ -1,4 +1,7 @@
-2009-03-14 Added 'lightsource' class to colors module for 
+2009-03-17 Fix bugs in edge color handling by contourf, found
+           by Jae-Joon Lee. - EF
+
+2009-03-14 Added 'lightsource' class to colors module for
            creating shaded relief maps.  shading_example.py
            added to illustrate usage. - JSW
 
