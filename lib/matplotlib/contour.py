@@ -629,8 +629,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                                 self.to_rgba(self.cvalues, alpha=self.alpha)]
         self.tcolors = tcolors
         for color, collection in zip(tcolors, self.collections):
-            collection.set_alpha(self.alpha)
-            collection.set_color(color)
+            if self.filled:
+                collection.set_facecolor(color)
+            else:
+                collection.set_color(color)
         for label, cv in zip(self.labelTexts, self.labelCValues):
             label.set_alpha(self.alpha)
             label.set_color(self.labelMappable.to_rgba(cv))
