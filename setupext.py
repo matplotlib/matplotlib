@@ -1160,12 +1160,16 @@ def build_macosx(ext_modules, packages):
     global BUILT_MACOSX
     if BUILT_MACOSX: return # only build it if you you haven't already
     deps = ['src/_macosx.m',
+            'CXX/cxx_extensions.cxx',
+            'CXX/cxxextensions.c',
+            'CXX/cxxsupport.cxx',
+            'CXX/IndirectPythonInterface.cxx',
             'src/agg_py_transforms.cpp',
-            'src/path_cleanup.cpp',
-            'src/_path.cpp']
+            'src/path_cleanup.cpp']
     module = Extension('matplotlib.backends._macosx',
                        deps,
                        extra_link_args = ['-framework','Cocoa'],
+                       define_macros=[('PY_ARRAY_UNIQUE_SYMBOL', 'MPL_ARRAY_API')]
                       )
     add_numpy_flags(module)
     add_agg_flags(module)
