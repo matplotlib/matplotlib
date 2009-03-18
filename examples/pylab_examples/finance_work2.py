@@ -63,6 +63,7 @@ def moving_average(x, n, type='simple'):
 
     weights /= weights.sum()
 
+
     a =  np.convolve(x, weights, mode='full')[:len(x)]
     a[:n] = a[n]
     return a
@@ -146,11 +147,15 @@ ax1.text(0.025, 0.95, 'RSI (14)', va='top', transform=ax1.transAxes, fontsize=te
 ax1.set_title('%s daily'%ticker)
 
 ### plot the price and volume data
+dx = r.adj_close - r.close
+low = r.low + dx
+high = r.high + dx
+
 deltas = np.zeros_like(prices)
 deltas[1:] = np.diff(prices)
 up = deltas>0
-ax2.vlines(r.date[up], r.low[up], r.high[up], color='black', label='_nolegend_')
-ax2.vlines(r.date[~up], r.low[~up], r.high[~up], color='black', label='_nolegend_')
+ax2.vlines(r.date[up], low[up], high[up], color='black', label='_nolegend_')
+ax2.vlines(r.date[~up], low[~up], high[~up], color='black', label='_nolegend_')
 ma20 = moving_average(prices, 20, type='simple')
 ma200 = moving_average(prices, 200, type='simple')
 
@@ -207,6 +212,7 @@ for ax in ax1, ax2, ax2t, ax3:
 
     ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
 
+
 class PriceFormatter(mticker.FormatStrFormatter):
     'suppress the lowest tick label to prevent overlap'
     def __call__(self, x, pos=None):
@@ -216,6 +222,7 @@ class PriceFormatter(mticker.FormatStrFormatter):
             return mticker.FormatStrFormatter.__call__(self, x, pos=None)
 
 ax2.yaxis.set_major_formatter(PriceFormatter('%d'))
+
 plt.show()
 
 
