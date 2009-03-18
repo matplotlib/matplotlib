@@ -11,7 +11,7 @@ try:
 except ImportError:
     from md5 import md5 #Deprecated in 2.5
 
-from tempfile import gettempdir
+from tempfile import mkstemp
 from cStringIO import StringIO
 from matplotlib import verbose, __version__, rcParams
 from matplotlib._pylab_helpers import Gcf
@@ -886,15 +886,15 @@ class FigureCanvasPS(FigureCanvasBase):
         """
         isEPSF = format == 'eps'
         passed_in_file_object = False
+        fd, tmpfile = mkstemp()
         if is_string_like(outfile):
             title = outfile
-            tmpfile = os.path.join(gettempdir(), md5(outfile).hexdigest())
         elif is_writable_file_like(outfile):
             title = None
-            tmpfile = os.path.join(gettempdir(), md5(str(hash(outfile))).hexdigest())
             passed_in_file_object = True
         else:
             raise ValueError("outfile must be a path or a file-like object")
+        os.close(fd)
         fh = file(tmpfile, 'w')
 
         # find the appropriate papertype
@@ -1029,7 +1029,8 @@ class FigureCanvasPS(FigureCanvasBase):
         title = outfile
 
         # write to a temp file, we'll move it to outfile when done
-        tmpfile = os.path.join(gettempdir(), md5(outfile).hexdigest())
+        fd, tmpfile = mkstemp()
+        os.close(fd)
         fh = file(tmpfile, 'w')
 
         self.figure.dpi = 72 # ignore the dpi kwarg
