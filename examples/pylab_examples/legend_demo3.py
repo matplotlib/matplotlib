@@ -23,7 +23,7 @@ ax2.get_legend().get_title().set_color("red")
 
 ax3 = plt.subplot(3,1,3)
 myplot(ax3)
-ax3.legend(loc=1, ncol=4, mode="expand", shadow=True)
+ax3.legend(shadow=True, fancybox=True)
 
 
 plt.draw()

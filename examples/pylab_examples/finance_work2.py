@@ -1,278 +1,221 @@
-"""
-You need a additional files to run this example.  Save the following
-in the same dir as this file
+## Plot the stock price with some technical indicators
+## Example usage::
+##     python stocks2.py --ticker=GE --startdate=2003
+##
+import datetime, os, urllib, optparse
+import numpy as np
+import dateutil.parser
+import matplotlib.colors as colors
+import matplotlib.finance as finance
+import matplotlib.dates as mdates
+import matplotlib.ticker as mticker
+import matplotlib.mlab as mlab
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as font_manager
 
-  http://matplotlib.sourceforge.net/screenshots/helpers.py
+today = datetime.date.today()
 
-  http://matplotlib.sourceforge.net/screenshots/msft_nasdaq_d.csv
+optionparser = optparse.OptionParser()
 
-  http://matplotlib.sourceforge.net/screenshots/__init__.py
+optionparser.add_option('-t', '--ticker',
+                        dest='ticker',
+                        help='a stock market ticker',
+                        default='SPY')
 
-"""
+optionparser.add_option('-s', '--startdate',
+                        dest='startdate',
+                        help='the start date',
+                        default=(today-datetime.timedelta(days=365*2)).strftime('%Y-%m-%d'))
 
-import time, os, sys, datetime
+optionparser.add_option('-e', '--enddate',
+                        dest='enddate',
+                        help='the end date',
+                        default=today.strftime('%Y-%m-%d'))
 
-from matplotlib import rcParams
-from matplotlib.ticker import  IndexLocator, FuncFormatter, NullFormatter, MultipleLocator
-from matplotlib.dates import IndexDateFormatter, date2num
-from matplotlib.finance import candlestick2, plot_day_summary2, \
-     volume_overlay, index_bar
-from pylab import *
 
-rcParams['timezone'] = 'US/Eastern'
-rc('grid', color='0.75', linestyle='-', linewidth=0.5)
+(commandoptions, commandargs) = optionparser.parse_args()
 
-def ema(s, n):
+
+startdate = dateutil.parser.parse(commandoptions.startdate)
+enddate = dateutil.parser.parse(commandoptions.enddate)
+ticker = commandoptions.ticker
+
+
+fh = finance.fetch_historical_yahoo(ticker, startdate, enddate)
+# a numpy record array with fields: date, open, high, low, close, volume, adj_close)
+
+r = mlab.csv2rec(fh); fh.close()
+r.sort()
+
+
+def moving_average(x, n, type='simple'):
     """
-    returns an n period exponential moving average for
-    the time series s
+    compute an n period moving average.
 
-    s is a list ordered from oldest (index 0) to most recent (index
-    -1) n is an integer
+    type is 'simple' | 'exponential'
 
-    returns a numeric array of the exponential moving average
     """
-    s = array(s)
-    ema = []
-    j = 1
-    #get n sma first and calculate the next n period ema
-    sma = sum(s[:n]) / n
-    multiplier = 2 / float(1 + n)
-    ema.append(sma)
-    #EMA(current) = ( (Price(current) - EMA(prev) ) xMultiplier) + EMA(prev)
-    ema.append(( (s[n] - sma) * multiplier) + sma)
-    #now calculate the rest of the values
-    for i in s[n+1:]:
-        tmp = ( (i - ema[j]) * multiplier) + ema[j]
-        j = j + 1
-        ema.append(tmp)
-    return ema
+    x = np.asarray(x)
+    if type=='simple':
+        weights = np.ones(n)
+    else:
+        weights = np.exp(np.linspace(-1., 0., n))
 
-def movavg(s, n):
+    weights /= weights.sum()
+
+    a =  np.convolve(x, weights, mode='full')[:len(x)]
+    a[:n] = a[n]
+    return a
+
+def relative_strength(prices, n=14):
     """
-    returns an n period moving average for the time series s
-
-    s is a list ordered from oldest (index 0) to most recent (index -1)
-    n is an integer
-
-        returns a numeric array of the moving average
-
-    See also ema in this module for the exponential moving average.
-    """
-    s = array(s)
-    c = cumsum(s)
-    return (c[n-1:] - c[:-n+1]) / float(n-1)
-
-def fill_over(ax, x, y, val, color, over=True):
-    """
-    Plot filled x,y for all y over val
-    if over = False, fill all areas < val
-    """
-    ybase = asarray(y)-val
-    crossings = nonzero(less(ybase[:-1] * ybase[1:],0))
-
-    if ybase[0]>=0: fillon = over
-    else:           fillon = not over
-
-
-    indLast = 0
-    for ind in crossings:
-        if fillon:
-            thisX = x[indLast:ind+1]
-            thisY = y[indLast:ind+1]
-            thisY[0] = val
-            thisY[-1] = val
-            ax.fill(thisX, thisY, facecolor=color)
-        fillon = not fillon
-        indLast = ind
-
-
-def random_signal(N, tau):
-    'generate a length N  random signal with time constant tau'
-    t = arange(float(N))
-    filter = exp(-t/tau)
-    return convolve( randn(N), filter, mode=2)[:len(t)]
-
-
-# load a numpy record array from yahoo csv data with fields date,
-# open, close, volume, adj_close from the mpl-data/example directory.
-# The record array stores python datetime.date as an object array in
-# the date column
-datafile = matplotlib.get_example_data('goog.npy')
-r = np.load(datafile).view(np.recarray)
-r = r[-250:]
-
-N = len(r)
-
-vind = np.arange(N)
-
-figBG   = 'w'        # the figure background color
-axesBG  = '#f6f6f6'  # the axies background color
-textsize = 8        # size for axes text
-
-# the demo data are intc from (2003, 9, 1) to (2004, 4, 12 ) with
-# dates as epoch; I saved these to a file for ease of debugginh
-ticker = 'MSFT'
-
-
-figure(1, facecolor=figBG)
-
-def get_locator():
-    """
-    the axes cannot share the same locator, so this is a helper
-    function to generate locators that have identical functionality
+    compute the n period relative strength indicator
+    http://stockcharts.com/school/doku.php?id=chart_school:glossary_r#relativestrengthindex
+    http://www.investopedia.com/terms/r/rsi.asp
     """
 
-    return IndexLocator(10, 1)
+    deltas = np.diff(prices)
+    seed = deltas[:n+1]
+    up = seed[seed>=0].sum()/n
+    down = -seed[seed<0].sum()/n
+    rs = up/down
+    rsi = np.zeros_like(r.adj_close)
+    rsi[:n] = 100. - 100./(1.+rs)
+
+    for i in range(n, len(prices)):
+        delta = deltas[i-1] # cause the diff is 1 shorter
+
+        if delta>0:
+            upval = delta
+            downval = 0.
+        else:
+            upval = 0.
+            downval = -delta
+
+        up = (up*(n-1) + upval)/n
+        down = (down*(n-1) + downval)/n
+
+        rs = up/down
+        rsi[i] = 100. - 100./(1.+rs)
+
+    return rsi
+
+def moving_average_convergence(x, nslow=26, nfast=12):
+    """
+    compute the MACD (Moving Average Convergence/Divergence) using a fast and slow exponential moving avg'
+    return value is emaslow, emafast, macd which are len(x) arrays
+    """
+    emaslow = moving_average(x, nslow, type='exponential')
+    emafast = moving_average(x, nfast, type='exponential')
+    return emaslow, emafast, emafast - emaslow
 
 
-formatter =  IndexDateFormatter(date2num(r.date), '%b %d %y')
+plt.rc('axes', grid=True)
+plt.rc('grid', color='0.75', linestyle='-', linewidth=0.5)
 
-nullfmt   = NullFormatter()         # no labels
-
-def fmt_vol(x,pos):
-    if pos>3: return ''  # only label the first 3 ticks
-    return '%dM' % int(x*1e-6)
-
-volumeFmt = FuncFormatter(fmt_vol)
-
+textsize = 9
 left, width = 0.1, 0.8
 rect1 = [left, 0.7, width, 0.2]
 rect2 = [left, 0.3, width, 0.4]
 rect3 = [left, 0.1, width, 0.2]
-axUpper      = axes(rect1, axisbg=axesBG)  #left, bottom, width, height
-axMiddle     = axes(rect2, axisbg=axesBG, sharex=axUpper)
-axMiddleVol  = axMiddle.twinx()
-axLower      = axes(rect3, axisbg=axesBG, sharex=axUpper)
 
 
-axUpper.xaxis.set_major_locator( get_locator() )
-axUpper.xaxis.set_major_formatter(nullfmt)
-axUpper.grid(True)
+fig = plt.figure(facecolor='white')
+axescolor  = '#f6f6f6'  # the axies background color
 
-# set up two scales on middle axes with left and right ticks
-axMiddle.yaxis.tick_left()
-axMiddle.xaxis.set_major_formatter(nullfmt)
+ax1 = fig.add_axes(rect1, axisbg=axescolor)  #left, bottom, width, height
+ax2 = fig.add_axes(rect2, axisbg=axescolor, sharex=ax1)
+ax2t = ax2.twinx()
+ax3  = fig.add_axes(rect3, axisbg=axescolor, sharex=ax1)
 
-axMiddleVol.yaxis.set_major_formatter(volumeFmt)
-axMiddle.grid(True)
+### plot the relative strength indicator
+prices = r.adj_close
+rsi = relative_strength(prices)
+fillcolor = 'darkgoldenrod'
 
-axLower.xaxis.set_major_locator( get_locator() )
-axLower.xaxis.set_major_formatter( formatter )
-axLower.grid(True)
+ax1.plot(r.date, rsi, color=fillcolor)
+ax1.axhline(70, color=fillcolor)
+ax1.axhline(30, color=fillcolor)
+ax1.fill_between(r.date, rsi, 70, facecolor=fillcolor, where=(rsi>=70))
+ax1.fill_between(r.date, rsi, 30, facecolor=fillcolor, where=(rsi<=30))
+ax1.text(0.6, 0.9, '>70 = overbought', va='top', transform=ax1.transAxes, fontsize=textsize)
+ax1.text(0.6, 0.1, '<30 = oversold', transform=ax1.transAxes, fontsize=textsize)
+ax1.set_ylim(0, 100)
+ax1.set_yticks([30,70])
+ax1.text(0.025, 0.95, 'RSI (14)', va='top', transform=ax1.transAxes, fontsize=textsize)
+ax1.set_title('%s daily'%ticker)
 
-if 1: ############### Upper axes #################
+### plot the price and volume data
+deltas = np.zeros_like(prices)
+deltas[1:] = np.diff(prices)
+up = deltas>0
+ax2.vlines(r.date[up], r.low[up], r.high[up], color='black', label='_nolegend_')
+ax2.vlines(r.date[~up], r.low[~up], r.high[~up], color='black', label='_nolegend_')
+ma20 = moving_average(prices, 20, type='simple')
+ma200 = moving_average(prices, 200, type='simple')
 
-    # make up a pseudo signal
-    purple = '#660033'
-    s = random_signal(N, tau=20)
-    thresh = 4
-    axUpper.plot(s, color=purple)
-    # upper horiz line
-
-
-
-    axUpper.plot( (0, N), [thresh, thresh], color=purple, linewidth=1)
-    # lower horiz line
-    axUpper.plot( (0, N), [-thresh, -thresh], color=purple, linewidth=1)
-
-
-    # fill above threshold
-    fill_over(axUpper, vind, s,  thresh,  purple, over=True)
-    fill_over(axUpper, vind, s, -thresh,  purple,  over=False)
-
-    t = axUpper.set_title('Google (GOOG)',  fontsize=12)
-    t.set_y(1.05)  # move it up a bit higher than the default
-    t.set_x(0)  # align the title left, axes coords
-    t.set_horizontalalignment('left')  # align the title left, axes coords
-    axUpper.yaxis.set_major_locator( MultipleLocator(5) )
+linema20, = ax2.plot(r.date, ma20, color='blue', lw=2, label='MA (20)')
+linema200, = ax2.plot(r.date, ma200, color='red', lw=2, label='MA (200)')
 
 
+last = r[-1]
+s = '%s O:%1.2f H:%1.2f L:%1.2f C:%1.2f, V:%1.1fM Chg:%+1.2f' % (
+    today.strftime('%d-%b-%Y'),
+    last.open, last.high,
+    last.low, last.close,
+    last.volume*1e-6,
+    last.close-last.open )
+t4 = ax2.text(0.3, 0.9, s, transform=ax2.transAxes, fontsize=textsize)
 
-    # now add some text
-    left, height, top = 0.025, 0.06, 0.85
-    t = axUpper.text(left, top, 'RSI(14) 51.0', fontsize=textsize,
-                     transform=axUpper.transAxes)
+props = font_manager.FontProperties(size=10)
+leg = ax2.legend(loc='center left', shadow=True, fancybox=True, prop=props)
+leg.get_frame().set_alpha(0.5)
 
+vmax = r.volume.max()/1e6
+poly = ax2t.fill_between(r.date, r.volume/1e6, 0, facecolor=fillcolor, label='Volume')
+ax2t.set_ylim(0, 5*vmax)
+ymax = np.int(vmax)
+yticks = [vmax/2., vmax]
+ax2t.set_yticks(yticks)
+ax2t.set_yticklabels(['%d M'%val for val in yticks])
 
-if 1:  ############### Middle axes #################
-
-
-    candlestick2(axMiddle, r.open, r.close, r.high, r.low, width=0.9)
-
-    # specify the text in axes (0,1) coords.  0,0 is lower left and 1,1 is
-    # upper right
-
-    left, height, top = 0.025, 0.06, 0.9
-    t1 = axMiddle.text(left, top, '%s daily'%ticker, fontsize=textsize,
-                       transform=axMiddle.transAxes)
-    t2 = axMiddle.text(left, top-height, 'MA(5)', color='b', fontsize=textsize,
-                       transform=axMiddle.transAxes)
-    t3 = axMiddle.text(left, top-2*height, 'MA(20)', color='r', fontsize=textsize,
-                       transform=axMiddle.transAxes)
-
-    s = '%s O:%1.2f H:%1.2f L:%1.2f C:%1.2f, V:%1.1fM Chg:%+1.2f' %(
-        time.strftime('%d-%b-%Y'),
-        r.open[-1], r.high[-1],
-        r.low[-1], r.close[-1],
-        r.volume[-1]*1e-6,
-        r.close[-1]-r.open[-1])
-    t4 = axMiddle.text(0.4, top, s, fontsize=textsize,
-                       transform=axMiddle.transAxes)
-
-
-    # now do the moviing average.  I'll use a convolution to simulate a
-    # real moving average
-    ma5  = movavg(r.adj_close, 5)
-    ma20 = movavg(r.adj_close, 20)
-    axMiddle.plot(vind[5-1:], ma5,   'b', linewidth=1)
-    axMiddle.plot(vind[20-1:], ma20, 'r', linewidth=1)
-
-    axMiddle.set_ylim((300, 800))
-    axMiddle.set_yticks(np.arange(800, 800, 100))
-
-    # Now do the volume overlay
-
-    # todo - this is broken
-    bars = volume_overlay(axMiddleVol, r.open, r.close, r.volume, alpha=0.5)
-    #axMiddleVol.set_ylim(0, 3*r.volume.max())  # use only a third of the viewlim
+### compute the MACD indicator
+fillcolor = 'darkslategrey'
+nslow = 26
+nfast = 12
+nema = 9
+emaslow, emafast, macd = moving_average_convergence(prices, nslow=nslow, nfast=nfast)
+ema9 = moving_average(macd, nema, type='exponential')
+ax3.plot(r.date, macd, color='black', lw=2)
+ax3.plot(r.date, ema9, color='blue', lw=1)
+ax3.fill_between(r.date, macd-ema9, 0, facecolor=fillcolor, alpha=0.5)
 
 
-if 1:  ############### Lower axes #################
+ax3.text(0.025, 0.95, 'MACD (%d, %d, %d)'%(nfast, nslow, nema), va='top',
+         transform=ax3.transAxes, fontsize=textsize)
 
-    # make up two signals; I don't know what the signals are in real life
-    # so I'll just illustrate the plotting stuff
-    s1 = random_signal(N, 10)
-    s2 = random_signal(N, 20)
+ax3.set_yticks([])
+# turn off tick labels, rorate them, etc
+for ax in ax1, ax2, ax2t, ax3:
+    if ax!=ax3:
+        for label in ax.get_xticklabels():
+            label.set_visible(False)
+    else:
+        for label in ax.get_xticklabels():
+            label.set_rotation(30)
+            label.set_horizontalalignment('right')
 
-    axLower.plot(vind, s1, color=purple)
-    axLower.plot(vind, s2, color='k', linewidth=1.0)
-    s3 = s2-s1
-    axLower.plot(vind, s3, color='#cccc99')  # wheat
-    bars = index_bar(axLower, s3, width=2, alpha=0.5,
-                     facecolor='#3087c7', edgecolor='#cccc99')
-    axLower.yaxis.set_major_locator(MultipleLocator(5))
+    ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
+
+class PriceFormatter(mticker.FormatStrFormatter):
+    'suppress the lowest tick label to prevent overlap'
+    def __call__(self, x, pos=None):
+        if pos==0:
+            return ''
+        else:
+            return mticker.FormatStrFormatter.__call__(self, x, pos=None)
+
+ax2.yaxis.set_major_formatter(PriceFormatter('%d'))
+plt.show()
 
 
-    # now add some text
-    left, height, top = 0.025, 0.06, 0.85
-
-    t = axLower.text(left, top, 'MACD(12,26,9) -0.26', fontsize=textsize,
-                     transform=axLower.transAxes)
-
-    # make sure everyone has the same axes limits
-
-    setp(axLower.get_xticklabels(), 'rotation', 45,
-        'horizontalalignment', 'right', fontsize=8)
-
-# force all the axes to have the same x data limits
-allAxes = (axUpper, axMiddle, axMiddleVol, axLower)
-xlim = 0, N
-for a in allAxes:
-    a.set_xlim(xlim)
-
-for ax in axUpper, axMiddle, axMiddleVol:
-    for ticklabel in ax.get_xticklabels():
-        ticklabel.set_visible(False)
-
-show()
