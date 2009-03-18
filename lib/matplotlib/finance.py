@@ -5,7 +5,7 @@ financial data.   User contributions welcome!
 """
 #from __future__ import division
 import os, time, warnings
-from urllib import urlopen
+from urllib2 import urlopen
 
 try:
     from hashlib import md5
@@ -121,8 +121,10 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
         verbose.report('Using cachefile %s for %s'%(cachename, ticker))
     else:
         if not os.path.isdir(cachedir): os.mkdir(cachedir)
+        urlfh = urlopen(url)
+
         fh = file(cachename, 'w')
-        fh.write(urlopen(url).read())
+        fh.write(urlfh.read())
         fh.close()
         verbose.report('Saved %s data to cache file %s'%(ticker, cachename))
         fh = file(cachename, 'r')
