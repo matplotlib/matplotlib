@@ -80,7 +80,7 @@ def relative_strength(prices, n=14):
     up = seed[seed>=0].sum()/n
     down = -seed[seed<0].sum()/n
     rs = up/down
-    rsi = np.zeros_like(r.adj_close)
+    rsi = np.zeros_like(prices)
     rsi[:n] = 100. - 100./(1.+rs)
 
     for i in range(n, len(prices)):
@@ -129,6 +129,8 @@ ax2 = fig.add_axes(rect2, axisbg=axescolor, sharex=ax1)
 ax2t = ax2.twinx()
 ax3  = fig.add_axes(rect3, axisbg=axescolor, sharex=ax1)
 
+
+
 ### plot the relative strength indicator
 prices = r.adj_close
 rsi = relative_strength(prices)
@@ -176,13 +178,13 @@ props = font_manager.FontProperties(size=10)
 leg = ax2.legend(loc='center left', shadow=True, fancybox=True, prop=props)
 leg.get_frame().set_alpha(0.5)
 
-vmax = r.volume.max()/1e6
-poly = ax2t.fill_between(r.date, r.volume/1e6, 0, facecolor=fillcolor, label='Volume')
+
+volume = (r.close*r.volume)/1e6  # dollar volume in millions
+vmax = volume.max()
+poly = ax2t.fill_between(r.date, volume, 0, facecolor=fillcolor, label='Volume')
 ax2t.set_ylim(0, 5*vmax)
-ymax = np.int(vmax)
-yticks = [vmax/2., vmax]
-ax2t.set_yticks(yticks)
-ax2t.set_yticklabels(['%d M'%val for val in yticks])
+ax2t.set_yticks([])
+
 
 ### compute the MACD indicator
 fillcolor = 'darkslategrey'
@@ -220,7 +222,6 @@ class PriceFormatter(mticker.FormatStrFormatter):
             return ''
         else:
             return mticker.FormatStrFormatter.__call__(self, x, pos=None)
-
 ax2.yaxis.set_major_formatter(PriceFormatter('%d'))
 
 plt.show()
