@@ -139,8 +139,8 @@ fillcolor = 'darkgoldenrod'
 ax1.plot(r.date, rsi, color=fillcolor)
 ax1.axhline(70, color=fillcolor)
 ax1.axhline(30, color=fillcolor)
-ax1.fill_between(r.date, rsi, 70, facecolor=fillcolor, where=(rsi>=70))
-ax1.fill_between(r.date, rsi, 30, facecolor=fillcolor, where=(rsi<=30))
+ax1.fill_between(r.date, rsi, 70, where=(rsi>=70), facecolor=fillcolor, edgecolor=fillcolor)
+ax1.fill_between(r.date, rsi, 30, where=(rsi<=30), facecolor=fillcolor, edgecolor=fillcolor)
 ax1.text(0.6, 0.9, '>70 = overbought', va='top', transform=ax1.transAxes, fontsize=textsize)
 ax1.text(0.6, 0.1, '<30 = oversold', transform=ax1.transAxes, fontsize=textsize)
 ax1.set_ylim(0, 100)
@@ -181,7 +181,7 @@ leg.get_frame().set_alpha(0.5)
 
 volume = (r.close*r.volume)/1e6  # dollar volume in millions
 vmax = volume.max()
-poly = ax2t.fill_between(r.date, volume, 0, facecolor=fillcolor, label='Volume')
+poly = ax2t.fill_between(r.date, volume, 0, label='Volume', facecolor=fillcolor, edgecolor=fillcolor)
 ax2t.set_ylim(0, 5*vmax)
 ax2t.set_yticks([])
 
@@ -195,14 +195,14 @@ emaslow, emafast, macd = moving_average_convergence(prices, nslow=nslow, nfast=n
 ema9 = moving_average(macd, nema, type='exponential')
 ax3.plot(r.date, macd, color='black', lw=2)
 ax3.plot(r.date, ema9, color='blue', lw=1)
-ax3.fill_between(r.date, macd-ema9, 0, facecolor=fillcolor, alpha=0.5)
+ax3.fill_between(r.date, macd-ema9, 0, alpha=0.5, facecolor=fillcolor, edgecolor=fillcolor)
 
 
 ax3.text(0.025, 0.95, 'MACD (%d, %d, %d)'%(nfast, nslow, nema), va='top',
          transform=ax3.transAxes, fontsize=textsize)
 
 ax3.set_yticks([])
-# turn off tick labels, rorate them, etc
+# turn off upper axis tick labels, rotate the lower ones, etc
 for ax in ax1, ax2, ax2t, ax3:
     if ax!=ax3:
         for label in ax.get_xticklabels():
