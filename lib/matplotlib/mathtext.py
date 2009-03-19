@@ -908,7 +908,8 @@ class StixFonts(UnicodeFonts):
         # Handle these "fonts" that are actually embedded in
         # other fonts.
         mapping = stix_virtual_fonts.get(fontname)
-        if self._sans and mapping is None:
+        if (self._sans and mapping is None and
+            fontname not in ('regular', 'default')):
             mapping = stix_virtual_fonts['sf']
             doing_sans_conversion = True
         else:
