@@ -656,3 +656,228 @@ class TextArea(OffsetBox):
 
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
 
+
+
+class AuxTransformBox(OffsetBox):
+    """
+    Offset Box with the aux_transform . Its children will be
+    transformed with the aux_transform first then will be
+    offseted. The absolute coordinate of the aux_transform is meaning
+    as it will be automaticcaly adjust so that the left-lower corner
+    of the bounding box of children will be set to (0,0) before the
+    offset trnasform.
+
+    It is similar to drawing area, except that the extent of the box
+    is not predetemined but calculated from the window extent of its
+    children. Furthermore, the extent of the children will be
+    calculated in the transformed coordinate.
+    """
+
+    def __init__(self, aux_transform):
+        self.aux_transform = aux_transform
+        OffsetBox.__init__(self)
+
+        self.offset_transform = mtransforms.Affine2D()
+        self.offset_transform.clear()
+        self.offset_transform.translate(0, 0)
+
+        # ref_offset_transform is used to make the offset_transform is
+        # always reference to the lower-left corner of the bbox of its
+        # children.
+        self.ref_offset_transform = mtransforms.Affine2D()
+        self.ref_offset_transform.clear()
+
+    def add_artist(self, a):
+        'Add any :class:`~matplotlib.artist.Artist` to the container box'
+        self._children.append(a)
+        a.set_transform(self.get_transform())
+
+    def get_transform(self):
+        """
+        Return the :class:`~matplotlib.transforms.Transform` applied
+        to the children
+        """
+
+        return self.aux_transform + \
+               self.ref_offset_transform + \
+               self.offset_transform
+
+    def set_transform(self, t):
+        """
+        set_transform is ignored.
+        """
+        pass
+
+
+    def set_offset(self, xy):
+        """
+        set offset of the container.
+
+        Accept : tuple of x,y cooridnate in disokay units.
+        """
+        self._offset = xy
+
+        self.offset_transform.clear()
+        self.offset_transform.translate(xy[0], xy[1])
+
+
+    def get_offset(self):
+        """
+        return offset of the container.
+        """
+        return self._offset
+
+
+    def get_window_extent(self, renderer):
+        '''
+        get the bounding box in display space.
+        '''
+        w, h, xd, yd = self.get_extent(renderer)
+        ox, oy = self.get_offset() #w, h, xd, yd)
+        return mtransforms.Bbox.from_bounds(ox-xd, oy-yd, w, h)
+
+
+    def get_extent(self, renderer):
+
+        # clear the offset transforms
+        _off = self.ref_offset_transform.to_values() # to be restored later
+        self.ref_offset_transform.clear()
+        self.offset_transform.clear()
+
+        # calculate the extent
+        bboxes = [c.get_window_extent(renderer) for c in self._children]
+        ub = mtransforms.Bbox.union(bboxes)
+
+
+        # adjust ref_offset_tansform
+        self.ref_offset_transform.translate(-ub.x0, -ub.y0)
+        # restor offset transform
+        self.offset_transform.matrix_from_values(*_off)
+        
+        return ub.width, ub.height, 0., 0.
+
+
+    def draw(self, renderer):
+        """
+        Draw the children
+        """
+
+        for c in self._children:
+            c.draw(renderer)
+
+        bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+
+
+from matplotlib.font_manager import FontProperties
+from matplotlib.patches import FancyBboxPatch
+from matplotlib import rcParams
+from matplotlib.transforms import Bbox
+
+class AnchoredOffsetbox(OffsetBox):
+    def __init__(self, loc, pad=0.4, borderpad=0.5,
+                 child=None, prop=None, frameon=True):
+
+        super(AnchoredOffsetbox, self).__init__()
+
+        self.set_child(child)
+
+        self.loc = loc
+        self.borderpad=borderpad
+        self.pad = pad
+
+        if prop is None:
+            self.prop=FontProperties(size=rcParams["legend.fontsize"])
+        else:
+            self.prop = prop
+            
+        self.patch = FancyBboxPatch(
+            xy=(0.0, 0.0), width=1., height=1.,
+            facecolor='w', edgecolor='k',
+            mutation_scale=self.prop.get_size_in_points(),
+            snap=True
+            )
+        self.patch.set_boxstyle("square",pad=0)
+        self._drawFrame =  frameon
+
+    def set_child(self, child):
+        self._child = child
+
+    def get_children(self):
+        return [self._child]
+
+    def get_child(self):
+        return self._child
+
+    def get_extent(self, renderer):
+        w, h, xd, yd =  self.get_child().get_extent(renderer)
+        fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
+        pad = self.pad * fontsize
+
+        return w+2*pad, h+2*pad, xd+pad, yd+pad
+
+    def get_window_extent(self, renderer):
+        '''
+        get the bounding box in display space.
+        '''
+        w, h, xd, yd = self.get_extent(renderer)
+        ox, oy = self.get_offset(w, h, xd, yd)
+        return Bbox.from_bounds(ox-xd, oy-yd, w, h)
+
+    def draw(self, renderer):
+
+        if not self.get_visible(): return
+
+        fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
+
+        def _offset(w, h, xd, yd, fontsize=fontsize, self=self):
+            bbox = Bbox.from_bounds(0, 0, w, h)
+            borderpad = self.borderpad*fontsize
+            x0, y0 = self._get_anchored_bbox(self.loc,
+                                             bbox,
+                                             self.axes.bbox,
+                                             borderpad)
+            return x0+xd, y0+yd
+
+        self.set_offset(_offset)
+
+        if self._drawFrame:
+            # update the location and size of the legend
+            bbox = self.get_window_extent(renderer)
+            self.patch.set_bounds(bbox.x0, bbox.y0,
+                                  bbox.width, bbox.height)
+
+            self.patch.set_mutation_scale(fontsize)
+
+            self.patch.draw(renderer)
+
+
+        width, height, xdescent, ydescent = self.get_extent(renderer)
+
+        px, py = self.get_offset(width, height, xdescent, ydescent)
+
+        self.get_child().set_offset((px, py))
+        self.get_child().draw(renderer)
+
+
+
+    def _get_anchored_bbox(self, loc, bbox, parentbbox, borderpad):
+        assert loc in range(1,11) # called only internally
+
+        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
+
+        anchor_coefs={UR:"NE",
+                      UL:"NW",
+                      LL:"SW",
+                      LR:"SE",
+                      R:"E",
+                      CL:"W",
+                      CR:"E",
+                      LC:"S",
+                      UC:"N",
+                      C:"C"}
+
+        c = anchor_coefs[loc]
+
+        container = parentbbox.padded(-borderpad)
+        anchored_box = bbox.anchored(c, container=container)
+        return anchored_box.x0, anchored_box.y0
