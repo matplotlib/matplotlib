@@ -2545,6 +2545,92 @@ class ConnectionStyle(_Style):
 
     _style_list["arc"] = Arc
 
+
+
+    class Bar(_Base):
+        """
+        A line with *angle* between A and B with *armA* and
+        *armB*. One of the arm is extend so that they are connected in
+        a right angle. The length of armA is determined by (*armA*
+        + *fraction* x AB distance). Same for armB.
+        """
+
+        def __init__(self, armA=0., armB=0., fraction=0.3, angle=None):
+            """
+            *armA* : minimum length of armA
+            *armB* : minimum length of armB
+            *fraction* : a fraction of the distance between two points that will be added to armA and armB.
+            *angle* : anlge of the connecting line (if None, parallel to A and B)
+            """
+            self.armA = armA
+            self.armB = armB
+            self.fraction = fraction
+            self.angle = angle
+
+        def connect(self, posA, posB):
+            x1, y1 = posA
+            x20, y20 = x2, y2 = posB
+             
+            x12, y12 = (x1 + x2)/2., (y1 + y2)/2.
+
+            theta1 = math.atan2(y2-y1, x2-x1)
+            dx, dy = x2 - x1, y2 - y1
+            dd = (dx*dx + dy*dy)**.5
+            ddx, ddy = dx/dd, dy/dd
+
+            armA, armB = self.armA, self.armB
+            
+            if self.angle is not None:
+                #angle = self.angle % 180.
+                #if angle < 0. or angle > 180.:
+                #    angle
+                theta0 = (self.angle%180.)/180.*math.pi
+                #theta0 = (((self.angle+90)%180.)  - 90.)/180.*math.pi
+                dtheta = theta1 - theta0
+                dl = dd*math.sin(dtheta)
+
+                dL = dd*math.cos(dtheta)
+
+                #x2, y2 = x2 + dl*ddy, y2 - dl*ddx
+                x2, y2 = x1 + dL*math.cos(theta0), y1 + dL*math.sin(theta0)
+
+                armB = armB - dl
+
+                # update
+                dx, dy = x2 - x1, y2 - y1
+                dd2 = (dx*dx + dy*dy)**.5
+                ddx, ddy = dx/dd2, dy/dd2
+
+            else:
+                dl = 0.
+                
+            #if armA > armB:
+            #    armB = armA + dl
+            #else:
+            #    armA = armB - dl
+
+
+            arm = max(armA, armB)
+            f = self.fraction*dd + arm
+            #fB = self.fraction*dd + armB
+
+            cx1, cy1 = x1 + f*ddy, y1 - f*ddx
+            cx2, cy2 = x2 + f*ddy, y2 - f*ddx
+
+            vertices = [(x1, y1),
+                        (cx1, cy1),
+                        (cx2, cy2),
+                        (x20, y20)]
+            codes = [Path.MOVETO,
+                     Path.LINETO,
+                     Path.LINETO,
+                     Path.LINETO]
+
+            return Path(vertices, codes)
+
+    _style_list["bar"] = Bar
+
+
     __doc__ = cbook.dedent(__doc__) % \
            {"AvailableConnectorstyles": _pprint_styles(_style_list)}
 
