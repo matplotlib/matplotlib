@@ -71,6 +71,14 @@ if 1:
                 )
 
 
+    ann = ax.annotate('', xy=(4., 1.),  xycoords='data',
+                xytext=(4.5, -1), textcoords='data',
+                arrowprops=dict(arrowstyle="<->",
+                                connectionstyle="bar",
+                                ec="k",
+                                shrinkA=5, shrinkB=5,
+                                )
+                )
 
 
 if 1:
@@ -143,5 +151,6 @@ if 1:
                                 relpos=(0.2, 0.5),
                                 )
                 )
+
 
 show()

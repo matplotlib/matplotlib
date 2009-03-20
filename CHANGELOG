@@ -1,3 +1,5 @@
+2009-03-20 Add "bar" connection style for annotation - JJL
+
 2009-03-17 Fix bugs in edge color handling by contourf, found
            by Jae-Joon Lee. - EF
 

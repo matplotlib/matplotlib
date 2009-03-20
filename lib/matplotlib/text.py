@@ -406,6 +406,10 @@ class Text(Artist):
             props = props.copy() # don't want to alter the pad externally
             pad = props.pop('pad', 4)
             pad = renderer.points_to_pixels(pad)
+            if self._text == "":
+                self.arrow_patch.set_patchA(None)
+                return
+            
             bbox = self.get_window_extent(renderer)
             l,b,w,h = bbox.bounds
             l-=pad/2.
