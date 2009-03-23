@@ -82,7 +82,7 @@ Pie charts
 ==========
 
 The :func:`~matplotlib.pyplot.pie` command
-uses a matlab(TM) compatible syntax to produce py charts.  Optional
+uses a matlab(TM) compatible syntax to produce pie charts.  Optional
 features include auto-labeling the percentage of area, exploding one
 or more wedges out from the center of the pie, and a shadow effect.
 Take a close look at the attached code that produced this figure; nine
@@ -268,6 +268,3 @@ matplotlib in a wx application, see
 :ref:`user_interfaces-mpl_with_glade`.
 
 .. image:: ../_static/eeg_small.png
-
-
-
