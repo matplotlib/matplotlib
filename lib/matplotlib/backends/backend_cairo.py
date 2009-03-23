@@ -109,6 +109,23 @@ class RendererCairo(RendererBase):
         # font transform?
 
 
+    def _do_clip(self, ctx, cliprect, clippath):
+        if cliprect is not None:
+            x,y,w,h = cliprect.bounds
+            # pixel-aligned clip-regions are faster
+            x,y,w,h = round(x), round(y), round(w), round(h)
+            ctx.new_path()
+            ctx.rectangle (x, self.height - h - y, w, h)
+            ctx.clip ()
+
+        if clippath is not None:
+            tpath, affine = clippath.get_transformed_path_and_affine()
+            ctx.new_path()
+            affine = affine + Affine2D().scale(1.0, -1.0).translate(0.0, self.height)
+            tpath = affine.transform_path(tpath)
+            RendererCairo.convert_path(ctx, tpath)
+            ctx.clip()
+
     def _fill_and_stroke (self, ctx, fill_c, alpha):
         if fill_c is not None:
             ctx.save()
@@ -119,7 +136,6 @@ class RendererCairo(RendererBase):
             ctx.fill_preserve()
             ctx.restore()
         ctx.stroke()
-
 
     @staticmethod
     def convert_path(ctx, path, transform):
@@ -143,6 +159,9 @@ class RendererCairo(RendererBase):
            raise ValueError("The Cairo backend can not draw paths longer than 18980 points.")
 
         ctx = gc.ctx
+        ctx.save()
+        self._do_clip(ctx, gc._cliprect, gc._clippath)
+
         transform = transform + \
             Affine2D().scale(1.0, -1.0).translate(0, self.height)
 
@@ -150,6 +169,7 @@ class RendererCairo(RendererBase):
         self.convert_path(ctx, path, transform)
 
         self._fill_and_stroke(ctx, rgbFace, gc.get_alpha())
+        ctx.restore()
 
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         # bbox - not currently used
@@ -162,9 +182,16 @@ class RendererCairo(RendererBase):
                       buf, cairo.FORMAT_ARGB32, cols, rows, cols*4)
         # function does not pass a 'gc' so use renderer.ctx
         ctx = self.ctx
+        ctx.save()
+        if clippath is not None:
+            tpath = clippath_trans.transform_path(clippath)
+            ctx.new_path()
+            RendererCairo.convert_path(ctx, tpath)
+            ctx.clip()
         y = self.height - y - rows
         ctx.set_source_surface (surface, x, y)
         ctx.paint()
+        ctx.restore()
 
         im.flipud_out()
 
@@ -322,29 +349,9 @@ class GraphicsContextCairo(GraphicsContextBase):
 
     def set_clip_rectangle(self, rectangle):
         self._cliprect = rectangle
-        if rectangle is None:
-           return
-
-        x,y,w,h = rectangle.bounds
-        # pixel-aligned clip-regions are faster
-        x,y,w,h = round(x), round(y), round(w), round(h)
-        ctx = self.ctx
-        ctx.new_path()
-        ctx.rectangle (x, self.renderer.height - h - y, w, h)
-        ctx.clip ()
-        # Alternative: just set _cliprect here and actually set cairo clip rect
-        # in fill_and_stroke() inside ctx.save() ... ctx.restore()
-
 
     def set_clip_path(self, path):
-        if path is not None:
-            tpath, affine = path.get_transformed_path_and_affine()
-            ctx = self.ctx
-            ctx.new_path()
-            affine = affine + Affine2D().scale(1.0, -1.0).translate(0.0, self.renderer.height)
-            RendererCairo.convert_path(ctx, path, affine)
-            ctx.clip()
-
+        self._clippath = path
 
     def set_dashes(self, offset, dashes):
         self._dashes = offset, dashes
