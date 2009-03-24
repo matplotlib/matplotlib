@@ -913,13 +913,27 @@ class MaxNLocator(Locator):
     """
 
     def __init__(self, nbins = 10, steps = None,
-                                trim = True,
-                                integer=False,
-                                symmetric=False):
+                 trim = True,
+                 integer=False,
+                 symmetric=False,
+                 prune=None):
+        """
+        Keyword args:
+        *prune*
+            Remove edge ticks -- useful for stacked or ganed plots
+            where the upper tick of one axes overlaps with the lower
+            tick of the axes above it.  one of 'lower' | 'upper'|
+            'both' | None.  If prune=='lower', the smallest tick will
+            be removed.  If prune=='upper', the largest tick will be
+            removed.  If prune=='both', the largest and smallest ticks
+            will be removed.  If prune==None, no ticks will be removed
+
+        """
         self._nbins = int(nbins)
         self._trim = trim
         self._integer = integer
         self._symmetric = symmetric
+        self._prune = prune
         if steps is None:
             self._steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
         else:
@@ -957,7 +971,16 @@ class MaxNLocator(Locator):
     def __call__(self):
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
-        return self.bin_boundaries(vmin, vmax)
+        locs = self.bin_boundaries(vmin, vmax)
+        #print 'locs=', locs
+        prune = self._prune
+        if prune=='lower':
+            locs = locs[1:]
+        elif prune=='upper':
+            locs = locs[:-1]
+        elif prune=='both':
+            locs = locs[1:-1]
+        return locs
 
     def view_limits(self, dmin, dmax):
         if self._symmetric:
