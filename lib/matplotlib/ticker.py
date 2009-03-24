@@ -920,13 +920,13 @@ class MaxNLocator(Locator):
         """
         Keyword args:
         *prune*
-            Remove edge ticks -- useful for stacked or ganed plots
+            Remove edge ticks -- useful for stacked or ganged plots
             where the upper tick of one axes overlaps with the lower
-            tick of the axes above it.  one of 'lower' | 'upper'|
+            tick of the axes above it.  One of 'lower' | 'upper' |
             'both' | None.  If prune=='lower', the smallest tick will
             be removed.  If prune=='upper', the largest tick will be
             removed.  If prune=='both', the largest and smallest ticks
-            will be removed.  If prune==None, no ticks will be removed
+            will be removed.  If prune==None, no ticks will be removed.
 
         """
         self._nbins = int(nbins)
