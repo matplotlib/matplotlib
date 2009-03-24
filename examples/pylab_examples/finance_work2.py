@@ -201,7 +201,7 @@ ax3.fill_between(r.date, macd-ema9, 0, alpha=0.5, facecolor=fillcolor, edgecolor
 ax3.text(0.025, 0.95, 'MACD (%d, %d, %d)'%(nfast, nslow, nema), va='top',
          transform=ax3.transAxes, fontsize=textsize)
 
-ax3.set_yticks([])
+#ax3.set_yticks([])
 # turn off upper axis tick labels, rotate the lower ones, etc
 for ax in ax1, ax2, ax2t, ax3:
     if ax!=ax3:
@@ -215,15 +215,11 @@ for ax in ax1, ax2, ax2t, ax3:
     ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
 
 
-class PriceFormatter(mticker.FormatStrFormatter):
-    'suppress the lowest tick label to prevent overlap'
-    def __call__(self, x, pos=None):
-        if pos==0:
-            return ''
-        else:
-            return mticker.FormatStrFormatter.__call__(self, x, pos=None)
-ax2.yaxis.set_major_formatter(PriceFormatter('%d'))
 
+# at most 5 ticks, pruning the upper and lower so they don't overlap
+# with other ticks
+ax2.yaxis.set_major_locator(mticker.MaxNLocator(5, prune='both'))
+ax3.yaxis.set_major_locator(mticker.MaxNLocator(5, prune='both'))
 plt.show()
 
 
