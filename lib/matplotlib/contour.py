@@ -756,6 +756,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             x,y,z = self._check_xyz(args[:3])
         else:
             raise TypeError("Too many arguments to %s; see help(%s)" % (fn,fn))
+        z = ma.masked_invalid(z, copy=False)
         self.zmax = ma.maximum(z)
         self.zmin = ma.minimum(z)
         if self.logscale and self.zmin <= 0:
