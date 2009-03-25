@@ -3,7 +3,9 @@ from pylab import *
 origin = 'lower'
 #origin = 'upper'
 
-test_masking = False  # There is a bug in filled contour masking.
+# The following controls only interior masking.
+test_masking = False  # There is a bug in filled contour masking with
+                      # interior masks.
 
 if test_masking:
     # Use a coarse grid so only a few masked points are needed.
@@ -30,6 +32,18 @@ if test_masking:
     Z[0,0] = 0
     Z = ma.array(Z, mask=badmask)
 
+nr, nc = Z.shape
+
+# put NaNs in one corner:
+Z[-nr//6:, -nc//6:] = nan
+# contourf will convert these to masked
+
+
+Z = ma.array(Z)
+# mask another corner:
+Z[:nr//6, :nc//6] = ma.masked
+
+
 # We are using automatic selection of contour levels;
 # this is usually not such a good idea, because they don't
 # occur on nice boundaries, but we do it here for purposes
@@ -48,7 +62,7 @@ CS2 = contour(X, Y, Z, CS.levels[::2],
                         origin=origin,
                         hold='on')
 
-title('Nonsense')
+title('Nonsense (with 2 masked corners)')
 xlabel('word length anomaly')
 ylabel('sentence length anomaly')
 
@@ -72,7 +86,7 @@ CS4 = contour(X, Y, Z, levels,
                        colors = ('k',),
                        linewidths = (3,),
                        origin = origin)
-title('Listed colors')
+title('Listed colors (with 2 masked corners)')
 clabel(CS4, fmt = '%2.1f', colors = 'w', fontsize=14)
 colorbar(CS3)
 

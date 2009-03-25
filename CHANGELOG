@@ -1,5 +1,7 @@
-2009-03-20 Add AuxTransformBox in offsetbox.py to support some transformation. 
-           anchored_text.py example is enhanced and renamed 
+2009-03-25 Make contour and contourf handle nan in their Z argument. - EF
+
+2009-03-20 Add AuxTransformBox in offsetbox.py to support some transformation.
+           anchored_text.py example is enhanced and renamed
            (anchored_artists.py). - JJL
 
 2009-03-20 Add "bar" connection style for annotation - JJL
