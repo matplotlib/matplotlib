@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import lightsource
+from matplotlib.colors import LightSource
 
 # example showing how to make shaded relief plots 
 # like mathematica
@@ -12,7 +12,7 @@ from matplotlib.colors import lightsource
 X,Y=np.mgrid[-5:5:0.05,-5:5:0.05]
 Z=np.sqrt(X**2+Y**2)+np.sin(X**2+Y**2)
 # creat light source object.
-ls = lightsource(azdeg=0,altdeg=65)
+ls = LightSource(azdeg=0,altdeg=65)
 # shade data, creating an rgb array.
 rgb = ls.shade(Z,plt.cm.copper)
 # plot un-shaded and shaded images.
