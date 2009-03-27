@@ -955,7 +955,7 @@ def hsv_to_rgb(hsv):
     rgb[:,:,0]=r; rgb[:,:,1]=g; rgb[:,:,2]=b
     return rgb
 
-class lightsource(object):
+class LightSource(object):
     """
     Create a light source coming from the specified azimuth and elevation.
     Angles are in degrees, with the azimuth measured
