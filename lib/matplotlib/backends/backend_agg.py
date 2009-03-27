@@ -46,11 +46,12 @@ class RendererAgg(RendererBase):
     context instance that controls the colors/styles
     """
     debug=1
-    texd = maxdict(50)  # a cache of tex image rasters
-    _fontd = maxdict(50)
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
         RendererBase.__init__(self)
+        self.texd = maxdict(50)  # a cache of tex image rasters
+        self._fontd = maxdict(50)
+
         self.dpi = dpi
         self.width = width
         self.height = height
