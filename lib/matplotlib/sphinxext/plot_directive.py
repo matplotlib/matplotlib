@@ -17,6 +17,7 @@ plot_formats configuration variable.
 """
 
 import sys, os, glob, shutil, hashlib, imp, warnings, cStringIO
+import re
 try:
     from hashlib import md5
 except ImportError:
@@ -33,7 +34,10 @@ from docutils import nodes
 import sphinx
 
 sphinx_version = sphinx.__version__.split(".")
-sphinx_version = tuple([int(x) for x in sphinx_version[:2]])
+# The split is necessary for sphinx beta versions where the string is
+# '6b1'
+sphinx_version = tuple([int(re.split('[a-z]', x)[0]) 
+                        for x in sphinx_version[:2]])
 
 import matplotlib
 import matplotlib.cbook as cbook
