@@ -933,6 +933,15 @@ def issubclass_safe(x, klass):
     except TypeError:
         return False
 
+def safe_masked_invalid(x):
+    x = np.asanyarray(x)
+    try:
+        xm = np.ma.masked_invalid(x, copy=False)
+        xm.shrink_mask()
+    except TypeError:
+        return x
+    return xm
+
 class MemoryMonitor:
     def __init__(self, nmax=20000):
         self._nmax = nmax
