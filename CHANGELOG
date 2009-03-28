@@ -1,3 +1,6 @@
+2009-03-28 Make images handle nan in their array argument.
+           A helper, cbook.safe_masked_invalid() was added. - EF
+
 2009-03-25 Make contour and contourf handle nan in their Z argument. - EF
 
 2009-03-20 Add AuxTransformBox in offsetbox.py to support some transformation.

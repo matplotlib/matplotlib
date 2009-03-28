@@ -10,13 +10,14 @@ import numpy as np
 from numpy import ma
 
 from matplotlib import rcParams
-from matplotlib import artist as martist
-from matplotlib import colors as mcolors
-from matplotlib import cm
+import matplotlib.artist as martist
+import matplotlib.colors as mcolors
+import matplotlib.cm as cm
+import matplotlib.cbook as cbook
 
 # For clarity, names from _image are given explicitly in this module:
-from matplotlib import _image
-from matplotlib import _png
+import matplotlib._image as _image
+import matplotlib._png as _png
 
 # For user convenience, the names from _image are also imported into
 # the image namespace:
@@ -238,7 +239,8 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
                             clippath, affine)
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occured within the image.
+        """
+        Test whether the mouse event occured within the image.
         """
         if callable(self._contains): return self._contains(self,mouseevent)
         # TODO: make sure this is consistent with patch and patch
@@ -271,18 +273,17 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         rows, cols, buffer = im.as_rgba_str()
         _png.write_png(buffer, cols, rows, fname)
 
-    def set_data(self, A, shape=None):
+    def set_data(self, A):
         """
         Set the image array
 
-        ACCEPTS: numpy/PIL Image A"""
+        ACCEPTS: numpy/PIL Image A
+        """
         # check if data is PIL Image without importing Image
         if hasattr(A,'getpixel'):
             self._A = pil_to_array(A)
-        elif ma.isMA(A):
-            self._A = A
         else:
-            self._A = np.asarray(A) # assume array
+            self._A = cbook.safe_masked_invalid(A)
 
         if self._A.dtype != np.uint8 and not np.can_cast(self._A.dtype, np.float):
             raise TypeError("Image data can not convert to float")
@@ -310,7 +311,8 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
 
     def set_extent(self, extent):
-        """extent is data axes (left, right, bottom, top) for making image plots
+        """
+        extent is data axes (left, right, bottom, top) for making image plots
         """
         self._extent = extent
 
@@ -375,7 +377,8 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
                 return (-0.5, numcols-0.5, -0.5, numrows-0.5)
 
     def set_filternorm(self, filternorm):
-        """Set whether the resize filter norms the weights -- see
+        """
+        Set whether the resize filter norms the weights -- see
         help for imshow
 
         ACCEPTS: 0 or 1
@@ -390,7 +393,8 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         return self._filternorm
 
     def set_filterrad(self, filterrad):
-        """Set the resize filter radius only applicable to some
+        """
+        Set the resize filter radius only applicable to some
         interpolation schemes -- see help for imshow
 
         ACCEPTS: positive float
@@ -405,9 +409,11 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
 
 class NonUniformImage(AxesImage):
-    def __init__(self, ax,
-                 **kwargs
-                ):
+    def __init__(self, ax, **kwargs):
+        """
+        kwargs are identical to those for AxesImage, except
+        that 'interpolation' defaults to 'nearest'
+        """
         interp = kwargs.pop('interpolation', 'nearest')
         AxesImage.__init__(self, ax,
                            **kwargs)
@@ -434,10 +440,19 @@ class NonUniformImage(AxesImage):
         return im
 
     def set_data(self, x, y, A):
+        """
+        Set the grid for the pixel centers, and the pixel values.
+
+          *x* and *y* are 1-D ndarrays of lengths N and M, respectively,
+             specifying pixel centers
+
+          *A* is an (M,N) ndarray or masked array of values to be
+            colormapped, or a (M,N,3) RGB array, or a (M,N,4) RGBA
+            array.
+        """
         x = np.asarray(x,np.float32)
         y = np.asarray(y,np.float32)
-        if not ma.isMA(A):
-            A = np.asarray(A)
+        A = cbook.safe_masked_invalid(A)
         if len(x.shape) != 1 or len(y.shape) != 1\
            or A.shape[0:2] != (y.shape[0], x.shape[0]):
             raise TypeError("Axes don't match array shape")
@@ -567,8 +582,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
 
 
     def set_data(self, x, y, A):
-        if not ma.isMA(A):
-            A = np.asarray(A)
+        A = cbook.safe_masked_invalid(A)
         if x is None:
             x = np.arange(0, A.shape[1]+1, dtype=np.float64)
         else:
@@ -665,6 +679,19 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         numrows, numcols = self.get_size()
         return (-0.5+self.ox, numcols-0.5+self.ox,
                 -0.5+self.oy, numrows-0.5+self.oy)
+
+    def set_data(self, A):
+        """
+        Set the image array
+
+        """
+        cm.ScalarMappable.set_array(self, cbook.safe_masked_invalid(A))
+
+    def set_array(self, A):
+        """
+        Deprecated; use set_data for consistency with other image types.
+        """
+        self.set_data(A)
 
     def make_image(self, magnification=1.0):
         if self._A is None:
