@@ -442,6 +442,8 @@ class Axes(martist.Artist):
                  sharex=None, # use Axes instance's xaxis info
                  sharey=None, # use Axes instance's yaxis info
                  label='',
+                 xscale=None,
+                 yscale=None,
                  **kwargs
                  ):
         """
@@ -547,6 +549,11 @@ class Axes(martist.Artist):
         self.set_navigate_mode(None)
 
         self._axes_locator = None
+
+        if xscale:
+            self.set_xscale(xscale)
+        if yscale:
+            self.set_yscale(yscale)
 
         if len(kwargs): martist.setp(self, **kwargs)
 
