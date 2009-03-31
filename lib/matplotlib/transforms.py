@@ -970,8 +970,7 @@ class TransformedBbox(BboxBase):
     def get_points(self):
         if self._invalid:
             points = self._transform.transform(self._bbox.get_points())
-            if ma.isMaskedArray(points):
-                np.putmask(points, points.mask, 0.0)
+            points = np.ma.filled(points, 0.0)
             self._points = points
             self._invalid = 0
         return self._points
