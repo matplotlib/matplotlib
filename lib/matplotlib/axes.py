@@ -216,9 +216,10 @@ class _process_plot_var_args:
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             bx = self.axes.xaxis.update_units(x)
             by = self.axes.yaxis.update_units(y)
-            # right now multicol is not supported if either x or y are
-            # unit enabled but this can be fixed..
-            if bx or by: return x, y, False
+            if bx:
+                x = self.axes.convert_xunits(x)
+            if by:
+                y = self.axes.convert_yunits(y)
 
         x = ma.asarray(x)
         y = ma.asarray(y)
@@ -310,8 +311,6 @@ class _process_plot_var_args:
                 ret.append(seg)
 
             def makefill(x, y):
-                x = self.axes.convert_xunits(x)
-                y = self.axes.convert_yunits(y)
                 facecolor = self._get_next_cycle_color()
                 seg = mpatches.Polygon(np.hstack(
                                     (x[:,np.newaxis],y[:,np.newaxis])),
@@ -358,8 +357,6 @@ class _process_plot_var_args:
 
         def makefill(x, y):
             facecolor = color
-            x = self.axes.convert_xunits(x)
-            y = self.axes.convert_yunits(y)
             seg = mpatches.Polygon(np.hstack(
                                     (x[:,np.newaxis],y[:,np.newaxis])),
                           facecolor = facecolor,
