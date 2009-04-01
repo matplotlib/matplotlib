@@ -71,6 +71,7 @@ mile = UnitDbl( 1.0, "mile" )
 
 # Angles
 deg = UnitDbl( 1.0, "deg" )
+rad = UnitDbl( 1.0, "rad" )
 
 # Time
 sec = UnitDbl( 1.0, "sec" )
