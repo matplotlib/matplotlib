@@ -87,6 +87,10 @@ def _mask_non_positives(a):
         return ma.MaskedArray(a, mask=mask)
     return a
 
+def _clip_non_positives(a):
+    a[a <= 0.0] = 1e-300
+    return a
+
 class LogScale(ScaleBase):
     """
     A standard logarithmic scale.  Care is taken so non-positive
@@ -104,14 +108,24 @@ class LogScale(ScaleBase):
 
     name = 'log'
 
-    class Log10Transform(Transform):
+    class LogTransformBase(Transform):
         input_dims = 1
         output_dims = 1
         is_separable = True
+
+        def __init__(self, nonpos):
+            Transform.__init__(self)
+            if nonpos == 'mask':
+                self._handle_nonpos = _mask_non_positives
+            else:
+                self._handle_nonpos = _clip_non_positives
+
+
+    class Log10Transform(LogTransformBase):
         base = 10.0
 
         def transform(self, a):
-            a = _mask_non_positives(a * 10.0)
+            a = self._handle_nonpos(a * 10.0)
             if isinstance(a, MaskedArray):
                 return ma.log10(a)
             return np.log10(a)
@@ -131,14 +145,11 @@ class LogScale(ScaleBase):
         def inverted(self):
             return LogScale.Log10Transform()
 
-    class Log2Transform(Transform):
-        input_dims = 1
-        output_dims = 1
-        is_separable = True
+    class Log2Transform(LogTransformBase):
         base = 2.0
 
         def transform(self, a):
-            a = _mask_non_positives(a * 2.0)
+            a = self._handle_nonpos(a * 2.0)
             if isinstance(a, MaskedArray):
                 return ma.log(a) / np.log(2)
             return np.log2(a)
@@ -158,14 +169,11 @@ class LogScale(ScaleBase):
         def inverted(self):
             return LogScale.Log2Transform()
 
-    class NaturalLogTransform(Transform):
-        input_dims = 1
-        output_dims = 1
-        is_separable = True
+    class NaturalLogTransform(LogTransformBase):
         base = np.e
 
         def transform(self, a):
-            a = _mask_non_positives(a * np.e)
+            a = self._handle_nonpos(a * np.e)
             if isinstance(a, MaskedArray):
                 return ma.log(a)
             return np.log(a)
@@ -190,12 +198,16 @@ class LogScale(ScaleBase):
         output_dims = 1
         is_separable = True
 
-        def __init__(self, base):
+        def __init__(self, base, nonpos):
             Transform.__init__(self)
             self.base = base
+            if nonpos == 'mask':
+                self._handle_nonpos = _mask_non_positives
+            else:
+                self._handle_nonpos = _clip_non_positives
 
         def transform(self, a):
-            a = _mask_non_positives(a * self.base)
+            a = self._handle_nonpos(a * self.base)
             if isinstance(a, MaskedArray):
                 return ma.log(a) / np.log(self.base)
             return np.log(a) / np.log(self.base)
@@ -224,6 +236,10 @@ class LogScale(ScaleBase):
         *basex*/*basey*:
            The base of the logarithm
 
+        *nonposx*/*nonposy*: ['mask' | 'clip' ]
+          non-positive values in *x* or *y* can be masked as
+          invalid, or clipped to a very small positive number
+
         *subsx*/*subsy*:
            Where to place the subticks between each major tick.
            Should be a sequence of integers.  For example, in a log10
@@ -235,18 +251,23 @@ class LogScale(ScaleBase):
         if axis.axis_name == 'x':
             base = kwargs.pop('basex', 10.0)
             subs = kwargs.pop('subsx', None)
+            nonpos = kwargs.pop('nonposx', 'mask')
         else:
             base = kwargs.pop('basey', 10.0)
             subs = kwargs.pop('subsy', None)
+            nonpos = kwargs.pop('nonposy', 'mask')
+
+        if nonpos not in ['mask', 'clip']:
+            raise ValueError("nonposx, nonposy kwarg must be 'mask' or 'clip'")
 
         if base == 10.0:
-            self._transform = self.Log10Transform()
+            self._transform = self.Log10Transform(nonpos)
         elif base == 2.0:
-            self._transform = self.Log2Transform()
+            self._transform = self.Log2Transform(nonpos)
         elif base == np.e:
-            self._transform = self.NaturalLogTransform()
+            self._transform = self.NaturalLogTransform(nonpos)
         else:
-            self._transform = self.LogTransform(base)
+            self._transform = self.LogTransform(base, nonpos)
 
         self.base = base
         self.subs = subs
