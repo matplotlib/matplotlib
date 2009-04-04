@@ -19,6 +19,12 @@ list may help describe what changes may be necessary in your code.
 
 Changes for 0.98.x
 ==================
+* Added new keyword parameters *nonposx*, *nonposy* to
+  :class:`matplotlib.axes.Axes` methods that set log scale
+  parameters.  The default is still to mask out non-positive
+  values, but the kwargs accept 'clip', which causes non-positive
+  values to be replaced with a very small positive value.
+
 * Added new :func:`matplotlib.pyplot.fignum_exists` and
   :func:`matplotlib.pyplot.get_fignums`; they merely expose
   information that had been hidden in :mod:`matplotlib._pylab_helpers`.

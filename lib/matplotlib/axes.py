@@ -3455,6 +3455,10 @@ class Axes(martist.Artist):
             plot; see :meth:`matplotlib.axes.Axes.set_xscale` /
             :meth:`matplotlib.axes.Axes.set_yscale` for details
 
+          *nonposx*/*nonposy*: ['mask' | 'clip' ]
+            non-positive values in *x* or *y* can be masked as
+            invalid, or clipped to a very small positive number
+
         The remaining valid kwargs are
         :class:`~matplotlib.lines.Line2D` properties:
 
@@ -3469,9 +3473,11 @@ class Axes(martist.Artist):
 
         dx = {'basex': kwargs.pop('basex', 10),
               'subsx': kwargs.pop('subsx', None),
+              'nonposx': kwargs.pop('nonposx', 'mask'),
               }
         dy = {'basey': kwargs.pop('basey', 10),
               'subsy': kwargs.pop('subsy', None),
+              'nonposy': kwargs.pop('nonposy', 'mask'),
               }
 
         self.set_xscale('log', **dx)
@@ -3508,6 +3514,10 @@ class Axes(martist.Artist):
             plot; see :meth:`~matplotlib.axes.Axes.set_xscale` for
             details.
 
+          *nonposx*: ['mask' | 'clip' ]
+            non-positive values in *x* can be masked as
+            invalid, or clipped to a very small positive number
+
         The remaining valid kwargs are
         :class:`~matplotlib.lines.Line2D` properties:
 
@@ -3521,6 +3531,7 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
         d = {'basex': kwargs.pop( 'basex', 10),
              'subsx': kwargs.pop( 'subsx', None),
+             'nonposx': kwargs.pop('nonposx', 'mask'),
              }
 
         self.set_xscale('log', **d)
@@ -3554,6 +3565,10 @@ class Axes(martist.Artist):
             plot; see :meth:`~matplotlib.axes.Axes.set_yscale` for
             details.
 
+          *nonposy*: ['mask' | 'clip' ]
+            non-positive values in *y* can be masked as
+            invalid, or clipped to a very small positive number
+
         The remaining valid kwargs are
         :class:`~matplotlib.lines.Line2D` properties:
 
@@ -3567,6 +3582,7 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
         d = {'basey': kwargs.pop('basey', 10),
              'subsy': kwargs.pop('subsy', None),
+             'nonposy': kwargs.pop('nonposy', 'mask'),
              }
         self.set_yscale('log', **d)
         b =  self._hold
