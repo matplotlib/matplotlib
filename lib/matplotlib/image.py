@@ -720,8 +720,6 @@ def imread(fname):
     <http://www.pythonware.com/products/pil/>`_ is installed, it will
     use it to load the image and return an array (if possible) which
     can be used with :func:`~matplotlib.pyplot.imshow`.
-
-    TODO: support RGB and grayscale return values in _image.readpng
     """
 
     def pilread():
