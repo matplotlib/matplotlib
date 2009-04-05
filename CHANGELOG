@@ -1,3 +1,6 @@
+2009-04-05 _png.read_png() reads 12 bit PNGs (patch from 
+           Tobias Wood) - ADS
+
 2009-03-17 Fix bugs in edge color handling by contourf, found
            by Jae-Joon Lee. - EF
 
