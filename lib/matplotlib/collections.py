@@ -1126,7 +1126,7 @@ class PatchCollection(Collection):
 
             facecolors   = [determine_facecolor(p) for p in patches]
             edgecolors   = [p.get_edgecolor() for p in patches]
-            linewidths   = [p.get_linewidths() for p in patches]
+            linewidths   = [p.get_linewidth() for p in patches]
             antialiaseds = [p.get_antialiased() for p in patches]
 
             Collection.__init__(
