@@ -214,7 +214,7 @@ _png_module::read_png(const Py::Tuple& args) {
   png_uint_32 height = info_ptr->height;
 
   int bit_depth = info_ptr->bit_depth;
-  
+
   // Unpack 1, 2, and 4-bit images
   if (bit_depth < 8)
     png_set_packing(png_ptr);
@@ -231,7 +231,7 @@ _png_module::read_png(const Py::Tuple& args) {
   // Convert palletes to full RGB
   if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
     png_set_palette_to_rgb(png_ptr);
-  
+
   // If there's an alpha channel convert gray to RGB
   if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
     png_set_gray_to_rgb(png_ptr);
@@ -262,7 +262,7 @@ _png_module::read_png(const Py::Tuple& args) {
     dimensions[2] = 1;     //Greyscale images
   //For gray, return an x by y array, not an x by y by 1
   int num_dims  = (info_ptr->color_type & PNG_COLOR_MASK_COLOR) ? 3 : 2;
-  
+
   double max_value = (1 << ((bit_depth < 8) ? 8 : bit_depth)) - 1;
   PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNew(num_dims, dimensions, PyArray_FLOAT);
 
@@ -283,7 +283,7 @@ _png_module::read_png(const Py::Tuple& args) {
 	  }
     }
   }
-  
+
   //free the png memory
   png_read_end(png_ptr, info_ptr);
   png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
