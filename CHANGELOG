@@ -1,3 +1,6 @@
+2009-04-06 The pdf backend now escapes newlines and linefeeds in strings.
+           Fixes sf bug #2708559; thanks to Tiago Pereira for the report.
+
 2009-04-06 texmanager.make_dvi now raises an error if LaTeX failed to
            create an output file. Thanks to Joao Luis Silva for reporting
            this. - JKS
