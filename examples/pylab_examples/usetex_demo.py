@@ -56,4 +56,8 @@ pylab.text(0.1, 0.85, r'$|\nabla\phi| = 1,$ \newline $ \frac{\partial \phi}{\par
 ## phase field equations
 pylab.text(0.2, 0.15, r'$\mathcal{F} = \int f\left( \phi, c \right) dV,$ \newline $ \frac{ \partial \phi } { \partial t } = -M_{ \phi } \frac{ \delta \mathcal{F} } { \delta \phi }$', {'color' : 'b', 'fontsize' : 20})
 
+## these went wrong in pdf in a previous version
+pylab.text(-.9,.42,r'gamma: $\gamma$', {'color': 'r', 'fontsize': 20})
+pylab.text(-.9,.36,r'Omega: $\Omega$', {'color': 'b', 'fontsize': 20})
+
 pylab.show()
