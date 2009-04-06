@@ -1,3 +1,6 @@
+2009-04-05 _png.read_png() reads 12 bit PNGs (patch from 
+           Tobias Wood) - ADS
+
 2009-04-04 Allow log axis scale to clip non-positive values to
            small positive value; this is useful for errorbars. - EF
 
