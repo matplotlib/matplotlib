@@ -2552,8 +2552,14 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     fh.seek(0)
     reader = csv.reader(fh, delimiter=delimiter)
     process_skiprows(reader)
+
     if needheader:
-        skipheader = reader.next()
+        while 1:
+	    # skip past any comments and consume one line of column header
+	    row = reader.next()
+	    if len(row) and row[0].startswith(comments):
+	        continue
+	    break
 
     # iterate over the remaining rows and convert the data to date
     # objects, ints, or floats as approriate

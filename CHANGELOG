@@ -1,3 +1,6 @@
+======================================================================
+2008-04-12 Release 0.98.5.3 at r7038
+
 2009-04-06 The pdf backend now escapes newlines and linefeeds in strings.
            Fixes sf bug #2708559; thanks to Tiago Pereira for the report.
 
