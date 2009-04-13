@@ -952,11 +952,14 @@ def add_tk_flags(module):
     message = None
     if sys.platform == 'win32':
         major, minor1, minor2, s, tmp = sys.version_info
-        if major == 2 and minor1 in [3, 4, 5]:
-            module.include_dirs.extend(['win32_static/include/tcl8.4'])
+        if major == 2 and minor1 == 6:
+            module.include_dirs.extend(['win32_static/include/tcl85'])
+            module.libraries.extend(['tk85', 'tcl85'])
+        elif major == 2 and minor1 in [3, 4, 5]:
+            module.include_dirs.extend(['win32_static/include/tcl84'])
             module.libraries.extend(['tk84', 'tcl84'])
         elif major == 2 and minor1 == 2:
-            module.include_dirs.extend(['win32_static/include/tcl8.3'])
+            module.include_dirs.extend(['win32_static/include/tcl83'])
             module.libraries.extend(['tk83', 'tcl83'])
         else:
             raise RuntimeError('No tk/win32 support for this python version yet')
