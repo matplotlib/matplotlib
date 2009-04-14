@@ -52,6 +52,7 @@ packages = [
     'matplotlib.projections',
 #   'matplotlib.toolkits',
     'mpl_toolkits',
+    'mpl_toolkits.mplot3d',
     'matplotlib.sphinxext',
     # The following are deprecated and will be removed.
     'matplotlib.numerix',
