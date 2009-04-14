@@ -166,4 +166,9 @@ Michael Droettboom
   base. He also rewrote the transformation infrastructure to support
   custom projections and scales.
 
+John Porter, Jonathon Taylor and Reinier Heeres
+  John Porter wrote the mplot3d module for basic 3D plotting in
+  matplotlib, and Jonathon Taylor and Reinier Heeres ported it to the
+  refactored transform trunk.
+
 

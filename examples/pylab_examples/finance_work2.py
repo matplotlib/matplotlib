@@ -216,10 +216,21 @@ for ax in ax1, ax2, ax2t, ax3:
 
 
 
+class MyLocator(mticker.MaxNLocator):
+    def __init__(self, *args, **kwargs):
+        mticker.MaxNLocator.__init__(self, *args, **kwargs)
+
+    def __call__(self, *args, **kwargs):
+        return mticker.MaxNLocator.__call__(self, *args, **kwargs)
+
 # at most 5 ticks, pruning the upper and lower so they don't overlap
 # with other ticks
-ax2.yaxis.set_major_locator(mticker.MaxNLocator(5, prune='both'))
-ax3.yaxis.set_major_locator(mticker.MaxNLocator(5, prune='both'))
+#ax2.yaxis.set_major_locator(mticker.MaxNLocator(5, prune='both'))
+#ax3.yaxis.set_major_locator(mticker.MaxNLocator(5, prune='both'))
+
+ax2.yaxis.set_major_locator(MyLocator(5, prune='both'))
+ax3.yaxis.set_major_locator(MyLocator(5, prune='both'))
+
 plt.show()
 
 

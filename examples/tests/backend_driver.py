@@ -240,6 +240,11 @@ units_files = [
 
     ]
 
+mplot3d_dir = os.path.join('..', 'mplot3d')
+mplot3d_files = [
+    'demo.py',
+    ]
+
 # dict from dir to files we know we don't want to test (eg examples
 # not using pyplot, examples requiring user input, animation examples,
 # examples that may only work in certain environs (usetex examples?),
@@ -271,7 +276,8 @@ report_missing(units_dir, units_files)
 files = (
     [os.path.join(api_dir, fname) for fname in api_files] +
     [os.path.join(pylab_dir, fname) for fname in pylab_files] +
-    [os.path.join(units_dir, fname) for fname in units_files]
+    [os.path.join(units_dir, fname) for fname in units_files] +
+    [os.path.join(mplot3d_dir, fname) for fname in mplot3d_files]
      )
 
 # tests known to fail on a given backend
