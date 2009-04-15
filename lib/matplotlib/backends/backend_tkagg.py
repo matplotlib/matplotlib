@@ -708,11 +708,17 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         tk_filetypes = [
             (name, '*.%s' % ext) for (ext, name) in sorted_filetypes]
 
+        # adding a default extension seems to break the
+        # asksaveasfilename dialog when you choose various save types
+        # from the dropdown.  Passing in the empty string seems to
+        # work - JDH
+        #defaultextension = self.canvas.get_default_filetype()
+        defaultextension = ''
         fname = asksaveasfilename(
             master=self.window,
             title='Save the figure',
             filetypes = tk_filetypes,
-            defaultextension = self.canvas.get_default_filetype()
+            defaultextension = defaultextension
             )
 
         if fname == "" or fname == ():
