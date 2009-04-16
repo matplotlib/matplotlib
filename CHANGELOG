@@ -1,5 +1,9 @@
 ======================================================================
 
+2009-04-16 Fixed a bug in mixed mode renderer that images produced by
+           an rasterizing backend are placed with incorrect size.
+           - JJL
+
 2008-04-14 Added Jonathan Taylor's Reinier Heeres' port of John
            Porters' mplot3d to svn trunk.  Package in
            mpl_toolkits.mplot3d and demo is examples/mplot3d/demo.py.
