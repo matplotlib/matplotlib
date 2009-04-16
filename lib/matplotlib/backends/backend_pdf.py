@@ -1990,8 +1990,10 @@ class FigureCanvasPdf(FigureCanvasBase):
         else:
             file = PdfFile(filename)
         file.newPage(width, height)
-        renderer = MixedModeRenderer(
-            width, height, 72, RendererPdf(file, image_dpi))
+        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
+        renderer = MixedModeRenderer(self.figure,
+            width, height, image_dpi, RendererPdf(file, image_dpi),
+            bbox_inches_restore=_bbox_inches_restore)
         self.figure.draw(renderer)
         renderer.finalize()
         if isinstance(filename, PdfPages): # finish off this page
