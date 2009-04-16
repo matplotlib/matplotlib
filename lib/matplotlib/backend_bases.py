@@ -36,6 +36,8 @@ from matplotlib import rcParams
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 import cStringIO
 
+import matplotlib.tight_bbox as tight_bbox
+
 class RendererBase:
     """An abstract base class to handle drawing/rendering operations.
 
@@ -271,7 +273,6 @@ class RendererBase:
                 gc.set_alpha(rgbFace[-1])
                 rgbFace = rgbFace[:3]
             gc.set_antialiased(antialiaseds[i % Naa])
-
             if Nurls:
                 gc.set_url(urls[i % Nurls])
 
@@ -1426,7 +1427,16 @@ class FigureCanvasBase:
         if bbox_inches:
             # call adjust_bbox to save only the given area
             if bbox_inches == "tight":
-                # save the figure to estimate the bounding box
+                # when bbox_inches == "tight", it saves the figure
+                # twice. The first save command is just to estimate
+                # the bounding box of the figure. A stringIO object is
+                # used as a temporary file object, but it causes a
+                # problem for some backends (ps backend with
+                # usetex=True) if they expect a filename, not a
+                # file-like object. As I think it is best to change
+                # the backend to support file-like object, i'm going
+                # to leave it as it is. However, a better solution
+                # than stringIO seems to be needed. -JJL
                 result = getattr(self, method_name)(
                     cStringIO.StringIO(),
                     dpi=dpi,
@@ -1439,9 +1449,12 @@ class FigureCanvasBase:
                 pad = kwargs.pop("pad_inches", 0.1)
                 bbox_inches = bbox_inches.padded(pad)
 
-            restore_bbox = self._adjust_bbox(self.figure, format,
-                                             bbox_inches)
-
+            restore_bbox = tight_bbox.adjust_bbox(self.figure, format,
+                                                  bbox_inches)
+            
+            _bbox_inches_restore = (bbox_inches, restore_bbox)
+        else:
+            _bbox_inches_restore = None
 
         try:
             result = getattr(self, method_name)(
@@ -1450,6 +1463,7 @@ class FigureCanvasBase:
                 facecolor=facecolor,
                 edgecolor=edgecolor,
                 orientation=orientation,
+                bbox_inches_restore=_bbox_inches_restore,
                 **kwargs)
         finally:
             if bbox_inches and restore_bbox:
@@ -1463,106 +1477,6 @@ class FigureCanvasBase:
         return result
 
 
-    def _adjust_bbox(self, fig, format, bbox_inches):
-        """
-        Temporarily adjust the figure so that only the specified area
-        (bbox_inches) is saved.
-
-        It modifies fig.bbox, fig.bbox_inches,
-        fig.transFigure._boxout, and fig.patch.  While the figure size
-        changes, the scale of the original figure is conserved.  A
-        function whitch restores the original values are returned.
-        """
-
-        origBbox = fig.bbox
-        origBboxInches = fig.bbox_inches
-        _boxout = fig.transFigure._boxout
-
-        asp_list = []
-        locator_list = []
-        for ax in fig.axes:
-            pos = ax.get_position(original=False).frozen()
-            locator_list.append(ax.get_axes_locator())
-            asp_list.append(ax.get_aspect())
-
-            def _l(a, r, pos=pos): return pos
-            ax.set_axes_locator(_l)
-            ax.set_aspect("auto")
-
-
-
-        def restore_bbox():
-
-            for ax, asp, loc in zip(fig.axes, asp_list, locator_list):
-                ax.set_aspect(asp)
-                ax.set_axes_locator(loc)
-
-            fig.bbox = origBbox
-            fig.bbox_inches = origBboxInches
-            fig.transFigure._boxout = _boxout
-            fig.transFigure.invalidate()
-            fig.patch.set_bounds(0, 0, 1, 1)
-
-        if format in ["png", "raw", "rgba"]:
-            self._adjust_bbox_png(fig, bbox_inches)
-            return restore_bbox
-        elif format in ["pdf", "eps"]:
-            self._adjust_bbox_pdf(fig, bbox_inches)
-            return restore_bbox
-        else:
-            warnings.warn("bbox_inches option for %s backend is not implemented yet." % (format))
-            return None
-
-
-    def _adjust_bbox_png(self, fig, bbox_inches):
-        """
-        _adjust_bbox for png (Agg) format
-        """
-
-        tr = fig.dpi_scale_trans
-
-        _bbox = TransformedBbox(bbox_inches,
-                                tr)
-        x0, y0 = _bbox.x0, _bbox.y0
-        fig.bbox_inches = Bbox.from_bounds(0, 0,
-                                           bbox_inches.width,
-                                           bbox_inches.height)
-
-        x0, y0 = _bbox.x0, _bbox.y0
-        w1, h1 = fig.bbox.width, fig.bbox.height
-        self.figure.transFigure._boxout = Bbox.from_bounds(-x0, -y0,
-                                                           w1, h1)
-        self.figure.transFigure.invalidate()
-
-        fig.bbox = TransformedBbox(fig.bbox_inches, tr)
-
-        fig.patch.set_bounds(x0/w1, y0/h1,
-                             fig.bbox.width/w1, fig.bbox.height/h1)
-
-
-    def _adjust_bbox_pdf(self, fig, bbox_inches):
-        """
-        _adjust_bbox for pdf & eps format
-        """
-
-        tr = Affine2D().scale(72)
-
-        _bbox = TransformedBbox(bbox_inches, tr)
-
-        fig.bbox_inches = Bbox.from_bounds(0, 0,
-                                           bbox_inches.width,
-                                           bbox_inches.height)
-        x0, y0 = _bbox.x0, _bbox.y0
-        f = 72. / fig.dpi
-        w1, h1 = fig.bbox.width*f, fig.bbox.height*f
-        self.figure.transFigure._boxout = Bbox.from_bounds(-x0, -y0,
-                                                           w1, h1)
-        self.figure.transFigure.invalidate()
-
-        fig.bbox = TransformedBbox(fig.bbox_inches, tr)
-
-        fig.patch.set_bounds(x0/w1, y0/h1,
-                             fig.bbox.width/w1, fig.bbox.height/h1)
 
 
     def get_default_filetype(self):

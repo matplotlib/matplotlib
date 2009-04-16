@@ -1,5 +1,6 @@
 from matplotlib._image import frombuffer
 from matplotlib.backends.backend_agg import RendererAgg
+from matplotlib.tight_bbox import process_figure_for_rasterizing
 
 class MixedModeRenderer(object):
     """
@@ -9,8 +10,12 @@ class MixedModeRenderer(object):
     complex objects, such as quad meshes, are rasterised and then
     output as images.
     """
-    def __init__(self, width, height, dpi, vector_renderer, raster_renderer_class=None):
+    def __init__(self, figure, width, height, dpi, vector_renderer,
+                 raster_renderer_class=None,
+                 bbox_inches_restore=None):
         """
+        figure: The figure instance. 
+
         width: The width of the canvas in logical units
 
         height: The height of the canvas in logical units
@@ -38,6 +43,13 @@ class MixedModeRenderer(object):
         self._raster_renderer = None
         self._rasterizing = 0
 
+        # A renference to the figure is needed as we need to change
+        # the figure dpi before and after the rasterization. Although
+        # this looks ugly, I couldn't find a better solution. -JJL
+        self.figure=figure
+
+        self._bbox_inches_restore = bbox_inches_restore
+        
         self._set_current_renderer(vector_renderer)
 
     _methods = """
@@ -56,6 +68,7 @@ class MixedModeRenderer(object):
         renderer.start_rasterizing = self.start_rasterizing
         renderer.stop_rasterizing = self.stop_rasterizing
 
+
     def start_rasterizing(self):
         """
         Enter "raster" mode.  All subsequent drawing commands (until
@@ -65,11 +78,24 @@ class MixedModeRenderer(object):
         If start_rasterizing is called multiple times before
         stop_rasterizing is called, this method has no effect.
         """
+
+        # change the dpi of the figure temporarily.
+        self.figure.set_dpi(self.dpi)
+
+        if self._bbox_inches_restore: # when tight bbox is used
+            r = process_figure_for_rasterizing(self.figure,
+                                               self._bbox_inches_restore,
+                                               mode="png")
+
+            self._bbox_inches_restore = r
+            
+        
         if self._rasterizing == 0:
             self._raster_renderer = self._raster_renderer_class(
                 self._width*self.dpi, self._height*self.dpi, self.dpi)
             self._set_current_renderer(self._raster_renderer)
         self._rasterizing += 1
+
 
     def stop_rasterizing(self):
         """
@@ -91,6 +117,17 @@ class MixedModeRenderer(object):
                 image = frombuffer(buffer, w, h, True)
                 image.is_grayscale = False
                 image.flipud_out()
-                self._renderer.draw_image(l, height - b - h, image, None)
+                self._renderer.draw_image(int(float(l)/self.dpi*72.),
+                                          int((float(height) - b - h)/self.dpi*72.),
+                                          image, None)
             self._raster_renderer = None
             self._rasterizing = False
+
+        # restore the figure dpi.
+        self.figure.set_dpi(72)
+
+        if self._bbox_inches_restore:  # when tight bbox is used
+            r = process_figure_for_rasterizing(self.figure,
+                                               self._bbox_inches_restore,
+                                               mode="pdf")
+            self._bbox_inches_restore = r
