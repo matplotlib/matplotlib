@@ -19,7 +19,7 @@ print mlab.rec2txt(r1)
 print "r2:"
 print mlab.rec2txt(r2)
 
-defaults = {'marker':-1, '_close':np.NaN, 'low':-4444.}
+defaults = {'marker':-1, 'close':np.NaN, 'low':-4444.}
 
 for s in ('inner', 'outer', 'leftouter'):
     rec = mlab.rec_join(['date', 'high'], r1, r2,
