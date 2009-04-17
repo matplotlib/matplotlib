@@ -2303,6 +2303,17 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
 
     newrec = np.empty(common_len + left_len + right_len, dtype=newdtype)
 
+    if defaults is not None:
+        for thiskey in defaults:
+            if thiskey not in newdtype.names:
+                warnings.warn('rec_join defaults key="%s" not in new dtype names "%s"'%(
+                    thiskey, newdtype.names))
+
+    for name in newdtype.names:
+        dt = newdtype[name]
+        if dt.kind in ('f', 'i'):
+            newrec[name] = 0
+
     if jointype != 'inner' and defaults is not None: # fill in the defaults enmasse
         newrec_fields = newrec.dtype.fields.keys()
         for k, v in defaults.items():

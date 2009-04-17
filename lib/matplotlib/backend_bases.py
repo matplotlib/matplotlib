@@ -1058,7 +1058,7 @@ class FigureCanvasBase:
         under = self.figure.hitlist(ev)
         enter = [a for a in under if a not in self._active]
         leave = [a for a in self._active if a not in under]
-        print "within:"," ".join([str(x) for x in under])
+        #print "within:"," ".join([str(x) for x in under])
         #print "entering:",[str(a) for a in enter]
         #print "leaving:",[str(a) for a in leave]
         # On leave restore the captured colour
@@ -1520,6 +1520,10 @@ class FigureCanvasBase:
         - 'pick_event'
         - 'resize_event'
         - 'scroll_event'
+        - 'figure_enter_event',
+        - 'figure_leave_event',
+        - 'axes_enter_event',
+        - 'axes_leave_event'
 
         For the location events (button and key press/release), if the
         mouse is over the axes, the variable ``event.inaxes`` will be
