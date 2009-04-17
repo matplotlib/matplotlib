@@ -19,6 +19,11 @@ import matplotlib.transforms as mtransforms
 import matplotlib.artist as martist
 import matplotlib.text as mtext
 import numpy as np
+from matplotlib.transforms import Bbox, TransformedBbox, BboxTransformTo
+
+from matplotlib.font_manager import FontProperties
+from matplotlib.patches import FancyBboxPatch
+from matplotlib import rcParams
 
 from matplotlib.patches import bbox_artist as mbbox_artist
 DEBUG=False
@@ -291,7 +296,7 @@ class VPacker(PackerBase):
             for c in self.get_visible_children():
                 if isinstance(c, PackerBase) and c.mode == "expand":
                     c.set_width(self.width)
-        
+
         whd_list = [c.get_extent(renderer) for c in self.get_visible_children()]
         whd_list = [(w, h, xd, (h-yd)) for w, h, xd, yd in whd_list]
 
@@ -752,7 +757,7 @@ class AuxTransformBox(OffsetBox):
         self.ref_offset_transform.translate(-ub.x0, -ub.y0)
         # restor offset transform
         self.offset_transform.matrix_from_values(*_off)
-        
+
         return ub.width, ub.height, 0., 0.
 
 
@@ -767,14 +772,50 @@ class AuxTransformBox(OffsetBox):
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
 
 
-from matplotlib.font_manager import FontProperties
-from matplotlib.patches import FancyBboxPatch
-from matplotlib import rcParams
-from matplotlib.transforms import Bbox
 
 class AnchoredOffsetbox(OffsetBox):
+    """
+    An offset box placed according to the legend location
+    loc. AnchoredOffsetbox has a single child. When multiple children
+    is needed, use other OffsetBox class to enlose them.  By default,
+    the offset box is anchored against its parent axes. You may
+    explicitly specify the bbox_to_anchor.
+    """
+
     def __init__(self, loc, pad=0.4, borderpad=0.5,
-                 child=None, prop=None, frameon=True):
+                 child=None, prop=None, frameon=True,
+                 bbox_to_anchor=None,
+                 bbox_transform=None):
+        """
+        loc is a string or an integer specifying the legend location.
+        The valid  location codes are::
+
+        'upper right'  : 1,
+        'upper left'   : 2,
+        'lower left'   : 3,
+        'lower right'  : 4,
+        'right'        : 5,
+        'center left'  : 6,
+        'center right' : 7,
+        'lower center' : 8,
+        'upper center' : 9,
+        'center'       : 10,
+
+
+        pad : pad around the child for drawing a frame. given in
+          fraction of fontsize.
+
+        borderpad : pad between offsetbox frame and the bbox_to_anchor,
+
+        child : OffsetBox instance that will be anchored.
+
+        prop : font property. This is only used as a reference for paddings.
+
+        frameon : draw a frame box if True.
+
+        bbox_to_anchor : bbox to anchor. If None, use axes.bbox.
+
+        """
 
         super(AnchoredOffsetbox, self).__init__()
 
@@ -788,7 +829,7 @@ class AnchoredOffsetbox(OffsetBox):
             self.prop=FontProperties(size=rcParams["legend.fontsize"])
         else:
             self.prop = prop
-            
+
         self.patch = FancyBboxPatch(
             xy=(0.0, 0.0), width=1., height=1.,
             facecolor='w', edgecolor='k',
@@ -797,47 +838,120 @@ class AnchoredOffsetbox(OffsetBox):
             )
         self.patch.set_boxstyle("square",pad=0)
         self._drawFrame =  frameon
+        #self._parent_bbox = bbox_to_anchor
+        self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
+
+
+
 
     def set_child(self, child):
+        "set the child to be anchored"
         self._child = child
 
-    def get_children(self):
-        return [self._child]
-
     def get_child(self):
+        "return the child"
         return self._child
 
+    def get_children(self):
+        "return the list of children"
+        return [self._child]
+
+
     def get_extent(self, renderer):
+        """
+        return the extent of the artist. The extent of the child
+        added with the pad is returned
+        """
         w, h, xd, yd =  self.get_child().get_extent(renderer)
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
         pad = self.pad * fontsize
 
         return w+2*pad, h+2*pad, xd+pad, yd+pad
 
+
+    def get_bbox_to_anchor(self):
+        """
+        return the bbox that the legend will be anchored
+        """
+        if self._bbox_to_anchor is None:
+            return self.axes.bbox
+        else:
+            transform = self._bbox_to_anchor_transform
+            if transform is None:
+                transform = BboxTransformTo(self.axes.bbox)
+
+            return TransformedBbox(self._bbox_to_anchor,
+                                   transform)
+
+
+
+    def set_bbox_to_anchor(self, bbox, transform=None):
+        """
+        set the bbox that the child will be anchored.
+
+        *bbox* can be a Bbox instance, a list of [left, bottom, width,
+        height], or a list of [left, bottom] where the width and
+        height will be assumed to be zero. The bbox will be
+        transformed to display coordinate by the given transform. If
+        transform is None, axes.transAxes will be use.
+        """
+        if bbox is None:
+            self._bbox_to_anchor = None
+        elif isinstance(bbox, Bbox):
+            self._bbox_to_anchor = bbox
+        else:
+            try:
+                l = len(bbox)
+            except TypeError:
+                raise ValueError("Invalid argument for bbox : %s" % str(bbox))
+
+            if l == 2:
+                bbox = [bbox[0], bbox[1], 0, 0]
+
+            self._bbox_to_anchor = Bbox.from_bounds(*bbox)
+
+        self._bbox_to_anchor_transform = transform
+
+
     def get_window_extent(self, renderer):
         '''
         get the bounding box in display space.
         '''
+        self._update_offset_func(renderer)
         w, h, xd, yd = self.get_extent(renderer)
         ox, oy = self.get_offset(w, h, xd, yd)
         return Bbox.from_bounds(ox-xd, oy-yd, w, h)
 
-    def draw(self, renderer):
 
-        if not self.get_visible(): return
-
-        fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
+    def _update_offset_func(self, renderer, fontsize=None):
+        """
+        Update the offset func which depends on the dpi of the
+        renderer (because of the padding).
+        """
+        if fontsize is None:
+            fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
 
         def _offset(w, h, xd, yd, fontsize=fontsize, self=self):
             bbox = Bbox.from_bounds(0, 0, w, h)
             borderpad = self.borderpad*fontsize
+            bbox_to_anchor = self.get_bbox_to_anchor()
+
             x0, y0 = self._get_anchored_bbox(self.loc,
                                              bbox,
-                                             self.axes.bbox,
+                                             bbox_to_anchor,
                                              borderpad)
             return x0+xd, y0+yd
 
         self.set_offset(_offset)
+
+
+    def draw(self, renderer):
+        "draw the artist"
+
+        if not self.get_visible(): return
+
+        fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
+        self._update_offset_func(renderer, fontsize)
 
         if self._drawFrame:
             # update the location and size of the legend
@@ -860,6 +974,10 @@ class AnchoredOffsetbox(OffsetBox):
 
 
     def _get_anchored_bbox(self, loc, bbox, parentbbox, borderpad):
+        """
+        return the position of the bbox anchored at the parentbbox
+        with the loc code, with the borderpad.
+        """
         assert loc in range(1,11) # called only internally
 
         BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
