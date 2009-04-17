@@ -53,3 +53,17 @@ mpl_toolkits.mplot3d provides some basic 3D plotting (scatter, surf,
 line, mesh) tools.  Not the fastest or feature complete 3D library out
 there, but ships with matplotlib and thus may be a lighter weight
 solution for some use cases.
+
+
+.. _toolkit_axes_grid:
+
+AxesGrid
+========
+
+The matplotlib AxesGrid toolkit is a collection of helper classes to
+ease displaying multiple images in matplotlib. The AxesGrid toolkit is
+distributed with matplotlib source.
+
+.. image:: ../_static/demo_axes_grid.png
+
+See :ref:`toolkit_axesgrid-index` for documentations.
