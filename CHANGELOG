@@ -1,5 +1,9 @@
 ======================================================================
 
+2009-04-17 Added a support for bbox_to_anchor in
+           offsetbox.AnchoredOffsetbox. Improved a documentation.
+           - JJL
+
 2009-04-16 Fixed a offsetbox bug that multiline texts are not
            correctly aligned.  - JJL
 
