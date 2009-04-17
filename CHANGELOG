@@ -1,5 +1,8 @@
 ======================================================================
 
+2009-04-16 Fixed a offsetbox bug that multiline texts are not
+           correctly aligned.  - JJL
+
 2009-04-16 Fixed a bug in mixed mode renderer that images produced by
            an rasterizing backend are placed with incorrect size.
            - JJL
@@ -17,7 +20,7 @@
            create an output file. Thanks to Joao Luis Silva for reporting
            this. - JKS
 
-2009-04-05 _png.read_png() reads 12 bit PNGs (patch from 
+2009-04-05 _png.read_png() reads 12 bit PNGs (patch from
            Tobias Wood) - ADS
 
 2009-04-04 Allow log axis scale to clip non-positive values to
