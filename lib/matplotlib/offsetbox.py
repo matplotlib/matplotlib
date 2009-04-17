@@ -19,7 +19,7 @@ import matplotlib.transforms as mtransforms
 import matplotlib.artist as martist
 import matplotlib.text as mtext
 import numpy as np
-from matplotlib.transforms import Bbox, TransformedBbox, BboxTransformTo
+from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransformTo
 
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyBboxPatch
@@ -897,7 +897,7 @@ class AnchoredOffsetbox(OffsetBox):
         """
         if bbox is None:
             self._bbox_to_anchor = None
-        elif isinstance(bbox, Bbox):
+        elif isinstance(bbox, BboxBase):
             self._bbox_to_anchor = bbox
         else:
             try:
