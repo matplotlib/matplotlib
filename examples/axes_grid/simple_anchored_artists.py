@@ -11,7 +11,8 @@ def draw_text(ax):
 
     at2 = AnchoredText("Figure 1(b)",
                        loc=3, prop=dict(size=8), frameon=True,
-                       bbox_to_anchor=(0., 1.)
+                       bbox_to_anchor=(0., 1.),
+                       bbox_transform=ax.transAxes
                        )
     at2.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
     ax.add_artist(at2)
