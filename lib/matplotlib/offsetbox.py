@@ -782,7 +782,8 @@ class AnchoredOffsetbox(OffsetBox):
     explicitly specify the bbox_to_anchor.
     """
 
-    def __init__(self, loc, pad=0.4, borderpad=0.5,
+    def __init__(self, loc,
+                 pad=0.4, borderpad=0.5,
                  child=None, prop=None, frameon=True,
                  bbox_to_anchor=None,
                  bbox_transform=None):
@@ -801,7 +802,6 @@ class AnchoredOffsetbox(OffsetBox):
         'upper center' : 9,
         'center'       : 10,
 
-
         pad : pad around the child for drawing a frame. given in
           fraction of fontsize.
 
@@ -813,12 +813,15 @@ class AnchoredOffsetbox(OffsetBox):
 
         frameon : draw a frame box if True.
 
-        bbox_to_anchor : bbox to anchor. If None, use axes.bbox.
+        bbox_to_anchor : bbox to anchor. Use self.axes.bbox if None.
+
+        bbox_transform : with which the bbox_to_anchor will be transformed.
 
         """
 
         super(AnchoredOffsetbox, self).__init__()
 
+        self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         self.set_child(child)
 
         self.loc = loc
@@ -838,8 +841,6 @@ class AnchoredOffsetbox(OffsetBox):
             )
         self.patch.set_boxstyle("square",pad=0)
         self._drawFrame =  frameon
-        #self._parent_bbox = bbox_to_anchor
-        self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
 
 
 
@@ -878,10 +879,11 @@ class AnchoredOffsetbox(OffsetBox):
         else:
             transform = self._bbox_to_anchor_transform
             if transform is None:
-                transform = BboxTransformTo(self.axes.bbox)
-
-            return TransformedBbox(self._bbox_to_anchor,
-                                   transform)
+                return self._bbox_to_anchor
+            else:
+                return TransformedBbox(self._bbox_to_anchor,
+                                       transform)
+                
 
 
 
@@ -892,12 +894,9 @@ class AnchoredOffsetbox(OffsetBox):
         *bbox* can be a Bbox instance, a list of [left, bottom, width,
         height], or a list of [left, bottom] where the width and
         height will be assumed to be zero. The bbox will be
-        transformed to display coordinate by the given transform. If
-        transform is None, axes.transAxes will be use.
+        transformed to display coordinate by the given transform. 
         """
-        if bbox is None:
-            self._bbox_to_anchor = None
-        elif isinstance(bbox, BboxBase):
+        if bbox is None or isinstance(bbox, BboxBase):
             self._bbox_to_anchor = bbox
         else:
             try:
