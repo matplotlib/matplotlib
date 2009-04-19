@@ -55,3 +55,30 @@ How to build
     make installers
 
   The mpkg and egg binaries will reside in :file:`matplotlib-VERSION/dist`
+
+Crib sheet
+-------------
+
+Build the dependencies::
+
+    cd release/osx/
+    unset PKG_CONFIG_PATH
+    make fetch_deps
+    cd bdist_mpkg-0.4.3
+    sudo python setup.py install
+    cd ..
+    make dependencies
+
+Build the mpl sdist::
+
+    cd ../..
+    python setup.py sdist
+    mv dist/matplotlib-0.98.6svn.tar.gz release/osx/
+
+Set the version number in the Makefile to 0.98.6svn and build the
+installers ::
+
+    cd release/osx
+    make installers
+
+
