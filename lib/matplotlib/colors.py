@@ -483,7 +483,9 @@ class Colormap:
             xa = np.array([X])
         else:
             vtype = 'array'
-            xma = ma.asarray(X)
+            # force a copy here -- the ma.array and filled functions
+            # do force a cop of the data by default - JDH
+            xma = ma.array(X, copy=True)
             xa = xma.filled(0)
             mask_bad = ma.getmask(xma)
         if xa.dtype.char in np.typecodes['Float']:
