@@ -10,3 +10,4 @@
 .. toctree::
 
     overview.rst
+    axes_divider.rst

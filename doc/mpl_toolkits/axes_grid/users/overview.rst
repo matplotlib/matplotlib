@@ -1,6 +1,6 @@
-=================
-AxesGrid Overview
-=================
+========
+Overview
+========
 
 The matplotlib AxesGrid toolkit is a collection of helper classes,
 mainly to ease displaying (multiple) images in matplotlib.
@@ -346,4 +346,45 @@ coordinate.
 .. plot:: mpl_toolkits/axes_grid/figures/simple_anchored_artists.py
    :include-source:
 
+
+InsetLocator
+============
+
+:mod:`mpl_toolkits.axes_grid.inset_locator` provides helper classes
+and functions to place your (inset) axes at the anchored position of
+the parent axes, similarly to AnchoredArtis.
+
+Using :func:`mpl_toolkits.axes_grid.inset_locator.inset_axes`, you
+can have inset axes whose size is either fixed, or a fixed proportion
+of the parent axes. For example,::
+
+    inset_axes = inset_axes(parent_axes,
+                            width="30%", # width = 30% of parent_bbox
+                            height=1., # height : 1 inch
+                            loc=3)
+
+creates an inset axes whose width is 30% of the parent axes and whose
+height is fixed at 1 inch.
+
+You may creates your inset whose size is determined so that the data
+scale of the inset axes to be that of the parent axes multiplied by
+some factor. For example, ::
+
+    inset_axes = zoomed_inset_axes(ax,
+                                   0.5, # zoom = 0.5
+                                   loc=1)
+
+creates an inset axes whose data scale is half of the parent axes.
+Here is complete examples.
+
+.. plot:: mpl_toolkits/axes_grid/figures/inset_locator_demo.py
+
+For example, :func:`zoomed_inset_axes` can be used when you want the
+inset represents the zoom-up of the small portion in the parent axes.
+And :mod:`~mpl_toolkits/axes_grid/inset_locator` provides a helper
+function :func:`mark_inset` to mark the location of the area
+represented by the inset axes.
+
+.. plot:: mpl_toolkits/axes_grid/figures/inset_locator_demo2.py
+   :include-source:
 

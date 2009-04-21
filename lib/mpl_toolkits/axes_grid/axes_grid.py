@@ -53,16 +53,11 @@ class Colorbar(mcolorbar.Colorbar):
         ticks, ticklabels, offset_string = self._ticker()
 
         if self.orientation == 'vertical':
-            #ax.set_xticks([])
-            #ax.yaxis.set_label_position('right')
-            #ax.yaxis.set_ticks_position('right')
             ax.set_yticks(ticks)
             ax.set_yticklabels(ticklabels)
             ax.yaxis.get_major_formatter().set_offset_string(offset_string)
 
         else:
-            #ax.set_yticks([])
-            #ax.xaxis.set_label_position('bottom')
             ax.set_xticks(ticks)
             ax.set_xticklabels(ticklabels)
             ax.xaxis.get_major_formatter().set_offset_string(offset_string)
@@ -150,17 +145,12 @@ class CbarAxes(LocatableAxes):
 
 class AxesGrid(object):
     """
-    The :class:`Axes` contains most of the figure elements:
-    :class:`~matplotlib.axis.Axis`, :class:`~matplotlib.axis.Tick`,
-    :class:`~matplotlib.lines.Line2D`, :class:`~matplotlib.text.Text`,
-    :class:`~matplotlib.patches.Polygon`, etc., and sets the
-    coordinate system.
-
-    The :class:`Axes` instance supports callbacks through a callbacks
-    attribute which is a :class:`~matplotlib.cbook.CallbackRegistry`
-    instance.  The events you can connect to are 'xlim_changed' and
-    'ylim_changed' and the callback will be called with func(*ax*)
-    where *ax* is the :class:`Axes` instance.
+    A class that creates a grid of Axes. In matplotlib, the axes
+    location (and size) is specified in the normalized figure
+    coordinates. This may not be ideal for images that needs to be
+    displayed with a given aspect ratio.  For example, displaying
+    images of a same size with some fixed padding between them cannot
+    be easily done in matplotlib. AxesGrid is used in such case.
     """
 
     def __init__(self, fig,
@@ -275,7 +265,7 @@ class AxesGrid(object):
 
         for i in range(self.ngrids):
 
-            col, row = self.get_col_row(i)
+            col, row = self._get_col_row(i)
 
             if share_all:
                 sharex = self._refax
@@ -359,7 +349,7 @@ class AxesGrid(object):
 
 
         for i in range(self.ngrids):
-            col, row = self.get_col_row(i)
+            col, row = self._get_col_row(i)
             #locator = self._divider.new_locator(nx=4*col, ny=2*(self._nrows - row - 1))
             locator = self._divider.new_locator(nx=h_ax_pos[col],
                                                 ny=v_ax_pos[self._nrows -1 - row])
@@ -406,7 +396,7 @@ class AxesGrid(object):
 
 
 
-    def get_col_row(self, n):
+    def _get_col_row(self, n):
         if self._direction == "column":
             col, row = divmod(n, self._nrows)
         else:
@@ -420,80 +410,57 @@ class AxesGrid(object):
 
 
     def get_geometry(self):
+        """
+        get geometry of the grid. Returns a tuple of two integer,
+        representing number of rows and number of columns.
+        """
         return self._nrows, self._ncols
 
     def set_axes_pad(self, axes_pad):
+        "set axes_pad"
         self._axes_pad = axes_pad
 
     def get_axes_pad(self):
+        "get axes_pad"
         return self._axes_pad
 
     def set_aspect(self, aspect):
+        "set aspect"
         self._divider.set_aspect(aspect)
 
     def get_aspect(self):
+        "get aspect"
         return self._divider.get_aspect()
 
     def set_label_mode(self, mode):
+        "set label_mode"
         if mode == "all":
             for ax in self.axes_all:
                 _tick_only(ax, False, False)
-                #[l.set_visible(True) for l in ax.get_xticklabels()]
-                #[l.set_visible(True) for l in ax.get_yticklabels()]
         elif mode == "L":
             # left-most axes
             for ax in self.axes_column[0][:-1]:
                 _tick_only(ax, bottom_on=True, left_on=False)
-                #[l.set_visible(False) for l in ax.get_xticklabels()]
-                #[l.set_visible(True) for l in ax.get_yticklabels()]
-                #if hasattr(ax, "_axislines"):
-                #    ax._axislines["left"].major_ticklabels.set_visible(True)
-                #    ax._axislines["bottom"].major_ticklabels.set_visible(False)
             # lower-left axes
             ax = self.axes_column[0][-1]
             _tick_only(ax, bottom_on=False, left_on=False)
-            #[l.set_visible(True) for l in ax.get_xticklabels()]
-            #[l.set_visible(True) for l in ax.get_yticklabels()]
-            #if hasattr(ax, "_axislines"):
-            #    ax._axislines["left"].major_ticklabels.set_visible(True)
-            #    ax._axislines["bottom"].major_ticklabels.set_visible(True)
 
             for col in self.axes_column[1:]:
                 # axes with no labels
                 for ax in col[:-1]:
                     _tick_only(ax, bottom_on=True, left_on=True)
-                    #[l.set_visible(False) for l in ax.get_xticklabels()]
-                    #[l.set_visible(False) for l in ax.get_yticklabels()]
-                    #if hasattr(ax, "_axislines"):
-                    #    ax._axislines["left"].major_ticklabels.set_visible(False)
-                    #    ax._axislines["bottom"].major_ticklabels.set_visible(False)
 
                 # bottom
                 ax = col[-1]
                 _tick_only(ax, bottom_on=False, left_on=True)
 
-                #[l.set_visible(True) for l in ax.get_xticklabels()]
-                #[l.set_visible(False) for l in ax.get_yticklabels()]
-                #if hasattr(ax, "_axislines"):
-                #    ax._axislines["left"].major_ticklabels.set_visible(False)
-                #    ax._axislines["bottom"].major_ticklabels.set_visible(True)
         elif mode == "1":
             for ax in self.axes_all:
                 _tick_only(ax, bottom_on=True, left_on=True)
-                #[l.set_visible(False) for l in ax.get_xticklabels()]
-                #[l.set_visible(False) for l in ax.get_yticklabels()]
-                #if hasattr(ax, "_axislines"):
-                #    for axisline in ax._axislines.values():
-                #        axisline.major_ticklabels.set_visible(False)
 
             ax = self.axes_llc
             _tick_only(ax, bottom_on=False, left_on=False)
 
-            #[l.set_visible(True) for l in ax.get_xticklabels()]
-            #[l.set_visible(True) for l in ax.get_yticklabels()]
-            #if hasattr(ax, "_axislines"):
-            #    ax._axislines["left"].major_ticklabels.set_visible(True)
-            #    ax._axislines["bottom"].major_ticklabels.set_visible(True)
 
 
 
