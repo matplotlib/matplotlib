@@ -10,7 +10,6 @@ parameter in matplotlib adjust the position of the single axes,
 AxesGrid toolkit provides a framework to adjust the position of
 multiple axes according to their aspects. 
 
-.. plot:: mpl_toolkits/axes_grid/figures/demo_axes_grid.py
 
 
 Documentation
@@ -20,4 +19,4 @@ Documentation
    :maxdepth: 2
 
    users/index.rst
-
+   api/index.rst

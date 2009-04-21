@@ -1,5 +1,8 @@
 ======================================================================
 
+2009-04-20 Worked on axes_grid documentation. Added 
+           axes_grid.inset_locator. - JJL
+
 2009-04-17 Initial check-in of the axes_grid toolkit. - JJL
 
 2009-04-17 Added a support for bbox_to_anchor in

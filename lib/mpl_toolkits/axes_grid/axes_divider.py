@@ -1,189 +1,56 @@
 """
-The axes_divider module provide helper classes to adjust the axes
-positions of set of images in the drawing time.
+The axes_divider module provide helper classes to adjust the positions of
+multiple axes at the drawing time.
 
- Size: This provides a classese of units that the size of each axes
-    will be determined. For example, you can specify a fixed size
-
- Divider: this is the class that uis used calculates the axes
-    position. It divides the given renctangular area into several
-    areas. You intialize the divider by setting the horizontal and
-    vertical list of sizes that the division will be based on. You
+ Divider: this is the class that is used calculates the axes
+    position. It divides the given renctangular area into several sub
+    rectangles. You intialize the divider by setting the horizontal
+    and vertical list of sizes that the division will be based on. You
     then use the new_locator method, whose return value is a callable
     object that can be used to set the axes_locator of the axes.
 
 """
 
-import matplotlib.axes as maxes
 import matplotlib.transforms as mtransforms
 
-import matplotlib.cbook as cbook
 from matplotlib.axes import SubplotBase
 
 import new
 
-
-class Size(object):
-    """
-    provides a classese of units that will be used with AxesDivider
-    class (or others) to determine the size of each axes. The unit
-    classes define __call__ that returns a tuple of two floats,
-    meaning relative and absolute sizes, respectively.
-
-    Note that this class is nothing more than a simple tuple of two
-    floats. Take a look at the Divider class to see how these two
-    values are used.
-
-    """
-
-    class _Base(object):
-        "Base class"
-        pass
-
-    class Fixed(_Base):
-        "Simple fixed size  with relative part = 0"
-        def __init__(self, fixed_size):
-            self._fixed_size = fixed_size
-
-        def get_size(self, renderer):
-            rel_size = 0.
-            abs_size = self._fixed_size
-            return rel_size, abs_size
-
-    class Scaled(_Base):
-        "Simple scaled(?) size with absolute part = 0"
-        def __init__(self, scalable_size):
-            self._scalable_size = scalable_size
-
-        def get_size(self, renderer):
-            rel_size = self._scalable_size
-            abs_size = 0.
-            return rel_size, abs_size
-
-    Scalable=Scaled
-
-    class AxesX(_Base):
-        """
-        Scaled size whose relative part corresponds to the data width
-        of the given axes
-        """
-        def __init__(self, axes, aspect=1.):
-            self._axes = axes
-            self._aspect = aspect
-
-        def get_size(self, renderer):
-            l1, l2 = self._axes.get_xlim()
-            rel_size = abs(l2-l1)*self._aspect
-            abs_size = 0.
-            return rel_size, abs_size
-
-    class AxesY(_Base):
-        """
-        Scaled size whose relative part corresponds to the data height
-        of the given axes
-        """
-        def __init__(self, axes, aspect=1.):
-            self._axes = axes
-            self._aspect = aspect
-
-        def get_size(self, renderer):
-            l1, l2 = self._axes.get_ylim()
-            rel_size = abs(l2-l1)*self._aspect
-            abs_size = 0.
-            return rel_size, abs_size
-
-
-    class MaxExtent(_Base):
-        """
-        Size whose absolute part is the largest width (or height) of
-        the given list of artists.
-        """
-        def __init__(self, artist_list, w_or_h):
-            self._artist_list = artist_list
-
-            if w_or_h not in ["width", "height"]:
-                raise ValueError()
-
-            self._w_or_h = w_or_h
-
-        def add_artist(self, a):
-            self._artist_list.append(a)
-
-        def get_size(self, renderer):
-            rel_size = 0.
-            w_list, h_list = [], []
-            for a in self._artist_list:
-                bb = a.get_window_extent(renderer)
-                w_list.append(bb.width)
-                h_list.append(bb.height)
-            dpi = a.get_figure().get_dpi()
-            if self._w_or_h == "width":
-                abs_size = max(w_list)/dpi
-            elif self._w_or_h == "height":
-                abs_size = max(h_list)/dpi
-
-            return rel_size, abs_size
-
-    class Fraction(_Base):
-        """
-        An instance whose size is a fraction of the reference size.
-          ex) s = Fraction(0.3, AxesX(ax))
-        """
-        def __init__(self, fraction, fraction_ref):
-            self._fraction_ref = fraction_ref
-            self._fraction = fraction
-
-        def get_size(self, renderer):
-            if self._fraction_ref is None:
-                return self._fraction, 0.
-            else:
-                r, a = self._fraction_ref.get_size(renderer)
-                rel_size = r*self._fraction
-                abs_size = a*self._fraction
-                return rel_size, abs_size
-
-    @classmethod
-    def from_any(self, size, fraction_ref=None):
-        """
-        Creates Fixed unit when the first argument is a float, or a
-        Fraction unit if that is a string that ends with %. The second
-        argument is only meaningful when Fraction unit is created.
-
-          >>> a = Size.from_any(1.2) # => Size.Fixed(1.2)
-          >>> Size.from_any("50%", a) # => Size.Fraction(0.5, a)
-
-        """
-        if cbook.is_numlike(size):
-            return Size.Fixed(size)
-        elif cbook.is_string_like(size):
-            if size[-1] == "%":
-                return Size.Fraction(float(size[:-1])/100., fraction_ref)
-
-        raise ValueError("Unknown format")
-
-
-
-    class Padded(_Base):
-        """
-        Return a instance where the absolute part of *size* is
-        increase by the amount of *pad*.
-        """
-        def __init__(self, size, pad):
-            self._size = size
-            self._pad = pad
-
-        def get_size(self, renderer):
-            r, a = self._size.get_size(renderer)
-            rel_size = r
-            abs_size = a + self._pad
-            return rel_size, abs_size
-
-
+import axes_size as Size
 
 
 class Divider(object):
+    """
+    This is the class that is used calculates the axes position. It
+    divides the given renctangular area into several
+    sub-rectangles. You intialize the divider by setting the
+    horizontal and vertical lists of sizes
+    (:mod:`mpl_toolkits.axes_grid.axes_size`) that the division will
+    be based on. You then use the new_locator method to create a
+    callable object that can be used to as the axes_locator of the
+    axes.
+    """
 
+    
     def __init__(self, fig, pos, horizontal, vertical, aspect=None, anchor="C"):
+        """
+        :param fig: matplotlib figure
+        :param pos: position (tuple of 4 floats) of the rectangle that
+                    will be divided.
+        :param horizontal: list of sizes
+                    (:mod:`~mpl_toolkits.axes_grid.axes_size`)
+                    for horizontal division
+        :param vertical: list of sizes
+                    (:mod:`~mpl_toolkits.axes_grid.axes_size`)
+                    for vertical division
+        :param aspect: if True, the overall rectalngular area is reduced
+                    so that the relative part of the horizontal and
+                    vertical scales have same scale.
+        :param anchor: Detrmine how the reduced rectangle is placed
+                       when aspect is True, 
+        """
+        
         self._fig = fig
         self._pos = pos
         self._horizontal = horizontal
@@ -224,14 +91,21 @@ class Divider(object):
 
 
     def set_position(self, pos):
+        """
+        set the position of the rectangle.
+        
+        :param pos: position (tuple of 4 floats) of the rectangle that
+                    will be divided.
+        """
         self._pos = pos
 
     def get_position(self):
+        "return the position of the rectangle."
         return self._pos
 
     def set_anchor(self, anchor):
         """
-        *anchor*
+        :param anchor: anchor position
 
           =====  ============
           value  description
@@ -254,43 +128,56 @@ class Divider(object):
             raise ValueError('argument must be among %s' %
                                 ', '.join(mtransforms.BBox.coefs.keys()))
 
+    def get_anchor(self):
+        "return the anchor"
+        return self._anchor
 
     def set_horizontal(self, h):
+        """
+        :param horizontal: list of sizes
+                    (:mod:`~mpl_toolkits.axes_grid.axes_size`)
+                    for horizontal division
+        """
         self._horizontal = h
 
+
     def get_horizontal(self):
+        "return horizontal sizes"
         return self._horizontal
 
     def set_vertical(self, v):
+        """
+        :param horizontal: list of sizes
+                    (:mod:`~mpl_toolkits.axes_grid.axes_size`)
+                    for horizontal division
+        """
         self._vertical = v
 
     def get_vertical(self):
+        "return vertical sizes"
         return self._vertical
-
-
-    def get_anchor(self):
-        return self._anchor
 
 
     def set_aspect(self, aspect=False):
         """
-        *aspect* : True or False
+        :param anchor: True or False
         """
         self._aspect = aspect
 
     def get_aspect(self):
+        "return aspect"
         return self._aspect
 
 
     def locate(self, nx, ny, nx1=None, ny1=None, renderer=None):
         """
 
-        nx, nx1 : Integers specifying the column-position of the
-        cell. When nx1 is None, a single nx-th column is
-        specified. Otherwise location of columns spanning between nx
-        to nx1 (but excluding nx1-th column) is is specified.
+        :param nx, nx1: Integers specifying the column-position of the
+          cell. When nx1 is None, a single nx-th column is
+          specified. Otherwise location of columns spanning between nx
+          to nx1 (but excluding nx1-th column) is specified.
 
-        ny, ny1 : same as nx and nx1, but for row positions.
+        :param ny, ny1: same as nx and nx1, but for row positions.
         """
 
 
@@ -330,6 +217,18 @@ class Divider(object):
 
 
     def new_locator(self, nx, ny, nx1=None, ny1=None):
+        """
+        returns a new locator
+        (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
+        specified cell. 
+
+        :param nx, nx1: Integers specifying the column-position of the
+          cell. When nx1 is None, a single nx-th column is
+          specified. Otherwise location of columns spanning between nx
+          to nx1 (but excluding nx1-th column) is specified.
+
+        :param ny, ny1: same as nx and nx1, but for row positions.
+        """
         return AxesLocator(self, nx, ny, nx1, ny1)
 
 
@@ -341,14 +240,14 @@ class AxesLocator(object):
     """
     def __init__(self, axes_divider, nx, ny, nx1=None, ny1=None):
         """
-        'axes_divider' : An instance of AxesDivider class.
+        :param axes_divider: An instance of AxesDivider class.
 
-        nx, nx1 : Integers specifying the column-position of the
-        cell. When nx1 is None, a single nx-th column is
-        specified. Otherwise location of columns spanning between nx
-        to nx1 (but excluding nx1-th column) is is specified.
+        :param nx, nx1: Integers specifying the column-position of the
+          cell. When nx1 is None, a single nx-th column is
+          specified. Otherwise location of columns spanning between nx
+          to nx1 (but excluding nx1-th column) is is specified.
 
-        ny, ny1 : same as nx and nx1, but for row positions.
+        :param ny, ny1: same as nx and nx1, but for row positions.
         """
         self._axes_divider = axes_divider
 
@@ -371,13 +270,19 @@ class AxesLocator(object):
         _xrefindex = self._axes_divider._xrefindex
         _yrefindex = self._axes_divider._yrefindex
 
-        return self._axes_divider.locate(self._nx + _xrefindex, self._ny + _yrefindex,
-                                         self._nx1 + _xrefindex, self._ny1 + _yrefindex,
+        return self._axes_divider.locate(self._nx + _xrefindex,
+                                         self._ny + _yrefindex,
+                                         self._nx1 + _xrefindex,
+                                         self._ny1 + _yrefindex,
                                          renderer)
 
 
 
 class SubplotDivider(Divider):
+    """
+    The Divider class whose rectangle area is specified as a subplot grometry.
+    """
+
 
     def __init__(self, fig, *args, **kwargs):
         """
@@ -431,6 +336,7 @@ class SubplotDivider(Divider):
 
 
     def get_position(self):
+        "return the bounds of the subplot box"
         self.update_params()
         return self.figbox.bounds
 
@@ -468,9 +374,14 @@ class SubplotDivider(Divider):
 
 
 class AxesDivider(Divider):
-
+    """
+    Divider based on the pre-existing axes.
+    """
 
     def __init__(self, axes):
+        """
+        :param axes: axes
+        """
         self._axes = axes
         self._xref = Size.AxesX(axes)
         self._yref = Size.AxesY(axes)
@@ -494,7 +405,26 @@ class AxesDivider(Divider):
 
         return ax
 
+
     def new_horizontal(self, size, pad=None, pack_start=False, **kwargs):
+        """
+        Add a new axes on the right (or left) side of the main axes.
+
+        :param size: A width of the axes. A :mod:`~mpl_toolkits.axes_grid.axes_size`
+          instance or if float or string is given, *from_any*
+          fucntion is used to create one, with *ref_size* set to AxesX instance
+          of the current axes.
+        :param pad: pad between the axes. It takes same argument as *size*.
+        :param pack_start: If False, the new axes is appended at the end
+          of the list, i.e., it became the right-most axes. If True, it is
+          inseted at the start of the list, and becomes the left-most axes.
+
+        All extra keywords argument is passed to when creating a axes.
+        if *axes_class* is given, the new axes will be created as an
+        instance of the given class. Otherwise, the same class of the
+        main axes will be used.  if Not provided
+
+        """
 
         if pad:
             if not isinstance(pad, Size._Base):
@@ -518,17 +448,31 @@ class AxesDivider(Divider):
             self._horizontal.append(size)
             locator = self.new_locator(nx=len(self._horizontal)-1, ny=0)
 
-        #axes_class = type(self._axes)
         ax = self._get_new_axes(**kwargs)
-        #ax = axes_class(self._axes.get_figure(),
-        #                self._axes.get_position(original=True),
-        #                **kwargs)
         locator = self.new_locator(nx=len(self._horizontal)-1, ny=0)
         ax.set_axes_locator(locator)
 
         return ax
 
     def new_vertical(self, size, pad=None, pack_start=False, **kwargs):
+        """
+        Add a new axes on the top (or bottom) side of the main axes.
+
+        :param size: A height of the axes. A :mod:`~mpl_toolkits.axes_grid.axes_size`
+          instance or if float or string is given, *from_any*
+          fucntion is used to create one, with *ref_size* set to AxesX instance
+          of the current axes.
+        :param pad: pad between the axes. It takes same argument as *size*.
+        :param pack_start: If False, the new axes is appended at the end
+          of the list, i.e., it became the top-most axes. If True, it is
+          inseted at the start of the list, and becomes the bottom-most axes.
+
+        All extra keywords argument is passed to when creating a axes.
+        if *axes_class* is given, the new axes will be created as an
+        instance of the given class. Otherwise, the same class of the
+        main axes will be used.  if Not provided
+
+        """
 
         if pad:
             if not isinstance(pad, Size._Base):
@@ -553,10 +497,6 @@ class AxesDivider(Divider):
             locator = self.new_locator(nx=0, ny=len(self._vertical)-1)
 
         ax = self._get_new_axes(**kwargs)
-        #axes_class = type(self._axes)
-        #ax = axes_class(self._axes.get_figure(),
-        #                self._axes.get_position(original=True),
-        #                **kwargs)
         ax.set_axes_locator(locator)
 
         return ax
@@ -650,3 +590,138 @@ def make_axes_locatable(axes):
     return divider
 
 
+def get_demo_image():
+    # prepare image
+    delta = 0.5
+
+    extent = (-3,4,-4,3)
+    import numpy as np
+    x = np.arange(-3.0, 4.001, delta)
+    y = np.arange(-4.0, 3.001, delta)
+    X, Y = np.meshgrid(x, y)
+    import matplotlib.mlab as mlab
+    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
+    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
+    Z = (Z1 - Z2) * 10
+
+    return Z, extent
+
+def demo_locatable_axes():
+    import matplotlib.pyplot as plt
+
+    fig1 = plt.figure(1, (6, 6))
+    fig1.clf()
+
+    ## PLOT 1
+    # simple image & colorbar
+    ax = fig1.add_subplot(2, 2, 1)
+
+    Z, extent = get_demo_image()
+
+    im = ax.imshow(Z, extent=extent, interpolation="nearest")
+    cb = plt.colorbar(im)
+    plt.setp(cb.ax.get_yticklabels(), visible=False)
+
+
+    ## PLOT 2
+    # image and colorbar whose location is adjusted in the drawing time.
+    # a hard way
+
+    divider = SubplotDivider(fig1, 2, 2, 2, aspect=True)
+
+    # axes for image
+    ax = LocatableAxes(fig1, divider.get_position())
+
+    # axes for coloarbar
+    ax_cb = LocatableAxes(fig1, divider.get_position())
+
+    h = [Size.AxesX(ax), # main axes
+         Size.Fixed(0.05), # padding, 0.1 inch
+         Size.Fixed(0.2), # colorbar, 0.3 inch
+         ]
+
+    v = [Size.AxesY(ax)]
+
+    divider.set_horizontal(h)
+    divider.set_vertical(v)
+
+    ax.set_axes_locator(divider.new_locator(nx=0, ny=0))
+    ax_cb.set_axes_locator(divider.new_locator(nx=2, ny=0))
+
+    fig1.add_axes(ax)
+    fig1.add_axes(ax_cb)
+
+    ax_cb.yaxis.set_ticks_position("right")
+
+    Z, extent = get_demo_image()
+
+    im = ax.imshow(Z, extent=extent, interpolation="nearest")
+    plt.colorbar(im, cax=ax_cb)
+    plt.setp(ax_cb.get_yticklabels(), visible=False)
+
+    plt.draw()
+    #plt.colorbar(im, cax=ax_cb)
+
+
+    ## PLOT 3
+    # image and colorbar whose location is adjusted in the drawing time.
+    # a easy way
+
+    ax = fig1.add_subplot(2, 2, 3)
+    divider = make_axes_locatable(ax)
+
+    ax_cb = divider.new_horizontal(size="5%", pad=0.05)
+    fig1.add_axes(ax_cb)
+
+    im = ax.imshow(Z, extent=extent, interpolation="nearest")
+    plt.colorbar(im, cax=ax_cb)
+    plt.setp(ax_cb.get_yticklabels(), visible=False)
+
+
+    ## PLOT 4
+    # two images side by sied with fixed padding.
+
+    ax = fig1.add_subplot(2, 2, 4)
+    divider = make_axes_locatable(ax)
+
+    ax2 = divider.new_horizontal(size="100%", pad=0.05)
+    fig1.add_axes(ax2)
+
+    ax.imshow(Z, extent=extent, interpolation="nearest")
+    ax2.imshow(Z, extent=extent, interpolation="nearest")
+    plt.setp(ax2.get_yticklabels(), visible=False)
+    plt.draw()
+    plt.show()
+
+
+def demo_fixed_size_axes():
+    import matplotlib.pyplot as plt
+
+    fig2 = plt.figure(2, (6, 6))
+
+    # The first items are for padding and the second items are for the axes.
+    # sizes are in inch.
+    h = [Size.Fixed(1.0), Size.Fixed(4.5)]
+    v = [Size.Fixed(0.7), Size.Fixed(5.)]
+
+    divider = Divider(fig2, (0.0, 0.0, 1., 1.), h, v, aspect=False)
+    # the width and height of the rectangle is ignored.
+
+    ax = LocatableAxes(fig2, divider.get_position())
+    ax.set_axes_locator(divider.new_locator(nx=1, ny=1))
+
+    fig2.add_axes(ax)
+
+    ax.plot([1,2,3])
+
+    plt.draw()
+    plt.show()
+    #plt.colorbar(im, cax=ax_cb)
+
+
+
+
+
+if __name__ == "__main__":
+    demo_locatable_axes()
+    demo_fixed_size_axes()
