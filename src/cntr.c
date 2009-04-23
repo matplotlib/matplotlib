@@ -1410,7 +1410,7 @@ build_cntr_list_v2(long *np, double *xp, double *yp, int nparts, long ntotal)
 PyObject *
 cntr_trace(Csite *site, double levels[], int nlevels, int points, long nchunk)
 {
-    PyObject *c_list;
+    PyObject *c_list = NULL;
     double *xp0;
     double *yp0;
     long *nseg0;
@@ -1502,6 +1502,7 @@ cntr_trace(Csite *site, double levels[], int nlevels, int points, long nchunk)
     error:
     PyMem_Free(xp0); PyMem_Free(yp0); PyMem_Free(nseg0);
     site->xcp = NULL; site->ycp = NULL;
+    Py_XDECREF(c_list);
     return NULL;
 }
 
