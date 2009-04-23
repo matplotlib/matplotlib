@@ -52,6 +52,8 @@ public:
         if (!m_vertices ||
             PyArray_DIM(m_vertices, 1) != 2)
         {
+            Py_XDECREF(m_vertices);
+            m_vertices = NULL;
             throw Py::ValueError("Invalid vertices array.");
         }
 
@@ -59,10 +61,18 @@ public:
         {
             m_codes = (PyArrayObject*)PyArray_FromObject
                       (codes_obj.ptr(), PyArray_UINT8, 1, 1);
-            if (!m_codes)
+            if (!m_codes) {
+                Py_XDECREF(m_vertices);
+                m_vertices = NULL;
                 throw Py::ValueError("Invalid codes array.");
-            if (PyArray_DIM(m_codes, 0) != PyArray_DIM(m_vertices, 0))
+            }
+            if (PyArray_DIM(m_codes, 0) != PyArray_DIM(m_vertices, 0)) {
+                Py_XDECREF(m_vertices);
+                m_vertices = NULL;
+                Py_XDECREF(m_codes);
+                m_codes = NULL;
                 throw Py::ValueError("Codes array is wrong length");
+            }
         }
 
         m_should_simplify    = should_simplify_obj.isTrue();
