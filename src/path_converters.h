@@ -270,7 +270,8 @@ class PathClipper
     PathClipper(VertexSource& source, bool do_clipping,
                 double width, double height) :
         m_source(&source), m_do_clipping(do_clipping),
-        m_cliprect(0.0, 0.0, width, height), m_moveto(true)
+        m_cliprect(0.0, 0.0, width, height), m_moveto(true),
+        m_has_next(false)
     {
         // empty
     }
@@ -278,7 +279,7 @@ class PathClipper
     PathClipper(VertexSource& source, bool do_clipping,
                 const agg::rect_base<double>& rect) :
         m_source(&source), m_do_clipping(do_clipping),
-        m_cliprect(rect), m_moveto(true)
+        m_cliprect(rect), m_moveto(true), m_has_next(false)
     {
         // empty
     }
