@@ -569,6 +569,7 @@ Py::Object _path_module::point_in_path_collection(const Py::Tuple& args)
 	(PyArray_NDIM(offsets) == 2 && PyArray_DIM(offsets, 1) != 2) ||
 	(PyArray_NDIM(offsets) == 1 && PyArray_DIM(offsets, 0) != 0))
     {
+        Py_XDECREF(offsets);
         throw Py::ValueError("Offsets array must be Nx2");
     }
 
