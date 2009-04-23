@@ -428,8 +428,8 @@ grestore
         ps = []
         last_points = None
         if clip:
-            clip = (0.0, 0.0, self.width * self.imagedpi,
-                    self.height * self.imagedpi)
+            clip = (0.0, 0.0, self.width * 72.0,
+                    self.height * 72.0)
         else:
             clip = None
         for points, code in path.iter_segments(transform, clip=clip):
