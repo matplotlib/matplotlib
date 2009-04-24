@@ -903,15 +903,19 @@ def reverse_dict(d):
 
 def report_memory(i=0):  # argument may go away
     'return the memory consumed by process'
+    from subprocess import Popen, PIPE
     pid = os.getpid()
     if sys.platform=='sunos5':
-        a2 = os.popen('ps -p %d -o osz' % pid).readlines()
+        a2 = Popen('ps -p %d -o osz' % pid, shell=True,
+            stdout=PIPE).stdout.readlines()
         mem = int(a2[-1].strip())
     elif sys.platform.startswith('linux'):
-        a2 = os.popen('ps -p %d -o rss,sz' % pid).readlines()
+        a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
+            stdout=PIPE).stdout.readlines()
         mem = int(a2[1].split()[1])
     elif sys.platform.startswith('darwin'):
-        a2 = os.popen('ps -p %d -o rss,vsz' % pid).readlines()
+        a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
+            stdout=PIPE).stdout.readlines()
         mem = int(a2[1].split()[0])
 
     return mem

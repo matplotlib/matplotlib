@@ -1,6 +1,9 @@
 ======================================================================
 
-2009-04-20 Worked on axes_grid documentation. Added 
+2009-04-24 Changed use of os.open* to instead use subprocess.Popen.
+           os.popen* are deprecated in 2.6 and are removed in 3.0. - RMM
+
+2009-04-20 Worked on axes_grid documentation. Added
            axes_grid.inset_locator. - JJL
 
 2009-04-17 Initial check-in of the axes_grid toolkit. - JJL
@@ -16,11 +19,10 @@
            an rasterizing backend are placed with incorrect size.
            - JJL
 
-2008-04-14 Added Jonathan Taylor's Reinier Heeres' port of John
+2009-04-14 Added Jonathan Taylor's Reinier Heeres' port of John
            Porters' mplot3d to svn trunk.  Package in
            mpl_toolkits.mplot3d and demo is examples/mplot3d/demo.py.
            Thanks Reiner
-
 
 2009-04-06 The pdf backend now escapes newlines and linefeeds in strings.
            Fixes sf bug #2708559; thanks to Tiago Pereira for the report.
