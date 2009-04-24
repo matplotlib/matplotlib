@@ -32,7 +32,7 @@ class Divider(object):
     axes.
     """
 
-    
+
     def __init__(self, fig, pos, horizontal, vertical, aspect=None, anchor="C"):
         """
         :param fig: matplotlib figure
@@ -48,9 +48,9 @@ class Divider(object):
                     so that the relative part of the horizontal and
                     vertical scales have same scale.
         :param anchor: Detrmine how the reduced rectangle is placed
-                       when aspect is True, 
+                       when aspect is True,
         """
-        
+
         self._fig = fig
         self._pos = pos
         self._horizontal = horizontal
@@ -67,9 +67,9 @@ class Divider(object):
         rs_sum, as_sum = 0., 0.
 
         for s in l:
-            rs, as = s.get_size(renderer)
-            rs_sum += rs
-            as_sum += as
+            _rs, _as = s.get_size(renderer)
+            rs_sum += _rs
+            as_sum += _as
 
         if rs_sum != 0.:
             k = (total_size - as_sum) / rs_sum
@@ -84,8 +84,8 @@ class Divider(object):
         offsets = [0.]
 
         for s in l:
-            rs, as = s.get_size(renderer)
-            offsets.append(offsets[-1] + rs*k + as)
+            _rs, _as = s.get_size(renderer)
+            offsets.append(offsets[-1] + _rs*k + _as)
 
         return offsets
 
@@ -93,7 +93,7 @@ class Divider(object):
     def set_position(self, pos):
         """
         set the position of the rectangle.
-        
+
         :param pos: position (tuple of 4 floats) of the rectangle that
                     will be divided.
         """
@@ -220,7 +220,7 @@ class Divider(object):
         """
         returns a new locator
         (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
-        specified cell. 
+        specified cell.
 
         :param nx, nx1: Integers specifying the column-position of the
           cell. When nx1 is None, a single nx-th column is
