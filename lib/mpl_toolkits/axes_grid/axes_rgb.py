@@ -8,12 +8,10 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
 
     divider = make_axes_locatable(ax)
 
-    pad_size = Size.Fraction(Size.AxesY(ax), pad)
+    pad_size = Size.Fraction(pad, Size.AxesY(ax))
 
-    xsize = Size.Fraction((1.-2.*pad)/3.,
-                          Size.AxesX(ax),)
-    ysize = Size.Fraction((1.-2.*pad)/3.,
-                          Size.AxesY(ax))
+    xsize = Size.Fraction(Size.AxesX(ax), (1.-2.*pad)/3.)
+    ysize = Size.Fraction(Size.AxesY(ax), (1.-2.*pad)/3.)
 
     divider.set_horizontal([Size.AxesX(ax), pad_size, xsize])
     divider.set_vertical([ysize, pad_size, ysize, pad_size, ysize])
