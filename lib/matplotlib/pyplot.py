@@ -983,7 +983,9 @@ def xticks(*args, **kwargs):
       xticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
 
     The keyword args, if any, are :class:`~matplotlib.text.Text`
-    properties.
+    properties. For example, to rotate long labels::
+
+      xticks( arange(12), calendar.month_name[1:13], rotation=17 )
     """
     ax = gca()
 
@@ -1019,7 +1021,9 @@ def yticks(*args, **kwargs):
       yticks( arange(5), ('Tom', 'Dick', 'Harry', 'Sally', 'Sue') )
 
     The keyword args, if any, are :class:`~matplotlib.text.Text`
-    properties.
+    properties. For example, to rotate long labels::
+
+      yticks( arange(12), calendar.month_name[1:13], rotation=45 )
     """
     ax = gca()
 
