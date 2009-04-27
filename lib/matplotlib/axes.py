@@ -4856,6 +4856,9 @@ class Axes(martist.Artist):
         for i,pos in enumerate(positions):
             d = np.ravel(x[i])
             row = len(d)
+            if row==0:
+                # no data, skip this position
+                continue
             # get median and quartiles
             q1, med, q3 = mlab.prctile(d,[25,50,75])
             # get high extreme
