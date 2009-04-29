@@ -122,8 +122,7 @@ class RendererCairo(RendererBase):
             tpath, affine = clippath.get_transformed_path_and_affine()
             ctx.new_path()
             affine = affine + Affine2D().scale(1.0, -1.0).translate(0.0, self.height)
-            tpath = affine.transform_path(tpath)
-            RendererCairo.convert_path(ctx, tpath)
+            RendererCairo.convert_path(ctx, tpath, affine)
             ctx.clip()
 
     def _fill_and_stroke (self, ctx, fill_c, alpha):
@@ -184,9 +183,8 @@ class RendererCairo(RendererBase):
         ctx = self.ctx
         ctx.save()
         if clippath is not None:
-            tpath = clippath_trans.transform_path(clippath)
             ctx.new_path()
-            RendererCairo.convert_path(ctx, tpath)
+            RendererCairo.convert_path(ctx, clippath, clippath_trans)
             ctx.clip()
         y = self.height - y - rows
         ctx.set_source_surface (surface, x, y)
