@@ -5832,39 +5832,28 @@ class Axes(martist.Artist):
         self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
         self._process_unit_info(ydata=y2)
 
+        # Convert the arrays so we can work with them
+        x = np.asanyarray(self.convert_xunits(x))
+        y1 = np.asanyarray(self.convert_yunits(y1))
+        y2 = np.asanyarray(self.convert_yunits(y2))
+
+        if y1.ndim == 0:
+            y1 = np.ones_like(x)*y1
+        if y2.ndim == 0:
+            y2 = np.ones_like(x)*y2
+
         if where is None:
             where = np.ones(len(x), np.bool)
         else:
-            where = np.asarray(where)
+            where = np.asarray(where, np.bool)
 
-        maskedx = isinstance(x, np.ma.MaskedArray)
-        maskedy1 = isinstance(y1, np.ma.MaskedArray)
-        maskedy2 = isinstance(y2, np.ma.MaskedArray)
+        if not (x.shape == y1.shape == y2.shape == where.shape):
+            raise ValueError("Argument dimensions are incompatible")
 
-        if (maskedx or maskedy1 or maskedy2):
-            if maskedx:
-                where = where & (~x.mask)
-
-            if maskedy1:
-                where = where & (~y1.mask)
-
-            if maskedy2:
-                where = where & (~y2.mask)
-
-
-        # Convert the arrays so we can work with them
-        x = np.asarray(self.convert_xunits(x))
-        y1 = np.asarray(self.convert_yunits(y1))
-        y2 = np.asarray(self.convert_yunits(y2))
-
-        if not cbook.iterable(y1):
-            y1 = np.ones_like(x)*y1
-
-        if not cbook.iterable(y2):
-            y2 = np.ones_like(x)*y2
-
-
-        assert( (len(x)==len(y1)) and (len(x)==len(y2)) and len(x)==len(where))
+        mask = reduce(ma.mask_or,
+                        [ma.getmask(x), ma.getmask(y1), ma.getmask(y2)])
+        if mask is not ma.nomask:
+            where &= ~mask
 
         polys = []
         for ind0, ind1 in mlab.contiguous_regions(where):
