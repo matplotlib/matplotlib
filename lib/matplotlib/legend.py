@@ -32,7 +32,7 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
 from matplotlib.collections import LineCollection, RegularPolyCollection
-from matplotlib.transforms import Bbox, TransformedBbox, BboxTransformTo
+from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransformTo
 
 from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
 
@@ -112,7 +112,8 @@ class Legend(Artist):
                  fancybox=None, # True use a fancy box, false use a rounded box, none use rc
                  shadow = None, 
                  title = None, # set a title for the legend
-                 bbox_to_anchor = None, # bbox thaw the legend will be anchored.
+                 bbox_to_anchor = None, # bbox that the legend will be anchored.
+                 bbox_transform = None, # transform for the bbox
                  ):
         """
         - *parent* : the artist that contains the legend
@@ -138,11 +139,16 @@ class Legend(Artist):
         borderaxespad      the pad between the axes and legend border
         columnspacing      the spacing between columns
         title              the legend title
-        bbox_to_anchor     the bbox that the legend will be anchored.
+        bbox_to_anchor     the bbox that the legend will be anchored. 
+        bbox_transform     the transform for the bbox. transAxes if None.
         ================   ==================================================================
 
 The dimensions of pad and spacing are given as a fraction of the
 _fontsize. Values from rcParams will be used if None.
+
+bbox_to_anchor can be an instance of BboxBase(or its derivatives) or a
+tuple of 2 or 4 floats. See :meth:`set_bbox_to_anchor` for more
+detail.
         """
         from matplotlib.axes import Axes     # local import only to avoid circularity
         from matplotlib.figure import Figure # local import only to avoid circularity
@@ -251,7 +257,7 @@ _fontsize. Values from rcParams will be used if None.
 
         self._loc = loc
         self._mode = mode
-        self.set_bbox_to_anchor(bbox_to_anchor)
+        self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         
         # We use FancyBboxPatch to draw a legend frame. The location
         # and size of the box will be updated during the drawing time.
@@ -689,14 +695,15 @@ _fontsize. Values from rcParams will be used if None.
         """
         set the bbox that the legend will be anchored.
 
-        *bbox* can be a Bbox instance, a list of [left, bottom, width,
-        height] in normalized axes coordinate, or a list of [left,
-        bottom] where the width and height will be assumed to be zero.
+        *bbox* can be a BboxBase instance, a tuple of [left, bottom,
+        width, height] in the given transform (normalized axes
+        coordinate if None), or a tuple of [left, bottom] where the
+        width and height will be assumed to be zero.
         """
         if bbox is None:
             self._bbox_to_anchor = None
             return
-        elif isinstance(bbox, Bbox):
+        elif isinstance(bbox, BboxBase):
             self._bbox_to_anchor = bbox
         else:
             try:
