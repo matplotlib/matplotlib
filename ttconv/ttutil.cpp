@@ -52,7 +52,7 @@ void TTStreamWriter::printf(const char* format, ...)
   va_end(arg_list);
 }
 
-void TTStreamWriter::putchar(int val)
+void TTStreamWriter::put_char(int val)
 {
   char c[2];
   c[0] = (char)val;
