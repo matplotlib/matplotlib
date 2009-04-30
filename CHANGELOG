@@ -1,5 +1,7 @@
 ======================================================================
 
+2009-04-30 Incorrect eps bbox for landscape mode fixed - JJL
+
 2009-04-28 Fixed incorrect bbox of eps output when usetex=True. - JJL
 
 2009-04-24 Changed use of os.open* to instead use subprocess.Popen.

@@ -1100,8 +1100,10 @@ class FigureCanvasPS(FigureCanvasBase):
         # set the paper size to the figure size if isEPSF. The
         # resulting ps file has the given size with correct bounding
         # box so that there is no need to call 'pstoeps'
-        if isEPSF: 
+        if isEPSF:
             paperWidth, paperHeight = self.figure.get_size_inches()
+            if isLandscape:
+                paperWidth, paperHeight = paperHeight, paperWidth
         else:
             temp_papertype = _get_papertype(width, height)
             if papertype=='auto':
