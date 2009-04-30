@@ -104,7 +104,7 @@ void GlyphToType3::stack(TTStreamWriter& stream, int new_elem)
 	{				/* have a log of points. */
 	if(stack_depth == 0)
 	    {
-    	    stream.putchar('{');
+    	    stream.put_char('{');
     	    stack_depth=1;
     	    }
 

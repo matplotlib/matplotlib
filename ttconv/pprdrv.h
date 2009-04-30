@@ -40,7 +40,7 @@ class TTStreamWriter {
   virtual void write(const char*) = 0;
 
   virtual void printf(const char* format, ...);
-  virtual void putchar(int val);
+  virtual void put_char(int val);
   virtual void puts(const char* a);
   virtual void putline(const char* a);
 };
