@@ -1323,17 +1323,24 @@ class Axes(martist.Artist):
             len(self.patches))>0
 
     def add_artist(self, a):
-        'Add any :class:`~matplotlib.artist.Artist` to the axes'
+        '''
+        Add any :class:`~matplotlib.artist.Artist` to the axes
+
+        Returns the artist.
+        '''
         a.set_axes(self)
         self.artists.append(a)
         self._set_artist_props(a)
         a.set_clip_path(self.patch)
         a._remove_method = lambda h: self.artists.remove(h)
+        return a
 
     def add_collection(self, collection, autolim=True):
         '''
         add a :class:`~matplotlib.collections.Collection` instance
         to the axes
+
+        Returns the collection.
         '''
         label = collection.get_label()
         if not label:
@@ -1348,11 +1355,14 @@ class Axes(martist.Artist):
                 self.update_datalim(collection.get_datalim(self.transData))
 
         collection._remove_method = lambda h: self.collections.remove(h)
+        return collection
 
     def add_line(self, line):
         '''
         Add a :class:`~matplotlib.lines.Line2D` to the list of plot
         lines
+
+        Returns the line.
         '''
         self._set_artist_props(line)
         if line.get_clip_path() is None:
@@ -1363,6 +1373,7 @@ class Axes(martist.Artist):
             line.set_label('_line%d'%len(self.lines))
         self.lines.append(line)
         line._remove_method = lambda h: self.lines.remove(h)
+        return line
 
     def _update_line_limits(self, line):
         p = line.get_path()
@@ -1378,6 +1389,8 @@ class Axes(martist.Artist):
         axes patches; the clipbox will be set to the Axes clipping
         box.  If the transform is not set, it will be set to
         :attr:`transData`.
+
+        Returns the patch.
         """
 
         self._set_artist_props(p)
@@ -1386,6 +1399,7 @@ class Axes(martist.Artist):
         self._update_patch_limits(p)
         self.patches.append(p)
         p._remove_method = lambda h: self.patches.remove(h)
+        return p
 
     def _update_patch_limits(self, patch):
         'update the data limits for patch *p*'
@@ -1412,11 +1426,14 @@ class Axes(martist.Artist):
         '''
         Add a :class:`~matplotlib.tables.Table` instance to the
         list of axes tables
+
+        Returns the table.
         '''
         self._set_artist_props(tab)
         self.tables.append(tab)
         tab.set_clip_path(self.patch)
         tab._remove_method = lambda h: self.tables.remove(h)
+        return tab
 
     def relim(self):
         'recompute the data limits based on current artists'

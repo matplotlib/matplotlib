@@ -1,4 +1,6 @@
 ======================================================================
+2009-05-01 Changed add_artist and similar Axes methods to
+           return their argument. - EF
 
 2009-04-30 Incorrect eps bbox for landscape mode fixed - JJL
 
