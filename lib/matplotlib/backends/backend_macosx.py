@@ -107,7 +107,6 @@ class RendererMac(RendererBase):
             n = self.gc.level() - gc.level()
             for i in range(n): self.gc.restore()
             self.gc = gc
-        size = prop.get_size_in_points()
         ox, oy, width, height, descent, image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
         gc.draw_mathtext(x, y, angle, 255 - image.as_array())
@@ -121,15 +120,15 @@ class RendererMac(RendererBase):
            self._draw_mathtext(gc, x, y, s, prop, angle)
         else:
             family =  prop.get_family()
-            size = prop.get_size_in_points()
             weight = prop.get_weight()
             style = prop.get_style()
+            points = prop.get_size_in_points()
+            size = self.points_to_pixels(points)
             gc.draw_text(x, y, unicode(s), family, size, weight, style, angle)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         if ismath=='TeX':
             # todo: handle props
-            size = prop.get_size_in_points()
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
@@ -140,9 +139,10 @@ class RendererMac(RendererBase):
                 self.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
         family =  prop.get_family()
-        size = prop.get_size_in_points()
         weight = prop.get_weight()
         style = prop.get_style()
+        points = prop.get_size_in_points()
+        size = self.points_to_pixels(points)
         width, height, descent = self.gc.get_text_width_height_descent(unicode(s), family, size, weight, style)
         return  width, height, 0.0*descent
 
