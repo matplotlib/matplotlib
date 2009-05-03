@@ -1448,7 +1448,8 @@ def polar(*args, **kwargs):
     return ret
 
 def plotfile(fname, cols=(0,), plotfuncs=None,
-             comments='#', skiprows=0, checkrows=5, delimiter=',',
+             comments='#', skiprows=0, checkrows=5, delimiter=',', names=None,
+             subplots=True, newfig=True,
              **kwargs):
     """
     Plot the data in *fname*
@@ -1464,17 +1465,27 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     - If len(*cols*) > 1, the first element will be an identifier for
       data for the *x* axis and the remaining elements will be the
-      column indexes for multiple subplots
+      column indexes for multiple subplots if *subplots* is *True*
+      (the default), or for lines in a single subplot if *subplots*
+      is *False*.
 
     *plotfuncs*, if not *None*, is a dictionary mapping identifier to
     an :class:`~matplotlib.axes.Axes` plotting function as a string.
     Default is 'plot', other choices are 'semilogy', 'fill', 'bar',
     etc.  You must use the same type of identifier in the *cols*
     vector as you use in the *plotfuncs* dictionary, eg., integer
-    column numbers in both or column names in both.
+    column numbers in both or column names in both. If *subplots*
+    is *False*, then including any function such as 'semilogy'
+    that changes the axis scaling will set the scaling for all
+    columns.
 
-    *comments*, *skiprows*, *checkrows*, and *delimiter* are all passed on to
-    :func:`matplotlib.pylab.csv2rec` to load the data into a record array.
+    *comments*, *skiprows*, *checkrows*, *delimiter*, and *names*
+    are all passed on to :func:`matplotlib.pylab.csv2rec` to
+    load the data into a record array.
+
+    If *newfig* is *True*, the plot always will be made in a new figure;
+    if *False*, it will be made in the current figure if one exists,
+    else in a new figure.
 
     kwargs are passed on to plotting functions.
 
@@ -1484,17 +1495,26 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
       plotfile(fname, (0,1,3))
 
       # plot using column names; specify an alternate plot type for volume
-      plotfile(fname, ('date', 'volume', 'adj_close'), plotfuncs={'volume': 'semilogy'})
+      plotfile(fname, ('date', 'volume', 'adj_close'),
+                                    plotfuncs={'volume': 'semilogy'})
+
+    Note: plotfile is intended as a convenience for quickly plotting
+    data from flat files; it is not intended as an alternative
+    interface to general plotting with pyplot or matplotlib.
     """
 
-    fig = figure()
+    if newfig:
+        fig = figure()
+    else:
+        fig = gcf()
+
     if len(cols)<1:
         raise ValueError('must have at least one column of data')
 
     if plotfuncs is None:
         plotfuncs = dict()
-    r = mlab.csv2rec(fname, comments=comments,
-                skiprows=skiprows, checkrows=checkrows, delimiter=delimiter)
+    r = mlab.csv2rec(fname, comments=comments, skiprows=skiprows,
+                     checkrows=checkrows, delimiter=delimiter, names=names)
 
     def getname_val(identifier):
         'return the name and column data for identifier'
@@ -1507,36 +1527,44 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
             raise TypeError('identifier must be a string or integer')
 
     xname, x = getname_val(cols[0])
+    ynamelist = []
 
     if len(cols)==1:
         ax1 = fig.add_subplot(1,1,1)
         funcname = plotfuncs.get(cols[0], 'plot')
         func = getattr(ax1, funcname)
         func(x, **kwargs)
-        ax1.set_xlabel(xname)
+        ax1.set_ylabel(xname)
     else:
         N = len(cols)
         for i in range(1,N):
-            if i==1:
-                ax = ax1 = fig.add_subplot(N-1,1,i)
-                ax.grid(True)
-            else:
-                ax = fig.add_subplot(N-1,1,i, sharex=ax1)
-                ax.grid(True)
+            if subplots:
+                if i==1:
+                    ax = ax1 = fig.add_subplot(N-1,1,i)
+                else:
+                    ax = fig.add_subplot(N-1,1,i, sharex=ax1)
+            elif i==1:
+                ax = fig.add_subplot(1,1,1)
+
+            ax.grid(True)
 
 
             yname, y = getname_val(cols[i])
+            ynamelist.append(yname)
 
             funcname = plotfuncs.get(cols[i], 'plot')
             func = getattr(ax, funcname)
 
             func(x, y, **kwargs)
-            ax.set_ylabel(yname)
+            if subplots:
+                ax.set_ylabel(yname)
             if ax.is_last_row():
                 ax.set_xlabel(xname)
             else:
                 ax.set_xlabel('')
 
+    if not subplots:
+        ax.legend(ynamelist, loc='best')
 
     if xname=='date':
         fig.autofmt_xdate()
