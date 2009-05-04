@@ -930,6 +930,8 @@ class MaxNLocator(Locator):
         vmax -= offset
         raw_step = (vmax-vmin)/nbins
         scaled_raw_step = raw_step/scale
+        best_vmax = vmax
+        best_vmin = vmin
 
         for step in self._steps:
             if step < scaled_raw_step:
