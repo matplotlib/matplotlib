@@ -1,4 +1,7 @@
 ======================================================================
+2009-05-04 Fix bug that Text.Annotation is still drawn while set to 
+           not visible.-JJL
+
 2008-04-12 Release 0.98.5.3 at r7038
 
 2009-04-06 The pdf backend now escapes newlines and linefeeds in strings.
