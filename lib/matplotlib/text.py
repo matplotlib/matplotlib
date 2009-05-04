@@ -1612,6 +1612,11 @@ class Annotation(Text):
         """
         Draw the :class:`Annotation` object to the given *renderer*.
         """
+
+        if renderer is not None:
+            self._renderer = renderer
+        if not self.get_visible(): return
+
         self.update_positions(renderer)
         self.update_bbox_position_size(renderer)
 
