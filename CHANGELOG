@@ -1,4 +1,7 @@
 ======================================================================
+2009-05-04 Fix bug that Text.Annotation is still drawn while set to 
+           not visible.-JJL
+
 2009-05-04 Added TJ's fill_betweenx patch - JDH
 
 2009-05-02 Added options to plotfile based on question from
