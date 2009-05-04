@@ -5826,10 +5826,10 @@ class Axes(martist.Artist):
           an N length np array of the x data
 
         *y1*
-          an N length scalar or np array of the x data
+          an N length scalar or np array of the y data
 
         *y2*
-          an N length scalar or np array of the x data
+          an N length scalar or np array of the y data
 
         *where*
            if None, default to fill between everywhere.  If not None,
@@ -5844,6 +5844,12 @@ class Axes(martist.Artist):
         %(PolyCollection)s
 
         .. plot:: mpl_examples/pylab_examples/fill_between.py
+
+        .. seealso::
+
+            :meth:`fill_betweenx`
+                for filling between two sets of x-values
+
         """
         # Handle united data, such as dates
         self._process_unit_info(xdata=x, ydata=y1, kwargs=kwargs)
@@ -5907,6 +5913,113 @@ class Axes(martist.Artist):
                                          updatex=True, updatey=True)
 
         self.dataLim.update_from_data_xy(XY2, self.ignore_existing_data_limits,
+                                         updatex=False, updatey=True)
+        self.add_collection(collection)
+        self.autoscale_view()
+        return collection
+    fill_between.__doc__ = cbook.dedent(fill_between.__doc__) % martist.kwdocd
+
+    def fill_betweenx(self, y, x1, x2=0, where=None, **kwargs):
+        """
+        call signature::
+
+          fill_between(y, x1, x2=0, where=None, **kwargs)
+
+        Create a :class:`~matplotlib.collections.PolyCollection`
+        filling the regions between *x1* and *x2* where
+        ``where==True``
+
+        *y*
+          an N length np array of the y data
+
+        *x1*
+          an N length scalar or np array of the x data
+
+        *x2*
+          an N length scalar or np array of the x data
+
+        *where*
+           if None, default to fill between everywhere.  If not None,
+           it is a a N length numpy boolean array and the fill will
+           only happen over the regions where ``where==True``
+
+        *kwargs*
+          keyword args passed on to the :class:`PolyCollection`
+
+        kwargs control the Polygon properties:
+
+        %(PolyCollection)s
+
+        .. plot:: mpl_examples/pylab_examples/fill_betweenx.py
+
+        .. seealso::
+
+            :meth:`fill_between`
+                for filling between two sets of y-values
+
+        """
+        # Handle united data, such as dates
+        self._process_unit_info(ydata=y, xdata=x1, kwargs=kwargs)
+        self._process_unit_info(xdata=x2)
+
+        # Convert the arrays so we can work with them
+        y = np.asanyarray(self.convert_yunits(y))
+        x1 = np.asanyarray(self.convert_xunits(x1))
+        x2 = np.asanyarray(self.convert_xunits(x2))
+
+        if x1.ndim == 0:
+            x1 = np.ones_like(y)*x1
+        if x2.ndim == 0:
+            x2 = np.ones_like(y)*x2
+
+        if where is None:
+            where = np.ones(len(y), np.bool)
+        else:
+            where = np.asarray(where, np.bool)
+
+        if not (y.shape == x1.shape == x2.shape == where.shape):
+            raise ValueError("Argument dimensions are incompatible")
+
+        mask = reduce(ma.mask_or,
+                        [ma.getmask(y), ma.getmask(x1), ma.getmask(x2)])
+        if mask is not ma.nomask:
+            where &= ~mask
+
+        polys = []
+        for ind0, ind1 in mlab.contiguous_regions(where):
+            theseverts = []
+            yslice = y[ind0:ind1]
+            x1slice = x1[ind0:ind1]
+            x2slice = x2[ind0:ind1]
+
+            if not len(yslice):
+                continue
+
+            N = len(yslice)
+            Y = np.zeros((2*N+2, 2), np.float)
+
+            # the purpose of the next two lines is for when x2 is a
+            # scalar like 0 and we want the fill to go all the way
+            # down to 0 even if none of the x1 sample points do
+            Y[0] = x2slice[0], yslice[0]
+            Y[N+1] = x2slice[-1], yslice[-1]
+
+            Y[1:N+1,0] = x1slice
+            Y[1:N+1,1] = yslice
+            Y[N+2:,0] = x2slice[::-1]
+            Y[N+2:,1] = yslice[::-1]
+
+            polys.append(Y)
+
+        collection = mcoll.PolyCollection(polys, **kwargs)
+
+        # now update the datalim and autoscale
+        X1Y = np.array([x1[where], y[where]]).T
+        X2Y = np.array([x2[where], y[where]]).T
+        self.dataLim.update_from_data_xy(X1Y, self.ignore_existing_data_limits,
+                                         updatex=True, updatey=True)
+
+        self.dataLim.update_from_data_xy(X2Y, self.ignore_existing_data_limits,
                                          updatex=False, updatey=True)
         self.add_collection(collection)
         self.autoscale_view()

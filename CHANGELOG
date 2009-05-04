@@ -1,6 +1,9 @@
 ======================================================================
+2009-05-04 Added TJ's fill_betweenx patch - JDH
+
 2009-05-02 Added options to plotfile based on question from
            Joseph Smidt and patch by Matthias Michler. - EF
+
 
 2009-05-01 Changed add_artist and similar Axes methods to
            return their argument. - EF
