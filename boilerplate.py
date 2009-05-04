@@ -65,6 +65,7 @@ _plotcommands = (
     'errorbar',
     'fill',
     'fill_between',
+    'fill_betweenx',
     'hexbin',
     'hist',
     'hlines',
