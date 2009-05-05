@@ -235,7 +235,7 @@ class Text(Artist):
         thisx, thisy  = 0.0, 0.0
         xmin, ymin    = 0.0, 0.0
         width, height = 0.0, 0.0
-        lines = self._text.split('\n')
+        lines = self.get_text().split('\n')
 
         whs = np.zeros((len(lines), 2))
         horizLayout = np.zeros((len(lines), 4))
@@ -406,10 +406,10 @@ class Text(Artist):
             props = props.copy() # don't want to alter the pad externally
             pad = props.pop('pad', 4)
             pad = renderer.points_to_pixels(pad)
-            if self._text == "":
+            if self.get_text() == "":
                 self.arrow_patch.set_patchA(None)
                 return
-            
+
             bbox = self.get_window_extent(renderer)
             l,b,w,h = bbox.bounds
             l-=pad/2.
@@ -451,7 +451,7 @@ class Text(Artist):
         if renderer is not None:
             self._renderer = renderer
         if not self.get_visible(): return
-        if self._text=='': return
+        if self.get_text()=='': return
 
         renderer.open_group('text', self.get_gid())
 
@@ -472,8 +472,8 @@ class Text(Artist):
             self._draw_bbox(renderer, posx, posy)
 
         gc = renderer.new_gc()
-        gc.set_foreground(self._color)
-        gc.set_alpha(self._alpha)
+        gc.set_foreground(self.get_color())
+        gc.set_alpha(self.get_alpha())
         gc.set_url(self._url)
         if self.get_clip_on():
             gc.set_clip_rectangle(self.clipbox)
@@ -604,7 +604,7 @@ class Text(Artist):
         need to know if the text has changed.
         """
         x, y = self.get_position()
-        return (x, y, self._text, self._color,
+        return (x, y, self.get_text(), self._color,
                 self._verticalalignment, self._horizontalalignment,
                 hash(self._fontproperties), self._rotation,
                 self.figure.dpi, id(self._renderer),
@@ -650,7 +650,7 @@ class Text(Artist):
         if dpi is not None:
             dpi_orig = self.figure.dpi
             self.figure.dpi = dpi
-        if self._text == '':
+        if self.get_text() == '':
             tx, ty = self._get_xy_display()
             return Bbox.from_bounds(tx,ty,0,0)
 

@@ -200,15 +200,17 @@ class AxisLineHelper(object):
                     nth_coord = 1
                 elif loc in ["bottom", "top"]:
                     nth_coord = 0
+
+            self.nth_coord = nth_coord
+            self.axis = [self.axes.xaxis, self.axes.yaxis][self.nth_coord]
+
+            super(AxisLineHelper.Fixed, self).__init__(loc)
+
             if passingthrough_point is None:
                 passingthrough_point = self._default_passthru_pt[loc]
             if label_direction is None:
                 label_direction = loc
 
-            super(AxisLineHelper.Fixed, self).__init__(loc)
-
-            self.nth_coord = nth_coord
-            self.axis = [self.axes.xaxis, self.axes.yaxis][self.nth_coord]
 
             self.passthru_pt = passingthrough_point
 
@@ -456,10 +458,47 @@ class Ticks(Line2D):
     def __init__(self, ticksize, **kwargs):
         self.ticksize = ticksize
         self.locs_angles = []
+
+        self._axis = kwargs.pop("axis", None)
+        if self._axis is not None:
+            if "color" not in kwargs:
+                kwargs["color"] = "auto"
+            if ("mew" not in kwargs) and ("markeredgewidth" not in kwargs):
+                kwargs["markeredgewidth"] = "auto"
+
         super(Ticks, self).__init__([0.], [0.], **kwargs)
-        #self.set_color("k")
-        self.set_mec("k")
-        self.set_mew(0.5)
+
+
+    def get_color(self):
+        if self._color == 'auto':
+            if self._axis is not None:
+                ticklines = self._axis.get_ticklines()
+                if ticklines:
+                    color_from_axis = ticklines[0].get_color()
+                    return color_from_axis
+            return "k"
+
+        return super(Ticks, self).get_color()
+
+
+    def get_markeredgecolor(self):
+        if self._markeredgecolor == 'auto':
+            return self.get_color()
+        else:
+            return self._markeredgecolor
+
+    def get_markeredgewidth(self):
+        if self._markeredgewidth == 'auto':
+            if self._axis is not None:
+                ticklines = self._axis.get_ticklines()
+                if ticklines:
+                    width_from_axis = ticklines[0].get_markeredgewidth()
+                    return width_from_axis
+            return .5
+
+        else:
+            return self._markeredgewidth
+
 
     def update_locs_angles(self, locs_angles, renderer):
         self.locs_angles = locs_angles
@@ -494,7 +533,7 @@ class Ticks(Line2D):
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_foreground(self.get_markeredgecolor())
-        gc.set_linewidth(self._markeredgewidth)
+        gc.set_linewidth(self.get_markeredgewidth())
         gc.set_alpha(self._alpha)
 
         offset = renderer.points_to_pixels(size)
@@ -515,15 +554,32 @@ class Ticks(Line2D):
 
 class TickLabels(mtext.Text):
 
-    def __init__(self, size, color):
+    def __init__(self, size, **kwargs):
         self._locs_labels = []
 
+        self._axis = kwargs.pop("axis", None)
+        if self._axis is not None:
+            if "color" not in kwargs:
+                kwargs["color"] = "auto"
+
         super(TickLabels, self).__init__(x=0., y=0., text="",
-                                         color=color,
+                                         **kwargs
                                          )
 
     def update_locs_labels(self, locs_labels, renderer):
         self._locs_labels = locs_labels
+
+    def get_color(self):
+        if self._color == 'auto':
+            if self._axis is not None:
+                ticklabels = self._axis.get_ticklabels()
+                if ticklabels:
+                    color_from_axis = ticklabels[0].get_color()
+                    return color_from_axis
+            return "k"
+
+        return super(TickLabels, self).get_color()
+
 
     def draw(self, renderer):
         if not self.get_visible(): return
@@ -548,6 +604,34 @@ class TickLabels(mtext.Text):
         #    return Bbox.union([b for b in bboxes if b.width!=0 or b.height!=0])
         #else:
         #    return Bbox.from_bounds(0, 0, 0, 0)
+
+
+class AxisLabel(mtext.Text):
+    def __init__(self, *kl, **kwargs):
+        self._axis = kwargs.pop("axis", None)
+        if self._axis is not None:
+            if "color" not in kwargs:
+                kwargs["color"] = "auto"
+
+        super(AxisLabel, self).__init__(*kl, **kwargs)
+
+    def get_color(self):
+        if self._color == 'auto':
+            if self._axis is not None:
+                label = self._axis.get_label()
+                if label:
+                    color_from_axis = label.get_color()
+                    return color_from_axis
+            return "k"
+
+        return super(AxisLabel, self).get_color()
+
+    def get_text(self):
+        t = super(AxisLabel, self).get_text()
+        if t == "__from_axes__":
+            return self._axis.get_label().get_text()
+        return self._text
+
 
 class AxisGridLineBase(martist.Artist):
     def __init__(self, *kl, **kw):
@@ -599,9 +683,9 @@ class GridLine(AxisGridLineBase):
 
 
         if self._helper.label_direction in ["left", "right"]:
-            axis_name = "xtick"
-        else:
             axis_name = "ytick"
+        else:
+            axis_name = "xtick"
 
 
         if major_tick_size is None:
@@ -638,12 +722,13 @@ class GridLine(AxisGridLineBase):
 
         transform=self._helper.get_tick_transform()+self.offset_transform
 
-        self.major_ticks = Ticks(self.major_tick_size, transform=transform)
-        self.minor_ticks = Ticks(self.minor_tick_size, transform=transform)
+        self.major_ticks = Ticks(self.major_tick_size,
+                                 transform=transform)
+        self.minor_ticks = Ticks(self.minor_tick_size,
+                                 transform=transform)
 
 
         size = rcParams['xtick.labelsize']
-        color = rcParams['xtick.color']
 
         fontprops = font_manager.FontProperties(size=size)
         tvhl = self._helper.get_ticklabel_transform(self.major_tick_pad,
@@ -652,8 +737,12 @@ class GridLine(AxisGridLineBase):
                                                     trans=transform)
         trans, vert, horiz, label_a = tvhl
 
-        self.major_ticklabels = TickLabels(size, color)
-        self.minor_ticklabels = TickLabels(size, color)
+        color = rcParams['xtick.color']
+        self.major_ticklabels = TickLabels(size, color=color)
+        self.minor_ticklabels = TickLabels(size, color=color)
+
+        #self.major_ticklabels = TickLabels(size, axis=self.axis)
+        #self.minor_ticklabels = TickLabels(size, axis=self.axis)
 
 
         self.major_ticklabels.set(figure = self.axes.figure,
@@ -724,10 +813,10 @@ class GridLine(AxisGridLineBase):
                          color = rcParams['axes.labelcolor'],
                          )
 
-        self.label = mtext.Text(0, 0, "__from_axes__",
-                                fontproperties=fontprops,
-                                color = rcParams['axes.labelcolor'],
-                                )
+        self.label = AxisLabel(0, 0, "",
+                               fontproperties=fontprops,
+                               color = rcParams['axes.labelcolor'],
+                               )
         self.label.set_figure(self.axes.figure)
 
         #self._set_artist_props(label)
@@ -752,13 +841,14 @@ class GridLine(AxisGridLineBase):
                        transform=tr2,
                        va=va, ha=ha, rotation=a)
 
-        if self.label.get_text() == "__from_axes__":
-            label_text = self._helper.axis.get_label().get_text()
-            self.label.set_text(label_text)
-            self.label.draw(renderer)
-            self.label.set_text("__from_axes__")
-        else:
-            self.label.draw(renderer)
+#         if self.label.get_text() == "__from_axes__":
+#             label_text = self.axis.get_label().get_text()
+#             self.label.set_text(label_text)
+#             self.label.draw(renderer)
+#             self.label.set_text("__from_axes__")
+#         else:
+
+        self.label.draw(renderer)
 
 
     def set_label(self, s):
@@ -857,9 +947,11 @@ class AxisLine(AxisGridLineBase):
 
 
         if self._helper.label_direction in ["left", "right"]:
-            axis_name = "xtick"
-        else:
             axis_name = "ytick"
+            self.axis = axes.yaxis
+        else:
+            axis_name = "xtick"
+            self.axis = axes.xaxis
 
 
         if major_tick_size is None:
@@ -897,12 +989,15 @@ class AxisLine(AxisGridLineBase):
 
         transform=self._helper.get_tick_transform()+self.offset_transform
 
-        self.major_ticks = Ticks(self.major_tick_size, transform=transform)
-        self.minor_ticks = Ticks(self.minor_tick_size, transform=transform)
+        self.major_ticks = Ticks(self.major_tick_size,
+                                 axis=self.axis,
+                                 transform=transform)
+        self.minor_ticks = Ticks(self.minor_tick_size,
+                                 axis=self.axis,
+                                 transform=transform)
 
 
         size = rcParams['xtick.labelsize']
-        color = rcParams['xtick.color']
 
         fontprops = font_manager.FontProperties(size=size)
         tvhl = self._helper.get_ticklabel_transform(self.major_tick_pad,
@@ -911,8 +1006,12 @@ class AxisLine(AxisGridLineBase):
                                                     trans=transform)
         trans, vert, horiz, label_a = tvhl
 
-        self.major_ticklabels = TickLabels(size, color)
-        self.minor_ticklabels = TickLabels(size, color)
+        #color = rcParams['xtick.color']
+        #self.major_ticklabels = TickLabels(size, color=color)
+        #self.minor_ticklabels = TickLabels(size, color=color)
+
+        self.major_ticklabels = TickLabels(size, axis=self.axis)
+        self.minor_ticklabels = TickLabels(size, axis=self.axis)
 
 
         self.major_ticklabels.set(figure = self.axes.figure,
@@ -1022,10 +1121,12 @@ class AxisLine(AxisGridLineBase):
                          color = rcParams['axes.labelcolor'],
                          )
 
-        self.label = mtext.Text(0, 0, "__from_axes__",
-                                fontproperties=fontprops,
-                                color = rcParams['axes.labelcolor'],
-                                )
+        self.label = AxisLabel(0, 0, "__from_axes__",
+                               color = "auto", #rcParams['axes.labelcolor'],
+                               fontproperties=fontprops,
+                               axis=self.axis,
+                               )
+
         self.label.set_figure(self.axes.figure)
 
         #self._set_artist_props(label)
@@ -1050,13 +1151,14 @@ class AxisLine(AxisGridLineBase):
                        transform=tr2,
                        va=va, ha=ha, rotation=a)
 
-        if self.label.get_text() == "__from_axes__":
-            label_text = self._helper.axis.get_label().get_text()
-            self.label.set_text(label_text)
-            self.label.draw(renderer)
-            self.label.set_text("__from_axes__")
-        else:
-            self.label.draw(renderer)
+#         if self.label.get_text() == "__from_axes__":
+#             label_text = self._helper.axis.get_label().get_text()
+#             self.label.set_text(label_text)
+#             self.label.draw(renderer)
+#             self.label.set_text("__from_axes__")
+#         else:
+
+        self.label.draw(renderer)
 
 
     def set_label(self, s):
@@ -1208,7 +1310,7 @@ class Axes(maxes.Axes):
         if self._axisline_on:
             children = self._axislines.values()+[self.gridlines]
         else:
-            cildren = []
+            children = []
         children.extend(super(Axes, self).get_children())
         return children
 
@@ -1253,13 +1355,14 @@ class Axes(maxes.Axes):
                 continue
 
             if axisline.label.get_visible():
-                if axisline.label.get_text() == "__from_axes__":
-                    label_text = axisline._helper.axis.get_label().get_text()
-                    axisline.label.set_text(label_text)
-                    bb.append(axisline.label.get_window_extent(renderer))
-                    axisline.label.set_text("__from_axes__")
-                else:
-                    bb.append(axisline.label.get_window_extent(renderer))
+#                 if axisline.label.get_text() == "__from_axes__":
+#                     label_text = axisline._helper.axis.get_label().get_text()
+#                     axisline.label.set_text(label_text)
+#                     bb.append(axisline.label.get_window_extent(renderer))
+#                     axisline.label.set_text("__from_axes__")
+#                 else:
+
+                bb.append(axisline.label.get_window_extent(renderer))
 
 
             if axisline.major_ticklabels.get_visible():
