@@ -246,8 +246,12 @@ def _add_inset_axes(parent_axes, inset_axes):
 
 def inset_axes(parent_axes, width, height, loc=1,
                bbox_to_anchor=None, bbox_transform=None,
+               axes_class=None,
                axes_kwargs=None,
                **kwargs):
+
+   if axes_class is None:
+      axes_class = Axes
 
    if axes_kwargs is None:
       inset_axes = Axes(parent_axes.figure, parent_axes.get_position())
@@ -268,23 +272,23 @@ def inset_axes(parent_axes, width, height, loc=1,
 
 def zoomed_inset_axes(parent_axes, zoom, loc=1,
                       bbox_to_anchor=None, bbox_transform=None,
+                      axes_class=None,
                       axes_kwargs=None,
-                      connects=None,
                       **kwargs):
 
+   if axes_class is None:
+      axes_class = Axes
+
    if axes_kwargs is None:
-      inset_axes = Axes(parent_axes.figure, parent_axes.get_position())
+      inset_axes = axes_class(parent_axes.figure, parent_axes.get_position())
    else:
-      inset_axes = Axes(parent_axes.figure, parent_axes.get_position(),
-                        **axes_kwargs)
+      inset_axes = axes_class(parent_axes.figure, parent_axes.get_position(),
+                              **axes_kwargs)
 
    axes_locator = AnchoredZoomLocator(parent_axes, zoom=zoom, loc=loc)
    inset_axes.set_axes_locator(axes_locator)
 
    _add_inset_axes(parent_axes, inset_axes)
-
-   if connects is not None:
-      pass
 
    return inset_axes
 

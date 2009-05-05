@@ -287,13 +287,21 @@ class HostAxes(Axes):
 
         ax2 = ParasiteAxes(self, sharex=self, frameon=False)
         self.parasites.append(ax2)
-        self._axislines["right"].set_visible(False)
+
+        # for normal axes
+        self.yaxis.tick_left()
         ax2.xaxis.set_visible(False)
+        ax2.yaxis.tick_right()
+        ax2.yaxis.set_label_position('right')
+
+        # for axisline axes
+        self._axislines["right"].set_visible(False)
         ax2._axislines["left"].set_visible(False)
         ax2._axislines["right"].set_visible(True)
         ax2._axislines["right"].major_ticklabels.set_visible(True)
         ax2._axislines["right"].label.set_visible(True)
-        self.yaxis.tick_left()
+
+
         return ax2
 
     def twiny(self):
@@ -310,11 +318,20 @@ class HostAxes(Axes):
 
         ax2 = ParasiteAxes(self, sharey=self, frameon=False)
         self.parasites.append(ax2)
-        ax2.xaxis.set_visible(True)
+
+        # for normal axes
+        self.xaxis.tick_bottom()
         ax2.yaxis.set_visible(False)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
-        self.xaxis.tick_bottom()
+
+        # for axisline axes
+        self._axislines["top"].set_visible(False)
+        ax2._axislines["bottom"].set_visible(False)
+        ax2._axislines["top"].set_visible(True)
+        ax2._axislines["top"].major_ticklabels.set_visible(True)
+        ax2._axislines["top"].label.set_visible(True)
+
         return ax2
 
     def twin(self, aux_trans=None):
@@ -339,6 +356,16 @@ class HostAxes(Axes):
                                        )
         self.parasites.append(ax2)
 
+
+        # for normal axes
+        self.yaxis.tick_left()
+        self.xaxis.tick_bottom()
+        ax2.yaxis.tick_right()
+        ax2.yaxis.set_label_position('right')
+        ax2.xaxis.tick_top()
+        ax2.xaxis.set_label_position('top')
+
+        # for axisline axes
         self._axislines["right"].set_visible(False)
         self._axislines["top"].set_visible(False)
         ax2._axislines["left"].set_visible(False)
