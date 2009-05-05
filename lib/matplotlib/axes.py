@@ -3761,6 +3761,41 @@ class Axes(martist.Artist):
         return lags, c, a, b
     xcorr.__doc__ = cbook.dedent(xcorr.__doc__) % martist.kwdocd
 
+
+    def _get_legend_handles(self):
+        "return artists that will be used as handles for legend"
+        handles = self.lines[:]
+        handles.extend(self.patches)
+        handles.extend([c for c in self.collections
+                        if isinstance(c, mcoll.LineCollection)])
+        handles.extend([c for c in self.collections
+                        if isinstance(c, mcoll.RegularPolyCollection)])
+        return handles
+
+
+    def get_legend_handles_labels(self):
+        """
+        return handles and labels for legend
+
+        ax.legend() is equibalent to ::
+
+          h, l = ax.get_legend_handles_labels()
+          ax.legend(h, l)
+        
+        """
+
+        handles = []
+        labels = []
+        for handle in self._get_legend_handles():
+            label = handle.get_label()
+            if (label is not None and
+                label != '' and not label.startswith('_')):
+                handles.append(handle)
+                labels.append(label)
+
+        return handles, labels
+
+
     def legend(self, *args, **kwargs):
         """
         call signature::
@@ -3867,24 +3902,8 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/api/legend_demo.py
         """
 
-        def get_handles():
-            handles = self.lines[:]
-            handles.extend(self.patches)
-            handles.extend([c for c in self.collections
-                            if isinstance(c, mcoll.LineCollection)])
-            handles.extend([c for c in self.collections
-                            if isinstance(c, mcoll.RegularPolyCollection)])
-            return handles
-
         if len(args)==0:
-            handles = []
-            labels = []
-            for handle in get_handles():
-                label = handle.get_label()
-                if (label is not None and
-                    label != '' and not label.startswith('_')):
-                    handles.append(handle)
-                    labels.append(label)
+            handles, labels = self.get_legend_handles_labels()
             if len(handles) == 0:
                 warnings.warn("No labeled objects found. "
                               "Use label='...' kwarg on individual plots.")
@@ -3893,13 +3912,15 @@ class Axes(martist.Artist):
         elif len(args)==1:
             # LABELS
             labels = args[0]
-            handles = [h for h, label in zip(get_handles(), labels)]
+            handles = [h for h, label in zip(self._get_legend_handles(),
+                                             labels)]
 
         elif len(args)==2:
             if is_string_like(args[1]) or isinstance(args[1], int):
                 # LABELS, LOC
                 labels, loc = args
-                handles = [h for h, label in zip(get_handles(), labels)]
+                handles = [h for h, label in zip(self._get_legend_handles(),
+                                                 labels)]
                 kwargs['loc'] = loc
             else:
                 # LINES, LABELS

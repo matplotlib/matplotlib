@@ -1,4 +1,6 @@
 ======================================================================
+2009-05-05 Add Axes.get_legend_handles_labels method -JJL
+
 2009-05-04 Fix bug that Text.Annotation is still drawn while set to 
            not visible.-JJL
 
