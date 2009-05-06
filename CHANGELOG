@@ -1,8 +1,12 @@
 ======================================================================
-2009-05-05 Add Axes.get_legend_handles_labels method -JJL
+2009-05-05 Add an example that shows how to make a plot that updates
+           using data from another process.  Thanks to Robert
+           Cimrman - RMM
 
-2009-05-04 Fix bug that Text.Annotation is still drawn while set to 
-           not visible.-JJL
+2009-05-05 Add Axes.get_legend_handles_labels method. - JJL
+
+2009-05-04 Fix bug that Text.Annotation is still drawn while set to
+           not visible. - JJL
 
 2009-05-04 Added TJ's fill_betweenx patch - JDH
 
