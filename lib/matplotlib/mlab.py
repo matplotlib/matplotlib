@@ -175,13 +175,6 @@ from matplotlib import verbose
 import matplotlib.nxutils as nxutils
 import matplotlib.cbook as cbook
 
-# set is a new builtin function in 2.4; delete the following when
-# support for 2.3 is dropped.
-try:
-    set
-except NameError:
-    from sets import Set as set
-
 
 def linspace(*args, **kw):
     warnings.warn("use numpy.linspace", DeprecationWarning)
@@ -617,10 +610,8 @@ def polyfit(*args, **kwargs):
         :func:`polyval`
            polyval function
     """
-    warnings.warn("use numpy.poyfit", DeprecationWarning)
+    warnings.warn("use numpy.polyfit", DeprecationWarning)
     return np.polyfit(*args, **kwargs)
-
-
 
 
 def polyval(*args, **kwargs):
@@ -899,12 +890,6 @@ def trapz(x, y):
     """
     warnings.warn("Use numpy.trapz(y,x) instead of trapz(x,y)", DeprecationWarning)
     return np.trapz(y, x)
-    #if len(x)!=len(y):
-    #    raise ValueError, 'x and y must have the same length'
-    #if len(x)<2:
-    #    raise ValueError, 'x and y must have > 1 element'
-    #return np.sum(0.5*np.diff(x)*(y[1:]+y[:-1]))
-
 
 
 def longest_contiguous_ones(x):
