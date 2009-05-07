@@ -8,6 +8,7 @@ import matplotlib
 rcParams = matplotlib.rcParams
 
 import matplotlib.artist as martist
+from matplotlib.artist import allow_rasterization
 import matplotlib.axis as maxis
 import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
@@ -530,6 +531,8 @@ class Axes(martist.Artist):
         self._axisbg = axisbg
         self._frameon = frameon
         self._axisbelow = rcParams['axes.axisbelow']
+
+        self._rasterization_zorder = -30000
 
         self._hold = rcParams['axes.hold']
         self._connected = {} # a dict from events to (id, func)
@@ -1566,6 +1569,19 @@ class Axes(martist.Artist):
         """
         self._autoscaleYon = b
 
+    def set_rasterization_zorder(self, z):
+        """
+        Set zorder value below which artists will be rasterized
+        """
+        self._rasterization_zorder = z
+
+    def get_rasterization_zorder(self):
+        """
+        Get zorder value below which artists will be rasterized
+        """
+        return self._rasterization_zorder 
+
+
     def autoscale_view(self, tight=False, scalex=True, scaley=True):
         """
         autoscale the view limits using the data limits. You can
@@ -1620,42 +1636,8 @@ class Axes(martist.Artist):
         else:
             self.apply_aspect()
 
-        # the patch draws the background rectangle -- the frame below
-        # will draw the edges
-        if self.axison and self._frameon:
-            self.patch.draw(renderer)
 
         artists = []
-
-
-
-        if len(self.images)<=1 or renderer.option_image_nocomposite():
-            for im in self.images:
-                im.draw(renderer)
-        else:
-            # make a composite image blending alpha
-            # list of (mimage.Image, ox, oy)
-
-            mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag),0,0)
-                   for im in self.images if im.get_visible()]
-
-
-            l, b, r, t = self.bbox.extents
-            width = mag*((round(r) + 0.5) - (round(l) - 0.5))
-            height = mag*((round(t) + 0.5) - (round(b) - 0.5))
-            im = mimage.from_images(height,
-                                    width,
-                                    ims)
-
-            im.is_grayscale = False
-            l, b, w, h = self.bbox.bounds
-            # composite images need special args so they will not
-            # respect z-order for now
-            renderer.draw_image(
-                round(l), round(b), im, self.bbox,
-                self.patch.get_path(),
-                self.patch.get_transform())
 
         artists.extend(self.collections)
         artists.extend(self.patches)
@@ -1685,6 +1667,58 @@ class Axes(martist.Artist):
         dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
                 if not a.get_animated() ]
         dsu.sort()
+
+
+        # rasterze artists with negative zorder
+        # if the minimum zorder is negative, start rasterization
+        rasterization_zorder = self._rasterization_zorder
+        if len(dsu) > 0 and dsu[0][0] < rasterization_zorder:
+            renderer.start_rasterizing()
+            dsu_rasterized = [l for l in dsu if l[0] < rasterization_zorder]
+            dsu = [l for l in dsu if l[0] >= rasterization_zorder]
+        else:
+            dsu_rasterized = []
+            
+            
+        # the patch draws the background rectangle -- the frame below
+        # will draw the edges
+        if self.axison and self._frameon:
+            self.patch.draw(renderer)
+
+        if len(self.images)<=1 or renderer.option_image_nocomposite():
+            for im in self.images:
+                im.draw(renderer)
+        else:
+            # make a composite image blending alpha
+            # list of (mimage.Image, ox, oy)
+
+            mag = renderer.get_image_magnification()
+            ims = [(im.make_image(mag),0,0)
+                   for im in self.images if im.get_visible()]
+
+
+            l, b, r, t = self.bbox.extents
+            width = mag*((round(r) + 0.5) - (round(l) - 0.5))
+            height = mag*((round(t) + 0.5) - (round(b) - 0.5))
+            im = mimage.from_images(height,
+                                    width,
+                                    ims)
+
+            im.is_grayscale = False
+            l, b, w, h = self.bbox.bounds
+            # composite images need special args so they will not
+            # respect z-order for now
+            renderer.draw_image(
+                round(l), round(b), im, self.bbox,
+                self.patch.get_path(),
+                self.patch.get_transform())
+
+
+
+        if dsu_rasterized:
+            for zorder, i, a in dsu_rasterized:
+                a.draw(renderer)
+            renderer.stop_rasterizing()
 
         for zorder, i, a in dsu:
             a.draw(renderer)

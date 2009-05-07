@@ -1,4 +1,8 @@
 ======================================================================
+2009-05-06 print_ps now uses mixed-mode renderer. Axes.draw rasterize
+           artists whose zorder smaller than rasterization_zorder.
+           -JJL
+
 2009-05-06 Per-artist Rasterization, originally by Eric Bruning. -JJ
 
 2009-05-05 Add an example that shows how to make a plot that updates

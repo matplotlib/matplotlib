@@ -1443,6 +1443,7 @@ class FigureCanvasBase:
                     facecolor=facecolor,
                     edgecolor=edgecolor,
                     orientation=orientation,
+                    dryrun=True,
                     **kwargs)
                 renderer = self.figure._cachedRenderer
                 bbox_inches = self.figure.get_tightbbox(renderer)
