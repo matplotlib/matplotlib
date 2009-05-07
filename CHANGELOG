@@ -1,4 +1,8 @@
 ======================================================================
+2009-05-07 'labelpad' can now be passed when setting x/y labels. This
+           allows controlling the spacing between the label and its
+           axis. - RMM
+
 2009-05-06 print_ps now uses mixed-mode renderer. Axes.draw rasterize
            artists whose zorder smaller than rasterization_zorder.
            -JJL

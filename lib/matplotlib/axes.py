@@ -1579,7 +1579,7 @@ class Axes(martist.Artist):
         """
         Get zorder value below which artists will be rasterized
         """
-        return self._rasterization_zorder 
+        return self._rasterization_zorder
 
 
     def autoscale_view(self, tight=False, scalex=True, scaley=True):
@@ -1678,8 +1678,8 @@ class Axes(martist.Artist):
             dsu = [l for l in dsu if l[0] >= rasterization_zorder]
         else:
             dsu_rasterized = []
-            
-            
+
+
         # the patch draws the background rectangle -- the frame below
         # will draw the edges
         if self.axison and self._frameon:
@@ -2721,13 +2721,15 @@ class Axes(martist.Artist):
         label = self.xaxis.get_label()
         return label.get_text()
 
-    def set_xlabel(self, xlabel, fontdict=None, **kwargs):
+    def set_xlabel(self, xlabel, fontdict=None, labelpad=None, **kwargs):
         """
         call signature::
 
-          set_xlabel(xlabel, fontdict=None, **kwargs)
+          set_xlabel(xlabel, fontdict=None, labelpad=None, **kwargs)
 
         Set the label for the xaxis.
+
+        *labelpad* is the spacing in points between the label and the x-axis
 
         Valid kwargs are Text properties:
         %(Text)s
@@ -2738,6 +2740,7 @@ class Axes(martist.Artist):
             :meth:`text`
                 for information on how override and the optional args work
         """
+        if labelpad is not None: self.xaxis.labelpad = labelpad
         return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
     set_xlabel.__doc__ = cbook.dedent(set_xlabel.__doc__) % martist.kwdocd
 
@@ -2748,13 +2751,15 @@ class Axes(martist.Artist):
         label = self.yaxis.get_label()
         return label.get_text()
 
-    def set_ylabel(self, ylabel, fontdict=None, **kwargs):
+    def set_ylabel(self, ylabel, fontdict=None, labelpad=None, **kwargs):
         """
         call signature::
 
-          set_ylabel(ylabel, fontdict=None, **kwargs)
+          set_ylabel(ylabel, fontdict=None, labelpad=None, **kwargs)
 
         Set the label for the yaxis
+
+        *labelpad* is the spacing in points between the label and the y-axis
 
         Valid kwargs are Text properties:
         %(Text)s
@@ -2765,6 +2770,7 @@ class Axes(martist.Artist):
             :meth:`text`
                 for information on how override and the optional args work
         """
+        if labelpad is not None: self.yaxis.labelpad = labelpad
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
     set_ylabel.__doc__ = cbook.dedent(set_ylabel.__doc__) % martist.kwdocd
 
@@ -3816,7 +3822,7 @@ class Axes(martist.Artist):
 
           h, l = ax.get_legend_handles_labels()
           ax.legend(h, l)
-        
+
         """
 
         handles = []

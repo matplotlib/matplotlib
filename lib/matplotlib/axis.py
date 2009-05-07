@@ -500,9 +500,8 @@ class Axis(artist.Artist):
 
     * :attr:`transData` - transform data coords to display coords
     * :attr:`transAxis` - transform axis coords to display coords
-
+    * :attr:`labelpad` - number of points between the axis and its label
     """
-    LABELPAD = 5
     OFFSETTEXTPAD = 3
 
     def __str__(self):
@@ -538,6 +537,7 @@ class Axis(artist.Artist):
 
         self._autolabelpos = True
         self.label = self._get_label()
+        self.labelpad = 5
         self.offsetText = self._get_offset_text()
         self.majorTicks = []
         self.minorTicks = []
@@ -1267,7 +1267,7 @@ class XAxis(Axis):
             else:
                 bbox = mtransforms.Bbox.union(bboxes)
                 bottom = bbox.y0
-            self.label.set_position( (x, bottom - self.LABELPAD*self.figure.dpi / 72.0))
+            self.label.set_position( (x, bottom - self.labelpad*self.figure.dpi / 72.0))
 
         else:
             if not len(bboxes2):
@@ -1275,7 +1275,7 @@ class XAxis(Axis):
             else:
                 bbox = mtransforms.Bbox.union(bboxes2)
                 top = bbox.y1
-            self.label.set_position( (x, top+self.LABELPAD*self.figure.dpi / 72.0))
+            self.label.set_position( (x, top+self.labelpad*self.figure.dpi / 72.0))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
@@ -1506,7 +1506,7 @@ class YAxis(Axis):
                 bbox = mtransforms.Bbox.union(bboxes)
                 left = bbox.x0
 
-            self.label.set_position( (left-self.LABELPAD*self.figure.dpi/72.0, y))
+            self.label.set_position( (left-self.labelpad*self.figure.dpi/72.0, y))
 
         else:
             if not len(bboxes2):
@@ -1515,7 +1515,7 @@ class YAxis(Axis):
                 bbox = mtransforms.Bbox.union(bboxes2)
                 right = bbox.x1
 
-            self.label.set_position( (right+self.LABELPAD*self.figure.dpi/72.0, y))
+            self.label.set_position( (right+self.labelpad*self.figure.dpi/72.0, y))
 
     def _update_offset_text_position(self, bboxes, bboxes2):
         """
