@@ -20,7 +20,7 @@ labeled, and the second argument should a list of string labels.  If
 len(args) is 0, it automatically generate the legend from label
 properties of the child artists by calling
 :meth:`~matplotlib.axes.Axes.get_legend_handles_labels` method. 
-For example, *ax.legend()* is equivalaent to::
+For example, *ax.legend()* is equivalent to::
 
   handles, labels = ax.get_legend_handles_labels()
   ax.legend(handles, labels)
@@ -53,7 +53,7 @@ used as text labels. If label attribute is empty string or starts with
  * Remember that some *pyplot* commands return artist not supported by
    legend, e.g., :func:`~matplotlib.pyplot.fill_between` returns
    :class:`~matplotlib.collections.PolyCollection` that is not
-   supported. Or some return mupltiple artists. For example,
+   supported. Or some return multiple artists. For example,
    :func:`~matplotlib.pyplot.plot` returns list of
    :class:`~matplotlib.lines.Line2D` instances, and
    :func:`~matplotlib.pyplot.errorbar` returns a length 3 tuple of
@@ -68,7 +68,8 @@ Adjusting the Order of Legend items
 
 When you want to customize the list of artists to be displayed in the
 legend, or their order of appearance. There are a two options. First,
-you can keep lists of artists and labels, and explicitly use these for the first two argument of the legend call.::
+you can keep lists of artists and labels, and explicitly use these for
+the first two argument of the legend call.::
 
   p1, = plot([1,2,3])
   p2, = plot([3,2,1])
