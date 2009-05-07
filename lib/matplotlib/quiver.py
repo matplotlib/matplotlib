@@ -21,6 +21,7 @@ import matplotlib.collections as collections
 import matplotlib.transforms as transforms
 import matplotlib.text as mtext
 import matplotlib.artist as martist
+from matplotlib.artist import allow_rasterization
 import matplotlib.font_manager as font_manager
 from matplotlib.cbook import delete_masked_points
 from matplotlib.patches import CirclePolygon
@@ -282,6 +283,7 @@ class QuiverKey(martist.Artist):
         else:
             return y
 
+    @allow_rasterization
     def draw(self, renderer):
         self._init()
         self.vector.draw(renderer)
@@ -418,6 +420,7 @@ class Quiver(collections.PolyCollection):
             if self.width is None:
                 self.width = 0.06 * self.span / sn
 
+    @allow_rasterization
     def draw(self, renderer):
         self._init()
         if self._new_UV or self.angles == 'xy':

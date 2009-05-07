@@ -5,6 +5,7 @@ from __future__ import division
 
 from matplotlib  import rcParams
 import matplotlib.artist as artist
+from matplotlib.artist import allow_rasterization
 import matplotlib.cbook as cbook
 import matplotlib.font_manager as font_manager
 import matplotlib.lines as mlines
@@ -176,6 +177,7 @@ class Tick(artist.Artist):
         'Return the tick location (data coords) as a scalar'
         return self._loc
 
+    @allow_rasterization
     def draw(self, renderer):
         if not self.get_visible(): return
         renderer.open_group(self.__name__)
@@ -719,6 +721,7 @@ class Axis(artist.Artist):
             bbox2 = mtransforms.Bbox.from_extents(0, 0, 0, 0)
         return bbox, bbox2
 
+    @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         'Draw the axis lines, grid lines, tick lines and labels'
         ticklabelBoxes = []

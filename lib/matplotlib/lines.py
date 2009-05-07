@@ -18,6 +18,8 @@ from path import Path
 from transforms import Affine2D, Bbox, TransformedPath, IdentityTransform
 
 from matplotlib import rcParams
+from artist import allow_rasterization
+
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = range(8)
@@ -459,6 +461,7 @@ class Line2D(Artist):
         if len(x)<2: return 1
         return np.alltrue(x[1:]-x[0:-1]>=0)
 
+    @allow_rasterization
     def draw(self, renderer):
         if self._invalid:
             self.recache()

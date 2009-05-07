@@ -23,7 +23,7 @@ from __future__ import division
 import warnings
 
 import artist
-from artist import Artist
+from artist import Artist, allow_rasterization
 from patches import Rectangle
 from cbook import is_string_like
 from text import Text
@@ -90,6 +90,7 @@ class Cell(Rectangle):
 
         return fontsize
 
+    @allow_rasterization
     def draw(self, renderer):
         if not self.get_visible(): return
         # draw the rectangle
@@ -215,6 +216,7 @@ class Table(Artist):
     def _approx_text_height(self):
         return self.FONTSIZE/72.0*self.figure.dpi/self._axes.bbox.height * 1.2
 
+    @allow_rasterization
     def draw(self, renderer):
         # Need a renderer to do hit tests on mouseevent; assume the last one will do
         if renderer is None:

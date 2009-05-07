@@ -1602,6 +1602,7 @@ class Axes(martist.Artist):
 
     #### Drawing
 
+    @allow_rasterization
     def draw(self, renderer=None, inframe=False):
         "Draw everything (plot lines, axes, labels)"
         if renderer is None:

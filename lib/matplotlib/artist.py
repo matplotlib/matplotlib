@@ -22,6 +22,38 @@ from path import Path
 # http://groups.google.com/groups?hl=en&lr=&threadm=mailman.5090.1098044946.5135.python-list%40python.org&rnum=1&prev=/groups%3Fq%3D__doc__%2Bauthor%253Ajdhunter%2540ace.bsd.uchicago.edu%26hl%3Den%26btnG%3DGoogle%2BSearch
 
 
+
+
+def allow_rasterization(draw):    
+    """
+    Decorator for Artist.draw method. Provides routines
+    that run before and after the draw call. The before and after functions
+    are useful for changing artist-dependant renderer attributes or making
+    other setup function calls, such as starting and flushing a mixed-mode
+    renderer. 
+    """
+    def before(artist, renderer):
+        if artist.get_rasterized():
+            renderer.start_rasterizing()
+
+    def after(artist, renderer):
+        if artist.get_rasterized():
+            renderer.stop_rasterizing()
+
+    # the axes class has a second argument inframe for its draw method.
+    def draw_wrapper(artist, renderer, *kl):
+        before(artist, renderer)    
+        draw(artist, renderer, *kl)
+        after(artist, renderer)
+
+    # "safe wrapping" to exactly replicate anything we haven't overridden above
+    draw_wrapper.__name__ = draw.__name__
+    draw_wrapper.__dict__ = draw.__dict__
+    draw_wrapper.__doc__  = draw.__doc__
+    draw_wrapper._supports_rasterization = True
+    return draw_wrapper
+    
+
 class Artist(object):
     """
     Abstract base class for someone who renders into a
@@ -45,6 +77,7 @@ class Artist(object):
         self._label = ''
         self._picker = None
         self._contains = None
+        self._rasterized = None
 
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
@@ -510,6 +543,22 @@ class Artist(object):
         else:
             gc.set_clip_rectangle(None)
             gc.set_clip_path(None)
+        
+    def get_rasterized(self):
+        return self._rasterized
+        
+    def set_rasterized(self, rasterized):
+        """
+        Force rasterized (bitmap) drawing in vector backend output.
+        
+        Defaults to None, which implies the backend's default behavior
+        
+        ACCEPTS: [True | False | None]
+        """
+        if rasterized and not hasattr(self.draw, "_supports_rasterization"):
+            warnings.warn("Rasterization of '%s' will be ignored" % self)
+
+        self._rasterized = rasterized
 
     def draw(self, renderer, *args, **kwargs):
         'Derived classes drawing method'

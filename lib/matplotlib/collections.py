@@ -17,6 +17,7 @@ import matplotlib.colors as _colors # avoid conflict with kwarg
 import matplotlib.cm as cm
 import matplotlib.transforms as transforms
 import matplotlib.artist as artist
+from matplotlib.artist import allow_rasterization
 import matplotlib.backend_bases as backend_bases
 import matplotlib.path as mpath
 import matplotlib.mlab as mlab
@@ -190,6 +191,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         return transform, transOffset, offsets, paths
 
+    @allow_rasterization
     def draw(self, renderer):
         if not self.get_visible(): return
         renderer.open_group(self.__class__.__name__)
@@ -594,6 +596,7 @@ class QuadMesh(Collection):
     def get_datalim(self, transData):
         return self._bbox
 
+    @allow_rasterization
     def draw(self, renderer):
         if not self.get_visible(): return
         renderer.open_group(self.__class__.__name__)
@@ -781,6 +784,7 @@ class RegularPolyCollection(Collection):
 
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+    @allow_rasterization
     def draw(self, renderer):
         self._transforms = [
             transforms.Affine2D().rotate(-self._rotation).scale(

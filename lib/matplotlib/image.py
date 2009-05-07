@@ -11,6 +11,7 @@ from numpy import ma
 
 from matplotlib import rcParams
 import matplotlib.artist as martist
+from matplotlib.artist import allow_rasterization
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
@@ -225,7 +226,7 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
                   norm=self._filternorm, radius=self._filterrad)
         return im
 
-
+    @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
         if (self.axes.get_xscale() != 'linear' or
@@ -571,6 +572,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         im.is_grayscale = self.is_grayscale
         return im
 
+    @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
         im = self.make_image(renderer.get_image_magnification())
@@ -723,6 +725,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
 
         return im
 
+    @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
         # todo: we should be able to do some cacheing here
