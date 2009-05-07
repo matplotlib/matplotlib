@@ -33,6 +33,9 @@ from matplotlib.text import Text
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 
+from matplotlib.backends.backend_mixed import MixedModeRenderer
+
+
 import numpy as npy
 import binascii
 import re
@@ -843,8 +846,13 @@ class FigureCanvasPS(FigureCanvasBase):
     def print_eps(self, outfile, *args, **kwargs):
         return self._print_ps(outfile, 'eps', *args, **kwargs)
 
+
+
+
+
+
     def _print_ps(self, outfile, format, *args, **kwargs):
-        papertype = kwargs.get("papertype", rcParams['ps.papersize'])
+        papertype = kwargs.pop("papertype", rcParams['ps.papersize'])
         papertype = papertype.lower()
         if papertype == 'auto':
             pass
@@ -852,25 +860,28 @@ class FigureCanvasPS(FigureCanvasBase):
             raise RuntimeError( '%s is not a valid papertype. Use one \
                     of %s'% (papertype, ', '.join( papersize.keys() )) )
 
-        orientation = kwargs.get("orientation", "portrait").lower()
+        orientation = kwargs.pop("orientation", "portrait").lower()
         if orientation == 'landscape': isLandscape = True
         elif orientation == 'portrait': isLandscape = False
         else: raise RuntimeError('Orientation must be "portrait" or "landscape"')
 
         self.figure.set_dpi(72) # Override the dpi kwarg
-        imagedpi = kwargs.get("dpi", 72)
-        facecolor = kwargs.get("facecolor", "w")
-        edgecolor = kwargs.get("edgecolor", "w")
+        imagedpi = kwargs.pop("dpi", 72)
+        facecolor = kwargs.pop("facecolor", "w")
+        edgecolor = kwargs.pop("edgecolor", "w")
 
         if rcParams['text.usetex']:
             self._print_figure_tex(outfile, format, imagedpi, facecolor, edgecolor,
-                                   orientation, isLandscape, papertype)
+                                   orientation, isLandscape, papertype,
+                                   **kwargs)
         else:
             self._print_figure(outfile, format, imagedpi, facecolor, edgecolor,
-                               orientation, isLandscape, papertype)
+                               orientation, isLandscape, papertype,
+                               **kwargs)
 
     def _print_figure(self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
-                      orientation='portrait', isLandscape=False, papertype=None):
+                      orientation='portrait', isLandscape=False, papertype=None,
+                      **kwargs):
         """
         Render the figure to hardcopy.  Set the figure patch face and
         edge colors.  This is useful because some of the GUIs have a
@@ -939,9 +950,29 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
-        self._pswriter = StringIO()
-        renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
+
+        dryrun = kwargs.get("dryrun", False)
+        if dryrun:
+            class NullWriter(object):
+                def write(self, *kl, **kwargs):
+                    pass
+                
+            self._pswriter = NullWriter()
+        else:
+            self._pswriter = StringIO()
+
+
+        # mixed mode rendering
+        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
+        ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
+        renderer = MixedModeRenderer(self.figure,
+            width, height, dpi, ps_renderer,
+            bbox_inches_restore=_bbox_inches_restore)
+
         self.figure.draw(renderer)
+
+        if dryrun: # return immediately if dryrun (tightbbox=True)
+            return
 
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
@@ -962,7 +993,7 @@ class FigureCanvasPS(FigureCanvasBase):
         Ndict = len(psDefs)
         print >>fh, "%%BeginProlog"
         if not rcParams['ps.useafm']:
-            Ndict += len(renderer.used_characters)
+            Ndict += len(ps_renderer.used_characters)
         print >>fh, "/mpldict %d dict def"%Ndict
         print >>fh, "mpldict begin"
         for d in psDefs:
@@ -970,7 +1001,7 @@ class FigureCanvasPS(FigureCanvasBase):
             for l in d.split('\n'):
                 print >>fh, l.strip()
         if not rcParams['ps.useafm']:
-            for font_filename, chars in renderer.used_characters.values():
+            for font_filename, chars in ps_renderer.used_characters.values():
                 if len(chars):
                     font = FT2Font(font_filename)
                     cmap = font.get_charmap()
@@ -1019,7 +1050,8 @@ class FigureCanvasPS(FigureCanvasBase):
             shutil.move(tmpfile, outfile)
 
     def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
-                          orientation, isLandscape, papertype):
+                          orientation, isLandscape, papertype,
+                          **kwargs):
         """
         If text.usetex is True in rc, a temporary pair of tex/eps files
         are created to allow tex to manage the text layout via the PSFrags
@@ -1051,9 +1083,28 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
-        self._pswriter = StringIO()
-        renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
+        dryrun = kwargs.get("dryrun", False)
+        if dryrun:
+            class NullWriter(object):
+                def write(self, *kl, **kwargs):
+                    pass
+                
+            self._pswriter = NullWriter()
+        else:
+            self._pswriter = StringIO()
+
+
+        # mixed mode rendering
+        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
+        ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
+        renderer = MixedModeRenderer(self.figure,
+            width, height, dpi, ps_renderer,
+            bbox_inches_restore=_bbox_inches_restore)
+
         self.figure.draw(renderer)
+
+        if dryrun: # return immediately if dryrun (tightbbox=True)
+            return
 
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
@@ -1117,11 +1168,11 @@ class FigureCanvasPS(FigureCanvasBase):
     paper will be used to prevent clipping.'%(papertype, temp_papertype), 'helpful')
 
 
-        texmanager = renderer.get_texmanager()
+        texmanager = ps_renderer.get_texmanager()
         font_preamble = texmanager.get_font_preamble()
         custom_preamble = texmanager.get_custom_preamble()
 
-        convert_psfrags(tmpfile, renderer.psfrag, font_preamble,
+        convert_psfrags(tmpfile, ps_renderer.psfrag, font_preamble,
                         custom_preamble, paperWidth, paperHeight,
                         orientation)
 
