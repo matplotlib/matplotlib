@@ -7,6 +7,7 @@ import matplotlib as mpl
 import numpy as np
 import matplotlib.cbook as cbook
 import matplotlib.artist as artist
+from matplotlib.artist import allow_rasterization
 import matplotlib.colors as colors
 import matplotlib.transforms as transforms
 from matplotlib.path import Path
@@ -260,7 +261,7 @@ class Patch(artist.Artist):
         'Return the current hatching pattern'
         return self._hatch
 
-
+    @allow_rasterization
     def draw(self, renderer):
         'Draw the :class:`Patch` to the given *renderer*.'
         if not self.get_visible(): return
@@ -1176,6 +1177,7 @@ class Arc(Ellipse):
         self.theta2 = theta2
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+    @allow_rasterization
     def draw(self, renderer):
         """
         Ellipses are normally drawn using an approximation that uses

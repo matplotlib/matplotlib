@@ -1,4 +1,6 @@
 ======================================================================
+2009-05-06 Per-artist Rasterization, originally by Eric Bruning. -JJ
+
 2009-05-05 Add an example that shows how to make a plot that updates
            using data from another process.  Thanks to Robert
            Cimrman - RMM

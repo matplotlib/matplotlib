@@ -26,7 +26,7 @@ import warnings
 import numpy as np
 
 from matplotlib import rcParams
-from matplotlib.artist import Artist
+from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import is_string_like, iterable, silent_list, safezip
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
@@ -323,6 +323,7 @@ detail.
 
         return x+xdescent, y+ydescent
 
+    @allow_rasterization
     def draw(self, renderer):
         "Draw everything that belongs to the legend"
         if not self.get_visible(): return
