@@ -8,9 +8,11 @@ try:
     from multiprocessing import Process, Pipe
 except ImportError:
     from processing import Process, Pipe
-from Queue import Empty
 import numpy as np
-import pylab
+
+import matplotlib
+matplotlib.use('GtkAgg')
+import matplotlib.pyplot as plt
 import gobject
 
 class ProcessPlotter(object):
@@ -20,7 +22,7 @@ class ProcessPlotter(object):
         self.y = []
 
     def terminate(self):
-        pylab.close('all')
+        plt.close('all')
 
     def poll_draw(self):
 
@@ -49,13 +51,13 @@ class ProcessPlotter(object):
         print 'starting plotter...'
 
         self.pipe = pipe
-        self.fig = pylab.figure()
+        self.fig = plt.figure()
 
         self.ax = self.fig.add_subplot(111)
         self.gid = gobject.timeout_add(1000, self.poll_draw())
 
         print '...done'
-        pylab.show()
+        plt.show()
 
 
 class NBPlot(object):
