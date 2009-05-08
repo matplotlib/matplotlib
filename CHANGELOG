@@ -1,4 +1,9 @@
 ======================================================================
+2009-05-08 clabel takes new kwarg, rightside_up; if False, labels
+           will not be flipped to keep them rightside-up.  This
+           allows the use of clabel to make streamfunction arrows,
+           as requested by Evan Mason. - EF
+
 2009-05-07 'labelpad' can now be passed when setting x/y labels. This
            allows controlling the spacing between the label and its
            axis. - RMM

@@ -91,6 +91,10 @@ class ContourLabeler:
             placement, delete or backspace act like the third mouse button,
             and any other key will select a label location).
 
+          *rightside_up*:
+            if *True* (default), label rotations will always be plus
+            or minus 90 degrees from level.
+
         .. plot:: mpl_examples/pylab_examples/contour_demo.py
         """
 
@@ -115,6 +119,8 @@ class ContourLabeler:
 
         # Detect if manual selection is desired and remove from argument list
         self.labelManual=kwargs.get('manual',False)
+
+        self.rightside_up = kwargs.get('rightside_up', True)
 
         if len(args) == 0:
             levels = self.levels
@@ -381,11 +387,12 @@ class ContourLabeler:
         else:
             rotation = np.arctan2(dd[1], dd[0]) * 180.0 / np.pi
 
-        # Fix angle so text is never upside-down
-        if rotation > 90:
-            rotation = rotation - 180.0
-        if rotation < -90:
-            rotation = 180.0 + rotation
+        if self.rightside_up:
+            # Fix angle so text is never upside-down
+            if rotation > 90:
+                rotation = rotation - 180.0
+            if rotation < -90:
+                rotation = 180.0 + rotation
 
         # Break contour if desired
         nlc = []
