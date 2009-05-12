@@ -1,4 +1,6 @@
 ======================================================================
+2009-05-11 aspect=1 in log-log plot gives square decades.
+
 2009-05-08 clabel takes new kwarg, rightside_up; if False, labels
            will not be flipped to keep them rightside-up.  This
            allows the use of clabel to make streamfunction arrows,
