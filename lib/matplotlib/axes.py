@@ -1085,7 +1085,7 @@ class Axes(martist.Artist):
             raise ValueError('argument must be among %s' %
                                 ', '.join(mtransforms.BBox.coefs.keys()))
 
-    def get_data_ratio(self):
+    def get_data_ratio(self, mode="linear"):
         """
         Returns the aspect ratio of the raw data.
 
@@ -1093,10 +1093,17 @@ class Axes(martist.Artist):
         types.
         """
         xmin,xmax = self.get_xbound()
-        xsize = max(math.fabs(xmax-xmin), 1e-30)
         ymin,ymax = self.get_ybound()
-        ysize = max(math.fabs(ymax-ymin), 1e-30)
+
+        if mode == "log":
+            xsize = max(math.fabs(math.log10(xmax)-math.log10(xmin)), 1e-30)
+            ysize = max(math.fabs(math.log10(ymax)-math.log10(ymin)), 1e-30)
+        else:
+            xsize = max(math.fabs(xmax-xmin), 1e-30)
+            ysize = max(math.fabs(ymax-ymin), 1e-30)
+
         return ysize/xsize
+
 
     def apply_aspect(self, position=None):
         '''
@@ -1106,7 +1113,20 @@ class Axes(martist.Artist):
         if position is None:
             position = self.get_position(original=True)
 
+
         aspect = self.get_aspect()
+
+        xscale, yscale = self.get_xscale(), self.get_yscale()
+        if xscale == "linear" and yscale == "linear":
+            aspect_scale_mode = "linear"
+        elif xscale == "log" and yscale == "log":
+            aspect_scale_mode = "log"
+        else:
+            warnings.warn(
+                'aspect is not supported for Axes with xscale=%s, yscale=%s' \
+                % (xscale, yscale))
+            aspect = "auto"
+
         if aspect == 'auto':
             self.set_position( position , which='active')
             return
@@ -1127,7 +1147,7 @@ class Axes(martist.Artist):
         figW,figH = self.get_figure().get_size_inches()
         fig_aspect = figH/figW
         if self._adjustable == 'box':
-            box_aspect = A * self.get_data_ratio()
+            box_aspect = A * self.get_data_ratio(mode=aspect_scale_mode)
             pb = position.frozen()
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
             self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
@@ -1137,10 +1157,17 @@ class Axes(martist.Artist):
         # by prior use of 'box'
         self.set_position(position, which='active')
 
+
         xmin,xmax = self.get_xbound()
-        xsize = max(math.fabs(xmax-xmin), 1e-30)
         ymin,ymax = self.get_ybound()
+
+        if aspect_scale_mode == "log":
+            xmin, xmax = math.log10(xmin), math.log10(xmax)
+            ymin, ymax = math.log10(ymin), math.log10(ymax)
+
+        xsize = max(math.fabs(xmax-xmin), 1e-30)
         ysize = max(math.fabs(ymax-ymin), 1e-30)
+
 
         l,b,w,h = position.bounds
         box_aspect = fig_aspect * (h/w)
@@ -1152,9 +1179,18 @@ class Axes(martist.Artist):
         if abs(y_expander) < 0.005:
             #print 'good enough already'
             return
-        dL = self.dataLim
-        xr = 1.05 * dL.width
-        yr = 1.05 * dL.height
+
+        if aspect_scale_mode == "log":
+            dL = self.dataLim
+            dL_width = math.log10(dL.x1) - math.log10(dL.x0)
+            dL_height = math.log10(dL.y1) - math.log10(dL.y0)
+            xr = 1.05 * dL_width
+            yr = 1.05 * dL_height
+        else:
+            dL = self.dataLim
+            xr = 1.05 * dL.width
+            yr = 1.05 * dL.height
+
         xmarg = xsize - xr
         ymarg = ysize - yr
         Ysize = data_ratio * xsize
@@ -1189,14 +1225,20 @@ class Axes(martist.Artist):
             yc = 0.5*(ymin+ymax)
             y0 = yc - Ysize/2.0
             y1 = yc + Ysize/2.0
-            self.set_ybound((y0, y1))
+            if aspect_scale_mode == "log":
+                self.set_ybound((10.**y0, 10.**y1))
+            else:
+                self.set_ybound((y0, y1))
             #print 'New y0, y1:', y0, y1
             #print 'New ysize, ysize/xsize', y1-y0, (y1-y0)/xsize
         else:
             xc = 0.5*(xmin+xmax)
             x0 = xc - Xsize/2.0
             x1 = xc + Xsize/2.0
-            self.set_xbound((x0, x1))
+            if aspect_scale_mode == "log":
+                self.set_xbound((10.**x0, 10.**x1))
+            else:
+                self.set_xbound((x0, x1))
             #print 'New x0, x1:', x0, x1
             #print 'New xsize, ysize/xsize', x1-x0, ysize/(x1-x0)
 
