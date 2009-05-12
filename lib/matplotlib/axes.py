@@ -524,6 +524,8 @@ class Axes(martist.Artist):
         self.set_label(label)
         self.set_figure(fig)
 
+        self.set_axes_locator(kwargs.get("axes_locator", None))
+
         # this call may differ for non-sep axes, eg polar
         self._init_axis()
 
@@ -548,7 +550,6 @@ class Axes(martist.Artist):
         self.set_navigate(True)
         self.set_navigate_mode(None)
 
-        self._axes_locator = None
 
         if xscale:
             self.set_xscale(xscale)
@@ -1085,7 +1086,7 @@ class Axes(martist.Artist):
             raise ValueError('argument must be among %s' %
                                 ', '.join(mtransforms.BBox.coefs.keys()))
 
-    def get_data_ratio(self, mode="linear"):
+    def get_data_ratio(self):
         """
         Returns the aspect ratio of the raw data.
 
@@ -1095,12 +1096,22 @@ class Axes(martist.Artist):
         xmin,xmax = self.get_xbound()
         ymin,ymax = self.get_ybound()
 
-        if mode == "log":
-            xsize = max(math.fabs(math.log10(xmax)-math.log10(xmin)), 1e-30)
-            ysize = max(math.fabs(math.log10(ymax)-math.log10(ymin)), 1e-30)
-        else:
-            xsize = max(math.fabs(xmax-xmin), 1e-30)
-            ysize = max(math.fabs(ymax-ymin), 1e-30)
+        xsize = max(math.fabs(xmax-xmin), 1e-30)
+        ysize = max(math.fabs(ymax-ymin), 1e-30)
+
+        return ysize/xsize
+
+
+    def get_data_ratio_log(self):
+        """
+        Returns the aspect ratio of the raw data in log scale.
+        Will be used when both axis scales are in log.
+        """
+        xmin,xmax = self.get_xbound()
+        ymin,ymax = self.get_ybound()
+
+        xsize = max(math.fabs(math.log10(xmax)-math.log10(xmin)), 1e-30)
+        ysize = max(math.fabs(math.log10(ymax)-math.log10(ymin)), 1e-30)
 
         return ysize/xsize
 
@@ -1121,11 +1132,14 @@ class Axes(martist.Artist):
             aspect_scale_mode = "linear"
         elif xscale == "log" and yscale == "log":
             aspect_scale_mode = "log"
-        else:
+        elif (xscale == "linear" and yscale == "log") or \
+                 (xscale == "log" and yscale == "linear"):
             warnings.warn(
                 'aspect is not supported for Axes with xscale=%s, yscale=%s' \
                 % (xscale, yscale))
             aspect = "auto"
+        else: # some custom projections have their own scales.
+            pass
 
         if aspect == 'auto':
             self.set_position( position , which='active')
@@ -1147,7 +1161,10 @@ class Axes(martist.Artist):
         figW,figH = self.get_figure().get_size_inches()
         fig_aspect = figH/figW
         if self._adjustable == 'box':
-            box_aspect = A * self.get_data_ratio(mode=aspect_scale_mode)
+            if aspect_scale_mode == "log":
+                box_aspect = A * self.get_data_ratio_log()
+            else:
+                box_aspect = A * self.get_data_ratio()
             pb = position.frozen()
             pb1 = pb.shrunk_to_aspect(box_aspect, pb, fig_aspect)
             self.set_position(pb1.anchored(self.get_anchor(), pb), 'active')
