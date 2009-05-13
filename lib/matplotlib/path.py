@@ -118,7 +118,10 @@ class Path(object):
                                 (len(vertices) >= 128 and
                                  (codes is None or np.all(codes <= Path.LINETO))))
         self.simplify_threshold = rcParams['path.simplify_threshold']
-        self.has_nonfinite = not np.isfinite(vertices).all()
+        # The following operation takes most of the time in this
+        # initialization, and it does not appear to be used anywhere;
+        # if it is occasionally needed, it could be made a property.
+        #self.has_nonfinite = not np.isfinite(vertices).all()
         self.codes = codes
         self.vertices = vertices
 

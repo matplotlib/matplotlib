@@ -440,11 +440,21 @@ class Line2D(Artist):
         self._x = self._xy[:, 0] # just a view
         self._y = self._xy[:, 1] # just a view
 
-        # Masked arrays are now handled by the Path class itself
+        self._subslice = False
+        if len(x) > 100 and self._is_sorted(x):
+            self._subslice = True
         self._path = Path(self._xy)
-        self._transformed_path = TransformedPath(self._path, self.get_transform())
-
+        self._transformed_path = None
         self._invalid = False
+
+    def _transform_path(self, subslice=None):
+        # Masked arrays are now handled by the Path class itself
+        if subslice is not None:
+            _path = Path(self._xy[subslice,:])
+        else:
+            _path = self._path
+        self._transformed_path = TransformedPath(_path, self.get_transform())
+
 
     def set_transform(self, t):
         """
@@ -454,7 +464,6 @@ class Line2D(Artist):
         """
         Artist.set_transform(self, t)
         self._invalid = True
-        # self._transformed_path = TransformedPath(self._path, self.get_transform())
 
     def _is_sorted(self, x):
         "return true if x is sorted"
@@ -465,7 +474,15 @@ class Line2D(Artist):
     def draw(self, renderer):
         if self._invalid:
             self.recache()
-
+        if self._subslice:
+            # Need to handle monotonically decreasing case also...
+            x0, x1 = self.axes.get_xbound()
+            i0, = self._x.searchsorted([x0], 'left')
+            i1, = self._x.searchsorted([x1], 'right')
+            subslice = slice(max(i0-1, 0), i1+1)
+            self._transform_path(subslice)
+        if self._transformed_path is None:
+            self._transform_path()
         renderer.open_group('line2d', self.get_gid())
 
         if not self._visible: return

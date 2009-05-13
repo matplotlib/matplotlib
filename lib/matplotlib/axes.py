@@ -765,7 +765,10 @@ class Axes(martist.Artist):
                 self.xaxis.get_transform(), self.yaxis.get_transform()))
         if hasattr(self, "lines"):
             for line in self.lines:
-                line._transformed_path.invalidate()
+                try:
+                    line._transformed_path.invalidate()
+                except AttributeError:
+                    pass
 
     def get_position(self, original=False):
         'Return the a copy of the axes rectangle as a Bbox'
