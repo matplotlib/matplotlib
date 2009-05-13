@@ -1,4 +1,11 @@
 ======================================================================
+2009-05-13 When the x-coordinate of a line is monotonically
+           increasing, it is now automatically clipped at
+           the stage of generating the transformed path in
+           the draw method; this greatly speeds up zooming and
+           panning when one is looking at a short segment of
+           a long time series, for example. - EF
+
 2009-05-11 aspect=1 in log-log plot gives square decades.
 
 2009-05-08 clabel takes new kwarg, rightside_up; if False, labels
