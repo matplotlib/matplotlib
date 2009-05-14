@@ -33,7 +33,7 @@ from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
-from matplotlib.transforms import Bbox
+from matplotlib.transforms import Bbox, BboxBase
 
 from _backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
@@ -65,7 +65,6 @@ class RendererAgg(RendererBase):
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.draw_image = self._renderer.draw_image
         self.copy_from_bbox = self._renderer.copy_from_bbox
-        self.restore_region = self._renderer.restore_region
         self.tostring_rgba_minimized = self._renderer.tostring_rgba_minimized
         self.mathtext_parser = MathTextParser('Agg')
 
@@ -239,6 +238,38 @@ class RendererAgg(RendererBase):
         # with the Agg backend
         return True
 
+    def restore_region(self, region, bbox=None, xy=None):
+        """
+        restore the saved region. if bbox (instance of BboxBase, or
+        its extents) is given, only the region specified by the bbox
+        will be restored. *xy* (a tuple of two floasts) optionally
+        specify the new position (of the LLC of the originally region,
+        not the LLC of the bbox) that the region will be restored.
+
+        >>> region = renderer.copy_from_bbox()
+        >>> x1, y1, x2, y2 = region.get_extents()
+        >>> renderer.restore_region(region, bbox=(x1+dx, y1, x2, y2),
+                                    xy=(x1-dx, y1))
+        
+        """
+        if bbox is not None or xy is not None:
+            if bbox is None:
+                x1, y1, x2, y2 = region.get_extents()
+            elif isinstance(bbox, BboxBase):
+                x1, y1, x2, y2 = bbox.extents
+            else:
+                x1, y1, x2, y2 = bbox
+
+            if xy is None:
+                ox, oy = x1, y1
+            else:
+                ox, oy = xy
+
+            self._renderer.restore_region2(region, x1, y1, x2, y2, ox, oy)
+
+        else:
+            self._renderer.restore_region(region)
+
 
 def new_figure_manager(num, *args, **kwargs):
     """
@@ -269,9 +300,9 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer = self.get_renderer()
         return renderer.copy_from_bbox(bbox)
 
-    def restore_region(self, region):
+    def restore_region(self, region, bbox=None, xy=None):
         renderer = self.get_renderer()
-        return renderer.restore_region(region)
+        return renderer.restore_region(region, bbox, xy)
 
     def draw(self):
         """
@@ -334,3 +365,4 @@ class FigureCanvasAgg(FigureCanvasBase):
                        renderer.width, renderer.height,
                        filename_or_obj, self.figure.dpi)
         renderer.dpi = original_dpi
+

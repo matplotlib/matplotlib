@@ -1,4 +1,7 @@
 ======================================================================
+2009-05-13 An optional offset and bbox support in restore_bbox. 
+           Add animation_blit_gtk2.py. -JJL
+
 2009-05-13 psfrag in backend_ps now uses baseline-alignment 
            when preview.sty is used ((default is
            bottom-alignment). Also, a small api imporvement 

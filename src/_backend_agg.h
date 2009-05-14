@@ -87,6 +87,8 @@ public:
   Py::Object set_x(const Py::Tuple &args);
   Py::Object set_y(const Py::Tuple &args);
 
+  Py::Object get_extents(const Py::Tuple &args);
+
   Py::Object to_string(const Py::Tuple &args);
   Py::Object to_string_argb(const Py::Tuple &args);
   static void init_type(void);
@@ -174,6 +176,7 @@ public:
 
   Py::Object copy_from_bbox(const Py::Tuple & args);
   Py::Object restore_region(const Py::Tuple & args);
+  Py::Object restore_region2(const Py::Tuple & args);
 
   virtual ~RendererAgg();
 
