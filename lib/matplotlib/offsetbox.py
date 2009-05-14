@@ -782,11 +782,14 @@ class AnchoredOffsetbox(OffsetBox):
     explicitly specify the bbox_to_anchor.
     """
 
+    zorder = 5 # zorder of the legend
+
     def __init__(self, loc,
                  pad=0.4, borderpad=0.5,
                  child=None, prop=None, frameon=True,
                  bbox_to_anchor=None,
-                 bbox_transform=None):
+                 bbox_transform=None,
+                 **kwargs):
         """
         loc is a string or an integer specifying the legend location.
         The valid  location codes are::
@@ -819,7 +822,7 @@ class AnchoredOffsetbox(OffsetBox):
 
         """
 
-        super(AnchoredOffsetbox, self).__init__()
+        super(AnchoredOffsetbox, self).__init__(**kwargs)
 
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
         self.set_child(child)
