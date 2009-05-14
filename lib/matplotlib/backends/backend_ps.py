@@ -537,8 +537,6 @@ grestore
         """
         w, h, bl = self.get_text_width_height_descent(s, prop, ismath)
         fontsize = prop.get_size_in_points()
-        corr = 0#w/2*(fontsize-10)/10
-        pos = _nums_to_str(x-corr, y)
         thetext = 'psmarker%d' % self.textcnt
         color = '%1.3f,%1.3f,%1.3f'% gc.get_rgb()[:3]
         fontcmd = {'sans-serif' : r'{\sffamily %s}',
@@ -546,7 +544,17 @@ grestore
                 rcParams['font.family'], r'{\rmfamily %s}')
         s = fontcmd % s
         tex = r'\color[rgb]{%s} %s' % (color, s)
-        self.psfrag.append(r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}'%(thetext, angle, fontsize, fontsize*1.25, tex))
+
+        corr = 0#w/2*(fontsize-10)/10
+        if rcParams['text.latex.preview']:
+            # use baseline alignment!
+            pos = _nums_to_str(x-corr, y+bl)
+            self.psfrag.append(r'\psfrag{%s}[Bl][Bl][1][%f]{\fontsize{%f}{%f}%s}'%(thetext, angle, fontsize, fontsize*1.25, tex))
+        else:
+            # stick to the bottom alignment, but this may give incorrect baseline some times.
+            pos = _nums_to_str(x-corr, y)
+            self.psfrag.append(r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}'%(thetext, angle, fontsize, fontsize*1.25, tex))
+
         ps = """\
 gsave
 %(pos)s moveto
