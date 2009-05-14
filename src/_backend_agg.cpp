@@ -104,6 +104,18 @@ Py::Object BufferRegion::set_y(const Py::Tuple &args) {
     return Py::Object();
 }
 
+Py::Object BufferRegion::get_extents(const Py::Tuple &args) {
+    args.verify_length(0);
+
+    Py::Tuple extents(4);
+    extents[0] = Py::Int(rect.x1);
+    extents[1] = Py::Int(rect.y1);
+    extents[2] = Py::Int(rect.x2);
+    extents[3] = Py::Int(rect.y2);
+
+    return extents;
+}
+
 Py::Object BufferRegion::to_string_argb(const Py::Tuple &args) {
   // owned=true to prevent memory leak
   Py_ssize_t length;
@@ -425,6 +437,49 @@ RendererAgg::restore_region(const Py::Tuple& args) {
 
   return Py::Object();
 }
+
+// Restore the part of the saved region with offsets
+Py::Object
+RendererAgg::restore_region2(const Py::Tuple& args) {
+  //copy BufferRegion to buffer
+  args.verify_length(7);
+
+
+
+  int x(0),y(0), xx1(0),yy1(0), xx2(0), yy2(0);
+  try {
+    xx1 = Py::Int( args[1] );
+    yy1 = Py::Int( args[2] );
+    xx2 = Py::Int( args[3] );
+    yy2 = Py::Int( args[4] );
+    x = Py::Int( args[5] );
+    y = Py::Int( args[6] );
+  }
+  catch (Py::TypeError) {
+    throw Py::TypeError("Invalid input arguments to draw_text_image");
+  }
+
+
+  BufferRegion* region  = static_cast<BufferRegion*>(args[0].ptr());
+
+  if (region->data==NULL)
+    throw Py::ValueError("Cannot restore_region from NULL data");
+
+  agg::rect_i rect(xx1-region->rect.x1, (yy1-region->rect.y1), 
+		   xx2-region->rect.x1, (yy2-region->rect.y1));
+
+
+  agg::rendering_buffer rbuf;
+  rbuf.attach(region->data,
+	      region->width,
+	      region->height,
+	      region->stride);
+
+  rendererBase.copy_from(rbuf, &rect, x, y);
+
+  return Py::Object();
+}
+
 
 bool RendererAgg::render_clippath(const Py::Object& clippath, const agg::trans_affine& clippath_trans) {
   typedef agg::conv_transform<PathIterator> transformed_path_t;
@@ -1717,6 +1772,9 @@ void BufferRegion::init_type() {
   add_varargs_method("set_y", &BufferRegion::set_y,
 		     "set_y(y)");
 
+  add_varargs_method("get_extents", &BufferRegion::get_extents,
+		     "get_extents()");
+
   add_varargs_method("to_string", &BufferRegion::to_string,
 		     "to_string()");
   add_varargs_method("to_string_argb", &BufferRegion::to_string_argb,
@@ -1759,6 +1817,8 @@ void RendererAgg::init_type()
  		     "copy_from_bbox(bbox)");
   add_varargs_method("restore_region", &RendererAgg::restore_region,
  		     "restore_region(region)");
+  add_varargs_method("restore_region2", &RendererAgg::restore_region2,
+ 		     "restore_region(region, x1, y1, x2, y2, x3, y3)");
 }
 
 extern "C"
