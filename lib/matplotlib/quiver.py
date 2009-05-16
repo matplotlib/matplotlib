@@ -388,9 +388,9 @@ class Quiver(collections.PolyCollection):
         X, Y, U, V, C = [None]*5
         args = list(args)
         if len(args) == 3 or len(args) == 5:
-            C = ma.asarray(args.pop(-1))
-        V = ma.asarray(args.pop(-1))
-        U = ma.asarray(args.pop(-1))
+            C = ma.masked_invalid(args.pop(-1), copy=False)
+        V = ma.masked_invalid(args.pop(-1), copy=False)
+        U = ma.masked_invalid(args.pop(-1), copy=False)
         if U.ndim == 1:
             nr, nc = 1, U.shape[0]
         else:
@@ -483,7 +483,8 @@ class Quiver(collections.PolyCollection):
         elif self.angles == 'uv':
             theta = np.angle(uv.filled(0))
         else:
-            theta = ma.asarray(self.angles).filled(0)*np.pi/180.0
+            theta = ma.masked_invalid(self.angles, copy=False).filled(0)
+            theta *= (np.pi/180.0)
         theta.shape = (theta.shape[0], 1) # for broadcasting
         xy = (X+Y*1j) * np.exp(1j*theta)*self.width
         xy = xy[:,:,np.newaxis]
@@ -919,9 +920,9 @@ class Barbs(collections.PolyCollection):
         X, Y, U, V, C = [None]*5
         args = list(args)
         if len(args) == 3 or len(args) == 5:
-            C = ma.asarray(args.pop(-1)).ravel()
-        V = ma.asarray(args.pop(-1))
-        U = ma.asarray(args.pop(-1))
+            C = ma.masked_invalid(args.pop(-1), copy=False).ravel()
+        V = ma.masked_invalid(args.pop(-1), copy=False)
+        U = ma.masked_invalid(args.pop(-1), copy=False)
         nn = np.shape(U)
         nc = nn[0]
         nr = 1
@@ -937,10 +938,10 @@ class Barbs(collections.PolyCollection):
         return X, Y, U, V, C
 
     def set_UVC(self, U, V, C=None):
-        self.u = ma.asarray(U).ravel()
-        self.v = ma.asarray(V).ravel()
+        self.u = ma.masked_invalid(U, copy=False).ravel()
+        self.v = ma.masked_invalid(V, copy=False).ravel()
         if C is not None:
-            c = ma.asarray(C).ravel()
+            c = ma.masked_invalid(C, copy=False).ravel()
             x,y,u,v,c = delete_masked_points(self.x.ravel(), self.y.ravel(),
                 self.u, self.v, c)
         else:
