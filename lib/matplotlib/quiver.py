@@ -479,11 +479,12 @@ class Quiver(collections.PolyCollection):
         length = a/(self.scale*self.width)
         X, Y = self._h_arrows(length)
         if self.angles == 'xy':
-            theta = self._angles(U, V).filled(0)[:,np.newaxis]
+            theta = self._angles(U, V).filled(0)
         elif self.angles == 'uv':
-            theta = np.angle(ma.asarray(uv[..., np.newaxis]).filled(0))
+            theta = np.angle(uv.filled(0))
         else:
-            theta = ma.asarray(self.angles*np.pi/180.0).filled(0)
+            theta = ma.asarray(self.angles).filled(0)*np.pi/180.0
+        theta.shape = (theta.shape[0], 1) # for broadcasting
         xy = (X+Y*1j) * np.exp(1j*theta)*self.width
         xy = xy[:,:,np.newaxis]
         XY = ma.concatenate((xy.real, xy.imag), axis=2)
