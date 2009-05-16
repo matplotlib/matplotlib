@@ -3512,13 +3512,13 @@ class Axes(martist.Artist):
         may be necessary to set the formatters/locators after the call
         to :meth:`plot_date` since :meth:`plot_date` will set the
         default tick locator to
-        :class:`matplotlib.ticker.AutoDateLocator` (if the tick
+        :class:`matplotlib.dates.AutoDateLocator` (if the tick
         locator is not already set to a
-        :class:`matplotlib.ticker.DateLocator` instance) and the
+        :class:`matplotlib.dates.DateLocator` instance) and the
         default tick formatter to
-        :class:`matplotlib.ticker.AutoDateFormatter` (if the tick
+        :class:`matplotlib.dates.AutoDateFormatter` (if the tick
         formatter is not already set to a
-        :class:`matplotlib.ticker.DateFormatter` instance).
+        :class:`matplotlib.dates.DateFormatter` instance).
 
         Valid kwargs are :class:`~matplotlib.lines.Line2D` properties:
 
