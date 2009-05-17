@@ -1,8 +1,8 @@
 ======================================================================
-2009-05-04 Fix bug that Text.Annotation is still drawn while set to 
-           not visible.-JJL
+2008-05-17 Release 0.98.5.3 at r7105
 
-2008-04-12 Release 0.98.5.3 at r7038
+2009-05-04 Fix bug that Text.Annotation is still drawn while set to
+           not visible.-JJL
 
 2009-04-06 The pdf backend now escapes newlines and linefeeds in strings.
            Fixes sf bug #2708559; thanks to Tiago Pereira for the report.
@@ -11,7 +11,7 @@
            create an output file. Thanks to Joao Luis Silva for reporting
            this. - JKS
 
-2009-04-05 _png.read_png() reads 12 bit PNGs (patch from 
+2009-04-05 _png.read_png() reads 12 bit PNGs (patch from
            Tobias Wood) - ADS
 
 2009-03-17 Fix bugs in edge color handling by contourf, found
