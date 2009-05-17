@@ -1137,10 +1137,11 @@ class Axes(martist.Artist):
             aspect_scale_mode = "log"
         elif (xscale == "linear" and yscale == "log") or \
                  (xscale == "log" and yscale == "linear"):
-            warnings.warn(
-                'aspect is not supported for Axes with xscale=%s, yscale=%s' \
-                % (xscale, yscale))
-            aspect = "auto"
+            if aspect is not "auto":
+                warnings.warn(
+                    'aspect is not supported for Axes with xscale=%s, yscale=%s' \
+                    % (xscale, yscale))
+                aspect = "auto"
         else: # some custom projections have their own scales.
             pass
 
