@@ -51,19 +51,11 @@ class RendererMac(RendererBase):
     def draw_path(self, gc, path, transform, rgbFace=None):
         if rgbFace is not None:
             rgbFace = tuple(rgbFace)
-        if gc!=self.gc:
-            n = self.gc.level() - gc.level()
-            for i in range(n): self.gc.restore()
-            self.gc = gc
         gc.draw_path(path, transform, rgbFace)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         if rgbFace is not None:
             rgbFace = tuple(rgbFace)
-        if gc!=self.gc:
-            n = self.gc.level() - gc.level()
-            for i in range(n): self.gc.restore()
-            self.gc = gc
         gc.draw_markers(marker_path, marker_trans, path, trans, rgbFace)
 
     def draw_path_collection(self, *args):
@@ -76,7 +68,7 @@ class RendererMac(RendererBase):
         gc.draw_quad_mesh(*args)
 
     def new_gc(self):
-        self.gc.reset()
+        self.gc.save()
         self.gc.set_hatch(None)
         return self.gc
 
@@ -87,10 +79,6 @@ class RendererMac(RendererBase):
         im.flipud_out()
     
     def draw_tex(self, gc, x, y, s, prop, angle):
-        if gc!=self.gc:
-            n = self.gc.level() - gc.level()
-            for i in range(n): self.gc.restore()
-            self.gc = gc
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
         texmanager = self.get_texmanager()
@@ -103,19 +91,11 @@ class RendererMac(RendererBase):
         gc.draw_mathtext(x, y, angle, Z)
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
-        if gc!=self.gc:
-            n = self.gc.level() - gc.level()
-            for i in range(n): self.gc.restore()
-            self.gc = gc
         ox, oy, width, height, descent, image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
         gc.draw_mathtext(x, y, angle, 255 - image.as_array())
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
-        if gc!=self.gc:
-            n = self.gc.level() - gc.level()
-            for i in range(n): self.gc.restore()
-            self.gc = gc
         if ismath:
            self._draw_mathtext(gc, x, y, s, prop, angle)
         else:

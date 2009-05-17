@@ -507,6 +507,7 @@ class Text(Artist):
                                self._fontproperties, angle,
                                ismath=ismath)
 
+        gc.restore()
         renderer.close_group('text')
 
     def get_color(self):

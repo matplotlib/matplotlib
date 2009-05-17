@@ -540,7 +540,9 @@ class Line2D(Artist):
 
                     markerFunc = getattr(self, funcname)
                     markerFunc(renderer, gc, subsampled, affine.frozen())
+            gc.restore()
 
+        gc.restore()
         renderer.close_group('line2d')
 
     def get_antialiased(self): return self._antialiased

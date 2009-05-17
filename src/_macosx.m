@@ -374,6 +374,7 @@ typedef struct {
     PyObject_HEAD
     CGContextRef cr;
     NSSize size;
+    int level;
 } GraphicsContext;
 
 static CGMutablePathRef _create_path(void* iterator)
@@ -437,6 +438,7 @@ GraphicsContext_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
     GraphicsContext* self = (GraphicsContext*)type->tp_alloc(type, 0);
     if (!self) return NULL;
     self->cr = NULL;
+    self->level = 0;
 
     if (ngc==0)
     {
@@ -467,7 +469,7 @@ GraphicsContext_repr(GraphicsContext* self)
 }
 
 static PyObject*
-GraphicsContext_reset (GraphicsContext* self)
+GraphicsContext_save (GraphicsContext* self)
 {
     CGContextRef cr = self->cr;
     if (!cr)
@@ -475,9 +477,29 @@ GraphicsContext_reset (GraphicsContext* self)
         PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
         return NULL;
     }
-
-    CGContextRestoreGState(cr);
     CGContextSaveGState(cr);
+    self->level++;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject*
+GraphicsContext_restore (GraphicsContext* self)
+{
+    CGContextRef cr = self->cr;
+    if (!cr)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
+        return NULL;
+    }
+    if (self->level==0)
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+            "Attempting to execute CGContextRestoreGState on an empty stack");
+        return NULL;
+    }
+    CGContextRestoreGState(cr);
+    self->level--;
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1543,11 +1565,15 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
             const double b = *(double*)PyArray_GETPTR2(facecolors, fi, 2);
             const double a = *(double*)PyArray_GETPTR2(facecolors, fi, 3);
             CGContextSetRGBFillColor(cr, r, g, b, a);
-            CGContextDrawPath(cr, kCGPathFillStroke);
+            if (Nedgecolors > 0) CGContextDrawPath(cr, kCGPathFillStroke);
+            else CGContextFillPath(cr);
         }
         else if (Nfacecolors==1)
-            CGContextDrawPath(cr, kCGPathFillStroke);
-        else
+        {
+            if (Nedgecolors > 0) CGContextDrawPath(cr, kCGPathFillStroke);
+            else CGContextFillPath(cr);
+        }
+        else /* We checked Nedgecolors != 0 above */
             CGContextStrokePath(cr);
         CGContextRestoreGState(cr);
     }
@@ -2480,10 +2506,15 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
 
 
 static PyMethodDef GraphicsContext_methods[] = {
-    {"reset",
-     (PyCFunction)GraphicsContext_reset,
+    {"save",
+     (PyCFunction)GraphicsContext_save,
      METH_NOARGS,
-     "Resets the current graphics context by restoring it from the stack and copying it back onto the stack."
+     "Saves the current graphics context onto the stack."
+    },
+    {"restore",
+     (PyCFunction)GraphicsContext_restore,
+     METH_NOARGS,
+     "Restores the current graphics context from the stack."
     },
     {"get_text_width_height_descent",
      (PyCFunction)GraphicsContext_get_text_width_height_descent,
@@ -4293,9 +4324,7 @@ show(PyObject* self)
 
     CGContextRef cr = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
     gc->cr = cr;
-
-    CGContextSaveGState(cr);
-    CGContextSetTextMatrix(cr, CGAffineTransformIdentity);
+    gc->level = 0;
 
     result = PyObject_CallMethod(figure, "draw", "O", renderer);
     if(result)
@@ -4303,7 +4332,6 @@ show(PyObject* self)
     else
         PyErr_Print();
 
-    CGContextRestoreGState(cr);
     gc->cr = nil;
 
     if (!NSIsEmptyRect(rubberband)) NSFrameRect(rubberband);

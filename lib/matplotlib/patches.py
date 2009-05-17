@@ -302,6 +302,7 @@ class Patch(artist.Artist):
 
         renderer.draw_path(gc, tpath, affine, rgbFace)
 
+        gc.restore()
         renderer.close_group('patch')
 
     def get_path(self):
@@ -3705,4 +3706,5 @@ class FancyArrowPatch(Patch):
                 renderer.draw_path(gc, p, affine, None)
 
 
+        gc.restore()
         renderer.close_group('patch')

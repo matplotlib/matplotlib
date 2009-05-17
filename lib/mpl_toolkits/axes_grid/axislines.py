@@ -65,6 +65,7 @@ class BezierPath(mlines.Line2D):
             lineFunc = getattr(self, funcname)
             lineFunc(renderer, gc, tpath, affine.frozen())
 
+        gc.restore()
         renderer.close_group('line2d')
 
 
@@ -548,6 +549,7 @@ class Ticks(Line2D):
             renderer.draw_markers(gc, self._tickvert_path, marker_transform,
                                   Path(locs), path_trans.get_affine())
 
+        gc.restore()
 
 
 
