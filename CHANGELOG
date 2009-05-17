@@ -1,3 +1,6 @@
+2009-05-17 Fix bug(#2749174) that some properties of minor ticks are
+           not conserved -JJL
+
 ======================================================================
 2008-05-17 Release 0.98.5.3 at r7107
 
