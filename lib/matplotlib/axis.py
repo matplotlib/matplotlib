@@ -1325,8 +1325,12 @@ class XAxis(Axis):
         assert position in ('top', 'bottom', 'both', 'default', 'none')
 
 
-        ticks = list( self.get_major_ticks() )  # a copy
-        ticks.extend( self.get_minor_ticks() )
+        # The first ticks of major & minor ticks should always be
+        # included, otherwise, the information can be lost. Thus, use
+        # majorTicks instead of get_major_ticks() which may return
+        # empty list.
+        ticks = list( self.majorTicks ) # a copy
+        ticks.extend( self.minorTicks )
 
         if position == 'top':
             for t in ticks:
@@ -1566,8 +1570,12 @@ class YAxis(Axis):
         """
         assert position in ('left', 'right', 'both', 'default', 'none')
 
-        ticks = list( self.get_major_ticks() ) # a copy
-        ticks.extend( self.get_minor_ticks() )
+        # The first ticks of major & minor ticks should always be
+        # included, otherwise, the information can be lost. Thus, use
+        # majorTicks instead of get_major_ticks() which may return
+        # empty list.
+        ticks = list( self.majorTicks ) # a copy
+        ticks.extend( self.minorTicks )
 
         if position == 'right':
             self.set_offset_position('right')

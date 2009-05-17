@@ -1,3 +1,6 @@
+2009-05-17 Fix bug(#2749174) that some properties of minor ticks are
+           not conserved -JJL
+
 2009-05-17 applied Michiel's sf patch 2790638 to turn off gtk event
            loop in setupext for pygtk>=2.15.10 - JDH
 
