@@ -1,5 +1,9 @@
-2009-05-19 applied Michiel's sf patch 2792742 to speed up Cairo and
-           macosx collections; speedups can be 20x
+2009-05-17 applied Michiel's sf patch 2790638 to turn off gtk event
+           loop in setupext for pygtk>=2.15.10 - JDH
+
+2009-05-17 applied Michiel's sf patch 2792742 to speed up Cairo and
+           macosx collections; speedups can be 20x.  Also fixes some
+           bugs in which gc got into inconsistent state
 
 ======================================================================
 
