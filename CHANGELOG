@@ -1,10 +1,12 @@
 ======================================================================
-2009-05-13 An optional offset and bbox support in restore_bbox. 
+2008-05-17 Release 0.98.5.3 at r7107 from the branch - JDH
+
+2009-05-13 An optional offset and bbox support in restore_bbox.
            Add animation_blit_gtk2.py. -JJL
 
-2009-05-13 psfrag in backend_ps now uses baseline-alignment 
+2009-05-13 psfrag in backend_ps now uses baseline-alignment
            when preview.sty is used ((default is
-           bottom-alignment). Also, a small api imporvement 
+           bottom-alignment). Also, a small api imporvement
            in OffsetBox-JJL
 
 2009-05-13 When the x-coordinate of a line is monotonically
