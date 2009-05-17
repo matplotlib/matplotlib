@@ -595,6 +595,13 @@ def check_for_gtk():
     if explanation is not None:
         print_message(explanation)
 
+    # Switch off the event loop for PyGTK >= 2.15.0
+    if gotit:
+        try:
+            gtk.set_interactive(False)
+        except AttributeError: # PyGTK < 2.15.0
+            pass
+
     return gotit
 
 def add_pygtk_flags(module):
@@ -842,6 +849,7 @@ def query_tcltk():
         tk.withdraw()
         tcl_lib_dir = str(tk.getvar('tcl_library'))
         tk_lib_dir = str(tk.getvar('tk_library'))
+        tk.destroy()
 
     # Save directories and version string to cache
     TCL_TK_CACHE = tcl_lib_dir, tk_lib_dir, str(Tkinter.TkVersion)[:3]
