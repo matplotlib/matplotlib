@@ -277,6 +277,7 @@ class RendererBase:
                 gc.set_url(urls[i % Nurls])
 
             yield xo, yo, path_id, gc, rgbFace
+        gc.restore()
 
     def get_image_magnification(self):
         """
@@ -458,6 +459,13 @@ class GraphicsContextBase:
         self._hatch = gc._hatch
         self._url = gc._url
         self._snap = gc._snap
+
+    def restore(self):
+        """
+        Restore the graphics context from the stack - needed only
+        for backends that save graphics contexts on a stack
+        """
+        pass
 
     def get_alpha(self):
         """

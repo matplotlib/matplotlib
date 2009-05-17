@@ -1,4 +1,8 @@
+2009-05-19 applied Michiel's sf patch 2792742 to speed up Cairo and
+           macosx collections; speedups can be 20x
+
 ======================================================================
+
 2008-05-17 Release 0.98.5.3 at r7107 from the branch - JDH
 
 2009-05-13 An optional offset and bbox support in restore_bbox.

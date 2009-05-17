@@ -91,13 +91,13 @@ class RendererCairo(RendererBase):
         """
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         self.dpi = dpi
+        self.gc = GraphicsContextCairo (renderer=self)
         self.text_ctx = cairo.Context (
            cairo.ImageSurface (cairo.FORMAT_ARGB32,1,1))
         self.mathtext_parser = MathTextParser('Cairo')
 
     def set_ctx_from_surface (self, surface):
-        self.ctx = cairo.Context (surface)
-        self.ctx.save() # restore, save  - when call new_gc()
+        self.gc.ctx = cairo.Context (surface)
 
 
     def set_width_height(self, width, height):
@@ -108,22 +108,6 @@ class RendererCairo(RendererBase):
         # - problem with text? - will need to switch matrix_flipy off, or do a
         # font transform?
 
-
-    def _do_clip(self, ctx, cliprect, clippath):
-        if cliprect is not None:
-            x,y,w,h = cliprect.bounds
-            # pixel-aligned clip-regions are faster
-            x,y,w,h = round(x), round(y), round(w), round(h)
-            ctx.new_path()
-            ctx.rectangle (x, self.height - h - y, w, h)
-            ctx.clip ()
-
-        if clippath is not None:
-            tpath, affine = clippath.get_transformed_path_and_affine()
-            ctx.new_path()
-            affine = affine + Affine2D().scale(1.0, -1.0).translate(0.0, self.height)
-            RendererCairo.convert_path(ctx, tpath, affine)
-            ctx.clip()
 
     def _fill_and_stroke (self, ctx, fill_c, alpha):
         if fill_c is not None:
@@ -158,8 +142,6 @@ class RendererCairo(RendererBase):
            raise ValueError("The Cairo backend can not draw paths longer than 18980 points.")
 
         ctx = gc.ctx
-        ctx.save()
-        self._do_clip(ctx, gc._cliprect, gc._clippath)
 
         transform = transform + \
             Affine2D().scale(1.0, -1.0).translate(0, self.height)
@@ -168,7 +150,6 @@ class RendererCairo(RendererBase):
         self.convert_path(ctx, path, transform)
 
         self._fill_and_stroke(ctx, rgbFace, gc.get_alpha())
-        ctx.restore()
 
     def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         # bbox - not currently used
@@ -180,7 +161,7 @@ class RendererCairo(RendererBase):
         surface = cairo.ImageSurface.create_for_data (
                       buf, cairo.FORMAT_ARGB32, cols, rows, cols*4)
         # function does not pass a 'gc' so use renderer.ctx
-        ctx = self.ctx
+        ctx = self.gc.ctx
         ctx.save()
         if clippath is not None:
             ctx.new_path()
@@ -297,9 +278,8 @@ class RendererCairo(RendererBase):
 
     def new_gc(self):
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
-        self.ctx.restore()  # matches save() in set_ctx_from_surface()
-        self.ctx.save()
-        return GraphicsContextCairo (renderer=self)
+        self.gc.ctx.save()
+        return self.gc
 
 
     def points_to_pixels(self, points):
@@ -324,7 +304,10 @@ class GraphicsContextCairo(GraphicsContextBase):
     def __init__(self, renderer):
         GraphicsContextBase.__init__(self)
         self.renderer = renderer
-        self.ctx = renderer.ctx
+
+
+    def restore(self):
+        self.ctx.restore()
 
 
     def set_alpha(self, alpha):
@@ -346,10 +329,23 @@ class GraphicsContextCairo(GraphicsContextBase):
 
 
     def set_clip_rectangle(self, rectangle):
-        self._cliprect = rectangle
+        if not rectangle: return
+        x,y,w,h = rectangle.bounds
+        # pixel-aligned clip-regions are faster
+        x,y,w,h = round(x), round(y), round(w), round(h)
+        ctx = self.ctx
+        ctx.new_path()
+        ctx.rectangle (x, self.renderer.height - h - y, w, h)
+        ctx.clip ()
 
     def set_clip_path(self, path):
-        self._clippath = path
+        if not path: return
+        tpath, affine = path.get_transformed_path_and_affine()
+        ctx = self.ctx
+        ctx.new_path()
+        affine = affine + Affine2D().scale(1.0, -1.0).translate(0.0, self.renderer.height)
+        RendererCairo.convert_path(ctx, tpath, affine)
+        ctx.clip()
 
     def set_dashes(self, offset, dashes):
         self._dashes = offset, dashes
@@ -468,7 +464,7 @@ class FigureCanvasCairo (FigureCanvasBase):
         renderer = RendererCairo (self.figure.dpi)
         renderer.set_width_height (width_in_points, height_in_points)
         renderer.set_ctx_from_surface (surface)
-        ctx = renderer.ctx
+        ctx = renderer.gc.ctx
 
         if orientation == 'landscape':
             ctx.rotate (npy.pi/2)
