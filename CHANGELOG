@@ -1,3 +1,7 @@
+2009-05-18 Add *annotation_clip* attr. for text.Annotation class.
+           If True, annotation is only drawn when the annotated point is
+           inside the axes area. -JJL
+
 2009-05-17 Fix bug(#2749174) that some properties of minor ticks are
            not conserved -JJL
 

@@ -81,6 +81,14 @@ class Patch(artist.Artist):
             (mouseevent.x, mouseevent.y), self.get_transform())
         return inside, {}
 
+    def contains_point(self, point):
+        """
+        Returns *True* if the given point is inside the path
+        (transformed with its transform attribute).
+        """
+        return self.get_path().contains_point(point,
+                                              self.get_transform())
+
     def update_from(self, other):
         """
         Updates this :class:`Patch` from the properties of *other*.
