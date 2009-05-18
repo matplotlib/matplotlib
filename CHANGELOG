@@ -1,4 +1,7 @@
-2009-05-18 Fix the linespacing bug of multiline text (#1239682). See 
+2009-05-18 Make psd(), csd(), and cohere() wrap properly for complex/two-sided
+           versions, like specgram() (SF #2791686) - RMM
+
+2009-05-18 Fix the linespacing bug of multiline text (#1239682). See
            examples/pylab_examples/multiline.py -JJL
 
 2009-05-18 Add *annotation_clip* attr. for text.Annotation class.

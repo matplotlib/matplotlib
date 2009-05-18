@@ -327,6 +327,11 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     t = 1./Fs * (ind + NFFT / 2.)
     freqs = float(Fs) / pad_to * np.arange(numFreqs)
 
+    if (np.iscomplexobj(x) and sides == 'default') or sides == 'twosided':
+        # center the frequency range at zero
+        freqs = np.concatenate((freqs[numFreqs//2:] - Fs, freqs[:numFreqs//2]))
+        Pxy = np.concatenate((Pxy[numFreqs//2:, :], Pxy[:numFreqs//2, :]), 0)
+
     return Pxy, freqs, t
 
 #Split out these keyword docs so that they can be used elsewhere
@@ -484,11 +489,6 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     Pxx, freqs, t = _spectral_helper(x, x, NFFT, Fs, detrend, window,
         noverlap, pad_to, sides, scale_by_freq)
     Pxx = Pxx.real #Needed since helper implements generically
-
-    if (np.iscomplexobj(x) and sides == 'default') or sides == 'twosided':
-        # center the frequency range at zero
-        freqs = np.concatenate((freqs[NFFT/2:]-Fs,freqs[:NFFT/2]))
-        Pxx   = np.concatenate((Pxx[NFFT/2:,:],Pxx[:NFFT/2,:]),0)
 
     return Pxx, freqs, t
 
