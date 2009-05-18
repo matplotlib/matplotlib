@@ -1408,6 +1408,8 @@ class Annotation(Text):
         else:
             self.arrow_patch = None
 
+        # if True, draw annotation only if self.xy is inside the axes
+        self._annotation_clip = None
 
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
@@ -1525,15 +1527,44 @@ class Annotation(Text):
             trans = self.axes.transAxes
             return trans.transform_point((x, y))
 
+    def set_annotation_clip(self, b):
+        """
+        set *annotation_clip* attribute.
+
+          * True : the annotation will only be drawn when self.xy is inside the axes.
+          * False : the annotation will always be drawn regardless of its position.
+          * None : the self.xy will be checked only if *xycoords* is "data"
+        """
+        self._annotation_clip = b
+
+    def get_annotation_clip(self):
+        """
+        Return *annotation_clip* attribute.
+        See :meth:`set_annotation_clip` for the meaning of return values.
+        """
+        return self._annotation_clip
+        
 
     def update_positions(self, renderer):
+        "Update the pixel positions of the annotated point and the text."
+        xy_pixel = self._get_position_xy(renderer)
+        self._update_position_xytext(renderer, xy_pixel)
+
+
+    def _get_position_xy(self, renderer):
+        "Return the pixel position of the the annotated point."
+        x, y = self.xy
+        return self._get_xy(x, y, self.xycoords)
+
+
+    def _update_position_xytext(self, renderer, xy_pixel):
+        "Update the pixel positions of the annotation text and the arrow patch."
 
         x, y = self.xytext
         self._x, self._y = self._get_xy(x, y, self.textcoords)
 
 
-        x, y = self.xy
-        x, y = self._get_xy(x, y, self.xycoords)
+        x, y = xy_pixel
 
         ox0, oy0 = self._x, self._y
         ox1, oy1 = x, y
@@ -1609,6 +1640,22 @@ class Annotation(Text):
 
                 self.arrow.set_clip_box(self.get_clip_box())
 
+
+    def _check_xy(self, renderer, xy_pixel):
+        """
+        given the xy pixel coordinate, check if the annotation need to
+        be drawn.
+        """
+
+        b = self.get_annotation_clip()
+        if b or (b is None and self.xycoords == "data"):
+            # check if self.xy is inside the axes.
+            if not self.axes.contains_point(xy_pixel):
+                return False
+
+        return True
+
+
     def draw(self, renderer):
         """
         Draw the :class:`Annotation` object to the given *renderer*.
@@ -1618,7 +1665,13 @@ class Annotation(Text):
             self._renderer = renderer
         if not self.get_visible(): return
 
-        self.update_positions(renderer)
+        xy_pixel = self._get_position_xy(renderer)
+
+        if not self._check_xy(renderer, xy_pixel):
+            return
+
+        self._update_position_xytext(renderer, xy_pixel)
+
         self.update_bbox_position_size(renderer)
 
         if self.arrow is not None:
