@@ -19,6 +19,12 @@ list may help describe what changes may be necessary in your code.
 
 Changes for 0.98.x
 ==================
+* psd(), csd(), and cohere() will now automatically wrap negative
+  frequency components to the beginning of the returned arrays.
+  This is much more sensible behavior and makes them consistent
+  with specgram().  The previous behavior was more of an oversight
+  than a design decision.
+
 * Added new keyword parameters *nonposx*, *nonposy* to
   :class:`matplotlib.axes.Axes` methods that set log scale
   parameters.  The default is still to mask out non-positive
