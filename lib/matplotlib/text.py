@@ -8,15 +8,15 @@ import numpy as np
 
 from matplotlib import cbook
 from matplotlib import rcParams
-import artist
-from artist import Artist
-from cbook import is_string_like, maxdict
-from font_manager import FontProperties
-from patches import bbox_artist, YAArrow, FancyBboxPatch, \
+import matplotlib.artist as artist
+from matplotlib.artist import Artist
+from matplotlib.cbook import is_string_like, maxdict
+from matplotlib.font_manager import FontProperties
+from matplotlib.patches import bbox_artist, YAArrow, FancyBboxPatch, \
      FancyArrowPatch, Rectangle
-import transforms as mtransforms
-from transforms import Affine2D, Bbox
-from lines import Line2D
+import matplotlib.transforms as mtransforms
+from matplotlib.transforms import Affine2D, Bbox
+from matplotlib.lines import Line2D
 
 import matplotlib.nxutils as nxutils
 
@@ -227,6 +227,11 @@ class Text(Artist):
         self._linespacing = other._linespacing
 
     def _get_layout(self, renderer):
+        """
+        return the extent (bbox) of the text together with
+        multile-alignment information. Note that it returns a extent
+        of a rotated text when necessary.
+        """
         key = self.get_prop_tup()
         if key in self.cached: return self.cached[key]
 
@@ -242,9 +247,9 @@ class Text(Artist):
 
         # Find full vertical extent of font,
         # including ascenders and descenders:
-        tmp, heightt, bl = renderer.get_text_width_height_descent(
+        tmp, lp_h, lp_bl = renderer.get_text_width_height_descent(
                 'lp', self._fontproperties, ismath=False)
-        offsety = heightt * self._linespacing
+        offsety = lp_h * self._linespacing
 
         baseline = None
         for i, line in enumerate(lines):
@@ -254,8 +259,22 @@ class Text(Artist):
             if baseline is None:
                 baseline = h - d
             whs[i] = w, h
-            horizLayout[i] = thisx, thisy, w, h
-            thisy -= offsety
+
+            # For general multiline text, we will have a fixed spacing
+            # between the "baseline" of the upper line and "top" of
+            # the lower line (instead of the "bottom" of the upper
+            # line and "top" of the lower line)
+
+            # For multiline text, increase the line spacing when the
+            # text net-height(excluding baseline) is larger than that
+            # of a "l" (e.g., use of superscripts), which seems
+            # what TeX does. 
+
+            d_yoffset = max(0, (h-d)-(lp_h-lp_bl))
+
+            horizLayout[i] = thisx, thisy-(d + d_yoffset), \
+                             w, h
+            thisy -= offsety + d_yoffset
             width = max(width, w)
 
         ymin = horizLayout[-1][1]
@@ -1688,3 +1707,4 @@ class Annotation(Text):
 
 
 artist.kwdocd['Annotation'] = Annotation.__init__.__doc__
+

@@ -1,3 +1,6 @@
+2009-05-18 Fix the linespacing bug of multiline text (#1239682). See 
+           examples/pylab_examples/multiline.py -JJL
+
 2009-05-18 Add *annotation_clip* attr. for text.Annotation class.
            If True, annotation is only drawn when the annotated point is
            inside the axes area. -JJL
