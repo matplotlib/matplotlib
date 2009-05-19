@@ -5,6 +5,8 @@
 
 import math
 import operator
+import os
+import numpy as np
 
 #=======================================================================
 
@@ -112,10 +114,25 @@ def compareImages( expected, actual, tol ):
    if ( (rms / 10000.0) <= tol ):
       return None
    else:
+      diff_image = os.path.join(os.path.dirname(actual),
+                                'failed-diff-'+os.path.basename(actual))
+      saveDiffImage( expected, actual, diff_image )
+
       msg = "  Error: Image files did not match.\n"       \
             "  RMS Value: " + str( rms / 10000.0 ) + "\n" \
             "  Expected:\n    " + str( expected ) + "\n"  \
             "  Actual:\n    " + str( actual ) + "\n"      \
+            "  Difference:\n    " + str( diff_image ) + "\n"      \
             "  Tolerance: " + str( tol ) + "\n"
       return msg
 
+def saveDiffImage( expected, actual, output ):
+   from PIL import Image
+   expectedImage = np.array(Image.open( expected ).convert("RGB")).astype(np.float)
+   actualImage = np.array(Image.open( actual ).convert("RGB")).astype(np.float)
+   absDiffImage = abs(expectedImage-actualImage)
+   # expand differences in luminance domain
+   absDiffImage *= 10
+   save_image_np = absDiffImage.astype(np.uint8)
+   save_image = Image.fromarray(save_image_np)
+   save_image.save(output)
