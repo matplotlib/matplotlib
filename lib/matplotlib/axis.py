@@ -953,7 +953,7 @@ class Axis(artist.Artist):
                 if tick is None: continue
                 tick.gridOn = self._gridOnMinor
                 if len(kwargs): artist.setp(tick.gridline,**kwargs)
-        else:
+        if which.lower().find('major')>=0:
             if b is None: self._gridOnMajor = not self._gridOnMajor
             else: self._gridOnMajor = b
             for tick in self.majorTicks:  # don't use get_ticks here!

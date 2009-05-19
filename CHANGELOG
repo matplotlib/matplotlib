@@ -1,3 +1,6 @@
+2009-05-19 Axis.grid(): allow use of which='major,minor' to have grid
+           on major and minor ticks. -ADS
+
 2009-05-18 Make psd(), csd(), and cohere() wrap properly for complex/two-sided
            versions, like specgram() (SF #2791686) - RMM
 
