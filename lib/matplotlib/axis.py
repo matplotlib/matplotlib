@@ -934,12 +934,12 @@ class Axis(artist.Artist):
 
     def grid(self, b=None, which='major', **kwargs):
         """
-        Set the axis grid on or off; b is a boolean use *which* =
-        'major' | 'minor' to set the grid for major or minor ticks
+        Set the axis grid on or off; b is a boolean. Use *which* =
+        'major' | 'minor' to set the grid for major or minor ticks.
 
-        if *b* is *None* and len(kwargs)==0, toggle the grid state.  If
+        If *b* is *None* and len(kwargs)==0, toggle the grid state.  If
         *kwargs* are supplied, it is assumed you want the grid on and *b*
-        will be set to True
+        will be set to True.
 
         *kwargs* are used to set the line properties of the grids, eg,
 
