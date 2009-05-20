@@ -1,3 +1,7 @@
+2009-05-20 Add an empty matplotlibrc to the tests/ directory so that running
+           tests will use the default set of rcparams rather than the user's
+           config. - RMM
+
 2009-05-19 Axis.grid(): allow use of which='major,minor' to have grid
            on major and minor ticks. -ADS
 
