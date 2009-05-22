@@ -1145,7 +1145,7 @@ class Transform(TransformNode):
         ``transform_path_affine(transform_path_non_affine(values))``.
         """
         return Path(self.transform_non_affine(path.vertices), path.codes,
-                    self._interpolation_steps)
+                    path._interpolation_steps)
 
     def transform_angles(self, angles, pts, radians=False, pushoff=1e-5):
         """
