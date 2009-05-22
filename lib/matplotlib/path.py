@@ -80,7 +80,7 @@ class Path(object):
 
     code_type = np.uint8
 
-    def __init__(self, vertices, codes=None):
+    def __init__(self, vertices, codes=None, _interpolation_steps=1):
         """
         Create a new path with the given vertices and codes.
 
@@ -100,6 +100,11 @@ class Path(object):
         to NaNs which are then handled correctly by the Agg
         PathIterator and other consumers of path data, such as
         :meth:`iter_segments`.
+
+        *interpolation_steps* is used as a hint to certain projections,
+        such as Polar, that this path should be linearly interpolated
+        immediately before drawing.  This attribute is primarily an
+        implementation detail and is not intended for public use.
         """
         if ma.isMaskedArray(vertices):
             vertices = vertices.astype(np.float_).filled(np.nan)
@@ -118,12 +123,10 @@ class Path(object):
                                 (len(vertices) >= 128 and
                                  (codes is None or np.all(codes <= Path.LINETO))))
         self.simplify_threshold = rcParams['path.simplify_threshold']
-        # The following operation takes most of the time in this
-        # initialization, and it does not appear to be used anywhere;
-        # if it is occasionally needed, it could be made a property.
-        #self.has_nonfinite = not np.isfinite(vertices).all()
+        self.has_nonfinite = not np.isfinite(vertices).all()
         self.codes = codes
         self.vertices = vertices
+        self._interpolation_steps = _interpolation_steps
 
     @classmethod
     def make_compound_path(cls, *args):
@@ -224,7 +227,8 @@ class Path(object):
                 transformed result and automatically update when the
                 transform changes.
         """
-        return Path(transform.transform(self.vertices), self.codes)
+        return Path(transform.transform(self.vertices), self.codes,
+                    self._interpolation_steps)
 
     def contains_point(self, point, transform=None):
         """
@@ -292,6 +296,9 @@ class Path(object):
         Returns a new path resampled to length N x steps.  Does not
         currently handle interpolating curves.
         """
+        if steps == 1:
+            return self
+
         vertices = simple_linear_interpolation(self.vertices, steps)
         codes = self.codes
         if codes is not None:

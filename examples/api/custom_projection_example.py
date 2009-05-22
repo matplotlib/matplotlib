@@ -373,15 +373,6 @@ class HammerAxes(Axes):
         output_dims = 2
         is_separable = False
 
-        def __init__(self, resolution):
-            """
-            Create a new Hammer transform.  Resolution is the number of steps
-            to interpolate between each input line segment to approximate its
-            path in curved Hammer space.
-            """
-            Transform.__init__(self)
-            self._resolution = resolution
-
         def transform(self, ll):
             """
             Override the transform method to implement the custom transform.
@@ -410,21 +401,17 @@ class HammerAxes(Axes):
         # ``transform_path``.
         def transform_path(self, path):
             vertices = path.vertices
-            ipath = path.interpolated(self._resolution)
+            ipath = path.interpolated(path._interpolation_steps)
             return Path(self.transform(ipath.vertices), ipath.codes)
 
         def inverted(self):
-            return HammerAxes.InvertedHammerTransform(self._resolution)
+            return HammerAxes.InvertedHammerTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
     class InvertedHammerTransform(Transform):
         input_dims = 2
         output_dims = 2
         is_separable = False
-
-        def __init__(self, resolution):
-            Transform.__init__(self)
-            self._resolution = resolution
 
         def transform(self, xy):
             x = xy[:, 0:1]
@@ -440,7 +427,7 @@ class HammerAxes(Axes):
 
         def inverted(self):
             # The inverse of the inverse is the original transform... ;)
-            return HammerAxes.HammerTransform(self._resolution)
+            return HammerAxes.HammerTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
 # Now register the projection with matplotlib so the user can select

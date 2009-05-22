@@ -443,7 +443,11 @@ class Line2D(Artist):
         self._subslice = False
         if len(x) > 100 and self._is_sorted(x):
             self._subslice = True
-        self._path = Path(self._xy)
+        if hasattr(self, '_path'):
+            interpolation_steps = self._path._interpolation_steps
+        else:
+            interpolation_steps = 1
+        self._path = Path(self._xy, None, interpolation_steps)
         self._transformed_path = None
         self._invalid = False
 

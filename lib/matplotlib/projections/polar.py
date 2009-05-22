@@ -1,4 +1,5 @@
 import math
+import warnings
 
 import numpy as npy
 
@@ -32,15 +33,6 @@ class PolarAxes(Axes):
         output_dims = 2
         is_separable = False
 
-        def __init__(self, resolution):
-            """
-            Create a new polar transform.  Resolution is the number of steps
-            to interpolate between each input line segment to approximate its
-            path in curved polar space.
-            """
-            Transform.__init__(self)
-            self._resolution = resolution
-
         def transform(self, tr):
             xy   = npy.zeros(tr.shape, npy.float_)
             t    = tr[:, 0:1]
@@ -59,7 +51,7 @@ class PolarAxes(Axes):
             vertices = path.vertices
             if len(vertices) == 2 and vertices[0, 0] == vertices[1, 0]:
                 return Path(self.transform(vertices), path.codes)
-            ipath = path.interpolated(self._resolution)
+            ipath = path.interpolated(path._interpolation_steps)
             return Path(self.transform(ipath.vertices), ipath.codes)
         transform_path.__doc__ = Transform.transform_path.__doc__
 
@@ -67,7 +59,7 @@ class PolarAxes(Axes):
         transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
 
         def inverted(self):
-            return PolarAxes.InvertedPolarTransform(self._resolution)
+            return PolarAxes.InvertedPolarTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
     class PolarAffine(Affine2DBase):
@@ -109,10 +101,6 @@ class PolarAxes(Axes):
         output_dims = 2
         is_separable = False
 
-        def __init__(self, resolution):
-            Transform.__init__(self)
-            self._resolution = resolution
-
         def transform(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:]
@@ -123,7 +111,7 @@ class PolarAxes(Axes):
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
-            return PolarAxes.PolarTransform(self._resolution)
+            return PolarAxes.PolarTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
     class ThetaFormatter(Formatter):
@@ -177,8 +165,6 @@ class PolarAxes(Axes):
             return 0, vmax
 
 
-    RESOLUTION = 1
-
     def __init__(self, *args, **kwargs):
         """
         Create a new Polar Axes for a polar plot.
@@ -192,8 +178,11 @@ class PolarAxes(Axes):
 
         self._rpad = 0.05
         self.resolution = kwargs.pop('resolution', None)
-        if self.resolution is None:
-            self.resolution = self.RESOLUTION
+        if self.resolution not in (None, 1):
+            warnings.warn(
+                """The resolution kwarg to Polar plots is now ignored.
+If you need to interpolate data points, consider running
+cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         Axes.__init__(self, *args, **kwargs)
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
@@ -221,7 +210,7 @@ class PolarAxes(Axes):
         self.transScale = TransformWrapper(IdentityTransform())
 
         # A (possibly non-linear) projection on the (already scaled) data
-        self.transProjection = self.PolarTransform(self.resolution)
+        self.transProjection = self.PolarTransform()
 
         # An affine transformation on the data, generally to limit the
         # range of the axes

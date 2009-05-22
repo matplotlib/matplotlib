@@ -17,6 +17,14 @@ list may help describe what changes may be necessary in your code.
 .. _configobj: http://www.voidspace.org.uk/python/configobj.html
 .. _`enthought.traits`: http://code.enthought.com/projects/traits
 
+Changes beyond 0.98.x
+=====================
+
+* Polar plots no longer accept a resolution kwarg.  Instead, each Path
+  must specify its own number of interpolation steps.  This is
+  unlikely to be a user-visible change -- if interpolation of data is
+  required, that should be done before passing it to matplotlib.
+
 Changes for 0.98.x
 ==================
 * psd(), csd(), and cohere() will now automatically wrap negative

@@ -1177,6 +1177,9 @@ class Grouper(object):
 
 
 def simple_linear_interpolation(a, steps):
+    if steps == 1:
+        return a
+
     steps = np.floor(steps)
     new_length = ((len(a) - 1) * steps) + 1
     new_shape = list(a.shape)

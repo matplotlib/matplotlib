@@ -16,6 +16,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.units as munits
 
+GRIDLINE_INTERPOLATION_STEPS = 180
 
 class Tick(artist.Artist):
     """
@@ -308,6 +309,7 @@ class XTick(Tick):
                    linewidth=rcParams['grid.linewidth'],
                    )
         l.set_transform(self.axes.get_xaxis_transform())
+        l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
 
         return l
@@ -437,6 +439,7 @@ class YTick(Tick):
                     )
 
         l.set_transform(self.axes.get_yaxis_transform())
+        l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
         return l
 
