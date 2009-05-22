@@ -1131,14 +1131,20 @@ class Circle(Ellipse):
         self.radius = radius
         Ellipse.__init__(self, xy, radius*2, radius*2, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
-    
-    def radius():
-        def fget(self):
-            return self.width / 2.
-        def fset(self, radius):
-            self.width = self.height = 2 * radius
-        return locals()
-    radius = property(**radius())
+
+    def set_radius(self, radius):
+        """
+        Set the radius of the circle
+
+        ACCEPTS: float
+        """
+        self.width = self.height = 2 * radius
+
+    def get_radius(self):
+        'return the radius of the circle'
+        return self.width / 2.
+
+    radius = property(get_radius, set_radius)
 
 class Arc(Ellipse):
     """
@@ -2589,7 +2595,7 @@ class ConnectionStyle(_Style):
         def connect(self, posA, posB):
             x1, y1 = posA
             x20, y20 = x2, y2 = posB
-             
+
             x12, y12 = (x1 + x2)/2., (y1 + y2)/2.
 
             theta1 = math.atan2(y2-y1, x2-x1)
@@ -2598,7 +2604,7 @@ class ConnectionStyle(_Style):
             ddx, ddy = dx/dd, dy/dd
 
             armA, armB = self.armA, self.armB
-            
+
             if self.angle is not None:
                 #angle = self.angle % 180.
                 #if angle < 0. or angle > 180.:
@@ -2622,7 +2628,7 @@ class ConnectionStyle(_Style):
 
             else:
                 dl = 0.
-                
+
             #if armA > armB:
             #    armB = armA + dl
             #else:
