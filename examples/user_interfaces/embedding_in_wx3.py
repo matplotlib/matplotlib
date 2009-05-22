@@ -147,7 +147,7 @@ class MyApp(wx.App):
         return True
 
     def OnBang(self,event):
-        bang_count = XRCCTRL(self.frame,"bang_count")
+        bang_count = xrc.XRCCTRL(self.frame,"bang_count")
         bangs = bang_count.GetValue()
         bangs = int(bangs)+1
         bang_count.SetValue(str(bangs))

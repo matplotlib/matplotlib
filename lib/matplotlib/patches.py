@@ -1131,6 +1131,14 @@ class Circle(Ellipse):
         self.radius = radius
         Ellipse.__init__(self, xy, radius*2, radius*2, **kwargs)
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
+    
+    def radius():
+        def fget(self):
+            return self.width / 2.
+        def fset(self, radius):
+            self.width = self.height = 2 * radius
+        return locals()
+    radius = property(**radius())
 
 class Arc(Ellipse):
     """
