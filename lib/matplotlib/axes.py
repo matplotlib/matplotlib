@@ -4309,6 +4309,7 @@ class Axes(martist.Artist):
                 )
             label = '_nolegend_'
             r.update(kwargs)
+            r.get_path()._interpolation_steps = 100
             #print r.get_label(), label, 'label' in kwargs
             self.add_patch(r)
             patches.append(r)
