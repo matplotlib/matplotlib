@@ -27,10 +27,6 @@ class HammerAxes(Axes):
     # projection='hammer')``.
     name = 'hammer'
 
-    # The number of interpolation steps when converting from straight
-    # lines to curves.  (See ``transform_path``).
-    RESOLUTION = 75
-
     def __init__(self, *args, **kwargs):
         Axes.__init__(self, *args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
@@ -91,7 +87,7 @@ class HammerAxes(Axes):
 
         # 1) The core transformation from data space into
         # rectilinear space defined in the HammerTransform class.
-        self.transProjection = self.HammerTransform(self.RESOLUTION)
+        self.transProjection = self.HammerTransform()
 
         # 2) The above has an output range that is not in the unit
         # rectangle, so scale and translate it so it fits correctly
