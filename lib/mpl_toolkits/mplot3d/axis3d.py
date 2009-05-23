@@ -85,7 +85,7 @@ class Axis(axis.XAxis):
         # data and viewing intervals for this direction
         self.d_interval = d_intervalx
         self.v_interval = v_intervalx
-        #
+
         axis.XAxis.__init__(self, axes, *args, **kwargs)
         self.line = lines.Line2D(xdata=(0,0),ydata=(0,0),
                                  linewidth=0.75,
@@ -248,7 +248,7 @@ class Axis(axis.XAxis):
         lines = zip(xyz1, xyz0, xyz2)
         self.gridlines.set_segments(lines)
         self.gridlines.set_color([(0.9,0.9,0.9,1)] * len(lines))
-        self.gridlines.draw(renderer)
+        self.gridlines.draw(renderer, project=True)
 
         # Draw ticks
         tickdir = info['tickdir']

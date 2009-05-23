@@ -91,12 +91,21 @@ class Line3DCollection(LineCollection):
         self._segments3d = segments
         LineCollection.set_segments(self, [])
 
-    def draw(self, renderer):
+    def do_3d_projection(self, renderer):
         xyslist = [
             proj3d.proj_trans_points(points, renderer.M) for points in
             self._segments3d]
         segments_2d = [zip(xs,ys) for (xs,ys,zs) in xyslist]
         LineCollection.set_segments(self, segments_2d)
+
+        minz = 1e9
+        for (xs, ys, zs) in xyslist:
+            minz = min(minz, min(zs))
+        return minz
+
+    def draw(self, renderer, project=False):
+        if project:
+            self.do_3d_projection(renderer)
         LineCollection.draw(self, renderer)
 
 def line_collection_2d_to_3d(col, z=0, dir='z'):
@@ -123,13 +132,16 @@ class Patch3D(Patch):
     def get_facecolor(self):
         return self._facecolor2d
 
-    def draw(self, renderer):
+    def do_3d_projection(self, renderer):
         s = self._segment3d
         xs, ys, zs = zip(*s)
         vxs,vys,vzs,vis = proj3d.proj_transform_clip(xs,ys,zs, renderer.M)
         self._path2d = mpath.Path(zip(vxs, vys))
         # FIXME: coloring
         self._facecolor2d = self._facecolor3d
+        return min(vzs)
+
+    def draw(self, renderer):
         Patch.draw(self, renderer)
 
 def patch_2d_to_3d(patch, z=0, dir='z'):
@@ -149,7 +161,7 @@ class Patch3DCollection(PatchCollection):
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()
 
-    def draw(self, renderer):
+    def do_3d_projection(self, renderer):
         xs,ys,zs = self._offsets3d
         vxs,vys,vzs,vis = proj3d.proj_transform_clip(xs,ys,zs, renderer.M)
         #FIXME: mpl allows us no way to unset the collection alpha value
@@ -157,6 +169,10 @@ class Patch3DCollection(PatchCollection):
         self.set_facecolors(zalpha(self._facecolor3d, vzs))
         self.set_edgecolors(zalpha(self._edgecolor3d, vzs))
         PatchCollection.set_offsets(self, zip(vxs, vys))
+
+        return min(vzs)
+
+    def draw(self, renderer):
         PatchCollection.draw(self, renderer)
 
 def patch_collection_2d_to_3d(col, zs=0, dir='z'):
@@ -185,6 +201,7 @@ class Poly3DCollection(PolyCollection):
         ones = np.ones(len(xs))
         self._vec = np.array([xs,ys,zs,ones])
         self._segis = segis
+        self._sort_zpos = min(zs)
 
     def set_verts(self, verts, closed=True):
         self.get_vector(verts)
@@ -196,28 +213,35 @@ class Poly3DCollection(PolyCollection):
         self._facecolors3d = PolyCollection.get_facecolors(self)
         self._edgecolors3d = self.get_edgecolors()
 
+    def do_3d_projection(self, renderer):
+        txs, tys, tzs = proj3d.proj_transform_vec(self._vec, renderer.M)
+        xyzlist = [(txs[si:ei], tys[si:ei], tzs[si:ei]) \
+                for si, ei in self._segis]
+        colors = self._facecolors3d
+
+        # if required sort by depth (furthest drawn first)
+        if self._zsort:
+            z_segments_2d = [(min(zs),zip(xs,ys),c) for
+                             (xs,ys,zs),c in zip(xyzlist,colors)]
+            z_segments_2d.sort()
+            z_segments_2d.reverse()
+        else:
+            raise ValueError, "whoops"
+        segments_2d = [s for z,s,c in z_segments_2d]
+        colors = [c for z,s,c in z_segments_2d]
+        PolyCollection.set_verts(self, segments_2d)
+        self._facecolors2d = colors
+
+        # Return zorder value
+        zvec = np.array([[0], [0], [self._sort_zpos], [1]])
+        ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
+        return ztrans[2][0]
+
     def get_facecolors(self):
         return self._facecolors2d
     get_facecolor = get_facecolors
 
     def draw(self, renderer):
-        txs, tys, tzs, tis = proj3d.proj_transform_vec_clip(self._vec, renderer.M)
-        xyslist = [(txs[si:ei], tys[si:ei], tzs[si:ei], tis[si:ei]) \
-                for si, ei in self._segis]
-        colors = self._facecolors3d
-        #
-        # if required sort by depth (furthest drawn first)
-        if self._zsort:
-            z_segments_2d = [(min(zs),max(tis),zip(xs,ys),c) for
-                             (xs,ys,zs,tis),c in zip(xyslist,colors)]
-            z_segments_2d.sort()
-            z_segments_2d.reverse()
-        else:
-            raise ValueError, "whoops"
-        segments_2d = [s for z,i,s,c in z_segments_2d if i]
-        colors = [c for z,i,s,c in z_segments_2d if i]
-        PolyCollection.set_verts(self, segments_2d)
-        self._facecolors2d = colors
         return Collection.draw(self, renderer)
 
 def poly_collection_2d_to_3d(col, zs=None, dir='z'):

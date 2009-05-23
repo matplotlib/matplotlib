@@ -133,6 +133,6 @@ if __name__ == "__main__":
     test_plot()
     test_polys()
     test_scatter2D()
-#    test_bar2D()
+    test_bar2D()
 
     plt.show()
