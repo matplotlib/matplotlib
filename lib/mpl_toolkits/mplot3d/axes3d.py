@@ -86,7 +86,7 @@ class Axes3DI(Axes):
         xdw = (0.9/self.dist)
         ydwl = (0.95/self.dist)
         ydw = (0.9/self.dist)
-        #
+
         self.set_xlim(-xdwl,xdw)
         self.set_ylim(-ydwl,ydw)
 
@@ -166,6 +166,22 @@ class Axes3DI(Axes):
         renderer.eye = self.eye
         renderer.get_axis_position = self.get_axis_position
 
+        # Calculate projection of collections and zorder them
+        zlist = [(col.do_3d_projection(renderer), col) \
+                for col in self.collections]
+        zlist.sort()
+        zlist.reverse()
+        for i, (z, col) in enumerate(zlist):
+            col.zorder = i
+
+        # Calculate projection of patches and zorder them
+        zlist = [(patch.do_3d_projection(renderer), patch) \
+                for patch in self.patches]
+        zlist.sort()
+        zlist.reverse()
+        for i, (z, patch) in enumerate(zlist):
+            patch.zorder = i
+
         self.w_xaxis.draw(renderer)
         self.w_yaxis.draw(renderer)
         self.w_zaxis.draw(renderer)
@@ -179,7 +195,7 @@ class Axes3DI(Axes):
         zhigh = tc[0][2]>tc[2][2]
         return xhigh,yhigh,zhigh
 
-    def update_datalim(self, xys):
+    def update_datalim(self, xys, **kwargs):
         pass
 
     def update_datalim_numerix(self, x, y):
@@ -293,12 +309,12 @@ class Axes3DI(Axes):
 
         # look into the middle of the new coordinates
         R = np.array([0.5,0.5,0.5])
-        #
+
         xp = R[0] + np.cos(razim)*np.cos(relev)*self.dist
         yp = R[1] + np.sin(razim)*np.cos(relev)*self.dist
         zp = R[2] + np.sin(relev)*self.dist
         E = np.array((xp, yp, zp))
-        #
+
         self.eye = E
         self.vvec = R - E
         self.vvec = self.vvec / proj3d.mod(self.vvec)
@@ -393,7 +409,7 @@ class Axes3DI(Axes):
         ldists.sort()
         # nearest edge
         edgei = ldists[0][1]
-        #
+
         p0,p1 = edges[edgei]
 
         # scale the z value to match
@@ -403,7 +419,6 @@ class Axes3DI(Axes):
         d1 = np.hypot(x1-xd,y1-yd)
         dt = d0+d1
         z = d1/dt * z0 + d0/dt * z1
-        #print 'mid', edgei, d0, d1, z0, z1, z
 
         x,y,z = proj3d.inv_transform(xd,yd,z,self.M)
 
@@ -440,8 +455,8 @@ class Axes3DI(Axes):
         if self.button_pressed == 1:
             # rotate viewing point
             # get the x and y pixel coords
-            if dx == 0 and dy == 0: return
-            #
+            if dx == 0 and dy == 0:
+                return
             self.elev = axis3d.norm_angle(self.elev - (dy/h)*180)
             self.azim = axis3d.norm_angle(self.azim - (dx/w)*180)
             self.get_proj()
@@ -450,7 +465,6 @@ class Axes3DI(Axes):
             # pan view
             # project xv,yv,zv -> xw,yw,zw
             # pan
-            #
             pass
         elif self.button_pressed == 3:
             # zoom view
@@ -469,7 +483,7 @@ class Axes3DI(Axes):
     def set_xlabel(self, xlabel, fontdict=None, **kwargs):
         #par = cbook.popd(kwargs, 'par',None)
         #label.set_par(par)
-        #
+
         label = self.w_xaxis.get_label()
         label.set_text(xlabel)
         if fontdict is not None: label.update(fontdict)
@@ -524,7 +538,7 @@ class Axes3DI(Axes):
         tX,tY,tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
         rstride = kwargs.pop('rstride', 10)
         cstride = kwargs.pop('cstride', 10)
-        #
+
         polys = []
         boxes = []
         for rs in np.arange(0,rows-1,rstride):
@@ -543,7 +557,7 @@ class Axes3DI(Axes):
                     ps.append(z)
                 boxes.append(map(np.array,zip(*corners)))
                 polys.append(zip(*ps))
-        #
+
         lines = []
         shade = []
         for box in boxes:
@@ -552,7 +566,7 @@ class Axes3DI(Axes):
             n = n/proj3d.mod(n)*5
             shade.append(np.dot(n,[-1,-1,0.5]))
             lines.append((box[0],n+box[0]))
-        #
+
         color = np.array([0,0,1,1])
         norm = Normalize(min(shade),max(shade))
         colors = [color * (0.5+norm(v)*0.5) for v in shade]
@@ -560,7 +574,7 @@ class Axes3DI(Axes):
         polyc = art3d.Poly3DCollection(polys, facecolors=colors, *args, **kwargs)
         polyc._zsort = 1
         self.add_collection(polyc)
-        #
+
         self.auto_scale_xyz(X,Y,Z, had_data)
         return polyc
 
@@ -578,11 +592,11 @@ class Axes3DI(Axes):
         xlines = [X[i] for i in rii]
         ylines = [Y[i] for i in rii]
         zlines = [Z[i] for i in rii]
-        #
+
         txlines = [tX[i] for i in cii]
         tylines = [tY[i] for i in cii]
         tzlines = [tZ[i] for i in cii]
-        #
+
         lines = [zip(xl,yl,zl) for xl,yl,zl in zip(xlines,ylines,zlines)]
         lines += [zip(xl,yl,zl) for xl,yl,zl in zip(txlines,tylines,tzlines)]
         linec = self.add_lines(lines, *args, **kwargs)
@@ -614,6 +628,7 @@ class Axes3DI(Axes):
             zs = [z1] * (len(linec.get_paths()[0])/2)
             zs += [z2] * (len(linec.get_paths()[0])/2)
             art3d.poly_collection_2d_to_3d(linec, zs)
+
         self.auto_scale_xyz(X,Y,Z, had_data)
         return cset
     
@@ -701,6 +716,7 @@ class Axes3D:
 
     def bar(self, left, height, z=0, dir='z', *args, **kwargs):
         had_data = self.has_data()
+
         patches = self.wrapped.bar(left, height, *args, **kwargs)
         verts = []
         for p in patches:
@@ -863,6 +879,6 @@ if __name__ == "__main__":
     test_plot()
     test_polys()
     test_scatter2D()
-#    test_bar2D()
+    test_bar2D()
     
     pylab.show()
