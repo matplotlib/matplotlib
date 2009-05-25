@@ -1189,10 +1189,9 @@ class Arc(Ellipse):
 
         %(Patch)s
         """
-        fill = kwargs.get('fill')  # returns None if key is absent
+        fill = kwargs.setdefault('fill', False)
         if fill:
             raise ValueError("Arc objects can not be filled")
-        kwargs['fill'] = False
 
         Ellipse.__init__(self, xy, width, height, angle, **kwargs)
 
