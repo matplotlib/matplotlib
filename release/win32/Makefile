@@ -1,4 +1,4 @@
-PYTHON=python
+PYTHON=C:/Python26/python.exe
 SRCDIR=${PWD}
 ZLIBVERSION=1.2.3
 PNGVERSION=1.2.33
@@ -23,12 +23,14 @@ fetch_deps:
 	wget http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2
 
 zlib:
+	rm -rf zlib-${ZLIBVERSION}
 	tar xvfz zlib-${ZLIBVERSION}.tar.gz
 	cd zlib-${ZLIBVERSION} &&\
 	./configure &&\
 	make -j3
 
 png: zlib
+	rm -rf libpng-${PNGVERSION}
 	tar xvfj libpng-${PNGVERSION}.tar.bz2
 	cd libpng-${PNGVERSION} &&\
 	export CFLAGS=${CFLAGS} &&\
@@ -38,10 +40,10 @@ png: zlib
 	cp .libs/libpng.a .
 
 freetype:
-	tar xvfj freetype-${FREETYPEVERSION}.tar.bz2 &&\
+	rm -rf freetype-${FREETYPEVERSION}
+	tar xvfj freetype-${FREETYPEVERSION}.tar.bz2
 	cd freetype-${FREETYPEVERSION} &&\
-	export GNUMAKE=mingw32-make &&\
-	./configure --disable-shared &&\
+	GNUMAKE=mingw32-make ./configure --disable-shared &&\
 	cp builds/win32/w32-mingw32.mk config.mk &&\
 	mingw32-make -j3 &&\
 	cp objs/libfreetype.a .
@@ -49,13 +51,12 @@ freetype:
 dependencies: png freetype
 
 installers:
-	tar xvzf matplotlib-${MPLVERSION}.tar.gz &&\
+	rm -rf matplotlib-${MPLVERSION}
+	tar xvzf matplotlib-${MPLVERSION}.tar.gz
 	cd matplotlib-${MPLVERSION} &&\
 	rm -rf build &&\
 	cp ../data/setup.cfg . &&\
-	export CFLAGS=${CFLAGS} &&\
-	export LDFLAGS=${LDFLAGS} &&\
 	${PYTHON} setup.py build -c mingw32 bdist_wininst &&\
-	${PYTHON) setupegg.py build -c mingw32 bdist_egg
+	${PYTHON} setupegg.py build -c mingw32 bdist_egg
 
 all: fetch_deps dependencies installers
