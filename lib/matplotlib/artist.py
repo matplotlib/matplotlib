@@ -24,13 +24,13 @@ from path import Path
 
 
 
-def allow_rasterization(draw):    
+def allow_rasterization(draw):
     """
     Decorator for Artist.draw method. Provides routines
     that run before and after the draw call. The before and after functions
     are useful for changing artist-dependant renderer attributes or making
     other setup function calls, such as starting and flushing a mixed-mode
-    renderer. 
+    renderer.
     """
     def before(artist, renderer):
         if artist.get_rasterized():
@@ -42,7 +42,7 @@ def allow_rasterization(draw):
 
     # the axes class has a second argument inframe for its draw method.
     def draw_wrapper(artist, renderer, *kl):
-        before(artist, renderer)    
+        before(artist, renderer)
         draw(artist, renderer, *kl)
         after(artist, renderer)
 
@@ -52,7 +52,7 @@ def allow_rasterization(draw):
     draw_wrapper.__doc__  = draw.__doc__
     draw_wrapper._supports_rasterization = True
     return draw_wrapper
-    
+
 
 class Artist(object):
     """
@@ -308,7 +308,10 @@ class Artist(object):
 
         # Pick children
         for a in self.get_children():
-            a.pick(mouseevent)
+            # make sure the event happened in the same axes
+            ax = getattr(a, 'axes', None)
+            if mouseevent.inaxes==ax:
+                a.pick(mouseevent)
 
     def set_picker(self, picker):
         """
@@ -543,16 +546,16 @@ class Artist(object):
         else:
             gc.set_clip_rectangle(None)
             gc.set_clip_path(None)
-        
+
     def get_rasterized(self):
         return self._rasterized
-        
+
     def set_rasterized(self, rasterized):
         """
         Force rasterized (bitmap) drawing in vector backend output.
-        
+
         Defaults to None, which implies the backend's default behavior
-        
+
         ACCEPTS: [True | False | None]
         """
         if rasterized and not hasattr(self.draw, "_supports_rasterization"):
