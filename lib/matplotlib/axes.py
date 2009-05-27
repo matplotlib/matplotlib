@@ -21,6 +21,7 @@ import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
 import matplotlib.mlab as mlab
 import matplotlib.patches as mpatches
+import matplotlib.spines as mspines
 import matplotlib.quiver as mquiver
 import matplotlib.scale as mscale
 import matplotlib.table as mtable
@@ -526,6 +527,8 @@ class Axes(martist.Artist):
 
         self.set_axes_locator(kwargs.get("axes_locator", None))
 
+        self.spines = self._gen_axes_spines()
+
         # this call may differ for non-sep axes, eg polar
         self._init_axis()
 
@@ -576,7 +579,11 @@ class Axes(martist.Artist):
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = maxis.XAxis(self)
+        self.spines['bottom'].register_axis(self.xaxis)
+        self.spines['top'].register_axis(self.xaxis)
         self.yaxis = maxis.YAxis(self)
+        self.spines['left'].register_axis(self.yaxis)
+        self.spines['right'].register_axis(self.yaxis)
         self._update_transScale()
 
     def set_figure(self, fig):
@@ -634,7 +641,7 @@ class Axes(martist.Artist):
         self._yaxis_transform = mtransforms.blended_transform_factory(
                 self.transAxes, self.transData)
 
-    def get_xaxis_transform(self):
+    def get_xaxis_transform(self,which=None):
         """
         Get the transformation used for drawing x-axis labels, ticks
         and gridlines.  The x-direction is in data coordinates and the
@@ -646,7 +653,16 @@ class Axes(martist.Artist):
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
         """
-        return self._xaxis_transform
+        if which=='grid':
+            return self._xaxis_transform
+        elif which=='tick1':
+            # for cartesian projection, this is bottom spine
+            return self.spines['bottom'].get_spine_transform()
+        elif which=='tick2':
+            # for cartesian projection, this is top spine
+            return self.spines['top'].get_spine_transform()
+        else:
+            raise ValueError('unknown value for which')
 
     def get_xaxis_text1_transform(self, pad_points):
         """
@@ -667,7 +683,7 @@ class Axes(martist.Artist):
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
         """
-        return (self._xaxis_transform +
+        return (self.get_xaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(0, -1 * pad_points / 72.0,
                                               self.figure.dpi_scale_trans),
                 "top", "center")
@@ -691,12 +707,12 @@ class Axes(martist.Artist):
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
         """
-        return (self._xaxis_transform +
+        return (self.get_xaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(0, pad_points / 72.0,
                                               self.figure.dpi_scale_trans),
                 "bottom", "center")
 
-    def get_yaxis_transform(self):
+    def get_yaxis_transform(self,which=None):
         """
         Get the transformation used for drawing y-axis labels, ticks
         and gridlines.  The x-direction is in axis coordinates and the
@@ -708,7 +724,16 @@ class Axes(martist.Artist):
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
         """
-        return self._yaxis_transform
+        if which=='grid':
+            return self._yaxis_transform
+        elif which=='tick1':
+            # for cartesian projection, this is bottom spine
+            return self.spines['left'].get_spine_transform()
+        elif which=='tick2':
+            # for cartesian projection, this is top spine
+            return self.spines['right'].get_spine_transform()
+        else:
+            raise ValueError('unknown value for which')
 
     def get_yaxis_text1_transform(self, pad_points):
         """
@@ -729,7 +754,7 @@ class Axes(martist.Artist):
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
         """
-        return (self._yaxis_transform +
+        return (self.get_yaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(-1 * pad_points / 72.0, 0,
                                                self.figure.dpi_scale_trans),
                 "center", "right")
@@ -754,7 +779,7 @@ class Axes(martist.Artist):
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
         """
-        return (self._yaxis_transform +
+        return (self.get_yaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(pad_points / 72.0, 0,
                                                self.figure.dpi_scale_trans),
                 "center", "left")
@@ -853,6 +878,29 @@ class Axes(martist.Artist):
         """
         return mpatches.Rectangle((0.0, 0.0), 1.0, 1.0)
 
+    def _gen_axes_spines(self, locations=None, offset=0.0, units='inches'):
+        """
+        Returns a dict whose keys are spine names and values are
+        Line2D or Patch instances. Each element is used to draw a
+        spine of the axes.
+
+        In the standard axes, this is a single line segment, but in
+        other projections it may not be.
+
+        .. note::
+            Intended to be overridden by new projection types.
+        """
+        return {
+            'left':mspines.Spine(self,'left',
+                                 mlines.Line2D((0.0, 0.0), (0.0, 1.0))),
+            'right':mspines.Spine(self,'right',
+                                  mlines.Line2D((1.0, 1.0), (0.0, 1.0))),
+            'bottom':mspines.Spine(self,'bottom',
+                                   mlines.Line2D((0.0, 1.0), (0.0, 0.0))),
+            'top':mspines.Spine(self,'top',
+                                mlines.Line2D((0.0, 1.0), (1.0, 1.0))),
+            }
+
     def cla(self):
         'Clear the current axes'
         # Note: this is called by Axes.__init__()
@@ -928,17 +976,6 @@ class Axes(martist.Artist):
         self.patch.set_linewidth(0)
         self.patch.set_transform(self.transAxes)
 
-        # the frame draws the border around the axes and we want this
-        # above.  this is a place holder for a more sophisticated
-        # artist that might just draw a left, bottom frame, or a
-        # centered frame, etc the axesFrame name is deprecated
-        self.frame = self.axesFrame = self._gen_axes_patch()
-        self.frame.set_figure(self.figure)
-        self.frame.set_facecolor('none')
-        self.frame.set_edgecolor(rcParams['axes.edgecolor'])
-        self.frame.set_linewidth(rcParams['axes.linewidth'])
-        self.frame.set_transform(self.transAxes)
-        self.frame.set_zorder(2.5)
         self.axison = True
 
         self.xaxis.set_clip_path(self.patch)
@@ -946,6 +983,10 @@ class Axes(martist.Artist):
 
         self._shared_x_axes.clean()
         self._shared_y_axes.clean()
+
+    def get_frame(self):
+        raise AttributeError('Axes.frame was removed in favor of Axes.spines')
+    frame = property(get_frame)
 
     def clear(self):
         'clear the axes'
@@ -1724,7 +1765,7 @@ class Axes(martist.Artist):
         # decouple these so the patch can be in the background and the
         # frame in the foreground.
         if self.axison and self._frameon:
-            artists.append(self.frame)
+            artists.extend(self.spines.itervalues())
 
 
         dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
@@ -2645,7 +2686,7 @@ class Axes(martist.Artist):
         children.extend(self.collections)
         children.append(self.title)
         children.append(self.patch)
-        children.append(self.frame)
+        children.extend(self.spines.itervalues())
         return children
 
     def contains(self,mouseevent):

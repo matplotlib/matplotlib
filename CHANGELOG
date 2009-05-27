@@ -1,3 +1,5 @@
+2009-05-26 Add support for "axis spines" to have arbitrary location. -ADS
+
 2009-05-20 Add an empty matplotlibrc to the tests/ directory so that running
            tests will use the default set of rcparams rather than the user's
            config. - RMM

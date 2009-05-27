@@ -6,6 +6,8 @@ from matplotlib.ticker import Formatter, Locator, NullLocator, FixedLocator, Nul
 from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
     BboxTransformTo, IdentityTransform, Transform, TransformWrapper
 from matplotlib.projections import register_projection
+import matplotlib.spines as mspines
+import matplotlib.axis as maxis
 
 import numpy as np
 
@@ -31,6 +33,14 @@ class HammerAxes(Axes):
         Axes.__init__(self, *args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
         self.cla()
+
+    def _init_axis(self):
+        self.xaxis = maxis.XAxis(self)
+        self.yaxis = maxis.YAxis(self)
+        # Do not register xaxis or yaxis with spines -- as done in
+        # Axes._init_axis() -- until HammerAxes.xaxis.cla() works.
+        # self.spines['hammer'].register_axis(self.yaxis)
+        self._update_transScale()
 
     def cla(self):
         """
@@ -163,11 +173,12 @@ class HammerAxes(Axes):
             yaxis_text_base + \
             Affine2D().translate(8.0, 0.0)
 
-    def get_xaxis_transform(self):
+    def get_xaxis_transform(self,which=None):
         """
         Override this method to provide a transformation for the
         x-axis grid and ticks.
         """
+        assert which in ['tick1','tick2','grid']
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pixelPad):
@@ -188,11 +199,12 @@ class HammerAxes(Axes):
         """
         return self._xaxis_text2_transform, 'top', 'center'
 
-    def get_yaxis_transform(self):
+    def get_yaxis_transform(self,which=None):
         """
         Override this method to provide a transformation for the
         y-axis grid and ticks.
         """
+        assert which in ['tick1','tick2','grid']
         return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pixelPad):
@@ -223,6 +235,9 @@ class HammerAxes(Axes):
         clipped to this shape.
         """
         return Circle((0.5, 0.5), 0.5)
+
+    def _gen_axes_spines(self):
+        return {'hammer':mspines.Spine(self,'hammer',Circle((0.5, 0.5), 0.5))}
 
     # Prevent the user from applying scales to one or both of the
     # axes.  In this particular case, scaling the axes wouldn't make
