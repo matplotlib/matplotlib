@@ -4,6 +4,18 @@
 What's new in matplotlib
 ***************************
 
+.. _whats-new-svn:
+
+What new in svn
+===============
+
+Axis spine placement
+--------------------
+
+Andrew Straw has added the ability to place "axis spines" -- the lines
+that denote the data limits -- in various arbitrary locations. See
+:class:`matplotlib.spines.Spine`.
+
 .. _whats-new-0-98-4:
 
 What new in 0.98.4

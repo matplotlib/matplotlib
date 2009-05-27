@@ -282,7 +282,7 @@ class XTick(Tick):
                    marker = self._xtickmarkers[0],
                    markersize=self._size,
                    )
-        l.set_transform(self.axes.get_xaxis_transform())
+        l.set_transform(self.axes.get_xaxis_transform(which='tick1'))
         self._set_artist_props(l)
         return l
 
@@ -296,7 +296,7 @@ class XTick(Tick):
                        markersize=self._size,
                        )
 
-        l.set_transform(self.axes.get_xaxis_transform())
+        l.set_transform(self.axes.get_xaxis_transform(which='tick2'))
         self._set_artist_props(l)
         return l
 
@@ -308,7 +308,7 @@ class XTick(Tick):
                    linestyle=rcParams['grid.linestyle'],
                    linewidth=rcParams['grid.linewidth'],
                    )
-        l.set_transform(self.axes.get_xaxis_transform())
+        l.set_transform(self.axes.get_xaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
 
@@ -412,7 +412,7 @@ class YTick(Tick):
                     linestyle = 'None',
                     markersize=self._size,
                        )
-        l.set_transform(self.axes.get_yaxis_transform())
+        l.set_transform(self.axes.get_yaxis_transform(which='tick1'))
         self._set_artist_props(l)
         return l
 
@@ -425,7 +425,7 @@ class YTick(Tick):
                     markersize=self._size,
                     )
 
-        l.set_transform(self.axes.get_yaxis_transform())
+        l.set_transform(self.axes.get_yaxis_transform(which='tick2'))
         self._set_artist_props(l)
         return l
 
@@ -438,7 +438,7 @@ class YTick(Tick):
                     linewidth=rcParams['grid.linewidth'],
                     )
 
-        l.set_transform(self.axes.get_yaxis_transform())
+        l.set_transform(self.axes.get_yaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
         self._set_artist_props(l)
         return l

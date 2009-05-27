@@ -7,12 +7,14 @@ import matplotlib
 rcParams = matplotlib.rcParams
 from matplotlib.artist import kwdocd
 from matplotlib.axes import Axes
+import matplotlib.axis as maxis
 from matplotlib import cbook
 from matplotlib.patches import Circle
 from matplotlib.path import Path
 from matplotlib.ticker import Formatter, Locator
 from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
     BboxTransformTo, IdentityTransform, Transform, TransformWrapper
+import matplotlib.spines as mspines
 
 class PolarAxes(Axes):
     """
@@ -202,6 +204,16 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         self.xaxis.set_ticks_position('none')
         self.yaxis.set_ticks_position('none')
 
+    def _init_axis(self):
+        "move this out of __init__ because non-separable axes don't use it"
+        self.xaxis = maxis.XAxis(self)
+        self.yaxis = maxis.YAxis(self)
+        # Calling polar_axes.xaxis.cla() or polar_axes.xaxis.cla()
+        # results in weird artifacts. Therefore we disable this for
+        # now.
+        # self.spines['polar'].register_axis(self.yaxis)
+        self._update_transScale()
+
     def _set_lim_and_transforms(self):
         self.transAxes = BboxTransformTo(self.bbox)
 
@@ -258,7 +270,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             self._yaxis_transform
             )
 
-    def get_xaxis_transform(self):
+    def get_xaxis_transform(self,which=None):
+        assert which in ['tick1','tick2','grid']
         return self._xaxis_transform
 
     def get_xaxis_text1_transform(self, pad):
@@ -267,7 +280,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
     def get_xaxis_text2_transform(self, pad):
         return self._xaxis_text2_transform, 'center', 'center'
 
-    def get_yaxis_transform(self):
+    def get_yaxis_transform(self,which=None):
+        assert which in ['tick1','tick2','grid']
         return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pad):
@@ -278,6 +292,9 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
     def _gen_axes_patch(self):
         return Circle((0.5, 0.5), 0.5)
+
+    def _gen_axes_spines(self):
+        return {'polar':mspines.Spine(self,'polar',Circle((0.5, 0.5), 0.5))}
 
     def set_rmax(self, rmax):
         self.viewLim.y0 = 0

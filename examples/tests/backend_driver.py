@@ -173,6 +173,7 @@ pylab_files = [
     'simple_plot.py',
     'simplification_clipping_test.py',
     'specgram_demo.py',
+    'spine_placement_demo.py',
     'spy_demos.py',
     'stem_plot.py',
     'step_demo.py',
