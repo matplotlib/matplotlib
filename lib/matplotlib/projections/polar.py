@@ -270,7 +270,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             self._yaxis_transform
             )
 
-    def get_xaxis_transform(self,which=None):
+    def get_xaxis_transform(self,which='grid'):
         assert which in ['tick1','tick2','grid']
         return self._xaxis_transform
 
@@ -280,7 +280,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
     def get_xaxis_text2_transform(self, pad):
         return self._xaxis_text2_transform, 'center', 'center'
 
-    def get_yaxis_transform(self,which=None):
+    def get_yaxis_transform(self,which='grid'):
         assert which in ['tick1','tick2','grid']
         return self._yaxis_transform
 

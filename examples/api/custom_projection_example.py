@@ -173,7 +173,7 @@ class HammerAxes(Axes):
             yaxis_text_base + \
             Affine2D().translate(8.0, 0.0)
 
-    def get_xaxis_transform(self,which=None):
+    def get_xaxis_transform(self,which='grid'):
         """
         Override this method to provide a transformation for the
         x-axis grid and ticks.
@@ -199,7 +199,7 @@ class HammerAxes(Axes):
         """
         return self._xaxis_text2_transform, 'top', 'center'
 
-    def get_yaxis_transform(self,which=None):
+    def get_yaxis_transform(self,which='grid'):
         """
         Override this method to provide a transformation for the
         y-axis grid and ticks.

@@ -121,7 +121,7 @@ class GeoAxes(Axes):
             .scale(0.5 / xscale, 0.5 / yscale) \
             .translate(0.5, 0.5)
 
-    def get_xaxis_transform(self,which=None):
+    def get_xaxis_transform(self,which='grid'):
         assert which in ['tick1','tick2','grid']
         return self._xaxis_transform
 
@@ -131,7 +131,7 @@ class GeoAxes(Axes):
     def get_xaxis_text2_transform(self, pad):
         return self._xaxis_text2_transform, 'top', 'center'
 
-    def get_yaxis_transform(self,which=None):
+    def get_yaxis_transform(self,which='grid'):
         assert which in ['tick1','tick2','grid']
         return self._yaxis_transform
 

@@ -641,7 +641,7 @@ class Axes(martist.Artist):
         self._yaxis_transform = mtransforms.blended_transform_factory(
                 self.transAxes, self.transData)
 
-    def get_xaxis_transform(self,which=None):
+    def get_xaxis_transform(self,which='grid'):
         """
         Get the transformation used for drawing x-axis labels, ticks
         and gridlines.  The x-direction is in data coordinates and the
@@ -712,7 +712,7 @@ class Axes(martist.Artist):
                                               self.figure.dpi_scale_trans),
                 "bottom", "center")
 
-    def get_yaxis_transform(self,which=None):
+    def get_yaxis_transform(self,which='grid'):
         """
         Get the transformation used for drawing y-axis labels, ticks
         and gridlines.  The x-direction is in axis coordinates and the
