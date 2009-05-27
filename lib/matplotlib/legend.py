@@ -305,7 +305,7 @@ detail.
 
 
     def _findoffset_best(self, width, height, xdescent, ydescent, renderer):
-        "Heper function to locate the legend at its best position"
+        "Helper function to locate the legend at its best position"
         ox, oy = self._find_best_position(width, height, renderer)
         return ox+xdescent, oy+ydescent
 
