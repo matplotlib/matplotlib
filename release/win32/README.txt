@@ -10,6 +10,7 @@ MinGW Requirements
 	(tested with MinGW-5.1.4.exe)
 	http://sourceforge.net/project/showfiles.php?group_id=2435&package_id=240780
 
+
 * Install "MSYS Base System"::
 
 	(tested with MSYS-1.0.10.exe)
@@ -20,6 +21,27 @@ MinGW Requirements
 	(tested with wget-1.9.1-mingwPORT.tar.bz2)
 	http://sourceforge.net/project/showfiles.php?group_id=2435&package_id=233332
 	NOTE: Uncompress and copy the "wget.exe" file to "C:\MingW\bin\"
+
+
+* Test your installation.  After installing the above, open MSYS and
+  check your install by doing::
+
+    > gcc --version
+    > g++ --version
+
+  If you don't have g++, try running the mingw exe installer again,
+  and you will be prompted for additional compilers to install.
+  Select c++ and you are off to the races.
+
+  Make sure setuptools are installed::
+
+    > /c/python26/python
+    >>> import setuptools
+
+  If not, grab the latest ez_setup.py and install it::
+
+    > wget http://peak.telecommunity.com/dist/ez_setup.py
+    > /c/python26/python ez_setup.py
 
 Dir Contents
 -------------
