@@ -272,11 +272,11 @@ _png_module::read_png(const Py::Tuple& args) {
 	  size_t offset = y*A->strides[0] + x*A->strides[1];
 	  if (bit_depth == 16) {
 	    png_uint_16* ptr = &reinterpret_cast<png_uint_16*> (row)[x * dimensions[2]];
-		for (png_uint_32 p = 0; p < dimensions[2]; p++)
+            for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
 	      *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
 	  } else {
 	    png_byte* ptr = &(row[x * dimensions[2]]);
-	    for (png_uint_32 p = 0; p < dimensions[2]; p++)
+	    for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
 		{
 	      *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
 	    }
