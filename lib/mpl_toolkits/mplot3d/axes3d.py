@@ -539,6 +539,9 @@ class Axes3DI(Axes):
         rstride = kwargs.pop('rstride', 10)
         cstride = kwargs.pop('cstride', 10)
 
+        color = kwargs.pop('color', 'b')
+        color = np.array(colorConverter.to_rgba(color))
+
         polys = []
         boxes = []
         for rs in np.arange(0,rows-1,rstride):
@@ -567,8 +570,10 @@ class Axes3DI(Axes):
             shade.append(np.dot(n,[-1,-1,0.5]))
             lines.append((box[0],n+box[0]))
 
-        color = np.array([0,0,1,1])
-        norm = Normalize(min(shade),max(shade))
+        shade = np.array(shade)
+        mask = ~np.isnan(shade)
+        norm = Normalize(min(shade[mask]), max(shade[mask]))
+
         colors = [color * (0.5+norm(v)*0.5) for v in shade]
         for c in colors: c[3] = 1
         polyc = art3d.Poly3DCollection(polys, facecolors=colors, *args, **kwargs)
