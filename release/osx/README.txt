@@ -1,6 +1,6 @@
 Building binary releases of OS X
 
-Included here is everything to build a binay package installer for OS
+Included here is everything to build a binary package installer for OS
 X
 
 Dir Contents
