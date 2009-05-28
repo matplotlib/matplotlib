@@ -2445,7 +2445,9 @@ class Parser(object):
         r"'"     : r'\combiningacuteaccent',
         r'~'     : r'\combiningtilde',
         r'.'     : r'\combiningdotabove',
-        r'^'     : r'\circumflexaccent'
+        r'^'     : r'\circumflexaccent',
+        r'overrightarrow' : r'\rightarrow',
+        r'overleftarrow'  : r'\leftarrow'
         }
 
     _wide_accents = set(r"widehat widetilde".split())
