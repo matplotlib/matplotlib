@@ -1,11 +1,11 @@
 PYTHON = C:/Python26/python.exe
-SRCDIR = ${PWD} # autoconf needs this path
-WINSRCDIR = `${PWD}/data/mingw_path.sh ${PWD}` # distutils needs windows paths
+SRCDIR = ${PWD}# autoconf needs this path
+WINSRCDIR = `${PWD}/data/mingw_path.sh ${PWD}`# distutils needs windows paths
 ZLIBVERSION = 1.2.3
 PNGVERSION = 1.2.33
 FREETYPEVERSION = 2.3.7
-#TCLTKVERSION = 8.4.19 # Before Python 2.6
-TCLTKVERSION = 8.5.7 # Python 2.6
+#TCLTKVERSION = 8.4.19# Before Python 2.6
+TCLTKVERSION = 8.5.7# Python 2.6
 MPLVERSION = 0.98.6svn
 
 ## You shouldn't need to configure past this point
