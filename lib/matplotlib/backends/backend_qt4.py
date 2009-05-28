@@ -136,6 +136,16 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         FigureCanvasBase.button_release_event( self, x, y, button )
         if DEBUG: print 'button released'
 
+    def wheelEvent( self, event ):
+        x = event.x()
+        # flipy so y=0 is bottom of canvas
+        y = self.figure.bbox.height - event.y()
+        # from QWheelEvent::delta doc
+        steps = event.delta()/120
+        if (event.orientation() == Qt.Qt.Vertical):
+            FigureCanvasBase.scroll_event( self, x, y, steps)
+            if DEBUG: print 'scroll event : delta = %i, steps = %i ' % (event.delta(),steps)
+
     def keyPressEvent( self, event ):
         key = self._get_key( event )
         FigureCanvasBase.key_press_event( self, key )
