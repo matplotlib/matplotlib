@@ -40,14 +40,20 @@ How to build
 * First fetch all the dependencies::
 
       make fetch_deps
-      
+
 * build the dependencies::
 
       make dependencies
 
-* copy over the latest mpl *.tar.gz tarball to this directory, update
-  the MPLVERSION in the Makefile::
-  
+* copy over the latest mpl *.tar.gz tarball to this directory.  You
+  can create the source distribution file with ::
+
+    > /c/Python26/python sdist --formats=gztar
+
+  and then copy the dist/matplotlib.VERSION.tar.gz file into the
+  directory alongside the Makefile.  Update the MPLVERSION in the
+  Makefile::
+
 * build the wininst binary and egg::
 
     make installers
