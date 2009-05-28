@@ -2047,18 +2047,6 @@ def safe_isinf(x):
     except TypeError: return False
     else: return b
 
-def rec_view(rec):
-    """
-    Return a view of an ndarray as a recarray
-
-    .. seealso::
-
-       http://projects.scipy.org/pipermail/numpy-discussion/2008-August/036429.html
-          Motivation for this function
-    """
-    return rec.view(np.recarray)
-    #return rec.view(dtype=(np.record, rec.dtype), type=np.recarray)
-
 def rec_append_field(rec, name, arr, dtype=None):
     """
     Return a new record array with field name populated with data from
@@ -2094,12 +2082,12 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
             raise ValueError, "dtypes must be None, a single dtype or a list"
 
     newdtype = np.dtype(rec.dtype.descr + zip(names, dtypes))
-    newrec = np.empty(rec.shape, dtype=newdtype)
+    newrec = np.recarray(rec.shape, dtype=newdtype)
     for field in rec.dtype.fields:
         newrec[field] = rec[field]
     for name, arr in zip(names, arrs):
         newrec[name] = arr
-    return rec_view(newrec)
+    return newrec
 
 
 def rec_drop_fields(rec, names):
@@ -2113,11 +2101,11 @@ def rec_drop_fields(rec, names):
     newdtype = np.dtype([(name, rec.dtype[name]) for name in rec.dtype.names
                        if name not in names])
 
-    newrec = np.empty(Nr, dtype=newdtype)
+    newrec = np.recarray(rec.shape, dtype=newdtype)
     for field in newdtype.names:
         newrec[field] = rec[field]
 
-    return rec_view(newrec)
+    return newrec
 
 
 
@@ -2279,7 +2267,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
     r2desc = [(mapped_r2field(desc[0]), desc[1]) for desc in r2.dtype.descr if desc[0] not in key]
     newdtype = np.dtype(keydesc + r1desc + r2desc)
 
-    newrec = np.empty(common_len + left_len + right_len, dtype=newdtype)
+    newrec = np.recarray((common_len + left_len + right_len,), dtype=newdtype)
 
     if defaults is not None:
         for thiskey in defaults:
@@ -2314,7 +2302,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
 
     newrec.sort(order=key)
 
-    return rec_view(newrec)
+    return newrec
 
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
