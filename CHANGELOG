@@ -1,3 +1,7 @@
+2009-05-29 Improved the animation_blit_qt4 example, which was a mix 
+           of the object-oriented and pylab interfaces. It is now
+           strictly object-oriented - DSD
+
 2009-05-28 Fix axes_grid toolkit to work with spine patch by ADS. - JJL
 
 2009-05-28 Applied fbianco's patch to handle scroll wheel events in

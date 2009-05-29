@@ -1,68 +1,75 @@
 # For detailed comments on animation and the techniqes used here, see
 # the wiki entry http://www.scipy.org/Cookbook/Matplotlib/Animations
 
-import os, sys
-import matplotlib
-matplotlib.use('Qt4Agg') # qt4 example
+import os
+import sys
+
+#import matplotlib
+#matplotlib.use('Qt4Agg')
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 
 from PyQt4 import QtCore, QtGui
 
 ITERS = 1000
 
-import pylab as p
-import numpy as npy
+import numpy as np
 import time
 
-class BlitQT(QtCore.QObject):
+class BlitQT(FigureCanvas):
+
     def __init__(self):
-        self.ax = p.subplot(111)
-        self.canvas = self.ax.figure.canvas
+        FigureCanvas.__init__(self, Figure())
 
-        # By making this a child of the canvas we make sure that it is
-        # destroyed first and avoids a possible exception when the user clicks
-        # on the window's close box.
-        QtCore.QObject.__init__(self, self.canvas)
+        self.ax = self.figure.add_subplot(111)
+        self.ax.grid()
+        self.draw()
 
+        self.old_size = self.ax.bbox.width, self.ax.bbox.height
+        self.ax_background = self.copy_from_bbox(self.ax.bbox)
         self.cnt = 0
 
-        # create the initial line
-        self.x = npy.arange(0,2*npy.pi,0.01)
-        self.line, = p.plot(self.x, npy.sin(self.x), animated=True, lw=2)
+        self.x = np.arange(0,2*np.pi,0.01)
+        self.sin_line, = self.ax.plot(self.x, np.sin(self.x), animated=True)
+        self.cos_line, = self.ax.plot(self.x, np.cos(self.x), animated=True)
+        self.draw()
 
-        self.background = None
-        self.old_size = 0, 0
+        self.tstart = time.time()
+        self.startTimer(10)
 
     def timerEvent(self, evt):
-        # See if the size has changed since last time round.
         current_size = self.ax.bbox.width, self.ax.bbox.height
-
         if self.old_size != current_size:
             self.old_size = current_size
-            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+            self.ax.clear()
+            self.ax.grid()
+            self.draw()
+            self.ax_background = self.copy_from_bbox(self.ax.bbox)
 
-        # restore the clean slate background
-        self.canvas.restore_region(self.background)
+        self.restore_region(self.ax_background, bbox=self.ax.bbox)
+
         # update the data
-        self.line.set_ydata(npy.sin(self.x+self.cnt/10.0))
+        self.sin_line.set_ydata(np.sin(self.x+self.cnt/10.0))
+        self.cos_line.set_ydata(np.cos(self.x+self.cnt/10.0))
         # just draw the animated artist
-        self.ax.draw_artist(self.line)
+        self.ax.draw_artist(self.sin_line)
+        self.ax.draw_artist(self.cos_line)
         # just redraw the axes rectangle
-        self.canvas.blit(self.ax.bbox)
+        self.blit(self.ax.bbox)
 
+        if self.cnt == 0:
+            # TODO: this shouldn't be necessary, but if it is excluded the
+            # canvas outside the axes is not initially painted.
+            self.draw()
         if self.cnt==ITERS:
             # print the timing info and quit
             print 'FPS:' , ITERS/(time.time()-self.tstart)
             sys.exit()
-
         else:
             self.cnt += 1
 
-p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs
-p.grid() # to ensure proper background restore
+app = QtGui.QApplication(sys.argv)
+widget = BlitQT()
+widget.show()
 
-app = BlitQT()
-# for profiling
-app.tstart = time.time()
-app.startTimer(0)
-
-p.show()
+sys.exit(app.exec_())
