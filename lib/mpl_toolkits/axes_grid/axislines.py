@@ -1249,12 +1249,16 @@ class Axes(maxes.Axes):
             b = not self._axisline_on
         if b:
             self._axisline_on = True
-            self.frame.set_visible(False)
+            #self.frame.set_visible(False)
+            for s in self.spines.values():
+                s.artist.set_visible(False)
             self.xaxis.set_visible(False)
             self.yaxis.set_visible(False)
         else:
             self._axisline_on = False
-            self.frame.set_visible(True)
+            #self.frame.set_visible(True)
+            for s in self.spines.values():
+                s.artist.set_visible(True)
             self.xaxis.set_visible(True)
             self.yaxis.set_visible(True)
 

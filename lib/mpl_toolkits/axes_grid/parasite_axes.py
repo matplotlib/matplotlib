@@ -48,14 +48,15 @@ class ParasiteAxes(Axes):
 
 class ParasiteAxesAuxTrans(ParasiteAxes):
 
-    def __init__(self, parent_axes, aux_transform, viewlim_mode=None):
+    def __init__(self, parent_axes, aux_transform, viewlim_mode=None,
+                 **kwargs):
 
         self.transAux = aux_transform
 
         #self._viewlim_mode = viewlim_mode
         self.set_viewlim_mode(viewlim_mode)
 
-        super(ParasiteAxesAuxTrans, self).__init__(parent_axes)
+        super(ParasiteAxesAuxTrans, self).__init__(parent_axes, **kwargs)
 
     def _set_lim_and_transforms(self):
 
