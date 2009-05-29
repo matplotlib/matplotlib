@@ -177,8 +177,11 @@ class validate_nseq_int:
 
 def validate_color(s):
     'return a valid color arg'
-    if s.lower() == 'none':
-        return 'None'
+    try:
+        if s.lower() == 'none':
+            return 'None'
+    except AttributeError:
+        pass
     if is_color_like(s):
         return s
     stmp = '#' + s
