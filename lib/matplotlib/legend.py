@@ -110,7 +110,7 @@ class Legend(Artist):
                  mode=None, # mode for horizontal distribution of columns. None, "expand"
 
                  fancybox=None, # True use a fancy box, false use a rounded box, none use rc
-                 shadow = None, 
+                 shadow = None,
                  title = None, # set a title for the legend
                  bbox_to_anchor = None, # bbox that the legend will be anchored.
                  bbox_transform = None, # transform for the bbox
@@ -139,7 +139,7 @@ class Legend(Artist):
         borderaxespad      the pad between the axes and legend border
         columnspacing      the spacing between columns
         title              the legend title
-        bbox_to_anchor     the bbox that the legend will be anchored. 
+        bbox_to_anchor     the bbox that the legend will be anchored.
         bbox_transform     the transform for the bbox. transAxes if None.
         ================   ==================================================================
 
@@ -204,6 +204,9 @@ detail.
 
         del localdict
 
+        handles = list(handles)
+        if len(handles)<2:
+            ncol = 1
         self._ncol = ncol
 
         if self.numpoints <= 0:
@@ -258,7 +261,7 @@ detail.
         self._loc = loc
         self._mode = mode
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
-        
+
         # We use FancyBboxPatch to draw a legend frame. The location
         # and size of the box will be updated during the drawing time.
         self.legendPatch = FancyBboxPatch(
@@ -578,13 +581,13 @@ detail.
 
         sep = self.columnspacing*fontsize
 
-        self._legend_handle_box = HPacker(pad=0, 
+        self._legend_handle_box = HPacker(pad=0,
                                           sep=sep, align="baseline",
                                           mode=mode,
                                           children=columnbox)
 
         self._legend_title_box = TextArea("")
-        
+
         self._legend_box = VPacker(pad=self.borderpad*fontsize,
                                    sep=self.labelspacing*fontsize,
                                    align="center",
@@ -722,8 +725,8 @@ detail.
 
         self._bbox_to_anchor = TransformedBbox(self._bbox_to_anchor,
                                                transform)
-            
-            
+
+
 
     def _get_anchored_bbox(self, loc, bbox, parentbbox, renderer):
         """
