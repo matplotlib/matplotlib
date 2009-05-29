@@ -38,7 +38,7 @@ def gen_gallery(app, doctree):
     print
     print "generating gallery: ",
     data = []
-    for subdir in ('api', 'pylab_examples', 'widgets', 'mplot3d'):
+    for subdir in ('api', 'pylab_examples', 'mplot3d', 'widgets', 'axes_grid' ):
         origdir = os.path.join('build', rootdir, subdir)
         thumbdir = os.path.join(outdir, rootdir, subdir, 'thumbnails')
         if not os.path.exists(thumbdir):

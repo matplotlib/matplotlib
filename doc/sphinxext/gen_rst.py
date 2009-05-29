@@ -128,7 +128,10 @@ Matplotlib Examples
 
             do_plot = (subdir in ('api',
                                   'pylab_examples',
-                                  'units') and
+                                  'units',
+                                  'mplot3d',
+                                  'axes_grid',
+                                  ) and
                        not noplot_regex.search(contents))
 
             if do_plot:
