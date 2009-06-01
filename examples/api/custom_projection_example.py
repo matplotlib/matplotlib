@@ -237,7 +237,8 @@ class HammerAxes(Axes):
         return Circle((0.5, 0.5), 0.5)
 
     def _gen_axes_spines(self):
-        return {'hammer':mspines.Spine(self,'hammer',Circle((0.5, 0.5), 0.5))}
+        return {'hammer':mspines.Spine.circular_spine(self,
+                                                      (0.5, 0.5), 0.5)}
 
     # Prevent the user from applying scales to one or both of the
     # axes.  In this particular case, scaling the axes wouldn't make

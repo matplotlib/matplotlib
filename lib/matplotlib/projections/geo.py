@@ -145,7 +145,8 @@ class GeoAxes(Axes):
         return Circle((0.5, 0.5), 0.5)
 
     def _gen_axes_spines(self):
-        return {'geo':mspines.Spine(self,'geo',Circle((0.5, 0.5), 0.5))}
+        return {'geo':mspines.Spine.circular_spine(self,
+                                                   (0.5, 0.5), 0.5)}
 
     def set_yscale(self, *args, **kwargs):
         if args[0] != 'linear':
