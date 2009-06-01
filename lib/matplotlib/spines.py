@@ -303,3 +303,18 @@ class Spine(mpatches.Patch):
         result = cls(axes,spine_type,path,**kwargs)
         result.set_patch_circle(center,radius)
         return result
+
+    def set_color(self, c):
+        """
+        Set the edgecolor.
+
+        ACCEPTS: matplotlib color arg or sequence of rgba tuples
+
+        .. seealso::
+
+            :meth:`set_facecolor`, :meth:`set_edgecolor`
+               For setting the edge or face color individually.
+        """
+        # The facecolor of a spine is always 'none' by default -- let
+        # the user change it manually if desired.
+        self.set_edgecolor(c)
