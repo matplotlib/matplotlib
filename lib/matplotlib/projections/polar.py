@@ -294,7 +294,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         return Circle((0.5, 0.5), 0.5)
 
     def _gen_axes_spines(self):
-        return {'polar':mspines.Spine(self,'polar',Circle((0.5, 0.5), 0.5))}
+        return {'polar':mspines.Spine.circular_spine(self,
+                                                     (0.5, 0.5), 0.5)}
 
     def set_rmax(self, rmax):
         self.viewLim.y0 = 0

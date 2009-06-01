@@ -8,10 +8,11 @@ from matplotlib.artist import allow_rasterization
 import matplotlib.transforms as mtransforms
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
+import matplotlib.path as mpath
 import matplotlib.cbook as cbook
 import warnings
 
-class Spine(martist.Artist):
+class Spine(mpatches.Patch):
     """an axis spine -- the line noting the data area boundaries
 
     Spines are the lines connecting the axis tick marks and noting the
@@ -20,38 +21,97 @@ class Spine(martist.Artist):
     for more information.
 
     The default position is ``('outward',0)``.
+
+    Spines are subclasses of class:`~matplotlib.patches.Patch`, and
+    inherit much of their behavior.
+
+    Spines draw a line or a circle, depending if
+    function:`~matplotlib.spines.Spine.set_patch_line` or
+    function:`~matplotlib.spines.Spine.set_patch_circle` has been
+    called. Line-like is the default.
+
     """
     def __str__(self):
         return "Spine"
 
-    def __init__(self,axes,spine_type,artist):
+    def __init__(self,axes,spine_type,path,**kwargs):
         """
         - *axes* : the Axes instance containing the spine
         - *spine_type* : a string specifying the spine type
-        - *artist* : the artist instance used to draw the spine
+        - *path* : the path instance used to draw the spine
+
+        Valid kwargs are:
+        %(Patch)s
         """
-        martist.Artist.__init__(self)
+        super(Spine,self).__init__(**kwargs)
         self.axes = axes
         self.set_figure(self.axes.figure)
         self.spine_type = spine_type
-        self.artist = artist
-        self.color = rcParams['axes.edgecolor']
+        self.set_facecolor('none')
+        self.set_edgecolor( rcParams['axes.edgecolor'] )
+        self.set_linewidth(rcParams['axes.linewidth'])
         self.axis = None
 
-        if isinstance(self.artist,mlines.Line2D):
-            self.artist.set_color(self.color)
-            self.artist.set_linewidth(rcParams['axes.linewidth'])
-        elif isinstance(self.artist,mpatches.Patch):
-            self.artist.set_facecolor('none')
-            self.artist.set_edgecolor(self.color)
-            self.artist.set_linewidth(rcParams['axes.linewidth'])
-        self.artist.set_zorder(2.5)
-        self.artist.set_transform(self.axes.transAxes) # default transform
+        self.set_zorder(2.5)
+        self.set_transform(self.axes.transAxes) # default transform
 
         # Defer initial position determination. (Not much support for
         # non-rectangular axes is currently implemented, and this lets
         # them pass through the spines machinery without errors.)
         self._position = None
+        assert isinstance(path,matplotlib.path.Path)
+        self._path = path
+
+        # To support drawing both linear and circular spines, this
+        # class implements Patch behavior two ways. If
+        # self._patch_type == 'line', behave like a mpatches.PathPatch
+        # instance. If self._patch_type == 'circle', behave like a
+        # mpatches.Ellipse instance.
+        self._patch_type = 'line'
+
+        # Behavior copied from mpatches.Ellipse:
+        # Note: This cannot be calculated until this is added to an Axes
+        self._patch_transform = mtransforms.IdentityTransform()
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % martist.kwdocd
+
+    def set_patch_circle(self,center,radius):
+        """set the spine to be circular"""
+        self._patch_type = 'circle'
+        self._center = center
+        self._width = radius*2
+        self._height = radius*2
+        self._angle = 0
+
+    def set_patch_line(self):
+        """set the spine to be linear"""
+        self._patch_type = 'line'
+
+    # Behavior copied from mpatches.Ellipse:
+    def _recompute_transform(self):
+        """NOTE: This cannot be called until after this has been added
+                 to an Axes, otherwise unit conversion will fail. This
+                 maxes it very important to call the accessor method and
+                 not directly access the transformation member variable.
+        """
+        assert self._patch_type == 'circle'
+        center = (self.convert_xunits(self._center[0]),
+                  self.convert_yunits(self._center[1]))
+        width = self.convert_xunits(self._width)
+        height = self.convert_yunits(self._height)
+        self._patch_transform = mtransforms.Affine2D() \
+            .scale(width * 0.5, height * 0.5) \
+            .rotate_deg(self._angle) \
+            .translate(*center)
+
+    def get_patch_transform(self):
+        if self._patch_type == 'circle':
+            self._recompute_transform()
+            return self._patch_transform
+        else:
+            return super(Spine,self).get_patch_transform()
+
+    def get_path(self):
+        return self._path
 
     def _ensure_position_is_set(self):
         if self._position is None:
@@ -75,14 +135,6 @@ class Spine(martist.Artist):
         self._position = None # clear position
         if self.axis is not None:
             self.axis.cla()
-
-    @allow_rasterization
-    def draw(self,renderer):
-        "draw everything that belongs to the spine"
-        if self.color=='none':
-            # don't draw invisible spines
-            return
-        self.artist.draw(renderer)
 
     def _calc_offset_transform(self):
         """calculate the offset transform performed by the spine"""
@@ -176,7 +228,7 @@ class Spine(martist.Artist):
         elif self.spine_type in ['bottom','top']:
             t2 = mtransforms.blended_transform_factory(self.axes.transAxes,
                                                        t)
-        self.artist.set_transform(t2)
+        self.set_transform(t2)
 
         if self.axis is not None:
             self.axis.cla()
@@ -223,17 +275,31 @@ class Spine(martist.Artist):
         else:
             raise ValueError("unknown spine_transform type: %s"%what)
 
-    def set_color(self,value):
-        """set the color of the spine artist
-
-        Note: a value of 'none' will cause the artist not to be drawn.
+    @classmethod
+    def linear_spine(cls, axes, spine_type, **kwargs):
         """
-        self.color = value
-        if isinstance(self.artist,mlines.Line2D):
-            self.artist.set_color(self.color)
-        elif isinstance(self.artist,mpatches.Patch):
-            self.artist.set_edgecolor(self.color)
+        (staticmethod) Returns a linear :class:`Spine`.
+        """
+        if spine_type=='left':
+            path = mpath.Path([(0.0, 0.0), (0.0, 1.0)])
+        elif spine_type=='right':
+            path = mpath.Path([(1.0, 0.0), (1.0, 1.0)])
+        elif spine_type=='bottom':
+            path = mpath.Path([(0.0, 0.0), (1.0, 0.0)])
+        elif spine_type=='top':
+            path = mpath.Path([(0.0, 1.0), (1.0, 1.0)])
+        else:
+            raise ValueError('unable to make path for spine "%s"'%spine_type)
+        result = cls(axes,spine_type,path,**kwargs)
+        return result
 
-    def get_color(self):
-        """get the color of the spine artist"""
-        return self.color
+    @classmethod
+    def circular_spine(cls,axes,center,radius,**kwargs):
+        """
+        (staticmethod) Returns a circular :class:`Spine`.
+        """
+        path = mpath.Path.unit_circle()
+        spine_type = 'circle'
+        result = cls(axes,spine_type,path,**kwargs)
+        result.set_patch_circle(center,radius)
+        return result

@@ -891,14 +891,10 @@ class Axes(martist.Artist):
             Intended to be overridden by new projection types.
         """
         return {
-            'left':mspines.Spine(self,'left',
-                                 mlines.Line2D((0.0, 0.0), (0.0, 1.0))),
-            'right':mspines.Spine(self,'right',
-                                  mlines.Line2D((1.0, 1.0), (0.0, 1.0))),
-            'bottom':mspines.Spine(self,'bottom',
-                                   mlines.Line2D((0.0, 1.0), (0.0, 0.0))),
-            'top':mspines.Spine(self,'top',
-                                mlines.Line2D((0.0, 1.0), (1.0, 1.0))),
+            'left':mspines.Spine.linear_spine(self,'left'),
+            'right':mspines.Spine.linear_spine(self,'right'),
+            'bottom':mspines.Spine.linear_spine(self,'bottom'),
+            'top':mspines.Spine.linear_spine(self,'top'),
             }
 
     def cla(self):
