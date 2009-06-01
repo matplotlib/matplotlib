@@ -1,3 +1,5 @@
+2009-06-01 use cbook.is_string_like() instead of isinstance() for spines - ADS
+
 2009-06-01 cla() support for spines - ADS
 
 2009-06-01 Removed support for gtk < 2.4. - EF

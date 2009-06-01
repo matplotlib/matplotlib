@@ -8,6 +8,7 @@ from matplotlib.artist import allow_rasterization
 import matplotlib.transforms as mtransforms
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
+import matplotlib.cbook as cbook
 import warnings
 
 class Spine(martist.Artist):
@@ -87,7 +88,7 @@ class Spine(martist.Artist):
         """calculate the offset transform performed by the spine"""
         self._ensure_position_is_set()
         position = self._position
-        if isinstance(position,basestring):
+        if cbook.is_string_like(position):
             if position=='center':
                 position = ('axes',0.5)
             elif position=='zero':
