@@ -199,6 +199,21 @@ class Patch(artist.Artist):
         """alias for set_facecolor"""
         return self.set_facecolor(color)
 
+    def set_color(self, c):
+        """
+        Set both the edgecolor and the facecolor.
+
+        ACCEPTS: matplotlib color arg or sequence of rgba tuples
+
+        .. seealso::
+
+            :meth:`set_facecolor`, :meth:`set_edgecolor`
+               For setting the edge or face color individually.
+        """
+        self.set_facecolor(c)
+        self.set_edgecolor(c)
+
+
     def set_linewidth(self, w):
         """
         Set the patch linewidth in points
