@@ -69,6 +69,12 @@ class Spine(martist.Artist):
         if self.axis is not None:
             self.axis.cla()
 
+    def cla(self):
+        'Clear the current spine'
+        self._position = None # clear position
+        if self.axis is not None:
+            self.axis.cla()
+
     @allow_rasterization
     def draw(self,renderer):
         "draw everything that belongs to the spine"
