@@ -10,7 +10,7 @@ try:
 except ImportError:
     raise ImportError("Gtk* backend requires pygtk to be installed.")
 
-pygtk_version_required = (2,2,0)
+pygtk_version_required = (2,4,0)
 if gtk.pygtk_version < pygtk_version_required:
     raise ImportError ("PyGTK %d.%d.%d is installed\n"
                       "PyGTK %d.%d.%d or later is required"
@@ -606,36 +606,8 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
     def _init_toolbar(self):
         self.set_style(gtk.TOOLBAR_ICONS)
+        self._init_toolbar2_4()
 
-        if gtk.pygtk_version >= (2,4,0):
-            self._init_toolbar2_4()
-        else:
-            self._init_toolbar2_2()
-
-
-    def _init_toolbar2_2(self):
-        basedir = os.path.join(matplotlib.rcParams['datapath'],'images')
-
-        for text, tooltip_text, image_file, callback in self.toolitems:
-            if text is None:
-                 self.append_space()
-                 continue
-
-            fname = os.path.join(basedir, image_file)
-            image = gtk.Image()
-            image.set_from_file(fname)
-            w = self.append_item(text,
-                                 tooltip_text,
-                                 'Private',
-                                 image,
-                                 getattr(self, callback)
-                                 )
-
-        self.append_space()
-
-        self.message = gtk.Label()
-        self.append_widget(self.message, None, None)
-        self.message.show()
 
     def _init_toolbar2_4(self):
         basedir = os.path.join(matplotlib.rcParams['datapath'],'images')
@@ -668,15 +640,11 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.show_all()
 
     def get_filechooser(self):
-        if gtk.pygtk_version >= (2,4,0):
-            return FileChooserDialog(
-                title='Save the figure',
-                parent=self.win,
-                filetypes=self.canvas.get_supported_filetypes(),
-                default_filetype=self.canvas.get_default_filetype())
-        else:
-            return FileSelection(title='Save the figure',
-                                 parent=self.win,)
+        return FileChooserDialog(
+            title='Save the figure',
+            parent=self.win,
+            filetypes=self.canvas.get_supported_filetypes(),
+            default_filetype=self.canvas.get_default_filetype())
 
     def save_figure(self, button):
         fname, format = self.get_filechooser().get_filename_from_user()
@@ -768,19 +736,13 @@ class NavigationToolbar(gtk.Toolbar):
 
         self.set_style(gtk.TOOLBAR_ICONS)
 
-        if gtk.pygtk_version >= (2,4,0):
-            self._create_toolitems_2_4()
-            self.update = self._update_2_4
-            self.fileselect = FileChooserDialog(
-                title='Save the figure',
-                parent=self.win,
-                filetypes=self.canvas.get_supported_filetypes(),
-                default_filetype=self.canvas.get_default_filetype())
-        else:
-            self._create_toolitems_2_2()
-            self.update = self._update_2_2
-            self.fileselect = FileSelection(title='Save the figure',
-                                            parent=self.win)
+        self._create_toolitems_2_4()
+        self.update = self._update_2_4
+        self.fileselect = FileChooserDialog(
+            title='Save the figure',
+            parent=self.win,
+            filetypes=self.canvas.get_supported_filetypes(),
+            default_filetype=self.canvas.get_default_filetype())
         self.show_all()
         self.update()
 
@@ -860,46 +822,6 @@ class NavigationToolbar(gtk.Toolbar):
         self.set_active(range(len(self._axes)))
 
 
-    def _create_toolitems_2_2(self):
-        # use the GTK+ 2.2 (and lower) GtkToolbar API
-        iconSize = gtk.ICON_SIZE_SMALL_TOOLBAR
-
-        for text, tooltip_text, image_num, callback, callback_arg, scroll \
-                in self.toolitems:
-            if text is None:
-                self.append_space()
-                continue
-            image = gtk.Image()
-            image.set_from_stock(image_num, iconSize)
-            item = self.append_item(text, tooltip_text, 'Private', image,
-                                    getattr(self, callback), callback_arg)
-            if scroll:
-                item.connect("scroll_event", getattr(self, callback))
-
-        self.omenu = gtk.OptionMenu()
-        self.omenu.set_border_width(3)
-        self.insert_widget(
-            self.omenu,
-            'Select axes that controls affect',
-            'Private', 0)
-
-
-    def _update_2_2(self):
-        # for GTK+ 2.2 and lower
-        # called by __init__() and FigureManagerGTK
-
-        self._axes = self.canvas.figure.axes
-
-        if len(self._axes) >= 2:
-            # set up the axis menu
-            self.omenu.set_menu( self._make_axis_menu() )
-            self.omenu.show_all()
-        else:
-            self.omenu.hide()
-
-        self.set_active(range(len(self._axes)))
-
-
     def _make_axis_menu(self):
         # called by self._update*()
 
@@ -969,15 +891,11 @@ class NavigationToolbar(gtk.Toolbar):
         return True
 
     def get_filechooser(self):
-        if gtk.pygtk_version >= (2,4,0):
-            return FileChooserDialog(
-                title='Save the figure',
-                parent=self.win,
-                filetypes=self.canvas.get_supported_filetypes(),
-                default_filetype=self.canvas.get_default_filetype())
-        else:
-            return FileSelection(title='Save the figure',
-                                 parent=self.win)
+        return FileChooserDialog(
+            title='Save the figure',
+            parent=self.win,
+            filetypes=self.canvas.get_supported_filetypes(),
+            default_filetype=self.canvas.get_default_filetype())
 
     def save_figure(self, button):
         fname, format = self.get_filechooser().get_filename_from_user()
@@ -988,111 +906,80 @@ class NavigationToolbar(gtk.Toolbar):
                 error_msg_gtk(str(e), parent=self)
 
 
-if gtk.pygtk_version >= (2,4,0):
-    class FileChooserDialog(gtk.FileChooserDialog):
-        """GTK+ 2.4 file selector which remembers the last file/directory
-        selected and presents the user with a menu of supported image formats
-        """
-        def __init__ (self,
-                      title   = 'Save file',
-                      parent  = None,
-                      action  = gtk.FILE_CHOOSER_ACTION_SAVE,
-                      buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                                 gtk.STOCK_SAVE,   gtk.RESPONSE_OK),
-                      path    = None,
-                      filetypes = [],
-                      default_filetype = None
-                      ):
-            super (FileChooserDialog, self).__init__ (title, parent, action,
-                                                      buttons)
-            self.set_default_response (gtk.RESPONSE_OK)
+class FileChooserDialog(gtk.FileChooserDialog):
+    """GTK+ 2.4 file selector which remembers the last file/directory
+    selected and presents the user with a menu of supported image formats
+    """
+    def __init__ (self,
+                  title   = 'Save file',
+                  parent  = None,
+                  action  = gtk.FILE_CHOOSER_ACTION_SAVE,
+                  buttons = (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                             gtk.STOCK_SAVE,   gtk.RESPONSE_OK),
+                  path    = None,
+                  filetypes = [],
+                  default_filetype = None
+                  ):
+        super (FileChooserDialog, self).__init__ (title, parent, action,
+                                                  buttons)
+        self.set_default_response (gtk.RESPONSE_OK)
 
-            if not path: path = os.getcwd() + os.sep
+        if not path: path = os.getcwd() + os.sep
 
-            # create an extra widget to list supported image formats
-            self.set_current_folder (path)
-            self.set_current_name ('image.' + default_filetype)
+        # create an extra widget to list supported image formats
+        self.set_current_folder (path)
+        self.set_current_name ('image.' + default_filetype)
 
-            hbox = gtk.HBox (spacing=10)
-            hbox.pack_start (gtk.Label ("File Format:"), expand=False)
+        hbox = gtk.HBox (spacing=10)
+        hbox.pack_start (gtk.Label ("File Format:"), expand=False)
 
-            liststore = gtk.ListStore(gobject.TYPE_STRING)
-            cbox = gtk.ComboBox(liststore)
-            cell = gtk.CellRendererText()
-            cbox.pack_start(cell, True)
-            cbox.add_attribute(cell, 'text', 0)
-            hbox.pack_start (cbox)
+        liststore = gtk.ListStore(gobject.TYPE_STRING)
+        cbox = gtk.ComboBox(liststore)
+        cell = gtk.CellRendererText()
+        cbox.pack_start(cell, True)
+        cbox.add_attribute(cell, 'text', 0)
+        hbox.pack_start (cbox)
 
-            self.filetypes = filetypes
-            self.sorted_filetypes = filetypes.items()
-            self.sorted_filetypes.sort()
-            default = 0
-            for i, (ext, name) in enumerate(self.sorted_filetypes):
-                cbox.append_text ("%s (*.%s)" % (name, ext))
-                if ext == default_filetype:
-                    default = i
-            cbox.set_active(default)
-            self.ext = default_filetype
+        self.filetypes = filetypes
+        self.sorted_filetypes = filetypes.items()
+        self.sorted_filetypes.sort()
+        default = 0
+        for i, (ext, name) in enumerate(self.sorted_filetypes):
+            cbox.append_text ("%s (*.%s)" % (name, ext))
+            if ext == default_filetype:
+                default = i
+        cbox.set_active(default)
+        self.ext = default_filetype
 
-            def cb_cbox_changed (cbox, data=None):
-                """File extension changed"""
-                head, filename = os.path.split(self.get_filename())
-                root, ext = os.path.splitext(filename)
-                ext = ext[1:]
-                new_ext = self.sorted_filetypes[cbox.get_active()][0]
-                self.ext = new_ext
+        def cb_cbox_changed (cbox, data=None):
+            """File extension changed"""
+            head, filename = os.path.split(self.get_filename())
+            root, ext = os.path.splitext(filename)
+            ext = ext[1:]
+            new_ext = self.sorted_filetypes[cbox.get_active()][0]
+            self.ext = new_ext
 
-                if ext in self.filetypes:
-                    filename = root + '.' + new_ext
-                elif ext == '':
-                    filename = filename.rstrip('.') + '.' + new_ext
+            if ext in self.filetypes:
+                filename = root + '.' + new_ext
+            elif ext == '':
+                filename = filename.rstrip('.') + '.' + new_ext
 
-                self.set_current_name (filename)
-            cbox.connect ("changed", cb_cbox_changed)
+            self.set_current_name (filename)
+        cbox.connect ("changed", cb_cbox_changed)
 
-            hbox.show_all()
-            self.set_extra_widget(hbox)
+        hbox.show_all()
+        self.set_extra_widget(hbox)
 
-        def get_filename_from_user (self):
-            while True:
-                filename = None
-                if self.run() != int(gtk.RESPONSE_OK):
-                    break
-                filename = self.get_filename()
-                break
-
-            self.hide()
-            return filename, self.ext
-else:
-    class FileSelection(gtk.FileSelection):
-        """GTK+ 2.2 and lower file selector which remembers the last
-        file/directory selected
-        """
-        def __init__(self, path=None, title='Select a file', parent=None):
-            super(FileSelection, self).__init__(title)
-
-            if path: self.path = path
-            else:    self.path = os.getcwd() + os.sep
-
-            if parent: self.set_transient_for(parent)
-
-        def get_filename_from_user(self, path=None, title=None):
-            if path:  self.path = path
-            if title: self.set_title(title)
-            self.set_filename(self.path)
-
+    def get_filename_from_user (self):
+        while True:
             filename = None
-            if self.run() == int(gtk.RESPONSE_OK):
-                self.path = filename = self.get_filename()
-            self.hide()
+            if self.run() != int(gtk.RESPONSE_OK):
+                break
+            filename = self.get_filename()
+            break
 
-            ext = None
-            if filename is not None:
-                ext = os.path.splitext(filename)[1]
-                if ext.startswith('.'):
-                    ext = ext[1:]
-            return filename, ext
-
+        self.hide()
+        return filename, self.ext
 
 class DialogLineprops:
     """
