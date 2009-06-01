@@ -906,6 +906,8 @@ class Axes(martist.Artist):
         # Note: this is called by Axes.__init__()
         self.xaxis.cla()
         self.yaxis.cla()
+        for name,spine in self.spines.iteritems():
+            spine.cla()
 
         self.ignore_existing_data_limits = True
         self.callbacks = cbook.CallbackRegistry(('xlim_changed',
