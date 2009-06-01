@@ -1,4 +1,6 @@
-2009-05-29 Improved the animation_blit_qt4 example, which was a mix 
+2009-06-01 Removed support for gtk < 2.4. - EF
+
+2009-05-29 Improved the animation_blit_qt4 example, which was a mix
            of the object-oriented and pylab interfaces. It is now
            strictly object-oriented - DSD
 
