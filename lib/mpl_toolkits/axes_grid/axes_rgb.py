@@ -10,8 +10,8 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
 
     pad_size = Size.Fraction(pad, Size.AxesY(ax))
 
-    xsize = Size.Fraction(Size.AxesX(ax), (1.-2.*pad)/3.)
-    ysize = Size.Fraction(Size.AxesY(ax), (1.-2.*pad)/3.)
+    xsize = Size.Fraction((1.-2.*pad)/3., Size.AxesX(ax))
+    ysize = Size.Fraction((1.-2.*pad)/3., Size.AxesY(ax))
 
     divider.set_horizontal([Size.AxesX(ax), pad_size, xsize])
     divider.set_vertical([ysize, pad_size, ysize, pad_size, ysize])
@@ -50,6 +50,22 @@ def make_rgb_axes(ax, pad=0.01, axes_class=None, add_all=True):
 
 #import matplotlib.axes as maxes
 import axislines
+
+def imshow_rgb(ax, r, g, b, **kwargs):
+    ny, nx = r.shape
+    R = np.zeros([ny, nx, 3], dtype="d")
+    R[:,:,0] = r
+    G = np.zeros_like(R)
+    G[:,:,1] = g
+    B = np.zeros_like(R)
+    B[:,:,2] = b
+
+    RGB = R + G + B
+
+    im_rgb = ax.imshow(RGB, **kwargs)
+
+    return im_rgb
+
 
 class RGBAxes(object):
     def __init__(self, *kl, **kwargs):

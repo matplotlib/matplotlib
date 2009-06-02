@@ -26,7 +26,8 @@ if 1:
 
     # make new (right-side) yaxis, but wth some offset
     offset = (20, 0)
-    new_axisline = ax.get_grid_helper().new_axisline
+    new_axisline = ax.get_grid_helper().new_fixed_axis
+
     ax.axis["right2"] = new_axisline(loc="right",
                                      offset=offset)
     ax.axis["right2"].label.set_text("Label Y2")

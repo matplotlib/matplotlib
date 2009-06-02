@@ -1,3 +1,7 @@
+2009-06-01  Jae-Joon Lee  <lee.j.joon@gmail.com>
+
+	* axislines.py (Axes.toggle_axisline): fix broken spine support.
+
 2009-05-04  Jae-Joon Lee  <lee.j.joon@gmail.com>
 
 	* inset_locator.py (inset_axes, zoomed_inset_axes): axes_class support
