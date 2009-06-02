@@ -1,11 +1,11 @@
 PYTHON = C:/Python26/python.exe
-SRCDIR = ${PWD}# autoconf needs this path
-WINSRCDIR = `${PWD}/data/mingw_path.sh ${PWD}`# distutils needs windows paths
+SRCDIR = ${PWD}
+WINSRCDIR = `${PWD}/data/mingw_path.sh ${PWD}`
 ZLIBVERSION = 1.2.3
-PNGVERSION = 1.2.33
-FREETYPEVERSION = 2.3.7
-#TCLTKVERSION = 8.4.19# Before Python 2.6
-TCLTKVERSION = 8.5.7# Python 2.6
+PNGVERSION = 1.2.23
+FREETYPEVERSION = 2.3.9
+#TCLTKVERSION = 8.4.19
+TCLTKVERSION = 8.5.7
 MPLVERSION = 0.98.6svn
 
 ## You shouldn't need to configure past this point
@@ -24,7 +24,7 @@ LDFLAGS  = -L${SRCDIR}/zlib-${ZLIBVERSION}
 LDFLAGS += -L${SRCDIR}/libpng-${PNGVERSION}
 LDFLAGS += -L${SRCDIR}/freetype-${FREETYPEVERSION}
 
-PY_INCLUDE = "${WINSRCDIR}/zlib-${ZLIBVERSION};${WINSRCDIR}/libpng-${PNGVERSION};${WINSRCDIR}/freetype-${FREETYPEVERSION}/include;${WINSRCDIR}/tcl${TCLTKVERSION}/generic;${WINSRCDIR}/tcl${TCLTKVERSION}/win;${WINSRCDIR}/tk${TCLTKVERSION}/generic;${WINSRCDIR}/tk${TCLTKVERSION}/win;${WINSRCDIR}/tk${TCLTKVERSION}/xlib"
+PY_INCLUDE = "${WINSRCDIR}\\zlib-${ZLIBVERSION};${WINSRCDIR}/libpng-${PNGVERSION};${WINSRCDIR}/freetype-${FREETYPEVERSION}/include;${WINSRCDIR}/tcl${TCLTKVERSION}/generic;${WINSRCDIR}/tcl${TCLTKVERSION}/win;${WINSRCDIR}/tk${TCLTKVERSION}/generic;${WINSRCDIR}/tk${TCLTKVERSION}/win;${WINSRCDIR}/tk${TCLTKVERSION}/xlib"
 
 PY_LINKER = "${WINSRCDIR}/zlib-${ZLIBVERSION};${WINSRCDIR}/libpng-${PNGVERSION};${WINSRCDIR}/freetype-${FREETYPEVERSION}"
 
@@ -38,8 +38,8 @@ clean:
 
 fetch_deps:
 	wget http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz
-	wget http://internap.dl.sourceforge.net/sourceforge/libpng/libpng-${PNGVERSION}.tar.bz2
-	wget http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2
+	wget http://prdownloads.sourceforge.net/libpng/libpng-${PNGVERSION}.tar.bz2
+	wget http://prdownloads.sourceforge.net/freetype/freetype-2.3.9.tar.bz2
 	wget http://prdownloads.sourceforge.net/tcl/tcl${TCLTKVERSION}-src.tar.gz
 	wget http://prdownloads.sourceforge.net/tcl/tk${TCLTKVERSION}-src.tar.gz
 
