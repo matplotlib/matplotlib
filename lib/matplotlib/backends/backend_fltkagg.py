@@ -115,6 +115,7 @@ def new_figure_manager(num, *args, **kwargs):
     window = Fltk.Fl_Double_Window(10,10,30,30)
     canvas = FigureCanvasFltkAgg(figure)
     window.end()
+    #Fltk.Fl.visual(Fltk.FL_DOUBLE)
     window.show()
     window.make_current()
     figManager = FigureManagerFltkAgg(canvas, num, window)
@@ -157,7 +158,7 @@ class FltkCanvas(Fltk.Fl_Widget):
     def handle(self, event):
         x=Fltk.Fl.event_x()
         y=Fltk.Fl.event_y()
-        yf=self._source.figure.bbox.height() - y
+        yf=self._source.figure.bbox.height - y
         if event == Fltk.FL_FOCUS or event == Fltk.FL_UNFOCUS:
             return 1
         elif event == Fltk.FL_KEYDOWN:
@@ -230,7 +231,7 @@ class FigureCanvasFltkAgg(FigureCanvasAgg):
     def resize(self,size):
         w, h = size
         # compute desired figure size in inches
-        dpival = self.figure.dpi.get()
+        dpival = self.figure.dpi
         winch = w/dpival
         hinch = h/dpival
         self.figure.set_size_inches(winch,hinch)
@@ -405,7 +406,7 @@ class NavigationToolbar:
     """
 
     def __init__(self, canvas, figman):
-        #xmin, xmax = canvas.figure.bbox.intervalx().get_bounds()
+        #xmin, xmax = canvas.figure.bbox.intervalx
         #height, width = 50, xmax-xmin
         self.canvas = canvas
         self.figman = figman
