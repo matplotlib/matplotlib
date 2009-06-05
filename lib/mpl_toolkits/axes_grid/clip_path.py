@@ -1,6 +1,12 @@
 import numpy as np
-from math import degrees, atan2
+from math import degrees
+import math
 
+def atan2(dy, dx):
+    if dx == 0 and dx == 0:
+        return 0
+    else:
+        return math.atan2(dy, dx)
 
 # FIXME : The current algorithm seems to return incorrect angle when the line
 # ends at the boudnary.
@@ -38,6 +44,10 @@ def clip(xlines, ylines, x0, clip="right"):
                 ns = -1
                 segx, segy = [], []
 
+                if dx == 0. and dy == 0:
+                    dx = x[+1] - x[i]
+                    dy = y[i+1] - y[i]
+
                 a = degrees(atan2(dy, dx))
                 _pos_angles.append((x0, y0, a))
 
@@ -47,6 +57,10 @@ def clip(xlines, ylines, x0, clip="right"):
                 y0 = y[i] + dy
                 segx, segy = [x0], [y0]
                 ns = i+1
+
+                if dx == 0. and dy == 0:
+                    dx = x[+1] - x[i]
+                    dy = y[i+1] - y[i]
 
                 a = degrees(atan2(dy, dx))
                 _pos_angles.append((x0, y0, a))
