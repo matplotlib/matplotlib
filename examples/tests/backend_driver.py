@@ -86,7 +86,7 @@ pylab_files = [
     'figimage_demo.py',
     'figlegend_demo.py',
     'figure_title.py',
-    'fill_between.py',
+    'fill_between_demo.py',
     'fill_demo.py',
     'fill_demo2.py',
     'fill_spiral.py',
