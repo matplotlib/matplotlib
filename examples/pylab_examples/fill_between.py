@@ -46,5 +46,21 @@ ax1.set_title('Now regions with y2>1 are masked')
 # points.  A brute-force solution would be to interpolate all
 # arrays to a very fine grid before plotting.
 
+# show how to use transforms to create axes spans where a certain condition is satisfied
+fig = figure()
+ax = fig.add_subplot(111)
+y = np.sin(4*np.pi*x)
+ax.plot(x, y, color='black')
+
+# use the data coordinates for the x-axis and the axes coordinates for the y-axis
+import matplotlib.transforms as mtransforms
+trans = mtransforms.blended_transform_factory(ax.transData, ax.transAxes)
+ax.axhline(0.5, color='green', lw=2, alpha=0.5)
+ax.axhline(-0.5, color='red', lw=2, alpha=0.5)
+ax.fill_between(x, 0, 1, where=y2>0.5, facecolor='green', alpha=0.5, transform=trans)
+ax.fill_between(x, 0, 1, where=y2<-0.5, facecolor='red', alpha=0.5, transform=trans)
+
+
+
 show()
 
