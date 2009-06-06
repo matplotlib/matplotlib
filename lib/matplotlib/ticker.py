@@ -1182,6 +1182,40 @@ class AutoLocator(MaxNLocator):
     def __init__(self):
         MaxNLocator.__init__(self, nbins=9, steps=[1, 2, 5, 10])
 
+class AutoMinorLocator(Locator):
+    """
+    Dynamically find minor tick positions based on the positions of
+    major ticks. Assumes the scale is linear and major ticks are
+    evenly spaced.
+    """
+    def __call__(self):
+        'Return the locations of the ticks'
+        majorlocs = self.axis.get_majorticklocs()
+        try:
+            majorstep = majorlocs[1] - majorlocs[0]
+        except IndexError:
+            raise ValueError('Need at least two major ticks to find minor '
+                             'tick locations')
+        # see whether major step should be divided by 5, 4 or 2. This
+        # should cover most cases.
+        temp = float(('%e' % majorstep).split('e')[0])
+        if temp % 5 < 1e-10:
+            minorstep = majorstep / 5.
+        elif temp % 2 < 1e-10:
+            minorstep = majorstep / 4.
+        else:
+            minorstep = majorstep / 2.
+
+        tmin = majorlocs[0] - majorstep
+        tmax = majorlocs[-1] + majorstep
+        locs = np.arange(tmin, tmax, minorstep)
+        vmin, vmax = self.axis.get_view_interval()
+        if vmin > vmax:
+            vmin,vmax = vmax,vmin
+
+        return locs[(vmin < locs) & (locs < vmax)]
+
+
 class OldAutoLocator(Locator):
     """
     On autoscale this class picks the best MultipleLocator to set the

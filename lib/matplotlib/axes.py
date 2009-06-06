@@ -7790,7 +7790,19 @@ class Axes(martist.Artist):
 
         return _bbox
 
+    def minorticks_on(self):
+        'Add autoscaling minor ticks to the axes.'
+        for ax in (self.xaxis, self.yaxis):
+            if ax.get_scale() == 'log':
+                s = ax._scale
+                ax.set_minor_locator(mticker.LogLocator(s.base, s.subs))
+            else:
+                ax.set_minor_locator(mticker.AutoMinorLocator())
 
+    def minorticks_off(self):
+        'Remove minor ticks from the axes.'
+        self.xaxis.set_minor_locator(mticker.NullLocator())
+        self.yaxis.set_minor_locator(mticker.NullLocator())
 
 
 class SubplotBase:
