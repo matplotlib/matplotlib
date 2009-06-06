@@ -1047,7 +1047,22 @@ def yticks(*args, **kwargs):
              silent_list('Text yticklabel', labels)
              )
 
+def minorticks_on():
+    """
+    Display minor ticks on the current plot.
 
+    Displaying minor ticks reduces performance; turn them off using
+    minorticks_off() if drawing speed is a problem.
+    """
+    gca().minorticks_on()
+    draw_if_interactive()
+
+def minorticks_off():
+    """
+    Remove minor ticks from the current plot.
+    """
+    gca().minorticks_off()
+    draw_if_interactive()
 
 def rgrids(*args, **kwargs):
     """
