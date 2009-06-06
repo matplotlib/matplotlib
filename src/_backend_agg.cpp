@@ -465,7 +465,7 @@ RendererAgg::restore_region2(const Py::Tuple& args) {
   if (region->data==NULL)
     throw Py::ValueError("Cannot restore_region from NULL data");
 
-  agg::rect_i rect(xx1-region->rect.x1, (yy1-region->rect.y1), 
+  agg::rect_i rect(xx1-region->rect.x1, (yy1-region->rect.y1),
 		   xx2-region->rect.x1, (yy2-region->rect.y1));
 
 
@@ -1187,6 +1187,7 @@ RendererAgg::_draw_path_collection_generic
 			     *(double*)PyArray_GETPTR2(edgecolors, ei, 1),
 			     *(double*)PyArray_GETPTR2(edgecolors, ei, 2),
 			     *(double*)PyArray_GETPTR2(edgecolors, ei, 3));
+
 	if (Nlinewidths) {
 	  gc.linewidth = double(Py::Float(linewidths[i % Nlinewidths])) * dpi/72.0;
 	} else {

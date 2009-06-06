@@ -373,7 +373,11 @@ class ColorConverter:
             if isinstance(c, np.ndarray):
                 if c.ndim != 2 and c.dtype.kind not in 'SU':
                     raise ValueError("Color array must be two-dimensional")
-
+                if len(c.shape)==2 and c.shape[-1]==4:
+                    # looks like rgba already, nothing to be done; do
+                    # we want to apply alpha here if
+                    # (c[:,3]==1).all() ?
+                    return c
             result = np.zeros((len(c), 4))
             for i, cc in enumerate(c):
                 result[i] = self.to_rgba(cc, alpha)  # change in place
@@ -976,7 +980,7 @@ class LightSource(object):
     def __init__(self,azdeg=315,altdeg=45,\
                  hsv_min_val=0,hsv_max_val=1,hsv_min_sat=1,hsv_max_sat=0):
        """
-       Specify the azimuth (measured clockwise from south) and altitude 
+       Specify the azimuth (measured clockwise from south) and altitude
        (measured up from the plane of the surface) of the light source
        in degrees.
 
@@ -987,7 +991,7 @@ class LightSource(object):
        (hsv_max_sat hsv_max_val) in regions that are illuminated.
        The default extremes are chose so that completely shaded points
        are nearly black (s = 1, v = 0) and completely illuminated points
-       are nearly white (s = 0, v = 1). 
+       are nearly white (s = 0, v = 1).
        """
        self.azdeg = azdeg
        self.altdeg = altdeg
@@ -999,10 +1003,10 @@ class LightSource(object):
     def shade(self,data,cmap):
         """
         Take the input data array, convert to HSV values in the
-        given colormap, then adjust those color values 
+        given colormap, then adjust those color values
         to given the impression of a shaded relief map with a
         specified light source.
-        RGBA values are returned, which can then be used to 
+        RGBA values are returned, which can then be used to
         plot the shaded image with imshow.
         """
         # imagine an artificial sun placed at infinity in
