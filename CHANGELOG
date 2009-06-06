@@ -1,5 +1,8 @@
-2009-06-03 axes_grid : Initial check-in of curvelinear grid support. See 
+
+2009-06-03 axes_grid : Initial check-in of curvelinear grid support. See
            examples/axes_grid/demo_curvelinear_grid.py - JJL
+
+2009-06-01 Add set_color method to Patch - EF
 
 2009-06-01 Spine is now derived from Patch - ADS
 
