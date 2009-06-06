@@ -361,27 +361,35 @@ class ColorConverter:
         then an empty array will be returned.  Same for an empty list.
         """
         try:
-            if c.lower() == 'none':
-                return np.zeros((0,4), dtype=np.float_)
+            nc = len(c)
+        except TypeError:
+            raise ValueError(
+                "Cannot convert argument type %s to rgba array" % type(c))
+        try:
+            if nc == 0 or c.lower() == 'none':
+                return np.zeros((0,4), dtype=np.float)
         except AttributeError:
             pass
-        if len(c) == 0:
-            return np.zeros((0,4), dtype=np.float_)
         try:
-            result = np.array([self.to_rgba(c, alpha)], dtype=np.float_)
+            # Single value? Put it in an array with a single row.
+            return np.array([self.to_rgba(c, alpha)], dtype=np.float)
         except ValueError:
             if isinstance(c, np.ndarray):
                 if c.ndim != 2 and c.dtype.kind not in 'SU':
                     raise ValueError("Color array must be two-dimensional")
-                if len(c.shape)==2 and c.shape[-1]==4:
+                if (c.ndim == 2 and c.shape[1] == 4 and c.dtype.kind == 'f'):
+                    if (c.ravel() > 1).any() or (c.ravel() < 0).any():
+                        raise ValueError(
+                            "number in rgba sequence is outside 0-1 range")
                     # looks like rgba already, nothing to be done; do
                     # we want to apply alpha here if
                     # (c[:,3]==1).all() ?
-                    return c
-            result = np.zeros((len(c), 4))
+                    return np.asarray(c, np.float)
+            # It must be some other sequence of color specs.
+            result = np.zeros((nc, 4), dtype=np.float)
             for i, cc in enumerate(c):
-                result[i] = self.to_rgba(cc, alpha)  # change in place
-        return np.asarray(result, np.float_)
+                result[i] = self.to_rgba(cc, alpha)
+            return result
 
 colorConverter = ColorConverter()
 
