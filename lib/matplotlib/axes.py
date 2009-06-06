@@ -2468,12 +2468,14 @@ class Axes(martist.Artist):
     def format_coord(self, x, y):
         'return a format string formatting the *x*, *y* coord'
         if x is None:
-            x = '???'
+            xs = '???'
+        else:
+            xs = self.format_xdata(x)
         if y is None:
-            y = '???'
-        xs = self.format_xdata(x)
-        ys = self.format_ydata(y)
-        return  'x=%s, y=%s'%(xs,ys)
+            ys = '???'
+        else:
+            ys = self.format_ydata(y)
+        return  'x=%s y=%s'%(xs,ys)
 
     #### Interactive manipulation
 

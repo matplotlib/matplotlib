@@ -1460,7 +1460,7 @@ class FigureCanvasBase:
 
             restore_bbox = tight_bbox.adjust_bbox(self.figure, format,
                                                   bbox_inches)
-            
+
             _bbox_inches_restore = (bbox_inches, restore_bbox)
         else:
             _bbox_inches_restore = None
@@ -1896,7 +1896,7 @@ class NavigationToolbar2:
             except OverflowError: pass
             else:
                 if len(self.mode):
-                    self.set_message('%s : %s' % (self.mode, s))
+                    self.set_message('%s, %s' % (self.mode, s))
                 else:
                     self.set_message(s)
         else: self.set_message(self.mode)
@@ -1923,7 +1923,7 @@ class NavigationToolbar2:
                 'button_press_event', self.press_pan)
             self._idRelease = self.canvas.mpl_connect(
                 'button_release_event', self.release_pan)
-            self.mode = 'pan/zoom mode'
+            self.mode = 'pan/zoom'
             self.canvas.widgetlock(self)
         else:
             self.canvas.widgetlock.release(self)
@@ -2193,7 +2193,7 @@ class NavigationToolbar2:
         if  self._active:
             self._idPress = self.canvas.mpl_connect('button_press_event', self.press_zoom)
             self._idRelease = self.canvas.mpl_connect('button_release_event', self.release_zoom)
-            self.mode = 'Zoom to rect mode'
+            self.mode = 'zoom rect'
             self.canvas.widgetlock(self)
         else:
             self.canvas.widgetlock.release(self)

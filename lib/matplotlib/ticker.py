@@ -344,7 +344,7 @@ class ScalarFormatter(Formatter):
 
     def format_data_short(self,value):
         'return a short formatted string representation of a number'
-        return '%1.3g'%value
+        return '%-12g'%value
 
     def format_data(self,value):
         'return a formatted string representation of a number'
@@ -525,7 +525,7 @@ class LogFormatter(Formatter):
 
     def format_data_short(self,value):
         'return a short formatted string representation of a number'
-        return '%1.3g'%value
+        return '%-12g'%value
 
     def is_decade(self, x):
         n = self.nearest_long(x)
