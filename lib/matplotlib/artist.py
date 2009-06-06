@@ -672,6 +672,12 @@ class Artist(object):
         self.pchanged()
 
 
+    def properties(self):
+        """
+        return a dictionary mapping property name -> value for all Artist props
+        """
+        return ArtistInspector(self).properties()
+
     def set(self, **kwargs):
         """
         A tkstyle set command, pass *kwargs* to set properties
@@ -876,6 +882,7 @@ class ArtistInspector:
         return ':meth:`%s <%s>`%s' % (s, target, aliases)
 
 
+
     def pprint_setters(self, prop=None, leadingspace=2):
         """
         If *prop* is *None*, return a list of strings of all settable properies
@@ -954,24 +961,39 @@ class ArtistInspector:
             lines.append('%s%s: %s' %(pad, name, accepts))
         return lines
 
-    def pprint_getters(self):
-        """
-        Return the getters and actual values as list of strings.
-        """
 
+    def properties(self):
+        """
+        return a dictionary mapping property name -> value
+        """
         o = self.oorig
         getters = [name for name in dir(o)
                    if name.startswith('get_')
                    and callable(getattr(o, name))]
         #print getters
         getters.sort()
-        lines = []
+        d = dict()
         for name in getters:
             func = getattr(o, name)
             if self.is_alias(func): continue
 
             try: val = func()
             except: continue
+            else: d[name[4:]] = val
+
+        return d
+
+    def pprint_getters(self):
+        """
+        Return the getters and actual values as list of strings.
+        """
+
+        d = self.properties()
+        names = d.keys()
+        names.sort()
+        lines = []
+        for name in names:
+            val = d[name]
             if getattr(val, 'shape', ()) != () and len(val)>6:
                 s = str(val[:6]) + '...'
             else:
