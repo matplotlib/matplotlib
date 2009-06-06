@@ -91,6 +91,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_antialiased(antialiaseds)
         self.set_urls(urls)
 
+
         self._uniform_offsets = None
         self._offsets = np.array([], np.float_)
         if offsets is not None:
@@ -105,6 +106,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         self._pickradius = pickradius
         self.update(kwargs)
+
 
     def _get_value(self, val):
         try: return (float(val), )
