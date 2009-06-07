@@ -5,13 +5,13 @@ from mpl_toolkits.axes_grid.anchored_artists import AnchoredSizeBar
 
 
 def add_sizebar(ax, size):
-   as =  AnchoredSizeBar(ax.transData,
+   asb =  AnchoredSizeBar(ax.transData,
                          size,
                          str(size),
                          loc=8,
                          pad=0.1, borderpad=0.5, sep=5,
                          frameon=False)
-   ax.add_artist(as)
+   ax.add_artist(asb)
 
 
 fig = plt.figure(1, [5.5, 3])

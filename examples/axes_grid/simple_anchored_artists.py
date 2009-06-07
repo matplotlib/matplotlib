@@ -38,13 +38,13 @@ def draw_sizebar(ax):
     from mpl_toolkits.axes_grid.anchored_artists import AnchoredSizeBar
     # draw a horizontal bar with length of 0.1 in Data coordinate
     # (ax.transData) with a label underneath.
-    as =  AnchoredSizeBar(ax.transData,
+    asb =  AnchoredSizeBar(ax.transData,
                           0.1,
                           r"1$^{\prime}$",
                           loc=8,
                           pad=0.1, borderpad=0.5, sep=5,
                           frameon=False)
-    ax.add_artist(as)
+    ax.add_artist(asb)
 
 
 if 1:
