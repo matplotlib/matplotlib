@@ -22,8 +22,9 @@ if __name__ == "__main__":
 
     par2.set_ylabel("Velocity")
     offset = (60, 0)
-    new_axisline = par2._grid_helper.new_axisline
+    new_axisline = par2._grid_helper.new_fixed_axis
     par2.axis["right2"] = new_axisline(loc="right",
+                                       axes=par2,
                                        offset=offset)
 
 
