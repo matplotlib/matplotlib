@@ -1,10 +1,5 @@
-## Plot the stock price with some technical indicators
-## Example usage::
-##     python stocks2.py --ticker=GE --startdate=2003
-##
-import datetime, os, urllib, optparse
+import datetime
 import numpy as np
-import dateutil.parser
 import matplotlib.colors as colors
 import matplotlib.finance as finance
 import matplotlib.dates as mdates
@@ -13,32 +8,10 @@ import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
 
-today = datetime.date.today()
 
-optionparser = optparse.OptionParser()
-
-optionparser.add_option('-t', '--ticker',
-                        dest='ticker',
-                        help='a stock market ticker',
-                        default='SPY')
-
-optionparser.add_option('-s', '--startdate',
-                        dest='startdate',
-                        help='the start date',
-                        default=(today-datetime.timedelta(days=365*2)).strftime('%Y-%m-%d'))
-
-optionparser.add_option('-e', '--enddate',
-                        dest='enddate',
-                        help='the end date',
-                        default=today.strftime('%Y-%m-%d'))
-
-
-(commandoptions, commandargs) = optionparser.parse_args()
-
-
-startdate = dateutil.parser.parse(commandoptions.startdate)
-enddate = dateutil.parser.parse(commandoptions.enddate)
-ticker = commandoptions.ticker
+startdate = datetime.date(2006,1,1)
+today = enddate = datetime.date.today()
+ticker = 'SPY'
 
 
 fh = finance.fetch_historical_yahoo(ticker, startdate, enddate)
