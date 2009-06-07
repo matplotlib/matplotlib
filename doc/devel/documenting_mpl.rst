@@ -9,9 +9,11 @@ Getting started
 
 The documentation for matplotlib is generated from ReStructured Text
 using the Sphinx_ documentation generation tool. Sphinx-0.5 or later
-is required. Most developers work from the sphinx subversion repository because it is a rapidly evolving project::
+is required. You might still run into problems, so most developers
+work from the sphinx source repository (Mercurial based) because it
+is a rapidly evolving project::
 
-  svn co http://svn.python.org/projects/doctools/trunk sphinx
+  hg clone http://bitbucket.org/birkenfeld/sphinx/
   cd sphinx
   python setup.py install
 

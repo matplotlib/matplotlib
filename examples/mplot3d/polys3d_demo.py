@@ -21,11 +21,11 @@ for z in zs:
 poly = PolyCollection(verts, facecolors = [cc('r'), cc('g'), cc('b'),
                                            cc('y')])
 poly.set_alpha(0.7)
-ax.add_collection(poly, zs=zs, dir='y')
+ax.add_collection3d(poly, zs=zs, zdir='y')
 
-ax.set_xlim(0, 10)
-ax.set_ylim(-1, 4)
-ax.set_zlim(0, 1)
+ax.set_xlim3d(0, 10)
+ax.set_ylim3d(-1, 4)
+ax.set_zlim3d(0, 1)
 
 pylab.show()
 

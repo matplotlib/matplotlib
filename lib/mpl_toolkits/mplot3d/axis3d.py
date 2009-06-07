@@ -6,28 +6,12 @@
 import math
 import copy
 
-from matplotlib import lines
-from matplotlib import axis
-from matplotlib import patches
-from matplotlib import text
-
+from matplotlib import lines as mlines, axis as maxis, \
+        patches as mpatches
 import art3d
 import proj3d
 
 import numpy as np
-
-def norm_angle(a):
-    """Return angle between -180 and +180"""
-    a = (a+360)%360
-    if a > 180: a = a-360
-    return a
-
-def norm_text_angle(a):
-    """Return angle between -90 and +90"""
-    a = (a + 180) % 180
-    if a > 90:
-        a = a - 180
-    return a
 
 def get_flip_min_max(coord, index, mins, maxs):
     if coord[index] == mins[index]:
@@ -37,7 +21,7 @@ def get_flip_min_max(coord, index, mins, maxs):
 
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     '''Return a coordinate that is moved by "deltas" away from the center.'''
-    ret = copy.copy(coord)
+    coord = copy.copy(coord)
     for i in range(3):
         if not axmask[i]:
             continue
@@ -60,7 +44,7 @@ def tick_update_position(tick, tickxs, tickys, labelpos):
     tick.tick1line.set_marker('')
     tick.tick1line.set_data(tickxs, tickys)
 
-class Axis(axis.XAxis):
+class Axis(maxis.XAxis):
 
     # These points from the unit cube make up the x, y and z-planes
     _PLANES = (
@@ -86,16 +70,16 @@ class Axis(axis.XAxis):
         self.d_interval = d_intervalx
         self.v_interval = v_intervalx
 
-        axis.XAxis.__init__(self, axes, *args, **kwargs)
-        self.line = lines.Line2D(xdata=(0,0),ydata=(0,0),
+        maxis.XAxis.__init__(self, axes, *args, **kwargs)
+        self.line = mlines.Line2D(xdata=(0, 0), ydata=(0, 0),
                                  linewidth=0.75,
-                                 color=(0,0,0,0),
+                                 color=(0,0, 0,0),
                                  antialiased=True,
                            )
 
         # Store dummy data in Polygon object
         self.has_pane = True
-        self.pane = patches.Polygon(np.array([[0,0],[0,1],[1,0],[0,0]]),
+        self.pane = mpatches.Polygon(np.array([[0,0], [0,1], [1,0], [0,0]]),
                                     alpha=0.8,
                                     facecolor=(1,1,1,0),
                                     edgecolor=(1,1,1,0))
@@ -109,16 +93,15 @@ class Axis(axis.XAxis):
         self.set_rotate_label(kwargs.get('rotate_label', None))
 
     def get_tick_positions(self):
-        majorTicks = self.get_major_ticks()
         majorLocs = self.major.locator()
         self.major.formatter.set_locs(majorLocs)
         majorLabels = [self.major.formatter(val, i) for i, val in enumerate(majorLocs)]
-        return majorLabels,majorLocs
+        return majorLabels, majorLocs
 
     def get_major_ticks(self):
-        ticks = axis.XAxis.get_major_ticks(self)
+        ticks = maxis.XAxis.get_major_ticks(self)
         for t in ticks:
-            def update_coords(renderer,self=t.label1):
+            def update_coords(renderer, self=t.label1):
                 return text_update_coords(self, renderer)
             # Text overrides setattr so need this to force new method
             t.tick1line.set_transform(self.axes.transData)
@@ -166,7 +149,7 @@ class Axis(axis.XAxis):
                        for i, val in enumerate(majorLocs)]
 
         # Determine bounds
-        minx,maxx,miny,maxy,minz,maxz = self.axes.get_w_lims()
+        minx, maxx, miny, maxy, minz, maxz = self.axes.get_w_lims()
         mins = (minx, miny, minz)
         maxs = (maxx, maxy, maxz)
         centers = [(maxv + minv) / 2 for minv, maxv in zip(mins, maxs)]
@@ -176,7 +159,7 @@ class Axis(axis.XAxis):
 
         # Determine which planes should be visible by the avg z value
         vals = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
-        tc = self.axes.tunit_cube(vals,renderer.M)
+        tc = self.axes.tunit_cube(vals, renderer.M)
         avgz = [tc[p1][2] + tc[p2][2] + tc[p3][2] + tc[p4][2] for \
                 p1, p2, p3, p4 in self._PLANES]
         highs = [avgz[2*i] < avgz[2*i+1] for i in range(3)]
@@ -223,10 +206,11 @@ class Axis(axis.XAxis):
         lxyz = [(v1 + v2) / 2 for v1, v2 in zip(edgep1, edgep2)]
         labeldeltas = [1.3 * x for x in deltas]
         lxyz = move_from_center(lxyz, centers, labeldeltas)
-        tlx,tly,tlz = proj3d.proj_transform(lxyz[0], lxyz[1], lxyz[2], renderer.M)
+        tlx, tly, tlz = proj3d.proj_transform(lxyz[0], lxyz[1], lxyz[2], \
+                renderer.M)
         self.label.set_position((tlx, tly))
         if self.get_rotate_label(self.label.get_text()):
-            angle = norm_text_angle(math.degrees(math.atan2(dy, dx)))
+            angle = art3d.norm_text_angle(math.degrees(math.atan2(dy, dx)))
             self.label.set_rotation(angle)
         self.label.set_va('center')
         self.label.draw(renderer)
@@ -266,9 +250,11 @@ class Axis(axis.XAxis):
             pos = copy.copy(edgep1)
             pos[index] = loc
             pos[tickdir] = edgep1[tickdir] + 0.1 * ticksign * tickdelta
-            x1, y1, z1 = proj3d.proj_transform(pos[0], pos[1], pos[2], renderer.M)
+            x1, y1, z1 = proj3d.proj_transform(pos[0], pos[1], pos[2], \
+                    renderer.M)
             pos[tickdir] = edgep1[tickdir] - 0.2 * ticksign * tickdelta
-            x2, y2, z2 = proj3d.proj_transform(pos[0], pos[1], pos[2], renderer.M)
+            x2, y2, z2 = proj3d.proj_transform(pos[0], pos[1], pos[2], \
+                    renderer.M)
 
             # Get position of label
             labeldeltas = [0.6 * x for x in deltas]
@@ -276,7 +262,8 @@ class Axis(axis.XAxis):
             axmask[index] = False
             pos[tickdir] = edgep1[tickdir]
             pos = move_from_center(pos, centers, labeldeltas, axmask)
-            lx, ly, lz = proj3d.proj_transform(pos[0], pos[1], pos[2], renderer.M)
+            lx, ly, lz = proj3d.proj_transform(pos[0], pos[1], pos[2], \
+                    renderer.M)
 
             tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
             tick.set_label1(label)

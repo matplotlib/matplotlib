@@ -11,7 +11,7 @@ for c, zl, zh in [('r', -50, -25), ('b', -30, -5)]:
                      random.randrange(100),
                      random.randrange(zl, zh)
                      ) for i in range(n)])
-    ax.scatter3D(xs, ys, zs, c=c)
+    ax.scatter(xs, ys, zs, c=c)
 
 ax.set_xlabel('X Label')
 ax.set_ylabel('Y Label')
