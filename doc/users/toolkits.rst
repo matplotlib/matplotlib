@@ -54,6 +54,7 @@ line, mesh) tools.  Not the fastest or feature complete 3D library out
 there, but ships with matplotlib and thus may be a lighter weight
 solution for some use cases.
 
+See :ref:`toolkit_mplot3d-index` for more documentation and examples.
 
 .. _toolkit_axes_grid:
 
