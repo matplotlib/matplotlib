@@ -4,6 +4,7 @@ import math
 
 def atan2(dy, dx):
     if dx == 0 and dx == 0:
+        print "warning"
         return 0
     else:
         return math.atan2(dy, dx)
@@ -45,7 +46,7 @@ def clip(xlines, ylines, x0, clip="right"):
                 segx, segy = [], []
 
                 if dx == 0. and dy == 0:
-                    dx = x[+1] - x[i]
+                    dx = x[i+1] - x[i]
                     dy = y[i+1] - y[i]
 
                 a = degrees(atan2(dy, dx))
@@ -59,7 +60,7 @@ def clip(xlines, ylines, x0, clip="right"):
                 ns = i+1
 
                 if dx == 0. and dy == 0:
-                    dx = x[+1] - x[i]
+                    dx = x[i+1] - x[i]
                     dy = y[i+1] - y[i]
 
                 a = degrees(atan2(dy, dx))
