@@ -271,4 +271,4 @@ locations (text location) are in data coordinates.  There are a
 variety of other coordinate systems one can choose -- see
 :ref:`annotations-tutorial` for details.  More examples can be found
 in the `annotations demo
-<http://matplotlib.sf.net/examples/pylab_examples/annotation_demo.py>`_
+<http://matplotlib.sf.net/examples/pylab_examples/annotation_demo.html>`_
