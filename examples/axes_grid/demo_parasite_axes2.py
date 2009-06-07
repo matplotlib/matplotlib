@@ -1,5 +1,4 @@
 from mpl_toolkits.axes_grid.parasite_axes import SubplotHost
-import matplotlib.transforms as mtransforms
 import matplotlib.pyplot as plt
 
 if 1:
@@ -20,6 +19,7 @@ if 1:
     offset = 60, 0
     new_axisline = par2.get_grid_helper().new_fixed_axis
     par2.axis["right2"] = new_axisline(loc="right",
+                                       axes=par2,
                                        offset=offset)
 
     par2.axis["right2"].label.set_visible(True)
