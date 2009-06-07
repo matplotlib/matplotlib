@@ -1,3 +1,14 @@
+2009-06-07 add support for bz2 files per sf support request 2794556 -
+           JDH
+
+2009-06-06 added a properties method to the artist and inspector to
+           return a dict mapping property name -> value; see sf
+           feature request 2792183 - JDH
+
+2009-06-06 added Neil's auto minor tick patch; sf patch #2789713 - JDH
+
+2009-06-06 do not apply alpha to rgba color conversion if input is
+           already rgba - JDH
 
 2009-06-03 axes_grid : Initial check-in of curvelinear grid support. See
            examples/axes_grid/demo_curvelinear_grid.py - JJL
