@@ -314,6 +314,11 @@ def to_filehandle(fname, flag='rU', return_opened=False):
             # get rid of 'U' in flag for gzipped files.
             flag = flag.replace('U','')
             fh = gzip.open(fname, flag)
+        elif fname.endswith('.bz2'):
+            # get rid of 'U' in flag for bz2 files
+            flag = flag.replace('U','')
+            import bz2
+            fh = bz2.BZ2File(fname, flag)
         else:
             fh = file(fname, flag)
         opened = True
