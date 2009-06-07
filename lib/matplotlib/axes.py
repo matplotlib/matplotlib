@@ -6019,7 +6019,7 @@ class Axes(martist.Artist):
 
         %(PolyCollection)s
 
-        .. plot:: mpl_examples/pylab_examples/fill_between_demo.py.py
+        .. plot:: mpl_examples/pylab_examples/fill_between_demo.py
 
         .. seealso::
 
