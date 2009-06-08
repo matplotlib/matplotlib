@@ -390,7 +390,7 @@ class PathQuantizer
         switch (quantize_mode)
         {
         case QUANTIZE_AUTO:
-            if (total_vertices > 15)
+            if (total_vertices > 1024)
             {
                 return false;
             }
