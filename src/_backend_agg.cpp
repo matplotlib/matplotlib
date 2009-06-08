@@ -598,7 +598,11 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
     if (has_clippath) {
       while (path_transformed.vertex(&x, &y) != agg::path_cmd_stop) {
-        x = mpl_round(x); y = mpl_round(y);
+        if (MPL_notisfinite64(x) || MPL_notisfinite64(y)) {
+          continue;
+        }
+
+        x = (double)(int)x; y = (double)(int)y;
 
 	pixfmt_amask_type pfa(pixFmt, alphaMask);
 	amask_ren_type r(pfa);
@@ -615,7 +619,11 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
       }
     } else {
       while (path_transformed.vertex(&x, &y) != agg::path_cmd_stop) {
-        x = mpl_round(x); y = mpl_round(y);
+        if (MPL_notisfinite64(x) || MPL_notisfinite64(y)) {
+          continue;
+        }
+
+        x = (double)(int)x; y = (double)(int)y;
 
 	if (face.first) {
 	  rendererAA.color(face.second);
