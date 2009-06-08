@@ -254,6 +254,10 @@ class Bunch:
         self.__dict__.update(kwds)
 
 
+    def __repr__(self):
+        keys = self.__dict__.keys()
+        return 'Bunch(%s)'%', '.join(['%s=%s'%(k,self.__dict__[k]) for k in keys])
+
 def unique(x):
     'Return a list of unique elements of *x*'
     return dict([ (val, 1) for val in x]).keys()

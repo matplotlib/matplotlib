@@ -106,6 +106,19 @@ and build and install as usual with::
   > cd matplotlib
   > python setup.py install
 
+If you want to be able to follow the development branch as it changes just replace
+the last step with (Make sure you have **setuptools** installed)::
+
+  > python setupegg.py develop
+
+This creates links in the right places and installs the command line script to the appropriate places.
+Then, if you want to update your **matplotlib** at any time, just do::
+
+  > svn update
+
+When you run `svn update`, if the output shows that only Python files have been updated, you are all set.
+If C files have changed, you need to run the `python setupegg develop` command again to compile them.
+
 There is more information on :ref:`using Subversion <using-svn>` in
 the developer docs.
 
