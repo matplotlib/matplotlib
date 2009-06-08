@@ -65,7 +65,11 @@ class Text3D(mtext.Text):
                 self._position3d + self._dir_vec], renderer.M)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
-        angle = math.degrees(math.atan2(dy, dx))
+        if dx==0. and dy==0.:
+            # atan2 raises ValueError: math domain error on 0,0
+            angle = 0.
+        else:
+            angle = math.degrees(math.atan2(dy, dx))
         self.set_position((proj[0][0], proj[1][0]))
         self.set_rotation(norm_text_angle(angle))
         mtext.Text.draw(self, renderer)
