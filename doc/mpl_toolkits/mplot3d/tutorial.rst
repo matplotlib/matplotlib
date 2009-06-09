@@ -38,12 +38,14 @@ Surface plots
 .. automethod:: Axes3D.plot_surface
 
 .. plot:: mpl_examples/mplot3d/surface3d_demo.py
+.. plot:: mpl_examples/mplot3d/surface3d_demo2.py
 
 Contour plots
 =============
 .. automethod:: Axes3D.contour
 
 .. plot:: mpl_examples/mplot3d/contour3d_demo.py
+.. plot:: mpl_examples/mplot3d/contour3d_demo2.py
 
 Filled contour plots
 ====================
