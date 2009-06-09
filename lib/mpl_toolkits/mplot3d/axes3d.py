@@ -541,6 +541,10 @@ class Axes3D(Axes):
     def plot_surface(self, X, Y, Z, *args, **kwargs):
         '''
         Create a surface plot.
+
+        By default it will be colored in shades of a solid color,
+        but it also supports color mapping by supplying the *cmap*
+        argument.
         
         ==========  ================================================
         Argument    Description
@@ -550,6 +554,7 @@ class Axes3D(Axes):
         *rstride*   Array row stride (step size)
         *cstride*   Array column stride (step size)
         *color*     Color of the surface patches
+        *cmap*      A colormap for the surface patches.
         ==========  ================================================
         '''
 
@@ -562,9 +567,11 @@ class Axes3D(Axes):
 
         color = kwargs.pop('color', 'b')
         color = np.array(colorConverter.to_rgba(color))
+        cmap = kwargs.get('cmap', None)
 
         polys = []
-        boxes = []
+        normals = []
+        avgz = []
         for rs in np.arange(0, rows-1, rstride):
             for cs in np.arange(0, cols-1, cstride):
                 ps = []
@@ -579,31 +586,53 @@ class Axes3D(Axes):
                     corners.append([ztop[0], ztop[-1], zbase[0], zbase[-1]])
                     z = np.concatenate((ztop, zleft, zbase, zright))
                     ps.append(z)
-                boxes.append(map(np.array, zip(*corners)))
-                polys.append(zip(*ps))
 
-        lines = []
+                # The construction leaves the array with duplicate points, which
+                # are removed here.
+                ps = zip(*ps)
+                lastp = np.array([])
+                ps2 = []
+                avgzsum = 0.0
+                for p in ps:
+                    if p != lastp:
+                        ps2.append(p)
+                        lastp = p
+                        avgzsum += p[2]
+                polys.append(ps2)
+                avgz.append(avgzsum / len(ps2))
+
+                v1 = np.array(ps2[0]) - np.array(ps2[1])
+                v2 = np.array(ps2[2]) - np.array(ps2[0])
+                normals.append(np.cross(v1, v2))
+
+        polyc = art3d.Poly3DCollection(polys, *args, **kwargs)
+        if cmap is not None:
+            polyc.set_array(np.array(avgz))
+            polyc.set_linewidth(0)
+        else:
+            colors = self._shade_colors(color, normals)
+            polyc.set_facecolors(colors)
+
+        self.add_collection(polyc)
+        self.auto_scale_xyz(X, Y, Z, had_data)
+
+        return polyc
+
+    def _shade_colors(self, color, normals):
         shade = []
-        for box in boxes:
-            n = proj3d.cross(box[0]-box[1],
-                         box[0]-box[2])
-            n = n/proj3d.mod(n)*5
+        for n in normals:
+            n = n / proj3d.mod(n) * 5
             shade.append(np.dot(n, [-1, -1, 0.5]))
-            lines.append((box[0], n+box[0]))
 
         shade = np.array(shade)
         mask = ~np.isnan(shade)
         norm = Normalize(min(shade[mask]), max(shade[mask]))
 
-        colors = [color * (0.5+norm(v)*0.5) for v in shade]
-        for c in colors: c[3] = 1
-        polyc = art3d.Poly3DCollection(polys, facecolors=colors, \
-                *args, **kwargs)
-        polyc._zsort = 1
-        self.add_collection(polyc)
+        color = color.copy()
+        color[3] = 1
+        colors = [color * (0.5 + norm(v) * 0.5) for v in shade]
 
-        self.auto_scale_xyz(X, Y, Z, had_data)
-        return polyc
+        return colors
 
     def plot_wireframe(self, X, Y, Z, *args, **kwargs):
         '''
@@ -653,20 +682,77 @@ class Axes3D(Axes):
 
         return linec
 
-    def contour(self, X, Y, Z, *args, **kwargs):
+    def _3d_extend_contour(self, cset, stride=5):
+        '''
+        Extend a contour in 3D by creating 
+        '''
+
+        levels = cset.levels
+        colls = cset.collections
+        dz = (levels[1] - levels[0]) / 2
+
+        for z, linec in zip(levels, colls):
+            topverts = art3d.paths_to_3d_segments(linec.get_paths(), z - dz)
+            botverts = art3d.paths_to_3d_segments(linec.get_paths(), z + dz)
+
+            color = linec.get_color()[0]
+
+            polyverts = []
+            normals = []
+            nsteps = round(len(topverts[0]) / stride)
+            stepsize = (len(topverts[0]) - 1) / (nsteps - 1)
+            for i in range(int(round(nsteps)) - 1):
+                i1 = int(round(i * stepsize))
+                i2 = int(round((i + 1) * stepsize))
+                polyverts.append([topverts[0][i1],
+                    topverts[0][i2],
+                    botverts[0][i2],
+                    botverts[0][i1]])
+
+                v1 = np.array(topverts[0][i1]) - np.array(topverts[0][i2])
+                v2 = np.array(topverts[0][i1]) - np.array(botverts[0][i1])
+                normals.append(np.cross(v1, v2))
+
+            colors = self._shade_colors(color, normals)
+            colors2 = self._shade_colors(color, normals)
+            polycol = art3d.Poly3DCollection(polyverts, facecolors=colors,
+                    edgecolors=colors2)
+            self.add_collection3d(polycol)
+
+        for col in colls:
+            self.collections.remove(col)
+
+    def contour(self, X, Y, Z, levels=10, **kwargs):
         '''
         Create a 3D contour plot.
 
-        *X*, *Y*, *Z*: data
+        ==========  ================================================
+        Argument    Description
+        ==========  ================================================
+        *X*, *Y*,   Data values as numpy.arrays
+        *Z*
+        *levels*    Number of levels to use, defaults to 10. Can
+                    also be a tuple of specific levels.
+        *extend3d*  Whether to extend contour in 3D (default: False)
+        *stride*    Stride (step size) for extending contour
+        ==========  ================================================
 
-        Keyword arguments are passed on to
+        Other keyword arguments are passed on to
         :func:`~matplotlib.axes.Axes.contour`
         '''
 
+        extend3d = kwargs.pop('extend3d', False)
+        stride = kwargs.pop('stride', 5)
+        nlevels = kwargs.pop('nlevels', 15)
+
         had_data = self.has_data()
-        cset = Axes.contour(self, X, Y, Z, *args, **kwargs)
-        for z, linec in zip(cset.levels, cset.collections):
-            art3d.line_collection_2d_to_3d(linec, z)
+        cset = Axes.contour(self, X, Y, Z, levels, **kwargs)
+
+        if extend3d:
+            self._3d_extend_contour(cset, stride)
+        else:
+            for z, linec in zip(cset.levels, cset.collections):
+                art3d.line_collection_2d_to_3d(linec, z)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
         return cset
@@ -688,11 +774,8 @@ class Axes3D(Axes):
         cset = Axes.contourf(self, X, Y, Z, *args, **kwargs)
         levels = cset.levels
         colls = cset.collections
-
         for z1, z2, linec in zip(levels, levels[1:], colls):
-            zs = [z1] * (len(linec.get_paths()[0]) / 2)
-            zs += [z2] * (len(linec.get_paths()[0]) / 2)
-            art3d.poly_collection_2d_to_3d(linec, zs)
+            art3d.poly_collection_2d_to_3d(linec, z1)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
         return cset
