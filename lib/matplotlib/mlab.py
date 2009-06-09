@@ -2107,6 +2107,20 @@ def rec_drop_fields(rec, names):
 
     return newrec
 
+def rec_keep_fields(rec, names):
+    """
+    Return a new numpy record array with only fields listed in names
+    """
+
+    if cbook.is_string_like(names):
+        names = names.split(',')
+        
+    arrays = []
+    for name in names:
+        arrays.append(rec[name])
+
+    return np.rec.fromarrays(arrays, names=names)
+
 
 
 def rec_groupby(r, groupby, stats):
@@ -2699,7 +2713,7 @@ def csvformat_factory(format):
         format.fmt = '%r'
     return format
 
-def rec2txt(r, header=None, padding=3, precision=3):
+def rec2txt(r, header=None, padding=3, precision=3, fields=None):
     """
     Returns a textual representation of a record array.
 
@@ -2714,6 +2728,10 @@ def rec2txt(r, header=None, padding=3, precision=3):
         list of integers to apply precision individually.
         Precision for non-floats is simply ignored.
 
+    *fields* : if not None, a list of field names to print.  fields
+    can be a list of strings like ['field1', 'field2'] or a single
+    comma separated string like 'field1,field2'
+
     Example::
 
       precision=[0,2,3]
@@ -2725,6 +2743,9 @@ def rec2txt(r, header=None, padding=3, precision=3):
       XYZ    6.32   -0.076
     """
 
+    if fields is not None:
+        r = rec_keep_fields(r, fields)
+        
     if cbook.is_numlike(precision):
         precision = [precision]*len(r.dtype)
 
