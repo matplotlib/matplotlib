@@ -549,8 +549,12 @@ def add_ft2font_flags(module):
         add_base_flags(module)
         module.libraries.append('z')
 
-    if sys.platform == 'win32' and win32_compiler == 'mingw32':
-        module.libraries.append('gw32c')
+    # JDH: this file does not appear to be shipped w/ mingw32.  I saw
+    # some discussion on the web that libpng needs it -- could this be
+    # the problem we are having with libpng?
+
+    #if sys.platform == 'win32' and win32_compiler == 'mingw32':
+    #    module.libraries.append('gw32c')
 
     # put this last for library link order
     module.libraries.extend(std_libs)
