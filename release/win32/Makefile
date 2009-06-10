@@ -10,7 +10,7 @@ MPLVERSION = 0.98.5.3
 
 ## You shouldn't need to configure past this point
 
-CFLAGS = -Os
+CFLAGS = -Os -D_ftime=ftime64 -DPNG_NO_READ_tIME -DPNG_NO_WRITE_tIME
 
 
 PY_INCLUDE = "${WINSRCDIR}\\zlib-${ZLIBVERSION};${WINSRCDIR}/libpng-${PNGVERSION};${WINSRCDIR}/freetype-${FREETYPEVERSION}/include;${WINSRCDIR}/tcl${TCLTKVERSION}/generic;${WINSRCDIR}/tcl${TCLTKVERSION}/win;${WINSRCDIR}/tk${TCLTKVERSION}/generic;${WINSRCDIR}/tk${TCLTKVERSION}/win;${WINSRCDIR}/tk${TCLTKVERSION}/xlib"
@@ -36,7 +36,7 @@ zlib:
 	rm -rf zlib-${ZLIBVERSION}
 	tar xvfz zlib-${ZLIBVERSION}.tar.gz
 	cd zlib-${ZLIBVERSION} &&\
-	export CFLAGS=${CFLAGS} &&\
+	export CFLAGS="${CFLAGS}" &&\
 	./configure &&\
 	make -j3
 
@@ -88,8 +88,9 @@ installers:
 	cd matplotlib-${MPLVERSION} &&\
 	rm -rf build &&\
 	cp ../data/setup*.* . &&\
-	${PYTHON} setupwin.py build_ext -c mingw32 -I ${PY_INCLUDE} -L ${PY_LINKER} bdist_wininst 
-	${PYTHON} setupwinegg.py build_ext -c mingw32 -I ${PY_INCLUDE} -L ${PY_LINKER} bdist_egg
+	export CFLAGS="${CFLAGS}" &&\
+	${PYTHON} setupwin.py build_ext -c mingw32 -I ${PY_INCLUDE} -L ${PY_LINKER} bdist_wininst  
+	#${PYTHON} setupwinegg.py build_ext -c mingw32 -I ${PY_INCLUDE} -L ${PY_LINKER} bdist_egg
 
 
 inplace:
@@ -102,7 +103,10 @@ inplace:
 	cd matplotlib-${MPLVERSION}/lib &&\
 	${PYTHON} -c 'import matplotlib; matplotlib.use("Agg"); from pylab import *; print matplotlib.__file__; plot([1,2,3]); savefig("test.png")'
 
-test:
+test_png:
 	${PYTHON} -c 'import matplotlib; matplotlib.use("Agg"); from pylab import *; print matplotlib.__file__; plot([1,2,3]); savefig("test.png")'
+
+test_plot:
+	${PYTHON} -c 'import matplotlib; from pylab import *; print matplotlib.__file__; plot([1,2,3]); show()'
 
 all: fetch_deps dependencies installers
