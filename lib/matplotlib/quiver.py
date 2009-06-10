@@ -500,6 +500,10 @@ class Quiver(collections.PolyCollection):
         minsh = self.minshaft * self.headlength
         N = len(length)
         length = length.reshape(N, 1)
+        # This number is chosen based on when pixel values overflow in Agg
+        # causing rendering errors
+        length = np.minimum(length, 2 ** 16)
+
         # x, y: normal horizontal arrow
         x = np.array([0, -self.headaxislength,
                         -self.headlength, 0], np.float64)
