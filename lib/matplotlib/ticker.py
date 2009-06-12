@@ -80,6 +80,9 @@ axis.
 :class:`NullFormatter`
     no labels on the ticks
 
+:class:`IndexFormatter`
+    set the strings from a list of labels
+
 :class:`FixedFormatter`
     set the strings manually for the labels
 
@@ -202,6 +205,24 @@ class Formatter(TickHelper):
         explicit :meth:`format_data_short` method
         """
         return s
+
+class IndexFormatter:
+    """
+    format the position x to the nearest i-th label where i=int(x+0.5)
+    """
+    def __init__(self, labels):
+        self.labels = labels
+        self.n = len(labels)
+    def __call__(self, x, pos=None):
+        'Return the format for tick val x at position pos; pos=None indicated unspecified'
+        i = int(x+0.5)
+        if i<0:
+            return ''
+        elif i>=self.n:
+            return ''
+        else:
+            return self.labels[i]
+
 
 class NullFormatter(Formatter):
     'Always return the empty string'

@@ -1,10 +1,11 @@
 """
-matplotlib is fairly rigid about how and where it draws it xaxis and
-yaxis, and it is a frequent request to be able to place these in other
-locations.  While it is not possible to customize matplotlib's
-internal axis objects in this way, it is not too hard to simply turn
-them off and draw your own axis lines, tick lines, and tick labels
-where and how you want them
+The techniques here are no longer required with the new support for
+spines in matplotlib -- see
+http://matplotlib.sourceforge.net/examples/pylab_examples/spine_placement_demo.html.
+
+This example should be considered deprecated and is left just for demo
+purposes for folks wanting to make a pseudo-axis
+
 """
 
 import numpy as np
