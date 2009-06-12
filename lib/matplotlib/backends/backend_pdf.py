@@ -1177,7 +1177,10 @@ end"""
                     'No offset for object %d (%s)' % (i, name)
                 borken = True
             else:
-                self.write("%010d %05d n \n" % (offset, generation))
+                if name == 'the zero object':
+                    self.write("%010d %05d f \n" % (offset, generation))
+                else:
+                    self.write("%010d %05d n \n" % (offset, generation))
             i += 1
         if borken:
             raise AssertionError, 'Indirect object does not exist'
