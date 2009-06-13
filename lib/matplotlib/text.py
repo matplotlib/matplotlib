@@ -69,6 +69,7 @@ artist.kwdocd['Text'] =  """
     name or fontname           string eg, ['Sans' | 'Courier' | 'Helvetica' ...]
     position                   (x,y)
     rotation                   [ angle in degrees 'vertical' | 'horizontal'
+    rotation_mode              [ None | 'anchor']
     size or fontsize           [ size in points | relative size eg 'smaller', 'x-large' ]
     style or fontstyle         [ 'normal' | 'italic' | 'oblique']
     text                       string
@@ -144,6 +145,7 @@ class Text(Artist):
                  fontproperties=None, # defaults to FontProperties()
                  rotation=None,
                  linespacing=None,
+                 rotation_mode=None,
                  **kwargs
                  ):
         """
@@ -175,6 +177,7 @@ class Text(Artist):
         if linespacing is None:
             linespacing = 1.2   # Maybe use rcParam later.
         self._linespacing = linespacing
+        self.set_rotation_mode(rotation_mode)
         self.update(kwargs)
         #self.set_bbox(dict(pad=0))
 
@@ -213,6 +216,24 @@ class Text(Artist):
     def get_rotation(self):
         'return the text angle as float in degrees'
         return get_rotation(self._rotation)  # string_or_number -> number
+
+    def set_rotation_mode(self, m):
+        """
+        set text rotation mode. If "anchor", the un-rotated text
+        will first aligned according to their *ha* and
+        *va*, and then will be rotated with the alignement
+        reference point as a origin. If None (default), the text will be
+        rotated first then will be aligned.
+        """
+        if m is None or m in ["anchor", "default"]:
+            self._rotation_mode = m
+        else:
+            raise ValueError("Unknown rotation_mode : %s" % repr(m))
+
+    def get_rotation_mode(self):
+        "get text rotation mode"
+        return self._rotation_mode
+
 
     def update_from(self, other):
         'Copy properties from other to self'
@@ -268,7 +289,7 @@ class Text(Artist):
             # For multiline text, increase the line spacing when the
             # text net-height(excluding baseline) is larger than that
             # of a "l" (e.g., use of superscripts), which seems
-            # what TeX does. 
+            # what TeX does.
 
             d_yoffset = max(0, (h-d)-(lp_h-lp_bl))
 
@@ -315,16 +336,33 @@ class Text(Artist):
         halign = self._horizontalalignment
         valign = self._verticalalignment
 
-        # compute the text location in display coords and the offsets
-        # necessary to align the bbox with that location
-        if halign=='center':  offsetx = (xmin + width/2.0)
-        elif halign=='right': offsetx = (xmin + width)
-        else: offsetx = xmin
+        rotation_mode = self.get_rotation_mode()
+        if  rotation_mode != "anchor":
+            # compute the text location in display coords and the offsets
+            # necessary to align the bbox with that location
+            if halign=='center':  offsetx = (xmin + width/2.0)
+            elif halign=='right': offsetx = (xmin + width)
+            else: offsetx = xmin
 
-        if valign=='center': offsety = (ymin + height/2.0)
-        elif valign=='top': offsety  = (ymin + height)
-        elif valign=='baseline': offsety = (ymin + height) - baseline
-        else: offsety = ymin
+            if valign=='center': offsety = (ymin + height/2.0)
+            elif valign=='top': offsety  = (ymin + height)
+            elif valign=='baseline': offsety = (ymin + height) - baseline
+            else: offsety = ymin
+        else:
+            xmin1, ymin1 = cornersHoriz[0]
+            xmax1, ymax1 = cornersHoriz[2]
+
+            if halign=='center':  offsetx = (xmin1 + xmax1)/2.0
+            elif halign=='right': offsetx = xmax1
+            else: offsetx = xmin1
+
+            if valign=='center': offsety = (ymin1 + ymax1)/2.0
+            elif valign=='top': offsety  = ymax1
+            elif valign=='baseline': offsety = ymax1 - baseline
+            else: offsety = ymin1
+
+            offsetx, offsety = M.transform_point((offsetx, offsety))
+
 
         xmin -= offsetx
         ymin -= offsety
@@ -1562,7 +1600,7 @@ class Annotation(Text):
         See :meth:`set_annotation_clip` for the meaning of return values.
         """
         return self._annotation_clip
-        
+
 
     def update_positions(self, renderer):
         "Update the pixel positions of the annotated point and the text."
