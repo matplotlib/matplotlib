@@ -243,7 +243,18 @@ units_files = [
 
 mplot3d_dir = os.path.join('..', 'mplot3d')
 mplot3d_files = [
-    'demo.py',
+    '2dcollections3d_demo.py',
+    'bars3d_demo.py',
+    'contour3d_demo.py',
+    'contour3d_demo2.py',
+    'contourf3d_demo.py',
+    'lines3d_demo.py',
+    'polys3d_demo.py',
+    'scatter3d_demo.py',
+    'surface3d_demo.py',
+    'surface3d_demo2.py',
+    'text3d_demo.py',
+    'wire3d_demo.py',
     ]
 
 # dict from dir to files we know we don't want to test (eg examples
@@ -273,6 +284,7 @@ def report_missing(dir, flist):
 report_missing(pylab_dir, pylab_files)
 report_missing(api_dir, api_files)
 report_missing(units_dir, units_files)
+report_missing(mplot3d_dir, mplot3d_files)
 
 files = (
     [os.path.join(api_dir, fname) for fname in api_files] +
