@@ -210,6 +210,7 @@ backend      : %(backend)s
                                # rather than hypen.  See http://en.wikipedia.org/wiki/Plus_sign#Plus_sign
 
 #polaraxes.grid      : True    # display grid on polar axes
+#axes3d.grid         : True    # display grid on 3d axes
 
 ### TICKS
 # see http://matplotlib.sourceforge.net/api/axis_api.html#matplotlib.axis.Tick
