@@ -1,3 +1,6 @@
+2009-06-13 Introduce a rotation_mode property for the Text artist. See
+           examples/pylab_examples/demo_text_rotation_mode.py -JJL
+
 2009-06-07 add support for bz2 files per sf support request 2794556 -
            JDH
 
