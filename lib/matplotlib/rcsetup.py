@@ -441,6 +441,7 @@ defaultParams = {
     'axes.unicode_minus'        : [True, validate_bool],
 
     'polaraxes.grid'        : [True, validate_bool],   # display polar grid or not
+    'axes3d.grid'           : [True, validate_bool],   # display 3d grid
 
     #legend properties
     'legend.fancybox'         : [False,validate_bool],

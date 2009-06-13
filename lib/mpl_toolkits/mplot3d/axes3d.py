@@ -8,7 +8,7 @@ Module containing Axes3D, an object which can plot 3D objects on a
 2D matplotlib figure.
 """
 
-from matplotlib.axes import Axes
+from matplotlib.axes import Axes, rcParams
 from matplotlib import cbook
 from matplotlib.transforms import Bbox
 from matplotlib import collections
@@ -316,6 +316,7 @@ class Axes3D(Axes):
             self.figure.canvas.mpl_disconnect(cid)
         self.cids = []
         Axes.cla(self)
+        self.grid(rcParams['axes3d.grid'])
 
     def _button_press(self, event):
         self.button_pressed = event.button
@@ -481,6 +482,12 @@ class Axes3D(Axes):
             label.update(fontdict)
         label.update(kwargs)
         return label
+
+    def grid(self, on=True, **kwargs):
+        '''
+        Set / unset 3D grid.
+        '''
+        self._draw_grid = on
 
     def text(self, x, y, z, s, zdir=None):
         '''Add text to the plot.'''

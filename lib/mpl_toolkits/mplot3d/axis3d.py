@@ -43,6 +43,7 @@ def tick_update_position(tick, tickxs, tickys, labelpos):
     tick.tick1line.set_linestyle('-')
     tick.tick1line.set_marker('')
     tick.tick1line.set_data(tickxs, tickys)
+    tick.gridline.set_data(0, 0)
 
 class Axis(maxis.XAxis):
 
@@ -143,7 +144,8 @@ class Axis(maxis.XAxis):
         
         # filter locations here so that no extra grid lines are drawn
         interval = self.get_view_interval()
-        majorLocs = [loc for loc in majorLocs if interval[0] < loc < interval[1]]
+        majorLocs = [loc for loc in majorLocs if \
+                interval[0] < loc < interval[1]]
         self.major.formatter.set_locs(majorLocs)
         majorLabels = [self.major.formatter(val, i)
                        for i, val in enumerate(majorLocs)]
@@ -230,9 +232,10 @@ class Axis(maxis.XAxis):
             xyz2[i][newindex] = newval
 
         lines = zip(xyz1, xyz0, xyz2)
-        self.gridlines.set_segments(lines)
-        self.gridlines.set_color([(0.9,0.9,0.9,1)] * len(lines))
-        self.gridlines.draw(renderer, project=True)
+        if self.axes._draw_grid:
+            self.gridlines.set_segments(lines)
+            self.gridlines.set_color([(0.9,0.9,0.9,1)] * len(lines))
+            self.gridlines.draw(renderer, project=True)
 
         # Draw ticks
         tickdir = info['tickdir']
