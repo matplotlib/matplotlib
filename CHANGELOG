@@ -1,3 +1,6 @@
+2009-06-14 Add new command line options to backend_driver.py to support
+           running only some directories of tests - JKS
+
 2009-06-13 partial cleanup of mlab and its importation in pylab - EF
 
 2009-06-13 Introduce a rotation_mode property for the Text artist. See
