@@ -7530,14 +7530,14 @@ class Axes(martist.Artist):
     def specgram(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                  window=mlab.window_hanning, noverlap=128,
                  cmap=None, xextent=None, pad_to=None, sides='default',
-                 scale_by_freq=None):
+                 scale_by_freq=None, **kwargs):
         """
         call signature::
 
           specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                    window=mlab.window_hanning, noverlap=128,
                    cmap=None, xextent=None, pad_to=None, sides='default',
-                   scale_by_freq=None)
+                   scale_by_freq=None, **kwargs)
 
         Compute a spectrogram of data in *x*.  Data are split into
         *NFFT* length segments and the PSD of each section is
@@ -7562,7 +7562,12 @@ class Axes(martist.Artist):
             The default is (0,max(bins)), where bins is the return
             value from :func:`mlab.specgram`
 
-        Return value is (*Pxx*, *freqs*, *bins*, *im*):
+          *kwargs*:
+
+            Additional kwargs are passed on to imshow which makes the
+            specgram image
+
+          Return value is (*Pxx*, *freqs*, *bins*, *im*):
 
           - *bins* are the time points the spectrogram is calculated over
           - *freqs* is an array of frequencies
@@ -7590,7 +7595,7 @@ class Axes(martist.Artist):
         xmin, xmax = xextent
         freqs += Fc
         extent = xmin, xmax, freqs[0], freqs[-1]
-        im = self.imshow(Z, cmap, extent=extent)
+        im = self.imshow(Z, cmap, extent=extent, **kwargs)
         self.axis('auto')
 
         return Pxx, freqs, bins, im
