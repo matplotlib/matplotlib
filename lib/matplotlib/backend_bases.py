@@ -2007,6 +2007,9 @@ class NavigationToolbar2:
 
     def release_pan(self, event):
         'the release mouse button callback in pan/zoom mode'
+
+        if self._button_pressed is None:
+            return
         self.canvas.mpl_disconnect(self._idDrag)
         self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)
         for a, ind in self._xypress:
