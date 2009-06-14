@@ -1,3 +1,5 @@
+2009-06-13 partial cleanup of mlab and its importation in pylab - EF
+
 2009-06-13 Introduce a rotation_mode property for the Text artist. See
            examples/pylab_examples/demo_text_rotation_mode.py -JJL
 

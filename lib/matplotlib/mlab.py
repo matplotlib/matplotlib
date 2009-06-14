@@ -130,38 +130,11 @@ The following are deprecated; please import directly from numpy (with
 care--function signatures may differ):
 
 
-:meth:`conv`
-    convolution  (numpy.convolve)
-
-:meth:`corrcoef`
-    The matrix of correlation coefficients
-
-:meth:`hist`
-    Histogram (numpy.histogram)
-
-:meth:`linspace`
-    Linear spaced array from min to max
-
 :meth:`load`
     load ASCII file - use numpy.loadtxt
 
-:meth:`meshgrid`
-    Make a 2D grid from 2 1 arrays (numpy.meshgrid)
-
-:meth:`polyfit`
-    least squares best polynomial fit of x to y (numpy.polyfit)
-
-:meth:`polyval`
-    evaluate a vector for a vector of polynomial coeffs (numpy.polyval)
-
 :meth:`save`
     save ASCII file - use numpy.savetxt
-
-:meth:`trapz`
-    trapeziodal integration (trapz(x,y) -> numpy.trapz(y,x))
-
-:meth:`vander`
-    the Vandermonde matrix (numpy.vander)
 
 """
 
@@ -174,20 +147,6 @@ from matplotlib import verbose
 
 import matplotlib.nxutils as nxutils
 import matplotlib.cbook as cbook
-
-
-def linspace(*args, **kw):
-    warnings.warn("use numpy.linspace", DeprecationWarning)
-    return np.linspace(*args, **kw)
-
-def meshgrid(x,y):
-    warnings.warn("use numpy.meshgrid", DeprecationWarning)
-    return np.meshgrid(x,y)
-
-def mean(x, dim=None):
-    warnings.warn("Use numpy.mean(x) or x.mean()", DeprecationWarning)
-    if len(x)==0: return None
-    return np.mean(x, axis=dim)
 
 
 def logspace(xmin,xmax,N):
@@ -204,12 +163,6 @@ def window_hanning(x):
 def window_none(x):
     "No window function; simply return x"
     return x
-
-#from numpy import convolve as conv
-def conv(x, y, mode=2):
-    'convolve x with y'
-    warnings.warn("Use numpy.convolve(x, y, mode='full')", DeprecationWarning)
-    return np.convolve(x,y,mode)
 
 def detrend(x, key=None):
     if key is None or key=='constant':
@@ -537,110 +490,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
 cohere.__doc__ = cohere.__doc__ % kwdocd
 
-def corrcoef(*args):
-    """
-    corrcoef(*X*) where *X* is a matrix returns a matrix of correlation
-    coefficients for the columns of *X*
-
-    corrcoef(*x*, *y*) where *x* and *y* are vectors returns the matrix of
-    correlation coefficients for *x* and *y*.
-
-    Numpy arrays can be real or complex.
-
-    The correlation matrix is defined from the covariance matrix *C*
-    as
-
-    .. math::
-
-      r_{ij} = \\frac{C_{ij}}{\\sqrt{C_{ii}C_{jj}}}
-    """
-    warnings.warn("Use numpy.corrcoef", DeprecationWarning)
-    kw = dict(rowvar=False)
-    return np.corrcoef(*args, **kw)
-
-
-def polyfit(*args, **kwargs):
-    u"""
-    polyfit(*x*, *y*, *N*)
-
-    Do a best fit polynomial of order *N* of *y* to *x*.  Return value
-    is a vector of polynomial coefficients [pk ... p1 p0].  Eg, for
-    *N* = 2::
-
-      p2*x0^2 +  p1*x0 + p0 = y1
-      p2*x1^2 +  p1*x1 + p0 = y1
-      p2*x2^2 +  p1*x2 + p0 = y2
-      .....
-      p2*xk^2 +  p1*xk + p0 = yk
-
-
-    Method: if *X* is a the Vandermonde Matrix computed from *x* (see
-    `vandermonds
-    <http://mathworld.wolfram.com/VandermondeMatrix.html>`_), then the
-    polynomial least squares solution is given by the '*p*' in
-
-      X*p = y
-
-    where *X* is a (len(*x*) \N{MULTIPLICATION SIGN} *N* + 1) matrix,
-    *p* is a *N*+1 length vector, and *y* is a (len(*x*)
-    \N{MULTIPLICATION SIGN} 1) vector.
-
-    This equation can be solved as
-
-    .. math::
-
-      p = (X_t X)^-1 X_t y
-
-    where :math:`X_t` is the transpose of *X* and -1 denotes the
-    inverse.  Numerically, however, this is not a good method, so we
-    use :func:`numpy.linalg.lstsq`.
-
-    For more info, see `least squares fitting
-    <http://mathworld.wolfram.com/LeastSquaresFittingPolynomial.html>`_,
-    but note that the *k*'s and *n*'s in the superscripts and
-    subscripts on that page.  The linear algebra is correct, however.
-
-    .. seealso::
-
-        :func:`polyval`
-           polyval function
-    """
-    warnings.warn("use numpy.polyfit", DeprecationWarning)
-    return np.polyfit(*args, **kwargs)
-
-
-def polyval(*args, **kwargs):
-    """
-    *y* = polyval(*p*, *x*)
-
-    *p* is a vector of polynomial coeffients and *y* is the polynomial
-    evaluated at *x*.
-
-    Example code to remove a polynomial (quadratic) trend from y::
-
-      p = polyfit(x, y, 2)
-      trend = polyval(p, x)
-      resid = y - trend
-
-    .. seealso::
-
-        :func:`polyfit`
-           polyfit function
-    """
-    warnings.warn("use numpy.polyval", DeprecationWarning)
-    return np.polyval(*args, **kwargs)
-
-def vander(*args, **kwargs):
-    """
-    *X* = vander(*x*, *N* = *None*)
-
-    The Vandermonde matrix of vector *x*.  The *i*-th column of *X* is the
-    the *i*-th power of *x*.  *N* is the maximum power to compute; if *N* is
-    *None* it defaults to len(*x*).
-    """
-    warnings.warn("Use numpy.vander()", DeprecationWarning)
-    return np.vander(*args, **kwargs)
-
 
 def donothing_callback(*args):
     pass
@@ -826,24 +675,6 @@ def entropy(y, bins):
     #S = -1.0*np.sum(p*log(p))
     return S
 
-def hist(y, bins=10, normed=0):
-    """
-    Return the histogram of *y* with *bins* equally sized bins.  If
-    bins is an array, use those bins.  Return value is (*n*, *x*)
-    where *n* is the count for each bin in *x*.
-
-    If *normed* is *False*, return the counts in the first element of
-    the returned tuple.  If *normed* is *True*, return the probability
-    density :math:`\\frac{n}{(len(y)\mathrm{dbin}}`.
-
-    If *y* has rank > 1, it will be raveled.  If *y* is masked, only the
-    unmasked values will be used.
-
-    Credits: the Numeric 22 documentation
-    """
-    warnings.warn("Use numpy.histogram()", DeprecationWarning)
-    return np.histogram(y, bins=bins, range=None, normed=normed)
-
 def normpdf(x, *args):
     "Return the normal pdf evaluated at *x*; args provides *mu*, *sigma*"
     mu, sigma = args
@@ -878,13 +709,6 @@ def find(condition):
     "Return the indices where ravel(condition) is true"
     res, = np.nonzero(np.ravel(condition))
     return res
-
-def trapz(x, y):
-    """
-    Trapezoidal integral of *y*(*x*).
-    """
-    warnings.warn("Use numpy.trapz(y,x) instead of trapz(x,y)", DeprecationWarning)
-    return np.trapz(y, x)
 
 
 def longest_contiguous_ones(x):
@@ -1203,6 +1027,8 @@ def liaupunov(x, fprime):
     *x* is a very long trajectory from a map, and *fprime* returns the
     derivative of *x*.
 
+    This function will be removed from matplotlib.
+
     Returns :
     .. math::
 
@@ -1221,6 +1047,9 @@ def liaupunov(x, fprime):
 
         It also seems that this function's name is badly misspelled.
     """
+
+    warnings.warn("This does not belong in matplotlib and will be removed", DeprecationWarning) # 2009/06/13
+
     return np.mean(np.log(np.absolute(fprime(x))))
 
 class FIFOBuffer:
@@ -1330,6 +1159,8 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
     Save the data in *X* to file *fname* using *fmt* string to convert the
     data to strings.
 
+    Deprecated.  Use numpy.savetxt.
+
     *fname* can be a filename or a file handle.  If the filename ends
     in '.gz', the file is automatically saved in compressed gzip
     format.  The :func:`load` function understands gzipped files
@@ -1345,6 +1176,8 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
     *delimiter* is used to separate the fields, eg. *delimiter* ','
     for comma-separated values.
     """
+
+    warnings.warn("use numpy.savetxt", DeprecationWarning)  # 2009/06/13
 
     if cbook.is_string_like(fname):
         if fname.endswith('.gz'):
@@ -1376,6 +1209,8 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
          usecols=None, unpack=False, dtype=np.float_):
     """
     Load ASCII data from *fname* into an array and return the array.
+
+    Deprecated: use numpy.loadtxt.
 
     The data must be regular, same number of values in every row
 
@@ -1428,6 +1263,8 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
         See :file:`examples/pylab_examples/load_converter.py` in the source tree
            Exercises many of these options.
     """
+
+    warnings.warn("use numpy.loadtxt", DeprecationWarning)  # 2009/06/13
 
     if converters is None: converters = {}
     fh = cbook.to_filehandle(fname)
@@ -1720,33 +1557,6 @@ def amap(fn,*args):
     return np.array(map(fn,*args))
 
 
-#from numpy import zeros_like
-def zeros_like(a):
-    """
-    Return an array of zeros of the shape and typecode of *a*.
-    """
-    warnings.warn("Use numpy.zeros_like(a)", DeprecationWarning)
-    return np.zeros_like(a)
-
-#from numpy import sum as sum_flat
-def sum_flat(a):
-    """
-    Return the sum of all the elements of *a*, flattened out.
-
-    It uses ``a.flat``, and if *a* is not contiguous, a call to
-    ``ravel(a)`` is made.
-    """
-    warnings.warn("Use numpy.sum(a) or a.sum()", DeprecationWarning)
-    return np.sum(a)
-
-#from numpy import mean as mean_flat
-def mean_flat(a):
-    """
-    Return the mean of all the elements of *a*, flattened out.
-    """
-    warnings.warn("Use numpy.mean(a) or a.mean()", DeprecationWarning)
-    return np.mean(a)
-
 def rms_flat(a):
     """
     Return the root mean square of all the elements of *a*, flattened out.
@@ -1852,14 +1662,6 @@ def frange(xini,xfin=None,delta=None,**kw):
     return np.arange(npts)*delta+xini
 # end frange()
 
-#import numpy.diag as diagonal_matrix
-def diagonal_matrix(diag):
-    """
-    Return square diagonal matrix whose non-zero elements are given by the
-    input array.
-    """
-    warnings.warn("Use numpy.diag(d)", DeprecationWarning)
-    return np.diag(diag)
 
 def identity(n, rank=2, dtype='l', typecode=None):
     """
@@ -1962,72 +1764,10 @@ def isvector(X):
     """
     return np.prod(X.shape)==np.max(X.shape)
 
-#from numpy import fromfunction as fromfunction_kw
-def fromfunction_kw(function, dimensions, **kwargs):
-    """
-    Drop-in replacement for :func:`numpy.fromfunction`.
-
-    Allows passing keyword arguments to the desired function.
-
-    Call it as (keywords are optional)::
-
-      fromfunction_kw(MyFunction, dimensions, keywords)
-
-    The function ``MyFunction`` is responsible for handling the
-    dictionary of keywords it will receive.
-    """
-    warnings.warn("Use numpy.fromfunction()", DeprecationWarning)
-    return np.fromfunction(function, dimensions, **kwargs)
-
 ### end fperez numutils code
 
 
-def rem(x,y):
-    """
-    Deprecated - see :func:`numpy.remainder`
-    """
-    raise NotImplementedError('Deprecated - see numpy.remainder')
-
-def norm(x,y=2):
-    """
-    Deprecated - see :func:`numpy.linalg.norm`
-    """
-    raise NotImplementedError('Deprecated - see numpy.linalg.norm')
-
-
-def orth(A):
-    """
-    Deprecated - needs clean room implementation
-    """
-    raise NotImplementedError('Deprecated - needs clean room implementation')
-
-def rank(x):
-    """
-    Deprecated - see :func:`numpy.rank`
-    """
-    raise NotImplementedError('Deprecated - see numpy.rank')
-
-def sqrtm(x):
-    """
-    Deprecated - needs clean room implementation
-    """
-    raise NotImplementedError('Deprecated - see scipy.linalg.sqrtm')
-
-
-def mfuncC(f, x):
-    """
-    Deprecated
-    """
-    raise NotImplementedError('Deprecated - needs clean room implementation')
-
-def approx_real(x):
-    """
-    Deprecated - needs clean room implementation
-    """
-    raise NotImplementedError('Deprecated - needs clean room implementation')
-
 #helpers for loading, saving, manipulating and viewing numpy record arrays
-
 
 def safe_isnan(x):
     ':func:`numpy.isnan` for arbitrary types'
@@ -2046,15 +1786,6 @@ def safe_isinf(x):
     except NotImplementedError: return False
     except TypeError: return False
     else: return b
-
-def rec_append_field(rec, name, arr, dtype=None):
-    """
-    Return a new record array with field name populated with data from
-    array *arr*.  This function is Deprecated. Please use
-    :func:`rec_append_fields`.
-    """
-    warnings.warn("use rec_append_fields", DeprecationWarning)
-    return rec_append_fields(rec, name, arr, dtype)
 
 def rec_append_fields(rec, names, arrs, dtypes=None):
     """
@@ -2114,7 +1845,7 @@ def rec_keep_fields(rec, names):
 
     if cbook.is_string_like(names):
         names = names.split(',')
-        
+
     arrays = []
     for name in names:
         arrays.append(rec[name])
@@ -2745,7 +2476,7 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
 
     if fields is not None:
         r = rec_keep_fields(r, fields)
-        
+
     if cbook.is_numlike(precision):
         precision = [precision]*len(r.dtype)
 
