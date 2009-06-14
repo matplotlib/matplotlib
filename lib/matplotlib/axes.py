@@ -4725,12 +4725,12 @@ class Axes(martist.Artist):
 
         Optional keyword arguments:
 
-          *xerr*/*yerr*: [ scalar | N, Nx1, Nx2 array-like ]
+          *xerr*/*yerr*: [ scalar | N, Nx1, or 2xN array-like ]
             If a scalar number, len(N) array-like object, or an Nx1 array-like
             object, errorbars are drawn +/- value.
 
-            If a rank-1, Nx2 Numpy array, errorbars are drawn at -column1 and
-            +column2
+            If a rank-1, 2xN numpy array, errorbars are drawn at -row1 and
+            +row2
 
           *fmt*: '-'
             The plot format symbol for *y*. If *fmt* is *None*, just plot the
