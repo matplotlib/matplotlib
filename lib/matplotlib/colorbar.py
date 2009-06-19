@@ -29,6 +29,7 @@ import matplotlib.lines as lines
 import matplotlib.patches as patches
 import matplotlib.collections as collections
 import matplotlib.contour as contour
+import matplotlib.artist as martist
 
 make_axes_kw_doc = '''
 
@@ -626,9 +627,10 @@ class Colorbar(ColorbarBase):
         self.mappable = mappable
         kw['cmap'] = mappable.cmap
         kw['norm'] = mappable.norm
-        kw['alpha'] = mappable.get_alpha()
+
         if isinstance(mappable, contour.ContourSet):
             CS = mappable
+            kw['alpha'] = mappable.get_alpha()
             kw['boundaries'] = CS._levels
             kw['values'] = CS.cvalues
             kw['extend'] = CS.extend
@@ -639,6 +641,9 @@ class Colorbar(ColorbarBase):
             if not CS.filled:
                 self.add_lines(CS)
         else:
+            if isinstance(mappable, martist.Artist):
+                kw['alpha'] = mappable.get_alpha()
+
             ColorbarBase.__init__(self, ax, **kw)
 
 
