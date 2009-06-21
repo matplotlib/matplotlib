@@ -5018,7 +5018,7 @@ class Axes(martist.Artist):
 
         syms =  { # a dict from symbol to (numsides, angle)
             's' : (4,math.pi/4.0,0),   # square
-            'o' : (20,3,0),            # circle
+            'o' : (0,0,3),            # circle
             '^' : (3,0,0),             # triangle up
             '>' : (3,math.pi/2.0,0),   # triangle right
             'v' : (3,math.pi,0),       # triangle down
@@ -5095,7 +5095,7 @@ class Axes(martist.Artist):
                     numsides, rotation = marker[0], marker[2]
                 sym = True
 
-                if marker[1] in (1,2):
+                if marker[1] in (1,2,3):
                     symstyle = marker[1]
 
             else:
