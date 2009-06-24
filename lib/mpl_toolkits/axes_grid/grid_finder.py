@@ -5,6 +5,7 @@ import clip_path
 clip_line_to_rect = clip_path.clip_line_to_rect
 
 import matplotlib.ticker as mticker
+from matplotlib.transforms import Transform
 
 
 # extremes finder
@@ -51,9 +52,11 @@ class GridFinderBase(object):
                  tick_formatter1=None,
                  tick_formatter2=None):
         """
-        transform : transfrom from the image coordinate (which will be
         the transData of the axes to the world coordinate.
         locator1, locator2 : grid locator for 1st and 2nd axis.
+
+        Derived must define "transform_xy, inv_transform_xy"
+        (may use update_transform)
         """
         super(GridFinderBase, self).__init__()
 
@@ -63,16 +66,14 @@ class GridFinderBase(object):
         self.tick_formatter1 = tick_formatter1
         self.tick_formatter2 = tick_formatter2
 
-
     def get_grid_info(self,
-                      transform_xy, inv_transform_xy,
                       x1, y1, x2, y2):
         """
         lon_values, lat_values : list of grid values. if integer is given,
                            rough number of grids in each direction.
         """
 
-        extremes = self.extreme_finder(transform_xy, x1, y1, x2, y2)
+        extremes = self.extreme_finder(self.inv_transform_xy, x1, y1, x2, y2)
 
         # min & max rage of lat (or lon) for each grid line will be drawn.
         # i.e., gridline of lon=0 will be drawn from lat_min to lat_max.
@@ -93,8 +94,7 @@ class GridFinderBase(object):
             lat_values = np.asarray(lat_levs[:lat_n]/lat_factor)
 
 
-        lon_lines, lat_lines = self._get_raw_grid_lines(inv_transform_xy,
-                                                        lon_values,
+        lon_lines, lat_lines = self._get_raw_grid_lines(lon_values,
                                                         lat_values,
                                                         lon_min, lon_max,
                                                         lat_min, lat_max)
@@ -132,21 +132,19 @@ class GridFinderBase(object):
         return grid_info
 
 
-    def _get_raw_grid_lines(self, inv_transform_xy,
+    def _get_raw_grid_lines(self,
                             lon_values, lat_values,
                             lon_min, lon_max, lat_min, lat_max):
 
         lons_i = np.linspace(lon_min, lon_max, 100) # for interpolation
         lats_i = np.linspace(lat_min, lat_max, 100)
 
-        lon_lines = [inv_transform_xy(np.zeros_like(lats_i)+lon, lats_i) \
+        lon_lines = [self.transform_xy(np.zeros_like(lats_i)+lon, lats_i) \
                      for lon in lon_values]
-        lat_lines = [inv_transform_xy(lons_i, np.zeros_like(lons_i)+lat) \
+        lat_lines = [self.transform_xy(lons_i, np.zeros_like(lons_i)+lat) \
                      for lat in lat_values]
 
         return lon_lines, lat_lines
-
-
 
 
     def _clip_grid_lines_and_find_ticks(self, lines, values, levs, bb):
@@ -174,32 +172,47 @@ class GridFinderBase(object):
         return gi
 
 
-    def _update_label_deprecated(self):
-        pass
+    def update_transform(self, aux_trans):
+        if isinstance(aux_trans, Transform):
+            def transform_xy(x, y):
+                x, y = np.asarray(x), np.asarray(y)
+                ll1 = np.concatenate((x[:,np.newaxis], y[:,np.newaxis]), 1)
+                ll2 = aux_trans.transform(ll1)
+                lon, lat = ll2[:,0], ll2[:,1]
+                return lon, lat
 
-    def _find_grid_values_deprecated(self, x1, y1, x2, y2, den_x, den_y):
-        """
-        values_lon, values_lat : list of grid values. if integer is given,
-                           rough number of grids in each direction.
-        """
-        nx, ny = den_x * 20, den_y*20
+            def inv_transform_xy(x, y):
+                x, y = np.asarray(x), np.asarray(y)
+                ll1 = np.concatenate((x[:,np.newaxis], y[:,np.newaxis]), 1)
+                ll2 = aux_trans.inverted().transform(ll1)
+                lon, lat = ll2[:,0], ll2[:,1]
+                return lon, lat
 
-        extremes = self.get_extremes(x1, y1, x2, y2, nx, ny)
-        lon_min, lon_max, lat_min, lat_max = extremes
+        else:
+            transform_xy, inv_transform_xy = aux_trans
 
-        lon_levs, lon_n, lon_factor = \
-                  self.grid_locator1(lon_min, lon_max)
-        lat_levs, lat_n, lat_factor = \
-                  self.grid_locator2(lat_min, lat_max)
+        self.transform_xy = transform_xy
+        self.inv_transform_xy = inv_transform_xy
 
-        return lon_levs, lon_n, lon_factor, lat_levs, lat_n, lat_factor
+
+    def update(self, **kw):
+        for k in kw:
+            if k in ["extreme_finder",
+                     "grid_locator1",
+                     "grid_locator2",
+                     "tick_formatter1",
+                     "tick_formatter2"]:
+                setattr(self, k, kw[k])
+            else:
+                raise ValueError("unknwonw update property")
+
 
 
 
 class GridFinder(GridFinderBase):
 
     def __init__(self,
-                 transform_xy, inv_transform_xy,
+                 transform,
                  extreme_finder=None,
                  grid_locator1=None,
                  grid_locator2=None,
@@ -208,6 +221,9 @@ class GridFinder(GridFinderBase):
         """
         transform : transfrom from the image coordinate (which will be
         the transData of the axes to the world coordinate.
+
+        or transform = (transform_xy, inv_transform_xy)
+
         locator1, locator2 : grid locator for 1st and 2nd axis.
         """
 
@@ -229,82 +245,7 @@ class GridFinder(GridFinderBase):
                  tick_formatter1,
                  tick_formatter2)
 
-        self._transform_xy = transform_xy
-        self._inv_transform_xy = inv_transform_xy
-
-
-    def get_grid_info(self,
-                      x1, y1, x2, y2):
-
-        return super(GridFinder,self).get_grid_info( \
-            self._inv_transform_xy, self._transform_xy,
-            x1, y1, x2, y2)
-
-
-
-class GridFinderMplTransform(GridFinderBase):
-
-    def __init__(self,
-                 transform,
-                 extreme_finder=None,
-                 grid_locator1=None,
-                 grid_locator2=None,
-                 tick_formatter1=None,
-                 tick_formatter2=None):
-        """
-        transform : transfrom from the image coordinate (which will be
-        the transData of the axes to the world coordinate.
-        locator1, locator2 : grid locator for 1st and 2nd axis.
-        """
-
-        if extreme_finder is None:
-            extreme_finder = ExtremeFinderSimple(20, 20)
-        if grid_locator1 is None:
-            grid_locator1 = MaxNLocator()
-        if grid_locator2 is None:
-            grid_locator2 = MaxNLocator()
-        if tick_formatter1 is None:
-            tick_formatter1 = FormatterPrettyPrint()
-        if tick_formatter2 is None:
-            tick_formatter2 = FormatterPrettyPrint()
-
-        super(GridFinderMplTransform, self).__init__( \
-                 extreme_finder,
-                 grid_locator1,
-                 grid_locator2,
-                 tick_formatter1,
-                 tick_formatter2)
-
-        self.transform = transform
-
-
-    def get_grid_info(self,
-                      x1, y1, x2, y2):
-
-        return super(GridFinderMplTransform,self).get_grid_info( \
-            self._inv_transform_xy, self._transform_xy,
-            x1, y1, x2, y2)
-
-
-    def _inv_transform_xy(self, x, y):
-        ll1 = np.concatenate((x[:,np.newaxis], y[:,np.newaxis]), 1)
-        ll2 = self.transform.inverted().transform(ll1)
-        lon, lat = ll2[:,0], ll2[:,1]
-        return lon, lat
-
-    def _transform_xy(self, x, y):
-        ll1 = np.concatenate((x[:,np.newaxis], y[:,np.newaxis]), 1)
-        ll2 = self.transform.transform(ll1)
-        lon, lat = ll2[:,0], ll2[:,1]
-        return lon, lat
-
-
-
-
-
-
-
-
+        self.update_transform(transform)
 
 
 class MaxNLocator(mticker.MaxNLocator):

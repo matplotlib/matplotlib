@@ -21,12 +21,13 @@ class _Base(object):
 class Fixed(_Base):
     "Simple fixed size  with absolute part = *fixed_size* and relative part = 0"
     def __init__(self, fixed_size):
-        self._fixed_size = fixed_size
+        self.fixed_size = fixed_size
 
     def get_size(self, renderer):
         rel_size = 0.
-        abs_size = self._fixed_size
+        abs_size = self.fixed_size
         return rel_size, abs_size
+
 
 class Scaled(_Base):
     "Simple scaled(?) size with absolute part = 0 and relative part = *scalable_size*"
