@@ -542,13 +542,17 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   PathIterator       marker_path(marker_path_obj);
   transformed_path_t marker_path_transformed(marker_path, marker_trans);
   quantize_t         marker_path_quantized(marker_path_transformed,
-                                           gc.quantize_mode,
+					   gc.quantize_mode,
                                            marker_path.total_vertices());
   curve_t            marker_path_curve(marker_path_quantized);
 
   PathIterator path(path_obj);
   transformed_path_t path_transformed(path, trans);
-  path_transformed.rewind(0);
+  quantize_t         path_quantized(path_transformed,
+				    gc.quantize_mode,
+				    path.total_vertices());
+  curve_t            path_curve(path_quantized);
+  path_curve.rewind(0);
 
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
 
@@ -597,7 +601,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
     if (has_clippath) {
-      while (path_transformed.vertex(&x, &y) != agg::path_cmd_stop) {
+      while (path_curve.vertex(&x, &y) != agg::path_cmd_stop) {
         if (MPL_notisfinite64(x) || MPL_notisfinite64(y)) {
           continue;
         }
@@ -618,7 +622,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 	agg::render_scanlines(sa, sl, ren);
       }
     } else {
-      while (path_transformed.vertex(&x, &y) != agg::path_cmd_stop) {
+      while (path_curve.vertex(&x, &y) != agg::path_cmd_stop) {
         if (MPL_notisfinite64(x) || MPL_notisfinite64(y)) {
           continue;
         }
