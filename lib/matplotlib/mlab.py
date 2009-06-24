@@ -2052,7 +2052,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing='', missingd=None,
-            use_mrecords=True):
+            use_mrecords=False):
     """
     Load data from comma/space/tab delimited file in *fname* into a
     numpy record array and return the record array.
@@ -2560,7 +2560,7 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
 
 
 def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
-            missingd=None):
+            missingd=None, withheader=True):
     """
     Save the data from numpy recarray *r* into a
     comma-/space-/tab-delimited file.  The record array dtype names
@@ -2568,6 +2568,9 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
 
     *fname*: can be a filename or a file handle.  Support for gzipped
       files is automatic, if the filename ends in '.gz'
+
+    *withheader*: if withheader is False, do not write the attribute
+      names in the first row
 
     .. seealso::
 
@@ -2595,7 +2598,8 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
     fh, opened = cbook.to_filehandle(fname, 'w', return_opened=True)
     writer = csv.writer(fh, delimiter=delimiter)
     header = r.dtype.names
-    writer.writerow(header)
+    if withheader:
+        writer.writerow(header)
 
     # Our list of specials for missing values
     mvals = []

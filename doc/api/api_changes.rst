@@ -1,3 +1,4 @@
+
 ===========
 API Changes
 ===========
@@ -20,7 +21,10 @@ list may help describe what changes may be necessary in your code.
 Changes beyond 0.98.x
 =====================
 
-* Axes instanaces no longer have a "frame" attribute. Instead, use the
+* changed use_mrecords default to False in mlab.csv2rec since this is
+  partially broken
+
+* Axes instances no longer have a "frame" attribute. Instead, use the
   new "spines" attribute. Spines is a dictionary where the keys are
   the names of the spines (e.g. 'left','right' and so on) and the
   values are the artists that draw the spines. For normal

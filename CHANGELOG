@@ -1,3 +1,8 @@
+2009-06-24 Add withheader option to mlab.rec2csv and changed
+  use_mrecords default to False in mlab.csv2rec since this is
+  partially broken - JDH
+
+
 2009-06-24 backend_agg.draw_marker quantizes the main path (as in the
            draw_path). - JJL
 
