@@ -64,15 +64,17 @@ Packaging
   or off any platform specific build options you need.  Importantly,
   you also need to make sure that you delete the :file:`build` dir
   after any changes to file:`setup.cfg` before rebuilding since cruft
-  in the :file:`build` dir can get carried along.  I will add this to
-  the devel release notes,
+  in the :file:`build` dir can get carried along.
 
 * on windows, unix2dos the rc file
 
 * We have a Makefile for the OS X builds in the mpl source dir
   :file:`release/osx`, so use this to prepare the OS X releases.
 
-
+* We have a Makefile for the win32 mingw builds in the mpl source dir
+  :file:`release/win32` which you can use this to prepare the windows
+  releases, but this is currently broken for python2.6 as described at
+  http://www.nabble.com/binary-installers-for-python2.6--libpng-segfault%2C-MSVCR90.DLL-and-%09mingw-td23971661.html
 
 .. _release-candidate-testing:
 
