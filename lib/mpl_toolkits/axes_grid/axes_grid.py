@@ -143,7 +143,270 @@ class CbarAxes(LocatableAxes):
 
 
 
-class AxesGrid(object):
+class Grid(object):
+    """
+    A class that creates a grid of Axes. In matplotlib, the axes
+    location (and size) is specified in the normalized figure
+    coordinates. This may not be ideal for images that needs to be
+    displayed with a given aspect ratio.  For example, displaying
+    images of a same size with some fixed padding between them cannot
+    be easily done in matplotlib. AxesGrid is used in such case.
+    """
+
+    def __init__(self, fig,
+                 rect,
+                 nrows_ncols,
+                 ngrids = None,
+                 direction="row",
+                 axes_pad = 0.02,
+                 add_all=True,
+                 share_all=False,
+                 share_x=True,
+                 share_y=True,
+                 #aspect=True,
+                 label_mode="L",
+                 axes_class=None,
+                 ):
+        """
+        Build an :class:`AxesGrid` instance with a grid nrows*ncols
+        :class:`~matplotlib.axes.Axes` in
+        :class:`~matplotlib.figure.Figure` *fig* with
+        *rect=[left, bottom, width, height]* (in
+        :class:`~matplotlib.figure.Figure` coordinates) or
+        the subplot position code (e.g., "121").
+
+        Optional keyword arguments:
+
+          ================  ========  =========================================
+          Keyword           Default   Description
+          ================  ========  =========================================
+          direction         "row"     [ "row" | "column" ]
+          axes_pad          0.02      float| pad betweein axes given in inches
+          add_all           True      [ True | False ]
+          share_all         False     [ True | False ]
+          aspect            True      [ True | False ]
+          label_mode        "L"       [ "L" | "1" | "all" ]
+          axes_class        None      a type object which must be a subclass
+                                      of :class:`~matplotlib.axes.Axes`
+          ================  ========  =========================================
+        """
+        self._nrows, self._ncols = nrows_ncols
+
+        if ngrids is None:
+            ngrids = self._nrows * self._ncols
+        else:
+            if (ngrids > self._nrows * self._ncols) or  (ngrids <= 0):
+                raise Exception("")
+
+        self.ngrids = ngrids
+
+        self._init_axes_pad(axes_pad)
+
+        if direction not in ["column", "row"]:
+            raise Exception("")
+
+        self._direction = direction
+
+
+        if axes_class is None:
+            axes_class = LocatableAxes
+            axes_class_args = {}
+        else:
+            if isinstance(axes_class, maxes.Axes):
+                axes_class_args = {}
+            else:
+                axes_class, axes_class_args = axes_class
+
+        self.axes_all = []
+        self.axes_column = [[] for i in range(self._ncols)]
+        self.axes_row = [[] for i in range(self._nrows)]
+
+
+        h = []
+        v = []
+        if cbook.is_string_like(rect) or cbook.is_numlike(rect):
+            self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
+                                           aspect=False)
+        elif len(rect) == 3:
+            kw = dict(horizontal=h, vertical=v, aspect=False)
+            self._divider = SubplotDivider(fig, *rect, **kw)
+        elif len(rect) == 4:
+            self._divider = Divider(fig, rect, horizontal=h, vertical=v,
+                                    aspect=False)
+        else:
+            raise Exception("")
+
+
+        rect = self._divider.get_position()
+
+        # reference axes
+        self._column_refax = [None for i in range(self._ncols)]
+        self._row_refax = [None for i in range(self._nrows)]
+        self._refax = None
+
+        for i in range(self.ngrids):
+
+            col, row = self._get_col_row(i)
+
+            if share_all:
+                sharex = self._refax
+                sharey = self._refax
+            else:
+                if share_x:
+                    sharex = self._column_refax[col]
+                else:
+                    sharex = None
+
+                if share_y:
+                    sharey = self._row_refax[row]
+                else:
+                    sharey = None
+
+            ax = axes_class(fig, rect, sharex=sharex, sharey=sharey,
+                            **axes_class_args)
+
+            if share_all:
+                if self._refax is None:
+                    self._refax = ax
+            else:
+                if sharex is None:
+                    self._column_refax[col] = ax
+                if sharey is None:
+                    self._row_refax[row] = ax
+
+            self.axes_all.append(ax)
+            self.axes_column[col].append(ax)
+            self.axes_row[row].append(ax)
+
+        self.axes_llc = self.axes_column[0][-1]
+
+        self._update_locators()
+
+        if add_all:
+            for ax in self.axes_all:
+                fig.add_axes(ax)
+
+        self.set_label_mode(label_mode)
+
+
+    def _init_axes_pad(self, axes_pad):
+        self._axes_pad = axes_pad
+
+        self._horiz_pad_size = Size.Fixed(axes_pad)
+        self._vert_pad_size = Size.Fixed(axes_pad)
+
+
+    def _update_locators(self):
+
+        h = []
+
+        h_ax_pos = []
+        h_cb_pos = []
+
+        for ax in self._column_refax:
+            #if h: h.append(Size.Fixed(self._axes_pad))
+            if h: h.append(self._horiz_pad_size)
+
+            h_ax_pos.append(len(h))
+
+            sz = Size.Scaled(1)
+            h.append(sz)
+
+        v = []
+
+        v_ax_pos = []
+        v_cb_pos = []
+        for ax in self._row_refax[::-1]:
+            #if v: v.append(Size.Fixed(self._axes_pad))
+            if v: v.append(self._vert_pad_size)
+
+            v_ax_pos.append(len(v))
+            sz = Size.Scaled(1)
+            v.append(sz)
+
+
+        for i in range(self.ngrids):
+            col, row = self._get_col_row(i)
+            locator = self._divider.new_locator(nx=h_ax_pos[col],
+                                                ny=v_ax_pos[self._nrows -1 - row])
+            self.axes_all[i].set_axes_locator(locator)
+
+        self._divider.set_horizontal(h)
+        self._divider.set_vertical(v)
+
+
+
+    def _get_col_row(self, n):
+        if self._direction == "column":
+            col, row = divmod(n, self._nrows)
+        else:
+            row, col = divmod(n, self._ncols)
+
+        return col, row
+
+
+    def __getitem__(self, i):
+        return self.axes_all[i]
+
+
+    def get_geometry(self):
+        """
+        get geometry of the grid. Returns a tuple of two integer,
+        representing number of rows and number of columns.
+        """
+        return self._nrows, self._ncols
+
+    def set_axes_pad(self, axes_pad):
+        "set axes_pad"
+        self._axes_pad = axes_pad
+
+        self._horiz_pad_size.fixed_size = axes_pad
+        self._vert_pad_size.fixed_size = axes_pad
+
+
+    def get_axes_pad(self):
+        "get axes_pad"
+        return self._axes_pad
+
+    def set_aspect(self, aspect):
+        "set aspect"
+        self._divider.set_aspect(aspect)
+
+    def get_aspect(self):
+        "get aspect"
+        return self._divider.get_aspect()
+
+    def set_label_mode(self, mode):
+        "set label_mode"
+        if mode == "all":
+            for ax in self.axes_all:
+                _tick_only(ax, False, False)
+        elif mode == "L":
+            # left-most axes
+            for ax in self.axes_column[0][:-1]:
+                _tick_only(ax, bottom_on=True, left_on=False)
+            # lower-left axes
+            ax = self.axes_column[0][-1]
+            _tick_only(ax, bottom_on=False, left_on=False)
+
+            for col in self.axes_column[1:]:
+                # axes with no labels
+                for ax in col[:-1]:
+                    _tick_only(ax, bottom_on=True, left_on=True)
+
+                # bottom
+                ax = col[-1]
+                _tick_only(ax, bottom_on=False, left_on=True)
+
+        elif mode == "1":
+            for ax in self.axes_all:
+                _tick_only(ax, bottom_on=True, left_on=True)
+
+            ax = self.axes_llc
+            _tick_only(ax, bottom_on=False, left_on=False)
+
+
+class AxesGrid(Grid):
     """
     A class that creates a grid of Axes. In matplotlib, the axes
     location (and size) is specified in the normalized figure
@@ -216,6 +479,8 @@ class AxesGrid(object):
             self._colorbar_pad = cbar_pad
 
         self._colorbar_size = cbar_size
+
+        self._init_axes_pad(axes_pad)
 
         if direction not in ["column", "row"]:
             raise Exception("")
@@ -312,7 +577,7 @@ class AxesGrid(object):
         h_ax_pos = []
         h_cb_pos = []
         for ax in self._column_refax:
-            if h: h.append(Size.Fixed(self._axes_pad))
+            if h: h.append(self._horiz_pad_size) #Size.Fixed(self._axes_pad))
 
             h_ax_pos.append(len(h))
 
@@ -333,7 +598,8 @@ class AxesGrid(object):
         v_ax_pos = []
         v_cb_pos = []
         for ax in self._row_refax[::-1]:
-            if v: v.append(Size.Fixed(self._axes_pad))
+            if v: v.append(self._horiz_pad_size) #Size.Fixed(self._axes_pad))
+
             v_ax_pos.append(len(v))
             if ax:
                 sz = Size.AxesY(ax)
@@ -396,75 +662,27 @@ class AxesGrid(object):
 
 
 
-    def _get_col_row(self, n):
-        if self._direction == "column":
-            col, row = divmod(n, self._nrows)
-        else:
-            row, col = divmod(n, self._ncols)
-
-        return col, row
 
 
-    def __getitem__(self, i):
-        return self.axes_all[i]
+#if __name__ == "__main__":
+if 0:
+    F = plt.figure(1, (7, 6))
+    F.clf()
 
+    F.subplots_adjust(left=0.15, right=0.9)
 
-    def get_geometry(self):
-        """
-        get geometry of the grid. Returns a tuple of two integer,
-        representing number of rows and number of columns.
-        """
-        return self._nrows, self._ncols
-
-    def set_axes_pad(self, axes_pad):
-        "set axes_pad"
-        self._axes_pad = axes_pad
-
-    def get_axes_pad(self):
-        "get axes_pad"
-        return self._axes_pad
-
-    def set_aspect(self, aspect):
-        "set aspect"
-        self._divider.set_aspect(aspect)
-
-    def get_aspect(self):
-        "get aspect"
-        return self._divider.get_aspect()
-
-    def set_label_mode(self, mode):
-        "set label_mode"
-        if mode == "all":
-            for ax in self.axes_all:
-                _tick_only(ax, False, False)
-        elif mode == "L":
-            # left-most axes
-            for ax in self.axes_column[0][:-1]:
-                _tick_only(ax, bottom_on=True, left_on=False)
-            # lower-left axes
-            ax = self.axes_column[0][-1]
-            _tick_only(ax, bottom_on=False, left_on=False)
-
-            for col in self.axes_column[1:]:
-                # axes with no labels
-                for ax in col[:-1]:
-                    _tick_only(ax, bottom_on=True, left_on=True)
-
-                # bottom
-                ax = col[-1]
-                _tick_only(ax, bottom_on=False, left_on=True)
-
-        elif mode == "1":
-            for ax in self.axes_all:
-                _tick_only(ax, bottom_on=True, left_on=True)
-
-            ax = self.axes_llc
-            _tick_only(ax, bottom_on=False, left_on=False)
-
+    grid = Grid(F, 111, # similar to subplot(111)
+                nrows_ncols = (2, 2),
+                direction="row",
+                axes_pad = 0.05,
+                add_all=True,
+                label_mode = "1",
+                )
 
 
 
 if __name__ == "__main__":
+#if 0:
     from axes_divider import get_demo_image
     F = plt.figure(1, (9, 3.5))
     F.clf()

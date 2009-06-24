@@ -1,3 +1,5 @@
+2009-06-24 axes_grid: floating axis support added. - JJL
+
 2009-06-14 Add new command line options to backend_driver.py to support
            running only some directories of tests - JKS
 

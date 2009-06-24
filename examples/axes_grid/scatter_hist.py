@@ -56,5 +56,5 @@ for tl in axHisty.get_yticklabels():
 axHisty.set_xticks([0, 50, 100])
 
 plt.draw()
-#plt.show()
-plt.savefig("a.pdf")
+plt.show()
+#plt.savefig("a.pdf")

@@ -29,7 +29,8 @@ if 1:
     new_axisline = ax.get_grid_helper().new_fixed_axis
 
     ax.axis["right2"] = new_axisline(loc="right",
-                                     offset=offset)
+                                     offset=offset,
+                                     axes=ax)
     ax.axis["right2"].label.set_text("Label Y2")
 
     ax.plot([-2,3,2])
