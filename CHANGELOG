@@ -1,3 +1,6 @@
+2009-06-24 backend_agg.draw_marker quantizes the main path (as in the
+           draw_path). - JJL
+
 2009-06-24 axes_grid: floating axis support added. - JJL
 
 2009-06-14 Add new command line options to backend_driver.py to support
