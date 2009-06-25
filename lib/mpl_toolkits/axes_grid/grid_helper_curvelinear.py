@@ -315,10 +315,13 @@ class GridHelperCurveLinear(GridHelperBase):
     def new_floating_axis(self, nth_coord,
                           value,
                           tick_direction="in",
-                          label_direction="top",
+                          label_direction=None,
                           axes=None,
                           ):
 
+        if label_direction is None:
+            label_direction = "top"
+            
         _helper = FloatingAxisArtistHelper(self, nth_coord,
                                            value,
                                            label_direction=label_direction,

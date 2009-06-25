@@ -388,3 +388,13 @@ represented by the inset axes.
 .. plot:: mpl_toolkits/axes_grid/figures/inset_locator_demo2.py
    :include-source:
 
+
+Curvelinear Grid
+================
+
+You can draw a cuvelinear grid and ticks. Also a floating axis can be
+created. See :ref:`axislines-manual` for more details.
+
+.. plot:: mpl_toolkits/axes_grid/figures/demo_floating_axis.py
+
+

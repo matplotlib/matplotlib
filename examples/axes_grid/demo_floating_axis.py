@@ -40,9 +40,6 @@ def curvelinear_test2(fig):
 
     ax1 = SubplotHost(fig, 1, 1, 1, grid_helper=grid_helper)
 
-    # make ticklabels of right and top axis visible.
-    for axis in ax1.axis.values():
-        axis.toggle(all=False)
 
     fig.add_subplot(ax1)
 
