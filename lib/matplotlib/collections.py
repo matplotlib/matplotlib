@@ -995,6 +995,10 @@ class CircleCollection(Collection):
         self._paths = [mpath.Path.unit_circle()]
     __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
+    def get_sizes(self):
+        "return sizes of circles"
+        return self._sizes
+
     def draw(self, renderer):
         # sizes is the area of the circle circumscribing the polygon
         # in points^2
