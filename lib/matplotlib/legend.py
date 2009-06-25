@@ -31,7 +31,8 @@ from matplotlib.cbook import is_string_like, iterable, silent_list, safezip
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
-from matplotlib.collections import LineCollection, RegularPolyCollection
+from matplotlib.collections import LineCollection, RegularPolyCollection, \
+     CircleCollection
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransformTo
 
 from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
@@ -439,7 +440,8 @@ detail.
         # manually set their transform to the self.get_transform().
 
         for handle in handles:
-            if isinstance(handle, RegularPolyCollection):
+            if isinstance(handle, RegularPolyCollection) or \
+                   isinstance(handle, CircleCollection):
                 npoints = self.scatterpoints
             else:
                 npoints = self.numpoints
@@ -531,6 +533,31 @@ detail.
                 p.set_clip_path(None)
                 handle_list.append(p)
 
+            elif isinstance(handle, CircleCollection):
+
+                ydata = height*self._scatteryoffsets
+
+                size_max, size_min = max(handle.get_sizes()),\
+                                     min(handle.get_sizes())
+                # we may need to scale these sizes by "markerscale"
+                # attribute. But other handle types does not seem
+                # to care about this attribute and it is currently ignored.
+                if self.scatterpoints < 4:
+                    sizes = [.5*(size_max+size_min), size_max,
+                             size_min]
+                else:
+                    sizes = (size_max-size_min)*np.linspace(0,1,self.scatterpoints)+size_min
+
+                p = type(handle)(sizes,
+                                 offsets=zip(xdata_marker,ydata),
+                                 transOffset=self.get_transform(),
+                                 )
+
+                p.update_from(handle)
+                p.set_figure(self.figure)
+                p.set_clip_box(None)
+                p.set_clip_path(None)
+                handle_list.append(p)
             else:
                 handle_list.append(None)
 
