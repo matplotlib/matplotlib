@@ -14,7 +14,7 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
     """
     Helper class for a fixed axis.
     """
-    
+
     def __init__(self, grid_helper, side, nth_coord_ticks=None):
         """
         nth_coord = along which coordinate value varies.
@@ -100,7 +100,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
                                                               lon_factor,
                                                               lon_levs)
 
-        grid_info["lat_labels"] = grid_finder.tick_formatter1("bottom",
+        grid_info["lat_labels"] = grid_finder.tick_formatter2("bottom",
                                                               lat_factor,
                                                               lat_levs)
 
@@ -321,7 +321,7 @@ class GridHelperCurveLinear(GridHelperBase):
 
         if label_direction is None:
             label_direction = "top"
-            
+
         _helper = FloatingAxisArtistHelper(self, nth_coord,
                                            value,
                                            label_direction=label_direction,

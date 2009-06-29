@@ -1,6 +1,5 @@
 """
-A floating axes for curvelinear grid.
-.
+An experimental support for curvelinear grid.
 """
 
 
@@ -8,6 +7,7 @@ def curvelinear_test2(fig):
     """
     polar projection, but in a rectangular box.
     """
+    global ax1
     import numpy as np
     import  mpl_toolkits.axes_grid.angle_helper as angle_helper
     from matplotlib.projections import PolarAxes
@@ -40,19 +40,18 @@ def curvelinear_test2(fig):
 
     ax1 = SubplotHost(fig, 1, 1, 1, grid_helper=grid_helper)
 
-
     fig.add_subplot(ax1)
 
     # Now creates floating axis
 
-    grid_helper = ax1.get_grid_helper()
+    #grid_helper = ax1.get_grid_helper()
     # floating axis whose first coordinate (theta) is fixed at 60
-    ax1.axis["lat"] = axis = grid_helper.new_floating_axis(0, 60, axes=ax1)
+    ax1.axis["lat"] = axis = ax1.new_floating_axis(0, 60)
     axis.label.set_text(r"$\theta = 60^{\circ}$")
     axis.label.set_visible(True)
 
     # floating axis whose second coordinate (r) is fixed at 6
-    ax1.axis["lon"] = axis = grid_helper.new_floating_axis(1, 6, axes=ax1)
+    ax1.axis["lon"] = axis = ax1.new_floating_axis(1, 6)
     axis.label.set_text(r"$r = 6$")
 
     ax1.set_aspect(1.)
