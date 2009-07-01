@@ -266,6 +266,10 @@ _png_module::read_png(const Py::Tuple& args) {
   double max_value = (1 << ((bit_depth < 8) ? 8 : bit_depth)) - 1;
   PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNew(num_dims, dimensions, PyArray_FLOAT);
 
+  if (A == NULL) {
+    throw Py::MemoryError("Could not allocate image array");
+  }
+
   for (png_uint_32 y = 0; y < height; y++) {
     png_byte* row = row_pointers[y];
 	for (png_uint_32 x = 0; x < width; x++) {
