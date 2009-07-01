@@ -882,6 +882,9 @@ Py::Object _path_module::clip_path_to_rect(const Py::Tuple &args)
             size_t size = p->size();
             dims[0] = p->size();
             PyArrayObject* pyarray = (PyArrayObject*)PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
+            if (pyarray == NULL) {
+                throw Py::MemoryError("Could not allocate result array");
+            }
             for (size_t i = 0; i < size; ++i)
             {
                 ((double *)pyarray->data)[2*i]	 = (*p)[i].x;
@@ -951,6 +954,9 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args)
 
         result = (PyArrayObject*)PyArray_SimpleNew
           (PyArray_NDIM(vertices), PyArray_DIMS(vertices), PyArray_DOUBLE);
+        if (result == NULL) {
+            throw Py::MemoryError("Could not allocate memory for path");
+        }
         if (PyArray_NDIM(vertices) == 2)
         {
             size_t n = PyArray_DIM(vertices, 0);
