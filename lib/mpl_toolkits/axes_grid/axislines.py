@@ -995,19 +995,21 @@ class AxisArtist(martist.Artist):
         trans, vert, horiz, label_a = tvhl
         trans = transform + trans
 
+        # ignore ticklabel angle during the drawing time (but respect
+        # during init).  Instead, use angle set by the TickLabel
+        # artist.
+
         self.major_ticklabels = TickLabels(size, axis=self.axis)
         self.minor_ticklabels = TickLabels(size, axis=self.axis)
 
 
         self.major_ticklabels.set(figure = self.axes.figure,
-                                  rotation = label_a,
                                   transform=trans,
                                   va=vert,
                                   ha=horiz,
                                   fontproperties=fontprops)
 
         self.minor_ticklabels.set(figure = self.axes.figure,
-                                  rotation = label_a,
                                   transform=trans,
                                   va=vert,
                                   ha=horiz,
@@ -1067,8 +1069,9 @@ class AxisArtist(martist.Artist):
         trans, va, ha, a = tvhl
         trans = transform + trans
 
-        self.major_ticklabels.set(transform=trans,
-                                  va=va, ha=ha, rotation=a)
+        # ignore va, ha, angle during the drawing time
+
+        self.major_ticklabels.set_transform(trans)
 
 
         self.major_ticks.update_ticks(tick_loc_angle_label, renderer)
