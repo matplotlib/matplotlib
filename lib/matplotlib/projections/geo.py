@@ -422,10 +422,21 @@ class MollweideAxes(GeoAxes):
             self._resolution = resolution
 
         def transform(self, ll):
+            def d(theta):
+                delta = -(theta + np.sin(theta) - pi_sin_l) / (1 + np.cos(theta))
+                return delta, delta > 0.001
+
             longitude = ll[:, 0:1]
             latitude  = ll[:, 1:2]
 
-            aux = 2.0 * np.arcsin((2.0 * latitude) / np.pi)
+            pi_sin_l = np.pi * np.sin(latitude)
+            theta = 2.0 * latitude
+            delta, large_delta = d(theta)
+            while np.any(large_delta):
+                theta += np.where(large_delta, delta, 0)
+                delta, large_delta = d(theta)
+            aux = theta / 2
+
             x = (2.0 * np.sqrt(2.0) * longitude * np.cos(aux)) / np.pi
             y = (np.sqrt(2.0) * np.sin(aux))
 
