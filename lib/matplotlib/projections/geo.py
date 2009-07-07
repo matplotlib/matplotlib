@@ -424,7 +424,7 @@ class MollweideAxes(GeoAxes):
         def transform(self, ll):
             def d(theta):
                 delta = -(theta + np.sin(theta) - pi_sin_l) / (1 + np.cos(theta))
-                return delta, delta > 0.001
+                return delta, abs(delta) > 0.001
 
             longitude = ll[:, 0:1]
             latitude  = ll[:, 1:2]
