@@ -158,7 +158,6 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
 
     def resizeEvent( self, event ):
         if DEBUG: print 'resize (%d x %d)' % (event.size().width(), event.size().height())
-        QtGui.QWidget.resizeEvent( self, event )
         w = event.size().width()
         h = event.size().height()
         if DEBUG: print "FigureCanvasQtAgg.resizeEvent(", w, ",", h, ")"
@@ -167,19 +166,8 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         hinch = h/dpival
         self.figure.set_size_inches( winch, hinch )
         self.draw()
-
-    def resize( self, w, h ):
-        # Pass through to Qt to resize the widget.
-        QtGui.QWidget.resize( self, w, h )
-
-        # Resize the figure by converting pixels to inches.
-        pixelPerInch = self.figure.dpi
-        wInch = w / pixelPerInch
-        hInch = h / pixelPerInch
-        self.figure.set_size_inches( wInch, hInch )
-
-        # Redraw everything.
-        self.draw()
+        self.update()
+        QtGui.QWidget.resizeEvent(self, event)
 
     def sizeHint( self ):
         w, h = self.get_width_height()

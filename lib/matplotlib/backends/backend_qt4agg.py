@@ -61,9 +61,6 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         self.replot = True
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
 
-    def resizeEvent( self, e ):
-        FigureCanvasQT.resizeEvent( self, e )
-
     def drawRectangle( self, rect ):
         self.rect = rect
         self.drawRect = True
@@ -132,8 +129,6 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         self.replot = True
         FigureCanvasAgg.draw(self)
         self.update()
-        # Added following line to improve realtime pan/zoom on windows:
-        QtGui.qApp.processEvents()
 
     def blit(self, bbox=None):
         """
