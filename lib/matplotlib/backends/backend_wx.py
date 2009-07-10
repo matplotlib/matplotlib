@@ -115,16 +115,27 @@ try:
 except ImportError:
     raise ImportError(missingwx)
 
-try:
-    wxversion.ensureMinimal('2.8')
-except wxversion.AlreadyImportedError:
-    pass
+# Some early versions of wxversion lack AlreadyImportedError.
+if hasattr(wxversion, 'AlreadyImportedError'):
+    try:
+        wxversion.ensureMinimal('2.8')
+    except wxversion.AlreadyImportedError:
+        pass
+else:
+    warnings.warn(
+            "Update your wxversion.py to one including AlreadyImportedError")
 
 try:
     import wx
     backend_version = wx.VERSION_STRING
 except ImportError:
     raise ImportError(missingwx)
+
+# Extra version check in case  wxversion is broken:
+major, minor = [int(n) for n in backend_version.split('.')[:2]]
+if major < 2 or (major < 3 and minor < 8):
+    raise ImportError(missingwx)
+
 
 #!!! this is the call that is causing the exception swallowing !!!
 #wx.InitAllImageHandlers()
