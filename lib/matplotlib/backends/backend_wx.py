@@ -124,6 +124,10 @@ if hasattr(wxversion, 'AlreadyImportedError'):
 else:
     warnings.warn(
             "Update your wxversion.py to one including AlreadyImportedError")
+    try:
+        wxversion.ensureMinimal('2.8')
+    except wxversion.VersionError:
+        pass
 
 try:
     import wx
