@@ -1,3 +1,6 @@
+2009-07-11 Added a fillstyle Line2D property for half filled markers
+           -- see examples/pylab_examples/fillstyle_demo.py JDH
+
 2009-07-08 Attempt to improve performance of qt4 backend, do not call
            qApp.processEvents while processing an event. Thanks Ole
            Streicher for tracking this down - DSD

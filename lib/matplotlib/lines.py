@@ -172,6 +172,7 @@ class Line2D(Artist):
                  markeredgewidth = None,
                  markeredgecolor = None,
                  markerfacecolor = None,
+		 fillstyle       = 'full',
                  antialiased     = None,
                  dash_capstyle   = None,
                  solid_capstyle  = None,
@@ -238,6 +239,8 @@ class Line2D(Artist):
         self.set_markerfacecolor(markerfacecolor)
         self.set_markeredgecolor(markeredgecolor)
         self.set_markeredgewidth(markeredgewidth)
+	self.set_fillstyle(fillstyle)
+
         self._point_size_reduction = 0.5
 
         self.verticalOffset = None
@@ -324,6 +327,21 @@ class Line2D(Artist):
         """
         self.pickradius = d
 
+    def get_fillstyle(self):
+        """
+	return the marker fillstyle
+        """
+	return self._fillstyle
+
+    def set_fillstyle(self, fs):
+        """
+        Set the marker fill style; full means fill the whole marker.
+        The other options are for half fills
+
+        ACCEPTS: string ['full' | 'left' | 'right' | 'bottom' | 'top']
+        """
+        assert fs in ['full', 'left' , 'right' , 'bottom' , 'top']
+	self._fillstyle = fs
 
     def set_markevery(self, every):
         """
@@ -918,6 +936,10 @@ class Line2D(Artist):
 
 
     def _draw_point(self, renderer, gc, path, path_trans):
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
+
         w = renderer.points_to_pixels(self._markersize) * \
             self._point_size_reduction * 0.5
         gc.set_snap(renderer.points_to_pixels(self._markersize) > 3.0)
@@ -929,6 +951,10 @@ class Line2D(Artist):
 
     _draw_pixel_transform = Affine2D().translate(-0.5, -0.5)
     def _draw_pixel(self, renderer, gc, path, path_trans):
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
+
         rgbFace = self._get_rgb_face()
         gc.set_snap(False)
         renderer.draw_markers(gc, Path.unit_rectangle(),
@@ -937,6 +963,10 @@ class Line2D(Artist):
 
 
     def _draw_circle(self, renderer, gc, path, path_trans):
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
+
         w = renderer.points_to_pixels(self._markersize) * 0.5
         gc.set_snap(renderer.points_to_pixels(self._markersize) > 3.0)
         rgbFace = self._get_rgb_face()
@@ -948,6 +978,11 @@ class Line2D(Artist):
 
     _triangle_path = Path([[0.0, 1.0], [-1.0, -1.0], [1.0, -1.0], [0.0, 1.0]])
     def _draw_triangle_up(self, renderer, gc, path, path_trans):
+
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
+
         gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         transform = Affine2D().scale(offset, offset)
@@ -957,6 +992,10 @@ class Line2D(Artist):
 
 
     def _draw_triangle_down(self, renderer, gc, path, path_trans):
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
+
         gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         transform = Affine2D().scale(offset, -offset)
@@ -966,6 +1005,10 @@ class Line2D(Artist):
 
 
     def _draw_triangle_left(self, renderer, gc, path, path_trans):
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
+
         gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         transform = Affine2D().scale(offset, offset).rotate_deg(90)
@@ -975,6 +1018,10 @@ class Line2D(Artist):
 
 
     def _draw_triangle_right(self, renderer, gc, path, path_trans):
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
+
         gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)
         offset = 0.5*renderer.points_to_pixels(self._markersize)
         transform = Affine2D().scale(offset, offset).rotate_deg(-90)
@@ -988,11 +1035,31 @@ class Line2D(Artist):
         side = renderer.points_to_pixels(self._markersize)
         transform = Affine2D().translate(-0.5, -0.5).scale(side)
         rgbFace = self._get_rgb_face()
-        renderer.draw_markers(gc, Path.unit_rectangle(), transform,
-                              path, path_trans, rgbFace)
+	fs = self.get_fillstyle()
+	if fs=='full':
+            renderer.draw_markers(gc, Path.unit_rectangle(), transform,
+                                  path, path_trans, rgbFace)
+        else:
+            # build a bottom filled square out of two rectangles, one
+            # filled.  Use the rotation to support left, right, bottom
+            # or top
+            if fs=='bottom': rotate = 0.
+            elif fs=='top': rotate = 180.
+            elif fs=='left': rotate = 270.
+            else: rotate = 90.
 
+            bottom = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 0.5], [0.0, 0.5], [0.0, 0.0]])
+            top = Path([[0.0, 0.5], [1.0, 0.5], [1.0, 1.0], [0.0, 1.0], [0.0, 0.05]])
+            transform = transform.rotate_deg(rotate)
+            renderer.draw_markers(gc, bottom, transform,
+                                  path, path_trans, rgbFace)
+            renderer.draw_markers(gc, top, transform,
+                                  path, path_trans, None)
 
     def _draw_diamond(self, renderer, gc, path, path_trans):
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
         gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)
         side = renderer.points_to_pixels(self._markersize)
         transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45).scale(side)
@@ -1002,6 +1069,9 @@ class Line2D(Artist):
 
 
     def _draw_thin_diamond(self, renderer, gc, path, path_trans):
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
         gc.set_snap(renderer.points_to_pixels(self._markersize) >= 3.0)
         offset = renderer.points_to_pixels(self._markersize)
         transform = Affine2D().translate(-0.5, -0.5) \
@@ -1012,6 +1082,9 @@ class Line2D(Artist):
 
 
     def _draw_pentagon(self, renderer, gc, path, path_trans):
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
         gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
         transform = Affine2D().scale(offset)
@@ -1020,6 +1093,9 @@ class Line2D(Artist):
                               path, path_trans, rgbFace)
 
     def _draw_star(self, renderer, gc, path, path_trans):
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
         gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
         transform = Affine2D().scale(offset)
@@ -1030,6 +1106,9 @@ class Line2D(Artist):
 
 
     def _draw_hexagon1(self, renderer, gc, path, path_trans):
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
         gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
         transform = Affine2D().scale(offset)
@@ -1039,6 +1118,9 @@ class Line2D(Artist):
 
 
     def _draw_hexagon2(self, renderer, gc, path, path_trans):
+    	fs = self.get_fillstyle()
+	if fs!='full':
+            raise NotImplementedError('non-full markers have not been implemented for this marker style yet; please contribute')
         gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
         transform = Affine2D().scale(offset).rotate_deg(30)
@@ -1203,6 +1285,7 @@ class Line2D(Artist):
         self._markerfacecolor = other._markerfacecolor
         self._markeredgecolor = other._markeredgecolor
         self._markeredgewidth = other._markeredgewidth
+        self._fillstyle = other._fillstyle
         self._dashSeq = other._dashSeq
         self._dashcapstyle = other._dashcapstyle
         self._dashjoinstyle = other._dashjoinstyle
