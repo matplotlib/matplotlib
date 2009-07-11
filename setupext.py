@@ -140,6 +140,9 @@ if os.path.exists("setup.cfg"):
     try: options['build_wxagg'] = config.getboolean("gui_support", "wxagg")
     except: options['build_wxagg'] = 'auto'
 
+    try: options['build_macosx'] = config.getboolean("gui_support", "macosx")
+    except: options['build_macosx'] = 'auto'
+
     try: options['backend'] = config.get("rc_options", "backend")
     except: pass
 
