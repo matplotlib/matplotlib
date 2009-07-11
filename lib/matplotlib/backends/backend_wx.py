@@ -116,18 +116,18 @@ except ImportError:
     raise ImportError(missingwx)
 
 # Some early versions of wxversion lack AlreadyImportedError.
-if hasattr(wxversion, 'AlreadyImportedError'):
-    try:
-        wxversion.ensureMinimal('2.8')
-    except wxversion.AlreadyImportedError:
-        pass
-else:
-    warnings.warn(
-            "Update your wxversion.py to one including AlreadyImportedError")
-    try:
-        wxversion.ensureMinimal('2.8')
-    except wxversion.VersionError:
-        pass
+# It was added around 2.8.4?
+try:
+    _wx_ensure_failed = wxversion.AlreadyImportedError
+except AttributeError:
+    _wx_ensure_failed = wxversion.VersionError
+
+try:
+    wxversion.ensureMinimal('2.8')
+except _wx_ensure_failed:
+    pass
+# We don't really want to pass in case of VersionError, but when
+# AlreadyImportedError is not available, we have to.
 
 try:
     import wx
@@ -135,9 +135,12 @@ try:
 except ImportError:
     raise ImportError(missingwx)
 
-# Extra version check in case  wxversion is broken:
+# Extra version check in case wxversion lacks AlreadyImportedError;
+# then VersionError might have been raised and ignored when
+# there really *is* a problem with the version.
 major, minor = [int(n) for n in backend_version.split('.')[:2]]
 if major < 2 or (major < 3 and minor < 8):
+    print " wxPython version %s was imported." % backend_version
     raise ImportError(missingwx)
 
 
