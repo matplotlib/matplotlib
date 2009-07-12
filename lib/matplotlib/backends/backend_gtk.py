@@ -1148,7 +1148,7 @@ class DialogLineprops:
 # versions of pygtk, so we have to use a PNG file instead.
 try:
 
-    if gtk.pygtk_version < (2, 8, 0):
+    if gtk.pygtk_version < (2, 8, 0) or sys.platform == 'win32':
         icon_filename = 'matplotlib.png'
     else:
         icon_filename = 'matplotlib.svg'
