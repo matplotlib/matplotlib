@@ -335,10 +335,10 @@ class Line2D(Artist):
 
     def set_fillstyle(self, fs):
         """
-        Set the marker fill style; full means fill the whole marker.
-        The other options are for half fills
+        Set the marker fill style; 'full' means fill the whole marker.
+        The other options are for half filled markers
 
-        ACCEPTS: string ['full' | 'left' | 'right' | 'bottom' | 'top']
+        ACCEPTS: ['full' | 'left' | 'right' | 'bottom' | 'top']
         """
         assert fs in ['full', 'left' , 'right' , 'bottom' , 'top']
 	self._fillstyle = fs
