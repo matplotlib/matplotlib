@@ -633,11 +633,14 @@ class Axes3D(Axes):
 
         shade = np.array(shade)
         mask = ~np.isnan(shade)
-        norm = Normalize(min(shade[mask]), max(shade[mask]))
 
-        color = color.copy()
-        color[3] = 1
-        colors = [color * (0.5 + norm(v) * 0.5) for v in shade]
+    	if len(shade[mask]) > 0: 
+           norm = Normalize(min(shade[mask]), max(shade[mask]))
+           color = color.copy()
+           color[3] = 1
+           colors = [color * (0.5 + norm(v) * 0.5) for v in shade]
+        else:
+           colors = color.copy()
 
         return colors
 
@@ -707,6 +710,12 @@ class Axes3D(Axes):
             polyverts = []
             normals = []
             nsteps = round(len(topverts[0]) / stride)
+            if nsteps <= 1:
+                if len(topverts[0]) > 1:
+                    nsteps = 2
+                else:
+                    continue
+
             stepsize = (len(topverts[0]) - 1) / (nsteps - 1)
             for i in range(int(round(nsteps)) - 1):
                 i1 = int(round(i * stepsize))
@@ -719,11 +728,11 @@ class Axes3D(Axes):
                 v1 = np.array(topverts[0][i1]) - np.array(topverts[0][i2])
                 v2 = np.array(topverts[0][i1]) - np.array(botverts[0][i1])
                 normals.append(np.cross(v1, v2))
-
+ 
             colors = self._shade_colors(color, normals)
             colors2 = self._shade_colors(color, normals)
             polycol = art3d.Poly3DCollection(polyverts, facecolors=colors,
-                    edgecolors=colors2)
+                edgecolors=colors2)
             self.add_collection3d(polycol)
 
         for col in colls:
