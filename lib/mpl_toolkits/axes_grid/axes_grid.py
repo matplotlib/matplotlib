@@ -168,7 +168,7 @@ class Grid(object):
                  axes_class=None,
                  ):
         """
-        Build an :class:`AxesGrid` instance with a grid nrows*ncols
+        Build an :class:`Grid` instance with a grid nrows*ncols
         :class:`~matplotlib.axes.Axes` in
         :class:`~matplotlib.figure.Figure` *fig* with
         *rect=[left, bottom, width, height]* (in
@@ -184,7 +184,8 @@ class Grid(object):
           axes_pad          0.02      float| pad betweein axes given in inches
           add_all           True      [ True | False ]
           share_all         False     [ True | False ]
-          aspect            True      [ True | False ]
+          share_x           True      [ True | False ]
+          share_y           True      [ True | False ]
           label_mode        "L"       [ "L" | "1" | "all" ]
           axes_class        None      a type object which must be a subclass
                                       of :class:`~matplotlib.axes.Axes`
@@ -406,14 +407,14 @@ class Grid(object):
             _tick_only(ax, bottom_on=False, left_on=False)
 
 
-class AxesGrid(Grid):
+class ImageGrid(Grid):
     """
     A class that creates a grid of Axes. In matplotlib, the axes
     location (and size) is specified in the normalized figure
     coordinates. This may not be ideal for images that needs to be
     displayed with a given aspect ratio.  For example, displaying
     images of a same size with some fixed padding between them cannot
-    be easily done in matplotlib. AxesGrid is used in such case.
+    be easily done in matplotlib. ImageGrid is used in such case.
     """
 
     def __init__(self, fig,
@@ -433,7 +434,7 @@ class AxesGrid(Grid):
                  axes_class=None,
                  ):
         """
-        Build an :class:`AxesGrid` instance with a grid nrows*ncols
+        Build an :class:`ImageGrid` instance with a grid nrows*ncols
         :class:`~matplotlib.axes.Axes` in
         :class:`~matplotlib.figure.Figure` *fig* with
         *rect=[left, bottom, width, height]* (in
@@ -661,6 +662,7 @@ class AxesGrid(Grid):
         self._divider.set_vertical(v)
 
 
+AxesGrid = ImageGrid
 
 
 
@@ -689,7 +691,7 @@ if __name__ == "__main__":
 
     F.subplots_adjust(left=0.05, right=0.98)
 
-    grid = AxesGrid(F, 131, # similar to subplot(111)
+    grid = ImageGrid(F, 131, # similar to subplot(111)
                     nrows_ncols = (2, 2),
                     direction="row",
                     axes_pad = 0.05,
@@ -708,7 +710,7 @@ if __name__ == "__main__":
     plt.ion()
 
 
-    grid = AxesGrid(F, 132, # similar to subplot(111)
+    grid = ImageGrid(F, 132, # similar to subplot(111)
                     nrows_ncols = (2, 2),
                     direction="row",
                     axes_pad = 0.0,
@@ -733,7 +735,7 @@ if __name__ == "__main__":
 
 
 
-    grid = AxesGrid(F, 133, # similar to subplot(122)
+    grid = ImageGrid(F, 133, # similar to subplot(122)
                     nrows_ncols = (2, 2),
                     direction="row",
                     axes_pad = 0.1,

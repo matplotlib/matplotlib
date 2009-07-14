@@ -239,6 +239,23 @@ class BboxConnector(Patch):
                                 self.loc1, self.loc2)
 
 
+class BboxConnectorPatch(BboxConnector):
+
+    def __init__(self, bbox1, bbox2, loc1a, loc2a, loc1b, loc2b, **kwargs):
+        if "transform" in kwargs:
+            raise ValueError("transform should not be set")
+        BboxConnector.__init__(self, bbox1, bbox2, loc1a, loc2a, **kwargs)
+        self.loc1b = loc1b
+        self.loc2b = loc2b
+
+    def get_path(self):
+        path1 = self.connect_bbox(self.bbox1, self.bbox2, self.loc1, self.loc2)
+        path2 = self.connect_bbox(self.bbox2, self.bbox1, self.loc2b, self.loc1b)
+        path_merged = list(path1.vertices) + list (path2.vertices) + [path1.vertices[0]]
+        return Path(path_merged)
+
+
+
 def _add_inset_axes(parent_axes, inset_axes):
    parent_axes.figure.add_axes(inset_axes)
    inset_axes.set_navigate(False)
@@ -285,7 +302,9 @@ def zoomed_inset_axes(parent_axes, zoom, loc=1,
       inset_axes = axes_class(parent_axes.figure, parent_axes.get_position(),
                               **axes_kwargs)
 
-   axes_locator = AnchoredZoomLocator(parent_axes, zoom=zoom, loc=loc)
+   axes_locator = AnchoredZoomLocator(parent_axes, zoom=zoom, loc=loc,
+                                      bbox_to_anchor=None, bbox_transform=None,
+                                      **kwargs)
    inset_axes.set_axes_locator(axes_locator)
 
    _add_inset_axes(parent_axes, inset_axes)
