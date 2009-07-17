@@ -625,6 +625,20 @@ class Axes3D(Axes):
 
         return polyc
 
+    def _generate_normals(self, polygons):
+        '''
+        Generate normals for polygons by using the first three points.
+        This normal of course might not make sense for polygons with
+        more than three points not lying in a plane.
+        '''
+
+        normals = []
+        for verts in polygons:
+            v1 = np.array(verts[0]) - np.array(verts[1])
+            v2 = np.array(verts[2]) - np.array(verts[0])
+            normals.append(np.cross(v1, v2))
+        return normals
+
     def _shade_colors(self, color, normals):
         shade = []
         for n in normals:
@@ -733,6 +747,7 @@ class Axes3D(Axes):
             colors2 = self._shade_colors(color, normals)
             polycol = art3d.Poly3DCollection(polyverts, facecolors=colors,
                 edgecolors=colors2)
+            polycol.set_sort_zpos(z)
             self.add_collection3d(polycol)
 
         for col in colls:
@@ -792,6 +807,7 @@ class Axes3D(Axes):
         colls = cset.collections
         for z1, z2, linec in zip(levels, levels[1:], colls):
             art3d.poly_collection_2d_to_3d(linec, z1)
+            linec.set_sort_zpos(z1)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
         return cset
@@ -813,10 +829,13 @@ class Axes3D(Axes):
 
         if type(col) is collections.PolyCollection:
             art3d.poly_collection_2d_to_3d(col, zs=zs, zdir=zdir)
+            col.set_sort_zpos(min(zs))
         elif type(col) is collections.LineCollection:
             art3d.line_collection_2d_to_3d(col, zs=zs, zdir=zdir)
+            col.set_sort_zpos(min(zs))
         elif type(col) is collections.PatchCollection:
             art3d.patch_collection_2d_to_3d(col, zs=zs, zdir=zdir)
+            col.set_sort_zpos(min(zs))
 
         Axes.add_collection(self, col)
 
@@ -901,6 +920,64 @@ class Axes3D(Axes):
         self.auto_scale_xyz(xs, ys, verts_zs, had_data)
 
         return patches
+
+    def bar3d(self, x, y, z, dx, dy, dz, color='b'):
+        '''
+        Generate a 3D bar, or multiple bars.
+
+        When generating multiple bars, x, y, z have to be arrays.
+        dx, dy, dz can still be scalars.
+        '''
+
+        had_data = self.has_data()
+
+        if not cbook.iterable(x):
+            print 'not interable'
+            x, y, z = [x], [y], [z]
+        if not cbook.iterable(dx):
+            dx, dy, dz = [dx], [dy], [dz]
+        if len(dx) == 1:
+            dx = dx * len(x)
+            dy = dy * len(x)
+            dz = dz * len(x)
+
+        minx, miny, minz = 1e20, 1e20, 1e20
+        maxx, maxy, maxz = -1e20, -1e20, -1e20
+
+        polys = []
+        for xi, yi, zi, dxi, dyi, dzi in zip(x, y, z, dx, dy, dz):
+            minx = min(xi, minx)
+            maxx = max(xi + dxi, maxx)
+            miny = min(yi, miny)
+            maxy = max(yi + dyi, maxy)
+            minz = min(zi, minz)
+            maxz = max(zi + dzi, maxz)
+
+            polys.extend([
+                ((xi, yi, zi), (xi + dxi, yi, zi),
+                    (xi + dxi, yi + dyi, zi), (xi, yi + dyi, zi)),
+                ((xi, yi, zi + dzi), (xi + dxi, yi, zi + dzi),
+                    (xi + dxi, yi + dyi, zi + dzi), (xi, yi + dyi, zi + dzi)),
+
+                ((xi, yi, zi), (xi + dxi, yi, zi),
+                    (xi + dxi, yi, zi + dzi), (xi, yi, zi + dzi)),
+                ((xi, yi + dyi, zi), (xi + dxi, yi + dyi, zi),
+                    (xi + dxi, yi + dyi, zi + dzi), (xi, yi + dyi, zi + dzi)),
+
+                ((xi, yi, zi), (xi, yi + dyi, zi),
+                    (xi, yi + dyi, zi + dzi), (xi, yi, zi + dzi)),
+                ((xi + dxi, yi, zi), (xi + dxi, yi + dyi, zi),
+                    (xi + dxi, yi + dyi, zi + dzi), (xi + dxi, yi, zi + dzi)),
+            ])
+
+        color = np.array(colorConverter.to_rgba(color))
+        normals = self._generate_normals(polys)
+        colors = self._shade_colors(color, normals)
+
+        col = art3d.Poly3DCollection(polys, facecolor=colors)
+        self.add_collection(col)
+
+        self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
 
 def get_test_data(delta=0.05):
     '''

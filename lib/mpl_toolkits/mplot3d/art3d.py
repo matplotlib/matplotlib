@@ -271,6 +271,7 @@ class Poly3DCollection(PolyCollection):
 
         PolyCollection.__init__(self, verts, *args, **kwargs)
         self._zsort = 1
+        self._sort_zpos = None
 
     def get_vector(self, segments3d):
         """Optimize points for projection"""
@@ -287,7 +288,6 @@ class Poly3DCollection(PolyCollection):
         ones = np.ones(len(xs))
         self._vec = np.array([xs, ys, zs, ones])
         self._segis = segis
-        self._sort_zpos = min(zs)
 
     def set_verts(self, verts, closed=True):
         '''Set 3D vertices.'''
@@ -297,8 +297,12 @@ class Poly3DCollection(PolyCollection):
 
     def set_3d_properties(self):
         self._zsort = 1
+        self._sort_zpos = None
         self._facecolors3d = PolyCollection.get_facecolors(self)
         self._edgecolors3d = PolyCollection.get_edgecolors(self)
+
+    def set_sort_zpos(self, val):
+        self._sort_zpos = val
 
     def do_3d_projection(self, renderer):
         '''
@@ -315,17 +319,19 @@ class Poly3DCollection(PolyCollection):
 
         # This extra fuss is to re-order face / edge colors
         cface = self._facecolors3d
-        if len(self._edgecolors3d) != len(cface):
-            cedge = cface
-        else:
-            cedge = self._edgecolors3d
+        cedge = self._edgecolors3d
+        if len(cface) != len(xyzlist):
+            cface = cface.repeat(len(xyzlist), axis=0)
+        if len(cedge) != len(xyzlist):
+            if len(cedge) == 0:
+                cedge = cface
+            cedge = cedge.repeat(len(xyzlist), axis=0)
 
         # if required sort by depth (furthest drawn first)
         if self._zsort:
-            z_segments_2d = [(min(zs), zip(xs, ys), fc, ec) for
+            z_segments_2d = [(np.average(zs), zip(xs, ys), fc, ec) for
                     (xs, ys, zs), fc, ec in zip(xyzlist, cface, cedge)]
-            z_segments_2d.sort()
-            z_segments_2d.reverse()
+            z_segments_2d.sort(reverse=True)
         else:
             raise ValueError, "whoops"
 
@@ -339,9 +345,12 @@ class Poly3DCollection(PolyCollection):
             self._edgecolors2d = self._edgecolors3d
 
         # Return zorder value
-        zvec = np.array([[0], [0], [self._sort_zpos], [1]])
-        ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
-        return ztrans[2][0]
+        if self._sort_zpos is not None:
+           zvec = np.array([[0], [0], [self._sort_zpos], [1]])
+           ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
+           return ztrans[2][0]
+        else:
+            return np.min(tzs)
 
     def set_facecolor(self, colors):
         PolyCollection.set_facecolor(self, colors)
