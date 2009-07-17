@@ -34,7 +34,6 @@
 #include "agg_conv_shorten_path.h"
 #include "util/agg_color_conv_rgb8.h"
 
-#include "swig_runtime.h"
 #include "MPL_isnan.h"
 
 #include "numpy/arrayobject.h"
