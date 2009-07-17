@@ -1,9 +1,11 @@
+2009-07-17 Removed fossils from swig version of agg backend. - EF
+
 2009-07-14 initial submission of the annotation guide. -JJL
 
 2009-07-14 axes_grid : minor improvements in anchored_artists and
            inset_locator. -JJL
 
-2009-07-14 Fix a few bugs in ConnectionStyle algorithms. Add 
+2009-07-14 Fix a few bugs in ConnectionStyle algorithms. Add
            ConnectionPatch class. -JJL
 
 2009-07-11 Added a fillstyle Line2D property for half filled markers
