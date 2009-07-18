@@ -102,9 +102,13 @@ class RendererSVG(RendererBase):
             path_data = self._convert_path(
                 gc.get_hatch_path(),
                 Affine2D().scale(HATCH_SIZE).scale(1.0, -1.0).translate(0, HATCH_SIZE))
+            if rgbFace is None:
+                fill = 'none'
+            else:
+                fill = rgb2hex(rgbFace)
             self._svgwriter.write(
                 '<rect x="0" y="0" width="%d" height="%d" fill="%s"/>' %
-                (HATCH_SIZE+1, HATCH_SIZE+1, rgb2hex(rgbFace)))
+                (HATCH_SIZE+1, HATCH_SIZE+1, fill))
             path = '<path d="%s" fill="%s" stroke="%s" stroke-width="1.0"/>' % (
                 path_data, rgb2hex(gc.get_rgb()[:3]), rgb2hex(gc.get_rgb()[:3]))
             self._svgwriter.write(path)

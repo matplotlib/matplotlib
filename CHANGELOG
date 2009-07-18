@@ -1,3 +1,6 @@
+2009-07-18 Fix support for hatches without color fills to pdf and svg
+           backends. Add an example of that to hatch_demo.py. - JKS
+
 2009-07-17 Removed fossils from swig version of agg backend. - EF
 
 2009-07-14 initial submission of the annotation guide. -JJL
