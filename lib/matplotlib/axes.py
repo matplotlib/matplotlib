@@ -4109,9 +4109,9 @@ class Axes(martist.Artist):
         Keyword arguments:
 
         *where*: [ 'pre' | 'post' | 'mid'  ]
-          If 'pre', the interval from x[i] to x[i+1] has level y[i]
+          If 'pre', the interval from x[i] to x[i+1] has level y[i+1]
 
-          If 'post', that interval has level y[i+1]
+          If 'post', that interval has level y[i]
 
           If 'mid', the jumps in *y* occur half-way between the
           *x*-values.
