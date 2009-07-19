@@ -1,3 +1,8 @@
+2009-07-19 Fixed the docstring of Axes.step to reflect the correct
+           meaning of the kwargs "pre" and "post" - See SF bug
+           https://sourceforge.net/tracker/index.php?func=detail&aid=2823304&group_id=80706&atid=560720
+           - JDH
+
 2009-07-18 Fix support for hatches without color fills to pdf and svg
            backends. Add an example of that to hatch_demo.py. - JKS
 
