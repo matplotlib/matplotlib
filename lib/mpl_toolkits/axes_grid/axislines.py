@@ -434,6 +434,13 @@ class AxisArtistHelperRectlinear:
             if self.passthru_pt[1 - self.nth_coord] > 0.5:
                 angle = 180+angle
 
+
+            # take care the tick direction
+            if self.nth_coord == 0 and rcParams["xtick.direction"] == "out":
+                angle += 180
+            elif self.nth_coord == 1 and rcParams["ytick.direction"] == "out":
+                angle += 180
+
             major = self.axis.major
             majorLocs = major.locator()
             major.formatter.set_locs(majorLocs)
