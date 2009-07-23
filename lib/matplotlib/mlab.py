@@ -2621,7 +2621,7 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
     if opened:
         fh.close()
 
-def griddata(x,y,z,xi,yi):
+def griddata(x,y,z,xi,yi,interp='nn'):
     """
     ``zi = griddata(x,y,z,xi,yi)`` fits a surface of the form *z* =
     *f*(*x*, *y*) to the data in the (usually) nonuniformly spaced
@@ -2633,7 +2633,8 @@ def griddata(x,y,z,xi,yi):
     A masked array is returned if any grid points are outside convex
     hull defined by input data (no extrapolation is done).
 
-    Uses natural neighbor interpolation based on Delaunay
+    If interp keyword is set to '`nn`' (default),
+    uses natural neighbor interpolation based on Delaunay
     triangulation.  By default, this algorithm is provided by the
     :mod:`matplotlib.delaunay` package, written by Robert Kern.  The
     triangulation algorithm in this package is known to fail on some
@@ -2645,6 +2646,14 @@ def griddata(x,y,z,xi,yi):
     installed, this function will use the :mod:`mpl_toolkits.natgrid`
     algorithm, otherwise it will use the built-in
     :mod:`matplotlib.delaunay` package.
+
+    If the interp keyword is set to '`linear`', then linear interpolation
+    is used instead of natural neighbor. In this case, the output grid
+    is assumed to be regular with a constant grid spacing in both the x and
+    y directions. For regular grids with nonconstant grid spacing, you
+    must use natural neighbor interpolation.  Linear interpolation is only valid if
+    :mod:`matplotlib.delaunay` package is used - :mod:`mpl_tookits.natgrid`
+    only provides natural neighbor interpolation.
 
     The natgrid matplotlib toolkit can be downloaded from
     http://sourceforge.net/project/showfiles.php?group_id=80706&package_id=142792
@@ -2674,6 +2683,9 @@ def griddata(x,y,z,xi,yi):
         y = y.compress(z.mask == False)
         z = z.compressed()
     if _use_natgrid: # use natgrid toolkit if available.
+        if interp != 'nn':
+            raise ValueError("only natural neighor interpolation"
+            " allowed when using natgrid toolkit in griddata.")
         if xi.ndim == 2:
             xi = xi[0,:]
             yi = yi[:,0]
@@ -2701,8 +2713,17 @@ def griddata(x,y,z,xi,yi):
         # triangulate data
         tri = delaunay.Triangulation(x,y)
         # interpolate data
-        interp = tri.nn_interpolator(z)
-        zo = interp(xi,yi)
+        if interp == 'nn':
+            interp = tri.nn_interpolator(z)
+            zo = interp(xi,yi)
+        elif interp == 'linear':
+            interp = tri.linear_interpolator(z)
+            zo = interp[yi.min():yi.max():complex(0,yi.shape[0]),
+                        xi.min():xi.max():complex(0,xi.shape[1])]
+        else:
+            raise ValueError("interp keyword must be one of"
+            " 'linear' (for linear interpolation) or 'nn'"
+            " (for natural neighbor interpolation). Default is 'nn'.")
     # mask points on grid outside convex hull of input data.
     if np.any(np.isnan(zo)):
         zo = np.ma.masked_where(np.isnan(zo),zo)
