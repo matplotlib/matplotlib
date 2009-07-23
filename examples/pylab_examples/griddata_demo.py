@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 # make up data.
 #npts = int(raw_input('enter # of random points to plot:'))
-seed(-1)
+seed(0)
 npts = 200
 x = uniform(-2,2,npts)
 y = uniform(-2,2,npts)

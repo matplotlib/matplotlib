@@ -2717,6 +2717,14 @@ def griddata(x,y,z,xi,yi,interp='nn'):
             interp = tri.nn_interpolator(z)
             zo = interp(xi,yi)
         elif interp == 'linear':
+            # make sure grid has constant dx, dy
+            dx = xi[0,1:]-xi[0,0:-1]
+            dy = yi[1:,0]-yi[0:-1,0]
+            epsx = np.finfo(xi.dtype).resolution
+            epsy = np.finfo(yi.dtype).resolution
+            if dx.max()-dx.min() > epsx or dy.max()-dy.min() > epsy:
+                raise ValueError("output grid must have constant spacing"
+                                 " when using interp='linear'")
             interp = tri.linear_interpolator(z)
             zo = interp[yi.min():yi.max():complex(0,yi.shape[0]),
                         xi.min():xi.max():complex(0,xi.shape[1])]
