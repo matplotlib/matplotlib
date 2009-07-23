@@ -650,9 +650,15 @@ class GridHelperRectlinear(GridHelperBase):
 from matplotlib.lines import Line2D
 
 class Ticks(Line2D):
-    def __init__(self, ticksize, **kwargs):
+    def __init__(self, ticksize, tick_out=False, **kwargs):
+        """
+        ticksize : ticksize
+        tick_out : tick is directed outside (rotated by 180 degree) if True. default is False.
+        """
         self.ticksize = ticksize
         self.locs_angles = []
+
+        self.set_tick_out(tick_out)
 
         self._axis = kwargs.pop("axis", None)
         if self._axis is not None:
@@ -664,6 +670,17 @@ class Ticks(Line2D):
         super(Ticks, self).__init__([0.], [0.], **kwargs)
         self.set_snap(True)
 
+    def set_tick_out(self, b):
+        """
+        set True if tick need to be rotated by 180 degree.
+        """
+        self._tick_out = b
+
+    def get_tick_out(self):
+        """
+        Return True if the tick will be rotated by 180 degree.
+        """
+        return self._tick_out
 
     def get_color(self):
         if self._color == 'auto':
@@ -735,8 +752,11 @@ class Ticks(Line2D):
         offset = renderer.points_to_pixels(size)
         marker_scale = Affine2D().scale(offset, offset)
 
+        tick_out = self.get_tick_out()
         for loc, angle, _ in self.locs_angles_labels:
 
+            if tick_out:
+                angle += 180
             marker_rotation = Affine2D().rotate_deg(angle)
             #marker_rotation.clear().rotate_deg(angle)
             marker_transform = marker_scale + marker_rotation
