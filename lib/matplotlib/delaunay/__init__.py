@@ -8,4 +8,4 @@
 from matplotlib._delaunay import delaunay
 from triangulate import *
 from interpolate import *
-__version__ = "0.1"
+__version__ = "0.2"
