@@ -223,11 +223,11 @@ class _process_plot_var_args:
             if by:
                 y = self.axes.convert_yunits(y)
 
-        x = ma.asarray(x)
-        y = ma.asarray(y)
-        if len(x.shape) == 1:
+        x = ma.asarray(np.atleast_1d(x))
+        y = ma.asarray(np.atleast_1d(y))
+        if x.ndim == 1:
             x = x[:,np.newaxis]
-        if len(y.shape) == 1:
+        if y.ndim == 1:
             y = y[:,np.newaxis]
         nrx, ncx = x.shape
         nry, ncy = y.shape
