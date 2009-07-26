@@ -1,3 +1,5 @@
+2009-07-25 Allow "plot(1, 2, 'r*')" to work. - EF
+
 2009-07-22 Added an 'interp' keyword to griddata so the faster linear
            interpolation method can be chosen.  Default is 'nn', so
            default behavior (using natural neighbor method) is unchanged (JSW)
