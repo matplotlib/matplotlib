@@ -199,21 +199,6 @@ class _process_plot_var_args:
             func = getattr(fill_poly,funcName)
             func(val)
 
-    def _xy_from_y(self, y):
-        if self.axes.yaxis is not None:
-            b = self.axes.yaxis.update_units(y)
-            if b: return np.arange(len(y)), y, False
-
-        if not ma.isMaskedArray(y):
-            y = np.asarray(y)
-        if len(y.shape) == 1:
-            y = y[:,np.newaxis]
-        nr, nc = y.shape
-        x = np.arange(nr)
-        if len(x.shape) == 1:
-            x = x[:,np.newaxis]
-        return x,y, True
-
     def _xy_from_xy(self, x, y):
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             bx = self.axes.xaxis.update_units(x)
@@ -223,195 +208,105 @@ class _process_plot_var_args:
             if by:
                 y = self.axes.convert_yunits(y)
 
-        x = ma.asarray(np.atleast_1d(x))
-        y = ma.asarray(np.atleast_1d(y))
+        x = np.atleast_1d(x) #like asanyarray, but converts scalar to array
+        y = np.atleast_1d(y)
+        if x.shape[0] != y.shape[0]:
+            raise ValueError("x and y must have same first dimension")
+        if x.ndim > 2 or y.ndim > 2:
+            raise ValueError("x and y can be no greater than 2-D")
+
         if x.ndim == 1:
             x = x[:,np.newaxis]
         if y.ndim == 1:
             y = y[:,np.newaxis]
-        nrx, ncx = x.shape
-        nry, ncy = y.shape
-        assert nrx == nry, 'Dimensions of x and y are incompatible'
-        if ncx == ncy:
-            return x, y, True
-        if ncx == 1:
-            x = np.repeat(x, ncy, axis=1)
-        if ncy == 1:
-            y = np.repeat(y, ncx, axis=1)
-        assert x.shape == y.shape, 'Dimensions of x and y are incompatible'
-        return x, y, True
+        return x, y
+
+    def _makeline(self, x, y, kw, kwargs):
+        kw = kw.copy() # Don't modify the original kw.
+        if not 'color' in kw:
+            kw['color'] = self._get_next_cycle_color()
+            # (can't use setdefault because it always evaluates
+            # its second argument)
+        seg = mlines.Line2D(x, y,
+                     axes=self.axes,
+                     **kw
+                     )
+        self.set_lineprops(seg, **kwargs)
+        return seg
+
+    def _makefill(self, x, y, kw, kwargs):
+        try:
+            facecolor = kw['color']
+        except KeyError:
+            facecolor = self._get_next_cycle_color()
+        seg = mpatches.Polygon(np.hstack(
+                                (x[:,np.newaxis],y[:,np.newaxis])),
+                      facecolor = facecolor,
+                      fill=True,
+                      closed=kw['closed']
+                      )
+        self.set_patchprops(seg, **kwargs)
+        return seg
 
 
-    def _plot_1_arg(self, y, **kwargs):
-        assert self.command == 'plot', 'fill needs at least 2 arguments'
+    def _plot_args(self, tup, kwargs):
         ret = []
-
-        x, y, multicol = self._xy_from_y(y)
-
-        if multicol:
-            for j in xrange(y.shape[1]):
-                color = self._get_next_cycle_color()
-                seg = mlines.Line2D(x, y[:,j],
-                             color = color,
-                             axes=self.axes,
-                          )
-                self.set_lineprops(seg, **kwargs)
-                ret.append(seg)
+        if len(tup) > 1 and is_string_like(tup[-1]):
+            linestyle, marker, color = _process_plot_format(tup[-1])
+            tup = tup[:-1]
+        elif len(tup) == 3:
+            raise ValueError, 'third arg must be a format string'
         else:
-            color = self._get_next_cycle_color()
-            seg = mlines.Line2D(x, y,
-                         color = color,
-                         axes=self.axes,
-                         )
-            self.set_lineprops(seg, **kwargs)
-            ret.append(seg)
+            linestyle, marker, color = None, None, None
+        kw = {}
+        for k, v in zip(('linestyle', 'marker', 'color'),
+                        (linestyle, marker, color)):
+            if v is not None:
+                kw[k] = v
 
-        return ret
+        y = np.atleast_1d(tup[-1])
 
-    def _plot_2_args(self, tup2, **kwargs):
-        ret = []
-        if is_string_like(tup2[1]):
-
-            assert self.command == 'plot', ('fill needs at least 2 non-string '
-                                            'arguments')
-            y, fmt = tup2
-            x, y, multicol = self._xy_from_y(y)
-
-            linestyle, marker, color = _process_plot_format(fmt)
-
-            def makeline(x, y):
-                _color = color
-                if _color is None:
-                    _color = self._get_next_cycle_color()
-                seg = mlines.Line2D(x, y,
-                             color=_color,
-                             linestyle=linestyle, marker=marker,
-                             axes=self.axes,
-                             )
-                self.set_lineprops(seg, **kwargs)
-                ret.append(seg)
-
-            if multicol:
-                for j in xrange(y.shape[1]):
-                    makeline(x[:,j], y[:,j])
-            else:
-                makeline(x, y)
-
-            return ret
+        if len(tup) == 2:
+            x = np.atleast_1d(tup[0])
         else:
+            x = np.arange(y.shape[0], dtype=float)
 
-            x, y = tup2
-            x, y, multicol = self._xy_from_xy(x, y)
-
-            def makeline(x, y):
-                color = self._get_next_cycle_color()
-                seg = mlines.Line2D(x, y,
-                             color=color,
-                             axes=self.axes,
-                             )
-                self.set_lineprops(seg, **kwargs)
-                ret.append(seg)
-
-            def makefill(x, y):
-                facecolor = self._get_next_cycle_color()
-                seg = mpatches.Polygon(np.hstack(
-                                    (x[:,np.newaxis],y[:,np.newaxis])),
-                              facecolor = facecolor,
-                              fill=True,
-                              closed=closed
-                              )
-                self.set_patchprops(seg, **kwargs)
-                ret.append(seg)
-
-            if self.command == 'plot':
-                func = makeline
-            else:
-                closed = kwargs.get('closed', True)
-                func = makefill
-            if multicol:
-                for j in xrange(y.shape[1]):
-                    func(x[:,j], y[:,j])
-            else:
-                func(x, y)
-
-
-            return ret
-
-    def _plot_3_args(self, tup3, **kwargs):
-        ret = []
-
-        x, y, fmt = tup3
-        x, y, multicol = self._xy_from_xy(x, y)
-
-        linestyle, marker, color = _process_plot_format(fmt)
-
-        def makeline(x, y):
-            _color = color
-            if _color is None:
-                _color = self._get_next_cycle_color()
-            seg = mlines.Line2D(x, y,
-                         color=_color,
-                         linestyle=linestyle, marker=marker,
-                         axes=self.axes,
-                         )
-            self.set_lineprops(seg, **kwargs)
-            ret.append(seg)
-
-        def makefill(x, y):
-            facecolor = color
-            seg = mpatches.Polygon(np.hstack(
-                                    (x[:,np.newaxis],y[:,np.newaxis])),
-                          facecolor = facecolor,
-                          fill=True,
-                          closed=closed
-                          )
-            self.set_patchprops(seg, **kwargs)
-            ret.append(seg)
+        x, y = self._xy_from_xy(x, y)
 
         if self.command == 'plot':
-            func = makeline
+            func = self._makeline
         else:
-            closed = kwargs.get('closed', True)
-            func = makefill
+            kw['closed'] = kwargs.get('closed', True)
+            func = self._makefill
 
-        if multicol:
-            for j in xrange(y.shape[1]):
-                func(x[:,j], y[:,j])
-        else:
-            func(x, y)
+        ncx, ncy = x.shape[1], y.shape[1]
+        for j in xrange(max(ncx, ncy)):
+            seg = func(x[:,j%ncx], y[:,j%ncy], kw, kwargs)
+            ret.append(seg)
         return ret
+
 
     def _grab_next_args(self, *args, **kwargs):
 
         remaining = args
         while 1:
 
-            if len(remaining)==0: return
-            if len(remaining)==1:
-                for seg in self._plot_1_arg(remaining[0], **kwargs):
+            if len(remaining)==0:
+                return
+            if len(remaining) <= 3:
+                for seg in self._plot_args(remaining, kwargs):
                     yield seg
-                remaining = []
-                continue
-            if len(remaining)==2:
-                for seg in self._plot_2_args(remaining, **kwargs):
-                    yield seg
-                remaining = []
-                continue
-            if len(remaining)==3:
-                if not is_string_like(remaining[2]):
-                    raise ValueError, 'third arg must be a format string'
-                for seg in self._plot_3_args(remaining, **kwargs):
-                    yield seg
-                remaining=[]
-                continue
+                return
+
             if is_string_like(remaining[2]):
-                for seg in self._plot_3_args(remaining[:3], **kwargs):
-                    yield seg
-                remaining=remaining[3:]
+                isplit = 3
             else:
-                for seg in self._plot_2_args(remaining[:2], **kwargs):
-                    yield seg
-                remaining=remaining[2:]
+                isplit = 2
+
+            for seg in self._plot_args(remaining[:isplit], kwargs):
+                yield seg
+            remaining=remaining[isplit:]
+
 
 
 class Axes(martist.Artist):
