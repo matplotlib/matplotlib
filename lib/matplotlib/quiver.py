@@ -253,8 +253,12 @@ class QuiverKey(martist.Artist):
             self._set_transform()
             _pivot = self.Q.pivot
             self.Q.pivot = self.pivot[self.labelpos]
+            # Hack: save and restore the Umask
+            _mask = self.Q.Umask
+            self.Q.Umask = ma.nomask
             self.verts = self.Q._make_verts(np.array([self.U]),
                                                         np.zeros((1,)))
+            self.Q.Umask = _mask
             self.Q.pivot = _pivot
             kw = self.Q.polykw
             kw.update(self.kw)
@@ -388,9 +392,9 @@ class Quiver(collections.PolyCollection):
         X, Y, U, V, C = [None]*5
         args = list(args)
         if len(args) == 3 or len(args) == 5:
-            C = ma.masked_invalid(args.pop(-1), copy=False)
-        V = ma.masked_invalid(args.pop(-1), copy=False)
-        U = ma.masked_invalid(args.pop(-1), copy=False)
+            C = np.asanyarray(args.pop(-1))
+        V = np.asanyarray(args.pop(-1))
+        U = np.asanyarray(args.pop(-1))
         if U.ndim == 1:
             nr, nc = 1, U.shape[0]
         else:
@@ -430,10 +434,21 @@ class Quiver(collections.PolyCollection):
         collections.PolyCollection.draw(self, renderer)
 
     def set_UVC(self, U, V, C=None):
-        self.U = U.ravel()
-        self.V = V.ravel()
+        U = ma.masked_invalid(U, copy=False).ravel()
+        V = ma.masked_invalid(V, copy=False).ravel()
+        mask = ma.mask_or(U.mask, V.mask, copy=False, shrink=True)
         if C is not None:
-            self.set_array(C.ravel())
+            C = ma.masked_invalid(C, copy=False).ravel()
+            mask = ma.mask_or(mask, C.mask, copy=False, shrink=True)
+            if mask is ma.nomask:
+                C = C.filled()
+            else:
+                C = ma.array(C, mask=mask, copy=False)
+        self.U = U.filled(1)
+        self.V = V.filled(1)
+        self.Umask = mask
+        if C is not None:
+            self.set_array(C)
         self._new_UV = True
 
     def _set_transform(self):
@@ -463,32 +478,33 @@ class Quiver(collections.PolyCollection):
 
     def _angles(self, U, V, eps=0.001):
         xy = self.ax.transData.transform(self.XY)
-        uv = ma.hstack((U[:,np.newaxis], V[:,np.newaxis])).filled(0)
+        uv = np.hstack((U[:,np.newaxis], V[:,np.newaxis]))
         xyp = self.ax.transData.transform(self.XY + eps * uv)
         dxy = xyp - xy
-        ang = ma.arctan2(dxy[:,1], dxy[:,0])
+        ang = np.arctan2(dxy[:,1], dxy[:,0])
         return ang
 
     def _make_verts(self, U, V):
-        uv = ma.asarray(U+V*1j)
-        a = ma.absolute(uv)
+        uv = (U+V*1j)
+        a = np.absolute(uv)
         if self.scale is None:
             sn = max(10, math.sqrt(self.N))
-            scale = 1.8 * a.mean() * sn / self.span # crude auto-scaling
+            scale = 1.8 * a[~self.Umask].mean() * sn / self.span # crude auto-scaling
             self.scale = scale
         length = a/(self.scale*self.width)
         X, Y = self._h_arrows(length)
         if self.angles == 'xy':
-            theta = self._angles(U, V).filled(0)
+            theta = self._angles(U, V)
         elif self.angles == 'uv':
-            theta = np.angle(uv.filled(0))
+            theta = np.angle(uv)
         else:
             theta = ma.masked_invalid(self.angles, copy=False).filled(0)
             theta *= (np.pi/180.0)
         theta.shape = (theta.shape[0], 1) # for broadcasting
         xy = (X+Y*1j) * np.exp(1j*theta)*self.width
         xy = xy[:,:,np.newaxis]
-        XY = ma.concatenate((xy.real, xy.imag), axis=2)
+        XY = np.concatenate((xy.real, xy.imag), axis=2)
+
         return XY
 
 
@@ -502,8 +518,8 @@ class Quiver(collections.PolyCollection):
         length = length.reshape(N, 1)
         # This number is chosen based on when pixel values overflow in Agg
         # causing rendering errors
-        length = np.minimum(length, 2 ** 16)
-
+        #length = np.minimum(length, 2 ** 16)
+        np.clip(length, 0, 2**16, out=length)
         # x, y: normal horizontal arrow
         x = np.array([0, -self.headaxislength,
                         -self.headlength, 0], np.float64)
@@ -514,21 +530,20 @@ class Quiver(collections.PolyCollection):
         x0 = np.array([0, minsh-self.headaxislength,
                         minsh-self.headlength, minsh], np.float64)
         y0 = 0.5 * np.array([1, 1, self.headwidth, 0], np.float64)
-        ii = [0,1,2,3,2,1,0]
+        ii = [0,1,2,3,2,1,0,0]
         X = x.take(ii, 1)
         Y = y.take(ii, 1)
-        Y[:, 3:] *= -1
+        Y[:, 3:-1] *= -1
         X0 = x0.take(ii)
         Y0 = y0.take(ii)
-        Y0[3:] *= -1
+        Y0[3:-1] *= -1
         shrink = length/minsh
         X0 = shrink * X0[np.newaxis,:]
         Y0 = shrink * Y0[np.newaxis,:]
-        short = np.repeat(length < minsh, 7, axis=1)
-        #print 'short', length < minsh
+        short = np.repeat(length < minsh, 8, axis=1)
         # Now select X0, Y0 if short, otherwise X, Y
-        X = ma.where(short, X0, X)
-        Y = ma.where(short, Y0, Y)
+        np.putmask(X, short, X0)
+        np.putmask(Y, short, Y0)
         if self.pivot[:3] == 'mid':
             X -= 0.5 * X[:,3, np.newaxis]
         elif self.pivot[:3] == 'tip':
@@ -538,14 +553,18 @@ class Quiver(collections.PolyCollection):
         tooshort = length < self.minlength
         if tooshort.any():
             # Use a heptagonal dot:
-            th = np.arange(0,7,1, np.float64) * (np.pi/3.0)
+            th = np.arange(0,8,1, np.float64) * (np.pi/3.0)
             x1 = np.cos(th) * self.minlength * 0.5
             y1 = np.sin(th) * self.minlength * 0.5
             X1 = np.repeat(x1[np.newaxis, :], N, axis=0)
             Y1 = np.repeat(y1[np.newaxis, :], N, axis=0)
-            tooshort = ma.repeat(tooshort, 7, 1)
-            X = ma.where(tooshort, X1, X)
-            Y = ma.where(tooshort, Y1, Y)
+            tooshort = np.repeat(tooshort, 8, 1)
+            np.putmask(X, tooshort, X1)
+            np.putmask(Y, tooshort, Y1)
+        if self.Umask is not ma.nomask:
+            mask = np.repeat(self.Umask[:,np.newaxis], 8, 1)
+            X = ma.array(X, mask=mask, copy=False)
+            Y = ma.array(Y, mask=mask, copy=False)
         return X, Y
 
     quiver_doc = _quiver_doc

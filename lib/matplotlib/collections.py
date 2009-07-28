@@ -670,6 +670,9 @@ class PolyCollection(Collection):
 
     def set_verts(self, verts, closed=True):
         '''This allows one to delay initialization of the vertices.'''
+        if np.ma.isMaskedArray(verts):
+            verts = verts.astype(np.float_).filled(np.nan)
+            # This is much faster than having Path do it one at a time.
         if closed:
             self._paths = []
             for xy in verts:
