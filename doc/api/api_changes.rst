@@ -21,6 +21,11 @@ list may help describe what changes may be necessary in your code.
 Changes beyond 0.98.x
 =====================
 
+* User-generated colormaps can now be added to the set recognized
+  by :func:`matplotlib.cm.get_cmap`.  Colormaps can be made the
+  default and applied to the current image using
+  :func:`matplotlib.pyplot.set_cmap`.
+
 * changed use_mrecords default to False in mlab.csv2rec since this is
   partially broken
 
