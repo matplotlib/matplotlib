@@ -17,7 +17,7 @@ from matplotlib import mlab  # for csv2rec, detrend_none, window_hanning
 from matplotlib.scale import get_scale_docs, get_scale_names
 
 from matplotlib import cm
-from matplotlib.cm import get_cmap
+from matplotlib.cm import get_cmap, register_cmap
 
 import numpy as np
 
@@ -1396,6 +1396,24 @@ def clim(vmin=None, vmax=None):
     im.set_clim(vmin, vmax)
     draw_if_interactive()
 
+def set_cmap(cmap):
+    '''
+    set the default colormap to *cmap* and apply to current image if any.
+    See help(colormaps) for more information.
+
+    *cmap* must be a :class:`colors.Colormap` instance, or
+    the name of a registered colormap.
+
+    See :func:`register_cmap` and :func:`get_cmap`.
+    '''
+    cmap = cm.get_cmap(cmap)
+
+    rc('image', cmap=cmap.name)
+    im = gci()
+
+    if im is not None:
+        im.set_cmap(cmap)
+    draw_if_interactive()
 
 
 def imread(*args, **kwargs):
@@ -6327,12 +6345,12 @@ Users can specify any arbitrary location for the legend using the
 *bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance
 of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
 For example, ::
-        
+
  loc = 'upper right', bbox_to_anchor = (0.5, 0.5)
 
 will place the legend so that the upper right corner of the legend at
 the center of the axes.
-        
+
 The legend location can be specified in other coordinate, by using the
 *bbox_transform* keyword.
 
@@ -6365,7 +6383,7 @@ Keyword arguments:
 
   *fancybox*: [ None | False | True ]
     if True, draw a frame with a round fancybox.  If None, use rc
-    
+
   *shadow*: [ None | False | True ]
     If *True*, draw a shadow behind legend. If *None*, use rc settings.
 

@@ -1,3 +1,7 @@
+2009-07-30 Add set_cmap and register_cmap, and improve get_cmap,
+           to provide convenient handling of user-generated
+           colormaps. - EF
+
 2009-07-28 Quiver speed improved, thanks to tip by Ray Speth. -EF
 
 2009-07-27 Simplify argument handling code for plot method. -EF

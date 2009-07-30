@@ -512,7 +512,7 @@ class NonUniformImage(AxesImage):
     def set_cmap(self, cmap):
         if self._A is not None:
             raise RuntimeError('Cannot change colors after loading data')
-        cm.ScalarMappable.set_cmap(self, norm)
+        cm.ScalarMappable.set_cmap(self, cmap)
 
 class PcolorImage(martist.Artist, cm.ScalarMappable):
     '''

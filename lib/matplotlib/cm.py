@@ -9,16 +9,79 @@ import matplotlib.colors as colors
 import matplotlib.cbook as cbook
 from matplotlib._cm import *
 
+# Dictionary for user-registered colormaps:
+cmap_d = dict()
 
+# Using this second dictionary allows us to handle any
+# Colormap instance; the built-in datad is only for
+# LinearSegmentedColormaps.  The advantage of keeping
+# datad is that it delays the generation of the Colormap
+# instance until it is actually needed. Generating the
+# instance is fast enough, and typically done few enough
+# times, that there is no need to cache the result.
+
+def register_cmap(name=None, cmap=None, data=None, lut=None):
+    """
+    Add a colormap to the set recognized by :func:`get_cmap`.
+
+    It can be used in two ways::
+
+        register_cmap(name='swirly', cmap=swirly_cmap)
+
+        register_cmap(name='choppy', data=choppydata, lut=128)
+
+    In the first case, *cmap* must be a :class:`colors.Colormap`
+    instance.  The *name* is optional; if absent, the name will
+    be the :attr:`name` attribute of the *cmap*.
+
+    In the second case, the three arguments are passed to
+    the :class:`colors.LinearSegmentedColormap` initializer,
+    and the resulting colormap is registered.
+
+    """
+    if name is None:
+        try:
+            name = cmap.name
+        except AttributeError:
+            raise ValueError("Arguments must include a name or a Colormap")
+
+    if not cbook.is_string_like(name):
+        raise ValueError("Colormap name must be a string")
+
+    if isinstance(cmap, colors.Colormap):
+        cmap_d[name] = cmap
+        return
+
+    # For the remainder, let exceptions propagate.
+    if lut is None:
+        lut = mpl.rcParams['image.lut']
+    cmap = colors.LinearSegmentedColormap(name, data, lut)
+    cmap_d[name] = cmap
 
 def get_cmap(name=None, lut=None):
     """
-    Get a colormap instance, defaulting to rc values if *name* is None
-    """
-    if name is None: name = mpl.rcParams['image.cmap']
-    if lut is None: lut = mpl.rcParams['image.lut']
+    Get a colormap instance, defaulting to rc values if *name* is None.
 
-    assert(name in datad.keys())
+    Colormaps added with :func:`register_cmap` take precedence over
+    builtin colormaps.
+
+    If *name* is a :class:`colors.Colormap` instance, it will be
+    returned.
+    """
+    if name is None:
+        name = mpl.rcParams['image.cmap']
+
+    if isinstance(name, colors.Colormap):
+        return name
+
+    if name in cmap_d:
+        return cmap_d[name]
+
+    if name not in datad:
+        raise ValueError("%s is not a known colormap name" % name)
+
+    if lut is None:
+        lut = mpl.rcParams['image.lut']
     return colors.LinearSegmentedColormap(name,  datad[name], lut)
 
 class ScalarMappable:
@@ -116,9 +179,9 @@ class ScalarMappable:
         """
         set the colormap for luminance data
 
-        ACCEPTS: a colormap
+        ACCEPTS: a colormap or registered colormap name
         """
-        if cmap is None: cmap = get_cmap()
+        cmap = get_cmap(cmap)
         self.cmap = cmap
         self.changed()
 

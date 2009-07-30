@@ -103,10 +103,24 @@ cdict3 = {'red':  ((0.0, 0.0, 0.0),
                    (1.0, 0.0, 0.0))
         }
 
+# Now we will use this example to illustrate 3 ways of
+# handling custom colormaps.
+# First, the most direct and explicit:
 
 blue_red1 = LinearSegmentedColormap('BlueRed1', cdict1)
+
+# Second, create the map explicitly and register it.
+# Like the first method, this method works with any kind
+# of Colormap, not just
+# a LinearSegmentedColormap:
+
 blue_red2 = LinearSegmentedColormap('BlueRed2', cdict2)
-blue_red3 = LinearSegmentedColormap('BlueRed3', cdict3)
+plt.register_cmap(cmap=blue_red2)
+
+# Third, for LinearSegmentedColormap only,
+# leave everything to register_cmap:
+
+plt.register_cmap(name='BlueRed3', data=cdict3) # optional lut kwarg
 
 x = np.arange(0, np.pi, 0.1)
 y = np.arange(0, 2*np.pi, 0.1)
@@ -121,12 +135,32 @@ plt.imshow(Z, interpolation='nearest', cmap=blue_red1)
 plt.colorbar()
 
 plt.subplot(1,3,2)
-plt.imshow(Z, interpolation='nearest', cmap=blue_red2)
+cmap = plt.get_cmap('BlueRed2')
+plt.imshow(Z, interpolation='nearest', cmap=cmap)
 plt.colorbar()
 
+# Now we will set the third cmap as the default.  One would
+# not normally do this in the middle of a script like this;
+# it is done here just to illustrate the method.
+
+plt.rcParams['image.cmap'] = 'BlueRed3'
+
+# Also see below for an alternative, particularly for
+# interactive use.
+
 plt.subplot(1,3,3)
-plt.imshow(Z, interpolation='nearest', cmap=blue_red3)
+plt.imshow(Z, interpolation='nearest')
 plt.colorbar()
+
+# Or as yet another variation, we could replace the rcParams
+# specification *before* the imshow with the following *after*
+# imshow:
+#
+# plt.set_cmap('BlueRed3')
+#
+# This sets the new default *and* sets the colormap of the last
+# image-like item plotted via pyplot, if any.
+
 
 plt.suptitle('Custom Blue-Red colormaps')
 
