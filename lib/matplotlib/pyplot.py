@@ -438,7 +438,7 @@ def figlegend(handles, labels, loc, **kwargs):
     .. seealso::
 
        :func:`~matplotlib.pyplot.legend`
-         For information about the location codes
+
     """
     l = gcf().legend(handles, labels, loc, **kwargs)
     draw_if_interactive()
@@ -6322,30 +6322,68 @@ The location codes are
   'center'          10
   ===============   =============
 
-If none of these are locations are suitable, loc can be a 2-tuple
-giving x,y in axes coords, ie::
 
-  loc = 0, 1 # left top
-  loc = 0.5, 0.5 # center
+Users can specify any arbitrary location for the legend using the
+*bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance
+of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
+For example, ::
+        
+ loc = 'upper right', bbox_to_anchor = (0.5, 0.5)
+
+will place the legend so that the upper right corner of the legend at
+the center of the axes.
+        
+The legend location can be specified in other coordinate, by using the
+*bbox_transform* keyword.
+
+The loc itslef can be a 2-tuple giving x,y of the lower-left corner of
+the legend in axes coords (*bbox_to_anchor* is ignored).
+
 
 Keyword arguments:
 
   *isaxes*: [ True | False ]
     Indicates that this is an axes legend
 
-  *numpoints*: integer
-    The number of points in the legend line, default is 4
-
-  *prop*: [ None | FontProperties ]
+  *prop*: [ None | FontProperties | dict ]
     A :class:`matplotlib.font_manager.FontProperties`
-    instance, or *None* to use rc settings.
+    instance. If *prop* is a dictionary, a new instance will be
+    created with *prop*. If *None*, use rc settings.
+
+  *numpoints*: integer
+    The number of points in the legend for line
+
+  *scatterpoints*: integer
+    The number of points in the legend for scatter plot
+
+  *scatteroffsets*: list of floats
+    a list of yoffsets for scatter symbols in legend
 
   *markerscale*: [ None | scalar ]
     The relative size of legend markers vs. original. If *None*, use rc
     settings.
 
+  *fancybox*: [ None | False | True ]
+    if True, draw a frame with a round fancybox.  If None, use rc
+    
   *shadow*: [ None | False | True ]
     If *True*, draw a shadow behind legend. If *None*, use rc settings.
+
+  *ncol* : integer
+    number of columns. default is 1
+
+  *mode* : [ "expand" | None ]
+    if mode is "expand", the legend will be horizontally expanded
+    to fill the axes area (or *bbox_to_anchor*)
+
+  *bbox_to_anchor* : an instance of BboxBase or a tuple of 2 or 4 floats
+    the bbox that the legend will be anchored.
+
+  *bbox_transform* : [ an instance of Transform | None ]
+    the transform for the bbox. transAxes if None.
+
+  *title* : string
+    the legend title
 
 Padding and spacing between various elements use following keywords
 parameters. The dimensions of these values are given as a fraction
@@ -6362,9 +6400,14 @@ borderaxespad      the pad between the axes and legend border
 columnspacing      the spacing between columns
 ================   ==================================================================
 
+
 **Example:**
 
-.. plot:: mpl_examples/api/legend_demo.py"""
+.. plot:: mpl_examples/api/legend_demo.py
+
+Also see :ref:`plotting-guide-legend`.
+
+"""
     ret =  gca().legend(*args, **kwargs)
     draw_if_interactive()
     return ret

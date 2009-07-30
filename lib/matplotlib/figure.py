@@ -829,28 +829,59 @@ class Figure(Artist):
         (0,0) is the left, bottom of the figure and 1,1 is the right,
         top.
 
-        The legend instance is returned.  The following kwargs are supported
+        Keyword arguments:
 
-        *loc*
-            the location of the legend
-        *numpoints*
-            the number of points in the legend line
-        *prop*
-            a :class:`matplotlib.font_manager.FontProperties` instance
-        *pad*
-            the fractional whitespace inside the legend border
-        *markerscale*
-            the relative size of legend markers vs. original
-        *shadow*
-            if True, draw a shadow behind legend
-        *labelsep*
-            the vertical space between the legend entries
-        *handlelen*
-            the length of the legend lines
-        *handletextsep*
-            the space between the legend line and legend text
-        *axespad*
-            the border between the axes and legend edge
+          *prop*: [ None | FontProperties | dict ]
+            A :class:`matplotlib.font_manager.FontProperties`
+            instance. If *prop* is a dictionary, a new instance will be
+            created with *prop*. If *None*, use rc settings.
+
+          *numpoints*: integer
+            The number of points in the legend line, default is 4
+
+          *scatterpoints*: integer
+            The number of points in the legend line, default is 4
+
+          *scatteroffsets*: list of floats
+            a list of yoffsets for scatter symbols in legend
+
+          *markerscale*: [ None | scalar ]
+            The relative size of legend markers vs. original. If *None*, use rc
+            settings.
+
+          *fancybox*: [ None | False | True ]
+            if True, draw a frame with a round fancybox.  If None, use rc
+            
+          *shadow*: [ None | False | True ]
+            If *True*, draw a shadow behind legend. If *None*, use rc settings.
+
+          *ncol* : integer
+            number of columns. default is 1
+
+          *mode* : [ "expand" | None ]
+            if mode is "expand", the legend will be horizontally expanded
+            to fill the axes area (or *bbox_to_anchor*)
+
+          *title* : string
+            the legend title
+
+        Padding and spacing between various elements use following keywords
+        parameters. The dimensions of these values are given as a fraction
+        of the fontsize. Values from rcParams will be used if None.
+
+        ================   ==================================================================
+        Keyword            Description
+        ================   ==================================================================
+        borderpad          the fractional whitespace inside the legend border
+        labelspacing       the vertical space between the legend entries
+        handlelength       the length of the legend handles
+        handletextpad      the pad between the legend handle and text
+        borderaxespad      the pad between the axes and legend border
+        columnspacing      the spacing between columns
+        ================   ==================================================================
+
+
+        **Example:**
 
         .. plot:: mpl_examples/pylab_examples/figlegend_demo.py
         """

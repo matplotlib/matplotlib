@@ -126,13 +126,15 @@ class Legend(Artist):
         ================   ==================================================================
         Keyword            Description
         ================   ==================================================================
-        loc                a location code or a tuple of coordinates
-        numpoints          the number of points in the legend line
+        loc                a location code
         prop               the font property
         markerscale        the relative size of legend markers vs. original
+        numpoints          the number of points in the legend for line
+        scatterpoints      the number of points in the legend for scatter plot
+        scatteryoffsets    a list of yoffsets for scatter symbols in legend
         fancybox           if True, draw a frame with a round fancybox.  If None, use rc
         shadow             if True, draw a shadow behind legend
-        scatteryoffsets    a list of yoffsets for scatter symbols in legend
+        ncol               number of columns
         borderpad          the fractional whitespace inside the legend border
         labelspacing       the vertical space between the legend entries
         handlelength       the length of the legend handles
@@ -147,9 +149,14 @@ class Legend(Artist):
 The dimensions of pad and spacing are given as a fraction of the
 _fontsize. Values from rcParams will be used if None.
 
-bbox_to_anchor can be an instance of BboxBase(or its derivatives) or a
-tuple of 2 or 4 floats. See :meth:`set_bbox_to_anchor` for more
-detail.
+Users can specify any arbitrary location for the legend using the
+*bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance
+of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
+See :meth:`set_bbox_to_anchor` for more detail.
+
+The legend location can be specified by setting *loc* with a tuple of
+2 floats, which is interpreted as the lower-left corner of the legend
+in the normalized axes coordinate.
         """
         from matplotlib.axes import Axes     # local import only to avoid circularity
         from matplotlib.figure import Figure # local import only to avoid circularity
@@ -158,8 +165,13 @@ detail.
 
         if prop is None:
             self.prop=FontProperties(size=rcParams["legend.fontsize"])
+        elif isinstance(prop, dict):
+            self.prop=FontProperties(**prop)
+            if "size" not in prop:
+                self.prop.set_size(rcParams["legend.fontsize"])
         else:
             self.prop=prop
+
         self._fontsize = self.prop.get_size_in_points()
 
         propnames=['numpoints', 'markerscale', 'shadow', "columnspacing",
