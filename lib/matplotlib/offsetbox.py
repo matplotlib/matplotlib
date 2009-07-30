@@ -833,6 +833,10 @@ class AnchoredOffsetbox(OffsetBox):
 
         if prop is None:
             self.prop=FontProperties(size=rcParams["legend.fontsize"])
+        elif isinstance(prop, dict):
+            self.prop=FontProperties(**prop)
+            if "size" not in prop:
+                self.prop.set_size(rcParams["legend.fontsize"])
         else:
             self.prop = prop
 
