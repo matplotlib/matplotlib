@@ -66,5 +66,5 @@ ease displaying multiple images in matplotlib. The AxesGrid toolkit is
 distributed with matplotlib source.
 
 .. image:: ../_static/demo_axes_grid.png
-
+ 
 See :ref:`toolkit_axesgrid-index` for documentations.
