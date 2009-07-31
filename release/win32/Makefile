@@ -1,4 +1,4 @@
-PYDIR = C:/Python26
+PYDIR = C:/Python25
 PYTHON = ${PYDIR}/python.exe
 SRCDIR = ${PWD}
 WINSRCDIR = `${PWD}/data/mingw_path.sh ${PWD}`
@@ -6,7 +6,7 @@ ZLIBVERSION = 1.2.3
 PNGVERSION = 1.2.36
 FREETYPEVERSION = 2.3.9
 TCLTKVERSION = 8.5.7
-MPLVERSION = 0.98.5.3
+MPLVERSION = 0.99.0.rc1
 
 ## You shouldn't need to configure past this point
 
@@ -89,8 +89,8 @@ installers:
 	rm -rf build &&\
 	cp ../data/setup*.* . &&\
 	export CFLAGS="${CFLAGS}" &&\
-	${PYTHON} setupwin.py build_ext -c mingw32 -I ${PY_INCLUDE} -L ${PY_LINKER} bdist_wininst  
-	#${PYTHON} setupwinegg.py build_ext -c mingw32 -I ${PY_INCLUDE} -L ${PY_LINKER} bdist_egg
+	${PYTHON} setupwin.py build_ext -c mingw32 -I ${PY_INCLUDE} -L ${PY_LINKER} bdist_wininst  &&\
+	${PYTHON} setupwinegg.py build_ext -c mingw32 -I ${PY_INCLUDE} -L ${PY_LINKER} bdist_egg
 
 
 inplace:
