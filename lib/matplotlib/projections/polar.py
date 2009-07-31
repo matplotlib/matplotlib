@@ -397,7 +397,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         self._r_label2_position.clear().translate(angle, -self._rpad * rmax)
         for t in self.yaxis.get_ticklabels():
             t.update(kwargs)
-        return self.yaxis.get_ticklines(), self.yaxis.get_ticklabels()
+        return self.yaxis.get_gridlines(), self.yaxis.get_ticklabels()
 
     set_rgrids.__doc__ = cbook.dedent(set_rgrids.__doc__) % kwdocd
 
