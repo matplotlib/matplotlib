@@ -1,24 +1,67 @@
 """
 This module contains the instantiations of color mapping classes
 """
+import os
+
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 
 import numpy as np
 from numpy import ma
 import matplotlib as mpl
 import matplotlib.colors as colors
 import matplotlib.cbook as cbook
-from matplotlib._cm import *
 
-# Dictionary for user-registered colormaps:
+LUTSIZE = mpl.rcParams['image.lut']
+
+_cmcache = os.path.join(mpl.get_configdir(), 'colormaps.cache')
+
+loaded = False
+try:
+    c = open(_cmcache)
+    datad = pickle.load(c)
+    c.close()
+    mpl.verbose.report("Using colormaps from %s" % _cmcache)
+    loaded = True
+except:
+    mpl.verbose.report("Could not load colormaps from %s" % _cmcache)
+
+if not loaded:
+    from matplotlib._cm import datad
+
+    try:
+        c = open(_cmcache, 'w')
+        pickle.dump(datad, c, 2)
+        c.close()
+        mpl.verbose.report("New colormap cache in %s" % _cmcache)
+    except:
+        mpl.verbose.report("Failed to generate colormap cache")
+
 cmap_d = dict()
 
-# Using this second dictionary allows us to handle any
-# Colormap instance; the built-in datad is only for
-# LinearSegmentedColormaps.  The advantage of keeping
-# datad is that it delays the generation of the Colormap
-# instance until it is actually needed. Generating the
-# instance is fast enough, and typically done few enough
-# times, that there is no need to cache the result.
+# reverse all the colormaps.
+# reversed colormaps have '_r' appended to the name.
+
+def revcmap(data):
+    data_r = {}
+    for key, val in data.iteritems():
+        valnew = [(1.0-a, b, c) for a, b, c in reversed(val)]
+        data_r[key] = valnew
+    return data_r
+
+_cmapnames = datad.keys()  # need this list because datad is changed in loop
+for cmapname in _cmapnames:
+    cmapname_r = cmapname+'_r'
+    cmapdat_r = revcmap(datad[cmapname])
+    datad[cmapname_r] = cmapdat_r
+    cmap_d[cmapname] = colors.LinearSegmentedColormap(
+                            cmapname, datad[cmapname], LUTSIZE)
+    cmap_d[cmapname_r] = colors.LinearSegmentedColormap(
+                            cmapname_r, cmapdat_r, LUTSIZE)
+
+locals().update(cmap_d)
 
 def register_cmap(name=None, cmap=None, data=None, lut=None):
     """
@@ -67,6 +110,11 @@ def get_cmap(name=None, lut=None):
 
     If *name* is a :class:`colors.Colormap` instance, it will be
     returned.
+
+    If *lut* is not None it must be an integer giving the number of
+    entries desired in the lookup table, and *name* must be a
+    standard mpl colormap name with a corresponding data dictionary
+    in *datad*.
     """
     if name is None:
         name = mpl.rcParams['image.cmap']
@@ -75,14 +123,12 @@ def get_cmap(name=None, lut=None):
         return name
 
     if name in cmap_d:
-        return cmap_d[name]
-
-    if name not in datad:
-        raise ValueError("%s is not a known colormap name" % name)
-
-    if lut is None:
-        lut = mpl.rcParams['image.lut']
-    return colors.LinearSegmentedColormap(name,  datad[name], lut)
+        if lut is None:
+            return cmap_d[name]
+        elif name in datad:
+            return colors.LinearSegmentedColormap(name,  datad[name], lut)
+        else:
+            raise ValueError("Colormap %s is not recognized" % name)
 
 class ScalarMappable:
     """
@@ -105,7 +151,7 @@ class ScalarMappable:
 
         self._A = None
         self.norm = norm
-        self.cmap = cmap
+        self.cmap = get_cmap(cmap)
         self.colorbar = None
         self.update_dict = {'array':False}
 

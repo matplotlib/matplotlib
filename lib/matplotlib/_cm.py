@@ -1,24 +1,14 @@
 """
-Color data and pre-defined cmap objects.
+Nothing here but dictionaries for generating LinearSegmentedColormaps,
+and a dictionary of these dictionaries.
 
-This is a helper for cm.py, originally part of that file.
-Separating the data (this file) from cm.py makes both easier
-to deal with.
-
-Objects visible in cm.py are the individual cmap objects ('autumn',
-etc.) and a dictionary, 'datad', including all of these objects.
 """
-
-import matplotlib as mpl
-import matplotlib.colors as colors
-LUTSIZE = mpl.rcParams['image.lut']
 
 _binary_data = {
     'red'  :  ((0., 1., 1.), (1., 0., 0.)),
     'green':  ((0., 1., 1.), (1., 0., 0.)),
     'blue' :  ((0., 1., 1.), (1., 0., 0.))
     }
-
 
 _bone_data = {'red':   ((0., 0., 0.),(1.0, 1.0, 1.0)),
               'green': ((0., 0., 0.),(1.0, 1.0, 1.0)),
@@ -378,44 +368,6 @@ _spectral_data = {'red': [(0.0, 0.0, 0.0), (0.05, 0.4667, 0.4667),
                            (0.90, 0.0, 0.0), (0.95, 0.0, 0.0),
                            (1.0, 0.80, 0.80)]}
 
-
-autumn = colors.LinearSegmentedColormap('autumn', _autumn_data, LUTSIZE)
-bone   = colors.LinearSegmentedColormap('bone  ', _bone_data, LUTSIZE)
-binary   = colors.LinearSegmentedColormap('binary  ', _binary_data, LUTSIZE)
-cool   = colors.LinearSegmentedColormap('cool',   _cool_data, LUTSIZE)
-copper = colors.LinearSegmentedColormap('copper', _copper_data, LUTSIZE)
-flag   = colors.LinearSegmentedColormap('flag',   _flag_data, LUTSIZE)
-gray   = colors.LinearSegmentedColormap('gray',   _gray_data, LUTSIZE)
-hot    = colors.LinearSegmentedColormap('hot',    _hot_data, LUTSIZE)
-hsv    = colors.LinearSegmentedColormap('hsv',    _hsv_data, LUTSIZE)
-jet    = colors.LinearSegmentedColormap('jet',    _jet_data, LUTSIZE)
-pink   = colors.LinearSegmentedColormap('pink',   _pink_data, LUTSIZE)
-prism  = colors.LinearSegmentedColormap('prism',  _prism_data, LUTSIZE)
-spring = colors.LinearSegmentedColormap('spring', _spring_data, LUTSIZE)
-summer = colors.LinearSegmentedColormap('summer', _summer_data, LUTSIZE)
-winter = colors.LinearSegmentedColormap('winter', _winter_data, LUTSIZE)
-spectral = colors.LinearSegmentedColormap('spectral', _spectral_data, LUTSIZE)
-
-
-
-datad = {
-    'autumn': _autumn_data,
-    'bone':   _bone_data,
-    'binary':   _binary_data,
-    'cool':   _cool_data,
-    'copper': _copper_data,
-    'flag':   _flag_data,
-    'gray' :  _gray_data,
-    'hot':    _hot_data,
-    'hsv':    _hsv_data,
-    'jet' :   _jet_data,
-    'pink':   _pink_data,
-    'prism':  _prism_data,
-    'spring': _spring_data,
-    'summer': _summer_data,
-    'winter': _winter_data,
-    'spectral': _spectral_data
-    }
 
 # 34 colormaps based on color specifications and designs
 # developed by Cynthia Brewer (http://colorbrewer.org).
@@ -5859,48 +5811,26 @@ _gist_yarg_data = {'blue': [(0.0, 1.0, 1.0), (0.0042016808874905109,
 0.0078431377187371254, 0.0078431377187371254), (1.0,
 0.0039215688593685627, 0.0039215688593685627)]}
 
-Accent = colors.LinearSegmentedColormap('Accent', _Accent_data, LUTSIZE)
-Blues = colors.LinearSegmentedColormap('Blues', _Blues_data, LUTSIZE)
-BrBG = colors.LinearSegmentedColormap('BrBG', _BrBG_data, LUTSIZE)
-BuGn = colors.LinearSegmentedColormap('BuGn', _BuGn_data, LUTSIZE)
-BuPu = colors.LinearSegmentedColormap('BuPu', _BuPu_data, LUTSIZE)
-Dark2 = colors.LinearSegmentedColormap('Dark2', _Dark2_data, LUTSIZE)
-GnBu = colors.LinearSegmentedColormap('GnBu', _GnBu_data, LUTSIZE)
-Greens = colors.LinearSegmentedColormap('Greens', _Greens_data, LUTSIZE)
-Greys = colors.LinearSegmentedColormap('Greys', _Greys_data, LUTSIZE)
-Oranges = colors.LinearSegmentedColormap('Oranges', _Oranges_data, LUTSIZE)
-OrRd = colors.LinearSegmentedColormap('OrRd', _OrRd_data, LUTSIZE)
-Paired = colors.LinearSegmentedColormap('Paired', _Paired_data, LUTSIZE)
-Pastel1 = colors.LinearSegmentedColormap('Pastel1', _Pastel1_data, LUTSIZE)
-Pastel2 = colors.LinearSegmentedColormap('Pastel2', _Pastel2_data, LUTSIZE)
-PiYG = colors.LinearSegmentedColormap('PiYG', _PiYG_data, LUTSIZE)
-PRGn = colors.LinearSegmentedColormap('PRGn', _PRGn_data, LUTSIZE)
-PuBu = colors.LinearSegmentedColormap('PuBu', _PuBu_data, LUTSIZE)
-PuBuGn = colors.LinearSegmentedColormap('PuBuGn', _PuBuGn_data, LUTSIZE)
-PuOr = colors.LinearSegmentedColormap('PuOr', _PuOr_data, LUTSIZE)
-PuRd = colors.LinearSegmentedColormap('PuRd', _PuRd_data, LUTSIZE)
-Purples = colors.LinearSegmentedColormap('Purples', _Purples_data, LUTSIZE)
-RdBu = colors.LinearSegmentedColormap('RdBu', _RdBu_data, LUTSIZE)
-RdGy = colors.LinearSegmentedColormap('RdGy', _RdGy_data, LUTSIZE)
-RdPu = colors.LinearSegmentedColormap('RdPu', _RdPu_data, LUTSIZE)
-RdYlBu = colors.LinearSegmentedColormap('RdYlBu', _RdYlBu_data, LUTSIZE)
-RdYlGn = colors.LinearSegmentedColormap('RdYlGn', _RdYlGn_data, LUTSIZE)
-Reds = colors.LinearSegmentedColormap('Reds', _Reds_data, LUTSIZE)
-Set1 = colors.LinearSegmentedColormap('Set1', _Set1_data, LUTSIZE)
-Set2 = colors.LinearSegmentedColormap('Set2', _Set2_data, LUTSIZE)
-Set3 = colors.LinearSegmentedColormap('Set3', _Set3_data, LUTSIZE)
-Spectral = colors.LinearSegmentedColormap('Spectral', _Spectral_data, LUTSIZE)
-YlGn = colors.LinearSegmentedColormap('YlGn', _YlGn_data, LUTSIZE)
-YlGnBu = colors.LinearSegmentedColormap('YlGnBu', _YlGnBu_data, LUTSIZE)
-YlOrBr = colors.LinearSegmentedColormap('YlOrBr', _YlOrBr_data, LUTSIZE)
-YlOrRd = colors.LinearSegmentedColormap('YlOrRd', _YlOrRd_data, LUTSIZE)
-gist_earth = colors.LinearSegmentedColormap('gist_earth', _gist_earth_data, LUTSIZE)
-gist_gray = colors.LinearSegmentedColormap('gist_gray', _gist_gray_data, LUTSIZE)
-gist_heat = colors.LinearSegmentedColormap('gist_heat', _gist_heat_data, LUTSIZE)
-gist_ncar = colors.LinearSegmentedColormap('gist_ncar', _gist_ncar_data, LUTSIZE)
-gist_rainbow = colors.LinearSegmentedColormap('gist_rainbow', _gist_rainbow_data, LUTSIZE)
-gist_stern = colors.LinearSegmentedColormap('gist_stern', _gist_stern_data, LUTSIZE)
-gist_yarg = colors.LinearSegmentedColormap('gist_yarg', _gist_yarg_data, LUTSIZE)
+datad = {
+    'autumn': _autumn_data,
+    'bone':   _bone_data,
+    'binary':   _binary_data,
+    'cool':   _cool_data,
+    'copper': _copper_data,
+    'flag':   _flag_data,
+    'gray' :  _gray_data,
+    'hot':    _hot_data,
+    'hsv':    _hsv_data,
+    'jet' :   _jet_data,
+    'pink':   _pink_data,
+    'prism':  _prism_data,
+    'spring': _spring_data,
+    'summer': _summer_data,
+    'winter': _winter_data,
+    'spectral': _spectral_data
+    }
+
+
 datad['Accent']=_Accent_data
 datad['Blues']=_Blues_data
 datad['BrBG']=_BrBG_data
@@ -5944,19 +5874,7 @@ datad['gist_rainbow']=_gist_rainbow_data
 datad['gist_stern']=_gist_stern_data
 datad['gist_yarg']=_gist_yarg_data
 
-# reverse all the colormaps.
-# reversed colormaps have '_r' appended to the name.
 
-def revcmap(data):
-    data_r = {}
-    for key, val in data.iteritems():
-        valnew = [(1.-a, b, c) for a, b, c in reversed(val)]
-        data_r[key] = valnew
-    return data_r
 
-cmapnames = datad.keys()
-for cmapname in cmapnames:
-    cmapname_r = cmapname+'_r'
-    cmapdat_r = revcmap(datad[cmapname])
-    datad[cmapname_r] = cmapdat_r
-    locals()[cmapname_r] = colors.LinearSegmentedColormap(cmapname_r, cmapdat_r, LUTSIZE)
+
+
