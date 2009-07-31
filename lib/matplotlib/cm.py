@@ -1,43 +1,19 @@
 """
-This module contains the instantiations of color mapping classes
-"""
-import os
+This module provides a large set of colormaps, functions for
+registering new colormaps and for getting a colormap by name,
+and a mixin class for adding color mapping functionality.
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
+"""
+
+import os
 
 import numpy as np
 from numpy import ma
 import matplotlib as mpl
 import matplotlib.colors as colors
 import matplotlib.cbook as cbook
+from matplotlib._cm import datad
 
-LUTSIZE = mpl.rcParams['image.lut']
-
-_cmcache = os.path.join(mpl.get_configdir(), 'colormaps.cache')
-
-loaded = False
-try:
-    c = open(_cmcache)
-    datad = pickle.load(c)
-    c.close()
-    mpl.verbose.report("Using colormaps from %s" % _cmcache)
-    loaded = True
-except:
-    mpl.verbose.report("Could not load colormaps from %s" % _cmcache)
-
-if not loaded:
-    from matplotlib._cm import datad
-
-    try:
-        c = open(_cmcache, 'w')
-        pickle.dump(datad, c, 2)
-        c.close()
-        mpl.verbose.report("New colormap cache in %s" % _cmcache)
-    except:
-        mpl.verbose.report("Failed to generate colormap cache")
 
 cmap_d = dict()
 
@@ -51,7 +27,10 @@ def revcmap(data):
         data_r[key] = valnew
     return data_r
 
+LUTSIZE = mpl.rcParams['image.lut']
+
 _cmapnames = datad.keys()  # need this list because datad is changed in loop
+
 for cmapname in _cmapnames:
     cmapname_r = cmapname+'_r'
     cmapdat_r = revcmap(datad[cmapname])

@@ -1,7 +1,6 @@
 2009-07-30 Add set_cmap and register_cmap, and improve get_cmap,
            to provide convenient handling of user-generated
-           colormaps. Reorganized _cm and cm modules, and added
-           caching of the color data to reduce startup time. - EF
+           colormaps. Reorganized _cm and cm modules. - EF
 
 2009-07-28 Quiver speed improved, thanks to tip by Ray Speth. -EF
 
