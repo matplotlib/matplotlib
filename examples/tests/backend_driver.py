@@ -336,7 +336,6 @@ def drive(backend, directories, python=['python'], switches = []):
     for fullpath in testcases:
         print ('\tdriving %-40s' % (fullpath)),
         sys.stdout.flush()
-
         fpath, fname = os.path.split(fullpath)
 
         if fname in exclude:

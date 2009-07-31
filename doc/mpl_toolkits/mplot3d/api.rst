@@ -7,7 +7,6 @@ mplot3d API
 
 .. automodule:: mpl_toolkits.mplot3d.axes3d
     :members:
-    :exclude-members: contour3D, contourf3D, plot3D, scatter3D
     :show-inheritance:
 
 :mod:`mpl_toolkits.mplot3d.art3d`
