@@ -7,15 +7,19 @@
 
 
 static int nwin = 0;   /* The number of open windows */
+
+/* Use Atsui for Mac OS X 10.4, CoreText for Mac OS X 10.5 */
+#ifndef MAC_OS_X_VERSION_10_5
 static int ngc = 0;    /* The number of graphics contexts in use */
 
 
 /* For drawing Unicode strings with ATSUI */
 static ATSUStyle style = NULL;
 static ATSUTextLayout layout = NULL;
+#endif
 
 /* CGFloat was defined in Mac OS X 10.5 */
-#ifndef CGFloat
+#ifndef CGFLOAT_DEFINED
 #define CGFloat float
 #endif
 
@@ -171,6 +175,7 @@ static int wait_for_stdin(void)
     return 1;
 }
 
+#ifndef MAC_OS_X_VERSION_10_5
 static int _init_atsui(void)
 {
     OSStatus status;
@@ -208,6 +213,7 @@ static void _dealloc_atsui(void)
     if (status!=noErr)
         PyErr_WarnEx(PyExc_RuntimeWarning, "ATSUDisposeTextLayout failed", 1);
 }
+#endif
 
 static int _draw_path(CGContextRef cr, void* iterator)
 {
@@ -336,6 +342,10 @@ static void _release_hatch(void* info)
 - (void)mouseUp:(NSEvent*)event;
 - (void)mouseDragged:(NSEvent*)event;
 - (void)mouseMoved:(NSEvent*)event;
+- (void)rightMouseDown:(NSEvent*)event;
+- (void)rightMouseUp:(NSEvent*)event;
+- (void)otherMouseDown:(NSEvent*)event;
+- (void)otherMouseUp:(NSEvent*)event;
 - (void)setRubberband:(NSRect)rect;
 - (void)removeRubberband;
 - (const char*)convertKeyEvent:(NSEvent*)event;
@@ -375,6 +385,7 @@ typedef struct {
     CGContextRef cr;
     NSSize size;
     int level;
+    CGFloat color[4];
 } GraphicsContext;
 
 static CGMutablePathRef _create_path(void* iterator)
@@ -440,6 +451,7 @@ GraphicsContext_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
     self->cr = NULL;
     self->level = 0;
 
+#ifndef MAC_OS_X_VERSION_10_5
     if (ngc==0)
     {
         int ok = _init_atsui();
@@ -449,10 +461,12 @@ GraphicsContext_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
         }
     }
     ngc++;
+#endif
 
     return (PyObject*) self;
 }
 
+#ifndef MAC_OS_X_VERSION_10_5
 static void
 GraphicsContext_dealloc(GraphicsContext *self)
 {
@@ -461,6 +475,7 @@ GraphicsContext_dealloc(GraphicsContext *self)
 
     self->ob_type->tp_free((PyObject*)self);
 }
+#endif
 
 static PyObject*
 GraphicsContext_repr(GraphicsContext* self)
@@ -516,6 +531,9 @@ GraphicsContext_set_alpha (GraphicsContext* self, PyObject* args)
         return NULL;
     }
     CGContextSetAlpha(cr, alpha);
+ 
+    self->color[3] = alpha;
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -651,7 +669,7 @@ GraphicsContext_set_clip_path (GraphicsContext* self, PyObject* args)
 static BOOL
 _set_dashes(CGContextRef cr, PyObject* linestyle)
 {
-    float phase = 0.0;
+    CGFloat phase = 0.0;
     PyObject* offset;
     PyObject* dashes;
 
@@ -686,7 +704,7 @@ _set_dashes(CGContextRef cr, PyObject* linestyle)
         }
         int n = PyTuple_GET_SIZE(dashes);
         int i;
-        float* lengths = malloc(n*sizeof(float));
+        CGFloat* lengths = malloc(n*sizeof(CGFloat));
         if(!lengths)
         {
             PyErr_SetString(PyExc_MemoryError, "Failed to store dashes");
@@ -697,9 +715,9 @@ _set_dashes(CGContextRef cr, PyObject* linestyle)
         {
             PyObject* value = PyTuple_GET_ITEM(dashes, i);
             if (PyFloat_Check(value))
-                lengths[i] = (float) PyFloat_AS_DOUBLE(value);
+                lengths[i] = (CGFloat) PyFloat_AS_DOUBLE(value);
             else if (PyInt_Check(value))
-                lengths[i] = (float) PyInt_AS_LONG(value);
+                lengths[i] = (CGFloat) PyInt_AS_LONG(value);
             else break;
         }
         Py_DECREF(dashes);
@@ -750,6 +768,11 @@ GraphicsContext_set_foreground(GraphicsContext* self, PyObject* args)
 
     CGContextSetRGBStrokeColor(cr, r, g, b, 1.0);
     CGContextSetRGBFillColor(cr, r, g, b, 1.0);
+
+    self->color[0] = r;
+    self->color[1] = g;
+    self->color[2] = b;
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -889,28 +912,12 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
         }
         else
         {
-            int ok;
-            float color[4] = {0, 0, 0, 1};
             CGPatternRef pattern;
             CGColorSpaceRef baseSpace;
             CGColorSpaceRef patternSpace;
             static const CGPatternCallbacks callbacks = {0,
                                                          &_draw_hatch,
                                                          &_release_hatch};
-            PyObject* rgb = PyObject_CallMethod((PyObject*)self, "get_rgb", "");
-            if (!rgb)
-            {
-                Py_DECREF(hatchpath);
-                return NULL;
-            }
-            ok = PyArg_ParseTuple(rgb, "ffff", &color[0], &color[1], &color[2], &color[3]);
-            Py_DECREF(rgb);
-            if (!ok)
-            {
-                Py_DECREF(hatchpath);
-                return NULL;
-            }
-
             baseSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
             if (!baseSpace)
             {
@@ -938,7 +945,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                                       kCGPatternTilingNoDistortion,
                                       false,
                                       &callbacks);
-            CGContextSetFillPattern(cr, pattern, color);
+            CGContextSetFillPattern(cr, pattern, self->color);
             CGPatternRelease(pattern);
             iterator  = get_path_iterator(path,
                                           transform,
@@ -1227,6 +1234,8 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
 
     if (Ntransforms)
     {
+        CGAffineTransform master;
+        double a, b, c, d, tx, ty;
         PyObject* values = PyObject_CallMethod(master_transform, "to_values", "");
         if (!values)
         {
@@ -1239,15 +1248,15 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
             ok = 0;
             goto exit;
         }
-        CGAffineTransform master;
-        ok = PyArg_ParseTuple(values, "ffffff",
-                                      &master.a,
-                                      &master.b,
-                                      &master.c,
-                                      &master.d,
-                                      &master.tx,
-                                      &master.ty);
+        /* CGAffineTransform contains CGFloat; cannot use master directly */
+        ok = PyArg_ParseTuple(values, "dddddd", &a, &b, &c, &d, &tx, &ty);
         Py_DECREF(values);
+        master.a = a;
+        master.b = b;
+        master.c = c;
+        master.d = d;
+        master.tx = tx;
+	master.ty = ty;
         if (!ok) goto exit;
         CGContextConcatCTM(cr, master);
     }
@@ -1652,13 +1661,15 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     }
     if (PyTuple_Check(values))
     {
-        ok = PyArg_ParseTuple(values, "ffffff",
-                                      &master.a,
-                                      &master.b,
-                                      &master.c,
-                                      &master.d,
-                                      &master.tx,
-                                      &master.ty);
+        double a, b, c, d, tx, ty;
+        /* CGAffineTransform contains CGFloat; cannot use master directly */
+        ok = PyArg_ParseTuple(values, "dddddd", &a, &b, &c, &d, &tx, &ty);
+        master.a = a;
+        master.b = b;
+        master.c = c;
+        master.d = d;
+        master.tx = tx;
+	master.ty = ty;
     }
     else
     {
@@ -1866,7 +1877,11 @@ exit:
 }
 
 
+#ifdef MAC_OS_X_VERSION_10_5
+static CTFontRef
+#else
 static ATSFontRef
+#endif
 setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
         const char italic[])
 {
@@ -1876,7 +1891,11 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
     const char* temp;
     const char* name = "Times-Roman";
     CFStringRef string;
-    ATSFontRef atsfont = 0;
+#ifdef MAC_OS_X_VERSION_10_5
+    CTFontRef font = 0;
+#else
+    ATSFontRef font = 0;
+#endif
 
     const int k = (strcmp(italic, "italic") ? 0 : 2)
                 + (strcmp(weight, "bold") ? 0 : 1);
@@ -2072,25 +2091,205 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
         string = CFStringCreateWithCString(kCFAllocatorDefault,
                                            temp,
                                            kCFStringEncodingMacRoman);
-        atsfont = ATSFontFindFromPostScriptName(string, kATSOptionFlagsDefault);
+#ifdef MAC_OS_X_VERSION_10_5
+        font = CTFontCreateWithName(string, size, NULL);
+#else
+        font = ATSFontFindFromPostScriptName(string, kATSOptionFlagsDefault);
+#endif
+
         CFRelease(string);
 
-        if(atsfont)
+        if(font)
         {
             name = temp;
             break;
         }
     }
-    if(!atsfont)
+    if(!font)
     {   string = CFStringCreateWithCString(kCFAllocatorDefault,
                                            name,
                                            kCFStringEncodingMacRoman);
-        atsfont = ATSFontFindFromPostScriptName(string, kATSOptionFlagsDefault);
+#ifdef MAC_OS_X_VERSION_10_5
+        font = CTFontCreateWithName(string, size, NULL);
+#else
+        font = ATSFontFindFromPostScriptName(string, kATSOptionFlagsDefault);
+#endif
         CFRelease(string);
     }
+#ifndef MAC_OS_X_VERSION_10_5
     CGContextSelectFont(cr, name, size, kCGEncodingMacRoman);
-    return atsfont;
+#endif
+    return font;
 }
+
+#ifdef MAC_OS_X_VERSION_10_5
+static PyObject*
+GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
+{
+    float x;
+    float y;
+    const UniChar* text;
+    int n;
+    PyObject* family;
+    float size;
+    const char* weight;
+    const char* italic;
+    float angle;
+    CTFontRef font;
+    CGColorRef color;
+    CGFloat descent;
+
+    CFStringRef keys[2];
+    CFTypeRef values[2];
+
+    CGContextRef cr = self->cr;
+    if (!cr)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
+        return NULL;
+    }
+
+    if(!PyArg_ParseTuple(args, "ffu#Ofssf",
+                                &x,
+                                &y,
+                                &text,
+                                &n,
+                                &family,
+                                &size,
+                                &weight,
+                                &italic,
+                                &angle)) return NULL;
+
+    font = setfont(cr, family, size, weight, italic);
+
+    color = CGColorCreateGenericRGB(self->color[0],
+                                    self->color[1],
+                                    self->color[2],
+                                    self->color[3]);
+
+    keys[0] = kCTFontAttributeName;
+    keys[1] = kCTForegroundColorAttributeName;
+    values[0] = font;
+    values[1] = color;
+    CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault,
+                                        (const void**)&keys,
+                                        (const void**)&values,
+                                        2,
+                                        &kCFTypeDictionaryKeyCallBacks,
+                                        &kCFTypeDictionaryValueCallBacks);
+    CGColorRelease(color);
+    CFRelease(font);
+
+    CFStringRef s = CFStringCreateWithCharacters(kCFAllocatorDefault, text, n);
+
+    CFAttributedStringRef string = CFAttributedStringCreate(kCFAllocatorDefault,
+                                                            s,
+                                                            attributes);
+    CFRelease(s);
+    CFRelease(attributes);
+
+    CTLineRef line = CTLineCreateWithAttributedString(string);
+    CFRelease(string);
+
+    CTLineGetTypographicBounds(line, NULL, &descent, NULL);
+
+    if (!line)
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "CTLineCreateWithAttributedString failed");
+        return NULL;
+    }
+
+    CGContextSetTextMatrix(cr, CGAffineTransformIdentity);
+    if (angle)
+    {
+        CGContextSaveGState(cr);
+        CGContextTranslateCTM(cr, x, y);
+        CGContextRotateCTM(cr, angle*M_PI/180);
+        CTLineDraw(line, cr);
+        CGContextRestoreGState(cr);
+    }
+    else
+    {
+        CGContextSetTextPosition(cr, x, y);
+        CTLineDraw(line, cr);
+    }
+    CFRelease(line);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject*
+GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* args)
+{
+    const UniChar* text;
+    int n;
+    PyObject* family;
+    float size;
+    const char* weight;
+    const char* italic;
+
+    CGFloat ascent;
+    CGFloat descent;
+    double width;
+    CGRect rect;
+
+    CTFontRef font;
+
+    CGContextRef cr = self->cr;
+    if (!cr)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
+        return NULL;
+    }
+
+    if(!PyArg_ParseTuple(args, "u#Ofss",
+                         &text, &n, &family, &size, &weight, &italic))
+        return NULL;
+
+    font = setfont(cr, family, size, weight, italic);
+
+    CFStringRef keys[1];
+    CFTypeRef values[1];
+
+    keys[0] = kCTFontAttributeName;
+    values[0] = font;
+    CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault,
+                                        (const void**)&keys,
+                                        (const void**)&values,
+                                        1,
+                                        &kCFTypeDictionaryKeyCallBacks,
+                                        &kCFTypeDictionaryValueCallBacks);
+    CFRelease(font);
+
+    CFStringRef s = CFStringCreateWithCharacters(kCFAllocatorDefault, text, n);
+
+    CFAttributedStringRef string = CFAttributedStringCreate(kCFAllocatorDefault,
+                                                            s,
+                                                            attributes);
+    CFRelease(s);
+    CFRelease(attributes);
+
+    CTLineRef line = CTLineCreateWithAttributedString(string);
+    CFRelease(string);
+
+    if (!line)
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "CTLineCreateWithAttributedString failed");
+        return NULL;
+    }
+
+    width = CTLineGetTypographicBounds(line, &ascent, &descent, NULL);
+    rect = CTLineGetImageBounds(line, cr);
+ 
+    CFRelease(line);
+
+    return Py_BuildValue("fff", width, rect.size.height, descent);
+}
+
+#else
 
 static PyObject*
 GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
@@ -2187,6 +2386,102 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
     Py_INCREF(Py_None);
     return Py_None;
 }
+
+static PyObject*
+GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* args)
+{
+    const UniChar* text;
+    int n;
+    PyObject* family;
+    float size;
+    const char* weight;
+    const char* italic;
+
+    ATSFontRef atsfont;
+
+    CGContextRef cr = self->cr;
+    if (!cr)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
+        return NULL;
+    }
+
+    if(!PyArg_ParseTuple(args, "u#Ofss", &text, &n, &family, &size, &weight, &italic)) return NULL;
+
+    atsfont = setfont(cr, family, size, weight, italic);
+
+    OSStatus status = noErr;
+    ATSUAttributeTag tags[] = {kATSUFontTag,
+                               kATSUSizeTag,
+                               kATSUQDBoldfaceTag,
+                               kATSUQDItalicTag};
+    ByteCount sizes[] = {sizeof(ATSUFontID),
+                         sizeof(Fixed),
+                         sizeof(Boolean),
+                         sizeof(Boolean)};
+    Fixed atsuSize = Long2Fix(size);
+    Boolean isBold = FALSE; /* setfont takes care of this */
+    Boolean isItalic = FALSE; /* setfont takes care of this */
+    ATSUAttributeValuePtr values[] = {&atsfont, &atsuSize, &isBold, &isItalic};
+
+    status = ATSUSetAttributes(style, 4, tags, sizes, values);
+    if (status!=noErr)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "ATSUSetAttributes failed");
+        return NULL;
+    }
+
+    status = ATSUSetTextPointerLocation(layout,
+                    text,
+                    kATSUFromTextBeginning,  /* offset from beginning */
+                    kATSUToTextEnd,          /* length of text range */
+                    n);                      /* length of text buffer */
+    if (status!=noErr)
+    {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "ATSUCreateTextLayoutWithTextPtr failed");
+        return NULL;
+    }
+
+    status = ATSUSetRunStyle(layout,
+                             style,
+                             kATSUFromTextBeginning,
+                             kATSUToTextEnd);
+    if (status!=noErr)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "ATSUSetRunStyle failed");
+        return NULL;
+    }
+
+    ATSUAttributeTag tag = kATSUCGContextTag;
+    ByteCount bc = sizeof (CGContextRef);
+    ATSUAttributeValuePtr value = &cr;
+    status = ATSUSetLayoutControls(layout, 1, &tag, &bc, &value);
+    if (status!=noErr)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "ATSUSetLayoutControls failed");
+        return NULL;
+    }
+
+    ATSUTextMeasurement before;
+    ATSUTextMeasurement after;
+    ATSUTextMeasurement ascent;
+    ATSUTextMeasurement descent;
+    status = ATSUGetUnjustifiedBounds(layout,
+                                      kATSUFromTextBeginning, kATSUToTextEnd,
+                                      &before, &after, &ascent, &descent);
+    if (status!=noErr)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "ATSUGetUnjustifiedBounds failed");
+        return NULL;
+    }
+
+    const float width = FixedToFloat(after-before);
+    const float height = FixedToFloat(ascent-descent);
+
+    return Py_BuildValue("fff", width, height, FixedToFloat(descent));
+}
+#endif
 
 static void _data_provider_release(void* info, const void* data, size_t size)
 {
@@ -2290,101 +2585,6 @@ GraphicsContext_draw_mathtext(GraphicsContext* self, PyObject* args)
 
     Py_INCREF(Py_None);
     return Py_None;
-}
-
-static PyObject*
-GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* args)
-{
-    const UniChar* text;
-    int n;
-    PyObject* family;
-    float size;
-    const char* weight;
-    const char* italic;
-
-    ATSFontRef atsfont;
-
-    CGContextRef cr = self->cr;
-    if (!cr)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
-        return NULL;
-    }
-
-    if(!PyArg_ParseTuple(args, "u#Ofss", &text, &n, &family, &size, &weight, &italic)) return NULL;
-
-    atsfont = setfont(cr, family, size, weight, italic);
-
-    OSStatus status = noErr;
-    ATSUAttributeTag tags[] = {kATSUFontTag,
-                               kATSUSizeTag,
-                               kATSUQDBoldfaceTag,
-                               kATSUQDItalicTag};
-    ByteCount sizes[] = {sizeof(ATSUFontID),
-                         sizeof(Fixed),
-                         sizeof(Boolean),
-                         sizeof(Boolean)};
-    Fixed atsuSize = Long2Fix(size);
-    Boolean isBold = FALSE; /* setfont takes care of this */
-    Boolean isItalic = FALSE; /* setfont takes care of this */
-    ATSUAttributeValuePtr values[] = {&atsfont, &atsuSize, &isBold, &isItalic};
-
-    status = ATSUSetAttributes(style, 4, tags, sizes, values);
-    if (status!=noErr)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "ATSUSetAttributes failed");
-        return NULL;
-    }
-
-    status = ATSUSetTextPointerLocation(layout,
-                    text,
-                    kATSUFromTextBeginning,  /* offset from beginning */
-                    kATSUToTextEnd,          /* length of text range */
-                    n);                      /* length of text buffer */
-    if (status!=noErr)
-    {
-        PyErr_SetString(PyExc_RuntimeError,
-                        "ATSUCreateTextLayoutWithTextPtr failed");
-        return NULL;
-    }
-
-    status = ATSUSetRunStyle(layout,
-                             style,
-                             kATSUFromTextBeginning,
-                             kATSUToTextEnd);
-    if (status!=noErr)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "ATSUSetRunStyle failed");
-        return NULL;
-    }
-
-    ATSUAttributeTag tag = kATSUCGContextTag;
-    ByteCount bc = sizeof (CGContextRef);
-    ATSUAttributeValuePtr value = &cr;
-    status = ATSUSetLayoutControls(layout, 1, &tag, &bc, &value);
-    if (status!=noErr)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "ATSUSetLayoutControls failed");
-        return NULL;
-    }
-
-    ATSUTextMeasurement before;
-    ATSUTextMeasurement after;
-    ATSUTextMeasurement ascent;
-    ATSUTextMeasurement descent;
-    status = ATSUGetUnjustifiedBounds(layout,
-                                      kATSUFromTextBeginning, kATSUToTextEnd,
-                                      &before, &after, &ascent, &descent);
-    if (status!=noErr)
-    {
-        PyErr_SetString(PyExc_RuntimeError, "ATSUGetUnjustifiedBounds failed");
-        return NULL;
-    }
-
-    const float width = FixedToFloat(after-before);
-    const float height = FixedToFloat(ascent-descent);
-
-    return Py_BuildValue("fff", width, height, FixedToFloat(descent));
 }
 
 static PyObject*
@@ -2621,7 +2821,11 @@ static PyTypeObject GraphicsContextType = {
     "_macosx.GraphicsContext", /*tp_name*/
     sizeof(GraphicsContext),   /*tp_basicsize*/
     0,                         /*tp_itemsize*/
+#ifdef MAC_OS_X_VERSION_10_5
+    0,                         /*tp_dealloc*/
+#else
     (destructor)GraphicsContext_dealloc,     /*tp_dealloc*/
+#endif
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
@@ -2826,15 +3030,18 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
     int n;
     const unichar* characters;
     NSSize size;
+    double width, height;
 
     if(!view)
     {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
     }
-    if(!PyArg_ParseTuple(args, "u#ff",
-				&characters, &n,
-				&size.width, &size.height)) return NULL;
+    /* NSSize contains CGFloat; cannot use size directly */
+    if(!PyArg_ParseTuple(args, "u#dd",
+				&characters, &n, &width, &height)) return NULL;
+    size.width = width;
+    size.height = height;
 
     /* This function may be called from inside the event loop, when an
      * autorelease pool is available, or from Python, when no autorelease
@@ -4484,6 +4691,86 @@ show(PyObject* self)
     y = location.y;
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* result = PyObject_CallMethod(canvas, "motion_notify_event", "ii", x, y);
+    if(result)
+        Py_DECREF(result);
+    else
+        PyErr_Print();
+
+    PyGILState_Release(gstate);
+}
+
+- (void)rightMouseDown:(NSEvent *)event
+{
+    int x, y;
+    int num = 3;
+    PyObject* result;
+    PyGILState_STATE gstate;
+    NSPoint location = [event locationInWindow];
+    location = [self convertPoint: location fromView: nil];
+    x = location.x;
+    y = location.y;
+    gstate = PyGILState_Ensure();
+    result = PyObject_CallMethod(canvas, "button_press_event", "iii", x, y, num);
+    if(result)
+        Py_DECREF(result);
+    else
+        PyErr_Print();
+
+    PyGILState_Release(gstate);
+}
+
+- (void)rightMouseUp:(NSEvent *)event
+{
+    int x, y;
+    int num = 3;
+    PyObject* result;
+    PyGILState_STATE gstate;
+    NSPoint location = [event locationInWindow];
+    location = [self convertPoint: location fromView: nil];
+    x = location.x;
+    y = location.y;
+    gstate = PyGILState_Ensure();
+    result = PyObject_CallMethod(canvas, "button_release_event", "iii", x, y, num);
+    if(result)
+        Py_DECREF(result);
+    else
+        PyErr_Print();
+
+    PyGILState_Release(gstate);
+}
+
+- (void)otherMouseDown:(NSEvent *)event
+{
+    int x, y;
+    int num = 2;
+    PyObject* result;
+    PyGILState_STATE gstate;
+    NSPoint location = [event locationInWindow];
+    location = [self convertPoint: location fromView: nil];
+    x = location.x;
+    y = location.y;
+    gstate = PyGILState_Ensure();
+    result = PyObject_CallMethod(canvas, "button_press_event", "iii", x, y, num);
+    if(result)
+        Py_DECREF(result);
+    else
+        PyErr_Print();
+
+    PyGILState_Release(gstate);
+}
+
+- (void)otherMouseUp:(NSEvent *)event
+{
+    int x, y;
+    int num = 2;
+    PyObject* result;
+    PyGILState_STATE gstate;
+    NSPoint location = [event locationInWindow];
+    location = [self convertPoint: location fromView: nil];
+    x = location.x;
+    y = location.y;
+    gstate = PyGILState_Ensure();
+    result = PyObject_CallMethod(canvas, "button_release_event", "iii", x, y, num);
     if(result)
         Py_DECREF(result);
     else
