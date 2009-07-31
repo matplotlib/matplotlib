@@ -3911,12 +3911,12 @@ class Axes(martist.Artist):
         *bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance
         of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
         For example,
-        
+
           loc = 'upper right', bbox_to_anchor = (0.5, 0.5)
 
         will place the legend so that the upper right corner of the legend at
         the center of the axes.
-        
+
         The legend location can be specified in other coordinate, by using the
         *bbox_transform* keyword.
 
@@ -3946,7 +3946,7 @@ class Axes(martist.Artist):
 
           *fancybox*: [ None | False | True ]
             if True, draw a frame with a round fancybox.  If None, use rc
-            
+
           *shadow*: [ None | False | True ]
             If *True*, draw a shadow behind legend. If *None*, use rc settings.
 
@@ -5172,9 +5172,9 @@ class Axes(martist.Artist):
         arguments will be used only if *c* is an array of floats.
 
           *cmap*: [ None | Colormap ]
-            A :class:`matplotlib.colors.Colormap` instance. If *None*,
-            defaults to rc ``image.cmap``. *cmap* is only used if *c*
-            is an array of floats.
+            A :class:`matplotlib.colors.Colormap` instance or registered
+            name. If *None*, defaults to rc ``image.cmap``. *cmap* is
+            only used if *c* is an array of floats.
 
           *norm*: [ None | Normalize ]
             A :class:`matplotlib.colors.Normalize` instance is used to
@@ -5370,7 +5370,6 @@ class Axes(martist.Artist):
 
         if colors is None:
             if norm is not None: assert(isinstance(norm, mcolors.Normalize))
-            if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
             collection.set_array(np.asarray(c))
             collection.set_cmap(cmap)
             collection.set_norm(norm)
@@ -5712,7 +5711,6 @@ class Axes(martist.Artist):
             accum = bins.searchsorted(accum)
 
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
-        if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
         collection.set_array(accum)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
@@ -6245,7 +6243,6 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
 
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
-        if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
         if aspect is None: aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
         im = mimage.AxesImage(self, cmap, norm, interpolation, origin, extent,
@@ -6490,7 +6487,6 @@ class Axes(martist.Artist):
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
-        if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         if vmin is not None or vmax is not None:
@@ -6612,7 +6608,6 @@ class Axes(martist.Artist):
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
-        if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         if vmin is not None or vmax is not None:
@@ -6719,7 +6714,6 @@ class Axes(martist.Artist):
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
-        if cmap is not None: assert(isinstance(cmap, mcolors.Colormap))
 
         C = args[-1]
         nr, nc = C.shape
