@@ -56,7 +56,7 @@ else: cmd_split = ';'
 
 def dvipng_hack_alpha():
     p = Popen('dvipng -version', shell=True, stdin=PIPE, stdout=PIPE,
-        stderr=STDOUT, close_fds=True)
+        stderr=STDOUT, close_fds=(sys.platform!='win32'))
     stdin, stdout = p.stdin, p.stdout
     for line in stdout:
         if line.startswith('dvipng '):
