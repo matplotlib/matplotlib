@@ -1102,7 +1102,7 @@ def rgrids(*args, **kwargs):
     if not isinstance(ax, PolarAxes):
         raise RuntimeError('rgrids only defined for polar axes')
     if len(args)==0:
-        lines = ax.yaxis.get_ticklines()
+        lines = ax.yaxis.gridlines()
         labels = ax.yaxis.get_ticklabels()
     else:
         lines, labels = ax.set_rgrids(*args, **kwargs)
