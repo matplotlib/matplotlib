@@ -1,3 +1,7 @@
+======================================================================
+
+2009-07-31 Tagging 0.99.0.rc1 at 7314 - MGD
+
 2009-07-30 Add set_cmap and register_cmap, and improve get_cmap,
            to provide convenient handling of user-generated
            colormaps. Reorganized _cm and cm modules. - EF

@@ -19,7 +19,7 @@ plt.grid(True)
 
 # log x and y axis
 plt.subplot(223)
-plt.loglog(t, 20*np.exp(-t/10.0), basex=4)
+plt.loglog(t, 20*np.exp(-t/10.0), basex=2)
 plt.grid(True)
 plt.title('loglog base 4 on x')
 
