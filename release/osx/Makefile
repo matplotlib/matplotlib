@@ -1,8 +1,10 @@
+PYTHON=python2.6
 SRCDIR=${PWD}
 ZLIBVERSION=1.2.3
 PNGVERSION=1.2.33
 FREETYPEVERSION=2.3.7
 MPLVERSION=0.99.0.rc1
+BDISTMPKGVERSION=0.4.4
 MPLSRC=matplotlib-${MPLVERSION}
 MACOSX_DEPLOYMENT_TARGET=10.4
 
@@ -20,8 +22,8 @@ LDFLAGS_DEPS="-arch i386 -arch ppc -L${SRCDIR}/zlib-${ZLIBVERSION} -syslibroot,/
 
 clean:
 	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.bz2 \
-	freetype-${FREETYPEVERSION}.tar.bz2 bdist_mpkg-0.4.3.tar.gz \
-	bdist_mpkg-0.4.3 \
+	freetype-${FREETYPEVERSION}.tar.bz2 bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
+	bdist_mpkg-${BDISTMPKGVERSION} \
 	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} \
 	matplotlib-${MPLVERSION} *~
 
@@ -29,10 +31,9 @@ fetch_deps:
 	wget http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz &&\
 	wget http://internap.dl.sourceforge.net/sourceforge/libpng/libpng-${PNGVERSION}.tar.bz2 &&\
 	wget http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2&&\
-	wget http://pypi.python.org/packages/source/b/bdist_mpkg/bdist_mpkg-0.4.3.tar.gz&&\
-	tar xvfz bdist_mpkg-0.4.3.tar.gz &&\
-	patch -p0 < data/bdist.patch
-	echo "You need to to install bdist_mpkg-0.4.3 now"
+	wget http://pypi.python.org/packages/source/b/bdist_mpkg/bdist_mpkg-${BDISTMPKGVERSION}.tar.gz&&\
+	tar xvfz bdist_mpkg-${BDISTMPKGVERSION}.tar.gz &&\
+	echo "You need to to install bdist_mpkg-${BDISTMPKGVERSION} now"
 
 
 
@@ -87,7 +88,7 @@ installers:
 	export CFLAGS=${CFLAGS} &&\
 	export LDFLAGS=${LDFLAGS} &&\
 	bdist_mpkg &&\
-	python setupegg.py bdist_egg &&\
+	${PYTHON} setupegg.py bdist_egg &&\
 	cd dist && \
 	zip -ro matplotlib-${MPLVERSION}-py2.5-macosx10.5.zip matplotlib-${MPLVERSION}-py2.5-macosx10.5.mpkg
 

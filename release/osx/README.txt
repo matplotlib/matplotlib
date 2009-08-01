@@ -7,9 +7,7 @@ Dir Contents
 -------------
 
 * :file:`bdist_mkpg` - the distutils.extension to build Installer.app
-  mpkg installers.  It is patched from the tarball with
-  file:`data/bdist.patch` because 0.4.3 is broken on OS X 10.5.
-  Instructions on how to patch and install are below
+  mpkg installers.  
 
 * :file:`data` - some config files and patches needed for the build
 
@@ -38,7 +36,7 @@ How to build
 
 * install the patched bdist_mpkg, that the fetch_deps step just created::
 
-      cd bdist_mpkg-0.4.3
+      cd bdist_mpkg-0.4.4
       sudo python setup.py install
 
 * build the dependencies::
@@ -64,7 +62,7 @@ Build the dependencies::
     cd release/osx/
     unset PKG_CONFIG_PATH
     make fetch_deps
-    cd bdist_mpkg-0.4.3
+    cd bdist_mpkg-0.4.4
     sudo python setup.py install
     cd ..
     make dependencies

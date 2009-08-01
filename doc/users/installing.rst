@@ -63,13 +63,16 @@ configuration details for you, so you can get up and running quickly::
 And a *voila*, a figure pops up.  But we are putting the cart ahead of
 the horse -- first we need to get matplotlib installed.  We provide
 prebuilt binaries for OS X and Windows on the matplotlib `download
-<http://sourceforge.net/project/showfiles.php?group_id=80706>`_ page.
-Click on the latest release of the "matplotlib" package, choose your
-python version (2.4 or 2.5) and your platform (macosx or win32) and
-you should be good to go.  If you have any problems, please check the
+<http://sourceforge.net/projects/matplotlib/files/>`_ page.  Click on
+the latest release of the "matplotlib" package, choose your python
+version (2.4 or 2.5) and your platform (macosx or win32) and you
+should be good to go.  If you have any problems, please check the
 :ref:`installing-faq`, google around a little bit, and post a question
 the `mailing list
 <http://sourceforge.net/project/showfiles.php?group_id=80706>`_.
+
+Instructions for installing our OSX binaries are found in the FAQ
+ref:`install_osx_binaries`.
 
 Note that when testing matplotlib installations from the interactive
 python console, there are some issues relating to user interface
