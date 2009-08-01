@@ -114,7 +114,8 @@ Build requirements
 These are external packages which you will need to install before
 installing matplotlib. Windows users only need the first two (python
 and numpy) since the others are built into the matplotlib windows
-installers available for download at the sourceforge site.
+installers available for download at the sourceforge site.  If you are
+building on OSX, see :ref:`build_osx`
 
 :term:`python` 2.4 (or later but not python3)
     matplotlib requires python 2.4 or later (`download <http://www.python.org/download/>`__)
@@ -183,3 +184,19 @@ dateutil 1.1 or later
 
 
 
+.. _build_osx:
+
+Building on OSX
+==================
+
+The build situation on OSX is complicated by the various places one
+can get the png and freetype requirements from (darwinports, fink,
+/usr/X11R6) and the different architectures (x86, ppc, universal) and
+the different OSX version (10.4 and 10.5). We recommend that you build
+the way we do for the OSX release: by grabbing the tarbar or svn
+repository, cd-ing into the release/osx dir, and following the
+instruction in the README.  This directory has a Makefile which will
+automatically grab the zlib, png and freetype dependencies from the
+web, build them with the right flags to make universal libraries, and
+then build the matplotlib source and binary installers.  
+  
