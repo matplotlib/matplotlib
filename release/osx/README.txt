@@ -19,6 +19,16 @@ Dir Contents
 How to build
 --------------
 
+* You need a python framework build , numpy and wxpython to build the
+  mpl installers (wx requires this and we need wx to build the wxagg
+  extension).  You can get the three required dependencies as
+  Installer apps, eg:
+
+
+     http://www.python.org/ftp/python/2.6.2/python-2.6.2-macosx2009-04-16.dmg
+     http://downloads.sourceforge.net/project/numpy/NumPy/1.3.0/numpy-1.3.0-py2.6-macosx10.5.dmg?use_mirror=voxel
+     http://downloads.sourceforge.net/project/wxpython/wxPython/2.8.10.1/wxPython2.8-osx-unicode-2.8.10.1-universal-py2.6.dmg?use_mirror=voxel
+
 * You need to make sure to unset PKG_CONFIG_PATH to make sure the
   static linking below is respected.  Otherwise the mpl build script
   will dynamically link using the libs from pkgconfig if you have this
