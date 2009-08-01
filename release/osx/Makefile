@@ -1,4 +1,5 @@
-PYTHON=python2.6
+PYVERSION=2.6
+PYTHON=python${PYVERSION}
 SRCDIR=${PWD}
 ZLIBVERSION=1.2.3
 PNGVERSION=1.2.33
@@ -90,14 +91,14 @@ installers:
 	bdist_mpkg &&\
 	${PYTHON} setupegg.py bdist_egg &&\
 	cd dist && \
-	zip -ro matplotlib-${MPLVERSION}-py2.5-macosx10.5.zip matplotlib-${MPLVERSION}-py2.5-macosx10.5.mpkg
+	zip -ro matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5_mpkg.zip matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.mpkg
 
 upload:
 	rm -rf upload &&\
 	mkdir upload &&\
 	cp matplotlib-${MPLVERSION}.tar.gz upload/ &&\
-	cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}_r0-py2.5-macosx-10.3-fat.egg upload/matplotlib-${MPLVERSION}-macosx-py2.5.egg &&\
-	cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}-py2.5-macosx10.5.zip upload/matplotlib-${MPLVERSION}-py2.5-mpkg.zip&&\
+	cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}_r0-py${PYVERSION}-macosx-10.3-fat.egg upload/matplotlib-${MPLVERSION}-macosx-py${PYVERSION}.egg &&\
+	cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.zip upload/matplotlib-${MPLVERSION}-py${PYVERSION}-mpkg.zip&&\
 	scp upload/* jdh2358@frs.sourceforge.net:uploads/
 
 all:
