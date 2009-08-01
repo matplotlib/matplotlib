@@ -287,10 +287,65 @@ official OS X version from `python.org
 <http://www.python.org/download/>`_.
 
 
+.. _install_osx_binaries:
+
+Installing OSX binaries
+-----------------------
+
+If you want to install matplotlib from one of the binary installers we
+build, you have two choices: a mpkg installer, which is a typical
+Installer.app, or an binary OSX egg, which you can install via
+setuptools easy_install.  
+
+The mkpg installer will have a "zip" extension, and will have a name
+like file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5.zip` depending on
+the python, matplotlib, and OSX versions.  You need to unzip this file
+using either the "unzip" command on OSX, or simply double clicking on
+it to run StuffIt Expander.  When you double click on the resultant
+mpkd directory, which will have a name like
+file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5.mpkg`, it will run the
+Installer.app, prompt you for a password if you need system wide
+installation privileges, and install to a directory like
+file:`/Library/Python/2.5/site-packages/`, again depedending on your
+python version.  This directory may not be in your python path, so you
+can test your installation with::
+
+  > python -c 'import matplotlib; print matplotlib.__version__, matplotlib.__file__'
+
+If you get an error like::
+
+    Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+    ImportError: No module named matplotlib
+
+then you will need to set your PYTHONPATH, eg::
+
+    export PYTHONPATH=/Library/Python/2.5/site-packages:$PYTHONPATH 
+
+See also ref:`environment-variables`.
+
 .. _easy-install-osx-egg:
 
-easy_install from egg?
+easy_install from egg
 ------------------------------
+
+You can also us the eggs we build for OSX (see the `installation
+instructions
+<http://pypi.python.org/pypi/setuptools#cygwin-mac-os-x-linux-other>`_
+for easy_install if you do not have it on your system already).  You
+can try::
+
+    > easy_install matplotlib
+
+which should grab the latest egg from the sourceforge site, but the
+naming conventions for OSX eggs appear to be broken (see below) so
+there is no guarantee the right egg will be found.  We recommend you
+download the latest egg from our `download site
+<http://sourceforge.net/projects/matplotlib/files/>`_ directly to your
+harddrive, and manually install it with
+
+    > easy_install --install-dir=~/dev/lib/python2.5/site-packages/  matplotlib-0.99.0.rc1-py2.5-macosx-10.5-i386.egg 
+
 
 Some users have reported problems with the egg for 0.98 from the
 matplotlib download site, with ``easy_install``, getting an error::
