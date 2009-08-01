@@ -298,7 +298,7 @@ Installer.app, or an binary OSX egg, which you can install via
 setuptools easy_install.  
 
 The mkpg installer will have a "zip" extension, and will have a name
-like file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5.zip` depending on
+like file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5_mpkg.zip` depending on
 the python, matplotlib, and OSX versions.  You need to unzip this file
 using either the "unzip" command on OSX, or simply double clicking on
 it to run StuffIt Expander.  When you double click on the resultant
