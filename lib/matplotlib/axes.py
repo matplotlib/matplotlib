@@ -4229,20 +4229,20 @@ class Axes(martist.Artist):
 
         # FIXME: convert the following to proper input validation
         # raising ValueError; don't use assert for this.
-        assert len(left)==nbars, "argument 'left' must be %d or scalar" % nbars
-        assert len(height)==nbars, ("argument 'height' must be %d or scalar" %
+        assert len(left)==nbars, "incompatible sizes: argument 'left' must be length %d or scalar" % nbars
+        assert len(height)==nbars, ("incompatible sizes: argument 'height' must be length %d or scalar" %
                                     nbars)
-        assert len(width)==nbars, ("argument 'width' must be %d or scalar" %
+        assert len(width)==nbars, ("incompatible sizes: argument 'width' must be length %d or scalar" %
                                    nbars)
-        assert len(bottom)==nbars, ("argument 'bottom' must be %d or scalar" %
+        assert len(bottom)==nbars, ("incompatible sizes: argument 'bottom' must be length %d or scalar" %
                                     nbars)
 
         if yerr is not None and len(yerr)!=nbars:
             raise ValueError(
-                "bar() argument 'yerr' must be len(%s) or scalar" % nbars)
+                "incompatible sizes: bar() argument 'yerr' must be len(%s) or scalar" % nbars)
         if xerr is not None and len(xerr)!=nbars:
             raise ValueError(
-                "bar() argument 'xerr' must be len(%s) or scalar" % nbars)
+                "incompatible sizes: bar() argument 'xerr' must be len(%s) or scalar" % nbars)
 
         patches = []
 
