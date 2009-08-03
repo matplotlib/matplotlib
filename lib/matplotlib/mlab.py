@@ -2595,7 +2595,7 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
     for i, name in enumerate(r.dtype.names):
         funcs.append(with_mask(csvformat_factory(formatd[name]).tostr))
 
-    fh, opened = cbook.to_filehandle(fname, 'w', return_opened=True)
+    fh, opened = cbook.to_filehandle(fname, 'wb', return_opened=True)
     writer = csv.writer(fh, delimiter=delimiter)
     header = r.dtype.names
     if withheader:
