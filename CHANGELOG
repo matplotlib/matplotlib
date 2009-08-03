@@ -1,3 +1,5 @@
+2009-08-03 Fixed boilerplate.py so it doesn't break the ReST docs. - JKS
+
 ======================================================================
 
 2009-07-31 Tagging 0.99.0.rc1 at 7314 - MGD
