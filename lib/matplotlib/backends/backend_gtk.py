@@ -197,7 +197,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             step = 1
         else:
             step = -1
-        FigureCanvasBase.scroll_event(self, x, y, step)
+        FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
         return False  # finish event propagation?
 
     def button_press_event(self, widget, event):
@@ -205,7 +205,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
-        FigureCanvasBase.button_press_event(self, x, y, event.button)
+        FigureCanvasBase.button_press_event(self, x, y, event.button, guiEvent=event)
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):
@@ -213,21 +213,21 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
-        FigureCanvasBase.button_release_event(self, x, y, event.button)
+        FigureCanvasBase.button_release_event(self, x, y, event.button, guiEvent=event)
         return False  # finish event propagation?
 
     def key_press_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         key = self._get_key(event)
         if _debug: print "hit", key
-        FigureCanvasBase.key_press_event(self, key)
+        FigureCanvasBase.key_press_event(self, key, guiEvent=event)
         return False  # finish event propagation?
 
     def key_release_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK.%s' % fn_name()
         key = self._get_key(event)
         if _debug: print "release", key
-        FigureCanvasBase.key_release_event(self, key)
+        FigureCanvasBase.key_release_event(self, key, guiEvent=event)
         return False  # finish event propagation?
 
     def motion_notify_event(self, widget, event):
@@ -239,14 +239,14 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - y
-        FigureCanvasBase.motion_notify_event(self, x, y)
+        FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
         return False  # finish event propagation?
 
     def leave_notify_event(self, widget, event):
-        FigureCanvasBase.leave_notify_event(self, event)
+        FigureCanvasBase.leave_notify_event(self, event, guiEvent=event)
 
     def enter_notify_event(self, widget, event):
-        FigureCanvasBase.enter_notify_event(self, event)
+        FigureCanvasBase.enter_notify_event(self, event, guiEvent=event)
 
     def _get_key(self, event):
         if event.keyval in self.keyvald:
