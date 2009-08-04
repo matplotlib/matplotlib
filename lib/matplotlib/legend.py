@@ -177,6 +177,10 @@ in the normalized axes coordinate.
         propnames=['numpoints', 'markerscale', 'shadow', "columnspacing",
                    "scatterpoints"]
 
+        self.texts = []
+        self.legendHandles = []
+        self._legend_title_box = None
+        
         localdict = locals()
 
         for name in propnames:
@@ -240,6 +244,7 @@ in the normalized axes coordinate.
 
         if isinstance(parent,Axes):
             self.isaxes = True
+            self.set_axes(parent)
             self.set_figure(parent.figure)
         elif isinstance(parent,Figure):
             self.isaxes = False
@@ -313,10 +318,8 @@ in the normalized axes coordinate.
         set the boilerplate props for artists added to axes
         """
         a.set_figure(self.figure)
-
-        for c in self.get_children():
-            c.set_figure(self.figure)
-
+        if self.isaxes:
+            a.set_axes(self.axes)
         a.set_transform(self.get_transform())
 
 
@@ -432,6 +435,7 @@ in the normalized axes coordinate.
             textbox = TextArea(l, textprops=label_prop,
                                multilinebaseline=True, minimumdescent=True)
             text_list.append(textbox._text)
+
             labelboxes.append(textbox)
 
         handleboxes = []
@@ -688,6 +692,13 @@ in the normalized axes coordinate.
         children = []
         if self._legend_box:
             children.append(self._legend_box)
+        children.extend(self.get_lines())
+        children.extend(self.get_patches())
+        children.extend(self.get_texts())
+        children.append(self.get_frame())
+
+        if self._legend_title_box:
+            children.append(self.get_title())
         return children
 
     def get_frame(self):
