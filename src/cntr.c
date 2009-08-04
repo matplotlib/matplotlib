@@ -326,12 +326,14 @@ zone_crosser (Csite * site, int level, int pass2)
     int z0, z1, z2, z3;
     int keep_left = 0;          /* flag to try to minimize curvature in saddles */
     int done = 0;
+    int n_kind;
 
     if (level)
         level = 2;
 
     for (;;)
     {
+        n_kind = 0;
         /* set edge endpoints */
         p0 = POINT0 (edge, fwd);
         p1 = POINT1 (edge, fwd);
@@ -344,6 +346,7 @@ zone_crosser (Csite * site, int level, int pass2)
             xcp[n] = zcp * (x[p1] - x[p0]) + x[p0];
             ycp[n] = zcp * (y[p1] - y[p0]) + y[p0];
             kcp[n] = kind_zone;
+            n_kind = n;
         }
         if (!done && !jedge)
         {
@@ -497,9 +500,9 @@ zone_crosser (Csite * site, int level, int pass2)
     {
         return done;
     }
-    if (pass2 && n > 0)
+    if (pass2 && n_kind)
     {
-        kcp[n-1] += kind_start_slit;
+        kcp[n_kind] += kind_start_slit;
     }
     return slit_cutter (site, done - 5, pass2);
 }
