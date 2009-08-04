@@ -1,3 +1,6 @@
+2009-08-03 Add PathCollection; modify contourf to use complex
+           paths instead of simple paths with cuts. - EF
+
 2009-08-03 Fixed boilerplate.py so it doesn't break the ReST docs. - JKS
 
 ======================================================================

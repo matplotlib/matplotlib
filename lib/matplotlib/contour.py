@@ -8,7 +8,7 @@ import matplotlib as mpl
 import numpy as np
 from numpy import ma
 import matplotlib._cntr as _cntr
-import matplotlib.path as path
+import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
 import matplotlib.colors as colors
@@ -499,7 +499,7 @@ class ContourLabeler:
                     if inline:
                         for n in new:
                             # Add path if not empty or single point
-                            if len(n)>1: additions.append( path.Path(n) )
+                            if len(n)>1: additions.append( mpath.Path(n) )
                 else: # If not adding label, keep old path
                     additions.append(linepath)
 
@@ -579,6 +579,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.collections = cbook.silent_list('collections.PolyCollection')
         else:
             self.collections = cbook.silent_list('collections.LineCollection')
+        self.segs = []
+        self.kinds = []
         # label lists must be initialized here
         self.labelTexts = []
         self.labelCValues = []
@@ -601,13 +603,21 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             for level, level_upper in zip(lowers, uppers):
                 nlist = C.trace(level, level_upper, points = 0,
                         nchunk = self.nchunk)
-                col = collections.PolyCollection(nlist,
+                nseg = len(nlist)//2
+                segs = nlist[:nseg]
+                kinds = nlist[nseg:]
+
+
+                paths = self._make_paths(segs, kinds)
+
+                col = collections.PathCollection(paths,
                                      antialiaseds = (self.antialiased,),
                                      edgecolors= 'none',
                                      alpha=self.alpha)
                 self.ax.add_collection(col)
                 self.collections.append(col)
-
+                self.segs.append(segs)
+                self.kinds.append(kinds)
         else:
             tlinewidths = self._process_linewidths()
             self.tlinewidths = tlinewidths
@@ -615,7 +625,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             C = _cntr.Cntr(x, y, z.filled(), _mask)
             for level, width, lstyle in zip(self.levels, tlinewidths, tlinestyles):
                 nlist = C.trace(level, points = 0)
-                col = collections.LineCollection(nlist,
+                nseg = len(nlist)//2
+                segs = nlist[:nseg]
+                kinds = nlist[nseg:]
+                col = collections.LineCollection(segs,
                                      linewidths = width,
                                      linestyle = lstyle,
                                      alpha=self.alpha)
@@ -623,6 +636,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 col.set_label('_nolegend_')
                 self.ax.add_collection(col, False)
                 self.collections.append(col)
+                self.segs.append(segs)
+                self.kinds.append(kinds)
         self.changed() # set the colors
         x0 = ma.minimum(x)
         x1 = ma.maximum(x)
@@ -630,6 +645,17 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         y1 = ma.maximum(y)
         self.ax.update_datalim([(x0,y0), (x1,y1)])
         self.ax.autoscale_view()
+
+    @staticmethod
+    def _make_paths(segs, kinds):
+        paths = []
+        for seg, kind in zip(segs, kinds):
+            codes = np.zeros(kind.shape, dtype=mpath.Path.code_type)
+            codes.fill(mpath.Path.LINETO)
+            codes[0] = mpath.Path.MOVETO
+            codes[kinds >= _cntr._slitkind] = mpath.Path.MOVETO
+            paths.append(mpath.Path(seg, codes))
+        return paths
 
     def changed(self):
         tcolors = [ (tuple(rgba),) for rgba in

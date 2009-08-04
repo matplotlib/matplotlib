@@ -199,6 +199,7 @@ struct Csite
     /* making the actual marks requires a bunch of other stuff */
     const double *x, *y, *z;    /* mesh coordinates and function values */
     double *xcp, *ycp;          /* output contour points */
+    short *kcp;                 /* kind of contour point */
 };
 
 void print_Csite(Csite *Csite)
@@ -268,6 +269,9 @@ void print_Csite(Csite *Csite)
 #define START_MARK(left) \
   ((left)>0?((left)>1?J1_START:I1_START):((left)<-1?J0_START:I0_START))
 
+enum {kind_zone, kind_edge1, kind_edge2,
+        kind_slit_up, kind_slit_down, kind_start_slit=16} point_kinds;
+
 /* ------------------------------------------------------------------------ */
 
 /* these actually mark points */
@@ -317,6 +321,7 @@ zone_crosser (Csite * site, int level, int pass2)
     double zlevel = pass2 ? site->zlevel[level] : 0.0;
     double *xcp = pass2 ? site->xcp : 0;
     double *ycp = pass2 ? site->ycp : 0;
+    short *kcp = pass2 ? site->kcp : 0;
 
     int z0, z1, z2, z3;
     int keep_left = 0;          /* flag to try to minimize curvature in saddles */
@@ -338,6 +343,7 @@ zone_crosser (Csite * site, int level, int pass2)
             double zcp = (zlevel - z[p0]) / (z[p1] - z[p0]);
             xcp[n] = zcp * (x[p1] - x[p0]) + x[p0];
             ycp[n] = zcp * (y[p1] - y[p0]) + y[p0];
+            kcp[n] = kind_zone;
         }
         if (!done && !jedge)
         {
@@ -487,7 +493,15 @@ zone_crosser (Csite * site, int level, int pass2)
     site->edge = edge;
     site->n = n;
     site->left = left;
-    return done > 4 ? slit_cutter (site, done - 5, pass2) : done;
+    if (done <= 4)
+    {
+        return done;
+    }
+    if (pass2 && n > 0)
+    {
+        kcp[n-1] += kind_start_slit;
+    }
+    return slit_cutter (site, done - 5, pass2);
 }
 
 /* edge_walker assumes that the current edge is being drawn CCW
@@ -513,11 +527,13 @@ edge_walker (Csite * site,  int pass2)
     long left0 = site->left0;
     int level0 = site->level0 == 2;
     int marked;
+    int n_kind = 0;
 
     const double *x = pass2 ? site->x : 0;
     const double *y = pass2 ? site->y : 0;
     double *xcp = pass2 ? site->xcp : 0;
     double *ycp = pass2 ? site->ycp : 0;
+    short *kcp = pass2 ? site->kcp : 0;
 
     int z0, z1, heads_up = 0;
 
@@ -528,6 +544,7 @@ edge_walker (Csite * site,  int pass2)
         z0 = data[p0] & Z_VALUE;
         z1 = data[p1] & Z_VALUE;
         marked = 0;
+        n_kind = 0;
         if (z0 == 1)
         {
             /* mark current boundary point */
@@ -535,6 +552,8 @@ edge_walker (Csite * site,  int pass2)
             {
                 xcp[n] = x[p0];
                 ycp[n] = y[p0];
+                kcp[n] = kind_edge1;
+                n_kind = n;
             }
             marked = 1;
         }
@@ -549,6 +568,8 @@ edge_walker (Csite * site,  int pass2)
                 zcp = (zcp - site->z[p0]) / (site->z[p1] - site->z[p0]);
                 xcp[n] = zcp * (x[p1] - x[p0]) + x[p0];
                 ycp[n] = zcp * (y[p1] - y[p0]) + y[p0];
+                kcp[n] = kind_edge2;
+                n_kind = n;
             }
             marked = 1;
         }
@@ -562,7 +583,10 @@ edge_walker (Csite * site,  int pass2)
                 site->n = n + marked;
                 /* if the curve is closing on a hole, need to make a downslit */
                 if (fwd < 0 && !(data[edge] & (jedge ? J_BNDY : I_BNDY)))
+                {
+                    if (n_kind) kcp[n_kind] += kind_start_slit;
                     return slit_cutter (site, 0, pass2);
+                }
                 return 3;
             }
             else if (pass2)
@@ -572,6 +596,7 @@ edge_walker (Csite * site,  int pass2)
                     site->edge = edge;
                     site->left = left;
                     site->n = n + marked;
+                    if (n_kind) kcp[n_kind] += kind_start_slit;
                     return slit_cutter (site, heads_up, pass2);
                 }
             }
@@ -649,6 +674,7 @@ slit_cutter (Csite * site, int up, int pass2)
     const double *y = pass2 ? site->y : 0;
     double *xcp = pass2 ? site->xcp : 0;
     double *ycp = pass2 ? site->ycp : 0;
+    short *kcp = pass2 ? site->kcp : 0;
 
     if (up)
     {
@@ -677,6 +703,7 @@ slit_cutter (Csite * site, int up, int pass2)
             }
             xcp[n] = x[p1];
             ycp[n] = y[p1];
+            kcp[n] = kind_slit_up;
             n++;
             p1 += imax;
         }
@@ -733,6 +760,7 @@ slit_cutter (Csite * site, int up, int pass2)
             {
                 xcp[n] = x[p0];
                 ycp[n] = y[p0];
+                kcp[n] = kind_slit_down;
                 n++;
             }
             else
@@ -1230,6 +1258,7 @@ cntr_new(void)
     site->triangle = NULL;
     site->xcp = NULL;
     site->ycp = NULL;
+    site->kcp = NULL;
     site->x = NULL;
     site->y = NULL;
     site->z = NULL;
@@ -1279,6 +1308,7 @@ cntr_init(Csite *site, long iMax, long jMax, double *x, double *y,
     site->z = z;
     site->xcp = NULL;
     site->ycp = NULL;
+    site->kcp = NULL;
     return 0;
 }
 
@@ -1291,11 +1321,12 @@ void cntr_del(Csite *site)
     site = NULL;
 }
 
-/* Build a list of lists of points, where each point is an (x,y)
+/* Build a list of lists of points, where each point is an (x,y,k)
    tuple.
 */
 static PyObject *
-build_cntr_list_p(long *np, double *xp, double *yp, int nparts, long ntotal)
+build_cntr_list_p(long *np, double *xp, double *yp, short *kp,
+                                    int nparts, long ntotal)
 {
     PyObject *point, *contourList, *all_contours;
     int start = 0, end = 0;
@@ -1310,7 +1341,7 @@ build_cntr_list_p(long *np, double *xp, double *yp, int nparts, long ntotal)
         contourList = PyList_New(np[i]);
         for (k = 0, j = start; j < end; j++, k++)
         {
-            point = Py_BuildValue("(dd)", xp[j], yp[j]);
+            point = Py_BuildValue("(ddh)", xp[j], yp[j], kp[j]);
             if (PyList_SetItem(contourList, k, point)) goto error;
         }
         if (PyList_SetItem(all_contours, i, contourList)) goto error;
@@ -1323,73 +1354,43 @@ build_cntr_list_p(long *np, double *xp, double *yp, int nparts, long ntotal)
 }
 
 
-#if 0
-/* the following function is not used, so it produces a warning
- * commented it out NN - 070630 */
-
-/* Build a list of tuples (X, Y), where X and Y are 1-D arrays. */
+/* Build a list of XY 2-D arrays, shape (N,2), to which a list of K arrays
+        is concatenated concatenated. */
 static PyObject *
-build_cntr_list_v(long *np, double *xp, double *yp, int nparts, long ntotal)
-{
-    PyObject *point, *all_contours;
-    PyArrayObject *xv, *yv;
-    npy_intp dims[1];
-    int i;
-    long j, k;
-
-    all_contours = PyList_New(nparts);
-
-    k = 0;
-    for (i = 0; i < nparts; i++)
-    {
-        dims[0] = np[i];
-        xv = (PyArrayObject *) PyArray_SimpleNew(1, dims, PyArray_DOUBLE);
-        yv = (PyArrayObject *) PyArray_SimpleNew(1, dims, PyArray_DOUBLE);
-        if (xv == NULL || yv == NULL)  goto error;
-        for (j = 0; j < dims[0]; j++)
-        {
-            ((double *)xv->data)[j] = xp[k];
-            ((double *)yv->data)[j] = yp[k];
-            k++;
-        }
-        point = Py_BuildValue("(NN)", xv, yv);
-        /* "O" increments ref count; "N" does not. */
-        if (PyList_SetItem(all_contours, i, point)) goto error;
-    }
-    return all_contours;
-
-    error:
-    Py_XDECREF(all_contours);
-    return NULL;
-}
-#endif
-
-/* Build a list of XY 2-D arrays, shape (N,2) */
-static PyObject *
-build_cntr_list_v2(long *np, double *xp, double *yp, int nparts, long ntotal)
+build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
+                                            int nparts, long ntotal)
 {
     PyObject *all_contours;
     PyArrayObject *xyv;
+    PyArrayObject *kv;
     npy_intp dims[2];
+    npy_intp kdims[1];
     int i;
     long j, k;
 
-    all_contours = PyList_New(nparts);
+    all_contours = PyList_New(nparts*2);
 
     k = 0;
     for (i = 0; i < nparts; i++)
     {
         dims[0] = np[i];
         dims[1] = 2;
+        kdims[0] = np[i];
         xyv = (PyArrayObject *) PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
         if (xyv == NULL)  goto error;
+        kv = (PyArrayObject *) PyArray_SimpleNew(1, kdims, PyArray_SHORT);
+        if (kv == NULL) goto error;
+
         for (j = 0; j < dims[0]; j++)
         {
             ((double *)xyv->data)[2*j] = xp[k];
             ((double *)xyv->data)[2*j+1] = yp[k];
+            ((short *)kv->data)[j] = kp[k];
             k++;
         }
         if (PyList_SetItem(all_contours, i, (PyObject *)xyv)) goto error;
+        if (PyList_SetItem(all_contours, nparts+i,
+                                (PyObject *)kv)) goto error;
     }
     return all_contours;
 
@@ -1413,6 +1414,7 @@ cntr_trace(Csite *site, double levels[], int nlevels, int points, long nchunk)
     PyObject *c_list = NULL;
     double *xp0;
     double *yp0;
+    short *kp0;
     long *nseg0;
     int iseg;
 
@@ -1451,12 +1453,14 @@ cntr_trace(Csite *site, double levels[], int nlevels, int points, long nchunk)
     }
     xp0 = (double *) PyMem_Malloc(ntotal * sizeof(double));
     yp0 = (double *) PyMem_Malloc(ntotal * sizeof(double));
+    kp0 = (short *) PyMem_Malloc(ntotal * sizeof(short));
     nseg0 = (long *) PyMem_Malloc(nparts * sizeof(long));
-    if (xp0 == NULL || yp0 == NULL || nseg0 == NULL) goto error;
+    if (xp0 == NULL || yp0 == NULL || kp0 == NULL || nseg0 == NULL) goto error;
 
     /* second pass */
     site->xcp = xp0;
     site->ycp = yp0;
+    site->kcp = kp0;
     iseg = 0;
     for (;;iseg++)
     {
@@ -1475,6 +1479,7 @@ cntr_trace(Csite *site, double levels[], int nlevels, int points, long nchunk)
             nseg0[iseg] = n;
             site->xcp += n;
             site->ycp += n;
+            site->kcp += n;
             ntotal2 += n;
             nparts2++;
         }
@@ -1487,21 +1492,31 @@ cntr_trace(Csite *site, double levels[], int nlevels, int points, long nchunk)
     }
 
 
-    if (points)
+    if (points)  /* It is False when called; we don't need the point version */
     {
-        c_list = build_cntr_list_p(nseg0, xp0, yp0, nparts, ntotal);
+        c_list = build_cntr_list_p(nseg0, xp0, yp0, kp0, nparts, ntotal);
     }
     else
     {
-        c_list = build_cntr_list_v2(nseg0, xp0, yp0, nparts, ntotal);
+        c_list = build_cntr_list_v2(nseg0, xp0, yp0, kp0, nparts, ntotal);
     }
-    PyMem_Free(xp0); PyMem_Free(yp0); PyMem_Free(nseg0);
-    site->xcp = NULL; site->ycp = NULL;
+    PyMem_Free(xp0);
+    PyMem_Free(yp0);
+    PyMem_Free(kp0);
+    PyMem_Free(nseg0);
+    site->xcp = NULL;
+    site->ycp = NULL;
+    site->kcp = NULL;
     return c_list;
 
     error:
-    PyMem_Free(xp0); PyMem_Free(yp0); PyMem_Free(nseg0);
-    site->xcp = NULL; site->ycp = NULL;
+    PyMem_Free(xp0);
+    PyMem_Free(yp0);
+    PyMem_Free(kp0);
+    PyMem_Free(nseg0);
+    site->xcp = NULL;
+    site->ycp = NULL;
+    site->kcp = NULL;
     Py_XDECREF(c_list);
     return NULL;
 }
@@ -1603,16 +1618,14 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
     }
 
     xpa = (PyArrayObject *) PyArray_ContiguousFromObject(xarg,
-							 PyArray_DOUBLE, 2, 2);
+                                                      PyArray_DOUBLE, 2, 2);
     ypa = (PyArrayObject *) PyArray_ContiguousFromObject(yarg,
-							 PyArray_DOUBLE,
-							 2, 2);
-    zpa = (PyArrayObject *) PyArray_ContiguousFromObject(zarg, PyArray_DOUBLE,
-							 2, 2);
+                                                      PyArray_DOUBLE, 2, 2);
+    zpa = (PyArrayObject *) PyArray_ContiguousFromObject(zarg,
+                                                      PyArray_DOUBLE, 2, 2);
     if (marg)
         mpa = (PyArrayObject *) PyArray_ContiguousFromObject(marg,
-							     PyArray_SBYTE,
-							     2, 2);
+                                                      PyArray_SBYTE, 2, 2);
     else
         mpa = NULL;
 
@@ -1751,7 +1764,8 @@ init_cntr(void)
 
     if (m == NULL)
       return;
-
+    PyModule_AddIntConstant(m, "_slitkind", (long)kind_slit_up );
+    /* We can add all the point_kinds values later if we need them. */
     import_array();
     Py_INCREF(&CntrType);
     PyModule_AddObject(m, "Cntr", (PyObject *)&CntrType);
