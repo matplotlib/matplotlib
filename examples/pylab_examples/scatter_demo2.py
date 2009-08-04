@@ -1,7 +1,7 @@
 """
 make a scatter plot with varying color and size arguments
 """
-import matplotlib 
+import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab

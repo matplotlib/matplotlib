@@ -10,6 +10,8 @@ import numpy as np
 import numpy.ma as ma
 from weakref import ref
 
+import matplotlib
+
 major, minor1, minor2, s, tmp = sys.version_info
 
 
@@ -337,6 +339,55 @@ def to_filehandle(fname, flag='rU', return_opened=False):
 
 def is_scalar_or_string(val):
     return is_string_like(val) or not iterable(val)
+
+
+
+def get_mpl_data(fname, asfileobj=True):
+    """
+    Check the cachedirectory ~/.matplotlib/mpl_data for an mpl_data
+    file.  If it does not exist, fetch it with urllib from the mpl svn repo
+
+      http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/mpl_data/
+
+    and store it in the cachedir.
+
+    If asfileobj is True, a file object will be returned.  Else the
+    path to the file as a string will be returned
+
+    To add a datafile to this directory, you need to check out
+    mpl_data from matplotlib svn::
+
+      svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/mpl_data
+
+    and svn add the data file you want to support.  This is primarily
+    intended for use in mpl examples that need custom data
+    """
+
+    # TODO: how to handle stale data in the cache that has been
+    # updated from svn -- is there a clean http way to get the current
+    # revision number that will not leave us at the mercy of html
+    # changes at sf?
+
+
+    configdir = matplotlib.get_configdir()
+    cachedir = os.path.join(configdir, 'mpl_data')
+    if not os.path.exists(cachedir):
+        os.mkdir(cachedir)
+
+    cachefile = os.path.join(cachedir, fname)
+
+    if not os.path.exists(cachefile):
+        import urllib
+        url = 'http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/mpl_data/%s'%urllib.quote(fname)
+        matplotlib.verbose.report('Attempting to download %s to %s'%(url, cachefile))
+        urllib.urlretrieve(url, filename=cachefile)
+    else:
+        matplotlib.verbose.report('Aleady have mpl_data %s'%fname)
+
+    if asfileobj:
+        return to_filehandle(cachefile)
+    else:
+        return cachefile
 
 def flatten(seq, scalarp=is_scalar_or_string):
     """
