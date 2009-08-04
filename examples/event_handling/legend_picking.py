@@ -33,6 +33,12 @@ def onpick(event):
     origline = lined[legline]
     vis = origline.get_visible()
     origline.set_visible(not vis)
+    # Change the alpha on the line in the legend so we can see what lines
+    # have been toggled
+    if not vis:
+        legline.set_alpha(1.0)
+    else:
+        legline.set_alpha(0.2)
     fig.canvas.draw()
 
 fig.canvas.mpl_connect('pick_event', onpick)
