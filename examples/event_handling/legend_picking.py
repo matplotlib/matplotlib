@@ -10,25 +10,29 @@ y2 = 4*np.sin(2*np.pi*2*t)
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-
-line1, = ax.plot(t, y1, lw=2, color='red', label='1 hz')
-line2, = ax.plot(t, y2, lw=2, color='blue', label='2 hz')
-
+ax.set_title('Click on legend line to toggle line on/off')
+line1, = ax.plot(t, y1, lw=2, color='red', label='1 HZ')
+line2, = ax.plot(t, y2, lw=2, color='blue', label='2 HZ')
 leg = ax.legend(loc='upper left', fancybox=True, shadow=True)
 leg.get_frame().set_alpha(0.4)
 
 
+# we will set up a dict mapping legend line to orig line, and enable
+# picking on the legend line
 lines = [line1, line2]
 lined = dict()
-for legline, realine in zip(leg.get_lines(), lines):
+for legline, origline in zip(leg.get_lines(), lines):
     legline.set_picker(5)  # 5 pts tolerance
-    lined[legline] = realine
+    lined[legline] = origline
+
 
 def onpick(event):
+    # on the pick event, find the orig line corresponding to the
+    # legend proxy line, and toggle the visibilit
     legline = event.artist
-    realline = lined[legline]
-    vis = realline.get_visible()
-    realline.set_visible(not vis)
+    origline = lined[legline]
+    vis = origline.get_visible()
+    origline.set_visible(not vis)
     fig.canvas.draw()
 
 fig.canvas.mpl_connect('pick_event', onpick)
