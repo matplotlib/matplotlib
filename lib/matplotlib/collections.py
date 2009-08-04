@@ -5,15 +5,15 @@ polygons.
 
 The classes are not meant to be as flexible as their single element
 counterparts (e.g. you may not be able to select all line styles) but
-they are meant to be fast for common use cases (e.g. a bunch of solid
+they are meant to be fast for common use cases (e.g. a large set of solid
 line segemnts)
 """
-import copy, math, warnings
+import warnings
 import numpy as np
-from numpy import ma
+import numpy.ma as ma
 import matplotlib as mpl
 import matplotlib.cbook as cbook
-import matplotlib.colors as _colors # avoid conflict with kwarg
+import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.transforms as transforms
 import matplotlib.artist as artist
@@ -106,6 +106,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         self._pickradius = pickradius
         self.update(kwargs)
+        self._paths = None
 
 
     def _get_value(self, val):
@@ -131,6 +132,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
 
     def get_paths(self):
+        return self._paths
+
+    def set_paths(self):
         raise NotImplementedError
 
     def get_transforms(self):
@@ -385,7 +389,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             pass
         if c is None: c = mpl.rcParams['patch.facecolor']
         self._facecolors_original = c
-        self._facecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
+        self._facecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
 
     def set_facecolors(self, c):
         """alias for set_facecolor"""
@@ -427,7 +431,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             if c is None: c = mpl.rcParams['patch.edgecolor']
             self._edgecolors_original = c
-            self._edgecolors = _colors.colorConverter.to_rgba_array(c, self._alpha)
+            self._edgecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
 
 
     def set_edgecolors(self, c):
@@ -446,13 +450,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             artist.Artist.set_alpha(self, alpha)
             try:
-                self._facecolors = _colors.colorConverter.to_rgba_array(
+                self._facecolors = mcolors.colorConverter.to_rgba_array(
                     self._facecolors_original, self._alpha)
             except (AttributeError, TypeError, IndexError):
                 pass
             try:
                 if self._edgecolors_original != 'face':
-                    self._edgecolors = _colors.colorConverter.to_rgba_array(
+                    self._edgecolors = mcolors.colorConverter.to_rgba_array(
                         self._edgecolors_original, self._alpha)
             except (AttributeError, TypeError, IndexError):
                 pass
@@ -516,132 +520,26 @@ artist.kwdocd['Collection'] = """\
     setting, in sequence form.
 """
 
-class QuadMesh(Collection):
+class PathCollection(Collection):
     """
-    Class for the efficient drawing of a quadrilateral mesh.
-
-    A quadrilateral mesh consists of a grid of vertices. The
-    dimensions of this array are (*meshWidth* + 1, *meshHeight* +
-    1). Each vertex in the mesh has a different set of "mesh
-    coordinates" representing its position in the topology of the
-    mesh. For any values (*m*, *n*) such that 0 <= *m* <= *meshWidth*
-    and 0 <= *n* <= *meshHeight*, the vertices at mesh coordinates
-    (*m*, *n*), (*m*, *n* + 1), (*m* + 1, *n* + 1), and (*m* + 1, *n*)
-    form one of the quadrilaterals in the mesh. There are thus
-    (*meshWidth* * *meshHeight*) quadrilaterals in the mesh.  The mesh
-    need not be regular and the polygons need not be convex.
-
-    A quadrilateral mesh is represented by a (2 x ((*meshWidth* + 1) *
-    (*meshHeight* + 1))) numpy array *coordinates*, where each row is
-    the *x* and *y* coordinates of one of the vertices.  To define the
-    function that maps from a data point to its corresponding color,
-    use the :meth:`set_cmap` method.  Each of these arrays is indexed in
-    row-major order by the mesh coordinates of the vertex (or the mesh
-    coordinates of the lower left vertex, in the case of the
-    colors).
-
-    For example, the first entry in *coordinates* is the
-    coordinates of the vertex at mesh coordinates (0, 0), then the one
-    at (0, 1), then at (0, 2) .. (0, meshWidth), (1, 0), (1, 1), and
-    so on.
+    This is the most basic :class:`Collection` subclass.
     """
-    def __init__(self, meshWidth, meshHeight, coordinates, showedges, antialiased=True):
-        Collection.__init__(self)
-        self._meshWidth = meshWidth
-        self._meshHeight = meshHeight
-        self._coordinates = coordinates
-        self._showedges = showedges
-        self._antialiased = antialiased
-
-        self._paths = None
-
-        self._bbox = transforms.Bbox.unit()
-        self._bbox.update_from_data_xy(coordinates.reshape(
-                ((meshWidth + 1) * (meshHeight + 1), 2)))
-
-        # By converting to floats now, we can avoid that on every draw.
-        self._coordinates = self._coordinates.reshape((meshHeight + 1, meshWidth + 1, 2))
-        self._coordinates = np.array(self._coordinates, np.float_)
-
-    def get_paths(self, dataTrans=None):
-        if self._paths is None:
-            self._paths = self.convert_mesh_to_paths(
-                self._meshWidth, self._meshHeight, self._coordinates)
-        return self._paths
-
-    @staticmethod
-    def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
+    def __init__(self, paths, **kwargs):
         """
-        Converts a given mesh into a sequence of
-        :class:`matplotlib.path.Path` objects for easier rendering by
-        backends that do not directly support quadmeshes.
+        *paths* is a sequence of :class:`matplotlib.path.Path`
+        instances.
 
-        This function is primarily of use to backend implementers.
+        %(Collection)s
         """
-        Path = mpath.Path
 
-        if ma.isMaskedArray(coordinates):
-            c = coordinates.data
-        else:
-            c = coordinates
+        Collection.__init__(self, **kwargs)
+        self.set_paths(paths)
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
-        points = np.concatenate((
-                    c[0:-1, 0:-1],
-                    c[0:-1, 1:  ],
-                    c[1:  , 1:  ],
-                    c[1:  , 0:-1],
-                    c[0:-1, 0:-1]
-                    ), axis=2)
-        points = points.reshape((meshWidth * meshHeight, 5, 2))
-        return [Path(x) for x in points]
 
-    def get_datalim(self, transData):
-        return self._bbox
+    def set_paths(self, paths):
+        self._paths = paths
 
-    @allow_rasterization
-    def draw(self, renderer):
-        if not self.get_visible(): return
-        renderer.open_group(self.__class__.__name__)
-        transform = self.get_transform()
-        transOffset = self._transOffset
-        offsets = self._offsets
-
-        if self.have_units():
-            if len(self._offsets):
-                xs = self.convert_xunits(self._offsets[:0])
-                ys = self.convert_yunits(self._offsets[:1])
-                offsets = zip(xs, ys)
-
-        offsets = np.asarray(offsets, np.float_)
-
-        if self.check_update('array'):
-            self.update_scalarmappable()
-
-        clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
-        if clippath_trans is not None:
-            clippath_trans = clippath_trans.frozen()
-
-        if not transform.is_affine:
-            coordinates = self._coordinates.reshape(
-                (self._coordinates.shape[0] *
-                 self._coordinates.shape[1],
-                 2))
-            coordinates = transform.transform(coordinates)
-            coordinates = coordinates.reshape(self._coordinates.shape)
-            transform = transforms.IdentityTransform()
-        else:
-            coordinates = self._coordinates
-
-        if not transOffset.is_affine:
-            offsets = transOffset.transform_non_affine(offsets)
-            transOffset = transOffset.get_affine()
-
-        renderer.draw_quad_mesh(
-            transform.frozen(), self.clipbox, clippath, clippath_trans,
-            self._meshWidth, self._meshHeight, coordinates,
-            offsets, transOffset, self.get_facecolor(), self._antialiased,
-            self._showedges)
-        renderer.close_group(self.__class__.__name__)
 
 class PolyCollection(Collection):
     def __init__(self, verts, sizes = None, closed = True, **kwargs):
@@ -687,8 +585,7 @@ class PolyCollection(Collection):
         else:
             self._paths = [mpath.Path(xy) for xy in verts]
 
-    def get_paths(self):
-        return self._paths
+    set_paths = set_verts
 
     def draw(self, renderer):
         if self._sizes is not None:
@@ -797,9 +694,6 @@ class RegularPolyCollection(Collection):
             for x in self._sizes]
         return Collection.draw(self, renderer)
 
-    def get_paths(self):
-        return self._paths
-
     def get_numsides(self):
         return self._numsides
 
@@ -907,7 +801,7 @@ class LineCollection(Collection):
         if antialiaseds is None: antialiaseds = (mpl.rcParams['lines.antialiased'],)
         self.set_linestyles(linestyles)
 
-        colors = _colors.colorConverter.to_rgba_array(colors)
+        colors = mcolors.colorConverter.to_rgba_array(colors)
 
         Collection.__init__(
             self,
@@ -925,9 +819,6 @@ class LineCollection(Collection):
 
         self.set_segments(segments)
 
-    def get_paths(self):
-        return self._paths
-
     def set_segments(self, segments):
         if segments is None: return
         _segments = []
@@ -940,6 +831,7 @@ class LineCollection(Collection):
         self._paths = [mpath.Path(seg) for seg in _segments]
 
     set_verts = set_segments # for compatibility with PolyCollection
+    set_paths = set_segments
 
     def _add_offsets(self, segs):
         offsets = self._uniform_offsets
@@ -963,7 +855,7 @@ class LineCollection(Collection):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._edgecolors = _colors.colorConverter.to_rgba_array(c)
+        self._edgecolors = mcolors.colorConverter.to_rgba_array(c)
 
     def color(self, c):
         """
@@ -1011,8 +903,6 @@ class CircleCollection(Collection):
             for x in self._sizes]
         return Collection.draw(self, renderer)
 
-    def get_paths(self):
-        return self._paths
 
 class EllipseCollection(Collection):
     """
@@ -1095,9 +985,6 @@ class EllipseCollection(Collection):
             self.set_transforms()
         return Collection.draw(self, renderer)
 
-    def get_paths(self):
-        return self._paths
-
 class PatchCollection(Collection):
     """
     A generic collection of patches.
@@ -1152,17 +1039,148 @@ class PatchCollection(Collection):
         else:
             Collection.__init__(self, **kwargs)
 
-        paths        = [p.get_transform().transform_path(p.get_path())
-                        for p in patches]
+        self.set_paths(patches)
 
+    def set_paths(self, patches):
+        paths = [p.get_transform().transform_path(p.get_path())
+                        for p in patches]
         self._paths = paths
 
+
+class QuadMesh(Collection):
+    """
+    Class for the efficient drawing of a quadrilateral mesh.
+
+    A quadrilateral mesh consists of a grid of vertices. The
+    dimensions of this array are (*meshWidth* + 1, *meshHeight* +
+    1). Each vertex in the mesh has a different set of "mesh
+    coordinates" representing its position in the topology of the
+    mesh. For any values (*m*, *n*) such that 0 <= *m* <= *meshWidth*
+    and 0 <= *n* <= *meshHeight*, the vertices at mesh coordinates
+    (*m*, *n*), (*m*, *n* + 1), (*m* + 1, *n* + 1), and (*m* + 1, *n*)
+    form one of the quadrilaterals in the mesh. There are thus
+    (*meshWidth* * *meshHeight*) quadrilaterals in the mesh.  The mesh
+    need not be regular and the polygons need not be convex.
+
+    A quadrilateral mesh is represented by a (2 x ((*meshWidth* + 1) *
+    (*meshHeight* + 1))) numpy array *coordinates*, where each row is
+    the *x* and *y* coordinates of one of the vertices.  To define the
+    function that maps from a data point to its corresponding color,
+    use the :meth:`set_cmap` method.  Each of these arrays is indexed in
+    row-major order by the mesh coordinates of the vertex (or the mesh
+    coordinates of the lower left vertex, in the case of the
+    colors).
+
+    For example, the first entry in *coordinates* is the
+    coordinates of the vertex at mesh coordinates (0, 0), then the one
+    at (0, 1), then at (0, 2) .. (0, meshWidth), (1, 0), (1, 1), and
+    so on.
+    """
+    def __init__(self, meshWidth, meshHeight, coordinates, showedges, antialiased=True):
+        Collection.__init__(self)
+        self._meshWidth = meshWidth
+        self._meshHeight = meshHeight
+        self._coordinates = coordinates
+        self._showedges = showedges
+        self._antialiased = antialiased
+
+        self._bbox = transforms.Bbox.unit()
+        self._bbox.update_from_data_xy(coordinates.reshape(
+                ((meshWidth + 1) * (meshHeight + 1), 2)))
+
+        # By converting to floats now, we can avoid that on every draw.
+        self._coordinates = self._coordinates.reshape((meshHeight + 1, meshWidth + 1, 2))
+        self._coordinates = np.array(self._coordinates, np.float_)
+
     def get_paths(self):
+        if self._paths is None:
+            self.set_paths()
         return self._paths
+
+    def set_paths(self):
+        self._paths = self.convert_mesh_to_paths(
+            self._meshWidth, self._meshHeight, self._coordinates)
+
+    @staticmethod
+    def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
+        """
+        Converts a given mesh into a sequence of
+        :class:`matplotlib.path.Path` objects for easier rendering by
+        backends that do not directly support quadmeshes.
+
+        This function is primarily of use to backend implementers.
+        """
+        Path = mpath.Path
+
+        if ma.isMaskedArray(coordinates):
+            c = coordinates.data
+        else:
+            c = coordinates
+
+        points = np.concatenate((
+                    c[0:-1, 0:-1],
+                    c[0:-1, 1:  ],
+                    c[1:  , 1:  ],
+                    c[1:  , 0:-1],
+                    c[0:-1, 0:-1]
+                    ), axis=2)
+        points = points.reshape((meshWidth * meshHeight, 5, 2))
+        return [Path(x) for x in points]
+
+    def get_datalim(self, transData):
+        return self._bbox
+
+    @allow_rasterization
+    def draw(self, renderer):
+        if not self.get_visible(): return
+        renderer.open_group(self.__class__.__name__)
+        transform = self.get_transform()
+        transOffset = self._transOffset
+        offsets = self._offsets
+
+        if self.have_units():
+            if len(self._offsets):
+                xs = self.convert_xunits(self._offsets[:0])
+                ys = self.convert_yunits(self._offsets[:1])
+                offsets = zip(xs, ys)
+
+        offsets = np.asarray(offsets, np.float_)
+
+        if self.check_update('array'):
+            self.update_scalarmappable()
+
+        clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
+        if clippath_trans is not None:
+            clippath_trans = clippath_trans.frozen()
+
+        if not transform.is_affine:
+            coordinates = self._coordinates.reshape(
+                (self._coordinates.shape[0] *
+                 self._coordinates.shape[1],
+                 2))
+            coordinates = transform.transform(coordinates)
+            coordinates = coordinates.reshape(self._coordinates.shape)
+            transform = transforms.IdentityTransform()
+        else:
+            coordinates = self._coordinates
+
+        if not transOffset.is_affine:
+            offsets = transOffset.transform_non_affine(offsets)
+            transOffset = transOffset.get_affine()
+
+        renderer.draw_quad_mesh(
+            transform.frozen(), self.clipbox, clippath, clippath_trans,
+            self._meshWidth, self._meshHeight, coordinates,
+            offsets, transOffset, self.get_facecolor(), self._antialiased,
+            self._showedges)
+        renderer.close_group(self.__class__.__name__)
+
+
 
 
 artist.kwdocd['Collection'] = patchstr = artist.kwdoc(Collection)
-for k in ('QuadMesh', 'PolyCollection', 'BrokenBarHCollection', 'RegularPolyCollection',
+for k in ('QuadMesh', 'PolyCollection', 'BrokenBarHCollection',
+           'RegularPolyCollection', 'PathCollection',
           'StarPolygonCollection', 'PatchCollection', 'CircleCollection'):
     artist.kwdocd[k] = patchstr
 artist.kwdocd['LineCollection'] = artist.kwdoc(LineCollection)
