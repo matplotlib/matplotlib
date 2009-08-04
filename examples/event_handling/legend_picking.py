@@ -31,11 +31,11 @@ def onpick(event):
     # legend proxy line, and toggle the visibilit
     legline = event.artist
     origline = lined[legline]
-    vis = origline.get_visible()
-    origline.set_visible(not vis)
+    vis = not origline.get_visible()
+    origline.set_visible(vis)
     # Change the alpha on the line in the legend so we can see what lines
     # have been toggled
-    if not vis:
+    if vis:
         legline.set_alpha(1.0)
     else:
         legline.set_alpha(0.2)
