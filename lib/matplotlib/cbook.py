@@ -9,6 +9,10 @@ import warnings
 import numpy as np
 import numpy.ma as ma
 from weakref import ref
+import cPickle
+import os.path
+import random
+import urllib2
 
 import matplotlib
 
@@ -340,7 +344,119 @@ def to_filehandle(fname, flag='rU', return_opened=False):
 def is_scalar_or_string(val):
     return is_string_like(val) or not iterable(val)
 
+class _CacheProcessor(urllib2.BaseHandler):
+    """
+    Urllib2 handler that takes care of caching files.
+    The file cache.pck holds the directory of files to be cached.
+    """
+    def __init__(self, cache_dir):
+        self.cache_dir = cache_dir
+        self.read_cache()
+        self.remove_stale_files()
 
+    def in_cache_dir(self, fn):
+        return os.path.join(self.cache_dir, fn)
+        
+    def read_cache(self):
+        """
+        Read the cache file from the cache directory.
+        """
+        fn = self.in_cache_dir('cache.pck')
+        if not os.path.exists(fn):
+            self.cache = {}
+            return
+
+        f = open(fn, 'rb')
+        cache = cPickle.load(f)
+        f.close()
+
+        # If any files are deleted, drop them from the cache
+        for url, (fn, _, _) in cache.items():
+            if not os.path.exists(self.in_cache_dir(fn)):
+                del cache[url]
+
+        self.cache = cache
+
+    def remove_stale_files(self):
+        """
+        Remove files from the cache directory that are not listed in
+        cache.pck.
+        """
+        listed = set([fn for (_, (fn, _, _)) in self.cache.items()])
+        for path in os.listdir(self.cache_dir):
+            if path not in listed and path != 'cache.pck':
+                os.remove(os.path.join(self.cache_dir, path))
+        
+    def write_cache(self):
+        """
+        Write the cache data structure into the cache directory.
+        """
+        fn = self.in_cache_dir('cache.pck')
+        f = open(fn, 'wb')
+        cPickle.dump(self.cache, f, -1)
+        f.close()
+
+    def cache_file(self, url, data, headers):
+        """
+        Store a received file in the cache directory.
+        """
+        # Pick a filename
+        rightmost = url.rstrip('/').split('/')[-1]
+        fn = rightmost
+        while os.path.exists(self.in_cache_dir(fn)):
+            fn = rightmost + '.' + str(random.randint(0,9999999))
+
+        # Write out the data
+        f = open(self.in_cache_dir(fn), 'wb')
+        f.write(data)
+        f.close()
+
+        # Update the cache
+        self.cache[url] = (fn, headers.get('ETag'), headers.get('Last-Modified'))
+        self.write_cache()
+
+    # These urllib2 entry points are used:
+    # http_request for preprocessing requests
+    # http_error_304 for handling 304 Not Modified responses
+    # http_response for postprocessing requests
+        
+    def http_request(self, req):
+        """
+        Make the request conditional if we have a cached file.
+        """
+        url = req.get_full_url()
+        if url in self.cache:
+            _, etag, lastmod = self.cache[url]
+            req.add_header("If-None-Match", etag)
+            req.add_header("If-Modified-Since", lastmod)
+        return req
+
+    def http_error_304(self, req, fp, code, msg, hdrs):
+        """
+        Read the file from the cache since the server has no newer version.
+        """
+        url = req.get_full_url()
+        fn, _, _ = self.cache[url]
+        file = open(self.in_cache_dir(fn), 'rb')
+        handle = urllib2.addinfourl(file, hdrs, url)
+        handle.code = 304
+        return handle
+    
+    def http_response(self, req, response):
+        """
+        Update the cache with the returned file.
+        """
+        if response.code != 200:
+            return response
+        else:
+            data = response.read()
+            self.cache_file(req.get_full_url(), data, response.headers)
+            result = urllib2.addinfourl(StringIO.StringIO(data),
+                                        response.headers,
+                                        req.get_full_url())
+            result.code = response.code
+            result.msg = response.msg
+            return result
 
 def get_mpl_data(fname, asfileobj=True):
     """
@@ -363,32 +479,25 @@ def get_mpl_data(fname, asfileobj=True):
     intended for use in mpl examples that need custom data
     """
 
-    # TODO: how to handle stale data in the cache that has been
-    # updated from svn -- is there a clean http way to get the current
-    # revision number that will not leave us at the mercy of html
-    # changes at sf?
+    if not hasattr(get_mpl_data, 'opener'):
+        configdir = matplotlib.get_configdir()
+        cachedir = os.path.join(configdir, 'mpl_data')
+        if not os.path.exists(cachedir):
+            os.mkdir(cachedir)
+        # Store the cache processor and url opener as attributes of this function
+        get_mpl_data.processor = _CacheProcessor(cachedir)
+        get_mpl_data.opener = urllib2.build_opener(get_mpl_data.processor)
 
-
-    configdir = matplotlib.get_configdir()
-    cachedir = os.path.join(configdir, 'mpl_data')
-    if not os.path.exists(cachedir):
-        os.mkdir(cachedir)
-
-    cachefile = os.path.join(cachedir, fname)
-
-    if not os.path.exists(cachefile):
-        import urllib
-        url = 'http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/mpl_data/%s'%urllib.quote(fname)
-        matplotlib.verbose.report('Attempting to download %s to %s'%(url, cachefile))
-        urllib.urlretrieve(url, filename=cachefile)
-    else:
-        matplotlib.verbose.report('Aleady have mpl_data %s'%fname)
-
+    url = 'http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/mpl_data/' + \
+        urllib2.quote(fname)
+    response = get_mpl_data.opener.open(url)
     if asfileobj:
-        return to_filehandle(cachefile)
+        return response
     else:
-        return cachefile
-
+        response.close()
+        p = get_mpl_data.processor
+        return p.in_cache_dir(p.cache[url][0])
+    
 def flatten(seq, scalarp=is_scalar_or_string):
     """
     this generator flattens nested containers such as

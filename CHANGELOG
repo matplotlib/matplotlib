@@ -1,3 +1,5 @@
+2009-08-04 Made cbook.get_mpl_data make use of the ETag and Last-Modified
+           headers of mod_dav_svn. - JKS
 
 2009-08-03 Add PathCollection; modify contourf to use complex
            paths instead of simple paths with cuts. - EF
