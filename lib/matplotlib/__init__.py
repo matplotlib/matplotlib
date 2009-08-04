@@ -487,6 +487,7 @@ get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path_cached,
                              always=False)
 
 
+
 def get_example_data(fname):
     """
     return a filehandle to one of the example files in mpl-data/example
