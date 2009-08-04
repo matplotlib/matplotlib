@@ -652,7 +652,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             codes = np.zeros(kind.shape, dtype=mpath.Path.code_type)
             codes.fill(mpath.Path.LINETO)
             codes[0] = mpath.Path.MOVETO
-            codes[kind >= _cntr._slitkind] = mpath.Path.MOVETO
+            # Attempted slit removal is disabled until we get it right.
+            #codes[kind >= _cntr._slitkind] = mpath.Path.MOVETO
             paths.append(mpath.Path(seg, codes))
         return paths
 
