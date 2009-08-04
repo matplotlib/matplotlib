@@ -1321,38 +1321,6 @@ void cntr_del(Csite *site)
     site = NULL;
 }
 
-/* Build a list of lists of points, where each point is an (x,y,k)
-   tuple.
-*/
-static PyObject *
-build_cntr_list_p(long *np, double *xp, double *yp, short *kp,
-                                    int nparts, long ntotal)
-{
-    PyObject *point, *contourList, *all_contours;
-    int start = 0, end = 0;
-    int i, j, k;
-
-    all_contours = PyList_New(nparts);
-
-    for (i = 0; i < nparts; i++)
-    {
-        start = end;
-        end += np[i];
-        contourList = PyList_New(np[i]);
-        for (k = 0, j = start; j < end; j++, k++)
-        {
-            point = Py_BuildValue("(ddh)", xp[j], yp[j], kp[j]);
-            if (PyList_SetItem(contourList, k, point)) goto error;
-        }
-        if (PyList_SetItem(all_contours, i, contourList)) goto error;
-    }
-    return all_contours;
-
-    error:
-    Py_XDECREF(all_contours);
-    return NULL;
-}
-
 
 /* Build a list of XY 2-D arrays, shape (N,2), to which a list of K arrays
         is concatenated concatenated. */
@@ -1409,7 +1377,7 @@ build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
 */
 
 PyObject *
-cntr_trace(Csite *site, double levels[], int nlevels, int points, long nchunk)
+cntr_trace(Csite *site, double levels[], int nlevels, long nchunk)
 {
     PyObject *c_list = NULL;
     double *xp0;
@@ -1491,15 +1459,8 @@ cntr_trace(Csite *site, double levels[], int nlevels, int points, long nchunk)
         }
     }
 
+    c_list = build_cntr_list_v2(nseg0, xp0, yp0, kp0, nparts, ntotal);
 
-    if (points)  /* It is False when called; we don't need the point version */
-    {
-        c_list = build_cntr_list_p(nseg0, xp0, yp0, kp0, nparts, ntotal);
-    }
-    else
-    {
-        c_list = build_cntr_list_v2(nseg0, xp0, yp0, kp0, nparts, ntotal);
-    }
     PyMem_Free(xp0);
     PyMem_Free(yp0);
     PyMem_Free(kp0);
@@ -1676,18 +1637,17 @@ Cntr_trace(Cntr *self, PyObject *args, PyObject *kwds)
 {
     double levels[2] = {0.0, -1e100};
     int nlevels = 2;
-    int points = 0;
     long nchunk = 0L;
-    static char *kwlist[] = {"level0", "level1", "points", "nchunk", NULL};
+    static char *kwlist[] = {"level0", "level1",  "nchunk", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|dil", kwlist,
-                                      levels, levels+1, &points, &nchunk))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|dl", kwlist,
+                                      levels, levels+1, &nchunk))
     {
         return NULL;
     }
     if (levels[1] == -1e100 || levels[1] <= levels[0])
         nlevels = 1;
-    return cntr_trace(self->site, levels, nlevels, points, nchunk);
+    return cntr_trace(self->site, levels, nlevels, nchunk);
 }
 
 static PyMethodDef Cntr_methods[] = {

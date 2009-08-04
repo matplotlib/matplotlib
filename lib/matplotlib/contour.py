@@ -601,8 +601,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             lowers = self._levels[:-1]
             uppers = self._levels[1:]
             for level, level_upper in zip(lowers, uppers):
-                nlist = C.trace(level, level_upper, points = 0,
-                        nchunk = self.nchunk)
+                nlist = C.trace(level, level_upper, nchunk = self.nchunk)
                 nseg = len(nlist)//2
                 segs = nlist[:nseg]
                 kinds = nlist[nseg:]
@@ -624,7 +623,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             tlinestyles = self._process_linestyles()
             C = _cntr.Cntr(x, y, z.filled(), _mask)
             for level, width, lstyle in zip(self.levels, tlinewidths, tlinestyles):
-                nlist = C.trace(level, points = 0)
+                nlist = C.trace(level)
                 nseg = len(nlist)//2
                 segs = nlist[:nseg]
                 kinds = nlist[nseg:]
