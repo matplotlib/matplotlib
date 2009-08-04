@@ -772,6 +772,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         bind(self, wx.EVT_LEAVE_WINDOW, self._onLeave)
         bind(self, wx.EVT_ENTER_WINDOW, self._onEnter)
         bind(self, wx.EVT_IDLE, self._onIdle)
+        #Add middle button events
+        bind(self, wx.EVT_MIDDLE_DOWN, self._onMiddleButtonDown)
+        bind(self, wx.EVT_MIDDLE_DCLICK, self._onMiddleButtonDown)
+        bind(self, wx.EVT_MIDDLE_UP, self._onMiddleButtonUp)
+	
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
 
         self.macros = {} # dict from wx id to seq of macros
@@ -1183,6 +1188,7 @@ The current aspect ration will be kept."""
         # so no need to do anything here except to make sure
         # the whole background is repainted.
         self.Refresh(eraseBackground=False)
+        FigureCanvasBase.resize_event(self)
 
     def _get_key(self, evt):
 
@@ -1250,6 +1256,24 @@ The current aspect ration will be kept."""
         evt.Skip()
         if self.HasCapture(): self.ReleaseMouse()
         FigureCanvasBase.button_release_event(self, x, y, 1, guiEvent=evt)
+
+    #Add middle button events	
+    def _onMiddleButtonDown(self, evt):
+        """Start measuring on an axis."""
+        x = evt.GetX()
+        y = self.figure.bbox.height - evt.GetY()
+        evt.Skip()
+        self.CaptureMouse()
+        FigureCanvasBase.button_press_event(self, x, y, 2, guiEvent=evt)
+
+    def _onMiddleButtonUp(self, evt):
+        """End measuring on an axis."""
+        x = evt.GetX()
+        y = self.figure.bbox.height - evt.GetY()
+        #print 'release button', 1
+        evt.Skip()
+        if self.HasCapture(): self.ReleaseMouse()
+        FigureCanvasBase.button_release_event(self, x, y, 2, guiEvent=evt)
 
     def _onMouseWheel(self, evt):
         """Translate mouse wheel events into matplotlib events"""
