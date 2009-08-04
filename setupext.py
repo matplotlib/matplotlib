@@ -51,7 +51,7 @@ basedir = {
     'linux'  : ['/usr/local', '/usr',],
     'cygwin' : ['/usr/local', '/usr',],
     'darwin' : ['/sw/lib/freetype2', '/sw/lib/freetype219', '/usr/local',
-                '/usr', '/sw', '/usr/X11R6'],
+                '/usr', '/sw'],
     'freebsd4' : ['/usr/local', '/usr'],
     'freebsd5' : ['/usr/local', '/usr'],
     'freebsd6' : ['/usr/local', '/usr'],
@@ -174,7 +174,7 @@ def run_child_process(cmd):
                          stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.STDOUT,
-                         close_fds=True)
+                         close_fds=(sys.platform != 'win32'))
     return p.stdin, p.stdout
 
 class CleanUpFile:
@@ -458,7 +458,7 @@ def check_for_latex():
     try:
         stdin, stdout = run_child_process('latex -version')
         line = stdout.readlines()[0]
-        pattern = '3\.1\d+'
+        pattern = '(3\.1\d+)|(MiKTeX \d+.\d+)'
         match = re.search(pattern, line)
         print_status("latex", match.group(0))
         return True

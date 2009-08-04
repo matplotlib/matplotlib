@@ -7,9 +7,7 @@ Dir Contents
 -------------
 
 * :file:`bdist_mkpg` - the distutils.extension to build Installer.app
-  mpkg installers.  It is patched from the tarball with
-  file:`data/bdist.patch` because 0.4.3 is broken on OS X 10.5.
-  Instructions on how to patch and install are below
+  mpkg installers.  
 
 * :file:`data` - some config files and patches needed for the build
 
@@ -20,6 +18,16 @@ Dir Contents
 
 How to build
 --------------
+
+* You need a python framework build , numpy and wxpython to build the
+  mpl installers (wx requires this and we need wx to build the wxagg
+  extension).  You can get the three required dependencies as
+  Installer apps, eg:
+
+
+     http://www.python.org/ftp/python/2.6.2/python-2.6.2-macosx2009-04-16.dmg
+     http://downloads.sourceforge.net/project/numpy/NumPy/1.3.0/numpy-1.3.0-py2.6-macosx10.5.dmg?use_mirror=voxel
+     http://downloads.sourceforge.net/project/wxpython/wxPython/2.8.10.1/wxPython2.8-osx-unicode-2.8.10.1-universal-py2.6.dmg?use_mirror=voxel
 
 * You need to make sure to unset PKG_CONFIG_PATH to make sure the
   static linking below is respected.  Otherwise the mpl build script
@@ -38,7 +46,7 @@ How to build
 
 * install the patched bdist_mpkg, that the fetch_deps step just created::
 
-      cd bdist_mpkg-0.4.3
+      cd bdist_mpkg-0.4.4
       sudo python setup.py install
 
 * build the dependencies::
@@ -64,7 +72,7 @@ Build the dependencies::
     cd release/osx/
     unset PKG_CONFIG_PATH
     make fetch_deps
-    cd bdist_mpkg-0.4.3
+    cd bdist_mpkg-0.4.4
     sudo python setup.py install
     cd ..
     make dependencies
