@@ -373,7 +373,7 @@ def drive(backend, directories, python=['python'], switches = []):
         if backend in rcsetup.interactive_bk:
             tmpfile.write('show()')
         else:
-            tmpfile.write('\nsavefig("%s", dpi=150)' % outfile)
+            tmpfile.write('\nsavefig(r"%s", dpi=150)' % outfile)
 
         tmpfile.close()
         start_time = time.time()
@@ -457,7 +457,7 @@ if __name__ == '__main__':
         python = ['valgrind', '--tool=memcheck', '--leak-check=yes',
                   '--log-file=%(name)s', 'python']
     elif sys.platform == 'win32':
-        python = [r'c:\Python24\python.exe']
+        python = [sys.executable]
     else:
         python = ['python']
 
