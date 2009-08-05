@@ -291,7 +291,7 @@ static int slit_cutter (Csite * site, int up, int pass2);
 static long curve_tracer (Csite * site, int pass2);
 
 /* this initializes the data array for curve_tracer */
-static void data_init (Csite * site, int region, long nchunk);
+static void data_init (Csite * site, long nchunk);
 
 /* ------------------------------------------------------------------------ */
 
@@ -974,13 +974,8 @@ curve_tracer (Csite * site, int pass2)
 
 /* ------------------------------------------------------------------------ */
 
-/* The sole function of the "region" argument is to specify the
-   value in Csite.reg that denotes a missing zone.  We always
-   use zero.
-*/
-
 static void
-data_init (Csite * site, int region, long nchunk)
+data_init (Csite * site, long nchunk)
 {
     Cdata * data = site->data;
     long imax = site->imax;
@@ -1050,8 +1045,7 @@ data_init (Csite * site, int region, long nchunk)
             data[ij + imax + 1] = 0;
             if (reg)
             {
-                if (region ? (reg[ij + imax + 1] == region)
-                    : (reg[ij + imax + 1] != 0))
+                if (reg[ij + imax + 1] != 0)
                     data[ij + imax + 1] = ZONE_EX;
             }
             else
@@ -1403,7 +1397,7 @@ cntr_trace(Csite *site, double levels[], int nlevels, long nchunk)
         site->zlevel[1] = levels[1];
     }
     site->n = site->count = 0;
-    data_init (site, 0, nchunk);
+    data_init (site, nchunk);
 
     /* make first pass to compute required sizes for second pass */
     for (;;)
