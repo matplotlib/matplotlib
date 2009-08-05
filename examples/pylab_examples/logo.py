@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # This file generates the matplotlib web page logo
 from pylab import *
-
+import matplotlib.cbook as cbook
 
 # convert data to mV
 datafile = cbook.get_sample_data('membrane.dat', asfileobj=False)
