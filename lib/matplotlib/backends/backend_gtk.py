@@ -243,10 +243,10 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def leave_notify_event(self, widget, event):
-        FigureCanvasBase.leave_notify_event(self, event, guiEvent=event)
+        FigureCanvasBase.leave_notify_event(self, event)
 
     def enter_notify_event(self, widget, event):
-        FigureCanvasBase.enter_notify_event(self, event, guiEvent=event)
+        FigureCanvasBase.enter_notify_event(self, event)
 
     def _get_key(self, event):
         if event.keyval in self.keyvald:
