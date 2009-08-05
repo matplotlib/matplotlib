@@ -27,6 +27,7 @@ import sys, time, os, gc
 import matplotlib
 matplotlib.use('WXAgg')
 import matplotlib.cm as cm
+import matplotlib.cbook as cbook
 from matplotlib.backends.backend_wxagg import Toolbar, FigureCanvasWxAgg
 from matplotlib.figure import Figure
 import numpy as npy
@@ -101,8 +102,9 @@ class PlotPanel(wx.Panel):
 
 class MyApp(wx.App):
     def OnInit(self):
-        xrcfile = os.path.join(os.path.dirname(__file__),"..","data",
-                               "embedding_in_wx3.xrc")      
+        xrcfile = cbook.get_sample_data('embedding_in_wx3.xrc', asobj=False)
+        print 'loading', xrcfile
+
         self.res = xrc.XmlResource(xrcfile)
 
         # main frame and panel ---------

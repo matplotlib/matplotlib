@@ -9,12 +9,13 @@ import numpy as np
 
 from matplotlib.pyplot import *
 from matplotlib.collections import LineCollection
-
+import matplotlib.cbook as cbook
 # I use if 1 to break up the different regions of code visually
 
 if 1:   # load the data
     # data are 256x256 16 bit integers
-    dfile = '../data/s1045.ima'
+    dfile = cbook.get_sample_data('s1045.ima', asfileobj=False)
+    print 'loading image', dfile
     im = np.fromstring(file(dfile, 'rb').read(), np.uint16).astype(float)
     im.shape = 256, 256
 
@@ -38,7 +39,9 @@ if 1:   # plot the EEG
     # load the data
 
     numSamples, numRows = 800,4
-    data = np.fromstring(file('../data/eeg.dat', 'rb').read(), float)
+    eegfile = cbook.get_sample_data('eeg.dat', asfileobj=False)
+    print 'loading eeg', eegfile
+    data = np.fromstring(file(eegfile, 'rb').read(), float)
     data.shape = numSamples, numRows
     t = 10.0 * np.arange(numSamples, dtype=float)/numSamples
     ticklocs = []

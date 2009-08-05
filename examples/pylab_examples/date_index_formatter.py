@@ -11,9 +11,12 @@ Formatter to get the appropriate date string for a given index.
 import numpy
 from matplotlib.mlab import csv2rec
 from pylab import figure, show
+import matplotlib.cbook as cbook
 from matplotlib.ticker import Formatter
 
-r = csv2rec('../data/msft.csv')[-40:]
+datafile = cbook.get_sample_data('msft.csv', asobj=False)
+print 'loading', datafile
+r = csv2rec(datafile)[-40:]
 
 class MyFormatter(Formatter):
     def __init__(self, dates, fmt='%Y-%m-%d'):

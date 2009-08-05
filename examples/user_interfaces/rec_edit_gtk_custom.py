@@ -6,9 +6,12 @@ of strings
 import gtk
 import numpy as np
 import matplotlib.mlab as mlab
+import matplotlib.cbook as cbook
 import mpl_toolkits.gtktools as gtktools
 
-r = mlab.csv2rec('data/demodata.csv', converterd={'weekdays':str})
+
+datafile = cbook.get_sample_data('demodata.csv', asobj=False)
+r = mlab.csv2rec(datafile, converterd={'weekdays':str})
 
 
 formatd = mlab.get_formatd(r)
