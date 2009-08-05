@@ -563,6 +563,45 @@ external backend via the ``module`` directive.  if
 
 .. _license-discussion:
 
+
+Writing examples
+================
+
+We have hundreds of examples in subdirectories of
+file:`matplotlib/examples` in the trunk, and these are automatically
+generated when the website it built to show up both in the `examples
+<http://matplotlib.sourceforge.net/examples/index.html>`_ and `gallery
+<http://matplotlib.sourceforge.net/gallery.html>`_ sections of the
+website.  Many people find these examples from the website, and do not
+have ready access to the file:`examples` directory in which they
+reside.  Thus any example data that is required for the example should
+be provided through the sample_data svn directory, which can then be
+accessed using :func:`matplotlib.cbook.get_sample_data`.  First get a
+copy of the repository and svn add your data::
+
+    svn co http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data
+    cp ~/path/to/mydata.dat sample_data/
+    cd sample_data
+    svn add mydata.dat
+    svn commit -m 'added my data'
+
+and then in your example code you can load it into a file handle with::
+
+    import matplotlib.cbook as cbook
+    fh = cbook.get_sample_data('mydata.dat')
+
+The file will be fetched from the svn repo using urllib and updated
+when the revision number changes.
+
+
+If you prefer just to get the full path to the file instead of an file
+object::
+
+    import matplotlib.cbook as cbook
+    datafile = cbook.get_sample_data('mydata.dat', asfileobj=False)
+    print 'datafile', datafile
+
+
 Licenses
 ========
 
@@ -630,3 +669,4 @@ The other reason is licensing compatibility with the other python
 extensions for scientific computing: ipython, numpy, scipy, the
 enthought tool suite and python itself are all distributed under BSD
 compatible licenses.
+>
