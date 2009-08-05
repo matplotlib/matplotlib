@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 from pylab import *
+import matplotlib.cbook as cbook
 
 w, h = 512, 512
 
-datafile = cbook.get_sample_data('ct.raw', asobj=False)
+datafile = cbook.get_sample_data('ct.raw', asfileobj=False)
 print 'loading', datafile
 s = file(datafile, 'rb').read()
 A = fromstring(s, uint16).astype(float)

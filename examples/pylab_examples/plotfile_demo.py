@@ -1,8 +1,8 @@
 from pylab import plotfile, show, gca
 import matplotlib.cbook as cbook
 
-fname = cbook.get_sample_data('msft.csv', asobj=False)
-fname2 = cbook.get_sample_data('data_x_x2_x3.csv', asobj=False)
+fname = cbook.get_sample_data('msft.csv', asfileobj=False)
+fname2 = cbook.get_sample_data('data_x_x2_x3.csv', asfileobj=False)
 
 # test 1; use ints
 plotfile(fname, (0,5,6))
