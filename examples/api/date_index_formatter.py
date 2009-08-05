@@ -6,9 +6,13 @@ below shows how to use an 'index formatter' to achieve the desired plot
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
+import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
-r = mlab.csv2rec('../data/aapl.csv')
+datafile = cbook.get_sample_data('aapl.csv', asobj=False)
+print 'loading', datafile
+r = mlab.csv2rec(datafile)
+
 r.sort()
 r = r[-30:]  # get the last 30 days
 
