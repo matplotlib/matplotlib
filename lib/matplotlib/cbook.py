@@ -356,7 +356,13 @@ class _CacheProcessor(urllib2.BaseHandler):
         self.remove_stale_files()
 
     def in_cache_dir(self, fn):
-        return os.path.join(self.cache_dir, fn)
+        # make sure the datadir exists
+        reldir, filename = os.path.split(fn)
+        datadir = os.path.join(self.cache_dir, reldir)
+        if not os.path.exists(datadir):
+            os.makedirs(datadir)
+
+        return os.path.join(datadir, filename)
 
     def read_cache(self):
         """
@@ -386,7 +392,11 @@ class _CacheProcessor(urllib2.BaseHandler):
         listed = set([fn for (_, (fn, _, _)) in self.cache.items()])
         for path in os.listdir(self.cache_dir):
             if path not in listed and path != 'cache.pck':
-                os.remove(os.path.join(self.cache_dir, path))
+                thisfile = os.path.join(self.cache_dir, path)
+                if not os.path.isdir(thisfile):
+                    matplotlib.verbose.report('_CacheProcessor:remove_stale_files: removing %s'%thisfile,
+                                              level='debug')
+                    os.remove(thisfile)
 
     def write_cache(self):
         """
@@ -402,12 +412,14 @@ class _CacheProcessor(urllib2.BaseHandler):
         Store a received file in the cache directory.
         """
         # Pick a filename
-        rightmost = url.rstrip('/').split('/')[-1]
-        fn = rightmost
-        while os.path.exists(self.in_cache_dir(fn)):
-            fn = rightmost + '.' + str(random.randint(0,9999999))
+        fn = url[len(self.baseurl):]
+        fullpath = self.in_cache_dir(fn)
 
-        # Write out the data
+        #while os.path.exists(self.in_cache_dir(fn)):
+        #    fn = rightmost + '.' + str(random.randint(0,9999999))
+
+        
+        
         f = open(self.in_cache_dir(fn), 'wb')
         f.write(data)
         f.close()
@@ -438,7 +450,9 @@ class _CacheProcessor(urllib2.BaseHandler):
         """
         url = req.get_full_url()
         fn, _, _ = self.cache[url]
-        file = open(self.in_cache_dir(fn), 'rb')
+        cachefile = self.in_cache_dir(fn)
+        matplotlib.verbose.report('_CacheProcessor: reading data file from cache file "%s"'%cachefile)
+        file = open(cachefile, 'rb')
         handle = urllib2.addinfourl(file, hdrs, url)
         handle.code = 304
         return handle
@@ -480,13 +494,14 @@ def get_sample_data(fname, asfileobj=True):
     intended for use in mpl examples that need custom data
     """
 
+    baseurl ='http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data/'
     if not hasattr(get_sample_data, 'opener'):
         configdir = matplotlib.get_configdir()
         cachedir = os.path.join(configdir, 'sample_data')
         if not os.path.exists(cachedir):
             os.mkdir(cachedir)
         # Store the cache processor and url opener as attributes of this function
-        get_sample_data.processor = _CacheProcessor(cachedir)
+        get_sample_data.processor = _CacheProcessor(cachedir, baseurl)
         get_sample_data.opener = urllib2.build_opener(get_sample_data.processor)
 
 
@@ -497,8 +512,7 @@ def get_sample_data(fname, asfileobj=True):
         import urllib
         quote = urllib.quote
 
-    url = 'http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data/' + \
-        quote(fname)
+    url = baseurl + quote(fname)
     response = get_sample_data.opener.open(url)
     if asfileobj:
         return response
