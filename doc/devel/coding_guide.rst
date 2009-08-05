@@ -579,7 +579,7 @@ be provided through the sample_data svn directory, which can then be
 accessed using :func:`matplotlib.cbook.get_sample_data`.  First get a
 copy of the repository and svn add your data::
 
-    svn co http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data
+    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data
     cp ~/path/to/mydata.dat sample_data/
     cd sample_data
     svn add mydata.dat
