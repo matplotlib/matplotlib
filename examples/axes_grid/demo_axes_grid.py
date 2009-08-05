@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from demo_image import get_demo_image
+from mpl_toolkits.axes_grid.demo_image import get_demo_image
 from mpl_toolkits.axes_grid import AxesGrid
 
 
