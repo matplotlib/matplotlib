@@ -102,7 +102,7 @@ class PlotPanel(wx.Panel):
 
 class MyApp(wx.App):
     def OnInit(self):
-        xrcfile = cbook.get_sample_data('embedding_in_wx3.xrc', asobj=False)
+        xrcfile = cbook.get_sample_data('embedding_in_wx3.xrc', asfileobj=False)
         print 'loading', xrcfile
 
         self.res = xrc.XmlResource(xrcfile)

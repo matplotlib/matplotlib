@@ -10,7 +10,7 @@ import matplotlib.cbook as cbook
 import mpl_toolkits.gtktools as gtktools
 
 
-datafile = cbook.get_sample_data('demodata.csv', asobj=False)
+datafile = cbook.get_sample_data('demodata.csv', asfileobj=False)
 r = mlab.csv2rec(datafile, converterd={'weekdays':str})
 
 
