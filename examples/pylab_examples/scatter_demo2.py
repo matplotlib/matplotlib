@@ -5,12 +5,13 @@ import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
+import matplotlib.cbook as cbook
 
 # load a numpy record array from yahoo csv data with fields date,
 # open, close, volume, adj_close from the mpl-data/example directory.
 # The record array stores python datetime.date as an object array in
 # the date column
-datafile = matplotlib.get_example_data('goog.npy')
+datafile = cbook.get_sample_data('goog.npy')
 r = np.load(datafile).view(np.recarray)
 r = r[-250:] # get the most recent 250 trading days
 
