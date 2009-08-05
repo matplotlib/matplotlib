@@ -1,4 +1,5 @@
-2009-08-04 Made cbook.get_mpl_data make use of the ETag and Last-Modified
+
+2009-08-04 Made cbook.get_sample_data make use of the ETag and Last-Modified
            headers of mod_dav_svn. - JKS
 
 2009-08-03 Add PathCollection; modify contourf to use complex
@@ -6,9 +7,9 @@
 
 2009-08-03 Fixed boilerplate.py so it doesn't break the ReST docs. - JKS
 
-2009-07-31 Added cbook.get_mpl_data for urllib enabled fetching and
+2009-07-31 Added cbook.get_sample_data for urllib enabled fetching and
            cacheing of data needed for examples.  See
-           examples/misc/mpl_data_demo.py - JDH
+           examples/misc/sample_data_demo.py - JDH
 
 ======================================================================
 
