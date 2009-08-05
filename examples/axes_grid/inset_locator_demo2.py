@@ -5,7 +5,7 @@ from mpl_toolkits.axes_grid.inset_locator import mark_inset
 
 import numpy as np
 
-from demo_image import get_demo_image
+from mpl_toolkits.axes_grid.demo_image import get_demo_image
 
 
 fig = plt.figure(1, [5,4])
