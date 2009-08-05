@@ -1,10 +1,10 @@
-PYVERSION=2.6
+PYVERSION=2.5
 PYTHON=python${PYVERSION}
 SRCDIR=${PWD}
 ZLIBVERSION=1.2.3
 PNGVERSION=1.2.33
 FREETYPEVERSION=2.3.7
-MPLVERSION=0.99.0.rc1
+MPLVERSION=0.99.0.rc2
 BDISTMPKGVERSION=0.4.4
 MPLSRC=matplotlib-${MPLVERSION}
 MACOSX_DEPLOYMENT_TARGET=10.4
@@ -88,7 +88,7 @@ installers:
 	cp ../data/setup.cfg . &&\
 	export CFLAGS=${CFLAGS} &&\
 	export LDFLAGS=${LDFLAGS} &&\
-	bdist_mpkg &&\
+	/Library/Frameworks/Python.framework/Versions/${PYVERSION}/bin/bdist_mpkg &&\
 	${PYTHON} setupegg.py bdist_egg &&\
 	cd dist && \
 	zip -ro matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5_mpkg.zip matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.mpkg
