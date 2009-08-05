@@ -356,7 +356,7 @@ class _CacheProcessor(urllib2.BaseHandler):
 
     def in_cache_dir(self, fn):
         return os.path.join(self.cache_dir, fn)
-        
+
     def read_cache(self):
         """
         Read the cache file from the cache directory.
@@ -386,7 +386,7 @@ class _CacheProcessor(urllib2.BaseHandler):
         for path in os.listdir(self.cache_dir):
             if path not in listed and path != 'cache.pck':
                 os.remove(os.path.join(self.cache_dir, path))
-        
+
     def write_cache(self):
         """
         Write the cache data structure into the cache directory.
@@ -419,7 +419,7 @@ class _CacheProcessor(urllib2.BaseHandler):
     # http_request for preprocessing requests
     # http_error_304 for handling 304 Not Modified responses
     # http_response for postprocessing requests
-        
+
     def http_request(self, req):
         """
         Make the request conditional if we have a cached file.
@@ -441,7 +441,7 @@ class _CacheProcessor(urllib2.BaseHandler):
         handle = urllib2.addinfourl(file, hdrs, url)
         handle.code = 304
         return handle
-    
+
     def http_response(self, req, response):
         """
         Update the cache with the returned file.
@@ -473,7 +473,7 @@ def get_mpl_data(fname, asfileobj=True):
     To add a datafile to this directory, you need to check out
     mpl_data from matplotlib svn::
 
-      svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/mpl_data
+      svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/mpl_data
 
     and svn add the data file you want to support.  This is primarily
     intended for use in mpl examples that need custom data
@@ -497,7 +497,7 @@ def get_mpl_data(fname, asfileobj=True):
         response.close()
         p = get_mpl_data.processor
         return p.in_cache_dir(p.cache[url][0])
-    
+
 def flatten(seq, scalarp=is_scalar_or_string):
     """
     this generator flattens nested containers such as
