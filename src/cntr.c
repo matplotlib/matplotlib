@@ -1326,7 +1326,7 @@ void cntr_del(Csite *site)
 
 
 /* Build a list of XY 2-D arrays, shape (N,2), to which a list of K arrays
-        is concatenated concatenated. */
+        is concatenated. */
 static PyObject *
 build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
                                             int nparts, long ntotal)
@@ -1653,6 +1653,29 @@ Cntr_trace(Cntr *self, PyObject *args, PyObject *kwds)
     return cntr_trace(self->site, levels, nlevels, nchunk);
 }
 
+/* The following will not normally be called.  It is experimental,
+   and intended for future debugging.  It may go away at any time.
+*/
+static PyObject *
+Cntr_get_cdata(Cntr *self)
+{
+    PyArrayObject *Cdata;
+    npy_intp dims[2];
+    int i, j;
+    int ni, nj;
+
+    dims[0] = ni = self->site->imax;
+    dims[1] = nj = self->site->jmax;
+
+    Cdata = (PyArrayObject *) PyArray_SimpleNew(2, dims, PyArray_SHORT);
+    for (j=0; j<nj; j++)
+        for (i=0; i<ni; i++)
+            Cdata->data[j + i*nj] = self->site->data[i + j*ni];
+            /* output is C-order, input is F-order */
+    /* for now we are ignoring the last ni+1 values */
+    return (PyObject *)Cdata;
+}
+
 static PyMethodDef Cntr_methods[] = {
     {"trace", (PyCFunction)Cntr_trace, METH_VARARGS | METH_KEYWORDS,
      "Return a list of contour line segments or polygons.\n\n"
@@ -1664,6 +1687,12 @@ static PyMethodDef Cntr_methods[] = {
      "        vector pairs; otherwise, return a list of lists of points.\n"
      "    Optional argument: nchunk; approximate number of grid points\n"
      "        per chunk. 0 (default) for no chunking.\n"
+    },
+    {"get_cdata", (PyCFunction)Cntr_get_cdata, METH_NOARGS,
+     "Returns a copy of the mesh array with contour calculation codes.\n\n"
+     "Experimental and incomplete; we are not returning quite all of\n"
+     "the array.\n"
+     "Don't call this unless you are exploring the dark recesses of cntr.c\n"
     },
     {0, 0, 0, 0}  /* Sentinel */
 };
