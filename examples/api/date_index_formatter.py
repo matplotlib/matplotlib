@@ -9,7 +9,7 @@ import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
-datafile = cbook.get_sample_data('aapl.csv', asobj=False)
+datafile = cbook.get_sample_data('aapl.csv', asfileobj=False)
 print 'loading', datafile
 r = mlab.csv2rec(datafile)
 
