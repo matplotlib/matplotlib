@@ -1,7 +1,10 @@
 from matplotlib import mlab
 from pylab import figure, show
+import matplotlib.cbook as cbook
 
-a = mlab.csv2rec('../data/msft.csv')
+datafile = cbook.get_sample_data('msft.csv', asobj=False)
+print 'loading', datafile
+a = mlab.csv2rec(datafile)
 a.sort()
 print a.dtype
 
