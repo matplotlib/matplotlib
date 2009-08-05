@@ -2,7 +2,7 @@
 # Some functions to load a return data for the plot demos
 
 from numpy import fromstring, argsort, take, array, resize
-
+import matplotlib.cbook as cbook
 def get_two_stock_data():
     """
     load stock time and price data for two stocks The return values
@@ -10,11 +10,14 @@ def get_two_stock_data():
     and 2 (intc and aapl)
     """
     ticker1, ticker2 = 'INTC', 'AAPL'
-    M1 = fromstring( file('../data/%s.dat' % ticker1, 'rb').read(), '<d')
+
+    file1 = cbook.get_sample_data('INTC.dat', asfileobj=False)
+    file2 = cbook.get_sample_data('AAPL.dat', asfileobj=False)
+    M1 = fromstring( file(file1, 'rb').read(), '<d')
 
     M1 = resize(M1, (M1.shape[0]/2,2) )
 
-    M2 = fromstring( file('../data/%s.dat' % ticker2, 'rb').read(), '<d')
+    M2 = fromstring( file(file2, 'rb').read(), '<d')
     M2 = resize(M2, (M2.shape[0]/2,2) )
 
     d1, p1 = M1[:,0], M1[:,1]
@@ -35,7 +38,10 @@ def get_daily_data():
 
     def get_ticker(ticker):
         vals = []
-        lines = file( '../data/%s.csv' % ticker ).readlines()
+
+        datafile = cbook.get_sample_data('%s.csv'%ticker, asfileobj=False)
+
+        lines = file(datafile).readlines()
         for line in lines[1:]:
             vals.append([float(val) for val in line.split(',')[1:]])
 
