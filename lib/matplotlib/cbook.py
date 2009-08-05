@@ -349,8 +349,9 @@ class _CacheProcessor(urllib2.BaseHandler):
     Urllib2 handler that takes care of caching files.
     The file cache.pck holds the directory of files to be cached.
     """
-    def __init__(self, cache_dir):
+    def __init__(self, cache_dir, baseurl):
         self.cache_dir = cache_dir
+        self.baseurl = baseurl
         self.read_cache()
         self.remove_stale_files()
 
