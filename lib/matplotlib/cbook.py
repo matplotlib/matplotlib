@@ -458,12 +458,12 @@ class _CacheProcessor(urllib2.BaseHandler):
             result.msg = response.msg
             return result
 
-def get_mpl_data(fname, asfileobj=True):
+def get_sample_data(fname, asfileobj=True):
     """
-    Check the cachedirectory ~/.matplotlib/mpl_data for an mpl_data
+    Check the cachedirectory ~/.matplotlib/sample_data for an sample_data
     file.  If it does not exist, fetch it with urllib from the mpl svn repo
 
-      http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/mpl_data/
+      http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data/
 
     and store it in the cachedir.
 
@@ -471,31 +471,31 @@ def get_mpl_data(fname, asfileobj=True):
     path to the file as a string will be returned
 
     To add a datafile to this directory, you need to check out
-    mpl_data from matplotlib svn::
+    sample_data from matplotlib svn::
 
-      svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/mpl_data
+      svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data
 
     and svn add the data file you want to support.  This is primarily
     intended for use in mpl examples that need custom data
     """
 
-    if not hasattr(get_mpl_data, 'opener'):
+    if not hasattr(get_sample_data, 'opener'):
         configdir = matplotlib.get_configdir()
-        cachedir = os.path.join(configdir, 'mpl_data')
+        cachedir = os.path.join(configdir, 'sample_data')
         if not os.path.exists(cachedir):
             os.mkdir(cachedir)
         # Store the cache processor and url opener as attributes of this function
-        get_mpl_data.processor = _CacheProcessor(cachedir)
-        get_mpl_data.opener = urllib2.build_opener(get_mpl_data.processor)
+        get_sample_data.processor = _CacheProcessor(cachedir)
+        get_sample_data.opener = urllib2.build_opener(get_sample_data.processor)
 
-    url = 'http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/mpl_data/' + \
+    url = 'http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data/' + \
         urllib2.quote(fname)
-    response = get_mpl_data.opener.open(url)
+    response = get_sample_data.opener.open(url)
     if asfileobj:
         return response
     else:
         response.close()
-        p = get_mpl_data.processor
+        p = get_sample_data.processor
         return p.in_cache_dir(p.cache[url][0])
 
 def flatten(seq, scalarp=is_scalar_or_string):
