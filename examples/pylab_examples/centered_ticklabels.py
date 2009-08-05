@@ -15,12 +15,13 @@
 import datetime
 import numpy as np
 import matplotlib
+import matplotlib.cbook as cbook
 import matplotlib.dates as dates
 import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 
 # load some financial data; apple's stock price
-fh = matplotlib.get_example_data('aapl.npy')
+fh = cbook.get_sample_data('aapl.npy')
 r = np.load(fh); fh.close()
 r = r[-250:]  # get the last 250 days
 

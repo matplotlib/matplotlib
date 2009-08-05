@@ -17,6 +17,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.mlab as mlab
+import matplotlib.cbook as cbook
 
 years    = mdates.YearLocator()   # every year
 months   = mdates.MonthLocator()  # every month
@@ -26,7 +27,7 @@ yearsFmt = mdates.DateFormatter('%Y')
 # open, close, volume, adj_close from the mpl-data/example directory.
 # The record array stores python datetime.date as an object array in
 # the date column
-datafile = matplotlib.get_example_data('goog.npy')
+datafile = cbook.get_sample_data('goog.npy')
 r = np.load(datafile).view(np.recarray)
 
 fig = plt.figure()
