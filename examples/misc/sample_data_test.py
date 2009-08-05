@@ -9,5 +9,5 @@ svn version will be cached in ~/.matplotlib/sample_data)
 """
 
 import matplotlib.cbook as cbook
-fh = cbook.get_sample_data("testdata.csv")
+fh = cbook.get_sample_data('testdir/subdir/testsub.csv')
 print fh.read()
