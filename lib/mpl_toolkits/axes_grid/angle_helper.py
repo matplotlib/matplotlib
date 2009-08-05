@@ -293,14 +293,14 @@ class ExtremeFinderCycle(ExtremeFinderSimple):
         # iron out jumps, but algorithm should be improved.
         # Tis is just naive way of doing and my fail for some cases.
         if self.lon_cycle is not None:
-            lon0 = lon.min()
+            lon0 = np.nanmin(lon)
             lon -= 360. * ((lon - lon0) > 180.)
         if self.lat_cycle is not None:
-            lat0 = lat.min()
+            lat0 = np.nanmin(lat)
             lat -= 360. * ((lat - lat0) > 180.)
 
-        lon_min, lon_max = lon.min(), lon.max()
-        lat_min, lat_max = lat.min(), lat.max()
+        lon_min, lon_max = np.nanmin(lon), np.nanmax(lon)
+        lat_min, lat_max = np.nanmin(lat), np.nanmax(lat)
 
         lon_min, lon_max, lat_min, lat_max = \
                  self._adjust_extremes(lon_min, lon_max, lat_min, lat_max)

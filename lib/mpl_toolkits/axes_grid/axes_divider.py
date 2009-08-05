@@ -544,7 +544,7 @@ class LocatableAxesBase:
     def apply_aspect(self, position=None):
 
         if self.get_axes_locator() is None:
-            self._axes_class.apply_apsect(self, position)
+            self._axes_class.apply_aspect(self, position)
         else:
             pos = self.get_axes_locator()(self, self._locator_renderer)
             self._axes_class.apply_aspect(self, position=pos)
