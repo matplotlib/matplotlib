@@ -606,7 +606,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 segs = nlist[:nseg]
                 kinds = nlist[nseg:]
 
-
                 paths = self._make_paths(segs, kinds)
 
                 col = collections.PathCollection(paths,
@@ -652,8 +651,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             codes = np.zeros(kind.shape, dtype=mpath.Path.code_type)
             codes.fill(mpath.Path.LINETO)
             codes[0] = mpath.Path.MOVETO
-            # Attempted slit removal is disabled until we get it right.
-            #codes[kind >= _cntr._slitkind] = mpath.Path.MOVETO
+            # points that begin a slit or are in it:
+            in_slit = kind[:-1] >= _cntr._slitkind
+            # use moveto for any point *following* such a point
+            codes[1:][in_slit] = mpath.Path.MOVETO
             paths.append(mpath.Path(seg, codes))
         return paths
 
