@@ -418,8 +418,8 @@ class _CacheProcessor(urllib2.BaseHandler):
         #while os.path.exists(self.in_cache_dir(fn)):
         #    fn = rightmost + '.' + str(random.randint(0,9999999))
 
-        
-        
+
+
         f = open(self.in_cache_dir(fn), 'wb')
         f.write(data)
         f.close()
@@ -514,12 +514,15 @@ def get_sample_data(fname, asfileobj=True):
 
     url = baseurl + quote(fname)
     response = get_sample_data.opener.open(url)
+
+    p = get_sample_data.processor
+    relpath = p.cache[url][0]
+    fname = p.in_cache_dir(relpath)
+
     if asfileobj:
-        return response
+        return file(fname)
     else:
-        response.close()
-        p = get_sample_data.processor
-        return p.in_cache_dir(p.cache[url][0])
+        return fname
 
 def flatten(seq, scalarp=is_scalar_or_string):
     """
