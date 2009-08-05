@@ -7,7 +7,7 @@ Dir Contents
 -------------
 
 * :file:`bdist_mkpg` - the distutils.extension to build Installer.app
-  mpkg installers.  
+  mpkg installers.
 
 * :file:`data` - some config files and patches needed for the build
 
@@ -19,15 +19,21 @@ Dir Contents
 How to build
 --------------
 
-* You need a python framework build , numpy and wxpython to build the
+* You need a python framework build, numpy and wxpython to build the
   mpl installers (wx requires this and we need wx to build the wxagg
-  extension).  You can get the three required dependencies as
-  Installer apps, eg:
+  extension).  I recommend building python from src as a framework build::
 
+    ./configure --enable-universalsdk --enable-framework
+    sudo make install
 
-     http://www.python.org/ftp/python/2.6.2/python-2.6.2-macosx2009-04-16.dmg
-     http://downloads.sourceforge.net/project/numpy/NumPy/1.3.0/numpy-1.3.0-py2.6-macosx10.5.dmg?use_mirror=voxel
-     http://downloads.sourceforge.net/project/wxpython/wxPython/2.8.10.1/wxPython2.8-osx-unicode-2.8.10.1-universal-py2.6.dmg?use_mirror=voxel
+  and build numpy from src too since the 2.5 numpy installer doesn't work
+  with a python built from src::
+
+      sudo python setup.py install
+
+  you can use the pre-built installer for wx::
+
+      http://downloads.sourceforge.net/project/wxpython/wxPython/2.8.10.1/wxPython2.8-osx-unicode-2.8.10.1-universal-py2.6.dmg?use_mirror=voxel
 
 * You need to make sure to unset PKG_CONFIG_PATH to make sure the
   static linking below is respected.  Otherwise the mpl build script
