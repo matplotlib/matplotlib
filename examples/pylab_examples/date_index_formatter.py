@@ -14,7 +14,7 @@ from pylab import figure, show
 import matplotlib.cbook as cbook
 from matplotlib.ticker import Formatter
 
-datafile = cbook.get_sample_data('msft.csv', asobj=False)
+datafile = cbook.get_sample_data('msft.csv', asfileobj=False)
 print 'loading', datafile
 r = csv2rec(datafile)[-40:]
 

@@ -4,7 +4,7 @@ from pylab import *
 
 
 # convert data to mV
-datafile = cbook.get_sample_data('membrane.dat', asobj=False)
+datafile = cbook.get_sample_data('membrane.dat', asfileobj=False)
 print 'loading', datafile
 
 x = 1000*0.1*fromstring(file(datafile, 'rb').read(), float32)

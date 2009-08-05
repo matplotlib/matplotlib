@@ -4,7 +4,7 @@ import numpy as np
 from pylab import figure, show
 import matplotlib.cbook as cbook
 
-datafile = cbook.get_sample_data('msft.csv', asobj=False)
+datafile = cbook.get_sample_data('msft.csv', asfileobj=False)
 print 'loading', datafile
 
 dates, closes = np.loadtxt(
