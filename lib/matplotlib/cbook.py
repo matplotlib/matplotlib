@@ -521,7 +521,7 @@ def get_sample_data(fname, asfileobj=True):
     To add a datafile to this directory, you need to check out
     sample_data from matplotlib svn::
 
-      svn co http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data
+      svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data
 
     and svn add the data file you want to support.  This is primarily
     intended for use in mpl examples that need custom data
