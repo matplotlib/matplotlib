@@ -488,8 +488,16 @@ def get_sample_data(fname, asfileobj=True):
         get_sample_data.processor = _CacheProcessor(cachedir)
         get_sample_data.opener = urllib2.build_opener(get_sample_data.processor)
 
+
+    # quote is not in python2.4, so check for it and get it from
+    # urllib if it is not available
+    quote = getattr(urllib2, 'quote', None)
+    if quote is None:
+        import urllib
+        quote = urllib.quote
+
     url = 'http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data/' + \
-        urllib2.quote(fname)
+        quote(fname)
     response = get_sample_data.opener.open(url)
     if asfileobj:
         return response
