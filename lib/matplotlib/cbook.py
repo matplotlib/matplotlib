@@ -344,7 +344,7 @@ def to_filehandle(fname, flag='rU', return_opened=False):
 def is_scalar_or_string(val):
     return is_string_like(val) or not iterable(val)
 
-class _CacheProcessor(urllib2.BaseHandler):
+class ViewVCCachedServer(urllib2.BaseHandler):
     """
     Urllib2 handler that takes care of caching files.
     The file cache.pck holds the directory of files to be cached.
@@ -354,6 +354,7 @@ class _CacheProcessor(urllib2.BaseHandler):
         self.baseurl = baseurl
         self.read_cache()
         self.remove_stale_files()
+        self.opener = urllib2.build_opener(self)
 
     def in_cache_dir(self, fn):
         # make sure the datadir exists
@@ -394,7 +395,7 @@ class _CacheProcessor(urllib2.BaseHandler):
             if path not in listed and path != 'cache.pck':
                 thisfile = os.path.join(self.cache_dir, path)
                 if not os.path.isdir(thisfile):
-                    matplotlib.verbose.report('_CacheProcessor:remove_stale_files: removing %s'%thisfile,
+                    matplotlib.verbose.report('ViewVCCachedServer:remove_stale_files: removing %s'%thisfile,
                                               level='debug')
                     os.remove(thisfile)
 
@@ -451,7 +452,7 @@ class _CacheProcessor(urllib2.BaseHandler):
         url = req.get_full_url()
         fn, _, _ = self.cache[url]
         cachefile = self.in_cache_dir(fn)
-        matplotlib.verbose.report('_CacheProcessor: reading data file from cache file "%s"'%cachefile)
+        matplotlib.verbose.report('ViewVCCachedServer: reading data file from cache file "%s"'%cachefile)
         file = open(cachefile, 'rb')
         handle = urllib2.addinfourl(file, hdrs, url)
         handle.code = 304
@@ -473,9 +474,41 @@ class _CacheProcessor(urllib2.BaseHandler):
             result.msg = response.msg
             return result
 
+    def get_sample_data(self, fname, asfileobj=True):
+        """
+        Check the cachedirectory for a sample_data file.  If it does
+        not exist, fetch it with urllib from the svn repo and
+        store it in the cachedir.
+
+        If asfileobj is True, a file object will be returned.  Else the
+        path to the file as a string will be returned
+
+        """
+
+
+        # quote is not in python2.4, so check for it and get it from
+        # urllib if it is not available
+        quote = getattr(urllib2, 'quote', None)
+        if quote is None:
+            import urllib
+            quote = urllib.quote
+
+        url = self.baseurl + quote(fname)
+        response = self.opener.open(url)
+
+
+        relpath = self.cache[url][0]
+        fname = self.in_cache_dir(relpath)
+
+        if asfileobj:
+            return file(fname)
+        else:
+            return fname
+
+
 def get_sample_data(fname, asfileobj=True):
     """
-    Check the cachedirectory ~/.matplotlib/sample_data for an sample_data
+    Check the cachedirectory ~/.matplotlib/sample_data for a sample_data
     file.  If it does not exist, fetch it with urllib from the mpl svn repo
 
       http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data/
@@ -488,42 +521,22 @@ def get_sample_data(fname, asfileobj=True):
     To add a datafile to this directory, you need to check out
     sample_data from matplotlib svn::
 
-      svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data
+      svn co http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data
 
     and svn add the data file you want to support.  This is primarily
     intended for use in mpl examples that need custom data
     """
 
-    baseurl ='http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data/'
-    if not hasattr(get_sample_data, 'opener'):
+    myserver = get_sample_data.myserver
+    if myserver is None:
         configdir = matplotlib.get_configdir()
         cachedir = os.path.join(configdir, 'sample_data')
-        if not os.path.exists(cachedir):
-            os.mkdir(cachedir)
-        # Store the cache processor and url opener as attributes of this function
-        get_sample_data.processor = _CacheProcessor(cachedir, baseurl)
-        get_sample_data.opener = urllib2.build_opener(get_sample_data.processor)
+        baseurl = 'http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data/'
+        myserver = get_sample_data.myserver = ViewVCCachedServer(cachedir, baseurl)
 
+    return myserver.get_sample_data(fname, asfileobj=asfileobj)
 
-    # quote is not in python2.4, so check for it and get it from
-    # urllib if it is not available
-    quote = getattr(urllib2, 'quote', None)
-    if quote is None:
-        import urllib
-        quote = urllib.quote
-
-    url = baseurl + quote(fname)
-    response = get_sample_data.opener.open(url)
-
-    p = get_sample_data.processor
-    relpath = p.cache[url][0]
-    fname = p.in_cache_dir(relpath)
-
-    if asfileobj:
-        return file(fname)
-    else:
-        return fname
-
+get_sample_data.myserver = None
 def flatten(seq, scalarp=is_scalar_or_string):
     """
     this generator flattens nested containers such as
