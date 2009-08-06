@@ -48,16 +48,16 @@ How to build
 * First fetch all the dependencies and patch bdist_mpkg for OSX 10.5.
   You can do this automatically in one step with::
 
-      make fetch_deps
+      make fetch
 
-* install the patched bdist_mpkg, that the fetch_deps step just created::
+* install the patched bdist_mpkg, that the fetch step just created::
 
       cd bdist_mpkg-0.4.4
       sudo python setup.py install
 
 * build the dependencies::
 
-      make dependencies
+      make deps
 
 * copy over the latest mpl *.tar.gz tarball to this directory, update
   the MPLVERSION in the Makefile::
@@ -77,11 +77,11 @@ Build the dependencies::
 
     cd release/osx/
     unset PKG_CONFIG_PATH
-    make fetch_deps
+    make fetch
     cd bdist_mpkg-0.4.4
     sudo python setup.py install
     cd ..
-    make dependencies
+    make deps
 
 Build the mpl sdist::
 

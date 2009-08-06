@@ -3,6 +3,9 @@
 Annotating text
 ===============
 
+For a more detailed introduction to annotations, see
+:ref:`plotting-guide-annotation`.
+
 The uses of the basic :func:`~matplotlib.pyplot.text` command above
 place text at an arbitrary position on the Axes.  A common use case of
 text is to annotate some feature of the plot, and the

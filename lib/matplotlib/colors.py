@@ -488,7 +488,7 @@ class Colormap:
         if not self._isinit: self._init()
         alpha = min(alpha, 1.0) # alpha must be between 0 and 1
         alpha = max(alpha, 0.0)
-        self._lut[:-3, -1] = alpha
+        self._lut[:,-1] = alpha
         mask_bad = None
         if not cbook.iterable(X):
             vtype = 'scalar'
