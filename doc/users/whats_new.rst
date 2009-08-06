@@ -18,8 +18,8 @@ mplot3d
 
 Reinier Heeres has ported John Porter's mplot3d over to the new
 matplotlib transformations framework, and it is now available as a
-toolkit mpl_toolkits.mplot3d.  See the `examples
-<http://matplotlib.sourceforge.net/examples/mplot3d/index.html>`_ and
+toolkit mpl_toolkits.mplot3d (which now comes standard with all mpl
+installs).  See :ref:`mplot3d-examples-index` and
 :ref:`toolkit_mplot3d-tutorial`
 
 .. plot:: pyplots/whats_new_99_mplot3d.py
@@ -29,10 +29,11 @@ toolkit mpl_toolkits.mplot3d.  See the `examples
 axes grid toolkit
 -----------------
 
-Jae Joon has added a new toolkit to ease displaying multiple images in
+Jae-Joon Lee has added a new toolkit to ease displaying multiple images in
 matplotlib, as well as some support for curvilinear grids to support
-the world coordinate system. See :ref:`axes_grid_users-guide-index`
-and `examples <http://matplotlib.sourceforge.net/examples/axes_grid/index.html>`_
+the world coordinate system. The toolkit is included standard with all
+new mpl installs.  See :ref:`axes_grid-examples-index` and
+:ref:`axes_grid_users-guide-index`.
 
 .. plot:: pyplots/whats_new_99_axes_grid.py
 
