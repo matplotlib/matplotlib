@@ -236,6 +236,9 @@ from matplotlib.mlab import window_hanning, window_none,  detrend, demean, \
      base_repr, binary_repr, log2, ispower2, \
      rec_append_fields, rec_drop_fields, rec_join, csv2rec, rec2csv, isvector
 
+import matplotlib.mlab as mlab
+import matplotlib.cbook as cbook
+
 from numpy import *
 from numpy.fft import *
 from numpy.random import *
@@ -248,3 +251,25 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
 
+def load(*args, **kwargs): 
+    raise  NotImplementedError(load.__doc__)   		
+load.__doc__ = """\
+    pylab no longer provides a load function, though the old pylab
+    function is still available as matplotlib.mlab.load (you can refer
+    to it in pylab as "mlab.load").  However, for plain text files, we
+    recommend numpy.loadtxt, which was inspired by the old pylab.load
+    but now has more features.  For loading numpy arrays, we recommend
+    numpy.load, and its analog numpy.save, which are available in
+    pylab as np.load and np.save.
+    """
+
+
+def save(*args, **kwargs): 
+    raise  NotImplementedError(save.__doc__)   		
+save.__doc__ = """\
+    pylab no longer provides a save function, though the old pylab
+    function is still available as matplotlib.mlab.save (you can still
+    refer to it in pylab as "mlab.save").  However, for plain text
+    files, we recommend numpy.savetxt.  For saving numpy arrays,
+    we recommend numpy.save, and its analog numpy.load, which are
+    available in pylab as np.save and np.load."""

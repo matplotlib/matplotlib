@@ -152,5 +152,4 @@ Annotating plot
 
 :ref:`plotting-guide-annotation`
 
-TODO; see :ref:`how-to-contribute-docs`.
 
