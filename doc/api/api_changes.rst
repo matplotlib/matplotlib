@@ -18,8 +18,13 @@ list may help describe what changes may be necessary in your code.
 .. _configobj: http://www.voidspace.org.uk/python/configobj.html
 .. _`enthought.traits`: http://code.enthought.com/projects/traits
 
-Changes beyond 0.98.x
-=====================
+Changes in 0.99
+======================
+
+* pylab no longer provides a load and save function.  These are
+  available in matplotlib.mlab, or you can use numpy.loadtxt and
+  numpy.savetxt for text files, or np.save and np.load for binary
+  numpy arrays.
 
 * User-generated colormaps can now be added to the set recognized
   by :func:`matplotlib.cm.get_cmap`.  Colormaps can be made the
