@@ -21,7 +21,7 @@ toolkit mpl_toolkits.mplot3d.  See the `examples
 <http://matplotlib.sourceforge.net/examples/mplot3d/index.html>`_ and
 :ref:`toolkit_mplot3d-tutorial`
 
-.. plot:: pyplots/whats_new_mplot3d.py
+.. plot:: pyplots/whats_new_99_mplot3d.py
 
 .. _whats-new-axes-grid:
 
@@ -33,7 +33,7 @@ matplotlib, as well as some support for curvilinear grids to support
 the world coordinate system. See :ref:`axes_grid_users-guide-index`
 and `examples <http://matplotlib.sourceforge.net/examples/axes_grid/index.html>`_
 
-.. plot:: pyplots/whats_new_axes_grid.py
+.. plot:: pyplots/whats_new_99_axes_grid.py
 
 .. _whats-new-spine:
 
