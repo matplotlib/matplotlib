@@ -1,10 +1,10 @@
-PYVERSION=2.5
+PYVERSION=2.6
 PYTHON=python${PYVERSION}
 SRCDIR=${PWD}
 ZLIBVERSION=1.2.3
 PNGVERSION=1.2.33
 FREETYPEVERSION=2.3.7
-MPLVERSION=0.99.0.rc2
+MPLVERSION=0.99.0
 BDISTMPKGVERSION=0.4.4
 MPLSRC=matplotlib-${MPLVERSION}
 MACOSX_DEPLOYMENT_TARGET=10.4
@@ -28,7 +28,7 @@ clean:
 	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} \
 	matplotlib-${MPLVERSION} *~
 
-fetch_deps:
+fetch:
 	wget http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz &&\
 	wget http://internap.dl.sourceforge.net/sourceforge/libpng/libpng-${PNGVERSION}.tar.bz2 &&\
 	wget http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2&&\
@@ -77,7 +77,7 @@ freetype: zlib
 	cp objs/.libs/libfreetype.a .  &&\
 	unset MACOSX_DEPLOYMENT_TARGET
 
-dependencies:
+deps:
 	make zlib png freetype
 
 installers:
@@ -85,13 +85,12 @@ installers:
 	tar xvfz matplotlib-${MPLVERSION}.tar.gz && \
 	cd ${MPLSRC} && \
 	rm -rf build && \
-	cp ../data/setup.cfg . &&\
+	cp ../data/setup.cfg ../data/ReadMe.txt . &&\
 	export CFLAGS=${CFLAGS} &&\
 	export LDFLAGS=${LDFLAGS} &&\
-	/Library/Frameworks/Python.framework/Versions/${PYVERSION}/bin/bdist_mpkg &&\
-	${PYTHON} setupegg.py bdist_egg &&\
-	cd dist && \
-	zip -ro matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5_mpkg.zip matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.mpkg
+	/Library/Frameworks/Python.framework/Versions/${PYVERSION}/bin/bdist_mpkg --readme=ReadMe.txt &&\
+	hdiutil create -srcdir dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.mpkg  dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.dmg &&\
+	${PYTHON} setupegg.py bdist_egg
 
 upload:
 	rm -rf upload &&\
@@ -102,7 +101,7 @@ upload:
 	scp upload/* jdh2358@frs.sourceforge.net:uploads/
 
 all:
-	make clean fetch_deps dependencies installers upload
+	make clean fetch deps installers upload
 
 
 
