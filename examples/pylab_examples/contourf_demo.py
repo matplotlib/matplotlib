@@ -55,9 +55,10 @@ CS = contourf(X, Y, Z, 10, # [-1, -0.1, 0, 0.1],
 
 # Note that in the following, we explicitly pass in a subset of
 # the contour levels used for the filled contours.  Alternatively,
-# We could pass in additional levels to provide extra resolution.
+# We could pass in additional levels to provide extra resolution,
+# or leave out the levels kwarg to use all of the original levels.
 
-CS2 = contour(X, Y, Z, CS.levels[::2],
+CS2 = contour(CS, levels=CS.levels[::2],
                         colors = 'r',
                         origin=origin,
                         hold='on')
