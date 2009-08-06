@@ -1,13 +1,14 @@
 .. _whats-new:
 
-***************************
+************************
 What's new in matplotlib
-***************************
+************************
 
-.. _whats-new-svn:
+This page just covers the highlights -- for the full story, see the
+`CHANGELOG <http://matplotlib.sourceforge.net/_static/CHANGELOG>`_
 
-What new in matplotlib-0.99
-=============================
+new in matplotlib-0.99
+======================
 
 .. _whats-new-mplot3d:
 
@@ -50,10 +51,17 @@ well as "detach" the spine to offset it away from the data.  See
 
 .. plot:: pyplots/whats_new_99_spines.py
 
+
+New documentation
+-----------------
+
+jae-Joon Lee has written two new guides :ref:`plotting-guide-legend`
+and :ref:`plotting-guide-annotation`.
+
 .. _whats-new-0-98-4:
 
-What new in 0.98.4
-==============================
+new in 0.98.4
+=============
 
 It's been four months since the last matplotlib release, and there are
 a lot of new features and bug-fixes.
