@@ -3819,6 +3819,8 @@ class Axes(martist.Artist):
                         if isinstance(c, mcoll.LineCollection)])
         handles.extend([c for c in self.collections
                         if isinstance(c, mcoll.RegularPolyCollection)])
+        handles.extend([c for c in self.collections
+                        if isinstance(c, mcoll.CircleCollection)])
         return handles
 
 
