@@ -1358,7 +1358,7 @@ def colormaps():
 
 ## Plotting part 1: manually generated functions and wrappers ##
 
-
+import matplotlib.colorbar
 def colorbar(mappable=None, cax=None, ax=None, **kw):
     if mappable is None:
         mappable = gci()
