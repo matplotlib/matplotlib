@@ -539,6 +539,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         """
         self.ax = ax
+        self.noslit = kwargs.get('noslit', False) # **Temporary**
         self.levels = kwargs.get('levels', None)
         self.filled = kwargs.get('filled', False)
         self.linewidths = kwargs.get('linewidths', None)
@@ -571,12 +572,31 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.colors is not None and cmap is not None:
             raise ValueError('Either colors or cmap must be None')
         if self.origin == 'image': self.origin = mpl.rcParams['image.origin']
-        x, y, z = self._contour_args(*args)        # also sets self.levels,
-                                                   #  self.layers
+
+        if isinstance(args[0], ContourSet):
+            C = args[0].Cntr
+            if self.levels is None:
+                self.levels = args[0].levels
+        else:
+            x, y, z = self._contour_args(*args)
+
+            x0 = ma.minimum(x)
+            x1 = ma.maximum(x)
+            y0 = ma.minimum(y)
+            y1 = ma.maximum(y)
+            self.ax.update_datalim([(x0,y0), (x1,y1)])
+            self.ax.autoscale_view()
+            _mask = ma.getmask(z)
+            if _mask is ma.nomask:
+                _mask = None
+            C = _cntr.Cntr(x, y, z.filled(), _mask)
+        self.Cntr = C
+        self._process_levels()
+
         if self.colors is not None:
             cmap = colors.ListedColormap(self.colors, N=len(self.layers))
         if self.filled:
-            self.collections = cbook.silent_list('collections.PolyCollection')
+            self.collections = cbook.silent_list('collections.PathCollection')
         else:
             self.collections = cbook.silent_list('collections.LineCollection')
         self.segs = []
@@ -590,14 +610,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             kw['norm'] = norm
         cm.ScalarMappable.__init__(self, **kw) # sets self.cmap;
         self._process_colors()
-        _mask = ma.getmask(z)
-        if _mask is ma.nomask:
-            _mask = None
-
         if self.filled:
             if self.linewidths is not None:
                 warnings.warn('linewidths is ignored by contourf')
-            C = _cntr.Cntr(x, y, z.filled(), _mask)
             lowers = self._levels[:-1]
             uppers = self._levels[1:]
             for level, level_upper in zip(lowers, uppers):
@@ -620,7 +635,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             tlinewidths = self._process_linewidths()
             self.tlinewidths = tlinewidths
             tlinestyles = self._process_linestyles()
-            C = _cntr.Cntr(x, y, z.filled(), _mask)
             for level, width, lstyle in zip(self.levels, tlinewidths, tlinestyles):
                 nlist = C.trace(level)
                 nseg = len(nlist)//2
@@ -637,24 +651,18 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.segs.append(segs)
                 self.kinds.append(kinds)
         self.changed() # set the colors
-        x0 = ma.minimum(x)
-        x1 = ma.maximum(x)
-        y0 = ma.minimum(y)
-        y1 = ma.maximum(y)
-        self.ax.update_datalim([(x0,y0), (x1,y1)])
-        self.ax.autoscale_view()
 
-    @staticmethod
-    def _make_paths(segs, kinds):
+    def _make_paths(self, segs, kinds):
         paths = []
         for seg, kind in zip(segs, kinds):
             codes = np.zeros(kind.shape, dtype=mpath.Path.code_type)
             codes.fill(mpath.Path.LINETO)
             codes[0] = mpath.Path.MOVETO
             # points that begin a slit or are in it:
-            in_slit = kind[:-1] >= _cntr._slitkind
             # use moveto for any point *following* such a point
-            codes[1:][in_slit] = mpath.Path.MOVETO
+            if self.noslit:
+                in_slit = kind[:-1] >= _cntr._slitkind
+                codes[1:][in_slit] = mpath.Path.MOVETO
             paths.append(mpath.Path(seg, codes))
         return paths
 
@@ -813,14 +821,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                         "Last %s arg must give levels; see help(%s)" % (fn,fn))
             if self.filled and len(lev) < 2:
                 raise ValueError("Filled contours require at least 2 levels.")
-            # Workaround for cntr.c bug wrt masked interior regions:
-            #if filled:
-            #    z = ma.masked_array(z.filled(-1e38))
-            # It's not clear this is any better than the original bug.
             self.levels = lev
-        #if self._auto and self.extend in ('both', 'min', 'max'):
-        #    raise TypeError("Auto level selection is inconsistent "
-        #                             + "with use of 'extend' kwarg")
+        return (x, y, z)
+
+    def _process_levels(self):
         self._levels = list(self.levels)
         if self.extend in ('both', 'min'):
             self._levels.insert(0, min(self.levels[0],self.zmin) - 1)
@@ -841,7 +845,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             if self.extend in ('both', 'max'):
                 self.layers[-1] = 0.5 * (self.vmax + self._levels[-2])
 
-        return (x, y, z)
 
     def _process_colors(self):
         """
