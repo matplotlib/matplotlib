@@ -1,3 +1,31 @@
+2009-08-06 Tagging the 0.99.0 release at svn r7395 - JDH
+
+	   * fixed an alpha colormapping bug posted on sf 2832575
+
+	   * fix typo in axes_divider.py. use nanmin, nanmax in angle_helper.py (patch by Christoph Gohlke)
+
+	   * remove dup gui event in enter/leave events in gtk
+
+	   * lots of fixes for os x binaries (Thanks Russell Owen)
+
+	   * attach gtk events to mpl events -- fixes sf bug 2816580
+
+	   * applied sf patch 2815064 (middle button events for wx) and patch  2818092 (resize events for wx)
+
+	   * fixed boilerplate.py so it doesn't break the ReST docs.
+
+	   * removed a couple of cases of mlab.load
+
+	   * fixed rec2csv win32 file handle bug from sf patch 2831018
+
+	   * added two examples from Josh Hemann: examples/pylab_examples/barchart_demo2.py and
+             examples/pylab_examples/boxplot_demo2.py
+
+	   * handled sf bugs 2831556 and 2830525; better bar error messages and backend driver configs
+
+	   * added miktex win32 patch from sf patch 2820194
+
+	   * apply sf patches 2830233 and 2823885 for osx setup and 64 bit;  thanks Michiel
 
 2009-08-03 Fixed boilerplate.py so it doesn't break the ReST docs. - JKS
 
