@@ -1358,8 +1358,7 @@ def colormaps():
 
 ## Plotting part 1: manually generated functions and wrappers ##
 
-
-from matplotlib.colorbar import colorbar_doc as _colorbar_doc
+import matplotlib.colorbar
 def colorbar(mappable=None, cax=None, ax=None, **kw):
     if mappable is None:
         mappable = gci()
@@ -1369,7 +1368,7 @@ def colorbar(mappable=None, cax=None, ax=None, **kw):
     ret = gcf().colorbar(mappable, cax = cax, ax=ax, **kw)
     draw_if_interactive()
     return ret
-colorbar.__doc__ = _colorbar_doc
+colorbar.__doc__ = matplotlib.colorbar.colorbar_doc
 
 def clim(vmin=None, vmax=None):
     """
@@ -2691,5 +2690,3 @@ def spectral():
     if im is not None:
         im.set_cmap(cm.spectral)
     draw_if_interactive()
-
-
