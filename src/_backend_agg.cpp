@@ -1270,9 +1270,11 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_path_collection");
   args.verify_length(12);
 
-  GCAgg gc(args[0], dpi);
+  Py::Object gc_obj = args[0];
+  GCAgg gc(gc_obj, dpi);
   agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[1].ptr());
-  PathListGenerator       paths(args[2]);
+  Py::SeqBase<Py::Object> path   = args[2];
+  PathListGenerator       path_generator(path);
   Py::SeqBase<Py::Object> transforms_obj   = args[3];
   Py::Object              offsets_obj      = args[4];
   agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[5].ptr());
@@ -1283,7 +1285,6 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
   Py::SeqBase<Py::Int>    antialiaseds	   = args[10];
   // We don't actually care about urls for Agg, so just ignore it.
   // Py::SeqBase<Py::Object> urls             = args[11];
-  PathListGenerator path_generator(paths);
 
   try {
     _draw_path_collection_generic<PathListGenerator, 0, 1>
