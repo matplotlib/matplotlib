@@ -166,6 +166,14 @@ class RendererBase:
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
             edgecolors, linewidths, [], [antialiased], [None])
 
+    def draw_gouraud_triangle(self, gc, points, colors, transform):
+        """
+        Draw a Gouraud-shaded triangle.
+
+        EXPERIMENTAL
+        """
+        raise NotImplementedError
+
     def _iter_collection_raw_paths(self, master_transform, paths,
                                    all_transforms):
         """

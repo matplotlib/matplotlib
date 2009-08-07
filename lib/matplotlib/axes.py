@@ -6543,7 +6543,7 @@ class Axes(martist.Artist):
             and max of the color array *C* is used.  If you pass a
             *norm* instance, *vmin* and *vmax* will be ignored.
 
-          *shading*: [ 'flat' | 'faceted' ]
+          *shading*: [ 'flat' | 'faceted' | 'gouraud' ]
             If 'faceted', a black grid is drawn around each rectangle; if
             'flat', edges are not drawn. Default is 'flat', contrary to
             Matlab(TM).
@@ -6584,7 +6584,7 @@ class Axes(martist.Artist):
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
-        shading = kwargs.pop('shading', 'flat')
+        shading = kwargs.pop('shading', 'flat').lower()
         edgecolors = kwargs.pop('edgecolors', 'None')
         antialiased = kwargs.pop('antialiased', False)
 
@@ -6592,8 +6592,11 @@ class Axes(martist.Artist):
         Ny, Nx = X.shape
 
         # convert to one dimensional arrays
-        C = ma.ravel(C[0:Ny-1, 0:Nx-1]) # data point in each cell is value at
-                                        # lower left corner
+        if shading != 'gouraud':
+            C = ma.ravel(C[0:Ny-1, 0:Nx-1]) # data point in each cell is value at
+                                            # lower left corner
+        else:
+            C = C.ravel()
         X = X.ravel()
         Y = Y.ravel()
 
@@ -6608,7 +6611,7 @@ class Axes(martist.Artist):
 
         collection = mcoll.QuadMesh(
             Nx - 1, Ny - 1, coords, showedges,
-            antialiased=antialiased)  # kwargs are not used
+            antialiased=antialiased, shading=shading)  # kwargs are not used
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
