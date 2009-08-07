@@ -24,15 +24,9 @@ Checking out the main source::
    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/\
    matplotlib mpl --username=youruser --password=yourpass
 
-Branch checkouts, eg the maintenance branch::
+Branch checkouts, eg the release branch::
 
-   svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/\
-   v0_91_maint mpl91 --username=youruser --password=yourpass
-
-The current release of the trunk is in the 0.98.5 maintenance branch::
-
-   svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/\
-   v0_98_5_maint mpl98.5 --username=youruser --password=yourpass
+   svn co https://matplotlib.svn.sf.net/svnroot/matplotlib/branches/v0_99_maint mpl99
 
 
 Committing changes
@@ -64,11 +58,10 @@ in mind.
   :file:`MANIFEST.in`.  This file determines what goes into the source
   distribution of the mpl build.
 
-* Keep the maintenance branch (0.91) the latest release branch (eg
-  0.98.4) and trunk in sync where it makes sense.  If there is a bug
-  on both that needs fixing, use `svnmerge.py
-  <http://www.orcaware.com/svn/wiki/Svnmerge.py>`_ to keep them in
-  sync.  See :ref:`svn-merge` below.
+* Keep the release branch (eg 0.90 and trunk in sync where it makes
+  sense.  If there is a bug on both that needs fixing, use
+  `svnmerge.py <http://www.orcaware.com/svn/wiki/Svnmerge.py>`_ to
+  keep them in sync.  See :ref:`svn-merge` below.
 
 .. _svn-merge:
 
@@ -96,7 +89,7 @@ The basic procedure is:
        svnmerge.py merge -S BRANCHNAME
 
   Where BRANCHNAME is the name of the branch to merge *from*,
-  e.g. v0_98_5_maint.
+  e.g. v0_99_maint.
 
   If you wish to merge only specific revisions (in an unusual
   situation), do::
