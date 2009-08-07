@@ -1286,13 +1286,7 @@ class RendererPdf(RendererBase):
     def get_image_magnification(self):
         return self.image_dpi/72.0
 
-    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
-        gc = self.new_gc()
-        if bbox is not None:
-            gc.set_clip_rectangle(bbox)
-        if clippath is not None:
-            clippath = TransformedPath(clippath, clippath_trans)
-            gc.set_clip_path(clippath)
+    def draw_image(self, gc, x, y, im):
         self.check_gc(gc)
 
         h, w = im.get_size_out()

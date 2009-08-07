@@ -11,7 +11,7 @@ from matplotlib.pyplot import figure, show, savefig
 from matplotlib import cm, colors
 from numpy import ma
 
-n = 56
+n = 12
 x = np.linspace(-1.5,1.5,n)
 y = np.linspace(-1.5,1.5,n*2)
 X,Y = np.meshgrid(x,y);

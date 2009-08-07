@@ -97,7 +97,9 @@ class RendererGDK(RendererBase):
             if gc.gdkGC.line_width > 0:
                 self.gdkDrawable.draw_lines(gc.gdkGC, polygon)
 
-    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
+    def draw_image(self, gc, x, y, im):
+        bbox = gc.get_clip_rectangle()
+
         if bbox != None:
             l,b,w,h = bbox.bounds
             #rectangle = (int(l), self.height-int(b+h),

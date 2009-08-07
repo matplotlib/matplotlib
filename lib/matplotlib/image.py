@@ -235,9 +235,10 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         im = self.make_image(renderer.get_image_magnification())
         im._url = self.get_url()
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
-        clippath, affine = self.get_transformed_clip_path_and_affine()
-        renderer.draw_image(round(l), round(b), im, self.axes.bbox.frozen(),
-                            clippath, affine)
+        gc = renderer.new_gc()
+        gc.set_clip_rectangle(self.axes.bbox.frozen())
+        gc.set_clip_path(self.get_clip_path())
+        renderer.draw_image(gc, round(l), round(b), im)
 
     def contains(self, mouseevent):
         """
@@ -576,11 +577,13 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
         im = self.make_image(renderer.get_image_magnification())
-        renderer.draw_image(round(self.axes.bbox.xmin),
+        gc = renderer.new_gc()
+        gc.set_clip_rectangle(self.axes.bbox.frozen())
+        gc.set_clip_path(self.get_clip_path())
+        renderer.draw_image(gc,
+                            round(self.axes.bbox.xmin),
                             round(self.axes.bbox.ymin),
-                            im,
-                            self.axes.bbox.frozen(),
-                            *self.get_transformed_clip_path_and_affine())
+                            im)
 
 
     def set_data(self, x, y, A):
@@ -730,8 +733,10 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         if not self.get_visible(): return
         # todo: we should be able to do some cacheing here
         im = self.make_image(renderer.get_image_magnification())
-        renderer.draw_image(round(self.ox), round(self.oy), im, self.figure.bbox,
-                            *self.get_transformed_clip_path_and_affine())
+        gc = renderer.new_gc()
+        gc.set_clip_rectangle(self.figure.bbox)
+        gc.set_clip_path(self.get_clip_path())
+        renderer.draw_image(gc, round(self.ox), round(self.oy), im)
 
     def write_png(self, fname):
         """Write the image to png file with fname"""

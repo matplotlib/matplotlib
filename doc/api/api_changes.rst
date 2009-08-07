@@ -18,6 +18,43 @@ list may help describe what changes may be necessary in your code.
 .. _configobj: http://www.voidspace.org.uk/python/configobj.html
 .. _`enthought.traits`: http://code.enthought.com/projects/traits
 
+Changes beyond 0.99.x
+=====================
+
+In an effort to simplify the backend API, all clipping rectangles
+and paths are now passed in using GraphicsContext objects, even
+on collections and images.  Therefore::
+
+  draw_path_collection(self, master_transform, cliprect, clippath,
+                       clippath_trans, paths, all_transforms, offsets,
+                       offsetTrans, facecolors, edgecolors, linewidths,
+                       linestyles, antialiaseds, urls)
+
+  # is now
+
+  draw_path_collection(self, gc, master_transform, paths, all_transforms,
+                       offsets, offsetTrans, facecolors, edgecolors,
+                       linewidths, linestyles, antialiaseds, urls)
+
+
+  draw_quad_mesh(self, master_transform, cliprect, clippath,
+                 clippath_trans, meshWidth, meshHeight, coordinates,
+                 offsets, offsetTrans, facecolors, antialiased,
+                 showedges)
+
+  # is now
+
+  draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
+                 coordinates, offsets, offsetTrans, facecolors,
+                 antialiased, showedges)
+
+
+  draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None)
+
+  # is now
+
+  draw_image(self, gc, x, y, im)
+
 Changes in 0.99
 ======================
 

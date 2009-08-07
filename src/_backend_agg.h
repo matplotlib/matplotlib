@@ -164,7 +164,7 @@ public:
   Py::Object draw_path(const Py::Tuple & args);
   Py::Object draw_path_collection(const Py::Tuple & args);
   Py::Object draw_quad_mesh(const Py::Tuple& args);
-
+  Py::Object draw_gouraud_triangle(const Py::Tuple& args);
 
   Py::Object write_rgba(const Py::Tuple & args);
   Py::Object tostring_rgb(const Py::Tuple & args);

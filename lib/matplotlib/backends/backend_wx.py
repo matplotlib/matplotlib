@@ -361,7 +361,8 @@ class RendererWx(RendererBase):
             gfx_ctx.StrokePath(wxpath)
         gc.unselect()
 
-    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
+    def draw_image(self, gc, x, y, im):
+        bbox = gc.get_clip_rectangle()
         if bbox != None:
             l,b,w,h = bbox.bounds
         else:
@@ -776,7 +777,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         bind(self, wx.EVT_MIDDLE_DOWN, self._onMiddleButtonDown)
         bind(self, wx.EVT_MIDDLE_DCLICK, self._onMiddleButtonDown)
         bind(self, wx.EVT_MIDDLE_UP, self._onMiddleButtonUp)
-	
+
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
 
         self.macros = {} # dict from wx id to seq of macros
@@ -1257,7 +1258,7 @@ The current aspect ration will be kept."""
         if self.HasCapture(): self.ReleaseMouse()
         FigureCanvasBase.button_release_event(self, x, y, 1, guiEvent=evt)
 
-    #Add middle button events	
+    #Add middle button events
     def _onMiddleButtonDown(self, evt):
         """Start measuring on an axis."""
         x = evt.GetX()

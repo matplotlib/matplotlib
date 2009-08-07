@@ -151,9 +151,11 @@ class RendererCairo(RendererBase):
 
         self._fill_and_stroke(ctx, rgbFace, gc.get_alpha())
 
-    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
+    def draw_image(self, gc, x, y, im):
         # bbox - not currently used
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
+
+        clippath, clippath_trans = gc.get_clip_path()
 
         im.flipud_out()
 
