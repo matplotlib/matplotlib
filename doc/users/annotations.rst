@@ -78,6 +78,4 @@ keyword args like ``horizontalalignment``, ``verticalalignment`` and
 .. plot:: pyplots/annotation_polar.py
    :include-source:
 
-See the `annotations demo
-<http://matplotlib.sf.net/examples/pylab_examples/annotation_demo.py>`_ for more
-examples.
+For more on all the wild and wonderful things you can do with annotations, including fancy arrows, see :ref:`plotting-guide-annotation` and :ref:`pylab_examples-annotation_demo`.
