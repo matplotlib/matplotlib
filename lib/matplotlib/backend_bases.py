@@ -108,24 +108,23 @@ class RendererBase:
                                marker_trans + transforms.Affine2D().translate(x, y),
                                rgbFace)
 
-    def draw_path_collection(self, master_transform, cliprect, clippath,
-                             clippath_trans, paths, all_transforms, offsets,
-                             offsetTrans, facecolors, edgecolors, linewidths,
-                             linestyles, antialiaseds, urls):
+    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
+                             offsets, offsetTrans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds, urls):
         """
-        Draws a collection of paths, selecting drawing properties from
+        Draws a collection of paths selecting drawing properties from
         the lists *facecolors*, *edgecolors*, *linewidths*,
         *linestyles* and *antialiaseds*. *offsets* is a list of
         offsets to apply to each of the paths.  The offsets in
-        *offsets* are first transformed by *offsetTrans* before
-        being applied.
+        *offsets* are first transformed by *offsetTrans* before being
+        applied.
 
         This provides a fallback implementation of
         :meth:`draw_path_collection` that makes multiple calls to
-        draw_path.  Some backends may want to override this in order
-        to render each set of path data only once, and then reference
-        that path multiple times with the different offsets, colors,
-        styles etc.  The generator methods
+        :meth:`draw_path`.  Some backends may want to override this in
+        order to render each set of path data only once, and then
+        reference that path multiple times with the different offsets,
+        colors, styles etc.  The generator methods
         :meth:`_iter_collection_raw_paths` and
         :meth:`_iter_collection` are provided to help with (and
         standardize) the implementation across backends.  It is highly
@@ -137,18 +136,16 @@ class RendererBase:
             master_transform, paths, all_transforms):
             path_ids.append((path, transform))
 
-        for xo, yo, path_id, gc, rgbFace in self._iter_collection(
-            path_ids, cliprect, clippath, clippath_trans,
-            offsets, offsetTrans, facecolors, edgecolors,
+        for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
+            gc, path_ids, offsets, offsetTrans, facecolors, edgecolors,
             linewidths, linestyles, antialiaseds, urls):
             path, transform = path_id
             transform = transforms.Affine2D(transform.get_matrix()).translate(xo, yo)
-            self.draw_path(gc, path, transform, rgbFace)
+            self.draw_path(gc0, path, transform, rgbFace)
 
-    def draw_quad_mesh(self, master_transform, cliprect, clippath,
-                       clippath_trans, meshWidth, meshHeight, coordinates,
-                       offsets, offsetTrans, facecolors, antialiased,
-                       showedges):
+    def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
+                       coordinates, offsets, offsetTrans, facecolors,
+                       antialiased, showedges):
         """
         This provides a fallback implementation of
         :meth:`draw_quad_mesh` that generates paths and then calls
@@ -166,11 +163,11 @@ class RendererBase:
             linewidths = np.array([0.0], np.float_)
 
         return self.draw_path_collection(
-            master_transform, cliprect, clippath, clippath_trans,
-            paths, [], offsets, offsetTrans, facecolors, edgecolors,
-            linewidths, [], [antialiased], [None])
+            gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
+            edgecolors, linewidths, [], [antialiased], [None])
 
-    def _iter_collection_raw_paths(self, master_transform, paths, all_transforms):
+    def _iter_collection_raw_paths(self, master_transform, paths,
+                                   all_transforms):
         """
         This is a helper method (along with :meth:`_iter_collection`) to make
         it easier to write a space-efficent :meth:`draw_path_collection`
@@ -200,9 +197,9 @@ class RendererBase:
                 transform = all_transforms[i % Ntransforms]
             yield path, transform + master_transform
 
-    def _iter_collection(self, path_ids, cliprect, clippath, clippath_trans,
-                         offsets, offsetTrans, facecolors, edgecolors,
-                         linewidths, linestyles, antialiaseds, urls):
+    def _iter_collection(self, gc, path_ids, offsets, offsetTrans, facecolors,
+                         edgecolors, linewidths, linestyles, antialiaseds,
+                         urls):
         """
         This is a helper method (along with
         :meth:`_iter_collection_raw_paths`) to make it easier to write
@@ -243,18 +240,14 @@ class RendererBase:
         if Noffsets:
             toffsets = offsetTrans.transform(offsets)
 
-        gc = self.new_gc()
-
-        gc.set_clip_rectangle(cliprect)
-        if clippath is not None:
-            clippath = transforms.TransformedPath(clippath, clippath_trans)
-            gc.set_clip_path(clippath)
+        gc0 = self.new_gc()
+        gc0.copy_properties(gc)
 
         if Nfacecolors == 0:
             rgbFace = None
 
         if Nedgecolors == 0:
-            gc.set_linewidth(0.0)
+            gc0.set_linewidth(0.0)
 
         xo, yo = 0, 0
         for i in xrange(N):
@@ -264,20 +257,20 @@ class RendererBase:
             if Nfacecolors:
                 rgbFace = facecolors[i % Nfacecolors]
             if Nedgecolors:
-                gc.set_foreground(edgecolors[i % Nedgecolors])
+                gc0.set_foreground(edgecolors[i % Nedgecolors])
                 if Nlinewidths:
-                    gc.set_linewidth(linewidths[i % Nlinewidths])
+                    gc0.set_linewidth(linewidths[i % Nlinewidths])
                 if Nlinestyles:
-                    gc.set_dashes(*linestyles[i % Nlinestyles])
+                    gc0.set_dashes(*linestyles[i % Nlinestyles])
             if rgbFace is not None and len(rgbFace)==4:
-                gc.set_alpha(rgbFace[-1])
+                gc0.set_alpha(rgbFace[-1])
                 rgbFace = rgbFace[:3]
-            gc.set_antialiased(antialiaseds[i % Naa])
+            gc0.set_antialiased(antialiaseds[i % Naa])
             if Nurls:
-                gc.set_url(urls[i % Nurls])
+                gc0.set_url(urls[i % Nurls])
 
-            yield xo, yo, path_id, gc, rgbFace
-        gc.restore()
+            yield xo, yo, path_id, gc0, rgbFace
+        gc0.restore()
 
     def get_image_magnification(self):
         """
@@ -287,9 +280,12 @@ class RendererBase:
         """
         return 1.0
 
-    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
+    def draw_image(self, gc, x, y, im):
         """
         Draw the image instance into the current axes;
+
+        *gc*
+            a GraphicsContext containing clipping information
 
         *x*
             is the distance in pixels from the left hand side of the canvas.
@@ -301,11 +297,6 @@ class RendererBase:
 
         *im*
             the :class:`matplotlib._image.Image` instance
-
-        *bbox*
-            a :class:`matplotlib.transforms.Bbox` instance for clipping, or
-            None
-
         """
         raise NotImplementedError
 

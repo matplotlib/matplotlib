@@ -31,6 +31,7 @@
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_span_pattern_rgba.h"
+#include "agg_span_gouraud_rgba.h"
 #include "agg_conv_shorten_path.h"
 #include "util/agg_color_conv_rgb8.h"
 
@@ -799,23 +800,17 @@ Py::Object
 RendererAgg::draw_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_image");
 
-  args.verify_length(4, 6);
+  args.verify_length(4);
 
-  double x = Py::Float(args[0]);
-  double y = Py::Float(args[1]);
-  Image *image = static_cast<Image*>(args[2].ptr());
-  Py::Object box_obj = args[3];
-  Py::Object clippath;
-  agg::trans_affine clippath_trans;
+  GCAgg gc(args[0], dpi);
+  double x = Py::Float(args[1]);
+  double y = Py::Float(args[2]);
+  Image *image = static_cast<Image*>(args[3].ptr());
   bool has_clippath = false;
 
   theRasterizer.reset_clipping();
   rendererBase.reset_clipping(true);
-  if (args.size() == 6) {
-    clippath = args[4];
-    clippath_trans = py_to_agg_transformation_matrix(args[5].ptr(), false);
-    has_clippath = render_clippath(clippath, clippath_trans);
-  }
+  has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
   Py::Tuple empty;
   image->flipud_out(empty);
@@ -855,7 +850,7 @@ RendererAgg::draw_image(const Py::Tuple& args) {
     theRasterizer.add_path(rect2);
     agg::render_scanlines(theRasterizer, slineP8, ri);
   } else {
-    set_clipbox(box_obj, rendererBase);
+    set_clipbox(gc.cliprect, rendererBase);
     rendererBase.blend_from(pixf, 0, (int)x, (int)(height-(y+image->rowsOut)));
   }
 
@@ -1026,15 +1021,13 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_path");
   args.verify_length(3, 4);
 
-  Py::Object gc_obj = args[0];
-  Py::Object path_obj = args[1];
+  GCAgg gc(args[0], dpi);
+  PathIterator path(args[1]);
   agg::trans_affine trans = py_to_agg_transformation_matrix(args[2].ptr());
   Py::Object face_obj;
   if (args.size() == 4)
     face_obj = args[3];
 
-  PathIterator path(path_obj);
-  GCAgg gc = GCAgg(gc_obj, dpi);
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
 
   theRasterizer.reset_clipping();
@@ -1275,32 +1268,29 @@ public:
 Py::Object
 RendererAgg::draw_path_collection(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_path_collection");
-  args.verify_length(14);
+  args.verify_length(12);
 
-  //segments, trans, clipbox, colors, linewidths, antialiaseds
-  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0].ptr());
-  Py::Object		  cliprect	   = args[1];
-  Py::Object		  clippath	   = args[2];
-  agg::trans_affine       clippath_trans   = py_to_agg_transformation_matrix(args[3].ptr(), false);
-  Py::SeqBase<Py::Object> paths		   = args[4];
-  Py::SeqBase<Py::Object> transforms_obj   = args[5];
-  Py::Object              offsets_obj      = args[6];
-  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7].ptr());
-  Py::Object              facecolors_obj   = args[8];
-  Py::Object              edgecolors_obj   = args[9];
-  Py::SeqBase<Py::Float>  linewidths	   = args[10];
-  Py::SeqBase<Py::Object> linestyles_obj   = args[11];
-  Py::SeqBase<Py::Int>    antialiaseds	   = args[12];
+  GCAgg gc(args[0], dpi);
+  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[1].ptr());
+  PathListGenerator       paths(args[2]);
+  Py::SeqBase<Py::Object> transforms_obj   = args[3];
+  Py::Object              offsets_obj      = args[4];
+  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[5].ptr());
+  Py::Object              facecolors_obj   = args[6];
+  Py::Object              edgecolors_obj   = args[7];
+  Py::SeqBase<Py::Float>  linewidths	   = args[8];
+  Py::SeqBase<Py::Object> linestyles_obj   = args[9];
+  Py::SeqBase<Py::Int>    antialiaseds	   = args[10];
   // We don't actually care about urls for Agg, so just ignore it.
-  // Py::SeqBase<Py::Object> urls             = args[13];
+  // Py::SeqBase<Py::Object> urls             = args[11];
   PathListGenerator path_generator(paths);
 
   try {
     _draw_path_collection_generic<PathListGenerator, 0, 1>
       (master_transform,
-       cliprect,
-       clippath,
-       clippath_trans,
+       gc.cliprect,
+       gc.clippath,
+       gc.clippath_trans,
        path_generator,
        transforms_obj,
        offsets_obj,
@@ -1390,22 +1380,20 @@ public:
 Py::Object
 RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_quad_mesh");
-  args.verify_length(12);
+  args.verify_length(10);
 
 
   //segments, trans, clipbox, colors, linewidths, antialiaseds
-  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[0].ptr());
-  Py::Object		  cliprect	   = args[1];
-  Py::Object		  clippath	   = args[2];
-  agg::trans_affine       clippath_trans   = py_to_agg_transformation_matrix(args[3].ptr(), false);
-  size_t                  mesh_width       = Py::Int(args[4]);
-  size_t                  mesh_height      = Py::Int(args[5]);
-  PyObject*               coordinates	   = args[6].ptr();
-  Py::Object              offsets_obj      = args[7];
-  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[8].ptr());
-  Py::Object              facecolors_obj   = args[9];
-  bool                    antialiased	   = (bool)Py::Int(args[10]);
-  bool                    showedges        = (bool)Py::Int(args[11]);
+  GCAgg gc(args[0], dpi);
+  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[1].ptr());
+  size_t                  mesh_width       = Py::Int(args[2]);
+  size_t                  mesh_height      = Py::Int(args[3]);
+  PyObject*               coordinates	   = args[4].ptr();
+  Py::Object              offsets_obj      = args[5];
+  agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[6].ptr());
+  Py::Object              facecolors_obj   = args[7];
+  bool                    antialiased	   = (bool)Py::Int(args[8]);
+  bool                    showedges        = (bool)Py::Int(args[9]);
   bool                    free_edgecolors  = false;
 
   QuadMeshGenerator path_generator(mesh_width, mesh_height, coordinates);
@@ -1437,9 +1425,9 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
     try {
       _draw_path_collection_generic<QuadMeshGenerator, 0, 0>
         (master_transform,
-         cliprect,
-         clippath,
-         clippath_trans,
+         gc.cliprect,
+         gc.clippath,
+         gc.clippath_trans,
          path_generator,
          transforms_obj,
          offsets_obj,
@@ -1462,6 +1450,73 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
   if (free_edgecolors) {
     Py_XDECREF(edgecolors_obj.ptr());
   }
+
+  return Py::Object();
+}
+
+Py::Object
+RendererAgg::draw_gouraud_triangle(const Py::Tuple& args) {
+  _VERBOSE("RendererAgg::draw_quad_mesh");
+  args.verify_length(4);
+
+  typedef agg::rgba8                      color_t;
+  typedef agg::span_gouraud_rgba<color_t> span_gen_t;
+  typedef agg::span_allocator<color_t>    span_alloc_t;
+
+  //segments, trans, clipbox, colors, linewidths, antialiaseds
+  GCAgg gc(args[0], dpi);
+  Py::Object              points_obj       = args[1];
+  Py::Object              colors_obj       = args[2];
+  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[3].ptr());
+
+  PyArrayObject* points = (PyArrayObject*)PyArray_ContiguousFromAny
+    (points_obj.ptr(), PyArray_DOUBLE, 2, 2);
+  if (!points ||
+      PyArray_DIM(points, 0) != 3 || PyArray_DIM(points, 1) != 2)
+    throw Py::ValueError("points must be a 3x2 numpy array");
+
+  PyArrayObject* colors = (PyArrayObject*)PyArray_ContiguousFromAny
+    (colors_obj.ptr(), PyArray_DOUBLE, 2, 2);
+  if (!colors ||
+      PyArray_DIM(colors, 0) != 3 || PyArray_DIM(colors, 1) != 4)
+    throw Py::ValueError("colors must be a 3x4 numpy array");
+
+  try {
+    double* opoints = (double*)PyArray_DATA(points);
+    double* c = (double*)PyArray_DATA(colors);
+    double tpoints[6];
+
+    for (int i = 0; i < 6; i += 2) {
+      tpoints[i] = opoints[i];
+      tpoints[i+1] = opoints[i+1];
+      master_transform.transform(&tpoints[i], &tpoints[i+1]);
+    }
+
+    span_alloc_t span_alloc;
+    span_gen_t span_gen;
+
+    span_gen.colors(
+      agg::rgba(c[0], c[1], c[2], c[3]),
+      agg::rgba(c[4], c[5], c[6], c[7]),
+      agg::rgba(c[8], c[9], c[10], c[11]));
+    span_gen.triangle(
+      tpoints[0], tpoints[1],
+      tpoints[2], tpoints[3],
+      tpoints[4], tpoints[5],
+      1.0);
+
+    theRasterizer.add_path(span_gen);
+    agg::render_scanlines_aa(
+      theRasterizer, slineP8, rendererBase, span_alloc, span_gen);
+  } catch (...) {
+    Py_DECREF(points);
+    Py_DECREF(colors);
+
+    throw;
+  }
+
+  Py_DECREF(points);
+  Py_DECREF(colors);
 
   return Py::Object();
 }
@@ -1802,15 +1857,17 @@ void RendererAgg::init_type()
   add_varargs_method("draw_path", &RendererAgg::draw_path,
 		     "draw_path(gc, path, transform, rgbFace)\n");
   add_varargs_method("draw_path_collection", &RendererAgg::draw_path_collection,
-		     "draw_path_collection(master_transform, cliprect, clippath, clippath_trans, paths, transforms, offsets, offsetTrans, facecolors, edgecolors, linewidths, linestyles, antialiaseds)\n");
+		     "draw_path_collection(gc, master_transform, paths, transforms, offsets, offsetTrans, facecolors, edgecolors, linewidths, linestyles, antialiaseds)\n");
   add_varargs_method("draw_quad_mesh", &RendererAgg::draw_quad_mesh,
-		     "draw_quad_mesh(master_transform, cliprect, clippath, clippath_trans, meshWidth, meshHeight, coordinates, offsets, offsetTrans, facecolors, antialiaseds, showedges)\n");
+		     "draw_quad_mesh(gc, master_transform, meshWidth, meshHeight, coordinates, offsets, offsetTrans, facecolors, antialiaseds, showedges)\n");
+  add_varargs_method("draw_gouraud_triangle", &RendererAgg::draw_gouraud_triangle,
+		     "draw_gouraud_triangle(gc, points, colors, master_transform)\n");
   add_varargs_method("draw_markers", &RendererAgg::draw_markers,
 		     "draw_markers(gc, marker_path, marker_trans, path, rgbFace)\n");
   add_varargs_method("draw_text_image", &RendererAgg::draw_text_image,
 		     "draw_text_image(font_image, x, y, r, g, b, a)\n");
   add_varargs_method("draw_image", &RendererAgg::draw_image,
-		     "draw_image(x, y, im)");
+		     "draw_image(gc, x, y, im)");
   add_varargs_method("write_rgba", &RendererAgg::write_rgba,
 		     "write_rgba(fname)");
   add_varargs_method("tostring_rgb", &RendererAgg::tostring_rgb,

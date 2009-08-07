@@ -87,22 +87,21 @@ class RendererTemplate(RendererBase):
     # draw_path_collection is optional, and we get more correct
     # relative timings by leaving it out. backend implementers concerned with
     # performance will probably want to implement it
-#     def draw_path_collection(self, master_transform, cliprect, clippath,
-#                              clippath_trans, paths, all_transforms, offsets,
-#                              offsetTrans, facecolors, edgecolors, linewidths,
-#                              linestyles, antialiaseds):
+#     def draw_path_collection(self, gc, master_transform, paths,
+#                              all_transforms, offsets, offsetTrans, facecolors,
+#                              edgecolors, linewidths, linestyles,
+#                              antialiaseds):
 #         pass
 
     # draw_quad_mesh is optional, and we get more correct
     # relative timings by leaving it out.  backend implementers concerned with
     # performance will probably want to implement it
-#     def draw_quad_mesh(self, master_transform, cliprect, clippath,
-#                        clippath_trans, meshWidth, meshHeight, coordinates,
-#                        offsets, offsetTrans, facecolors, antialiased,
-#                        showedges):
+#     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
+#                        coordinates, offsets, offsetTrans, facecolors,
+#                        antialiased, showedges):
 #         pass
 
-    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
+    def draw_image(self, gc, x, y, im):
         pass
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):

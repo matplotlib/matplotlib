@@ -59,12 +59,19 @@ class RendererMac(RendererBase):
         gc.draw_markers(marker_path, marker_trans, path, trans, rgbFace)
 
     def draw_path_collection(self, *args):
-        gc = self.gc
-        args = args[:13]
+        # TODO: We should change this in the C code eventually, but this
+        # re-ordering of arguments should work for now
+        gc = args[0]
+        args = tuple([gc, args[1], gc.get_clip_rectangle()] + \
+            list(gc.get_clip_path()) + list(args[2:]))
         gc.draw_path_collection(*args)
 
     def draw_quad_mesh(self, *args):
-        gc = self.gc
+        # TODO: We should change this in the C code eventually, but this
+        # re-ordering of arguments should work for now
+        gc = args[0]
+        args = [gc, args[1], gc.get_clip_rectangle()] + \
+            list(gc.get_clip_path()) + list(args[2:])
         gc.draw_quad_mesh(*args)
 
     def new_gc(self):
@@ -72,12 +79,15 @@ class RendererMac(RendererBase):
         self.gc.set_hatch(None)
         return self.gc
 
-    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
+    def draw_image(self, gc, x, y, im):
+        # TODO: We should change this in the C code eventually, but this
+        # re-ordering of arguments should work for now
         im.flipud_out()
         nrows, ncols, data = im.as_rgba_str()
-        self.gc.draw_image(x, y, nrows, ncols, data, bbox, clippath, clippath_trans)
+        gc.draw_image(x, y, nrows, ncols, data, gc.get_clip_rectangle(),
+                      *gc.get_clip_path())
         im.flipud_out()
-    
+
     def draw_tex(self, gc, x, y, s, prop, angle):
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
@@ -128,7 +138,7 @@ class RendererMac(RendererBase):
 
     def flipy(self):
         return False
-    
+
     def points_to_pixels(self, points):
         return points/72.0 * self.dpi
 
@@ -168,7 +178,7 @@ class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
         _macosx.GraphicsContext.set_clip_path(self, path)
 
 ########################################################################
-#    
+#
 # The following functions and classes are for pylab and implement
 # window/figure managers, etc...
 #
@@ -281,7 +291,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
             self.toolbar = NavigationToolbar2Mac(canvas)
         else:
             self.toolbar = None
-        if self.toolbar is not None: 
+        if self.toolbar is not None:
             self.toolbar.update()
 
         def notify_axes_change(fig):
@@ -300,7 +310,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         Gcf.destroy(self.num)
 
 class NavigationToolbarMac(_macosx.NavigationToolbar):
- 
+
     def __init__(self, canvas):
         self.canvas = canvas
         basedir = os.path.join(matplotlib.rcParams['datapath'], "images")
@@ -331,7 +341,7 @@ class NavigationToolbarMac(_macosx.NavigationToolbar):
         assert magic=="P6"
         assert len(imagedata)==width*height*3 # 3 colors in RGB
         return (width, height, imagedata)
-        
+
     def panx(self, direction):
         axes = self.canvas.figure.axes
         selected = self.get_active()
@@ -401,9 +411,9 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         _macosx.NavigationToolbar2.set_message(self, message.encode('utf-8'))
 
 ########################################################################
-#    
+#
 # Now just provide the standard names that backend.__init__ is expecting
-# 
+#
 ########################################################################
 
 

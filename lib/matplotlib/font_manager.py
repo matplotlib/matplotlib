@@ -707,7 +707,7 @@ class FontProperties(object):
     def __hash__(self):
         l = [(k, getattr(self, "get" + k)()) for k in sorted(self.__dict__)]
         return hash(repr(l))
- 
+
     def __str__(self):
         return self.get_fontconfig_pattern()
 

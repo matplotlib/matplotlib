@@ -204,18 +204,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         self.update_scalarmappable()
 
-        clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
-        if clippath_trans is not None:
-            clippath_trans = clippath_trans.frozen()
-
         transform, transOffset, offsets, paths = self._prepare_points()
 
+        gc = renderer.new_gc()
+        gc.set_clip_rectangle(self.get_clip_box())
+        gc.set_clip_path(self.get_clip_path())
+
         renderer.draw_path_collection(
-            transform.frozen(), self.clipbox, clippath, clippath_trans,
-            paths, self.get_transforms(),
-            offsets, transOffset,
-            self.get_facecolor(), self.get_edgecolor(), self._linewidths,
-            self._linestyles, self._antialiaseds, self._urls)
+            gc, transform.frozen(), paths, self.get_transforms(),
+            offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
+            self._linewidths, self._linestyles, self._antialiaseds, self._urls)
         renderer.close_group(self.__class__.__name__)
 
     def contains(self, mouseevent):
@@ -1149,10 +1147,6 @@ class QuadMesh(Collection):
         if self.check_update('array'):
             self.update_scalarmappable()
 
-        clippath, clippath_trans = self.get_transformed_clip_path_and_affine()
-        if clippath_trans is not None:
-            clippath_trans = clippath_trans.frozen()
-
         if not transform.is_affine:
             coordinates = self._coordinates.reshape(
                 (self._coordinates.shape[0] *
@@ -1168,11 +1162,14 @@ class QuadMesh(Collection):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
+        gc = renderer.new_gc()
+        gc.set_clip_rectangle(self.get_clip_box())
+        gc.set_clip_path(self.get_clip_path())
+
         renderer.draw_quad_mesh(
-            transform.frozen(), self.clipbox, clippath, clippath_trans,
-            self._meshWidth, self._meshHeight, coordinates,
-            offsets, transOffset, self.get_facecolor(), self._antialiased,
-            self._showedges)
+            gc, transform.frozen(), self._meshWidth, self._meshHeight,
+            coordinates, offsets, transOffset, self.get_facecolor(),
+            self._antialiased, self._showedges)
         renderer.close_group(self.__class__.__name__)
 
 

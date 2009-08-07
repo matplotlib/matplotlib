@@ -1,3 +1,41 @@
+2009-08-07 In an effort to simplify the backend API, all clipping rectangles
+           and paths are now passed in using GraphicsContext objects, even
+           on collections and images.  Therefore:
+
+             draw_path_collection(self, master_transform, cliprect, clippath,
+                                  clippath_trans, paths, all_transforms, offsets,
+                                  offsetTrans, facecolors, edgecolors, linewidths,
+                                  linestyles, antialiaseds, urls)
+
+                                             becomes:
+
+             draw_path_collection(self, gc, master_transform, paths, all_transforms,
+                                  offsets, offsetTrans, facecolors, edgecolors,
+                                  linewidths, linestyles, antialiaseds, urls)
+
+
+
+             draw_quad_mesh(self, master_transform, cliprect, clippath,
+                            clippath_trans, meshWidth, meshHeight, coordinates,
+                            offsets, offsetTrans, facecolors, antialiased,
+                            showedges)
+
+                                             becomes:
+
+             draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
+                            coordinates, offsets, offsetTrans, facecolors,
+                            antialiased, showedges)
+
+
+
+             draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None)
+
+                                             becomes:
+
+             draw_image(self, gc, x, y, im)
+
+           - MGD
+
 2009-08-06 Tagging the 0.99.0 release at svn r7397 - JDH
 
 	   * fixed an alpha colormapping bug posted on sf 2832575
@@ -29,7 +67,6 @@
 	   * added miktex win32 patch from sf patch 2820194
 
 	   * apply sf patches 2830233 and 2823885 for osx setup and 64 bit;  thanks Michiel
-
 
 2009-08-04 Made cbook.get_sample_data make use of the ETag and Last-Modified
            headers of mod_dav_svn. - JKS

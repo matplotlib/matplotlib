@@ -250,7 +250,7 @@ class RendererAgg(RendererBase):
         >>> x1, y1, x2, y2 = region.get_extents()
         >>> renderer.restore_region(region, bbox=(x1+dx, y1, x2, y2),
                                     xy=(x1-dx, y1))
-        
+
         """
         if bbox is not None or xy is not None:
             if bbox is None:

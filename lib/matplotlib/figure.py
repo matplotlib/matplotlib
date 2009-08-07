@@ -766,9 +766,10 @@ class Figure(Artist):
 
             im.is_grayscale = False
             l, b, w, h = self.bbox.bounds
-            clippath, affine = self.get_transformed_clip_path_and_affine()
-            renderer.draw_image(l, b, im, self.bbox,
-                                clippath, affine)
+            gc = renderer.new_gc()
+            gc.set_clip_rectangle(self.bbox)
+            gc.set_clip_path(self.get_clip_path())
+            renderer.draw_image(gc, l, b, im)
 
         # render the axes
         for a in self.axes: a.draw(renderer)
@@ -851,7 +852,7 @@ class Figure(Artist):
 
           *fancybox*: [ None | False | True ]
             if True, draw a frame with a round fancybox.  If None, use rc
-            
+
           *shadow*: [ None | False | True ]
             If *True*, draw a shadow behind legend. If *None*, use rc settings.
 

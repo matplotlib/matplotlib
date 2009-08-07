@@ -1705,12 +1705,14 @@ class Axes(martist.Artist):
             l, b, w, h = self.bbox.bounds
             # composite images need special args so they will not
             # respect z-order for now
-            renderer.draw_image(
-                round(l), round(b), im, self.bbox,
-                self.patch.get_path(),
-                self.patch.get_transform())
 
+            gc = renderer.new_gc()
+            gc.set_clip_rectangle(self.bbox)
+            gc.set_clip_path(mtransforms.TransformedPath(
+                    self.patch.get_path(),
+                    self.patch.get_transform()))
 
+            renderer.draw_image(gc, round(l), round(b), im)
 
         if dsu_rasterized:
             for zorder, i, a in dsu_rasterized:

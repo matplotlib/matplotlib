@@ -14,7 +14,7 @@ class MixedModeRenderer(object):
                  raster_renderer_class=None,
                  bbox_inches_restore=None):
         """
-        figure: The figure instance. 
+        figure: The figure instance.
 
         width: The width of the canvas in logical units
 
@@ -49,7 +49,7 @@ class MixedModeRenderer(object):
         self.figure=figure
 
         self._bbox_inches_restore = bbox_inches_restore
-        
+
         self._set_current_renderer(vector_renderer)
 
     _methods = """
@@ -88,8 +88,8 @@ class MixedModeRenderer(object):
                                                mode="png")
 
             self._bbox_inches_restore = r
-            
-        
+
+
         if self._rasterizing == 0:
             self._raster_renderer = self._raster_renderer_class(
                 self._width*self.dpi, self._height*self.dpi, self.dpi)
@@ -117,9 +117,12 @@ class MixedModeRenderer(object):
                 image = frombuffer(buffer, w, h, True)
                 image.is_grayscale = False
                 image.flipud_out()
-                self._renderer.draw_image(int(float(l)/self.dpi*72.),
-                                          int((float(height) - b - h)/self.dpi*72.),
-                                          image, None)
+                gc = self._renderer.new_gc()
+                self._renderer.draw_image(
+                    gc,
+                    int(float(l)/self.dpi*72.),
+                    int((float(height) - b - h)/self.dpi*72.),
+                    image)
             self._raster_renderer = None
             self._rasterizing = False
 
