@@ -28,7 +28,7 @@ Zm = ma.masked_where(np.fabs(Qz) < 0.5*np.amax(Qz), Z)
 fig = figure()
 ax = fig.add_subplot(121)
 ax.set_axis_bgcolor("#bdb76b")
-ax.pcolormesh(Qx,Qz,Z)
+ax.pcolormesh(Qx,Qz,Z, shading='gouraud')
 ax.set_title('Without masked values')
 
 ax = fig.add_subplot(122)

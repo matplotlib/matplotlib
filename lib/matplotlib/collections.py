@@ -1073,14 +1073,18 @@ class QuadMesh(Collection):
     coordinates of the vertex at mesh coordinates (0, 0), then the one
     at (0, 1), then at (0, 2) .. (0, meshWidth), (1, 0), (1, 1), and
     so on.
+
+    *shading* may be 'flat', 'faceted' or 'gouraud'
     """
-    def __init__(self, meshWidth, meshHeight, coordinates, showedges, antialiased=True):
+    def __init__(self, meshWidth, meshHeight, coordinates, showedges,
+                 antialiased=True, shading='flat'):
         Collection.__init__(self)
         self._meshWidth = meshWidth
         self._meshHeight = meshHeight
         self._coordinates = coordinates
         self._showedges = showedges
         self._antialiased = antialiased
+        self._shading = shading
 
         self._bbox = transforms.Bbox.unit()
         self._bbox.update_from_data_xy(coordinates.reshape(
@@ -1125,6 +1129,46 @@ class QuadMesh(Collection):
         points = points.reshape((meshWidth * meshHeight, 5, 2))
         return [Path(x) for x in points]
 
+    def convert_mesh_to_triangles(self, meshWidth, meshHeight, coordinates):
+        """
+        Converts a given mesh into a sequence of triangles, each point
+        with its own color
+        :class:`matplotlib.path.Path` objects for easier rendering by
+        backends that do not directly support quadmeshes.
+
+        This function is primarily of use to backend implementers.
+        """
+        Path = mpath.Path
+
+        if ma.isMaskedArray(coordinates):
+            c = coordinates.data
+        else:
+            c = coordinates
+
+        triangles = np.concatenate((
+                c[0:-1, 0:-1],
+                c[0:-1, 1:  ],
+                c[1:  , 1:  ],
+                c[1:  , 1:  ],
+                c[1:  , 0:-1],
+                c[0:-1, 0:-1]
+                ), axis=2)
+        triangles = triangles.reshape((meshWidth * meshHeight * 2, 3, 2))
+
+        c = self.get_facecolor().reshape((meshHeight + 1, meshWidth + 1, 4))
+        colors = np.concatenate((
+                c[0:-1, 0:-1],
+                c[0:-1, 1:  ],
+                c[1:  , 1:  ],
+                c[1:  , 1:  ],
+                c[1:  , 0:-1],
+                c[0:-1, 0:-1]
+                ), axis=2)
+
+        colors = colors.reshape((meshWidth * meshHeight * 2, 3, 4))
+
+        return triangles, colors
+
     def get_datalim(self, transData):
         return self._bbox
 
@@ -1166,10 +1210,17 @@ class QuadMesh(Collection):
         gc.set_clip_rectangle(self.get_clip_box())
         gc.set_clip_path(self.get_clip_path())
 
-        renderer.draw_quad_mesh(
-            gc, transform.frozen(), self._meshWidth, self._meshHeight,
-            coordinates, offsets, transOffset, self.get_facecolor(),
-            self._antialiased, self._showedges)
+        if self._shading == 'gouraud':
+            triangles, colors = self.convert_mesh_to_triangles(
+                self._meshWidth, self._meshHeight, coordinates)
+            check = {}
+            for tri, col in zip(triangles, colors):
+                renderer.draw_gouraud_triangle(gc, tri, col, transform.frozen())
+        else:
+            renderer.draw_quad_mesh(
+                gc, transform.frozen(), self._meshWidth, self._meshHeight,
+                coordinates, offsets, transOffset, self.get_facecolor(),
+                self._antialiased, self._showedges)
         renderer.close_group(self.__class__.__name__)
 
 

@@ -1464,10 +1464,13 @@ RendererAgg::draw_gouraud_triangle(const Py::Tuple& args) {
   typedef agg::span_allocator<color_t>    span_alloc_t;
 
   //segments, trans, clipbox, colors, linewidths, antialiaseds
-  GCAgg gc(args[0], dpi);
-  Py::Object              points_obj       = args[1];
-  Py::Object              colors_obj       = args[2];
-  agg::trans_affine	  master_transform = py_to_agg_transformation_matrix(args[3].ptr());
+  GCAgg             gc(args[0], dpi);
+  Py::Object        points_obj = args[1];
+  Py::Object        colors_obj = args[2];
+  agg::trans_affine trans      = py_to_agg_transformation_matrix(args[3].ptr());
+
+  trans *= agg::trans_affine_scaling(1.0, -1.0);
+  trans *= agg::trans_affine_translation(0.0, (double)height);
 
   PyArrayObject* points = (PyArrayObject*)PyArray_ContiguousFromAny
     (points_obj.ptr(), PyArray_DOUBLE, 2, 2);
@@ -1489,7 +1492,7 @@ RendererAgg::draw_gouraud_triangle(const Py::Tuple& args) {
     for (int i = 0; i < 6; i += 2) {
       tpoints[i] = opoints[i];
       tpoints[i+1] = opoints[i+1];
-      master_transform.transform(&tpoints[i], &tpoints[i+1]);
+      trans.transform(&tpoints[i], &tpoints[i+1]);
     }
 
     span_alloc_t span_alloc;
@@ -1503,7 +1506,7 @@ RendererAgg::draw_gouraud_triangle(const Py::Tuple& args) {
       tpoints[0], tpoints[1],
       tpoints[2], tpoints[3],
       tpoints[4], tpoints[5],
-      1.0);
+      0.5);
 
     theRasterizer.add_path(span_gen);
     agg::render_scanlines_aa(
