@@ -45,7 +45,22 @@ the :mod:`matplotlib.path`.
 
 .. plot:: mpl_examples/api/path_patch_demo.py
 
+.. _screenshots_mplot3d_surface:
+
+mplot3d
+=========
+
+The mplot3d toolkit (see :ref:`toolkit_mplot3d-tutorial` and
+:ref:`mplot3d-examples-index`) has support for simple 3d graphs
+including surface, wireframe, scatter, and bar charts (added in
+matlpotlib-0.99).  Thanks to John Porter, Jonathon Taylor and Reinier
+Heeres for the mplot3d toolkit.  The toolkit is included with all
+standard matplotlib installs.
+
+.. plot:: mpl_examples/mplot3d/surface3d_demo.py
+
 .. _screenshots_ellipse_demo:
+
 
 Ellipses
 ========

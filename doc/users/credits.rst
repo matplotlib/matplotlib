@@ -16,9 +16,9 @@ Special thanks to those who have made valuable contributions
 Jeremy O'Donoghue
   wrote the wx backend
 
-Andrew Straw
-  provided much of the log scaling architecture, the fill command, PIL
-  support for imshow, and provided many examples
+Andrew Straw provided much of the log scaling architecture, the fill
+  command, PIL support for imshow, and provided many examples.  He
+  also wrote the support for dropped axis spines.
 
 Charles Twardy
   provided the impetus code for the legend class and has made
@@ -27,7 +27,6 @@ Charles Twardy
 Gary Ruben
   made many enhancements to errorbar to support x and y
   errorbar plots, and added a number of new marker types to plot.
-
 
 John Gill
   wrote the table class and examples, helped with support for
@@ -133,7 +132,7 @@ Eric Firing
   most aspects of matplotlib.
 
 Daishi Harada
-  added support for "Dashed Text".  See ` dashpointlabel.py
+  added support for "Dashed Text".  See `dashpointlabel.py
   <examples/pylab_examples/dashpointlabel.py>`_ and
   :class:`~matplotlib.text.TextWithDash`.
 
@@ -147,11 +146,10 @@ The `brainvisa <http://brainvisa.info>`_ Orsay team and Fernando Perez
 
 
 Charlie Moad
-  contributed work to matplotlib's Cocoa support and does the binary
-  builds and releases.
+  contributed work to matplotlib's Cocoa support and has done a lot of work on the OSX and win32 binary releases.
 
-Jouni K. Seppaenen
-  wrote the PDF backend.
+Jouni K. Seppaenen wrote the PDF backend and contributed numerous
+  fixes to the code, to tex support and to the get_sample_data handler
 
 Paul Kienzle
   improved the picking infrastruture for interactive plots, and with
@@ -171,4 +169,7 @@ John Porter, Jonathon Taylor and Reinier Heeres
   matplotlib, and Jonathon Taylor and Reinier Heeres ported it to the
   refactored transform trunk.
 
-
+Jae-Joon Lee implemented fancy arrows and boxes, rewrote the legend
+  support to handle multiple columns and fancy text boxes, wrote the
+  axes grid toolkit, and has made numerous contributions to the code
+  and documentation
