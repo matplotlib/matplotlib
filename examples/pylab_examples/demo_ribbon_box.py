@@ -64,13 +64,13 @@ class RibbonBoxImage(BboxImage):
                  ):
 
         BboxImage.__init__(self, bbox,
-                           cmap = None,
-                           norm = None,
-                           interpolation=None,
-                           origin=None,
-                           filternorm=1,
-                           filterrad=4.0,
-                           resample = False,
+                           cmap = cmap,
+                           norm = norm,
+                           interpolation=interpolation,
+                           origin=origin,
+                           filternorm=filternorm,
+                           filterrad=filterrad,
+                           resample = resample,
                            **kwargs
                            )
 
@@ -115,7 +115,7 @@ if 1:
     for year, h, bc in zip(years, heights, box_colors):
         bbox0 = Bbox.from_extents(year-0.4, 0., year+0.4, h)
         bbox = TransformedBbox(bbox0, ax.transData)
-        rb_patch = RibbonBoxImage(bbox, bc)
+        rb_patch = RibbonBoxImage(bbox, bc, interpolation="bicubic")
 
         ax.add_artist(rb_patch)
 
