@@ -1,15 +1,7 @@
 """
 This example shows how to use a path patch to draw a bunch of
-rectangles.  The technique of using lots of Rectangle instances, or
-the faster method of using PolyCollections, were implemented before we
-had proper paths with moveto/lineto, closepoly etc in mpl.  Now that
-we have them, we can draw collections of regularly shaped objects with
-homogeous properties more efficiently with a PathCollection.  This
-example makes a histogram -- its more work to set up the vertex arrays
-at the outset, but it should be much faster for large numbers of
-objects
+rectangles for an animated histogram
 """
-import time
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg') # do this before importing pylab
@@ -60,7 +52,6 @@ ax.set_xlim(left[0], right[-1])
 ax.set_ylim(bottom.min(), top.max())
 
 def animate():
-    tstart = time.time()                   # for profiling
     # simulate new data coming in
     data = np.random.randn(1000)
     n, bins = np.histogram(data, 100)
