@@ -1,8 +1,7 @@
 from mpl_toolkits.mplot3d import Axes3D
-import pylab
-import random
+import matplotlib.pyplot as plt
 
-fig = pylab.figure()
+fig = plt.figure()
 ax = Axes3D(fig)
 
 zdirs = (None, 'x', 'y', 'z', (1, 1, 0), (1, 1, 1))
@@ -22,5 +21,5 @@ ax.set_xlabel('X axis')
 ax.set_ylabel('Y axis')
 ax.set_zlabel('Z axis')
 
-pylab.show()
+plt.show()
 

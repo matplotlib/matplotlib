@@ -1,12 +1,11 @@
 from mpl_toolkits.mplot3d import axes3d
-import pylab
-import random
+import matplotlib.pyplot as plt
 
-fig = pylab.figure()
+fig = plt.figure()
 ax = axes3d.Axes3D(fig)
 X, Y, Z = axes3d.get_test_data(0.05)
 cset = ax.contour(X, Y, Z)
 ax.clabel(cset, fontsize=9, inline=1)
 
-pylab.show()
+plt.show()
 
