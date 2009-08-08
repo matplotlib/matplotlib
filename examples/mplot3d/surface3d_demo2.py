@@ -1,9 +1,8 @@
 from mpl_toolkits.mplot3d import Axes3D
-import pylab
-import random
+import matplotlib.pyplot as plt
 import numpy as np
 
-fig = pylab.figure()
+fig = plt.figure()
 ax = Axes3D(fig)
 
 u = np.linspace(0, 2 * np.pi, 100)
@@ -14,5 +13,5 @@ y = 10 * np.outer(np.sin(u), np.sin(v))
 z = 10 * np.outer(np.ones(np.size(u)), np.cos(v))
 ax.plot_surface(x, y, z,  rstride=4, cstride=4, color='b')
 
-pylab.show()
+plt.show()
 

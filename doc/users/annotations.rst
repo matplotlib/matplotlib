@@ -56,15 +56,18 @@ from the text to the annotated point by giving a dictionary of arrow
 properties in the optional keyword argument ``arrowprops``.
 
 
-==================== ===========================================================================
+==================== =====================================================
 ``arrowprops`` key   description
-==================== ===========================================================================
+==================== =====================================================
 width                the width of the arrow in points
 frac                 the fraction of the arrow length occupied by the head
 headwidth            the width of the base of the arrow head in points
-shrink               move the tip and base some percent away from the annotated point and text
-\*\*kwargs             any key for :class:`matplotlib.patches.Polygon`, eg ``facecolor``
-==================== ===========================================================================
+shrink               move the tip and base some percent away from
+                     the annotated point and text
+
+\*\*kwargs           any key for :class:`matplotlib.patches.Polygon`,
+                     e.g. ``facecolor``
+==================== =====================================================
 
 
 In the example below, the ``xy`` point is in native coordinates
@@ -78,4 +81,7 @@ keyword args like ``horizontalalignment``, ``verticalalignment`` and
 .. plot:: pyplots/annotation_polar.py
    :include-source:
 
-For more on all the wild and wonderful things you can do with annotations, including fancy arrows, see :ref:`plotting-guide-annotation` and :ref:`pylab_examples-annotation_demo`.
+For more on all the wild and wonderful things you can do with
+annotations, including fancy arrows, see :ref:`plotting-guide-annotation`
+and :ref:`pylab_examples-annotation_demo`.
+
