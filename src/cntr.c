@@ -1318,11 +1318,203 @@ void cntr_del(Csite *site)
     site = NULL;
 }
 
+#define MOVETO 1
+#define LINETO 2
 
-/* Build a list of XY 2-D arrays, shape (N,2), to which a list of K arrays
-        is concatenated. */
+int reorder(double *xpp, double *ypp, short *kpp,
+                    double *xy, unsigned char *c, int npts)
+{
+    int *i0;
+    int *i1;
+    int *subp=NULL;  /* initialized to suppress warning */
+    int isp, nsp;
+    int iseg, nsegs;
+    int isegplus;
+    int i;
+    int k;
+    int started;
+    int maxnsegs = npts/2 + 1;
+
+    /* allocate maximum possible size--gross overkill */
+    i0 = malloc(maxnsegs * sizeof(int));
+    i1 = malloc(maxnsegs * sizeof(int));
+
+    /* Find the segments. */
+    iseg = 0;
+    started = 0;
+    for (i=0; i<npts; i++)
+    {
+        if (started)
+        {
+            if ((kpp[i] >= kind_slit_up) || (i == npts-1))
+            {
+                i1[iseg] = i;
+                started = 0;
+                iseg++;
+                if (iseg == maxnsegs)
+                {
+                    k = -1;
+                    goto ending;
+                }
+            }
+        }
+        else if ((kpp[i] < kind_slit_up) && (i < npts-1))
+        {
+            i0[iseg] = i;
+            started = 1;
+        }
+    }
+
+    nsegs = iseg;
+
+
+    /* Find the subpaths as sets of connected segments. */
+
+    subp = malloc(nsegs * sizeof(int));
+    for (i=0; i<nsegs; i++) subp[i] = -1;
+
+    nsp = 0;
+    for (iseg=0; iseg<nsegs; iseg++)
+    {
+        /* For each segment, if it is not closed, look ahead for
+           the next connected segment.
+        */
+        double xend, yend;
+        xend = xpp[i1[iseg]];
+        yend = ypp[i1[iseg]];
+        if (subp[iseg] >= 0) continue;
+        subp[iseg] = nsp;
+        nsp++;
+        if (iseg == nsegs-1) continue;
+        for (isegplus = iseg+1; isegplus < nsegs; isegplus++)
+        {
+            if (subp[isegplus] >= 0) continue;
+
+            if (xend == xpp[i0[isegplus]] && yend == ypp[i0[isegplus]])
+            {
+                subp[isegplus] = subp[iseg];
+                xend = xpp[i1[isegplus]];
+                yend = ypp[i1[isegplus]];
+            }
+
+        }
+    }
+
+    /* Generate the verts and codes from the subpaths. */
+    k = 0;
+    for (isp=0; isp<nsp; isp++)
+    {
+        int first = 1;
+        for (iseg=0; iseg<nsegs; iseg++)
+        {
+            int istart, iend;
+            if (subp[iseg] != isp) continue;
+            iend = i1[iseg];
+            if (first)
+            {
+                istart = i0[iseg];
+            }
+            else
+            {
+                istart = i0[iseg]+1; /* skip duplicate */
+            }
+            for (i=istart; i<=iend; i++)
+            {
+                xy[2*k] = xpp[i];
+                xy[2*k+1] = ypp[i];
+                if (first) c[k] = MOVETO;
+                else       c[k] = LINETO;
+                first = 0;
+                k++;
+                if (k > npts)  /* should never happen */
+                {
+                    k = -1;
+                    goto ending;
+                }
+            }
+        }
+    }
+
+    ending:
+    free(i0);
+    free(i1);
+    free(subp);
+
+    return k;
+}
+
+/* Build a list of XY 2-D arrays, shape (N,2), to which a list of path
+        code arrays is concatenated.
+*/
 static PyObject *
 build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
+                                            int nparts, long ntotal)
+{
+    PyObject *all_contours;
+    PyArrayObject *xyv;
+    PyArrayObject *kv;
+    npy_intp dims[2];
+    npy_intp kdims[1];
+    int i;
+    long k;
+
+    PyArray_Dims newshape;
+
+    all_contours = PyList_New(nparts*2);
+
+    for (i=0, k=0; i < nparts; k+= np[i], i++)
+    {
+        double *xpp = xp+k;
+        double *ypp = yp+k;
+        short *kpp = kp+k;
+        int n;
+
+
+        dims[0] = np[i];
+        dims[1] = 2;
+        kdims[0] = np[i];
+        xyv = (PyArrayObject *) PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
+        if (xyv == NULL)  goto error;
+        kv = (PyArrayObject *) PyArray_SimpleNew(1, kdims, PyArray_UBYTE);
+        if (kv == NULL) goto error;
+
+        n = reorder(xpp, ypp, kpp,
+                        (double *) xyv->data,
+                        (unsigned char *) kv->data,
+                        np[i]);
+        if (n == -1) goto error;
+        newshape.len = 2;
+        dims[0] = n;
+        newshape.ptr = dims;
+        if (PyArray_Resize(xyv, &newshape, 1, NPY_CORDER) == NULL) goto error;
+
+        newshape.len = 1;  /* ptr, dims can stay the same */
+        if (PyArray_Resize(kv, &newshape, 1, NPY_CORDER) == NULL) goto error;
+
+
+        if (PyList_SetItem(all_contours, i, (PyObject *)xyv)) goto error;
+        if (PyList_SetItem(all_contours, nparts+i,
+                                (PyObject *)kv)) goto error;
+    }
+    return all_contours;
+
+    error:
+    Py_XDECREF(xyv);
+    Py_XDECREF(kv);
+    Py_XDECREF(all_contours);
+    return NULL;
+}
+
+#if 0   /* preprocess this out when we are not using it. */
+/* Build a list of XY 2-D arrays, shape (N,2), to which a list of K arrays
+        is concatenated.
+   This is kept in the code in case we need to switch back to it,
+   or in case we need it for investigating the infamous internal
+   masked region bug.
+*/
+
+static PyObject *
+__build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
                                             int nparts, long ntotal)
 {
     PyObject *all_contours;
@@ -1364,6 +1556,7 @@ build_cntr_list_v2(long *np, double *xp, double *yp, short *kp,
     return NULL;
 }
 
+#endif  /* preprocessing out the old version for now */
 
 
 /* cntr_trace is called once per contour level or level pair.
