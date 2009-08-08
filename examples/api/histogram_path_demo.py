@@ -20,7 +20,8 @@ ax = fig.add_subplot(111)
 
 # histogram our data with numpy
 data = np.random.randn(1000)
-n, bins = np.histogram(data, 100)
+n, bins = np.histogram(data, 50)
+
 
 # get the corners of the rectangles for the histogram
 left = np.array(bins[:-1])
@@ -29,28 +30,24 @@ bottom = np.zeros(len(left))
 top = bottom + n
 nrects = len(left)
 
-# here comes the tricky part -- we have to set up the vertex and path
-# codes arrays using moveto, lineto and closepoly
+XY = np.zeros((nrects, 4, 2))
+XY[:,0,0] = left
+XY[:,0,1] = bottom
 
-# for each rect: 1 for the MOVETO, 3 for the LINETO, 1 for the
-# CLOSEPOLY; the vert for the closepoly is ignored but we still need
-# it to keep the codes aligned with the vertices
-nverts = nrects*(1+3+1)
-verts = np.zeros((nverts, 2))
-codes = np.ones(nverts, int) * path.Path.LINETO
-codes[0::5] = path.Path.MOVETO
-codes[4::5] = path.Path.CLOSEPOLY
-verts[0::5,0] = left
-verts[0::5,1] = bottom
-verts[1::5,0] = left
-verts[1::5,1] = top
-verts[2::5,0] = right
-verts[2::5,1] = top
-verts[3::5,0] = right
-verts[3::5,1] = bottom
+XY[:,1,0] = left
+XY[:,1,1] = top
 
-barpath = path.Path(verts, codes)
-patch = patches.PathPatch(barpath, facecolor='green', edgecolor='yellow', alpha=0.5)
+XY[:,2,0] = right
+XY[:,2,1] = top
+
+XY[:,3,0] = right
+XY[:,3,1] = bottom
+
+
+
+barpath = path.Path.make_compound_path_from_polys(XY)
+print barpath.codes[:7], barpath.codes[-7:]
+patch = patches.PathPatch(barpath, facecolor='blue', edgecolor='gray', alpha=0.8)
 ax.add_patch(patch)
 
 ax.set_xlim(left[0], right[-1])

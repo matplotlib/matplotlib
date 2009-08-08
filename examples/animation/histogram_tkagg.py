@@ -2,6 +2,7 @@
 This example shows how to use a path patch to draw a bunch of
 rectangles for an animated histogram
 """
+import time
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg') # do this before importing pylab
@@ -52,6 +53,10 @@ ax.set_xlim(left[0], right[-1])
 ax.set_ylim(bottom.min(), top.max())
 
 def animate():
+    if animate.cnt>=100:
+        return
+
+    animate.cnt += 1
     # simulate new data coming in
     data = np.random.randn(1000)
     n, bins = np.histogram(data, 100)
@@ -59,11 +64,7 @@ def animate():
     verts[1::5,1] = top
     verts[2::5,1] = top
     fig.canvas.draw()
-
-def run():
-    for i in range(100):
-        fig.canvas.manager.window.after(100, animate)
-
-
-fig.canvas.manager.window.after(100, run)
+    fig.canvas.manager.window.after(100, animate)
+animate.cnt = 0
+fig.canvas.manager.window.after(100, animate)
 plt.show()
