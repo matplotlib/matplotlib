@@ -539,7 +539,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         """
         self.ax = ax
-        self.noslit = kwargs.get('noslit', False) # **Temporary**
         self.levels = kwargs.get('levels', None)
         self.filled = kwargs.get('filled', False)
         self.linewidths = kwargs.get('linewidths', None)
@@ -599,8 +598,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.collections = cbook.silent_list('collections.PathCollection')
         else:
             self.collections = cbook.silent_list('collections.LineCollection')
-        self.segs = []
-        self.kinds = []
         # label lists must be initialized here
         self.labelTexts = []
         self.labelCValues = []
@@ -629,8 +626,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                                      alpha=self.alpha)
                 self.ax.add_collection(col)
                 self.collections.append(col)
-                self.segs.append(segs)
-                self.kinds.append(kinds)
         else:
             tlinewidths = self._process_linewidths()
             self.tlinewidths = tlinewidths
@@ -639,7 +634,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 nlist = C.trace(level)
                 nseg = len(nlist)//2
                 segs = nlist[:nseg]
-                kinds = nlist[nseg:]
+                #kinds = nlist[nseg:]
                 col = collections.LineCollection(segs,
                                      linewidths = width,
                                      linestyle = lstyle,
@@ -648,23 +643,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 col.set_label('_nolegend_')
                 self.ax.add_collection(col, False)
                 self.collections.append(col)
-                self.segs.append(segs)
-                self.kinds.append(kinds)
         self.changed() # set the colors
 
     def _make_paths(self, segs, kinds):
         paths = []
         for seg, kind in zip(segs, kinds):
-            codes = np.zeros(kind.shape, dtype=mpath.Path.code_type)
-            codes.fill(mpath.Path.LINETO)
-            codes[0] = mpath.Path.MOVETO
-            # points that begin a slit or are in it:
-            # use moveto for any point *following* such a point
-            if self.noslit:
-                in_slit = kind[:-1] >= _cntr._slitkind
-                codes[1:][in_slit] = mpath.Path.MOVETO
-            paths.append(mpath.Path(seg, codes))
+            paths.append(mpath.Path(seg, codes=kind))
         return paths
+
+
 
     def changed(self):
         tcolors = [ (tuple(rgba),) for rgba in
