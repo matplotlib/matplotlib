@@ -10,14 +10,7 @@ from matplotlib.patches import Circle
 import numpy as np
 import numpy.linalg as linalg
 
-def cross(a, b):
-    """
-    Cross product of two vectors
-    A x B = <Ay*Bz - Az*By, Az*Bx - Ax*Bz, Ax*By - Ay*Bx>
-    a x b = [a2b3 - a3b2, a3b1 - a1b3, a1b2 - a2b1]
-    """
-    return np.array([a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], \
-            a[0]*b[1] - a[1]*b[0]])
+
 
 def line2d(p0, p1):
     """
@@ -130,9 +123,9 @@ def view_transformation(E, R, V):
 
     ## old
     n = n / mod(n)
-    u = cross(V, n)
+    u = np.cross(V, n)
     u = u / mod(u)
-    v = cross(n, u)
+    v = np.cross(n, u)
     Mr = [[u[0],u[1],u[2],0],
           [v[0],v[1],v[2],0],
           [n[0],n[1],n[2],0],

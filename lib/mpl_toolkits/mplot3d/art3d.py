@@ -92,6 +92,7 @@ class Line3D(lines.Line2D):
     def set_3d_properties(self, zs=0, zdir='z'):
         xs = self.get_xdata()
         ys = self.get_ydata()
+
         try:
             zs = float(zs)
             zs = [zs for x in xs]
@@ -116,7 +117,7 @@ def path_to_3d_segment(path, zs=0, zdir='z'):
     '''Convert a path to a 3D segment.'''
 
     if not iterable(zs):
-        zs = [zs] * len(path)
+        zs = np.ones(len(path)) * zs
 
     seg = []
     pathsegs = path.iter_segments(simplify=False, curves=False)
@@ -131,7 +132,7 @@ def paths_to_3d_segments(paths, zs=0, zdir='z'):
     '''
 
     if not iterable(zs):
-        zs = [zs] * len(paths)
+        zs = np.ones(len(paths)) * zs
 
     segments = []
     for path, pathz in zip(paths, zs):
@@ -192,7 +193,8 @@ class Patch3D(Patch):
 
     def set_3d_properties(self, verts, zs=0, zdir='z'):
         if not iterable(zs):
-            zs = [zs] * len(verts)
+            zs = np.ones(len(verts)) * zs
+
         self._segment3d = [juggle_axes(x, y, z, zdir) \
                 for ((x, y), z) in zip(verts, zs)]
         self._facecolor3d = Patch.get_facecolor(self)
