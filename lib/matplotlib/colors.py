@@ -488,7 +488,10 @@ class Colormap:
         if not self._isinit: self._init()
         alpha = min(alpha, 1.0) # alpha must be between 0 and 1
         alpha = max(alpha, 0.0)
-        self._lut[:,-1] = alpha
+        self._lut[:-1,-1] = alpha  # Don't assign global alpha to i_bad;
+                                   # it would defeat the purpose of the
+                                   # default behavior, which is to not
+                                   # show anything where data are missing.
         mask_bad = None
         if not cbook.iterable(X):
             vtype = 'scalar'
