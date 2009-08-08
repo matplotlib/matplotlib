@@ -24,6 +24,8 @@ import matplotlib._png as _png
 # the image namespace:
 from matplotlib._image import *
 
+from matplotlib.transforms import BboxBase
+
 class AxesImage(martist.Artist, cm.ScalarMappable):
     zorder = 1
     # map interpolation strings to module constants
@@ -743,6 +745,149 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         im = self.make_image()
         rows, cols, buffer = im.as_rgba_str()
         _png.write_png(buffer, cols, rows, fname)
+
+
+class BboxImage(AxesImage):
+    """
+    The Image class whose size is determined by the given bbox.
+    """
+    zorder = 1
+    def __init__(self, bbox,
+                 cmap = None,
+                 norm = None,
+                 interpolation=None,
+                 origin=None,
+                 filternorm=1,
+                 filterrad=4.0,
+                 resample = False,
+                 **kwargs
+                 ):
+
+        """
+        cmap is a colors.Colormap instance
+        norm is a colors.Normalize instance to map luminance to 0-1
+
+        kwargs are an optional list of Artist keyword args
+        """
+
+        AxesImage.__init__(self, ax=None,
+                           cmap = cmap,
+                           norm = norm,
+                           interpolation=interpolation,
+                           origin=origin,
+                           filternorm=filternorm,
+                           filterrad=filterrad,
+                           resample = resample,
+                           **kwargs
+                           )
+
+        self.bbox = bbox
+
+    def get_window_extent(self, renderer=None):
+        if renderer is None:
+            renderer = self.get_figure()._cachedRenderer
+
+        if isinstance(self.bbox, BboxBase):
+            return self.bbox
+        elif callable(self.bbox):
+            return self.bbox(renderer)
+        else:
+            raise ValueError("unknown type of bbox")
+
+
+    def contains(self, mouseevent):
+        """Test whether the mouse event occured within the image.
+        """
+
+        if callable(self._contains): return self._contains(self,mouseevent)
+
+        if not self.get_visible():# or self.get_figure()._renderer is None:
+            return False,{}
+
+        x, y = mouseevent.x, mouseevent.y
+        inside = self.get_window_extent().contains(x, y)
+
+        return inside,{}
+
+    def get_size(self):
+        'Get the numrows, numcols of the input image'
+        if self._A is None:
+            raise RuntimeError('You must first set the image array')
+
+        return self._A.shape[:2]
+
+    def make_image(self, renderer, magnification=1.0):
+        if self._A is None:
+            raise RuntimeError('You must first set the image array or the image attribute')
+
+        if self._imcache is None:
+            if self._A.dtype == np.uint8 and len(self._A.shape) == 3:
+                im = _image.frombyte(self._A, 0)
+                im.is_grayscale = False
+            else:
+                if self._rgbacache is None:
+                    x = self.to_rgba(self._A, self._alpha)
+                    self._rgbacache = x
+                else:
+                    x = self._rgbacache
+                im = _image.fromarray(x, 0)
+                if len(self._A.shape) == 2:
+                    im.is_grayscale = self.cmap.is_gray()
+                else:
+                    im.is_grayscale = False
+            self._imcache = im
+
+            if self.origin=='upper':
+                im.flipud_in()
+        else:
+            im = self._imcache
+
+        if 0:
+            fc = self.axes.patch.get_facecolor()
+            bg = mcolors.colorConverter.to_rgba(fc, 0)
+            im.set_bg( *bg)
+
+        # image input dimensions
+        im.reset_matrix()
+
+        im.set_interpolation(self._interpd[self._interpolation])
+
+        im.set_resample(self._resample)
+
+        l, b, r, t = self.get_window_extent(renderer).extents #bbox.extents
+        widthDisplay = (round(r) + 0.5) - (round(l) - 0.5)
+        heightDisplay = (round(t) + 0.5) - (round(b) - 0.5)
+        widthDisplay *= magnification
+        heightDisplay *= magnification
+        #im.apply_translation(tx, ty)
+
+        numrows, numcols = self._A.shape[:2]
+
+        # resize viewport to display
+        rx = widthDisplay / numcols
+        ry = heightDisplay  / numrows
+        #im.apply_scaling(rx*sx, ry*sy)
+        im.apply_scaling(rx, ry)
+        #im.resize(int(widthDisplay+0.5), int(heightDisplay+0.5),
+        #          norm=self._filternorm, radius=self._filterrad)
+        im.resize(int(widthDisplay), int(heightDisplay),
+                  norm=self._filternorm, radius=self._filterrad)
+        return im
+
+
+    @allow_rasterization
+    def draw(self, renderer, *args, **kwargs):
+        if not self.get_visible(): return
+        # todo: we should be able to do some cacheing here
+        image_mag = renderer.get_image_magnification()
+        im = self.make_image(renderer, image_mag)
+        l, b, r, t = self.get_window_extent(renderer).extents
+        gc = renderer.new_gc()
+        self._set_gc_clip(gc)
+        #gc.set_clip_path(self.get_clip_path())
+        renderer.draw_image(gc, round(l), round(b), im)
+
+
 
 def imread(fname):
     """

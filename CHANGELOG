@@ -1,3 +1,6 @@
+2009-08-07 BboxImage implemented. Two examples, demo_bboximage.py and
+           demo_ribbon_box.py added. - JJL
+
 2009-08-07 In an effort to simplify the backend API, all clipping rectangles
            and paths are now passed in using GraphicsContext objects, even
            on collections and images.  Therefore:
