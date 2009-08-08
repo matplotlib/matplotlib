@@ -1,8 +1,8 @@
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-import pylab
+import matplotlib.pyplot as plt
 
-fig = pylab.figure()
+fig = plt.figure()
 ax = Axes3D(fig)
 
 x = np.linspace(0, 1, 100)
@@ -20,5 +20,5 @@ ax.set_xlim3d(0, 1)
 ax.set_ylim3d(0, 1)
 ax.set_zlim3d(0, 1)
 
-pylab.show()
+plt.show()
 
