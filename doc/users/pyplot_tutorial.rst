@@ -74,7 +74,7 @@ several ways to set line properties
   one line so it is a list of length 1.  I use tuple unpacking in the
   ``line, = plot(x, y, 'o')`` to get the first element of the list::
 
-      line, = plt.plot(x, y, 'o')
+		     line, = plt.plot(x, y, '-')
       line.set_antialiased(False) # turn off antialising
 
 * Use the :func:`~matplotlib.pyplot.setp` command.  The example below
@@ -156,7 +156,7 @@ current axes (a :class:`matplotlib.axes.Axes` instance), and
 :func:`~matplotlib.pyplot.gcf` returns the current figure
 (:class:`matplotlib.figure.Figure` instance). Normally, you don't have
 to worry about this, because it is all taken care of behind the
-scenes.  Below is an script to create two subplots.
+scenes.  Below is a script to create two subplots.
 
 .. plot:: pyplots/pyplot_two_subplots.py
    :include-source:
@@ -165,18 +165,16 @@ The :func:`~matplotlib.pyplot.figure` command here is optional because
 ``figure(1)`` will be created by default, just as a ``subplot(111)``
 will be created by default if you don't manually specify an axes.  The
 :func:`~matplotlib.pyplot.subplot` command specifies ``numrows,
-numcols, fignum`` where ``fignum`` ranges from 1 to
-``numrows*numcols``.  The commas in the ``subplot command are optional
+	 numcols, fignum`` where ``fignum`` ranges from 1 to
+``numrows*numcols``.  The commas in the ``subplot`` command are optional
 if ``numrows*numcols<10``.  So ``subplot(211)`` is identical to
 ``subplot(2,1,1)``.  You can create an arbitrary number of subplots
 and axes.  If you want to place an axes manually, ie, not on a
 rectangular grid, use the :func:`~matplotlib.pyplot.axes` command,
 which allows you to specify the location as ``axes([left, bottom,
 width, height])`` where all values are in fractional (0 to 1)
-coordinates.  See `axes_demo.py
-<http://matplotlib.sf.net/examples/axes_demo.py>`_ for an example of
-placing axes manually and `line_styles.py
-<http://matplotlib.sf.net/examples/line_styles.py>`_ for an example
+coordinates.  See :ref:`pylab_examples-axes_demo` for an example of
+placing axes manually and :ref:`pylab_examples-line_styles` for an example
 with lots-o-subplots.
 
 
@@ -269,6 +267,6 @@ these arguments are ``(x,y)`` tuples.
 In this basic example, both the ``xy`` (arrow tip) and ``xytext``
 locations (text location) are in data coordinates.  There are a
 variety of other coordinate systems one can choose -- see
-:ref:`annotations-tutorial` for details.  More examples can be found
-in the `annotations demo
-<http://matplotlib.sf.net/examples/pylab_examples/annotation_demo.html>`_
+:ref:`annotations-tutorial` and :ref:`plotting-guide-annotation`
+for details.  More examples can be found
+in :ref:`pylab_examples-annotation_demo`.

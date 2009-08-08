@@ -4,8 +4,8 @@
 Event handling and picking
 **************************
 
-matplotlib works with 5 user interface toolkits (wxpython, tkinter,
-qt, gtk and fltk) and in order to support features like interactive
+matplotlib works with 6 user interface toolkits (wxpython, tkinter,
+qt, gtk, fltk abd macosx) and in order to support features like interactive
 panning and zooming of figures, it is helpful to the developers to
 have an API for interacting with the figure via key presses and mouse
 movements that is "GUI neutral" so we don't have to repeat a lot of
@@ -143,7 +143,7 @@ addition to the ``LocationEvent`` attributes, it has
         button pressed None, 1, 2, 3, 'up', 'down' (up and down are used for scroll events)
 
     ``key``
-        the key pressed: None, chr(range(255), 'shift', 'win', or 'control'
+        the key pressed: None, any character, 'shift', 'win', or 'control'
 
 Draggable rectangle exercise
 ----------------------------

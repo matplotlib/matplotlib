@@ -440,8 +440,15 @@ class FigureManagerGTK(FigureManagerBase):
         self.window = gtk.Window()
         self.window.set_title("Figure %d" % num)
         if (window_icon):
-            self.window.set_icon_from_file(window_icon)
-
+            try:
+                self.window.set_icon_from_file(window_icon)
+            except:
+                # some versions of gtk throw a glib.GError but not
+                # all, so I am not sure how to catch it.  I am unhappy
+                # diong a blanket catch here, but an not sure what a
+                # better way is - JDH
+                verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+                
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
         self.vbox.show()
@@ -666,7 +673,11 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
         window = gtk.Window()
         if (window_icon):
-            window.set_icon_from_file(window_icon)
+            try: window.set_icon_from_file(window_icon)
+            except:
+                # we presumably already logged a message on the
+                # failure of the main plot, don't keep reporting
+                pass
         window.set_title("Subplot Configuration Tool")
         window.set_default_size(w, h)
         vbox = gtk.VBox()
