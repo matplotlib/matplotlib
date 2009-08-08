@@ -22,6 +22,7 @@ def get_flip_min_max(coord, index, mins, maxs):
 def move_from_center(coord, centers, deltas, axmask=(True, True, True)):
     '''Return a coordinate that is moved by "deltas" away from the center.'''
     coord = copy.copy(coord)
+    #print coord, centers, deltas, axmask
     for i in range(3):
         if not axmask[i]:
             continue
@@ -84,7 +85,7 @@ class Axis(maxis.XAxis):
                                     alpha=0.8,
                                     facecolor=(1,1,1,0),
                                     edgecolor=(1,1,1,0))
-        
+
         self.axes._set_artist_props(self.line)
         self.axes._set_artist_props(self.pane)
         self.gridlines = art3d.Line3DCollection([], )
@@ -141,7 +142,7 @@ class Axis(maxis.XAxis):
         # code from XAxis
         majorTicks = self.get_major_ticks()
         majorLocs = self.major.locator()
-        
+
         # filter locations here so that no extra grid lines are drawn
         interval = self.get_view_interval()
         majorLocs = [loc for loc in majorLocs if \
@@ -152,19 +153,20 @@ class Axis(maxis.XAxis):
 
         # Determine bounds
         minx, maxx, miny, maxy, minz, maxz = self.axes.get_w_lims()
-        mins = (minx, miny, minz)
-        maxs = (maxx, maxy, maxz)
-        centers = [(maxv + minv) / 2 for minv, maxv in zip(mins, maxs)]
-        deltas = [(maxv - minv) / 12 for minv, maxv in zip(mins, maxs)]
-        mins = [minv - delta / 4 for minv, delta in zip(mins, deltas)]
-        maxs = [maxv + delta / 4 for maxv, delta in zip(maxs, deltas)]
+        mins = np.array((minx, miny, minz))
+        maxs = np.array((maxx, maxy, maxz))
+        centers = (maxs + mins) / 2.
+        deltas = (maxs - mins) / 12.
+        mins = mins - deltas / 4.
+        maxs = maxs + deltas / 4.
 
         # Determine which planes should be visible by the avg z value
         vals = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
         tc = self.axes.tunit_cube(vals, renderer.M)
+        #raise RuntimeError('WTF: p1=%s'%p1)
         avgz = [tc[p1][2] + tc[p2][2] + tc[p3][2] + tc[p4][2] for \
                 p1, p2, p3, p4 in self._PLANES]
-        highs = [avgz[2*i] < avgz[2*i+1] for i in range(3)]
+        highs = np.array([avgz[2*i] < avgz[2*i+1] for i in range(3)])
 
         # Draw plane
         info = self._AXINFO[self.adir]
@@ -178,18 +180,14 @@ class Axis(maxis.XAxis):
         self.pane.draw(renderer)
 
         # Determine grid lines
-        minmax = []
-        for i, val in enumerate(highs):
-            if val:
-                minmax.append(maxs[i])
-            else:
-                minmax.append(mins[i])
+        minmax = np.where(highs, maxs, mins)
 
         # Draw main axis line
         juggled = art3d.juggle_axes(0, 2, 1, self.adir)
-        edgep1 = copy.copy(minmax)
+        edgep1 = minmax.copy()
         edgep1[juggled[0]] = get_flip_min_max(edgep1, juggled[0], mins, maxs)
-        edgep2 = copy.copy(edgep1)
+
+        edgep2 = edgep1.copy()
         edgep2[juggled[1]] = get_flip_min_max(edgep2, juggled[1], mins, maxs)
         pep = proj3d.proj_trans_points([edgep1, edgep2], renderer.M)
         self.line.set_data((pep[0][0], pep[0][1]), (pep[1][0], pep[1][1]))
@@ -198,15 +196,17 @@ class Axis(maxis.XAxis):
         # Grid points where the planes meet
         xyz0 = []
         for val in majorLocs:
-            coord = copy.copy(minmax)
+            coord = minmax.copy()
             coord[index] = val
             xyz0.append(coord)
 
         # Draw labels
         dy = pep[1][1] - pep[1][0]
         dx = pep[0][1] - pep[0][0]
-        lxyz = [(v1 + v2) / 2 for v1, v2 in zip(edgep1, edgep2)]
-        labeldeltas = [1.3 * x for x in deltas]
+
+        lxyz = 0.5*(edgep1 + edgep2)
+
+        labeldeltas = 1.3 * deltas
         lxyz = move_from_center(lxyz, centers, labeldeltas)
         tlx, tly, tlz = proj3d.proj_transform(lxyz[0], lxyz[1], lxyz[2], \
                 renderer.M)
@@ -293,7 +293,7 @@ class YAxis(Axis):
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.xy_dataLim.intervaly
-        
+
 class ZAxis(Axis):
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
