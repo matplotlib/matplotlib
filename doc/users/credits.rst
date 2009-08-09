@@ -148,7 +148,8 @@ The `brainvisa <http://brainvisa.info>`_ Orsay team and Fernando Perez
 Charlie Moad
   contributed work to matplotlib's Cocoa support and has done a lot of work on the OSX and win32 binary releases.
 
-Jouni K. Seppaenen wrote the PDF backend and contributed numerous
+Jouni K. Seppänen 
+  wrote the PDF backend and contributed numerous
   fixes to the code, to tex support and to the get_sample_data handler
 
 Paul Kienzle

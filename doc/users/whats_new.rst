@@ -72,7 +72,7 @@ including binaries for OS X and Windows for python 2.4 and 2.5 (2.6
 and 3.0 will not be available until numpy is available on those
 releases).  Thanks to the many developers who contributed to this
 release, with contributions from Jae-Joon Lee, Michael Droettboom,
-Ryan May, Eric Firing, Manuel Metz, Jouni K. Seppaenen, Jeff Whitaker,
+Ryan May, Eric Firing, Manuel Metz, Jouni K. Seppänen, Jeff Whitaker,
 Darren Dale, David Kaplan, Michiel de Hoon and many others who
 submitted patches
 
