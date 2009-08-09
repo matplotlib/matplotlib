@@ -1340,154 +1340,22 @@ class TextWithDash(Text):
 
 artist.kwdocd['TextWithDash'] = artist.kwdoc(TextWithDash)
 
-class Annotation(Text):
-    """
-    A :class:`~matplotlib.text.Text` class to make annotating things
-    in the figure, such as :class:`~matplotlib.figure.Figure`,
-    :class:`~matplotlib.axes.Axes`,
-    :class:`~matplotlib.patches.Rectangle`, etc., easier.
-    """
-    def __str__(self):
-        return "Annotation(%g,%g,%s)"%(self.xy[0],self.xy[1],repr(self._text))
-    def __init__(self, s, xy,
-                 xytext=None,
-                 xycoords='data',
-                 textcoords=None,
-                 arrowprops=None,
-                 **kwargs):
-        """
-        Annotate the *x*, *y* point *xy* with text *s* at *x*, *y*
-        location *xytext*.  (If *xytext* = *None*, defaults to *xy*,
-        and if *textcoords* = *None*, defaults to *xycoords*).
-
-        *arrowprops*, if not *None*, is a dictionary of line properties
-        (see :class:`matplotlib.lines.Line2D`) for the arrow that connects
-        annotation to the point.
-
-        If the dictionary has a key *arrowstyle*, a FancyArrowPatch
-        instance is created with the given dictionary and is
-        drawn. Otherwise, a YAArow patch instance is created and
-        drawn. Valid keys for YAArow are
-
-
-        =========   =============================================================
-        Key         Description
-        =========   =============================================================
-        width       the width of the arrow in points
-        frac        the fraction of the arrow length occupied by the head
-        headwidth   the width of the base of the arrow head in points
-        shrink      oftentimes it is convenient to have the arrowtip
-                    and base a bit away from the text and point being
-                    annotated.  If *d* is the distance between the text and
-                    annotated point, shrink will shorten the arrow so the tip
-                    and base are shink percent of the distance *d* away from the
-                    endpoints.  ie, ``shrink=0.05 is 5%%``
-        ?           any key for :class:`matplotlib.patches.polygon`
-        =========   =============================================================
-
-
-        Valid keys for FancyArrowPatch are
-
-
-        ===============  ======================================================
-        Key              Description
-        ===============  ======================================================
-        arrowstyle       the arrow style
-        connectionstyle  the connection style
-        relpos           default is (0.5, 0.5)
-        patchA           default is bounding box of the text
-        patchB           default is None
-        shrinkA          default is 2 points
-        shrinkB          default is 2 points
-        mutation_scale   default is text size (in points)
-        mutation_aspect  default is 1.
-        ?                any key for :class:`matplotlib.patches.PathPatch`
-        ===============  ======================================================
-
-
-        *xycoords* and *textcoords* are strings that indicate the
-        coordinates of *xy* and *xytext*.
-
-        =================   ===================================================
-        Property            Description
-        =================   ===================================================
-        'figure points'     points from the lower left corner of the figure
-        'figure pixels'     pixels from the lower left corner of the figure
-        'figure fraction'   0,0 is lower left of figure and 1,1 is upper, right
-        'axes points'       points from lower left corner of axes
-        'axes pixels'       pixels from lower left corner of axes
-        'axes fraction'     0,1 is lower left of axes and 1,1 is upper right
-        'data'              use the coordinate system of the object being
-                            annotated (default)
-        'offset points'     Specify an offset (in points) from the *xy* value
-
-        'polar'             you can specify *theta*, *r* for the annotation,
-                            even in cartesian plots.  Note that if you
-                            are using a polar axes, you do not need
-                            to specify polar for the coordinate
-                            system since that is the native "data" coordinate
-                            system.
-        =================   ===================================================
-
-        If a 'points' or 'pixels' option is specified, values will be
-        added to the bottom-left and if negative, values will be
-        subtracted from the top-right.  Eg::
-
-          # 10 points to the right of the left border of the axes and
-          # 5 points below the top border
-          xy=(10,-5), xycoords='axes points'
-
-        Additional kwargs are Text properties:
-
-        %(Text)s
-
-        """
+class _AnnotationBase(object):
+    def __init__(self,
+                 xy, xytext=None,
+                 xycoords='data', textcoords=None,
+                 annotation_clip=None):
         if xytext is None:
             xytext = xy
         if textcoords is None:
             textcoords = xycoords
         # we'll draw ourself after the artist we annotate by default
         x,y = self.xytext = xytext
-        Text.__init__(self, x, y, s, **kwargs)
+
         self.xy = xy
         self.xycoords = xycoords
         self.textcoords = textcoords
-
-        self.arrowprops = arrowprops
-
-        self.arrow = None
-
-        if arrowprops and arrowprops.has_key("arrowstyle"):
-
-            self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
-            self.arrow_patch = FancyArrowPatch((0, 0), (1,1),
-                                               **arrowprops)
-        else:
-            self.arrow_patch = None
-
-        # if True, draw annotation only if self.xy is inside the axes
-        self._annotation_clip = None
-
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
-
-    def contains(self,event):
-        t,tinfo = Text.contains(self,event)
-        if self.arrow is not None:
-            a,ainfo=self.arrow.contains(event)
-            t = t or a
-
-        # self.arrow_patch is currently not checked as this can be a line - JJ
-
-        return t,tinfo
-
-
-    def set_figure(self, fig):
-
-        if self.arrow is not None:
-            self.arrow.set_figure(fig)
-        if self.arrow_patch is not None:
-            self.arrow_patch.set_figure(fig)
-        Artist.set_figure(self, fig)
+        self.set_annotation_clip(annotation_clip)
 
     def _get_xy(self, x, y, s):
         if s=='data':
@@ -1601,17 +1469,178 @@ class Annotation(Text):
         """
         return self._annotation_clip
 
+    def _get_position_xy(self, renderer):
+        "Return the pixel position of the the annotated point."
+        x, y = self.xy
+        return self._get_xy(x, y, self.xycoords)
+
+    def _check_xy(self, renderer, xy_pixel):
+        """
+        given the xy pixel coordinate, check if the annotation need to
+        be drawn.
+        """
+
+        b = self.get_annotation_clip()
+        if b or (b is None and self.xycoords == "data"):
+            # check if self.xy is inside the axes.
+            if not self.axes.contains_point(xy_pixel):
+                return False
+
+        return True
+
+
+
+
+class Annotation(Text, _AnnotationBase):
+    """
+    A :class:`~matplotlib.text.Text` class to make annotating things
+    in the figure, such as :class:`~matplotlib.figure.Figure`,
+    :class:`~matplotlib.axes.Axes`,
+    :class:`~matplotlib.patches.Rectangle`, etc., easier.
+    """
+    def __str__(self):
+        return "Annotation(%g,%g,%s)"%(self.xy[0],self.xy[1],repr(self._text))
+    def __init__(self, s, xy,
+                 xytext=None,
+                 xycoords='data',
+                 textcoords=None,
+                 arrowprops=None,
+                 annotation_clip=None,
+                 **kwargs):
+        """
+        Annotate the *x*, *y* point *xy* with text *s* at *x*, *y*
+        location *xytext*.  (If *xytext* = *None*, defaults to *xy*,
+        and if *textcoords* = *None*, defaults to *xycoords*).
+
+        *arrowprops*, if not *None*, is a dictionary of line properties
+        (see :class:`matplotlib.lines.Line2D`) for the arrow that connects
+        annotation to the point.
+
+        If the dictionary has a key *arrowstyle*, a FancyArrowPatch
+        instance is created with the given dictionary and is
+        drawn. Otherwise, a YAArow patch instance is created and
+        drawn. Valid keys for YAArow are
+
+
+        =========   =============================================================
+        Key         Description
+        =========   =============================================================
+        width       the width of the arrow in points
+        frac        the fraction of the arrow length occupied by the head
+        headwidth   the width of the base of the arrow head in points
+        shrink      oftentimes it is convenient to have the arrowtip
+                    and base a bit away from the text and point being
+                    annotated.  If *d* is the distance between the text and
+                    annotated point, shrink will shorten the arrow so the tip
+                    and base are shink percent of the distance *d* away from the
+                    endpoints.  ie, ``shrink=0.05 is 5%%``
+        ?           any key for :class:`matplotlib.patches.polygon`
+        =========   =============================================================
+
+
+        Valid keys for FancyArrowPatch are
+
+
+        ===============  ======================================================
+        Key              Description
+        ===============  ======================================================
+        arrowstyle       the arrow style
+        connectionstyle  the connection style
+        relpos           default is (0.5, 0.5)
+        patchA           default is bounding box of the text
+        patchB           default is None
+        shrinkA          default is 2 points
+        shrinkB          default is 2 points
+        mutation_scale   default is text size (in points)
+        mutation_aspect  default is 1.
+        ?                any key for :class:`matplotlib.patches.PathPatch`
+        ===============  ======================================================
+
+
+        *xycoords* and *textcoords* are strings that indicate the
+        coordinates of *xy* and *xytext*.
+
+        =================   ===================================================
+        Property            Description
+        =================   ===================================================
+        'figure points'     points from the lower left corner of the figure
+        'figure pixels'     pixels from the lower left corner of the figure
+        'figure fraction'   0,0 is lower left of figure and 1,1 is upper, right
+        'axes points'       points from lower left corner of axes
+        'axes pixels'       pixels from lower left corner of axes
+        'axes fraction'     0,1 is lower left of axes and 1,1 is upper right
+        'data'              use the coordinate system of the object being
+                            annotated (default)
+        'offset points'     Specify an offset (in points) from the *xy* value
+
+        'polar'             you can specify *theta*, *r* for the annotation,
+                            even in cartesian plots.  Note that if you
+                            are using a polar axes, you do not need
+                            to specify polar for the coordinate
+                            system since that is the native "data" coordinate
+                            system.
+        =================   ===================================================
+
+        If a 'points' or 'pixels' option is specified, values will be
+        added to the bottom-left and if negative, values will be
+        subtracted from the top-right.  Eg::
+
+          # 10 points to the right of the left border of the axes and
+          # 5 points below the top border
+          xy=(10,-5), xycoords='axes points'
+
+        Additional kwargs are Text properties:
+
+        %(Text)s
+
+        """
+
+        _AnnotationBase.__init__(self,
+                                 xy, xytext=xytext,
+                                 xycoords=xycoords, textcoords=textcoords,
+                                 annotation_clip=annotation_clip)
+
+        x,y = self.xytext
+        Text.__init__(self, x, y, s, **kwargs)
+
+        self.arrowprops = arrowprops
+
+        self.arrow = None
+
+        if arrowprops and arrowprops.has_key("arrowstyle"):
+
+            self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
+            self.arrow_patch = FancyArrowPatch((0, 0), (1,1),
+                                               **arrowprops)
+        else:
+            self.arrow_patch = None
+
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
+
+    def contains(self,event):
+        t,tinfo = Text.contains(self,event)
+        if self.arrow is not None:
+            a,ainfo=self.arrow.contains(event)
+            t = t or a
+
+        # self.arrow_patch is currently not checked as this can be a line - JJ
+
+        return t,tinfo
+
+
+    def set_figure(self, fig):
+
+        if self.arrow is not None:
+            self.arrow.set_figure(fig)
+        if self.arrow_patch is not None:
+            self.arrow_patch.set_figure(fig)
+        Artist.set_figure(self, fig)
+
 
     def update_positions(self, renderer):
         "Update the pixel positions of the annotated point and the text."
         xy_pixel = self._get_position_xy(renderer)
         self._update_position_xytext(renderer, xy_pixel)
-
-
-    def _get_position_xy(self, renderer):
-        "Return the pixel position of the the annotated point."
-        x, y = self.xy
-        return self._get_xy(x, y, self.xycoords)
 
 
     def _update_position_xytext(self, renderer, xy_pixel):
@@ -1696,21 +1725,6 @@ class Annotation(Text):
                                      **d)
 
                 self.arrow.set_clip_box(self.get_clip_box())
-
-
-    def _check_xy(self, renderer, xy_pixel):
-        """
-        given the xy pixel coordinate, check if the annotation need to
-        be drawn.
-        """
-
-        b = self.get_annotation_clip()
-        if b or (b is None and self.xycoords == "data"):
-            # check if self.xy is inside the axes.
-            if not self.axes.contains_point(xy_pixel):
-                return False
-
-        return True
 
 
     def draw(self, renderer):

@@ -1,3 +1,7 @@
+2009-08-09 AnnotationBbox added. Similar to Annotation, but works with
+           OffsetBox instead of Text. See the example
+           demo_annotation_box.py. -JJL
+
 2009-08-07 BboxImage implemented. Two examples, demo_bboximage.py and
            demo_ribbon_box.py added. - JJL
 

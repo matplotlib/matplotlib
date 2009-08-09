@@ -19,13 +19,21 @@ import matplotlib.transforms as mtransforms
 import matplotlib.artist as martist
 import matplotlib.text as mtext
 import numpy as np
-from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransformTo
+from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, \
+     IdentityTransform
 
 from matplotlib.font_manager import FontProperties
-from matplotlib.patches import FancyBboxPatch
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 from matplotlib import rcParams
 
+import matplotlib.cbook as cbook
+
+#from bboximage import BboxImage
+from matplotlib.image import BboxImage
+
 from matplotlib.patches import bbox_artist as mbbox_artist
+
+
 DEBUG=False
 # for debuging use
 def bbox_artist(*args, **kwargs):
@@ -744,7 +752,7 @@ class AuxTransformBox(OffsetBox):
     def get_extent(self, renderer):
 
         # clear the offset transforms
-        _off = self.ref_offset_transform.to_values() # to be restored later
+        _off = self.offset_transform.to_values() # to be restored later
         self.ref_offset_transform.clear()
         self.offset_transform.clear()
 
@@ -755,8 +763,10 @@ class AuxTransformBox(OffsetBox):
 
         # adjust ref_offset_tansform
         self.ref_offset_transform.translate(-ub.x0, -ub.y0)
+
         # restor offset transform
-        self.offset_transform.matrix_from_values(*_off)
+        mtx = self.offset_transform.matrix_from_values(*_off)
+        self.offset_transform.set_matrix(mtx)
 
         return ub.width, ub.height, 0., 0.
 
@@ -890,7 +900,7 @@ class AnchoredOffsetbox(OffsetBox):
             else:
                 return TransformedBbox(self._bbox_to_anchor,
                                        transform)
-                
+
 
 
 
@@ -901,7 +911,7 @@ class AnchoredOffsetbox(OffsetBox):
         *bbox* can be a Bbox instance, a list of [left, bottom, width,
         height], or a list of [left, bottom] where the width and
         height will be assumed to be zero. The bbox will be
-        transformed to display coordinate by the given transform. 
+        transformed to display coordinate by the given transform.
         """
         if bbox is None or isinstance(bbox, BboxBase):
             self._bbox_to_anchor = bbox
@@ -951,6 +961,13 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_offset(_offset)
 
 
+    def update_frame(self, bbox, fontsize=None):
+            self.patch.set_bounds(bbox.x0, bbox.y0,
+                                  bbox.width, bbox.height)
+
+            if fontsize:
+                self.patch.set_mutation_scale(fontsize)
+
     def draw(self, renderer):
         "draw the artist"
 
@@ -962,11 +979,7 @@ class AnchoredOffsetbox(OffsetBox):
         if self._drawFrame:
             # update the location and size of the legend
             bbox = self.get_window_extent(renderer)
-            self.patch.set_bounds(bbox.x0, bbox.y0,
-                                  bbox.width, bbox.height)
-
-            self.patch.set_mutation_scale(fontsize)
-
+            self.update_frame(bbox, fontsize)
             self.patch.draw(renderer)
 
 
@@ -1004,3 +1017,399 @@ class AnchoredOffsetbox(OffsetBox):
         container = parentbbox.padded(-borderpad)
         anchored_box = bbox.anchored(c, container=container)
         return anchored_box.x0, anchored_box.y0
+
+
+class AnchoredText(AnchoredOffsetbox):
+    """
+    AnchoredOffsetbox with Text
+    """
+
+    def __init__(self, s, loc, pad=0.4, borderpad=0.5, prop=None, **kwargs):
+        """
+        *s* : string
+        *loc* : location code
+        *prop* : font property
+        *pad* : pad between the text and the frame as fraction of the font size.
+        *borderpad* : pad between the frame and the axes (or bbox_to_anchor).
+
+        other keyword parameters of AnchoredOffsetbox are also allowed.
+        """
+
+        self.txt = TextArea(s, textprops=prop,
+                            minimumdescent=False)
+        fp = self.txt._text.get_fontproperties()
+
+        super(AnchoredText, self).__init__(loc, pad=pad, borderpad=borderpad,
+                                           child=self.txt,
+                                           prop=fp,
+                                           **kwargs)
+
+
+
+class OffsetImage(OffsetBox):
+    def __init__(self, arr,
+                 zoom=1,
+                 cmap = None,
+                 norm = None,
+                 interpolation=None,
+                 origin=None,
+                 filternorm=1,
+                 filterrad=4.0,
+                 resample = False,
+                 dpi_cor=True,
+                 **kwargs
+                 ):
+
+        self._dpi_cor = dpi_cor
+
+        self.image = BboxImage(bbox=self.get_window_extent,
+                               cmap = cmap,
+                               norm = norm,
+                               interpolation=interpolation,
+                               origin=origin,
+                               filternorm=filternorm,
+                               filterrad=filterrad,
+                               resample = resample,
+                               **kwargs
+                               )
+
+        self._children = [self.image]
+
+        self.set_zoom(zoom)
+        self.set_data(arr)
+
+        OffsetBox.__init__(self)
+
+
+    def set_data(self, arr):
+        self._data = np.asarray(arr)
+        self.image.set_data(self._data)
+
+    def get_data(self):
+        return self._data
+
+    def set_zoom(self, zoom):
+        self._zoom = zoom
+
+    def get_zoom(self):
+        return self._zoom
+
+#     def set_axes(self, axes):
+#         self.image.set_axes(axes)
+#         martist.Artist.set_axes(self, axes)
+
+#     def set_offset(self, xy):
+#         """
+#         set offset of the container.
+
+#         Accept : tuple of x,y cooridnate in disokay units.
+#         """
+#         self._offset = xy
+
+#         self.offset_transform.clear()
+#         self.offset_transform.translate(xy[0], xy[1])
+
+
+    def get_offset(self):
+        """
+        return offset of the container.
+        """
+        return self._offset
+
+
+    def get_window_extent(self, renderer):
+        '''
+        get the bounding box in display space.
+        '''
+        w, h, xd, yd = self.get_extent(renderer)
+        ox, oy = self.get_offset()
+        return mtransforms.Bbox.from_bounds(ox-xd, oy-yd, w, h)
+
+
+    def get_extent(self, renderer):
+
+        if self._dpi_cor: # True, do correction
+            dpi_cor = renderer.points_to_pixels(1.)
+        else:
+            dpi_cor = 1.
+
+        zoom = self.get_zoom()
+        data = self.get_data()
+        ny, nx = data.shape[:2]
+        w, h = nx*zoom, ny*zoom
+
+        return w, h, 0, 0
+
+
+
+    def draw(self, renderer):
+        """
+        Draw the children
+        """
+
+        self.image.draw(renderer)
+
+        #bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
+
+
+
+from matplotlib.text import _AnnotationBase
+
+class AnnotationBbox(martist.Artist, _AnnotationBase):
+    """
+    Annotation-like class, but with offsetbox instead of Text.
+    """
+
+    zorder = 3
+
+    def __str__(self):
+        return "AnnotationBbox(%g,%g)"%(self.xy[0],self.xy[1])
+    def __init__(self, offsetbox, xy,
+                 xybox=None,
+                 xycoords='data',
+                 boxcoords=None,
+                 frameon=True, pad=0.4, # BboxPatch
+                 annotation_clip=None,
+                 box_alignment=(0.5, 0.5),
+                 bboxprops=None,
+                 arrowprops=None,
+                 fontsize=None,
+                 **kwargs):
+        """
+        *offsetbox* : OffsetBox instance
+
+        *xycoords* : same as Annotation but can be a tuple of two
+           strings which are interpreted as x and y coordinates.
+
+        *boxcoords* : similar to textcoords as Annotation but can be a
+           tuple of two strings which are interpreted as x and y
+           coordinates.
+
+        *box_alignment* : a tuple of two floats for a vertical and
+           horizontal alignment of the offset box w.r.t. the *boxcoords*.
+           The lower-left corner is (0.0) and upper-right corner is (1.1).
+
+        other parameters are identical to that of Annotation.
+        """
+        self.offsetbox = offsetbox
+
+        self.arrowprops = arrowprops
+
+        self.set_fontsize(fontsize)
+
+
+        if arrowprops is not None:
+            self._arrow_relpos = self.arrowprops.pop("relpos", (0.5, 0.5))
+            self.arrow_patch = FancyArrowPatch((0, 0), (1,1),
+                                               **self.arrowprops)
+        else:
+            self._arrow_relpos = None
+            self.arrow_patch = None
+
+        _AnnotationBase.__init__(self,
+                                 xy, xytext=xybox,
+                                 xycoords=xycoords, textcoords=boxcoords,
+                                 annotation_clip=annotation_clip)
+
+        martist.Artist.__init__(self, **kwargs)
+
+        #self._fw, self._fh = 0., 0. # for alignment
+        self._box_alignment = box_alignment
+
+        # frame
+        self.patch = FancyBboxPatch(
+            xy=(0.0, 0.0), width=1., height=1.,
+            facecolor='w', edgecolor='k',
+            mutation_scale=self.prop.get_size_in_points(),
+            snap=True
+            )
+        self.patch.set_boxstyle("square",pad=pad)
+        if bboxprops:
+            self.patch.set(**bboxprops)
+        self._drawFrame =  frameon
+
+
+    __init__.__doc__ = cbook.dedent(__init__.__doc__) % martist.kwdocd
+
+    def contains(self,event):
+        t,tinfo = self.offsetbox.contains(event)
+        if self.arrow is not None:
+            a,ainfo=self.arrow.contains(event)
+            t = t or a
+
+        # self.arrow_patch is currently not checked as this can be a line - JJ
+
+        return t,tinfo
+
+
+    def get_children(self):
+        children = [self.offsetbox, self.patch]
+        if self.arrow_patch:
+            children.append(self.arrow_patch)
+        return children
+
+    def set_figure(self, fig):
+
+        if self.arrow_patch is not None:
+            self.arrow_patch.set_figure(fig)
+        self.offsetbox.set_figure(fig)
+        martist.Artist.set_figure(self, fig)
+
+    def set_fontsize(self, s=None):
+        """
+        set fontsize in points
+        """
+        if s is None:
+            s = rcParams["legend.fontsize"]
+
+        self.prop=FontProperties(size=s)
+
+    def get_fontsize(self, s=None):
+        """
+        return fontsize in points
+        """
+        return self.prop.get_size_in_points()
+
+    def update_positions(self, renderer):
+        "Update the pixel positions of the annotated point and the text."
+        xy_pixel = self._get_position_xy(renderer)
+        self._update_position_xybox(renderer, xy_pixel)
+
+        mutation_scale = renderer.points_to_pixels(self.get_fontsize())
+        self.patch.set_mutation_scale(mutation_scale)
+
+        if self.arrow_patch:
+            self.arrow_patch.set_mutation_scale(mutation_scale)
+
+
+    def _update_position_xybox(self, renderer, xy_pixel):
+        "Update the pixel positions of the annotation text and the arrow patch."
+
+        x, y = self.xytext
+        if isinstance(self.textcoords, tuple):
+            xcoord, ycoord = self.textcoords
+            x1, y1 = self._get_xy(x, y, xcoord)
+            x2, y2 = self._get_xy(x, y, ycoord)
+            ox0, oy0 = x1, y2
+        else:
+            ox0, oy0 = self._get_xy(x, y, self.textcoords)
+
+        #self.offsetbox.set_bbox_to_anchor((ox0, oy0))
+        w, h, xd, yd = self.offsetbox.get_extent(renderer)
+
+        _fw, _fh = self._box_alignment
+        self.offsetbox.set_offset((ox0-_fw*w, oy0-_fh*h))
+
+        # update patch position
+        bbox = self.offsetbox.get_window_extent(renderer)
+        #self.offsetbox.set_offset((ox0-_fw*w, oy0-_fh*h))
+        self.patch.set_bounds(bbox.x0, bbox.y0,
+                              bbox.width, bbox.height)
+
+        x, y = xy_pixel
+
+        ox1, oy1 = x, y
+
+        if self.arrowprops:
+            x0, y0 = x, y
+
+            d = self.arrowprops.copy()
+
+            # Use FancyArrowPatch if self.arrowprops has "arrowstyle" key.
+
+            # adjust the starting point of the arrow relative to
+            # the textbox.
+            # TODO : Rotation needs to be accounted.
+            relpos = self._arrow_relpos
+
+            ox0 = bbox.x0 + bbox.width * relpos[0]
+            oy0 = bbox.y0 + bbox.height * relpos[1]
+
+            # The arrow will be drawn from (ox0, oy0) to (ox1,
+            # oy1). It will be first clipped by patchA and patchB.
+            # Then it will be shrinked by shirnkA and shrinkB
+            # (in points). If patch A is not set, self.bbox_patch
+            # is used.
+
+            self.arrow_patch.set_positions((ox0, oy0), (ox1,oy1))
+            fs = self.prop.get_size_in_points()
+            mutation_scale = d.pop("mutation_scale", fs)
+            mutation_scale = renderer.points_to_pixels(mutation_scale)
+            self.arrow_patch.set_mutation_scale(mutation_scale)
+
+            patchA = d.pop("patchA", self.patch)
+            self.arrow_patch.set_patchA(patchA)
+
+
+
+    def draw(self, renderer):
+        """
+        Draw the :class:`Annotation` object to the given *renderer*.
+        """
+
+        if renderer is not None:
+            self._renderer = renderer
+        if not self.get_visible(): return
+
+        xy_pixel = self._get_position_xy(renderer)
+
+        if not self._check_xy(renderer, xy_pixel):
+            return
+
+        self.update_positions(renderer)
+
+        if self.arrow_patch is not None:
+            if self.arrow_patch.figure is None and self.figure is not None:
+                self.arrow_patch.figure = self.figure
+            self.arrow_patch.draw(renderer)
+
+        if self._drawFrame:
+            self.patch.draw(renderer)
+
+        self.offsetbox.draw(renderer)
+
+
+
+
+if __name__ == "__main__":
+
+    fig = plt.figure(1)
+    fig.clf()
+    ax = plt.subplot(121)
+
+    #txt = ax.text(0.5, 0.5, "Test", size=30, ha="center", color="w")
+    kwargs = dict()
+
+    a = np.arange(256).reshape(16,16)/256.
+    myimage = OffsetImage(a,
+                          zoom=2,
+                          norm = None,
+                          origin=None,
+                          **kwargs
+                          )
+    ax.add_artist(myimage)
+
+    myimage.set_offset((100, 100))
+
+
+    myimage2 = OffsetImage(a,
+                           zoom=2,
+                           norm = None,
+                           origin=None,
+                           **kwargs
+                           )
+    ann = AnnotationBbox(myimage2, (0.5, 0.5),
+                         xybox=(30, 30),
+                         xycoords='data',
+                         boxcoords="offset points",
+                         frameon=True, pad=0.4,  # BboxPatch
+                         bboxprops=dict(boxstyle="round", fc="y"),
+                         fontsize=None,
+                         arrowprops=dict(arrowstyle="->"),
+                         )
+
+    ax.add_artist(ann)
+
+    plt.draw()
+    plt.show()
+
