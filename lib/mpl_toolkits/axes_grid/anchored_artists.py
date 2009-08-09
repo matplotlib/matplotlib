@@ -1,40 +1,34 @@
 
-
-from matplotlib.font_manager import FontProperties
-from matplotlib import rcParams
 from matplotlib.patches import Rectangle, Ellipse
 
+import numpy as np
+
 from matplotlib.offsetbox import AnchoredOffsetbox, AuxTransformBox, VPacker,\
-     TextArea, DrawingArea
-
-
-class AnchoredText(AnchoredOffsetbox):
-    def __init__(self, s, loc, pad=0.4, borderpad=0.5, prop=None, **kwargs):
-
-        self.txt = TextArea(s, textprops=prop,
-                            minimumdescent=False)
-        fp = self.txt._text.get_fontproperties()
-
-        super(AnchoredText, self).__init__(loc, pad=pad, borderpad=borderpad,
-                                           child=self.txt,
-                                           prop=fp,
-                                           **kwargs)
-
+     TextArea, AnchoredText, DrawingArea, AnnotationBbox
 
 
 class AnchoredDrawingArea(AnchoredOffsetbox):
+    """
+    AnchoredOffsetbox with DrawingArea
+    """
+
     def __init__(self, width, height, xdescent, ydescent,
                  loc, pad=0.4, borderpad=0.5, prop=None, frameon=True,
                  **kwargs):
+        """
+        *width*, *height*, *xdescent*, *ydescent* : the dimensions of the DrawingArea.
+        *prop* : font property. this is only used for scaling the paddings.
+        """
 
         self.da = DrawingArea(width, height, xdescent, ydescent, clip=True)
         self.drawing_area = self.da
-        
+
         super(AnchoredDrawingArea, self).__init__(loc, pad=pad, borderpad=borderpad,
                                                   child=self.da,
                                                   prop=None,
                                                   frameon=frameon,
                                                   **kwargs)
+
 
 class AnchoredAuxTransformBox(AnchoredOffsetbox):
     def __init__(self, transform, loc,
@@ -47,6 +41,7 @@ class AnchoredAuxTransformBox(AnchoredOffsetbox):
                                    prop=prop,
                                    frameon=frameon,
                                    **kwargs)
+
 
 
 class AnchoredEllipse(AnchoredOffsetbox):
@@ -92,4 +87,74 @@ class AnchoredSizeBar(AnchoredOffsetbox):
                                    child=self._box,
                                    prop=prop,
                                    frameon=frameon, **kwargs)
+
+
+if __name__ == "__main__":
+
+    import matplotlib.pyplot as plt
+
+    fig = plt.gcf()
+    fig.clf()
+    ax = plt.subplot(111)
+
+    offsetbox = AnchoredText("Test", loc=6, pad=0.3,
+                             borderpad=0.3, prop=None)
+    xy = (0.5, 0.5)
+    ax.plot([0.5], [0.5], "xk")
+    ab = AnnotationBbox(offsetbox, xy,
+                        xybox=(1., .5),
+                        xycoords='data',
+                        boxcoords=("axes fraction", "data"),
+                        arrowprops=dict(arrowstyle="->"))
+                        #arrowprops=None)
+
+    ax.add_artist(ab)
+
+
+    from matplotlib.patches import Circle
+    ada = AnchoredDrawingArea(20, 20, 0, 0,
+                              loc=6, pad=0.1, borderpad=0.3, frameon=True)
+    p = Circle((10, 10), 10)
+    ada.da.add_artist(p)
+
+    ab = AnnotationBbox(ada, (0.3, 0.4),
+                        xybox=(1., 0.4),
+                        xycoords='data',
+                        boxcoords=("axes fraction", "data"),
+                        arrowprops=dict(arrowstyle="->"))
+                        #arrowprops=None)
+
+    ax.add_artist(ab)
+
+
+    arr = np.arange(100).reshape((10,10))
+    im = AnchoredImage(arr,
+                       loc=4,
+                       pad=0.5, borderpad=0.2, prop=None, frameon=True,
+                       zoom=1,
+                       cmap = None,
+                       norm = None,
+                       interpolation=None,
+                       origin=None,
+                       extent=None,
+                       filternorm=1,
+                       filterrad=4.0,
+                       resample = False,
+                       )
+
+    ab = AnnotationBbox(im, (0.5, 0.5),
+                        xybox=(-10., 10.),
+                        xycoords='data',
+                        boxcoords="offset points",
+                        arrowprops=dict(arrowstyle="->"))
+                        #arrowprops=None)
+
+    ax.add_artist(ab)
+
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+
+
+    plt.draw()
+    plt.show()
 
