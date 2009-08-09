@@ -26,7 +26,7 @@ from matplotlib._image import *
 
 from matplotlib.transforms import BboxBase
 
-class AxesImage(martist.Artist, cm.ScalarMappable):
+class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     zorder = 1
     # map interpolation strings to module constants
     _interpd = {
@@ -62,7 +62,6 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
                  norm = None,
                  interpolation=None,
                  origin=None,
-                 extent=None,
                  filternorm=1,
                  filterrad=4.0,
                  resample = False,
@@ -87,7 +86,6 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
 
         if origin is None: origin = rcParams['image.origin']
         self.origin = origin
-        self._extent = extent
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
         self._filterrad = filterrad
@@ -125,6 +123,210 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         self._imcache = None
         self._rgbacache = None
         cm.ScalarMappable.changed(self)
+
+    def make_image(self, magnification=1.0):
+        raise RuntimeError('The make_image method must be overridden.')
+
+    @allow_rasterization
+    def draw(self, renderer, *args, **kwargs):
+        if not self.get_visible(): return
+        if (self.axes.get_xscale() != 'linear' or
+            self.axes.get_yscale() != 'linear'):
+            warnings.warn("Images are not supported on non-linear axes.")
+        im = self.make_image(renderer.get_image_magnification())
+        im._url = self.get_url()
+        l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
+        gc = renderer.new_gc()
+        gc.set_clip_rectangle(self.axes.bbox.frozen())
+        gc.set_clip_path(self.get_clip_path())
+        renderer.draw_image(gc, round(l), round(b), im)
+
+    def contains(self, mouseevent):
+        """
+        Test whether the mouse event occured within the image.
+        """
+        if callable(self._contains): return self._contains(self,mouseevent)
+        # TODO: make sure this is consistent with patch and patch
+        # collection on nonlinear transformed coordinates.
+        # TODO: consider returning image coordinates (shouldn't
+        # be too difficult given that the image is rectilinear
+        x, y = mouseevent.xdata, mouseevent.ydata
+        xmin, xmax, ymin, ymax = self.get_extent()
+        if xmin > xmax:
+            xmin,xmax = xmax,xmin
+        if ymin > ymax:
+            ymin,ymax = ymax,ymin
+        #print x, y, xmin, xmax, ymin, ymax
+        if x is not None and y is not None:
+            inside = x>=xmin and x<=xmax and y>=ymin and y<=ymax
+        else:
+            inside = False
+
+        return inside,{}
+
+    def write_png(self, fname, noscale=False):
+        """Write the image to png file with fname"""
+        im = self.make_image()
+        if noscale:
+            numrows, numcols = im.get_size()
+            im.reset_matrix()
+            im.set_interpolation(0)
+            im.resize(numcols, numrows)
+        im.flipud_out()
+        rows, cols, buffer = im.as_rgba_str()
+        _png.write_png(buffer, cols, rows, fname)
+
+    def set_data(self, A):
+        """
+        Set the image array
+
+        ACCEPTS: numpy/PIL Image A
+        """
+        # check if data is PIL Image without importing Image
+        if hasattr(A,'getpixel'):
+            self._A = pil_to_array(A)
+        else:
+            self._A = cbook.safe_masked_invalid(A)
+
+        if self._A.dtype != np.uint8 and not np.can_cast(self._A.dtype, np.float):
+            raise TypeError("Image data can not convert to float")
+
+        if (self._A.ndim not in (2, 3) or
+            (self._A.ndim == 3 and self._A.shape[-1] not in (3, 4))):
+            raise TypeError("Invalid dimensions for image data")
+
+        self._imcache =None
+        self._rgbacache = None
+        self._oldxslice = None
+        self._oldyslice = None
+
+    def set_array(self, A):
+        """
+        retained for backwards compatibility - use set_data instead
+
+        ACCEPTS: numpy array A or PIL Image"""
+        # This also needs to be here to override the inherited
+        # cm.ScalarMappable.set_array method so it is not invoked
+        # by mistake.
+
+        self.set_data(A)
+
+
+
+    def get_interpolation(self):
+        """
+        Return the interpolation method the image uses when resizing.
+
+        One of 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning',
+        'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
+        'bessel', 'mitchell', 'sinc', 'lanczos',
+        """
+        return self._interpolation
+
+    def set_interpolation(self, s):
+        """
+        Set the interpolation method the image uses when resizing.
+
+        ACCEPTS: ['nearest' | 'bilinear' | 'bicubic' | 'spline16' |
+          'spline36' | 'hanning' | 'hamming' | 'hermite' | 'kaiser' |
+          'quadric' | 'catrom' | 'gaussian' | 'bessel' | 'mitchell' |
+          'sinc' | 'lanczos' | ]
+
+        """
+        if s is None: s = rcParams['image.interpolation']
+        s = s.lower()
+        if s not in self._interpd:
+            raise ValueError('Illegal interpolation string')
+        self._interpolation = s
+
+    def set_resample(self, v):
+        """
+        set whether or not image resampling is used
+
+        ACCEPTS: True|False
+        """
+        if v is None: v = rcParams['image.resample']
+        self._resample = v
+
+    def get_resample(self):
+        'return the image resample boolean'
+        return self._resample
+
+    def set_filternorm(self, filternorm):
+        """
+        Set whether the resize filter norms the weights -- see
+        help for imshow
+
+        ACCEPTS: 0 or 1
+        """
+        if filternorm:
+            self._filternorm = 1
+        else:
+            self._filternorm = 0
+
+    def get_filternorm(self):
+        'return the filternorm setting'
+        return self._filternorm
+
+    def set_filterrad(self, filterrad):
+        """
+        Set the resize filter radius only applicable to some
+        interpolation schemes -- see help for imshow
+
+        ACCEPTS: positive float
+        """
+        r = float(filterrad)
+        assert(r>0)
+        self._filterrad = r
+
+    def get_filterrad(self):
+        'return the filterrad setting'
+        return self._filterrad
+
+
+
+class AxesImage(_AxesImageBase):
+    def __str__(self):
+        return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
+
+    def __init__(self, ax,
+                 cmap = None,
+                 norm = None,
+                 interpolation=None,
+                 origin=None,
+                 extent=None,
+                 filternorm=1,
+                 filterrad=4.0,
+                 resample = False,
+                 **kwargs
+                 ):
+
+        """
+        interpolation and cmap default to their rc settings
+
+        cmap is a colors.Colormap instance
+        norm is a colors.Normalize instance to map luminance to 0-1
+
+        extent is data axes (left, right, bottom, top) for making image plots
+        registered with data plots.  Default is to label the pixel
+        centers with the zero-based row and column indices.
+
+        Additional kwargs are matplotlib.artist properties
+
+        """
+
+        self._extent = extent
+
+        _AxesImageBase.__init__(self, ax,
+                                cmap = cmap,
+                                norm = norm,
+                                interpolation=interpolation,
+                                origin=origin,
+                                filternorm=filternorm,
+                                filterrad=filterrad,
+                                resample = resample,
+                                **kwargs
+                                )
 
 
     def make_image(self, magnification=1.0):
@@ -228,91 +430,6 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
                   norm=self._filternorm, radius=self._filterrad)
         return im
 
-    @allow_rasterization
-    def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible(): return
-        if (self.axes.get_xscale() != 'linear' or
-            self.axes.get_yscale() != 'linear'):
-            warnings.warn("Images are not supported on non-linear axes.")
-        im = self.make_image(renderer.get_image_magnification())
-        im._url = self.get_url()
-        l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
-        gc = renderer.new_gc()
-        gc.set_clip_rectangle(self.axes.bbox.frozen())
-        gc.set_clip_path(self.get_clip_path())
-        renderer.draw_image(gc, round(l), round(b), im)
-
-    def contains(self, mouseevent):
-        """
-        Test whether the mouse event occured within the image.
-        """
-        if callable(self._contains): return self._contains(self,mouseevent)
-        # TODO: make sure this is consistent with patch and patch
-        # collection on nonlinear transformed coordinates.
-        # TODO: consider returning image coordinates (shouldn't
-        # be too difficult given that the image is rectilinear
-        x, y = mouseevent.xdata, mouseevent.ydata
-        xmin, xmax, ymin, ymax = self.get_extent()
-        if xmin > xmax:
-            xmin,xmax = xmax,xmin
-        if ymin > ymax:
-            ymin,ymax = ymax,ymin
-        #print x, y, xmin, xmax, ymin, ymax
-        if x is not None and y is not None:
-            inside = x>=xmin and x<=xmax and y>=ymin and y<=ymax
-        else:
-            inside = False
-
-        return inside,{}
-
-    def write_png(self, fname, noscale=False):
-        """Write the image to png file with fname"""
-        im = self.make_image()
-        if noscale:
-            numrows, numcols = im.get_size()
-            im.reset_matrix()
-            im.set_interpolation(0)
-            im.resize(numcols, numrows)
-        im.flipud_out()
-        rows, cols, buffer = im.as_rgba_str()
-        _png.write_png(buffer, cols, rows, fname)
-
-    def set_data(self, A):
-        """
-        Set the image array
-
-        ACCEPTS: numpy/PIL Image A
-        """
-        # check if data is PIL Image without importing Image
-        if hasattr(A,'getpixel'):
-            self._A = pil_to_array(A)
-        else:
-            self._A = cbook.safe_masked_invalid(A)
-
-        if self._A.dtype != np.uint8 and not np.can_cast(self._A.dtype, np.float):
-            raise TypeError("Image data can not convert to float")
-
-        if (self._A.ndim not in (2, 3) or
-            (self._A.ndim == 3 and self._A.shape[-1] not in (3, 4))):
-            raise TypeError("Invalid dimensions for image data")
-
-        self._imcache =None
-        self._rgbacache = None
-        self._oldxslice = None
-        self._oldyslice = None
-
-    def set_array(self, A):
-        """
-        retained for backwards compatibility - use set_data instead
-
-        ACCEPTS: numpy array A or PIL Image"""
-        # This also needs to be here to override the inherited
-        # cm.ScalarMappable.set_array method so it is not invoked
-        # by mistake.
-
-        self.set_data(A)
-
-
 
     def set_extent(self, extent):
         """
@@ -328,45 +445,6 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         if self.axes._autoscaleYon:
             self.axes.set_ylim((ymin, ymax))
 
-    def get_interpolation(self):
-        """
-        Return the interpolation method the image uses when resizing.
-
-        One of 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning',
-        'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
-        'bessel', 'mitchell', 'sinc', 'lanczos',
-        """
-        return self._interpolation
-
-    def set_interpolation(self, s):
-        """
-        Set the interpolation method the image uses when resizing.
-
-        ACCEPTS: ['nearest' | 'bilinear' | 'bicubic' | 'spline16' |
-          'spline36' | 'hanning' | 'hamming' | 'hermite' | 'kaiser' |
-          'quadric' | 'catrom' | 'gaussian' | 'bessel' | 'mitchell' |
-          'sinc' | 'lanczos' | ]
-
-        """
-        if s is None: s = rcParams['image.interpolation']
-        s = s.lower()
-        if s not in self._interpd:
-            raise ValueError('Illegal interpolation string')
-        self._interpolation = s
-
-    def set_resample(self, v):
-        """
-        set whether or not image resampling is used
-
-        ACCEPTS: True|False
-        """
-        if v is None: v = rcParams['image.resample']
-        self._resample = v
-
-    def get_resample(self):
-        'return the image resample boolean'
-        return self._resample
-
     def get_extent(self):
         'get the image extent: left, right, bottom, top'
         if self._extent is not None:
@@ -380,36 +458,6 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
             else:
                 return (-0.5, numcols-0.5, -0.5, numrows-0.5)
 
-    def set_filternorm(self, filternorm):
-        """
-        Set whether the resize filter norms the weights -- see
-        help for imshow
-
-        ACCEPTS: 0 or 1
-        """
-        if filternorm:
-            self._filternorm = 1
-        else:
-            self._filternorm = 0
-
-    def get_filternorm(self):
-        'return the filternorm setting'
-        return self._filternorm
-
-    def set_filterrad(self, filterrad):
-        """
-        Set the resize filter radius only applicable to some
-        interpolation schemes -- see help for imshow
-
-        ACCEPTS: positive float
-        """
-        r = float(filterrad)
-        assert(r>0)
-        self._filterrad = r
-
-    def get_filterrad(self):
-        'return the filterrad setting'
-        return self._filterrad
 
 
 class NonUniformImage(AxesImage):
@@ -747,7 +795,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         _png.write_png(buffer, cols, rows, fname)
 
 
-class BboxImage(AxesImage):
+class BboxImage(_AxesImageBase):
     """
     The Image class whose size is determined by the given bbox.
     """
@@ -770,16 +818,16 @@ class BboxImage(AxesImage):
         kwargs are an optional list of Artist keyword args
         """
 
-        AxesImage.__init__(self, ax=None,
-                           cmap = cmap,
-                           norm = norm,
-                           interpolation=interpolation,
-                           origin=origin,
-                           filternorm=filternorm,
-                           filterrad=filterrad,
-                           resample = resample,
-                           **kwargs
-                           )
+        _AxesImageBase.__init__(self, ax=None,
+                                cmap = cmap,
+                                norm = norm,
+                                interpolation=interpolation,
+                                origin=origin,
+                                filternorm=filternorm,
+                                filterrad=filterrad,
+                                resample = resample,
+                                **kwargs
+                                )
 
         self.bbox = bbox
 
@@ -842,11 +890,6 @@ class BboxImage(AxesImage):
         else:
             im = self._imcache
 
-        if 0:
-            fc = self.axes.patch.get_facecolor()
-            bg = mcolors.colorConverter.to_rgba(fc, 0)
-            im.set_bg( *bg)
-
         # image input dimensions
         im.reset_matrix()
 
@@ -859,7 +902,6 @@ class BboxImage(AxesImage):
         heightDisplay = (round(t) + 0.5) - (round(b) - 0.5)
         widthDisplay *= magnification
         heightDisplay *= magnification
-        #im.apply_translation(tx, ty)
 
         numrows, numcols = self._A.shape[:2]
 
