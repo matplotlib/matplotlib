@@ -545,7 +545,7 @@ def add_ft2font_flags(module):
     else:
         add_base_flags(module)
         module.libraries.append('z')
-    
+
     # put this last for library link order
     module.libraries.extend(std_libs)
 
@@ -1037,6 +1037,7 @@ def add_tk_flags(module):
         try:
             tcl_lib_dir, tk_lib_dir, tk_ver = query_tcltk()
         except:
+            tk_ver = ''
             result = hardcoded_tcl_config()
         else:
             result = parse_tcl_config(tcl_lib_dir, tk_lib_dir)
