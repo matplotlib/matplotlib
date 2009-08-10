@@ -13,12 +13,20 @@ from weakref import ref
 major, minor1, minor2, s, tmp = sys.version_info
 
 
-# on some systems, locale.getpreferredencoding returns None, which can break unicode
-preferredencoding = locale.getpreferredencoding()
+# On some systems, locale.getpreferredencoding returns None,
+# which can break unicode; and the sage project reports that
+# some systems have incorrect locale specifications, e.g.,
+# an encoding instead of a valid locale name.
+
+try:
+    preferredencoding = locale.getpreferredencoding()
+except ValueError:
+    preferredencoding = None
 
 def unicode_safe(s):
     if preferredencoding is None: return unicode(s)
     else: return unicode(s, preferredencoding)
+
 
 class converter:
     """
