@@ -103,9 +103,6 @@ class Axis(maxis.XAxis):
     def get_major_ticks(self):
         ticks = maxis.XAxis.get_major_ticks(self)
         for t in ticks:
-            def update_coords(renderer, self=t.label1):
-                return text_update_coords(self, renderer)
-            # Text overrides setattr so need this to force new method
             t.tick1line.set_transform(self.axes.transData)
             t.tick2line.set_transform(self.axes.transData)
             t.gridline.set_transform(self.axes.transData)
