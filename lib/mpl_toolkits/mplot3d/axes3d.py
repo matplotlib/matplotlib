@@ -200,14 +200,17 @@ class Axes3D(Axes):
 
     def get_w_lims(self):
         '''Get 3d world limits.'''
-        minpy, maxx = self.get_xlim3d()
+        minx, maxx = self.get_xlim3d()
         miny, maxy = self.get_ylim3d()
         minz, maxz = self.get_zlim3d()
-        return minpy, maxx, miny, maxy, minz, maxz
+        return minx, maxx, miny, maxy, minz, maxz
 
     def _determine_lims(self, xmin=None, xmax=None, *args, **kwargs):
         if xmax is None and cbook.iterable(xmin):
             xmin, xmax = xmin
+        if xmin == xmax:
+            xmin -= 0.5
+            xmax += 0.5
         return (xmin, xmax)
 
     def set_xlim3d(self, *args, **kwargs):
@@ -442,12 +445,12 @@ class Axes3D(Axes):
         elif self.button_pressed == 3:
             # zoom view
             # hmmm..this needs some help from clipping....
-            minpy, maxx, miny, maxy, minz, maxz = self.get_w_lims()
+            minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
             df = 1-((h - dy)/h)
-            dx = (maxx-minpy)*df
+            dx = (maxx-minx)*df
             dy = (maxy-miny)*df
             dz = (maxz-minz)*df
-            self.set_xlim3d(minpy - dx, maxx + dx)
+            self.set_xlim3d(minx - dx, maxx + dx)
             self.set_ylim3d(miny - dy, maxy + dy)
             self.set_zlim3d(minz - dz, maxz + dz)
             self.get_proj()
@@ -903,13 +906,12 @@ class Axes3D(Axes):
         patches = Axes.bar(self, left, height, *args, **kwargs)
 
         if not cbook.iterable(zs):
-            zs = np.ones(len(left))*zs
-
+            zs = np.ones(len(left)) * zs
 
         verts = []
         verts_zs = []
         for p, z in zip(patches, zs):
-            vs = p.get_verts()
+            vs = art3d.get_patch_verts(p)
             verts += vs.tolist()
             verts_zs += [z] * len(vs)
             art3d.patch_2d_to_3d(p, zs, zdir)
@@ -933,7 +935,6 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         if not cbook.iterable(x):
-            print 'not interable'
             x, y, z = [x], [y], [z]
         if not cbook.iterable(dx):
             dx, dy, dz = [dx], [dy], [dz]

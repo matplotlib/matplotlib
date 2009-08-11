@@ -217,9 +217,19 @@ class Patch3D(Patch):
     def draw(self, renderer):
         Patch.draw(self, renderer)
 
+def get_patch_verts(patch):
+    """Return a list of vertices for the path of a patch."""
+    trans = patch.get_patch_transform()
+    path =  patch.get_path()
+    polygons = path.to_polygons(trans)
+    if len(polygons):
+        return polygons[0]
+    else:
+        return []
+
 def patch_2d_to_3d(patch, z=0, zdir='z'):
     """Convert a Patch to a Patch3D object."""
-    verts = patch.get_verts()
+    verts = get_patch_verts(patch)
     patch.__class__ = Patch3D
     patch.set_3d_properties(verts, z, zdir)
 
@@ -333,7 +343,7 @@ class Poly3DCollection(PolyCollection):
         if self._zsort:
             z_segments_2d = [(np.average(zs), zip(xs, ys), fc, ec) for
                     (xs, ys, zs), fc, ec in zip(xyzlist, cface, cedge)]
-            z_segments_2d.sort(reverse=True)
+            z_segments_2d.sort(cmp=lambda x, y: cmp(y[0], x[0]))
         else:
             raise ValueError, "whoops"
 
