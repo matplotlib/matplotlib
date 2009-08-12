@@ -1132,40 +1132,44 @@ class QuadMesh(Collection):
     def convert_mesh_to_triangles(self, meshWidth, meshHeight, coordinates):
         """
         Converts a given mesh into a sequence of triangles, each point
-        with its own color
-        :class:`matplotlib.path.Path` objects for easier rendering by
-        backends that do not directly support quadmeshes.
-
-        This function is primarily of use to backend implementers.
+        with its own color.  This is useful for experiments using
+        `draw_qouraud_triangle`.
         """
         Path = mpath.Path
 
         if ma.isMaskedArray(coordinates):
-            c = coordinates.data
+            p = coordinates.data
         else:
-            c = coordinates
+            p = coordinates
+
+        p_a = p[0:-1, 0:-1]
+        p_b = p[0:-1, 1:  ]
+        p_c = p[1:  , 1:  ]
+        p_d = p[1:  , 0:-1]
+        p_center = (p_a + p_b + p_c + p_d) / 4.0
 
         triangles = np.concatenate((
-                c[0:-1, 0:-1],
-                c[0:-1, 1:  ],
-                c[1:  , 1:  ],
-                c[1:  , 1:  ],
-                c[1:  , 0:-1],
-                c[0:-1, 0:-1]
+                p_a, p_b, p_center,
+                p_b, p_c, p_center,
+                p_c, p_d, p_center,
+                p_d, p_a, p_center,
                 ), axis=2)
-        triangles = triangles.reshape((meshWidth * meshHeight * 2, 3, 2))
+        triangles = triangles.reshape((meshWidth * meshHeight * 4, 3, 2))
 
         c = self.get_facecolor().reshape((meshHeight + 1, meshWidth + 1, 4))
-        colors = np.concatenate((
-                c[0:-1, 0:-1],
-                c[0:-1, 1:  ],
-                c[1:  , 1:  ],
-                c[1:  , 1:  ],
-                c[1:  , 0:-1],
-                c[0:-1, 0:-1]
-                ), axis=2)
+        c_a = c[0:-1, 0:-1]
+        c_b = c[0:-1, 1:  ]
+        c_c = c[1:  , 1:  ]
+        c_d = c[1:  , 0:-1]
+        c_center = (c_a + c_b + c_c + c_d) / 4.0
 
-        colors = colors.reshape((meshWidth * meshHeight * 2, 3, 4))
+        colors = np.concatenate((
+                c_a, c_b, c_center,
+                c_b, c_c, c_center,
+                c_c, c_d, c_center,
+                c_d, c_a, c_center,
+                ), axis=2)
+        colors = colors.reshape((meshWidth * meshHeight * 4, 3, 4))
 
         return triangles, colors
 

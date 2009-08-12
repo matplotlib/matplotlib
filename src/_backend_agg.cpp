@@ -1470,6 +1470,10 @@ RendererAgg::draw_gouraud_triangle(const Py::Tuple& args) {
   Py::Object        colors_obj = args[2];
   agg::trans_affine trans      = py_to_agg_transformation_matrix(args[3].ptr());
 
+  theRasterizer.reset_clipping();
+  rendererBase.reset_clipping(true);
+  set_clipbox(gc.cliprect, theRasterizer);
+
   trans *= agg::trans_affine_scaling(1.0, -1.0);
   trans *= agg::trans_affine_translation(0.0, (double)height);
 
