@@ -282,13 +282,14 @@ class ColorConverter:
 
         try:
             if cbook.is_string_like(arg):
-                color = self.colors.get(arg, None)
+                argl = arg.lower()
+                color = self.colors.get(argl, None)
                 if color is None:
-                    str1 = cnames.get(arg, arg)
+                    str1 = cnames.get(argl, argl)
                     if str1.startswith('#'):
                         color = hex2color(str1)
                     else:
-                        fl = float(arg)
+                        fl = float(argl)
                         if fl < 0 or fl > 1:
                             raise ValueError(
                                    'gray (string) must be in range 0-1')
