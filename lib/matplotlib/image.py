@@ -134,6 +134,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             self.axes.get_yscale() != 'linear'):
             warnings.warn("Images are not supported on non-linear axes.")
         im = self.make_image(renderer.get_image_magnification())
+        if im is None:
+            return
         im._url = self.get_url()
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
         gc = renderer.new_gc()
@@ -167,6 +169,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     def write_png(self, fname, noscale=False):
         """Write the image to png file with fname"""
         im = self.make_image()
+        if im is None:
+            return
         if noscale:
             numrows, numcols = im.get_size()
             im.reset_matrix()
@@ -406,7 +410,8 @@ class AxesImage(_AxesImageBase):
         # image input dimensions
         im.reset_matrix()
         numrows, numcols = im.get_size()
-
+        if numrows < 1 or numcols < 1:   # out of range
+            return None
         im.set_interpolation(self._interpd[self._interpolation])
 
         im.set_resample(self._resample)
