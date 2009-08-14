@@ -501,8 +501,8 @@ class Axis(artist.Artist):
     """
     Public attributes
 
-    * :attr:`transData` - transform data coords to display coords
-    * :attr:`transAxis` - transform axis coords to display coords
+    * :attr:`axes.transData` - transform data coords to display coords
+    * :attr:`axes.transAxes` - transform axis coords to display coords
     * :attr:`labelpad` - number of points between the axis and its label
     """
     OFFSETTEXTPAD = 3
