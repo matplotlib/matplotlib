@@ -35,7 +35,7 @@ The ``Pan/Zoom`` button
     figure, dragging it to a new position.  When you release it, the
     data under the point where you pressed will be moved to the point
     where you released.  If you press 'x' or 'y' while panning the
-    motion will be contrained to the x or y axis, respectively.  Press
+    motion will be constrained to the x or y axis, respectively.  Press
     the right mouse button to zoom, dragging it to a new position.
     The x axis will be zoomed in proportionate to the rightward
     movement and zoomed out proportionate to the leftward movement.
