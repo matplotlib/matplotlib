@@ -1,3 +1,6 @@
+2009-08-14 Add support for image filtering for agg back end. See the example
+           demo_agg_filter.py. -JJL
+
 2009-08-09 AnnotationBbox added. Similar to Annotation, but works with
            OffsetBox instead of Text. See the example
            demo_annotation_box.py. -JJL

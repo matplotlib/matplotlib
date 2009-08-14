@@ -18,6 +18,8 @@ import matplotlib.transforms as mtransforms
 from matplotlib.transforms import Affine2D, Bbox
 from matplotlib.lines import Line2D
 
+from matplotlib.artist import allow_rasterization
+
 import matplotlib.nxutils as nxutils
 
 def _process_text_args(override, fontdict=None, **kwargs):
@@ -501,6 +503,7 @@ class Text(Artist):
         self._bbox_patch.draw(renderer)
 
 
+    @allow_rasterization
     def draw(self, renderer):
         """
         Draws the :class:`Text` object to the given *renderer*.
@@ -1727,6 +1730,7 @@ class Annotation(Text, _AnnotationBase):
                 self.arrow.set_clip_box(self.get_clip_box())
 
 
+    @allow_rasterization
     def draw(self, renderer):
         """
         Draw the :class:`Annotation` object to the given *renderer*.

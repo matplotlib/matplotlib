@@ -1021,6 +1021,19 @@ class LightSource(object):
         RGBA values are returned, which can then be used to
         plot the shaded image with imshow.
         """
+
+        rgb0 = cmap((data-data.min())/(data.max()-data.min()))
+        rgb1 = self.shade_rgb(rgb0, elevation=data)
+        rgb0[:,:,0:3] = rgb1
+        return rgb0
+
+    def shade_rgb(self,rgb, elevation, fraction=1.):
+        """
+        Take the input RGB array (ny*nx*3) adjust their color values
+        to given the impression of a shaded relief map with a
+        specified light source using the elevation (ny*nx).
+        A new RGB array ((ny*nx*3)) is returned.
+        """
         # imagine an artificial sun placed at infinity in
         # some azimuth and elevation position illuminating our surface. The parts of
         # the surface that slope toward the sun should brighten while those sides
@@ -1029,7 +1042,7 @@ class LightSource(object):
         az = self.azdeg*np.pi/180.0
         alt = self.altdeg*np.pi/180.0
         # gradient in x and y directions
-        dx, dy = np.gradient(data)
+        dx, dy = np.gradient(elevation)
         slope = 0.5*np.pi - np.arctan(np.hypot(dx, dy))
         aspect = np.arctan2(dx, dy)
         intensity = np.sin(alt)*np.sin(slope) + np.cos(alt)*np.cos(slope)*np.cos(-az -\
@@ -1037,9 +1050,9 @@ class LightSource(object):
         # rescale to interval -1,1
         # +1 means maximum sun exposure and -1 means complete shade.
         intensity = (intensity - intensity.min())/(intensity.max() - intensity.min())
-        intensity = 2.*intensity - 1.
+        intensity = (2.*intensity - 1.)*fraction
         # convert to rgb, then rgb to hsv
-        rgb = cmap((data-data.min())/(data.max()-data.min()))
+        #rgb = cmap((data-data.min())/(data.max()-data.min()))
         hsv = rgb_to_hsv(rgb[:,:,0:3])
         # modify hsv values to simulate illumination.
         hsv[:,:,1] = np.where(np.logical_and(np.abs(hsv[:,:,1])>1.e-10,intensity>0),\
@@ -1053,5 +1066,4 @@ class LightSource(object):
         hsv[:,:,1:] = np.where(hsv[:,:,1:]<0.,0,hsv[:,:,1:])
         hsv[:,:,1:] = np.where(hsv[:,:,1:]>1.,1,hsv[:,:,1:])
         # convert modified hsv back to rgb.
-        rgb[:,:,0:3] = hsv_to_rgb(hsv)
-        return rgb
+        return hsv_to_rgb(hsv)

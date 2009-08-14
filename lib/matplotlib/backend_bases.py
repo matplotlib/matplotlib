@@ -409,9 +409,33 @@ class RendererBase:
         return cbook.strip_math(s)
 
     def start_rasterizing(self):
+        """
+        Used in MixedModeRenderer. Switch to the raster renderer. 
+        """
         pass
 
     def stop_rasterizing(self):
+        """
+        Used in MixedModeRenderer. Switch back to the vector renderer
+        and draw the contents of the raster renderer as an image on
+        the vector renderer.
+        """
+        pass
+
+    def start_filter(self):
+        """
+        Used in AggRenderer. Switch to a temporary renderer for image
+        filtering effects. 
+        """
+        pass
+
+    def stop_filter(self, filter_func):
+        """
+        Used in AggRenderer. Switch back to the original renderer.
+        The contents of the temporary renderer is processed with the
+        *filter_func* and is drawn on the original renderer as an
+        image.
+        """
         pass
 
 
