@@ -202,6 +202,8 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
         # image input dimensions
         im.reset_matrix()
         numrows, numcols = im.get_size()
+        if numrows < 1 or numcols < 1:  # out of range
+            return None
 
         im.set_interpolation(self._interpd[self._interpolation])
 
@@ -233,6 +235,8 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
             self.axes.get_yscale() != 'linear'):
             warnings.warn("Images are not supported on non-linear axes.")
         im = self.make_image(renderer.get_image_magnification())
+        if im is None: # out of range
+            return
         im._url = self.get_url()
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
         clippath, affine = self.get_transformed_clip_path_and_affine()
@@ -265,6 +269,8 @@ class AxesImage(martist.Artist, cm.ScalarMappable):
     def write_png(self, fname, noscale=False):
         """Write the image to png file with fname"""
         im = self.make_image()
+        if im is None:  # out of range
+            return
         if noscale:
             numrows, numcols = im.get_size()
             im.reset_matrix()
