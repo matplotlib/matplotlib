@@ -1,3 +1,6 @@
+2009-08-15 Docstrings are now manipulated with decorators defined
+           in a new module, docstring.py, thanks to Jason Coombs. - EF
+
 2009-08-14 Add support for image filtering for agg back end. See the example
            demo_agg_filter.py. -JJL
 
