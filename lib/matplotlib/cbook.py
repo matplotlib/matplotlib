@@ -1007,7 +1007,7 @@ class maxdict(dict):
 
 
 
-class Stack:
+class Stack(object):
     """
     Implement a stack where elements can be pushed on and you can move
     back and forth.  But no pop.  Should mimic home / back / forward
@@ -1022,6 +1022,12 @@ class Stack:
         'return the current element, or None'
         if not len(self._elements): return self._default
         else: return self._elements[self._pos]
+
+    def __len__(self):
+        return self._elements.__len__()
+
+    def __getitem__(self, ind):
+        return self._elements.__getitem__(ind)
 
     def forward(self):
         'move the position forward and return the current element'

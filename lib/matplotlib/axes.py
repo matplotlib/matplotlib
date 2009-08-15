@@ -838,6 +838,7 @@ class Axes(martist.Artist):
         self.tables = []
         self.artists = []
         self.images = []
+        self._current_image = None # strictly for pyplot via _sci, _gci
         self.legend_ = None
         self.collections = []  # collection.Collection instances
 
@@ -1308,6 +1309,27 @@ class Axes(martist.Artist):
         return cbook.silent_list('Line2D ytickline', self.yaxis.get_ticklines())
 
     #### Adding and tracking artists
+
+    def _sci(self, im):
+        """
+        helper for :func:`~matplotlib.pyplot.sci`;
+        do not use elsewhere.
+        """
+        if isinstance(im, matplotlib.contour.ContourSet):
+            if im.collections[0] not in self.collections:
+                raise ValueError(
+                    "ContourSet must be in current Axes")
+        elif im not in self.images and im not in self.collections:
+            raise ValueError(
+            "Argument must be an image, collection, or ContourSet in this Axes")
+        self._current_image = im
+
+    def _gci(self):
+        """
+        helper for :func:`~matplotlib.pyplot.gci`;
+        do not use elsewhere.
+        """
+        return self._current_image
 
     def has_data(self):
         '''Return *True* if any artists have been added to axes.
