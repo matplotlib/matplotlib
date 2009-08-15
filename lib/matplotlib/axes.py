@@ -4076,19 +4076,11 @@ class Axes(martist.Artist):
 
 
     @docstring.dedent_interpd
-    def bar(self, left, height, width=0.8, bottom=None,
-            color=None, edgecolor=None, linewidth=None,
-            yerr=None, xerr=None, ecolor=None, capsize=3,
-            align='edge', orientation='vertical', log=False,
-            **kwargs
-            ):
+    def bar(self, left, height, width=0.8, bottom=None, **kwargs):
         """
         call signature::
 
-          bar(left, height, width=0.8, bottom=0,
-              color=None, edgecolor=None, linewidth=None,
-              yerr=None, xerr=None, ecolor=None, capsize=3,
-              align='edge', orientation='vertical', log=False)
+          bar(left, height, width=0.8, bottom=0, **kwargs)
 
         Make a bar plot with rectangles bounded by:
 
@@ -4157,7 +4149,16 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/pylab_examples/bar_stacked.py
         """
         if not self._hold: self.cla()
-
+        color = kwargs.pop('color', None)
+        edgecolor = kwargs.pop('edgecolor', None)
+        linewidth = kwargs.pop('linewidth', None)
+        xerr = kwargs.pop('xerr', None)
+        yerr = kwargs.pop('yerr', None)
+        ecolor = kwargs.pop('ecolor', None)
+        capsize = kwargs.pop('capsize', 3)
+        align = kwargs.pop('align', 'edge')
+        orientation = kwargs.pop('orientation', 'vertical')
+        log = kwargs.pop('log', False)
         label = kwargs.pop('label', '')
         def make_iterable(x):
             if not iterable(x):
