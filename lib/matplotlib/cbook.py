@@ -355,7 +355,7 @@ def is_scalar_or_string(val):
 class ViewVCCachedServer(urllib2.BaseHandler):
     """
     Urllib2 handler that takes care of caching files.
-    The file cache.pck holds the directory of files to be cached.
+    The file cache.pck holds the directory of files that have been cached.
     """
     def __init__(self, cache_dir, baseurl):
         self.cache_dir = cache_dir
@@ -386,9 +386,14 @@ class ViewVCCachedServer(urllib2.BaseHandler):
         cache = cPickle.load(f)
         f.close()
 
+        # Earlier versions did not have the full paths in cache.pck
+        for url, (fn, x, y) in cache.items():
+            if not os.path.isabs(fn):
+                cache[url] = (self.in_cache_dir(fn), x, y)
+        
         # If any files are deleted, drop them from the cache
         for url, (fn, _, _) in cache.items():
-            if not os.path.exists(self.in_cache_dir(fn)):
+            if not os.path.exists(fn):
                 del cache[url]
 
         self.cache = cache
@@ -398,14 +403,20 @@ class ViewVCCachedServer(urllib2.BaseHandler):
         Remove files from the cache directory that are not listed in
         cache.pck.
         """
-        listed = set([fn for (_, (fn, _, _)) in self.cache.items()])
-        for path in os.listdir(self.cache_dir):
-            if path not in listed and path != 'cache.pck':
-                thisfile = os.path.join(self.cache_dir, path)
-                if not os.path.isdir(thisfile):
-                    matplotlib.verbose.report('ViewVCCachedServer:remove_stale_files: removing %s'%thisfile,
-                                              level='debug')
-                    os.remove(thisfile)
+        # TODO: remove empty subdirectories
+        listed = set(fn for (_, (fn, _, _)) in self.cache.items())
+        existing = reduce(set.union,
+                          (set(os.path.join(dirpath, fn) for fn in filenames)
+                          for (dirpath, _, filenames) in os.walk(self.cache_dir)))
+        matplotlib.verbose.report(
+            'ViewVCCachedServer: files listed in cache.pck: %s' % listed, 'debug')
+        matplotlib.verbose.report(
+            'ViewVCCachedServer: files in cache directory: %s' % existing, 'debug')
+
+        for path in existing - listed - set([self.in_cache_dir('cache.pck')]):
+            matplotlib.verbose.report('ViewVCCachedServer:remove_stale_files: removing %s'%path,
+                                      level='debug')
+            os.remove(path)
 
     def write_cache(self):
         """
@@ -424,17 +435,12 @@ class ViewVCCachedServer(urllib2.BaseHandler):
         fn = url[len(self.baseurl):]
         fullpath = self.in_cache_dir(fn)
 
-        #while os.path.exists(self.in_cache_dir(fn)):
-        #    fn = rightmost + '.' + str(random.randint(0,9999999))
-
-
-
-        f = open(self.in_cache_dir(fn), 'wb')
+        f = open(fullpath, 'wb')
         f.write(data)
         f.close()
 
         # Update the cache
-        self.cache[url] = (fn, headers.get('ETag'), headers.get('Last-Modified'))
+        self.cache[url] = (fullpath, headers.get('ETag'), headers.get('Last-Modified'))
         self.write_cache()
 
     # These urllib2 entry points are used:
@@ -459,9 +465,9 @@ class ViewVCCachedServer(urllib2.BaseHandler):
         """
         url = req.get_full_url()
         fn, _, _ = self.cache[url]
-        cachefile = self.in_cache_dir(fn)
-        matplotlib.verbose.report('ViewVCCachedServer: reading data file from cache file "%s"'%cachefile)
-        file = open(cachefile, 'rb')
+        matplotlib.verbose.report('ViewVCCachedServer: reading data file from cache file "%s"'
+                                  %fn, 'debug')
+        file = open(fn, 'rb')
         handle = urllib2.addinfourl(file, hdrs, url)
         handle.code = 304
         return handle
@@ -470,6 +476,8 @@ class ViewVCCachedServer(urllib2.BaseHandler):
         """
         Update the cache with the returned file.
         """
+        matplotlib.verbose.report('ViewVCCachedServer: received response %d: %s'
+                                  % (response.code, response.msg), 'debug')
         if response.code != 200:
             return response
         else:
@@ -489,10 +497,10 @@ class ViewVCCachedServer(urllib2.BaseHandler):
         store it in the cachedir.
 
         If asfileobj is True, a file object will be returned.  Else the
-        path to the file as a string will be returned
-
+        path to the file as a string will be returned.
         """
-
+        # TODO: time out if the connection takes forever
+        # (may not be possible with urllib2 only - spawn a helper process?)
 
         # quote is not in python2.4, so check for it and get it from
         # urllib if it is not available
@@ -501,12 +509,24 @@ class ViewVCCachedServer(urllib2.BaseHandler):
             import urllib
             quote = urllib.quote
 
+        # retrieve the URL for the side effect of refreshing the cache
         url = self.baseurl + quote(fname)
-        response = self.opener.open(url)
+        error = 'unknown error'
+        matplotlib.verbose.report('ViewVCCachedServer: retrieving %s'
+                                  % url, 'debug')
+        try:
+            response = self.opener.open(url)
+        except urllib2.URLError, e:
+            # could be a missing network connection
+            error = str(e)
 
-
-        relpath = self.cache[url][0]
-        fname = self.in_cache_dir(relpath)
+        cached = self.cache.get(url)
+        if cached is None:
+            msg = 'file %s not in cache; received %s when trying to retrieve' \
+                % (fname, error)
+            raise KeyError(msg)
+        
+        fname = cached[0]
 
         if asfileobj:
             return file(fname)
@@ -519,7 +539,7 @@ def get_sample_data(fname, asfileobj=True):
     Check the cachedirectory ~/.matplotlib/sample_data for a sample_data
     file.  If it does not exist, fetch it with urllib from the mpl svn repo
 
-      http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data/
+      http://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data/
 
     and store it in the cachedir.
 
@@ -539,7 +559,7 @@ def get_sample_data(fname, asfileobj=True):
     if myserver is None:
         configdir = matplotlib.get_configdir()
         cachedir = os.path.join(configdir, 'sample_data')
-        baseurl = 'http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/sample_data/'
+        baseurl = 'http://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data/'
         myserver = get_sample_data.myserver = ViewVCCachedServer(cachedir, baseurl)
 
     return myserver.get_sample_data(fname, asfileobj=asfileobj)
