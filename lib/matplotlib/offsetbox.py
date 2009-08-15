@@ -26,6 +26,7 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
 from matplotlib import rcParams
 
+from matplotlib import docstring
 import matplotlib.cbook as cbook
 
 #from bboximage import BboxImage
@@ -1171,6 +1172,7 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
     def __str__(self):
         return "AnnotationBbox(%g,%g)"%(self.xy[0],self.xy[1])
+    @docstring.dedent_interpd
     def __init__(self, offsetbox, xy,
                  xybox=None,
                  xycoords='data',
@@ -1235,8 +1237,6 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
             self.patch.set(**bboxprops)
         self._drawFrame =  frameon
 
-
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % martist.kwdocd
 
     def contains(self,event):
         t,tinfo = self.offsetbox.contains(event)

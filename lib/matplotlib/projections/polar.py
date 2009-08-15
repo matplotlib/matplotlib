@@ -5,10 +5,10 @@ import numpy as npy
 
 import matplotlib
 rcParams = matplotlib.rcParams
-from matplotlib.artist import kwdocd
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
 from matplotlib import cbook
+from matplotlib import docstring
 from matplotlib.patches import Circle
 from matplotlib.path import Path
 from matplotlib.ticker import Formatter, Locator
@@ -317,6 +317,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
     set_rscale = Axes.set_yscale
     set_rticks = Axes.set_yticks
 
+    @docstring.dedent_interpd
     def set_thetagrids(self, angles, labels=None, frac=None,
                        **kwargs):
         """
@@ -353,8 +354,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         for t in self.xaxis.get_ticklabels():
             t.update(kwargs)
         return self.xaxis.get_ticklines(), self.xaxis.get_ticklabels()
-    set_thetagrids.__doc__ = cbook.dedent(set_thetagrids.__doc__) % kwdocd
 
+    @docstring.dedent_interpd
     def set_rgrids(self, radii, labels=None, angle=None, rpad=None, **kwargs):
         """
         Set the radial locations and labels of the *r* grids.
@@ -398,8 +399,6 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         for t in self.yaxis.get_ticklabels():
             t.update(kwargs)
         return self.yaxis.get_gridlines(), self.yaxis.get_ticklabels()
-
-    set_rgrids.__doc__ = cbook.dedent(set_rgrids.__doc__) % kwdocd
 
     def set_xscale(self, scale, *args, **kwargs):
         if scale != 'linear':

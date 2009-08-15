@@ -15,6 +15,7 @@ import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
 import matplotlib.dates as mdates
+from matplotlib import docstring
 import matplotlib.font_manager as font_manager
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend
@@ -32,7 +33,6 @@ import matplotlib.transforms as mtransforms
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
 is_sequence_of_strings = cbook.is_sequence_of_strings
-
 
 def _process_plot_format(fmt):
     """
@@ -1787,6 +1787,7 @@ class Axes(martist.Artist):
         """
         self._axisbelow = b
 
+    @docstring.dedent_interpd
     def grid(self, b=None, **kwargs):
         """
         call signature::
@@ -1810,7 +1811,6 @@ class Axes(martist.Artist):
         if len(kwargs): b = True
         self.xaxis.grid(b, **kwargs)
         self.yaxis.grid(b, **kwargs)
-    grid.__doc__ = cbook.dedent(grid.__doc__) % martist.kwdocd
 
     def ticklabel_format(self, **kwargs):
         """
@@ -2018,6 +2018,7 @@ class Axes(martist.Artist):
             ", ".join(mscale.get_scale_names()))
         return self.xaxis.get_scale()
 
+    @docstring.dedent_interpd
     def set_xscale(self, value, **kwargs):
         """
         call signature::
@@ -2034,10 +2035,6 @@ class Axes(martist.Artist):
         self.xaxis.set_scale(value, **kwargs)
         self.autoscale_view()
         self._update_transScale()
-
-    set_xscale.__doc__ = cbook.dedent(set_xscale.__doc__) % {
-        'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()]),
-        'scale_docs': mscale.get_scale_docs().strip()}
 
     def get_xticks(self, minor=False):
         'Return the x ticks as a list of locations'
@@ -2066,6 +2063,7 @@ class Axes(martist.Artist):
         return cbook.silent_list('Text xticklabel',
                                  self.xaxis.get_ticklabels(minor=minor))
 
+    @docstring.dedent_interpd
     def set_xticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
         call signature::
@@ -2083,8 +2081,6 @@ class Axes(martist.Artist):
         """
         return self.xaxis.set_ticklabels(labels, fontdict,
                                          minor=minor, **kwargs)
-    set_xticklabels.__doc__ = cbook.dedent(
-        set_xticklabels.__doc__) % martist.kwdocd
 
     def invert_yaxis(self):
         "Invert the y-axis."
@@ -2192,6 +2188,7 @@ class Axes(martist.Artist):
                 ", ".join(mscale.get_scale_names()))
         return self.yaxis.get_scale()
 
+    @docstring.dedent_interpd
     def set_yscale(self, value, **kwargs):
         """
         call signature::
@@ -2208,10 +2205,6 @@ class Axes(martist.Artist):
         self.yaxis.set_scale(value, **kwargs)
         self.autoscale_view()
         self._update_transScale()
-
-    set_yscale.__doc__ = cbook.dedent(set_yscale.__doc__) % {
-        'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()]),
-        'scale_docs': mscale.get_scale_docs().strip()}
 
     def get_yticks(self, minor=False):
         'Return the y ticks as a list of locations'
@@ -2245,6 +2238,7 @@ class Axes(martist.Artist):
         return cbook.silent_list('Text yticklabel',
                                  self.yaxis.get_ticklabels(minor=minor))
 
+    @docstring.dedent_interpd
     def set_yticklabels(self, labels, fontdict=None, minor=False, **kwargs):
         """
         call signature::
@@ -2262,8 +2256,6 @@ class Axes(martist.Artist):
         """
         return self.yaxis.set_ticklabels(labels, fontdict,
                                          minor=minor, **kwargs)
-    set_yticklabels.__doc__ = cbook.dedent(
-        set_yticklabels.__doc__) % martist.kwdocd
 
     def xaxis_date(self, tz=None):
         """Sets up x-axis ticks and labels that treat the x data as dates.
@@ -2693,6 +2685,7 @@ class Axes(martist.Artist):
         """
         return self.title.get_text()
 
+    @docstring.dedent_interpd
     def set_title(self, label, fontdict=None, **kwargs):
         """
         call signature::
@@ -2722,7 +2715,6 @@ class Axes(martist.Artist):
         if fontdict is not None: self.title.update(fontdict)
         self.title.update(kwargs)
         return self.title
-    set_title.__doc__ = cbook.dedent(set_title.__doc__) % martist.kwdocd
 
     def get_xlabel(self):
         """
@@ -2731,6 +2723,7 @@ class Axes(martist.Artist):
         label = self.xaxis.get_label()
         return label.get_text()
 
+    @docstring.dedent_interpd
     def set_xlabel(self, xlabel, fontdict=None, labelpad=None, **kwargs):
         """
         call signature::
@@ -2752,7 +2745,6 @@ class Axes(martist.Artist):
         """
         if labelpad is not None: self.xaxis.labelpad = labelpad
         return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
-    set_xlabel.__doc__ = cbook.dedent(set_xlabel.__doc__) % martist.kwdocd
 
     def get_ylabel(self):
         """
@@ -2761,6 +2753,7 @@ class Axes(martist.Artist):
         label = self.yaxis.get_label()
         return label.get_text()
 
+    @docstring.dedent_interpd
     def set_ylabel(self, ylabel, fontdict=None, labelpad=None, **kwargs):
         """
         call signature::
@@ -2782,8 +2775,8 @@ class Axes(martist.Artist):
         """
         if labelpad is not None: self.yaxis.labelpad = labelpad
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
-    set_ylabel.__doc__ = cbook.dedent(set_ylabel.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def text(self, x, y, s, fontdict=None,
              withdash=False, **kwargs):
         """
@@ -2864,8 +2857,8 @@ class Axes(martist.Artist):
         #if t.get_clip_on():  t.set_clip_box(self.bbox)
         if 'clip_on' in kwargs:  t.set_clip_box(self.bbox)
         return t
-    text.__doc__ = cbook.dedent(text.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def annotate(self, *args, **kwargs):
         """
         call signature::
@@ -2885,10 +2878,10 @@ class Axes(martist.Artist):
         if kwargs.has_key('clip_on'):  a.set_clip_path(self.patch)
         self.texts.append(a)
         return a
-    annotate.__doc__ = cbook.dedent(annotate.__doc__) % martist.kwdocd
 
     #### Lines and spans
 
+    @docstring.dedent_interpd
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
         call signature::
@@ -2948,8 +2941,7 @@ class Axes(martist.Artist):
         self.autoscale_view(scalex=False, scaley=scaley)
         return l
 
-    axhline.__doc__ = cbook.dedent(axhline.__doc__) % martist.kwdocd
-
+    @docstring.dedent_interpd
     def axvline(self, x=0, ymin=0, ymax=1, **kwargs):
         """
         call signature::
@@ -3009,8 +3001,7 @@ class Axes(martist.Artist):
         self.autoscale_view(scalex=scalex, scaley=False)
         return l
 
-    axvline.__doc__ = cbook.dedent(axvline.__doc__) % martist.kwdocd
-
+    @docstring.dedent_interpd
     def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
         """
         call signature::
@@ -3066,8 +3057,8 @@ class Axes(martist.Artist):
         self.add_patch(p)
         self.autoscale_view(scalex=False)
         return p
-    axhspan.__doc__ = cbook.dedent(axhspan.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
         """
         call signature::
@@ -3123,9 +3114,9 @@ class Axes(martist.Artist):
         self.add_patch(p)
         self.autoscale_view(scaley=False)
         return p
-    axvspan.__doc__ = cbook.dedent(axvspan.__doc__) % martist.kwdocd
 
 
+    @docstring.dedent
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
                      label='', **kwargs):
         """
@@ -3210,8 +3201,8 @@ class Axes(martist.Artist):
 
 
         return coll
-    hlines.__doc__ = cbook.dedent(hlines.__doc__)
 
+    @docstring.dedent_interpd
     def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
                      label='', **kwargs):
         """
@@ -3290,9 +3281,9 @@ class Axes(martist.Artist):
         self.autoscale_view()
 
         return coll
-    vlines.__doc__ = cbook.dedent(vlines.__doc__) % martist.kwdocd
 
     #### Basic plotting
+    @docstring.dedent_interpd
     def plot(self, *args, **kwargs):
         """
         Plot lines and/or markers to the
@@ -3425,8 +3416,7 @@ class Axes(martist.Artist):
         self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines
 
-    plot.__doc__ = cbook.dedent(plot.__doc__) % martist.kwdocd
-
+    @docstring.dedent_interpd
     def plot_date(self, x, y, fmt='bo', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
@@ -3496,9 +3486,9 @@ class Axes(martist.Artist):
         self.autoscale_view()
 
         return ret
-    plot_date.__doc__ = cbook.dedent(plot_date.__doc__) % martist.kwdocd
 
 
+    @docstring.dedent_interpd
     def loglog(self, *args, **kwargs):
         """
         call signature::
@@ -3557,8 +3547,8 @@ class Axes(martist.Artist):
         self._hold = b    # restore the hold
 
         return l
-    loglog.__doc__ = cbook.dedent(loglog.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def semilogx(self, *args, **kwargs):
         """
         call signature::
@@ -3608,8 +3598,8 @@ class Axes(martist.Artist):
         l = self.plot(*args, **kwargs)
         self._hold = b    # restore the hold
         return l
-    semilogx.__doc__ = cbook.dedent(semilogx.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def semilogy(self, *args, **kwargs):
         """
         call signature::
@@ -3659,8 +3649,8 @@ class Axes(martist.Artist):
         self._hold = b    # restore the hold
 
         return l
-    semilogy.__doc__ = cbook.dedent(semilogy.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def acorr(self, x, **kwargs):
         """
         call signature::
@@ -3722,8 +3712,8 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/pylab_examples/xcorr_demo.py
         """
         return self.xcorr(x, x, **kwargs)
-    acorr.__doc__ = cbook.dedent(acorr.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
               usevlines=True, maxlags=10, **kwargs):
         """
@@ -3810,7 +3800,6 @@ class Axes(martist.Artist):
             a, = self.plot(lags, c, **kwargs)
             b = None
         return lags, c, a, b
-    xcorr.__doc__ = cbook.dedent(xcorr.__doc__) % martist.kwdocd
 
 
     def _get_legend_handles(self):
@@ -4064,6 +4053,7 @@ class Axes(martist.Artist):
         return self.plot(x, y, *args, **kwargs)
 
 
+    @docstring.dedent_interpd
     def bar(self, left, height, width=0.8, bottom=None,
             color=None, edgecolor=None, linewidth=None,
             yerr=None, xerr=None, ecolor=None, capsize=3,
@@ -4331,8 +4321,8 @@ class Axes(martist.Artist):
             self.dataLim.intervaly = (ymin, ymax)
         self.autoscale_view()
         return patches
-    bar.__doc__ = cbook.dedent(bar.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def barh(self, bottom, width, height=0.8, left=None, **kwargs):
         """
         call signature::
@@ -4403,8 +4393,7 @@ class Axes(martist.Artist):
                            orientation='horizontal', **kwargs)
         return patches
 
-    barh.__doc__ = cbook.dedent(barh.__doc__) % martist.kwdocd
-
+    @docstring.dedent_interpd
     def broken_barh(self, xranges, yrange, **kwargs):
         """
         call signature::
@@ -4446,8 +4435,6 @@ class Axes(martist.Artist):
         self.autoscale_view()
 
         return col
-
-    broken_barh.__doc__ = cbook.dedent(broken_barh.__doc__) % martist.kwdocd
 
     def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-'):
         """
@@ -4642,6 +4629,7 @@ class Axes(martist.Artist):
         if autopct is None: return slices, texts
         else: return slices, texts, autotexts
 
+    @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='-', ecolor=None, elinewidth=None, capsize=3,
                  barsabove=False, lolims=False, uplims=False,
@@ -4900,7 +4888,6 @@ class Axes(martist.Artist):
 
         self.autoscale_view()
         return (l0, caplines, barcols)
-    errorbar.__doc__ = cbook.dedent(errorbar.__doc__) % martist.kwdocd
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
                 positions=None, widths=None):
@@ -5092,6 +5079,7 @@ class Axes(martist.Artist):
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers)
 
+    @docstring.dedent_interpd
     def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
                     vmin=None, vmax=None, alpha=1.0, linewidths=None,
                     faceted=True, verts=None,
@@ -5407,8 +5395,7 @@ class Axes(martist.Artist):
         self.add_collection(collection)
         return collection
 
-    scatter.__doc__ = cbook.dedent(scatter.__doc__) % martist.kwdocd
-
+    @docstring.dedent_interpd
     def hexbin(self, x, y, C = None, gridsize = 100, bins = None,
                     xscale = 'linear', yscale = 'linear', extent = None,
                     cmap=None, norm=None, vmin=None, vmax=None,
@@ -5821,9 +5808,8 @@ class Axes(martist.Artist):
 
         return collection
 
-    hexbin.__doc__ = cbook.dedent(hexbin.__doc__) % martist.kwdocd
 
-
+    @docstring.dedent_interpd
     def arrow(self, x, y, dx, dy, **kwargs):
         """
         call signature::
@@ -5843,7 +5829,6 @@ class Axes(martist.Artist):
         a = mpatches.FancyArrow(x, y, dx, dy, **kwargs)
         self.add_artist(a)
         return a
-    arrow.__doc__ = cbook.dedent(arrow.__doc__) % martist.kwdocd
 
     def quiverkey(self, *args, **kw):
         qk = mquiver.QuiverKey(*args, **kw)
@@ -5860,6 +5845,7 @@ class Axes(martist.Artist):
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
 
+    @docstring.dedent_interpd
     def barbs(self, *args, **kw):
         """
         %(barbs_doc)s
@@ -5873,9 +5859,8 @@ class Axes(martist.Artist):
         self.update_datalim(b.get_offsets())
         self.autoscale_view()
         return b
-    barbs.__doc__ = cbook.dedent(barbs.__doc__) % {
-        'barbs_doc': mquiver.Barbs.barbs_doc}
 
+    @docstring.dedent_interpd
     def fill(self, *args, **kwargs):
         """
         call signature::
@@ -5922,8 +5907,8 @@ class Axes(martist.Artist):
             patches.append( poly )
         self.autoscale_view()
         return patches
-    fill.__doc__ = cbook.dedent(fill.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def fill_between(self, x, y1, y2=0, where=None, **kwargs):
         """
         call signature::
@@ -6029,8 +6014,8 @@ class Axes(martist.Artist):
         self.add_collection(collection)
         self.autoscale_view()
         return collection
-    fill_between.__doc__ = cbook.dedent(fill_between.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def fill_betweenx(self, y, x1, x2=0, where=None, **kwargs):
         """
         call signature::
@@ -6136,10 +6121,10 @@ class Axes(martist.Artist):
         self.add_collection(collection)
         self.autoscale_view()
         return collection
-    fill_between.__doc__ = cbook.dedent(fill_between.__doc__) % martist.kwdocd
 
     #### plotting z(x,y): imshow, pcolor and relatives, contour
 
+    @docstring.dedent_interpd
     def imshow(self, X, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=1.0, vmin=None, vmax=None,
                origin=None, extent=None, shape=None, filternorm=1,
@@ -6276,7 +6261,6 @@ class Axes(martist.Artist):
         self.images.append(im)
 
         return im
-    imshow.__doc__ = cbook.dedent(imshow.__doc__) % martist.kwdocd
 
 
     def _pcolorargs(self, funcname, *args):
@@ -6304,6 +6288,7 @@ class Axes(martist.Artist):
                 funcname, funcname))
         return X, Y, C
 
+    @docstring.dedent_interpd
     def pcolor(self, *args, **kwargs):
         """
         call signatures::
@@ -6511,8 +6496,8 @@ class Axes(martist.Artist):
         self.autoscale_view()
         self.add_collection(collection)
         return collection
-    pcolor.__doc__ = cbook.dedent(pcolor.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def pcolormesh(self, *args, **kwargs):
         """
         call signatures::
@@ -6634,8 +6619,8 @@ class Axes(martist.Artist):
         self.autoscale_view()
         self.add_collection(collection)
         return collection
-    pcolormesh.__doc__ = cbook.dedent(pcolormesh.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def pcolorfast(self, *args, **kwargs):
         """
         pseudocolor plot of a 2-D array
@@ -6829,6 +6814,7 @@ class Axes(martist.Artist):
         return CS.clabel(*args, **kwargs)
     clabel.__doc__ = mcontour.ContourSet.clabel.__doc__
 
+    @docstring.dedent_interpd
     def table(self, **kwargs):
         """
         call signature::
@@ -6853,7 +6839,6 @@ class Axes(martist.Artist):
         %(Table)s
         """
         return mtable.table(self, **kwargs)
-    table.__doc__ = cbook.dedent(table.__doc__) % martist.kwdocd
 
     def twinx(self):
         """
@@ -6905,6 +6890,7 @@ class Axes(martist.Artist):
 
     #### Data analysis
 
+    @docstring.dedent_interpd
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
@@ -7257,8 +7243,8 @@ class Axes(martist.Artist):
             return n[0], bins, cbook.silent_list('Patch', patches[0])
         else:
             return n, bins, cbook.silent_list('Lists of Patches', patches)
-    hist.__doc__ = cbook.dedent(hist.__doc__) % martist.kwdocd
 
+    @docstring.dedent_interpd
     def psd(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0, pad_to=None,
             sides='default', scale_by_freq=None, **kwargs):
@@ -7330,12 +7316,7 @@ class Axes(martist.Artist):
 
         return pxx, freqs
 
-    psd_doc_dict = dict()
-    psd_doc_dict.update(martist.kwdocd)
-    psd_doc_dict.update(mlab.kwdocd)
-    psd_doc_dict['PSD'] = cbook.dedent(psd_doc_dict['PSD'])
-    psd.__doc__ = cbook.dedent(psd.__doc__) % psd_doc_dict
-
+    @docstring.dedent_interpd
     def csd(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0, pad_to=None,
             sides='default', scale_by_freq=None, **kwargs):
@@ -7403,8 +7384,8 @@ class Axes(martist.Artist):
         self.set_yticks(ticks)
 
         return pxy, freqs
-    csd.__doc__ = cbook.dedent(csd.__doc__) % psd_doc_dict
 
+    @docstring.dedent_interpd
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                window=mlab.window_hanning, noverlap=0, pad_to=None,
                sides='default', scale_by_freq=None, **kwargs):
@@ -7460,8 +7441,8 @@ class Axes(martist.Artist):
         self.grid(True)
 
         return cxy, freqs
-    cohere.__doc__ = cbook.dedent(cohere.__doc__) % psd_doc_dict
 
+    @docstring.dedent_interpd
     def specgram(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                  window=mlab.window_hanning, noverlap=128,
                  cmap=None, xextent=None, pad_to=None, sides='default',
@@ -7534,8 +7515,6 @@ class Axes(martist.Artist):
         self.axis('auto')
 
         return Pxx, freqs, bins, im
-    specgram.__doc__ = cbook.dedent(specgram.__doc__) % psd_doc_dict
-    del psd_doc_dict #So that this does not become an Axes attribute
 
     def spy(self, Z, precision=0, marker=None, markersize=None,
             aspect='equal',  **kwargs):
@@ -7908,7 +7887,8 @@ def subplot_class_factory(axes_class=None):
 # This is provided for backward compatibility
 Subplot = subplot_class_factory()
 
-martist.kwdocd['Axes'] = martist.kwdocd['Subplot'] = martist.kwdoc(Axes)
+docstring.interpd.update(Axes=martist.kwdoc(Axes))
+docstring.interpd.update(Subplot=martist.kwdoc(Axes))
 
 """
 # this is some discarded code I was using to find the minimum positive

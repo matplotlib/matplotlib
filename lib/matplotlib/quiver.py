@@ -22,6 +22,7 @@ import matplotlib.transforms as transforms
 import matplotlib.text as mtext
 import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
+from matplotlib import docstring
 import matplotlib.font_manager as font_manager
 from matplotlib.cbook import delete_masked_points
 from matplotlib.patches import CirclePolygon
@@ -139,7 +140,7 @@ outlines. Additional :class:`~matplotlib.collections.PolyCollection`
 keyword arguments:
 
 %(PolyCollection)s
-""" % martist.kwdocd
+""" % docstring.interpd.params
 
 _quiverkey_doc = """
 Add a key to a quiver plot.
@@ -341,7 +342,14 @@ class Quiver(collections.PolyCollection):
     should be no performance penalty from putting the calculations
     in the draw() method.
     """
+
+    @docstring.Substitution(_quiver_doc)
     def __init__(self, ax, *args, **kw):
+        """
+        The constructor takes one required argument, an Axes
+        instance, followed by the args and kwargs described
+        by the following pylab interface documentation:
+        %s"""
         self.ax = ax
         X, Y, U, V, C = self._parse_args(*args)
         self.X = X
@@ -381,12 +389,6 @@ class Quiver(collections.PolyCollection):
 
         self.ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
 
-
-    __init__.__doc__ = """
-        The constructor takes one required argument, an Axes
-        instance, followed by the args and kwargs described
-        by the following pylab interface documentation:
-        %s""" % _quiver_doc
 
     def _parse_args(self, *args):
         X, Y, U, V, C = [None]*5
@@ -704,7 +706,9 @@ Additional :class:`~matplotlib.collections.PolyCollection` keyword
 arguments:
 
 %(PolyCollection)s
-""" % martist.kwdocd
+""" % docstring.interpd.params
+
+docstring.interpd.update(barbs_doc=_barbs_doc)
 
 class Barbs(collections.PolyCollection):
     '''
@@ -723,7 +727,13 @@ class Barbs(collections.PolyCollection):
     #This may be an abuse of polygons here to render what is essentially maybe
     #1 triangle and a series of lines.  It works fine as far as I can tell
     #however.
+    @docstring.interpd
     def __init__(self, ax, *args, **kw):
+        """
+        The constructor takes one required argument, an Axes
+        instance, followed by the args and kwargs described
+        by the following pylab interface documentation:
+        %(barbs_doc)s"""
         self._pivot = kw.pop('pivot', 'tip')
         self._length = kw.pop('length', 7)
         barbcolor = kw.pop('barbcolor', None)
@@ -764,12 +774,6 @@ class Barbs(collections.PolyCollection):
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)
-
-    __init__.__doc__ = """
-        The constructor takes one required argument, an Axes
-        instance, followed by the args and kwargs described
-        by the following pylab interface documentation:
-        %s""" % _barbs_doc
 
     def _find_tails(self, mag, rounding=True, half=5, full=10, flag=50):
         '''

@@ -147,6 +147,7 @@ from matplotlib import verbose
 
 import matplotlib.nxutils as nxutils
 import matplotlib.cbook as cbook
+from matplotlib import docstring
 
 
 def logspace(xmin,xmax,N):
@@ -288,8 +289,7 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     return Pxy, freqs, t
 
 #Split out these keyword docs so that they can be used elsewhere
-kwdocd = dict()
-kwdocd['PSD'] ="""
+docstring.interpd.update(PSD=cbook.dedent("""
     Keyword arguments:
 
       *NFFT*: integer
@@ -346,8 +346,9 @@ kwdocd['PSD'] ="""
           by the scaling frequency, which gives density in units of Hz^-1.
           This allows for integration over the returned frequency values.
           The default is True for MatLab compatibility.
-"""
+"""))
 
+@docstring.dedent_interpd
 def psd(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
         noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
     """
@@ -373,8 +374,7 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
         scale_by_freq)
     return Pxx.real,freqs
 
-psd.__doc__ = psd.__doc__ % kwdocd
-
+@docstring.dedent_interpd
 def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
         noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
     """
@@ -405,8 +405,7 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
         Pxy = Pxy.mean(axis=1)
     return Pxy, freqs
 
-csd.__doc__ = csd.__doc__ % kwdocd
-
+@docstring.dedent_interpd
 def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
         noverlap=128, pad_to=None, sides='default', scale_by_freq=None):
     """
@@ -445,11 +444,10 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     return Pxx, freqs, t
 
-specgram.__doc__ = specgram.__doc__ % kwdocd
-
 _coh_error = """Coherence is calculated by averaging over *NFFT*
 length segments.  Your signal is too short for your choice of *NFFT*.
 """
+@docstring.dedent_interpd
 def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
         noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
     """
@@ -487,8 +485,6 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     Cxy = np.divide(np.absolute(Pxy)**2, Pxx*Pyy)
     Cxy.shape = (len(f),)
     return Cxy, f
-
-cohere.__doc__ = cohere.__doc__ % kwdocd
 
 
 def donothing_callback(*args):

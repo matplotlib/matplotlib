@@ -2,6 +2,7 @@ from __future__ import division
 import re, warnings
 import matplotlib
 import matplotlib.cbook as cbook
+from matplotlib import docstring
 from transforms import Bbox, IdentityTransform, TransformedBbox, TransformedPath
 from path import Path
 
@@ -1193,5 +1194,4 @@ def kwdoc(a):
     else:
         return '\n'.join(ArtistInspector(a).pprint_setters(leadingspace=2))
 
-kwdocd = dict()
-kwdocd['Artist'] = kwdoc(Artist)
+docstring.interpd.update(Artist=kwdoc(Artist))

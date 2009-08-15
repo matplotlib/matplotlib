@@ -19,6 +19,7 @@ from transforms import Affine2D, Bbox, TransformedPath, IdentityTransform
 
 from matplotlib import rcParams
 from artist import allow_rasterization
+from matplotlib import docstring
 
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
@@ -172,7 +173,7 @@ class Line2D(Artist):
                  markeredgewidth = None,
                  markeredgecolor = None,
                  markerfacecolor = None,
-		 fillstyle       = 'full',
+                 fillstyle       = 'full',
                  antialiased     = None,
                  dash_capstyle   = None,
                  solid_capstyle  = None,
@@ -1546,8 +1547,8 @@ lineStyles = Line2D._lineStyles
 lineMarkers = Line2D._markers
 drawStyles = Line2D.drawStyles
 
-artist.kwdocd['Line2D'] = artist.kwdoc(Line2D)
+docstring.interpd.update(Line2D = artist.kwdoc(Line2D))
 
 # You can not set the docstring of an instancemethod,
 # but you can on the underlying function.  Go figure.
-Line2D.__init__.im_func.__doc__ = dedent(Line2D.__init__.__doc__) % artist.kwdocd
+docstring.dedent_interpd(Line2D.__init__.im_func)

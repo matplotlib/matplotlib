@@ -7,6 +7,7 @@ from cbook import dedent
 from ticker import NullFormatter, ScalarFormatter, LogFormatterMathtext, Formatter
 from ticker import NullLocator, LogLocator, AutoLocator, SymmetricalLogLocator, FixedLocator
 from transforms import Transform, IdentityTransform
+from matplotlib import docstring
 
 class ScaleBase(object):
     """
@@ -460,3 +461,8 @@ def get_scale_docs():
         docs.append(class_docs)
         docs.append("")
     return "\n".join(docs)
+
+docstring.interpd.update(
+    scale = ' | '.join([repr(x) for x in get_scale_names()]),
+    scale_docs = get_scale_docs().strip(),
+    )

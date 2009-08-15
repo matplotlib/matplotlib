@@ -9,13 +9,14 @@ import matplotlib.cbook as cbook
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
 import matplotlib.colors as colors
+from matplotlib import docstring
 import matplotlib.transforms as transforms
 from matplotlib.path import Path
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
 # function and they will be overridden after object definition
-artist.kwdocd['Patch'] = """
+docstring.interpd.update(Patch = """
 
           =================   ==============================================
           Property            Description
@@ -38,7 +39,7 @@ artist.kwdocd['Patch'] = """
           zorder              any number
           =================   ==============================================
 
-          """
+          """)
 
 class Patch(artist.Artist):
     """
@@ -50,6 +51,38 @@ class Patch(artist.Artist):
     zorder = 1
     def __str__(self):
         return str(self.__class__).split('.')[-1]
+
+    def __init__(self,
+                        edgecolor=None,
+                        facecolor=None,
+                        linewidth=None,
+                        linestyle=None,
+                        antialiased = None,
+                        hatch = None,
+                        fill=True,
+                        **kwargs
+                        ):
+        """
+        The following kwarg properties are supported
+
+        %(Patch)s
+        """
+        artist.Artist.__init__(self)
+
+        if linewidth is None: linewidth = mpl.rcParams['patch.linewidth']
+        if linestyle is None: linestyle = "solid"
+        if antialiased is None: antialiased = mpl.rcParams['patch.antialiased']
+
+        self.set_edgecolor(edgecolor)
+        self.set_facecolor(facecolor)
+        self.set_linewidth(linewidth)
+        self.set_linestyle(linestyle)
+        self.set_antialiased(antialiased)
+        self.set_hatch(hatch)
+        self.fill = fill
+        self._combined_transform = transforms.IdentityTransform()
+
+        if len(kwargs): artist.setp(self, **kwargs)
 
     def get_verts(self):
         """
@@ -337,53 +370,20 @@ class Patch(artist.Artist):
     def get_window_extent(self, renderer=None):
         return self.get_path().get_extents(self.get_transform())
 
-artist.kwdocd['Patch'] = patchdoc = artist.kwdoc(Patch)
+patchdoc = artist.kwdoc(Patch)
 for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
           'FancyArrow', 'YAArrow', 'CirclePolygon', 'Ellipse', 'Arc',
-          'FancyBboxPatch'):
-    artist.kwdocd[k] = patchdoc
+          'FancyBboxPatch', 'Patch'):
+    docstring.interpd.update({k:patchdoc})
 
-# define Patch.__init__ after the class so that the docstring can be
-# auto-generated.
-def __patch__init__(self,
-                    edgecolor=None,
-                    facecolor=None,
-                    linewidth=None,
-                    linestyle=None,
-                    antialiased = None,
-                    hatch = None,
-                    fill=True,
-                    **kwargs
-                    ):
-    """
-    The following kwarg properties are supported
-
-    %(Patch)s
-    """
-    artist.Artist.__init__(self)
-
-    if linewidth is None: linewidth = mpl.rcParams['patch.linewidth']
-    if linestyle is None: linestyle = "solid"
-    if antialiased is None: antialiased = mpl.rcParams['patch.antialiased']
-
-    self.set_edgecolor(edgecolor)
-    self.set_facecolor(facecolor)
-    self.set_linewidth(linewidth)
-    self.set_linestyle(linestyle)
-    self.set_antialiased(antialiased)
-    self.set_hatch(hatch)
-    self.fill = fill
-    self._combined_transform = transforms.IdentityTransform()
-
-    if len(kwargs): artist.setp(self, **kwargs)
-
-__patch__init__.__doc__ = cbook.dedent(__patch__init__.__doc__) % artist.kwdocd
-Patch.__init__ = __patch__init__
+# define Patch.__init__ docstring after the class has been added to interpd
+docstring.dedent_interpd(Patch.__init__.im_func)
 
 class Shadow(Patch):
     def __str__(self):
         return "Shadow(%s)"%(str(self.patch))
 
+    @docstring.dedent_interpd
     def __init__(self, patch, ox, oy, props=None, **kwargs):
         """
         Create a shadow of the given *patch* offset by *ox*, *oy*.
@@ -400,7 +400,6 @@ class Shadow(Patch):
         self._ox, self._oy = ox, oy
         self._shadow_transform = transforms.Affine2D()
         self._update()
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def _update(self):
         self.update_from(self.patch)
@@ -451,6 +450,7 @@ class Rectangle(Patch):
         return self.__class__.__name__ \
             + "(%g,%g;%gx%g)" % (self._x, self._y, self._width, self._height)
 
+    @docstring.dedent_interpd
     def __init__(self, xy, width, height, **kwargs):
         """
 
@@ -468,7 +468,6 @@ class Rectangle(Patch):
         self._height = height
         # Note: This cannot be calculated until this is added to an Axes
         self._rect_transform = transforms.IdentityTransform()
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
         """
@@ -589,6 +588,7 @@ class RegularPolygon(Patch):
     def __str__(self):
         return "Poly%d(%g,%g)"%(self._numVertices,self._xy[0],self._xy[1])
 
+    @docstring.dedent_interpd
     def __init__(self, xy, numVertices, radius=5, orientation=0,
                  **kwargs):
         """
@@ -618,8 +618,6 @@ class RegularPolygon(Patch):
         self._update_transform()
 
         Patch.__init__(self, **kwargs)
-
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def _update_transform(self):
         self._poly_transform.clear() \
@@ -665,6 +663,7 @@ class PathPatch(Patch):
     def __str__(self):
         return "Poly((%g, %g) ...)" % tuple(self._path.vertices[0])
 
+    @docstring.dedent_interpd
     def __init__(self, path, **kwargs):
         """
         *path* is a :class:`matplotlib.path.Path` object.
@@ -680,7 +679,6 @@ class PathPatch(Patch):
         """
         Patch.__init__(self, **kwargs)
         self._path = path
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
         return self._path
@@ -692,6 +690,7 @@ class Polygon(Patch):
     def __str__(self):
         return "Poly((%g, %g) ...)" % tuple(self._path.vertices[0])
 
+    @docstring.dedent_interpd
     def __init__(self, xy, closed=True, **kwargs):
         """
         *xy* is a numpy array with shape Nx2.
@@ -712,8 +711,6 @@ class Polygon(Patch):
         xy = np.asarray(xy, np.float_)
         self._path = Path(xy)
         self.set_closed(closed)
-
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
         return self._path
@@ -753,6 +750,7 @@ class Wedge(Patch):
     def __str__(self):
         return "Wedge(%g,%g)"%(self.theta1,self.theta2)
 
+    @docstring.dedent_interpd
     def __init__(self, center, r, theta1, theta2, width=None, **kwargs):
         """
         Draw a wedge centered at *x*, *y* center with radius *r* that
@@ -798,7 +796,6 @@ class Wedge(Patch):
         v += np.asarray(center)
         self._path = Path(v,c)
         self._patch_transform = transforms.IdentityTransform()
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
         return self._path
@@ -818,6 +815,7 @@ class Arrow(Patch):
             [ 1.0,  0.0 ], [ 0.8,  0.3],
             [ 0.8,  0.1 ], [ 0.0,  0.1] ] )
 
+    @docstring.dedent_interpd
     def __init__( self, x, y, dx, dy, width=1.0, **kwargs ):
         """
         Draws an arrow, starting at (*x*, *y*), direction and length
@@ -836,7 +834,6 @@ class Arrow(Patch):
         trans3 = transforms.Affine2D().translate(x, y)
         trans = trans1 + trans2 + trans3
         self._patch_transform = trans.frozen()
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
         return self._path
@@ -852,6 +849,7 @@ class FancyArrow(Polygon):
     def __str__(self):
         return "FancyArrow()"
 
+    @docstring.dedent_interpd
     def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False, \
         head_width=None, head_length=None, shape='full', overhang=0, \
         head_starts_at_zero=False,**kwargs):
@@ -924,7 +922,6 @@ class FancyArrow(Polygon):
             verts = np.dot(coords, M) + (x+dx, y+dy)
 
         Polygon.__init__(self, map(tuple, verts), **kwargs)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 class YAArrow(Patch):
     """
@@ -936,6 +933,7 @@ class YAArrow(Patch):
     def __str__(self):
         return "YAArrow()"
 
+    @docstring.dedent_interpd
     def __init__(self, figure, xytip, xybase, width=4, frac=0.1, headwidth=12, **kwargs):
         """
         Constructor arguments:
@@ -970,7 +968,6 @@ class YAArrow(Patch):
         self.frac = frac
         self.headwidth = headwidth
         Patch.__init__(self, **kwargs)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_path(self):
         # Since this is dpi dependent, we need to recompute the path
@@ -1034,6 +1031,7 @@ class CirclePolygon(RegularPolygon):
     def __str__(self):
         return "CirclePolygon(%d,%d)"%self.center
 
+    @docstring.dedent_interpd
     def __init__(self, xy, radius=5,
                  resolution=20,  # the number of vertices
                  **kwargs):
@@ -1052,7 +1050,6 @@ class CirclePolygon(RegularPolygon):
                                 radius,
                                 orientation=0,
                                 **kwargs)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
 class Ellipse(Patch):
@@ -1062,6 +1059,7 @@ class Ellipse(Patch):
     def __str__(self):
         return "Ellipse(%s,%s;%sx%s)"%(self.center[0],self.center[1],self.width,self.height)
 
+    @docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0, **kwargs):
         """
         *xy*
@@ -1087,7 +1085,6 @@ class Ellipse(Patch):
         self._path = Path.unit_circle()
         # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = transforms.IdentityTransform()
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def _recompute_transform(self):
         """NOTE: This cannot be called until after this has been added
@@ -1127,6 +1124,7 @@ class Circle(Ellipse):
     def __str__(self):
         return "Circle((%g,%g),r=%g)"%(self.center[0],self.center[1],self.radius)
 
+    @docstring.dedent_interpd
     def __init__(self, xy, radius=5, **kwargs):
         """
         Create true circle at center *xy* = (*x*, *y*) with given
@@ -1145,7 +1143,6 @@ class Circle(Ellipse):
 
         self.radius = radius
         Ellipse.__init__(self, xy, radius*2, radius*2, **kwargs)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def set_radius(self, radius):
         """
@@ -1175,6 +1172,7 @@ class Arc(Ellipse):
     def __str__(self):
         return "Arc(%s,%s;%sx%s)"%(self.center[0],self.center[1],self.width,self.height)
 
+    @docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0, theta1=0.0, theta2=360.0, **kwargs):
         """
         The following args are supported:
@@ -1212,7 +1210,6 @@ class Arc(Ellipse):
 
         self.theta1 = theta1
         self.theta2 = theta2
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     @allow_rasterization
     def draw(self, renderer):
@@ -1987,9 +1984,11 @@ class BoxStyle(_Style):
 
     _style_list["roundtooth"] = Roundtooth
 
-    __doc__ = cbook.dedent(__doc__) % \
-           {"AvailableBoxstyles": _pprint_styles(_style_list)}
+    if __doc__: # __doc__ could be None if -OO optimization is enabled
+        __doc__ = cbook.dedent(__doc__) % \
+               {"AvailableBoxstyles": _pprint_styles(_style_list)}
 
+docstring.interpd.update(AvailableBoxstyles=_pprint_styles(BoxStyle._style_list))
 
 class FancyBboxPatch(Patch):
     """
@@ -2007,6 +2006,7 @@ class FancyBboxPatch(Patch):
         return self.__class__.__name__ \
             + "FancyBboxPatch(%g,%g;%gx%g)" % (self._x, self._y, self._width, self._height)
 
+    @docstring.dedent_interpd
     def __init__(self, xy, width, height,
                  boxstyle="round",
                  bbox_transmuter=None,
@@ -2054,13 +2054,7 @@ class FancyBboxPatch(Patch):
         self._mutation_aspect=mutation_aspect
 
 
-    kwdoc = dict()
-    kwdoc["AvailableBoxstyles"]=_pprint_styles(BoxStyle._style_list)
-    kwdoc.update(artist.kwdocd)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % kwdoc
-    del kwdoc
-
-
+    @docstring.dedent_interpd
     def set_boxstyle(self, boxstyle=None, **kw):
         """
         Set the box style.
@@ -2091,12 +2085,6 @@ class FancyBboxPatch(Patch):
         else:
             self._bbox_transmuter = BoxStyle(boxstyle, **kw)
 
-
-    kwdoc = dict()
-    kwdoc["AvailableBoxstyles"]=_pprint_styles(BoxStyle._style_list)
-    kwdoc.update(artist.kwdocd)
-    set_boxstyle.__doc__ = cbook.dedent(set_boxstyle.__doc__) % kwdoc
-    del kwdoc
 
     def set_mutation_scale(self, scale):
         """
@@ -2682,9 +2670,9 @@ class ConnectionStyle(_Style):
 
     _style_list["bar"] = Bar
 
-
-    __doc__ = cbook.dedent(__doc__) % \
-           {"AvailableConnectorstyles": _pprint_styles(_style_list)}
+    if __doc__:
+        __doc__ = cbook.dedent(__doc__) % \
+               {"AvailableConnectorstyles": _pprint_styles(_style_list)}
 
 
 
@@ -3438,11 +3426,16 @@ class ArrowStyle(_Style):
 
     _style_list["wedge"] = Wedge
 
-    __doc__ = cbook.dedent(__doc__) % \
-           {"AvailableArrowstyles": _pprint_styles(_style_list)}
+    if __doc__:
+        __doc__ = cbook.dedent(__doc__) % \
+               {"AvailableArrowstyles": _pprint_styles(_style_list)}
 
 
 
+docstring.interpd.update(
+    AvailableArrowstyles = _pprint_styles(ArrowStyle._style_list),
+    AvailableConnectorstyles = _pprint_styles(ConnectionStyle._style_list),
+)
 
 class FancyArrowPatch(Patch):
     """
@@ -3454,6 +3447,7 @@ class FancyArrowPatch(Patch):
         return self.__class__.__name__ \
             + "FancyArrowPatch(%g,%g,%g,%g,%g,%g)" % tuple(self._q_bezier)
 
+    @docstring.dedent_interpd
     def __init__(self, posA=None, posB=None,
                  path=None,
                  arrowstyle="simple",
@@ -3534,14 +3528,6 @@ class FancyArrowPatch(Patch):
         self._mutation_aspect=mutation_aspect
 
         #self._draw_in_display_coordinate = True
-
-    kwdoc = dict()
-    kwdoc["AvailableArrowstyles"]=_pprint_styles(ArrowStyle._style_list)
-    kwdoc["AvailableConnectorstyles"]=_pprint_styles(ConnectionStyle._style_list)
-
-    kwdoc.update(artist.kwdocd)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % kwdoc
-    del kwdoc
 
     def set_positions(self, posA, posB):
         """ set the begin end end positions of the connecting
@@ -3768,6 +3754,7 @@ class ConnectionPatch(FancyArrowPatch):
         return "ConnectionPatch((%g,%g),(%g,%g))" % \
                (self.xy1[0],self.xy1[1],self.xy2[0],self.xy2[1])
 
+    @docstring.dedent_interpd
     def __init__(self, xyA, xyB, coordsA, coordsB=None,
                  axesA=None, axesB=None,
                  arrowstyle="-",
@@ -3858,8 +3845,6 @@ class ConnectionPatch(FancyArrowPatch):
 
         # if True, draw annotation only if self.xy is inside the axes
         self._annotation_clip = None
-
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
     def _get_xy(self, x, y, s, axes=None):
