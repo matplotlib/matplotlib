@@ -22,7 +22,7 @@ User's Guide
     artists.rst
     legend_guide.rst
     event_handling.rst
-    annotation_guide.rst
+    annotations_guide.rst
     legend.rst
     transforms_tutorial.rst
     toolkits.rst

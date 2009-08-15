@@ -2,8 +2,8 @@
 // Anti-Grain Geometry - Version 2.4
 // Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
 //
-// Permission to copy, use, modify, sell and distribute this software 
-// is granted provided this copyright notice appears in all copies. 
+// Permission to copy, use, modify, sell and distribute this software
+// is granted provided this copyright notice appears in all copies.
 // This software is provided "as is" without express or implied
 // warranty, and with no claim as to its suitability for any purpose.
 //
@@ -25,12 +25,12 @@
 #else
 namespace agg
 {
-    // The policy of all AGG containers and memory allocation strategy 
+    // The policy of all AGG containers and memory allocation strategy
     // in general is that no allocated data requires explicit construction.
     // It means that the allocator can be really simple; you can even
-    // replace new/delete to malloc/free. The constructors and destructors 
-    // won't be called in this case, however everything will remain working. 
-    // The second argument of deallocate() is the size of the allocated 
+    // replace new/delete to malloc/free. The constructors and destructors
+    // won't be called in this case, however everything will remain working.
+    // The second argument of deallocate() is the size of the allocated
     // block. You can use this information if you wish.
     //------------------------------------------------------------pod_allocator
     template<class T> struct pod_allocator
@@ -40,8 +40,8 @@ namespace agg
     };
 
     // Single object allocator. It's also can be replaced with your custom
-    // allocator. The difference is that it can only allocate a single 
-    // object and the constructor and destructor must be called. 
+    // allocator. The difference is that it can only allocate a single
+    // object and the constructor and destructor must be called.
     // In AGG there is no need to allocate an array of objects with
     // calling their constructors (only single ones). So that, if you
     // replace these new/delete to malloc/free make sure that the in-place
@@ -213,23 +213,23 @@ namespace agg
     enum cover_scale_e
     {
         cover_shift = 8,                 //----cover_shift
-        cover_size  = 1 << cover_shift,  //----cover_size 
-        cover_mask  = cover_size - 1,    //----cover_mask 
-        cover_none  = 0,                 //----cover_none 
-        cover_full  = cover_mask         //----cover_full 
+        cover_size  = 1 << cover_shift,  //----cover_size
+        cover_mask  = cover_size - 1,    //----cover_mask
+        cover_none  = 0,                 //----cover_none
+        cover_full  = cover_mask         //----cover_full
     };
 
     //----------------------------------------------------poly_subpixel_scale_e
-    // These constants determine the subpixel accuracy, to be more precise, 
-    // the number of bits of the fractional part of the coordinates. 
+    // These constants determine the subpixel accuracy, to be more precise,
+    // the number of bits of the fractional part of the coordinates.
     // The possible coordinate capacity in bits can be calculated by formula:
     // sizeof(int) * 8 - poly_subpixel_shift, i.e, for 32-bit integers and
     // 8-bits fractional part the capacity is 24 bits.
     enum poly_subpixel_scale_e
     {
         poly_subpixel_shift = 8,                      //----poly_subpixel_shift
-        poly_subpixel_scale = 1<<poly_subpixel_shift, //----poly_subpixel_scale 
-        poly_subpixel_mask  = poly_subpixel_scale-1,  //----poly_subpixel_mask 
+        poly_subpixel_scale = 1<<poly_subpixel_shift, //----poly_subpixel_scale
+        poly_subpixel_mask  = poly_subpixel_scale-1  //----poly_subpixel_mask
     };
 
     //----------------------------------------------------------filling_rule_e
@@ -253,7 +253,7 @@ namespace agg
     {
         return rad * 180.0 / pi;
     }
- 
+
     //----------------------------------------------------------------rect_base
     template<class T> struct rect_base
     {
@@ -265,9 +265,9 @@ namespace agg
         rect_base(T x1_, T y1_, T x2_, T y2_) :
             x1(x1_), y1(y1_), x2(x2_), y2(y2_) {}
 
-        void init(T x1_, T y1_, T x2_, T y2_) 
+        void init(T x1_, T y1_, T x2_, T y2_)
         {
-            x1 = x1_; y1 = y1_; x2 = x2_; y2 = y2_; 
+            x1 = x1_; y1 = y1_; x2 = x2_; y2 = y2_;
         }
 
         const self_type& normalize()
@@ -299,17 +299,17 @@ namespace agg
     };
 
     //-----------------------------------------------------intersect_rectangles
-    template<class Rect> 
+    template<class Rect>
     inline Rect intersect_rectangles(const Rect& r1, const Rect& r2)
     {
         Rect r = r1;
 
-        // First process x2,y2 because the other order 
-        // results in Internal Compiler Error under 
-        // Microsoft Visual C++ .NET 2003 69462-335-0000007-18038 in 
+        // First process x2,y2 because the other order
+        // results in Internal Compiler Error under
+        // Microsoft Visual C++ .NET 2003 69462-335-0000007-18038 in
         // case of "Maximize Speed" optimization option.
         //-----------------
-        if(r.x2 > r2.x2) r.x2 = r2.x2; 
+        if(r.x2 > r2.x2) r.x2 = r2.x2;
         if(r.y2 > r2.y2) r.y2 = r2.y2;
         if(r.x1 < r2.x1) r.x1 = r2.x1;
         if(r.y1 < r2.y1) r.y1 = r2.y1;
@@ -318,7 +318,7 @@ namespace agg
 
 
     //---------------------------------------------------------unite_rectangles
-    template<class Rect> 
+    template<class Rect>
     inline Rect unite_rectangles(const Rect& r1, const Rect& r2)
     {
         Rect r = r1;
@@ -336,26 +336,26 @@ namespace agg
     //---------------------------------------------------------path_commands_e
     enum path_commands_e
     {
-        path_cmd_stop     = 0,        //----path_cmd_stop    
-        path_cmd_move_to  = 1,        //----path_cmd_move_to 
-        path_cmd_line_to  = 2,        //----path_cmd_line_to 
-        path_cmd_curve3   = 3,        //----path_cmd_curve3  
-        path_cmd_curve4   = 4,        //----path_cmd_curve4  
+        path_cmd_stop     = 0,        //----path_cmd_stop
+        path_cmd_move_to  = 1,        //----path_cmd_move_to
+        path_cmd_line_to  = 2,        //----path_cmd_line_to
+        path_cmd_curve3   = 3,        //----path_cmd_curve3
+        path_cmd_curve4   = 4,        //----path_cmd_curve4
         path_cmd_curveN   = 5,        //----path_cmd_curveN
         path_cmd_catrom   = 6,        //----path_cmd_catrom
         path_cmd_ubspline = 7,        //----path_cmd_ubspline
         path_cmd_end_poly = 0x0F,     //----path_cmd_end_poly
-        path_cmd_mask     = 0x0F      //----path_cmd_mask    
+        path_cmd_mask     = 0x0F      //----path_cmd_mask
     };
 
     //------------------------------------------------------------path_flags_e
     enum path_flags_e
     {
-        path_flags_none  = 0,         //----path_flags_none 
-        path_flags_ccw   = 0x10,      //----path_flags_ccw  
-        path_flags_cw    = 0x20,      //----path_flags_cw   
+        path_flags_none  = 0,         //----path_flags_none
+        path_flags_ccw   = 0x10,      //----path_flags_ccw
+        path_flags_cw    = 0x20,      //----path_flags_cw
         path_flags_close = 0x40,      //----path_flags_close
-        path_flags_mask  = 0xF0       //----path_flags_mask 
+        path_flags_mask  = 0xF0       //----path_flags_mask
     };
 
     //---------------------------------------------------------------is_vertex
@@ -372,7 +372,7 @@ namespace agg
 
     //-----------------------------------------------------------------is_stop
     inline bool is_stop(unsigned c)
-    { 
+    {
         return c == path_cmd_stop;
     }
 
@@ -416,7 +416,7 @@ namespace agg
     inline bool is_close(unsigned c)
     {
         return (c & ~(path_flags_cw | path_flags_ccw)) ==
-               (path_cmd_end_poly | path_flags_close); 
+               (path_cmd_end_poly | path_flags_close);
     }
 
     //------------------------------------------------------------is_next_poly
@@ -440,19 +440,19 @@ namespace agg
     //-------------------------------------------------------------is_oriented
     inline bool is_oriented(unsigned c)
     {
-        return (c & (path_flags_cw | path_flags_ccw)) != 0; 
+        return (c & (path_flags_cw | path_flags_ccw)) != 0;
     }
 
     //---------------------------------------------------------------is_closed
     inline bool is_closed(unsigned c)
     {
-        return (c & path_flags_close) != 0; 
+        return (c & path_flags_close) != 0;
     }
 
     //----------------------------------------------------------get_close_flag
     inline unsigned get_close_flag(unsigned c)
     {
-        return c & path_flags_close; 
+        return c & path_flags_close;
     }
 
     //-------------------------------------------------------clear_orientation
@@ -513,7 +513,7 @@ namespace agg
         int x1, x2;
         const T* ptr;
         const_row_info() {}
-        const_row_info(int x1_, int x2_, const T* ptr_) : 
+        const_row_info(int x1_, int x2_, const T* ptr_) :
             x1(x1_), x2(x2_), ptr(ptr_) {}
     };
 
