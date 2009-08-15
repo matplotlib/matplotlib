@@ -12,7 +12,7 @@ In 95% of your plotting, you won't need to think about this, as it
 happens under the hood, but as you push the limits of custom figure
 generation, it helps to have an understanding of these objects so you
 can reuse the existing transformations matplotlib makes available to
-you, or create your own.  The table below summarizes the existing
+you, or create your own (see :mod:`matplotlib.transforms`.  The table below summarizes the existing
 coordinate systems, the transformation object you should use to work
 in that coordinate system, and the description of that system. In the
 `Transformation Object` column, ``ax`` is a :class:`~matplotlib.axes.Axes` instance,
@@ -276,7 +276,8 @@ object identical to the first just to the right of it, and just below
 it, adjusting the zorder to make sure the shadow is drawn first and
 then the object it is shadowing above it.  The transforms module has a
 helper transformation
-:class:~matplotlib.tranasforms.ScaledTranslation`.  It is instantiated with::
+:class:`~matplotlib.transforms.ScaledTranslation`.  It is
+instantiated with::
 
   trans = ScaledTranslation(xt, yt, scale_trans)
 
@@ -287,7 +288,7 @@ before applying the offsets.  A typical use case is to use the figure
 to first scale `xty and `yt` specified in points to `display` space
 before doing the final offset.  The dpi and inches offset is a
 common-enough use case that we have a special helper function to
-create it in :func:`~matplotlib.transforms.offset_copy`, which returns
+create it in :func:`matplotlib.transforms.offset_copy`, which returns
 a new transform with an added offset.  But in the example below, we'll
 create the offset trransform ourselves.  Note the use of the plus
 operator in::
