@@ -1,3 +1,6 @@
+2009-08-15 Pyplot interface: the current image is now tracked at the
+           figure and axes level, addressing tracker item 1656374. - EF
+
 2009-08-15 Docstrings are now manipulated with decorators defined
            in a new module, docstring.py, thanks to Jason Coombs. - EF
 

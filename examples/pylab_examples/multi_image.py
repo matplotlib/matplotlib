@@ -5,7 +5,7 @@ Make a set of images with a single colormap, norm, and colorbar.
 It also illustrates colorbar tick labelling with a multiplier.
 '''
 
-from matplotlib.pyplot import figure, show, sci
+from matplotlib.pyplot import figure, show, axes, sci
 from matplotlib import cm, colors
 from matplotlib.font_manager import FontProperties
 from numpy import amin, amax, ravel
@@ -68,9 +68,11 @@ for i, im in enumerate(images):
 # The colorbar is also based on this master image.
 fig.colorbar(images[0], cax, orientation='horizontal')
 
-# We need the following only if we want to run this
+# We need the following only if we want to run this interactively and
+# modify the colormap:
 
-sci(images[0])
+axes(ax[0])     # Return the current axes to the first one,
+sci(images[0])  # because the current image must be in current axes.
 
 show()
 

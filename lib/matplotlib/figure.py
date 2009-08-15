@@ -950,6 +950,17 @@ class Figure(Artist):
         for func in self._axobservers: func(self)
         return a
 
+    def _gci(self):
+        """
+        helper for :func:`~matplotlib.pyplot.gci`;
+        do not use elsewhere.
+        """
+        for ax in reversed(self._axstack):
+            im = ax._gci()
+            if im is not None:
+                return im
+        return None
+
     def add_axobserver(self, func):
         'whenever the axes state change, func(self) will be called'
         self._axobservers.append(func)
@@ -1039,7 +1050,7 @@ class Figure(Artist):
     def colorbar(self, mappable, cax=None, ax=None, **kw):
         """
         Create a colorbar for a ScalarMappable instance.
-        
+
         Documentation for the pylab thin wrapper:
         %(colorbar_doc)s
         """
