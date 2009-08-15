@@ -32,7 +32,9 @@ from projections import projection_factory, get_projection_names, \
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 
 import matplotlib.cbook as cbook
+from matplotlib import docstring
 
+docstring.interpd.update(projection_names = get_projection_names())
 
 class SubplotParams:
     """
@@ -555,6 +557,7 @@ class Figure(Artist):
         key = fixlist(args), fixitems(kwargs.items())
         return key
 
+    @docstring.dedent_interpd
     def add_axes(self, *args, **kwargs):
         """
         Add an a axes with axes rect [*left*, *bottom*, *width*,
@@ -564,7 +567,7 @@ class Figure(Artist):
         sets the projection type of the axes.  (For backward
         compatibility, ``polar=True`` may also be provided, which is
         equivalent to ``projection='polar'``).  Valid values for
-        *projection* are: %(list)s.  Some of these projections support
+        *projection* are: %(projection_names)s.  Some of these projections support
         additional kwargs, which may be provided to :meth:`add_axes`::
 
             rect = l,b,w,h
@@ -624,10 +627,7 @@ class Figure(Artist):
         self._seen[key] = a
         return a
 
-    add_axes.__doc__ = dedent(add_axes.__doc__) % \
-        {'list': (", ".join(get_projection_names())),
-         'Axes': artist.kwdocd['Axes']}
-
+    @docstring.dedent_interpd
     def add_subplot(self, *args, **kwargs):
         """
         Add a subplot.  Examples:
@@ -642,7 +642,7 @@ class Figure(Artist):
         *projection*, which chooses a projection type for the axes.
         (For backward compatibility, *polar=True* may also be
         provided, which is equivalent to *projection='polar'*). Valid
-        values for *projection* are: %(list)s.  Some of these projections
+        values for *projection* are: %(projection_names)s.  Some of these projections
         support additional *kwargs*, which may be provided to
         :meth:`add_axes`.
 
@@ -693,9 +693,6 @@ class Figure(Artist):
         self._axstack.push(a)
         self.sca(a)
         return a
-    add_subplot.__doc__ = dedent(add_subplot.__doc__) % {
-        'list': ", ".join(get_projection_names()),
-        'Axes': artist.kwdocd['Axes']}
 
     def clf(self):
         """
@@ -891,6 +888,7 @@ class Figure(Artist):
         self.legends.append(l)
         return l
 
+    @docstring.dedent_interpd
     def text(self, x, y, s, *args, **kwargs):
         """
         Call signature::
@@ -915,13 +913,13 @@ class Figure(Artist):
         self._set_artist_props(t)
         self.texts.append(t)
         return t
-    text.__doc__ = dedent(text.__doc__) % artist.kwdocd
 
     def _set_artist_props(self, a):
         if a!= self:
             a.set_figure(self)
         a.set_transform(self.transFigure)
 
+    @docstring.dedent_interpd
     def gca(self, **kwargs):
         """
         Return the current axes, creating one if necessary
@@ -945,7 +943,6 @@ class Figure(Artist):
             if isinstance(ax, projection_class):
                 return ax
         return self.add_subplot(111, **kwargs)
-    gca.__doc__ = dedent(gca.__doc__) % artist.kwdocd
 
     def sca(self, a):
         'Set the current axes to be a and return a'
@@ -1038,7 +1035,14 @@ class Figure(Artist):
             for ax, alpha in zip(self.axes, original_axes_alpha):
                 ax.patch.set_alpha(alpha)
 
+    @docstring.dedent_interpd
     def colorbar(self, mappable, cax=None, ax=None, **kw):
+        """
+        Create a colorbar for a ScalarMappable instance.
+        
+        Documentation for the pylab thin wrapper:
+        %(colorbar_doc)s
+        """
         if ax is None:
             ax = self.gca()
         if cax is None:
@@ -1056,13 +1060,6 @@ class Figure(Artist):
         mappable.set_colorbar(cb, cax)
         self.sca(ax)
         return cb
-    colorbar.__doc__ =  '''
-        Create a colorbar for a ScalarMappable instance.
-
-        Documentation for the pylab thin wrapper:
-        %s
-
-        '''% cbar.colorbar_doc
 
     def subplots_adjust(self, *args, **kwargs):
         """
@@ -1220,4 +1217,4 @@ def figaspect(arg):
     newsize = np.clip(newsize,figsize_min,figsize_max)
     return newsize
 
-artist.kwdocd['Figure'] = artist.kwdoc(Figure)
+docstring.interpd.update(Figure=artist.kwdoc(Figure))

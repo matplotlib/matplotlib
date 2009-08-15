@@ -3,6 +3,7 @@ import sys
 import matplotlib
 from matplotlib import _pylab_helpers, interactive
 from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
+from matplotlib import docstring
 from matplotlib.figure import Figure, figaspect
 from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.image import imread as _imread
@@ -119,16 +120,14 @@ def ion():
     'Turn interactive mode on.'
     matplotlib.interactive(True)
 
+@docstring.copy_dedent(matplotlib.rc)
 def rc(*args, **kwargs):
     matplotlib.rc(*args, **kwargs)
-if matplotlib.rc.__doc__ is not None:
-    rc.__doc__ =  dedent(matplotlib.rc.__doc__)
 
+@docstring.copy_dedent(matplotlib.rcdefaults)
 def rcdefaults():
     matplotlib.rcdefaults()
     draw_if_interactive()
-if matplotlib.rcdefaults.__doc__ is not None:
-    rcdefaults.__doc__ =   dedent(matplotlib.rcdefaults.__doc__)
 
 # The current "image" (ScalarMappable) is tracked here on a
 # per-pylab-session basis:
@@ -161,12 +160,11 @@ def sci(im):
 
 # (getp is simply imported)
 
+@docstring.copy(_setp)
 def setp(*args, **kwargs):
     ret = _setp(*args, **kwargs)
     draw_if_interactive()
     return ret
-if _setp.__doc__ is not None:
-    setp.__doc__ = _setp.__doc__
 
 
 
@@ -290,17 +288,13 @@ def get_current_fig_manager():
         figManager = _pylab_helpers.Gcf.get_active()
     return figManager
 
-# note we check for __doc__ is not None since py2exe optimize removes
-# the docstrings
+@docstring.copy_dedent(FigureCanvasBase.mpl_connect)
 def connect(s, func):
     return get_current_fig_manager().canvas.mpl_connect(s, func)
-if FigureCanvasBase.mpl_connect.__doc__ is not None:
-    connect.__doc__ = dedent(FigureCanvasBase.mpl_connect.__doc__)
 
+@docstring.copy_dedent(FigureCanvasBase.mpl_disconnect)
 def disconnect(cid):
     return get_current_fig_manager().canvas.mpl_disconnect(cid)
-if FigureCanvasBase.mpl_disconnect.__doc__ is not None:
-    disconnect.__doc__ = dedent(FigureCanvasBase.mpl_disconnect.__doc__)
 
 def close(*args):
     """
@@ -351,12 +345,12 @@ def draw():
     'redraw the current figure'
     get_current_fig_manager().canvas.draw()
 
+@docstring.copy_dedent(Figure.savefig)
 def savefig(*args, **kwargs):
     fig = gcf()
     return fig.savefig(*args, **kwargs)
-if Figure.savefig.__doc__ is not None:
-    savefig.__doc__ = dedent(Figure.savefig.__doc__)
 
+@docstring.copy_dedent(Figure.ginput)
 def ginput(*args, **kwargs):
     """
     Blocking call to interact with the figure.
@@ -367,9 +361,8 @@ def ginput(*args, **kwargs):
     If *timeout* is negative, does not timeout.
     """
     return gcf().ginput(*args, **kwargs)
-if Figure.ginput.__doc__ is not None:
-    ginput.__doc__ = dedent(Figure.ginput.__doc__)
 
+@docstring.copy_dedent(Figure.waitforbuttonpress)
 def waitforbuttonpress(*args, **kwargs):
     """
     Blocking call to interact with the figure.
@@ -381,36 +374,31 @@ def waitforbuttonpress(*args, **kwargs):
     If *timeout* is negative, does not timeout.
     """
     return gcf().waitforbuttonpress(*args, **kwargs)
-if Figure.waitforbuttonpress.__doc__ is not None:
-    waitforbuttonpress.__doc__ = dedent(Figure.waitforbuttonpress.__doc__)
 
 
 # Putting things in figures
 
+@docstring.copy_dedent(Figure.text)
 def figtext(*args, **kwargs):
 
     ret =  gcf().text(*args, **kwargs)
     draw_if_interactive()
     return ret
-if Figure.text.__doc__ is not None:
-    figtext.__doc__ = dedent(Figure.text.__doc__)
 
+@docstring.copy_dedent(Figure.suptitle)
 def suptitle(*args, **kwargs):
     ret =  gcf().suptitle(*args, **kwargs)
     draw_if_interactive()
     return ret
-if Figure.suptitle.__doc__ is not None:
-    suptitle.__doc__ = dedent(Figure.suptitle.__doc__)
 
+@docstring.Appender("Addition kwargs: hold = [True|False] overrides default hold state", "\n")
+@docstring.copy_dedent(Figure.figimage)
 def figimage(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     ret =  gcf().figimage(*args, **kwargs)
     draw_if_interactive()
     gci._current = ret
     return ret
-if Figure.figimage.__doc__ is not None:
-    figimage.__doc__ = dedent(Figure.figimage.__doc__) + """
-Addition kwargs: hold = [True|False] overrides default hold state"""
 
 def figlegend(handles, labels, loc, **kwargs):
     """
@@ -930,6 +918,7 @@ def ylim(*args, **kwargs):
     return ret
 
 
+@docstring.dedent_interpd
 def xscale(*args, **kwargs):
     """
     call signature::
@@ -946,10 +935,8 @@ def xscale(*args, **kwargs):
     ret = ax.set_xscale(*args, **kwargs)
     draw_if_interactive()
     return ret
-xscale.__doc__ = dedent(xscale.__doc__) % {
-    'scale': ' | '.join([repr(_x) for _x in get_scale_names()]),
-    'scale_docs': get_scale_docs()}
 
+@docstring.dedent_interpd
 def yscale(*args, **kwargs):
     """
     call signature::
@@ -966,9 +953,6 @@ def yscale(*args, **kwargs):
     ret = ax.set_yscale(*args, **kwargs)
     draw_if_interactive()
     return ret
-yscale.__doc__ = dedent(yscale.__doc__) % {
-    'scale': ' | '.join([repr(_x) for _x in get_scale_names()]),
-    'scale_docs': get_scale_docs()}
 
 def xticks(*args, **kwargs):
     """
@@ -1415,15 +1399,13 @@ def set_cmap(cmap):
     draw_if_interactive()
 
 
+@docstring.copy_dedent(_imread)
 def imread(*args, **kwargs):
     return _imread(*args, **kwargs)
-if _imread.__doc__ is not None:
-    imread.__doc__ = dedent(_imread.__doc__)
 
+@docstring.copy_dedent(_imsave)
 def imsave(*args, **kwargs):
     return _imsave(*args, **kwargs)
-if _imsave.__doc__ is not None:
-    imsave.__doc__ = dedent(_imsave.__doc__)
 
 def matshow(A, fignum=None, **kw):
     """
@@ -1607,16 +1589,19 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     draw_if_interactive()
 
 
-# This is added to docstrings of autogenerated plotting functions
-__docstring_addendum = """
-
-Additional kwargs: hold = [True|False] overrides default hold state"""
+def autogen_docstring(base):
+    """Autogenerated wrappers will get their docstring from a base function
+    with an addendum."""
+    msg = "Additional kwargs: hold = [True|False] overrides default hold state"
+    addendum = docstring.Appender(msg, '\n\n')
+    return lambda func: addendum(docstring.copy_dedent(base)(func))
 
 ## Plotting part 2: autogenerated wrappers for axes methods ##
 
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.acorr)
 def acorr(x, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1631,11 +1616,10 @@ def acorr(x, hold=None, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.acorr.__doc__ is not None:
-    acorr.__doc__ = dedent(Axes.acorr.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.arrow)
 def arrow(x, y, dx, dy, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1650,11 +1634,10 @@ def arrow(x, y, dx, dy, hold=None, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.arrow.__doc__ is not None:
-    arrow.__doc__ = dedent(Axes.arrow.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.axhline)
 def axhline(y=0, xmin=0, xmax=1, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1669,11 +1652,10 @@ def axhline(y=0, xmin=0, xmax=1, hold=None, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.axhline.__doc__ is not None:
-    axhline.__doc__ = dedent(Axes.axhline.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.axhspan)
 def axhspan(ymin, ymax, xmin=0, xmax=1, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1688,11 +1670,10 @@ def axhspan(ymin, ymax, xmin=0, xmax=1, hold=None, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.axhspan.__doc__ is not None:
-    axhspan.__doc__ = dedent(Axes.axhspan.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.axvline)
 def axvline(x=0, ymin=0, ymax=1, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1707,11 +1688,10 @@ def axvline(x=0, ymin=0, ymax=1, hold=None, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.axvline.__doc__ is not None:
-    axvline.__doc__ = dedent(Axes.axvline.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.axvspan)
 def axvspan(xmin, xmax, ymin=0, ymax=1, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1726,11 +1706,10 @@ def axvspan(xmin, xmax, ymin=0, ymax=1, hold=None, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.axvspan.__doc__ is not None:
-    axvspan.__doc__ = dedent(Axes.axvspan.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.bar)
 def bar(left, height, width=0.80000000000000004, bottom=None, color=None, edgecolor=None, linewidth=None, yerr=None, xerr=None, ecolor=None, capsize=3, align='edge', orientation='vertical', log=False, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1745,11 +1724,10 @@ def bar(left, height, width=0.80000000000000004, bottom=None, color=None, edgeco
         ax.hold(washold)
 
     return ret
-if Axes.bar.__doc__ is not None:
-    bar.__doc__ = dedent(Axes.bar.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.barh)
 def barh(bottom, width, height=0.80000000000000004, left=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1764,11 +1742,10 @@ def barh(bottom, width, height=0.80000000000000004, left=None, hold=None, **kwar
         ax.hold(washold)
 
     return ret
-if Axes.barh.__doc__ is not None:
-    barh.__doc__ = dedent(Axes.barh.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.broken_barh)
 def broken_barh(xranges, yrange, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1783,11 +1760,10 @@ def broken_barh(xranges, yrange, hold=None, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.broken_barh.__doc__ is not None:
-    broken_barh.__doc__ = dedent(Axes.broken_barh.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.boxplot)
 def boxplot(x, notch=0, sym='b+', vert=1, whis=1.5, positions=None, widths=None, hold=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1802,11 +1778,10 @@ def boxplot(x, notch=0, sym='b+', vert=1, whis=1.5, positions=None, widths=None,
         ax.hold(washold)
 
     return ret
-if Axes.boxplot.__doc__ is not None:
-    boxplot.__doc__ = dedent(Axes.boxplot.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.cohere)
 def cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none, window=mlab.window_hanning, noverlap=0, pad_to=None, sides='default', scale_by_freq=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1821,11 +1796,10 @@ def cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none, window=mlab.wi
         ax.hold(washold)
 
     return ret
-if Axes.cohere.__doc__ is not None:
-    cohere.__doc__ = dedent(Axes.cohere.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.clabel)
 def clabel(CS, *args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1840,11 +1814,10 @@ def clabel(CS, *args, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.clabel.__doc__ is not None:
-    clabel.__doc__ = dedent(Axes.clabel.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.contour)
 def contour(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1859,11 +1832,10 @@ def contour(*args, **kwargs):
         ax.hold(washold)
     if ret._A is not None: gci._current = ret
     return ret
-if Axes.contour.__doc__ is not None:
-    contour.__doc__ = dedent(Axes.contour.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.contourf)
 def contourf(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1878,11 +1850,10 @@ def contourf(*args, **kwargs):
         ax.hold(washold)
     if ret._A is not None: gci._current = ret
     return ret
-if Axes.contourf.__doc__ is not None:
-    contourf.__doc__ = dedent(Axes.contourf.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.csd)
 def csd(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none, window=mlab.window_hanning, noverlap=0, pad_to=None, sides='default', scale_by_freq=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1897,11 +1868,10 @@ def csd(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none, window=mlab.windo
         ax.hold(washold)
 
     return ret
-if Axes.csd.__doc__ is not None:
-    csd.__doc__ = dedent(Axes.csd.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.errorbar)
 def errorbar(x, y, yerr=None, xerr=None, fmt='-', ecolor=None, elinewidth=None, capsize=3, barsabove=False, lolims=False, uplims=False, xlolims=False, xuplims=False, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1916,11 +1886,10 @@ def errorbar(x, y, yerr=None, xerr=None, fmt='-', ecolor=None, elinewidth=None, 
         ax.hold(washold)
 
     return ret
-if Axes.errorbar.__doc__ is not None:
-    errorbar.__doc__ = dedent(Axes.errorbar.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.fill)
 def fill(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1935,11 +1904,10 @@ def fill(*args, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.fill.__doc__ is not None:
-    fill.__doc__ = dedent(Axes.fill.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.fill_between)
 def fill_between(x, y1, y2=0, where=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1954,11 +1922,10 @@ def fill_between(x, y1, y2=0, where=None, hold=None, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.fill_between.__doc__ is not None:
-    fill_between.__doc__ = dedent(Axes.fill_between.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.fill_betweenx)
 def fill_betweenx(y, x1, x2=0, where=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1973,11 +1940,10 @@ def fill_betweenx(y, x1, x2=0, where=None, hold=None, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.fill_betweenx.__doc__ is not None:
-    fill_betweenx.__doc__ = dedent(Axes.fill_betweenx.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.hexbin)
 def hexbin(x, y, C=None, gridsize=100, bins=None, xscale='linear', yscale='linear', extent=None, cmap=None, norm=None, vmin=None, vmax=None, alpha=1.0, linewidths=None, edgecolors='none', reduce_C_function=np.mean, mincnt=None, marginals=False, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -1992,11 +1958,10 @@ def hexbin(x, y, C=None, gridsize=100, bins=None, xscale='linear', yscale='linea
         ax.hold(washold)
     gci._current = ret
     return ret
-if Axes.hexbin.__doc__ is not None:
-    hexbin.__doc__ = dedent(Axes.hexbin.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.hist)
 def hist(x, bins=10, range=None, normed=False, weights=None, cumulative=False, bottom=None, histtype='bar', align='mid', orientation='vertical', rwidth=None, log=False, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2011,11 +1976,10 @@ def hist(x, bins=10, range=None, normed=False, weights=None, cumulative=False, b
         ax.hold(washold)
 
     return ret
-if Axes.hist.__doc__ is not None:
-    hist.__doc__ = dedent(Axes.hist.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.hlines)
 def hlines(y, xmin, xmax, colors='k', linestyles='solid', label='', hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2030,11 +1994,10 @@ def hlines(y, xmin, xmax, colors='k', linestyles='solid', label='', hold=None, *
         ax.hold(washold)
 
     return ret
-if Axes.hlines.__doc__ is not None:
-    hlines.__doc__ = dedent(Axes.hlines.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.imshow)
 def imshow(X, cmap=None, norm=None, aspect=None, interpolation=None, alpha=1.0, vmin=None, vmax=None, origin=None, extent=None, shape=None, filternorm=1, filterrad=4.0, imlim=None, resample=None, url=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2049,11 +2012,10 @@ def imshow(X, cmap=None, norm=None, aspect=None, interpolation=None, alpha=1.0, 
         ax.hold(washold)
     gci._current = ret
     return ret
-if Axes.imshow.__doc__ is not None:
-    imshow.__doc__ = dedent(Axes.imshow.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.loglog)
 def loglog(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2068,11 +2030,10 @@ def loglog(*args, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.loglog.__doc__ is not None:
-    loglog.__doc__ = dedent(Axes.loglog.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.pcolor)
 def pcolor(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2087,11 +2048,10 @@ def pcolor(*args, **kwargs):
         ax.hold(washold)
     gci._current = ret
     return ret
-if Axes.pcolor.__doc__ is not None:
-    pcolor.__doc__ = dedent(Axes.pcolor.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.pcolormesh)
 def pcolormesh(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2106,11 +2066,10 @@ def pcolormesh(*args, **kwargs):
         ax.hold(washold)
     gci._current = ret
     return ret
-if Axes.pcolormesh.__doc__ is not None:
-    pcolormesh.__doc__ = dedent(Axes.pcolormesh.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.pie)
 def pie(x, explode=None, labels=None, colors=None, autopct=None, pctdistance=0.59999999999999998, shadow=False, labeldistance=1.1000000000000001, hold=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2125,11 +2084,10 @@ def pie(x, explode=None, labels=None, colors=None, autopct=None, pctdistance=0.5
         ax.hold(washold)
 
     return ret
-if Axes.pie.__doc__ is not None:
-    pie.__doc__ = dedent(Axes.pie.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.plot)
 def plot(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2144,11 +2102,10 @@ def plot(*args, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.plot.__doc__ is not None:
-    plot.__doc__ = dedent(Axes.plot.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.plot_date)
 def plot_date(x, y, fmt='bo', tz=None, xdate=True, ydate=False, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2163,11 +2120,10 @@ def plot_date(x, y, fmt='bo', tz=None, xdate=True, ydate=False, hold=None, **kwa
         ax.hold(washold)
 
     return ret
-if Axes.plot_date.__doc__ is not None:
-    plot_date.__doc__ = dedent(Axes.plot_date.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.psd)
 def psd(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none, window=mlab.window_hanning, noverlap=0, pad_to=None, sides='default', scale_by_freq=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2182,11 +2138,10 @@ def psd(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none, window=mlab.window_h
         ax.hold(washold)
 
     return ret
-if Axes.psd.__doc__ is not None:
-    psd.__doc__ = dedent(Axes.psd.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.quiver)
 def quiver(*args, **kw):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2201,11 +2156,10 @@ def quiver(*args, **kw):
         ax.hold(washold)
     gci._current = ret
     return ret
-if Axes.quiver.__doc__ is not None:
-    quiver.__doc__ = dedent(Axes.quiver.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.quiverkey)
 def quiverkey(*args, **kw):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2220,11 +2174,10 @@ def quiverkey(*args, **kw):
         ax.hold(washold)
 
     return ret
-if Axes.quiverkey.__doc__ is not None:
-    quiverkey.__doc__ = dedent(Axes.quiverkey.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.scatter)
 def scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None, vmin=None, vmax=None, alpha=1.0, linewidths=None, faceted=True, verts=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2239,11 +2192,10 @@ def scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None, vmin=None, vmax
         ax.hold(washold)
     gci._current = ret
     return ret
-if Axes.scatter.__doc__ is not None:
-    scatter.__doc__ = dedent(Axes.scatter.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.semilogx)
 def semilogx(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2258,11 +2210,10 @@ def semilogx(*args, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.semilogx.__doc__ is not None:
-    semilogx.__doc__ = dedent(Axes.semilogx.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.semilogy)
 def semilogy(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2277,11 +2228,10 @@ def semilogy(*args, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.semilogy.__doc__ is not None:
-    semilogy.__doc__ = dedent(Axes.semilogy.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.specgram)
 def specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none, window=mlab.window_hanning, noverlap=128, cmap=None, xextent=None, pad_to=None, sides='default', scale_by_freq=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2296,11 +2246,10 @@ def specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none, window=mlab.win
         ax.hold(washold)
     gci._current = ret[-1]
     return ret
-if Axes.specgram.__doc__ is not None:
-    specgram.__doc__ = dedent(Axes.specgram.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.spy)
 def spy(Z, precision=0, marker=None, markersize=None, aspect='equal', hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2315,11 +2264,10 @@ def spy(Z, precision=0, marker=None, markersize=None, aspect='equal', hold=None,
         ax.hold(washold)
     gci._current = ret
     return ret
-if Axes.spy.__doc__ is not None:
-    spy.__doc__ = dedent(Axes.spy.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.stem)
 def stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-', hold=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2334,11 +2282,10 @@ def stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-', hold=None):
         ax.hold(washold)
 
     return ret
-if Axes.stem.__doc__ is not None:
-    stem.__doc__ = dedent(Axes.stem.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.step)
 def step(x, y, *args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2353,11 +2300,10 @@ def step(x, y, *args, **kwargs):
         ax.hold(washold)
 
     return ret
-if Axes.step.__doc__ is not None:
-    step.__doc__ = dedent(Axes.step.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.vlines)
 def vlines(x, ymin, ymax, colors='k', linestyles='solid', label='', hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2372,11 +2318,10 @@ def vlines(x, ymin, ymax, colors='k', linestyles='solid', label='', hold=None, *
         ax.hold(washold)
 
     return ret
-if Axes.vlines.__doc__ is not None:
-    vlines.__doc__ = dedent(Axes.vlines.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.xcorr)
 def xcorr(x, y, normed=True, detrend=mlab.detrend_none, usevlines=True, maxlags=10, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2391,11 +2336,10 @@ def xcorr(x, y, normed=True, detrend=mlab.detrend_none, usevlines=True, maxlags=
         ax.hold(washold)
 
     return ret
-if Axes.xcorr.__doc__ is not None:
-    xcorr.__doc__ = dedent(Axes.xcorr.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@autogen_docstring(Axes.barbs)
 def barbs(*args, **kw):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2410,62 +2354,54 @@ def barbs(*args, **kw):
         ax.hold(washold)
 
     return ret
-if Axes.barbs.__doc__ is not None:
-    barbs.__doc__ = dedent(Axes.barbs.__doc__) + __docstring_addendum
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@docstring.copy_dedent(Axes.cla)
 def cla():
     ret =  gca().cla()
     draw_if_interactive()
     return ret
-if Axes.cla.__doc__ is not None:
-    cla.__doc__ = dedent(Axes.cla.__doc__)
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@docstring.copy_dedent(Axes.grid)
 def grid(b=None, **kwargs):
     ret =  gca().grid(b, **kwargs)
     draw_if_interactive()
     return ret
-if Axes.grid.__doc__ is not None:
-    grid.__doc__ = dedent(Axes.grid.__doc__)
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@docstring.copy_dedent(Axes.legend)
 def legend(*args, **kwargs):
     ret =  gca().legend(*args, **kwargs)
     draw_if_interactive()
     return ret
-if Axes.legend.__doc__ is not None:
-    legend.__doc__ = dedent(Axes.legend.__doc__)
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@docstring.copy_dedent(Axes.table)
 def table(**kwargs):
     ret =  gca().table(**kwargs)
     draw_if_interactive()
     return ret
-if Axes.table.__doc__ is not None:
-    table.__doc__ = dedent(Axes.table.__doc__)
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@docstring.copy_dedent(Axes.text)
 def text(x, y, s, fontdict=None, withdash=False, **kwargs):
     ret =  gca().text(x, y, s, fontdict, withdash, **kwargs)
     draw_if_interactive()
     return ret
-if Axes.text.__doc__ is not None:
-    text.__doc__ = dedent(Axes.text.__doc__)
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@docstring.copy_dedent(Axes.annotate)
 def annotate(*args, **kwargs):
     ret =  gca().annotate(*args, **kwargs)
     draw_if_interactive()
     return ret
-if Axes.annotate.__doc__ is not None:
-    annotate.__doc__ = dedent(Axes.annotate.__doc__)
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2690,3 +2626,5 @@ def spectral():
     if im is not None:
         im.set_cmap(cm.spectral)
     draw_if_interactive()
+
+

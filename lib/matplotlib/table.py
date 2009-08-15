@@ -26,6 +26,7 @@ import artist
 from artist import Artist, allow_rasterization
 from patches import Rectangle
 from cbook import is_string_like
+from matplotlib import docstring
 from text import Text
 from transforms import Bbox
 
@@ -539,4 +540,4 @@ def table(ax,
     return table
 
 
-artist.kwdocd['Table'] = artist.kwdoc(Table)
+docstring.interpd.update(Table=artist.kwdoc(Table))

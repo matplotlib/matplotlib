@@ -15,6 +15,7 @@ import matplotlib as mpl
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
+from matplotlib import docstring
 import matplotlib.transforms as transforms
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
@@ -496,7 +497,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
 # function and they will be overridden after object defn
-artist.kwdocd['Collection'] = """\
+docstring.interpd.update(Collection = """\
     Valid Collection keyword arguments:
 
         * *edgecolors*: None
@@ -516,12 +517,13 @@ artist.kwdocd['Collection'] = """\
     If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds*
     are None, they default to their :data:`matplotlib.rcParams` patch
     setting, in sequence form.
-"""
+""")
 
 class PathCollection(Collection):
     """
     This is the most basic :class:`Collection` subclass.
     """
+    @docstring.dedent_interpd
     def __init__(self, paths, **kwargs):
         """
         *paths* is a sequence of :class:`matplotlib.path.Path`
@@ -532,7 +534,6 @@ class PathCollection(Collection):
 
         Collection.__init__(self, **kwargs)
         self.set_paths(paths)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
     def set_paths(self, paths):
@@ -540,6 +541,7 @@ class PathCollection(Collection):
 
 
 class PolyCollection(Collection):
+    @docstring.dedent_interpd
     def __init__(self, verts, sizes = None, closed = True, **kwargs):
         """
         *verts* is a sequence of ( *verts0*, *verts1*, ...) where
@@ -562,7 +564,6 @@ class PolyCollection(Collection):
         Collection.__init__(self,**kwargs)
         self._sizes = sizes
         self.set_verts(verts, closed)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def set_verts(self, verts, closed=True):
         '''This allows one to delay initialization of the vertices.'''
@@ -599,6 +600,7 @@ class BrokenBarHCollection(PolyCollection):
     A collection of horizontal bars spanning *yrange* with a sequence of
     *xranges*.
     """
+    @docstring.dedent_interpd
     def __init__(self, xranges, yrange, **kwargs):
         """
         *xranges*
@@ -613,7 +615,6 @@ class BrokenBarHCollection(PolyCollection):
         ymax = ymin + ywidth
         verts = [ [(xmin, ymin), (xmin, ymax), (xmin+xwidth, ymax), (xmin+xwidth, ymin), (xmin, ymin)] for xmin, xwidth in xranges]
         PolyCollection.__init__(self, verts, **kwargs)
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
 
     @staticmethod
@@ -640,6 +641,7 @@ class RegularPolyCollection(Collection):
     """Draw a collection of regular polygons with *numsides*."""
     _path_generator = mpath.Path.unit_regular_polygon
 
+    @docstring.dedent_interpd
     def __init__(self,
                  numsides,
                  rotation = 0 ,
@@ -681,8 +683,6 @@ class RegularPolyCollection(Collection):
         self._paths = [self._path_generator(numsides)]
         self._rotation = rotation
         self.set_transform(transforms.IdentityTransform())
-
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     @allow_rasterization
     def draw(self, renderer):
@@ -875,6 +875,7 @@ class CircleCollection(Collection):
     """
     A collection of circles, drawn using splines.
     """
+    @docstring.dedent_interpd
     def __init__(self, sizes, **kwargs):
         """
         *sizes*
@@ -886,7 +887,6 @@ class CircleCollection(Collection):
         self._sizes = sizes
         self.set_transform(transforms.IdentityTransform())
         self._paths = [mpath.Path.unit_circle()]
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def get_sizes(self):
         "return sizes of circles"
@@ -906,6 +906,7 @@ class EllipseCollection(Collection):
     """
     A collection of ellipses, drawn using splines.
     """
+    @docstring.dedent_interpd
     def __init__(self, widths, heights, angles, units='points', **kwargs):
         """
         *widths*: sequence
@@ -936,8 +937,6 @@ class EllipseCollection(Collection):
         self._paths = [mpath.Path.unit_circle()]
         self._initialized = False
 
-
-    __init__.__doc__ = cbook.dedent(__init__.__doc__) % artist.kwdocd
 
     def _init(self):
         def on_dpi_change(fig):
@@ -1230,9 +1229,10 @@ class QuadMesh(Collection):
 
 
 
-artist.kwdocd['Collection'] = patchstr = artist.kwdoc(Collection)
+patchstr = artist.kwdoc(Collection)
 for k in ('QuadMesh', 'PolyCollection', 'BrokenBarHCollection',
            'RegularPolyCollection', 'PathCollection',
-          'StarPolygonCollection', 'PatchCollection', 'CircleCollection'):
-    artist.kwdocd[k] = patchstr
-artist.kwdocd['LineCollection'] = artist.kwdoc(LineCollection)
+          'StarPolygonCollection', 'PatchCollection',
+          'CircleCollection', 'Collection',):
+    docstring.interpd.update({k:patchstr})
+docstring.interpd.update(LineCollection = artist.kwdoc(LineCollection))

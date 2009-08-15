@@ -23,6 +23,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.colors as colors
 import matplotlib.cm as cm
+from matplotlib import docstring
 import matplotlib.ticker as ticker
 import matplotlib.cbook as cbook
 import matplotlib.lines as lines
@@ -150,6 +151,7 @@ returns:
 
 ''' % (make_axes_kw_doc, colormap_kw_doc)
 
+docstring.interpd.update(colorbar_doc=colorbar_doc)
 
 
 class ColorbarBase(cm.ScalarMappable):
@@ -693,7 +695,25 @@ class Colorbar(ColorbarBase):
         # be recalculating everything if there was a simple alpha
         # change.
 
+@docstring.Substitution(make_axes_kw_doc)
 def make_axes(parent, **kw):
+    '''
+    Resize and reposition a parent axes, and return a child
+    axes suitable for a colorbar::
+
+        cax, kw = make_axes(parent, **kw)
+
+    Keyword arguments may include the following (with defaults):
+
+        *orientation*
+            'vertical'  or 'horizontal'
+
+    %s
+
+    All but the first of these are stripped from the input kw set.
+
+    Returns (cax, kw), the child axes and the reduced kw dictionary.
+    '''
     orientation = kw.setdefault('orientation', 'vertical')
     fraction = kw.pop('fraction', 0.15)
     shrink = kw.pop('shrink', 1.0)
@@ -720,22 +740,5 @@ def make_axes(parent, **kw):
     cax = fig.add_axes(pbcb)
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
-make_axes.__doc__ ='''
-    Resize and reposition a parent axes, and return a child
-    axes suitable for a colorbar::
-
-        cax, kw = make_axes(parent, **kw)
-
-    Keyword arguments may include the following (with defaults):
-
-        *orientation*
-            'vertical'  or 'horizontal'
-
-    %s
-
-    All but the first of these are stripped from the input kw set.
-
-    Returns (cax, kw), the child axes and the reduced kw dictionary.
-    '''  % make_axes_kw_doc
 
 
