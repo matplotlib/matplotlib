@@ -34,7 +34,7 @@ That is why the `display` coordinate system has `None` for the
 `Transformation Object` column -- it already is in display
 coordinates.  The transformations also know how to invert themselves,
 to go from `display` back to the native coordinate system.  This is
-particularly useful when processing events frmo the user interface,
+particularly useful when processing events from the user interface,
 which typically occur in display space, and you want to know where the
 mouse click or key-press occurred in your data coordinate system.
 
@@ -44,8 +44,8 @@ Data coordinates
 ================
 
 Let's start with the most commonly used coordinate, the `data`
-coordinate system.  Whenever, you add data to the axes, matplotlib
-updates the datalimits, most commonly updated in with the
+coordinate system.  Whenever you add data to the axes, matplotlib
+updates the datalimits, most commonly updated with the
 :meth:`~matplotlib.axes.Axes.set_xlim` and
 :meth:`~matplotlib.axes.Axes.set_ylim` methods.  For example, in the
 figure below, the data limits stretch from 0 to 10 on the x-axis, and
@@ -85,7 +85,7 @@ sequence of points as shown below:
     array([[ 335.175,  247.   ],
            [ 132.435,  642.2  ]])
 
-You can use the :meth`~matplotlib.transforms.Transform.inverted`
+You can use the :meth:`~matplotlib.transforms.Transform.inverted`
 method to create a transform which will take you from display to data
 coordinates:
 
@@ -152,15 +152,15 @@ Axes coordinates
 ================
 
 After the `data` coordinate system, `axes` is probably the second most
-useful coordinate system.  Here the point (0,0) is the bottom left
-of your axes or subplot, (0.5, 0.5) is the center, and (1.0,
-1.0) is the top right.  You can also refer to points outside the
-range, so (-0.1, 1.1) is to the left and above your axes.  This
-coordinate system is extremely useful when making placing text in your
-axes, because you often want a text bubble in a fixed, location, eg
-the upper left of the axes pane, and have that location remain fixed
-when you pan or zoom.  Here is a simple example that creates four
-panels and labels them 'A', 'B', 'C', 'D' as you often see in journals.
+useful coordinate system.  Here the point (0,0) is the bottom left of
+your axes or subplot, (0.5, 0.5) is the center, and (1.0, 1.0) is the
+top right.  You can also refer to points outside the range, so (-0.1,
+1.1) is to the left and above your axes.  This coordinate system is
+extremely useful when placing text in your axes, because you often
+want a text bubble in a fixed, location, eg. the upper left of the axes
+pane, and have that location remain fixed when you pan or zoom.  Here
+is a simple example that creates four panels and labels them 'A', 'B',
+'C', 'D' as you often see in journals.
 
 .. plot::
    :include-source:
@@ -265,7 +265,7 @@ Using offset transforms to create a shadow effect
 =================================================
 
 One use of transformations is to create a new transformation that is
-offset from another annotation, eg to place one object shited a bit
+offset from another annotation, eg to place one object shifted a bit
 relative to another object.  Typically you want the shift to be in
 some physical dimension, like points or inches rather than in data
 coordinates, so that the shift effect is constant at different zoom
@@ -285,12 +285,12 @@ where `xt` and `yt` are the translation offsets, and `scale_trans` is
 a transformation which scales `xt` and `yt` at transformation time
 before applying the offsets.  A typical use case is to use the figure
 ``fig.dpi_scale_trans`` transformation for the `scale_trans` argument,
-to first scale `xty and `yt` specified in points to `display` space
+to first scale `xt` and `yt` specified in points to `display` space
 before doing the final offset.  The dpi and inches offset is a
 common-enough use case that we have a special helper function to
 create it in :func:`matplotlib.transforms.offset_copy`, which returns
 a new transform with an added offset.  But in the example below, we'll
-create the offset trransform ourselves.  Note the use of the plus
+create the offset transform ourselves.  Note the use of the plus
 operator in::
 
     offset = transforms.ScaledTranslation(dx, dy,
@@ -298,7 +298,7 @@ operator in::
     shadow_transform = ax.transData + offset
 
 showing that can chain transformations using the addition operator.
-This code say: first appy the data transformation ``ax.transData`` and
+This code says: first appy the data transformation ``ax.transData`` and
 then translate the data by `dx` and `dy` points.
 
 .. plot::
@@ -342,12 +342,12 @@ The ``ax.transData`` transform we have been working with in this
 tutorial is a composite of three different transformations that
 comprise the transformation pipeline from `data` -> `display`
 coordinates.  Michael Droettboom implemented the transformations
-frameowk, taking care to provide a clean API that segregated the
+framework, taking care to provide a clean API that segregated the
 nonlinear projections and scales that happen in polar and logarithmic
 plots, from the linear affine transformations that happen when you pan
 and zoom.  There is an efficiency here, because you can pan and zoom
 in your axes which affects the affine transformation, but you may not
-need to compte the potentially expensice nonlinear scales or
+need to compute the potentially expensive nonlinear scales or
 projections on simple navigation events.
 
 
@@ -361,8 +361,8 @@ We've been introduced to the ``transAxes`` instance above in
 axes or subplot bounding box to `display` space, so let's look at
 these other two pieces.
 
-``self.transLimits`` is the transformation that takes your from
-``data`` to ``axes`` coordinates; ie, it maps your view xlim and ylim
+``self.transLimits`` is the transformation that takes you from
+``data`` to ``axes`` coordinates; i.e., it maps your view xlim and ylim
 to the unit space of the axes (and ``transAxes`` then takes that unit
 space to display space).  We can see this in action here
 
@@ -397,7 +397,7 @@ and we can use this same inverted transformation to go from the unit
     Out[90]: array([ 2.5, -0.5])
 
 The final piece is the ``self.transScale`` attribute, which is
-responsible for the optional non-linear scaling of the data, eg for
+responsible for the optional non-linear scaling of the data, eg. for
 logarithmic axes.  When an Axes is initally setup, this is just set to
 the identity transform, since the basic matplotlib axes has linear
 scale, but when you call a logarithmic scaling function like
@@ -418,12 +418,13 @@ the typical separable matplotlib Axes, with one additional piece
       self.transData = self.transScale + self.transProjection + \
           (self.transProjectionAffine + self.transAxes)
 
-``transProjection`` handles the projection from the space, eg latitude and longitude
-for map data, or radius and theta for polar data, to a separable
-cartesian coordinate system.  There are several projection examples in
-the ``matplotlib.projections`` package, and the best way to learn more
-is to open the source for those packages and see how to make your own,
-since matplotlib supports extensible axes and projections.  Michael
-Droettboom has provided a nice tutorial example of creating a hammer
-projection axes; see :ref:`api-custom_projection_example`.
+``transProjection`` handles the projection from the space,
+eg. latitude and longitude for map data, or radius and theta for polar
+data, to a separable cartesian coordinate system.  There are several
+projection examples in the ``matplotlib.projections`` package, and the
+best way to learn more is to open the source for those packages and
+see how to make your own, since matplotlib supports extensible axes
+and projections.  Michael Droettboom has provided a nice tutorial
+example of creating a hammer projection axes; see
+:ref:`api-custom_projection_example`.
 
