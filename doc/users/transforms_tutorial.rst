@@ -348,7 +348,10 @@ plots, from the linear affine transformations that happen when you pan
 and zoom.  There is an efficiency here, because you can pan and zoom
 in your axes which affects the affine transformation, but you may not
 need to compute the potentially expensive nonlinear scales or
-projections on simple navigation events.
+projections on simple navigation events.  It is also possible to
+multiply affine transformation matrices togeter, and then apply them
+to coordinates in one step.  This is not true of all possible
+transformations.
 
 
 Here is how the ``ax.transData`` instance is defined in the basic
