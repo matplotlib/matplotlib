@@ -26,15 +26,6 @@ from matplotlib import docstring
     CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = range(8)
 
 
-# COVERAGE NOTE: Never called internally or from examples
-def unmasked_index_ranges(mask, compressed = True):
-    warnings.warn("Import this directly from matplotlib.cbook",
-                   DeprecationWarning)
-    # Warning added 2008/07/22
-    from matplotlib.cbook import unmasked_index_ranges as _unmasked_index_ranges
-    return _unmasked_index_ranges(mask, compressed=compressed)
-
-
 def segment_hits(cx, cy, x, y, radius):
     """
     Determine if any line segments are within radius of a
