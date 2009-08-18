@@ -99,6 +99,8 @@ class Line2D(Artist):
     drawStyles = {}
     drawStyles.update(_drawStyles_l)
     drawStyles.update(_drawStyles_s)
+    # Need a list ordered with long names first:
+    drawStyleKeys = _drawStyles_l.keys() + _drawStyles_s.keys()
 
     markers = _markers =  {  # hidden names deprecated
         '.'  : '_draw_point',
@@ -712,15 +714,14 @@ class Line2D(Artist):
         any drawstyle in combination with a linestyle, e.g. 'steps--'.
         """
 
-        # handle long drawstyle names before short ones !
-        for ds in flatten([k.keys() for k in (self._drawStyles_l,
-                self._drawStyles_s)], is_string_like):
+        for ds in self.drawStyleKeys:  # long names are first in the list
             if linestyle.startswith(ds):
                 self.set_drawstyle(ds)
                 if len(linestyle) > len(ds):
                     linestyle = linestyle[len(ds):]
                 else:
                     linestyle = '-'
+                break
 
         if linestyle not in self._lineStyles:
             if linestyle in ls_mapper:
