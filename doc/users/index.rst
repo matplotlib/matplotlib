@@ -25,6 +25,7 @@ User's Guide
     annotations_guide.rst
     legend.rst
     transforms_tutorial.rst
+    path_tutorial.rst
     toolkits.rst
     screenshots.rst
     whats_new.rst
