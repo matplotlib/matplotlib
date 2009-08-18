@@ -286,7 +286,7 @@ directory, I use the symlink directory.  For example, from
 
     .. literalinclude:: ../../lib/matplotlib/mpl-data/matplotlibrc
 
-On exception to this is when referring to the examples dir.  Relative
+One exception to this is when referring to the examples dir.  Relative
 paths are extremely confusing in the sphinx plot extensions, so
 without getting into the dirty details, it is easier to simply include
 a symlink to the files at the top doc level directory.  This way, API
