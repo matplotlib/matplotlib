@@ -208,8 +208,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         transform, transOffset, offsets, paths = self._prepare_points()
 
         gc = renderer.new_gc()
-        gc.set_clip_rectangle(self.get_clip_box())
-        gc.set_clip_path(self.get_clip_path())
+        self._set_gc_clip(gc)
 
         renderer.draw_path_collection(
             gc, transform.frozen(), paths, self.get_transforms(),
@@ -1210,8 +1209,7 @@ class QuadMesh(Collection):
             transOffset = transOffset.get_affine()
 
         gc = renderer.new_gc()
-        gc.set_clip_rectangle(self.get_clip_box())
-        gc.set_clip_path(self.get_clip_path())
+        self._set_clip_gc(gc)
 
         if self._shading == 'gouraud':
             triangles, colors = self.convert_mesh_to_triangles(
