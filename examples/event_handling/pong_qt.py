@@ -18,7 +18,7 @@ import pylab as p
 import matplotlib.pyplot as plt
 import numpy as np
 import time
-import pipong 
+import pipong
 from numpy.random import randn, randint
 
 class BlitQT(QObject):
@@ -36,7 +36,7 @@ plt.grid() # to ensure proper background restore
 app = BlitQT()
 # for profiling
 app.tstart = time.time()
-app.startTimer(0)
+app.startTimer(10)
 
 plt.show()
 print 'FPS:' , app.animation.cnt/(time.time()-app.tstart)

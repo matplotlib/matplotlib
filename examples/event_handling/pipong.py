@@ -12,17 +12,17 @@ Player A:       Player B:
   'e'      up     'i'
   'd'     down    'k'
 
-press 't' -- close these instructions 
+press 't' -- close these instructions
             (animation will be much faster)
-press 'a' -- add a puck                
-press 'A' -- remove a puck             
-press '1' -- slow down all pucks       
-press '2' -- speed up all pucks        
-press '3' -- slow down distractors     
-press '4' -- speed up distractors      
+press 'a' -- add a puck
+press 'A' -- remove a puck
+press '1' -- slow down all pucks
+press '2' -- speed up all pucks
+press '3' -- slow down distractors
+press '4' -- speed up distractors
 press ' ' -- reset the first puck
-press 'n' -- toggle distractors on/off    
-press 'g' -- toggle the game on/off    
+press 'n' -- toggle distractors on/off
+press 'g' -- toggle the game on/off
 
   """
 
@@ -56,7 +56,7 @@ class Puck(object):
     def _reset(self,pad):
         self.x = pad.x + pad.xoffset
         if pad.y < 0:
-            self.y = pad.y +  pad.yoffset 
+            self.y = pad.y +  pad.yoffset
         else:
             self.y = pad.y - pad.yoffset
         self.vx = pad.x - self.x
@@ -84,7 +84,7 @@ class Puck(object):
             self._reset(pads[1])
             return True
         if self.y < -1+fudge or self.y > 1-fudge:
-            self.vy *= -1.0 
+            self.vy *= -1.0
             # add some randomness, just to make it interesting
             self.vy -= (randn()/300.0 + 1/300.0) * np.sign(self.vy)
         self._speedlimit()
@@ -106,7 +106,7 @@ class Puck(object):
         if self.vy < -self.vmax:
             self.vy = -self.vmax
 
-class Game(object):        
+class Game(object):
 
     def __init__(self, ax):
         # create the initial line
@@ -137,7 +137,7 @@ class Game(object):
         self.pads = []
         self.pads.append( Pad(pA,0,padAy))
         self.pads.append( Pad(pB,padBx,padBy,'r'))
-        self.pucks =[] 
+        self.pucks =[]
         self.i = self.ax.annotate(instructions,(.5,0.5),
                      name='monospace',
                      verticalalignment='center',
@@ -180,8 +180,8 @@ class Game(object):
             for puck in self.pucks:
                 if puck.update(self.pads):
                     # we only get here if someone scored
-                    self.pads[0].disp.set_label("   "+ str(self.pads[0].score)) 
-                    self.pads[1].disp.set_label("   "+ str(self.pads[1].score)) 
+                    self.pads[0].disp.set_label("   "+ str(self.pads[0].score))
+                    self.pads[1].disp.set_label("   "+ str(self.pads[1].score))
                     self.ax.legend(loc='center')
                     self.leg = self.ax.get_legend()
                     #self.leg.draw_frame(False) #don't draw the legend border
@@ -189,7 +189,7 @@ class Game(object):
                     plt.setp(self.leg.get_texts(),fontweight='bold',fontsize='xx-large')
                     self.leg.get_frame().set_facecolor('0.2')
                     self.background = None
-                    self.ax.draw()
+                    self.ax.figure.canvas.draw()
                     return True
                 puck.disp.set_offsets([puck.x,puck.y])
                 self.ax.draw_artist(puck.disp)
@@ -229,7 +229,7 @@ class Game(object):
             self.pads[1].y -= .1
             if self.pads[1].y < -1:
                 self.pads[1].y = -1
-        
+
         if event.key == 'a':
             self.pucks.append(Puck(self.puckdisp,self.pads[randint(2)],self.ax.bbox))
         if event.key == 'A' and len(self.pucks):
@@ -242,7 +242,7 @@ class Game(object):
         if event.key == '2':
             for p in self.pucks:
                 p._faster()
-        
+
         if event.key == 'n':
             self.distract = not self.distract
 
@@ -254,4 +254,4 @@ class Game(object):
             self.inst = not self.inst
             self.i.set_visible(self.i.get_visible())
         if event.key == 'q':
-            plt.close() 
+            plt.close()
