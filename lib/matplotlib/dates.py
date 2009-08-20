@@ -413,12 +413,15 @@ class AutoDateFormatter(ticker.Formatter):
     # Or more simply, perhaps just a format string for each
     # possibility...
 
-    def __init__(self, locator, tz=None):
+    def __init__(self, locator, tz=None, defaultfmt='%Y-%m-%d'):
         """
+        Autofmt the date labels.  The default format is the one to use
+        if none of the times in scaled match
         """
         self._locator = locator
         self._tz = tz
-        self._formatter = DateFormatter("%b %d %Y %H:%M:%D", tz)
+        self.defaultfmt = defaultfmt
+        self._formatter = DateFormatter(self.defaultfmt, tz)
         self.scaled = {
            365.0  : '%Y',
            30.    : '%b %Y',
@@ -432,11 +435,14 @@ class AutoDateFormatter(ticker.Formatter):
         keys = self.scaled.keys()
         keys.sort()
 
+        fmt = self.defaultfmt
+
         for k in keys:
            if k>=scale:
-              self._formatter = DateFormatter(self.scaled[k])
+              fmt = self.scaled[k]
               break
 
+        self._formatter = DateFormatter(fmt)
         return self._formatter(x, pos)
 
 
