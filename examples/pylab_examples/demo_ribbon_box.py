@@ -136,5 +136,6 @@ if 1:
     ax.set_xlim(years[0]-0.5, years[-1]+0.5)
     ax.set_ylim(0, 10000)
 
+    fig.savefig('ribbon_box.png')
     plt.show()
 

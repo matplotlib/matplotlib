@@ -378,6 +378,28 @@ class AutoDateFormatter(ticker.Formatter):
     """
     This class attempts to figure out the best format to use.  This is
     most useful when used with the :class:`AutoDateLocator`.
+
+
+    The AutoDateFormatter has a scale dictionary that maps the scale
+    of the tick (the distance in days between one major tick) and a
+    format string.  The default looks like this::
+
+        self.scaled = {
+           365.0  : '%Y',
+           30.    : '%b %Y',
+           1.0    : '%b %d %Y',
+           1./24. : '%H:%M:%D',
+           }
+
+
+    The algorithm picks the key in the dictionary that is >= the
+    current scale and uses that format string.  You can customize this
+    dictionary by doing::
+
+
+      formatter = AutoDateFormatter()
+      formatter.scaled[1/(24.*60.)] = '%M:%S' # only show min and sec
+
     """
 
     # This can be improved by providing some user-level direction on
@@ -392,27 +414,28 @@ class AutoDateFormatter(ticker.Formatter):
     # possibility...
 
     def __init__(self, locator, tz=None):
+        """
+        """
         self._locator = locator
-        self._formatter = DateFormatter("%b %d %Y %H:%M:%S %Z", tz)
         self._tz = tz
+        self._formatter = DateFormatter("%b %d %Y %H:%M:%D", tz)
+        self.scaled = {
+           365.0  : '%Y',
+           30.    : '%b %Y',
+           1.0    : '%b %d %Y',
+           1./24. : '%H:%M:%S',
+           }
 
     def __call__(self, x, pos=0):
         scale = float( self._locator._get_unit() )
 
-        if ( scale == 365.0 ):
-            self._formatter = DateFormatter("%Y", self._tz)
-        elif ( scale == 30.0 ):
-            self._formatter = DateFormatter("%b %Y", self._tz)
-        elif ( (scale == 1.0) or (scale == 7.0) ):
-            self._formatter = DateFormatter("%b %d %Y", self._tz)
-        elif ( scale == (1.0/24.0) ):
-            self._formatter = DateFormatter("%H:%M:%S %Z", self._tz)
-        elif ( scale == (1.0/(24*60)) ):
-            self._formatter = DateFormatter("%H:%M:%S %Z", self._tz)
-        elif ( scale == (1.0/(24*3600)) ):
-            self._formatter = DateFormatter("%H:%M:%S %Z", self._tz)
-        else:
-            self._formatter = DateFormatter("%b %d %Y %H:%M:%S %Z", self._tz)
+        keys = self.scaled.keys()
+        keys.sort()
+
+        for k in keys:
+           if k>=scale:
+              self._formatter = DateFormatter(self.scaled[k])
+              break
 
         return self._formatter(x, pos)
 
