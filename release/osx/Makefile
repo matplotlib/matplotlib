@@ -29,12 +29,12 @@ clean:
 	matplotlib-${MPLVERSION} *~
 
 fetch:
-	wget http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz &&\
-	wget http://internap.dl.sourceforge.net/sourceforge/libpng/libpng-${PNGVERSION}.tar.bz2 &&\
-	wget http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2&&\
-	wget http://pypi.python.org/packages/source/b/bdist_mpkg/bdist_mpkg-${BDISTMPKGVERSION}.tar.gz&&\
+	curl -LO http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz &&\
+	curl -LO http://internap.dl.sourceforge.net/sourceforge/libpng/libpng-${PNGVERSION}.tar.bz2 &&\
+	curl -LO http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2&&\
+	curl -LO http://pypi.python.org/packages/source/b/bdist_mpkg/bdist_mpkg-${BDISTMPKGVERSION}.tar.gz&&\
 	tar xvfz bdist_mpkg-${BDISTMPKGVERSION}.tar.gz &&\
-	echo "You need to to install bdist_mpkg-${BDISTMPKGVERSION} now"
+	echo "You need to install bdist_mpkg-${BDISTMPKGVERSION} now"
 
 
 
