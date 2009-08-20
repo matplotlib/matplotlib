@@ -432,12 +432,9 @@ class AutoDateFormatter(ticker.Formatter):
     def __call__(self, x, pos=0):
         scale = float( self._locator._get_unit() )
 
-        keys = self.scaled.keys()
-        keys.sort()
-
         fmt = self.defaultfmt
 
-        for k in keys:
+        for k in sorted(self.scaled):
            if k>=scale:
               fmt = self.scaled[k]
               break
