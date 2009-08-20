@@ -40,7 +40,7 @@ class MandlebrotDisplay(object):
         ax.set_autoscale_on(False) # Otherwise, infinite loop
 
         #Get the number of points from the number of pixels in the window
-        dims = ax.axesFrame.get_window_extent().bounds
+        dims = ax.axesPatch.get_window_extent().bounds
         self.width = int(dims[2] + 0.5)
         self.height = int(dims[2] + 0.5)
 
