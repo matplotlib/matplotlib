@@ -18,6 +18,10 @@ import matplotlib.image as image
 
 multiimage = re.compile('(.*)_\d\d')
 
+def out_of_date(original, derived):
+    return (not os.path.exists(derived) or
+            os.stat(derived).st_mtime < os.stat(original).st_mtime)
+
 def gen_gallery(app, doctree):
     if app.builder.name != 'html':
         return
@@ -58,10 +62,10 @@ def gen_gallery(app, doctree):
 
             # Create thumbnails based on images in tmpdir, and place
             # them within the build tree
-            image.thumbnail(
-                str(os.path.join(origdir, filename)),
-                str(os.path.join(thumbdir, filename)),
-                scale=0.3)
+            orig_path = str(os.path.join(origdir, filename))
+            thumb_path = str(os.path.join(thumbdir, filename))
+            if out_of_date(orig_path, thumb_path):
+                image.thumbnail(orig_path, thumb_path, scale=0.3)
 
             m = multiimage.match(basename)
             if m is None:

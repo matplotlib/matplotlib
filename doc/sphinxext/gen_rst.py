@@ -113,8 +113,7 @@ Matplotlib Examples
 
             fhsubdirIndex.write('    %s\n'%rstfile)
 
-            if (not out_of_date(fullpath, outputfile) and
-                not out_of_date(fullpath, outrstfile)):
+            if not out_of_date(fullpath, outrstfile):
                 continue
 
             fh = file(outrstfile, 'w')
