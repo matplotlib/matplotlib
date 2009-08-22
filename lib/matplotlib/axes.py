@@ -3841,7 +3841,7 @@ class Axes(martist.Artist):
         """
         return handles and labels for legend
 
-        ax.legend() is equibalent to ::
+        ax.legend() is equivalent to ::
 
           h, l = ax.get_legend_handles_labels()
           ax.legend(h, l)

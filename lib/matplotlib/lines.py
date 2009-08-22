@@ -836,7 +836,6 @@ class Line2D(Artist):
 
         ACCEPTS: 1D array
         """
-        x = np.asarray(x)
         self.set_data(x, self._yorig)
 
     def set_ydata(self, y):
@@ -845,7 +844,6 @@ class Line2D(Artist):
 
         ACCEPTS: 1D array
         """
-        y = np.asarray(y)
         self.set_data(self._xorig, y)
 
     def set_dashes(self, seq):

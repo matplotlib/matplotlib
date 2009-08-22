@@ -295,8 +295,8 @@ Installing OSX binaries
 If you want to install matplotlib from one of the binary installers we
 build, you have two choices: a dmg installer, which is a typical
 Installer.app, or an binary OSX egg, which you can install via
-setuptools easy_install.  
- 
+setuptools easy_install.
+
 The mkpg installer will have a "dmg" extension, and will have a name
 like :file:`matplotlib-0.99.0-py2.5-macosx10.5.dmg` depending on the
 python, matplotlib, and OSX versions.  Save this file and double
@@ -318,9 +318,23 @@ If you get an error like::
 
 then you will need to set your PYTHONPATH, eg::
 
-    export PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages:$PYTHONPATH 
+    export PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages:$PYTHONPATH
 
 See also :ref:`environment-variables`.
+
+
+If you are upgrading your matplotlib using the dmg installer over an
+Enthought Python Distribution, you may get an error like "You must use
+a framework install of python".  EPD puts their python in a directory
+like :file:``//Library/Frameworks/Python.framework/Versions/4.3.0``
+where 4.3.0 is an EPD version number.  The mpl installer needs the
+`python` version number, so you need to create a symlink pointing your
+python version to the EPS version before installing matplotlib.  For
+example, for python veersion 2.5 and EPD version 4.3.0::
+
+  > cd /Library/Frameworks/Python.framework/Versions
+  > ln -s 4.3.0 2.5
+
 
 .. _easy-install-osx-egg:
 
@@ -342,7 +356,7 @@ download the latest egg from our `download site
 <http://sourceforge.net/projects/matplotlib/files/>`_ directly to your
 harddrive, and manually install it with
 
-    > easy_install --install-dir=~/dev/lib/python2.5/site-packages/  matplotlib-0.99.0.rc1-py2.5-macosx-10.5-i386.egg 
+    > easy_install --install-dir=~/dev/lib/python2.5/site-packages/  matplotlib-0.99.0.rc1-py2.5-macosx-10.5-i386.egg
 
 
 Some users have reported problems with the egg for 0.98 from the
@@ -363,6 +377,66 @@ If you rename ``matplotlib-0.98.0-py2.5-macosx-10.3-fat.egg`` to
 the disk.  Many Mac OS X eggs with cruft at the end of the filename,
 which prevents their installation through easy_install.  Renaming is
 all it takes to install them; still, it's annoying.
+
+
+.. _install_from_source_on_osx_epd:
+
+Building and installing from source on OSX with EPD
+---------------------------------------------------
+
+If you have the EPD installed (:ref:`which-python-for-osx`), it might turn out
+to be rather tricky to install a new version of matplotlib from source on the
+Mac OS 10.5 . Here's a procedure that seems to work, at least sometimes:
+
+0. Remove the ~/.matplotlib folder ("rm -rf ~/.matplotlib").
+
+1. Edit the file (make a backup before you start, just in case):
+``/Library/Frameworks/Python.framework/Versions/Current/lib/python2.5/config/Makefile``,
+removing all occurrences of the string ``-arch ppc``, changing the line
+``MACOSX_DEPLOYMENT_TARGET=10.3`` to ``MACOSX_DEPLOYMENT_TARGET=10.5`` and
+changing the occurrences of ``MacOSX10.4u.sdk`` into ``MacOSX10.5.sdk``
+
+2.  In
+``/Library/Frameworks/Python.framework/Versions/Current/lib/pythonX.Y/site-packages/easy-install.pth``,
+(where X.Y is the version of Python you are building against)
+Comment out the line containing the name of the directory in which the
+previous version of MPL was installed (Looks something like ``./matplotlib-0.98.5.2n2-py2.5-macosx-10.3-fat.egg``).
+
+3. Save the following as a shell script , for example ``./install-matplotlib-epd-osx.sh`` ::
+
+       NAME=matplotlib
+       VERSION=0_99
+       PREFIX=$HOME
+       #branch="release"
+       branch="trunk"
+       if [  $branch = "trunk" ]
+    	  then
+    	  echo getting the trunk
+    	  svn co https://matplotlib.svn.sourceforge.net/svnroot/$NAME/trunk/$NAME $NAME
+    	  cd $NAME
+
+	fi
+	if [ $branch = "release" ]
+   	   then
+      	   echo getting the maintenance branch
+      	   svn co https://matplotlib.svn.sf.net/svnroot/matplotlib/branches/v${VERSION}_maint $NAME$VERSION
+      	   cd $NAME$VERSION
+ 	fi
+  	export CFLAGS="-Os -arch i386"
+  	export LDFLAGS="-Os -arch i386"
+  	export PKG_CONFIG_PATH="/usr/x11/lib/pkgconfig"
+  	export ARCHFLAGS="-arch i386"
+  	python setup.py build
+  	python setup.py install #--prefix=$PREFIX #Use this if you don't want it installed into your default location
+	cd ..
+
+Run this script (for example ``sh ./install-matplotlib-epd-osx.sh``) in the
+directory in which you want the source code to be placed, or simply type the
+commands in the terminal command line. This script sets some local variable
+(CFLAGS, LDFLAGS, PKG_CONFIG_PATH, ARCHFLAGS), removes previous installations,
+checks out the source from svn, builds and installs it. The backend seems to be
+set to MacOSX.
+
 
 Windows questions
 =================

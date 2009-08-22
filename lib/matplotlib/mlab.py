@@ -497,71 +497,77 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
                   returnPxx=False):
 
     u"""
-    Cxy, Phase, freqs = cohere_pairs(X, ij, ...)
+    Cxy, Phase, freqs = cohere_pairs( X, ij, ...)
 
-    Compute the coherence for all pairs in *ij*.  *X* is a
-    (*numSamples*, *numCols*) numpy array.  *ij* is a list of tuples
-    (*i*, *j*).  Each tuple is a pair of indexes into the columns of *X*
-    for which you want to compute coherence.  For example, if *X* has 64
-    columns, and you want to compute all nonredundant pairs, define *ij*
-    as::
+    Compute the coherence and phase for all pairs ij, in X.
+
+    Parameters
+    ----------
+    X: array
+    a numSamples*numCols array
+
+    ij:  list of tuples
+    Each tuple is a pair of indexes into the columns of X for which you want to
+    compute coherence.  For example, if X has 64 columns, and you want to
+    compute all nonredundant pairs, define ij as
 
       ij = []
       for i in range(64):
           for j in range(i+1,64):
-              ij.append( (i, j) )
+              ij.append( (i,j) )
 
-    The other function arguments, except for *preferSpeedOverMemory*
-    (see below), are explained in the help string of :func:`psd`.
+    preferSpeedOverMemory: optional, bool
 
-    Return value is a tuple (*Cxy*, *Phase*, *freqs*).
+    Defaults to true. If false, limits the caching by only making one, rather
+    than two, complex cache arrays. This is useful if memory becomes critical.
+    Even when preferSpeedOverMemory is false, cohere_pairs will still give
+    significant performace gains over calling cohere for each pair, and will
+    use subtantially less memory than if preferSpeedOverMemory is true.  In my
+    tests with a 43000,64 array over all nonredundant pairs,
+    preferSpeedOverMemory=1 delivered a 33% performace boost on a 1.7GHZ Athlon
+    with 512MB RAM compared with preferSpeedOverMemory=0.  But both solutions
+    were more than 10x faster than naievly crunching all possible pairs through
+    cohere.
+    
+    Returns
+    -------
 
-      - *Cxy*: a dictionary of (*i*, *j*) tuples -> coherence vector for that
-        pair.  I.e., ``Cxy[(i,j)] = cohere(X[:,i], X[:,j])``.  Number of
-        dictionary keys is ``len(ij)``.
+    (Cxy, Phase, freqs), where: 
+    
+    Cxy: dictionary of (i,j) tuples -> coherence vector for that
+        pair.  Ie, Cxy[(i,j) = cohere(X[:,i], X[:,j]).  Number of
+        dictionary keys is len(ij)
 
-      - *Phase*: a dictionary of phases of the cross spectral density at
-        each frequency for each pair.  The keys are ``(i,j)``.
+    Phase: dictionary of phases of the cross spectral density at
+    each frequency for each pair.  keys are (i,j).
 
-      - *freqs*: a vector of frequencies, equal in length to either
-        the coherence or phase vectors for any (*i*, *j*) key..  Eg,
-        to make a coherence Bode plot::
+    freqs: vector of frequencies, equal in length to either the
+    coherence or phase vectors for any i,j key.
+
+    Eg, to make a coherence Bode plot:
 
           subplot(211)
           plot( freqs, Cxy[(12,19)])
           subplot(212)
           plot( freqs, Phase[(12,19)])
 
-    For a large number of pairs, :func:`cohere_pairs` can be much more
-    efficient than just calling :func:`cohere` for each pair, because
-    it caches most of the intensive computations.  If *N* is the
-    number of pairs, this function is O(N) for most of the heavy
-    lifting, whereas calling cohere for each pair is
-    O(N\N{SUPERSCRIPT TWO}).  However, because of the caching, it is
-    also more memory intensive, making 2 additional complex arrays
-    with approximately the same number of elements as *X*.
+    For a large number of pairs, cohere_pairs can be much more
+    efficient than just calling cohere for each pair, because it
+    caches most of the intensive computations.  If N is the number of
+    pairs, this function is O(N) for most of the heavy lifting,
+    whereas calling cohere for each pair is O(N^2).  However, because
+    of the caching, it is also more memory intensive, making 2
+    additional complex arrays with approximately the same number of
+    elements as X.
 
-    The parameter *preferSpeedOverMemory*, if *False*, limits the
-    caching by only making one, rather than two, complex cache arrays.
-    This is useful if memory becomes critical.  Even when
-    *preferSpeedOverMemory* is *False*, :func:`cohere_pairs` will
-    still give significant performace gains over calling
-    :func:`cohere` for each pair, and will use subtantially less
-    memory than if *preferSpeedOverMemory* is *True*.  In my tests
-    with a (43000, 64) array over all non-redundant pairs,
-    *preferSpeedOverMemory* = *True* delivered a 33% performace boost
-    on a 1.7GHZ Athlon with 512MB RAM compared with
-    *preferSpeedOverMemory* = *False*.  But both solutions were more
-    than 10x faster than naievly crunching all possible pairs through
-    cohere.
+    See test/cohere_pairs_test.py in the src tree for an example
+    script that shows that this cohere_pairs and cohere give the same
+    results for a given pair.
 
-    .. seealso::
-
-        :file:`test/cohere_pairs_test.py` in the src tree
-            For an example script that shows that this
-            :func:`cohere_pairs` and :func:`cohere` give the same
-            results for a given pair.
-    """
+    See also 
+    --------
+    :func: psd
+    """    
     numRows, numCols = X.shape
 
     # zero pad if X is too short
@@ -574,12 +580,10 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     numRows, numCols = X.shape
     # get all the columns of X that we are interested in by checking
     # the ij tuples
-    seen = {}
+    allColumns = set()
     for i,j in ij:
-        seen[i]=1; seen[j] = 1
-    allColumns = seen.keys()
+        allColumns.add(i); allColumns.add(j)
     Ncols = len(allColumns)
-    del seen
 
     # for real X, ignore the negative frequencies
     if np.iscomplexobj(X): numFreqs = NFFT
@@ -592,26 +596,26 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         assert(len(window) == NFFT)
         windowVals = window
     else:
-        windowVals = window(np.ones((NFFT,), typecode(X)))
+        windowVals = window(np.ones(NFFT, X.dtype))
     ind = range(0, numRows-NFFT+1, NFFT-noverlap)
     numSlices = len(ind)
     FFTSlices = {}
     FFTConjSlices = {}
     Pxx = {}
     slices = range(numSlices)
-    normVal = norm(windowVals)**2
+    normVal = np.linalg.norm(windowVals)**2
     for iCol in allColumns:
         progressCallback(i/Ncols, 'Cacheing FFTs')
         Slices = np.zeros( (numSlices,numFreqs), dtype=np.complex_)
         for iSlice in slices:
             thisSlice = X[ind[iSlice]:ind[iSlice]+NFFT, iCol]
             thisSlice = windowVals*detrend(thisSlice)
-            Slices[iSlice,:] = fft(thisSlice)[:numFreqs]
+            Slices[iSlice,:] = np.fft.fft(thisSlice)[:numFreqs]
 
         FFTSlices[iCol] = Slices
         if preferSpeedOverMemory:
-            FFTConjSlices[iCol] = conjugate(Slices)
-        Pxx[iCol] = np.divide(np.mean(absolute(Slices)**2), normVal)
+            FFTConjSlices[iCol] = np.conjugate(Slices)
+        Pxx[iCol] = np.divide(np.mean(abs(Slices)**2), normVal)
     del Slices, ind, windowVals
 
     # compute the coherences and phases for all pairs using the
@@ -630,17 +634,17 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         else:
             Pxy = FFTSlices[i] * np.conjugate(FFTSlices[j])
         if numSlices>1: Pxy = np.mean(Pxy)
-        Pxy = np.divide(Pxy, normVal)
-        Cxy[(i,j)] = np.divide(np.absolute(Pxy)**2, Pxx[i]*Pxx[j])
-        Phase[(i,j)] =  np.arctan2(Pxy.imag, Pxy.real)
+        #Pxy = np.divide(Pxy, normVal)
+        Pxy /= normVal
+        #Cxy[(i,j)] = np.divide(np.absolute(Pxy)**2, Pxx[i]*Pxx[j])
+        Cxy[i,j] = abs(Pxy)**2 / (Pxx[i]*Pxx[j])
+        Phase[i,j] =  np.arctan2(Pxy.imag, Pxy.real)
 
     freqs = Fs/NFFT*np.arange(numFreqs)
     if returnPxx:
         return Cxy, Phase, freqs, Pxx
     else:
         return Cxy, Phase, freqs
-
-
 
 def entropy(y, bins):
     r"""
@@ -1095,8 +1099,9 @@ class FIFOBuffer:
         Add scalar *x* and *y* to the queue.
         """
         if self.dataLim is not None:
-            xys = ((x,y),)
-            self.dataLim.update(xys, -1) #-1 means use the default ignore setting
+            xy = np.asarray([(x,y),])
+            self.dataLim.update_from_data_xy(xy, None)
+
         ind = self._ind % self._nmax
         #print 'adding to fifo:', ind, x, y
         self._xs[ind] = x
@@ -1140,6 +1145,8 @@ class FIFOBuffer:
         if self.dataLim is None:
             raise ValueError('You must first set the dataLim attr')
         x, y = self.asarrays()
+        self.dataLim.update_from_data(x, y, True)
+
         self.dataLim.update_numerix(x, y, True)
 
 def movavg(x,n):
