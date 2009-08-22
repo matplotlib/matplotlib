@@ -400,9 +400,10 @@ changing the occurrences of ``MacOSX10.4u.sdk`` into ``MacOSX10.5.sdk``
 ``/Library/Frameworks/Python.framework/Versions/Current/lib/pythonX.Y/site-packages/easy-install.pth``,
 (where X.Y is the version of Python you are building against)
 Comment out the line containing the name of the directory in which the
-previous version of MPL was installed (Looks something like ``./matplotlib-0.98.5.2n2-py2.5-macosx-10.3-fat.egg``). 
+previous version of MPL was installed (Looks something like ``./matplotlib-0.98.5.2n2-py2.5-macosx-10.3-fat.egg``).
 
 3. Save the following as a shell script , for example ``./install-matplotlib-epd-osx.sh`` ::
+
        NAME=matplotlib
        VERSION=0_99
        PREFIX=$HOME
@@ -413,11 +414,11 @@ previous version of MPL was installed (Looks something like ``./matplotlib-0.98.
     	  echo getting the trunk
     	  svn co https://matplotlib.svn.sourceforge.net/svnroot/$NAME/trunk/$NAME $NAME
     	  cd $NAME
-  
+
 	fi
 	if [ $branch = "release" ]
    	   then
-      	   echo getting the maintenance branch 
+      	   echo getting the maintenance branch
       	   svn co https://matplotlib.svn.sf.net/svnroot/matplotlib/branches/v${VERSION}_maint $NAME$VERSION
       	   cd $NAME$VERSION
  	fi

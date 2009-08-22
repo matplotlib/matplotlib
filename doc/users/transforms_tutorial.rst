@@ -12,11 +12,12 @@ In 95% of your plotting, you won't need to think about this, as it
 happens under the hood, but as you push the limits of custom figure
 generation, it helps to have an understanding of these objects so you
 can reuse the existing transformations matplotlib makes available to
-you, or create your own (see :mod:`matplotlib.transforms`.  The table below summarizes the existing
-coordinate systems, the transformation object you should use to work
-in that coordinate system, and the description of that system. In the
-`Transformation Object` column, ``ax`` is a :class:`~matplotlib.axes.Axes` instance,
-and ``fig`` is a :class:`~matplotlib.figure.Figure` instance.
+you, or create your own (see :mod:`matplotlib.transforms`).  The table
+below summarizes the existing coordinate systems, the transformation
+object you should use to work in that coordinate system, and the
+description of that system. In the `Transformation Object` column,
+``ax`` is a :class:`~matplotlib.axes.Axes` instance, and ``fig`` is a
+:class:`~matplotlib.figure.Figure` instance.
 
 ==========  =====================  ==============================================================================================================================================================
 Coordinate  Transformation Object  Description
@@ -28,15 +29,17 @@ Coordinate  Transformation Object  Description
 ==========  =====================  ==============================================================================================================================================================
 
 
-All of the transformation objects take inputs in their coordinate
-system, and transform the input to the `display` coordinate system.
-That is why the `display` coordinate system has `None` for the
-`Transformation Object` column -- it already is in display
-coordinates.  The transformations also know how to invert themselves,
-to go from `display` back to the native coordinate system.  This is
-particularly useful when processing events from the user interface,
-which typically occur in display space, and you want to know where the
-mouse click or key-press occurred in your data coordinate system.
+
+All of the transformation objects in the table above take inputs in
+their coordinate system, and transform the input to the `display`
+coordinate system.  That is why the `display` coordinate system has
+`None` for the `Transformation Object` column -- it already is in
+display coordinates.  The transformations also know how to invert
+themselves, to go from `display` back to the native coordinate system.
+This is particularly useful when processing events from the user
+interface, which typically occur in display space, and you want to
+know where the mouse click or key-press occurred in your data
+coordinate system.
 
 .. _data-coords:
 
