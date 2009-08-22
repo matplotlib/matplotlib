@@ -1099,8 +1099,9 @@ class FIFOBuffer:
         Add scalar *x* and *y* to the queue.
         """
         if self.dataLim is not None:
-            xys = ((x,y),)
-            self.dataLim.update(xys, -1) #-1 means use the default ignore setting
+            xy = np.asarray([(x,y),])
+            self.dataLim.update_from_data_xy(xy, None)
+
         ind = self._ind % self._nmax
         #print 'adding to fifo:', ind, x, y
         self._xs[ind] = x
@@ -1144,6 +1145,8 @@ class FIFOBuffer:
         if self.dataLim is None:
             raise ValueError('You must first set the dataLim attr')
         x, y = self.asarrays()
+        self.dataLim.update_from_data(x, y, True)
+
         self.dataLim.update_numerix(x, y, True)
 
 def movavg(x,n):

@@ -22,10 +22,10 @@ User's Guide
     artists.rst
     legend_guide.rst
     event_handling.rst
-    annotations_guide.rst
     legend.rst
     transforms_tutorial.rst
     path_tutorial.rst
+    annotations_guide.rst
     toolkits.rst
     screenshots.rst
     whats_new.rst
