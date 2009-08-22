@@ -9,6 +9,6 @@ Working with text
     text_props.rst
     mathtext.rst
     usetex.rst
-    annotations.rst
+    annotations_intro.rst
 
 
