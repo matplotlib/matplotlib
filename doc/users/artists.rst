@@ -37,7 +37,7 @@ graphics primitives (:class:`~matplotlib.lines.Line2D`,
 :class:`~matplotlib.text.Text`,
 :class:`~matplotlib.patches.Rectangle`,
 :class:`~matplotlib.image.Image`, respectively).  These helper methods
-will take your data (eg. ``numpy`` arrays and strings) create
+will take your data (eg. ``numpy`` arrays and strings) and create
 primitive ``Artist`` instances as needed (eg. ``Line2D``), add them to
 the relevant containers, and draw them when requested.  Most of you
 are probably familiar with the :class:`~matplotlib.axes.Subplot`,
