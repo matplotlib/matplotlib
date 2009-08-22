@@ -5,11 +5,16 @@
 #include "numpy/arrayobject.h"
 #include "path_cleanup.h"
 
+/* Proper way to check for the OS X version we are compiling for, from
+   http://developer.apple.com/documentation/DeveloperTools/Conceptual/cross_development */
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
+#define COMPILING_FOR_10_5
+#endif
 
 static int nwin = 0;   /* The number of open windows */
 
 /* Use Atsui for Mac OS X 10.4, CoreText for Mac OS X 10.5 */
-#ifndef MAC_OS_X_VERSION_10_5
+#ifndef COMPILING_FOR_10_5
 static int ngc = 0;    /* The number of graphics contexts in use */
 
 
@@ -175,7 +180,7 @@ static int wait_for_stdin(void)
     return 1;
 }
 
-#ifndef MAC_OS_X_VERSION_10_5
+#ifndef COMPILING_FOR_10_5
 static int _init_atsui(void)
 {
     OSStatus status;
@@ -451,7 +456,7 @@ GraphicsContext_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
     self->cr = NULL;
     self->level = 0;
 
-#ifndef MAC_OS_X_VERSION_10_5
+#ifndef COMPILING_FOR_10_5
     if (ngc==0)
     {
         int ok = _init_atsui();
@@ -466,7 +471,7 @@ GraphicsContext_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
     return (PyObject*) self;
 }
 
-#ifndef MAC_OS_X_VERSION_10_5
+#ifndef COMPILING_FOR_10_5
 static void
 GraphicsContext_dealloc(GraphicsContext *self)
 {
@@ -1877,7 +1882,7 @@ exit:
 }
 
 
-#ifdef MAC_OS_X_VERSION_10_5
+#ifdef COMPILING_FOR_10_5
 static CTFontRef
 #else
 static ATSFontRef
@@ -1891,7 +1896,7 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
     const char* temp;
     const char* name = "Times-Roman";
     CFStringRef string;
-#ifdef MAC_OS_X_VERSION_10_5
+#ifdef COMPILING_FOR_10_5
     CTFontRef font = 0;
 #else
     ATSFontRef font = 0;
@@ -2091,7 +2096,7 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
         string = CFStringCreateWithCString(kCFAllocatorDefault,
                                            temp,
                                            kCFStringEncodingMacRoman);
-#ifdef MAC_OS_X_VERSION_10_5
+#ifdef COMPILING_FOR_10_5
         font = CTFontCreateWithName(string, size, NULL);
 #else
         font = ATSFontFindFromPostScriptName(string, kATSOptionFlagsDefault);
@@ -2109,20 +2114,20 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
     {   string = CFStringCreateWithCString(kCFAllocatorDefault,
                                            name,
                                            kCFStringEncodingMacRoman);
-#ifdef MAC_OS_X_VERSION_10_5
+#ifdef COMPILING_FOR_10_5
         font = CTFontCreateWithName(string, size, NULL);
 #else
         font = ATSFontFindFromPostScriptName(string, kATSOptionFlagsDefault);
 #endif
         CFRelease(string);
     }
-#ifndef MAC_OS_X_VERSION_10_5
+#ifndef COMPILING_FOR_10_5
     CGContextSelectFont(cr, name, size, kCGEncodingMacRoman);
 #endif
     return font;
 }
 
-#ifdef MAC_OS_X_VERSION_10_5
+#ifdef COMPILING_FOR_10_5
 static PyObject*
 GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
 {
@@ -2821,7 +2826,7 @@ static PyTypeObject GraphicsContextType = {
     "_macosx.GraphicsContext", /*tp_name*/
     sizeof(GraphicsContext),   /*tp_basicsize*/
     0,                         /*tp_itemsize*/
-#ifdef MAC_OS_X_VERSION_10_5
+#ifdef COMPILING_FOR_10_5
     0,                         /*tp_dealloc*/
 #else
     (destructor)GraphicsContext_dealloc,     /*tp_dealloc*/
