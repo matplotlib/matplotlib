@@ -1209,7 +1209,7 @@ class QuadMesh(Collection):
             transOffset = transOffset.get_affine()
 
         gc = renderer.new_gc()
-        self._set_clip_gc(gc)
+        self._set_gc_clip(gc)
 
         if self._shading == 'gouraud':
             triangles, colors = self.convert_mesh_to_triangles(
