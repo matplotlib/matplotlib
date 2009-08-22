@@ -565,7 +565,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
             For an example script that shows that this
             :func:`cohere_pairs` and :func:`cohere` give the same
             results for a given pair.
-    """
+    """    
     numRows, numCols = X.shape
 
     # zero pad if X is too short
