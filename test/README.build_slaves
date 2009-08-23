@@ -2,3 +2,9 @@ There can be two different types of build slaves: virtualenv and
 python source install with clean installs of numpy and mpl.  Both of
 these will need nose installed.
 
+Dependencies
+===================
+buildbot and twisted
+nose
+pil
+virtualenv
