@@ -71,7 +71,7 @@ for example CURVE 3 is a `bézier
 control point and one end point, and CURVE4 has three vertices for the
 two control points and the end point.  The example below shows a
 CURVE4 Bézier spline -- the bézier curve will be contained in the
-convex hul of the start point, the two control points, and the end
+convex hull of the start point, the two control points, and the end
 point
 
 .. plot::
@@ -123,7 +123,7 @@ Polygon, etc, are implemented with simple path.  Plotting functions
 like :meth:`~matplotlib.axes.Axes.hist` and
 :meth:`~matplotlib.axes.Axes.bar`, which create a number of
 primitives, eg a bunch of Rectangles, can usually be implemented more
-efficiently using a compund path.  The reason ``bar`` creates a list
+efficiently using a compound path.  The reason ``bar`` creates a list
 of rectangles and not a compound path is largely historical: the
 :class:`~matplotlib.path.Path` code is comparatively new and ``bar``
 predates it.  While we could change it now, it would break old code,
