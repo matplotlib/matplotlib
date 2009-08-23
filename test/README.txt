@@ -288,3 +288,12 @@ The provided classes are as follows:
    reference and therefore needs to be called out as different that a simple
    measurement of time since a delta-t in one frame may not be the same in another.
 
+
+
+Updating after diff
+====================
+
+  python run-mpl-test.py --all --keep-failed
+  ./consolidate_diff_images.sh
+  # check your images, decide which are good
+  python movegood.py
