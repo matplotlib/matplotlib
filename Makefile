@@ -28,8 +28,11 @@ pyback:
 	tar cvfz pyback.tar.gz *.py lib src examples/*.py  unit/*.py
 
 
-build_osx105:
+_build_osx105:
 	CFLAGS="-Os -arch i386 -arch ppc" LDFLAGS="-Os -arch i386 -arch ppc" python setup.py build
+
+build_osx105:
+	echo "Use 'make -f fetch deps mpl_install instead'"
 
 
 jdh_doc_snapshot:
