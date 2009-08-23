@@ -1,0 +1,89 @@
+PREFIX=/Users/jdh2358/dev
+PYVERSION=2.6
+PYTHON=python${PYVERSION}
+SRCDIR=${PWD}
+ZLIBVERSION=1.2.3
+PNGVERSION=1.2.33
+FREETYPEVERSION=2.3.7
+MPLVERSION=0.99.0
+BDISTMPKGVERSION=0.4.4
+MPLSRC=matplotlib-${MPLVERSION}
+MACOSX_DEPLOYMENT_TARGET=10.4
+
+## You shouldn't need to configure past this point
+
+CFLAGS="-Os -arch ppc -arch i386 -I{$PREFIX}/include"
+
+LDFLAGS="-arch ppc -arch i386 -L${PREFIX}/lib"
+
+CFLAGS_DEPS="-arch i386 -arch ppc -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Developer/SDKs/MacOSX10.4u.sdk"
+LDFLAGS_DEPS="-arch i386 -arch ppc -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"
+
+clean:
+	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.bz2 \
+	freetype-${FREETYPEVERSION}.tar.bz2 bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
+	bdist_mpkg-${BDISTMPKGVERSION} \
+	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} 
+
+fetch:
+	python -c 'import urllib; urllib.urlretrieve("http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz", "zlib-${ZLIBVERSION}.tar.gz")'  &&\
+	python -c 'import urllib; urllib.urlretrieve("http://internap.dl.sourceforge.net/sourceforge/libpng/libpng-${PNGVERSION}.tar.bz2", "libpng-${PNGVERSION}.tar.bz2")' &&\
+	python -c 'import urllib; urllib.urlretrieve("http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2", "freetype-${FREETYPEVERSION}.tar.bz2")'
+
+
+
+
+zlib:
+	unset PKG_CONFIG_PATH &&\
+	rm -rf zlib-${ZLIBVERSION} &&\
+	tar xvfz zlib-${ZLIBVERSION}.tar.gz &&\
+	cd zlib-${ZLIBVERSION} &&\
+	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
+	export CFLAGS=${CFLAGS_DEPS} &&\
+	export LDFLAGS=${LDFLAGS_DEPS} &&\
+	./configure --prefix=${PREFIX}&&\
+	MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} CFLAGS=${CFLAGS_DEPS} LDFLAGS=${LDFLAGS_DEPS} make -j3 install&& \
+	unset MACOSX_DEPLOYMENT_TARGET
+
+png: zlib
+	unset PKG_CONFIG_PATH &&\
+	rm -rf libpng-${PNGVERSION} &&\
+	tar xvfj libpng-${PNGVERSION}.tar.bz2
+	cd libpng-${PNGVERSION} &&\
+	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
+	export CFLAGS=${CFLAGS_DEPS} &&\
+	export LDFLAGS=${LDFLAGS_DEPS} &&\
+	./configure  --disable-dependency-tracking  --prefix=${PREFIX} &&\
+	make -j3 install&&\
+	cp .libs/libpng.a . &&\
+	unset MACOSX_DEPLOYMENT_TARGET
+
+
+freetype: zlib
+	unset PKG_CONFIG_PATH &&\
+	rm -rf ${FREETYPEVERSION} &&\
+	tar xvfj freetype-${FREETYPEVERSION}.tar.bz2 &&\
+	cd freetype-${FREETYPEVERSION} &&\
+	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
+	export CFLAGS=${CFLAGS_DEPS} &&\
+	export LDFLAGS=${LDFLAGS_DEPS} &&\
+	./configure  --prefix=${PREFIX} &&\
+	make -j3 install &&\
+	cp objs/.libs/libfreetype.a .  &&\
+	unset MACOSX_DEPLOYMENT_TARGET
+
+
+deps: zlib png freetype
+	echo 'all done'
+
+mpl_build:
+	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
+	export CFLAGS=${CFLAGS_DEPS} &&\
+	export LDFLAGS=${LDFLAGS_DEPS} &&\
+	python setup.py build 
+
+mpl_install:
+	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
+	export CFLAGS=${CFLAGS_DEPS} &&\
+	export LDFLAGS=${LDFLAGS_DEPS} &&\
+	python setup.py install --prefix=${PREFIX}
