@@ -1,4 +1,4 @@
-# build mpl into a local install dir with 
+# build mpl into a local install dir with
 # PREFIX=/Users/jdhunter/dev make -f make.osx fetch deps mpl_install
 
 PYVERSION=2.6
@@ -21,7 +21,7 @@ clean:
 	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.bz2 \
 	freetype-${FREETYPEVERSION}.tar.bz2 bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
 	bdist_mpkg-${BDISTMPKGVERSION} \
-	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} 
+	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION}
 
 fetch:
 	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz", "zlib-${ZLIBVERSION}.tar.gz")'  &&\
@@ -78,7 +78,7 @@ mpl_build:
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
 	export CFLAGS=${CFLAGS_DEPS} &&\
 	export LDFLAGS=${LDFLAGS_DEPS} &&\
-	python setup.py build 
+	python setup.py build
 
 mpl_install:
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
