@@ -1,13 +1,11 @@
-PREFIX=/Users/jdh2358/dev
+# build mpl into a local install dir with 
+# PREFIX=/Users/jdhunter/dev make -f make.osx fetch deps mpl_install
+
 PYVERSION=2.6
 PYTHON=python${PYVERSION}
-SRCDIR=${PWD}
 ZLIBVERSION=1.2.3
 PNGVERSION=1.2.33
 FREETYPEVERSION=2.3.7
-MPLVERSION=0.99.0
-BDISTMPKGVERSION=0.4.4
-MPLSRC=matplotlib-${MPLVERSION}
 MACOSX_DEPLOYMENT_TARGET=10.4
 
 ## You shouldn't need to configure past this point
@@ -26,9 +24,9 @@ clean:
 	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} 
 
 fetch:
-	python -c 'import urllib; urllib.urlretrieve("http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz", "zlib-${ZLIBVERSION}.tar.gz")'  &&\
-	python -c 'import urllib; urllib.urlretrieve("http://internap.dl.sourceforge.net/sourceforge/libpng/libpng-${PNGVERSION}.tar.bz2", "libpng-${PNGVERSION}.tar.bz2")' &&\
-	python -c 'import urllib; urllib.urlretrieve("http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2", "freetype-${FREETYPEVERSION}.tar.bz2")'
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz", "zlib-${ZLIBVERSION}.tar.gz")'  &&\
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://internap.dl.sourceforge.net/sourceforge/libpng/libpng-${PNGVERSION}.tar.bz2", "libpng-${PNGVERSION}.tar.bz2")' &&\
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2", "freetype-${FREETYPEVERSION}.tar.bz2")'
 
 
 
