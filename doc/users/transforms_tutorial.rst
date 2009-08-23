@@ -225,7 +225,7 @@ functions to make them easy to plot (see
 :meth:`~matplotlib.axes.Axes.axvspan`) but for didactic purposes we
 will implement the horizontal span here using a blended
 transformation.  This trick only works for separable transformations,
-like you see in normal cartesian coordinate systems, but not on
+like you see in normal Cartesian coordinate systems, but not on
 inseparable transformations like the
 :class:`~matplotlib.projections.polar.PolarAxes.PolarTransform`.
 
@@ -301,7 +301,7 @@ operator in::
     shadow_transform = ax.transData + offset
 
 showing that can chain transformations using the addition operator.
-This code says: first appy the data transformation ``ax.transData`` and
+This code says: first apply the data transformation ``ax.transData`` and
 then translate the data by `dx` and `dy` points.
 
 .. plot::
@@ -352,7 +352,7 @@ and zoom.  There is an efficiency here, because you can pan and zoom
 in your axes which affects the affine transformation, but you may not
 need to compute the potentially expensive nonlinear scales or
 projections on simple navigation events.  It is also possible to
-multiply affine transformation matrices togeter, and then apply them
+multiply affine transformation matrices together, and then apply them
 to coordinates in one step.  This is not true of all possible
 transformations.
 
@@ -404,7 +404,7 @@ and we can use this same inverted transformation to go from the unit
 
 The final piece is the ``self.transScale`` attribute, which is
 responsible for the optional non-linear scaling of the data, eg. for
-logarithmic axes.  When an Axes is initally setup, this is just set to
+logarithmic axes.  When an Axes is initially setup, this is just set to
 the identity transform, since the basic matplotlib axes has linear
 scale, but when you call a logarithmic scaling function like
 :meth:`~matplotlib.axes.Axes.semilogx` or explicitly set the scale to
@@ -426,7 +426,7 @@ the typical separable matplotlib Axes, with one additional piece
 
 ``transProjection`` handles the projection from the space,
 eg. latitude and longitude for map data, or radius and theta for polar
-data, to a separable cartesian coordinate system.  There are several
+data, to a separable Cartesian coordinate system.  There are several
 projection examples in the ``matplotlib.projections`` package, and the
 best way to learn more is to open the source for those packages and
 see how to make your own, since matplotlib supports extensible axes

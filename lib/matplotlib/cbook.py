@@ -26,7 +26,7 @@ major, minor1, minor2, s, tmp = sys.version_info
 
 try:
     preferredencoding = locale.getpreferredencoding()
-except ValueError:
+except (ValueError, ImportError):
     preferredencoding = None
 
 def unicode_safe(s):
