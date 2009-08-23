@@ -50,8 +50,15 @@ basedir = {
     'linux2' : ['/usr/local', '/usr'],
     'linux'  : ['/usr/local', '/usr',],
     'cygwin' : ['/usr/local', '/usr',],
-    'darwin' : ['/sw/lib/freetype2', '/sw/lib/freetype219', '/usr/local',
+    '_darwin' : ['/sw/lib/freetype2', '/sw/lib/freetype219', '/usr/local',
                 '/usr', '/sw'],
+    # it appears builds with darwin are broken because of all the
+    # different flags the deps can be compile with, so I am pushing
+    # people to :
+    #   make -f make.osx fetch deps mpl_build mpl_install
+
+    'darwin' : [],
+
     'freebsd4' : ['/usr/local', '/usr'],
     'freebsd5' : ['/usr/local', '/usr'],
     'freebsd6' : ['/usr/local', '/usr'],
