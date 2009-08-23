@@ -13,7 +13,7 @@ def check_call(args,**kwargs):
     # This use of Popen is copied from matplotlib.texmanager (Use of
     # close_fds seems a bit mysterious.)
 
-    p = Popen(args, shell=True, 
+    p = Popen(args, shell=True,
               close_fds=(sys.platform!='win32'),**kwargs)
     p.wait()
     if p.returncode!=0:
