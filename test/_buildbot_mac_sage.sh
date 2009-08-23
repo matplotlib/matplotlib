@@ -1,8 +1,10 @@
 #!/bin/bash
 set -e
-export PYTHON=/Users/jdh2358/dev/bin/python
-export PREFIX=/Users/jdh2358/devbb 
-export PYTHONPATH=${PREFIX}/lib/python2.6/site-packages:/Users/jdh2358/dev/lib/python2.6/site-packages
+rm -rf ${HOME}/.matplotlib/*
+
+export PYTHON=${HOME}/dev/bin/python
+export PREFIX=${HOME}/devbb 
+export PYTHONPATH=${PREFIX}/lib/python2.6/site-packages:${HOME}/dev/lib/python2.6/site-packages
 
 make -f make.osx mpl_install
 echo ${PYTHONPATH}
