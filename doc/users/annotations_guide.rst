@@ -4,7 +4,7 @@
 Annotating Axes
 ****************
 
-Do not proceed unless you already have read 
+Do not proceed unless you already have read
 :func:`~matplotlib.pyplot.text` and :func:`~matplotlib.pyplot.annotate`!
 
 
@@ -38,7 +38,7 @@ method. ::
   bb.set_boxstyle("rarrow", pad=0.6)
 
 The arguments are the name of the box style with its attributes as
-keyword arguments. Currently, followign box styles are implemented.
+keyword arguments. Currently, following box styles are implemented.
 
   ==========   ==============   ==========================
   Class        Name             Attrs
@@ -55,7 +55,7 @@ keyword arguments. Currently, followign box styles are implemented.
 .. plot:: mpl_examples/pylab_examples/fancybox_demo2.py
 
 
-Note that the attrubutes arguments can be specified within the style
+Note that the attributes arguments can be specified within the style
 name with separating comma (this form can be used as "boxstyle" value
 of bbox argument when initializing the text instance) ::
 
@@ -103,7 +103,7 @@ The arrow drawing takes a few steps.
 2. If patch object is given (*patchA* & *patchB*), the path is clipped to
    avoid the patch.
 
-3. The path is further shrinked by given amount of pixels (*shirnkA*
+3. The path is further shrunk by given amount of pixels (*shirnkA*
    & *shrinkB*)
 
 4. The path is transmuted to arrow patch, which is controlled by the
@@ -114,7 +114,7 @@ The arrow drawing takes a few steps.
 
 
 The creation of the connecting path between two points is controlled by
-``connectionstyle`` key and follwing styles are available.
+``connectionstyle`` key and following styles are available.
 
    ==========   =============================================
    Name         Attrs
@@ -197,7 +197,7 @@ axes. ::
   ax2.add_artist(con)
 
 The above code connects point xy in data coordinate of ``ax1`` to
-point xy int data coordiante of ``ax2``. Here is a simple example.
+point xy int data coordinate of ``ax2``. Here is a simple example.
 
 .. plot:: users/plotting/examples/connect_simple01.py
 
@@ -230,7 +230,7 @@ available in ``mpl_toolkits.axes_grid.anchored_artists``. ::
 The *loc* keyword has same meaning as in the legend command.
 
 A simple application is when the size of the artist (or collection of
-artists) is knwon in pixel size during the time of creation. For
+artists) is known in pixel size during the time of creation. For
 example, If you want to draw a circle with fixed size of 20 pixel x 20
 pixel (radius = 10 pixel), you can utilize
 ``AnchoredDrawingArea``. The instance is created with a size of the
@@ -280,7 +280,7 @@ legend (as a matter of fact, this is how the legend is created).
 .. plot:: users/plotting/examples/anchored_box04.py
 
 Note that unlike the legend, the ``bbox_transform`` is set
-to IdentityTransform by default. 
+to IdentityTransform by default.
 
 Advanced Topics
 ***************
@@ -288,7 +288,7 @@ Advanced Topics
 Zoom effect between Axes
 ========================
 
-mpl_toolkits.axes_grid.inset_locator defines some patch classs useful
+mpl_toolkits.axes_grid.inset_locator defines some patch classes useful
 for interconnect two axes. Understanding the code requires some
 knowledge of how mpl's transform works. But, utilizing it will be
 straight forward.
@@ -327,6 +327,6 @@ matplotlib.patches.BoxStyle._Base as demonstrated below.
    :include-source:
 
 
-Similarly, you can define custom ConnectionStyle and Custome ArrowStyle.
+Similarly, you can define custom ConnectionStyle and custom ArrowStyle.
 See the source code of ``lib/matplotlib/patches.py`` and check
 how each style class is defined.
