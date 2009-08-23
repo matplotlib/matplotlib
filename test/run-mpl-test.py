@@ -89,8 +89,8 @@ for arg in args:
       sys.exit( 0 )
 
 ### Run nose
-nose.run( argv = args,
-          plugins = [ MplNosePlugin() ] )
+success = nose.run( argv = args,
+                    plugins = [ MplNosePlugin() ] )
 
 ### do other stuff here
 
@@ -104,3 +104,4 @@ nose.run( argv = args,
 sys.stdout = originalStdout
 sys.stderr = originalStderr
 
+sys.exit(not success)
