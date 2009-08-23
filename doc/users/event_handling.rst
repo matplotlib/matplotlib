@@ -5,7 +5,7 @@ Event handling and picking
 **************************
 
 matplotlib works with 6 user interface toolkits (wxpython, tkinter,
-qt, gtk, fltk abd macosx) and in order to support features like interactive
+qt, gtk, fltk and macosx) and in order to support features like interactive
 panning and zooming of figures, it is helpful to the developers to
 have an API for interacting with the figure via key presses and mouse
 movements that is "GUI neutral" so we don't have to repeat a lot of
@@ -150,7 +150,7 @@ Draggable rectangle exercise
 
 Write draggable rectangle class that is initialized with a
 :class:`~matplotlib.patches.Rectangle` instance but will move its x,y
-location when dragged.  Hint: you will need to store the orginal
+location when dragged.  Hint: you will need to store the original
 ``xy`` location of the rectangle which is stored as rect.xy and
 connect to the press, motion and release mouse events.  When the mouse
 is pressed, check to see if the click occurs over your rectangle (see

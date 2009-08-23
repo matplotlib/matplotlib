@@ -22,7 +22,7 @@ your package manager will probably provide matplotlib prebuilt.
 
 One single click installer and you are done.
 
-Ok, so you want to do it the hard way?
+OK, so you want to do it the hard way?
 ======================================
 
 For some people, the prepackaged pythons discussed above are not an
@@ -109,7 +109,7 @@ installed, and so on.  This file will be particularly useful to those
 packaging matplotlib.
 
 
-.. _install_requrements:
+.. _install_requirements:
 
 Build requirements
 ==================
@@ -152,7 +152,7 @@ backends and the capabilities they provide
     The Qt3 widgets library python wrappers for the QtAgg backend
 
 :term:`pyqt` 4.0 or later
-    The Qt4 widgets library python wrappersfor the Qt4Agg backend
+    The Qt4 widgets library python wrappers for the Qt4Agg backend
 
 :term:`pygtk` 2.2 or later
     The python wrappers for the GTK widgets library for use with the GTK or GTKAgg backend
@@ -201,5 +201,5 @@ repository, cd-ing into the release/osx dir, and following the
 instruction in the README.  This directory has a Makefile which will
 automatically grab the zlib, png and freetype dependencies from the
 web, build them with the right flags to make universal libraries, and
-then build the matplotlib source and binary installers.  
-  
+then build the matplotlib source and binary installers.
+
