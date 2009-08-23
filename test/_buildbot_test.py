@@ -13,5 +13,5 @@ if not os.path.exists(TARGET):
 TARGET_py = os.path.join(TARGET,'bin','python')
 check_call('%s -c "import shutil,matplotlib; x=matplotlib.get_configdir(); shutil.rmtree(x)"'%TARGET_py)
 
-check_call('%s run-mpl-test.py --all'%TARGET_py,
+check_call('%s run-mpl-test.py --all --keep-failed'%TARGET_py,
            cwd='test')
