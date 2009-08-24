@@ -102,9 +102,3 @@ if 1:
                      os.path.join(this_targetdir,'actual.png') )
         shutil.copy( os.path.join(root,savedresults_dir,testclass,fname),
                      os.path.join(this_targetdir,'absdiff.png') )
-
-        os.chmod(target_dir,0755)
-        os.chmod(this_targetdir,0755)
-        os.chmod(os.path.join(this_targetdir,'baseline.png'),0744)
-        os.chmod(os.path.join(this_targetdir,'actual.png'),0744)
-        os.chmod(os.path.join(this_targetdir,'absdiff.png'),0744)
