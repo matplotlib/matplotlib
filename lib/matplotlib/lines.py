@@ -453,7 +453,7 @@ class Line2D(Artist):
         self._y = self._xy[:, 1] # just a view
 
         self._subslice = False
-        if len(x) > 100 and self._is_sorted(x):
+        if self.axes and len(x) > 100 and self._is_sorted(x):
             self._subslice = True
         if hasattr(self, '_path'):
             interpolation_steps = self._path._interpolation_steps
@@ -490,7 +490,7 @@ class Line2D(Artist):
     def draw(self, renderer):
         if self._invalid:
             self.recache()
-        if self._subslice:
+        if self._subslice and self.axes:
             # Need to handle monotonically decreasing case also...
             x0, x1 = self.axes.get_xbound()
             i0, = self._x.searchsorted([x0], 'left')
