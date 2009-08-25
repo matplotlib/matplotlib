@@ -497,77 +497,80 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
                   returnPxx=False):
 
     u"""
-    Cxy, Phase, freqs = cohere_pairs( X, ij, ...)
+    Call signature::
 
-    Compute the coherence and phase for all pairs ij, in X.
+      Cxy, Phase, freqs = cohere_pairs( X, ij, ...)
 
-    Parameters
-    ----------
-    X: array
-    a numSamples*numCols array
+    Compute the coherence and phase for all pairs *ij*, in *X*.
 
-    ij:  list of tuples
-    Each tuple is a pair of indexes into the columns of X for which you want to
-    compute coherence.  For example, if X has 64 columns, and you want to
-    compute all nonredundant pairs, define ij as
+    *X* is a *numSamples* * *numCols* array
+
+    *ij* is a list of tuples.  Each tuple is a pair of indexes into
+    the columns of X for which you want to compute coherence.  For
+    example, if *X* has 64 columns, and you want to compute all
+    nonredundant pairs, define *ij* as::
 
       ij = []
       for i in range(64):
           for j in range(i+1,64):
               ij.append( (i,j) )
 
-    preferSpeedOverMemory: optional, bool
+    *preferSpeedOverMemory* is an optional bool. Defaults to true. If
+    False, limits the caching by only making one, rather than two,
+    complex cache arrays. This is useful if memory becomes critical.
+    Even when *preferSpeedOverMemory* is False, :func:`cohere_pairs`
+    will still give significant performace gains over calling
+    :func:`cohere` for each pair, and will use subtantially less
+    memory than if *preferSpeedOverMemory* is True.  In my tests with
+    a 43000,64 array over all nonredundant pairs,
+    *preferSpeedOverMemory* = True delivered a 33% performance boost
+    on a 1.7GHZ Athlon with 512MB RAM compared with
+    *preferSpeedOverMemory* = False.  But both solutions were more
+    than 10x faster than naively crunching all possible pairs through
+    :func:`cohere`.
 
-    Defaults to true. If false, limits the caching by only making one, rather
-    than two, complex cache arrays. This is useful if memory becomes critical.
-    Even when preferSpeedOverMemory is false, cohere_pairs will still give
-    significant performace gains over calling cohere for each pair, and will
-    use subtantially less memory than if preferSpeedOverMemory is true.  In my
-    tests with a 43000,64 array over all nonredundant pairs,
-    preferSpeedOverMemory=1 delivered a 33% performace boost on a 1.7GHZ Athlon
-    with 512MB RAM compared with preferSpeedOverMemory=0.  But both solutions
-    were more than 10x faster than naievly crunching all possible pairs through
-    cohere.
-    
-    Returns
-    -------
+    Returns::
 
-    (Cxy, Phase, freqs), where: 
-    
-    Cxy: dictionary of (i,j) tuples -> coherence vector for that
-        pair.  Ie, Cxy[(i,j) = cohere(X[:,i], X[:,j]).  Number of
-        dictionary keys is len(ij)
+       (Cxy, Phase, freqs)
 
-    Phase: dictionary of phases of the cross spectral density at
-    each frequency for each pair.  keys are (i,j).
+    where:
 
-    freqs: vector of frequencies, equal in length to either the
-    coherence or phase vectors for any i,j key.
+      - *Cxy*: dictionary of (*i*, *j*) tuples -> coherence vector for
+        that pair.  I.e., ``Cxy[(i,j) = cohere(X[:,i], X[:,j])``.
+        Number of dictionary keys is ``len(ij)``.
 
-    Eg, to make a coherence Bode plot:
+      - *Phase*: dictionary of phases of the cross spectral density at
+        each frequency for each pair.  Keys are (*i*, *j*).
+
+      - *freqs*: vector of frequencies, equal in length to either the
+         coherence or phase vectors for any (*i*, *j*) key.
+
+    Eg., to make a coherence Bode plot::
 
           subplot(211)
           plot( freqs, Cxy[(12,19)])
           subplot(212)
           plot( freqs, Phase[(12,19)])
 
-    For a large number of pairs, cohere_pairs can be much more
-    efficient than just calling cohere for each pair, because it
-    caches most of the intensive computations.  If N is the number of
-    pairs, this function is O(N) for most of the heavy lifting,
-    whereas calling cohere for each pair is O(N^2).  However, because
-    of the caching, it is also more memory intensive, making 2
-    additional complex arrays with approximately the same number of
-    elements as X.
+    For a large number of pairs, :func:`cohere_pairs` can be much more
+    efficient than just calling :func:`cohere` for each pair, because
+    it caches most of the intensive computations.  If :math:`N` is the
+    number of pairs, this function is :math:`O(N)` for most of the
+    heavy lifting, whereas calling cohere for each pair is
+    :math:`O(N^2)`.  However, because of the caching, it is also more
+    memory intensive, making 2 additional complex arrays with
+    approximately the same number of elements as *X*.
 
-    See test/cohere_pairs_test.py in the src tree for an example
-    script that shows that this cohere_pairs and cohere give the same
-    results for a given pair.
+    See :file:`test/cohere_pairs_test.py` in the src tree for an
+    example script that shows that this :func:`cohere_pairs` and
+    :func:`cohere` give the same results for a given pair.
 
-    See also 
-    --------
-    :func: psd
-    """    
+    .. sealso::
+
+        :func:`psd`
+            For information about the methods used to compute
+            :math:`P_{xy}`, :math:`P_{xx}` and :math:`P_{yy}`.
+    """
     numRows, numCols = X.shape
 
     # zero pad if X is too short
