@@ -1,4 +1,4 @@
-M.. _coding-guide:
+.. _coding-guide:
 
 ************
 Coding guide

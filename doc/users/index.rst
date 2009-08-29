@@ -19,6 +19,7 @@ User's Guide
     customizing.rst
     shell.rst
     index_text.rst
+    image_tutorial.rst
     artists.rst
     legend_guide.rst
     event_handling.rst

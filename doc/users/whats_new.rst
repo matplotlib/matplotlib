@@ -12,6 +12,16 @@ new in matplotlib-0.99
 
 .. _whats-new-mplot3d:
 
+New documentation
+-----------------
+
+Jae-Joon Lee has written two new guides :ref:`plotting-guide-legend`
+and :ref:`plotting-guide-annotation`.  Michael Sarahan has written
+:ref:`image_tutorial`.  John Hunter has written two new tutorials on
+working with paths and transformations: :ref:`path_tutorial` and
+:ref:`transforms_tutorial`.
+
+
 mplot3d
 --------
 
@@ -52,12 +62,6 @@ well as "detach" the spine to offset it away from the data.  See
 
 .. plot:: pyplots/whats_new_99_spines.py
 
-
-New documentation
------------------
-
-jae-Joon Lee has written two new guides :ref:`plotting-guide-legend`
-and :ref:`plotting-guide-annotation`.
 
 .. _whats-new-0-98-4:
 
