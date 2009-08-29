@@ -12,16 +12,16 @@ Startup commands
 
 At the very least, you'll need to have access to the :func:`~matplotlib.pyplot.imshow` function.  There are a couple of ways to do it.  The easy way for an interactive environment::
 
-    $ipython -pylab -wthread
+    $ipython -pylab 
     
 The imshow function is now directly accessible (it's in your
 `namespace <http://bytebaker.com/2008/07/30/python-namespaces/>`_).
 See also :ref:`pyplot-tutorial`.
 
-The more expressive, easier to understand later method (use this in your scripts to make it easier for others (including your future self) to read)::
+The more expressive, easier to understand later method (use this in
+your scripts to make it easier for others (including your future self)
+to read) is to use the matplotlib API (see :ref:`artist-tutorial`) where you use explicit namespaces and control object creation, etc...
 
-   $ipython -wthread
-   
 .. sourcecode:: ipython
 
    In [1]: import matplotlib.pyplot as plt
