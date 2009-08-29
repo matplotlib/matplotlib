@@ -3601,6 +3601,7 @@ class Axes(martist.Artist):
              }
 
         self.set_xscale('log', **d)
+        self.set_yscale('linear')
         b =  self._hold
         self._hold = True # we've already processed the hold
         l = self.plot(*args, **kwargs)
@@ -3651,6 +3652,7 @@ class Axes(martist.Artist):
              'nonposy': kwargs.pop('nonposy', 'mask'),
              }
         self.set_yscale('log', **d)
+        self.set_xscale('linear')
         b =  self._hold
         self._hold = True # we've already processed the hold
         l = self.plot(*args, **kwargs)
