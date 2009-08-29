@@ -1,4 +1,4 @@
-.. _transformstutorial:
+.. _transforms_tutorial:
 
 **************************
 Transformations Tutorial
