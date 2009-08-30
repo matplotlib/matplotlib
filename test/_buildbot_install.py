@@ -10,6 +10,11 @@ TARGET='PYmpl'
 if os.path.exists(TARGET):
     shutil.rmtree(TARGET)
 
+if 1:
+    build_path = 'build'
+    if os.path.exists(build_path):
+        shutil.rmtree(build_path)
+
 check_call('virtualenv %s'%(TARGET,))
 TARGET_py = os.path.join(TARGET,'bin','python')
 check_call('%s setup.py install'%TARGET_py)
