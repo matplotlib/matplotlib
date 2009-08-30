@@ -1,6 +1,7 @@
 #!/bin/bash
 set -e
 rm -rf ${HOME}/.matplotlib/*
+rm -rf build
 
 export PYTHON=${HOME}/dev/bin/python
 export PREFIX=${HOME}/devbb 
