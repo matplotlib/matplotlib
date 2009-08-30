@@ -931,7 +931,9 @@ class LineCollection(Collection):
     def set_segments(self, segments):
         if segments is None: return
         _segments = []
+
         for seg in segments:
+
             if not np.ma.isMaskedArray(seg):
                 seg = np.asarray(seg, np.float_)
             _segments.append(seg)

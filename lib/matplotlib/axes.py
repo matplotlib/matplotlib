@@ -203,10 +203,24 @@ class _process_plot_var_args:
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             bx = self.axes.xaxis.update_units(x)
             by = self.axes.yaxis.update_units(y)
-            if bx:
-                x = self.axes.convert_xunits(x)
-            if by:
-                y = self.axes.convert_yunits(y)
+
+	    if self.command!='plot':
+                # the Line2D class can handle unitized data, with
+                # support for post hoc unit changes etc.  Other mpl
+                # artists, eg Polygon which _process_plot_var_args
+                # also serves on calls to fill, cannot.  So this is a
+                # hack to say: if you are not "plot", which is
+                # creating Line2D, then convert the data now to
+                # floats.  If you are plot, pass the raw data through
+                # to Line2D which will handle the conversion.  So
+                # polygons will not support post hoc conversions of
+                # the unit type since they are not storing the orig
+                # data.  Hopefully we can rationalize this at a later
+                # date - JDH
+                if bx:
+                    x = self.axes.convert_xunits(x)
+                if by:
+                    y = self.axes.convert_yunits(y)
 
         x = np.atleast_1d(x) #like asanyarray, but converts scalar to array
         y = np.atleast_1d(y)
@@ -4255,10 +4269,14 @@ class Axes(martist.Artist):
         if self.xaxis is not None:
             left = self.convert_xunits( left )
             width = self.convert_xunits( width )
+            if xerr is not None:
+                xerr = self.convert_xunits( xerr )
 
         if self.yaxis is not None:
             bottom = self.convert_yunits( bottom )
             height = self.convert_yunits( height )
+            if yerr is not None:
+                yerr = self.convert_yunits( yerr )
 
         if align == 'edge':
             pass

@@ -25,11 +25,11 @@ ax2.bar(cms, cms, bottom=bottom, width=width, xunits=cm, yunits=inch)
 
 ax3 = fig.add_subplot(2,2,3)
 ax3.bar(cms, cms, bottom=bottom, width=width, xunits=inch, yunits=cm)
-ax3.set_xlim(3, 6)  # scalars are interpreted in current units
+ax3.set_xlim(2, 6)  # scalars are interpreted in current units
 
 ax4 = fig.add_subplot(2,2,4)
 ax4.bar(cms, cms, bottom=bottom, width=width, xunits=inch, yunits=inch)
 #fig.savefig('simple_conversion_plot.png')
-ax4.set_xlim(3*cm, 6*cm) # cm are converted to inches
+ax4.set_xlim(2*cm, 6*cm) # cm are converted to inches
 
 show()
