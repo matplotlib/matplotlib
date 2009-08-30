@@ -702,10 +702,6 @@ class MplNosePlugin( Plugin ):
       rmdir( self.outputDir )
       mkdir( self.outputDir, recursive = True )
 
-      # sys.stdout.write( "%s\n     %s     \n" % (test.id(), test.shortDescription()) )
-      print "%s" % (test.id())
-      print "     %s" % (test.shortDescription())
-
    #--------------------------------------------------------------------
    def stopContext( self, context ):
       """Called after the tests in a context have run and the context has been
