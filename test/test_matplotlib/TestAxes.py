@@ -2,7 +2,7 @@
 """The Axes unit-test class implementation."""
 #=======================================================================
 
-from mplTest import MplTestCase
+from mplTest import MplTestCase, units
 
 #=======================================================================
 # Add import modules below.
@@ -88,6 +88,8 @@ class TestAxes( MplTestCase ):
       fig.savefig( fname )
       self.checkImage( fname )
 
+      # See SF bug 2846058
+      # https://sourceforge.net/tracker/?func=detail&aid=2846058&group_id=80706&atid=560720
       fname = self.outFile( "formatter_ticker_005.png" )
       ax.set_xlabel( "x-label 005" )
       ax.autoscale_view()
