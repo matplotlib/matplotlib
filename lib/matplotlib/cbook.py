@@ -910,7 +910,7 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
 
 def get_recursive_filelist(args):
     """
-    Recurs all the files and dirs in *args* ignoring symbolic links
+    Recurse all the files and dirs in *args* ignoring symbolic links
     and return the files as a list of strings
     """
     files = []
