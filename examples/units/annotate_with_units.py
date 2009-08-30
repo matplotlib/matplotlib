@@ -1,8 +1,7 @@
-
-import pylab
+import matplotlib.pyplot as plt
 from basic_units import cm
 
-fig = pylab.figure()
+fig = plt.figure()
 ax = fig.add_subplot(111)
 
 
@@ -23,5 +22,5 @@ ax.annotate('local max', xy=(3*cm, 1*cm),  xycoords='data',
 
 ax.set_xlim(0*cm, 4*cm)
 ax.set_ylim(0*cm, 4*cm)
-pylab.show()
+plt.show()
 
