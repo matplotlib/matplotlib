@@ -12,12 +12,11 @@ contains all the plot elements.  The following classes are defined
 
 """
 import numpy as np
-import time
 
 import artist
 from artist import Artist, allow_rasterization
 from axes import Axes, SubplotBase, subplot_class_factory
-from cbook import flatten, allequal, Stack, iterable, dedent
+from cbook import flatten, allequal, Stack, iterable
 import _image
 import colorbar as cbar
 from image import FigureImage
@@ -1117,6 +1116,12 @@ class Figure(Artist):
         (or potentially both mouse buttons at once) terminates the input.
 
         Right clicking cancels last input.
+
+        The buttons used for the various actions (adding points, removing
+        points, terminating the inputs) can be overriden via the
+        arguments *mouse_add*, *mouse_pop* and *mouse_stop*, that give
+        the associated mouse button: 1 for left, 2 for middle, 3 for
+        right.
 
         The keyboard can also be used to select points in case your mouse
         does not have one or more of the buttons.  The delete and backspace
