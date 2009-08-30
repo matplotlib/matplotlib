@@ -114,14 +114,24 @@ class BlockingMouseInput(BlockingInput):
     Class that creates a callable object to retrieve mouse clicks in a
     blocking way.
 
-    This class will also retrieve keyboard clicks and treat them like 
+    This class will also retrieve keyboard clicks and treat them like
     appropriate mouse clicks (delete and backspace are like mouse button 3,
     enter is like mouse button 2 and all others are like mouse button 1).
     """
-    def __init__(self, fig):
+
+    button_add    = 1
+    button_pop    = 3
+    button_stop   = 2
+
+    def __init__(self, fig, mouse_add=1, mouse_pop=3, mouse_stop=2):
         BlockingInput.__init__(self, fig=fig,
                                eventslist=('button_press_event',
                                            'key_press_event') )
+        self.button_add = mouse_add
+        self.button_pop = mouse_pop
+        self.button_stop= mouse_stop
+
+
 
     def post_event(self):
         """
@@ -133,19 +143,19 @@ class BlockingMouseInput(BlockingInput):
             self.key_event()
         else:
             self.mouse_event()
-            
+
     def mouse_event(self):
         '''Process a mouse click event'''
 
         event = self.events[-1]
         button = event.button
 
-        if button == 3:
-            self.button3(event)
-        elif button == 2:
-            self.button2(event)
+        if button == self.button_pop:
+            self.mouse_event_pop(event,-1)
+        elif button == self.button_stop:
+            self.mouse_event_stop(event)
         else:
-            self.button1(event)
+            self.mouse_event_add(event)
 
     def key_event(self):
         '''
@@ -154,16 +164,16 @@ class BlockingMouseInput(BlockingInput):
         '''
         
         event = self.events[-1]
-        key = event.key
+        key = event.key.lower()
 
-        if key == 'backspace' or key == 'delete':
-            self.button3(event)
-        elif key == 'enter':
-            self.button2(event)
+        if key in ['backspace', 'delete']:
+            self.mouse_event_pop(event)
+        elif key in ['escape', 'enter']: # on windows XP and wxAgg, the enter key doesn't seem to register
+            self.mouse_event_stop(event)
         else:
-            self.button1(event)
+            self.mouse_event_add(event)
 
-    def button1( self, event ):
+    def mouse_event_add( self, event ):
         """
         Will be called for any event involving a button other than
         button 2 or 3.  This will add a click if it is inside axes.
@@ -171,34 +181,34 @@ class BlockingMouseInput(BlockingInput):
         if event.inaxes:
             self.add_click(event)
         else: # If not a valid click, remove from event list
-            BlockingInput.pop(self)
+            BlockingInput.pop(self,-1)
 
-    def button2( self, event ):
+    def mouse_event_stop( self, event ):
         """
         Will be called for any event involving button 2.
         Button 2 ends blocking input.
         """
 
         # Remove last event just for cleanliness
-        BlockingInput.pop(self)
+        BlockingInput.pop(self,-1)
 
         # This will exit even if not in infinite mode.  This is
         # consistent with matlab and sometimes quite useful, but will
         # require the user to test how many points were actually
         # returned before using data.
-        self.fig.canvas.stop_event_loop()
+        self.fig.canvas.stop_event_loop(event)
 
-    def button3( self, event ):
+    def mouse_event_pop( self, event ):
         """
         Will be called for any event involving button 3.
         Button 3 removes the last click.
         """
         # Remove this last event
-        BlockingInput.pop(self)
+        BlockingInput.pop(self,-1)
 
         # Now remove any existing clicks if possible
         if len(self.events)>0:
-            self.pop()
+            self.pop(event,-1)
 
     def add_click(self,event):
         """
@@ -211,11 +221,23 @@ class BlockingMouseInput(BlockingInput):
 
         # If desired plot up click
         if self.show_clicks:
+
+            # make sure we don't mess with the axes zoom
+            xlim = event.inaxes.get_xlim()
+            ylim = event.inaxes.get_ylim()
+
+            # plot the clicks
             self.marks.extend(
                 event.inaxes.plot([event.xdata,], [event.ydata,], 'r+') )
+
+            # before we draw, make sure to reset the limits
+            event.inaxes.set_xlim(xlim)
+            event.inaxes.set_ylim(ylim)
             self.fig.canvas.draw()
 
-    def pop_click(self,index=-1):
+
+
+    def pop_click(self,event,index=-1):
         """
         This removes a click from the list of clicks.  Defaults to
         removing the last click.
@@ -223,25 +245,49 @@ class BlockingMouseInput(BlockingInput):
         self.clicks.pop(index)
 
         if self.show_clicks:
+
+            # make sure we don't mess with the axes zoom
+            xlim = event.inaxes.get_xlim()
+            ylim = event.inaxes.get_ylim()
+
             mark = self.marks.pop(index)
             mark.remove()
-            self.fig.canvas.draw()
 
-    def pop(self,index=-1):
+            # before we draw, make sure to reset the limits
+            event.inaxes.set_xlim(xlim)
+            event.inaxes.set_ylim(ylim)
+            self.fig.canvas.draw()
+            # NOTE: I do NOT understand why the above 3 lines does not work
+            # for the keyboard backspace event on windows XP wxAgg.
+            # maybe event.inaxes here is a COPY of the actual axes?
+
+
+    def pop(self,event,index=-1):
         """
         This removes a click and the associated event from the object.
         Defaults to removing the last click, but any index can be
         supplied.
         """
-        self.pop_click(index)
+        self.pop_click(event,index)
         BlockingInput.pop(self,index)
 
-    def cleanup(self):
+    def cleanup(self,event=None):
         # clean the figure
         if self.show_clicks:
+            if event:
+                # make sure we don't mess with the axes zoom
+                xlim = event.inaxes.get_xlim()
+                ylim = event.inaxes.get_ylim()
+
             for mark in self.marks:
                 mark.remove()
             self.marks = []
+
+            if event:
+                # before we draw, make sure to reset the limits
+                event.inaxes.set_xlim(xlim)
+                event.inaxes.set_ylim(ylim)
+
             self.fig.canvas.draw()
 
         # Call base class to remove callbacks
