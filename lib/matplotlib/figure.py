@@ -981,10 +981,14 @@ class Figure(Artist):
         Arguments:
 
           *fname*:
-            A string containing a path to a filename, or a Python file-like object.
+            A string containing a path to a filename, or a Python file-like object,
+            or possibly some backend-dependent object such as
+            :class:`~matplotlib.backends.backend_pdf.PdfPages`.
 
             If *format* is *None* and *fname* is a string, the output
             format is deduced from the extension of the filename.
+            If *fname* is not a string, remember to specify *format* to
+            ensure that the correct backend is used.
 
         Keyword arguments:
 
