@@ -17,9 +17,6 @@ This provides several classes used for blocking interaction with figure windows:
     Note: Subclass of BlockingMouseInput.  Used by clabel
 """
 
-import time
-import numpy as np
-
 from matplotlib import path, verbose
 from matplotlib.cbook import is_sequence_of_strings
 
@@ -151,7 +148,7 @@ class BlockingMouseInput(BlockingInput):
         button = event.button
 
         if button == self.button_pop:
-            self.mouse_event_pop(event,-1)
+            self.mouse_event_pop(event)
         elif button == self.button_stop:
             self.mouse_event_stop(event)
         else:
@@ -162,7 +159,7 @@ class BlockingMouseInput(BlockingInput):
         Process a key click event.  This maps certain keys to appropriate
         mouse click events.
         '''
-        
+
         event = self.events[-1]
         key = event.key.lower()
 
