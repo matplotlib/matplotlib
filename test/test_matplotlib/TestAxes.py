@@ -3,6 +3,7 @@
 #=======================================================================
 
 from mplTest import MplTestCase, units
+from matplotlib.testing.decorators import knownfailureif
 
 #=======================================================================
 # Add import modules below.
@@ -57,6 +58,7 @@ class TestAxes( MplTestCase ):
       self.checkImage( fname )
 
    #--------------------------------------------------------------------
+   @knownfailureif(True, "Fails due to SF bug 2846058")
    def test_formatter_ticker( self ):
       """Test Some formatter and ticker issues."""
 

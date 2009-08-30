@@ -12,6 +12,7 @@ from nose.plugins import Plugin
 from path_utils import *
 import directories as dirs
 from MplTestCase import MplTestCase
+from matplotlib.testing.noseclasses import KnownFailureTest
 
 #=======================================================================
 
@@ -48,7 +49,8 @@ class MplNosePlugin( Plugin ):
 
    TEST_ERRORED = -1
    TEST_FAILED = 0
-   TEST_PASSED = 1
+   TEST_KNOWN_FAILED = 1
+   TEST_PASSED = 2
 
    #--------------------------------------------------------------------
    # Some 'property' functions
@@ -148,7 +150,11 @@ class MplNosePlugin( Plugin ):
          err : 3-tuple
                sys.exc_info() tuple
       """
-      self.testResults.append( (test, self.TEST_ERRORED, err) )
+      (type, value, traceback) = err
+      if isinstance(value,KnownFailureTest):
+         self.testResults.append( (test, self.TEST_KNOWN_FAILED, err) )
+      else:
+         self.testResults.append( (test, self.TEST_ERRORED, err) )
 
    #--------------------------------------------------------------------
    def addFailure( self, test, err ):

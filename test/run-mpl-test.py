@@ -44,6 +44,7 @@ os.chdir( working )
 
 import nose
 from mplTest import MplNosePlugin, path_utils
+from matplotlib.testing.noseclasses import KnownFailure
 
 if '--clean' in args:
    # perform the cleaning process and exit
@@ -90,7 +91,7 @@ for arg in args:
 
 ### Run nose
 success = nose.run( argv = args,
-                    plugins = [ MplNosePlugin() ] )
+                    plugins = [ MplNosePlugin(), KnownFailure() ] )
 
 ### do other stuff here
 
