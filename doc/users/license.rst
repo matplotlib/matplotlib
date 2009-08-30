@@ -28,7 +28,7 @@ to reproduce, analyze, test, perform and/or display publicly, prepare
 derivative works, distribute, and otherwise use matplotlib |version|
 alone or in any derivative version, provided, however, that JDH's
 License Agreement and JDH's notice of copyright, i.e., "Copyright (c)
-2002-2008 John D. Hunter; All Rights Reserved" are retained in
+2002-2009 John D. Hunter; All Rights Reserved" are retained in
 matplotlib |version| alone or in any derivative version prepared by
 Licensee.
 

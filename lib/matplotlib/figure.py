@@ -1095,11 +1095,12 @@ class Figure(Artist):
                 ax.update_params()
                 ax.set_position(ax.figbox)
 
-    def ginput(self, n=1, timeout=30, show_clicks=True):
+    def ginput(self, n=1, timeout=30, show_clicks=True, mouse_add=1, mouse_pop=3, mouse_stop=2):
         """
         call signature::
 
-          ginput(self, n=1, timeout=30, show_clicks=True)
+          ginput(self, n=1, timeout=30, show_clicks=True,
+                 mouse_add=1, mouse_pop=3, mouse_stop=2)
 
         Blocking call to interact with the figure.
 
@@ -1120,7 +1121,9 @@ class Figure(Artist):
         manager) selects a point.
         """
 
-        blocking_mouse_input = BlockingMouseInput(self)
+        blocking_mouse_input = BlockingMouseInput(self, mouse_add =mouse_add,
+                                                        mouse_pop =mouse_pop,
+                                                        mouse_stop=mouse_stop)
         return blocking_mouse_input(n=n, timeout=timeout,
                                     show_clicks=show_clicks)
 
