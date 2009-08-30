@@ -75,6 +75,7 @@ def path_split_all(fname):
 if 1:
     if os.path.exists(target_dir):
         shutil.rmtree(target_dir)
+    os.makedirs( target_dir ) # prevent buildbot DirectoryUpload failure
     os.chdir('test')
     for fpath in get_recursive_filelist(roots):
         # only images
