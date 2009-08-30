@@ -348,7 +348,7 @@ class Stream(object):
             self.compressobj = None
 
 class PdfFile(object):
-    """PDF file with one page."""
+    """PDF file object."""
 
     def __init__(self, filename):
         self.nextObject = 1     # next free object id
@@ -1923,18 +1923,18 @@ class PdfPages(object):
     """
     A multi-page PDF file.
 
-    Use like this:
+    Use like this::
 
-      # Initialize:
-      pdf_pages = PdfPages('foo.pdf')
+        # Initialize:
+        pp = PdfPages('foo.pdf')
 
-      # As many times as you like, create a figure fig, then either:
-      fig.savefig(pdf_pages, format='pdf') # note the format argument!
-      # or:
-      pdf_pages.savefig(fig)
+        # As many times as you like, create a figure fig, then either:
+        fig.savefig(pp, format='pdf') # note the format argument!
+        # or:
+        pp.savefig(fig)
 
-      # Once you are done, remember to close the object:
-      pdf_pages.close()
+        # Once you are done, remember to close the object:
+        pp.close()
 
     (In reality PdfPages is a thin wrapper around PdfFile, in order to
     avoid confusion when using savefig and forgetting the format
