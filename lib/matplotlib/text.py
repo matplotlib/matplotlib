@@ -23,6 +23,11 @@ from matplotlib.artist import allow_rasterization
 
 import matplotlib.nxutils as nxutils
 
+from matplotlib.path import Path
+import matplotlib.font_manager as font_manager
+from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
+
+
 def _process_text_args(override, fontdict=None, **kwargs):
     "Return an override dict.  See :func:`~pyplot.text' docstring for info"
 
@@ -1763,4 +1768,175 @@ class Annotation(Text, _AnnotationBase):
 
 
 docstring.interpd.update(Annotation=Annotation.__init__.__doc__)
+
+
+class TextPath(Path):
+    """
+    Create a path from the text.
+    """
+
+    # TODO : math text is currently not supported, but it would not be easy.
+
+    FONT_SCALE = 100.
+
+    def __init__(self, xy, s, size=None, prop=None,
+                 _interpolation_steps=1,
+                 *kl, **kwargs):
+        """
+        Create a path from the text. No support for TeX yet. Note that
+        it simply is a path, not an artist. You need to use the
+        PathPatch (or other artists) to draw this path onto the
+        canvas.
+        
+        xy : position of the text.
+        s : text
+        size : font size
+        prop : font property
+        """
+
+
+        if prop is None:
+            prop = FontProperties()
+
+        if size is None:
+            size = prop.get_size_in_points()
+
+
+        self._xy = xy
+        self.set_size(size)
+
+        self._cached_vertices = None
+
+        self._vertices, self._codes = self.text_get_vertices_codes(prop, s)
+
+        self.should_simplify = False
+        self.simplify_threshold = rcParams['path.simplify_threshold']
+        self.has_nonfinite = False
+        self._interpolation_steps = _interpolation_steps
+
+
+    def set_size(self, size):
+        """
+        set the size of the text
+        """
+        self._size = size
+        self._invalid = True
+
+    def get_size(self):
+        """
+        get the size of the text
+        """
+        return self._size
+
+    def _get_vertices(self):
+        """
+        Return the cached path after updating it if necessary.
+        """
+        self._revalidate_path()
+        return self._cached_vertices
+
+    def _get_codes(self):
+        """
+        Return the codes
+        """
+        return self._codes
+    
+    vertices = property(_get_vertices)
+    codes = property(_get_codes)
+
+    def _revalidate_path(self):
+        """
+        update the path if necessary.
+
+        The path for the text is initially create with the font size
+        of FONT_SCALE, and this path is rescaled to other size when
+        necessary.
+
+        """
+        if self._invalid or \
+               (self._cached_vertices is None):
+            tr = Affine2D().scale(self._size/self.FONT_SCALE,
+                                  self._size/self.FONT_SCALE).translate(*self._xy)
+            self._cached_vertices = tr.transform(self._vertices)
+            self._invalid = False
+
+
+    def glyph_char_path(self, glyph, currx=0.):
+        """
+        convert the glyph to vertices and codes. Mostly copied from
+        backend_svg.py.
+        """
+        verts, codes = [], []
+        for step in glyph.path:
+            if step[0] == 0:   # MOVE_TO
+                verts.append((step[1], step[2]))
+                codes.append(Path.MOVETO)
+            elif step[0] == 1: # LINE_TO
+                verts.append((step[1], step[2]))
+                codes.append(Path.LINETO)
+            elif step[0] == 2: # CURVE3
+                verts.extend([(step[1], step[2]),
+                               (step[3], step[4])])
+                codes.extend([Path.CURVE3, Path.CURVE3])
+            elif step[0] == 3: # CURVE4
+                verts.extend([(step[1], step[2]),
+                              (step[3], step[4]),
+                              (step[5], step[6])])
+                codes.extend([Path.CURVE4, Path.CURVE4, Path.CURVE4])
+            elif step[0] == 4: # ENDPOLY
+                verts.append((0, 0,))
+                codes.append(Path.CLOSEPOLY)
+
+        verts = [(x+currx, y) for (x,y) in verts]
+
+        return verts, codes
+
+
+    def text_get_vertices_codes(self, prop, s):
+        """
+        convert the string *s* to vertices and codes using the
+        provided font property *prop*. Mostly copied from
+        backend_svg.py.
+        """
+
+        fname = font_manager.findfont(prop)
+        font = FT2Font(str(fname))
+
+        font.set_size(self.FONT_SCALE, 72)
+
+        cmap = font.get_charmap()
+        lastgind = None
+
+        currx = 0
+
+        verts, codes = [], []
+
+
+        # I'm not sure if I get kernings right. Needs to be verified. -JJL
+
+        for c in s:
+
+            ccode = ord(c)
+            gind = cmap.get(ccode)
+            if gind is None:
+                ccode = ord('?')
+                gind = 0
+            glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
+
+
+            if lastgind is not None:
+                kern = font.get_kerning(lastgind, gind, KERNING_DEFAULT)
+            else:
+                kern = 0
+            currx += (kern / 64.0) #/ (self.FONT_SCALE)
+
+            verts1, codes1 = self.glyph_char_path(glyph, currx)
+            verts.extend(verts1)
+            codes.extend(codes1)
+
+
+            currx += (glyph.linearHoriAdvance / 65536.0) #/ (self.FONT_SCALE)
+            lastgind = gind
+
+        return verts, codes
 
