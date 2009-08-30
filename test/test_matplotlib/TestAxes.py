@@ -86,6 +86,7 @@ class TestAxes( MplTestCase ):
 
       fname = self.outFile( "formatter_ticker_004.png" )
       ax.plot( xdata, ydata2, color='green', xunits="hour" )
+      ax.set_xlabel( "x-label 004" )
       fig.savefig( fname )
       self.checkImage( fname )
 
