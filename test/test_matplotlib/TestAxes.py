@@ -2,7 +2,7 @@
 """The Axes unit-test class implementation."""
 #=======================================================================
 
-from mplTest import *
+from mplTest import MplTestCase
 
 #=======================================================================
 # Add import modules below.
