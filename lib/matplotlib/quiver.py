@@ -325,6 +325,33 @@ class QuiverKey(martist.Artist):
     quiverkey_doc = _quiverkey_doc
 
 
+# This is a helper function that parses out the various combination of
+# arguments for doing colored vector plots.  Pulling it out here
+# allows both Quiver and Barbs to use it
+def _parse_args(*args):
+    X, Y, U, V, C = [None]*5
+    args = list(args)
+
+    # The use of atleast_1d allows for handling scalar arguments while also
+    # keeping masked arrays
+    if len(args) == 3 or len(args) == 5:
+        C = np.atleast_1d(args.pop(-1))
+    V = np.atleast_1d(args.pop(-1))
+    U = np.atleast_1d(args.pop(-1))
+    if U.ndim == 1:
+        nr, nc = 1, U.shape[0]
+    else:
+        nr, nc = U.shape
+    if len(args) == 2: # remaining after removing U,V,C
+        X, Y = [np.array(a).ravel() for a in args]
+        if len(X) == nc and len(Y) == nr:
+            X, Y = [a.ravel() for a in np.meshgrid(X, Y)]
+    else:
+        indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
+        X, Y = [np.ravel(a) for a in indexgrid]
+    return X, Y, U, V, C
+
+
 class Quiver(collections.PolyCollection):
     """
     Specialized PolyCollection for arrows.
@@ -351,7 +378,7 @@ class Quiver(collections.PolyCollection):
         by the following pylab interface documentation:
         %s"""
         self.ax = ax
-        X, Y, U, V, C = self._parse_args(*args)
+        X, Y, U, V, C = _parse_args(*args)
         self.X = X
         self.Y = Y
         self.XY = np.hstack((X[:,np.newaxis], Y[:,np.newaxis]))
@@ -389,26 +416,6 @@ class Quiver(collections.PolyCollection):
 
         self.ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
 
-
-    def _parse_args(self, *args):
-        X, Y, U, V, C = [None]*5
-        args = list(args)
-        if len(args) == 3 or len(args) == 5:
-            C = np.asanyarray(args.pop(-1))
-        V = np.asanyarray(args.pop(-1))
-        U = np.asanyarray(args.pop(-1))
-        if U.ndim == 1:
-            nr, nc = 1, U.shape[0]
-        else:
-            nr, nc = U.shape
-        if len(args) == 2: # remaining after removing U,V,C
-            X, Y = [np.array(a).ravel() for a in args]
-            if len(X) == nc and len(Y) == nr:
-                X, Y = [a.ravel() for a in np.meshgrid(X, Y)]
-        else:
-            indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
-            X, Y = [np.ravel(a) for a in indexgrid]
-        return X, Y, U, V, C
 
     def _init(self):
         """initialization delayed until first draw;
@@ -762,7 +769,7 @@ class Barbs(collections.PolyCollection):
             kw['facecolors'] = flagcolor
 
         #Parse out the data arrays from the various configurations supported
-        x, y, u, v, c = self._parse_args(*args)
+        x, y, u, v, c = _parse_args(*args)
         self.x = x
         self.y = y
         xy = np.hstack((x[:,np.newaxis], y[:,np.newaxis]))
@@ -941,28 +948,6 @@ class Barbs(collections.PolyCollection):
             barb_list.append(poly_verts)
 
         return barb_list
-
-    #Taken shamelessly from Quiver
-    def _parse_args(self, *args):
-        X, Y, U, V, C = [None]*5
-        args = list(args)
-        if len(args) == 3 or len(args) == 5:
-            C = ma.masked_invalid(args.pop(-1), copy=False).ravel()
-        V = ma.masked_invalid(args.pop(-1), copy=False)
-        U = ma.masked_invalid(args.pop(-1), copy=False)
-        nn = np.shape(U)
-        nc = nn[0]
-        nr = 1
-        if len(nn) > 1:
-            nr = nn[1]
-        if len(args) == 2: # remaining after removing U,V,C
-            X, Y = [np.array(a).ravel() for a in args]
-            if len(X) == nc and len(Y) == nr:
-                X, Y = [a.ravel() for a in np.meshgrid(X, Y)]
-        else:
-            indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
-            X, Y = [np.ravel(a) for a in indexgrid]
-        return X, Y, U, V, C
 
     def set_UVC(self, U, V, C=None):
         self.u = ma.masked_invalid(U, copy=False).ravel()
