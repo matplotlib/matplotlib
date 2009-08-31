@@ -394,7 +394,7 @@ class ColorConverter:
 
 colorConverter = ColorConverter()
 
-def makeMappingArray(N, data):
+def makeMappingArray(N, data, gamma=1.0):
     """Create an *N* -element 1-d lookup table
 
     *data* represented by a list of x,y0,y1 mapping correspondences.
@@ -408,9 +408,18 @@ def makeMappingArray(N, data):
     all values of x must be in increasing order. Values between
     the given mapping points are determined by simple linear interpolation.
 
+    Alternatively, data can be a function mapping values between 0 - 1
+    to 0 - 1.
+
     The function returns an array "result" where ``result[x*(N-1)]``
     gives the closest value for values of x between 0 and 1.
     """
+
+    if callable(data):
+        xind = np.linspace(0, 1, N)**gamma
+        lut = np.clip(np.array(data(xind), dtype=np.float), 0, 1)
+        return lut
+
     try:
         adata = np.array(data)
     except:
@@ -432,7 +441,7 @@ def makeMappingArray(N, data):
     # begin generation of lookup table
     x = x * (N-1)
     lut = np.zeros((N,), np.float)
-    xind = np.arange(float(N))
+    xind = (N - 1) * np.linspace(0, 1, N)**gamma
     ind = np.searchsorted(x, xind)[1:-1]
 
     lut[1:-1] = ( ((xind[1:-1] - x[ind-1]) / (x[ind] - x[ind-1]))
@@ -581,7 +590,7 @@ class LinearSegmentedColormap(Colormap):
     primary color, with the 0-1 domain divided into any number of
     segments.
     """
-    def __init__(self, name, segmentdata, N=256):
+    def __init__(self, name, segmentdata, N=256, gamma=1.0):
         """Create color map from linear mapping segments
 
         segmentdata argument is a dictionary with a red, green and blue
@@ -628,26 +637,46 @@ class LinearSegmentedColormap(Colormap):
                                  # needed for contouring.
         Colormap.__init__(self, name, N)
         self._segmentdata = segmentdata
+        self._gamma = gamma
 
     def _init(self):
         self._lut = np.ones((self.N + 3, 4), np.float)
-        self._lut[:-3, 0] = makeMappingArray(self.N, self._segmentdata['red'])
-        self._lut[:-3, 1] = makeMappingArray(self.N, self._segmentdata['green'])
-        self._lut[:-3, 2] = makeMappingArray(self.N, self._segmentdata['blue'])
+        self._lut[:-3, 0] = makeMappingArray(self.N,
+                self._segmentdata['red'], self._gamma)
+        self._lut[:-3, 1] = makeMappingArray(self.N,
+                self._segmentdata['green'], self._gamma)
+        self._lut[:-3, 2] = makeMappingArray(self.N,
+                self._segmentdata['blue'], self._gamma)
         self._isinit = True
         self._set_extremes()
 
+    def set_gamma(self, gamma):
+        """
+        Set a new gamma value and regenerate color map.
+        """
+        self._gamma = gamma
+        self._init()
+
     @staticmethod
-    def from_list(name, colors, N=256):
+    def from_list(name, colors, N=256, gamma=1.0):
         """
         Make a linear segmented colormap with *name* from a sequence
         of *colors* which evenly transitions from colors[0] at val=1
         to colors[-1] at val=1.  N is the number of rgb quantization
         levels.
+        Alternatively, a list of (value, color) tuples can be given
+        to divide the range unevenly.
         """
 
-        ncolors = len(colors)
-        vals = np.linspace(0., 1., ncolors)
+        if not cbook.iterable(colors):
+            raise ValueError('colors must be iterable')
+
+        if cbook.iterable(colors[0]) and len(colors[0]) == 2 and \
+                not cbook.is_string_like(colors[0]):
+            # List of value, color pairs
+            vals, colors = zip(*colors)
+        else:
+            vals = np.linspace(0., 1., len(colors))
 
         cdict = dict(red=[], green=[], blue=[])
         for val, color in zip(vals, colors):
@@ -656,7 +685,7 @@ class LinearSegmentedColormap(Colormap):
             cdict['green'].append((val, g, g))
             cdict['blue'].append((val, b, b))
 
-        return LinearSegmentedColormap(name, cdict, N)
+        return LinearSegmentedColormap(name, cdict, N, gamma)
 
 class ListedColormap(Colormap):
     """Colormap object generated from a list of colors.
