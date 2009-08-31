@@ -14,7 +14,6 @@ import matplotlib.colors as colors
 import matplotlib.cbook as cbook
 from matplotlib._cm import datad
 
-
 cmap_d = dict()
 
 # reverse all the colormaps.
@@ -23,7 +22,10 @@ cmap_d = dict()
 def revcmap(data):
     data_r = {}
     for key, val in data.iteritems():
-        valnew = [(1.0-a, b, c) for a, b, c in reversed(val)]
+        if callable(val):
+            valnew = lambda x: 1 - val(x)
+        else:
+            valnew = [(1.0 - a, b, c) for a, b, c in reversed(val)]
         data_r[key] = valnew
     return data_r
 
@@ -33,12 +35,21 @@ _cmapnames = datad.keys()  # need this list because datad is changed in loop
 
 for cmapname in _cmapnames:
     cmapname_r = cmapname+'_r'
-    cmapdat_r = revcmap(datad[cmapname])
-    datad[cmapname_r] = cmapdat_r
-    cmap_d[cmapname] = colors.LinearSegmentedColormap(
-                            cmapname, datad[cmapname], LUTSIZE)
-    cmap_d[cmapname_r] = colors.LinearSegmentedColormap(
-                            cmapname_r, cmapdat_r, LUTSIZE)
+    cmapspec = datad[cmapname]
+    if 'red' in cmapspec:
+        datad[cmapname_r] = revcmap(cmapspec)
+        cmap_d[cmapname] = colors.LinearSegmentedColormap(
+                                cmapname, cmapspec, LUTSIZE)
+        cmap_d[cmapname_r] = colors.LinearSegmentedColormap(
+                                cmapname_r, datad[cmapname_r], LUTSIZE)
+    else:
+        datad[cmapname] = list(cmapspec)
+        datad[cmapname_r] = list(datad[cmapname])
+        datad[cmapname_r].reverse()
+        cmap_d[cmapname] = colors.LinearSegmentedColormap.from_list(
+                                cmapname, datad[cmapname], LUTSIZE)
+        cmap_d[cmapname_r] = colors.LinearSegmentedColormap.from_list(
+                                cmapname_r, datad[cmapname_r], LUTSIZE)
 
 locals().update(cmap_d)
 
