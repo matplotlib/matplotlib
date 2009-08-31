@@ -587,8 +587,9 @@ in the normalized axes coordinate.
         # We calculate number of lows in each column. The first
         # (num_largecol) columns will have (nrows+1) rows, and remaing
         # (num_smallcol) columns will have (nrows) rows.
-        nrows, num_largecol = divmod(len(handleboxes), self._ncol)
-        num_smallcol = self._ncol-num_largecol
+        ncol = min(self._ncol, len(handleboxes))
+        nrows, num_largecol = divmod(len(handleboxes), ncol)
+        num_smallcol = ncol-num_largecol
 
         # starting index of each column and number of rows in it.
         largecol = safezip(range(0, num_largecol*(nrows+1), (nrows+1)),
@@ -848,4 +849,5 @@ in the normalized axes coordinate.
         ox, oy = minCandidate[1]
 
         return ox, oy
+
 
