@@ -141,7 +141,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.axes.bbox.frozen())
         gc.set_clip_path(self.get_clip_path())
-        renderer.draw_image(gc, round(l), round(b), im)
+        renderer.draw_image(gc, l, b, im)
 
     def contains(self, mouseevent):
         """
@@ -421,10 +421,8 @@ class AxesImage(_AxesImageBase):
         ty = (ymin-self.axes.viewLim.y0)/dyintv * numrows
 
         l, b, r, t = self.axes.bbox.extents
-        widthDisplay = (round(r) + 0.5) - (round(l) - 0.5)
-        heightDisplay = (round(t) + 0.5) - (round(b) - 0.5)
-        widthDisplay *= magnification
-        heightDisplay *= magnification
+        widthDisplay = (round(r*magnification) + 0.5) - (round(l*magnification) - 0.5)
+        heightDisplay = (round(t*magnification) + 0.5) - (round(b*magnification) - 0.5)
         im.apply_translation(tx, ty)
 
         # resize viewport to display

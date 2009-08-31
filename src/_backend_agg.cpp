@@ -803,8 +803,8 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   args.verify_length(4);
 
   GCAgg gc(args[0], dpi);
-  double x = Py::Float(args[1]);
-  double y = Py::Float(args[2]);
+  double x = mpl_round(Py::Float(args[1]));
+  double y = mpl_round(Py::Float(args[2]));
   Image *image = static_cast<Image*>(args[3].ptr());
   bool has_clippath = false;
 
