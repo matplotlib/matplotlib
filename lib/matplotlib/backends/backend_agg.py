@@ -140,8 +140,8 @@ class RendererAgg(RendererBase):
             # space) in the following call to draw_text_image).
             font.set_text(s, 0, flags=LOAD_FORCE_AUTOHINT)
         font.draw_glyphs_to_bitmap()
-
-        #print x, y, int(x), int(y)
+        
+        #print x, y, int(x), int(y), s
 
         self._renderer.draw_text_image(font.get_image(), int(x), int(y) + 1, angle, gc)
 
