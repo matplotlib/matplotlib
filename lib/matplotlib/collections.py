@@ -1217,8 +1217,7 @@ class QuadMesh(Collection):
             triangles, colors = self.convert_mesh_to_triangles(
                 self._meshWidth, self._meshHeight, coordinates)
             check = {}
-            for tri, col in zip(triangles, colors):
-                renderer.draw_gouraud_triangle(gc, tri, col, transform.frozen())
+            renderer.draw_gouraud_triangles(gc, triangles, colors, transform.frozen())
         else:
             renderer.draw_quad_mesh(
                 gc, transform.frozen(), self._meshWidth, self._meshHeight,

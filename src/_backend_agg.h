@@ -165,6 +165,7 @@ public:
   Py::Object draw_path_collection(const Py::Tuple & args);
   Py::Object draw_quad_mesh(const Py::Tuple& args);
   Py::Object draw_gouraud_triangle(const Py::Tuple& args);
+  Py::Object draw_gouraud_triangles(const Py::Tuple& args);
 
   Py::Object write_rgba(const Py::Tuple & args);
   Py::Object tostring_rgb(const Py::Tuple & args);
@@ -240,6 +241,11 @@ protected:
      const Py::SeqBase<Py::Float>&  linewidths,
      const Py::SeqBase<Py::Object>& linestyles_obj,
      const Py::SeqBase<Py::Int>&    antialiaseds);
+
+  void
+  _draw_gouraud_triangle(
+      const GCAgg& gc,
+      const double* points, const double* colors, agg::trans_affine trans);
 
 private:
   void create_alpha_buffers();
