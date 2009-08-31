@@ -45,8 +45,6 @@ class TestAxes( MplTestCase ):
    #--------------------------------------------------------------------
    def test_empty_datetime( self ):
       """Test plotting empty axes with dates along one axis."""
-      if 1:
-         raise RuntimeError('error forced to test buildbot error reporting')
       fname = self.outFile( "empty_datetime.png" )
 
       t0 = datetime(2009, 1, 20)
