@@ -323,16 +323,20 @@ class QuiverKey(martist.Artist):
 
     quiverkey_doc = _quiverkey_doc
 
+
 # This is a helper function that parses out the various combination of
 # arguments for doing colored vector plots.  Pulling it out here
 # allows both Quiver and Barbs to use it
 def _parse_args(*args):
     X, Y, U, V, C = [None]*5
     args = list(args)
+
+    # The use of atleast_1d allows for handling scalar arguments while also
+    # keeping masked arrays
     if len(args) == 3 or len(args) == 5:
-        C = np.asanyarray(args.pop(-1))
-    V = np.asanyarray(args.pop(-1))
-    U = np.asanyarray(args.pop(-1))
+        C = np.atleast_1d(args.pop(-1))
+    V = np.atleast_1d(args.pop(-1))
+    U = np.atleast_1d(args.pop(-1))
     if U.ndim == 1:
         nr, nc = 1, U.shape[0]
     else:
