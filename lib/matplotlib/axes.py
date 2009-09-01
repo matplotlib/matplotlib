@@ -1749,6 +1749,7 @@ class Axes(martist.Artist):
                     self.patch.get_transform()))
 
             renderer.draw_image(gc, round(l), round(b), im)
+            gc.restore()
 
         if dsu_rasterized:
             for zorder, i, a in dsu_rasterized:
