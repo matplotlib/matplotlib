@@ -17,7 +17,6 @@ import numpy as npy
 from cStringIO import StringIO
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin
-import struct
 try:
     set
 except NameError:
@@ -1068,11 +1067,10 @@ end"""
             gouraudDict[name] = ob
             shape = points.shape
             flat_points = points.reshape((shape[0] * shape[1], 2))
+            flat_colors = colors.reshape((shape[0] * shape[1], 4))
             points_min = npy.min(flat_points, axis=0) - (1 << 8)
             points_max = npy.max(flat_points, axis=0) + (1 << 8)
             factor = float(0xffffffff) / (points_max - points_min)
-            adjpoints = npy.array((points - points_min) * factor, dtype=npy.uint32)
-            adjcolors = npy.array(colors * 255.0, dtype=npy.uint8)
 
             self.beginStream(
                 ob.id, None,
@@ -1087,10 +1085,16 @@ end"""
                              0, 1, 0, 1, 0, 1]
                   })
 
-            for tpoints, tcolors in zip(adjpoints, adjcolors):
-                for p, c in zip(tpoints, tcolors):
-                    values = [int(x) for x in [0] + list(p) + list(c[:3])]
-                    self.write(struct.pack('>BLLBBB', *values))
+            streamarr = npy.empty(
+                (shape[0] * shape[1],),
+                dtype=[('flags', 'u1'),
+                       ('points', '>u4', (2,)),
+                       ('colors', 'u1', (3,))])
+            streamarr['flags'] = 0
+            streamarr['points'] = (flat_points - points_min) * factor
+            streamarr['colors'] = flat_colors[:, :3] * 255.0
+
+            self.write(streamarr.tostring())
             self.endStream()
         self.writeObject(self.gouraudObject, gouraudDict)
 
@@ -1375,11 +1379,20 @@ class RendererPdf(RendererBase):
                                     colors.reshape((1, 3, 4)), trans)
 
     def draw_gouraud_triangles(self, gc, points, colors, trans):
+        assert len(points) == len(colors)
+        assert points.ndim == 3
+        assert points.shape[1] == 3
+        assert points.shape[2] == 2
+        assert colors.ndim == 3
+        assert colors.shape[1] == 3
+        assert colors.shape[2] == 4
+
         shape = points.shape
         points = points.reshape((shape[0] * shape[1], 2))
         tpoints = trans.transform(points)
         tpoints = tpoints.reshape(shape)
         name = self.file.addGouraudTriangles(tpoints, colors)
+        self.check_gc(gc)
         self.file.output(name, Op.shading)
 
     def _setup_textpos(self, x, y, descent, angle, oldx=0, oldy=0, olddescent=0, oldangle=0):
