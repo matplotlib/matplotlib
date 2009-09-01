@@ -141,6 +141,11 @@ def pdfRepr(obj):
         r = "%.10f" % obj
         return r.rstrip('0').rstrip('.')
 
+    # Booleans. Needs to be tested before integers since
+    # isinstance(True, int) is true.
+    elif isinstance(obj, bool):
+        return ['false', 'true'][obj]
+
     # Integers are written as such.
     elif isinstance(obj, (int, long)):
         return "%d" % obj
@@ -169,10 +174,6 @@ def pdfRepr(obj):
         r.extend([pdfRepr(val) for val in obj])
         r.append("]")
         return fill(r)
-
-    # Booleans.
-    elif isinstance(obj, bool):
-        return ['false', 'true'][obj]
 
     # The null keyword.
     elif obj is None:
@@ -1080,7 +1081,7 @@ end"""
                   'BitsPerComponent': 8,
                   'BitsPerFlag': 8,
                   'ColorSpace': Name('DeviceRGB'),
-                  'AntiAlias': 1,
+                  'AntiAlias': True,
                   'Decode': [points_min[0], points_max[0],
                              points_min[1], points_max[1],
                              0, 1, 0, 1, 0, 1]
