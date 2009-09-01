@@ -1,3 +1,6 @@
+2009-09-01 Added support for Gouraud interpolated triangles.
+           pcolormesh now accepts shading='gouraud' as an option. - MGD
+
 2009-08-29 Added matplotlib.testing package, which contains a Nose
            plugin and a decorator that lets tests be marked as
            KnownFailures - ADS
