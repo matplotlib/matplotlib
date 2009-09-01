@@ -766,6 +766,7 @@ class Figure(Artist):
             gc.set_clip_rectangle(self.bbox)
             gc.set_clip_path(self.get_clip_path())
             renderer.draw_image(gc, l, b, im)
+            gc.restore()
 
         # render the axes
         for a in self.axes: a.draw(renderer)

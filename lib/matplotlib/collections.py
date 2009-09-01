@@ -214,6 +214,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             gc, transform.frozen(), paths, self.get_transforms(),
             offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
             self._linewidths, self._linestyles, self._antialiaseds, self._urls)
+
+        gc.restore()
         renderer.close_group(self.__class__.__name__)
 
     def contains(self, mouseevent):
@@ -1223,6 +1225,7 @@ class QuadMesh(Collection):
                 gc, transform.frozen(), self._meshWidth, self._meshHeight,
                 coordinates, offsets, transOffset, self.get_facecolor(),
                 self._antialiased, self._showedges)
+        gc.restore()
         renderer.close_group(self.__class__.__name__)
 
 

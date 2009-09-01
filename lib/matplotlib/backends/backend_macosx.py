@@ -58,21 +58,42 @@ class RendererMac(RendererBase):
             rgbFace = tuple(rgbFace)
         gc.draw_markers(marker_path, marker_trans, path, trans, rgbFace)
 
-    def draw_path_collection(self, *args):
-        # TODO: We should change this in the C code eventually, but this
-        # re-ordering of arguments should work for now
-        gc = args[0]
-        args = tuple([gc, args[1], gc.get_clip_rectangle()] + \
-            list(gc.get_clip_path()) + list(args[2:]))
-        gc.draw_path_collection(*args)
+    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
+                             offsets, offsetTrans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds, urls):
+        cliprect = gc.get_clip_rectangle()
+        clippath, clippath_transform = gc.get_clip_path()
+        gc.draw_path_collection(master_transform,
+                                cliprect,
+                                clippath,
+                                clippath_transform,
+                                paths,
+                                all_transforms,
+                                offsets,
+                                offsetTrans,
+                                facecolors,
+                                edgecolors,
+                                linewidths,
+                                linestyles,
+                                antialiaseds)
 
-    def draw_quad_mesh(self, *args):
-        # TODO: We should change this in the C code eventually, but this
-        # re-ordering of arguments should work for now
-        gc = args[0]
-        args = [gc, args[1], gc.get_clip_rectangle()] + \
-            list(gc.get_clip_path()) + list(args[2:])
-        gc.draw_quad_mesh(*args)
+    def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
+                       coordinates, offsets, offsetTrans, facecolors,
+                       antialiased, showedges):
+        cliprect = gc.get_clip_rectangle()
+        clippath, clippath_transform = gc.get_clip_path()
+        gc.draw_quad_mesh(master_transform,
+                          cliprect,
+                          clippath,
+                          clippath_transform,
+                          meshWidth,
+                          meshHeight,
+                          coordinates,
+                          offsets,
+                          offsetTrans,
+                          facecolors,
+                          antialiased,
+                          showedges)
 
     def new_gc(self):
         self.gc.save()
@@ -80,8 +101,6 @@ class RendererMac(RendererBase):
         return self.gc
 
     def draw_image(self, gc, x, y, im):
-        # TODO: We should change this in the C code eventually, but this
-        # re-ordering of arguments should work for now
         im.flipud_out()
         nrows, ncols, data = im.as_rgba_str()
         gc.draw_image(x, y, nrows, ncols, data, gc.get_clip_rectangle(),

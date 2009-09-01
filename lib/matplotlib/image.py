@@ -142,6 +142,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         gc.set_clip_rectangle(self.axes.bbox.frozen())
         gc.set_clip_path(self.get_clip_path())
         renderer.draw_image(gc, l, b, im)
+        gc.restore()
 
     def contains(self, mouseevent):
         """
@@ -637,6 +638,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
                             round(self.axes.bbox.xmin),
                             round(self.axes.bbox.ymin),
                             im)
+        gc.restore()
 
 
     def set_data(self, x, y, A):
@@ -790,6 +792,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         gc.set_clip_rectangle(self.figure.bbox)
         gc.set_clip_path(self.get_clip_path())
         renderer.draw_image(gc, round(self.ox), round(self.oy), im)
+        gc.restore()
 
     def write_png(self, fname):
         """Write the image to png file with fname"""
@@ -931,6 +934,7 @@ class BboxImage(_AxesImageBase):
         self._set_gc_clip(gc)
         #gc.set_clip_path(self.get_clip_path())
         renderer.draw_image(gc, round(l), round(b), im)
+        gc.restore()
 
 
 
