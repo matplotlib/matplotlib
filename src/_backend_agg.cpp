@@ -1094,14 +1094,14 @@ RendererAgg::_draw_path_collection_generic
       throw Py::ValueError("Offsets array must be Nx2");
     }
 
-    PyArrayObject* facecolors = (PyArrayObject*)PyArray_FromObject
+    facecolors = (PyArrayObject*)PyArray_FromObject
       (facecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
     if (!facecolors ||
 	(PyArray_NDIM(facecolors) == 1 && PyArray_DIM(facecolors, 0) != 0) ||
 	(PyArray_NDIM(facecolors) == 2 && PyArray_DIM(facecolors, 1) != 4))
       throw Py::ValueError("Facecolors must be a Nx4 numpy array or empty");
 
-    PyArrayObject* edgecolors = (PyArrayObject*)PyArray_FromObject
+    edgecolors = (PyArrayObject*)PyArray_FromObject
       (edgecolors_obj.ptr(), PyArray_DOUBLE, 1, 2);
     if (!edgecolors ||
 	(PyArray_NDIM(edgecolors) == 1 && PyArray_DIM(edgecolors, 0) != 0) ||
@@ -1459,13 +1459,14 @@ void
 RendererAgg::_draw_gouraud_triangle(const GCAgg& gc,
   const double* points, const double* colors, agg::trans_affine trans) {
 
-  typedef agg::rgba8                      color_t;
-  typedef agg::span_gouraud_rgba<color_t> span_gen_t;
-  typedef agg::span_allocator<color_t>    span_alloc_t;
+  typedef agg::rgba8                                         color_t;
+  typedef agg::span_gouraud_rgba<color_t>                    span_gen_t;
+  typedef agg::span_allocator<color_t>                       span_alloc_t;
 
   theRasterizer.reset_clipping();
   rendererBase.reset_clipping(true);
   set_clipbox(gc.cliprect, theRasterizer);
+  /* TODO: Support clip paths */
 
   trans *= agg::trans_affine_scaling(1.0, -1.0);
   trans *= agg::trans_affine_translation(0.0, (double)height);
@@ -1492,8 +1493,8 @@ RendererAgg::_draw_gouraud_triangle(const GCAgg& gc,
     0.5);
 
   theRasterizer.add_path(span_gen);
-  agg::render_scanlines_aa(
-    theRasterizer, slineP8, rendererBase, span_alloc, span_gen);
+
+  agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, span_alloc, span_gen);
 }
 
 Py::Object
@@ -1501,36 +1502,40 @@ RendererAgg::draw_gouraud_triangle(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_gouraud_triangle");
   args.verify_length(4);
 
-  //segments, trans, clipbox, colors, linewidths, antialiaseds
   GCAgg             gc(args[0], dpi);
   Py::Object        points_obj = args[1];
   Py::Object        colors_obj = args[2];
   agg::trans_affine trans      = py_to_agg_transformation_matrix(args[3].ptr());
 
-  PyArrayObject* points = (PyArrayObject*)PyArray_ContiguousFromAny
-    (points_obj.ptr(), PyArray_DOUBLE, 2, 2);
-  if (!points ||
-      PyArray_DIM(points, 0) != 3 || PyArray_DIM(points, 1) != 2)
-    throw Py::ValueError("points must be a 3x2 numpy array");
-
-  PyArrayObject* colors = (PyArrayObject*)PyArray_ContiguousFromAny
-    (colors_obj.ptr(), PyArray_DOUBLE, 2, 2);
-  if (!colors ||
-      PyArray_DIM(colors, 0) != 3 || PyArray_DIM(colors, 1) != 4)
-    throw Py::ValueError("colors must be a 3x4 numpy array");
+  PyArrayObject* points = NULL;
+  PyArrayObject* colors = NULL;
 
   try {
+    points = (PyArrayObject*)PyArray_ContiguousFromAny
+      (points_obj.ptr(), PyArray_DOUBLE, 2, 2);
+    if (!points ||
+        PyArray_DIM(points, 0) != 3 || PyArray_DIM(points, 1) != 2) {
+      throw Py::ValueError("points must be a 3x2 numpy array");
+    }
+
+    colors = (PyArrayObject*)PyArray_ContiguousFromAny
+      (colors_obj.ptr(), PyArray_DOUBLE, 2, 2);
+    if (!colors ||
+        PyArray_DIM(colors, 0) != 3 || PyArray_DIM(colors, 1) != 4) {
+      throw Py::ValueError("colors must be a 3x4 numpy array");
+    }
+
     _draw_gouraud_triangle(
       gc, (double*)PyArray_DATA(points), (double*)PyArray_DATA(colors), trans);
   } catch (...) {
-    Py_DECREF(points);
-    Py_DECREF(colors);
+    Py_XDECREF(points);
+    Py_XDECREF(colors);
 
     throw;
   }
 
-  Py_DECREF(points);
-  Py_DECREF(colors);
+  Py_XDECREF(points);
+  Py_XDECREF(colors);
 
   return Py::Object();
 }
@@ -1544,42 +1549,45 @@ RendererAgg::draw_gouraud_triangles(const Py::Tuple& args) {
   typedef agg::span_gouraud_rgba<color_t> span_gen_t;
   typedef agg::span_allocator<color_t>    span_alloc_t;
 
-  //segments, trans, clipbox, colors, linewidths, antialiaseds
   GCAgg             gc(args[0], dpi);
   Py::Object        points_obj = args[1];
   Py::Object        colors_obj = args[2];
   agg::trans_affine trans      = py_to_agg_transformation_matrix(args[3].ptr());
 
-  PyArrayObject* points = (PyArrayObject*)PyArray_ContiguousFromAny
-    (points_obj.ptr(), PyArray_DOUBLE, 3, 3);
-  if (!points ||
-      PyArray_DIM(points, 1) != 3 || PyArray_DIM(points, 2) != 2)
-    throw Py::ValueError("points must be a Nx3x2 numpy array");
-
-  PyArrayObject* colors = (PyArrayObject*)PyArray_ContiguousFromAny
-    (colors_obj.ptr(), PyArray_DOUBLE, 3, 3);
-  if (!colors ||
-      PyArray_DIM(colors, 1) != 3 || PyArray_DIM(colors, 2) != 4)
-    throw Py::ValueError("colors must be a Nx3x4 numpy array");
-
-  if (PyArray_DIM(points, 0) != PyArray_DIM(colors, 0)) {
-    throw Py::ValueError("points and colors arrays must be the same length");
-  }
+  PyArrayObject* points = NULL;
+  PyArrayObject* colors = NULL;
 
   try {
+    points = (PyArrayObject*)PyArray_ContiguousFromAny
+      (points_obj.ptr(), PyArray_DOUBLE, 3, 3);
+    if (!points ||
+        PyArray_DIM(points, 1) != 3 || PyArray_DIM(points, 2) != 2) {
+      throw Py::ValueError("points must be a Nx3x2 numpy array");
+    }
+
+    colors = (PyArrayObject*)PyArray_ContiguousFromAny
+      (colors_obj.ptr(), PyArray_DOUBLE, 3, 3);
+    if (!colors ||
+        PyArray_DIM(colors, 1) != 3 || PyArray_DIM(colors, 2) != 4) {
+      throw Py::ValueError("colors must be a Nx3x4 numpy array");
+    }
+
+    if (PyArray_DIM(points, 0) != PyArray_DIM(colors, 0)) {
+      throw Py::ValueError("points and colors arrays must be the same length");
+    }
+
     for (int i = 0; i < PyArray_DIM(points, 0); ++i) {
-      _draw_gouraud_triangle(
-        gc, (double*)PyArray_GETPTR1(points, i), (double*)PyArray_GETPTR1(colors, i), trans);
+      _draw_gouraud_triangle(gc, (double*)PyArray_GETPTR1(points, i), (double*)PyArray_GETPTR1(colors, i), trans);
     }
   } catch (...) {
-    Py_DECREF(points);
-    Py_DECREF(colors);
+    Py_XDECREF(points);
+    Py_XDECREF(colors);
 
     throw;
   }
 
-  Py_DECREF(points);
-  Py_DECREF(colors);
+  Py_XDECREF(points);
+  Py_XDECREF(colors);
 
   return Py::Object();
 }
