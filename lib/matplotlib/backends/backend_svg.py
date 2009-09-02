@@ -2,6 +2,8 @@ from __future__ import division
 
 import os, codecs, base64, tempfile, urllib, gzip, cStringIO
 
+import numpy as np
+
 try:
     from hashlib import md5
 except ImportError:
@@ -54,6 +56,7 @@ class RendererSVG(RendererBase):
         self._path_collection_id = 0
         self._imaged = {}
         self._hatchd = {}
+        self._n_gradients = 0
         self.mathtext_parser = MathTextParser('SVG')
         svgwriter.write(svgProlog%(width,height,width,height))
 
@@ -298,6 +301,63 @@ class RendererSVG(RendererBase):
 
         self._path_collection_id += 1
 
+    def draw_gouraud_triangle(self, gc, points, colors, trans):
+        # This uses a method described here:
+        #
+        #   http://www.svgopen.org/2005/papers/Converting3DFaceToSVG/index.html
+        #
+        # that uses three overlapping linear gradients to simulate a
+        # Gouraud triangle.  Each gradient goes from fully opaque in
+        # one corner to fully transparent along the opposite edge.
+        # The line between the stop points is perpendicular to the
+        # opposite edge.  Underlying these three gradients is a solid
+        # triangle whose color is the average of all three points.
+
+        trans_and_flip = self._make_flip_transform(trans)
+        tpoints = trans_and_flip.transform(points)
+        write = self._svgwriter.write
+
+        write('<defs>')
+        for i in range(3):
+            x1, y1 = points[i]
+            x2, y2 = points[(i + 1) % 3]
+            x3, y3 = points[(i + 2) % 3]
+            c = colors[i][:3]
+
+            if x2 == x3:
+                xb = x2
+                yb = y1
+            elif y2 == y3:
+                xb = x1
+                yb = y2
+            else:
+                m1 = (y2 - y3) / (x2 - x3)
+                b1 = y2 - (m1 * x2)
+                m2 = -(1.0 / m1)
+                b2 = y1 - (m2 * x1)
+                xb = (-b1 + b2) / (m1 - m2)
+                yb = m2 * xb + b2
+
+            write('<linearGradient id="GR%x_%d" x1="%f" y1="%f" x2="%f" y2="%f" gradientUnits="userSpaceOnUse">' %
+                  (self._n_gradients, i, x1, y1, xb, yb))
+            write('<stop offset="0" stop-color="%s" stop-opacity="1.0"/>' % rgb2hex(c))
+            write('<stop offset="1" stop-color="%s" stop-opacity="0.0"/>' % rgb2hex(c))
+            write('</linearGradient>')
+
+        # Define the triangle itself as a "def" since we use it 4 times
+        write('<polygon id="GT%x" points="%f %f %f %f %f %f"/>' %
+              (self._n_gradients, x1, y1, x2, y2, x3, y3))
+        write('</defs>\n')
+
+        avg_color = np.sum(colors[:, :3], axis=0) / 3.0
+        write('<use xlink:href="#GT%x" fill="%s"/>\n' %
+              (self._n_gradients, rgb2hex(avg_color)))
+        for i in range(3):
+            write('<use xlink:href="#GT%x" fill="url(#GR%x_%d)" filter="url(#colorAdd)"/>\n' %
+                  (self._n_gradients, self._n_gradients, i))
+
+        self._n_gradients += 1
+
     def draw_image(self, gc, x, y, im):
         # MGDTODO: Support clippath here
         trans = [1,0,0,1,0,0]
@@ -305,7 +365,7 @@ class RendererSVG(RendererBase):
         if rcParams['svg.image_noscale']:
             trans = list(im.get_matrix())
             trans[5] = -trans[5]
-            transstr = 'transform="matrix(%f %f %f %f %f %f)" '%tuple(trans)
+            transstr = 'transform="matrix(%f %f %f %f %f %f)" ' % tuple(trans)
             assert trans[1] == 0
             assert trans[2] == 0
             numrows,numcols = im.get_size()
@@ -672,4 +732,5 @@ svgProlog = """\
    xmlns:xlink="http://www.w3.org/1999/xlink"
    version="1.1"
    id="svg1">
+<filter id="colorAdd"><feComposite in="SourceGraphic" in2="BackgroundImage" operator="arithmetic" k2="1" k3="1"/></filter>
 """
