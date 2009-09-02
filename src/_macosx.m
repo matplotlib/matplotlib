@@ -349,8 +349,10 @@ static void _release_hatch(void* info)
 - (void)mouseMoved:(NSEvent*)event;
 - (void)rightMouseDown:(NSEvent*)event;
 - (void)rightMouseUp:(NSEvent*)event;
+- (void)rightMouseDragged:(NSEvent*)event;
 - (void)otherMouseDown:(NSEvent*)event;
 - (void)otherMouseUp:(NSEvent*)event;
+- (void)otherMouseDragged:(NSEvent*)event;
 - (void)setRubberband:(NSRect)rect;
 - (void)removeRubberband;
 - (const char*)convertKeyEvent:(NSEvent*)event;
@@ -4744,6 +4746,23 @@ show(PyObject* self)
     PyGILState_Release(gstate);
 }
 
+- (void)rightMouseDragged:(NSEvent *)event
+{
+    int x, y;
+    NSPoint location = [event locationInWindow];
+    location = [self convertPoint: location fromView: nil];
+    x = location.x;
+    y = location.y;
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    PyObject* result = PyObject_CallMethod(canvas, "motion_notify_event", "ii", x, y);
+    if(result)
+        Py_DECREF(result);
+    else
+        PyErr_Print();
+
+    PyGILState_Release(gstate);
+}
+
 - (void)otherMouseDown:(NSEvent *)event
 {
     int x, y;
@@ -4776,6 +4795,23 @@ show(PyObject* self)
     y = location.y;
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(canvas, "button_release_event", "iii", x, y, num);
+    if(result)
+        Py_DECREF(result);
+    else
+        PyErr_Print();
+
+    PyGILState_Release(gstate);
+}
+
+- (void)otherMouseDragged:(NSEvent *)event
+{
+    int x, y;
+    NSPoint location = [event locationInWindow];
+    location = [self convertPoint: location fromView: nil];
+    x = location.x;
+    y = location.y;
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    PyObject* result = PyObject_CallMethod(canvas, "motion_notify_event", "ii", x, y);
     if(result)
         Py_DECREF(result);
     else
