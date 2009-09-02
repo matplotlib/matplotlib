@@ -754,6 +754,57 @@ grestore
 """ % locals()
         self._pswriter.write(ps)
 
+    def draw_gouraud_triangle(self, gc, points, colors, trans):
+        self.draw_gouraud_triangles(gc, points.reshape((1, 3, 2)),
+                                    colors.reshape((1, 3, 4)), trans)
+
+    def draw_gouraud_triangles(self, gc, points, colors, trans):
+        assert len(points) == len(colors)
+        assert points.ndim == 3
+        assert points.shape[1] == 3
+        assert points.shape[2] == 2
+        assert colors.ndim == 3
+        assert colors.shape[1] == 3
+        assert colors.shape[2] == 4
+
+        points = trans.transform(points)
+
+        shape = points.shape
+        flat_points = points.reshape((shape[0] * shape[1], 2))
+        flat_colors = colors.reshape((shape[0] * shape[1], 4))
+        points_min = npy.min(flat_points, axis=0) - (1 << 8)
+        points_max = npy.max(flat_points, axis=0) + (1 << 8)
+        factor = float(0xffffffff) / (points_max - points_min)
+
+        xmin, ymin = points_min
+        xmax, ymax = points_max
+
+        streamarr = npy.empty(
+            (shape[0] * shape[1],),
+            dtype=[('flags', 'u1'),
+                   ('points', '>u4', (2,)),
+                   ('colors', 'u1', (3,))])
+        streamarr['flags'] = 0
+        streamarr['points'] = (flat_points - points_min) * factor
+        streamarr['colors'] = flat_colors[:, :3] * 255.0
+
+        stream = quote_ps_string(streamarr.tostring())
+
+        self._pswriter.write("""
+gsave
+<< /ShadingType 4
+   /ColorSpace [/DeviceRGB]
+   /BitsPerCoordinate 32
+   /BitsPerComponent 8
+   /BitsPerFlag 8
+   /AntiAlias true
+   /Decode [ %(xmin)f %(xmax)f %(ymin)f %(ymax)f 0 1 0 1 0 1 ]
+   /DataSource (%(stream)s)
+>>
+shfill
+grestore
+""" % locals())
+
     def _draw_ps(self, ps, gc, rgbFace, fill=True, stroke=True, command=None):
         """
         Emit the PostScript sniplet 'ps' with all the attributes from 'gc'
