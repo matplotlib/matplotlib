@@ -43,6 +43,7 @@ class TestAxes( MplTestCase ):
       pass
 
    #--------------------------------------------------------------------
+   @knownfailureif(True, "Fails due to SF bug 2850075")
    def test_empty_datetime( self ):
       """Test plotting empty axes with dates along one axis."""
       fname = self.outFile( "empty_datetime.png" )
