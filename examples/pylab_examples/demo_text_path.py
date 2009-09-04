@@ -76,8 +76,32 @@ if 1:
 
     # make anchored offset box
     ao = AnchoredOffsetbox(loc=2, child=offsetbox, frameon=True, borderpad=0.2)
-
     ax.add_artist(ao)
+
+    # another text
+    from matplotlib.patches import PathPatch
+    text_path = TextPath((0, 0), r"\mbox{textpath supports mathtext \& \TeX}",
+                         size=20, usetex=True)
+    p1 = PathPatch(text_path, ec="w", lw=3, fc="w", alpha=0.9,
+                   transform=IdentityTransform())
+    p2 = PathPatch(text_path, ec="none", fc="k", 
+                   transform=IdentityTransform())
+
+    offsetbox2 = AuxTransformBox(IdentityTransform())
+    offsetbox2.add_artist(p1)
+    offsetbox2.add_artist(p2)
+
+    ab = AnnotationBbox(offsetbox2, (0.95, 0.05),
+                        xycoords='axes fraction',
+                        boxcoords="offset points",
+                        box_alignment=(1.,0.),
+                        frameon=False
+                        )
+    ax.add_artist(ab)
+
+    ax.imshow([[0,1,2],[1,2,3]], cmap=plt.cm.gist_gray_r,
+              interpolation="bilinear",
+              aspect="auto")
 
 
 
@@ -87,12 +111,17 @@ if 1:
 
     arr = np.arange(256).reshape(1,256)/256.
 
-    text_path = TextPath((0, 0), "TextPath", size=70)
+    usetex = plt.rcParams["text.usetex"]
+    if usetex:
+        s = r"$\displaystyle\left[\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}\right]$!"
+    else:
+        s = r"$\left[\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}\right]$!"
+    text_path = TextPath((0, 0), s, size=40, usetex=usetex)
     text_patch = PathClippedImagePatch(text_path, arr, ec="none",
                                        transform=IdentityTransform())
 
-    shadow1 = mpatches.Shadow(text_patch, 3, -2, props=dict(fc="none", ec="0.6", lw=3))
-    shadow2 = mpatches.Shadow(text_patch, 3, -2, props=dict(fc="0.3", ec="none"))
+    shadow1 = mpatches.Shadow(text_patch, 1, -1, props=dict(fc="none", ec="0.6", lw=3))
+    shadow2 = mpatches.Shadow(text_patch, 1, -1, props=dict(fc="0.3", ec="none"))
 
 
     # make offset box

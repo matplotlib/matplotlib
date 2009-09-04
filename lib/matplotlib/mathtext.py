@@ -336,6 +336,34 @@ class MathtextBackendSvg(MathtextBackend):
                 svg_elements,
                 self.fonts_object.get_used_characters())
 
+class MathtextBackendPath(MathtextBackend):
+    """
+    Store information to write a mathtext rendering to the Cairo
+    backend.
+    """
+
+    def __init__(self):
+        self.glyphs = []
+        self.rects = []
+
+    def render_glyph(self, ox, oy, info):
+        oy = self.height - oy + info.offset
+        thetext = unichr(info.num)
+        self.glyphs.append(
+            (info.font, info.fontsize, thetext, ox, oy))
+
+    def render_rect_filled(self, x1, y1, x2, y2):
+        self.rects.append(
+            (x1, self.height-y2 , x2 - x1, y2 - y1))
+
+    def get_results(self, box):
+        ship(0, -self.depth, box)
+        return (self.width,
+                self.height + self.depth,
+                self.depth,
+                self.glyphs,
+                self.rects)
+
 class MathtextBackendCairo(MathtextBackend):
     """
     Store information to write a mathtext rendering to the Cairo
@@ -2751,6 +2779,7 @@ class MathTextParser(object):
         'ps'    : MathtextBackendPs,
         'pdf'   : MathtextBackendPdf,
         'svg'   : MathtextBackendSvg,
+        'path'   : MathtextBackendPath,
         'cairo' : MathtextBackendCairo,
         'macosx': MathtextBackendAgg,
         }
