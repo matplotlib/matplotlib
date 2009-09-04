@@ -9,7 +9,6 @@ from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING, LOAD_T
 from matplotlib.mathtext import MathTextParser
 
 import matplotlib.dviread as dviread
-from matplotlib.texmanager import TexManager
 
 import numpy as np
 
@@ -31,6 +30,7 @@ class TextToPath(object):
         from matplotlib.cbook import maxdict
         self._ps_fontd = maxdict(50)
 
+        self._texmanager = None
 
     def _get_font(self, prop):
         """
@@ -243,6 +243,15 @@ class TextToPath(object):
         return zip(glyph_ids, xpositions, ypositions, sizes), glyph_map, myrects
 
 
+    def get_texmanager(self):
+        """
+        return the :class:`matplotlib.texmanager.TexManager` instance
+        """
+        if self._texmanager is None:
+            from matplotlib.texmanager import TexManager
+            self._texmanager = TexManager()
+        return self._texmanager
+
 
     def get_glyphs_tex(self, prop, s):
         """
@@ -251,7 +260,7 @@ class TextToPath(object):
 
         # codes are modstly borrowed from pdf backend.
         
-        texmanager = TexManager()
+        texmanager = self.get_texmanager()
 
         if self.tex_font_map is None:
             self.tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
