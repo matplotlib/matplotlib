@@ -1105,6 +1105,51 @@ FT2Font::load_char(const Py::Tuple & args, const Py::Dict & kwargs) {
   return Py::asObject(gm);
 }
 
+
+char FT2Font::load_glyph__doc__[] =
+"load_glyph(glyphindex, flags=LOAD_FORCE_AUTOHINT)\n"
+"\n"
+"Load character with glyphindex in current fontfile and set glyph.\n"
+"The flags argument can be a bitwise-or of the LOAD_XXX constants.\n"
+"Return value is a Glyph object, with attributes\n"
+"  width          # glyph width\n"
+"  height         # glyph height\n"
+"  bbox           # the glyph bbox (xmin, ymin, xmax, ymax)\n"
+"  horiBearingX   # left side bearing in horizontal layouts\n"
+"  horiBearingY   # top side bearing in horizontal layouts\n"
+"  horiAdvance    # advance width for horizontal layout\n"
+"  vertBearingX   # left side bearing in vertical layouts\n"
+"  vertBearingY   # top side bearing in vertical layouts\n"
+"  vertAdvance    # advance height for vertical layout\n"
+;
+Py::Object
+FT2Font::load_glyph(const Py::Tuple & args, const Py::Dict & kwargs) {
+  _VERBOSE("FT2Font::load_glyph");
+  //load a char using the unsigned long charcode
+
+  args.verify_length(1);
+  long glyph_index = Py::Long(args[0]), flags = Py::Long(FT_LOAD_FORCE_AUTOHINT);
+  if (kwargs.hasKey("flags"))
+    flags = Py::Long(kwargs["flags"]);
+
+  int error = FT_Load_Glyph( face, glyph_index, flags );
+
+  if (error)
+    throw Py::RuntimeError(Printf("Could not load glyph index %d", glyph_index).str());
+
+  FT_Glyph thisGlyph;
+  error = FT_Get_Glyph( face->glyph, &thisGlyph );
+
+  if (error)
+    throw Py::RuntimeError(Printf("Could not get glyph for glyph index %d", glyph_index).str());
+
+  size_t num = glyphs.size();  //the index into the glyphs list
+  glyphs.push_back(thisGlyph);
+  Glyph* gm = new Glyph(face, thisGlyph, num);
+  return Py::asObject(gm);
+}
+
+
 char FT2Font::get_width_height__doc__[] =
 "w, h = get_width_height()\n"
 "\n"
@@ -1782,6 +1827,8 @@ FT2Font::init_type() {
 		     FT2Font::get_num_glyphs__doc__);
   add_keyword_method("load_char", &FT2Font::load_char,
 		     FT2Font::load_char__doc__);
+  add_keyword_method("load_glyph", &FT2Font::load_glyph,
+		     FT2Font::load_glyph__doc__);
   add_keyword_method("set_text", &FT2Font::set_text,
 		     FT2Font::set_text__doc__);
   add_varargs_method("set_size", &FT2Font::set_size,

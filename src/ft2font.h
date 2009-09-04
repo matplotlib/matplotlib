@@ -99,6 +99,7 @@ public:
   Py::Object get_kerning(const Py::Tuple & args);
   Py::Object get_num_glyphs(const Py::Tuple & args);
   Py::Object load_char(const Py::Tuple & args, const Py::Dict & kws);
+  Py::Object load_glyph(const Py::Tuple & args, const Py::Dict & kws);
   Py::Object get_width_height(const Py::Tuple & args);
   Py::Object get_descent(const Py::Tuple & args);
   Py::Object draw_rect_filled(const Py::Tuple & args);
@@ -140,6 +141,7 @@ private:
   static char get_glyph__doc__ [];
   static char get_num_glyphs__doc__ [];
   static char load_char__doc__ [];
+  static char load_glyph__doc__ [];
   static char get_width_height__doc__ [];
   static char get_descent__doc__ [];
   static char get_kerning__doc__ [];
