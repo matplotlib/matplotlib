@@ -271,10 +271,10 @@ def inset_axes(parent_axes, width, height, loc=1,
       axes_class = Axes
 
    if axes_kwargs is None:
-      inset_axes = Axes(parent_axes.figure, parent_axes.get_position())
+      inset_axes = axes_class(parent_axes.figure, parent_axes.get_position())
    else:
-      inset_axes = Axes(parent_axes.figure, parent_axes.get_position(),
-                        **axes_kwargs)
+      inset_axes = axes_class(parent_axes.figure, parent_axes.get_position(),
+                              **axes_kwargs)
 
    axes_locator = AnchoredSizeLocator(parent_axes.bbox,
                                       width, height,
