@@ -54,6 +54,8 @@ class PathClippedImagePatch(mpatches.PathPatch):
 
 if 1:
 
+    usetex = plt.rcParams["text.usetex"]
+    
     fig = plt.figure(1)
 
     # EXAMPLE 1
@@ -80,8 +82,14 @@ if 1:
 
     # another text
     from matplotlib.patches import PathPatch
-    text_path = TextPath((0, 0), r"\mbox{textpath supports mathtext \& \TeX}",
-                         size=20, usetex=True)
+    if usetex:
+        r = r"\mbox{textpath supports mathtext \& \TeX}"
+    else:
+        r = r"textpath supports mathtext & TeX"
+        
+    text_path = TextPath((0, 0), r,
+                         size=20, usetex=usetex)
+        
     p1 = PathPatch(text_path, ec="w", lw=3, fc="w", alpha=0.9,
                    transform=IdentityTransform())
     p2 = PathPatch(text_path, ec="none", fc="k", 
@@ -111,7 +119,6 @@ if 1:
 
     arr = np.arange(256).reshape(1,256)/256.
 
-    usetex = plt.rcParams["text.usetex"]
     if usetex:
         s = r"$\displaystyle\left[\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}\right]$!"
     else:
