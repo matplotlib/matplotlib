@@ -498,7 +498,11 @@ class Quiver(collections.PolyCollection):
         a = np.absolute(uv)
         if self.scale is None:
             sn = max(10, math.sqrt(self.N))
-            scale = 1.8 * a[~self.Umask].mean() * sn / self.span # crude auto-scaling
+            if self.Umask is not ma.nomask:
+                amean = a[~self.Umask].mean()
+            else:
+                amean = a.mean()
+            scale = 1.8 * amean * sn / self.span # crude auto-scaling
             self.scale = scale
         length = a/(self.scale*self.width)
         X, Y = self._h_arrows(length)
