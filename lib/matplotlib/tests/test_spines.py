@@ -3,7 +3,7 @@ import matplotlib
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 
-@image_comparison(baseline_images=['spines_axes_positions.png'])
+@image_comparison(baseline_images=['spines_axes_positions'])
 def test_spines_axes_positions():
     # SF bug 2852168
     fig = plt.figure()
@@ -18,4 +18,4 @@ def test_spines_axes_positions():
     ax.xaxis.set_ticks_position('top')
     ax.spines['left'].set_color('none')
     ax.spines['bottom'].set_color('none')
-    fig.savefig('spines_axes_positions.png')
+    fig.savefig('spines_axes_positions')

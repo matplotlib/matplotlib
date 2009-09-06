@@ -101,6 +101,18 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               'backends/Matplotlib.nib/*',
                               ]}
 
+if 1:
+    # TODO: exclude these when making release?
+    baseline_images = glob.glob(os.path.join('lib','matplotlib','tests',
+                                             'baseline_images','*','*'))
+    def chop_package(fname):
+        badstr = os.path.join('lib','matplotlib','')
+        assert fname.startswith(badstr)
+        result = fname[ len(badstr): ]
+        return result
+    baseline_images = [chop_package(f) for f in baseline_images]
+    package_data['matplotlib'].extend(baseline_images)
+
 if not check_for_numpy():
     sys.exit(1)
 
