@@ -7,6 +7,7 @@ import math
 import operator
 import os
 import numpy as np
+import shutil
 
 #=======================================================================
 
@@ -121,6 +122,7 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    save_diff_image( expected, actual, diff_image )
 
    if in_decorator:
+      shutil.copyfile( expected, 'expected-'+os.path.basename(actual))
       results = dict(
          rms = rms,
          expected = str(expected),

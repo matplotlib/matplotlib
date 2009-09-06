@@ -9,9 +9,10 @@ import os, sys, glob, shutil
 roots = ['test_matplotlib','test_plots']
 savedresults_dir = 'saved-results'
 baseline_dir = 'baseline'
-basename = 'failed-diff-'
+expected_basename = 'expected-'
+diff_basename = 'failed-diff-'
 target_dir = os.path.abspath('status_images')
-nbase = len(basename)
+nbase = len(diff_basename)
 
 def listFiles(root, patterns='*', recurse=1, return_folders=0):
     """
@@ -76,7 +77,31 @@ if 1:
     if os.path.exists(target_dir):
         shutil.rmtree(target_dir)
     os.makedirs( target_dir ) # prevent buildbot DirectoryUpload failure
+
+    # new matplotlib.testing infrastructure
+
     os.chdir('test')
+    for fname in glob.glob('*.png'):
+        absdiff_fname = diff_basename + fname
+        expected_fname = expected_basename + fname
+        if not os.path.exists(absdiff_fname):
+            continue
+        if not os.path.exists(expected_fname):
+            continue
+        print fname
+        print absdiff_fname
+
+        teststr = os.path.splitext(fname)[0]
+        this_targetdir = os.path.join(target_dir,teststr)
+        os.makedirs( this_targetdir )
+        shutil.copy( expected_fname,
+                     os.path.join(this_targetdir,'baseline.png') )
+        shutil.copy( fname,
+                     os.path.join(this_targetdir,'actual.png') )
+        shutil.copy( absdiff_fname,
+                     os.path.join(this_targetdir,'absdiff.png') )
+
+    # old mplTest infrastructure
     for fpath in get_recursive_filelist(roots):
         # only images
         if not fpath.endswith('.png'): continue
@@ -87,7 +112,7 @@ if 1:
         root = pieces[0]
         testclass = pieces[2]
         fname = pieces[3]
-        if not fname.startswith(basename):
+        if not fname.startswith(diff_basename):
             # only failed images
             continue
         origname = fname[nbase:]
