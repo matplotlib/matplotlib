@@ -2299,73 +2299,18 @@ class Axes(martist.Artist):
 
         *tz* is the time zone to use in labeling dates.  Defaults to rc value.
         """
-
-        xmin, xmax = self.dataLim.intervalx
-        if xmin==0.:
-            # no data has been added - let's set the default datalim.
-            # We should probably use a better proxy for the datalim
-            # have been updated than the ignore setting
-            dmax = today = datetime.date.today()
-            dmin = today-datetime.timedelta(days=10)
-            self._process_unit_info(xdata=(dmin, dmax))
-            dmin, dmax = self.convert_xunits([dmin, dmax])
-            self.viewLim.intervalx = dmin, dmax
-            self.dataLim.intervalx = dmin, dmax
-
-        locator = self.xaxis.get_major_locator()
-        if not isinstance(locator, mdates.DateLocator):
-            locator = mdates.AutoDateLocator(tz)
-            self.xaxis.set_major_locator(locator)
-
-        # the autolocator uses the viewlim to pick the right date
-        # locator, but it may not have correct viewlim before an
-        # autoscale.  If the viewlim is still zero..1, set it to the
-        # datalim and the autoscaler will update it on request
-        if self.viewLim.intervalx[0]==0.:
-            self.viewLim.intervalx = tuple(self.dataLim.intervalx)
-        locator.refresh()
-
-        formatter = self.xaxis.get_major_formatter()
-        if not isinstance(formatter, mdates.DateFormatter):
-            formatter = mdates.AutoDateFormatter(locator, tz)
-            self.xaxis.set_major_formatter(formatter)
+        # should be enough to inform the unit conversion interface
+        # dates are comng in
+        self.xaxis.update_units(datetime.date(2009,1,1))
 
     def yaxis_date(self, tz=None):
         """Sets up y-axis ticks and labels that treat the y data as dates.
 
         *tz* is the time zone to use in labeling dates.  Defaults to rc value.
         """
-        ymin, ymax = self.dataLim.intervaly
-        if ymin==0.:
-            # no data has been added - let's set the default datalim.
-            # We should probably use a better proxy for the datalim
-            # have been updated than the ignore setting
-            dmax = today = datetime.date.today()
-            dmin = today-datetime.timedelta(days=10)
-            self._process_unit_info(ydata=(dmin, dmax))
-
-            dmin, dmax = self.convert_yunits([dmin, dmax])
-            self.viewLim.intervaly = dmin, dmax
-            self.dataLim.intervaly = dmin, dmax
-
-
-        locator = self.yaxis.get_major_locator()
-        if not isinstance(locator, mdates.DateLocator):
-            locator = mdates.AutoDateLocator(tz)
-            self.yaxis.set_major_locator(locator)
-
-        # the autolocator uses the viewlim to pick the right date
-        # locator, but it may not have correct viewlim before an
-        # autoscale.  If the viewlim is still zero..1, set it to the
-        # datalim and the autoscaler will update it on request
-        if self.viewLim.intervaly[0]==0.:
-            self.viewLim.intervaly = tuple(self.dataLim.intervaly)
-        locator.refresh()
-
-        formatter = self.xaxis.get_major_formatter()
-        if not isinstance(formatter, mdates.DateFormatter):
-            formatter = mdates.AutoDateFormatter(locator, tz)
-            self.yaxis.set_major_formatter(formatter)
+        # should be enough to inform the unit conversion interface
+        # dates are comng in
+        self.yaxis.update_units(datetime.date(2009,1,1))
 
     def format_xdata(self, x):
         """

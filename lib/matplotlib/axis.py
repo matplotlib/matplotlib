@@ -666,6 +666,19 @@ class Axis(artist.Artist):
         'Set the axis data limits'
         raise NotImplementedError('Derived must override')
 
+    def set_default_intervals(self):
+        'set the default limits for the axis data and view interval if they are not mutated'
+
+        # this is mainly in support of custom object plotting.  For
+        # example, if someone passes in a datetime object, we do not
+        # know automagically how to set the default min/max of the
+        # data and view limits.  The unit conversion AxisInfo
+        # interface provides a hook for custom types to register
+        # default limits through the AxisInfo.default_limits
+        # attribute, and the derived code below will check for that
+        # and use it if is available (else just use 0..1)
+        pass
+
     def _set_artist_props(self, a):
         if a is None: return
         a.set_figure(self.figure)
@@ -1010,6 +1023,7 @@ class Axis(artist.Artist):
             self.set_label_text(info.label)
             self.isDefault_label = True
 
+        self.set_default_intervals()
 
     def have_units(self):
         return self.converter is not None or self.units is not None
@@ -1420,6 +1434,25 @@ class XAxis(Axis):
             self.axes.dataLim.intervalx = min(vmin, Vmin), max(vmax, Vmax)
 
 
+    def set_default_intervals(self):
+        'set the default limits for the axis interval if they are not mutated'
+        xmin, xmax = 0., 1.
+        dataMutated = self.axes.dataLim.mutatedx()
+        viewMutated = self.axes.viewLim.mutatedx()
+        if not dataMutated or not viewMutated:
+            if self.converter is not None:
+                info = self.converter.axisinfo(self.units, self)
+                if info.default_limits is not None:            
+                    valmin, valmax = info.default_limits
+                    xmin = self.converter.convert(valmin, self.units, self)
+                    xmax = self.converter.convert(valmax, self.units, self)
+            if not dataMutated:
+                self.axes.dataLim.intervalx = xmin, xmax
+            if not viewMutated:
+                self.axes.viewLim.intervalx = xmin, xmax
+
+            
+
 class YAxis(Axis):
     __name__ = 'yaxis'
     axis_name = 'y'
@@ -1665,3 +1698,22 @@ class YAxis(Axis):
         else:
             Vmin, Vmax = self.get_data_interval()
             self.axes.dataLim.intervaly = min(vmin, Vmin), max(vmax, Vmax)
+
+    def set_default_intervals(self):
+        'set the default limits for the axis interval if they are not mutated'
+        ymin, ymax = 0., 1.
+        dataMutated = self.axes.dataLim.mutatedy()
+        viewMutated = self.axes.viewLim.mutatedy()
+        if not dataMutated or not viewMutated:
+            if self.converter is not None:
+                info = self.converter.axisinfo(self.units, self)
+                if info.default_limits is not None:            
+                    valmin, valmax = info.default_limits
+                    ymin = self.converter.convert(valmin, self.units, self)
+                    ymax = self.converter.convert(valmax, self.units, self)
+            if not dataMutated:
+                self.axes.dataLim.intervaly = ymin, ymax
+            if not viewMutated:
+                self.axes.viewLim.intervaly = ymin, ymax
+
+            

@@ -711,7 +711,10 @@ class Bbox(BboxBase):
         self._points = np.asarray(points, np.float_)
         self._minpos = np.array([0.0000001, 0.0000001])
         self._ignore = True
-
+        # it is helpful in some contexts to know if the bbox is a
+        # default or has been mutated; we store the orig points to
+        # support the mutated methods
+        self._points_orig = self._points.copy()
     if DEBUG:
         ___init__ = __init__
         def __init__(self, points):
@@ -939,6 +942,21 @@ class Bbox(BboxBase):
             self._points = other.get_points()
             self.invalidate()
 
+    def mutated(self):
+        'return whether the bbox has changed since init'
+        return self.mutatedx() or self.mutatedy()
+
+    def mutatedx(self):
+        'return whether the x-limits have changed since init'
+        return (self._points[0,0]!=self._points_orig[0,0] or
+                self._points[1,0]!=self._points_orig[1,0])
+    def mutatedy(self):
+        'return whether the y-limits have changed since init'
+        return (self._points[0,1]!=self._points_orig[0,1] or
+                self._points[1,1]!=self._points_orig[1,1])
+
+
+    
 
 class TransformedBbox(BboxBase):
     """

@@ -46,14 +46,15 @@ import numpy as np
 from matplotlib.cbook import iterable, is_numlike, is_string_like
 
 class AxisInfo:
-    'information to support default axis labeling and tick labeling'
+    'information to support default axis labeling and tick labeling, and default limits'
     def __init__(self, majloc=None, minloc=None,
-                 majfmt=None, minfmt=None, label=None):
+                 majfmt=None, minfmt=None, label=None, 
+                 default_limits=None):
         """
         majloc and minloc: TickLocators for the major and minor ticks
         majfmt and minfmt: TickFormatters for the major and minor ticks
         label: the default axis label
-
+        default_limits: the default min, max of the axis if no data is present
         If any of the above are None, the axis will simply use the default
         """
         self.majloc = majloc
@@ -61,6 +62,7 @@ class AxisInfo:
         self.majfmt = majfmt
         self.minfmt = minfmt
         self.label = label
+        self.default_limits = default_limits
 
 
 class ConversionInterface:
