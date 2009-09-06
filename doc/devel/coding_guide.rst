@@ -561,8 +561,7 @@ external backend via the ``module`` directive.  if
 
 
 
-.. _license-discussion:
-
+.. _sample-data:
 
 Writing examples
 ================
@@ -600,6 +599,9 @@ object::
     import matplotlib.cbook as cbook
     datafile = cbook.get_sample_data('mydata.dat', asfileobj=False)
     print 'datafile', datafile
+
+
+.. _license-discussion:
 
 
 Licenses
@@ -669,4 +671,113 @@ The other reason is licensing compatibility with the other python
 extensions for scientific computing: ipython, numpy, scipy, the
 enthought tool suite and python itself are all distributed under BSD
 compatible licenses.
->
+
+Testing
+=======
+
+Matplotlib has a testing infrastructure based on nose_, making it easy
+to write new tests. The tests are in :mod:`matplotlib.tests`, and
+customizations to the nose testing infrastructure are in
+:mod:`matplotlib.testing`. (There is other old testing cruft around,
+please ignore it while we consolidate our testing to these locations.)
+
+.. _nose: http://somethingaboutorange.com/mrl/projects/nose/
+
+
+Writing a simple test
+---------------------
+
+Many elements of Matplotlib can be tested using standard tests. For
+example, here is a test from :mod:`matplotlib.tests.test_basic`::
+
+  from nose.tools import assert_equal
+
+  def test_simple():
+      '''very simple example test'''
+      assert_equal(1+1,2)
+
+Nose determines which functions are tests by searching for functions
+beginning with "test" in their name.
+
+Writing an image comparison test
+--------------------------------
+
+Writing an image based test is only slightly more difficult than a
+simple test. The main consideration is that you must specify the
+"baseline", or expected, images in the
+:func:`~matplotlib.testing.decorators.image_comparison` decorator. For
+example, this test generates a single image and automatically tests
+it::
+
+  import numpy as np
+  import matplotlib
+  matplotlib.use('Agg')
+  from matplotlib.testing.decorators import image_comparison
+  import matplotlib.pyplot as plt
+
+  @image_comparison(baseline_images=['spines_axes_positions.png'])
+  def test_spines_axes_positions():
+      # SF bug 2852168
+      fig = plt.figure()
+      x = np.linspace(0,2*np.pi,100)
+      y = 2*np.sin(x)
+      ax = fig.add_subplot(1,1,1)
+      ax.set_title('centered spines')
+      ax.plot(x,y)
+      ax.spines['right'].set_position(('axes',0.1))
+      ax.yaxis.set_ticks_position('right')
+      ax.spines['top'].set_position(('axes',0.25))
+      ax.xaxis.set_ticks_position('top')
+      ax.spines['left'].set_color('none')
+      ax.spines['bottom'].set_color('none')
+      fig.savefig('spines_axes_positions.png')
+
+The mechanism for comparing images is extremely simple -- it compares
+an image saved in the current directory with one from the Matplotlib
+sample_data repository. The correspondence is done by matching
+filenames, so ensure that:
+
+ * The filename given to :meth:`~matplotlib.figure.Figure.savefig` is
+   exactly the same as the filename given to
+   :func:`~matplotlib.testing.decorators.image_comparison` in the
+   ``baseline_images`` argument.
+
+ * The correct image gets added to the sample_data respository with
+   the name ``test_baseline_<IMAGE_FILENAME.png>``. (See
+   :ref:`sample-data` above for a description of how to add files to
+   the sample_data repository.)
+
+
+Known failing tests
+-------------------
+
+If you're writing a test, you may mark it as a known failing test with
+the :func:`~matplotlib.testing.decorators.knownfailureif`
+decorator. This allows the test to be added to the test suite and run
+on the buildbots without causing undue alarm. For example, although
+the following test will fail, it is an expected failure::
+
+  from nose.tools import assert_equal
+  from matplotlib.testing.decorators import knownfailureif
+
+  @knownfailureif(True)
+  def test_simple_fail():
+      '''very simple example test that should fail'''
+      assert_equal(1+1,3)
+
+Note that the first argument to the
+:func:`~matplotlib.testing.decorators.knownfailureif` decorator is a
+fail condition, which can be a value such as True, False, or
+'indeterminate', or may be a dynamically evaluated expression.
+
+Creating a new module in matplotlib.tests
+-----------------------------------------
+
+Let's say you've added a new module named
+``matplotlib.tests.test_whizbang_features``.  For the buildbot slave
+machines to know to run a test, nose must look in that module. To add
+a module to the list searched, add the line::
+
+  args.append('matplotlib.tests.test_whizbang_features')
+
+into :file:`test/run-mpl-test.py`.
