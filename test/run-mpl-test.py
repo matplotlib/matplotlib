@@ -93,6 +93,7 @@ for arg in args:
 args.append('.')
 args.append('matplotlib.tests.test_basic')
 args.append('matplotlib.tests.test_transforms')
+args.append('matplotlib.tests.test_spines')
 success = nose.run( argv = args,
                     plugins = [ MplNosePlugin(), KnownFailure() ] )
 
