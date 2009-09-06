@@ -51,7 +51,7 @@ class MplTestCase( unittest.TestCase ):
 
       baselineImage = self.baseFile( basename )
 
-      errorMessage = compare.compareImages( baselineImage, actualImage, tol )
+      errorMessage = compare.compare_images( baselineImage, actualImage, tol )
 
       if errorMessage:
          self.fail( msg + "\n" + errorMessage )
@@ -108,7 +108,7 @@ class MplTestCase( unittest.TestCase ):
 
       You can specify a relative tolerance, absolute tolerance, or both.
       """
-      errorMessage = compare.compareFloat( expected, actual, relTol, absTol )
+      errorMessage = compare.compare_float( expected, actual, relTol, absTol )
 
       if errorMessage:
          self.fail( msg + "\n" + errorMessage )
