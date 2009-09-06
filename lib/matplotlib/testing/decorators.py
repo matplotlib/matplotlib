@@ -19,7 +19,7 @@ def knownfailureif(fail_condition, msg=None):
                     raise KnownFailureTest(msg)
                 else:
                     raise
-            if fail_condition:
+            if fail_condition and fail_condition != 'indeterminate':
                 raise KnownFailureDidNotFailTest(msg)
             return result
         return nose.tools.make_decorator(f)(failer)
