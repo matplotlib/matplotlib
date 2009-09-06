@@ -774,10 +774,6 @@ Creating a new module in matplotlib.tests
 -----------------------------------------
 
 Let's say you've added a new module named
-``matplotlib.tests.test_whizbang_features``.  For the buildbot slave
-machines to know to run a test, nose must look in that module. To add
-a module to the list searched, add the line::
-
-  args.append('matplotlib.tests.test_whizbang_features')
-
-into :file:`test/run-mpl-test.py`.
+``matplotlib.tests.test_whizbang_features``.  To add this module to
+the list of default tests, append its name to ``default_test_modules``
+in :file:`lib/matplotlib/__init__.py`.

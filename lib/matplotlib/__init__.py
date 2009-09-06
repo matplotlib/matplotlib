@@ -876,6 +876,32 @@ for s in sys.argv[1:]:
             pass
         # we don't want to assume all -d flags are backends, eg -debug
 
+default_test_modules = [
+    'matplotlib.tests.test_basic',
+    'matplotlib.tests.test_transforms',
+    'matplotlib.tests.test_spines',
+    ]
+
+def test(verbosity=0):
+    """run the matplotlib test suite"""
+    import nose
+    import nose.plugins.builtin
+    from testing.noseclasses import KnownFailure
+    from nose.plugins.manager import PluginManager
+
+    plugins = []
+    plugins.append( KnownFailure() )
+    plugins.extend( [plugin() for plugin in nose.plugins.builtin.plugins] )
+
+    manager = PluginManager(plugins=plugins)
+    config = nose.config.Config(verbosity=verbosity, plugins=manager)
+
+    success = nose.run( defaultTest=default_test_modules,
+                        config=config,
+                        )
+    return success
+
+test.__test__ = False # nose: this function is not a test
 
 verbose.report('matplotlib version %s'%__version__)
 verbose.report('verbose.level %s'%verbose.level)
