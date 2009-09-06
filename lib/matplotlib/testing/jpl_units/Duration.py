@@ -100,7 +100,7 @@ class Duration:
       - Returns the sum of ourselves and the input Duration.
       """
       # Delay-load due to circular dependencies.
-      import mplTest.units as U
+      import matplotlib.testing.jpl_units as U
 
       if isinstance( rhs, U.Epoch ):
          return rhs + self

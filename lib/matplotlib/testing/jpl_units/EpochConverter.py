@@ -63,7 +63,7 @@ class EpochConverter( units.ConversionInterface ):
       - Returns the value converted to an Epoch in the sepcified time system.
       """
       # Delay-load due to circular dependencies.
-      import mplTest.units as U
+      import matplotlib.testing.jpl_units as U
 
       secPastRef = value * 86400.0 * U.UnitDbl( 1.0, 'sec' )
       return U.Epoch( unit, secPastRef, EpochConverter.jdRef )
@@ -111,7 +111,7 @@ class EpochConverter( units.ConversionInterface ):
       - Returns the value parameter converted to floats.
       """
       # Delay-load due to circular dependencies.
-      import mplTest.units as U
+      import matplotlib.testing.jpl_units as U
 
       isNotEpoch = True
       isDuration = False

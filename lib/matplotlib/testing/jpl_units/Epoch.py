@@ -173,7 +173,7 @@ class Epoch:
         Epoch that is the result of subtracting a duration from an epoch.
       """
       # Delay-load due to circular dependencies.
-      import mplTest.units as U
+      import matplotlib.testing.jpl_units as U
 
       # Handle Epoch - Duration
       if isinstance( rhs, U.Duration ):
