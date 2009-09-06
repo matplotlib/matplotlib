@@ -10,4 +10,4 @@ from directories import *
 from mplTest.MplNosePlugin import MplNosePlugin
 from mplTest.MplTestCase import MplTestCase
 
-import mplTest.units as units
+import matplotlib.testing.jpl_units as units
