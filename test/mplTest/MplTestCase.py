@@ -6,7 +6,7 @@ import os
 import os.path
 import unittest
 
-import compare
+import matplotlib.testing.compare as compare
 import path_utils
 
 #=======================================================================
