@@ -51,6 +51,7 @@ packages = [
     'matplotlib.backends',
     'matplotlib.projections',
     'matplotlib.testing',
+    'matplotlib.tests',
 #   'matplotlib.toolkits',
     'mpl_toolkits',
     'mpl_toolkits.mplot3d',
