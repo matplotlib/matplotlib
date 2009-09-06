@@ -16,7 +16,7 @@ def knownfailureif(fail_condition, msg=None):
                 result = f(*args, **kwargs)
             except:
                 if fail_condition:
-                    raise KnownFailureTest(msg)
+                    raise KnownFailureTest(msg) # An error here when running nose means that you don't have the matplotlib.testing.noseclasses:KnownFailure plugin in use.
                 else:
                     raise
             if fail_condition and fail_condition != 'indeterminate':
