@@ -76,6 +76,8 @@ mpl_build:
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
 	export CFLAGS=${CFLAGS_DEPS} &&\
 	export LDFLAGS=${LDFLAGS_DEPS} &&\
+	export LD_LIBRARY_PATH=${PREFIX}/lib &&\
+	export DYLD_LIBRARY_PATH=${PREFIX}/lib &&\
 	python setup.py build
 
 mpl_install:
