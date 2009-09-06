@@ -11,12 +11,12 @@ import numpy as np
 #=======================================================================
 
 __all__ = [
-            'compareFloat',
-            'compareImages',
+            'compare_float',
+            'compare_images',
           ]
 
 #-----------------------------------------------------------------------
-def compareFloat( expected, actual, relTol = None, absTol = None ):
+def compare_float( expected, actual, relTol = None, absTol = None ):
    """Fail if the floating point values are not close enough, with
       the givem message.
 
@@ -72,7 +72,7 @@ def compareFloat( expected, actual, relTol = None, absTol = None ):
       return None
 
 #-----------------------------------------------------------------------
-def compareImages( expected, actual, tol ):
+def compare_images( expected, actual, tol ):
    '''Compare two image files - not the greatest, but fast and good enough.
 
    = EXAMPLE
@@ -80,7 +80,7 @@ def compareImages( expected, actual, tol ):
    # img1 = "./baseline/plot.png"
    # img2 = "./output/plot.png"
    #            
-   # compareImage( img1, img2, 0.001 ):
+   # compare_images( img1, img2, 0.001 ):
 
    = INPUT VARIABLES
    - expected  The filename of the expected image.
@@ -116,7 +116,7 @@ def compareImages( expected, actual, tol ):
    else:
       diff_image = os.path.join(os.path.dirname(actual),
                                 'failed-diff-'+os.path.basename(actual))
-      saveDiffImage( expected, actual, diff_image )
+      save_diff_image( expected, actual, diff_image )
 
       msg = "  Error: Image files did not match.\n"       \
             "  RMS Value: " + str( rms / 10000.0 ) + "\n" \
@@ -126,7 +126,7 @@ def compareImages( expected, actual, tol ):
             "  Tolerance: " + str( tol ) + "\n"
       return msg
 
-def saveDiffImage( expected, actual, output ):
+def save_diff_image( expected, actual, output ):
    from PIL import Image
    expectedImage = np.array(Image.open( expected ).convert("RGB")).astype(np.float)
    actualImage = np.array(Image.open( actual ).convert("RGB")).astype(np.float)
