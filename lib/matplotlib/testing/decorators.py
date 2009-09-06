@@ -1,6 +1,9 @@
 from matplotlib.testing.noseclasses import KnownFailureTest, \
-     KnownFailureDidNotFailTest
+     KnownFailureDidNotFailTest, ImageComparisonFailure
 import sys
+import nose
+from matplotlib.cbook import get_sample_data
+from matplotlib.testing.compare import compare_images
 
 def knownfailureif(fail_condition, msg=None):
     # based on numpy.testing.dec.knownfailureif
@@ -24,3 +27,23 @@ def knownfailureif(fail_condition, msg=None):
             return result
         return nose.tools.make_decorator(f)(failer)
     return known_fail_decorator
+
+def image_comparison(baseline_images=None, tol=1e-3):
+    if baseline_images is None:
+        raise ValueError('baseline_images must be specified')
+    def compare_images_decorator(func):
+        def decorated_compare_images(*args,**kwargs):
+            result = func(*args,**kwargs)
+            for fname in baseline_images:
+                actual = fname
+                expected = get_sample_data('test_baseline_%s'%fname,
+                                           asfileobj=False)
+                err = compare_images( expected, actual, tol,
+                                      in_decorator=True )
+                if err:
+                    raise ImageComparisonFailure(
+                        'images not close: %(actual)s vs. %(expected)s '
+                        '(RMS %(rms).3f)'%err)
+            return result
+        return nose.tools.make_decorator(func)(decorated_compare_images)
+    return compare_images_decorator

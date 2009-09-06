@@ -9,6 +9,9 @@ class KnownFailureDidNotFailTest(Exception):
     '''Raise this exception to mark a test should have failed but did not.'''
     pass
 
+class ImageComparisonFailure(Exception):
+    '''Raise this exception to mark a test as a comparison between two images.'''
+
 class KnownFailure(ErrorClassPlugin):
     '''Plugin that installs a KNOWNFAIL error class for the
     KnownFailureClass exception.  When KnownFailureTest is raised,
