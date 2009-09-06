@@ -133,6 +133,6 @@ def save_diff_image( expected, actual, output ):
    absDiffImage = abs(expectedImage-actualImage)
    # expand differences in luminance domain
    absDiffImage *= 10
-   save_image_np = absDiffImage.astype(np.uint8)
+   save_image_np = np.clip(absDiffImage,0,255).astype(np.uint8)
    save_image = Image.fromarray(save_image_np)
    save_image.save(output)
