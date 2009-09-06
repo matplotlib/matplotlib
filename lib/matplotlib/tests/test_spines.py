@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 

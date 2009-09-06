@@ -888,7 +888,7 @@ def test(verbosity=0):
     import nose.plugins.builtin
     from testing.noseclasses import KnownFailure
     from nose.plugins.manager import PluginManager
-
+    use('Agg') # use Agg backend for these tests
     plugins = []
     plugins.append( KnownFailure() )
     plugins.extend( [plugin() for plugin in nose.plugins.builtin.plugins] )
