@@ -44,6 +44,7 @@ os.chdir( working )
 
 import nose
 from mplTest import MplNosePlugin, path_utils
+import matplotlib
 from matplotlib.testing.noseclasses import KnownFailure
 
 if '--clean' in args:
@@ -91,9 +92,8 @@ for arg in args:
 
 ### Run nose
 args.append('.')
-args.append('matplotlib.tests.test_basic')
-args.append('matplotlib.tests.test_transforms')
-args.append('matplotlib.tests.test_spines')
+args.extend( matplotlib.default_test_modules )
+
 success = nose.run( argv = args,
                     plugins = [ MplNosePlugin(), KnownFailure() ] )
 
