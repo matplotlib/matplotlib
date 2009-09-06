@@ -11,4 +11,4 @@ export PYTHONPATH=${PREFIX}/lib/python2.6/site-packages:${HOME}/dev/lib/python2.
 make -f make.osx mpl_install
 echo ${PYTHONPATH}
 
-cd test && python run-mpl-test.py --all --keep-failed
+cd test && python run-mpl-test.py --verbose --all --keep-failed
