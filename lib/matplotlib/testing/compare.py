@@ -72,7 +72,7 @@ def compare_float( expected, actual, relTol = None, absTol = None ):
       return None
 
 #-----------------------------------------------------------------------
-def compare_images( expected, actual, tol ):
+def compare_images( expected, actual, tol, in_decorator=False ):
    '''Compare two image files - not the greatest, but fast and good enough.
 
    = EXAMPLE
@@ -87,6 +87,8 @@ def compare_images( expected, actual, tol ):
    - actual    The filename of the actual image.
    - tol       The tolerance (a unitless float).  This is used to
                determinte the 'fuzziness' to use when comparing images.
+   - in_decorator If called from image_comparison decorator, this should be
+               True. (default=False)
    '''
 
    try:
@@ -113,11 +115,21 @@ def compare_images( expected, actual, tol ):
 
    if ( (rms / 10000.0) <= tol ):
       return None
-   else:
-      diff_image = os.path.join(os.path.dirname(actual),
-                                'failed-diff-'+os.path.basename(actual))
-      save_diff_image( expected, actual, diff_image )
 
+   diff_image = os.path.join(os.path.dirname(actual),
+                             'failed-diff-'+os.path.basename(actual))
+   save_diff_image( expected, actual, diff_image )
+
+   if in_decorator:
+      results = dict(
+         rms = rms,
+         expected = str(expected),
+         actual = str(actual),
+         diff = str(diff_image),
+         )
+      return results
+   else:
+      # old-style call from mplTest directory
       msg = "  Error: Image files did not match.\n"       \
             "  RMS Value: " + str( rms / 10000.0 ) + "\n" \
             "  Expected:\n    " + str( expected ) + "\n"  \
@@ -130,6 +142,8 @@ def save_diff_image( expected, actual, output ):
    from PIL import Image
    expectedImage = np.array(Image.open( expected ).convert("RGB")).astype(np.float)
    actualImage = np.array(Image.open( actual ).convert("RGB")).astype(np.float)
+   assert expectedImage.ndim==expectedImage.ndim
+   assert expectedImage.shape==expectedImage.shape
    absDiffImage = abs(expectedImage-actualImage)
    # expand differences in luminance domain
    absDiffImage *= 10
