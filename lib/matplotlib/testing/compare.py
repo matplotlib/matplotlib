@@ -114,15 +114,21 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    h2 = actualImage.histogram()
    rms = math.sqrt( reduce(operator.add, map(lambda a,b: (a-b)**2, h1, h2)) / len(h1) )
 
-   if ( (rms / 10000.0) <= tol ):
-      return None
-
    diff_image = os.path.join(os.path.dirname(actual),
                              'failed-diff-'+os.path.basename(actual))
+   expected_copy = 'expected-'+os.path.basename(actual)
+
+   if ( (rms / 10000.0) <= tol ):
+      if os.path.exists(diff_image):
+         os.unlink(diff_image)
+      if os.path.exists(expected_copy):
+         os.unlink(expected_copy)
+      return None
+
    save_diff_image( expected, actual, diff_image )
 
    if in_decorator:
-      shutil.copyfile( expected, 'expected-'+os.path.basename(actual))
+      shutil.copyfile( expected, expected_copy )
       results = dict(
          rms = rms,
          expected = str(expected),
@@ -131,6 +137,9 @@ def compare_images( expected, actual, tol, in_decorator=False ):
          )
       return results
    else:
+      # expected_copy is only for in_decorator case
+      if os.path.exists(expected_copy):
+         os.unlink(expected_copy)
       # old-style call from mplTest directory
       msg = "  Error: Image files did not match.\n"       \
             "  RMS Value: " + str( rms / 10000.0 ) + "\n" \
