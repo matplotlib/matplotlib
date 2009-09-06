@@ -1,9 +1,9 @@
-import datetime 
+import datetime
 import numpy as np
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 
-@image_comparison(baseline_images=['date_empty.png'])
+@image_comparison(baseline_images=['date_empty'])
 def test_date_empty():
     # make sure mpl does the right thing when told to plot dates even
     # if no date data has been presented, cf
@@ -11,9 +11,9 @@ def test_date_empty():
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
     ax.xaxis_date()
-    fig.savefig('date_empty.png')
+    fig.savefig('date_empty')
 
-@image_comparison(baseline_images=['date_axhspan.png'])
+@image_comparison(baseline_images=['date_axhspan'])
 def test_date_axhspan():
     # test ax hspan with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -21,12 +21,12 @@ def test_date_axhspan():
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
     ax.axhspan( t0, tf, facecolor="blue", alpha=0.25 )
-    ax.set_ylim(t0-datetime.timedelta(days=5), 
+    ax.set_ylim(t0-datetime.timedelta(days=5),
                 tf+datetime.timedelta(days=5))
     fig.subplots_adjust(left=0.25)
-    fig.savefig('date_axhspan.png')
+    fig.savefig('date_axhspan')
 
-@image_comparison(baseline_images=['date_axvspan.png'])
+@image_comparison(baseline_images=['date_axvspan'])
 def test_date_axvspan():
     # test ax hspan with date inputs
     t0 = datetime.datetime(2000, 1, 20)
@@ -34,13 +34,13 @@ def test_date_axvspan():
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
     ax.axvspan( t0, tf, facecolor="blue", alpha=0.25 )
-    ax.set_xlim(t0-datetime.timedelta(days=720), 
+    ax.set_xlim(t0-datetime.timedelta(days=720),
                 tf+datetime.timedelta(days=720))
     fig.autofmt_xdate()
-    fig.savefig('date_axvspan.png')
+    fig.savefig('date_axvspan')
 
 
-@image_comparison(baseline_images=['date_axhline.png'])
+@image_comparison(baseline_images=['date_axhline'])
 def test_date_axhline():
     # test ax hline with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -48,12 +48,12 @@ def test_date_axhline():
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
     ax.axhline( t0, color="blue", lw=3)
-    ax.set_ylim(t0-datetime.timedelta(days=5), 
+    ax.set_ylim(t0-datetime.timedelta(days=5),
                 tf+datetime.timedelta(days=5))
     fig.subplots_adjust(left=0.25)
-    fig.savefig('date_axhline.png')
+    fig.savefig('date_axhline')
 
-@image_comparison(baseline_images=['date_axvline.png'])
+@image_comparison(baseline_images=['date_axvline'])
 def test_date_axvline():
     # test ax hline with date inputs
     t0 = datetime.datetime(2000, 1, 20)
@@ -61,15 +61,12 @@ def test_date_axvline():
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
     ax.axvline( t0, color="red", lw=3)
-    ax.set_xlim(t0-datetime.timedelta(days=5), 
+    ax.set_xlim(t0-datetime.timedelta(days=5),
                 tf+datetime.timedelta(days=5))
     fig.autofmt_xdate()
-    fig.savefig('date_axvline.png')
+    fig.savefig('date_axvline')
 
 
 if __name__=='__main__':
     import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)                     
-
-
-
+    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
