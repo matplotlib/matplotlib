@@ -1,4 +1,5 @@
-from matplotlib.testing.noseclasses import KnownFailureTest
+from matplotlib.testing.noseclasses import KnownFailureTest, \
+     KnownFailureDidNotFailTest
 import sys
 
 def knownfailureif(fail_condition, msg=None):
@@ -18,7 +19,8 @@ def knownfailureif(fail_condition, msg=None):
                     raise KnownFailureTest(msg)
                 else:
                     raise
-            # Fixme: Should raise KnownFailureDidNotFail if fail_condition==True?
+            if fail_condition:
+                raise KnownFailureDidNotFailTest(msg)
             return result
         return nose.tools.make_decorator(f)(failer)
     return known_fail_decorator
