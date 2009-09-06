@@ -30,15 +30,15 @@ measurement of time since a delta-t in one frame may not be the same in another.
 """
 
 #=======================================================================
-from mplTest.units.Duration import Duration
-from mplTest.units.Epoch import Epoch
-from mplTest.units.UnitDbl import UnitDbl
+from Duration import Duration
+from Epoch import Epoch
+from UnitDbl import UnitDbl
 
-from mplTest.units.StrConverter import StrConverter
-from mplTest.units.EpochConverter import EpochConverter
-from mplTest.units.UnitDblConverter import UnitDblConverter
+from StrConverter import StrConverter
+from EpochConverter import EpochConverter
+from UnitDblConverter import UnitDblConverter
 
-from mplTest.units.UnitDblFormatter import UnitDblFormatter
+from UnitDblFormatter import UnitDblFormatter
 
 #=======================================================================
 

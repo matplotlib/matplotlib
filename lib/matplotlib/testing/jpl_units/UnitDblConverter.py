@@ -66,7 +66,7 @@ class UnitDblConverter( units.ConversionInterface ):
         label information.
       """
       # Delay-load due to circular dependencies.
-      import mplTest.units as U
+      import matplotlib.testing.jpl_units as U
 
       # Check to see if the value used for units is a string unit value
       # or an actual instance of a UnitDbl so that we can use the unit
@@ -105,7 +105,7 @@ class UnitDblConverter( units.ConversionInterface ):
       - Returns the value parameter converted to floats.
       """
       # Delay-load due to circular dependencies.
-      import mplTest.units as U
+      import matplotlib.testing.jpl_units as U
 
       isNotUnitDbl = True
 
