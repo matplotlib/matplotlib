@@ -683,6 +683,14 @@ please ignore it while we consolidate our testing to these locations.)
 
 .. _nose: http://somethingaboutorange.com/mrl/projects/nose/
 
+Running the tests
+-----------------
+
+Running the tests is simple. Make sure you have nose installed and
+type from within Python::
+
+  import matplotlib
+  matplotlib.test()
 
 Writing a simple test
 ---------------------
