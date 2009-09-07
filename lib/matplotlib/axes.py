@@ -2033,6 +2033,8 @@ class Axes(martist.Artist):
         if xmin is None: xmin = old_xmin
         if xmax is None: xmax = old_xmax
 
+        if xmin==xmax:
+            warnings.warn('Attempting to set identical xmin==xmax results in singular transformations; automatically expanding.  xmin=%s, xmax=%s'%(xmin, xmax))
         xmin, xmax = mtransforms.nonsingular(xmin, xmax, increasing=False)
         xmin, xmax = self.xaxis.limit_range_for_scale(xmin, xmax)
 
@@ -2204,6 +2206,9 @@ class Axes(martist.Artist):
 
         if ymin is None: ymin = old_ymin
         if ymax is None: ymax = old_ymax
+
+        if ymin==ymax:
+            warnings.warn('Attempting to set identical ymin==ymax results in singular transformations; automatically expanding.  ymin=%s, ymax=%s'%(ymin, ymax))
 
         ymin, ymax = mtransforms.nonsingular(ymin, ymax, increasing=False)
         ymin, ymax = self.yaxis.limit_range_for_scale(ymin, ymax)
