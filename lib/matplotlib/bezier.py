@@ -474,7 +474,7 @@ def make_path_regular(p):
     """
     c = p.codes
     if c is None:
-        c = np.empty(p.vertices.shape, "i")
+        c = np.empty(p.vertices.shape[:1], "i")
         c.fill(Path.LINETO)
         c[0] = Path.MOVETO
 
