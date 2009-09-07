@@ -181,3 +181,19 @@ def test_single_point():
     pylab.plot( [1], [1], 'o' )
 
     fig.savefig( 'single_point' )
+
+@image_comparison(baseline_images=['single_date'])
+def test_single_date():
+    """Test single-point date plots."""
+
+    time1=[ 721964.0 ]
+    data1=[ -65.54 ]
+
+    fig = pylab.figure()
+    pylab.subplot( 211 )
+    pylab.plot_date( time1, data1, 'o', color='r' )
+
+    pylab.subplot( 212 )
+    pylab.plot( time1, data1, 'o', color='r' )
+
+    fig.savefig( 'single_date' )

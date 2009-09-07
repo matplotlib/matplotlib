@@ -41,25 +41,6 @@ class TestPlot( MplTestCase ):
       pass
 
    #--------------------------------------------------------------------
-   def test_single_date( self ):
-      """Test single-point date plots."""
-
-      fname = self.outFile( "single_date.png" )
-
-      time1=[ 721964.0 ]
-      data1=[ -65.54 ]
-
-      fig = pylab.figure()
-      pylab.subplot( 211 )
-      pylab.plot_date( time1, data1, 'o', color='r' )
-
-      pylab.subplot( 212 )
-      pylab.plot( time1, data1, 'o', color='r' )
-
-      fig.savefig( fname )
-      self.checkImage( fname )
-
-   #--------------------------------------------------------------------
    def test_shaped_data( self ):
       """Test numpy shaped data."""
 
