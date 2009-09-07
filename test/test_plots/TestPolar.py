@@ -41,40 +41,6 @@ class TestPolar( MplTestCase ):
       pass
 
    #--------------------------------------------------------------------
-   def test_polar_wrap( self ):
-      """Test polar plots where data crosses 0 degrees."""
-
-      fname = self.outFile( "polar_wrap_180.png" )
-
-      D2R = npy.pi / 180.0
-
-      fig = pylab.figure()
-
-      #NOTE: resolution=1 really should be the default
-      pylab.subplot( 111, polar=True, resolution=1 )
-      pylab.polar( [179*D2R, -179*D2R], [0.2, 0.1], "b.-" )
-      pylab.polar( [179*D2R,  181*D2R], [0.2, 0.1], "g.-" )
-      pylab.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
-
-      fig.savefig( fname )
-      self.checkImage( fname )
-
-
-      fname = self.outFile( "polar_wrap_360.png" )
-
-      fig = pylab.figure()
-
-      #NOTE: resolution=1 really should be the default
-      pylab.subplot( 111, polar=True, resolution=1 )
-      pylab.polar( [2*D2R, -2*D2R], [0.2, 0.1], "b.-" )
-      pylab.polar( [2*D2R,  358*D2R], [0.2, 0.1], "g.-" )
-      pylab.polar( [358*D2R,  2*D2R], [0.2, 0.1], "r.-" )
-      pylab.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
-
-      fig.savefig( fname )
-      self.checkImage( fname )
-
-   #--------------------------------------------------------------------
    def test_polar_units( self ):
       """Test polar plots with unitized data."""
 
