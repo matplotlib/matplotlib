@@ -2266,6 +2266,7 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
         else:
             vmin -= expander*abs(vmin)
             vmax += expander*abs(vmax)
+
     if swapped and not increasing:
         vmin, vmax = vmax, vmin
     return vmin, vmax
