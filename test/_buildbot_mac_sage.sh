@@ -13,4 +13,4 @@ echo ${PYTHONPATH}
 
 cd test
 rm -f failed-diff-*.png
-python run-mpl-test.py --verbose --all --keep-failed
+python -c "import matplotlib; matplotlib.test(verbosity=2)"

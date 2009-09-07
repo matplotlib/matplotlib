@@ -18,5 +18,5 @@ previous_test_images = glob.glob(os.path.join('test','failed-diff-*.png'))
 for fname in previous_test_images:
     os.unlink(fname)
 
-check_call('%s run-mpl-test.py --verbose --all'%TARGET_py,
+check_call('%s -c "import matplotlib; matplotlib.test(verbosity=2)"'%TARGET_py,
            cwd='test')
