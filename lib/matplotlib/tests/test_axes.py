@@ -4,21 +4,6 @@ from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
 import pylab
 
-@knownfailureif('indeterminate', "Fails due to SF bug 2850075")
-@image_comparison(baseline_images=['empty_datetime'])
-def test_empty_datetime():
-    """Test plotting empty axes with dates along one axis."""
-    from datetime import datetime
-
-    t0 = datetime(2009, 1, 20)
-    tf = datetime(2009, 1, 21)
-
-    fig = pylab.figure()
-    pylab.axvspan( t0, tf, facecolor="blue", alpha=0.25 )
-    fig.autofmt_xdate()
-
-    fig.savefig( 'empty_datetime' )
-
 @image_comparison(baseline_images=['formatter_ticker_001',
                                    'formatter_ticker_002',
                                    'formatter_ticker_003',
