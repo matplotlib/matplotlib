@@ -41,21 +41,6 @@ class TestPlot( MplTestCase ):
       pass
 
    #--------------------------------------------------------------------
-   def test_single_point( self ):
-      """Test single-point plots."""
-      fname = self.outFile( "single_point.png" )
-
-      fig = pylab.figure()
-      pylab.subplot( 211 )
-      pylab.plot( [0], [0], 'o' )
-
-      pylab.subplot( 212 )
-      pylab.plot( [1], [1], 'o' )
-
-      fig.savefig( fname )
-      self.checkImage( fname )
-
-   #--------------------------------------------------------------------
    def test_single_date( self ):
       """Test single-point date plots."""
 
