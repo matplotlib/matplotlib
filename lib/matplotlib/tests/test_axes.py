@@ -288,3 +288,27 @@ def test_polar_wrap():
     pylab.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
 
     fig.savefig( 'polar_wrap_360' )
+
+@image_comparison(baseline_images=['polar_units'])
+def test_polar_units():
+    """Test polar plots with unitized data."""
+    import matplotlib.testing.jpl_units as units
+    units.register()
+
+    pi = np.pi
+    deg = units.UnitDbl( 1.0, "deg" )
+
+    x1 = [ pi/6.0, pi/4.0, pi/3.0, pi/2.0 ]
+    x2 = [ 30.0*deg, 45.0*deg, 60.0*deg, 90.0*deg ]
+
+    y1 = [ 1.0, 2.0, 3.0, 4.0]
+    y2 = [ 4.0, 3.0, 2.0, 1.0 ]
+
+    fig = pylab.figure()
+
+    pylab.polar( x2, y1, color = "blue" )
+
+    # polar( x2, y1, color = "red", xunits="rad" )
+    # polar( x2, y2, color = "green" )
+
+    fig.savefig( 'polar_units' )
