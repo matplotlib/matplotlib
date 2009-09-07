@@ -113,6 +113,35 @@ def test_RRuleLocator():
 
     fig.savefig( 'RRuleLocator_bounds' )
 
+@image_comparison(baseline_images=['DateFormatter_fractionalSeconds'])
+def test_DateFormatter():
+    """Test DateFormatter"""
+    import pylab
+    from datetime import datetime
+    import matplotlib.testing.jpl_units as units
+    units.register()
+
+    # Lets make sure that DateFormatter will allow us to have tick marks
+    # at intervals of fractional seconds.
+
+    t0 = datetime( 2001, 1, 1, 0, 0, 0 )
+    tf = datetime( 2001, 1, 1, 0, 0, 1 )
+
+    fig = pylab.figure()
+    ax = pylab.subplot( 111 )
+    ax.set_autoscale_on( True )
+    ax.plot( [t0, tf], [0.0, 1.0], marker='o' )
+
+    # rrule = mpldates.rrulewrapper( dateutil.rrule.YEARLY, interval=500 )
+    # locator = mpldates.RRuleLocator( rrule )
+    # ax.xaxis.set_major_locator( locator )
+    # ax.xaxis.set_major_formatter( mpldates.AutoDateFormatter(locator) )
+
+    ax.autoscale_view()
+    fig.autofmt_xdate()
+
+    fig.savefig( 'DateFormatter_fractionalSeconds' )
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
