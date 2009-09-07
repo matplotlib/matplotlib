@@ -243,3 +243,19 @@ def test_shaped_data():
     pylab.plot( xdata[:,1], xdata[1,:], 'o' )
 
     fig.savefig( 'shaped data' )
+
+@image_comparison(baseline_images=['const_xy'])
+def test_const_xy():
+    """Test constant xy data."""
+    fig = pylab.figure()
+
+    pylab.subplot( 311 )
+    pylab.plot( np.arange(10), np.ones( (10,) ) )
+
+    pylab.subplot( 312 )
+    pylab.plot( np.ones( (10,) ), np.arange(10) )
+
+    pylab.subplot( 313 )
+    pylab.plot( np.ones( (10,) ), np.ones( (10,) ), 'o' )
+
+    fig.savefig( 'const_xy' )
