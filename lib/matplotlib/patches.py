@@ -73,6 +73,13 @@ class Patch(artist.Artist):
         if linestyle is None: linestyle = "solid"
         if antialiased is None: antialiased = mpl.rcParams['patch.antialiased']
 
+        if 'color' in kwargs:
+            if (edgecolor is not None or
+                facecolor is not None):
+                import warnings
+                warnings.warn("Setting the 'color' property will override"
+                              "the edgecolor or facecolor properties. ")
+
         self.set_edgecolor(edgecolor)
         self.set_facecolor(facecolor)
         self.set_linewidth(linewidth)
