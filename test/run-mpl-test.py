@@ -43,6 +43,7 @@ if '--all' in args:
 os.chdir( working )
 
 import nose
+import nose.plugins.builtin
 from mplTest import MplNosePlugin, path_utils
 import matplotlib
 from matplotlib.testing.noseclasses import KnownFailure
@@ -94,8 +95,12 @@ for arg in args:
 args.append('.')
 args.extend( matplotlib.default_test_modules )
 
+plugins =  [plugin() for plugin in nose.plugins.builtin.plugins]
+plugins.extend( [ MplNosePlugin(), KnownFailure() ])
+
 success = nose.run( argv = args,
-                    plugins = [ MplNosePlugin(), KnownFailure() ] )
+                    plugins = plugins,
+                    )
 
 ### do other stuff here
 
