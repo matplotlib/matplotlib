@@ -312,3 +312,25 @@ def test_polar_units():
     # polar( x2, y2, color = "green" )
 
     fig.savefig( 'polar_units' )
+
+@image_comparison(baseline_images=['axvspan_epoch'])
+def test_axvspan_epoch():
+    """Test the axvspan method with Epochs."""
+    from datetime import datetime
+    import matplotlib.testing.jpl_units as units
+    units.register()
+
+    # generate some data
+    t0 = units.Epoch( "ET", dt=datetime(2009, 1, 20) )
+    tf = units.Epoch( "ET", dt=datetime(2009, 1, 21) )
+
+    dt = units.Duration( "ET", units.day.convert( "sec" ) )
+
+    fig = pylab.figure()
+
+    pylab.axvspan( t0, tf, facecolor="blue", alpha=0.25 )
+
+    ax = pylab.gca()
+    ax.set_xlim( t0 - 5.0*dt, tf + 5.0*dt )
+
+    fig.savefig( 'axvspan_epoch' )
