@@ -46,33 +46,6 @@ class TestTickers( MplTestCase ):
       pass
 
    #--------------------------------------------------------------------
-   def test_RRuleLocator( self ):
-      """Test RRuleLocator"""
-      fname = self.outFile( "RRuleLocator_bounds.png" )
-
-      # This will cause the RRuleLocator to go out of bounds when it tries
-      # to add padding to the limits, so we make sure it caps at the correct
-      # boundary values.
-      t0 = datetime( 1000, 1, 1 )
-      tf = datetime( 6000, 1, 1 )
-
-      fig = pylab.figure()
-      ax = pylab.subplot( 111 )
-      ax.set_autoscale_on( True )
-      ax.plot( [t0, tf], [0.0, 1.0], marker='o' )
-
-      rrule = mpldates.rrulewrapper( dateutil.rrule.YEARLY, interval=500 )
-      locator = mpldates.RRuleLocator( rrule )
-      ax.xaxis.set_major_locator( locator )
-      ax.xaxis.set_major_formatter( mpldates.AutoDateFormatter(locator) )
-
-      ax.autoscale_view()
-      fig.autofmt_xdate()
-
-      fig.savefig( fname )
-      self.checkImage( fname )
-
-   #--------------------------------------------------------------------
    def test_DateFormatter( self ):
       """Test DateFormatter"""
 

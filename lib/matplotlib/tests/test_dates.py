@@ -83,6 +83,36 @@ def test_too_many_date_ticks():
     ax.xaxis.set_major_locator(DayLocator())
     assert_raises(RuntimeError, fig.savefig, 'junk.png')
 
+@image_comparison(baseline_images=['RRuleLocator_bounds'])
+def test_RRuleLocator():
+    import pylab
+    import matplotlib.dates as mpldates
+    import matplotlib.testing.jpl_units as units
+    from datetime import datetime
+    import dateutil
+    units.register()
+
+    # This will cause the RRuleLocator to go out of bounds when it tries
+    # to add padding to the limits, so we make sure it caps at the correct
+    # boundary values.
+    t0 = datetime( 1000, 1, 1 )
+    tf = datetime( 6000, 1, 1 )
+
+    fig = pylab.figure()
+    ax = pylab.subplot( 111 )
+    ax.set_autoscale_on( True )
+    ax.plot( [t0, tf], [0.0, 1.0], marker='o' )
+
+    rrule = mpldates.rrulewrapper( dateutil.rrule.YEARLY, interval=500 )
+    locator = mpldates.RRuleLocator( rrule )
+    ax.xaxis.set_major_locator( locator )
+    ax.xaxis.set_major_formatter( mpldates.AutoDateFormatter(locator) )
+
+    ax.autoscale_view()
+    fig.autofmt_xdate()
+
+    fig.savefig( 'RRuleLocator_bounds' )
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
