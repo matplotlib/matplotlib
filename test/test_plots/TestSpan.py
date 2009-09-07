@@ -42,28 +42,6 @@ class TestSpan( MplTestCase ):
       pass
 
    #--------------------------------------------------------------------
-   def test_axvspan_epoch( self ):
-      """Test the axvspan method with Epochs."""
-
-      fname = self.outFile( "axvspan_epoch.png" )
-
-      # generate some data
-      t0 = units.Epoch( "ET", dt=datetime(2009, 1, 20) )
-      tf = units.Epoch( "ET", dt=datetime(2009, 1, 21) )
-
-      dt = units.Duration( "ET", units.day.convert( "sec" ) )
-
-      fig = pylab.figure()
-
-      pylab.axvspan( t0, tf, facecolor="blue", alpha=0.25 )
-
-      ax = pylab.gca()
-      ax.set_xlim( t0 - 5.0*dt, tf + 5.0*dt )
-
-      fig.savefig( fname )
-      self.checkImage( fname )
-
-   #--------------------------------------------------------------------
    def test_axhspan_epoch( self ):
       """Test the axhspan method with Epochs."""
 
