@@ -669,6 +669,13 @@ class Locator(TickHelper):
         'Return the locations of the ticks'
         raise NotImplementedError('Derived must override')
 
+    def raise_if_exceeds(self, locs):
+        'raise a RuntimeError if Locator attempts to create more than MAXTICKS locs'
+        if len(locs)>=self.MAXTICKS:
+           raise RuntimeError('Locator attempting to generate %d ticks from %s to %s: exceeds Locator.MAXTICKS'%(len(locs), locs[0], locs[-1]))
+        
+        return locs
+
     def view_limits(self, vmin, vmax):
         """
         select a scale for the range from vmin to vmax
@@ -728,7 +735,8 @@ class IndexLocator(Locator):
     def __call__(self):
         'Return the locations of the ticks'
         dmin, dmax = self.axis.get_data_interval()
-        return np.arange(dmin + self.offset, dmax+1, self._base)
+        return self.raise_if_exceeds(
+            np.arange(dmin + self.offset, dmax+1, self._base))
 
 
 class FixedLocator(Locator):
@@ -758,7 +766,7 @@ class FixedLocator(Locator):
             ticks1 = self.locs[i::step]
             if np.absolute(ticks1).min() < np.absolute(ticks).min():
                 ticks = ticks1
-        return ticks
+        return self.raise_if_exceeds(ticks)
 
 
 
@@ -812,7 +820,7 @@ class LinearLocator(Locator):
         if self.numticks==0: return []
         ticklocs = np.linspace(vmin, vmax, self.numticks)
 
-        return ticklocs
+        return self.raise_if_exceeds(ticklocs)
 
 
     def _set_numticks(self):
@@ -900,7 +908,7 @@ class MultipleLocator(Locator):
         base = self._base.get_base()
         n = (vmax - vmin + 0.001*base)//base
         locs = vmin + np.arange(n+1) * base
-        return locs
+        return self.raise_if_exceeds(locs)
 
     def view_limits(self, dmin, dmax):
         """
@@ -1010,7 +1018,7 @@ class MaxNLocator(Locator):
             locs = locs[:-1]
         elif prune=='both':
             locs = locs[1:-1]
-        return locs
+        return self.raise_if_exceeds(locs)
 
     def view_limits(self, dmin, dmax):
         if self._symmetric:
@@ -1106,7 +1114,7 @@ class LogLocator(Locator):
         else:
             ticklocs = b**decades
 
-        return np.array(ticklocs)
+        return self.raise_if_exceeds(np.array(ticklocs))
 
     def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
@@ -1177,7 +1185,7 @@ class SymmetricalLogLocator(Locator):
                 ticklocs.extend(subs * (np.sign(decade) * b ** np.abs(decade)))
         else:
             ticklocs = np.sign(decades) * b ** np.abs(decades)
-        return np.array(ticklocs)
+        return self.raise_if_exceeds(np.array(ticklocs))
 
     def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
@@ -1241,7 +1249,7 @@ class AutoMinorLocator(Locator):
         if vmin > vmax:
             vmin,vmax = vmax,vmin
 
-        return locs[(vmin < locs) & (locs < vmax)]
+        return self.raise_if_exceeds(locs[(vmin < locs) & (locs < vmax)])
 
 
 class OldAutoLocator(Locator):
@@ -1256,7 +1264,7 @@ class OldAutoLocator(Locator):
     def __call__(self):
         'Return the locations of the ticks'
         self.refresh()
-        return self._locator()
+        return self.raise_if_exceeds(self._locator())
 
     def refresh(self):
         'refresh internal information based on current lim'

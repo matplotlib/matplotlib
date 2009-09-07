@@ -522,9 +522,7 @@ class RRuleLocator(DateLocator):
 
         self.rule.set(dtstart=start, until=stop)
         dates = self.rule.between(dmin, dmax, True)
-        if len(dates)>=ticker.Locator.MAXTICKS:
-           raise RuntimeError('RRuleLocator attempting to generate %d ticks from %s to %s: exceeds matplotlib.ticker.Locator.MAXTICKS'%(len(dates), dates[0], dates[-1]))
-        return date2num(dates)
+        return self.raise_if_exceeds(date2num(dates))
 
     def _get_unit(self):
         """
