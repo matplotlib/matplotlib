@@ -657,7 +657,14 @@ class Locator(TickHelper):
     because the locator stores references to the Axis data and view
     limits
     """
-
+    
+    # some automatic tick locators can generate so many ticks they
+    # kill the machine when you try and render them, see eg sf bug
+    # report
+    # https://sourceforge.net/tracker/index.php?func=detail&aid=2715172&group_id=80706&atid=560720.
+    # This parameter is set to cause locators to raise an error if too
+    # many ticks are generated
+    MAXTICKS = 1000
     def __call__(self):
         'Return the locations of the ticks'
         raise NotImplementedError('Derived must override')

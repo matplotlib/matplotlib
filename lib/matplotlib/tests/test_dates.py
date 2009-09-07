@@ -1,6 +1,6 @@
 import datetime
 import numpy as np
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
 
 @image_comparison(baseline_images=['date_empty'])
@@ -66,7 +66,10 @@ def test_date_axvline():
     fig.autofmt_xdate()
     fig.savefig('date_axvline')
 
-@image_comparison(baseline_images=['date_xlim_empty'])
+# we want to test that this method raises a RuntimeError -- what is
+# the rightway to do this in the current framework
+@knownfailureif(True)
+#@image_comparison(baseline_images=['date_xlim_empty'])
 def test_set_xlim_and_unexpected_handling():
     # Attempt to test SF 2715172, see
     # https://sourceforge.net/tracker/?func=detail&aid=2715172&group_id=80706&atid=560720
@@ -80,7 +83,7 @@ def test_set_xlim_and_unexpected_handling():
     ax.xaxis.set_major_locator(DayLocator())
     ax.xaxis.set_major_formatter(DateFormatter("%m/%d/%y, %I:%M%p"))
     ax.xaxis.set_minor_locator(HourLocator())
-    if 1:
+    if 0:
         # this seems to cause an ininite loop.
         from nose.plugins.skip import SkipTest
         raise SkipTest('avoiding never-ending drawing')
