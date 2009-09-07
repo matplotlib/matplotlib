@@ -13,22 +13,7 @@ import pylab
 def test_formatter_ticker():
     """Test Some formatter and ticker issues."""
     import matplotlib.testing.jpl_units as units
-    def register_units():
-        """Register the unit conversion classes with matplotlib."""
-        import matplotlib.units as munits
-        import matplotlib.testing.jpl_units as jpl_units
-        from matplotlib.testing.jpl_units.Duration import Duration
-        from matplotlib.testing.jpl_units.Epoch import Epoch
-        from matplotlib.testing.jpl_units.UnitDbl import UnitDbl
-
-        from matplotlib.testing.jpl_units.StrConverter import StrConverter
-        from matplotlib.testing.jpl_units.EpochConverter import EpochConverter
-        from matplotlib.testing.jpl_units.UnitDblConverter import UnitDblConverter
-
-        munits.registry[ str ] = StrConverter()
-        munits.registry[ Epoch ] = EpochConverter()
-        munits.registry[ UnitDbl ] = UnitDblConverter()
-    register_units()
+    units.register()
 
     # This essentially test to see if user specified labels get overwritten
     # by the auto labeler functionality of the axes.
