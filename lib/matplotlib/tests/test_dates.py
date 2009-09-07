@@ -115,7 +115,6 @@ def test_RRuleLocator():
 
 @image_comparison(baseline_images=['DateFormatter_fractionalSeconds'])
 def test_DateFormatter():
-    """Test DateFormatter"""
     import pylab
     from datetime import datetime
     import matplotlib.testing.jpl_units as units

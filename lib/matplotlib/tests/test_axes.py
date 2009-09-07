@@ -11,7 +11,6 @@ import pylab
                                    'formatter_ticker_005',
                                    ])
 def test_formatter_ticker():
-    """Test Some formatter and ticker issues."""
     import matplotlib.testing.jpl_units as units
     units.register()
 
@@ -61,8 +60,6 @@ def test_basic_annotate():
 
 @image_comparison(baseline_images=['polar_axes'])
 def test_polar_annotations():
-    """Polar Plot Annotations"""
-
     # you can specify the xypoint and the xytext in different
     # positions and coordinate systems, and optionally turn on a
     # connecting line and mark the point with a marker.  Annotations
@@ -98,8 +95,6 @@ def test_polar_annotations():
    #--------------------------------------------------------------------
 @image_comparison(baseline_images=['polar_coords'])
 def test_polar_coord_annotations():
-    """Polar Coordinate Annotations"""
-
     # You can also use polar notation on a catesian axes.  Here the
     # native coordinate system ('data') is cartesian, so you need to
     # specify the xycoords and textcoords as 'polar' if you want to
@@ -130,7 +125,6 @@ def test_polar_coord_annotations():
 
 @image_comparison(baseline_images=['fill_units'])
 def test_fill_units():
-    """Test the fill method with unitized-data."""
     from datetime import datetime
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -172,7 +166,6 @@ def test_fill_units():
 
 @image_comparison(baseline_images=['single_point'])
 def test_single_point():
-    """Test single-point plots."""
     fig = pylab.figure()
     pylab.subplot( 211 )
     pylab.plot( [0], [0], 'o' )
@@ -184,8 +177,6 @@ def test_single_point():
 
 @image_comparison(baseline_images=['single_date'])
 def test_single_date():
-    """Test single-point date plots."""
-
     time1=[ 721964.0 ]
     data1=[ -65.54 ]
 
@@ -200,8 +191,6 @@ def test_single_date():
 
 @image_comparison(baseline_images=['single_date'])
 def test_shaped_data():
-    """Test numpy shaped data."""
-
     xdata = np.array([[ 0.53295185,  0.23052951,  0.19057629,  0.66724975,  0.96577916,
                         0.73136095,  0.60823287,  0.017921  ,  0.29744742,  0.27164665],
                       [ 0.2798012 ,  0.25814229,  0.02818193,  0.12966456,  0.57446277,
@@ -246,7 +235,6 @@ def test_shaped_data():
 
 @image_comparison(baseline_images=['const_xy'])
 def test_const_xy():
-    """Test constant xy data."""
     fig = pylab.figure()
 
     pylab.subplot( 311 )
@@ -264,8 +252,6 @@ def test_const_xy():
                                    'polar_wrap_360',
                                    ])
 def test_polar_wrap():
-    """Test polar plots where data crosses 0 degrees."""
-
     D2R = np.pi / 180.0
 
     fig = pylab.figure()
@@ -291,7 +277,6 @@ def test_polar_wrap():
 
 @image_comparison(baseline_images=['polar_units'])
 def test_polar_units():
-    """Test polar plots with unitized data."""
     import matplotlib.testing.jpl_units as units
     units.register()
 
@@ -315,7 +300,6 @@ def test_polar_units():
 
 @image_comparison(baseline_images=['axvspan_epoch'])
 def test_axvspan_epoch():
-    """Test the axvspan method with Epochs."""
     from datetime import datetime
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -337,7 +321,6 @@ def test_axvspan_epoch():
 
 @image_comparison(baseline_images=['axhspan_epoch'])
 def test_axhspan_epoch():
-    """Test the axhspan method with Epochs."""
     from datetime import datetime
     import matplotlib.testing.jpl_units as units
     units.register()
