@@ -44,25 +44,8 @@ os.chdir( working )
 
 import nose
 import nose.plugins.builtin
-from mplTest import MplNosePlugin, path_utils
 import matplotlib
 from matplotlib.testing.noseclasses import KnownFailure
-
-if '--clean' in args:
-   # perform the cleaning process and exit
-   for filename in path_utils.walk( working ):
-      ext = path_utils.extension( filename )
-      if ext == '.cover':
-         print "Cleaning coverage file: %s" % (filename)
-         path_utils.rm( filename )
-      elif ext == '.pyc':
-         print "Cleaning bytecode file: %s" % (filename)
-         path_utils.rm( filename )
-      elif path_utils.name( filename ) == 'saved-results':
-         print "Cleaning directory:     %s" % (filename)
-         path_utils.rmdir( filename )
-
-   sys.exit( 0 )
 
 for arg in args:
    # We need to do this here, because we do not actually want nose to start.
@@ -96,7 +79,7 @@ args.append('.')
 args.extend( matplotlib.default_test_modules )
 
 plugins =  [plugin() for plugin in nose.plugins.builtin.plugins]
-plugins.extend( [ MplNosePlugin(), KnownFailure() ])
+plugins.extend( [ KnownFailure() ])
 
 success = nose.run( argv = args,
                     plugins = plugins,
