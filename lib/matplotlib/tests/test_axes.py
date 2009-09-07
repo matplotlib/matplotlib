@@ -170,3 +170,14 @@ def test_fill_units():
     fig.autofmt_xdate()
     fig.savefig( 'fill_units' )
 
+@image_comparison(baseline_images=['single_point'])
+def test_single_point():
+    """Test single-point plots."""
+    fig = pylab.figure()
+    pylab.subplot( 211 )
+    pylab.plot( [0], [0], 'o' )
+
+    pylab.subplot( 212 )
+    pylab.plot( [1], [1], 'o' )
+
+    fig.savefig( 'single_point' )
