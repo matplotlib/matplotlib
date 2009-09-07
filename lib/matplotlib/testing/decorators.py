@@ -55,11 +55,19 @@ def image_comparison(baseline_images=None):
 
                 # compute filename for baseline image
                 module_name = func.__module__
-                mods = module_name.split('.')
-                assert mods.pop(0)=='matplotlib'
-                assert mods.pop(0)=='tests'
-                subdir = '/'.join(mods)
-                basedir = os.path.dirname(matplotlib.tests.__file__)
+                if module_name=='__main__':
+                    # FIXME: this won't work for nested packages in matplotlib.tests
+                    import warnings
+                    warnings.warn('test module run as script. guessing baseline image locations')
+                    script_name = sys.argv[0]
+                    basedir = os.path.abspath(os.path.dirname(script_name))
+                    subdir = os.path.splitext(os.path.split(script_name)[1])[0]
+                else:
+                    mods = module_name.split('.')
+                    assert mods.pop(0)=='matplotlib'
+                    assert mods.pop(0)=='tests'
+                    subdir = os.path.join(*mods)
+                    basedir = os.path.dirname(matplotlib.tests.__file__)
                 baseline_dir = os.path.join(basedir,'baseline_images',subdir)
                 expected = os.path.join(baseline_dir,fname) + extension
 
