@@ -877,6 +877,7 @@ for s in sys.argv[1:]:
         # we don't want to assume all -d flags are backends, eg -debug
 
 default_test_modules = [
+    'matplotlib.tests.test_agg',
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_axes',
