@@ -13,4 +13,4 @@ echo ${PYTHONPATH}
 
 cd test
 rm -f failed-diff-*.png
-python -c "import matplotlib; matplotlib.test(verbosity=2)"
+python -c "import sys, matplotlib; success = matplotlib.test(verbosity=2); sys.exit(not success)"
