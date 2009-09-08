@@ -648,6 +648,35 @@ class GridHelperRectlinear(GridHelperBase):
         return axisline
 
 
+    def get_gridlines(self):
+        """
+        return list of gridline coordinates in data coordinates.
+        """
+
+        gridlines = []
+
+        locs = []
+        y1, y2 = self.axes.get_ylim()
+        if self.axes.xaxis._gridOnMajor:
+            locs.extend(self.axes.xaxis.major.locator())
+        if self.axes.xaxis._gridOnMinor:
+            locs.extend(self.axes.xaxis.minor.locator())
+
+        for x in locs:
+            gridlines.append([[x, x], [y1, y2]])
+
+
+        x1, x2 = self.axes.get_xlim()
+        locs = []
+        if self.axes.yaxis._gridOnMajor:
+            locs.extend(self.axes.yaxis.major.locator())
+        if self.axes.yaxis._gridOnMinor:
+            locs.extend(self.axes.yaxis.minor.locator())
+
+        for y in locs:
+            gridlines.append([[x1, x2], [y, y]])
+            
+        return gridlines
 
 
 from matplotlib.lines import Line2D
@@ -1313,12 +1342,12 @@ class Axes(maxes.Axes):
 
         helper = kw.pop("grid_helper", None)
 
+        self._axisline_on = True
+
         if helper:
             self._grid_helper = helper
         else:
             self._grid_helper = GridHelperRectlinear(self)
-
-        self._axisline_on = True
 
         super(Axes, self).__init__(*kl, **kw)
 
@@ -1371,15 +1400,24 @@ class Axes(maxes.Axes):
         if grid_helper is None:
             grid_helper = self.get_grid_helper()
         gridlines.set_grid_helper(grid_helper)
-        gridlines.set_clip_on(True)
+
+        self.axes._set_artist_props(gridlines)
+        # gridlines.set_clip_path(self.axes.patch)
+        # set_clip_path need to be defered after Axes.cla is completed.
+        # It is done inside the cla.
 
         self.gridlines = gridlines
 
     def cla(self):
         # gridlines need to b created before cla() since cla calls grid()
-        self._init_gridlines()
 
+        self._init_gridlines()
         super(Axes, self).cla()
+
+        # the clip_path should be set after Axes.cla() since that's
+        # when a patch is created.
+        self.gridlines.set_clip_path(self.axes.patch)
+
         self._init_axis_artists()
 
     def get_grid_helper(self):
@@ -1387,13 +1425,25 @@ class Axes(maxes.Axes):
 
 
     def grid(self, b=None, **kwargs):
+        """
+        Toggel the gridlines, and optionally set the properties of the lines.
+        """
+        # their are some discrepancy between the behavior of grid in
+        # axes_grid and the original mpl's grid, because axes_grid
+        # explicitly set the visibility of the gridlines.
+
+        super(Axes, self).grid(b, **kwargs)
         if not self._axisline_on:
-            super(Axes, self).grid(b, **kwargs)
             return
 
         if b is None:
-            b = not self.gridlines.get_visible()
 
+            if self.axes.xaxis._gridOnMinor or self.axes.xaxis._gridOnMajor or \
+                   self.axes.yaxis._gridOnMinor or self.axes.yaxis._gridOnMajor:
+                b=True
+            else:
+                b=False
+                
         self.gridlines.set_visible(b)
 
         if len(kwargs):
