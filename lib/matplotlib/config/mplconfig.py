@@ -154,6 +154,7 @@ class MPLConfig(TConfig):
     class text(TConfig):
         color = T.Trait('black',mplT.ColorHandler())
         usetex = T.false
+        hinting = T.true
 
         class latex(TConfig):
             unicode = T.false
@@ -338,6 +339,7 @@ class RcParamsWrapper(dict):
         'text.latex.unicode' : (self.tconfig.text.latex, 'unicode'),
         'text.latex.preamble' : (self.tconfig.text.latex, 'preamble'),
         'text.dvipnghack' : (self.tconfig.text.latex, 'dvipnghack'),
+        'text.hinting' : (self.tconfig.text, 'hinting'),
 
         'mathtext.cal'        : (self.tconfig.mathtext, 'cal'),
         'mathtext.rm'         : (self.tconfig.mathtext, 'rm'),

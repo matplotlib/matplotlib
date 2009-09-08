@@ -893,6 +893,8 @@ def test(verbosity=0):
     from testing.noseclasses import KnownFailure
     from nose.plugins.manager import PluginManager
     use('Agg') # use Agg backend for these tests
+    rcParams['font.family'] = 'Bitstream Vera Sans'
+    rcParams['text.hinting'] = False
     plugins = []
     plugins.append( KnownFailure() )
     plugins.extend( [plugin() for plugin in nose.plugins.builtin.plugins] )

@@ -25,7 +25,7 @@ import matplotlib.nxutils as nxutils
 
 from matplotlib.path import Path
 import matplotlib.font_manager as font_manager
-from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
+from matplotlib.ft2font import FT2Font
 
 
 def _process_text_args(override, fontdict=None, **kwargs):
