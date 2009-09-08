@@ -222,7 +222,10 @@ class MathtextBackendAggRender(MathtextBackend):
                 self.fonts_object.get_used_characters())
 
     def get_hinting_type(self):
-        return LOAD_FORCE_AUTOHINT
+        if rcParams['text.hinting']:
+            return LOAD_FORCE_AUTOHINT
+        else:
+            return LOAD_NO_HINTING
 
 def MathtextBackendAgg():
     return MathtextBackendBbox(MathtextBackendAggRender())

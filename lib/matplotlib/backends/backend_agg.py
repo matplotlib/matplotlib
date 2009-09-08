@@ -30,7 +30,7 @@ from matplotlib.backend_bases import RendererBase,\
 from matplotlib.cbook import is_string_like, maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
-from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT
+from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
@@ -68,6 +68,12 @@ class RendererAgg(RendererBase):
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
+
+    def _get_hinting_flag(self):
+        if rcParams['text.hinting']:
+            return LOAD_FORCE_AUTOHINT
+        else:
+            return LOAD_NO_HINTING
 
     def draw_markers(self, *kl, **kw):
         # for filtering to work with rastrization, methods needs to be wrapped.
@@ -132,14 +138,15 @@ class RendererAgg(RendererBase):
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
+        flags = self._get_hinting_flag()
         font = self._get_agg_font(prop)
         if font is None: return None
         if len(s) == 1 and ord(s) > 127:
-            font.load_char(ord(s), flags=LOAD_FORCE_AUTOHINT)
+            font.load_char(ord(s), flags=flags)
         else:
             # We pass '0' for angle here, since it will be rotated (in raster
             # space) in the following call to draw_text_image).
-            font.set_text(s, 0, flags=LOAD_FORCE_AUTOHINT)
+            font.set_text(s, 0, flags=flags)
         font.draw_glyphs_to_bitmap()
 
         #print x, y, int(x), int(y), s
@@ -168,8 +175,10 @@ class RendererAgg(RendererBase):
             ox, oy, width, height, descent, fonts, used_characters = \
                 self.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
+
+        flags = self._get_hinting_flag()
         font = self._get_agg_font(prop)
-        font.set_text(s, 0.0, flags=LOAD_FORCE_AUTOHINT)  # the width and height of unrotated string
+        font.set_text(s, 0.0, flags=flags)  # the width and height of unrotated string
         w, h = font.get_width_height()
         d = font.get_descent()
         w /= 64.0  # convert from subpixels

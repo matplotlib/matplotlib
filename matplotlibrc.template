@@ -167,6 +167,9 @@ backend      : %(backend)s
 				# In that case, all text will be sent to TeX for
 				# processing.
 
+#text.hinting : True # If True, text will be hinted, otherwise not.  This only
+                     # affects the Agg backend.
+
 # The following settings allow you to select the fonts in math mode.
 # They map from a TeX font name to a fontconfig font pattern.
 # These settings are only used if mathtext.fontset is 'custom'.
@@ -290,7 +293,7 @@ backend      : %(backend)s
                                   # A value of 20000 is probably a good
                                   # starting point.
 ### SAVING FIGURES
-#path.simplify : False  # When True, simplify paths by removing "invisible" 
+#path.simplify : False  # When True, simplify paths by removing "invisible"
                         # points to reduce file size and increase rendering
                         # speed
 #path.simplify_threshold : 0.1  # The threshold of similarity below which
