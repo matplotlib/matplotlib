@@ -23,6 +23,10 @@ from matplotlib.transforms import Bbox
 from matplotlib.font_manager import findfont, FontProperties
 from matplotlib.ft2font import FT2Font, KERNING_UNFITTED, KERNING_DEFAULT, KERNING_UNSCALED
 
+from matplotlib.path import Path
+from matplotlib.transforms import Affine2D
+from matplotlib.mlab import quad2cubic
+
 # Font handling stuff snarfed from backend_ps, but only using TTF fonts
 _fontd = {}
 
@@ -81,7 +85,7 @@ class EMFPen:
                     'dashdot':pyemf.PS_DASHDOT, 'dotted':pyemf.PS_DOT}
             #style=styles.get(self.gc.get_linestyle('solid'))
             style=self.gc.get_linestyle('solid')
-            if debugHandle: print "EMFPen: style=%d" % style
+            if debugHandle: print "EMFPen: style=%s" % style
             if style in styles:
                 self.style=styles[style]
             else:
@@ -116,6 +120,28 @@ class RendererEMF(RendererBase):
     The renderer handles drawing/rendering operations through a
     pyemf.EMF instance.
     """
+
+    fontweights = {
+        100          : pyemf.FW_NORMAL,
+        200          : pyemf.FW_NORMAL,
+        300          : pyemf.FW_NORMAL,
+        400          : pyemf.FW_NORMAL,
+        500          : pyemf.FW_NORMAL,
+        600          : pyemf.FW_BOLD,
+        700          : pyemf.FW_BOLD,
+        800          : pyemf.FW_BOLD,
+        900          : pyemf.FW_BOLD,
+        'ultralight' : pyemf.FW_ULTRALIGHT,
+        'light'      : pyemf.FW_LIGHT,
+        'normal'     : pyemf.FW_NORMAL,
+        'medium'     : pyemf.FW_MEDIUM,
+        'semibold'   : pyemf.FW_SEMIBOLD,
+        'bold'       : pyemf.FW_BOLD,
+        'heavy'      : pyemf.FW_HEAVY,
+        'ultrabold'  : pyemf.FW_ULTRABOLD,
+        'black'      : pyemf.FW_BLACK,
+    }
+
     def __init__(self, outfile, width, height, dpi):
         "Initialize the renderer with a gd image instance"
         self.outfile = outfile
@@ -140,6 +166,8 @@ class RendererEMF(RendererBase):
         self.emf.SetBkMode(pyemf.TRANSPARENT)
         # set baseline for text to be bottom left corner
         self.emf.SetTextAlign( pyemf.TA_BOTTOM|pyemf.TA_LEFT)
+
+        self._lastClipRect = None
 
         if debugPrint: print "RendererEMF: (%f,%f) %s dpi=%f" % (self.width,self.height,outfile,dpi)
 
@@ -176,7 +204,65 @@ class RendererEMF(RendererBase):
             self.emf.Arc(int(x-hw),int(self.height-(y-hh)),int(x+hw),int(self.height-(y+hh)),int(x+math.cos(angle1*math.pi/180.0)*hw),int(self.height-(y+math.sin(angle1*math.pi/180.0)*hh)),int(x+math.cos(angle2*math.pi/180.0)*hw),int(self.height-(y+math.sin(angle2*math.pi/180.0)*hh)))
 
 
-    def draw_image(self, x, y, im, bbox):
+    def handle_clip_rectangle(self, gc):
+        new_bounds = gc.get_clip_rectangle()
+        if new_bounds is not None:
+            new_bounds = new_bounds.bounds
+        if self._lastClipRect != new_bounds:
+            self._lastClipRect = new_bounds
+            if new_bounds is None:
+                # use the maximum rectangle to disable clipping
+                x, y, width, height = (0, 0, self.width, self.height)
+            else:
+                x, y, width, height = new_bounds
+            self.emf.BeginPath()
+            self.emf.MoveTo(int(x), int(self.height - y))
+            self.emf.LineTo(int(x) + int(width), int(self.height - y))
+            self.emf.LineTo(int(x) + int(width), int(self.height - y) - int(height))
+            self.emf.LineTo(int(x), int(self.height - y) - int(height))
+            self.emf.CloseFigure()
+            self.emf.EndPath()
+            self.emf.SelectClipPath()
+
+
+    def convert_path(self, tpath):
+        self.emf.BeginPath()
+        last_points = None
+        for points, code in tpath.iter_segments():
+            if code == Path.MOVETO:
+                self.emf.MoveTo(*points)
+            elif code == Path.LINETO:
+                self.emf.LineTo(*points)
+            elif code == Path.CURVE3:
+                points = quad2cubic(*(list(last_points[-2:]) + list(points)))
+                self.emf.PolyBezierTo(zip(points[2::2], points[3::2]))
+            elif code == Path.CURVE4:
+                self.emf.PolyBezierTo(zip(points[::2], points[1::2]))
+            elif code == Path.CLOSEPOLY:
+                self.emf.CloseFigure()
+            last_points = points
+        self.emf.EndPath()
+
+
+    def draw_path(self, gc, path, transform, rgbFace=None):
+        """
+        Draws a :class:`~matplotlib.path.Path` instance using the
+        given affine transform.
+        """
+        self.handle_clip_rectangle(gc)
+        gc._rgb = gc._rgb[:3]
+        self.select_pen(gc)
+        self.select_brush(rgbFace)
+        transform = transform + Affine2D().scale(1.0, -1.0).translate(0.0, self.height)
+        tpath = transform.transform_path(path)
+        self.convert_path(tpath)
+        if rgbFace is None:
+            self.emf.StrokePath()
+        else:
+            self.emf.StrokeAndFillPath()
+
+
+    def draw_image(self, x, y, im, bbox, clippath=None, clippath_trans=None):
         """
         Draw the Image instance into the current axes; x is the
         distance in pixels from the left hand side of the canvas. y is
@@ -285,11 +371,17 @@ class RendererEMF(RendererBase):
         to if 1, and then the actual bounding box will be blotted along with
         your text.
         """
-        if debugText: print "draw_text: (%f,%f) %d degrees: '%s'" % (x,y,angle,s)
-        if ismath:
-            self.draw_math_text(gc,x,y,s,prop,angle)
-        else:
-            self.draw_plain_text(gc,x,y,s,prop,angle)
+        if ismath: s = self.strip_math(s)
+        self.handle_clip_rectangle(gc)
+        self.emf.SetTextColor(gc.get_rgb()[:3])
+        self.select_font(prop,angle)
+        if isinstance(s, unicode):
+            # unicode characters do not seem to work with pyemf
+            try:
+                s = s.replace(u'\u2212', '-').encode('iso-8859-1')
+            except UnicodeEncodeError:
+                pass
+        self.emf.TextOut(x,y,s)
 
 
     def draw_plain_text(self, gc, x, y, s, prop, angle):
@@ -369,6 +461,22 @@ class RendererEMF(RendererBase):
         return w, h
 
 
+    def get_text_width_height_descent(self, s, prop, ismath):
+        """
+        get the width and height in display coords of the string s
+        with FontPropertry prop
+        """
+        if ismath: s = self.strip_math(s)
+        font = self._get_font_ttf(prop)
+        font.set_text(s, 0.0)
+        w, h = font.get_width_height()
+        w /= 64.0  # convert from subpixels
+        h /= 64.0
+        d = font.get_descent()
+        d /= 64.0
+        return w, h, d
+
+
     def flipy(self):
         """return true if y small numbers are top for renderer
         Is used for drawing text (text.py) and images (image.py) only
@@ -407,7 +515,9 @@ class RendererEMF(RendererBase):
         handle = self._fontHandle.get(key)
         if handle is None:
             handle=self.emf.CreateFont(-size, 0, int(angle)*10, int(angle)*10,
-                                   pyemf.FW_NORMAL, 0, 0, 0,
+                          self.fontweights.get(prop.get_weight(), pyemf.FW_NORMAL),
+                          int(prop.get_style() == 'italic'),
+                          0, 0,
                           pyemf.ANSI_CHARSET, pyemf.OUT_DEFAULT_PRECIS,
                           pyemf.CLIP_DEFAULT_PRECIS, pyemf.DEFAULT_QUALITY,
                           pyemf.DEFAULT_PITCH | pyemf.FF_DONTCARE, face);
