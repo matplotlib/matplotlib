@@ -16,6 +16,9 @@ move_good.py script to deal with new image locations.)
 Misc testing stuff
 ==================
 
+Make ImageComparisonFailure cause nose to report "fail" (rather than
+"error").
+
 Recreate John's move_good.py script once the better hierarchy of test
 result images is established.
 
