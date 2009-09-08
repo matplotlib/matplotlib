@@ -122,7 +122,7 @@ Uploading
     sftp> put matplotlib-0.98.2.tar.gz
     Uploading matplotlib-0.98.2.tar.gz to /incoming/j/jd/jdh2358/uploads/matplotlib-0.98.2.tar.gz
 
-* go https://sourceforge.net/project/admin/editpackages.php?group_id=80706 and do a
+* go https://sourceforge.net/project/admin/explorer.php?group_id=80706 and do a
   file release.  Click on the "Admin" tab to log in as an admin, and
   then the "File Releases" tab.  Go to the bottom and click "add
   release" and enter the package name but not the version number in
