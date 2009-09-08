@@ -1,3 +1,6 @@
+2009-09-07 AxesGrid : implemented axisline style. 
+           Added a demo examples/axes_grid/demo_axisline_style.py- JJL
+
 2009-09-04 Make the textpath class as a separate moduel 
            (textpath.py). Add support for mathtext and tex.- JJL
 
