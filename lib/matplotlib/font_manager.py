@@ -642,8 +642,7 @@ class FontProperties(object):
     The preferred usage of font sizes is to use the relative values,
     e.g.  'large', instead of absolute font sizes, e.g. 12.  This
     approach allows all text sizes to be made larger or smaller based
-    on the font manager's default font size, i.e. by using the
-    :meth:`FontManager.set_default_size` method.
+    on the font manager's default font size.
 
     This class will also accept a `fontconfig
     <http://www.fontconfig.org/>`_ pattern, if it is the only argument
@@ -1022,22 +1021,13 @@ class FontManager:
         """
         Return the default font size.
         """
-        if self.default_size is None:
-            return rcParams['font.size']
-        return self.default_size
+        return rcParams['font.size']
 
     def set_default_weight(self, weight):
         """
         Set the default font weight.  The initial value is 'normal'.
         """
         self.__default_weight = weight
-
-    def set_default_size(self, size):
-        """
-        Set the default font size in points.  The initial value is set
-        by ``font.size`` in rc.
-        """
-        self.default_size = size
 
     def update_fonts(self, filenames):
         """
