@@ -894,16 +894,20 @@ def test(verbosity=0):
     from testing.noseclasses import KnownFailure
     from nose.plugins.manager import PluginManager
 
+    # Store the current backend and all rcParams for restoration later
     backend = rcParams['backend']
+    original_params = rcParams.copy()
 
     use('Agg') # use Agg backend for these tests
 
-    # store the old values before overriding
-    overrides = 'font.family', 'text.hinting'
-    stored = dict([(k, rcParams[k]) for k in overrides])
-
+    # These settings *must* be hardcoded for running the comparison
+    # tests and are not necessarily the default values as specified in
+    # rcsetup.py
+    rcdefaults() # Start with all defaults
     rcParams['font.family'] = 'Bitstream Vera Sans'
     rcParams['text.hinting'] = False
+
+    # store the old values before overriding
     plugins = []
     plugins.append( KnownFailure() )
     plugins.extend( [plugin() for plugin in nose.plugins.builtin.plugins] )
@@ -914,11 +918,10 @@ def test(verbosity=0):
     success = nose.run( defaultTest=default_test_modules,
                         config=config,
                         )
-    # restore the old rc values
-    rcParams.update(stored)
 
-    # restore the old backend
+    # restore the old backend and rcParams
     use(backend)
+    rcParams.update(original_params)
     return success
 
 test.__test__ = False # nose: this function is not a test
