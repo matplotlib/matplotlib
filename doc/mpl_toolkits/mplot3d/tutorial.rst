@@ -55,7 +55,7 @@ Filled contour plots
 
 Polygon plots
 ====================
-.. automethod:: add_collection3d
+.. automethod:: Axes3D.add_collection3d
 
 .. plot:: mpl_examples/mplot3d/polys3d_demo.py
 

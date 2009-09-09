@@ -569,7 +569,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     example script that shows that this :func:`cohere_pairs` and
     :func:`cohere` give the same results for a given pair.
 
-    .. sealso::
+    .. seealso::
 
         :func:`psd`
             For information about the methods used to compute
