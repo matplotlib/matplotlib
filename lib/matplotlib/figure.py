@@ -850,7 +850,7 @@ class Figure(Artist):
 
           *fancybox*: [ None | False | True ]
             if True, draw a frame with a round fancybox.  If None, use rc
-            
+
           *shadow*: [ None | False | True ]
             If *True*, draw a shadow behind legend. If *None*, use rc settings.
 
@@ -1064,7 +1064,8 @@ class Figure(Artist):
 
     def subplots_adjust(self, *args, **kwargs):
         """
-        fig.subplots_adjust(left=None, bottom=None, right=None, wspace=None, hspace=None)
+        fig.subplots_adjust(left=None, bottom=None, right=None, top=None,
+            wspace=None, hspace=None)
 
         Update the :class:`SubplotParams` with *kwargs* (defaulting to rc where
         None) and update the subplot locations
