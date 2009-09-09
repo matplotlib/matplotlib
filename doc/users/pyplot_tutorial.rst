@@ -165,17 +165,17 @@ The :func:`~matplotlib.pyplot.figure` command here is optional because
 ``figure(1)`` will be created by default, just as a ``subplot(111)``
 will be created by default if you don't manually specify an axes.  The
 :func:`~matplotlib.pyplot.subplot` command specifies ``numrows,
-	 numcols, fignum`` where ``fignum`` ranges from 1 to
-``numrows*numcols``.  The commas in the ``subplot`` command are optional
-if ``numrows*numcols<10``.  So ``subplot(211)`` is identical to
-``subplot(2,1,1)``.  You can create an arbitrary number of subplots
+numcols, fignum`` where ``fignum`` ranges from 1 to
+``numrows*numcols``.  The commas in the ``subplot`` command are
+optional if ``numrows*numcols<10``.  So ``subplot(211)`` is identical
+to ``subplot(2,1,1)``.  You can create an arbitrary number of subplots
 and axes.  If you want to place an axes manually, ie, not on a
 rectangular grid, use the :func:`~matplotlib.pyplot.axes` command,
 which allows you to specify the location as ``axes([left, bottom,
 width, height])`` where all values are in fractional (0 to 1)
 coordinates.  See :ref:`pylab_examples-axes_demo` for an example of
-placing axes manually and :ref:`pylab_examples-line_styles` for an example
-with lots-o-subplots.
+placing axes manually and :ref:`pylab_examples-line_styles` for an
+example with lots-o-subplots.
 
 
 You can create multiple figures by using multiple
@@ -267,6 +267,6 @@ these arguments are ``(x,y)`` tuples.
 In this basic example, both the ``xy`` (arrow tip) and ``xytext``
 locations (text location) are in data coordinates.  There are a
 variety of other coordinate systems one can choose -- see
-:ref:`annotations-tutorial` and :ref:`plotting-guide-annotation`
-for details.  More examples can be found
-in :ref:`pylab_examples-annotation_demo`.
+:ref:`annotations-tutorial` and :ref:`plotting-guide-annotation` for
+details.  More examples can be found in
+:ref:`pylab_examples-annotation_demo`.

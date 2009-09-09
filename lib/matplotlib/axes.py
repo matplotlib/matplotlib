@@ -1338,7 +1338,7 @@ class Axes(martist.Artist):
 
     def add_artist(self, a):
         '''
-        Add any :class:`~matplotlib.artist.Artist` to the axes
+        Add any :class:`~matplotlib.artist.Artist` to the axes.
 
         Returns the artist.
         '''
@@ -1351,8 +1351,8 @@ class Axes(martist.Artist):
 
     def add_collection(self, collection, autolim=True):
         '''
-        add a :class:`~matplotlib.collections.Collection` instance
-        to the axes
+        Add a :class:`~matplotlib.collections.Collection` instance
+        to the axes.
 
         Returns the collection.
         '''
@@ -3710,15 +3710,15 @@ class Axes(martist.Artist):
 
         *maxlags* is a positive integer detailing the number of lags
         to show.  The default value of *None* will return all
-        :math:`2 \mathrm{len}(x) - 1` lags.
+        :math:`2 \times \mathrm{len}(x) - 1` lags.
 
         The return value is a tuple (*lags*, *c*, *linecol*, *b*)
         where
 
-        - *linecol* is the
-          :class:`~matplotlib.collections.LineCollection`
+          - *linecol* is the
+            :class:`~matplotlib.collections.LineCollection`
 
-        - *b* is the *x*-axis.
+          - *b* is the *x*-axis.
 
         .. seealso::
 
