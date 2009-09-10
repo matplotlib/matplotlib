@@ -505,9 +505,10 @@ class Line2D(Artist):
             self._transform_path(subslice)
         if self._transformed_path is None:
             self._transform_path()
-        renderer.open_group('line2d', self.get_gid())
 
-        if not self._visible: return
+        if not self.get_visible(): return
+
+        renderer.open_group('line2d', self.get_gid())
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
 
