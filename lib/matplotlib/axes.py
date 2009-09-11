@@ -5624,9 +5624,13 @@ class Axes(martist.Artist):
 
             for i in xrange(len(x)):
                 if bdist[i]:
-                    lattice1[ix1[i], iy1[i]]+=1
+                    if ((ix1[i] >= 0) and (ix1[i] < nx1) and
+                        (iy1[i] >= 0) and (iy1[i] < ny1)):
+                        lattice1[ix1[i], iy1[i]]+=1
                 else:
-                    lattice2[ix2[i], iy2[i]]+=1
+                    if ((ix2[i] >= 0) and (ix2[i] < nx2) and
+                        (iy2[i] >= 0) and (iy2[i] < ny2)):
+                        lattice2[ix2[i], iy2[i]]+=1
 
             # threshold
             if mincnt is not None:
@@ -5658,9 +5662,13 @@ class Axes(martist.Artist):
 
             for i in xrange(len(x)):
                 if bdist[i]:
-                    lattice1[ix1[i], iy1[i]].append( C[i] )
+                    if ((ix1[i] >= 0) and (ix1[i] < nx1) and
+                        (iy1[i] >= 0) and (iy1[i] < ny1)):
+                        lattice1[ix1[i], iy1[i]].append( C[i] )
                 else:
-                    lattice2[ix2[i], iy2[i]].append( C[i] )
+                    if ((ix2[i] >= 0) and (ix2[i] < nx2) and
+                        (iy2[i] >= 0) and (iy2[i] < ny2)):
+                        lattice2[ix2[i], iy2[i]].append( C[i] )
 
 
             for i in xrange(nx1):
