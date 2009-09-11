@@ -578,7 +578,7 @@ Why BSD compatible?
 
 The two dominant license variants in the wild are GPL-style and
 BSD-style. There are countless other licenses that place specific
-restrictions on code reuse, but there is an important different to be
+restrictions on code reuse, but there is an important difference to be
 considered in the GPL and BSD variants.  The best known and perhaps
 most widely used license is the GPL, which in addition to granting you
 full rights to the source code including redistribution, carries with
@@ -587,7 +587,7 @@ with it, your product must be released under a GPL compatible
 license. I.e., you are required to give the source code to other
 people and give them the right to redistribute it as well. Many of the
 most famous and widely used open source projects are released under
-the GPL, including sagemath, linux, gcc and emacs.
+the GPL, including linux, gcc, emacs and sage.
 
 The second major class are the BSD-style licenses (which includes MIT
 and the python PSF license). These basically allow you to do whatever
@@ -606,20 +606,20 @@ Famous projects released under a BSD-style license in the permissive
 sense of the last paragraph are the BSD operating system, python and
 TeX.
 
-There are two primary reasons why early matplotlib developers selected
-a BSD compatible license. We wanted to attract as many users and
-developers as possible, and many software companies will not use GPL code
-in software they plan to distribute, even those that are highly
-committed to open source development, such as `enthought
+There are several reasons why early matplotlib developers selected a
+BSD compatible license. matplotlib is a python extension, and we
+choose a license that was based on the python license (BSD
+compatible).  Also, we wanted to attract as many users and developers
+as possible, and many software companies will not use GPL code in
+software they plan to distribute, even those that are highly committed
+to open source development, such as `enthought
 <http://enthought.com>`_, out of legitimate concern that use of the
 GPL will "infect" their code base by its viral nature. In effect, they
-want to retain the right to release some proprietary code. Companies,
-and institutions in general, who use matplotlib often make significant
-contributions, since they have the resources to get a job done, even a
-boring one, if they need it in their code. Two of the matplotlib
-backends (FLTK and WX) were contributed by private companies.
-
-The other reason is licensing compatibility with the other python
-extensions for scientific computing: ipython, numpy, scipy, the
-enthought tool suite and python itself are all distributed under BSD
-compatible licenses.
+want to retain the right to release some proprietary code. Companies
+and institutions who use matplotlib often make significant
+contributions, because they have the resources to get a job done, even
+a boring one. Two of the matplotlib backends (FLTK and WX) were
+contributed by private companies.  The final reason behind the
+licensing choice is compatibility with the other python extensions for
+scientific computing: ipython, numpy, scipy, the enthought tool suite
+and python itself are all distributed under BSD compatible licenses.
