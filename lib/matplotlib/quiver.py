@@ -512,6 +512,7 @@ class Quiver(collections.PolyCollection):
             theta = np.angle(uv)
         else:
             theta = ma.masked_invalid(self.angles, copy=False).filled(0)
+            theta = theta.ravel()
             theta *= (np.pi/180.0)
         theta.shape = (theta.shape[0], 1) # for broadcasting
         xy = (X+Y*1j) * np.exp(1j*theta)*self.width
