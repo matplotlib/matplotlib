@@ -91,6 +91,9 @@ A collection of helper methods for numpyrecord arrays
 :meth:`rec_join`
     join two record arrays on sequence of fields
 
+:meth:`recs_join`
+    a simple join of multiple recarrays using a single column as a key
+
 :meth:`rec_groupby`
     summarize data by groups (similar to SQL GROUP BY)
 
@@ -139,7 +142,7 @@ care--function signatures may differ):
 """
 
 from __future__ import division
-import csv, warnings, copy, os
+import csv, warnings, copy, os, operator
 
 import numpy as np
 ma = np.ma
@@ -1879,6 +1882,28 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
     newrec.sort(order=key)
 
     return newrec
+
+def recs_join(key, name, recs,missing=0.):
+    """ 
+    *key* is the column name that acts as a key
+    *name* is the name that we want to join
+    *missing" is what the missing fields are replaced by
+    *recarrays* is a list of record arrays to join
+
+    returns a record array with columns [rowkey, name1, name2, ... namen]
+
+    >>> r = recs_join("date", "close", recs=[r0, r1], missing=0.)
+
+    """
+    results = []
+    def extract(r):
+        if r is None: return missing
+        else: return r[name]
+
+    for rowkey, row in cbook.align_iterators(operator.attrgetter(key), *[iter(r) for r in recs]):
+        results.append([rowkey] + map(extract, row))
+    names = ",".join([key] + ["%s%d" % (name, d) for d in range(len(recs))])
+    return np.rec.fromrecords(results, names=names)
 
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',

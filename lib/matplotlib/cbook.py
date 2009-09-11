@@ -1626,6 +1626,47 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     import matplotlib.mlab as mlab
     return mlab.quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y)
 
+def align_iterators(func, *iterables):
+    """ 
+        This generator takes a bunch of iterables that are ordered by func
+        It sends out ordered tuples (func(row), [rows from all iterators matching func(row)])
+        
+        It is used by mlab.recs_join to join record arrays
+    """
+    class myiter:
+        def __init__(self, it):
+            self.it = it
+            self.key = self.value = None
+            self.iternext()
+
+        def iternext(self):
+            try:
+                self.value = self.it.next()
+                self.key = func(self.value)
+            except StopIteration:
+                self.value = self.key = None
+
+        def __call__(self, key):
+            retval = None
+            if key == self.key:
+                retval = self.value
+                self.iternext()
+            elif self.key and key > self.key:
+                raise ValueError, "Iterator has been left behind"
+            return retval
+
+    # This can be made more efficient by not computing the minimum key for each iteration
+    iters = [myiter(it) for it in iterables]
+    minvals = minkey = True
+    while 1:
+        minvals = (filter(None, [it.key for it in iters]))
+        if minvals:
+            minkey = min(minvals)
+            yield (minkey, [it(minkey) for it in iters])
+        else:
+            break
+
+
 
 if __name__=='__main__':
     assert( allequal([1,1,1]) )
