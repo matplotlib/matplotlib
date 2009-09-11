@@ -61,7 +61,7 @@ freetype: zlib
 	cd freetype-${FREETYPEVERSION} &&\
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
 	export CFLAGS=${CFLAGS_DEPS} &&\
-	export LDFLAGS=${LDFLAGS_DEPS} &&\
+	export LDFLAGS=${LDFLAGS_DEPS} &&\python/svn/bison/scripts/
 	./configure  --prefix=${PREFIX} &&\
 	make -j3 install &&\
 	cp objs/.libs/libfreetype.a .  &&\
@@ -76,8 +76,6 @@ mpl_build:
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
 	export CFLAGS=${CFLAGS_DEPS} &&\
 	export LDFLAGS=${LDFLAGS_DEPS} &&\
-	export LD_LIBRARY_PATH=${PREFIX}/lib &&\
-	export DYLD_LIBRARY_PATH=${PREFIX}/lib &&\
 	python setup.py build
 
 mpl_install:
