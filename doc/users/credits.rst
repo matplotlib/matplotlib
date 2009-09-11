@@ -18,7 +18,11 @@ Jeremy O'Donoghue
 
 Andrew Straw provided much of the log scaling architecture, the fill
   command, PIL support for imshow, and provided many examples.  He
-  also wrote the support for dropped axis spines.
+  also wrote the support for dropped axis spines and the `buildbot
+  <http://mpl-buildbot.code.astraw.com/>`_ unit testing infrastructure
+  which triggers the JPL/James Evans platform specific builds and
+  regression test image comparisons from svn matplotlib across
+  platforms on svn commits.
 
 Charles Twardy
   provided the impetus code for the legend class and has made
@@ -116,11 +120,14 @@ Jeffrey Whitaker
   at `NOAA <http://www.boulder.noaa.gov>`_ wrote the
   :ref:`toolkit_basemap` tookit
 
-Sigve Tjoraand, Ted Drain
+Sigve Tjoraand, Ted Drain, James Evans 
   and colleagues at the `JPL <http://www.jpl.nasa.gov>`_ collaborated
   on the QtAgg backend and sponsored development of a number of
   features including custom unit types, datetime support, scale free
-  ellipses, broken bar plots and more.
+  ellipses, broken bar plots and more.  The JPL team wrote the unit
+  testing image comparison `infrastructure
+  <http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/matplotlib/test>`_
+  for regression test image comparisons.
 
 James Amundson
   did the initial work porting the qt backend to qt4
