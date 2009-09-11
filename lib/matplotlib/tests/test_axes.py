@@ -341,12 +341,11 @@ def test_axhspan_epoch():
     fig.savefig( 'axhspan_epoch' )
 
 
-#@image_comparison(baseline_images=['hexbin_extent'])
-@knownfailureif(True)
+@image_comparison(baseline_images=['hexbin_extent'])
 def test_hexbin_extent():
     # this test exposes sf bug 2856228
     fig = plt.figure()
-    
+
     ax = fig.add_subplot(111)
     data = np.arange(2000.)/2000.
     data.shape = 2, 1000
@@ -354,7 +353,7 @@ def test_hexbin_extent():
 
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
     fig.savefig('hexbin_extent')
-    
+
 
 
 if __name__=='__main__':
