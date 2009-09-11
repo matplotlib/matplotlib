@@ -1884,15 +1884,26 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
     return newrec
 
 def recs_join(key, name, recs,missing=0.):
-    """ 
-    *key* is the column name that acts as a key
-    *name* is the name that we want to join
-    *missing" is what the missing fields are replaced by
-    *recarrays* is a list of record arrays to join
+    """
+    Join a sequence of record arrays on key
+
+    *key*
+      is the column name that acts as a key
+
+    *name*
+      is the name that we want to join
+
+    *missing"
+      is what the missing fields are replaced by
+
+    *recarrays*
+      is a list of record arrays to join
 
     returns a record array with columns [rowkey, name1, name2, ... namen]
 
-    >>> r = recs_join("date", "close", recs=[r0, r1], missing=0.)
+    Example::
+
+      r = recs_join("date", "close", recs=[r0, r1], missing=0.)
 
     """
     results = []

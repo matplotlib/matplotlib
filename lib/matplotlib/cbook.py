@@ -390,7 +390,7 @@ class ViewVCCachedServer(urllib2.BaseHandler):
         for url, (fn, x, y) in cache.items():
             if not os.path.isabs(fn):
                 cache[url] = (self.in_cache_dir(fn), x, y)
-        
+
         # If any files are deleted, drop them from the cache
         for url, (fn, _, _) in cache.items():
             if not os.path.exists(fn):
@@ -525,7 +525,7 @@ class ViewVCCachedServer(urllib2.BaseHandler):
             msg = 'file %s not in cache; received %s when trying to retrieve' \
                 % (fname, error)
             raise KeyError(msg)
-        
+
         fname = cached[0]
 
         if asfileobj:
@@ -1627,11 +1627,13 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     return mlab.quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y)
 
 def align_iterators(func, *iterables):
-    """ 
-        This generator takes a bunch of iterables that are ordered by func
-        It sends out ordered tuples (func(row), [rows from all iterators matching func(row)])
-        
-        It is used by mlab.recs_join to join record arrays
+    """
+    This generator takes a bunch of iterables that are ordered by func
+    It sends out ordered tuples:
+
+      (func(row), [rows from all iterators matching func(row)])
+
+    It is used by :func:`matplotlib.mlab.recs_join` to join record arrays
     """
     class myiter:
         def __init__(self, it):
