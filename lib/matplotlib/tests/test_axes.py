@@ -347,11 +347,11 @@ def test_hexbin_extent():
     fig = plt.figure()
     
     ax = fig.add_subplot(111)
-    data = np.arange(2000.)
+    data = np.arange(2000.)/2000.
     data.shape = 2, 1000
     x, y = data
 
-    ax.hexbin(x, y, extent=[-.4, .4, -.4, .4])
+    ax.hexbin(x, y, extent=[.1, .3, .6, .7])
     fig.savefig('hexbin_extent')
     
 
