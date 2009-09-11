@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
-import pylab
+
 
 @image_comparison(baseline_images=['formatter_ticker_001',
                                    'formatter_ticker_002',
@@ -20,8 +20,8 @@ def test_formatter_ticker():
     ydata1 = [ (1.5*y - 0.5)*units.km for y in range(10) ]
     ydata2 = [ (1.75*y - 1.0)*units.km for y in range(10) ]
 
-    fig = pylab.figure()
-    ax = pylab.subplot( 111 )
+    fig = plt.figure()
+    ax = plt.subplot( 111 )
     ax.set_xlabel( "x-label 001" )
     fig.savefig( 'formatter_ticker_001' )
 
@@ -49,7 +49,7 @@ def test_basic_annotate():
 
     # Offset Points
 
-    fig = pylab.figure()
+    fig = plt.figure()
     ax = fig.add_subplot( 111, autoscale_on=False, xlim=(-1,5), ylim=(-3,5) )
     line, = ax.plot( t, s, lw=3, color='purple' )
 
@@ -74,7 +74,7 @@ def test_polar_annotations():
     r = np.arange(0.0, 1.0, 0.001 )
     theta = 2.0 * 2.0 * np.pi * r
 
-    fig = pylab.figure()
+    fig = plt.figure()
     ax = fig.add_subplot( 111, polar=True )
     line, = ax.plot( theta, r, color='#ee8d18', lw=3 )
 
@@ -102,7 +102,7 @@ def test_polar_coord_annotations():
     from matplotlib.patches import Ellipse
     el = Ellipse((0,0), 10, 20, facecolor='r', alpha=0.5)
 
-    fig = pylab.figure()
+    fig = plt.figure()
     ax = fig.add_subplot( 111, aspect='equal' )
 
     ax.add_artist( el )
@@ -134,7 +134,7 @@ def test_fill_units():
     value = 10.0 * units.deg
     day = units.Duration( "ET", 24.0 * 60.0 * 60.0 )
 
-    fig = pylab.figure()
+    fig = plt.figure()
 
     # Top-Left
     ax1 = fig.add_subplot( 221 )
@@ -166,12 +166,12 @@ def test_fill_units():
 
 @image_comparison(baseline_images=['single_point'])
 def test_single_point():
-    fig = pylab.figure()
-    pylab.subplot( 211 )
-    pylab.plot( [0], [0], 'o' )
+    fig = plt.figure()
+    plt.subplot( 211 )
+    plt.plot( [0], [0], 'o' )
 
-    pylab.subplot( 212 )
-    pylab.plot( [1], [1], 'o' )
+    plt.subplot( 212 )
+    plt.plot( [1], [1], 'o' )
 
     fig.savefig( 'single_point' )
 
@@ -180,12 +180,12 @@ def test_single_date():
     time1=[ 721964.0 ]
     data1=[ -65.54 ]
 
-    fig = pylab.figure()
-    pylab.subplot( 211 )
-    pylab.plot_date( time1, data1, 'o', color='r' )
+    fig = plt.figure()
+    plt.subplot( 211 )
+    plt.plot_date( time1, data1, 'o', color='r' )
 
-    pylab.subplot( 212 )
-    pylab.plot( time1, data1, 'o', color='r' )
+    plt.subplot( 212 )
+    plt.plot( time1, data1, 'o', color='r' )
 
     fig.savefig( 'single_date' )
 
@@ -218,33 +218,33 @@ def test_shaped_data():
     y2 = np.arange( 10 )
     y2.shape = 10, 1
 
-    fig = pylab.figure()
-    pylab.subplot( 411 )
-    pylab.plot( y1 )
-    pylab.subplot( 412 )
-    pylab.plot( y2 )
+    fig = plt.figure()
+    plt.subplot( 411 )
+    plt.plot( y1 )
+    plt.subplot( 412 )
+    plt.plot( y2 )
 
-    pylab.subplot( 413 )
+    plt.subplot( 413 )
     from nose.tools import assert_raises
-    assert_raises(ValueError,pylab.plot, (y1,y2))
+    assert_raises(ValueError,plt.plot, (y1,y2))
 
-    pylab.subplot( 414 )
-    pylab.plot( xdata[:,1], xdata[1,:], 'o' )
+    plt.subplot( 414 )
+    plt.plot( xdata[:,1], xdata[1,:], 'o' )
 
     fig.savefig( 'shaped data' )
 
 @image_comparison(baseline_images=['const_xy'])
 def test_const_xy():
-    fig = pylab.figure()
+    fig = plt.figure()
 
-    pylab.subplot( 311 )
-    pylab.plot( np.arange(10), np.ones( (10,) ) )
+    plt.subplot( 311 )
+    plt.plot( np.arange(10), np.ones( (10,) ) )
 
-    pylab.subplot( 312 )
-    pylab.plot( np.ones( (10,) ), np.arange(10) )
+    plt.subplot( 312 )
+    plt.plot( np.ones( (10,) ), np.arange(10) )
 
-    pylab.subplot( 313 )
-    pylab.plot( np.ones( (10,) ), np.ones( (10,) ), 'o' )
+    plt.subplot( 313 )
+    plt.plot( np.ones( (10,) ), np.ones( (10,) ), 'o' )
 
     fig.savefig( 'const_xy' )
 
@@ -254,24 +254,24 @@ def test_const_xy():
 def test_polar_wrap():
     D2R = np.pi / 180.0
 
-    fig = pylab.figure()
+    fig = plt.figure()
 
     #NOTE: resolution=1 really should be the default
-    pylab.subplot( 111, polar=True, resolution=1 )
-    pylab.polar( [179*D2R, -179*D2R], [0.2, 0.1], "b.-" )
-    pylab.polar( [179*D2R,  181*D2R], [0.2, 0.1], "g.-" )
-    pylab.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
+    plt.subplot( 111, polar=True, resolution=1 )
+    plt.polar( [179*D2R, -179*D2R], [0.2, 0.1], "b.-" )
+    plt.polar( [179*D2R,  181*D2R], [0.2, 0.1], "g.-" )
+    plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
 
     fig.savefig( 'polar_wrap_180' )
 
-    fig = pylab.figure()
+    fig = plt.figure()
 
     #NOTE: resolution=1 really should be the default
-    pylab.subplot( 111, polar=True, resolution=1 )
-    pylab.polar( [2*D2R, -2*D2R], [0.2, 0.1], "b.-" )
-    pylab.polar( [2*D2R,  358*D2R], [0.2, 0.1], "g.-" )
-    pylab.polar( [358*D2R,  2*D2R], [0.2, 0.1], "r.-" )
-    pylab.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
+    plt.subplot( 111, polar=True, resolution=1 )
+    plt.polar( [2*D2R, -2*D2R], [0.2, 0.1], "b.-" )
+    plt.polar( [2*D2R,  358*D2R], [0.2, 0.1], "g.-" )
+    plt.polar( [358*D2R,  2*D2R], [0.2, 0.1], "r.-" )
+    plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
 
     fig.savefig( 'polar_wrap_360' )
 
@@ -289,9 +289,9 @@ def test_polar_units():
     y1 = [ 1.0, 2.0, 3.0, 4.0]
     y2 = [ 4.0, 3.0, 2.0, 1.0 ]
 
-    fig = pylab.figure()
+    fig = plt.figure()
 
-    pylab.polar( x2, y1, color = "blue" )
+    plt.polar( x2, y1, color = "blue" )
 
     # polar( x2, y1, color = "red", xunits="rad" )
     # polar( x2, y2, color = "green" )
@@ -310,11 +310,11 @@ def test_axvspan_epoch():
 
     dt = units.Duration( "ET", units.day.convert( "sec" ) )
 
-    fig = pylab.figure()
+    fig = plt.figure()
 
-    pylab.axvspan( t0, tf, facecolor="blue", alpha=0.25 )
+    plt.axvspan( t0, tf, facecolor="blue", alpha=0.25 )
 
-    ax = pylab.gca()
+    ax = plt.gca()
     ax.set_xlim( t0 - 5.0*dt, tf + 5.0*dt )
 
     fig.savefig( 'axvspan_epoch' )
@@ -331,11 +331,31 @@ def test_axhspan_epoch():
 
     dt = units.Duration( "ET", units.day.convert( "sec" ) )
 
-    fig = pylab.figure()
+    fig = plt.figure()
 
-    pylab.axhspan( t0, tf, facecolor="blue", alpha=0.25 )
+    plt.axhspan( t0, tf, facecolor="blue", alpha=0.25 )
 
-    ax = pylab.gca()
+    ax = plt.gca()
     ax.set_ylim( t0 - 5.0*dt, tf + 5.0*dt )
 
     fig.savefig( 'axhspan_epoch' )
+
+
+@image_comparison(baseline_images=['hexbin_extent'])
+def test_hexbin_extent():
+    # this test exposes sf bug 2856228
+    fig = plt.figure()
+    
+    ax = fig.add_subplot(111)
+    data = np.arange(2000.)
+    data.shape = 2, 1000
+    x, y = data
+
+    ax.hexbin(x, y, extent=[-.4, .4, -.4, .4])
+    fig.savefig('hexbin_extent')
+    
+
+
+if __name__=='__main__':
+    import nose
+    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
