@@ -1,6 +1,7 @@
 # build mpl into a local install dir with 
 # PREFIX=/Users/jdhunter/dev make -f make.osx fetch deps mpl_install
 
+MPLVERSION=0.99.1rc1
 PYVERSION=2.6
 PYTHON=python${PYVERSION}
 ZLIBVERSION=1.2.3
@@ -10,12 +11,9 @@ MACOSX_DEPLOYMENT_TARGET=10.4
 
 ## You shouldn't need to configure past this point
 
-CFLAGS="-Os -arch ppc -arch i386 -I{$PREFIX}/include"
 
-LDFLAGS="-arch ppc -arch i386 -L${PREFIX}/lib"
-
-CFLAGS_DEPS="-arch i386 -arch ppc -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Developer/SDKs/MacOSX10.4u.sdk"
-LDFLAGS_DEPS="-arch i386 -arch ppc -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"
+CFLAGS="-arch i386 -arch ppc -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Developer/SDKs/MacOSX10.4u.sdk"
+LDFLAGS="-arch i386 -arch ppc -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"
 
 clean:
 	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.bz2 \
@@ -37,10 +35,10 @@ zlib:
 	tar xvfz zlib-${ZLIBVERSION}.tar.gz &&\
 	cd zlib-${ZLIBVERSION} &&\
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS_DEPS} &&\
-	export LDFLAGS=${LDFLAGS_DEPS} &&\
+	export CFLAGS=${CFLAGS} &&\
+	export LDFLAGS=${LDFLAGS} &&\
 	./configure --prefix=${PREFIX}&&\
-	MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} CFLAGS=${CFLAGS_DEPS} LDFLAGS=${LDFLAGS_DEPS} make -j3 install&& \
+	MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} CFLAGS=${CFLAGS} LDFLAGS=${LDFLAGS} make -j3 install&& \
 	unset MACOSX_DEPLOYMENT_TARGET
 
 png: zlib
@@ -49,8 +47,8 @@ png: zlib
 	tar xvfj libpng-${PNGVERSION}.tar.bz2
 	cd libpng-${PNGVERSION} &&\
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS_DEPS} &&\
-	export LDFLAGS=${LDFLAGS_DEPS} &&\
+	export CFLAGS=${CFLAGS} &&\
+	export LDFLAGS=${LDFLAGS} &&\
 	./configure  --disable-dependency-tracking  --prefix=${PREFIX} &&\
 	make -j3 install&&\
 	cp .libs/libpng.a . &&\
@@ -63,8 +61,8 @@ freetype: zlib
 	tar xvfj freetype-${FREETYPEVERSION}.tar.bz2 &&\
 	cd freetype-${FREETYPEVERSION} &&\
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS_DEPS} &&\
-	export LDFLAGS=${LDFLAGS_DEPS} &&\
+	export CFLAGS=${CFLAGS} &&\
+	export LDFLAGS=${LDFLAGS} &&\
 	./configure  --prefix=${PREFIX} &&\
 	make -j3 install &&\
 	cp objs/.libs/libfreetype.a .  &&\
@@ -76,12 +74,22 @@ deps: zlib png freetype
 
 mpl_build:
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS_DEPS} &&\
-	export LDFLAGS=${LDFLAGS_DEPS} &&\
-	python setup.py build 
+	export CFLAGS=${CFLAGS} &&\
+	export LDFLAGS=${LDFLAGS} &&\
+	${PYTHON} setup.py build 
 
 mpl_install:
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS_DEPS} &&\
-	export LDFLAGS=${LDFLAGS_DEPS} &&\
-	python setup.py install --prefix=${PREFIX}
+	export CFLAGS=${CFLAGS} &&\
+	export LDFLAGS=${LDFLAGS} &&\
+	${PYTHON} setup.py install --prefix=${PREFIX}
+
+
+binaries:
+	unset PKG_CONFIG_PATH &&\
+	cp release/osx/data/setup.cfg release/osx/data/ReadMe.txt . &&\
+	export CFLAGS=${CFLAGS} &&\
+	export LDFLAGS=${LDFLAGS} &&\
+	/Library/Frameworks/Python.framework/Versions/${PYVERSION}/bin/bdist_mpkg --readme=ReadMe.txt &&\
+	hdiutil create -srcdir dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.mpkg  dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.dmg &&\
+	${PYTHON} setupegg.py bdist_egg

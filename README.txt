@@ -1,61 +1,45 @@
-Overview of the matplotlib src tree
-===================================
+matplotlib for MacOS X 10.3.9 or later and Python 2.5 and Python 2.6
 
-This is the source directory for matplotlib, which contains the
-following files and directories.
+matplotlib is a python 2D plotting library which produces publication
+quality figures in a variety of hardcopy formats and interactive
+environments across platforms. matplotlib can be used in python
+scripts, the python and ipython shell (ala matlab or mathematica), web
+application servers, and various graphical user interface toolkits.
 
-* doc - the matplotlib documentation.  See doc/users for the user's
-  documentation and doc/devel for the developers documentation
+Home page: <http://matplotlib.sourceforge.net/>
 
-* examples - a bunch of examples using matplotib.  See
-  examples/README.txt for information
+Before running matplotlib, you must install numpy.  Binary installers
+for all these packages are available here:
 
-* setup.cfg.template - used to configure the matplotlib build process.
-  Copy this file to setup.cfg if you want to override the default
-  build behavior
+  <http://pythonmac.org/packages/py25-fat/index.html>.
 
-* matplotlibrc.template - a template file used to generate the
-  matplotlibrc config file at build time.  The matplotlibrc file will
-  be installed in matplotlib/mpl-data/matplotlibrc
+*** Back Ends ***
 
-* lib - the python src code.  matplotlib ships several third party
-  packages here.  The subdirectory lib/matplotlib contains the python
-  src code for matplotlib
+You may use TkAgg or WXAgg back ends; Qt and GTK support is not
+provided in this package. By default this matplotlib uses TkAgg
+because Tcl/Tk is included with MacOS X.
 
-* src - the matplotlib extension code, mostly C++
+If you wish to use WXAgg then:
+* Install wxPython from:
+  <http://pythonmac.org/packages/py25-fat/index.html>.
+* Configure a matplotlibrc file, as described below.
 
-* ttconv - some truetype font utilities
+For TkAgg you may use Apple's built-in Tcl/Tk or install your own 8.4.x
 
-* license - all the licenses for code included with matplotlib.
-  matplotlib uses only BSD compatible code
+*** Configuring a matplotlibrc file ***
 
-* unit - some unit tests
+If you wish to change any matplotlib settings, create a file:
+  ~/.matplotlib/matplotlibrc
 
-* CHANGELOG - all the significant changes to matplotlib, organized by
-  release.  The top of this file will show you the most recent changes
 
-* API_CHANGES - any change that alters the API is listed here.  The
-  entries are organized by release, with most recent entries first
+that contains at least the following information. The values shown are
+the defaults in the internal matplotlibrc file; change them as you see
+fit:
 
-* MIGRATION.txt - instructions on moving from the 0.91 code to the
-  0.98 trunk.
+# the default backend; one of GTK GTKAgg GTKCairo FltkAgg QtAgg TkAgg WXAgg
+#     Agg Cairo GD GDK Paint PS PDF SVG Template
+backend      : TkAgg
+interactive  : False    # see http://matplotlib.sourceforge.net/interactive.html
 
-* SEGFAULTS - some tips for how to diagnose and debug segfaults
-
-* setup.py - the matplotlib build script
-
-* setupext.py - some helper code for setup.py to build the matplotlib
-  extensions
-
-* boilerplate.py - some code to automatically generate the pyplot
-  wrappers
-
-* DEVNOTES - deprecated developer notes.  TODO: update and move to the
-  doc/devel framework
-
-* FILETYPES - This is a table of the output formats supported by each
-  backend.  TODO: move to doc/users
-
-* INTERACTIVE - instructions on using matplotlib interactively, eg
-  from the python shell.  TODO: update and move to doc/users.
-
+See also
+<http://matplotlib.sourceforge.net/users/customizing.html>
