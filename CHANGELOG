@@ -1,3 +1,6 @@
+2009-09-13 AxesGrid : add modified version of colorbar. Add colorbar 
+           location howto. - JJL
+
 2009-09-07 AxesGrid : implemented axisline style. 
            Added a demo examples/axes_grid/demo_axisline_style.py- JJL
 

@@ -502,6 +502,31 @@ class AxesDivider(Divider):
         return ax
 
 
+    def append_axes(self, position, size, pad=None, **kwargs):
+        """
+        create an axes at the given *position* with the same height
+        (or width) of the main axes.
+
+         *position*
+           ["left"|"right"|"bottom"|"top"]
+           
+         *size* and *pad* should be axes_grid.axes_size compatible.
+        """
+
+        if position == "left":
+            ax = self.new_horizontal(size, pad, pack_start=True, **kwargs)
+        elif position == "right":
+            ax = self.new_horizontal(size, pad, pack_start=False, **kwargs)
+        elif position == "bottom":
+            ax = self.new_vertical(size, pad, pack_start=True, **kwargs)
+        elif position == "top":
+            ax = self.new_vertical(size, pad, pack_start=False, **kwargs)
+        else:
+            raise ValueError("the position must be one of left, right, bottom, or top")
+
+        self._fig.add_axes(ax)
+        return ax
+
     def get_aspect(self):
         if self._aspect is None:
             aspect = self._axes.get_aspect()

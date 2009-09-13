@@ -44,7 +44,7 @@ def demo_grid_with_single_cbar(fig):
     Z, extent = get_demo_image()
     for i in range(4):
         im = grid[i].imshow(Z, extent=extent, interpolation="nearest")
-    plt.colorbar(im, cax = grid.cbar_axes[0])
+    #plt.colorbar(im, cax = grid.cbar_axes[0])
     grid.cbar_axes[0].colorbar(im)
 
     # This affects all axes as share_all = True.

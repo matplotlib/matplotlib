@@ -2,7 +2,8 @@ import matplotlib.cbook as cbook
 
 import matplotlib.pyplot as plt
 import matplotlib.axes as maxes
-import matplotlib.colorbar as mcolorbar
+#import matplotlib.colorbar as mcolorbar
+import colorbar as mcolorbar
 import matplotlib as mpl
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
@@ -10,7 +11,7 @@ import matplotlib.ticker as ticker
 
 from axes_divider import Size, SubplotDivider, LocatableAxes, Divider
 
-
+import numpy as np
 
 def _tick_only(ax, bottom_on, left_on):
     bottom_off = not bottom_on
@@ -28,7 +29,7 @@ def _tick_only(ax, bottom_on, left_on):
         ax.axis["left"].label.set_visible(left_off)
 
 class Colorbar(mcolorbar.Colorbar):
-    def _config_axes(self, X, Y):
+    def _config_axes_deprecated(self, X, Y):
         '''
         Make an axes patch and outline.
         '''
@@ -431,6 +432,7 @@ class ImageGrid(Grid):
                  cbar_location="right",
                  cbar_pad=None,
                  cbar_size="5%",
+                 cbar_set_cax=True,
                  axes_class=None,
                  ):
         """
@@ -456,9 +458,13 @@ class ImageGrid(Grid):
           cbar_location     "right"   [ "right" | "top" ]
           cbar_pad          None
           cbar_size         "5%"
+          cbar_set_cax      True      [ True | False ]
           axes_class        None      a type object which must be a subclass
                                       of :class:`~matplotlib.axes.Axes`
           ================  ========  =========================================
+
+        *cbar_set_cax* : if True, each axes in the grid has a cax
+          attribute that is bind to associated cbar_axes.
         """
         self._nrows, self._ncols = nrows_ncols
 
@@ -567,6 +573,14 @@ class ImageGrid(Grid):
         if add_all:
             for ax in self.axes_all+self.cbar_axes:
                 fig.add_axes(ax)
+
+        if cbar_set_cax:
+            if self._colorbar_mode == "single":
+                for ax in self.axes_all:
+                    ax.cax = self.cbar_axes[0]
+            else:
+                for ax, cax in zip(self.axes_all, self.cbar_axes):
+                    ax.cax = cax
 
         self.set_label_mode(label_mode)
 
@@ -683,8 +697,8 @@ if 0:
 
 
 
-if __name__ == "__main__":
-#if 0:
+#if __name__ == "__main__":
+if 0:
     from axes_divider import get_demo_image
     F = plt.figure(1, (9, 3.5))
     F.clf()
@@ -761,3 +775,5 @@ if __name__ == "__main__":
 
     plt.ion()
     plt.draw()
+
+
