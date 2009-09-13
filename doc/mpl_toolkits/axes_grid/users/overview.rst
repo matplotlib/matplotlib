@@ -35,7 +35,7 @@ ratio.  For example, displaying images of a same size with some fixed
 padding between them cannot be easily done in matplotlib. AxesGrid is
 used in such case.
 
-.. plot:: mpl_toolkits/axes_grid/figures/simple_axesgrid.py
+.. plot:: mpl_examples/axes_grid/simple_axesgrid.py
    :include-source:
 
 * The postion of each axes is determined at the drawing time (see
@@ -49,7 +49,7 @@ used in such case.
   height. The widths (height) of the axes in the same row (column) are
   scaled according to their view limits (xlim or ylim).
 
-  .. plot:: mpl_toolkits/axes_grid/figures/simple_axesgrid2.py
+  .. plot:: mpl_toolkits/axes_grid/examples/simple_axesgrid2.py
      :include-source:
 
 * xaxis are shared among axes in a same column. Similarly, yaxis are
@@ -137,7 +137,7 @@ attribute.
 
 The examples below show what you can do with AxesGrid.
 
-.. plot:: mpl_toolkits/axes_grid/figures/demo_axes_grid.py
+.. plot:: mpl_toolkits/axes_grid/examples/demo_axes_grid.py
 
 
 RGB Axes
@@ -158,7 +158,7 @@ yaxis of each axes are shared. ::
                   origin="lower", interpolation="nearest")
 
 
-.. plot:: mpl_toolkits/axes_grid/figures/simple_rgb.py
+.. plot:: mpl_toolkits/axes_grid/examples/simple_rgb.py
 
 
 
@@ -219,7 +219,7 @@ The "scatter_hist.py" example in mpl can be rewritten using
 See the full source code below.
 
 
-.. plot:: mpl_toolkits/axes_grid/figures/scatter_hist.py
+.. plot:: mpl_toolkits/axes_grid/examples/scatter_hist.py
 
 
 The scatter_hist using the AxesDivider has some advantage over the
@@ -246,7 +246,7 @@ axes.
 Example 1. twinx
 ----------------
 
-.. plot:: mpl_toolkits/axes_grid/figures/parasite_simple.py
+.. plot:: mpl_toolkits/axes_grid/examples/parasite_simple.py
    :include-source:
 
 Example 2. twin
@@ -257,7 +257,7 @@ x-limit in the host axes, the x-limit of the parasite axes will change
 accordingly.
 
 
-.. plot:: mpl_toolkits/axes_grid/figures/parasite_simple2.py
+.. plot:: mpl_toolkits/axes_grid/examples/parasite_simple2.py
 
 
 
@@ -290,13 +290,13 @@ For example, you can hide right, and top axis by ::
   ax.axis["top"].set_visible(False)
 
 
-.. plot:: mpl_toolkits/axes_grid/figures/simple_axisline3.py
+.. plot:: mpl_toolkits/axes_grid/examples/simple_axisline3.py
 
 
 SubplotZero gives you two more additional (floating?) axis of x=0 and
 y=0 (in data coordinate)
 
-.. plot:: mpl_toolkits/axes_grid/figures/simple_axisline2.py
+.. plot:: mpl_toolkits/axes_grid/examples/simple_axisline2.py
    :include-source:
 
 
@@ -315,7 +315,7 @@ axis. ::
                        r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
 
 
-.. plot:: mpl_toolkits/axes_grid/figures/simple_axisline4.py
+.. plot:: mpl_toolkits/axes_grid/examples/simple_axisline4.py
 
 
 AxisLine Axes lets you create a custom axis, ::
@@ -330,7 +330,7 @@ AxisLine Axes lets you create a custom axis, ::
 And, you can use it with parasiteAxes.
 
 
-.. plot:: mpl_toolkits/axes_grid/figures/demo_parasite_axes2.py
+.. plot:: mpl_toolkits/axes_grid/examples/demo_parasite_axes2.py
 
 
 AnchoredArtists
@@ -343,7 +343,7 @@ limited support for an arbitrary transform. For example, the ellipse
 in the example below will have width and height in the data
 coordinate.
 
-.. plot:: mpl_toolkits/axes_grid/figures/simple_anchored_artists.py
+.. plot:: mpl_toolkits/axes_grid/examples/simple_anchored_artists.py
    :include-source:
 
 
@@ -377,7 +377,7 @@ some factor. For example, ::
 creates an inset axes whose data scale is half of the parent axes.
 Here is complete examples.
 
-.. plot:: mpl_toolkits/axes_grid/figures/inset_locator_demo.py
+.. plot:: mpl_toolkits/axes_grid/examples/inset_locator_demo.py
 
 For example, :func:`zoomed_inset_axes` can be used when you want the
 inset represents the zoom-up of the small portion in the parent axes.
@@ -385,7 +385,7 @@ And :mod:`~mpl_toolkits/axes_grid/inset_locator` provides a helper
 function :func:`mark_inset` to mark the location of the area
 represented by the inset axes.
 
-.. plot:: mpl_toolkits/axes_grid/figures/inset_locator_demo2.py
+.. plot:: mpl_toolkits/axes_grid/examples/inset_locator_demo2.py
    :include-source:
 
 
@@ -395,6 +395,6 @@ Curvelinear Grid
 You can draw a cuvelinear grid and ticks. Also a floating axis can be
 created. See :ref:`axislines-manual` for more details.
 
-.. plot:: mpl_toolkits/axes_grid/figures/demo_floating_axis.py
+.. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axis.py
 
 
