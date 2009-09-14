@@ -158,7 +158,7 @@ yaxis of each axes are shared. ::
                   origin="lower", interpolation="nearest")
 
 
-.. plot:: mpl_toolkits/axes_grid/examples/simple_rgb.py
+.. plot:: mpl_toolkits/axes_grid/figures/simple_rgb.py
 
 
 
@@ -246,7 +246,7 @@ axes.
 Example 1. twinx
 ----------------
 
-.. plot:: mpl_toolkits/axes_grid/examples/parasite_simple.py
+.. plot:: mpl_toolkits/axes_grid/figures/parasite_simple.py
    :include-source:
 
 Example 2. twin
@@ -290,13 +290,13 @@ For example, you can hide right, and top axis by ::
   ax.axis["top"].set_visible(False)
 
 
-.. plot:: mpl_toolkits/axes_grid/examples/simple_axisline3.py
+.. plot:: mpl_toolkits/axes_grid/figures/simple_axisline3.py
 
 
 SubplotZero gives you two more additional (floating?) axis of x=0 and
 y=0 (in data coordinate)
 
-.. plot:: mpl_toolkits/axes_grid/examples/simple_axisline2.py
+.. plot:: mpl_toolkits/axes_grid/figures/simple_axisline2.py
    :include-source:
 
 
