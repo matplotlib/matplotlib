@@ -81,12 +81,12 @@ may consider it as [0:2, 1].
 
 See the example,
 
-.. plot:: mpl_toolkits/axes_grid/examples/simple_axes_divider2.py
+.. plot:: mpl_toolkits/axes_grid/figures/simple_axes_divider2.py
    :include-source:
 
 You can adjust the size of the each axes accroding to their x or y
 data limits (AxesX and AxesY), similar to the axes aspect parameter.
 
-.. plot:: mpl_toolkits/axes_grid/examples/simple_axes_divider3.py
+.. plot:: mpl_toolkits/axes_grid/figures/simple_axes_divider3.py
    :include-source:
 
