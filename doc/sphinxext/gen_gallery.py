@@ -39,15 +39,14 @@ def gen_gallery(app, doctree):
         'matplotlib_icon',
         ])
 
-    print
-    print "generating gallery: ",
     data = []
+    thumbnails = {}
+
     for subdir in ('api', 'pylab_examples', 'mplot3d', 'widgets', 'axes_grid' ):
         origdir = os.path.join('build', rootdir, subdir)
         thumbdir = os.path.join(outdir, rootdir, subdir, 'thumbnails')
         if not os.path.exists(thumbdir):
             os.makedirs(thumbdir)
-        print subdir,
 
         for filename in sorted(glob.glob(os.path.join(origdir, '*.png'))):
             if filename.endswith("hires.png"):
@@ -56,16 +55,14 @@ def gen_gallery(app, doctree):
             path, filename = os.path.split(filename)
             basename, ext = os.path.splitext(filename)
             if basename in skips:
-                sys.stdout.write('[skipping %s]' % basename)
-                sys.stdout.flush()
                 continue
 
             # Create thumbnails based on images in tmpdir, and place
             # them within the build tree
             orig_path = str(os.path.join(origdir, filename))
             thumb_path = str(os.path.join(thumbdir, filename))
-            if out_of_date(orig_path, thumb_path):
-                image.thumbnail(orig_path, thumb_path, scale=0.3)
+            if out_of_date(orig_path, thumb_path) or True:
+                thumbnails[orig_path] = thumb_path
 
             m = multiimage.match(basename)
             if m is None:
@@ -76,10 +73,6 @@ def gen_gallery(app, doctree):
 
             data.append((subdir, basename,
                          os.path.join(rootdir, subdir, 'thumbnails', filename)))
-
-            sys.stdout.write(".")
-            sys.stdout.flush()
-        print
 
     link_template = """\
     <a href="%s"><img src="%s" border="0" alt="%s"/></a>
@@ -98,6 +91,22 @@ def gen_gallery(app, doctree):
               'w')
     fh.write(template%'\n'.join(rows))
     fh.close()
+
+    try:
+        import multiprocessing
+        def make_thumbnail(args):
+            image.thumbnail(args[0], args[1], 0.3)
+
+        app.builder.info("generating thumbnails... ", nonl=True)
+        pool = multiprocessing.Pool()
+        pool.map(make_thumbnail, thumbnails.iteritems())
+        app.builder.info("done")
+
+    except ImportError:
+        for key in app.builder.status_iterator(
+            thumbnails.iterkeys(), "generating thumbnails... ",
+            length=len(thumbnails)):
+            image.thumbnail(key, thumbnails[key], 0.3)
 
 def setup(app):
     app.connect('env-updated', gen_gallery)
