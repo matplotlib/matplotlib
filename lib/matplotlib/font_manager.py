@@ -12,12 +12,12 @@ The design is based on the `W3C Cascading Style Sheet, Level 1 (CSS1)
 font specification <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_.
 Future versions may implement the Level 2 or 2.1 specifications.
 
-Experimental support is included for using `fontconfig
-<http://www.fontconfig.org>`_ on Unix variant plaforms (Linux, OS X,
-Solaris).  To enable it, set the constant ``USE_FONTCONFIG`` in this
-file to ``True``.  Fontconfig has the advantage that it is the
-standard way to look up fonts on X11 platforms, so if a font is
-installed, it is much more likely to be found.
+Experimental support is included for using `fontconfig` on Unix
+variant platforms (Linux, OS X, Solaris).  To enable it, set the
+constant ``USE_FONTCONFIG`` in this file to ``True``.  Fontconfig has
+the advantage that it is the standard way to look up fonts on X11
+platforms, so if a font is installed, it is much more likely to be
+found.
 """
 
 """
@@ -707,7 +707,7 @@ class FontProperties(object):
     def __hash__(self):
         l = [(k, getattr(self, "get" + k)()) for k in sorted(self.__dict__)]
         return hash(repr(l))
- 
+
     def __str__(self):
         return self.get_fontconfig_pattern()
 
