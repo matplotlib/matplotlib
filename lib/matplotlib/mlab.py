@@ -1893,23 +1893,29 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
 
     return newrec
 
-def recs_join(key, name, recs,missing=0.):
+def recs_join(key, name, recs, jointype='outer', missing=0.):
     """
-    Join a sequence of record arrays on key
+    Join a sequence of record arrays on single column key.
+
+    This function only joins a single column of the multiple record arrays
 
     *key*
       is the column name that acts as a key
 
     *name*
-      is the name that we want to join
+      is the name of the column that we want to join
 
-    *missing"
-      is what the missing fields are replaced by
-
-    *recarrays*
+    *recs*
       is a list of record arrays to join
 
-    returns a record array with columns [rowkey, name1, name2, ... namen]
+    *jointype*
+      is a string 'inner' or 'outer'
+
+    *missing"
+      is what any missing field is replaced by
+
+
+    returns a record array with columns [rowkey, name1, name2, ... namen].
 
     Example::
 
@@ -1917,12 +1923,21 @@ def recs_join(key, name, recs,missing=0.):
 
     """
     results = []
+    aligned_iters = cbook.align_iterators(operator.attrgetter(key), *[iter(r) for r in recs])
+
     def extract(r):
         if r is None: return missing
         else: return r[name]
 
-    for rowkey, row in cbook.align_iterators(operator.attrgetter(key), *[iter(r) for r in recs]):
-        results.append([rowkey] + map(extract, row))
+
+    if jointype == "outer":
+        for rowkey, row in aligned_iters:
+            results.append([rowkey] + map(extract, row))
+    elif jointype == "inner":
+        for rowkey, row in aligned_iters:
+            if None not in row: # throw out any Nones
+                results.append([rowkey] + map(extract, row))
+
     names = ",".join([key] + ["%s%d" % (name, d) for d in range(len(recs))])
     return np.rec.fromrecords(results, names=names)
 
