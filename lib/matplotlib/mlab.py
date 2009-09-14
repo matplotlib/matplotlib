@@ -366,12 +366,16 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     *x*
         Array or sequence containing the data
+
     %(PSD)s
+
     Returns the tuple (*Pxx*, *freqs*).
 
     Refs:
+
         Bendat & Piersol -- Random Data: Analysis and Measurement
         Procedures, John Wiley & Sons (1986)
+
     """
     Pxx,freqs = csd(x, x, NFFT, Fs, detrend, window, noverlap, pad_to, sides,
         scale_by_freq)
@@ -394,7 +398,9 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     *x*, *y*
         Array or sequence containing the data
+
     %(PSD)s
+
     Returns the tuple (*Pxy*, *freqs*).
 
     Refs:
@@ -420,7 +426,9 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     If *x* is real (i.e. non-complex) only the spectrum of the positive
     frequencie is returned.  If *x* is complex then the complete
     spectrum is returned.
+
     %(PSD)s
+
     Returns a tuple (*Pxx*, *freqs*, *t*):
 
          - *Pxx*: 2-D array, columns are the periodograms of
@@ -463,11 +471,13 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     *x*, *y*
         Array or sequence containing the data
+
     %(PSD)s
+
     The return value is the tuple (*Cxy*, *f*), where *f* are the
     frequencies of the coherence vector. For cohere, scaling the
-    individual densities by the sampling frequency has no effect, since
-    the factors cancel out.
+    individual densities by the sampling frequency has no effect,
+    since the factors cancel out.
 
     .. seealso::
 
