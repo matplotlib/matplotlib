@@ -3,7 +3,6 @@ Use a PNG file as a watermark
 """
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.cbook as cbook
 import matplotlib.image as image
 import matplotlib.pyplot as plt

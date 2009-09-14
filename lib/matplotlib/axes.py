@@ -5519,6 +5519,7 @@ class Axes(martist.Artist):
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/hexbin_demo.py
+
         """
 
         if not self._hold: self.cla()
