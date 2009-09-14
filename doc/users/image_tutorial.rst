@@ -179,7 +179,7 @@ channel of our data:
 
     In [6]: lum_img = img[:,:,0]
 
-This is array slicing.  You can read more `here
+This is array slicing.  You can read more in the `Numpy tutorial
 <http://www.scipy.org/Tentative_NumPy_Tutorial>`_.
 
 .. sourcecode:: ipython
@@ -229,8 +229,8 @@ object:
         imgplot = plt.imshow(lum_img)
         imgplot.set_cmap('spectral')
 
-There are many other colormap schemes available.  See a list and
-images of the colormaps `here
+There are many other colormap schemes available.  See the `list and
+images of the colormaps
 <http://matplotlib.sourceforge.net/examples/pylab_examples/show_colormaps.html>`_.
 
 .. _Color Bars

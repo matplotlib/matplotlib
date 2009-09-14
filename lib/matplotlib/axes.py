@@ -7399,8 +7399,8 @@ class Axes(martist.Artist):
                  window = mlab.window_hanning, noverlap=0, pad_to=None,
                  sides='default', scale_by_freq=None, **kwargs)
 
-        cohere the coherence between *x* and *y*.  Coherence is the normalized
-        cross spectral density:
+        :meth:`cohere` the coherence between *x* and *y*.  Coherence
+        is the normalized cross spectral density:
 
         .. math::
 
