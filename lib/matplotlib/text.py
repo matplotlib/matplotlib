@@ -560,6 +560,7 @@ class Text(Artist):
 
                 renderer.draw_tex(gc, x, y, clean_line,
                                   self._fontproperties, angle)
+            renderer.close_group('text')
             return
 
         for line, wh, x, y in info:

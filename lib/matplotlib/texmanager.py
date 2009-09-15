@@ -304,7 +304,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 %s
 %s
 \usepackage[active,showbox,tightpage]{preview}
-%%\usepackage[papersize={72in,72in}, body={70in,70in}, margin={1in,1in}]{geometry}
+\usepackage[papersize={72in,72in}, body={70in,70in}, margin={1in,1in}]{geometry}
 
 %% we override the default showbox as it is treated as an error and makes
 %% the exit status not zero

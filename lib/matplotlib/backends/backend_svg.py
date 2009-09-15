@@ -58,6 +58,10 @@ class RendererSVG(RendererBase):
         self._hatchd = {}
         self._n_gradients = 0
         self.mathtext_parser = MathTextParser('SVG')
+
+        RendererBase.__init__(self)
+        self._glyph_map = dict()
+        
         svgwriter.write(svgProlog%(width,height,width,height))
 
     def _draw_svg_element(self, element, details, gc, rgbFace):
@@ -405,7 +409,147 @@ class RendererSVG(RendererBase):
         if url is not None:
             self._svgwriter.write('</a>')
 
+    def _adjust_char_id(self, char_id):
+        return char_id.replace("%20","_")
+    
+    def draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
+        """
+        draw the text by converting them to paths using textpath module.
+
+        *prop*
+          font property
+
+        *s*
+          text to be converted
+          
+        *usetex*
+          If True, use matplotlib usetex mode.
+
+        *ismath*
+          If True, use mathtext parser. If "TeX", use *usetex* mode.
+
+          
+        """
+        # this method works for normal text, mathtext and usetex mode.
+        # But currently only utilized by draw_tex method.
+        
+        glyph_map=self._glyph_map
+        
+        text2path = self._text2path
+        color = rgb2hex(gc.get_rgb()[:3])
+        fontsize = prop.get_size_in_points()
+
+        write = self._svgwriter.write
+        
+        if ismath == False:
+            font = text2path._get_font(prop)
+            _glyphs = text2path.get_glyphs_with_font(font, s, glyph_map=glyph_map,
+                                                     return_new_glyphs_only=True)
+            glyph_info, glyph_map_new, rects = _glyphs
+
+            _flip = Affine2D().scale(1.0, -1.0)
+
+            if glyph_map_new:
+                write('<defs>\n')
+                for char_id, glyph_path in glyph_map_new.iteritems():
+                    path = Path(*glyph_path)
+                    path_data = self._convert_path(path, _flip)
+                    path_element = '<path id="%s" d="%s"/>\n' % (char_id, ''.join(path_data))
+                    write(path_element)
+                write('</defs>\n')
+
+                glyph_map.update(glyph_map_new)
+                
+            svg = []
+            clipid = self._get_gc_clip_svg(gc)
+            if clipid is not None:
+                svg.append('<g clip-path="url(#%s)">\n' % clipid)
+
+            svg.append('<g style="fill: %s; opacity: %f" transform="' % (color, gc.get_alpha()))
+            if angle != 0:
+                svg.append('translate(%f,%f)rotate(%1.1f)' % (x,y,-angle))
+            elif x != 0 or y != 0:
+                svg.append('translate(%f,%f)' % (x, y))
+            svg.append('scale(%f)">\n' % (fontsize / text2path.FONT_SCALE))
+
+            for glyph_id, xposition, yposition, scale in glyph_info:
+                svg.append('<use xlink:href="#%s"' % glyph_id)
+                svg.append(' x="%f" y="%f"' % (xposition, yposition))
+                #(currx * (self.FONT_SCALE / fontsize)))
+                svg.append('/>\n')
+
+            svg.append('</g>\n')
+            if clipid is not None:
+                svg.append('</g>\n')
+            svg = ''.join(svg)
+
+
+
+        else:
+            if ismath == "TeX":
+                _glyphs = text2path.get_glyphs_tex(prop, s, glyph_map=glyph_map)
+            else:
+                _glyphs = text2path.get_glyphs_mathtext(prop, s, glyph_map=glyph_map)
+
+            glyph_info, glyph_map_new, rects = _glyphs
+
+            # we store the character glyphs w/o flipping. Instead, the
+            # coordinate will be flipped when this characters are
+            # used.
+            if glyph_map_new:
+                write('<defs>\n')
+                for char_id, glyph_path in glyph_map_new.iteritems():
+                    char_id = self._adjust_char_id(char_id)
+                    path = Path(*glyph_path)
+                    path_data = self._convert_path(path, None) #_flip)
+                    path_element = '<path id="%s" d="%s"/>\n' % (char_id, ''.join(path_data))
+                    write(path_element)
+                write('</defs>\n')
+
+                glyph_map.update(glyph_map_new)
+                
+            svg = []
+            clipid = self._get_gc_clip_svg(gc)
+            if clipid is not None:
+                svg.append('<g clip-path="url(#%s)">\n' % clipid)
+
+            svg.append('<g style="fill: %s; opacity: %f" transform="' % (color, gc.get_alpha()))
+            if angle != 0:
+                svg.append('translate(%f,%f)rotate(%1.1f)' % (x,y,-angle))
+            elif x != 0 or y != 0:
+                svg.append('translate(%f,%f)' % (x, y))
+            svg.append('scale(%f,-%f)">\n' % (fontsize / text2path.FONT_SCALE,
+                                              fontsize / text2path.FONT_SCALE))
+
+            for char_id, xposition, yposition, scale in glyph_info:
+                char_id = self._adjust_char_id(char_id)
+                svg.append('<use xlink:href="#%s"' % char_id)
+                svg.append(' x="%f" y="%f" transform="scale(%f)"' % (xposition/scale,
+                                                                      yposition/scale,
+                                                                      scale))
+                svg.append('/>\n')
+
+
+            for verts, codes in rects:
+                path = Path(verts, codes)
+                path_data = self._convert_path(path, None)
+                path_element = '<path d="%s"/>\n' % (''.join(path_data))
+                svg.append(path_element)
+
+
+            svg.append('</g><!-- style -->\n')
+            if clipid is not None:
+                svg.append('</g><!-- clipid -->\n')
+            svg = ''.join(svg)
+
+        write(svg)
+
+
+    def draw_tex(self, gc, x, y, s, prop, angle):
+        self.draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
+
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
+
         if ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)
             return
@@ -648,6 +792,14 @@ class RendererSVG(RendererBase):
         return self.width, self.height
 
     def get_text_width_height_descent(self, s, prop, ismath):
+        if ismath == "TeX":
+            size = prop.get_size_in_points()
+            texmanager = self._text2path.get_texmanager()
+            fontsize = prop.get_size_in_points()
+            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
+                                                               renderer=self)
+            return w, h, d
+            
         if ismath:
             width, height, descent, trash, used_characters = \
                 self.mathtext_parser.parse(s, 72, prop)

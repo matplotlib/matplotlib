@@ -1,3 +1,7 @@
+2009-09-15 Implement draw_text and draw_tex method of backend_base using
+           the textpath module. Implement draw_tex method of the svg 
+           backend. - JJL
+
 2009-09-15 Don't fail on AFM files containing floating-point bounding boxes - JKS
 
 2009-09-13 AxesGrid : add modified version of colorbar. Add colorbar 

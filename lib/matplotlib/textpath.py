@@ -42,6 +42,8 @@ class TextToPath(object):
 
         return font
 
+    def _get_hinting_flag(self):
+        return LOAD_NO_HINTING
     
     def _get_char_id(self, font, ccode):
         """
@@ -134,7 +136,8 @@ class TextToPath(object):
         return verts, codes
 
             
-    def get_glyphs_with_font(self, font, s, glyph_map=None):
+    def get_glyphs_with_font(self, font, s, glyph_map=None,
+                             return_new_glyphs_only=False):
         """
         convert the string *s* to vertices and codes using the
         provided ttf font. 
@@ -151,6 +154,11 @@ class TextToPath(object):
         
         if glyph_map is None:
             glyph_map = dict()
+
+        if return_new_glyphs_only:
+            glyph_map_new = dict()
+        else:
+            glyph_map_new = glyph_map
 
         # I'm not sure if I get kernings right. Needs to be verified. -JJL
 
@@ -174,7 +182,7 @@ class TextToPath(object):
 
             char_id = self._get_char_id(font, ccode)
             if not char_id in glyph_map:
-                glyph_map[char_id] = self.glyph_to_path(glyph)
+                glyph_map_new[char_id] = self.glyph_to_path(glyph)
 
             currx += (kern / 64.0)
 
@@ -190,12 +198,13 @@ class TextToPath(object):
 
         rects = []
         
-        return zip(glyph_ids, xpositions, ypositions, sizes), glyph_map, rects
+        return zip(glyph_ids, xpositions, ypositions, sizes), glyph_map_new, rects
 
 
 
 
-    def get_glyphs_mathtext(self, prop, s):
+    def get_glyphs_mathtext(self, prop, s, glyph_map=None,
+                            return_new_glyphs_only=False):
         """
         convert the string *s* to vertices and codes by parsing it with mathtext.
         """
@@ -207,8 +216,14 @@ class TextToPath(object):
             s, self.DPI, prop)
 
 
-        glyph_map = dict()
-        
+        if glyph_map is None:
+            glyph_map = dict()
+
+        if return_new_glyphs_only:
+            glyph_map_new = dict()
+        else:
+            glyph_map_new = glyph_map
+
         xpositions = []
         ypositions = []
         glyph_ids = []
@@ -223,7 +238,7 @@ class TextToPath(object):
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
                 glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-                glyph_map[char_id] = self.glyph_to_path(glyph)
+                glyph_map_new[char_id] = self.glyph_to_path(glyph)
 
             xpositions.append(ox)
             ypositions.append(oy)
@@ -253,7 +268,8 @@ class TextToPath(object):
         return self._texmanager
 
 
-    def get_glyphs_tex(self, prop, s):
+    def get_glyphs_tex(self, prop, s, glyph_map=None,
+                       return_new_glyphs_only=False):
         """
         convert the string *s* to vertices and codes using matplotlib's usetex mode.
         """
@@ -275,8 +291,17 @@ class TextToPath(object):
         page = iter(dvi).next()
         dvi.close()
 
+
+        if glyph_map is None:
+            glyph_map = dict()
+
+        if return_new_glyphs_only:
+            glyph_map_new = dict()
+        else:
+            glyph_map_new = glyph_map
+
+
         glyph_ids, xpositions, ypositions, sizes = [], [], [], []
-        glyph_map = dict()
 
         # Gather font information and do some setup for combining
         # characters into strings.
@@ -316,7 +341,7 @@ class TextToPath(object):
                 else: 
                     glyph0 = font.load_glyph(ng, flags=ft2font_flag)
                     
-                glyph_map[char_id] = self.glyph_to_path(glyph0)
+                glyph_map_new[char_id] = self.glyph_to_path(glyph0)
 
             glyph_ids.append(char_id)
             xpositions.append(x1)
