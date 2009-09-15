@@ -30,13 +30,15 @@ import matplotlib.cbook as cbook
 import matplotlib.colors as colors
 import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
-import matplotlib.path as path
+#import matplotlib.path as path
 from matplotlib import rcParams
 
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 import cStringIO
 
 import matplotlib.tight_bbox as tight_bbox
+import matplotlib.textpath as textpath
+from matplotlib.path import Path
 
 class RendererBase:
     """An abstract base class to handle drawing/rendering operations.
@@ -57,6 +59,8 @@ class RendererBase:
     """
     def __init__(self):
         self._texmanager = None
+
+        self._text2path = textpath.TextToPath()
 
     def open_group(self, s, gid=None):
         """
@@ -337,7 +341,9 @@ class RendererBase:
         return False
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
-        raise NotImplementedError
+        """
+        """
+        self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         """
@@ -372,7 +378,84 @@ class RendererBase:
         to if 1, and then the actual bounding box will be blotted along with
         your text.
         """
-        raise NotImplementedError
+
+        self._draw_text_as_path(gc, x, y, s, prop, angle, ismath)
+
+    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
+        """
+        draw the text by converting them to paths using textpath module.
+
+        *prop*
+          font property
+
+        *s*
+          text to be converted
+          
+        *usetex*
+          If True, use matplotlib usetex mode.
+
+        *ismath*
+          If True, use mathtext parser. If "TeX", use *usetex* mode.
+        """
+        
+        text2path = self._text2path
+        color = gc.get_rgb()[:3]
+        fontsize = self.points_to_pixels(prop.get_size_in_points())
+        
+        if ismath == "TeX":
+            verts, codes = text2path.get_text_path(prop, s, ismath=False, usetex=True)
+        else:
+            verts, codes = text2path.get_text_path(prop, s, ismath=ismath, usetex=False)
+
+        path = Path(verts, codes)
+        angle = angle/180.*3.141592
+        if self.flipy():
+            transform = Affine2D().scale(fontsize/text2path.FONT_SCALE,
+                                         fontsize/text2path.FONT_SCALE).\
+                                         rotate(angle).translate(x, self.height-y)
+        else:
+            transform = Affine2D().scale(fontsize/text2path.FONT_SCALE,
+                                         fontsize/text2path.FONT_SCALE).\
+                                         rotate(angle).translate(x, y)
+
+        gc.set_linewidth(0.0)
+        self.draw_path(gc, path, transform, rgbFace=color)
+
+
+    def get_text_width_height_descent(self, s, prop, ismath):
+        """
+        get the width and height, and the offset from the bottom to the
+        baseline (descent), in display coords of the string s with
+        :class:`~matplotlib.font_manager.FontProperties` prop
+        """
+        if ismath=='TeX':
+            # todo: handle props
+            size = prop.get_size_in_points()
+            texmanager = self._text2path.get_texmanager()
+            fontsize = prop.get_size_in_points()
+            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
+                                                               renderer=self)
+            return w, h, d
+
+        dpi = self.points_to_pixels(72)
+        fontscale = self._text2path.FONT_SCALE
+        if ismath:
+            width, height, descent, glyphs, rects = \
+                   self._text2path.mathtext_parser.parse(s, dpi, prop)
+            return width, height, descent
+
+        flags = self._text2path._get_hinting_flag()
+        font = self._text2path._get_font(prop)
+        size = prop.get_size_in_points()
+        font.set_size(size, dpi)
+        font.set_text(s, 0.0, flags=flags)  # the width and height of unrotated string
+        w, h = font.get_width_height()
+        d = font.get_descent()
+        w /= 64.0  # convert from subpixels
+        h /= 64.0
+        d /= 64.0
+        return w, h, d
+
 
     def flipy(self):
         """
@@ -395,13 +478,6 @@ class RendererBase:
             self._texmanager = TexManager()
         return self._texmanager
 
-    def get_text_width_height_descent(self, s, prop, ismath):
-        """
-        get the width and height, and the offset from the bottom to the
-        baseline (descent), in display coords of the string s with
-        :class:`~matplotlib.font_manager.FontProperties` prop
-        """
-        raise NotImplementedError
 
     def new_gc(self):
         """
@@ -741,7 +817,7 @@ class GraphicsContextBase:
         """
         if self._hatch is None:
             return None
-        return path.Path.hatch(self._hatch, density)
+        return Path.hatch(self._hatch, density)
 
 class Event:
     """
