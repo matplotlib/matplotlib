@@ -80,7 +80,7 @@ pygments_style = 'sphinx'
 # Plot directive configuration
 # ----------------------------
 
-plot_formats = ['png', 'hires.png', 'pdf']
+plot_formats = [('png', 80), ('hires.png', 200), ('pdf', 50)]
 
 # Options for HTML output
 # -----------------------
