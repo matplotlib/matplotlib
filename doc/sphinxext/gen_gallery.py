@@ -18,6 +18,9 @@ import matplotlib.image as image
 
 multiimage = re.compile('(.*)_\d\d')
 
+def make_thumbnail(args):
+    image.thumbnail(args[0], args[1], 0.3)
+
 def out_of_date(original, derived):
     return (not os.path.exists(derived) or
             os.stat(derived).st_mtime < os.stat(original).st_mtime)
@@ -87,16 +90,23 @@ def gen_gallery(app, doctree):
             link = 'examples/%s/%s.html'%(subdir, basename)
             rows.append(link_template%(link, thumbfile, basename))
 
-    fh = file(os.path.join(app.builder.srcdir, '_templates', 'gallery.html'),
-              'w')
-    fh.write(template%'\n'.join(rows))
-    fh.close()
+    # Only write out the file if the contents have actually changed.
+    # Otherwise, this triggers a full rebuild of the docs
+    content = template%'\n'.join(rows)
+    gallery_path = os.path.join(app.builder.srcdir, '_templates', 'gallery.html')
+    if os.path.exists(gallery_path):
+        fh = file(gallery_path, 'r')
+        regenerate = fh.read() != content
+        fh.close()
+    else:
+        regenerate = True
+    if regenerate:
+        fh = file(gallery_path, 'w')
+        fh.write(content)
+        fh.close()
 
     try:
         import multiprocessing
-        def make_thumbnail(args):
-            image.thumbnail(args[0], args[1], 0.3)
-
         app.builder.info("generating thumbnails... ", nonl=True)
         pool = multiprocessing.Pool()
         pool.map(make_thumbnail, thumbnails.iteritems())
