@@ -1,3 +1,5 @@
+2009-09-15 Don't fail on AFM files containing floating-point bounding boxes - JKS
+
 2009-08-06 Tagging the 0.99.0 release at svn r7397 - JDH
 
 	   * fixed an alpha colormapping bug posted on sf 2832575
