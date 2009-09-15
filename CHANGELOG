@@ -1,3 +1,5 @@
+2009-09-15 Don't fail on AFM files containing floating-point bounding boxes - JKS
+
 2009-09-13 AxesGrid : add modified version of colorbar. Add colorbar 
            location howto. - JJL
 
