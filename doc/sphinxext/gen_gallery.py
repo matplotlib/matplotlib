@@ -110,6 +110,8 @@ def gen_gallery(app, doctree):
         app.builder.info("generating thumbnails... ", nonl=True)
         pool = multiprocessing.Pool()
         pool.map(make_thumbnail, thumbnails.iteritems())
+        pool.close()
+        pool.join()
         app.builder.info("done")
 
     except ImportError:
