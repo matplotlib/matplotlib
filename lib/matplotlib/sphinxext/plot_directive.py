@@ -153,7 +153,7 @@ def out_of_date(original, derived):
             (os.path.exists(original) and
              os.stat(derived).st_mtime < os.stat(original).st_mtime))
 
-def import_file(plot_path, function_name):
+def run_code(plot_path, function_name, plot_code):
     """
     Import a Python module from a path, and run the function given by
     name, if function_name is not None.
@@ -161,29 +161,62 @@ def import_file(plot_path, function_name):
     # Change the working directory to the directory of the example, so
     # it can get at its data files, if any.  Add its path to sys.path
     # so it can import any helper modules sitting beside it.
-    pwd = os.getcwd()
-    path, fname = os.path.split(plot_path)
-    sys.path.insert(0, os.path.abspath(path))
-    stdout = sys.stdout
-    sys.stdout = cStringIO.StringIO()
-    os.chdir(path)
-    try:
-        fd = open(fname)
-        module = imp.load_module(
-            "__main__", fd, fname, ('py', 'r', imp.PY_SOURCE))
-    finally:
-        del sys.path[0]
-        os.chdir(pwd)
-        sys.stdout = stdout
-        fd.close()
+    if plot_code is not None:
+        exec(plot_code)
+    else:
+        pwd = os.getcwd()
+        path, fname = os.path.split(plot_path)
+        sys.path.insert(0, os.path.abspath(path))
+        stdout = sys.stdout
+        sys.stdout = cStringIO.StringIO()
+        os.chdir(path)
+        try:
+            fd = open(fname)
+            module = imp.load_module(
+                "__plot__", fd, fname, ('py', 'r', imp.PY_SOURCE))
+        finally:
+            del sys.path[0]
+            os.chdir(pwd)
+            sys.stdout = stdout
+            fd.close()
 
-    if function_name is not None:
-        print "function_name", function_name
-        getattr(module, function_name)()
+        if function_name is not None:
+            getattr(module, function_name)()
 
-    return module
+def run_savefig(plot_path, basename, tmpdir, destdir, formats):
+    """
+    Once a plot script has been imported, this function runs savefig
+    on all of the figures in all of the desired formats.
+    """
+    fig_managers = _pylab_helpers.Gcf.get_all_fig_managers()
+    for i, figman in enumerate(fig_managers):
+        for j, (format, dpi) in enumerate(formats):
+            if len(fig_managers) == 1:
+                outname = basename
+            else:
+                outname = "%s_%02d" % (basename, i)
+            outname = outname + "." + format
+            outpath = os.path.join(tmpdir, outname)
+            try:
+                figman.canvas.figure.savefig(outpath, dpi=dpi)
+            except:
+                s = cbook.exception_to_str("Exception saving plot %s" % plot_path)
+                warnings.warn(s)
+                return 0
+            if j > 0:
+                shutil.copyfile(outpath, os.path.join(destdir, outname))
 
-def render_figures(plot_path, function_name, plot_code, outdir, formats):
+    return len(fig_managers)
+
+def clear_state():
+    plt.close('all')
+    matplotlib.rcdefaults()
+    # Set a default figure size that doesn't overflow typical browser
+    # windows.  The script is free to override it if necessary.
+    matplotlib.rcParams['figure.figsize'] = (5.5, 4.5)
+
+def render_figures(plot_path, function_name, plot_code, tmpdir, destdir,
+                   formats):
     """
     Run a pyplot script and save the low and high res PNGs and a PDF
     in outdir.
@@ -196,7 +229,7 @@ def render_figures(plot_path, function_name, plot_code, outdir, formats):
 
     # Look for single-figure output files first
     for format, dpi in formats:
-        outname = os.path.join(outdir, '%s.%s' % (basename, format))
+        outname = os.path.join(tmpdir, '%s.%s' % (basename, format))
         if out_of_date(plot_path, outname):
             all_exists = False
             break
@@ -211,7 +244,7 @@ def render_figures(plot_path, function_name, plot_code, outdir, formats):
         all_exists = True
         for format, dpi in formats:
             outname = os.path.join(
-                outdir, '%s_%02d.%s' % (basename, i, format))
+                tmpdir, '%s_%02d.%s' % (basename, i, format))
             if out_of_date(plot_path, outname):
                 all_exists = False
                 break
@@ -225,39 +258,20 @@ def render_figures(plot_path, function_name, plot_code, outdir, formats):
 
     # We didn't find the files, so build them
 
-    # Clear any existing figures
-    plt.close('all')
-    matplotlib.rcdefaults()
-    # Set a default figure size that doesn't overflow typical browser
-    # windows.  The script is free to override it if necessary.
-    matplotlib.rcParams['figure.figsize'] = (5.5, 4.5)
+    clear_state()
+    try:
+        run_code(plot_path, function_name, plot_code)
+    except:
+        s = cbook.exception_to_str("Exception running plot %s" % plot_path)
+        warnings.warn(s)
+        return 0
 
-    if plot_code is not None:
-        exec(plot_code)
-    else:
-        try:
-            import_file(plot_path, function_name)
-        except:
-            s = cbook.exception_to_str("Exception running plot %s" % plot_path)
-            warnings.warn(s)
-            return 0
+    num_figs = run_savefig(plot_path, basename, tmpdir, destdir, formats)
 
-    fig_managers = _pylab_helpers.Gcf.get_all_fig_managers()
-    for i, figman in enumerate(fig_managers):
-        for format, dpi in formats:
-            if len(fig_managers) == 1:
-                outname = basename
-            else:
-                outname = "%s_%02d" % (basename, i)
-            outpath = os.path.join(outdir, '%s.%s' % (outname, format))
-            try:
-                figman.canvas.figure.savefig(outpath, dpi=dpi)
-            except:
-                s = cbook.exception_to_str("Exception running plot %s" % plot_path)
-                warnings.warn(s)
-                return 0
+    if '__plot__' in sys.modules:
+        del sys.modules['__plot__']
 
-    return len(fig_managers)
+    return num_figs
 
 def _plot_directive(plot_path, basedir, function_name, plot_code, caption,
                     options, state_machine):
@@ -309,7 +323,7 @@ def _plot_directive(plot_path, basedir, function_name, plot_code, caption,
 
     # Generate the figures, and return the number of them
     num_figs = render_figures(plot_path, function_name, plot_code, tmpdir,
-                              formats)
+                              destdir, formats)
 
     # Now start generating the lines of output
     lines = []
@@ -346,8 +360,6 @@ def _plot_directive(plot_path, basedir, function_name, plot_code, caption,
             if plot_code is None:
                 links.append('`source code <%(linkdir)s/%(basename)s.py>`__')
             for format, dpi in formats[1:]:
-                shutil.copyfile(os.path.join(tmpdir, outname + "." + format),
-                                os.path.join(destdir, outname + "." + format))
                 links.append('`%s <%s/%s.%s>`__' % (format, linkdir, outname, format))
             if len(links):
                 links = '[%s]' % (', '.join(links) % locals())
