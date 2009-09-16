@@ -110,24 +110,25 @@ _DEBUG_lvls = {1 : 'Low ', 2 : 'Med ', 3 : 'High', 4 : 'Error' }
 
 missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8"
 
-try:
-    import wxversion
-except ImportError:
-    raise ImportError(missingwx)
+if not hasattr(sys, 'frozen'): # i.e., not py2exe
+    try:
+        import wxversion
+    except ImportError:
+        raise ImportError(missingwx)
 
-# Some early versions of wxversion lack AlreadyImportedError.
-# It was added around 2.8.4?
-try:
-    _wx_ensure_failed = wxversion.AlreadyImportedError
-except AttributeError:
-    _wx_ensure_failed = wxversion.VersionError
+    # Some early versions of wxversion lack AlreadyImportedError.
+    # It was added around 2.8.4?
+    try:
+        _wx_ensure_failed = wxversion.AlreadyImportedError
+    except AttributeError:
+        _wx_ensure_failed = wxversion.VersionError
 
-try:
-    wxversion.ensureMinimal('2.8')
-except _wx_ensure_failed:
-    pass
-# We don't really want to pass in case of VersionError, but when
-# AlreadyImportedError is not available, we have to.
+    try:
+        wxversion.ensureMinimal('2.8')
+    except _wx_ensure_failed:
+        pass
+    # We don't really want to pass in case of VersionError, but when
+    # AlreadyImportedError is not available, we have to.
 
 try:
     import wx
