@@ -110,24 +110,25 @@ _DEBUG_lvls = {1 : 'Low ', 2 : 'Med ', 3 : 'High', 4 : 'Error' }
 
 missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8"
 
-try:
-    import wxversion
-except ImportError:
-    raise ImportError(missingwx)
+if not hasattr(sys, 'frozen'): # i.e., not py2exe
+    try:
+        import wxversion
+    except ImportError:
+        raise ImportError(missingwx)
 
-# Some early versions of wxversion lack AlreadyImportedError.
-# It was added around 2.8.4?
-try:
-    _wx_ensure_failed = wxversion.AlreadyImportedError
-except AttributeError:
-    _wx_ensure_failed = wxversion.VersionError
+    # Some early versions of wxversion lack AlreadyImportedError.
+    # It was added around 2.8.4?
+    try:
+        _wx_ensure_failed = wxversion.AlreadyImportedError
+    except AttributeError:
+        _wx_ensure_failed = wxversion.VersionError
 
-try:
-    wxversion.ensureMinimal('2.8')
-except _wx_ensure_failed:
-    pass
-# We don't really want to pass in case of VersionError, but when
-# AlreadyImportedError is not available, we have to.
+    try:
+        wxversion.ensureMinimal('2.8')
+    except _wx_ensure_failed:
+        pass
+    # We don't really want to pass in case of VersionError, but when
+    # AlreadyImportedError is not available, we have to.
 
 try:
     import wx
@@ -776,7 +777,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         bind(self, wx.EVT_MIDDLE_DOWN, self._onMiddleButtonDown)
         bind(self, wx.EVT_MIDDLE_DCLICK, self._onMiddleButtonDown)
         bind(self, wx.EVT_MIDDLE_UP, self._onMiddleButtonUp)
-	
+
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
 
         self.macros = {} # dict from wx id to seq of macros
@@ -1257,7 +1258,7 @@ The current aspect ration will be kept."""
         if self.HasCapture(): self.ReleaseMouse()
         FigureCanvasBase.button_release_event(self, x, y, 1, guiEvent=evt)
 
-    #Add middle button events	
+    #Add middle button events
     def _onMiddleButtonDown(self, evt):
         """Start measuring on an axis."""
         x = evt.GetX()
