@@ -517,7 +517,8 @@ in the normalized axes coordinate.
                 color = handle.get_colors()[0]
                 legline.set_color(color)
                 legline.set_linewidth(lw)
-                legline.set_dashes(dashes)
+                if dashes[0] is not None: # dashed line
+                    legline.set_dashes(dashes[1])
                 handle_list.append(legline)
 
             elif isinstance(handle, RegularPolyCollection):
