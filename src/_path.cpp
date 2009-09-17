@@ -270,12 +270,14 @@ void get_path_extents(PathIterator& path, const agg::trans_affine& trans,
                       double* xm, double* ym)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
-    typedef agg::conv_curve<transformed_path_t> curve_t;
+    typedef PathNanRemover<transformed_path_t> nan_removed_t;
+    typedef agg::conv_curve<nan_removed_t> curve_t;
     double x, y;
     unsigned code;
 
     transformed_path_t tpath(path, trans);
-    curve_t curved_path(tpath);
+    nan_removed_t nan_removed(tpath, true, path.has_curves());
+    curve_t curved_path(nan_removed);
 
     curved_path.rewind(0);
 
@@ -283,11 +285,6 @@ void get_path_extents(PathIterator& path, const agg::trans_affine& trans,
     {
         if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
             continue;
-        /* if (MPL_notisfinite64(x) || MPL_notisfinite64(y))
-            continue;
-           We should not need the above, because the path iterator
-           should already be filtering out invalid values.
-        */
         if (x < *x0) *x0 = x;
         if (y < *y0) *y0 = y;
         if (x > *x1) *x1 = x;
