@@ -354,7 +354,15 @@ def test_hexbin_extent():
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
     fig.savefig('hexbin_extent')
 
-
+@image_comparison(baseline_images=['nonfinite_limits'])
+def test_nonfinite_limits():
+    x = np.arange(0., np.e, 0.01)
+    y = np.log(x)
+    x[len(x)/2] = np.nan
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y)
+    fig.savefig('nonfinite_limits')
 
 if __name__=='__main__':
     import nose
