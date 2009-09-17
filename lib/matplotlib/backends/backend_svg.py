@@ -165,6 +165,7 @@ class RendererSVG(RendererBase):
         cliprect = gc.get_clip_rectangle()
         clippath, clippath_trans = gc.get_clip_path()
         if clippath is not None:
+            clippath_trans = self._make_flip_transform(clippath_trans)
             path_data = self._convert_path(clippath, clippath_trans)
             path = '<path d="%s"/>' % path_data
         elif cliprect is not None:
