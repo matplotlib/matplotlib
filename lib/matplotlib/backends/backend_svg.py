@@ -158,6 +158,7 @@ class RendererSVG(RendererBase):
         cliprect = gc.get_clip_rectangle()
         clippath, clippath_trans = gc.get_clip_path()
         if clippath is not None:
+            clippath_trans = self._make_flip_transform(clippath_trans)
             path_data = self._convert_path(clippath, clippath_trans)
             path = '<path d="%s"/>' % path_data
         elif cliprect is not None:
@@ -643,7 +644,7 @@ class FigureCanvasSVG(FigureCanvasBase):
             # the problem. I hope someone who knows the svg backends
             # take a look at this problem. Meanwhile, the dpi
             # parameter is ignored and image_dpi is fixed at 72. - JJL
-            
+
             #image_dpi = kwargs.pop("dpi", 72)
             image_dpi = 72
             _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
