@@ -181,7 +181,6 @@ files['pylab'] = [
     'shared_axis_across_figures.py',
     'shared_axis_demo.py',
     'simple_plot.py',
-    'simplification_clipping_test.py',
     'specgram_demo.py',
     'spine_placement_demo.py',
     'spy_demos.py',

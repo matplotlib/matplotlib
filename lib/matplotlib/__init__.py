@@ -886,6 +886,7 @@ default_test_modules = [
     'matplotlib.tests.test_dates',
     'matplotlib.tests.test_spines',
     'matplotlib.tests.test_image',
+    'matplotlib.tests.test_simplification',
     ]
 
 def test(verbosity=0):
