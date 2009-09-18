@@ -80,7 +80,7 @@ def compare_images( expected, actual, tol, in_decorator=False ):
 
    # img1 = "./baseline/plot.png"
    # img2 = "./output/plot.png"
-   #            
+   #
    # compare_images( img1, img2, 0.001 ):
 
    = INPUT VARIABLES
