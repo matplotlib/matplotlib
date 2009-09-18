@@ -141,6 +141,20 @@ def test_DateFormatter():
 
     fig.savefig( 'DateFormatter_fractionalSeconds' )
 
+#@image_comparison(baseline_images=['empty_date_bug'])
+@knownfailureif(True)
+def empty_date_with_year_formatter():
+    # exposes sf bug 2861426: https://sourceforge.net/tracker/?func=detail&aid=2861426&group_id=80706&atid=560720
+    import matplotlib.dates as dates
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    yearFmt = dates.DateFormatter('%Y')
+    ax.xaxis.set_major_formatter(yearFmt)
+
+    fig.savefig('empty_date_bug')
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
