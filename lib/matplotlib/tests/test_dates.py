@@ -143,7 +143,7 @@ def test_DateFormatter():
 
 #@image_comparison(baseline_images=['empty_date_bug'])
 @knownfailureif(True)
-def empty_date_with_year_formatter():
+def test_empty_date_with_year_formatter():
     # exposes sf bug 2861426: https://sourceforge.net/tracker/?func=detail&aid=2861426&group_id=80706&atid=560720
     import matplotlib.dates as dates
 
