@@ -1001,7 +1001,7 @@ class ArtistInspector:
             s = s.replace('\n', ' ')
             if len(s)>50:
                 s = s[:50] + '...'
-            name = self.aliased_name(name[4:])
+            name = self.aliased_name(name)
             lines.append('    %s = %s' %(name, s))
         return lines
 
