@@ -177,11 +177,11 @@ def detrend(x, key=None):
 def demean(x, axis=0):
     "Return x minus its mean along the specified axis"
     x = np.asarray(x)
-    if axis:
-        ind = [slice(None)] * axis
-        ind.append(np.newaxis)
-        return x - x.mean(axis)[ind]
-    return x - x.mean(axis)
+    if axis == 0 or axis is None or x.ndim <= 1:
+        return x - x.mean(axis)
+    ind = [slice(None)] * x.ndim
+    ind[axis] = np.newaxis
+    return x - x.mean(axis)[ind]
 
 def detrend_mean(x):
     "Return x minus the mean(x)"
