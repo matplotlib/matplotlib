@@ -780,11 +780,12 @@ class maxdict(dict):
         self.maxsize = maxsize
         self._killkeys = []
     def __setitem__(self, k, v):
-        if len(self)>=self.maxsize:
-            del self[self._killkeys[0]]
-            del self._killkeys[0]
+        if k not in self:
+            if len(self)>=self.maxsize:
+                del self[self._killkeys[0]]
+                del self._killkeys[0]
+            self._killkeys.append(k)
         dict.__setitem__(self, k, v)
-        self._killkeys.append(k)
 
 
 
