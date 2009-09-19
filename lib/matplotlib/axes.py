@@ -204,7 +204,7 @@ class _process_plot_var_args:
             bx = self.axes.xaxis.update_units(x)
             by = self.axes.yaxis.update_units(y)
 
-	    if self.command!='plot':
+            if self.command!='plot':
                 # the Line2D class can handle unitized data, with
                 # support for post hoc unit changes etc.  Other mpl
                 # artists, eg Polygon which _process_plot_var_args
@@ -4179,13 +4179,6 @@ class Axes(martist.Artist):
         else:
             raise ValueError, 'invalid orientation: %s' % orientation
 
-
-        # do not convert to array here as unit info is lost
-        #left = np.asarray(left)
-        #height = np.asarray(height)
-        #width = np.asarray(width)
-        #bottom = np.asarray(bottom)
-
         if len(linewidth) < nbars:
             linewidth *= nbars
 
@@ -4300,7 +4293,7 @@ class Axes(martist.Artist):
 
         if adjust_xlim:
             xmin, xmax = self.dataLim.intervalx
-            xmin = np.amin(width[width!=0]) # filter out the 0 width rects
+            xmin = np.amin([w for w in width if w > 0])
             if xerr is not None:
                 xmin = xmin - np.amax(xerr)
             xmin = max(xmin*0.9, 1e-100)
@@ -4308,7 +4301,7 @@ class Axes(martist.Artist):
 
         if adjust_ylim:
             ymin, ymax = self.dataLim.intervaly
-            ymin = np.amin(height[height!=0]) # filter out the 0 height rects
+            ymin = np.amin([h for h in height if h > 0])
             if yerr is not None:
                 ymin = ymin - np.amax(yerr)
             ymin = max(ymin*0.9, 1e-100)
