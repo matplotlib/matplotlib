@@ -2306,16 +2306,14 @@ class Axes(martist.Artist):
         """
         # should be enough to inform the unit conversion interface
         # dates are comng in
-        self.xaxis.update_units(datetime.date(2009,1,1))
+        self.xaxis.axis_date()
 
     def yaxis_date(self, tz=None):
         """Sets up y-axis ticks and labels that treat the y data as dates.
 
         *tz* is the time zone to use in labeling dates.  Defaults to rc value.
         """
-        # should be enough to inform the unit conversion interface
-        # dates are comng in
-        self.yaxis.update_units(datetime.date(2009,1,1))
+        self.yaxis.axis_date()
 
     def format_xdata(self, x):
         """

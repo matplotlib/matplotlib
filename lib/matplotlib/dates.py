@@ -290,6 +290,8 @@ class DateFormatter(ticker.Formatter):
         self.tz = tz
 
     def __call__(self, x, pos=0):
+        if x==0:
+            raise ValueError('DateFormatter found a value of x=0, which is an illegal date.  This usually occurs because you have not informed the axis that it is plotting dates, eg with ax.xaxis_date()')
         dt = num2date(x, self.tz)
         return self.strftime(dt, self.fmt)
 
@@ -430,6 +432,7 @@ class AutoDateFormatter(ticker.Formatter):
            }
 
     def __call__(self, x, pos=0):
+
         scale = float( self._locator._get_unit() )
 
         fmt = self.defaultfmt
@@ -1065,10 +1068,10 @@ class DateConverter(units.ConversionInterface):
 
         majloc = AutoDateLocator(tz=unit)
         majfmt = AutoDateFormatter(majloc, tz=unit)
-        datemin = datetime.date(2000, 1, 1) 
-        datemax = datetime.date(2010, 1, 1)  
+        datemin = datetime.date(2000, 1, 1)
+        datemax = datetime.date(2010, 1, 1)
 
-        return units.AxisInfo( majloc=majloc, majfmt=majfmt, label='', 
+        return units.AxisInfo( majloc=majloc, majfmt=majfmt, label='',
                                default_limits=(datemin, datemax))
 
     @staticmethod

@@ -900,7 +900,7 @@ def test(verbosity=0):
     backend = rcParams['backend']
     original_params = rcParams.copy()
 
-    use('Agg') # use Agg backend for these tests
+    use('Agg', warn=False) # use Agg backend for these tests
 
     # These settings *must* be hardcoded for running the comparison
     # tests and are not necessarily the default values as specified in
@@ -922,7 +922,7 @@ def test(verbosity=0):
                         )
 
     # restore the old backend and rcParams
-    use(backend)
+    use(backend, warn=False)
     rcParams.update(original_params)
     return success
 
