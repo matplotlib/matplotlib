@@ -1479,7 +1479,14 @@ class RendererPdf(RendererBase):
         dvi.close()
 
         # Gather font information and do some setup for combining
-        # characters into strings.
+        # characters into strings. The variable seq will contain a
+        # sequence of font and text entries. A font entry is a list
+        # ['font', name, size] where name is a Name object for the
+        # font. A text entry is ['text', x, y, glyphs, x+w] where x
+        # and y are the starting coordinates, w is the width, and
+        # glyphs is a list; in this phase it will always contain just
+        # one one-character string, but later it may have longer
+        # strings interspersed with kern amounts.
         oldfont, seq = None, []
         for x1, y1, dvifont, glyph, width in page.text:
             if dvifont != oldfont:
@@ -1499,16 +1506,18 @@ class RendererPdf(RendererBase):
         # Find consecutive text strings with constant y coordinate and
         # combine into a sequence of strings and kerns, or just one
         # string (if any kerns would be less than 0.1 points).
-        i, curx = 0, 0
+        i, curx, fontsize = 0, 0, None
         while i < len(seq)-1:
             elt, next = seq[i:i+2]
-            if elt[0] == next[0] == 'text' and elt[2] == next[2]:
+            if elt[0] == 'font':
+                fontsize = elt[2]
+            elif elt[0] == next[0] == 'text' and elt[2] == next[2]:
                 offset = elt[4] - next[1]
                 if abs(offset) < 0.1:
                     elt[3][-1] += next[3][0]
                     elt[4] += next[4]-next[1]
                 else:
-                    elt[3] += [offset*1000.0/dvifont.size, next[3][0]]
+                    elt[3] += [offset*1000.0/fontsize, next[3][0]]
                     elt[4] = next[4]
                 del seq[i+1]
                 continue
