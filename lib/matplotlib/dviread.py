@@ -415,7 +415,7 @@ class DviFont(object):
             scale, tfm, texname, vf
         self.size = scale * (72.0 / (72.27 * 2**16))
         try:
-            nchars = max(tfm.width.iterkeys())
+            nchars = max(tfm.width.iterkeys()) + 1
         except ValueError:
             nchars = 0
         self.widths = [ (1000*tfm.width.get(char, 0)) >> 20
@@ -619,11 +619,10 @@ class Tfm(object):
         widths, heights, depths = \
             [ struct.unpack('!%dI' % (len(x)/4), x)
               for x in (widths, heights, depths) ]
-        for i in range(ec-bc):
-            self.width[bc+i] = _fix2comp(widths[ord(char_info[4*i])])
-            self.height[bc+i] = _fix2comp(heights[ord(char_info[4*i+1]) >> 4])
-            self.depth[bc+i] = _fix2comp(depths[ord(char_info[4*i+1]) & 0xf])
-
+        for idx, char in enumerate(range(bc, ec+1)):
+            self.width[char] = _fix2comp(widths[ord(char_info[4*idx])])
+            self.height[char] = _fix2comp(heights[ord(char_info[4*idx+1]) >> 4])
+            self.depth[char] = _fix2comp(depths[ord(char_info[4*idx+1]) & 0xf])
 
 class PsfontsMap(object):
     """
