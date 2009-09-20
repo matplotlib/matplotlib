@@ -88,8 +88,7 @@ class Dvi(object):
                 e = 0           # zero depth
             else:               # glyph
                 x,y,font,g,w = elt
-                h = _mul2012(font._scale, font._tfm.height[g])
-                e = _mul2012(font._scale, font._tfm.depth[g])
+                h,e = font._height_depth_of(g)
             minx = min(minx, x)
             miny = min(miny, y - h)
             maxx = max(maxx, x + w)
@@ -443,6 +442,24 @@ class DviFont(object):
             'debug')
         return 0
 
+    def _height_depth_of(self, char):
+        """
+        Height and depth of char in dvi units. For internal use by dviread.py.
+        """
+
+        result = []
+        for metric,name in ((self._tfm.height, "height"),
+                            (self._tfm.depth, "depth")):
+            value = metric.get(char, None)
+            if value is None:
+                matplotlib.verbose.report(
+                    'No %s for char %d in font %s' % (name, char, self.texname),
+                    'debug')
+                result.append(0)
+            else:
+                result.append(_mul2012(value, self._scale))
+        return result
+    
 class Vf(Dvi):
     """
     A virtual font (\*.vf file) containing subroutines for dvi files.
