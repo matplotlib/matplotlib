@@ -987,12 +987,17 @@ class Axis(artist.Artist):
 
         converter = munits.registry.get_converter(data)
         if converter is None: return False
+
+        neednew = self.converter!=converter
         self.converter = converter
         default = self.converter.default_units(data, self)
         #print 'update units: default="%s", units=%s"'%(default, self.units)
         if default is not None and self.units is None:
             self.set_units(default)
-        self._update_axisinfo()
+
+
+        if neednew:
+            self._update_axisinfo()
         return True
 
     def _update_axisinfo(self):
@@ -1195,6 +1200,17 @@ class Axis(artist.Artist):
     def zoom(self, direction):
         "Zoom in/out on axis; if *direction* is >0 zoom in, else zoom out"
         self.major.locator.zoom(direction)
+
+
+    def axis_date(self):
+        """
+        Sets up x-axis ticks and labels that treat the x data as dates.
+        """
+        import datetime
+        # should be enough to inform the unit conversion interface
+        # dates are comng in
+        self.update_units(datetime.date(2009,1,1))
+
 
 class XAxis(Axis):
     __name__ = 'xaxis'
@@ -1442,7 +1458,7 @@ class XAxis(Axis):
         if not dataMutated or not viewMutated:
             if self.converter is not None:
                 info = self.converter.axisinfo(self.units, self)
-                if info.default_limits is not None:            
+                if info.default_limits is not None:
                     valmin, valmax = info.default_limits
                     xmin = self.converter.convert(valmin, self.units, self)
                     xmax = self.converter.convert(valmax, self.units, self)
@@ -1451,7 +1467,7 @@ class XAxis(Axis):
             if not viewMutated:
                 self.axes.viewLim.intervalx = xmin, xmax
 
-            
+
 
 class YAxis(Axis):
     __name__ = 'yaxis'
@@ -1707,7 +1723,7 @@ class YAxis(Axis):
         if not dataMutated or not viewMutated:
             if self.converter is not None:
                 info = self.converter.axisinfo(self.units, self)
-                if info.default_limits is not None:            
+                if info.default_limits is not None:
                     valmin, valmax = info.default_limits
                     ymin = self.converter.convert(valmin, self.units, self)
                     ymax = self.converter.convert(valmax, self.units, self)
@@ -1716,4 +1732,4 @@ class YAxis(Axis):
             if not viewMutated:
                 self.axes.viewLim.intervaly = ymin, ymax
 
-            
+

@@ -317,7 +317,7 @@ def is_scalar(obj):
 def is_numlike(obj):
     'return true if *obj* looks like a number'
     try: obj+1
-    except TypeError: return False
+    except: return False
     else: return True
 
 def to_filehandle(fname, flag='rU', return_opened=False):
