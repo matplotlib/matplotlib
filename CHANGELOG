@@ -1,3 +1,7 @@
+2009-09-20 Prevent exception in case of missing height and depth information
+           in a TeX font - this doesn't make the typesetting right, but prevents
+           the crash - JKS
+
 2009-09-15 Don't fail on AFM files containing floating-point bounding boxes - JKS
 
 2009-08-06 Tagging the 0.99.0 release at svn r7397 - JDH
