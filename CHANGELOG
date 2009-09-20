@@ -1,5 +1,7 @@
+2009-09-20 Fix usetex spacing errors in pdf backend. - JKS
+
 2009-09-20 Fix off-by-one error in dviread.Tfm, and additionally protect
-           against exceptions in case a dvi font is missing some metrics - JKS
+           against exceptions in case a dvi font is missing some metrics. - JKS
 
 2009-09-15 Don't fail on AFM files containing floating-point bounding boxes - JKS
 
