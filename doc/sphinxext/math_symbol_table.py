@@ -128,25 +128,14 @@ def run(state_machine):
     state_machine.insert_input(lines, "Symbol table")
     return []
 
-try:
-    from docutils.parsers.rst import Directive
-except ImportError:
-    from docutils.parsers.rst.directives import _directives
-    def math_symbol_table_directive(name, arguments, options, content, lineno,
-                                    content_offset, block_text, state, state_machine):
-        return run(state_machine)
-    math_symbol_table_directive.arguments = None
-    math_symbol_table_directive.options = {}
-    math_symbol_table_directive.content = False
-    _directives['math_symbol_table'] = math_symbol_table_directive
-else:
-    class math_symbol_table_directive(Directive):
-        has_content = False
-        def run(self):
-            return run(self.state_machine)
-    from docutils.parsers.rst import directives
-    directives.register_directive('math_symbol_table',
-                                  math_symbol_table_directive)
+def math_symbol_table_directive(name, arguments, options, content, lineno,
+                                content_offset, block_text, state, state_machine):
+    return run(state_machine)
+
+def setup(app):
+    app.add_directive(
+        'math_symbol_table', math_symbol_table_directive,
+        False, (0, 1, 0))
 
 if __name__ == "__main__":
     # Do some verification of the tables
