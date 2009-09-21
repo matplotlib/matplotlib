@@ -170,6 +170,7 @@ def run_code(plot_path, function_name, plot_code):
         stdout = sys.stdout
         sys.stdout = cStringIO.StringIO()
         os.chdir(path)
+        fd = None
         try:
             fd = open(fname)
             module = imp.load_module(
@@ -178,7 +179,8 @@ def run_code(plot_path, function_name, plot_code):
             del sys.path[0]
             os.chdir(pwd)
             sys.stdout = stdout
-            fd.close()
+            if fd is not None:
+                fd.close()
 
         if function_name is not None:
             getattr(module, function_name)()
