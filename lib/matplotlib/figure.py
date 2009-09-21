@@ -300,7 +300,7 @@ class Figure(Artist):
 
         Example::
 
-          fig.subtitle('this is the figure title', fontsize=12)
+          fig.suptitle('this is the figure title', fontsize=12)
         """
         x = kwargs.pop('x', 0.5)
         y = kwargs.pop('y', 0.98)
