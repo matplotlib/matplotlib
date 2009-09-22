@@ -30,7 +30,7 @@ def html():
     check_build()
     shutil.copy('../lib/matplotlib/mpl-data/matplotlibrc', '_static/matplotlibrc')
     if small_docs:
-        options = "-D plot_formats=\"['png']\""
+        options = "-D plot_formats=\"[('png', 80)]\""
     else:
         options = ''
     if os.system('sphinx-build %s -P -b html -d build/doctrees . build/html' % options):
