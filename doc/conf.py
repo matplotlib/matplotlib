@@ -18,10 +18,6 @@ import sys, os
 # absolute, like shown here.
 sys.path.append(os.path.abspath('sphinxext'))
 
-# Import support for ipython console session syntax highlighting (lives
-# in the sphinxext directory defined above)
-import ipython_console_highlighting
-
 # General configuration
 # ---------------------
 
@@ -30,7 +26,8 @@ import ipython_console_highlighting
 extensions = ['matplotlib.sphinxext.mathmpl', 'math_symbol_table',
               'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
               'matplotlib.sphinxext.plot_directive', 'inheritance_diagram',
-              'gen_gallery', 'gen_rst']
+              'gen_gallery', 'gen_rst',
+              'matplotlib.sphinxext.ipython_console_highlighting']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
