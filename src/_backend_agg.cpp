@@ -599,6 +599,12 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
     agg::serialized_scanlines_adaptor_aa8 sa;
     agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
 
+    agg::rect_d clipping_rect(
+      -(scanlines.min_x() + 1.0),
+      -(scanlines.min_y() + 1.0),
+      width + scanlines.max_x() + 1.0,
+      height + scanlines.max_y() + 1.0);
+
     if (has_clippath) {
       while (path_curve.vertex(&x, &y) != agg::path_cmd_stop) {
         if (MPL_notisfinite64(x) || MPL_notisfinite64(y)) {
@@ -607,13 +613,13 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
         x = (double)(int)x; y = (double)(int)y;
 
-	// if x or y is close to the width or height, the filled
-	// region could be inside the boundary even if the center is
-	// out.  But at some point we need to cull these points
+        // Cull points outside the boundary of the image.  Values
+        // that are too large may overflow and create segfaults.
 	// because they can create segfaults of they overflow; eg
-	// https://sourceforge.net/tracker/?func=detail&aid=2865490&group_id=80706&atid=560720
-	if (fabs(x)>(2*width)) continue;
-	if (fabs(y)>(2*height)) continue;
+	// http://sourceforge.net/tracker/?func=detail&aid=2865490&group_id=80706&atid=560720
+        if (!clipping_rect.hit_test(x, y)) {
+          continue;
+        }
 
 	pixfmt_amask_type pfa(pixFmt, alphaMask);
 	amask_ren_type r(pfa);
@@ -636,13 +642,13 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
         x = (double)(int)x; y = (double)(int)y;
 
-	// if x or y is close to the width or height, the filled
-	// region could be inside the boundary even if the center is
-	// out.  But at some point we need to cull these points
+        // Cull points outside the boundary of the image.  Values
+        // that are too large may overflow and create segfaults.
 	// because they can create segfaults of they overflow; eg
-	// https://sourceforge.net/tracker/?func=detail&aid=2865490&group_id=80706&atid=560720
-	if (fabs(x)>(2*width)) continue;
-	if (fabs(y)>(2*height)) continue;
+	// http://sourceforge.net/tracker/?func=detail&aid=2865490&group_id=80706&atid=560720
+        if (!clipping_rect.hit_test(x, y)) {
+          continue;
+        }
 
 	if (face.first) {
 	  rendererAA.color(face.second);
