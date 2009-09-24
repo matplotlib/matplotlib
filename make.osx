@@ -1,7 +1,6 @@
 # build mpl into a local install dir with
 # PREFIX=/Users/jdhunter/dev make -f make.osx fetch deps mpl_install
 
-MPLVERSION=0.99.1
 PYVERSION=2.6
 PYTHON=python${PYVERSION}
 ZLIBVERSION=1.2.3
@@ -92,6 +91,7 @@ binaries:
 	cp release/osx/data/setup.cfg release/osx/data/ReadMe.txt . &&\
 	export CFLAGS=${CFLAGS} &&\
 	export LDFLAGS=${LDFLAGS} &&\
+	rm -f ${PREFIX}/lib/*.dylib &&\
 	/Library/Frameworks/Python.framework/Versions/${PYVERSION}/bin/bdist_mpkg --readme=ReadMe.txt &&\
 	hdiutil create -srcdir dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.mpkg  dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.dmg &&\
 	${PYTHON} setupegg.py bdist_egg

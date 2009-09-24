@@ -608,6 +608,14 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
         x = (double)(int)x; y = (double)(int)y;
 
+	// if x or y is close to the width or height, the filled
+	// region could be inside the boundary even if the center is
+	// out.  But at some point we need to cull these points
+	// because they can create segfaults of they overflow; eg
+	// https://sourceforge.net/tracker/?func=detail&aid=2865490&group_id=80706&atid=560720
+	if (fabs(x)>(2*width)) continue;
+	if (fabs(y)>(2*height)) continue;
+
 	pixfmt_amask_type pfa(pixFmt, alphaMask);
 	amask_ren_type r(pfa);
 	amask_aa_renderer_type ren(r);
@@ -628,6 +636,14 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
         }
 
         x = (double)(int)x; y = (double)(int)y;
+
+	// if x or y is close to the width or height, the filled
+	// region could be inside the boundary even if the center is
+	// out.  But at some point we need to cull these points
+	// because they can create segfaults of they overflow; eg
+	// https://sourceforge.net/tracker/?func=detail&aid=2865490&group_id=80706&atid=560720
+	if (fabs(x)>(2*width)) continue;
+	if (fabs(y)>(2*height)) continue;
 
 	if (face.first) {
 	  rendererAA.color(face.second);
