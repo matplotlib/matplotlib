@@ -2,7 +2,7 @@
 # PREFIX=/Users/jdhunter/dev make -f make.osx fetch deps mpl_install
 
 MPLVERSION=0.99.1.1
-PYVERSION=2.5
+PYVERSION=2.6
 PYTHON=python${PYVERSION}
 ZLIBVERSION=1.2.3
 PNGVERSION=1.2.33
