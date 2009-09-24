@@ -1446,7 +1446,7 @@ class Axes(martist.Artist):
 
         # cannot check for '==0' since unitized data may not compare to zero
         if (isinstance(patch, mpatches.Rectangle) and
-                    ((not patch.get_width()) or (notpatch.get_height()))):
+                    ((not patch.get_width()) or (not patch.get_height()))):
             return
         vertices = patch.get_path().vertices
         if vertices.size > 0:
