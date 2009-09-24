@@ -1444,8 +1444,9 @@ class Axes(martist.Artist):
         # scaling.  We'll ignore rects with zero height or width in
         # the auto-scaling
 
+        # cannot check for '==0' since unitized data may not compare to zero
         if (isinstance(patch, mpatches.Rectangle) and
-                    (patch.get_width()==0 or patch.get_height()==0)):
+                    ((not patch.get_width()) or (notpatch.get_height()))):
             return
         vertices = patch.get_path().vertices
         if vertices.size > 0:
