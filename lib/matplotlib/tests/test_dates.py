@@ -145,6 +145,10 @@ def test_DateFormatter():
 @knownfailureif(True)
 def test_empty_date_with_year_formatter():
     # exposes sf bug 2861426: https://sourceforge.net/tracker/?func=detail&aid=2861426&group_id=80706&atid=560720
+
+    # update: I am no loner believe this is a bug, as I commented on
+    # the tracker.  The question is now: what to do with this test
+
     import matplotlib.dates as dates
 
     fig = plt.figure()
