@@ -518,6 +518,11 @@ class Quiver(collections.PolyCollection):
         xy = (X+Y*1j) * np.exp(1j*theta)*self.width
         xy = xy[:,:,np.newaxis]
         XY = np.concatenate((xy.real, xy.imag), axis=2)
+        if self.Umask is not ma.nomask:
+            XY = ma.array(XY)
+            XY[self.Umask] = ma.masked
+            # This might be handled more efficiently with nans, given
+            # that nans will end up in the paths anyway.
 
         return XY
 
@@ -575,10 +580,7 @@ class Quiver(collections.PolyCollection):
             tooshort = np.repeat(tooshort, 8, 1)
             np.putmask(X, tooshort, X1)
             np.putmask(Y, tooshort, Y1)
-        if self.Umask is not ma.nomask:
-            mask = np.repeat(self.Umask[:,np.newaxis], 8, 1)
-            X = ma.array(X, mask=mask, copy=False)
-            Y = ma.array(Y, mask=mask, copy=False)
+        # Mask handling is deferred to the caller, _make_verts.
         return X, Y
 
     quiver_doc = _quiver_doc
