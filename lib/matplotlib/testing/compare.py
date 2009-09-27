@@ -8,6 +8,7 @@ import operator
 import os
 import numpy as np
 import shutil
+import subprocess
 
 #=======================================================================
 
@@ -73,6 +74,33 @@ def compare_float( expected, actual, relTol = None, absTol = None ):
       return None
 
 #-----------------------------------------------------------------------
+# A dictionary that maps filename extensions to functions that map
+# parameters old and new to a list that can be passed to Popen to
+# convert files with that extension to png format.
+converter = { 'pdf': lambda old, new: \
+                 ['gs', '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
+                  '-sOutputFile=' + new, old],
+              }
+def convert(filename):
+   '''Convert the named file into a png file.
+   Returns the name of the created file.
+   '''
+   base, extension = filename.rsplit('.', 1)
+   if extension not in converter:
+      raise KeyError, "Don't know how to convert %s files to png" % extension
+   newname = base + '_' + extension + '.png'
+   cmd = converter[extension](filename, newname)
+   pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+   stdout, stderr = pipe.communicate()
+   if not os.path.exists(newname):
+      msg = "Conversion command failed:\n%s\n" % ' '.join(cmd)
+      if stdout:
+         msg += "Standard output:\n%s\n" % stdout
+      if stderr:
+         msg += "Standard error:\n%s\n" % stderr
+      raise IOError, msg
+   return newname
+
 def compare_images( expected, actual, tol, in_decorator=False ):
    '''Compare two image files - not the greatest, but fast and good enough.
 
@@ -99,7 +127,15 @@ def compare_images( expected, actual, tol, in_decorator=False ):
             "be installed.  To run tests without using PIL, then use " \
             "the '--without-tag=PIL' command-line option.\n"           \
             "Importing PIL failed with the following error:\n%s" % e
-      return msg
+      if in_decorator:
+         raise NotImplementedError, e
+      else:
+         return msg
+
+   # Convert the image to png
+   extension = expected.split('.')[-1]
+   if extension != 'png':
+      expected, actual = convert(expected), convert(actual)
 
    # open the image files and remove the alpha channel (if it exists)
    expectedImage = Image.open( expected ).convert("RGB")

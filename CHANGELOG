@@ -1,3 +1,5 @@
+2009-09-27 Beginnings of a capability to test the pdf backend. - JKS
+
 2009-09-27 Add a savefig.extension rcparam to control the default 
            filename extension used by savefig. - JKS
 
