@@ -986,7 +986,11 @@ class Figure(Artist):
             :class:`~matplotlib.backends.backend_pdf.PdfPages`.
 
             If *format* is *None* and *fname* is a string, the output
-            format is deduced from the extension of the filename.
+            format is deduced from the extension of the filename. If
+            the filename has no extension, the value of the rc parameter
+            ``savefig.extension`` is used. If that value is 'auto',
+            the backend determines the extension.
+
             If *fname* is not a string, remember to specify *format* to
             ensure that the correct backend is used.
 
@@ -1033,6 +1037,11 @@ class Figure(Artist):
             if key not in kwargs:
                 kwargs[key] = rcParams['savefig.%s'%key]
 
+        extension = rcParams['savefig.extension']
+        if args and '.' not in args[0] and extension != 'auto':
+            fname = args[0] + '.' + extension
+            args = (fname,) + args[1:]
+                
         transparent = kwargs.pop('transparent', False)
         if transparent:
             original_figure_alpha = self.patch.get_alpha()
