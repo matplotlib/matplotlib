@@ -2,6 +2,7 @@ from matplotlib.testing.noseclasses import KnownFailureTest, \
      KnownFailureDidNotFailTest, ImageComparisonFailure
 import os, sys
 import nose
+import matplotlib
 import matplotlib.tests
 from matplotlib.testing.compare import compare_images
 
@@ -48,42 +49,54 @@ def image_comparison(baseline_images=None):
         raise ValueError('baseline_images must be specified')
     def compare_images_decorator(func):
         def decorated_compare_images(*args,**kwargs):
-            result = func(*args,**kwargs)
-            extension = '.png' # TODO: test more backends
-            for fname in baseline_images:
-                # FIXME: place "actual", or current images, images in
-                # a more reasonable location than the current
-                # directory. Also, perhaps put them in sub-directory
-                # according to the name of the test module like the
-                # baseline images.
-                actual = fname + extension
 
-                # compute filename for baseline image
-                module_name = func.__module__
-                if module_name=='__main__':
-                    # FIXME: this won't work for nested packages in matplotlib.tests
-                    import warnings
-                    warnings.warn('test module run as script. guessing baseline image locations')
-                    script_name = sys.argv[0]
-                    basedir = os.path.abspath(os.path.dirname(script_name))
-                    subdir = os.path.splitext(os.path.split(script_name)[1])[0]
-                else:
-                    mods = module_name.split('.')
-                    assert mods.pop(0)=='matplotlib'
-                    assert mods.pop(0)=='tests'
-                    subdir = os.path.join(*mods)
-                    basedir = os.path.dirname(matplotlib.tests.__file__)
-                baseline_dir = os.path.join(basedir,'baseline_images',subdir)
-                expected = os.path.join(baseline_dir,fname) + extension
+            # compute baseline image directory
+            module_name = func.__module__
+            if module_name=='__main__':
+                # FIXME: this won't work for nested packages in matplotlib.tests
+                import warnings
+                warnings.warn('test module run as script. guessing baseline image locations')
+                script_name = sys.argv[0]
+                basedir = os.path.abspath(os.path.dirname(script_name))
+                subdir = os.path.splitext(os.path.split(script_name)[1])[0]
+            else:
+                mods = module_name.split('.')
+                assert mods.pop(0)=='matplotlib'
+                assert mods.pop(0)=='tests'
+                subdir = os.path.join(*mods)
+                basedir = os.path.dirname(matplotlib.tests.__file__)
+            baseline_dir = os.path.join(basedir,'baseline_images',subdir)
+            result_dir = os.path.join(basedir,'current_images',subdir)
+            if not os.path.exists(result_dir):
+                try:
+                    # make the current_images directory first
+                    os.mkdir(os.path.join(basedir,'current_images'))
+                except OSError:
+                    pass # probably exists already
+                os.mkdir(result_dir)
 
-                # compare the images
-                tol=1e-3 # default tolerance
-                err = compare_images( expected, actual, tol,
-                                      in_decorator=True )
-                if err:
-                    raise ImageComparisonFailure(
-                        'images not close: %(actual)s vs. %(expected)s '
-                        '(RMS %(rms).3f)'%err)
-            return result
+            for extension in ['png', 'pdf']:
+                # set the default format of savefig
+                matplotlib.rc('savefig', extension=extension)
+                # change to the result directory for the duration of the test
+                old_dir = os.getcwd()
+                os.chdir(result_dir)
+                try:
+                    last_result = func(*args,**kwargs) # actually call the test function
+                finally:
+                    os.chdir(old_dir)
+                for fname in baseline_images:
+                    actual = os.path.join(result_dir, fname) + '.' + extension
+                    expected = os.path.join(baseline_dir,fname) + '.' + extension
+
+                    # compare the images
+                    tol=1e-3 # default tolerance
+                    err = compare_images( expected, actual, tol,
+                                          in_decorator=True )
+                    if err:
+                        raise ImageComparisonFailure(
+                            'images not close: %(actual)s vs. %(expected)s '
+                            '(RMS %(rms).3f)'%err)
+            return last_result
         return nose.tools.make_decorator(func)(decorated_compare_images)
     return compare_images_decorator
