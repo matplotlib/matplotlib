@@ -1,3 +1,6 @@
+2009-09-27 Add a savefig.extension rcparam to control the default 
+           filename extension used by savefig. - JKS
+
 ===============================================
 2009-09-21 Tagged for release 0.99.1
 
