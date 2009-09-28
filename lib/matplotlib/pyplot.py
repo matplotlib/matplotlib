@@ -401,7 +401,7 @@ def figimage(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     ret =  gcf().figimage(*args, **kwargs)
     draw_if_interactive()
-    gci._current = ret
+    sci(ret)
     return ret
 
 def figlegend(handles, labels, loc, **kwargs):
@@ -1444,7 +1444,7 @@ def matshow(A, fignum=None, **kw):
         ax  = fig.add_axes([0.15, 0.09, 0.775, 0.775])
 
     im = ax.matshow(A, **kw)
-    gci._current = im
+    sci(im)
 
     draw_if_interactive()
     return im
@@ -2629,7 +2629,3 @@ def spectral():
     if im is not None:
         im.set_cmap(cm.spectral)
     draw_if_interactive()
-
-
-
-
