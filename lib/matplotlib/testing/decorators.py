@@ -4,7 +4,7 @@ import os, sys
 import nose
 import matplotlib
 import matplotlib.tests
-from matplotlib.testing.compare import compare_images
+from matplotlib.testing.compare import comparable_formats, compare_images
 
 def knownfailureif(fail_condition, msg=None):
     """
@@ -88,6 +88,11 @@ def image_comparison(baseline_images=None):
                 for fname in baseline_images:
                     actual = os.path.join(result_dir, fname) + '.' + extension
                     expected = os.path.join(baseline_dir,fname) + '.' + extension
+                    if (extension not in comparable_formats()
+                        or not os.path.exists(expected)):
+                        # FIXME: Should it be a known fail if this format
+                        # cannot be compared in this environment?
+                        continue
 
                     # compare the images
                     tol=1e-3 # default tolerance

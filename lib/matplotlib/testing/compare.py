@@ -3,18 +3,21 @@
 """
 #=======================================================================
 
+import matplotlib
 import math
 import operator
 import os
 import numpy as np
 import shutil
 import subprocess
+import sys
 
 #=======================================================================
 
 __all__ = [
             'compare_float',
             'compare_images',
+            'comparable_formats',
           ]
 
 #-----------------------------------------------------------------------
@@ -77,17 +80,32 @@ def compare_float( expected, actual, relTol = None, absTol = None ):
 # A dictionary that maps filename extensions to functions that map
 # parameters old and new to a list that can be passed to Popen to
 # convert files with that extension to png format.
-converter = { 'pdf': lambda old, new: \
-                 ['gs', '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
-                  '-sOutputFile=' + new, old],
-              }
+converter = { }
+
+if matplotlib.checkdep_ghostscript() is not None:
+   # FIXME: make checkdep_ghostscript return the command
+   if sys.platform == 'win32':
+      gs = 'gswin32c'
+   else:
+      gs = 'gs'
+   cmd = lambda old, new: \
+       [gs, '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
+        '-sOutputFile=' + new, old]
+   converter['pdf'] = cmd
+   converter['eps'] = cmd
+
+def comparable_formats():
+   '''Returns the list of file formats that compare_images can compare
+   on this system.'''
+   return ['png'] + converter.keys()
+
 def convert(filename):
    '''Convert the named file into a png file.
    Returns the name of the created file.
    '''
    base, extension = filename.rsplit('.', 1)
    if extension not in converter:
-      raise KeyError, "Don't know how to convert %s files to png" % extension
+      raise NotImplementedError, "Don't know how to convert %s files to png" % extension
    newname = base + '_' + extension + '.png'
    cmd = converter[extension](filename, newname)
    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
