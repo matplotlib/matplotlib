@@ -1062,21 +1062,28 @@ class Grouper(object):
     using :meth:`joined`, and all disjoint sets can be retreived by
     using the object as an iterator.
 
-    The objects being joined must be hashable.
+    The objects being joined must be hashable and weak-referenceable.
 
     For example:
 
-    >>> g = grouper.Grouper()
-    >>> g.join('a', 'b')
-    >>> g.join('b', 'c')
-    >>> g.join('d', 'e')
+    >>> class Foo:
+    ...     def __init__(self, s):
+    ...             self.s = s
+    ...     def __repr__(self):
+    ...             return self.s
+    ...
+    >>> a, b, c, d, e, f = [Foo(x) for x in 'abcdef']
+    >>> g = Grouper()
+    >>> g.join(a, b)
+    >>> g.join(b, c)
+    >>> g.join(d, e)
     >>> list(g)
-    [['a', 'b', 'c'], ['d', 'e']]
-    >>> g.joined('a', 'b')
+    [[d, e], [a, b, c]]
+    >>> g.joined(a, b)
     True
-    >>> g.joined('a', 'c')
+    >>> g.joined(a, c)
     True
-    >>> g.joined('a', 'd')
+    >>> g.joined(a, d)
     False
     """
     def __init__(self, init=[]):
