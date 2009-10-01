@@ -415,6 +415,7 @@ class Shadow(Patch):
 
             self.set_facecolor((r,g,b,0.5))
             self.set_edgecolor((r,g,b,0.5))
+            self.set_alpha(0.5)
 
     def _update_transform(self, renderer):
         ox = renderer.points_to_pixels(self._ox)
