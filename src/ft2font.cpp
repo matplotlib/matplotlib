@@ -898,12 +898,15 @@ FT2Font::compute_string_bbox(  ) {
   for ( size_t n = 0; n < glyphs.size(); n++ ) {
     FT_BBox glyph_bbox;
     FT_Glyph_Get_CBox( glyphs[n], ft_glyph_bbox_subpixels, &glyph_bbox );
-    if ( glyph_bbox.xMin < bbox.xMin ) bbox.xMin = glyph_bbox.xMin;
-    if ( glyph_bbox.yMin < bbox.yMin ) bbox.yMin = glyph_bbox.yMin;
-    if ( glyph_bbox.xMax > bbox.xMax ) bbox.xMax = glyph_bbox.xMax;
-    if ( glyph_bbox.yMax > bbox.yMax ) bbox.yMax = glyph_bbox.yMax;
-    right_side += glyphs[n]->advance.x >> 10;
-    if ( right_side > bbox.xMax ) bbox.xMax = right_side;
+    if (glyph_bbox.xMin == glyph_bbox.xMax) {
+      right_side += glyphs[n]->advance.x >> 10;
+      if ( right_side > bbox.xMax ) bbox.xMax = right_side;
+    } else {
+      if ( glyph_bbox.xMin < bbox.xMin ) bbox.xMin = glyph_bbox.xMin;
+      if ( glyph_bbox.yMin < bbox.yMin ) bbox.yMin = glyph_bbox.yMin;
+      if ( glyph_bbox.xMax > bbox.xMax ) bbox.xMax = glyph_bbox.xMax;
+      if ( glyph_bbox.yMax > bbox.yMax ) bbox.yMax = glyph_bbox.yMax;
+    }
   }
   /* check that we really grew the string bbox */
   if ( bbox.xMin > bbox.xMax ) {
