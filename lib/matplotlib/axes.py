@@ -3925,6 +3925,9 @@ class Axes(martist.Artist):
             The relative size of legend markers vs. original. If *None*, use rc
             settings.
 
+          *frameon*: [ True | False ]
+            if True, draw a frame.  Default is True
+
           *fancybox*: [ None | False | True ]
             if True, draw a frame with a round fancybox.  If None, use rc
 
