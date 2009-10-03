@@ -217,6 +217,31 @@ class Patch3D(Patch):
     def draw(self, renderer):
         Patch.draw(self, renderer)
 
+
+class PathPatch3D(Patch3D):
+    '''
+    3D PathPatch object.
+    '''
+
+    def __init__(self, path, **kwargs):
+        zs = kwargs.pop('zs', [])
+        zdir = kwargs.pop('zdir', 'z')
+        Patch.__init__(self, **kwargs)
+        self.set_3d_properties(path, zs, zdir)
+
+    def set_3d_properties(self, path, zs=0, zdir='z'):
+        Patch3D.set_3d_properties(self, path.vertices, zs=zs, zdir=zdir)
+        self._code3d = path.codes
+
+    def do_3d_projection(self, renderer):
+        s = self._segment3d
+        xs, ys, zs = zip(*s)
+        vxs, vys,vzs, vis = proj3d.proj_transform_clip(xs, ys, zs, renderer.M)
+        self._path2d = mpath.Path(zip(vxs, vys), self._code3d)
+        # FIXME: coloring
+        self._facecolor2d = self._facecolor3d
+        return min(vzs)
+
 def get_patch_verts(patch):
     """Return a list of vertices for the path of a patch."""
     trans = patch.get_patch_transform()
@@ -232,6 +257,15 @@ def patch_2d_to_3d(patch, z=0, zdir='z'):
     verts = get_patch_verts(patch)
     patch.__class__ = Patch3D
     patch.set_3d_properties(verts, z, zdir)
+
+def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
+    """Convert a PathPatch to a PathPatch3D object."""
+    path = pathpatch.get_path()
+    trans = pathpatch.get_patch_transform()
+
+    mpath = trans.transform_path(path)
+    pathpatch.__class__ = PathPatch3D
+    pathpatch.set_3d_properties(mpath, z, zdir)
 
 class Patch3DCollection(PatchCollection):
     '''
