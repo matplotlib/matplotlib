@@ -6293,6 +6293,7 @@ class Axes(martist.Artist):
         if self._autoscaleYon:
             self.set_ylim((ymin, ymax))
         self.images.append(im)
+        im._remove_method = lambda h: self.images.remove(h)
 
         return im
     imshow.__doc__ = cbook.dedent(imshow.__doc__) % martist.kwdocd
