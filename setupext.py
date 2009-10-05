@@ -47,6 +47,10 @@ import subprocess
 
 basedir = {
     'win32'  : ['win32_static',],
+    'linux2-alpha' : ['/usr/local', '/usr'],
+    'linux2-hppa' : ['/usr/local', '/usr'],
+    'linux2-mips' : ['/usr/local', '/usr'],
+    'linux2-sparc' : ['/usr/local', '/usr'],
     'linux2' : ['/usr/local', '/usr'],
     'linux'  : ['/usr/local', '/usr',],
     'cygwin' : ['/usr/local', '/usr',],
@@ -65,6 +69,8 @@ basedir = {
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
     'gnukfreebsd5' : ['/usr/local', '/usr'],
     'gnukfreebsd6' : ['/usr/local', '/usr'],
+    'gnukfreebsd7' : ['/usr/local', '/usr'],
+    'gnukfreebsd8' : ['/usr/local', '/usr'],
     'aix5' : ['/usr/local'],
 }
 
