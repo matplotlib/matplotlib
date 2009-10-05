@@ -6257,6 +6257,7 @@ class Axes(martist.Artist):
         if self._autoscaleYon:
             self.set_ylim((ymin, ymax))
         self.images.append(im)
+        im._remove_method = lambda h: self.images.remove(h)
 
         return im
 
