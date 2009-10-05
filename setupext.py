@@ -850,7 +850,11 @@ def query_tcltk():
         else:
             tcl_lib_dir = str(tcl.getvar('tcl_library'))
             # Guess Tk location based on Tcl location
-            tk_lib_dir = tcl_lib_dir.replace('Tcl', 'Tk').replace('tcl', 'tk')
+            (head, tail) = os.path.split(tcl_lib_dir)
+            tail = tail.replace('Tcl', 'Tk').replace('tcl', 'tk')
+            tk_lib_dir = os.path.join(head, tail)
+            if not os.path.exists(tk_lib_dir):
+                tk_lib_dir = tcl_lib_dir.replace('Tcl', 'Tk').replace('tcl', 'tk')
     else:
         # Obtain Tcl and Tk locations from Tk widget
         tk.withdraw()
