@@ -47,6 +47,10 @@ import subprocess
 
 basedir = {
     'win32'  : ['win32_static',],
+    'linux2-alpha' : ['/usr/local', '/usr'],
+    'linux2-hppa' : ['/usr/local', '/usr'],
+    'linux2-mips' : ['/usr/local', '/usr'],
+    'linux2-sparc' : ['/usr/local', '/usr'],
     'linux2' : ['/usr/local', '/usr'],
     'linux'  : ['/usr/local', '/usr',],
     'cygwin' : ['/usr/local', '/usr',],
@@ -65,6 +69,8 @@ basedir = {
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
     'gnukfreebsd5' : ['/usr/local', '/usr'],
     'gnukfreebsd6' : ['/usr/local', '/usr'],
+    'gnukfreebsd7' : ['/usr/local', '/usr'],
+    'gnukfreebsd8' : ['/usr/local', '/usr'],
     'aix5' : ['/usr/local'],
 }
 
@@ -850,7 +856,11 @@ def query_tcltk():
         else:
             tcl_lib_dir = str(tcl.getvar('tcl_library'))
             # Guess Tk location based on Tcl location
-            tk_lib_dir = tcl_lib_dir.replace('Tcl', 'Tk').replace('tcl', 'tk')
+            (head, tail) = os.path.split(tcl_lib_dir)
+            tail = tail.replace('Tcl', 'Tk').replace('tcl', 'tk')
+            tk_lib_dir = os.path.join(head, tail)
+            if not os.path.exists(tk_lib_dir):
+                tk_lib_dir = tcl_lib_dir.replace('Tcl', 'Tk').replace('tcl', 'tk')
     else:
         # Obtain Tcl and Tk locations from Tk widget
         tk.withdraw()
