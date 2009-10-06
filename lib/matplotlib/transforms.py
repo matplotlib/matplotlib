@@ -956,7 +956,7 @@ class Bbox(BboxBase):
                 self._points[1,1]!=self._points_orig[1,1])
 
 
-    
+
 
 class TransformedBbox(BboxBase):
     """
