@@ -390,18 +390,18 @@ class RendererBase:
 
         *s*
           text to be converted
-          
+
         *usetex*
           If True, use matplotlib usetex mode.
 
         *ismath*
           If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
-        
+
         text2path = self._text2path
         color = gc.get_rgb()[:3]
         fontsize = self.points_to_pixels(prop.get_size_in_points())
-        
+
         if ismath == "TeX":
             verts, codes = text2path.get_text_path(prop, s, ismath=False, usetex=True)
         else:
