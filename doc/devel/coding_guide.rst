@@ -169,15 +169,18 @@ There is an experimental `matplotlib github mirror`_ of the subversion
 repository. To make a local clone of it in the directory ``mpl.git``,
 enter the following commands::
 
-  # This will create your copy in the mpl.git directory
-  git clone git://github.com/astraw/matplotlib.git mpl.git
-  cd mpl.git
-  git config --add remote.origin.fetch +refs/remotes/*:refs/remotes/*
-  git fetch
-  git svn init --branches=branches --trunk=trunk/matplotlib --tags=tags https://matplotlib.svn.sourceforge.net/svnroot/matplotlib
 
-  # Now just get the latest svn revisions from the SourceForge SVN repository
-  git svn fetch -r 6800:HEAD
+  # Download the entire git repository into "mpl.git", name the source repository "svn".
+  git clone --origin svn git@github.com:astraw/matplotlib.git mpl.git
+
+  # Change into the newly created git repository.
+  cd mpl.git
+
+  # Setup the subversion mirroring.
+  git svn init --trunk=trunk/matplotlib --prefix=svn/ https://matplotlib.svn.sourceforge.net/svnroot/matplotlib
+
+  # Tell git svn to analyze the subversion history
+  git svn rebase -l
 
 .. _matplotlib github mirror: http://github.com/astraw/matplotlib
 
@@ -193,9 +196,9 @@ Using git
 The following is a suggested workflow for git/git-svn.
 
 Start with a virgin tree in sync with the svn trunk on the git branch
-"master"::
+"trunk"::
 
-  git checkout master
+  git checkout trunk
   git svn rebase
 
 To create a new, local branch called "whizbang-branch"::
@@ -209,72 +212,25 @@ Do make commits to the local branch::
   git commit -m "modified a bunch of files"
   # repeat this as necessary
 
-Now, go back to the master branch and append the history of your branch
-to the master branch, which will end up as the svn trunk::
+Now, go back to the trunk branch and append the history of your branch
+to the git trunk branch, which will end up as the svn trunk::
 
-  git checkout master
+  git checkout trunk
   git svn rebase # Ensure we have most recent svn
-  git rebase whizbang-branch # Append whizbang changes to master branch
+  git rebase whizbang-branch # Append whizbang changes to trunk branch
   git svn dcommit -n # Check that this will apply to svn
   git svn dcommit # Actually apply to svn
 
 Finally, you may want to continue working on your whizbang-branch, so
-rebase it to the new master::
+rebase it to the new trunk::
 
   git checkout whizbang-branch
-  git rebase master
-
-If you get the dreaded "Unable to determine upstream SVN information
-from working tree history" error when running "git svn rebase", try
-creating a new git branch based on subversion trunk and cherry pick
-your patches onto that::
-
-  git checkout -b work remotes/trunk # create a new "work" branch
-  git cherry-pick <commit> # where <commit> will get applied to new branch
+  git rebase trunk
 
 Working on a maintenance branch from git
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The matplotlib maintenance branches are also available through git.
-(Note that the ``git svn init`` line in the instructions above was
-updated to make this possible.  If you created your git mirror without
-a ``--branches`` option, you will need to perform all of the steps
-again in a new directory).
-
-You can see which branches are available with::
-
-  git branch -a
-
-To switch your working copy to the 0.98.5 maintenance branch::
-
-  git checkout v0_98_5_maint
-
-Then you probably want to (as above) create a new local branch based
-on that branch::
-
-  git checkout -b whizbang-branch
-
-When you ``git svn dcommit`` from a maintenance branch, it will commit
-to that branch, not to the trunk.
-
-While it should theoretically be possible to perform merges from a git
-maintenance branch to a git trunk and then commit those changes back
-to the SVN trunk, I have yet to find the magic incantation to make
-that work.  However, svnmerge as described `above <svn-merge>`_ can be
-used and in fact works quite well.
-
-A note about git write access
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The matplotlib developers need to figure out if there should be write
-access to the git repository. This implies using the personal URL
-(``git@github.com:astraw/matplotlib.git``) rather than the public URL
-(``git://github.com/astraw/matplotlib.git``) for the
-repository. However, doing so may make life complicated in the sense
-that then there are two writeable matplotlib repositories, which must
-be synced to prevent divergence. This is probably not an
-insurmountable problem, but it is a problem that the developers should
-reach a consensus about. Watch this space...
+The matplotlib maintenance branches are not available through git.
 
 .. _style-guide:
 
