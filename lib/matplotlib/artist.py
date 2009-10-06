@@ -88,7 +88,7 @@ class Artist(object):
         self._contains = None
         self._rasterized = None
         self._agg_filter = None
-        
+
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {} # a dict from oids to funcs
@@ -581,7 +581,7 @@ class Artist(object):
     def set_agg_filter(self, filter_func):
         """
         set agg_filter fuction.
-        
+
         """
         self._agg_filter = filter_func
 
