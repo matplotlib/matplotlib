@@ -1219,6 +1219,9 @@ class Arc(Ellipse):
         self.theta1 = theta1
         self.theta2 = theta2
 
+        self._path = Path.arc(self.theta1, self.theta2)
+
+
     @allow_rasterization
     def draw(self, renderer):
         """
@@ -1278,7 +1281,7 @@ class Arc(Ellipse):
         inv_error = (1.0 / 1.89818e-6) * 0.5
 
         if width < inv_error and height < inv_error:
-            self._path = Path.arc(self.theta1, self.theta2)
+            #self._path = Path.arc(self.theta1, self.theta2)
             return Patch.draw(self, renderer)
 
         def iter_circle_intersect_on_line(x0, y0, x1, y1):
@@ -1360,14 +1363,21 @@ class Arc(Ellipse):
         last_theta = theta1
         theta1_rad = theta1 * DEG2RAD
         inside = box_path.contains_point((np.cos(theta1_rad), np.sin(theta1_rad)))
+
+        # save original path
+        path_original = self._path
         for theta in thetas:
             if inside:
-                self._path = Path.arc(last_theta, theta, 8)
+                _path = Path.arc(last_theta, theta, 8)
                 Patch.draw(self, renderer)
                 inside = False
             else:
                 inside = True
             last_theta = theta
+
+        # restore original path
+        self._path = path_original
+
 
 def bbox_artist(artist, renderer, props=None, fill=True):
     """
