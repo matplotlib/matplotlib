@@ -16,7 +16,7 @@ import numpy as np
 import artist
 from artist import Artist, allow_rasterization
 from axes import Axes, SubplotBase, subplot_class_factory
-from cbook import flatten, allequal, Stack, iterable
+from cbook import flatten, allequal, Stack, iterable, is_string_like
 import _image
 import colorbar as cbar
 from image import FigureImage
@@ -1038,7 +1038,7 @@ class Figure(Artist):
                 kwargs[key] = rcParams['savefig.%s'%key]
 
         extension = rcParams['savefig.extension']
-        if args and '.' not in args[0] and extension != 'auto':
+        if args and is_string_like(args[0]) and '.' not in args[0] and extension != 'auto':
             fname = args[0] + '.' + extension
             args = (fname,) + args[1:]
                 
