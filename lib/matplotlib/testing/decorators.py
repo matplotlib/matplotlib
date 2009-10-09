@@ -4,6 +4,7 @@ import os, sys
 import nose
 import matplotlib
 import matplotlib.tests
+import numpy as np
 from matplotlib.testing.compare import comparable_formats, compare_images
 
 def knownfailureif(fail_condition, msg=None):
@@ -58,8 +59,19 @@ def image_comparison(baseline_images=None):
 
         def compare_images_generator():
             for extension in extensions:
-                @knownfailureif(extension not in comparable_formats(),
-                                'Cannot compare %s files on this system' % extension)
+                expected_fnames = [os.path.join(baseline_dir,fname) + '.' + extension for fname in baseline_images]
+                actual_fnames = [os.path.join(result_dir, fname) + '.' + extension for fname in baseline_images]
+                have_baseline_images = [os.path.exists(expected) for expected in expected_fnames]
+                have_baseline_image = np.all(have_baseline_images)
+                is_comparable = extension in comparable_formats()
+                if not is_comparable:
+                    fail_msg = 'Cannot compare %s files on this system' % extension
+                elif not have_baseline_image:
+                    fail_msg = 'Do not have baseline images %s' % expected_fnames
+                else:
+                    fail_msg = 'No failure expected'
+                will_fail = not (is_comparable and have_baseline_image)
+                @knownfailureif(will_fail, fail_msg )
                 def decorated_compare_images():
                     # set the default format of savefig
                     matplotlib.rc('savefig', extension=extension)
@@ -70,9 +82,7 @@ def image_comparison(baseline_images=None):
                         result = func() # actually call the test function
                     finally:
                         os.chdir(old_dir)
-                    for fname in baseline_images:
-                        actual = os.path.join(result_dir, fname) + '.' + extension
-                        expected = os.path.join(baseline_dir,fname) + '.' + extension
+                    for actual,expected in zip(actual_fnames,expected_fnames):
 
                         # compare the images
                         tol=1e-3 # default tolerance
