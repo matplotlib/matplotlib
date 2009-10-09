@@ -54,11 +54,7 @@ def image_comparison(baseline_images=None):
     # separate test case for each file format.
     def compare_images_decorator(func):
         baseline_dir, result_dir = _image_directories(func)
-        # Only run the test if there is a baseline image in the
-        # correct format for comparison.
-        extensions = [ext for ext in ['png', 'pdf']
-                      if os.path.exists(os.path.join(
-                          baseline_dir, baseline_images[0] + '.' + ext))]
+        extensions = ['png', 'pdf']
 
         def compare_images_generator():
             for extension in extensions:
