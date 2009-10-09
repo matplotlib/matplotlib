@@ -106,6 +106,17 @@ def test_simplify_curve():
 
     fig.savefig('simplify_curve')
 
+@image_comparison(baseline_images=['hatch_simplify'])
+def test_hatch():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.add_patch(Rectangle((0, 0), 1, 1, fill=False, hatch="/"))
+    ax.set_xlim((0.45, 0.55))
+    ax.set_ylim((0.45, 0.55))
+
+    fig.savefig('hatch_simplify')
+
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
