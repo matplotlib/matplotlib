@@ -6275,7 +6275,9 @@ class Axes(martist.Artist):
         im.set_data(X)
         im.set_alpha(alpha)
         self._set_artist_props(im)
-        im.set_clip_path(self.patch)
+        if not im.get_clip_on():
+            # image does not already have clipping set, clip to axes patch
+            im.set_clip_path(self.patch)
         #if norm is None and shape is None:
         #    im.set_clim(vmin, vmax)
         if vmin is not None or vmax is not None:
