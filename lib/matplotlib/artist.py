@@ -494,6 +494,9 @@ class Artist(object):
         elif isinstance(path, Path):
             self._clippath = TransformedPath(path, transform)
             success = True
+        elif isinstance(path, TransformedPath):
+            self._clippath = path
+            success = True
 
         if not success:
             print type(path), type(transform)
