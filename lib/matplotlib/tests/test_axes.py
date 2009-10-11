@@ -364,6 +364,22 @@ def test_nonfinite_limits():
     ax.plot(x, y)
     fig.savefig('nonfinite_limits')
 
+@image_comparison(baseline_images=['imshow'])
+def test_imshow():
+    #Create a NxN image
+    N=100
+    (x,y) = np.indices((N,N))
+    x -= N/2
+    y -= N/2
+    r = np.sqrt(x**2+y**2-x*y)
+
+    #Create a contour plot at N/4 and extract both the clip path and transform
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    ax.imshow(r)
+    fig.savefig('imshow')
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
