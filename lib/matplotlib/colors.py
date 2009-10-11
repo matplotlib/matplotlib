@@ -621,6 +621,10 @@ class LinearSegmentedColormap(Colormap):
 
         .. seealso::
 
+            :meth:`LinearSegmentedColormap.from_list`
+               Static method; factory function for generating a
+               smoothly-varying LinearSegmentedColormap.
+
             :func:`makeMappingArray`
                For information about making a mapping array.
         """
@@ -641,8 +645,8 @@ class LinearSegmentedColormap(Colormap):
     def from_list(name, colors, N=256):
         """
         Make a linear segmented colormap with *name* from a sequence
-        of *colors* which evenly transitions from colors[0] at val=1
-        to colors[-1] at val=1.  N is the number of rgb quantization
+        of *colors* which evenly transitions from colors[0] at val=0
+        to colors[-1] at val=1.  *N* is the number of rgb quantization
         levels.
         """
 
