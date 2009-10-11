@@ -7,13 +7,16 @@ import matplotlib.tests
 import numpy as np
 from matplotlib.testing.compare import comparable_formats, compare_images
 
-def knownfailureif(fail_condition, msg=None):
+def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
     """
 
     Assume a will fail if *fail_condition* is True. *fail_condition*
     may also be False or the string 'indeterminate'.
 
     *msg* is the error message displayed for the test.
+
+    If *known_exception_class* is not None, the failure is only known
+    if the exception is an instance of this class. (Default = None)
 
     """
     # based on numpy.testing.dec.knownfailureif
@@ -27,8 +30,12 @@ def knownfailureif(fail_condition, msg=None):
             try:
                 # Always run the test (to generate images).
                 result = f(*args, **kwargs)
-            except:
+            except Exception, err:
                 if fail_condition:
+                    if known_exception_class is not None:
+                        if not isinstance(err,known_exception_class):
+                            # This is not the expected exception
+                            raise
                     # (Keep the next ultra-long comment so in shows in console.)
                     raise KnownFailureTest(msg) # An error here when running nose means that you don't have the matplotlib.testing.noseclasses:KnownFailure plugin in use.
                 else:
