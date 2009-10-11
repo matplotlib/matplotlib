@@ -97,7 +97,8 @@ def image_comparison(baseline_images=None,extensions=None):
                 else:
                     fail_msg = 'No failure expected'
                 will_fail = not (is_comparable and have_baseline_image)
-                @knownfailureif(will_fail, fail_msg )
+                @knownfailureif(will_fail, fail_msg,
+                                known_exception_class=ImageComparisonFailure )
                 def decorated_compare_images():
                     # set the default format of savefig
                     matplotlib.rc('savefig', extension=extension)
@@ -109,6 +110,9 @@ def image_comparison(baseline_images=None,extensions=None):
                     finally:
                         os.chdir(old_dir)
                     for actual,expected in zip(actual_fnames,expected_fnames):
+                        if not os.path.exists(expected):
+                            raise ImageComparisonFailure(
+                                'image does not exist: %s'%expected)
 
                         # compare the images
                         tol=1e-3 # default tolerance
