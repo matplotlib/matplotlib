@@ -61,7 +61,7 @@ class RendererSVG(RendererBase):
 
         RendererBase.__init__(self)
         self._glyph_map = dict()
-        
+
         svgwriter.write(svgProlog%(width,height,width,height))
 
     def _draw_svg_element(self, element, details, gc, rgbFace):
@@ -241,7 +241,8 @@ class RendererSVG(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         trans_and_flip = self._make_flip_transform(transform)
-        path_data = self._convert_path(path, trans_and_flip, clip=(rgbFace is None))
+        path_data = self._convert_path(path, trans_and_flip,
+                                       clip=(rgbFace is None and gc.get_hatch_path() is None))
         self._draw_svg_element('path', 'd="%s"' % path_data, gc, rgbFace)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
@@ -412,7 +413,7 @@ class RendererSVG(RendererBase):
 
     def _adjust_char_id(self, char_id):
         return char_id.replace("%20","_")
-    
+
     def draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
         """
         draw the text by converting them to paths using textpath module.
@@ -422,26 +423,26 @@ class RendererSVG(RendererBase):
 
         *s*
           text to be converted
-          
+
         *usetex*
           If True, use matplotlib usetex mode.
 
         *ismath*
           If True, use mathtext parser. If "TeX", use *usetex* mode.
 
-          
+
         """
         # this method works for normal text, mathtext and usetex mode.
         # But currently only utilized by draw_tex method.
-        
+
         glyph_map=self._glyph_map
-        
+
         text2path = self._text2path
         color = rgb2hex(gc.get_rgb()[:3])
         fontsize = prop.get_size_in_points()
 
         write = self._svgwriter.write
-        
+
         if ismath == False:
             font = text2path._get_font(prop)
             _glyphs = text2path.get_glyphs_with_font(font, s, glyph_map=glyph_map,
@@ -460,7 +461,7 @@ class RendererSVG(RendererBase):
                 write('</defs>\n')
 
                 glyph_map.update(glyph_map_new)
-                
+
             svg = []
             clipid = self._get_gc_clip_svg(gc)
             if clipid is not None:
@@ -508,7 +509,7 @@ class RendererSVG(RendererBase):
                 write('</defs>\n')
 
                 glyph_map.update(glyph_map_new)
-                
+
             svg = []
             clipid = self._get_gc_clip_svg(gc)
             if clipid is not None:
@@ -800,7 +801,7 @@ class RendererSVG(RendererBase):
             w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
                                                                renderer=self)
             return w, h, d
-            
+
         if ismath:
             width, height, descent, trash, used_characters = \
                 self.mathtext_parser.parse(s, 72, prop)

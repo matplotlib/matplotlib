@@ -189,7 +189,7 @@ def test_single_date():
 
     fig.savefig( 'single_date' )
 
-@image_comparison(baseline_images=['single_date'])
+@image_comparison(baseline_images=['shaped_data'])
 def test_shaped_data():
     xdata = np.array([[ 0.53295185,  0.23052951,  0.19057629,  0.66724975,  0.96577916,
                         0.73136095,  0.60823287,  0.017921  ,  0.29744742,  0.27164665],
@@ -231,7 +231,7 @@ def test_shaped_data():
     plt.subplot( 414 )
     plt.plot( xdata[:,1], xdata[1,:], 'o' )
 
-    fig.savefig( 'shaped data' )
+    fig.savefig( 'shaped_data' )
 
 @image_comparison(baseline_images=['const_xy'])
 def test_const_xy():
