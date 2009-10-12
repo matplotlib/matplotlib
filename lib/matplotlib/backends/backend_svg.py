@@ -241,8 +241,9 @@ class RendererSVG(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         trans_and_flip = self._make_flip_transform(transform)
-        path_data = self._convert_path(path, trans_and_flip,
-                                       clip=(rgbFace is None and gc.get_hatch_path() is None))
+        path_data = self._convert_path(
+            path, trans_and_flip,
+            clip=(rgbFace is None and gc.get_hatch_path() is None))
         self._draw_svg_element('path', 'd="%s"' % path_data, gc, rgbFace)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
