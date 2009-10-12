@@ -4,6 +4,7 @@
 #=======================================================================
 
 import matplotlib
+from matplotlib.testing.noseclasses import ImageComparisonFailure
 import math
 import operator
 import os
@@ -105,7 +106,7 @@ def convert(filename):
    '''
    base, extension = filename.rsplit('.', 1)
    if extension not in converter:
-      raise NotImplementedError, "Don't know how to convert %s files to png" % extension
+      raise ImageComparisonFailure, "Don't know how to convert %s files to png" % extension
    newname = base + '_' + extension + '.png'
    cmd = converter[extension](filename, newname)
    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
