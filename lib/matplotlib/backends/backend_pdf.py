@@ -1344,13 +1344,9 @@ class RendererPdf(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         self.check_gc(gc, rgbFace)
-<<<<<<< .working
-        self.file.writePath(path, transform, (rgbFace is None and gc.get_hatch_path() is None))
-=======
         self.file.writePath(
             path, transform,
             rgbFace is None and gc.get_hatch_path() is None)
->>>>>>> .merge-right.r7874
         self.file.output(self.gc.paint())
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
