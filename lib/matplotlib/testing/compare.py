@@ -95,23 +95,32 @@ if matplotlib.checkdep_ghostscript() is not None:
    converter['pdf'] = cmd
    converter['eps'] = cmd
 
+if matplotlib.checkdep_inkscape() is not None:
+   cmd = lambda old, new: \
+       ['inkscape', old, '--export-png=' + new]
+   converter['svg'] = cmd
+
 def comparable_formats():
    '''Returns the list of file formats that compare_images can compare
    on this system.'''
    return ['png'] + converter.keys()
 
 def convert(filename):
-   '''Convert the named file into a png file.
+   '''
+   Convert the named file into a png file.
    Returns the name of the created file.
    '''
    base, extension = filename.rsplit('.', 1)
    if extension not in converter:
       raise ImageComparisonFailure, "Don't know how to convert %s files to png" % extension
    newname = base + '_' + extension + '.png'
+   if not os.path.exists(filename):
+      raise IOError, "'%s' does not exist" % filename
    cmd = converter[extension](filename, newname)
    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
    stdout, stderr = pipe.communicate()
-   if not os.path.exists(newname):
+   errcode = pipe.wait()
+   if not os.path.exists(newname) or errcode:
       msg = "Conversion command failed:\n%s\n" % ' '.join(cmd)
       if stdout:
          msg += "Standard output:\n%s\n" % stdout
@@ -119,6 +128,33 @@ def convert(filename):
          msg += "Standard error:\n%s\n" % stderr
       raise IOError, msg
    return newname
+
+verifiers = { }
+
+def verify(filename):
+   """
+   Verify the file through some sort of verification tool.
+   """
+   if not os.path.exists(filename):
+      raise IOError, "'%s' does not exist" % filename
+   base, extension = filename.rsplit('.', 1)
+   verifier = verifiers.get(extension, None)
+   if verifier is not None:
+      cmd = verifier(filename)
+      pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      stdout, stderr = pipe.communicate()
+      errcode = pipe.wait()
+      if errcode != 0:
+         msg = "File verification command failed:\n%s\n" % ' '.join(cmd)
+         if stdout:
+            msg += "Standard output:\n%s\n" % stdout
+         if stderr:
+            msg += "Standard error:\n%s\n" % stderr
+         raise IOError, msg
+
+if matplotlib.checkdep_xmllint():
+   verifiers['svg'] = lambda filename: [
+      'xmllint', '--valid', '--nowarning', '--noout', filename]
 
 def compare_images( expected, actual, tol, in_decorator=False ):
    '''Compare two image files - not the greatest, but fast and good enough.
@@ -134,7 +170,7 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    - expected  The filename of the expected image.
    - actual    The filename of the actual image.
    - tol       The tolerance (a unitless float).  This is used to
-               determinte the 'fuzziness' to use when comparing images.
+               determine the 'fuzziness' to use when comparing images.
    - in_decorator If called from image_comparison decorator, this should be
                True. (default=False)
    '''
@@ -151,10 +187,12 @@ def compare_images( expected, actual, tol, in_decorator=False ):
       else:
          return msg
 
+   verify(actual)
+
    # Convert the image to png
    extension = expected.split('.')[-1]
    if extension != 'png':
-      expected, actual = convert(expected), convert(actual)
+      actual, expected = convert(actual), convert(expected)
 
    # open the image files and remove the alpha channel (if it exists)
    expectedImage = Image.open( expected ).convert("RGB")

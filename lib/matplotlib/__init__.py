@@ -301,6 +301,30 @@ def checkdep_pdftops():
     except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
 
+def checkdep_inkscape():
+    try:
+        s = subprocess.Popen(['inkscape','-V'], stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        for line in s.stdout:
+            if 'Inkscape' in line:
+                v = line.split()[1]
+                break
+        return v
+    except (IndexError, ValueError, UnboundLocalError, OSError):
+        return None
+
+def checkdep_xmllint():
+    try:
+        s = subprocess.Popen(['xmllint','--version'], stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        for line in s.stderr:
+            if 'version' in line:
+                v = line.split()[-1]
+                break
+        return v
+    except (IndexError, ValueError, UnboundLocalError, OSError):
+        return None
+
 def compare_versions(a, b):
     "return True if a is greater than or equal to b"
     if a:

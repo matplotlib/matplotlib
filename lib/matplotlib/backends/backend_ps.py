@@ -471,7 +471,9 @@ grestore
         """
         Draws a Path instance using the given affine transform.
         """
-        ps = self._convert_path(path, transform, clip=(rgbFace is None))
+        ps = self._convert_path(
+            path, transform,
+            clip=(rgbFace is None and gc.get_hatch_path() is None))
         self._draw_ps(ps, gc, rgbFace)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):

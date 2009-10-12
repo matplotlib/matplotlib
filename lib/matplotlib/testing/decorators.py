@@ -74,7 +74,7 @@ def image_comparison(baseline_images=None,extensions=None):
 
     if extensions is None:
         # default extensions to test
-        extensions = ['png', 'pdf']
+        extensions = ['png', 'pdf', 'svg']
 
     # The multiple layers of defs are required because of how
     # parameterized decorators work, and because we want to turn the
