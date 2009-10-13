@@ -291,12 +291,10 @@ def _plot_directive(plot_path, basedir, function_name, plot_code, caption,
     # the temporary directory, and then sphinx moves the file to
     # build/html/_images for us later.
     rstdir, rstfile = os.path.split(state_machine.document.attributes['source'])
-    reldir = rstdir[len(setup.confdir)+1:]
-    relparts = [p for p in os.path.split(reldir) if p.strip()]
-    nparts = len(relparts)
     outdir = os.path.join('plot_directive', basedir)
-    linkdir = ('../' * nparts) + outdir
-
+    reldir = relpath(setup.confdir, rstdir)
+    linkdir = os.path.join(reldir, outdir)
+    
     # tmpdir is where we build all the output files.  This way the
     # plots won't have to be redone when generating latex after html.
 
