@@ -33,7 +33,7 @@ def add_inner_title(ax, title, loc, size=None, **kwargs):
 
     return ao
 
-if __name__ == "__main__":
+if 1:
     F = plt.figure(1, (6, 6))
     F.clf()
 

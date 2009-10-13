@@ -78,8 +78,7 @@ def demo_grid_with_each_cbar(fig):
 
 
 
-if __name__ == "__main__":
-
+if 1:
     F = plt.figure(1, (5.5, 2.5))
 
     F.subplots_adjust(left=0.05, right=0.98)

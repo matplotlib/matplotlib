@@ -60,14 +60,12 @@ def curvelinear_test2(fig):
 
     ax1.grid(True)
 
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    fig = plt.figure(1, figsize=(5, 5))
-    fig.clf()
+import matplotlib.pyplot as plt
+fig = plt.figure(1, figsize=(5, 5))
+fig.clf()
 
-    curvelinear_test2(fig)
+curvelinear_test2(fig)
 
-    plt.draw()
-    plt.show()
+plt.show()
 
 

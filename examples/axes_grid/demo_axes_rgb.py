@@ -74,9 +74,7 @@ def demo_rgb2():
     return ax
 
 
-if __name__ == "__main__":
-    demo_rgb()
-    ax = demo_rgb2()
+demo_rgb()
+ax = demo_rgb2()
 
-    plt.draw()
-    plt.show()
+plt.show()
