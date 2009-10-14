@@ -152,7 +152,8 @@ def verify(filename):
             msg += "Standard error:\n%s\n" % stderr
          raise IOError, msg
 
-if matplotlib.checkdep_xmllint():
+# Turning this off, because it seems to cause multiprocessing issues
+if matplotlib.checkdep_xmllint() and False:
    verifiers['svg'] = lambda filename: [
       'xmllint', '--valid', '--nowarning', '--noout', filename]
 
