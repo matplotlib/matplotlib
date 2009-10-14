@@ -72,10 +72,17 @@ Here are all the date tickers:
       arbitrary date tick specifications.  See `rrule example
       <../examples/pylab_examples/date_demo_rrule.html>`_.
 
+    * :class:`AutoDateLocator`: On autoscale, this class picks the best
+      :class:`MultipleDateLocator` to set the view limits and the tick
+      locations.
+
 Date formatters
 ---------------
 
 Here all all the date formatters:
+
+    * :class:`AutoDateFormatter`: attempts to figure out the best format
+      to use.  This is most useful when used with the :class:`AutoDateLocator`.
 
     * :class:`DateFormatter`: use :func:`strftime` format strings
 
@@ -109,8 +116,9 @@ import dateutil.parser
 
 __all__ = ( 'date2num', 'num2date', 'drange', 'epoch2num',
             'num2epoch', 'mx2num', 'DateFormatter',
-            'IndexDateFormatter', 'DateLocator', 'RRuleLocator',
-            'YearLocator', 'MonthLocator', 'WeekdayLocator',
+            'IndexDateFormatter', 'AutoDateFormatter', 'DateLocator',
+            'RRuleLocator', 'AutoDateLocator', 'YearLocator',
+            'MonthLocator', 'WeekdayLocator',
             'DayLocator', 'HourLocator', 'MinuteLocator',
             'SecondLocator', 'rrule', 'MO', 'TU', 'WE', 'TH', 'FR',
             'SA', 'SU', 'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
