@@ -1,6 +1,10 @@
+2009-10-16 Make AutoDateFormatter actually use any specified
+           timezone setting.This was only working correctly
+           when no timezone was specified. - RMM
+
 2009-09-27 Beginnings of a capability to test the pdf backend. - JKS
 
-2009-09-27 Add a savefig.extension rcparam to control the default 
+2009-09-27 Add a savefig.extension rcparam to control the default
            filename extension used by savefig. - JKS
 
 ===============================================
@@ -15,18 +19,18 @@
            against exceptions in case a dvi font is missing some metrics. - JKS
 
 2009-09-15 Implement draw_text and draw_tex method of backend_base using
-           the textpath module. Implement draw_tex method of the svg 
+           the textpath module. Implement draw_tex method of the svg
            backend. - JJL
 
 2009-09-15 Don't fail on AFM files containing floating-point bounding boxes - JKS
 
-2009-09-13 AxesGrid : add modified version of colorbar. Add colorbar 
+2009-09-13 AxesGrid : add modified version of colorbar. Add colorbar
            location howto. - JJL
 
-2009-09-07 AxesGrid : implemented axisline style. 
+2009-09-07 AxesGrid : implemented axisline style.
            Added a demo examples/axes_grid/demo_axisline_style.py- JJL
 
-2009-09-04 Make the textpath class as a separate moduel 
+2009-09-04 Make the textpath class as a separate moduel
            (textpath.py). Add support for mathtext and tex.- JJL
 
 2009-09-01 Added support for Gouraud interpolated triangles.

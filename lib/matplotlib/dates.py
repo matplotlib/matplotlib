@@ -450,7 +450,7 @@ class AutoDateFormatter(ticker.Formatter):
               fmt = self.scaled[k]
               break
 
-        self._formatter = DateFormatter(fmt)
+        self._formatter = DateFormatter(fmt, self._tz)
         return self._formatter(x, pos)
 
 
