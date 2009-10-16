@@ -664,7 +664,8 @@ class Text(Artist):
         x, y = self.get_position()
         return (x, y, self.get_text(), self._color,
                 self._verticalalignment, self._horizontalalignment,
-                hash(self._fontproperties), self._rotation,
+                hash(self._fontproperties),
+                self._rotation, self._rotation_mode,
                 self.figure.dpi, id(self._renderer),
                 )
 
