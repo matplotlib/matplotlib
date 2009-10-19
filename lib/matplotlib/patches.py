@@ -53,15 +53,16 @@ class Patch(artist.Artist):
         return str(self.__class__).split('.')[-1]
 
     def __init__(self,
-                        edgecolor=None,
-                        facecolor=None,
-                        linewidth=None,
-                        linestyle=None,
-                        antialiased = None,
-                        hatch = None,
-                        fill=True,
-                        **kwargs
-                        ):
+                 edgecolor=None,
+                 facecolor=None,
+                 linewidth=None,
+                 linestyle=None,
+                 antialiased = None,
+                 hatch = None,
+                 fill=True,
+                 path_effects = None,
+                 **kwargs
+                 ):
         """
         The following kwarg properties are supported
 
@@ -88,6 +89,8 @@ class Patch(artist.Artist):
         self.set_hatch(hatch)
         self.fill = fill
         self._combined_transform = transforms.IdentityTransform()
+
+        self.set_path_effects(path_effects)
 
         if len(kwargs): artist.setp(self, **kwargs)
 
@@ -324,6 +327,16 @@ class Patch(artist.Artist):
         'Return the current hatching pattern'
         return self._hatch
 
+    def set_path_effects(self, path_effects):
+        """
+        set path_effects, which should be a list of instances of
+        matplotlib.patheffect._Base class or its derivatives.
+        """
+        self._path_effects = path_effects
+
+    def get_path_effects(self):
+        return self._path_effects
+
     @allow_rasterization
     def draw(self, renderer):
         'Draw the :class:`Patch` to the given *renderer*.'
@@ -363,7 +376,11 @@ class Patch(artist.Artist):
         tpath = transform.transform_path_non_affine(path)
         affine = transform.get_affine()
 
-        renderer.draw_path(gc, tpath, affine, rgbFace)
+        if self.get_path_effects():
+            for path_effect in self.get_path_effects():
+                path_effect.draw_path(renderer, gc, tpath, affine, rgbFace)
+        else:
+            renderer.draw_path(gc, tpath, affine, rgbFace)
 
         gc.restore()
         renderer.close_group('patch')
@@ -3752,11 +3769,19 @@ class FancyArrowPatch(Patch):
 
         renderer.open_group('patch', self.get_gid())
 
-        for p, f in zip(path, fillable):
-            if f:
-                renderer.draw_path(gc, p, affine, rgbFace)
-            else:
-                renderer.draw_path(gc, p, affine, None)
+        if self.get_path_effects():
+            for path_effect in self.get_path_effects():
+                for p, f in zip(path, fillable):
+                    if f:
+                        path_effect.draw_path(renderer, gc, p, affine, rgbFace)
+                    else:
+                        path_effect.draw_path(renderer, gc, p, affine, None)
+        else:
+            for p, f in zip(path, fillable):
+                if f:
+                    renderer.draw_path(gc, p, affine, rgbFace)
+                else:
+                    renderer.draw_path(gc, p, affine, None)
 
 
         gc.restore()

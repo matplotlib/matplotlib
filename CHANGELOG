@@ -1,6 +1,9 @@
+2009-10-19 Add "path_effects" support for Text and Patch. See 
+           examples/pylab_examples/patheffect_demo.py -JJL
+
 2009-10-19 Add "use_clabeltext" option to clabel. If True, clabels 
            will be created with ClabelText class, which recalculates
-           rotation angle of the label during the drawing time.
+           rotation angle of the label during the drawing time. -JJL
 
 2009-10-16 Make AutoDateFormatter actually use any specified
            timezone setting.This was only working correctly

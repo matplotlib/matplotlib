@@ -381,9 +381,9 @@ class RendererBase:
 
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath)
 
-    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
+    def _get_text_path_transform(self, x, y, s, prop, angle, ismath):
         """
-        draw the text by converting them to paths using textpath module.
+        return the text path and transform
 
         *prop*
           font property
@@ -399,7 +399,6 @@ class RendererBase:
         """
 
         text2path = self._text2path
-        color = gc.get_rgb()[:3]
         fontsize = self.points_to_pixels(prop.get_size_in_points())
 
         if ismath == "TeX":
@@ -417,6 +416,29 @@ class RendererBase:
             transform = Affine2D().scale(fontsize/text2path.FONT_SCALE,
                                          fontsize/text2path.FONT_SCALE).\
                                          rotate(angle).translate(x, y)
+
+        return path, transform
+
+
+    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
+        """
+        draw the text by converting them to paths using textpath module.
+
+        *prop*
+          font property
+
+        *s*
+          text to be converted
+
+        *usetex*
+          If True, use matplotlib usetex mode.
+
+        *ismath*
+          If True, use mathtext parser. If "TeX", use *usetex* mode.
+        """
+
+        path, transform = self._get_text_path_transform(x, y, s, prop, angle, ismath)
+        color = gc.get_rgb()[:3]
 
         gc.set_linewidth(0.0)
         self.draw_path(gc, path, transform, rgbFace=color)
