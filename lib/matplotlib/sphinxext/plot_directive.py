@@ -81,7 +81,10 @@ else:
             i+=1
 
         rel_list = [os.pardir] * (len(base_list)-i) + target_list[i:]
-        return os.path.join(*rel_list)
+        if rel_list:
+            return os.path.join(*rel_list)
+        else:
+            return ""
 
 def write_char(s):
     sys.stdout.write(s)
@@ -263,7 +266,7 @@ def plot_directive(name, arguments, options, content, lineno,
     outdir = os.path.join('plot_directive', basedir)
     reldir = relpath(setup.confdir, rstdir)
     linkdir = os.path.join(reldir, outdir)
-    
+
     # tmpdir is where we build all the output files.  This way the
     # plots won't have to be redone when generating latex after html.
 
