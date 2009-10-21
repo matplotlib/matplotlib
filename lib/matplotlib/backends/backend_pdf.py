@@ -1206,8 +1206,12 @@ end"""
         last_points = None
         for points, code in path.iter_segments(transform, clip=clip):
             if code == Path.MOVETO:
+                # This is allowed anywhere in the path
                 cmds.extend(points)
                 cmds.append(Op.moveto)
+            elif last_points is None:
+                # The other operations require a previous point
+                raise ValueError, 'Path lacks initial MOVETO'
             elif code == Path.LINETO:
                 cmds.extend(points)
                 cmds.append(Op.lineto)
