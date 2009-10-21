@@ -568,11 +568,15 @@ public:
             }
             m_after_moveto = false;
 
+            /* NOTE: We used to skip this very short segments, but if
+               you have a lot of them cumulatively, you can miss
+               maxima or minima in the data. */
+
             /* Don't render line segments less than one pixel long */
-            if (fabs(*x - m_lastx) < 1.0 && fabs(*y - m_lasty) < 1.0)
-            {
-                continue;
-            }
+            /* if (fabs(*x - m_lastx) < 1.0 && fabs(*y - m_lasty) < 1.0) */
+            /* { */
+            /*     continue; */
+            /* } */
 
             /* if we have no orig vector, set it to this vector and
                continue.  this orig vector is the reference vector we
@@ -649,7 +653,7 @@ public:
                 }
                 else
                 {
-                    if (paradNorm2 > m_dnorm2Min)
+                    if (paradNorm2 < m_dnorm2Min)
                     {
                         m_dnorm2Min = paradNorm2;
                         m_nextX = *x;
