@@ -603,10 +603,78 @@ class AutoDateLocator(DateLocator):
     :class:`MultipleDateLocator` to set the view limits and the tick
     locations.
     """
-    def __init__(self, tz=None):
+    def __init__(self, tz=None, minticks=5, maxticks=None,
+        interval_multiples=False):
+        """
+        *minticks* is the minimum number of ticks desired, which is used to
+        select the type of ticking (yearly, monthly, etc.).
+
+        *maxticks* is the maximum number of ticks desired, which controls
+        any interval between ticks (ticking every other, every 3, etc.).
+        For really fine-grained control, this can be a dictionary mapping
+        individual rrule frequency constants (YEARLY, MONTHLY, etc.)
+        to their own maximum number of ticks.  This can be used to keep
+        the number of ticks appropriate to the format chosen in
+        class:`AutoDateFormatter`. Any frequency not specified in this
+        dictionary is given a default value.
+
+        *tz* is a :class:`tzinfo` instance.
+
+        *interval_multiples* is a boolean that indicates whether ticks
+        should be chosen to be multiple of the interval. This will lock
+        ticks to 'nicer' locations. For example, this will force the
+        ticks to be at hours 0,6,12,18 when hourly ticking is done at
+        6 hour intervals.
+
+        The AutoDateLocator has an interval dictionary that maps the
+        frequency of the tick (a constant from dateutil.rrule) and a
+        multiple allowed for that ticking.  The default looks like this::
+
+          self.intervald = {
+            YEARLY  : [1, 2, 4, 5, 10],
+            MONTHLY : [1, 2, 3, 4, 6],
+            DAILY   : [1, 2, 3, 7, 14],
+            HOURLY  : [1, 2, 3, 4, 6, 12],
+            MINUTELY: [1, 5, 10, 15, 30],
+            SECONDLY: [1, 5, 10, 15, 30]
+            }
+
+        The interval is used to specify multiples that are appropriate for
+        the frequency of ticking. For instance, every 7 days is sensible
+        for daily ticks, but for minutes/seconds, 15 or 30 make sense.
+        You can customize this dictionary by doing::
+
+          locator = AutoDateLocator()
+          locator.intervald[HOURLY] = [3] # only show every 3 hours
+        """
         DateLocator.__init__(self, tz)
         self._locator = YearLocator()
         self._freq = YEARLY
+        self._freqs = [YEARLY, MONTHLY, DAILY, HOURLY, MINUTELY, SECONDLY]
+        self.minticks = minticks
+
+        self.maxticks = {YEARLY : 16, MONTHLY : 12, DAILY : 11, HOURLY : 16,
+            MINUTELY : 11, SECONDLY : 11}
+        if maxticks is not None:
+            try:
+                self.maxticks.update(maxticks)
+            except TypeError:
+                # Assume we were given an integer. Use this as the maximum
+                # number of ticks for every frequency and create a
+                # dictionary for this
+                self.maxticks = dict(zip(self._freqs,
+                    [maxticks]*len(self._freqs)))
+        self.interval_multiples = interval_multiples
+        self.intervald = {
+           YEARLY  : [1, 2, 4, 5, 10],
+           MONTHLY : [1, 2, 3, 4, 6],
+           DAILY   : [1, 2, 3, 7, 14],
+           HOURLY  : [1, 2, 3, 4, 6, 12],
+           MINUTELY: [1, 5, 10, 15, 30],
+           SECONDLY: [1, 5, 10, 15, 30]
+           }
+        self._byranges = [None, range(1, 13), range(1, 32), range(0, 24),
+            range(0, 60), range(0, 60)]
 
     def __call__(self):
         'Return the locations of the ticks'
@@ -659,89 +727,59 @@ class AutoDateLocator(DateLocator):
         numMinutes = (numHours * 60.0) + delta.minutes
         numSeconds = (numMinutes * 60.0) + delta.seconds
 
-        numticks = 5
+        nums = [numYears, numMonths, numDays, numHours, numMinutes, numSeconds]
 
-        # self._freq = YEARLY
-        interval = 1
-        bymonth = 1
-        bymonthday = 1
-        byhour = 0
-        byminute = 0
-        bysecond = 0
+        # Default setting of bymonth, etc. to pass to rrule
+        # [unused (for year), bymonth, bymonthday, byhour, byminute, bysecond]
+        byranges = [None, 1, 1, 0, 0, 0]
 
-        if ( numYears >= numticks ):
-            self._freq = YEARLY
-        elif ( numMonths >= numticks ):
-            self._freq = MONTHLY
-            bymonth = range(1, 13)
-            if ( (0 <= numMonths) and (numMonths <= 14) ):
-                interval = 1      # show every month
-            elif ( (15 <= numMonths) and (numMonths <= 29) ):
-                interval = 3      # show every 3 months
-            elif ( (30 <= numMonths) and (numMonths <= 44) ):
-                interval = 4      # show every 4 months
-            else:   # 45 <= numMonths <= 59
-                interval = 6      # show every 6 months
-        elif ( numDays >= numticks ):
-            self._freq = DAILY
-            bymonth = None
-            bymonthday = range(1, 32)
-            if ( (0 <= numDays) and (numDays <= 9) ):
-                interval = 1      # show every day
-            elif ( (10 <= numDays) and (numDays <= 19) ):
-                interval = 2      # show every 2 days
-            elif ( (20 <= numDays) and (numDays <= 49) ):
-                interval = 3      # show every 3 days
-            elif ( (50 <= numDays) and (numDays <= 99) ):
-                interval = 7      # show every 1 week
-            else:   # 100 <= numDays <= ~150
-                interval = 14     # show every 2 weeks
-        elif ( numHours >= numticks ):
-            self._freq = HOURLY
-            bymonth = None
-            bymonthday = None
-            byhour = range(0, 24)      # show every hour
-            if ( (0 <= numHours) and (numHours <= 14) ):
-                interval = 1      # show every hour
-            elif ( (15 <= numHours) and (numHours <= 30) ):
-                interval = 2      # show every 2 hours
-            elif ( (30 <= numHours) and (numHours <= 45) ):
-                interval = 3      # show every 3 hours
-            elif ( (45 <= numHours) and (numHours <= 68) ):
-                interval = 4      # show every 4 hours
-            elif ( (68 <= numHours) and (numHours <= 90) ):
-                interval = 6      # show every 6 hours
-            else:   # 90 <= numHours <= 120
-                interval = 12     # show every 12 hours
-        elif ( numMinutes >= numticks ):
-            self._freq = MINUTELY
-            bymonth = None
-            bymonthday = None
-            byhour = None
-            byminute = range(0, 60)
-            if ( numMinutes > (10.0 * numticks) ):
-                interval = 10
-            # end if
-        elif ( numSeconds >= numticks ):
-            self._freq = SECONDLY
-            bymonth = None
-            bymonthday = None
-            byhour = None
-            byminute = None
-            bysecond = range(0, 60)
-            if ( numSeconds > (10.0 * numticks) ):
-                interval = 10
-            # end if
+        # Loop over all the frequencies and try to find one that gives at
+        # least a minticks tick positions.  Once this is found, look for
+        # an interval from an list specific to that frequency that gives no
+        # more than maxticks tick positions. Also, set up some ranges
+        # (bymonth, etc.) as appropriate to be passed to rrulewrapper.
+        for i, (freq, num) in enumerate(zip(self._freqs, nums)):
+            # If this particular frequency doesn't give enough ticks, continue
+            if num < self.minticks:
+                # Since we're not using this particular frequency, set
+                # the corresponding by_ to None so the rrule can act as
+                # appropriate
+                byranges[i] = None
+                continue
+
+            # Find the first available interval that doesn't give too many ticks
+            for interval in self.intervald[freq]:
+                if num <= interval * (self.maxticks[freq] - 1):
+                    break
+            else:
+                # We went through the whole loop without breaking, default to 1
+                interval = 1
+
+            # Set some parameters as appropriate
+            self._freq = freq
+
+            if self._byranges[i] and self.interval_multiples:
+                byranges[i] = self._byranges[i][::interval]
+                interval = 1
+            else:
+                byranges[i] = self._byranges[i]
+
+            # We found what frequency to use
+            break
         else:
+            # We couldn't find a good frequency.
             # do what?
             #   microseconds as floats, but floats from what reference point?
-            pass
+            byranges = [None, 1, 1, 0, 0, 0]
+            interval = 1
 
+        unused, bymonth, bymonthday, byhour, byminute, bysecond = byranges
+        del unused
 
-        rrule = rrulewrapper( self._freq, interval=interval,          \
-                              dtstart=dmin, until=dmax,               \
-                              bymonth=bymonth, bymonthday=bymonthday, \
-                              byhour=byhour, byminute = byminute,     \
+        rrule = rrulewrapper( self._freq, interval=interval,
+                              dtstart=dmin, until=dmax,
+                              bymonth=bymonth, bymonthday=bymonthday,
+                              byhour=byhour, byminute = byminute,
                               bysecond=bysecond )
 
         locator = RRuleLocator(rrule, self.tz)

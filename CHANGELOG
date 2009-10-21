@@ -1,7 +1,13 @@
-2009-10-19 Add "path_effects" support for Text and Patch. See 
+2009-10-21 Make AutoDateLocator more configurable by adding options
+           to control the maximum and minimum number of ticks. Also
+           add control of the intervals to be used for ticking. This
+           does not change behavior but opens previously hard-coded
+           behavior to runtime modification`. - RMM
+
+2009-10-19 Add "path_effects" support for Text and Patch. See
            examples/pylab_examples/patheffect_demo.py -JJL
 
-2009-10-19 Add "use_clabeltext" option to clabel. If True, clabels 
+2009-10-19 Add "use_clabeltext" option to clabel. If True, clabels
            will be created with ClabelText class, which recalculates
            rotation angle of the label during the drawing time. -JJL
 
