@@ -70,7 +70,7 @@ def test_noise():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    assert len(simplified) == 2662
+    assert len(simplified) == 2675
 
 def test_sine_plus_noise():
     np.random.seed(0)
@@ -87,7 +87,7 @@ def test_sine_plus_noise():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    assert len(simplified) == 279
+    assert len(simplified) == 628
 
 @image_comparison(baseline_images=['simplify_curve'])
 def test_simplify_curve():
@@ -116,6 +116,23 @@ def test_hatch():
 
     fig.savefig('hatch_simplify')
 
+@image_comparison(baseline_images=['fft_peaks'])
+def test_fft_peaks():
+    fig = plt.figure()
+    t = arange(65536)
+    ax = fig.add_subplot(111)
+    p1 = ax.plot(abs(fft(sin(2*pi*.01*t)*blackman(len(t)))))
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    fig.savefig('fft_peaks')
+
+    path = p1[0].get_path()
+    transform = p1[0].get_transform()
+    path = transform.transform_path(path)
+    simplified = list(path.iter_segments(simplify=(800, 600)))
+
+    assert len(simplified) == 13
 
 if __name__=='__main__':
     import nose
