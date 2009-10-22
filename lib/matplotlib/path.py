@@ -115,6 +115,8 @@ class Path(object):
             codes = np.asarray(codes, self.code_type)
             assert codes.ndim == 1
             assert len(codes) == len(vertices)
+            if len(codes):
+                assert codes[0] == self.MOVETO
 
         assert vertices.ndim == 2
         assert vertices.shape[1] == 2
