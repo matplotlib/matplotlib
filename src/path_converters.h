@@ -684,9 +684,15 @@ public:
         {
             if (m_origdNorm2 != 0.0)
             {
-                queue_push(agg::path_cmd_line_to, m_nextX, m_nextY);
+              queue_push((m_moveto || m_after_moveto) ?
+                         agg::path_cmd_move_to : agg::path_cmd_line_to,
+                         m_nextX, m_nextY);
+              m_moveto = false;
             }
-            queue_push(agg::path_cmd_line_to, m_lastx, m_lasty);
+            queue_push((m_moveto || m_after_moveto) ?
+                       agg::path_cmd_move_to : agg::path_cmd_line_to,
+                       m_lastx, m_lasty);
+            m_moveto = false;
             queue_push(agg::path_cmd_stop, 0.0, 0.0);
         }
 
