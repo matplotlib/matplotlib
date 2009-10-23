@@ -128,18 +128,14 @@ class Registry(dict):
         if classx is not None:
             converter = self.get(classx)
 
-        # Check explicity for strings here because they would otherwise
-        # lead to an infinite recursion, because a single character will
-        # pass the iterable() check.
-        if converter is None and iterable(x) and not is_string_like(x):
-            # if this is anything but an object array, we'll assume
-            # there are no custom units
-            if isinstance(x, np.ndarray) and x.dtype != np.object:
-                return None
-
+        if converter is None and iterable(x):
             for thisx in x:
-                converter = self.get_converter( thisx )
-                return converter
+                # Make sure that recursing might actually lead to a solution, if
+                # we are just going to re-examine another item of the same kind,
+                # then do not look at it.
+                if classx and classx != getattr(thisx, '__class__', None):
+                    converter = self.get_converter( thisx )
+                    return converter
 
         #DISABLED self._cached[idx] = converter
         return converter
