@@ -118,6 +118,7 @@ latex_to_bakoma = {
     r'%'                    : ('cmr10',   48),
     r'\$'                   : ('cmr10',   99),
     r'@'                    : ('cmr10',  111),
+    r'\#'                   : ('cmr10',   39),
     r'\_'                   : ('cmtt10', 79),
     r'\Gamma'               : ('cmr10',  19),
     r'\Delta'               : ('cmr10',   6),
@@ -401,6 +402,7 @@ latex_to_standard = {
     r'\}'               : ('pncr8a', 125),
     r'\backslash'       : ('pncr8a',  92),
     r'\ast'             : ('pncr8a',  42),
+    r'\#'               : ('pncr8a',  35),
 
     r'\circumflexaccent'         : ('pncri8a',   124), # for \hat
     r'\combiningbreve'           : ('pncri8a',   81),  # for \breve
@@ -2288,6 +2290,7 @@ tex2uni = {
 '{': 123,
 '}': 125,
 '_': 95,
+'#': 35,
 'imath': 0x131,
 'circumflexaccent'         : 770,
 'combiningbreve'           : 774,
