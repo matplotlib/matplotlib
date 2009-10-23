@@ -19,11 +19,20 @@ cmap_d = dict()
 # reverse all the colormaps.
 # reversed colormaps have '_r' appended to the name.
 
+def _reverser(f):
+    def freversed(x):
+        return f(1-x)
+    return freversed
+
 def revcmap(data):
     data_r = {}
     for key, val in data.iteritems():
         if callable(val):
-            valnew = lambda x: 1 - val(x)
+            valnew = _reverser(val)
+                # This doesn't work: lambda x: val(1-x)
+                # The same "val" (the first one) is used
+                # each time, so the colors are identical
+                # and the result is shades of gray.
         else:
             valnew = [(1.0 - a, b, c) for a, b, c in reversed(val)]
         data_r[key] = valnew
@@ -43,13 +52,15 @@ for cmapname in _cmapnames:
         cmap_d[cmapname_r] = colors.LinearSegmentedColormap(
                                 cmapname_r, datad[cmapname_r], LUTSIZE)
     else:
-        datad[cmapname] = list(cmapspec)
-        datad[cmapname_r] = list(datad[cmapname])
-        datad[cmapname_r].reverse()
+        revspec = list(reversed(cmapspec))
+        if len(revspec[0]) == 2:    # e.g., (1, (1.0, 0.0, 1.0))
+            revspec = [(1.0 - a, b) for a, b in revspec]
+        datad[cmapname_r] = revspec
+
         cmap_d[cmapname] = colors.LinearSegmentedColormap.from_list(
-                                cmapname, datad[cmapname], LUTSIZE)
+                                cmapname, cmapspec, LUTSIZE)
         cmap_d[cmapname_r] = colors.LinearSegmentedColormap.from_list(
-                                cmapname_r, datad[cmapname_r], LUTSIZE)
+                                cmapname_r, revspec, LUTSIZE)
 
 locals().update(cmap_d)
 
