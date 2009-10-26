@@ -938,9 +938,14 @@ class BboxImage(_AxesImageBase):
 
 
 
-def imread(fname):
+def imread(fname, format=None):
     """
-    Return image file in *fname* as :class:`numpy.array`.
+    Return image file in *fname* as :class:`numpy.array`.  *fname* may
+    be a string path or a Python file-like object.
+
+    If *format* is provided, will try to read file of that type,
+    otherwise the format is deduced from the filename.  If nothing can
+    be deduced, PNG is tried.
 
     Return value is a :class:`numpy.array`.  For grayscale images, the
     return array is MxN.  For RGB images, the return value is MxNx3.
@@ -959,11 +964,15 @@ def imread(fname):
         image = Image.open( fname )
         return pil_to_array(image)
 
-
-    handlers = {'png' :_png.read_png,
-                }
-    basename, ext = os.path.splitext(fname)
-    ext = ext.lower()[1:]
+    handlers = {'png' :_png.read_png, }
+    if format is None:
+        if cbook.is_string_like(fname):
+            basename, ext = os.path.splitext(fname)
+            ext = ext.lower()[1:]
+        else:
+            ext = 'png'
+    else:
+        ext = format
 
     if ext not in handlers.keys():
         im = pilread()
@@ -972,6 +981,13 @@ def imread(fname):
         return im
 
     handler = handlers[ext]
+
+    # To handle Unicode filenames, we pass a file object to the PNG
+    # reader extension, since Python handles them quite well, but it's
+    # tricky in C.
+    if cbook.is_string_like(fname):
+        fname = open(fname, 'rb')
+
     return handler(fname)
 
 

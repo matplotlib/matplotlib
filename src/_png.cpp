@@ -130,12 +130,12 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
       png_init_io(png_ptr, fp);
     } else {
       png_set_write_fn(png_ptr, (void*)py_fileobj.ptr(),
-		       &write_png_data, &flush_png_data);
+                       &write_png_data, &flush_png_data);
     }
     png_set_IHDR(png_ptr, info_ptr,
-		 width, height, 8,
-		 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
-		 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+                 width, height, 8,
+                 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
     // Save the dpi of the image in the file
     if (args.size() == 5) {
@@ -157,14 +157,14 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
     png_write_image(png_ptr, row_pointers);
     png_write_end(png_ptr, info_ptr);
   } catch (...) {
-      if (fp && close_file) fclose(fp);
-      delete [] row_pointers;
-      /* Changed calls to png_destroy_write_struct to follow
-         http://www.libpng.org/pub/png/libpng-manual.txt.
-         This ensures the info_ptr memory is released.
-      */
-      if (png_ptr && info_ptr) png_destroy_write_struct(&png_ptr, &info_ptr);
-      throw;
+    if (fp && close_file) fclose(fp);
+    delete [] row_pointers;
+    /* Changed calls to png_destroy_write_struct to follow
+       http://www.libpng.org/pub/png/libpng-manual.txt.
+       This ensures the info_ptr memory is released.
+    */
+    if (png_ptr && info_ptr) png_destroy_write_struct(&png_ptr, &info_ptr);
+    throw;
   }
 
   png_destroy_write_struct(&png_ptr, &info_ptr);
@@ -174,39 +174,85 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
   return Py::Object();
 }
 
+static void _read_png_data(PyObject* py_file_obj, png_bytep data, png_size_t length) {
+  PyObject* read_method = PyObject_GetAttrString(py_file_obj, "read");
+  PyObject* result = NULL;
+  char *buffer;
+  Py_ssize_t bufflen;
+  if (read_method)
+    result = PyObject_CallFunction(read_method, (char *)"i", length);
+  if (PyString_AsStringAndSize(result, &buffer, &bufflen) == 0) {
+    if (bufflen == (Py_ssize_t)length) {
+      memcpy(data, buffer, length);
+    }
+  }
+  Py_XDECREF(read_method);
+  Py_XDECREF(result);
+}
+
+static void read_png_data(png_structp png_ptr, png_bytep data, png_size_t length) {
+  PyObject* py_file_obj = (PyObject*)png_get_io_ptr(png_ptr);
+  _read_png_data(py_file_obj, data, length);
+}
 
 Py::Object
 _png_module::read_png(const Py::Tuple& args) {
 
   args.verify_length(1);
-  std::string fname = Py::String(args[0]);
+  png_byte header[8];   // 8 is the maximum size that can be checked
+  FILE* fp = NULL;
+  bool close_file = false;
 
-  png_byte header[8];	// 8 is the maximum size that can be checked
+  Py::Object py_fileobj = Py::Object(args[0]);
+  if (py_fileobj.isString()) {
+    std::string fileName = Py::String(py_fileobj);
+    const char *file_name = fileName.c_str();
+    if ((fp = fopen(file_name, "rb")) == NULL)
+      throw Py::RuntimeError( Printf("Could not open file %s for reading", file_name).str() );
+    close_file = true;
+  } else if (PyFile_CheckExact(py_fileobj.ptr())) {
+    fp = PyFile_AsFile(py_fileobj.ptr());
+  } else {
+    PyObject* read_method = PyObject_GetAttrString(py_fileobj.ptr(), "read");
+    if (!(read_method && PyCallable_Check(read_method))) {
+      Py_XDECREF(read_method);
+      throw Py::TypeError("Object does not appear to be a 8-bit string path or a Python file-like object");
+    }
+    Py_XDECREF(read_method);
+  }
 
-  FILE *fp = fopen(fname.c_str(), "rb");
-  if (!fp)
-    throw Py::RuntimeError(Printf("_image_module::readpng could not open PNG file %s for reading", fname.c_str()).str());
-
-  if (fread(header, 1, 8, fp) != 8)
-    throw Py::RuntimeError("_image_module::readpng: error reading PNG header");
-  if (png_sig_cmp(header, 0, 8))
+  if (fp) {
+    if (fread(header, 1, 8, fp) != 8) {
+      throw Py::RuntimeError("_image_module::readpng: error reading PNG header");
+    }
+  } else {
+    _read_png_data(py_fileobj.ptr(), header, 8);
+  }
+  if (png_sig_cmp(header, 0, 8)) {
     throw Py::RuntimeError("_image_module::readpng: file not recognized as a PNG file");
-
+  }
 
   /* initialize stuff */
   png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
-  if (!png_ptr)
+  if (!png_ptr) {
     throw Py::RuntimeError("_image_module::readpng:  png_create_read_struct failed");
+  }
 
   png_infop info_ptr = png_create_info_struct(png_ptr);
-  if (!info_ptr)
+  if (!info_ptr) {
     throw Py::RuntimeError("_image_module::readpng:  png_create_info_struct failed");
+  }
 
-  if (setjmp(png_jmpbuf(png_ptr)))
+  if (setjmp(png_jmpbuf(png_ptr))) {
     throw Py::RuntimeError("_image_module::readpng:  error during init_io");
+  }
 
-  png_init_io(png_ptr, fp);
+  if (fp) {
+    png_init_io(png_ptr, fp);
+  } else {
+    png_set_read_fn(png_ptr, (void*)py_fileobj.ptr(), &read_png_data);
+  }
   png_set_sig_bytes(png_ptr, 8);
   png_read_info(png_ptr, info_ptr);
 
@@ -272,26 +318,28 @@ _png_module::read_png(const Py::Tuple& args) {
 
   for (png_uint_32 y = 0; y < height; y++) {
     png_byte* row = row_pointers[y];
-	for (png_uint_32 x = 0; x < width; x++) {
-	  size_t offset = y*A->strides[0] + x*A->strides[1];
-	  if (bit_depth == 16) {
-	    png_uint_16* ptr = &reinterpret_cast<png_uint_16*> (row)[x * dimensions[2]];
+        for (png_uint_32 x = 0; x < width; x++) {
+          size_t offset = y*A->strides[0] + x*A->strides[1];
+          if (bit_depth == 16) {
+            png_uint_16* ptr = &reinterpret_cast<png_uint_16*> (row)[x * dimensions[2]];
             for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
-	      *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
-	  } else {
-	    png_byte* ptr = &(row[x * dimensions[2]]);
-	    for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
-		{
-	      *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
-	    }
-	  }
+              *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
+          } else {
+            png_byte* ptr = &(row[x * dimensions[2]]);
+            for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
+                {
+              *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
+            }
+          }
     }
   }
 
   //free the png memory
   png_read_end(png_ptr, info_ptr);
   png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
-  fclose(fp);
+  if (close_file) {
+    fclose(fp);
+  }
   for (row = 0; row < height; row++)
     delete [] row_pointers[row];
   delete [] row_pointers;
