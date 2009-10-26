@@ -4,6 +4,9 @@ from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
 from nose.tools import assert_raises
 
+import cStringIO
+import os
+
 @image_comparison(baseline_images=['image_interps'])
 def test_image_interps():
     'make the basic nearest, bilinear and bicubic interps'
@@ -25,6 +28,24 @@ def test_image_interps():
     ax3.set_ylabel('bicubic')
 
     fig.savefig('image_interps')
+
+def test_image_python_io():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot([1,2,3])
+    buffer = cStringIO.StringIO()
+    fig.savefig(buffer)
+    buffer.seek(0)
+    plt.imread(buffer)
+
+def test_image_unicode_io():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot([1,2,3])
+    fname = u"\u0a3a\u0a3a.png"
+    fig.savefig(fname)
+    plt.imread(fname)
+    os.remove(fname)
 
 if __name__=='__main__':
     import nose
