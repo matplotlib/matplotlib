@@ -38,14 +38,14 @@ def test_image_python_io():
     buffer.seek(0)
     plt.imread(buffer)
 
-def test_image_unicode_io():
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot([1,2,3])
-    fname = u"\u0a3a\u0a3a.png"
-    fig.savefig(fname)
-    plt.imread(fname)
-    os.remove(fname)
+# def test_image_unicode_io():
+#     fig = plt.figure()
+#     ax = fig.add_subplot(111)
+#     ax.plot([1,2,3])
+#     fname = u"\u0a3a\u0a3a.png"
+#     fig.savefig(fname)
+#     plt.imread(fname)
+#     os.remove(fname)
 
 if __name__=='__main__':
     import nose
