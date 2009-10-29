@@ -5,6 +5,7 @@ matplotlib.text.Text.
 """
 
 from matplotlib.backend_bases import RendererBase
+from matplotlib.backends.backend_mixed import MixedModeRenderer
 import matplotlib.transforms as transforms
 
 
@@ -57,6 +58,9 @@ class _Base(object):
 
     def _draw_text_as_path(self, renderer, gc, x, y, s, prop, angle, ismath):
 
+        if isinstance(renderer, MixedModeRenderer):
+            renderer = renderer._renderer
+            
         path, transform = RendererBase._get_text_path_transform(renderer,
                                                                 x, y, s,
                                                                 prop, angle,

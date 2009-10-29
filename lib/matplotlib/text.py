@@ -278,9 +278,15 @@ class Text(Artist):
         horizLayout = np.zeros((len(lines), 4))
 
         if self.get_path_effects():
-            def get_text_width_height_descent(*kl, **kwargs):
-                return RendererBase.get_text_width_height_descent(renderer,
-                                                                  *kl, **kwargs)
+            from matplotlib.backends.backend_mixed import MixedModeRenderer
+            if isinstance(renderer, MixedModeRenderer):
+                def get_text_width_height_descent(*kl, **kwargs):
+                    return RendererBase.get_text_width_height_descent(renderer._renderer,
+                                                                      *kl, **kwargs)
+            else:
+                def get_text_width_height_descent(*kl, **kwargs):
+                    return RendererBase.get_text_width_height_descent(renderer,
+                                                                      *kl, **kwargs)
         else:
             get_text_width_height_descent = renderer.get_text_width_height_descent
 
