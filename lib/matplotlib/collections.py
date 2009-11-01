@@ -856,7 +856,7 @@ class LineCollection(Collection):
 
         ACCEPTS: matplotlib color arg or sequence of rgba tuples
         """
-        self._edgecolors = mcolors.colorConverter.to_rgba_array(c)
+        self.set_edgecolor(c)
 
     def color(self, c):
         """
