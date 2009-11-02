@@ -1091,10 +1091,10 @@ class Ellipse(Patch):
           center of ellipse
 
         *width*
-          length of horizontal axis
+          total length (diameter) of horizontal axis
 
         *height*
-          length of vertical axis
+          total length (diameter) of vertical axis
 
         *angle*
           rotation in degrees (anti-clockwise)
