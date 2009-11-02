@@ -11,7 +11,7 @@ from matplotlib import cbook
 from matplotlib import docstring
 from matplotlib.patches import Circle
 from matplotlib.path import Path
-from matplotlib.ticker import Formatter, Locator
+from matplotlib.ticker import Formatter, Locator, FormatStrFormatter
 from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
     BboxTransformTo, IdentityTransform, Transform, TransformWrapper
 import matplotlib.spines as mspines
@@ -318,7 +318,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
     set_rticks = Axes.set_yticks
 
     @docstring.dedent_interpd
-    def set_thetagrids(self, angles, labels=None, frac=None,
+    def set_thetagrids(self, angles, labels=None, frac=None, fmt=None,
                        **kwargs):
         """
         Set the angles at which to place the theta grids (these
@@ -348,6 +348,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         self.set_xticks(angles * (npy.pi / 180.0))
         if labels is not None:
             self.set_xticklabels(labels)
+        elif fmt is not None:
+            self.xaxis.set_major_formatter(FormatStrFormatter(fmt))
         if frac is not None:
             self._theta_label1_position.clear().translate(0.0, frac)
             self._theta_label2_position.clear().translate(0.0, 1.0 / frac)
@@ -356,7 +358,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         return self.xaxis.get_ticklines(), self.xaxis.get_ticklabels()
 
     @docstring.dedent_interpd
-    def set_rgrids(self, radii, labels=None, angle=None, rpad=None, **kwargs):
+    def set_rgrids(self, radii, labels=None, angle=None, rpad=None, fmt=None,
+                   **kwargs):
         """
         Set the radial locations and labels of the *r* grids.
 
@@ -389,6 +392,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         self.set_yticks(radii)
         if labels is not None:
             self.set_yticklabels(labels)
+        elif fmt is not None:
+            self.yaxis.set_major_formatter(FormatStrFormatter(fmt))
         if angle is None:
             angle = self._r_label1_position.to_values()[4]
         if rpad is not None:
