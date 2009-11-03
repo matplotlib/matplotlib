@@ -122,8 +122,8 @@ class MixedModeRenderer(object):
                 gc = self._renderer.new_gc()
                 self._renderer.draw_image(
                     gc,
-                    int(float(l)/self.dpi*72.),
-                    int((float(height) - b - h)/self.dpi*72.),
+                    float(l)/self.dpi*72.,
+                    (float(height) - b - h)/self.dpi*72.,
                     image)
             self._raster_renderer = None
             self._rasterizing = False
