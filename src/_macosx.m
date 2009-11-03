@@ -340,7 +340,8 @@ static void _release_hatch(void* info)
 - (void)dealloc;
 - (void)drawRect:(NSRect)rect;
 - (void)windowDidResize:(NSNotification*)notification;
-- (View*)initWithFrame:(NSRect)rect canvas:(PyObject*)fc;
+- (View*)initWithFrame:(NSRect)rect;
+- (void)setCanvas: (PyObject*)newCanvas;
 - (BOOL)windowShouldClose:(NSNotification*)notification;
 - (BOOL)isFlipped;
 - (void)mouseDown:(NSEvent*)event;
@@ -2896,8 +2897,20 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
     if(!PyArg_ParseTuple(args, "ii", &width, &height)) return -1;
 
     NSRect rect = NSMakeRect(0.0, 0.0, width, height);
-    self->view = [self->view initWithFrame: rect canvas: (PyObject*)self];
+    self->view = [self->view initWithFrame: rect];
+    [self->view setCanvas: (PyObject*)self];
     return 0;
+}
+
+static void
+FigureCanvas_dealloc(FigureCanvas* self)
+{
+    if (self->view)
+    {
+        [self->view setCanvas: NULL];
+        [self->view release];
+    }
+    self->ob_type->tp_free((PyObject*)self);
 }
 
 static PyObject*
@@ -3243,7 +3256,7 @@ static PyTypeObject FigureCanvasType = {
     "_macosx.FigureCanvas",    /*tp_name*/
     sizeof(FigureCanvas),      /*tp_basicsize*/
     0,                         /*tp_itemsize*/
-    0,                         /*tp_dealloc*/
+    (destructor)FigureCanvas_dealloc,     /*tp_dealloc*/
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
@@ -4483,25 +4496,23 @@ show(PyObject* self)
     return NO;
 }
 
-- (View*)initWithFrame:(NSRect)rect canvas: (PyObject*)fc
+- (View*)initWithFrame:(NSRect)rect
 {
     self = [super initWithFrame: rect];
     rubberband = NSZeroRect;
-    if (canvas)
-    {
-        Py_DECREF(canvas);
-    }
-    canvas = fc;
-    Py_INCREF(canvas);
     return self;
 }
 
 - (void)dealloc
 {
     FigureCanvas* fc = (FigureCanvas*)canvas;
-    fc->view = NULL;
-    Py_DECREF(canvas);
+    if (fc) fc->view = NULL;
     [super dealloc];
+}
+
+- (void)setCanvas: (PyObject*)newCanvas
+{
+    canvas = newCanvas;
 }
 
 -(void)drawRect:(NSRect)rect
