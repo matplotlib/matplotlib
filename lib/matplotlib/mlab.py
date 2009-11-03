@@ -759,6 +759,9 @@ def longest_ones(x):
 
 def prepca(P, frac=0):
     """
+
+    WARNING: this function is deprecated -- please see class PCA instead
+    
     Compute the principal components of *P*.  *P* is a (*numVars*,
     *numObs*) array.  *frac* is the minimum fraction of variance that a
     component must contain to be included.
@@ -778,6 +781,7 @@ def prepca(P, frac=0):
     R13 Neural Network Toolbox but is not found in later versions;
     its successor seems to be called "processpcs".
     """
+    warnings.warn('This function is deprecated -- see class PCA instead')
     U,s,v = np.linalg.svd(P)
     varEach = s**2/P.shape[1]
     totVar = varEach.sum()
@@ -788,6 +792,83 @@ def prepca(P, frac=0):
     # The transformed data
     Pcomponents = np.dot(Trans,P)
     return Pcomponents, Trans, fracVar[ind]
+
+
+class PCA:
+    def __init__(self, a):
+        """
+        compute the SVD of a and store data for PCA.  Use project to
+        project the data onto a reduced set of dimensions
+
+        Inputs:
+
+          *a*: a numobservations x numdims array
+
+        Attrs:
+
+          *a* a centered unit sigma version of input a
+
+          *numrows*, *numcols*: the dimensions of a
+
+          *mu* : a numdims array of means of a
+
+          *sigma* : a numdims array of atandard deviation of a
+
+          *fracs* : the proportion of variance of each of the principal components
+
+          *Wt* : the weight vector for projecting a numdims point or array into PCA space
+
+          *Y* : a projected into PCA space
+
+        """
+        n, m = a.shape
+        if n<m:
+            raise RuntimeError('we assume data in a is organized with numrows>numcols')
+
+        self.numrows, self.numcols = n, m
+        self.mu = a.mean(axis=0)
+        self.sigma = a.std(axis=0)
+
+        a = self.center(a)
+
+        self.a = a
+
+        U, s, Vh = np.linalg.svd(a, full_matrices=False)
+
+
+        Y = np.dot(Vh, a.T).T
+
+        vars = s**2/float(len(s))
+        self.fracs = vars/vars.sum()
+
+
+        self.Wt = Vh
+        self.Y = Y
+
+
+    def project(self, x, minfrac=0.):
+        'project x onto the principle axes, dropping any axes where fraction of variance<minfrac'
+        x = np.asarray(x)
+
+        ndims = len(x.shape)
+
+        if (x.shape[-1]!=self.numcols):
+            raise ValueError('Expected an array with dims[-1]==%d'%self.numcols)
+
+
+        Y = np.dot(self.Wt, self.center(x).T).T
+        mask = self.fracs>=minfrac
+        if ndims==2:
+            Yreduced = Y[:,mask]
+        else:
+            Yreduced = Y[mask]
+        return Yreduced
+
+
+
+    def center(self, x):
+        'center the data using the mean and sigma from training set a'
+        return (x - self.mu)/self.sigma
 
 def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
     """
