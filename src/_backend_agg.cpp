@@ -163,6 +163,17 @@ GCAgg::GCAgg(const Py::Object &gc, double dpi) :
   _set_hatch_path(gc);
 }
 
+<<<<<<< .working
+=======
+GCAgg::GCAgg(double dpi) :
+  dpi(dpi), isaa(true),
+  cap(agg::butt_cap), join(agg::round_join), linewidth(1.0), alpha(1.0),
+  dashOffset(0.0)
+{
+
+}
+
+>>>>>>> .merge-right.r7919
 void
 GCAgg::_set_antialiased(const Py::Object& gc) {
   _VERBOSE("GCAgg::antialiased");
