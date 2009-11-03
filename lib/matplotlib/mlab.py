@@ -761,7 +761,7 @@ def prepca(P, frac=0):
     """
 
     WARNING: this function is deprecated -- please see class PCA instead
-    
+
     Compute the principal components of *P*.  *P* is a (*numVars*,
     *numObs*) array.  *frac* is the minimum fraction of variance that a
     component must contain to be included.
@@ -869,6 +869,27 @@ class PCA:
     def center(self, x):
         'center the data using the mean and sigma from training set a'
         return (x - self.mu)/self.sigma
+
+
+
+    @staticmethod
+    def _get_colinear():
+        c0 = np.array([
+            0.19294738,  0.6202667 ,  0.45962655,  0.07608613,  0.135818  ,
+            0.83580842,  0.07218851,  0.48318321,  0.84472463,  0.18348462,
+            0.81585306,  0.96923926,  0.12835919,  0.35075355,  0.15807861,
+            0.837437  ,  0.10824303,  0.1723387 ,  0.43926494,  0.83705486])
+
+        c1 = np.array([
+            -1.17705601, -0.513883  , -0.26614584,  0.88067144,  1.00474954,
+            -1.1616545 ,  0.0266109 ,  0.38227157,  1.80489433,  0.21472396,
+            -1.41920399, -2.08158544, -0.10559009,  1.68999268,  0.34847107,
+            -0.4685737 ,  1.23980423, -0.14638744, -0.35907697,  0.22442616])
+
+        c2 = c0 + 2*c1
+        c3 = -3*c0 + 4*c1
+        a = np.array([c3, c0, c1, c2]).T
+        return a
 
 def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
     """

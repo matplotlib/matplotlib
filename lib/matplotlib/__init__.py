@@ -905,6 +905,7 @@ default_test_modules = [
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_cbook',
+    'matplotlib.tests.test_mlab',
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_axes',
     'matplotlib.tests.test_dates',
