@@ -820,6 +820,10 @@ class PCA:
 
           *Y* : a projected into PCA space
 
+
+        The factor loadings are in the Wt factor, ie the factor
+        loadings for the 1st principal component are given by Wt[0]
+
         """
         n, m = a.shape
         if n<m:
