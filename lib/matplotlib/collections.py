@@ -574,6 +574,7 @@ class PolyCollection(Collection):
         if closed:
             self._paths = []
             for xy in verts:
+<<<<<<< .working
                 if len(xy):
                     if np.ma.isMaskedArray(xy):
                         xy = np.ma.concatenate([xy, np.zeros((1,2))])
@@ -585,6 +586,19 @@ class PolyCollection(Collection):
                     codes[0] = mpath.Path.MOVETO
                     codes[-1] = mpath.Path.CLOSEPOLY
                     self._paths.append(mpath.Path(xy, codes))
+=======
+                if len(xy):
+                    if np.ma.isMaskedArray(xy):
+                        xy = np.ma.concatenate([xy, np.zeros((1,2))])
+                    else:
+                        xy = np.asarray(xy)
+                        xy = np.concatenate([xy, np.zeros((1,2))])
+                    codes = np.empty(xy.shape[0], dtype='uint8')
+                    codes[:] = mpath.Path.LINETO
+                    codes[0] = mpath.Path.MOVETO
+                    codes[-1] = mpath.Path.CLOSEPOLY
+                    self._paths.append(mpath.Path(xy, codes))
+>>>>>>> .merge-right.r7919
                 else:
                     self._paths.append(mpath.Path(xy))
         else:
