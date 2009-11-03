@@ -164,7 +164,8 @@ GCAgg::GCAgg(const Py::Object &gc, double dpi) :
 }
 
 GCAgg::GCAgg(double dpi) :
-  dpi(dpi), isaa(true), linewidth(1.0), alpha(1.0),
+  dpi(dpi), isaa(true),
+  cap(agg::butt_cap), join(agg::round_join), linewidth(1.0), alpha(1.0),
   dashOffset(0.0)
 {
 
