@@ -104,7 +104,6 @@ public:
 class GCAgg {
 public:
   GCAgg(const Py::Object& gc, double dpi);
-  GCAgg(double dpi);
 
   double dpi;
   bool isaa;
@@ -224,15 +223,16 @@ protected:
   bool render_clippath(const Py::Object& clippath, const agg::trans_affine& clippath_trans);
   template<class PathIteratorType>
   void _draw_path(PathIteratorType& path, bool has_clippath,
-		  const facepair_t& face, const GCAgg& gc);
+                  const facepair_t& face, const GCAgg& gc);
   template<class PathGenerator, int check_snap, int has_curves>
   Py::Object
   _draw_path_collection_generic
-    (agg::trans_affine 	            master_transform,
-     const Py::Object&		    cliprect,
-     const Py::Object&		    clippath,
+    (GCAgg&                         gc,
+     agg::trans_affine              master_transform,
+     const Py::Object&              cliprect,
+     const Py::Object&              clippath,
      const agg::trans_affine&       clippath_trans,
-     const PathGenerator&	    path_generator,
+     const PathGenerator&           path_generator,
      const Py::SeqBase<Py::Object>& transforms_obj,
      const Py::Object&              offsets_obj,
      const agg::trans_affine&       offset_trans,
@@ -262,7 +262,7 @@ public:
     BufferRegion::init_type();
 
     add_keyword_method("RendererAgg", &_backend_agg_module::new_renderer,
-		       "RendererAgg(width, height, dpi)");
+                       "RendererAgg(width, height, dpi)");
     initialize( "The agg rendering backend" );
   }
 
