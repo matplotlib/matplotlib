@@ -1893,7 +1893,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
 
     return newrec
 
-def recs_join(key, name, recs, jointype='outer', missing=0.):
+def recs_join(key, name, recs, jointype='outer', missing=0., postfixes=None):
     """
     Join a sequence of record arrays on single column key.
 
@@ -1911,11 +1911,15 @@ def recs_join(key, name, recs, jointype='outer', missing=0.):
     *jointype*
       is a string 'inner' or 'outer'
 
-    *missing"
+    *missing*
       is what any missing field is replaced by
 
+    *postfixes*
+      if not None, a len recs sequence of postfixes
 
-    returns a record array with columns [rowkey, name1, name2, ... namen].
+    returns a record array with columns [rowkey, name0, name1, ... namen-1].
+    or if postfixes [PF0, PF1, ..., PFN-1] are supplied,
+      [rowkey, namePF0, namePF1, ... namePFN-1].
 
     Example::
 
@@ -1938,7 +1942,9 @@ def recs_join(key, name, recs, jointype='outer', missing=0.):
             if None not in row: # throw out any Nones
                 results.append([rowkey] + map(extract, row))
 
-    names = ",".join([key] + ["%s%d" % (name, d) for d in range(len(recs))])
+    if postfixes is None:
+        postfixes = ['%d'%i for i in range(len(recs))]
+    names = ",".join([key] + ["%s%s" % (name, postfix) for postfix in postfixes])
     return np.rec.fromrecords(results, names=names)
 
 
