@@ -147,8 +147,7 @@ Py::Object BufferRegion::to_string_argb(const Py::Tuple &args) {
 }
 
 GCAgg::GCAgg(const Py::Object &gc, double dpi) :
-  dpi(dpi), isaa(true), linewidth(1.0), alpha(1.0),
-  dashOffset(0.0)
+  dpi(dpi), isaa(true), dashOffset(0.0)
 {
   _VERBOSE("GCAgg::GCAgg");
   linewidth = points_to_pixels ( gc.getAttr("_linewidth") ) ;
@@ -162,13 +161,6 @@ GCAgg::GCAgg(const Py::Object &gc, double dpi) :
   _set_clip_path(gc);
   _set_snap(gc);
   _set_hatch_path(gc);
-}
-
-GCAgg::GCAgg(double dpi) :
-  dpi(dpi), isaa(true), linewidth(1.0), alpha(1.0),
-  dashOffset(0.0)
-{
-
 }
 
 void
@@ -219,11 +211,11 @@ GCAgg::_set_joinstyle(const Py::Object& gc) {
 
   std::string joinstyle = Py::String( gc.getAttr("_joinstyle") );
 
-  if (joinstyle=="miter")
-    join =  agg::miter_join_revert;
-  else if (joinstyle=="round")
+  if (joinstyle == "miter")
+    join = agg::miter_join_revert;
+  else if (joinstyle == "round")
     join = agg::round_join;
-  else if(joinstyle=="bevel")
+  else if (joinstyle == "bevel")
     join = agg::bevel_join;
   else
     throw Py::ValueError(Printf("GC _joinstyle attribute must be one of butt, round, projecting; found %s", joinstyle.c_str()).str());
@@ -532,7 +524,7 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   if (args.size() == 6)
     face_obj = args[5];
 
-  GCAgg gc = GCAgg(gc_obj, dpi);
+  GCAgg gc(gc_obj, dpi);
 
   // Deal with the difference in y-axis direction
   marker_trans *= agg::trans_affine_scaling(1.0, -1.0);
@@ -775,7 +767,7 @@ RendererAgg::draw_text_image(const Py::Tuple& args) {
 
   double angle = Py::Float( args[3] );
 
-  GCAgg gc = GCAgg(args[4], dpi);
+  GCAgg gc(args[4], dpi);
 
   theRasterizer.reset_clipping();
   rendererBase.reset_clipping(true);
@@ -1081,7 +1073,8 @@ RendererAgg::draw_path(const Py::Tuple& args) {
 template<class PathGenerator, int check_snap, int has_curves>
 Py::Object
 RendererAgg::_draw_path_collection_generic
-  (agg::trans_affine              master_transform,
+  (GCAgg&                         gc,
+   agg::trans_affine              master_transform,
    const Py::Object&              cliprect,
    const Py::Object&              clippath,
    const agg::trans_affine&       clippath_trans,
@@ -1100,8 +1093,6 @@ RendererAgg::_draw_path_collection_generic
   typedef PathQuantizer<clipped_t>                                   quantized_t;
   typedef agg::conv_curve<quantized_t>                               quantized_curve_t;
   typedef agg::conv_curve<clipped_t>                                 curve_t;
-
-  GCAgg gc(dpi);
 
   PyArrayObject* offsets    = NULL;
   PyArrayObject* facecolors = NULL;
@@ -1312,7 +1303,8 @@ RendererAgg::draw_path_collection(const Py::Tuple& args) {
 
   try {
     _draw_path_collection_generic<PathListGenerator, 0, 1>
-      (master_transform,
+      (gc,
+       master_transform,
        gc.cliprect,
        gc.clippath,
        gc.clippath_trans,
@@ -1449,7 +1441,8 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args) {
   try {
     try {
       _draw_path_collection_generic<QuadMeshGenerator, 0, 0>
-        (master_transform,
+        (gc,
+         master_transform,
          gc.cliprect,
          gc.clippath,
          gc.clippath_trans,

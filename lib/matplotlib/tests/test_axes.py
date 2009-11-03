@@ -407,6 +407,23 @@ def test_imshow_clip():
     ax.imshow(r, clip_path=clip_path)
     fig.savefig('imshow_clip')
 
+@image_comparison(baseline_images=['polycollection_joinstyle'])
+def test_polycollection_joinstyle():
+    # Bug #2890979 reported by Matthew West
+
+    from matplotlib import collections as mcoll
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    verts = np.array([[1,1], [1,2], [2,2], [2,1]])
+    c = mcoll.PolyCollection([verts], linewidths = 40)
+    ax.add_collection(c)
+    ax.set_xbound(0, 3)
+    ax.set_ybound(0, 3)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    fig.savefig('polycollection_joinstyle')
 
 if __name__=='__main__':
     import nose
