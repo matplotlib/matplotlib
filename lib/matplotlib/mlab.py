@@ -2576,6 +2576,10 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
     *withheader*: if withheader is False, do not write the attribute
       names in the first row
 
+    for formatd type FormatFloat, we override the precision to store
+    full precision floats in the CSV file
+
+
     .. seealso::
 
         :func:`csv2rec`

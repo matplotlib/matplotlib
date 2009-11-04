@@ -669,6 +669,8 @@ class Cursor:
         self.vertOn = True
         self.useblit = useblit
 
+        if useblit:
+            lineprops['animated'] = True
         self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **lineprops)
         self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **lineprops)
 
@@ -741,10 +743,14 @@ class MultiCursor:
 
     """
     def __init__(self, canvas, axes, useblit=True, **lineprops):
+
         self.canvas = canvas
         self.axes = axes
         xmin, xmax = axes[-1].get_xlim()
         xmid = 0.5*(xmin+xmax)
+        if useblit:
+            lineprops['animated'] = True
+
         self.lines = [ax.axvline(xmid, visible=False, **lineprops) for ax in axes]
 
         self.visible = True
