@@ -1066,6 +1066,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             scaling data values to colors. If *norm* is *None* and
             *colors* is *None*, the default linear scaling is used.
 
+          *levels* [level0, level1, ..., leveln]
+            A list of floating point numbers indicating the level
+            curves to draw; eg to draw just the zero contour pass
+            ``levels=[0]``
+
           *origin*: [ None | 'upper' | 'lower' | 'image' ]
             If *None*, the first value of *Z* will correspond to the
             lower left corner, location (0,0). If 'image', the rc
