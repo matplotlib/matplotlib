@@ -1536,11 +1536,26 @@ class FigureCanvasBase:
         *edgecolor*
             the edgecolor of the figure
 
-        *orientation*  '
+        *orientation*
             landscape' | 'portrait' (not supported on all backends)
 
         *format*
             when set, forcibly set the file format to save to
+
+
+        *bbox_inches*
+            Bbox in inches. Only the given portion of the figure is
+            saved. If 'tight', try to figure out the tight bbox of
+            the figure.
+
+        *pad_inches*
+            Amount of padding around the figure when bbox_inches is
+            'tight'.
+
+        *bbox_extra_artists*
+            A list of extra artists that will be considered when the
+            tight bbox is calculated.
+
         """
         if format is None:
             if cbook.is_string_like(filename):
@@ -1597,6 +1612,18 @@ class FigureCanvasBase:
                     **kwargs)
                 renderer = self.figure._cachedRenderer
                 bbox_inches = self.figure.get_tightbbox(renderer)
+
+                bb = [a.get_window_extent(renderer) for a in kwargs.pop("bbox_extra_artists", []) \
+                      if a.get_visible()]
+                if bb:
+                    _bbox = Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
+
+                    bbox_inches1 = TransformedBbox(_bbox,
+                                                  Affine2D().scale(1./self.figure.dpi))
+
+                    bbox_inches = Bbox.union([bbox_inches, bbox_inches1])
+
+
                 pad = kwargs.pop("pad_inches", 0.1)
                 bbox_inches = bbox_inches.padded(pad)
 

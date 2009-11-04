@@ -1031,6 +1031,10 @@ class Figure(Artist):
             Amount of padding around the figure when bbox_inches is
             'tight'.
 
+          *bbox_extra_artists*:
+            A list of extra artists that will be considered when the
+            tight bbox is calculated.
+
         """
 
         for key in ('dpi', 'facecolor', 'edgecolor'):
