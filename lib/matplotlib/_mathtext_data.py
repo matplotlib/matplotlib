@@ -41,6 +41,7 @@ latex_to_bakoma = {
     r'\rangle'              : ('cmex10',  64),
     r'\widehat'             : ('cmex10',  15),
     r'\widetilde'           : ('cmex10',  52),
+    r'\widebar'             : ('cmr10',  131),
 
     r'\omega'               : ('cmmi10',  29),
     r'\varepsilon'          : ('cmmi10',  20),
@@ -1762,6 +1763,7 @@ uni2type1 = dict([(v,k) for k,v in type12uni.items()])
 tex2uni = {
 'widehat': 0x0302,
 'widetilde': 0x0303,
+'widebar': 0x0305,
 'langle': 0x27e8,
 'rangle': 0x27e9,
 'perp': 0x27c2,

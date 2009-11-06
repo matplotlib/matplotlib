@@ -2481,7 +2481,7 @@ class Parser(object):
         r'overleftarrow'  : r'\leftarrow'
         }
 
-    _wide_accents = set(r"widehat widetilde".split())
+    _wide_accents = set(r"widehat widetilde widebar".split())
 
     def accent(self, s, loc, toks):
         assert(len(toks)==1)
