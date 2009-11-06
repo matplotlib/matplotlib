@@ -44,7 +44,10 @@ from _mathtext_data import uni2type1
 # than truncate).  But I don't know what the best approach is now and
 # this change to _to_int should at least prevent mpl from crashing on
 # these JDH (2009-11-06)
-_to_int = lambda x: return int(float(x))
+
+def _to_int(x):
+    return int(float(x))
+
 _to_float = float
 _to_str =  str
 
