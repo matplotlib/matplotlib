@@ -10,6 +10,8 @@ import matplotlib.legend as mlegend
 from matplotlib.axes import subplot_class_factory
 from axislines import Axes
 
+from matplotlib.transforms import Bbox
+
 import numpy as np
 
 import matplotlib.cbook as cbook
@@ -237,6 +239,16 @@ class HostAxes(Axes):
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         return self.legend_
 
+
+    def get_tightbbox(self, renderer):
+
+        bbs = [ax.get_tightbbox(renderer) for ax in self.parasites]
+        bbs.append(super(HostAxes, self).get_tightbbox(renderer))
+
+        _bbox = Bbox.union([b for b in bbs if b.width!=0 or b.height!=0])
+
+        return _bbox
+    
 
     def draw(self, renderer):
 
