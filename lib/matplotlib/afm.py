@@ -38,7 +38,13 @@ import sys, os, re
 from _mathtext_data import uni2type1
 
 #Convert string the a python type
-_to_int = int
+
+# some afm files have floats where we are expecting ints -- there is
+# probably a better way to handle this (support floats, round rather
+# than truncate).  But I don't know what the best approach is now and
+# this change to _to_int should at least prevent mpl from crashing on
+# these JDH (2009-11-06)
+_to_int = lambda x: return int(float(x))
 _to_float = float
 _to_str =  str
 
