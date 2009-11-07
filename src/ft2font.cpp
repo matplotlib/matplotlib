@@ -885,6 +885,24 @@ FT2Font::set_charmap(const Py::Tuple & args) {
   return Py::Object();
 }
 
+char FT2Font::select_charmap__doc__[] =
+"select_charmap(i)\n"
+"\n"
+"select charmap i where i is one of the FT_Encoding number\n"
+;
+
+Py::Object
+FT2Font::select_charmap(const Py::Tuple & args) {
+  _VERBOSE("FT2Font::set_charmap");
+  args.verify_length(1);
+
+  unsigned long i = Py::Long(args[0]);
+  //if (FT_Select_Charmap( face, FT_ENCODING_ADOBE_CUSTOM ))
+  if (FT_Select_Charmap( face, (FT_Encoding) i ))
+    throw Py::ValueError("Could not set the charmap");
+  return Py::Object();
+}
+
 FT_BBox
 FT2Font::compute_string_bbox(  ) {
   _VERBOSE("FT2Font::compute_string_bbox");
@@ -1368,6 +1386,7 @@ FT2Font::get_charmap(const Py::Tuple & args) {
   FT_UInt index;
   Py::Dict charmap;
 
+  //std::cout << "asd" << face->charmaps[1]->encoding << std::endl;
   FT_ULong code = FT_Get_First_Char(face, &index);
   while (index != 0) {
     charmap[Py::Long((long) code)] = Py::Int((int) index);
@@ -1841,6 +1860,8 @@ FT2Font::init_type() {
 		     FT2Font::set_size__doc__);
   add_varargs_method("set_charmap", &FT2Font::set_charmap,
 		     FT2Font::set_charmap__doc__);
+  add_varargs_method("select_charmap", &FT2Font::select_charmap,
+		     FT2Font::select_charmap__doc__);
 
   add_varargs_method("get_width_height", &FT2Font::get_width_height,
 		     FT2Font::get_width_height__doc__);

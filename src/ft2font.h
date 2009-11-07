@@ -95,6 +95,7 @@ public:
   Py::Object clear(const Py::Tuple & args);
   Py::Object set_size(const Py::Tuple & args);
   Py::Object set_charmap(const Py::Tuple & args);
+  Py::Object select_charmap(const Py::Tuple & args);
   Py::Object set_text(const Py::Tuple & args, const Py::Dict & kwargs);
   Py::Object get_kerning(const Py::Tuple & args);
   Py::Object get_num_glyphs(const Py::Tuple & args);
@@ -137,6 +138,7 @@ private:
   static char clear__doc__ [];
   static char set_size__doc__ [];
   static char set_charmap__doc__ [];
+  static char select_charmap__doc__ [];
   static char set_text__doc__ [];
   static char get_glyph__doc__ [];
   static char get_num_glyphs__doc__ [];
