@@ -19,7 +19,7 @@ class TextToPath(object):
 
     FONT_SCALE = 50.
     DPI = 72
-    
+
     def __init__(self):
         """
         Initialization
@@ -44,7 +44,7 @@ class TextToPath(object):
 
     def _get_hinting_flag(self):
         return LOAD_NO_HINTING
-    
+
     def _get_char_id(self, font, ccode):
         """
         Return a unique id for the given font and character-code set.
@@ -64,7 +64,7 @@ class TextToPath(object):
 
     def glyph_to_path(self, glyph, currx=0.):
         """
-        convert the ft2font glyph to vertices and codes. 
+        convert the ft2font glyph to vertices and codes.
         """
         #Mostly copied from backend_svg.py.
 
@@ -102,14 +102,14 @@ class TextToPath(object):
 
         *s*
           text to be converted
-          
+
         *usetex*
           If True, use matplotlib usetex mode.
 
         *ismath*
           If True, use mathtext parser. Effective only if usetex == False.
 
-          
+
         """
         if usetex==False:
             if ismath == False:
@@ -121,26 +121,26 @@ class TextToPath(object):
             glyph_info, glyph_map, rects = self.get_glyphs_tex(prop, s)
 
         verts, codes = [], []
-        
+
         for glyph_id, xposition, yposition, scale in glyph_info:
             verts1, codes1 = glyph_map[glyph_id]
             if verts1:
-                verts1 = np.array(verts1)*scale + [xposition, yposition] 
+                verts1 = np.array(verts1)*scale + [xposition, yposition]
             verts.extend(verts1)
             codes.extend(codes1)
 
         for verts1, codes1 in rects:
             verts.extend(verts1)
             codes.extend(codes1)
-            
+
         return verts, codes
 
-            
+
     def get_glyphs_with_font(self, font, s, glyph_map=None,
                              return_new_glyphs_only=False):
         """
         convert the string *s* to vertices and codes using the
-        provided ttf font. 
+        provided ttf font.
         """
 
         # Mostly copied from backend_svg.py.
@@ -151,7 +151,7 @@ class TextToPath(object):
         currx = 0
         xpositions = []
         glyph_ids = []
-        
+
         if glyph_map is None:
             glyph_map = dict()
 
@@ -190,14 +190,14 @@ class TextToPath(object):
             glyph_ids.append(char_id)
 
             currx += horiz_advance
-            
+
             lastgind = gind
 
         ypositions = [0] * len(xpositions)
         sizes = [1.] * len(xpositions)
 
         rects = []
-        
+
         return zip(glyph_ids, xpositions, ypositions, sizes), glyph_map_new, rects
 
 
@@ -275,14 +275,14 @@ class TextToPath(object):
         """
 
         # codes are modstly borrowed from pdf backend.
-        
+
         texmanager = self.get_texmanager()
 
         if self.tex_font_map is None:
             self.tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
 
         fontsize = prop.get_size_in_points()
-        if hasattr(texmanager, "get_dvi"): # 
+        if hasattr(texmanager, "get_dvi"): #
             dvifilelike = texmanager.get_dvi(s, self.FONT_SCALE)
             dvi = dviread.DviFromFileLike(dvifilelike, self.DPI)
         else:
@@ -312,6 +312,10 @@ class TextToPath(object):
             if font_and_encoding is None:
                 font_bunch =  self.tex_font_map[dvifont.texname]
                 font = FT2Font(font_bunch.filename)
+                try:
+                    font.select_charmap(1094992451) # select ADOBE_CUSTOM
+                except ValueError:
+                    font.set_charmap(0)
                 if font_bunch.encoding:
                     enc = dviread.Encoding(font_bunch.encoding)
                 else:
@@ -322,25 +326,15 @@ class TextToPath(object):
                 font, enc = font_and_encoding
 
             ft2font_flag = LOAD_TARGET_LIGHT
-            if enc:
-                ng = font.get_name_index(enc.encoding[glyph])
-            else:
-                ng = glyph
 
-            char_id = self._get_char_id_ps(font, ng)
+            char_id = self._get_char_id_ps(font, glyph)
 
             if not char_id in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
 
-                if ng == 0:
-                    # While 0 is a valid index (e.g., "-", "\Gamma"),
-                    # font.load_glyph(0) does not seem to work. This
-                    # may not be a general solution.
-                    glyph0 = font.load_glyph(128, flags=ft2font_flag)
-                else: 
-                    glyph0 = font.load_glyph(ng, flags=ft2font_flag)
-                    
+                glyph0 = font.load_char(glyph, flags=ft2font_flag)
+
                 glyph_map_new[char_id] = self.glyph_to_path(glyph0)
 
             glyph_ids.append(char_id)
@@ -349,7 +343,7 @@ class TextToPath(object):
             sizes.append(dvifont.size/self.FONT_SCALE)
 
         myrects = []
-        
+
         for ox, oy, h, w in page.boxes:
             vert1=[(ox, oy), (ox+w, oy), (ox+w, oy+h), (ox, oy+h), (ox, oy), (0,0)]
             code1 = [Path.MOVETO,
@@ -358,12 +352,13 @@ class TextToPath(object):
             myrects.append((vert1, code1))
 
 
-        return zip(glyph_ids, xpositions, ypositions, sizes), glyph_map, myrects
+        return zip(glyph_ids, xpositions, ypositions, sizes), \
+               glyph_map_new, myrects
 
 
 
 
-    
+
 
 from matplotlib.font_manager import FontProperties
 from matplotlib import rcParams
@@ -384,7 +379,7 @@ class TextPath(Path):
         it simply is a path, not an artist. You need to use the
         PathPatch (or other artists) to draw this path onto the
         canvas.
-        
+
         xy : position of the text.
         s : text
         size : font size
@@ -437,7 +432,7 @@ class TextPath(Path):
         Return the codes
         """
         return self._codes
-    
+
     vertices = property(_get_vertices)
     codes = property(_get_codes)
 
@@ -463,7 +458,7 @@ class TextPath(Path):
         Returns True if the given string *s* contains any mathtext.
         """
         # copied from Text.is_math_text -JJL
-        
+
         # Did we find an even number of non-escaped dollar signs?
         # If so, treat is as math text.
         dollar_count = s.count(r'$') - s.count(r'\$')
@@ -489,7 +484,7 @@ class TextPath(Path):
         else:
             clean_line, ismath = self.is_math_text(s)
             verts, codes = text_to_path.get_text_path(prop, clean_line, ismath=ismath)
-        
+
         return verts, codes
 
 
