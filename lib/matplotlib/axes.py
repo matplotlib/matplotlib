@@ -1721,7 +1721,8 @@ class Axes(martist.Artist):
 
         if len(self.images)<=1 or renderer.option_image_nocomposite():
             for im in self.images:
-                im.draw(renderer)
+                dsu.append( (im.zorder, len(dsu), im) )
+            dsu.sort() # re-sort with images now
         else:
             # make a composite image blending alpha
             # list of (mimage.Image, ox, oy)
