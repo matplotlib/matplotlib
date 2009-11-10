@@ -1,3 +1,12 @@
+2009-11-10 Single images, and all images in renderers with
+           option_image_nocomposite (i.e. agg, macosx and the svg
+           backend when rcParams['svg.image_noscale'] is True), are
+           now drawn respecting the zorder relative to other
+           artists. (Note that there may now be inconsistencies across
+           backends when more than one image is drawn at varying
+           zorders, but this change introduces correct behavior for
+           the backends in which it's easy to do so.)
+
 2009-10-21 Make AutoDateLocator more configurable by adding options
            to control the maximum and minimum number of ticks. Also
            add control of the intervals to be used for ticking. This
