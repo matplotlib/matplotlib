@@ -1727,9 +1727,12 @@ class Axes(martist.Artist):
             # make a composite image blending alpha
             # list of (mimage.Image, ox, oy)
 
+            zorder_images = [(im.zorder, im) for im in self.images \
+                             if im.get_visible()]
+            zorder_images.sort()
+            
             mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag),0,0)
-                   for im in self.images if im.get_visible()]
+            ims = [(im.make_image(mag),0,0) for z,im in zorder_images]
 
 
             l, b, r, t = self.bbox.extents
