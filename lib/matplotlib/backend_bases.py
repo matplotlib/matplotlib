@@ -335,7 +335,7 @@ class RendererBase:
 
     def option_image_nocomposite(self):
         """
-        overwrite this method for renderers that do not necessarily
+        override this method for renderers that do not necessarily
         want to rescale and composite raster images. (like SVG)
         """
         return False
