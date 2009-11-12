@@ -27,7 +27,7 @@ from matplotlib._image import *
 from matplotlib.transforms import BboxBase
 
 class _AxesImageBase(martist.Artist, cm.ScalarMappable):
-    zorder = 1
+    zorder = 0
     # map interpolation strings to module constants
     _interpd = {
         'nearest'  : _image.NEAREST,
@@ -687,7 +687,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         self.update_dict['array'] = True
 
 class FigureImage(martist.Artist, cm.ScalarMappable):
-    zorder = 1
+    zorder = 0
     def __init__(self, fig,
                  cmap = None,
                  norm = None,
@@ -805,7 +805,6 @@ class BboxImage(_AxesImageBase):
     """
     The Image class whose size is determined by the given bbox.
     """
-    zorder = 1
     def __init__(self, bbox,
                  cmap = None,
                  norm = None,
