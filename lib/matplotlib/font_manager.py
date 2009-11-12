@@ -301,7 +301,7 @@ def get_fontconfig_fonts(fontext='ttf'):
     except OSError:
         # Calling fc-list did not work, so we'll just return nothing
         return fontfiles
-    
+
     if pipe.returncode == 0:
         for line in output.split('\n'):
             fname = line.split(':')[0]
@@ -463,8 +463,7 @@ def ttfFontProperty(font):
     #  Relative stretches are: wider, narrower
     #  Child value is: inherit
 
-    #  !!!!  Incomplete
-    if   sfnt4.find('narrow') >= 0 or sfnt4.find('condensed') >= 0 or \
+    if sfnt4.find('narrow') >= 0 or sfnt4.find('condensed') >= 0 or \
            sfnt4.find('cond') >= 0:
         stretch = 'condensed'
     elif sfnt4.find('demi cond') >= 0:
@@ -502,6 +501,7 @@ def afmFontProperty(fontpath, font):
     """
 
     name = font.get_familyname()
+    fontname = font.get_fontname().lower()
 
     #  Styles are: italic, oblique, and normal (default)
 
@@ -532,9 +532,15 @@ def afmFontProperty(fontpath, font):
     #    and ultra-expanded.
     #  Relative stretches are: wider, narrower
     #  Child value is: inherit
-
-    # !!!!  Incomplete
-    stretch = 'normal'
+    if fontname.find('narrow') >= 0 or fontname.find('condensed') >= 0 or \
+           fontname.find('cond') >= 0:
+        stretch = 'condensed'
+    elif fontname.find('demi cond') >= 0:
+        stretch = 'semi-condensed'
+    elif fontname.find('wide') >= 0 or fontname.find('expanded') >= 0:
+        stretch = 'expanded'
+    else:
+        stretch = 'normal'
 
     #  Sizes can be absolute and relative.
     #  Absolute sizes are: xx-small, x-small, small, medium, large, x-large,
@@ -960,12 +966,20 @@ class FontManager:
     matches the specification.  If no good enough match is found, a
     default font is returned.
     """
+    # Increment this version number whenever the font cache data
+    # format or behavior has changed and requires a existing font
+    # cache files to be rebuilt.
+    __version__ = 5
+
     def __init__(self, size=None, weight='normal'):
+        self._version = self.__version__
+
         self.__default_weight = weight
         self.default_size = size
 
         paths = [os.path.join(rcParams['datapath'], 'fonts', 'ttf'),
-                 os.path.join(rcParams['datapath'], 'fonts', 'afm')]
+                 os.path.join(rcParams['datapath'], 'fonts', 'afm'),
+                 os.path.join(rcParams['datapath'], 'fonts', 'pdfcorefonts')]
 
         #  Create list of font paths
         for pathname in ['TTFPATH', 'AFMPATH']:
@@ -982,32 +996,23 @@ class FontManager:
         #  Load TrueType fonts and create font dictionary.
 
         self.ttffiles = findSystemFonts(paths) + findSystemFonts()
+        self.defaultFont = {}
 
         for fname in self.ttffiles:
             verbose.report('trying fontname %s' % fname, 'debug')
             if fname.lower().find('vera.ttf')>=0:
-                self.defaultFont = fname
+                self.defaultFont['ttf'] = fname
                 break
         else:
             # use anything
-            self.defaultFont = self.ttffiles[0]
+            self.defaultFont['ttf'] = self.ttffiles[0]
 
         self.ttflist = createFontList(self.ttffiles)
 
-        if rcParams['pdf.use14corefonts']:
-            # Load only the 14 PDF core fonts. These fonts do not need to be
-            # embedded; every PDF viewing application is required to have them:
-            # Helvetica, Helvetica-Bold, Helvetica-Oblique, Helvetica-BoldOblique,
-            # Courier, Courier-Bold, Courier-Oblique, Courier-BoldOblique,
-            # Times-Roman, Times-Bold, Times-Italic, Times-BoldItalic, Symbol,
-            # ZapfDingbats.
-            afmpath = os.path.join(rcParams['datapath'],'fonts','pdfcorefonts')
-            afmfiles = findSystemFonts(afmpath, fontext='afm')
-            self.afmlist = createFontList(afmfiles, fontext='afm')
-        else:
-            self.afmfiles = findSystemFonts(paths, fontext='afm') + \
-                            findSystemFonts(fontext='afm')
-            self.afmlist = createFontList(self.afmfiles, fontext='afm')
+        self.afmfiles = findSystemFonts(paths, fontext='afm') + \
+            findSystemFonts(fontext='afm')
+        self.afmlist = createFontList(self.afmfiles, fontext='afm')
+        self.defaultFont['afm'] = None
 
         self.ttf_lookup_cache = {}
         self.afm_lookup_cache = {}
@@ -1151,7 +1156,7 @@ class FontManager:
             return 1.0
         return abs(sizeval1 - sizeval2) / 72.0
 
-    def findfont(self, prop, fontext='ttf'):
+    def findfont(self, prop, fontext='ttf', directory=None):
         """
         Search the font list for the font that most closely matches
         the :class:`FontProperties` *prop*.
@@ -1161,6 +1166,9 @@ class FontManager:
         properties.  The first font with the highest score is
         returned.  If no matches below a certain threshold are found,
         the default font (usually Vera Sans) is returned.
+
+        `directory`, is specified, will only return fonts from the
+        given directory (or subdirectory of that directory).
 
         The result is cached, so subsequent lookups don't have to
         perform the O(n) nearest neighbor search.
@@ -1194,6 +1202,10 @@ class FontManager:
         best_font = None
 
         for font in fontlist:
+            if (directory is not None and
+                os.path.commonprefix([font.fname, directory]) != directory):
+                print directory, font.fname, os.path.commonprefix([font.fname, directory])
+                continue
             # Matching family should have highest priority, so it is multiplied
             # by 10.0
             score = \
@@ -1211,8 +1223,8 @@ class FontManager:
 
         if best_font is None or best_score >= 10.0:
             verbose.report('findfont: Could not match %s. Returning %s' %
-                           (prop, self.defaultFont))
-            result = self.defaultFont
+                           (prop, self.defaultFont[fontext]))
+            result = self.defaultFont[fontext]
         else:
             verbose.report('findfont: Matching %s to %s (%s) with score of %f' %
                            (prop, best_font.name, best_font.fname, best_score))
@@ -1289,16 +1301,16 @@ else:
 
     try:
         fontManager = pickle_load(_fmcache)
-        fontManager.default_size = None
-        verbose.report("Using fontManager instance from %s" % _fmcache)
+        if (not hasattr(fontManager, '_version') or
+            fontManager._version != FontManager.__version__):
+            _rebuild()
+        else:
+            fontManager.default_size = None
+            verbose.report("Using fontManager instance from %s" % _fmcache)
     except:
         _rebuild()
 
     def findfont(prop, **kw):
         global fontManager
         font = fontManager.findfont(prop, **kw)
-        if not os.path.exists(font):
-            verbose.report("%s returned by pickled fontManager does not exist" % font)
-            _rebuild()
-            font =  fontManager.findfont(prop, **kw)
         return font

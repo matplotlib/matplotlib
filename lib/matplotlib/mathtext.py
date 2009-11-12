@@ -1032,7 +1032,11 @@ class StandardPsFonts(Fonts):
         self.glyphd = {}
         self.fonts = {}
 
-        filename = findfont(default_font_prop, fontext='afm')
+        filename = findfont(default_font_prop, fontext='afm',
+                            directory=self.basepath)
+        if filename is None:
+            filename = findfont('Helvetica', fontext='afm',
+                                directory=self.basepath)
         default_font = AFM(file(filename, 'r'))
         default_font.fname = filename
 

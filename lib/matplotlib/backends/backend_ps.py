@@ -170,6 +170,9 @@ class RendererPS(RendererBase):
         self.used_characters = {}
         self.mathtext_parser = MathTextParser("PS")
 
+        self._afm_font_dir = os.path.join(
+            rcParams['datapath'], 'fonts', 'afm')
+
     def track_characters(self, font, s):
         """Keeps track of which characters are required from
         each font."""
@@ -312,10 +315,13 @@ class RendererPS(RendererBase):
         key = hash(prop)
         font = self.afmfontd.get(key)
         if font is None:
-            fname = findfont(prop, fontext='afm')
+            fname = findfont(prop, fontext='afm', directory=self._afm_font_dir)
+            if fname is None:
+                fname = findfont(
+                    "Helvetica", fontext='afm', directory=self._afm_font_dir)
             font = self.afmfontd.get(fname)
             if font is None:
-                font = AFM(file(findfont(prop, fontext='afm')))
+                font = AFM(file(fname))
                 self.afmfontd[fname] = font
             self.afmfontd[key] = font
         return font
