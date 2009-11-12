@@ -295,8 +295,13 @@ def get_fontconfig_fonts(fontext='ttf'):
     fontext = get_fontext_synonyms(fontext)
 
     fontfiles = {}
-    pipe = subprocess.Popen(['fc-list', '', 'file'], stdout=subprocess.PIPE)
-    output = pipe.communicate()[0]
+    try:
+        pipe = subprocess.Popen(['fc-list', '', 'file'], stdout=subprocess.PIPE)
+        output = pipe.communicate()[0]
+    except OSError:
+        # Calling fc-list did not work, so we'll just return nothing
+        return fontfiles
+    
     if pipe.returncode == 0:
         for line in output.split('\n'):
             fname = line.split(':')[0]
@@ -1242,8 +1247,11 @@ if USE_FONTCONFIG and sys.platform != 'win32':
     def fc_match(pattern, fontext):
         fontexts = get_fontext_synonyms(fontext)
         ext = "." + fontext
-        pipe = subprocess.Popen(['fc-match', '-sv', pattern], stdout=subprocess.PIPE)
-        output = pipe.communicate()[0]
+        try:
+            pipe = subprocess.Popen(['fc-match', '-sv', pattern], stdout=subprocess.PIPE)
+            output = pipe.communicate()[0]
+        except OSError:
+            return None
         if pipe.returncode == 0:
             for match in _fc_match_regex.finditer(output):
                 file = match.group(1)
