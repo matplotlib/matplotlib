@@ -42,7 +42,7 @@ License   : matplotlib license (PSF compatible)
             see license/LICENSE_TTFQUERY.
 """
 
-import os, sys, glob
+import os, sys, glob, subprocess
 try:
     set
 except NameError:
@@ -292,16 +292,12 @@ def get_fontconfig_fonts(fontext='ttf'):
     grab all of the fonts the user wants to be made available to
     applications, without needing knowing where all of them reside.
     """
-    try:
-        import commands
-    except ImportError:
-        return {}
-
     fontext = get_fontext_synonyms(fontext)
 
     fontfiles = {}
-    status, output = commands.getstatusoutput("fc-list file")
-    if status == 0:
+    pipe = subprocess.Popen(['fc-list', '', 'file'], stdout=subprocess.PIPE)
+    output = pipe.communicate()[0]
+    if pipe.returncode == 0:
         for line in output.split('\n'):
             fname = line.split(':')[0]
             if (os.path.splitext(fname)[1][1:] in fontext and
@@ -1244,11 +1240,11 @@ if USE_FONTCONFIG and sys.platform != 'win32':
     import re
 
     def fc_match(pattern, fontext):
-        import commands
         fontexts = get_fontext_synonyms(fontext)
         ext = "." + fontext
-        status, output = commands.getstatusoutput('fc-match -sv "%s"' % pattern)
-        if status == 0:
+        pipe = subprocess.Popen(['fc-match', '-sv', pattern], stdout=subprocess.PIPE)
+        output = pipe.communicate()[0]
+        if pipe.returncode == 0:
             for match in _fc_match_regex.finditer(output):
                 file = match.group(1)
                 if os.path.splitext(file)[1][1:] in fontexts:
