@@ -1698,7 +1698,7 @@ class Axes(martist.Artist):
             artists.extend(self.spines.itervalues())
 
 
-        dsu = [ (a.zorder, i, a) for i, a in enumerate(artists)
+        dsu = [ (a.zorder, a) for a in artists
                 if not a.get_animated() ]
         dsu.sort()
 
@@ -1721,7 +1721,7 @@ class Axes(martist.Artist):
 
         if len(self.images)<=1 or renderer.option_image_nocomposite():
             for im in self.images:
-                dsu.append( (im.zorder, len(dsu), im) )
+                dsu.append( (im.zorder, im) )
             dsu.sort() # re-sort with images now
         else:
             # make a composite image blending alpha
@@ -1757,11 +1757,11 @@ class Axes(martist.Artist):
             gc.restore()
 
         if dsu_rasterized:
-            for zorder, i, a in dsu_rasterized:
+            for zorder, a in dsu_rasterized:
                 a.draw(renderer)
             renderer.stop_rasterizing()
 
-        for zorder, i, a in dsu:
+        for zorder, a in dsu:
             a.draw(renderer)
 
         renderer.close_group('axes')
