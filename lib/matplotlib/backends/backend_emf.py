@@ -46,16 +46,19 @@ class EMFFontProperties(FontProperties):
                               other.get_weight(),
                               other.get_stretch(),
                               other.get_size())
-        self.__angle=angle
+        self._angle=angle
 
     def __hash__(self):
-        return hash( (FontProperties.__hash__(self), self.__angle))
+        return hash( (FontProperties.__hash__(self), self._angle))
 
     def __str__(self):
-        return str( (FontProperties.__str__(self), self.__angle))
+        return str( (FontProperties.__str__(self), self._angle))
 
     def set_angle(self,angle):
-        self.__angle=angle
+        self._angle=angle
+
+    def get_angle(self):
+        return self._angle
 
 # Hashable pen (line style) properties.
 class EMFPen:
