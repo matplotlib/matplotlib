@@ -166,15 +166,14 @@ Cloning the git mirror
 ~~~~~~~~~~~~~~~~~~~~~~
 
 There is an experimental `matplotlib github mirror`_ of the subversion
-repository. To make a local clone of it in the directory ``mpl.git``,
+repository. To make a local clone of it in the directory ``matplotlib``,
 enter the following commands::
 
-
-  # Download the entire git repository into "mpl.git", name the source repository "svn".
-  git clone --origin svn git@github.com:astraw/matplotlib.git mpl.git
+  # Download the entire git repository into "matplotlib", name the source repository "svn".
+  git clone --origin svn git@github.com:astraw/matplotlib.git
 
   # Change into the newly created git repository.
-  cd mpl.git
+  cd matplotlib
 
   # Setup the subversion mirroring.
   git svn init --trunk=trunk/matplotlib --prefix=svn/ https://matplotlib.svn.sourceforge.net/svnroot/matplotlib
@@ -187,11 +186,15 @@ enter the following commands::
 To install from this cloned repository, use the commands in the
 :ref:`svn installation <install-svn>` section::
 
-  > cd mpl.git
+  > cd matplotlib
   > python setup.py install
 
-Using git
-~~~~~~~~~
+Note that it is not possible to interact with the matplotlib
+maintenance branches through git due to different representations of
+source code repositories in svnmerge and git.
+
+An example git workflow
+~~~~~~~~~~~~~~~~~~~~~~~
 
 The following is a suggested workflow for git/git-svn.
 
@@ -227,10 +230,63 @@ rebase it to the new trunk::
   git checkout whizbang-branch
   git rebase trunk
 
-Working on a maintenance branch from git
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+How was this git mirror set up?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The matplotlib maintenance branches are not available through git.
+These are notes for those interested in mirroring a subversion
+repository on github. I pieced this together by lots of
+trial-and-error.
+
+Step 1: Create a local mirror of the svn repository
+
+::
+
+  rsync -avzP rsync://matplotlib.svn.sourceforge.net/svn/matplotlib/ matplotlib-svn-rsync/
+
+Step 2: Import the svn history into a new git repository
+
+::
+
+  #!/bin/bash
+  set -e
+
+  TARGET=mpl.git.fixed
+  GIT=/home/astraw/git/bin/git
+  TRUNKBRANCH=trunk
+  SVNBRANCHPREFIX="svn/"
+
+  rm -rf $TARGET
+  mkdir $TARGET
+  cd $TARGET
+
+  $GIT init
+  $GIT svn init --rewrite-root=https://matplotlib.svn.sourceforge.net/svnroot/matplotlib \
+     --trunk=trunk/matplotlib --prefix=$SVNBRANCHPREFIX file:///mnt/workdisk/tmp/matplotlib-svn-rsync
+  $GIT svn fetch
+
+  # now, make master branch track ${SVNBRANCHPREFIX}trunk
+  $GIT checkout master -b tmp
+  $GIT branch -d master
+  $GIT checkout ${SVNBRANCHPREFIX}trunk -b $TRUNKBRANCH
+  $GIT branch -D tmp
+  $GIT svn rebase -l
+
+Step 3: Upload the git repository to github
+
+::
+
+  #!/bin/bash
+  set -e
+
+  TARGET=mpl.git.fixed
+  GIT=/home/astraw/git/bin/git
+  TRUNKBRANCH=trunk
+  SVNBRANCHPREFIX="svn/"
+
+  cd $TARGET
+
+  $GIT remote add github git@github.com:astraw/matplotlib.git
+  git push github $TRUNKBRANCH:master
 
 .. _style-guide:
 
