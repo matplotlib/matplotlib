@@ -1,6 +1,6 @@
 from matplotlib.testing.noseclasses import KnownFailureTest, \
      KnownFailureDidNotFailTest, ImageComparisonFailure
-import os, sys
+import os, sys, shutil
 import nose
 import matplotlib
 import matplotlib.tests
@@ -85,7 +85,11 @@ def image_comparison(baseline_images=None,extensions=None):
 
         def compare_images_generator():
             for extension in extensions:
-                expected_fnames = [os.path.join(baseline_dir,fname) + '.' + extension for fname in baseline_images]
+                orig_expected_fnames = [os.path.join(baseline_dir,fname) + '.' + extension for fname in baseline_images]
+                expected_fnames = [os.path.join(result_dir,'expected-'+fname) + '.' + extension for fname in baseline_images]
+                for src,dst in zip( orig_expected_fnames, expected_fnames ):
+                    if not os.path.exists(dst):
+                        shutil.copyfile(src,dst)
                 actual_fnames = [os.path.join(result_dir, fname) + '.' + extension for fname in baseline_images]
                 have_baseline_images = [os.path.exists(expected) for expected in expected_fnames]
                 have_baseline_image = np.all(have_baseline_images)
@@ -148,15 +152,10 @@ def _image_directories(func):
         basedir = os.path.dirname(matplotlib.tests.__file__)
 
     baseline_dir = os.path.join(basedir,'baseline_images',subdir)
-    result_dir = os.path.join(basedir,'current_images',subdir)
+    result_dir = os.path.abspath(os.path.join('result_images',subdir))
 
     if not os.path.exists(result_dir):
-        try:
-            # make the current_images directory first
-            os.mkdir(os.path.join(basedir,'current_images'))
-        except OSError:
-            pass # probably exists already
-        os.mkdir(result_dir)
+        os.makedirs(result_dir)
 
     return baseline_dir, result_dir
 
