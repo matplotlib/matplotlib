@@ -5,6 +5,7 @@ Author: Jouni K Seppänen <jks@iki.fi>
 """
 from __future__ import division
 
+import codecs
 import os
 import re
 import sys
@@ -148,6 +149,16 @@ def pdfRepr(obj):
     # Integers are written as such.
     elif isinstance(obj, (int, long)):
         return "%d" % obj
+
+    # Unicode strings are encoded in UTF-16BE with byte-order mark.
+    elif isinstance(obj, unicode):
+        try:
+            # But maybe it's really ASCII?
+            s = obj.encode('ASCII')
+            return pdfRepr(s)
+        except UnicodeEncodeError:
+            s = codecs.BOM_UTF16_BE + obj.encode('UTF-16BE')
+            return pdfRepr(s)
 
     # Strings are written in parentheses, with backslashes and parens
     # escaped. Actually balanced parens are allowed, but it is
@@ -374,7 +385,6 @@ class PdfFile(object):
         fh.write("%\254\334 \253\272\n")
 
         self.rootObject = self.reserveObject('root')
-        self.infoObject = self.reserveObject('info')
         self.pagesObject = self.reserveObject('pages')
         self.pageList = []
         self.fontObject = self.reserveObject('fonts')
@@ -388,13 +398,12 @@ class PdfFile(object):
                  'Pages': self.pagesObject }
         self.writeObject(self.rootObject, root)
 
-        info = { 'Creator': 'matplotlib ' + __version__ \
-                 + ', http://matplotlib.sf.net',
-                 'Producer': 'matplotlib pdf backend',
-                 'CreationDate': datetime.today() }
-
-        # Possible TODO: Title, Author, Subject, Keywords
-        self.writeObject(self.infoObject, info)
+        revision = '$Rev$'.strip('$').split(':')[1].strip()
+        self.infoDict = {
+            'Creator': 'matplotlib %s, http://matplotlib.sf.net' % __version__,
+            'Producer': 'matplotlib pdf backend r%s' % revision,
+            'CreationDate': datetime.today()
+            }
 
         self.fontNames = {}     # maps filenames to internal font names
         self.nextFont = 1       # next free internal font name
@@ -471,6 +480,7 @@ class PdfFile(object):
                          { 'Type': Name('Pages'),
                            'Kids': self.pageList,
                            'Count': len(self.pageList) })
+        self.writeInfoDict()
 
         # Finalize the file
         self.writeXref()
@@ -1280,6 +1290,31 @@ end"""
         if borken:
             raise AssertionError, 'Indirect object does not exist'
 
+    def writeInfoDict(self):
+        """Write out the info dictionary, checking it for good form"""
+
+        is_date = lambda x: isinstance(x, datetime)
+        check_trapped = lambda x: isinstance(x, Name) and x.name in \
+                                         ('True', 'False', 'Unknown')
+        keywords = {'Title': is_string_like,
+                    'Author': is_string_like,
+                    'Subject': is_string_like,
+                    'Keywords': is_string_like,
+                    'Creator': is_string_like,
+                    'Producer': is_string_like,
+                    'CreationDate': is_date,
+                    'ModDate': is_date,
+                    'Trapped': check_trapped}
+        for k in self.infoDict.keys():
+            if k not in keywords:
+                warnings.warn('Unknown infodict keyword: %s' % k)
+            else:
+                if not keywords[k](self.infoDict[k]):
+                    warnings.warn('Bad value for infodict keyword %s' % k)
+
+        self.infoObject = self.reserveObject('info')
+        self.writeObject(self.infoObject, self.infoDict)
+
     def writeTrailer(self):
         """Write out the PDF trailer."""
 
@@ -2051,6 +2086,14 @@ class PdfPages(object):
         """
         self._file.close()
         self._file = None
+
+    def infodict(self):
+        """
+        Return a modifiable information dictionary object
+        (see PDF reference section 10.2.1 'Document Information
+        Dictionary').
+        """
+        return self._file.infoDict
 
     def savefig(self, figure=None, **kwargs):
         """

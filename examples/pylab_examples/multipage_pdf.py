@@ -1,5 +1,6 @@
 # This is a demo of creating a pdf file with several pages.
 
+import datetime
 import numpy as np
 import matplotlib
 from matplotlib.backends.backend_pdf import PdfPages
@@ -28,6 +29,15 @@ plot(x, x*x, 'ko')
 title('Page Three')
 pdf.savefig(fig) # or you can pass a Figure object to pdf.savefig
 close()
+
+# We can also set the file's metadata via the PdfPages object:
+d = pdf.infodict()
+d['Title'] = 'Multipage PDF Example'
+d['Author'] = u'Jouni K. Sepp\xe4nen'
+d['Subject'] = 'How to create a multipage pdf file and set its metadata'
+d['Keywords'] = 'PdfPages multipage keywords author title subject'
+d['CreationDate'] = datetime.datetime(2009,11,13)
+d['ModDate'] = datetime.datetime.today()
 
 # Remember to close the object - otherwise the file will not be usable
 pdf.close()
