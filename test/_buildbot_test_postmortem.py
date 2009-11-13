@@ -81,9 +81,13 @@ if 1:
     # new matplotlib.testing infrastructure
 
     os.chdir('test')
-    for fname in glob.glob('*.png'):
-        absdiff_fname = diff_basename + fname
-        expected_fname = expected_basename + fname
+    for fname in get_recursive_filelist(['result_images']):
+        # only images
+        if not fname.endswith('.png'): continue
+
+        result_dir, result_fname = os.path.split(fname)
+        absdiff_fname = os.path.join( result_dir, diff_basename + result_fname)
+        expected_fname = os.path.join( result_dir, expected_basename + result_fname)
         if not os.path.exists(absdiff_fname):
             continue
         if not os.path.exists(expected_fname):
