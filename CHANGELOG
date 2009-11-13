@@ -1,3 +1,6 @@
+2009-11-13 The pdf backend now allows changing the contents of
+           a pdf file's information dictionary via PdfPages.infodict. - JKS
+
 2009-11-12 font_manager.py should no longer cause EINTR on Python 2.6
            (but will on the 2.5 version of subprocess). Also the
            fc-list command in that file was fixed so now it should
