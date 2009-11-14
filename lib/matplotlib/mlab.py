@@ -2687,9 +2687,11 @@ def griddata(x,y,z,xi,yi,interp='nn'):
         raise TypeError("inputs x,y,z must all be 1D arrays of the same length")
     # remove masked points.
     if hasattr(z,'mask'):
-        x = x.compress(z.mask == False)
-        y = y.compress(z.mask == False)
-        z = z.compressed()
+        # make sure mask is not a scalar boolean array.
+        if a.mask.ndim: 
+            x = x.compress(z.mask == False)
+            y = y.compress(z.mask == False)
+            z = z.compressed()
     if _use_natgrid: # use natgrid toolkit if available.
         if interp != 'nn':
             raise ValueError("only natural neighor interpolation"
