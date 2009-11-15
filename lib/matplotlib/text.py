@@ -590,6 +590,7 @@ class Text(Artist):
                 else:
                     renderer.draw_tex(gc, x, y, clean_line,
                                       self._fontproperties, angle)
+            gc.restore()
             renderer.close_group('text')
             return
 

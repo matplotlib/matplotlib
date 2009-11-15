@@ -119,6 +119,7 @@ class Stroke(_Base):
 
         gc0 = self._update_gc(gc0, self._gc)
         renderer.draw_path(gc0, tpath, affine, None)
+        gc0.restore()
 
 
 class withStroke(Stroke):
@@ -183,6 +184,7 @@ class SimplePatchShadow(_Base):
 
         gc0 = self._update_gc(gc0, self._gc)
         renderer.draw_path(gc0, tpath, affine0, shadow_rgbFace)
+        gc0.restore()
 
 
 class withSimplePatchShadow(SimplePatchShadow):
@@ -198,6 +200,7 @@ class withSimplePatchShadow(SimplePatchShadow):
         gc1.copy_properties(gc)
         gc1.set_alpha(gc1.get_alpha()*self._patch_alpha)
         renderer.draw_path(gc1, tpath, affine, rgbFace)
+        gc1.restore()
 
 
 if __name__ == '__main__':
