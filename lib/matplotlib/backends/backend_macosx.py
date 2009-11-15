@@ -63,12 +63,15 @@ class RendererMac(RendererBase):
                              linewidths, linestyles, antialiaseds, urls):
         cliprect = gc.get_clip_rectangle()
         clippath, clippath_transform = gc.get_clip_path()
-        gc.draw_path_collection(master_transform,
-                                cliprect,
+        if all_transforms:
+            transforms = [numpy.dot(master_transform, t) for t in all_transforms]
+        else:
+            transforms = [master_transform]
+        gc.draw_path_collection(cliprect,
                                 clippath,
                                 clippath_transform,
                                 paths,
-                                all_transforms,
+                                transforms,
                                 offsets,
                                 offsetTrans,
                                 facecolors,
