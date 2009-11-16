@@ -794,7 +794,7 @@ class Normalize:
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         elif vmin==vmax:
-            return 0.0 * val
+            result = 0.0 * val
         else:
             if clip:
                 mask = ma.getmask(val)
@@ -855,7 +855,7 @@ class LogNorm(Normalize):
         elif vmin<=0:
             raise ValueError("values must all be positive")
         elif vmin==vmax:
-            return 0.0 * val
+            result = 0.0 * val
         else:
             if clip:
                 mask = ma.getmask(val)
