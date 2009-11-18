@@ -38,7 +38,9 @@ add its own target).  These include `alt`, `height`, `width`, `scale`,
 
 Additionally, if the `:include-source:` option is provided, the
 literal source will be displayed inline in the text, (as well as a
-link to the source in HTML).
+link to the source in HTML).  If this source file is in a non-UTF8 or
+non-ASCII encoding, the encoding must be specified using the
+`:encoding:` option.
 
 The set of file formats to generate can be specified with the
 `plot_formats` configuration variable.
@@ -331,14 +333,21 @@ def _plot_directive(plot_path, basedir, function_name, plot_code, caption,
     # Now start generating the lines of output
     lines = []
 
+    if plot_code is None:
+        shutil.copyfile(plot_path, os.path.join(destdir, fname))
+
     if options.has_key('include-source'):
         if plot_code is None:
-            fd = open(plot_path, 'r')
-            plot_code = fd.read()
-            fd.close()
-        lines.extend(['::', ''])
-        lines.extend(['    %s' % row.rstrip()
-                      for row in plot_code.split('\n')])
+            lines.extend(
+                ['.. include:: %s' % os.path.join(setup.app.builder.srcdir, plot_path),
+                 '    :literal:'])
+            if options.has_key('encoding'):
+                lines.append('    :encoding: %s' % options['encoding'])
+                del options['encoding']
+        else:
+            lines.extend(['::', ''])
+            lines.extend(['    %s' % row.rstrip()
+                          for row in plot_code.split('\n')])
         lines.append('')
         del options['include-source']
     else:
@@ -348,8 +357,6 @@ def _plot_directive(plot_path, basedir, function_name, plot_code, caption,
         options = ['%s:%s: %s' % (template_content_indent, key, val)
                    for key, val in options.items()]
         options = "\n".join(options)
-        if plot_code is None:
-            shutil.copyfile(plot_path, os.path.join(destdir, fname))
 
         for i in range(num_figs):
             if num_figs == 1:
@@ -425,7 +432,8 @@ def setup(app):
                'scale': directives.nonnegative_int,
                'align': align,
                'class': directives.class_option,
-               'include-source': directives.flag }
+               'include-source': directives.flag,
+               'encoding': directives.encoding }
 
     app.add_directive('plot', plot_directive, True, (0, 2, 0), **options)
     app.add_config_value(
