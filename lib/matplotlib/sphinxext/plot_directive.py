@@ -36,7 +36,7 @@ import sphinx
 sphinx_version = sphinx.__version__.split(".")
 # The split is necessary for sphinx beta versions where the string is
 # '6b1'
-sphinx_version = tuple([int(re.split('[a-z]', x)[0]) 
+sphinx_version = tuple([int(re.split('[a-z]', x)[0])
                         for x in sphinx_version[:2]])
 
 import matplotlib
@@ -96,7 +96,8 @@ options = {'alt': directives.unchanged,
            'scale': directives.nonnegative_int,
            'align': align,
            'class': directives.class_option,
-           'include-source': directives.flag }
+           'include-source': directives.flag,
+           'encoding': directives.encoding}
 
 template = """
 .. htmlonly::
@@ -294,8 +295,15 @@ def plot_directive(name, arguments, options, content, lineno,
 
     if options.has_key('include-source'):
         if content is None:
-            content = open(reference, 'r').read()
-        lines = ['::', ''] + ['    %s'%row.rstrip() for row in content.split('\n')]
+            lines = [
+                '.. include:: %s' % os.path.join(setup.app.builder.srcdir, reference),
+                '    :literal:']
+            if options.has_key('encoding'):
+                lines.append('    :encoding: %s' % options['encoding'])
+                del options['encoding']
+        else:
+            lines = ['::', ''] + ['    %s'%row.rstrip() for row in content.split('\n')]
+        lines.append('')
         del options['include-source']
     else:
         lines = []
