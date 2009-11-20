@@ -273,3 +273,6 @@ save.__doc__ = """\
     files, we recommend numpy.savetxt.  For saving numpy arrays,
     we recommend numpy.save, and its analog numpy.load, which are
     available in pylab as np.save and np.load."""
+
+# don't let numpy's datetime hide stdlib
+import datetime
