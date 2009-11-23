@@ -398,10 +398,14 @@ class PdfFile(object):
                  'Pages': self.pagesObject }
         self.writeObject(self.rootObject, root)
 
-        revision = '$Rev$'.strip('$').split(':')[1].strip()
+        svn_special_string = '$Rev$' # on checkout, gets replaced by svn client
+        if ':' in svn_special_string:
+            revision = ' r'+svn_special_string.strip('$').split(':')[1].strip()
+        else:
+            revision = ''
         self.infoDict = {
             'Creator': 'matplotlib %s, http://matplotlib.sf.net' % __version__,
-            'Producer': 'matplotlib pdf backend r%s' % revision,
+            'Producer': 'matplotlib pdf backend%s' % revision,
             'CreationDate': datetime.today()
             }
 
