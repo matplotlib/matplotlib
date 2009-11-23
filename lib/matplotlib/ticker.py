@@ -206,7 +206,7 @@ class Formatter(TickHelper):
         """
         return s
 
-class IndexFormatter:
+class IndexFormatter(Formatter):
     """
     format the position x to the nearest i-th label where i=int(x+0.5)
     """
