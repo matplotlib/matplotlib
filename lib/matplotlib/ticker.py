@@ -206,13 +206,14 @@ class Formatter(TickHelper):
         """
         return s
 
-class IndexFormatter:
+class IndexFormatter(Formatter):
     """
     format the position x to the nearest i-th label where i=int(x+0.5)
     """
     def __init__(self, labels):
         self.labels = labels
         self.n = len(labels)
+
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos; pos=None indicated unspecified'
         i = int(x+0.5)
@@ -657,7 +658,7 @@ class Locator(TickHelper):
     because the locator stores references to the Axis data and view
     limits
     """
-    
+
     # some automatic tick locators can generate so many ticks they
     # kill the machine when you try and render them, see eg sf bug
     # report
@@ -673,7 +674,7 @@ class Locator(TickHelper):
         'raise a RuntimeError if Locator attempts to create more than MAXTICKS locs'
         if len(locs)>=self.MAXTICKS:
            raise RuntimeError('Locator attempting to generate %d ticks from %s to %s: exceeds Locator.MAXTICKS'%(len(locs), locs[0], locs[-1]))
-        
+
         return locs
 
     def view_limits(self, vmin, vmax):
