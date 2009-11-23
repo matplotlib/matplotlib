@@ -274,7 +274,7 @@ image data, we use the :func:`~matplotlib.pyplot.hist` function.
 
 .. sourcecode:: ipython
 
-    In[10]: plt.hist(lum_img)
+    In[10]: plt.hist(lum_img.flatten(), 256, range=(0.0,1.0), fc='k', ec='k')
 
 .. plot::
 
@@ -283,7 +283,7 @@ image data, we use the :func:`~matplotlib.pyplot.hist` function.
     import numpy as np
     img = mpimg.imread('_static/stinkbug.png')
     lum_img = img[:,:,0]
-    plt.hist(lum_img, range=(0.0,1.0))
+    plt.hist(lum_img.flatten(), 256, range=(0.0,1.0), fc='black', ec='black')
 
 Most often, the "interesting" part of the image is around the peak,
 and you can get extra contrast by clipping the regions above and/or
