@@ -487,6 +487,8 @@ class Artist(object):
                     path.get_path(),
                     path.get_transform())
                 success = True
+            elif isinstance(path, tuple):
+                path, transform = path
 
         if path is None:
             self._clippath = None
