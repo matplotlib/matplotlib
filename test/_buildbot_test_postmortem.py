@@ -4,7 +4,7 @@ by target_dir.
 
 This is meant to be run from the mplroot directory."""
 
-import os, sys, glob, shutil
+import os, shutil
 
 roots = ['test_matplotlib','test_plots']
 savedresults_dir = 'saved-results'
@@ -80,7 +80,6 @@ if 1:
 
     # new matplotlib.testing infrastructure
 
-    os.chdir('test')
     for fname in get_recursive_filelist(['result_images']):
         # only images
         if not fname.endswith('.png'): continue
