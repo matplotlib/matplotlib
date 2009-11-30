@@ -1105,7 +1105,7 @@ def build_ft2font(ext_modules, packages):
     deps.extend(glob.glob('CXX/*.c'))
 
     module = Extension('matplotlib.ft2font', deps,
-                       define_macros=[('PY_ARRAYAUNIQUE_SYMBOL', 'MPL_ARRAY_API')])
+                       define_macros=[('PY_ARRAY_UNIQUE_SYMBOL', 'MPL_ARRAY_API')])
     add_ft2font_flags(module)
     ext_modules.append(module)
     BUILT_FT2FONT = True
