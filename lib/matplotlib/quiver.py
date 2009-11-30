@@ -64,7 +64,7 @@ supported at present.
 
 Keyword arguments:
 
-  *units*: ['width' | 'height' | 'dots' | 'inches' | 'x' | 'y' ]
+  *units*: ['width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy']
     arrow units; the arrow dimensions *except for length* are in
     multiples of this unit.
 
@@ -518,17 +518,33 @@ class Quiver(collections.PolyCollection):
         self.set_transform(trans)
         return trans
 
-    def _angles(self, U, V, eps=0.001):
+    def _angles_lengths(self, U, V, eps=1):
         xy = self.ax.transData.transform(self.XY)
         uv = np.hstack((U[:,np.newaxis], V[:,np.newaxis]))
         xyp = self.ax.transData.transform(self.XY + eps * uv)
         dxy = xyp - xy
-        ang = np.arctan2(dxy[:,1], dxy[:,0])
-        return ang
+        angles = np.arctan2(dxy[:,1], dxy[:,0])
+        lengths = np.absolute(dxy[:,0] + dxy[:,1]*1j) / eps
+        return angles, lengths
+
+
 
     def _make_verts(self, U, V):
         uv = (U+V*1j)
-        a = np.absolute(uv)
+        if self.angles == 'xy' and self.scale_units == 'xy':
+            # Here eps is 1 so that if we get U, V by diffing
+            # the X, Y arrays, the vectors will connect the
+            # points, regardless of the axis scaling (including log).
+            angles, lengths = self._angles_lengths(U, V, eps=1)
+        elif self.angles == 'xy' or self.scale_units == 'xy':
+            # We could refine this by calculating eps based on
+            # the magnitude of U, V relative to that of X, Y,
+            # to ensure we are always making small shifts in X, Y.
+            angles, lengths = self._angles_lengths(U, V, eps=0.001)
+        if self.scale_units == 'xy':
+            a = lengths
+        else:
+            a = np.absolute(uv)
         if self.scale is None:
             sn = max(10, math.sqrt(self.N))
             if self.Umask is not ma.nomask:
@@ -543,14 +559,17 @@ class Quiver(collections.PolyCollection):
                 self.scale = scale
             widthu_per_lenu = 1.0
         else:
-            dx = self._dots_per_unit(self.scale_units)
+            if self.scale_units == 'xy':
+                dx = 1
+            else:
+                dx = self._dots_per_unit(self.scale_units)
             widthu_per_lenu = dx/self._trans_scale
             if self.scale is None:
                 self.scale = scale * widthu_per_lenu
         length = a * (widthu_per_lenu / (self.scale * self.width))
         X, Y = self._h_arrows(length)
         if self.angles == 'xy':
-            theta = self._angles(U, V)
+            theta = angles
         elif self.angles == 'uv':
             theta = np.angle(uv)
         else:
