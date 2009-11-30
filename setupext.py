@@ -122,7 +122,7 @@ options = {'display_status': True,
            'backend': None}
 
 defines = [
-	('PY_ARRAYAUNIQUE_SYMBOL', 'MPL_ARRAY_API'),
+	('PY_ARRAY_UNIQUE_SYMBOL', 'MPL_ARRAY_API'),
 	('PYCXX_ISO_CPP_LIB', '1')]
 
 # Based on the contents of setup.cfg, determine the build options
