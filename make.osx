@@ -4,21 +4,24 @@
 PYVERSION=2.6
 PYTHON=python${PYVERSION}
 ZLIBVERSION=1.2.3
-PNGVERSION=1.2.33
-FREETYPEVERSION=2.3.5
+PNGVERSION=1.2.40
+FREETYPEVERSION=2.3.11
 MACOSX_DEPLOYMENT_TARGET=10.4
+OSX_SDK_VER=10.4u
+ARCH_FLAGS="-arch i386 -arch ppc -arch x86_64"
 
 ## You shouldn't need to configure past this point
 
 PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig"
-CFLAGS="-arch i386 -arch ppc -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Developer/SDKs/MacOSX10.4u.sdk"
-LDFLAGS="-arch i386 -arch ppc -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"
+CFLAGS="${ARCH_FLAGS} -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
+LDFLAGS="${ARCH_FLAGS} -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
 
 clean:
 	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.bz2 \
 	freetype-${FREETYPEVERSION}.tar.bz2 bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
 	bdist_mpkg-${BDISTMPKGVERSION} \
-	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION}
+	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} \
+	build
 
 fetch:
 	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz", "zlib-${ZLIBVERSION}.tar.gz")'  &&\
