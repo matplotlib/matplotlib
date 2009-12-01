@@ -401,7 +401,7 @@ def figimage(*args, **kwargs):
     # allow callers to override the hold state by passing hold=True|False
     ret =  gcf().figimage(*args, **kwargs)
     draw_if_interactive()
-    sci(ret)
+    #sci(ret)  # JDH figimage should not set current image -- it is not mappable, etc
     return ret
 
 def figlegend(handles, labels, loc, **kwargs):

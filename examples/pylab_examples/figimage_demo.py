@@ -12,6 +12,9 @@ Z = np.arange(10000.0)
 Z.shape = 100,100
 Z[:,50:] = 1.
 
+ax = fig.add_subplot(111)
+ax.grid(True)
+
 im1 = plt.figimage(Z, xo=50, yo=0, cmap=cm.jet, origin='lower')
 im2 = plt.figimage(Z, xo=100, yo=100, alpha=.8, cmap=cm.jet, origin='lower')
 
