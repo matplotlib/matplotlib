@@ -24,7 +24,7 @@ class EventHandler:
       if event.inaxes!=ax:
          return
 
-      if not circ.contains(event):
+      if not circ.contains(event)[0]:
          return
 
       self.pressevent = event

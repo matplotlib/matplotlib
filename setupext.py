@@ -122,8 +122,8 @@ options = {'display_status': True,
            'backend': None}
 
 defines = [
-	('PY_ARRAY_UNIQUE_SYMBOL', 'MPL_ARRAY_API'),
-	('PYCXX_ISO_CPP_LIB', '1')]
+        ('PY_ARRAY_UNIQUE_SYMBOL', 'MPL_ARRAY_API'),
+        ('PYCXX_ISO_CPP_LIB', '1')]
 
 # Based on the contents of setup.cfg, determine the build options
 if os.path.exists("setup.cfg"):
@@ -1123,7 +1123,7 @@ def build_ttconv(ext_modules, packages):
             'ttconv/ttutil.cpp']
 
     module = Extension('matplotlib.ttconv', deps,
-		       define_macros=defines)
+                       define_macros=defines)
     add_base_flags(module)
     ext_modules.append(module)
     BUILT_TTCONV = True
