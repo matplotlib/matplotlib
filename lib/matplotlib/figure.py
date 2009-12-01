@@ -343,7 +343,8 @@ class Figure(Artist):
                  cmap=None,
                  vmin=None,
                  vmax=None,
-                 origin=None):
+                 origin=None,
+                 **kwargs):
         """
         call signatures::
 
@@ -393,11 +394,14 @@ class Figure(Artist):
 
         .. plot:: mpl_examples/pylab_examples/figimage_demo.py
 
+
+        Additional kwargs are Artist kwargs passed on to
+        :class:`~matplotlib.image.FigureImage`
         """
 
         if not self._hold: self.clf()
 
-        im = FigureImage(self, cmap, norm, xo, yo, origin)
+        im = FigureImage(self, cmap, norm, xo, yo, origin, **kwargs)
         im.set_array(X)
         im.set_alpha(alpha)
         if norm is None:
@@ -735,10 +739,19 @@ class Figure(Artist):
 
         if self.frameon: self.patch.draw(renderer)
 
+        # a list of (zorder, func_to_call, list_of_args)
+        dsu = []
+
+
         # todo: respect zorder
-        for p in self.patches: p.draw(renderer)
-        for l in self.lines: l.draw(renderer)
-        for a in self.artists: a.draw(renderer)
+        for a in self.patches:
+            dsu.append( (a.get_zorder(), a.draw, [renderer]))
+
+        for a in self.lines:
+            dsu.append( (a.get_zorder(), a.draw, [renderer]))
+
+        for a in self.artists:
+            dsu.append( (a.get_zorder(), a.draw, [renderer]))
 
         # override the renderer default if self.suppressComposite
         # is not None
@@ -747,8 +760,8 @@ class Figure(Artist):
             composite = self.suppressComposite
 
         if len(self.images)<=1 or composite or not allequal([im.origin for im in self.images]):
-            for im in self.images:
-                im.draw(renderer)
+            for a in self.images:
+                dsu.append( (a.get_zorder(), a.draw, [renderer]))
         else:
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
@@ -762,20 +775,32 @@ class Figure(Artist):
 
             im.is_grayscale = False
             l, b, w, h = self.bbox.bounds
-            gc = renderer.new_gc()
-            gc.set_clip_rectangle(self.bbox)
-            gc.set_clip_path(self.get_clip_path())
-            renderer.draw_image(gc, l, b, im)
-            gc.restore()
+
+            def draw_composite():
+                gc = renderer.new_gc()
+                gc.set_clip_rectangle(self.bbox)
+                gc.set_clip_path(self.get_clip_path())
+                renderer.draw_image(gc, l, b, im)
+                gc.restore()
+
+            if len(ims):
+                dsu.append((ims[0].get_zorder(), draw_composite, []))
 
         # render the axes
-        for a in self.axes: a.draw(renderer)
+        for a in self.axes:
+            dsu.append( (a.get_zorder(), a.draw, [renderer]))
 
         # render the figure text
-        for t in self.texts: t.draw(renderer)
+        for a in self.texts:
+            dsu.append( (a.get_zorder(), a.draw, [renderer]))
 
-        for legend in self.legends:
-            legend.draw(renderer)
+        for a in self.legends:
+            dsu.append( (a.get_zorder(), a.draw, [renderer]))
+
+
+        dsu.sort()
+        for zorder, func, args in dsu:
+            func(*args)
 
         renderer.close_group('figure')
 
@@ -1045,7 +1070,7 @@ class Figure(Artist):
         if args and is_string_like(args[0]) and '.' not in args[0] and extension != 'auto':
             fname = args[0] + '.' + extension
             args = (fname,) + args[1:]
-                
+
         transparent = kwargs.pop('transparent', False)
         if transparent:
             original_figure_alpha = self.patch.get_alpha()
