@@ -1,3 +1,6 @@
+2009-12-01 Applied Laurent Dufrechou's patch to improve blitting with
+           the qt4 backend - DSD 
+
 2009-11-13 The pdf backend now allows changing the contents of
            a pdf file's information dictionary via PdfPages.infodict. - JKS
 

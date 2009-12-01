@@ -138,7 +138,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         self.replot = bbox
         l, b, w, h = bbox.bounds
         t = b + h
-        self.update(l, self.renderer.height-t, w, h)
+        self.repaint(l, self.renderer.height-t, w, h)
 
     def print_figure(self, *args, **kwargs):
         FigureCanvasAgg.print_figure(self, *args, **kwargs)
