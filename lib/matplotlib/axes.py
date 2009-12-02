@@ -1700,10 +1700,10 @@ class Axes(martist.Artist):
 
         dsu = [ (a.zorder, a) for a in artists
                 if not a.get_animated() ]
-        dsu.sort()
+        dsu.sort(key=lambda x: x[0])
 
 
-        # rasterze artists with negative zorder
+        # rasterize artists with negative zorder
         # if the minimum zorder is negative, start rasterization
         rasterization_zorder = self._rasterization_zorder
         if len(dsu) > 0 and dsu[0][0] < rasterization_zorder:
@@ -1722,15 +1722,15 @@ class Axes(martist.Artist):
         if len(self.images)<=1 or renderer.option_image_nocomposite():
             for im in self.images:
                 dsu.append( (im.zorder, im) )
-            dsu.sort() # re-sort with images now
+            dsu.sort(key=lambda x: x[0]) # re-sort with images now
         else:
             # make a composite image blending alpha
             # list of (mimage.Image, ox, oy)
 
             zorder_images = [(im.zorder, im) for im in self.images \
                              if im.get_visible()]
-            zorder_images.sort()
-            
+            zorder_images.sort(key=lambda x: x[0])
+
             mag = renderer.get_image_magnification()
             ims = [(im.make_image(mag),0,0) for z,im in zorder_images]
 
@@ -1793,7 +1793,7 @@ class Axes(martist.Artist):
         if self._lastRenderer is None:
             raise RuntimeError('You must first call ax.draw()')
         dsu = [(a.zorder, a) for a in self.animated.keys()]
-        dsu.sort()
+        dsu.sort(key=lambda x: x[0])
         renderer = self._lastRenderer
         renderer.blit()
         for tmp, a in dsu:

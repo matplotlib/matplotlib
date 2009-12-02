@@ -798,7 +798,7 @@ class Figure(Artist):
             dsu.append( (a.get_zorder(), a.draw, [renderer]))
 
 
-        dsu.sort()
+        dsu.sort(key=lambda x: x[0])
         for zorder, func, args in dsu:
             func(*args)
 
