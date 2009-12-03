@@ -88,7 +88,7 @@ def image_comparison(baseline_images=None,extensions=None):
                 orig_expected_fnames = [os.path.join(baseline_dir,fname) + '.' + extension for fname in baseline_images]
                 expected_fnames = [os.path.join(result_dir,'expected-'+fname) + '.' + extension for fname in baseline_images]
                 for src,dst in zip( orig_expected_fnames, expected_fnames ):
-                    if not os.path.exists(dst):
+                    if os.path.exists(src) and not os.path.exists(dst):
                         shutil.copyfile(src,dst)
                 actual_fnames = [os.path.join(result_dir, fname) + '.' + extension for fname in baseline_images]
                 have_baseline_images = [os.path.exists(expected) for expected in expected_fnames]
