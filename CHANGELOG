@@ -1,3 +1,6 @@
+2009-12-06 axes_grid: reimplemented AxisArtist with FloatingAxes support.
+           Added new examples. - JJL
+
 2009-12-01 Applied Laurent Dufrechou's patch to improve blitting with
            the qt4 backend - DSD 
 
