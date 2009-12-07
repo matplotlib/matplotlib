@@ -87,13 +87,15 @@ def clip_line_to_rect(xline, yline, bbox):
     ly3, lx3, c_top_ = clip(ly2, lx2, y1, clip="right")
     ly4, lx4, c_bottom_ = clip(ly3, lx3, y0, clip="left")
 
-    c_left = [((x, y), (a+90)%180-180) for (x, y, a) in c_left_ \
+    #c_left = [((x, y), (a+90)%180-180) for (x, y, a) in c_left_ \
+    #          if bbox.containsy(y)]
+    c_left = [((x, y), (a+90)%180-90) for (x, y, a) in c_left_ \
               if bbox.containsy(y)]
-    c_bottom = [((x, y), (90 - a)%180-90) for (y, x, a) in c_bottom_  \
+    c_bottom = [((x, y), (90 - a)%180) for (y, x, a) in c_bottom_  \
                 if bbox.containsx(x)]
-    c_right = [((x, y), (a+90)%180) for (x, y, a) in c_right_ \
+    c_right = [((x, y), (a+90)%180+90) for (x, y, a) in c_right_ \
                if bbox.containsy(y)]
-    c_top = [((x, y), (90 - a)%180+90) for (y, x, a) in c_top_ \
+    c_top = [((x, y), (90 - a)%180+180) for (y, x, a) in c_top_ \
              if bbox.containsx(x)]
 
     return zip(lx4, ly4), [c_left, c_bottom, c_right, c_top]

@@ -104,6 +104,7 @@ class GridFinderBase(object):
         bb = Bbox.from_extents(x1-ddx, y1-ddy, x2+ddx, y2+ddy)
 
         grid_info = {}
+        grid_info["extremes"] = extremes
         grid_info["lon_lines"] = lon_lines
         grid_info["lat_lines"] = lat_lines
 
@@ -263,8 +264,18 @@ class MaxNLocator(mticker.MaxNLocator):
     def __call__(self, v1, v2):
         self.set_bounds(v1, v2)
         locs = mticker.MaxNLocator.__call__(self)
-        return locs, len(locs), None
+        return np.array(locs), len(locs), None
 
+
+class FixedLocator(object):
+    def __init__(self, locs):
+        self._locs = locs
+
+
+    def __call__(self, v1, v2):
+        v1, v2 = sorted([v1, v2])
+        locs = np.array([l for l in self._locs if ((v1 <= l) and (l <= v2))])
+        return locs, len(locs), None
 
 
 
@@ -283,6 +294,30 @@ class FormatterPrettyPrint(object):
         self._fmt.set_locs(values)
         return [self._fmt(v) for v in values]
 
+
+class DictFormatter(object):
+    def __init__(self, format_dict, formatter=None):
+        """
+        format_dict : dictionary for format strings to be used.
+        formatter : fall-back formatter
+        """
+        super(DictFormatter, self).__init__()
+        self._format_dict = format_dict
+        self._fallback_formatter = formatter
+
+    def __call__(self, direction, factor, values):
+        """
+        factor is ignored if value is found in the dictionary
+        """
+
+        if self._fallback_formatter:
+            fallback_strings = self._fallback_formatter(direction, factor, values)
+        else:
+            fallback_strings = [""]*len(values)
+
+        r = [self._format_dict.get(k, v) for k, v in zip(values,
+                                                         fallback_strings)]
+        return r
 
 
 if __name__ == "__main__":

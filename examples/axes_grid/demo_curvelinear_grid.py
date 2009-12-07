@@ -42,6 +42,8 @@ def curvelinear_test1(fig):
     ax1.set_xlim(0, 10.)
     ax1.set_ylim(0, 10.)
 
+    ax1.axis["t"]=ax1.new_floating_axis(0, 3.)
+    ax1.axis["t2"]=ax1.new_floating_axis(1, 7.)
     ax1.grid(True)
 
 
