@@ -391,6 +391,13 @@ class HostAxes(Axes):
 
         return ax2
 
+    def get_aux_axes(self, tr, viewlim_mode="equal"):
+        ax2 = ParasiteAxesAuxTrans(self, tr, viewlim_mode)
+        # note that ax2.transData == tr + ax1.transData
+        # Anthing you draw in ax2 will match the ticks and grids of ax1.
+        self.parasites.append(ax2)
+        return ax2
+
 
 SubplotHost = subplot_class_factory(HostAxes)
 

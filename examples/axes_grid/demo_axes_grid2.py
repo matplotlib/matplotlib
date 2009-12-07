@@ -11,27 +11,16 @@ def get_demo_image():
 
 
 def add_inner_title(ax, title, loc, size=None, **kwargs):
-    from matplotlib.offsetbox import AuxTransformBox, AnchoredOffsetbox
-    from matplotlib.font_manager import FontProperties
-    from matplotlib.patches import PathPatch
-    from matplotlib.textpath import TextPath
-    from matplotlib.transforms import IdentityTransform
+    from matplotlib.offsetbox import AnchoredText
+    from matplotlib.patheffects import withStroke
     if size is None:
-        size = FontProperties(size=plt.rcParams['legend.fontsize'])
-    text_path = TextPath((0, 0), title, size=10)
-    p1 = PathPatch(text_path, ec="w", lw=3, transform=IdentityTransform())
-    p2 = PathPatch(text_path, ec="none", fc="k", transform=IdentityTransform())
-
-    offsetbox = AuxTransformBox(IdentityTransform())
-    offsetbox.add_artist(p1)
-    offsetbox.add_artist(p2)
-
-    ao = AnchoredOffsetbox(loc=loc, child=offsetbox,
-                           pad=0., borderpad=0.5,
-                           frameon=False, **kwargs)
-    ax.add_artist(ao)
-
-    return ao
+        size = dict(size=plt.rcParams['legend.fontsize'])
+    at = AnchoredText(title, loc=loc, prop=size,
+                      pad=0., borderpad=0.5,
+                      frameon=False, **kwargs)
+    ax.add_artist(at)
+    at.txt._text.set_path_effects([withStroke(foreground="w", linewidth=3)])
+    return at
 
 if 1:
     F = plt.figure(1, (6, 6))

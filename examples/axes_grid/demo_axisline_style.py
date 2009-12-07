@@ -9,7 +9,7 @@ if 1:
     fig.add_subplot(ax)
 
     for direction in ["xzero", "yzero"]:
-        ax.axis[direction].set_axisline_style("->")
+        ax.axis[direction].set_axisline_style("-|>")
         ax.axis[direction].set_visible(True)
 
     for direction in ["left", "right", "bottom", "top"]:

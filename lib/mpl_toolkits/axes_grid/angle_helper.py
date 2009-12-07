@@ -147,7 +147,7 @@ def select_step(v1, v2, nv, hour=False):
         levs = np.arange(0, nv, 1) * step
         n = len(levs)
 
-    return levs, n, factor
+    return np.array(levs), n, factor
 
 
 def select_step24(v1, v2, nv):
@@ -214,7 +214,7 @@ class FormatterHMS(object):
         #return [fmt % (ss[0]*degree, floor(v/60.), v%60) \
         #        for s, v in zip(ss, values-3600*degree)]
         else: # factor > 3600.
-            return ["$%s$" % (str(v),) for v in values]
+            return [r"$%s^{\mathrm{h}}$" % (str(v),) for v in ss*values]
 
 
 class FormatterDMS(object):
@@ -255,7 +255,7 @@ class FormatterDMS(object):
             #return [fmt % (ss[0]*degree, floor(v/60.), v%60) \
             #        for s, v in zip(ss, values-3600*degree)]
         else: # factor > 3600.
-            return ["$%s$" % (str(v),) for v in ss*values]
+            return [r"$%s^{\circ}$" % (str(v),) for v in ss*values]
 
 
 
