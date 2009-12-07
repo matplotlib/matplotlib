@@ -35,7 +35,7 @@ ratio.  For example, displaying images of a same size with some fixed
 padding between them cannot be easily done in matplotlib. AxesGrid is
 used in such case.
 
-.. plot:: mpl_examples/axes_grid/simple_axesgrid.py
+.. plot:: mpl_toolkits/axes_grid/examples/simple_axesgrid.py
    :include-source:
 
 * The postion of each axes is determined at the drawing time (see
@@ -396,5 +396,13 @@ You can draw a cuvelinear grid and ticks. Also a floating axis can be
 created. See :ref:`axislines-manual` for more details.
 
 .. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axis.py
+
+
+Floating Axes
+=============
+
+An axes whose outer axis are defined as floating axis.
+
+.. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axes.py
 
 

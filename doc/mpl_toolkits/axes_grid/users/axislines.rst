@@ -42,7 +42,7 @@ to not visible. As separate artists are used for rendering axis, some
 axis-related method in mpl may have no effect.
 In addition to AxisArtist instances, the axes_grid.axislines.Axes will
 have *gridlines* attribute (Gridlines), which obviously draws grid
-lines. 
+lines.
 
 In both AxisArtist and Gridlines, the calculation of tick and grid
 location is delegated to an instance of GridHelper class.
@@ -119,6 +119,43 @@ HowTo
 
     ax.axis["left"].major_ticklabels.set_color("r")
 
+3. To change the attributes of multiple axis::
+
+    ax.axis["left","bottom"].major_ticklabels.set_color("r")
+
+   or to change the attributes of all axis::
+
+    ax.axis[:].major_ticklabels.set_color("r")
+
+4. To change the tick size (length), you need to use
+    axis.major_ticks.set_ticksize method. To change the direction of
+    the ticks (ticks are in opposite direction of ticklabels by
+    default), use axis.major_ticks.set_tick_out method.
+
+    To change the pad between ticks and ticklabels, use
+    axis.major_ticklabels.set_pad method.
+
+    To change the pad between ticklabels and axis label,
+    axis.label.set_pad method.
+
+Examples
+========
+
+Adjusting axis_direction
+------------------------
+
+.. plot:: mpl_toolkits/axes_grid/figures/demo_axis_direction.py
+
+Adjusting ticklabels alignment
+------------------------------
+
+.. plot:: mpl_toolkits/axes_grid/figures/demo_ticklabel_alignment.py
+
+Adjusting ticklabels pad
+------------------------
+
+.. plot:: mpl_toolkits/axes_grid/figures/demo_ticklabel_direction.py
+
 
 GridHelper
 ==========
@@ -138,7 +175,7 @@ transform of the axes itself (ax.transData) is still rectlinear
     from mpl_toolkits.axes_grid.axislines import Subplot
 
     # from curved coordinate to rectlinear coordinate.
-    def tr(x, y): 
+    def tr(x, y):
         x, y = np.asarray(x), np.asarray(y)
         return x, y-x
 
@@ -171,7 +208,7 @@ required. ::
 
     # extreme finder :  find a range of coordinate.
     # 20, 20 : number of sampling points along x, y direction
-    # The first coordinate (longitude, but theta in polar) 
+    # The first coordinate (longitude, but theta in polar)
     #   has a cycle of 360 degree.
     # The second coordinate (latitude, but radius in polar)  has a minimum of 0
     extreme_finder = angle_helper.ExtremeFinderCycle(20, 20,
@@ -225,7 +262,7 @@ limits changes. A floating axis can be created using
 the resulting AxisArtist is properly added to the axes. A recommended
 way is to add it as an item of Axes's axis attribute.::
 
-    # floating axis whose first (index starts from 0) coordinate 
+    # floating axis whose first (index starts from 0) coordinate
     # (theta) is fixed at 60
 
     ax1.axis["lat"] = axis = ax1.new_floating_axis(0, 60)
