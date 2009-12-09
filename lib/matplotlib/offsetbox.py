@@ -375,6 +375,9 @@ class HPacker(PackerBase):
 
         whd_list = [c.get_extent(renderer) for c in self.get_visible_children()]
 
+        if not whd_list:
+            return 2*pad, 2*pad, pad, pad, []
+
         if self.height is None:
             height_descent = max([h-yd for w,h,xd,yd in whd_list])
             ydescent = max([yd for w,h,xd,yd in whd_list])
