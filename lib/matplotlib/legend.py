@@ -432,14 +432,6 @@ in the normalized axes coordinate.
                           )
 
         labelboxes = []
-
-        for l in labels:
-            textbox = TextArea(l, textprops=label_prop,
-                               multilinebaseline=True, minimumdescent=True)
-            text_list.append(textbox._text)
-
-            labelboxes.append(textbox)
-
         handleboxes = []
 
 
@@ -457,7 +449,8 @@ in the normalized axes coordinate.
         # default trasnform (eg, Collections), you need to
         # manually set their transform to the self.get_transform().
 
-        for handle in handles:
+
+        for handle, lab in zip(handles, labels):
             if isinstance(handle, RegularPolyCollection) or \
                    isinstance(handle, CircleCollection):
                 npoints = self.scatterpoints
@@ -578,32 +571,47 @@ in the normalized axes coordinate.
                 p.set_clip_path(None)
                 handle_list.append(p)
             else:
+                handle_type = type(handle)
+                warnings.warn("Legend does not support %s\nUse proxy artist instead.\n\nhttp://matplotlib.sourceforge.net/users/legend_guide.html#using-proxy-artist\n" % (str(handle_type),))
                 handle_list.append(None)
 
-            handlebox = DrawingArea(width=self.handlelength*fontsize,
-                                    height=height,
-                                    xdescent=0., ydescent=descent)
+
 
             handle = handle_list[-1]
-            handlebox.add_artist(handle)
-            if hasattr(handle, "_legmarker"):
-                handlebox.add_artist(handle._legmarker)
-            handleboxes.append(handlebox)
+            if handle is not None: # handle is None is the artist is not supproted
+                textbox = TextArea(lab, textprops=label_prop,
+                                   multilinebaseline=True, minimumdescent=True)
+                text_list.append(textbox._text)
+                
+                labelboxes.append(textbox)
+
+                handlebox = DrawingArea(width=self.handlelength*fontsize,
+                                        height=height,
+                                        xdescent=0., ydescent=descent)
+
+                handlebox.add_artist(handle)
+                if hasattr(handle, "_legmarker"):
+                    handlebox.add_artist(handle._legmarker)
+                handleboxes.append(handlebox)
 
 
-        # We calculate number of lows in each column. The first
-        # (num_largecol) columns will have (nrows+1) rows, and remaing
-        # (num_smallcol) columns will have (nrows) rows.
-        ncol = min(self._ncol, len(handleboxes))
-        nrows, num_largecol = divmod(len(handleboxes), ncol)
-        num_smallcol = ncol-num_largecol
+        if len(handleboxes) > 0: 
 
-        # starting index of each column and number of rows in it.
-        largecol = safezip(range(0, num_largecol*(nrows+1), (nrows+1)),
-                           [nrows+1] * num_largecol)
-        smallcol = safezip(range(num_largecol*(nrows+1), len(handleboxes), nrows),
-                           [nrows] * num_smallcol)
+            # We calculate number of lows in each column. The first
+            # (num_largecol) columns will have (nrows+1) rows, and remaing
+            # (num_smallcol) columns will have (nrows) rows.
+            ncol = min(self._ncol, len(handleboxes))
+            nrows, num_largecol = divmod(len(handleboxes), ncol)
+            num_smallcol = ncol-num_largecol
 
+            # starting index of each column and number of rows in it.
+            largecol = safezip(range(0, num_largecol*(nrows+1), (nrows+1)),
+                               [nrows+1] * num_largecol)
+            smallcol = safezip(range(num_largecol*(nrows+1), len(handleboxes), nrows),
+                               [nrows] * num_smallcol)
+        else:
+            largecol, smallcol = [], []
+        
         handle_label = safezip(handleboxes, labelboxes)
         columnbox = []
         for i0, di in largecol+smallcol:
