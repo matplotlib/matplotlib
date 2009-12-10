@@ -274,6 +274,7 @@ class Patch3DCollection(PatchCollection):
 
     def __init__(self, *args, **kwargs):
         PatchCollection.__init__(self, *args, **kwargs)
+        self._old_draw = lambda x: PatchCollection.draw(self, x)
 
     def set_3d_properties(self, zs, zdir):
         xs, ys = zip(*self.get_offsets())
@@ -293,10 +294,15 @@ class Patch3DCollection(PatchCollection):
         return min(vzs)
 
     def draw(self, renderer):
-        PatchCollection.draw(self, renderer)
+        self._old_draw(renderer)
 
 def patch_collection_2d_to_3d(col, zs=0, zdir='z'):
     """Convert a PatchCollection to a Patch3DCollection object."""
+
+    # The tricky part here is that there are several classes that are
+    # derived from PatchCollection. We need to use the right draw method.
+    col._old_draw = col.draw
+
     col.__class__ = Patch3DCollection
     col.set_3d_properties(zs, zdir)
 

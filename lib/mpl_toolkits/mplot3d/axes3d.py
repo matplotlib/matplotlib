@@ -13,7 +13,7 @@ from matplotlib import cbook
 from matplotlib.transforms import Bbox
 from matplotlib import collections
 import numpy as np
-from matplotlib.colors import Normalize, colorConverter
+from matplotlib.colors import Normalize, colorConverter, LightSource
 
 import art3d
 import proj3d
@@ -37,6 +37,21 @@ class Axes3D(Axes):
     """
 
     def __init__(self, fig, rect=None, *args, **kwargs):
+        '''
+        Build an :class:`Axes3D` instance in
+        :class:`~matplotlib.figure.Figure` *fig* with
+        *rect=[left, bottom, width, height]* in
+        :class:`~matplotlib.figure.Figure` coordinates
+
+        Optional keyword arguments:
+
+          ================   =========================================
+          Keyword            Description
+          ================   =========================================
+          *azim*             Azimuthal viewing angle (default -60)
+          *elev*             Elevation viewing angle (default 30)
+        '''
+
         if rect is None:
             rect = [0.0, 0.0, 1.0, 1.0]
         self.fig = fig
@@ -146,9 +161,12 @@ class Axes3D(Axes):
         for i, (z, patch) in enumerate(zlist):
             patch.zorder = i
 
-        self.w_xaxis.draw(renderer)
-        self.w_yaxis.draw(renderer)
-        self.w_zaxis.draw(renderer)
+        axes = (self.w_xaxis, self.w_yaxis, self.w_zaxis)
+        for ax in axes:
+            ax.draw_pane(renderer)
+        for ax in axes:
+            ax.draw(renderer)
+
         Axes.draw(self, renderer)
 
     def get_axis_position(self):
@@ -322,8 +340,9 @@ class Axes3D(Axes):
         self.grid(rcParams['axes3d.grid'])
 
     def _button_press(self, event):
-        self.button_pressed = event.button
-        self.sx, self.sy = event.xdata, event.ydata
+        if event.inaxes == self:
+            self.button_pressed = event.button
+            self.sx, self.sy = event.xdata, event.ydata
 
     def _button_release(self, event):
         self.button_pressed = None
@@ -565,6 +584,12 @@ class Axes3D(Axes):
         *cstride*   Array column stride (step size)
         *color*     Color of the surface patches
         *cmap*      A colormap for the surface patches.
+        *facecolors* Face colors for the individual patches
+        *norm*      An instance of Normalize to map values to colors
+        *vmin*      Minimum value to map
+        *vmax*      Maximum value to map
+        *shade*     Whether to shade the facecolors, default:
+                    false when cmap specified, true otherwise
         ==========  ================================================
         '''
 
@@ -575,13 +600,28 @@ class Axes3D(Axes):
         rstride = kwargs.pop('rstride', 10)
         cstride = kwargs.pop('cstride', 10)
 
-        color = kwargs.pop('color', 'b')
-        color = np.array(colorConverter.to_rgba(color))
+        if 'facecolors' in kwargs:
+            fcolors = kwargs.pop('facecolors')
+        else:
+            color = np.array(colorConverter.to_rgba(kwargs.pop('color', 'b')))
+            fcolors = None
+
         cmap = kwargs.get('cmap', None)
+        norm = kwargs.pop('norm', None)
+        vmin = kwargs.pop('vmin', None)
+        vmax = kwargs.pop('vmax', None)
+        linewidth = kwargs.get('linewidth', None)
+        shade = kwargs.pop('shade', cmap is None)
+        lightsource = kwargs.pop('lightsource', None)
+
+        # Shade the data
+        if shade and cmap is not None and fcolors is not None:
+            fcolors = self._shade_colors_lightsource(Z, cmap, lightsource)
 
         polys = []
         normals = []
-        avgz = []
+        #colset contains the data for coloring: either average z or the facecolor
+        colset = []
         for rs in np.arange(0, rows-1, rstride):
             for cs in np.arange(0, cols-1, cstride):
                 ps = []
@@ -609,19 +649,38 @@ class Axes3D(Axes):
                         lastp = p
                         avgzsum += p[2]
                 polys.append(ps2)
-                avgz.append(avgzsum / len(ps2))
 
-                v1 = np.array(ps2[0]) - np.array(ps2[1])
-                v2 = np.array(ps2[2]) - np.array(ps2[0])
-                normals.append(np.cross(v1, v2))
+                if fcolors is not None:
+                    colset.append(fcolors[rs][cs])
+                else:
+                    colset.append(avgzsum / len(ps2))
+
+                # Only need vectors to shade if no cmap
+                if cmap is None and shade:
+                    v1 = np.array(ps2[0]) - np.array(ps2[1])
+                    v2 = np.array(ps2[2]) - np.array(ps2[0])
+                    normals.append(np.cross(v1, v2))
 
         polyc = art3d.Poly3DCollection(polys, *args, **kwargs)
-        if cmap is not None:
-            polyc.set_array(np.array(avgz))
-            polyc.set_linewidth(0)
+
+        if fcolors is not None:
+            if shade:
+                colset = self._shade_colors(colset, normals)
+            polyc.set_facecolors(colset)
+            polyc.set_edgecolors(colset)
+        elif cmap:
+            colset = np.array(colset)
+            polyc.set_array(colset)
+            if vmin is not None or vmax is not None:
+                polyc.set_clim(vmin, vmax)
+            if norm is not None:
+                polyc.set_norm(norm)
         else:
-            colors = self._shade_colors(color, normals)
-            polyc.set_facecolors(colors)
+            if shade:
+                colset = self._shade_colors(color, normals)
+            else:
+                colset = color
+            polyc.set_facecolors(colset)
 
         self.add_collection(polyc)
         self.auto_scale_xyz(X, Y, Z, had_data)
@@ -643,23 +702,38 @@ class Axes3D(Axes):
         return normals
 
     def _shade_colors(self, color, normals):
+        '''
+        Shade *color* using normal vectors given by *normals*.
+        *color* can also be an array of the same length as *normals*.
+        '''
+
         shade = []
         for n in normals:
-            n = n / proj3d.mod(n) * 5
+            n = n / proj3d.mod(n)
             shade.append(np.dot(n, [-1, -1, 0.5]))
 
         shade = np.array(shade)
         mask = ~np.isnan(shade)
 
     	if len(shade[mask]) > 0:
-           norm = Normalize(min(shade[mask]), max(shade[mask]))
-           color = color.copy()
-           color[3] = 1
-           colors = [color * (0.5 + norm(v) * 0.5) for v in shade]
+            norm = Normalize(min(shade[mask]), max(shade[mask]))
+            if art3d.iscolor(color):
+                color = color.copy()
+                color[3] = 1
+                colors = [color * (0.5 + norm(v) * 0.5) for v in shade]
+            else:
+                colors = [np.array(colorConverter.to_rgba(c)) * \
+                            (0.5 + norm(v) * 0.5) \
+                            for c, v in zip(color, shade)]
         else:
-           colors = color.copy()
+            colors = color.copy()
 
         return colors
+
+    def _shade_colors_lightsource(self, data, cmap, lightsource):
+        if lightsource is None:
+            lightsource = LightSource(azdeg=135, altdeg=55)
+        return lightsource.shade(data, cmap)
 
     def plot_wireframe(self, X, Y, Z, *args, **kwargs):
         '''
