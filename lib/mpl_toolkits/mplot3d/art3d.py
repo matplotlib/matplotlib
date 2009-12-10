@@ -437,9 +437,15 @@ def juggle_axes(xs, ys, zs, zdir):
     Reorder coordinates so that zdir
     """
     if zdir == 'x':
+        return ys, zs, xs
+    elif zdir == '-x':
         return zs, xs, ys
+
     elif zdir == 'y':
-        return xs, zs, ys
+        return zs, xs, ys
+    elif zdir == '-y':
+        return ys, zs, xs
+
     else:
         return xs, ys, zs
 

@@ -839,10 +839,11 @@ class Axes3D(Axes):
         ==========  ================================================
         *X*, *Y*,   Data values as numpy.arrays
         *Z*
-        *levels*    Number of levels to use, defaults to 10. Can
-                    also be a tuple of specific levels.
         *extend3d*  Whether to extend contour in 3D (default: False)
         *stride*    Stride (step size) for extending contour
+        *zdir*      The direction to use: x, y or z (default)
+        *offset*    If specified plot a projection of the contour
+                    lines on this position in plane normal to zdir
         ==========  ================================================
 
         Other keyword arguments are passed on to
@@ -851,16 +852,22 @@ class Axes3D(Axes):
 
         extend3d = kwargs.pop('extend3d', False)
         stride = kwargs.pop('stride', 5)
-        nlevels = kwargs.pop('nlevels', 15)
+        zdir = kwargs.pop('zdir', 'z')
+        offset = kwargs.pop('offset', None)
 
         had_data = self.has_data()
-        cset = Axes.contour(self, X, Y, Z, levels, **kwargs)
 
+        jX, jY, jZ = art3d.juggle_axes(X, Y, Z, zdir)
+        cset = Axes.contour(self, jX, jY, jZ, **kwargs)
+
+        zdir = '-' + zdir
         if extend3d:
             self._3d_extend_contour(cset, stride)
         else:
             for z, linec in zip(cset.levels, cset.collections):
-                art3d.line_collection_2d_to_3d(linec, z)
+                if offset is not None:
+                    z = offset
+                art3d.line_collection_2d_to_3d(linec, z, zdir=zdir)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
         return cset

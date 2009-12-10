@@ -57,11 +57,11 @@ class Axis(maxis.XAxis):
 
     # Some properties for the axes
     _AXINFO = {
-        'x': {'i': 0, 'tickdir': 1,
+        'x': {'i': 0, 'tickdir': 1, 'juggled': (1, 0, 2),
             'color': (0.95, 0.95, 0.95, 0.5)},
-        'y': {'i': 1, 'tickdir': 0,
+        'y': {'i': 1, 'tickdir': 0, 'juggled': (0, 1, 2),
             'color': (0.90, 0.90, 0.90, 0.5)},
-        'z': {'i': 2, 'tickdir': 0,
+        'z': {'i': 2, 'tickdir': 0, 'juggled': (0, 2, 1),
             'color': (0.925, 0.925, 0.925, 0.5)},
     }
 
@@ -191,7 +191,7 @@ class Axis(maxis.XAxis):
         minmax = np.where(highs, maxs, mins)
 
         # Draw main axis line
-        juggled = art3d.juggle_axes(0, 2, 1, self.adir)
+        juggled = info['juggled']
         edgep1 = minmax.copy()
         edgep1[juggled[0]] = get_flip_min_max(edgep1, juggled[0], mins, maxs)
 
