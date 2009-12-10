@@ -75,7 +75,7 @@ class Axis(maxis.XAxis):
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
         self.line = mlines.Line2D(xdata=(0, 0), ydata=(0, 0),
                                  linewidth=0.75,
-                                 color=(0,0, 0,0),
+                                 color=(0, 0, 0, 1),
                                  antialiased=True,
                            )
 
@@ -100,8 +100,8 @@ class Axis(maxis.XAxis):
         majorLabels = [self.major.formatter(val, i) for i, val in enumerate(majorLocs)]
         return majorLabels, majorLocs
 
-    def get_major_ticks(self):
-        ticks = maxis.XAxis.get_major_ticks(self)
+    def get_major_ticks(self, numticks=None):
+        ticks = maxis.XAxis.get_major_ticks(self, numticks)
         for t in ticks:
             t.tick1line.set_transform(self.axes.transData)
             t.tick2line.set_transform(self.axes.transData)
@@ -132,23 +132,7 @@ class Axis(maxis.XAxis):
         else:
             return len(text) > 4
 
-    def draw(self, renderer):
-        self.label._transform = self.axes.transData
-        renderer.open_group('axis3d')
-
-        # code from XAxis
-        majorTicks = self.get_major_ticks()
-        majorLocs = self.major.locator()
-
-        # filter locations here so that no extra grid lines are drawn
-        interval = self.get_view_interval()
-        majorLocs = [loc for loc in majorLocs if \
-                interval[0] < loc < interval[1]]
-        self.major.formatter.set_locs(majorLocs)
-        majorLabels = [self.major.formatter(val, i)
-                       for i, val in enumerate(majorLocs)]
-
-        # Determine bounds
+    def _get_coord_info(self, renderer):
         minx, maxx, miny, maxy, minz, maxz = self.axes.get_w_lims()
         mins = np.array((minx, miny, minz))
         maxs = np.array((maxx, maxy, maxz))
@@ -157,15 +141,19 @@ class Axis(maxis.XAxis):
         mins = mins - deltas / 4.
         maxs = maxs + deltas / 4.
 
-        # Determine which planes should be visible by the avg z value
         vals = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
         tc = self.axes.tunit_cube(vals, renderer.M)
-        #raise RuntimeError('WTF: p1=%s'%p1)
         avgz = [tc[p1][2] + tc[p2][2] + tc[p3][2] + tc[p4][2] for \
                 p1, p2, p3, p4 in self._PLANES]
         highs = np.array([avgz[2*i] < avgz[2*i+1] for i in range(3)])
 
-        # Draw plane
+        return mins, maxs, centers, deltas, tc, highs
+
+    def draw_pane(self, renderer):
+        renderer.open_group('pane3d')
+
+        mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
+
         info = self._AXINFO[self.adir]
         index = info['i']
         if not highs[index]:
@@ -175,6 +163,29 @@ class Axis(maxis.XAxis):
         xys = [tc[p] for p in plane]
         self.set_pane(xys, info['color'])
         self.pane.draw(renderer)
+
+        renderer.close_group('pane3d')
+
+    def draw(self, renderer):
+        self.label._transform = self.axes.transData
+        renderer.open_group('axis3d')
+
+        # code from XAxis
+        majorTicks = self.get_major_ticks()
+        majorLocs = self.major.locator()
+
+        info = self._AXINFO[self.adir]
+        index = info['i']
+
+        # filter locations here so that no extra grid lines are drawn
+        interval = self.get_view_interval()
+        majorLocs = [loc for loc in majorLocs if \
+                interval[0] < loc < interval[1]]
+        self.major.formatter.set_locs(majorLocs)
+        majorLabels = [self.major.formatter(val, i)
+                       for i, val in enumerate(majorLocs)]
+
+        mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
         # Determine grid lines
         minmax = np.where(highs, maxs, mins)
