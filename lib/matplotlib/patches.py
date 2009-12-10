@@ -3193,7 +3193,7 @@ class ArrowStyle(_Style):
                 cos_t, sin_t = get_cos_sin(x1, y1, x0, y0)
                 verticesA, codesA = self._get_bracket(x0, y0, cos_t, sin_t,
                                                       self.widthA*scaleA,
-                                                      self.legnthA*scaleA)
+                                                      self.lengthA*scaleA)
                 vertices_list.append(verticesA)
                 codes_list.append(codesA)
 
@@ -3218,6 +3218,63 @@ class ArrowStyle(_Style):
 
             return p, False
 
+    class BracketAB(_Bracket):
+        """
+        An arrow with a bracket(])  at both ends.
+        """
+
+        def __init__(self,
+                     widthA=1., lengthA=0.2, angleA=None,
+                     widthB=1., lengthB=0.2, angleB=None):
+            """
+            *widthA*
+              width of the bracket
+
+            *lengthA*
+              length of the bracket
+
+            *angleA*
+              angle between the bracket and the line
+
+            *widthB*
+              width of the bracket
+
+            *lengthB*
+              length of the bracket
+
+            *angleB*
+              angle between the bracket and the line
+            """
+
+            super(ArrowStyle.BracketAB, self).__init__(True, True, \
+                        widthA=widthA, lengthA=lengthA, angleA=angleA,
+                        widthB=widthB, lengthB=lengthB, angleB=angleB)
+
+    _style_list["]-["] = BracketAB
+
+
+    class BracketA(_Bracket):
+        """
+        An arrow with a bracket(])  at its end.
+        """
+
+        def __init__(self, widthA=1., lengthA=0.2, angleA=None):
+            """
+            *widthA*
+              width of the bracket
+
+            *lengthA*
+              length of the bracket
+
+            *angleA*
+              angle between the bracket and the line
+            """
+
+            super(ArrowStyle.BracketA, self).__init__(None, True,
+                     widthA=widthA, lengthA=lengthA, angleA=angleA )
+
+    _style_list["]-"] = BracketA
+
 
     class BracketB(_Bracket):
         """
@@ -3237,9 +3294,8 @@ class ArrowStyle(_Style):
             """
 
             super(ArrowStyle.BracketB, self).__init__(None, True,
-                     widthB=widthB, lengthB=lengthB, angleB=None )
+                     widthB=widthB, lengthB=lengthB, angleB=angleB )
 
-    #_style_list["-["] = BracketB
     _style_list["-["] = BracketB
 
 
