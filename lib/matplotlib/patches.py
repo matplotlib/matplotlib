@@ -3299,6 +3299,41 @@ class ArrowStyle(_Style):
     _style_list["-["] = BracketB
 
 
+    class BarAB(_Bracket):
+        """
+        An arrow with a bracket(])  at both ends.
+        """
+
+        def __init__(self,
+                     widthA=1., angleA=None,
+                     widthB=1., angleB=None):
+            """
+            *widthA*
+              width of the bracket
+
+            *lengthA*
+              length of the bracket
+
+            *angleA*
+              angle between the bracket and the line
+
+            *widthB*
+              width of the bracket
+
+            *lengthB*
+              length of the bracket
+
+            *angleB*
+              angle between the bracket and the line
+            """
+
+            super(ArrowStyle.BarAB, self).__init__(True, True, \
+                        widthA=widthA, lengthA=0, angleA=angleA,
+                        widthB=widthB, lengthB=0, angleB=angleB)
+
+    _style_list["|-|"] = BarAB
+
+
     class Simple(_Base):
         """
         A simple arrow. Only works with a quadratic bezier curve.
