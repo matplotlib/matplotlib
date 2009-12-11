@@ -30,6 +30,8 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 
+from operator import itemgetter
+
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
 is_sequence_of_strings = cbook.is_sequence_of_strings
@@ -1698,10 +1700,21 @@ class Axes(martist.Artist):
             artists.extend(self.spines.itervalues())
 
 
+
         dsu = [ (a.zorder, a) for a in artists
                 if not a.get_animated() ]
-        dsu.sort(key=lambda x: x[0])
 
+
+        # add images to dsu if the backend support compositing.
+        # otherwise, does the manaul compositing  without adding images to dsu.
+        if len(self.images)<=1 or renderer.option_image_nocomposite():
+            dsu.extend([(im.zorder, im) for im in self.images])
+            _do_composite = False
+        else:
+            _do_composite = True
+
+
+        dsu.sort(key=itemgetter(0))
 
         # rasterize artists with negative zorder
         # if the minimum zorder is negative, start rasterization
@@ -1719,11 +1732,7 @@ class Axes(martist.Artist):
         if self.axison and self._frameon:
             self.patch.draw(renderer)
 
-        if len(self.images)<=1 or renderer.option_image_nocomposite():
-            for im in self.images:
-                dsu.append( (im.zorder, im) )
-            dsu.sort(key=lambda x: x[0]) # re-sort with images now
-        else:
+        if _do_composite:
             # make a composite image blending alpha
             # list of (mimage.Image, ox, oy)
 
