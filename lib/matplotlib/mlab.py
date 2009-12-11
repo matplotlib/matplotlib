@@ -2598,6 +2598,9 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
                 return func(val)
         return newfunc
 
+    if r.ndim != 1:
+        raise ValueError('rec2csv only operates on 1 dimensional recarrays')
+
     formatd = get_formatd(r, formatd)
     funcs = []
     for i, name in enumerate(r.dtype.names):
