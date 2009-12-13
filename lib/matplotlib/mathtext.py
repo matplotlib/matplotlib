@@ -82,6 +82,14 @@ Type1 symbol name (i.e. 'phi').
 TeX/Type1 symbol"""%locals()
         raise ValueError, message
 
+def unichr_safe(index):
+    """Return the Unicode character corresponding to the index,
+or the replacement character if this is a narrow build of Python
+and the requested character is outside the BMP."""
+    try:
+        return unichr(index)
+    except ValueError:
+        return unichr(0xFFFD)
 
 class MathtextBackend(object):
     """
@@ -321,7 +329,8 @@ class MathtextBackendSvg(MathtextBackend):
 
     def render_glyph(self, ox, oy, info):
         oy = self.height - oy + info.offset
-        thetext = unichr(info.num)
+        thetext = unichr_safe(info.num)
+            
         self.svg_glyphs.append(
             (info.font, info.fontsize, thetext, ox, oy, info.metrics))
 
@@ -351,7 +360,7 @@ class MathtextBackendPath(MathtextBackend):
 
     def render_glyph(self, ox, oy, info):
         oy = self.height - oy + info.offset
-        thetext = unichr(info.num)
+        thetext = unichr_safe(info.num)
         self.glyphs.append(
             (info.font, info.fontsize, thetext, ox, oy))
 
@@ -379,7 +388,7 @@ class MathtextBackendCairo(MathtextBackend):
 
     def render_glyph(self, ox, oy, info):
         oy = oy - info.offset - self.height
-        thetext = unichr(info.num)
+        thetext = unichr_safe(info.num)
         self.glyphs.append(
             (info.font, info.fontsize, thetext, ox, oy))
 
@@ -997,7 +1006,7 @@ class StixFonts(UnicodeFonts):
             cached_font = self._get_font(i)
             glyphindex = cached_font.charmap.get(uniindex)
             if glyphindex is not None:
-                alternatives.append((i, unichr(uniindex)))
+                alternatives.append((i, unichr_safe(uniindex)))
 
         # The largest size of the radical symbol in STIX has incorrect
         # metrics that cause it to be disconnected from the stem.
