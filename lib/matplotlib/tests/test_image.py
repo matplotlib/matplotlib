@@ -35,16 +35,16 @@ def test_figimage():
 
     for suppressComposite in False, True:
         fig = plt.figure(figsize=(2,2), dpi=100)
-        fig.suppressComposite=suppressComposite
+        fig.suppressComposite = suppressComposite
         x,y = np.ix_(np.arange(100.0)/100.0, np.arange(100.0)/100.0)
         z = np.sin(x**2 + y**2 - x*y)
         c = np.sin(20*x**2 + 50*y**2)
         img = z + c/5
 
         fig.figimage(img, xo=0, yo=0, origin='lower')
-        fig.figimage(img, xo=0, yo=100, origin='upper')
+        fig.figimage(img[::-1,:], xo=0, yo=100, origin='lower')
         fig.figimage(img[:,::-1], xo=100, yo=0, origin='lower')
-        fig.figimage(img[:,::-1], xo=100, yo=100, origin='upper')
+        fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
 
         fig.savefig('figimage-%d' % int(suppressComposite), dpi=100)
 
