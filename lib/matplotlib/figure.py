@@ -755,11 +755,12 @@ class Figure(Artist):
 
         # override the renderer default if self.suppressComposite
         # is not None
-        composite = renderer.option_image_nocomposite()
+        not_composite = renderer.option_image_nocomposite()
         if self.suppressComposite is not None:
-            composite = self.suppressComposite
+            not_composite = self.suppressComposite
 
-        if len(self.images)<=1 or composite or not allequal([im.origin for im in self.images]):
+        if len(self.images)<=1 or not_composite or \
+                not allequal([im.origin for im in self.images]):
             for a in self.images:
                 dsu.append( (a.get_zorder(), a.draw, [renderer]))
         else:
@@ -783,8 +784,7 @@ class Figure(Artist):
                 renderer.draw_image(gc, l, b, im)
                 gc.restore()
 
-            if len(ims):
-                dsu.append((ims[0].get_zorder(), draw_composite, []))
+            dsu.append((self.images[0].get_zorder(), draw_composite, []))
 
         # render the axes
         for a in self.axes:
