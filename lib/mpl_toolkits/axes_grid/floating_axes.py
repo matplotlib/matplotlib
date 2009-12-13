@@ -12,7 +12,7 @@ from mpl_toolkits.axes_grid.grid_finder import GridFinder
 
 from  mpl_toolkits.axes_grid.axislines import AxisArtistHelper, GridHelperBase
 from  mpl_toolkits.axes_grid.axis_artist import AxisArtist
-from matplotlib.transforms import Affine2D
+from matplotlib.transforms import Affine2D, IdentityTransform
 import numpy as np
 
 
@@ -85,7 +85,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
 
     def get_tick_transform(self, axes):
-        return axes.transData
+        return IdentityTransform() #axes.transData
 
     def get_tick_iterators(self, axes):
         """tick_loc, tick_angle, tick_label, (optionally) tick_label"""
@@ -99,17 +99,17 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
         lon_levs, lat_levs = np.asarray(lon_levs), np.asarray(lat_levs)
         if lat_factor is not None:
             yy0 = lat_levs / lat_factor
-            dy = 0.01 / lat_factor
+            dy = 0.001 / lat_factor
         else:
             yy0 = lat_levs
-            dy = 0.01
+            dy = 0.001
 
         if lon_factor is not None:
             xx0 = lon_levs / lon_factor
-            dx = 0.01 / lon_factor
+            dx = 0.001 / lon_factor
         else:
             xx0 = lon_levs
-            dx = 0.01
+            dx = 0.001
 
         _extremes = self.grid_helper._extremes
         xmin, xmax = sorted(_extremes[:2])
@@ -121,30 +121,60 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             mask = (xmin <= xx0) & (xx0 <= xmax)
             xx0 = xx0[mask]
 
+        def transform_xy(x, y):
+            x1, y1 = grid_finder.transform_xy(x, y)
+            x2y2 = axes.transData.transform(np.array([x1, y1]).transpose())
+            x2, y2 = x2y2.transpose()
+            return x2, y2
+
         # find angles
         if self.nth_coord == 0:
             xx0 = np.empty_like(yy0)
             xx0.fill(self.value)
-            xx1, yy1 = grid_finder.transform_xy(xx0, yy0)
-            xx2, yy2 = grid_finder.transform_xy(xx0+dx, yy0)
-            xx3, yy3 = grid_finder.transform_xy(xx0, yy0+dy)
+
+            #yy0_ = yy0.copy()
+
+            xx1, yy1 = transform_xy(xx0, yy0)
+
+            xx00 = xx0.copy()
+            xx00[xx0+dx>xmax] -= dx
+            xx1a, yy1a = transform_xy(xx00, yy0)
+            xx1b, yy1b = transform_xy(xx00+dx, yy0)
+
+            yy00 = yy0.copy()
+            yy00[yy0+dy>ymax] -= dy
+            xx2a, yy2a = transform_xy(xx0, yy00)
+            xx2b, yy2b = transform_xy(xx0, yy00+dy)
+
             labels = self.grid_info["lat_labels"]
             labels = [l for l, m in zip(labels, mask) if m]
 
         elif self.nth_coord == 1:
             yy0 = np.empty_like(xx0)
             yy0.fill(self.value)
-            xx1, yy1 = grid_finder.transform_xy(xx0, yy0)
-            xx2, yy2 = grid_finder.transform_xy(xx0, yy0+dy)
-            xx3, yy3 = grid_finder.transform_xy(xx0+dx, yy0)
+
+            #xx0_ = xx0.copy()
+            xx1, yy1 = transform_xy(xx0, yy0)
+
+
+            yy00 = yy0.copy()
+            yy00[yy0+dy>ymax] -= dy
+            xx1a, yy1a = transform_xy(xx0, yy00)
+            xx1b, yy1b = transform_xy(xx0, yy00+dy)
+
+            xx00 = xx0.copy()
+            xx00[xx0+dx>xmax] -= dx
+            xx2a, yy2a = transform_xy(xx00, yy0)
+            xx2b, yy2b = transform_xy(xx00+dx, yy0)
+
             labels = self.grid_info["lon_labels"]
             labels = [l for l, m in zip(labels, mask) if m]
 
 
         def f1():
-            dd = np.arctan2(yy2-yy1, xx2-xx1) # angle normal
-            dd2 = np.arctan2(yy3-yy1, xx3-xx1) # angle tangent
-            mm = ((yy2-yy1)==0.) & ((xx2-xx1)==0.) # mask where dd1 is not defined
+            dd = np.arctan2(yy1b-yy1a, xx1b-xx1a) # angle normal
+            dd2 = np.arctan2(yy2b-yy2a, xx2b-xx2a) # angle tangent
+            mm = ((yy1b-yy1a)==0.) & ((xx1b-xx1a)==0.) # mask where dd1 is not defined
             dd[mm] = dd2[mm]+3.14159/2.
 
             #dd += 3.14159
