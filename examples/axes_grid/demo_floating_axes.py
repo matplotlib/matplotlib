@@ -10,6 +10,27 @@ from mpl_toolkits.axes_grid.grid_finder import FixedLocator, MaxNLocator, \
      DictFormatter
 
 def setup_axes1(fig, rect):
+    """
+    A simple one.
+    """
+    tr = Affine2D().scale(2, 1).rotate_deg(30)
+
+    grid_helper = GridHelperCurveLinear(tr, extremes=(0, 4, 0, 4))
+
+    ax1 = FloatingSubplot(fig, rect, grid_helper=grid_helper)
+    fig.add_subplot(ax1)
+
+    grid_helper.grid_finder.grid_locator1._nbins = 4
+    grid_helper.grid_finder.grid_locator2._nbins = 4
+
+    return ax1
+
+
+def setup_axes2(fig, rect):
+    """
+    With custom locator and formatter.
+    Note that the extreme values are swapped.
+    """
 
     #tr_scale = Affine2D().scale(np.pi/180., 1.)
 
@@ -26,8 +47,6 @@ def setup_axes1(fig, rect):
 
     grid_helper = GridHelperCurveLinear(tr,
                                         extremes=(.5*pi, 0, 2, 1),
-                                        #extremes=(0, .5*pi, 1, 2),
-                                        #extremes=(0, 1, 1, 2),
                                         grid_locator1=grid_locator1,
                                         grid_locator2=grid_locator2,
                                         tick_formatter1=tick_formatter1,
@@ -36,8 +55,6 @@ def setup_axes1(fig, rect):
 
     ax1 = FloatingSubplot(fig, rect, grid_helper=grid_helper)
     fig.add_subplot(ax1)
-
-    #ax1.axis[:]
 
     # create a parasite axes whose transData in RA, cz
     aux_ax = ax1.get_aux_axes(tr)
@@ -51,7 +68,10 @@ def setup_axes1(fig, rect):
     return ax1, aux_ax
 
 
-def setup_axes2(fig, rect):
+def setup_axes3(fig, rect):
+    """
+    Sometimes, things like axis_direction need to be adjusted.
+    """
 
     # rotate a bit for better orientation
     tr_rotate = Affine2D().translate(-95, 0)
@@ -105,26 +125,31 @@ def setup_axes2(fig, rect):
     return ax1, aux_ax
 
 
-def sixty(d, m, s):
-    return d + (m + s/60.)/60.
-
-
 
 if 1:
     import matplotlib.pyplot as plt
-    fig = plt.figure(1, figsize=(7, 5))
+    fig = plt.figure(1, figsize=(8, 4))
+    fig.subplots_adjust(wspace=0.3, left=0.05, right=0.95)
 
-    ax1, aux_ax1 = setup_axes1(fig, 121)
+    ax1 = setup_axes1(fig, 131)
+
+    #theta = np.random.rand(10) #*.5*np.pi
+    #radius = np.random.rand(10) #+1.
+    #aux_ax1.scatter(theta, radius)
+
+
+    ax2, aux_ax2 = setup_axes2(fig, 132)
 
     theta = np.random.rand(10)*.5*np.pi
     radius = np.random.rand(10)+1.
-    aux_ax1.scatter(theta, radius)
+    aux_ax2.scatter(theta, radius)
 
-    ax2, aux_ax2 = setup_axes2(fig, 122)
+
+    ax3, aux_ax3 = setup_axes3(fig, 133)
 
     theta = (8 + np.random.rand(10)*(14-8))*15. # indegree
     radius = np.random.rand(10)*14000.
-    aux_ax2.scatter(theta, radius)
+    aux_ax3.scatter(theta, radius)
 
     plt.show()
 
