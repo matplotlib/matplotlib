@@ -21,6 +21,7 @@ import matplotlib.image as mimage
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
 import matplotlib.mlab as mlab
+import matplotlib.path as mpath
 import matplotlib.patches as mpatches
 import matplotlib.spines as mspines
 import matplotlib.quiver as mquiver
@@ -4892,18 +4893,20 @@ class Axes(martist.Artist):
         return (l0, caplines, barcols)
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
-                positions=None, widths=None):
+                positions=None, widths=None, patch_artist=False):
         """
         call signature::
 
           boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
-                  positions=None, widths=None)
+                  positions=None, widths=None, patch_artist=False)
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
         upper quartile values of the data, with a line at the median.
         The whiskers extend from the box to show the range of the
         data.  Flier points are those past the end of the whiskers.
+
+        *x* is an array or a sequence of vectors.
 
         - *notch* = 0 (default) produces a rectangular box plot.
         - *notch* = 1 will produce a notched box plot
@@ -4927,7 +4930,8 @@ class Axes(martist.Artist):
         each box. The default is 0.5, or ``0.15*(distance between extreme
         positions)`` if that is smaller.
 
-        *x* is an array or a sequence of vectors.
+        - *patch_artist* = False (default) produces boxes with the Line2D artist
+        - *patch_artist* = True produces boxes with the Patch artist
 
         Returns a dictionary mapping each component of the boxplot
         to a list of the :class:`matplotlib.lines.Line2D`
@@ -5045,23 +5049,55 @@ class Axes(martist.Artist):
                 med_x = [cap_x_min, cap_x_max]
                 med_y = [med, med]
 
+            def to_vc(xs,ys):
+                # convert arguments to verts and codes
+                verts = []
+                #codes = []
+                for xi,yi in zip(xs,ys):
+                    verts.append( (xi,yi) )
+                verts.append( (0,0) ) # ignored
+                codes = [mpath.Path.MOVETO] + \
+                        [mpath.Path.LINETO]*(len(verts)-2) + \
+                        [mpath.Path.CLOSEPOLY]
+                return verts,codes
+
+            def patch_list(xs,ys):
+                verts,codes = to_vc(xs,ys)
+                path = mpath.Path( verts, codes )
+                patch = mpatches.PathPatch(path)
+                self.add_artist(patch)
+                return [patch]
+
             # vertical or horizontal plot?
             if vert:
                 def doplot(*args):
                     return self.plot(*args)
+                def dopatch(xs,ys):
+                    return patch_list(xs,ys)
             else:
                 def doplot(*args):
                     shuffled = []
                     for i in xrange(0, len(args), 3):
                         shuffled.extend([args[i+1], args[i], args[i+2]])
                     return self.plot(*shuffled)
+                def dopatch(xs,ys):
+                    xs,ys = ys,xs # flip X, Y
+                    return patch_list(xs,ys)
+
+            if patch_artist:
+                median_color = 'k'
+            else:
+                median_color = 'r'
 
             whiskers.extend(doplot(wisk_x, [q1, wisk_lo], 'b--',
                                    wisk_x, [q3, wisk_hi], 'b--'))
             caps.extend(doplot(cap_x, [wisk_hi, wisk_hi], 'k-',
                                cap_x, [wisk_lo, wisk_lo], 'k-'))
-            boxes.extend(doplot(box_x, box_y, 'b-'))
-            medians.extend(doplot(med_x, med_y, 'r-'))
+            if patch_artist:
+                boxes.extend(dopatch(box_x, box_y))
+            else:
+                boxes.extend(doplot(box_x, box_y, 'b-'))
+            medians.extend(doplot(med_x, med_y, median_color+'-'))
             fliers.extend(doplot(flier_hi_x, flier_hi, sym,
                                  flier_lo_x, flier_lo, sym))
 
