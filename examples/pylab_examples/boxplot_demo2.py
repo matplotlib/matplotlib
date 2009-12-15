@@ -42,8 +42,8 @@ fig.canvas.set_window_title('A Boxplot Example')
 ax1 = fig.add_subplot(111)
 plt.subplots_adjust(left=0.075, right=0.95, top=0.9, bottom=0.25)
 
-bp = plt.boxplot(data, notch=0, sym='+', vert=1, whis=1.5)
-plt.setp(bp['boxes'], color='black')
+bp = plt.boxplot(data, notch=0, sym='+', vert=1, whis=1.5, patch_artist=True)
+plt.setp(bp['boxes'], edgecolor='black')
 plt.setp(bp['whiskers'], color='black')
 plt.setp(bp['fliers'], color='red', marker='+')
 
@@ -64,25 +64,12 @@ numBoxes = numDists*2
 medians = range(numBoxes)
 for i in range(numBoxes):
   box = bp['boxes'][i]
-  boxX = []
-  boxY = []
-  for j in range(5):
-      boxX.append(box.get_xdata()[j])
-      boxY.append(box.get_ydata()[j])
-  boxCoords = zip(boxX,boxY)
-  # Alternate between Dark Khaki and Royal Blue
   k = i % 2
-  boxPolygon = Polygon(boxCoords, facecolor=boxColors[k])
-  ax1.add_patch(boxPolygon)
-  # Now draw the median lines back over what we just filled in
+  # Set the box colors
+  box.set_facecolor(boxColors[k])
+  # Now get the medians
   med = bp['medians'][i]
-  medianX = []
-  medianY = []
-  for j in range(2):
-      medianX.append(med.get_xdata()[j])
-      medianY.append(med.get_ydata()[j])
-      plt.plot(medianX, medianY, 'k')
-      medians[i] = medianY[0]
+  medians[i] = med.get_ydata()[0]
   # Finally, overplot the sample averages, with horixzontal alignment
   # in the center of each box
   plt.plot([np.average(med.get_xdata())], [np.average(data[i])],

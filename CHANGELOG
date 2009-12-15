@@ -1,3 +1,6 @@
+2009-12-14 Add patch_artist kwarg to boxplot, but keep old default.
+           Convert boxplot_demo2.py to use the new patch_artist. - ADS
+
 2009-12-06 axes_grid: reimplemented AxisArtist with FloatingAxes support.
            Added new examples. - JJL
 
