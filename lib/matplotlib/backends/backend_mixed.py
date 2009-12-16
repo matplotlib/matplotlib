@@ -59,7 +59,7 @@ class MixedModeRenderer(object):
         get_texmanager get_text_width_height_descent new_gc open_group
         option_image_nocomposite points_to_pixels strip_math
         start_filter stop_filter draw_gouraud_triangle
-        draw_gouraud_triangles
+        draw_gouraud_triangles option_scale_image
         """.split()
     def _set_current_renderer(self, renderer):
         self._renderer = renderer

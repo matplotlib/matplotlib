@@ -1,3 +1,5 @@
+2009-12-15 Add raw-image (unsampled) support for the ps backend. - JJL
+
 2009-12-14 Add patch_artist kwarg to boxplot, but keep old default.
            Convert boxplot_demo2.py to use the new patch_artist. - ADS
 

@@ -340,6 +340,13 @@ class RendererBase:
         """
         return False
 
+    def option_scale_image(self):
+        """
+        override this method for renderers that support arbitrary
+        scaling of image (most of the vector backend).
+        """
+        return False
+
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
         """
         """
