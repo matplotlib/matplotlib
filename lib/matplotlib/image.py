@@ -127,21 +127,140 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     def make_image(self, magnification=1.0):
         raise RuntimeError('The make_image method must be overridden.')
 
+
+    def _get_unsampled_image(self, A, image_extents, viewlim):
+        """
+        convert numpy array A with given extents ([x1, x2, y1, y2] in
+        data coordinate) into the Image, given the vielim (should be a
+        bbox instance).  Image will be clipped if the extents is
+        significantly larger than the viewlim.
+        """
+        xmin, xmax, ymin, ymax = image_extents
+        dxintv = xmax-xmin
+        dyintv = ymax-ymin
+
+        # the viewport scale factor
+        sx = dxintv/viewlim.width
+        sy = dyintv/viewlim.height
+        numrows, numcols = A.shape[:2]
+        if sx > 2:
+            x0 = (viewim.x0-xmin)/dxintv * numcols
+            ix0 = max(0, int(x0 - self._filterrad))
+            x1 = (viewlim.x1-xmin)/dxintv * numcols
+            ix1 = min(numcols, int(x1 + self._filterrad))
+            xslice = slice(ix0, ix1)
+            xmin_old = xmin
+            xmin = xmin_old + ix0*dxintv/numcols
+            xmax = xmin_old + ix1*dxintv/numcols
+            dxintv = xmax - xmin
+            sx = dxintv/viewlim.width
+        else:
+            xslice = slice(0, numcols)
+
+        if sy > 2:
+            y0 = (viewlim.y0-ymin)/dyintv * numrows
+            iy0 = max(0, int(y0 - self._filterrad))
+            y1 = (viewlim.y1-ymin)/dyintv * numrows
+            iy1 = min(numrows, int(y1 + self._filterrad))
+            if self.origin == 'upper':
+                yslice = slice(numrows-iy1, numrows-iy0)
+            else:
+                yslice = slice(iy0, iy1)
+            ymin_old = ymin
+            ymin = ymin_old + iy0*dyintv/numrows
+            ymax = ymin_old + iy1*dyintv/numrows
+            dyintv = ymax - ymin
+            sy = dyintv/self.axes.viewLim.height
+        else:
+            yslice = slice(0, numrows)
+
+        if xslice != self._oldxslice or yslice != self._oldyslice:
+            self._imcache = None
+            self._oldxslice = xslice
+            self._oldyslice = yslice
+
+        if self._imcache is None:
+            if self._A.dtype == np.uint8 and len(self._A.shape) == 3:
+                im = _image.frombyte(self._A[yslice,xslice,:], 0)
+                im.is_grayscale = False
+            else:
+                if self._rgbacache is None:
+                    x = self.to_rgba(self._A, self._alpha)
+                    self._rgbacache = x
+                else:
+                    x = self._rgbacache
+                im = _image.fromarray(x[yslice,xslice], 0)
+                if len(self._A.shape) == 2:
+                    im.is_grayscale = self.cmap.is_gray()
+                else:
+                    im.is_grayscale = False
+            self._imcache = im
+
+            if self.origin=='upper':
+                im.flipud_in()
+        else:
+            im = self._imcache
+
+        return im, xmin, ymin, dxintv, dyintv, sx, sy
+
+    
+    def _draw_unsampled_image(self, renderer, gc):
+        """
+        draw unsampled image. The renderer should support a draw_image method
+        with scale parameter.
+        """
+        im, xmin, ymin, dxintv, dyintv, sx, sy = \
+            self._get_unsampled_image(self._A, self.get_extent(), self.axes.viewLim)
+
+        if im is None: return # I'm not if this check is required. -JJL
+            
+        transData = self.axes.transData
+        xx1, yy1 = transData.transform_point((xmin, ymin))
+        xx2, yy2 = transData.transform_point((xmin+dxintv, ymin+dyintv))
+
+        fc = self.axes.patch.get_facecolor()
+        bg = mcolors.colorConverter.to_rgba(fc, 0)
+        im.set_bg( *bg)
+
+        # image input dimensions
+        im.reset_matrix()
+        numrows, numcols = im.get_size()
+
+        im.resize(numcols, numrows) # just to create im.bufOut that is required by backends. There may be better solution -JJL
+
+        sx = (xx2-xx1)/numcols
+        sy = (yy2-yy1)/numrows
+        im._url = self.get_url()
+        renderer.draw_image(gc, xx1, yy1, im, sx, sy)
+
+        
+    def _check_unsampled_image(self, renderer):
+        """
+        return True if the image is better to be drawn unsampled.
+        The derived class needs to override it.
+        """
+        return False
+    
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
         if (self.axes.get_xscale() != 'linear' or
             self.axes.get_yscale() != 'linear'):
             warnings.warn("Images are not supported on non-linear axes.")
-        im = self.make_image(renderer.get_image_magnification())
-        if im is None:
-            return
-        im._url = self.get_url()
+
         l, b, widthDisplay, heightDisplay = self.axes.bbox.bounds
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.axes.bbox.frozen())
         gc.set_clip_path(self.get_clip_path())
-        renderer.draw_image(gc, l, b, im)
+
+        if self._check_unsampled_image(renderer):
+            self._draw_unsampled_image(renderer, gc)
+        else:
+            im = self.make_image(renderer.get_image_magnification())
+            if im is None:
+                return
+            im._url = self.get_url()
+            renderer.draw_image(gc, l, b, im)
         gc.restore()
 
     def contains(self, mouseevent):
@@ -338,71 +457,8 @@ class AxesImage(_AxesImageBase):
         if self._A is None:
             raise RuntimeError('You must first set the image array or the image attribute')
 
-        xmin, xmax, ymin, ymax = self.get_extent()
-        dxintv = xmax-xmin
-        dyintv = ymax-ymin
-
-        # the viewport scale factor
-        sx = dxintv/self.axes.viewLim.width
-        sy = dyintv/self.axes.viewLim.height
-        numrows, numcols = self._A.shape[:2]
-        if sx > 2:
-            x0 = (self.axes.viewLim.x0-xmin)/dxintv * numcols
-            ix0 = max(0, int(x0 - self._filterrad))
-            x1 = (self.axes.viewLim.x1-xmin)/dxintv * numcols
-            ix1 = min(numcols, int(x1 + self._filterrad))
-            xslice = slice(ix0, ix1)
-            xmin_old = xmin
-            xmin = xmin_old + ix0*dxintv/numcols
-            xmax = xmin_old + ix1*dxintv/numcols
-            dxintv = xmax - xmin
-            sx = dxintv/self.axes.viewLim.width
-        else:
-            xslice = slice(0, numcols)
-
-        if sy > 2:
-            y0 = (self.axes.viewLim.y0-ymin)/dyintv * numrows
-            iy0 = max(0, int(y0 - self._filterrad))
-            y1 = (self.axes.viewLim.y1-ymin)/dyintv * numrows
-            iy1 = min(numrows, int(y1 + self._filterrad))
-            if self.origin == 'upper':
-                yslice = slice(numrows-iy1, numrows-iy0)
-            else:
-                yslice = slice(iy0, iy1)
-            ymin_old = ymin
-            ymin = ymin_old + iy0*dyintv/numrows
-            ymax = ymin_old + iy1*dyintv/numrows
-            dyintv = ymax - ymin
-            sy = dyintv/self.axes.viewLim.height
-        else:
-            yslice = slice(0, numrows)
-
-        if xslice != self._oldxslice or yslice != self._oldyslice:
-            self._imcache = None
-            self._oldxslice = xslice
-            self._oldyslice = yslice
-
-        if self._imcache is None:
-            if self._A.dtype == np.uint8 and len(self._A.shape) == 3:
-                im = _image.frombyte(self._A[yslice,xslice,:], 0)
-                im.is_grayscale = False
-            else:
-                if self._rgbacache is None:
-                    x = self.to_rgba(self._A, self._alpha)
-                    self._rgbacache = x
-                else:
-                    x = self._rgbacache
-                im = _image.fromarray(x[yslice,xslice], 0)
-                if len(self._A.shape) == 2:
-                    im.is_grayscale = self.cmap.is_gray()
-                else:
-                    im.is_grayscale = False
-            self._imcache = im
-
-            if self.origin=='upper':
-                im.flipud_in()
-        else:
-            im = self._imcache
+        im, xmin, ymin, dxintv, dyintv, sx, sy = \
+            self._get_unsampled_image(self._A, self.get_extent(), self.axes.viewLim)
 
         fc = self.axes.patch.get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
@@ -434,6 +490,15 @@ class AxesImage(_AxesImageBase):
                   norm=self._filternorm, radius=self._filterrad)
         return im
 
+
+    def _check_unsampled_image(self, renderer):
+        """
+        return True if the image is better to be drawn unsampled.
+        """
+        if renderer.option_scale_image() and self.get_interpolation() == "nearest":
+            return True
+        else:
+            return False
 
     def set_extent(self, extent):
         """

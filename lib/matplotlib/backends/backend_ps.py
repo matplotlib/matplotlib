@@ -380,7 +380,13 @@ class RendererPS(RendererBase):
         """
         return self.image_magnification
 
-    def draw_image(self, gc, x, y, im):
+    def option_scale_image(self):
+        """
+        ps backend support arbitrary scaling of image.
+        """
+        return True
+
+    def draw_image(self, gc, x, y, im, sx=None, sy=None):
         """
         Draw the Image instance into the current axes; x is the
         distance in pixels from the left hand side of the canvas and y
@@ -400,9 +406,13 @@ class RendererPS(RendererBase):
             imagecmd = "false 3 colorimage"
         hexlines = '\n'.join(self._hex_lines(bits))
 
-        xscale, yscale = (
-            w/self.image_magnification, h/self.image_magnification)
-
+        if sx is None:
+            sx = 1./self.image_magnification
+        if sy is None:
+            sy = 1./self.image_magnification
+            
+        xscale, yscale = (w*sx, h*sy)
+        
         figh = self.height*72
         #print 'values', origin, flipud, figh, h, y
 
