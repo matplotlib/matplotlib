@@ -386,14 +386,15 @@ class RendererPS(RendererBase):
         """
         return True
 
-    def draw_image(self, gc, x, y, im, sx=None, sy=None):
+    def draw_image(self, gc, x, y, im, dx=None, dy=None, transform=None):
         """
         Draw the Image instance into the current axes; x is the
         distance in pixels from the left hand side of the canvas and y
         is the distance from bottom
 
-        bbox is a matplotlib.transforms.BBox instance for clipping, or
-        None
+        dx, dy is the width and height of the image.  If a transform
+        (which must be an affine transform) is given, x, y, dx, dy are
+        interpreted as the coordinate of the transform.
         """
 
         im.flipud_out()
@@ -406,13 +407,22 @@ class RendererPS(RendererBase):
             imagecmd = "false 3 colorimage"
         hexlines = '\n'.join(self._hex_lines(bits))
 
-        if sx is None:
-            sx = 1./self.image_magnification
-        if sy is None:
-            sy = 1./self.image_magnification
-            
-        xscale, yscale = (w*sx, h*sy)
-        
+        if dx is None:
+            xscale = w / self.image_magnification
+        else:
+            xscale = dx
+
+        if dy is None:
+            yscale = h/self.image_magnification
+        else:
+            yscale = dy
+
+
+        if transform is None:
+            matrix = "1 0 0 1 0 0"
+        else:
+            matrix = " ".join(map(str, transform.to_values()))
+
         figh = self.height*72
         #print 'values', origin, flipud, figh, h, y
 
@@ -431,6 +441,7 @@ class RendererPS(RendererBase):
         #y = figh-(y+h)
         ps = """gsave
 %(clip)s
+[%(matrix)s] concat
 %(x)s %(y)s translate
 %(xscale)s %(yscale)s scale
 /DataString %(w)s string def

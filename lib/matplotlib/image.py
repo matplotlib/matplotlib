@@ -144,7 +144,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         sy = dyintv/viewlim.height
         numrows, numcols = A.shape[:2]
         if sx > 2:
-            x0 = (viewim.x0-xmin)/dxintv * numcols
+            x0 = (viewlim.x0-xmin)/dxintv * numcols
             ix0 = max(0, int(x0 - self._filterrad))
             x1 = (viewlim.x1-xmin)/dxintv * numcols
             ix1 = min(numcols, int(x1 + self._filterrad))
@@ -170,7 +170,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             ymin = ymin_old + iy0*dyintv/numrows
             ymax = ymin_old + iy1*dyintv/numrows
             dyintv = ymax - ymin
-            sy = dyintv/self.axes.viewLim.height
+            sy = dyintv/viewlim.height
         else:
             yslice = slice(0, numrows)
 
@@ -203,7 +203,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         return im, xmin, ymin, dxintv, dyintv, sx, sy
 
-    
+
     def _draw_unsampled_image(self, renderer, gc):
         """
         draw unsampled image. The renderer should support a draw_image method
@@ -213,10 +213,6 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             self._get_unsampled_image(self._A, self.get_extent(), self.axes.viewLim)
 
         if im is None: return # I'm not if this check is required. -JJL
-            
-        transData = self.axes.transData
-        xx1, yy1 = transData.transform_point((xmin, ymin))
-        xx2, yy2 = transData.transform_point((xmin+dxintv, ymin+dyintv))
 
         fc = self.axes.patch.get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
@@ -228,19 +224,23 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         im.resize(numcols, numrows) # just to create im.bufOut that is required by backends. There may be better solution -JJL
 
-        sx = (xx2-xx1)/numcols
-        sy = (yy2-yy1)/numrows
         im._url = self.get_url()
-        renderer.draw_image(gc, xx1, yy1, im, sx, sy)
 
-        
+        trans = self.get_transform() #axes.transData
+        xx1, yy1 = trans.transform_non_affine((xmin, ymin))
+        xx2, yy2 = trans.transform_non_affine((xmin+dxintv, ymin+dyintv))
+
+        renderer.draw_image(gc, xx1, yy1, im, xx2-xx1, yy2-yy1,
+                            trans.get_affine())
+
+
     def _check_unsampled_image(self, renderer):
         """
         return True if the image is better to be drawn unsampled.
         The derived class needs to override it.
         """
         return False
-    
+
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         if not self.get_visible(): return
