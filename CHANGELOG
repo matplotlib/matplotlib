@@ -1,3 +1,6 @@
+2009-12-18 Don't limit notch size in boxplot to q1-q3 range, as this
+           is effectively making the data look better than it is. - ADS
+
 2009-12-18 mlab.prctile handles even-length data, such that the median
            is the mean of the two middle values. - ADS
 
