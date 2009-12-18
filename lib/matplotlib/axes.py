@@ -5035,10 +5035,6 @@ class Axes(martist.Artist):
             else:
                 notch_max = med + 1.57*iq/np.sqrt(row)
                 notch_min = med - 1.57*iq/np.sqrt(row)
-                if notch_max > q3:
-                    notch_max = q3
-                if notch_min < q1:
-                    notch_min = q1
                 # make our notched box vectors
                 box_x = [box_x_min, box_x_max, box_x_max, cap_x_max, box_x_max,
                          box_x_max, box_x_min, box_x_min, cap_x_min, box_x_min,
