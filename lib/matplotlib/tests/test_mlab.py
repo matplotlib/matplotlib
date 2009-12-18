@@ -32,3 +32,26 @@ def test_rec2csv_bad_shape():
 
     # the bad recarray should trigger a ValueError for having ndim > 1.
     mlab.rec2csv(bad,fd)
+
+def test_prctile():
+    # test odd lengths
+    x=[1,2,3]
+    assert mlab.prctile(x,50)==np.median(x)
+
+    # test even lengths
+    x=[1,2,3,4]
+    assert mlab.prctile(x,50)==np.median(x)
+
+    # derived from email sent by jason-sage to MPL-user on 20090914
+    ob1=[1,1,2,2,1,2,4,3,2,2,2,3,4,5,6,7,8,9,7,6,4,5,5]
+    p        = [0,   75, 100]
+    expected = [1,  5.5,   9]
+
+    # test vectorized
+    actual = mlab.prctile(ob1,p)
+    assert np.allclose( expected, actual )
+
+    # test scalar
+    for pi, expectedi in zip(p,expected):
+        actuali = mlab.prctile(ob1,pi)
+        assert np.allclose( expectedi, actuali )
