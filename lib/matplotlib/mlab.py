@@ -904,18 +904,38 @@ def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
     the *p* percentage point in the sequence is returned.
     """
 
+    # This implementation derived from scipy.stats.scoreatpercentile
+    def _interpolate(a, b, fraction):
+        """Returns the point at the given fraction between a and b, where
+        'fraction' must be between 0 and 1.
+        """
+        return a + (b - a)*fraction
 
-    x = np.array(x).ravel()  # we need a copy
-    x.sort()
-    Nx = len(x)
+    scalar = True
+    if cbook.iterable(p):
+        scalar = False
+    per = np.array(p)
+    values = np.array(x).ravel()  # copy
+    values.sort()
 
-    if not cbook.iterable(p):
-        return x[int(p*Nx/100.0)]
+    idxs = per /100. * (values.shape[0] - 1)
+    ai = idxs.astype(np.int)
+    bi = ai + 1
+    frac = idxs % 1
 
-    p = np.asarray(p)* Nx/100.0
-    ind = p.astype(int)
-    ind = np.where(ind>=Nx, Nx-1, ind)
-    return x.take(ind)
+    # handle cases where attempting to interpolate past last index
+    cond = bi >= len(values)
+    if scalar:
+        if cond:
+            ai -= 1
+            bi -= 1
+            frac += 1
+    else:
+        ai[cond] -= 1
+        bi[cond] -= 1
+        frac[cond] += 1
+
+    return _interpolate(values[ai],values[bi],frac)
 
 def prctile_rank(x, p):
     """

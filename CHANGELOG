@@ -1,3 +1,6 @@
+2009-12-18 mlab.prctile handles even-length data, such that the median
+           is the mean of the two middle values. - ADS
+
 2009-12-15 Add raw-image (unsampled) support for the ps backend. - JJL
 
 2009-12-14 Add patch_artist kwarg to boxplot, but keep old default.
