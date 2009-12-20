@@ -434,7 +434,24 @@ def poly_collection_2d_to_3d(col, zs=0, zdir='z'):
 
 def juggle_axes(xs, ys, zs, zdir):
     """
-    Reorder coordinates so that zdir
+    Reorder coordinates so that 2D xs, ys can be plotted in the plane
+    orthogonal to zdir. zdir is normally x, y or z. However, if zdir
+    starts with a '-' it is interpreted as a compensation for rotate_axes.
+    """
+    if zdir == 'x':
+        return zs, xs, ys
+    elif zdir == 'y':
+        return xs, zs, ys
+    elif zdir[0] == '-':
+        return rotate_axes(xs, ys, zs, zdir)
+    else:
+        return xs, ys, zs
+
+def rotate_axes(xs, ys, zs, zdir):
+    """
+    Reorder coordinates so that the axes are rotated with zdir along
+    the original z axis. Prepending the axis with a '-' does the
+    inverse transform, so zdir can be x, -x, y, -y, z or -z
     """
     if zdir == 'x':
         return ys, zs, xs

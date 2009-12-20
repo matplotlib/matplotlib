@@ -180,7 +180,7 @@ class Axis(maxis.XAxis):
         # filter locations here so that no extra grid lines are drawn
         interval = self.get_view_interval()
         majorLocs = [loc for loc in majorLocs if \
-                interval[0] < loc < interval[1]]
+                interval[0] <= loc <= interval[1]]
         self.major.formatter.set_locs(majorLocs)
         majorLabels = [self.major.formatter(val, i)
                        for i, val in enumerate(majorLocs)]

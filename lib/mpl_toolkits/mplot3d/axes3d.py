@@ -857,7 +857,7 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
-        jX, jY, jZ = art3d.juggle_axes(X, Y, Z, zdir)
+        jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         cset = Axes.contour(self, jX, jY, jZ, **kwargs)
 
         zdir = '-' + zdir
