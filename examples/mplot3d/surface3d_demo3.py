@@ -23,8 +23,8 @@ for y in range(ylen):
 surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, facecolors=colors,
         linewidth=0, antialiased=False)
 
-ax.set_zlim3d(-1.01, 1.01)
-ax.w_zaxis.set_major_locator(LinearLocator(10))
+ax.set_zlim3d(-1, 1)
+ax.w_zaxis.set_major_locator(LinearLocator(6))
 ax.w_zaxis.set_major_formatter(FormatStrFormatter('%.03f'))
 
 plt.show()

@@ -22,8 +22,11 @@ poly = PolyCollection(verts, facecolors = [cc('r'), cc('g'), cc('b'),
 poly.set_alpha(0.7)
 ax.add_collection3d(poly, zs=zs, zdir='y')
 
+ax.set_xlabel('X')
 ax.set_xlim3d(0, 10)
+ax.set_ylabel('Y')
 ax.set_ylim3d(-1, 4)
+ax.set_zlabel('Z')
 ax.set_zlim3d(0, 1)
 
 plt.show()
