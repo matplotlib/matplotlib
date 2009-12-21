@@ -33,6 +33,8 @@ from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 import matplotlib.cbook as cbook
 from matplotlib import docstring
 
+from operator import itemgetter
+
 docstring.interpd.update(projection_names = get_projection_names())
 
 class SubplotParams:
@@ -742,8 +744,6 @@ class Figure(Artist):
         # a list of (zorder, func_to_call, list_of_args)
         dsu = []
 
-
-        # todo: respect zorder
         for a in self.patches:
             dsu.append( (a.get_zorder(), a.draw, [renderer]))
 
@@ -797,8 +797,7 @@ class Figure(Artist):
         for a in self.legends:
             dsu.append( (a.get_zorder(), a.draw, [renderer]))
 
-
-        dsu.sort(key=lambda x: x[0])
+        dsu.sort(key=itemgetter(0))
         for zorder, func, args in dsu:
             func(*args)
 
