@@ -15,6 +15,7 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.units as munits
+import numpy as np
 
 GRIDLINE_INTERPOLATION_STEPS = 180
 
@@ -539,6 +540,8 @@ class Axis(artist.Artist):
         #self.minor = dummy()
 
         self._autolabelpos = True
+        self._smart_bounds = False
+
         self.label = self._get_label()
         self.labelpad = 5
         self.offsetText = self._get_offset_text()
@@ -737,6 +740,14 @@ class Axis(artist.Artist):
             bbox2 = mtransforms.Bbox.from_extents(0, 0, 0, 0)
         return bbox, bbox2
 
+    def set_smart_bounds(self,value):
+        """set the axis to have smart bounds"""
+        self._smart_bounds = value
+
+    def get_smart_bounds(self):
+        """get whether the axis has smart bounds"""
+        return self._smart_bounds
+
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
         'Draw the axis lines, grid lines, tick lines and labels'
@@ -746,7 +757,47 @@ class Axis(artist.Artist):
         if not self.get_visible(): return
         renderer.open_group(__name__)
         interval = self.get_view_interval()
-        for tick, loc, label in self.iter_ticks():
+        tick_tups = [ t for t in self.iter_ticks()]
+        if self._smart_bounds:
+            # handle inverted limits
+            view_low, view_high = min(*interval), max(*interval)
+            data_low, data_high = self.get_data_interval()
+            if data_low > data_high:
+                data_low, data_high = data_high, data_low
+            locs = [ti[1] for ti in tick_tups]
+            locs.sort()
+            locs = np.array(locs)
+            if len(locs):
+                if data_low <= view_low:
+                    # data extends beyond view, take view as limit
+                    ilow = view_low
+                else:
+                    # data stops within view, take best tick
+                    cond = locs <= data_low
+                    good_locs = locs[cond]
+                    if len(good_locs) > 0:
+                        # last tick prior or equal to first data point
+                        ilow = good_locs[-1]
+                    else:
+                        # No ticks (why not?), take first tick
+                        ilow = locs[0]
+                if data_high >= view_high:
+                    # data extends beyond view, take view as limit
+                    ihigh = view_high
+                else:
+                    # data stops within view, take best tick
+                    cond = locs >= data_high
+                    good_locs = locs[cond]
+                    if len(good_locs) > 0:
+                        # first tick after or equal to last data point
+                        ihigh = good_locs[0]
+                    else:
+                        # No ticks (why not?), take last tick
+                        ihigh = locs[-1]
+                tick_tups = [ ti for ti in tick_tups
+                              if (ti[1] >= ilow) and (ti[1] <= ihigh)]
+
+        for tick, loc, label in tick_tups:
             if tick is None: continue
             if not mtransforms.interval_contains(interval, loc): continue
             tick.update_position(loc)

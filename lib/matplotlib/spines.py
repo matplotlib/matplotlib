@@ -59,6 +59,7 @@ class Spine(mpatches.Patch):
         self.set_transform(self.axes.transData) # default transform
 
         self._bounds = None # default bounds
+        self._smart_bounds = False
 
         # Defer initial position determination. (Not much support for
         # non-rectangular axes is currently implemented, and this lets
@@ -77,6 +78,20 @@ class Spine(mpatches.Patch):
         # Behavior copied from mpatches.Ellipse:
         # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = mtransforms.IdentityTransform()
+
+    def set_smart_bounds(self,value):
+        """set the spine and associated axis to have smart bounds"""
+        self._smart_bounds = value
+
+        # also set the axis if possible
+        if self.spine_type in ('left','right'):
+            self.axes.yaxis.set_smart_bounds(value)
+        elif self.spine_type in ('top','bottom'):
+            self.axes.xaxis.set_smart_bounds(value)
+
+    def get_smart_bounds(self):
+        """get whether the spine has smart bounds"""
+        return self._smart_bounds
 
     def set_patch_circle(self,center,radius):
         """set the spine to be circular"""
@@ -141,6 +156,26 @@ class Spine(mpatches.Patch):
         if self.axis is not None:
             self.axis.cla()
 
+    def is_frame_like(self):
+        """return True if directly on axes frame
+
+        This is useful for determining if a spine is the edge of an
+        old style MPL plot. If so, this function will return True.
+        """
+        self._ensure_position_is_set()
+        position = self._position
+        if cbook.is_string_like(position):
+            if position=='center':
+                position = ('axes',0.5)
+            elif position=='zero':
+                position = ('data',0)
+        assert len(position)==2, "position should be 2-tuple"
+        position_type, amount = position
+        if position_type=='outward' and amount == 0:
+            return True
+        else:
+            return False
+
     def _adjust_location(self):
         """automatically set spine bounds to the view interval"""
 
@@ -154,6 +189,61 @@ class Spine(mpatches.Patch):
                 low,high = self.axes.viewLim.intervalx
             else:
                 raise ValueError('unknown spine spine_type: %s'%self.spine_type)
+
+            if self._smart_bounds:
+                # attempt to set bounds in sophisticated way
+                if low > high:
+                    # handle inverted limits
+                    low,high=high,low
+
+                viewlim_low = low
+                viewlim_high = high
+
+                del low, high
+
+                if self.spine_type in ('left','right'):
+                    datalim_low,datalim_high = self.axes.dataLim.intervaly
+                    ticks = self.axes.get_yticks()
+                elif self.spine_type in ('top','bottom'):
+                    datalim_low,datalim_high = self.axes.dataLim.intervalx
+                    ticks = self.axes.get_xticks()
+                # handle inverted limits
+                ticks = list(ticks)
+                ticks.sort()
+                ticks = np.array(ticks)
+                if datalim_low > datalim_high:
+                    datalim_low, datalim_high = datalim_high, datalim_low
+
+                if datalim_low < viewlim_low:
+                    # Data extends past view. Clip line to view.
+                    low = viewlim_low
+                else:
+                    # Data ends before view ends.
+                    cond = (ticks <= datalim_low) & (ticks >= viewlim_low)
+                    tickvals = ticks[cond]
+                    if len(tickvals):
+                        # A tick is less than or equal to lowest data point.
+                        low = tickvals[-1]
+                    else:
+                        # No tick is available
+                        low = datalim_low
+                    low = max(low,viewlim_low)
+
+                if datalim_high > viewlim_high:
+                    # Data extends past view. Clip line to view.
+                    high = viewlim_high
+                else:
+                    # Data ends before view ends.
+                    cond = (ticks >= datalim_high) & (ticks <= viewlim_high)
+                    tickvals = ticks[cond]
+                    if len(tickvals):
+                        # A tick is greater than or equal to highest data point.
+                        high = tickvals[0]
+                    else:
+                        # No tick is available
+                        high = datalim_high
+                    high = min(high,viewlim_high)
+
         else:
             low,high = self._bounds
 
@@ -316,10 +406,15 @@ class Spine(mpatches.Patch):
             raise ValueError("unknown spine_transform type: %s"%what)
 
     def set_bounds( self, low, high ):
+        """Set the bounds of the spine."""
         if self.spine_type == 'circle':
             raise ValueError(
                 'set_bounds() method incompatible with circular spines')
         self._bounds = (low, high)
+
+    def get_bounds( self ):
+        """Get the bounds of the spine."""
+        return self._bounds
 
     @classmethod
     def linear_spine(cls, axes, spine_type, **kwargs):
