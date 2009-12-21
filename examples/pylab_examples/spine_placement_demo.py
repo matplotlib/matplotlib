@@ -143,4 +143,7 @@ ax.set_yticks([-1,0,1])
 for artist in (line1,line2):
     artist.set_clip_on(False)
 
+# adjust spine to be within ticks
+ax.spines['left'].set_bounds( -1, 1 )
+
 show()
