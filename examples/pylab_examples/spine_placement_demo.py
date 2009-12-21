@@ -113,4 +113,34 @@ ax = fig.add_subplot(2,2,4)
 ax.plot(x,y)
 adjust_spines(ax,['bottom'])
 
+# ----------------------------------------------------
+
+fig = plt.figure()
+
+x = np.linspace(0,2*np.pi,50)
+y = np.sin(x)
+y2 = y + 0.1*np.random.normal( size=x.shape )
+
+# plot data
+ax = fig.add_subplot(1,1,1)
+line1,=ax.plot(x,y,'--')
+line2,=ax.plot(x,y2,'bo')
+
+# adjust the spines
+adjust_spines(ax,['left','bottom'])
+
+# set ticks and tick labels
+#   x
+ax.set_xlim((0,2*np.pi))
+ax.set_xticks([0,np.pi,2*np.pi])
+pichr = unichr(0x03C0)
+ax.set_xticklabels(['0',pichr,'2 '+pichr])
+
+#   y
+ax.set_yticks([-1,0,1])
+
+# disable clipping of data points by axes range
+for artist in (line1,line2):
+    artist.set_clip_on(False)
+
 show()
