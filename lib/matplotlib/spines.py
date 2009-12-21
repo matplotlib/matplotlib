@@ -11,6 +11,7 @@ import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.cbook as cbook
+import numpy as np
 import warnings
 
 class Spine(mpatches.Patch):
@@ -56,6 +57,8 @@ class Spine(mpatches.Patch):
 
         self.set_zorder(2.5)
         self.set_transform(self.axes.transData) # default transform
+
+        self._bounds = None # default bounds
 
         # Defer initial position determination. (Not much support for
         # non-rectangular axes is currently implemented, and this lets
@@ -137,6 +140,39 @@ class Spine(mpatches.Patch):
         self._position = None # clear position
         if self.axis is not None:
             self.axis.cla()
+
+    def _adjust_location(self):
+        """automatically set spine bounds to the view interval"""
+
+        if self.spine_type == 'circle':
+            return
+
+        if self._bounds is None:
+            if self.spine_type in ('left','right'):
+                low,high = self.axes.viewLim.intervaly
+            elif self.spine_type in ('top','bottom'):
+                low,high = self.axes.viewLim.intervalx
+            else:
+                raise ValueError('unknown spine spine_type: %s'%self.spine_type)
+        else:
+            low,high = self._bounds
+
+        v1 = self._path.vertices[:] # copy
+        assert v1.shape == (2,2), 'unexpected vertices shape'
+        if self.spine_type in ['left','right']:
+            v1[0,1] = low
+            v1[1,1] = high
+        elif self.spine_type in ['bottom','top']:
+            v1[0,0] = low
+            v1[1,0] = high
+        else:
+            raise ValueError('unable to set bounds for spine "%s"'%spine_type)
+        self._path.vertices = v1 # replace
+
+    @allow_rasterization
+    def draw(self, renderer):
+        self._adjust_location()
+        return super( Spine, self).draw(renderer)
 
     def _calc_offset_transform(self):
         """calculate the offset transform performed by the spine"""
@@ -280,17 +316,10 @@ class Spine(mpatches.Patch):
             raise ValueError("unknown spine_transform type: %s"%what)
 
     def set_bounds( self, low, high ):
-        v1 = self._path.vertices[:] # copy
-        assert v1.shape == (2,2), 'unexpected vertices shape'
-        if self.spine_type in ['left','right']:
-            v1[0,1] = low
-            v1[1,1] = high
-        elif self.spine_type in ['bottom','top']:
-            v1[0,0] = low
-            v1[1,0] = high
-        else:
-            raise ValueError('unable to set bounds for spine "%s"'%spine_type)
-        self._path.vertices = v1 # replace
+        if self.spine_type == 'circle':
+            raise ValueError(
+                'set_bounds() method incompatible with circular spines')
+        self._bounds = (low, high)
 
     @classmethod
     def linear_spine(cls, axes, spine_type, **kwargs):

@@ -2065,9 +2065,6 @@ class Axes(martist.Artist):
                         other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
 
-        for loc in ('bottom','top'):
-            self.spines[loc].set_bounds(xmin,xmax)
-
         return xmin, xmax
 
     def get_xscale(self):
@@ -2241,9 +2238,6 @@ class Axes(martist.Artist):
                     if (other.figure != self.figure and
                         other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
-
-        for loc in ('left','right'):
-            self.spines[loc].set_bounds(ymin,ymax)
 
         return ymin, ymax
 
