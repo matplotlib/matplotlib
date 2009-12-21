@@ -250,14 +250,12 @@ class Spine(mpatches.Patch):
 
         if what == 'data':
             # special case data based spine locations
+            data_xform = self.axes.transScale + \
+                         (how+self.axes.transLimits + self.axes.transAxes)
             if self.spine_type in ['left','right']:
-                data_xform = self.axes.transScale + \
-                             (how+self.axes.transLimits + self.axes.transAxes)
                 result = mtransforms.blended_transform_factory(
                     data_xform,self.axes.transData)
             elif self.spine_type in ['top','bottom']:
-                data_xform = self.axes.transScale + \
-                             (how+self.axes.transLimits + self.axes.transAxes)
                 result = mtransforms.blended_transform_factory(
                     self.axes.transData,data_xform)
             else:
