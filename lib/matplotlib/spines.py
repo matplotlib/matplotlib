@@ -55,7 +55,7 @@ class Spine(mpatches.Patch):
         self.axis = None
 
         self.set_zorder(2.5)
-        self.set_transform(self.axes.transAxes) # default transform
+        self.set_transform(self.axes.transData) # default transform
 
         # Defer initial position determination. (Not much support for
         # non-rectangular axes is currently implemented, and this lets
@@ -82,6 +82,7 @@ class Spine(mpatches.Patch):
         self._width = radius*2
         self._height = radius*2
         self._angle = 0
+        self.set_transform(self.axes.transAxes) # circle drawn on axes transform
 
     def set_patch_line(self):
         """set the spine to be linear"""
@@ -229,9 +230,9 @@ class Spine(mpatches.Patch):
         t = self.get_spine_transform()
         if self.spine_type in ['left','right']:
             t2 = mtransforms.blended_transform_factory(t,
-                                                       self.axes.transAxes)
+                                                       self.axes.transData)
         elif self.spine_type in ['bottom','top']:
-            t2 = mtransforms.blended_transform_factory(self.axes.transAxes,
+            t2 = mtransforms.blended_transform_factory(self.axes.transData,
                                                        t)
         self.set_transform(t2)
 
@@ -277,6 +278,19 @@ class Spine(mpatches.Patch):
             return how+base_transform
         else:
             raise ValueError("unknown spine_transform type: %s"%what)
+
+    def set_bounds( self, low, high ):
+        v1 = self._path.vertices[:] # copy
+        assert v1.shape == (2,2), 'unexpected vertices shape'
+        if self.spine_type in ['left','right']:
+            v1[0,1] = low
+            v1[1,1] = high
+        elif self.spine_type in ['bottom','top']:
+            v1[0,0] = low
+            v1[1,0] = high
+        else:
+            raise ValueError('unable to set bounds for spine "%s"'%spine_type)
+        self._path.vertices = v1 # replace
 
     @classmethod
     def linear_spine(cls, axes, spine_type, **kwargs):

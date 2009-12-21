@@ -1,3 +1,6 @@
+2009-12-20 spines: put spines in data coordinates, add set_bounds()
+           call. -ADS
+
 2009-12-18 Don't limit notch size in boxplot to q1-q3 range, as this
            is effectively making the data look better than it is. - ADS
 
