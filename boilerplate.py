@@ -86,7 +86,7 @@ _plotcommands = (
     'semilogx',
     'semilogy',
     'specgram',
-    'spy',
+    #'spy',
     'stem',
     'step',
     'vlines',
@@ -111,7 +111,7 @@ cmappable = {
     'pcolor'  : 'sci(%(ret)s)',
     'pcolormesh': 'sci(%(ret)s)',
     'imshow'  : 'sci(%(ret)s)',
-    'spy'    :  'sci(%(ret)s)',
+    #'spy'    :  'sci(%(ret)s)',  ### may return image or Line2D
     'quiver' :  'sci(%(ret)s)',
     'specgram'  : 'sci(%(ret)s[-1])',
 
