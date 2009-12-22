@@ -23,11 +23,11 @@ that you provide.  The mathtext font can be selected with the
 customization variable ``mathtext.fontset`` (see
 :ref:`customizing-matplotlib`)
 
-.. note:: 
-   On `"narrow" <http://wordaligned.org/articles/narrow-python>`_ builds 
+.. note::
+   On `"narrow" <http://wordaligned.org/articles/narrow-python>`_ builds
    of Python, if you use the STIX fonts you should also set
    ``ps.fonttype`` and ``pdf.fonttype`` to 3 (the default), not 42.
-   Otherwise `some characters will not be visible 
+   Otherwise `some characters will not be visible
    <http://thread.gmane.org/gmane.comp.python.matplotlib.general/19963/focus=19978>`_.
 
 Here is a simple example::
@@ -85,18 +85,20 @@ the operator.  For example, to write the sum of :math:`x_i` from :math:`0` to
 
     \sum_{i=0}^\infty x_i
 
-Fractions
----------
+Fractions, binomials and stacked numbers
+----------------------------------------
 
-Fractions can be created with the ``\frac{}{}`` command::
+Fractions, binomials and stacked numbers can be created with the
+``\frac{}{}``, ``\binom{}{}`` and ``\stackrel{}{}`` commands,
+respectively::
 
-    r'$\frac{3}{4}$'
+    r'$\frac{3}{4} \binom{3}{4} \stackrel{3}{4}$'
 
 produces
 
 .. math::
 
-    \frac{3}{4}
+    \frac{3}{4} \binom{3}{4} \stackrel{3}{4}
 
 Fractions can be arbitrarily nested::
 
