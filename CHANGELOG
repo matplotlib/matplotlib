@@ -1,3 +1,5 @@
+2009-12-22 Fix cmap data for gist_earth_r, etc. -JJL
+
 2009-12-20 spines: put spines in data coordinates, add set_bounds()
            call. -ADS
 
