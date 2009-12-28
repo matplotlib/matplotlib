@@ -1,6 +1,11 @@
 """
 Clip a line according to the current xlimits, and change the marker
-style when zoomed in
+style when zoomed in.
+
+It is not clear this example is still needed or valid; clipping
+is now automatic for Line2D objects when x is sorted in
+ascending order.
+
 """
 
 from matplotlib.lines import Line2D
@@ -19,8 +24,7 @@ class ClippedLine(Line2D):
 
     def set_data(self, *args, **kwargs):
         Line2D.set_data(self, *args, **kwargs)
-        if self._invalid:
-            self.recache()
+        self.recache()
         self.xorig = np.array(self._x)
         self.yorig = np.array(self._y)
 
