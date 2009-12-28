@@ -248,7 +248,8 @@ class Line2D(Artist):
 
         self._xorig = np.asarray([])
         self._yorig = np.asarray([])
-        self._invalid = True
+        self._invalidx = True
+        self._invalidy = True
         self.set_data(xdata, ydata)
 
     def contains(self, mouseevent):
@@ -272,7 +273,7 @@ class Line2D(Artist):
             raise ValueError,"pick radius should be a distance"
 
         # Make sure we have data to plot
-        if self._invalid:
+        if self._invalidy or self._invalidx:
             self.recache()
         if len(self._xy)==0: return False,{}
 
@@ -403,36 +404,28 @@ class Line2D(Artist):
         else:
             x, y = args
 
-        not_masked = 0
-        if not ma.isMaskedArray(x):
-            x = np.asarray(x)
-            not_masked += 1
-        if not ma.isMaskedArray(y):
-            y = np.asarray(y)
-            not_masked += 1
-
-        if (not_masked < 2 or
-            (x is not self._xorig and
-             (x.shape != self._xorig.shape or np.any(x != self._xorig))) or
-            (y is not self._yorig and
-              (y.shape != self._yorig.shape or np.any(y != self._yorig)))):
-            self._xorig = x
-            self._yorig = y
-            self._invalid = True
+        self.set_xdata(x)
+        self.set_ydata(y)
 
     def recache(self):
-        #if self.axes is None: print 'recache no axes'
-        #else: print 'recache units', self.axes.xaxis.units, self.axes.yaxis.units
-        if ma.isMaskedArray(self._xorig) or ma.isMaskedArray(self._yorig):
-            x = ma.asarray(self.convert_xunits(self._xorig), float)
-            y = ma.asarray(self.convert_yunits(self._yorig), float)
-            x = ma.ravel(x)
-            y = ma.ravel(y)
+        if self._invalidx:
+            xconv = self.convert_xunits(self._xorig)
+            if ma.isMaskedArray(self._xorig):
+                x = ma.asarray(xconv, float)
+            else:
+                x = np.asarray(xconv, float)
+            x = x.ravel()
         else:
-            x = np.asarray(self.convert_xunits(self._xorig), float)
-            y = np.asarray(self.convert_yunits(self._yorig), float)
-            x = np.ravel(x)
-            y = np.ravel(y)
+            x = self._x
+        if self._invalidy:
+            yconv = self.convert_yunits(self._yorig)
+            if ma.isMaskedArray(self._yorig):
+                y = ma.asarray(yconv, float)
+            else:
+                y = np.asarray(yconv, float)
+            y = y.ravel()
+        else:
+            y = self._y
 
         if len(x)==1 and len(y)>1:
             x = x * np.ones(y.shape, float)
@@ -455,8 +448,7 @@ class Line2D(Artist):
         self._subslice = False
         if (self.axes and len(x) > 100 and self._is_sorted(x) and
             self.axes.name == 'rectilinear' and
-            self.axes.get_xscale() == 'linear' and
-            self.axes.get_yscale() == 'linear'):
+            self.axes.get_xscale() == 'linear'):
             self._subslice = True
         if hasattr(self, '_path'):
             interpolation_steps = self._path._interpolation_steps
@@ -464,7 +456,8 @@ class Line2D(Artist):
             interpolation_steps = 1
         self._path = Path(self._xy, None, interpolation_steps)
         self._transformed_path = None
-        self._invalid = False
+        self._invalidx = False
+        self._invalidy = False
 
     def _transform_path(self, subslice=None):
         # Masked arrays are now handled by the Path class itself
@@ -482,7 +475,8 @@ class Line2D(Artist):
         ACCEPTS: a :class:`matplotlib.transforms.Transform` instance
         """
         Artist.set_transform(self, t)
-        self._invalid = True
+        self._invalidx = True
+        self._invalidy = True
 
     def _is_sorted(self, x):
         "return true if x is sorted"
@@ -491,7 +485,7 @@ class Line2D(Artist):
 
     @allow_rasterization
     def draw(self, renderer):
-        if self._invalid:
+        if self._invalidy or self._invalidx:
             self.recache()
         if self._subslice and self.axes:
             # Need to handle monotonically decreasing case also...
@@ -619,7 +613,7 @@ class Line2D(Artist):
         """
         if orig:
             return self._xorig
-        if self._invalid:
+        if self._invalidx:
             self.recache()
         return self._x
 
@@ -632,7 +626,7 @@ class Line2D(Artist):
         """
         if orig:
             return self._yorig
-        if self._invalid:
+        if self._invalidy:
             self.recache()
         return self._y
 
@@ -641,7 +635,7 @@ class Line2D(Artist):
         Return the :class:`~matplotlib.path.Path` object associated
         with this line.
         """
-        if self._invalid:
+        if self._invalidy or self._invalidx:
             self.recache()
         return self._path
 
@@ -649,7 +643,7 @@ class Line2D(Artist):
         """
         Return the *xy* data as a Nx2 numpy array.
         """
-        if self._invalid:
+        if self._invalidy or self.invalidx:
             self.recache()
         return self._xy
 
@@ -840,7 +834,8 @@ class Line2D(Artist):
 
         ACCEPTS: 1D array
         """
-        self.set_data(x, self._yorig)
+        self._xorig = x
+        self._invalidx = True
 
     def set_ydata(self, y):
         """
@@ -848,7 +843,8 @@ class Line2D(Artist):
 
         ACCEPTS: 1D array
         """
-        self.set_data(self._xorig, y)
+        self._yorig = y
+        self._invalidy = True
 
     def set_dashes(self, seq):
         """
