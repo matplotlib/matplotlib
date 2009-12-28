@@ -388,9 +388,9 @@ class Line2D(Artist):
     def set_axes(self, ax):
         Artist.set_axes(self, ax)
         if ax.xaxis is not None:
-            self._xcid = ax.xaxis.callbacks.connect('units', self.recache)
+            self._xcid = ax.xaxis.callbacks.connect('units', self.recache_always)
         if ax.yaxis is not None:
-            self._ycid = ax.yaxis.callbacks.connect('units', self.recache)
+            self._ycid = ax.yaxis.callbacks.connect('units', self.recache_always)
     set_axes.__doc__ = Artist.set_axes.__doc__
 
     def set_data(self, *args):
@@ -407,8 +407,11 @@ class Line2D(Artist):
         self.set_xdata(x)
         self.set_ydata(y)
 
-    def recache(self):
-        if self._invalidx:
+    def recache_always(self):
+        self.recache(always=True)
+
+    def recache(self, always=False):
+        if always or self._invalidx:
             xconv = self.convert_xunits(self._xorig)
             if ma.isMaskedArray(self._xorig):
                 x = ma.asarray(xconv, float)
@@ -417,7 +420,7 @@ class Line2D(Artist):
             x = x.ravel()
         else:
             x = self._x
-        if self._invalidy:
+        if always or self._invalidy:
             yconv = self.convert_yunits(self._yorig)
             if ma.isMaskedArray(self._yorig):
                 y = ma.asarray(yconv, float)
