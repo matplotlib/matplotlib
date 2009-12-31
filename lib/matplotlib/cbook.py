@@ -1676,6 +1676,15 @@ def align_iterators(func, *iterables):
         else:
             break
 
+def is_math_text(s):
+    # Did we find an even number of non-escaped dollar signs?
+    # If so, treat is as math text.
+    s = unicode(s)
+
+    dollar_count = s.count(r'$') - s.count(r'\$')
+    even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
+
+    return even_dollars
 
 
 if __name__=='__main__':

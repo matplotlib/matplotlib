@@ -12,7 +12,7 @@ from matplotlib import verbose
 import artist
 from artist import Artist
 from cbook import iterable, is_string_like, is_numlike, ls_mapper, dedent,\
-flatten
+flatten, is_math_text
 from colors import colorConverter
 from path import Path
 from transforms import Affine2D, Bbox, TransformedPath, IdentityTransform
@@ -20,6 +20,7 @@ from transforms import Affine2D, Bbox, TransformedPath, IdentityTransform
 from matplotlib import rcParams
 from artist import allow_rasterization
 from matplotlib import docstring
+from matplotlib.font_manager import FontProperties
 
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
@@ -139,7 +140,7 @@ class Line2D(Artist):
     }
 
     filled_markers = ('o', '^', 'v', '<', '>',
-                        's', 'd', 'D', 'h', 'H', 'p', '*')
+                      's', 'd', 'D', 'h', 'H', 'p', '*')
 
     zorder = 2
     validCap = ('butt', 'round', 'projecting')
@@ -535,7 +536,7 @@ class Line2D(Artist):
             gc.set_foreground(self.get_markeredgecolor())
             gc.set_linewidth(self._markeredgewidth)
             gc.set_alpha(self._alpha)
-            funcname = self._markers.get(self._marker, '_draw_nothing')
+            funcname = self._markerFunc
             if funcname != '_draw_nothing':
                 tpath, affine = self._transformed_path.get_transformed_points_and_affine()
                 if len(tpath.vertices):
@@ -573,7 +574,8 @@ class Line2D(Artist):
     def get_markeredgecolor(self):
         if (is_string_like(self._markeredgecolor) and
             self._markeredgecolor == 'auto'):
-            if self._marker in self.filled_markers:
+            if (self._marker in self.filled_markers or
+                is_math_text(self._marker)):
                 return 'k'
             else:
                 return self._color
@@ -774,6 +776,7 @@ class Line2D(Artist):
         'None'     nothing
         ' '        nothing
         ''         nothing
+        '$...$'    render the string using mathtext
         ========== ==========================
 
 
@@ -782,16 +785,18 @@ class Line2D(Artist):
                  | '<' | '>' | 'D' | 'H' | '^' | '_' | 'd'
                  | 'h' | 'o' | 'p' | 's' | 'v' | 'x' | '|'
                  | TICKUP | TICKDOWN | TICKLEFT | TICKRIGHT
-                 | 'None' | ' ' | '' ]
+                 | 'None' | ' ' | '' | '$...$']
 
         """
-        if marker not in self._markers:
+        if marker in self._markers:
+            self._marker = marker
+            self._markerFunc = self._markers[marker]
+        elif is_math_text(marker):
+            self._marker = marker
+            self._markerFunc = '_draw_mathtext_path'
+        else: #already handle ' ', '' in marker list
             verbose.report('Unrecognized marker style %s, %s' %
                                             (marker, type(marker)))
-        if marker in [' ','']:
-            marker = 'None'
-        self._marker = marker
-        self._markerFunc = self._markers[marker]
 
     def set_markeredgecolor(self, ec):
         """
@@ -866,6 +871,38 @@ class Line2D(Artist):
 
     def _draw_lines(self, renderer, gc, path, trans):
         self._lineFunc(renderer, gc, path, trans)
+
+    def _draw_mathtext_path(self, renderer, gc, path, trans):
+        """
+        Draws mathtext markers '$...$' using TextPath object.
+
+        Submitted by tcb
+        """
+        from matplotlib.patches import PathPatch
+        from matplotlib.text import TextPath
+
+        gc.set_snap(False)
+
+        # again, the properties could be initialised just once outside
+        # this function
+        # Font size is irrelevant here, it will be rescaled based on
+        # the drawn size later
+        props = FontProperties(size=1.0)
+        text = TextPath(xy=(0,0), s=self.get_marker(), fontproperties=props,
+                        usetex=rcParams['text.usetex'])
+        if len(text.vertices) == 0:
+            return
+        xmin, ymin = text.vertices.min(axis=0)
+        xmax, ymax = text.vertices.max(axis=0)
+        width = xmax - xmin
+        height = ymax - ymin
+        max_dim = max(width, height)
+        path_trans = Affine2D() \
+            .translate(0.5 * -width, 0.5 * -height) \
+            .scale((renderer.points_to_pixels(self.get_markersize()) / max_dim))
+
+        rgbFace = self._get_rgb_face()
+        renderer.draw_markers(gc, text, path_trans, path, trans, rgbFace)
 
     def _draw_steps_pre(self, renderer, gc, path, trans):
         vertices = self._xy
@@ -1288,6 +1325,7 @@ class Line2D(Artist):
 
         self._linestyle = other._linestyle
         self._marker = other._marker
+        self._markerFunc = other._markerFunc
         self._drawstyle = other._drawstyle
 
 

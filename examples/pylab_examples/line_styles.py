@@ -17,19 +17,28 @@ for m in Line2D.markers:
     except TypeError:
         pass
 
-styles = linestyles + markers
+styles = markers + [
+    r'$\lambda$',
+    r'$\bowtie$',
+    r'$\circlearrowleft$',
+    r'$\clubsuit$',
+    r'$\checkmark$']
 
 colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k')
 
+plt.figure(figsize=(8,8))
 
 axisNum = 0
-for row in range(5):
+for row in range(6):
     for col in range(5):
         axisNum += 1
-        ax = plt.subplot(5, 5, axisNum)
-        style = styles[axisNum % len(styles) ]
-        color = colors[axisNum % len(colors) ]
-        plt.plot(t,s, style + color, markersize=10)
+        ax = plt.subplot(6, 5, axisNum)
+        color = colors[axisNum % len(colors)]
+        if axisNum < len(linestyles):
+            plt.plot(t, s, linestyles[axisNum], color=color, markersize=10)
+        else:
+            style = styles[(axisNum - len(linestyles)) % len(styles)]
+            plt.plot(t, s, linestyle='None', marker=style, color=color, markersize=10)
         ax.set_yticklabels([])
         ax.set_xticklabels([])
 

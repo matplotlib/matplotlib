@@ -1,3 +1,6 @@
+2009-12-31 Add support for using math text as marker symbols (Thanks to tcb)
+           - MGD
+
 2009-12-31 Commit a workaround for a regression in PyQt4-4.6.{0,1} - DSD
 
 2009-12-22 Fix cmap data for gist_earth_r, etc. -JJL
@@ -20,7 +23,7 @@
            Added new examples. - JJL
 
 2009-12-01 Applied Laurent Dufrechou's patch to improve blitting with
-           the qt4 backend - DSD 
+           the qt4 backend - DSD
 
 2009-11-13 The pdf backend now allows changing the contents of
            a pdf file's information dictionary via PdfPages.infodict. - JKS
@@ -153,35 +156,35 @@
 
 2009-08-06 Tagging the 0.99.0 release at svn r7397 - JDH
 
-	   * fixed an alpha colormapping bug posted on sf 2832575
+           * fixed an alpha colormapping bug posted on sf 2832575
 
-	   * fix typo in axes_divider.py. use nanmin, nanmax in angle_helper.py
+           * fix typo in axes_divider.py. use nanmin, nanmax in angle_helper.py
              (patch by Christoph Gohlke)
 
-	   * remove dup gui event in enter/leave events in gtk
+           * remove dup gui event in enter/leave events in gtk
 
-	   * lots of fixes for os x binaries (Thanks Russell Owen)
+           * lots of fixes for os x binaries (Thanks Russell Owen)
 
-	   * attach gtk events to mpl events -- fixes sf bug 2816580
+           * attach gtk events to mpl events -- fixes sf bug 2816580
 
-	   * applied sf patch 2815064 (middle button events for wx) and
+           * applied sf patch 2815064 (middle button events for wx) and
              patch  2818092 (resize events for wx)
 
-	   * fixed boilerplate.py so it doesn't break the ReST docs.
+           * fixed boilerplate.py so it doesn't break the ReST docs.
 
-	   * removed a couple of cases of mlab.load
+           * removed a couple of cases of mlab.load
 
-	   * fixed rec2csv win32 file handle bug from sf patch 2831018
+           * fixed rec2csv win32 file handle bug from sf patch 2831018
 
-	   * added two examples from Josh Hemann: examples/pylab_examples/barchart_demo2.py
+           * added two examples from Josh Hemann: examples/pylab_examples/barchart_demo2.py
              and examples/pylab_examples/boxplot_demo2.py
 
-	   * handled sf bugs 2831556 and 2830525; better bar error messages and
+           * handled sf bugs 2831556 and 2830525; better bar error messages and
              backend driver configs
 
-	   * added miktex win32 patch from sf patch 2820194
+           * added miktex win32 patch from sf patch 2820194
 
-	   * apply sf patches 2830233 and 2823885 for osx setup and 64 bit;  thanks Michiel
+           * apply sf patches 2830233 and 2823885 for osx setup and 64 bit;  thanks Michiel
 
 2009-08-04 Made cbook.get_sample_data make use of the ETag and Last-Modified
            headers of mod_dav_svn. - JKS

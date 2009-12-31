@@ -922,9 +922,13 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args)
         vertices = (PyArrayObject*)PyArray_FromObject
                    (vertices_obj.ptr(), PyArray_DOUBLE, 1, 2);
         if (!vertices ||
-            (PyArray_NDIM(vertices) == 2 && PyArray_DIM(vertices, 1) != 2) ||
-            (PyArray_NDIM(vertices) == 1 && PyArray_DIM(vertices, 0) != 2))
+            (PyArray_NDIM(vertices) == 2 && PyArray_DIM(vertices, 0) != 0 &&
+             PyArray_DIM(vertices, 1) != 2) ||
+            (PyArray_NDIM(vertices) == 1 &&
+             PyArray_DIM(vertices, 0) != 2 && PyArray_DIM(vertices, 0) != 0))
+        {
             throw Py::ValueError("Invalid vertices array.");
+        }
 
         transform = (PyArrayObject*) PyArray_FromObject
                     (transform_obj.ptr(), PyArray_DOUBLE, 2, 2);
@@ -979,7 +983,7 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args)
                 vertex_in += stride0;
             }
         }
-        else
+        else if (PyArray_DIM(vertices, 0) != 0)
         {
             char* vertex_in = PyArray_BYTES(vertices);
             double* vertex_out = (double*)PyArray_DATA(result);
