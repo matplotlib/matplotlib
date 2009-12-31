@@ -1,3 +1,5 @@
+2009-12-31 Commit a workaround for a regression in PyQt4-4.6.{0,1} - DSD
+
 2009-12-22 Fix cmap data for gist_earth_r, etc. -JJL
 
 2009-12-20 spines: put spines in data coordinates, add set_bounds()

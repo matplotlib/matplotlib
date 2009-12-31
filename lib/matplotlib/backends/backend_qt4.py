@@ -206,6 +206,22 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             self._idle = True
         if d: QtCore.QTimer.singleShot(0, idle_draw)
 
+
+# XXX Hackish fix: There's a bug in PyQt.  See this thread for details:
+# http://old.nabble.com/Qt4-backend:-critical-bug-with-PyQt4-v4.6%2B-td26205716.html
+# Once a release of Qt/PyQt is available without the bug, the version check
+# below can be tightened further to only be applied in the necessary versions.
+if Qt.PYQT_VERSION_STR.startswith('4.6'):
+    class FigureWindow(QtGui.QMainWindow):
+       def __init__(self):
+           super(FigureWindow, self).__init__()
+       def closeEvent(self, event):
+           super(FigureWindow, self).closeEvent(event)
+           self.emit(Qt.SIGNAL('destroyed()'))
+else:
+    FigureWindow = QtGui.QMainWindow
+# /end pyqt hackish bugfix
+
 class FigureManagerQT( FigureManagerBase ):
     """
     Public attributes
@@ -220,7 +236,7 @@ class FigureManagerQT( FigureManagerBase ):
         if DEBUG: print 'FigureManagerQT.%s' % fn_name()
         FigureManagerBase.__init__( self, canvas, num )
         self.canvas = canvas
-        self.window = QtGui.QMainWindow()
+        self.window = FigureWindow()
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.window.setWindowTitle("Figure %d" % num)
