@@ -945,7 +945,7 @@ def yscale(*args, **kwargs):
     """
     call signature::
 
-      xscale(scale, **kwargs)
+      yscale(scale, **kwargs)
 
     Set the scaling for the y-axis: %(scale)s
 
