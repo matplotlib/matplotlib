@@ -1,5 +1,4 @@
-"""This script will install matplotlib to a virtual environment to
-faciltate testing."""
+"""This script will test matplotlib in a virtual environment"""
 import os, glob
 
 from _buildbot_util import check_call
