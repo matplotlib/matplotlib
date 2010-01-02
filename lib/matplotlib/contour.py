@@ -987,9 +987,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         signatures and return values are the same for both versions.
 
         :func:`~matplotlib.pyplot.contourf` differs from the Matlab
-        (TM) version in that it does not draw the polygon edges,
-        because the contouring engine yields simply connected regions
-        with branch cuts.  To draw the edges, add line contours with
+        (TM) version in that it does not draw the polygon edges.
+        To draw edges, add line contours with
         calls to :func:`~matplotlib.pyplot.contour`.
 
 
@@ -1142,9 +1141,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             be removed. Chunking introduces artifacts at the chunk boundaries
             unless *antialiased* is *False*.
 
-        **Example:**
+        **Examples:**
 
         .. plot:: mpl_examples/pylab_examples/contour_demo.py
+
+        .. plot:: mpl_examples/pylab_examples/contourf_demo.py
         """
 
     def find_nearest_contour( self, x, y, indices=None, pixel=True ):
